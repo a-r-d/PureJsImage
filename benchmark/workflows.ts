@@ -122,6 +122,14 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'png', width: 32, height: 32 },
   },
   {
+    id: 'png-crop-roundtrip',
+    title: 'Transparent 1200x480 PNG crop to 1000x400 PNG',
+    tier: 'standard',
+    input: 'transparent-logo-1200x480',
+    operations: [{ type: 'crop', x: 100, y: 40, width: 1000, height: 400 }, png(6)],
+    expected: { format: 'png', width: 1000, height: 400, cornerAlpha: 0 },
+  },
+  {
     id: 'png-gray16-to-jpeg',
     title: '16-bit grayscale PNG to JPEG',
     tier: 'standard',

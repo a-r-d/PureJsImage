@@ -192,8 +192,8 @@ export const planMetadata = (
 
     metadata =
       operation.format === 'jpeg'
-        ? { ...metadata, format: 'jpeg', mimeType: 'image/jpeg', hasAlpha: false }
-        : { ...metadata, format: 'png', mimeType: 'image/png' }
+        ? { ...metadata, format: 'jpeg', mimeType: 'image/jpeg', hasAlpha: false, bitDepth: 8 }
+        : { ...metadata, format: 'png', mimeType: 'image/png', bitDepth: 8 }
   }
 
   return metadata

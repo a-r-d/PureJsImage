@@ -3,6 +3,7 @@ export type {
   BuiltInFormat,
   DecodeRequest,
   DecoderCapabilities,
+  EncodeRequest,
   ImageCodec,
   ImageDecoder,
   ImageEncoder,

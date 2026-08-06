@@ -1,6 +1,6 @@
 import type { CodecRegistry, ImageCodec, ImageMetadata } from './codec.ts'
 import { createDefaultCodecRegistry } from './codecs/index.ts'
-import { unsupportedOperation } from './errors.ts'
+import { executePipeline } from './executor.ts'
 import type { ImageLimitOptions, ImageLimits } from './limits.ts'
 import { resolveLimits } from './limits.ts'
 import type {
@@ -19,6 +19,7 @@ import {
 } from './pipeline.ts'
 import type { ImageInput, ImageSource } from './source.ts'
 import { createImageSource } from './source.ts'
+import { BufferSink, FileSink } from './sink.ts'
 
 export interface ImageOpenOptions {
   limits?: ImageLimitOptions
@@ -28,6 +29,7 @@ export interface ImageOpenOptions {
 interface ImageContext {
   readonly source: ImageSource
   readonly codec: ImageCodec
+  readonly registry: CodecRegistry
   readonly limits: Readonly<ImageLimits>
   metadataPromise: Promise<ImageMetadata> | undefined
 }
@@ -48,7 +50,7 @@ export class Image {
     const source = await createImageSource(input, limits)
     const registry = options.registry ?? builtInRegistry
     const codec = await registry.detect(source)
-    return new Image({ source, codec, limits, metadataPromise: undefined })
+    return new Image({ source, codec, registry, limits, metadataPromise: undefined })
   }
 
   async metadata(): Promise<ImageMetadata> {
@@ -107,11 +109,13 @@ export class Image {
   }
 
   async toBuffer(): Promise<Buffer> {
-    throw unsupportedOperation('Pixel execution begins in Phase 2 with PNG decoding and encoding')
+    const sink = new BufferSink()
+    await executePipeline(this.#context, this.#operations, sink)
+    return sink.toBuffer()
   }
 
-  async toFile(_path: string): Promise<void> {
-    throw unsupportedOperation('Pixel execution begins in Phase 2 with PNG decoding and encoding')
+  async toFile(path: string): Promise<void> {
+    await executePipeline(this.#context, this.#operations, new FileSink(path))
   }
 
   #append(operation: PipelineOperation): Image {

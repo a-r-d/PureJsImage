@@ -43,6 +43,14 @@ export interface ImageDecoder {
 export interface ImageEncoder {
   write(block: PixelBlock): Promise<void>
   finish(): Promise<void>
+  abort?(reason: unknown): Promise<void>
+}
+
+export interface EncodeRequest {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: PixelFormat
+  readonly options: unknown
 }
 
 export interface ImageCodec {
@@ -52,7 +60,7 @@ export interface ImageCodec {
   detect(header: Uint8Array): boolean
   metadata(source: ImageSource, limits: ImageLimits): Promise<ImageMetadata>
   createDecoder?(source: ImageSource, limits: ImageLimits): Promise<ImageDecoder>
-  createEncoder?(sink: ImageSink, options: Readonly<Record<string, unknown>>): Promise<ImageEncoder>
+  createEncoder?(sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder>
 }
 
 export class CodecRegistry {

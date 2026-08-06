@@ -72,9 +72,11 @@ describe('immutable image pipelines', () => {
     })
   })
 
-  it('fails explicitly when pixel execution is requested before Phase 2', async () => {
+  it('fails explicitly when an unimplemented pixel operation is requested', async () => {
     const image = await Image.open(pngFixture(10, 10))
 
-    await expect(image.png().toBuffer()).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+    await expect(image.resize({ width: 5 }).png().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+    })
   })
 })

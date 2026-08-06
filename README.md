@@ -10,7 +10,7 @@ editing feature in Jimp.
 
 ## Implementation status
 
-Phase 1 of the production library is implemented in strict TypeScript 7:
+Phase 1 and the Phase 2 PNG vertical slice are implemented in strict TypeScript 7:
 
 - bounded Buffer, Uint8Array, ArrayBuffer, Blob, and file sources;
 - automatic PNG, JPEG, and GIF detection and metadata parsing;
@@ -18,6 +18,10 @@ Phase 1 of the production library is implemented in strict TypeScript 7:
 - configurable hostile-input limits;
 - immutable crop, resize, orientation, and encode pipeline descriptions;
 - pixel-block, buffer-pool, codec-registry, and sink abstractions; and
+- sequential, bounded-block PNG decoding for grayscale, truecolor, indexed,
+  grayscale-alpha, and RGBA inputs;
+- streaming PNG encoding with alpha preservation and compression levels 0-9;
+- fused PNG crop execution to Buffer or file output; and
 - a dependency-free build with JavaScript and declaration output.
 
 ```ts
@@ -33,9 +37,10 @@ const planned = await image
   .metadata()
 ```
 
-Metadata inspection and pipeline geometry are operational. Pixel decoding and
-encoding intentionally remain explicit unsupported operations until the Phase 2
-PNG vertical slice is implemented.
+Metadata inspection and pipeline geometry are operational. Non-interlaced PNG
+decode, crop, and encode now execute end-to-end through PixelBlocks. Resize and
+JPEG/GIF pixel execution remain explicit unsupported operations until their
+development phases.
 
 ## Northstar
 
@@ -48,7 +53,8 @@ improve its median wall time. Lower peak RSS is the primary memory goal.
 
 The baseline uses `jimp@1.6.0`, matching the version in Tooldesk when the suite
 was created. It was recorded on August 6, 2026 using Node.js 24.16.0 on an Intel
-Core i7-10700. Jimp passed all 23 workflows.
+Core i7-10700. Jimp passed all 23 original workflows. Phase 2 adds a dedicated
+PNG crop workflow, bringing the current suite to 24.
 
 Phase 1 already passes the large-JPEG metadata workflow without decoding the
 pixel bitmap:
@@ -58,6 +64,18 @@ pixel bitmap:
 | Large JPEG metadata | 0.2 ms | 5,285 ms | 97 MiB | 1,184 MiB |
 
 See the [Phase 1 measurement](benchmark/results/purejsimage-phase1-metadata-2026-08-06.md).
+
+The first Phase 2 comparisons validate output for both engines. PureJsImage is
+2.4x faster than Jimp on the PNG crop round trip while using 29% less peak RSS;
+the tiny palette round trip is tied on median time with lower peak RSS.
+
+| Implemented workflow | PureJsImage median | Jimp median | PureJsImage peak RSS | Jimp peak RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Transparent PNG crop and re-encode | 20.8 ms | 49.5 ms | 97 MiB | 136 MiB |
+| Palette PNG round trip | 1.1 ms | 1.1 ms | 86 MiB | 93 MiB |
+
+See the [PNG crop measurement](benchmark/results/purejsimage-phase2-png-crop-2026-08-06.md)
+and [palette measurement](benchmark/results/purejsimage-phase2-png-2026-08-06.md).
 
 | Workflow | Jimp median wall time | Jimp peak RSS |
 | --- | ---: | ---: |
@@ -85,7 +103,7 @@ See the [Phase 1 measurement](benchmark/results/purejsimage-phase1-metadata-2026
 | 100-image thumbnail batch | 72.7 s | 604 MiB |
 | 100-megapixel PNG downscale | 3,710 ms | 1,272 MiB |
 
-The suite contains 23 workflows covering real photographs, JPEG and PNG
+The suite contains 24 workflows covering real photographs, JPEG and PNG
 conversion, transparency, EXIF orientation, palette and 16-bit PNGs, GIF first
 frames, odd and tiny dimensions, high-entropy images, Tooldesk's current image
 workflows, batching, and a 100-megapixel stress case.
