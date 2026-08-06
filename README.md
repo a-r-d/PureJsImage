@@ -20,7 +20,8 @@ The Phase 1 core and Phase 2-3 PNG processing path are implemented in strict Typ
 - pixel-block, buffer-pool, codec-registry, and sink abstractions;
 - sequential, bounded-block PNG decoding for grayscale, truecolor, indexed,
   grayscale-alpha, and RGBA inputs;
-- streaming PNG encoding with alpha preservation and compression levels 0-9;
+- streaming PNG encoding with alpha preservation, adaptive row filtering, and
+  compression levels 0-9;
 - fused PNG crop execution to Buffer or file output;
 - nearest, bilinear, and Lanczos3 resize kernels with cached coefficients;
 - separable horizontal resizing with bounded vertical source-row retention;
@@ -108,6 +109,23 @@ See the [large PNG resize](benchmark/results/purejsimage-phase3-png-resize-2026-
 and [100-megapixel stress](benchmark/results/purejsimage-phase3-stress-100mp-2026-08-06.md)
 measurements. The other Phase 3 reports are stored alongside them in
 `benchmark/results/`.
+
+Adaptive PNG filtering removed the initial output-size disadvantage without
+giving up the measured speed or memory wins. The encoder evaluates PNG filters
+0-4 per row while retaining only the previous unfiltered row.
+
+| Workflow | Filter-0 output | Adaptive output | Jimp output | Adaptive PureJsImage median | Jimp median |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 4000x3000 PNG to 1000 px | 2,068,955 B | 102,202 B | 775,919 B | 794.8 ms | 944.3 ms |
+| PNG crop and resize | 611,057 B | 20,408 B | 164,105 B | 395.9 ms | 652.3 ms |
+| Transparent PNG resize | 7,327 B | 6,756 B | 21,766 B | 49.7 ms | 84.6 ms |
+| 100-megapixel downscale | 1,453,972 B | 16,698 B | 298,227 B | 3,547.5 ms | 3,732.5 ms |
+
+See the adaptive-filter reports for the [large PNG](benchmark/results/purejsimage-adaptive-png-resize-2026-08-06.md),
+[crop-plus-resize](benchmark/results/purejsimage-adaptive-png-crop-resize-2026-08-06.md),
+[transparent PNG](benchmark/results/purejsimage-adaptive-png-alpha-resize-2026-08-06.md),
+and [100-megapixel stress](benchmark/results/purejsimage-adaptive-stress-100mp-2026-08-06.md)
+workflows.
 
 | Workflow | Jimp median wall time | Jimp peak RSS |
 | --- | ---: | ---: |

@@ -133,6 +133,23 @@ describe('PNG pixel pipeline', () => {
     expect(PNG.sync.read(await readFile(path)).data).toEqual(PNG.sync.read(input).data)
   })
 
+  it('uses adaptive row filters to reduce smooth-image output size', async () => {
+    const input = rgbaPng(256, 128)
+    const decoded = PNG.sync.read(input)
+    const filterZeroScanlines = new Uint8Array((decoded.width * 4 + 1) * decoded.height)
+    for (let row = 0; row < decoded.height; row += 1) {
+      filterZeroScanlines.set(
+        decoded.data.subarray(row * decoded.width * 4, (row + 1) * decoded.width * 4),
+        row * (decoded.width * 4 + 1) + 1,
+      )
+    }
+    const filterZero = specializedPng(decoded.width, decoded.height, 8, 6, filterZeroScanlines)
+    const adaptive = await (await Image.open(input)).png({ compressionLevel: 6 }).toBuffer()
+
+    expect(adaptive.byteLength).toBeLessThan(filterZero.byteLength / 2)
+    expect(PNG.sync.read(adaptive).data).toEqual(decoded.data)
+  })
+
   it('rejects corrupt PNG image data and cleans up failed output files', async () => {
     const corrupt = rgbaPng(4, 4).slice()
     const idat = corrupt.indexOf(Buffer.from('IDAT'))

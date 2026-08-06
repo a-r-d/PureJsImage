@@ -586,6 +586,64 @@ const writeChunk = async (sink: ImageSink, type: string, data: Uint8Array): Prom
   await sink.write(uint32Bytes(crc32(encodedType, data)))
 }
 
+const filteredMagnitude = (value: number): number => (value < 128 ? value : 256 - value)
+
+const filterScanline = (
+  source: Uint8Array,
+  previous: Uint8Array,
+  bytesPerPixel: number,
+  output: Uint8Array,
+  adaptive: boolean,
+): void => {
+  let filter = 0
+  if (adaptive) {
+    let none = 0
+    let sub = 0
+    let up = 0
+    let average = 0
+    let paethScore = 0
+    for (let index = 0; index < source.byteLength; index += 1) {
+      const value = source[index] ?? 0
+      const left = index >= bytesPerPixel ? (source[index - bytesPerPixel] ?? 0) : 0
+      const above = previous[index] ?? 0
+      const upperLeft = index >= bytesPerPixel ? (previous[index - bytesPerPixel] ?? 0) : 0
+      none += filteredMagnitude(value)
+      sub += filteredMagnitude((value - left) & 0xff)
+      up += filteredMagnitude((value - above) & 0xff)
+      average += filteredMagnitude((value - Math.floor((left + above) / 2)) & 0xff)
+      paethScore += filteredMagnitude((value - paeth(left, above, upperLeft)) & 0xff)
+    }
+    let score = none
+    if (sub < score) {
+      filter = 1
+      score = sub
+    }
+    if (up < score) {
+      filter = 2
+      score = up
+    }
+    if (average < score) {
+      filter = 3
+      score = average
+    }
+    if (paethScore < score) filter = 4
+  }
+
+  output[0] = filter
+  for (let index = 0; index < source.byteLength; index += 1) {
+    const value = source[index] ?? 0
+    const left = index >= bytesPerPixel ? (source[index - bytesPerPixel] ?? 0) : 0
+    const above = previous[index] ?? 0
+    const upperLeft = index >= bytesPerPixel ? (previous[index - bytesPerPixel] ?? 0) : 0
+    let predictor = 0
+    if (filter === 1) predictor = left
+    else if (filter === 2) predictor = above
+    else if (filter === 3) predictor = Math.floor((left + above) / 2)
+    else if (filter === 4) predictor = paeth(left, above, upperLeft)
+    output[index + 1] = (value - predictor) & 0xff
+  }
+}
+
 const waitForDrain = (deflater: Deflate): Promise<void> =>
   new Promise((resolve, reject) => {
     const cleanup = (): void => {
@@ -611,6 +669,8 @@ class PngEncoder implements ImageEncoder {
   readonly #height: number
   readonly #format: PixelFormat
   readonly #channels: number
+  readonly #adaptiveFiltering: boolean
+  readonly #previousRow: Uint8Array
   readonly #completion: Promise<void>
   #expectedY = 0
   #finished = false
@@ -621,6 +681,7 @@ class PngEncoder implements ImageEncoder {
     width: number,
     height: number,
     format: PixelFormat,
+    adaptiveFiltering: boolean,
   ) {
     this.#sink = sink
     this.#deflater = deflater
@@ -628,6 +689,8 @@ class PngEncoder implements ImageEncoder {
     this.#height = height
     this.#format = format
     this.#channels = bytesPerPixel(format)
+    this.#adaptiveFiltering = adaptiveFiltering
+    this.#previousRow = new Uint8Array(width * this.#channels)
     this.#completion = new Promise((resolve, reject) => {
       let writes = Promise.resolve()
       deflater.on('data', (chunk: unknown) => {
@@ -672,10 +735,15 @@ class PngEncoder implements ImageEncoder {
 
     const scanlines = new Uint8Array((rowBytes + 1) * block.height)
     for (let row = 0; row < block.height; row += 1) {
-      scanlines.set(
-        block.data.subarray(row * block.stride, row * block.stride + rowBytes),
-        row * (rowBytes + 1) + 1,
+      const source = block.data.subarray(row * block.stride, row * block.stride + rowBytes)
+      filterScanline(
+        source,
+        this.#previousRow,
+        this.#channels,
+        scanlines.subarray(row * (rowBytes + 1), (row + 1) * (rowBytes + 1)),
+        this.#adaptiveFiltering,
       )
+      this.#previousRow.set(source)
     }
     if (!this.#deflater.write(scanlines)) await waitForDrain(this.#deflater)
     this.#expectedY += block.height
@@ -734,6 +802,7 @@ const createPngEncoder = async (sink: ImageSink, request: EncodeRequest): Promis
     request.width,
     request.height,
     request.pixelFormat,
+    level !== 0,
   )
 }
 
