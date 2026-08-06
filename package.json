@@ -1,0 +1,38 @@
+{
+  "name": "purejsimage",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "fixtures:prepare": "node benchmark/scripts/prepare-corpus.ts",
+    "fixtures:verify": "node benchmark/scripts/verify-corpus.ts",
+    "results:combine": "node benchmark/scripts/combine-results.ts",
+    "bench": "node benchmark/run.ts",
+    "bench:jimp": "node benchmark/run.ts --engines jimp",
+    "bench:smoke": "node benchmark/run.ts --engines jimp --profile smoke --runs 1 --warmups 0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.7",
+    "@types/node": "26.1.2",
+    "@types/omggif": "1.0.5",
+    "@types/pngjs": "6.0.5",
+    "exif-parser": "0.1.12",
+    "image-dimensions": "2.5.1",
+    "jimp": "1.6.0",
+    "jpeg-js": "0.4.4",
+    "omggif": "1.0.10",
+    "pngjs": "7.0.0",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  }
+}

@@ -1,0 +1,2523 @@
+# PureJsImage
+
+## Project Architecture, Scope, and Performance Plan
+
+**Working description**
+
+> PureJsImage is a small, fast, low-memory image processing library written in pure JavaScript. It is intended as a modern alternative to Jimp for the most common server and browser image-processing workloads, with an architecture designed around lazy execution, bounded memory use, minimal copying, and modular image codecs.
+
+The primary use case is not advanced image editing. It is the boring 90% of image processing that applications actually need:
+
+* Decode an image
+* Determine its format and metadata
+* Convert it to another format
+* Resize it
+* Crop it
+* Control output quality and file size
+* Write the result to a file, buffer, or stream
+
+PureJsImage should do these operations substantially faster and with substantially less memory pressure than Jimp while retaining the core reason people choose Jimp in the first place: it is JavaScript, portable, easy to install, and does not require a native image-processing stack. PureJsImage sets a stricter packaging goal: the published package must have zero runtime npm dependencies.
+
+All source, scripts, benchmarks, and tests must be written in the latest stable
+TypeScript with strict mode enabled. `any` is not permitted. Prefer narrow,
+clearly defined types and discriminated unions, and narrow external `unknown`
+data through runtime validation.
+
+---
+
+# 1. Motivation
+
+Jimp has an attractive deployment model, but its architecture is poorly suited to modern image-processing workloads.
+
+Jimp's normal representation of an image is effectively a complete decoded bitmap:
+
+```text
+encoded image
+    ↓
+decode entire image
+    ↓
+full RGBA bitmap in memory
+    ↓
+operation
+    ↓
+operation
+    ↓
+operation
+    ↓
+encode entire image
+```
+
+Its public bitmap interface exposes width, height, and a complete pixel buffer. Jimp's own documentation warns that its JavaScript image format implementations are not optimized for performance and may allocate large amounts of memory.
+
+For a 6000 × 4000 RGBA image:
+
+```text
+6000 × 4000 × 4 = 96,000,000 bytes
+```
+
+The decoded pixel buffer alone is roughly 96 MB.
+
+Intermediate buffers, resize passes, format conversions, source buffers, encoder buffers, garbage waiting for collection, and temporary allocations can make actual process memory considerably higher.
+
+PureJsImage should not make "image" synonymous with "one giant mutable RGBA buffer."
+
+Instead:
+
+```text
+input
+ ↓
+decoder
+ ↓
+bounded blocks / rows
+ ↓
+fused transforms
+ ↓
+encoder
+ ↓
+output
+```
+
+The goal is both lower memory usage and less unnecessary CPU work.
+
+---
+
+# 2. Project Goals
+
+PureJsImage has four top-level goals, in priority order.
+
+## 2.1 Small
+
+The library should remain aggressively small.
+
+The core package should contain:
+
+* Pipeline representation
+* Buffer management
+* Resize implementation
+* Crop implementation
+* Pixel-format utilities
+* Codec registry
+* Input/output abstraction
+
+Codecs should be independently importable through package subpath exports or
+other tree-shakeable entrypoints without creating a production dependency tree.
+
+Users converting JPEG to JPEG should not need GIF, TIFF, AVIF, WebP, fonts, drawing primitives, convolution filters, or animation code.
+
+A desired package structure is:
+
+```text
+purejsimage
+purejsimage/jpeg
+purejsimage/png
+purejsimage/gif
+purejsimage/webp
+purejsimage/avif
+```
+
+The supported codecs and processing implementation must ship inside the
+PureJsImage package. Installing PureJsImage must not install third-party runtime
+packages, native addons, external binaries, or sibling codec packages.
+
+Benchmark runners, fixture generators, test decoders, and comparison libraries
+belong in `devDependencies` only. The production package must declare no
+`dependencies` or `optionalDependencies`. This zero-dependency constraint is a
+release gate and should be verified against the packed npm artifact.
+
+---
+
+## 2.2 Fast
+
+PureJsImage should be substantially faster than Jimp on common real-world pipelines.
+
+The target is not:
+
+> Beat Sharp at everything.
+
+Sharp is backed by libvips and highly optimized native image-processing code.
+
+The target is:
+
+> Be the fastest practical pure-JavaScript alternative to Jimp.
+
+Performance work should focus on complete workloads rather than synthetic single-pixel operations.
+
+Important benchmark:
+
+```text
+JPEG
+ ↓
+orientation correction
+ ↓
+crop
+ ↓
+resize
+ ↓
+JPEG quality 80
+```
+
+This matters more than whether `invert()` executes 10% faster.
+
+---
+
+## 2.3 Low memory pressure
+
+PureJsImage should avoid materializing complete intermediate images whenever the operation and codec permit it.
+
+The preferred execution unit should be a bounded block of pixels:
+
+```text
+scanline
+```
+
+or:
+
+```text
+small row block
+```
+
+and, where useful:
+
+```text
+tile
+```
+
+A full bitmap may still be necessary for certain codecs or operations, but it must be a fallback execution strategy rather than the fundamental image representation.
+
+---
+
+## 2.4 Broad modern format compatibility
+
+The architecture should not hard-code knowledge of five image formats into the processing engine.
+
+Formats should be codecs implementing a common interface.
+
+The engine should therefore be able to gain:
+
+* JPEG
+* PNG
+* BMP
+* GIF
+* TIFF
+* WebP
+* AVIF
+* JPEG XL
+* future formats
+
+without architectural changes.
+
+This does not mean PureJsImage must implement every codec from scratch.
+
+---
+
+# 3. What "Pure JS" Means
+
+This needs an explicit definition because otherwise the project will eventually become confused about its identity.
+
+The **PureJsImage core** should:
+
+* contain no native Node addons
+* require no system libraries
+* spawn no external binaries
+* compile without node-gyp
+* work using normal JavaScript/TypeScript APIs
+* work across Node, Bun, Deno, and browsers wherever the required runtime primitives exist
+
+Official pure-JS codecs should follow the same constraints.
+
+However, codec architecture should allow additional optional providers.
+
+For example:
+
+```text
+@purejsimage/avif
+```
+
+could expose multiple implementations:
+
+```text
+pure JS implementation, if one becomes practical
+WebCodecs/runtime implementation
+optional WASM implementation
+```
+
+The important distinction is that **PureJsImage must never require WASM or native code to function.**
+
+An optional WASM codec does not change the architecture or contaminate the pure-JS processing engine.
+
+This is particularly important for AVIF.
+
+Current practical AVIF JavaScript packages such as `@jsquash/avif` use WebAssembly and libavif rather than implementing AV1 encoding entirely in JavaScript.
+
+Likewise, widely used portable WebP encoders generally use libwebp through WASM.
+
+Writing a competitive AV1 encoder in JavaScript is not part of PureJsImage's mission.
+
+The architecture should support AVIF without making implementation of an AV1 codec a prerequisite for shipping the library.
+
+---
+
+# 4. V1 Scope
+
+V1 should deliberately be much narrower than Jimp.
+
+## Required
+
+### Image input
+
+Support:
+
+```ts
+await Image.open(buffer)
+await Image.open(uint8Array)
+await Image.open(arrayBuffer)
+await Image.open(path)
+```
+
+Browser-compatible source abstractions should permit:
+
+```ts
+Blob
+ReadableStream
+```
+
+where practical.
+
+### Image metadata
+
+Metadata must be available without requiring callers to access or materialize a
+mutable bitmap:
+
+```ts
+const metadata = await image.metadata()
+```
+
+At minimum, it returns:
+
+```ts
+{
+  width,
+  height,
+  format,
+  mimeType,
+  hasAlpha,
+  orientation
+}
+```
+
+Where available:
+
+```ts
+{
+  colorSpace,
+  bitDepth,
+  frames
+}
+```
+
+### Format conversion
+
+Examples:
+
+```ts
+JPEG → PNG
+PNG → JPEG
+JPEG → WebP
+WebP → PNG
+AVIF → JPEG
+```
+
+Actual available combinations depend on installed codecs.
+
+### Resize
+
+Required APIs:
+
+```ts
+.resize({
+  width: 1200
+})
+```
+
+```ts
+.resize({
+  height: 800
+})
+```
+
+```ts
+.resize({
+  width: 1200,
+  height: 800,
+  fit: "contain"
+})
+```
+
+```ts
+.resize({
+  width: 1200,
+  height: 800,
+  fit: "cover"
+})
+```
+
+Supported fit modes:
+
+```text
+contain
+cover
+fill
+inside
+outside
+```
+
+Their output geometry must be explicit:
+
+* `contain` scales proportionally and places the result inside an output canvas
+  of exactly the requested width and height.
+* `cover` scales proportionally and crops to exactly the requested width and
+  height.
+* `fill` resizes to exactly the requested width and height without preserving
+  aspect ratio.
+* `inside` preserves aspect ratio and returns dimensions no larger than the
+  requested bounds, without adding a canvas.
+* `outside` preserves aspect ratio and returns dimensions large enough to cover
+  the requested bounds, without cropping.
+
+`contain` must support placement and canvas background options:
+
+```ts
+.resize({
+  width: 256,
+  height: 256,
+  fit: "contain",
+  position: "center",
+  background: "transparent"
+})
+```
+
+This is a single-source resize-and-pad operation, not general multi-image
+compositing. It should remain compatible with a linear, streaming pipeline.
+
+Width-only and height-only resize must preserve aspect ratio. A
+`withoutEnlargement` option should allow callers to express a maximum dimension
+without a separate conditional resize:
+
+```ts
+.resize({
+  width: 1024,
+  withoutEnlargement: true
+})
+```
+
+### Crop
+
+```ts
+.crop({
+  x: 100,
+  y: 200,
+  width: 800,
+  height: 600
+})
+```
+
+Crop should be a first-class pipeline operation because it enables major performance optimizations.
+
+### Quality / compression
+
+Example:
+
+```ts
+.jpeg({
+  quality: 80
+})
+```
+
+or generically:
+
+```ts
+.encode("jpeg", {
+  quality: 80
+})
+```
+
+Formats should expose codec-specific compression controls without leaking them into the core architecture.
+
+For PNG, this may mean:
+
+```ts
+{
+  compressionLevel: 6
+}
+```
+
+rather than pretending PNG has JPEG-style quality.
+
+### Orientation
+
+Real-world camera images make EXIF orientation support important.
+
+V1 should support:
+
+```ts
+.autoOrient()
+```
+
+### Output
+
+Required:
+
+```ts
+.toBuffer()
+.toFile(path)
+```
+
+Strongly desirable:
+
+```ts
+.stream()
+```
+
+### Alpha conversion
+
+Encoding an alpha-bearing input to a format without alpha, especially JPEG,
+must have deterministic background-flattening behavior. Callers must be able to
+choose the background explicitly:
+
+```ts
+.encode("jpeg", {
+  quality: 80,
+  background: "#ffffff"
+})
+```
+
+The default background must be documented and stable. It must not depend on
+uninitialized RGB values under fully transparent pixels.
+
+### Tooldesk migration workloads
+
+V1 must cover every active Jimp workload currently used by Tooldesk without
+requiring the mutable Jimp bitmap API or general compositing.
+
+The audited call sites are:
+
+* `apps/v3-tooldesk-backend/src/routes-express/upload-files.ts`: two
+  Buffer-to-JPEG upload paths with 1024px and 2048px width cutoffs.
+* `apps/v3-tooldesk-backend/src/services/mediaTransferService.ts`:
+  JPEG/PNG/GIF logo normalization to a centered 256 x 256 PNG.
+
+Uploaded chat and microsite images require Buffer input, metadata inspection,
+optional aspect-preserving downscale, JPEG conversion, quality control, and
+Buffer output:
+
+```ts
+const image = await Image.open(buffer)
+const { width } = await image.metadata()
+
+const output = await (width > maxWidth
+  ? image.resize({ width: maxWidth })
+  : image)
+  .encode("jpeg", {
+    quality: 80,
+    background: "#ffffff"
+  })
+  .toBuffer()
+```
+
+The accepted input set for this workload is JPEG, PNG, and GIF. GIF input uses
+the first composited frame; animated output is not required.
+
+Company-logo normalization requires aspect-preserving fit into an exact
+256 x 256 transparent canvas, centered placement, PNG conversion, and Buffer
+output:
+
+```ts
+const output = await Image.open(buffer)
+  .resize({
+    width: 256,
+    height: 256,
+    fit: "contain",
+    position: "center",
+    background: "transparent"
+  })
+  .encode("png", { compressionLevel: 6 })
+  .toBuffer()
+```
+
+This replaces Tooldesk's current `scaleToFit()`, blank-image constructor,
+bitmap width/height reads, `blit()`, and `getBuffer()` sequence with one bounded
+pipeline. PNG compression is intentionally expressed as `compressionLevel`;
+the meaningless Jimp-style PNG `quality` option is not a compatibility
+requirement.
+
+---
+
+# 5. Explicit V1 Non-Goals
+
+Do not reproduce the entire Jimp API.
+
+The following should **not** block V1:
+
+* Fonts
+* Text rendering
+* Bitmap fonts
+* Arbitrary drawing
+* Circles
+* Lines
+* Complex compositing
+* Masks
+* Shadows
+* Advanced filters
+* Posterization
+* Dithering
+* Fisheye
+* Displacement
+* Advanced convolutions
+* Animated image editing
+* Content-aware resizing
+* Image diffing
+* Perceptual hashes
+
+These can be built later on top of a good pixel-processing engine.
+
+The project succeeds if V1 does:
+
+```text
+read
+convert
+resize
+crop
+compress
+write
+```
+
+extremely well.
+
+---
+
+# 6. Proposed Public API
+
+The API should look familiar to Jimp/Sharp users without inheriting Jimp's mutable bitmap semantics.
+
+Example:
+
+```ts
+import { Image } from "purejsimage";
+
+const image = await Image.open("input.jpg");
+
+await image
+  .autoOrient()
+  .crop({
+    x: 100,
+    y: 100,
+    width: 2000,
+    height: 1500
+  })
+  .resize({
+    width: 800
+  })
+  .encode("jpeg", {
+    quality: 80
+  })
+  .toFile("output.jpg");
+```
+
+Operations should be immutable descriptions of future work.
+
+Calling:
+
+```ts
+image.resize(...)
+```
+
+should not resize anything yet.
+
+Instead it should create something conceptually similar to:
+
+```text
+Source
+ ↓
+AutoOrient
+ ↓
+Crop
+ ↓
+Resize
+ ↓
+JPEG Encode
+```
+
+Execution begins only when a sink is requested:
+
+```ts
+.toBuffer()
+.toFile()
+.stream()
+```
+
+This enables optimization before processing begins.
+
+---
+
+# 7. Do Not Expose a Mutable Bitmap as the Primary API
+
+PureJsImage should not provide this as its core abstraction:
+
+```ts
+image.bitmap.data
+```
+
+Full materialization should be explicit:
+
+```ts
+const bitmap = await image.materialize({
+  format: "rgba8"
+});
+```
+
+This communicates to both the developer and the implementation that a potentially expensive operation has been requested.
+
+Pixel access can still exist:
+
+```ts
+await image.getPixel(x, y)
+```
+
+and:
+
+```ts
+await image.region({
+  x,
+  y,
+  width,
+  height
+})
+```
+
+but those methods should not force unrelated pipelines into full-image bitmap semantics.
+
+---
+
+# 8. Internal Architecture
+
+The initial architecture should have five major layers:
+
+```text
+Source
+Codec
+Pipeline
+Executor
+Sink
+```
+
+---
+
+# 9. Source Layer
+
+Input should be abstracted from codecs.
+
+Conceptually:
+
+```ts
+interface ImageSource {
+  size?: number;
+
+  read(
+    offset: number,
+    length: number
+  ): Promise<Uint8Array>;
+
+  stream?(): AsyncIterable<Uint8Array>;
+}
+```
+
+Implementations:
+
+```text
+BufferSource
+Uint8ArraySource
+FileSource
+BlobSource
+StreamSource
+```
+
+This allows codecs to avoid requiring an entire compressed file to exist in memory.
+
+For example:
+
+```text
+5 MB JPEG on disk
+```
+
+does not inherently require:
+
+```text
+5 MB input Buffer
++
+96 MB bitmap
++
+temporary buffers
+```
+
+to coexist.
+
+---
+
+# 10. Codec Layer
+
+Codecs must be independent of image transformations.
+
+Conceptually:
+
+```ts
+interface ImageCodec {
+  readonly format: string;
+  readonly mimeTypes: string[];
+
+  detect(data: Uint8Array): boolean;
+
+  metadata(
+    source: ImageSource
+  ): Promise<ImageMetadata>;
+
+  createDecoder(
+    source: ImageSource,
+    options?: DecodeOptions
+  ): Promise<ImageDecoder>;
+
+  createEncoder(
+    options: EncodeOptions
+  ): Promise<ImageEncoder>;
+}
+```
+
+Decoder:
+
+```ts
+interface ImageDecoder {
+  readonly width: number;
+  readonly height: number;
+  readonly pixelFormat: PixelFormat;
+
+  decode(
+    request: DecodeRequest
+  ): AsyncIterable<PixelBlock>;
+}
+```
+
+A decoder should advertise capabilities:
+
+```ts
+interface DecoderCapabilities {
+  sequential: boolean;
+  regionDecode: boolean;
+  scaledDecode: boolean;
+  progressive: boolean;
+}
+```
+
+This matters enormously for optimization.
+
+The engine can only perform region decode when the codec can actually provide it.
+
+The architecture should never assume every format has identical decoding behavior.
+
+---
+
+# 11. Pixel Representation
+
+Do not make RGBA8 the only internal pixel representation.
+
+V1 can initially implement:
+
+```text
+RGB8
+RGBA8
+Gray8
+```
+
+but the type system should permit:
+
+```text
+RGB16
+RGBA16
+YUV420
+YUV444
+```
+
+later.
+
+Example:
+
+```ts
+type PixelFormat =
+  | "gray8"
+  | "rgb8"
+  | "rgba8"
+  | "rgb16"
+  | "rgba16"
+  | "yuv420p8"
+  | "yuv420p10";
+```
+
+This becomes particularly valuable for modern formats.
+
+A future AVIF pipeline should not necessarily require:
+
+```text
+AVIF YUV
+ ↓
+RGBA
+ ↓
+resize
+ ↓
+RGBA
+ ↓
+YUV
+ ↓
+AVIF
+```
+
+when parts of the pipeline could operate directly on YUV planes.
+
+Do not implement all these formats in V1.
+
+Just avoid designing an interface that makes them impossible later.
+
+---
+
+# 12. PixelBlock
+
+The basic executor unit should be something conceptually like:
+
+```ts
+interface PixelBlock {
+  x: number;
+  y: number;
+
+  width: number;
+  height: number;
+
+  stride: number;
+
+  format: PixelFormat;
+
+  data: Uint8Array;
+}
+```
+
+The block may represent:
+
+* one scanline
+* several scanlines
+* one tile
+* eventually one planar image region
+
+The public API should not know or care.
+
+---
+
+# 13. Prefer Row Blocks Over a Complex Tile Engine in V1
+
+A full tile dependency engine sounds attractive but is probably unnecessary for the initial feature set.
+
+For:
+
+```text
+crop
+resize
+colorspace conversion
+encode
+```
+
+sequential row/block execution works extremely well.
+
+Example:
+
+```text
+JPEG decoder
+ ↓
+32 rows
+ ↓
+crop stage
+ ↓
+resize stage
+ ↓
+JPEG encoder
+```
+
+Only a bounded number of decoded rows need to exist at once.
+
+This architecture is:
+
+* easier to implement
+* smaller
+* easier to optimize
+* easier to benchmark
+* easier to reason about
+* well suited to separable resize algorithms
+
+Tiles can be introduced where random spatial access actually provides an advantage.
+
+---
+
+# 14. Pipeline Planner
+
+PureJsImage should represent operations first and execute them later.
+
+Example:
+
+```ts
+image
+  .crop(...)
+  .resize(...)
+  .encode(...)
+```
+
+becomes:
+
+```text
+[
+  CropOperation,
+  ResizeOperation,
+  EncodeOperation
+]
+```
+
+Before running it, the planner should analyze the pipeline.
+
+The planner does not need to be a sophisticated compiler in V1.
+
+It should initially answer:
+
+1. What source region is actually required?
+2. What dimensions exist after each operation?
+3. Which operations can be combined?
+4. What pixel format should connect decoder and encoder?
+5. Does the decoder support region/scaled decoding?
+6. Does execution require a full frame?
+7. What block size should be used?
+
+---
+
+# 15. Crop Pushdown
+
+Consider:
+
+```ts
+Image.open("8000x6000.jpg")
+  .crop({
+    x: 5000,
+    y: 3000,
+    width: 1000,
+    height: 1000
+  })
+  .resize({
+    width: 200
+  });
+```
+
+The naive implementation:
+
+```text
+decode 48,000,000 pixels
+ ↓
+crop 1,000,000 pixels
+ ↓
+resize
+```
+
+The planner should attempt:
+
+```text
+determine relevant source region
+ ↓
+decode/retain only relevant data
+ ↓
+resize
+```
+
+Even if a JPEG decoder cannot seek directly to an arbitrary rectangle, sequential decoding can discard rows and columns that cannot contribute to the result without retaining them.
+
+Region-aware codecs may do even better.
+
+---
+
+# 16. Resize Architecture
+
+Resize is one of the most important operations in the entire project.
+
+It deserves dedicated optimization.
+
+V1 should implement at least:
+
+```text
+nearest
+bilinear
+```
+
+Strongly recommended:
+
+```text
+Lanczos3
+```
+
+for high-quality downsampling.
+
+Resize should be separable:
+
+```text
+2D resize
+=
+horizontal resize
++
+vertical resize
+```
+
+This reduces computational complexity and allows streaming execution.
+
+---
+
+# 17. Precomputed Resampling Coefficients
+
+Do not repeatedly calculate mapping and weights for every pixel/channel.
+
+For each output coordinate, precompute the source samples and coefficients.
+
+Conceptually:
+
+```ts
+interface SampleWeights {
+  start: number;
+  weights: Float32Array;
+}
+```
+
+For bilinear:
+
+```ts
+{
+  i0,
+  i1,
+  w0,
+  w1
+}
+```
+
+These values are identical across all rows or columns.
+
+Calculate once.
+
+Reuse for every row.
+
+---
+
+# 18. Streaming Vertical Resize
+
+A naive two-pass resize can require a full intermediate image.
+
+Avoid that.
+
+For vertical filtering, maintain a ring buffer containing only the horizontally resized source rows necessary for upcoming output rows.
+
+Example:
+
+```text
+source rows
+ ↓
+horizontal resize
+ ↓
+ring buffer
+ ↓
+vertical resize
+ ↓
+output row
+```
+
+If an output row needs four neighboring source rows, retain roughly four horizontally resized rows rather than the entire intermediate image.
+
+This is one of the biggest potential memory wins in PureJsImage.
+
+---
+
+# 19. Avoid Allocation in Hot Loops
+
+Pixel-processing loops should allocate nothing.
+
+Bad:
+
+```ts
+for (...) {
+  const pixel = {
+    r: data[i],
+    g: data[i + 1],
+    b: data[i + 2]
+  };
+
+  ...
+}
+```
+
+Better:
+
+```ts
+for (let i = 0; i < end; i += 4) {
+  let r = data[i];
+  let g = data[i + 1];
+  let b = data[i + 2];
+
+  ...
+}
+```
+
+Avoid:
+
+* callbacks per pixel
+* temporary arrays
+* object creation
+* destructuring in hot loops
+* polymorphic data structures
+* repeated bounds calculation
+* repeated function dispatch
+
+Give V8 simple predictable loops.
+
+---
+
+# 20. Buffer Pooling
+
+Repeated allocation of large typed arrays increases GC pressure.
+
+The executor should maintain a small reusable buffer pool.
+
+Conceptually:
+
+```ts
+pool.acquire(size)
+pool.release(buffer)
+```
+
+Buffers may be grouped into size classes:
+
+```text
+64 KB
+256 KB
+1 MB
+4 MB
+```
+
+Do not over-engineer this initially.
+
+The important principle is:
+
+> Intermediate pixel buffers should generally be reused rather than continuously allocated and abandoned.
+
+---
+
+# 21. Adaptive Block Size
+
+There is no reason to run a scheduler for a 32 × 32 icon.
+
+PureJsImage should choose execution strategies based on workload size.
+
+Conceptually:
+
+```text
+tiny image
+→ contiguous buffer
+
+medium image
+→ row blocks
+
+large image
+→ streaming blocks / tiles
+```
+
+For very small images, full materialization may actually be fastest and simpler.
+
+Low memory should not become dogma that harms performance.
+
+---
+
+# 22. Operation Fusion
+
+V1 has relatively few transformations, but the architecture should support fusion.
+
+For example:
+
+```text
+decode
+ ↓
+orientation
+ ↓
+crop
+ ↓
+resize
+```
+
+Crop can often be represented as source-coordinate restrictions rather than a separate copy.
+
+Future V2 pipelines like:
+
+```ts
+.brightness()
+.contrast()
+.saturation()
+.grayscale()
+```
+
+should eventually compile into one pixel traversal rather than four.
+
+Naive:
+
+```text
+read entire image
+brightness
+write image
+
+read entire image
+contrast
+write image
+
+read entire image
+saturation
+write image
+```
+
+Desired:
+
+```text
+load pixel
+brightness
+contrast
+saturation
+store pixel
+```
+
+The architecture must not make each API call synonymous with one full memory pass.
+
+---
+
+# 23. Color Transform Compilation
+
+Many future color operations can be mathematically combined.
+
+Potential examples:
+
+* brightness
+* contrast
+* saturation
+* grayscale
+* channel scaling
+* some colorization operations
+
+These can frequently be represented by a color matrix or related affine transform.
+
+Several API operations can therefore become:
+
+```text
+Operation A
++
+Operation B
++
+Operation C
+
+↓
+
+one compiled transform
+```
+
+This belongs in V2 but should influence V1 architecture.
+
+---
+
+# 24. Worker Threads
+
+Do not make workers the first performance optimization.
+
+Moving buffers between workers can cost more than the computation being parallelized.
+
+Initial priority should be:
+
+1. Better algorithms
+2. Less work
+3. Fewer memory passes
+4. Fewer allocations
+5. Better buffer reuse
+6. Region pruning
+7. Cached resize coefficients
+8. Only then parallelism
+
+Workers are most useful for:
+
+* very large images
+* computationally expensive resampling
+* multiple images
+* future convolution operations
+
+Batch parallelism may be more valuable than splitting individual images.
+
+For example:
+
+```ts
+await Promise.all([
+  resize("1.jpg"),
+  resize("2.jpg"),
+  resize("3.jpg"),
+  resize("4.jpg")
+]);
+```
+
+may already naturally utilize application-level concurrency.
+
+---
+
+# 25. Codec Strategy
+
+Codecs are likely to become the largest tension between:
+
+```text
+small
+fast
+pure JS
+modern formats
+```
+
+These goals sometimes conflict.
+
+The project should acknowledge this rather than pretending otherwise.
+
+---
+
+# 26. V1 Format Priorities
+
+## Tier 1: Required
+
+### JPEG
+
+Must support:
+
+* decode
+* encode
+* quality
+* orientation metadata
+
+JPEG is probably the single most important codec.
+
+### PNG
+
+Must support:
+
+* decode
+* encode
+* alpha
+* compression level
+
+### GIF input
+
+Must support the narrow compatibility surface needed by common upload
+normalization pipelines:
+
+* detect
+* decode the first composited frame
+* preserve that frame's transparency
+* convert that frame to JPEG or PNG
+
+GIF encoding and animated editing are not V1 requirements.
+
+These formats cover the active Tooldesk replacement workloads as well as a
+huge portion of general image-processing use cases.
+
+---
+
+## Tier 2: Strongly desirable
+
+### WebP
+
+Modern and extremely common.
+
+Pure-JS support is fragmented. There are current packages implementing pieces such as pure-JS lossless WebP decoding, while broader encoders commonly use WASM/libwebp.
+
+The codec abstraction should allow multiple implementations.
+
+### BMP
+
+Cheap compatibility win if a small existing implementation is suitable.
+
+---
+
+## Tier 3
+
+### AVIF
+
+Important format.
+
+Not a V1 release blocker.
+
+V1 should make this possible:
+
+```ts
+registerCodec(avifCodec);
+```
+
+Then:
+
+```ts
+await image
+  .encode("avif", {
+    quality: 65
+  })
+  .toFile(...);
+```
+
+An optional runtime or WASM implementation can provide the actual codec.
+
+### TIFF
+
+Useful for compatibility but much less important to the primary web-image use case.
+
+### JPEG XL
+
+Architecture target, not V1 requirement.
+
+---
+
+# 27. Runtime Codec Providers
+
+Eventually a format might have several providers.
+
+Example:
+
+```text
+AVIF
+├── runtime WebCodecs provider
+├── WASM provider
+└── future pure-JS provider
+```
+
+The browser `ImageDecoder` API can expose runtime-supported image formats, although browser availability is currently not universal.
+
+The codec registry can therefore eventually select:
+
+```text
+best available implementation
+```
+
+without changing the image-processing API.
+
+---
+
+# 28. Encoding and Compression API
+
+Compression settings should be format-specific but consistent where possible.
+
+Example:
+
+```ts
+.encode("jpeg", {
+  quality: 80,
+  progressive: true
+})
+```
+
+```ts
+.encode("webp", {
+  quality: 75,
+  lossless: false
+})
+```
+
+```ts
+.encode("png", {
+  compressionLevel: 8
+})
+```
+
+Later:
+
+```ts
+.encode("avif", {
+  quality: 55,
+  speed: 6
+})
+```
+
+Do not invent misleading universal settings where codecs mean fundamentally different things.
+
+---
+
+# 29. Future Target-Size Compression
+
+A very useful V1.1 feature:
+
+```ts
+.encode("jpeg", {
+  maxBytes: 250_000
+})
+```
+
+The library could perform a bounded quality search:
+
+```text
+quality 80
+ ↓
+too large
+
+quality 65
+ ↓
+too small
+
+quality 72
+ ↓
+near target
+```
+
+Potential API:
+
+```ts
+.compress({
+  format: "jpeg",
+  maxBytes: 250_000,
+  minQuality: 40,
+  maxQuality: 90
+})
+```
+
+This requires multiple encodes and therefore should not complicate the initial V1 encoder path.
+
+---
+
+# 30. Performance Philosophy
+
+PureJsImage should optimize **work avoided** before optimizing work performed.
+
+Priority:
+
+### 1. Do not process pixels that cannot affect output.
+
+### 2. Do not traverse pixels more times than necessary.
+
+### 3. Do not allocate buffers unnecessarily.
+
+### 4. Keep working sets small enough for CPU cache.
+
+### 5. Reuse calculated values.
+
+### 6. Specialize common paths.
+
+### 7. Parallelize only when worthwhile.
+
+This architecture can outperform Jimp without requiring exotic tricks.
+
+---
+
+# 31. Performance Targets
+
+Initial aspirational targets against current Jimp:
+
+### Common transformations
+
+```text
+resize:
+2x+ faster
+
+crop + resize:
+2x to 5x+ faster
+
+format conversion + resize:
+1.5x to 3x+ faster
+
+multi-operation pipelines:
+2x to 5x+ faster
+```
+
+Specific favorable pipelines may exceed these numbers significantly.
+
+Do not make benchmark claims publicly until reproducible benchmark data exists.
+
+---
+
+# 32. Memory Targets
+
+For operations that can stream:
+
+> Peak transformation working memory should scale approximately with output width, filter radius, and block size rather than source image area.
+
+This is more important than a particular MB target.
+
+Example:
+
+```text
+10,000 × 10,000 input
+ ↓
+resize to 1,000 × 1,000
+```
+
+should not inherently require a:
+
+```text
+400 MB RGBA bitmap
+```
+
+inside the transformation engine.
+
+The decoder may still impose format-specific requirements, but the processing architecture should not.
+
+---
+
+# 33. Benchmark Suite
+
+Benchmarks should exist almost immediately, before optimization work begins.
+
+Without a permanent benchmark suite, architectural performance goals will slowly become opinions.
+
+Compare:
+
+```text
+PureJsImage
+Jimp
+```
+
+Optionally include:
+
+```text
+Sharp
+```
+
+as a native performance reference rather than an expected competitor.
+
+---
+
+# 34. Benchmark Workloads
+
+Use realistic source files.
+
+### Benchmark A
+
+```text
+4000×3000 JPEG
+→ resize width 1200
+→ JPEG quality 80
+```
+
+### Benchmark B
+
+```text
+6000×4000 JPEG
+→ crop center 3000×2000
+→ resize 800×533
+→ JPEG quality 75
+```
+
+### Benchmark C
+
+```text
+4000×3000 PNG
+→ resize width 1000
+→ PNG
+```
+
+### Benchmark D
+
+```text
+PNG with transparency
+→ resize
+→ PNG
+```
+
+### Benchmark E
+
+```text
+JPEG
+→ PNG
+```
+
+### Benchmark F
+
+```text
+PNG
+→ JPEG quality 80
+```
+
+### Benchmark G
+
+Batch:
+
+```text
+100 mixed JPEG images
+→ 1200px thumbnails
+```
+
+### Benchmark H
+
+Large image:
+
+```text
+10000×10000
+→ 1000×1000
+```
+
+This should specifically measure peak memory.
+
+### Benchmark I
+
+Tooldesk upload normalization:
+
+```text
+mixed JPEG / transparent PNG / GIF first-frame inputs
+→ shrink to at most 1024px wide without enlargement
+→ flatten alpha deterministically
+→ JPEG quality 80
+```
+
+### Benchmark J
+
+Tooldesk logo normalization:
+
+```text
+mixed JPEG / transparent PNG / GIF first-frame inputs
+→ contain within a centered 256 x 256 transparent canvas
+→ PNG
+```
+
+These production-derived workloads must compare both runtime and peak memory
+against the equivalent current Jimp pipelines.
+
+---
+
+# 35. Benchmark Metrics
+
+Collect at least:
+
+```text
+wall-clock execution time
+operations/sec
+peak RSS
+heapUsed
+external memory / ArrayBuffer memory
+output file size
+```
+
+Correctness also matters.
+
+For lossless operations:
+
+```text
+pixel equality
+```
+
+For resize:
+
+```text
+comparison against reference implementation
+```
+
+For lossy encoding:
+
+```text
+SSIM or another quality metric
+```
+
+Performance improvements that substantially degrade visual quality do not count.
+
+---
+
+# 36. Benchmark Discipline
+
+Every major optimization should answer:
+
+```text
+What benchmark became faster?
+
+By how much?
+
+What happened to memory?
+
+What happened to output quality?
+
+What happened to code/package size?
+```
+
+Store historical benchmark results.
+
+A CI performance regression system can come later.
+
+---
+
+# 37. Repository Structure
+
+Potential structure:
+
+```text
+purejsimage/
+│
+├── packages/
+│   ├── core/
+│   ├── jpeg/
+│   ├── png/
+│   ├── gif/
+│   ├── bmp/
+│   ├── webp/
+│   └── avif/
+│
+├── benchmarks/
+│   ├── fixtures/
+│   ├── jimp/
+│   ├── purejsimage/
+│   └── results/
+│
+├── test/
+│   ├── resize/
+│   ├── crop/
+│   ├── codecs/
+│   └── integration/
+│
+├── docs/
+│   ├── architecture.md
+│   ├── codecs.md
+│   └── performance.md
+│
+└── package.json
+```
+
+A monorepo makes independent codec packages considerably easier.
+
+---
+
+# 38. TypeScript vs JavaScript
+
+Author the project in TypeScript.
+
+Publish normal JavaScript plus `.d.ts` declarations.
+
+Do not let elaborate TypeScript abstractions leak into hot runtime code.
+
+Runtime performance matters more than type-system cleverness.
+
+Target modern JavaScript runtimes rather than carrying large compatibility layers for obsolete Node versions.
+
+---
+
+# 39. Testing Strategy
+
+Every codec should have fixture-based tests.
+
+Required classes:
+
+### Round-trip
+
+```text
+decode
+→ encode
+→ decode
+```
+
+### Conversion
+
+```text
+JPEG → PNG
+PNG → JPEG
+```
+
+### Resize correctness
+
+Compare known fixtures and dimensions.
+
+### Crop correctness
+
+Test boundaries:
+
+```text
+top-left
+bottom-right
+1px regions
+full image
+invalid coordinates
+```
+
+### Orientation
+
+Test all EXIF orientation values.
+
+### Alpha
+
+Ensure transparency survives appropriate conversion.
+
+Also verify deterministic flattening when PNG or GIF input is encoded to JPEG,
+and exact-size transparent padding when `fit: "contain"` is used.
+
+### Tooldesk migration fixtures
+
+Keep fixture-based coverage for the two production-derived pipelines:
+
+```text
+JPEG / PNG / GIF Buffer
+→ inspect width
+→ shrink only when wider than 1024 or 2048
+→ JPEG quality 80
+→ Buffer
+```
+
+```text
+JPEG / PNG / GIF Buffer
+→ contain within centered 256 x 256 transparent canvas
+→ PNG
+→ Buffer
+```
+
+Assert output format and dimensions, aspect ratio, padding placement,
+transparent padding, first-frame GIF behavior, and no enlargement when that
+option is selected.
+
+### Malformed files
+
+Image parsers process untrusted binary input.
+
+Fuzzing should eventually be part of the project.
+
+At minimum, malformed inputs must fail cleanly rather than allocate absurd amounts of memory or enter uncontrolled loops.
+
+---
+
+# 40. Security Limits
+
+Image formats are hostile-input territory.
+
+Add configurable limits such as:
+
+```ts
+{
+  maxWidth,
+  maxHeight,
+  maxPixels,
+  maxInputBytes,
+  maxFrames,
+  maxDecodedBytes
+}
+```
+
+Never trust width/height headers enough to immediately allocate:
+
+```text
+width × height × channels
+```
+
+without overflow and limit checks.
+
+Protect against decompression bombs.
+
+This should be a V1 requirement.
+
+---
+
+# 41. V1 Development Sequence
+
+## Phase 0: Benchmark Jimp
+
+Before implementation:
+
+1. Build benchmark harness.
+2. Record Jimp speed.
+3. Record Jimp peak memory.
+4. Store representative fixture images.
+5. Establish correctness references.
+
+This gives the project an objective baseline.
+
+---
+
+## Phase 1: Core abstractions
+
+Implement:
+
+```text
+ImageSource
+Image metadata
+Codec registry
+Pipeline representation
+PixelBlock
+Buffer pool
+Sink interface
+```
+
+No filters.
+
+No text.
+
+No fancy plugins.
+
+---
+
+## Phase 2: PNG
+
+Get one complete format working end-to-end.
+
+```text
+PNG decode
+ ↓
+PixelBlocks
+ ↓
+PNG encode
+```
+
+Then:
+
+```text
+PNG
+→ crop
+→ PNG
+```
+
+This proves the architecture.
+
+---
+
+## Phase 3: Resize engine
+
+Implement:
+
+```text
+nearest
+bilinear
+Lanczos3 if practical
+```
+
+Then build:
+
+```text
+streaming horizontal resize
+ring-buffer vertical resize
+coefficient cache
+```
+
+Benchmark constantly.
+
+---
+
+## Phase 4: JPEG
+
+Implement/integrate:
+
+```text
+JPEG decode
+JPEG encode
+quality
+EXIF orientation
+```
+
+Then optimize the primary workload:
+
+```text
+JPEG
+→ autoOrient
+→ crop
+→ resize
+→ JPEG
+```
+
+This is probably the project's most important milestone.
+
+---
+
+## Phase 5: Cross-format conversion
+
+Make:
+
+```text
+JPEG → PNG
+PNG → JPEG
+GIF first composited frame → PNG
+GIF first composited frame → JPEG
+```
+
+first-class and heavily tested.
+
+---
+
+## Phase 6: API cleanup
+
+Only after the engine works:
+
+* finalize method names
+* improve errors
+* write docs
+* stabilize types
+* add convenience APIs
+
+Do not design twenty APIs before understanding what the executor needs.
+
+---
+
+## Phase 7: Additional codecs
+
+In approximate priority:
+
+```text
+WebP
+BMP
+AVIF
+TIFF
+```
+
+Expanded GIF support, including encoding or animation, may be added here after
+the required first-frame decoder is complete.
+
+Architecture should prevent these from expanding the core package.
+
+---
+
+# 42. V1 Release Criteria
+
+PureJsImage 1.0 should not ship because it has a long feature checklist.
+
+It should ship when it has a short checklist that works extremely well.
+
+Required:
+
+* JPEG decode/encode
+* PNG decode/encode
+* GIF detection and first-composited-frame decode
+* automatic format detection
+* conversion between JPEG and PNG
+* conversion from the first GIF frame to JPEG and PNG
+* resize
+* exact-size `contain` with position and transparent/background padding
+* crop
+* JPEG quality control
+* PNG compression control
+* deterministic alpha flattening for JPEG output
+* EXIF orientation
+* metadata access without mutable bitmap access
+* Buffer input/output
+* file input/output on Node
+* strict input limits
+* good error handling
+* benchmark suite
+* substantially better performance than Jimp on primary workloads
+* substantially reduced memory pressure on streaming-capable workloads
+* passing Tooldesk migration workload fixtures
+
+Strongly desirable:
+
+* streaming output
+* WebP
+* browser support
+
+Not required:
+
+* text
+* fonts
+* filters
+* drawing
+* arbitrary compositing
+* animation
+
+---
+
+# 43. V2
+
+Once the V1 execution architecture is proven, expand it rather than bloating V1.
+
+Potential V2 capabilities:
+
+### Color operations
+
+```text
+brightness
+contrast
+gamma
+saturation
+hue
+grayscale
+invert
+normalize
+```
+
+These should use fused pixel passes.
+
+### Filters
+
+```text
+blur
+sharpen
+convolution
+edge detection
+```
+
+The block executor will need halo/neighborhood support.
+
+### Compositing
+
+```text
+overlay
+mask
+alpha composite
+watermark
+```
+
+This may motivate a real DAG rather than a linear pipeline.
+
+### Text
+
+Only then introduce:
+
+```text
+font loading
+font metrics
+text layout
+text rendering
+```
+
+Text is almost an independent graphics subsystem and has little to do with the original goal of fast image conversion/resizing.
+
+Do not drag it into the first release.
+
+### Animated images
+
+Eventually:
+
+```text
+animated GIF
+animated WebP
+animated AVIF
+```
+
+Frames introduce another execution dimension and should be designed deliberately.
+
+---
+
+# 44. Potential V3 Architecture Evolution
+
+If compositing and multi-source operations become important:
+
+```ts
+background.composite(
+  foreground.resize(...)
+)
+```
+
+the pipeline is no longer linear.
+
+At that point introduce a proper execution DAG:
+
+```text
+Source A ─ Resize ─┐
+                   ├─ Composite ─ Encode
+Source B ─ Crop ───┘
+```
+
+A spatial tile scheduler becomes much more valuable here.
+
+Do not pay this complexity cost before V1 requires it.
+
+---
+
+# 45. Debugging and Explainability
+
+A future useful API:
+
+```ts
+await pipeline.explain()
+```
+
+Example output:
+
+```text
+Input
+JPEG 6048×4024 RGB8
+
+AutoOrient
+orientation: 6
+fused into coordinate mapping
+
+Crop
+source region: 1200,500 → 5200,3500
+
+Resize
+4000×3000 → 1200×900
+algorithm: Lanczos3
+execution: row blocks
+block height: 32
+
+Encode
+JPEG
+quality: 80
+
+Estimated working memory:
+7.8 MB
+```
+
+This would be extremely valuable for debugging performance and demonstrating why PureJsImage uses less memory.
+
+Not required for V1, but architecturally attractive.
+
+---
+
+# 46. API Compatibility Philosophy
+
+PureJsImage should not attempt literal Jimp API compatibility.
+
+Doing so risks importing Jimp's architectural assumptions.
+
+Instead, provide a small migration guide:
+
+```ts
+const image = await Jimp.read(input);
+
+image.resize({ width: 800 });
+
+const output = await image.getBuffer("image/jpeg", {
+  quality: 80
+});
+```
+
+becomes approximately:
+
+```ts
+const output = await Image.open(input)
+  .resize({ width: 800 })
+  .encode("jpeg", { quality: 80 })
+  .toBuffer();
+```
+
+If demand exists, a compatibility wrapper can eventually provide:
+
+```text
+@purejsimage/jimp-compat
+```
+
+Do not make compatibility constrain the core.
+
+---
+
+# 47. Core Design Rules
+
+The following rules should be treated almost like project commandments.
+
+### Rule 1
+
+**An Image is a description of pixels, not necessarily an allocated bitmap.**
+
+### Rule 2
+
+**Do not allocate the whole image unless necessary.**
+
+### Rule 3
+
+**Do not process pixels that cannot contribute to output.**
+
+### Rule 4
+
+**Do not traverse pixels multiple times when operations can be combined.**
+
+### Rule 5
+
+**Do not allocate inside hot pixel loops.**
+
+### Rule 6
+
+**Reuse intermediate memory.**
+
+### Rule 7
+
+**Codecs are plugins, not core architecture.**
+
+### Rule 8
+
+**Modern format support must not force every user to download every codec.**
+
+### Rule 9
+
+**Optimize real pipelines, not toy microbenchmarks.**
+
+### Rule 10
+
+**Every performance claim must be benchmarked.**
+
+### Rule 11
+
+**Full bitmap access is an explicit escape hatch, not the default model.**
+
+### Rule 12
+
+**Do not implement features merely because Jimp has them.**
+
+---
+
+# 48. Initial North-Star Benchmark
+
+If the project only had one benchmark, use this:
+
+```text
+Input:
+6000×4000 JPEG photograph
+
+Operations:
+auto-orient
+center crop to 4:3
+resize to 1200×900
+encode JPEG quality 80
+
+Measure:
+execution time
+peak RSS
+output size
+visual quality
+```
+
+Then compare:
+
+```text
+Jimp
+PureJsImage
+Sharp
+```
+
+Jimp is the competitor.
+
+Sharp is the theoretical/native reference point.
+
+The project's architectural progress should be visible in this benchmark.
+
+---
+
+# 49. Success Definition
+
+PureJsImage does not need to become another Photoshop implemented in JavaScript.
+
+The project is successful if a developer who currently writes:
+
+```ts
+await Jimp.read(...)
+```
+
+can instead choose PureJsImage because they need:
+
+```text
+format conversion
+resize
+crop
+compression
+```
+
+and get:
+
+```text
+smaller dependency surface
+faster execution
+lower peak memory
+modern codec extensibility
+cleaner architecture
+```
+
+without installing native system dependencies.
+
+The long-term positioning is:
+
+> **PureJsImage is the small, fast, low-memory image conversion and resizing library for JavaScript.**
+
+Not:
+
+> Jimp with more methods.
+
+That distinction should drive every V1 decision.

@@ -1,0 +1,44 @@
+import { globSync } from 'node:fs'
+import { describe, expect, it } from 'vitest'
+
+import packageJson from '../package.json' with { type: 'json' }
+import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
+
+describe('package contract', () => {
+  it('has no production dependencies', () => {
+    expect('dependencies' in packageJson).toBe(false)
+    expect('optionalDependencies' in packageJson).toBe(false)
+  })
+
+  it('keeps source, benchmark, and test code in TypeScript', () => {
+    const javascriptSources = globSync([
+      'benchmark/**/*.{cjs,js,jsx,mjs}',
+      'tests/**/*.{cjs,js,jsx,mjs}',
+    ])
+
+    expect(javascriptSources).toEqual([])
+  })
+})
+
+describe('benchmark contract', () => {
+  it('keeps workflow identifiers unique', () => {
+    const ids = workflows.map(({ id }) => id)
+
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('keeps every profile populated and ordered by scope', () => {
+    const smoke = workflowsForProfile('smoke')
+    const standard = workflowsForProfile('standard')
+    const full = workflowsForProfile('full')
+
+    expect(smoke.length).toBeGreaterThan(0)
+    expect(standard.length).toBeGreaterThan(smoke.length)
+    expect(full.length).toBeGreaterThan(standard.length)
+    expect(full).toEqual(workflows)
+  })
+
+  it('rejects unknown profiles', () => {
+    expect(() => workflowsForProfile('quick-ish')).toThrow('Unknown profile: quick-ish')
+  })
+})

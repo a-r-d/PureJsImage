@@ -1,0 +1,200 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "old-faithful-6000x4000",
+      "file": "old-faithful-6000x4000.jpg",
+      "url": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/media/images/IMG_6299.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Old_Faithful_(121394).jpg",
+      "author": "USGS Communications and Publishing",
+      "license": "Public domain, United States Geological Survey",
+      "expected": {
+        "format": "jpeg",
+        "width": 6000,
+        "height": 4000,
+        "sha256": "6d1611a3d31daafe507ffd4f35abdf4376fa95bcb8c4a1bc496ad21e67844298"
+      }
+    },
+    {
+      "id": "tundra-4000x3000",
+      "file": "tundra-4000x3000.jpg",
+      "url": "https://live.staticflickr.com/4853/31354285547_90629ea22f_o.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Tundra_Landscape_(31354285547).jpg",
+      "author": "Pacific Northwest Research Station, Forest Service, USDA; photograph by Janet Prevey",
+      "license": "Public domain, United States Department of Agriculture",
+      "expected": {
+        "format": "jpeg",
+        "width": 4000,
+        "height": 3000,
+        "sha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6"
+      }
+    },
+    {
+      "id": "portrait-2400x3000",
+      "file": "portrait-2400x3000.jpg",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Janet_Yellen_official_portrait.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Janet_Yellen_official_portrait.jpg",
+      "author": "United States Federal Reserve",
+      "license": "Public domain, Board of Governors of the Federal Reserve System",
+      "expected": {
+        "format": "jpeg",
+        "width": 2400,
+        "height": 3000,
+        "sha256": "2fe7a8ff672e9bbf5ffc63acc2f3c55946cf687e7a2db14d686b7494ad0c4679"
+      }
+    },
+    {
+      "id": "earthrise-2400x2400",
+      "file": "earthrise-2400x2400.jpg",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a8/NASA-Apollo8-Dec24-Earthrise.jpg",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:NASA-Apollo8-Dec24-Earthrise.jpg",
+      "author": "NASA; photograph by Bill Anders",
+      "license": "Public domain, National Aeronautics and Space Administration",
+      "expected": {
+        "format": "jpeg",
+        "width": 2400,
+        "height": 2400,
+        "sha256": "24fd2a4f833534ca6741ed96d03b028ac1d8fda2cd129ded4d208535f541d4da"
+      }
+    },
+    {
+      "id": "exif-orientation-6",
+      "file": "exif-orientation-6.jpg",
+      "url": "https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Landscape_6.jpg",
+      "sourcePage": "https://github.com/recurser/exif-orientation-examples/blob/master/Landscape_6.jpg",
+      "author": "Dave Perrett test fixture; source photograph credited in the upstream repository",
+      "license": "MIT",
+      "expected": {
+        "format": "jpeg",
+        "width": 1200,
+        "height": 1800,
+        "orientation": 6,
+        "sha256": "9b344e9f0c869d8637ea22e672df9451d8d3cc1d2d0b291af3b284e538e5f124"
+      }
+    },
+    {
+      "id": "pngsuite-palette-8",
+      "file": "pngsuite-palette-8.png",
+      "url": "https://raw.githubusercontent.com/golang/go/go1.24.0/src/image/png/testdata/pngsuite/basn3p08.png",
+      "sourcePage": "https://go.googlesource.com/go/+/go1.24.0/src/image/png/testdata/pngsuite/README.original",
+      "author": "Willem van Schaik, PngSuite",
+      "license": "Permission to use, copy, and distribute for any purpose and without fee",
+      "expected": {
+        "format": "png",
+        "width": 32,
+        "height": 32,
+        "sha256": "eca1db90338a8481e4d3f2469befa06d7564534e9323b6a8040ed0cdd281d952"
+      }
+    },
+    {
+      "id": "pngsuite-gray-16",
+      "file": "pngsuite-gray-16.png",
+      "url": "https://raw.githubusercontent.com/golang/go/go1.24.0/src/image/png/testdata/pngsuite/basn0g16.png",
+      "sourcePage": "https://go.googlesource.com/go/+/go1.24.0/src/image/png/testdata/pngsuite/README.original",
+      "author": "Willem van Schaik, PngSuite",
+      "license": "Permission to use, copy, and distribute for any purpose and without fee",
+      "expected": {
+        "format": "png",
+        "width": 32,
+        "height": 32,
+        "sha256": "f26eb27e99300829c42c0832acd26fa499e0f317cb4d6f165e6663024b16bf6c"
+      }
+    },
+    {
+      "id": "animated-gif-cc0",
+      "file": "animated-gif-cc0.gif",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Square_box_accelerating_trial_animation_2.gif",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Square_box_accelerating_trial_animation_2.gif",
+      "author": "Maschen",
+      "license": "CC0 1.0 Universal",
+      "expected": {
+        "format": "gif",
+        "width": 200,
+        "height": 200,
+        "frames": 70,
+        "sha256": "cac50c006181509f3b7662284c024d60bc3bccdfabc3db20ad41831a448bb43e"
+      }
+    }
+  ],
+  "generated": [
+    {
+      "id": "rgba-gradient-4000x3000",
+      "file": "rgba-gradient-4000x3000.png",
+      "generator": "rgba-gradient",
+      "expected": {
+        "format": "png",
+        "width": 4000,
+        "height": 3000,
+        "sha256": "3cb67d0ce361dbbf1d44b8e280db8a7bb68fe4e33566837ddfe64809d38e60c5"
+      }
+    },
+    {
+      "id": "transparent-logo-1200x480",
+      "file": "transparent-logo-1200x480.png",
+      "generator": "transparent-logo",
+      "expected": {
+        "format": "png",
+        "width": 1200,
+        "height": 480,
+        "sha256": "9c8a0d21e5094ca6080068ddc0bed3d2b0b660b4ad11535605a82b8086340d4b"
+      }
+    },
+    {
+      "id": "noise-2048x2048",
+      "file": "noise-2048x2048.png",
+      "generator": "seeded-noise",
+      "expected": {
+        "format": "png",
+        "width": 2048,
+        "height": 2048,
+        "sha256": "ef00cda1adac48e3bf40925a0de7b77e601210ab2c21c8de0d2ff96218372797"
+      }
+    },
+    {
+      "id": "odd-rgba-257x193",
+      "file": "odd-rgba-257x193.png",
+      "generator": "odd-rgba",
+      "expected": {
+        "format": "png",
+        "width": 257,
+        "height": 193,
+        "sha256": "1f10cfda876bd69889b772e134a94d25a337b71d6ae54520cfc0c91551898c23"
+      }
+    },
+    {
+      "id": "tiny-transparent-1x1",
+      "file": "tiny-transparent-1x1.png",
+      "generator": "tiny-transparent",
+      "expected": {
+        "format": "png",
+        "width": 1,
+        "height": 1,
+        "sha256": "f19fe636a57e6c5076413efab51d1c36e87686c79f461b7ad8913fe7de4c964e"
+      }
+    },
+    {
+      "id": "static-transparent-640x360",
+      "file": "static-transparent-640x360.gif",
+      "generator": "static-transparent-gif",
+      "expected": {
+        "format": "gif",
+        "width": 640,
+        "height": 360,
+        "frames": 1,
+        "sha256": "4369b0842d0385fbc8ef629070fd33a204a3446f840a7c5c975a8970787f6199"
+      }
+    },
+    {
+      "id": "stress-gradient-10000x10000",
+      "file": "stress-gradient-10000x10000.png",
+      "generator": "streaming-stress-gradient",
+      "profile": "stress",
+      "expected": {
+        "format": "png",
+        "width": 10000,
+        "height": 10000,
+        "sha256": "71dd399653de578ea9de8c750a3af463b801cb60e85c40060979bcb8d69896d5"
+      }
+    }
+  ]
+}
