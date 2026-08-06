@@ -1,0 +1,41 @@
+benchmark/results/purejsimage-adaptive-png-crop-resize-2026-08-06.json
+  s_4612ba9d4ce750::t_3b0d2974d777c3 1-325
+benchmark/results/purejsimage-adaptive-png-alpha-resize-2026-08-06.json
+  s_4612ba9d4ce750::t_306ce622343e23 1-537
+benchmark/results/purejsimage-adaptive-png-resize-2026-08-06.md
+  s_4612ba9d4ce750::t_0868fa63776c67 1-14
+benchmark/results/purejsimage-adaptive-png-resize-2026-08-06.json
+  s_4612ba9d4ce750::t_0868fa63776c67 1-325
+benchmark/results/purejsimage-adaptive-png-alpha-resize-2026-08-06.md
+  s_4612ba9d4ce750::t_306ce622343e23 1-14
+benchmark/results/purejsimage-adaptive-stress-100mp-2026-08-06.json
+  s_4612ba9d4ce750::t_db660a824bca57 1-255
+benchmark/results/purejsimage-adaptive-png-crop-resize-2026-08-06.md
+  s_4612ba9d4ce750::t_3b0d2974d777c3 1-14
+README.md
+  s_4612ba9d4ce750::t_2e4a9524ac04d6 23-24,113-128
+  s_4612ba9d4ce750::t_cc7435abf329b4 129
+src/codecs/png.ts
+  s_4612ba9d4ce750::t_50a716bb1125ed 589-646,672-673,684,692-693,738-744,746,805
+tests/png.test.ts
+  s_4612ba9d4ce750::t_50a716bb1125ed 136-145,147-152
+  s_4612ba9d4ce750::t_eeeffcc8d3348b 146
+benchmark/results/purejsimage-adaptive-stress-100mp-2026-08-06.md
+  s_4612ba9d4ce750::t_db660a824bca57 1-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "fffc9641388e918e859d114fbc7e8b0e125f5b0b",
+  "prompts": {},
+  "sessions": {
+    "s_4612ba9d4ce750": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd91e-230c-7843-b7af-875d46866269",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
