@@ -13,6 +13,7 @@ describe('package contract', () => {
   it('keeps source, benchmark, and test code in TypeScript', () => {
     const javascriptSources = globSync([
       'benchmark/**/*.{cjs,js,jsx,mjs}',
+      'src/**/*.{cjs,js,jsx,mjs}',
       'tests/**/*.{cjs,js,jsx,mjs}',
     ])
 

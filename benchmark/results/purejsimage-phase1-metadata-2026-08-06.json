@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-08-06T23:23:16.836Z",
+  "profile": "standard",
+  "configuration": {
+    "engines": [
+      "purejsimage"
+    ],
+    "defaultRuns": 3,
+    "defaultWarmups": 1,
+    "isolatedProcessPerSample": true,
+    "inputFileReadTimed": false,
+    "outputValidationTimed": false
+  },
+  "environment": {
+    "platform": "linux",
+    "architecture": "x64",
+    "node": "v24.16.0",
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+    "logicalCpus": 16,
+    "totalMemoryBytes": 64924508160,
+    "gitRevision": "c06a13e",
+    "dirty": true
+  },
+  "fixtures": [
+    "old-faithful-6000x4000"
+  ],
+  "results": [
+    {
+      "engine": "purejsimage",
+      "workflow": "metadata-jpeg-large",
+      "title": "Read metadata from a 6000x4000 JPEG",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "passed",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 0.17098899999999162,
+          "p95": 0.1933089999999993,
+          "minimum": 0.1653960000000012,
+          "maximum": 0.1933089999999993
+        },
+        "cpuMilliseconds": {
+          "median": 0.195
+        },
+        "peakRssBytes": {
+          "median": 102039552,
+          "maximum": 105340928
+        },
+        "peakRssDeltaBytes": {
+          "median": 811008,
+          "maximum": 864256
+        },
+        "outputBytes": {
+          "median": 0
+        },
+        "output": {
+          "width": 6000,
+          "height": 4000,
+          "format": "jpeg",
+          "mimeType": "image/jpeg",
+          "hasAlpha": false,
+          "colorSpace": "ycbcr",
+          "bitDepth": 8,
+          "frames": 1
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "valid": true,
+          "errors": [],
+          "output": {
+            "width": 6000,
+            "height": 4000,
+            "format": "jpeg",
+            "mimeType": "image/jpeg",
+            "hasAlpha": false,
+            "colorSpace": "ycbcr",
+            "bitDepth": 8,
+            "frames": 1
+          },
+          "outputBytes": 0,
+          "wallMilliseconds": 0.1933089999999993,
+          "cpuMilliseconds": 0.22,
+          "finalMemory": {
+            "rss": 101314560,
+            "heapTotal": 15728640,
+            "heapUsed": 10451904,
+            "external": 25982426,
+            "arrayBuffers": 17114110
+          },
+          "resourceMaxRssBytes": 101314560,
+          "engine": {
+            "id": "purejsimage",
+            "version": "workspace"
+          },
+          "peakRssBytes": 101953536,
+          "peakRssDeltaBytes": 638976,
+          "baselineMemory": {
+            "rss": 101314560,
+            "heapTotal": 15728640,
+            "heapUsed": 10340232,
+            "external": 25990576,
+            "arrayBuffers": 17114072
+          }
+        },
+        {
+          "valid": true,
+          "errors": [],
+          "output": {
+            "width": 6000,
+            "height": 4000,
+            "format": "jpeg",
+            "mimeType": "image/jpeg",
+            "hasAlpha": false,
+            "colorSpace": "ycbcr",
+            "bitDepth": 8,
+            "frames": 1
+          },
+          "outputBytes": 0,
+          "wallMilliseconds": 0.17098899999999162,
+          "cpuMilliseconds": 0.195,
+          "finalMemory": {
+            "rss": 104476672,
+            "heapTotal": 15728640,
+            "heapUsed": 10453176,
+            "external": 25982426,
+            "arrayBuffers": 17114110
+          },
+          "resourceMaxRssBytes": 104476672,
+          "engine": {
+            "id": "purejsimage",
+            "version": "workspace"
+          },
+          "peakRssBytes": 105340928,
+          "peakRssDeltaBytes": 864256,
+          "baselineMemory": {
+            "rss": 104476672,
+            "heapTotal": 15728640,
+            "heapUsed": 10341504,
+            "external": 25990576,
+            "arrayBuffers": 17114072
+          }
+        },
+        {
+          "valid": true,
+          "errors": [],
+          "output": {
+            "width": 6000,
+            "height": 4000,
+            "format": "jpeg",
+            "mimeType": "image/jpeg",
+            "hasAlpha": false,
+            "colorSpace": "ycbcr",
+            "bitDepth": 8,
+            "frames": 1
+          },
+          "outputBytes": 0,
+          "wallMilliseconds": 0.1653960000000012,
+          "cpuMilliseconds": 0.189,
+          "finalMemory": {
+            "rss": 101359616,
+            "heapTotal": 15728640,
+            "heapUsed": 10452200,
+            "external": 25982426,
+            "arrayBuffers": 17114110
+          },
+          "resourceMaxRssBytes": 101228544,
+          "engine": {
+            "id": "purejsimage",
+            "version": "workspace"
+          },
+          "peakRssBytes": 102039552,
+          "peakRssDeltaBytes": 811008,
+          "baselineMemory": {
+            "rss": 101228544,
+            "heapTotal": 15728640,
+            "heapUsed": 10340528,
+            "external": 25990576,
+            "arrayBuffers": 17114072
+          }
+        }
+      ]
+    }
+  ]
+}

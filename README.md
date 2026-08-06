@@ -8,6 +8,35 @@ The project focuses on complete application workflows—decode, inspect, orient,
 crop, resize, convert, and encode—rather than trying to reproduce every image
 editing feature in Jimp.
 
+## Implementation status
+
+Phase 1 of the production library is implemented in strict TypeScript 7:
+
+- bounded Buffer, Uint8Array, ArrayBuffer, Blob, and file sources;
+- automatic PNG, JPEG, and GIF detection and metadata parsing;
+- EXIF orientation and GIF frame metadata;
+- configurable hostile-input limits;
+- immutable crop, resize, orientation, and encode pipeline descriptions;
+- pixel-block, buffer-pool, codec-registry, and sink abstractions; and
+- a dependency-free build with JavaScript and declaration output.
+
+```ts
+import { Image } from 'purejsimage'
+
+const image = await Image.open('input.jpg')
+const metadata = await image.metadata()
+
+const planned = await image
+  .autoOrient()
+  .resize({ width: 1200, withoutEnlargement: true })
+  .encode('jpeg', { quality: 80, background: '#ffffff' })
+  .metadata()
+```
+
+Metadata inspection and pipeline geometry are operational. Pixel decoding and
+encoding intentionally remain explicit unsupported operations until the Phase 2
+PNG vertical slice is implemented.
+
 ## Northstar
 
 Our northstar is to beat Jimp across a broad, reproducible benchmark suite while
@@ -20,6 +49,15 @@ improve its median wall time. Lower peak RSS is the primary memory goal.
 The baseline uses `jimp@1.6.0`, matching the version in Tooldesk when the suite
 was created. It was recorded on August 6, 2026 using Node.js 24.16.0 on an Intel
 Core i7-10700. Jimp passed all 23 workflows.
+
+Phase 1 already passes the large-JPEG metadata workflow without decoding the
+pixel bitmap:
+
+| Implemented workflow | PureJsImage median | Jimp median | PureJsImage peak RSS | Jimp peak RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Large JPEG metadata | 0.2 ms | 5,285 ms | 97 MiB | 1,184 MiB |
+
+See the [Phase 1 measurement](benchmark/results/purejsimage-phase1-metadata-2026-08-06.md).
 
 | Workflow | Jimp median wall time | Jimp peak RSS |
 | --- | ---: | ---: |
