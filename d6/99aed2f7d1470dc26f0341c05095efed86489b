@@ -1,0 +1,61 @@
+tests/pipeline.test.ts
+  s_4612ba9d4ce750::t_b0400bb12b5087 75,78-80
+benchmark/results/purejsimage-phase2-png-2026-08-06.md
+  s_4612ba9d4ce750::t_a85e101ef48251 1-14
+benchmark/results/purejsimage-phase2-png-crop-2026-08-06.json
+  s_4612ba9d4ce750::t_179d15d1834474 1-701
+benchmark/results/purejsimage-phase2-png-crop-2026-08-06.md
+  s_4612ba9d4ce750::t_179d15d1834474 1-14
+src/executor.ts
+  s_4612ba9d4ce750::t_20a8f2abba8486 1-71,75-101
+  s_4612ba9d4ce750::t_04b78e73634075 72-74
+benchmark/workflows.ts
+  s_4612ba9d4ce750::t_3737b4e3fac06e 129
+  s_4612ba9d4ce750::t_d79ad83d94c4be 125-128,130-131
+  s_4612ba9d4ce750::t_93980f4f6af10e 124
+src/pipeline.ts
+  s_4612ba9d4ce750::t_00085498ff9258 195-196
+tests/png.test.ts
+  s_4612ba9d4ce750::t_04b78e73634075 4,8,31-61,92-98,100-105
+  s_4612ba9d4ce750::t_00085498ff9258 110-112
+  s_4612ba9d4ce750::t_b0400bb12b5087 1-3,5-7,9-30,62-91,99,106-109,113-149
+benchmark/results/purejsimage-phase2-png-2026-08-06.json
+  s_4612ba9d4ce750::t_a85e101ef48251 1-605
+src/codecs/png.ts
+  s_4612ba9d4ce750::t_20a8f2abba8486 694-695,698-705
+  s_4612ba9d4ce750::t_46ff463f3726c7 696-697
+  s_4612ba9d4ce750::t_a5f2f5358f2364 60-61,81,96-97,150-151,154-155,190-191,198-202,237,305-306,311-312,327-328,351-352,390-395,406-407,440-441,444-446,481-483,532-533,542-543,666-669
+  s_4612ba9d4ce750::t_613d88e5052c96 252-257,261-263,265-267,269-271,279,282-286
+  s_4612ba9d4ce750::t_3011da562b13d9 243-247,258-260
+  s_4612ba9d4ce750::t_612fc6330c9e8f 1-11,14-15,19-44,46-51,56-59,62-66,72-80,82-95,98-149,152-153,156-189,192-197,203-236,238-242,248-251,264,268,272-278,280-281,287-304,307-310,313-326,329-350,353-389,396-405,408-439,442-443,447-480,484-531,534-541,544-588,607-665,670-679,681-693,706-708,719-739,746,748-749,752-755,758-761
+  s_4612ba9d4ce750::t_00085498ff9258 589-606,680,709-718
+src/index.ts
+  s_4612ba9d4ce750::t_20a8f2abba8486 6
+README.md
+  s_4612ba9d4ce750::t_72e2e18d0f8afe 13
+  s_4612ba9d4ce750::t_590e1f65d3d459 21-24,40-43,56-57,68-79,106
+src/codecs/crc32.ts
+  s_4612ba9d4ce750::t_d70ad3159bce58 1-23
+src/codec.ts
+  s_4612ba9d4ce750::t_20a8f2abba8486 46
+  s_4612ba9d4ce750::t_d70ad3159bce58 49-53,63
+  s_4612ba9d4ce750::t_ae6f440e59ff40 47-48
+src/image.ts
+  s_4612ba9d4ce750::t_20a8f2abba8486 3,22,32,53,112-114,117-118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "d699aed2f7d1470dc26f0341c05095efed86489b",
+  "prompts": {},
+  "sessions": {
+    "s_4612ba9d4ce750": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd91e-230c-7843-b7af-875d46866269",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
