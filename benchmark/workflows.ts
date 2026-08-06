@@ -130,6 +130,18 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'png', width: 1000, height: 400, cornerAlpha: 0 },
   },
   {
+    id: 'png-crop-resize-roundtrip',
+    title: '4000x3000 PNG crop to 2000x1500 and resize to 500x375 PNG',
+    tier: 'standard',
+    input: 'rgba-gradient-4000x3000',
+    operations: [
+      { type: 'crop', x: 1000, y: 750, width: 2000, height: 1500 },
+      { type: 'resize', width: 500 },
+      png(6),
+    ],
+    expected: { format: 'png', width: 500, height: 375 },
+  },
+  {
     id: 'png-gray16-to-jpeg',
     title: '16-bit grayscale PNG to JPEG',
     tier: 'standard',

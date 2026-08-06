@@ -5,6 +5,7 @@ import { validateImageDimensions } from './limits.ts'
 
 export type ResizeFit = 'contain' | 'cover' | 'fill' | 'inside' | 'outside'
 export type ResizePosition = 'center'
+export type ResizeKernel = 'nearest' | 'bilinear' | 'lanczos3'
 export type Background = 'transparent' | `#${string}`
 
 interface ResizeBase {
@@ -12,6 +13,7 @@ interface ResizeBase {
   position?: ResizePosition
   background?: Background
   withoutEnlargement?: boolean
+  kernel?: ResizeKernel
 }
 
 export type ResizeOptions = ResizeBase &
@@ -74,6 +76,14 @@ export const createCropOperation = (options: CropOptions): PipelineOperation => 
 export const createResizeOperation = (options: ResizeOptions): PipelineOperation => {
   positiveDimension('Resize width', options.width)
   positiveDimension('Resize height', options.height)
+  if (
+    options.kernel !== undefined &&
+    options.kernel !== 'nearest' &&
+    options.kernel !== 'bilinear' &&
+    options.kernel !== 'lanczos3'
+  ) {
+    throw invalidInput('Resize kernel must be nearest, bilinear, or lanczos3')
+  }
   if (options.width === undefined && options.height === undefined) {
     throw invalidInput('Resize requires a width or height')
   }
@@ -113,7 +123,7 @@ export const createPngEncodeOperation = (options: PngEncodeOptions): PipelineOpe
   return Object.freeze({ type: 'encode', format: 'png', options: Object.freeze({ ...options }) })
 }
 
-const scaledDimensions = (
+export const calculateResizeDimensions = (
   width: number,
   height: number,
   options: ResizeOptions,
@@ -185,7 +195,17 @@ export const planMetadata = (
     }
 
     if (operation.type === 'resize') {
-      metadata = { ...metadata, ...scaledDimensions(metadata.width, metadata.height, operation) }
+      const transparentCanvas =
+        operation.fit === 'contain' &&
+        (operation.background === undefined ||
+          operation.background === 'transparent' ||
+          (operation.background.length === 9 &&
+            operation.background.slice(7, 9).toLowerCase() !== 'ff'))
+      metadata = {
+        ...metadata,
+        ...calculateResizeDimensions(metadata.width, metadata.height, operation),
+        hasAlpha: metadata.hasAlpha || transparentCanvas,
+      }
       validateImageDimensions(metadata.width, metadata.height, metadata.frames ?? 1, limits)
       continue
     }

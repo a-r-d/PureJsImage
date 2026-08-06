@@ -47,6 +47,14 @@ describe('immutable image pipelines', () => {
     })
   })
 
+  it('reports alpha introduced by a transparent contain canvas', async () => {
+    const image = await Image.open(pngFixture(120, 40, 0))
+
+    await expect(
+      image.resize({ width: 256, height: 256, fit: 'contain' }).png().metadata(),
+    ).resolves.toMatchObject({ width: 256, height: 256, hasAlpha: true })
+  })
+
   it('honors withoutEnlargement for single-dimension resize', async () => {
     const image = await Image.open(pngFixture(100, 50))
 
@@ -72,10 +80,10 @@ describe('immutable image pipelines', () => {
     })
   })
 
-  it('fails explicitly when an unimplemented pixel operation is requested', async () => {
-    const image = await Image.open(pngFixture(10, 10))
+  it('fails explicitly when an unimplemented codec is requested', async () => {
+    const image = await Image.open(jpegFixture(10, 10))
 
-    await expect(image.resize({ width: 5 }).png().toBuffer()).rejects.toMatchObject({
+    await expect(image.resize({ width: 5 }).jpeg().toBuffer()).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
     })
   })

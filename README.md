@@ -10,18 +10,22 @@ editing feature in Jimp.
 
 ## Implementation status
 
-Phase 1 and the Phase 2 PNG vertical slice are implemented in strict TypeScript 7:
+The Phase 1 core and Phase 2-3 PNG processing path are implemented in strict TypeScript 7:
 
 - bounded Buffer, Uint8Array, ArrayBuffer, Blob, and file sources;
 - automatic PNG, JPEG, and GIF detection and metadata parsing;
 - EXIF orientation and GIF frame metadata;
 - configurable hostile-input limits;
 - immutable crop, resize, orientation, and encode pipeline descriptions;
-- pixel-block, buffer-pool, codec-registry, and sink abstractions; and
+- pixel-block, buffer-pool, codec-registry, and sink abstractions;
 - sequential, bounded-block PNG decoding for grayscale, truecolor, indexed,
   grayscale-alpha, and RGBA inputs;
 - streaming PNG encoding with alpha preservation and compression levels 0-9;
-- fused PNG crop execution to Buffer or file output; and
+- fused PNG crop execution to Buffer or file output;
+- nearest, bilinear, and Lanczos3 resize kernels with cached coefficients;
+- separable horizontal resizing with bounded vertical source-row retention;
+- width, height, fill, cover, contain, inside, outside, and
+  `withoutEnlargement` geometry; and
 - a dependency-free build with JavaScript and declaration output.
 
 ```ts
@@ -37,9 +41,18 @@ const planned = await image
   .metadata()
 ```
 
+The implemented PNG path can execute directly:
+
+```ts
+const output = await (await Image.open('input.png'))
+  .resize({ width: 1000, kernel: 'bilinear' })
+  .png({ compressionLevel: 6 })
+  .toBuffer()
+```
+
 Metadata inspection and pipeline geometry are operational. Non-interlaced PNG
-decode, crop, and encode now execute end-to-end through PixelBlocks. Resize and
-JPEG/GIF pixel execution remain explicit unsupported operations until their
+decode, crop, resize, and encode execute end-to-end through PixelBlocks. JPEG
+and GIF pixel execution remain explicit unsupported operations until their
 development phases.
 
 ## Northstar
@@ -53,8 +66,8 @@ improve its median wall time. Lower peak RSS is the primary memory goal.
 
 The baseline uses `jimp@1.6.0`, matching the version in Tooldesk when the suite
 was created. It was recorded on August 6, 2026 using Node.js 24.16.0 on an Intel
-Core i7-10700. Jimp passed all 23 original workflows. Phase 2 adds a dedicated
-PNG crop workflow, bringing the current suite to 24.
+Core i7-10700. Jimp passed all 23 original workflows. The dedicated PNG crop and
+crop-plus-resize cases added since then bring the current suite to 25.
 
 Phase 1 already passes the large-JPEG metadata workflow without decoding the
 pixel bitmap:
@@ -76,6 +89,25 @@ the tiny palette round trip is tied on median time with lower peak RSS.
 
 See the [PNG crop measurement](benchmark/results/purejsimage-phase2-png-crop-2026-08-06.md)
 and [palette measurement](benchmark/results/purejsimage-phase2-png-2026-08-06.md).
+
+Phase 3 wins all six currently executable resize comparisons. Bilinear is the
+default kernel; nearest and Lanczos3 are explicitly selectable. The
+100-megapixel case is slightly faster than Jimp while reducing peak RSS by 86%.
+
+| Implemented workflow | PureJsImage median | Jimp median | PureJsImage peak RSS | Jimp peak RSS |
+| --- | ---: | ---: | ---: | ---: |
+| 4000x3000 PNG to 1000 px | 638.5 ms | 868.4 ms | 140 MiB | 293 MiB |
+| Transparent PNG resize | 38.2 ms | 68.7 ms | 110 MiB | 148 MiB |
+| PNG crop and resize | 405.4 ms | 664.3 ms | 127 MiB | 292 MiB |
+| Tooldesk PNG logo contain | 25.8 ms | 44.2 ms | 98 MiB | 143 MiB |
+| Odd-dimension resize | 6.2 ms | 15.0 ms | 89 MiB | 104 MiB |
+| 100-megapixel downscale | 3,560.7 ms | 3,777.8 ms | 174 MiB | 1,274 MiB |
+
+See the [large PNG resize](benchmark/results/purejsimage-phase3-png-resize-2026-08-06.md),
+[crop-plus-resize](benchmark/results/purejsimage-phase3-png-crop-resize-2026-08-06.md),
+and [100-megapixel stress](benchmark/results/purejsimage-phase3-stress-100mp-2026-08-06.md)
+measurements. The other Phase 3 reports are stored alongside them in
+`benchmark/results/`.
 
 | Workflow | Jimp median wall time | Jimp peak RSS |
 | --- | ---: | ---: |
@@ -103,7 +135,7 @@ and [palette measurement](benchmark/results/purejsimage-phase2-png-2026-08-06.md
 | 100-image thumbnail batch | 72.7 s | 604 MiB |
 | 100-megapixel PNG downscale | 3,710 ms | 1,272 MiB |
 
-The suite contains 24 workflows covering real photographs, JPEG and PNG
+The suite contains 25 workflows covering real photographs, JPEG and PNG
 conversion, transparency, EXIF orientation, palette and 16-bit PNGs, GIF first
 frames, odd and tiny dimensions, high-entropy images, Tooldesk's current image
 workflows, batching, and a 100-megapixel stress case.

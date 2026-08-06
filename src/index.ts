@@ -24,6 +24,7 @@ export type {
   JpegEncodeOptions,
   PngEncodeOptions,
   ResizeFit,
+  ResizeKernel,
   ResizeOptions,
   ResizePosition,
 } from './pipeline.ts'
