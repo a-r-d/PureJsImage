@@ -1,0 +1,86 @@
+tests/pipeline.test.ts
+  s_4612ba9d4ce750::t_488c2422c0a92e 1-52,56-67,71-80
+  s_4612ba9d4ce750::t_b32acf6a46a5d1 53-55,68-70
+tests/fixtures.ts
+  s_4612ba9d4ce750::t_ad443bd1e2187d 17-21,82
+  s_4612ba9d4ce750::t_c78f5875c2e326 3-7
+  s_4612ba9d4ce750::t_488c2422c0a92e 1-2,8-16,22-81,83-127
+tsconfig.json
+  s_4612ba9d4ce750::t_1302f44b8a125b 17
+src/codecs/index.ts
+  s_4612ba9d4ce750::t_fdbf592cde3b14 1-9
+benchmark/results/purejsimage-phase1-metadata-2026-08-06.md
+  s_4612ba9d4ce750::t_0b683fa7e7a97e 1-13
+src/errors.ts
+  s_4612ba9d4ce750::t_3a283d7492f988 1-31
+src/source.ts
+  s_4612ba9d4ce750::t_b32acf6a46a5d1 13-16,89-90,104-106,135-136,159-160,162-163
+  s_4612ba9d4ce750::t_f0615734b17f63 114
+  s_4612ba9d4ce750::t_3a283d7492f988 1-12,17-88,91-103,107-113,115-134,137-158,161,164-166
+.gitignore
+  s_4612ba9d4ce750::t_1302f44b8a125b 42
+tests/core-abstractions.test.ts
+  s_4612ba9d4ce750::t_488c2422c0a92e 1-68
+src/pipeline.ts
+  s_4612ba9d4ce750::t_b32acf6a46a5d1 41-50,80-83,94-97,107-109,142-145,162-166,175-178
+  s_4612ba9d4ce750::t_1302f44b8a125b 1-40,51-79,84-93,98-106,110-141,146-161,167-174,179-200
+src/index.ts
+  s_4612ba9d4ce750::t_1302f44b8a125b 1-32
+tests/metadata.test.ts
+  s_4612ba9d4ce750::t_b32acf6a46a5d1 63-66,73-75
+  s_4612ba9d4ce750::t_488c2422c0a92e 1-62,67-72,76-106
+src/sink.ts
+  s_4612ba9d4ce750::t_3a283d7492f988 1-42,49-61
+  s_4612ba9d4ce750::t_7ac779da5abce1 43-48
+src/codec.ts
+  s_4612ba9d4ce750::t_fdbf592cde3b14 1-93
+src/limits.ts
+  s_4612ba9d4ce750::t_3a283d7492f988 1-85
+src/codecs/jpeg.ts
+  s_4612ba9d4ce750::t_fdbf592cde3b14 1-8,15-61,65-97,100-121,128-143
+  s_4612ba9d4ce750::t_b32acf6a46a5d1 9-14,62-64,98-99,122-127
+src/codecs/png.ts
+  s_4612ba9d4ce750::t_fdbf592cde3b14 1-48,51-78
+  s_4612ba9d4ce750::t_b32acf6a46a5d1 49-50
+src/codecs/gif.ts
+  s_4612ba9d4ce750::t_fdbf592cde3b14 1-54,57-91
+  s_4612ba9d4ce750::t_b32acf6a46a5d1 55-56
+tests/project-contract.test.ts
+  s_4612ba9d4ce750::t_637013271b90a1 16
+src/image.ts
+  s_4612ba9d4ce750::t_7ac779da5abce1 35-36,49
+  s_4612ba9d4ce750::t_f0615734b17f63 77-98
+  s_4612ba9d4ce750::t_7db4ac1d4e3d46 1
+  s_4612ba9d4ce750::t_1302f44b8a125b 2-34,37-48,50-76,99-120
+tsconfig.build.json
+  s_4612ba9d4ce750::t_1302f44b8a125b 1-13
+package.json
+  s_4612ba9d4ce750::t_488c2422c0a92e 21
+  s_4612ba9d4ce750::t_1302f44b8a125b 6-16,22
+src/codecs/helpers.ts
+  s_4612ba9d4ce750::t_fdbf592cde3b14 1-36
+benchmark/results/purejsimage-phase1-metadata-2026-08-06.json
+  s_4612ba9d4ce750::t_0b683fa7e7a97e 1-189
+README.md
+  s_4612ba9d4ce750::t_2eba3f18a2cff8 53-61
+  s_4612ba9d4ce750::t_7ac779da5abce1 11-39
+src/pixel.ts
+  s_4612ba9d4ce750::t_b32acf6a46a5d1 3,23-25
+  s_4612ba9d4ce750::t_3a283d7492f988 1-2,4-22,26-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "2b9c82f86d3c1e3a5dcd6ab9790753bb33c26407",
+  "prompts": {},
+  "sessions": {
+    "s_4612ba9d4ce750": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd91e-230c-7843-b7af-875d46866269",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
