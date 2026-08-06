@@ -1,0 +1,79 @@
+README.md
+  s_4612ba9d4ce750::t_a1a3164786971f 13,20,24-28,54-55,69-70,93-111,138
+  s_4612ba9d4ce750::t_9d625e8632fd8f 44-52
+benchmark/results/purejsimage-phase3-png-alpha-resize-2026-08-06.json
+  s_4612ba9d4ce750::t_80d4b9b1ed6f27 1-537
+benchmark/results/purejsimage-phase3-png-resize-2026-08-06.md
+  s_4612ba9d4ce750::t_e635223501e9f3 1-14
+src/pipeline.ts
+  s_4612ba9d4ce750::t_55d0e24142185f 8,16,126,204-206,208
+  s_4612ba9d4ce750::t_96b7ede8697eba 198-203,207
+  s_4612ba9d4ce750::t_ead3a213528c1c 79-86
+benchmark/results/purejsimage-phase3-png-resize-2026-08-06.json
+  s_4612ba9d4ce750::t_e635223501e9f3 1-325
+benchmark/results/purejsimage-phase3-tooldesk-logo-png-2026-08-06.md
+  s_4612ba9d4ce750::t_0ee20335484f5b 1-14
+src/index.ts
+  s_4612ba9d4ce750::t_55d0e24142185f 27
+benchmark/results/purejsimage-phase3-stress-100mp-2026-08-06.md
+  s_4612ba9d4ce750::t_3ebfe0a79fb2eb 1-14
+tests/pipeline.test.ts
+  s_4612ba9d4ce750::t_d4448ffc82be9e 83-84,86
+  s_4612ba9d4ce750::t_96b7ede8697eba 50-57
+tests/resize.test.ts
+  s_4612ba9d4ce750::t_d7075d1ad30555 123-130
+  s_4612ba9d4ce750::t_d4448ffc82be9e 1-7,9-32,35-43,53-80,90-115,136-146,149-151,159-162
+  s_4612ba9d4ce750::t_a5d6e11844b6f4 147-148
+  s_4612ba9d4ce750::t_9f1e4f9bf3604e 116-122,131-135
+  s_4612ba9d4ce750::t_e41c3c396d9244 8,33-34,44-52,81-89,152-158
+benchmark/results/purejsimage-phase3-odd-resize-2026-08-06.json
+  s_4612ba9d4ce750::t_25fe7a76039ac8 1-605
+benchmark/results/purejsimage-phase3-odd-resize-2026-08-06.md
+  s_4612ba9d4ce750::t_25fe7a76039ac8 1-14
+benchmark/results/purejsimage-phase3-stress-100mp-2026-08-06.json
+  s_4612ba9d4ce750::t_3ebfe0a79fb2eb 1-255
+src/resize.ts
+  s_4612ba9d4ce750::t_2c4cf1fdd42c9c 71
+  s_4612ba9d4ce750::t_6f49b91bc444f1 1-63,65-68,72-101,117-128,136-186,191-275,277-309,316-319,321-371,375-426,429-519
+  s_4612ba9d4ce750::t_e41c3c396d9244 187-190,310-315,320,427-428
+  s_4612ba9d4ce750::t_a5d6e11844b6f4 64,69-70,102-116,129-135,372-374
+  s_4612ba9d4ce750::t_9f1e4f9bf3604e 276
+benchmark/results/purejsimage-phase3-tooldesk-logo-png-2026-08-06.json
+  s_4612ba9d4ce750::t_0ee20335484f5b 1-537
+src/executor.ts
+  s_4612ba9d4ce750::t_9f1e4f9bf3604e 4,95
+  s_4612ba9d4ce750::t_f45b9d9a449aa3 5-7,29,41,45,61-62,69,84-94,101-103,106
+benchmark/results/purejsimage-phase3-png-alpha-resize-2026-08-06.md
+  s_4612ba9d4ce750::t_80d4b9b1ed6f27 1-14
+benchmark/results/purejsimage-phase3-png-crop-resize-2026-08-06.md
+  s_4612ba9d4ce750::t_191f5dc313eaa5 1-14
+benchmark/results/purejsimage-phase3-png-crop-resize-2026-08-06.json
+  s_4612ba9d4ce750::t_191f5dc313eaa5 1-325
+benchmark/workflows.ts
+  s_4612ba9d4ce750::t_d1fc01971ac1cf 133-143
+  s_b4989573d5fb47::t_ae45e730b0848e 132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "ea2ef8c72bb52f7450204388bf33f334daa7e76b",
+  "prompts": {},
+  "sessions": {
+    "s_4612ba9d4ce750": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd91e-230c-7843-b7af-875d46866269",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_b4989573d5fb47": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd96d-7f0f-7583-be53-a70cdb8def0d",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
