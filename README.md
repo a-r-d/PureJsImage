@@ -134,8 +134,13 @@ Individual codec entry points are available at `purejsimage/codecs/jpeg`,
 point is the only convenience module that imports every implementation. HEVC
 code is reachable only through `purejsimage/codecs/heif` or `codecs/all`.
 
-Inputs can be file paths, `Buffer`, `Uint8Array`, `ArrayBuffer`, or `Blob`.
-Pipelines are immutable and can output a `Buffer` or write directly to a file.
+Inputs can be file paths, `Buffer`, `Uint8Array`, `ArrayBuffer`, `Blob`, or a custom
+`ImageSource`. Pipelines are immutable and can output a `Buffer` or write directly to a file.
+
+`Buffer`, `Uint8Array`, and `ArrayBuffer` inputs are borrowed without copying to keep peak memory
+bounded. Do not mutate or detach them until every pipeline created from the image has finished.
+Custom `ImageSource.read()` results may be reused or invalidated when the next read starts; codecs
+copy only the bytes they need to retain across reads.
 
 ## Goals
 

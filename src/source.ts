@@ -4,10 +4,14 @@ import { validateInputSize } from './limits.ts'
 
 export interface ImageSource {
   readonly size: number
+  /**
+   * Returned bytes must remain valid until the next read starts. Consumers that
+   * retain bytes across reads must copy them first.
+   */
   read(offset: number, length: number): Promise<Uint8Array>
 }
 
-export type ImageInput = ArrayBuffer | Blob | Uint8Array | string
+export type ImageInput = ArrayBuffer | Blob | ImageSource | Uint8Array | string
 
 const defaultBufferBytes = 65_536
 
@@ -126,6 +130,15 @@ export const createImageSource = async (
   else if (input instanceof Blob) source = new BlobSource(input)
   else if (input instanceof Uint8Array || input instanceof ArrayBuffer)
     source = new MemorySource(input)
+  else if (
+    typeof input === 'object' &&
+    input !== null &&
+    'size' in input &&
+    typeof input.size === 'number' &&
+    'read' in input &&
+    typeof input.read === 'function'
+  )
+    source = input
   else throw invalidInput('Unsupported image input')
 
   validateInputSize(source.size, limits)

@@ -20,7 +20,7 @@ afterEach(async () => {
 })
 
 describe('core abstractions', () => {
-  it('performs bounded memory-source reads without copying', async () => {
+  it('borrows memory inputs without copying, so caller mutations remain visible', async () => {
     const input = Uint8Array.from([1, 2, 3, 4])
     const source = new MemorySource(input)
     const output = await source.read(1, 2)

@@ -498,10 +498,9 @@ const readCompressedChunks = async function* (
   }
 }
 
-const arrayBufferView = (data: Uint8Array): Uint8Array<ArrayBuffer> =>
-  data.buffer instanceof ArrayBuffer
-    ? new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
-    : Uint8Array.from(data)
+// DecompressionStream may retain a chunk after writer.write() resolves. Take
+// bounded ownership before the next ImageSource read is allowed to invalidate it.
+const ownedArrayBufferView = (data: Uint8Array): Uint8Array<ArrayBuffer> => Uint8Array.from(data)
 
 const decompressedChunks = async function* (
   source: ImageSource,
@@ -514,7 +513,7 @@ const decompressedChunks = async function* (
   const feeding = (async () => {
     try {
       for await (const chunk of readCompressedChunks(source, chunks)) {
-        await writer.write(arrayBufferView(chunk))
+        await writer.write(ownedArrayBufferView(chunk))
       }
       await writer.close()
     } catch (error) {
