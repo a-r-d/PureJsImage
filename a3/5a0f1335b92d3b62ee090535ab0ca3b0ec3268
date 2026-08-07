@@ -1,0 +1,27 @@
+CHANGELOG.md
+  s_4669831c864f0c::t_9f297732f3451e 17-18,31-35
+src/orient.ts
+  s_4669831c864f0c::t_6ce8bda077751d 58
+  s_4669831c864f0c::t_16e2dfe53075e2 3,23-35,56-57,59-66,73-81,195-197,203-241,245-253,255-256,259-272
+  s_4669831c864f0c::t_d90a2fc0944596 198-199,257,274-275
+tests/orient-storage.test.ts
+  s_4669831c864f0c::t_db9310dae51b66 1-102
+README.md
+  s_4669831c864f0c::t_9f297732f3451e 151-165
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "a35a0f1335b92d3b62ee090535ab0ca3b0ec3268",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
