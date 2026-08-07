@@ -13,6 +13,9 @@ const png = (compressionLevel = 6): Operation => ({
   compressionLevel,
 })
 
+const webp = (quality: number): Operation => ({ type: 'encode', format: 'webp', quality })
+const losslessWebp = (): Operation => ({ type: 'encode', format: 'webp', lossless: true })
+
 export const workflows: readonly Workflow[] = [
   {
     id: 'metadata-jpeg-large',
@@ -259,6 +262,124 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'jpeg', width: 2048, height: 2048 },
   },
   {
+    id: 'webp-metadata-large',
+    title: 'Read metadata from a 1600x2000 lossy WebP photograph',
+    tier: 'webp',
+    input: 'webp-fbi-portrait-1600x2000',
+    operations: [{ type: 'metadata' }],
+    expected: { format: 'webp', width: 1600, height: 2000 },
+  },
+  {
+    id: 'webp-large-resize-jpeg',
+    title: '1600x2000 lossy WebP photograph to 800px JPEG quality 80',
+    tier: 'webp',
+    input: 'webp-fbi-portrait-1600x2000',
+    operations: [{ type: 'resize', width: 800 }, jpeg(80)],
+    expected: { format: 'jpeg', width: 800, height: 1000 },
+  },
+  {
+    id: 'webp-lossy-photo-png',
+    title: 'Google gallery lossy photograph to PNG with reference pixel checks',
+    tier: 'webp',
+    input: 'webp-gallery-cherry-1024x772',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 1024,
+      height: 772,
+      pixelSamples: [
+        { x: 0, y: 0, red: 27, green: 125, blue: 192, alpha: 255, tolerance: 24 },
+        { x: 512, y: 386, red: 82, green: 173, blue: 231, alpha: 255, tolerance: 24 },
+        { x: 1023, y: 771, red: 18, green: 21, blue: 0, alpha: 255, tolerance: 24 },
+      ],
+    },
+  },
+  {
+    id: 'webp-lossy-photo-crop-resize',
+    title: 'Second lossy WebP photograph crop, resize, and JPEG conversion',
+    tier: 'webp',
+    input: 'webp-gallery-fire-1024x752',
+    operations: [
+      { type: 'crop', x: 112, y: 76, width: 800, height: 600 },
+      { type: 'resize', width: 400 },
+      jpeg(80),
+    ],
+    expected: { format: 'jpeg', width: 400, height: 300 },
+  },
+  {
+    id: 'webp-lossless-alpha-png',
+    title: 'Lossless WebP rose with alpha to exact PNG pixels',
+    tier: 'webp',
+    input: 'webp-lossless-rose-400x301',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 400,
+      height: 301,
+      cornerAlpha: 0,
+      pixelSamples: [
+        { x: 100, y: 75, red: 239, green: 142, blue: 33, alpha: 255 },
+        { x: 200, y: 150, red: 153, green: 75, blue: 1, alpha: 255 },
+        { x: 399, y: 300, red: 57, green: 131, blue: 218, alpha: 0 },
+      ],
+    },
+  },
+  {
+    id: 'webp-lossless-odd-png',
+    title: 'Odd-sized lossless WebP graphic to exact PNG pixels',
+    tier: 'webp',
+    input: 'webp-lossless-tux-386x395',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 386,
+      height: 395,
+      cornerAlpha: 0,
+      pixelSamples: [
+        { x: 193, y: 197, red: 162, green: 116, blue: 0, alpha: 255 },
+        { x: 289, y: 296, red: 183, green: 183, blue: 183, alpha: 255 },
+        { x: 385, y: 394, red: 204, green: 150, blue: 0, alpha: 0 },
+      ],
+    },
+  },
+  {
+    id: 'webp-lossy-alpha-png',
+    title: 'Lossy WebP with compressed alpha to PNG',
+    tier: 'webp',
+    input: 'webp-lossy-alpha-800x600',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 800,
+      height: 600,
+      cornerAlpha: 0,
+      pixelSamples: [
+        { x: 0, y: 0, alpha: 0 },
+        { x: 200, y: 150, red: 75, green: 73, blue: 140, tolerance: 24 },
+        { x: 200, y: 150, alpha: 232 },
+        { x: 400, y: 300, red: 255, green: 236, blue: 243, tolerance: 24 },
+        { x: 400, y: 300, alpha: 255 },
+        { x: 799, y: 599, alpha: 0 },
+      ],
+    },
+  },
+  {
+    id: 'jpeg-to-webp-lossy',
+    title: '4000x3000 JPEG to 1200px lossy WebP quality 80',
+    tier: 'webp',
+    input: 'tundra-4000x3000',
+    operations: [{ type: 'resize', width: 1200 }, webp(80)],
+    expected: { format: 'webp', width: 1200, height: 900 },
+  },
+  {
+    id: 'png-to-webp-lossless',
+    title: 'Transparent PNG to lossless WebP',
+    tier: 'webp',
+    input: 'transparent-logo-1200x480',
+    operations: [losslessWebp()],
+    expected: { format: 'webp', width: 1200, height: 480 },
+  },
+  {
     id: 'batch-100-thumbnails',
     title: 'Batch 100 mixed JPEG images to 320px JPEG thumbnails',
     tier: 'full',
@@ -310,7 +431,7 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
     return workflows.filter((workflow) => workflow.tier === 'smoke')
   }
   if (profile === 'standard') {
-    return workflows.filter((workflow) => workflow.tier !== 'full')
+    return workflows.filter((workflow) => workflow.tier === 'smoke' || workflow.tier === 'standard')
   }
   if (profile === 'phase4') {
     return workflows.filter((workflow) => phase4WorkflowIds.has(workflow.id))
@@ -319,7 +440,10 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
     return workflows.filter((workflow) => phase5WorkflowIds.has(workflow.id))
   }
   if (profile === 'full') {
-    return workflows
+    return workflows.filter((workflow) => workflow.tier !== 'webp')
+  }
+  if (profile === 'webp') {
+    return workflows.filter((workflow) => workflow.tier === 'webp')
   }
   throw new Error(`Unknown profile: ${profile}`)
 }

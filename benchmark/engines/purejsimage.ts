@@ -14,8 +14,13 @@ interface PureImage {
     withoutEnlargement?: boolean
   }): PureImage
   encode(
-    format: 'jpeg' | 'png',
-    options: { quality?: number; compressionLevel?: number; background?: string },
+    format: 'jpeg' | 'png' | 'webp',
+    options: {
+      quality?: number
+      compressionLevel?: number
+      lossless?: boolean
+      background?: string
+    },
   ): { toBuffer(): Promise<Uint8Array> }
 }
 
@@ -98,6 +103,7 @@ const applyOperations = async ({
             ...(operation.compressionLevel !== undefined
               ? { compressionLevel: operation.compressionLevel }
               : {}),
+            ...(operation.lossless !== undefined ? { lossless: operation.lossless } : {}),
             ...(operation.background ? { background: operation.background } : {}),
           })
           .toBuffer()

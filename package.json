@@ -31,7 +31,8 @@
     "results:combine": "node benchmark/scripts/combine-results.ts",
     "bench": "node benchmark/run.ts",
     "bench:jimp": "node benchmark/run.ts --engines jimp",
-    "bench:smoke": "node benchmark/run.ts --engines jimp --profile smoke --runs 1 --warmups 0"
+    "bench:smoke": "node benchmark/run.ts --engines jimp --profile smoke --runs 1 --warmups 0",
+    "bench:webp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile webp"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.7",

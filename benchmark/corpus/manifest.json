@@ -114,6 +114,90 @@
         "frames": 70,
         "sha256": "cac50c006181509f3b7662284c024d60bc3bccdfabc3db20ad41831a448bb43e"
       }
+    },
+    {
+      "id": "webp-fbi-portrait-1600x2000",
+      "file": "webp-fbi-portrait-1600x2000.webp",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Acting_FBI_Director_Brian_Driscoll.webp",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Acting_FBI_Director_Brian_Driscoll.webp",
+      "author": "Federal Bureau of Investigation",
+      "license": "Public domain, United States government",
+      "expected": {
+        "format": "webp",
+        "width": 1600,
+        "height": 2000,
+        "sha256": "50b2aad522622443c9ecbba41353360dd144127b3248a96cd814b1f8691e44b7"
+      }
+    },
+    {
+      "id": "webp-gallery-cherry-1024x772",
+      "file": "webp-gallery-cherry-1024x772.webp",
+      "url": "https://www.gstatic.com/webp/gallery/4.webp",
+      "sourcePage": "https://developers.google.com/speed/webp/gallery1",
+      "author": "Benjamin Gimmel",
+      "license": "Creative Commons Attribution-ShareAlike 3.0 Unported",
+      "expected": {
+        "format": "webp",
+        "width": 1024,
+        "height": 772,
+        "sha256": "0858d0afcb2921ded36b05586204f2459d965feb7db54cb083e3cfa059589dd9"
+      }
+    },
+    {
+      "id": "webp-gallery-fire-1024x752",
+      "file": "webp-gallery-fire-1024x752.webp",
+      "url": "https://www.gstatic.com/webp/gallery/5.webp",
+      "sourcePage": "https://developers.google.com/speed/webp/gallery1",
+      "author": "Luc Viatour",
+      "license": "Creative Commons Attribution-ShareAlike 3.0 Unported",
+      "expected": {
+        "format": "webp",
+        "width": 1024,
+        "height": 752,
+        "sha256": "eb4f6043f17a868cb6618a97fb5ba9a130c7f10b13b1db83fcf2df10ecbe1f23"
+      }
+    },
+    {
+      "id": "webp-lossless-rose-400x301",
+      "file": "webp-lossless-rose-400x301.webp",
+      "url": "https://www.gstatic.com/webp/gallery3/1_webp_ll.webp",
+      "sourcePage": "https://developers.google.com/speed/webp/gallery2",
+      "author": "Jon Sullivan",
+      "license": "Public domain",
+      "expected": {
+        "format": "webp",
+        "width": 400,
+        "height": 301,
+        "sha256": "49a902b9c35bd2031bf26234c59ff369dd3ae18a3b58247285104a23346ba2d4"
+      }
+    },
+    {
+      "id": "webp-lossless-tux-386x395",
+      "file": "webp-lossless-tux-386x395.webp",
+      "url": "https://www.gstatic.com/webp/gallery3/2_webp_ll.webp",
+      "sourcePage": "https://developers.google.com/speed/webp/gallery2",
+      "author": "Fizyplankton",
+      "license": "Public domain",
+      "expected": {
+        "format": "webp",
+        "width": 386,
+        "height": 395,
+        "sha256": "67d332b637d19997ca95359099067205ce28226d15320ae8f17da51e4f814c95"
+      }
+    },
+    {
+      "id": "webp-lossy-alpha-800x600",
+      "file": "webp-lossy-alpha-800x600.webp",
+      "url": "https://www.gstatic.com/webp/gallery3/3_webp_a.webp",
+      "sourcePage": "https://developers.google.com/speed/webp/gallery2",
+      "author": "POV-Ray source code demonstration",
+      "license": "Creative Commons Attribution-ShareAlike 3.0 Unported",
+      "expected": {
+        "format": "webp",
+        "width": 800,
+        "height": 600,
+        "sha256": "3007986171ba049ea85169be273750e85c4b55893d8cdc481ce11aa58dbbc734"
+      }
     }
   ],
   "generated": [

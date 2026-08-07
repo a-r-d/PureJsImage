@@ -34,6 +34,12 @@ npm run fixtures:verify
 The preparation script generates synthetic fixtures deterministically. It only
 downloads files that are missing or fail verification.
 
+The WebP corpus adds six independently encoded files from the official Google
+WebP galleries and Wikimedia Commons. It covers two ordinary lossy photographs,
+a larger 1600x2000 photograph, two lossless alpha graphics with odd dimensions,
+and a lossy image with a compressed alpha plane. Reference pixel samples are
+pinned for decoder workflows in addition to dimensions and container hashes.
+
 ## Running
 
 Quick harness validation:
@@ -60,7 +66,18 @@ Cross-format and first-frame GIF regression pass:
 PUREJSIMAGE_ENTRY=./dist/index.js npm run bench -- --engines jimp,purejsimage --profile phase5
 ```
 
-All workflows, including batch and 100-megapixel stress cases:
+Static WebP decode, transform, and encode profile:
+
+```sh
+npm run bench:webp
+```
+
+Jimp 1.6.0 does not provide a WebP codec, so this profile is intentionally
+PureJsImage-only. Decode results still require independently generated pixel
+samples to pass. The profile records absolute time, output size, and memory
+without inventing an invalid direct Jimp comparison.
+
+All Jimp-comparable workflows, including batch and 100-megapixel stress cases:
 
 ```sh
 npm run bench:jimp -- --profile full

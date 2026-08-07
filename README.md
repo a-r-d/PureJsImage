@@ -235,6 +235,33 @@ the Tooldesk GIF upload normalization is 22% faster with 26% less peak RSS.
 
 See the [complete Phase 5 report](benchmark/results/purejsimage-phase5-first-party-cold-2026-08-06.md).
 
+The static WebP baseline adds nine workflows backed by six independently
+encoded, checksum-pinned fixtures: large and ordinary lossy photographs,
+lossless transparency, odd dimensions, and lossy alpha. All nine workflows
+pass across three measured processes, including metadata reads, decode and
+conversion, crop and resize, lossy JPEG-to-WebP encoding, and lossless
+PNG-to-WebP encoding. Selected reference-decoder pixel samples are checked in
+addition to dimensions and output decoding.
+
+| Workflow | PureJsImage median | PureJsImage peak RSS | Output |
+| --- | ---: | ---: | ---: |
+| Large WebP metadata | 0.2 ms | 87.2 MiB | 0.0 MiB |
+| Large WebP resize to JPEG | 1,511.8 ms | 185.3 MiB | 0.1 MiB |
+| Lossy WebP to PNG | 229.9 ms | 139.1 MiB | 1.3 MiB |
+| Lossy WebP crop and resize | 144.0 ms | 108.4 MiB | 0.0 MiB |
+| Lossless-alpha WebP to PNG | 46.6 ms | 94.3 MiB | 0.1 MiB |
+| Lossy-alpha WebP to PNG | 239.5 ms | 132.0 MiB | 0.2 MiB |
+| JPEG to lossy WebP | 2,106.5 ms | 152.9 MiB | 0.4 MiB |
+| PNG to lossless WebP | 104.3 ms | 107.7 MiB | 2.2 MiB |
+
+Jimp 1.6 does not expose a WebP codec, so these measurements establish an
+absolute PureJsImage baseline rather than an artificial head-to-head result.
+The 3.2-megapixel lossy resize peaks at 185.3 MiB, making bounded macroblock-row
+decoding the next WebP memory target. The initial literal-only lossless encoder
+produces a 2.2 MiB output in its conversion case, so LZ77 and entropy coding are
+also clear compression targets. See the
+[complete WebP baseline](benchmark/results/purejsimage-webp-baseline-2026-08-06.md).
+
 Progressive JPEG compatibility is now a separate measured memory class because
 later scans can refine blocks decoded near the start of the image. An
 exploratory three-process cold run converted a 4000x3000 progressive JPEG to a
@@ -276,7 +303,8 @@ coefficient storage remains open work.
 | 100-image thumbnail batch | 72.7 s | 604 MiB |
 | 100-megapixel PNG downscale | 3,710 ms | 1,272 MiB |
 
-The suite contains 25 workflows covering real photographs, JPEG and PNG
+The suite contains 25 Jimp-comparable workflows plus nine WebP-specific
+workflows. Together they cover real photographs, JPEG, PNG, GIF, and WebP
 conversion, transparency, EXIF orientation, palette and 16-bit PNGs, GIF first
 frames, odd and tiny dimensions, high-entropy images, Tooldesk's current image
 workflows, batching, and a 100-megapixel stress case.
@@ -315,6 +343,7 @@ or its eventual installed dependency tree.
 npm run fixtures:prepare
 npm run fixtures:verify
 npm run bench:jimp -- --profile full
+npm run bench:webp
 ```
 
 Once PureJsImage has an executable build:

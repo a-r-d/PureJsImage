@@ -1,7 +1,7 @@
-export type ImageFormat = 'gif' | 'jpeg' | 'png'
-export type OutputFormat = 'jpeg' | 'png'
+export type ImageFormat = 'gif' | 'jpeg' | 'png' | 'webp'
+export type OutputFormat = 'jpeg' | 'png' | 'webp'
 export type BenchmarkColor = '#ffffff' | 'transparent'
-export type BenchmarkProfile = 'full' | 'smoke' | 'standard'
+export type BenchmarkProfile = 'full' | 'smoke' | 'standard' | 'webp'
 
 export interface FixtureExpectation {
   format: ImageFormat
@@ -81,8 +81,19 @@ export type Operation =
       format: OutputFormat
       quality?: number
       compressionLevel?: number
+      lossless?: boolean
       background?: BenchmarkColor
     }
+
+export interface PixelSampleExpectation {
+  x: number
+  y: number
+  red?: number
+  green?: number
+  blue?: number
+  alpha?: number
+  tolerance?: number
+}
 
 export interface WorkflowExpectation {
   format: OutputFormat
@@ -91,6 +102,7 @@ export interface WorkflowExpectation {
   outputs?: number
   cornerAlpha?: number
   cornerRgbMinimum?: number
+  pixelSamples?: readonly PixelSampleExpectation[]
 }
 
 interface WorkflowBase {
