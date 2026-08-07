@@ -1,0 +1,210 @@
+import type { EncodeRequest, ImageEncoder } from '../codec.ts'
+import { invalidInput } from '../errors.ts'
+import type { PixelBlock, PixelFormat } from '../pixel.ts'
+import type { ImageSink } from '../sink.ts'
+
+class BitWriter {
+  readonly #sink: ImageSink
+  readonly #bytes: number[] = []
+  #current = 0
+  #bitCount = 0
+
+  constructor(sink: ImageSink) {
+    this.#sink = sink
+  }
+
+  writeBits(value: number, length: number): void {
+    for (let bit = 0; bit < length; bit += 1) {
+      this.#current |= ((value >>> bit) & 1) << this.#bitCount
+      this.#bitCount += 1
+      if (this.#bitCount === 8) {
+        this.#bytes.push(this.#current)
+        this.#current = 0
+        this.#bitCount = 0
+      }
+    }
+  }
+
+  async flushComplete(): Promise<void> {
+    if (this.#bytes.length === 0) return
+    await this.#sink.write(Uint8Array.from(this.#bytes))
+    this.#bytes.length = 0
+  }
+
+  async finish(): Promise<void> {
+    if (this.#bitCount > 0) this.#bytes.push(this.#current)
+    this.#current = 0
+    this.#bitCount = 0
+    await this.flushComplete()
+  }
+}
+
+const reverseByte = (value: number): number => {
+  let reversed = 0
+  for (let bit = 0; bit < 8; bit += 1) reversed |= ((value >>> bit) & 1) << (7 - bit)
+  return reversed
+}
+
+const writeCodeLengthSymbol = (writer: BitWriter, symbol: 8 | 16 | 18): void => {
+  if (symbol === 8) writer.writeBits(0, 1)
+  else if (symbol === 16) writer.writeBits(1, 2)
+  else writer.writeBits(3, 2)
+}
+
+const writeFixedLiteralTree = (writer: BitWriter, alphabetSize: 256 | 280): void => {
+  writer.writeBits(0, 1)
+  writer.writeBits(10, 4)
+  for (const length of [0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0]) {
+    writer.writeBits(length, 3)
+  }
+  writer.writeBits(0, 1)
+  writeCodeLengthSymbol(writer, 8)
+  let remaining = 255
+  while (remaining > 0) {
+    const repeat = Math.min(6, remaining)
+    writeCodeLengthSymbol(writer, 16)
+    writer.writeBits(repeat - 3, 2)
+    remaining -= repeat
+  }
+  if (alphabetSize === 280) {
+    writeCodeLengthSymbol(writer, 18)
+    writer.writeBits(13, 7)
+  }
+}
+
+const writeSingleZeroTree = (writer: BitWriter): void => {
+  writer.writeBits(1, 1)
+  writer.writeBits(0, 1)
+  writer.writeBits(0, 1)
+  writer.writeBits(0, 1)
+}
+
+const uint32 = (data: Uint8Array, offset: number, value: number): void => {
+  const view = new DataView(data.buffer, data.byteOffset, data.byteLength)
+  view.setUint32(offset, value, true)
+}
+
+const channels = (format: PixelFormat): number => {
+  if (format === 'gray8') return 1
+  if (format === 'rgb8') return 3
+  if (format === 'rgba8') return 4
+  throw invalidInput(`WebP encoder does not support ${format} pixels`)
+}
+
+class LosslessWebpEncoder implements ImageEncoder {
+  readonly #writer: BitWriter
+  readonly #width: number
+  readonly #height: number
+  readonly #format: PixelFormat
+  readonly #channels: number
+  #expectedY = 0
+  #finished = false
+
+  constructor(writer: BitWriter, width: number, height: number, format: PixelFormat) {
+    this.#writer = writer
+    this.#width = width
+    this.#height = height
+    this.#format = format
+    this.#channels = channels(format)
+  }
+
+  async write(block: PixelBlock): Promise<void> {
+    if (this.#finished) throw new Error('Cannot write to a finished WebP encoder')
+    const rowBytes = this.#width * this.#channels
+    if (
+      block.x !== 0 ||
+      block.y !== this.#expectedY ||
+      block.width !== this.#width ||
+      block.height < 1 ||
+      block.y + block.height > this.#height ||
+      block.format !== this.#format ||
+      block.stride < rowBytes ||
+      block.data.byteLength < block.stride * (block.height - 1) + rowBytes
+    ) {
+      throw invalidInput('WebP encoder requires ordered, full-width pixel blocks')
+    }
+
+    for (let row = 0; row < block.height; row += 1) {
+      for (let x = 0; x < this.#width; x += 1) {
+        const offset = row * block.stride + x * this.#channels
+        const red = block.data[offset] ?? 0
+        const green = this.#channels === 1 ? red : (block.data[offset + 1] ?? 0)
+        const blue = this.#channels === 1 ? red : (block.data[offset + 2] ?? 0)
+        const alpha = this.#channels === 4 ? (block.data[offset + 3] ?? 0) : 255
+        this.#writer.writeBits(reverseByte(green), 8)
+        this.#writer.writeBits(reverseByte(red), 8)
+        this.#writer.writeBits(reverseByte(blue), 8)
+        this.#writer.writeBits(reverseByte(alpha), 8)
+      }
+    }
+    this.#expectedY += block.height
+    await this.#writer.flushComplete()
+  }
+
+  async finish(): Promise<void> {
+    if (this.#finished) throw new Error('WebP encoder is already finished')
+    this.#finished = true
+    if (this.#expectedY !== this.#height) {
+      throw invalidInput(`WebP encoder received ${this.#expectedY} of ${this.#height} rows`)
+    }
+    await this.#writer.finish()
+  }
+
+  async abort(): Promise<void> {
+    this.#finished = true
+  }
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null
+
+export const createLosslessWebpEncoder = async (
+  sink: ImageSink,
+  request: EncodeRequest,
+): Promise<ImageEncoder> => {
+  if (
+    !Number.isSafeInteger(request.width) ||
+    !Number.isSafeInteger(request.height) ||
+    request.width < 1 ||
+    request.height < 1 ||
+    request.width > 16_384 ||
+    request.height > 16_384
+  ) {
+    throw invalidInput(
+      `Invalid lossless WebP output dimensions: ${request.width}x${request.height}`,
+    )
+  }
+  if (!isRecord(request.options) || request.options.lossless !== true) {
+    throw invalidInput('Lossless WebP encoding requires lossless: true')
+  }
+  channels(request.pixelFormat)
+
+  const pixels = request.width * request.height
+  const prefixBits = 900
+  const payloadLength = 5 + Math.ceil((prefixBits + pixels * 32) / 8)
+  const header = new Uint8Array(25)
+  header.set([0x52, 0x49, 0x46, 0x46], 0)
+  uint32(header, 4, 4 + 8 + payloadLength)
+  header.set([0x57, 0x45, 0x42, 0x50, 0x56, 0x50, 0x38, 0x4c], 8)
+  uint32(header, 16, payloadLength)
+  header[20] = 0x2f
+  uint32(
+    header,
+    21,
+    (request.width - 1) |
+      ((request.height - 1) << 14) |
+      (request.pixelFormat === 'rgba8' ? 1 << 28 : 0),
+  )
+  await sink.write(header)
+
+  const writer = new BitWriter(sink)
+  writer.writeBits(0, 1)
+  writer.writeBits(0, 1)
+  writer.writeBits(0, 1)
+  writeFixedLiteralTree(writer, 280)
+  writeFixedLiteralTree(writer, 256)
+  writeFixedLiteralTree(writer, 256)
+  writeFixedLiteralTree(writer, 256)
+  writeSingleZeroTree(writer)
+  return new LosslessWebpEncoder(writer, request.width, request.height, request.pixelFormat)
+}

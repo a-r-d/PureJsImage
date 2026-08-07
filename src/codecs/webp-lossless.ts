@@ -744,20 +744,7 @@ export interface LosslessWebpImage {
   readonly pixels: Uint32Array
 }
 
-export const decodeLosslessWebp = (
-  data: Uint8Array,
-  offset: number,
-  length: number,
-  validateDimensions: (width: number, height: number) => void,
-): LosslessWebpImage => {
-  if (data[offset] !== 0x2f) throw invalidInput('WebP lossless signature is invalid')
-  const reader = new BitReader(data, offset + 1, length - 1)
-  const width = reader.readBits(14) + 1
-  const height = reader.readBits(14) + 1
-  reader.readBits(1)
-  if (reader.readBits(3) !== 0) throw invalidInput('WebP lossless version is unsupported')
-  validateDimensions(width, height)
-
+const decodeLosslessImage = (reader: BitReader, width: number, height: number): Uint32Array => {
   const transforms: Transform[] = []
   const seen = new Set<number>()
   let encodedWidth = width
@@ -798,7 +785,35 @@ export const decodeLosslessWebp = (
     else if (transform.type === 'color') inverseColor(pixels, currentWidth, transform)
     else inversePredictor(pixels, currentWidth, transform)
   }
-  if (currentWidth !== width || pixels.length !== width * height)
+  if (currentWidth !== width || pixels.length !== width * height) {
     throw invalidInput('WebP lossless transforms produced invalid dimensions')
-  return { width, height, pixels }
+  }
+  return pixels
+}
+
+export const decodeLosslessWebp = (
+  data: Uint8Array,
+  offset: number,
+  length: number,
+  validateDimensions: (width: number, height: number) => void,
+): LosslessWebpImage => {
+  if (data[offset] !== 0x2f) throw invalidInput('WebP lossless signature is invalid')
+  const reader = new BitReader(data, offset + 1, length - 1)
+  const width = reader.readBits(14) + 1
+  const height = reader.readBits(14) + 1
+  reader.readBits(1)
+  if (reader.readBits(3) !== 0) throw invalidInput('WebP lossless version is unsupported')
+  validateDimensions(width, height)
+  return { width, height, pixels: decodeLosslessImage(reader, width, height) }
+}
+
+export const decodeLosslessWebpAlpha = (
+  data: Uint8Array,
+  offset: number,
+  length: number,
+  width: number,
+  height: number,
+): Uint8Array => {
+  const pixels = decodeLosslessImage(new BitReader(data, offset, length), width, height)
+  return Uint8Array.from(pixels, (pixel) => (pixel >>> 8) & 255)
 }

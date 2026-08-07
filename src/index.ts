@@ -33,6 +33,7 @@ export type {
   ResizeKernel,
   ResizeOptions,
   ResizePosition,
+  WebpEncodeOptions,
 } from './pipeline.ts'
 export { BlobSource, FileSource, MemorySource } from './source.ts'
 export type { ImageInput, ImageSource } from './source.ts'

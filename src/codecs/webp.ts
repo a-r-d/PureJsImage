@@ -1,11 +1,22 @@
-import type { DecodeRequest, ImageCodec, ImageDecoder, ImageMetadata } from '../codec.ts'
+import type {
+  DecodeRequest,
+  EncodeRequest,
+  ImageCodec,
+  ImageDecoder,
+  ImageEncoder,
+  ImageMetadata,
+} from '../codec.ts'
 import { invalidInput, truncatedInput, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
-import { decodeLosslessWebp } from './webp-lossless.ts'
+import type { ImageSink } from '../sink.ts'
+import { decodeLosslessWebp, decodeLosslessWebpAlpha } from './webp-lossless.ts'
+import { createLosslessWebpEncoder } from './webp-lossless-encode.ts'
+import { LossyWebpEncoder } from './webp-lossy-encode.ts'
+import { decodeVp8 } from './vp8.ts'
 
 interface WebpChunk {
   readonly type: string
@@ -20,6 +31,7 @@ interface ParsedWebp {
   readonly animated: boolean
   readonly frames: number
   readonly image: WebpChunk | undefined
+  readonly alpha: WebpChunk | undefined
 }
 
 const byte = (data: Uint8Array, offset: number): number => data[offset] ?? 0
@@ -83,6 +95,7 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
   let animated = false
   let frames = 0
   let image: WebpChunk | undefined
+  let alpha: WebpChunk | undefined
   let offset = 12
   while (offset < end) {
     if (offset + 8 > end) throw truncatedInput('WebP chunk header is truncated')
@@ -100,6 +113,7 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
       canvasWidth = uint24(data, payload + 4) + 1
       canvasHeight = uint24(data, payload + 7) + 1
     } else if (type === 'ANMF') frames += 1
+    else if (type === 'ALPH' && !alpha) alpha = chunk
     else if ((type === 'VP8 ' || type === 'VP8L') && !image) image = chunk
     offset = next
   }
@@ -124,7 +138,55 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
     animated,
     frames: animated ? Math.max(1, frames) : 1,
     image,
+    alpha,
   }
+}
+
+const decodeAlpha = (
+  data: Uint8Array,
+  chunk: WebpChunk,
+  width: number,
+  height: number,
+): Uint8Array => {
+  if (chunk.length < 1) throw truncatedInput('WebP alpha chunk is truncated')
+  const flags = byte(data, chunk.offset)
+  if ((flags & 0xc0) !== 0) throw invalidInput('WebP alpha reserved bits are set')
+  const compression = flags & 3
+  const filter = (flags >>> 2) & 3
+  const pixelCount = width * height
+  let alpha: Uint8Array
+  if (compression === 0) {
+    if (chunk.length - 1 < pixelCount) throw truncatedInput('WebP raw alpha payload is truncated')
+    alpha = data.slice(chunk.offset + 1, chunk.offset + 1 + pixelCount)
+  } else if (compression === 1) {
+    alpha = decodeLosslessWebpAlpha(data, chunk.offset + 1, chunk.length - 1, width, height)
+  } else throw unsupportedOperation(`WebP alpha compression method ${compression} is unsupported`)
+
+  if (filter === 0) return alpha
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = y * width + x
+      const left = x > 0 ? (alpha[index - 1] ?? 0) : 0
+      const above = y > 0 ? (alpha[index - width] ?? 0) : 0
+      const upperLeft = x > 0 && y > 0 ? (alpha[index - width - 1] ?? 0) : 0
+      const predictor =
+        filter === 1
+          ? x > 0
+            ? left
+            : above
+          : filter === 2
+            ? y > 0
+              ? above
+              : left
+            : x === 0
+              ? above
+              : y === 0
+                ? left
+                : Math.max(0, Math.min(255, left + above - upperLeft))
+      alpha[index] = ((alpha[index] ?? 0) + predictor) & 255
+    }
+  }
+  return alpha
 }
 
 const decodeRegion = (
@@ -153,7 +215,7 @@ const decodeRegion = (
   return { x, y, width: outputWidth, height: outputHeight }
 }
 
-class LosslessWebpDecoder implements ImageDecoder {
+class WebpPixelDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat = 'rgba8' as const
@@ -205,6 +267,41 @@ class LosslessWebpDecoder implements ImageDecoder {
 const input = async (source: ImageSource): Promise<Uint8Array> =>
   readExactly(source, 0, source.size)
 
+const createWebpEncoder = async (
+  sink: ImageSink,
+  request: EncodeRequest,
+): Promise<ImageEncoder> => {
+  if (
+    typeof request.options === 'object' &&
+    request.options !== null &&
+    'lossless' in request.options &&
+    request.options.lossless === true
+  ) {
+    return createLosslessWebpEncoder(sink, request)
+  }
+  if (
+    !Number.isSafeInteger(request.width) ||
+    !Number.isSafeInteger(request.height) ||
+    request.width < 1 ||
+    request.height < 1 ||
+    request.width > 16_384 ||
+    request.height > 16_384
+  ) {
+    throw invalidInput(`Invalid lossy WebP output dimensions: ${request.width}x${request.height}`)
+  }
+  const quality =
+    typeof request.options === 'object' &&
+    request.options !== null &&
+    'quality' in request.options &&
+    typeof request.options.quality === 'number'
+      ? request.options.quality
+      : 80
+  if (!Number.isInteger(quality) || quality < 1 || quality > 100) {
+    throw invalidInput('WebP quality must be an integer from 1 to 100')
+  }
+  return new LossyWebpEncoder(sink, request.width, request.height, request.pixelFormat, quality)
+}
+
 export const webpCodec: ImageCodec = {
   format: 'webp',
   mimeTypes: ['image/webp'],
@@ -230,18 +327,26 @@ export const webpCodec: ImageCodec = {
     validateImageDimensions(parsed.width, parsed.height, parsed.frames, limits)
     if (parsed.animated) throw unsupportedOperation('Animated WebP decoding is not implemented')
     if (!parsed.image) throw invalidInput('WebP image bitstream is missing')
-    if (parsed.image.type !== 'VP8L')
-      throw unsupportedOperation('Lossy WebP decoding is not implemented yet')
-    const decoded = decodeLosslessWebp(
-      data,
-      parsed.image.offset,
-      parsed.image.length,
-      (width, height) => {
-        validateImageDimensions(width, height, 1, limits)
-      },
-    )
-    if (decoded.width !== parsed.width || decoded.height !== parsed.height)
-      throw invalidInput('WebP canvas and lossless bitstream dimensions do not match')
-    return new LosslessWebpDecoder(decoded.width, decoded.height, decoded.pixels)
+    const decoded =
+      parsed.image.type === 'VP8L'
+        ? decodeLosslessWebp(data, parsed.image.offset, parsed.image.length, (width, height) => {
+            validateImageDimensions(width, height, 1, limits)
+          })
+        : decodeVp8(data, parsed.image.offset, parsed.image.length, (width, height) => {
+            validateImageDimensions(width, height, 1, limits)
+          })
+    if (parsed.image.type === 'VP8 ' && parsed.hasAlpha) {
+      if (!parsed.alpha) throw invalidInput('WebP extended alpha chunk is missing')
+      const alpha = decodeAlpha(data, parsed.alpha, decoded.width, decoded.height)
+      for (let index = 0; index < decoded.pixels.length; index += 1) {
+        decoded.pixels[index] =
+          ((alpha[index] ?? 0) << 24) | ((decoded.pixels[index] ?? 0) & 0x00ffffff)
+      }
+    }
+    if (decoded.width !== parsed.width || decoded.height !== parsed.height) {
+      throw invalidInput('WebP canvas and image bitstream dimensions do not match')
+    }
+    return new WebpPixelDecoder(decoded.width, decoded.height, decoded.pixels)
   },
+  createEncoder: createWebpEncoder,
 }

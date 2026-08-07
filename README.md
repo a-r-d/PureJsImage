@@ -19,7 +19,7 @@ scales like a full source-resolution RGBA bitmap.
 ## Implementation status
 
 The Phase 1 core, Phase 2-5 PNG/JPEG/GIF paths, progressive JPEG input, and the
-first WebP compatibility slice are implemented in strict TypeScript 7:
+V1 still-image WebP surface are implemented in strict TypeScript 7:
 
 - bounded Buffer, Uint8Array, ArrayBuffer, Blob, and file sources;
 - automatic PNG, JPEG, GIF, and WebP detection and metadata parsing;
@@ -40,6 +40,11 @@ first WebP compatibility slice are implemented in strict TypeScript 7:
   transparency, frame offsets, and interlacing;
 - first-party lossless WebP decoding, including prefix codes, LZ77 references,
   color caches, spatial entropy groups, and all four lossless transforms;
+- first-party lossy VP8 WebP decoding with intra prediction, coefficient
+  decoding, inverse transforms, normal and simple loop filtering, and raw or
+  VP8L-compressed extended alpha;
+- first-party lossless and lossy WebP encoding, including quality control and
+  exact alpha preservation;
 - all eight EXIF orientation transforms, using a bounded disk-backed tile spool
   when output row order differs from input row order;
 - fused PNG crop execution to Buffer or file output;
@@ -71,17 +76,32 @@ const output = await (await Image.open('input.png'))
   .toBuffer()
 ```
 
+Static WebP input and output use the same pipeline:
+
+```ts
+const compact = await (await Image.open('input.jpg'))
+  .resize({ width: 1200 })
+  .webp({ quality: 80 })
+  .toBuffer()
+
+const exact = await (await Image.open('input.png'))
+  .webp({ lossless: true })
+  .toBuffer()
+```
+
 Metadata inspection and pipeline geometry are operational. Non-interlaced PNG,
-baseline and progressive JPEG, lossless WebP, and the first composited GIF
-frame can be cropped, resized, and converted through PixelBlocks. GIF animation
+baseline and progressive JPEG, lossless and lossy still WebP, and the first
+composited GIF frame can be cropped, resized, and converted through PixelBlocks. GIF animation
 editing and encoding are outside the V1 scope. Baseline JPEG decoding retains
 one MCU row of component samples and emits only the requested crop region; it
 does not materialize a source-sized RGB or RGBA bitmap. Progressive JPEG must
 retain coefficients until later scans finish refining them, so its decoder uses
 16-bit coefficient planes while keeping reconstructed RGB output row-bounded.
-Progressive JPEG encoding remains unsupported. Lossy VP8 WebP metadata is
-recognized, but its first-party pixel decoder and WebP encoding are still in
-progress. Orientations that transpose or reverse row order use temporary
+Progressive JPEG encoding remains unsupported. Animated WebP remains outside
+V1. The initial WebP encoders prioritize correctness, portability, and a small
+implementation; the lossless writer uses literal prefix codes and the lossy
+writer uses 4x4 intra prediction, so compression efficiency remains an explicit
+optimization target. Orientations that transpose or reverse row order use temporary
 storage and bounded 32x32 pixel tiles instead of retaining the decoded frame in
 memory. The temporary file is deleted when the pipeline completes or aborts;
 its worst-case size is approximately the decoded pixel area, shifted from

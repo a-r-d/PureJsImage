@@ -9,12 +9,14 @@ import type {
   PipelineOperation,
   PngEncodeOptions,
   ResizeOptions,
+  WebpEncodeOptions,
 } from './pipeline.ts'
 import {
   createCropOperation,
   createJpegEncodeOperation,
   createPngEncodeOperation,
   createResizeOperation,
+  createWebpEncodeOperation,
   planMetadata,
 } from './pipeline.ts'
 import type { ImageInput, ImageSource } from './source.ts'
@@ -75,7 +77,11 @@ export class Image {
 
   encode(format: 'jpeg', options?: JpegEncodeOptions): Image
   encode(format: 'png', options?: PngEncodeOptions): Image
-  encode(format: 'jpeg' | 'png', options: JpegEncodeOptions | PngEncodeOptions = {}): Image {
+  encode(format: 'webp', options?: WebpEncodeOptions): Image
+  encode(
+    format: 'jpeg' | 'png' | 'webp',
+    options: JpegEncodeOptions | PngEncodeOptions | WebpEncodeOptions = {},
+  ): Image {
     if (format === 'jpeg') {
       return this.#append(
         createJpegEncodeOperation({
@@ -91,10 +97,22 @@ export class Image {
         }),
       )
     }
+    if (format === 'png') {
+      return this.#append(
+        createPngEncodeOperation({
+          ...('compressionLevel' in options && options.compressionLevel !== undefined
+            ? { compressionLevel: options.compressionLevel }
+            : {}),
+        }),
+      )
+    }
     return this.#append(
-      createPngEncodeOperation({
-        ...('compressionLevel' in options && options.compressionLevel !== undefined
-          ? { compressionLevel: options.compressionLevel }
+      createWebpEncodeOperation({
+        ...('lossless' in options && options.lossless !== undefined
+          ? { lossless: options.lossless }
+          : {}),
+        ...('quality' in options && options.quality !== undefined
+          ? { quality: options.quality }
           : {}),
       }),
     )
@@ -106,6 +124,10 @@ export class Image {
 
   png(options: PngEncodeOptions = {}): Image {
     return this.#append(createPngEncodeOperation(options))
+  }
+
+  webp(options: WebpEncodeOptions = {}): Image {
+    return this.#append(createWebpEncodeOperation(options))
   }
 
   async toBuffer(): Promise<Buffer> {

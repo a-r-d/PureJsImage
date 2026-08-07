@@ -36,6 +36,11 @@ export interface PngEncodeOptions {
   compressionLevel?: number
 }
 
+export interface WebpEncodeOptions {
+  lossless?: boolean
+  quality?: number
+}
+
 export type PipelineOperation =
   | { readonly type: 'autoOrient' }
   | ({ readonly type: 'crop' } & Readonly<CropOptions>)
@@ -49,6 +54,11 @@ export type PipelineOperation =
       readonly type: 'encode'
       readonly format: 'png'
       readonly options: Readonly<PngEncodeOptions>
+    }
+  | {
+      readonly type: 'encode'
+      readonly format: 'webp'
+      readonly options: Readonly<WebpEncodeOptions>
     }
 
 const positiveDimension = (name: string, value: number | undefined): void => {
@@ -121,6 +131,19 @@ export const createPngEncodeOperation = (options: PngEncodeOptions): PipelineOpe
     throw invalidInput('PNG compressionLevel must be an integer from 0 to 9')
   }
   return Object.freeze({ type: 'encode', format: 'png', options: Object.freeze({ ...options }) })
+}
+
+export const createWebpEncodeOperation = (options: WebpEncodeOptions): PipelineOperation => {
+  if (
+    options.quality !== undefined &&
+    (!Number.isInteger(options.quality) || options.quality < 1 || options.quality > 100)
+  ) {
+    throw invalidInput('WebP quality must be an integer from 1 to 100')
+  }
+  if (options.lossless !== undefined && typeof options.lossless !== 'boolean') {
+    throw invalidInput('WebP lossless must be a boolean')
+  }
+  return Object.freeze({ type: 'encode', format: 'webp', options: Object.freeze({ ...options }) })
 }
 
 export const calculateResizeDimensions = (
@@ -213,7 +236,9 @@ export const planMetadata = (
     metadata =
       operation.format === 'jpeg'
         ? { ...metadata, format: 'jpeg', mimeType: 'image/jpeg', hasAlpha: false, bitDepth: 8 }
-        : { ...metadata, format: 'png', mimeType: 'image/png', bitDepth: 8 }
+        : operation.format === 'png'
+          ? { ...metadata, format: 'png', mimeType: 'image/png', bitDepth: 8 }
+          : { ...metadata, format: 'webp', mimeType: 'image/webp', bitDepth: 8 }
   }
 
   return metadata
