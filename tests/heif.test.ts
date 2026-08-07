@@ -539,6 +539,7 @@ const decodedHeifFixture = (
   rotation?: 0 | 1 | 2 | 3,
   iccProfile?: Uint8Array,
   displayP3 = false,
+  auxiliaryTypes: readonly string[] = [],
 ): Uint8Array => {
   const vps = base64Bytes('QAEMAf//AWAAAAMAkAAAAwAAAwAelZgJ')
   const sps = base64Bytes('QgEBAWAAAAMAkAAAAwAAAwAeoCCBBZZWaSTK8BaAgAAAAwCAAAADAIQ=')
@@ -634,7 +635,7 @@ const decodedHeifFixture = (
     const firstOffset = fileType.length + provisionalMetadata.length + 8
     return Uint8Array.from([...fileType, ...metadata(firstOffset), ...box('mdat', payloads.flat())])
   }
-  const properties = [
+  const primaryProperties = [
     fullBox('ispe', [...bytes32(64), ...bytes32(64)]),
     fullBox('pixi', [3, 8, 8, 8]),
     box('hvcC', configuration),
@@ -660,40 +661,64 @@ const decodedHeifFixture = (
       : []),
     ...(rotation === undefined ? [] : [box('irot', [rotation])]),
   ]
-  const itemInfo = fullBox('iinf', [0, 1, ...fullBox('infe', [0, 1, 0, 0, ...ascii('hvc1'), 0], 2)])
-  const itemPayload = lengthPrefixedNal(slice)
-  const metadata = (absoluteOffset: number): readonly number[] =>
+  const properties = [
+    ...primaryProperties,
+    ...auxiliaryTypes.map((type) => fullBox('auxC', [...ascii(type), 0])),
+  ]
+  const itemInfo = fullBox('iinf', [
+    0,
+    auxiliaryTypes.length + 1,
+    ...[1, ...auxiliaryTypes.map((_type, index) => index + 2)].flatMap((itemId) =>
+      fullBox('infe', [0, itemId, 0, 0, ...ascii('hvc1'), 0], 2),
+    ),
+  ])
+  const payloads = [
+    lengthPrefixedNal(slice),
+    ...auxiliaryTypes.map(() => lengthPrefixedNal(Uint8Array.of(0))),
+  ]
+  const locations = (firstOffset: number): readonly number[] => {
+    let offset = firstOffset
+    const entries = payloads.flatMap((payload, index) => {
+      const entry = [0, index + 1, 0, 0, 0, 1, ...bytes32(offset), ...bytes32(payload.length)]
+      offset += payload.length
+      return entry
+    })
+    return fullBox('iloc', [0x44, 0, 0, payloads.length, ...entries])
+  }
+  const associations = fullBox('ipma', [
+    ...bytes32(auxiliaryTypes.length + 1),
+    0,
+    1,
+    primaryProperties.length,
+    ...primaryProperties.map((_property, index) => index + 1),
+    ...auxiliaryTypes.flatMap((_type, index) => [
+      0,
+      index + 2,
+      4,
+      1,
+      2,
+      3,
+      primaryProperties.length + index + 1,
+    ]),
+  ])
+  const references =
+    auxiliaryTypes.length === 0
+      ? []
+      : fullBox(
+          'iref',
+          auxiliaryTypes.flatMap((_type, index) => box('auxl', [0, index + 2, 0, 1, 0, 1])),
+        )
+  const metadata = (firstOffset: number): readonly number[] =>
     fullBox('meta', [
       ...fullBox('pitm', [0, 1]),
       ...itemInfo,
-      ...fullBox('iloc', [
-        0x44,
-        0,
-        0,
-        1,
-        0,
-        1,
-        0,
-        0,
-        0,
-        1,
-        ...bytes32(absoluteOffset),
-        ...bytes32(itemPayload.length),
-      ]),
-      ...box('iprp', [
-        ...box('ipco', properties.flat()),
-        ...fullBox('ipma', [
-          ...bytes32(1),
-          0,
-          1,
-          properties.length,
-          ...properties.map((_property, index) => index + 1),
-        ]),
-      ]),
+      ...locations(firstOffset),
+      ...box('iprp', [...box('ipco', properties.flat()), ...associations]),
+      ...references,
     ])
   const provisionalMetadata = metadata(0)
-  const payloadOffset = fileType.length + provisionalMetadata.length + 8
-  return Uint8Array.from([...fileType, ...metadata(payloadOffset), ...box('mdat', itemPayload)])
+  const firstOffset = fileType.length + provisionalMetadata.length + 8
+  return Uint8Array.from([...fileType, ...metadata(firstOffset), ...box('mdat', payloads.flat())])
 }
 
 const decodedMain10HeifFixture = (transfer: 16 | 18 = 16): Uint8Array => {
@@ -1131,6 +1156,29 @@ describe('HEIF HEVC bitstream inspection', () => {
     expect(createHash('sha256').update(rgba).digest('hex')).toBe(
       '16eef67ea16196265e393967205ded7ee45415c314125ff6cf5ce3cd8268ac89',
     )
+  })
+
+  it('decodes the declared HEIC primary instead of gain-map and portrait auxiliaries', async () => {
+    const input = decodedHeifFixture(false, false, undefined, undefined, false, [
+      'urn:com:apple:photo:2020:aux:hdrgainmap',
+      'urn:com:apple:photo:2018:aux:portraiteffectsmatte',
+    ])
+    const inspection = await inspectHeifBitstream(new MemorySource(input))
+    expect(inspection).toMatchObject({
+      primaryItemId: 1,
+      primaryItemType: 'hvc1',
+    })
+    expect(inspection.codedImages.map(({ itemId }) => itemId)).toEqual([1])
+    await expect((await Image.open(input)).metadata()).resolves.toMatchObject({
+      format: 'heif',
+      width: 64,
+      height: 64,
+      frames: 1,
+    })
+
+    const reference = await (await Image.open(decodedHeifFixture())).png().toBuffer()
+    const output = await (await Image.open(input)).png().toBuffer()
+    expect(output).toEqual(reference)
   })
 
   it('decodes and tone-maps independently encoded Main 10 BT.2020 pictures', async () => {

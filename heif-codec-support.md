@@ -138,7 +138,8 @@ not every auxiliary asset stored beside it.
 - [ ] Preserve opaque, binary-alpha, and partial-alpha values when a supported
   auxiliary alpha item is present
 - [x] Decode a valid SDR base image even when unsupported depth, matte, or gain
-  map auxiliary items are also present
+  map auxiliary items are also present, with invalid auxiliary payloads proving
+  that `pitm` primary selection wins
 - [x] Return stable metadata for width, height, bit depth, alpha, frame count,
   primary item, color description, and orientation
 - [x] Expose `.heif` and `.heic` content detection and the public decode path

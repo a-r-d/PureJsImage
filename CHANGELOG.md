@@ -6,6 +6,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added self-contained compound-image regressions proving that Android-style
+  Ultra HDR JPEGs decode their SDR MPF primary and that HEIC gain-map and
+  portrait auxiliaries cannot displace the declared primary item.
 - Added a hostile `ImageSource` harness that invalidates each returned buffer
   when the next read begins, plus a second full test-suite pass that exercises
   in-memory workflows under that weakest supported lifetime.

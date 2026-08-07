@@ -54,8 +54,9 @@ supported until its output is independently validated.
 
 ### Compound and HDR JPEG files
 
-- [x] Decode and pixel-validate the SDR primary image from a pinned Apple gain-map
-  JPEG fixture without misreading its appended secondary image
+- [x] Decode and pixel-validate the SDR primary image from pinned Apple and
+  self-contained Android-style Ultra HDR gain-map JPEG fixtures without
+  misreading their appended secondary images
 - [x] Header-only MPF image-count inspection; the pinned Apple gain-map fixture
   reports its two constituent images
 - [ ] Ultra HDR / JPEG_R and ISO 21496-1:2025 gain-map discovery, HDR

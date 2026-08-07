@@ -218,6 +218,73 @@ const insertJpegBytes = (input: Uint8Array, offset: number, inserted: Uint8Array
   return output
 }
 
+const jpegApplicationSegment = (marker: 0xe1 | 0xe2, payload: Uint8Array): Uint8Array => {
+  const length = payload.byteLength + 2
+  const segment = new Uint8Array(payload.byteLength + 4)
+  segment.set([0xff, marker, length >>> 8, length & 0xff])
+  segment.set(payload, 4)
+  return segment
+}
+
+const ultraHdrXmpSegment = (): Uint8Array => {
+  const header = 'http://ns.adobe.com/xap/1.0/\0'
+  const xml =
+    '<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description xmlns:hdrgm="http://ns.adobe.com/hdr-gain-map/1.0/" hdrgm:Version="1.0"/></rdf:RDF></x:xmpmeta>'
+  return jpegApplicationSegment(0xe1, new TextEncoder().encode(header + xml))
+}
+
+const mpfSegment = (
+  primaryBytes: number,
+  secondaryBytes: number,
+  secondaryOffset: number,
+): Uint8Array => {
+  const payload = new Uint8Array(86)
+  const view = new DataView(payload.buffer)
+  writeSignature(payload, 0, 'MPF\0')
+  writeSignature(payload, 4, 'MM')
+  view.setUint16(6, 42, false)
+  view.setUint32(8, 8, false)
+  view.setUint16(12, 3, false)
+  let entry = 14
+  view.setUint16(entry, 0xb000, false)
+  view.setUint16(entry + 2, 7, false)
+  view.setUint32(entry + 4, 4, false)
+  writeSignature(payload, entry + 8, '0100')
+  entry += 12
+  view.setUint16(entry, 0xb001, false)
+  view.setUint16(entry + 2, 4, false)
+  view.setUint32(entry + 4, 1, false)
+  view.setUint32(entry + 8, 2, false)
+  entry += 12
+  view.setUint16(entry, 0xb002, false)
+  view.setUint16(entry + 2, 7, false)
+  view.setUint32(entry + 4, 32, false)
+  view.setUint32(entry + 8, 50, false)
+  view.setUint32(50, 0, false)
+  view.setUint32(54, 0x2003_0000, false)
+  view.setUint32(58, primaryBytes, false)
+  view.setUint32(62, 0, false)
+  view.setUint32(70, 0, false)
+  view.setUint32(74, secondaryBytes, false)
+  view.setUint32(78, secondaryOffset, false)
+  return jpegApplicationSegment(0xe2, payload)
+}
+
+const ultraHdrJpeg = (primary: Uint8Array, gainMap: Uint8Array): Uint8Array => {
+  const xmp = ultraHdrXmpSegment()
+  const provisionalMpf = mpfSegment(0, gainMap.byteLength, 0)
+  const primaryBytes = primary.byteLength + xmp.byteLength + provisionalMpf.byteLength
+  const tiffOffset = 2 + xmp.byteLength + 8
+  const mpf = mpfSegment(primaryBytes, gainMap.byteLength, primaryBytes - tiffOffset)
+  const output = new Uint8Array(primaryBytes + gainMap.byteLength)
+  output.set(primary.subarray(0, 2))
+  output.set(xmp, 2)
+  output.set(mpf, 2 + xmp.byteLength)
+  output.set(primary.subarray(2), 2 + xmp.byteLength + mpf.byteLength)
+  output.set(gainMap, primaryBytes)
+  return output
+}
+
 const expectCorruptJpegRejection = async (input: Uint8Array): Promise<void> => {
   try {
     await (await Image.open(input)).png().toBuffer()
@@ -543,6 +610,29 @@ describe('JPEG pixel pipeline', () => {
       expect({ width: output.width, height: output.height }).toEqual({ width: 17, height: 13 })
       expect(output.data).toEqual(reference.data)
     }
+  })
+
+  it('decodes the SDR primary from an Ultra HDR-shaped MPF JPEG', async () => {
+    const primary = encodedJpeg(17, 13, (x, y) => [x * 11, y * 17, (x + y) * 7, 255])
+    const gainMap = encodedJpeg(5, 3, (x, y) => {
+      const gain = 32 + x * 40 + y * 12
+      return [gain, gain, gain, 255]
+    })
+    const input = ultraHdrJpeg(primary, gainMap)
+    const secondaryOffset = input.byteLength - gainMap.byteLength
+
+    expect(input.subarray(secondaryOffset, secondaryOffset + 2)).toEqual(Uint8Array.of(0xff, 0xd8))
+    await expect((await Image.open(input)).metadata()).resolves.toMatchObject({
+      format: 'jpeg',
+      width: 17,
+      height: 13,
+      frames: 2,
+    })
+
+    const reference = PNG.sync.read(await (await Image.open(primary)).png().toBuffer())
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+    expect({ width: output.width, height: output.height }).toEqual({ width: 17, height: 13 })
+    expect(output.data).toEqual(reference.data)
   })
 
   it('applies image limits to hostile JPEG dimensions before pixel decoding', async () => {
