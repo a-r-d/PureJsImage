@@ -293,35 +293,6 @@ const channel = (value: number, description: ChannelMask | undefined): number =>
   return Math.round((sample * 255) / description.maximum)
 }
 
-const palettePixel = (
-  palette: Uint8Array | undefined,
-  index: number,
-): readonly [number, number, number] => {
-  const offset = index * 3
-  const red = palette?.[offset]
-  const green = palette?.[offset + 1]
-  const blue = palette?.[offset + 2]
-  if (red === undefined || green === undefined || blue === undefined) {
-    throw invalidInput(`BMP palette index ${index} is out of range`)
-  }
-  return [red, green, blue]
-}
-
-const writePixel = (
-  output: Uint8Array,
-  offset: number,
-  format: 'rgb8' | 'rgba8',
-  red: number,
-  green: number,
-  blue: number,
-  alpha: number,
-): void => {
-  output[offset] = red
-  output[offset + 1] = green
-  output[offset + 2] = blue
-  if (format === 'rgba8') output[offset + 3] = alpha
-}
-
 const convertRow = (
   row: Uint8Array,
   description: BmpDescription,
@@ -331,55 +302,61 @@ const convertRow = (
   outputOffset: number,
 ): void => {
   const channels = description.pixelFormat === 'rgba8' ? 4 : 3
-  for (let targetX = 0; targetX < width; targetX += 1) {
-    const x = cropX + targetX
-    let red: number
-    let green: number
-    let blue: number
-    let alpha = 255
-    if (description.bitDepth <= 8) {
+  let target = outputOffset
+  if (description.bitDepth === 24) {
+    let source = cropX * 3
+    const end = source + width * 3
+    for (; source < end; source += 3) {
+      output[target] = row[source + 2] ?? 0
+      output[target + 1] = row[source + 1] ?? 0
+      output[target + 2] = row[source] ?? 0
+      target += 3
+    }
+    return
+  }
+  if (description.bitDepth <= 8) {
+    const palette = description.palette
+    const indexMask = (1 << description.bitDepth) - 1
+    for (let targetX = 0; targetX < width; targetX += 1) {
+      const x = cropX + targetX
       const packed = row[Math.floor((x * description.bitDepth) / 8)]
       if (packed === undefined) throw truncatedInput('BMP packed row is truncated')
       const shift = 8 - description.bitDepth - ((x * description.bitDepth) & 7)
-      ;[red, green, blue] = palettePixel(
-        description.palette,
-        (packed >>> shift) & ((1 << description.bitDepth) - 1),
-      )
-    } else if (description.bitDepth === 24) {
-      const sourceOffset = x * 3
-      blue = row[sourceOffset] ?? -1
-      green = row[sourceOffset + 1] ?? -1
-      red = row[sourceOffset + 2] ?? -1
-      if (red < 0 || green < 0 || blue < 0) throw truncatedInput('BMP 24-bit row is truncated')
-    } else {
-      const bytes = description.bitDepth / 8
-      const sourceOffset = x * bytes
-      const first = row[sourceOffset]
-      const second = row[sourceOffset + 1]
-      if (first === undefined || second === undefined)
-        throw truncatedInput('BMP pixel is truncated')
-      let value = first + second * 256
-      if (bytes === 4) {
-        const third = row[sourceOffset + 2]
-        const fourth = row[sourceOffset + 3]
-        if (third === undefined || fourth === undefined)
-          throw truncatedInput('BMP pixel is truncated')
-        value = (value + third * 65_536 + fourth * 16_777_216) >>> 0
+      const paletteOffset = ((packed >>> shift) & indexMask) * 3
+      const red = palette?.[paletteOffset]
+      const green = palette?.[paletteOffset + 1]
+      const blue = palette?.[paletteOffset + 2]
+      if (red === undefined || green === undefined || blue === undefined) {
+        throw invalidInput(`BMP palette index ${paletteOffset / 3} is out of range`)
       }
-      red = channel(value, description.red)
-      green = channel(value, description.green)
-      blue = channel(value, description.blue)
-      alpha = description.alpha ? channel(value, description.alpha) : 255
+      output[target] = red
+      output[target + 1] = green
+      output[target + 2] = blue
+      target += 3
     }
-    writePixel(
-      output,
-      outputOffset + targetX * channels,
-      description.pixelFormat,
-      red,
-      green,
-      blue,
-      alpha,
-    )
+    return
+  }
+
+  const bytes = description.bitDepth / 8
+  for (let targetX = 0; targetX < width; targetX += 1) {
+    const x = cropX + targetX
+    const sourceOffset = x * bytes
+    const first = row[sourceOffset]
+    const second = row[sourceOffset + 1]
+    if (first === undefined || second === undefined) throw truncatedInput('BMP pixel is truncated')
+    let value = first + second * 256
+    if (bytes === 4) {
+      const third = row[sourceOffset + 2]
+      const fourth = row[sourceOffset + 3]
+      if (third === undefined || fourth === undefined)
+        throw truncatedInput('BMP pixel is truncated')
+      value = (value + third * 65_536 + fourth * 16_777_216) >>> 0
+    }
+    output[target] = channel(value, description.red)
+    output[target + 1] = channel(value, description.green)
+    output[target + 2] = channel(value, description.blue)
+    if (channels === 4) output[target + 3] = channel(value, description.alpha)
+    target += channels
   }
 }
 
@@ -489,14 +466,22 @@ class BmpDecoder implements ImageDecoder {
       for (let outputY = 0; outputY < region.height; outputY += blockRows) {
         const height = Math.min(blockRows, region.height - outputY)
         const output = new Uint8Array(outputStride * height)
+        const palette = this.#description.palette
         for (let localY = 0; localY < height; localY += 1) {
           const sourceOffset = (region.y + outputY + localY) * this.width + region.x
+          let target = localY * outputStride
           for (let x = 0; x < region.width; x += 1) {
-            const [red, green, blue] = palettePixel(
-              this.#description.palette,
-              indices[sourceOffset + x] ?? 0,
-            )
-            writePixel(output, localY * outputStride + x * channels, 'rgb8', red, green, blue, 255)
+            const paletteOffset = (indices[sourceOffset + x] ?? 0) * 3
+            const red = palette?.[paletteOffset]
+            const green = palette?.[paletteOffset + 1]
+            const blue = palette?.[paletteOffset + 2]
+            if (red === undefined || green === undefined || blue === undefined) {
+              throw invalidInput(`BMP palette index ${paletteOffset / 3} is out of range`)
+            }
+            output[target] = red
+            output[target + 1] = green
+            output[target + 2] = blue
+            target += 3
           }
         }
         yield {

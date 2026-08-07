@@ -392,18 +392,38 @@ const unfilter = (
   const filterType = scanline[0]
   if (filterType === undefined || filterType > 4)
     throw invalidInput(`PNG filter ${filterType ?? -1} is invalid`)
-  for (let index = 0; index < previous.byteLength; index += 1) {
+  if (filterType === 0) return
+  if (filterType === 1) {
+    for (let index = filterBytesPerPixel; index < previous.byteLength; index += 1) {
+      scanline[index + 1] =
+        ((scanline[index + 1] ?? 0) + (scanline[index + 1 - filterBytesPerPixel] ?? 0)) & 0xff
+    }
+    return
+  }
+  if (filterType === 2) {
+    for (let index = 0; index < previous.byteLength; index += 1) {
+      scanline[index + 1] = ((scanline[index + 1] ?? 0) + (previous[index] ?? 0)) & 0xff
+    }
+    return
+  }
+  for (let index = 0; index < filterBytesPerPixel; index += 1) {
     const encoded = scanline[index + 1] ?? 0
-    const left = index >= filterBytesPerPixel ? (scanline[index + 1 - filterBytesPerPixel] ?? 0) : 0
     const up = previous[index] ?? 0
-    const upperLeft =
-      index >= filterBytesPerPixel ? (previous[index - filterBytesPerPixel] ?? 0) : 0
-    let predictor = 0
-    if (filterType === 1) predictor = left
-    else if (filterType === 2) predictor = up
-    else if (filterType === 3) predictor = Math.floor((left + up) / 2)
-    else if (filterType === 4) predictor = paeth(left, up, upperLeft)
-    scanline[index + 1] = (encoded + predictor) & 0xff
+    scanline[index + 1] = filterType === 3 ? (encoded + (up >>> 1)) & 0xff : (encoded + up) & 0xff
+  }
+  if (filterType === 3) {
+    for (let index = filterBytesPerPixel; index < previous.byteLength; index += 1) {
+      const left = scanline[index + 1 - filterBytesPerPixel] ?? 0
+      const up = previous[index] ?? 0
+      scanline[index + 1] = ((scanline[index + 1] ?? 0) + ((left + up) >>> 1)) & 0xff
+    }
+    return
+  }
+  for (let index = filterBytesPerPixel; index < previous.byteLength; index += 1) {
+    const left = scanline[index + 1 - filterBytesPerPixel] ?? 0
+    const up = previous[index] ?? 0
+    const upperLeft = previous[index - filterBytesPerPixel] ?? 0
+    scanline[index + 1] = ((scanline[index + 1] ?? 0) + paeth(left, up, upperLeft)) & 0xff
   }
 }
 
@@ -938,17 +958,41 @@ const filterScanline = (
   }
 
   output[0] = filter
-  for (let index = 0; index < source.byteLength; index += 1) {
+  if (filter === 0) {
+    output.set(source, 1)
+    return
+  }
+  if (filter === 1) {
+    output.set(source.subarray(0, bytesPerPixel), 1)
+    for (let index = bytesPerPixel; index < source.byteLength; index += 1) {
+      output[index + 1] = ((source[index] ?? 0) - (source[index - bytesPerPixel] ?? 0)) & 0xff
+    }
+    return
+  }
+  if (filter === 2) {
+    for (let index = 0; index < source.byteLength; index += 1) {
+      output[index + 1] = ((source[index] ?? 0) - (previous[index] ?? 0)) & 0xff
+    }
+    return
+  }
+  for (let index = 0; index < bytesPerPixel; index += 1) {
     const value = source[index] ?? 0
-    const left = index >= bytesPerPixel ? (source[index - bytesPerPixel] ?? 0) : 0
     const above = previous[index] ?? 0
-    const upperLeft = index >= bytesPerPixel ? (previous[index - bytesPerPixel] ?? 0) : 0
-    let predictor = 0
-    if (filter === 1) predictor = left
-    else if (filter === 2) predictor = above
-    else if (filter === 3) predictor = Math.floor((left + above) / 2)
-    else if (filter === 4) predictor = paeth(left, above, upperLeft)
-    output[index + 1] = (value - predictor) & 0xff
+    output[index + 1] = filter === 3 ? (value - (above >>> 1)) & 0xff : (value - above) & 0xff
+  }
+  if (filter === 3) {
+    for (let index = bytesPerPixel; index < source.byteLength; index += 1) {
+      const left = source[index - bytesPerPixel] ?? 0
+      const above = previous[index] ?? 0
+      output[index + 1] = ((source[index] ?? 0) - ((left + above) >>> 1)) & 0xff
+    }
+    return
+  }
+  for (let index = bytesPerPixel; index < source.byteLength; index += 1) {
+    const left = source[index - bytesPerPixel] ?? 0
+    const above = previous[index] ?? 0
+    const upperLeft = previous[index - bytesPerPixel] ?? 0
+    output[index + 1] = ((source[index] ?? 0) - paeth(left, above, upperLeft)) & 0xff
   }
 }
 

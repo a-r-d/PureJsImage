@@ -42,14 +42,17 @@ interface TiffDescription {
   readonly littleEndian: boolean
   readonly width: number
   readonly height: number
-  readonly bitsPerSample: readonly number[]
+  readonly bitsPerSample: Uint32Array
+  readonly bitsPerPixel: number
+  readonly sampleBitOffsets: Uint32Array
+  readonly rowBytes: Uint32Array
   readonly compression: number
   readonly photometric: number
   readonly fillOrder: number
   readonly samplesPerPixel: number
   readonly rowsPerStrip: number
-  readonly stripOffsets: readonly number[]
-  readonly stripByteCounts: readonly number[]
+  readonly stripOffsets: Uint32Array
+  readonly stripByteCounts: Uint32Array
   readonly stripsPerPlane: number
   readonly planarConfiguration: number
   readonly predictor: number
@@ -138,7 +141,7 @@ const entryValues = async (
   littleEndian: boolean,
   tag: number,
   maximumCount: number,
-): Promise<number[]> => {
+): Promise<Uint32Array> => {
   if (entry.count < 1 || entry.count > maximumCount) {
     throw invalidInput(`TIFF tag ${tag} has invalid count ${entry.count}`)
   }
@@ -153,16 +156,15 @@ const entryValues = async (
           entry.valueOffset,
           checkedEnd(entry.valueOffset, byteLength, source.size, `tag ${tag}`) - entry.valueOffset,
         )
-  const values: number[] = []
+  const values = new Uint32Array(entry.count)
   for (let index = 0; index < entry.count; index += 1) {
     const valueOffset = index * bytesPerValue
-    values.push(
+    values[index] =
       entry.fieldType === 1
         ? (bytes[valueOffset] ?? 0)
         : entry.fieldType === 3
           ? uint16(bytes, valueOffset, littleEndian)
-          : uint32(bytes, valueOffset, littleEndian),
-    )
+          : uint32(bytes, valueOffset, littleEndian)
   }
   return values
 }
@@ -173,7 +175,7 @@ const requiredValues = async (
   littleEndian: boolean,
   tag: number,
   maximumCount: number,
-): Promise<number[]> => {
+): Promise<Uint32Array> => {
   const entry = ifd.entries.get(tag)
   if (!entry) throw invalidInput(`TIFF required tag ${tag} is missing`)
   return entryValues(source, entry, littleEndian, tag, maximumCount)
@@ -185,7 +187,7 @@ const optionalValues = async (
   littleEndian: boolean,
   tag: number,
   maximumCount: number,
-): Promise<number[] | undefined> => {
+): Promise<Uint32Array | undefined> => {
   const entry = ifd.entries.get(tag)
   return entry ? entryValues(source, entry, littleEndian, tag, maximumCount) : undefined
 }
@@ -261,18 +263,18 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   if (!Number.isSafeInteger(samplesPerPixel) || samplesPerPixel < 1 || samplesPerPixel > 4) {
     throw unsupportedOperation(`TIFF SamplesPerPixel ${samplesPerPixel} is unsupported`)
   }
-  const rawBits = (await optionalValues(source, ifd, littleEndian, 258, samplesPerPixel)) ?? [1]
+  const rawBits =
+    (await optionalValues(source, ifd, littleEndian, 258, samplesPerPixel)) ?? Uint32Array.of(1)
   const bitsPerSample =
     rawBits.length === 1 && samplesPerPixel > 1
-      ? Array.from({ length: samplesPerPixel }, () => rawBits[0] ?? 1)
+      ? new Uint32Array(samplesPerPixel).fill(rawBits[0] ?? 1)
       : rawBits
   if (bitsPerSample.length !== samplesPerPixel) {
     throw invalidInput('TIFF BitsPerSample count does not match SamplesPerPixel')
   }
 
-  const sampleFormats = (await optionalValues(source, ifd, littleEndian, 339, samplesPerPixel)) ?? [
-    1,
-  ]
+  const sampleFormats =
+    (await optionalValues(source, ifd, littleEndian, 339, samplesPerPixel)) ?? Uint32Array.of(1)
   if (sampleFormats.some((format) => format !== 1)) {
     throw unsupportedOperation('TIFF currently supports only unsigned integer samples')
   }
@@ -301,7 +303,8 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   }
   const alphaSample = samplesPerPixel === baseSamples + 1 ? baseSamples : undefined
   const extraSamples =
-    (await optionalValues(source, ifd, littleEndian, 338, samplesPerPixel - baseSamples)) ?? []
+    (await optionalValues(source, ifd, littleEndian, 338, samplesPerPixel - baseSamples)) ??
+    new Uint32Array()
   if (
     extraSamples.length > 1 ||
     extraSamples.some((value) => value !== 0 && value !== 1 && value !== 2)
@@ -367,12 +370,29 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     photometric === photometricPalette
       ? await paletteFor(source, ifd, littleEndian, baseBitDepth)
       : undefined
+  const sampleBitOffsets = new Uint32Array(samplesPerPixel)
+  let bitsPerPixel = 0
+  for (let sample = 0; sample < samplesPerPixel; sample += 1) {
+    sampleBitOffsets[sample] = bitsPerPixel
+    bitsPerPixel += bitsPerSample[sample] ?? 0
+  }
+  const rowBytes = new Uint32Array(planarConfiguration === 2 ? samplesPerPixel : 1)
+  if (planarConfiguration === 1) {
+    rowBytes[0] = Math.ceil((width * bitsPerPixel) / 8)
+  } else {
+    for (let sample = 0; sample < samplesPerPixel; sample += 1) {
+      rowBytes[sample] = Math.ceil((width * (bitsPerSample[sample] ?? 0)) / 8)
+    }
+  }
 
   return {
     littleEndian,
     width,
     height,
     bitsPerSample,
+    bitsPerPixel,
+    sampleBitOffsets,
+    rowBytes,
     compression,
     photometric,
     fillOrder,
@@ -654,9 +674,6 @@ const regionFor = (description: TiffDescription, request: DecodeRequest): Region
   return { x, y, width, height }
 }
 
-const bitsPerChunkyPixel = (description: TiffDescription): number =>
-  description.bitsPerSample.reduce((total, bits) => total + bits, 0)
-
 const packedSample = (data: Uint8Array, bitOffset: number, bitDepth: number): number => {
   const byte = data[bitOffset >>> 3]
   if (byte === undefined) throw truncatedInput('TIFF packed sample is truncated')
@@ -677,17 +694,19 @@ const sampleAt = (
   if (description.planarConfiguration === 2) {
     const plane = planes[sample]
     if (!plane) throw truncatedInput('TIFF sample plane is missing')
-    const rowBytes = Math.ceil((description.width * bitDepth) / 8)
+    const rowBytes = description.rowBytes[sample]
+    if (rowBytes === undefined) throw invalidInput('TIFF sample row size is missing')
     return packedSample(plane, rowWithinStrip * rowBytes * 8 + x * bitDepth, bitDepth)
   }
 
   const plane = planes[0]
   if (!plane) throw truncatedInput('TIFF chunky strip is missing')
-  const pixelBits = bitsPerChunkyPixel(description)
-  const rowBytes = Math.ceil((description.width * pixelBits) / 8)
-  let sampleOffset = 0
-  for (let index = 0; index < sample; index += 1)
-    sampleOffset += description.bitsPerSample[index] ?? 0
+  const pixelBits = description.bitsPerPixel
+  const rowBytes = description.rowBytes[0]
+  const sampleOffset = description.sampleBitOffsets[sample]
+  if (rowBytes === undefined || sampleOffset === undefined) {
+    throw invalidInput('TIFF chunky sample layout is missing')
+  }
   return packedSample(plane, rowWithinStrip * rowBytes * 8 + x * pixelBits + sampleOffset, bitDepth)
 }
 
@@ -722,6 +741,16 @@ class TiffDecoder implements ImageDecoder {
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const region = regionFor(this.#description, request)
     const outputChannels = this.pixelFormat === 'gray8' ? 1 : this.pixelFormat === 'rgb8' ? 3 : 4
+    const directChunkyChannels =
+      this.#description.planarConfiguration === 1 &&
+      this.#description.alphaSample === undefined &&
+      this.#description.bitsPerSample.every((bits) => bits === 8)
+        ? this.#description.photometric === photometricRgb
+          ? 3
+          : this.#description.photometric === photometricBlackIsZero
+            ? 1
+            : 0
+        : 0
     const firstStrip = Math.floor(region.y / this.#description.rowsPerStrip)
     const lastStrip = Math.floor((region.y + region.height - 1) / this.#description.rowsPerStrip)
 
@@ -730,7 +759,8 @@ class TiffDecoder implements ImageDecoder {
       const stripRows = Math.min(this.#description.rowsPerStrip, this.height - stripY)
       const planes: Uint8Array[] = []
       if (this.#description.planarConfiguration === 1) {
-        const rowBytes = Math.ceil((this.width * bitsPerChunkyPixel(this.#description)) / 8)
+        const rowBytes = this.#description.rowBytes[0]
+        if (rowBytes === undefined) throw invalidInput('TIFF chunky row size is missing')
         planes.push(
           await decodeStrip(
             this.#source,
@@ -744,8 +774,8 @@ class TiffDecoder implements ImageDecoder {
         )
       } else {
         for (let sample = 0; sample < this.#description.samplesPerPixel; sample += 1) {
-          const bits = this.#description.bitsPerSample[sample] ?? 0
-          const rowBytes = Math.ceil((this.width * bits) / 8)
+          const rowBytes = this.#description.rowBytes[sample]
+          if (rowBytes === undefined) throw invalidInput('TIFF planar row size is missing')
           planes.push(
             await decodeStrip(
               this.#source,
@@ -764,61 +794,81 @@ class TiffDecoder implements ImageDecoder {
       const intersectionEnd = Math.min(region.y + region.height, stripY + stripRows)
       for (let imageY = intersectionStart; imageY < intersectionEnd; imageY += blockRows) {
         const rows = Math.min(blockRows, intersectionEnd - imageY)
-        const output = new Uint8Array(region.width * rows * outputChannels)
-        for (let localY = 0; localY < rows; localY += 1) {
-          const rowWithinStrip = imageY + localY - stripY
-          for (let outputX = 0; outputX < region.width; outputX += 1) {
-            const sourceX = region.x + outputX
-            const target = (localY * region.width + outputX) * outputChannels
-            const alpha =
-              this.#description.alphaSample === undefined
-                ? 255
-                : scaleSample(
-                    sampleAt(
-                      planes,
-                      this.#description,
-                      rowWithinStrip,
-                      sourceX,
-                      this.#description.alphaSample,
-                    ),
-                    this.#description.bitsPerSample[this.#description.alphaSample] ?? 8,
-                  )
-            let red: number
-            let green: number
-            let blue: number
-            if (this.#description.photometric === photometricRgb) {
-              red = sampleAt(planes, this.#description, rowWithinStrip, sourceX, 0)
-              green = sampleAt(planes, this.#description, rowWithinStrip, sourceX, 1)
-              blue = sampleAt(planes, this.#description, rowWithinStrip, sourceX, 2)
-            } else if (this.#description.photometric === photometricPalette) {
-              const index = sampleAt(planes, this.#description, rowWithinStrip, sourceX, 0)
-              const paletteOffset = index * 3
-              red = this.#description.palette?.[paletteOffset] ?? 0
-              green = this.#description.palette?.[paletteOffset + 1] ?? 0
-              blue = this.#description.palette?.[paletteOffset + 2] ?? 0
-            } else {
-              const bits = this.#description.bitsPerSample[0] ?? 8
-              let gray = scaleSample(
-                sampleAt(planes, this.#description, rowWithinStrip, sourceX, 0),
-                bits,
-              )
-              if (this.#description.photometric === photometricWhiteIsZero) gray = 255 - gray
-              red = gray
-              green = gray
-              blue = gray
+        let output: Uint8Array
+        if (directChunkyChannels > 0) {
+          const plane = planes[0]
+          if (!plane) throw truncatedInput('TIFF chunky strip is missing')
+          const sourceRowBytes = this.width * directChunkyChannels
+          const firstRowWithinStrip = imageY - stripY
+          if (region.x === 0 && region.width === this.width) {
+            const start = firstRowWithinStrip * sourceRowBytes
+            output = plane.subarray(start, start + rows * sourceRowBytes)
+          } else {
+            const outputRowBytes = region.width * directChunkyChannels
+            output = new Uint8Array(outputRowBytes * rows)
+            for (let localY = 0; localY < rows; localY += 1) {
+              const start =
+                (firstRowWithinStrip + localY) * sourceRowBytes + region.x * directChunkyChannels
+              output.set(plane.subarray(start, start + outputRowBytes), localY * outputRowBytes)
             }
-            if (this.#description.associatedAlpha) {
-              red = unassociate(red, alpha)
-              green = unassociate(green, alpha)
-              blue = unassociate(blue, alpha)
-            }
-            if (this.pixelFormat === 'gray8') {
-              output[target] = red
-            } else {
-              output[target] = red
-              output[target + 1] = green
-              output[target + 2] = blue
-              if (this.pixelFormat === 'rgba8') output[target + 3] = alpha
+          }
+        } else {
+          output = new Uint8Array(region.width * rows * outputChannels)
+          for (let localY = 0; localY < rows; localY += 1) {
+            const rowWithinStrip = imageY + localY - stripY
+            for (let outputX = 0; outputX < region.width; outputX += 1) {
+              const sourceX = region.x + outputX
+              const target = (localY * region.width + outputX) * outputChannels
+              const alpha =
+                this.#description.alphaSample === undefined
+                  ? 255
+                  : scaleSample(
+                      sampleAt(
+                        planes,
+                        this.#description,
+                        rowWithinStrip,
+                        sourceX,
+                        this.#description.alphaSample,
+                      ),
+                      this.#description.bitsPerSample[this.#description.alphaSample] ?? 8,
+                    )
+              let red: number
+              let green: number
+              let blue: number
+              if (this.#description.photometric === photometricRgb) {
+                red = sampleAt(planes, this.#description, rowWithinStrip, sourceX, 0)
+                green = sampleAt(planes, this.#description, rowWithinStrip, sourceX, 1)
+                blue = sampleAt(planes, this.#description, rowWithinStrip, sourceX, 2)
+              } else if (this.#description.photometric === photometricPalette) {
+                const index = sampleAt(planes, this.#description, rowWithinStrip, sourceX, 0)
+                const paletteOffset = index * 3
+                red = this.#description.palette?.[paletteOffset] ?? 0
+                green = this.#description.palette?.[paletteOffset + 1] ?? 0
+                blue = this.#description.palette?.[paletteOffset + 2] ?? 0
+              } else {
+                const bits = this.#description.bitsPerSample[0] ?? 8
+                let gray = scaleSample(
+                  sampleAt(planes, this.#description, rowWithinStrip, sourceX, 0),
+                  bits,
+                )
+                if (this.#description.photometric === photometricWhiteIsZero) gray = 255 - gray
+                red = gray
+                green = gray
+                blue = gray
+              }
+              if (this.#description.associatedAlpha) {
+                red = unassociate(red, alpha)
+                green = unassociate(green, alpha)
+                blue = unassociate(blue, alpha)
+              }
+              if (this.pixelFormat === 'gray8') {
+                output[target] = red
+              } else {
+                output[target] = red
+                output[target + 1] = green
+                output[target + 2] = blue
+                if (this.pixelFormat === 'rgba8') output[target + 3] = alpha
+              }
             }
           }
         }

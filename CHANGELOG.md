@@ -14,6 +14,15 @@ All notable changes to PureJsImage are documented in this file.
 - Reduced the pinned 4000x3000 JPEG-to-1200px workflow from 1,417.1 ms to
   905.6 ms while keeping output byte-identical and median peak RSS within
   0.8 MiB of the pre-change result.
+- Specialized PNG filter and unfilter loops before entering their byte kernels,
+  reducing the pinned 4000x3000 PNG resize from 605.3 ms to 495.7 ms.
+- Stored TIFF tag values and sample layouts in typed arrays, precomputed row
+  geometry, and transferred compatible RGB and grayscale strips directly.
+- Reduced the pinned large TIFF resize from 574.4 ms to 109.2 ms and the 1-bit
+  LZW resize from 583.8 ms to 499.1 ms.
+- Specialized BMP row conversion by bit depth and removed per-pixel palette
+  tuple allocations, reducing the pinned 4000x3000 BMP resize from 176.7 ms to
+  149.1 ms.
 
 ## [0.3.0] - 2026-08-07
 
