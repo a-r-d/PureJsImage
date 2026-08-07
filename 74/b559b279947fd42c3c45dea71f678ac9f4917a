@@ -1,0 +1,38 @@
+tests/hevc-picture.test.ts
+  s_4669831c864f0c::t_aba68b15248c0d 9-21,42-60
+  s_4669831c864f0c::t_81d2025c67b811 61-62
+README.md
+  s_4669831c864f0c::t_5b09e6308f4c12 38,43-47,51-52
+CHANGELOG.md
+  s_4669831c864f0c::t_5b09e6308f4c12 24-26
+tests/heif.test.ts
+  s_4669831c864f0c::t_e53205387e57ab 1167-1169
+  s_4669831c864f0c::t_fed1240cdbef2f 699,701-705,747,1136-1139,1158-1162,1164-1166
+  s_4669831c864f0c::t_66ffd3ca8eb54d 1156-1157,1163
+  s_4669831c864f0c::t_07e75bde82d855 1140-1155,1170-1171
+  s_4669831c864f0c::t_fe02ae2187a3c2 700,706-746,748-784
+heif-codec-support.md
+  s_4669831c864f0c::t_5b09e6308f4c12 96,136,166-169
+src/codecs/heif.ts
+  s_4669831c864f0c::t_48ebec8278514a 1026,1131,1229
+  s_4669831c864f0c::t_82b203f8c5d04c 991,994,1022,1089-1130,1132-1149,1182-1228,1230-1233,1235
+  s_4669831c864f0c::t_e829cd847e0fea 1249,1251,1257-1258,1272,1277-1278,1290,1335,1337,1349-1354,1399,1408-1409,1425
+  s_4669831c864f0c::t_c02e7f6b764db2 1273-1276,1279-1289,1291-1296,1400-1407,1410-1424,1426-1431
+  s_4669831c864f0c::t_3e1197acf8c06f 1234,1236
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "74b559b279947fd42c3c45dea71f678ac9f4917a",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
