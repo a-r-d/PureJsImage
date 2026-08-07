@@ -35,5 +35,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare checksum-pinned AVIF fixtures
+        run: npm run fixtures:avif
+
       - name: Run checks
         run: npm run check
