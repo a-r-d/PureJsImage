@@ -1,0 +1,47 @@
+src/source.ts
+  s_4669831c864f0c::t_71936f2e897c8a 12-13,52,54-65,68-82
+  s_4669831c864f0c::t_46a7f48c6d4a53 86-87,89,93,101-108
+  s_db2bbfcdce6d77::t_4242c12df1a62c 84,109-116
+tests/core-abstractions.test.ts
+  s_4669831c864f0c::t_894b43c7ff44d9 1,6-14,61-72
+  s_4669831c864f0c::t_8a35b6c6cc2c44 41-60
+  s_4669831c864f0c::t_f5c42bf43cba80 73
+src/codecs/isobmff.ts
+  s_4669831c864f0c::t_555ba97ade16a3 185-209
+tests/library.test.ts
+  s_4669831c864f0c::t_8f06bb2f387a5b 5-6,9,14-19,21-33,66-84,86-100
+  s_4669831c864f0c::t_04c6a919d3280f 85
+  s_4669831c864f0c::t_07992e06decb99 20
+CHANGELOG.md
+  s_4669831c864f0c::t_a9444dd2bcff88 9-13
+src/codecs/avif.ts
+  s_4669831c864f0c::t_555ba97ade16a3 22,601
+src/codec.ts
+  s_4669831c864f0c::t_e577f3c0aa1409 7-43,131,133-136,138-142
+src/codecs/heif.ts
+  s_4669831c864f0c::t_555ba97ade16a3 27,1304
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "a0edb9bc7180a8559bdf157b402efe22616d1bfd",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_db2bbfcdce6d77": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdd48-3cb4-78b0-85d3-a2ed6a040dcf",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
