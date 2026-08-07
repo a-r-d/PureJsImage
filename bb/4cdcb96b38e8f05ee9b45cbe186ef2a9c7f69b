@@ -1,0 +1,42 @@
+benchmark/results/purejsimage-webp-baseline-2026-08-06.md
+  s_4612ba9d4ce750::t_c74e7625b80239 1-21
+tests/project-contract.test.ts
+  s_4612ba9d4ce750::t_817efd8e73fba8 50,55,58-59
+benchmark/engines/purejsimage.ts
+  s_4612ba9d4ce750::t_d9ef7979d8fd13 17-23,106
+benchmark/types.ts
+  s_4612ba9d4ce750::t_39b557cd931f75 1-2,4,84,88-97,105
+benchmark/corpus/manifest.json
+  s_4612ba9d4ce750::t_2801a316583dc5 117-200
+benchmark/workflows.ts
+  s_4612ba9d4ce750::t_8de2847c95c840 16-18,264-357,362-381,434,443-446
+  s_4612ba9d4ce750::t_d03e27326e8cfe 358-361
+benchmark/lib/validate-output.ts
+  s_4612ba9d4ce750::t_2ae3ac15173197 7-13,16,25,31-41,99,101-105,107,126-137,140-141
+  s_4612ba9d4ce750::t_2fb3e51da10937 138-139
+  s_4612ba9d4ce750::t_ab4833253207f9 142
+package.json
+  s_4612ba9d4ce750::t_1c3fbc7cad19f4 34-35
+benchmark/README.md
+  s_4612ba9d4ce750::t_1c4f0991a265a5 37-42,69-80
+benchmark/results/purejsimage-webp-baseline-2026-08-06.json
+  s_4612ba9d4ce750::t_c74e7625b80239 1-1468
+README.md
+  s_4612ba9d4ce750::t_0befb3bd71dfdf 238-264,306-307,346
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "bb4cdcb96b38e8f05ee9b45cbe186ef2a9c7f69b",
+  "prompts": {},
+  "sessions": {
+    "s_4612ba9d4ce750": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd91e-230c-7843-b7af-875d46866269",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
