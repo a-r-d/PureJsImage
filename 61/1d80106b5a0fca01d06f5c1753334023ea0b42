@@ -1,0 +1,25 @@
+src/codecs/jpeg-baseline.ts
+  s_4669831c864f0c::t_8957baf94d3952 168-169,538-542,544-553,556
+CHANGELOG.md
+  s_4669831c864f0c::t_5a97d26ff754dd 9-11
+tests/jpeg.test.ts
+  s_4669831c864f0c::t_9886587adb836a 6,251-257,259-277,564-666
+  s_4669831c864f0c::t_bb8ea45ea392a6 258
+  s_4669831c864f0c::t_e5cb9aaad6f57a 667
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "611d80106b5a0fca01d06f5c1753334023ea0b42",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
