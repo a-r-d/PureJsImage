@@ -1,0 +1,29 @@
+src/codecs/av1-coeff.ts
+  s_80f456a1d85640::t_42e84e0ced1020 440-460,466,468
+benchmarks.md
+  s_80f456a1d85640::t_8f10bad8e876bf 192-193,195
+src/codecs/av1-transform.ts
+  s_80f456a1d85640::t_9d84369c0be5c3 4,18-19,33,38-41,45,59,68,79,84,94,98,262-263,265,278,290-291,321,333,341-358,361-369,400-403,427,429-431,434-435,437-439
+CHANGELOG.md
+  s_80f456a1d85640::t_8f10bad8e876bf 34-37
+src/codecs/av1-intra.ts
+  s_80f456a1d85640::t_699078d1775454 1684-1690,1692-1693,1695-1697,1700,1704-1711,1713-1717,1720
+benchmark/results/avif-common-opaque-420-2026-08-07.md
+  s_80f456a1d85640::t_8f10bad8e876bf 45-46,48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "6767e76eb81ec9736347329a8b71bf31ac6a7a66",
+  "prompts": {},
+  "sessions": {
+    "s_80f456a1d85640": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdd33-33f4-7db0-8b52-c9ef817fef8e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
