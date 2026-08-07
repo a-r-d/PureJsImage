@@ -30,6 +30,11 @@ export interface Av1FrameHeader {
   readonly codedLossless: boolean
   readonly deltaLfPresent: boolean
   readonly deltaQPresent: boolean
+  readonly deltaUAc: number
+  readonly deltaUDc: number
+  readonly deltaVAc: number
+  readonly deltaVDc: number
+  readonly deltaYDc: number
   readonly disableCdfUpdate: boolean
   readonly frameHeight: number
   readonly frameWidth: number
@@ -428,6 +433,11 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
       allowScreenContentTools,
       allowIntrabc,
       baseQuantizer: quantization.base,
+      deltaYDc: quantization.yDc,
+      deltaUDc: quantization.uDc,
+      deltaUAc: quantization.uAc,
+      deltaVDc: quantization.vDc,
+      deltaVAc: quantization.vAc,
       segmentationEnabled: segmentation.enabled,
       deltaQPresent,
       deltaLfPresent,

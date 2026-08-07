@@ -31,6 +31,10 @@ const fullBox = (
 
 const av1SequenceObu = [10, 6, 24, 12, 253, 219, 16, 128] as const
 const neutralLosslessAv1 = [18, 0, 10, 5, 24, 0, 54, 0, 32, 50, 5, 16, 0, 0, 4, 128] as const
+const lossyIntraAvif = Buffer.from(
+  'AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADxbWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAOcGl0bQAAAAAAAQAAAB5pbG9jAAAAAEQAAAEAAQAAAAEAAAEZAAAAMQAAAChpaW5mAAAAAAABAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAABwaXBycAAAAFFpcGNvAAAAFGlzcGUAAAAAAAAABAAAAAQAAAAWcGl4aQAAAAEDCAgIAgACIAIgAAAADGF2MUOBAA0AAAAAE2NvbHJuY2x4AAIAAgACgAAAABdpcG1hAAAAAAAAAAEAAQQBAoMEAAAAOW1kYXQSAAoFGAR9gUgyJhfACSSSRABOQpsmXwal4c1e451a75FxWtQXOrIX0TGFWyby7pvW',
+  'base64',
+)
 
 const avifBitstreamFixture = ({
   codedPayload = av1SequenceObu,
@@ -280,6 +284,18 @@ describe('AVIF restricted pixel decode', () => {
       await (await Image.open(input)).crop({ x: 1, y: 1, width: 1, height: 1 }).png().toBuffer(),
     )
     expect([cropped.width, cropped.height, ...cropped.data]).toEqual([1, 1, 130, 130, 130, 255])
+  })
+
+  it('decodes lossy 8x8 transforms, nonzero coefficients, and bilinear chroma', async () => {
+    const output = PNG.sync.read(await (await Image.open(lossyIntraAvif)).png().toBuffer())
+
+    expect([output.width, output.height]).toEqual([4, 4])
+    expect([...output.data]).toEqual([
+      0, 132, 0, 255, 0, 145, 0, 255, 35, 117, 23, 255, 122, 129, 121, 255, 0, 145, 0, 255, 1, 157,
+      0, 255, 123, 130, 122, 255, 210, 142, 220, 255, 36, 118, 24, 255, 123, 130, 122, 255, 245,
+      103, 255, 255, 255, 114, 255, 255, 122, 129, 121, 255, 210, 142, 220, 255, 255, 114, 255, 255,
+      255, 125, 255, 255,
+    ])
   })
 
   it('rejects a sequence-only AVIF instead of fabricating pixels', async () => {

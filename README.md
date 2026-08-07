@@ -55,8 +55,9 @@ implemented in strict TypeScript 7:
   `pixi`, NCLX/ICC color signaling, and rotation without decoding pixels;
 - bounded AVIF item extraction from `mdat` and `idat`, including multi-extent
   items, plus strict AV1 low-overhead OBU and sequence-header inspection;
-- a first AVIF Phase B2 pixel path for reduced still-picture, 8-bit Main
-  Profile YUV 4:2:0, single-tile, lossless DC/all-zero intra frames, with
+- an AVIF Phase B2 pixel path for reduced still-picture, 8-bit Main Profile
+  YUV 4:2:0, single-tile lossless and lossy intra frames, including 4x4/8x8
+  coefficient reconstruction and exact bilinear chroma upsampling, with
   explicit unsupported errors for syntax outside that narrow subset;
 - all eight EXIF orientation transforms, using a bounded disk-backed tile spool
   when output row order differs from input row order;
@@ -114,8 +115,8 @@ const bitmap = await (await Image.open('input.png')).bmp().toBuffer()
 ```
 
 Metadata inspection and pipeline geometry are operational. AVIF Phase B2 now
-has a deliberately narrow, correctness-first lossless pixel path; broad AV1
-pixel decoding and AVIF encoding are not implemented yet. Non-interlaced PNG,
+has a deliberately narrow, correctness-first lossless and lossy intra pixel
+path; broad AV1 pixel decoding and AVIF encoding are not implemented yet. Non-interlaced PNG,
 baseline and progressive JPEG, lossless and lossy still WebP, BMP, and the
 first composited GIF frame can be cropped, resized, and converted through
 PixelBlocks. GIF animation editing and encoding are outside the V1 scope.
@@ -328,14 +329,17 @@ header instead of rejecting otherwise readable input.
 
 Phase B2 establishes the first dependency-free AVIF-to-PixelBlock workflow. It
 parses reduced still-picture frame headers, tile groups, AV1 range-coded
-symbols, recursive square partitions, skip and intra-mode decisions, all-zero
-transform blocks, DC prediction, and YUV420-to-RGBA output. The initial
-correctness slice accepts only opaque 8-bit 4:2:0, single-tile, lossless
-DC/all-zero intra frames. A libavif/libaom fixture decodes to the exact reference
-pixels and can be cropped and converted through the public pipeline. All 25
-broad-corpus files currently return explicit unsupported errors: this is the
-first pixel milestone, not a broad compatibility claim. The temporary full YUV
-and RGBA frame allocations are also not the final bounded-memory architecture.
+symbols, recursive square partitions, skip and intra-mode decisions, neutral
+angle-delta signaling, filter-intra prediction, 4x4/8x8 coefficient tokens, inverse transforms,
+dequantization, and bilinear YUV420-to-RGBA output. The completed B2 correctness
+slice accepts opaque 8-bit 4:2:0, single-tile, reduced still-picture frames and
+deliberately limits the supported partitions, modes, transform sizes, and
+quantizer contexts. A lossless libavif/libaom fixture and a lossy libavif corpus
+fixture both decode to exact independent reference pixels and pass through the
+public pipeline. The lossy fixture raises permanent broad-corpus compatibility
+to 1/25; the other 24 files return explicit unsupported errors rather than
+approximate pixels. The temporary full YUV and RGBA frame allocations are not
+the final bounded-memory architecture.
 
 `@stacksjs/ts-avif@0.1.3` is pinned as a development-only research oracle. Its
 published build needs a `Uint8Array.fromBase64` compatibility shim on the

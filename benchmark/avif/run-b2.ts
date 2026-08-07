@@ -8,6 +8,12 @@ const neutralLosslessAvif = Buffer.from(
   'AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADrbWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAOcGl0bQAAAAAAAQAAAB5pbG9jAAAAAEQAAAEAAQAAAAEAAAETAAAAEAAAAChpaW5mAAAAAAABAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAABqaXBycAAAAEtpcGNvAAAAFGlzcGUAAAAAAAAAAgAAAAIAAAAQcGl4aQAAAAADCAgIAAAADGF2MUOBAAwAAAAAE2NvbHJuY2x4AAEADQAGAAAAABdpcG1hAAAAAAAAAAEAAQQBAoMEAAAAGG1kYXQSAAoFGAA2ACAyBRAAAASA',
   'base64',
 )
+const lossyReference = [
+  0, 132, 0, 255, 0, 145, 0, 255, 35, 117, 23, 255, 122, 129, 121, 255, 0, 145, 0, 255, 1, 157, 0,
+  255, 123, 130, 122, 255, 210, 142, 220, 255, 36, 118, 24, 255, 123, 130, 122, 255, 245, 103, 255,
+  255, 255, 114, 255, 255, 122, 129, 121, 255, 210, 142, 220, 255, 255, 114, 255, 255, 255, 125,
+  255, 255,
+] as const
 
 const median = (values: readonly number[]): number => {
   const ordered = [...values].sort((left, right) => left - right)
@@ -31,7 +37,19 @@ const decodeNeutral = async (): Promise<void> => {
   }
 }
 
+const decodeLossy = async (): Promise<void> => {
+  const decoded = PNG.sync.read(
+    await (await Image.open(join(avifCorpusDirectory, 'extended_pixi.avif'))).png().toBuffer(),
+  )
+  if (decoded.width !== 4 || decoded.height !== 4)
+    throw new Error('Lossy B2 dimensions are incorrect')
+  if (decoded.data.some((value, index) => value !== lossyReference[index])) {
+    throw new Error('Lossy B2 pixels differ from the independent reference decode')
+  }
+}
+
 await decodeNeutral()
+await decodeLossy()
 const timings: number[] = []
 let maximumRss = process.memoryUsage.rss()
 for (let iteration = 0; iteration < 25; iteration += 1) {
@@ -73,6 +91,11 @@ console.log(
         medianWallMs: Number(median(timings).toFixed(3)),
         maximumObservedRssMiB: Number((maximumRss / 1024 ** 2).toFixed(1)),
         output: '2x2 RGBA, exact reference pixels',
+      },
+      lossyFixture: {
+        compatible: true,
+        source: 'libavif extended_pixi.avif, 8-bit lossy YUV420',
+        output: '4x4 RGBA, exact reference pixels',
       },
       broadCorpus: {
         total: avifFixtures.length,
