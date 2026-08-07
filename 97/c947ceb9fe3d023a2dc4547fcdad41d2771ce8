@@ -1,0 +1,90 @@
+benchmark/lib/validate-output.ts
+  s_4612ba9d4ce750::t_502d9a7d3dd748 47-61,92
+  s_4612ba9d4ce750::t_3f8e356c5ab351 2,15-18
+src/codec.ts
+  s_4612ba9d4ce750::t_58a6e3f9b1dabe 7
+tests/bmp.test.ts
+  s_4612ba9d4ce750::t_cff57bb088ba47 240-251
+  s_4612ba9d4ce750::t_d1444583394a99 1-92,94-110,114-141,146-149,151-198,201-239,252-264
+  s_4612ba9d4ce750::t_5ba7c817290e0a 93,111-113
+  s_4612ba9d4ce750::t_5d329460f176aa 142-145,150,199-200
+benchmark/results/jimp-bmp-baseline-2026-08-06.json
+  s_4612ba9d4ce750::t_a9c78e7f4216ba 1-1854
+src/image.ts
+  s_4612ba9d4ce750::t_58a6e3f9b1dabe 7,16,83,85-86,112-118,143-144
+  s_aa217c3f1da835::t_9c9c13bb89cd63 145-146
+benchmark/results/purejsimage-bmp-baseline-2026-08-06.md
+  s_4612ba9d4ce750::t_cc8c05ff624d48 1-28
+benchmark/corpus/manifest.json
+  s_4612ba9d4ce750::t_80a476b1584849 201-396,400-407,409-410
+  s_4612ba9d4ce750::t_a0a64995f37d97 408
+project-spec.md
+  s_4612ba9d4ce750::t_790eaaac452ff2 1492-1502
+package.json
+  s_4612ba9d4ce750::t_292885cfd9796b 35-36
+  s_4612ba9d4ce750::t_f8259913e02280 44
+src/codecs/index.ts
+  s_4612ba9d4ce750::t_58a6e3f9b1dabe 2,9,11
+src/pipeline.ts
+  s_4612ba9d4ce750::t_58a6e3f9b1dabe 44-47,52-56,158-164,252-260,262
+  s_aa217c3f1da835::t_0974fa6b4e7bb7 261,263
+src/index.ts
+  s_4612ba9d4ce750::t_58a6e3f9b1dabe 13,30
+benchmark/results/jimp-bmp-baseline-2026-08-06.md
+  s_4612ba9d4ce750::t_a9c78e7f4216ba 1-28
+benchmark/engines/jimp.ts
+  s_4612ba9d4ce750::t_3f8e356c5ab351 98
+src/codecs/bmp.ts
+  s_4612ba9d4ce750::t_352fd19991136f 155-157
+  s_4612ba9d4ce750::t_070854846d3da3 1-123,131-154,158-186,189-358,361-364,367-403,406-426,429-441,444-446,448-532,534-610,616-650,653-681,684-685
+  s_4612ba9d4ce750::t_3c75afeaf7e399 124-130,187-188,359-360,365-366,404-405,427-428,442-443,447,533,611-615,651-652,682-683
+benchmark/README.md
+  s_4612ba9d4ce750::t_790eaaac452ff2 43-49,87-99
+  s_4612ba9d4ce750::t_82912826abe0c4 100
+benchmark/results/purejsimage-bmp-baseline-2026-08-06.json
+  s_4612ba9d4ce750::t_cc8c05ff624d48 1-2644
+benchmark/engines/purejsimage.ts
+  s_4612ba9d4ce750::t_3f8e356c5ab351 17
+tests/project-contract.test.ts
+  s_4612ba9d4ce750::t_292885cfd9796b 56
+  s_4612ba9d4ce750::t_502d9a7d3dd748 50,60-63
+benchmark/workflows.ts
+  s_4612ba9d4ce750::t_502d9a7d3dd748 16,265-298,316-367,400-447,465-488,668-671
+  s_4612ba9d4ce750::t_292885cfd9796b 299-315,368-399,448-463
+  s_4612ba9d4ce750::t_c3baec38ce6d75 464
+benchmark/scripts/prepare-corpus.ts
+  s_4612ba9d4ce750::t_3eebbbe482f513 2,133-167,178-179
+benchmark/lib/corpus.ts
+  s_4612ba9d4ce750::t_3f8e356c5ab351 108-110,116,119
+  s_4612ba9d4ce750::t_3eebbbe482f513 63,107,111-115,117-118
+benchmark/types.ts
+  s_4612ba9d4ce750::t_3eebbbe482f513 1-2,4,29
+README.md
+  s_4612ba9d4ce750::t_790eaaac452ff2 21-23,26,49-51,96-106,108-113,283-301,343-345,384
+package-lock.json
+  s_4612ba9d4ce750::t_64e9527662c130 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "97c947ceb9fe3d023a2dc4547fcdad41d2771ce8",
+  "prompts": {},
+  "sessions": {
+    "s_4612ba9d4ce750": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd91e-230c-7843-b7af-875d46866269",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_aa217c3f1da835": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fda0d-f762-7e40-9027-ac01d6aa5b56",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
