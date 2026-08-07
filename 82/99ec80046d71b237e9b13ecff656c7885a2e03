@@ -1,0 +1,25 @@
+tests/gif.test.ts
+  s_4669831c864f0c::t_87a3c7ab8e5bee 10-11,17-32,34-40,42,47-57,126-215
+src/codecs/gif.ts
+  s_4669831c864f0c::t_22de3ed271713b 404,407-408,412,415-418,437-440,443-461,471
+CHANGELOG.md
+  s_4669831c864f0c::t_e95a1fe57c596b 15-17
+tests/fixtures.ts
+  s_4669831c864f0c::t_698bb3bc797d3f 97,101-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "8299ec80046d71b237e9b13ecff656c7885a2e03",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
