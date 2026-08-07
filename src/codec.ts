@@ -4,7 +4,7 @@ import type { PixelBlock, PixelFormat } from './pixel.ts'
 import type { ImageSink } from './sink.ts'
 import type { ImageSource } from './source.ts'
 
-export type BuiltInFormat = 'gif' | 'jpeg' | 'png'
+export type BuiltInFormat = 'gif' | 'jpeg' | 'png' | 'webp'
 
 export interface ImageMetadata {
   width: number

@@ -199,9 +199,13 @@ decode MCU rows incrementally, push crop/downscale requirements toward the
 decoder, and release rows as soon as they cannot affect the output. Peak working
 memory should be governed primarily by compressed input, active MCU rows,
 resize support, and output dimensions—not by source width times source height.
-Progressive or unusual JPEG variants may initially be explicitly unsupported.
-Any future fallback must also be first-party, visible in metadata/diagnostics,
-and measured separately.
+Progressive JPEG decoding is required because it is common on the web. Unlike a
+single-scan baseline image, later progressive scans can refine earlier blocks,
+so a decoder may retain compact DCT coefficients across scans. It must still
+avoid a source-sized RGB or RGBA bitmap, reconstruct output in bounded rows,
+and benchmark progressive input as a separate memory class. Unusual JPEG coding
+processes may remain explicitly unsupported. Any future fallback must also be
+first-party, visible in metadata/diagnostics, and measured separately.
 
 Transforms such as EXIF orientations 3-8 may require output rows in a different
 order from decoder rows. They should use bounded tiles and temporary storage
@@ -1472,6 +1476,14 @@ huge portion of general image-processing use cases.
 Modern and extremely common.
 
 Pure-JS support is fragmented. There are current packages implementing pieces such as pure-JS lossless WebP decoding, while broader encoders commonly use WASM/libwebp.
+
+PureJsImage must provide first-party still-image decoding for both lossless
+VP8L and the common lossy VP8 bitstream. Detection or metadata-only handling
+does not count as WebP input support. Lossless decoding should cover color
+caches, LZ77 references, spatial prefix groups, and all specified transforms.
+Lossy decoding must be tested against ordinary web photographs. WebP encoding
+is the next requirement after both still-image input variants work. Animated
+WebP remains outside V1.
 
 The codec abstraction should allow multiple implementations.
 

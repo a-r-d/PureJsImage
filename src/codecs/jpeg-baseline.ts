@@ -91,6 +91,18 @@ interface FrameComponent {
   readonly acTable: HuffmanTable
 }
 
+interface RenderComponent {
+  readonly horizontalSampling: number
+  readonly verticalSampling: number
+}
+
+interface RenderJpeg {
+  readonly components: readonly RenderComponent[]
+  readonly maximumHorizontalSampling: number
+  readonly maximumVerticalSampling: number
+  readonly mcusPerLine: number
+}
+
 export interface BaselineJpeg {
   readonly data: Uint8Array
   readonly width: number
@@ -126,7 +138,7 @@ interface ParsedFrame {
   readonly components: readonly ParsedComponent[]
 }
 
-const byte = (data: Uint8Array | Int32Array, index: number): number => data[index] ?? 0
+const byte = (data: ArrayLike<number>, index: number): number => data[index] ?? 0
 
 const readUint16 = (data: Uint8Array, offset: number): number => {
   if (offset < 0 || offset + 2 > data.byteLength) throw truncatedInput('JPEG segment is truncated')
@@ -211,14 +223,15 @@ const parseHuffmanTables = (
 
 const parseFrame = (data: Uint8Array, start: number, end: number): ParsedFrame => {
   if (end - start < 6) throw truncatedInput('JPEG frame header is truncated')
-  if (byte(data, start) !== 8) throw invalidInput('Baseline JPEG precision must be 8 bits')
+  if (byte(data, start) !== 8) throw invalidInput('JPEG precision must be 8 bits')
   const height = readUint16(data, start + 1)
   const width = readUint16(data, start + 3)
   const componentCount = byte(data, start + 5)
   if ((componentCount !== 1 && componentCount !== 3) || start + 6 + componentCount * 3 !== end) {
-    throw invalidInput('Baseline JPEG must contain one or three components')
+    throw invalidInput('JPEG must contain one or three components')
   }
   const components: ParsedComponent[] = []
+  let blocksPerMcu = 0
   for (let index = 0; index < componentCount; index += 1) {
     const offset = start + 6 + index * 3
     const sampling = byte(data, offset + 1)
@@ -232,6 +245,7 @@ const parseFrame = (data: Uint8Array, start: number, end: number): ParsedFrame =
     ) {
       throw invalidInput('JPEG component sampling factor is invalid')
     }
+    blocksPerMcu += horizontalSampling * verticalSampling
     components.push({
       id: byte(data, offset),
       horizontalSampling,
@@ -239,6 +253,7 @@ const parseFrame = (data: Uint8Array, start: number, end: number): ParsedFrame =
       quantizationId: byte(data, offset + 2),
     })
   }
+  if (blocksPerMcu > 10) throw invalidInput('JPEG sampling factors exceed ten blocks per MCU')
   return { width, height, components }
 }
 
@@ -380,6 +395,13 @@ class EntropyReader {
     }
   }
 
+  scanEnd(): number {
+    this.#bitCount = 0
+    if (byte(this.#data, this.#offset) !== 0xff)
+      throw invalidInput('JPEG scan contains trailing entropy data')
+    return this.#offset
+  }
+
   finish(): void {
     this.#bitCount = 0
     while (this.#offset < this.#data.byteLength && byte(this.#data, this.#offset) !== 0xff) {
@@ -437,17 +459,18 @@ const decodeBlock = (
 }
 
 const inverseDct = (
-  coefficients: Int32Array,
+  coefficients: ArrayLike<number>,
   quantization: Int32Array,
   workspace: Float64Array,
   output: Uint8Array,
+  coefficientOffset = 0,
 ): void => {
   workspace.fill(0)
   let activeRows = 0
   for (let vertical = 0; vertical < 8; vertical += 1) {
     for (let horizontal = 0; horizontal < 8; horizontal += 1) {
       const index = vertical * 8 + horizontal
-      const coefficient = byte(coefficients, index)
+      const coefficient = byte(coefficients, coefficientOffset + index)
       if (coefficient === 0) continue
       activeRows |= 1 << vertical
       const scaled = coefficient * byte(quantization, index)
@@ -470,7 +493,7 @@ const inverseDct = (
   }
 }
 
-const componentPlanes = (jpeg: BaselineJpeg): Uint8Array[] =>
+const componentPlanes = (jpeg: RenderJpeg): Uint8Array[] =>
   jpeg.components.map(
     (component) =>
       new Uint8Array(
@@ -493,7 +516,7 @@ const writeBlock = (
 const clamp = (value: number): number => (value < 0 ? 0 : value > 255 ? 255 : value)
 
 const renderRows = (
-  jpeg: BaselineJpeg,
+  jpeg: RenderJpeg,
   planes: readonly Uint8Array[],
   mcuRow: number,
   region: JpegRegion,
@@ -617,4 +640,471 @@ export const decodeBaselineJpeg = async function* (
     if (output) yield output
   }
   reader.finish()
+}
+
+interface ProgressiveFrameComponent extends RenderComponent {
+  readonly id: number
+  readonly quantizationId: number
+  readonly blocksPerLine: number
+  readonly blocksPerColumn: number
+  readonly blocksPerLineForMcu: number
+  readonly blocksPerColumnForMcu: number
+  readonly coefficients: Int16Array
+  readonly successiveBits: Int8Array
+}
+
+interface ProgressiveComponent extends ProgressiveFrameComponent {
+  readonly quantization: Int32Array
+}
+
+export interface ProgressiveJpeg extends RenderJpeg {
+  readonly width: number
+  readonly height: number
+  readonly components: readonly ProgressiveComponent[]
+  readonly mcusPerColumn: number
+}
+
+interface ProgressiveScanComponent {
+  readonly component: ProgressiveFrameComponent
+  readonly componentIndex: number
+  readonly dcTable?: HuffmanTable
+  readonly acTable?: HuffmanTable
+}
+
+interface ProgressiveScan {
+  readonly components: readonly ProgressiveScanComponent[]
+  readonly spectralStart: number
+  readonly spectralEnd: number
+  readonly successiveHigh: number
+  readonly successiveLow: number
+}
+
+interface ProgressiveState {
+  eobRun: number
+}
+
+const coefficientOffset = (
+  component: ProgressiveFrameComponent,
+  blockX: number,
+  blockY: number,
+): number => (blockY * component.blocksPerLineForMcu + blockX) * 64
+
+const setCoefficient = (coefficients: Int16Array, index: number, value: number): void => {
+  if (value < -32_768 || value > 32_767)
+    throw invalidInput('Progressive JPEG coefficient exceeds 16-bit storage')
+  coefficients[index] = value
+}
+
+const decodeProgressiveDcFirst = (
+  reader: EntropyReader,
+  selected: ProgressiveScanComponent,
+  predictors: Int32Array,
+  blockOffset: number,
+  successiveLow: number,
+): void => {
+  if (!selected.dcTable) throw invalidInput('Progressive JPEG DC table is missing')
+  const length = decodeHuffman(reader, selected.dcTable)
+  if (length > 11) throw invalidInput('Progressive JPEG DC coefficient is invalid')
+  const predictor = byte(predictors, selected.componentIndex) + reader.receiveAndExtend(length)
+  predictors[selected.componentIndex] = predictor
+  setCoefficient(selected.component.coefficients, blockOffset, predictor * 2 ** successiveLow)
+}
+
+const decodeProgressiveDcRefinement = (
+  reader: EntropyReader,
+  component: ProgressiveFrameComponent,
+  blockOffset: number,
+  successiveLow: number,
+): void => {
+  if (reader.readBit() === 0) return
+  const value = byte(component.coefficients, blockOffset)
+  setCoefficient(component.coefficients, blockOffset, value | (1 << successiveLow))
+}
+
+const decodeProgressiveAcFirst = (
+  reader: EntropyReader,
+  selected: ProgressiveScanComponent,
+  blockOffset: number,
+  scan: ProgressiveScan,
+  state: ProgressiveState,
+): void => {
+  if (!selected.acTable) throw invalidInput('Progressive JPEG AC table is missing')
+  if (state.eobRun > 0) {
+    state.eobRun -= 1
+    return
+  }
+  let spectral = scan.spectralStart
+  while (spectral <= scan.spectralEnd) {
+    const symbol = decodeHuffman(reader, selected.acTable)
+    const zeroes = symbol >>> 4
+    const length = symbol & 15
+    if (length === 0) {
+      if (zeroes === 15) {
+        spectral += 16
+        continue
+      }
+      state.eobRun = (1 << zeroes) + reader.readBits(zeroes) - 1
+      return
+    }
+    if (length > 10) throw invalidInput('Progressive JPEG AC coefficient is invalid')
+    spectral += zeroes
+    if (spectral > scan.spectralEnd)
+      throw invalidInput('Progressive JPEG AC coefficient exceeds its spectral band')
+    const target = blockOffset + byte(zigZag, spectral)
+    setCoefficient(
+      selected.component.coefficients,
+      target,
+      reader.receiveAndExtend(length) * 2 ** scan.successiveLow,
+    )
+    spectral += 1
+  }
+}
+
+const refineNonzeroCoefficient = (
+  reader: EntropyReader,
+  coefficients: Int16Array,
+  index: number,
+  bit: number,
+): void => {
+  const value = byte(coefficients, index)
+  if (reader.readBit() === 0 || (Math.abs(value) & bit) !== 0) return
+  setCoefficient(coefficients, index, value + (value > 0 ? bit : -bit))
+}
+
+const decodeProgressiveAcRefinement = (
+  reader: EntropyReader,
+  selected: ProgressiveScanComponent,
+  blockOffset: number,
+  scan: ProgressiveScan,
+  state: ProgressiveState,
+): void => {
+  if (!selected.acTable) throw invalidInput('Progressive JPEG AC table is missing')
+  const coefficients = selected.component.coefficients
+  const bit = 1 << scan.successiveLow
+  let spectral = scan.spectralStart
+
+  if (state.eobRun > 0) {
+    for (; spectral <= scan.spectralEnd; spectral += 1) {
+      const target = blockOffset + byte(zigZag, spectral)
+      if (byte(coefficients, target) !== 0)
+        refineNonzeroCoefficient(reader, coefficients, target, bit)
+    }
+    state.eobRun -= 1
+    return
+  }
+
+  while (spectral <= scan.spectralEnd) {
+    const symbol = decodeHuffman(reader, selected.acTable)
+    let zeroes = symbol >>> 4
+    const length = symbol & 15
+    let newCoefficient = 0
+    if (length === 0) {
+      if (zeroes !== 15) {
+        state.eobRun = (1 << zeroes) + reader.readBits(zeroes) - 1
+        for (; spectral <= scan.spectralEnd; spectral += 1) {
+          const target = blockOffset + byte(zigZag, spectral)
+          if (byte(coefficients, target) !== 0)
+            refineNonzeroCoefficient(reader, coefficients, target, bit)
+        }
+        return
+      }
+      zeroes = 16
+    } else {
+      if (length !== 1) throw invalidInput('Progressive JPEG AC refinement coefficient is invalid')
+      newCoefficient = reader.readBit() === 1 ? bit : -bit
+    }
+
+    while (spectral <= scan.spectralEnd) {
+      const target = blockOffset + byte(zigZag, spectral)
+      if (byte(coefficients, target) !== 0) {
+        refineNonzeroCoefficient(reader, coefficients, target, bit)
+      } else {
+        if (zeroes === 0) break
+        zeroes -= 1
+      }
+      spectral += 1
+    }
+    if (newCoefficient !== 0) {
+      if (spectral > scan.spectralEnd)
+        throw invalidInput('Progressive JPEG AC refinement exceeds its spectral band')
+      setCoefficient(coefficients, blockOffset + byte(zigZag, spectral), newCoefficient)
+      spectral += 1
+    }
+  }
+}
+
+const validateProgressiveScan = (scan: ProgressiveScan): void => {
+  const { spectralStart, spectralEnd, successiveHigh, successiveLow } = scan
+  if (
+    spectralStart > spectralEnd ||
+    spectralEnd > 63 ||
+    successiveHigh > 13 ||
+    successiveLow > 13 ||
+    (successiveHigh !== 0 && successiveHigh !== successiveLow + 1)
+  ) {
+    throw invalidInput('Progressive JPEG scan parameters are invalid')
+  }
+  if (spectralStart === 0 && spectralEnd !== 0)
+    throw invalidInput('Progressive JPEG DC scan must contain only coefficient zero')
+  if (spectralStart > 0 && scan.components.length !== 1)
+    throw invalidInput('Progressive JPEG AC scan must contain one component')
+
+  for (const selected of scan.components) {
+    const progression = selected.component.successiveBits
+    for (let spectral = spectralStart; spectral <= spectralEnd; spectral += 1) {
+      const previous = progression[spectral] ?? -1
+      if (
+        (successiveHigh === 0 && previous !== -1) ||
+        (successiveHigh !== 0 && previous !== successiveHigh)
+      ) {
+        throw invalidInput('Progressive JPEG scan order is invalid')
+      }
+      progression[spectral] = successiveLow
+    }
+  }
+}
+
+const decodeProgressiveScan = (
+  data: Uint8Array,
+  offset: number,
+  scan: ProgressiveScan,
+  mcusPerLine: number,
+  mcusPerColumn: number,
+  restartInterval: number,
+): number => {
+  validateProgressiveScan(scan)
+  const reader = new EntropyReader(data, offset)
+  const predictors = new Int32Array(
+    Math.max(...scan.components.map((selected) => selected.componentIndex)) + 1,
+  )
+  const state: ProgressiveState = { eobRun: 0 }
+  const single = scan.components.length === 1 ? scan.components[0] : undefined
+  const scanMcusPerLine = single ? single.component.blocksPerLine : mcusPerLine
+  const scanMcusPerColumn = single ? single.component.blocksPerColumn : mcusPerColumn
+  let mcu = 0
+  let restart = 0
+
+  for (let mcuY = 0; mcuY < scanMcusPerColumn; mcuY += 1) {
+    for (let mcuX = 0; mcuX < scanMcusPerLine; mcuX += 1) {
+      if (restartInterval > 0 && mcu > 0 && mcu % restartInterval === 0) {
+        reader.restart(restart)
+        restart += 1
+        predictors.fill(0)
+        state.eobRun = 0
+      }
+      for (const selected of scan.components) {
+        const blocksWide = single ? 1 : selected.component.horizontalSampling
+        const blocksHigh = single ? 1 : selected.component.verticalSampling
+        for (let blockY = 0; blockY < blocksHigh; blockY += 1) {
+          for (let blockX = 0; blockX < blocksWide; blockX += 1) {
+            const x = single ? mcuX : mcuX * blocksWide + blockX
+            const y = single ? mcuY : mcuY * blocksHigh + blockY
+            const target = coefficientOffset(selected.component, x, y)
+            if (scan.spectralStart === 0) {
+              if (scan.successiveHigh === 0) {
+                decodeProgressiveDcFirst(reader, selected, predictors, target, scan.successiveLow)
+              } else {
+                decodeProgressiveDcRefinement(
+                  reader,
+                  selected.component,
+                  target,
+                  scan.successiveLow,
+                )
+              }
+            } else if (scan.successiveHigh === 0) {
+              decodeProgressiveAcFirst(reader, selected, target, scan, state)
+            } else {
+              decodeProgressiveAcRefinement(reader, selected, target, scan, state)
+            }
+          }
+        }
+      }
+      mcu += 1
+    }
+  }
+  return reader.scanEnd()
+}
+
+const progressiveFrameComponents = (
+  frame: ParsedFrame,
+  maximumHorizontalSampling: number,
+  maximumVerticalSampling: number,
+  mcusPerLine: number,
+  mcusPerColumn: number,
+): ProgressiveFrameComponent[] =>
+  frame.components.map((component) => {
+    const blocksPerLine = Math.ceil(
+      (Math.ceil(frame.width / 8) * component.horizontalSampling) / maximumHorizontalSampling,
+    )
+    const blocksPerColumn = Math.ceil(
+      (Math.ceil(frame.height / 8) * component.verticalSampling) / maximumVerticalSampling,
+    )
+    const blocksPerLineForMcu = mcusPerLine * component.horizontalSampling
+    const blocksPerColumnForMcu = mcusPerColumn * component.verticalSampling
+    const successiveBits = new Int8Array(64)
+    successiveBits.fill(-1)
+    return {
+      ...component,
+      blocksPerLine,
+      blocksPerColumn,
+      blocksPerLineForMcu,
+      blocksPerColumnForMcu,
+      coefficients: new Int16Array(blocksPerLineForMcu * blocksPerColumnForMcu * 64),
+      successiveBits,
+    }
+  })
+
+export const parseProgressiveJpeg = (
+  data: Uint8Array,
+  validateDimensions: (width: number, height: number) => void,
+): ProgressiveJpeg | undefined => {
+  if (data.byteLength < 4 || readUint16(data, 0) !== 0xffd8)
+    throw invalidInput('JPEG start marker is missing')
+  const quantizationTables = new Map<number, Int32Array>()
+  const dcTables = new Map<number, HuffmanTable>()
+  const acTables = new Map<number, HuffmanTable>()
+  let frame: ParsedFrame | undefined
+  let components: ProgressiveFrameComponent[] | undefined
+  let maximumHorizontalSampling = 1
+  let maximumVerticalSampling = 1
+  let mcusPerLine = 0
+  let mcusPerColumn = 0
+  let restartInterval = 0
+  let sawScan = false
+  let offset = 2
+
+  while (offset < data.byteLength) {
+    while (byte(data, offset) === 0xff) offset += 1
+    if (offset >= data.byteLength) throw truncatedInput('JPEG marker is truncated')
+    const marker = byte(data, offset)
+    offset += 1
+    if (marker === 0xd9) {
+      if (!frame || !components || !sawScan)
+        throw invalidInput('Progressive JPEG ended before image data')
+      const outputComponents: ProgressiveComponent[] = components.map((component) => {
+        const quantization = quantizationTables.get(component.quantizationId)
+        if (!quantization)
+          throw invalidInput('Progressive JPEG component references a missing quantization table')
+        return { ...component, quantization }
+      })
+      return {
+        width: frame.width,
+        height: frame.height,
+        components: outputComponents,
+        maximumHorizontalSampling,
+        maximumVerticalSampling,
+        mcusPerLine,
+        mcusPerColumn,
+      }
+    }
+    if (marker === 0x00 || (marker >= 0xd0 && marker <= 0xd8))
+      throw invalidInput('JPEG contains an unexpected standalone marker')
+    const end = segmentEnd(data, offset)
+    const start = offset + 2
+
+    if (marker === 0xdb) parseQuantizationTables(data, start, end, quantizationTables)
+    else if (marker === 0xc4) parseHuffmanTables(data, start, end, dcTables, acTables)
+    else if (marker === 0xc0 || marker === 0xc1) return undefined
+    else if (marker === 0xc2) {
+      if (frame) throw invalidInput('Progressive JPEG contains multiple frames')
+      frame = parseFrame(data, start, end)
+      validateDimensions(frame.width, frame.height)
+      for (const component of frame.components) {
+        maximumHorizontalSampling = Math.max(
+          maximumHorizontalSampling,
+          component.horizontalSampling,
+        )
+        maximumVerticalSampling = Math.max(maximumVerticalSampling, component.verticalSampling)
+      }
+      mcusPerLine = Math.ceil(frame.width / (8 * maximumHorizontalSampling))
+      mcusPerColumn = Math.ceil(frame.height / (8 * maximumVerticalSampling))
+      components = progressiveFrameComponents(
+        frame,
+        maximumHorizontalSampling,
+        maximumVerticalSampling,
+        mcusPerLine,
+        mcusPerColumn,
+      )
+    } else if (marker === 0xdd) {
+      if (end - start !== 2) throw invalidInput('JPEG restart interval is invalid')
+      restartInterval = readUint16(data, start)
+    } else if (marker === 0xda) {
+      if (!frame || !components) throw invalidInput('JPEG scan appears before its frame')
+      const selectorCount = byte(data, start)
+      if (
+        selectorCount < 1 ||
+        selectorCount > components.length ||
+        start + 1 + selectorCount * 2 + 3 !== end
+      ) {
+        throw invalidInput('Progressive JPEG scan header is invalid')
+      }
+      const selected: ProgressiveScanComponent[] = []
+      const selectedIds = new Set<number>()
+      for (let index = 0; index < selectorCount; index += 1) {
+        const selectorOffset = start + 1 + index * 2
+        const selectedId = byte(data, selectorOffset)
+        if (selectedIds.has(selectedId))
+          throw invalidInput('Progressive JPEG scan repeats a component')
+        selectedIds.add(selectedId)
+        const component = components.find((candidate) => candidate.id === selectedId)
+        if (!component) throw invalidInput('JPEG scan references an unknown component')
+        const componentIndex = components.indexOf(component)
+        const tables = byte(data, selectorOffset + 1)
+        const dcTable = dcTables.get(tables >>> 4)
+        const acTable = acTables.get(tables & 15)
+        selected.push({
+          component,
+          componentIndex,
+          ...(dcTable ? { dcTable } : {}),
+          ...(acTable ? { acTable } : {}),
+        })
+      }
+      const spectralOffset = start + 1 + selectorCount * 2
+      const successive = byte(data, spectralOffset + 2)
+      const scan: ProgressiveScan = {
+        components: selected,
+        spectralStart: byte(data, spectralOffset),
+        spectralEnd: byte(data, spectralOffset + 1),
+        successiveHigh: successive >>> 4,
+        successiveLow: successive & 15,
+      }
+      offset = decodeProgressiveScan(data, end, scan, mcusPerLine, mcusPerColumn, restartInterval)
+      sawScan = true
+      continue
+    }
+    offset = end
+  }
+  throw truncatedInput('Progressive JPEG is missing its end marker')
+}
+
+export const decodeProgressiveJpeg = async function* (
+  jpeg: ProgressiveJpeg,
+  region: JpegRegion,
+): AsyncGenerator<PixelBlock> {
+  const workspace = new Float64Array(64)
+  const block = new Uint8Array(64)
+  for (let mcuRow = 0; mcuRow < jpeg.mcusPerColumn; mcuRow += 1) {
+    const planes = componentPlanes(jpeg)
+    for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
+      const component = jpeg.components[componentIndex]
+      const plane = planes[componentIndex]
+      if (!component || !plane) throw invalidInput('JPEG component storage is missing')
+      const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * 8
+      for (let blockY = 0; blockY < component.verticalSampling; blockY += 1) {
+        const sourceBlockY = mcuRow * component.verticalSampling + blockY
+        for (let blockX = 0; blockX < component.blocksPerLineForMcu; blockX += 1) {
+          inverseDct(
+            component.coefficients,
+            component.quantization,
+            workspace,
+            block,
+            coefficientOffset(component, blockX, sourceBlockY),
+          )
+          writeBlock(plane, planeWidth, block, blockX, blockY)
+        }
+      }
+    }
+    const output = renderRows(jpeg, planes, mcuRow, region)
+    if (output) yield output
+  }
 }

@@ -18,10 +18,11 @@ scales like a full source-resolution RGBA bitmap.
 
 ## Implementation status
 
-The Phase 1 core and Phase 2-5 PNG/JPEG/GIF processing paths are implemented in strict TypeScript 7:
+The Phase 1 core, Phase 2-5 PNG/JPEG/GIF paths, progressive JPEG input, and the
+first WebP compatibility slice are implemented in strict TypeScript 7:
 
 - bounded Buffer, Uint8Array, ArrayBuffer, Blob, and file sources;
-- automatic PNG, JPEG, and GIF detection and metadata parsing;
+- automatic PNG, JPEG, GIF, and WebP detection and metadata parsing;
 - EXIF orientation and GIF frame metadata;
 - configurable hostile-input limits;
 - immutable crop, resize, orientation, and encode pipeline descriptions;
@@ -31,10 +32,14 @@ The Phase 1 core and Phase 2-5 PNG/JPEG/GIF processing paths are implemented in 
 - streaming PNG encoding with alpha preservation, adaptive row filtering, and
   compression levels 0-9;
 - single-scan baseline JPEG decoding in bounded MCU rows;
+- multi-scan progressive JPEG decoding with compact 16-bit coefficient storage
+  and bounded RGB output rows;
 - baseline JPEG encoding with quality control and deterministic alpha
   flattening (white by default);
 - first-composited-frame GIF LZW decoding with global and local palettes,
   transparency, frame offsets, and interlacing;
+- first-party lossless WebP decoding, including prefix codes, LZ77 references,
+  color caches, spatial entropy groups, and all four lossless transforms;
 - all eight EXIF orientation transforms, using a bounded disk-backed tile spool
   when output row order differs from input row order;
 - fused PNG crop execution to Buffer or file output;
@@ -67,16 +72,20 @@ const output = await (await Image.open('input.png'))
 ```
 
 Metadata inspection and pipeline geometry are operational. Non-interlaced PNG,
-baseline JPEG, and the first composited GIF frame can be cropped, resized, and
-converted through PixelBlocks. GIF animation editing and encoding are outside
-the V1 scope. Baseline JPEG decoding retains one MCU row of component samples
-and emits only the requested crop region; it does not materialize a
-source-sized RGB or RGBA bitmap. Progressive JPEG input and output are explicit
-unsupported operations. Orientations that transpose or reverse row order use
-temporary storage and bounded 32x32 pixel tiles instead of retaining the
-decoded frame in memory. The temporary file is deleted when the pipeline
-completes or aborts; its worst-case size is approximately the decoded pixel
-area, shifted from scarce Lambda RAM to ephemeral storage.
+baseline and progressive JPEG, lossless WebP, and the first composited GIF
+frame can be cropped, resized, and converted through PixelBlocks. GIF animation
+editing and encoding are outside the V1 scope. Baseline JPEG decoding retains
+one MCU row of component samples and emits only the requested crop region; it
+does not materialize a source-sized RGB or RGBA bitmap. Progressive JPEG must
+retain coefficients until later scans finish refining them, so its decoder uses
+16-bit coefficient planes while keeping reconstructed RGB output row-bounded.
+Progressive JPEG encoding remains unsupported. Lossy VP8 WebP metadata is
+recognized, but its first-party pixel decoder and WebP encoding are still in
+progress. Orientations that transpose or reverse row order use temporary
+storage and bounded 32x32 pixel tiles instead of retaining the decoded frame in
+memory. The temporary file is deleted when the pipeline completes or aborts;
+its worst-case size is approximately the decoded pixel area, shifted from
+scarce Lambda RAM to ephemeral storage.
 
 ## Northstar
 
@@ -205,6 +214,21 @@ the Tooldesk GIF upload normalization is 22% faster with 26% less peak RSS.
 | Tooldesk GIF logo normalization | 39.2 ms | 27.5 ms | 86.9 MiB | 94.9 MiB |
 
 See the [complete Phase 5 report](benchmark/results/purejsimage-phase5-first-party-cold-2026-08-06.md).
+
+Progressive JPEG compatibility is now a separate measured memory class because
+later scans can refine blocks decoded near the start of the image. An
+exploratory three-process cold run converted a 4000x3000 progressive JPEG to a
+1200x900 baseline JPEG at quality 80. PureJsImage retained compact DCT
+coefficients and peaked at 142.5 MiB, versus Jimp's 581.7 MiB: 75.5% less peak
+RSS. Median wall time was 2.12 seconds versus 1.93 seconds for Jimp.
+
+The input was derived from the pinned `tundra-4000x3000` corpus file with
+ImageMagick 7.1.2-3 using `-quality 90 -interlace Plane`; its SHA-256 was
+`85f505a79dfd92d0fcd6dabe3799d94167cf7c4a53362043f97f3351eaeee460`.
+This is an exploratory result rather than a permanent harness baseline until
+the progressive fixture has a stable downloadable source. It clears the broad
+memory-win bar but not the stronger 80% target, so reducing retained
+coefficient storage remains open work.
 
 | Workflow | Jimp median wall time | Jimp peak RSS |
 | --- | ---: | ---: |

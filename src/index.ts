@@ -9,7 +9,13 @@ export type {
   ImageEncoder,
   ImageMetadata,
 } from './codec.ts'
-export { gifCodec, jpegCodec, pngCodec, createDefaultCodecRegistry } from './codecs/index.ts'
+export {
+  gifCodec,
+  jpegCodec,
+  pngCodec,
+  webpCodec,
+  createDefaultCodecRegistry,
+} from './codecs/index.ts'
 export { ImageError } from './errors.ts'
 export type { ImageErrorCode } from './errors.ts'
 export { Image } from './image.ts'

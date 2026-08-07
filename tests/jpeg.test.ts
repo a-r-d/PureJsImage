@@ -7,6 +7,11 @@ import { baselineJpegFixtures } from './jpeg-compatibility-fixtures.ts'
 
 type Orientation = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
+const progressiveJpeg = Buffer.from(
+  '/9j/4AAQSkZJRgABAQECQQJBAAD/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wgARCAAYACADASIAAhEBAxEB/8QAGgABAAMAAwAAAAAAAAAAAAAAAAECBQQGB//EABYBAQEBAAAAAAAAAAAAAAAAAAABAv/aAAwDAQACEAMQAAAB8pJIaWandaGFOGL/AP/EABwQAAICAgMAAAAAAAAAAAAAAAAEAQIFEhQVIP/aAAgBAQABBQL01VPQ4adjrk5JxSpfFUg//8QAFBEBAAAAAAAAAAAAAAAAAAAAIP/aAAgBAwEBPwEf/8QAFhEAAwAAAAAAAAAAAAAAAAAAABAR/9oACAECAQE/AXT/xAAhEAABAwIHAQAAAAAAAAAAAAABAAIDIoEEEBIgM0JDkf/aAAgBAQAGPwLcw4Z82rsJBlx/CvQXVMsipmN2r//EACIQAAEBBgcAAAAAAAAAAAAAAAEAEBEgIXHhMUFRYYGRwf/aAAgBAQABPyGIEiZE7DmAEyiqPVpKdqKwJ4KMSW15f//aAAwDAQACAAMAAAAQ4/fC/8QAFxEBAQEBAAAAAAAAAAAAAAAAAQAREP/aAAgBAwEBPxCHTYef/8QAFhEBAQEAAAAAAAAAAAAAAAAAAQAR/9oACAECAQE/EJMctYV//8QAIBABAAIBAwUBAAAAAAAAAAAAAREhADFhsRAgQVGhwf/aAAgBAQABPxDtIkmY2xG2UIxRCV1mr8X0TmPcpcuMT3uReVlas0HjgxkIHp/T8Z//2Q==',
+  'base64',
+)
+
 const rgbaImage = (
   width: number,
   height: number,
@@ -129,6 +134,26 @@ describe('JPEG pixel pipeline', () => {
     },
   )
 
+  it('decodes a multi-scan progressive JPEG consistently with the development oracle', async () => {
+    const reference = jpeg.decode(progressiveJpeg, {
+      useTArray: true,
+      formatAsRGBA: false,
+      tolerantDecoding: false,
+    })
+    const output = PNG.sync.read(await (await Image.open(progressiveJpeg)).png().toBuffer())
+
+    expect({ width: output.width, height: output.height }).toEqual({ width: 32, height: 24 })
+    for (let pixel = 0; pixel < output.width * output.height; pixel += 1) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        expect(
+          Math.abs(
+            (output.data[pixel * 4 + channel] ?? 0) - (reference.data[pixel * 3 + channel] ?? 0),
+          ),
+        ).toBeLessThanOrEqual(3)
+      }
+    }
+  })
+
   it('executes all EXIF orientation values before encoding', async () => {
     const width = 16
     const height = 8
@@ -212,7 +237,7 @@ describe('JPEG pixel pipeline', () => {
     )
     await expect(
       (await Image.open(withProgressiveFrameMarker(input))).png().toBuffer(),
-    ).rejects.toThrow('progressive JPEG is unsupported')
+    ).rejects.toThrow('Progressive JPEG DC scan')
     await expect(
       (await Image.open(input.subarray(0, input.byteLength - 20))).toBuffer(),
     ).rejects.toMatchObject({

@@ -42,6 +42,9 @@
   to output.
 - A full-frame codec fallback must be explicit, documented, and benchmarked separately. It must not
   silently define the memory behavior of the primary Lambda workflow.
+- Progressive JPEG is a distinct memory class: later scans require earlier DCT coefficients, but the
+  decoder should retain compact coefficient storage rather than a full RGB or RGBA frame and should
+  reconstruct final pixels in bounded rows.
 - Measure absolute peak RSS in isolated processes for both cold and warm executions. Ensure warmup
   allocations have actually been reclaimed before using a post-warmup baseline, and record external
   and ArrayBuffer memory when diagnosing retained pages.
