@@ -1,0 +1,21 @@
+benchmark/corpus/files/avif/README.md
+  s_4669831c864f0c::t_9d14ddaa9637c9 1-13
+.gitignore
+  s_4669831c864f0c::t_9d14ddaa9637c9 147-152
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "8ea1daa8aa00d5b9d523bd89d7f2035c17f7e9ab",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
