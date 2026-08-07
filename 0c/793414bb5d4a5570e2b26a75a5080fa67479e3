@@ -1,0 +1,20 @@
+README.md
+  s_4612ba9d4ce750::t_1a3c2912221d55 22-26
+  s_4612ba9d4ce750::t_4a89026221fc8c 21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "0c793414bb5d4a5570e2b26a75a5080fa67479e3",
+  "prompts": {},
+  "sessions": {
+    "s_4612ba9d4ce750": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd91e-230c-7843-b7af-875d46866269",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
