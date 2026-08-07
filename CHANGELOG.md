@@ -11,6 +11,9 @@ All notable changes to PureJsImage are documented in this file.
 - Made codec probing start from a stable registration-independent window and
   expand through declared `ftyp` boxes, with shared AVIF/HEIF brand parsing that
   excludes `minor_version` and bytes outside the box.
+- Added fallback content signatures that distinguish unknown input, recognized
+  codecs omitted from a custom registry, malformed recognizable files, and
+  unimplemented SVG, PDF, ICO/CUR, JPEG XL, JPEG 2000, and BigTIFF input.
 - Added bounded embedded RGB ICC conversion for PNG `iCCP`, WebP `ICCP`, TIFF
   `InterColorProfile` tag 34675, and AVIF/HEIF `prof` properties, preserving
   alpha while converting decoded row blocks to sRGB.

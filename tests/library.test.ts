@@ -45,6 +45,48 @@ describe('configured image library', () => {
 
     await expect(images.open(jpegFixture(32, 24))).rejects.toMatchObject({
       code: 'UNSUPPORTED_FORMAT',
+      message: 'JPEG input was recognized, but its codec is not registered',
+    })
+  })
+
+  it.each([
+    [
+      'SVG',
+      ascii('<?xml version="1.0"?>\n<!-- exported -->\n<svg xmlns="http://www.w3.org/2000/svg">'),
+    ],
+    ['PDF', ascii('%PDF-1.7\n')],
+    ['ICO', Uint8Array.of(0, 0, 1, 0, 1, 0, 16, 16)],
+    ['JPEG XL codestream', Uint8Array.of(0xff, 0x0a, 0, 0)],
+    [
+      'JPEG XL container',
+      Uint8Array.of(0, 0, 0, 12, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a),
+    ],
+    [
+      'JPEG 2000 container',
+      Uint8Array.of(0, 0, 0, 12, 0x6a, 0x50, 0x20, 0x20, 0x0d, 0x0a, 0x87, 0x0a),
+    ],
+    ['BigTIFF', Uint8Array.of(0x49, 0x49, 0x2b, 0, 8, 0, 0, 0, 16, 0, 0, 0)],
+  ] as const)('names recognized but unimplemented %s input', async (name, input) => {
+    await expect(createImageLibrary(allCodecs).open(input)).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: `${name} input was recognized, but decoding is not implemented`,
+    })
+  })
+
+  it('distinguishes malformed recognizable input from an unknown format', async () => {
+    const jpeg = jpegFixture(8, 8)
+    const prefixed = new Uint8Array(jpeg.byteLength + 2)
+    prefixed.set([0x12, 0x34])
+    prefixed.set(jpeg, 2)
+    const images = createImageLibrary(allCodecs)
+
+    await expect(images.open(prefixed)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'JPEG SOI marker starts at byte 2; leading data is invalid',
+    })
+    await expect(images.open(Uint8Array.of(1, 2, 3, 4, 5))).rejects.toMatchObject({
+      code: 'UNSUPPORTED_FORMAT',
+      message: 'Input format is not recognized',
     })
   })
 

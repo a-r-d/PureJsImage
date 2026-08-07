@@ -1,10 +1,12 @@
-import { unsupportedFormat } from './errors.ts'
+import { invalidInput, unsupportedFormat, unsupportedOperation } from './errors.ts'
+import { recognizeInputFormat } from './input-format.ts'
 import type { ImageLimits } from './limits.ts'
 import type { PixelBlock, PixelFormat } from './pixel.ts'
 import type { ImageSink } from './sink.ts'
 import type { ImageSource } from './source.ts'
 
 const baseProbeBytes = 32
+const diagnosticProbeBytes = 1024
 const maximumFtypProbeBytes = 65_536
 
 const probeByte = (data: Uint8Array, offset: number): number => data[offset] ?? 0
@@ -143,7 +145,27 @@ export class CodecRegistry {
     const codec = this.#codecs.find(
       (candidate) => header.byteLength >= candidate.minimumBytes && candidate.detect(header),
     )
-    if (!codec) throw unsupportedFormat('Input does not match a registered image format')
+    if (!codec) {
+      const diagnosticLength = Math.min(source.size, diagnosticProbeBytes)
+      const diagnostic =
+        header.byteLength >= diagnosticLength ? header : await source.read(0, diagnosticLength)
+      const recognized = recognizeInputFormat(diagnostic)
+      if (!recognized) throw unsupportedFormat('Input format is not recognized')
+      if (recognized.malformedMessage) throw invalidInput(recognized.malformedMessage)
+      if (!recognized.registeredFormat) {
+        throw unsupportedOperation(
+          `${recognized.name} input was recognized, but decoding is not implemented`,
+        )
+      }
+      if (!this.get(recognized.registeredFormat)) {
+        throw unsupportedFormat(
+          `${recognized.name} input was recognized, but its codec is not registered`,
+        )
+      }
+      throw invalidInput(
+        `${recognized.name} input was recognized, but the registered codec rejected its header`,
+      )
+    }
     return codec
   }
 }
