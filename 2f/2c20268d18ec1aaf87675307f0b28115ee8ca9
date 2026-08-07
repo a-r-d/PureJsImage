@@ -1,0 +1,22 @@
+.github/workflows/ci.yml
+  s_4669831c864f0c::t_777b921b6580c0 1-39
+tests/tooldesk-workflows.test.ts
+  s_4669831c864f0c::t_bcad4e72274071 137,139,155,173-188,190-201
+  s_4669831c864f0c::t_145e7b513f9719 1-136,138,140-154,156-172,189,202-220
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "2f2c20268d18ec1aaf87675307f0b28115ee8ca9",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
