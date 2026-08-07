@@ -5,7 +5,8 @@ import type { ImageSink } from '../sink.ts'
 
 class BitWriter {
   readonly #sink: ImageSink
-  readonly #bytes: number[] = []
+  #bytes = new Uint8Array(4096)
+  #length = 0
   #current = 0
   #bitCount = 0
 
@@ -14,11 +15,16 @@ class BitWriter {
   }
 
   writeBits(value: number, length: number): void {
-    for (let bit = 0; bit < length; bit += 1) {
-      this.#current |= ((value >>> bit) & 1) << this.#bitCount
-      this.#bitCount += 1
+    let remaining = length
+    let bits = value
+    while (remaining > 0) {
+      const count = Math.min(8 - this.#bitCount, remaining)
+      this.#current |= (bits & ((1 << count) - 1)) << this.#bitCount
+      this.#bitCount += count
+      remaining -= count
+      bits >>>= count
       if (this.#bitCount === 8) {
-        this.#bytes.push(this.#current)
+        this.#append(this.#current)
         this.#current = 0
         this.#bitCount = 0
       }
@@ -26,24 +32,36 @@ class BitWriter {
   }
 
   async flushComplete(): Promise<void> {
-    if (this.#bytes.length === 0) return
-    await this.#sink.write(Uint8Array.from(this.#bytes))
-    this.#bytes.length = 0
+    if (this.#length === 0) return
+    await this.#sink.write(this.#bytes.slice(0, this.#length))
+    this.#length = 0
   }
 
   async finish(): Promise<void> {
-    if (this.#bitCount > 0) this.#bytes.push(this.#current)
+    if (this.#bitCount > 0) this.#append(this.#current)
     this.#current = 0
     this.#bitCount = 0
     await this.flushComplete()
   }
+
+  #append(value: number): void {
+    if (this.#length === this.#bytes.length) {
+      const grown = new Uint8Array(this.#bytes.length * 2)
+      grown.set(this.#bytes)
+      this.#bytes = grown
+    }
+    this.#bytes[this.#length] = value
+    this.#length += 1
+  }
 }
 
-const reverseByte = (value: number): number => {
+const reversedBytes = Uint8Array.from({ length: 256 }, (_, value) => {
   let reversed = 0
   for (let bit = 0; bit < 8; bit += 1) reversed |= ((value >>> bit) & 1) << (7 - bit)
   return reversed
-}
+})
+
+const fixedLiteralCodeLengths = Uint8Array.of(0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0)
 
 const writeCodeLengthSymbol = (writer: BitWriter, symbol: 8 | 16 | 18): void => {
   if (symbol === 8) writer.writeBits(0, 1)
@@ -54,7 +72,7 @@ const writeCodeLengthSymbol = (writer: BitWriter, symbol: 8 | 16 | 18): void => 
 const writeFixedLiteralTree = (writer: BitWriter, alphabetSize: 256 | 280): void => {
   writer.writeBits(0, 1)
   writer.writeBits(10, 4)
-  for (const length of [0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0]) {
+  for (const length of fixedLiteralCodeLengths) {
     writer.writeBits(length, 3)
   }
   writer.writeBits(0, 1)
@@ -131,10 +149,10 @@ class LosslessWebpEncoder implements ImageEncoder {
         const green = this.#channels === 1 ? red : (block.data[offset + 1] ?? 0)
         const blue = this.#channels === 1 ? red : (block.data[offset + 2] ?? 0)
         const alpha = this.#channels === 4 ? (block.data[offset + 3] ?? 0) : 255
-        this.#writer.writeBits(reverseByte(green), 8)
-        this.#writer.writeBits(reverseByte(red), 8)
-        this.#writer.writeBits(reverseByte(blue), 8)
-        this.#writer.writeBits(reverseByte(alpha), 8)
+        this.#writer.writeBits(reversedBytes[green] ?? 0, 8)
+        this.#writer.writeBits(reversedBytes[red] ?? 0, 8)
+        this.#writer.writeBits(reversedBytes[blue] ?? 0, 8)
+        this.#writer.writeBits(reversedBytes[alpha] ?? 0, 8)
       }
     }
     this.#expectedY += block.height

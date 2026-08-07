@@ -77,6 +77,26 @@ describe('WebP codec', () => {
     ])
   })
 
+  it('losslessly encodes blocks larger than the byte-writer growth boundary', async () => {
+    const source = new PNG({ width: 40, height: 40 })
+    for (let y = 0; y < source.height; y += 1) {
+      for (let x = 0; x < source.width; x += 1) {
+        const offset = (y * source.width + x) * 4
+        source.data[offset] = (x * 13 + y * 3) & 255
+        source.data[offset + 1] = (x * 5 + y * 17) & 255
+        source.data[offset + 2] = (x * 19 + y * 7) & 255
+        source.data[offset + 3] = (x * 11 + y * 23) & 255
+      }
+    }
+
+    const encoded = await (await Image.open(PNG.sync.write(source)))
+      .webp({ lossless: true })
+      .toBuffer()
+    expect(encoded.length).toBeGreaterThan(4096)
+    const decoded = PNG.sync.read(await (await Image.open(encoded)).png().toBuffer())
+    expect(decoded.data).toEqual(source.data)
+  })
+
   it('lossily encodes WebP with effective quality control', async () => {
     const image = await Image.open(lossy)
     expect(() => image.webp({ quality: 0 })).toThrow('WebP quality')
@@ -89,6 +109,10 @@ describe('WebP codec', () => {
       height: 24,
       hasAlpha: false,
     })
+    const decoded = PNG.sync.read(await (await Image.open(high)).png().toBuffer())
+    expectPixelClose(decoded, 0, 0, [0, 0, 0])
+    expectPixelClose(decoded, 16, 12, [149, 171, 189])
+    expectPixelClose(decoded, 31, 23, [75, 77, 62])
   })
 
   it('detects and exactly decodes lossless RGBA WebP', async () => {

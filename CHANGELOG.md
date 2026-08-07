@@ -23,6 +23,14 @@ All notable changes to PureJsImage are documented in this file.
 - Specialized BMP row conversion by bit depth and removed per-pixel palette
   tuple allocations, reducing the pinned 4000x3000 BMP resize from 176.7 ms to
   149.1 ms.
+- Removed per-edge arrays and callback-based pixel transforms from VP8 and VP8L
+  decoding, and reused inverse-DCT scratch storage across macroblocks.
+- Reworked WebP byte writers, coefficient traversal, transforms, quantization,
+  and reconstruction around typed tables and reusable fixed-size buffers.
+- Reduced the pinned 1600x2000 WebP resize from 1,413.5 ms to 519.4 ms, JPEG to
+  lossy WebP from 1,296.6 ms to 965.4 ms, and PNG to lossless WebP from 97.8 ms
+  to 50.0 ms. The lossy encoder workflow also reduced median peak RSS from
+  153.4 MiB to 112.2 MiB.
 
 ## [0.3.0] - 2026-08-07
 

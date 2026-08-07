@@ -572,38 +572,18 @@ const pack = (alpha: number, red: number, green: number, blue: number): number =
   (((alpha & 255) << 24) | ((red & 255) << 16) | ((green & 255) << 8) | (blue & 255)) >>> 0
 const clamp = (value: number): number => (value < 0 ? 0 : value > 255 ? 255 : value)
 
-const componentTransform = (
-  first: number,
-  second: number,
-  operation: (a: number, b: number) => number,
-): number =>
-  pack(
-    operation(channel(first, 24), channel(second, 24)),
-    operation(channel(first, 16), channel(second, 16)),
-    operation(channel(first, 8), channel(second, 8)),
-    operation(channel(first, 0), channel(second, 0)),
-  )
-
-const componentTransform3 = (
-  first: number,
-  second: number,
-  third: number,
-  operation: (a: number, b: number, c: number) => number,
-): number =>
-  pack(
-    operation(channel(first, 24), channel(second, 24), channel(third, 24)),
-    operation(channel(first, 16), channel(second, 16), channel(third, 16)),
-    operation(channel(first, 8), channel(second, 8), channel(third, 8)),
-    operation(channel(first, 0), channel(second, 0), channel(third, 0)),
-  )
-
 const average = (first: number, second: number): number =>
-  componentTransform(first, second, (a, b) => (a + b) >>> 1)
+  pack(
+    (channel(first, 24) + channel(second, 24)) >>> 1,
+    (channel(first, 16) + channel(second, 16)) >>> 1,
+    (channel(first, 8) + channel(second, 8)) >>> 1,
+    (channel(first, 0) + channel(second, 0)) >>> 1,
+  )
 
 const select = (left: number, top: number, topLeft: number): number => {
   let leftDistance = 0
   let topDistance = 0
-  for (const shift of [24, 16, 8, 0]) {
+  for (let shift = 24; shift >= 0; shift -= 8) {
     const estimate = channel(left, shift) + channel(top, shift) - channel(topLeft, shift)
     leftDistance += Math.abs(estimate - channel(left, shift))
     topDistance += Math.abs(estimate - channel(top, shift))
@@ -630,25 +610,46 @@ const predictor = (
   if (mode === 9) return average(top, topRight)
   if (mode === 10) return average(average(left, topLeft), average(top, topRight))
   if (mode === 11) return select(left, top, topLeft)
-  if (mode === 12) return componentTransform3(left, top, topLeft, (a, b, c) => clamp(a + b - c))
+  if (mode === 12) {
+    return pack(
+      clamp(channel(left, 24) + channel(top, 24) - channel(topLeft, 24)),
+      clamp(channel(left, 16) + channel(top, 16) - channel(topLeft, 16)),
+      clamp(channel(left, 8) + channel(top, 8) - channel(topLeft, 8)),
+      clamp(channel(left, 0) + channel(top, 0) - channel(topLeft, 0)),
+    )
+  }
   if (mode === 13) {
     const base = average(left, top)
-    return componentTransform(base, topLeft, (a, b) => clamp(a + Math.trunc((a - b) / 2)))
+    const baseAlpha = channel(base, 24)
+    const baseRed = channel(base, 16)
+    const baseGreen = channel(base, 8)
+    const baseBlue = channel(base, 0)
+    return pack(
+      clamp(baseAlpha + Math.trunc((baseAlpha - channel(topLeft, 24)) / 2)),
+      clamp(baseRed + Math.trunc((baseRed - channel(topLeft, 16)) / 2)),
+      clamp(baseGreen + Math.trunc((baseGreen - channel(topLeft, 8)) / 2)),
+      clamp(baseBlue + Math.trunc((baseBlue - channel(topLeft, 0)) / 2)),
+    )
   }
   throw invalidInput('WebP predictor mode is invalid')
 }
 
 const addPixels = (residual: number, predicted: number): number =>
-  componentTransform(residual, predicted, (a, b) => (a + b) & 255)
+  pack(
+    channel(residual, 24) + channel(predicted, 24),
+    channel(residual, 16) + channel(predicted, 16),
+    channel(residual, 8) + channel(predicted, 8),
+    channel(residual, 0) + channel(predicted, 0),
+  )
 
 const inversePredictor = (
   pixels: Uint32Array,
   width: number,
   transform: Extract<Transform, { type: 'predictor' }>,
 ): void => {
+  let x = 0
+  let y = 0
   for (let position = 0; position < pixels.length; position += 1) {
-    const x = position % width
-    const y = Math.floor(position / width)
     let predicted: number
     if (position === 0) predicted = 0xff000000
     else if (y === 0) predicted = pixels[position - 1] ?? 0
@@ -665,6 +666,11 @@ const inversePredictor = (
       )
     }
     pixels[position] = addPixels(pixels[position] ?? 0, predicted)
+    x += 1
+    if (x === width) {
+      x = 0
+      y += 1
+    }
   }
 }
 
@@ -677,9 +683,9 @@ const inverseColor = (
   width: number,
   transform: Extract<Transform, { type: 'color' }>,
 ): void => {
+  let x = 0
+  let y = 0
   for (let position = 0; position < pixels.length; position += 1) {
-    const x = position % width
-    const y = Math.floor(position / width)
     const element =
       transform.data[(y >>> transform.sizeBits) * transform.width + (x >>> transform.sizeBits)] ?? 0
     const color = pixels[position] ?? 0
@@ -691,6 +697,11 @@ const inverseColor = (
         colorDelta(channel(element, 16), red)) &
       255
     pixels[position] = pack(channel(color, 24), red, green, blue)
+    x += 1
+    if (x === width) {
+      x = 0
+      y += 1
+    }
   }
 }
 

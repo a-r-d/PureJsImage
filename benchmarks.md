@@ -165,20 +165,21 @@ baselines rather than head-to-head comparisons.
 
 | Workflow | Median wall | Peak RSS |
 | --- | ---: | ---: |
-| Large metadata | 0.2 ms | 87.2 MiB |
-| Large resize to JPEG | 1,511.8 ms | 185.3 MiB |
-| Lossy WebP to PNG | 229.9 ms | 139.1 MiB |
-| Lossy crop and resize | 144.0 ms | 108.4 MiB |
-| Lossless-alpha WebP to PNG | 46.6 ms | 94.3 MiB |
-| Lossy-alpha WebP to PNG | 239.5 ms | 132.0 MiB |
-| JPEG to lossy WebP | 2,106.5 ms | 152.9 MiB |
-| PNG to lossless WebP | 104.3 ms | 107.7 MiB |
+| Large metadata | 0.2 ms | 89.4 MiB |
+| Large resize to JPEG | 519.4 ms | 166.6 MiB |
+| Lossy WebP to PNG | 215.6 ms | 139.6 MiB |
+| Lossy crop and resize | 98.8 ms | 118.0 MiB |
+| Lossless-alpha WebP to PNG | 48.4 ms | 97.6 MiB |
+| Odd-sized lossless WebP to PNG | 34.9 ms | 97.2 MiB |
+| Lossy-alpha WebP to PNG | 163.0 ms | 134.3 MiB |
+| JPEG to lossy WebP | 965.4 ms | 112.2 MiB |
+| PNG to lossless WebP | 50.0 ms | 107.5 MiB |
 
 The current VP8/VP8L implementations still retain full-frame working planes.
 Bounded macroblock-row reconstruction and better lossless compression remain
 open targets.
 
-See the [complete WebP report](benchmark/results/purejsimage-webp-baseline-2026-08-06.md).
+See the [complete WebP report](benchmark/results/webp-cleanup-final-profile-2026-08-07.md).
 
 ## AVIF
 

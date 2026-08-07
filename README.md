@@ -160,6 +160,9 @@ same validity and correctness checks for both engines.
 | 4000x3000 PNG resize | 496 ms | 944 ms | 142 MiB | 301 MiB |
 | 4000x3000 BMP resize to JPEG | 149 ms | 719 ms | 153 MiB | 262 MiB |
 | Large TIFF resize to JPEG | 109 ms | 639 ms | 133 MiB | 319 MiB |
+| 1600x2000 WebP resize to JPEG | 519 ms | Unsupported | 167 MiB | — |
+| JPEG to lossy WebP | 965 ms | Unsupported | 112 MiB | — |
+| PNG to lossless WebP | 50 ms | Unsupported | 107 MiB | — |
 | 4032x3024 iPhone HEIC, orient and resize to 1200px JPEG | 8,080 ms | Unsupported | 190 MiB | — |
 
 The primary 6000x4000 workflow currently uses about **90% less peak memory**
@@ -168,10 +171,10 @@ about **87% less peak memory** and is 47% faster. The 4000x3000 PNG resize is
 47% faster, while the large TIFF resize is 83% faster and uses 58% less peak
 memory. The 4000x3000 BMP resize is 79% faster and uses 42% less peak memory.
 
-The HEIC result is a PureJsImage-only absolute baseline because Jimp 1.6 has
-no HEIC decoder. It uses an original iPhone 12 Pro camera file, runs in an
-isolated cold process, and counts only after the JPEG passes independently
-pinned pixel checks.
+The WebP and HEIC results are PureJsImage-only absolute baselines because Jimp
+1.6 exposes neither codec. The HEIC workflow uses an original iPhone 12 Pro
+camera file. Every workflow runs in an isolated process and counts only after
+the output passes its pinned validation checks.
 
 See the
 [detailed benchmarks](https://github.com/a-r-d/PureJsImage/blob/main/benchmarks.md)

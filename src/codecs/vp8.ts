@@ -17,34 +17,103 @@ const HORIZONTAL = 2
 const TRUE_MOTION = 3
 const BLOCK = 4
 
-const keyframeYModeTree = [-BLOCK, 2, 4, 6, -DC, -VERTICAL, -HORIZONTAL, -TRUE_MOTION]
-const uvModeTree = [-DC, 2, -VERTICAL, 4, -HORIZONTAL, -TRUE_MOTION]
-const blockModeTree = [-0, 2, -1, 4, -2, 6, 8, 12, -3, 10, -5, -6, -4, 14, -7, 16, -8, -9]
-const keyframeYModeProbabilities = [145, 156, 163, 128]
-const keyframeUvModeProbabilities = [142, 114, 183]
-const coefficientBands = [0, 1, 2, 3, 6, 4, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7]
-const zigzag = [0, 1, 4, 8, 5, 2, 3, 6, 9, 12, 13, 10, 7, 11, 14, 15]
-const leftContextIndex = [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8]
-const aboveContextIndex = [
-  0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 4, 5, 6, 7, 6, 7, 8,
-]
+const keyframeYModeTree = Int8Array.of(-BLOCK, 2, 4, 6, -DC, -VERTICAL, -HORIZONTAL, -TRUE_MOTION)
+const uvModeTree = Int8Array.of(-DC, 2, -VERTICAL, 4, -HORIZONTAL, -TRUE_MOTION)
+const blockModeTree = Int8Array.of(
+  -0,
+  2,
+  -1,
+  4,
+  -2,
+  6,
+  8,
+  12,
+  -3,
+  10,
+  -5,
+  -6,
+  -4,
+  14,
+  -7,
+  16,
+  -8,
+  -9,
+)
+const keyframeYModeProbabilities = Uint8Array.of(145, 156, 163, 128)
+const keyframeUvModeProbabilities = Uint8Array.of(142, 114, 183)
+const coefficientBands = Uint8Array.of(0, 1, 2, 3, 6, 4, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7)
+const zigzag = Uint8Array.of(0, 1, 4, 8, 5, 2, 3, 6, 9, 12, 13, 10, 7, 11, 14, 15)
+const leftContextIndex = Uint8Array.of(
+  0,
+  0,
+  0,
+  0,
+  1,
+  1,
+  1,
+  1,
+  2,
+  2,
+  2,
+  2,
+  3,
+  3,
+  3,
+  3,
+  4,
+  4,
+  5,
+  5,
+  6,
+  6,
+  7,
+  7,
+  8,
+)
+const aboveContextIndex = Uint8Array.of(
+  0,
+  1,
+  2,
+  3,
+  0,
+  1,
+  2,
+  3,
+  0,
+  1,
+  2,
+  3,
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  4,
+  5,
+  6,
+  7,
+  6,
+  7,
+  8,
+)
 
-export const vp8DcQuantizers = [
+export const vp8DcQuantizers = new Uint16Array([
   4, 5, 6, 7, 8, 9, 10, 10, 11, 12, 13, 14, 15, 16, 17, 17, 18, 19, 20, 20, 21, 21, 22, 22, 23, 23,
   24, 25, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 37, 38, 39, 40, 41, 42, 43, 44, 45,
   46, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
   69, 70, 71, 72, 73, 74, 75, 76, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 93,
   95, 96, 98, 100, 101, 102, 104, 106, 108, 110, 112, 114, 116, 118, 122, 124, 126, 128, 130, 132,
   134, 136, 138, 140, 143, 145, 148, 151, 154, 157,
-]
-export const vp8AcQuantizers = [
+])
+export const vp8AcQuantizers = new Uint16Array([
   4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
   30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53,
   54, 55, 56, 57, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96,
   98, 100, 102, 104, 106, 108, 110, 112, 114, 116, 119, 122, 125, 128, 131, 134, 137, 140, 143, 146,
   149, 152, 155, 158, 161, 164, 167, 170, 173, 177, 181, 185, 189, 193, 197, 201, 205, 209, 213,
   217, 221, 225, 229, 234, 239, 245, 249, 254, 259, 264, 269, 274, 279, 284,
-]
+])
 
 class BooleanDecoder {
   readonly #data: Uint8Array
@@ -101,7 +170,7 @@ class BooleanDecoder {
 
 const readTree = (
   decoder: BooleanDecoder,
-  tree: readonly number[],
+  tree: ArrayLike<number>,
   probabilities: ArrayLike<number>,
   probabilityOffset = 0,
 ): number => {
@@ -385,14 +454,10 @@ const decodeMacroblockCoefficients = (
   above: Int8Array,
 ): Int32Array => {
   const coefficients = new Int32Array(25 * 16)
-  const order =
-    block.yMode === BLOCK
-      ? [
-          ...Array.from({ length: 16 }, (_, index) => index),
-          ...Array.from({ length: 8 }, (_, index) => index + 16),
-        ]
-      : [24, ...Array.from({ length: 24 }, (_, index) => index)]
-  for (const index of order) {
+  const blockMode = block.yMode === BLOCK
+  const count = blockMode ? 24 : 25
+  for (let iteration = 0; iteration < count; iteration += 1) {
+    const index = blockMode ? iteration : iteration === 0 ? 24 : iteration - 1
     const type = index === 24 ? 1 : index >= 16 ? 2 : block.yMode === BLOCK ? 3 : 0
     const factor = type === 1 ? factors.y2 : type === 2 ? factors.uv : factors.y1
     const leftIndex = leftContextIndex[index] ?? 0
@@ -661,8 +726,8 @@ const inverseDctAdd = (
   offset: number,
   coefficients: Int32Array,
   coefficientOffset: number,
+  temporary: Int32Array,
 ): void => {
-  const temporary = new Int32Array(16)
   for (let x = 0; x < 4; x += 1) {
     const a =
       (coefficients[coefficientOffset + x] ?? 0) + (coefficients[coefficientOffset + 8 + x] ?? 0)
@@ -685,11 +750,11 @@ const inverseDctAdd = (
     const three = temporary[row + 3] ?? 0
     const c = ((one * 35468) >> 16) - three - ((three * 20091) >> 16)
     const d = one + ((one * 20091) >> 16) + ((three * 35468) >> 16)
-    const residue = [a + d, b + c, b - c, a - d]
-    for (let x = 0; x < 4; x += 1) {
-      const pixel = offset + y * plane.stride + x
-      plane.data[pixel] = clampByte((plane.data[pixel] ?? 0) + (((residue[x] ?? 0) + 4) >> 3))
-    }
+    const pixel = offset + y * plane.stride
+    plane.data[pixel] = clampByte((plane.data[pixel] ?? 0) + ((a + d + 4) >> 3))
+    plane.data[pixel + 1] = clampByte((plane.data[pixel + 1] ?? 0) + ((b + c + 4) >> 3))
+    plane.data[pixel + 2] = clampByte((plane.data[pixel + 2] ?? 0) + ((b - c + 4) >> 3))
+    plane.data[pixel + 3] = clampByte((plane.data[pixel + 3] ?? 0) + ((a - d + 4) >> 3))
   }
 }
 
@@ -698,7 +763,8 @@ export const addInverseVp8Block = (
   stride: number,
   offset: number,
   coefficients: Int32Array,
-): void => inverseDctAdd({ data, stride, origin: 0 }, offset, coefficients, 0)
+  temporary = new Int32Array(16),
+): void => inverseDctAdd({ data, stride, origin: 0 }, offset, coefficients, 0, temporary)
 
 const reconstruct = (
   yPlane: Plane,
@@ -709,6 +775,7 @@ const reconstruct = (
   block: Macroblock,
   coefficients: Int32Array,
   rightEdge: boolean,
+  inverseDctTemporary: Int32Array,
 ): void => {
   const yOffset = yPlane.origin + row * 16 * yPlane.stride + column * 16
   const uOffset = uPlane.origin + row * 8 * uPlane.stride + column * 8
@@ -735,7 +802,7 @@ const reconstruct = (
     for (let index = 0; index < 16; index += 1) {
       const offset = yOffset + (index >> 2) * 4 * yPlane.stride + (index & 3) * 4
       predictBlock(yPlane, offset, block.modes[index] ?? 0)
-      inverseDctAdd(yPlane, offset, coefficients, index * 16)
+      inverseDctAdd(yPlane, offset, coefficients, index * 16, inverseDctTemporary)
     }
   } else {
     const dc = walsh(coefficients, 24 * 16)
@@ -747,6 +814,7 @@ const reconstruct = (
         yOffset + (index >> 2) * 4 * yPlane.stride + (index & 3) * 4,
         coefficients,
         index * 16,
+        inverseDctTemporary,
       )
     }
   }
@@ -754,8 +822,8 @@ const reconstruct = (
   predictSquare(vPlane, vOffset, 8, block.uvMode)
   for (let index = 0; index < 4; index += 1) {
     const local = (index >> 1) * 4 * uPlane.stride + (index & 1) * 4
-    inverseDctAdd(uPlane, uOffset + local, coefficients, (16 + index) * 16)
-    inverseDctAdd(vPlane, vOffset + local, coefficients, (20 + index) * 16)
+    inverseDctAdd(uPlane, uOffset + local, coefficients, (16 + index) * 16, inverseDctTemporary)
+    inverseDctAdd(vPlane, vOffset + local, coefficients, (20 + index) * 16, inverseDctTemporary)
   }
 }
 
@@ -782,17 +850,21 @@ const normalFilterThreshold = (
   interiorLimit: number,
 ): boolean => {
   if (!simpleFilterThreshold(plane, offset, step, edgeLimit * 2 + interiorLimit)) return false
-  const values = Array.from(
-    { length: 8 },
-    (_, index) => plane.data[offset + (index - 4) * step] ?? 0,
-  )
+  const p3 = plane.data[offset - 4 * step] ?? 0
+  const p2 = plane.data[offset - 3 * step] ?? 0
+  const p1 = plane.data[offset - 2 * step] ?? 0
+  const p0 = plane.data[offset - step] ?? 0
+  const q0 = plane.data[offset] ?? 0
+  const q1 = plane.data[offset + step] ?? 0
+  const q2 = plane.data[offset + 2 * step] ?? 0
+  const q3 = plane.data[offset + 3 * step] ?? 0
   return (
-    Math.abs((values[0] ?? 0) - (values[1] ?? 0)) <= interiorLimit &&
-    Math.abs((values[1] ?? 0) - (values[2] ?? 0)) <= interiorLimit &&
-    Math.abs((values[2] ?? 0) - (values[3] ?? 0)) <= interiorLimit &&
-    Math.abs((values[4] ?? 0) - (values[5] ?? 0)) <= interiorLimit &&
-    Math.abs((values[5] ?? 0) - (values[6] ?? 0)) <= interiorLimit &&
-    Math.abs((values[6] ?? 0) - (values[7] ?? 0)) <= interiorLimit
+    Math.abs(p3 - p2) <= interiorLimit &&
+    Math.abs(p2 - p1) <= interiorLimit &&
+    Math.abs(p1 - p0) <= interiorLimit &&
+    Math.abs(q0 - q1) <= interiorLimit &&
+    Math.abs(q1 - q2) <= interiorLimit &&
+    Math.abs(q2 - q3) <= interiorLimit
   )
 }
 
@@ -1071,6 +1143,7 @@ export const decodeVp8 = (
   const uPlane = createPlane(columns * 8, rows * 8)
   const vPlane = createPlane(columns * 8, rows * 8)
   const aboveContexts = Array.from({ length: columns }, () => new Int8Array(9))
+  const inverseDctTemporary = new Int32Array(16)
   const factors = Array.from({ length: 4 }, (_, segment) =>
     factorSet(segment, segmentation, quantization),
   )
@@ -1100,7 +1173,17 @@ export const decodeVp8 = (
           aboveContext,
         )
       }
-      reconstruct(yPlane, uPlane, vPlane, row, column, block, coefficients, column + 1 === columns)
+      reconstruct(
+        yPlane,
+        uPlane,
+        vPlane,
+        row,
+        column,
+        block,
+        coefficients,
+        column + 1 === columns,
+        inverseDctTemporary,
+      )
     }
   }
 

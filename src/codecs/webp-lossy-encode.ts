@@ -9,18 +9,66 @@ import {
   keyframeBlockModeProbabilities,
 } from './vp8-tables.ts'
 
-const yModeTree = [-4, 2, 4, 6, 0, -1, -2, -3]
-const uvModeTree = [0, 2, -1, 4, -2, -3]
-const blockModeTree = [0, 2, -1, 4, -2, 6, 8, 12, -3, 10, -5, -6, -4, 14, -7, 16, -8, -9]
-const yModeProbabilities = [145, 156, 163, 128]
-const uvModeProbabilities = [142, 114, 183]
-const bands = [0, 1, 2, 3, 6, 4, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7]
-const zigzag = [0, 1, 4, 8, 5, 2, 3, 6, 9, 12, 13, 10, 7, 11, 14, 15]
-const leftIndexes = [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
-const aboveIndexes = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 4, 5, 6, 7, 6, 7]
+const yModeProbabilities = Uint8Array.of(145, 156, 163, 128)
+const uvModeProbabilities = Uint8Array.of(142, 114, 183)
+const bands = Uint8Array.of(0, 1, 2, 3, 6, 4, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7)
+const zigzag = Uint8Array.of(0, 1, 4, 8, 5, 2, 3, 6, 9, 12, 13, 10, 7, 11, 14, 15)
+const leftIndexes = Uint8Array.of(
+  0,
+  0,
+  0,
+  0,
+  1,
+  1,
+  1,
+  1,
+  2,
+  2,
+  2,
+  2,
+  3,
+  3,
+  3,
+  3,
+  4,
+  4,
+  5,
+  5,
+  6,
+  6,
+  7,
+  7,
+)
+const aboveIndexes = Uint8Array.of(
+  0,
+  1,
+  2,
+  3,
+  0,
+  1,
+  2,
+  3,
+  0,
+  1,
+  2,
+  3,
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  4,
+  5,
+  6,
+  7,
+  6,
+  7,
+)
 
 class BooleanEncoder {
-  readonly #bytes: number[] = []
+  #bytes = new Uint8Array(4096)
+  #length = 0
   #range = 255
   #bottom = 0
   #bitCount = 24
@@ -37,7 +85,7 @@ class BooleanEncoder {
       this.#bottom = (this.#bottom << 1) >>> 0
       this.#bitCount -= 1
       if (this.#bitCount === 0) {
-        this.#bytes.push(this.#bottom >>> 24)
+        this.#append(this.#bottom >>> 24)
         this.#bottom &= 0x00ffffff
         this.#bitCount = 8
       }
@@ -56,14 +104,14 @@ class BooleanEncoder {
     count >>= 3
     while (--count >= 0) value = (value << 8) >>> 0
     for (let index = 0; index < 4; index += 1) {
-      this.#bytes.push(value >>> 24)
+      this.#append(value >>> 24)
       value = (value << 8) >>> 0
     }
-    return Uint8Array.from(this.#bytes)
+    return this.#bytes.slice(0, this.#length)
   }
 
   #carry(): void {
-    let index = this.#bytes.length - 1
+    let index = this.#length - 1
     while (index >= 0 && this.#bytes[index] === 255) {
       this.#bytes[index] = 0
       index -= 1
@@ -71,34 +119,15 @@ class BooleanEncoder {
     if (index < 0) throw invalidInput('VP8 boolean encoder carry underflow')
     this.#bytes[index] = (this.#bytes[index] ?? 0) + 1
   }
-}
 
-const writeTree = (
-  encoder: BooleanEncoder,
-  tree: readonly number[],
-  probabilities: ArrayLike<number>,
-  symbol: number,
-  probabilityOffset = 0,
-): void => {
-  const visit = (node: number): readonly number[] | undefined => {
-    for (let bit = 0; bit < 2; bit += 1) {
-      const next = tree[node + bit]
-      if (next === undefined) continue
-      if (next <= 0 && -next === symbol) return [bit]
-      if (next > 0) {
-        const suffix = visit(next)
-        if (suffix) return [bit, ...suffix]
-      }
+  #append(value: number): void {
+    if (this.#length === this.#bytes.length) {
+      const grown = new Uint8Array(this.#bytes.length * 2)
+      grown.set(this.#bytes)
+      this.#bytes = grown
     }
-    return undefined
-  }
-  const path = visit(0)
-  if (!path) throw invalidInput(`VP8 tree cannot encode symbol ${symbol}`)
-  let node = 0
-  for (const bit of path) {
-    encoder.bit(bit, probabilities[probabilityOffset + (node >> 1)] ?? 128)
-    const next = tree[node + bit] ?? 0
-    if (next > 0) node = next
+    this.#bytes[this.#length] = value
+    this.#length += 1
   }
 }
 
@@ -163,22 +192,29 @@ const writeCoefficientBlock = (
   encoder: BooleanEncoder,
   probabilities: Uint8Array,
   coefficients: Int32Array,
+  coefficientOffset: number,
   type: number,
   context: number,
 ): boolean => {
   let coefficient = 0
   let nextContext = context
   let checkEnd = true
-  const values = zigzag.map((position) => coefficients[position] ?? 0)
+  let hasNonzero = false
   while (coefficient < 16) {
     const offset = probabilityOffset(type, coefficient, nextContext)
     let nextNonzero = coefficient
-    while (nextNonzero < 16 && values[nextNonzero] === 0) nextNonzero += 1
+    while (
+      nextNonzero < 16 &&
+      (coefficients[coefficientOffset + (zigzag[nextNonzero] ?? 0)] ?? 0) === 0
+    ) {
+      nextNonzero += 1
+    }
     if (checkEnd) {
       encoder.bit(Number(nextNonzero < 16), probabilities[offset])
-      if (nextNonzero === 16) return values.some((value) => value !== 0)
+      if (nextNonzero === 16) return hasNonzero
     }
-    if (values[coefficient] === 0) {
+    const value = coefficients[coefficientOffset + (zigzag[coefficient] ?? 0)] ?? 0
+    if (value === 0) {
       encoder.bit(0, probabilities[offset + 1])
       coefficient += 1
       nextContext = 0
@@ -186,7 +222,7 @@ const writeCoefficientBlock = (
       continue
     }
     encoder.bit(1, probabilities[offset + 1])
-    const value = values[coefficient] ?? 0
+    hasNonzero = true
     const magnitude = Math.abs(value)
     writeMagnitude(encoder, probabilities, offset, magnitude)
     encoder.bit(Number(value < 0))
@@ -194,14 +230,12 @@ const writeCoefficientBlock = (
     nextContext = magnitude === 1 ? 1 : 2
     checkEnd = true
   }
-  return values.some((value) => value !== 0)
+  return hasNonzero
 }
 
 const clampByte = (value: number): number => Math.max(0, Math.min(255, value))
 
-const forwardDct = (residual: Int16Array): Int32Array => {
-  const temporary = new Int32Array(16)
-  const output = new Int32Array(16)
+const forwardDct = (residual: Int16Array, temporary: Int32Array, output: Int32Array): void => {
   for (let row = 0; row < 4; row += 1) {
     const offset = row * 4
     const a = ((residual[offset] ?? 0) + (residual[offset + 3] ?? 0)) << 3
@@ -223,15 +257,35 @@ const forwardDct = (residual: Int16Array): Int32Array => {
     output[4 + column] = ((c * 2217 + d * 5352 + 12000) >> 16) + Number(d !== 0)
     output[12 + column] = (d * 2217 - c * 5352 + 51000) >> 16
   }
-  return output
 }
 
-const quantize = (coefficients: Int32Array, dc: number, ac: number): Int32Array =>
-  Int32Array.from(coefficients, (value, index) => {
+const quantize = (
+  input: Int32Array,
+  dc: number,
+  ac: number,
+  output: Int32Array,
+  outputOffset: number,
+): void => {
+  for (let index = 0; index < 16; index += 1) {
+    const value = input[index] ?? 0
     const factor = index === 0 ? dc : ac
     const magnitude = Math.min(2114, Math.floor((Math.abs(value) + factor / 2) / factor))
-    return value < 0 ? -magnitude : magnitude
-  })
+    output[outputOffset + index] = value < 0 ? -magnitude : magnitude
+  }
+}
+
+const reconstructCoefficients = (
+  coefficients: Int32Array,
+  coefficientOffset: number,
+  dc: number,
+  ac: number,
+  output: Int32Array,
+): void => {
+  output[0] = (coefficients[coefficientOffset] ?? 0) * dc
+  for (let index = 1; index < 16; index += 1) {
+    output[index] = (coefficients[coefficientOffset + index] ?? 0) * ac
+  }
+}
 
 interface ReconstructionPlane {
   readonly data: Uint8Array
@@ -305,11 +359,11 @@ const encodeVp8 = (
   header.bit(0)
   for (let row = 0; row < rows; row += 1) {
     for (let column = 0; column < columns; column += 1) {
-      writeTree(header, yModeTree, yModeProbabilities, 4)
+      header.bit(0, yModeProbabilities[0])
       for (let block = 0; block < 16; block += 1) {
-        writeTree(header, blockModeTree, keyframeBlockModeProbabilities, 0, 0)
+        header.bit(0, keyframeBlockModeProbabilities[0])
       }
-      writeTree(header, uvModeTree, uvModeProbabilities, 0)
+      header.bit(0, uvModeProbabilities[0])
     }
   }
 
@@ -319,6 +373,11 @@ const encodeVp8 = (
   const uPlane = createPlane(columns * 8, rows * 8)
   const vPlane = createPlane(columns * 8, rows * 8)
   const above = Array.from({ length: columns }, () => new Int8Array(8))
+  const coefficients = new Int32Array(24 * 16)
+  const residual = new Int16Array(16)
+  const dctTemporary = new Int32Array(16)
+  const transformed = new Int32Array(16)
+  const reconstructed = new Int32Array(16)
   const sourceY = (x: number, y: number): number =>
     ySource[Math.min(height - 1, y) * width + Math.min(width - 1, x)] ?? 0
   const sourceChroma = (source: Uint16Array, x: number, y: number): number => {
@@ -331,7 +390,6 @@ const encodeVp8 = (
     const left = new Int8Array(8)
     for (let column = 0; column < columns; column += 1) {
       const aboveContext = above[column] ?? new Int8Array(8)
-      const coefficients: Int32Array[] = []
       const yOffset = yPlane.origin + row * 16 * yPlane.stride + column * 16
       prepareEdges(yPlane, yOffset, 16, row, column)
       for (let block = 0; block < 16; block += 1) {
@@ -339,44 +397,38 @@ const encodeVp8 = (
         const blockY = row * 16 + (block >> 2) * 4
         const output = yOffset + (block >> 2) * 4 * yPlane.stride + (block & 3) * 4
         const predictor = predictDc(yPlane, output, 4)
-        const residual = Int16Array.from(
-          { length: 16 },
-          (_, index) => sourceY(blockX + (index & 3), blockY + (index >> 2)) - predictor,
-        )
-        const quantized = quantize(forwardDct(residual), yDc, yAc)
-        coefficients.push(quantized)
-        const reconstructed = Int32Array.from(
-          quantized,
-          (value, index) => value * (index === 0 ? yDc : yAc),
-        )
-        addInverseVp8Block(yPlane.data, yPlane.stride, output, reconstructed)
+        for (let index = 0; index < 16; index += 1) {
+          residual[index] = sourceY(blockX + (index & 3), blockY + (index >> 2)) - predictor
+        }
+        forwardDct(residual, dctTemporary, transformed)
+        const coefficientOffset = block * 16
+        quantize(transformed, yDc, yAc, coefficients, coefficientOffset)
+        reconstructCoefficients(coefficients, coefficientOffset, yDc, yAc, reconstructed)
+        addInverseVp8Block(yPlane.data, yPlane.stride, output, reconstructed, dctTemporary)
       }
-      for (const [plane, source] of [
-        [uPlane, uSource],
-        [vPlane, vSource],
-      ] as const) {
+      for (let planeIndex = 0; planeIndex < 2; planeIndex += 1) {
+        const plane = planeIndex === 0 ? uPlane : vPlane
+        const source = planeIndex === 0 ? uSource : vSource
         const output = plane.origin + row * 8 * plane.stride + column * 8
         prepareEdges(plane, output, 8, row, column)
         const predictor = predictDc(plane, output, 8)
         for (let block = 0; block < 4; block += 1) {
           const blockX = column * 8 + (block & 1) * 4
           const blockY = row * 8 + (block >> 1) * 4
-          const residual = Int16Array.from(
-            { length: 16 },
-            (_, index) =>
-              sourceChroma(source, blockX + (index & 3), blockY + (index >> 2)) - predictor,
-          )
-          const quantized = quantize(forwardDct(residual), uvDc, uvAc)
-          coefficients.push(quantized)
-          const reconstructed = Int32Array.from(
-            quantized,
-            (value, index) => value * (index === 0 ? uvDc : uvAc),
-          )
+          for (let index = 0; index < 16; index += 1) {
+            residual[index] =
+              sourceChroma(source, blockX + (index & 3), blockY + (index >> 2)) - predictor
+          }
+          forwardDct(residual, dctTemporary, transformed)
+          const coefficientOffset = (16 + planeIndex * 4 + block) * 16
+          quantize(transformed, uvDc, uvAc, coefficients, coefficientOffset)
+          reconstructCoefficients(coefficients, coefficientOffset, uvDc, uvAc, reconstructed)
           addInverseVp8Block(
             plane.data,
             plane.stride,
             output + (block >> 1) * 4 * plane.stride + (block & 1) * 4,
             reconstructed,
+            dctTemporary,
           )
         }
       }
@@ -387,7 +439,8 @@ const encodeVp8 = (
         const nonzero = writeCoefficientBlock(
           tokens,
           probabilities,
-          coefficients[block] ?? new Int32Array(16),
+          coefficients,
+          block * 16,
           type,
           (left[leftIndex] ?? 0) + (aboveContext[aboveIndex] ?? 0),
         )
