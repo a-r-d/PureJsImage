@@ -2,6 +2,10 @@ import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
+import { jpegCodec } from '../src/codecs/jpeg.ts'
+import { defaultImageLimits } from '../src/limits.ts'
+import type { PixelBlock } from '../src/pixel.ts'
+import { MemorySource } from '../src/source.ts'
 import { Image } from './image-library.ts'
 import { baselineJpegFixtures } from './jpeg-compatibility-fixtures.ts'
 
@@ -261,6 +265,40 @@ const sourceCoordinate = (
 }
 
 describe('JPEG pixel pipeline', () => {
+  it('retains decoder blocks unless their typed storage is explicitly released', async () => {
+    const input = encodedJpeg(32, 32, (x, y) => [x * 7, y * 5, (x + y) * 3, 255])
+    const retainedDecoder = await jpegCodec.createDecoder?.(
+      new MemorySource(input),
+      defaultImageLimits,
+    )
+    if (!retainedDecoder) throw new Error('JPEG decoder is unavailable')
+    const retainedBlocks: PixelBlock[] = []
+    let firstSnapshot: Uint8Array | undefined
+    for await (const block of retainedDecoder.decode()) {
+      retainedBlocks.push(block)
+      firstSnapshot ??= Uint8Array.from(block.data)
+    }
+    expect(retainedBlocks.length).toBeGreaterThan(1)
+    expect(retainedBlocks[0]?.data).toEqual(firstSnapshot)
+    expect(new Set(retainedBlocks.map((block) => block.data.buffer)).size).toBe(
+      retainedBlocks.length,
+    )
+
+    const recyclingDecoder = await jpegCodec.createDecoder?.(
+      new MemorySource(input),
+      defaultImageLimits,
+    )
+    if (!recyclingDecoder) throw new Error('JPEG decoder is unavailable')
+    const buffers: ArrayBufferLike[] = []
+    for await (const block of recyclingDecoder.decode()) {
+      buffers.push(block.data.buffer)
+      expect(block.release).toBeTypeOf('function')
+      block.release?.()
+    }
+    expect(buffers).toHaveLength(retainedBlocks.length)
+    expect(new Set(buffers).size).toBe(1)
+  })
+
   it.each(Object.entries(baselineJpegFixtures))(
     'decodes baseline %s input consistently with the development oracle',
     async (_name, base64) => {

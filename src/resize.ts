@@ -269,20 +269,24 @@ const rows = async function* (
   const rowBytes = width * channels(format)
   let expectedY = 0
   for await (const block of blocks) {
-    if (
-      block.x !== 0 ||
-      block.y !== expectedY ||
-      block.width !== width ||
-      block.height < 1 ||
-      block.format !== format ||
-      block.stride < rowBytes ||
-      block.data.byteLength < block.stride * (block.height - 1) + rowBytes
-    ) {
-      throw invalidInput('Resize requires ordered, full-width pixel blocks')
-    }
-    for (let row = 0; row < block.height; row += 1) {
-      yield block.data.subarray(row * block.stride, row * block.stride + rowBytes)
-      expectedY += 1
+    try {
+      if (
+        block.x !== 0 ||
+        block.y !== expectedY ||
+        block.width !== width ||
+        block.height < 1 ||
+        block.format !== format ||
+        block.stride < rowBytes ||
+        block.data.byteLength < block.stride * (block.height - 1) + rowBytes
+      ) {
+        throw invalidInput('Resize requires ordered, full-width pixel blocks')
+      }
+      for (let row = 0; row < block.height; row += 1) {
+        yield block.data.subarray(row * block.stride, row * block.stride + rowBytes)
+        expectedY += 1
+      }
+    } finally {
+      block.release?.()
     }
   }
   if (expectedY !== height) throw truncatedInput(`Resize received ${expectedY} of ${height} rows`)
@@ -293,9 +297,10 @@ const horizontalRow = (
   sourceFormat: PixelFormat,
   outputWidth: number,
   axis: AxisCoefficients,
-): Float32Array => {
+  output: Float32Array,
+): void => {
   const channelCount = channels(sourceFormat)
-  const output = new Float32Array(outputWidth * channelCount)
+  output.fill(0)
   for (let x = 0; x < outputWidth; x += 1) {
     const first = axis.offsets[x] ?? 0
     const last = axis.offsets[x + 1] ?? first
@@ -322,7 +327,6 @@ const horizontalRow = (
       }
     }
   }
-  return output
 }
 
 const fillBackground = (
@@ -405,6 +409,9 @@ const resizedBlocks = async function* (
   const sourceRows = rows(input, sourceWidth, sourceHeight, sourceFormat)[Symbol.asyncIterator]()
   const retained = new Map<number, Float32Array>()
   const sourceChannels = channels(sourceFormat)
+  const requiredSourceRows = new Uint8Array(sourceHeight)
+  for (const sourceRow of vertical.indices) requiredSourceRows[sourceRow] = 1
+  const recycledRows: Float32Array[] = []
   const outputChannels = channels(outputFormat)
   const outputStride = plan.canvasWidth * outputChannels
   const blockCapacity = Math.min(outputBlockRows, plan.canvasHeight)
@@ -414,58 +421,86 @@ const resizedBlocks = async function* (
   let blockHeight = 0
   let blockY = 0
 
-  for (let canvasY = 0; canvasY < plan.canvasHeight; canvasY += 1) {
-    const blockOffset = blockHeight * outputStride
-    if (plan.background) {
-      fillBackground(block, blockOffset, plan.canvasWidth, outputFormat, plan.background)
-    }
-    const contentY = canvasY - plan.padY
-    if (contentY >= 0 && contentY < plan.contentHeight) {
-      const first = vertical.offsets[contentY] ?? 0
-      const last = vertical.offsets[contentY + 1] ?? first
-      const maximumSourceRow = vertical.indices[last - 1]
-      if (maximumSourceRow === undefined)
-        throw invalidInput('Resize vertical coefficients are empty')
-      while (loadedRows <= maximumSourceRow) {
-        const next = await sourceRows.next()
-        if (next.done) throw truncatedInput(`Resize input ended before row ${loadedRows}`)
-        retained.set(
-          loadedRows,
-          horizontalRow(next.value, sourceFormat, plan.contentWidth, horizontal),
+  try {
+    for (let canvasY = 0; canvasY < plan.canvasHeight; canvasY += 1) {
+      const blockOffset = blockHeight * outputStride
+      if (plan.background) {
+        fillBackground(block, blockOffset, plan.canvasWidth, outputFormat, plan.background)
+      }
+      const contentY = canvasY - plan.padY
+      if (contentY >= 0 && contentY < plan.contentHeight) {
+        const first = vertical.offsets[contentY] ?? 0
+        const last = vertical.offsets[contentY + 1] ?? first
+        const maximumSourceRow = vertical.indices[last - 1]
+        if (maximumSourceRow === undefined)
+          throw invalidInput('Resize vertical coefficients are empty')
+        while (loadedRows <= maximumSourceRow) {
+          const next = await sourceRows.next()
+          if (next.done) throw truncatedInput(`Resize input ended before row ${loadedRows}`)
+          if (requiredSourceRows[loadedRows] !== 0) {
+            const resizedRow =
+              recycledRows.pop() ?? new Float32Array(plan.contentWidth * sourceChannels)
+            horizontalRow(next.value, sourceFormat, plan.contentWidth, horizontal, resizedRow)
+            retained.set(loadedRows, resizedRow)
+          }
+          loadedRows += 1
+        }
+
+        accumulated.fill(0)
+        for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
+          const sourceY = vertical.indices[sampleIndex]
+          const weight = vertical.weights[sampleIndex]
+          const row = sourceY === undefined ? undefined : retained.get(sourceY)
+          if (!row || weight === undefined) throw invalidInput('Resize source row is unavailable')
+          for (let index = 0; index < accumulated.length; index += 1) {
+            accumulated[index] = (accumulated[index] ?? 0) + (row[index] ?? 0) * weight
+          }
+        }
+        writeContent(
+          accumulated,
+          sourceFormat,
+          block,
+          blockOffset + plan.padX * outputChannels,
+          plan.contentWidth,
+          outputFormat,
         )
-        loadedRows += 1
-      }
 
-      accumulated.fill(0)
-      for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
-        const sourceY = vertical.indices[sampleIndex]
-        const weight = vertical.weights[sampleIndex]
-        const row = sourceY === undefined ? undefined : retained.get(sourceY)
-        if (!row || weight === undefined) throw invalidInput('Resize source row is unavailable')
-        for (let index = 0; index < accumulated.length; index += 1) {
-          accumulated[index] = (accumulated[index] ?? 0) + (row[index] ?? 0) * weight
+        const nextFirst = vertical.offsets[contentY + 1] ?? last
+        const nextMinimum = vertical.indices[nextFirst]
+        if (nextMinimum !== undefined) {
+          for (const row of retained.keys()) {
+            if (row < nextMinimum) {
+              const resizedRow = retained.get(row)
+              retained.delete(row)
+              if (resizedRow) recycledRows.push(resizedRow)
+            }
+          }
         }
       }
-      writeContent(
-        accumulated,
-        sourceFormat,
-        block,
-        blockOffset + plan.padX * outputChannels,
-        plan.contentWidth,
-        outputFormat,
-      )
 
-      const nextFirst = vertical.offsets[contentY + 1] ?? last
-      const nextMinimum = vertical.indices[nextFirst]
-      if (nextMinimum !== undefined) {
-        for (const row of retained.keys()) {
-          if (row < nextMinimum) retained.delete(row)
+      blockHeight += 1
+      if (blockHeight === blockCapacity) {
+        yield {
+          x: 0,
+          y: blockY,
+          width: plan.canvasWidth,
+          height: blockHeight,
+          stride: outputStride,
+          format: outputFormat,
+          data: block,
         }
+        blockY += blockHeight
+        blockHeight = 0
+        const remaining = plan.canvasHeight - blockY
+        if (remaining > 0) block = new Uint8Array(outputStride * Math.min(blockCapacity, remaining))
       }
     }
 
-    blockHeight += 1
-    if (blockHeight === blockCapacity) {
+    while (!(await sourceRows.next()).done) {
+      // Drain the decoder so compressed input and checksums are fully validated.
+    }
+
+    if (blockHeight > 0) {
       yield {
         x: 0,
         y: blockY,
@@ -473,29 +508,11 @@ const resizedBlocks = async function* (
         height: blockHeight,
         stride: outputStride,
         format: outputFormat,
-        data: block,
+        data: block.subarray(0, outputStride * blockHeight),
       }
-      blockY += blockHeight
-      blockHeight = 0
-      const remaining = plan.canvasHeight - blockY
-      if (remaining > 0) block = new Uint8Array(outputStride * Math.min(blockCapacity, remaining))
     }
-  }
-
-  while (!(await sourceRows.next()).done) {
-    // Drain the decoder so compressed input and checksums are fully validated.
-  }
-
-  if (blockHeight > 0) {
-    yield {
-      x: 0,
-      y: blockY,
-      width: plan.canvasWidth,
-      height: blockHeight,
-      stride: outputStride,
-      format: outputFormat,
-      data: block.subarray(0, outputStride * blockHeight),
-    }
+  } finally {
+    await sourceRows.return?.(undefined)
   }
 }
 

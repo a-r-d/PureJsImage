@@ -2,6 +2,19 @@
 
 All notable changes to PureJsImage are documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- Accelerated baseline and progressive JPEG reconstruction with direct typed
+  MCU-plane writes, sparse typed IDCT row indices, and a JIT-friendly unrolled
+  second transform pass.
+- Recycled released JPEG decoder blocks and resize row buffers instead of
+  relying on garbage collection to reclaim each temporary allocation.
+- Reduced the pinned 4000x3000 JPEG-to-1200px workflow from 1,417.1 ms to
+  905.6 ms while keeping output byte-identical and median peak RSS within
+  0.8 MiB of the pre-change result.
+
 ## [0.3.0] - 2026-08-07
 
 ### Added
@@ -28,3 +41,4 @@ All notable changes to PureJsImage are documented in this file.
   uniqueness, palette, transparency, and trailing-data checks.
 
 [0.3.0]: https://github.com/a-r-d/PureJsImage/compare/v0.2.0...v0.3.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.3.0...HEAD

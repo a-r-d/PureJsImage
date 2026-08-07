@@ -32,17 +32,17 @@ largest workflows are more representative of memory scaling.
 
 | Workflow | PureJsImage wall | Jimp wall | Wall difference | PureJsImage RSS | Jimp RSS | Memory reduction |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 6000x4000 orient, crop, resize, JPEG | 4,851.9 ms | 3,762.9 ms | 28.9% slower | 145.8 MiB | 1,188.3 MiB | 87.7% |
-| JPEG crop and resize | 3,981.9 ms | 2,868.2 ms | 38.8% slower | 115.8 MiB | 1,197.2 MiB | 90.3% |
+| 6000x4000 orient, crop, resize, JPEG | 3,242.5 ms | 3,762.9 ms | 13.8% faster | 118.6 MiB | 1,188.3 MiB | 90.0% |
+| JPEG crop and resize | 2,554.3 ms | 2,868.2 ms | 10.9% faster | 121.3 MiB | 1,197.2 MiB | 89.9% |
 | 100-megapixel PNG downscale | 3,547.5 ms | 3,732.5 ms | 5.0% faster | 173.5 MiB | 1,273.5 MiB | 86.4% |
 | 4000x3000 PNG resize | 794.8 ms | 944.3 ms | 15.8% faster | 138.0 MiB | 301.4 MiB | 54.2% |
 | PNG crop and resize | 395.9 ms | 652.3 ms | 39.3% faster | 127.4 MiB | 296.2 MiB | 57.0% |
 | 4000x3000 BMP resize to JPEG | 284.1 ms | 719.0 ms | 60.5% faster | 158.2 MiB | 262.2 MiB | 39.7% |
 | Large TIFF resize to JPEG | 686.0 ms | 638.8 ms | 7.4% slower | 164.3 MiB | 318.5 MiB | 48.4% |
 
-The JPEG paths show the intended Lambda tradeoff most clearly: PureJsImage can
-be somewhat slower while using roughly one tenth of Jimp's peak memory. PNG,
-BMP, and several cross-format workflows currently improve both time and memory.
+The primary JPEG paths now improve both time and memory, using roughly one
+tenth of Jimp's peak RSS. PNG, BMP, and several cross-format workflows also
+improve both measurements.
 
 ## JPEG and production upload workflows
 
@@ -52,13 +52,13 @@ source-sized RGB or RGBA bitmap.
 | Workflow | PureJsImage wall | Jimp wall | PureJsImage RSS | Jimp RSS |
 | --- | ---: | ---: | ---: | ---: |
 | Large JPEG metadata | 0.2 ms | 5,285 ms | 97.3 MiB | 1,184 MiB |
-| 4000x3000 JPEG resize to 1200 px | 1,408.1 ms | 1,395.1 ms | 105.9 MiB | 596.0 MiB |
-| 6000x4000 northstar pipeline | 4,851.9 ms | 3,762.9 ms | 145.8 MiB | 1,188.3 MiB |
-| JPEG crop and resize | 3,981.9 ms | 2,868.2 ms | 115.8 MiB | 1,197.2 MiB |
-| Twilio MMS JPEG to 1024 px | 1,353.6 ms | 1,364.4 ms | 105.0 MiB | 600.6 MiB |
-| PNG upload to 2048 px JPEG | 1,049.9 ms | 1,997.3 ms | 154.9 MiB | 399.6 MiB |
-| EXIF orientation 6 | 423.3 ms | 576.0 ms | 104.2 MiB | 253.9 MiB |
-| High-entropy PNG to JPEG | 569.2 ms | 1,400.0 ms | 143.3 MiB | 432.5 MiB |
+| 4000x3000 JPEG resize to 1200 px | 893.6 ms | 1,395.1 ms | 106.4 MiB | 596.0 MiB |
+| 6000x4000 northstar pipeline | 3,242.5 ms | 3,762.9 ms | 118.6 MiB | 1,188.3 MiB |
+| JPEG crop and resize | 2,554.3 ms | 2,868.2 ms | 121.3 MiB | 1,197.2 MiB |
+| Twilio MMS JPEG to 1024 px | 852.9 ms | 1,364.4 ms | 105.3 MiB | 600.6 MiB |
+| PNG upload to 2048 px JPEG | 1,053.8 ms | 1,997.3 ms | 140.5 MiB | 399.6 MiB |
+| EXIF orientation 6 | 387.6 ms | 576.0 ms | 104.5 MiB | 253.9 MiB |
+| High-entropy PNG to JPEG | 576.2 ms | 1,400.0 ms | 144.1 MiB | 432.5 MiB |
 
 The isolated 2048x1536 encoder probe measures five post-warmup encodes and
 independently decodes each result with `jpeg-js`.
@@ -81,7 +81,9 @@ stable downloadable source.
 Reports:
 
 - [large JPEG metadata](benchmark/results/purejsimage-phase1-metadata-2026-08-06.md)
-- [current JPEG workflows](benchmark/results/jpeg-phase4-post-typed-arrays-2026-08-07.md)
+- [current JPEG workflows](benchmark/results/jpeg-easy-wins-phase4-final-2026-08-07.md)
+- [JPEG resize before optimization](benchmark/results/jpeg-easy-wins-baseline-2026-08-07.md)
+- [JPEG resize after optimization](benchmark/results/jpeg-easy-wins-final-released-2026-08-07.md)
 - [JPEG encoder and subsampling probe](benchmark/results/purejsimage-jpeg-jit-subsampling-2026-08-07.md)
 - [cold JPEG resize](benchmark/results/purejsimage-first-party-jpeg-resize-cold-2026-08-06.md)
 - [warm JPEG resize](benchmark/results/purejsimage-first-party-jpeg-resize-warm-2026-08-06.md)
@@ -112,8 +114,8 @@ encoding are outside the current scope.
 
 | Workflow | PureJsImage wall | Jimp wall | PureJsImage RSS | Jimp RSS |
 | --- | ---: | ---: | ---: | ---: |
-| JPEG to PNG | 722.3 ms | 722.5 ms | 93.5 MiB | 251.5 MiB |
-| PNG to JPEG | 107.3 ms | 208.5 ms | 111.0 MiB | 143.8 MiB |
+| JPEG to PNG | 408.6 ms | 661.7 ms | 116.8 MiB | 265.4 MiB |
+| PNG to JPEG | 59.9 ms | 201.7 ms | 115.1 MiB | 176.7 MiB |
 | Animated GIF first frame to PNG | 24.1 ms | 11.1 ms | 83.8 MiB | 94.7 MiB |
 | Twilio MMS GIF to JPEG | 80.5 ms | 103.5 ms | 97.5 MiB | 130.9 MiB |
 | Lambda GIF logo normalization | 39.2 ms | 27.5 ms | 86.9 MiB | 94.9 MiB |

@@ -10,6 +10,7 @@ export interface PixelBlock {
   readonly stride: number
   readonly format: PixelFormat
   readonly data: Uint8Array
+  readonly release?: () => void
 }
 
 const defaultSizeClasses = [65_536, 262_144, 1_048_576, 4_194_304] as const

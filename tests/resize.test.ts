@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 
 import type { ResizeOptions } from '../src/index.ts'
+import type { PixelBlock } from '../src/pixel.ts'
+import { createResizeTransform } from '../src/resize.ts'
 import { Image } from './image-library.ts'
 
 type Pixel = readonly [red: number, green: number, blue: number, alpha: number]
@@ -67,6 +69,51 @@ describe('streaming resize', () => {
     expect(pixelAt(output, 0, 0)).toEqual([255, 0, 0, 255])
     expect(pixelAt(output, 1, 0)).toEqual([128, 0, 128, 255])
     expect(pixelAt(output, 2, 0)).toEqual([0, 0, 255, 255])
+  })
+
+  it('preserves non-constant pixels when bilinear downsampling skips source rows', async () => {
+    const output = await execute(
+      png(1, 8, (_x, y) => [y * 20, 0, 0, 255]),
+      { width: 1, height: 3, fit: 'fill' },
+    )
+
+    expect(Array.from({ length: output.height }, (_value, y) => pixelAt(output, 0, y))).toEqual([
+      [17, 0, 0, 255],
+      [70, 0, 0, 255],
+      [123, 0, 0, 255],
+    ])
+  })
+
+  it('releases an upstream block when resize consumption stops early', async () => {
+    let releases = 0
+    const block: PixelBlock = {
+      x: 0,
+      y: 0,
+      width: 2,
+      height: 64,
+      stride: 6,
+      format: 'rgb8',
+      data: new Uint8Array(2 * 64 * 3).fill(80),
+      release: () => {
+        releases += 1
+      },
+    }
+    const source = async function* (): AsyncGenerator<PixelBlock> {
+      yield block
+    }
+    const transform = createResizeTransform(2, 64, 'rgb8', {
+      width: 2,
+      height: 64,
+      fit: 'fill',
+    })
+    const iterator = transform.apply(source())[Symbol.asyncIterator]()
+
+    const first = await iterator.next()
+    expect(first.done).toBe(false)
+    expect(first.value?.height).toBe(32)
+    await iterator.return?.()
+
+    expect(releases).toBe(1)
   })
 
   it('interpolates alpha in premultiplied color space', async () => {

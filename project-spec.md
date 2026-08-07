@@ -956,8 +956,14 @@ interface PixelBlock {
   format: PixelFormat;
 
   data: Uint8Array;
+  release?: () => void;
 }
 ```
+
+Consumers may retain a block and its data for as long as needed. When a block
+provides `release()`, calling it declares that the data will no longer be read
+and allows the producer to recycle the backing typed buffer. Release is
+optional and idempotent.
 
 The block may represent:
 

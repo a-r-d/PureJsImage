@@ -154,16 +154,16 @@ same validity and correctness checks for both engines.
 
 | Workflow | PureJsImage | Jimp | PureJsImage peak RSS | Jimp peak RSS |
 | --- | ---: | ---: | ---: | ---: |
-| 6000x4000 orient, crop, resize, JPEG | 4,852 ms | 3,763 ms | 146 MiB | 1,188 MiB |
-| JPEG crop and resize | 3,982 ms | 2,868 ms | 116 MiB | 1,197 MiB |
+| 6000x4000 orient, crop, resize, JPEG | 3,243 ms | 3,763 ms | 119 MiB | 1,188 MiB |
+| JPEG crop and resize | 2,554 ms | 2,868 ms | 121 MiB | 1,197 MiB |
 | 100-megapixel PNG downscale | 3,548 ms | 3,733 ms | 174 MiB | 1,274 MiB |
 | 4000x3000 PNG resize | 795 ms | 944 ms | 138 MiB | 301 MiB |
 | 4000x3000 BMP resize to JPEG | 284 ms | 719 ms | 158 MiB | 262 MiB |
 | Large TIFF resize to JPEG | 686 ms | 639 ms | 164 MiB | 319 MiB |
 | 4032x3024 iPhone HEIC, orient and resize to 1200px JPEG | 8,080 ms | Unsupported | 190 MiB | — |
 
-The primary 6000x4000 workflow currently uses about **88% less peak memory**
-than Jimp while running about 29% slower. The 100-megapixel PNG workflow uses
+The primary 6000x4000 workflow currently uses about **90% less peak memory**
+than Jimp while running about 14% faster. The 100-megapixel PNG workflow uses
 about **86% less peak memory** and is slightly faster.
 
 The HEIC result is a PureJsImage-only absolute baseline because Jimp 1.6 has

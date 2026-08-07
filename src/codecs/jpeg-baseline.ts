@@ -593,34 +593,77 @@ const inverseDct = (
   coefficients: ArrayLike<number>,
   quantization: Int32Array,
   workspace: Float64Array,
+  activeRowIndices: Uint8Array,
   output: Uint8Array,
+  outputStride: number,
+  blockX: number,
+  blockY: number,
   coefficientOffset = 0,
 ): void => {
-  workspace.fill(0)
-  let activeRows = 0
+  let activeRowCount = 0
   for (let vertical = 0; vertical < 8; vertical += 1) {
+    const rowOffset = vertical * 8
+    let rowActive = false
     for (let horizontal = 0; horizontal < 8; horizontal += 1) {
-      const index = vertical * 8 + horizontal
+      const index = rowOffset + horizontal
       const coefficient = byte(coefficients, coefficientOffset + index)
       if (coefficient === 0) continue
-      activeRows |= 1 << vertical
       const scaled = coefficient * byte(quantization, index)
-      for (let x = 0; x < 8; x += 1) {
-        const target = vertical * 8 + x
-        workspace[target] = (workspace[target] ?? 0) + scaled * (idctBasis[horizontal * 8 + x] ?? 0)
+      if (rowActive) {
+        for (let x = 0; x < 8; x += 1) {
+          const target = rowOffset + x
+          workspace[target] =
+            (workspace[target] ?? 0) + scaled * (idctBasis[horizontal * 8 + x] ?? 0)
+        }
+      } else {
+        for (let x = 0; x < 8; x += 1) {
+          workspace[rowOffset + x] = scaled * (idctBasis[horizontal * 8 + x] ?? 0)
+        }
+        activeRowIndices[activeRowCount] = vertical
+        activeRowCount += 1
+        rowActive = true
       }
     }
   }
   for (let y = 0; y < 8; y += 1) {
-    for (let x = 0; x < 8; x += 1) {
-      let value = 0
-      for (let vertical = 0; vertical < 8; vertical += 1) {
-        if ((activeRows & (1 << vertical)) === 0) continue
-        value += (idctBasis[vertical * 8 + y] ?? 0) * (workspace[vertical * 8 + x] ?? 0)
-      }
-      const sample = Math.round(value + 128)
-      output[y * 8 + x] = sample < 0 ? 0 : sample > 255 ? 255 : sample
+    const outputOffset = (blockY * 8 + y) * outputStride + blockX * 8
+    let value0 = 0
+    let value1 = 0
+    let value2 = 0
+    let value3 = 0
+    let value4 = 0
+    let value5 = 0
+    let value6 = 0
+    let value7 = 0
+    for (let activeIndex = 0; activeIndex < activeRowCount; activeIndex += 1) {
+      const vertical = activeRowIndices[activeIndex] ?? 0
+      const workspaceOffset = vertical * 8
+      const basis = idctBasis[workspaceOffset + y] ?? 0
+      value0 += basis * (workspace[workspaceOffset] ?? 0)
+      value1 += basis * (workspace[workspaceOffset + 1] ?? 0)
+      value2 += basis * (workspace[workspaceOffset + 2] ?? 0)
+      value3 += basis * (workspace[workspaceOffset + 3] ?? 0)
+      value4 += basis * (workspace[workspaceOffset + 4] ?? 0)
+      value5 += basis * (workspace[workspaceOffset + 5] ?? 0)
+      value6 += basis * (workspace[workspaceOffset + 6] ?? 0)
+      value7 += basis * (workspace[workspaceOffset + 7] ?? 0)
     }
+    const sample0 = Math.round(value0 + 128)
+    const sample1 = Math.round(value1 + 128)
+    const sample2 = Math.round(value2 + 128)
+    const sample3 = Math.round(value3 + 128)
+    const sample4 = Math.round(value4 + 128)
+    const sample5 = Math.round(value5 + 128)
+    const sample6 = Math.round(value6 + 128)
+    const sample7 = Math.round(value7 + 128)
+    output[outputOffset] = sample0 < 0 ? 0 : sample0 > 255 ? 255 : sample0
+    output[outputOffset + 1] = sample1 < 0 ? 0 : sample1 > 255 ? 255 : sample1
+    output[outputOffset + 2] = sample2 < 0 ? 0 : sample2 > 255 ? 255 : sample2
+    output[outputOffset + 3] = sample3 < 0 ? 0 : sample3 > 255 ? 255 : sample3
+    output[outputOffset + 4] = sample4 < 0 ? 0 : sample4 > 255 ? 255 : sample4
+    output[outputOffset + 5] = sample5 < 0 ? 0 : sample5 > 255 ? 255 : sample5
+    output[outputOffset + 6] = sample6 < 0 ? 0 : sample6 > 255 ? 255 : sample6
+    output[outputOffset + 7] = sample7 < 0 ? 0 : sample7 > 255 ? 255 : sample7
   }
 }
 
@@ -631,18 +674,6 @@ const componentPlanes = (jpeg: RenderJpeg): Uint8Array[] =>
         jpeg.mcusPerLine * component.horizontalSampling * 8 * component.verticalSampling * 8,
       ),
   )
-
-const writeBlock = (
-  plane: Uint8Array,
-  planeWidth: number,
-  block: Uint8Array,
-  blockX: number,
-  blockY: number,
-): void => {
-  for (let row = 0; row < 8; row += 1) {
-    plane.set(block.subarray(row * 8, row * 8 + 8), (blockY * 8 + row) * planeWidth + blockX * 8)
-  }
-}
 
 const clamp = (value: number): number => (value < 0 ? 0 : value > 255 ? 255 : value)
 
@@ -910,6 +941,7 @@ const renderRows = (
   mcuRow: number,
   region: JpegRegion,
   plan: RenderPlan,
+  data: Uint8Array,
 ): PixelBlock | undefined => {
   const rowStart = mcuRow * jpeg.maximumVerticalSampling * 8
   const first = Math.max(region.y, rowStart)
@@ -917,7 +949,6 @@ const renderRows = (
   if (first >= last) return undefined
   const height = last - first
   const stride = region.width * 3
-  const data = new Uint8Array(stride * height)
 
   if (jpeg.colorTransform === 'gray') {
     renderGrayRows(jpeg, planes, region, rowStart, first, height, data, plan)
@@ -961,11 +992,13 @@ export const decodeBaselineJpeg = async function* (
   const predictors = new Int32Array(jpeg.components.length)
   const coefficients = new Int32Array(64)
   const workspace = new Float64Array(64)
-  const block = new Uint8Array(64)
+  const activeRowIndices = new Uint8Array(8)
   let mcu = 0
   let restart = 0
   const plan = createRenderPlan(jpeg, region)
   const planes = componentPlanes(jpeg)
+  const recycledOutput: Uint8Array[] = []
+  const outputBytes = region.width * 3 * jpeg.maximumVerticalSampling * 8
 
   for (let mcuRow = 0; mcuRow < jpeg.mcusPerColumn; mcuRow += 1) {
     for (let mcuColumn = 0; mcuColumn < jpeg.mcusPerLine; mcuColumn += 1) {
@@ -987,11 +1020,13 @@ export const decodeBaselineJpeg = async function* (
               byte(predictors, componentIndex),
               coefficients,
             )
-            inverseDct(coefficients, component.quantization, workspace, block)
-            writeBlock(
+            inverseDct(
+              coefficients,
+              component.quantization,
+              workspace,
+              activeRowIndices,
               plane,
               planeWidth,
-              block,
               mcuColumn * component.horizontalSampling + blockX,
               blockY,
             )
@@ -1000,8 +1035,21 @@ export const decodeBaselineJpeg = async function* (
       }
       mcu += 1
     }
-    const output = renderRows(jpeg, planes, mcuRow, region, plan)
-    if (output) yield output
+    const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
+    const output = renderRows(jpeg, planes, mcuRow, region, plan, data)
+    if (output) {
+      let released = false
+      yield {
+        ...output,
+        release: () => {
+          if (released) return
+          released = true
+          recycledOutput.push(data)
+        },
+      }
+    } else {
+      recycledOutput.push(data)
+    }
   }
   reader.finish()
 }
@@ -1457,9 +1505,11 @@ export const decodeProgressiveJpeg = async function* (
   region: JpegRegion,
 ): AsyncGenerator<PixelBlock> {
   const workspace = new Float64Array(64)
-  const block = new Uint8Array(64)
+  const activeRowIndices = new Uint8Array(8)
   const plan = createRenderPlan(jpeg, region)
   const planes = componentPlanes(jpeg)
+  const recycledOutput: Uint8Array[] = []
+  const outputBytes = region.width * 3 * jpeg.maximumVerticalSampling * 8
   for (let mcuRow = 0; mcuRow < jpeg.mcusPerColumn; mcuRow += 1) {
     for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
       const component = jpeg.components[componentIndex]
@@ -1473,14 +1523,30 @@ export const decodeProgressiveJpeg = async function* (
             component.coefficients,
             component.quantization,
             workspace,
-            block,
+            activeRowIndices,
+            plane,
+            planeWidth,
+            blockX,
+            blockY,
             coefficientOffset(component, blockX, sourceBlockY),
           )
-          writeBlock(plane, planeWidth, block, blockX, blockY)
         }
       }
     }
-    const output = renderRows(jpeg, planes, mcuRow, region, plan)
-    if (output) yield output
+    const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
+    const output = renderRows(jpeg, planes, mcuRow, region, plan, data)
+    if (output) {
+      let released = false
+      yield {
+        ...output,
+        release: () => {
+          if (released) return
+          released = true
+          recycledOutput.push(data)
+        },
+      }
+    } else {
+      recycledOutput.push(data)
+    }
   }
 }
