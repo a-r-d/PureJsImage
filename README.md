@@ -19,6 +19,12 @@ PureJsImage requires Node.js 24 or newer. Installing it will install one
 package: there are no runtime dependencies, native addons, external binaries,
 or WebAssembly modules.
 
+The complete v0.1.0 runtime, including every codec, bundles to **235.6 KiB**
+minified, **80.9 KiB** with gzip, or **66.2 KiB** with Brotli. These are
+worst-case all-codec sizes; future per-codec entry points and lazy codec
+registration can make bundles smaller when an application only needs a few
+formats.
+
 ## Supported codecs
 
 | Codec | Decode | Encode |
