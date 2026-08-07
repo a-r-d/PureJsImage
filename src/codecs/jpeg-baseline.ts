@@ -165,8 +165,8 @@ const readUint16 = (data: Uint8Array, offset: number): number => {
 
 const segmentEnd = (data: Uint8Array, offset: number): number => {
   const length = readUint16(data, offset)
-  if (length < 2 || offset + length > data.byteLength)
-    throw truncatedInput('JPEG segment is truncated')
+  if (length < 2) throw invalidInput('JPEG segment length is invalid')
+  if (offset + length > data.byteLength) throw truncatedInput('JPEG segment is truncated')
   return offset + length
 }
 
@@ -535,13 +535,25 @@ class EntropyReader {
 
   finish(): void {
     this.#bitCount = 0
-    while (this.#offset < this.#data.byteLength && byte(this.#data, this.#offset) !== 0xff) {
+    while (this.#offset < this.#data.byteLength) {
+      if (byte(this.#data, this.#offset) !== 0xff) {
+        this.#offset += 1
+        continue
+      }
       this.#offset += 1
-    }
-    while (byte(this.#data, this.#offset) === 0xff) this.#offset += 1
-    if (byte(this.#data, this.#offset) !== 0xd9) {
+      while (this.#offset < this.#data.byteLength && byte(this.#data, this.#offset) === 0xff) {
+        this.#offset += 1
+      }
+      if (this.#offset >= this.#data.byteLength) {
+        throw truncatedInput('JPEG end marker is truncated')
+      }
+      const marker = byte(this.#data, this.#offset)
+      this.#offset += 1
+      if (marker === 0) continue
+      if (marker === 0xd9) return
       throw invalidInput('Baseline JPEG contains additional unsupported scans')
     }
+    throw truncatedInput('JPEG end marker is missing')
   }
 }
 

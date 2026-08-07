@@ -3,6 +3,7 @@ import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
 import { jpegCodec } from '../src/codecs/jpeg.ts'
+import { ImageError } from '../src/index.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import { MemorySource } from '../src/source.ts'
@@ -245,6 +246,33 @@ const withProgressiveFrameMarker = (input: Uint8Array): Uint8Array => {
     }
   }
   throw new Error('Generated JPEG did not contain a baseline frame marker')
+}
+
+const jpegMarkerOffset = (input: Uint8Array, marker: number): number => {
+  for (let offset = 2; offset + 1 < input.byteLength; offset += 1) {
+    if (input[offset] === 0xff && input[offset + 1] === marker) return offset
+  }
+  throw new Error(`Generated JPEG did not contain marker 0x${marker.toString(16)}`)
+}
+
+const insertJpegBytes = (input: Uint8Array, offset: number, inserted: Uint8Array): Uint8Array => {
+  const output = new Uint8Array(input.byteLength + inserted.byteLength)
+  output.set(input.subarray(0, offset))
+  output.set(inserted, offset)
+  output.set(input.subarray(offset), offset + inserted.byteLength)
+  return output
+}
+
+const expectCorruptJpegRejection = async (input: Uint8Array): Promise<void> => {
+  try {
+    await (await Image.open(input)).png().toBuffer()
+    throw new Error('Corrupt JPEG unexpectedly decoded')
+  } catch (error: unknown) {
+    expect(error).toBeInstanceOf(ImageError)
+    if (error instanceof ImageError) {
+      expect(['INVALID_INPUT', 'TRUNCATED_INPUT']).toContain(error.code)
+    }
+  }
 }
 
 const sourceCoordinate = (
@@ -531,6 +559,110 @@ describe('JPEG pixel pipeline', () => {
     expect(output.data[blue]).toBeLessThan(15)
     expect(output.data[blue + 1]).toBeLessThan(15)
     expect(output.data[blue + 2]).toBeGreaterThan(240)
+  })
+
+  it('accepts marker fill bytes and ignores trailing bytes after the end marker', async () => {
+    const input = encodedJpeg(17, 13, (x, y) => [x * 11, y * 17, (x + y) * 7, 255])
+    const reference = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+    const applicationMarker = jpegMarkerOffset(input, 0xe0)
+    const withFillBytes = insertJpegBytes(input, applicationMarker + 1, Uint8Array.of(0xff, 0xff))
+    const withTrailingBytes = insertJpegBytes(
+      input,
+      input.byteLength,
+      Uint8Array.of(0xde, 0xad, 0xbe, 0xef),
+    )
+
+    for (const compatible of [withFillBytes, withTrailingBytes]) {
+      const output = PNG.sync.read(await (await Image.open(compatible)).png().toBuffer())
+      expect({ width: output.width, height: output.height }).toEqual({ width: 17, height: 13 })
+      expect(output.data).toEqual(reference.data)
+    }
+  })
+
+  it('applies image limits to hostile JPEG dimensions before pixel decoding', async () => {
+    const input = encodedJpeg(8, 8, () => [20, 40, 60, 255])
+    const oversized = Uint8Array.from(input)
+    const frame = jpegMarkerOffset(oversized, 0xc0)
+    oversized.set([0xff, 0xff, 0xff, 0xff], frame + 5)
+
+    await expect(
+      (await Image.open(oversized, { limits: { maxWidth: 1_024, maxHeight: 1_024 } }))
+        .png()
+        .toBuffer(),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+  })
+
+  it.each([
+    {
+      name: 'a marker length below two bytes',
+      mutate: (data: Uint8Array): void => {
+        const marker = jpegMarkerOffset(data, 0xe0)
+        data.set([0, 1], marker + 2)
+      },
+    },
+    {
+      name: 'an invalid quantization-table precision',
+      mutate: (data: Uint8Array): void => {
+        const marker = jpegMarkerOffset(data, 0xdb)
+        data[marker + 4] = ((data[marker + 4] ?? 0) & 0x0f) | 0x20
+      },
+    },
+    {
+      name: 'an oversubscribed Huffman table',
+      mutate: (data: Uint8Array): void => {
+        const marker = jpegMarkerOffset(data, 0xc4)
+        data[marker + 5] = 3
+      },
+    },
+    {
+      name: 'a zero component sampling factor',
+      mutate: (data: Uint8Array): void => {
+        const marker = jpegMarkerOffset(data, 0xc0)
+        data[marker + 11] = 0x01
+      },
+    },
+    {
+      name: 'sampling factors above ten blocks per MCU',
+      mutate: (data: Uint8Array): void => {
+        const marker = jpegMarkerOffset(data, 0xc0)
+        data[marker + 11] = 0x44
+      },
+    },
+    {
+      name: 'a scan selector for an unknown component',
+      mutate: (data: Uint8Array): void => {
+        const marker = jpegMarkerOffset(data, 0xda)
+        data[marker + 5] = 0x7f
+      },
+    },
+  ])('rejects $name with a typed input error', async ({ mutate }) => {
+    const malformed = Uint8Array.from(encodedJpeg(8, 8, () => [20, 40, 60, 255]))
+    mutate(malformed)
+
+    await expect((await Image.open(malformed)).png().toBuffer()).rejects.toMatchObject({
+      name: 'ImageError',
+      code: 'INVALID_INPUT',
+    })
+  })
+
+  it('rejects JPEG truncation at marker, segment, frame, scan, entropy, and EOI boundaries', async () => {
+    const input = encodedJpeg(16, 16, (x, y) => [x * 13, y * 7, (x + y) * 5, 255])
+    const applicationMarker = jpegMarkerOffset(input, 0xe0)
+    const frameMarker = jpegMarkerOffset(input, 0xc0)
+    const scanMarker = jpegMarkerOffset(input, 0xda)
+    const endMarker = jpegMarkerOffset(input, 0xd9)
+    const cutOffsets = [
+      3,
+      applicationMarker + 3,
+      frameMarker + 8,
+      scanMarker + 6,
+      Math.min(scanMarker + 16, endMarker - 1),
+      endMarker,
+    ]
+
+    for (const offset of cutOffsets) {
+      await expectCorruptJpegRejection(input.subarray(0, offset))
+    }
   })
 
   it('rejects unsupported progressive output and malformed input cleanly', async () => {
