@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto'
 import { decode as decodeBmp } from 'bmp-ts'
+import { imageDimensionsFromData } from 'image-dimensions'
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
-import { imageDimensionsFromData } from 'image-dimensions'
 import type { EngineExecution, PixelCorner, ValidationResult, Workflow } from '../types.ts'
+import { identifyClassicTiff } from './tiff.ts'
 
 interface DecodedPixels {
   width: number
@@ -50,6 +51,8 @@ const identifyOutput = (
   const bytes = new Uint8Array(output.buffer, output.byteOffset, output.byteLength)
   const detected = imageDimensionsFromData(bytes)
   if (detected) return detected
+  const tiff = identifyClassicTiff(bytes)
+  if (tiff) return tiff
   if (bytes[0] !== 0x42 || bytes[1] !== 0x4d) return undefined
   try {
     const decoded = decodeBmp(output, { toRGBA: true })

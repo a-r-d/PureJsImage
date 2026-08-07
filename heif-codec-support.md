@@ -1,10 +1,10 @@
-# HEIF / HEIC codec support plan
+# HEIF / HEIC decode support plan
 
 This document is the implementation plan and eventual capability contract for
-PureJsImage's first-party HEIF support. HEIF is the ISO Base Media File Format
+PureJsImage's first-party HEIF decoder. HEIF is the ISO Base Media File Format
 container; HEIC is the common HEIF variant whose image items are compressed
-with HEVC. The first useful target is therefore a HEIF container reader plus a
-first-party HEVC still-picture decoder.
+with HEVC. The target is a HEIF container reader plus a first-party HEVC
+still-picture decoder. HEIF and HEIC encoding are not planned.
 
 A checked implementation item is already present and tested in the repository.
 An unchecked item is not supported yet. Items in the deferred groups do not
@@ -20,12 +20,20 @@ errors rather than partial or incorrect output.
 - [x] Scope the first release to HEVC-coded still images in HEIF containers
 - [x] Keep AV1-coded AVIF in the existing `avifCodec` rather than routing it
   through the HEIF public surface
-- [x] Defer HEIC encode until decode is correct, bounded-memory, and measured
-- [x] Require a patent and licensing review before publishing HEVC decode or
-  encode; a first-party open-source implementation does not remove that release
+- [x] Do not implement HEIF or HEIC encoding, container writing, or public
+  `.heif()` / `.heic()` output APIs
+- [x] Require a patent and licensing review before publishing HEVC decode; a
+  first-party open-source implementation does not remove that release
   consideration
 - [x] Keep all non-PureJsImage decoders and encoders as development-only fixture
   oracles; the published package must retain no runtime dependencies
+
+## Encoding is not planned
+
+HEIF/HEIC encoding is a non-goal, not a later phase of this plan. PureJsImage
+will not expose HEIF/HEIC output, container writing, transcoding-to-HEIC, or an
+HEVC encoder. Decoded HEIF/HEIC uploads can instead be written with an existing
+JPEG, PNG, WebP, TIFF, or eventual AVIF encoder.
 
 ## Group 0: shared container foundation
 
@@ -159,7 +167,6 @@ required for the normal upload-to-resize workflow.
 - [ ] Twelve-bit and higher-precision HEVC still images
 - [ ] Lossless HEVC still-image modes
 - [ ] Region-of-interest APIs for independently addressable tiles
-- [ ] Metadata-preserving HEIF-to-HEIF rewrites that do not re-encode pixels
 
 ## Group 4: explicitly skip for the initial codec
 
@@ -227,62 +234,7 @@ work. Their absence should be documented and detected cleanly.
   CABAC, coefficient, tile, and decompression-bomb regression fixtures
 - [ ] Run coverage-guided fuzzing with strict time, allocation, and output limits
 
-## Encode decision
-
-HEIC encode is not required to accept user uploads. The initial useful workflow
-is HEIC decode followed by an existing JPEG, PNG, WebP, TIFF, or eventual AVIF
-encoder. HEIC output should start only after the following gate is satisfied.
-
-### Encode gate
-
-- [ ] Decode v1 is correct across the pinned common-upload corpus
-- [ ] Decode meets the bounded-memory Lambda target on large phone photos
-- [ ] A concrete user workflow requires HEIC output instead of a more broadly
-  consumable output format
-- [ ] HEVC patent and licensing implications have been reviewed for the
-  intended open-source distribution and deployment model
-- [ ] The maintenance cost of a conforming first-party HEVC encoder is accepted
-- [ ] Interoperability targets and independent encoder-output oracles are pinned
-
-### Minimal HEIC encode target, if approved
-
-- [ ] One primary still image with a valid HEIF/HEVC brand and `hvc1` item
-- [ ] HEVC Main Still Picture or compatible Main-profile intra-only output
-- [ ] 8-bit YUV 4:2:0 SDR input with explicit full/limited-range handling
-- [ ] VPS, SPS, PPS, `hvcC`, slice, and length-prefixed NAL-unit output
-- [ ] CTU partitioning, intra prediction, forward transforms, quantization,
-  CABAC emission, reconstruction, deblocking, and SAO
-- [ ] Deterministic quality control with documented quality-to-quantizer mapping
-- [ ] Bounded CTU-row encoding without retaining a source-sized RGBA copy
-- [ ] `ispe`, `pixi`, `colr`, and required item-property associations
-- [ ] `irot`/`imir` normalization or explicit preservation policy
-- [ ] Streaming `mdat` assembly with checked box and item offsets
-- [ ] Public `image.heic()` / `image.encode('heic')` only after independent
-  decoders accept and correctly render the output
-
-### Encode compatibility after the minimal target
-
-- [ ] Main 10 and 10-bit YUV 4:2:0 output
-- [ ] Display P3, PQ, and HLG color signaling
-- [ ] Grid encoding for large images with independently coded tiles
-- [ ] Auxiliary alpha encoding
-- [ ] EXIF, XMP, ICC, and thumbnail writing or preservation
-- [ ] HDR gain-map and tone-map derived-image output
-- [ ] Better rate-distortion decisions, adaptive coding structures, and
-  compression-effort controls
-- [ ] Output-size targeting
-
-### Encode features to defer
-
-- [ ] Image sequences or animation
-- [ ] Inter-picture prediction
-- [ ] Depth, disparity, portrait, and semantic-matte generation
-- [ ] 4:2:2, 4:4:4, twelve-bit, Range Extension, and multilayer output
-- [ ] Protected content or external data references
-
-## Release definitions
-
-### Decode v1 is complete when
+## Decode v1 is complete when
 
 - [ ] Group 0 and Group 1 are implemented and covered by pinned fixtures
 - [ ] Unsupported Group 2-4 inputs fail explicitly or return the correct SDR
@@ -292,14 +244,6 @@ encoder. HEIC output should start only after the following gate is satisfied.
 - [ ] Independent oracles confirm dimensions, orientation, color, alpha, and
   decoded pixels
 - [ ] `npm run check` and the isolated HEIC fixture/benchmark verification pass
-
-### Encode v1 is complete when
-
-- [ ] Every encode-gate item and minimal-target item is complete
-- [ ] Independent Apple and non-Apple decoders accept the generated files
-- [ ] Round-trip pixels and quality meet documented thresholds
-- [ ] Encode memory remains bounded by CTU rows plus output and pipeline state
-- [ ] `npm run check` and the isolated HEIC encode verification pass
 
 ## Standards and platform references
 

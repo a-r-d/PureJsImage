@@ -165,6 +165,87 @@ const writeBmpGradient = async (fixture: GeneratedCorpusFixture): Promise<void> 
   }
 }
 
+const writeTiffGradient = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+  const { width, height } = fixture.expected
+  const rowsPerStrip = 32
+  const stripCount = Math.ceil(height / rowsPerStrip)
+  const entryCount = 13
+  const ifdOffset = 8
+  const ifdBytes = 2 + entryCount * 12 + 4
+  const bitsOffset = ifdOffset + ifdBytes
+  const stripOffsetsOffset = bitsOffset + 6
+  const stripByteCountsOffset = stripOffsetsOffset + stripCount * 4
+  const xResolutionOffset = stripByteCountsOffset + stripCount * 4
+  const yResolutionOffset = xResolutionOffset + 8
+  const pixelsOffset = yResolutionOffset + 8
+  const header = Buffer.alloc(pixelsOffset)
+  const view = new DataView(header.buffer, header.byteOffset, header.byteLength)
+
+  header.set([0x49, 0x49], 0)
+  view.setUint16(2, 42, true)
+  view.setUint32(4, ifdOffset, true)
+  view.setUint16(ifdOffset, entryCount, true)
+
+  let entryOffset = ifdOffset + 2
+  const writeEntry = (tag: number, fieldType: number, count: number, value: number): void => {
+    view.setUint16(entryOffset, tag, true)
+    view.setUint16(entryOffset + 2, fieldType, true)
+    view.setUint32(entryOffset + 4, count, true)
+    if (fieldType === 3 && count === 1) view.setUint16(entryOffset + 8, value, true)
+    else view.setUint32(entryOffset + 8, value, true)
+    entryOffset += 12
+  }
+
+  writeEntry(256, 4, 1, width)
+  writeEntry(257, 4, 1, height)
+  writeEntry(258, 3, 3, bitsOffset)
+  writeEntry(259, 3, 1, 1)
+  writeEntry(262, 3, 1, 2)
+  writeEntry(273, 4, stripCount, stripOffsetsOffset)
+  writeEntry(277, 3, 1, 3)
+  writeEntry(278, 4, 1, rowsPerStrip)
+  writeEntry(279, 4, stripCount, stripByteCountsOffset)
+  writeEntry(282, 5, 1, xResolutionOffset)
+  writeEntry(283, 5, 1, yResolutionOffset)
+  writeEntry(284, 3, 1, 1)
+  writeEntry(296, 3, 1, 2)
+  view.setUint32(entryOffset, 0, true)
+
+  view.setUint16(bitsOffset, 8, true)
+  view.setUint16(bitsOffset + 2, 8, true)
+  view.setUint16(bitsOffset + 4, 8, true)
+  view.setUint32(xResolutionOffset, 72, true)
+  view.setUint32(xResolutionOffset + 4, 1, true)
+  view.setUint32(yResolutionOffset, 72, true)
+  view.setUint32(yResolutionOffset + 4, 1, true)
+
+  let stripOffset = pixelsOffset
+  for (let strip = 0; strip < stripCount; strip += 1) {
+    const rows = Math.min(rowsPerStrip, height - strip * rowsPerStrip)
+    const byteCount = rows * width * 3
+    view.setUint32(stripOffsetsOffset + strip * 4, stripOffset, true)
+    view.setUint32(stripByteCountsOffset + strip * 4, byteCount, true)
+    stripOffset += byteCount
+  }
+
+  const file = await open(fixturePath(fixture), 'w')
+  try {
+    await file.write(header)
+    const row = Buffer.allocUnsafe(width * 3)
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const offset = x * 3
+        row[offset] = Math.round((x / (width - 1)) * 255)
+        row[offset + 1] = Math.round((y / (height - 1)) * 255)
+        row[offset + 2] = (x + y) & 0xff
+      }
+      await file.write(row)
+    }
+  } finally {
+    await file.close()
+  }
+}
+
 let noiseState = 0x6d2b79f5
 const nextNoiseByte = (): number => {
   noiseState ^= noiseState << 13
@@ -215,6 +296,8 @@ const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
       return writeStaticTransparentGif(fixture)
     case 'streaming-stress-gradient':
       return writeStreamingStressPng(fixture)
+    case 'tiff-gradient':
+      return writeTiffGradient(fixture)
     default:
       throw new Error(`Unknown fixture generator: ${fixture.generator}`)
   }

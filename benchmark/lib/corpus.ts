@@ -3,8 +3,8 @@ import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ExifParser from 'exif-parser'
-import { GifReader } from 'omggif'
 import { imageDimensionsFromData } from 'image-dimensions'
+import { GifReader } from 'omggif'
 import type {
   CorpusManifest,
   Fixture,
@@ -13,6 +13,7 @@ import type {
   GeneratedFixture,
   SourceFixture,
 } from '../types.ts'
+import { identifyClassicTiff } from './tiff.ts'
 
 const benchmarkDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
 
@@ -66,6 +67,7 @@ const fixtureGenerators: ReadonlySet<unknown> = new Set([
   'seeded-noise',
   'static-transparent-gif',
   'streaming-stress-gradient',
+  'tiff-gradient',
   'tiny-transparent',
   'transparent-logo',
 ])
@@ -116,7 +118,7 @@ export const inspectFixture = async (fixture: Fixture): Promise<FixtureInspectio
       bmpDimensions = { type: 'bmp', width, height: Math.abs(storedHeight) }
     }
   }
-  const dimensions = detected ?? bmpDimensions
+  const dimensions = detected ?? bmpDimensions ?? identifyClassicTiff(bytes)
 
   if (!dimensions) {
     throw new Error(`Could not identify ${fixture.file}`)

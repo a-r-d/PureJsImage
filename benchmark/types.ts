@@ -1,7 +1,7 @@
-export type ImageFormat = 'bmp' | 'gif' | 'jpeg' | 'png' | 'webp'
-export type OutputFormat = 'bmp' | 'jpeg' | 'png' | 'webp'
+export type ImageFormat = 'bmp' | 'gif' | 'jpeg' | 'png' | 'tiff' | 'webp'
+export type OutputFormat = 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp'
 export type BenchmarkColor = '#ffffff' | 'transparent'
-export type BenchmarkProfile = 'bmp' | 'full' | 'smoke' | 'standard' | 'webp'
+export type BenchmarkProfile = 'bmp' | 'full' | 'smoke' | 'standard' | 'tiff' | 'webp'
 
 export interface FixtureExpectation {
   format: ImageFormat
@@ -32,6 +32,7 @@ export type FixtureGenerator =
   | 'seeded-noise'
   | 'static-transparent-gif'
   | 'streaming-stress-gradient'
+  | 'tiff-gradient'
   | 'tiny-transparent'
   | 'transparent-logo'
 

@@ -70,13 +70,15 @@ implemented in strict TypeScript 7:
 
 ### Planned codecs
 
-- [ ] `jpegxlCodec` (`.jxl`) decode and encode support. JPEG XL offers modern,
+- [ ] `jpegxlCodec` (`.jxl`) decode-only support. JPEG XL offers modern,
   high-quality compression, although browser support remains inconsistent.
-- [ ] `heifCodec` / `heicCodec` (`.heif`, `.heic`) decode and encode support.
-  HEIC is the widely used HEIF/HEVC variant produced by iPhones and photo
-  libraries, making it especially useful for upload-processing workflows.
-- [ ] `icoCodec` (`.ico`) decode and encode support for Windows icons and
-  favicons, which remain common in web tooling.
+  JPEG XL encoding is not planned.
+- [ ] `heifCodec` / `heicCodec` (`.heif`, `.heic`) decode-only support. HEIC is
+  the widely used HEIF/HEVC variant produced by iPhones and photo libraries,
+  making it especially useful for upload-processing workflows. HEIF and HEIC
+  encoding are not planned.
+- [ ] `icoCodec` (`.ico`) decode support for Windows icons and favicons, which
+  remain common in web tooling. ICO encoding is not planned.
 
 ```ts
 import { Image } from 'purejsimage'

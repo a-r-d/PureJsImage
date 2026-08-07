@@ -14,6 +14,7 @@ const png = (compressionLevel = 6): Operation => ({
 })
 
 const bmp = (): Operation => ({ type: 'encode', format: 'bmp' })
+const tiff = (): Operation => ({ type: 'encode', format: 'tiff' })
 const webp = (quality: number): Operation => ({ type: 'encode', format: 'webp', quality })
 const losslessWebp = (): Operation => ({ type: 'encode', format: 'webp', lossless: true })
 
@@ -154,24 +155,24 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'jpeg', width: 32, height: 32 },
   },
   {
-    id: 'tooldesk-upload-jpeg-1024',
-    title: 'Tooldesk chat upload: JPEG downscale to 1024 and encode JPEG 80',
+    id: 'lambda-twilio-mms-jpeg-1024',
+    title: 'Lambda Twilio MMS upload: JPEG downscale to 1024 and encode JPEG 80',
     tier: 'standard',
     input: 'tundra-4000x3000',
     operations: [{ type: 'resize', width: 1024, withoutEnlargement: true }, jpeg(80, '#ffffff')],
     expected: { format: 'jpeg', width: 1024, height: 768 },
   },
   {
-    id: 'tooldesk-upload-png-2048',
-    title: 'Tooldesk microsite upload: PNG downscale to 2048 and JPEG 80',
+    id: 'lambda-user-upload-png-2048',
+    title: 'Lambda user image upload: PNG downscale to 2048 and JPEG 80',
     tier: 'standard',
     input: 'rgba-gradient-4000x3000',
     operations: [{ type: 'resize', width: 2048, withoutEnlargement: true }, jpeg(80, '#ffffff')],
     expected: { format: 'jpeg', width: 2048, height: 1536 },
   },
   {
-    id: 'tooldesk-upload-gif-no-enlarge',
-    title: 'Tooldesk chat upload: small GIF first frame without enlargement',
+    id: 'lambda-twilio-mms-gif-no-enlarge',
+    title: 'Lambda Twilio MMS upload: small GIF first frame without enlargement',
     tier: 'standard',
     input: 'static-transparent-640x360',
     operations: [{ type: 'resize', width: 1024, withoutEnlargement: true }, jpeg(80, '#ffffff')],
@@ -183,8 +184,8 @@ export const workflows: readonly Workflow[] = [
     },
   },
   {
-    id: 'tooldesk-logo-jpeg',
-    title: 'Tooldesk logo: portrait JPEG in centered transparent 256 canvas',
+    id: 'lambda-logo-jpeg',
+    title: 'Lambda logo normalization: portrait JPEG in centered transparent 256 canvas',
     tier: 'standard',
     input: 'portrait-2400x3000',
     operations: [
@@ -200,8 +201,8 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'png', width: 256, height: 256, cornerAlpha: 0 },
   },
   {
-    id: 'tooldesk-logo-png',
-    title: 'Tooldesk logo: transparent PNG in centered transparent 256 canvas',
+    id: 'lambda-logo-png',
+    title: 'Lambda logo normalization: transparent PNG in centered transparent 256 canvas',
     tier: 'standard',
     input: 'transparent-logo-1200x480',
     operations: [
@@ -217,8 +218,8 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'png', width: 256, height: 256, cornerAlpha: 0 },
   },
   {
-    id: 'tooldesk-logo-gif',
-    title: 'Tooldesk logo: GIF first frame in centered transparent 256 canvas',
+    id: 'lambda-logo-gif',
+    title: 'Lambda logo normalization: GIF first frame in centered transparent 256 canvas',
     tier: 'standard',
     input: 'animated-gif-cc0',
     operations: [
@@ -487,6 +488,144 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'bmp', width: 800, height: 800 },
   },
   {
+    id: 'tiff-metadata-large',
+    title: 'Read metadata from a 4000x3000 stripped RGB TIFF',
+    tier: 'tiff',
+    input: 'tiff-gradient-4000x3000',
+    operations: [{ type: 'metadata' }],
+    expected: { format: 'tiff', width: 4000, height: 3000 },
+  },
+  {
+    id: 'tiff-large-resize-jpeg',
+    title: '4000x3000 stripped RGB TIFF to 1000px JPEG quality 80',
+    tier: 'tiff',
+    input: 'tiff-gradient-4000x3000',
+    operations: [{ type: 'resize', width: 1000 }, jpeg(80)],
+    expected: { format: 'jpeg', width: 1000, height: 750 },
+  },
+  {
+    id: 'tiff-rgb-png',
+    title: 'Big-endian 8-bit RGB TIFF to PNG with exact reference pixels',
+    tier: 'tiff',
+    input: 'libtiff-rgb-3c-8b',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 157,
+      height: 151,
+      pixelSamples: [
+        { x: 0, y: 0, red: 162, green: 52, blue: 53, alpha: 255 },
+        { x: 78, y: 75, red: 73, green: 15, blue: 13, alpha: 255 },
+        { x: 156, y: 150, red: 178, green: 202, blue: 160, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'tiff-gray8-png',
+    title: 'Big-endian 8-bit grayscale TIFF to PNG',
+    tier: 'tiff',
+    input: 'libtiff-minisblack-1c-8b',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 157,
+      height: 151,
+      pixelSamples: [
+        { x: 0, y: 0, red: 85, green: 85, blue: 85, alpha: 255 },
+        { x: 78, y: 75, red: 32, green: 32, blue: 32, alpha: 255 },
+        { x: 156, y: 150, red: 190, green: 190, blue: 190, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'tiff-bilevel-png',
+    title: 'Big-endian 1-bit white-is-zero TIFF to PNG',
+    tier: 'tiff',
+    input: 'libtiff-miniswhite-1c-1b',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 157,
+      height: 151,
+      pixelSamples: [
+        { x: 0, y: 0, red: 0, green: 0, blue: 0, alpha: 255 },
+        { x: 1, y: 1, red: 255, green: 255, blue: 255, alpha: 255 },
+        { x: 156, y: 150, red: 255, green: 255, blue: 255, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'tiff-palette8-png',
+    title: 'Big-endian 8-bit palette TIFF to PNG',
+    tier: 'tiff',
+    input: 'libtiff-palette-1c-8b',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 157,
+      height: 151,
+      pixelSamples: [
+        { x: 0, y: 0, red: 170, green: 53, blue: 40, alpha: 255 },
+        { x: 78, y: 75, red: 76, green: 19, blue: 14, alpha: 255 },
+        { x: 156, y: 150, red: 171, green: 208, blue: 169, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'tiff-packbits-planar-alpha-png',
+    title: 'Little-endian PackBits planar grayscale and alpha TIFF to PNG',
+    tier: 'tiff',
+    input: 'libtiff-packbits-gray-alpha',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 64,
+      height: 64,
+      cornerAlpha: 0,
+      pixelSamples: [
+        { x: 0, y: 0, alpha: 0 },
+        { x: 31, y: 31, alpha: 255 },
+        { x: 40, y: 40, alpha: 152 },
+        { x: 63, y: 63, alpha: 0 },
+      ],
+    },
+  },
+  {
+    id: 'tiff-deflate-png',
+    title: 'Deflate-compressed grayscale TIFF with trailing strip data to PNG',
+    tier: 'tiff',
+    input: 'libtiff-deflate-extra-strip-data',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 500,
+      height: 500,
+      pixelSamples: [
+        { x: 0, y: 0, red: 107, green: 107, blue: 107, alpha: 255 },
+        { x: 250, y: 250, red: 197, green: 197, blue: 197, alpha: 255 },
+        { x: 499, y: 499, red: 181, green: 181, blue: 181, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'tiff-lzw-single-strip-resize',
+    title: '7795x3122 1-bit LZW single-strip TIFF to 1000px PNG',
+    tier: 'tiff',
+    input: 'libtiff-lzw-single-strip',
+    operations: [{ type: 'resize', width: 1000 }, png(6)],
+    expected: { format: 'png', width: 1000, height: 401 },
+    defaultWarmups: 0,
+    timeoutMs: 120000,
+  },
+  {
+    id: 'png-to-tiff',
+    title: 'Transparent 1200x480 PNG to uncompressed RGBA TIFF',
+    tier: 'tiff',
+    input: 'transparent-logo-1200x480',
+    operations: [tiff()],
+    expected: { format: 'tiff', width: 1200, height: 480 },
+  },
+  {
     id: 'webp-metadata-large',
     title: 'Read metadata from a 1600x2000 lossy WebP photograph',
     tier: 'webp',
@@ -636,9 +775,9 @@ const phase4WorkflowIds = new Set([
   'png-to-jpeg',
   'auto-orient-6',
   'png-gray16-to-jpeg',
-  'tooldesk-upload-jpeg-1024',
-  'tooldesk-upload-png-2048',
-  'tooldesk-logo-jpeg',
+  'lambda-twilio-mms-jpeg-1024',
+  'lambda-user-upload-png-2048',
+  'lambda-logo-jpeg',
   'tiny-transparent-convert',
   'high-entropy-png-to-jpeg',
 ])
@@ -647,8 +786,8 @@ const phase5WorkflowIds = new Set([
   'jpeg-to-png',
   'png-to-jpeg',
   'gif-first-frame-png',
-  'tooldesk-upload-gif-no-enlarge',
-  'tooldesk-logo-gif',
+  'lambda-twilio-mms-gif-no-enlarge',
+  'lambda-logo-gif',
 ])
 
 export const workflowsForProfile = (profile: string): readonly Workflow[] => {
@@ -665,13 +804,18 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
     return workflows.filter((workflow) => phase5WorkflowIds.has(workflow.id))
   }
   if (profile === 'full') {
-    return workflows.filter((workflow) => workflow.tier !== 'bmp' && workflow.tier !== 'webp')
+    return workflows.filter(
+      (workflow) => workflow.tier !== 'bmp' && workflow.tier !== 'tiff' && workflow.tier !== 'webp',
+    )
   }
   if (profile === 'bmp') {
     return workflows.filter((workflow) => workflow.tier === 'bmp')
   }
   if (profile === 'webp') {
     return workflows.filter((workflow) => workflow.tier === 'webp')
+  }
+  if (profile === 'tiff') {
+    return workflows.filter((workflow) => workflow.tier === 'tiff')
   }
   throw new Error(`Unknown profile: ${profile}`)
 }
