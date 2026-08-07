@@ -1,5 +1,5 @@
 import { once } from 'node:events'
-import { mkdir, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdir, open, rename, rm, writeFile } from 'node:fs/promises'
 import { basename } from 'node:path'
 import { createDeflate } from 'node:zlib'
 import { GifWriter } from 'omggif'
@@ -130,6 +130,41 @@ const writeStaticTransparentGif = async (fixture: GeneratedCorpusFixture): Promi
   await writeFile(fixturePath(fixture), output.subarray(0, length))
 }
 
+const writeBmpGradient = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+  const { width, height } = fixture.expected
+  const rowStride = (width * 3 + 3) & ~3
+  const fileSize = 54 + rowStride * height
+  const header = new Uint8Array(54)
+  const view = new DataView(header.buffer)
+  header.set([0x42, 0x4d])
+  view.setUint32(2, fileSize, true)
+  view.setUint32(10, 54, true)
+  view.setUint32(14, 40, true)
+  view.setInt32(18, width, true)
+  view.setInt32(22, height, true)
+  view.setUint16(26, 1, true)
+  view.setUint16(28, 24, true)
+  view.setUint32(34, rowStride * height, true)
+
+  const file = await open(fixturePath(fixture), 'w')
+  try {
+    await file.write(header)
+    const row = new Uint8Array(rowStride)
+    for (let storedY = 0; storedY < height; storedY += 1) {
+      const y = height - 1 - storedY
+      for (let x = 0; x < width; x += 1) {
+        const offset = x * 3
+        row[offset] = (x + y) & 0xff
+        row[offset + 1] = Math.round((y / (height - 1)) * 255)
+        row[offset + 2] = Math.round((x / (width - 1)) * 255)
+      }
+      await file.write(row)
+    }
+  } finally {
+    await file.close()
+  }
+}
+
 let noiseState = 0x6d2b79f5
 const nextNoiseByte = (): number => {
   noiseState ^= noiseState << 13
@@ -140,6 +175,8 @@ const nextNoiseByte = (): number => {
 
 const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
   switch (fixture.generator) {
+    case 'bmp-gradient':
+      return writeBmpGradient(fixture)
     case 'rgba-gradient':
       return writeRgbaPng({
         fixture,

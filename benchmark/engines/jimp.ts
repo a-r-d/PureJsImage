@@ -95,6 +95,7 @@ const encode = async (image: JimpImage, operation: EncodeOperation): Promise<Buf
         : {}),
     })
   }
+  if (operation.format === 'bmp') return outputImage.getBuffer(JimpMime.bmp)
   throw new Error(`Unsupported output format: ${operation.format}`)
 }
 

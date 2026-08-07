@@ -13,6 +13,7 @@ const png = (compressionLevel = 6): Operation => ({
   compressionLevel,
 })
 
+const bmp = (): Operation => ({ type: 'encode', format: 'bmp' })
 const webp = (quality: number): Operation => ({ type: 'encode', format: 'webp', quality })
 const losslessWebp = (): Operation => ({ type: 'encode', format: 'webp', lossless: true })
 
@@ -262,6 +263,230 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'jpeg', width: 2048, height: 2048 },
   },
   {
+    id: 'bmp-metadata-large',
+    title: 'Read metadata from a 4000x3000 24-bit BMP',
+    tier: 'bmp',
+    input: 'bmp-gradient-4000x3000',
+    operations: [{ type: 'metadata' }],
+    expected: { format: 'bmp', width: 4000, height: 3000 },
+  },
+  {
+    id: 'bmp-large-resize-jpeg',
+    title: '4000x3000 24-bit BMP to 1000px JPEG quality 80',
+    tier: 'bmp',
+    input: 'bmp-gradient-4000x3000',
+    operations: [{ type: 'resize', width: 1000 }, jpeg(80)],
+    expected: { format: 'jpeg', width: 1000, height: 750 },
+  },
+  {
+    id: 'bmp-pal1-png',
+    title: '1-bit paletted BMP to PNG with exact reference pixels',
+    tier: 'bmp',
+    input: 'bmpsuite-pal1',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 127,
+      height: 64,
+      pixelSamples: [
+        { x: 0, y: 0, red: 255, green: 255, blue: 255, alpha: 255 },
+        { x: 1, y: 1, red: 0, green: 0, blue: 0, alpha: 255 },
+        { x: 126, y: 63, red: 0, green: 0, blue: 0, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'bmp-pal4-png',
+    title: 'Uncompressed 4-bit paletted BMP to PNG',
+    tier: 'bmp',
+    input: 'bmpsuite-pal4',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 127,
+      height: 64,
+      pixelSamples: [
+        { x: 0, y: 0, red: 255, green: 0, blue: 0, alpha: 255 },
+        { x: 10, y: 10, red: 255, green: 128, blue: 255, alpha: 255 },
+        { x: 126, y: 63, red: 0, green: 0, blue: 0, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'bmp-rle4-png',
+    title: 'RLE4-compressed paletted BMP to PNG',
+    tier: 'bmp',
+    input: 'bmpsuite-pal4-rle',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 127,
+      height: 64,
+      pixelSamples: [
+        { x: 0, y: 0, red: 255, green: 0, blue: 0, alpha: 255 },
+        { x: 10, y: 10, red: 255, green: 128, blue: 255, alpha: 255 },
+        { x: 95, y: 40, red: 255, green: 255, blue: 0, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'bmp-rle8-png',
+    title: 'RLE8-compressed paletted BMP to PNG',
+    tier: 'bmp',
+    input: 'bmpsuite-pal8-rle',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 127,
+      height: 64,
+      pixelSamples: [
+        { x: 0, y: 0, red: 255, green: 0, blue: 0, alpha: 255 },
+        { x: 10, y: 10, red: 255, green: 85, blue: 102, alpha: 255 },
+        { x: 125, y: 62, red: 51, green: 85, blue: 102, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'bmp-top-down-crop-resize',
+    title: 'Top-down 8-bit BMP crop and resize to PNG',
+    tier: 'bmp',
+    input: 'bmpsuite-pal8-top-down',
+    operations: [
+      { type: 'crop', x: 7, y: 5, width: 100, height: 50 },
+      { type: 'resize', width: 200, height: 100 },
+      png(6),
+    ],
+    expected: { format: 'png', width: 200, height: 100 },
+  },
+  {
+    id: 'bmp-padding-odd-png',
+    title: '125-pixel-wide paletted BMP row-padding conversion',
+    tier: 'bmp',
+    input: 'bmpsuite-pal8-padding-125',
+    operations: [png(6)],
+    expected: { format: 'png', width: 125, height: 62 },
+  },
+  {
+    id: 'bmp-os2-png',
+    title: 'OS/2 v1 8-bit paletted BMP to PNG',
+    tier: 'bmp',
+    input: 'bmpsuite-pal8-os2',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 127,
+      height: 64,
+      pixelSamples: [
+        { x: 0, y: 0, red: 255, green: 0, blue: 0, alpha: 255 },
+        { x: 10, y: 10, red: 255, green: 85, blue: 102, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'bmp-v5-png',
+    title: 'BITMAPV5HEADER 8-bit paletted BMP to PNG',
+    tier: 'bmp',
+    input: 'bmpsuite-pal8-v5',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 127,
+      height: 64,
+      pixelSamples: [
+        { x: 0, y: 0, red: 255, green: 0, blue: 0, alpha: 255 },
+        { x: 125, y: 62, red: 51, green: 85, blue: 102, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'bmp-rgb16-555-png',
+    title: '16-bit RGB555 BMP to PNG with scaled channel checks',
+    tier: 'bmp',
+    input: 'bmpsuite-rgb16-555',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 127,
+      height: 64,
+      pixelSamples: [
+        { x: 1, y: 1, red: 255, green: 8, blue: 8, alpha: 255 },
+        { x: 10, y: 10, red: 214, green: 82, blue: 82, alpha: 255 },
+        { x: 126, y: 63, red: 99, green: 99, blue: 123, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'bmp-rgb16-565-png',
+    title: '16-bit RGB565 bitfield BMP to PNG',
+    tier: 'bmp',
+    input: 'bmpsuite-rgb16-565',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 127,
+      height: 64,
+      pixelSamples: [
+        { x: 1, y: 1, red: 255, green: 8, blue: 8, alpha: 255 },
+        { x: 10, y: 10, red: 214, green: 81, blue: 82, alpha: 255 },
+        { x: 126, y: 63, red: 99, green: 97, blue: 123, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'bmp-rgb32-bitfields-png',
+    title: '32-bit reordered bitfield BMP to PNG',
+    tier: 'bmp',
+    input: 'bmpsuite-rgb32-bitfields',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 127,
+      height: 64,
+      pixelSamples: [
+        { x: 0, y: 0, red: 255, green: 0, blue: 0, alpha: 255 },
+        { x: 10, y: 10, red: 215, green: 82, blue: 82, alpha: 255 },
+        { x: 126, y: 63, red: 96, green: 96, blue: 126, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'bmp-rgba32-v5-png',
+    title: '32-bit V5 alpha-bitfield BMP to PNG',
+    tier: 'bmp',
+    input: 'bmpsuite-rgba32-v5',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 127,
+      height: 64,
+      pixelSamples: [
+        { x: 0, y: 0, red: 255, green: 0, blue: 0, alpha: 255 },
+        { x: 31, y: 31, alpha: 0 },
+        { x: 126, y: 63, red: 96, green: 96, blue: 126, alpha: 255 },
+      ],
+    },
+  },
+  {
+    id: 'bmp-rgb24-crop-resize-jpeg',
+    title: '24-bit BMP crop, resize, and JPEG conversion',
+    tier: 'bmp',
+    input: 'bmpsuite-rgb24',
+    operations: [
+      { type: 'crop', x: 10, y: 4, width: 100, height: 56 },
+      { type: 'resize', width: 400 },
+      jpeg(80),
+    ],
+    expected: { format: 'jpeg', width: 400, height: 224 },
+  },
+  {
+    id: 'jpeg-to-bmp',
+    title: '2400x2400 JPEG to 800x800 24-bit BMP',
+    tier: 'bmp',
+    input: 'earthrise-2400x2400',
+    operations: [{ type: 'resize', width: 800 }, bmp()],
+    expected: { format: 'bmp', width: 800, height: 800 },
+  },
+  {
     id: 'webp-metadata-large',
     title: 'Read metadata from a 1600x2000 lossy WebP photograph',
     tier: 'webp',
@@ -440,7 +665,10 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
     return workflows.filter((workflow) => phase5WorkflowIds.has(workflow.id))
   }
   if (profile === 'full') {
-    return workflows.filter((workflow) => workflow.tier !== 'webp')
+    return workflows.filter((workflow) => workflow.tier !== 'bmp' && workflow.tier !== 'webp')
+  }
+  if (profile === 'bmp') {
+    return workflows.filter((workflow) => workflow.tier === 'bmp')
   }
   if (profile === 'webp') {
     return workflows.filter((workflow) => workflow.tier === 'webp')

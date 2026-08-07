@@ -60,6 +60,7 @@ const isSourceFixture = (value: unknown): value is SourceFixture => {
 }
 
 const fixtureGenerators: ReadonlySet<unknown> = new Set([
+  'bmp-gradient',
   'odd-rgba',
   'rgba-gradient',
   'seeded-noise',
@@ -103,9 +104,19 @@ export const sha256 = (buffer: Uint8Array): string => {
 
 export const inspectFixture = async (fixture: Fixture): Promise<FixtureInspection> => {
   const buffer = await readFile(fixturePath(fixture))
-  const dimensions = imageDimensionsFromData(
-    new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength),
-  )
+  const bytes = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
+  const detected = imageDimensionsFromData(bytes)
+  let bmpDimensions: { type: string; width: number; height: number } | undefined
+  if (!detected && bytes[0] === 0x42 && bytes[1] === 0x4d && bytes.byteLength >= 26) {
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+    const headerSize = view.getUint32(14, true)
+    const width = headerSize === 12 ? view.getUint16(18, true) : view.getInt32(18, true)
+    const storedHeight = headerSize === 12 ? view.getUint16(20, true) : view.getInt32(22, true)
+    if (width > 0 && storedHeight !== 0) {
+      bmpDimensions = { type: 'bmp', width, height: Math.abs(storedHeight) }
+    }
+  }
+  const dimensions = detected ?? bmpDimensions
 
   if (!dimensions) {
     throw new Error(`Could not identify ${fixture.file}`)

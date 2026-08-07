@@ -4,6 +4,7 @@ import { executePipeline } from './executor.ts'
 import type { ImageLimitOptions, ImageLimits } from './limits.ts'
 import { resolveLimits } from './limits.ts'
 import type {
+  BmpEncodeOptions,
   CropOptions,
   JpegEncodeOptions,
   PipelineOperation,
@@ -12,6 +13,7 @@ import type {
   WebpEncodeOptions,
 } from './pipeline.ts'
 import {
+  createBmpEncodeOperation,
   createCropOperation,
   createJpegEncodeOperation,
   createPngEncodeOperation,
@@ -78,9 +80,10 @@ export class Image {
   encode(format: 'jpeg', options?: JpegEncodeOptions): Image
   encode(format: 'png', options?: PngEncodeOptions): Image
   encode(format: 'webp', options?: WebpEncodeOptions): Image
+  encode(format: 'bmp', options?: BmpEncodeOptions): Image
   encode(
-    format: 'jpeg' | 'png' | 'webp',
-    options: JpegEncodeOptions | PngEncodeOptions | WebpEncodeOptions = {},
+    format: 'bmp' | 'jpeg' | 'png' | 'webp',
+    options: BmpEncodeOptions | JpegEncodeOptions | PngEncodeOptions | WebpEncodeOptions = {},
   ): Image {
     if (format === 'jpeg') {
       return this.#append(
@@ -106,6 +109,13 @@ export class Image {
         }),
       )
     }
+    if (format === 'bmp') {
+      return this.#append(
+        createBmpEncodeOperation({
+          ...('alpha' in options && options.alpha !== undefined ? { alpha: options.alpha } : {}),
+        }),
+      )
+    }
     return this.#append(
       createWebpEncodeOperation({
         ...('lossless' in options && options.lossless !== undefined
@@ -128,6 +138,10 @@ export class Image {
 
   webp(options: WebpEncodeOptions = {}): Image {
     return this.#append(createWebpEncodeOperation(options))
+  }
+
+  bmp(options: BmpEncodeOptions = {}): Image {
+    return this.#append(createBmpEncodeOperation(options))
   }
 
   async toBuffer(): Promise<Buffer> {

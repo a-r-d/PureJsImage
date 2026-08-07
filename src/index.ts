@@ -10,6 +10,7 @@ export type {
   ImageMetadata,
 } from './codec.ts'
 export {
+  bmpCodec,
   gifCodec,
   jpegCodec,
   pngCodec,
@@ -26,6 +27,7 @@ export { BufferPool } from './pixel.ts'
 export type { PixelBlock, PixelFormat } from './pixel.ts'
 export type {
   Background,
+  BmpEncodeOptions,
   CropOptions,
   JpegEncodeOptions,
   PngEncodeOptions,

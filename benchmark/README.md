@@ -40,6 +40,13 @@ a larger 1600x2000 photograph, two lossless alpha graphics with odd dimensions,
 and a lossy image with a compressed alpha plane. Reference pixel samples are
 pinned for decoder workflows in addition to dimensions and container hashes.
 
+The BMP corpus pins 14 public-domain files from BMP Suite 2.8. They cover OS/2,
+Windows v3 and v5 headers, 1/4/8-bit palettes, RLE4/RLE8, top-down storage,
+odd-width row padding, RGB555/RGB565, 24-bit pixels, reordered 32-bit
+bitfields, and explicit alpha. A deterministic 4000x3000 24-bit BMP provides
+the large Lambda memory workload. Reference-image pixels are pinned for codec
+correctness.
+
 ## Running
 
 Quick harness validation:
@@ -76,6 +83,20 @@ Jimp 1.6.0 does not provide a WebP codec, so this profile is intentionally
 PureJsImage-only. Decode results still require independently generated pixel
 samples to pass. The profile records absolute time, output size, and memory
 without inventing an invalid direct Jimp comparison.
+
+First-party BMP compatibility and performance profile:
+
+```sh
+npm run bench:bmp
+```
+
+The separate Jimp compatibility baseline is expected to report failures for
+formats where its output does not match BMP Suite or it cannot decode the
+input:
+
+```sh
+npm run bench:bmp:jimp
+```
 
 All Jimp-comparable workflows, including batch and 100-megapixel stress cases:
 

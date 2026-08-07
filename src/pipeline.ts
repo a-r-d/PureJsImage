@@ -41,10 +41,19 @@ export interface WebpEncodeOptions {
   quality?: number
 }
 
+export interface BmpEncodeOptions {
+  alpha?: boolean
+}
+
 export type PipelineOperation =
   | { readonly type: 'autoOrient' }
   | ({ readonly type: 'crop' } & Readonly<CropOptions>)
   | ({ readonly type: 'resize' } & Readonly<ResizeOptions>)
+  | {
+      readonly type: 'encode'
+      readonly format: 'bmp'
+      readonly options: Readonly<BmpEncodeOptions>
+    }
   | {
       readonly type: 'encode'
       readonly format: 'jpeg'
@@ -146,6 +155,13 @@ export const createWebpEncodeOperation = (options: WebpEncodeOptions): PipelineO
   return Object.freeze({ type: 'encode', format: 'webp', options: Object.freeze({ ...options }) })
 }
 
+export const createBmpEncodeOperation = (options: BmpEncodeOptions): PipelineOperation => {
+  if (options.alpha !== undefined && typeof options.alpha !== 'boolean') {
+    throw invalidInput('BMP alpha must be a boolean')
+  }
+  return Object.freeze({ type: 'encode', format: 'bmp', options: Object.freeze({ ...options }) })
+}
+
 export const calculateResizeDimensions = (
   width: number,
   height: number,
@@ -230,6 +246,18 @@ export const planMetadata = (
         hasAlpha: metadata.hasAlpha || transparentCanvas,
       }
       validateImageDimensions(metadata.width, metadata.height, metadata.frames ?? 1, limits)
+      continue
+    }
+
+    if (operation.format === 'bmp') {
+      const hasAlpha = operation.options.alpha ?? metadata.hasAlpha
+      metadata = {
+        ...metadata,
+        format: 'bmp',
+        mimeType: 'image/bmp',
+        hasAlpha,
+        bitDepth: hasAlpha ? 32 : 24,
+      }
       continue
     }
 

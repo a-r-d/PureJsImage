@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { decode as decodeBmp } from 'bmp-ts'
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 import { imageDimensionsFromData } from 'image-dimensions'
@@ -11,6 +12,10 @@ interface DecodedPixels {
 }
 
 const decodePixels = (output: Buffer, format: string): DecodedPixels | undefined => {
+  if (format === 'bmp') {
+    const decoded = decodeBmp(output, { toRGBA: true })
+    return { width: decoded.width, height: decoded.height, data: decoded.data }
+  }
   if (format === 'png') {
     const decoded = PNG.sync.read(output)
     return { width: decoded.width, height: decoded.height, data: decoded.data }
@@ -36,6 +41,21 @@ const pixelAt = (decoded: DecodedPixels, x: number, y: number): PixelCorner | un
     green: decoded.data[offset + 1] ?? -1,
     blue: decoded.data[offset + 2] ?? -1,
     alpha: decoded.data[offset + 3] ?? -1,
+  }
+}
+
+const identifyOutput = (
+  output: Buffer,
+): { type: string; width: number; height: number } | undefined => {
+  const bytes = new Uint8Array(output.buffer, output.byteOffset, output.byteLength)
+  const detected = imageDimensionsFromData(bytes)
+  if (detected) return detected
+  if (bytes[0] !== 0x42 || bytes[1] !== 0x4d) return undefined
+  try {
+    const decoded = decodeBmp(output, { toRGBA: true })
+    return { type: 'bmp', width: decoded.width, height: decoded.height }
+  } catch {
+    return undefined
   }
 }
 
@@ -69,9 +89,7 @@ export const validateExecution = ({
   }
 
   const output = Buffer.from(execution.output)
-  const dimensions = imageDimensionsFromData(
-    new Uint8Array(output.buffer, output.byteOffset, output.byteLength),
-  )
+  const dimensions = identifyOutput(output)
   if (!dimensions) {
     return {
       valid: false,

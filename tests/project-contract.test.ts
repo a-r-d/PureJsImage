@@ -47,15 +47,20 @@ describe('benchmark contract', () => {
     const full = workflowsForProfile('full')
     const phase4 = workflowsForProfile('phase4')
     const phase5 = workflowsForProfile('phase5')
+    const bmp = workflowsForProfile('bmp')
     const webp = workflowsForProfile('webp')
 
     expect(smoke.length).toBeGreaterThan(0)
     expect(phase4.length).toBe(12)
     expect(phase5.length).toBe(5)
+    expect(bmp.length).toBe(16)
     expect(webp.length).toBe(9)
     expect(standard.length).toBeGreaterThan(smoke.length)
     expect(full.length).toBeGreaterThan(standard.length)
-    expect(full).toEqual(workflows.filter((workflow) => workflow.tier !== 'webp'))
+    expect(full).toEqual(
+      workflows.filter((workflow) => workflow.tier !== 'bmp' && workflow.tier !== 'webp'),
+    )
+    expect(bmp).toEqual(workflows.filter((workflow) => workflow.tier === 'bmp'))
     expect(webp).toEqual(workflows.filter((workflow) => workflow.tier === 'webp'))
   })
 

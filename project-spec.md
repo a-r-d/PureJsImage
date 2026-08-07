@@ -1489,7 +1489,17 @@ The codec abstraction should allow multiple implementations.
 
 ### BMP
 
-Cheap compatibility win if a small existing implementation is suitable.
+PureJsImage must provide first-party BMP detection, metadata, decode, and
+encode without a runtime dependency. Input support should include OS/2 and
+Windows DIB headers, 1/4/8-bit palettes, RLE4/RLE8, 16/24/32-bit pixels,
+RGB555/RGB565 and arbitrary valid channel bitfields, top-down and bottom-up
+storage, row padding, and V4/V5 alpha masks.
+
+Uncompressed input should emit logical top-down PixelBlocks from bounded source
+row groups and honor decoder crop regions. Because RLE command streams are
+bottom-up and can contain position deltas, their explicit fallback may retain a
+compact one-byte index plane, not a four-byte RGBA bitmap. Encoding should be
+streamable through a top-down DIB and preserve alpha when requested.
 
 ---
 

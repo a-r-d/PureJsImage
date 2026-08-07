@@ -14,7 +14,7 @@ interface PureImage {
     withoutEnlargement?: boolean
   }): PureImage
   encode(
-    format: 'jpeg' | 'png' | 'webp',
+    format: 'bmp' | 'jpeg' | 'png' | 'webp',
     options: {
       quality?: number
       compressionLevel?: number

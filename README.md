@@ -18,11 +18,12 @@ scales like a full source-resolution RGBA bitmap.
 
 ## Implementation status
 
-The Phase 1 core, Phase 2-5 PNG/JPEG/GIF paths, progressive JPEG input, and the
-V1 still-image WebP surface are implemented in strict TypeScript 7:
+The Phase 1 core, Phase 2-5 PNG/JPEG/GIF paths, progressive JPEG input, the V1
+still-image WebP surface, and first-party BMP are implemented in strict
+TypeScript 7:
 
 - bounded Buffer, Uint8Array, ArrayBuffer, Blob, and file sources;
-- automatic PNG, JPEG, GIF, and WebP detection and metadata parsing;
+- automatic BMP, PNG, JPEG, GIF, and WebP detection and metadata parsing;
 - EXIF orientation and GIF frame metadata;
 - configurable hostile-input limits;
 - immutable crop, resize, orientation, and encode pipeline descriptions;
@@ -45,6 +46,9 @@ V1 still-image WebP surface are implemented in strict TypeScript 7:
   VP8L-compressed extended alpha;
 - first-party lossless and lossy WebP encoding, including quality control and
   exact alpha preservation;
+- first-party BMP metadata, decoding, and encoding for OS/2 and Windows
+  headers, indexed 1/4/8-bit pixels, RLE4/RLE8, 16/24/32-bit pixels,
+  channel bitfields, top-down storage, row padding, and V4/V5 alpha;
 - all eight EXIF orientation transforms, using a bounded disk-backed tile spool
   when output row order differs from input row order;
 - fused PNG crop execution to Buffer or file output;
@@ -89,10 +93,24 @@ const exact = await (await Image.open('input.png'))
   .toBuffer()
 ```
 
+BMP input and output are also first-party and dependency-free:
+
+```ts
+const normalized = await (await Image.open('legacy.bmp'))
+  .resize({ width: 1200 })
+  .jpeg({ quality: 80 })
+  .toBuffer()
+
+const bitmap = await (await Image.open('input.png')).bmp().toBuffer()
+```
+
 Metadata inspection and pipeline geometry are operational. Non-interlaced PNG,
-baseline and progressive JPEG, lossless and lossy still WebP, and the first
-composited GIF frame can be cropped, resized, and converted through PixelBlocks. GIF animation
-editing and encoding are outside the V1 scope. Baseline JPEG decoding retains
+baseline and progressive JPEG, lossless and lossy still WebP, BMP, and the
+first composited GIF frame can be cropped, resized, and converted through
+PixelBlocks. GIF animation editing and encoding are outside the V1 scope.
+Uncompressed BMP decoding reads bounded 32-row blocks in logical top-down order
+without materializing the source bitmap; RLE requires a compact one-byte index
+plane because its bottom-up command stream must be reordered. Baseline JPEG decoding retains
 one MCU row of component samples and emits only the requested crop region; it
 does not materialize a source-sized RGB or RGBA bitmap. Progressive JPEG must
 retain coefficients until later scans finish refining them, so its decoder uses
@@ -262,6 +280,25 @@ produces a 2.2 MiB output in its conversion case, so LZ77 and entropy coding are
 also clear compression targets. See the
 [complete WebP baseline](benchmark/results/purejsimage-webp-baseline-2026-08-06.md).
 
+The BMP profile adds 16 workflows backed by 14 public-domain BMP Suite files
+and a deterministic 4000x3000 stress image. PureJsImage passes every workflow.
+Jimp passes nine; its output fails the independent reference pixels for
+uncompressed 4-bit palettes, RLE4, RLE8, RGB555, RGB565, and V5 alpha, and its
+decoder rejects the OS/2 v1 header.
+
+| Workflow | PureJsImage median | Jimp median | PureJsImage peak RSS | Jimp peak RSS |
+| --- | ---: | ---: | ---: | ---: |
+| 4000x3000 BMP metadata | 14.0 ms | 239.1 ms | 117.6 MiB | 173.7 MiB |
+| 4000x3000 BMP resize to JPEG | 284.1 ms | 719.0 ms | 158.2 MiB | 262.2 MiB |
+| Top-down BMP crop and resize | 34.1 ms | 14.8 ms | 88.3 MiB | 96.5 MiB |
+| 24-bit BMP crop, resize, JPEG | 41.3 ms | 52.3 ms | 90.4 MiB | 120.9 MiB |
+| JPEG to BMP | 525.9 ms | 586.7 ms | 105.9 MiB | 292.5 MiB |
+
+The primary BMP resize is 60% faster with 40% less absolute peak RSS. JPEG to
+BMP uses 64% less peak RSS. See the
+[PureJsImage BMP baseline](benchmark/results/purejsimage-bmp-baseline-2026-08-06.md)
+and [Jimp BMP baseline](benchmark/results/jimp-bmp-baseline-2026-08-06.md).
+
 Progressive JPEG compatibility is now a separate measured memory class because
 later scans can refine blocks decoded near the start of the image. An
 exploratory three-process cold run converted a 4000x3000 progressive JPEG to a
@@ -303,8 +340,9 @@ coefficient storage remains open work.
 | 100-image thumbnail batch | 72.7 s | 604 MiB |
 | 100-megapixel PNG downscale | 3,710 ms | 1,272 MiB |
 
-The suite contains 25 Jimp-comparable workflows plus nine WebP-specific
-workflows. Together they cover real photographs, JPEG, PNG, GIF, and WebP
+The suite contains 25 original Jimp-comparable workflows, nine WebP-specific
+workflows, and 16 BMP workflows. Together they cover real photographs, BMP,
+JPEG, PNG, GIF, and WebP
 conversion, transparency, EXIF orientation, palette and 16-bit PNGs, GIF first
 frames, odd and tiny dimensions, high-entropy images, Tooldesk's current image
 workflows, batching, and a 100-megapixel stress case.
@@ -343,6 +381,7 @@ or its eventual installed dependency tree.
 npm run fixtures:prepare
 npm run fixtures:verify
 npm run bench:jimp -- --profile full
+npm run bench:bmp
 npm run bench:webp
 ```
 

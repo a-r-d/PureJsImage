@@ -198,9 +198,216 @@
         "height": 600,
         "sha256": "3007986171ba049ea85169be273750e85c4b55893d8cdc481ce11aa58dbbc734"
       }
+    },
+    {
+      "id": "bmpsuite-pal1",
+      "file": "bmpsuite-pal1.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/pal1.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "c631861fa4c4e959d2abc6e0db0106253989b0101223cb08020e116e19c97f77"
+      }
+    },
+    {
+      "id": "bmpsuite-pal4",
+      "file": "bmpsuite-pal4.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/pal4.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "01f7bfaaf5110a404fb68451a860970750c155e5c46e1721fa6b9c500be0ca2c"
+      }
+    },
+    {
+      "id": "bmpsuite-pal4-rle",
+      "file": "bmpsuite-pal4-rle.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/pal4rle.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "3c26b6bdd22311e03b1ac0713b0a3b6af5e579bef16694cbea74ae0c4a2599e4"
+      }
+    },
+    {
+      "id": "bmpsuite-pal8",
+      "file": "bmpsuite-pal8.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/pal8.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "f9e38f114b12b6ba97cb9bff1b4f931cc58796439b8b722b38947d864ff5fcd9"
+      }
+    },
+    {
+      "id": "bmpsuite-pal8-rle",
+      "file": "bmpsuite-pal8-rle.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/pal8rle.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "809938ab0e821710b5f566d85ba735870e5b8ef690eaca7f54a81cf1729fe10a"
+      }
+    },
+    {
+      "id": "bmpsuite-pal8-top-down",
+      "file": "bmpsuite-pal8-top-down.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/pal8topdown.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "e06cf94cc7fb87a841438f304dd90c902763ccea50994ec87bde08fcf5e69d63"
+      }
+    },
+    {
+      "id": "bmpsuite-pal8-padding-125",
+      "file": "bmpsuite-pal8-padding-125.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/pal8w125.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 125,
+        "height": 62,
+        "sha256": "bc13d701c7df4f6b8968dfe0c07f7624874c826aa80d9ad6d20994479c1d1c2c"
+      }
+    },
+    {
+      "id": "bmpsuite-pal8-os2",
+      "file": "bmpsuite-pal8-os2.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/pal8os2.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "2bfe739377020722872f7fa3ba3ff3ff0daa17f2f202c80e25cf66c4ec30e506"
+      }
+    },
+    {
+      "id": "bmpsuite-pal8-v5",
+      "file": "bmpsuite-pal8-v5.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/pal8v5.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "65ac4a579189d2fc30b3499b8246f30127e032f35d6cde90335dafe87a1b23c3"
+      }
+    },
+    {
+      "id": "bmpsuite-rgb16-555",
+      "file": "bmpsuite-rgb16-555.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/rgb16.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "fcecd482048c853d08255430c5bac462821522683f4429626442580058aa5e5e"
+      }
+    },
+    {
+      "id": "bmpsuite-rgb16-565",
+      "file": "bmpsuite-rgb16-565.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/rgb16-565.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "c2ffadac9c1239fb397834415c7b5f85d5c6044bd9c31fa66e23056a19b82b1d"
+      }
+    },
+    {
+      "id": "bmpsuite-rgb24",
+      "file": "bmpsuite-rgb24.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/rgb24.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "a9c4fbfbf8cb6df8d2d9d1484359d037aebd25078b21137bfd6c69739fcbe2e1"
+      }
+    },
+    {
+      "id": "bmpsuite-rgb32-bitfields",
+      "file": "bmpsuite-rgb32-bitfields.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/g/rgb32bf.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "4c1189e3a039b1e5aae6347024684937c495a5736a3c309dc7c2e3c161f89751"
+      }
+    },
+    {
+      "id": "bmpsuite-rgba32-v5",
+      "file": "bmpsuite-rgba32-v5.bmp",
+      "url": "https://entropymine.com/jason/bmpsuite/bmpsuite/q/rgba32-1.bmp",
+      "sourcePage": "https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html",
+      "author": "Jason Summers and BMP Suite contributors",
+      "license": "Public domain generated image file",
+      "expected": {
+        "format": "bmp",
+        "width": 127,
+        "height": 64,
+        "sha256": "6208cb30edd75b0ad23a54b9d64fea29aa264aedeec61b2bed6d4a0c75e86563"
+      }
     }
   ],
   "generated": [
+    {
+      "id": "bmp-gradient-4000x3000",
+      "file": "bmp-gradient-4000x3000.bmp",
+      "generator": "bmp-gradient",
+      "expected": {
+        "format": "bmp",
+        "width": 4000,
+        "height": 3000,
+        "sha256": "4c98fcb42058796383e6fd4b6ee98ddfd349f9bda62a4af1cc001a3734696031"
+      }
+    },
     {
       "id": "rgba-gradient-4000x3000",
       "file": "rgba-gradient-4000x3000.png",
