@@ -988,8 +988,10 @@ const decodeRegion = (width: number, height: number, request: DecodeRequest): Pi
 
 interface HeifColorConversion {
   readonly chromaLocation: 0 | 1 | 2 | 3 | 4 | 5
+  readonly colorPrimaries: number | undefined
   readonly fullRange: boolean
   readonly matrixCoefficients: 1 | 5 | 6 | 9
+  readonly transferCharacteristics: number | undefined
 }
 
 const chromaLocationValue = (value: number | undefined): 0 | 1 | 2 | 3 | 4 | 5 => {
@@ -1017,9 +1019,11 @@ const colorConversionFor = (
   }
   return {
     fullRange: nclx?.fullRange ?? sequence.vui?.fullRange ?? false,
+    colorPrimaries: nclx?.primaries ?? sequence.vui?.colorPrimaries,
     matrixCoefficients: matrixCoefficientValue(
       nclx?.matrixCoefficients ?? sequence.vui?.matrixCoefficients,
     ),
+    transferCharacteristics: nclx?.transferCharacteristics ?? sequence.vui?.transferCharacteristics,
     chromaLocation: chromaLocationValue(topLocation ?? bottomLocation),
   }
 }
@@ -1082,6 +1086,67 @@ const rgbaCoefficients = (color: HeifColorConversion, bitDepth: 8 | 10): HeifRgb
   }
 }
 
+const TONE_MAP_LUT_MAX = 4096
+const PQ_REFERENCE_WHITE_NITS = 203
+
+interface HeifToneMap {
+  readonly encodedToLinear: Float32Array
+  readonly exposure: number
+  readonly linearToSrgb: Uint8Array
+  readonly rec2020ToSrgb: boolean
+  readonly whiteMap: number
+}
+
+const pqToLinear = (encoded: number): number => {
+  const m1 = 2610 / 16384
+  const m2 = 2523 / 32
+  const c1 = 3424 / 4096
+  const c2 = 2413 / 128
+  const c3 = 2392 / 128
+  const powered = encoded ** (1 / m2)
+  const numerator = Math.max(powered - c1, 0)
+  const denominator = c2 - c3 * powered
+  return denominator <= 0 ? 0 : (numerator / denominator) ** (1 / m1)
+}
+
+const hlgToLinear = (encoded: number): number => {
+  const a = 0.17883277
+  const b = 1 - 4 * a
+  const c = 0.5 - a * Math.log(4 * a)
+  return encoded <= 0.5 ? (encoded * encoded) / 3 : (Math.exp((encoded - c) / a) + b) / 12
+}
+
+const createHeifToneMap = (
+  color: HeifColorConversion,
+  bitDepth: 8 | 10,
+): HeifToneMap | undefined => {
+  if (bitDepth !== 10) return undefined
+  const transfer = color.transferCharacteristics
+  if (transfer !== 16 && transfer !== 18) return undefined
+  const encodedToLinear = new Float32Array(TONE_MAP_LUT_MAX + 1)
+  const linearToSrgb = new Uint8Array(TONE_MAP_LUT_MAX + 1)
+  for (let index = 0; index <= TONE_MAP_LUT_MAX; index += 1) {
+    const encoded = index / TONE_MAP_LUT_MAX
+    encodedToLinear[index] = transfer === 16 ? pqToLinear(encoded) : hlgToLinear(encoded)
+    const srgb = encoded <= 0.0031308 ? encoded * 12.92 : 1.055 * encoded ** (1 / 2.4) - 0.055
+    linearToSrgb[index] = clampByte(srgb * 255)
+  }
+  const exposure = transfer === 16 ? 10_000 / PQ_REFERENCE_WHITE_NITS : 1
+  return {
+    encodedToLinear,
+    exposure,
+    linearToSrgb,
+    rec2020ToSrgb: color.colorPrimaries === 9,
+    whiteMap: exposure / (1 + exposure),
+  }
+}
+
+const lookupLinear = (table: Float32Array, value: number): number =>
+  table[Math.max(0, Math.min(TONE_MAP_LUT_MAX, Math.round(value * TONE_MAP_LUT_MAX)))] ?? 0
+
+const lookupSrgb = (table: Uint8Array, value: number): number =>
+  table[Math.max(0, Math.min(TONE_MAP_LUT_MAX, Math.round(value * TONE_MAP_LUT_MAX)))] ?? 0
+
 const writeHevcRgbaPixel = (
   picture: DecodedHevcPicture,
   color: HeifColorConversion,
@@ -1114,6 +1179,61 @@ const writeHevcRgbaPixel = (
   data[target + 3] = 255
 }
 
+const writeHevcToneMappedRgbaPixel = (
+  picture: DecodedHevcPicture,
+  color: HeifColorConversion,
+  coefficients: HeifRgbaCoefficients,
+  toneMap: HeifToneMap,
+  sourceX: number,
+  sourceY: number,
+  data: Uint8Array,
+  target: number,
+): void => {
+  const chromaWidth = Math.ceil(picture.width / 2)
+  const chromaHeight = Math.ceil(picture.height / 2)
+  const luma = picture.y[sourceY * picture.width + sourceX] ?? 0
+  const cb =
+    sampleHevcChroma(picture.u, chromaWidth, chromaHeight, sourceX, sourceY, color.chromaLocation) -
+    coefficients.chromaCenter
+  const cr =
+    sampleHevcChroma(picture.v, chromaWidth, chromaHeight, sourceX, sourceY, color.chromaLocation) -
+    coefficients.chromaCenter
+  const adjustedLuma = (luma - coefficients.lumaOffset) / coefficients.lumaRange
+  const adjustedCb = cb / coefficients.chromaRange
+  const adjustedCr = cr / coefficients.chromaRange
+  let red = lookupLinear(
+    toneMap.encodedToLinear,
+    adjustedLuma + coefficients.redChroma * adjustedCr,
+  )
+  let green = lookupLinear(
+    toneMap.encodedToLinear,
+    adjustedLuma -
+      coefficients.redGreenChroma * adjustedCr -
+      coefficients.blueGreenChroma * adjustedCb,
+  )
+  let blue = lookupLinear(
+    toneMap.encodedToLinear,
+    adjustedLuma + coefficients.blueChroma * adjustedCb,
+  )
+  if (toneMap.rec2020ToSrgb) {
+    const sourceRed = red
+    const sourceGreen = green
+    const sourceBlue = blue
+    red = 1.660491 * sourceRed - 0.587641 * sourceGreen - 0.07285 * sourceBlue
+    green = -0.12455 * sourceRed + 1.1329 * sourceGreen - 0.008349 * sourceBlue
+    blue = -0.018151 * sourceRed - 0.100579 * sourceGreen + 1.11873 * sourceBlue
+  }
+  const luminance = Math.max(0, 0.2126 * red + 0.7152 * green + 0.0722 * blue)
+  const exposedLuminance = luminance * toneMap.exposure
+  const mappedLuminance =
+    luminance === 0 ? 0 : exposedLuminance / (1 + exposedLuminance) / toneMap.whiteMap
+  const scale = luminance === 0 ? 0 : mappedLuminance / luminance
+  data[target] = lookupSrgb(toneMap.linearToSrgb, red * scale)
+  data[target + 1] = lookupSrgb(toneMap.linearToSrgb, green * scale)
+  data[target + 2] = lookupSrgb(toneMap.linearToSrgb, blue * scale)
+  data[target + 3] = 255
+}
+
 class HeifPixelDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
@@ -1126,12 +1246,16 @@ class HeifPixelDecoder implements ImageDecoder {
   })
   readonly #aperture: PixelRegion
   readonly #color: HeifColorConversion
+  readonly #coefficients: HeifRgbaCoefficients
   readonly #picture: DecodedHevcPicture
+  readonly #toneMap: HeifToneMap | undefined
 
   constructor(picture: DecodedHevcPicture, aperture: PixelRegion, color: HeifColorConversion) {
     this.#picture = picture
     this.#aperture = aperture
     this.#color = color
+    this.#coefficients = rgbaCoefficients(color, picture.bitDepth)
+    this.#toneMap = createHeifToneMap(color, picture.bitDepth)
     this.width = aperture.width
     this.height = aperture.height
   }
@@ -1139,25 +1263,37 @@ class HeifPixelDecoder implements ImageDecoder {
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const region = decodeRegion(this.width, this.height, request)
     const rowsPerBlock = 32
-    const coefficients = rgbaCoefficients(this.#color, this.#picture.bitDepth)
     for (let rowStart = 0; rowStart < region.height; rowStart += rowsPerBlock) {
       const blockHeight = Math.min(rowsPerBlock, region.height - rowStart)
       const stride = region.width * 4
       const data = new Uint8Array(stride * blockHeight)
       for (let row = 0; row < blockHeight; row += 1) {
         const sourceY = this.#aperture.y + region.y + rowStart + row
-        for (let x = 0; x < region.width; x += 1) {
-          const sourceX = this.#aperture.x + region.x + x
-          const target = (row * region.width + x) * 4
-          writeHevcRgbaPixel(
-            this.#picture,
-            this.#color,
-            coefficients,
-            sourceX,
-            sourceY,
-            data,
-            target,
-          )
+        if (this.#toneMap) {
+          for (let x = 0; x < region.width; x += 1) {
+            writeHevcToneMappedRgbaPixel(
+              this.#picture,
+              this.#color,
+              this.#coefficients,
+              this.#toneMap,
+              this.#aperture.x + region.x + x,
+              sourceY,
+              data,
+              (row * region.width + x) * 4,
+            )
+          }
+        } else {
+          for (let x = 0; x < region.width; x += 1) {
+            writeHevcRgbaPixel(
+              this.#picture,
+              this.#color,
+              this.#coefficients,
+              this.#aperture.x + region.x + x,
+              sourceY,
+              data,
+              (row * region.width + x) * 4,
+            )
+          }
         }
       }
       yield {
@@ -1196,7 +1332,9 @@ class HeifGridPixelDecoder implements ImageDecoder {
   readonly #aperture: PixelRegion
   readonly #codedImages: readonly HeifCodedImageInspection[]
   readonly #color: HeifColorConversion
+  readonly #coefficients: HeifRgbaCoefficients
   readonly #grid: GridLayout
+  readonly #toneMap: HeifToneMap | undefined
 
   constructor(
     codedImages: readonly HeifCodedImageInspection[],
@@ -1208,6 +1346,12 @@ class HeifGridPixelDecoder implements ImageDecoder {
     this.#grid = grid
     this.#aperture = aperture
     this.#color = color
+    const bitDepth = codedImages[0]?.configuration.bitDepth
+    if (bitDepth !== 8 && bitDepth !== 10) {
+      throw unsupportedOperation(`Unsupported HEIF grid bit depth: ${bitDepth ?? 'none'}`)
+    }
+    this.#coefficients = rgbaCoefficients(color, bitDepth)
+    this.#toneMap = createHeifToneMap(color, bitDepth)
     this.width = aperture.width
     this.height = aperture.height
   }
@@ -1241,7 +1385,6 @@ class HeifGridPixelDecoder implements ImageDecoder {
       }
       const firstPicture = pictures.get(firstTileColumn)
       if (!firstPicture) throw invalidInput('HEIF grid row has no decoded tiles')
-      const coefficients = rgbaCoefficients(this.#color, firstPicture.bitDepth)
       const sourceRowStart = Math.max(sourceRegion.y, tileRow * this.#grid.tileHeight)
       const sourceRowEnd = Math.min(
         sourceRegion.y + sourceRegion.height,
@@ -1253,20 +1396,39 @@ class HeifGridPixelDecoder implements ImageDecoder {
         const data = new Uint8Array(stride * blockHeight)
         for (let row = 0; row < blockHeight; row += 1) {
           const sourceY = sourceRow + row
-          for (let x = 0; x < sourceRegion.width; x += 1) {
-            const sourceX = sourceRegion.x + x
-            const tileColumn = Math.floor(sourceX / this.#grid.tileWidth)
-            const picture = pictures.get(tileColumn)
-            if (!picture) throw invalidInput('HEIF grid tile is missing during output')
-            writeHevcRgbaPixel(
-              picture,
-              this.#color,
-              coefficients,
-              sourceX - tileColumn * this.#grid.tileWidth,
-              sourceY - tileRow * this.#grid.tileHeight,
-              data,
-              (row * sourceRegion.width + x) * 4,
-            )
+          if (this.#toneMap) {
+            for (let x = 0; x < sourceRegion.width; x += 1) {
+              const sourceX = sourceRegion.x + x
+              const tileColumn = Math.floor(sourceX / this.#grid.tileWidth)
+              const picture = pictures.get(tileColumn)
+              if (!picture) throw invalidInput('HEIF grid tile is missing during output')
+              writeHevcToneMappedRgbaPixel(
+                picture,
+                this.#color,
+                this.#coefficients,
+                this.#toneMap,
+                sourceX - tileColumn * this.#grid.tileWidth,
+                sourceY - tileRow * this.#grid.tileHeight,
+                data,
+                (row * sourceRegion.width + x) * 4,
+              )
+            }
+          } else {
+            for (let x = 0; x < sourceRegion.width; x += 1) {
+              const sourceX = sourceRegion.x + x
+              const tileColumn = Math.floor(sourceX / this.#grid.tileWidth)
+              const picture = pictures.get(tileColumn)
+              if (!picture) throw invalidInput('HEIF grid tile is missing during output')
+              writeHevcRgbaPixel(
+                picture,
+                this.#color,
+                this.#coefficients,
+                sourceX - tileColumn * this.#grid.tileWidth,
+                sourceY - tileRow * this.#grid.tileHeight,
+                data,
+                (row * sourceRegion.width + x) * 4,
+              )
+            }
           }
         }
         yield {

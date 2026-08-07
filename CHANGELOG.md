@@ -21,6 +21,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Added HEIF Main 10 reconstruction and bounded-row 10-bit YUV output, with
+  BT.2020 PQ/HLG decoding, global SDR tone mapping, and sRGB output validated by
+  independently encoded x265 and FFmpeg oracle fixtures.
 - Documented that `Buffer`, `Uint8Array`, and `ArrayBuffer` inputs are borrowed
   without copying and must remain unchanged until their pipelines finish.
 - Copied bounded PNG `IDAT` chunks at the `DecompressionStream` ownership

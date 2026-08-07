@@ -6,10 +6,19 @@ import { decodeHevcIntraPicture } from '../src/codecs/hevc-picture.ts'
 const bytes = (base64: string): Uint8Array => Uint8Array.from(Buffer.from(base64, 'base64'))
 
 const pictureHash = (picture: ReturnType<typeof decodeHevcIntraPicture>): string => {
-  const output = new Uint8Array(picture.y.length + picture.u.length + picture.v.length)
-  output.set(picture.y)
-  output.set(picture.u, picture.y.length)
-  output.set(picture.v, picture.y.length + picture.u.length)
+  const sampleBytes = picture.bitDepth === 10 ? 2 : 1
+  const output = new Uint8Array(
+    (picture.y.length + picture.u.length + picture.v.length) * sampleBytes,
+  )
+  const view = new DataView(output.buffer)
+  let offset = 0
+  for (const plane of [picture.y, picture.u, picture.v]) {
+    for (const sample of plane) {
+      if (sampleBytes === 1) output[offset] = sample
+      else view.setUint16(offset, sample, true)
+      offset += sampleBytes
+    }
+  }
   return createHash('sha256').update(output).digest('hex')
 }
 
@@ -28,6 +37,27 @@ describe('restricted HEVC intra-picture reconstruction', () => {
       'ddde086a6b5565eea61390bd612d5998f358d9232a5ad9d64cf32b238ff7cc81',
     )
     expect(picture).toMatchObject({ width: 32, height: 32, bitDepth: 8, chromaFormat: 1 })
+  })
+
+  it('exactly reconstructs an independently encoded Main 10 picture', () => {
+    // x265 4.1 encoded this 32x32 testsrc2 picture as limited-range Main 10
+    // BT.2020/PQ. FFmpeg produced the expected little-endian planar YUV hash.
+    const sps = inspectHevcSps(
+      bytes('QgEBAiAAAAMAkAAAAwAAAwAeoEIITZZKuTC8BahIgEggAAADACAAAAMAIQ=='),
+    )
+    const pps = inspectHevcPps(bytes('RAHBcaGkgA=='))
+    const picture = decodeHevcIntraPicture(
+      bytes(
+        'KAGtwCNGBl0lp1HvS4/wcZzXmuUtHUA/o3vHJ+gpBpIZd4Z+CHeJCRjbOdvpwooNEzM/IT7lyQbvAsDVdVNBshoohnOIjwrH6czmINr7Z7D6aXz//8/gLZglLCknsJowtSw57pL0kg5bOZjl3cbBdXeeBPZpqggAF+UJCTXRNWm1bDnsxe1ByKixfwxXhYTLELSfhtHiaW5SJje21FEBxSoPcnbcxEHNJ4QD0neBRcfW8AlfJRv75+ebNlQ3WZa/vTe+xgRvhJgL90Zkhgo9gImQi5KsH4IitkcwLe4c3RU9Z/WYbAN79wmDWBBjzGiqcJdickqZowHCkSS4ZoKHtxATDbEt28jORaIOhsbMBsJb8pVHrTB5LX28H/olM/kFpNrcjvBnyLd5mGU+LSmLY3i2kMqyXGUkkX9OuU09sej1MdGddXnr/946SB6+23jCV3uwKexwYZNXDsFC8U1ZBjcR2YNmDP5vOTiZv0xVZiYbBQO+C3WbI0R0utTuIRAMsj6GxJyeJEIA+GykmipVv8slhigPo7Bg',
+      ),
+      20,
+      { pps: [pps], sps: [sps] },
+    )
+
+    expect(pictureHash(picture)).toBe(
+      'b57475d182520e92de78571f145f8921752b8dd139d01c1dfcb9d58a70f20c66',
+    )
+    expect(picture).toMatchObject({ width: 32, height: 32, bitDepth: 10, chromaFormat: 1 })
   })
 
   it('exactly reconstructs mixed 8x8 and 4x4 intra coding units', () => {

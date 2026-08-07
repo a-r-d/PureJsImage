@@ -35,20 +35,21 @@ codec implementation into the module graph.
 | BMP | Indexed, RLE, RGB, bitfields, and alpha | RGB and RGBA |
 | TIFF | Common strip-based grayscale, indexed, RGB, and alpha | Uncompressed grayscale, RGB, and RGBA |
 | AVIF | Opaque 8-bit YUV 4:2:0 still-image subset | No |
-| HEIF / HEIC | Opaque Main / Main Still Picture 8-bit YUV 4:2:0 intra stills, including grids | No |
+| HEIF / HEIC | Opaque 8/10-bit YUV 4:2:0 intra stills, including grids | No |
 
 AVIF support is still expanding. Metadata inspection covers a much broader set
 of AVIF files than pixel decoding, while alpha, grids, high bit depth, in-loop
 filter application, and encoding remain unfinished. HEIF/HEIC support decodes
-the common opaque Main / Main Still Picture 8-bit YUV 4:2:0 intra subset through the normal
-pipeline. Direct `hvc1` images and grid primary images are supported with clean
-aperture, mirror/rotation metadata, limited/full-range nclx matrix conversion,
-and bounded RGBA row output. The first-party HEVC path includes CABAC, coding
+the common opaque Main / Main Still Picture 8-bit and Main 10 10-bit YUV 4:2:0
+intra subsets through the normal pipeline. Direct `hvc1` images and grid primary
+images are supported with clean aperture, mirror/rotation metadata,
+limited/full-range nclx matrix conversion, PQ/HLG-to-sRGB tone mapping, and
+bounded RGBA row output. The first-party HEVC path includes CABAC, coding
 and transform trees, intra prediction, residual reconstruction, deblocking,
 and SAO. WPP entry points, scaling lists, and CU-level QP deltas used by Apple
 Main Still Picture tiles are included. Files that require multiple slices or
-tiles inside one coded picture, auxiliary alpha, or HDR/Main 10 features still
-fail explicitly.
+tiles inside one coded picture, auxiliary alpha, or HDR gain-map reconstruction
+still fail explicitly.
 
 Detailed capability checklists:
 [PNG](https://github.com/a-r-d/PureJsImage/blob/main/png-codec-support.md),

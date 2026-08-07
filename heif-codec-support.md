@@ -93,7 +93,7 @@ not every auxiliary asset stored beside it.
 ### Common HEVC profiles and samples
 
 - [x] HEVC Main and Main Still Picture profile decode for 8-bit YUV 4:2:0
-- [ ] HEVC Main 10 profile decode for 10-bit YUV 4:2:0
+- [x] HEVC Main 10 profile decode for 10-bit YUV 4:2:0
 - [ ] VPS, SPS, PPS, NAL-unit, picture, and slice-header syntax required by
   supported still pictures
 - [x] Implement bounded EBSP-to-RBSP validation and parse common SPS and PPS
@@ -133,7 +133,7 @@ not every auxiliary asset stored beside it.
   declared output color space
 - [x] Convert 8-bit YUV to pipeline pixel blocks without a duplicate full-frame
   RGB or RGBA allocation
-- [ ] Convert 10-bit YUV to pipeline pixel blocks and validate it against an
+- [x] Convert 10-bit YUV to pipeline pixel blocks and validate it against an
   independent oracle
 - [ ] Preserve opaque, binary-alpha, and partial-alpha values when a supported
   auxiliary alpha item is present
@@ -163,7 +163,10 @@ ship before all of them are complete.
 - [ ] Thumbnail (`thmb`) relationships and an explicit thumbnail-selection API
 - [ ] Identity-derived images (`iden`) without recursive-reference loops
 - [ ] Pixel aspect ratio (`pasp`) and additional display-aperture behavior
-- [ ] PQ and HLG 10-bit inputs with a documented SDR tone-map policy
+- [x] PQ and HLG 10-bit inputs with a documented SDR tone-map policy: decode
+  the signaled transfer to linear light, convert BT.2020 primaries to sRGB,
+  apply a luminance-preserving global Reinhard curve with 203-nit PQ reference
+  white, and encode 8-bit sRGB
 - [ ] Optional higher-precision output when the core pixel model supports more
   than 8 bits per channel
 - [ ] Monochrome HEVC still images

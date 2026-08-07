@@ -696,6 +696,92 @@ const decodedHeifFixture = (
   return Uint8Array.from([...fileType, ...metadata(payloadOffset), ...box('mdat', itemPayload)])
 }
 
+const decodedMain10HeifFixture = (transfer: 16 | 18 = 16): Uint8Array => {
+  const vps = base64Bytes('QAEMAf//AiAAAAMAkAAAAwAAAwAekoCQ')
+  const sps = base64Bytes(
+    transfer === 16
+      ? 'QgEBAiAAAAMAkAAAAwAAAwAeoEIITZZKuTC8BahIgEggAAADACAAAAMAIQ=='
+      : 'QgEBAiAAAAMAkAAAAwAAAwAeoEIITZZKuTC8BahIkEggAAADACAAAAMAIQ==',
+  )
+  const pps = base64Bytes('RAHBcaGkgA==')
+  const slice = base64Bytes(
+    'KAGtwCNGBl0lp1HvS4/wcZzXmuUtHUA/o3vHJ+gpBpIZd4Z+CHeJCRjbOdvpwooNEzM/IT7lyQbvAsDVdVNBshoohnOIjwrH6czmINr7Z7D6aXz//8/gLZglLCknsJowtSw57pL0kg5bOZjl3cbBdXeeBPZpqggAF+UJCTXRNWm1bDnsxe1ByKixfwxXhYTLELSfhtHiaW5SJje21FEBxSoPcnbcxEHNJ4QD0neBRcfW8AlfJRv75+ebNlQ3WZa/vTe+xgRvhJgL90Zkhgo9gImQi5KsH4IitkcwLe4c3RU9Z/WYbAN79wmDWBBjzGiqcJdickqZowHCkSS4ZoKHtxATDbEt28jORaIOhsbMBsJb8pVHrTB5LX28H/olM/kFpNrcjvBnyLd5mGU+LSmLY3i2kMqyXGUkkX9OuU09sej1MdGddXnr/946SB6+23jCV3uwKexwYZNXDsFC8U1ZBjcR2YNmDP5vOTiZv0xVZiYbBQO+C3WbI0R0utTuIRAMsj6GxJyeJEIA+GykmipVv8slhigPo7Bg',
+  )
+  const parameterArrayFromNal = (type: number, nal: Uint8Array): readonly number[] => [
+    0x80 | type,
+    0,
+    1,
+    (nal.length >>> 8) & 0xff,
+    nal.length & 0xff,
+    ...nal,
+  ]
+  const configuration = [
+    1,
+    2,
+    ...new Array<number>(10).fill(0),
+    30,
+    0xf0,
+    0,
+    0xfc,
+    0xfd,
+    0xfa,
+    0xfa,
+    0,
+    0,
+    7,
+    3,
+    ...parameterArrayFromNal(32, vps),
+    ...parameterArrayFromNal(33, sps),
+    ...parameterArrayFromNal(34, pps),
+  ]
+  const fileType = box('ftyp', [
+    ...ascii('heic'),
+    ...bytes32(0),
+    ...ascii('heic'),
+    ...ascii('mif1'),
+  ])
+  const properties = [
+    fullBox('ispe', [...bytes32(32), ...bytes32(32)]),
+    fullBox('pixi', [3, 10, 10, 10]),
+    box('hvcC', configuration),
+    box('colr', [...ascii('nclx'), 0, 9, 0, transfer, 0, 9, 0]),
+  ]
+  const itemInfo = fullBox('iinf', [0, 1, ...fullBox('infe', [0, 1, 0, 0, ...ascii('hvc1'), 0], 2)])
+  const itemPayload = lengthPrefixedNal(slice)
+  const metadata = (absoluteOffset: number): readonly number[] =>
+    fullBox('meta', [
+      ...fullBox('pitm', [0, 1]),
+      ...itemInfo,
+      ...fullBox('iloc', [
+        0x44,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        ...bytes32(absoluteOffset),
+        ...bytes32(itemPayload.length),
+      ]),
+      ...box('iprp', [
+        ...box('ipco', properties.flat()),
+        ...fullBox('ipma', [
+          ...bytes32(1),
+          0,
+          1,
+          properties.length,
+          ...properties.map((_property, index) => index + 1),
+        ]),
+      ]),
+    ])
+  const provisionalMetadata = metadata(0)
+  const payloadOffset = fileType.length + provisionalMetadata.length + 8
+  return Uint8Array.from([...fileType, ...metadata(payloadOffset), ...box('mdat', itemPayload)])
+}
+
 const heifGridFixture = ({
   referencedTiles = [2, 3, 4, 5],
 }: {
@@ -1044,6 +1130,42 @@ describe('HEIF HEVC bitstream inspection', () => {
     ])
     expect(createHash('sha256').update(rgba).digest('hex')).toBe(
       '16eef67ea16196265e393967205ded7ee45415c314125ff6cf5ce3cd8268ac89',
+    )
+  })
+
+  it('decodes and tone-maps independently encoded Main 10 BT.2020 pictures', async () => {
+    // x265 4.1 encoded this 32x32 testsrc2 picture as HEVC Main 10. The two SPS
+    // variants and nclx properties signal limited-range BT.2020 PQ and HLG.
+    const input = decodedMain10HeifFixture()
+    await expect((await Image.open(input)).metadata()).resolves.toMatchObject({
+      format: 'heif',
+      width: 32,
+      height: 32,
+      bitDepth: 10,
+      codecProfile: 2,
+      colorSpace: 'rec2020',
+    })
+
+    const decoder = await heifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('HEIF decoder is unavailable')
+    const blocks = []
+    for await (const block of decoder.decode()) blocks.push(block)
+    const rgba = Uint8Array.from(blocks.flatMap((block) => [...block.data]))
+
+    expect(decoder).toMatchObject({ width: 32, height: 32, pixelFormat: 'rgba8' })
+    expect(createHash('sha256').update(rgba).digest('hex')).toBe(
+      'e4db96d9a1211bfd1d02196e57d07398d7348c0f1fb6ba1660b8d509b0547f20',
+    )
+
+    const hlgDecoder = await heifCodec.createDecoder?.(
+      new MemorySource(decodedMain10HeifFixture(18)),
+      defaultImageLimits,
+    )
+    if (!hlgDecoder) throw new Error('HEIF decoder is unavailable')
+    const hlg = []
+    for await (const block of hlgDecoder.decode()) hlg.push(...block.data)
+    expect(createHash('sha256').update(Uint8Array.from(hlg)).digest('hex')).toBe(
+      'd448f14948c8193f6bc1d0bf1d5e94403d41c780c0fd37fab514d262b76246e9',
     )
   })
 
