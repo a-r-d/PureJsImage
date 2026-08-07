@@ -86,11 +86,12 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
   if (!isWebp(data)) throw invalidInput('WebP RIFF header is invalid')
   const riffLength = uint32(data, 4)
   const end = riffLength + 8
-  if (riffLength < 4 || end > data.byteLength)
-    throw truncatedInput('WebP RIFF payload is truncated')
+  if (riffLength < 4 || (riffLength & 1) !== 0) throw invalidInput('WebP RIFF size is invalid')
+  if (end > data.byteLength) throw truncatedInput('WebP RIFF payload is truncated')
 
   let canvasWidth: number | undefined
   let canvasHeight: number | undefined
+  let extended = false
   let extendedAlpha = false
   let animated = false
   let frames = 0
@@ -104,17 +105,36 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
     const payload = offset + 8
     const next = payload + length + (length & 1)
     if (next > end) throw truncatedInput(`WebP ${type} chunk is truncated`)
+    if ((length & 1) !== 0 && byte(data, payload + length) !== 0) {
+      throw invalidInput(`WebP ${type} chunk padding is invalid`)
+    }
     const chunk = { type, offset: payload, length }
     if (type === 'VP8X') {
-      if (length < 10) throw truncatedInput('WebP extended header is truncated')
+      if (extended || offset !== 12)
+        throw invalidInput('WebP extended header is duplicated or late')
+      if (length !== 10) throw invalidInput('WebP extended header size is invalid')
       const flags = byte(data, payload)
+      if (
+        (flags & 0xc1) !== 0 ||
+        byte(data, payload + 1) !== 0 ||
+        byte(data, payload + 2) !== 0 ||
+        byte(data, payload + 3) !== 0
+      ) {
+        throw invalidInput('WebP extended header reserved bits are set')
+      }
+      extended = true
       extendedAlpha = (flags & 0x10) !== 0
       animated = (flags & 0x02) !== 0
       canvasWidth = uint24(data, payload + 4) + 1
       canvasHeight = uint24(data, payload + 7) + 1
     } else if (type === 'ANMF') frames += 1
-    else if (type === 'ALPH' && !alpha) alpha = chunk
-    else if ((type === 'VP8 ' || type === 'VP8L') && !image) image = chunk
+    else if (type === 'ALPH') {
+      if (alpha || image) throw invalidInput('WebP alpha chunk is duplicated or late')
+      alpha = chunk
+    } else if (type === 'VP8 ' || type === 'VP8L') {
+      if (image) throw invalidInput('WebP contains multiple image bitstreams')
+      image = chunk
+    }
     offset = next
   }
   if (!image && (canvasWidth === undefined || canvasHeight === undefined))
@@ -129,6 +149,16 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
   const height = canvasHeight ?? dimensions?.height
   if (width === undefined || height === undefined) throw invalidInput('WebP dimensions are missing')
   if (width < 1 || height < 1) throw invalidInput('WebP dimensions are invalid')
+  if (width * height > 0xffff_ffff) throw invalidInput('WebP canvas area is invalid')
+  if (dimensions && (dimensions.width !== width || dimensions.height !== height)) {
+    throw invalidInput('WebP canvas and image bitstream dimensions do not match')
+  }
+  if (alpha && (!extended || !extendedAlpha || image?.type !== 'VP8 ')) {
+    throw invalidInput('WebP alpha chunk is inconsistent with the extended header')
+  }
+  if (extendedAlpha && image?.type === 'VP8 ' && !alpha) {
+    throw invalidInput('WebP extended alpha chunk is missing')
+  }
   return {
     width,
     height,

@@ -23,6 +23,49 @@ const lossyCompressedAlpha = Buffer.from(
   'base64',
 )
 
+const uint32LittleEndian = (data: Uint8Array, offset: number): number =>
+  new DataView(data.buffer, data.byteOffset, data.byteLength).getUint32(offset, true)
+
+const writeUint32LittleEndian = (data: Uint8Array, offset: number, value: number): void => {
+  new DataView(data.buffer, data.byteOffset, data.byteLength).setUint32(offset, value, true)
+}
+
+const webpChunkOffset = (data: Uint8Array, type: string): number => {
+  for (let offset = 12; offset + 8 <= data.byteLength; ) {
+    if (Buffer.from(data.subarray(offset, offset + 4)).toString('ascii') === type) return offset
+    const length = uint32LittleEndian(data, offset + 4)
+    offset += 8 + length + (length & 1)
+  }
+  throw new Error(`Generated WebP did not contain a ${type} chunk`)
+}
+
+const riffChunk = (type: string, payload: Uint8Array, padding = 0): Uint8Array => {
+  if (type.length !== 4) throw new Error('RIFF chunk type must contain four characters')
+  const output = new Uint8Array(8 + payload.byteLength + (payload.byteLength & 1))
+  output.set(Buffer.from(type, 'ascii'))
+  writeUint32LittleEndian(output, 4, payload.byteLength)
+  output.set(payload, 8)
+  if ((payload.byteLength & 1) !== 0) output[output.byteLength - 1] = padding
+  return output
+}
+
+const insertRiffBytes = (input: Uint8Array, offset: number, inserted: Uint8Array): Uint8Array => {
+  const output = new Uint8Array(input.byteLength + inserted.byteLength)
+  output.set(input.subarray(0, offset))
+  output.set(inserted, offset)
+  output.set(input.subarray(offset), offset + inserted.byteLength)
+  writeUint32LittleEndian(output, 4, uint32LittleEndian(input, 4) + inserted.byteLength)
+  return output
+}
+
+const removeRiffBytes = (input: Uint8Array, offset: number, length: number): Uint8Array => {
+  const output = new Uint8Array(input.byteLength - length)
+  output.set(input.subarray(0, offset))
+  output.set(input.subarray(offset + length), offset)
+  writeUint32LittleEndian(output, 4, uint32LittleEndian(input, 4) - length)
+  return output
+}
+
 const withRawAlphaFilter = (filter: 1 | 2 | 3, residuals: readonly number[]): Buffer => {
   const output = Buffer.from(lossyRawAlpha)
   const alphaOffset = output.indexOf('ALPH') + 8
@@ -197,6 +240,149 @@ describe('WebP codec', () => {
     expect(Array.from({ length: 6 }, (_, index) => decoded.data[index * 4 + 3])).toEqual([
       255, 128, 0, 78, 255, 1,
     ])
+  })
+
+  it('accepts unknown chunks with conforming odd-byte padding', async () => {
+    const extended = insertRiffBytes(
+      lossless,
+      lossless.byteLength,
+      riffChunk('JUNK', Uint8Array.of(42)),
+    )
+    const reference = PNG.sync.read(await (await Image.open(lossless)).png().toBuffer())
+    const output = PNG.sync.read(await (await Image.open(extended)).png().toBuffer())
+
+    expect(output.data).toEqual(reference.data)
+  })
+
+  it.each([
+    {
+      name: 'an impossible RIFF size',
+      mutate: (data: Uint8Array): Uint8Array => {
+        writeUint32LittleEndian(data, 4, 3)
+        return data
+      },
+      code: 'INVALID_INPUT',
+    },
+    {
+      name: 'a RIFF payload larger than the input',
+      mutate: (data: Uint8Array): Uint8Array => {
+        writeUint32LittleEndian(data, 4, uint32LittleEndian(data, 4) + 2)
+        return data
+      },
+      code: 'TRUNCATED_INPUT',
+    },
+    {
+      name: 'a chunk extent outside the RIFF payload',
+      mutate: (data: Uint8Array): Uint8Array => {
+        writeUint32LittleEndian(data, webpChunkOffset(data, 'VP8L') + 4, 0xffff_ffff)
+        return data
+      },
+      code: 'TRUNCATED_INPUT',
+    },
+    {
+      name: 'a missing odd-byte padding byte',
+      mutate: (data: Uint8Array): Uint8Array => data.subarray(0, data.byteLength - 1),
+      code: 'TRUNCATED_INPUT',
+    },
+    {
+      name: 'a nonzero odd-byte padding byte',
+      mutate: (data: Uint8Array): Uint8Array =>
+        insertRiffBytes(data, data.byteLength, riffChunk('JUNK', Uint8Array.of(42), 1)),
+      code: 'INVALID_INPUT',
+    },
+  ])('rejects $name with a typed error', async ({ mutate, code }) => {
+    const malformed = mutate(Uint8Array.from(lossless))
+
+    await expect((await Image.open(malformed)).metadata()).rejects.toMatchObject({ code })
+  })
+
+  it.each([
+    {
+      name: 'reserved feature flags',
+      mutate: (data: Uint8Array, extended: number): void => {
+        data[extended + 8] = (data[extended + 8] ?? 0) | 0x80
+      },
+    },
+    {
+      name: 'reserved header bytes',
+      mutate: (data: Uint8Array, extended: number): void => {
+        data[extended + 9] = 1
+      },
+    },
+    {
+      name: 'a noncanonical header size',
+      mutate: (data: Uint8Array, extended: number): void => {
+        writeUint32LittleEndian(data, extended + 4, 11)
+      },
+    },
+    {
+      name: 'a canvas area beyond the format limit',
+      mutate: (data: Uint8Array, extended: number): void => {
+        data.fill(0xff, extended + 12, extended + 18)
+      },
+    },
+  ])('rejects a VP8X header with $name', async ({ mutate }) => {
+    const malformed = Uint8Array.from(lossyRawAlpha)
+    mutate(malformed, webpChunkOffset(malformed, 'VP8X'))
+
+    await expect((await Image.open(malformed)).metadata()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
+  })
+
+  it('rejects duplicate and inconsistent reconstruction chunks', async () => {
+    const extendedOffset = webpChunkOffset(lossyRawAlpha, 'VP8X')
+    const duplicateExtended = insertRiffBytes(
+      lossyRawAlpha,
+      extendedOffset + 18,
+      lossyRawAlpha.subarray(extendedOffset, extendedOffset + 18),
+    )
+
+    const imageOffset = webpChunkOffset(lossless, 'VP8L')
+    const imageLength = uint32LittleEndian(lossless, imageOffset + 4)
+    const imageBytes = 8 + imageLength + (imageLength & 1)
+    const duplicateImage = insertRiffBytes(
+      lossless,
+      lossless.byteLength,
+      lossless.subarray(imageOffset, imageOffset + imageBytes),
+    )
+
+    const alphaOffset = webpChunkOffset(lossyRawAlpha, 'ALPH')
+    const alphaLength = uint32LittleEndian(lossyRawAlpha, alphaOffset + 4)
+    const missingAlpha = removeRiffBytes(
+      lossyRawAlpha,
+      alphaOffset,
+      8 + alphaLength + (alphaLength & 1),
+    )
+
+    const unflaggedAlpha = Uint8Array.from(lossyRawAlpha)
+    unflaggedAlpha[extendedOffset + 8] = (unflaggedAlpha[extendedOffset + 8] ?? 0) & ~0x10
+
+    const mismatchedCanvas = Uint8Array.from(lossyRawAlpha)
+    mismatchedCanvas[extendedOffset + 12] = (mismatchedCanvas[extendedOffset + 12] ?? 0) + 1
+
+    for (const malformed of [
+      duplicateExtended,
+      duplicateImage,
+      missingAlpha,
+      unflaggedAlpha,
+      mismatchedCanvas,
+    ]) {
+      await expect((await Image.open(malformed)).metadata()).rejects.toMatchObject({
+        code: 'INVALID_INPUT',
+      })
+    }
+  })
+
+  it.each([
+    { flags: 0x80, code: 'INVALID_INPUT' },
+    { flags: 0x02, code: 'UNSUPPORTED_OPERATION' },
+  ] as const)('rejects corrupt alpha flags %#', async ({ flags, code }) => {
+    const malformed = Buffer.from(lossyRawAlpha)
+    const alpha = webpChunkOffset(malformed, 'ALPH')
+    malformed[alpha + 8] = flags
+
+    await expect((await Image.open(malformed)).png().toBuffer()).rejects.toMatchObject({ code })
   })
 
   it('rejects truncated WebP input', async () => {

@@ -9,6 +9,9 @@ All notable changes to PureJsImage are documented in this file.
 - Hardened baseline JPEG parsing around byte-stuffed entropy, marker fill bytes,
   trailing data, malformed segment lengths, hostile dimensions, invalid coding
   tables and sampling factors, unknown scan components, and truncated streams.
+- Hardened WebP RIFF and VP8X parsing around chunk extents and padding, reserved
+  fields, duplicate reconstruction chunks, alpha signaling, canvas limits, and
+  canvas-to-bitstream dimension agreement.
 - Accelerated baseline and progressive JPEG reconstruction with direct typed
   MCU-plane writes, sparse typed IDCT row indices, and a JIT-friendly unrolled
   second transform pass.
