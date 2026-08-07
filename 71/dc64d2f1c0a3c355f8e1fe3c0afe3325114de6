@@ -1,0 +1,59 @@
+tests/jpeg.test.ts
+  s_4612ba9d4ce750::t_3084a65d7a9032 124
+  s_4612ba9d4ce750::t_cb0660f65591f3 6,105-123,125-131
+benchmark/results/purejsimage-phase4-first-party-cold-2026-08-06.json
+  s_4612ba9d4ce750::t_cb303d04a42787 1-3712
+README.md
+  s_4612ba9d4ce750::t_339ffc44a7bcee 38-39,87-90,170,174-193
+  s_4612ba9d4ce750::t_dabe29d3ff5b99 21,36-37,69-79,195-207,260-261
+  s_4612ba9d4ce750::t_dbcd3ab45cd589 194
+project-spec.md
+  s_4612ba9d4ce750::t_dabe29d3ff5b99 1458-1462
+  s_4612ba9d4ce750::t_497472a54166af 210-212
+  s_4612ba9d4ce750::t_339ffc44a7bcee 206-209,213
+tests/jpeg-compatibility-fixtures.ts
+  s_4612ba9d4ce750::t_cb0660f65591f3 2-13
+  s_4612ba9d4ce750::t_497472a54166af 1
+benchmark/results/purejsimage-phase5-first-party-cold-2026-08-06.md
+  s_4612ba9d4ce750::t_d59659af62c266 1-22
+src/codecs/gif.ts
+  s_4612ba9d4ce750::t_d34312cfe208cf 1-2,5,16-98,101-380,457
+  s_4612ba9d4ce750::t_09f366e22bced1 99-100
+src/orient.ts
+  s_4612ba9d4ce750::t_5fa7152b03d49d 1-2,21-23,29-37,40-57,98-161,165-214,216-217,219-220
+  s_4612ba9d4ce750::t_dd62afd95197be 58,73,80,82-88,90,96,235-237
+benchmark/workflows.ts
+  s_4612ba9d4ce750::t_55039b1988c443 285-299,315-316
+  s_4612ba9d4ce750::t_cb119cb49b0769 300-307,317-320
+benchmark/README.md
+  s_4612ba9d4ce750::t_cb119cb49b0769 57-62
+  s_4612ba9d4ce750::t_55039b1988c443 51-56
+tests/gif.test.ts
+  s_4612ba9d4ce750::t_b79179bbb68990 31-34,57-58,69,85,93-95
+  s_4612ba9d4ce750::t_c8bcf507b78afa 1-30,35-56,59-68,70-84,86-92,96-97
+tests/project-contract.test.ts
+  s_4612ba9d4ce750::t_cb119cb49b0769 49,53
+  s_4612ba9d4ce750::t_55039b1988c443 48,52
+benchmark/results/purejsimage-phase4-first-party-cold-2026-08-06.md
+  s_4612ba9d4ce750::t_cb303d04a42787 1-36
+benchmark/results/purejsimage-phase5-first-party-cold-2026-08-06.json
+  s_4612ba9d4ce750::t_d59659af62c266 1-1600
+tests/pipeline.test.ts
+  s_4612ba9d4ce750::t_1426b2da9c883e 3-4,84-99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "71dc64d2f1c0a3c355f8e1fe3c0afe3325114de6",
+  "prompts": {},
+  "sessions": {
+    "s_4612ba9d4ce750": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd91e-230c-7843-b7af-875d46866269",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
