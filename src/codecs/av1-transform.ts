@@ -90,15 +90,78 @@ const reversedBits = (value: number, bits: number): number => {
 
 const inverseDct = (input: ArrayLike<number>): readonly number[] => {
   const bits = Math.log2(input.length)
-  if (bits !== 2 && bits !== 3)
+  if (bits !== 2 && bits !== 3 && bits !== 4 && bits !== 5 && bits !== 6)
     throw unsupportedOperation(`Unsupported AV1 inverse DCT length ${input.length}`)
   const values = Array.from(
     { length: input.length },
     (_, index) => input[reversedBits(index, bits)] ?? 0,
   )
+  if (bits === 6) {
+    for (let index = 0; index < 16; index += 1) {
+      butterfly(values, 32 + index, 63 - index, 63 - 4 * reversedBits(index, 4), false)
+    }
+  }
+  if (bits >= 5) {
+    for (let index = 0; index < 8; index += 1) {
+      butterfly(values, 16 + index, 31 - index, 6 + (reversedBits(7 - index, 3) << 3), false)
+    }
+  }
+  if (bits === 6) {
+    for (let index = 0; index < 16; index += 1) {
+      hadamard(values, 32 + 2 * index, 33 + 2 * index, (index & 1) === 1)
+    }
+  }
+  if (bits >= 4) {
+    for (let index = 0; index < 4; index += 1) {
+      butterfly(values, 8 + index, 15 - index, 12 + (reversedBits(3 - index, 2) << 4), false)
+    }
+  }
+  if (bits >= 5) {
+    for (let index = 0; index < 8; index += 1) {
+      hadamard(values, 16 + 2 * index, 17 + 2 * index, (index & 1) === 1)
+    }
+  }
+  if (bits === 6) {
+    for (let index = 0; index < 4; index += 1) {
+      for (let inner = 0; inner < 2; inner += 1) {
+        butterfly(
+          values,
+          62 - index * 4 - inner,
+          33 + index * 4 + inner,
+          60 - 16 * reversedBits(index, 2) + (inner << 6),
+          true,
+        )
+      }
+    }
+  }
   if (bits >= 3) {
     butterfly(values, 4, 7, 56, false)
     butterfly(values, 5, 6, 24, false)
+  }
+  if (bits >= 4) {
+    for (let index = 0; index < 4; index += 1) {
+      hadamard(values, 8 + 2 * index, 9 + 2 * index, (index & 1) === 1)
+    }
+  }
+  if (bits >= 5) {
+    for (let index = 0; index < 2; index += 1) {
+      for (let inner = 0; inner < 2; inner += 1) {
+        butterfly(
+          values,
+          30 - 4 * index - inner,
+          17 + 4 * index + inner,
+          24 + (inner << 6) + ((1 - index) << 5),
+          true,
+        )
+      }
+    }
+  }
+  if (bits === 6) {
+    for (let index = 0; index < 8; index += 1) {
+      for (let inner = 0; inner < 2; inner += 1) {
+        hadamard(values, 32 + index * 4 + inner, 35 + index * 4 - inner, (index & 1) === 1)
+      }
+    }
   }
   butterfly(values, 0, 1, 32, true)
   butterfly(values, 2, 3, 48, false)
@@ -106,11 +169,89 @@ const inverseDct = (input: ArrayLike<number>): readonly number[] => {
     hadamard(values, 4, 5)
     hadamard(values, 6, 7, true)
   }
+  if (bits >= 4) {
+    butterfly(values, 14, 9, 48, true)
+    butterfly(values, 13, 10, 112, true)
+  }
+  if (bits >= 5) {
+    for (let index = 0; index < 4; index += 1) {
+      for (let inner = 0; inner < 2; inner += 1) {
+        hadamard(values, 16 + 4 * index + inner, 19 + 4 * index - inner, (index & 1) === 1)
+      }
+    }
+  }
+  if (bits === 6) {
+    for (let index = 0; index < 2; index += 1) {
+      for (let inner = 0; inner < 4; inner += 1) {
+        butterfly(
+          values,
+          61 - index * 8 - inner,
+          34 + index * 8 + inner,
+          56 - index * 32 + ((inner >> 1) << 6),
+          true,
+        )
+      }
+    }
+  }
   hadamard(values, 0, 3)
   hadamard(values, 1, 2)
   if (bits >= 3) {
     butterfly(values, 6, 5, 32, true)
+    if (bits >= 4) {
+      for (let index = 0; index < 2; index += 1) {
+        for (let inner = 0; inner < 2; inner += 1) {
+          hadamard(values, 8 + 4 * index + inner, 11 + 4 * index - inner, index === 1)
+        }
+      }
+    }
+    if (bits >= 5) {
+      for (let index = 0; index < 4; index += 1) {
+        butterfly(values, 29 - index, 18 + index, 48 + ((index >> 1) << 6), true)
+      }
+    }
+    if (bits === 6) {
+      for (let index = 0; index < 4; index += 1) {
+        for (let inner = 0; inner < 4; inner += 1) {
+          hadamard(values, 32 + index * 8 + inner, 39 + index * 8 - inner, (index & 1) === 1)
+        }
+      }
+    }
     for (let index = 0; index < 4; index += 1) hadamard(values, index, 7 - index)
+  }
+  if (bits >= 4) {
+    butterfly(values, 13, 10, 32, true)
+    butterfly(values, 12, 11, 32, true)
+    if (bits >= 5) {
+      for (let index = 0; index < 2; index += 1) {
+        for (let inner = 0; inner < 4; inner += 1) {
+          hadamard(values, 16 + index * 8 + inner, 23 + index * 8 - inner, index === 1)
+        }
+      }
+    }
+    if (bits === 6) {
+      for (let index = 0; index < 8; index += 1) {
+        butterfly(values, 59 - index, 36 + index, index < 4 ? 48 : 112, true)
+      }
+    }
+    for (let index = 0; index < 8; index += 1) hadamard(values, index, 15 - index)
+  }
+  if (bits >= 5) {
+    for (let index = 0; index < 4; index += 1) {
+      butterfly(values, 27 - index, 20 + index, 32, true)
+    }
+    if (bits === 6) {
+      for (let index = 0; index < 8; index += 1) {
+        hadamard(values, 32 + index, 47 - index)
+        hadamard(values, 48 + index, 63 - index, true)
+      }
+    }
+    for (let index = 0; index < 16; index += 1) hadamard(values, index, 31 - index)
+  }
+  if (bits === 6) {
+    for (let index = 0; index < 8; index += 1) {
+      butterfly(values, 55 - index, 40 + index, 32, true)
+    }
+    for (let index = 0; index < 32; index += 1) hadamard(values, index, 63 - index)
   }
   return values
 }
@@ -144,21 +285,74 @@ const inverseAdst8 = (input: ArrayLike<number>): readonly number[] => {
   return output
 }
 
+const inverseAdst16 = (input: ArrayLike<number>): readonly number[] => {
+  const values = Array.from({ length: 16 }, (_, index) => {
+    const source = (index & 1) === 1 ? index - 1 : 15 - index
+    return input[source] ?? 0
+  })
+  for (let index = 0; index < 8; index += 1) {
+    butterfly(values, 2 * index, 2 * index + 1, 62 - 8 * index, true)
+  }
+  for (let index = 0; index < 8; index += 1) hadamard(values, index, 8 + index)
+  for (let index = 0; index < 2; index += 1) {
+    butterfly(values, 8 + 2 * index, 9 + 2 * index, 56 - 32 * index, true)
+    butterfly(values, 13 + 2 * index, 12 + 2 * index, 8 + 32 * index, true)
+  }
+  for (let index = 0; index < 4; index += 1) {
+    for (let group = 0; group < 2; group += 1) {
+      hadamard(values, 8 * group + index, 4 + 8 * group + index)
+    }
+  }
+  for (let index = 0; index < 2; index += 1) {
+    for (let group = 0; group < 2; group += 1) {
+      butterfly(values, 4 + 8 * group + 3 * index, 5 + 8 * group + index, 48 - 32 * index, true)
+    }
+  }
+  for (let index = 0; index < 2; index += 1) {
+    for (let group = 0; group < 4; group += 1) {
+      hadamard(values, 4 * group + index, 2 + 4 * group + index)
+    }
+  }
+  for (let index = 0; index < 4; index += 1) {
+    butterfly(values, 2 + 4 * index, 3 + 4 * index, 32, true)
+  }
+  const output = [...values]
+  for (let index = 0; index < 16; index += 1) {
+    const a = (index >> 3) & 1
+    const b = ((index >> 2) & 1) ^ a
+    const c = ((index >> 1) & 1) ^ ((index >> 2) & 1)
+    const d = (index & 1) ^ ((index >> 1) & 1)
+    const source = (d << 3) | (c << 2) | (b << 1) | a
+    output[index] = (index & 1) === 1 ? -(values[source] ?? 0) : (values[source] ?? 0)
+  }
+  return output
+}
+
 const oneDimensional = (input: ArrayLike<number>, adst: boolean): readonly number[] => {
   if (!adst) return inverseDct(input)
   if (input.length === 4) return inverseAdst4(input)
   if (input.length === 8) return inverseAdst8(input)
+  if (input.length === 16) return inverseAdst16(input)
   throw unsupportedOperation(`Unsupported AV1 inverse ADST length ${input.length}`)
 }
 
-export const inverseTransformSquare = (
+const inverseIdentity = (input: ArrayLike<number>): readonly number[] => {
+  if (input.length === 4) return Array.from(input, (value) => roundedShift(value * 5793, 12))
+  if (input.length === 8) return Array.from(input, (value) => value * 2)
+  if (input.length === 16) return Array.from(input, (value) => roundedShift(value * 11586, 12))
+  if (input.length === 32) return Array.from(input, (value) => value * 4)
+  throw unsupportedOperation(`Unsupported AV1 inverse identity length ${input.length}`)
+}
+
+export const inverseTransform = (
   quantized: Int32Array,
-  size: 4 | 8,
+  width: 4 | 8 | 16 | 32 | 64,
+  height: 4 | 8 | 16 | 32 | 64,
   transformType: number,
   plane: 0 | 1 | 2,
   header: Av1FrameHeader,
 ): Int32Array => {
-  if (transformType < 0 || transformType > 3) {
+  if (transformType < 0 || transformType > 15) {
     throw unsupportedOperation(`Unsupported AV1 transform type ${transformType}`)
   }
   const dcDelta = plane === 0 ? header.deltaYDc : plane === 1 ? header.deltaUDc : header.deltaVDc
@@ -167,34 +361,59 @@ export const inverseTransformSquare = (
   const ac = acQuant8[Math.max(0, Math.min(255, header.baseQuantizer + acDelta))]
   if (dc === undefined || ac === undefined) throw invalidInput('AV1 quantizer index is invalid')
 
-  const dequantized = new Int32Array(size * size)
+  const dequantized = new Int32Array(width * height)
+  const rectangularScale = width * 2 === height || height * 2 === width
+  const sizeContext = (Math.log2(width >> 2) + Math.log2(height >> 2) + 1) >> 1
+  const dequantizerDivisor = 2 ** Math.max(0, sizeContext - 2)
   for (let index = 0; index < dequantized.length; index += 1) {
-    dequantized[index] = Math.max(
+    const scaled = (quantized[index] ?? 0) * (index === 0 ? dc : ac)
+    const value = Math.max(
       -32768,
-      Math.min(32767, (quantized[index] ?? 0) * (index === 0 ? dc : ac)),
+      Math.min(32767, Math.sign(scaled) * Math.floor(Math.abs(scaled) / dequantizerDivisor)),
     )
+    dequantized[index] = rectangularScale ? roundedShift(value * 181, 8) : value
   }
-  const intermediate = new Int32Array(size * size)
-  const rowUsesAdst = transformType === 2 || transformType === 3
-  const columnUsesAdst = transformType === 1 || transformType === 3
-  const rowShift = size === 8 ? 1 : 0
-  for (let row = 0; row < size; row += 1) {
-    const transformed = oneDimensional(
-      dequantized.subarray(row * size, row * size + size),
-      rowUsesAdst,
-    )
-    for (let column = 0; column < size; column += 1) {
-      intermediate[row * size + column] = roundedShift(transformed[column] ?? 0, rowShift)
+  const intermediate = new Int32Array(width * height)
+  const rowUsesDct = [0, 1, 4, 11].includes(transformType)
+  const rowUsesAdst = [2, 3, 5, 6, 7, 8, 13, 15].includes(transformType)
+  const columnUsesDct = [0, 2, 5, 10].includes(transformType)
+  const columnUsesAdst = [1, 3, 4, 6, 7, 8, 12, 14].includes(transformType)
+  const rowShift =
+    width === height
+      ? width >= 16
+        ? 2
+        : width === 8
+          ? 1
+          : 0
+      : Math.max(width, height) / Math.min(width, height) >= 4
+        ? Math.max(width, height) >= 32
+          ? 2
+          : 1
+        : Math.min(width, height) >= 8
+          ? 1
+          : 0
+  for (let row = 0; row < height; row += 1) {
+    const input = dequantized.subarray(row * width, row * width + width)
+    const transformed =
+      rowUsesDct || rowUsesAdst ? oneDimensional(input, rowUsesAdst) : inverseIdentity(input)
+    for (let column = 0; column < width; column += 1) {
+      intermediate[row * width + column] = roundedShift(transformed[column] ?? 0, rowShift)
     }
   }
-  const residual = new Int32Array(size * size)
-  for (let column = 0; column < size; column += 1) {
-    const transformed = oneDimensional(
-      Array.from({ length: size }, (_, row) => intermediate[row * size + column] ?? 0),
-      columnUsesAdst,
+  const residual = new Int32Array(width * height)
+  for (let column = 0; column < width; column += 1) {
+    const input = Array.from(
+      { length: height },
+      (_, row) => intermediate[row * width + column] ?? 0,
     )
-    for (let row = 0; row < size; row += 1) {
-      residual[row * size + column] = roundedShift(transformed[row] ?? 0, 4)
+    const transformed =
+      columnUsesDct || columnUsesAdst
+        ? oneDimensional(input, columnUsesAdst)
+        : inverseIdentity(input)
+    for (let row = 0; row < height; row += 1) {
+      const targetRow = [4, 6, 8, 14].includes(transformType) ? height - row - 1 : row
+      const targetColumn = [5, 6, 7, 15].includes(transformType) ? width - column - 1 : column
+      residual[targetRow * width + targetColumn] = roundedShift(transformed[row] ?? 0, 4)
     }
   }
   return residual

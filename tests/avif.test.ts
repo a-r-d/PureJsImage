@@ -1,6 +1,9 @@
+import { createHash } from 'node:crypto'
+import { join } from 'node:path'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
+import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
 import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
 import { Image } from '../src/index.ts'
 import { MemorySource } from '../src/source.ts'
@@ -296,6 +299,28 @@ describe('AVIF restricted pixel decode', () => {
       103, 255, 255, 255, 114, 255, 255, 122, 129, 121, 255, 210, 142, 220, 255, 255, 114, 255, 255,
       255, 125, 255, 255,
     ])
+  })
+
+  it.each([
+    {
+      file: 'kodim03_yuv420_8bpc.avif',
+      width: 768,
+      height: 512,
+      rgbaSha256: '8247dea62ef7bcb2a4508f2b4ebe55bee4aae63514eaf13c8c4a559527f44f98',
+    },
+    {
+      file: 'fox.profile0.8bpc.yuv420.avif',
+      width: 1204,
+      height: 800,
+      rgbaSha256: 'bc447990c95f074c8c1aa7cc9cac7b7fd0b262769a42d70457cfa86f454a7e75',
+    },
+  ] as const)('decodes the common opaque 8-bit 4:2:0 photograph $file', async (fixture) => {
+    const output = PNG.sync.read(
+      await (await Image.open(join(avifCorpusDirectory, fixture.file))).png().toBuffer(),
+    )
+
+    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
   })
 
   it('rejects a sequence-only AVIF instead of fabricating pixels', async () => {

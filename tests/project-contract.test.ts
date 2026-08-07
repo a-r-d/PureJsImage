@@ -1,9 +1,8 @@
 import { globSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-
-import packageJson from '../package.json' with { type: 'json' }
 import { avifCorpusRevision, avifFixtures } from '../benchmark/avif/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
+import packageJson from '../package.json' with { type: 'json' }
 
 describe('package contract', () => {
   it('has no production dependencies', () => {
@@ -62,19 +61,25 @@ describe('benchmark contract', () => {
     const phase4 = workflowsForProfile('phase4')
     const phase5 = workflowsForProfile('phase5')
     const bmp = workflowsForProfile('bmp')
+    const tiff = workflowsForProfile('tiff')
     const webp = workflowsForProfile('webp')
 
     expect(smoke.length).toBeGreaterThan(0)
     expect(phase4.length).toBe(12)
     expect(phase5.length).toBe(5)
     expect(bmp.length).toBe(16)
+    expect(tiff.length).toBe(10)
     expect(webp.length).toBe(9)
     expect(standard.length).toBeGreaterThan(smoke.length)
     expect(full.length).toBeGreaterThan(standard.length)
     expect(full).toEqual(
-      workflows.filter((workflow) => workflow.tier !== 'bmp' && workflow.tier !== 'webp'),
+      workflows.filter(
+        (workflow) =>
+          workflow.tier !== 'bmp' && workflow.tier !== 'tiff' && workflow.tier !== 'webp',
+      ),
     )
     expect(bmp).toEqual(workflows.filter((workflow) => workflow.tier === 'bmp'))
+    expect(tiff).toEqual(workflows.filter((workflow) => workflow.tier === 'tiff'))
     expect(webp).toEqual(workflows.filter((workflow) => workflow.tier === 'webp'))
   })
 

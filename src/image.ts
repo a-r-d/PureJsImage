@@ -10,6 +10,7 @@ import type {
   PipelineOperation,
   PngEncodeOptions,
   ResizeOptions,
+  TiffEncodeOptions,
   WebpEncodeOptions,
 } from './pipeline.ts'
 import {
@@ -18,12 +19,13 @@ import {
   createJpegEncodeOperation,
   createPngEncodeOperation,
   createResizeOperation,
+  createTiffEncodeOperation,
   createWebpEncodeOperation,
   planMetadata,
 } from './pipeline.ts'
+import { BufferSink, FileSink } from './sink.ts'
 import type { ImageInput, ImageSource } from './source.ts'
 import { createImageSource } from './source.ts'
-import { BufferSink, FileSink } from './sink.ts'
 
 export interface ImageOpenOptions {
   limits?: ImageLimitOptions
@@ -81,9 +83,15 @@ export class Image {
   encode(format: 'png', options?: PngEncodeOptions): Image
   encode(format: 'webp', options?: WebpEncodeOptions): Image
   encode(format: 'bmp', options?: BmpEncodeOptions): Image
+  encode(format: 'tiff', options?: TiffEncodeOptions): Image
   encode(
-    format: 'bmp' | 'jpeg' | 'png' | 'webp',
-    options: BmpEncodeOptions | JpegEncodeOptions | PngEncodeOptions | WebpEncodeOptions = {},
+    format: 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp',
+    options:
+      | BmpEncodeOptions
+      | JpegEncodeOptions
+      | PngEncodeOptions
+      | TiffEncodeOptions
+      | WebpEncodeOptions = {},
   ): Image {
     if (format === 'jpeg') {
       return this.#append(
@@ -116,6 +124,15 @@ export class Image {
         }),
       )
     }
+    if (format === 'tiff') {
+      return this.#append(
+        createTiffEncodeOperation({
+          ...('compression' in options && options.compression !== undefined
+            ? { compression: options.compression }
+            : {}),
+        }),
+      )
+    }
     return this.#append(
       createWebpEncodeOperation({
         ...('lossless' in options && options.lossless !== undefined
@@ -142,6 +159,10 @@ export class Image {
 
   bmp(options: BmpEncodeOptions = {}): Image {
     return this.#append(createBmpEncodeOperation(options))
+  }
+
+  tiff(options: TiffEncodeOptions = {}): Image {
+    return this.#append(createTiffEncodeOperation(options))
   }
 
   async toBuffer(): Promise<Buffer> {

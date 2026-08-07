@@ -93,10 +93,16 @@ export class Av1SymbolDecoder {
     const trailingBitPosition = this.#position - Math.min(15, this.#maximumBits + 15)
     const paddingEndPosition = this.#position + Math.max(0, this.#maximumBits)
     if (this.#rawBit(trailingBitPosition) !== 1) {
-      throw invalidInput('AV1 tile trailing one bit is missing')
+      throw invalidInput(
+        `AV1 tile trailing one bit is missing at bit ${trailingBitPosition} after decoding ${this.#position} of ${this.#data.byteLength * 8} bits`,
+      )
     }
     for (let position = trailingBitPosition + 1; position < paddingEndPosition; position += 1) {
-      if (this.#rawBit(position) !== 0) throw invalidInput('AV1 tile trailing padding is nonzero')
+      if (this.#rawBit(position) !== 0) {
+        throw invalidInput(
+          `AV1 tile trailing padding is nonzero at bit ${position} after decoding ${this.#position} of ${this.#data.byteLength * 8} bits`,
+        )
+      }
     }
   }
 

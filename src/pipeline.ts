@@ -45,6 +45,10 @@ export interface BmpEncodeOptions {
   alpha?: boolean
 }
 
+export interface TiffEncodeOptions {
+  compression?: 'none'
+}
+
 export type PipelineOperation =
   | { readonly type: 'autoOrient' }
   | ({ readonly type: 'crop' } & Readonly<CropOptions>)
@@ -63,6 +67,11 @@ export type PipelineOperation =
       readonly type: 'encode'
       readonly format: 'png'
       readonly options: Readonly<PngEncodeOptions>
+    }
+  | {
+      readonly type: 'encode'
+      readonly format: 'tiff'
+      readonly options: Readonly<TiffEncodeOptions>
     }
   | {
       readonly type: 'encode'
@@ -162,6 +171,13 @@ export const createBmpEncodeOperation = (options: BmpEncodeOptions): PipelineOpe
   return Object.freeze({ type: 'encode', format: 'bmp', options: Object.freeze({ ...options }) })
 }
 
+export const createTiffEncodeOperation = (options: TiffEncodeOptions): PipelineOperation => {
+  if (options.compression !== undefined && options.compression !== 'none') {
+    throw invalidInput('TIFF compression must be none')
+  }
+  return Object.freeze({ type: 'encode', format: 'tiff', options: Object.freeze({ ...options }) })
+}
+
 export const calculateResizeDimensions = (
   width: number,
   height: number,
@@ -257,6 +273,16 @@ export const planMetadata = (
         mimeType: 'image/bmp',
         hasAlpha,
         bitDepth: hasAlpha ? 32 : 24,
+      }
+      continue
+    }
+
+    if (operation.format === 'tiff') {
+      metadata = {
+        ...metadata,
+        format: 'tiff',
+        mimeType: 'image/tiff',
+        bitDepth: 8,
       }
       continue
     }

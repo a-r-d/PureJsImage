@@ -14,6 +14,10 @@ const lossyReference = [
   255, 255, 114, 255, 255, 122, 129, 121, 255, 210, 142, 220, 255, 255, 114, 255, 255, 255, 125,
   255, 255,
 ] as const
+const commonPhotographs = [
+  { file: 'kodim03_yuv420_8bpc.avif', width: 768, height: 512 },
+  { file: 'fox.profile0.8bpc.yuv420.avif', width: 1204, height: 800 },
+] as const
 
 const median = (values: readonly number[]): number => {
   const ordered = [...values].sort((left, right) => left - right)
@@ -48,6 +52,15 @@ const decodeLossy = async (): Promise<void> => {
   }
 }
 
+const decodePhotograph = async (fixture: (typeof commonPhotographs)[number]): Promise<void> => {
+  const decoded = PNG.sync.read(
+    await (await Image.open(join(avifCorpusDirectory, fixture.file))).png().toBuffer(),
+  )
+  if (decoded.width !== fixture.width || decoded.height !== fixture.height) {
+    throw new Error(`${fixture.file} dimensions are incorrect`)
+  }
+}
+
 await decodeNeutral()
 await decodeLossy()
 const timings: number[] = []
@@ -58,6 +71,23 @@ for (let iteration = 0; iteration < 25; iteration += 1) {
   await decodeNeutral()
   timings.push(performance.now() - start)
   maximumRss = Math.max(maximumRss, process.memoryUsage.rss())
+}
+const targetedMaximumRss = maximumRss
+
+const photographResults: { file: string; medianWallMs: number }[] = []
+for (const fixture of commonPhotographs) {
+  const photographTimings: number[] = []
+  for (let iteration = 0; iteration < 5; iteration += 1) {
+    globalThis.gc?.()
+    const start = performance.now()
+    await decodePhotograph(fixture)
+    photographTimings.push(performance.now() - start)
+    maximumRss = Math.max(maximumRss, process.memoryUsage.rss())
+  }
+  photographResults.push({
+    file: fixture.file,
+    medianWallMs: Number(median(photographTimings).toFixed(3)),
+  })
 }
 
 let compatible = 0
@@ -89,13 +119,19 @@ console.log(
         source: 'libavif avifenc 1.3.0 / libaom, lossless 2x2 YUV420',
         runs: timings.length,
         medianWallMs: Number(median(timings).toFixed(3)),
-        maximumObservedRssMiB: Number((maximumRss / 1024 ** 2).toFixed(1)),
+        maximumObservedRssMiB: Number((targetedMaximumRss / 1024 ** 2).toFixed(1)),
         output: '2x2 RGBA, exact reference pixels',
       },
       lossyFixture: {
         compatible: true,
         source: 'libavif extended_pixi.avif, 8-bit lossy YUV420',
         output: '4x4 RGBA, exact reference pixels',
+      },
+      commonPhotographs: {
+        compatible: `${commonPhotographs.length}/${commonPhotographs.length}`,
+        runsPerFixture: 5,
+        maximumObservedRssMiB: Number((maximumRss / 1024 ** 2).toFixed(1)),
+        fixtures: photographResults,
       },
       broadCorpus: {
         total: avifFixtures.length,

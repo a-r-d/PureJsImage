@@ -1,18 +1,47 @@
 {
   "name": "purejsimage",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
+  "description": "Low-memory, dependency-free image processing in pure TypeScript",
+  "keywords": [
+    "image",
+    "image-processing",
+    "jpeg",
+    "png",
+    "webp",
+    "avif",
+    "bmp",
+    "tiff",
+    "gif",
+    "serverless",
+    "lambda"
+  ],
+  "license": "MIT",
+  "author": "Aaron Decker",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/a-r-d/PureJsImage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/a-r-d/PureJsImage/issues"
+  },
+  "homepage": "https://github.com/a-r-d/PureJsImage#readme",
   "type": "module",
+  "sideEffects": false,
   "files": [
     "dist"
   ],
   "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "engines": {
     "node": ">=24"
@@ -26,6 +55,7 @@
     "format:check": "biome format .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "prepack": "npm run check",
     "fixtures:prepare": "node benchmark/scripts/prepare-corpus.ts",
     "fixtures:verify": "node benchmark/scripts/verify-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",

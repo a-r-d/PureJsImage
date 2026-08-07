@@ -43,6 +43,7 @@ export interface Av1FrameHeader {
   readonly renderHeight: number
   readonly renderWidth: number
   readonly restorationTypes: readonly number[]
+  readonly restorationUnitSizes: readonly number[]
   readonly segmentationEnabled: boolean
   readonly tileColumns: number
   readonly tileRows: number
@@ -266,28 +267,46 @@ const parseCdef = (
   return bits
 }
 
+interface RestorationConfiguration {
+  readonly types: readonly number[]
+  readonly unitSizes: readonly number[]
+}
+
 const parseRestoration = (
   reader: Av1BitReader,
   sequence: Av1SequenceHeader,
   planes: number,
   allLossless: boolean,
   allowIntrabc: boolean,
-): readonly number[] => {
+): RestorationConfiguration => {
   if (allLossless || allowIntrabc || !sequence.enableRestoration) {
-    return Array.from({ length: planes }, () => 0)
+    return {
+      types: Array.from({ length: planes }, () => 0),
+      unitSizes: Array.from({ length: planes }, () => 256),
+    }
   }
-  const types = Array.from({ length: planes }, () => reader.readBits(2))
+  const remappedTypes = [0, 3, 1, 2] as const
+  const types = Array.from({ length: planes }, () => remappedTypes[reader.readBits(2)] ?? 0)
   const usesRestoration = types.some((type) => type !== 0)
   const usesChromaRestoration = types.slice(1).some((type) => type !== 0)
+  let lumaUnitSize = 64
+  let chromaUnitSize = 64
   if (usesRestoration) {
     let shift = reader.readBit()
     if (sequence.use128x128Superblock) shift += 1
     else if (shift === 1) shift += reader.readBit()
+    lumaUnitSize = 256 >> (2 - shift)
+    chromaUnitSize = lumaUnitSize
     if (sequence.chromaSubsampling === '420' && usesChromaRestoration) {
-      reader.readBit()
+      chromaUnitSize >>= reader.readBit()
     }
   }
-  return types
+  return {
+    types,
+    unitSizes: Array.from({ length: planes }, (_value, plane) =>
+      plane === 0 ? lumaUnitSize : chromaUnitSize,
+    ),
+  }
 }
 
 const littleEndian = (data: Uint8Array, offset: number, bytes: number): number => {
@@ -368,7 +387,7 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
   const planes = sequence.monochrome ? 1 : 3
   parseLoopFilter(reader, planes, codedLossless, allowIntrabc)
   const cdefBits = parseCdef(reader, sequence, planes, codedLossless, allowIntrabc)
-  const restorationTypes = parseRestoration(reader, sequence, planes, allLossless, allowIntrabc)
+  const restoration = parseRestoration(reader, sequence, planes, allLossless, allowIntrabc)
   const transformMode = codedLossless ? '4x4' : reader.readBit() === 1 ? 'select' : 'largest'
   const reducedTransformSet = reader.readBit() === 1
   reader.alignToByte()
@@ -444,7 +463,8 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
       codedLossless,
       allLossless,
       cdefBits,
-      restorationTypes,
+      restorationTypes: restoration.types,
+      restorationUnitSizes: restoration.unitSizes,
       transformMode,
       reducedTransformSet,
       tileColumns: layout.columns,
