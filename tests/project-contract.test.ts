@@ -1,7 +1,11 @@
 import { globSync, readFileSync } from 'node:fs'
+import { dirname, relative, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { avifCorpusRevision, avifFixtures } from '../benchmark/avif/corpus.ts'
+import corpusManifest from '../benchmark/corpus/manifest.json' with { type: 'json' }
+import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
+import * as publicApi from '../src/index.ts'
 import packageJson from '../package.json' with { type: 'json' }
 
 describe('package contract', () => {
@@ -32,6 +36,64 @@ describe('package contract', () => {
 
     expect(imports).toEqual([])
   })
+
+  it('keeps codec implementations outside the root runtime module graph', () => {
+    const root = resolve('src/index.ts')
+    const pending = [root]
+    const visited = new Set<string>()
+    while (pending.length > 0) {
+      const path = pending.pop()
+      if (!path || visited.has(path)) continue
+      visited.add(path)
+      const source = readFileSync(path, 'utf8')
+      const declarations = source.matchAll(
+        /(?:^|\n)\s*(?:import|export)\s+([\s\S]*?)\s+from\s+['"](\.[^'"]+)['"]/g,
+      )
+      for (const declaration of declarations) {
+        const clause = declaration[1]
+        const specifier = declaration[2]
+        if (!clause || !specifier || clause.trimStart().startsWith('type ')) continue
+        pending.push(resolve(dirname(path), specifier))
+      }
+      for (const sideEffectImport of source.matchAll(/(?:^|\n)\s*import\s+['"](\.[^'"]+)['"]/g)) {
+        const specifier = sideEffectImport[1]
+        if (specifier) pending.push(resolve(dirname(path), specifier))
+      }
+    }
+
+    const sourceRoot = resolve('src')
+    const runtimeModules = [...visited].map((path) => relative(sourceRoot, path))
+    expect(runtimeModules.some((path) => path.startsWith(`codecs/`))).toBe(false)
+    expect(runtimeModules.some((path) => path.startsWith(`codec-entries/`))).toBe(false)
+  })
+
+  it('publishes codecs only through explicit package subpaths', () => {
+    expect(Object.keys(packageJson.exports)).toEqual([
+      '.',
+      './codecs/all',
+      './codecs/avif',
+      './codecs/bmp',
+      './codecs/gif',
+      './codecs/heif',
+      './codecs/jpeg',
+      './codecs/png',
+      './codecs/tiff',
+      './codecs/webp',
+    ])
+    for (const name of [
+      'allCodecs',
+      'avifCodec',
+      'bmpCodec',
+      'gifCodec',
+      'heifCodec',
+      'jpegCodec',
+      'pngCodec',
+      'tiffCodec',
+      'webpCodec',
+    ]) {
+      expect(name in publicApi).toBe(false)
+    }
+  })
 })
 
 describe('benchmark contract', () => {
@@ -54,6 +116,32 @@ describe('benchmark contract', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
+  it('pins real iPhone HEIC grid fixtures and validates benchmark pixels', () => {
+    const sourceIds = new Set(corpusManifest.sources.map(({ id }) => id))
+    expect(heifBenchmarkFixtures).toHaveLength(3)
+    expect(new Set(heifBenchmarkFixtures.map(({ id }) => id)).size).toBe(3)
+    expect(heifBenchmarkFixtures.every(({ id }) => sourceIds.has(id))).toBe(true)
+    expect(new Set(heifBenchmarkFixtures.map(({ expected }) => expected.orientation))).toEqual(
+      new Set([6, 8]),
+    )
+    expect(
+      heifBenchmarkFixtures.every(
+        ({ expected }) =>
+          expected.primaryItemType === 'grid' &&
+          expected.codedImages === 48 &&
+          expected.codecProfile === 3,
+      ),
+    ).toBe(true)
+
+    const pixelWorkflows = workflowsForProfile('heif').filter(
+      (workflow) => !workflow.operations?.some((operation) => operation.type === 'metadata'),
+    )
+    expect(pixelWorkflows).toHaveLength(3)
+    expect(pixelWorkflows.every(({ expected }) => (expected.pixelSamples?.length ?? 0) >= 4)).toBe(
+      true,
+    )
+  })
+
   it('keeps every profile populated and ordered by scope', () => {
     const smoke = workflowsForProfile('smoke')
     const standard = workflowsForProfile('standard')
@@ -61,6 +149,7 @@ describe('benchmark contract', () => {
     const phase4 = workflowsForProfile('phase4')
     const phase5 = workflowsForProfile('phase5')
     const bmp = workflowsForProfile('bmp')
+    const heif = workflowsForProfile('heif')
     const tiff = workflowsForProfile('tiff')
     const webp = workflowsForProfile('webp')
 
@@ -68,6 +157,7 @@ describe('benchmark contract', () => {
     expect(phase4.length).toBe(12)
     expect(phase5.length).toBe(5)
     expect(bmp.length).toBe(16)
+    expect(heif.length).toBe(4)
     expect(tiff.length).toBe(10)
     expect(webp.length).toBe(9)
     expect(standard.length).toBeGreaterThan(smoke.length)
@@ -75,10 +165,14 @@ describe('benchmark contract', () => {
     expect(full).toEqual(
       workflows.filter(
         (workflow) =>
-          workflow.tier !== 'bmp' && workflow.tier !== 'tiff' && workflow.tier !== 'webp',
+          workflow.tier !== 'bmp' &&
+          workflow.tier !== 'heif' &&
+          workflow.tier !== 'tiff' &&
+          workflow.tier !== 'webp',
       ),
     )
     expect(bmp).toEqual(workflows.filter((workflow) => workflow.tier === 'bmp'))
+    expect(heif).toEqual(workflows.filter((workflow) => workflow.tier === 'heif'))
     expect(tiff).toEqual(workflows.filter((workflow) => workflow.tier === 'tiff'))
     expect(webp).toEqual(workflows.filter((workflow) => workflow.tier === 'webp'))
   })

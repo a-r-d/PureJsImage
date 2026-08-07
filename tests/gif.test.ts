@@ -3,7 +3,7 @@ import { GifReader, GifWriter } from 'omggif'
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 
-import { Image } from '../src/index.ts'
+import { Image } from './image-library.ts'
 
 const palette = [0x000000, 0xff2400, 0x20d060, 0x2050ff]
 

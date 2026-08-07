@@ -3,8 +3,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { CodecRegistry, Image, type ImageCodec } from '../src/index.ts'
+import { createImageLibrary, type ImageCodec } from '../src/index.ts'
 import { gifFixture, jpegFixture, pngFixture } from './fixtures.ts'
+import { Image } from './image-library.ts'
 
 const temporaryDirectories: string[] = []
 
@@ -98,7 +99,7 @@ describe('image metadata', () => {
         }
       },
     }
-    const image = await Image.open(Uint8Array.of(42), { registry: new CodecRegistry([codec]) })
+    const image = await createImageLibrary([codec]).open(Uint8Array.of(42))
 
     await Promise.all([image.metadata(), image.resize({ width: 10 }).metadata()])
     expect(reads).toBe(1)

@@ -53,6 +53,13 @@ bi-level, palette, planar alpha, uncompressed, PackBits, Deflate, and LZW data.
 The large RGB and 7795x3122 single-strip LZW cases establish the decode and
 Lambda-memory baselines.
 
+The HEIF corpus pins three original 4032x3024 iPhone 12 Pro HEIC camera files.
+All three are 48-tile HEVC Main Still Picture grids with 8-bit YUV 4:2:0,
+orientation metadata, WPP, scaling lists, SAO, and CU QP deltas. The profile
+checks metadata, full HEIC-to-PNG decode, auto-oriented HEIC-to-JPEG resize, and
+an oriented crop-resize workflow. Pixel samples are pinned from an independent
+ImageMagick/libheif decode with narrow documented tolerances.
+
 ## Running
 
 Quick harness validation:
@@ -115,6 +122,22 @@ First-party TIFF compatibility and performance profile:
 ```sh
 npm run bench:tiff
 ```
+
+Verify the pinned iPhone HEIF container and HEVC configuration:
+
+```sh
+npm run fixtures:heif
+```
+
+Run the isolated cold and warm HEIF/HEVC pipeline profiles:
+
+```sh
+npm run bench:heif:cold
+npm run bench:heif:warm
+```
+
+The pinned Jimp engine has no HEIF decoder, so these are correctness-gated
+PureJsImage baselines rather than a synthetic head-to-head comparison.
 
 The planar PackBits alpha fixture is validated against its source alpha plane,
 and the trailing-data Deflate fixture is validated against independent TIFF

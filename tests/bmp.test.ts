@@ -1,7 +1,7 @@
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
-import { Image } from '../src/index.ts'
+import { Image } from './image-library.ts'
 
 type Rgba = readonly [red: number, green: number, blue: number, alpha: number]
 

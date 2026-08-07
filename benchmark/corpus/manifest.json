@@ -116,6 +116,48 @@
       }
     },
     {
+      "id": "iphone12-greyhounds-4032x3024-heic",
+      "file": "iphone12-greyhounds-4032x3024.heic",
+      "url": "https://heic.digital/download-sample/greyhounds-looking-for-a-table.heic",
+      "sourcePage": "https://heic.digital/samples/",
+      "author": "HEIC Digital sample gallery; original iPhone 12 Pro camera file",
+      "license": "Download and use without restrictions per source page",
+      "expected": {
+        "format": "heic",
+        "width": 4032,
+        "height": 3024,
+        "sha256": "65960bf2782cd8ebd29a958e75b6adb7dff2bbff841389e869d917438c729010"
+      }
+    },
+    {
+      "id": "iphone12-classic-car-4032x3024-heic",
+      "file": "iphone12-classic-car-4032x3024.heic",
+      "url": "https://heic.digital/download-sample/classic-car.heic",
+      "sourcePage": "https://heic.digital/samples/",
+      "author": "HEIC Digital sample gallery; original iPhone 12 Pro camera file",
+      "license": "Download and use without restrictions per source page",
+      "expected": {
+        "format": "heic",
+        "width": 4032,
+        "height": 3024,
+        "sha256": "8e2a5725aa7639678a0c10d25e1211981d81c0d94062db51e99dc002ce6ff349"
+      }
+    },
+    {
+      "id": "iphone12-old-safe-wall-4032x3024-heic",
+      "file": "iphone12-old-safe-wall-4032x3024.heic",
+      "url": "https://heic.digital/download-sample/old-safe-wall.heic",
+      "sourcePage": "https://heic.digital/samples/",
+      "author": "HEIC Digital sample gallery; original iPhone 12 Pro camera file",
+      "license": "Download and use without restrictions per source page",
+      "expected": {
+        "format": "heic",
+        "width": 4032,
+        "height": 3024,
+        "sha256": "9fbec4990572aebe765b9c1bd4094d94ea9de98c790edb9b7c5d0077095a0087"
+      }
+    },
+    {
       "id": "webp-fbi-portrait-1600x2000",
       "file": "webp-fbi-portrait-1600x2000.webp",
       "url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Acting_FBI_Director_Brian_Driscoll.webp",

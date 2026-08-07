@@ -19,11 +19,10 @@ PureJsImage requires Node.js 24 or newer. Installing it will install one
 package: there are no runtime dependencies, native addons, external binaries,
 or WebAssembly modules.
 
-The complete v0.1.0 runtime, including every codec, bundles to **264.7 KiB**
-minified, **89.4 KiB** with gzip, or **72.7 KiB** with Brotli. These are
-worst-case all-codec sizes; future per-codec entry points and lazy codec
-registration can make bundles smaller when an application only needs a few
-formats.
+The opt-in all-codec runtime bundles to **264.7 KiB** minified, **89.4 KiB**
+with gzip, or **72.7 KiB** with Brotli. Applications import only the codecs
+they use, so a normal root import does not pull AVIF, HEIF/HEVC, or any other
+codec implementation into the module graph.
 
 ## Supported codecs
 
@@ -63,12 +62,29 @@ Detailed capability checklists:
 
 ## Usage
 
+Create one library instance with the codecs your application accepts. Importing
+the root package alone includes no image codecs:
+
+```ts
+import { createImageLibrary } from 'purejsimage'
+import { jpegCodec } from 'purejsimage/codecs/jpeg'
+import { pngCodec } from 'purejsimage/codecs/png'
+
+const images = createImageLibrary([jpegCodec, pngCodec])
+```
+
+Create the library once and reuse it across requests. Codec registration is
+immutable after initialization.
+
+Each conversion needs the input decoder and output encoder. For example, the
+library above can read JPEG or PNG and can encode either format. A missing
+codec fails explicitly instead of loading one dynamically.
+
 Open a file and inspect it without decoding all its pixels:
 
 ```ts
-import { Image } from 'purejsimage'
+const image = await images.open('input.jpg')
 
-const image = await Image.open('input.jpg')
 const metadata = await image.metadata()
 
 console.log(metadata.width, metadata.height, metadata.format)
@@ -77,7 +93,7 @@ console.log(metadata.width, metadata.height, metadata.format)
 Normalize an upload for the web:
 
 ```ts
-const image = await Image.open('input.jpg')
+const image = await images.open('input.jpg')
 
 const output = await image
   .autoOrient()
@@ -89,7 +105,12 @@ const output = await image
 Crop, resize, and write another format:
 
 ```ts
-const image = await Image.open('input.png')
+import { createImageLibrary } from 'purejsimage'
+import { pngCodec } from 'purejsimage/codecs/png'
+import { webpCodec } from 'purejsimage/codecs/webp'
+
+const webImages = createImageLibrary([pngCodec, webpCodec])
+const image = await webImages.open('input.png')
 
 await image
   .crop({ x: 100, y: 50, width: 800, height: 600 })
@@ -97,6 +118,21 @@ await image
   .webp({ quality: 80 })
   .toFile('output.webp')
 ```
+
+To enable every supported codec explicitly, use the separate all-codec entry
+point:
+
+```ts
+import { createImageLibrary } from 'purejsimage'
+import { allCodecs } from 'purejsimage/codecs/all'
+
+const images = createImageLibrary(allCodecs)
+```
+
+Individual codec entry points are available at `purejsimage/codecs/jpeg`,
+`png`, `gif`, `webp`, `bmp`, `tiff`, `avif`, and `heif`. The `allCodecs` entry
+point is the only convenience module that imports every implementation. HEVC
+code is reachable only through `purejsimage/codecs/heif` or `codecs/all`.
 
 Inputs can be file paths, `Buffer`, `Uint8Array`, `ArrayBuffer`, or `Blob`.
 Pipelines are immutable and can output a `Buffer` or write directly to a file.
@@ -124,14 +160,20 @@ same validity and correctness checks for both engines.
 | 4000x3000 PNG resize | 795 ms | 944 ms | 138 MiB | 301 MiB |
 | 4000x3000 BMP resize to JPEG | 284 ms | 719 ms | 158 MiB | 262 MiB |
 | Large TIFF resize to JPEG | 686 ms | 639 ms | 164 MiB | 319 MiB |
+| 4032x3024 iPhone HEIC, orient and resize to 1200px JPEG | 8,080 ms | Unsupported | 190 MiB | — |
 
 The primary 6000x4000 workflow currently uses about **89% less peak memory**
 than Jimp while running about 19% slower. The 100-megapixel PNG workflow uses
 about **86% less peak memory** and is slightly faster.
 
+The HEIC result is a PureJsImage-only absolute baseline because Jimp 1.6 has
+no HEIC decoder. It uses an original iPhone 12 Pro camera file, runs in an
+isolated cold process, and counts only after the JPEG passes independently
+pinned pixel checks.
+
 See the
 [detailed benchmarks](https://github.com/a-r-d/PureJsImage/blob/main/benchmarks.md)
-for methodology, codec-specific results, absolute WebP and AVIF measurements,
+for methodology, codec-specific results, absolute WebP, AVIF, and HEIF measurements,
 and links to the raw reports.
 
 ## Development

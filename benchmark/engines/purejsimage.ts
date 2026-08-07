@@ -24,8 +24,12 @@ interface PureImage {
   ): { toBuffer(): Promise<Uint8Array> }
 }
 
-interface PureImageClass {
+interface PureImageLibrary {
   open(input: Uint8Array): Promise<PureImage>
+}
+
+interface PureImageModule {
+  createImageLibrary(codecs: readonly unknown[]): PureImageLibrary
 }
 
 const entry = process.env.PUREJSIMAGE_ENTRY
@@ -34,23 +38,30 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null
 }
 
-const isImageClass = (value: unknown): value is PureImageClass => {
+const isImageModule = (value: unknown): value is PureImageModule => {
   return (
-    (typeof value === 'function' || isRecord(value)) &&
-    'open' in value &&
-    typeof value.open === 'function'
+    isRecord(value) &&
+    'createImageLibrary' in value &&
+    typeof value.createImageLibrary === 'function'
   )
 }
 
-const loadImageClass = async (): Promise<PureImageClass> => {
+const loadImageLibrary = async (): Promise<PureImageLibrary> => {
   if (!entry) {
     throw new Error('PUREJSIMAGE_ENTRY is not set')
   }
-  const module: unknown = await import(pathToFileURL(entry).href)
-  if (!isRecord(module) || !isImageClass(module.Image)) {
-    throw new Error(`${entry} does not export Image`)
+  const entryUrl = pathToFileURL(entry)
+  const [module, codecModule]: [unknown, unknown] = await Promise.all([
+    import(entryUrl.href),
+    import(new URL('./codec-entries/all.js', entryUrl).href),
+  ])
+  if (!isImageModule(module)) {
+    throw new Error(`${entry} does not export createImageLibrary`)
   }
-  return module.Image
+  if (!isRecord(codecModule) || !Array.isArray(codecModule.allCodecs)) {
+    throw new Error(`${entry} has no valid all-codec entry point`)
+  }
+  return module.createImageLibrary(codecModule.allCodecs)
 }
 
 const applyOperations = async ({
@@ -58,7 +69,7 @@ const applyOperations = async ({
   workflow,
   input,
 }: {
-  Image: PureImageClass
+  Image: PureImageLibrary
   workflow: PipelineWorkflow
   input: Buffer
 }): Promise<EngineExecution> => {
@@ -120,7 +131,7 @@ export const engine: Engine = {
   id: 'purejsimage',
   version: 'workspace',
   execute: async ({ workflow, inputs }): Promise<EngineExecution> => {
-    const Image = await loadImageClass()
+    const Image = await loadImageLibrary()
     if (!workflow.batch) {
       const input = inputs[0]
       if (!input) throw new Error('Pipeline workflow has no input image')

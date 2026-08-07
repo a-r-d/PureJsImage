@@ -2,13 +2,15 @@ import { createHash } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
 
 import { inspectHeifBitstream } from '../src/codecs/heif.ts'
+import { heicCodec, heifCodec } from '../src/codec-entries/heif.ts'
 import {
   inspectHevcPps,
   inspectHevcSlice,
   inspectHevcSps,
   readHevcSliceData,
 } from '../src/codecs/hevc.ts'
-import { defaultImageLimits, heicCodec, heifCodec, Image, MemorySource } from '../src/index.ts'
+import { defaultImageLimits, MemorySource } from '../src/index.ts'
+import { Image } from './image-library.ts'
 
 const bytes32 = (value: number): readonly number[] => [
   (value >>> 24) & 0xff,

@@ -242,13 +242,14 @@ work. Their absence should be documented and detected cleanly.
 - [ ] Record fixture provenance, encoder, brands, item graph, profile, bit depth,
   chroma format, color metadata, dimensions, and checksums in the corpus
 - [ ] Validate metadata against independent development-only parsers
-- [ ] Validate decoded pixels against Apple Image I/O and an independent
-  HEIF/HEVC oracle, with exact checks where possible and documented tolerances
-  for color conversion and HDR tone mapping
-- [ ] Verify every benchmark output before recording timing or memory results
-- [ ] Benchmark metadata, full decode, HEIC-to-JPEG, HEIC-to-PNG, crop, resize,
-  and resize-plus-encode workflows in isolated processes
-- [ ] Measure cold and warm absolute peak RSS, RSS delta, external memory, and
+- [x] Validate supported iPhone benchmark pixels against an independent
+  HEIF/HEVC oracle with documented tolerances for color conversion, resizing,
+  and lossy JPEG output
+- [x] Verify every benchmark output before recording timing or memory results
+- [x] Benchmark metadata, full HEIC-to-PNG decode, auto-oriented
+  resize-to-JPEG, and crop-resize-to-PNG workflows in isolated processes
+- [ ] Add distinct raw full-decode and full-size HEIC-to-JPEG workflows
+- [x] Measure cold and warm absolute peak RSS, RSS delta, external memory, and
   ArrayBuffer memory on realistic phone-photo dimensions
 - [ ] Include large single-image and multi-tile inputs that expose source-sized
   intermediate allocations
@@ -265,7 +266,7 @@ work. Their absence should be documented and detected cleanly.
   HEVC images
 - [ ] Independent oracles confirm dimensions, orientation, color, alpha, and
   decoded pixels
-- [ ] `npm run check` and the isolated HEIC fixture/benchmark verification pass
+- [x] `npm run check` and the isolated HEIC fixture/benchmark verification pass
 
 ## Standards and platform references
 

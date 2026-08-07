@@ -27,7 +27,8 @@ coverage.
 ### Detection and ISOBMFF container
 
 - [x] Content detection through an `ftyp` box declaring `avif` or `avis`
-- [x] Public `image/avif` registration and automatic `Image.open` detection
+- [x] Explicit `avifCodec` registration and automatic detection through the
+  configured library instance
 - [x] 32-bit box sizes, extended 64-bit sizes, and boxes extending to the end
   of their parent
 - [x] `uuid` box header sizing

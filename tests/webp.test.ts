@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 
-import { Image } from '../src/index.ts'
+import { Image } from './image-library.ts'
 
 const lossless = Buffer.from(
   'UklGRlIAAABXRUJQVlA4TEUAAAAvAAEwEM1lRP9jASSE//eVGOj+p7SBmbZtWv7ge20WEBT6P5pAIMUrLFBOQCqev1xBHf/xH//xH//xH//xH//xH/+9cAAA',

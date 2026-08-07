@@ -193,6 +193,35 @@ Reports:
 - [restricted pixel decode](benchmark/results/avif-phase-b2-restricted-decode-2026-08-06.md)
 - [common opaque photographs](benchmark/results/avif-common-opaque-420-2026-08-07.md)
 
+## HEIF / HEVC
+
+The HEIF profile uses three checksum-pinned original iPhone 12 Pro camera
+files. Each input is a 4032x3024 HEIC grid containing 48 independently coded
+512x512 HEVC Main Still Picture tiles. Before measurement, the fixture verifier
+checks the item layout, profile, bit depth, chroma format, WPP entry points,
+scaling lists, SAO, and CU QP deltas. Timings count only when the PNG or JPEG
+output also passes pixel samples pinned from an independent
+ImageMagick/libheif decode.
+
+| Workflow | Cold wall | Cold peak RSS | Warm wall | Warm peak RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Metadata | 32.3 ms | 89.0 MiB | 2.2 ms | 89.5 MiB |
+| Full auto-oriented HEIC to PNG | 11,510.1 ms | 326.5 MiB | 11,513.7 ms | 430.4 MiB |
+| Auto-oriented resize to 1200px JPEG | 8,080.0 ms | 189.8 MiB | 8,141.6 ms | 241.5 MiB |
+| Auto-oriented crop and resize to 800x600 PNG | 8,922.5 ms | 164.0 MiB | 8,529.4 ms | 219.8 MiB |
+
+These are first-party absolute baselines; the pinned Jimp engine has no HEIF
+decoder. The higher warm absolute RSS is retained allocator state after the
+untimed warmup, which is why the suite keeps absolute RSS, post-warmup RSS
+delta, external memory, and ArrayBuffer memory in the JSON report. The crop
+case demonstrates useful tile selection, but the full decode remains well
+above the desired Lambda memory tier and is an explicit optimization target.
+
+Reports:
+
+- [cold iPhone HEIF/HEVC workflows](benchmark/results/heif-iphone-cold-2026-08-07.md)
+- [warm iPhone HEIF/HEVC workflows](benchmark/results/heif-iphone-warm-2026-08-07.md)
+
 ## Reproducing the benchmarks
 
 Prepare and verify the pinned fixtures first:
@@ -201,6 +230,7 @@ Prepare and verify the pinned fixtures first:
 npm run fixtures:prepare
 npm run fixtures:verify
 npm run fixtures:avif
+npm run fixtures:heif
 ```
 
 Build the package and run the desired profiles:
@@ -214,6 +244,8 @@ npm run bench:tiff
 npm run bench:tiff:jimp
 npm run bench:webp
 npm run bench:avif:b2
+npm run bench:heif:cold
+npm run bench:heif:warm
 ```
 
 The harness design, validation rules, profiles, corpus manifest, and raw result

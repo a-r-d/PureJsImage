@@ -26,7 +26,11 @@ interface Output {
 
 let execute: () => Promise<Output>
 if (action === 'pure-metadata') {
-  const { Image } = await import('../../src/index.ts')
+  const [{ allCodecs }, { createImageLibrary }] = await Promise.all([
+    import('../../src/codec-entries/all.ts'),
+    import('../../src/index.ts'),
+  ])
+  const Image = createImageLibrary(allCodecs)
   execute = async () => {
     const metadata = await (await Image.open(input)).metadata()
     return {

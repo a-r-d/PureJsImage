@@ -75,7 +75,7 @@ codestream reader.
 ### Upload behavior
 
 - [ ] Register `.jp2` and `image/jp2` on the public decode surface
-- [ ] Accept `Buffer` and `Uint8Array` inputs through the normal `Image.open`
+- [ ] Accept `Buffer` and `Uint8Array` inputs through the configured library's `open`
   path
 - [ ] Preserve the original Twilio media content type as provenance only; use
   content detection for codec selection

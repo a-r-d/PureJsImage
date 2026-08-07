@@ -264,6 +264,78 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'jpeg', width: 2048, height: 2048 },
   },
   {
+    id: 'heif-iphone-metadata',
+    title: 'Read metadata from a 4032x3024 iPhone HEIC grid image',
+    tier: 'heif',
+    input: 'iphone12-greyhounds-4032x3024-heic',
+    operations: [{ type: 'metadata' }],
+    expected: { format: 'heif', width: 4032, height: 3024 },
+  },
+  {
+    id: 'heif-iphone-full-png',
+    title: 'Auto-orient and fully decode a 4032x3024 iPhone HEIC grid to PNG',
+    tier: 'heif',
+    input: 'iphone12-greyhounds-4032x3024-heic',
+    operations: [{ type: 'autoOrient' }, png(6)],
+    expected: {
+      format: 'png',
+      width: 3024,
+      height: 4032,
+      // Independent ImageMagick/libheif decode. Small tolerances cover the
+      // documented in-loop and YUV conversion rounding differences.
+      pixelSamples: [
+        { x: 0, y: 0, red: 179, green: 180, blue: 182, alpha: 255, tolerance: 3 },
+        { x: 257, y: 311, red: 180, green: 154, blue: 131, alpha: 255, tolerance: 3 },
+        { x: 1512, y: 2016, red: 17, green: 18, blue: 4, alpha: 255, tolerance: 3 },
+        { x: 3023, y: 4031, red: 86, green: 90, blue: 102, alpha: 255, tolerance: 3 },
+      ],
+    },
+    timeoutMs: 120000,
+  },
+  {
+    id: 'heif-iphone-resize-jpeg',
+    title: 'Auto-orient a 4032x3024 iPhone HEIC grid and resize to 1200px JPEG 80',
+    tier: 'heif',
+    input: 'iphone12-classic-car-4032x3024-heic',
+    operations: [{ type: 'autoOrient' }, { type: 'resize', width: 1200 }, jpeg(80)],
+    expected: {
+      format: 'jpeg',
+      width: 1200,
+      height: 1600,
+      pixelSamples: [
+        { x: 0, y: 0, red: 130, green: 139, blue: 150, alpha: 255, tolerance: 8 },
+        { x: 101, y: 203, red: 156, green: 165, blue: 174, alpha: 255, tolerance: 8 },
+        { x: 600, y: 800, red: 71, green: 84, blue: 88, alpha: 255, tolerance: 8 },
+        { x: 1199, y: 1599, red: 38, green: 38, blue: 34, alpha: 255, tolerance: 8 },
+      ],
+    },
+    timeoutMs: 120000,
+  },
+  {
+    id: 'heif-iphone-crop-resize-png',
+    title: 'Auto-orient, crop, and resize an iPhone HEIC grid to 800x600 PNG',
+    tier: 'heif',
+    input: 'iphone12-old-safe-wall-4032x3024-heic',
+    operations: [
+      { type: 'autoOrient' },
+      { type: 'crop', x: 512, y: 800, width: 2000, height: 1500 },
+      { type: 'resize', width: 800 },
+      png(6),
+    ],
+    expected: {
+      format: 'png',
+      width: 800,
+      height: 600,
+      pixelSamples: [
+        { x: 0, y: 0, red: 140, green: 135, blue: 132, alpha: 255, tolerance: 8 },
+        { x: 73, y: 91, red: 191, green: 165, blue: 148, alpha: 255, tolerance: 8 },
+        { x: 400, y: 300, red: 137, green: 124, blue: 116, alpha: 255, tolerance: 8 },
+        { x: 799, y: 599, red: 114, green: 82, blue: 68, alpha: 255, tolerance: 8 },
+      ],
+    },
+    timeoutMs: 120000,
+  },
+  {
     id: 'bmp-metadata-large',
     title: 'Read metadata from a 4000x3000 24-bit BMP',
     tier: 'bmp',
@@ -805,7 +877,11 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
   }
   if (profile === 'full') {
     return workflows.filter(
-      (workflow) => workflow.tier !== 'bmp' && workflow.tier !== 'tiff' && workflow.tier !== 'webp',
+      (workflow) =>
+        workflow.tier !== 'bmp' &&
+        workflow.tier !== 'heif' &&
+        workflow.tier !== 'tiff' &&
+        workflow.tier !== 'webp',
     )
   }
   if (profile === 'bmp') {
@@ -813,6 +889,9 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
   }
   if (profile === 'webp') {
     return workflows.filter((workflow) => workflow.tier === 'webp')
+  }
+  if (profile === 'heif') {
+    return workflows.filter((workflow) => workflow.tier === 'heif')
   }
   if (profile === 'tiff') {
     return workflows.filter((workflow) => workflow.tier === 'tiff')

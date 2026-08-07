@@ -10,22 +10,10 @@ export type {
   ImageMetadata,
 } from './codec.ts'
 export { CodecRegistry } from './codec.ts'
-export {
-  avifCodec,
-  bmpCodec,
-  createDefaultCodecRegistry,
-  gifCodec,
-  heicCodec,
-  heifCodec,
-  jpegCodec,
-  pngCodec,
-  tiffCodec,
-  webpCodec,
-} from './codecs/index.ts'
 export type { ImageErrorCode } from './errors.ts'
 export { ImageError } from './errors.ts'
-export type { ImageOpenOptions } from './image.ts'
-export { Image } from './image.ts'
+export type { Image, ImageLibrary, ImageOpenOptions } from './image.ts'
+export { createImageLibrary } from './image.ts'
 export type { ImageLimitOptions, ImageLimits } from './limits.ts'
 export { defaultImageLimits } from './limits.ts'
 export type {

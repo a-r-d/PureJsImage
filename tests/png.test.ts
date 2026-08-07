@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 
 import { crc32 } from '../src/codecs/crc32.ts'
-import { Image } from '../src/index.ts'
+import { Image } from './image-library.ts'
 
 const temporaryDirectories: string[] = []
 

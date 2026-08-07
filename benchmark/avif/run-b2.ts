@@ -1,8 +1,11 @@
 import { join } from 'node:path'
 import { PNG } from 'pngjs'
+import { allCodecs } from '../../src/codec-entries/all.ts'
 import { ImageError } from '../../src/errors.ts'
-import { Image } from '../../src/index.ts'
+import { createImageLibrary } from '../../src/index.ts'
 import { avifCorpusDirectory, avifFixtures } from './corpus.ts'
+
+const Image = createImageLibrary(allCodecs)
 
 const neutralLosslessAvif = Buffer.from(
   'AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADrbWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAOcGl0bQAAAAAAAQAAAB5pbG9jAAAAAEQAAAEAAQAAAAEAAAETAAAAEAAAAChpaW5mAAAAAAABAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAABqaXBycAAAAEtpcGNvAAAAFGlzcGUAAAAAAAAAAgAAAAIAAAAQcGl4aQAAAAADCAgIAAAADGF2MUOBAAwAAAAAE2NvbHJuY2x4AAEADQAGAAAAABdpcG1hAAAAAAAAAAEAAQQBAoMEAAAAGG1kYXQSAAoFGAA2ACAyBRAAAASA',

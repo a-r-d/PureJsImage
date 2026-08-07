@@ -1,7 +1,7 @@
-export type ImageFormat = 'bmp' | 'gif' | 'jpeg' | 'png' | 'tiff' | 'webp'
+export type ImageFormat = 'bmp' | 'gif' | 'heic' | 'heif' | 'jpeg' | 'png' | 'tiff' | 'webp'
 export type OutputFormat = 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp'
 export type BenchmarkColor = '#ffffff' | 'transparent'
-export type BenchmarkProfile = 'bmp' | 'full' | 'smoke' | 'standard' | 'tiff' | 'webp'
+export type BenchmarkProfile = 'bmp' | 'full' | 'heif' | 'smoke' | 'standard' | 'tiff' | 'webp'
 
 export interface FixtureExpectation {
   format: ImageFormat
@@ -98,7 +98,7 @@ export interface PixelSampleExpectation {
 }
 
 export interface WorkflowExpectation {
-  format: OutputFormat
+  format: ImageFormat
   width?: number
   height?: number
   outputs?: number

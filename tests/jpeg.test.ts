@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 
-import { Image } from '../src/index.ts'
+import { Image } from './image-library.ts'
 import { baselineJpegFixtures } from './jpeg-compatibility-fixtures.ts'
 
 type Orientation = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8

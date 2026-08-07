@@ -40,6 +40,51 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./codecs/all": {
+      "types": "./dist/codec-entries/all.d.ts",
+      "import": "./dist/codec-entries/all.js",
+      "default": "./dist/codec-entries/all.js"
+    },
+    "./codecs/avif": {
+      "types": "./dist/codec-entries/avif.d.ts",
+      "import": "./dist/codec-entries/avif.js",
+      "default": "./dist/codec-entries/avif.js"
+    },
+    "./codecs/bmp": {
+      "types": "./dist/codec-entries/bmp.d.ts",
+      "import": "./dist/codec-entries/bmp.js",
+      "default": "./dist/codec-entries/bmp.js"
+    },
+    "./codecs/gif": {
+      "types": "./dist/codec-entries/gif.d.ts",
+      "import": "./dist/codec-entries/gif.js",
+      "default": "./dist/codec-entries/gif.js"
+    },
+    "./codecs/heif": {
+      "types": "./dist/codec-entries/heif.d.ts",
+      "import": "./dist/codec-entries/heif.js",
+      "default": "./dist/codec-entries/heif.js"
+    },
+    "./codecs/jpeg": {
+      "types": "./dist/codec-entries/jpeg.d.ts",
+      "import": "./dist/codec-entries/jpeg.js",
+      "default": "./dist/codec-entries/jpeg.js"
+    },
+    "./codecs/png": {
+      "types": "./dist/codec-entries/png.d.ts",
+      "import": "./dist/codec-entries/png.js",
+      "default": "./dist/codec-entries/png.js"
+    },
+    "./codecs/tiff": {
+      "types": "./dist/codec-entries/tiff.d.ts",
+      "import": "./dist/codec-entries/tiff.js",
+      "default": "./dist/codec-entries/tiff.js"
+    },
+    "./codecs/webp": {
+      "types": "./dist/codec-entries/webp.d.ts",
+      "import": "./dist/codec-entries/webp.js",
+      "default": "./dist/codec-entries/webp.js"
     }
   },
   "publishConfig": {
@@ -61,6 +106,7 @@
     "fixtures:prepare": "node benchmark/scripts/prepare-corpus.ts",
     "fixtures:verify": "node benchmark/scripts/verify-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
+    "fixtures:heif": "node benchmark/heif/verify-corpus.ts",
     "results:combine": "node benchmark/scripts/combine-results.ts",
     "bench": "node benchmark/run.ts",
     "bench:jimp": "node benchmark/run.ts --engines jimp",
@@ -72,7 +118,10 @@
     "bench:webp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile webp",
     "bench:avif:inspect": "node benchmark/avif/inspect-bitstreams.ts",
     "bench:avif:b2": "node --expose-gc benchmark/avif/run-b2.ts",
-    "bench:avif:reference": "node benchmark/avif/run-reference.ts"
+    "bench:avif:reference": "node benchmark/avif/run-reference.ts",
+    "bench:heif": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif",
+    "bench:heif:cold": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif --runs 3 --warmups 0",
+    "bench:heif:warm": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif --runs 3 --warmups 1"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.7",

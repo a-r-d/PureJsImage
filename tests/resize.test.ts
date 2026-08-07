@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 
-import { Image } from '../src/index.ts'
+import type { ResizeOptions } from '../src/index.ts'
+import { Image } from './image-library.ts'
 
 type Pixel = readonly [red: number, green: number, blue: number, alpha: number]
 
@@ -30,7 +31,7 @@ const pixelAt = (image: PNG, x: number, y: number): Pixel => {
   ]
 }
 
-const execute = async (input: Uint8Array, options: Parameters<Image['resize']>[0]): Promise<PNG> =>
+const execute = async (input: Uint8Array, options: ResizeOptions): Promise<PNG> =>
   PNG.sync.read(await (await Image.open(input)).resize(options).png().toBuffer())
 
 describe('streaming resize', () => {

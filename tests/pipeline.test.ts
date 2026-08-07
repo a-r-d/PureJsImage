@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { CodecRegistry, Image, type ImageCodec } from '../src/index.ts'
+import { createImageLibrary, type ImageCodec } from '../src/index.ts'
 import { jpegFixture, pngFixture } from './fixtures.ts'
+import { Image } from './image-library.ts'
 
 describe('immutable image pipelines', () => {
   it('plans orientation, crop, resize, and encoding without mutating the source image', async () => {
@@ -94,9 +95,7 @@ describe('immutable image pipelines', () => {
         hasAlpha: false,
       }),
     }
-    const image = await Image.open(Uint8Array.of(42), {
-      registry: new CodecRegistry([metadataOnlyCodec]),
-    })
+    const image = await createImageLibrary([metadataOnlyCodec]).open(Uint8Array.of(42))
 
     await expect(image.resize({ width: 5 }).png().toBuffer()).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',

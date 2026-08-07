@@ -5,8 +5,8 @@ import { describe, expect, it } from 'vitest'
 
 import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
 import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
-import { Image } from '../src/index.ts'
 import { MemorySource } from '../src/source.ts'
+import { Image } from './image-library.ts'
 
 const bytes32 = (value: number): readonly number[] => [
   (value >>> 24) & 0xff,

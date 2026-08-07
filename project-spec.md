@@ -315,11 +315,15 @@ V1 should deliberately be much narrower than Jimp.
 Support:
 
 ```ts
-await Image.open(buffer)
-await Image.open(uint8Array)
-await Image.open(arrayBuffer)
-await Image.open(path)
+await images.open(buffer)
+await images.open(uint8Array)
+await images.open(arrayBuffer)
+await images.open(path)
 ```
+
+Here, `images` is a library instance initialized with the codecs accepted by
+the application. The root package must not register or import codecs
+implicitly.
 
 Browser-compatible source abstractions should permit:
 
@@ -557,7 +561,7 @@ optional aspect-preserving downscale, JPEG conversion, quality control, and
 Buffer output:
 
 ```ts
-const image = await Image.open(buffer)
+const image = await images.open(buffer)
 const { width } = await image.metadata()
 
 const output = await (width > maxWidth
@@ -578,7 +582,7 @@ x 256 transparent canvas, centered placement, PNG conversion, and Buffer
 output:
 
 ```ts
-const output = await Image.open(buffer)
+const output = await images.open(buffer)
   .resize({
     width: 256,
     height: 256,
@@ -648,9 +652,12 @@ The API should look familiar to Jimp/Sharp users without inheriting Jimp's mutab
 Example:
 
 ```ts
-import { Image } from "purejsimage";
+import { createImageLibrary } from "purejsimage";
+import { jpegCodec } from "purejsimage/codecs/jpeg";
 
-const image = await Image.open("input.jpg");
+const images = createImageLibrary([jpegCodec]);
+
+const image = await images.open("input.jpg");
 
 await image
   .autoOrient()
@@ -1051,7 +1058,7 @@ It should initially answer:
 Consider:
 
 ```ts
-Image.open("8000x6000.jpg")
+images.open("8000x6000.jpg")
   .crop({
     x: 5000,
     y: 3000,
@@ -1525,7 +1532,7 @@ WebP and BMP. It remains a V1 stretch goal rather than a V1 release blocker.
 Phase A implements bounded ISOBMFF inspection without pixel decoding:
 
 ```ts
-const metadata = await (await Image.open(input)).metadata();
+const metadata = await (await images.open(input)).metadata();
 // width, height, bitDepth, chromaSubsampling, codecProfile, hasAlpha
 ```
 
@@ -2480,7 +2487,7 @@ const output = await image.getBuffer("image/jpeg", {
 becomes approximately:
 
 ```ts
-const output = await Image.open(input)
+const output = await images.open(input)
   .resize({ width: 800 })
   .encode("jpeg", { quality: 80 })
   .toBuffer();

@@ -1,5 +1,4 @@
-import type { CodecRegistry, ImageCodec, ImageMetadata } from './codec.ts'
-import { createDefaultCodecRegistry } from './codecs/index.ts'
+import { CodecRegistry, type ImageCodec, type ImageMetadata } from './codec.ts'
 import { executePipeline } from './executor.ts'
 import type { ImageLimitOptions, ImageLimits } from './limits.ts'
 import { resolveLimits } from './limits.ts'
@@ -29,7 +28,11 @@ import { createImageSource } from './source.ts'
 
 export interface ImageOpenOptions {
   limits?: ImageLimitOptions
-  registry?: CodecRegistry
+}
+
+export interface ImageLibrary {
+  formats(): readonly string[]
+  open(input: ImageInput, options?: ImageOpenOptions): Promise<Image>
 }
 
 interface ImageContext {
@@ -40,8 +43,6 @@ interface ImageContext {
   metadataPromise: Promise<ImageMetadata> | undefined
 }
 
-const builtInRegistry = createDefaultCodecRegistry()
-
 export class Image {
   readonly #context: ImageContext
   readonly #operations: readonly PipelineOperation[]
@@ -51,10 +52,13 @@ export class Image {
     this.#operations = operations
   }
 
-  static async open(input: ImageInput, options: ImageOpenOptions = {}): Promise<Image> {
+  static async open(
+    input: ImageInput,
+    registry: CodecRegistry,
+    options: ImageOpenOptions = {},
+  ): Promise<Image> {
     const limits = resolveLimits(options.limits)
     const source = await createImageSource(input, limits)
-    const registry = options.registry ?? builtInRegistry
     const codec = await registry.detect(source)
     return new Image({ source, codec, registry, limits, metadataPromise: undefined })
   }
@@ -178,4 +182,13 @@ export class Image {
   #append(operation: PipelineOperation): Image {
     return new Image(this.#context, Object.freeze([...this.#operations, operation]))
   }
+}
+
+export const createImageLibrary = (codecs: Iterable<ImageCodec>): ImageLibrary => {
+  const registry = new CodecRegistry(codecs)
+  return Object.freeze({
+    formats: (): readonly string[] => registry.formats(),
+    open: (input: ImageInput, options?: ImageOpenOptions): Promise<Image> =>
+      Image.open(input, registry, options),
+  })
 }
