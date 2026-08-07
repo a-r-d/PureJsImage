@@ -401,15 +401,21 @@ export const gifCodec: ImageCodec = {
     const height = uint16LittleEndian(header, 8)
     const packed = header[10]
     if (packed === undefined) throw invalidInput('GIF logical screen descriptor is truncated')
+    validateImageDimensions(width, height, 1, limits)
 
     const reader = new SourceReader(source, 13)
-    if ((packed & 0x80) !== 0) reader.skip(colorTableBytes(packed))
+    const hasGlobalPalette = (packed & 0x80) !== 0
+    if (hasGlobalPalette) reader.skip(colorTableBytes(packed))
 
     let frames = 0
     let hasAlpha = false
+    let sawTrailer = false
     for (let blocks = 0; reader.position < source.size && blocks < 1_000_000; blocks += 1) {
       const marker = await reader.readByte()
-      if (marker === 0x3b) break
+      if (marker === 0x3b) {
+        sawTrailer = true
+        break
+      }
 
       if (marker === 0x21) {
         const label = await reader.readByte()
@@ -428,10 +434,31 @@ export const gifCodec: ImageCodec = {
 
       if (marker === 0x2c) {
         const descriptor = await reader.read(9)
+        const left = uint16LittleEndian(descriptor, 0)
+        const top = uint16LittleEndian(descriptor, 2)
+        const frameWidth = uint16LittleEndian(descriptor, 4)
+        const frameHeight = uint16LittleEndian(descriptor, 6)
         const imagePacked = descriptor[8]
         if (imagePacked === undefined) throw invalidInput('GIF image descriptor is truncated')
-        if ((imagePacked & 0x80) !== 0) reader.skip(colorTableBytes(imagePacked))
-        await reader.readByte()
+        if (
+          frameWidth < 1 ||
+          frameHeight < 1 ||
+          left + frameWidth > width ||
+          top + frameHeight > height
+        ) {
+          throw invalidInput(
+            `GIF frame ${left},${top} ${frameWidth}x${frameHeight} exceeds ${width}x${height}`,
+          )
+        }
+        const hasLocalPalette = (imagePacked & 0x80) !== 0
+        if (hasLocalPalette) reader.skip(colorTableBytes(imagePacked))
+        if (!hasGlobalPalette && !hasLocalPalette) {
+          throw invalidInput('GIF frame has no color table')
+        }
+        const minimumCodeSize = await reader.readByte()
+        if (minimumCodeSize < 2 || minimumCodeSize > 8) {
+          throw invalidInput(`GIF LZW minimum code size ${minimumCodeSize} is invalid`)
+        }
         await skipSubBlocks(reader)
         frames += 1
         if (frames > limits.maxFrames) validateImageDimensions(width, height, frames, limits)
@@ -441,6 +468,7 @@ export const gifCodec: ImageCodec = {
       throw invalidInput(`GIF contains an unknown block marker: 0x${marker.toString(16)}`)
     }
 
+    if (!sawTrailer) throw truncatedInput('GIF trailer is missing')
     if (frames < 1) throw invalidInput('GIF contains no image frames')
     validateImageDimensions(width, height, frames, limits)
     return {

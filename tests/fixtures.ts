@@ -94,9 +94,15 @@ export const gifFixture = (width: number, height: number, frames = 1): Uint8Arra
     width >>> 8,
     height & 0xff,
     height >>> 8,
+    0x80,
     0,
     0,
     0,
+    0,
+    0,
+    0xff,
+    0xff,
+    0xff,
   ]
 
   for (let frame = 0; frame < frames; frame += 1) {

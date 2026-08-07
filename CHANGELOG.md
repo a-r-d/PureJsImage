@@ -12,6 +12,9 @@ All notable changes to PureJsImage are documented in this file.
 - Hardened WebP RIFF and VP8X parsing around chunk extents and padding, reserved
   fields, duplicate reconstruction chunks, alpha signaling, canvas limits, and
   canvas-to-bitstream dimension agreement.
+- Hardened GIF metadata inspection to validate logical-screen limits, every
+  frame's geometry, palette and LZW prerequisites, extension structure, frame
+  limits, block markers, and the required trailer.
 - Accelerated baseline and progressive JPEG reconstruction with direct typed
   MCU-plane writes, sparse typed IDCT row indices, and a JIT-friendly unrolled
   second transform pass.

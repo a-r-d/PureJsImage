@@ -7,23 +7,52 @@ import { Image } from './image-library.ts'
 
 const palette = [0x000000, 0xff2400, 0x20d060, 0x2050ff]
 
-const imageDescriptor = (data: Uint8Array): number => {
+const imageDescriptors = (data: Uint8Array): readonly number[] => {
+  const descriptors: number[] = []
   let offset = 13
   const packed = data[10] ?? 0
   if ((packed & 0x80) !== 0) offset += 3 * 2 ** ((packed & 7) + 1)
   while (offset < data.byteLength) {
     const marker = data[offset]
-    if (marker === 0x2c) return offset
-    if (marker !== 0x21) throw new Error('Generated GIF contains an unexpected block')
-    offset += 2
-    while (offset < data.byteLength) {
-      const length = data[offset] ?? 0
-      offset += 1
-      if (length === 0) break
-      offset += length
+    if (marker === 0x3b) return descriptors
+    if (marker === 0x21) {
+      offset += 2
+      while (offset < data.byteLength) {
+        const length = data[offset] ?? 0
+        offset += 1
+        if (length === 0) break
+        offset += length
+      }
+      continue
     }
+    if (marker === 0x2c) {
+      descriptors.push(offset)
+      const imagePacked = data[offset + 9] ?? 0
+      offset += 10
+      if ((imagePacked & 0x80) !== 0) offset += 3 * 2 ** ((imagePacked & 7) + 1)
+      offset += 1
+      while (offset < data.byteLength) {
+        const length = data[offset] ?? 0
+        offset += 1
+        if (length === 0) break
+        offset += length
+      }
+      continue
+    }
+    throw new Error('Generated GIF contains an unexpected block')
   }
   throw new Error('Generated GIF has no image descriptor')
+}
+
+const imageDescriptor = (data: Uint8Array): number => {
+  const descriptor = imageDescriptors(data)[0]
+  if (descriptor === undefined) throw new Error('Generated GIF has no image descriptor')
+  return descriptor
+}
+
+const codeSizeOffset = (data: Uint8Array, descriptor: number): number => {
+  const packed = data[descriptor + 9] ?? 0
+  return descriptor + 10 + ((packed & 0x80) !== 0 ? 3 * 2 ** ((packed & 7) + 1) : 0)
 }
 
 const gifFixture = (interlaced = false): Uint8Array => {
@@ -93,5 +122,95 @@ describe('GIF first-frame pipeline', () => {
     await expect((await Image.open(truncated)).png().toBuffer()).rejects.toMatchObject({
       code: 'TRUNCATED_INPUT',
     })
+  })
+
+  it('applies logical-screen and frame-count limits during metadata inspection', async () => {
+    const oversized = gifFixture()
+    oversized.set([0xff, 0xff, 0xff, 0xff], 6)
+
+    await expect(
+      (await Image.open(oversized, { limits: { maxWidth: 1_024, maxHeight: 1_024 } })).metadata(),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+    await expect(
+      (await Image.open(gifFixture(), { limits: { maxFrames: 1 } })).metadata(),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+  })
+
+  it.each([
+    {
+      name: 'zero logical-screen dimensions',
+      mutate: (data: Uint8Array): Uint8Array => {
+        data.set([0, 0], 6)
+        return data
+      },
+      code: 'INVALID_INPUT',
+    },
+    {
+      name: 'a frame outside the logical screen',
+      mutate: (data: Uint8Array): Uint8Array => {
+        const descriptor = imageDescriptors(data)[1]
+        if (descriptor === undefined) throw new Error('Generated GIF has no second frame')
+        data.set([9, 0], descriptor + 1)
+        return data
+      },
+      code: 'INVALID_INPUT',
+    },
+    {
+      name: 'a later frame without a color table',
+      mutate: (data: Uint8Array): Uint8Array => {
+        const descriptor = imageDescriptors(data)[1]
+        if (descriptor === undefined) throw new Error('Generated GIF has no second frame')
+        data[descriptor + 9] = (data[descriptor + 9] ?? 0) & ~0x80
+        return data
+      },
+      code: 'INVALID_INPUT',
+    },
+    {
+      name: 'an invalid later-frame LZW code size',
+      mutate: (data: Uint8Array): Uint8Array => {
+        const descriptor = imageDescriptors(data)[1]
+        if (descriptor === undefined) throw new Error('Generated GIF has no second frame')
+        data[codeSizeOffset(data, descriptor)] = 9
+        return data
+      },
+      code: 'INVALID_INPUT',
+    },
+    {
+      name: 'an invalid graphics-control block size',
+      mutate: (data: Uint8Array): Uint8Array => {
+        const control = Buffer.from(data).indexOf(Buffer.from([0x21, 0xf9]))
+        if (control < 0) throw new Error('Generated GIF has no graphics control extension')
+        data[control + 2] = 3
+        return data
+      },
+      code: 'INVALID_INPUT',
+    },
+    {
+      name: 'a missing graphics-control terminator',
+      mutate: (data: Uint8Array): Uint8Array => {
+        const control = Buffer.from(data).indexOf(Buffer.from([0x21, 0xf9]))
+        if (control < 0) throw new Error('Generated GIF has no graphics control extension')
+        data[control + 7] = 1
+        return data
+      },
+      code: 'INVALID_INPUT',
+    },
+    {
+      name: 'an unknown block marker',
+      mutate: (data: Uint8Array): Uint8Array => {
+        data[imageDescriptor(data)] = 0x7f
+        return data
+      },
+      code: 'INVALID_INPUT',
+    },
+    {
+      name: 'a missing trailer',
+      mutate: (data: Uint8Array): Uint8Array => data.subarray(0, data.byteLength - 1),
+      code: 'TRUNCATED_INPUT',
+    },
+  ])('rejects $name while inspecting metadata', async ({ mutate, code }) => {
+    const malformed = mutate(gifFixture())
+
+    await expect((await Image.open(malformed)).metadata()).rejects.toMatchObject({ code })
   })
 })
