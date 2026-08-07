@@ -44,23 +44,31 @@ AVIF codecs from growing separate parsers for the same hostile container.
 - [x] Existing AVIF parsing covers item information, primary-item selection,
   item locations, `idat`/`mdat` extents, properties, references, grids, alpha
   relationships, color information, and rotation
-- [ ] Extract genuinely shared ISOBMFF/HEIF parsing into internal modules with
-  format-neutral types, limits, and error context
-- [ ] Preserve the current AVIF behavior and fixture coverage through that
+- [x] Extract bounded box traversal, brand parsing, checked offsets, and sized
+  integers into an internal ISOBMFF module with format-neutral types, limits,
+  and error context
+- [x] Extract shared primary-item, item-info, item-location,
+  property-association, and item-reference parsing while retaining typed
+  codec-specific property decoders
+- [x] Preserve the current AVIF behavior and fixture coverage through that
   extraction
-- [ ] Detect the common HEIF and HEVC brand families without trusting filename
+- [x] Detect the common HEIF and HEVC brand families without trusting filename
   extensions or MIME types
-- [ ] Accept compatible generic HEIF/MIAF brands when the primary item and its
+- [x] Accept compatible generic HEIF/MIAF brands when the primary item and its
   required properties identify a supported HEVC still image
-- [ ] Reject AVIF, unsupported coded-image item types, protected items, external
+- [x] Reject AVIF, unsupported coded-image item types, protected items, external
   data references, and malformed brand/property combinations explicitly
-- [ ] Parse `hvc1` image items and their required `hvcC` decoder configuration
-- [ ] Parse HEVC configuration arrays and length-prefixed VPS, SPS, PPS, and
+- [x] Parse `hvc1` image items and their required `hvcC` decoder configuration
+- [x] Inspect `grid` primary items and validate their tile references, geometry,
+  and consistent HEVC decoder configurations without claiming pixel decode
+- [x] Parse HEVC configuration arrays and length-prefixed VPS, SPS, PPS, and
   image-item NAL units with strict extent and count limits
-- [ ] Support multiple extents without concatenating the complete compressed
+- [x] Support multiple extents without concatenating the complete compressed
   item when a bounded reader can traverse them directly
-- [ ] Add `imir` mirror, `clap` clean-aperture, and the remaining properties
-  needed by the common-decode group below
+- [x] Parse and validate `imir` mirror and `clap` clean-aperture properties,
+  including transform order, aperture bounds, display dimensions, and composed
+  orientation metadata
+- [ ] Add the remaining properties needed by the common-decode group below
 
 ## Group 1: common still-image decode — required for v1
 
@@ -70,40 +78,52 @@ not every auxiliary asset stored beside it.
 
 ### Primary image and layout
 
-- [ ] Select and decode one declared primary image
-- [ ] Decode a directly coded `hvc1` primary item
-- [ ] Decode `grid` derived images and validate every tile reference, tile
+- [x] Select and decode one declared primary image
+- [x] Decode a directly coded `hvc1` primary item
+- [x] Decode `grid` derived images and validate every tile reference, tile
   geometry, edge crop, and final canvas extent
-- [ ] Decode grid tiles directly into the requested crop/resize workflow rather
+- [x] Decode grid tiles directly into the requested crop/resize workflow rather
   than first assembling a source-sized RGBA canvas
 - [ ] Support multiple slices and tiles within one coded HEVC picture
-- [ ] Apply `irot`, `imir`, and `clap` in the defined order
-- [ ] Return display dimensions after clean-aperture and orientation transforms
+- [x] Apply `irot`, `imir`, and `clap` in the defined order
+- [x] Return display dimensions after clean-aperture and orientation transforms
 - [ ] Define and test precedence between native HEIF transforms and EXIF
   orientation so a photo is never rotated twice
 
 ### Common HEVC profiles and samples
 
-- [ ] HEVC Main and Main Still Picture profile decode for 8-bit YUV 4:2:0
+- [x] HEVC Main and Main Still Picture profile decode for 8-bit YUV 4:2:0
 - [ ] HEVC Main 10 profile decode for 10-bit YUV 4:2:0
 - [ ] VPS, SPS, PPS, NAL-unit, picture, and slice-header syntax required by
   supported still pictures
-- [ ] CABAC context initialization, binary arithmetic decoding, bypass bins,
+- [x] Implement bounded EBSP-to-RBSP validation and parse common SPS and PPS
+  syntax through exact RBSP trailing bits, including coding-tree geometry,
+  scaling lists, reference-picture sets, VUI/HRD, PCM, tile layout, deblocking,
+  and slice-header control flags
+- [x] Inspect IDR slice-segment headers, resolve their PPS and SPS, bound CTB
+  addresses and entry-point offsets, and validate ordering across multiple
+  slices without reading the CABAC payload
+- [x] CABAC context initialization, binary arithmetic decoding, bypass bins,
   and termination with strict end-of-stream checks
-- [ ] Coding-tree-unit and coding-unit partition reconstruction
-- [ ] Planar, DC, and angular intra prediction for luma and chroma
-- [ ] Transform-unit parsing, inverse quantization, inverse transforms, and
+- [x] Coding-tree-unit and coding-unit partition reconstruction
+- [x] Planar, DC, and angular intra prediction for luma and chroma
+- [x] Transform-unit parsing, inverse quantization, inverse transforms, and
   residual reconstruction for supported transform sizes
-- [ ] Default and signaled scaling lists used by the target profiles
-- [ ] Deblocking and sample-adaptive offset filtering before releasing pixels
+- [x] Default and signaled scaling lists used by the target profiles
+- [x] Deblocking and sample-adaptive offset filtering before releasing pixels
 - [ ] Constrained intra prediction, transform skip, PCM, and other tools that
   valid target-profile still images can signal
-- [ ] Tiles, entropy-coding synchronization, dependent slice segments, and
-  entry-point offsets needed by independently produced files
+- [x] Entropy-coding synchronization and WPP entry-point offsets used by Apple
+  Main Still Picture tiles
+- [ ] Tiles within a coded picture, dependent slice segments, and their
+  entry-point layouts
 - [ ] Chroma-location, limited/full-range, and odd-dimension handling without
   off-by-one reads or color-plane shifts
-- [ ] Reject inter-predicted pictures and unsupported profile/range-extension
-  tools explicitly in the still-image API
+- [x] Reject inter-predicted pictures and multilayer NAL units explicitly in the
+  still-image inspection path
+- [x] Reject profiles outside Main, Main 10, and Main Still Picture, non-IDR
+  random-access pictures, and SPS/PPS range, multilayer, 3D, screen-content, or
+  unspecified extensions explicitly in the inspection path
 
 ### Color and output
 
@@ -111,15 +131,17 @@ not every auxiliary asset stored beside it.
   unrestricted ICC (`prof`) data
 - [ ] Correctly render the common sRGB and Display P3 cases to the pipeline's
   declared output color space
-- [ ] Convert 8-bit and 10-bit YUV to pipeline pixel blocks without a duplicate
-  full-frame RGB or RGBA allocation
+- [x] Convert 8-bit YUV to pipeline pixel blocks without a duplicate full-frame
+  RGB or RGBA allocation
+- [ ] Convert 10-bit YUV to pipeline pixel blocks and validate it against an
+  independent oracle
 - [ ] Preserve opaque, binary-alpha, and partial-alpha values when a supported
   auxiliary alpha item is present
-- [ ] Decode a valid SDR base image even when unsupported depth, matte, or gain
+- [x] Decode a valid SDR base image even when unsupported depth, matte, or gain
   map auxiliary items are also present
-- [ ] Return stable metadata for width, height, bit depth, alpha, frame count,
+- [x] Return stable metadata for width, height, bit depth, alpha, frame count,
   primary item, color description, and orientation
-- [ ] Expose `.heif` and `.heic` content detection and the public decode path
+- [x] Expose `.heif` and `.heic` content detection and the public decode path
   through the normal image pipeline
 
 ### Common metadata

@@ -15,6 +15,8 @@ export {
   bmpCodec,
   createDefaultCodecRegistry,
   gifCodec,
+  heicCodec,
+  heifCodec,
   jpegCodec,
   pngCodec,
   tiffCodec,

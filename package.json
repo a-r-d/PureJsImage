@@ -12,6 +12,8 @@
     "bmp",
     "tiff",
     "gif",
+    "heif",
+    "heic",
     "serverless",
     "lambda"
   ],

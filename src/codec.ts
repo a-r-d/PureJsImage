@@ -4,7 +4,7 @@ import type { PixelBlock, PixelFormat } from './pixel.ts'
 import type { ImageSink } from './sink.ts'
 import type { ImageSource } from './source.ts'
 
-export type BuiltInFormat = 'avif' | 'bmp' | 'gif' | 'jpeg' | 'png' | 'tiff' | 'webp'
+export type BuiltInFormat = 'avif' | 'bmp' | 'gif' | 'heif' | 'jpeg' | 'png' | 'tiff' | 'webp'
 
 export type ChromaSubsampling = '400' | '420' | '422' | '444'
 

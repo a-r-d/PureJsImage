@@ -69,3 +69,133 @@
   benchmark, regardless of speed.
 - Treat benchmark changes as measurement changes: keep inputs pinned, workflows reproducible, and
   comparisons equivalent across engines.
+
+
+## Performance Rules for PureJsImage
+
+PureJsImage must remain pure JavaScript: no native addons, WASM, external binaries, or runtime-specific image libraries in the core implementation.
+
+Performance work should prioritize doing less work, reducing memory traffic, and producing JIT-friendly JavaScript.
+
+### Hot-path rules
+
+For pixel, codec, resize, color-conversion, entropy, transform, and compression kernels:
+
+* Use TypedArrays (`Uint8Array`, `Uint16Array`, `Int16Array`, `Uint32Array`, `Float32Array`) rather than normal JS arrays.
+* Keep hot functions monomorphic. A kernel should receive predictable argument types on every call.
+* Prefer specialized kernels such as `resizeRGBA8Bilinear()` over one generic function containing format/depth/channel branches inside the pixel loop.
+* Resolve format, bit depth, alpha, interpolation mode, etc. before entering the hot loop.
+* Do not allocate objects, arrays, closures, or temporary buffers inside per-pixel/per-coefficient loops.
+* Do not use callbacks such as `map`, `forEach`, or per-pixel visitor functions internally.
+* Prefer simple indexed `for` loops.
+* Minimize branches inside hot loops.
+* Reuse scratch buffers and TypedArrays instead of repeatedly allocating them.
+* Use `subarray()`, `.set()`, and other bulk TypedArray operations when they outperform manual copying.
+* Avoid unnecessary Buffer/Uint8Array/ArrayBuffer conversions or copies.
+* Keep intermediate working sets small and cache-friendly.
+
+### Math optimizations
+
+* Precompute values that repeat across pixels.
+* Resize kernels must precompute source indices and interpolation/filter coefficients rather than recalculating them for every row.
+* Use lookup tables for expensive functions when the input domain is small, especially 8-bit values.
+* Consider fixed-point/integer arithmetic for pixel math, resampling, transforms, and codecs when it benchmarks faster and remains sufficiently accurate.
+* Do not assume integer math is faster than floating point. Benchmark both.
+* Use separable algorithms where possible, e.g. horizontal + vertical filtering rather than NxN 2D filtering.
+* Prefer ring buffers or small row buffers over complete intermediate images.
+
+### Pipeline optimizations
+
+Before micro-optimizing arithmetic:
+
+1. Avoid decoding or processing pixels that cannot affect the output.
+2. Push crops/regions toward the decoder where possible.
+3. Exploit codec-native reduced-resolution or region decoding when available.
+4. Fuse compatible operations into one pixel traversal.
+5. Avoid unnecessary RGB/YUV/colorspace conversions.
+6. Avoid full-image materialization unless required by the codec or operation.
+7. Reuse buffers.
+8. Then optimize the actual kernel.
+
+Example:
+
+```text
+Bad:
+decode full image
+→ crop copy
+→ resize full intermediate
+→ grayscale pass
+→ RGB→YUV pass
+
+Better:
+decode only useful rows/region
+→ resize using precomputed coefficients
+→ fuse grayscale/colorspace conversion
+→ feed encoder directly
+```
+
+### JIT considerations
+
+Write hot JavaScript so V8 can optimize it easily:
+
+* stable argument types
+* stable TypedArray types
+* simple numeric locals
+* predictable control flow
+* no polymorphic object shapes
+* no abstraction layers inside pixel loops
+* no dynamically changing value types
+
+Some duplication between specialized kernels is acceptable when it measurably improves performance.
+
+Do not refactor specialized hot kernels into generic abstractions merely to reduce code duplication.
+
+### Memory and GC
+
+Reducing GC pressure is a primary performance goal.
+
+Avoid creating temporary garbage during image processing.
+
+Where practical:
+
+```text
+allocate once
+→ reuse many times
+→ release/recycle
+```
+
+rather than:
+
+```text
+allocate
+→ process
+→ abandon
+→ repeat
+```
+
+Full bitmap allocation is an explicit fallback, not the default execution model.
+
+### Parallelism
+
+Do not add worker-thread complexity yet. Current target workloads are small Lambda functions and single-threaded execution should be optimized first.
+
+Architecture should not prevent future parallel execution, but workers are not a current optimization target.
+
+### Benchmark requirement
+
+Never assume an optimization is faster.
+
+For meaningful hot-path changes, benchmark before and after using representative images and record:
+
+* wall-clock time
+* throughput
+* peak RSS / memory
+* allocations where practical
+* output correctness
+* output quality/size for lossy codecs
+
+Prefer a simpler implementation unless the more complex implementation demonstrates a meaningful measured improvement.
+
+The guiding rule is:
+
+> Make JavaScript do less work before trying to make individual JavaScript instructions faster.

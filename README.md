@@ -19,8 +19,8 @@ PureJsImage requires Node.js 24 or newer. Installing it will install one
 package: there are no runtime dependencies, native addons, external binaries,
 or WebAssembly modules.
 
-The complete v0.1.0 runtime, including every codec, bundles to **235.6 KiB**
-minified, **80.9 KiB** with gzip, or **66.2 KiB** with Brotli. These are
+The complete v0.1.0 runtime, including every codec, bundles to **264.7 KiB**
+minified, **89.4 KiB** with gzip, or **72.7 KiB** with Brotli. These are
 worst-case all-codec sizes; future per-codec entry points and lazy codec
 registration can make bundles smaller when an application only needs a few
 formats.
@@ -36,10 +36,20 @@ formats.
 | BMP | Indexed, RLE, RGB, bitfields, and alpha | RGB and RGBA |
 | TIFF | Common strip-based grayscale, indexed, RGB, and alpha | Uncompressed grayscale, RGB, and RGBA |
 | AVIF | Opaque 8-bit YUV 4:2:0 still-image subset | No |
+| HEIF / HEIC | Opaque Main / Main Still Picture 8-bit YUV 4:2:0 intra stills, including grids | No |
 
 AVIF support is still expanding. Metadata inspection covers a much broader set
 of AVIF files than pixel decoding, while alpha, grids, high bit depth, in-loop
-filter application, and encoding remain unfinished.
+filter application, and encoding remain unfinished. HEIF/HEIC support decodes
+the common opaque Main / Main Still Picture 8-bit YUV 4:2:0 intra subset through the normal
+pipeline. Direct `hvc1` images and grid primary images are supported with clean
+aperture, mirror/rotation metadata, limited/full-range nclx matrix conversion,
+and bounded RGBA row output. The first-party HEVC path includes CABAC, coding
+and transform trees, intra prediction, residual reconstruction, deblocking,
+and SAO. WPP entry points, scaling lists, and CU-level QP deltas used by Apple
+Main Still Picture tiles are included. Files that require multiple slices or
+tiles inside one coded picture, auxiliary alpha, or HDR/Main 10 features still
+fail explicitly.
 
 Detailed capability checklists:
 [PNG](https://github.com/a-r-d/PureJsImage/blob/main/png-codec-support.md),
@@ -47,8 +57,9 @@ Detailed capability checklists:
 [GIF](https://github.com/a-r-d/PureJsImage/blob/main/gif-codec-support.md),
 [WebP](https://github.com/a-r-d/PureJsImage/blob/main/webp-codec-support.md),
 [BMP](https://github.com/a-r-d/PureJsImage/blob/main/bmp-codec-support.md),
-[TIFF](https://github.com/a-r-d/PureJsImage/blob/main/tiff-codec-support.md), and
-[AVIF](https://github.com/a-r-d/PureJsImage/blob/main/avif-codec-support.md).
+[TIFF](https://github.com/a-r-d/PureJsImage/blob/main/tiff-codec-support.md),
+[AVIF](https://github.com/a-r-d/PureJsImage/blob/main/avif-codec-support.md), and
+[HEIF](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md).
 
 ## Usage
 

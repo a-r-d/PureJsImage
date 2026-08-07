@@ -16,20 +16,20 @@ import type { Av1Obu, Av1SequenceHeader } from './av1.ts'
 import { parseAv1Frame } from './av1-frame.ts'
 import { decodeRestrictedAv1Intra, yuv420ToRgba } from './av1-intra.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
+import {
+  checkedAdd,
+  createIsobmffReader,
+  parseBrands,
+  parseFullBox,
+  parseIsobmffMeta,
+} from './isobmff.ts'
+import type { IsobmffBox as Box, IsobmffMeta, IsobmffReader } from './isobmff.ts'
 
-const MAX_METADATA_BOX_BYTES = 16 * 1024 * 1024
-const MAX_BOXES = 100_000
 const ALPHA_AUXILIARY_TYPES = new Set([
   'urn:mpeg:mpegB:cicp:systems:auxiliary:alpha',
   'urn:mpeg:hevc:2015:auxid:1',
 ])
-
-interface Box {
-  readonly type: string
-  readonly start: number
-  readonly contentStart: number
-  readonly end: number
-}
+const MAX_METADATA_BOX_BYTES = 16 * 1024 * 1024
 
 interface Av1Configuration {
   readonly bitDepth: number
@@ -37,23 +37,6 @@ interface Av1Configuration {
   readonly level: number
   readonly profile: number
   readonly tier: number
-}
-
-interface ItemInfo {
-  readonly id: number
-  readonly type: string
-}
-
-interface ItemExtent {
-  readonly offset: number
-  readonly length: number
-}
-
-interface ItemLocation {
-  readonly baseOffset: number
-  readonly constructionMethod: 0 | 1
-  readonly extents: readonly ItemExtent[]
-  readonly itemId: number
 }
 
 type Property =
@@ -65,77 +48,14 @@ type Property =
   | { readonly type: 'pixi'; readonly bitDepth: number }
   | { readonly type: 'unknown' }
 
-interface ItemReference {
-  readonly type: string
-  readonly fromItemId: number
-  readonly toItemIds: readonly number[]
-}
-
-interface MetaDescription {
-  primaryItemId?: number
-  idat?: Box
-  readonly items: Map<number, ItemInfo>
-  readonly locations: Map<number, ItemLocation>
-  readonly properties: Property[]
-  readonly associations: Map<number, number[]>
-  readonly references: ItemReference[]
-}
-
-const checkedAdd = (left: number, right: number, message: string): number => {
-  const result = left + right
-  if (!Number.isSafeInteger(result)) throw invalidInput(message)
-  return result
-}
-
-const uint64BigEndian = (data: Uint8Array, offset: number): number => {
-  const high = uint32BigEndian(data, offset)
-  const low = uint32BigEndian(data, offset + 4)
-  const value = BigInt(high) * 0x1_0000_0000n + BigInt(low)
-  if (value > BigInt(Number.MAX_SAFE_INTEGER)) {
-    throw invalidInput('AVIF box size exceeds the JavaScript safe integer range')
-  }
-  return Number(value)
-}
-
-const readBox = async (source: ImageSource, start: number, parentEnd: number): Promise<Box> => {
-  if (parentEnd - start < 8) throw invalidInput(`AVIF box header is truncated at offset ${start}`)
-  const header = await readExactly(source, start, Math.min(32, parentEnd - start))
-  const size32 = uint32BigEndian(header, 0)
-  const type = ascii(header, 4, 4)
-  let headerSize = 8
-  let size = size32
-
-  if (size32 === 1) {
-    if (header.byteLength < 16)
-      throw invalidInput(`Extended AVIF box is truncated at offset ${start}`)
-    size = uint64BigEndian(header, 8)
-    headerSize = 16
-  } else if (size32 === 0) {
-    size = parentEnd - start
-  }
-
-  if (type === 'uuid') headerSize += 16
-  if (size < headerSize) throw invalidInput(`AVIF ${type} box is smaller than its header`)
-  const end = checkedAdd(start, size, `AVIF ${type} box end overflows`)
-  if (end > parentEnd) throw invalidInput(`AVIF ${type} box extends beyond its parent`)
-
-  return { type, start, contentStart: start + headerSize, end }
-}
+type MetaDescription = IsobmffMeta<Property>
 
 const childBoxes = async (
   source: ImageSource,
   start: number,
   end: number,
 ): Promise<readonly Box[]> => {
-  const boxes: Box[] = []
-  let offset = start
-  while (offset < end) {
-    if (boxes.length >= MAX_BOXES) throw invalidInput('AVIF contains too many boxes')
-    const box = await readBox(source, offset, end)
-    boxes.push(box)
-    offset = box.end
-  }
-  return boxes
+  return createIsobmffReader(source, 'AVIF').boxes(start, end)
 }
 
 const payload = async (
@@ -143,18 +63,11 @@ const payload = async (
   box: Box,
   maximum = MAX_METADATA_BOX_BYTES,
 ): Promise<Uint8Array> => {
-  const length = box.end - box.contentStart
-  if (length > maximum) throw invalidInput(`AVIF ${box.type} metadata box is unreasonably large`)
-  return readExactly(source, box.contentStart, length)
+  return createIsobmffReader(source, 'AVIF').payload(box, maximum)
 }
 
 const fullBox = (data: Uint8Array, type: string): { version: number; flags: number; offset: 4 } => {
-  if (data.byteLength < 4) throw invalidInput(`AVIF ${type} full box is truncated`)
-  return {
-    version: data[0] ?? 0,
-    flags: ((data[1] ?? 0) << 16) | ((data[2] ?? 0) << 8) | (data[3] ?? 0),
-    offset: 4,
-  }
+  return parseFullBox(data, type, 'AVIF')
 }
 
 const parseAv1Configuration = (data: Uint8Array): Av1Configuration => {
@@ -295,227 +208,27 @@ const parseProperty = async (source: ImageSource, box: Box): Promise<Property> =
   return { type: 'unknown' }
 }
 
-const parseIpco = async (source: ImageSource, box: Box, meta: MetaDescription): Promise<void> => {
-  for (const propertyBox of await childBoxes(source, box.contentStart, box.end)) {
-    meta.properties.push(await parseProperty(source, propertyBox))
-  }
-}
-
-const parseIpma = async (source: ImageSource, box: Box, meta: MetaDescription): Promise<void> => {
-  const data = await payload(source, box)
-  const { version, flags } = fullBox(data, box.type)
-  if (version > 1 || (flags & ~1) !== 0) {
-    throw invalidInput('AVIF ipma box has an unsupported version or flags')
-  }
-  let offset = 4
-  const entryCount = uint32BigEndian(data, offset)
-  offset += 4
-  const wideIndex = (flags & 1) !== 0
-
-  for (let entry = 0; entry < entryCount; entry += 1) {
-    const itemId = version < 1 ? uint16BigEndian(data, offset) : uint32BigEndian(data, offset)
-    offset += version < 1 ? 2 : 4
-    const associationCount = data[offset]
-    if (associationCount === undefined) throw invalidInput('AVIF ipma entry is truncated')
-    offset += 1
-    const associations = meta.associations.get(itemId) ?? []
-    for (let index = 0; index < associationCount; index += 1) {
-      const encoded = wideIndex ? uint16BigEndian(data, offset) : data[offset]
-      if (encoded === undefined) throw invalidInput('AVIF ipma association is truncated')
-      offset += wideIndex ? 2 : 1
-      const propertyIndex = encoded & (wideIndex ? 0x7fff : 0x7f)
-      if (propertyIndex !== 0) associations.push(propertyIndex)
-    }
-    meta.associations.set(itemId, associations)
-  }
-  if (offset !== data.byteLength)
-    throw invalidInput('AVIF ipma property associations have trailing data')
-}
-
-const parseIprp = async (source: ImageSource, box: Box, meta: MetaDescription): Promise<void> => {
-  for (const child of await childBoxes(source, box.contentStart, box.end)) {
-    if (child.type === 'ipco') await parseIpco(source, child, meta)
-    else if (child.type === 'ipma') await parseIpma(source, child, meta)
-  }
-}
-
-const parseIref = async (source: ImageSource, box: Box, meta: MetaDescription): Promise<void> => {
-  const header = await readExactly(source, box.contentStart, 4)
-  const { version, flags } = fullBox(header, box.type)
-  if (version > 1 || flags !== 0) {
-    throw invalidInput('AVIF iref box has an unsupported version or flags')
-  }
-  const idBytes = version === 0 ? 2 : 4
-  for (const reference of await childBoxes(source, box.contentStart + 4, box.end)) {
-    const data = await payload(source, reference)
-    let offset = 0
-    const fromItemId = idBytes === 2 ? uint16BigEndian(data, offset) : uint32BigEndian(data, offset)
-    offset += idBytes
-    const count = uint16BigEndian(data, offset)
-    offset += 2
-    const toItemIds: number[] = []
-    for (let index = 0; index < count; index += 1) {
-      toItemIds.push(idBytes === 2 ? uint16BigEndian(data, offset) : uint32BigEndian(data, offset))
-      offset += idBytes
-    }
-    if (offset !== data.byteLength)
-      throw invalidInput(`AVIF ${reference.type} reference is malformed`)
-    meta.references.push({ type: reference.type, fromItemId, toItemIds })
-  }
-}
-
-const parseIinf = async (source: ImageSource, box: Box, meta: MetaDescription): Promise<void> => {
-  const headerLength = 4
-  const header = await readExactly(source, box.contentStart, headerLength)
-  const { version, flags } = fullBox(header, box.type)
-  if (version > 1 || flags !== 0) {
-    throw invalidInput('AVIF iinf box has an unsupported version or flags')
-  }
-  const countBytes = version === 0 ? 2 : 4
-  const countData = await readExactly(source, box.contentStart + headerLength, countBytes)
-  const expectedCount =
-    countBytes === 2 ? uint16BigEndian(countData, 0) : uint32BigEndian(countData, 0)
-  const children = await childBoxes(source, box.contentStart + headerLength + countBytes, box.end)
-  if (children.length !== expectedCount) throw invalidInput('AVIF iinf item count does not match')
-
-  for (const child of children) {
-    if (child.type !== 'infe') throw invalidInput('AVIF iinf contains a non-infe child')
-    const data = await payload(source, child)
-    const itemHeader = fullBox(data, child.type)
-    if ((itemHeader.version !== 2 && itemHeader.version !== 3) || (itemHeader.flags & ~1) !== 0) {
-      throw invalidInput('AVIF infe box has an unsupported version or flags')
-    }
-    let offset = 4
-    const id =
-      itemHeader.version === 2 ? uint16BigEndian(data, offset) : uint32BigEndian(data, offset)
-    offset += itemHeader.version === 2 ? 2 : 4
-    const protectionIndex = uint16BigEndian(data, offset)
-    offset += 2
-    if (id === 0 || protectionIndex !== 0) throw invalidInput('AVIF item info is unsupported')
-    const type = ascii(data, offset, 4)
-    offset += 4
-    if (data.indexOf(0, offset) === -1) throw invalidInput('AVIF item name is truncated')
-    if (meta.items.has(id)) throw invalidInput(`AVIF contains duplicate item ID ${id}`)
-    meta.items.set(id, { id, type })
-  }
-}
-
-const sizedInteger = (data: Uint8Array, offset: number, size: number): number => {
-  if (size === 0) return 0
-  if (size !== 4 && size !== 8) throw invalidInput(`Unsupported AVIF integer size: ${size}`)
-  let value = 0n
-  for (let index = 0; index < size; index += 1) {
-    const byte = data[offset + index]
-    if (byte === undefined) throw invalidInput('AVIF item location is truncated')
-    value = value * 256n + BigInt(byte)
-  }
-  if (value > BigInt(Number.MAX_SAFE_INTEGER)) {
-    throw invalidInput('AVIF item location exceeds the JavaScript safe integer range')
-  }
-  return Number(value)
-}
-
-const parseIloc = async (source: ImageSource, box: Box, meta: MetaDescription): Promise<void> => {
-  const data = await payload(source, box)
-  const { version, flags } = fullBox(data, box.type)
-  if (version > 2 || flags !== 0) {
-    throw invalidInput('AVIF iloc box has an unsupported version or flags')
-  }
-  const firstSizes = data[4]
-  const secondSizes = data[5]
-  if (firstSizes === undefined || secondSizes === undefined) {
-    throw invalidInput('AVIF iloc size fields are truncated')
-  }
-  const offsetSize = firstSizes >>> 4
-  const lengthSize = firstSizes & 0x0f
-  const baseOffsetSize = secondSizes >>> 4
-  const indexSize = secondSizes & 0x0f
-  for (const size of [offsetSize, lengthSize, baseOffsetSize, indexSize]) {
-    if (size !== 0 && size !== 4 && size !== 8) {
-      throw invalidInput(`Unsupported AVIF iloc field size: ${size}`)
-    }
-  }
-  if (version === 0 && indexSize !== 0)
-    throw invalidInput('AVIF iloc version 0 has reserved bits set')
-
-  let offset = 6
-  const itemCount = version < 2 ? uint16BigEndian(data, offset) : uint32BigEndian(data, offset)
-  offset += version < 2 ? 2 : 4
-  for (let itemIndex = 0; itemIndex < itemCount; itemIndex += 1) {
-    const itemId = version < 2 ? uint16BigEndian(data, offset) : uint32BigEndian(data, offset)
-    offset += version < 2 ? 2 : 4
-    let constructionMethod: 0 | 1 = 0
-    if (version > 0) {
-      const encodedMethod = uint16BigEndian(data, offset)
-      offset += 2
-      if ((encodedMethod & 0xfff0) !== 0 || (encodedMethod & 0x0f) > 1) {
-        throw invalidInput('AVIF iloc construction method is unsupported')
-      }
-      constructionMethod = (encodedMethod & 0x0f) as 0 | 1
-    }
-    const dataReferenceIndex = uint16BigEndian(data, offset)
-    offset += 2
-    if (itemId === 0 || dataReferenceIndex !== 0) {
-      throw invalidInput('AVIF external or zero-ID item location is unsupported')
-    }
-    const baseOffset = sizedInteger(data, offset, baseOffsetSize)
-    offset += baseOffsetSize
-    const extentCount = uint16BigEndian(data, offset)
-    offset += 2
-    const extents: ItemExtent[] = []
-    for (let extentIndex = 0; extentIndex < extentCount; extentIndex += 1) {
-      offset += indexSize
-      const extentOffset = sizedInteger(data, offset, offsetSize)
-      offset += offsetSize
-      const length = sizedInteger(data, offset, lengthSize)
-      offset += lengthSize
-      extents.push({ offset: extentOffset, length })
-    }
-    if (meta.locations.has(itemId))
-      throw invalidInput(`AVIF contains duplicate iloc item ${itemId}`)
-    meta.locations.set(itemId, { itemId, constructionMethod, baseOffset, extents })
-  }
-  if (offset !== data.byteLength) throw invalidInput('AVIF iloc box has trailing data')
-}
-
 const parseMeta = async (source: ImageSource, box: Box): Promise<MetaDescription> => {
-  const header = await readExactly(source, box.contentStart, 4)
-  const metaHeader = fullBox(header, box.type)
-  if (metaHeader.version !== 0 || metaHeader.flags !== 0) {
-    throw invalidInput('AVIF meta box has an unsupported version or flags')
+  const reader = createIsobmffReader(source, 'AVIF')
+  const meta = await parseIsobmffMeta(
+    reader,
+    box,
+    async (propertyReader: IsobmffReader, propertyBox: Box): Promise<Property> =>
+      parseProperty(propertyReader.source, propertyBox),
+  )
+  if ([...meta.items.values()].some((item) => item.protectionIndex !== 0)) {
+    throw invalidInput('AVIF protected item info is unsupported')
   }
-  const meta: MetaDescription = {
-    items: new Map(),
-    locations: new Map(),
-    properties: [],
-    associations: new Map(),
-    references: [],
-  }
-
-  for (const child of await childBoxes(source, box.contentStart + 4, box.end)) {
-    if (child.type === 'pitm') {
-      const data = await payload(source, child, 8)
-      const { version, flags } = fullBox(data, child.type)
-      if (version > 1 || flags !== 0) {
-        throw invalidInput('AVIF pitm box has an unsupported version or flags')
-      }
-      meta.primaryItemId = version === 0 ? uint16BigEndian(data, 4) : uint32BigEndian(data, 4)
-    } else if (child.type === 'iinf') await parseIinf(source, child, meta)
-    else if (child.type === 'iloc') await parseIloc(source, child, meta)
-    else if (child.type === 'iprp') await parseIprp(source, child, meta)
-    else if (child.type === 'iref') await parseIref(source, child, meta)
-    else if (child.type === 'idat') {
-      if (meta.idat) throw invalidInput('AVIF meta box contains multiple idat boxes')
-      meta.idat = child
-    }
+  if ([...meta.locations.values()].some((location) => location.dataReferenceIndex !== 0)) {
+    throw invalidInput('AVIF external item location is unsupported')
   }
   return meta
 }
 
 const propertiesFor = (meta: MetaDescription, itemId: number): readonly Property[] => {
-  return (meta.associations.get(itemId) ?? []).map((index) => {
-    const property = meta.properties[index - 1]
-    if (!property) throw invalidInput(`AVIF item references missing property ${index}`)
+  return (meta.associations.get(itemId) ?? []).map((association) => {
+    const property = meta.properties[association.index - 1]
+    if (!property) throw invalidInput(`AVIF item references missing property ${association.index}`)
     return property
   })
 }
@@ -724,15 +437,9 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
   const metaBox = topLevel.find((box) => box.type === 'meta')
   if (!fileType || !metaBox) throw invalidInput('AVIF requires ftyp and meta boxes')
 
-  const brands = await payload(source, fileType, 4096)
-  if (brands.byteLength < 8) throw invalidInput('AVIF ftyp box is truncated')
-  let avifBrand = false
-  let sequenceBrand = false
-  for (let offset = 0; offset + 4 <= brands.byteLength; offset += 4) {
-    const brand = ascii(brands, offset, 4)
-    if (brand === 'avif' || brand === 'avis') avifBrand = true
-    if (brand === 'avis') sequenceBrand = true
-  }
+  const brands = parseBrands(await payload(source, fileType, 4096), 'AVIF')
+  const avifBrand = brands.some((brand) => brand === 'avif' || brand === 'avis')
+  const sequenceBrand = brands.includes('avis')
   if (!avifBrand) throw invalidInput('File does not declare an AVIF brand')
 
   const meta = await parseMeta(source, metaBox)
