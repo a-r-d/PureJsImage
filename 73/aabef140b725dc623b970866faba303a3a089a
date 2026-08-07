@@ -1,0 +1,28 @@
+tests/bombs.test.ts
+  s_4669831c864f0c::t_c76c00751c08fc 45-47
+  s_4669831c864f0c::t_3eb6e905d5679f 1-44,48-127
+CHANGELOG.md
+  s_4669831c864f0c::t_26c6b704f2641b 7-14,17-19,22-26
+  s_4669831c864f0c::t_e6f40482c4cef5 28
+  s_4669831c864f0c::t_fb7bf1a824336b 15-16,27
+README.md
+  s_4669831c864f0c::t_fb7bf1a824336b 145-150
+src/codecs/png.ts
+  s_4669831c864f0c::t_a520399f04619e 508,530-531,535-550,556-562,566,876-880,1009-1013
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "73aabef140b725dc623b970866faba303a3a089a",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
