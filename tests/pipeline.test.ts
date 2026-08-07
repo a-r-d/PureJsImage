@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { Image } from '../src/index.ts'
-import { jpegFixture, pngFixture } from './fixtures.ts'
+import { gifFixture, jpegFixture, pngFixture } from './fixtures.ts'
 
 describe('immutable image pipelines', () => {
   it('plans orientation, crop, resize, and encoding without mutating the source image', async () => {
@@ -81,9 +81,9 @@ describe('immutable image pipelines', () => {
   })
 
   it('fails explicitly when an unimplemented codec is requested', async () => {
-    const image = await Image.open(jpegFixture(10, 10))
+    const image = await Image.open(gifFixture(10, 10))
 
-    await expect(image.resize({ width: 5 }).jpeg().toBuffer()).rejects.toMatchObject({
+    await expect(image.resize({ width: 5 }).png().toBuffer()).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
     })
   })

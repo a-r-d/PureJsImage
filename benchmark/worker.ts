@@ -52,6 +52,13 @@ const inputs = await Promise.all(
   }),
 )
 
+const settleGarbage = async (): Promise<void> => {
+  for (let pass = 0; pass < 3; pass += 1) {
+    global.gc?.()
+    await new Promise<void>((resolve) => setImmediate(resolve))
+  }
+}
+
 for (let index = 0; index < warmups; index += 1) {
   const warmup = await engine.execute({ workflow, inputs })
   const validation = validateExecution({ workflow, execution: warmup })
@@ -60,7 +67,7 @@ for (let index = 0; index < warmups; index += 1) {
   }
 }
 
-global.gc?.()
+await settleGarbage()
 
 process.send?.({
   type: 'ready',

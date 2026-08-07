@@ -1,10 +1,13 @@
-import type { ImageCodec, ImageMetadata } from '../codec.ts'
-import { invalidInput } from '../errors.ts'
+import type { DecodeRequest, ImageCodec, ImageDecoder, ImageMetadata } from '../codec.ts'
+import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
+import type { PixelBlock } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
-import { SourceReader } from '../source.ts'
+import { readExactly, SourceReader } from '../source.ts'
 import { uint16BigEndian } from './helpers.ts'
+import { type BaselineJpeg, decodeBaselineJpeg, parseBaselineJpeg } from './jpeg-baseline.ts'
+import { createBaselineJpegEncoder } from './jpeg-encode.ts'
 
 const startOfFrameMarkers = new Set([
   0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf,
@@ -70,6 +73,71 @@ const jpegColorSpace = (components: number): string => {
   if (components === 1) return 'gray'
   if (components === 4) return 'cmyk'
   return 'ycbcr'
+}
+
+const region = (
+  width: number,
+  height: number,
+  request: DecodeRequest = {},
+): Required<DecodeRequest> => {
+  const x = request.x ?? 0
+  const y = request.y ?? 0
+  const outputWidth = request.width ?? width - x
+  const outputHeight = request.height ?? height - y
+  if (
+    !Number.isSafeInteger(x) ||
+    !Number.isSafeInteger(y) ||
+    !Number.isSafeInteger(outputWidth) ||
+    !Number.isSafeInteger(outputHeight) ||
+    x < 0 ||
+    y < 0 ||
+    outputWidth < 1 ||
+    outputHeight < 1
+  ) {
+    throw invalidInput('JPEG decode region is invalid')
+  }
+  if (x + outputWidth > width || y + outputHeight > height) {
+    throw invalidInput(
+      `Decode region ${x},${y} ${outputWidth}x${outputHeight} exceeds ${width}x${height}`,
+    )
+  }
+  return { x, y, width: outputWidth, height: outputHeight }
+}
+
+class JpegDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat = 'rgb8' as const
+  readonly capabilities = Object.freeze({
+    sequential: true,
+    regionDecode: false,
+    scaledDecode: false,
+    progressive: false,
+  })
+  readonly #jpeg: BaselineJpeg
+
+  constructor(jpeg: BaselineJpeg) {
+    this.width = jpeg.width
+    this.height = jpeg.height
+    this.#jpeg = jpeg
+  }
+
+  async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    const output = region(this.width, this.height, request)
+    yield* decodeBaselineJpeg(this.#jpeg, output)
+  }
+}
+
+const decodeJpeg = async (source: ImageSource, limits: ImageLimits): Promise<ImageDecoder> => {
+  const input = await readExactly(source, 0, source.size)
+  const baseline = parseBaselineJpeg(input)
+  if (!baseline) {
+    throw unsupportedOperation(
+      'Only single-scan baseline JPEG decoding is implemented; progressive JPEG is unsupported',
+    )
+  }
+  validateImageDimensions(baseline.width, baseline.height, 1, limits)
+  return new JpegDecoder(baseline)
 }
 
 export const jpegCodec: ImageCodec = {
@@ -140,4 +208,6 @@ export const jpegCodec: ImageCodec = {
       frames: 1,
     }
   },
+  createDecoder: decodeJpeg,
+  createEncoder: createBaselineJpegEncoder,
 }

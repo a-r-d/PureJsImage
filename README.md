@@ -1,16 +1,24 @@
 # PureJsImage
 
 PureJsImage aims to be the smallest, fastest, and lowest-memory practical
-alternative to Jimp for common image-processing workflows, implemented entirely
-in JavaScript.
+alternative to Jimp for common image-processing workflows, implemented in
+strict TypeScript and compiled to JavaScript.
 
 The project focuses on complete application workflows—decode, inspect, orient,
 crop, resize, convert, and encode—rather than trying to reproduce every image
 editing feature in Jimp.
 
+The original production motivation is AWS Lambda. Jimp's full mutable bitmap
+and intermediate allocations make ordinary upload normalization consume far
+more memory than the final image requires. PureJsImage is intended to lower the
+Lambda memory tier and out-of-memory risk by keeping working memory bounded by
+the active rows, resize filter, and output dimensions wherever the codec allows
+it. A pipeline is not considered fully optimized while its peak memory still
+scales like a full source-resolution RGBA bitmap.
+
 ## Implementation status
 
-The Phase 1 core and Phase 2-3 PNG processing path are implemented in strict TypeScript 7:
+The Phase 1 core and Phase 2-4 PNG/JPEG processing paths are implemented in strict TypeScript 7:
 
 - bounded Buffer, Uint8Array, ArrayBuffer, Blob, and file sources;
 - automatic PNG, JPEG, and GIF detection and metadata parsing;
@@ -22,6 +30,10 @@ The Phase 1 core and Phase 2-3 PNG processing path are implemented in strict Typ
   grayscale-alpha, and RGBA inputs;
 - streaming PNG encoding with alpha preservation, adaptive row filtering, and
   compression levels 0-9;
+- single-scan baseline JPEG decoding in bounded MCU rows;
+- baseline JPEG encoding with quality control and deterministic alpha
+  flattening (white by default);
+- all eight EXIF orientation transforms;
 - fused PNG crop execution to Buffer or file output;
 - nearest, bilinear, and Lanczos3 resize kernels with cached coefficients;
 - separable horizontal resizing with bounded vertical source-row retention;
@@ -52,9 +64,12 @@ const output = await (await Image.open('input.png'))
 ```
 
 Metadata inspection and pipeline geometry are operational. Non-interlaced PNG
-decode, crop, resize, and encode execute end-to-end through PixelBlocks. JPEG
-and GIF pixel execution remain explicit unsupported operations until their
-development phases.
+and JPEG decode, orientation, crop, resize, and encode execute end-to-end
+through PixelBlocks. GIF pixel execution remains an explicit unsupported
+operation until its development phase. Baseline JPEG decoding retains one MCU
+row of component samples and emits only the requested crop region; it does not
+materialize a source-sized RGB or RGBA bitmap. Progressive JPEG input and
+output are explicit unsupported operations.
 
 ## Northstar
 
@@ -64,6 +79,9 @@ successfully completing the same workflows and producing valid output.
 A fast result is not a win if the output is unsupported or invalid. For each
 workflow, PureJsImage must pass the same correctness checks as Jimp and then
 improve its median wall time. Lower peak RSS is the primary memory goal.
+For the primary Lambda downscale workflows, the stronger goal is for working
+memory to remain bounded rather than scale with source bitmap area. A modest
+percentage improvement over Jimp is progress, but not completion.
 
 The baseline uses `jimp@1.6.0`, matching the version in Tooldesk when the suite
 was created. It was recorded on August 6, 2026 using Node.js 24.16.0 on an Intel
@@ -127,6 +145,29 @@ See the adaptive-filter reports for the [large PNG](benchmark/results/purejsimag
 and [100-megapixel stress](benchmark/results/purejsimage-adaptive-stress-100mp-2026-08-06.md)
 workflows.
 
+Phase 4 implements first-party baseline JPEG decode and encode, quality control,
+deterministic alpha flattening, and EXIF auto-orientation. The previous Phase 4
+measurements used a conventional full-frame decoder and are not a valid result
+for the Lambda memory northstar.
+
+The initial JPEG memory results were an interim baseline, not the target
+architecture. They exposed that a conventional full-frame decoder still made
+peak RSS scale with source dimensions. The first-party baseline decoder now
+processes one MCU row at a time. Current first-party measurements are recorded
+below after validation.
+
+| 4000x3000 JPEG to 1200px | PureJsImage median | Jimp median | PureJsImage peak RSS | Jimp peak RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Cold process | 1,761.8 ms | 1,496.4 ms | 96.1 MiB | 586.4 MiB |
+| One warmup | 1,782.5 ms | 1,391.6 ms | 104.6 MiB | 594.6 MiB |
+
+The first-party path currently uses about 84% less peak RSS in both modes. It
+is 18% slower cold and 28% slower after one warmup, so CPU performance remains
+an explicit optimization target; the bounded-memory architecture is the new
+baseline, not permission to regress correctness or stop pursuing Jimp's speed.
+See the [cold-process report](benchmark/results/purejsimage-first-party-jpeg-resize-cold-2026-08-06.md)
+and [warm-process report](benchmark/results/purejsimage-first-party-jpeg-resize-warm-2026-08-06.md).
+
 | Workflow | Jimp median wall time | Jimp peak RSS |
 | --- | ---: | ---: |
 | Large JPEG metadata | 5,285 ms | 1,184 MiB |
@@ -173,9 +214,14 @@ the package itself.
 Jimp remains the portability reference because it is pure JavaScript and avoids
 native system dependencies. Its direct runtime packages are primarily internal
 modules from the same Jimp monorepo, published separately as a logical and
-packaging distinction. PureJsImage will keep the same self-contained source
-ownership while shipping it as one npm package with no production dependency
-tree.
+packaging distinction. PureJsImage instead ships one npm package with no
+production dependency tree.
+
+Production codecs and processing code are implemented in this repository; the
+package does not vendor or runtime-import third-party implementations.
+Development-only libraries such as `jpeg-js` are permitted solely as
+independent correctness and benchmark oracles and are never copied into the
+published package.
 
 Libraries used to build fixtures, validate output, and run the Jimp comparison
 are development dependencies only. They are not part of the PureJsImage runtime

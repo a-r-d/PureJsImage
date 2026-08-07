@@ -795,10 +795,13 @@ const createPngEncoder = async (sink: ImageSink, request: EncodeRequest): Promis
   header[9] = channels === 1 ? 0 : channels === 3 ? 2 : 6
   await writeChunk(sink, 'IHDR', header)
 
-  const { createDeflate } = await import('node:zlib')
+  const { constants, createDeflate } = await import('node:zlib')
   return new PngEncoder(
     sink,
-    createDeflate({ level }),
+    createDeflate({
+      level,
+      strategy: request.pixelFormat === 'rgb8' ? constants.Z_RLE : constants.Z_DEFAULT_STRATEGY,
+    }),
     request.width,
     request.height,
     request.pixelFormat,

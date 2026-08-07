@@ -79,6 +79,14 @@ output
 
 The goal is both lower memory usage and less unnecessary CPU work.
 
+The original production impetus is image processing in AWS Lambda. Lambda
+memory determines both reliability and cost, and Jimp's full RGBA bitmap plus
+temporary resize and codec buffers can force a function into a much larger
+memory tier than its output warrants. PureJsImage must make the common upload
+normalization path safe at constrained Lambda memory sizes. A faster pipeline
+that still retains a source-sized bitmap has not fully solved the motivating
+problem.
+
 ---
 
 # 2. Project Goals
@@ -121,8 +129,10 @@ packages, native addons, external binaries, or sibling codec packages.
 
 Benchmark runners, fixture generators, test decoders, and comparison libraries
 belong in `devDependencies` only. The production package must declare no
-`dependencies` or `optionalDependencies`. This zero-dependency constraint is a
-release gate and should be verified against the packed npm artifact.
+`dependencies` or `optionalDependencies`. Production codecs must be implemented
+in this repository rather than bundling or vendoring a third-party runtime
+implementation. This first-party, zero-dependency constraint is a release gate
+and should be verified against the packed npm artifact.
 
 ---
 
@@ -184,6 +194,15 @@ tile
 
 A full bitmap may still be necessary for certain codecs or operations, but it must be a fallback execution strategy rather than the fundamental image representation.
 
+For common baseline JPEGs used by Lambda upload workflows, the goal is stricter:
+decode MCU rows incrementally, push crop/downscale requirements toward the
+decoder, and release rows as soon as they cannot affect the output. Peak working
+memory should be governed primarily by compressed input, active MCU rows,
+resize support, and output dimensions—not by source width times source height.
+Progressive or unusual JPEG variants may initially be explicitly unsupported.
+Any future fallback must also be first-party, visible in metadata/diagnostics,
+and measured separately.
+
 ---
 
 ## 2.4 Broad modern format compatibility
@@ -206,7 +225,10 @@ The engine should therefore be able to gain:
 
 without architectural changes.
 
-This does not mean PureJsImage must implement every codec from scratch.
+Official production codecs must be implemented in this repository. External
+libraries may be used as development-only conformance and benchmark oracles,
+but their implementation code must not be copied, bundled, vendored, or loaded
+by the published runtime.
 
 ---
 
@@ -1662,6 +1684,11 @@ should not inherently require a:
 inside the transformation engine.
 
 The decoder may still impose format-specific requirements, but the processing architecture should not.
+
+For the primary 4000x3000 JPEG-to-1200px Lambda workflow, beating Jimp by a
+small percentage is not sufficient. The release trajectory should show that
+source-sized decode buffers and duplicate RGB/RGBA copies are being removed,
+with the eventual baseline-JPEG path retaining only bounded MCU/component rows.
 
 ---
 

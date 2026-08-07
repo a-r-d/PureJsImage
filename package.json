@@ -19,7 +19,7 @@
   },
   "scripts": {
     "check": "npm run typecheck && npm run build && npm run lint && npm run format:check && npm test",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format --write .",

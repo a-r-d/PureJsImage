@@ -1,4 +1,4 @@
-import { globSync } from 'node:fs'
+import { globSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 import packageJson from '../package.json' with { type: 'json' }
@@ -10,14 +10,27 @@ describe('package contract', () => {
     expect('optionalDependencies' in packageJson).toBe(false)
   })
 
-  it('keeps source, benchmark, and test code in TypeScript', () => {
+  it('keeps source, benchmark, scripts, and test code in TypeScript', () => {
     const javascriptSources = globSync([
       'benchmark/**/*.{cjs,js,jsx,mjs}',
+      'scripts/**/*.{cjs,js,jsx,mjs}',
       'src/**/*.{cjs,js,jsx,mjs}',
       'tests/**/*.{cjs,js,jsx,mjs}',
     ])
 
     expect(javascriptSources).toEqual([])
+  })
+
+  it('does not import third-party packages from production source', () => {
+    const imports = globSync('src/**/*.ts')
+      .flatMap((path) => [
+        ...readFileSync(path, 'utf8').matchAll(/(?:from\s+|import\()\s*['"]([^'"]+)['"]/g),
+      ])
+      .map((match) => match[1])
+      .filter((specifier): specifier is string => specifier !== undefined)
+      .filter((specifier) => !specifier.startsWith('.') && !specifier.startsWith('node:'))
+
+    expect(imports).toEqual([])
   })
 })
 
