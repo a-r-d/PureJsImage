@@ -1,0 +1,19 @@
+.github/workflows/ci.yml
+  s_4669831c864f0c::t_03df7398e55aa3 38-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "0c849efa0e2094c719ae136c1c7aa84e51fcdc55",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
