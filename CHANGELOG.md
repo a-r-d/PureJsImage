@@ -11,6 +11,16 @@ All notable changes to PureJsImage are documented in this file.
 - Made codec probing start from a stable registration-independent window and
   expand through declared `ftyp` boxes, with shared AVIF/HEIF brand parsing that
   excludes `minor_version` and bytes outside the box.
+- Added bounded embedded RGB ICC conversion for PNG `iCCP`, WebP `ICCP`, TIFF
+  `InterColorProfile` tag 34675, and AVIF/HEIF `prof` properties, preserving
+  alpha while converting decoded row blocks to sRGB.
+- Added PNG `gAMA`, `cHRM`, and `sRGB` precedence handling, bounded `iCCP`
+  decompression, and explicit rejection of unsupported higher-precedence
+  `cICP` signaling instead of silently treating tagged pixels as sRGB.
+- Added Display-P3-to-sRGB conversion for AVIF and HEIF `nclx` properties that
+  declare P3 primaries with the sRGB transfer function.
+- Made RGB JPEG profiles with LUT-only `A2B0` transforms fail explicitly as
+  unsupported instead of being mistaken for malformed matrix/TRC profiles.
 - Hardened baseline JPEG parsing around byte-stuffed entropy, marker fill bytes,
   trailing data, malformed segment lengths, hostile dimensions, invalid coding
   tables and sampling factors, unknown scan components, and truncated streams.

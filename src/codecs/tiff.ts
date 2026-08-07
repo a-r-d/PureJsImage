@@ -13,6 +13,12 @@ import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
+import {
+  ColorManagedDecoder,
+  MAX_ICC_PROFILE_BYTES,
+  parseRgbIccTransform,
+  type RgbIccTransform,
+} from './icc.ts'
 
 const blockRows = 32
 const compressionNone = 1
@@ -62,6 +68,7 @@ interface TiffDescription {
   readonly orientation: number
   readonly frames: number
   readonly pixelFormat: 'gray8' | 'rgb8' | 'rgba8'
+  readonly colorTransform: RgbIccTransform | undefined
 }
 
 interface Region {
@@ -190,6 +197,25 @@ const optionalValues = async (
 ): Promise<Uint32Array | undefined> => {
   const entry = ifd.entries.get(tag)
   return entry ? entryValues(source, entry, littleEndian, tag, maximumCount) : undefined
+}
+
+const undefinedEntryBytes = async (
+  source: ImageSource,
+  entry: IfdEntry,
+  tag: number,
+): Promise<Uint8Array> => {
+  if (entry.fieldType !== 7) throw invalidInput(`TIFF tag ${tag} must use the UNDEFINED field type`)
+  if (entry.count < 1) throw invalidInput(`TIFF tag ${tag} is empty`)
+  if (entry.count > MAX_ICC_PROFILE_BYTES) {
+    throw limitExceeded(`TIFF tag ${tag} exceeds 16 MiB`)
+  }
+  return entry.count <= 4
+    ? entry.inline.subarray(0, entry.count)
+    : readExactly(
+        source,
+        entry.valueOffset,
+        checkedEnd(entry.valueOffset, entry.count, source.size, `tag ${tag}`) - entry.valueOffset,
+      )
 }
 
 const singleValue = async (
@@ -370,6 +396,14 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     photometric === photometricPalette
       ? await paletteFor(source, ifd, littleEndian, baseBitDepth)
       : undefined
+  const iccEntry = ifd.entries.get(34675)
+  let colorTransform: RgbIccTransform | undefined
+  if (iccEntry) {
+    if (photometric !== photometricRgb && photometric !== photometricPalette) {
+      throw unsupportedOperation('TIFF grayscale ICC color management is not implemented')
+    }
+    colorTransform = parseRgbIccTransform(await undefinedEntryBytes(source, iccEntry, 34675))
+  }
   const sampleBitOffsets = new Uint32Array(samplesPerPixel)
   let bitsPerPixel = 0
   for (let sample = 0; sample < samplesPerPixel; sample += 1) {
@@ -414,6 +448,7 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
         : photometric === photometricWhiteIsZero || photometric === photometricBlackIsZero
           ? 'gray8'
           : 'rgb8',
+    colorTransform,
   }
 }
 
@@ -1033,7 +1068,12 @@ export const tiffCodec: ImageCodec = {
   minimumBytes: 4,
   detect: isTiff,
   metadata: async (source, limits) => metadata(await describeTiff(source, limits)),
-  createDecoder: async (source, limits) =>
-    new TiffDecoder(source, await describeTiff(source, limits)),
+  createDecoder: async (source, limits) => {
+    const description = await describeTiff(source, limits)
+    const decoder = new TiffDecoder(source, description)
+    return description.colorTransform
+      ? new ColorManagedDecoder(decoder, description.colorTransform)
+      : decoder
+  },
   createEncoder: async (sink, request) => TiffEncoder.create(sink, request),
 }

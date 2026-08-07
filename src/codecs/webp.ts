@@ -17,6 +17,7 @@ import { decodeLosslessWebp, decodeLosslessWebpAlpha } from './webp-lossless.ts'
 import { createLosslessWebpEncoder } from './webp-lossless-encode.ts'
 import { LossyWebpEncoder } from './webp-lossy-encode.ts'
 import { decodeVp8 } from './vp8.ts'
+import { ColorManagedDecoder, parseRgbIccTransform, type RgbIccTransform } from './icc.ts'
 
 interface WebpChunk {
   readonly type: string
@@ -32,6 +33,7 @@ interface ParsedWebp {
   readonly frames: number
   readonly image: WebpChunk | undefined
   readonly alpha: WebpChunk | undefined
+  readonly colorTransform: RgbIccTransform | undefined
 }
 
 const byte = (data: Uint8Array, offset: number): number => data[offset] ?? 0
@@ -93,10 +95,13 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
   let canvasHeight: number | undefined
   let extended = false
   let extendedAlpha = false
+  let extendedIcc = false
   let animated = false
   let frames = 0
   let image: WebpChunk | undefined
   let alpha: WebpChunk | undefined
+  let icc: WebpChunk | undefined
+  let imageDataStarted = false
   let offset = 12
   while (offset < end) {
     if (offset + 8 > end) throw truncatedInput('WebP chunk header is truncated')
@@ -123,15 +128,26 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
         throw invalidInput('WebP extended header reserved bits are set')
       }
       extended = true
+      extendedIcc = (flags & 0x20) !== 0
       extendedAlpha = (flags & 0x10) !== 0
       animated = (flags & 0x02) !== 0
       canvasWidth = uint24(data, payload + 4) + 1
       canvasHeight = uint24(data, payload + 7) + 1
-    } else if (type === 'ANMF') frames += 1
-    else if (type === 'ALPH') {
+    } else if (type === 'ICCP') {
+      if (!extended || imageDataStarted)
+        throw invalidInput('WebP ICCP chunk is missing VP8X or appears late')
+      if (icc) throw invalidInput('WebP contains multiple ICCP chunks')
+      icc = chunk
+    } else if (type === 'ANIM') imageDataStarted = true
+    else if (type === 'ANMF') {
+      imageDataStarted = true
+      frames += 1
+    } else if (type === 'ALPH') {
+      imageDataStarted = true
       if (alpha || image) throw invalidInput('WebP alpha chunk is duplicated or late')
       alpha = chunk
     } else if (type === 'VP8 ' || type === 'VP8L') {
+      imageDataStarted = true
       if (image) throw invalidInput('WebP contains multiple image bitstreams')
       image = chunk
     }
@@ -159,6 +175,9 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
   if (extendedAlpha && image?.type === 'VP8 ' && !alpha) {
     throw invalidInput('WebP extended alpha chunk is missing')
   }
+  if (extendedIcc !== (icc !== undefined)) {
+    throw invalidInput('WebP ICCP chunk is inconsistent with the extended header')
+  }
   return {
     width,
     height,
@@ -169,6 +188,9 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
     frames: animated ? Math.max(1, frames) : 1,
     image,
     alpha,
+    colorTransform: icc
+      ? parseRgbIccTransform(data.subarray(icc.offset, icc.offset + icc.length))
+      : undefined,
   }
 }
 
@@ -376,7 +398,8 @@ export const webpCodec: ImageCodec = {
     if (decoded.width !== parsed.width || decoded.height !== parsed.height) {
       throw invalidInput('WebP canvas and image bitstream dimensions do not match')
     }
-    return new WebpPixelDecoder(decoded.width, decoded.height, decoded.pixels)
+    const decoder = new WebpPixelDecoder(decoded.width, decoded.height, decoded.pixels)
+    return parsed.colorTransform ? new ColorManagedDecoder(decoder, parsed.colorTransform) : decoder
   },
   createEncoder: createWebpEncoder,
 }

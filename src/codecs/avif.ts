@@ -17,6 +17,12 @@ import { parseAv1Frame } from './av1-frame.ts'
 import { decodeRestrictedAv1Intra, yuv420ToRgba } from './av1-intra.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import {
+  ColorManagedDecoder,
+  createDisplayP3Transform,
+  parseRgbIccTransform,
+  type RgbIccTransform,
+} from './icc.ts'
+import {
   checkedAdd,
   createIsobmffReader,
   detectIsobmffBrands,
@@ -43,7 +49,11 @@ interface Av1Configuration {
 type Property =
   | { readonly type: 'av1C'; readonly configuration: Av1Configuration }
   | { readonly type: 'auxC'; readonly auxiliaryType: string }
-  | { readonly type: 'colr'; readonly colorSpace: string }
+  | {
+      readonly type: 'colr'
+      readonly colorSpace: string
+      readonly colorTransform?: RgbIccTransform
+    }
   | { readonly type: 'irot'; readonly angle: number }
   | { readonly type: 'ispe'; readonly width: number; readonly height: number }
   | { readonly type: 'pixi'; readonly bitDepth: number }
@@ -187,17 +197,28 @@ const parseProperty = async (source: ImageSource, box: Box): Promise<Property> =
     const method = ascii(data, 0, 4)
     if (method === 'nclx') {
       if (data.byteLength < 11) throw invalidInput('AVIF nclx color property is truncated')
+      const primaries = uint16BigEndian(data, 4)
+      const transfer = uint16BigEndian(data, 6)
       return {
         type: 'colr',
         colorSpace: colorSpaceName(
-          uint16BigEndian(data, 4),
-          uint16BigEndian(data, 6),
+          primaries,
+          transfer,
           uint16BigEndian(data, 8),
           ((data[10] ?? 0) & 0x80) !== 0,
         ),
+        ...(primaries === 12 && transfer === 13
+          ? { colorTransform: createDisplayP3Transform() }
+          : {}),
       }
     }
-    if (method === 'prof' || method === 'rICC') return { type: 'colr', colorSpace: 'icc' }
+    if (method === 'prof' || method === 'rICC') {
+      return {
+        type: 'colr',
+        colorSpace: 'icc',
+        colorTransform: parseRgbIccTransform(data.subarray(4)),
+      }
+    }
   }
   if (box.type === 'irot') {
     const data = await payload(source, box, 1)
@@ -339,6 +360,7 @@ export interface AvifBitstreamInspection {
   readonly colorItemIds: readonly number[]
   readonly primaryItemId: number
   readonly primaryItemType: 'av01' | 'grid'
+  readonly colorTransform?: RgbIccTransform
 }
 
 const av1ConfigurationMatches = (
@@ -369,6 +391,7 @@ export const inspectAvifBitstreams = async (
   if (primaryType !== 'av01' && primaryType !== 'grid') {
     throw invalidInput(`Unsupported AVIF primary item type: ${primaryType ?? 'missing'}`)
   }
+  const colorTransform = firstProperty(propertiesFor(meta, primaryItemId), 'colr')?.colorTransform
 
   let colorItemIds: readonly number[]
   if (primaryType === 'av01') colorItemIds = [primaryItemId]
@@ -427,6 +450,7 @@ export const inspectAvifBitstreams = async (
     primaryItemId,
     primaryItemType: primaryType,
     colorItemIds,
+    ...(colorTransform ? { colorTransform } : {}),
     ...(alphaItemId !== undefined ? { alphaItemId } : {}),
     codedImages,
   }
@@ -590,7 +614,10 @@ const createAvifDecoder = async (
     throw invalidInput('AVIF display dimensions do not match its AV1 frame')
   }
   const pixels = yuv420ToRgba(coded.sequence, decodeRestrictedAv1Intra(coded.sequence, frame))
-  return new AvifPixelDecoder(metadata.width, metadata.height, pixels)
+  const decoder = new AvifPixelDecoder(metadata.width, metadata.height, pixels)
+  return inspection.colorTransform
+    ? new ColorManagedDecoder(decoder, inspection.colorTransform)
+    : decoder
 }
 
 export const avifCodec: ImageCodec = {

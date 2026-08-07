@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
 import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
 import { MemorySource } from '../src/source.ts'
+import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
 const bytes32 = (value: number): readonly number[] => [
@@ -42,26 +43,42 @@ const lossyIntraAvif = Buffer.from(
 const avifBitstreamFixture = ({
   codedPayload = av1SequenceObu,
   configurationMatches = true,
+  displayP3 = false,
   height = 8,
+  iccProfile,
   idat = false,
   multipleExtents = false,
   width = 16,
 }: {
   codedPayload?: readonly number[]
   configurationMatches?: boolean
+  displayP3?: boolean
   height?: number
+  iccProfile?: Uint8Array
   idat?: boolean
   multipleExtents?: boolean
   width?: number
 } = {}): Uint8Array => {
   const fileType = box('ftyp', [...ascii('avif'), ...bytes32(0), ...ascii('avif')])
   const itemInfo = fullBox('iinf', [0, 1, ...fullBox('infe', [0, 1, 0, 0, ...ascii('av01'), 0], 2)])
+  const itemProperties = [
+    fullBox('ispe', [...bytes32(width), ...bytes32(height)]),
+    box('av1C', [0x81, 0, configurationMatches ? 0x0c : 0, 0]),
+    ...(iccProfile
+      ? [box('colr', [...ascii('prof'), ...iccProfile])]
+      : displayP3
+        ? [box('colr', [...ascii('nclx'), 0, 12, 0, 13, 0, 6, 0x80])]
+        : []),
+  ]
   const properties = box('iprp', [
-    ...box('ipco', [
-      ...fullBox('ispe', [...bytes32(width), ...bytes32(height)]),
-      ...box('av1C', [0x81, 0, configurationMatches ? 0x0c : 0, 0]),
+    ...box('ipco', itemProperties.flat()),
+    ...fullBox('ipma', [
+      ...bytes32(1),
+      0,
+      1,
+      itemProperties.length,
+      ...itemProperties.map((_property, index) => index + 1),
     ]),
-    ...fullBox('ipma', [...bytes32(1), 0, 1, 2, 1, 2]),
   ])
   const extentLengths = multipleExtents ? [4, codedPayload.length - 4] : [codedPayload.length]
   const extentOffsets = multipleExtents ? [0, 5] : [0]
@@ -239,6 +256,23 @@ describe('AVIF coded item inspection', () => {
     })
   })
 
+  it('parses AVIF prof color properties and rejects corrupt embedded profiles', async () => {
+    const inspection = await inspectAvifBitstreams(
+      new MemorySource(avifBitstreamFixture({ iccProfile: channelSwappingRgbProfile() })),
+    )
+    expect(inspection.colorTransform).toMatchObject({ kind: 'rgb' })
+    const displayP3 = await inspectAvifBitstreams(
+      new MemorySource(avifBitstreamFixture({ displayP3: true })),
+    )
+    expect(displayP3.colorTransform).toMatchObject({ kind: 'rgb' })
+
+    await expect(
+      inspectAvifBitstreams(
+        new MemorySource(avifBitstreamFixture({ iccProfile: Uint8Array.of(1, 2, 3) })),
+      ),
+    ).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
+  })
+
   it('joins multiple idat-relative extents without trusting bad av1C metadata', async () => {
     const result = await inspectAvifBitstreams(
       new MemorySource(
@@ -287,6 +321,20 @@ describe('AVIF restricted pixel decode', () => {
       await (await Image.open(input)).crop({ x: 1, y: 1, width: 1, height: 1 }).png().toBuffer(),
     )
     expect([cropped.width, cropped.height, ...cropped.data]).toEqual([1, 1, 130, 130, 130, 255])
+  })
+
+  it('applies an AVIF prof transform in the bounded block decoder', async () => {
+    const input = avifBitstreamFixture({
+      codedPayload: neutralLosslessAv1,
+      width: 2,
+      height: 2,
+      iccProfile: channelSwappingRgbProfile(),
+    })
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect([...output.data]).toEqual([
+      130, 130, 130, 255, 130, 130, 130, 255, 130, 130, 130, 255, 130, 130, 130, 255,
+    ])
   })
 
   it('decodes lossy 8x8 transforms, nonzero coefficients, and bilinear chroma', async () => {

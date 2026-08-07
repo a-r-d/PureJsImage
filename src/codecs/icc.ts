@@ -1,7 +1,9 @@
-import { invalidInput, truncatedInput } from '../errors.ts'
+import type { DecodeRequest, DecoderCapabilities, ImageDecoder } from '../codec.ts'
+import { invalidInput, truncatedInput, unsupportedOperation } from '../errors.ts'
+import type { PixelBlock, PixelFormat } from '../pixel.ts'
 
 const ICC_HEADER_BYTES = 128
-const MAX_ICC_PROFILE_BYTES = 16 * 1024 * 1024
+export const MAX_ICC_PROFILE_BYTES = 16 * 1024 * 1024
 const SRGB_ENCODE_STEPS = 4095
 
 interface IccTag {
@@ -184,10 +186,94 @@ const multiply3x3 = (left: Float64Array, right: Float64Array): Float64Array => {
   return output
 }
 
+const multiplyMatrixVector = (
+  matrix: Float64Array,
+  vector: readonly [number, number, number],
+): readonly [number, number, number] => [
+  (matrix[0] ?? 0) * vector[0] + (matrix[1] ?? 0) * vector[1] + (matrix[2] ?? 0) * vector[2],
+  (matrix[3] ?? 0) * vector[0] + (matrix[4] ?? 0) * vector[1] + (matrix[5] ?? 0) * vector[2],
+  (matrix[6] ?? 0) * vector[0] + (matrix[7] ?? 0) * vector[1] + (matrix[8] ?? 0) * vector[2],
+]
+
+const inverse3x3 = (matrix: Float64Array): Float64Array => {
+  const a = matrix[0] ?? 0
+  const b = matrix[1] ?? 0
+  const c = matrix[2] ?? 0
+  const d = matrix[3] ?? 0
+  const e = matrix[4] ?? 0
+  const f = matrix[5] ?? 0
+  const g = matrix[6] ?? 0
+  const h = matrix[7] ?? 0
+  const i = matrix[8] ?? 0
+  const determinant = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g)
+  if (!Number.isFinite(determinant) || Math.abs(determinant) < 1e-12) {
+    throw invalidInput('RGB chromaticities do not form an invertible color space')
+  }
+  const scale = 1 / determinant
+  return Float64Array.of(
+    (e * i - f * h) * scale,
+    (c * h - b * i) * scale,
+    (b * f - c * e) * scale,
+    (f * g - d * i) * scale,
+    (a * i - c * g) * scale,
+    (c * d - a * f) * scale,
+    (d * h - e * g) * scale,
+    (b * g - a * h) * scale,
+    (a * e - b * d) * scale,
+  )
+}
+
+const xyzToSrgb = Float64Array.of(
+  3.2404542,
+  -1.5371385,
+  -0.4985314,
+  -0.969266,
+  1.8760108,
+  0.041556,
+  0.0556434,
+  -0.2040259,
+  1.0572252,
+)
+
+const transformFromMatrixAndCurves = (
+  matrix: Float64Array,
+  redCurve: Float32Array,
+  greenCurve: Float32Array,
+  blueCurve: Float32Array,
+): RgbIccTransform => {
+  const contribution = (curve: Float32Array, scale: number): Float32Array =>
+    Float32Array.from(curve, (value) => value * scale)
+  return {
+    kind: 'rgb',
+    redToRed: contribution(redCurve, matrix[0] ?? 0),
+    redToGreen: contribution(redCurve, matrix[3] ?? 0),
+    redToBlue: contribution(redCurve, matrix[6] ?? 0),
+    greenToRed: contribution(greenCurve, matrix[1] ?? 0),
+    greenToGreen: contribution(greenCurve, matrix[4] ?? 0),
+    greenToBlue: contribution(greenCurve, matrix[7] ?? 0),
+    blueToRed: contribution(blueCurve, matrix[2] ?? 0),
+    blueToGreen: contribution(blueCurve, matrix[5] ?? 0),
+    blueToBlue: contribution(blueCurve, matrix[8] ?? 0),
+    encode: srgbEncodeLut(),
+  }
+}
+
 const rgbTransform = (
   profile: Uint8Array,
   allTags: ReadonlyMap<string, IccTag>,
 ): RgbIccTransform => {
+  if (
+    !allTags.has('rXYZ') ||
+    !allTags.has('gXYZ') ||
+    !allTags.has('bXYZ') ||
+    !allTags.has('rTRC') ||
+    !allTags.has('gTRC') ||
+    !allTags.has('bTRC')
+  ) {
+    if (allTags.has('A2B0')) {
+      throw unsupportedOperation('RGB ICC LUT-only A2B0 transforms are not implemented')
+    }
+  }
   const red = xyzTag(profile, requiredTag(allTags, 'rXYZ'))
   const green = xyzTag(profile, requiredTag(allTags, 'gXYZ'))
   const blue = xyzTag(profile, requiredTag(allTags, 'bXYZ'))
@@ -213,36 +299,154 @@ const rgbTransform = (
     -0.020483,
     1.3299098,
   )
-  const xyzToSrgb = Float64Array.of(
-    3.2404542,
-    -1.5371385,
-    -0.4985314,
-    -0.969266,
-    1.8760108,
-    0.041556,
-    0.0556434,
-    -0.2040259,
-    1.0572252,
-  )
   const matrix = multiply3x3(xyzToSrgb, multiply3x3(d50ToD65, colorants))
   const redCurve = curveLut(profile, requiredTag(allTags, 'rTRC'))
   const greenCurve = curveLut(profile, requiredTag(allTags, 'gTRC'))
   const blueCurve = curveLut(profile, requiredTag(allTags, 'bTRC'))
-  const contribution = (curve: Float32Array, scale: number): Float32Array =>
-    Float32Array.from(curve, (value) => value * scale)
-  return {
-    kind: 'rgb',
-    redToRed: contribution(redCurve, matrix[0] ?? 0),
-    redToGreen: contribution(redCurve, matrix[3] ?? 0),
-    redToBlue: contribution(redCurve, matrix[6] ?? 0),
-    greenToRed: contribution(greenCurve, matrix[1] ?? 0),
-    greenToGreen: contribution(greenCurve, matrix[4] ?? 0),
-    greenToBlue: contribution(greenCurve, matrix[7] ?? 0),
-    blueToRed: contribution(blueCurve, matrix[2] ?? 0),
-    blueToGreen: contribution(blueCurve, matrix[5] ?? 0),
-    blueToBlue: contribution(blueCurve, matrix[8] ?? 0),
-    encode: srgbEncodeLut(),
+  return transformFromMatrixAndCurves(matrix, redCurve, greenCurve, blueCurve)
+}
+
+export interface RgbChromaticities {
+  readonly whiteX: number
+  readonly whiteY: number
+  readonly redX: number
+  readonly redY: number
+  readonly greenX: number
+  readonly greenY: number
+  readonly blueX: number
+  readonly blueY: number
+}
+
+const chromaticityXyz = (x: number, y: number): readonly [number, number, number] => {
+  if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || y <= 0 || x + y > 1) {
+    throw invalidInput('PNG cHRM contains an invalid chromaticity')
   }
+  return [x / y, 1, (1 - x - y) / y]
+}
+
+const chromaticityMatrix = (chromaticities: RgbChromaticities): Float64Array => {
+  const red = chromaticityXyz(chromaticities.redX, chromaticities.redY)
+  const green = chromaticityXyz(chromaticities.greenX, chromaticities.greenY)
+  const blue = chromaticityXyz(chromaticities.blueX, chromaticities.blueY)
+  const white = chromaticityXyz(chromaticities.whiteX, chromaticities.whiteY)
+  const primaries = Float64Array.of(
+    red[0],
+    green[0],
+    blue[0],
+    red[1],
+    green[1],
+    blue[1],
+    red[2],
+    green[2],
+    blue[2],
+  )
+  const scales = multiplyMatrixVector(inverse3x3(primaries), white)
+  if (scales.some((scale) => !Number.isFinite(scale) || scale <= 0)) {
+    throw invalidInput('PNG cHRM primaries do not contain the declared white point')
+  }
+  const sourceToXyz = Float64Array.of(
+    red[0] * scales[0],
+    green[0] * scales[1],
+    blue[0] * scales[2],
+    red[1] * scales[0],
+    green[1] * scales[1],
+    blue[1] * scales[2],
+    red[2] * scales[0],
+    green[2] * scales[1],
+    blue[2] * scales[2],
+  )
+  const bradford = Float64Array.of(
+    0.8951,
+    0.2664,
+    -0.1614,
+    -0.7502,
+    1.7135,
+    0.0367,
+    0.0389,
+    -0.0685,
+    1.0296,
+  )
+  const inverseBradford = Float64Array.of(
+    0.9869929,
+    -0.1470543,
+    0.1599627,
+    0.4323053,
+    0.5183603,
+    0.0492912,
+    -0.0085287,
+    0.0400428,
+    0.9684867,
+  )
+  const sourceCone = multiplyMatrixVector(bradford, white)
+  const destinationCone = multiplyMatrixVector(bradford, [0.95047, 1, 1.08883])
+  if (sourceCone.some((value) => !Number.isFinite(value) || Math.abs(value) < 1e-12)) {
+    throw invalidInput('PNG cHRM white point cannot be chromatically adapted')
+  }
+  const adaptation = multiply3x3(
+    inverseBradford,
+    multiply3x3(
+      Float64Array.of(
+        destinationCone[0] / sourceCone[0],
+        0,
+        0,
+        0,
+        destinationCone[1] / sourceCone[1],
+        0,
+        0,
+        0,
+        destinationCone[2] / sourceCone[2],
+      ),
+      bradford,
+    ),
+  )
+  return multiply3x3(xyzToSrgb, multiply3x3(adaptation, sourceToXyz))
+}
+
+export const createPngColorTransform = (
+  gamma: number,
+  chromaticities?: RgbChromaticities,
+): RgbIccTransform => {
+  if (!Number.isFinite(gamma) || gamma <= 0) throw invalidInput('PNG gAMA value must be positive')
+  const curve = Float32Array.from({ length: 256 }, (_, value) => (value / 255) ** (1 / gamma))
+  const matrix = chromaticities
+    ? chromaticityMatrix(chromaticities)
+    : Float64Array.of(1, 0, 0, 0, 1, 0, 0, 0, 1)
+  return transformFromMatrixAndCurves(matrix, curve, curve, curve)
+}
+
+export const createPngGrayTransform = (gamma: number): Uint8Array => {
+  if (!Number.isFinite(gamma) || gamma <= 0) throw invalidInput('PNG gAMA value must be positive')
+  const encode = srgbEncodeLut()
+  return Uint8Array.from({ length: 256 }, (_, value) => {
+    const linear = (value / 255) ** (1 / gamma)
+    return encode[Math.round(linear * SRGB_ENCODE_STEPS)] ?? 0
+  })
+}
+
+let cachedDisplayP3Transform: RgbIccTransform | undefined
+
+export const createDisplayP3Transform = (): RgbIccTransform => {
+  if (cachedDisplayP3Transform) return cachedDisplayP3Transform
+  const curve = Float32Array.from({ length: 256 }, (_, value) => {
+    const encoded = value / 255
+    return encoded <= 0.04045 ? encoded / 12.92 : ((encoded + 0.055) / 1.055) ** 2.4
+  })
+  cachedDisplayP3Transform = transformFromMatrixAndCurves(
+    chromaticityMatrix({
+      whiteX: 0.3127,
+      whiteY: 0.329,
+      redX: 0.68,
+      redY: 0.32,
+      greenX: 0.265,
+      greenY: 0.69,
+      blueX: 0.15,
+      blueY: 0.06,
+    }),
+    curve,
+    curve,
+    curve,
+  )
+  return cachedDisplayP3Transform
 }
 
 const sampledTable = (
@@ -339,6 +543,7 @@ export const parseJpegIccTransform = (profile: Uint8Array): JpegIccTransform => 
   if (
     profileBytes < ICC_HEADER_BYTES + 4 ||
     profileBytes > profile.byteLength ||
+    profile.byteLength > MAX_ICC_PROFILE_BYTES ||
     profileBytes > MAX_ICC_PROFILE_BYTES ||
     signature(profile, 36) !== 'acsp'
   ) {
@@ -351,6 +556,14 @@ export const parseJpegIccTransform = (profile: Uint8Array): JpegIccTransform => 
   if (colorSpace === 'RGB ') return rgbTransform(profile, allTags)
   if (colorSpace === 'CMYK') return cmykTransform(profile, allTags, pcs)
   throw invalidInput(`ICC input color space ${colorSpace} is unsupported`)
+}
+
+export const parseRgbIccTransform = (profile: Uint8Array): RgbIccTransform => {
+  const transform = parseJpegIccTransform(profile)
+  if (transform.kind !== 'rgb') {
+    throw invalidInput('Embedded ICC profile must use the RGB input color space')
+  }
+  return transform
 }
 
 const encodeLinear = (value: number, table: Uint8Array): number => {
@@ -381,6 +594,99 @@ export const applyRgbIcc = (data: Uint8Array, transform: RgbIccTransform): void 
         (transform.blueToBlue[blue] ?? 0),
       transform.encode,
     )
+  }
+}
+
+const applyRgbIccBlock = (block: PixelBlock, transform: RgbIccTransform): void => {
+  const channels = block.format === 'rgb8' ? 3 : block.format === 'rgba8' ? 4 : 0
+  if (channels === 0) {
+    throw unsupportedOperation(`RGB ICC conversion does not support ${block.format} pixels`)
+  }
+  for (let row = 0; row < block.height; row += 1) {
+    const start = row * block.stride
+    const end = start + block.width * channels
+    for (let offset = start; offset < end; offset += channels) {
+      const red = block.data[offset] ?? 0
+      const green = block.data[offset + 1] ?? 0
+      const blue = block.data[offset + 2] ?? 0
+      block.data[offset] = encodeLinear(
+        (transform.redToRed[red] ?? 0) +
+          (transform.greenToRed[green] ?? 0) +
+          (transform.blueToRed[blue] ?? 0),
+        transform.encode,
+      )
+      block.data[offset + 1] = encodeLinear(
+        (transform.redToGreen[red] ?? 0) +
+          (transform.greenToGreen[green] ?? 0) +
+          (transform.blueToGreen[blue] ?? 0),
+        transform.encode,
+      )
+      block.data[offset + 2] = encodeLinear(
+        (transform.redToBlue[red] ?? 0) +
+          (transform.greenToBlue[green] ?? 0) +
+          (transform.blueToBlue[blue] ?? 0),
+        transform.encode,
+      )
+    }
+  }
+}
+
+export class ColorManagedDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: PixelFormat
+  readonly capabilities: DecoderCapabilities
+  readonly #decoder: ImageDecoder
+  readonly #transform: RgbIccTransform
+
+  constructor(decoder: ImageDecoder, transform: RgbIccTransform) {
+    this.#decoder = decoder
+    this.#transform = transform
+    this.width = decoder.width
+    this.height = decoder.height
+    this.pixelFormat = decoder.pixelFormat
+    this.capabilities = decoder.capabilities
+  }
+
+  async *decode(request?: DecodeRequest): AsyncGenerator<PixelBlock> {
+    for await (const block of this.#decoder.decode(request)) {
+      applyRgbIccBlock(block, this.#transform)
+      yield block
+    }
+  }
+}
+
+export class GrayColorManagedDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: PixelFormat
+  readonly capabilities: DecoderCapabilities
+  readonly #decoder: ImageDecoder
+  readonly #transform: Uint8Array
+
+  constructor(decoder: ImageDecoder, transform: Uint8Array) {
+    this.#decoder = decoder
+    this.#transform = transform
+    this.width = decoder.width
+    this.height = decoder.height
+    this.pixelFormat = decoder.pixelFormat
+    this.capabilities = decoder.capabilities
+  }
+
+  async *decode(request?: DecodeRequest): AsyncGenerator<PixelBlock> {
+    for await (const block of this.#decoder.decode(request)) {
+      if (block.format !== 'gray8') {
+        throw unsupportedOperation(`Grayscale color conversion does not support ${block.format}`)
+      }
+      for (let row = 0; row < block.height; row += 1) {
+        const start = row * block.stride
+        const end = start + block.width
+        for (let offset = start; offset < end; offset += 1) {
+          block.data[offset] = this.#transform[block.data[offset] ?? 0] ?? 0
+        }
+      }
+      yield block
+    }
   }
 }
 

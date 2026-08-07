@@ -10,6 +10,7 @@ import {
   readHevcSliceData,
 } from '../src/codecs/hevc.ts'
 import { defaultImageLimits, MemorySource } from '../src/index.ts'
+import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
 const bytes32 = (value: number): readonly number[] => [
@@ -536,6 +537,8 @@ const decodedHeifFixture = (
   withCleanAperture = false,
   asGrid = false,
   rotation?: 0 | 1 | 2 | 3,
+  iccProfile?: Uint8Array,
+  displayP3 = false,
 ): Uint8Array => {
   const vps = base64Bytes('QAEMAf//AWAAAAMAkAAAAwAAAwAelZgJ')
   const sps = base64Bytes('QgEBAWAAAAMAkAAAAwAAAwAeoCCBBZZWaSTK8BaAgAAAAwCAAAADAIQ=')
@@ -590,7 +593,12 @@ const decodedHeifFixture = (
       fullBox('ispe', [...bytes32(64), ...bytes32(64)]),
       box('hvcC', configuration),
       fullBox('pixi', [3, 8, 8, 8]),
-      box('colr', [...ascii('nclx'), 0, 1, 0, 13, 0, 6, 0]),
+      box(
+        'colr',
+        iccProfile
+          ? [...ascii('prof'), ...iccProfile]
+          : [...ascii('nclx'), 0, displayP3 ? 12 : 1, 0, 13, 0, 6, 0],
+      ),
     ]
     const associations = fullBox('ipma', [
       ...bytes32(5),
@@ -630,7 +638,12 @@ const decodedHeifFixture = (
     fullBox('ispe', [...bytes32(64), ...bytes32(64)]),
     fullBox('pixi', [3, 8, 8, 8]),
     box('hvcC', configuration),
-    box('colr', [...ascii('nclx'), 0, 1, 0, 13, 0, 6, 0]),
+    box(
+      'colr',
+      iccProfile
+        ? [...ascii('prof'), ...iccProfile]
+        : [...ascii('nclx'), 0, displayP3 ? 12 : 1, 0, 13, 0, 6, 0],
+    ),
     ...(withCleanAperture
       ? [
           box('clap', [
@@ -1032,6 +1045,61 @@ describe('HEIF HEVC bitstream inspection', () => {
     expect(createHash('sha256').update(rgba).digest('hex')).toBe(
       '16eef67ea16196265e393967205ded7ee45415c314125ff6cf5ce3cd8268ac89',
     )
+  })
+
+  it('parses HEIF prof transforms and rejects corrupt embedded profiles', async () => {
+    const profiled = await Image.open(
+      decodedHeifFixture(false, false, undefined, channelSwappingRgbProfile()),
+    )
+    await expect(profiled.metadata()).resolves.toMatchObject({ colorSpace: 'icc' })
+
+    await expect(
+      (
+        await Image.open(decodedHeifFixture(false, false, undefined, Uint8Array.of(1, 2, 3)))
+      ).metadata(),
+    ).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
+  })
+
+  it('converts Display-P3 nclx HEIF pixels to sRGB', async () => {
+    const reference = await heifCodec.createDecoder?.(
+      new MemorySource(decodedHeifFixture()),
+      defaultImageLimits,
+    )
+    const displayP3 = await heifCodec.createDecoder?.(
+      new MemorySource(decodedHeifFixture(false, false, undefined, undefined, true)),
+      defaultImageLimits,
+    )
+    if (!reference || !displayP3) throw new Error('HEIF decoder is unavailable')
+    const before = []
+    const after = []
+    for await (const block of reference.decode()) before.push(...block.data)
+    for await (const block of displayP3.decode()) after.push(...block.data)
+    const decodeSrgb = (value: number): number => {
+      const encoded = value / 255
+      return encoded <= 0.04045 ? encoded / 12.92 : ((encoded + 0.055) / 1.055) ** 2.4
+    }
+    const encodeSrgb = (value: number): number => {
+      const linear = Math.max(0, Math.min(1, value))
+      return Math.round(
+        255 * (linear <= 0.0031308 ? linear * 12.92 : 1.055 * linear ** (1 / 2.4) - 0.055),
+      )
+    }
+    for (let offset = 0; offset < before.length; offset += 4) {
+      const red = decodeSrgb(before[offset] ?? 0)
+      const green = decodeSrgb(before[offset + 1] ?? 0)
+      const blue = decodeSrgb(before[offset + 2] ?? 0)
+      const expected = [
+        encodeSrgb(1.224745 * red - 0.224904 * green),
+        encodeSrgb(-0.042058 * red + 1.042081 * green),
+        encodeSrgb(-0.019642 * red - 0.078655 * green + 1.098537 * blue),
+      ]
+      for (let channel = 0; channel < 3; channel += 1) {
+        expect(
+          Math.abs((after[offset + channel] ?? 0) - (expected[channel] ?? 0)),
+        ).toBeLessThanOrEqual(1)
+      }
+      expect(after[offset + 3]).toBe(before[offset + 3])
+    }
   })
 
   it('applies clean aperture and validates region decode coordinates', async () => {

@@ -2,10 +2,11 @@ import { deflateSync } from 'node:zlib'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
+import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
 type Rgba = readonly [red: number, green: number, blue: number, alpha: number]
-type TiffFieldType = 3 | 4
+type TiffFieldType = 3 | 4 | 7
 
 interface TiffEntryFixture {
   readonly tag: number
@@ -27,9 +28,10 @@ interface TiffFixtureOptions {
   readonly extraSamples?: readonly number[]
   readonly colorMap?: readonly number[]
   readonly orientation?: number
+  readonly iccProfile?: Uint8Array
 }
 
-const typeBytes = (type: TiffFieldType): number => (type === 3 ? 2 : 4)
+const typeBytes = (type: TiffFieldType): number => (type === 3 ? 2 : type === 4 ? 4 : 1)
 
 const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
   const littleEndian = options.littleEndian ?? true
@@ -54,6 +56,9 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
       ...(options.colorMap ? [{ tag: 320, type: 3 as const, values: options.colorMap }] : []),
       ...(options.extraSamples
         ? [{ tag: 338, type: 3 as const, values: options.extraSamples }]
+        : []),
+      ...(options.iccProfile
+        ? [{ tag: 34675, type: 7 as const, values: Array.from(options.iccProfile) }]
         : []),
     ]
     return values.sort((left, right) => left.tag - right.tag)
@@ -99,7 +104,8 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
       const offset = valuesOffset + valueIndex * typeBytes(entry.type)
       const value = entry.values[valueIndex] ?? 0
       if (entry.type === 3) view.setUint16(offset, value, littleEndian)
-      else view.setUint32(offset, value, littleEndian)
+      else if (entry.type === 4) view.setUint32(offset, value, littleEndian)
+      else output[offset] = value
     }
   }
   view.setUint32(10 + finalEntries.length * 12, 0, littleEndian)
@@ -151,6 +157,59 @@ const pixel = (image: PNG, x: number, y: number): Rgba => {
 }
 
 describe('TIFF codec', () => {
+  it('converts TIFF InterColorProfile tag 34675 to sRGB', async () => {
+    const input = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 2,
+      iccProfile: channelSwappingRgbProfile(),
+      strips: [Uint8Array.of(10, 20, 30, 90, 110, 130)],
+    })
+    const decoded = await decodedPng(input)
+
+    expect(pixel(decoded, 0, 0)).toEqual([30, 20, 10, 255])
+    expect(pixel(decoded, 1, 0)).toEqual([130, 110, 90, 255])
+  })
+
+  it('rejects corrupt and non-UNDEFINED TIFF ICC profile tags', async () => {
+    const corrupt = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 2,
+      iccProfile: Uint8Array.of(1, 2, 3),
+      strips: [Uint8Array.of(10, 20, 30)],
+    })
+    const wrongType = Uint8Array.from(
+      tiffFixture({
+        width: 1,
+        height: 1,
+        bitsPerSample: [8, 8, 8],
+        compression: 1,
+        photometric: 2,
+        iccProfile: channelSwappingRgbProfile(),
+        strips: [Uint8Array.of(10, 20, 30)],
+      }),
+    )
+    const view = new DataView(wrongType.buffer)
+    const entryCount = view.getUint16(8, true)
+    for (let index = 0; index < entryCount; index += 1) {
+      const offset = 10 + index * 12
+      if (view.getUint16(offset, true) === 34675) view.setUint16(offset + 2, 1, true)
+    }
+
+    await expect((await Image.open(corrupt)).metadata()).rejects.toMatchObject({
+      code: 'TRUNCATED_INPUT',
+    })
+    await expect((await Image.open(wrongType)).metadata()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'TIFF tag 34675 must use the UNDEFINED field type',
+    })
+  })
+
   it('reads big-endian metadata and decodes RGB strips and regions', async () => {
     const firstPage = tiffFixture({
       width: 2,

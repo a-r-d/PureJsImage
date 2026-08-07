@@ -8,7 +8,13 @@ import type {
   ImageEncoder,
   ImageMetadata,
 } from '../codec.ts'
-import { ImageError, invalidInput, limitExceeded, truncatedInput } from '../errors.ts'
+import {
+  ImageError,
+  invalidInput,
+  limitExceeded,
+  truncatedInput,
+  unsupportedOperation,
+} from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
@@ -17,6 +23,16 @@ import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
 import { crc32, updateCrc32 } from './crc32.ts'
 import { ascii, uint32BigEndian } from './helpers.ts'
+import {
+  ColorManagedDecoder,
+  GrayColorManagedDecoder,
+  MAX_ICC_PROFILE_BYTES,
+  createPngColorTransform,
+  createPngGrayTransform,
+  parseRgbIccTransform,
+  type RgbChromaticities,
+  type RgbIccTransform,
+} from './icc.ts'
 
 const signature = Uint8Array.of(137, 80, 78, 71, 13, 10, 26, 10)
 const idatType = Uint8Array.of(73, 68, 65, 84)
@@ -42,6 +58,8 @@ interface PngDescription {
   readonly palette: Uint8Array | undefined
   readonly transparency: Uint8Array | undefined
   readonly idat: readonly ChunkRange[]
+  readonly colorTransform: RgbIccTransform | undefined
+  readonly grayTransform: Uint8Array | undefined
 }
 
 interface CropRegion {
@@ -154,6 +172,98 @@ const validateChunkCrc = async (
   }
 }
 
+const inflateIccProfile = async (compressed: Uint8Array): Promise<Uint8Array> => {
+  if (compressed.byteLength === 0) throw invalidInput('PNG iCCP profile data is empty')
+  if (compressed.byteLength > MAX_ICC_PROFILE_BYTES) {
+    throw limitExceeded('PNG compressed ICC profile exceeds 16 MiB')
+  }
+  const chunks: Uint8Array[] = []
+  let bytes = 0
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined
+  try {
+    const stream = new Blob([compressed.slice()])
+      .stream()
+      .pipeThrough(new DecompressionStream('deflate'))
+    reader = stream.getReader()
+    while (true) {
+      const result = await reader.read()
+      if (result.done) break
+      bytes += result.value.byteLength
+      if (bytes > MAX_ICC_PROFILE_BYTES) {
+        await reader.cancel()
+        throw limitExceeded('PNG decompressed ICC profile exceeds 16 MiB')
+      }
+      chunks.push(result.value)
+    }
+  } catch (error) {
+    if (error instanceof ImageError) throw error
+    throw invalidInput('PNG iCCP profile could not be decompressed')
+  } finally {
+    reader?.releaseLock()
+  }
+  const profile = new Uint8Array(bytes)
+  let offset = 0
+  for (const chunk of chunks) {
+    profile.set(chunk, offset)
+    offset += chunk.byteLength
+  }
+  return profile
+}
+
+const parseIccChunk = (data: Uint8Array): Uint8Array => {
+  let separator = -1
+  for (let index = 0; index < Math.min(data.byteLength, 80); index += 1) {
+    if (data[index] === 0) {
+      separator = index
+      break
+    }
+  }
+  if (separator < 1 || separator > 79 || separator + 2 > data.byteLength) {
+    throw invalidInput('PNG iCCP profile name or compression header is invalid')
+  }
+  let previousSpace = false
+  for (let index = 0; index < separator; index += 1) {
+    const value = data[index] ?? 0
+    const space = value === 0x20
+    if (
+      !((value >= 0x20 && value <= 0x7e) || value >= 0xa1) ||
+      (space && (index === 0 || index === separator - 1 || previousSpace))
+    ) {
+      throw invalidInput('PNG iCCP profile name is invalid')
+    }
+    previousSpace = space
+  }
+  if (data[separator + 1] !== 0) {
+    throw unsupportedOperation('PNG iCCP compression method is unsupported')
+  }
+  return data.slice(separator + 2)
+}
+
+const parseChromaticities = (data: Uint8Array): RgbChromaticities => {
+  if (data.byteLength !== 32) throw invalidInput('PNG cHRM chunk must contain 32 bytes')
+  const value = (offset: number): number => uint32BigEndian(data, offset) / 100_000
+  const chromaticities: RgbChromaticities = {
+    whiteX: value(0),
+    whiteY: value(4),
+    redX: value(8),
+    redY: value(12),
+    greenX: value(16),
+    greenY: value(20),
+    blueX: value(24),
+    blueY: value(28),
+  }
+  const pairs = [
+    [chromaticities.whiteX, chromaticities.whiteY],
+    [chromaticities.redX, chromaticities.redY],
+    [chromaticities.greenX, chromaticities.greenY],
+    [chromaticities.blueX, chromaticities.blueY],
+  ] as const
+  if (pairs.some(([x, y]) => y <= 0 || x + y > 1)) {
+    throw invalidInput('PNG cHRM contains an invalid chromaticity')
+  }
+  return chromaticities
+}
+
 const parsePng = async (
   source: ImageSource,
   limits: ImageLimits,
@@ -199,6 +309,14 @@ const parsePng = async (
   let foundPalette = false
   let foundTransparency = false
   let foundAnimation = false
+  let foundIcc = false
+  let foundGamma = false
+  let foundChromaticities = false
+  let foundSrgb = false
+  let foundCicp = false
+  let compressedIcc: Uint8Array | undefined
+  let gamma: number | undefined
+  let chromaticities: RgbChromaticities | undefined
   let imageDataState: 'before' | 'inside' | 'after' = 'before'
 
   while (offset + 12 <= source.size && chunks < 10_000) {
@@ -212,7 +330,42 @@ const parsePng = async (
     if (type !== 'IDAT') await validateChunkCrc(source, type, typeBytes, dataOffset, length)
     if (type !== 'IDAT' && imageDataState === 'inside') imageDataState = 'after'
 
-    if (type === 'PLTE') {
+    if (type === 'iCCP') {
+      if (foundIcc) throw invalidInput('PNG contains multiple iCCP chunks')
+      if (imageDataState !== 'before' || foundPalette)
+        throw invalidInput('PNG iCCP must precede the palette and image data')
+      compressedIcc = parseIccChunk(await readExactly(source, dataOffset, length))
+      foundIcc = true
+    } else if (type === 'gAMA') {
+      if (foundGamma) throw invalidInput('PNG contains multiple gAMA chunks')
+      if (imageDataState !== 'before' || foundPalette)
+        throw invalidInput('PNG gAMA must precede the palette and image data')
+      if (length !== 4) throw invalidInput('PNG gAMA chunk must contain four bytes')
+      const encodedGamma = uint32BigEndian(await readExactly(source, dataOffset, length), 0)
+      if (encodedGamma === 0) throw invalidInput('PNG gAMA value must be positive')
+      gamma = encodedGamma / 100_000
+      foundGamma = true
+    } else if (type === 'cHRM') {
+      if (foundChromaticities) throw invalidInput('PNG contains multiple cHRM chunks')
+      if (imageDataState !== 'before' || foundPalette)
+        throw invalidInput('PNG cHRM must precede the palette and image data')
+      chromaticities = parseChromaticities(await readExactly(source, dataOffset, length))
+      foundChromaticities = true
+    } else if (type === 'sRGB') {
+      if (foundSrgb) throw invalidInput('PNG contains multiple sRGB chunks')
+      if (imageDataState !== 'before' || foundPalette)
+        throw invalidInput('PNG sRGB must precede the palette and image data')
+      const intent = await readExactly(source, dataOffset, length)
+      if (length !== 1 || (intent[0] ?? 4) > 3)
+        throw invalidInput('PNG sRGB rendering intent is invalid')
+      foundSrgb = true
+    } else if (type === 'cICP') {
+      if (foundCicp) throw invalidInput('PNG contains multiple cICP chunks')
+      if (imageDataState !== 'before' || foundPalette)
+        throw invalidInput('PNG cICP must precede the palette and image data')
+      if (length !== 4) throw invalidInput('PNG cICP chunk must contain four bytes')
+      foundCicp = true
+    } else if (type === 'PLTE') {
       if (foundPalette) throw invalidInput('PNG contains multiple PLTE chunks')
       if (imageDataState !== 'before') throw invalidInput('PNG PLTE must precede image data')
       if (foundTransparency) throw invalidInput('PNG PLTE must precede tRNS')
@@ -291,6 +444,21 @@ const parsePng = async (
     }
   }
 
+  if (foundCicp) {
+    throw unsupportedOperation('PNG cICP color management is not implemented')
+  }
+  let colorTransform: RgbIccTransform | undefined
+  let grayTransform: Uint8Array | undefined
+  if (compressedIcc) {
+    colorTransform = parseRgbIccTransform(await inflateIccProfile(compressedIcc))
+  } else if (!foundSrgb && gamma !== undefined) {
+    if (rawColorType === 0 && !hasAlpha) {
+      grayTransform = createPngGrayTransform(gamma)
+    } else {
+      colorTransform = createPngColorTransform(gamma, chromaticities)
+    }
+  }
+
   return {
     width,
     height,
@@ -302,6 +470,8 @@ const parsePng = async (
     palette,
     transparency,
     idat,
+    colorTransform,
+    grayTransform,
   }
 }
 
@@ -1180,7 +1350,13 @@ export const pngCodec: ImageCodec = {
     }
   },
   async createDecoder(source: ImageSource, limits: ImageLimits): Promise<ImageDecoder> {
-    return new PngDecoder(source, await parsePng(source, limits, true), limits)
+    const description = await parsePng(source, limits, true)
+    const decoder = new PngDecoder(source, description, limits)
+    if (description.colorTransform)
+      return new ColorManagedDecoder(decoder, description.colorTransform)
+    return description.grayTransform
+      ? new GrayColorManagedDecoder(decoder, description.grayTransform)
+      : decoder
   },
   createEncoder: createPngEncoder,
 }

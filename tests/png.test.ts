@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 
 import { crc32 } from '../src/codecs/crc32.ts'
+import { displayP3RgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
 const temporaryDirectories: string[] = []
@@ -44,6 +45,7 @@ const specializedPng = (
   colorType: number,
   scanlines: Uint8Array,
   palette?: Uint8Array,
+  chunksBeforePalette: readonly Buffer[] = [],
 ): Buffer => {
   const header = Buffer.alloc(13)
   header.writeUInt32BE(width, 0)
@@ -53,6 +55,7 @@ const specializedPng = (
   return Buffer.concat([
     Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
     pngChunk('IHDR', header),
+    ...chunksBeforePalette,
     ...(palette ? [pngChunk('PLTE', palette)] : []),
     pngChunk('IDAT', deflateSync(scanlines)),
     pngChunk('IEND', new Uint8Array()),
@@ -60,6 +63,78 @@ const specializedPng = (
 }
 
 describe('PNG pixel pipeline', () => {
+  it('converts a Display-P3 iCCP profile to sRGB without changing alpha', async () => {
+    const profileData = Buffer.concat([
+      Buffer.from('Display P3\0', 'latin1'),
+      Buffer.from([0]),
+      deflateSync(displayP3RgbProfile()),
+    ])
+    const input = specializedPng(
+      2,
+      1,
+      8,
+      6,
+      Uint8Array.of(0, 180, 100, 40, 77, 90, 110, 130, 201),
+      undefined,
+      [pngChunk('iCCP', profileData)],
+    )
+    const decoded = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(Array.from(decoded.data)).toEqual([193, 95, 14, 77, 85, 111, 132, 201])
+  })
+
+  it('applies PNG gAMA and cHRM only when no higher-precedence sRGB chunk exists', async () => {
+    const gamma = Buffer.alloc(4)
+    gamma.writeUInt32BE(100_000)
+    const gammaInput = specializedPng(1, 1, 8, 6, Uint8Array.of(0, 128, 128, 128, 91), undefined, [
+      pngChunk('gAMA', gamma),
+    ])
+    const gammaDecoded = PNG.sync.read(await (await Image.open(gammaInput)).png().toBuffer())
+    expect(Array.from(gammaDecoded.data)).toEqual([188, 188, 188, 91])
+    const grayInput = specializedPng(1, 1, 8, 0, Uint8Array.of(0, 128), undefined, [
+      pngChunk('gAMA', gamma),
+    ])
+    const grayDecoded = PNG.sync.read(await (await Image.open(grayInput)).png().toBuffer())
+    expect(Array.from(grayDecoded.data)).toEqual([188, 188, 188, 255])
+
+    const chromaticities = Buffer.alloc(32)
+    const values = [31_270, 32_900, 68_000, 32_000, 26_500, 69_000, 15_000, 6_000]
+    for (let index = 0; index < values.length; index += 1) {
+      chromaticities.writeUInt32BE(values[index] ?? 0, index * 4)
+    }
+    const p3Input = specializedPng(1, 1, 8, 6, Uint8Array.of(0, 180, 100, 40, 123), undefined, [
+      pngChunk('gAMA', Buffer.from([0, 0, 0xb1, 0x8f])),
+      pngChunk('cHRM', chromaticities),
+    ])
+    const p3Decoded = PNG.sync.read(await (await Image.open(p3Input)).png().toBuffer())
+    expect(Array.from(p3Decoded.data.subarray(0, 3))).not.toEqual([180, 100, 40])
+    expect(p3Decoded.data[3]).toBe(123)
+
+    const srgbInput = specializedPng(1, 1, 8, 6, Uint8Array.of(0, 128, 128, 128, 91), undefined, [
+      pngChunk('gAMA', gamma),
+      pngChunk('sRGB', Uint8Array.of(0)),
+    ])
+    const srgbDecoded = PNG.sync.read(await (await Image.open(srgbInput)).png().toBuffer())
+    expect(Array.from(srgbDecoded.data)).toEqual([128, 128, 128, 91])
+  })
+
+  it('rejects corrupt compressed ICC data and unsupported cICP color signaling explicitly', async () => {
+    const corruptIcc = specializedPng(1, 1, 8, 2, Uint8Array.of(0, 1, 2, 3), undefined, [
+      pngChunk('iCCP', Buffer.concat([Buffer.from('profile\0'), Buffer.from([0, 1, 2, 3])])),
+    ])
+    const cicp = specializedPng(1, 1, 8, 2, Uint8Array.of(0, 1, 2, 3), undefined, [
+      pngChunk('cICP', Uint8Array.of(12, 13, 0, 1)),
+    ])
+
+    await expect((await Image.open(corruptIcc)).metadata()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'PNG iCCP profile could not be decompressed',
+    })
+    await expect((await Image.open(cicp)).metadata()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+    })
+  })
+
   it('decodes and encodes RGBA pixels without materializing a public bitmap', async () => {
     const input = rgbaPng(19, 11)
     const output = await (await Image.open(input)).png({ compressionLevel: 6 }).toBuffer()

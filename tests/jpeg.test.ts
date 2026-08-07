@@ -7,6 +7,7 @@ import { ImageError } from '../src/index.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import { MemorySource } from '../src/source.ts'
+import { channelSwappingRgbProfile, rgbLutOnlyProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 import { baselineJpegFixtures } from './jpeg-compatibility-fixtures.ts'
 
@@ -191,52 +192,6 @@ const constantGrayCmykProfile = (): Uint8Array => {
   return profile
 }
 
-const channelSwappingRgbProfile = (): Uint8Array => {
-  const tagTableBytes = 4 + 6 * 12
-  const redOffset = 128 + tagTableBytes
-  const greenOffset = redOffset + 20
-  const blueOffset = greenOffset + 20
-  const curveOffset = blueOffset + 20
-  const curveBytes = 12 + 256 * 2
-  const profile = new Uint8Array(curveOffset + curveBytes)
-  const view = new DataView(profile.buffer)
-  writeUint32(view, 0, profile.byteLength)
-  writeSignature(profile, 12, 'mntr')
-  writeSignature(profile, 16, 'RGB ')
-  writeSignature(profile, 20, 'XYZ ')
-  writeSignature(profile, 36, 'acsp')
-  writeUint32(view, 128, 6)
-  const tag = (index: number, name: string, offset: number, size: number): void => {
-    const entry = 132 + index * 12
-    writeSignature(profile, entry, name)
-    writeUint32(view, entry + 4, offset)
-    writeUint32(view, entry + 8, size)
-  }
-  tag(0, 'rXYZ', redOffset, 20)
-  tag(1, 'gXYZ', greenOffset, 20)
-  tag(2, 'bXYZ', blueOffset, 20)
-  tag(3, 'rTRC', curveOffset, curveBytes)
-  tag(4, 'gTRC', curveOffset, curveBytes)
-  tag(5, 'bTRC', curveOffset, curveBytes)
-  const xyz = (offset: number, x: number, y: number, z: number): void => {
-    writeSignature(profile, offset, 'XYZ ')
-    writeFixed(view, offset + 8, x)
-    writeFixed(view, offset + 12, y)
-    writeFixed(view, offset + 16, z)
-  }
-  xyz(redOffset, 0.1430804, 0.0606169, 0.7141733)
-  xyz(greenOffset, 0.3850649, 0.7168786, 0.0971045)
-  xyz(blueOffset, 0.4360747, 0.2225045, 0.0139322)
-  writeSignature(profile, curveOffset, 'curv')
-  writeUint32(view, curveOffset + 8, 256)
-  for (let value = 0; value < 256; value += 1) {
-    const encoded = value / 255
-    const linear = encoded <= 0.04045 ? encoded / 12.92 : ((encoded + 0.055) / 1.055) ** 2.4
-    writeUint16(view, curveOffset + 12 + value * 2, Math.round(linear * 65_535))
-  }
-  return profile
-}
-
 const withProgressiveFrameMarker = (input: Uint8Array): Uint8Array => {
   const output = Uint8Array.from(input)
   for (let offset = 0; offset + 1 < output.byteLength; offset += 1) {
@@ -388,6 +343,17 @@ describe('JPEG pixel pipeline', () => {
         expect(cmyk.data[offset + channel]).toBeLessThanOrEqual(189)
       }
     }
+  })
+
+  it('rejects RGB v4 LUT-only profiles explicitly instead of treating their pixels as sRGB', async () => {
+    const input = Buffer.from(baselineJpegFixtures['4:4:4'], 'base64')
+
+    await expect(
+      (await Image.open(withIccProfile(input, rgbLutOnlyProfile()))).png().toBuffer(),
+    ).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'RGB ICC LUT-only A2B0 transforms are not implemented',
+    })
   })
 
   it('honors an explicit Adobe RGB component transform', async () => {

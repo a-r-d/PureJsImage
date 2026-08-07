@@ -20,6 +20,12 @@ import type {
 } from './hevc.ts'
 import { inspectHevcPps, inspectHevcSlice, inspectHevcSps, inspectHevcVps } from './hevc.ts'
 import { decodeHevcIntraPicture, type DecodedHevcPicture } from './hevc-picture.ts'
+import {
+  ColorManagedDecoder,
+  createDisplayP3Transform,
+  parseRgbIccTransform,
+  type RgbIccTransform,
+} from './icc.ts'
 import type { IsobmffBox, IsobmffMeta, IsobmffReader } from './isobmff.ts'
 import {
   checkedAdd,
@@ -67,7 +73,12 @@ export interface HevcConfiguration {
 
 type Property =
   | { readonly type: 'clap'; readonly aperture: CleanAperture }
-  | { readonly type: 'colr'; readonly colorSpace: string; readonly nclx?: NclxColor }
+  | {
+      readonly type: 'colr'
+      readonly colorSpace: string
+      readonly nclx?: NclxColor
+      readonly colorTransform?: RgbIccTransform
+    }
   | { readonly type: 'hvcC'; readonly configuration: HevcConfiguration }
   | { readonly type: 'imir'; readonly axis: 0 | 1 }
   | { readonly type: 'irot'; readonly angle: number }
@@ -345,9 +356,18 @@ const parseProperty = async (reader: IsobmffReader, box: IsobmffBox): Promise<Pr
           fullRange,
         ),
         nclx: { primaries, transferCharacteristics, matrixCoefficients, fullRange },
+        ...(primaries === 12 && transferCharacteristics === 13
+          ? { colorTransform: createDisplayP3Transform() }
+          : {}),
       }
     }
-    if (method === 'prof' || method === 'rICC') return { type: 'colr', colorSpace: 'icc' }
+    if (method === 'prof' || method === 'rICC') {
+      return {
+        type: 'colr',
+        colorSpace: 'icc',
+        colorTransform: parseRgbIccTransform(data.subarray(4)),
+      }
+    }
   }
   if (box.type === 'irot') {
     const data = await reader.payload(box, 1)
@@ -1282,18 +1302,22 @@ const createHeifDecoder = async (
     ? parsed.properties
     : (parsed.codedImages[0]?.properties ?? parsed.properties)
   const color = colorConversionFor(colorProperties, sequence)
+  let decoder: ImageDecoder
   if (parsed.primaryItemType === 'grid') {
     if (!parsed.grid) throw invalidInput('HEIF grid layout is missing')
-    return new HeifGridPixelDecoder(inspection.codedImages, parsed.grid, aperture, color)
+    decoder = new HeifGridPixelDecoder(inspection.codedImages, parsed.grid, aperture, color)
+  } else {
+    if (inspection.codedImages.length !== 1) {
+      throw invalidInput('Direct HEIF primary image has multiple coded items')
+    }
+    const picture = decodeCodedHeifPicture(coded)
+    if (picture.width !== parsed.dimensions.width || picture.height !== parsed.dimensions.height) {
+      throw invalidInput('HEIF decoded picture dimensions do not match its spatial extents')
+    }
+    decoder = new HeifPixelDecoder(picture, aperture, color)
   }
-  if (inspection.codedImages.length !== 1) {
-    throw invalidInput('Direct HEIF primary image has multiple coded items')
-  }
-  const picture = decodeCodedHeifPicture(coded)
-  if (picture.width !== parsed.dimensions.width || picture.height !== parsed.dimensions.height) {
-    throw invalidInput('HEIF decoded picture dimensions do not match its spatial extents')
-  }
-  return new HeifPixelDecoder(picture, aperture, color)
+  const colorTransform = oneProperty(colorProperties, 'colr')?.colorTransform
+  return colorTransform ? new ColorManagedDecoder(decoder, colorTransform) : decoder
 }
 
 export const heifCodec: ImageCodec = {

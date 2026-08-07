@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 
+import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
 const lossless = Buffer.from(
@@ -58,6 +59,30 @@ const insertRiffBytes = (input: Uint8Array, offset: number, inserted: Uint8Array
   return output
 }
 
+const withIccProfile = (input: Uint8Array, profile: Uint8Array): Uint8Array => {
+  const image = webpChunkOffset(input, 'VP8L')
+  const payload = image + 8
+  const bits = uint32LittleEndian(input, payload + 1)
+  const width = (bits & 0x3fff) + 1
+  const height = ((bits >>> 14) & 0x3fff) + 1
+  const extended = new Uint8Array(10)
+  extended[0] = 0x20
+  const writeUint24 = (offset: number, value: number): void => {
+    extended[offset] = value & 255
+    extended[offset + 1] = (value >>> 8) & 255
+    extended[offset + 2] = (value >>> 16) & 255
+  }
+  writeUint24(4, width - 1)
+  writeUint24(7, height - 1)
+  const chunks = new Uint8Array(
+    riffChunk('VP8X', extended).byteLength + riffChunk('ICCP', profile).byteLength,
+  )
+  const extendedChunk = riffChunk('VP8X', extended)
+  chunks.set(extendedChunk)
+  chunks.set(riffChunk('ICCP', profile), extendedChunk.byteLength)
+  return insertRiffBytes(input, 12, chunks)
+}
+
 const removeRiffBytes = (input: Uint8Array, offset: number, length: number): Uint8Array => {
   const output = new Uint8Array(input.byteLength - length)
   output.set(input.subarray(0, offset))
@@ -89,6 +114,51 @@ const expectPixelClose = (
 }
 
 describe('WebP codec', () => {
+  it('converts an ICCP RGB profile to sRGB and preserves alpha', async () => {
+    const reference = PNG.sync.read(await (await Image.open(lossless)).png().toBuffer())
+    const profiled = withIccProfile(lossless, channelSwappingRgbProfile())
+    const decoded = PNG.sync.read(await (await Image.open(profiled)).png().toBuffer())
+
+    for (let pixel = 0; pixel < reference.width * reference.height; pixel += 1) {
+      const offset = pixel * 4
+      expect(
+        Math.abs((decoded.data[offset] ?? 0) - (reference.data[offset + 2] ?? 0)),
+      ).toBeLessThanOrEqual(1)
+      expect(
+        Math.abs((decoded.data[offset + 1] ?? 0) - (reference.data[offset + 1] ?? 0)),
+      ).toBeLessThanOrEqual(1)
+      expect(
+        Math.abs((decoded.data[offset + 2] ?? 0) - (reference.data[offset] ?? 0)),
+      ).toBeLessThanOrEqual(1)
+      expect(decoded.data[offset + 3]).toBe(reference.data[offset + 3])
+    }
+  })
+
+  it('rejects corrupt or inconsistently signaled ICCP chunks', async () => {
+    const corrupt = withIccProfile(lossless, Uint8Array.of(1, 2, 3))
+    const missingFlag = withIccProfile(lossless, channelSwappingRgbProfile())
+    const extended = webpChunkOffset(missingFlag, 'VP8X')
+    missingFlag[extended + 8] = (missingFlag[extended + 8] ?? 0) & ~0x20
+    const correctlyOrdered = withIccProfile(lossless, channelSwappingRgbProfile())
+    const iccOffset = webpChunkOffset(correctlyOrdered, 'ICCP')
+    const iccLength = uint32LittleEndian(correctlyOrdered, iccOffset + 4)
+    const iccBytes = correctlyOrdered.slice(iccOffset, iccOffset + 8 + iccLength + (iccLength & 1))
+    const withoutIcc = removeRiffBytes(correctlyOrdered, iccOffset, iccBytes.byteLength)
+    const late = insertRiffBytes(withoutIcc, withoutIcc.byteLength, iccBytes)
+
+    await expect((await Image.open(corrupt)).metadata()).rejects.toMatchObject({
+      code: 'TRUNCATED_INPUT',
+    })
+    await expect((await Image.open(missingFlag)).metadata()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'WebP ICCP chunk is inconsistent with the extended header',
+    })
+    await expect((await Image.open(late)).metadata()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'WebP ICCP chunk is missing VP8X or appears late',
+    })
+  })
+
   it('losslessly encodes RGBA pixels and decodes them exactly', async () => {
     const source = new PNG({ width: 3, height: 2 })
     source.data.set([
