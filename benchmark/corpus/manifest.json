@@ -394,6 +394,104 @@
         "height": 64,
         "sha256": "6208cb30edd75b0ad23a54b9d64fea29aa264aedeec61b2bed6d4a0c75e86563"
       }
+    },
+    {
+      "id": "libtiff-rgb-3c-8b",
+      "file": "libtiff-rgb-3c-8b.tiff",
+      "url": "https://gitlab.com/libtiff/libtiff/-/raw/v4.7.1/test/images/rgb-3c-8b.tiff",
+      "sourcePage": "https://gitlab.com/libtiff/libtiff/-/blob/v4.7.1/test/images/rgb-3c-8b.tiff",
+      "author": "LibTIFF contributors",
+      "license": "libtiff BSD-style license",
+      "expected": {
+        "format": "tiff",
+        "width": 157,
+        "height": 151,
+        "sha256": "21a751d4d6cad3903e4833db726c1b645fc88a1161efffcabaf9ce9c8c8f7084"
+      }
+    },
+    {
+      "id": "libtiff-minisblack-1c-8b",
+      "file": "libtiff-minisblack-1c-8b.tiff",
+      "url": "https://gitlab.com/libtiff/libtiff/-/raw/v4.7.1/test/images/minisblack-1c-8b.tiff",
+      "sourcePage": "https://gitlab.com/libtiff/libtiff/-/blob/v4.7.1/test/images/minisblack-1c-8b.tiff",
+      "author": "LibTIFF contributors",
+      "license": "libtiff BSD-style license",
+      "expected": {
+        "format": "tiff",
+        "width": 157,
+        "height": 151,
+        "sha256": "7993664077ea8898704d15128e563d9ddd9c85376b3e8b42b0865a2ba71ee175"
+      }
+    },
+    {
+      "id": "libtiff-miniswhite-1c-1b",
+      "file": "libtiff-miniswhite-1c-1b.tiff",
+      "url": "https://gitlab.com/libtiff/libtiff/-/raw/v4.7.1/test/images/miniswhite-1c-1b.tiff",
+      "sourcePage": "https://gitlab.com/libtiff/libtiff/-/blob/v4.7.1/test/images/miniswhite-1c-1b.tiff",
+      "author": "LibTIFF contributors",
+      "license": "libtiff BSD-style license",
+      "expected": {
+        "format": "tiff",
+        "width": 157,
+        "height": 151,
+        "sha256": "9b303ec8e0dc83e9099af6a8c0d837772caad953d72995ad34e2f842fb66e83f"
+      }
+    },
+    {
+      "id": "libtiff-palette-1c-8b",
+      "file": "libtiff-palette-1c-8b.tiff",
+      "url": "https://gitlab.com/libtiff/libtiff/-/raw/v4.7.1/test/images/palette-1c-8b.tiff",
+      "sourcePage": "https://gitlab.com/libtiff/libtiff/-/blob/v4.7.1/test/images/palette-1c-8b.tiff",
+      "author": "LibTIFF contributors",
+      "license": "libtiff BSD-style license",
+      "expected": {
+        "format": "tiff",
+        "width": 157,
+        "height": 151,
+        "sha256": "9ef8051e9aa19f7439fdec77c7e5bdffef442572937287a83b5938bd02464286"
+      }
+    },
+    {
+      "id": "libtiff-packbits-gray-alpha",
+      "file": "libtiff-packbits-gray-alpha.tiff",
+      "url": "https://gitlab.com/libtiff/libtiff/-/raw/v4.7.1/test/images/minisblack-2c-8b-alpha.tiff",
+      "sourcePage": "https://gitlab.com/libtiff/libtiff/-/blob/v4.7.1/test/images/minisblack-2c-8b-alpha.tiff",
+      "author": "LibTIFF contributors",
+      "license": "libtiff BSD-style license",
+      "expected": {
+        "format": "tiff",
+        "width": 64,
+        "height": 64,
+        "sha256": "6fcb5238fb9bd583cd78b27c51b16492d17d4768032f9ee1ed10f2d2f45730c9"
+      }
+    },
+    {
+      "id": "libtiff-deflate-extra-strip-data",
+      "file": "libtiff-deflate-extra-strip-data.tiff",
+      "url": "https://gitlab.com/libtiff/libtiff/-/raw/v4.7.1/test/images/deflate-last-strip-extra-data.tiff",
+      "sourcePage": "https://gitlab.com/libtiff/libtiff/-/blob/v4.7.1/test/images/deflate-last-strip-extra-data.tiff",
+      "author": "LibTIFF and GDAL contributors",
+      "license": "libtiff BSD-style test fixture",
+      "expected": {
+        "format": "tiff",
+        "width": 500,
+        "height": 500,
+        "sha256": "031aa7e15c2dfb21fe2fdd89eff88c4505c306f641be8b98f3666707d698b5ae"
+      }
+    },
+    {
+      "id": "libtiff-lzw-single-strip",
+      "file": "libtiff-lzw-single-strip.tiff",
+      "url": "https://gitlab.com/libtiff/libtiff/-/raw/v4.7.1/test/images/lzw-single-strip.tiff",
+      "sourcePage": "https://gitlab.com/libtiff/libtiff/-/blob/v4.7.1/test/images/lzw-single-strip.tiff",
+      "author": "LibTIFF contributors",
+      "license": "libtiff BSD-style license",
+      "expected": {
+        "format": "tiff",
+        "width": 7795,
+        "height": 3122,
+        "sha256": "9cbff8fbe7a487da5d56e7e7566c0f3984e7092a3b1ccfe6bc1461449d008e4e"
+      }
     }
   ],
   "generated": [
@@ -406,6 +504,17 @@
         "width": 4000,
         "height": 3000,
         "sha256": "4c98fcb42058796383e6fd4b6ee98ddfd349f9bda62a4af1cc001a3734696031"
+      }
+    },
+    {
+      "id": "tiff-gradient-4000x3000",
+      "file": "tiff-gradient-4000x3000.tiff",
+      "generator": "tiff-gradient",
+      "expected": {
+        "format": "tiff",
+        "width": 4000,
+        "height": 3000,
+        "sha256": "14e0a2f12fa9f82d551eca1fe95fa4e25a08988c6bad752b32b82f35221fa550"
       }
     },
     {

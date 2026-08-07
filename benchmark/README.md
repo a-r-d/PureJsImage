@@ -2,7 +2,7 @@
 
 This suite is the performance and workflow-success contract for PureJsImage.
 Jimp 1.6.0 is the pinned baseline because that is the version used by the
-Tooldesk repository when this suite was created.
+original Lambda image-processing workload when this suite was created.
 
 ## Principles
 
@@ -46,6 +46,12 @@ odd-width row padding, RGB555/RGB565, 24-bit pixels, reordered 32-bit
 bitfields, and explicit alpha. A deterministic 4000x3000 24-bit BMP provides
 the large Lambda memory workload. Reference-image pixels are pinned for codec
 correctness.
+
+The TIFF corpus pins seven fixtures from LibTIFF 4.7.1 and adds a deterministic
+4000x3000 stripped RGB image. It covers both byte orders, RGB, grayscale,
+bi-level, palette, planar alpha, uncompressed, PackBits, Deflate, and LZW data.
+The large RGB and 7795x3122 single-strip LZW cases establish the decode and
+Lambda-memory baselines.
 
 ## Running
 
@@ -97,6 +103,23 @@ input:
 ```sh
 npm run bench:bmp:jimp
 ```
+
+Jimp TIFF decode, transform, and encode baseline:
+
+```sh
+npm run bench:tiff:jimp
+```
+
+First-party TIFF compatibility and performance profile:
+
+```sh
+npm run bench:tiff
+```
+
+The planar PackBits alpha fixture is validated against its source alpha plane,
+and the trailing-data Deflate fixture is validated against independent TIFF
+decoders. Jimp 1.6.0 decodes both incorrectly, so its baseline reports those
+cases as correctness failures while continuing to measure the other workflows.
 
 All Jimp-comparable workflows, including batch and 100-megapixel stress cases:
 

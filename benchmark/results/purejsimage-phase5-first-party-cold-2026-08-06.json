@@ -497,8 +497,8 @@
     },
     {
       "engine": "jimp",
-      "workflow": "tooldesk-upload-gif-no-enlarge",
-      "title": "Tooldesk chat upload: small GIF first frame without enlargement",
+      "workflow": "lambda-twilio-mms-gif-no-enlarge",
+      "title": "Lambda Twilio MMS upload: small GIF first frame without enlargement",
       "runs": 3,
       "warmups": 0,
       "summary": {
@@ -668,8 +668,8 @@
     },
     {
       "engine": "jimp",
-      "workflow": "tooldesk-logo-gif",
-      "title": "Tooldesk logo: GIF first frame in centered transparent 256 canvas",
+      "workflow": "lambda-logo-gif",
+      "title": "Lambda logo normalization: GIF first frame in centered transparent 256 canvas",
       "runs": 3,
       "warmups": 0,
       "summary": {
@@ -1280,8 +1280,8 @@
     },
     {
       "engine": "purejsimage",
-      "workflow": "tooldesk-upload-gif-no-enlarge",
-      "title": "Tooldesk chat upload: small GIF first frame without enlargement",
+      "workflow": "lambda-twilio-mms-gif-no-enlarge",
+      "title": "Lambda Twilio MMS upload: small GIF first frame without enlargement",
       "runs": 3,
       "warmups": 0,
       "summary": {
@@ -1451,8 +1451,8 @@
     },
     {
       "engine": "purejsimage",
-      "workflow": "tooldesk-logo-gif",
-      "title": "Tooldesk logo: GIF first frame in centered transparent 256 canvas",
+      "workflow": "lambda-logo-gif",
+      "title": "Lambda logo normalization: GIF first frame in centered transparent 256 canvas",
       "runs": 3,
       "warmups": 0,
       "summary": {

@@ -1091,8 +1091,8 @@
     },
     {
       "engine": "jimp",
-      "workflow": "tooldesk-upload-jpeg-1024",
-      "title": "Tooldesk chat upload: JPEG downscale to 1024 and encode JPEG 80",
+      "workflow": "lambda-twilio-mms-jpeg-1024",
+      "title": "Lambda Twilio MMS upload: JPEG downscale to 1024 and encode JPEG 80",
       "runs": 3,
       "warmups": 0,
       "summary": {
@@ -1238,8 +1238,8 @@
     },
     {
       "engine": "jimp",
-      "workflow": "tooldesk-upload-png-2048",
-      "title": "Tooldesk microsite upload: PNG downscale to 2048 and JPEG 80",
+      "workflow": "lambda-user-upload-png-2048",
+      "title": "Lambda user image upload: PNG downscale to 2048 and JPEG 80",
       "runs": 3,
       "warmups": 0,
       "summary": {
@@ -1385,8 +1385,8 @@
     },
     {
       "engine": "jimp",
-      "workflow": "tooldesk-logo-jpeg",
-      "title": "Tooldesk logo: portrait JPEG in centered transparent 256 canvas",
+      "workflow": "lambda-logo-jpeg",
+      "title": "Lambda logo normalization: portrait JPEG in centered transparent 256 canvas",
       "runs": 3,
       "warmups": 0,
       "summary": {
@@ -2927,8 +2927,8 @@
     },
     {
       "engine": "purejsimage",
-      "workflow": "tooldesk-upload-jpeg-1024",
-      "title": "Tooldesk chat upload: JPEG downscale to 1024 and encode JPEG 80",
+      "workflow": "lambda-twilio-mms-jpeg-1024",
+      "title": "Lambda Twilio MMS upload: JPEG downscale to 1024 and encode JPEG 80",
       "runs": 3,
       "warmups": 0,
       "summary": {
@@ -3074,8 +3074,8 @@
     },
     {
       "engine": "purejsimage",
-      "workflow": "tooldesk-upload-png-2048",
-      "title": "Tooldesk microsite upload: PNG downscale to 2048 and JPEG 80",
+      "workflow": "lambda-user-upload-png-2048",
+      "title": "Lambda user image upload: PNG downscale to 2048 and JPEG 80",
       "runs": 3,
       "warmups": 0,
       "summary": {
@@ -3221,8 +3221,8 @@
     },
     {
       "engine": "purejsimage",
-      "workflow": "tooldesk-logo-jpeg",
-      "title": "Tooldesk logo: portrait JPEG in centered transparent 256 canvas",
+      "workflow": "lambda-logo-jpeg",
+      "title": "Lambda logo normalization: portrait JPEG in centered transparent 256 canvas",
       "runs": 3,
       "warmups": 0,
       "summary": {

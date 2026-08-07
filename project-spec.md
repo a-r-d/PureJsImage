@@ -541,19 +541,18 @@ choose the background explicitly:
 The default background must be documented and stable. It must not depend on
 uninitialized RGB values under fully transparent pixels.
 
-### Tooldesk migration workloads
+### Common Lambda upload workloads
 
-V1 must cover every active Jimp workload currently used by Tooldesk without
-requiring the mutable Jimp bitmap API or general compositing.
+V1 must cover common serverless image-processing workloads without requiring
+the mutable Jimp bitmap API or general compositing. Representative examples
+include:
 
-The audited call sites are:
+* user-uploaded JPEG or PNG images normalized to a 1024px or 2048px width
+  limit;
+* images received from text messages through services such as Twilio MMS; and
+* JPEG/PNG/GIF logo or avatar normalization to a centered 256 x 256 PNG.
 
-* `apps/v3-tooldesk-backend/src/routes-express/upload-files.ts`: two
-  Buffer-to-JPEG upload paths with 1024px and 2048px width cutoffs.
-* `apps/v3-tooldesk-backend/src/services/mediaTransferService.ts`:
-  JPEG/PNG/GIF logo normalization to a centered 256 x 256 PNG.
-
-Uploaded chat and microsite images require Buffer input, metadata inspection,
+User-uploaded and Twilio MMS images require Buffer input, metadata inspection,
 optional aspect-preserving downscale, JPEG conversion, quality control, and
 Buffer output:
 
@@ -574,8 +573,8 @@ const output = await (width > maxWidth
 The accepted input set for this workload is JPEG, PNG, and GIF. GIF input uses
 the first composited frame; animated output is not required.
 
-Company-logo normalization requires aspect-preserving fit into an exact
-256 x 256 transparent canvas, centered placement, PNG conversion, and Buffer
+Logo and avatar normalization requires aspect-preserving fit into an exact 256
+x 256 transparent canvas, centered placement, PNG conversion, and Buffer
 output:
 
 ```ts
@@ -591,8 +590,8 @@ const output = await Image.open(buffer)
   .toBuffer()
 ```
 
-This replaces Tooldesk's current `scaleToFit()`, blank-image constructor,
-bitmap width/height reads, `blit()`, and `getBuffer()` sequence with one bounded
+This replaces the common `scaleToFit()`, blank-image constructor, bitmap
+width/height reads, `blit()`, and `getBuffer()` sequence with one bounded
 pipeline. PNG compression is intentionally expressed as `compressionLevel`;
 the meaningless Jimp-style PNG `quality` option is not a compatibility
 requirement.
@@ -1477,8 +1476,8 @@ entire logical screen to a mutable RGBA bitmap. It must support global and local
 color tables, transparency, image offsets, and interlaced storage, then emit
 ordered RGBA PixelBlocks for the shared crop, resize, and encoder pipeline.
 
-These formats cover the active Tooldesk replacement workloads as well as a
-huge portion of general image-processing use cases.
+These formats cover the common Lambda upload workloads as well as a huge
+portion of general image-processing use cases.
 
 ---
 
@@ -1868,7 +1867,7 @@ This should specifically measure peak memory.
 
 ### Benchmark I
 
-Tooldesk upload normalization:
+Lambda user-upload and Twilio MMS normalization:
 
 ```text
 mixed JPEG / transparent PNG / GIF first-frame inputs
@@ -1879,7 +1878,7 @@ mixed JPEG / transparent PNG / GIF first-frame inputs
 
 ### Benchmark J
 
-Tooldesk logo normalization:
+Lambda logo and avatar normalization:
 
 ```text
 mixed JPEG / transparent PNG / GIF first-frame inputs
@@ -1887,8 +1886,8 @@ mixed JPEG / transparent PNG / GIF first-frame inputs
 → PNG
 ```
 
-These production-derived workloads must compare both runtime and peak memory
-against the equivalent current Jimp pipelines.
+These application-style workloads must compare both runtime and peak memory
+against equivalent Jimp pipelines.
 
 ---
 
@@ -2053,9 +2052,9 @@ Ensure transparency survives appropriate conversion.
 Also verify deterministic flattening when PNG or GIF input is encoded to JPEG,
 and exact-size transparent padding when `fit: "contain"` is used.
 
-### Tooldesk migration fixtures
+### Common Lambda workflow fixtures
 
-Keep fixture-based coverage for the two production-derived pipelines:
+Keep fixture-based coverage for the two representative upload pipelines:
 
 ```text
 JPEG / PNG / GIF Buffer
@@ -2302,7 +2301,7 @@ Required:
 * benchmark suite
 * substantially better performance than Jimp on primary workloads
 * substantially reduced memory pressure on streaming-capable workloads
-* passing Tooldesk migration workload fixtures
+* passing common Lambda upload workload fixtures
 
 Strongly desirable:
 

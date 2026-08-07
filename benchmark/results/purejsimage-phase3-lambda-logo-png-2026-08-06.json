@@ -29,8 +29,8 @@
   "results": [
     {
       "engine": "jimp",
-      "workflow": "tooldesk-logo-png",
-      "title": "Tooldesk logo: transparent PNG in centered transparent 256 canvas",
+      "workflow": "lambda-logo-png",
+      "title": "Lambda logo normalization: transparent PNG in centered transparent 256 canvas",
       "runs": 5,
       "warmups": 2,
       "summary": {
@@ -282,8 +282,8 @@
     },
     {
       "engine": "purejsimage",
-      "workflow": "tooldesk-logo-png",
-      "title": "Tooldesk logo: transparent PNG in centered transparent 256 canvas",
+      "workflow": "lambda-logo-png",
+      "title": "Lambda logo normalization: transparent PNG in centered transparent 256 canvas",
       "runs": 5,
       "warmups": 2,
       "summary": {

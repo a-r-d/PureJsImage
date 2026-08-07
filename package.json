@@ -35,6 +35,8 @@
     "bench:smoke": "node benchmark/run.ts --engines jimp --profile smoke --runs 1 --warmups 0",
     "bench:bmp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile bmp",
     "bench:bmp:jimp": "node benchmark/run.ts --engines jimp --profile bmp",
+    "bench:tiff": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile tiff",
+    "bench:tiff:jimp": "node benchmark/run.ts --engines jimp --profile tiff",
     "bench:webp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile webp",
     "bench:avif:inspect": "node benchmark/avif/inspect-bitstreams.ts",
     "bench:avif:b2": "node --expose-gc benchmark/avif/run-b2.ts",

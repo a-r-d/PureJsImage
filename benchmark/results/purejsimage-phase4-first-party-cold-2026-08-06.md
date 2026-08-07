@@ -15,9 +15,9 @@ Environment: Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz, 16 logical CPUs, Node v24
 | jimp | png-to-jpeg | passed | 211.2 ms | 224.3 ms | 143.4 MiB | 0.0 MiB |
 | jimp | auto-orient-6 | passed | 601.4 ms | 607.6 ms | 193.7 MiB | 0.4 MiB |
 | jimp | png-gray16-to-jpeg | passed | 17.3 ms | 17.5 ms | 107.8 MiB | 0.0 MiB |
-| jimp | tooldesk-upload-jpeg-1024 | passed | 1498.7 ms | 1523.2 ms | 601.6 MiB | 0.3 MiB |
-| jimp | tooldesk-upload-png-2048 | passed | 2022.2 ms | 2044.9 ms | 298.7 MiB | 0.7 MiB |
-| jimp | tooldesk-logo-jpeg | passed | 999.4 ms | 1020.4 ms | 425.4 MiB | 0.1 MiB |
+| jimp | lambda-twilio-mms-jpeg-1024 | passed | 1498.7 ms | 1523.2 ms | 601.6 MiB | 0.3 MiB |
+| jimp | lambda-user-upload-png-2048 | passed | 2022.2 ms | 2044.9 ms | 298.7 MiB | 0.7 MiB |
+| jimp | lambda-logo-jpeg | passed | 999.4 ms | 1020.4 ms | 425.4 MiB | 0.1 MiB |
 | jimp | tiny-transparent-convert | passed | 16.1 ms | 16.6 ms | 117.2 MiB | 0.0 MiB |
 | jimp | high-entropy-png-to-jpeg | passed | 1414.3 ms | 1430.2 ms | 377.0 MiB | 5.6 MiB |
 | purejsimage | jpeg-resize-1200 | passed | 1829.6 ms | 1995.0 ms | 95.7 MiB | 0.4 MiB |
@@ -27,9 +27,9 @@ Environment: Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz, 16 logical CPUs, Node v24
 | purejsimage | png-to-jpeg | passed | 105.2 ms | 105.6 ms | 110.5 MiB | 0.0 MiB |
 | purejsimage | auto-orient-6 | passed | 694.9 ms | 697.4 ms | 92.8 MiB | 0.4 MiB |
 | purejsimage | png-gray16-to-jpeg | passed | 22.8 ms | 23.2 ms | 83.9 MiB | 0.0 MiB |
-| purejsimage | tooldesk-upload-jpeg-1024 | passed | 1707.6 ms | 1710.0 ms | 96.8 MiB | 0.3 MiB |
-| purejsimage | tooldesk-upload-png-2048 | passed | 1314.4 ms | 1327.2 ms | 108.9 MiB | 0.7 MiB |
-| purejsimage | tooldesk-logo-jpeg | passed | 1437.6 ms | 1441.9 ms | 99.9 MiB | 0.1 MiB |
+| purejsimage | lambda-twilio-mms-jpeg-1024 | passed | 1707.6 ms | 1710.0 ms | 96.8 MiB | 0.3 MiB |
+| purejsimage | lambda-user-upload-png-2048 | passed | 1314.4 ms | 1327.2 ms | 108.9 MiB | 0.7 MiB |
+| purejsimage | lambda-logo-jpeg | passed | 1437.6 ms | 1441.9 ms | 99.9 MiB | 0.1 MiB |
 | purejsimage | tiny-transparent-convert | passed | 21.8 ms | 23.6 ms | 86.9 MiB | 0.0 MiB |
 | purejsimage | high-entropy-png-to-jpeg | passed | 1393.4 ms | 1407.3 ms | 130.5 MiB | 5.6 MiB |
 

@@ -1851,8 +1851,8 @@
     },
     {
       "engine": "jimp",
-      "workflow": "tooldesk-upload-jpeg-1024",
-      "title": "Tooldesk chat upload: JPEG downscale to 1024 and encode JPEG 80",
+      "workflow": "lambda-twilio-mms-jpeg-1024",
+      "title": "Lambda Twilio MMS upload: JPEG downscale to 1024 and encode JPEG 80",
       "runs": 3,
       "warmups": 1,
       "summary": {
@@ -1998,8 +1998,8 @@
     },
     {
       "engine": "jimp",
-      "workflow": "tooldesk-upload-png-2048",
-      "title": "Tooldesk microsite upload: PNG downscale to 2048 and JPEG 80",
+      "workflow": "lambda-user-upload-png-2048",
+      "title": "Lambda user image upload: PNG downscale to 2048 and JPEG 80",
       "runs": 3,
       "warmups": 1,
       "summary": {
@@ -2145,8 +2145,8 @@
     },
     {
       "engine": "jimp",
-      "workflow": "tooldesk-upload-gif-no-enlarge",
-      "title": "Tooldesk chat upload: small GIF first frame without enlargement",
+      "workflow": "lambda-twilio-mms-gif-no-enlarge",
+      "title": "Lambda Twilio MMS upload: small GIF first frame without enlargement",
       "runs": 3,
       "warmups": 1,
       "summary": {
@@ -2316,8 +2316,8 @@
     },
     {
       "engine": "jimp",
-      "workflow": "tooldesk-logo-jpeg",
-      "title": "Tooldesk logo: portrait JPEG in centered transparent 256 canvas",
+      "workflow": "lambda-logo-jpeg",
+      "title": "Lambda logo normalization: portrait JPEG in centered transparent 256 canvas",
       "runs": 3,
       "warmups": 1,
       "summary": {
@@ -2487,8 +2487,8 @@
     },
     {
       "engine": "jimp",
-      "workflow": "tooldesk-logo-png",
-      "title": "Tooldesk logo: transparent PNG in centered transparent 256 canvas",
+      "workflow": "lambda-logo-png",
+      "title": "Lambda logo normalization: transparent PNG in centered transparent 256 canvas",
       "runs": 3,
       "warmups": 1,
       "summary": {
@@ -2658,8 +2658,8 @@
     },
     {
       "engine": "jimp",
-      "workflow": "tooldesk-logo-gif",
-      "title": "Tooldesk logo: GIF first frame in centered transparent 256 canvas",
+      "workflow": "lambda-logo-gif",
+      "title": "Lambda logo normalization: GIF first frame in centered transparent 256 canvas",
       "runs": 3,
       "warmups": 1,
       "summary": {

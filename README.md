@@ -68,6 +68,16 @@ implemented in strict TypeScript 7:
   `withoutEnlargement` geometry; and
 - a dependency-free build with JavaScript and declaration output.
 
+### Planned codecs
+
+- [ ] `jpegxlCodec` (`.jxl`) decode and encode support. JPEG XL offers modern,
+  high-quality compression, although browser support remains inconsistent.
+- [ ] `heifCodec` / `heicCodec` (`.heif`, `.heic`) decode and encode support.
+  HEIC is the widely used HEIF/HEVC variant produced by iPhones and photo
+  libraries, making it especially useful for upload-processing workflows.
+- [ ] `icoCodec` (`.ico`) decode and encode support for Windows icons and
+  favicons, which remain common in web tooling.
+
 ```ts
 import { Image } from 'purejsimage'
 
@@ -151,10 +161,11 @@ For the primary Lambda downscale workflows, the stronger goal is for working
 memory to remain bounded rather than scale with source bitmap area. A modest
 percentage improvement over Jimp is progress, but not completion.
 
-The baseline uses `jimp@1.6.0`, matching the version in Tooldesk when the suite
-was created. It was recorded on August 6, 2026 using Node.js 24.16.0 on an Intel
-Core i7-10700. Jimp passed all 23 original workflows. The dedicated PNG crop and
-crop-plus-resize cases added since then bring the current suite to 25.
+The baseline uses `jimp@1.6.0`, matching the version in the original Lambda
+workload when the suite was created. It was recorded on August 6, 2026 using
+Node.js 24.16.0 on an Intel Core i7-10700. Jimp passed all 23 original workflows.
+The dedicated PNG crop and crop-plus-resize cases added since then bring the
+current suite to 25.
 
 Phase 1 already passes the large-JPEG metadata workflow without decoding the
 pixel bitmap:
@@ -186,7 +197,7 @@ default kernel; nearest and Lanczos3 are explicitly selectable. The
 | 4000x3000 PNG to 1000 px | 638.5 ms | 868.4 ms | 140 MiB | 293 MiB |
 | Transparent PNG resize | 38.2 ms | 68.7 ms | 110 MiB | 148 MiB |
 | PNG crop and resize | 405.4 ms | 664.3 ms | 127 MiB | 292 MiB |
-| Tooldesk PNG logo contain | 25.8 ms | 44.2 ms | 98 MiB | 143 MiB |
+| Lambda PNG logo contain | 25.8 ms | 44.2 ms | 98 MiB | 143 MiB |
 | Odd-dimension resize | 6.2 ms | 15.0 ms | 89 MiB | 104 MiB |
 | 100-megapixel downscale | 3,560.7 ms | 3,777.8 ms | 174 MiB | 1,274 MiB |
 
@@ -243,8 +254,8 @@ JPEG crop and resize.
 | --- | ---: | ---: | ---: | ---: |
 | 6000x4000 northstar pipeline | 4,859.4 ms | 4,077.8 ms | 121.5 MiB | 1,112.4 MiB |
 | JPEG crop and resize | 4,155.0 ms | 3,043.1 ms | 110.9 MiB | 1,190.3 MiB |
-| Tooldesk JPEG upload | 1,707.6 ms | 1,498.7 ms | 96.8 MiB | 601.6 MiB |
-| Tooldesk PNG upload to JPEG | 1,314.4 ms | 2,022.2 ms | 108.9 MiB | 298.7 MiB |
+| Twilio MMS JPEG upload | 1,707.6 ms | 1,498.7 ms | 96.8 MiB | 601.6 MiB |
+| User PNG upload to JPEG | 1,314.4 ms | 2,022.2 ms | 108.9 MiB | 298.7 MiB |
 | EXIF orientation 6 | 694.9 ms | 601.4 ms | 92.8 MiB | 193.7 MiB |
 | High-entropy PNG to JPEG | 1,393.4 ms | 1,414.3 ms | 130.5 MiB | 377.0 MiB |
 
@@ -253,15 +264,15 @@ and the dedicated [warm JPEG resize report](benchmark/results/purejsimage-first-
 
 Phase 5 makes JPEG→PNG, PNG→JPEG, and first-frame GIF→PNG/JPEG first-class.
 All five measured workflows pass. PureJsImage uses less peak RSS in every case;
-the Tooldesk GIF upload normalization is 22% faster with 26% less peak RSS.
+the GIF upload normalization is 22% faster with 26% less peak RSS.
 
 | Workflow | PureJsImage median | Jimp median | PureJsImage peak RSS | Jimp peak RSS |
 | --- | ---: | ---: | ---: | ---: |
 | JPEG to PNG | 722.3 ms | 722.5 ms | 93.5 MiB | 251.5 MiB |
 | PNG to JPEG | 107.3 ms | 208.5 ms | 111.0 MiB | 143.8 MiB |
 | Animated GIF first frame to PNG | 24.1 ms | 11.1 ms | 83.8 MiB | 94.7 MiB |
-| Tooldesk GIF upload to JPEG | 80.5 ms | 103.5 ms | 97.5 MiB | 130.9 MiB |
-| Tooldesk GIF logo normalization | 39.2 ms | 27.5 ms | 86.9 MiB | 94.9 MiB |
+| Twilio MMS GIF upload to JPEG | 80.5 ms | 103.5 ms | 97.5 MiB | 130.9 MiB |
+| Lambda GIF logo normalization | 39.2 ms | 27.5 ms | 86.9 MiB | 94.9 MiB |
 
 See the [complete Phase 5 report](benchmark/results/purejsimage-phase5-first-party-cold-2026-08-06.md).
 
@@ -396,12 +407,12 @@ coefficient storage remains open work.
 | GIF first frame to PNG | 4.6 ms | 95 MiB |
 | Palette PNG round trip | 1.5 ms | 93 MiB |
 | 16-bit grayscale PNG to JPEG | 8.0 ms | 127 MiB |
-| Tooldesk JPEG upload to 1024 px | 1,392 ms | 610 MiB |
-| Tooldesk PNG upload to 2048 px | 1,974 ms | 338 MiB |
-| Tooldesk GIF upload without enlargement | 106 ms | 154 MiB |
-| Tooldesk JPEG logo normalization | 863 ms | 437 MiB |
-| Tooldesk PNG logo normalization | 41.5 ms | 125 MiB |
-| Tooldesk GIF logo normalization | 21.6 ms | 96 MiB |
+| Twilio MMS JPEG upload to 1024 px | 1,392 ms | 610 MiB |
+| User PNG upload to 2048 px | 1,974 ms | 338 MiB |
+| Twilio MMS GIF upload without enlargement | 106 ms | 154 MiB |
+| Lambda JPEG logo normalization | 863 ms | 437 MiB |
+| Lambda PNG logo normalization | 41.5 ms | 125 MiB |
+| Lambda GIF logo normalization | 21.6 ms | 96 MiB |
 | Odd-dimension resize | 13.4 ms | 101 MiB |
 | Tiny transparent image to JPEG | 5.6 ms | 125 MiB |
 | High-entropy PNG to JPEG | 1,450 ms | 431 MiB |
@@ -412,7 +423,7 @@ The suite contains 25 original Jimp-comparable workflows, nine WebP-specific
 workflows, and 16 BMP workflows. Together they cover real photographs, BMP,
 JPEG, PNG, GIF, and WebP
 conversion, transparency, EXIF orientation, palette and 16-bit PNGs, GIF first
-frames, odd and tiny dimensions, high-entropy images, Tooldesk's current image
+frames, odd and tiny dimensions, high-entropy images, common Lambda upload
 workflows, batching, and a 100-megapixel stress case.
 
 See the [complete baseline](benchmark/results/jimp-baseline-2026-08-06.md),
