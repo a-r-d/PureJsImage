@@ -1,0 +1,126 @@
+heif-codec-support.md
+  s_4af11d27844ac9::t_8b150b8ac14125 245,248,252,269
+  s_4af11d27844ac9::t_5c1ef140abc4f1 246-247,249-251
+src/codec-entries/avif.ts
+  s_4af11d27844ac9::t_dd2fe489d19a60 1
+tests/project-contract.test.ts
+  s_4af11d27844ac9::t_648eca90435512 5-6,96,119-144,152,160,168-171,175
+  s_4af11d27844ac9::t_be95d9eb2b590a 58
+  s_4af11d27844ac9::t_d60fdb06d8b065 2,8,39-47,51,56,61-95
+  s_4af11d27844ac9::t_7f560bca3d278f 48-50,52-55,57,59-60
+tests/png.test.ts
+  s_4af11d27844ac9::t_5942737feb4195 9
+tests/gif.test.ts
+  s_4af11d27844ac9::t_5942737feb4195 6
+benchmark/workflows.ts
+  s_4af11d27844ac9::t_216fadf66c4226 266-337,880-884,893-894
+  s_4af11d27844ac9::t_14482a41b2554f 895
+project-spec.md
+  s_4af11d27844ac9::t_531c281ac1eaeb 318-321,324-327,564,585,655-658,660,1061,1535,2490
+tests/resize.test.ts
+  s_4af11d27844ac9::t_5942737feb4195 5
+  s_4af11d27844ac9::t_3fe4e965f06547 4,34
+benchmark/corpus/manifest.json
+  s_4af11d27844ac9::t_e6c63f0d8175b6 118-159
+tests/jpeg.test.ts
+  s_4af11d27844ac9::t_5942737feb4195 5
+README.md
+  s_4af11d27844ac9::t_2f524b1bd4fc1c 22-25,65-75,79-82,86,96,110-113,122-133
+  s_4af11d27844ac9::t_ce56e03f45fe26 76-78,134-135
+  s_4af11d27844ac9::t_fe2a9589d6fb55 108-109
+  s_4af11d27844ac9::t_26e3eccbd4dbe9 163,169-173,176
+  s_4af11d27844ac9::t_af96717aae8f05 136
+tests/bmp.test.ts
+  s_4af11d27844ac9::t_5942737feb4195 4
+benchmark/heif/verify-corpus.ts
+  s_4af11d27844ac9::t_5b59f9937bf1a4 1,3,5-12,15-83
+  s_4af11d27844ac9::t_875d1fc3691f60 2,4,13-14
+tests/pipeline.test.ts
+  s_4af11d27844ac9::t_8ba5227b3fe17c 3,5,98
+tests/heif.test.ts
+  s_4af11d27844ac9::t_1bc61cb4b18a9a 5,12-13
+src/codec-entries/webp.ts
+  s_4af11d27844ac9::t_dd2fe489d19a60 1
+src/codec-entries/gif.ts
+  s_4af11d27844ac9::t_dd2fe489d19a60 1
+tests/metadata.test.ts
+  s_4af11d27844ac9::t_8ba5227b3fe17c 6,8,102
+benchmarks.md
+  s_4af11d27844ac9::t_8b150b8ac14125 196-224,233,247-248
+benchmark/results/heif-iphone-cold-2026-08-07.json
+  s_4af11d27844ac9::t_023d11e127c126 1-716
+tests/avif.test.ts
+  s_4af11d27844ac9::t_5942737feb4195 9
+benchmark/results/heif-iphone-cold-2026-08-07.md
+  s_4af11d27844ac9::t_023d11e127c126 1-16
+src/codec-entries/png.ts
+  s_4af11d27844ac9::t_dd2fe489d19a60 1
+src/codec-entries/heif.ts
+  s_4af11d27844ac9::t_dd2fe489d19a60 1
+benchmark/engines/purejsimage.ts
+  s_4af11d27844ac9::t_875d1fc3691f60 27,31-34,41,43-45,49,53-62,64,72,134
+jpeg2000-codec-support.md
+  s_4af11d27844ac9::t_24dae107f99b6e 78
+src/codec-entries/tiff.ts
+  s_4af11d27844ac9::t_dd2fe489d19a60 1
+tests/library.test.ts
+  s_4af11d27844ac9::t_0303cfd7256e9e 2,8,10-11,15,31
+  s_4af11d27844ac9::t_93d2950cf4d1a4 1,3-7,9,12-13,19-29,32,34-44
+  s_4af11d27844ac9::t_330b5e6533b498 14,16-18,30,33
+src/codec-entries/bmp.ts
+  s_4af11d27844ac9::t_dd2fe489d19a60 1
+tests/image-library.ts
+  s_4af11d27844ac9::t_5942737feb4195 1-4
+benchmark/avif/reference-worker.ts
+  s_4af11d27844ac9::t_875d1fc3691f60 29-33
+src/codec-entries/jpeg.ts
+  s_4af11d27844ac9::t_dd2fe489d19a60 1
+benchmark/types.ts
+  s_4af11d27844ac9::t_3e56081a8b14ee 1,4,101
+benchmark/README.md
+  s_4af11d27844ac9::t_8b150b8ac14125 56-62,126-140
+  s_4af11d27844ac9::t_82ac6fd9889839 141
+tests/webp.test.ts
+  s_4af11d27844ac9::t_5942737feb4195 4
+package.json
+  s_4af11d27844ac9::t_a0fd80bc6b00a5 43-87
+  s_4af11d27844ac9::t_d5d0d180fee1c6 109,121-124
+benchmark/results/heif-iphone-warm-2026-08-07.json
+  s_4af11d27844ac9::t_74614d3d32a605 1-716
+src/index.ts
+  s_4af11d27844ac9::t_71aa048cb05a31 15-16
+src/codec-entries/all.ts
+  s_4af11d27844ac9::t_dd2fe489d19a60 1-9,11,14,16-20
+avif-codec-support.md
+  s_4af11d27844ac9::t_531c281ac1eaeb 30-31
+benchmark/heif/corpus.ts
+  s_4af11d27844ac9::t_5b59f9937bf1a4 1-63
+src/image.ts
+  s_4af11d27844ac9::t_71aa048cb05a31 33-35,55-59,186-187,189-193
+  s_4af11d27844ac9::t_8ec15f83b50d9d 1,188
+  s_4af11d27844ac9::t_86c1839b9bc141 31-32
+  s_4af11d27844ac9::t_49b86ee9a82208 194
+benchmark/avif/run-b2.ts
+  s_4af11d27844ac9::t_875d1fc3691f60 3,5,8
+  s_4af11d27844ac9::t_d8e172f44bd26d 9
+benchmark/results/heif-iphone-warm-2026-08-07.md
+  s_4af11d27844ac9::t_74614d3d32a605 1-16
+tests/tiff.test.ts
+  s_4af11d27844ac9::t_5942737feb4195 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "7a39b85c04323e9dc6f473bee562b5c81ffae924",
+  "prompts": {},
+  "sessions": {
+    "s_4af11d27844ac9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdac7-1064-7d90-b1fb-9f935e69ca53",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
