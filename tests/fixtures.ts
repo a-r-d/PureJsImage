@@ -1,3 +1,5 @@
+import { crc32 } from '../src/codecs/crc32.ts'
+
 const uint16BigEndian = (value: number): [number, number] => [value >>> 8, value & 0xff]
 
 export const pngFixture = (
@@ -11,6 +13,7 @@ export const pngFixture = (
   new DataView(data.buffer).setUint32(16, width)
   new DataView(data.buffer).setUint32(20, height)
   data.set([8, colorType, 0, 0, 0], 24)
+  new DataView(data.buffer).setUint32(29, crc32(data.subarray(12, 16), data.subarray(16, 29)))
   return data
 }
 

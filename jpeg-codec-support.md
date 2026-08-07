@@ -9,14 +9,17 @@ supported until its output is independently validated.
 
 ### Common JPEG structure
 
-- [x] JPEG/JFIF detection from the start-of-image marker
-- [x] Header-only width, height, bit depth, color-space classification, and
-  EXIF orientation inspection without decoding entropy-coded pixels
+- [x] JPEG detection from the start-of-image marker
+- [x] Header-only width, height, bit depth, component-count-based color-space
+  classification, and EXIF orientation inspection without decoding
+  entropy-coded pixels
 - [x] 8-bit baseline sequential DCT with Huffman coding (`SOF0`)
 - [x] 8-bit progressive DCT with Huffman coding (`SOF2`)
 - [x] Single-component grayscale images
 - [x] Three-component YCbCr images
 - [x] 4:4:4, 4:2:2, and 4:2:0 chroma sampling
+- [ ] Pinned compatibility coverage for 4:4:0, 4:1:1, and other valid
+  asymmetric sampling layouts
 - [x] Image dimensions that do not end on an MCU boundary
 - [x] Per-image quantization and Huffman tables
 - [x] Entropy byte stuffing and restart intervals (`DRI` / `RST0`-`RST7`)
@@ -28,6 +31,8 @@ supported until its output is independently validated.
 - [ ] Baseline images split into multiple non-progressive scans
 - [ ] Define-number-of-lines (`DNL`) images whose height is supplied after the
   frame header
+- [ ] Abbreviated JPEG and MJPEG frames that omit coding tables and depend on
+  tables supplied outside the individual image
 
 ### Color and metadata
 
@@ -38,10 +43,21 @@ supported until its output is independently validated.
 - [ ] Adobe YCCK JPEG decode and reliable Adobe color-transform detection
 - [ ] Three-component JPEGs explicitly encoded as RGB rather than YCbCr
 - [ ] ICC profile assembly and color-managed conversion to sRGB
-- [ ] Full EXIF, XMP, JFIF density, comment, and application-marker exposure
+- [ ] Full EXIF, XMP, IPTC/IIM, Photoshop image-resource, JFIF density,
+  comment, and application-marker exposure
 - [ ] Metadata preservation when converting or re-encoding a JPEG
 - [ ] Higher-quality, chroma-siting-aware upsampling; the current decoder uses
   nearest-sample chroma expansion
+
+### Compound and HDR JPEG files
+
+- [ ] Ultra HDR / JPEG_R and ISO 21496-1:2025 gain-map discovery, HDR
+  reconstruction, encoding, and preservation
+- [ ] Multi-Picture Format (`MPF` / `MPO`) secondary-image enumeration and
+  selection for gain maps, depth maps, stereo pairs, bursts, and other
+  auxiliary images
+- [ ] Motion Photo XMP and appended-video discovery, extraction, and
+  preservation
 
 ### Memory and execution
 
@@ -60,6 +76,8 @@ supported until its output is independently validated.
   which cannot contribute to the output
 - [ ] True region decode with restart-marker-assisted seeking where the file
   permits it
+- [ ] Lossless coefficient-domain rotate, flip, transpose, and MCU-aligned crop
+  without decoding and re-encoding pixels
 - [ ] Reduce progressive coefficient memory further where scan dependencies and
   coefficient ranges permit a smaller representation
 
@@ -114,8 +132,10 @@ supported until its output is independently validated.
 - [x] Measure absolute peak RSS in isolated cold and warm processes for the
   primary large-JPEG resize workflow
 - [ ] Pin a broader compatibility corpus from phones, cameras, browsers, image
-  editors, and common web upload sources
-- [ ] Add dedicated CMYK, YCCK, ICC, Adobe RGB, unusual progressive scan, and
-  metadata round-trip fixtures as those capabilities are implemented
+  editors, and common web upload sources, including Ultra HDR and Motion Photo
+  files
+- [ ] Add dedicated CMYK, YCCK, ICC, Adobe RGB, 4:4:0, 4:1:1, unusual
+  progressive scan, and metadata round-trip fixtures as those capabilities are
+  implemented
 - [ ] Add malformed-marker, entropy, table, and scan-progression fuzzing with
   strict allocation limits

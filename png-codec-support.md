@@ -20,11 +20,12 @@ have focused fixture or benchmark coverage.
 - [x] Rejection of unknown critical chunks
 - [x] Header-only metadata inspection without inflating image data
 - [x] APNG frame-count inspection from `acTL`
-- [ ] Adam7 interlaced PNG decode
+- [x] Adam7 interlaced PNG decode
 - [ ] APNG frame decode, composition, timing, disposal, and blending
-- [ ] CRC validation for every chunk, including `IHDR`, `PLTE`, `tRNS`, and
-  `IEND`; only `IDAT` CRCs are currently checked
-- [ ] Complete critical-chunk ordering, uniqueness, and dependency validation
+- [x] CRC validation for every chunk during full decode, including `IHDR`,
+  `PLTE`, `tRNS`, `IDAT`, ancillary chunks, and `IEND`
+- [x] Critical-chunk ordering, uniqueness, and dependency validation, including
+  consecutive `IDAT`, indexed-palette, and transparency rules
 - [ ] Apple CgBI PNG normalization if real upload fixtures justify supporting
   that non-standard variant
 
@@ -69,11 +70,14 @@ have focused fixture or benchmark coverage.
   not expanded into output blocks
 - [x] Public crop, resize, PNG-to-PNG, and PNG-to-other-codec pipelines
 - [x] Declared inflated scanline-size validation before decompression
+- [x] Adam7 reconstruction that retains compact native samples only for the
+  requested even rows instead of allocating a full source-sized RGBA frame
 - [ ] Decoder-driven resize planning to avoid expanding source samples that
   cannot contribute to a large downscale
 - [ ] Early termination after the requested bottom crop row while still
   defining whether remaining `IDAT` data and checksums must be validated
-- [ ] Bounded Adam7 pass reconstruction without a full source-sized RGBA frame
+- [ ] Fully row-bounded Adam7 reconstruction whose retained state does not scale
+  with the requested output height
 
 ## Encode
 
@@ -122,11 +126,14 @@ have focused fixture or benchmark coverage.
 - [x] Verify adaptive filtering reduces representative smooth-image output size
 - [x] Benchmark large, transparent, indexed, cropped, resized, high-entropy, and
   100-megapixel production-style workflows in isolated processes
-- [ ] Add pinned fixtures for every legal non-interlaced color-type and bit-depth
-  combination, every filter, multiple `IDAT` layouts, and each `tRNS` form
-- [ ] Add a pinned Adam7 compatibility corpus before marking interlaced decode
-  complete
+- [x] Add pinned deterministic fixtures for every legal non-interlaced
+  color-type and bit-depth combination, every filter, multiple `IDAT` layouts,
+  and each `tRNS` form
+- [x] Add a pinned deterministic Adam7 compatibility corpus covering every legal
+  color-type and bit-depth combination, crop behavior, and small-image pass edges
 - [ ] Add APNG fixtures covering default-image rules, frame rectangles, delay
   denominators, disposal operations, and blend operations
+- [x] Add focused malformed fixtures for CRC failures, duplicate and misplaced
+  chunks, non-consecutive `IDAT`, invalid chunk types, and trailing data
 - [ ] Add malformed chunk-order, CRC, Deflate, palette, transparency, and
   decompression-bomb fuzzing with strict allocation limits

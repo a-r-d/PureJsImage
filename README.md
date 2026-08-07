@@ -28,7 +28,7 @@ codec implementation into the module graph.
 
 | Codec | Decode | Encode |
 | --- | --- | --- |
-| PNG | Grayscale, RGB, indexed, and alpha | Yes |
+| PNG | Grayscale, RGB, indexed, alpha, and Adam7 interlace | Yes |
 | JPEG | Baseline and progressive | Baseline |
 | GIF | First composited frame | No |
 | WebP | Static lossy, lossless, and alpha | Static lossy and lossless |
