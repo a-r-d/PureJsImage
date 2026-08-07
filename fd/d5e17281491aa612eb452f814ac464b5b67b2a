@@ -1,0 +1,62 @@
+tests/jpeg.test.ts
+  s_80f456a1d85640::t_84ad6d667b66b2 7,275
+  s_80f456a1d85640::t_cd2312ed6a27a1 5-6,8,268-274,276-280,282,286-297,300-301
+  s_80f456a1d85640::t_66a40edd5fa047 281,283-285,298-299
+src/pixel.ts
+  s_80f456a1d85640::t_c7a98302828c10 13
+README.md
+  s_80f456a1d85640::t_ee62944b9aacad 157-158,165-166
+benchmark/results/jpeg-easy-wins-phase4-final-2026-08-07.md
+  s_80f456a1d85640::t_c957bb1339fda8 1-24
+tests/resize.test.ts
+  s_80f456a1d85640::t_fb77584bf4a179 5-6,74-117
+  s_80f456a1d85640::t_bc4f211b2dda72 118
+benchmark/results/jpeg-easy-wins-baseline-2026-08-07.md
+  s_80f456a1d85640::t_e0ca30ff69775b 1-13
+benchmarks.md
+  s_80f456a1d85640::t_ee62944b9aacad 35-36,43-45,55-61,84-86,117-118
+benchmark/results/jpeg-easy-wins-final-released-2026-08-07.md
+  s_80f456a1d85640::t_f7c9bbab1ac3b5 1-13
+project-spec.md
+  s_80f456a1d85640::t_ee62944b9aacad 959,963-966
+  s_80f456a1d85640::t_e507cd488b42ec 967
+benchmark/results/jpeg-easy-wins-final-released-2026-08-07.json
+  s_80f456a1d85640::t_f7c9bbab1ac3b5 1-387
+src/resize.ts
+  s_80f456a1d85640::t_c7a98302828c10 272-289
+  s_80f456a1d85640::t_4040cbb248acc0 515
+  s_80f456a1d85640::t_08f7506957e820 424-428,430-466,468-476,481-490,492-495,499-503,511,514
+  s_80f456a1d85640::t_f30c1347e1d1c3 300-301,303,412-414,477
+benchmark/results/jpeg-easy-wins-phase4-final-2026-08-07.json
+  s_80f456a1d85640::t_c957bb1339fda8 1-1875
+benchmark/results/jpeg-easy-wins-baseline-2026-08-07.json
+  s_80f456a1d85640::t_e0ca30ff69775b 1-317
+CHANGELOG.md
+  s_80f456a1d85640::t_ee62944b9aacad 5-17,44
+src/codecs/jpeg-baseline.ts
+  s_80f456a1d85640::t_d8b71ef8c21997 606,612,618,624
+  s_80f456a1d85640::t_641ab7f2cd0156 613-617,619-621
+  s_80f456a1d85640::t_fb3d84c1099521 630-649,651-666
+  s_80f456a1d85640::t_c7a98302828c10 944,1000-1001,1038-1051,1511-1512,1536-1549
+  s_80f456a1d85640::t_ea8b08103a1cc1 598-600,629,1023-1026,1527-1530
+  s_80f456a1d85640::t_cd9a750469d5d0 605,608
+  s_80f456a1d85640::t_30b3c64fe930b7 596,603,622-623,995,1027,1508,1526
+  s_80f456a1d85640::t_0fc75767cc46f3 1052
+  s_80f456a1d85640::t_f088384945976d 1550
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "fdd5e17281491aa612eb452f814ac464b5b67b2a",
+  "prompts": {},
+  "sessions": {
+    "s_80f456a1d85640": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdd33-33f4-7db0-8b52-c9ef817fef8e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
