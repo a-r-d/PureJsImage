@@ -1681,40 +1681,43 @@ class RestrictedIntraTileDecoder {
           : haveLeft
             ? (plane.data[y * plane.stride + x - 1] ?? 128)
             : 128
-    const above = Array.from({ length: width + height }, (_, index) =>
-      haveAbove
+    const edgeLength = width + height
+    const above = new Uint8Array(edgeLength)
+    const left = new Uint8Array(edgeLength)
+    const defaultAbove = haveLeft ? (plane.data[y * plane.stride + x - 1] ?? 127) : 127
+    const defaultLeft = haveAbove ? (plane.data[(y - 1) * plane.stride + x] ?? 129) : 129
+    for (let index = 0; index < edgeLength; index += 1) {
+      above[index] = haveAbove
         ? (plane.data[(y - 1) * plane.stride + Math.min(x + index, plane.width - 1)] ?? 127)
-        : haveLeft
-          ? (plane.data[y * plane.stride + x - 1] ?? 127)
-          : 127,
-    )
-    const left = Array.from({ length: width + height }, (_, index) =>
-      haveLeft
+        : defaultAbove
+      left[index] = haveLeft
         ? (plane.data[Math.min(y + index, plane.height - 1) * plane.stride + x - 1] ?? 129)
-        : haveAbove
-          ? (plane.data[(y - 1) * plane.stride + x] ?? 129)
-          : 129,
-    )
+        : defaultLeft
+    }
+    const neighbors = new Uint8Array(7)
     for (let rowPair = 0; rowPair < height / 2; rowPair += 1) {
       for (let columnGroup = 0; columnGroup < width / 4; columnGroup += 1) {
-        const neighbors = Array.from({ length: 7 }, (_, index) => {
+        for (let index = 0; index < 7; index += 1) {
           if (index < 5) {
             if (rowPair === 0) {
               const aboveIndex = columnGroup * 4 + index - 1
-              return aboveIndex < 0 ? corner : (above[aboveIndex] ?? 127)
+              neighbors[index] = aboveIndex < 0 ? corner : (above[aboveIndex] ?? 127)
+            } else if (columnGroup === 0 && index === 0) {
+              neighbors[index] = left[rowPair * 2 - 1] ?? 129
+            } else {
+              neighbors[index] =
+                plane.data[
+                  (y + rowPair * 2 - 1) * plane.stride + x + columnGroup * 4 + index - 1
+                ] ?? 128
             }
-            if (columnGroup === 0 && index === 0) return left[rowPair * 2 - 1] ?? 129
-            return (
-              plane.data[(y + rowPair * 2 - 1) * plane.stride + x + columnGroup * 4 + index - 1] ??
+          } else if (columnGroup === 0) {
+            neighbors[index] = left[rowPair * 2 + index - 5] ?? 129
+          } else {
+            neighbors[index] =
+              plane.data[(y + rowPair * 2 + index - 5) * plane.stride + x + columnGroup * 4 - 1] ??
               128
-            )
           }
-          if (columnGroup === 0) return left[rowPair * 2 + index - 5] ?? 129
-          return (
-            plane.data[(y + rowPair * 2 + index - 5) * plane.stride + x + columnGroup * 4 - 1] ??
-            128
-          )
-        })
+        }
         for (let localY = 0; localY < 2; localY += 1) {
           for (let localX = 0; localX < 4; localX += 1) {
             const coefficients = taps[localY * 4 + localX]

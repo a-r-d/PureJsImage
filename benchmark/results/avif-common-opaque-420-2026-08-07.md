@@ -42,10 +42,10 @@ AVIF-to-PNG runs per photograph.
 
 | Fixture | Median wall time |
 | --- | ---: |
-| Kodak | 358.068 ms |
-| Fox | 1090.274 ms |
+| Kodak | 294.825 ms |
+| Fox | 782.865 ms |
 
-Maximum observed process RSS across the photo benchmark was 146.3 MiB. This is
+Maximum observed process RSS across the photo benchmark was 143.8 MiB. This is
 an in-process high-water mark, not an isolated codec allocation measurement.
 The permanent 25-file corpus now reports 3 compatible, 22 explicitly
 unsupported, zero invalid, and zero unexpected results.

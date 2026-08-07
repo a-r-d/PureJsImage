@@ -31,6 +31,10 @@ All notable changes to PureJsImage are documented in this file.
   lossy WebP from 1,296.6 ms to 965.4 ms, and PNG to lossless WebP from 97.8 ms
   to 50.0 ms. The lossy encoder workflow also reduced median peak RSS from
   153.4 MiB to 112.2 MiB.
+- Moved AV1 inverse transforms, quantizer tables, filter-intra neighbors, and
+  generated coefficient scans to typed and reusable storage. In the fresh
+  five-run AVIF benchmark, Kodak decode fell from 375.3 ms to 294.8 ms and fox
+  decode from 1,015.6 ms to 782.9 ms with identical pinned RGBA hashes.
 
 ## [0.3.0] - 2026-08-07
 

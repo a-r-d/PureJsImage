@@ -437,20 +437,35 @@ const transformSizeContext = (width: CoefficientDimension, height: CoefficientDi
   (Math.log2(width >> 2) + Math.log2(height >> 2) + 1) >> 1
 
 type CoefficientDimension = 4 | 8 | 16 | 32 | 64
+const generatedScans = new Map<number, Uint16Array>()
+
+const generatedScan = (
+  width: CoefficientDimension,
+  height: CoefficientDimension,
+  txClass: 1 | 2,
+): Uint16Array => {
+  const key = width * 1024 + height * 4 + txClass
+  const cached = generatedScans.get(key)
+  if (cached) return cached
+  const scan = new Uint16Array(width * height)
+  if (txClass === 1) {
+    for (let index = 0; index < scan.length; index += 1) {
+      scan[index] = (index % height) * width + Math.floor(index / height)
+    }
+  } else {
+    for (let index = 0; index < scan.length; index += 1) scan[index] = index
+  }
+  generatedScans.set(key, scan)
+  return scan
+}
 
 const scanFor = (
   width: CoefficientDimension,
   height: CoefficientDimension,
   transformType: number,
-): readonly number[] => {
+): ArrayLike<number> => {
   const txClass = transformClass(transformType)
-  if (txClass === 1) {
-    return Array.from(
-      { length: width * height },
-      (_, index) => (index % height) * width + Math.floor(index / height),
-    )
-  }
-  if (txClass === 2) return Array.from({ length: width * height }, (_, index) => index)
+  if (txClass === 1 || txClass === 2) return generatedScan(width, height, txClass)
   if (width === 4 && height === 4) return defaultScan4x4
   if (width === 8 && height === 8) return defaultScan8x8
   if (width === 4 && height === 8) return defaultScan4x8

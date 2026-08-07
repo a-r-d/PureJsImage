@@ -189,10 +189,10 @@ full-size opaque 8-bit YUV 4:2:0 photographs. Unsupported files fail explicitly.
 
 | Public AVIF-to-PNG workflow | Median wall |
 | --- | ---: |
-| Kodak 768x512 | 358.1 ms |
-| Fox 1204x800 | 1,090.3 ms |
+| Kodak 768x512 | 294.8 ms |
+| Fox 1204x800 | 782.9 ms |
 
-The five-run photo benchmark reached 146.3 MiB maximum observed process RSS.
+The five-run photo benchmark reached 143.8 MiB maximum observed process RSS.
 The decoder currently retains padded full-frame YUV and RGBA state and does not
 yet apply loop filtering, CDEF, or Wiener/SGR restoration, so this is not the
 final memory or post-filter quality result.

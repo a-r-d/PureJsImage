@@ -1,7 +1,7 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { Av1FrameHeader } from './av1-frame.ts'
 
-const dcQuant8 = [
+const dcQuant8 = new Uint16Array([
   4, 8, 8, 9, 10, 11, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 23, 24, 25, 26, 26, 27,
   28, 29, 30, 31, 32, 32, 33, 34, 35, 36, 37, 38, 38, 39, 40, 41, 42, 43, 43, 44, 45, 46, 47, 48,
   48, 49, 50, 51, 52, 53, 53, 54, 55, 56, 57, 57, 58, 59, 60, 61, 62, 62, 63, 64, 65, 66, 66, 67,
@@ -15,8 +15,8 @@ const dcQuant8 = [
   467, 475, 482, 489, 497, 505, 513, 522, 530, 539, 549, 559, 569, 579, 590, 602, 614, 626, 640,
   654, 668, 684, 700, 717, 736, 755, 775, 796, 819, 843, 869, 896, 925, 955, 988, 1022, 1058, 1098,
   1139, 1184, 1232, 1282, 1336,
-] as const
-const acQuant8 = [
+])
+const acQuant8 = new Uint16Array([
   4, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
   32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55,
   56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
@@ -30,16 +30,19 @@ const acQuant8 = [
   771, 786, 801, 816, 832, 848, 864, 881, 898, 915, 933, 951, 969, 988, 1007, 1026, 1046, 1066,
   1087, 1108, 1129, 1151, 1173, 1196, 1219, 1243, 1267, 1292, 1317, 1343, 1369, 1396, 1423, 1451,
   1479, 1508, 1537, 1567, 1597, 1628, 1660, 1692, 1725, 1759, 1793, 1828,
-] as const
+])
 
 const roundedShift = (value: number, bits: number): number =>
   bits === 0 ? value : Math.floor((value + 2 ** (bits - 1)) / 2 ** bits)
 
-const cosine = (angle: number): number => Math.round(4096 * Math.cos((angle * Math.PI) / 128))
+const cosineTable = Int16Array.from({ length: 256 }, (_, angle) =>
+  Math.round(4096 * Math.cos((angle * Math.PI) / 128)),
+)
+const cosine = (angle: number): number => cosineTable[angle & 255] ?? 0
 const sine = (angle: number): number => cosine(angle - 64)
 
 const butterfly = (
-  values: number[],
+  values: Int32Array,
   first: number,
   second: number,
   angle: number,
@@ -53,7 +56,7 @@ const butterfly = (
   values[second] = flip ? outputLeft : outputRight
 }
 
-const hadamard = (values: number[], first: number, second: number, flip = false): void => {
+const hadamard = (values: Int32Array, first: number, second: number, flip = false): void => {
   const leftIndex = flip ? second : first
   const rightIndex = flip ? first : second
   const left = values[leftIndex] ?? 0
@@ -62,7 +65,7 @@ const hadamard = (values: number[], first: number, second: number, flip = false)
   values[rightIndex] = left - right
 }
 
-const inverseAdst4 = (input: ArrayLike<number>): readonly number[] => {
+const inverseAdst4 = (input: ArrayLike<number>): Int32Array => {
   const first = input[0] ?? 0
   const second = input[1] ?? 0
   const third = input[2] ?? 0
@@ -73,12 +76,12 @@ const inverseAdst4 = (input: ArrayLike<number>): readonly number[] => {
   const s2 = 3344 * (first - third + fourth)
   s0 += 2482 * fourth
   s1 -= 3803 * fourth
-  return [
+  return Int32Array.of(
     roundedShift(s0 + s3, 12),
     roundedShift(s1 + s3, 12),
     roundedShift(s2, 12),
     roundedShift(s0 + s1 - s3, 12),
-  ]
+  )
 }
 
 const reversedBits = (value: number, bits: number): number => {
@@ -88,11 +91,11 @@ const reversedBits = (value: number, bits: number): number => {
   return result
 }
 
-const inverseDct = (input: ArrayLike<number>): readonly number[] => {
+const inverseDct = (input: ArrayLike<number>): Int32Array => {
   const bits = Math.log2(input.length)
   if (bits !== 2 && bits !== 3 && bits !== 4 && bits !== 5 && bits !== 6)
     throw unsupportedOperation(`Unsupported AV1 inverse DCT length ${input.length}`)
-  const values = Array.from(
+  const values = Int32Array.from(
     { length: input.length },
     (_, index) => input[reversedBits(index, bits)] ?? 0,
   )
@@ -256,11 +259,10 @@ const inverseDct = (input: ArrayLike<number>): readonly number[] => {
   return values
 }
 
-const inverseAdst8 = (input: ArrayLike<number>): readonly number[] => {
-  const copied = Array.from(input)
-  const values = Array.from({ length: 8 }, (_, index) => {
+const inverseAdst8 = (input: ArrayLike<number>): Int32Array => {
+  const values = Int32Array.from({ length: 8 }, (_, index) => {
     const source = (index & 1) === 1 ? index - 1 : 7 - index
-    return copied[source] ?? 0
+    return input[source] ?? 0
   })
   for (let index = 0; index < 4; index += 1)
     butterfly(values, 2 * index, 2 * index + 1, 60 - 16 * index, true)
@@ -273,7 +275,7 @@ const inverseAdst8 = (input: ArrayLike<number>): readonly number[] => {
   }
   butterfly(values, 2, 3, 32, true)
   butterfly(values, 6, 7, 32, true)
-  const output = [...values]
+  const output = new Int32Array(values)
   for (let index = 0; index < 8; index += 1) {
     const a = (index >> 3) & 1
     const b = ((index >> 2) & 1) ^ ((index >> 3) & 1)
@@ -285,8 +287,8 @@ const inverseAdst8 = (input: ArrayLike<number>): readonly number[] => {
   return output
 }
 
-const inverseAdst16 = (input: ArrayLike<number>): readonly number[] => {
-  const values = Array.from({ length: 16 }, (_, index) => {
+const inverseAdst16 = (input: ArrayLike<number>): Int32Array => {
+  const values = Int32Array.from({ length: 16 }, (_, index) => {
     const source = (index & 1) === 1 ? index - 1 : 15 - index
     return input[source] ?? 0
   })
@@ -316,7 +318,7 @@ const inverseAdst16 = (input: ArrayLike<number>): readonly number[] => {
   for (let index = 0; index < 4; index += 1) {
     butterfly(values, 2 + 4 * index, 3 + 4 * index, 32, true)
   }
-  const output = [...values]
+  const output = new Int32Array(values)
   for (let index = 0; index < 16; index += 1) {
     const a = (index >> 3) & 1
     const b = ((index >> 2) & 1) ^ a
@@ -328,7 +330,7 @@ const inverseAdst16 = (input: ArrayLike<number>): readonly number[] => {
   return output
 }
 
-const oneDimensional = (input: ArrayLike<number>, adst: boolean): readonly number[] => {
+const oneDimensional = (input: ArrayLike<number>, adst: boolean): Int32Array => {
   if (!adst) return inverseDct(input)
   if (input.length === 4) return inverseAdst4(input)
   if (input.length === 8) return inverseAdst8(input)
@@ -336,13 +338,34 @@ const oneDimensional = (input: ArrayLike<number>, adst: boolean): readonly numbe
   throw unsupportedOperation(`Unsupported AV1 inverse ADST length ${input.length}`)
 }
 
-const inverseIdentity = (input: ArrayLike<number>): readonly number[] => {
-  if (input.length === 4) return Array.from(input, (value) => roundedShift(value * 5793, 12))
-  if (input.length === 8) return Array.from(input, (value) => value * 2)
-  if (input.length === 16) return Array.from(input, (value) => roundedShift(value * 11586, 12))
-  if (input.length === 32) return Array.from(input, (value) => value * 4)
-  throw unsupportedOperation(`Unsupported AV1 inverse identity length ${input.length}`)
+const inverseIdentity = (input: ArrayLike<number>): Int32Array => {
+  let multiplier: number
+  let shift = 0
+  if (input.length === 4) {
+    multiplier = 5793
+    shift = 12
+  } else if (input.length === 8) multiplier = 2
+  else if (input.length === 16) {
+    multiplier = 11586
+    shift = 12
+  } else if (input.length === 32) multiplier = 4
+  else throw unsupportedOperation(`Unsupported AV1 inverse identity length ${input.length}`)
+  const output = new Int32Array(input.length)
+  for (let index = 0; index < input.length; index += 1) {
+    const value = (input[index] ?? 0) * multiplier
+    output[index] = shift === 0 ? value : roundedShift(value, shift)
+  }
+  return output
 }
+
+const rowDctMask = (1 << 0) | (1 << 1) | (1 << 4) | (1 << 11)
+const rowAdstMask =
+  (1 << 2) | (1 << 3) | (1 << 5) | (1 << 6) | (1 << 7) | (1 << 8) | (1 << 13) | (1 << 15)
+const columnDctMask = (1 << 0) | (1 << 2) | (1 << 5) | (1 << 10)
+const columnAdstMask =
+  (1 << 1) | (1 << 3) | (1 << 4) | (1 << 6) | (1 << 7) | (1 << 8) | (1 << 12) | (1 << 14)
+const flippedRowMask = (1 << 4) | (1 << 6) | (1 << 8) | (1 << 14)
+const flippedColumnMask = (1 << 5) | (1 << 6) | (1 << 7) | (1 << 15)
 
 export const inverseTransform = (
   quantized: Int32Array,
@@ -374,10 +397,10 @@ export const inverseTransform = (
     dequantized[index] = rectangularScale ? roundedShift(value * 181, 8) : value
   }
   const intermediate = new Int32Array(width * height)
-  const rowUsesDct = [0, 1, 4, 11].includes(transformType)
-  const rowUsesAdst = [2, 3, 5, 6, 7, 8, 13, 15].includes(transformType)
-  const columnUsesDct = [0, 2, 5, 10].includes(transformType)
-  const columnUsesAdst = [1, 3, 4, 6, 7, 8, 12, 14].includes(transformType)
+  const rowUsesDct = ((rowDctMask >>> transformType) & 1) !== 0
+  const rowUsesAdst = ((rowAdstMask >>> transformType) & 1) !== 0
+  const columnUsesDct = ((columnDctMask >>> transformType) & 1) !== 0
+  const columnUsesAdst = ((columnAdstMask >>> transformType) & 1) !== 0
   const rowShift =
     width === height
       ? width >= 16
@@ -401,18 +424,19 @@ export const inverseTransform = (
     }
   }
   const residual = new Int32Array(width * height)
+  const columnInput = new Int32Array(height)
   for (let column = 0; column < width; column += 1) {
-    const input = Array.from(
-      { length: height },
-      (_, row) => intermediate[row * width + column] ?? 0,
-    )
+    for (let row = 0; row < height; row += 1) {
+      columnInput[row] = intermediate[row * width + column] ?? 0
+    }
     const transformed =
       columnUsesDct || columnUsesAdst
-        ? oneDimensional(input, columnUsesAdst)
-        : inverseIdentity(input)
+        ? oneDimensional(columnInput, columnUsesAdst)
+        : inverseIdentity(columnInput)
     for (let row = 0; row < height; row += 1) {
-      const targetRow = [4, 6, 8, 14].includes(transformType) ? height - row - 1 : row
-      const targetColumn = [5, 6, 7, 15].includes(transformType) ? width - column - 1 : column
+      const targetRow = ((flippedRowMask >>> transformType) & 1) !== 0 ? height - row - 1 : row
+      const targetColumn =
+        ((flippedColumnMask >>> transformType) & 1) !== 0 ? width - column - 1 : column
       residual[targetRow * width + targetColumn] = roundedShift(transformed[row] ?? 0, 4)
     }
   }
