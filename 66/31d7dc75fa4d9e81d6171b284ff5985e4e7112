@@ -1,0 +1,49 @@
+src/codecs/png.ts
+  s_4af11d27844ac9::t_1ba13e8205cd22 19,756,819,844-845
+  s_4af11d27844ac9::t_f073a67bb6fcee 39,54-76,299,436-506,635-638,713-755,757-801,805-818,820-843,846-851,854-857
+  s_4af11d27844ac9::t_2e1fc83e2d4c99 125-156,166-168,199-202,208-209,212-213,216-217,219-220,223-224,226,228-229,232-233,236,238-239,245,247-250,256,276-278
+  s_4af11d27844ac9::t_68b5a0988593a4 218
+  s_4af11d27844ac9::t_e00de5c41d200c 802-804
+  s_4af11d27844ac9::t_2a799281535f75 852-853
+tests/png-compatibility.test.ts
+  s_4af11d27844ac9::t_a562ae68263183 5,7,333-340
+  s_4af11d27844ac9::t_dc644f4ceee372 251,259-270,275-278,303
+  s_4af11d27844ac9::t_36f9aeaf81c705 311
+  s_4af11d27844ac9::t_5188d2934fae9b 1-2,4,6,8-72,74-169,171-173,175-250,252-258,271-274,279-294,296-302,304-310,312-332,341-367,371-420,429-465
+  s_4af11d27844ac9::t_613d02e74b62d9 421-422,424-428
+  s_4af11d27844ac9::t_0345814b2b17e4 170
+  s_4af11d27844ac9::t_1ba13e8205cd22 3,73,174,295,368-370,423
+jpeg-codec-support.md
+  s_80f456a1d85640::t_5e400f6a031e96 54
+  s_80f456a1d85640::t_669d92f4d30d42 12-15,21-22,34-35,46-47,52-53,55-61,79-80,135-139
+tests/fixtures.ts
+  s_4af11d27844ac9::t_95bbad2dece351 1-2,16
+png-codec-support.md
+  s_4af11d27844ac9::t_68b5a0988593a4 23,25-28,73-74,79-80,129-133,136-137
+README.md
+  s_4af11d27844ac9::t_68b5a0988593a4 31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "6631d7dc75fa4d9e81d6171b284ff5985e4e7112",
+  "prompts": {},
+  "sessions": {
+    "s_4af11d27844ac9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdac7-1064-7d90-b1fb-9f935e69ca53",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_80f456a1d85640": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdd33-33f4-7db0-8b52-c9ef817fef8e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
