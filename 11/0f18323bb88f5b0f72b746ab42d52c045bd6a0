@@ -1,0 +1,21 @@
+package.json
+  s_4af11d27844ac9::t_b0c32dc4da1319 3
+package-lock.json
+  s_4af11d27844ac9::t_173228a7d65675 3,9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "110f18323bb88f5b0f72b746ab42d52c045bd6a0",
+  "prompts": {},
+  "sessions": {
+    "s_4af11d27844ac9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdac7-1064-7d90-b1fb-9f935e69ca53",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
