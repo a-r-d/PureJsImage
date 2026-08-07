@@ -19,6 +19,7 @@ import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import {
   checkedAdd,
   createIsobmffReader,
+  detectIsobmffBrands,
   parseBrands,
   parseFullBox,
   parseIsobmffMeta,
@@ -597,12 +598,7 @@ export const avifCodec: ImageCodec = {
   mimeTypes: ['image/avif'],
   minimumBytes: 32,
   detect(header) {
-    if (header.byteLength < 12 || ascii(header, 4, 4) !== 'ftyp') return false
-    for (let offset = 8; offset + 4 <= header.byteLength; offset += 4) {
-      const brand = ascii(header, offset, 4)
-      if (brand === 'avif' || brand === 'avis') return true
-    }
-    return false
+    return detectIsobmffBrands(header).some((brand) => brand === 'avif' || brand === 'avis')
   },
   metadata: inspectAvif,
   createDecoder: createAvifDecoder,

@@ -9,6 +9,8 @@ export interface ImageSource {
 
 export type ImageInput = ArrayBuffer | Blob | Uint8Array | string
 
+const defaultBufferBytes = 65_536
+
 const readLength = (size: number, offset: number, length: number): number => {
   if (!Number.isSafeInteger(offset) || offset < 0)
     throw invalidInput('Read offset must be non-negative')
@@ -47,28 +49,48 @@ export class BlobSource implements ImageSource {
   }
 }
 
-export class FileSource implements ImageSource {
+export class BufferedSource implements ImageSource {
   readonly size: number
-  readonly path: string
+  readonly #source: ImageSource
+  readonly #bufferBytes: number
+  #buffer: Uint8Array<ArrayBufferLike> = new Uint8Array()
+  #bufferStart = 0
 
-  private constructor(path: string, size: number) {
-    this.path = path
-    this.size = size
-  }
-
-  static async open(path: string): Promise<FileSource> {
-    const { stat } = await import('node:fs/promises')
-    const file = await stat(path)
-    if (!file.isFile()) throw invalidInput(`Image path is not a file: ${path}`)
-    return new FileSource(path, file.size)
+  constructor(source: ImageSource, bufferBytes = defaultBufferBytes) {
+    if (!Number.isSafeInteger(bufferBytes) || bufferBytes < 1) {
+      throw invalidInput('Source buffer size must be a positive safe integer')
+    }
+    this.#source = source
+    this.#bufferBytes = bufferBytes
+    this.size = source.size
   }
 
   async read(offset: number, length: number): Promise<Uint8Array> {
     const available = readLength(this.size, offset, length)
     if (available === 0) return new Uint8Array()
 
+    const bufferOffset = offset - this.#bufferStart
+    if (bufferOffset >= 0 && bufferOffset + available <= this.#buffer.byteLength) {
+      return this.#buffer.subarray(bufferOffset, bufferOffset + available)
+    }
+    if (available >= this.#bufferBytes) return this.#source.read(offset, available)
+
+    const amount = Math.min(this.size - offset, this.#bufferBytes)
+    const buffer = await this.#source.read(offset, amount)
+    this.#bufferStart = offset
+    this.#buffer = buffer
+    return buffer.subarray(0, available)
+  }
+}
+
+const fileBackingSource = (path: string, size: number): ImageSource => ({
+  size,
+  async read(offset: number, length: number): Promise<Uint8Array> {
+    const available = readLength(size, offset, length)
+    if (available === 0) return new Uint8Array()
+
     const { open } = await import('node:fs/promises')
-    const file = await open(this.path, 'r')
+    const file = await open(path, 'r')
     try {
       const output = new Uint8Array(available)
       const { bytesRead } = await file.read(output, 0, available, offset)
@@ -76,6 +98,22 @@ export class FileSource implements ImageSource {
     } finally {
       await file.close()
     }
+  },
+})
+
+export class FileSource extends BufferedSource {
+  readonly path: string
+
+  private constructor(path: string, size: number) {
+    super(fileBackingSource(path, size))
+    this.path = path
+  }
+
+  static async open(path: string): Promise<FileSource> {
+    const { stat } = await import('node:fs/promises')
+    const file = await stat(path)
+    if (!file.isFile()) throw invalidInput(`Image path is not a file: ${path}`)
+    return new FileSource(path, file.size)
   }
 }
 

@@ -6,6 +6,11 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Buffered path-backed sources in 64 KiB windows so small codec reads no longer
+  reopen and close the file for every header, chunk, tag, or strip access.
+- Made codec probing start from a stable registration-independent window and
+  expand through declared `ftyp` boxes, with shared AVIF/HEIF brand parsing that
+  excludes `minor_version` and bytes outside the box.
 - Hardened baseline JPEG parsing around byte-stuffed entropy, marker fill bytes,
   trailing data, malformed segment lengths, hostile dimensions, invalid coding
   tables and sampling factors, unknown scan components, and truncated streams.

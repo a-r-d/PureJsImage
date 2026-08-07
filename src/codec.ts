@@ -4,6 +4,43 @@ import type { PixelBlock, PixelFormat } from './pixel.ts'
 import type { ImageSink } from './sink.ts'
 import type { ImageSource } from './source.ts'
 
+const baseProbeBytes = 32
+const maximumFtypProbeBytes = 65_536
+
+const probeByte = (data: Uint8Array, offset: number): number => data[offset] ?? 0
+const probeUint32 = (data: Uint8Array, offset: number): number =>
+  (probeByte(data, offset) * 16_777_216 +
+    probeByte(data, offset + 1) * 65_536 +
+    probeByte(data, offset + 2) * 256 +
+    probeByte(data, offset + 3)) >>>
+  0
+
+const ftypProbeLength = (header: Uint8Array, sourceSize: number): number => {
+  if (
+    header.byteLength < 8 ||
+    probeByte(header, 4) !== 0x66 ||
+    probeByte(header, 5) !== 0x74 ||
+    probeByte(header, 6) !== 0x79 ||
+    probeByte(header, 7) !== 0x70
+  ) {
+    return header.byteLength
+  }
+
+  const size32 = probeUint32(header, 0)
+  let declaredSize = size32
+  if (size32 === 0) declaredSize = sourceSize
+  else if (size32 === 1) {
+    if (header.byteLength < 16) return header.byteLength
+    const high = probeUint32(header, 8)
+    const low = probeUint32(header, 12)
+    const extended = BigInt(high) * 0x1_0000_0000n + BigInt(low)
+    declaredSize =
+      extended > BigInt(Number.MAX_SAFE_INTEGER) ? maximumFtypProbeBytes : Number(extended)
+  }
+  if (declaredSize < 16) return header.byteLength
+  return Math.min(sourceSize, declaredSize, maximumFtypProbeBytes)
+}
+
 export type BuiltInFormat = 'avif' | 'bmp' | 'gif' | 'heif' | 'jpeg' | 'png' | 'tiff' | 'webp'
 
 export type ChromaSubsampling = '400' | '420' | '422' | '444'
@@ -91,11 +128,18 @@ export class CodecRegistry {
   }
 
   async detect(source: ImageSource): Promise<ImageCodec> {
-    const probeLength = Math.min(
+    const initialProbeLength = Math.min(
       source.size,
-      this.#codecs.reduce((maximum, codec) => Math.max(maximum, codec.minimumBytes), 0),
+      this.#codecs.reduce(
+        (maximum, codec) => Math.max(maximum, codec.minimumBytes),
+        baseProbeBytes,
+      ),
     )
-    const header = await source.read(0, probeLength)
+    let header = await source.read(0, initialProbeLength)
+    const expandedProbeLength = ftypProbeLength(header, source.size)
+    if (expandedProbeLength > header.byteLength) {
+      header = await source.read(0, expandedProbeLength)
+    }
     const codec = this.#codecs.find(
       (candidate) => header.byteLength >= candidate.minimumBytes && candidate.detect(header),
     )

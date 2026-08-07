@@ -24,6 +24,7 @@ import type { IsobmffBox, IsobmffMeta, IsobmffReader } from './isobmff.ts'
 import {
   checkedAdd,
   createIsobmffReader,
+  detectIsobmffBrands,
   parseBrands,
   parseFullBox,
   parseIsobmffMeta,
@@ -1300,12 +1301,7 @@ export const heifCodec: ImageCodec = {
   mimeTypes: ['image/heif', 'image/heic'],
   minimumBytes: 32,
   detect(header) {
-    if (header.byteLength < 12 || ascii(header, 4, 4) !== 'ftyp') return false
-    const declaredSize = uint32BigEndian(header, 0)
-    const end = Math.min(declaredSize, header.byteLength)
-    if (declaredSize < 16) return false
-    const brands = [ascii(header, 8, 4)]
-    for (let offset = 16; offset + 4 <= end; offset += 4) brands.push(ascii(header, offset, 4))
+    const brands = detectIsobmffBrands(header)
     if (brands.some((brand) => AVIF_BRANDS.has(brand))) return false
     return brands.some((brand) => HEVC_BRANDS.has(brand) || GENERIC_HEIF_BRANDS.has(brand))
   },
