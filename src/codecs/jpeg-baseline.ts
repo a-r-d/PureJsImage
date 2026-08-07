@@ -1,5 +1,12 @@
 import { invalidInput, truncatedInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
+import {
+  applyRgbIcc,
+  type CmykIccTransform,
+  type JpegIccTransform,
+  parseJpegIccTransform,
+  writeCmykIcc,
+} from './icc.ts'
 
 const zigZag = Int32Array.of(
   0,
@@ -96,11 +103,20 @@ interface RenderComponent {
   readonly verticalSampling: number
 }
 
+export type JpegColorTransform = 'cmyk' | 'gray' | 'rgb' | 'ycbcr' | 'ycck'
+
 interface RenderJpeg {
   readonly components: readonly RenderComponent[]
+  readonly colorTransform: JpegColorTransform
+  readonly iccTransform?: JpegIccTransform
   readonly maximumHorizontalSampling: number
   readonly maximumVerticalSampling: number
   readonly mcusPerLine: number
+}
+
+interface RenderPlan {
+  readonly componentX: readonly Int32Array[]
+  readonly componentWidths: Int32Array
 }
 
 export interface BaselineJpeg {
@@ -108,6 +124,8 @@ export interface BaselineJpeg {
   readonly width: number
   readonly height: number
   readonly components: readonly FrameComponent[]
+  readonly colorTransform: JpegColorTransform
+  readonly iccTransform?: JpegIccTransform
   readonly maximumHorizontalSampling: number
   readonly maximumVerticalSampling: number
   readonly mcusPerLine: number
@@ -227,8 +245,11 @@ const parseFrame = (data: Uint8Array, start: number, end: number): ParsedFrame =
   const height = readUint16(data, start + 1)
   const width = readUint16(data, start + 3)
   const componentCount = byte(data, start + 5)
-  if ((componentCount !== 1 && componentCount !== 3) || start + 6 + componentCount * 3 !== end) {
-    throw invalidInput('JPEG must contain one or three components')
+  if (
+    (componentCount !== 1 && componentCount !== 3 && componentCount !== 4) ||
+    start + 6 + componentCount * 3 !== end
+  ) {
+    throw invalidInput('JPEG must contain one, three, or four components')
   }
   const components: ParsedComponent[] = []
   let blocksPerMcu = 0
@@ -257,6 +278,105 @@ const parseFrame = (data: Uint8Array, start: number, end: number): ParsedFrame =
   return { width, height, components }
 }
 
+const parseAdobeTransform = (data: Uint8Array, start: number, end: number): number | undefined => {
+  if (
+    end - start < 12 ||
+    byte(data, start) !== 0x41 ||
+    byte(data, start + 1) !== 0x64 ||
+    byte(data, start + 2) !== 0x6f ||
+    byte(data, start + 3) !== 0x62 ||
+    byte(data, start + 4) !== 0x65 ||
+    byte(data, start + 5) !== 0
+  ) {
+    return undefined
+  }
+  return byte(data, start + 11)
+}
+
+const colorTransform = (
+  frame: ParsedFrame,
+  adobeTransform: number | undefined,
+): JpegColorTransform => {
+  if (frame.components.length === 1) return 'gray'
+  if (frame.components.length === 3) {
+    if (adobeTransform === 0) return 'rgb'
+    if (adobeTransform === undefined) {
+      const [red, green, blue] = frame.components
+      if (red?.id === 0x52 && green?.id === 0x47 && blue?.id === 0x42) return 'rgb'
+      return 'ycbcr'
+    }
+    if (adobeTransform === 1) return 'ycbcr'
+    throw invalidInput(`Adobe transform ${adobeTransform} is invalid for a three-component JPEG`)
+  }
+  if (adobeTransform === 0) return 'cmyk'
+  if (adobeTransform === 2) return 'ycck'
+  if (adobeTransform === undefined) {
+    throw invalidInput('Four-component JPEG requires an Adobe color-transform marker')
+  }
+  throw invalidInput(`Adobe transform ${adobeTransform} is invalid for a four-component JPEG`)
+}
+
+interface IccChunk {
+  readonly sequence: number
+  readonly count: number
+  readonly data: Uint8Array
+}
+
+const parseIccChunk = (data: Uint8Array, start: number, end: number): IccChunk | undefined => {
+  const name = 'ICC_PROFILE\0'
+  if (end - start < 14) return undefined
+  for (let index = 0; index < name.length; index += 1) {
+    if (byte(data, start + index) !== name.charCodeAt(index)) return undefined
+  }
+  const sequence = byte(data, start + 12)
+  const count = byte(data, start + 13)
+  if (sequence < 1 || count < 1 || sequence > count) {
+    throw invalidInput('JPEG ICC chunk numbering is invalid')
+  }
+  return { sequence, count, data: data.slice(start + 14, end) }
+}
+
+const assembleIccProfile = (chunks: readonly IccChunk[]): Uint8Array | undefined => {
+  if (chunks.length === 0) return undefined
+  const count = chunks[0]?.count ?? 0
+  if (count !== chunks.length || chunks.some((chunk) => chunk.count !== count)) {
+    throw invalidInput('JPEG ICC profile chunks are incomplete')
+  }
+  const ordered = new Array<Uint8Array | undefined>(count)
+  let bytes = 0
+  for (const chunk of chunks) {
+    if (ordered[chunk.sequence - 1]) throw invalidInput('JPEG ICC profile repeats a chunk')
+    ordered[chunk.sequence - 1] = chunk.data
+    bytes += chunk.data.byteLength
+    if (bytes > 16 * 1024 * 1024) throw invalidInput('JPEG ICC profile exceeds 16 MiB')
+  }
+  const profile = new Uint8Array(bytes)
+  let offset = 0
+  for (const chunk of ordered) {
+    if (!chunk) throw invalidInput('JPEG ICC profile chunks are incomplete')
+    profile.set(chunk, offset)
+    offset += chunk.byteLength
+  }
+  return profile
+}
+
+const createIccTransform = (
+  chunks: readonly IccChunk[],
+  jpegColorTransform: JpegColorTransform,
+): JpegIccTransform | undefined => {
+  const profile = assembleIccProfile(chunks)
+  if (!profile) return undefined
+  const transform = parseJpegIccTransform(profile)
+  const fourComponent = jpegColorTransform === 'cmyk' || jpegColorTransform === 'ycck'
+  if (
+    (fourComponent && transform.kind !== 'cmyk') ||
+    (!fourComponent && transform.kind !== 'rgb')
+  ) {
+    throw invalidInput('JPEG components do not match the embedded ICC input color space')
+  }
+  return transform
+}
+
 export const parseBaselineJpeg = (data: Uint8Array): BaselineJpeg | undefined => {
   if (data.byteLength < 4 || readUint16(data, 0) !== 0xffd8)
     throw invalidInput('JPEG start marker is missing')
@@ -264,6 +384,8 @@ export const parseBaselineJpeg = (data: Uint8Array): BaselineJpeg | undefined =>
   const dcTables = new Map<number, HuffmanTable>()
   const acTables = new Map<number, HuffmanTable>()
   let frame: ParsedFrame | undefined
+  let adobeTransform: number | undefined
+  const iccChunks: IccChunk[] = []
   let restartInterval = 0
   let offset = 2
 
@@ -280,7 +402,12 @@ export const parseBaselineJpeg = (data: Uint8Array): BaselineJpeg | undefined =>
 
     if (marker === 0xdb) parseQuantizationTables(data, start, end, quantizationTables)
     else if (marker === 0xc4) parseHuffmanTables(data, start, end, dcTables, acTables)
-    else if (marker === 0xc0) frame = parseFrame(data, start, end)
+    else if (marker === 0xe2) {
+      const chunk = parseIccChunk(data, start, end)
+      if (chunk) iccChunks.push(chunk)
+    } else if (marker === 0xee) {
+      adobeTransform = parseAdobeTransform(data, start, end) ?? adobeTransform
+    } else if (marker === 0xc0) frame = parseFrame(data, start, end)
     else if (marker === 0xc1 || marker === 0xc2) return undefined
     else if (marker === 0xdd) {
       if (end - start !== 2) throw invalidInput('JPEG restart interval is invalid')
@@ -327,11 +454,15 @@ export const parseBaselineJpeg = (data: Uint8Array): BaselineJpeg | undefined =>
         maximumVerticalSampling = Math.max(maximumVerticalSampling, component.verticalSampling)
         components.push({ ...component, quantization, dcTable, acTable })
       }
+      const jpegColorTransform = colorTransform(frame, adobeTransform)
+      const iccTransform = createIccTransform(iccChunks, jpegColorTransform)
       return {
         data,
         width: frame.width,
         height: frame.height,
         components,
+        colorTransform: jpegColorTransform,
+        ...(iccTransform ? { iccTransform } : {}),
         maximumHorizontalSampling,
         maximumVerticalSampling,
         mcusPerLine: Math.ceil(frame.width / (8 * maximumHorizontalSampling)),
@@ -515,11 +646,270 @@ const writeBlock = (
 
 const clamp = (value: number): number => (value < 0 ? 0 : value > 255 ? 255 : value)
 
+const createRenderPlan = (jpeg: RenderJpeg, region: JpegRegion): RenderPlan => {
+  const componentX: Int32Array[] = []
+  const componentWidths = new Int32Array(jpeg.components.length)
+  for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
+    const component = jpeg.components[componentIndex]
+    if (!component) throw invalidInput('JPEG component metadata is missing')
+    componentWidths[componentIndex] = jpeg.mcusPerLine * component.horizontalSampling * 8
+    const indices = new Int32Array(region.width)
+    for (let x = 0; x < region.width; x += 1) {
+      indices[x] = Math.floor(
+        ((region.x + x) * component.horizontalSampling) / jpeg.maximumHorizontalSampling,
+      )
+    }
+    componentX.push(indices)
+  }
+  return { componentX, componentWidths }
+}
+
+const renderGrayRows = (
+  jpeg: RenderJpeg,
+  planes: readonly Uint8Array[],
+  region: JpegRegion,
+  rowStart: number,
+  first: number,
+  height: number,
+  data: Uint8Array,
+  plan: RenderPlan,
+): void => {
+  const luminance = jpeg.components[0]
+  const luminancePlane = planes[0]
+  if (!luminance || !luminancePlane) throw invalidInput('JPEG luminance component is missing')
+  const luminanceWidth = plan.componentWidths[0] ?? 0
+  const luminanceX = plan.componentX[0]
+  if (!luminanceX) throw invalidInput('JPEG luminance render plan is missing')
+  for (let row = 0; row < height; row += 1) {
+    const sourceY = first + row - rowStart
+    const luminanceY = Math.floor(
+      (sourceY * luminance.verticalSampling) / jpeg.maximumVerticalSampling,
+    )
+    for (let x = 0; x < region.width; x += 1) {
+      const y = byte(luminancePlane, luminanceY * luminanceWidth + (luminanceX[x] ?? 0))
+      const target = (row * region.width + x) * 3
+      data[target] = y
+      data[target + 1] = y
+      data[target + 2] = y
+    }
+  }
+}
+
+const renderRgbRows = (
+  jpeg: RenderJpeg,
+  planes: readonly Uint8Array[],
+  region: JpegRegion,
+  rowStart: number,
+  first: number,
+  height: number,
+  data: Uint8Array,
+  plan: RenderPlan,
+): void => {
+  const firstComponent = jpeg.components[0]
+  const secondComponent = jpeg.components[1]
+  const thirdComponent = jpeg.components[2]
+  const firstPlane = planes[0]
+  const secondPlane = planes[1]
+  const thirdPlane = planes[2]
+  if (
+    !firstComponent ||
+    !secondComponent ||
+    !thirdComponent ||
+    !firstPlane ||
+    !secondPlane ||
+    !thirdPlane
+  ) {
+    throw invalidInput('JPEG color components are missing')
+  }
+  const firstWidth = plan.componentWidths[0] ?? 0
+  const secondWidth = plan.componentWidths[1] ?? 0
+  const thirdWidth = plan.componentWidths[2] ?? 0
+  const firstX = plan.componentX[0]
+  const secondX = plan.componentX[1]
+  const thirdX = plan.componentX[2]
+  if (!firstX || !secondX || !thirdX) throw invalidInput('JPEG color render plan is missing')
+  for (let row = 0; row < height; row += 1) {
+    const sourceY = first + row - rowStart
+    const firstY = Math.floor(
+      (sourceY * firstComponent.verticalSampling) / jpeg.maximumVerticalSampling,
+    )
+    const secondY = Math.floor(
+      (sourceY * secondComponent.verticalSampling) / jpeg.maximumVerticalSampling,
+    )
+    const thirdY = Math.floor(
+      (sourceY * thirdComponent.verticalSampling) / jpeg.maximumVerticalSampling,
+    )
+    for (let x = 0; x < region.width; x += 1) {
+      const firstSample = byte(firstPlane, firstY * firstWidth + (firstX[x] ?? 0))
+      const secondSample = byte(secondPlane, secondY * secondWidth + (secondX[x] ?? 0))
+      const thirdSample = byte(thirdPlane, thirdY * thirdWidth + (thirdX[x] ?? 0))
+      const target = (row * region.width + x) * 3
+      data[target] = firstSample
+      data[target + 1] = secondSample
+      data[target + 2] = thirdSample
+    }
+  }
+}
+
+const renderYcbcrRows = (
+  jpeg: RenderJpeg,
+  planes: readonly Uint8Array[],
+  region: JpegRegion,
+  rowStart: number,
+  first: number,
+  height: number,
+  data: Uint8Array,
+  plan: RenderPlan,
+): void => {
+  const luminance = jpeg.components[0]
+  const blueChroma = jpeg.components[1]
+  const redChroma = jpeg.components[2]
+  const luminancePlane = planes[0]
+  const blueChromaPlane = planes[1]
+  const redChromaPlane = planes[2]
+  if (
+    !luminance ||
+    !blueChroma ||
+    !redChroma ||
+    !luminancePlane ||
+    !blueChromaPlane ||
+    !redChromaPlane
+  ) {
+    throw invalidInput('JPEG color components are missing')
+  }
+  const luminanceWidth = plan.componentWidths[0] ?? 0
+  const blueChromaWidth = plan.componentWidths[1] ?? 0
+  const redChromaWidth = plan.componentWidths[2] ?? 0
+  const luminanceX = plan.componentX[0]
+  const blueChromaX = plan.componentX[1]
+  const redChromaX = plan.componentX[2]
+  if (!luminanceX || !blueChromaX || !redChromaX) {
+    throw invalidInput('JPEG color render plan is missing')
+  }
+  for (let row = 0; row < height; row += 1) {
+    const sourceY = first + row - rowStart
+    const luminanceY = Math.floor(
+      (sourceY * luminance.verticalSampling) / jpeg.maximumVerticalSampling,
+    )
+    const blueChromaY = Math.floor(
+      (sourceY * blueChroma.verticalSampling) / jpeg.maximumVerticalSampling,
+    )
+    const redChromaY = Math.floor(
+      (sourceY * redChroma.verticalSampling) / jpeg.maximumVerticalSampling,
+    )
+    for (let x = 0; x < region.width; x += 1) {
+      const y = byte(luminancePlane, luminanceY * luminanceWidth + (luminanceX[x] ?? 0))
+      const cb = byte(blueChromaPlane, blueChromaY * blueChromaWidth + (blueChromaX[x] ?? 0)) - 128
+      const cr = byte(redChromaPlane, redChromaY * redChromaWidth + (redChromaX[x] ?? 0)) - 128
+      const target = (row * region.width + x) * 3
+      data[target] = clamp(y + 1.402 * cr)
+      data[target + 1] = clamp(y - 0.3441363 * cb - 0.71413636 * cr)
+      data[target + 2] = clamp(y + 1.772 * cb)
+    }
+  }
+}
+
+const renderFourComponentRows = (
+  jpeg: RenderJpeg,
+  planes: readonly Uint8Array[],
+  region: JpegRegion,
+  rowStart: number,
+  first: number,
+  height: number,
+  data: Uint8Array,
+  ycck: boolean,
+  iccTransform: CmykIccTransform | undefined,
+  plan: RenderPlan,
+): void => {
+  const firstComponent = jpeg.components[0]
+  const secondComponent = jpeg.components[1]
+  const thirdComponent = jpeg.components[2]
+  const blackComponent = jpeg.components[3]
+  const firstPlane = planes[0]
+  const secondPlane = planes[1]
+  const thirdPlane = planes[2]
+  const blackPlane = planes[3]
+  if (
+    !firstComponent ||
+    !secondComponent ||
+    !thirdComponent ||
+    !blackComponent ||
+    !firstPlane ||
+    !secondPlane ||
+    !thirdPlane ||
+    !blackPlane
+  ) {
+    throw invalidInput('JPEG CMYK components are missing')
+  }
+  const firstWidth = plan.componentWidths[0] ?? 0
+  const secondWidth = plan.componentWidths[1] ?? 0
+  const thirdWidth = plan.componentWidths[2] ?? 0
+  const blackWidth = plan.componentWidths[3] ?? 0
+  const firstX = plan.componentX[0]
+  const secondX = plan.componentX[1]
+  const thirdX = plan.componentX[2]
+  const blackX = plan.componentX[3]
+  if (!firstX || !secondX || !thirdX || !blackX) {
+    throw invalidInput('JPEG CMYK render plan is missing')
+  }
+  for (let row = 0; row < height; row += 1) {
+    const sourceY = first + row - rowStart
+    const firstY = Math.floor(
+      (sourceY * firstComponent.verticalSampling) / jpeg.maximumVerticalSampling,
+    )
+    const secondY = Math.floor(
+      (sourceY * secondComponent.verticalSampling) / jpeg.maximumVerticalSampling,
+    )
+    const thirdY = Math.floor(
+      (sourceY * thirdComponent.verticalSampling) / jpeg.maximumVerticalSampling,
+    )
+    const blackY = Math.floor(
+      (sourceY * blackComponent.verticalSampling) / jpeg.maximumVerticalSampling,
+    )
+    for (let x = 0; x < region.width; x += 1) {
+      const firstSample = byte(firstPlane, firstY * firstWidth + (firstX[x] ?? 0))
+      const secondSample = byte(secondPlane, secondY * secondWidth + (secondX[x] ?? 0))
+      const thirdSample = byte(thirdPlane, thirdY * thirdWidth + (thirdX[x] ?? 0))
+      const black = byte(blackPlane, blackY * blackWidth + (blackX[x] ?? 0))
+      const target = (row * region.width + x) * 3
+      if (ycck) {
+        const cb = secondSample - 128
+        const cr = thirdSample - 128
+        const cyan = clamp(firstSample + 1.402 * cr) | 0
+        const magenta = clamp(firstSample - 0.3441363 * cb - 0.71413636 * cr) | 0
+        const yellow = clamp(firstSample + 1.772 * cb) | 0
+        if (iccTransform) {
+          writeCmykIcc(iccTransform, cyan, magenta, yellow, 255 - black, data, target)
+        } else {
+          data[target] = Math.round(((255 - cyan) * black) / 255)
+          data[target + 1] = Math.round(((255 - magenta) * black) / 255)
+          data[target + 2] = Math.round(((255 - yellow) * black) / 255)
+        }
+      } else if (iccTransform) {
+        writeCmykIcc(
+          iccTransform,
+          255 - firstSample,
+          255 - secondSample,
+          255 - thirdSample,
+          255 - black,
+          data,
+          target,
+        )
+      } else {
+        data[target] = Math.round((firstSample * black) / 255)
+        data[target + 1] = Math.round((secondSample * black) / 255)
+        data[target + 2] = Math.round((thirdSample * black) / 255)
+      }
+    }
+  }
+}
+
 const renderRows = (
   jpeg: RenderJpeg,
   planes: readonly Uint8Array[],
   mcuRow: number,
   region: JpegRegion,
+  plan: RenderPlan,
 ): PixelBlock | undefined => {
   const rowStart = mcuRow * jpeg.maximumVerticalSampling * 8
   const first = Math.max(region.y, rowStart)
@@ -528,57 +918,30 @@ const renderRows = (
   const height = last - first
   const stride = region.width * 3
   const data = new Uint8Array(stride * height)
-  const luminance = jpeg.components[0]
-  const luminancePlane = planes[0]
-  if (!luminance || !luminancePlane) throw invalidInput('JPEG luminance component is missing')
-  const luminanceWidth = jpeg.mcusPerLine * luminance.horizontalSampling * 8
 
-  for (let row = 0; row < height; row += 1) {
-    const sourceY = first + row - rowStart
-    for (let x = 0; x < region.width; x += 1) {
-      const sourceX = region.x + x
-      const luminanceX = Math.floor(
-        (sourceX * luminance.horizontalSampling) / jpeg.maximumHorizontalSampling,
-      )
-      const luminanceY = Math.floor(
-        (sourceY * luminance.verticalSampling) / jpeg.maximumVerticalSampling,
-      )
-      const y = byte(luminancePlane, luminanceY * luminanceWidth + luminanceX)
-      const target = row * stride + x * 3
-      if (jpeg.components.length === 1) {
-        data[target] = y
-        data[target + 1] = y
-        data[target + 2] = y
-        continue
-      }
-      const blueDifference = jpeg.components[1]
-      const redDifference = jpeg.components[2]
-      const bluePlane = planes[1]
-      const redPlane = planes[2]
-      if (!blueDifference || !redDifference || !bluePlane || !redPlane) {
-        throw invalidInput('JPEG chroma components are missing')
-      }
-      const blueWidth = jpeg.mcusPerLine * blueDifference.horizontalSampling * 8
-      const redWidth = jpeg.mcusPerLine * redDifference.horizontalSampling * 8
-      const blueX = Math.floor(
-        (sourceX * blueDifference.horizontalSampling) / jpeg.maximumHorizontalSampling,
-      )
-      const redX = Math.floor(
-        (sourceX * redDifference.horizontalSampling) / jpeg.maximumHorizontalSampling,
-      )
-      const blueY = Math.floor(
-        (sourceY * blueDifference.verticalSampling) / jpeg.maximumVerticalSampling,
-      )
-      const redY = Math.floor(
-        (sourceY * redDifference.verticalSampling) / jpeg.maximumVerticalSampling,
-      )
-      const cb = byte(bluePlane, blueY * blueWidth + blueX) - 128
-      const cr = byte(redPlane, redY * redWidth + redX) - 128
-      data[target] = clamp(y + 1.402 * cr)
-      data[target + 1] = clamp(y - 0.3441363 * cb - 0.71413636 * cr)
-      data[target + 2] = clamp(y + 1.772 * cb)
-    }
+  if (jpeg.colorTransform === 'gray') {
+    renderGrayRows(jpeg, planes, region, rowStart, first, height, data, plan)
+  } else if (jpeg.colorTransform === 'rgb') {
+    renderRgbRows(jpeg, planes, region, rowStart, first, height, data, plan)
+    if (jpeg.iccTransform?.kind === 'rgb') applyRgbIcc(data, jpeg.iccTransform)
+  } else if (jpeg.colorTransform === 'ycbcr') {
+    renderYcbcrRows(jpeg, planes, region, rowStart, first, height, data, plan)
+    if (jpeg.iccTransform?.kind === 'rgb') applyRgbIcc(data, jpeg.iccTransform)
+  } else {
+    renderFourComponentRows(
+      jpeg,
+      planes,
+      region,
+      rowStart,
+      first,
+      height,
+      data,
+      jpeg.colorTransform === 'ycck',
+      jpeg.iccTransform?.kind === 'cmyk' ? jpeg.iccTransform : undefined,
+      plan,
+    )
   }
+
   return {
     x: 0,
     y: first - region.y,
@@ -601,9 +964,10 @@ export const decodeBaselineJpeg = async function* (
   const block = new Uint8Array(64)
   let mcu = 0
   let restart = 0
+  const plan = createRenderPlan(jpeg, region)
+  const planes = componentPlanes(jpeg)
 
   for (let mcuRow = 0; mcuRow < jpeg.mcusPerColumn; mcuRow += 1) {
-    const planes = componentPlanes(jpeg)
     for (let mcuColumn = 0; mcuColumn < jpeg.mcusPerLine; mcuColumn += 1) {
       if (jpeg.restartInterval > 0 && mcu > 0 && mcu % jpeg.restartInterval === 0) {
         reader.restart(restart)
@@ -636,7 +1000,7 @@ export const decodeBaselineJpeg = async function* (
       }
       mcu += 1
     }
-    const output = renderRows(jpeg, planes, mcuRow, region)
+    const output = renderRows(jpeg, planes, mcuRow, region, plan)
     if (output) yield output
   }
   reader.finish()
@@ -964,6 +1328,8 @@ export const parseProgressiveJpeg = (
   const dcTables = new Map<number, HuffmanTable>()
   const acTables = new Map<number, HuffmanTable>()
   let frame: ParsedFrame | undefined
+  let adobeTransform: number | undefined
+  const iccChunks: IccChunk[] = []
   let components: ProgressiveFrameComponent[] | undefined
   let maximumHorizontalSampling = 1
   let maximumVerticalSampling = 1
@@ -987,10 +1353,14 @@ export const parseProgressiveJpeg = (
           throw invalidInput('Progressive JPEG component references a missing quantization table')
         return { ...component, quantization }
       })
+      const jpegColorTransform = colorTransform(frame, adobeTransform)
+      const iccTransform = createIccTransform(iccChunks, jpegColorTransform)
       return {
         width: frame.width,
         height: frame.height,
         components: outputComponents,
+        colorTransform: jpegColorTransform,
+        ...(iccTransform ? { iccTransform } : {}),
         maximumHorizontalSampling,
         maximumVerticalSampling,
         mcusPerLine,
@@ -1004,7 +1374,12 @@ export const parseProgressiveJpeg = (
 
     if (marker === 0xdb) parseQuantizationTables(data, start, end, quantizationTables)
     else if (marker === 0xc4) parseHuffmanTables(data, start, end, dcTables, acTables)
-    else if (marker === 0xc0 || marker === 0xc1) return undefined
+    else if (marker === 0xe2) {
+      const chunk = parseIccChunk(data, start, end)
+      if (chunk) iccChunks.push(chunk)
+    } else if (marker === 0xee) {
+      adobeTransform = parseAdobeTransform(data, start, end) ?? adobeTransform
+    } else if (marker === 0xc0 || marker === 0xc1) return undefined
     else if (marker === 0xc2) {
       if (frame) throw invalidInput('Progressive JPEG contains multiple frames')
       frame = parseFrame(data, start, end)
@@ -1083,8 +1458,9 @@ export const decodeProgressiveJpeg = async function* (
 ): AsyncGenerator<PixelBlock> {
   const workspace = new Float64Array(64)
   const block = new Uint8Array(64)
+  const plan = createRenderPlan(jpeg, region)
+  const planes = componentPlanes(jpeg)
   for (let mcuRow = 0; mcuRow < jpeg.mcusPerColumn; mcuRow += 1) {
-    const planes = componentPlanes(jpeg)
     for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
       const component = jpeg.components[componentIndex]
       const plane = planes[componentIndex]
@@ -1104,7 +1480,7 @@ export const decodeProgressiveJpeg = async function* (
         }
       }
     }
-    const output = renderRows(jpeg, planes, mcuRow, region)
+    const output = renderRows(jpeg, planes, mcuRow, region, plan)
     if (output) yield output
   }
 }

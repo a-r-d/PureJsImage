@@ -73,6 +73,78 @@
       }
     },
     {
+      "id": "libultrahdr-apple-gainmap-new",
+      "file": "libultrahdr-apple-gainmap-new.jpg",
+      "url": "https://raw.githubusercontent.com/google/libultrahdr/main/tests/data/apple_gainmap_new.jpg",
+      "sourcePage": "https://github.com/google/libultrahdr/tree/main/tests/data",
+      "author": "libultrahdr contributors; Apple iPhone 13 mini camera fixture",
+      "license": "Creative Commons Attribution 4.0 International",
+      "expected": {
+        "format": "jpeg",
+        "width": 384,
+        "height": 512,
+        "sha256": "492a94bd0636bcf15b3f560c68142a7783936c1597e78b0d0461d8be7fddc078"
+      }
+    },
+    {
+      "id": "libultrahdr-minnie-yuv-icc",
+      "file": "libultrahdr-minnie-yuv-icc.jpg",
+      "url": "https://raw.githubusercontent.com/google/libultrahdr/main/tests/data/minnie-320x240-yuv-icc.jpg",
+      "sourcePage": "https://github.com/google/libultrahdr/tree/main/tests/data",
+      "author": "libultrahdr contributors",
+      "license": "Creative Commons Attribution 4.0 International",
+      "expected": {
+        "format": "jpeg",
+        "width": 320,
+        "height": 240,
+        "sha256": "171bc422d337d8ba3bd3935cc489c0f755f83687ea7bb39337a7d407b657b08f"
+      }
+    },
+    {
+      "id": "libultrahdr-minnie-rgb",
+      "file": "libultrahdr-minnie-rgb.jpg",
+      "url": "https://raw.githubusercontent.com/google/libultrahdr/main/tests/data/minnie-320x240-rgb.jpg",
+      "sourcePage": "https://github.com/google/libultrahdr/tree/main/tests/data",
+      "author": "libultrahdr contributors",
+      "license": "Creative Commons Attribution 4.0 International",
+      "expected": {
+        "format": "jpeg",
+        "width": 320,
+        "height": 240,
+        "sha256": "59550106c615fb2c614280ac0bde58846306131dc54ede751719f28f397fdd10"
+      }
+    },
+    {
+      "id": "wpt-webcodecs-mozjpeg-rgb",
+      "file": "wpt-webcodecs-mozjpeg-rgb.jpg",
+      "url": "https://raw.githubusercontent.com/web-platform-tests/wpt/master/webcodecs/four-colors.jpg",
+      "sourcePage": "https://github.com/web-platform-tests/wpt/blob/master/webcodecs/README.md",
+      "author": "web-platform-tests contributors; generated with Squoosh MozJPEG",
+      "license": "BSD 3-Clause",
+      "expected": {
+        "format": "jpeg",
+        "width": 320,
+        "height": 240,
+        "orientation": 1,
+        "sha256": "b941a2bf2aa4d29aeca018f7ac02abb6ef8be5c1a782147a8638355a22826e65"
+      }
+    },
+    {
+      "id": "wpt-webcodecs-mozjpeg-yuv420",
+      "file": "wpt-webcodecs-mozjpeg-yuv420.jpg",
+      "url": "https://raw.githubusercontent.com/web-platform-tests/wpt/master/webcodecs/four-colors-limited-range-420-8bpc.jpg",
+      "sourcePage": "https://github.com/web-platform-tests/wpt/blob/master/webcodecs/README.md",
+      "author": "web-platform-tests contributors; generated with Squoosh MozJPEG",
+      "license": "BSD 3-Clause",
+      "expected": {
+        "format": "jpeg",
+        "width": 320,
+        "height": 240,
+        "orientation": 1,
+        "sha256": "226671d7fcd032a237d7e195e936545f0b492628fd96b21e1b062ccbc40e2a6e"
+      }
+    },
+    {
       "id": "pngsuite-palette-8",
       "file": "pngsuite-palette-8.png",
       "url": "https://raw.githubusercontent.com/golang/go/go1.24.0/src/image/png/testdata/pngsuite/basn3p08.png",

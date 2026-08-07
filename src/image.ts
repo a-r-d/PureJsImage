@@ -109,6 +109,9 @@ export class Image {
           ...('background' in options && options.background !== undefined
             ? { background: options.background }
             : {}),
+          ...('chromaSubsampling' in options && options.chromaSubsampling !== undefined
+            ? { chromaSubsampling: options.chromaSubsampling }
+            : {}),
         }),
       )
     }

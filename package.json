@@ -1,6 +1,6 @@
 {
   "name": "purejsimage",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Low-memory, dependency-free image processing in pure TypeScript",
   "keywords": [
     "image",
@@ -107,6 +107,7 @@
     "fixtures:verify": "node benchmark/scripts/verify-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
     "fixtures:heif": "node benchmark/heif/verify-corpus.ts",
+    "fixtures:jpeg": "node benchmark/jpeg/verify-corpus.ts",
     "results:combine": "node benchmark/scripts/combine-results.ts",
     "bench": "node benchmark/run.ts",
     "bench:jimp": "node benchmark/run.ts --engines jimp",
@@ -121,7 +122,8 @@
     "bench:avif:reference": "node benchmark/avif/run-reference.ts",
     "bench:heif": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif",
     "bench:heif:cold": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif --runs 3 --warmups 0",
-    "bench:heif:warm": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif --runs 3 --warmups 1"
+    "bench:heif:warm": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif --runs 3 --warmups 1",
+    "bench:jpeg:encode": "npm run build && node --expose-gc benchmark/jpeg/encode-probe.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.7",

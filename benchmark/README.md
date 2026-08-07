@@ -60,6 +60,12 @@ checks metadata, full HEIC-to-PNG decode, auto-oriented HEIC-to-JPEG resize, and
 an oriented crop-resize workflow. Pixel samples are pinned from an independent
 ImageMagick/libheif decode with narrow documented tolerances.
 
+The JPEG compatibility corpus adds an Apple iPhone gain-map image, libultrahdr
+ICC and ordinary JPEG fixtures, and Web Platform Tests' progressive Squoosh
+MozJPEG RGB and YUV outputs. The dedicated verifier checks MPF image count,
+color-space and sampling classification, SDR-primary decoding, ICC conversion,
+and pixels derived from independent ImageMagick/LittleCMS decodes.
+
 ## Running
 
 Quick harness validation:
@@ -78,6 +84,14 @@ JPEG implementation and cross-format regression pass:
 
 ```sh
 PUREJSIMAGE_ENTRY=./dist/index.js npm run bench -- --engines jimp,purejsimage --profile phase4
+```
+
+Verify the pinned JPEG compatibility pixels and run the isolated encoder probe:
+
+```sh
+npm run fixtures:jpeg
+npm run bench:jpeg:encode -- 420
+npm run bench:jpeg:encode -- 444
 ```
 
 Cross-format and first-frame GIF regression pass:

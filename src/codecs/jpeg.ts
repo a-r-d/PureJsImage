@@ -1,4 +1,10 @@
-import type { DecodeRequest, ImageCodec, ImageDecoder, ImageMetadata } from '../codec.ts'
+import type {
+  ChromaSubsampling,
+  DecodeRequest,
+  ImageCodec,
+  ImageDecoder,
+  ImageMetadata,
+} from '../codec.ts'
 import { invalidInput } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
@@ -10,9 +16,9 @@ import {
   type BaselineJpeg,
   decodeBaselineJpeg,
   decodeProgressiveJpeg,
+  type ProgressiveJpeg,
   parseBaselineJpeg,
   parseProgressiveJpeg,
-  type ProgressiveJpeg,
 } from './jpeg-baseline.ts'
 import { createBaselineJpegEncoder } from './jpeg-encode.ts'
 
@@ -76,10 +82,106 @@ const exifOrientation = (segment: Uint8Array): number | undefined => {
   return undefined
 }
 
-const jpegColorSpace = (components: number): string => {
+interface JpegFrameMetadata {
+  readonly components: number
+  readonly componentIds: Uint8Array
+  readonly horizontalSampling: Uint8Array
+  readonly verticalSampling: Uint8Array
+}
+
+const adobeTransform = (segment: Uint8Array): number | undefined => {
+  if (
+    segment.byteLength < 12 ||
+    segment[0] !== 0x41 ||
+    segment[1] !== 0x64 ||
+    segment[2] !== 0x6f ||
+    segment[3] !== 0x62 ||
+    segment[4] !== 0x65 ||
+    segment[5] !== 0
+  ) {
+    return undefined
+  }
+  return segment[11]
+}
+
+const jpegColorSpace = (frame: JpegFrameMetadata, transform: number | undefined): string => {
+  const { components, componentIds } = frame
   if (components === 1) return 'gray'
-  if (components === 4) return 'cmyk'
+  if (components === 4) return transform === 2 ? 'ycck' : 'cmyk'
+  if (
+    transform === 0 ||
+    (componentIds[0] === 0x52 && componentIds[1] === 0x47 && componentIds[2] === 0x42)
+  ) {
+    return 'rgb'
+  }
   return 'ycbcr'
+}
+
+const jpegChromaSubsampling = (frame: JpegFrameMetadata): ChromaSubsampling | undefined => {
+  if (frame.components === 1) return '400'
+  if (frame.components !== 3) return undefined
+  const yH = frame.horizontalSampling[0]
+  const yV = frame.verticalSampling[0]
+  const cbH = frame.horizontalSampling[1]
+  const cbV = frame.verticalSampling[1]
+  const crH = frame.horizontalSampling[2]
+  const crV = frame.verticalSampling[2]
+  if (
+    yH === undefined ||
+    yV === undefined ||
+    cbH === undefined ||
+    cbV === undefined ||
+    cbH !== crH ||
+    cbV !== crV
+  ) {
+    return undefined
+  }
+  if (yH === cbH && yV === cbV) return '444'
+  if (yH === cbH * 2 && yV === cbV) return '422'
+  if (yH === cbH * 2 && yV === cbV * 2) return '420'
+  return undefined
+}
+
+const mpfImageCount = (segment: Uint8Array): number | undefined => {
+  if (
+    segment.byteLength < 18 ||
+    segment[0] !== 0x4d ||
+    segment[1] !== 0x50 ||
+    segment[2] !== 0x46 ||
+    segment[3] !== 0
+  ) {
+    return undefined
+  }
+  const tiff = 4
+  const littleEndian = segment[tiff] === 0x49 && segment[tiff + 1] === 0x49
+  const bigEndian = segment[tiff] === 0x4d && segment[tiff + 1] === 0x4d
+  if (!littleEndian && !bigEndian) return undefined
+  const view = new DataView(segment.buffer, segment.byteOffset, segment.byteLength)
+  const read16 = (offset: number): number | undefined =>
+    offset >= 0 && offset + 2 <= segment.byteLength
+      ? view.getUint16(offset, littleEndian)
+      : undefined
+  const read32 = (offset: number): number | undefined =>
+    offset >= 0 && offset + 4 <= segment.byteLength
+      ? view.getUint32(offset, littleEndian)
+      : undefined
+  if (read16(tiff + 2) !== 42) return undefined
+  const relativeIfd = read32(tiff + 4)
+  if (relativeIfd === undefined) return undefined
+  const ifd = tiff + relativeIfd
+  const entries = read16(ifd)
+  if (entries === undefined || entries > 4_096 || ifd + 2 + entries * 12 > segment.byteLength) {
+    return undefined
+  }
+  for (let index = 0; index < entries; index += 1) {
+    const entry = ifd + 2 + index * 12
+    if (read16(entry) !== 0xb001 || read16(entry + 2) !== 4 || read32(entry + 4) !== 1) {
+      continue
+    }
+    const count = read32(entry + 8)
+    return count !== undefined && count >= 1 && count <= 1_000 ? count : undefined
+  }
+  return undefined
 }
 
 const region = (
@@ -183,8 +285,10 @@ export const jpegCodec: ImageCodec = {
     let width: number | undefined
     let height: number | undefined
     let bitDepth: number | undefined
-    let components: number | undefined
+    let frameMetadata: JpegFrameMetadata | undefined
     let orientation: number | undefined
+    let transform: number | undefined
+    let frames: number | undefined
 
     for (let segments = 0; reader.position < source.size && segments < 10_000; segments += 1) {
       let prefix = await reader.readByte()
@@ -208,13 +312,40 @@ export const jpegCodec: ImageCodec = {
         orientation = exifOrientation(await reader.read(payloadLength))
         continue
       }
+      if (marker === 0xe2 && frames === undefined) {
+        frames = mpfImageCount(await reader.read(payloadLength))
+        continue
+      }
+      if (marker === 0xee && transform === undefined) {
+        transform = adobeTransform(await reader.read(payloadLength))
+        continue
+      }
       if (startOfFrameMarkers.has(marker)) {
         const frame = await reader.read(payloadLength)
         if (frame.byteLength < 6) throw invalidInput('JPEG start-of-frame marker is truncated')
         bitDepth = frame[0]
         height = uint16BigEndian(frame, 1)
         width = uint16BigEndian(frame, 3)
-        components = frame[5]
+        const components = frame[5] ?? 0
+        if (components < 1 || frame.byteLength < 6 + components * 3) {
+          throw invalidInput('JPEG start-of-frame components are truncated')
+        }
+        const componentIds = new Uint8Array(components)
+        const horizontalSampling = new Uint8Array(components)
+        const verticalSampling = new Uint8Array(components)
+        for (let index = 0; index < components; index += 1) {
+          const offset = 6 + index * 3
+          componentIds[index] = frame[offset] ?? 0
+          const sampling = frame[offset + 1] ?? 0
+          horizontalSampling[index] = sampling >>> 4
+          verticalSampling[index] = sampling & 15
+        }
+        frameMetadata = {
+          components,
+          componentIds,
+          horizontalSampling,
+          verticalSampling,
+        }
         continue
       }
       reader.skip(payloadLength)
@@ -224,11 +355,12 @@ export const jpegCodec: ImageCodec = {
       width === undefined ||
       height === undefined ||
       bitDepth === undefined ||
-      components === undefined
+      frameMetadata === undefined
     ) {
       throw invalidInput('JPEG dimensions were not found before image data')
     }
     validateImageDimensions(width, height, 1, limits)
+    const chromaSubsampling = jpegChromaSubsampling(frameMetadata)
     return {
       width,
       height,
@@ -236,9 +368,10 @@ export const jpegCodec: ImageCodec = {
       mimeType: 'image/jpeg',
       hasAlpha: false,
       ...(orientation ? { orientation } : {}),
-      colorSpace: jpegColorSpace(components),
+      colorSpace: jpegColorSpace(frameMetadata, transform),
       bitDepth,
-      frames: 1,
+      ...(chromaSubsampling ? { chromaSubsampling } : {}),
+      frames: frames ?? 1,
     }
   },
   createDecoder: decodeJpeg,

@@ -538,14 +538,15 @@ const chrominanceAcValues = Uint8Array.of(
   0xfa,
 )
 
-interface HuffmanCode {
-  readonly value: number
-  readonly length: number
+interface HuffmanCodes {
+  readonly values: Uint16Array
+  readonly lengths: Uint8Array
 }
 
 interface EncoderOptions {
   readonly quality: number
   readonly background: readonly [number, number, number]
+  readonly chromaSubsampling: '420' | '422' | '444'
 }
 
 const channels = (format: PixelFormat): number => {
@@ -566,15 +567,20 @@ const options = (value: unknown): EncoderOptions => {
   }
   if (value.progressive === true)
     throw invalidInput('Progressive JPEG encoding is not supported yet')
+  const chromaSubsampling = value.chromaSubsampling ?? '420'
+  if (chromaSubsampling !== '420' && chromaSubsampling !== '422' && chromaSubsampling !== '444') {
+    throw invalidInput('JPEG chromaSubsampling must be 420, 422, or 444')
+  }
   const background = value.background
   if (background === undefined || background === 'transparent') {
-    return { quality, background: [255, 255, 255] }
+    return { quality, background: [255, 255, 255], chromaSubsampling }
   }
   if (typeof background !== 'string' || !/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(background)) {
     throw invalidInput('JPEG background must be transparent, #RRGGBB, or #RRGGBBAA')
   }
   return {
     quality,
+    chromaSubsampling,
     background: [
       Number.parseInt(background.slice(1, 3), 16),
       Number.parseInt(background.slice(3, 5), 16),
@@ -590,22 +596,24 @@ const quantizationTable = (base: Uint8Array, quality: number): Uint8Array => {
   )
 }
 
-const huffmanCodes = (counts: Uint8Array, values: Uint8Array): ReadonlyMap<number, HuffmanCode> => {
-  const result = new Map<number, HuffmanCode>()
+const huffmanCodes = (counts: Uint8Array, symbols: Uint8Array): HuffmanCodes => {
+  const values = new Uint16Array(256)
+  const lengths = new Uint8Array(256)
   let code = 0
   let valueIndex = 0
   for (let length = 1; length <= 16; length += 1) {
     const count = counts[length - 1] ?? 0
     for (let index = 0; index < count; index += 1) {
-      const symbol = values[valueIndex]
+      const symbol = symbols[valueIndex]
       if (symbol === undefined) throw new Error('Standard JPEG Huffman table is invalid')
-      result.set(symbol, { value: code, length })
+      values[symbol] = code
+      lengths[symbol] = length
       code += 1
       valueIndex += 1
     }
     code <<= 1
   }
-  return result
+  return { values, lengths }
 }
 
 const luminanceDcCodes = huffmanCodes(luminanceDcCounts, luminanceDcValues)
@@ -614,12 +622,19 @@ const chrominanceDcCodes = huffmanCodes(chrominanceDcCounts, chrominanceDcValues
 const chrominanceAcCodes = huffmanCodes(chrominanceAcCounts, chrominanceAcValues)
 
 class ByteWriter {
-  readonly #bytes: number[] = []
+  #bytes = new Uint8Array(8_192)
+  #length = 0
   #pending = 0
   #pendingBits = 0
 
   byte(value: number): void {
-    this.#bytes.push(value & 255)
+    if (this.#length === this.#bytes.byteLength) {
+      const expanded = new Uint8Array(this.#bytes.byteLength * 2)
+      expanded.set(this.#bytes)
+      this.#bytes = expanded
+    }
+    this.#bytes[this.#length] = value
+    this.#length += 1
   }
 
   word(value: number): void {
@@ -628,22 +643,22 @@ class ByteWriter {
   }
 
   bits(value: number, length: number): void {
-    for (let position = length - 1; position >= 0; position -= 1) {
-      this.#pending = (this.#pending << 1) | ((value >>> position) & 1)
-      this.#pendingBits += 1
-      if (this.#pendingBits === 8) {
-        this.byte(this.#pending)
-        if (this.#pending === 0xff) this.byte(0)
-        this.#pending = 0
-        this.#pendingBits = 0
-      }
+    this.#pending = (this.#pending << length) | (value & ((1 << length) - 1))
+    this.#pendingBits += length
+    while (this.#pendingBits >= 8) {
+      const remaining = this.#pendingBits - 8
+      const output = (this.#pending >>> remaining) & 0xff
+      this.byte(output)
+      if (output === 0xff) this.byte(0)
+      this.#pendingBits = remaining
+      this.#pending &= remaining === 0 ? 0 : (1 << remaining) - 1
     }
   }
 
-  code(table: ReadonlyMap<number, HuffmanCode>, symbol: number): void {
-    const code = table.get(symbol)
-    if (!code) throw invalidInput(`JPEG coefficient has no Huffman code: ${symbol}`)
-    this.bits(code.value, code.length)
+  code(table: HuffmanCodes, symbol: number): void {
+    const length = table.lengths[symbol] ?? 0
+    if (length === 0) throw invalidInput(`JPEG coefficient has no Huffman code: ${symbol}`)
+    this.bits(table.values[symbol] ?? 0, length)
   }
 
   flushBits(): void {
@@ -652,8 +667,8 @@ class ByteWriter {
   }
 
   take(): Uint8Array {
-    const output = Uint8Array.from(this.#bytes)
-    this.#bytes.length = 0
+    const output = this.#bytes.slice(0, this.#length)
+    this.#length = 0
     return output
   }
 }
@@ -675,6 +690,7 @@ const jpegHeader = (
   height: number,
   luminance: Uint8Array,
   chrominance: Uint8Array,
+  luminanceSampling: number,
 ): Uint8Array => {
   const writer = new ByteWriter()
   writer.word(0xffd8)
@@ -701,7 +717,7 @@ const jpegHeader = (
     [3, 1],
   ] as const) {
     writer.byte(id)
-    writer.byte(0x11)
+    writer.byte(id === 1 ? luminanceSampling : 0x11)
     writer.byte(table)
   }
 
@@ -762,26 +778,20 @@ const quantize = (
   }
 }
 
-const magnitude = (value: number): { readonly category: number; readonly bits: number } => {
-  if (value === 0) return { category: 0, bits: 0 }
-  const category = Math.floor(Math.log2(Math.abs(value))) + 1
-  return {
-    category,
-    bits: value < 0 ? value + (1 << category) - 1 : value,
-  }
-}
-
 const encodeBlock = (
   writer: ByteWriter,
   coefficients: Int32Array,
   previousDc: number,
-  dcCodes: ReadonlyMap<number, HuffmanCode>,
-  acCodes: ReadonlyMap<number, HuffmanCode>,
+  dcCodes: HuffmanCodes,
+  acCodes: HuffmanCodes,
 ): number => {
   const dc = coefficients[0] ?? 0
-  const difference = magnitude(dc - previousDc)
-  writer.code(dcCodes, difference.category)
-  if (difference.category > 0) writer.bits(difference.bits, difference.category)
+  const difference = dc - previousDc
+  const dcCategory = difference === 0 ? 0 : 32 - Math.clz32(Math.abs(difference))
+  writer.code(dcCodes, dcCategory)
+  if (dcCategory > 0) {
+    writer.bits(difference < 0 ? difference + (1 << dcCategory) - 1 : difference, dcCategory)
+  }
 
   let zeroes = 0
   for (let index = 1; index < 64; index += 1) {
@@ -794,13 +804,161 @@ const encodeBlock = (
       writer.code(acCodes, 0xf0)
       zeroes -= 16
     }
-    const encoded = magnitude(coefficient)
-    writer.code(acCodes, (zeroes << 4) | encoded.category)
-    writer.bits(encoded.bits, encoded.category)
+    const category = 32 - Math.clz32(Math.abs(coefficient))
+    writer.code(acCodes, (zeroes << 4) | category)
+    writer.bits(coefficient < 0 ? coefficient + (1 << category) - 1 : coefficient, category)
     zeroes = 0
   }
   if (zeroes > 0) writer.code(acCodes, 0)
   return dc
+}
+
+interface SamplingGeometry {
+  readonly chromaSubsampling: '420' | '422' | '444'
+  readonly luminanceHorizontal: 1 | 2
+  readonly luminanceVertical: 1 | 2
+  readonly mcuWidth: 8 | 16
+  readonly rowHeight: 8 | 16
+}
+
+const samplingGeometry = (chromaSubsampling: '420' | '422' | '444'): SamplingGeometry => {
+  if (chromaSubsampling === '420') {
+    return {
+      chromaSubsampling,
+      luminanceHorizontal: 2,
+      luminanceVertical: 2,
+      mcuWidth: 16,
+      rowHeight: 16,
+    }
+  }
+  if (chromaSubsampling === '422') {
+    return {
+      chromaSubsampling,
+      luminanceHorizontal: 2,
+      luminanceVertical: 1,
+      mcuWidth: 16,
+      rowHeight: 8,
+    }
+  }
+  return {
+    chromaSubsampling,
+    luminanceHorizontal: 1,
+    luminanceVertical: 1,
+    mcuWidth: 8,
+    rowHeight: 8,
+  }
+}
+
+const fillLuminance8 = (
+  rows: Uint8Array,
+  width: number,
+  originX: number,
+  originY: number,
+  output: Float64Array,
+): void => {
+  const lastX = width - 1
+  for (let y = 0; y < 8; y += 1) {
+    let source = (originY + y) * width * 3 + Math.min(originX, lastX) * 3
+    const rowEnd = (originY + y) * width * 3 + lastX * 3
+    let target = y * 8
+    for (let x = 0; x < 8; x += 1) {
+      const red = rows[source] ?? 0
+      const green = rows[source + 1] ?? 0
+      const blue = rows[source + 2] ?? 0
+      output[target] = 0.299 * red + 0.587 * green + 0.114 * blue - 128
+      source = source < rowEnd ? source + 3 : rowEnd
+      target += 1
+    }
+  }
+}
+
+const fillChroma444 = (
+  rows: Uint8Array,
+  width: number,
+  originX: number,
+  blueDifference: Float64Array,
+  redDifference: Float64Array,
+): void => {
+  const lastX = width - 1
+  for (let y = 0; y < 8; y += 1) {
+    let source = y * width * 3 + originX * 3
+    const rowEnd = y * width * 3 + lastX * 3
+    let target = y * 8
+    for (let x = 0; x < 8; x += 1) {
+      const red = rows[source] ?? 0
+      const green = rows[source + 1] ?? 0
+      const blue = rows[source + 2] ?? 0
+      blueDifference[target] = -0.168736 * red - 0.331264 * green + 0.5 * blue
+      redDifference[target] = 0.5 * red - 0.418688 * green - 0.081312 * blue
+      source = source < rowEnd ? source + 3 : rowEnd
+      target += 1
+    }
+  }
+}
+
+const fillChroma422 = (
+  rows: Uint8Array,
+  width: number,
+  originX: number,
+  blueDifference: Float64Array,
+  redDifference: Float64Array,
+): void => {
+  const lastX = width - 1
+  for (let y = 0; y < 8; y += 1) {
+    const rowStart = y * width * 3
+    let target = y * 8
+    for (let x = 0; x < 8; x += 1) {
+      const firstX = Math.min(originX + x * 2, lastX)
+      const secondX = Math.min(firstX + 1, lastX)
+      const first = rowStart + firstX * 3
+      const second = rowStart + secondX * 3
+      const red = (rows[first] ?? 0) + (rows[second] ?? 0)
+      const green = (rows[first + 1] ?? 0) + (rows[second + 1] ?? 0)
+      const blue = (rows[first + 2] ?? 0) + (rows[second + 2] ?? 0)
+      blueDifference[target] = -0.084368 * red - 0.165632 * green + 0.25 * blue
+      redDifference[target] = 0.25 * red - 0.209344 * green - 0.040656 * blue
+      target += 1
+    }
+  }
+}
+
+const fillChroma420 = (
+  rows: Uint8Array,
+  width: number,
+  originX: number,
+  blueDifference: Float64Array,
+  redDifference: Float64Array,
+): void => {
+  const lastX = width - 1
+  for (let y = 0; y < 8; y += 1) {
+    const firstRow = y * 2 * width * 3
+    const secondRow = firstRow + width * 3
+    let target = y * 8
+    for (let x = 0; x < 8; x += 1) {
+      const firstX = Math.min(originX + x * 2, lastX)
+      const secondX = Math.min(firstX + 1, lastX)
+      const first = firstX * 3
+      const second = secondX * 3
+      const red =
+        (rows[firstRow + first] ?? 0) +
+        (rows[firstRow + second] ?? 0) +
+        (rows[secondRow + first] ?? 0) +
+        (rows[secondRow + second] ?? 0)
+      const green =
+        (rows[firstRow + first + 1] ?? 0) +
+        (rows[firstRow + second + 1] ?? 0) +
+        (rows[secondRow + first + 1] ?? 0) +
+        (rows[secondRow + second + 1] ?? 0)
+      const blue =
+        (rows[firstRow + first + 2] ?? 0) +
+        (rows[firstRow + second + 2] ?? 0) +
+        (rows[secondRow + first + 2] ?? 0) +
+        (rows[secondRow + second + 2] ?? 0)
+      blueDifference[target] = -0.042184 * red - 0.082816 * green + 0.125 * blue
+      redDifference[target] = 0.125 * red - 0.104672 * green - 0.020328 * blue
+      target += 1
+    }
+  }
 }
 
 class BaselineJpegEncoder implements ImageEncoder {
@@ -810,11 +968,14 @@ class BaselineJpegEncoder implements ImageEncoder {
   readonly #format: PixelFormat
   readonly #sourceChannels: number
   readonly #background: readonly [number, number, number]
+  readonly #sampling: SamplingGeometry
   readonly #luminanceTable: Uint8Array
   readonly #chrominanceTable: Uint8Array
   readonly #rows: Uint8Array
   readonly #writer = new ByteWriter()
-  readonly #samples = new Float64Array(64)
+  readonly #luminanceSamples = new Float64Array(64)
+  readonly #blueDifferenceSamples = new Float64Array(64)
+  readonly #redDifferenceSamples = new Float64Array(64)
   readonly #intermediate = new Float64Array(64)
   readonly #coefficients = new Int32Array(64)
   #receivedRows = 0
@@ -837,14 +998,21 @@ class BaselineJpegEncoder implements ImageEncoder {
     this.#format = format
     this.#sourceChannels = channels(format)
     this.#background = encoderOptions.background
+    this.#sampling = samplingGeometry(encoderOptions.chromaSubsampling)
     this.#luminanceTable = quantizationTable(luminanceQuantization, encoderOptions.quality)
     this.#chrominanceTable = quantizationTable(chrominanceQuantization, encoderOptions.quality)
-    this.#rows = new Uint8Array(width * 8 * 3)
+    this.#rows = new Uint8Array(width * this.#sampling.rowHeight * 3)
   }
 
   async start(): Promise<void> {
     await this.#sink.write(
-      jpegHeader(this.#width, this.#height, this.#luminanceTable, this.#chrominanceTable),
+      jpegHeader(
+        this.#width,
+        this.#height,
+        this.#luminanceTable,
+        this.#chrominanceTable,
+        (this.#sampling.luminanceHorizontal << 4) | this.#sampling.luminanceVertical,
+      ),
     )
   }
 
@@ -871,25 +1039,33 @@ class BaselineJpegEncoder implements ImageEncoder {
     for (let row = 0; row < block.height; row += 1) {
       this.#appendRow(block.data, row * block.stride)
       this.#receivedRows += 1
-      if (this.#bufferedRows === 8) await this.#encodeRows()
+      if (this.#bufferedRows === this.#sampling.rowHeight) await this.#encodeRows()
     }
   }
 
   #appendRow(source: Uint8Array, sourceOffset: number): void {
     const targetOffset = this.#bufferedRows * this.#width * 3
-    for (let x = 0; x < this.#width; x += 1) {
-      const input = sourceOffset + x * this.#sourceChannels
-      const output = targetOffset + x * 3
-      if (this.#format === 'gray8') {
+    if (this.#format === 'gray8') {
+      for (let x = 0; x < this.#width; x += 1) {
+        const input = sourceOffset + x
+        const output = targetOffset + x * 3
         const gray = source[input] ?? 0
         this.#rows[output] = gray
         this.#rows[output + 1] = gray
         this.#rows[output + 2] = gray
-      } else if (this.#format === 'rgb8') {
+      }
+    } else if (this.#format === 'rgb8') {
+      for (let x = 0; x < this.#width; x += 1) {
+        const input = sourceOffset + x * 3
+        const output = targetOffset + x * 3
         this.#rows[output] = source[input] ?? 0
         this.#rows[output + 1] = source[input + 1] ?? 0
         this.#rows[output + 2] = source[input + 2] ?? 0
-      } else {
+      }
+    } else {
+      for (let x = 0; x < this.#width; x += 1) {
+        const input = sourceOffset + x * 4
+        const output = targetOffset + x * 3
         const alpha = source[input + 3] ?? 0
         const inverse = 255 - alpha
         this.#rows[output] = Math.round(
@@ -906,38 +1082,54 @@ class BaselineJpegEncoder implements ImageEncoder {
     this.#bufferedRows += 1
   }
 
-  #fillSamples(blockX: number, component: 0 | 1 | 2): void {
-    for (let y = 0; y < 8; y += 1) {
-      for (let x = 0; x < 8; x += 1) {
-        const sourceX = Math.min(this.#width - 1, blockX * 8 + x)
-        const source = (y * this.#width + sourceX) * 3
-        const red = this.#rows[source] ?? 0
-        const green = this.#rows[source + 1] ?? 0
-        const blue = this.#rows[source + 2] ?? 0
-        let value = 0
-        if (component === 0) value = 0.299 * red + 0.587 * green + 0.114 * blue
-        else if (component === 1) value = -0.168736 * red - 0.331264 * green + 0.5 * blue + 128
-        else value = 0.5 * red - 0.418688 * green - 0.081312 * blue + 128
-        this.#samples[y * 8 + x] = value - 128
-      }
-    }
-  }
-
   async #encodeRows(): Promise<void> {
-    const blocks = Math.ceil(this.#width / 8)
-    for (let blockX = 0; blockX < blocks; blockX += 1) {
-      this.#fillSamples(blockX, 0)
-      quantize(this.#samples, this.#luminanceTable, this.#intermediate, this.#coefficients)
-      this.#previousY = encodeBlock(
-        this.#writer,
-        this.#coefficients,
-        this.#previousY,
-        luminanceDcCodes,
-        luminanceAcCodes,
-      )
+    const mcus = Math.ceil(this.#width / this.#sampling.mcuWidth)
+    const fillChroma =
+      this.#sampling.chromaSubsampling === '420'
+        ? fillChroma420
+        : this.#sampling.chromaSubsampling === '422'
+          ? fillChroma422
+          : fillChroma444
+    for (let mcuX = 0; mcuX < mcus; mcuX += 1) {
+      for (let blockY = 0; blockY < this.#sampling.luminanceVertical; blockY += 1) {
+        for (let blockX = 0; blockX < this.#sampling.luminanceHorizontal; blockX += 1) {
+          fillLuminance8(
+            this.#rows,
+            this.#width,
+            mcuX * this.#sampling.mcuWidth + blockX * 8,
+            blockY * 8,
+            this.#luminanceSamples,
+          )
+          quantize(
+            this.#luminanceSamples,
+            this.#luminanceTable,
+            this.#intermediate,
+            this.#coefficients,
+          )
+          this.#previousY = encodeBlock(
+            this.#writer,
+            this.#coefficients,
+            this.#previousY,
+            luminanceDcCodes,
+            luminanceAcCodes,
+          )
+        }
+      }
 
-      this.#fillSamples(blockX, 1)
-      quantize(this.#samples, this.#chrominanceTable, this.#intermediate, this.#coefficients)
+      const originX = mcuX * this.#sampling.mcuWidth
+      fillChroma(
+        this.#rows,
+        this.#width,
+        originX,
+        this.#blueDifferenceSamples,
+        this.#redDifferenceSamples,
+      )
+      quantize(
+        this.#blueDifferenceSamples,
+        this.#chrominanceTable,
+        this.#intermediate,
+        this.#coefficients,
+      )
       this.#previousCb = encodeBlock(
         this.#writer,
         this.#coefficients,
@@ -945,9 +1137,12 @@ class BaselineJpegEncoder implements ImageEncoder {
         chrominanceDcCodes,
         chrominanceAcCodes,
       )
-
-      this.#fillSamples(blockX, 2)
-      quantize(this.#samples, this.#chrominanceTable, this.#intermediate, this.#coefficients)
+      quantize(
+        this.#redDifferenceSamples,
+        this.#chrominanceTable,
+        this.#intermediate,
+        this.#coefficients,
+      )
       this.#previousCr = encodeBlock(
         this.#writer,
         this.#coefficients,
@@ -968,12 +1163,10 @@ class BaselineJpegEncoder implements ImageEncoder {
       throw invalidInput(`JPEG encoder received ${this.#receivedRows} of ${this.#height} rows`)
     }
     if (this.#bufferedRows > 0) {
-      const last = this.#rows.slice(
-        (this.#bufferedRows - 1) * this.#width * 3,
-        this.#bufferedRows * this.#width * 3,
-      )
-      while (this.#bufferedRows < 8) {
-        this.#rows.set(last, this.#bufferedRows * this.#width * 3)
+      const rowBytes = this.#width * 3
+      const lastOffset = (this.#bufferedRows - 1) * rowBytes
+      while (this.#bufferedRows < this.#sampling.rowHeight) {
+        this.#rows.copyWithin(this.#bufferedRows * rowBytes, lastOffset, lastOffset + rowBytes)
         this.#bufferedRows += 1
       }
       await this.#encodeRows()

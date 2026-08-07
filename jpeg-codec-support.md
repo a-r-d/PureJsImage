@@ -10,9 +10,9 @@ supported until its output is independently validated.
 ### Common JPEG structure
 
 - [x] JPEG detection from the start-of-image marker
-- [x] Header-only width, height, bit depth, component-count-based color-space
-  classification, and EXIF orientation inspection without decoding
-  entropy-coded pixels
+- [x] Header-only width, height, bit depth, Adobe/component-ID color-space
+  classification, chroma subsampling, MPF image count, and EXIF orientation
+  inspection without decoding entropy-coded pixels
 - [x] 8-bit baseline sequential DCT with Huffman coding (`SOF0`)
 - [x] 8-bit progressive DCT with Huffman coding (`SOF2`)
 - [x] Single-component grayscale images
@@ -39,10 +39,13 @@ supported until its output is independently validated.
 - [x] Grayscale-to-RGB output
 - [x] YCbCr-to-RGB output
 - [x] EXIF orientation values 1-8 through explicit `autoOrient()` processing
-- [ ] Four-component CMYK JPEG decode
-- [ ] Adobe YCCK JPEG decode and reliable Adobe color-transform detection
-- [ ] Three-component JPEGs explicitly encoded as RGB rather than YCbCr
-- [ ] ICC profile assembly and color-managed conversion to sRGB
+- [x] Four-component CMYK JPEG decode with an explicit Adobe transform marker
+- [x] Adobe YCCK JPEG decode and Adobe color-transform detection
+- [x] Three-component JPEGs explicitly encoded as RGB rather than YCbCr
+- [x] Ordered multi-segment ICC profile assembly and color-managed conversion
+  to sRGB for RGB matrix/TRC profiles and CMYK `lut16` `A2B0` profiles
+- [ ] Broader ICC transform coverage, including `lut8`, multi-process-element,
+  device-link, gray, and uncommon parametric or sampled profile forms
 - [ ] Full EXIF, XMP, IPTC/IIM, Photoshop image-resource, JFIF density,
   comment, and application-marker exposure
 - [ ] Metadata preservation when converting or re-encoding a JPEG
@@ -51,6 +54,10 @@ supported until its output is independently validated.
 
 ### Compound and HDR JPEG files
 
+- [x] Decode and pixel-validate the SDR primary image from a pinned Apple gain-map
+  JPEG fixture without misreading its appended secondary image
+- [x] Header-only MPF image-count inspection; the pinned Apple gain-map fixture
+  reports its two constituent images
 - [ ] Ultra HDR / JPEG_R and ISO 21496-1:2025 gain-map discovery, HDR
   reconstruction, encoding, and preservation
 - [ ] Multi-Picture Format (`MPF` / `MPO`) secondary-image enumeration and
@@ -87,22 +94,21 @@ supported until its output is independently validated.
 
 - [x] First-party 8-bit baseline sequential DCT with Huffman coding (`SOF0`)
 - [x] JFIF output with three YCbCr components
-- [x] 4:4:4 output sampling
+- [x] Configurable 4:2:0, 4:2:2, and 4:4:4 output sampling, with 4:2:0 as the
+  photographic default
 - [x] Quality control from 1-100 using scaled luminance and chrominance
   quantization tables
 - [x] Standard luminance and chrominance Huffman tables
 - [x] `gray8`, `rgb8`, and `rgba8` pipeline input
 - [x] Deterministic alpha flattening onto white by default or a requested RGB
   background
-- [x] Streaming top-to-bottom encoding with an eight-row working buffer rather
-  than a full output frame
+- [x] Streaming top-to-bottom encoding with an 8- or 16-row MCU working buffer
+  rather than a full output frame
 - [x] Edge replication for dimensions that are not multiples of eight
 - [x] Public `image.jpeg()` and `image.encode('jpeg')` APIs
 
 ### Planned for common output
 
-- [ ] Configurable 4:2:0, 4:2:2, and 4:4:4 chroma subsampling, with a sensible
-  photographic default
 - [ ] Progressive JPEG encoding
 - [ ] Optimized per-image Huffman tables
 - [ ] Native single-component grayscale output instead of expanding grayscale
@@ -127,14 +133,17 @@ supported until its output is independently validated.
   fixtures against an independent development oracle
 - [x] Compare progressive output pixels against an independent development
   oracle
+- [x] Compare CMYK and YCCK output against an independent development oracle,
+  and exercise RGB matrix/TRC and CMYK LUT ICC transforms with focused fixtures
+- [x] Pin and pixel-validate libultrahdr ICC and Apple gain-map fixtures plus
+  Web Platform Tests' progressive MozJPEG RGB and YUV browser fixtures
 - [x] Decode encoded output independently and require correct dimensions and
   pixels before benchmark timing counts
 - [x] Measure absolute peak RSS in isolated cold and warm processes for the
   primary large-JPEG resize workflow
-- [ ] Pin a broader compatibility corpus from phones, cameras, browsers, image
-  editors, and common web upload sources, including Ultra HDR and Motion Photo
-  files
-- [ ] Add dedicated CMYK, YCCK, ICC, Adobe RGB, 4:4:0, 4:1:1, unusual
+- [ ] Continue broadening the compatibility corpus with more phone and camera
+  models, image editors, common web upload sources, and a Motion Photo fixture
+- [ ] Add dedicated Adobe RGB, 4:4:0, 4:1:1, unusual
   progressive scan, and metadata round-trip fixtures as those capabilities are
   implemented
 - [ ] Add malformed-marker, entropy, table, and scan-progression fuzzing with

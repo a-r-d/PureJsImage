@@ -1,0 +1,473 @@
+import { invalidInput, truncatedInput } from '../errors.ts'
+
+const ICC_HEADER_BYTES = 128
+const MAX_ICC_PROFILE_BYTES = 16 * 1024 * 1024
+const SRGB_ENCODE_STEPS = 4095
+
+interface IccTag {
+  readonly offset: number
+  readonly size: number
+}
+
+export interface RgbIccTransform {
+  readonly kind: 'rgb'
+  readonly redToRed: Float32Array
+  readonly redToGreen: Float32Array
+  readonly redToBlue: Float32Array
+  readonly greenToRed: Float32Array
+  readonly greenToGreen: Float32Array
+  readonly greenToBlue: Float32Array
+  readonly blueToRed: Float32Array
+  readonly blueToGreen: Float32Array
+  readonly blueToBlue: Float32Array
+  readonly encode: Uint8Array
+}
+
+interface CmykInputAxis {
+  readonly low: Uint8Array
+  readonly fraction: Float32Array
+}
+
+export interface CmykIccTransform {
+  readonly kind: 'cmyk'
+  readonly gridPoints: number
+  readonly cyan: CmykInputAxis
+  readonly magenta: CmykInputAxis
+  readonly yellow: CmykInputAxis
+  readonly black: CmykInputAxis
+  readonly clut: Uint16Array
+  readonly outputTables: Uint16Array
+  readonly outputEntries: number
+  readonly pcs: 'Lab ' | 'XYZ '
+  readonly encode: Uint8Array
+}
+
+export type JpegIccTransform = CmykIccTransform | RgbIccTransform
+
+const byte = (data: Uint8Array, offset: number): number => data[offset] ?? 0
+
+const uint16 = (data: Uint8Array, offset: number): number => {
+  if (offset < 0 || offset + 2 > data.byteLength) throw truncatedInput('ICC value is truncated')
+  return byte(data, offset) * 256 + byte(data, offset + 1)
+}
+
+const uint32 = (data: Uint8Array, offset: number): number => {
+  if (offset < 0 || offset + 4 > data.byteLength) throw truncatedInput('ICC value is truncated')
+  return (
+    byte(data, offset) * 16_777_216 +
+    byte(data, offset + 1) * 65_536 +
+    byte(data, offset + 2) * 256 +
+    byte(data, offset + 3)
+  )
+}
+
+const fixed = (data: Uint8Array, offset: number): number => {
+  const unsigned = uint32(data, offset)
+  return (unsigned >= 2_147_483_648 ? unsigned - 4_294_967_296 : unsigned) / 65_536
+}
+
+const signature = (data: Uint8Array, offset: number): string =>
+  String.fromCharCode(
+    byte(data, offset),
+    byte(data, offset + 1),
+    byte(data, offset + 2),
+    byte(data, offset + 3),
+  )
+
+const tags = (profile: Uint8Array, profileBytes: number): ReadonlyMap<string, IccTag> => {
+  const count = uint32(profile, ICC_HEADER_BYTES)
+  if (count > 4_096 || ICC_HEADER_BYTES + 4 + count * 12 > profileBytes) {
+    throw invalidInput('ICC tag table is invalid')
+  }
+  const output = new Map<string, IccTag>()
+  for (let index = 0; index < count; index += 1) {
+    const entry = ICC_HEADER_BYTES + 4 + index * 12
+    const name = signature(profile, entry)
+    const offset = uint32(profile, entry + 4)
+    const size = uint32(profile, entry + 8)
+    if (size < 8 || offset < ICC_HEADER_BYTES || offset + size > profileBytes) {
+      throw invalidInput(`ICC tag ${name} has an invalid extent`)
+    }
+    output.set(name, { offset, size })
+  }
+  return output
+}
+
+const requiredTag = (allTags: ReadonlyMap<string, IccTag>, name: string): IccTag => {
+  const tag = allTags.get(name)
+  if (!tag) throw invalidInput(`ICC profile is missing ${name}`)
+  return tag
+}
+
+const xyzTag = (profile: Uint8Array, tag: IccTag): readonly [number, number, number] => {
+  if (tag.size < 20 || signature(profile, tag.offset) !== 'XYZ ') {
+    throw invalidInput('ICC colorant tag is not XYZ data')
+  }
+  return [
+    fixed(profile, tag.offset + 8),
+    fixed(profile, tag.offset + 12),
+    fixed(profile, tag.offset + 16),
+  ]
+}
+
+const curveValue = (profile: Uint8Array, tag: IccTag, input: number): number => {
+  const type = signature(profile, tag.offset)
+  if (type === 'curv') {
+    const count = uint32(profile, tag.offset + 8)
+    if (count === 0) return input
+    if (count === 1) {
+      if (tag.size < 14) throw truncatedInput('ICC gamma curve is truncated')
+      return input ** (uint16(profile, tag.offset + 12) / 256)
+    }
+    if (count > 65_536 || 12 + count * 2 > tag.size) {
+      throw invalidInput('ICC sampled curve is invalid')
+    }
+    const position = input * (count - 1)
+    const low = Math.floor(position)
+    const high = Math.min(count - 1, low + 1)
+    const fraction = position - low
+    const first = uint16(profile, tag.offset + 12 + low * 2)
+    const second = uint16(profile, tag.offset + 12 + high * 2)
+    return (first + (second - first) * fraction) / 65_535
+  }
+  if (type !== 'para' || tag.size < 16) {
+    throw invalidInput(`ICC tone curve type ${type} is unsupported`)
+  }
+  const functionType = uint16(profile, tag.offset + 8)
+  const parameterCount = [1, 3, 4, 5, 7][functionType]
+  if (parameterCount === undefined || 12 + parameterCount * 4 > tag.size) {
+    throw invalidInput(`ICC parametric curve ${functionType} is unsupported`)
+  }
+  const parameter = (index: number): number => fixed(profile, tag.offset + 12 + index * 4)
+  const g = parameter(0)
+  if (functionType === 0) return input ** g
+  const a = parameter(1)
+  const b = parameter(2)
+  const threshold = functionType < 3 ? -b / a : parameter(4)
+  if (input >= threshold) {
+    const powered = (a * input + b) ** g
+    if (functionType === 2) return powered + parameter(3)
+    if (functionType === 4) return powered + parameter(5)
+    return powered
+  }
+  if (functionType < 2) return 0
+  if (functionType === 2) return parameter(3)
+  const c = parameter(3)
+  return c * input + (functionType === 4 ? parameter(6) : 0)
+}
+
+const curveLut = (profile: Uint8Array, tag: IccTag): Float32Array =>
+  Float32Array.from({ length: 256 }, (_, value) => curveValue(profile, tag, value / 255))
+
+let cachedSrgbEncodeLut: Uint8Array | undefined
+
+const srgbEncodeLut = (): Uint8Array => {
+  if (cachedSrgbEncodeLut) return cachedSrgbEncodeLut
+  cachedSrgbEncodeLut = Uint8Array.from({ length: SRGB_ENCODE_STEPS + 1 }, (_, index) => {
+    const linear = index / SRGB_ENCODE_STEPS
+    const encoded = linear <= 0.0031308 ? linear * 12.92 : 1.055 * linear ** (1 / 2.4) - 0.055
+    return Math.round(encoded * 255)
+  })
+  return cachedSrgbEncodeLut
+}
+
+const multiply3x3 = (left: Float64Array, right: Float64Array): Float64Array => {
+  const output = new Float64Array(9)
+  for (let row = 0; row < 3; row += 1) {
+    for (let column = 0; column < 3; column += 1) {
+      output[row * 3 + column] =
+        (left[row * 3] ?? 0) * (right[column] ?? 0) +
+        (left[row * 3 + 1] ?? 0) * (right[3 + column] ?? 0) +
+        (left[row * 3 + 2] ?? 0) * (right[6 + column] ?? 0)
+    }
+  }
+  return output
+}
+
+const rgbTransform = (
+  profile: Uint8Array,
+  allTags: ReadonlyMap<string, IccTag>,
+): RgbIccTransform => {
+  const red = xyzTag(profile, requiredTag(allTags, 'rXYZ'))
+  const green = xyzTag(profile, requiredTag(allTags, 'gXYZ'))
+  const blue = xyzTag(profile, requiredTag(allTags, 'bXYZ'))
+  const colorants = Float64Array.of(
+    red[0],
+    green[0],
+    blue[0],
+    red[1],
+    green[1],
+    blue[1],
+    red[2],
+    green[2],
+    blue[2],
+  )
+  const d50ToD65 = Float64Array.of(
+    0.9555766,
+    -0.0230393,
+    0.0631636,
+    -0.0282895,
+    1.0099416,
+    0.0210077,
+    0.0122982,
+    -0.020483,
+    1.3299098,
+  )
+  const xyzToSrgb = Float64Array.of(
+    3.2404542,
+    -1.5371385,
+    -0.4985314,
+    -0.969266,
+    1.8760108,
+    0.041556,
+    0.0556434,
+    -0.2040259,
+    1.0572252,
+  )
+  const matrix = multiply3x3(xyzToSrgb, multiply3x3(d50ToD65, colorants))
+  const redCurve = curveLut(profile, requiredTag(allTags, 'rTRC'))
+  const greenCurve = curveLut(profile, requiredTag(allTags, 'gTRC'))
+  const blueCurve = curveLut(profile, requiredTag(allTags, 'bTRC'))
+  const contribution = (curve: Float32Array, scale: number): Float32Array =>
+    Float32Array.from(curve, (value) => value * scale)
+  return {
+    kind: 'rgb',
+    redToRed: contribution(redCurve, matrix[0] ?? 0),
+    redToGreen: contribution(redCurve, matrix[3] ?? 0),
+    redToBlue: contribution(redCurve, matrix[6] ?? 0),
+    greenToRed: contribution(greenCurve, matrix[1] ?? 0),
+    greenToGreen: contribution(greenCurve, matrix[4] ?? 0),
+    greenToBlue: contribution(greenCurve, matrix[7] ?? 0),
+    blueToRed: contribution(blueCurve, matrix[2] ?? 0),
+    blueToGreen: contribution(blueCurve, matrix[5] ?? 0),
+    blueToBlue: contribution(blueCurve, matrix[8] ?? 0),
+    encode: srgbEncodeLut(),
+  }
+}
+
+const sampledTable = (
+  profile: Uint8Array,
+  offset: number,
+  entries: number,
+  input: number,
+): number => {
+  const position = input * (entries - 1)
+  const low = Math.floor(position)
+  const high = Math.min(entries - 1, low + 1)
+  const fraction = position - low
+  const first = uint16(profile, offset + low * 2)
+  const second = uint16(profile, offset + high * 2)
+  return (first + (second - first) * fraction) / 65_535
+}
+
+const cmykInputAxis = (
+  profile: Uint8Array,
+  tableOffset: number,
+  entries: number,
+  gridPoints: number,
+): CmykInputAxis => {
+  const low = new Uint8Array(256)
+  const fraction = new Float32Array(256)
+  for (let value = 0; value < 256; value += 1) {
+    const position = sampledTable(profile, tableOffset, entries, value / 255) * (gridPoints - 1)
+    low[value] = Math.min(gridPoints - 2, Math.floor(position))
+    fraction[value] = position - (low[value] ?? 0)
+  }
+  return { low, fraction }
+}
+
+const cmykTransform = (
+  profile: Uint8Array,
+  allTags: ReadonlyMap<string, IccTag>,
+  pcs: 'Lab ' | 'XYZ ',
+): CmykIccTransform => {
+  const tag = requiredTag(allTags, 'A2B0')
+  if (signature(profile, tag.offset) !== 'mft2' || tag.size < 52) {
+    throw invalidInput('CMYK ICC profile must provide a lut16 A2B0 transform')
+  }
+  const inputChannels = byte(profile, tag.offset + 8)
+  const outputChannels = byte(profile, tag.offset + 9)
+  const gridPoints = byte(profile, tag.offset + 10)
+  const inputEntries = uint16(profile, tag.offset + 48)
+  const outputEntries = uint16(profile, tag.offset + 50)
+  if (
+    inputChannels !== 4 ||
+    outputChannels !== 3 ||
+    gridPoints < 2 ||
+    gridPoints > 33 ||
+    inputEntries < 2 ||
+    outputEntries < 2
+  ) {
+    throw invalidInput('CMYK ICC lut16 dimensions are unsupported')
+  }
+  const inputBytes = inputChannels * inputEntries * 2
+  const clutValues = gridPoints ** inputChannels * outputChannels
+  const clutBytes = clutValues * 2
+  const outputBytes = outputChannels * outputEntries * 2
+  if (52 + inputBytes + clutBytes + outputBytes > tag.size) {
+    throw truncatedInput('CMYK ICC lut16 data is truncated')
+  }
+  const inputOffset = tag.offset + 52
+  const clutOffset = inputOffset + inputBytes
+  const outputOffset = clutOffset + clutBytes
+  const clut = new Uint16Array(clutValues)
+  for (let index = 0; index < clutValues; index += 1) {
+    clut[index] = uint16(profile, clutOffset + index * 2)
+  }
+  const outputTables = new Uint16Array(outputChannels * outputEntries)
+  for (let index = 0; index < outputTables.length; index += 1) {
+    outputTables[index] = uint16(profile, outputOffset + index * 2)
+  }
+  return {
+    kind: 'cmyk',
+    gridPoints,
+    cyan: cmykInputAxis(profile, inputOffset, inputEntries, gridPoints),
+    magenta: cmykInputAxis(profile, inputOffset + inputEntries * 2, inputEntries, gridPoints),
+    yellow: cmykInputAxis(profile, inputOffset + inputEntries * 4, inputEntries, gridPoints),
+    black: cmykInputAxis(profile, inputOffset + inputEntries * 6, inputEntries, gridPoints),
+    clut,
+    outputTables,
+    outputEntries,
+    pcs,
+    encode: srgbEncodeLut(),
+  }
+}
+
+export const parseJpegIccTransform = (profile: Uint8Array): JpegIccTransform => {
+  if (profile.byteLength < ICC_HEADER_BYTES + 4) throw truncatedInput('ICC profile is truncated')
+  const profileBytes = uint32(profile, 0)
+  if (
+    profileBytes < ICC_HEADER_BYTES + 4 ||
+    profileBytes > profile.byteLength ||
+    profileBytes > MAX_ICC_PROFILE_BYTES ||
+    signature(profile, 36) !== 'acsp'
+  ) {
+    throw invalidInput('ICC profile header is invalid')
+  }
+  const colorSpace = signature(profile, 16)
+  const pcs = signature(profile, 20)
+  if (pcs !== 'Lab ' && pcs !== 'XYZ ') throw invalidInput(`ICC PCS ${pcs} is unsupported`)
+  const allTags = tags(profile, profileBytes)
+  if (colorSpace === 'RGB ') return rgbTransform(profile, allTags)
+  if (colorSpace === 'CMYK') return cmykTransform(profile, allTags, pcs)
+  throw invalidInput(`ICC input color space ${colorSpace} is unsupported`)
+}
+
+const encodeLinear = (value: number, table: Uint8Array): number => {
+  const index = Math.round(Math.max(0, Math.min(1, value)) * SRGB_ENCODE_STEPS)
+  return table[index] ?? 0
+}
+
+export const applyRgbIcc = (data: Uint8Array, transform: RgbIccTransform): void => {
+  for (let offset = 0; offset < data.byteLength; offset += 3) {
+    const red = data[offset] ?? 0
+    const green = data[offset + 1] ?? 0
+    const blue = data[offset + 2] ?? 0
+    data[offset] = encodeLinear(
+      (transform.redToRed[red] ?? 0) +
+        (transform.greenToRed[green] ?? 0) +
+        (transform.blueToRed[blue] ?? 0),
+      transform.encode,
+    )
+    data[offset + 1] = encodeLinear(
+      (transform.redToGreen[red] ?? 0) +
+        (transform.greenToGreen[green] ?? 0) +
+        (transform.blueToGreen[blue] ?? 0),
+      transform.encode,
+    )
+    data[offset + 2] = encodeLinear(
+      (transform.redToBlue[red] ?? 0) +
+        (transform.greenToBlue[green] ?? 0) +
+        (transform.blueToBlue[blue] ?? 0),
+      transform.encode,
+    )
+  }
+}
+
+const outputCurve = (transform: CmykIccTransform, channel: number, value: number): number => {
+  const position = (value / 65_535) * (transform.outputEntries - 1)
+  const low = Math.floor(position)
+  const high = Math.min(transform.outputEntries - 1, low + 1)
+  const fraction = position - low
+  const base = channel * transform.outputEntries
+  const first = transform.outputTables[base + low] ?? 0
+  const second = transform.outputTables[base + high] ?? 0
+  return (first + (second - first) * fraction) / 65_535
+}
+
+export const writeCmykIcc = (
+  transform: CmykIccTransform,
+  cyan: number,
+  magenta: number,
+  yellow: number,
+  black: number,
+  output: Uint8Array,
+  offset: number,
+): void => {
+  const c0 = transform.cyan.low[cyan] ?? 0
+  const m0 = transform.magenta.low[magenta] ?? 0
+  const y0 = transform.yellow.low[yellow] ?? 0
+  const k0 = transform.black.low[black] ?? 0
+  const cf = transform.cyan.fraction[cyan] ?? 0
+  const mf = transform.magenta.fraction[magenta] ?? 0
+  const yf = transform.yellow.fraction[yellow] ?? 0
+  const kf = transform.black.fraction[black] ?? 0
+  const grid = transform.gridPoints
+  let first = 0
+  let second = 0
+  let third = 0
+  for (let mask = 0; mask < 16; mask += 1) {
+    const useC = mask & 1
+    const useM = (mask >>> 1) & 1
+    const useY = (mask >>> 2) & 1
+    const useK = (mask >>> 3) & 1
+    const weight =
+      (useC ? cf : 1 - cf) * (useM ? mf : 1 - mf) * (useY ? yf : 1 - yf) * (useK ? kf : 1 - kf)
+    const index = ((((c0 + useC) * grid + m0 + useM) * grid + y0 + useY) * grid + k0 + useK) * 3
+    first += (transform.clut[index] ?? 0) * weight
+    second += (transform.clut[index + 1] ?? 0) * weight
+    third += (transform.clut[index + 2] ?? 0) * weight
+  }
+  first = outputCurve(transform, 0, first)
+  second = outputCurve(transform, 1, second)
+  third = outputCurve(transform, 2, third)
+  let x: number
+  let y: number
+  let z: number
+  if (transform.pcs === 'Lab ') {
+    const legacyScale = 65_535 / 65_280
+    first = Math.min(1, first * legacyScale)
+    second = Math.min(1, second * legacyScale)
+    third = Math.min(1, third * legacyScale)
+    const fy = (first * 100 + 16) / 116
+    const fx = fy + (second * 255 - 128) / 500
+    const fz = fy - (third * 255 - 128) / 200
+    const fx3 = fx * fx * fx
+    const fy3 = fy * fy * fy
+    const fz3 = fz * fz * fz
+    const epsilon = 216 / 24_389
+    const inverseScale = 27 / 24_389
+    x = 0.9642 * (fx3 > epsilon ? fx3 : (116 * fx - 16) * inverseScale)
+    y = fy3 > epsilon ? fy3 : (116 * fy - 16) * inverseScale
+    z = 0.8249 * (fz3 > epsilon ? fz3 : (116 * fz - 16) * inverseScale)
+  } else {
+    x = first * (65_535 / 32_768)
+    y = second * (65_535 / 32_768)
+    z = third * (65_535 / 32_768)
+  }
+  const d65X = 0.9555766 * x - 0.0230393 * y + 0.0631636 * z
+  const d65Y = -0.0282895 * x + 1.0099416 * y + 0.0210077 * z
+  const d65Z = 0.0122982 * x - 0.020483 * y + 1.3299098 * z
+  output[offset] = encodeLinear(
+    3.2404542 * d65X - 1.5371385 * d65Y - 0.4985314 * d65Z,
+    transform.encode,
+  )
+  output[offset + 1] = encodeLinear(
+    -0.969266 * d65X + 1.8760108 * d65Y + 0.041556 * d65Z,
+    transform.encode,
+  )
+  output[offset + 2] = encodeLinear(
+    0.0556434 * d65X - 0.2040259 * d65Y + 1.0572252 * d65Z,
+    transform.encode,
+  )
+}

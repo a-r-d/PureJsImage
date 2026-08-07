@@ -4,9 +4,10 @@ import { describe, expect, it } from 'vitest'
 import { avifCorpusRevision, avifFixtures } from '../benchmark/avif/corpus.ts'
 import corpusManifest from '../benchmark/corpus/manifest.json' with { type: 'json' }
 import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
+import { jpegCompatibilityFixtureIds } from '../benchmark/jpeg/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
-import * as publicApi from '../src/index.ts'
 import packageJson from '../package.json' with { type: 'json' }
+import * as publicApi from '../src/index.ts'
 
 describe('package contract', () => {
   it('has no production dependencies', () => {
@@ -140,6 +141,12 @@ describe('benchmark contract', () => {
     expect(pixelWorkflows.every(({ expected }) => (expected.pixelSamples?.length ?? 0) >= 4)).toBe(
       true,
     )
+  })
+
+  it('pins ICC and Apple gain-map JPEG compatibility fixtures', () => {
+    const sourceIds = new Set(corpusManifest.sources.map(({ id }) => id))
+    expect(jpegCompatibilityFixtureIds).toHaveLength(5)
+    expect(jpegCompatibilityFixtureIds.every((id) => sourceIds.has(id))).toBe(true)
   })
 
   it('keeps every profile populated and ordered by scope', () => {

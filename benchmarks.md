@@ -32,8 +32,8 @@ largest workflows are more representative of memory scaling.
 
 | Workflow | PureJsImage wall | Jimp wall | Wall difference | PureJsImage RSS | Jimp RSS | Memory reduction |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 6000x4000 orient, crop, resize, JPEG | 4,859.4 ms | 4,077.8 ms | 19.2% slower | 121.5 MiB | 1,112.4 MiB | 89.1% |
-| JPEG crop and resize | 4,155.0 ms | 3,043.1 ms | 36.5% slower | 110.9 MiB | 1,190.3 MiB | 90.7% |
+| 6000x4000 orient, crop, resize, JPEG | 4,851.9 ms | 3,762.9 ms | 28.9% slower | 145.8 MiB | 1,188.3 MiB | 87.7% |
+| JPEG crop and resize | 3,981.9 ms | 2,868.2 ms | 38.8% slower | 115.8 MiB | 1,197.2 MiB | 90.3% |
 | 100-megapixel PNG downscale | 3,547.5 ms | 3,732.5 ms | 5.0% faster | 173.5 MiB | 1,273.5 MiB | 86.4% |
 | 4000x3000 PNG resize | 794.8 ms | 944.3 ms | 15.8% faster | 138.0 MiB | 301.4 MiB | 54.2% |
 | PNG crop and resize | 395.9 ms | 652.3 ms | 39.3% faster | 127.4 MiB | 296.2 MiB | 57.0% |
@@ -52,13 +52,26 @@ source-sized RGB or RGBA bitmap.
 | Workflow | PureJsImage wall | Jimp wall | PureJsImage RSS | Jimp RSS |
 | --- | ---: | ---: | ---: | ---: |
 | Large JPEG metadata | 0.2 ms | 5,285 ms | 97.3 MiB | 1,184 MiB |
-| 4000x3000 JPEG resize to 1200 px | 1,829.6 ms | 1,471.2 ms | 95.7 MiB | 588.7 MiB |
-| 6000x4000 northstar pipeline | 4,859.4 ms | 4,077.8 ms | 121.5 MiB | 1,112.4 MiB |
-| JPEG crop and resize | 4,155.0 ms | 3,043.1 ms | 110.9 MiB | 1,190.3 MiB |
-| Twilio MMS JPEG to 1024 px | 1,707.6 ms | 1,498.7 ms | 96.8 MiB | 601.6 MiB |
-| PNG upload to 2048 px JPEG | 1,314.4 ms | 2,022.2 ms | 108.9 MiB | 298.7 MiB |
-| EXIF orientation 6 | 694.9 ms | 601.4 ms | 92.8 MiB | 193.7 MiB |
-| High-entropy PNG to JPEG | 1,393.4 ms | 1,414.3 ms | 130.5 MiB | 377.0 MiB |
+| 4000x3000 JPEG resize to 1200 px | 1,408.1 ms | 1,395.1 ms | 105.9 MiB | 596.0 MiB |
+| 6000x4000 northstar pipeline | 4,851.9 ms | 3,762.9 ms | 145.8 MiB | 1,188.3 MiB |
+| JPEG crop and resize | 3,981.9 ms | 2,868.2 ms | 115.8 MiB | 1,197.2 MiB |
+| Twilio MMS JPEG to 1024 px | 1,353.6 ms | 1,364.4 ms | 105.0 MiB | 600.6 MiB |
+| PNG upload to 2048 px JPEG | 1,049.9 ms | 1,997.3 ms | 154.9 MiB | 399.6 MiB |
+| EXIF orientation 6 | 423.3 ms | 576.0 ms | 104.2 MiB | 253.9 MiB |
+| High-entropy PNG to JPEG | 569.2 ms | 1,400.0 ms | 143.3 MiB | 432.5 MiB |
+
+The isolated 2048x1536 encoder probe measures five post-warmup encodes and
+independently decodes each result with `jpeg-js`.
+
+| Chroma sampling | Median wall | Throughput | Peak RSS | Output | PSNR |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 4:2:0 | 244.6 ms | 12.86 MP/s | 100.7 MiB | 1,492,375 B | 18.44 dB |
+| 4:4:4 | 433.4 ms | 7.26 MP/s | 115.4 MiB | 2,660,990 B | 25.68 dB |
+
+The pre-change 4:4:4-only encoder probe measured 580.3 ms. The current explicit
+4:4:4 path is 25.3% faster; the default 4:2:0 path is 57.9% faster and 43.9%
+smaller on the deliberately high-frequency probe image. The lower 4:2:0 PSNR
+records the expected chroma-quality tradeoff.
 
 An exploratory 4000x3000 progressive-JPEG resize measured 2.12 seconds and
 142.5 MiB for PureJsImage versus 1.93 seconds and 581.7 MiB for Jimp: 75.5%
@@ -68,7 +81,8 @@ stable downloadable source.
 Reports:
 
 - [large JPEG metadata](benchmark/results/purejsimage-phase1-metadata-2026-08-06.md)
-- [cold first-party JPEG workflows](benchmark/results/purejsimage-phase4-first-party-cold-2026-08-06.md)
+- [current JPEG workflows](benchmark/results/jpeg-phase4-post-typed-arrays-2026-08-07.md)
+- [JPEG encoder and subsampling probe](benchmark/results/purejsimage-jpeg-jit-subsampling-2026-08-07.md)
 - [cold JPEG resize](benchmark/results/purejsimage-first-party-jpeg-resize-cold-2026-08-06.md)
 - [warm JPEG resize](benchmark/results/purejsimage-first-party-jpeg-resize-warm-2026-08-06.md)
 
