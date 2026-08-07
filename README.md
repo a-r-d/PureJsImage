@@ -142,6 +142,12 @@ bounded. Do not mutate or detach them until every pipeline created from the imag
 Custom `ImageSource.read()` results may be reused or invalidated when the next read starts; codecs
 copy only the bytes they need to retain across reads.
 
+The default `maxInputBytes` limit is 128 MiB, so very large ProRAW/DNG files or burst containers are
+rejected with `LIMIT_EXCEEDED` before their contents are read. Raise that limit explicitly only when
+the surrounding service can safely accept larger uploads. The default `maxDecodedBytes` limit is
+1 GiB and is also enforced while compressed image data is streaming, rather than only from declared
+header dimensions. Both limits can be overridden through `open(input, { limits: { ... } })`.
+
 ## Goals
 
 - Keep peak memory low enough for practical AWS Lambda image processing.

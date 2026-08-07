@@ -4,8 +4,28 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added a hostile `ImageSource` harness that invalidates each returned buffer
+  when the next read begins, plus a second full test-suite pass that exercises
+  in-memory workflows under that weakest supported lifetime.
+- Added deterministic corruption coverage across all eight codecs: every 1 KiB
+  and final-byte truncation must throw `ImageError`, while seeded bit flips may
+  decode or fail but must never leak raw runtime exceptions.
+- Added bounded bomb fixtures for oversized virtual PNG inputs, streamed PNG
+  expansion, and GIF LZW output beyond its declared pixel count.
+- Accepted custom `ImageSource` objects as library inputs so source ownership
+  and buffer-lifetime contracts can be exercised through normal pipelines.
+
 ### Changed
 
+- Documented that `Buffer`, `Uint8Array`, and `ArrayBuffer` inputs are borrowed
+  without copying and must remain unchanged until their pipelines finish.
+- Copied bounded PNG `IDAT` chunks at the `DecompressionStream` ownership
+  boundary, preventing deferred inflater reads from observing source buffers
+  invalidated by a subsequent read.
+- Enforced `maxDecodedBytes` against PNG inflater output as it streams and
+  canceled the decompressor promptly when the limit or downstream decoder fails.
 - Buffered path-backed sources in 64 KiB windows so small codec reads no longer
   reopen and close the file for every header, chunk, tag, or strip access.
 - Made codec probing start from a stable registration-independent window and

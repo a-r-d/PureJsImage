@@ -505,6 +505,7 @@ const ownedArrayBufferView = (data: Uint8Array): Uint8Array<ArrayBuffer> => Uint
 const decompressedChunks = async function* (
   source: ImageSource,
   chunks: readonly ChunkRange[],
+  maximumDecodedBytes: number,
 ): AsyncGenerator<Uint8Array> {
   const decompressor = new DecompressionStream('deflate')
   const writer = decompressor.writable.getWriter()
@@ -526,18 +527,43 @@ const decompressedChunks = async function* (
     }
   })()
   let readError: unknown
+  let completed = false
+  let decodedBytes = 0
   try {
     while (true) {
       const next = await reader.read()
-      if (next.done) break
+      if (next.done) {
+        completed = true
+        break
+      }
+      if (next.value.byteLength > maximumDecodedBytes - decodedBytes) {
+        readError = limitExceeded(
+          `PNG decompressed data exceeds maxDecodedBytes ${maximumDecodedBytes}`,
+        )
+        try {
+          await reader.cancel(readError)
+        } catch {
+          // The explicit limit error below is authoritative.
+        }
+        break
+      }
+      decodedBytes += next.value.byteLength
       yield next.value
     }
   } catch (error) {
     readError = error
   } finally {
+    if (!completed && readError === undefined) {
+      try {
+        await reader.cancel()
+      } catch {
+        // The downstream consumer's error remains authoritative.
+      }
+    }
     reader.releaseLock()
     await feeding
   }
+  if (readError instanceof ImageError) throw readError
   if (feedError instanceof ImageError) throw feedError
   if (feedError !== undefined || readError !== undefined) {
     throw invalidInput('PNG image data could not be decompressed')
@@ -847,7 +873,11 @@ class PngDecoder implements ImageDecoder {
     let filled = 0
     let row = 0
 
-    for await (const chunk of decompressedChunks(this.#source, this.#description.idat)) {
+    for await (const chunk of decompressedChunks(
+      this.#source,
+      this.#description.idat,
+      this.#limits.maxDecodedBytes,
+    )) {
       let chunkOffset = 0
       while (chunkOffset < chunk.byteLength) {
         if (row >= this.height) throw invalidInput('PNG image data contains extra scanlines')
@@ -976,7 +1006,11 @@ class PngDecoder implements ImageDecoder {
     let scanline = new Uint8Array((pass?.rowBytes ?? 0) + 1)
     let previous = new Uint8Array(pass?.rowBytes ?? 0)
 
-    for await (const chunk of decompressedChunks(this.#source, this.#description.idat)) {
+    for await (const chunk of decompressedChunks(
+      this.#source,
+      this.#description.idat,
+      this.#limits.maxDecodedBytes,
+    )) {
       let chunkOffset = 0
       while (chunkOffset < chunk.byteLength) {
         if (pass === undefined) throw invalidInput('PNG Adam7 image data contains extra scanlines')
