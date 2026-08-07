@@ -14,6 +14,8 @@ All notable changes to PureJsImage are documented in this file.
   decode or fail but must never leak raw runtime exceptions.
 - Added bounded bomb fixtures for oversized virtual PNG inputs, streamed PNG
   expansion, and GIF LZW output beyond its declared pixel count.
+- Added auto-orient storage tests that prove temporary directories are removed
+  after decoder failures and simulated disk exhaustion.
 - Accepted custom `ImageSource` objects as library inputs so source ownership
   and buffer-lifetime contracts can be exercised through normal pipelines.
 
@@ -26,6 +28,11 @@ All notable changes to PureJsImage are documented in this file.
   invalidated by a subsequent read.
 - Enforced `maxDecodedBytes` against PNG inflater output as it streams and
   canceled the decompressor promptly when the limit or downstream decoder fails.
+- Converted auto-orient temporary-file failures into explicit `ImageError`
+  results, using `LIMIT_EXCEEDED` for `ENOSPC`, quota, and file-size limits.
+- Documented the 32x32 tile spool, approximate disk requirement, Lambda `/tmp`
+  impact, cleanup contract, and why 90-degree rotation cannot use only a bounded
+  column buffer with the current row-oriented encoder boundary.
 - Buffered path-backed sources in 64 KiB windows so small codec reads no longer
   reopen and close the file for every header, chunk, tag, or strip access.
 - Made codec probing start from a stable registration-independent window and

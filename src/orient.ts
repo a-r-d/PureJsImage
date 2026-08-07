@@ -1,6 +1,6 @@
 import type { FileHandle } from 'node:fs/promises'
 
-import { invalidInput, truncatedInput } from './errors.ts'
+import { ImageError, invalidInput, truncatedInput } from './errors.ts'
 import type { PixelBlock, PixelFormat } from './pixel.ts'
 
 export type ExifOrientation = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
@@ -19,6 +19,19 @@ const channels = (format: PixelFormat): number => {
 }
 
 const tileSize = 32
+
+const temporaryStorageError = (operation: string, error: unknown): ImageError => {
+  const code =
+    error instanceof Error && 'code' in error && typeof error.code === 'string'
+      ? error.code
+      : undefined
+  const capacityError = code === 'ENOSPC' || code === 'EDQUOT' || code === 'EFBIG'
+  return new ImageError(
+    capacityError ? 'LIMIT_EXCEEDED' : 'UNSUPPORTED_OPERATION',
+    `Auto-orient temporary storage ${operation} failed${code ? ` (${code})` : ''}`,
+    { cause: error },
+  )
+}
 
 const sourcePixel = (
   x: number,
@@ -40,18 +53,32 @@ const sourcePixel = (
 const writeAll = async (file: FileHandle, data: Uint8Array, position: number): Promise<void> => {
   let written = 0
   while (written < data.byteLength) {
-    const result = await file.write(data, written, data.byteLength - written, position + written)
-    if (result.bytesWritten < 1) throw new Error('Temporary orientation write made no progress')
-    written += result.bytesWritten
+    let bytesWritten: number
+    try {
+      const result = await file.write(data, written, data.byteLength - written, position + written)
+      bytesWritten = result.bytesWritten
+    } catch (error) {
+      throw temporaryStorageError('write', error)
+    }
+    if (bytesWritten < 1) {
+      throw temporaryStorageError('write', new Error('Write made no progress'))
+    }
+    written += bytesWritten
   }
 }
 
 const readAll = async (file: FileHandle, data: Uint8Array, position: number): Promise<void> => {
   let read = 0
   while (read < data.byteLength) {
-    const result = await file.read(data, read, data.byteLength - read, position + read)
-    if (result.bytesRead < 1) throw truncatedInput('Temporary orientation data is truncated')
-    read += result.bytesRead
+    let bytesRead: number
+    try {
+      const result = await file.read(data, read, data.byteLength - read, position + read)
+      bytesRead = result.bytesRead
+    } catch (error) {
+      throw temporaryStorageError('read', error)
+    }
+    if (bytesRead < 1) throw truncatedInput('Temporary orientation data is truncated')
+    read += bytesRead
   }
 }
 
@@ -165,60 +192,87 @@ const orientedBlocks = async function* (
   const { join } = await import('node:path')
   const { tmpdir } = await import('node:os')
   const { mkdtemp, open, rm } = await import('node:fs/promises')
-  const directory = await mkdtemp(join(tmpdir(), 'purejsimage-orient-'))
+  let directory: string | undefined
+  let file: FileHandle | undefined
+  let operationFailed = false
+  let operationError: unknown
+  let cleanupError: ImageError | undefined
 
   try {
-    const file = await open(join(directory, 'tiles'), 'w+')
     try {
-      const { tilesAcross, tileBytes } = await spoolTiles(
-        file,
-        blocks,
-        width,
-        height,
-        format,
-        channelCount,
-      )
-      for (let outputY = 0; outputY < outputHeight; outputY += tileSize) {
-        const blockHeight = Math.min(tileSize, outputHeight - outputY)
-        const data = new Uint8Array(outputStride * blockHeight)
-        const cachedTiles = new Map<number, Uint8Array>()
-        for (let row = 0; row < blockHeight; row += 1) {
-          for (let x = 0; x < outputWidth; x += 1) {
-            const pixel = sourcePixel(x, outputY + row, width, height, orientation)
-            const sourceX = pixel % width
-            const sourceY = Math.floor(pixel / width)
-            const tileIndex =
-              Math.floor(sourceY / tileSize) * tilesAcross + Math.floor(sourceX / tileSize)
-            let tile = cachedTiles.get(tileIndex)
-            if (!tile) {
-              tile = new Uint8Array(tileBytes)
-              await readAll(file, tile, tileIndex * tileBytes)
-              cachedTiles.set(tileIndex, tile)
-            }
-            const sourceOffset =
-              ((sourceY % tileSize) * tileSize + (sourceX % tileSize)) * channelCount
-            const outputOffset = row * outputStride + x * channelCount
-            for (let channel = 0; channel < channelCount; channel += 1) {
-              data[outputOffset + channel] = tile[sourceOffset + channel] ?? 0
-            }
+      directory = await mkdtemp(join(tmpdir(), 'purejsimage-orient-'))
+    } catch (error) {
+      throw temporaryStorageError('directory creation', error)
+    }
+    try {
+      file = await open(join(directory, 'tiles'), 'w+')
+    } catch (error) {
+      throw temporaryStorageError('open', error)
+    }
+    const { tilesAcross, tileBytes } = await spoolTiles(
+      file,
+      blocks,
+      width,
+      height,
+      format,
+      channelCount,
+    )
+    for (let outputY = 0; outputY < outputHeight; outputY += tileSize) {
+      const blockHeight = Math.min(tileSize, outputHeight - outputY)
+      const data = new Uint8Array(outputStride * blockHeight)
+      const cachedTiles = new Map<number, Uint8Array>()
+      for (let row = 0; row < blockHeight; row += 1) {
+        for (let x = 0; x < outputWidth; x += 1) {
+          const pixel = sourcePixel(x, outputY + row, width, height, orientation)
+          const sourceX = pixel % width
+          const sourceY = Math.floor(pixel / width)
+          const tileIndex =
+            Math.floor(sourceY / tileSize) * tilesAcross + Math.floor(sourceX / tileSize)
+          let tile = cachedTiles.get(tileIndex)
+          if (!tile) {
+            tile = new Uint8Array(tileBytes)
+            await readAll(file, tile, tileIndex * tileBytes)
+            cachedTiles.set(tileIndex, tile)
+          }
+          const sourceOffset =
+            ((sourceY % tileSize) * tileSize + (sourceX % tileSize)) * channelCount
+          const outputOffset = row * outputStride + x * channelCount
+          for (let channel = 0; channel < channelCount; channel += 1) {
+            data[outputOffset + channel] = tile[sourceOffset + channel] ?? 0
           }
         }
-        yield {
-          x: 0,
-          y: outputY,
-          width: outputWidth,
-          height: blockHeight,
-          stride: outputStride,
-          format,
-          data,
-        }
       }
-    } finally {
-      await file.close()
+      yield {
+        x: 0,
+        y: outputY,
+        width: outputWidth,
+        height: blockHeight,
+        stride: outputStride,
+        format,
+        data,
+      }
     }
+  } catch (error) {
+    operationFailed = true
+    operationError = error
   } finally {
-    await rm(directory, { recursive: true, force: true })
+    if (file) {
+      try {
+        await file.close()
+      } catch (error) {
+        cleanupError = temporaryStorageError('close', error)
+      }
+    }
+    if (directory) {
+      try {
+        await rm(directory, { recursive: true, force: true })
+      } catch (error) {
+        cleanupError ??= temporaryStorageError('cleanup', error)
+      }
+    }
   }
+  if (operationFailed) throw operationError
+  if (cleanupError) throw cleanupError
 }
 
 export const createOrientationTransform = (

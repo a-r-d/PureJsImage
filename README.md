@@ -148,6 +148,21 @@ the surrounding service can safely accept larger uploads. The default `maxDecode
 1 GiB and is also enforced while compressed image data is streaming, rather than only from declared
 header dimensions. Both limits can be overridden through `open(input, { limits: { ... } })`.
 
+### Temporary storage for auto-orientation
+
+EXIF orientations 3 through 8 require output rows in a different order from a sequential decoder.
+PureJsImage keeps memory bounded by spooling 32x32 pixel tiles to a temporary file under
+`os.tmpdir()` and removes the temporary directory on success or failure. Plan for roughly one
+decoded frame of temporary disk capacity: a 100-megapixel RGBA image needs about 400 MB, including
+small tile-edge padding. On AWS Lambda this consumes the function's configured `/tmp` storage.
+Exhausted or unavailable temporary storage fails with an `ImageError`; capacity errors such as
+`ENOSPC` use `LIMIT_EXCEEDED`.
+
+For 90-degree orientations 6 and 8, each destination row depends on one pixel from every source row.
+A column buffer therefore cannot feed the existing row-oriented encoders until the complete source
+has arrived without growing to a source-sized bitmap. The tile spool is the bounded-memory fallback
+until decoder or encoder boundaries can carry transposed tiles directly.
+
 ## Goals
 
 - Keep peak memory low enough for practical AWS Lambda image processing.
