@@ -1,0 +1,91 @@
+src/codecs/jpeg-baseline.ts
+  s_4612ba9d4ce750::t_5876b49a7f25ca 71-76,442,447,457,460-463,466-468,577
+  s_4612ba9d4ce750::t_3bf5d1ac67c843 138-139,174-175
+  s_4612ba9d4ce750::t_41aea869d90081 445-446,448-455,464
+  s_4612ba9d4ce750::t_299a7ec1a236ad 1-70,77-137,140-173,176-441,443-444,458-459,469-576,578-620
+  s_4612ba9d4ce750::t_f237eaeeaa5b82 465
+  s_4612ba9d4ce750::t_d5c1ca9235acb1 456
+src/crop.ts
+  s_4612ba9d4ce750::t_3da96d49c22dba 1-78
+benchmark/worker.ts
+  s_4612ba9d4ce750::t_e077fb7dc565e1 55-61,70
+benchmark/results/purejsimage-first-party-jpeg-resize-warm-2026-08-06.json
+  s_4612ba9d4ce750::t_085e24ba6f9c5f 1-325
+tests/jpeg.test.ts
+  s_4612ba9d4ce750::t_c3567d60cd358c 75,77-85,185-187
+  s_4612ba9d4ce750::t_616a82b45c7cc4 76
+  s_4612ba9d4ce750::t_893ed7fa6823cf 134
+  s_4612ba9d4ce750::t_15d8e52d2822ce 191
+  s_4612ba9d4ce750::t_41a7bb0ef351e5 131-133
+  s_4612ba9d4ce750::t_4152ee57339065 1-74,86-128,136-184,192-194
+  s_4612ba9d4ce750::t_40e34bac9459c9 129-130,135
+  s_4612ba9d4ce750::t_05c715226f227a 188-190
+benchmark/results/purejsimage-first-party-jpeg-resize-cold-2026-08-06.json
+  s_4612ba9d4ce750::t_5109e210588d30 1-325
+src/orient.ts
+  s_4612ba9d4ce750::t_3da96d49c22dba 1-78,80-107,109-111
+  s_4612ba9d4ce750::t_21c8150f50b306 79,108
+project-spec.md
+  s_4612ba9d4ce750::t_c3567d60cd358c 202-204
+  s_4612ba9d4ce750::t_c8eaa798bd3732 82-89,197-201,205,1688-1691
+  s_4612ba9d4ce750::t_5191cffea9a4f4 132-135,228-231
+  s_4612ba9d4ce750::t_64a1aa4342c222 1692
+src/codecs/jpeg-encode.ts
+  s_4612ba9d4ce750::t_91c228a9bd8078 373
+  s_4612ba9d4ce750::t_3bf5d1ac67c843 74-136,140-203,208,210-371,375,377-538,588-590,756
+  s_4612ba9d4ce750::t_b7d098b56d032c 1-73,137-139,204-207,209,372,374,376,539-587,591-755,757-1015
+benchmark/results/purejsimage-first-party-jpeg-resize-cold-2026-08-06.md
+  s_4612ba9d4ce750::t_5109e210588d30 1-14
+package.json
+  s_4612ba9d4ce750::t_d94759f4c3e868 22
+src/executor.ts
+  s_4612ba9d4ce750::t_21c8150f50b306 69-77,112,161
+  s_4612ba9d4ce750::t_a3b3b122eddb93 37-47
+  s_4612ba9d4ce750::t_8503629de90636 2,6,30-32,36,48-50,56,58-61,65,68,78-87,113-120,133-136,138-146,148-160,162-164
+scripts/clean-dist.ts
+  s_4612ba9d4ce750::t_d94759f4c3e868 1-6
+src/codecs/jpeg.ts
+  s_4612ba9d4ce750::t_3bf5d1ac67c843 1,9
+  s_4612ba9d4ce750::t_3cc3f1ded450a8 7,83-114,116,123-126,128-132,138,141,211
+  s_4612ba9d4ce750::t_80e8317d4ae782 2,5,10,115,117-122,127,133-137,139-140,212
+  s_4612ba9d4ce750::t_f5668e3c2c36ff 78-82
+  s_4612ba9d4ce750::t_ed24447a6bedf5 142
+tsconfig.json
+  s_4612ba9d4ce750::t_3092c2170fccfe 17-23
+src/codecs/png.ts
+  s_4612ba9d4ce750::t_f96e26c1340cfd 798
+  s_4612ba9d4ce750::t_8ba95ea5f7f1b7 801-804
+tests/project-contract.test.ts
+  s_4612ba9d4ce750::t_e0ab7c3e79654b 26-28
+  s_4612ba9d4ce750::t_c3567d60cd358c 1,13,16,23-25,29-33
+  s_4612ba9d4ce750::t_982c9608d82ce5 34
+tests/pipeline.test.ts
+  s_4612ba9d4ce750::t_681b44a8bcec00 4,84,86
+AGENTS.md
+  s_4612ba9d4ce750::t_c8eaa798bd3732 32-51
+  s_4612ba9d4ce750::t_5191cffea9a4f4 9-11
+README.md
+  s_4612ba9d4ce750::t_a960802983b632 159-170
+  s_4612ba9d4ce750::t_c3567d60cd358c 4-5,33,69-72,148-151,156-157
+  s_4612ba9d4ce750::t_5191cffea9a4f4 153-155,220-224
+  s_4612ba9d4ce750::t_4fb591df3f8b64 21,34-36,67-68,158,217-219
+  s_4612ba9d4ce750::t_c8eaa798bd3732 11-18,82-84,152
+benchmark/results/purejsimage-first-party-jpeg-resize-warm-2026-08-06.md
+  s_4612ba9d4ce750::t_085e24ba6f9c5f 1-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "46813602f3bb9a3edae1c3f1bda3edf996d19c78",
+  "prompts": {},
+  "sessions": {
+    "s_4612ba9d4ce750": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd91e-230c-7843-b7af-875d46866269",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
