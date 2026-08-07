@@ -1,0 +1,43 @@
+tests/corruption-fuzz.test.ts
+  s_4669831c864f0c::t_d209f6391995e7 70-77,86-87
+  s_4669831c864f0c::t_47687dec0f2c6e 1-67,69,88-101
+  s_4669831c864f0c::t_709df3bf74ec0f 68,78-85
+tests/codec-fixtures.ts
+  s_4669831c864f0c::t_af500731751b35 1-61
+README.md
+  s_4669831c864f0c::t_aa10a05b81c723 137-143
+tests/source-contract.test.ts
+  s_4669831c864f0c::t_af500731751b35 4,12
+  s_4669831c864f0c::t_9ae0358f369fcc 1-3,5-11,13-45
+src/codecs/png.ts
+  s_4669831c864f0c::t_5a817df5ff4f87 501-502,516
+  s_4669831c864f0c::t_af66e3e9086ea4 503
+src/source.ts
+  s_4669831c864f0c::t_82bd344d537762 7-10,14,133-141
+tests/hostile-source.ts
+  s_4669831c864f0c::t_75e56f47a6b047 1-24
+tests/image-library.ts
+  s_4669831c864f0c::t_3040b179781ecc 2-8,10-23
+package.json
+  s_4669831c864f0c::t_3040b179781ecc 97,104
+tests/core-abstractions.test.ts
+  s_4669831c864f0c::t_57998a3be0ca32 23
+CLAUDE.md
+  s_4669831c864f0c::t_0634ab6a4e7506 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "2d14fc81ce3d60266bebd007c2abbbf92bcd2582",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
