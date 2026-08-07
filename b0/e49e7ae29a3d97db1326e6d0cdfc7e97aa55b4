@@ -1,0 +1,25 @@
+src/codecs/webp.ts
+  s_4669831c864f0c::t_48f767750b5fae 113-114
+  s_4669831c864f0c::t_6c1c43f6bff029 89-90,94,108-110,115,117-125,131-137,152-161
+tests/webp.test.ts
+  s_4669831c864f0c::t_06948ddaf54144 26-68,245-386
+  s_4669831c864f0c::t_eb2c31e2ae7f4f 387
+CHANGELOG.md
+  s_4669831c864f0c::t_a0a79487e0bc79 12-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "b0e49e7ae29a3d97db1326e6d0cdfc7e97aa55b4",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
