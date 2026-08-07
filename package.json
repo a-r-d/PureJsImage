@@ -28,16 +28,21 @@
     "test:watch": "vitest",
     "fixtures:prepare": "node benchmark/scripts/prepare-corpus.ts",
     "fixtures:verify": "node benchmark/scripts/verify-corpus.ts",
+    "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
     "results:combine": "node benchmark/scripts/combine-results.ts",
     "bench": "node benchmark/run.ts",
     "bench:jimp": "node benchmark/run.ts --engines jimp",
     "bench:smoke": "node benchmark/run.ts --engines jimp --profile smoke --runs 1 --warmups 0",
     "bench:bmp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile bmp",
     "bench:bmp:jimp": "node benchmark/run.ts --engines jimp --profile bmp",
-    "bench:webp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile webp"
+    "bench:webp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile webp",
+    "bench:avif:inspect": "node benchmark/avif/inspect-bitstreams.ts",
+    "bench:avif:b2": "node --expose-gc benchmark/avif/run-b2.ts",
+    "bench:avif:reference": "node benchmark/avif/run-reference.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.7",
+    "@stacksjs/ts-avif": "0.1.3",
     "@types/node": "26.1.2",
     "@types/omggif": "1.0.5",
     "@types/pngjs": "6.0.5",

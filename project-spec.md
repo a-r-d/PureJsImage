@@ -259,7 +259,8 @@ The **PureJsImage core** should:
 
 Official pure-JS codecs should follow the same constraints.
 
-However, codec architecture should allow additional optional providers.
+Codec architecture may allow additional optional providers, but official AVIF
+support is now a first-party pure-TypeScript goal.
 
 For example:
 
@@ -270,7 +271,7 @@ For example:
 could expose multiple implementations:
 
 ```text
-pure JS implementation, if one becomes practical
+first-party pure JS implementation
 WebCodecs/runtime implementation
 optional WASM implementation
 ```
@@ -285,9 +286,21 @@ Current practical AVIF JavaScript packages such as `@jsquash/avif` use WebAssemb
 
 Likewise, widely used portable WebP encoders generally use libwebp through WASM.
 
-Writing a competitive AV1 encoder in JavaScript is not part of PureJsImage's mission.
+The initial encoder is intentionally constrained rather than competitive with
+libaom: opaque 8-bit input, AV1 Main Profile, YUV 4:2:0, one tile, and one
+intra-only still picture. Correctness, portability, and bounded memory come
+before compression efficiency. Alpha, lossless, 4:2:2, 4:4:4, higher bit
+depths, grids, and animation expand only after the baseline is measured.
 
-The architecture should support AVIF without making implementation of an AV1 codec a prerequisite for shipping the library.
+Decoder compatibility is broader and higher priority because PureJsImage must
+consume files produced elsewhere. The decoder progression is 8-bit 4:2:0
+stills, 10-bit 4:2:0, 4:4:4/4:2:2/monochrome, alpha auxiliary items, 12-bit,
+grids, and then animation. AVIF decode is a V1 stretch goal; the constrained
+encoder is a V1.1 goal.
+
+AV1 still-picture and reduced-still-picture-header modes keep general video
+encoding outside this project. The target is a practical image codec integrated
+with the processing pipeline, not a general-purpose AV1 video implementation.
 
 ---
 
@@ -1507,11 +1520,35 @@ streamable through a top-down DIB and preserve alpha when requested.
 
 ### AVIF
 
-Important format.
+First-party pure-JavaScript AVIF is a headline goal and the next codec after
+WebP and BMP. It remains a V1 stretch goal rather than a V1 release blocker.
 
-Not a V1 release blocker.
+Phase A implements bounded ISOBMFF inspection without pixel decoding:
 
-V1 should make this possible:
+```ts
+const metadata = await (await Image.open(input)).metadata();
+// width, height, bitDepth, chromaSubsampling, codecProfile, hasAlpha
+```
+
+Phase B1 implements bounded `iinf`/`iloc` item extraction for file-relative
+`mdat` and `idat` construction, joins multi-extent payloads, resolves direct,
+grid-tile, and alpha coded images, and parses AV1 low-overhead OBUs plus the
+complete sequence header. Container `av1C` values are compared with the
+sequence header as a compatibility diagnostic; the bitstream remains
+authoritative when legacy inputs disagree. This milestone deliberately stops
+before entropy decoding or pixel reconstruction.
+
+Phase B2 begins pixel reconstruction with a deliberately restricted,
+dependency-free correctness slice: reduced still-picture headers, one tile,
+8-bit Main Profile YUV 4:2:0, lossless square partitions, DC prediction, and
+all-zero coefficient blocks. It produces real PixelBlocks through the normal
+pipeline and returns `UNSUPPORTED_OPERATION` for AV1 syntax it cannot yet
+reconstruct. This first slice is not broad AVIF decoder support and its current
+full YUV/RGBA frame storage must be replaced with bounded reconstruction state
+as compatibility expands.
+
+Phase B implements a broad still decoder, starting with single-image 8-bit AV1
+Main Profile YUV 4:2:0. Phase C implements the constrained still encoder:
 
 ```ts
 registerCodec(avifCodec);
@@ -1527,7 +1564,15 @@ await image
   .toFile(...);
 ```
 
-An optional runtime or WASM implementation can provide the actual codec.
+Optional runtime or WASM providers may remain available, but they do not count
+as official AVIF support and must never be required by the package.
+
+The compatibility target is a checksum-pinned 200-500-image corpus spanning
+libaom, rav1e, SVT-AV1, libavif, browsers, ImageMagick, Sharp/libvips, real web
+files, bit depths, chroma layouts, alpha, grids, color profiles, and malformed
+inputs. Every implementation milestone must record compatibility, wall time,
+peak RSS, and output correctness. AVIF-to-resize-to-AVIF should eventually keep
+data in YUV planes when possible rather than materializing full RGBA frames.
 
 ### TIFF
 

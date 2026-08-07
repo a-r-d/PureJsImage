@@ -45,6 +45,15 @@
 - Progressive JPEG is a distinct memory class: later scans require earlier DCT coefficients, but the
   decoder should retain compact coefficient storage rather than a full RGB or RGBA frame and should
   reconstruct final pixels in bounded rows.
+- AVIF is a first-party codec goal. `@stacksjs/ts-avif`, libavif, libaom, dav1d, rav1e, SVT-AV1,
+  browsers, and system tools may be used only as development oracles; never copy, vendor, or
+  runtime-import their implementations.
+- Design AVIF around YUV planes, tiles, superblocks, and bounded reconstruction buffers. Do not make
+  a source-sized RGBA bitmap the default decoder/resize/encoder boundary. Any unavoidable full-frame
+  state must be compact, explicit, separately benchmarked, and justified by AV1 dependencies.
+- Treat ISOBMFF and AV1 bitstreams as hostile input. Validate nested box extents, item/property
+  associations, integer arithmetic, allocation dimensions, tile boundaries, and entropy reads before
+  allocating or indexing.
 - Measure absolute peak RSS in isolated processes for both cold and warm executions. Ensure warmup
   allocations have actually been reclaimed before using a post-warmup baseline, and record external
   and ArrayBuffer memory when diagnosing retained pages.

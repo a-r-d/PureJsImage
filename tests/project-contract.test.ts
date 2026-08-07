@@ -2,6 +2,7 @@ import { globSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 import packageJson from '../package.json' with { type: 'json' }
+import { avifCorpusRevision, avifFixtures } from '../benchmark/avif/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
 
 describe('package contract', () => {
@@ -35,6 +36,19 @@ describe('package contract', () => {
 })
 
 describe('benchmark contract', () => {
+  it('pins a diverse AVIF starter corpus to one upstream revision', () => {
+    expect(avifCorpusRevision).toMatch(/^[a-f0-9]{40}$/)
+    expect(avifFixtures).toHaveLength(25)
+    expect(new Set(avifFixtures.map(({ id }) => id)).size).toBe(avifFixtures.length)
+    expect(new Set(avifFixtures.map(({ expected }) => expected.bitDepth))).toEqual(
+      new Set([8, 10, 12]),
+    )
+    expect(new Set(avifFixtures.map(({ expected }) => expected.chromaSubsampling))).toEqual(
+      new Set(['400', '420', '422', '444']),
+    )
+    expect(avifFixtures.some(({ expected }) => expected.hasAlpha)).toBe(true)
+  })
+
   it('keeps workflow identifiers unique', () => {
     const ids = workflows.map(({ id }) => id)
 

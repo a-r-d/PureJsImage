@@ -1,6 +1,7 @@
 export { CodecRegistry } from './codec.ts'
 export type {
   BuiltInFormat,
+  ChromaSubsampling,
   DecodeRequest,
   DecoderCapabilities,
   EncodeRequest,
@@ -10,6 +11,7 @@ export type {
   ImageMetadata,
 } from './codec.ts'
 export {
+  avifCodec,
   bmpCodec,
   gifCodec,
   jpegCodec,

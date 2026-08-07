@@ -4,7 +4,9 @@ import type { PixelBlock, PixelFormat } from './pixel.ts'
 import type { ImageSink } from './sink.ts'
 import type { ImageSource } from './source.ts'
 
-export type BuiltInFormat = 'bmp' | 'gif' | 'jpeg' | 'png' | 'webp'
+export type BuiltInFormat = 'avif' | 'bmp' | 'gif' | 'jpeg' | 'png' | 'webp'
+
+export type ChromaSubsampling = '400' | '420' | '422' | '444'
 
 export interface ImageMetadata {
   width: number
@@ -15,6 +17,8 @@ export interface ImageMetadata {
   orientation?: number
   colorSpace?: string
   bitDepth?: number
+  chromaSubsampling?: ChromaSubsampling
+  codecProfile?: number
   frames?: number
 }
 

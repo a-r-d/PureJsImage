@@ -1,8 +1,9 @@
 # PureJsImage
 
-PureJsImage aims to be the smallest, fastest, and lowest-memory practical
-alternative to Jimp for common image-processing workflows, implemented in
-strict TypeScript and compiled to JavaScript.
+PureJsImage aims to be the fastest, lowest-memory pure-JavaScript image
+processing library for common production workflows, including a first-party
+pure-JavaScript AVIF codec. It is implemented in strict TypeScript and compiled
+to JavaScript, with no production dependency tree.
 
 The project focuses on complete application workflows—decode, inspect, orient,
 crop, resize, convert, and encode—rather than trying to reproduce every image
@@ -19,11 +20,11 @@ scales like a full source-resolution RGBA bitmap.
 ## Implementation status
 
 The Phase 1 core, Phase 2-5 PNG/JPEG/GIF paths, progressive JPEG input, the V1
-still-image WebP surface, and first-party BMP are implemented in strict
-TypeScript 7:
+still-image WebP surface, first-party BMP, and AVIF container metadata are
+implemented in strict TypeScript 7:
 
 - bounded Buffer, Uint8Array, ArrayBuffer, Blob, and file sources;
-- automatic BMP, PNG, JPEG, GIF, and WebP detection and metadata parsing;
+- automatic AVIF, BMP, PNG, JPEG, GIF, and WebP detection and metadata parsing;
 - EXIF orientation and GIF frame metadata;
 - configurable hostile-input limits;
 - immutable crop, resize, orientation, and encode pipeline descriptions;
@@ -49,6 +50,14 @@ TypeScript 7:
 - first-party BMP metadata, decoding, and encoding for OS/2 and Windows
   headers, indexed 1/4/8-bit pixels, RLE4/RLE8, 16/24/32-bit pixels,
   channel bitfields, top-down storage, row padding, and V4/V5 alpha;
+- hardened AVIF/ISOBMFF metadata parsing for primary items, grids, alpha
+  auxiliary items, 8/10/12-bit AV1 profiles, chroma subsampling, extended
+  `pixi`, NCLX/ICC color signaling, and rotation without decoding pixels;
+- bounded AVIF item extraction from `mdat` and `idat`, including multi-extent
+  items, plus strict AV1 low-overhead OBU and sequence-header inspection;
+- a first AVIF Phase B2 pixel path for reduced still-picture, 8-bit Main
+  Profile YUV 4:2:0, single-tile, lossless DC/all-zero intra frames, with
+  explicit unsupported errors for syntax outside that narrow subset;
 - all eight EXIF orientation transforms, using a bounded disk-backed tile spool
   when output row order differs from input row order;
 - fused PNG crop execution to Buffer or file output;
@@ -104,7 +113,9 @@ const normalized = await (await Image.open('legacy.bmp'))
 const bitmap = await (await Image.open('input.png')).bmp().toBuffer()
 ```
 
-Metadata inspection and pipeline geometry are operational. Non-interlaced PNG,
+Metadata inspection and pipeline geometry are operational. AVIF Phase B2 now
+has a deliberately narrow, correctness-first lossless pixel path; broad AV1
+pixel decoding and AVIF encoding are not implemented yet. Non-interlaced PNG,
 baseline and progressive JPEG, lossless and lossy still WebP, BMP, and the
 first composited GIF frame can be cropped, resized, and converted through
 PixelBlocks. GIF animation editing and encoding are outside the V1 scope.
@@ -299,6 +310,59 @@ BMP uses 64% less peak RSS. See the
 [PureJsImage BMP baseline](benchmark/results/purejsimage-bmp-baseline-2026-08-06.md)
 and [Jimp BMP baseline](benchmark/results/jimp-bmp-baseline-2026-08-06.md).
 
+AVIF is now a first-class PureJsImage goal rather than a generic future codec
+provider. Phase A adds first-party, bounded ISOBMFF metadata inspection without
+decoding AV1 pixels. It identifies the primary image, grid dimensions, true
+alpha auxiliary items, bit depth, chroma subsampling, AV1 profile, color
+signaling, and rotation. The parser completed a local audit of all 70 AVIF files
+in the pinned libavif checkout; the permanent starter benchmark uses 25 selected,
+checksum-pinned fixtures covering the major feature axes.
+
+Phase B1 extracts primary, grid-tile, and alpha AV1 item payloads through
+bounded `iloc` ranges and parses their low-overhead OBUs and sequence headers.
+The permanent corpus passes 25/25 files and 35 unique coded items, including
+`mdat`, `idat`, progressive multi-extent storage, one five-tile grid, and six
+alpha-bearing files. Three legacy 4:2:2 fixtures incorrectly advertise 4:4:4
+in `av1C`; inspection records that mismatch and uses the authoritative sequence
+header instead of rejecting otherwise readable input.
+
+Phase B2 establishes the first dependency-free AVIF-to-PixelBlock workflow. It
+parses reduced still-picture frame headers, tile groups, AV1 range-coded
+symbols, recursive square partitions, skip and intra-mode decisions, all-zero
+transform blocks, DC prediction, and YUV420-to-RGBA output. The initial
+correctness slice accepts only opaque 8-bit 4:2:0, single-tile, lossless
+DC/all-zero intra frames. A libavif/libaom fixture decodes to the exact reference
+pixels and can be cropped and converted through the public pipeline. All 25
+broad-corpus files currently return explicit unsupported errors: this is the
+first pixel milestone, not a broad compatibility claim. The temporary full YUV
+and RGBA frame allocations are also not the final bounded-memory architecture.
+
+`@stacksjs/ts-avif@0.1.3` is pinned as a development-only research oracle. Its
+published build needs a `Uint8Array.fromBase64` compatibility shim on the
+project's Node 24.16 runtime. With that benchmark-only shim, its metadata path
+passes 19 of the permanent 25 files: all six alpha-bearing inputs are reported
+as opaque. Its full decoder passes 23 files and fails a 12-bit monochrome input
+and a grid input. PureJsImage metadata passes all 25 metadata expectations.
+
+| AVIF research action | Compatible | Median wall | Median peak RSS | Median measured RSS delta |
+| --- | ---: | ---: | ---: | ---: |
+| PureJsImage metadata | 25/25 | 1.63 ms | 90.7 MiB | 0.4 MiB |
+| ts-avif metadata | 19/25 | 0.79 ms | 75.8 MiB | 0.3 MiB |
+| ts-avif full decode | 23/25 | 180.11 ms | 118.5 MiB | 40.3 MiB |
+
+These are research baselines, not a claim of AVIF pixel support. Phase B is a
+first-party decoder with compatibility ahead of encoder breadth and bounded YUV
+working state ahead of a full-frame RGBA boundary. Phase C is an intentionally
+constrained 8-bit, opaque, 4:2:0, single-tile, intra-only still encoder. The
+corpus will grow toward 200-500 files from independent encoders, browsers, and
+real web sources. See the
+[complete AVIF research baseline](benchmark/results/avif-research-baseline-2026-08-06.md).
+The [Phase B1 compatibility report](benchmark/results/avif-phase-b1-bitstream-2026-08-06.md)
+records the item and sequence-header inspection result. The
+[Phase B2 restricted decode report](benchmark/results/avif-phase-b2-restricted-decode-2026-08-06.md)
+records pixel correctness, timing, peak RSS, and the broad-corpus rejection
+audit.
+
 Progressive JPEG compatibility is now a separate measured memory class because
 later scans can refine blocks decoded near the start of the image. An
 exploratory three-process cold run converted a 4000x3000 progressive JPEG to a
@@ -380,9 +444,11 @@ or its eventual installed dependency tree.
 ```sh
 npm run fixtures:prepare
 npm run fixtures:verify
+npm run fixtures:avif
 npm run bench:jimp -- --profile full
 npm run bench:bmp
 npm run bench:webp
+npm run bench:avif:reference
 ```
 
 Once PureJsImage has an executable build:
