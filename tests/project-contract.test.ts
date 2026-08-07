@@ -45,8 +45,12 @@ describe('benchmark contract', () => {
     const smoke = workflowsForProfile('smoke')
     const standard = workflowsForProfile('standard')
     const full = workflowsForProfile('full')
+    const phase4 = workflowsForProfile('phase4')
+    const phase5 = workflowsForProfile('phase5')
 
     expect(smoke.length).toBeGreaterThan(0)
+    expect(phase4.length).toBe(12)
+    expect(phase5.length).toBe(5)
     expect(standard.length).toBeGreaterThan(smoke.length)
     expect(full.length).toBeGreaterThan(standard.length)
     expect(full).toEqual(workflows)

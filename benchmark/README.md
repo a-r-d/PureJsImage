@@ -48,6 +48,18 @@ Standard Jimp baseline:
 npm run bench:jimp -- --profile standard
 ```
 
+JPEG implementation and cross-format regression pass:
+
+```sh
+PUREJSIMAGE_ENTRY=./dist/index.js npm run bench -- --engines jimp,purejsimage --profile phase4
+```
+
+Cross-format and first-frame GIF regression pass:
+
+```sh
+PUREJSIMAGE_ENTRY=./dist/index.js npm run bench -- --engines jimp,purejsimage --profile phase5
+```
+
 All workflows, including batch and 100-megapixel stress cases:
 
 ```sh

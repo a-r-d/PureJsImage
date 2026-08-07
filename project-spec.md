@@ -203,6 +203,14 @@ Progressive or unusual JPEG variants may initially be explicitly unsupported.
 Any future fallback must also be first-party, visible in metadata/diagnostics,
 and measured separately.
 
+Transforms such as EXIF orientations 3-8 may require output rows in a different
+order from decoder rows. They should use bounded tiles and temporary storage
+rather than falling back to a source-sized in-memory bitmap. For the Lambda
+northstar, a modest CPU or temporary-I/O cost is acceptable when it removes
+hundreds of megabytes of peak RSS and preserves correct output. Temporary files
+must be uniquely named, removed on success or failure, and documented because
+their capacity requirement still scales with decoded pixel area.
+
 ---
 
 ## 2.4 Broad modern format compatibility
@@ -1446,6 +1454,11 @@ normalization pipelines:
 * convert that frame to JPEG or PNG
 
 GIF encoding and animated editing are not V1 requirements.
+
+The first-frame decoder should retain indexed pixels rather than expanding the
+entire logical screen to a mutable RGBA bitmap. It must support global and local
+color tables, transparency, image offsets, and interlaced storage, then emit
+ordered RGBA PixelBlocks for the shared crop, resize, and encoder pipeline.
 
 These formats cover the active Tooldesk replacement workloads as well as a
 huge portion of general image-processing use cases.

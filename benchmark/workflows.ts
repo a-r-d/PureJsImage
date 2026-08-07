@@ -282,12 +282,41 @@ export const workflows: readonly Workflow[] = [
   },
 ]
 
+const phase4WorkflowIds = new Set([
+  'jpeg-resize-1200',
+  'northstar-photo-pipeline',
+  'jpeg-crop-resize',
+  'jpeg-to-png',
+  'png-to-jpeg',
+  'auto-orient-6',
+  'png-gray16-to-jpeg',
+  'tooldesk-upload-jpeg-1024',
+  'tooldesk-upload-png-2048',
+  'tooldesk-logo-jpeg',
+  'tiny-transparent-convert',
+  'high-entropy-png-to-jpeg',
+])
+
+const phase5WorkflowIds = new Set([
+  'jpeg-to-png',
+  'png-to-jpeg',
+  'gif-first-frame-png',
+  'tooldesk-upload-gif-no-enlarge',
+  'tooldesk-logo-gif',
+])
+
 export const workflowsForProfile = (profile: string): readonly Workflow[] => {
   if (profile === 'smoke') {
     return workflows.filter((workflow) => workflow.tier === 'smoke')
   }
   if (profile === 'standard') {
     return workflows.filter((workflow) => workflow.tier !== 'full')
+  }
+  if (profile === 'phase4') {
+    return workflows.filter((workflow) => phase4WorkflowIds.has(workflow.id))
+  }
+  if (profile === 'phase5') {
+    return workflows.filter((workflow) => phase5WorkflowIds.has(workflow.id))
   }
   if (profile === 'full') {
     return workflows

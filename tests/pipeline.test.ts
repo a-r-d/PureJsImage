@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { Image } from '../src/index.ts'
-import { gifFixture, jpegFixture, pngFixture } from './fixtures.ts'
+import { CodecRegistry, Image, type ImageCodec } from '../src/index.ts'
+import { jpegFixture, pngFixture } from './fixtures.ts'
 
 describe('immutable image pipelines', () => {
   it('plans orientation, crop, resize, and encoding without mutating the source image', async () => {
@@ -81,7 +81,22 @@ describe('immutable image pipelines', () => {
   })
 
   it('fails explicitly when an unimplemented codec is requested', async () => {
-    const image = await Image.open(gifFixture(10, 10))
+    const metadataOnlyCodec: ImageCodec = {
+      format: 'metadata-only',
+      mimeTypes: ['image/metadata-only'],
+      minimumBytes: 1,
+      detect: (header) => header[0] === 42,
+      metadata: async () => ({
+        width: 10,
+        height: 10,
+        format: 'metadata-only',
+        mimeType: 'image/metadata-only',
+        hasAlpha: false,
+      }),
+    }
+    const image = await Image.open(Uint8Array.of(42), {
+      registry: new CodecRegistry([metadataOnlyCodec]),
+    })
 
     await expect(image.resize({ width: 5 }).png().toBuffer()).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',

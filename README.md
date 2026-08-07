@@ -18,7 +18,7 @@ scales like a full source-resolution RGBA bitmap.
 
 ## Implementation status
 
-The Phase 1 core and Phase 2-4 PNG/JPEG processing paths are implemented in strict TypeScript 7:
+The Phase 1 core and Phase 2-5 PNG/JPEG/GIF processing paths are implemented in strict TypeScript 7:
 
 - bounded Buffer, Uint8Array, ArrayBuffer, Blob, and file sources;
 - automatic PNG, JPEG, and GIF detection and metadata parsing;
@@ -33,7 +33,10 @@ The Phase 1 core and Phase 2-4 PNG/JPEG processing paths are implemented in stri
 - single-scan baseline JPEG decoding in bounded MCU rows;
 - baseline JPEG encoding with quality control and deterministic alpha
   flattening (white by default);
-- all eight EXIF orientation transforms;
+- first-composited-frame GIF LZW decoding with global and local palettes,
+  transparency, frame offsets, and interlacing;
+- all eight EXIF orientation transforms, using a bounded disk-backed tile spool
+  when output row order differs from input row order;
 - fused PNG crop execution to Buffer or file output;
 - nearest, bilinear, and Lanczos3 resize kernels with cached coefficients;
 - separable horizontal resizing with bounded vertical source-row retention;
@@ -63,13 +66,17 @@ const output = await (await Image.open('input.png'))
   .toBuffer()
 ```
 
-Metadata inspection and pipeline geometry are operational. Non-interlaced PNG
-and JPEG decode, orientation, crop, resize, and encode execute end-to-end
-through PixelBlocks. GIF pixel execution remains an explicit unsupported
-operation until its development phase. Baseline JPEG decoding retains one MCU
-row of component samples and emits only the requested crop region; it does not
-materialize a source-sized RGB or RGBA bitmap. Progressive JPEG input and
-output are explicit unsupported operations.
+Metadata inspection and pipeline geometry are operational. Non-interlaced PNG,
+baseline JPEG, and the first composited GIF frame can be cropped, resized, and
+converted through PixelBlocks. GIF animation editing and encoding are outside
+the V1 scope. Baseline JPEG decoding retains one MCU row of component samples
+and emits only the requested crop region; it does not materialize a
+source-sized RGB or RGBA bitmap. Progressive JPEG input and output are explicit
+unsupported operations. Orientations that transpose or reverse row order use
+temporary storage and bounded 32x32 pixel tiles instead of retaining the
+decoded frame in memory. The temporary file is deleted when the pipeline
+completes or aborts; its worst-case size is approximately the decoded pixel
+area, shifted from scarce Lambda RAM to ephemeral storage.
 
 ## Northstar
 
@@ -77,8 +84,10 @@ Our northstar is to beat Jimp across a broad, reproducible benchmark suite while
 successfully completing the same workflows and producing valid output.
 
 A fast result is not a win if the output is unsupported or invalid. For each
-workflow, PureJsImage must pass the same correctness checks as Jimp and then
-improve its median wall time. Lower peak RSS is the primary memory goal.
+workflow, PureJsImage must pass the same correctness checks as Jimp. Lower peak
+RSS is the primary Lambda goal; a modest CPU regression is acceptable when it
+buys a substantial memory-tier reduction, while speed remains an optimization
+target.
 For the primary Lambda downscale workflows, the stronger goal is for working
 memory to remain bounded rather than scale with source bitmap area. A modest
 percentage improvement over Jimp is progress, but not completion.
@@ -158,15 +167,44 @@ below after validation.
 
 | 4000x3000 JPEG to 1200px | PureJsImage median | Jimp median | PureJsImage peak RSS | Jimp peak RSS |
 | --- | ---: | ---: | ---: | ---: |
-| Cold process | 1,761.8 ms | 1,496.4 ms | 96.1 MiB | 586.4 MiB |
+| Cold process | 1,829.6 ms | 1,471.2 ms | 95.7 MiB | 588.7 MiB |
 | One warmup | 1,782.5 ms | 1,391.6 ms | 104.6 MiB | 594.6 MiB |
 
 The first-party path currently uses about 84% less peak RSS in both modes. It
-is 18% slower cold and 28% slower after one warmup, so CPU performance remains
-an explicit optimization target; the bounded-memory architecture is the new
-baseline, not permission to regress correctness or stop pursuing Jimp's speed.
-See the [cold-process report](benchmark/results/purejsimage-first-party-jpeg-resize-cold-2026-08-06.md)
-and [warm-process report](benchmark/results/purejsimage-first-party-jpeg-resize-warm-2026-08-06.md).
+is 24% slower cold and 28% slower after one warmup, an acceptable tradeoff for
+the Lambda memory reduction. CPU performance remains an optimization target,
+but the bounded-memory architecture is the baseline.
+
+The complete three-sample cold-process Phase 4 pass validates all 12 JPEG and
+cross-format workflows. PureJsImage uses less peak RSS in every case, including
+an 89% reduction for the primary 6000x4000 pipeline and a 91% reduction for
+JPEG crop and resize.
+
+| Workflow | PureJsImage median | Jimp median | PureJsImage peak RSS | Jimp peak RSS |
+| --- | ---: | ---: | ---: | ---: |
+| 6000x4000 northstar pipeline | 4,859.4 ms | 4,077.8 ms | 121.5 MiB | 1,112.4 MiB |
+| JPEG crop and resize | 4,155.0 ms | 3,043.1 ms | 110.9 MiB | 1,190.3 MiB |
+| Tooldesk JPEG upload | 1,707.6 ms | 1,498.7 ms | 96.8 MiB | 601.6 MiB |
+| Tooldesk PNG upload to JPEG | 1,314.4 ms | 2,022.2 ms | 108.9 MiB | 298.7 MiB |
+| EXIF orientation 6 | 694.9 ms | 601.4 ms | 92.8 MiB | 193.7 MiB |
+| High-entropy PNG to JPEG | 1,393.4 ms | 1,414.3 ms | 130.5 MiB | 377.0 MiB |
+
+See the [complete Phase 4 report](benchmark/results/purejsimage-phase4-first-party-cold-2026-08-06.md)
+and the dedicated [warm JPEG resize report](benchmark/results/purejsimage-first-party-jpeg-resize-warm-2026-08-06.md).
+
+Phase 5 makes JPEG→PNG, PNG→JPEG, and first-frame GIF→PNG/JPEG first-class.
+All five measured workflows pass. PureJsImage uses less peak RSS in every case;
+the Tooldesk GIF upload normalization is 22% faster with 26% less peak RSS.
+
+| Workflow | PureJsImage median | Jimp median | PureJsImage peak RSS | Jimp peak RSS |
+| --- | ---: | ---: | ---: | ---: |
+| JPEG to PNG | 722.3 ms | 722.5 ms | 93.5 MiB | 251.5 MiB |
+| PNG to JPEG | 107.3 ms | 208.5 ms | 111.0 MiB | 143.8 MiB |
+| Animated GIF first frame to PNG | 24.1 ms | 11.1 ms | 83.8 MiB | 94.7 MiB |
+| Tooldesk GIF upload to JPEG | 80.5 ms | 103.5 ms | 97.5 MiB | 130.9 MiB |
+| Tooldesk GIF logo normalization | 39.2 ms | 27.5 ms | 86.9 MiB | 94.9 MiB |
+
+See the [complete Phase 5 report](benchmark/results/purejsimage-phase5-first-party-cold-2026-08-06.md).
 
 | Workflow | Jimp median wall time | Jimp peak RSS |
 | --- | ---: | ---: |
@@ -219,8 +257,8 @@ production dependency tree.
 
 Production codecs and processing code are implemented in this repository; the
 package does not vendor or runtime-import third-party implementations.
-Development-only libraries such as `jpeg-js` are permitted solely as
-independent correctness and benchmark oracles and are never copied into the
+Development-only libraries such as `jpeg-js` and `omggif` are permitted solely
+as independent correctness and benchmark oracles and are never copied into the
 published package.
 
 Libraries used to build fixtures, validate output, and run the Jimp comparison

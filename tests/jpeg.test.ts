@@ -3,6 +3,7 @@ import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 
 import { Image } from '../src/index.ts'
+import { baselineJpegFixtures } from './jpeg-compatibility-fixtures.ts'
 
 type Orientation = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
@@ -101,6 +102,33 @@ const sourceCoordinate = (
 }
 
 describe('JPEG pixel pipeline', () => {
+  it.each(Object.entries(baselineJpegFixtures))(
+    'decodes baseline %s input consistently with the development oracle',
+    async (_name, base64) => {
+      const input = Buffer.from(base64, 'base64')
+      const reference = jpeg.decode(input, {
+        useTArray: true,
+        formatAsRGBA: false,
+        tolerantDecoding: false,
+      })
+      const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+      expect({ width: output.width, height: output.height }).toEqual({
+        width: reference.width,
+        height: reference.height,
+      })
+      for (let pixel = 0; pixel < output.width * output.height; pixel += 1) {
+        for (let channel = 0; channel < 3; channel += 1) {
+          expect(
+            Math.abs(
+              (output.data[pixel * 4 + channel] ?? 0) - (reference.data[pixel * 3 + channel] ?? 0),
+            ),
+          ).toBeLessThanOrEqual(3)
+        }
+      }
+    },
+  )
+
   it('executes all EXIF orientation values before encoding', async () => {
     const width = 16
     const height = 8
