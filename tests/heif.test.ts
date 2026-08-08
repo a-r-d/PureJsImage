@@ -363,10 +363,11 @@ const parameterArray = (
   height: number,
   profile: number,
   ppsOverride: readonly number[] | Uint8Array | undefined,
+  arrayHeaderFlags: number,
 ): readonly number[] => {
   const nal =
     type === 34 && ppsOverride ? ppsOverride : parameterNal(type, width, height, false, profile)
-  return [0x80 | type, 0, 1, (nal.length >>> 8) & 0xff, nal.length & 0xff, ...nal]
+  return [arrayHeaderFlags | type, 0, 1, (nal.length >>> 8) & 0xff, nal.length & 0xff, ...nal]
 }
 
 const hevcConfiguration = (
@@ -375,6 +376,7 @@ const hevcConfiguration = (
   height = 3024,
   profile = 1,
   ppsOverride?: readonly number[] | Uint8Array,
+  arrayHeaderFlags = 0x40,
 ): readonly number[] => [
   1,
   profile,
@@ -399,7 +401,9 @@ const hevcConfiguration = (
   0,
   7,
   parameterTypes.length,
-  ...parameterTypes.flatMap((type) => parameterArray(type, width, height, profile, ppsOverride)),
+  ...parameterTypes.flatMap((type) =>
+    parameterArray(type, width, height, profile, ppsOverride, arrayHeaderFlags),
+  ),
 ]
 
 const heifFixture = ({
@@ -407,6 +411,7 @@ const heifFixture = ({
   cleanAperture,
   configurationPps,
   configurationProfile = 1,
+  configurationArrayHeaderFlags = 0x40,
   configurationWidth,
   externalDataReference = false,
   height = 3024,
@@ -429,6 +434,7 @@ const heifFixture = ({
     readonly widthDenominator?: number
   }
   configurationPps?: readonly number[] | Uint8Array
+  configurationArrayHeaderFlags?: number
   configurationProfile?: number
   configurationWidth?: number
   externalDataReference?: boolean
@@ -461,6 +467,7 @@ const heifFixture = ({
         height,
         configurationProfile,
         configurationPps,
+        configurationArrayHeaderFlags,
       ),
     ),
     box('colr', [...ascii('nclx'), 0, 1, 0, 13, 0, 6, 0x80]),
@@ -549,7 +556,7 @@ const decodedHeifFixture = (
     'KAGvLpQdSZY47HVNRR1H+qRYfo/4VfDD+a8z6v94yOQOTu5XAumEQ+E017fKnEFKFJnArxcwX8xxt8Gtg12WQfdrkHlYNMguGfBa/HqfbsJ+RD//fXmGkFQ5hveQFWBK+98fOkraWGRPyQLMVkS1SPdB+8ZOqklLrkNZK1aBcoqqdG6eAkCLtdoM31YFsc194IxN+oX+EeUfXBCEESlw72eha39NYXMYHMr9Bru7s1oMQMsE+cTWw4RrpWGb9h/Vb5Xabxkn7Oo9ABu+s06ZaMRyHtRIwXjUM9w9c8AvLdHW/ESAqUZeeoqo1VZAzns2oYG2zryOLbgWc0VzXlN9d5mK879KJxsk47JOzc9bGKIY4Dp3ia2yCS8dTEJVvwSvVcRgOfZPQ32r9f9Oq6h8KsuEhu/dK5ktzfcCaNsx3BR3NYdRStb3EdgqnYsP+MDMMKLFisPQdyN8LTv5kLelnc36h4H5MTieHYQ/DyAXldMY+n+GbHm01pcNifw/MRZRScxwSXhadCEOX5nuB1hrwlW7Q5j29RuNVpwXet13TiEXJ+ekxtOMivHmBuhNR5nY2wrmSU70G0w18eomPgh9eIYrRV2oADKdrE2NqQZifX1JdI0ByMNMpLxEXfxh7VbWZfI5ONGTSh63PVv6PrWPb5vLGVxu5ozrEjrqcsTmijcxBIt/9/PhngZjTWeG1WVw4g/9DJHC6fvHGldtctoFB8t9zc2/kq7Nwjq6JtqUhgGX/v33mjFiVhjZtXZR7XeFchOx8Pu3/lHEBOLrB0nKymbvjr6wgZcELrNzjb7LgX1iQNaLn1pPZKieLaab6xGP4OjxLpCz+xA2coFXZ4LCStYtiSCzEvET1tupwmDeXxTMkKQjEkUN8gCk6jwkH/FCMYgeadWuWL9vtYEdEcLw/Wb6xh6+YhC0HF1xAa/lnr2VRJBox3RnQcEYkfnRH7daf34SndLnF1AsaleP7BEWgX0FxIdAiZhshxFEnA48YHGhHiWN1e3jedXSKgenxUMYu2brN/sbVhJgfgbnnufLdiBo/ZHUuCR/2v9V/ebMUZyPHKsLYRsTJNAtmRrLY/mvHYazJ6N4AYH+n2lX6PpUZyTiSID41hDZe1jwkaVSqaFcJ1cMKBc5PwcS7Drjkk4A3+3W4mEdy3icjoMrz9YolOZzeWV1K+FFQIZ3V4yYexfq/dohOdOqi/ltzpvEK4QBSpAVrWB+XInAZdg2gfnDYfQomdaCkMlSSNHWqIcIdiGBVPfAZ0PSGJg2P7ntrUTuqiys7LanfWNyCmD1S1CYjSVh7Jljm4a4Dr8pGqvucF/ACWKk1sft2hQ7O8Ma8pIErRGrSCgpMPuWc/+3zUlA22fG6ERlgws8UHkT/psWIJkOEQa8w0t2l+mznrn5wyP3T/p81zxUkloxtNqc+oDzKaLAi+rMsfs8XjMD36f/hEiv/j70ThTObqsMAETA3YyL0mNUuQlhWuD3OhUds3+Mbywijqf+dhzlsoFgZ7vUNQrL6VJy56q72+qToRtiSmQIjWPqMJiE79kn+jOrHALQo2mOTWkCycUz8v/aiV7jqaOr+5wfVz06yfsfDN+f3pJJRvWDnapAFLzzAKcjm12urJIKaLNVBLTgpK9Pih+DhUhFMQqKoYaksmDhfH2E0DI6kxusNMWbpzV4Gbf5E5cW1EpFA8IfvahnjXZxwDl//gaL68BAdFJXWP0j9Fxa+fvW+UtA',
   )
   const parameterArrayFromNal = (type: number, nal: Uint8Array): readonly number[] => [
-    0x80 | type,
+    0x40 | type,
     0,
     1,
     (nal.length >>> 8) & 0xff,
@@ -734,7 +741,7 @@ const decodedMain10HeifFixture = (transfer: 16 | 18 = 16): Uint8Array => {
     'KAGtwCNGBl0lp1HvS4/wcZzXmuUtHUA/o3vHJ+gpBpIZd4Z+CHeJCRjbOdvpwooNEzM/IT7lyQbvAsDVdVNBshoohnOIjwrH6czmINr7Z7D6aXz//8/gLZglLCknsJowtSw57pL0kg5bOZjl3cbBdXeeBPZpqggAF+UJCTXRNWm1bDnsxe1ByKixfwxXhYTLELSfhtHiaW5SJje21FEBxSoPcnbcxEHNJ4QD0neBRcfW8AlfJRv75+ebNlQ3WZa/vTe+xgRvhJgL90Zkhgo9gImQi5KsH4IitkcwLe4c3RU9Z/WYbAN79wmDWBBjzGiqcJdickqZowHCkSS4ZoKHtxATDbEt28jORaIOhsbMBsJb8pVHrTB5LX28H/olM/kFpNrcjvBnyLd5mGU+LSmLY3i2kMqyXGUkkX9OuU09sej1MdGddXnr/946SB6+23jCV3uwKexwYZNXDsFC8U1ZBjcR2YNmDP5vOTiZv0xVZiYbBQO+C3WbI0R0utTuIRAMsj6GxJyeJEIA+GykmipVv8slhigPo7Bg',
   )
   const parameterArrayFromNal = (type: number, nal: Uint8Array): readonly number[] => [
-    0x80 | type,
+    0x40 | type,
     0,
     1,
     (nal.length >>> 8) & 0xff,
@@ -1005,6 +1012,9 @@ describe('HEIF HEVC bitstream inspection', () => {
     expect(
       inspection.codedImages[0]?.configuration.arrays.map((array) => array.nalUnitType),
     ).toEqual([32, 33, 34])
+    expect(
+      inspection.codedImages[0]?.configuration.arrays.map((array) => array.arrayCompleteness),
+    ).toEqual([true, true, true])
     expect(inspection.codedImages[0]?.configuration.sps).toMatchObject([
       {
         id: 0,
@@ -1044,6 +1054,16 @@ describe('HEIF HEVC bitstream inspection', () => {
         payloadBytes: 2,
       },
     ])
+  })
+
+  it('does not confuse the hvcC reserved bit with array completeness', async () => {
+    const inspection = await inspectHeifBitstream(
+      new MemorySource(heifFixture({ configurationArrayHeaderFlags: 0x80 })),
+    )
+
+    expect(
+      inspection.codedImages[0]?.configuration.arrays.map((array) => array.arrayCompleteness),
+    ).toEqual([false, false, false])
   })
 
   it('reads a NAL across discontiguous item extents without materializing the item', async () => {

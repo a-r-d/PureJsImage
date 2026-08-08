@@ -188,7 +188,6 @@ const parseHevcConfiguration = (data: Uint8Array): HevcConfiguration => {
   for (let arrayIndex = 0; arrayIndex < arrayCount; arrayIndex += 1) {
     const arrayHeader = byte(data, offset, 'HEIF hvcC array header is truncated')
     offset += 1
-    if ((arrayHeader & 0x40) !== 0) throw invalidInput('HEIF hvcC array reserved bit is set')
     const count = uint16BigEndian(data, offset)
     offset += 2
     const nalUnits: HevcNalUnit[] = []
@@ -208,7 +207,7 @@ const parseHevcConfiguration = (data: Uint8Array): HevcConfiguration => {
       offset += length
     }
     arrays.push({
-      arrayCompleteness: (arrayHeader & 0x80) !== 0,
+      arrayCompleteness: (arrayHeader & 0x40) !== 0,
       nalUnitType: arrayHeader & 0x3f,
       nalUnits,
     })
