@@ -1,0 +1,36 @@
+benchmark/lib/corpus.ts
+  s_8117ea1ef73ff5::t_b818744961bcf8 104-116
+benchmark/lib/pinned-download.ts
+  s_8117ea1ef73ff5::t_3e1ce8963ffca3 164-165
+  s_8117ea1ef73ff5::t_342ddd519ee88e 86
+  s_8117ea1ef73ff5::t_8556d3153a36ec 21-26,149
+  s_8117ea1ef73ff5::t_452a37f3b46b22 60-75,167
+  s_8117ea1ef73ff5::t_4abe094afaa7f9 9
+  s_8117ea1ef73ff5::t_b818744961bcf8 1-8,10-20,27-59,76-85,87-148,150-163,166,168-171
+tests/pinned-download.test.ts
+  s_8117ea1ef73ff5::t_b94bdd511bedca 1-6,9-28,30-100,103-105,107-165
+  s_8117ea1ef73ff5::t_4abe094afaa7f9 8,106
+  s_8117ea1ef73ff5::t_1f91621774fc7d 7,101-102
+  s_8117ea1ef73ff5::t_2e8286b099aee2 29
+benchmark/avif/prepare-corpus.ts
+  s_8117ea1ef73ff5::t_b818744961bcf8 2,4,8,23-29
+benchmark/scripts/prepare-corpus.ts
+  s_8117ea1ef73ff5::t_57cfb2da0d46be 522
+  s_8117ea1ef73ff5::t_b818744961bcf8 2,15,22-32,489-495
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "b8eaadb55db391471e5017d3f1ed8cee55dcd05f",
+  "prompts": {},
+  "sessions": {
+    "s_8117ea1ef73ff5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdf88-9c3e-74c3-8640-add1f8c27019",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
