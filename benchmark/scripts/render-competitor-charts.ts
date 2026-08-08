@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
@@ -8,6 +8,7 @@ const benchmarkDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
 const defaultReportPath = join(benchmarkDirectory, 'results', 'competitors-2026-08-08.json')
 const reportPath = process.argv[2] ?? defaultReportPath
 const outputDirectory = join(benchmarkDirectory, 'results')
+const docsAssetsDirectory = join(dirname(benchmarkDirectory), 'docs', 'assets')
 
 const engines = [
   { id: 'purejsimage', label: 'PureJsImage · pure JS', color: '#2563eb' },
@@ -208,7 +209,10 @@ const chartSvg = (metric: Metric): string => {
 
 const speedPath = join(outputDirectory, 'competitors-speed-2026-08-08.png')
 const memoryPath = join(outputDirectory, 'competitors-memory-2026-08-08.png')
+const docsSpeedPath = join(docsAssetsDirectory, 'competitors-speed-2026-08-08.png')
+const docsMemoryPath = join(docsAssetsDirectory, 'competitors-memory-2026-08-08.png')
 
+await mkdir(docsAssetsDirectory, { recursive: true })
 await Promise.all([
   sharp(Buffer.from(chartSvg('speed')))
     .png()
@@ -216,7 +220,15 @@ await Promise.all([
   sharp(Buffer.from(chartSvg('memory')))
     .png()
     .toFile(memoryPath),
+  sharp(Buffer.from(chartSvg('speed')))
+    .png()
+    .toFile(docsSpeedPath),
+  sharp(Buffer.from(chartSvg('memory')))
+    .png()
+    .toFile(docsMemoryPath),
 ])
 
 console.log(speedPath)
 console.log(memoryPath)
+console.log(docsSpeedPath)
+console.log(docsMemoryPath)

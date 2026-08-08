@@ -21,14 +21,22 @@ describe('package contract', () => {
     expect('skia-canvas' in packageJson.devDependencies).toBe(false)
   })
 
-  it('embeds the checked-in competitor charts in the main README', () => {
+  it('embeds the checked-in competitor charts in the README and docs homepage', () => {
     const readme = readFileSync('README.md', 'utf8')
+    const docsHome = readFileSync('docs/index.html', 'utf8')
     for (const chart of [
       'benchmark/results/competitors-speed-2026-08-08.png',
       'benchmark/results/competitors-memory-2026-08-08.png',
     ]) {
       expect(readme).toContain(`](${chart})`)
       expect(readFileSync(chart).byteLength).toBeGreaterThan(0)
+    }
+    for (const chart of [
+      'assets/competitors-speed-2026-08-08.png',
+      'assets/competitors-memory-2026-08-08.png',
+    ]) {
+      expect(docsHome).toContain(`src="${chart}"`)
+      expect(readFileSync(`docs/${chart}`).byteLength).toBeGreaterThan(0)
     }
   })
 

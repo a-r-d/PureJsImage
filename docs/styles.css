@@ -1956,6 +1956,189 @@ tr:last-child td {
   font-size: 14px;
 }
 
+.benchmark-facts {
+  display: grid;
+  overflow: hidden;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: #171c18;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.benchmark-facts > div {
+  padding: 18px 22px;
+}
+
+.benchmark-facts > div + div {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.benchmark-facts strong,
+.benchmark-facts span {
+  display: block;
+}
+
+.benchmark-facts strong {
+  color: var(--lime);
+  font-family: var(--font-mono);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.benchmark-facts span {
+  margin-top: 6px;
+  color: #9da7a0;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.benchmark-gallery {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  background: #171c18;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.22);
+}
+
+.benchmark-gallery > legend,
+.benchmark-gallery > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.benchmark-gallery-tabs {
+  display: flex;
+  gap: 5px;
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0c100d;
+}
+
+.benchmark-gallery-tabs label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 15px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: #8e9991;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.benchmark-gallery-tabs label span {
+  color: #667069;
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+
+#benchmark-speed:checked ~ .benchmark-gallery-tabs label[for="benchmark-speed"],
+#benchmark-memory:checked ~ .benchmark-gallery-tabs label[for="benchmark-memory"] {
+  border-color: rgba(197, 236, 123, 0.2);
+  background: #1a211c;
+  color: #edf3ee;
+}
+
+#benchmark-speed:checked ~ .benchmark-gallery-tabs label[for="benchmark-speed"] span,
+#benchmark-memory:checked ~ .benchmark-gallery-tabs label[for="benchmark-memory"] span {
+  color: var(--lime);
+}
+
+#benchmark-speed:focus-visible ~ .benchmark-gallery-tabs label[for="benchmark-speed"],
+#benchmark-memory:focus-visible ~ .benchmark-gallery-tabs label[for="benchmark-memory"] {
+  outline: 2px solid #9c8dff;
+  outline-offset: 2px;
+}
+
+.benchmark-gallery-panel {
+  display: none;
+  margin: 0;
+  padding: 18px;
+}
+
+#benchmark-speed:checked ~ .benchmark-gallery-panels [data-chart="speed"],
+#benchmark-memory:checked ~ .benchmark-gallery-panels [data-chart="memory"] {
+  display: block;
+}
+
+.benchmark-gallery-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 4px 4px 15px;
+}
+
+.benchmark-gallery-head span,
+.benchmark-gallery-head strong {
+  display: block;
+}
+
+.benchmark-gallery-head span {
+  color: #89938c;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.benchmark-gallery-head strong {
+  margin-top: 4px;
+  color: #edf3ee;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+
+.benchmark-gallery-head small {
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 202, 88, 0.25);
+  border-radius: 999px;
+  background: rgba(255, 202, 88, 0.08);
+  color: #e7bd62;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.benchmark-image-scroll {
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: #f8fafc;
+  scrollbar-color: #59645c #252d27;
+}
+
+.benchmark-image-scroll img {
+  display: block;
+  width: 100%;
+  min-width: 900px;
+  height: auto;
+}
+
+.benchmark-gallery-panel figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 13px 4px 1px;
+  color: #8e9991;
+  font-size: 10px;
+}
+
+.benchmark-gallery-panel figcaption a {
+  flex: 0 0 auto;
+  color: #bcb0ff;
+}
+
 .proof-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -2776,6 +2959,12 @@ tr:last-child td {
     flex-direction: column;
   }
 
+  .benchmark-gallery-head,
+  .benchmark-gallery-panel figcaption {
+    align-items: start;
+    flex-direction: column;
+  }
+
   .proof-grid {
     grid-template-columns: 1fr;
   }
@@ -2840,6 +3029,24 @@ tr:last-child td {
 
   .proof-section {
     padding-top: 52px;
+  }
+
+  .benchmark-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .benchmark-facts > div + div {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 0;
+  }
+
+  .benchmark-gallery-panel {
+    padding: 10px;
+  }
+
+  .benchmark-gallery-tabs label {
+    flex: 1;
+    justify-content: center;
   }
 
   .proof-chart {

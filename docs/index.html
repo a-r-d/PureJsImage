@@ -52,8 +52,8 @@
           <h1>Low-memory image processing in <span class="gradient-text">pure TypeScript.</span></h1>
           <p class="hero-lede">PureJsImage provides first-party codecs and an immutable processing pipeline for Node.js and modern browsers. Its baseline JPEG resize path processes bounded MCU rows instead of retaining a source-sized RGBA bitmap.</p>
           <div class="headline-metrics">
-            <div><strong>90.0%</strong><span>lower peak RSS vs Jimp</span><small>118.6 vs 1,188.3 MiB</small></div>
-            <div><strong>13.8%</strong><span>faster than Jimp</span><small>3,242.5 vs 3,762.9 ms</small></div>
+            <div><strong>87.6%</strong><span>lower peak RSS vs Jimp</span><small>147.5 vs 1,189.1 MiB</small></div>
+            <div><strong>5</strong><span>benchmark engines</span><small>pure JavaScript + native libvips</small></div>
           </div>
           <div class="hero-actions">
             <a class="button" href="guides.html">Usage guide <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></a>
@@ -135,42 +135,38 @@
     <section class="proof-section" id="benchmark" aria-labelledby="benchmark-title">
       <div class="container">
         <div class="proof-heading">
-          <div><p class="section-label">Benchmark comparison</p><h2 id="benchmark-title">90% lower peak RSS than Jimp in the 24 MP JPEG workflow.</h2></div>
-          <p>These results cover complete decode–transform–encode workflows. Each chart uses one global scale and reports validated runs from the checked-in benchmark corpus.</p>
+          <div><p class="section-label">Five-engine comparison</p><h2 id="benchmark-title">Equivalent output. Isolated workers. The complete performance picture.</h2></div>
+          <p>Nine workflows supported equivalently by every engine, measured from the same pinned inputs. Sharp uses native libvips code; PureJsImage, Jimp, and image-js are pure JavaScript.</p>
         </div>
-        <div class="proof-grid">
-          <article class="proof-chart benchmark-matrix">
-            <header><div><span>Peak RSS</span><strong>MiB</strong></div><small>global maximum: 1,273.5</small></header>
-            <div class="chart-legend"><span><i></i>PureJsImage</span><span><i class="jimp"></i>Jimp 1.6</span><small>lower is better</small></div>
-            <div class="matrix-rows">
-              <div class="matrix-row"><div class="matrix-label"><strong>24 MP JPEG</strong><small>orient · crop · resize</small></div><div class="matrix-bars"><div><i style="--value:9.3%"></i><span>118.6</span></div><div><i class="jimp" style="--value:93.3%"></i><span>1,188.3</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>JPEG crop</strong><small>crop · resize</small></div><div class="matrix-bars"><div><i style="--value:9.5%"></i><span>121.3</span></div><div><i class="jimp" style="--value:94%"></i><span>1,197.2</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>100 MP PNG</strong><small>downscale</small></div><div class="matrix-bars"><div><i style="--value:13.3%"></i><span>168.8</span></div><div><i class="jimp" style="--value:100%"></i><span>1,273.5</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>12 MP PNG</strong><small>resize</small></div><div class="matrix-bars"><div><i style="--value:11.1%"></i><span>141.7</span></div><div><i class="jimp" style="--value:23.7%"></i><span>301.4</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>PNG crop</strong><small>crop · resize</small></div><div class="matrix-bars"><div><i style="--value:10%"></i><span>127.4</span></div><div><i class="jimp" style="--value:23.3%"></i><span>296.2</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>12 MP BMP</strong><small>resize · JPEG</small></div><div class="matrix-bars"><div><i style="--value:12%"></i><span>153.1</span></div><div><i class="jimp" style="--value:20.6%"></i><span>262.2</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>Large TIFF</strong><small>resize · JPEG</small></div><div class="matrix-bars"><div><i style="--value:10.4%"></i><span>133.0</span></div><div><i class="jimp" style="--value:25%"></i><span>318.5</span></div></div></div>
-            </div>
-            <p>Absolute process peak RSS, including the Node.js runtime.</p>
-          </article>
-          <article class="proof-chart benchmark-matrix">
-            <header><div><span>Median wall time</span><strong>Milliseconds</strong></div><small>global maximum: 3,762.9</small></header>
-            <div class="chart-legend"><span><i></i>PureJsImage</span><span><i class="jimp"></i>Jimp 1.6</span><small>lower is better</small></div>
-            <div class="matrix-rows">
-              <div class="matrix-row"><div class="matrix-label"><strong>24 MP JPEG</strong><small>orient · crop · resize</small></div><div class="matrix-bars"><div><i style="--value:86.2%"></i><span>3,242.5</span></div><div><i class="jimp" style="--value:100%"></i><span>3,762.9</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>JPEG crop</strong><small>crop · resize</small></div><div class="matrix-bars"><div><i style="--value:67.9%"></i><span>2,554.3</span></div><div><i class="jimp" style="--value:76.2%"></i><span>2,868.2</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>100 MP PNG</strong><small>downscale</small></div><div class="matrix-bars"><div><i style="--value:52.3%"></i><span>1,969.8</span></div><div><i class="jimp" style="--value:99.2%"></i><span>3,732.5</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>12 MP PNG</strong><small>resize</small></div><div class="matrix-bars"><div><i style="--value:13.2%"></i><span>495.7</span></div><div><i class="jimp" style="--value:25.1%"></i><span>944.3</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>PNG crop</strong><small>crop · resize</small></div><div class="matrix-bars"><div><i style="--value:10.5%"></i><span>395.9</span></div><div><i class="jimp" style="--value:17.3%"></i><span>652.3</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>12 MP BMP</strong><small>resize · JPEG</small></div><div class="matrix-bars"><div><i style="--value:4%"></i><span>149.1</span></div><div><i class="jimp" style="--value:19.1%"></i><span>719.0</span></div></div></div>
-              <div class="matrix-row"><div class="matrix-label"><strong>Large TIFF</strong><small>resize · JPEG</small></div><div class="matrix-bars"><div><i style="--value:2.9%"></i><span>109.2</span></div><div><i class="jimp" style="--value:17%"></i><span>638.8</span></div></div></div>
-            </div>
-            <p>Input reads, worker startup, warmups, and output validation are outside the timed region.</p>
-          </article>
+        <div class="benchmark-facts">
+          <div><strong>60</strong><span>validated passes</span></div>
+          <div><strong>10</strong><span>explicit unsupported results</span></div>
+          <div><strong>0</strong><span>invalid outputs or errors</span></div>
         </div>
+        <fieldset class="benchmark-gallery">
+          <legend>Choose a benchmark chart</legend>
+          <input id="benchmark-speed" name="benchmark-chart" type="radio" checked>
+          <input id="benchmark-memory" name="benchmark-chart" type="radio">
+          <div class="benchmark-gallery-tabs">
+            <label for="benchmark-speed"><span>01</span> Speed</label>
+            <label for="benchmark-memory"><span>02</span> Memory</label>
+          </div>
+          <div class="benchmark-gallery-panels">
+            <figure class="benchmark-gallery-panel" data-chart="speed">
+              <div class="benchmark-gallery-head"><div><span>Median wall time</span><strong>Logarithmic scale · lower is better</strong></div><small>Sharp = native libvips</small></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-speed-2026-08-08.png" width="2400" height="2070" alt="Grouped horizontal bars comparing median wall time for all five benchmark engines across nine equivalent workflows. The two Sharp configurations use native libvips code." fetchpriority="high"></div>
+              <figcaption>Timings include encoding. Lossy quality scales are not calibrated across encoders. <a href="assets/competitors-speed-2026-08-08.png">Open full-size chart</a>.</figcaption>
+            </figure>
+            <figure class="benchmark-gallery-panel" data-chart="memory">
+              <div class="benchmark-gallery-head"><div><span>Absolute process memory</span><strong>Median peak RSS · lower is better</strong></div><small>Isolated worker processes</small></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-memory-2026-08-08.png" width="2400" height="2070" alt="Grouped horizontal bars comparing median absolute peak RSS for all five benchmark engines across nine equivalent workflows." loading="lazy" decoding="async"></div>
+              <figcaption>RSS includes the Node.js runtime and native allocations. <a href="assets/competitors-memory-2026-08-08.png">Open full-size chart</a>.</figcaption>
+            </figure>
+          </div>
+        </fieldset>
         <div class="proof-meta">
-          <span>Node.js 24.16 · Linux x64 · Intel i7-10700 · jimp@1.6.0 · recorded August 2026</span>
-          <span><a href="performance.html">Methodology</a> · <a href="https://github.com/a-r-d/PureJsImage/tree/main/benchmark/results" target="_blank" rel="noreferrer">Raw reports</a></span>
+          <span>Node.js 24.16 · Linux x64 · Intel i7-10700 · recorded August 2026</span>
+          <span><a href="performance.html">Methodology</a> · <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/competitors-2026-08-08.md" target="_blank" rel="noreferrer">Readable report</a> · <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/competitors-2026-08-08.json" target="_blank" rel="noreferrer">JSON</a></span>
         </div>
       </div>
     </section>
