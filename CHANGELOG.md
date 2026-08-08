@@ -43,6 +43,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Fixed
 
+- Reduced first-party lossless WebP output for graphics by adding predictor and subtract-green
+  transforms, LZ77 references, and adaptive Huffman trees, with exact Sharp/libwebp pixel checks
+  and an isolated size and peak-memory benchmark for the documented full-frame encoder state.
+- Decoded the quantization matrices and block delta-Q syntax used by default Sharp/libaom AVIF
+  output in the restricted opaque 8-bit YUV 4:2:0 path, with exact q50 and q80 YUV agreement
+  against both dav1d and libaom while delta loop-filter syntax remains explicitly unsupported.
 - Restricted SVG recognition to the document's first element so HTML with inline SVG and JSON text
   mentioning `<svg` are no longer misreported as SVG input.
 

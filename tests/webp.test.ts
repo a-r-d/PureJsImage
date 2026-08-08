@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
+import sharp from 'sharp'
 
 import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
@@ -191,14 +192,17 @@ describe('WebP codec', () => {
   })
 
   it('losslessly encodes blocks larger than the byte-writer growth boundary', async () => {
-    const source = new PNG({ width: 40, height: 40 })
+    const source = new PNG({ width: 64, height: 64 })
+    let random = 0x12345678
     for (let y = 0; y < source.height; y += 1) {
       for (let x = 0; x < source.width; x += 1) {
         const offset = (y * source.width + x) * 4
-        source.data[offset] = (x * 13 + y * 3) & 255
-        source.data[offset + 1] = (x * 5 + y * 17) & 255
-        source.data[offset + 2] = (x * 19 + y * 7) & 255
-        source.data[offset + 3] = (x * 11 + y * 23) & 255
+        for (let channel = 0; channel < 4; channel += 1) {
+          random ^= random << 13
+          random ^= random >>> 17
+          random ^= random << 5
+          source.data[offset + channel] = random & 255
+        }
       }
     }
 
@@ -208,6 +212,30 @@ describe('WebP codec', () => {
     expect(encoded.length).toBeGreaterThan(4096)
     const decoded = PNG.sync.read(await (await Image.open(encoded)).png().toBuffer())
     expect(decoded.data).toEqual(source.data)
+  })
+
+  it('compresses deterministic graphics below PNG and matches an independent decoder', async () => {
+    const source = new PNG({ width: 256, height: 192 })
+    for (let y = 0; y < source.height; y += 1) {
+      for (let x = 0; x < source.width; x += 1) {
+        const offset = (y * source.width + x) * 4
+        const panel = x >= 24 && x < 232 && y >= 20 && y < 172
+        const stripe = panel && ((x + y) & 31) < 4
+        source.data[offset] = stripe ? 240 : panel ? 36 : 248
+        source.data[offset + 1] = stripe ? 96 : panel ? 48 : 248
+        source.data[offset + 2] = stripe ? 48 : panel ? 72 : 248
+        source.data[offset + 3] = 255
+      }
+    }
+
+    const input = PNG.sync.write(source)
+    const image = await Image.open(input)
+    const encoded = await image.webp({ lossless: true }).toBuffer()
+    const png = await image.png().toBuffer()
+    expect(encoded.length).toBeLessThan(png.length)
+
+    const oracle = await sharp(encoded).ensureAlpha().raw().toBuffer()
+    expect(oracle).toEqual(source.data)
   })
 
   it('lossily encodes WebP with effective quality control', async () => {

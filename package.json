@@ -135,6 +135,8 @@
     "fixtures:verify": "node benchmark/scripts/verify-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
     "fixtures:avif:post-filters": "node benchmark/avif/verify-post-filters.ts",
+    "fixtures:avif:qmatrix": "node benchmark/avif/verify-qmatrix-fixtures.ts",
+    "fixtures:avif:qmatrix:prepare": "node benchmark/avif/prepare-qmatrix-fixtures.ts",
     "fixtures:heif:prepare": "node benchmark/heif/compatibility/prepare.ts",
     "fixtures:heif": "node benchmark/heif/verify-corpus.ts && node benchmark/heif/compatibility/verify.ts",
     "fixtures:ico": "node benchmark/ico/verify-corpus.ts",

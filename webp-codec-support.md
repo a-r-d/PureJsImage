@@ -96,17 +96,23 @@ coverage.
 - [x] First-party static VP8L encoding
 - [x] Exact 8-bit RGB and alpha preservation
 - [x] `gray8`, `rgb8`, and `rgba8` pipeline input
-- [x] Streaming, ordered pixel input without a full source-frame staging buffer
-- [x] Fixed Huffman trees with literal pixel emission
+- [x] Ordered pixel input staged in one 32-bit transformed frame with two
+  predictor rows; the encoded payload is buffered so the RIFF length is known
+  before output begins
+- [x] Predictor transform using the left mode and VP8L-specified edge behavior
+- [x] Subtract-green transform
+- [x] LZ77 backward references with adjacent-pixel, previous-row, and bounded
+  hash-chain match candidates plus two-dimensional VP8L distance coding
+- [x] Per-image adaptive canonical Huffman trees with a complete-tree fallback
 - [x] Public `image.webp({ lossless: true })` and
   `image.encode('webp', { lossless: true })` APIs
 
 ### Lossless planned
 
-- [ ] LZ77 match finding and backward-reference emission
-- [ ] Adaptive Huffman trees and spatial entropy groups
+- [ ] Spatially varying Huffman entropy groups
 - [ ] Color-cache emission
-- [ ] Predictor, color, subtract-green, and color-indexing transform selection
+- [ ] Adaptive predictor modes, cross-color transform, and color-indexing
+  transform selection
 - [ ] Compression-effort controls and better output-size optimization
 - [ ] Near-lossless WebP encoding
 
@@ -163,6 +169,13 @@ coverage.
   suite
 - [x] Decode benchmark WebP output in a separate libwebp-backed oracle process
   and require pinned pixels before accepting a timing
+- [x] Decode lossless encoder output through pinned Sharp/libwebp and require
+  exact RGBA pixels, including deterministic high-entropy and graphic fixtures
+- [x] Require the deterministic graphic's lossless WebP output to be smaller
+  than PureJsImage PNG, and record the pinned production-style logo result
+  alongside libwebp in an isolated size and peak-RSS benchmark
+- [x] Document and benchmark the lossless encoder's source-sized 32-bit
+  transformed frame and potentially source-sized buffered payload
 - [ ] Account for cumulative VP8/VP8L planes, transforms, alpha, and output in a
   dedicated working-memory limit; the general decoded-byte limit does not yet
   represent every simultaneous allocation

@@ -1,11 +1,13 @@
 import { createImageLibrary } from '../src/browser.ts'
+import { avifCodec } from '../src/codec-entries/avif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
+import { webpCodec } from '../src/codec-entries/webp.ts'
 import type { ImageInput } from '../src/source.ts'
 import type { ImageSink } from '../src/sink.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
 
-const images = createImageLibrary([jpegCodec, pngCodec])
+const images = createImageLibrary([jpegCodec, pngCodec, webpCodec, avifCodec])
 
 const fetchBytes = async (path: string): Promise<Uint8Array<ArrayBuffer>> => {
   const response = await fetch(path)
@@ -105,6 +107,55 @@ const pngAlphaPipeline = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8ClampedArray> => {
+  const bitmap = await createImageBitmap(new Blob([Uint8Array.from(bytes)], { type }))
+  const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
+  const context = canvas.getContext('2d')
+  if (!context) throw new Error('2D OffscreenCanvas context is unavailable')
+  context.drawImage(bitmap, 0, 0)
+  bitmap.close()
+  return context.getImageData(0, 0, canvas.width, canvas.height).data
+}
+
+const webpLossless = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/webp-graphic.png')
+  const output = await (await images.open(input)).webp({ lossless: true }).toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.format !== 'webp' || metadata.width !== 32 || metadata.height !== 24) {
+    throw new Error(
+      `Lossless WebP output was ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  const sourcePixels = await browserPixels(input, 'image/png')
+  const outputPixels = await browserPixels(output, 'image/webp')
+  if (sourcePixels.length !== outputPixels.length)
+    throw new Error('Lossless WebP pixel size changed')
+  for (let offset = 0; offset < sourcePixels.length; offset += 1) {
+    if (sourcePixels[offset] !== outputPixels[offset]) {
+      throw new Error(`Lossless WebP changed browser pixel ${offset}`)
+    }
+  }
+  return {
+    detail: 'first-party lossless WebP matched browser RGBA pixels',
+    outputBytes: output.byteLength,
+  }
+}
+
+const avifQuantizationMatrix = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/sharp-qmatrix-q50-256x192.avif')
+  const output = await (await images.open(input)).png().toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.format !== 'png' || metadata.width !== 256 || metadata.height !== 192) {
+    throw new Error(
+      `Quantization-matrix AVIF output was ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  return {
+    detail: 'Sharp/libaom quantization-matrix AVIF decoded to 256x192 PNG',
+    outputBytes: output.byteLength,
+  }
+}
+
 const orientation = async (): Promise<BrowserWorkflowResult> => {
   const bytes = await fetchBytes('/fixtures/oriented-6.jpg')
   const source = await images.open(bytes.buffer)
@@ -161,11 +212,13 @@ const failureCleanup = async (): Promise<BrowserWorkflowResult> => {
 }
 
 const harness: BrowserCompatibilityHarness = Object.freeze({
+  avifQuantizationMatrix,
+  failureCleanup,
   inputTypes,
   jpegPipeline,
-  pngAlphaPipeline,
   orientation,
-  failureCleanup,
+  pngAlphaPipeline,
+  webpLossless,
 })
 
 window.pureJsImageBrowserTests = harness

@@ -1,5 +1,6 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { Av1FrameHeader } from './av1-frame.ts'
+import { av1InverseQuantizationMatrix } from './av1-qmatrix.ts'
 
 const dcQuant8 = new Uint16Array([
   4, 8, 8, 9, 10, 11, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 23, 24, 25, 26, 26, 27,
@@ -373,21 +374,30 @@ const dequantizeAv1Coefficients = (
   quantized: Int32Array,
   width: 4 | 8 | 16 | 32 | 64,
   height: 4 | 8 | 16 | 32 | 64,
+  transformType: number,
   plane: 0 | 1 | 2,
   header: Av1FrameHeader,
+  quantizer: number,
 ): Int32Array => {
   const dcDelta = plane === 0 ? header.deltaYDc : plane === 1 ? header.deltaUDc : header.deltaVDc
   const acDelta = plane === 0 ? 0 : plane === 1 ? header.deltaUAc : header.deltaVAc
-  const dc = dcQuant8[Math.max(0, Math.min(255, header.baseQuantizer + dcDelta))]
-  const ac = acQuant8[Math.max(0, Math.min(255, header.baseQuantizer + acDelta))]
+  const dc = dcQuant8[Math.max(0, Math.min(255, quantizer + dcDelta))]
+  const ac = acQuant8[Math.max(0, Math.min(255, quantizer + acDelta))]
   if (dc === undefined || ac === undefined) throw invalidInput('AV1 quantizer index is invalid')
+  const matrixLevel = plane === 0 ? header.qmY : plane === 1 ? header.qmU : header.qmV
+  const matrix =
+    header.usingQMatrix && !header.codedLossless && transformType < 9
+      ? av1InverseQuantizationMatrix(matrixLevel, plane, width, height)
+      : undefined
 
   const dequantized = new Int32Array(width * height)
   const rectangularScale = width * 2 === height || height * 2 === width
   const sizeContext = (Math.log2(width >> 2) + Math.log2(height >> 2) + 1) >> 1
   const dequantizerDivisor = 2 ** Math.max(0, sizeContext - 2)
   for (let index = 0; index < dequantized.length; index += 1) {
-    const scaled = (quantized[index] ?? 0) * (index === 0 ? dc : ac)
+    const quantization = index === 0 ? dc : ac
+    const weighted = matrix ? roundedShift(quantization * (matrix[index] ?? 32), 5) : quantization
+    const scaled = (quantized[index] ?? 0) * weighted
     const value = Math.max(
       -32768,
       Math.min(32767, Math.sign(scaled) * Math.floor(Math.abs(scaled) / dequantizerDivisor)),
@@ -404,11 +414,20 @@ export const inverseTransform = (
   transformType: number,
   plane: 0 | 1 | 2,
   header: Av1FrameHeader,
+  quantizer = header.baseQuantizer,
 ): Int32Array => {
   if (transformType < 0 || transformType > 15) {
     throw unsupportedOperation(`Unsupported AV1 transform type ${transformType}`)
   }
-  const dequantized = dequantizeAv1Coefficients(quantized, width, height, plane, header)
+  const dequantized = dequantizeAv1Coefficients(
+    quantized,
+    width,
+    height,
+    transformType,
+    plane,
+    header,
+    quantizer,
+  )
   const intermediate = new Int32Array(width * height)
   const rowUsesDct = ((rowDctMask >>> transformType) & 1) !== 0
   const rowUsesAdst = ((rowAdstMask >>> transformType) & 1) !== 0

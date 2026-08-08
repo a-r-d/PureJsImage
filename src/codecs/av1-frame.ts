@@ -35,6 +35,7 @@ export interface Av1FrameHeader {
   readonly codedLossless: boolean
   readonly deltaLfPresent: boolean
   readonly deltaQPresent: boolean
+  readonly deltaQResolution: number
   readonly deltaUAc: number
   readonly deltaUDc: number
   readonly deltaVAc: number
@@ -49,6 +50,9 @@ export interface Av1FrameHeader {
   readonly loopFilterModeDeltas: readonly number[]
   readonly loopFilterRefDeltas: readonly number[]
   readonly loopFilterSharpness: number
+  readonly qmU: number
+  readonly qmV: number
+  readonly qmY: number
   readonly reducedTransformSet: boolean
   readonly renderHeight: number
   readonly renderWidth: number
@@ -85,6 +89,9 @@ interface Quantization {
   readonly vAc: number
   readonly vDc: number
   readonly yDc: number
+  readonly qmU: number
+  readonly qmV: number
+  readonly qmY: number
   readonly usingQMatrix: boolean
 }
 
@@ -123,12 +130,15 @@ const parseQuantization = (reader: Av1BitReader, sequence: Av1SequenceHeader): Q
     }
   }
   const usingQMatrix = reader.readBit() === 1
+  let qmY = 15
+  let qmU = 15
+  let qmV = 15
   if (usingQMatrix) {
-    reader.readBits(4)
-    reader.readBits(4)
-    if (sequence.separateUvDeltaQ) reader.readBits(4)
+    qmY = reader.readBits(4)
+    qmU = reader.readBits(4)
+    qmV = sequence.separateUvDeltaQ ? reader.readBits(4) : qmU
   }
-  return { base, yDc, uDc, uAc, vDc, vAc, usingQMatrix }
+  return { base, yDc, uDc, uAc, vDc, vAc, usingQMatrix, qmY, qmU, qmV }
 }
 
 const parseSegmentation = (reader: Av1BitReader): Segmentation => {
@@ -413,11 +423,12 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
   const quantization = parseQuantization(reader, sequence)
   const segmentation = parseSegmentation(reader)
   let deltaQPresent = false
+  let deltaQResolution = 0
   let deltaLfPresent = false
   if (quantization.base > 0) {
     deltaQPresent = reader.readBit() === 1
     if (deltaQPresent) {
-      reader.readBits(2)
+      deltaQResolution = reader.readBits(2)
       if (!allowIntrabc) deltaLfPresent = reader.readBit() === 1
       if (deltaLfPresent) {
         reader.readBits(2)
@@ -507,6 +518,9 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
       frameHeight,
       upscaledWidth,
       usingQMatrix: quantization.usingQMatrix,
+      qmY: quantization.qmY,
+      qmU: quantization.qmU,
+      qmV: quantization.qmV,
       renderWidth,
       renderHeight,
       headerBytes,
@@ -521,6 +535,7 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
       deltaVAc: quantization.vAc,
       segmentationEnabled: segmentation.enabled,
       deltaQPresent,
+      deltaQResolution,
       deltaLfPresent,
       codedLossless,
       allLossless,

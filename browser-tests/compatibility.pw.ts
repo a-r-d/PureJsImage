@@ -28,6 +28,20 @@ test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   expect(result.detail).toContain('preserved alpha')
 })
 
+test('losslessly encodes WebP with exact browser pixels', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.webpLossless())
+  expect(result.outputBytes).toBeGreaterThan(20)
+  expect(result.detail).toContain('matched browser RGBA pixels')
+})
+
+test('decodes a Sharp/libaom quantization-matrix AVIF', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifQuantizationMatrix())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('256x192 PNG')
+})
+
 test('applies JPEG EXIF orientation in the browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.orientation())
