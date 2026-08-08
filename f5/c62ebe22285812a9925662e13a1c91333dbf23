@@ -1,0 +1,75 @@
+tests/lossy-codec-quality.test.ts
+  s_3070dced1b3aff::t_efd23e83602d4f 10-16,77-78,81
+  s_3070dced1b3aff::t_ffd6f9fb10c181 40
+  s_3070dced1b3aff::t_716ac8d2a2b9b7 52
+  s_3070dced1b3aff::t_ba62c40be88d8d 24-25
+  s_3070dced1b3aff::t_83fe77497e1812 92
+  s_3070dced1b3aff::t_c4a43a1e3e6801 1-9,17-23,26-39,41-51,53-76,79-80,82-91,93-107
+benchmark/lib/webp-oracle-worker.ts
+  s_3070dced1b3aff::t_83fe77497e1812 11-16,29
+  s_3070dced1b3aff::t_cab7e3ed2a9ba2 26-27
+  s_3070dced1b3aff::t_fac907c03d6596 1-9,17-21,28,30-44
+  s_3070dced1b3aff::t_dec7e4dca988a8 45
+  s_3070dced1b3aff::t_eda36b2e4a5caa 46
+  s_3070dced1b3aff::t_6f97f61bcb62bb 10
+  s_3070dced1b3aff::t_5f76be1fce1bae 22-25
+benchmark/workflows.ts
+  s_3070dced1b3aff::t_1537acbab5c543 1057-1068
+benchmark/README.md
+  s_3070dced1b3aff::t_43425dc984b273 159-162
+benchmark/lib/validate-output.ts
+  s_3070dced1b3aff::t_7db6fc72246007 81-83,85-86
+  s_3070dced1b3aff::t_83fe77497e1812 84,202-203,221-223
+  s_3070dced1b3aff::t_6d747535c7b656 3
+  s_3070dced1b3aff::t_bd118bbc09c440 17-62,66-67,70,79-80,87-88,90-92,143,149,204-214,220,224-226,229-233,253
+  s_3070dced1b3aff::t_e8f65f5ae8be59 215-219
+  s_3070dced1b3aff::t_dec7e4dca988a8 65,68-69,71-78
+  s_3070dced1b3aff::t_41fa87ad98aaac 63-64
+  s_3070dced1b3aff::t_1316fdf5ca7f88 89
+  s_3070dced1b3aff::t_0a5f030f1830c0 1
+benchmark/results/webp-oracle-validated-2026-08-08.json
+  s_3070dced1b3aff::t_97e474543fb7ab 1-1610
+tests/benchmark-harness.test.ts
+  s_3070dced1b3aff::t_adef42acabdca3 34,36
+  s_3070dced1b3aff::t_83fe77497e1812 71
+  s_3070dced1b3aff::t_a84802ee317aa8 1,48-70,72
+  s_3070dced1b3aff::t_91eac515f7d1dc 73-74
+benchmark/results/webp-oracle-validated-2026-08-08.md
+  s_3070dced1b3aff::t_97e474543fb7ab 1-55
+src/codecs/vp8.ts
+  s_3070dced1b3aff::t_3e53812e636739 590-601
+src/codecs/webp-lossy-encode.ts
+  s_3070dced1b3aff::t_21cbeab1dcc02c 329-333,335-348,350-355
+  s_3070dced1b3aff::t_83fe77497e1812 349
+  s_3070dced1b3aff::t_6da8e17bfbee3a 328,334,443
+webp-codec-support.md
+  s_3070dced1b3aff::t_43425dc984b273 157-161
+benchmarks.md
+  s_3070dced1b3aff::t_49ed70c72b91a8 208-216,222-223
+  s_3070dced1b3aff::t_43425dc984b273 202-204
+jpeg-codec-support.md
+  s_3070dced1b3aff::t_43425dc984b273 143-144
+benchmark/startup-worker.ts
+  s_3070dced1b3aff::t_adef42acabdca3 48
+README.md
+  s_3070dced1b3aff::t_49ed70c72b91a8 370,372-373
+  s_3070dced1b3aff::t_43425dc984b273 400-402
+benchmark/worker.ts
+  s_3070dced1b3aff::t_adef42acabdca3 78,112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "f5c62ebe22285812a9925662e13a1c91333dbf23",
+  "prompts": {},
+  "sessions": {
+    "s_3070dced1b3aff": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe309-2b37-7a92-b053-803b904cd6ff",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
