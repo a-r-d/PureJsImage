@@ -101,7 +101,19 @@ export const allFixtures = (manifest: CorpusManifest): Fixture[] => [
   ...manifest.generated.map((fixture): Fixture => ({ ...fixture, origin: 'generated' })),
 ]
 
-export const fixturePath = (fixture: Fixture): string => join(corpusFilesDirectory, fixture.file)
+export const fixturePath = (fixture: Fixture): string => {
+  if (
+    fixture.file.length === 0 ||
+    fixture.file === '.' ||
+    fixture.file === '..' ||
+    fixture.file.includes('/') ||
+    fixture.file.includes('\\') ||
+    fixture.file.includes('\0')
+  ) {
+    throw new Error(`Fixture file must be a portable base name: ${fixture.file}`)
+  }
+  return join(corpusFilesDirectory, fixture.file)
+}
 
 export const sha256 = (buffer: Uint8Array): string => {
   return createHash('sha256').update(buffer).digest('hex')

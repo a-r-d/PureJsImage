@@ -1,9 +1,11 @@
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { downloadPinnedFile } from '../lib/pinned-download.ts'
 import { avifCorpusDirectory, avifFixtures } from './corpus.ts'
 
 const checksum = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
+const avifDownloadHosts: ReadonlySet<string> = new Set(['raw.githubusercontent.com'])
 
 await mkdir(avifCorpusDirectory, { recursive: true })
 for (const fixture of avifFixtures) {
@@ -18,17 +20,11 @@ for (const fixture of avifFixtures) {
   }
 
   console.log(`download ${fixture.file}`)
-  const response = await fetch(fixture.url, { redirect: 'follow' })
-  if (!response.ok) throw new Error(`Failed to download ${fixture.file}: HTTP ${response.status}`)
-  const data = new Uint8Array(await response.arrayBuffer())
-  const actual = checksum(data)
-  if (actual !== fixture.expected.sha256) {
-    throw new Error(
-      `${fixture.file} checksum mismatch: expected ${fixture.expected.sha256}, got ${actual}`,
-    )
-  }
-  const temporary = `${path}.download`
-  await writeFile(temporary, data)
-  await rm(path, { force: true })
-  await rename(temporary, path)
+  await downloadPinnedFile({
+    allowedDirectory: avifCorpusDirectory,
+    allowedHosts: avifDownloadHosts,
+    destination: path,
+    expectedSha256: fixture.expected.sha256,
+    url: fixture.url,
+  })
 }

@@ -1,5 +1,5 @@
 import { once } from 'node:events'
-import { mkdir, open, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdir, open, rm, writeFile } from 'node:fs/promises'
 import { basename } from 'node:path'
 import { createDeflate } from 'node:zlib'
 import { GifWriter } from 'omggif'
@@ -12,11 +12,23 @@ import {
   readManifest,
   verifyInspection,
 } from '../lib/corpus.ts'
+import { downloadPinnedFile } from '../lib/pinned-download.ts'
 import type { Fixture, GeneratedFixture, SourceFixture } from '../types.ts'
 
 type GeneratedCorpusFixture = GeneratedFixture & { origin: 'generated' }
 type SourceCorpusFixture = SourceFixture & { origin: 'download' }
 type Pixel = readonly [red: number, green: number, blue: number, alpha: number]
+
+const corpusDownloadHosts: ReadonlySet<string> = new Set([
+  'd9-wret.s3.us-west-2.amazonaws.com',
+  'entropymine.com',
+  'gitlab.com',
+  'heic.digital',
+  'live.staticflickr.com',
+  'raw.githubusercontent.com',
+  'upload.wikimedia.org',
+  'www.gstatic.com',
+])
 
 const writeRgbaPng = async ({
   fixture,
@@ -474,13 +486,13 @@ const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
 
 const download = async (fixture: SourceCorpusFixture): Promise<void> => {
   const destination = fixturePath(fixture)
-  const temporary = `${destination}.download`
-  const response = await fetch(fixture.url, { redirect: 'follow' })
-  if (!response.ok) {
-    throw new Error(`Failed to download ${fixture.id}: HTTP ${response.status}`)
-  }
-  await writeFile(temporary, Buffer.from(await response.arrayBuffer()))
-  await rename(temporary, destination)
+  await downloadPinnedFile({
+    allowedDirectory: corpusFilesDirectory,
+    allowedHosts: corpusDownloadHosts,
+    destination,
+    expectedSha256: fixture.expected.sha256,
+    url: fixture.url,
+  })
 }
 
 const isValid = async (fixture: Fixture): Promise<boolean> => {
@@ -502,12 +514,12 @@ for (const fixture of allFixtures(manifest)) {
     continue
   }
 
-  await rm(fixturePath(fixture), { force: true })
   if (fixture.origin === 'download') {
     console.log(`download ${fixture.id}`)
     await download(fixture)
   } else {
     console.log(`generate ${fixture.id}`)
+    await rm(fixturePath(fixture), { force: true })
     await generate(fixture)
   }
 
