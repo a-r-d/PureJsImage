@@ -1,12 +1,12 @@
-import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
+import { describe, expect, it } from 'vitest'
 
 import { allCodecs } from '../src/codec-entries/all.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
 import { heifCodec } from '../src/codec-entries/heif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
-import { CodecRegistry, createImageLibrary, MemorySource, type ImageSource } from '../src/index.ts'
+import { CodecRegistry, createImageLibrary, type ImageSource, MemorySource } from '../src/index.ts'
 import { jpegFixture } from './fixtures.ts'
 
 const pngFixture = (): Uint8Array => PNG.sync.write(new PNG({ width: 4, height: 3 }))
@@ -55,7 +55,6 @@ describe('configured image library', () => {
       ascii('<?xml version="1.0"?>\n<!-- exported -->\n<svg xmlns="http://www.w3.org/2000/svg">'),
     ],
     ['PDF', ascii('%PDF-1.7\n')],
-    ['ICO', Uint8Array.of(0, 0, 1, 0, 1, 0, 16, 16)],
     ['JPEG XL codestream', Uint8Array.of(0xff, 0x0a, 0, 0)],
     [
       'JPEG XL container',
@@ -65,7 +64,6 @@ describe('configured image library', () => {
       'JPEG 2000 container',
       Uint8Array.of(0, 0, 0, 12, 0x6a, 0x50, 0x20, 0x20, 0x0d, 0x0a, 0x87, 0x0a),
     ],
-    ['BigTIFF', Uint8Array.of(0x49, 0x49, 0x2b, 0, 8, 0, 0, 0, 16, 0, 0, 0)],
   ] as const)('names recognized but unimplemented %s input', async (name, input) => {
     await expect(createImageLibrary(allCodecs).open(input)).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
@@ -102,7 +100,7 @@ describe('configured image library', () => {
   it('provides one opt-in helper containing every codec exactly once', () => {
     const formats = createImageLibrary(allCodecs).formats()
 
-    expect(formats).toEqual(['jpeg', 'png', 'gif', 'webp', 'avif', 'heif', 'bmp', 'tiff'])
+    expect(formats).toEqual(['jpeg', 'png', 'gif', 'webp', 'avif', 'heif', 'bmp', 'ico', 'tiff'])
     expect(new Set(formats).size).toBe(formats.length)
   })
 

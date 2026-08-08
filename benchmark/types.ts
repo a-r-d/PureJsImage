@@ -1,7 +1,15 @@
-export type ImageFormat = 'bmp' | 'gif' | 'heic' | 'heif' | 'jpeg' | 'png' | 'tiff' | 'webp'
+export type ImageFormat = 'bmp' | 'gif' | 'heic' | 'heif' | 'ico' | 'jpeg' | 'png' | 'tiff' | 'webp'
 export type OutputFormat = 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp'
 export type BenchmarkColor = '#ffffff' | 'transparent'
-export type BenchmarkProfile = 'bmp' | 'full' | 'heif' | 'smoke' | 'standard' | 'tiff' | 'webp'
+export type BenchmarkProfile =
+  | 'bmp'
+  | 'full'
+  | 'heif'
+  | 'ico'
+  | 'smoke'
+  | 'standard'
+  | 'tiff'
+  | 'webp'
 
 export interface FixtureExpectation {
   format: ImageFormat
@@ -27,6 +35,9 @@ export interface SourceFixture extends FixtureBase {
 
 export type FixtureGenerator =
   | 'bmp-gradient'
+  | 'ico-dib24'
+  | 'ico-dib32'
+  | 'ico-mixed'
   | 'odd-rgba'
   | 'rgba-gradient'
   | 'seeded-noise'

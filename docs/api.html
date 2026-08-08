@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PureJsImage API reference: libraries, immutable image pipelines, resize and encode options, sources, limits, and errors.">
+  <meta name="theme-color" content="#f6f7f2">
+  <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/api.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>API reference — PureJsImage</title>
+  <script>document.documentElement.dataset.theme=localStorage.getItem('purejsimage-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="PureJsImage home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a>
+    <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="guides.html">Guides</a><a href="api.html" aria-current="page">API</a><a href="codecs.html">Codecs</a><a href="performance.html">Performance</a></nav>
+    <div class="header-actions"><button class="icon-button" type="button" data-theme-toggle aria-label="Use dark theme"></button><a class="button secondary small github-header" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><button class="icon-button menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button></div>
+  </div></header>
+
+  <main id="main">
+    <header class="page-hero"><div class="container"><p class="eyebrow">API reference</p><h1>Small surface.<br>Explicit behavior.</h1><p class="page-lede">The public API for codec registration, lazy transforms, sources, sinks, limits, and typed failures.</p><div class="page-meta"><span class="pill">Current main</span><span class="pill">TypeScript declarations included</span></div></div></header>
+    <div class="container docs-layout">
+      <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="guides.html">Getting started</a><a href="guides.html#recipes">Recipes</a></div><div class="nav-group"><strong>Reference</strong><a href="api.html" aria-current="page">API reference</a><a href="codecs.html">Codec support</a><a href="performance.html">Performance</a></div></aside>
+      <article class="content">
+        <div class="doc-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/></svg><input type="search" data-doc-search placeholder="Filter methods, options, and types…" aria-label="Filter API reference"></div>
+
+        <section id="library" data-search-item>
+          <h2>ImageLibrary</h2>
+          <p>Create a frozen library with the codec implementations your application accepts. Registration order is preserved in <code>formats()</code>; duplicate format names are rejected.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">Signature</span></div><pre><code><span class="tok-key">function</span> <span class="tok-method">createImageLibrary</span>(codecs: Iterable&lt;ImageCodec&gt;): ImageLibrary
+
+<span class="tok-key">interface</span> ImageLibrary {
+  <span class="tok-method">formats</span>(): readonly string[]
+  <span class="tok-method">open</span>(input: ImageInput, options?: ImageOpenOptions): Promise&lt;Image&gt;
+}</code></pre></div>
+          <div class="api-list">
+            <article class="api-item" data-search-item><h3>formats()</h3><p>Returns the format names registered in this library.</p><span class="returns">returns readonly string[]</span></article>
+            <article class="api-item" data-search-item><h3>open(input, options?)</h3><p>Creates a source, enforces the input-byte limit, probes registered codecs, and returns a lazy image pipeline.</p><span class="returns">returns Promise&lt;Image&gt;</span></article>
+          </div>
+          <h3>Codec imports</h3>
+          <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Named export</th></tr></thead><tbody>
+            <tr><td><code>purejsimage/codecs/jpeg</code></td><td><code>jpegCodec</code></td></tr>
+            <tr><td><code>purejsimage/codecs/png</code></td><td><code>pngCodec</code></td></tr>
+            <tr><td><code>purejsimage/codecs/gif</code></td><td><code>gifCodec</code></td></tr>
+            <tr><td><code>purejsimage/codecs/ico</code></td><td><code>icoCodec</code></td></tr>
+            <tr><td><code>purejsimage/codecs/webp</code></td><td><code>webpCodec</code></td></tr>
+            <tr><td><code>purejsimage/codecs/bmp</code></td><td><code>bmpCodec</code></td></tr>
+            <tr><td><code>purejsimage/codecs/tiff</code></td><td><code>tiffCodec</code></td></tr>
+            <tr><td><code>purejsimage/codecs/avif</code></td><td><code>avifCodec</code></td></tr>
+            <tr><td><code>purejsimage/codecs/heif</code></td><td><code>heifCodec</code>, <code>heicCodec</code></td></tr>
+            <tr><td><code>purejsimage/codecs/all</code></td><td><code>allCodecs</code></td></tr>
+          </tbody></table></div>
+        </section>
+
+        <section id="image" data-search-item>
+          <h2>Image</h2>
+          <p>Every transform returns a new immutable <code>Image</code> sharing the same input context. No pixel work occurs until an output method is called.</p>
+          <div class="api-list">
+            <article class="api-item" data-search-item><h3>metadata()</h3><p>Reads source metadata and applies planned transforms to width, height, format, alpha, and orientation fields without executing the pixel pipeline.</p><span class="returns">returns Promise&lt;ImageMetadata&gt;</span></article>
+            <article class="api-item" data-search-item><h3>autoOrient()</h3><p>Applies EXIF orientations 1–8 when present. Orientations that reorder rows use bounded-memory temporary tile storage.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>crop(options)</h3><p>Crops to an integer rectangle. <code>x</code> and <code>y</code> may be zero; width and height must be positive. Out-of-bounds crops fail.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>resize(options)</h3><p>Resizes by one dimension or two. Supports contain, cover, fill, inside, and outside fits with nearest, bilinear, or Lanczos 3 sampling.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>jpeg(options?)</h3><p>Appends JPEG output. Quality is 1–100; background accepts transparent, #RRGGBB, or #RRGGBBAA; chroma subsampling is 420, 422, or 444.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>png(options?)</h3><p>Appends 8-bit PNG output. Compression level is an integer from 0–9.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>webp(options?)</h3><p>Appends static lossy or lossless WebP output. Lossy quality is 1–100.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>bmp(options?)</h3><p>Appends BMP output. The alpha option selects 32-bit RGBA or 24-bit RGB output.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>tiff(options?)</h3><p>Appends TIFF output. The current encoder supports uncompressed output only.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>encode(format, options?)</h3><p>Generic equivalent to the format-specific encoder methods for <code>jpeg</code>, <code>png</code>, <code>webp</code>, <code>bmp</code>, and <code>tiff</code>.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>toBuffer()</h3><p>Executes the pipeline and collects encoded chunks into a Node.js <code>Buffer</code>.</p><span class="returns">returns Promise&lt;Buffer&gt;</span></article>
+            <article class="api-item" data-search-item><h3>toFile(path)</h3><p>Executes into a file sink. If encoding fails, the partial output file is removed.</p><span class="returns">returns Promise&lt;void&gt;</span></article>
+          </div>
+          <div class="callout warning"><strong>Progressive output.</strong> <code>JpegEncodeOptions</code> reserves a <code>progressive</code> field, but progressive JPEG encoding is not implemented in the current codec. Progressive JPEG decoding is supported.</div>
+        </section>
+
+        <section id="options" data-search-item>
+          <h2>Operation options</h2>
+          <h3>CropOptions</h3>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">interface</span> CropOptions {
+  x: number
+  y: number
+  width: number
+  height: number
+}</code></pre></div>
+          <h3>ResizeOptions</h3>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">type</span> ResizeFit = <span class="tok-string">'contain'</span> | <span class="tok-string">'cover'</span> | <span class="tok-string">'fill'</span> | <span class="tok-string">'inside'</span> | <span class="tok-string">'outside'</span>
+<span class="tok-key">type</span> ResizeKernel = <span class="tok-string">'nearest'</span> | <span class="tok-string">'bilinear'</span> | <span class="tok-string">'lanczos3'</span>
+<span class="tok-key">type</span> Background = <span class="tok-string">'transparent'</span> | `#${string}`
+
+<span class="tok-key">type</span> ResizeOptions = {
+  width?: number
+  height?: number
+  fit?: ResizeFit
+  position?: <span class="tok-string">'center'</span>
+  background?: Background
+  withoutEnlargement?: boolean
+  kernel?: ResizeKernel
+} <span class="tok-comment">// width or height is required</span></code></pre></div>
+          <div class="table-wrap"><table><thead><tr><th>Option</th><th>Default</th><th>Notes</th></tr></thead><tbody>
+            <tr><td><code>fit</code></td><td><code>cover</code> with two dimensions</td><td>Fit, position, and background require both width and height.</td></tr>
+            <tr><td><code>position</code></td><td><code>center</code></td><td>Currently center only; valid with contain.</td></tr>
+            <tr><td><code>background</code></td><td>transparent</td><td>Valid with contain. Accepts six- or eight-digit hex.</td></tr>
+            <tr><td><code>kernel</code></td><td><code>bilinear</code></td><td>Nearest, bilinear, or lanczos3.</td></tr>
+            <tr><td><code>withoutEnlargement</code></td><td><code>false</code></td><td>Caps the scale at 1 where the fit permits it.</td></tr>
+          </tbody></table></div>
+          <h3>Encoder options</h3>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">interface</span> JpegEncodeOptions {
+  quality?: number                <span class="tok-comment">// 1–100</span>
+  progressive?: boolean          <span class="tok-comment">// reserved; true is not implemented</span>
+  background?: Background
+  chromaSubsampling?: <span class="tok-string">'420'</span> | <span class="tok-string">'422'</span> | <span class="tok-string">'444'</span>
+}
+
+<span class="tok-key">interface</span> PngEncodeOptions { compressionLevel?: number } <span class="tok-comment">// 0–9</span>
+<span class="tok-key">interface</span> WebpEncodeOptions { lossless?: boolean; quality?: number }
+<span class="tok-key">interface</span> BmpEncodeOptions { alpha?: boolean }
+<span class="tok-key">interface</span> TiffEncodeOptions { compression?: <span class="tok-string">'none'</span> }</code></pre></div>
+        </section>
+
+        <section id="metadata" data-search-item>
+          <h2>ImageMetadata</h2>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">interface</span> ImageMetadata {
+  width: number
+  height: number
+  format: string
+  mimeType: string
+  hasAlpha: boolean
+  orientation?: number
+  colorSpace?: string
+  bitDepth?: number
+  chromaSubsampling?: <span class="tok-string">'400'</span> | <span class="tok-string">'420'</span> | <span class="tok-string">'422'</span> | <span class="tok-string">'444'</span>
+  codecProfile?: number
+  frames?: number
+}</code></pre></div>
+          <p>Optional fields depend on what the container and registered codec can determine safely. Animated formats may report frame counts even when the current pixel decoder handles only a still subset.</p>
+        </section>
+
+        <section id="sources" data-search-item>
+          <h2>Inputs &amp; sources</h2>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">type</span> ImageInput = ArrayBuffer | Blob | ImageSource | Uint8Array | string
+
+<span class="tok-key">interface</span> ImageSource {
+  readonly size: number
+  <span class="tok-method">read</span>(offset: number, length: number): Promise&lt;Uint8Array&gt;
+}</code></pre></div>
+          <div class="api-list">
+            <article class="api-item" data-search-item><h3>MemorySource</h3><p>Zero-copy reads over an ArrayBuffer or Uint8Array.</p></article>
+            <article class="api-item" data-search-item><h3>BlobSource</h3><p>Range reads through <code>Blob.slice()</code>.</p></article>
+            <article class="api-item" data-search-item><h3>FileSource</h3><p>Use <code>await FileSource.open(path)</code> to build a file-backed source explicitly.</p></article>
+          </div>
+          <p>Custom <code>read()</code> implementations may reuse or invalidate returned bytes when the next read begins. Consumers copy only data that must survive across reads.</p>
+        </section>
+
+        <section id="limits" data-search-item>
+          <h2>Safety limits</h2>
+          <p>Pass a partial limits object to <code>open()</code>. Every provided value must be a positive safe integer.</p>
+          <div class="table-wrap"><table><thead><tr><th>Limit</th><th>Default</th><th>Enforcement</th></tr></thead><tbody>
+            <tr><td><code>maxWidth</code></td><td>100,000</td><td>Declared and transformed width</td></tr>
+            <tr><td><code>maxHeight</code></td><td>100,000</td><td>Declared and transformed height</td></tr>
+            <tr><td><code>maxPixels</code></td><td>268,435,456</td><td>Width × height using overflow-safe arithmetic</td></tr>
+            <tr><td><code>maxInputBytes</code></td><td>134,217,728 (128 MiB)</td><td>Before source contents are read</td></tr>
+            <tr><td><code>maxFrames</code></td><td>1,000</td><td>Declared frame count</td></tr>
+            <tr><td><code>maxDecodedBytes</code></td><td>1,073,741,824 (1 GiB)</td><td>Worst-case dimensions and streaming expansion</td></tr>
+          </tbody></table></div>
+          <div class="callout"><strong>Set product limits.</strong> The defaults are general guardrails, not a recommendation that every service accept 100,000-pixel dimensions or 128 MiB uploads.</div>
+        </section>
+
+        <section id="errors" data-search-item>
+          <h2>ImageError</h2>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">type</span> ImageErrorCode =
+  | <span class="tok-string">'INVALID_INPUT'</span>
+  | <span class="tok-string">'LIMIT_EXCEEDED'</span>
+  | <span class="tok-string">'TRUNCATED_INPUT'</span>
+  | <span class="tok-string">'UNSUPPORTED_FORMAT'</span>
+  | <span class="tok-string">'UNSUPPORTED_OPERATION'</span></code></pre></div>
+          <div class="table-wrap"><table><thead><tr><th>Code</th><th>Meaning</th></tr></thead><tbody>
+            <tr><td><code>INVALID_INPUT</code></td><td>Malformed image structure, invalid options, dimensions, or source contract.</td></tr>
+            <tr><td><code>LIMIT_EXCEEDED</code></td><td>A configured input, dimension, frame, decoded-byte, or temporary-storage budget was exceeded.</td></tr>
+            <tr><td><code>TRUNCATED_INPUT</code></td><td>The source ended before the codec could read required bytes or pixels.</td></tr>
+            <tr><td><code>UNSUPPORTED_FORMAT</code></td><td>The format is unknown or its codec was not registered.</td></tr>
+            <tr><td><code>UNSUPPORTED_OPERATION</code></td><td>The format is recognized, but the requested coding feature, decode subset, or encoder is not implemented.</td></tr>
+          </tbody></table></div>
+        </section>
+
+        <section id="advanced" data-search-item>
+          <h2>Advanced contracts</h2>
+          <p>The root entry also exports the primitives used to author custom codecs and sinks: <code>ImageCodec</code>, <code>ImageDecoder</code>, <code>ImageEncoder</code>, <code>CodecRegistry</code>, <code>ImageSink</code>, <code>BufferSink</code>, <code>FileSink</code>, <code>PixelBlock</code>, <code>PixelFormat</code>, and <code>BufferPool</code>.</p>
+          <p>These interfaces are useful for first-party extensions and controlled integrations. A decoder yields ordered pixel blocks; an encoder consumes them and writes encoded chunks to a sink. Preserve the release callback and source-buffer lifetime contracts when implementing either side.</p>
+          <p><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/src/index.ts" target="_blank" rel="noreferrer">View public exports on GitHub →</a></p>
+        </section>
+        <div class="empty-search" data-search-empty>No API entries match that filter.</div>
+      </article>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#library">ImageLibrary</a><a href="#image">Image</a><a href="#options">Operation options</a><a href="#metadata">ImageMetadata</a><a href="#sources">Inputs &amp; sources</a><a href="#limits">Safety limits</a><a href="#errors">ImageError</a><a href="#advanced">Advanced contracts</a></aside>
+    </div>
+  </main>
+
+  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>Fast, low-memory image processing in pure TypeScript.</p></div><div class="footer-column"><strong>Docs</strong><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md">Changelog</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© <span data-year></span> PureJsImage contributors.</span><span>API snapshot: current main</span></div></div></footer>
+  <script src="site.js" defer></script>
+</body>
+</html>

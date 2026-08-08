@@ -1,4 +1,5 @@
 import { deflateSync } from 'node:zlib'
+import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
@@ -22,15 +23,24 @@ interface TiffFixtureOptions {
   readonly compression: number
   readonly photometric: number
   readonly strips: readonly Uint8Array[]
+  readonly tileWidth?: number
+  readonly tileHeight?: number
   readonly rowsPerStrip?: number
   readonly fillOrder?: 1 | 2
   readonly planarConfiguration?: 1 | 2
   readonly predictor?: 1 | 2
   readonly t6Options?: number
+  readonly t4Options?: number
   readonly extraSamples?: readonly number[]
   readonly colorMap?: readonly number[]
   readonly orientation?: number
   readonly iccProfile?: Uint8Array
+  readonly jpegInterchange?: Uint8Array
+  readonly extraEntries?: readonly TiffEntryFixture[]
+  readonly pointedEntries?: readonly {
+    readonly tag: number
+    readonly tables: readonly Uint8Array[]
+  }[]
 }
 
 const typeBytes = (type: TiffFieldType): number => (type === 3 ? 2 : type === 4 ? 4 : 1)
@@ -39,7 +49,15 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
   const littleEndian = options.littleEndian ?? true
   const samples = options.bitsPerSample.length
   const rowsPerStrip = options.rowsPerStrip ?? options.height
-  const entries = (stripOffsets: readonly number[]): TiffEntryFixture[] => {
+  const tiled = options.tileWidth !== undefined || options.tileHeight !== undefined
+  if (tiled && (options.tileWidth === undefined || options.tileHeight === undefined)) {
+    throw new Error('Both tile dimensions are required')
+  }
+  const entries = (
+    stripOffsets: readonly number[],
+    jpegInterchangeOffset: number,
+    pointedOffsets: ReadonlyMap<number, readonly number[]>,
+  ): TiffEntryFixture[] => {
     const values: TiffEntryFixture[] = [
       { tag: 256, type: 4, values: [options.width] },
       { tag: 257, type: 4, values: [options.height] },
@@ -47,45 +65,100 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
       { tag: 259, type: 3, values: [options.compression] },
       { tag: 262, type: 3, values: [options.photometric] },
       ...(options.fillOrder ? [{ tag: 266, type: 3 as const, values: [options.fillOrder] }] : []),
-      { tag: 273, type: 4, values: stripOffsets },
+      ...(tiled || options.strips.length === 0
+        ? []
+        : [{ tag: 273, type: 4 as const, values: stripOffsets }]),
       ...(options.orientation
         ? [{ tag: 274, type: 3 as const, values: [options.orientation] }]
         : []),
       { tag: 277, type: 3, values: [samples] },
-      { tag: 278, type: 4, values: [rowsPerStrip] },
-      { tag: 279, type: 4, values: options.strips.map((strip) => strip.byteLength) },
+      ...(tiled || options.strips.length === 0
+        ? []
+        : [{ tag: 278, type: 4 as const, values: [rowsPerStrip] }]),
+      ...(tiled || options.strips.length === 0
+        ? []
+        : [
+            {
+              tag: 279,
+              type: 4 as const,
+              values: options.strips.map((strip) => strip.byteLength),
+            },
+          ]),
       { tag: 284, type: 3, values: [options.planarConfiguration ?? 1] },
+      ...(options.jpegInterchange
+        ? [
+            { tag: 513, type: 4 as const, values: [jpegInterchangeOffset] },
+            { tag: 514, type: 4 as const, values: [options.jpegInterchange.byteLength] },
+          ]
+        : []),
+      ...(options.t4Options === undefined
+        ? []
+        : [{ tag: 292, type: 4 as const, values: [options.t4Options] }]),
       ...(options.t6Options === undefined
         ? []
         : [{ tag: 293, type: 4 as const, values: [options.t6Options] }]),
       ...(options.predictor ? [{ tag: 317, type: 3 as const, values: [options.predictor] }] : []),
       ...(options.colorMap ? [{ tag: 320, type: 3 as const, values: options.colorMap }] : []),
+      ...(tiled
+        ? [
+            { tag: 322, type: 4 as const, values: [options.tileWidth ?? 0] },
+            { tag: 323, type: 4 as const, values: [options.tileHeight ?? 0] },
+            { tag: 324, type: 4 as const, values: stripOffsets },
+            {
+              tag: 325,
+              type: 4 as const,
+              values: options.strips.map((strip) => strip.byteLength),
+            },
+          ]
+        : []),
       ...(options.extraSamples
         ? [{ tag: 338, type: 3 as const, values: options.extraSamples }]
         : []),
       ...(options.iccProfile
         ? [{ tag: 34675, type: 7 as const, values: Array.from(options.iccProfile) }]
         : []),
+      ...(options.extraEntries ?? []),
+      ...(options.pointedEntries ?? []).map((entry) => ({
+        tag: entry.tag,
+        type: 4 as const,
+        values: pointedOffsets.get(entry.tag) ?? entry.tables.map(() => 0),
+      })),
     ]
     return values.sort((left, right) => left.tag - right.tag)
   }
 
-  const placeholderEntries = entries(options.strips.map(() => 0))
+  const placeholderEntries = entries(
+    options.strips.map(() => 0),
+    0,
+    new Map(),
+  )
   const ifdBytes = 2 + placeholderEntries.length * 12 + 4
   const externalBytes = placeholderEntries.reduce((total, entry) => {
     const bytes = entry.values.length * typeBytes(entry.type)
     return total + (bytes > 4 ? bytes : 0)
   }, 0)
-  const pixelOffset = 8 + ifdBytes + externalBytes
+  let pointedDataOffset = 8 + ifdBytes + externalBytes
+  const pointedOffsets = new Map<number, readonly number[]>()
+  for (const entry of options.pointedEntries ?? []) {
+    const offsets: number[] = []
+    for (const table of entry.tables) {
+      offsets.push(pointedDataOffset)
+      pointedDataOffset += table.byteLength
+    }
+    pointedOffsets.set(entry.tag, offsets)
+  }
+  const pixelOffset = pointedDataOffset
   const stripOffsets: number[] = []
   let nextStripOffset = pixelOffset
   for (const strip of options.strips) {
     stripOffsets.push(nextStripOffset)
     nextStripOffset += strip.byteLength
   }
+  const jpegInterchangeOffset = nextStripOffset
+  const outputBytes = nextStripOffset + (options.jpegInterchange?.byteLength ?? 0)
 
-  const finalEntries = entries(stripOffsets)
-  const output = new Uint8Array(nextStripOffset)
+  const finalEntries = entries(stripOffsets, jpegInterchangeOffset, pointedOffsets)
+  const output = new Uint8Array(outputBytes)
   const view = new DataView(output.buffer)
   output.set(littleEndian ? [0x49, 0x49] : [0x4d, 0x4d])
   view.setUint16(2, 42, littleEndian)
@@ -115,10 +188,183 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
     }
   }
   view.setUint32(10 + finalEntries.length * 12, 0, littleEndian)
+  for (const entry of options.pointedEntries ?? []) {
+    const offsets = pointedOffsets.get(entry.tag) ?? []
+    for (let index = 0; index < entry.tables.length; index += 1) {
+      output.set(entry.tables[index] ?? new Uint8Array(), offsets[index] ?? 0)
+    }
+  }
   for (let index = 0; index < options.strips.length; index += 1) {
     output.set(options.strips[index] ?? new Uint8Array(), stripOffsets[index] ?? 0)
   }
+  if (options.jpegInterchange) output.set(options.jpegInterchange, jpegInterchangeOffset)
   return output
+}
+
+const bigTiffRgbFixture = (): Uint8Array<ArrayBuffer> => {
+  const entries = [
+    [256, 4, 1, 2],
+    [257, 4, 1, 1],
+    [258, 3, 3, 0x0008_0008_0008],
+    [259, 3, 1, 1],
+    [262, 3, 1, 2],
+    [273, 16, 1, 0],
+    [277, 3, 1, 3],
+    [278, 4, 1, 1],
+    [279, 16, 1, 6],
+    [284, 3, 1, 1],
+  ] as const
+  const pixelOffset = 16 + 8 + entries.length * 20 + 8
+  const output = new Uint8Array(pixelOffset + 6)
+  const view = new DataView(output.buffer)
+  output.set([0x49, 0x49, 0x2b, 0])
+  view.setUint16(4, 8, true)
+  view.setBigUint64(8, 16n, true)
+  view.setBigUint64(16, BigInt(entries.length), true)
+  for (let index = 0; index < entries.length; index += 1) {
+    const entry = entries[index]
+    if (!entry) continue
+    const offset = 24 + index * 20
+    view.setUint16(offset, entry[0], true)
+    view.setUint16(offset + 2, entry[1], true)
+    view.setBigUint64(offset + 4, BigInt(entry[2]), true)
+    view.setBigUint64(offset + 12, BigInt(entry[0] === 273 ? pixelOffset : entry[3]), true)
+  }
+  output.set([10, 20, 30, 200, 150, 100], pixelOffset)
+  return output
+}
+
+const packedFaxBits = (bits: string): Uint8Array => {
+  const output = new Uint8Array(Math.ceil(bits.length / 8))
+  for (let index = 0; index < bits.length; index += 1) {
+    if (bits[index] === '1') {
+      const byte = index >>> 3
+      output[byte] = (output[byte] ?? 0) | (1 << (7 - (index & 7)))
+    }
+  }
+  return output
+}
+
+const splitJpegTables = (
+  input: Uint8Array,
+): { readonly image: Uint8Array; readonly tables: Uint8Array } => {
+  const image: number[] = [0xff, 0xd8]
+  const tables: number[] = [0xff, 0xd8]
+  let offset = 2
+  while (offset + 4 <= input.byteLength) {
+    const marker = input[offset + 1]
+    if (input[offset] !== 0xff || marker === undefined) throw new Error('Invalid JPEG fixture')
+    if (marker === 0xda) {
+      image.push(...input.subarray(offset))
+      tables.push(0xff, 0xd9)
+      return { image: Uint8Array.from(image), tables: Uint8Array.from(tables) }
+    }
+    const length = ((input[offset + 2] ?? 0) << 8) | (input[offset + 3] ?? 0)
+    const end = offset + length + 2
+    if (length < 2 || end > input.byteLength) throw new Error('Invalid JPEG fixture marker')
+    const target = marker === 0xdb || marker === 0xc4 || marker === 0xdd ? tables : image
+    target.push(...input.subarray(offset, end))
+    offset = end
+  }
+  throw new Error('JPEG fixture has no scan')
+}
+
+interface OldJpegFixtureParts {
+  readonly entropy: Uint8Array
+  readonly quantizationTables: readonly Uint8Array[]
+  readonly dcTables: readonly Uint8Array[]
+  readonly acTables: readonly Uint8Array[]
+  readonly horizontalSubsampling: number
+  readonly verticalSubsampling: number
+}
+
+const oldJpegFixtureParts = (input: Uint8Array): OldJpegFixtureParts => {
+  const quantization = new Map<number, Uint8Array>()
+  const dc = new Map<number, Uint8Array>()
+  const ac = new Map<number, Uint8Array>()
+  const componentIds: number[] = []
+  const tableSelectors: number[] = []
+  const horizontalSampling: number[] = []
+  const verticalSampling: number[] = []
+  const scanSelectors = new Map<number, number>()
+  let entropy: Uint8Array | undefined
+  let offset = 2
+  while (offset + 4 <= input.byteLength) {
+    const marker = input[offset + 1]
+    if (input[offset] !== 0xff || marker === undefined) throw new Error('Invalid JPEG fixture')
+    const length = ((input[offset + 2] ?? 0) << 8) | (input[offset + 3] ?? 0)
+    const start = offset + 4
+    const end = offset + length + 2
+    if (length < 2 || end > input.byteLength) throw new Error('Invalid JPEG fixture marker')
+    if (marker === 0xdb) {
+      let position = start
+      while (position < end) {
+        const selector = input[position] ?? 0xff
+        if (selector >>> 4 !== 0 || position + 65 > end) {
+          throw new Error('Unsupported JPEG fixture quantization table')
+        }
+        quantization.set(selector & 15, input.slice(position + 1, position + 65))
+        position += 65
+      }
+    } else if (marker === 0xc4) {
+      let position = start
+      while (position < end) {
+        const selector = input[position] ?? 0xff
+        let values = 0
+        for (let index = 0; index < 16; index += 1) values += input[position + 1 + index] ?? 0
+        const tableEnd = position + 17 + values
+        if (tableEnd > end) throw new Error('Invalid JPEG fixture Huffman table')
+        const table = input.slice(position + 1, tableEnd)
+        const tables = selector >>> 4 === 0 ? dc : ac
+        tables.set(selector & 15, table)
+        position = tableEnd
+      }
+    } else if (marker === 0xc0) {
+      const count = input[start + 5] ?? 0
+      for (let index = 0; index < count; index += 1) {
+        const component = start + 6 + index * 3
+        componentIds.push(input[component] ?? 0)
+        const sampling = input[component + 1] ?? 0
+        horizontalSampling.push(sampling >>> 4)
+        verticalSampling.push(sampling & 15)
+        tableSelectors.push(input[component + 2] ?? 0)
+      }
+    } else if (marker === 0xda) {
+      const count = input[start] ?? 0
+      for (let index = 0; index < count; index += 1) {
+        scanSelectors.set(input[start + 1 + index * 2] ?? 0, input[start + 2 + index * 2] ?? 0)
+      }
+      const entropyEnd =
+        input[input.byteLength - 2] === 0xff && input[input.byteLength - 1] === 0xd9
+          ? input.byteLength - 2
+          : input.byteLength
+      entropy = input.slice(end, entropyEnd)
+      break
+    }
+    offset = end
+  }
+  if (!entropy || componentIds.length !== 3) throw new Error('Incomplete JPEG fixture')
+  const quantizationTables: Uint8Array[] = []
+  const dcTables: Uint8Array[] = []
+  const acTables: Uint8Array[] = []
+  for (let index = 0; index < componentIds.length; index += 1) {
+    const scan = scanSelectors.get(componentIds[index] ?? 0) ?? 0
+    const quantizationTable = quantization.get(tableSelectors[index] ?? 0)
+    const dcTable = dc.get(scan >>> 4)
+    const acTable = ac.get(scan & 15)
+    if (!quantizationTable || !dcTable || !acTable) throw new Error('JPEG fixture table is missing')
+    quantizationTables.push(quantizationTable)
+    dcTables.push(dcTable)
+    acTables.push(acTable)
+  }
+  return {
+    entropy,
+    quantizationTables,
+    dcTables,
+    acTables,
+    horizontalSubsampling: horizontalSampling[0] ?? 1,
+    verticalSubsampling: verticalSampling[0] ?? 1,
+  }
 }
 
 const packNineBitCodes = (codes: readonly number[]): Uint8Array => {
@@ -334,6 +580,15 @@ describe('TIFF codec', () => {
       predictor: 2,
       strips: [deflateSync(predicted)],
     })
+    const deflateLastStripPadding = tiffFixture({
+      width: 1,
+      height: 3,
+      bitsPerSample: [8],
+      compression: 8,
+      photometric: 1,
+      rowsPerStrip: 2,
+      strips: [deflateSync(Uint8Array.of(1, 2)), deflateSync(Uint8Array.of(3, 99))],
+    })
 
     const lzwPixels = await decodedPng(lzw)
     expect(pixel(lzwPixels, 0, 0)).toEqual([10, 10, 10, 255])
@@ -342,6 +597,289 @@ describe('TIFF codec', () => {
     expect(pixel(deflatePixels, 0, 0)).toEqual([10, 10, 10, 255])
     expect(pixel(deflatePixels, 1, 0)).toEqual([20, 20, 20, 255])
     expect(pixel(deflatePixels, 2, 0)).toEqual([35, 35, 35, 255])
+    const paddedPixels = await decodedPng(deflateLastStripPadding)
+    expect(pixel(paddedPixels, 0, 2)).toEqual([3, 3, 3, 255])
+  })
+
+  it('decodes padded tiles and crops edge tiles to the image dimensions', async () => {
+    const input = tiffFixture({
+      width: 3,
+      height: 3,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 2,
+      tileWidth: 2,
+      tileHeight: 2,
+      strips: [
+        Uint8Array.from([255, 0, 0, 0, 255, 0, 255, 255, 0, 0, 255, 255]),
+        Uint8Array.from([0, 0, 255, 1, 2, 3, 255, 0, 255, 4, 5, 6]),
+        Uint8Array.from([255, 255, 255, 0, 0, 0, 7, 8, 9, 10, 11, 12]),
+        Uint8Array.from([127, 127, 127, 13, 14, 15, 16, 17, 18, 19, 20, 21]),
+      ],
+    })
+    const decoded = await decodedPng(input)
+
+    expect(pixel(decoded, 0, 0)).toEqual([255, 0, 0, 255])
+    expect(pixel(decoded, 2, 0)).toEqual([0, 0, 255, 255])
+    expect(pixel(decoded, 1, 1)).toEqual([0, 255, 255, 255])
+    expect(pixel(decoded, 0, 2)).toEqual([255, 255, 255, 255])
+    expect(pixel(decoded, 2, 2)).toEqual([127, 127, 127, 255])
+  })
+
+  it('decodes 16-bit RGB in both byte orders and BigTIFF 64-bit offsets', async () => {
+    const rgb16 = tiffFixture({
+      width: 2,
+      height: 1,
+      littleEndian: false,
+      bitsPerSample: [16, 16, 16],
+      compression: 1,
+      photometric: 2,
+      strips: [Uint8Array.from([0, 0, 0x80, 0, 0xff, 0xff, 0xff, 0xff, 0, 0, 1, 1])],
+    })
+    const decoded16 = await decodedPng(rgb16)
+    const bigTiff = await decodedPng(bigTiffRgbFixture())
+
+    expect(pixel(decoded16, 0, 0)).toEqual([0, 128, 255, 255])
+    expect(pixel(decoded16, 1, 0)).toEqual([255, 0, 1, 255])
+    expect(pixel(bigTiff, 0, 0)).toEqual([10, 20, 30, 255])
+    expect(pixel(bigTiff, 1, 0)).toEqual([200, 150, 100, 255])
+  })
+
+  it('decodes independently encoded tiled LZW and BigTIFF files', async () => {
+    // ImageMagick 7.1.2/libtiff 4.7 encoded both fixtures; TIFF64 emits BigTIFF.
+    const bigTiff = Buffer.from(
+      'SUkrAAgAAAAeAAAAAAAAAIAFBQPABBYNAoJBoLAQEAAAAAAAAAAAAQMAAQAAAAAAAAADAAAAAAAAAAEBAwABAAAAAAAAAAIAAAAAAAAAAgEDAAMAAAAAAAAACAAIAAgAAAADAQMAAQAAAAAAAAAFAAAAAAAAAAYBAwABAAAAAAAAAAIAAAAAAAAACgEDAAEAAAAAAAAAAQAAAAAAAAARARAAAQAAAAAAAAAQAAAAAAAAABIBAwABAAAAAAAAAAEAAAAAAAAAFQEDAAEAAAAAAAAAAwAAAAAAAAAWAQMAAQAAAAAAAAACAAAAAAAAABcBEAABAAAAAAAAAA4AAAAAAAAAHAEDAAEAAAAAAAAAAQAAAAAAAAApAQMAAgAAAAAAAAAAAAEAAAAAAD0BAwABAAAAAAAAAAIAAAAAAAAAPgEFAAIAAAAAAAAAngEAAAAAAAA/AQUABgAAAAAAAABuAQAAAAAAAAAAAAAAAAAAhetRAAAAgADD9agAAAAAAs3MTAAAAAABzcxMAAAAgADNzEwAAAAAAo/C9QAAAAAQNxqgAAAAAAIrhwoAAAAgAA==',
+      'base64',
+    )
+    const tiled = Buffer.from(
+      'SUkqAFIBAACABMrpsAQWDQeCu0Uqo0FMkAkWnMfkU0COHxE3xR5xc5p8jGhhkeIHNAJA3QiUABAPB6w0VSMXx8ZyKIl+PgOaHNHkc0NMjSN3MohSmEBJjAU0EOfxEnzwJ0s5n+eOOoK8kGhZkWRlCroOtREH1cp1+JVcR2Q31d52RPkmQESRs+3JO4RE4W4x3U5i+3DO9F+3AO9I8lT0hyNf4VR4eIu/CnPGHNIFmkjSRk/KBPLRE/5Rx5s5q8tVgZyNv6NB6WwaMp6o5rDRiPXG/RvPXJ8tyAZXHcpPdxEP4Uh5En4UJ5F4YVx5FXkusEKRv/cmPfnNv85B9CIo+id3vQcqFIpgBWqxVgBgkpsn9GoFgipT9/5fP6fX6eHx+XziEltkPkY9z4PtAcCQK7r8PI8wAEC/pfwA974wNCUJvrBD9AAcL+i/B8BQpDz6oCARAAABAwABAAAABQAAAAEBAwABAAAAAwAAAAIBAwADAAAAJAIAAAMBAwABAAAABQAAAAYBAwABAAAAAgAAAAoBAwABAAAAAQAAABIBAwABAAAAAQAAABUBAwABAAAAAwAAABwBAwABAAAAAQAAACkBAwACAAAAAAABAD0BAwABAAAAAgAAAD4BBQACAAAAWgIAAD8BBQAGAAAAKgIAAEIBAwABAAAAEAAAAEMBAwABAAAAEAAAAEQBBAABAAAACAAAAEUBBAABAAAASgEAAAAAAAAIAAgACACF61EAAACAAMP1qAAAAAACzcxMAAAAAAHNzEwAAACAAM3MTAAAAAACj8L1AAAAABA3GqAAAAAAAiuHCgAAACAA',
+      'base64',
+    )
+    const bigPixels = await decodedPng(bigTiff)
+    const tilePixels = await decodedPng(tiled)
+
+    expect(pixel(bigPixels, 2, 1)).toEqual([20, 40, 60, 255])
+    expect(pixel(tilePixels, 0, 0)).toEqual([19, 87, 155, 255])
+    expect(pixel(tilePixels, 2, 1)).toEqual([128, 144, 110, 255])
+    expect(pixel(tilePixels, 4, 2)).toEqual([238, 202, 66, 255])
+  })
+
+  it('converts CMYK and subsampled YCbCr samples to RGB', async () => {
+    const cmyk = tiffFixture({
+      width: 4,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 1,
+      photometric: 5,
+      strips: [Uint8Array.from([0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 255, 128, 64, 0, 128])],
+    })
+    const ycbcr = tiffFixture({
+      width: 3,
+      height: 1,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 6,
+      extraEntries: [{ tag: 530, type: 3, values: [2, 2] }],
+      strips: [Uint8Array.from([76, 76, 76, 76, 85, 255, 29, 29, 29, 29, 255, 107])],
+    })
+    const cmykPixels = await decodedPng(cmyk)
+    const ycbcrPixels = await decodedPng(ycbcr)
+
+    expect(pixel(cmykPixels, 0, 0)).toEqual([255, 255, 255, 255])
+    expect(pixel(cmykPixels, 1, 0)).toEqual([0, 255, 255, 255])
+    expect(pixel(cmykPixels, 2, 0)).toEqual([0, 0, 0, 255])
+    expect(pixel(cmykPixels, 3, 0)).toEqual([63, 95, 127, 255])
+    expect(pixel(ycbcrPixels, 0, 0)).toEqual([254, 0, 0, 255])
+    expect(pixel(ycbcrPixels, 1, 0)).toEqual([254, 0, 0, 255])
+    expect(pixel(ycbcrPixels, 2, 0)).toEqual([0, 0, 254, 255])
+  })
+
+  it('matches independently encoded LZW CMYK, YCbCr, and 16-bit RGB fixtures', async () => {
+    // ImageMagick 7.1.2/libtiff 4.7 encoded these fixtures independently.
+    const cmyk = Buffer.from(
+      'SUkqAHAAAACAJgSuxiAAAHA4QaFQuGQ2HQ+IRGJROKRWLACBQSDQiLx2PR+QSGIRmCweEyKUSmVSqSRuTyuYTGZQ+WyaZzecTCaxycz2fR2dy+f0OiQ2g0WkUmj0mmT+l02oTen1GqSup1WsSGAgABEAAAEDAAEAAAAQAAAAAQEDAAEAAAAMAAAAAgEDAAQAAABCAQAAAwEDAAEAAAAFAAAABgEDAAEAAAAFAAAACgEDAAEAAAABAAAAEQEEAAEAAAAIAAAAEgEDAAEAAAABAAAAFQEDAAEAAAAEAAAAFgEDAAEAAAAMAAAAFwEEAAEAAABnAAAAHAEDAAEAAAABAAAAKQEDAAIAAAAAAAEAPQEDAAEAAAACAAAAPgEFAAIAAAB6AQAAPwEFAAYAAABKAQAATAEDAAEAAAABAAAAAAAAABAAEAAQABAAhetRAAAAgADD9agAAAAAAs3MTAAAAAABzcxMAAAAgADNzEwAAAAAAo/C9QAAAAAQNxqgAAAAAAIrhwoAAAAgAA==',
+      'base64',
+    )
+    const rgb16 = Buffer.from(
+      'SUkqAJgAAACABIJDQaFYrACEQmFQuGQ2HQ+IRGJRJOCdEkM7F+JxuOR2PRwTD1vFJLmiPyeUSmJK8pDMxLc4yqZTOUjk0Ig4tc9TSeT2JMM+t1APhBz6jUeEk1JjNIBhG0ioT1rqhEJ8cpao1mZGFfN1XFlP1qxSd1NMZL48qix2uOHR0odmppY2y6RF/P5uNxdLq632GwEQAAABAwABAAAAEAAAAAEBAwABAAAADAAAAAIBAwADAAAAXgEAAAMBAwABAAAABQAAAAYBAwABAAAAAgAAAAoBAwABAAAAAQAAABEBBAABAAAACAAAABIBAwABAAAAAQAAABUBAwABAAAAAwAAABYBAwABAAAADAAAABcBBAABAAAAkAAAABwBAwABAAAAAQAAACkBAwACAAAAAAABAD0BAwABAAAAAgAAAD4BBQACAAAAlAEAAD8BBQAGAAAAZAEAAAAAAAAQABAAEACF61EAAACAAMP1qAAAAAACzcxMAAAAAAHNzEwAAACAAM3MTAAAAAACj8L1AAAAABA3GqAAAAAAAiuHCgAAACAA',
+      'base64',
+    )
+    const ycbcr = Buffer.from(
+      'SUkqAEwAAACAGhSomBQSBwWEQeFQaGQmGwuHRGIROHxWJRaKReNRmORiPRuPx2QSORSWQyeSSiTSmWSuXSqYS2Yy+ZTWaTeZzmHQEBAAAAEDAAEAAAAQAAAAAQEDAAEAAAAMAAAAAgEDAAMAAAASAQAAAwEDAAEAAAAFAAAABgEDAAEAAAAGAAAACgEDAAEAAAABAAAAEQEEAAEAAAAIAAAAEgEDAAEAAAABAAAAFQEDAAEAAAADAAAAFgEDAAEAAAAMAAAAFwEEAAEAAABEAAAAHAEDAAEAAAABAAAAKQEDAAIAAAAAAAEAPgEFAAIAAABIAQAAPwEFAAYAAAAYAQAAEgIDAAIAAAABAAEAAAAAAAgACAAIAIXrUQAAAIAAw/WoAAAAAALNzEwAAAAAAc3MTAAAAIAAzcxMAAAAAAKPwvUAAAAAEDcaoAAAAAACK4cKAAAAIAA=',
+      'base64',
+    )
+    const cmykPixels = await decodedPng(cmyk)
+    const rgb16Pixels = await decodedPng(rgb16)
+    const ycbcrPixels = await decodedPng(ycbcr)
+
+    expect(pixel(cmykPixels, 8, 6)).toEqual([122, 33, 143, 255])
+    expect(pixel(rgb16Pixels, 0, 0)).toEqual([18, 52, 86, 255])
+    expect(pixel(rgb16Pixels, 15, 11)).toEqual([254, 220, 186, 255])
+    expect(pixel(ycbcrPixels, 8, 6)).toEqual([117, 85, 170, 255])
+  })
+
+  it('decodes complete old-style JPEG and abbreviated new-style JPEG segments', async () => {
+    const rgba = Uint8Array.from([
+      240, 20, 30, 255, 240, 20, 30, 255, 20, 210, 50, 255, 20, 210, 50, 255, 240, 20, 30, 255, 240,
+      20, 30, 255, 20, 210, 50, 255, 20, 210, 50, 255,
+    ])
+    const encoded = jpeg.encode({ width: 4, height: 2, data: rgba }, 100).data
+    const split = splitJpegTables(encoded)
+    const oldParts = oldJpegFixtureParts(encoded)
+    const oldStyle = tiffFixture({
+      width: 4,
+      height: 2,
+      bitsPerSample: [8, 8, 8],
+      compression: 6,
+      photometric: 6,
+      strips: [],
+      jpegInterchange: encoded,
+    })
+    const newStyle = tiffFixture({
+      width: 4,
+      height: 2,
+      bitsPerSample: [8, 8, 8],
+      compression: 7,
+      photometric: 6,
+      extraEntries: [{ tag: 347, type: 7, values: Array.from(split.tables) }],
+      strips: [split.image],
+    })
+    const oldStyleTables = tiffFixture({
+      width: 4,
+      height: 2,
+      bitsPerSample: [8, 8, 8],
+      compression: 6,
+      photometric: 6,
+      extraEntries: [
+        { tag: 512, type: 3, values: [1] },
+        {
+          tag: 530,
+          type: 3,
+          values: [oldParts.horizontalSubsampling, oldParts.verticalSubsampling],
+        },
+      ],
+      pointedEntries: [
+        { tag: 519, tables: oldParts.quantizationTables },
+        { tag: 520, tables: oldParts.dcTables },
+        { tag: 521, tables: oldParts.acTables },
+      ],
+      strips: [oldParts.entropy],
+    })
+    const oldPixels = await decodedPng(oldStyle)
+    const newPixels = await decodedPng(newStyle)
+    const tablePixels = await decodedPng(oldStyleTables)
+
+    expect(newPixels.data).toEqual(oldPixels.data)
+    expect(tablePixels.data).toEqual(oldPixels.data)
+    expect(pixel(newPixels, 0, 0)[0]).toBeGreaterThan(220)
+    expect(pixel(newPixels, 2, 0)[1]).toBeGreaterThan(190)
+  })
+
+  it('rejects corrupt BigTIFF, tile tables, JPEG tables, and Group 3 data as ImageErrors', async () => {
+    const invalidBigTiff = bigTiffRgbFixture()
+    new DataView(invalidBigTiff.buffer).setBigUint64(8, BigInt(Number.MAX_SAFE_INTEGER) + 1n, true)
+
+    const incompleteTiles = tiffFixture({
+      width: 2,
+      height: 2,
+      bitsPerSample: [8],
+      compression: 1,
+      photometric: 1,
+      tileWidth: 2,
+      tileHeight: 2,
+      strips: [Uint8Array.of(1, 2, 3, 4)],
+    })
+    const oversizedTile = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 2,
+      tileWidth: 0xffff_ffff,
+      tileHeight: 1,
+      strips: [Uint8Array.of(1)],
+    })
+    const tileView = new DataView(incompleteTiles.buffer)
+    const tileEntryCount = tileView.getUint16(8, true)
+    for (let index = 0; index < tileEntryCount; index += 1) {
+      const offset = 10 + index * 12
+      if (tileView.getUint16(offset, true) === 325) tileView.setUint16(offset, 326, true)
+    }
+
+    const encoded = jpeg.encode(
+      { width: 1, height: 1, data: Uint8Array.of(20, 40, 60, 255) },
+      90,
+    ).data
+    const split = splitJpegTables(encoded)
+    const invalidJpegTables = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8],
+      compression: 7,
+      photometric: 6,
+      extraEntries: [{ tag: 347, type: 7, values: [1, 2, 3, 4] }],
+      strips: [split.image],
+    })
+    const invalidGroup3 = tiffFixture({
+      width: 8,
+      height: 1,
+      bitsPerSample: [1],
+      compression: 3,
+      photometric: 0,
+      strips: [Uint8Array.of(0)],
+    })
+
+    await expect((await Image.open(invalidBigTiff)).metadata()).rejects.toMatchObject({
+      name: 'ImageError',
+      code: 'INVALID_INPUT',
+    })
+    await expect((await Image.open(incompleteTiles)).metadata()).rejects.toMatchObject({
+      name: 'ImageError',
+      code: 'INVALID_INPUT',
+      message: 'TIFF tiled image is missing a required tile tag',
+    })
+    await expect((await Image.open(oversizedTile)).metadata()).rejects.toMatchObject({
+      name: 'ImageError',
+      code: 'LIMIT_EXCEEDED',
+      message: 'TIFF segment row is too large',
+    })
+    await expect((await Image.open(invalidJpegTables)).png().toBuffer()).rejects.toMatchObject({
+      name: 'ImageError',
+      code: 'INVALID_INPUT',
+      message: 'TIFF JPEGTables must be bounded by SOI and EOI markers',
+    })
+    await expect((await Image.open(invalidGroup3)).png().toBuffer()).rejects.toMatchObject({
+      name: 'ImageError',
+    })
+  })
+
+  it('decodes CCITT Modified Huffman and mixed one/two-dimensional Group 3 rows', async () => {
+    const modifiedHuffman = tiffFixture({
+      width: 8,
+      height: 2,
+      bitsPerSample: [1],
+      compression: 2,
+      photometric: 0,
+      strips: [Uint8Array.of(0x98, 0x35, 0x14)],
+    })
+    const group3 = tiffFixture({
+      width: 8,
+      height: 2,
+      bitsPerSample: [1],
+      compression: 3,
+      photometric: 0,
+      t4Options: 1,
+      strips: [packedFaxBits(`0000000000011${'10011'}00000000000101`)],
+    })
+    const modifiedPixels = await decodedPng(modifiedHuffman)
+    const group3Pixels = await decodedPng(group3)
+
+    expect(pixel(modifiedPixels, 0, 0)).toEqual([255, 255, 255, 255])
+    expect(pixel(modifiedPixels, 7, 0)).toEqual([255, 255, 255, 255])
+    expect(pixel(modifiedPixels, 0, 1)).toEqual([0, 0, 0, 255])
+    expect(pixel(modifiedPixels, 7, 1)).toEqual([0, 0, 0, 255])
+    expect(pixel(group3Pixels, 0, 0)).toEqual([255, 255, 255, 255])
+    expect(pixel(group3Pixels, 7, 1)).toEqual([255, 255, 255, 255])
   })
 
   it('decodes independently encoded CCITT Group 4 fax strips', async () => {
@@ -480,7 +1018,7 @@ describe('TIFF codec', () => {
       width: 1,
       height: 1,
       bitsPerSample: [8],
-      compression: 7,
+      compression: 999,
       photometric: 1,
       strips: [Uint8Array.of(0)],
     })

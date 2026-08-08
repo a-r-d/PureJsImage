@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PureJsImage is a fast, low-memory image processing library in strict TypeScript, with first-party codecs and zero runtime dependencies.">
+  <meta name="theme-color" content="#f6f7f2">
+  <meta property="og:title" content="PureJsImage — Image processing that fits the function">
+  <meta property="og:description" content="Fast, low-memory image processing in pure TypeScript. First-party codecs, zero runtime dependencies, built for Lambda.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://a-r-d.github.io/PureJsImage/">
+  <meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>PureJsImage — Low-memory image processing in TypeScript</title>
+  <script>document.documentElement.dataset.theme=localStorage.getItem('purejsimage-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="PureJsImage home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span>PureJsImage</span>
+      </a>
+      <nav class="site-nav" data-nav aria-label="Primary navigation">
+        <a href="guides.html">Guides</a>
+        <a href="api.html">API</a>
+        <a href="codecs.html">Codecs</a>
+        <a href="performance.html">Performance</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-button" type="button" data-theme-toggle aria-label="Use dark theme"></button>
+        <a class="button secondary small github-header" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.88c-2.78.61-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.35 1.09 2.92.83.09-.65.35-1.09.64-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.6 9.6 0 0 1 12 6.82a9.6 9.6 0 0 1 2.5.34c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.86V21c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+          GitHub
+        </a>
+        <button class="icon-button menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Pure TypeScript · current main</p>
+          <h1>Image processing that <span class="gradient-text">fits the function.</span></h1>
+          <p class="hero-lede">First-party codecs, bounded-memory pipelines, and zero runtime dependencies. Built for AWS Lambda—and anywhere predictable JavaScript matters.</p>
+          <div class="hero-actions">
+            <a class="button" href="guides.html">Get started
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+            </a>
+            <a class="button secondary" href="https://www.npmjs.com/package/purejsimage" target="_blank" rel="noreferrer">View on npm</a>
+          </div>
+          <div class="install-pill">
+            <span aria-hidden="true">$</span>
+            <code id="install-command">npm install purejsimage</code>
+            <button class="copy-inline" type="button" data-copy="install-command" aria-label="Copy install command">⧉</button>
+          </div>
+        </div>
+        <div class="hero-visual" role="img" aria-label="A bounded image processing pipeline">
+          <div class="pixel-orbit" aria-hidden="true"></div>
+          <div class="pipeline-card">
+            <div class="window-bar"><span class="window-dot"></span><span class="window-dot"></span><span class="window-dot"></span><span class="window-title">upload.pipeline.ts</span></div>
+            <div class="pipeline-body">
+              <div class="pipeline-steps">
+                <div class="pipeline-step"><span class="step-icon">JPG</span><span><strong>Decode useful rows</strong><small>6000 × 4000 · baseline</small></span><span class="step-state">bounded</span></div>
+                <div class="pipeline-step"><span class="step-icon">↗</span><span><strong>Orient · crop · resize</strong><small>1200 px · lanczos3</small></span><span class="step-state">streaming</span></div>
+                <div class="pipeline-step"><span class="step-icon">WEB</span><span><strong>Encode for delivery</strong><small>JPEG · quality 80 · 4:2:0</small></span><span class="step-state">valid</span></div>
+              </div>
+              <div class="memory-readout"><span>Measured peak RSS<br>northstar workflow</span><strong>119 MiB</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="metric-strip" aria-label="Project highlights">
+      <div class="container metrics">
+        <div class="metric"><strong>0</strong><span>runtime dependencies</span></div>
+        <div class="metric"><strong>9</strong><span>first-party codecs</span></div>
+        <div class="metric"><strong>8.6 KiB</strong><span>core API, Brotli</span></div>
+        <div class="metric"><strong>90% less</strong><span>peak RSS vs Jimp, northstar</span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <div><p class="eyebrow">Designed from the bytes up</p><h2>Less image machinery.<br>More room for your app.</h2><p>PureJsImage keeps the package graph small and the working set bounded. It does the useful work without silently outsourcing the hard parts.</p></div>
+        </div>
+        <div class="feature-grid">
+          <article class="card feature-card">
+            <div class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9V5h4M15 5h4v4M19 15v4h-4M9 19H5v-4M9 9h6v6H9z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg></div>
+            <h3>Bounded by design</h3><p>JPEG MCU rows, PNG scanlines, TIFF strips, and HEIF tiles avoid a source-sized RGBA bitmap wherever the format permits it.</p>
+          </article>
+          <article class="card feature-card">
+            <div class="feature-icon lime"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 7 4v5c0 4.4-2.6 7.3-7 9-4.4-1.7-7-4.6-7-9V7l7-4Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg></div>
+            <h3>Hostile-input ready</h3><p>Dimensions, allocation budgets, box extents, entropy reads, and truncation are checked. Unsupported input fails with typed errors.</p>
+          </article>
+          <article class="card feature-card">
+            <div class="feature-icon amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/></svg></div>
+            <h3>Only the codecs you choose</h3><p>The core imports no codec. Register JPEG and PNG—or all nine—once, then reuse the immutable library across warm invocations.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tint">
+      <div class="container">
+        <div class="section-heading">
+          <div><p class="eyebrow">First-party codec stack</p><h2>One pipeline. Real format depth.</h2><p>Decode common web and camera images, transform in bounded blocks, and encode practical output formats—without native addons, WASM, or external binaries.</p></div>
+          <a class="text-link" href="codecs.html">Explore codec support <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></a>
+        </div>
+        <div class="codec-row">
+          <a class="codec-chip" href="codecs.html#jpeg">JPEG</a>
+          <a class="codec-chip" href="codecs.html#png">PNG</a>
+          <a class="codec-chip" href="codecs.html#webp">WebP</a>
+          <a class="codec-chip" href="codecs.html#gif">GIF</a>
+          <a class="codec-chip" href="codecs.html#bmp">BMP</a>
+          <a class="codec-chip" href="codecs.html#ico">ICO</a>
+          <a class="codec-chip" href="codecs.html#tiff">TIFF</a>
+          <a class="codec-chip" href="codecs.html#avif">AVIF</a>
+          <a class="codec-chip" href="codecs.html#heif">HEIF</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container quickstart-grid">
+        <div class="quickstart-copy">
+          <p class="eyebrow">A small, explicit API</p>
+          <h2>From upload to web-ready in one readable pipeline.</h2>
+          <p>Open lazily, inspect without decoding pixels, compose immutable operations, and choose a sink only when you are ready to execute.</p>
+          <ul class="check-list">
+            <li>File paths, Buffer, Uint8Array, ArrayBuffer, Blob, or custom range sources</li>
+            <li>Auto-orient, crop, resize, format conversion, and quality controls</li>
+            <li>Buffer output or failure-safe direct file output</li>
+          </ul>
+          <div class="hero-actions"><a class="button secondary" href="api.html">Read the API reference</a></div>
+        </div>
+        <div class="code-window">
+          <div class="window-bar"><span class="window-dot"></span><span class="window-dot"></span><span class="window-dot"></span><span class="window-title">normalize-upload.ts</span></div>
+          <button class="code-copy" type="button" data-copy="quick-code">Copy</button>
+          <pre><code id="quick-code"><span class="tok-key">import</span> { createImageLibrary } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
+<span class="tok-key">import</span> { jpegCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/jpeg'</span>
+<span class="tok-key">import</span> { pngCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/png'</span>
+
+<span class="tok-comment">// Create once, then reuse across requests.</span>
+<span class="tok-key">const</span> images = <span class="tok-method">createImageLibrary</span>([
+  jpegCodec,
+  pngCodec,
+])
+
+<span class="tok-key">const</span> image = <span class="tok-key">await</span> images.<span class="tok-method">open</span>(<span class="tok-string">'input.jpg'</span>)
+
+<span class="tok-key">await</span> image
+  .<span class="tok-method">autoOrient</span>()
+  .<span class="tok-method">resize</span>({
+    width: <span class="tok-number">1200</span>,
+    withoutEnlargement: <span class="tok-key">true</span>,
+    kernel: <span class="tok-string">'lanczos3'</span>,
+  })
+  .<span class="tok-method">jpeg</span>({ quality: <span class="tok-number">80</span> })
+  .<span class="tok-method">toFile</span>(<span class="tok-string">'output.jpg'</span>)</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tint">
+      <div class="container benchmark-grid">
+        <div class="benchmark-copy">
+          <p class="eyebrow">Correctness-gated benchmarks</p>
+          <h2>Measured for the constraint Lambda actually feels.</h2>
+          <p>Every result runs in an isolated process. Timing counts only after the output decodes, matches expected dimensions, and passes pinned pixel or structural checks.</p>
+          <div class="hero-actions"><a class="button secondary" href="performance.html">See methodology &amp; results</a></div>
+        </div>
+        <div class="card benchmark-card" role="img" aria-label="Northstar benchmark comparison">
+          <div class="benchmark-bars">
+            <div>
+              <div class="bar-group-head"><span>Peak RSS · 6000 × 4000 pipeline</span><span>lower is better</span></div>
+              <div class="bar-line"><span>PureJsImage</span><div class="bar-track"><div class="bar-fill" style="width:10%"></div></div><strong>119 MiB</strong></div>
+              <div class="bar-line"><span>Jimp 1.6</span><div class="bar-track"><div class="bar-fill comparison" style="width:100%"></div></div><strong>1,188 MiB</strong></div>
+            </div>
+            <div>
+              <div class="bar-group-head"><span>Wall time · same validated output</span><span>lower is better</span></div>
+              <div class="bar-line"><span>PureJsImage</span><div class="bar-track"><div class="bar-fill" style="width:86%"></div></div><strong>3,243 ms</strong></div>
+              <div class="bar-line"><span>Jimp 1.6</span><div class="bar-track"><div class="bar-fill comparison" style="width:100%"></div></div><strong>3,763 ms</strong></div>
+            </div>
+          </div>
+          <p class="benchmark-note">Node.js on Linux x64 · isolated process peak RSS · orient, crop, resize, JPEG encode · recorded August 2026</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta">
+          <div class="cta-inner">
+            <div><p class="eyebrow">Ship a smaller image stack</p><h2>Give your function more memory for the work that matters.</h2><p>Install one package. Register only the formats you accept. Keep unsupported behavior explicit.</p></div>
+            <div class="cta-actions"><a class="button" href="guides.html">Start building</a><a class="button secondary" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">Star on GitHub</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>Fast, low-memory image processing in pure TypeScript. MIT licensed and built in the open.</p></div>
+        <div class="footer-column"><strong>Documentation</strong><a href="guides.html">Getting started</a><a href="api.html">API reference</a><a href="codecs.html">Codec support</a><a href="performance.html">Performance</a></div>
+        <div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.npmjs.com/package/purejsimage" target="_blank" rel="noreferrer">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md" target="_blank" rel="noreferrer">Roadmap</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a></div>
+        <div class="footer-column"><strong>Community</strong><a href="https://github.com/a-r-d/PureJsImage/issues" target="_blank" rel="noreferrer">Report an issue</a><a href="https://github.com/a-r-d/PureJsImage/pulls" target="_blank" rel="noreferrer">Pull requests</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/LICENSE" target="_blank" rel="noreferrer">MIT license</a></div>
+      </div>
+      <div class="footer-bottom"><span>© <span data-year></span> PureJsImage contributors.</span><span>No native addons · no WASM · no runtime dependencies</span></div>
+    </div>
+  </footer>
+  <script src="site.js" defer></script>
+</body>
+</html>

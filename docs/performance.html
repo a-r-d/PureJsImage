@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Reproducible PureJsImage benchmarks: wall time, absolute peak RSS, bundle size, output validity, and comparison with Jimp 1.6.">
+  <meta name="theme-color" content="#f6f7f2">
+  <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/performance.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>Performance — PureJsImage</title>
+  <script>document.documentElement.dataset.theme=localStorage.getItem('purejsimage-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="PureJsImage home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a>
+    <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a><a href="performance.html" aria-current="page">Performance</a></nav>
+    <div class="header-actions"><button class="icon-button" type="button" data-theme-toggle aria-label="Use dark theme"></button><a class="button secondary small github-header" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><button class="icon-button menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button></div>
+  </div></header>
+
+  <main id="main">
+    <header class="page-hero"><div class="container"><p class="eyebrow">Performance</p><h1>Memory is the feature.<br>Correctness is the gate.</h1><p class="page-lede">Whole decode–transform–encode workflows, isolated processes, absolute peak RSS, pinned inputs, and independently validated output.</p><div class="page-meta"><span class="pill">Jimp 1.6 baseline</span><span class="pill">Recorded August 2026</span><span class="pill">Linux x64</span></div></div></header>
+    <div class="container docs-layout">
+      <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="guides.html">Getting started</a><a href="guides.html#lambda">Lambda guide</a></div><div class="nav-group"><strong>Reference</strong><a href="api.html">API reference</a><a href="codecs.html">Codec support</a><a href="performance.html" aria-current="page">Performance</a></div></aside>
+      <article class="content">
+        <section id="headline">
+          <h2>Headline results</h2>
+          <p>The northstar workflow processes a 6000 × 4000 JPEG through orientation, crop, resize, and JPEG encode. PureJsImage used roughly one tenth of Jimp’s peak RSS while also finishing faster.</p>
+          <div class="stat-grid">
+            <div class="card stat-card"><strong>90%</strong><span>lower peak RSS · northstar</span></div>
+            <div class="card stat-card"><strong>14%</strong><span>faster wall time · northstar</span></div>
+            <div class="card stat-card"><strong>87%</strong><span>lower RSS · 100 MP PNG</span></div>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Workflow</th><th>PureJsImage</th><th>Jimp</th><th>PJI RSS</th><th>Jimp RSS</th></tr></thead><tbody>
+            <tr><td><strong>6000×4000 orient, crop, resize, JPEG</strong></td><td>3,243 ms</td><td>3,763 ms</td><td>119 MiB</td><td>1,188 MiB</td></tr>
+            <tr><td><strong>JPEG crop and resize</strong></td><td>2,554 ms</td><td>2,868 ms</td><td>121 MiB</td><td>1,197 MiB</td></tr>
+            <tr><td><strong>100-megapixel PNG downscale</strong></td><td>1,970 ms</td><td>3,733 ms</td><td>169 MiB</td><td>1,274 MiB</td></tr>
+            <tr><td><strong>4000×3000 PNG resize</strong></td><td>496 ms</td><td>944 ms</td><td>142 MiB</td><td>301 MiB</td></tr>
+            <tr><td><strong>4000×3000 BMP to JPEG</strong></td><td>149 ms</td><td>719 ms</td><td>153 MiB</td><td>262 MiB</td></tr>
+            <tr><td><strong>Large TIFF to JPEG</strong></td><td>109 ms</td><td>639 ms</td><td>133 MiB</td><td>319 MiB</td></tr>
+          </tbody></table></div>
+          <div class="callout"><strong>Read peak RSS as a process number.</strong> It includes the Node.js runtime and is not a codec-only allocation counter. Larger workflows show memory scaling more clearly than small images.</div>
+          <p><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/benchmarks.md" target="_blank" rel="noreferrer">Open the complete benchmark report →</a></p>
+        </section>
+
+        <section id="methodology">
+          <h2>Methodology</h2>
+          <p>A fast corrupt image is a failed result. The harness separates input preparation and output validation from the timed region, but a timing is accepted only after its output passes the workflow contract.</p>
+          <div class="method-steps">
+            <div class="method-step"><b>01</b><span>Verify checksum-pinned input and expected dimensions.</span></div>
+            <div class="method-step"><b>02</b><span>Run each measured sample in an isolated worker process.</span></div>
+            <div class="method-step"><b>03</b><span>Record wall time, CPU time, output size, and peak RSS.</span></div>
+            <div class="method-step"><b>04</b><span>Decode and validate the output against structural or pixel references.</span></div>
+          </div>
+          <ul>
+            <li>Baseline comparison: <code>jimp@1.6.0</code>.</li>
+            <li>Recorded environment: Node.js 24.16.0 on Linux x64, Intel Core i7-10700.</li>
+            <li>Reports use median and p95 wall time across repeated runs.</li>
+            <li>Absolute process peak RSS is the headline memory value.</li>
+            <li>JSON is the authoritative machine-readable result; Markdown is the review summary.</li>
+          </ul>
+          <p>Inputs include real photographs, phone-camera files, standards fixtures, transparent graphics, pathological dimensions, high-entropy data, and deterministic generated stress images. The corpus manifest records source, license, dimensions, and SHA-256.</p>
+        </section>
+
+        <section id="codec-results">
+          <h2>Codec results</h2>
+          <h3>JPEG</h3>
+          <p>Baseline JPEG reconstruction retains one MCU row instead of a full source-resolution RGB or RGBA bitmap. Progressive decode retains compact 16-bit coefficient planes and reconstructs output in bounded rows.</p>
+          <div class="table-wrap"><table><thead><tr><th>Workflow</th><th>PureJsImage wall</th><th>Jimp wall</th><th>PJI RSS</th><th>Jimp RSS</th></tr></thead><tbody>
+            <tr><td>Large JPEG metadata</td><td>0.2 ms</td><td>5,285 ms</td><td>97 MiB</td><td>1,184 MiB</td></tr>
+            <tr><td>4000×3000 resize to 1200 px</td><td>894 ms</td><td>1,395 ms</td><td>106 MiB</td><td>596 MiB</td></tr>
+            <tr><td>Twilio MMS JPEG to 1024 px</td><td>853 ms</td><td>1,364 ms</td><td>105 MiB</td><td>601 MiB</td></tr>
+            <tr><td>EXIF orientation 6</td><td>388 ms</td><td>576 ms</td><td>105 MiB</td><td>254 MiB</td></tr>
+          </tbody></table></div>
+          <h3>WebP</h3>
+          <p>Jimp 1.6 exposes no WebP codec, so these are absolute baselines—not synthetic comparisons.</p>
+          <div class="table-wrap"><table><thead><tr><th>Workflow</th><th>Median wall</th><th>Peak RSS</th></tr></thead><tbody>
+            <tr><td>1600×2000 WebP resize to JPEG</td><td>519 ms</td><td>167 MiB</td></tr>
+            <tr><td>Lossy WebP to PNG</td><td>216 ms</td><td>140 MiB</td></tr>
+            <tr><td>JPEG to lossy WebP</td><td>965 ms</td><td>112 MiB</td></tr>
+            <tr><td>PNG to lossless WebP</td><td>50 ms</td><td>108 MiB</td></tr>
+          </tbody></table></div>
+          <h3>AVIF and HEIF</h3>
+          <p>The restricted AVIF photo decoder measured 295 ms on a 768 × 512 Kodak image and 783 ms on a 1204 × 800 fox image. Its five-run photo benchmark reached 144 MiB maximum observed RSS. It retains padded full-frame YUV and RGBA state today, so this is a baseline rather than the target architecture.</p>
+          <p>The 4032 × 3024 iPhone HEIC auto-orient-and-resize-to-1200px-JPEG workflow measured 8,080 ms and 190 MiB cold peak RSS. Jimp exposes no HEIF decoder. Grid tile selection benefits crop workflows, while full decode memory remains an explicit optimization target.</p>
+          <div class="callout warning"><strong>No invalid comparisons.</strong> Unsupported Jimp workflows are shown as unsupported, not as infinitely fast or slow. Development oracles are not presented as production engines.</div>
+        </section>
+
+        <section id="bundle">
+          <h2>Bundle size</h2>
+          <p>Applications import only the codec entries they use. The root API itself pulls no codec implementation into the module graph.</p>
+          <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Minified</th><th>gzip</th><th>Brotli</th></tr></thead><tbody>
+            <tr><td><strong>Core API</strong></td><td>27.2 KiB</td><td>9.6 KiB</td><td>8.6 KiB</td></tr>
+            <tr><td><strong>Core + PNG</strong></td><td>54.0 KiB</td><td>18.7 KiB</td><td>16.5 KiB</td></tr>
+            <tr><td><strong>Core + JPEG</strong></td><td>67.9 KiB</td><td>23.2 KiB</td><td>20.0 KiB</td></tr>
+            <tr><td><strong>Core + WebP</strong></td><td>74.7 KiB</td><td>27.4 KiB</td><td>23.7 KiB</td></tr>
+            <tr><td><strong>Core + all codecs</strong></td><td>373.5 KiB</td><td>127.8 KiB</td><td>102.9 KiB</td></tr>
+          </tbody></table></div>
+          <p>Sizes use esbuild minification, gzip level 9, and Brotli quality 11. Reproduce the complete entry-point report with <code>npm run size</code>.</p>
+        </section>
+
+        <section id="reproduce">
+          <h2>Reproduce it</h2>
+          <p>Prepare and verify the corpus before running profiles. Downloaded fixtures are checksum-pinned; generated fixtures are deterministic.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">Terminal</span></div><button class="code-copy" type="button" data-copy="benchmark-code">Copy</button><pre><code id="benchmark-code">npm run fixtures:prepare
+npm run fixtures:verify
+npm run fixtures:avif
+npm run fixtures:heif
+npm run fixtures:jpeg
+
+npm run build
+npm run bench:smoke
+npm run bench:bmp
+npm run bench:tiff
+npm run bench:webp
+npm run bench:avif:b2
+npm run bench:heif:cold</code></pre></div>
+          <p>For cross-engine profiles, set <code>PUREJSIMAGE_ENTRY=./dist/index.js</code> and run the harness with <code>--engines jimp,purejsimage</code>. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md" target="_blank" rel="noreferrer">benchmark harness guide</a> for profiles and result interpretation.</p>
+        </section>
+
+        <section id="interpretation">
+          <h2>Interpret results</h2>
+          <ul>
+            <li>Compare equivalent complete workflows, not isolated kernels with different work.</li>
+            <li>Use absolute peak RSS for Lambda tier decisions. Warmup can leave allocator pages resident and make a delta look deceptively small.</li>
+            <li>Treat output dimensions, validity, pixel tolerances, and lossy quality/size as part of performance.</li>
+            <li>Do not generalize one codec’s bounded path to another. WebP and current AVIF paths have different memory classes from baseline JPEG and sequential PNG.</li>
+            <li>Re-run representative inputs on your hardware and Node version before making production sizing decisions.</li>
+          </ul>
+        </section>
+      </article>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#headline">Headline results</a><a href="#methodology">Methodology</a><a href="#codec-results">Codec results</a><a href="#bundle">Bundle size</a><a href="#reproduce">Reproduce it</a><a href="#interpretation">Interpret results</a></aside>
+    </div>
+  </main>
+
+  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>Measured, correctness-gated image processing for memory-constrained JavaScript.</p></div><div class="footer-column"><strong>Docs</strong><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a></div><div class="footer-column"><strong>Evidence</strong><a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmarks.md">Results</a><a href="https://github.com/a-r-d/PureJsImage/tree/main/benchmark/results">Raw reports</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md">Harness</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a></div></div><div class="footer-bottom"><span>© <span data-year></span> PureJsImage contributors.</span><span>Benchmarks recorded August 2026</span></div></div></footer>
+  <script src="site.js" defer></script>
+</body>
+</html>

@@ -19,6 +19,7 @@ const targets: readonly BundleTarget[] = [
   { name: 'Core + WebP', entries: ['src/index.ts', 'src/codec-entries/webp.ts'] },
   { name: 'Core + GIF', entries: ['src/index.ts', 'src/codec-entries/gif.ts'] },
   { name: 'Core + BMP', entries: ['src/index.ts', 'src/codec-entries/bmp.ts'] },
+  { name: 'Core + ICO', entries: ['src/index.ts', 'src/codec-entries/ico.ts'] },
   { name: 'Core + TIFF', entries: ['src/index.ts', 'src/codec-entries/tiff.ts'] },
   { name: 'Core + AVIF', entries: ['src/index.ts', 'src/codec-entries/avif.ts'] },
   { name: 'Core + HEIF / HEIC', entries: ['src/index.ts', 'src/codec-entries/heif.ts'] },

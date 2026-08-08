@@ -42,7 +42,7 @@ This is the current phase.
 
 Current practical implementations cover PNG, JPEG, GIF, WebP, BMP, TIFF,
 AVIF, and HEIF/HEIC, with capability depth documented separately for each
-codec. ICO/CUR, JPEG 2000, and JPEG XL already have tracked implementation
+codec. CUR, JPEG 2000, and JPEG XL already have tracked implementation
 plans.
 
 The goal is not to claim an entire specification prematurely. Each codec

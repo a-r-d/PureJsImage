@@ -1,4 +1,4 @@
-type RegisteredFormat = 'avif' | 'bmp' | 'gif' | 'heif' | 'jpeg' | 'png' | 'tiff' | 'webp'
+type RegisteredFormat = 'avif' | 'bmp' | 'gif' | 'heif' | 'ico' | 'jpeg' | 'png' | 'tiff' | 'webp'
 
 export interface RecognizedInputFormat {
   readonly name: string
@@ -38,7 +38,7 @@ const magicFormats: readonly MagicFormat[] = [
     ],
   },
   { name: 'PDF', signatures: [[37, 80, 68, 70, 45]] },
-  { name: 'ICO', signatures: [[0, 0, 1, 0]] },
+  { name: 'ICO', registeredFormat: 'ico', signatures: [[0, 0, 1, 0]] },
   { name: 'CUR', signatures: [[0, 0, 2, 0]] },
   { name: 'JPEG XL codestream', signatures: [[0xff, 0x0a]] },
   {

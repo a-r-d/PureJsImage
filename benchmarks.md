@@ -22,7 +22,7 @@ Unless a section says otherwise, the recorded results use:
 
 Input reads, worker startup, warmups, and output validation are outside the
 timed region. Fixtures are checksum-pinned and prepared before measurement.
-Results were recorded on August 6-7, 2026.
+Results were recorded on August 6-8, 2026.
 
 Peak RSS is an absolute process high-water mark, not a codec-only allocation
 counter. Small workflows therefore include a large fixed Node.js baseline. The
@@ -181,6 +181,28 @@ open targets.
 
 See the [complete WebP report](benchmark/results/webp-cleanup-final-profile-2026-08-07.md).
 
+## ICO
+
+Jimp 1.6 does not expose an ICO codec, so these are absolute PureJsImage
+baselines. The three small first-party fixtures are committed to the repository
+and checksum-pinned: a mixed 16/32/256-pixel DIB/PNG icon, a 32-bit DIB with
+partial alpha, and a 24-bit DIB with a one-bit AND mask.
+
+| Workflow | Median wall | Peak RSS |
+| --- | ---: | ---: |
+| Mixed-icon metadata and selection | 0.3 ms | 92.3 MiB |
+| Selected 256px embedded PNG to PNG | 7.4 ms | 97.7 MiB |
+| 128px 32-bit DIB with alpha to PNG | 4.0 ms | 90.6 MiB |
+| 96px 24-bit DIB with mask to PNG | 2.4 ms | 90.5 MiB |
+| Mixed favicon resize to 64px PNG | 8.7 ms | 94.8 MiB |
+| 24-bit DIB resize to JPEG | 13.9 ms | 94.8 MiB |
+
+Every timing above passed metadata, dimensions, and pinned pixel validation.
+Input reads, worker startup, warmup, and validation remained outside the timed
+region.
+
+See the [complete ICO report](benchmark/results/ico-first-party-2026-08-08.md).
+
 ## AVIF
 
 AVIF metadata inspection passes all 25 permanent corpus files and 35 coded
@@ -248,6 +270,7 @@ npm run fixtures:prepare
 npm run fixtures:verify
 npm run fixtures:avif
 npm run fixtures:heif
+npm run fixtures:ico
 ```
 
 Build the package and run the desired profiles:
@@ -260,6 +283,7 @@ npm run bench:bmp:jimp
 npm run bench:tiff
 npm run bench:tiff:jimp
 npm run bench:webp
+npm run bench:ico
 npm run bench:avif:b2
 npm run bench:heif:cold
 npm run bench:heif:warm

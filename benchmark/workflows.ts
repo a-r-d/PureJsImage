@@ -560,6 +560,87 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'bmp', width: 800, height: 800 },
   },
   {
+    id: 'ico-metadata-mixed',
+    title: 'Read metadata and select the best image from a mixed 16/32/256 ICO',
+    tier: 'ico',
+    input: 'ico-mixed-16-32-256',
+    operations: [{ type: 'metadata' }],
+    expected: { format: 'ico', width: 256, height: 256 },
+    defaultRuns: 7,
+  },
+  {
+    id: 'ico-png-primary-png',
+    title: 'Decode the selected 256x256 PNG-backed ICO image to PNG',
+    tier: 'ico',
+    input: 'ico-mixed-16-32-256',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 256,
+      height: 256,
+      pixelSamples: [
+        { x: 0, y: 0, red: 0, green: 0, blue: 0, alpha: 0 },
+        { x: 128, y: 128, red: 128, green: 128, blue: 0, alpha: 128 },
+        { x: 255, y: 255, red: 255, green: 255, blue: 0, alpha: 254 },
+      ],
+    },
+    defaultRuns: 7,
+  },
+  {
+    id: 'ico-dib32-alpha-png',
+    title: 'Decode a 128x128 BGRA ICO with partial alpha to PNG',
+    tier: 'ico',
+    input: 'ico-dib32-alpha-128',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 128,
+      height: 128,
+      pixelSamples: [
+        { x: 0, y: 0, red: 0, green: 0, blue: 0, alpha: 64 },
+        { x: 64, y: 64, red: 192, green: 64, blue: 128, alpha: 192 },
+        { x: 127, y: 127, red: 125, green: 123, blue: 254, alpha: 238 },
+      ],
+    },
+    defaultRuns: 7,
+  },
+  {
+    id: 'ico-dib24-mask-png',
+    title: 'Decode a 96x96 24-bit ICO with one-bit transparency to PNG',
+    tier: 'ico',
+    input: 'ico-dib24-mask-96',
+    operations: [png(6)],
+    expected: {
+      format: 'png',
+      width: 96,
+      height: 96,
+      pixelSamples: [
+        { x: 0, y: 0, red: 0, green: 0, blue: 0, alpha: 0 },
+        { x: 48, y: 48, red: 129, green: 129, blue: 192, alpha: 255 },
+        { x: 95, y: 95, red: 255, green: 255, blue: 108, alpha: 0 },
+      ],
+    },
+    defaultRuns: 7,
+  },
+  {
+    id: 'ico-favicon-resize-png',
+    title: 'Decode a mixed ICO and resize its selected 256px image to a 64px PNG',
+    tier: 'ico',
+    input: 'ico-mixed-16-32-256',
+    operations: [{ type: 'resize', width: 64 }, png(6)],
+    expected: { format: 'png', width: 64, height: 64, cornerAlpha: 0 },
+    defaultRuns: 7,
+  },
+  {
+    id: 'ico-dib24-resize-jpeg',
+    title: 'Decode a masked 24-bit ICO, resize to 192px, and flatten to JPEG',
+    tier: 'ico',
+    input: 'ico-dib24-mask-96',
+    operations: [{ type: 'resize', width: 192 }, jpeg(80, '#ffffff')],
+    expected: { format: 'jpeg', width: 192, height: 192, cornerRgbMinimum: 240 },
+    defaultRuns: 7,
+  },
+  {
     id: 'tiff-metadata-large',
     title: 'Read metadata from a 4000x3000 stripped RGB TIFF',
     tier: 'tiff',
@@ -880,6 +961,7 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
       (workflow) =>
         workflow.tier !== 'bmp' &&
         workflow.tier !== 'heif' &&
+        workflow.tier !== 'ico' &&
         workflow.tier !== 'tiff' &&
         workflow.tier !== 'webp',
     )
@@ -892,6 +974,9 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
   }
   if (profile === 'heif') {
     return workflows.filter((workflow) => workflow.tier === 'heif')
+  }
+  if (profile === 'ico') {
+    return workflows.filter((workflow) => workflow.tier === 'ico')
   }
   if (profile === 'tiff') {
     return workflows.filter((workflow) => workflow.tier === 'tiff')

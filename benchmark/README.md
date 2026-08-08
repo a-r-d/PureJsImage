@@ -22,7 +22,8 @@ original Lambda image-processing workload when this suite was created.
 
 `corpus/manifest.json` records every downloaded image's source, license,
 expected dimensions, and SHA-256 hash. Downloaded and generated binaries live
-under `corpus/files/` and are intentionally ignored by Git.
+under `corpus/files/` and are normally ignored by Git. Small permanent codec
+regressions such as the ICO corpus are committed explicitly.
 
 Prepare and verify them with:
 
@@ -65,6 +66,12 @@ ICC and ordinary JPEG fixtures, and Web Platform Tests' progressive Squoosh
 MozJPEG RGB and YUV outputs. The dedicated verifier checks MPF image count,
 color-space and sampling classification, SDR-primary decoding, ICC conversion,
 and pixels derived from independent ImageMagick/LittleCMS decodes.
+
+The ICO corpus commits three deterministic files covering multi-image
+selection, a PNG-backed 256px primary, 24-bit DIB masking, and 32-bit DIB
+partial alpha. Exact decoded pixels are pinned and were cross-checked with
+ImageMagick. The profile measures metadata, PNG-backed and DIB-backed decode,
+favicon resize, alpha flattening, absolute peak RSS, and output correctness.
 
 ## Running
 
@@ -110,6 +117,16 @@ Jimp 1.6.0 does not provide a WebP codec, so this profile is intentionally
 PureJsImage-only. Decode results still require independently generated pixel
 samples to pass. The profile records absolute time, output size, and memory
 without inventing an invalid direct Jimp comparison.
+
+Verify and benchmark ICO inputs:
+
+```sh
+npm run fixtures:ico
+npm run bench:ico
+```
+
+Jimp 1.6.0 does not decode ICO, so this is a correctness-gated PureJsImage-only
+profile rather than an invalid head-to-head timing.
 
 First-party BMP compatibility and performance profile:
 

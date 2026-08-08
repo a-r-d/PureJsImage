@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>PureJsImage</title>
+  <rect width="64" height="64" rx="15" fill="#f7f8f3"/>
+  <path fill="#6b57e8" d="M10 10h15v15H10zm29 15h15v15H39zM25 39h15v15H25z"/>
+  <path fill="#b7ed55" d="M25 10h14v15H25zM10 39h15v15H10zm30 1h14v14H40z"/>
+  <path fill="#ffca58" d="M39 10h15v15H39zM10 25h15v14H10zm15 0h14v14H25z"/>
+</svg>

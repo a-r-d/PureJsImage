@@ -13,8 +13,8 @@ is unsupported until implemented and independently validated.
 - [x] Decode `.ico` files only; do not implement ICO encoding
 - [x] Support multi-image icon files and deterministic image selection
 - [x] Support both PNG-backed and DIB-backed icon entries
-- [x] Reuse the first-party PNG and BMP pixel machinery through internal
-  adapters rather than introducing a runtime dependency or duplicate decoder
+- [x] Reuse the first-party PNG decoder and keep the DIB row kernel specialized
+  for ICO mask and legacy-alpha semantics without introducing a runtime dependency
 - [x] Treat `.ico` and MIME metadata as hints; select the codec from file
   contents
 - [x] Keep cursor, animated-icon, executable-resource, and shell-resource
@@ -24,62 +24,62 @@ is unsupported until implemented and independently validated.
 
 ### Directory and image selection
 
-- [ ] Parse the six-byte `ICONDIR` header and require reserved value 0, icon
+- [x] Parse the six-byte `ICONDIR` header and require reserved value 0, icon
   type 1, and a non-zero bounded image count
-- [ ] Parse every 16-byte `ICONDIRENTRY` with checked width, height, palette,
+- [x] Parse every 16-byte `ICONDIRENTRY` with checked width, height, palette,
   planes, bit depth, byte length, and offset fields
-- [ ] Interpret directory width or height byte 0 as 256 pixels
-- [ ] Validate every entry extent before inspecting or decoding its payload
+- [x] Interpret directory width or height byte 0 as 256 pixels
+- [x] Validate every entry extent before inspecting or decoding its payload
 - [ ] Report every embedded image's dimensions, bit depth, storage type, alpha
   capability, and directory index
-- [ ] Default to the largest image, then highest useful bit depth and alpha,
+- [x] Default to the largest image, then highest useful bit depth and alpha,
   with original directory order as the final tie-breaker
 - [ ] For a requested resize, select the smallest suitable source that is not
   smaller than the target; fall back to the largest entry
 - [ ] Allow explicit directory-index selection
-- [ ] Reject zero-length, overlapping-invalid, out-of-file, or contradictory
+- [x] Reject zero-length, overlapping-invalid, out-of-file, or contradictory
   entries explicitly
 
 ### PNG-backed entries
 
-- [ ] Detect an embedded PNG by its signature within the validated ICO entry
-- [ ] Require the complete PNG datastream to remain inside that entry
-- [ ] Decode indexed, grayscale, RGB, grayscale-alpha, and RGBA PNG entries
+- [x] Detect an embedded PNG by its signature within the validated ICO entry
+- [x] Require the complete PNG datastream to remain inside that entry
+- [x] Decode indexed, grayscale, RGB, grayscale-alpha, and RGBA PNG entries
   through the existing first-party PNG codec
-- [ ] Support common 256x256 PNG icon entries
-- [ ] Preserve exact PNG alpha
-- [ ] Reject APNG animation inside an ICO entry rather than silently selecting
+- [x] Support common 256x256 PNG icon entries
+- [x] Preserve exact PNG alpha
+- [x] Reject APNG animation inside an ICO entry rather than silently selecting
   an arbitrary frame
-- [ ] Avoid copying the embedded PNG when a bounded view can be passed to the
+- [x] Avoid copying the embedded PNG when a bounded view can be passed to the
   decoder
 
 ### DIB-backed entries
 
-- [ ] Parse common `BITMAPCOREHEADER`, `BITMAPINFOHEADER`, V4, and V5 DIB
+- [x] Parse common `BITMAPCOREHEADER`, `BITMAPINFOHEADER`, V4, and V5 DIB
   headers without requiring the normal 14-byte BMP file header
-- [ ] Validate that the stored DIB height describes the combined XOR image and
+- [x] Validate that the stored DIB height describes the combined XOR image and
   AND mask and derive the actual icon height safely
-- [ ] Decode bottom-up XOR pixels and four-byte row padding
-- [ ] Decode 1-, 4-, and 8-bit palette entries
-- [ ] Decode 16-bit RGB555/RGB565 and valid bitfield layouts
-- [ ] Decode 24-bit BGR and 32-bit BGRA entries
-- [ ] Decode the one-bit AND mask with its independent four-byte row padding
-- [ ] Apply the AND mask to palette, 16-bit, and 24-bit entries
-- [ ] Prefer meaningful 32-bit alpha while honoring the AND mask where required
-- [ ] Handle legacy 32-bit icons whose alpha bytes are all zero using a pinned,
+- [x] Decode bottom-up XOR pixels and four-byte row padding
+- [x] Decode 1-, 4-, and 8-bit palette entries
+- [x] Decode 16-bit RGB555/RGB565 and valid bitfield layouts
+- [x] Decode 24-bit BGR and 32-bit BGRA entries
+- [x] Decode the one-bit AND mask with its independent four-byte row padding
+- [x] Apply the AND mask to palette, 16-bit, and 24-bit entries
+- [x] Prefer meaningful 32-bit alpha while honoring the AND mask where required
+- [x] Handle legacy 32-bit icons whose alpha bytes are all zero using a pinned,
   Windows-compatible opaque/AND-mask fallback
-- [ ] Preserve partial alpha rather than reducing it to one-bit transparency
-- [ ] Emit bounded `rgba8` pixel blocks into the normal crop, resize, and
+- [x] Preserve partial alpha rather than reducing it to one-bit transparency
+- [x] Emit bounded `rgba8` pixel blocks into the normal crop, resize, and
   encoder pipeline
 
 ### Public behavior
 
-- [ ] Register `.ico` and the supported ICO MIME types
-- [ ] Return selected-image dimensions and total embedded image count from
+- [x] Register `.ico` and the supported ICO MIME types
+- [x] Return selected-image dimensions and total embedded image count from
   metadata
-- [ ] Support ICO-to-PNG, ICO-to-JPEG with explicit alpha flattening,
+- [x] Support ICO-to-PNG, ICO-to-JPEG with explicit alpha flattening,
   ICO-to-WebP, crop, resize, and contain workflows
-- [ ] Keep selection deterministic across metadata inspection and pixel decode
+- [x] Keep selection deterministic across metadata inspection and pixel decode
 
 ## Group 2: compatibility — should have
 
@@ -114,24 +114,25 @@ is unsupported until implemented and independently validated.
 
 ## Memory and safety contract
 
-- [ ] Bound input bytes, image count, dimensions, selected pixels, palette
+- [x] Bound input bytes, image count, dimensions, selected pixels, palette
   entries, PNG expansion, DIB stride, XOR bytes, AND-mask bytes, and decoded
   output before allocation
-- [ ] Use checked arithmetic for directory size, entry extents, row strides,
+- [x] Use checked arithmetic for directory size, entry extents, row strides,
   doubled DIB heights, palette sizes, masks, and pixel counts
-- [ ] Inspect directory metadata before decoding any payload
-- [ ] Decode only the selected image unless the caller explicitly requests
+- [x] Inspect directory metadata before decoding any payload
+- [x] Decode only the selected image unless the caller explicitly requests
   another entry
-- [ ] Never materialize every embedded image merely to choose one
-- [ ] Keep PNG and DIB payloads as bounded views into the original input
-- [ ] Preserve bounded-row behavior for the selected image without a duplicate
+- [x] Never materialize every embedded image merely to choose one
+- [x] Keep PNG and DIB payloads as bounded views into the original input
+- [x] Preserve bounded-row behavior for the selected image without a duplicate
   source-sized RGBA bitmap
-- [ ] Reject recursive container tricks, truncated PNG chunks, malformed DIB
+- [x] Reject recursive container tricks, truncated PNG chunks, malformed DIB
   headers, overlapping masks, and decompression bombs explicitly
 
 ## Fixtures and verification
 
-- [ ] Pin redistributable multi-size favicon and Windows icon fixtures
+- [x] Pin redistributable first-party mixed-size, 24-bit DIB, and 32-bit DIB
+  icon fixtures
 - [ ] Cover 16x16, 32x32, 48x48, and 256x256 entries
 - [ ] Cover PNG-backed icons plus 1/4/8/16/24/32-bit DIB entries
 - [ ] Cover opaque, one-bit mask, partial-alpha, all-zero-alpha fallback, odd
@@ -139,8 +140,8 @@ is unsupported until implemented and independently validated.
 - [ ] Validate metadata and selected pixels against Windows and at least one
   independent ICO decoder
 - [ ] Test target-aware and explicit-index selection deterministically
-- [ ] Verify benchmark output before recording speed or memory
-- [ ] Benchmark metadata, PNG-backed decode, DIB-backed decode, selection,
+- [x] Verify benchmark output before recording speed or memory
+- [x] Benchmark metadata, PNG-backed decode, DIB-backed decode, selection,
   ICO-to-PNG, and favicon resize workflows in isolated processes
 - [ ] Add malformed directory, offset, length, palette, DIB height, stride,
   bitfield, PNG extent, XOR, AND-mask, and allocation-limit fixtures
@@ -151,7 +152,7 @@ is unsupported until implemented and independently validated.
 - [ ] Unsupported compatibility and deferred inputs fail explicitly
 - [ ] Independent decoders confirm image count, selection, dimensions, and RGBA
   pixels
-- [ ] Common mixed-size favicons decode and resize without decoding every entry
+- [x] Common mixed-size favicons decode and resize without decoding every entry
 - [ ] `npm run check` and the isolated ICO fixture verification pass
 
 ## References

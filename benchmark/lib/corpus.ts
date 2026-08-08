@@ -62,6 +62,9 @@ const isSourceFixture = (value: unknown): value is SourceFixture => {
 
 const fixtureGenerators: ReadonlySet<unknown> = new Set([
   'bmp-gradient',
+  'ico-dib24',
+  'ico-dib32',
+  'ico-mixed',
   'odd-rgba',
   'rgba-gradient',
   'seeded-noise',
@@ -104,6 +107,46 @@ export const sha256 = (buffer: Uint8Array): string => {
   return createHash('sha256').update(buffer).digest('hex')
 }
 
+const identifyIco = (
+  bytes: Uint8Array,
+): { type: 'ico'; width: number; height: number; frames: number } | undefined => {
+  if (
+    bytes.byteLength < 6 ||
+    bytes[0] !== 0 ||
+    bytes[1] !== 0 ||
+    bytes[2] !== 1 ||
+    bytes[3] !== 0
+  ) {
+    return undefined
+  }
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  const frames = view.getUint16(4, true)
+  if (frames < 1 || 6 + frames * 16 > bytes.byteLength) return undefined
+  let width = 0
+  let height = 0
+  let area = 0
+  let bitDepth = 0
+  for (let index = 0; index < frames; index += 1) {
+    const entry = 6 + index * 16
+    const entryWidth = bytes[entry] === 0 ? 256 : (bytes[entry] ?? 0)
+    const entryHeight = bytes[entry + 1] === 0 ? 256 : (bytes[entry + 1] ?? 0)
+    const entryBitDepth = view.getUint16(entry + 6, true)
+    const length = view.getUint32(entry + 8, true)
+    const offset = view.getUint32(entry + 12, true)
+    if (length < 1 || offset < 6 + frames * 16 || offset + length > bytes.byteLength) {
+      return undefined
+    }
+    const entryArea = entryWidth * entryHeight
+    if (entryArea > area || (entryArea === area && entryBitDepth > bitDepth)) {
+      width = entryWidth
+      height = entryHeight
+      area = entryArea
+      bitDepth = entryBitDepth
+    }
+  }
+  return { type: 'ico', width, height, frames }
+}
+
 export const inspectFixture = async (fixture: Fixture): Promise<FixtureInspection> => {
   const buffer = await readFile(fixturePath(fixture))
   const bytes = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
@@ -118,7 +161,7 @@ export const inspectFixture = async (fixture: Fixture): Promise<FixtureInspectio
       bmpDimensions = { type: 'bmp', width, height: Math.abs(storedHeight) }
     }
   }
-  const dimensions = detected ?? bmpDimensions ?? identifyClassicTiff(bytes)
+  const dimensions = detected ?? bmpDimensions ?? identifyClassicTiff(bytes) ?? identifyIco(bytes)
 
   if (!dimensions) {
     throw new Error(`Could not identify ${fixture.file}`)
@@ -134,6 +177,13 @@ export const inspectFixture = async (fixture: Fixture): Promise<FixtureInspectio
 
   if (dimensions.type === 'gif') {
     inspection.frames = new GifReader(buffer).numFrames()
+  }
+  if (
+    dimensions.type === 'ico' &&
+    'frames' in dimensions &&
+    typeof dimensions.frames === 'number'
+  ) {
+    inspection.frames = dimensions.frames
   }
 
   if (fixture.expected.orientation) {

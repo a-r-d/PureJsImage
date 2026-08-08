@@ -15,8 +15,8 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Planar pixel layout (`PlanarConfiguration=2`)
 - [x] Region decode without materializing a full RGBA source image
 - [x] Orientation metadata (`Orientation` values 1-8)
-- [ ] Tiled images
-- [ ] BigTIFF with 64-bit offsets
+- [x] Tiled images, including padded right and bottom edges
+- [x] BigTIFF with validated 64-bit IFDs, counts, values, and offsets
 - [ ] SubIFDs, pyramids, and reduced-resolution images
 
 ### Pixel formats
@@ -27,10 +27,11 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] 8-bit grayscale plus alpha
 - [x] 8-bit RGBA
 - [x] Associated and unassociated alpha samples
-- [ ] 16-bit grayscale, grayscale-alpha, RGB, and RGBA
-- [ ] CMYK / `Separated`
-- [ ] YCbCr
-- [ ] CIELab and ICC-profile color conversion
+- [x] 16-bit grayscale, grayscale-alpha, RGB, and RGBA
+- [x] Four-component CMYK / `Separated`, including `DotRange`
+- [x] Chunky subsampled YCbCr and planar 1x1 YCbCr
+- [x] RGB, indexed, and JPEG-backed ICC-profile color conversion
+- [ ] CIELab and CMYK ICC-profile color conversion
 - [ ] Floating-point sample formats
 
 ### Compression and prediction
@@ -40,11 +41,12 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] LZW
 - [x] Deflate / Adobe Deflate
 - [x] CCITT Group 4 (`T6`) bilevel fax, including multi-strip and `FillOrder=2` input
-- [x] Horizontal differencing predictor for 8-bit samples
-- [ ] CCITT Modified Huffman and Group 3 fax
-- [ ] Old-style JPEG and JPEG-in-TIFF
+- [x] CCITT Modified Huffman and Group 3 (`T4`) fax, including mixed 1D/2D rows
+- [x] Horizontal differencing predictor for uniform 8-bit and 16-bit samples
+- [x] JPEG-in-TIFF (`Compression=7`) complete and abbreviated streams with `JPEGTables`
+- [x] Old-style JPEG (`Compression=6`) complete interchange streams and baseline Q/DC/AC table reconstruction
 - [ ] Zstandard, WebP, LERC, and other extension compressions
-- [ ] Reversed bit fill order (`FillOrder=2`) outside CCITT Group 4
+- [ ] Reversed bit fill order (`FillOrder=2`) outside CCITT fax compression
 
 ## Encode
 
@@ -72,9 +74,10 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 ## Correctness and safety contract
 
 - [x] Validate IFD extents, field types, counts, and offset arithmetic before reading or allocating
-- [x] Validate strip counts, byte ranges, decoded sizes, and predictor boundaries
-- [x] Bound decompression output to the declared strip geometry
+- [x] Validate strip/tile counts, byte ranges, decoded sizes, and predictor boundaries
+- [x] Bound decompression output to the declared strip or tile geometry
 - [x] Reject unsupported photometric interpretations, sample formats, and compressions explicitly
 - [x] Verify decoded pixels against pinned LibTIFF fixtures
 - [x] Verify CCITT Group 4 output against independently encoded ImageMagick/LibTIFF fixtures
+- [x] Verify tiled LZW and BigTIFF output against independently encoded ImageMagick/LibTIFF fixtures
 - [x] Benchmark absolute peak RSS in isolated cold and warm processes

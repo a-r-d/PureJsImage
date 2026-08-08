@@ -610,6 +610,42 @@
   ],
   "generated": [
     {
+      "id": "ico-mixed-16-32-256",
+      "file": "ico-mixed-16-32-256.ico",
+      "generator": "ico-mixed",
+      "expected": {
+        "format": "ico",
+        "width": 256,
+        "height": 256,
+        "frames": 3,
+        "sha256": "1ed250076fd93c920530062b873b2cff07391c93bd87dec9c23a5bf65e3bd346"
+      }
+    },
+    {
+      "id": "ico-dib32-alpha-128",
+      "file": "ico-dib32-alpha-128.ico",
+      "generator": "ico-dib32",
+      "expected": {
+        "format": "ico",
+        "width": 128,
+        "height": 128,
+        "frames": 1,
+        "sha256": "04415415fadcca8470473ffe85d1086319c8441b151597ab4ae5ed7459a99489"
+      }
+    },
+    {
+      "id": "ico-dib24-mask-96",
+      "file": "ico-dib24-mask-96.ico",
+      "generator": "ico-dib24",
+      "expected": {
+        "format": "ico",
+        "width": 96,
+        "height": 96,
+        "frames": 1,
+        "sha256": "02d357c6084fa9b8c80ab98fbd35dce37f3286f2d8747ed8a605f3ce443bd9eb"
+      }
+    },
+    {
       "id": "bmp-gradient-4000x3000",
       "file": "bmp-gradient-4000x3000.bmp",
       "generator": "bmp-gradient",

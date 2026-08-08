@@ -28,6 +28,7 @@
 </p>
 
 <p>
+  <a href="https://a-r-d.github.io/PureJsImage/">Documentation</a> ·
   <a href="#install">Install</a> ·
   <a href="#usage">Usage</a> ·
   <a href="#supported-codecs">Codecs</a> ·
@@ -66,7 +67,7 @@ with esbuild minification, gzip level 9, and Brotli quality 11.
 | Core + PNG | 54.0 KiB | 18.7 KiB | 16.5 KiB |
 | Core + JPEG | 67.9 KiB | 23.2 KiB | 20.0 KiB |
 | Core + WebP | 74.7 KiB | 27.4 KiB | 23.7 KiB |
-| Core + all codecs | 354.5 KiB | 121.1 KiB | 97.9 KiB |
+| Core + all codecs | 377.5 KiB | 129.1 KiB | 103.7 KiB |
 
 Run `npm run size` to reproduce these numbers and see every codec entry.
 Applications import only the codecs they use, so the root API does not pull
@@ -81,7 +82,8 @@ AVIF, HEIF/HEVC, or any other codec implementation into the module graph.
 | GIF | First composited frame | No |
 | WebP | Static lossy, lossless, and alpha | Static lossy and lossless |
 | BMP | Indexed, RLE, RGB, bitfields, and alpha | RGB and RGBA |
-| TIFF | Common strip-based grayscale, indexed, RGB, alpha, and CCITT Group 4 fax | Uncompressed grayscale, RGB, and RGBA |
+| ICO | Multi-image PNG and common DIB-backed Windows icons | No |
+| TIFF | Classic/BigTIFF strips and tiles; grayscale, indexed, RGB, CMYK, YCbCr, alpha, fax, and JPEG compression | Uncompressed grayscale, RGB, and RGBA |
 | AVIF | Opaque 8-bit YUV 4:2:0 still-image subset | No |
 | HEIF / HEIC | Opaque 8/10-bit YUV 4:2:0 intra stills, including grids | No |
 
@@ -258,6 +260,7 @@ same validity and correctness checks for both engines.
 | 4000x3000 BMP resize to JPEG | 149 ms | 719 ms | 153 MiB | 262 MiB |
 | Large TIFF resize to JPEG | 109 ms | 639 ms | 133 MiB | 319 MiB |
 | 1600x2000 WebP resize to JPEG | 519 ms | Unsupported | 167 MiB | — |
+| 96x96 ICO resize to 192px JPEG | 14 ms | Unsupported | 95 MiB | — |
 | JPEG to lossy WebP | 965 ms | Unsupported | 112 MiB | — |
 | PNG to lossless WebP | 50 ms | Unsupported | 107 MiB | — |
 | 4032x3024 iPhone HEIC, orient and resize to 1200px JPEG | 8,080 ms | Unsupported | 190 MiB | — |
@@ -268,15 +271,15 @@ about **87% less peak memory** and is 47% faster. The 4000x3000 PNG resize is
 47% faster, while the large TIFF resize is 83% faster and uses 58% less peak
 memory. The 4000x3000 BMP resize is 79% faster and uses 42% less peak memory.
 
-The WebP and HEIC results are PureJsImage-only absolute baselines because Jimp
-1.6 exposes neither codec. The HEIC workflow uses an original iPhone 12 Pro
-camera file. Every workflow runs in an isolated process and counts only after
-the output passes its pinned validation checks.
+The WebP, ICO, and HEIC results are PureJsImage-only absolute baselines because
+Jimp 1.6 does not expose those codecs. The HEIC workflow uses an original iPhone
+12 Pro camera file. Every workflow runs in an isolated process and counts only
+after the output passes its pinned validation checks.
 
 See the
 [detailed benchmarks](https://github.com/a-r-d/PureJsImage/blob/main/benchmarks.md)
-for methodology, codec-specific results, absolute WebP, AVIF, and HEIF measurements,
-and links to the raw reports.
+for methodology, codec-specific results, absolute WebP, ICO, AVIF, and HEIF
+measurements, and links to the raw reports.
 
 ## Development
 

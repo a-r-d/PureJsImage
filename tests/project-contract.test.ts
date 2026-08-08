@@ -76,6 +76,7 @@ describe('package contract', () => {
       './codecs/bmp',
       './codecs/gif',
       './codecs/heif',
+      './codecs/ico',
       './codecs/jpeg',
       './codecs/png',
       './codecs/tiff',
@@ -87,6 +88,7 @@ describe('package contract', () => {
       'bmpCodec',
       'gifCodec',
       'heifCodec',
+      'icoCodec',
       'jpegCodec',
       'pngCodec',
       'tiffCodec',
@@ -157,6 +159,7 @@ describe('benchmark contract', () => {
     const phase5 = workflowsForProfile('phase5')
     const bmp = workflowsForProfile('bmp')
     const heif = workflowsForProfile('heif')
+    const ico = workflowsForProfile('ico')
     const tiff = workflowsForProfile('tiff')
     const webp = workflowsForProfile('webp')
 
@@ -165,6 +168,7 @@ describe('benchmark contract', () => {
     expect(phase5.length).toBe(5)
     expect(bmp.length).toBe(16)
     expect(heif.length).toBe(4)
+    expect(ico.length).toBe(6)
     expect(tiff.length).toBe(10)
     expect(webp.length).toBe(9)
     expect(standard.length).toBeGreaterThan(smoke.length)
@@ -174,12 +178,14 @@ describe('benchmark contract', () => {
         (workflow) =>
           workflow.tier !== 'bmp' &&
           workflow.tier !== 'heif' &&
+          workflow.tier !== 'ico' &&
           workflow.tier !== 'tiff' &&
           workflow.tier !== 'webp',
       ),
     )
     expect(bmp).toEqual(workflows.filter((workflow) => workflow.tier === 'bmp'))
     expect(heif).toEqual(workflows.filter((workflow) => workflow.tier === 'heif'))
+    expect(ico).toEqual(workflows.filter((workflow) => workflow.tier === 'ico'))
     expect(tiff).toEqual(workflows.filter((workflow) => workflow.tier === 'tiff'))
     expect(webp).toEqual(workflows.filter((workflow) => workflow.tier === 'webp'))
   })

@@ -4,6 +4,21 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-08-08
+
+### Added
+
+- Added first-party ICO decoding with validated multi-image selection,
+  zero-copy embedded PNG entries, common 1/4/8/16/24/32-bit DIB layouts,
+  one-bit AND masks, partial alpha, and the Windows-compatible legacy
+  all-zero-alpha fallback.
+- Added a committed, checksum-pinned ICO corpus plus correctness-gated isolated
+  benchmarks for metadata, embedded PNG and DIB decoding, masks, alpha, resize,
+  PNG output, and JPEG output.
+- Expanded first-party TIFF decoding with BigTIFF 64-bit IFDs and offsets,
+  padded tiled layouts, 16-bit integer channels, CMYK and subsampled YCbCr
+  conversion, CCITT Modified Huffman and Group 3 fax, and old/new JPEG-in-TIFF.
+
 ## [0.4.0] - 2026-08-07
 
 ### Added
@@ -134,4 +149,6 @@ All notable changes to PureJsImage are documented in this file.
   uniqueness, palette, transparency, and trailing-data checks.
 
 [0.3.0]: https://github.com/a-r-d/PureJsImage/compare/v0.2.0...v0.3.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.3.0...HEAD
+[0.4.0]: https://github.com/a-r-d/PureJsImage/compare/v0.3.0...v0.4.0
+[0.5.0]: https://github.com/a-r-d/PureJsImage/compare/v0.4.0...v0.5.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.5.0...HEAD

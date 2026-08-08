@@ -43,7 +43,16 @@ const ftypProbeLength = (header: Uint8Array, sourceSize: number): number => {
   return Math.min(sourceSize, declaredSize, maximumFtypProbeBytes)
 }
 
-export type BuiltInFormat = 'avif' | 'bmp' | 'gif' | 'heif' | 'jpeg' | 'png' | 'tiff' | 'webp'
+export type BuiltInFormat =
+  | 'avif'
+  | 'bmp'
+  | 'gif'
+  | 'heif'
+  | 'ico'
+  | 'jpeg'
+  | 'png'
+  | 'tiff'
+  | 'webp'
 
 export type ChromaSubsampling = '400' | '420' | '422' | '444'
 

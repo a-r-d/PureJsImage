@@ -2,8 +2,10 @@ import { allFixtures, inspectFixture, readManifest, verifyInspection } from '../
 
 const manifest = await readManifest()
 let failures = 0
+const requestedFixtureIds = new Set(process.argv.slice(2))
 
 for (const fixture of allFixtures(manifest)) {
+  if (requestedFixtureIds.size > 0 && !requestedFixtureIds.has(fixture.id)) continue
   try {
     const inspection = await inspectFixture(fixture)
     const errors = verifyInspection(fixture, inspection)

@@ -43,6 +43,21 @@ const gifFixture = (): Uint8Array => {
   return output.slice(0, writer.end())
 }
 
+const icoFixture = (png: Uint8Array, width: number, height: number): Uint8Array => {
+  const output = new Uint8Array(22 + png.byteLength)
+  const view = new DataView(output.buffer)
+  view.setUint16(2, 1, true)
+  view.setUint16(4, 1, true)
+  output[6] = width === 256 ? 0 : width
+  output[7] = height === 256 ? 0 : height
+  view.setUint16(10, 1, true)
+  view.setUint16(12, 32, true)
+  view.setUint32(14, png.byteLength, true)
+  view.setUint32(18, 22, true)
+  output.set(png, 22)
+  return output
+}
+
 export const createCodecFixtures = async (): Promise<readonly CodecFixture[]> => {
   const png = noisyPng()
   return [
@@ -56,6 +71,7 @@ export const createCodecFixtures = async (): Promise<readonly CodecFixture[]> =>
     },
     { format: 'heif', input: compactHeifFixture },
     { format: 'bmp', input: await (await Image.open(png)).bmp().toBuffer() },
+    { format: 'ico', input: icoFixture(png, 32, 32) },
     { format: 'tiff', input: await (await Image.open(png)).tiff().toBuffer() },
   ]
 }

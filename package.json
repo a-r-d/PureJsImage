@@ -1,6 +1,6 @@
 {
   "name": "purejsimage",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Low-memory, dependency-free image processing in pure TypeScript",
   "keywords": [
     "image",
@@ -67,6 +67,11 @@
       "import": "./dist/codec-entries/heif.js",
       "default": "./dist/codec-entries/heif.js"
     },
+    "./codecs/ico": {
+      "types": "./dist/codec-entries/ico.d.ts",
+      "import": "./dist/codec-entries/ico.js",
+      "default": "./dist/codec-entries/ico.js"
+    },
     "./codecs/jpeg": {
       "types": "./dist/codec-entries/jpeg.d.ts",
       "import": "./dist/codec-entries/jpeg.js",
@@ -110,6 +115,7 @@
     "fixtures:verify": "node benchmark/scripts/verify-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
     "fixtures:heif": "node benchmark/heif/verify-corpus.ts",
+    "fixtures:ico": "node benchmark/ico/verify-corpus.ts",
     "fixtures:jpeg": "node benchmark/jpeg/verify-corpus.ts",
     "results:combine": "node benchmark/scripts/combine-results.ts",
     "bench": "node benchmark/run.ts",
@@ -126,6 +132,7 @@
     "bench:heif": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif",
     "bench:heif:cold": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif --runs 3 --warmups 0",
     "bench:heif:warm": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif --runs 3 --warmups 1",
+    "bench:ico": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile ico",
     "bench:jpeg:encode": "npm run build && node --expose-gc benchmark/jpeg/encode-probe.ts"
   },
   "devDependencies": {
