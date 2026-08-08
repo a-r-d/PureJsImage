@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Reproducible PureJsImage benchmarks: wall time, absolute peak RSS, bundle size, output validity, and comparison with Jimp 1.6.">
+  <meta name="description" content="Reproducible PureJsImage benchmarks: validated wall time, absolute peak RSS, startup cost, package footprint, and comparisons with Jimp, Sharp, and image-js.">
   <meta name="theme-color" content="#f6f7f2">
   <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/performance.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -20,13 +20,51 @@
   </div></header>
 
   <main id="main">
-    <header class="page-hero"><div class="container"><p class="eyebrow">Performance</p><h1>Benchmark methodology and recorded results.</h1><p class="page-lede">Complete decode–transform–encode workflows measured in isolated processes with pinned inputs, absolute peak RSS, and independently validated output.</p><div class="page-meta"><span class="pill">Jimp 1.6 baseline</span><span class="pill">Recorded August 2026</span><span class="pill">Linux x64</span></div></div></header>
+    <header class="page-hero"><div class="container"><p class="eyebrow">Performance</p><h1>Benchmark methodology and recorded results.</h1><p class="page-lede">Complete decode–transform–encode workflows measured in isolated processes with pinned inputs, absolute peak RSS, and independently validated output.</p><div class="page-meta"><span class="pill">Five-engine competitor profile</span><span class="pill">Recorded August 2026</span><span class="pill">Linux x64</span></div></div></header>
+    <section class="proof-section performance-showcase" id="competitor-charts" aria-labelledby="competitor-charts-title">
+      <div class="container">
+        <div class="proof-heading">
+          <div><p class="section-label">Validated competitor profile</p><h2 id="competitor-charts-title">Speed and memory across five isolated engines.</h2></div>
+          <p>Every displayed result passed equivalent-output validation. Sharp and Sharp single-thread use native libvips code; PureJsImage, Jimp, and image-js are pure JavaScript.</p>
+        </div>
+        <div class="benchmark-facts">
+          <div><strong>87.6%</strong><span>lower northstar RSS vs Jimp</span></div>
+          <div><strong>88.4%</strong><span>lower northstar RSS vs image-js</span></div>
+          <div><strong>0</strong><span>invalid outputs or errors</span></div>
+        </div>
+        <fieldset class="benchmark-gallery">
+          <legend>Choose a benchmark chart</legend>
+          <input id="benchmark-speed" name="benchmark-chart" type="radio" checked>
+          <input id="benchmark-memory" name="benchmark-chart" type="radio">
+          <div class="benchmark-gallery-tabs">
+            <label for="benchmark-speed"><span>01</span> Speed</label>
+            <label for="benchmark-memory"><span>02</span> Memory</label>
+          </div>
+          <div class="benchmark-gallery-panels">
+            <figure class="benchmark-gallery-panel" data-chart="speed">
+              <div class="benchmark-gallery-head"><div><span>Median wall time</span><strong>Logarithmic scale · lower is better</strong></div><small>Sharp = native libvips</small></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-speed-2026-08-08.png" width="2400" height="2070" alt="Grouped horizontal bars comparing median wall time for all five benchmark engines across nine equivalent workflows. The two Sharp configurations use native libvips code." fetchpriority="high"></div>
+              <figcaption>Timings include encoding. Lossy quality scales are not calibrated across encoders. <a href="assets/competitors-speed-2026-08-08.png">Open full-size chart</a>.</figcaption>
+            </figure>
+            <figure class="benchmark-gallery-panel" data-chart="memory">
+              <div class="benchmark-gallery-head"><div><span>Absolute process memory</span><strong>Median peak RSS · lower is better</strong></div><small>Isolated worker processes</small></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-memory-2026-08-08.png" width="2400" height="2070" alt="Grouped horizontal bars comparing median absolute peak RSS for all five benchmark engines across nine equivalent workflows." loading="lazy" decoding="async"></div>
+              <figcaption>RSS includes the Node.js runtime and native allocations. <a href="assets/competitors-memory-2026-08-08.png">Open full-size chart</a>.</figcaption>
+            </figure>
+          </div>
+        </fieldset>
+        <div class="proof-meta">
+          <span>Node.js 24.16 · Linux x64 · Intel i7-10700 · recorded August 2026</span>
+          <span><a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/competitors-2026-08-08.md" target="_blank" rel="noreferrer">Readable report</a> · <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/competitors-2026-08-08.json" target="_blank" rel="noreferrer">JSON</a></span>
+        </div>
+      </div>
+    </section>
     <div class="container docs-layout">
       <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="guides.html">Getting started</a><a href="guides.html#lambda">Lambda guide</a></div><div class="nav-group"><strong>Reference</strong><a href="api.html">API reference</a><a href="codecs.html">Codec support</a><a href="performance.html" aria-current="page">Performance</a></div></aside>
       <article class="content">
         <section id="headline">
-          <h2>Headline results</h2>
-          <p>In the recorded 6000 × 4000 JPEG orientation, crop, resize, and encode workflow, PureJsImage used 118.6 MiB peak RSS versus Jimp’s 1,188.3 MiB and completed in 3,242.5 ms versus 3,762.9 ms.</p>
+          <h2>Earlier Jimp baseline</h2>
+          <p>This separately recorded Jimp-only baseline predates the five-engine profile above. In its 6000 × 4000 JPEG orientation, crop, resize, and encode workflow, PureJsImage used 118.6 MiB peak RSS versus Jimp’s 1,188.3 MiB and completed in 3,242.5 ms versus 3,762.9 ms.</p>
           <div class="stat-grid">
             <div class="card stat-card"><strong>90%</strong><span>lower peak RSS · 24 MP JPEG</span></div>
             <div class="card stat-card"><strong>14%</strong><span>faster wall time · 24 MP JPEG</span></div>
@@ -54,7 +92,8 @@
             <div class="method-step"><b>04</b><span>Decode and validate the output against structural or pixel references.</span></div>
           </div>
           <ul>
-            <li>Baseline comparison: <code>jimp@1.6.0</code>.</li>
+            <li>Competitor profile: PureJsImage, <code>jimp@1.6.0</code>, <code>sharp@0.35.3</code> with default concurrency and one processing thread, and <code>image-js@1.7.0</code>.</li>
+            <li>The detailed historical tables below use the separately recorded Jimp 1.6 baseline.</li>
             <li>Recorded environment: Node.js 24.16.0 on Linux x64, Intel Core i7-10700.</li>
             <li>Reports use median and p95 wall time across repeated runs.</li>
             <li>Absolute process peak RSS is the headline memory value.</li>
@@ -121,6 +160,8 @@ npm run fixtures:heif
 npm run fixtures:jpeg
 
 npm run build
+npm run bench:competitors
+npm run bench:competitors:charts
 npm run bench:smoke
 npm run bench:bmp
 npm run bench:tiff
@@ -129,7 +170,7 @@ npm run bench:transforms:compare
 npm run bench:webp
 npm run bench:avif:b2
 npm run bench:heif:cold</code></pre></div>
-          <p>For cross-engine profiles, set <code>PUREJSIMAGE_ENTRY=./dist/index.js</code> and run the harness with <code>--engines jimp,purejsimage</code>. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md" target="_blank" rel="noreferrer">benchmark harness guide</a> for profiles and result interpretation.</p>
+          <p><code>npm run bench:competitors</code> builds PureJsImage and runs all five engines in isolated workers. The chart command regenerates both checked-in PNGs from the JSON report. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md" target="_blank" rel="noreferrer">benchmark harness guide</a> for profiles and result interpretation.</p>
         </section>
 
         <section id="interpretation">
@@ -143,7 +184,7 @@ npm run bench:heif:cold</code></pre></div>
           </ul>
         </section>
       </article>
-      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#headline">Headline results</a><a href="#methodology">Methodology</a><a href="#codec-results">Codec results</a><a href="#bundle">Bundle size</a><a href="#reproduce">Reproduce it</a><a href="#interpretation">Interpret results</a></aside>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#competitor-charts">Competitor charts</a><a href="#headline">Earlier Jimp baseline</a><a href="#methodology">Methodology</a><a href="#codec-results">Codec results</a><a href="#bundle">Bundle size</a><a href="#reproduce">Reproduce it</a><a href="#interpretation">Interpret results</a></aside>
     </div>
   </main>
 
