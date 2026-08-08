@@ -1,0 +1,23 @@
+src/codecs/heif.ts
+  s_84d542edc0aa8c::t_c5faa64c4ff7d4 210
+tests/heif.test.ts
+  s_84d542edc0aa8c::t_c5faa64c4ff7d4 366,370,379,404-406,414,437,470,559,744,1015-1017
+  s_84d542edc0aa8c::t_0813e66bc0f04a 1059-1066
+  s_84d542edc0aa8c::t_563ceea84239e5 1067-1068
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "d30450e151c9dbef1d7439ee3bf708f5871d6f10",
+  "prompts": {},
+  "sessions": {
+    "s_84d542edc0aa8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe30a-1315-7a91-ac72-83d2bf53d5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
