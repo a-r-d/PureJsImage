@@ -1,0 +1,49 @@
+export interface BrowserWorkflowResult {
+  readonly detail: string
+  readonly outputBytes: number
+}
+
+export interface BrowserCompatibilityHarness {
+  failureCleanup(): Promise<BrowserWorkflowResult>
+  inputTypes(): Promise<readonly BrowserWorkflowResult[]>
+  jpegPipeline(): Promise<BrowserWorkflowResult>
+  orientation(): Promise<BrowserWorkflowResult>
+  pngAlphaPipeline(): Promise<BrowserWorkflowResult>
+}
+
+export interface BrowserBenchmarkMeasurement {
+  readonly correctness: string
+  readonly firstOperationMilliseconds: number
+  readonly javascriptBytesLoaded: number
+  readonly label: string
+  readonly moduleInitializationMilliseconds: number
+  readonly outputBytes: number
+  readonly scope: 'codec-only' | 'complete-pipeline' | 'native-complete-pipeline'
+  readonly warmMedianMilliseconds: number
+  readonly wasmBytesLoaded: number
+}
+
+export interface BrowserBenchmarkReport {
+  readonly browser: string
+  readonly generatedAt: string
+  readonly measurements: readonly BrowserBenchmarkMeasurement[]
+  readonly note: string
+  readonly warmRuns: number
+}
+
+export interface BrowserBenchmarkHarness {
+  run(): Promise<BrowserBenchmarkReport>
+}
+
+export interface BrowserBenchmarkModule {
+  prepare(input: ArrayBuffer): Promise<void>
+  run(): Promise<number>
+  verify(): Promise<string>
+}
+
+declare global {
+  interface Window {
+    pureJsImageBrowserBenchmark: BrowserBenchmarkHarness
+    pureJsImageBrowserTests: BrowserCompatibilityHarness
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.34 Safari/537.36",
+  "generatedAt": "2026-08-08T21:55:03.993Z",
+  "warmRuns": 5,
+  "note": "PureJsImage and native rows are complete decode-resize-encode pipelines. jSquash rows measure codec-only decode or encode and are not complete pipeline comparisons. Browser memory is intentionally not reported.",
+  "measurements": [
+    {
+      "label": "PureJsImage JPEG decode-resize-encode",
+      "scope": "complete-pipeline",
+      "moduleInitializationMilliseconds": 8.5,
+      "firstOperationMilliseconds": 51.5,
+      "warmMedianMilliseconds": 29.899999976158142,
+      "outputBytes": 16024,
+      "correctness": "PureJsImage decoded output 320x240; pixel checksum baebfe86",
+      "javascriptBytesLoaded": 85791,
+      "wasmBytesLoaded": 0
+    },
+    {
+      "label": "PureJsImage PNG decode-resize-encode",
+      "scope": "complete-pipeline",
+      "moduleInitializationMilliseconds": 6.300000011920929,
+      "firstOperationMilliseconds": 54.60000002384186,
+      "warmMedianMilliseconds": 32.89999997615814,
+      "outputBytes": 184756,
+      "correctness": "PureJsImage decoded output 320x240; pixel checksum fc65a316",
+      "javascriptBytesLoaded": 69636,
+      "wasmBytesLoaded": 0
+    },
+    {
+      "label": "Native JPEG createImageBitmap-resize-encode",
+      "scope": "native-complete-pipeline",
+      "moduleInitializationMilliseconds": 2.200000047683716,
+      "firstOperationMilliseconds": 3.300000011920929,
+      "warmMedianMilliseconds": 2.799999952316284,
+      "outputBytes": 15017,
+      "correctness": "decoded output 320x240; pixel checksum aa8f49c9",
+      "javascriptBytesLoaded": 1447,
+      "wasmBytesLoaded": 0
+    },
+    {
+      "label": "Native PNG createImageBitmap-resize-encode",
+      "scope": "native-complete-pipeline",
+      "moduleInitializationMilliseconds": 1.899999976158142,
+      "firstOperationMilliseconds": 9.299999952316284,
+      "warmMedianMilliseconds": 7.699999988079071,
+      "outputBytes": 192112,
+      "correctness": "decoded output 320x240; pixel checksum a84f9230",
+      "javascriptBytesLoaded": 1432,
+      "wasmBytesLoaded": 0
+    },
+    {
+      "label": "jSquash JPEG decode",
+      "scope": "codec-only",
+      "moduleInitializationMilliseconds": 2.800000011920929,
+      "firstOperationMilliseconds": 14.699999988079071,
+      "warmMedianMilliseconds": 4.5,
+      "outputBytes": 1228800,
+      "correctness": "jSquash decoded RGBA 640x480; pixel checksum 283b79a6",
+      "javascriptBytesLoaded": 19846,
+      "wasmBytesLoaded": 166470
+    },
+    {
+      "label": "jSquash JPEG encode",
+      "scope": "codec-only",
+      "moduleInitializationMilliseconds": 4.900000035762787,
+      "firstOperationMilliseconds": 94.59999996423721,
+      "warmMedianMilliseconds": 78.59999996423721,
+      "outputBytes": 88536,
+      "correctness": "decoded output 640x480; pixel checksum 71cae750",
+      "javascriptBytesLoaded": 21691,
+      "wasmBytesLoaded": 251524
+    },
+    {
+      "label": "jSquash PNG decode",
+      "scope": "codec-only",
+      "moduleInitializationMilliseconds": 2.5,
+      "firstOperationMilliseconds": 17.899999976158142,
+      "warmMedianMilliseconds": 8.100000023841858,
+      "outputBytes": 1228800,
+      "correctness": "jSquash decoded RGBA 640x480; pixel checksum 3048fbab",
+      "javascriptBytesLoaded": 4643,
+      "wasmBytesLoaded": 181088
+    },
+    {
+      "label": "jSquash PNG encode",
+      "scope": "codec-only",
+      "moduleInitializationMilliseconds": 2.5,
+      "firstOperationMilliseconds": 15,
+      "warmMedianMilliseconds": 5.899999976158142,
+      "outputBytes": 886455,
+      "correctness": "decoded output 640x480; pixel checksum 3048fbab",
+      "javascriptBytesLoaded": 5432,
+      "wasmBytesLoaded": 181088
+    },
+    {
+      "label": "jSquash WebP decode",
+      "scope": "codec-only",
+      "moduleInitializationMilliseconds": 2.900000035762787,
+      "firstOperationMilliseconds": 14.399999976158142,
+      "warmMedianMilliseconds": 2.699999988079071,
+      "outputBytes": 609880,
+      "correctness": "jSquash decoded RGBA 386x395; pixel checksum dd77ded2",
+      "javascriptBytesLoaded": 20358,
+      "wasmBytesLoaded": 137960
+    },
+    {
+      "label": "jSquash WebP encode",
+      "scope": "codec-only",
+      "moduleInitializationMilliseconds": 3.400000035762787,
+      "firstOperationMilliseconds": 84.60000002384186,
+      "warmMedianMilliseconds": 46.5,
+      "outputBytes": 96940,
+      "correctness": "decoded output 640x480; pixel checksum dcbf7d55",
+      "javascriptBytesLoaded": 44843,
+      "wasmBytesLoaded": 345584
+    }
+  ]
+}

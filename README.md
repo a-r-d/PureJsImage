@@ -168,6 +168,11 @@ PNG encoding in browsers uses `CompressionStream` and currently supports the
 default `compressionLevel: 6`; other levels fail explicitly because the browser
 API does not expose compression tuning.
 
+The real-browser suite is pinned to Playwright's Chromium 151.0.7922.34,
+Firefox 153.0, and WebKit 26.5 builds. See
+[`browser-support.md`](browser-support.md) for exact compatibility coverage,
+commands, CI gates, and the Chromium-only performance methodology.
+
 Create the library once and reuse it across requests. Codec registration is
 immutable after initialization.
 

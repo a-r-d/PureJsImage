@@ -22,6 +22,15 @@ describe('package contract', () => {
     expect('skia-canvas' in packageJson.devDependencies).toBe(false)
   })
 
+  it('keeps real-browser validation tools development-only and version-pinned', () => {
+    expect(packageJson.devDependencies['@playwright/test']).toBe('1.62.1')
+    expect(packageJson.devDependencies['@jsquash/jpeg']).toBe('1.6.0')
+    expect(packageJson.devDependencies['@jsquash/png']).toBe('3.1.1')
+    expect(packageJson.devDependencies['@jsquash/webp']).toBe('1.5.0')
+    expect(packageJson.scripts['browser:test']).toBe('playwright test')
+    expect(packageJson.scripts['browser:bench']).toContain('--project=chromium')
+  })
+
   it('embeds the checked-in competitor charts in the README and docs homepage', () => {
     const readme = readFileSync('README.md', 'utf8')
     const docsHome = readFileSync('docs/index.html', 'utf8')
@@ -46,6 +55,7 @@ describe('package contract', () => {
   it('keeps source, benchmark, scripts, and test code in TypeScript', () => {
     const javascriptSources = globSync([
       'benchmark/**/*.{cjs,js,jsx,mjs}',
+      'browser-tests/**/*.{cjs,js,jsx,mjs}',
       'scripts/**/*.{cjs,js,jsx,mjs}',
       'src/**/*.{cjs,js,jsx,mjs}',
       'tests/**/*.{cjs,js,jsx,mjs}',

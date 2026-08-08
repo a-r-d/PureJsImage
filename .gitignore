@@ -182,3 +182,5 @@ benchmark/corpus/files/jp2/*
 benchmark/.tmp/
 benchmark/results/artifacts/
 artifacts/fuzz-crashes/
+playwright-report/
+test-results/
