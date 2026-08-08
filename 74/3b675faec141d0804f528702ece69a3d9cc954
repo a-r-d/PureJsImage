@@ -1,0 +1,101 @@
+tsconfig.json
+  s_74376132a55770::t_e7b07d0aec37a6 20-21
+browser-tests/benchmark/jsquash-jpeg-encode.ts
+  s_74376132a55770::t_92e7ee52ac32df 1-24
+browser-tests/compatibility-harness.ts
+  s_74376132a55770::t_f2d1605fc38e41 1-30,34-68,73-82,84-100,105-124,126-127,130-171
+  s_74376132a55770::t_541dc26c279ec8 31-33,69-72,83,101-104,125,128-129
+browser-tests/benchmark/native-jpeg.ts
+  s_74376132a55770::t_92e7ee52ac32df 1-29
+tests/project-contract.test.ts
+  s_74376132a55770::t_ce1a2e08a16b57 25-33,58
+browser-tests/benchmark/jsquash-png-encode.ts
+  s_74376132a55770::t_92e7ee52ac32df 1-24
+browser-tests/benchmark/native-png.ts
+  s_74376132a55770::t_92e7ee52ac32df 1-29
+browser-tests/benchmark/jsquash-webp-encode.ts
+  s_74376132a55770::t_92e7ee52ac32df 1-24
+scripts/check-browser-build.ts
+  s_74376132a55770::t_9452b3dc792af8 7,24-28,31-32
+  s_84d542edc0aa8c::t_8ab4ab9921dab4 33
+.gitignore
+  s_74376132a55770::t_9452b3dc792af8 185-186
+playwright.config.ts
+  s_74376132a55770::t_e7b07d0aec37a6 1-6,8-20,31-38
+  s_74376132a55770::t_f4951ae05a6c17 21-30
+  s_74376132a55770::t_e77e510bbc584e 7
+benchmark/README.md
+  s_74376132a55770::t_12a7dd82237b5a 180-196
+scripts/serve-browser-tests.ts
+  s_74376132a55770::t_e7b07d0aec37a6 1-184
+browser-tests/benchmark/jsquash-webp-decode.ts
+  s_74376132a55770::t_9452b3dc792af8 3,21
+  s_74376132a55770::t_e77e510bbc584e 18
+  s_74376132a55770::t_92e7ee52ac32df 1-2,4-17,19-20,22-27
+browser-tests/benchmark.pw.ts
+  s_74376132a55770::t_e77e510bbc584e 1-25,27-47
+  s_74376132a55770::t_f4951ae05a6c17 26
+browser-tests/benchmark-harness.ts
+  s_74376132a55770::t_eb56fb046c56af 1-179
+browser-tests/benchmark/jsquash-jpeg-decode.ts
+  s_74376132a55770::t_e77e510bbc584e 18
+  s_74376132a55770::t_92e7ee52ac32df 1-2,4-17,19-20,22-27
+  s_74376132a55770::t_9452b3dc792af8 3,21
+browser-tests/compatibility.pw.ts
+  s_74376132a55770::t_e77e510bbc584e 1-41
+browser-tests/types.ts
+  s_74376132a55770::t_f2d1605fc38e41 1-49
+browser-support.md
+  s_74376132a55770::t_9452b3dc792af8 1-67
+package.json
+  s_74376132a55770::t_e7b07d0aec37a6 121,173-176
+  s_74376132a55770::t_e77e510bbc584e 122
+browser-tests/benchmark/common.ts
+  s_74376132a55770::t_92e7ee52ac32df 1-10,27-36,38-39,47
+  s_74376132a55770::t_9452b3dc792af8 11-26,37,40-46
+browser-tests/benchmark/purejsimage-jpeg.ts
+  s_74376132a55770::t_9452b3dc792af8 4,25
+  s_74376132a55770::t_92e7ee52ac32df 1-3,5-24,26-31
+  s_74376132a55770::t_f53862f5b5e7b8 32-34
+browser-tests/benchmark/purejsimage-png.ts
+  s_74376132a55770::t_92e7ee52ac32df 1-3,5-24,26-31
+  s_74376132a55770::t_9452b3dc792af8 4,25
+.github/workflows/ci.yml
+  s_74376132a55770::t_9452b3dc792af8 46-78
+README.md
+  s_74376132a55770::t_12a7dd82237b5a 171-175
+browser-tests/benchmark/jsquash-png-decode.ts
+  s_74376132a55770::t_9452b3dc792af8 3,21
+  s_74376132a55770::t_e77e510bbc584e 18
+  s_74376132a55770::t_92e7ee52ac32df 1-2,4-17,19-20,22-27
+benchmark/results/browser-chromium-2026-08-08.json
+  s_74376132a55770::t_a3ae44757c5574 1-118
+benchmark/results/browser-chromium-2026-08-08.md
+  s_74376132a55770::t_07d65b149a53be 1-18
+package-lock.json
+  s_74376132a55770::t_1a5d381eeed821 13-16,1688-1711,1722-1737,3679-3725,4396-4402
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "743b675faec141d0804f528702ece69a3d9cc954",
+  "prompts": {},
+  "sessions": {
+    "s_74376132a55770": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe205-7b4b-7cb3-8899-fe988f8f08bf",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_84d542edc0aa8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe30a-1315-7a91-ac72-83d2bf53d5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
