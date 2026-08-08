@@ -177,6 +177,23 @@ Jimp uses different canvas sizing and sampling semantics, so its output is not
 an equivalent comparison. The comparison command runs the other three
 workflows through both engines with the same correctness gates.
 
+Run the real-browser compatibility suite in Chromium, Firefox, and WebKit:
+
+```sh
+npm run browser:test
+```
+
+Record the Chromium-only browser performance baseline:
+
+```sh
+npm run browser:bench
+```
+
+PureJsImage and native `createImageBitmap` + `OffscreenCanvas` results are
+complete decode-resize-encode pipelines. jSquash JPEG, PNG, and WebP results are
+codec-only decode or encode measurements and are deliberately labeled as such.
+See `../browser-support.md` for exact engine versions and measurement details.
+
 Verify and benchmark ICO inputs:
 
 ```sh
