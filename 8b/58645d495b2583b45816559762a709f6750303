@@ -1,0 +1,19 @@
+scripts/serve-browser-tests.ts
+  s_74376132a55770::t_c8830cffb791e4 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "8b58645d495b2583b45816559762a709f6750303",
+  "prompts": {},
+  "sessions": {
+    "s_74376132a55770": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe205-7b4b-7cb3-8899-fe988f8f08bf",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
