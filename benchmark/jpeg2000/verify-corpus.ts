@@ -18,6 +18,24 @@ interface FixtureExpectation {
 
 const fixtures: readonly FixtureExpectation[] = [
   {
+    file: 'wikimedia-blue-marble-openjpeg-lossless.jp2',
+    sha256: 'b17a99f8c9b7ab6488c194ad198bc0adb10b9e2d310eea50c3503e2479439e59',
+    width: 1920,
+    height: 2172,
+    colorSpace: 'sRGB',
+    lossless: true,
+    decodedSha256: 'd1deb6262448744f261a0af66eace0ab978d42a889ed754cc8413646ce98fba9',
+  },
+  {
+    file: 'loc-court-day-openjpeg-lossless.jp2',
+    sha256: '646efb9734b2181ce8737d99950cdf3620eb74c26f2149188955606e3705eafd',
+    width: 1024,
+    height: 792,
+    colorSpace: 'gray',
+    lossless: true,
+    decodedSha256: '9bf92b6c54737de32ca28d9f2b069aed166f3289fc5ca4090e23206868a41991',
+  },
+  {
     file: 'openjpeg-lossless-rgb16.jp2',
     sha256: '3830c368b81d0de7a72e7379e139b204b74b5c4226efa6540749fde32d166825',
     width: 17,

@@ -43,20 +43,28 @@ Run every mandatory gate from a clean install:
 ```sh
 npm ci
 npm run check
+npm run fuzz:release
 npm pack --dry-run --json
 ```
 
 Also:
 
-1. Run the narrowest relevant fixture verifiers and benchmarks for codec, fixture, or performance
+1. Treat the deterministic release fuzz campaign as mandatory. Before running it, resolve any
+   existing `artifacts/fuzz-crashes` reproducers so the output directory represents this candidate.
+   The campaign runs 512 seeded bit flips against one committed benchmark input for every registered
+   codec. Record its seed and case count.
+2. If the campaign writes a raw-exception reproducer under `artifacts/fuzz-crashes`, stop the
+   release. Minimize and deduplicate the input, add its exact bytes to `tests/fuzz-regressions`, fix
+   the error normalization, and rerun both `npm run check` and `npm run fuzz:release`.
+3. Run the narrowest relevant fixture verifiers and benchmarks for codec, fixture, or performance
    changes. Validate output correctness before accepting timing results.
-2. Confirm `package.json` has no `dependencies`, `optionalDependencies`, or bundled runtime
+4. Confirm `package.json` has no `dependencies`, `optionalDependencies`, or bundled runtime
    dependencies. Development-only test and benchmark tools must not enter the published graph.
-3. Inspect the packed file list. Confirm it contains only intended package files and excludes source
+5. Inspect the packed file list. Confirm it contains only intended package files and excludes source
    corpora, credentials, local output, tests, and development configuration.
-4. Pack the actual tarball and install it into a temporary consumer project. Smoke-test the root
+6. Pack the actual tarball and install it into a temporary consumer project. Smoke-test the root
    import and every changed public or codec entrypoint on the minimum supported Node.js version.
-5. Record the version, candidate commit, validation commands, relevant benchmark environment, and
+7. Record the version, candidate commit, validation commands, relevant benchmark environment, and
    tarball integrity. A failed or skipped required gate means the candidate is not ready.
 
 ## Commit, tag, and publish
@@ -92,4 +100,5 @@ After publication, independently confirm:
 5. Any configured documentation deployment completed for the release commit.
 
 Conclude with a compact release record: version, commit, tag, npm status, GitHub release status,
-provenance status, checks run, fixture or benchmark evidence, and any remaining manual action.
+provenance status, checks run, release-fuzz seed and case count, fixture or benchmark evidence, and
+any remaining manual action.

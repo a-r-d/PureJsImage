@@ -224,11 +224,12 @@ Inputs can be file paths, `Buffer`, `Uint8Array`, `ArrayBuffer`, `Blob`, or a cu
 
 `Buffer`, `Uint8Array`, and `ArrayBuffer` inputs are borrowed without copying to keep peak memory
 bounded. Do not mutate or detach them until every pipeline created from the image has finished.
-Custom `ImageSource.read()` results may be reused or invalidated when the next read starts; codecs
-copy only the bytes they need to retain across reads. File, `Blob`, and custom source inputs are
-lazily cached in up to four aligned 256 KiB regions, bounding cache memory to 1 MiB while
-coalescing small codec reads and remote range requests. In-memory inputs retain their zero-copy
-path.
+Custom `ImageSource.read()` implementations must return exactly the requested in-range byte count
+as a `Uint8Array`, or reject when the backing read fails. Results may be reused or invalidated when
+the next read starts; codecs copy only the bytes they need to retain across reads. Short, oversized,
+detached, and rejected custom reads become `ImageError` results. File, `Blob`, and custom source
+inputs are lazily cached in up to four aligned 256 KiB regions, bounding cache memory to 1 MiB while
+coalescing small codec reads and remote range requests. In-memory inputs retain their zero-copy path.
 
 The default `maxInputBytes` limit is 128 MiB, so very large ProRAW/DNG files or burst containers are
 rejected with `LIMIT_EXCEEDED` before their contents are read. Raise that limit explicitly only when

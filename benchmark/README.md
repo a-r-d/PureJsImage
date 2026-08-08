@@ -101,6 +101,14 @@ npm run bench:jpeg:encode -- 420
 npm run bench:jpeg:encode -- 444
 ```
 
+Verify the checksum-pinned JPEG 2000 corpus, then run its isolated real-photo
+metadata and resize-to-JPEG RSS gates:
+
+```sh
+npm run fixtures:jpeg2000
+npm run bench:jpeg2000:rss
+```
+
 Cross-format and first-frame GIF regression pass:
 
 ```sh

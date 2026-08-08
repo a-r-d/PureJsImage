@@ -145,13 +145,24 @@ vite.config.ts.timestamp-*
 
 # Reproducible benchmark inputs and temporary outputs
 benchmark/corpus/files/*
+!benchmark/corpus/files/bmpsuite-rgb24.bmp
+!benchmark/corpus/files/iphone12-greyhounds-4032x3024.heic
+!benchmark/corpus/files/libtiff-rgb-3c-8b.tiff
+!benchmark/corpus/files/pngsuite-palette-8.png
+!benchmark/corpus/files/static-transparent-640x360.gif
+!benchmark/corpus/files/webp-lossless-tux-386x395.webp
+!benchmark/corpus/files/wpt-webcodecs-mozjpeg-rgb.jpg
 !benchmark/corpus/files/avif/
 benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/README.md
 !benchmark/corpus/files/avif/fox.profile0.8bpc.yuv420.avif
 !benchmark/corpus/files/avif/kodim03_yuv420_8bpc.avif
+!benchmark/corpus/files/jp2/
+benchmark/corpus/files/jp2/*
+!benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2
 !benchmark/corpus/files/ico-dib24-mask-96.ico
 !benchmark/corpus/files/ico-dib32-alpha-128.ico
 !benchmark/corpus/files/ico-mixed-16-32-256.ico
 benchmark/.tmp/
 benchmark/results/artifacts/
+artifacts/fuzz-crashes/

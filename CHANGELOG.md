@@ -10,6 +10,9 @@ All notable changes to PureJsImage are documented in this file.
   including reversible 5/3 and irreversible 9/7 reconstruction, all five progression orders,
   multiple tiles, 1-16-bit unsigned samples, strict container validation, public pipeline
   conversion, and checksum-pinned fixtures from independent encoders.
+- Added public-domain real-photograph JP2 fixtures with exact OpenJPEG oracle hashes, structured
+  container and codestream corruption regressions, a deterministic JP2 mutation campaign, decoded
+  allocation-limit tests, and isolated cold/warm RSS gates for the documented full-frame fallback.
 - Added ordered, composable spatial stages: crop-after-resize, multiple resize stages, clockwise
   `rotate()` with arbitrary-angle bilinear sampling, vertical `flip()`, and horizontal `flop()`.
 - Added opt-in `keepExif()` and `keepIcc()` pipeline operations with JPEG, PNG, and WebP metadata
@@ -29,6 +32,11 @@ All notable changes to PureJsImage are documented in this file.
   while keeping CI, build, credential, and published-artifact supply-chain risks in scope.
 - Added weekly and change-triggered CodeQL analysis for JavaScript and TypeScript using the extended
   security query suite.
+- Added runtime validation for custom `ImageSource` reads, normalizing short, oversized, detached,
+  and rejected reads into contextual `ImageError` results before codec parsing.
+- Added a release-gated deterministic corruption campaign with hundreds of bit flips across a
+  committed benchmark seed for every codec, saved raw-exception reproducers, and a checked-in
+  regression corpus that automatically turns promoted crashes into permanent tests.
 
 ### Changed
 

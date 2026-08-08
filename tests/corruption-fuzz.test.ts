@@ -1,3 +1,5 @@
+import { access, mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { ImageError } from '../src/index.ts'
@@ -5,7 +7,119 @@ import { createCodecFixtures, type CodecFixture } from './codec-fixtures.ts'
 import { Image } from './image-library.ts'
 
 const truncationStep = 1_024
-const bitFlipCases = 16
+const releaseCampaign = process.env.PUREJSIMAGE_FUZZ_RELEASE === '1'
+
+const configuredInteger = (
+  name: string,
+  fallback: number,
+  minimum: number,
+  maximum: number,
+): number => {
+  const configured = process.env[name]
+  if (configured === undefined) return fallback
+  const value = Number(configured)
+  if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
+    throw new Error(`${name} must be an integer from ${minimum} to ${maximum}`)
+  }
+  return value
+}
+
+const bitFlipCases = configuredInteger(
+  'PUREJSIMAGE_FUZZ_CASES',
+  releaseCampaign ? 512 : 16,
+  1,
+  10_000,
+)
+const campaignSeed = configuredInteger('PUREJSIMAGE_FUZZ_SEED', 0x5eed_2026, 0, 0xffff_ffff)
+const campaignTimeout = releaseCampaign ? 3_300_000 : 30_000
+const crashDirectory = process.env.PUREJSIMAGE_FUZZ_CRASH_DIR
+
+interface FuzzFixture {
+  readonly id: string
+  readonly input: Uint8Array
+}
+
+interface BitFlip {
+  readonly bit: number
+  readonly byteOffset: number
+  readonly index: number
+  readonly input: Uint8Array
+}
+
+const benchmarkSeeds = [
+  {
+    format: 'jpeg',
+    id: 'wpt-webcodecs-mozjpeg-rgb',
+    path: 'benchmark/corpus/files/wpt-webcodecs-mozjpeg-rgb.jpg',
+  },
+  {
+    format: 'jp2',
+    id: 'openjpeg-lossless-rgb16',
+    path: 'benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2',
+  },
+  {
+    format: 'png',
+    id: 'pngsuite-palette-8',
+    path: 'benchmark/corpus/files/pngsuite-palette-8.png',
+  },
+  {
+    format: 'gif',
+    id: 'static-transparent-640x360',
+    path: 'benchmark/corpus/files/static-transparent-640x360.gif',
+  },
+  {
+    format: 'webp',
+    id: 'webp-lossless-tux-386x395',
+    path: 'benchmark/corpus/files/webp-lossless-tux-386x395.webp',
+  },
+  {
+    format: 'avif',
+    id: 'kodim03-yuv420-8bpc',
+    path: 'benchmark/corpus/files/avif/kodim03_yuv420_8bpc.avif',
+  },
+  {
+    format: 'heif',
+    id: 'iphone12-greyhounds-4032x3024',
+    path: 'benchmark/corpus/files/iphone12-greyhounds-4032x3024.heic',
+  },
+  {
+    format: 'bmp',
+    id: 'bmpsuite-rgb24',
+    path: 'benchmark/corpus/files/bmpsuite-rgb24.bmp',
+  },
+  {
+    format: 'ico',
+    id: 'ico-dib24-mask-96',
+    path: 'benchmark/corpus/files/ico-dib24-mask-96.ico',
+  },
+  {
+    format: 'tiff',
+    id: 'libtiff-rgb-3c-8b',
+    path: 'benchmark/corpus/files/libtiff-rgb-3c-8b.tiff',
+  },
+] as const satisfies readonly {
+  readonly format: CodecFixture['format']
+  readonly id: string
+  readonly path: string
+}[]
+
+const persistRawCrash = async (
+  input: Uint8Array,
+  label: string,
+  failure: unknown,
+): Promise<void> => {
+  if (!crashDirectory) return
+  await mkdir(crashDirectory, { recursive: true })
+  const basename = label.replaceAll(/[^a-zA-Z0-9._-]/g, '-').slice(0, 180)
+  const detail =
+    failure instanceof Error
+      ? { message: failure.message, name: failure.name, stack: failure.stack }
+      : { value: String(failure) }
+  await Promise.all([
+    writeFile(join(crashDirectory, `${basename}.bin`), input),
+    writeFile(join(crashDirectory, `${basename}.json`), `${JSON.stringify(detail, null, 2)}\n`),
+  ])
+}
 
 const exercise = async (
   input: Uint8Array,
@@ -32,19 +146,20 @@ const exercise = async (
   }
 
   if (failureRequired) expect(threw, `${label} unexpectedly decoded`).toBe(true)
+  if (threw && !(failure instanceof ImageError)) await persistRawCrash(input, label, failure)
   if (threw) expect(failure, label).toBeInstanceOf(ImageError)
 }
 
-const seedFor = (format: string): number => {
+const seedFor = (id: string): number => {
   let seed = 0x811c_9dc5
-  for (const character of format) {
+  for (const character of id) {
     seed = Math.imul(seed ^ character.charCodeAt(0), 16_777_619) >>> 0
   }
-  return seed
+  return (seed ^ campaignSeed) >>> 0 || 0xa341_316c
 }
 
-const bitFlips = function* (fixture: CodecFixture): Generator<Uint8Array> {
-  let state = seedFor(fixture.format)
+const bitFlips = function* (fixture: FuzzFixture): Generator<BitFlip> {
+  let state = seedFor(fixture.id)
   for (let index = 0; index < bitFlipCases; index += 1) {
     state ^= state << 13
     state ^= state >>> 17
@@ -52,17 +167,55 @@ const bitFlips = function* (fixture: CodecFixture): Generator<Uint8Array> {
     state >>>= 0
     const byteOffset = state % fixture.input.byteLength
     const bit = 1 << ((state >>> 29) & 7)
-    const corrupted = fixture.input.slice()
-    corrupted[byteOffset] = (corrupted[byteOffset] ?? 0) ^ bit
-    yield corrupted
+    const input = fixture.input.slice()
+    input[byteOffset] = (input[byteOffset] ?? 0) ^ bit
+    yield { bit, byteOffset, index, input }
   }
 }
 
+const loadBenchmarkSeeds = async (): Promise<readonly FuzzFixture[]> =>
+  Promise.all(
+    benchmarkSeeds.map(async ({ format, id, path }) => ({
+      format,
+      id: `benchmark-${id}`,
+      input: await readFile(path),
+    })),
+  )
+
+const loadRegressionFixtures = async (): Promise<readonly FuzzFixture[]> => {
+  const directory = 'tests/fuzz-regressions'
+  const entries = await readdir(directory, { withFileTypes: true })
+  return Promise.all(
+    entries
+      .filter((entry) => entry.isFile() && entry.name.endsWith('.bin'))
+      .sort((left, right) => left.name.localeCompare(right.name))
+      .map(async (entry) => ({
+        id: `regression-${entry.name}`,
+        input: await readFile(join(directory, entry.name)),
+      })),
+  )
+}
+
 describe('deterministic corruption fuzz', () => {
-  let fixtures: readonly CodecFixture[] = []
+  let fixtures: readonly FuzzFixture[] = []
+  let campaignFixtures: readonly FuzzFixture[] = []
+  let regressionFixtures: readonly FuzzFixture[] = []
 
   beforeAll(async () => {
-    fixtures = await createCodecFixtures()
+    fixtures = (await createCodecFixtures()).map((fixture) => ({
+      ...fixture,
+      id: `generated-${fixture.format}`,
+    }))
+    campaignFixtures = releaseCampaign ? await loadBenchmarkSeeds() : fixtures
+    regressionFixtures = await loadRegressionFixtures()
+  })
+
+  it('pins one committed release-campaign seed for every registered codec', async () => {
+    expect(benchmarkSeeds.map(({ format }) => format)).toEqual(Image.formats())
+    expect(benchmarkSeeds.every(({ path }) => path.startsWith('benchmark/corpus/files/'))).toBe(
+      true,
+    )
+    await Promise.all(benchmarkSeeds.map(({ path }) => access(path)))
   })
 
   it('turns every 1 KiB and final-byte truncation into an ImageError', async () => {
@@ -74,7 +227,7 @@ describe('deterministic corruption fuzz', () => {
       ) {
         await exercise(
           fixture.input.subarray(0, length),
-          `${fixture.format} truncated at ${length}`,
+          `${fixture.id}-truncated-at-${length}`,
           true,
         )
       }
@@ -82,20 +235,29 @@ describe('deterministic corruption fuzz', () => {
       if (finalByte % truncationStep !== 0) {
         await exercise(
           fixture.input.subarray(0, finalByte),
-          `${fixture.format} truncated at ${finalByte}`,
+          `${fixture.id}-truncated-at-${finalByte}`,
           true,
         )
       }
     }
   }, 30_000)
 
-  it('never leaks raw exceptions after deterministic bit flips', async () => {
-    for (const fixture of fixtures) {
-      let index = 0
-      for (const corrupted of bitFlips(fixture)) {
-        await exercise(corrupted, `${fixture.format} bit flip ${index}`, false)
-        index += 1
+  it(
+    'never leaks raw exceptions after deterministic bit flips',
+    async () => {
+      for (const fixture of campaignFixtures) {
+        for (const corruption of bitFlips(fixture)) {
+          const label = `${fixture.id}-seed-${campaignSeed}-case-${corruption.index}-offset-${corruption.byteOffset}-bit-${corruption.bit}`
+          await exercise(corruption.input, label, false)
+        }
       }
+    },
+    campaignTimeout,
+  )
+
+  it('keeps every checked-in fuzz crash normalized as an ImageError', async () => {
+    for (const fixture of regressionFixtures) {
+      await exercise(fixture.input, fixture.id, true)
     }
-  }, 30_000)
+  })
 })

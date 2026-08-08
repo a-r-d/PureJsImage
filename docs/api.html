@@ -174,7 +174,7 @@
             <article class="api-item" data-search-item><h3>BlobSource</h3><p>Range reads through <code>Blob.slice()</code>.</p></article>
             <article class="api-item" data-search-item><h3>FileSource</h3><p>Use <code>await FileSource.open(path)</code> to build a file-backed source explicitly.</p></article>
           </div>
-          <p>Custom <code>read()</code> implementations may reuse or invalidate returned bytes when the next read begins. Consumers copy only data that must survive across reads.</p>
+          <p>For an in-range read, custom <code>read()</code> implementations must return exactly <code>min(length, size - offset)</code> bytes as a <code>Uint8Array</code>, or reject when the backing read fails. Returned bytes may be reused or invalidated when the next read begins. Short, oversized, detached, and rejected reads surface as <code>ImageError</code> results.</p>
         </section>
 
         <section id="limits" data-search-item>

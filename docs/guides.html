@@ -69,7 +69,7 @@ console.<span class="tok-method">log</span>({
           <p>Metadata inspection is designed to avoid decoding all pixels. When called on a transformed pipeline, it reports the planned output dimensions and format.</p>
           <div class="callout warning"><strong>Borrowed memory.</strong> Buffer, Uint8Array, and ArrayBuffer inputs are not copied. Do not mutate or detach them until every pipeline derived from the image has finished.</div>
           <h3>Remote or custom sources</h3>
-          <p>A custom source exposes its byte length and a range-read function. Returned bytes only need to remain valid until the next read begins.</p>
+          <p>A custom source exposes its byte length and a range-read function. Each in-range read must return exactly <code>min(length, size - offset)</code> bytes as a <code>Uint8Array</code>, or reject if the backing read fails. Returned bytes only need to remain valid until the next read begins.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">range-source.ts</span></div><button class="code-copy" type="button" data-copy="source-code">Copy</button><pre><code id="source-code"><span class="tok-key">import type</span> { ImageSource } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
 
 <span class="tok-key">const</span> source: ImageSource = {
@@ -80,7 +80,7 @@ console.<span class="tok-method">log</span>({
 }
 
 <span class="tok-key">const</span> image = <span class="tok-key">await</span> images.<span class="tok-method">open</span>(source)</code></pre></div>
-          <p>File, Blob, and custom sources use up to four aligned 256 KiB cache regions. This bounds the shared cache at 1 MiB while coalescing small reads.</p>
+          <p>File, Blob, and custom sources use up to four aligned 256 KiB cache regions. This bounds the shared cache at 1 MiB while coalescing small reads. Contract violations and rejected custom reads surface as <code>ImageError</code> results.</p>
         </section>
 
         <section id="pipeline">

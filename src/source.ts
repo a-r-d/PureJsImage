@@ -1,12 +1,14 @@
-import { invalidInput, truncatedInput } from './errors.ts'
+import { ImageError, invalidInput, truncatedInput } from './errors.ts'
 import type { ImageLimits } from './limits.ts'
 import { validateInputSize } from './limits.ts'
 
 export interface ImageSource {
   readonly size: number
   /**
+   * Return exactly min(length, size - offset) bytes for an in-range read.
    * Returned bytes must remain valid until the next read starts. Consumers that
-   * retain bytes across reads must copy them first.
+   * retain bytes across reads must copy them first. Reject the promise when the
+   * backing read fails.
    */
   read(offset: number, length: number): Promise<Uint8Array>
 }
@@ -57,6 +59,48 @@ export class BlobSource implements ImageSource {
   async read(offset: number, length: number): Promise<Uint8Array> {
     const available = readLength(this.size, offset, length)
     return new Uint8Array(await this.#blob.slice(offset, offset + available).arrayBuffer())
+  }
+}
+
+class ValidatedSource implements ImageSource {
+  readonly size: number
+  readonly #source: ImageSource
+
+  constructor(source: ImageSource) {
+    this.#source = source
+    this.size = source.size
+  }
+
+  async read(offset: number, length: number): Promise<Uint8Array> {
+    const expected = readLength(this.size, offset, length)
+    if (expected === 0) return new Uint8Array()
+
+    let data: unknown
+    try {
+      data = await this.#source.read(offset, length)
+    } catch (cause) {
+      if (cause instanceof ImageError) throw cause
+      throw new ImageError(
+        'INVALID_INPUT',
+        `ImageSource read failed at offset ${offset} for ${length} bytes`,
+        { cause },
+      )
+    }
+
+    if (!(data instanceof Uint8Array)) {
+      throw invalidInput(`ImageSource read at offset ${offset} did not return a Uint8Array`)
+    }
+    if (data.byteLength < expected) {
+      throw truncatedInput(
+        `ImageSource returned ${data.byteLength} of ${expected} bytes at offset ${offset}`,
+      )
+    }
+    if (data.byteLength > expected) {
+      throw invalidInput(
+        `ImageSource returned ${data.byteLength} bytes for a ${expected}-byte read at offset ${offset}`,
+      )
+    }
+    return data
   }
 }
 
@@ -220,7 +264,7 @@ export const createImageSource = async (
     'read' in input &&
     typeof input.read === 'function'
   )
-    source = input
+    source = new ValidatedSource(input)
   else throw invalidInput('Unsupported image input')
 
   validateInputSize(source.size, limits)

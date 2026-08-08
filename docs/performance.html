@@ -89,6 +89,8 @@
             <tr><td>JPEG to lossy WebP</td><td>965 ms</td><td>112 MiB</td></tr>
             <tr><td>PNG to lossless WebP</td><td>50 ms</td><td>108 MiB</td></tr>
           </tbody></table></div>
+          <h3>JPEG 2000</h3>
+          <p>The explicit full-frame JP2 fallback was measured with a public-domain 1920 × 2172 NASA photograph. Metadata peaked at 97 MiB cold and 101 MiB warm. Resize to a 480 × 543 JPEG took 4,422 ms cold and 4,204 ms warm, with absolute process peaks of 192 MiB and 211 MiB. The reproducible gate requires metadata below 128 MiB and resize below 256 MiB. Comparable four-megapixel inputs need a 512 MiB Lambda tier for practical runtime headroom; smaller deployments should lower input pixel and decoded-byte limits.</p>
           <h3>AVIF and HEIF</h3>
           <p>The restricted AVIF photo decoder measured 295 ms on a 768 × 512 Kodak image and 783 ms on a 1204 × 800 fox image. Its five-run photo benchmark reached 144 MiB maximum observed RSS. It retains padded full-frame YUV and RGBA state today, so this is a baseline rather than the target architecture.</p>
           <p>The 4032 × 3024 iPhone HEIC auto-orient-and-resize-to-1200px-JPEG workflow measured 8,080 ms and 190 MiB cold peak RSS. Jimp exposes no HEIF decoder. Grid tile selection benefits crop workflows, while full decode memory remains an explicit optimization target.</p>

@@ -307,8 +307,9 @@ absence does not block JP2 v1.
 - [ ] Include grayscale, RGB, sYCC, palette, 16-bit, alpha, tiled, odd-dimension,
   subsampled-component, multi-layer, and every progression-order case required
   by the implemented groups
-- [ ] Include small correctness fixtures plus realistic phone-photo, scanned
-  document, and large tiled images
+- [x] Include small correctness fixtures plus realistic photographic and scanned
+  document images
+- [ ] Include a realistic large tiled image
 - [ ] Record source, license, encoder, JP2 brand, dimensions, components, bit
   depths, color space, transform, quantization, tiles, decomposition levels,
   precincts, code-block size, layers, progression order, and checksums
@@ -316,15 +317,16 @@ absence does not block JP2 v1.
   parser
 - [ ] Validate pixels against OpenJPEG and at least one additional independent
   decoder
-- [ ] Require exact pixels for reversible 5/3 lossless fixtures
-- [ ] Use documented tolerances for irreversible 9/7 and color-managed output
+- [x] Require exact pixels for reversible 5/3 lossless fixtures
+- [x] Use documented tolerances for irreversible 9/7 output
+- [ ] Use documented tolerances for color-managed output
 - [ ] Use official JPEG 2000 conformance cases where their licensing permits
   redistribution or reproducible local preparation
 - [x] Verify benchmark output before recording time or memory; unsupported or
   incorrect output is a failed benchmark
 - [ ] Benchmark metadata, full decode, JP2-to-JPEG, JP2-to-PNG, crop, resize,
   reduced-resolution resize, and resize-plus-encode workflows
-- [ ] Measure cold and warm absolute peak RSS, RSS delta, external memory, and
+- [x] Measure cold and warm absolute peak RSS, RSS delta, external memory, and
   ArrayBuffer memory in isolated processes
 - [ ] Compare the primary upload workflows with a development-only OpenJPEG
   oracle; record Jimp as unsupported rather than presenting failed decode as a
@@ -337,15 +339,15 @@ absence does not block JP2 v1.
 - [ ] Group 0 and Group 1 are implemented and covered by pinned fixtures
 - [ ] Every unimplemented Group 2-4 input is rejected explicitly rather than
   decoded incorrectly
-- [ ] Lossless reference fixtures reproduce exact pixels
-- [ ] Lossy reference fixtures remain within documented pixel tolerances
-- [ ] Twilio-style `image/jp2` Buffer input can be inspected, resized, and
+- [x] Lossless reference fixtures reproduce exact pixels
+- [x] Lossy reference fixtures remain within documented pixel tolerances
+- [x] Twilio-style `image/jp2` Buffer input can be inspected, resized, and
   converted to JPEG or PNG through the public pipeline
 - [ ] A large downscale uses a lower wavelet resolution and does not allocate a
   source-sized RGB or RGBA bitmap
 - [ ] Independent oracles confirm dimensions, precision, color, alpha, and
   decoded pixels
-- [ ] `npm run check` and the isolated JP2 fixture and benchmark verification
+- [x] `npm run check` and the isolated JP2 fixture and benchmark verification
   pass
 
 ## Standards and implementation references
