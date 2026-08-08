@@ -1,4 +1,40 @@
-# PureJsImage
+<div align="center">
+<pre>
+██████╗ ██╗   ██╗██████╗ ███████╗         ██╗███████╗
+██╔══██╗██║   ██║██╔══██╗██╔════╝         ██║██╔════╝
+██████╔╝██║   ██║██████╔╝█████╗           ██║███████╗
+██╔═══╝ ██║   ██║██╔══██╗██╔══╝      ██   ██║╚════██║
+██║     ╚██████╔╝██║  ██║███████╗     ╚█████╔╝███████║
+╚═╝      ╚═════╝ ╚═╝  ╚═╝╚══════╝      ╚════╝ ╚══════╝
+                         I M A G E
+</pre>
+
+<h3>Fast, low-memory image processing in pure TypeScript</h3>
+
+<p>First-party codecs · zero runtime dependencies · built for Lambda and portable runtimes</p>
+
+<p>
+  <a href="https://www.npmjs.com/package/purejsimage"><img alt="npm version" src="https://img.shields.io/npm/v/purejsimage?style=for-the-badge&amp;logo=npm&amp;logoColor=white&amp;color=cb3837"></a>
+  <a href="https://github.com/a-r-d/PureJsImage/actions/workflows/ci.yml"><img alt="CI status" src="https://img.shields.io/github/actions/workflow/status/a-r-d/PureJsImage/ci.yml?branch=main&amp;style=for-the-badge&amp;logo=githubactions&amp;logoColor=white&amp;label=CI"></a>
+  <a href="https://github.com/a-r-d/PureJsImage/blob/main/package.json"><img alt="TypeScript version" src="https://img.shields.io/github/package-json/dependency-version/a-r-d/PureJsImage/dev/typescript?style=for-the-badge&amp;logo=typescript&amp;logoColor=white"></a>
+  <a href="https://www.npmjs.com/package/purejsimage"><img alt="Node.js version" src="https://img.shields.io/node/v/purejsimage?style=for-the-badge&amp;logo=nodedotjs&amp;logoColor=white"></a>
+</p>
+
+<p>
+  <a href="https://github.com/a-r-d/PureJsImage/blob/main/package.json"><img alt="Zero runtime dependencies" src="https://img.shields.io/badge/runtime_dependencies-0-2ea44f?style=for-the-badge"></a>
+  <a href="#bundle-size"><img alt="Core bundle Brotli size" src="https://img.shields.io/badge/core_Brotli-8.6_KiB-6f42c1?style=for-the-badge"></a>
+  <a href="https://github.com/a-r-d/PureJsImage/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/npm/l/purejsimage?style=for-the-badge&amp;color=blue"></a>
+  <a href="https://github.com/a-r-d/PureJsImage"><img alt="Pure JavaScript core" src="https://img.shields.io/badge/core-pure_JS-f7df1e?style=for-the-badge&amp;logo=javascript&amp;logoColor=black"></a>
+</p>
+
+<p>
+  <a href="#install">Install</a> ·
+  <a href="#usage">Usage</a> ·
+  <a href="#supported-codecs">Codecs</a> ·
+  <a href="ROADMAP.md">Roadmap</a> ·
+  <a href="#benchmarks-against-jimp">Benchmarks</a>
+</p>
+</div>
 
 PureJsImage is a dependency-free image processing library written in strict
 TypeScript. It is designed for serverless workloads where memory pressure,
@@ -15,14 +51,26 @@ allows it.
 npm install purejsimage
 ```
 
-PureJsImage requires Node.js 24 or newer. Installing it will install one
+PureJsImage requires Node.js 22 or newer. Installing it will install one
 package: there are no runtime dependencies, native addons, external binaries,
 or WebAssembly modules.
 
-The opt-in all-codec runtime bundles to **264.7 KiB** minified, **89.4 KiB**
-with gzip, or **72.7 KiB** with Brotli. Applications import only the codecs
-they use, so a normal root import does not pull AVIF, HEIF/HEVC, or any other
-codec implementation into the module graph.
+### Bundle size
+
+Bundle sizes are built and measured from the current strict TypeScript source
+with esbuild minification, gzip level 9, and Brotli quality 11.
+
+| Entry | Minified | gzip | Brotli |
+| --- | ---: | ---: | ---: |
+| Core API | 27.2 KiB | 9.6 KiB | 8.6 KiB |
+| Core + PNG | 54.0 KiB | 18.7 KiB | 16.5 KiB |
+| Core + JPEG | 67.9 KiB | 23.2 KiB | 20.0 KiB |
+| Core + WebP | 74.7 KiB | 27.4 KiB | 23.7 KiB |
+| Core + all codecs | 354.5 KiB | 121.1 KiB | 97.9 KiB |
+
+Run `npm run size` to reproduce these numbers and see every codec entry.
+Applications import only the codecs they use, so the root API does not pull
+AVIF, HEIF/HEVC, or any other codec implementation into the module graph.
 
 ## Supported codecs
 
@@ -33,7 +81,7 @@ codec implementation into the module graph.
 | GIF | First composited frame | No |
 | WebP | Static lossy, lossless, and alpha | Static lossy and lossless |
 | BMP | Indexed, RLE, RGB, bitfields, and alpha | RGB and RGBA |
-| TIFF | Common strip-based grayscale, indexed, RGB, and alpha | Uncompressed grayscale, RGB, and RGBA |
+| TIFF | Common strip-based grayscale, indexed, RGB, alpha, and CCITT Group 4 fax | Uncompressed grayscale, RGB, and RGBA |
 | AVIF | Opaque 8-bit YUV 4:2:0 still-image subset | No |
 | HEIF / HEIC | Opaque 8/10-bit YUV 4:2:0 intra stills, including grids | No |
 
@@ -141,7 +189,10 @@ Inputs can be file paths, `Buffer`, `Uint8Array`, `ArrayBuffer`, `Blob`, or a cu
 `Buffer`, `Uint8Array`, and `ArrayBuffer` inputs are borrowed without copying to keep peak memory
 bounded. Do not mutate or detach them until every pipeline created from the image has finished.
 Custom `ImageSource.read()` results may be reused or invalidated when the next read starts; codecs
-copy only the bytes they need to retain across reads.
+copy only the bytes they need to retain across reads. File, `Blob`, and custom source inputs are
+lazily cached in up to four aligned 256 KiB regions, bounding cache memory to 1 MiB while
+coalescing small codec reads and remote range requests. In-memory inputs retain their zero-copy
+path.
 
 The default `maxInputBytes` limit is 128 MiB, so very large ProRAW/DNG files or burst containers are
 rejected with `LIMIT_EXCEEDED` before their contents are read. Raise that limit explicitly only when
@@ -169,10 +220,29 @@ until decoder or encoder boundaries can carry transposed tiles directly.
 - Keep peak memory low enough for practical AWS Lambda image processing.
 - Avoid source-sized RGBA bitmaps when a bounded codec path is possible.
 - Ship as one portable npm package with zero runtime dependencies.
-- Implement codecs in first-party strict TypeScript—no native modules or WASM.
+- Keep the reference codecs in first-party strict TypeScript with no required
+  native modules or WASM.
 - Reject malformed or unsupported input explicitly.
 - Match or beat Jimp on validated production workflows. A modest CPU cost is
   acceptable when it produces a large memory reduction.
+
+## Roadmap
+
+PureJsImage has a deliberate two-layer roadmap:
+
+| Now: reference engine | Next: optional acceleration |
+| --- | --- |
+| Fast, low-memory codec implementations written in first-party strict TypeScript | Equivalent per-codec implementations written in Rust and compiled to WebAssembly |
+| Broad format coverage with safe parsing and practical decode/encode subsets | Explicitly loaded accelerators that preserve the same API, limits, errors, and conformance corpus |
+| Basic transforms including metadata, orientation, crop, resize, color conversion, and common encoders | Much faster execution where startup and deployment constraints make WASM a good tradeoff |
+
+The pure-JavaScript implementation remains the portable reference and fallback;
+WASM will never be required or downloaded implicitly. Every mature reference
+codec is intended to gain an optional Rust/WASM acceleration path, ordered by
+measured user impact.
+
+See the [project roadmap](ROADMAP.md) for milestones, invariants, and current
+priorities.
 
 ## Benchmarks against Jimp
 

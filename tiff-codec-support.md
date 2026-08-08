@@ -39,11 +39,12 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] PackBits
 - [x] LZW
 - [x] Deflate / Adobe Deflate
+- [x] CCITT Group 4 (`T6`) bilevel fax, including multi-strip and `FillOrder=2` input
 - [x] Horizontal differencing predictor for 8-bit samples
-- [ ] CCITT Group 3 and Group 4 fax
+- [ ] CCITT Modified Huffman and Group 3 fax
 - [ ] Old-style JPEG and JPEG-in-TIFF
 - [ ] Zstandard, WebP, LERC, and other extension compressions
-- [ ] Reversed bit fill order (`FillOrder=2`)
+- [ ] Reversed bit fill order (`FillOrder=2`) outside CCITT Group 4
 
 ## Encode
 
@@ -75,4 +76,5 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Bound decompression output to the declared strip geometry
 - [x] Reject unsupported photometric interpretations, sample formats, and compressions explicitly
 - [x] Verify decoded pixels against pinned LibTIFF fixtures
+- [x] Verify CCITT Group 4 output against independently encoded ImageMagick/LibTIFF fixtures
 - [x] Benchmark absolute peak RSS in isolated cold and warm processes

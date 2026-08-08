@@ -13,7 +13,14 @@ export interface ImageSource {
 
 export type ImageInput = ArrayBuffer | Blob | ImageSource | Uint8Array | string
 
-const defaultBufferBytes = 65_536
+const defaultBufferBytes = 262_144
+const defaultBufferSlots = 4
+
+interface BufferedRegion {
+  readonly data: Uint8Array<ArrayBuffer>
+  lastUsed: number
+  readonly start: number
+}
 
 const readLength = (size: number, offset: number, length: number): number => {
   if (!Number.isSafeInteger(offset) || offset < 0)
@@ -57,8 +64,8 @@ export class BufferedSource implements ImageSource {
   readonly size: number
   readonly #source: ImageSource
   readonly #bufferBytes: number
-  #buffer: Uint8Array<ArrayBufferLike> = new Uint8Array()
-  #bufferStart = 0
+  readonly #buffers: BufferedRegion[] = []
+  #accessCounter = 0
 
   constructor(source: ImageSource, bufferBytes = defaultBufferBytes) {
     if (!Number.isSafeInteger(bufferBytes) || bufferBytes < 1) {
@@ -69,21 +76,89 @@ export class BufferedSource implements ImageSource {
     this.size = source.size
   }
 
+  #coveringBuffer(position: number): BufferedRegion | undefined {
+    let covering: BufferedRegion | undefined
+    for (const buffer of this.#buffers) {
+      if (
+        position >= buffer.start &&
+        position < buffer.start + buffer.data.byteLength &&
+        (!covering ||
+          buffer.start + buffer.data.byteLength > covering.start + covering.data.byteLength)
+      ) {
+        covering = buffer
+      }
+    }
+    return covering
+  }
+
+  #readCached(offset: number, length: number): Uint8Array | undefined {
+    const end = offset + length
+    let position = offset
+    while (position < end) {
+      const buffer = this.#coveringBuffer(position)
+      if (!buffer) return undefined
+      position = Math.min(end, buffer.start + buffer.data.byteLength)
+    }
+
+    const output = new Uint8Array(length)
+    position = offset
+    while (position < end) {
+      const buffer = this.#coveringBuffer(position)
+      if (!buffer) return undefined
+      const amount = Math.min(end, buffer.start + buffer.data.byteLength) - position
+      output.set(
+        buffer.data.subarray(position - buffer.start, position - buffer.start + amount),
+        position - offset,
+      )
+      buffer.lastUsed = ++this.#accessCounter
+      position += amount
+    }
+    return output
+  }
+
+  #storeBuffer(buffer: BufferedRegion): void {
+    if (this.#buffers.length < defaultBufferSlots) {
+      this.#buffers.push(buffer)
+      return
+    }
+    let oldest = 0
+    for (let index = 1; index < this.#buffers.length; index += 1) {
+      if ((this.#buffers[index]?.lastUsed ?? 0) < (this.#buffers[oldest]?.lastUsed ?? 0)) {
+        oldest = index
+      }
+    }
+    this.#buffers[oldest] = buffer
+  }
+
   async read(offset: number, length: number): Promise<Uint8Array> {
     const available = readLength(this.size, offset, length)
     if (available === 0) return new Uint8Array()
 
-    const bufferOffset = offset - this.#bufferStart
-    if (bufferOffset >= 0 && bufferOffset + available <= this.#buffer.byteLength) {
-      return this.#buffer.subarray(bufferOffset, bufferOffset + available)
+    for (const buffer of this.#buffers) {
+      const bufferOffset = offset - buffer.start
+      if (bufferOffset >= 0 && bufferOffset + available <= buffer.data.byteLength) {
+        buffer.lastUsed = ++this.#accessCounter
+        return buffer.data.subarray(bufferOffset, bufferOffset + available)
+      }
     }
+    const cached = this.#readCached(offset, available)
+    if (cached) return cached
     if (available >= this.#bufferBytes) return this.#source.read(offset, available)
 
-    const amount = Math.min(this.size - offset, this.#bufferBytes)
-    const buffer = await this.#source.read(offset, amount)
-    this.#bufferStart = offset
-    this.#buffer = buffer
-    return buffer.subarray(0, available)
+    const firstRegion = Math.floor(offset / this.#bufferBytes) * this.#bufferBytes
+    const lastRegion = Math.floor((offset + available - 1) / this.#bufferBytes) * this.#bufferBytes
+    for (
+      let regionStart = firstRegion;
+      regionStart <= lastRegion;
+      regionStart += this.#bufferBytes
+    ) {
+      if (!this.#buffers.some((buffer) => buffer.start === regionStart)) {
+        const amount = Math.min(this.size - regionStart, this.#bufferBytes)
+        const data = Uint8Array.from(await this.#source.read(regionStart, amount))
+        this.#storeBuffer({ data, lastUsed: ++this.#accessCounter, start: regionStart })
+      }
+    }
+    return this.#readCached(offset, available) ?? this.#source.read(offset, available)
   }
 }
 
@@ -105,12 +180,15 @@ const fileBackingSource = (path: string, size: number): ImageSource => ({
   },
 })
 
-export class FileSource extends BufferedSource {
+export class FileSource implements ImageSource {
   readonly path: string
+  readonly size: number
+  readonly #backing: ImageSource
 
   private constructor(path: string, size: number) {
-    super(fileBackingSource(path, size))
     this.path = path
+    this.size = size
+    this.#backing = fileBackingSource(path, size)
   }
 
   static async open(path: string): Promise<FileSource> {
@@ -118,6 +196,10 @@ export class FileSource extends BufferedSource {
     const file = await stat(path)
     if (!file.isFile()) throw invalidInput(`Image path is not a file: ${path}`)
     return new FileSource(path, file.size)
+  }
+
+  async read(offset: number, length: number): Promise<Uint8Array> {
+    return this.#backing.read(offset, length)
   }
 }
 
@@ -142,7 +224,9 @@ export const createImageSource = async (
   else throw invalidInput('Unsupported image input')
 
   validateInputSize(source.size, limits)
-  return source
+  return source instanceof MemorySource || source instanceof BufferedSource
+    ? source
+    : new BufferedSource(source)
 }
 
 export const readExactly = async (

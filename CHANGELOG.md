@@ -4,6 +4,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-07
+
 ### Added
 
 - Added self-contained compound-image regressions proving that Android-style
@@ -21,9 +23,18 @@ All notable changes to PureJsImage are documented in this file.
   after decoder failures and simulated disk exhaustion.
 - Accepted custom `ImageSource` objects as library inputs so source ownership
   and buffer-lifetime contracts can be exercised through normal pipelines.
+- Added a public two-phase roadmap for first-party TypeScript reference codecs
+  followed by explicitly loaded, API-compatible Rust/WASM accelerators.
+- Added a reproducible esbuild, gzip, and Brotli size report for the core API,
+  individual codec entries, and the opt-in all-codec graph.
 
 ### Changed
 
+- Added first-party CCITT Group 4 TIFF decoding for bilevel fax and scanner
+  strips, including independent strip references, `FillOrder=2`, full T.4 run
+  tables, and explicit corruption and unsupported-mode errors.
+- Lowered the minimum supported Node.js version from 24 to 22 and added CI
+  coverage for both Node 22 and Node 24.
 - Added HEIF Main 10 reconstruction and bounded-row 10-bit YUV output, with
   BT.2020 PQ/HLG decoding, global SDR tone mapping, and sRGB output validated by
   independently encoded x265 and FFmpeg oracle fixtures.
@@ -39,8 +50,9 @@ All notable changes to PureJsImage are documented in this file.
 - Documented the 32x32 tile spool, approximate disk requirement, Lambda `/tmp`
   impact, cleanup contract, and why 90-degree rotation cannot use only a bounded
   column buffer with the current row-oriented encoder boundary.
-- Buffered path-backed sources in 64 KiB windows so small codec reads no longer
-  reopen and close the file for every header, chunk, tag, or strip access.
+- Buffered file, `Blob`, and custom `ImageSource` inputs at the common input
+  boundary using four lazy 256 KiB region slots, preventing small codec reads
+  from becoming repeated filesystem, blob-slice, or remote range operations.
 - Made codec probing start from a stable registration-independent window and
   expand through declared `ftyp` boxes, with shared AVIF/HEIF brand parsing that
   excludes `minor_version` and bytes outside the box.

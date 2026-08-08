@@ -23,8 +23,10 @@ interface TiffFixtureOptions {
   readonly photometric: number
   readonly strips: readonly Uint8Array[]
   readonly rowsPerStrip?: number
+  readonly fillOrder?: 1 | 2
   readonly planarConfiguration?: 1 | 2
   readonly predictor?: 1 | 2
+  readonly t6Options?: number
   readonly extraSamples?: readonly number[]
   readonly colorMap?: readonly number[]
   readonly orientation?: number
@@ -44,6 +46,7 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
       { tag: 258, type: 3, values: options.bitsPerSample },
       { tag: 259, type: 3, values: [options.compression] },
       { tag: 262, type: 3, values: [options.photometric] },
+      ...(options.fillOrder ? [{ tag: 266, type: 3 as const, values: [options.fillOrder] }] : []),
       { tag: 273, type: 4, values: stripOffsets },
       ...(options.orientation
         ? [{ tag: 274, type: 3 as const, values: [options.orientation] }]
@@ -52,6 +55,9 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
       { tag: 278, type: 4, values: [rowsPerStrip] },
       { tag: 279, type: 4, values: options.strips.map((strip) => strip.byteLength) },
       { tag: 284, type: 3, values: [options.planarConfiguration ?? 1] },
+      ...(options.t6Options === undefined
+        ? []
+        : [{ tag: 293, type: 4 as const, values: [options.t6Options] }]),
       ...(options.predictor ? [{ tag: 317, type: 3 as const, values: [options.predictor] }] : []),
       ...(options.colorMap ? [{ tag: 320, type: 3 as const, values: options.colorMap }] : []),
       ...(options.extraSamples
@@ -133,6 +139,20 @@ const packNineBitCodes = (codes: readonly number[]): Uint8Array => {
 const decodedPng = async (input: Uint8Array): Promise<PNG> => {
   const output = await (await Image.open(input)).png().toBuffer()
   return PNG.sync.read(output)
+}
+
+const reverseByteBits = (input: Uint8Array): Uint8Array => {
+  const output = new Uint8Array(input.byteLength)
+  for (let index = 0; index < input.byteLength; index += 1) {
+    let source = input[index] ?? 0
+    let reversed = 0
+    for (let bit = 0; bit < 8; bit += 1) {
+      reversed = (reversed << 1) | (source & 1)
+      source >>>= 1
+    }
+    output[index] = reversed
+  }
+  return output
 }
 
 const appendEmptyIfd = (input: Uint8Array, littleEndian: boolean): Uint8Array => {
@@ -324,6 +344,88 @@ describe('TIFF codec', () => {
     expect(pixel(deflatePixels, 2, 0)).toEqual([35, 35, 35, 255])
   })
 
+  it('decodes independently encoded CCITT Group 4 fax strips', async () => {
+    // ImageMagick 7.1.2/libtiff 4.7 encoded this 1728-pixel-wide bilevel fax fixture.
+    const input = Buffer.from(
+      'SUkqABgAAACRAGYLRblgEwGv8RgAgAgADQAAAQMAAQAAAMAGAAABAQMAAQAAAAQAAAACAQMAAQAAAAEAAAADAQMAAQAAAAQAAAAGAQMAAQAAAAAAAAAKAQMAAQAAAAEAAAARAQQAAQAAAAgAAAASAQMAAQAAAAEAAAAVAQMAAQAAAAEAAAAWAQMAAQAAAAQAAAAXAQQAAQAAAA8AAAAcAQMAAQAAAAEAAAApAQMAAgAAAAAAAQAAAAAA',
+      'base64',
+    )
+    const image = await Image.open(input)
+
+    await expect(image.metadata()).resolves.toMatchObject({
+      format: 'tiff',
+      width: 1728,
+      height: 4,
+      bitDepth: 1,
+      hasAlpha: false,
+    })
+    const decoded = await decodedPng(input)
+    expect(pixel(decoded, 700, 0)).toEqual([255, 255, 255, 255])
+    expect(pixel(decoded, 19, 1)).toEqual([255, 255, 255, 255])
+    expect(pixel(decoded, 20, 1)).toEqual([0, 0, 0, 255])
+    expect(pixel(decoded, 400, 1)).toEqual([0, 0, 0, 255])
+    expect(pixel(decoded, 401, 2)).toEqual([255, 255, 255, 255])
+    expect(pixel(decoded, 699, 2)).toEqual([255, 255, 255, 255])
+    expect(pixel(decoded, 700, 2)).toEqual([0, 0, 0, 255])
+    expect(pixel(decoded, 1500, 2)).toEqual([0, 0, 0, 255])
+    expect(pixel(decoded, 1501, 2)).toEqual([255, 255, 255, 255])
+    expect(pixel(decoded, 1200, 3)).toEqual([255, 255, 255, 255])
+  })
+
+  it('resets CCITT Group 4 references per strip and honors FillOrder 2', async () => {
+    // This four-row strip was independently encoded by ImageMagick/libtiff.
+    const strip = Buffer.from('lxecB/wAQAQ=', 'base64')
+    const input = tiffFixture({
+      width: 32,
+      height: 8,
+      bitsPerSample: [1],
+      compression: 4,
+      photometric: 0,
+      fillOrder: 2,
+      rowsPerStrip: 4,
+      strips: [reverseByteBits(strip), reverseByteBits(strip)],
+    })
+    const decoded = await decodedPng(input)
+
+    for (let row = 0; row < 8; row += 1) {
+      const stripRow = row & 3
+      for (let x = 0; x < 32; x += 1) {
+        const black = (stripRow >= 1 && x >= 2 && x <= 9) || (stripRow >= 2 && x >= 15 && x <= 28)
+        expect(pixel(decoded, x, row)).toEqual(black ? [0, 0, 0, 255] : [255, 255, 255, 255])
+      }
+    }
+  })
+
+  it('rejects corrupt and unsupported CCITT Group 4 streams as ImageErrors', async () => {
+    const corrupt = tiffFixture({
+      width: 8,
+      height: 1,
+      bitsPerSample: [1],
+      compression: 4,
+      photometric: 0,
+      strips: [Uint8Array.of(0)],
+    })
+    const unsupportedMode = tiffFixture({
+      width: 8,
+      height: 1,
+      bitsPerSample: [1],
+      compression: 4,
+      photometric: 0,
+      t6Options: 2,
+      strips: [Uint8Array.of(0x03, 0x80)],
+    })
+
+    await expect((await Image.open(corrupt)).png().toBuffer()).rejects.toMatchObject({
+      name: 'ImageError',
+      code: 'INVALID_INPUT',
+    })
+    await expect((await Image.open(unsupportedMode)).png().toBuffer()).rejects.toMatchObject({
+      name: 'ImageError',
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'TIFF CCITT Group 4 uncompressed mode is unsupported',
+    })
+  })
+
   it('encodes streaming grayscale, RGB, and RGBA TIFF output', async () => {
     const source = new PNG({ width: 2, height: 1 })
     source.data.set([10, 20, 30, 255, 70, 80, 90, 0])
@@ -378,7 +480,7 @@ describe('TIFF codec', () => {
       width: 1,
       height: 1,
       bitsPerSample: [8],
-      compression: 4,
+      compression: 7,
       photometric: 1,
       strips: [Uint8Array.of(0)],
     })

@@ -48,7 +48,7 @@ describe('core abstractions', () => {
         return data.subarray(offset, Math.min(data.byteLength, offset + length))
       },
     }
-    const source = new BufferedSource(backing)
+    const source = new BufferedSource(backing, 65_536)
     let logicalReads = 0
 
     for (let offset = 0; offset < data.byteLength; offset += 3_072) {
@@ -58,6 +58,49 @@ describe('core abstractions', () => {
 
     expect(logicalReads).toBeGreaterThan(200)
     expect(backingReads).toBeLessThanOrEqual(11)
+  })
+
+  it('retains multiple source regions when callers alternate read cursors', async () => {
+    const data = new Uint8Array(3 * 65_536)
+    let backingBytes = 0
+    let backingReads = 0
+    const backing: ImageSource = {
+      size: data.byteLength,
+      async read(offset, length) {
+        backingBytes += length
+        backingReads += 1
+        return data.subarray(offset, offset + length)
+      },
+    }
+    const source = new BufferedSource(backing, 65_536)
+
+    for (let iteration = 0; iteration < 100; iteration += 1) {
+      for (let region = 0; region < 3; region += 1) {
+        await source.read(region * 65_536 + iteration, 8)
+      }
+    }
+    expect(await source.read(65_530, 16)).toHaveLength(16)
+
+    expect(backingReads).toBe(3)
+    expect(backingBytes).toBe(data.byteLength)
+  })
+
+  it('buffers Blob and custom sources at the common input boundary', async () => {
+    const data = new Uint8Array(128)
+    const custom: ImageSource = {
+      size: data.byteLength,
+      async read(offset, length) {
+        return data.subarray(offset, offset + length)
+      },
+    }
+
+    await expect(createImageSource(new Blob([data]), defaultImageLimits)).resolves.toBeInstanceOf(
+      BufferedSource,
+    )
+    await expect(createImageSource(custom, defaultImageLimits)).resolves.toBeInstanceOf(
+      BufferedSource,
+    )
+    await expect(createImageSource(data, defaultImageLimits)).resolves.toBeInstanceOf(MemorySource)
   })
 
   it('routes path inputs through the bounded source buffer', async () => {

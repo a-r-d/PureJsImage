@@ -5,6 +5,7 @@ import {
   type ImageLibrary,
   type ImageOpenOptions,
 } from '../src/index.ts'
+import { BufferedSource } from '../src/source.ts'
 import { HostileSource } from './hostile-source.ts'
 
 const library = createImageLibrary(allCodecs)
@@ -12,8 +13,10 @@ const hostileSources = process.env.PUREJSIMAGE_HOSTILE_SOURCE === '1'
 
 const wrapInput = (input: ImageInput): ImageInput => {
   if (!hostileSources) return input
-  if (input instanceof Uint8Array) return new HostileSource(input)
-  if (input instanceof ArrayBuffer) return new HostileSource(new Uint8Array(input))
+  if (input instanceof Uint8Array) return new BufferedSource(new HostileSource(input), 1)
+  if (input instanceof ArrayBuffer) {
+    return new BufferedSource(new HostileSource(new Uint8Array(input)), 1)
+  }
   return input
 }
 

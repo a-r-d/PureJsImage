@@ -6,7 +6,8 @@ import { describe, expect, it } from 'vitest'
 import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
-import { createImageLibrary } from '../src/index.ts'
+import { crc32 } from '../src/codecs/crc32.ts'
+import { createImageLibrary, type ImageSource } from '../src/index.ts'
 import { pngFixture } from './fixtures.ts'
 
 type Rgba = readonly [number, number, number, number]
@@ -39,6 +40,46 @@ const pngImage = (
   const image = new PNG({ width, height })
   image.data.set(rgbaPixels(width, height, pixel))
   return PNG.sync.write(image)
+}
+
+const splitPngImageData = (input: Uint8Array, maximumChunkBytes: number): Uint8Array => {
+  const chunks: Uint8Array[] = [input.subarray(0, 8)]
+  let offset = 8
+  while (offset < input.byteLength) {
+    const length = new DataView(input.buffer, input.byteOffset + offset, 4).getUint32(0)
+    const type = input.subarray(offset + 4, offset + 8)
+    const data = input.subarray(offset + 8, offset + 8 + length)
+    if (type[0] === 0x49 && type[1] === 0x44 && type[2] === 0x41 && type[3] === 0x54) {
+      for (let dataOffset = 0; dataOffset < data.byteLength; dataOffset += maximumChunkBytes) {
+        const part = data.subarray(
+          dataOffset,
+          Math.min(data.byteLength, dataOffset + maximumChunkBytes),
+        )
+        const chunk = new Uint8Array(part.byteLength + 12)
+        const view = new DataView(chunk.buffer)
+        view.setUint32(0, part.byteLength)
+        chunk.set(type, 4)
+        chunk.set(part, 8)
+        view.setUint32(8 + part.byteLength, crc32(type, part))
+        chunks.push(chunk)
+      }
+    } else {
+      chunks.push(input.subarray(offset, offset + length + 12))
+    }
+    offset += length + 12
+  }
+  return Buffer.concat(chunks)
+}
+
+class CountingBlob extends Blob {
+  slicedBytes = 0
+  slices = 0
+
+  override slice(start = 0, end = this.size, contentType?: string): Blob {
+    this.slicedBytes += Math.max(0, end - start)
+    this.slices += 1
+    return super.slice(start, end, contentType)
+  }
 }
 
 const animatedGif = (width: number, height: number): Uint8Array => {
@@ -131,6 +172,44 @@ const logoInputs = [
 describe('Tooldesk image workflows', () => {
   it('registers only the three codecs used by the backend', () => {
     expect(images.formats()).toEqual(['jpeg', 'png', 'gif'])
+  })
+
+  it('coalesces fragmented PNG reads for custom and Blob inputs', async () => {
+    let state = 0x91e1_0da5
+    const input = splitPngImageData(
+      pngImage(440, 440, () => {
+        state = (Math.imul(state ^ (state >>> 15), 2_246_822_519) + 3_266_489_917) >>> 0
+        return [state & 0xff, (state >>> 8) & 0xff, (state >>> 16) & 0xff, 255]
+      }),
+      3_072,
+    )
+    let backingBytes = 0
+    let backingReads = 0
+    const source: ImageSource = {
+      size: input.byteLength,
+      async read(offset, length) {
+        backingBytes += length
+        backingReads += 1
+        return input.subarray(offset, offset + length)
+      },
+    }
+    const blob = new CountingBlob([Uint8Array.from(input)])
+
+    const customOutput = await (await images.open(source))
+      .resize({ width: 160 })
+      .jpeg({ quality: 80 })
+      .toBuffer()
+    const blobOutput = await (await images.open(blob))
+      .resize({ width: 160 })
+      .jpeg({ quality: 80 })
+      .toBuffer()
+
+    expect(input.byteLength).toBeGreaterThan(640_000)
+    expect(backingReads).toBeLessThanOrEqual(3)
+    expect(backingBytes).toBe(input.byteLength)
+    expect(blob.slices).toBeLessThanOrEqual(3)
+    expect(blob.slicedBytes).toBe(input.byteLength)
+    expect(blobOutput).toEqual(customOutput)
   })
 
   it('orients before applying the upload width limit', async () => {

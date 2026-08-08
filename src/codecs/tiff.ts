@@ -22,6 +22,7 @@ import {
 
 const blockRows = 32
 const compressionNone = 1
+const compressionCcittGroup4 = 4
 const compressionLzw = 5
 const compressionDeflate = 8
 const compressionAdobeDeflate = 32946
@@ -30,6 +31,258 @@ const photometricWhiteIsZero = 0
 const photometricBlackIsZero = 1
 const photometricRgb = 2
 const photometricPalette = 3
+const faxLookupBits = 13
+const faxLookupSize = 1 << faxLookupBits
+
+interface FaxCode {
+  readonly run: number
+  readonly bits: string
+}
+
+interface FaxCodeLookup {
+  readonly runs: Int16Array
+  readonly lengths: Uint8Array
+}
+
+const whiteTerminatingCodes = [
+  '00110101',
+  '000111',
+  '0111',
+  '1000',
+  '1011',
+  '1100',
+  '1110',
+  '1111',
+  '10011',
+  '10100',
+  '00111',
+  '01000',
+  '001000',
+  '000011',
+  '110100',
+  '110101',
+  '101010',
+  '101011',
+  '0100111',
+  '0001100',
+  '0001000',
+  '0010111',
+  '0000011',
+  '0000100',
+  '0101000',
+  '0101011',
+  '0010011',
+  '0100100',
+  '0011000',
+  '00000010',
+  '00000011',
+  '00011010',
+  '00011011',
+  '00010010',
+  '00010011',
+  '00010100',
+  '00010101',
+  '00010110',
+  '00010111',
+  '00101000',
+  '00101001',
+  '00101010',
+  '00101011',
+  '00101100',
+  '00101101',
+  '00000100',
+  '00000101',
+  '00001010',
+  '00001011',
+  '01010010',
+  '01010011',
+  '01010100',
+  '01010101',
+  '00100100',
+  '00100101',
+  '01011000',
+  '01011001',
+  '01011010',
+  '01011011',
+  '01001010',
+  '01001011',
+  '00110010',
+  '00110011',
+  '00110100',
+] as const
+
+const blackTerminatingCodes = [
+  '0000110111',
+  '010',
+  '11',
+  '10',
+  '011',
+  '0011',
+  '0010',
+  '00011',
+  '000101',
+  '000100',
+  '0000100',
+  '0000101',
+  '0000111',
+  '00000100',
+  '00000111',
+  '000011000',
+  '0000010111',
+  '0000011000',
+  '0000001000',
+  '00001100111',
+  '00001101000',
+  '00001101100',
+  '00000110111',
+  '00000101000',
+  '00000010111',
+  '00000011000',
+  '000011001010',
+  '000011001011',
+  '000011001100',
+  '000011001101',
+  '000001101000',
+  '000001101001',
+  '000001101010',
+  '000001101011',
+  '000011010010',
+  '000011010011',
+  '000011010100',
+  '000011010101',
+  '000011010110',
+  '000011010111',
+  '000001101100',
+  '000001101101',
+  '000011011010',
+  '000011011011',
+  '000001010100',
+  '000001010101',
+  '000001010110',
+  '000001010111',
+  '000001100100',
+  '000001100101',
+  '000001010010',
+  '000001010011',
+  '000000100100',
+  '000000110111',
+  '000000111000',
+  '000000100111',
+  '000000101000',
+  '000001011000',
+  '000001011001',
+  '000000101011',
+  '000000101100',
+  '000001011010',
+  '000001100110',
+  '000001100111',
+] as const
+
+const whiteMakeupCodes: readonly FaxCode[] = [
+  { run: 64, bits: '11011' },
+  { run: 128, bits: '10010' },
+  { run: 192, bits: '010111' },
+  { run: 256, bits: '0110111' },
+  { run: 320, bits: '00110110' },
+  { run: 384, bits: '00110111' },
+  { run: 448, bits: '01100100' },
+  { run: 512, bits: '01100101' },
+  { run: 576, bits: '01101000' },
+  { run: 640, bits: '01100111' },
+  { run: 704, bits: '011001100' },
+  { run: 768, bits: '011001101' },
+  { run: 832, bits: '011010010' },
+  { run: 896, bits: '011010011' },
+  { run: 960, bits: '011010100' },
+  { run: 1024, bits: '011010101' },
+  { run: 1088, bits: '011010110' },
+  { run: 1152, bits: '011010111' },
+  { run: 1216, bits: '011011000' },
+  { run: 1280, bits: '011011001' },
+  { run: 1344, bits: '011011010' },
+  { run: 1408, bits: '011011011' },
+  { run: 1472, bits: '010011000' },
+  { run: 1536, bits: '010011001' },
+  { run: 1600, bits: '010011010' },
+  { run: 1664, bits: '011000' },
+  { run: 1728, bits: '010011011' },
+]
+
+const blackMakeupCodes: readonly FaxCode[] = [
+  { run: 64, bits: '0000001111' },
+  { run: 128, bits: '000011001000' },
+  { run: 192, bits: '000011001001' },
+  { run: 256, bits: '000001011011' },
+  { run: 320, bits: '000000110011' },
+  { run: 384, bits: '000000110100' },
+  { run: 448, bits: '000000110101' },
+  { run: 512, bits: '0000001101100' },
+  { run: 576, bits: '0000001101101' },
+  { run: 640, bits: '0000001001010' },
+  { run: 704, bits: '0000001001011' },
+  { run: 768, bits: '0000001001100' },
+  { run: 832, bits: '0000001001101' },
+  { run: 896, bits: '0000001110010' },
+  { run: 960, bits: '0000001110011' },
+  { run: 1024, bits: '0000001110100' },
+  { run: 1088, bits: '0000001110101' },
+  { run: 1152, bits: '0000001110110' },
+  { run: 1216, bits: '0000001110111' },
+  { run: 1280, bits: '0000001010010' },
+  { run: 1344, bits: '0000001010011' },
+  { run: 1408, bits: '0000001010100' },
+  { run: 1472, bits: '0000001010101' },
+  { run: 1536, bits: '0000001011010' },
+  { run: 1600, bits: '0000001011011' },
+  { run: 1664, bits: '0000001100100' },
+  { run: 1728, bits: '0000001100101' },
+]
+
+const additionalMakeupCodes: readonly FaxCode[] = [
+  { run: 1792, bits: '00000001000' },
+  { run: 1856, bits: '00000001100' },
+  { run: 1920, bits: '00000001101' },
+  { run: 1984, bits: '000000010010' },
+  { run: 2048, bits: '000000010011' },
+  { run: 2112, bits: '000000010100' },
+  { run: 2176, bits: '000000010101' },
+  { run: 2240, bits: '000000010110' },
+  { run: 2304, bits: '000000010111' },
+  { run: 2368, bits: '000000011100' },
+  { run: 2432, bits: '000000011101' },
+  { run: 2496, bits: '000000011110' },
+  { run: 2560, bits: '000000011111' },
+]
+
+const buildFaxCodeLookup = (
+  terminatingCodes: readonly string[],
+  makeupCodes: readonly FaxCode[],
+): FaxCodeLookup => {
+  const runs = new Int16Array(faxLookupSize)
+  const lengths = new Uint8Array(faxLookupSize)
+  const add = (run: number, bits: string): void => {
+    const length = bits.length
+    const prefix = Number.parseInt(bits, 2) << (faxLookupBits - length)
+    const variants = 1 << (faxLookupBits - length)
+    for (let suffix = 0; suffix < variants; suffix += 1) {
+      const index = prefix | suffix
+      if ((lengths[index] ?? 0) !== 0) throw new Error('Conflicting CCITT Huffman codes')
+      runs[index] = run
+      lengths[index] = length
+    }
+  }
+  for (let run = 0; run < terminatingCodes.length; run += 1) {
+    const bits = terminatingCodes[run]
+    if (bits === undefined) throw new Error('Missing CCITT terminating code')
+    add(run, bits)
+  }
+  for (const code of makeupCodes) add(code.run, code.bits)
+  for (const code of additionalMakeupCodes) add(code.run, code.bits)
+  return { runs, lengths }
+}
+
+const whiteFaxCodes = buildFaxCodeLookup(whiteTerminatingCodes, whiteMakeupCodes)
+const blackFaxCodes = buildFaxCodeLookup(blackTerminatingCodes, blackMakeupCodes)
 
 interface IfdEntry {
   readonly fieldType: number
@@ -307,6 +560,7 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   const compression = await singleValue(source, ifd, littleEndian, 259, compressionNone)
   if (
     compression !== compressionNone &&
+    compression !== compressionCcittGroup4 &&
     compression !== compressionLzw &&
     compression !== compressionDeflate &&
     compression !== compressionAdobeDeflate &&
@@ -354,7 +608,9 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   }
 
   const fillOrder = await singleValue(source, ifd, littleEndian, 266, 1)
-  if (fillOrder !== 1) throw unsupportedOperation(`TIFF FillOrder ${fillOrder} is unsupported`)
+  if (fillOrder !== 1 && !(fillOrder === 2 && compression === compressionCcittGroup4)) {
+    throw unsupportedOperation(`TIFF FillOrder ${fillOrder} is unsupported`)
+  }
   const planarConfiguration = await singleValue(source, ifd, littleEndian, 284, 1)
   if (planarConfiguration !== 1 && planarConfiguration !== 2) {
     throw unsupportedOperation(`TIFF PlanarConfiguration ${planarConfiguration} is unsupported`)
@@ -368,6 +624,18 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   }
   if (predictor === 2 && bitsPerSample.some((bits) => bits !== 8)) {
     throw unsupportedOperation('TIFF horizontal prediction currently requires 8-bit samples')
+  }
+  if (
+    compression === compressionCcittGroup4 &&
+    (samplesPerPixel !== 1 || baseBitDepth !== 1 || predictor !== 1)
+  ) {
+    throw unsupportedOperation('TIFF CCITT Group 4 decoding requires one 1-bit bilevel sample')
+  }
+  if (compression === compressionCcittGroup4) {
+    const t6Options = await singleValue(source, ifd, littleEndian, 293, 0)
+    if ((t6Options & ~2) !== 0) {
+      throw unsupportedOperation(`TIFF T6Options ${t6Options} contains unsupported flags`)
+    }
   }
 
   const declaredRowsPerStrip = await singleValue(source, ifd, littleEndian, 278, 0xffffffff)
@@ -483,6 +751,218 @@ const decodePackBits = (encoded: Uint8Array, expectedBytes: number): Uint8Array 
   if (outputOffset !== expectedBytes) {
     throw truncatedInput(`TIFF PackBits produced ${outputOffset} of ${expectedBytes} bytes`)
   }
+  return output
+}
+
+class FaxBitReader {
+  readonly #data: Uint8Array
+  readonly #fillOrder: number
+  #bitOffset = 0
+
+  constructor(data: Uint8Array, fillOrder: number) {
+    this.#data = data
+    this.#fillOrder = fillOrder
+  }
+
+  get remaining(): number {
+    return this.#data.byteLength * 8 - this.#bitOffset
+  }
+
+  readBit(): number | undefined {
+    if (this.#bitOffset >= this.#data.byteLength * 8) return undefined
+    const byte = this.#data[this.#bitOffset >>> 3] ?? 0
+    const bitWithinByte = this.#bitOffset & 7
+    this.#bitOffset += 1
+    return (byte >>> (this.#fillOrder === 1 ? 7 - bitWithinByte : bitWithinByte)) & 1
+  }
+
+  peek(width: number): number {
+    let value = 0
+    for (let bit = 0; bit < width; bit += 1) {
+      const absolute = this.#bitOffset + bit
+      value <<= 1
+      if (absolute >= this.#data.byteLength * 8) continue
+      const byte = this.#data[absolute >>> 3] ?? 0
+      const bitWithinByte = absolute & 7
+      value |= (byte >>> (this.#fillOrder === 1 ? 7 - bitWithinByte : bitWithinByte)) & 1
+    }
+    return value
+  }
+
+  skip(width: number): boolean {
+    if (width > this.remaining) return false
+    this.#bitOffset += width
+    return true
+  }
+}
+
+const faxBit = (reader: FaxBitReader, label: string): number => {
+  const bit = reader.readBit()
+  if (bit === undefined) throw truncatedInput(`TIFF CCITT Group 4 ${label} is truncated`)
+  return bit
+}
+
+const decodeFaxMode = (reader: FaxBitReader): number => {
+  let leadingZeros = 0
+  while (faxBit(reader, 'mode code') === 0) {
+    leadingZeros += 1
+    if (leadingZeros > 6) throw invalidInput('TIFF CCITT Group 4 mode code is invalid')
+  }
+  if (leadingZeros === 0) return 0
+  if (leadingZeros === 1) return faxBit(reader, 'vertical mode') === 1 ? 1 : -1
+  if (leadingZeros === 2) return 4
+  if (leadingZeros === 3) return 5
+  if (leadingZeros === 4) return faxBit(reader, 'vertical mode') === 1 ? 2 : -2
+  if (leadingZeros === 5) return faxBit(reader, 'vertical mode') === 1 ? 3 : -3
+  throw unsupportedOperation('TIFF CCITT Group 4 uncompressed mode is unsupported')
+}
+
+const decodeFaxRun = (reader: FaxBitReader, lookup: FaxCodeLookup, maximumRun: number): number => {
+  let total = 0
+  while (true) {
+    if (reader.remaining === 0) throw truncatedInput('TIFF CCITT Group 4 run is truncated')
+    const index = reader.peek(faxLookupBits)
+    const length = lookup.lengths[index] ?? 0
+    if (length === 0) {
+      if (reader.remaining < faxLookupBits) {
+        throw truncatedInput('TIFF CCITT Group 4 run is truncated')
+      }
+      throw invalidInput('TIFF CCITT Group 4 run code is invalid')
+    }
+    if (!reader.skip(length)) throw truncatedInput('TIFF CCITT Group 4 run is truncated')
+    const run = lookup.runs[index] ?? 0
+    total += run
+    if (total > maximumRun) throw invalidInput('TIFF CCITT Group 4 run exceeds the row')
+    if (run < 64) return total
+  }
+}
+
+const fillFaxBlack = (output: Uint8Array, rowOffset: number, start: number, end: number): void => {
+  let x = start
+  while (x < end && (x & 7) !== 0) {
+    const offset = rowOffset + (x >>> 3)
+    output[offset] = (output[offset] ?? 0) | (0x80 >>> (x & 7))
+    x += 1
+  }
+  const fullByteEnd = end & ~7
+  if (x < fullByteEnd) {
+    output.fill(0xff, rowOffset + (x >>> 3), rowOffset + (fullByteEnd >>> 3))
+    x = fullByteEnd
+  }
+  while (x < end) {
+    const offset = rowOffset + (x >>> 3)
+    output[offset] = (output[offset] ?? 0) | (0x80 >>> (x & 7))
+    x += 1
+  }
+}
+
+const decodeCcittGroup4 = (
+  encoded: Uint8Array,
+  width: number,
+  rows: number,
+  rowBytes: number,
+  fillOrder: number,
+): Uint8Array => {
+  const output = new Uint8Array(rowBytes * rows)
+  const reader = new FaxBitReader(encoded, fillOrder)
+  let referenceChanges = new Int32Array(width + 2)
+  let codingChanges = new Int32Array(width + 2)
+  referenceChanges[0] = width
+  referenceChanges[1] = width
+  let referenceCount = 2
+
+  for (let row = 0; row < rows; row += 1) {
+    const rowOffset = row * rowBytes
+    let a0 = 0
+    let codingColor = 0
+    let codingCount = 0
+    let atLineStart = true
+    let modes = 0
+
+    while (a0 < width) {
+      modes += 1
+      if (modes > width * 2 + 4) {
+        throw invalidInput('TIFF CCITT Group 4 row does not make progress')
+      }
+      const mode = decodeFaxMode(reader)
+      if (mode === 4) {
+        const firstRun = decodeFaxRun(
+          reader,
+          codingColor === 0 ? whiteFaxCodes : blackFaxCodes,
+          width - a0,
+        )
+        const a1 = a0 + firstRun
+        const secondRun = decodeFaxRun(
+          reader,
+          codingColor === 0 ? blackFaxCodes : whiteFaxCodes,
+          width - a1,
+        )
+        const a2 = a1 + secondRun
+        if (a2 <= a0) throw invalidInput('TIFF CCITT Group 4 horizontal mode is empty')
+        if (codingColor === 0) fillFaxBlack(output, rowOffset, a1, a2)
+        else fillFaxBlack(output, rowOffset, a0, a1)
+        if (codingCount + 2 > codingChanges.length) {
+          throw invalidInput('TIFF CCITT Group 4 row has too many changing elements')
+        }
+        codingChanges[codingCount] = a1
+        codingChanges[codingCount + 1] = a2
+        codingCount += 2
+        a0 = a2
+        atLineStart = false
+        continue
+      }
+
+      let referenceIndex = codingColor === 0 ? 0 : 1
+      while (referenceIndex < referenceCount) {
+        const change = referenceChanges[referenceIndex] ?? width
+        if (change > a0 || (atLineStart && change === a0)) break
+        referenceIndex += 2
+      }
+      const b1 = referenceChanges[referenceIndex] ?? width
+      const b2 = referenceChanges[referenceIndex + 1] ?? width
+
+      if (mode === 5) {
+        if (b2 <= a0 || b2 > width) {
+          throw invalidInput('TIFF CCITT Group 4 pass mode is invalid')
+        }
+        if (codingColor === 1) fillFaxBlack(output, rowOffset, a0, b2)
+        a0 = b2
+        atLineStart = false
+        continue
+      }
+
+      const a1 = b1 + mode
+      if (a1 < a0 || a1 > width) {
+        throw invalidInput('TIFF CCITT Group 4 vertical mode exceeds the row')
+      }
+      if (codingColor === 1) fillFaxBlack(output, rowOffset, a0, a1)
+      if (codingCount >= codingChanges.length) {
+        throw invalidInput('TIFF CCITT Group 4 row has too many changing elements')
+      }
+      codingChanges[codingCount] = a1
+      codingCount += 1
+      a0 = a1
+      codingColor ^= 1
+      atLineStart = false
+    }
+
+    while (
+      codingCount < 2 ||
+      codingChanges[codingCount - 1] !== width ||
+      codingChanges[codingCount - 2] !== width
+    ) {
+      if (codingCount >= codingChanges.length) {
+        throw invalidInput('TIFF CCITT Group 4 row has too many changing elements')
+      }
+      codingChanges[codingCount] = width
+      codingCount += 1
+    }
+    const previousReference = referenceChanges
+    referenceChanges = codingChanges
+    referenceCount = codingCount
+    codingChanges = previousReference
+  }
+
   return output
 }
 
@@ -678,6 +1158,8 @@ const decodeStrip = async (
     decoded = decodePackBits(encoded, expectedBytes)
   } else if (description.compression === compressionLzw) {
     decoded = decodeLzw(encoded, expectedBytes)
+  } else if (description.compression === compressionCcittGroup4) {
+    decoded = decodeCcittGroup4(encoded, description.width, rows, rowBytes, description.fillOrder)
   } else {
     decoded = await decodeDeflate(encoded, expectedBytes, rowBytes * description.rowsPerStrip)
   }
