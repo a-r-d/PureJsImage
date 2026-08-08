@@ -1,0 +1,35 @@
+AGENTS.md
+  s_4669831c864f0c::t_9648f390fa9df0 76-80,209-218
+.agents/skills/rust-wasm/SKILL.md
+  s_4669831c864f0c::t_9648f390fa9df0 8,10,14-17
+  s_4669831c864f0c::t_9658a290c95d01 9
+  s_4669831c864f0c::t_706558c5fbf593 4
+docs/codecs.html
+  s_4669831c864f0c::t_9648f390fa9df0 29
+  s_4669831c864f0c::t_85d5b283e9d819 97
+docs/api.html
+  s_4669831c864f0c::t_85d5b283e9d819 222
+docs/performance.html
+  s_4669831c864f0c::t_85d5b283e9d819 147
+docs/guides.html
+  s_4669831c864f0c::t_85d5b283e9d819 210
+docs/index.html
+  s_4669831c864f0c::t_9648f390fa9df0 116
+  s_4669831c864f0c::t_85d5b283e9d819 221
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "7d29cea2dd87e60985af0c02277d4f968176dd20",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
