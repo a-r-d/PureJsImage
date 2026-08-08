@@ -1,5 +1,5 @@
 import { createServer } from 'node:http'
-import { copyFile, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { extname, relative, resolve } from 'node:path'
 import { build } from 'esbuild'
 import { PNG } from 'pngjs'
@@ -165,8 +165,6 @@ const server = createServer(async (request, response) => {
       response.writeHead(403).end('Forbidden')
       return
     }
-    const info = await stat(path)
-    if (!info.isFile()) throw new Error('Not a file')
     const data = await readFile(path)
     response.writeHead(200, {
       'cache-control': 'no-store',
