@@ -111,7 +111,7 @@ coverage.
 - [x] `NONE`, `SPLIT`, horizontal, vertical, horizontal-4, vertical-4, and
   tip-split intra partition traversal
 - [x] Exact structural top-right and bottom-left edge availability across the
-  partition tree
+  partition tree and at superblock/frame boundaries
 - [x] DC, vertical, horizontal, all directional, smooth, Paeth, and
   filter-intra prediction modes used by common photographic input
 - [x] Chroma-from-luma prediction
@@ -122,6 +122,9 @@ coverage.
 - [x] Nonzero coefficient reconstruction in quantizer contexts 2 and 3
 - [x] All-zero coefficient blocks in the supported frame path
 - [x] 8-bit dequantization and inverse transforms
+- [ ] Quantization-matrix reconstruction; frames that signal quantization
+  matrices are parsed without losing synchronization and rejected explicitly
+  before pixel allocation
 - [x] Odd-dimension edge clipping without decoding transforms outside the coded
   frame
 - [x] Bilinear YUV 4:2:0 to RGBA conversion
@@ -145,19 +148,31 @@ coverage.
 - [x] Parse restoration types and restoration-unit sizes
 - [x] Consume none, Wiener, self-guided, and switchable restoration-unit syntax
 - [x] Maintain Wiener and self-guided reference parameters while reading units
-- [ ] Apply the AV1 deblocking loop filter
-- [ ] Apply CDEF to luma and chroma planes
-- [ ] Apply Wiener loop restoration
-- [ ] Apply self-guided loop restoration
+- [x] Apply the AV1 deblocking loop filter for the supported intra-only frame
+  state, including luma/chroma strengths, transform edges, wide/narrow filters,
+  odd dimensions, and frame boundaries
+- [x] Apply CDEF to luma and chroma planes with directional strength adjustment
+  and frame-edge sample availability
+- [x] Apply Wiener loop restoration with stripe-aware deblocked/CDEF source
+  selection
+- [x] Apply self-guided loop restoration with stripe-aware source selection
+- [x] Apply filters in deblock, CDEF, then loop-restoration order when
+  super-resolution is not signaled
 - [ ] Apply super-resolution in the correct position relative to CDEF and loop
   restoration
-- [ ] Match independent post-filter reference pixels within documented
-  tolerances for lossy photographs
+- [x] Match dav1d and libaom post-filter YUV pixels exactly for deterministic
+  disabled, deblock, luma/chroma CDEF, Wiener, self-guided, odd-dimension,
+  frame-edge, and multiple-restoration-unit fixtures; the numeric tolerance is
+  zero
 
-The current common-photo output is the valid pre-filter reconstruction. Files
-whose restoration syntax is present can be parsed and decoded without entropy
-desynchronization, but they must not yet be described as post-filter pixel
-exact.
+The two full-size photographic regression fixtures now receive the complete
+post-filter pipeline. They are not included in the exact-reference claim:
+comparison with agreeing dav1d and libaom output still exposes one luma sample
+difference. Fixing below-left availability at superblock boundaries and using a
+dedicated subsampled chroma-mode context made Fox byte-exact on all three planes
+and Kodak chroma byte-exact. Kodak has one luma sample off by one after CDEF,
+for plane MAE 0.000003 Y, 0 U, and 0 V. The full-size tolerance remains zero,
+so Kodak is not classified as an exact post-filter fixture.
 
 ### Additional still-image compatibility
 
@@ -226,6 +241,14 @@ exact.
   byte limits are applied before public pixel decode
 - [x] The current decoder's padded full-frame Y, U, V, and RGBA allocations are
   documented as a temporary fallback rather than the Lambda northstar
+- [x] CDEF uses one additional padded YUV frame, and loop restoration uses a
+  second additional padded YUV frame only when those stages are active; this
+  temporary correctness-first cost is measured separately from the bounded
+  long-term architecture
+- [x] Review the post-filter source-sized buffers before optimization; CDEF
+  still needs an immutable neighborhood source, and restoration needs both the
+  deblocked stripe-border source and CDEF interior source, so no buffer was
+  removed without a bounded halo design and equivalent pixel proof
 - [ ] Decode one tile or bounded superblock working set at a time
 - [ ] Avoid retaining a full source-resolution RGBA bitmap
 - [ ] Feed resize directly from bounded YUV rows, blocks, or planes
@@ -261,8 +284,11 @@ exact.
   unsupported, zero invalid, and zero unexpected
 - [x] Keep `@stacksjs/ts-avif` development-only; the published package is not a
   production dependency
-- [ ] Add post-filter independent-reference comparisons for the full-size
-  photographs
+- [x] Add exact post-filter comparisons against both dav1d and libaom for five
+  checksum-pinned deterministic fixtures
+- [x] Reject signaled AV1 quantization matrices explicitly before reconstruction
+- [ ] Resolve Kodak's documented one-sample CDEF discrepancy before requiring
+  exact full-size Kodak and Fox post-filter pixels
 - [ ] Expand to a 200-500 image corpus from libaom, rav1e, SVT-AV1, browsers,
   ImageMagick, Sharp/libvips, cameras, and real web uploads
 - [ ] Add malformed ISOBMFF, OBU, entropy, partition, coefficient, restoration,
@@ -277,3 +303,4 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-phase-b1-bitstream-2026-08-06.md`](benchmark/results/avif-phase-b1-bitstream-2026-08-06.md)
 - [`benchmark/results/avif-phase-b2-restricted-decode-2026-08-06.md`](benchmark/results/avif-phase-b2-restricted-decode-2026-08-06.md)
 - [`benchmark/results/avif-common-opaque-420-2026-08-07.md`](benchmark/results/avif-common-opaque-420-2026-08-07.md)
+- [`benchmark/results/avif-post-filters-2026-08-08.md`](benchmark/results/avif-post-filters-2026-08-08.md)

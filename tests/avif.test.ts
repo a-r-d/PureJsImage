@@ -361,13 +361,13 @@ describe('AVIF restricted pixel decode', () => {
       file: 'kodim03_yuv420_8bpc.avif',
       width: 768,
       height: 512,
-      rgbaSha256: '8247dea62ef7bcb2a4508f2b4ebe55bee4aae63514eaf13c8c4a559527f44f98',
+      rgbaSha256: 'b10ee50244d047f22a35e99fb288882ac1a223605c2b62be393a484a06eb0ba0',
     },
     {
       file: 'fox.profile0.8bpc.yuv420.avif',
       width: 1204,
       height: 800,
-      rgbaSha256: 'bc447990c95f074c8c1aa7cc9cac7b7fd0b262769a42d70457cfa86f454a7e75',
+      rgbaSha256: 'cd94cd9d459af6338f77cf401749656b647f88b9e357c737a0a88c34584a46ec',
     },
   ] as const)('decodes the common opaque 8-bit 4:2:0 photograph $file', async (fixture) => {
     const output = PNG.sync.read(

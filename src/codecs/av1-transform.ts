@@ -41,6 +41,8 @@ const cosineTable = Int16Array.from({ length: 256 }, (_, angle) =>
 const cosine = (angle: number): number => cosineTable[angle & 255] ?? 0
 const sine = (angle: number): number => cosine(angle - 64)
 
+const clampTransform = (value: number): number => Math.max(-32768, Math.min(32767, value))
+
 const butterfly = (
   values: Int32Array,
   first: number,
@@ -61,8 +63,8 @@ const hadamard = (values: Int32Array, first: number, second: number, flip = fals
   const rightIndex = flip ? first : second
   const left = values[leftIndex] ?? 0
   const right = values[rightIndex] ?? 0
-  values[leftIndex] = left + right
-  values[rightIndex] = left - right
+  values[leftIndex] = clampTransform(left + right)
+  values[rightIndex] = clampTransform(left - right)
 }
 
 const inverseAdst4 = (input: ArrayLike<number>): Int32Array => {
@@ -367,17 +369,13 @@ const columnAdstMask =
 const flippedRowMask = (1 << 4) | (1 << 6) | (1 << 8) | (1 << 14)
 const flippedColumnMask = (1 << 5) | (1 << 6) | (1 << 7) | (1 << 15)
 
-export const inverseTransform = (
+const dequantizeAv1Coefficients = (
   quantized: Int32Array,
   width: 4 | 8 | 16 | 32 | 64,
   height: 4 | 8 | 16 | 32 | 64,
-  transformType: number,
   plane: 0 | 1 | 2,
   header: Av1FrameHeader,
 ): Int32Array => {
-  if (transformType < 0 || transformType > 15) {
-    throw unsupportedOperation(`Unsupported AV1 transform type ${transformType}`)
-  }
   const dcDelta = plane === 0 ? header.deltaYDc : plane === 1 ? header.deltaUDc : header.deltaVDc
   const acDelta = plane === 0 ? 0 : plane === 1 ? header.deltaUAc : header.deltaVAc
   const dc = dcQuant8[Math.max(0, Math.min(255, header.baseQuantizer + dcDelta))]
@@ -396,6 +394,21 @@ export const inverseTransform = (
     )
     dequantized[index] = rectangularScale ? roundedShift(value * 181, 8) : value
   }
+  return dequantized
+}
+
+export const inverseTransform = (
+  quantized: Int32Array,
+  width: 4 | 8 | 16 | 32 | 64,
+  height: 4 | 8 | 16 | 32 | 64,
+  transformType: number,
+  plane: 0 | 1 | 2,
+  header: Av1FrameHeader,
+): Int32Array => {
+  if (transformType < 0 || transformType > 15) {
+    throw unsupportedOperation(`Unsupported AV1 transform type ${transformType}`)
+  }
+  const dequantized = dequantizeAv1Coefficients(quantized, width, height, plane, header)
   const intermediate = new Int32Array(width * height)
   const rowUsesDct = ((rowDctMask >>> transformType) & 1) !== 0
   const rowUsesAdst = ((rowAdstMask >>> transformType) & 1) !== 0
@@ -420,7 +433,9 @@ export const inverseTransform = (
     const transformed =
       rowUsesDct || rowUsesAdst ? oneDimensional(input, rowUsesAdst) : inverseIdentity(input)
     for (let column = 0; column < width; column += 1) {
-      intermediate[row * width + column] = roundedShift(transformed[column] ?? 0, rowShift)
+      intermediate[row * width + column] = clampTransform(
+        roundedShift(transformed[column] ?? 0, rowShift),
+      )
     }
   }
   const residual = new Int32Array(width * height)

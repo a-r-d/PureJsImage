@@ -27,6 +27,11 @@ export interface Av1FrameHeader {
   readonly allLossless: boolean
   readonly baseQuantizer: number
   readonly cdefBits: number
+  readonly cdefDamping: number
+  readonly cdefUvPrimaryStrengths: readonly number[]
+  readonly cdefUvSecondaryStrengths: readonly number[]
+  readonly cdefYPrimaryStrengths: readonly number[]
+  readonly cdefYSecondaryStrengths: readonly number[]
   readonly codedLossless: boolean
   readonly deltaLfPresent: boolean
   readonly deltaQPresent: boolean
@@ -39,6 +44,11 @@ export interface Av1FrameHeader {
   readonly frameHeight: number
   readonly frameWidth: number
   readonly headerBytes: number
+  readonly loopFilterDeltaEnabled: boolean
+  readonly loopFilterLevels: readonly number[]
+  readonly loopFilterModeDeltas: readonly number[]
+  readonly loopFilterRefDeltas: readonly number[]
+  readonly loopFilterSharpness: number
   readonly reducedTransformSet: boolean
   readonly renderHeight: number
   readonly renderWidth: number
@@ -50,6 +60,7 @@ export interface Av1FrameHeader {
   readonly tileSizeBytes: number
   readonly transformMode: '4x4' | 'largest' | 'select'
   readonly upscaledWidth: number
+  readonly usingQMatrix: boolean
 }
 
 export interface Av1Frame {
@@ -74,6 +85,7 @@ interface Quantization {
   readonly vAc: number
   readonly vDc: number
   readonly yDc: number
+  readonly usingQMatrix: boolean
 }
 
 interface Segmentation {
@@ -110,12 +122,13 @@ const parseQuantization = (reader: Av1BitReader, sequence: Av1SequenceHeader): Q
       vAc = uAc
     }
   }
-  if (reader.readBit() === 1) {
+  const usingQMatrix = reader.readBit() === 1
+  if (usingQMatrix) {
     reader.readBits(4)
     reader.readBits(4)
     if (sequence.separateUvDeltaQ) reader.readBits(4)
   }
-  return { base, yDc, uDc, uAc, vDc, vAc }
+  return { base, yDc, uDc, uAc, vDc, vAc, usingQMatrix }
 }
 
 const parseSegmentation = (reader: Av1BitReader): Segmentation => {
@@ -228,22 +241,31 @@ const parseLoopFilter = (
   planes: number,
   codedLossless: boolean,
   allowIntrabc: boolean,
-): void => {
-  if (codedLossless || allowIntrabc) return
-  const level0 = reader.readBits(6)
-  const level1 = reader.readBits(6)
-  if (planes > 1 && (level0 !== 0 || level1 !== 0)) {
-    reader.readBits(6)
-    reader.readBits(6)
+): LoopFilterConfiguration => {
+  const levels = [0, 0, 0, 0]
+  const refDeltas = [1, 0, 0, 0, -1, 0, -1, -1]
+  const modeDeltas = [0, 0]
+  if (codedLossless || allowIntrabc) {
+    return { levels, sharpness: 0, deltaEnabled: false, refDeltas, modeDeltas }
   }
-  reader.readBits(3)
-  if (reader.readBit() === 0 || reader.readBit() === 0) return
-  for (let index = 0; index < 8; index += 1) {
-    if (reader.readBit() === 1) reader.readSigned(7)
+  levels[0] = reader.readBits(6)
+  levels[1] = reader.readBits(6)
+  if (planes > 1 && (levels[0] !== 0 || levels[1] !== 0)) {
+    levels[2] = reader.readBits(6)
+    levels[3] = reader.readBits(6)
   }
-  for (let index = 0; index < 2; index += 1) {
-    if (reader.readBit() === 1) reader.readSigned(7)
+  const sharpness = reader.readBits(3)
+  const deltaEnabled = reader.readBit() === 1
+  if (!deltaEnabled || reader.readBit() === 0) {
+    return { levels, sharpness, deltaEnabled, refDeltas, modeDeltas }
   }
+  for (let index = 0; index < refDeltas.length; index += 1) {
+    if (reader.readBit() === 1) refDeltas[index] = reader.readSigned(7)
+  }
+  for (let index = 0; index < modeDeltas.length; index += 1) {
+    if (reader.readBit() === 1) modeDeltas[index] = reader.readSigned(7)
+  }
+  return { levels, sharpness, deltaEnabled, refDeltas, modeDeltas }
 }
 
 const parseCdef = (
@@ -252,24 +274,63 @@ const parseCdef = (
   planes: number,
   codedLossless: boolean,
   allowIntrabc: boolean,
-): number => {
-  if (codedLossless || allowIntrabc || !sequence.enableCdef) return 0
-  reader.readBits(2)
-  const bits = reader.readBits(2)
-  for (let index = 0; index < 2 ** bits; index += 1) {
-    reader.readBits(4)
-    reader.readBits(2)
-    if (planes > 1) {
-      reader.readBits(4)
-      reader.readBits(2)
+): CdefConfiguration => {
+  if (codedLossless || allowIntrabc || !sequence.enableCdef) {
+    return {
+      bits: 0,
+      damping: 3,
+      yPrimaryStrengths: [0],
+      ySecondaryStrengths: [0],
+      uvPrimaryStrengths: [0],
+      uvSecondaryStrengths: [0],
     }
   }
-  return bits
+  const damping = reader.readBits(2) + 3
+  const bits = reader.readBits(2)
+  const yPrimaryStrengths: number[] = []
+  const ySecondaryStrengths: number[] = []
+  const uvPrimaryStrengths: number[] = []
+  const uvSecondaryStrengths: number[] = []
+  for (let index = 0; index < 2 ** bits; index += 1) {
+    yPrimaryStrengths.push(reader.readBits(4))
+    const ySecondary = reader.readBits(2)
+    ySecondaryStrengths.push(ySecondary === 3 ? 4 : ySecondary)
+    if (planes > 1) {
+      uvPrimaryStrengths.push(reader.readBits(4))
+      const uvSecondary = reader.readBits(2)
+      uvSecondaryStrengths.push(uvSecondary === 3 ? 4 : uvSecondary)
+    }
+  }
+  return {
+    bits,
+    damping,
+    yPrimaryStrengths,
+    ySecondaryStrengths,
+    uvPrimaryStrengths,
+    uvSecondaryStrengths,
+  }
 }
 
 interface RestorationConfiguration {
   readonly types: readonly number[]
   readonly unitSizes: readonly number[]
+}
+
+interface LoopFilterConfiguration {
+  readonly deltaEnabled: boolean
+  readonly levels: readonly number[]
+  readonly modeDeltas: readonly number[]
+  readonly refDeltas: readonly number[]
+  readonly sharpness: number
+}
+
+interface CdefConfiguration {
+  readonly bits: number
+  readonly damping: number
+  readonly uvPrimaryStrengths: readonly number[]
+  readonly uvSecondaryStrengths: readonly number[]
+  readonly yPrimaryStrengths: readonly number[]
+  readonly ySecondaryStrengths: readonly number[]
 }
 
 const parseRestoration = (
@@ -385,8 +446,8 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
   }
   const allLossless = codedLossless && frameWidth === upscaledWidth
   const planes = sequence.monochrome ? 1 : 3
-  parseLoopFilter(reader, planes, codedLossless, allowIntrabc)
-  const cdefBits = parseCdef(reader, sequence, planes, codedLossless, allowIntrabc)
+  const loopFilter = parseLoopFilter(reader, planes, codedLossless, allowIntrabc)
+  const cdef = parseCdef(reader, sequence, planes, codedLossless, allowIntrabc)
   const restoration = parseRestoration(reader, sequence, planes, allLossless, allowIntrabc)
   const transformMode = codedLossless ? '4x4' : reader.readBit() === 1 ? 'select' : 'largest'
   const reducedTransformSet = reader.readBit() === 1
@@ -445,6 +506,7 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
       frameWidth,
       frameHeight,
       upscaledWidth,
+      usingQMatrix: quantization.usingQMatrix,
       renderWidth,
       renderHeight,
       headerBytes,
@@ -462,7 +524,17 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
       deltaLfPresent,
       codedLossless,
       allLossless,
-      cdefBits,
+      cdefBits: cdef.bits,
+      cdefDamping: cdef.damping,
+      cdefYPrimaryStrengths: cdef.yPrimaryStrengths,
+      cdefYSecondaryStrengths: cdef.ySecondaryStrengths,
+      cdefUvPrimaryStrengths: cdef.uvPrimaryStrengths,
+      cdefUvSecondaryStrengths: cdef.uvSecondaryStrengths,
+      loopFilterLevels: loopFilter.levels,
+      loopFilterSharpness: loopFilter.sharpness,
+      loopFilterDeltaEnabled: loopFilter.deltaEnabled,
+      loopFilterRefDeltas: loopFilter.refDeltas,
+      loopFilterModeDeltas: loopFilter.modeDeltas,
       restorationTypes: restoration.types,
       restorationUnitSizes: restoration.unitSizes,
       transformMode,

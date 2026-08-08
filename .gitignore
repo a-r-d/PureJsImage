@@ -157,6 +157,11 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/README.md
 !benchmark/corpus/files/avif/fox.profile0.8bpc.yuv420.avif
 !benchmark/corpus/files/avif/kodim03_yuv420_8bpc.avif
+!benchmark/corpus/files/avif/post-filter-cdef-66x70.avif
+!benchmark/corpus/files/avif/post-filter-deblock-96x74.avif
+!benchmark/corpus/files/avif/post-filter-disabled-66x70.avif
+!benchmark/corpus/files/avif/post-filter-restoration-units-300x130.avif
+!benchmark/corpus/files/avif/post-filter-wiener-sgr-66x70.avif
 !benchmark/corpus/files/jp2/
 benchmark/corpus/files/jp2/*
 !benchmark/corpus/files/jp2/README.md
