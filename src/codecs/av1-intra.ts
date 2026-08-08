@@ -2,6 +2,11 @@ import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { Av1Frame } from './av1-frame.ts'
 import type { Av1SequenceHeader } from './av1.ts'
 import { Av1CoefficientDecoder } from './av1-coeff.ts'
+import {
+  applyAv1PostFilters,
+  type Av1PostFilterState,
+  type Av1RestorationPlaneState,
+} from './av1-post-filter.ts'
 import { Av1SymbolDecoder } from './av1-symbol.ts'
 import { inverseTransform } from './av1-transform.ts'
 
@@ -578,8 +583,12 @@ const createModeNode = (
 }
 
 const intraEdgeRoots = new Map([
-  [64, createModeNode(64, true, true)],
-  [128, createModeNode(128, true, true)],
+  [64, createModeNode(64, true, false)],
+  [128, createModeNode(128, true, false)],
+])
+const intraEdgeRightRoots = new Map([
+  [64, createModeNode(64, false, false)],
+  [128, createModeNode(128, false, false)],
 ])
 
 interface RestorationReference {
@@ -594,6 +603,26 @@ const createRestorationReference = (): RestorationReference => ({
   vertical: Int32Array.from([3, -7, 15]),
 })
 
+const countRestorationUnits = (unitSize: number, frameSize: number): number =>
+  Math.max(Math.floor((frameSize + (unitSize >> 1)) / unitSize), 1)
+
+const createRestorationPlaneState = (frame: Av1Frame, plane: number): Av1RestorationPlaneState => {
+  const sub = plane === 0 ? 0 : 1
+  const unitSize = frame.header.restorationUnitSizes[plane] ?? 256
+  const rows = countRestorationUnits(unitSize, Math.ceil(frame.header.frameHeight / 2 ** sub))
+  const columns = countRestorationUnits(unitSize, Math.ceil(frame.header.upscaledWidth / 2 ** sub))
+  const units = rows * columns
+  return {
+    unitSize,
+    rows,
+    columns,
+    types: new Uint8Array(units),
+    wiener: new Int8Array(units * 6),
+    sgrSets: new Uint8Array(units),
+    sgrXqd: new Int16Array(units * 2),
+  }
+}
+
 const inverseRecenter = (reference: number, value: number): number => {
   if (value > 2 * reference) return value
   return (value & 1) === 1 ? reference - ((value + 1) >> 1) : reference + (value >> 1)
@@ -606,13 +635,14 @@ class RestrictedIntraTileDecoder {
   readonly #coefficients: Av1CoefficientDecoder
   readonly #miColumns: number
   readonly #miRows: number
+  readonly #chromaMiColumns: number
   readonly #blockWidths: Uint8Array
   readonly #blockHeights: Uint8Array
   readonly #skips: Uint8Array
   readonly #yModes: Uint8Array
   readonly #uvModes: Uint8Array
-  readonly #transformWidths: Uint8Array
-  readonly #transformHeights: Uint8Array
+  readonly #transformWidths: readonly [Uint8Array, Uint8Array, Uint8Array]
+  readonly #transformHeights: readonly [Uint8Array, Uint8Array, Uint8Array]
   readonly #cdefColumns: number
   readonly #cdefIndices: Uint16Array
   readonly #planes: readonly [Plane, Plane, Plane]
@@ -637,6 +667,11 @@ class RestrictedIntraTileDecoder {
     createRestorationReference(),
     createRestorationReference(),
   ]
+  readonly #restoration: readonly [
+    Av1RestorationPlaneState,
+    Av1RestorationPlaneState,
+    Av1RestorationPlaneState,
+  ]
   readonly #intraTxTypeCdfs = new Map<string, Uint16Array>()
   readonly #allZero4x4Cdfs: readonly Uint16Array[]
   readonly #allZero8x8Cdfs: readonly Uint16Array[]
@@ -657,16 +692,32 @@ class RestrictedIntraTileDecoder {
     this.#symbols = new Av1SymbolDecoder(tile.data, !frame.header.disableCdfUpdate)
     this.#miColumns = 2 * ((frame.header.frameWidth + 7) >> 3)
     this.#miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
+    this.#chromaMiColumns = this.#miColumns >> 1
     this.#blockWidths = new Uint8Array(this.#miColumns * this.#miRows)
     this.#blockHeights = new Uint8Array(this.#miColumns * this.#miRows)
     this.#skips = new Uint8Array(this.#miColumns * this.#miRows)
     this.#yModes = new Uint8Array(this.#miColumns * this.#miRows)
-    this.#uvModes = new Uint8Array(this.#miColumns * this.#miRows)
-    this.#transformWidths = new Uint8Array(this.#miColumns * this.#miRows)
-    this.#transformHeights = new Uint8Array(this.#miColumns * this.#miRows)
+    this.#uvModes = new Uint8Array(this.#chromaMiColumns * (this.#miRows >> 1))
+    const transformContextLength = (plane: Plane): number =>
+      (plane.width >> 2) * (plane.height >> 2)
+    this.#transformWidths = [
+      new Uint8Array(transformContextLength(planes[0])),
+      new Uint8Array(transformContextLength(planes[1])),
+      new Uint8Array(transformContextLength(planes[2])),
+    ]
+    this.#transformHeights = [
+      new Uint8Array(transformContextLength(planes[0])),
+      new Uint8Array(transformContextLength(planes[1])),
+      new Uint8Array(transformContextLength(planes[2])),
+    ]
     this.#cdefColumns = Math.ceil(this.#miColumns / 16)
     this.#cdefIndices = new Uint16Array(this.#cdefColumns * Math.ceil(this.#miRows / 16))
     this.#planes = planes
+    this.#restoration = [
+      createRestorationPlaneState(frame, 0),
+      createRestorationPlaneState(frame, 1),
+      createRestorationPlaneState(frame, 2),
+    ]
     const contextLength = (plane: Plane): number => (plane.width >> 2) * (plane.height >> 2)
     this.#levelContexts = [
       new Uint8Array(contextLength(planes[0])),
@@ -708,16 +759,30 @@ class RestrictedIntraTileDecoder {
 
   decode(): void {
     const superblockPixels = this.#sequence.use128x128Superblock ? 128 : 64
-    const edgeRoot = intraEdgeRoots.get(superblockPixels)
-    if (!edgeRoot) throw invalidInput('AV1 intra edge root is missing')
     const superblockMi = superblockPixels >> 2
     for (let row = 0; row < this.#miRows; row += superblockMi) {
       for (let column = 0; column < this.#miColumns; column += superblockMi) {
+        const roots = column + superblockMi < this.#miColumns ? intraEdgeRoots : intraEdgeRightRoots
+        const edgeRoot = roots.get(superblockPixels)
+        if (!edgeRoot) throw invalidInput('AV1 intra edge root is missing')
         this.#readRestorationForSuperblock(row, column)
         this.#decodePartition(row, column, superblockPixels, edgeRoot)
       }
     }
     this.#symbols.finish()
+  }
+
+  postFilterState(): Av1PostFilterState {
+    return {
+      miColumns: this.#miColumns,
+      miRows: this.#miRows,
+      skips: this.#skips,
+      transformWidths: this.#transformWidths,
+      transformHeights: this.#transformHeights,
+      cdefColumns: this.#cdefColumns,
+      cdefIndices: this.#cdefIndices,
+      restoration: this.#restoration,
+    }
   }
 
   #readRestorationForSuperblock(row: number, column: number): void {
@@ -733,18 +798,34 @@ class RestrictedIntraTileDecoder {
       if (unitSize === undefined || unitSize < 32 || (unitSize & (unitSize - 1)) !== 0) {
         throw invalidInput('AV1 restoration unit size is invalid')
       }
-      const y = (row * 4) >> subsampling
-      const height = (this.#frame.header.frameHeight + subsampling) >> subsampling
-      const mask = unitSize - 1
-      if ((y & mask) !== 0 || (y !== 0 && y + (unitSize >> 1) > height)) continue
-      const x = (column * 4) >> subsampling
-      const width = (this.#frame.header.upscaledWidth + subsampling) >> subsampling
-      if ((x & mask) !== 0 || (x !== 0 && x + (unitSize >> 1) > width)) continue
-      this.#readRestorationUnit(plane, frameType)
+      const planeState = this.#restoration[plane]
+      if (!planeState) throw invalidInput('AV1 restoration plane state is invalid')
+      const superblockMi = this.#sequence.use128x128Superblock ? 32 : 16
+      const numerator = 4 >> subsampling
+      const unitRowStart = Math.floor((row * numerator + unitSize - 1) / unitSize)
+      const unitRowEnd = Math.min(
+        planeState.rows,
+        Math.floor(((row + superblockMi) * numerator + unitSize - 1) / unitSize),
+      )
+      const unitColumnStart = Math.floor((column * numerator + unitSize - 1) / unitSize)
+      const unitColumnEnd = Math.min(
+        planeState.columns,
+        Math.floor(((column + superblockMi) * numerator + unitSize - 1) / unitSize),
+      )
+      for (let unitRow = unitRowStart; unitRow < unitRowEnd; unitRow += 1) {
+        for (let unitColumn = unitColumnStart; unitColumn < unitColumnEnd; unitColumn += 1) {
+          this.#readRestorationUnit(plane, frameType, unitRow, unitColumn)
+        }
+      }
     }
   }
 
-  #readRestorationUnit(plane: number, frameType: number): void {
+  #readRestorationUnit(
+    plane: number,
+    frameType: number,
+    unitRow: number,
+    unitColumn: number,
+  ): void {
     let type: number
     if (frameType === 3) type = this.#symbols.readSymbol(this.#restorationSwitchableCdf)
     else {
@@ -754,13 +835,23 @@ class RestrictedIntraTileDecoder {
       type = enabled === 1 ? frameType : 0
     }
     const reference = this.#restorationReferences[plane]
-    if (!reference) throw invalidInput('AV1 restoration plane is invalid')
+    const planeState = this.#restoration[plane]
+    if (!reference || !planeState) throw invalidInput('AV1 restoration plane is invalid')
+    const unitIndex = unitRow * planeState.columns + unitColumn
+    if (unitIndex < 0 || unitIndex >= planeState.types.length) {
+      throw invalidInput('AV1 restoration unit index is invalid')
+    }
+    planeState.types[unitIndex] = type
     if (type === 1) {
+      let pass = 0
       for (const target of [reference.vertical, reference.horizontal]) {
         if (plane === 0) target[0] = this.#readRestorationSubexp((target[0] ?? 0) + 5, 16, 1) - 5
         else target[0] = 0
         target[1] = this.#readRestorationSubexp((target[1] ?? 0) + 23, 32, 2) - 23
         target[2] = this.#readRestorationSubexp((target[2] ?? 0) + 17, 64, 3) - 17
+        const targetOffset = unitIndex * 6 + pass * 3
+        planeState.wiener.set(target, targetOffset)
+        pass += 1
       }
     } else if (type === 2) {
       const set = this.#symbols.readLiteral(4)
@@ -771,7 +862,10 @@ class RestrictedIntraTileDecoder {
         : 0
       reference.sgr[1] = secondRadius
         ? this.#readRestorationSubexp((reference.sgr[1] ?? 0) + 32, 128, 4) - 32
-        : 95
+        : Math.max(-32, Math.min(95, 128 - (reference.sgr[0] ?? 0)))
+      planeState.sgrSets[unitIndex] = set
+      planeState.sgrXqd[unitIndex * 2] = reference.sgr[0] ?? 0
+      planeState.sgrXqd[unitIndex * 2 + 1] = reference.sgr[1] ?? 0
     }
   }
 
@@ -946,8 +1040,16 @@ class RestrictedIntraTileDecoder {
       }
     }
     const uvAngleDelta = this.#readAngleDelta(uvMode, width, height)
-    const aboveUvMode = row > 0 ? (this.#uvModes[(row - 1) * this.#miColumns + column] ?? 0) : 0
-    const leftUvMode = column > 0 ? (this.#uvModes[row * this.#miColumns + column - 1] ?? 0) : 0
+    const chromaRow = row >> 1
+    const chromaColumn = column >> 1
+    const aboveUvMode =
+      chromaRow > 0
+        ? (this.#uvModes[(chromaRow - 1) * this.#chromaMiColumns + chromaColumn] ?? 0)
+        : 0
+    const leftUvMode =
+      chromaColumn > 0
+        ? (this.#uvModes[chromaRow * this.#chromaMiColumns + chromaColumn - 1] ?? 0)
+        : 0
     const uvEdgeSmooth =
       (aboveUvMode >= 9 && aboveUvMode <= 11) || (leftUvMode >= 9 && leftUvMode <= 11)
     let filterMode: number | undefined
@@ -1064,6 +1166,8 @@ class RestrictedIntraTileDecoder {
             ),
             undefined,
             cflAlphaU,
+            column * 4 + codedWidth,
+            row * 4 + codedHeight,
           )
           this.#decodePlane(
             2,
@@ -1088,6 +1192,8 @@ class RestrictedIntraTileDecoder {
             ),
             undefined,
             cflAlphaV,
+            column * 4 + codedWidth,
+            row * 4 + codedHeight,
           )
         }
       }
@@ -1100,9 +1206,22 @@ class RestrictedIntraTileDecoder {
           this.#blockHeights[target] = height
           this.#skips[target] = skip
           this.#yModes[target] = yMode
-          this.#uvModes[target] = uvMode
-          this.#transformWidths[target] = lumaTransform.width
-          this.#transformHeights[target] = lumaTransform.height
+          this.#transformWidths[0][target] = lumaTransform.width
+          this.#transformHeights[0][target] = lumaTransform.height
+        }
+      }
+    }
+    if (hasChroma) {
+      const chromaRows = codedChromaHeight >> 2
+      const chromaColumns = codedChromaWidth >> 2
+      for (let localRow = 0; localRow < chromaRows; localRow += 1) {
+        for (let localColumn = 0; localColumn < chromaColumns; localColumn += 1) {
+          const contextRow = chromaRow + localRow
+          const contextColumn = chromaColumn + localColumn
+          const target = contextRow * this.#chromaMiColumns + contextColumn
+          if (contextRow < this.#miRows >> 1 && contextColumn < this.#chromaMiColumns) {
+            this.#uvModes[target] = uvMode
+          }
         }
       }
     }
@@ -1176,8 +1295,10 @@ class RestrictedIntraTileDecoder {
     let height = Math.min(blockHeight, 64) as TransformDimension
     if (this.#frame.header.transformMode !== 'select' || skip) return { width, height }
     const category = Math.max(width, height) as 8 | 16 | 32 | 64
-    const above = row > 0 ? (this.#transformWidths[(row - 1) * this.#miColumns + column] ?? 0) : 0
-    const left = column > 0 ? (this.#transformHeights[row * this.#miColumns + column - 1] ?? 0) : 0
+    const above =
+      row > 0 ? (this.#transformWidths[0][(row - 1) * this.#miColumns + column] ?? 0) : 0
+    const left =
+      column > 0 ? (this.#transformHeights[0][row * this.#miColumns + column - 1] ?? 0) : 0
     const context = Number(above >= width) + Number(left >= height)
     const key = `${category}:${context}`
     let transformDepthCdf = this.#transformDepthCdfs.get(key)
@@ -1212,6 +1333,8 @@ class RestrictedIntraTileDecoder {
     chunkEdgeFlags: number,
     filterMode?: number,
     cflAlpha = 0,
+    cflLumaEndX = 0,
+    cflLumaEndY = 0,
   ): void {
     const plane = this.#planes[planeIndex]
     for (let y = 0; y < height; y += transform.height) {
@@ -1246,6 +1369,8 @@ class RestrictedIntraTileDecoder {
             transform.width,
             transform.height,
             cflAlpha,
+            cflLumaEndX,
+            cflLumaEndY,
           )
         }
         const blockX = (startX + x) >> 2
@@ -1400,6 +1525,8 @@ class RestrictedIntraTileDecoder {
             levelContexts[contextIndex] = levelContext
             dcContexts[contextIndex] = dcCategory
             this.#reconstructedContexts[planeIndex][contextIndex] = 1
+            this.#transformWidths[planeIndex][contextIndex] = transform.width
+            this.#transformHeights[planeIndex][contextIndex] = transform.height
           }
         }
       }
@@ -1632,14 +1759,16 @@ class RestrictedIntraTileDecoder {
     width: number,
     height: number,
     alpha: number,
+    lumaEndX: number,
+    lumaEndY: number,
   ): void {
     const luma = this.#planes[0]
     const samples = new Uint16Array(width * height)
     let sum = 0
     for (let localY = 0; localY < height; localY += 1) {
       for (let localX = 0; localX < width; localX += 1) {
-        const lumaX = Math.min((x + localX) * 2, luma.width - 2)
-        const lumaY = Math.min((y + localY) * 2, luma.height - 2)
+        const lumaX = Math.min((x + localX) * 2, lumaEndX - 2)
+        const lumaY = Math.min((y + localY) * 2, lumaEndY - 2)
         const value =
           ((luma.data[lumaY * luma.stride + lumaX] ?? 0) +
             (luma.data[lumaY * luma.stride + lumaX + 1] ?? 0) +
@@ -1756,6 +1885,20 @@ export const decodeRestrictedAv1Intra = (
   if (frame.header.allowIntrabc) {
     throw unsupportedOperation('Phase B2 reconstruction does not support intra block copy')
   }
+  if (frame.header.usingQMatrix) {
+    throw unsupportedOperation('Phase B2 reconstruction does not support AV1 quantization matrices')
+  }
+  if (frame.header.frameWidth !== frame.header.upscaledWidth) {
+    throw unsupportedOperation('Phase B2 reconstruction does not support AV1 super-resolution')
+  }
+  if (frame.header.segmentationEnabled) {
+    throw unsupportedOperation('Phase B2 reconstruction does not support AV1 segmentation maps')
+  }
+  if (frame.header.deltaQPresent || frame.header.deltaLfPresent) {
+    throw unsupportedOperation(
+      'Phase B2 reconstruction does not support AV1 block quantizer or loop-filter deltas',
+    )
+  }
   const miColumns = 2 * ((frame.header.frameWidth + 7) >> 3)
   const miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
   const yStride = miColumns * 4
@@ -1780,7 +1923,9 @@ export const decodeRestrictedAv1Intra = (
     height: chromaHeight,
     stride: chromaStride,
   }
-  new RestrictedIntraTileDecoder(sequence, frame, [y, u, v]).decode()
+  const decoder = new RestrictedIntraTileDecoder(sequence, frame, [y, u, v])
+  decoder.decode()
+  const filtered = applyAv1PostFilters([y, u, v], frame.header, decoder.postFilterState())
   return {
     width: frame.header.frameWidth,
     height: frame.header.frameHeight,
@@ -1788,9 +1933,9 @@ export const decodeRestrictedAv1Intra = (
     chromaHeight: Math.ceil(frame.header.frameHeight / 2),
     yStride,
     chromaStride,
-    y: y.data,
-    u: u.data,
-    v: v.data,
+    y: filtered[0].data,
+    u: filtered[1].data,
+    v: filtered[2].data,
   }
 }
 
