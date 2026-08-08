@@ -133,6 +133,18 @@ npm run bench:jpeg:encode -- 420
 npm run bench:jpeg:encode -- 444
 ```
 
+Run the isolated scaled-IDCT comparison for the pinned 4000x3000 JPEG:
+
+```sh
+npm run bench:jpeg:scaled-idct -- --runs 3
+```
+
+The 200px, 800px, and 1200px cases exercise native 1/8, 1/4, and 1/2 IDCT
+output. Each is compared with the forced full-resolution decoder path and
+reports decoded pixels avoided, runtime, absolute peak RSS, MAE, and PSNR. The
+checked-in result is
+[`jpeg-scaled-idct-2026-08-08.md`](results/jpeg-scaled-idct-2026-08-08.md).
+
 Verify the checksum-pinned JPEG 2000 corpus, then run its isolated real-photo
 metadata and resize-to-JPEG RSS gates:
 

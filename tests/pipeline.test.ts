@@ -1,10 +1,33 @@
 import { describe, expect, it } from 'vitest'
 
+import { selectDecodeScaleDenominator } from '../src/executor.ts'
 import { createImageLibrary, type ImageCodec } from '../src/index.ts'
 import { jpegFixture, pngFixture } from './fixtures.ts'
 import { Image } from './image-library.ts'
 
 describe('immutable image pipelines', () => {
+  it('selects the closest safe JPEG decode scale for common large-image outputs', () => {
+    const region = { x: 0, y: 0, width: 6000, height: 4000 }
+    expect(
+      selectDecodeScaleDenominator(6000, 4000, region, [{ type: 'resize', width: 200 }], true),
+    ).toBe(8)
+    expect(
+      selectDecodeScaleDenominator(6000, 4000, region, [{ type: 'resize', width: 800 }], true),
+    ).toBe(4)
+    expect(
+      selectDecodeScaleDenominator(6000, 4000, region, [{ type: 'resize', width: 1200 }], true),
+    ).toBe(4)
+    expect(
+      selectDecodeScaleDenominator(
+        6000,
+        4000,
+        { x: 1000, y: 500, width: 4000, height: 3000 },
+        [{ type: 'resize', width: 200 }],
+        true,
+      ),
+    ).toBe(1)
+  })
+
   it('plans orientation, crop, resize, and encoding without mutating the source image', async () => {
     const source = await Image.open(jpegFixture(120, 80, 6))
     const output = source

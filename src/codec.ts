@@ -104,6 +104,7 @@ export interface DecodeRequest {
   y?: number
   width?: number
   height?: number
+  scaleDenominator?: 1 | 2 | 4 | 8
 }
 
 export interface ImageDecoder {

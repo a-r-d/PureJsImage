@@ -34,7 +34,18 @@ describe('ordered transforms across codecs', () => {
 
       expect(decoded.width, fixture.format).toBe(6)
       expect(decoded.height, fixture.format).toBe(8)
-      expect(direct, fixture.format).toEqual(reference)
+      if (fixture.format === 'jpeg') {
+        const decodedReference = jpeg.decode(reference, { formatAsRGBA: true, useTArray: true })
+        let absoluteError = 0
+        for (let index = 0; index < decoded.data.byteLength; index += 1) {
+          absoluteError += Math.abs(
+            (decoded.data[index] ?? 0) - (decodedReference.data[index] ?? 0),
+          )
+        }
+        expect(absoluteError / decoded.data.byteLength, fixture.format).toBeLessThan(16)
+      } else {
+        expect(direct, fixture.format).toEqual(reference)
+      }
     }
   }, 60_000)
 })

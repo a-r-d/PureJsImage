@@ -5,7 +5,11 @@ import type { ImageLimits } from './limits.ts'
 import { validateImageDimensions } from './limits.ts'
 import { normalizeExifOrientation } from './metadata.ts'
 import { createOrientationTransform, type ExifOrientation } from './orient.ts'
-import { normalizedRotation, type PipelineOperation } from './pipeline.ts'
+import {
+  calculateResizeDimensions,
+  normalizedRotation,
+  type PipelineOperation,
+} from './pipeline.ts'
 import type { PixelBlock } from './pixel.ts'
 import type { ImageRuntime } from './runtime.ts'
 import { createResizeTransform } from './resize.ts'
@@ -33,6 +37,41 @@ interface OutputPlan {
   readonly options: unknown
   readonly decoderRegion: Region
   readonly stages: readonly PipelineOperation[]
+}
+
+type DecodeScaleDenominator = 1 | 2 | 4 | 8
+
+export const selectDecodeScaleDenominator = (
+  sourceWidth: number,
+  sourceHeight: number,
+  decoderRegion: Region,
+  stages: readonly PipelineOperation[],
+  scaledDecode: boolean,
+): DecodeScaleDenominator => {
+  const firstStage = stages[0]
+  if (
+    !scaledDecode ||
+    firstStage?.type !== 'resize' ||
+    decoderRegion.x !== 0 ||
+    decoderRegion.y !== 0 ||
+    decoderRegion.width !== sourceWidth ||
+    decoderRegion.height !== sourceHeight
+  ) {
+    return 1
+  }
+
+  const target = calculateResizeDimensions(sourceWidth, sourceHeight, firstStage)
+  const candidates = [8, 4, 2] as const
+  for (const denominator of candidates) {
+    const scaledWidth = Math.ceil(sourceWidth / denominator)
+    const scaledHeight = Math.ceil(sourceHeight / denominator)
+    if (scaledWidth < target.width || scaledHeight < target.height) continue
+    const scaledTarget = calculateResizeDimensions(scaledWidth, scaledHeight, firstStage)
+    if (scaledTarget.width === target.width && scaledTarget.height === target.height) {
+      return denominator
+    }
+  }
+  return 1
 }
 
 const orientationValue = (value: number | undefined): ExifOrientation => {
@@ -170,10 +209,27 @@ export const executePipeline = async (
       operations,
       sourceOrientation,
     )
-    let width = output.decoderRegion.width
-    let height = output.decoderRegion.height
+    const scaleDenominator = selectDecodeScaleDenominator(
+      decoder.width,
+      decoder.height,
+      output.decoderRegion,
+      output.stages,
+      decoder.capabilities.scaledDecode,
+    )
+    let width = Math.ceil(output.decoderRegion.width / scaleDenominator)
+    let height = Math.ceil(output.decoderRegion.height / scaleDenominator)
     let pixelFormat = decoder.pixelFormat
-    let blocks: AsyncIterable<PixelBlock> = decoder.decode(output.decoderRegion)
+    let blocks: AsyncIterable<PixelBlock> = decoder.decode(
+      scaleDenominator === 1
+        ? output.decoderRegion
+        : {
+            x: 0,
+            y: 0,
+            width,
+            height,
+            scaleDenominator,
+          },
+    )
     for (const operation of output.stages) {
       if (operation.type === 'encode') continue
       if (operation.type === 'crop') {

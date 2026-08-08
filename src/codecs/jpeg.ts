@@ -18,6 +18,7 @@ import {
   type BaselineJpeg,
   decodeBaselineJpeg,
   decodeProgressiveJpeg,
+  type JpegRegion,
   type ProgressiveJpeg,
   parseBaselineJpeg,
   parseProgressiveJpeg,
@@ -186,11 +187,7 @@ const mpfImageCount = (segment: Uint8Array): number | undefined => {
   return undefined
 }
 
-const region = (
-  width: number,
-  height: number,
-  request: DecodeRequest = {},
-): Required<DecodeRequest> => {
+const region = (width: number, height: number, request: DecodeRequest = {}): JpegRegion => {
   const x = request.x ?? 0
   const y = request.y ?? 0
   const outputWidth = request.width ?? width - x
@@ -215,6 +212,14 @@ const region = (
   return { x, y, width: outputWidth, height: outputHeight }
 }
 
+const scaleDenominator = (request: DecodeRequest): 1 | 2 | 4 | 8 => {
+  const scale = request.scaleDenominator ?? 1
+  if (scale !== 1 && scale !== 2 && scale !== 4 && scale !== 8) {
+    throw invalidInput('JPEG decode scale denominator must be 1, 2, 4, or 8')
+  }
+  return scale
+}
+
 class JpegDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
@@ -222,7 +227,7 @@ class JpegDecoder implements ImageDecoder {
   readonly capabilities = Object.freeze({
     sequential: true,
     regionDecode: false,
-    scaledDecode: false,
+    scaledDecode: true,
     progressive: false,
   })
   readonly #jpeg: BaselineJpeg
@@ -234,8 +239,9 @@ class JpegDecoder implements ImageDecoder {
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
-    const output = region(this.width, this.height, request)
-    yield* decodeBaselineJpeg(this.#jpeg, output)
+    const scale = scaleDenominator(request)
+    const output = region(Math.ceil(this.width / scale), Math.ceil(this.height / scale), request)
+    yield* decodeBaselineJpeg(this.#jpeg, output, scale)
   }
 }
 
@@ -246,7 +252,7 @@ class ProgressiveJpegDecoder implements ImageDecoder {
   readonly capabilities = Object.freeze({
     sequential: true,
     regionDecode: false,
-    scaledDecode: false,
+    scaledDecode: true,
     progressive: true,
   })
   readonly #jpeg: ProgressiveJpeg
@@ -258,8 +264,9 @@ class ProgressiveJpegDecoder implements ImageDecoder {
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
-    const output = region(this.width, this.height, request)
-    yield* decodeProgressiveJpeg(this.#jpeg, output)
+    const scale = scaleDenominator(request)
+    const output = region(Math.ceil(this.width / scale), Math.ceil(this.height / scale), request)
+    yield* decodeProgressiveJpeg(this.#jpeg, output, scale)
   }
 }
 

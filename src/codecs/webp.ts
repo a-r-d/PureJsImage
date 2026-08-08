@@ -261,7 +261,7 @@ const decodeRegion = (
   width: number,
   height: number,
   request: DecodeRequest,
-): Required<DecodeRequest> => {
+): Required<Pick<DecodeRequest, 'x' | 'y' | 'width' | 'height'>> => {
   const x = request.x ?? 0
   const y = request.y ?? 0
   const outputWidth = request.width ?? width - x

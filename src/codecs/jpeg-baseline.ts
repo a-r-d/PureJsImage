@@ -75,12 +75,32 @@ const zigZag = Int32Array.of(
   63,
 )
 
-const idctBasis = Float64Array.from({ length: 64 }, (_, index) => {
-  const frequency = Math.floor(index / 8)
-  const position = index % 8
-  const normalization = frequency === 0 ? Math.SQRT1_2 : 1
-  return 0.5 * normalization * Math.cos(((2 * position + 1) * frequency * Math.PI) / 16)
-})
+const createIdctBasis = (size: number): Float64Array =>
+  Float64Array.from({ length: size * size }, (_, index) => {
+    const frequency = Math.floor(index / size)
+    const position = index % size
+    const normalization = frequency === 0 ? Math.SQRT1_2 : 1
+    return 0.5 * normalization * Math.cos(((2 * position + 1) * frequency * Math.PI) / (2 * size))
+  })
+
+const idctBasis = createIdctBasis(8)
+const idctBasis4 = createIdctBasis(4)
+const idctBasis2 = createIdctBasis(2)
+
+type JpegScaleDenominator = 1 | 2 | 4 | 8
+
+type InverseDct = (
+  coefficients: ArrayLike<number>,
+  quantization: Int32Array,
+  workspace: Float64Array,
+  activeRowIndices: Uint8Array,
+  sampleWorkspace: Float64Array,
+  output: Uint8Array,
+  outputStride: number,
+  blockX: number,
+  blockY: number,
+  coefficientOffset?: number,
+) => void
 
 interface HuffmanTable {
   readonly counts: Uint8Array
@@ -606,6 +626,7 @@ const inverseDct = (
   quantization: Int32Array,
   workspace: Float64Array,
   activeRowIndices: Uint8Array,
+  _sampleWorkspace: Float64Array,
   output: Uint8Array,
   outputStride: number,
   blockX: number,
@@ -679,23 +700,170 @@ const inverseDct = (
   }
 }
 
-const componentPlanes = (jpeg: RenderJpeg): Uint8Array[] =>
+const inverseDctReduced = (
+  outputSize: 2 | 4,
+  basis: Float64Array,
+  coefficients: ArrayLike<number>,
+  quantization: Int32Array,
+  workspace: Float64Array,
+  activeRowIndices: Uint8Array,
+  sampleWorkspace: Float64Array,
+  output: Uint8Array,
+  outputStride: number,
+  blockX: number,
+  blockY: number,
+  coefficientOffset = 0,
+): void => {
+  let activeRowCount = 0
+  for (let vertical = 0; vertical < outputSize; vertical += 1) {
+    const coefficientRowOffset = vertical * 8
+    const workspaceRowOffset = vertical * outputSize
+    let rowActive = false
+    for (let horizontal = 0; horizontal < outputSize; horizontal += 1) {
+      const coefficientIndex = coefficientRowOffset + horizontal
+      const coefficient = byte(coefficients, coefficientOffset + coefficientIndex)
+      if (coefficient === 0) continue
+      const scaled = coefficient * byte(quantization, coefficientIndex)
+      if (!rowActive) {
+        activeRowIndices[activeRowCount] = vertical
+        activeRowCount += 1
+        rowActive = true
+        for (let x = 0; x < outputSize; x += 1) {
+          workspace[workspaceRowOffset + x] = scaled * (basis[horizontal * outputSize + x] ?? 0)
+        }
+      } else {
+        for (let x = 0; x < outputSize; x += 1) {
+          const target = workspaceRowOffset + x
+          workspace[target] =
+            (workspace[target] ?? 0) + scaled * (basis[horizontal * outputSize + x] ?? 0)
+        }
+      }
+    }
+  }
+
+  for (let y = 0; y < outputSize; y += 1) {
+    sampleWorkspace.fill(0, 0, outputSize)
+    for (let activeIndex = 0; activeIndex < activeRowCount; activeIndex += 1) {
+      const vertical = activeRowIndices[activeIndex] ?? 0
+      const workspaceOffset = vertical * outputSize
+      const verticalBasis = basis[vertical * outputSize + y] ?? 0
+      for (let x = 0; x < outputSize; x += 1) {
+        sampleWorkspace[x] =
+          (sampleWorkspace[x] ?? 0) + verticalBasis * (workspace[workspaceOffset + x] ?? 0)
+      }
+    }
+    const outputOffset = (blockY * outputSize + y) * outputStride + blockX * outputSize
+    for (let x = 0; x < outputSize; x += 1) {
+      const sample = Math.round((sampleWorkspace[x] ?? 0) + 128)
+      output[outputOffset + x] = sample < 0 ? 0 : sample > 255 ? 255 : sample
+    }
+  }
+}
+
+const inverseDct4: InverseDct = (
+  coefficients,
+  quantization,
+  workspace,
+  activeRowIndices,
+  sampleWorkspace,
+  output,
+  outputStride,
+  blockX,
+  blockY,
+  coefficientOffset = 0,
+): void => {
+  inverseDctReduced(
+    4,
+    idctBasis4,
+    coefficients,
+    quantization,
+    workspace,
+    activeRowIndices,
+    sampleWorkspace,
+    output,
+    outputStride,
+    blockX,
+    blockY,
+    coefficientOffset,
+  )
+}
+
+const inverseDct2: InverseDct = (
+  coefficients,
+  quantization,
+  workspace,
+  activeRowIndices,
+  sampleWorkspace,
+  output,
+  outputStride,
+  blockX,
+  blockY,
+  coefficientOffset = 0,
+): void => {
+  inverseDctReduced(
+    2,
+    idctBasis2,
+    coefficients,
+    quantization,
+    workspace,
+    activeRowIndices,
+    sampleWorkspace,
+    output,
+    outputStride,
+    blockX,
+    blockY,
+    coefficientOffset,
+  )
+}
+
+const inverseDct1: InverseDct = (
+  coefficients,
+  quantization,
+  _workspace,
+  _activeRowIndices,
+  _sampleWorkspace,
+  output,
+  outputStride,
+  blockX,
+  blockY,
+  coefficientOffset = 0,
+): void => {
+  const sample = Math.round(
+    (byte(coefficients, coefficientOffset) * byte(quantization, 0)) / 8 + 128,
+  )
+  output[blockY * outputStride + blockX] = sample < 0 ? 0 : sample > 255 ? 255 : sample
+}
+
+const inverseDctForScale = (scaleDenominator: JpegScaleDenominator): InverseDct => {
+  if (scaleDenominator === 1) return inverseDct
+  if (scaleDenominator === 2) return inverseDct4
+  if (scaleDenominator === 4) return inverseDct2
+  return inverseDct1
+}
+
+const outputSizeForScale = (scaleDenominator: JpegScaleDenominator): number => 8 / scaleDenominator
+
+const componentPlanes = (jpeg: RenderJpeg, blockSize: number): Uint8Array[] =>
   jpeg.components.map(
     (component) =>
       new Uint8Array(
-        jpeg.mcusPerLine * component.horizontalSampling * 8 * component.verticalSampling * 8,
+        jpeg.mcusPerLine *
+          component.horizontalSampling *
+          blockSize *
+          component.verticalSampling *
+          blockSize,
       ),
   )
 
 const clamp = (value: number): number => (value < 0 ? 0 : value > 255 ? 255 : value)
 
-const createRenderPlan = (jpeg: RenderJpeg, region: JpegRegion): RenderPlan => {
+const createRenderPlan = (jpeg: RenderJpeg, region: JpegRegion, blockSize: number): RenderPlan => {
   const componentX: Int32Array[] = []
   const componentWidths = new Int32Array(jpeg.components.length)
   for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
     const component = jpeg.components[componentIndex]
     if (!component) throw invalidInput('JPEG component metadata is missing')
-    componentWidths[componentIndex] = jpeg.mcusPerLine * component.horizontalSampling * 8
+    componentWidths[componentIndex] = jpeg.mcusPerLine * component.horizontalSampling * blockSize
     const indices = new Int32Array(region.width)
     for (let x = 0; x < region.width; x += 1) {
       indices[x] = Math.floor(
@@ -954,10 +1122,14 @@ const renderRows = (
   region: JpegRegion,
   plan: RenderPlan,
   data: Uint8Array,
+  blockSize: number,
 ): PixelBlock | undefined => {
-  const rowStart = mcuRow * jpeg.maximumVerticalSampling * 8
+  const rowStart = mcuRow * jpeg.maximumVerticalSampling * blockSize
   const first = Math.max(region.y, rowStart)
-  const last = Math.min(region.y + region.height, rowStart + jpeg.maximumVerticalSampling * 8)
+  const last = Math.min(
+    region.y + region.height,
+    rowStart + jpeg.maximumVerticalSampling * blockSize,
+  )
   if (first >= last) return undefined
   const height = last - first
   const stride = region.width * 3
@@ -999,18 +1171,22 @@ const renderRows = (
 export const decodeBaselineJpeg = async function* (
   jpeg: BaselineJpeg,
   region: JpegRegion,
+  scaleDenominator: JpegScaleDenominator = 1,
 ): AsyncGenerator<PixelBlock> {
   const reader = new EntropyReader(jpeg.data, jpeg.scanOffset)
   const predictors = new Int32Array(jpeg.components.length)
   const coefficients = new Int32Array(64)
   const workspace = new Float64Array(64)
   const activeRowIndices = new Uint8Array(8)
+  const sampleWorkspace = new Float64Array(8)
+  const blockSize = outputSizeForScale(scaleDenominator)
+  const inverseBlock = inverseDctForScale(scaleDenominator)
   let mcu = 0
   let restart = 0
-  const plan = createRenderPlan(jpeg, region)
-  const planes = componentPlanes(jpeg)
+  const plan = createRenderPlan(jpeg, region, blockSize)
+  const planes = componentPlanes(jpeg, blockSize)
   const recycledOutput: Uint8Array[] = []
-  const outputBytes = region.width * 3 * jpeg.maximumVerticalSampling * 8
+  const outputBytes = region.width * 3 * jpeg.maximumVerticalSampling * blockSize
 
   for (let mcuRow = 0; mcuRow < jpeg.mcusPerColumn; mcuRow += 1) {
     for (let mcuColumn = 0; mcuColumn < jpeg.mcusPerLine; mcuColumn += 1) {
@@ -1023,7 +1199,7 @@ export const decodeBaselineJpeg = async function* (
         const component = jpeg.components[componentIndex]
         const plane = planes[componentIndex]
         if (!component || !plane) throw invalidInput('JPEG component storage is missing')
-        const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * 8
+        const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * blockSize
         for (let blockY = 0; blockY < component.verticalSampling; blockY += 1) {
           for (let blockX = 0; blockX < component.horizontalSampling; blockX += 1) {
             predictors[componentIndex] = decodeBlock(
@@ -1032,11 +1208,12 @@ export const decodeBaselineJpeg = async function* (
               byte(predictors, componentIndex),
               coefficients,
             )
-            inverseDct(
+            inverseBlock(
               coefficients,
               component.quantization,
               workspace,
               activeRowIndices,
+              sampleWorkspace,
               plane,
               planeWidth,
               mcuColumn * component.horizontalSampling + blockX,
@@ -1048,7 +1225,7 @@ export const decodeBaselineJpeg = async function* (
       mcu += 1
     }
     const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
-    const output = renderRows(jpeg, planes, mcuRow, region, plan, data)
+    const output = renderRows(jpeg, planes, mcuRow, region, plan, data, blockSize)
     if (output) {
       let released = false
       yield {
@@ -1516,27 +1693,32 @@ export const parseProgressiveJpeg = (
 export const decodeProgressiveJpeg = async function* (
   jpeg: ProgressiveJpeg,
   region: JpegRegion,
+  scaleDenominator: JpegScaleDenominator = 1,
 ): AsyncGenerator<PixelBlock> {
   const workspace = new Float64Array(64)
   const activeRowIndices = new Uint8Array(8)
-  const plan = createRenderPlan(jpeg, region)
-  const planes = componentPlanes(jpeg)
+  const sampleWorkspace = new Float64Array(8)
+  const blockSize = outputSizeForScale(scaleDenominator)
+  const inverseBlock = inverseDctForScale(scaleDenominator)
+  const plan = createRenderPlan(jpeg, region, blockSize)
+  const planes = componentPlanes(jpeg, blockSize)
   const recycledOutput: Uint8Array[] = []
-  const outputBytes = region.width * 3 * jpeg.maximumVerticalSampling * 8
+  const outputBytes = region.width * 3 * jpeg.maximumVerticalSampling * blockSize
   for (let mcuRow = 0; mcuRow < jpeg.mcusPerColumn; mcuRow += 1) {
     for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
       const component = jpeg.components[componentIndex]
       const plane = planes[componentIndex]
       if (!component || !plane) throw invalidInput('JPEG component storage is missing')
-      const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * 8
+      const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * blockSize
       for (let blockY = 0; blockY < component.verticalSampling; blockY += 1) {
         const sourceBlockY = mcuRow * component.verticalSampling + blockY
         for (let blockX = 0; blockX < component.blocksPerLineForMcu; blockX += 1) {
-          inverseDct(
+          inverseBlock(
             component.coefficients,
             component.quantization,
             workspace,
             activeRowIndices,
+            sampleWorkspace,
             plane,
             planeWidth,
             blockX,
@@ -1547,7 +1729,7 @@ export const decodeProgressiveJpeg = async function* (
       }
     }
     const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
-    const output = renderRows(jpeg, planes, mcuRow, region, plan, data)
+    const output = renderRows(jpeg, planes, mcuRow, region, plan, data, blockSize)
     if (output) {
       let released = false
       yield {

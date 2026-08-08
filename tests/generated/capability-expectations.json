@@ -8,6 +8,8 @@
       "encoder": true,
       "evidence": [
         "tests/jpeg.test.ts",
+        "tests/pipeline.test.ts",
+        "tests/transform-codecs.test.ts",
         "tests/metadata-preservation.test.ts",
         "tests/lossy-codec-quality.test.ts"
       ]
