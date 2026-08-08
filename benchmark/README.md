@@ -291,6 +291,17 @@ Absolute peak RSS is the headline memory number. The delta remains available in
 JSON as a diagnostic, but a warmup may leave allocator pages resident and make
 the delta understate the real process footprint.
 
+The separate bundle and installed-deployment comparison is reproducible with:
+
+```sh
+npm run size
+```
+
+It reports minified, gzip, and Brotli JavaScript for codec-scoped imports, then
+walks each installed production dependency tree. Sharp's JavaScript result is
+identified as a native wrapper and is paired with the platform-specific addon
+and libvips footprint.
+
 When PureJsImage has an executable build, set `PUREJSIMAGE_ENTRY` to its module
 entrypoint and run both engines:
 

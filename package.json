@@ -124,7 +124,7 @@
     "lint": "biome lint .",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "size": "node scripts/measure-bundle-size.ts",
+    "size": "npm run build && node scripts/measure-bundle-size.ts",
     "test": "vitest run",
     "test:hostile-source": "PUREJSIMAGE_HOSTILE_SOURCE=1 vitest run",
     "test:watch": "vitest",

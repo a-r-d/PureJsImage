@@ -8,6 +8,7 @@ import { readCompatibilityManifest } from '../benchmark/heif/compatibility/corpu
 import { jpegCompatibilityFixtureIds } from '../benchmark/jpeg/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
 import packageJson from '../package.json' with { type: 'json' }
+import { commonCompetitorCodecs, competitorBundleTargets } from '../scripts/bundle-size-config.ts'
 import * as publicApi from '../src/index.ts'
 
 describe('package contract', () => {
@@ -20,6 +21,32 @@ describe('package contract', () => {
     expect(packageJson.devDependencies.sharp).toBe('0.35.3')
     expect(packageJson.devDependencies['image-js']).toBe('1.7.0')
     expect('skia-canvas' in packageJson.devDependencies).toBe(false)
+  })
+
+  it('keeps bundle comparisons codec-scoped and identifies native payloads', () => {
+    expect(commonCompetitorCodecs).toEqual(['JPEG', 'PNG', 'TIFF'])
+    expect(competitorBundleTargets.map((target) => target.id)).toEqual([
+      'purejsimage-matched',
+      'purejsimage-all',
+      'jimp',
+      'image-js',
+      'sharp',
+    ])
+    for (const target of competitorBundleTargets) {
+      for (const codec of commonCompetitorCodecs) expect(target.codecs).toContain(codec)
+    }
+    expect(competitorBundleTargets.find((target) => target.id === 'sharp')?.implementation).toBe(
+      'native-wrapper',
+    )
+
+    const readme = readFileSync('README.md', 'utf8')
+    const performancePage = readFileSync('docs/performance.html', 'utf8')
+    for (const label of ['PureJsImage matched', 'Jimp', 'image-js', 'Sharp JS wrapper']) {
+      expect(readme).toContain(label)
+      expect(performancePage).toContain(label)
+    }
+    expect(readme).toContain('Sharp, including native libvips')
+    expect(performancePage).toContain('Native payload.')
   })
 
   it('keeps real-browser validation tools development-only and version-pinned', () => {

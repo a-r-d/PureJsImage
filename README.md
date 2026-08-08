@@ -57,17 +57,27 @@ addons, external programs, or WebAssembly modules.
 
 ### Bundle size
 
-Applications can import only the formats they need. These sizes use minified
-production bundles from the current source:
+JPEG, PNG, and TIFF are available in every installed engine, so they form the
+matched set. PureJsImage can bundle exactly those codecs; the competitors'
+normal public imports include the additional codecs shown.
 
-| Entry | Minified | gzip | Brotli |
-| --- | ---: | ---: | ---: |
-| Core API | 36.9 KiB | 12.5 KiB | 11.1 KiB |
-| Core + PNG | 64.1 KiB | 21.8 KiB | 19.1 KiB |
-| Core + JPEG | 79.9 KiB | 26.9 KiB | 23.0 KiB |
-| Core + JPEG 2000 | 72.7 KiB | 24.0 KiB | 21.0 KiB |
-| Core + WebP | 86.3 KiB | 30.9 KiB | 26.6 KiB |
-| Core + all codecs | 427.9 KiB | 144.7 KiB | 116.1 KiB |
+| Import | Codecs included | Minified JS | gzip | Brotli |
+| --- | --- | ---: | ---: | ---: |
+| **PureJsImage matched** | JPEG, PNG, TIFF | **139.5 KiB** | **45.8 KiB** | **38.6 KiB** |
+| PureJsImage all codecs | 10 codecs | 444.3 KiB | 150.7 KiB | 121.1 KiB |
+| Jimp | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
+| image-js | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
+| Sharp JS wrapper | JPEG, PNG, TIFF, WebP, GIF, AVIF | 128.4 KiB | 38.3 KiB | 33.5 KiB |
+
+Sharp's JavaScript bundle is only a wrapper around native code. The complete
+installed deployment tells the other half of the story:
+
+| Package | Installed footprint | Production packages |
+| --- | ---: | ---: |
+| **PureJsImage** | **2.6 MiB** | **1** |
+| Jimp | 29.3 MiB | 70 |
+| image-js | 17.0 MiB | 46 |
+| Sharp, including native libvips | 18.9 MiB | 6 |
 
 [See bundle details and reproduction commands →](https://a-r-d.github.io/PureJsImage/performance.html#bundle)
 

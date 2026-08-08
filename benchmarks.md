@@ -66,6 +66,24 @@ and 10 explicit unsupported results, with no invalid output or runtime errors:
 - [readable competitor report](benchmark/results/competitors-2026-08-08.md)
 - [machine-readable competitor report](benchmark/results/competitors-2026-08-08.json)
 
+## Bundle and deployment comparison
+
+Run the reproducible size comparison with:
+
+```sh
+npm run size
+```
+
+It bundles each public import with the same esbuild settings and also measures
+the installed production dependency tree. JPEG, PNG, and TIFF are the matched
+codec set because all four installed engines support them. PureJsImage can
+include exactly those codecs; the normal Jimp, image-js, and Sharp imports bring
+the additional codecs reported in the output.
+
+Sharp's minified JavaScript is only its wrapper. Its deployment footprint also
+includes the native addon and platform-specific libvips package. Both values are
+reported so the wrapper is never presented as the complete Sharp deployment.
+
 ## Headline results
 
 | Workflow | PureJsImage wall | Jimp wall | Wall difference | PureJsImage RSS | Jimp RSS | Memory reduction |

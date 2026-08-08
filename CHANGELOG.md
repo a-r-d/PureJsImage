@@ -18,6 +18,8 @@ All notable changes to PureJsImage are documented in this file.
 - Documented the progressive JavaScript, optional WASM, and future WebGPU backend roadmap,
   including capability probing, workload-based selection, bounded GPU memory rules, runtime
   fallback policy, correctness gates, and a staged browser-first delivery plan.
+- Added a reproducible bundle and deployment-footprint comparison for PureJsImage, Jimp, image-js,
+  and Sharp, with a matched common codec set and explicit accounting for Sharp's native payload.
 
 ### Changed
 
