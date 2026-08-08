@@ -1,0 +1,43 @@
+benchmarks.md
+  s_3070dced1b3aff::t_e2ae40965d843d 69-86
+scripts/bundle-size-config.ts
+  s_3070dced1b3aff::t_5e8a938456dcb5 1-27,33-150
+  s_3070dced1b3aff::t_6391656a4c3f5b 28-32
+tests/project-contract.test.ts
+  s_3070dced1b3aff::t_123c62b617bf46 41-49
+  s_3070dced1b3aff::t_5e8a938456dcb5 26-40
+  s_3070dced1b3aff::t_6391656a4c3f5b 11
+  s_3070dced1b3aff::t_28524c84b9f163 50-51
+scripts/measure-bundle-size.ts
+  s_3070dced1b3aff::t_5e8a938456dcb5 1,4-11,18-22,25-26,28-34,48,59,61,71-113,115-127,129-132,135,137
+  s_3070dced1b3aff::t_be8f3c6ca6b7d4 13,17,36-38,114
+  s_3070dced1b3aff::t_098a2300672292 35
+package.json
+  s_3070dced1b3aff::t_5e8a938456dcb5 127
+CHANGELOG.md
+  s_3070dced1b3aff::t_36ce76ae0b03fb 21-22
+docs/performance.html
+  s_3070dced1b3aff::t_7827f91cb6668e 140-153,155-160,162
+  s_3070dced1b3aff::t_1c00b0484f85b0 199
+benchmark/README.md
+  s_3070dced1b3aff::t_e2ae40965d843d 294-304
+README.md
+  s_3070dced1b3aff::t_8ec5169c50c357 70
+  s_3070dced1b3aff::t_36ce76ae0b03fb 60-69,71-80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "15a6a36f7adbadef035c6788171cc407fcad9668",
+  "prompts": {},
+  "sessions": {
+    "s_3070dced1b3aff": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe309-2b37-7a92-b053-803b904cd6ff",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
