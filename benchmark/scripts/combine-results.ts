@@ -33,10 +33,17 @@ const isStringArray = (value: unknown): value is string[] => {
 }
 
 const isBenchmarkSample = (value: unknown): value is BenchmarkSample => {
-  if (!isRecord(value) || typeof value.valid !== 'boolean' || !isStringArray(value.errors)) {
+  if (
+    !isRecord(value) ||
+    !isStringArray(value.errors) ||
+    (value.status !== 'error' &&
+      value.status !== 'invalid-output' &&
+      value.status !== 'pass' &&
+      value.status !== 'unsupported')
+  ) {
     return false
   }
-  if (!('wallMilliseconds' in value)) return value.valid === false
+  if (value.status !== 'pass') return true
   return (
     typeof value.wallMilliseconds === 'number' &&
     typeof value.cpuMilliseconds === 'number' &&
@@ -49,7 +56,10 @@ const isBenchmarkSample = (value: unknown): value is BenchmarkSample => {
 const isBenchmarkSummary = (value: unknown): value is BenchmarkSummary => {
   return (
     isRecord(value) &&
-    (value.status === 'failed' || value.status === 'partial' || value.status === 'passed') &&
+    (value.status === 'error' ||
+      value.status === 'invalid-output' ||
+      value.status === 'pass' ||
+      value.status === 'unsupported') &&
     isStringArray(value.errors)
   )
 }
@@ -91,7 +101,8 @@ const isBenchmarkReport = (value: unknown): value is BenchmarkReport => {
     isBenchmarkEnvironment(value.environment) &&
     isStringArray(value.fixtures) &&
     Array.isArray(value.results) &&
-    value.results.every(isBenchmarkResult)
+    value.results.every(isBenchmarkResult) &&
+    Array.isArray(value.startup)
   )
 }
 
@@ -109,8 +120,8 @@ const percentile = (values: readonly number[], fraction: number): number => {
   return value
 }
 
-const isSuccessfulSample = (sample: BenchmarkSample): sample is TimedSample & { valid: true } => {
-  return sample.valid && 'peakRssBytes' in sample
+const isSuccessfulSample = (sample: BenchmarkSample): sample is TimedSample => {
+  return sample.status === 'pass'
 }
 
 const refreshSummary = (result: BenchmarkResult): BenchmarkResult => {
@@ -151,7 +162,7 @@ if (!firstSource) throw new Error('No benchmark reports were loaded')
 const first = firstSource.report
 const createdAt = new Date().toISOString()
 const report: BenchmarkReport = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   createdAt,
   profile: 'combined',
   sourceReports: sourceReports.map(({ name }) => name),
@@ -159,6 +170,7 @@ const report: BenchmarkReport = {
   environment: first.environment,
   fixtures: [...new Set(sourceReports.flatMap(({ report }) => report.fixtures))],
   results,
+  startup: first.startup,
 }
 
 if (report.environment.gitRevision === 'unknown') {
@@ -182,7 +194,7 @@ const milliseconds = (value: number | undefined): string =>
   value === undefined ? '-' : value.toFixed(1)
 const mebibytes = (value: number | undefined): string =>
   value === undefined ? '-' : (value / 1024 / 1024).toFixed(1)
-const passed = results.filter(({ summary }) => summary.status === 'passed').length
+const passed = results.filter(({ summary }) => summary.status === 'pass').length
 
 const markdown = [
   '# Jimp 1.6.0 baseline',

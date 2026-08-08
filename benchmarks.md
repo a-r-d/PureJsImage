@@ -5,6 +5,12 @@ workflows, with peak memory as the primary AWS Lambda constraint. These are
 comparisons with the JavaScript library **Jimp**, not the desktop application
 GIMP.
 
+The `competitors` profile expands the comparison to `sharp@0.35.3` and
+`image-js@1.7.0`. Sharp is the native dependency, image-js and Jimp are pure
+JavaScript, and `sharp-single-thread` is reported separately after calling
+`sharp.concurrency(1)` in its own process. These versions were the stable npm
+releases when the profile was added on August 8, 2026.
+
 A result only counts when the output is supported, decodes successfully, has
 the expected dimensions, and passes the workflow's pixel or structural checks.
 A fast invalid image is a failed run.
@@ -27,6 +33,38 @@ Results were recorded on August 6-8, 2026.
 Peak RSS is an absolute process high-water mark, not a codec-only allocation
 counter. Small workflows therefore include a large fixed Node.js baseline. The
 largest workflows are more representative of memory scaling.
+
+## Broader competitor profile
+
+Run the reproducible comparison with:
+
+```sh
+npm run bench:competitors
+```
+
+It reuses 14 existing workflows and fixtures: large JPEG metadata; JPEG resize,
+crop, and the northstar pipeline; PNG resize and alpha handling; transparent PNG
+flattening; JPEG/PNG conversion; EXIF orientation 6; the 100-megapixel PNG
+downscale; BMP, TIFF, WebP, and pinned iPhone HEIC inputs.
+
+Each engine/workflow pair is reported as pass, unsupported, invalid output, or
+error. Only a pass has timing data. The Markdown report's performance table is
+limited to workflows supported equivalently by every selected engine. Its
+separate startup table records fresh-process import time, RSS after import,
+first JPEG metadata and resize latency, installed footprint, and the installed
+production package count, including Sharp's required platform packages.
+
+Dimensions and pinned pixels validate crop coordinates, resize geometry,
+orientation, alpha preservation, and background flattening. Lossy comparisons
+also record output size, but matching `quality: 80` settings do not imply matched
+visual quality across encoders. A quality or compression-efficiency claim needs
+a separate matched-quality study.
+
+The first complete five-engine run recorded 60 passing engine/workflow pairs
+and 10 explicit unsupported results, with no invalid output or runtime errors:
+
+- [readable competitor report](benchmark/results/competitors-2026-08-08.md)
+- [machine-readable competitor report](benchmark/results/competitors-2026-08-08.json)
 
 ## Headline results
 
@@ -278,6 +316,7 @@ Build the package and run the desired profiles:
 ```sh
 npm run build
 npm run bench:jimp -- --profile full
+npm run bench:competitors
 npm run bench:bmp
 npm run bench:bmp:jimp
 npm run bench:tiff

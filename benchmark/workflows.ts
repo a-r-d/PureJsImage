@@ -33,7 +33,16 @@ export const workflows: readonly Workflow[] = [
     tier: 'smoke',
     input: 'tundra-4000x3000',
     operations: [{ type: 'resize', width: 1200 }, jpeg(80)],
-    expected: { format: 'jpeg', width: 1200, height: 900 },
+    expected: {
+      format: 'jpeg',
+      width: 1200,
+      height: 900,
+      pixelSamples: [
+        { x: 0, y: 0, red: 165, green: 216, blue: 251, tolerance: 8 },
+        { x: 300, y: 225, red: 92, green: 104, blue: 80, tolerance: 15 },
+        { x: 1199, y: 899, red: 185, green: 199, blue: 177, tolerance: 20 },
+      ],
+    },
   },
   {
     id: 'northstar-photo-pipeline',
@@ -46,7 +55,16 @@ export const workflows: readonly Workflow[] = [
       { type: 'resize', width: 1200, height: 900 },
       jpeg(80),
     ],
-    expected: { format: 'jpeg', width: 1200, height: 900 },
+    expected: {
+      format: 'jpeg',
+      width: 1200,
+      height: 900,
+      pixelSamples: [
+        { x: 0, y: 0, red: 148, green: 173, blue: 207, tolerance: 8 },
+        { x: 300, y: 225, red: 187, green: 190, blue: 195, tolerance: 8 },
+        { x: 600, y: 450, red: 228, green: 225, blue: 222, tolerance: 8 },
+      ],
+    },
   },
   {
     id: 'jpeg-crop-resize',
@@ -58,7 +76,16 @@ export const workflows: readonly Workflow[] = [
       { type: 'resize', width: 800, height: 533 },
       jpeg(75),
     ],
-    expected: { format: 'jpeg', width: 800, height: 533 },
+    expected: {
+      format: 'jpeg',
+      width: 800,
+      height: 533,
+      pixelSamples: [
+        { x: 0, y: 0, red: 181, green: 183, blue: 196, tolerance: 10 },
+        { x: 200, y: 133, red: 183, green: 189, blue: 199, tolerance: 12 },
+        { x: 400, y: 266, red: 223, green: 221, blue: 218, tolerance: 10 },
+      ],
+    },
   },
   {
     id: 'png-resize-1000',
@@ -66,7 +93,16 @@ export const workflows: readonly Workflow[] = [
     tier: 'standard',
     input: 'rgba-gradient-4000x3000',
     operations: [{ type: 'resize', width: 1000 }, png(6)],
-    expected: { format: 'png', width: 1000, height: 750 },
+    expected: {
+      format: 'png',
+      width: 1000,
+      height: 750,
+      pixelSamples: [
+        { x: 250, y: 187, red: 64, green: 64, blue: 215, alpha: 67, tolerance: 6 },
+        { x: 500, y: 375, red: 128, green: 128, blue: 175, alpha: 73, tolerance: 6 },
+        { x: 999, y: 749, red: 255, green: 255, blue: 83, alpha: 94, tolerance: 4 },
+      ],
+    },
   },
   {
     id: 'png-alpha-resize',
@@ -79,6 +115,11 @@ export const workflows: readonly Workflow[] = [
       width: 800,
       height: 320,
       cornerAlpha: 0,
+      pixelSamples: [
+        { x: 200, y: 80, red: 20, green: 147, blue: 210, alpha: 220, tolerance: 2 },
+        { x: 400, y: 160, red: 20, green: 121, blue: 210, alpha: 220, tolerance: 2 },
+        { x: 600, y: 240, red: 20, green: 158, blue: 210, alpha: 220, tolerance: 2 },
+      ],
     },
   },
   {
@@ -87,7 +128,16 @@ export const workflows: readonly Workflow[] = [
     tier: 'standard',
     input: 'earthrise-2400x2400',
     operations: [png(6)],
-    expected: { format: 'png', width: 2400, height: 2400 },
+    expected: {
+      format: 'png',
+      width: 2400,
+      height: 2400,
+      pixelSamples: [
+        { x: 0, y: 0, red: 0, green: 0, blue: 0, alpha: 255, tolerance: 2 },
+        { x: 1200, y: 1200, red: 215, green: 240, blue: 249, alpha: 255, tolerance: 10 },
+        { x: 2399, y: 2399, red: 101, green: 104, blue: 101, alpha: 255, tolerance: 4 },
+      ],
+    },
   },
   {
     id: 'png-to-jpeg',
@@ -100,6 +150,11 @@ export const workflows: readonly Workflow[] = [
       width: 1200,
       height: 480,
       cornerRgbMinimum: 240,
+      pixelSamples: [
+        { x: 300, y: 120, red: 53, green: 162, blue: 217, tolerance: 8 },
+        { x: 600, y: 240, red: 51, green: 139, blue: 215, tolerance: 8 },
+        { x: 900, y: 360, red: 52, green: 171, blue: 215, tolerance: 8 },
+      ],
     },
   },
   {
@@ -108,7 +163,16 @@ export const workflows: readonly Workflow[] = [
     tier: 'standard',
     input: 'exif-orientation-6',
     operations: [{ type: 'autoOrient' }, jpeg(80)],
-    expected: { format: 'jpeg', width: 1800, height: 1200 },
+    expected: {
+      format: 'jpeg',
+      width: 1800,
+      height: 1200,
+      pixelSamples: [
+        { x: 0, y: 0, red: 110, green: 156, blue: 219, tolerance: 5 },
+        { x: 900, y: 600, red: 113, green: 128, blue: 145, tolerance: 5 },
+        { x: 1799, y: 1199, red: 31, green: 29, blue: 30, tolerance: 5 },
+      ],
+    },
   },
   {
     id: 'gif-first-frame-png',
@@ -426,7 +490,16 @@ export const workflows: readonly Workflow[] = [
     tier: 'bmp',
     input: 'bmp-gradient-4000x3000',
     operations: [{ type: 'resize', width: 1000 }, jpeg(80)],
-    expected: { format: 'jpeg', width: 1000, height: 750 },
+    expected: {
+      format: 'jpeg',
+      width: 1000,
+      height: 750,
+      pixelSamples: [
+        { x: 0, y: 0, red: 0, green: 1, blue: 12, tolerance: 15 },
+        { x: 250, y: 187, red: 62, green: 63, blue: 219, tolerance: 15 },
+        { x: 500, y: 375, red: 127, green: 126, blue: 170, tolerance: 15 },
+      ],
+    },
   },
   {
     id: 'bmp-pal1-png',
@@ -731,7 +804,16 @@ export const workflows: readonly Workflow[] = [
     tier: 'tiff',
     input: 'tiff-gradient-4000x3000',
     operations: [{ type: 'resize', width: 1000 }, jpeg(80)],
-    expected: { format: 'jpeg', width: 1000, height: 750 },
+    expected: {
+      format: 'jpeg',
+      width: 1000,
+      height: 750,
+      pixelSamples: [
+        { x: 0, y: 0, red: 0, green: 1, blue: 12, tolerance: 15 },
+        { x: 250, y: 187, red: 62, green: 63, blue: 219, tolerance: 15 },
+        { x: 500, y: 375, red: 127, green: 126, blue: 170, tolerance: 15 },
+      ],
+    },
   },
   {
     id: 'tiff-rgb-png',
@@ -869,7 +951,16 @@ export const workflows: readonly Workflow[] = [
     tier: 'webp',
     input: 'webp-fbi-portrait-1600x2000',
     operations: [{ type: 'resize', width: 800 }, jpeg(80)],
-    expected: { format: 'jpeg', width: 800, height: 1000 },
+    expected: {
+      format: 'jpeg',
+      width: 800,
+      height: 1000,
+      pixelSamples: [
+        { x: 0, y: 0, red: 19, green: 30, blue: 72, tolerance: 10 },
+        { x: 200, y: 250, red: 30, green: 44, blue: 82, tolerance: 10 },
+        { x: 799, y: 999, red: 2, green: 4, blue: 17, tolerance: 10 },
+      ],
+    },
   },
   {
     id: 'webp-lossy-photo-png',
@@ -990,7 +1081,16 @@ export const workflows: readonly Workflow[] = [
     tier: 'full',
     input: 'stress-gradient-10000x10000',
     operations: [{ type: 'resize', width: 1000, height: 1000 }, png(6)],
-    expected: { format: 'png', width: 1000, height: 1000 },
+    expected: {
+      format: 'png',
+      width: 1000,
+      height: 1000,
+      pixelSamples: [
+        { x: 0, y: 0, red: 0, green: 0, blue: 0, alpha: 255 },
+        { x: 500, y: 500, red: 56, green: 56, blue: 56, alpha: 255 },
+        { x: 999, y: 999, red: 112, green: 112, blue: 112, alpha: 255 },
+      ],
+    },
     defaultRuns: 2,
     defaultWarmups: 0,
     timeoutMs: 120000,
@@ -1024,6 +1124,23 @@ const comparableTransformWorkflowIds = new Set([
   'transform-quarter-turn-jpeg',
   'transform-crop-after-resize-jpeg',
   'transform-flip-flop-jpeg',
+])
+
+const competitorWorkflowIds = new Set([
+  'metadata-jpeg-large',
+  'jpeg-resize-1200',
+  'northstar-photo-pipeline',
+  'jpeg-crop-resize',
+  'png-resize-1000',
+  'png-alpha-resize',
+  'png-to-jpeg',
+  'jpeg-to-png',
+  'auto-orient-6',
+  'stress-100mp-downscale',
+  'bmp-large-resize-jpeg',
+  'tiff-large-resize-jpeg',
+  'webp-large-resize-jpeg',
+  'heif-iphone-resize-jpeg',
 ])
 
 export const workflowsForProfile = (profile: string): readonly Workflow[] => {
@@ -1069,6 +1186,9 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
   }
   if (profile === 'transforms-comparable') {
     return workflows.filter((workflow) => comparableTransformWorkflowIds.has(workflow.id))
+  }
+  if (profile === 'competitors') {
+    return workflows.filter((workflow) => competitorWorkflowIds.has(workflow.id))
   }
   throw new Error(`Unknown profile: ${profile}`)
 }

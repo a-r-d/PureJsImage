@@ -138,6 +138,8 @@
     "results:combine": "node benchmark/scripts/combine-results.ts",
     "bench": "node benchmark/run.ts",
     "bench:jimp": "node benchmark/run.ts --engines jimp",
+    "bench:competitors": "npm run build && node benchmark/run.ts --engines purejsimage,jimp,sharp,sharp-single-thread,image-js --profile competitors",
+    "bench:competitors:charts": "node benchmark/scripts/render-competitor-charts.ts",
     "bench:smoke": "node benchmark/run.ts --engines jimp --profile smoke --runs 1 --warmups 0",
     "bench:bmp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile bmp",
     "bench:bmp:jimp": "node benchmark/run.ts --engines jimp --profile bmp",
@@ -156,6 +158,11 @@
     "bench:jpeg:encode": "npm run build && node --expose-gc benchmark/jpeg/encode-probe.ts",
     "bench:jpeg2000:rss": "node benchmark/jpeg2000/run-rss.ts"
   },
+  "overrides": {
+    "image-js": {
+      "skia-canvas": "0.0.0"
+    }
+  },
   "devDependencies": {
     "@biomejs/biome": "2.5.7",
     "@stacksjs/ts-avif": "0.1.3",
@@ -166,10 +173,12 @@
     "esbuild": "0.28.1",
     "exif-parser": "0.1.12",
     "image-dimensions": "2.5.1",
+    "image-js": "1.7.0",
     "jimp": "1.6.0",
     "jpeg-js": "0.4.4",
     "omggif": "1.0.10",
     "pngjs": "7.0.0",
+    "sharp": "0.35.3",
     "typescript": "7.0.2",
     "vitest": "4.1.10"
   }

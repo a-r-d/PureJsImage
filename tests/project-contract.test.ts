@@ -15,6 +15,23 @@ describe('package contract', () => {
     expect('optionalDependencies' in packageJson).toBe(false)
   })
 
+  it('pins benchmark competitors without adding a Canvas library', () => {
+    expect(packageJson.devDependencies.sharp).toBe('0.35.3')
+    expect(packageJson.devDependencies['image-js']).toBe('1.7.0')
+    expect('skia-canvas' in packageJson.devDependencies).toBe(false)
+  })
+
+  it('embeds the checked-in competitor charts in the main README', () => {
+    const readme = readFileSync('README.md', 'utf8')
+    for (const chart of [
+      'benchmark/results/competitors-speed-2026-08-08.png',
+      'benchmark/results/competitors-memory-2026-08-08.png',
+    ]) {
+      expect(readme).toContain(`](${chart})`)
+      expect(readFileSync(chart).byteLength).toBeGreaterThan(0)
+    }
+  })
+
   it('keeps source, benchmark, scripts, and test code in TypeScript', () => {
     const javascriptSources = globSync([
       'benchmark/**/*.{cjs,js,jsx,mjs}',
@@ -165,6 +182,7 @@ describe('benchmark contract', () => {
     const ico = workflowsForProfile('ico')
     const tiff = workflowsForProfile('tiff')
     const webp = workflowsForProfile('webp')
+    const competitors = workflowsForProfile('competitors')
 
     expect(smoke.length).toBeGreaterThan(0)
     expect(phase4.length).toBe(12)
@@ -174,6 +192,14 @@ describe('benchmark contract', () => {
     expect(ico.length).toBe(6)
     expect(tiff.length).toBe(10)
     expect(webp.length).toBe(9)
+    expect(competitors).toHaveLength(14)
+    expect(
+      competitors
+        .filter(
+          (workflow) => !workflow.operations?.some((operation) => operation.type === 'metadata'),
+        )
+        .every((workflow) => (workflow.expected.pixelSamples?.length ?? 0) >= 3),
+    ).toBe(true)
     expect(standard.length).toBeGreaterThan(smoke.length)
     expect(full.length).toBeGreaterThan(standard.length)
     expect(full).toEqual(

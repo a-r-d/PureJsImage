@@ -33,7 +33,7 @@
   <a href="#usage">Usage</a> ·
   <a href="#supported-codecs">Codecs</a> ·
   <a href="ROADMAP.md">Roadmap</a> ·
-  <a href="#benchmarks-against-jimp">Benchmarks</a>
+  <a href="#benchmarks">Benchmarks</a>
 </p>
 </div>
 
@@ -335,7 +335,26 @@ measured user impact.
 See the [project roadmap](ROADMAP.md) for milestones, invariants, and current
 priorities.
 
-## Benchmarks against Jimp
+## Benchmarks
+
+The competitor profile compares PureJsImage with Jimp, Sharp, Sharp configured
+for one processing thread, and image-js. Sharp uses native libvips code; the
+other engines shown here are pure JavaScript. Every displayed timing passed the
+same output-validation checks, and every engine ran in its own isolated worker
+process.
+
+[![Image workflow speed comparison. Sharp and Sharp single-thread use native libvips code.](benchmark/results/competitors-speed-2026-08-08.png)](benchmark/results/competitors-speed-2026-08-08.png)
+
+[![Image workflow absolute peak memory comparison.](benchmark/results/competitors-memory-2026-08-08.png)](benchmark/results/competitors-memory-2026-08-08.png)
+
+The speed chart uses a logarithmic scale because the validated timings span
+roughly 0.2 ms to 4,000 ms. The memory chart shows median absolute peak RSS on a
+linear scale. Timings include encoding, but lossy encoders do not share a
+calibrated quality scale; compression quality and efficiency require a separate
+matched-quality study. Run `npm run bench:competitors` to reproduce the report
+and `npm run bench:competitors:charts` to regenerate the images.
+
+### Jimp baseline
 
 Benchmarks use `jimp@1.6.0`. A timing only counts when the output passes the
 same validity and correctness checks for both engines.

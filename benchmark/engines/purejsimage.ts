@@ -1,4 +1,5 @@
 import { pathToFileURL } from 'node:url'
+import packageJson from '../../package.json' with { type: 'json' }
 import type { Engine, EngineExecution, ImageMetadata, PipelineWorkflow } from '../types.ts'
 
 interface PureImage {
@@ -35,7 +36,7 @@ interface PureImageModule {
   createImageLibrary(codecs: readonly unknown[]): PureImageLibrary
 }
 
-const entry = process.env.PUREJSIMAGE_ENTRY
+const entry = process.env.PUREJSIMAGE_ENTRY ?? './dist/index.js'
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null
@@ -50,9 +51,6 @@ const isImageModule = (value: unknown): value is PureImageModule => {
 }
 
 const loadImageLibrary = async (): Promise<PureImageLibrary> => {
-  if (!entry) {
-    throw new Error('PUREJSIMAGE_ENTRY is not set')
-  }
   const entryUrl = pathToFileURL(entry)
   const [module, codecModule]: [unknown, unknown] = await Promise.all([
     import(entryUrl.href),
@@ -66,6 +64,8 @@ const loadImageLibrary = async (): Promise<PureImageLibrary> => {
   }
   return module.createImageLibrary(codecModule.allCodecs)
 }
+
+const Image = await loadImageLibrary()
 
 const applyOperations = async ({
   Image,
@@ -141,9 +141,11 @@ const applyOperations = async ({
 
 export const engine: Engine = {
   id: 'purejsimage',
-  version: 'workspace',
+  version: `${packageJson.version} (workspace)`,
+  kind: 'pure-javascript',
+  packageName: 'purejsimage',
+  unsupportedReason: (): undefined => undefined,
   execute: async ({ workflow, inputs }): Promise<EngineExecution> => {
-    const Image = await loadImageLibrary()
     if (!workflow.batch) {
       const input = inputs[0]
       if (!input) throw new Error('Pipeline workflow has no input image')

@@ -3,6 +3,7 @@ export type OutputFormat = 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp'
 export type BenchmarkColor = '#ffffff' | 'transparent'
 export type BenchmarkProfile =
   | 'bmp'
+  | 'competitors'
   | 'full'
   | 'heif'
   | 'ico'
@@ -162,9 +163,17 @@ export interface EngineExecution {
   batchSha256?: string
 }
 
+export type EngineKind = 'native' | 'native-single-thread' | 'pure-javascript'
+
 export interface Engine {
   id: string
   version: string
+  kind: EngineKind
+  packageName: string
+  unsupportedReason(
+    workflow: Workflow,
+    inputs: readonly Buffer[],
+  ): Promise<string | undefined> | string | undefined
   execute(input: { workflow: Workflow; inputs: readonly Buffer[] }): Promise<EngineExecution>
 }
 
@@ -196,10 +205,29 @@ export interface ValidationResult {
 export interface EngineMetadata {
   id: string
   version: string
+  kind: EngineKind
+  packageName: string
 }
 
-export interface WorkerResult {
-  valid: boolean
+interface WorkerFailure {
+  status: 'error' | 'invalid-output' | 'unsupported'
+  errors: string[]
+}
+
+export interface UnsupportedWorkerResult extends WorkerFailure {
+  status: 'unsupported'
+}
+
+export interface ErrorWorkerResult extends WorkerFailure {
+  status: 'error'
+}
+
+export interface InvalidOutputWorkerResult extends WorkerFailure {
+  status: 'invalid-output'
+}
+
+export interface MeasuredWorkerResult {
+  status: 'pass'
   errors: string[]
   output?: ValidatedOutput | ImageMetadata
   outputBytes: number
@@ -209,7 +237,13 @@ export interface WorkerResult {
   resourceMaxRssBytes: number
 }
 
-export interface TimedSample extends WorkerResult {
+export type WorkerResult =
+  | ErrorWorkerResult
+  | InvalidOutputWorkerResult
+  | MeasuredWorkerResult
+  | UnsupportedWorkerResult
+
+export interface TimedSample extends MeasuredWorkerResult {
   engine?: EngineMetadata
   peakRssBytes: number
   peakRssDeltaBytes: number
@@ -217,14 +251,14 @@ export interface TimedSample extends WorkerResult {
 }
 
 export interface FailedSample {
-  valid: false
+  status: 'error' | 'invalid-output' | 'unsupported'
   errors: string[]
 }
 
 export type BenchmarkSample = TimedSample | FailedSample
 
 export interface BenchmarkSummary {
-  status: 'failed' | 'partial' | 'passed'
+  status: 'error' | 'invalid-output' | 'pass' | 'unsupported'
   errors: string[]
   samples?: number
   successfulSamples?: number
@@ -234,6 +268,27 @@ export interface BenchmarkSummary {
   peakRssDeltaBytes?: { median: number; maximum: number }
   outputBytes?: { median: number }
   output?: ValidatedOutput | ImageMetadata
+}
+
+export interface StartupOperationResult {
+  status: 'error' | 'invalid-output' | 'pass' | 'unsupported'
+  wallMilliseconds?: number
+  errors: string[]
+}
+
+export interface PackageFootprint {
+  bytes: number
+  packages: string[]
+  productionPackageCount: number
+}
+
+export interface StartupResult {
+  engine: EngineMetadata
+  importMilliseconds: number
+  rssAfterImportBytes: number
+  firstMetadata: StartupOperationResult
+  firstResize: StartupOperationResult
+  footprint: PackageFootprint
 }
 
 export interface BenchmarkResult {
@@ -248,6 +303,8 @@ export interface BenchmarkResult {
 
 export interface BenchmarkEnvironment {
   platform: string
+  osName: string
+  osRelease: string
   architecture: string
   node: string
   cpu?: string
@@ -266,4 +323,5 @@ export interface BenchmarkReport {
   environment: BenchmarkEnvironment
   fixtures: string[]
   results: BenchmarkResult[]
+  startup: StartupResult[]
 }

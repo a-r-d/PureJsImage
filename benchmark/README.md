@@ -1,8 +1,8 @@
 # PureJsImage benchmark suite
 
 This suite is the performance and workflow-success contract for PureJsImage.
-Jimp 1.6.0 is the pinned baseline because that is the version used by the
-original Lambda image-processing workload when this suite was created.
+Jimp 1.6.0 remains the original Lambda baseline. The broader competitor profile
+also pins Sharp 0.35.3 and image-js 1.7.0.
 
 ## Principles
 
@@ -13,10 +13,12 @@ original Lambda image-processing workload when this suite was created.
 * Record wall time, CPU time, output size, absolute peak RSS, and peak RSS delta
   from the post-warmup baseline.
 * Run each measured sample in an isolated process after an optional untimed
-  warmup.
+  warmup. A measured process loads exactly one engine.
 * Keep real photographs, standards fixtures, transparent graphics, pathological
   dimensions, and high-entropy images in the corpus.
-* Treat unsupported workflows and invalid output as failures, not fast results.
+* Classify every engine/workflow pair as pass, unsupported, invalid output, or
+  error. Unsupported and invalid output never contribute timing results.
+* Keep startup/import measurements separate from warm workflow timings.
 
 ## Corpus
 
@@ -80,6 +82,36 @@ Quick harness validation:
 ```sh
 npm run bench:smoke
 ```
+
+Broader competitor comparison:
+
+```sh
+npm run bench:competitors
+```
+
+The equivalent direct harness command, after `npm run build`, is:
+
+```sh
+node benchmark/run.ts --engines purejsimage,jimp,sharp,sharp-single-thread,image-js --profile competitors
+```
+
+The profile covers large JPEG metadata; JPEG resize, crop, and orientation;
+transparent and opaque PNG workflows; JPEG/PNG conversion; the 100-megapixel
+PNG downscale; BMP, TIFF, WebP, and HEIC inputs. It reuses the existing pinned
+fixtures. An engine is marked unsupported when its public API or installed
+codec build cannot express the exact workflow. In particular, the installed
+Sharp build is probed against the pinned iPhone HEIC file rather than relying on
+a generic HEIF capability flag.
+
+`sharp` uses its production defaults. `sharp-single-thread` is a separate
+engine and process that calls `sharp.concurrency(1)` before processing.
+image-js uses its normal public decode, transform, and encode APIs. Its optional
+Canvas integration is omitted and is not part of the benchmark dependency
+tree.
+
+The current checked-in artifacts are
+[`competitors-2026-08-08.md`](results/competitors-2026-08-08.md) and
+[`competitors-2026-08-08.json`](results/competitors-2026-08-08.json).
 
 Standard Jimp baseline:
 
@@ -208,6 +240,14 @@ npm run bench:jimp -- --profile full
 Results are written as both JSON and Markdown under `results/`. JSON is the
 authoritative machine-readable artifact. Markdown is the review summary.
 
+Every report contains a compatibility table, a performance table limited to
+workflows that passed equivalently for every selected engine, and a separate
+startup/package table. Startup uses one fresh process per engine and records
+module import time, RSS immediately after import, first JPEG metadata and resize
+latency, installed package footprint, and installed production package count.
+The package count includes the engine package itself and every installed
+production dependency instance required on the current platform.
+
 Absolute peak RSS is the headline memory number. The delta remains available in
 JSON as a diagnostic, but a warmup may leave allocator pages resident and make
 the delta understate the real process footprint.
@@ -226,3 +266,8 @@ median wall time. The north-star goal is to win every supported standard case
 while reducing peak RSS. Stress and compatibility cases may first expose
 unsupported behavior; they remain visible until fixed rather than disappearing
 from the suite.
+
+Workflow timing includes encoding, but `quality: 80` is not a calibrated quality
+target shared by different JPEG encoders. Compression quality and size require
+a separate matched-quality study; the competitor report does not rank encoders
+by output size alone.

@@ -5,21 +5,26 @@ import os from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { allFixtures, inspectFixture, readManifest, verifyInspection } from './lib/corpus.ts'
+import { measurePackageFootprint } from './lib/package-footprint.ts'
+import { isSuccessfulSample, summarizeSamples } from './lib/results.ts'
 import type {
   BenchmarkReport,
   BenchmarkResult,
   BenchmarkSample,
-  BenchmarkSummary,
   EngineMetadata,
-  TimedSample,
+  StartupOperationResult,
+  StartupResult,
   WorkerResult,
   Workflow,
 } from './types.ts'
 import { workflowsForProfile } from './workflows.ts'
 
 const benchmarkDirectory = dirname(fileURLToPath(import.meta.url))
+const repositoryDirectory = dirname(benchmarkDirectory)
 const resultsDirectory = join(benchmarkDirectory, 'results')
 const workerPath = join(benchmarkDirectory, 'worker.ts')
+const startupWorkerPath = join(benchmarkDirectory, 'startup-worker.ts')
+const engineIds = new Set(['image-js', 'jimp', 'purejsimage', 'sharp', 'sharp-single-thread'])
 
 function argument(name: string): string | undefined
 function argument(name: string, fallback: string): string
@@ -42,6 +47,12 @@ if (!Number.isInteger(options.runs) || options.runs < 1) {
 }
 if (!Number.isInteger(options.warmups) || options.warmups < 0) {
   throw new Error('--warmups must be a non-negative integer')
+}
+if (new Set(options.engines).size !== options.engines.length) {
+  throw new Error('--engines must not contain duplicates')
+}
+for (const engine of options.engines) {
+  if (!engineIds.has(engine)) throw new Error(`Unknown benchmark engine: ${engine}`)
 }
 
 let selectedWorkflows = [...workflowsForProfile(options.profile)]
@@ -87,15 +98,34 @@ const isMemoryUsage = (value: unknown): value is NodeJS.MemoryUsage => {
 }
 
 const isEngineMetadata = (value: unknown): value is EngineMetadata => {
-  return isRecord(value) && typeof value.id === 'string' && typeof value.version === 'string'
-}
-
-const isWorkerResult = (value: unknown): value is WorkerResult => {
   return (
     isRecord(value) &&
-    typeof value.valid === 'boolean' &&
-    Array.isArray(value.errors) &&
-    value.errors.every((error) => typeof error === 'string') &&
+    typeof value.id === 'string' &&
+    typeof value.version === 'string' &&
+    (value.kind === 'native' ||
+      value.kind === 'native-single-thread' ||
+      value.kind === 'pure-javascript') &&
+    typeof value.packageName === 'string'
+  )
+}
+
+const hasErrors = (
+  value: Record<string, unknown>,
+): value is Record<string, unknown> & {
+  errors: string[]
+} => Array.isArray(value.errors) && value.errors.every((error) => typeof error === 'string')
+
+const isWorkerResult = (value: unknown): value is WorkerResult => {
+  if (!isRecord(value) || !hasErrors(value)) return false
+  if (
+    value.status === 'error' ||
+    value.status === 'invalid-output' ||
+    value.status === 'unsupported'
+  ) {
+    return true
+  }
+  return (
+    value.status === 'pass' &&
     typeof value.outputBytes === 'number' &&
     typeof value.wallMilliseconds === 'number' &&
     typeof value.cpuMilliseconds === 'number' &&
@@ -126,7 +156,7 @@ const runSample = ({
         '--warmups',
         String(warmups),
       ],
-      { cwd: dirname(benchmarkDirectory), stdio: ['ignore', 'pipe', 'pipe', 'ipc'] },
+      { cwd: repositoryDirectory, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] },
     )
 
     let ready = false
@@ -178,7 +208,7 @@ const runSample = ({
 
       if (!result || code !== 0) {
         resolve({
-          valid: false,
+          status: 'error',
           errors: [
             `worker failed with code ${code}${signal ? ` signal ${signal}` : ''}`,
             stderr.trim(),
@@ -187,67 +217,89 @@ const runSample = ({
         })
         return
       }
+      if (result.status !== 'pass') {
+        resolve(result)
+        return
+      }
 
+      const absolutePeak = Math.max(peakRssBytes, result.finalMemory.rss)
       resolve({
         ...result,
         ...(engineMetadata ? { engine: engineMetadata } : {}),
-        peakRssBytes,
-        peakRssDeltaBytes: Math.max(0, peakRssBytes - (baselineMemory?.rss ?? 0)),
+        peakRssBytes: absolutePeak,
+        peakRssDeltaBytes: Math.max(0, absolutePeak - (baselineMemory?.rss ?? 0)),
         ...(baselineMemory ? { baselineMemory } : {}),
       })
     })
   })
 }
 
-const percentile = (values: readonly number[], fraction: number): number => {
-  if (values.length === 0) throw new Error('Cannot calculate a percentile without values')
-  const sorted = [...values].sort((left, right) => left - right)
-  const index = Math.min(sorted.length - 1, Math.ceil(sorted.length * fraction) - 1)
-  const value = sorted[index]
-  if (value === undefined) throw new Error('Percentile index was outside the sample set')
-  return value
+interface StartupWorkerResult {
+  engine: EngineMetadata
+  importMilliseconds: number
+  rssAfterImportBytes: number
+  firstMetadata: StartupOperationResult
+  firstResize: StartupOperationResult
 }
 
-const isSuccessful = (sample: BenchmarkSample): sample is TimedSample & { valid: true } => {
-  return sample.valid && 'wallMilliseconds' in sample
+const isStartupOperation = (value: unknown): value is StartupOperationResult => {
+  return (
+    isRecord(value) &&
+    (value.status === 'error' ||
+      value.status === 'invalid-output' ||
+      value.status === 'pass' ||
+      value.status === 'unsupported') &&
+    Array.isArray(value.errors) &&
+    value.errors.every((error) => typeof error === 'string') &&
+    (value.wallMilliseconds === undefined || typeof value.wallMilliseconds === 'number')
+  )
 }
 
-const summarize = (samples: readonly BenchmarkSample[]): BenchmarkSummary => {
-  const successful = samples.filter(isSuccessful)
-  if (successful.length === 0) {
-    return { status: 'failed', errors: samples.flatMap((sample) => sample.errors) }
-  }
+const isStartupWorkerResult = (value: unknown): value is StartupWorkerResult => {
+  return (
+    isRecord(value) &&
+    isEngineMetadata(value.engine) &&
+    typeof value.importMilliseconds === 'number' &&
+    typeof value.rssAfterImportBytes === 'number' &&
+    isStartupOperation(value.firstMetadata) &&
+    isStartupOperation(value.firstResize)
+  )
+}
 
-  const wall = successful.map((sample) => sample.wallMilliseconds)
-  const cpu = successful.map((sample) => sample.cpuMilliseconds)
-  const peakAbsolute = successful.map((sample) => sample.peakRssBytes)
-  const peak = successful.map((sample) => sample.peakRssDeltaBytes)
-  const outputBytes = successful.map((sample) => sample.outputBytes)
-
-  const output = successful[0]?.output
-  return {
-    status: successful.length === samples.length ? 'passed' : 'partial',
-    samples: samples.length,
-    successfulSamples: successful.length,
-    wallMilliseconds: {
-      median: percentile(wall, 0.5),
-      p95: percentile(wall, 0.95),
-      minimum: Math.min(...wall),
-      maximum: Math.max(...wall),
-    },
-    cpuMilliseconds: { median: percentile(cpu, 0.5) },
-    peakRssBytes: {
-      median: percentile(peakAbsolute, 0.5),
-      maximum: Math.max(...peakAbsolute),
-    },
-    peakRssDeltaBytes: {
-      median: percentile(peak, 0.5),
-      maximum: Math.max(...peak),
-    },
-    outputBytes: { median: percentile(outputBytes, 0.5) },
-    ...(output ? { output } : {}),
-    errors: samples.flatMap((sample) => sample.errors ?? []),
-  }
+const runStartup = (engine: string): Promise<StartupWorkerResult> => {
+  return new Promise<StartupWorkerResult>((resolve, reject) => {
+    const child = spawn(process.execPath, [startupWorkerPath, '--engine', engine], {
+      cwd: repositoryDirectory,
+      stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+    })
+    let result: StartupWorkerResult | undefined
+    let stderr = ''
+    child.stderr?.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString()
+    })
+    child.on('message', (message: unknown) => {
+      if (
+        isRecord(message) &&
+        message.type === 'startup-result' &&
+        isStartupWorkerResult(message.result)
+      ) {
+        result = message.result
+      }
+    })
+    const timeout = setTimeout(() => child.kill('SIGKILL'), 300000)
+    child.on('exit', (code, signal) => {
+      clearTimeout(timeout)
+      if (!result || code !== 0) {
+        reject(
+          new Error(
+            `startup worker ${engine} failed with code ${code}${signal ? ` signal ${signal}` : ''}: ${stderr.trim()}`,
+          ),
+        )
+        return
+      }
+      resolve(result)
+    })
+  })
 }
 
 const results: BenchmarkResult[] = []
@@ -263,9 +315,9 @@ for (const engine of options.engines) {
       const sample = await runSample({ engine, workflow, warmups })
       samples.push(sample)
       process.stdout.write(
-        `  ${run + 1}/${runs} ${isSuccessful(sample) ? `${sample.wallMilliseconds.toFixed(1)} ms` : `FAIL ${sample.errors.join(' | ')}`}\n`,
+        `  ${run + 1}/${runs} ${isSuccessfulSample(sample) ? `${sample.wallMilliseconds.toFixed(1)} ms` : `${sample.status.toUpperCase()} ${sample.errors.join(' | ')}`}\n`,
       )
-      if (!sample.valid) break
+      if (!isSuccessfulSample(sample)) break
     }
     results.push({
       engine,
@@ -273,10 +325,21 @@ for (const engine of options.engines) {
       title: workflow.title,
       runs,
       warmups,
-      summary: summarize(samples),
+      summary: summarizeSamples(samples),
       samples,
     })
   }
+}
+
+const startup: StartupResult[] = []
+for (const engine of options.engines) {
+  process.stdout.write(`[${engine}] startup and package footprint\n`)
+  const measured = await runStartup(engine)
+  const footprint = await measurePackageFootprint({
+    engine: measured.engine,
+    repositoryDirectory,
+  })
+  startup.push({ ...measured, footprint })
 }
 
 let revision = 'unknown'
@@ -287,7 +350,6 @@ try {
   }).trim()
 } catch {
   try {
-    const repositoryDirectory = dirname(benchmarkDirectory)
     const head = readFileSync(join(repositoryDirectory, '.git', 'HEAD'), 'utf8').trim()
     if (head.startsWith('ref: ')) {
       const ref = head.slice(5)
@@ -314,7 +376,7 @@ try {
 const createdAt = new Date().toISOString()
 const cpu = os.cpus()[0]?.model
 const report: BenchmarkReport = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   createdAt,
   profile: options.profile,
   configuration: {
@@ -322,11 +384,14 @@ const report: BenchmarkReport = {
     defaultRuns: options.runs,
     defaultWarmups: options.warmups,
     isolatedProcessPerSample: true,
+    isolatedStartupProcessPerEngine: true,
     inputFileReadTimed: false,
     outputValidationTimed: false,
   },
   environment: {
     platform: process.platform,
+    osName: os.type(),
+    osRelease: os.release(),
     architecture: process.arch,
     node: process.version,
     ...(cpu ? { cpu } : {}),
@@ -337,12 +402,28 @@ const report: BenchmarkReport = {
   },
   fixtures: [...requiredFixtureIds],
   results,
+  startup,
 }
 
 const formatMilliseconds = (value: number | undefined): string =>
   value === undefined ? '-' : value.toFixed(1)
 const formatMegabytes = (value: number | undefined): string =>
   value === undefined ? '-' : (value / 1024 / 1024).toFixed(1)
+const displayStatus = (status: BenchmarkResult['summary']['status']): string =>
+  status === 'invalid-output' ? 'invalid output' : status
+
+const fullyComparableWorkflowIds = selectedWorkflows
+  .filter((workflow) => {
+    const workflowResults = results.filter((result) => result.workflow === workflow.id)
+    return (
+      workflowResults.length === options.engines.length &&
+      workflowResults.every((result) => result.summary.status === 'pass')
+    )
+  })
+  .map((workflow) => workflow.id)
+const comparableResults = results.filter((result) =>
+  fullyComparableWorkflowIds.includes(result.workflow),
+)
 
 const markdown = [
   '# Benchmark result',
@@ -351,16 +432,52 @@ const markdown = [
   '',
   `Profile: \`${options.profile}\``,
   '',
-  `Environment: ${report.environment.cpu}, ${report.environment.logicalCpus} logical CPUs, Node ${report.environment.node}, ${report.environment.platform}/${report.environment.architecture}`,
+  `Environment: ${report.environment.osName} ${report.environment.osRelease}, ${report.environment.architecture}, Node ${report.environment.node}, ${report.environment.cpu}, ${report.environment.logicalCpus} logical CPUs`,
   '',
-  '| Engine | Workflow | Status | Median wall | p95 wall | Median peak RSS | Output |',
-  '| --- | --- | --- | ---: | ---: | ---: | ---: |',
+  '## Engine versions',
+  '',
+  '| Engine | Version | Implementation |',
+  '| --- | --- | --- |',
+  ...startup.map(({ engine }) => `| ${engine.id} | ${engine.version} | ${engine.kind} |`),
+  '',
+  'PureJsImage, Jimp, and image-js are pure JavaScript. Sharp is a native dependency; `sharp-single-thread` is the same native package configured with `sharp.concurrency(1)` before processing.',
+  '',
+  '## Compatibility',
+  '',
+  '| Engine | Workflow | Status | Detail |',
+  '| --- | --- | --- | --- |',
   ...results.map(
     ({ engine, workflow, summary }) =>
-      `| ${engine} | ${workflow} | ${summary.status} | ${formatMilliseconds(summary.wallMilliseconds?.median)} ms | ${formatMilliseconds(summary.wallMilliseconds?.p95)} ms | ${formatMegabytes(summary.peakRssBytes?.median)} MiB | ${formatMegabytes(summary.outputBytes?.median)} MiB |`,
+      `| ${engine} | ${workflow} | ${displayStatus(summary.status)} | ${summary.errors.join('; ') || '-'} |`,
   ),
   '',
-  'A timing only counts when output validation passes. Input file reads, worker startup, warmups, and output validation are outside the timed region.',
+  '## Performance on workflows supported equivalently by every selected engine',
+  '',
+  '| Engine | Workflow | Median wall | p95 wall | Median CPU | Peak RSS | Peak RSS delta | Output |',
+  '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |',
+  ...(comparableResults.length > 0
+    ? comparableResults.map(
+        ({ engine, workflow, summary }) =>
+          `| ${engine} | ${workflow} | ${formatMilliseconds(summary.wallMilliseconds?.median)} ms | ${formatMilliseconds(summary.wallMilliseconds?.p95)} ms | ${formatMilliseconds(summary.cpuMilliseconds?.median)} ms | ${formatMegabytes(summary.peakRssBytes?.median)} MiB | ${formatMegabytes(summary.peakRssDeltaBytes?.median)} MiB | ${formatMegabytes(summary.outputBytes?.median)} MiB |`,
+      )
+    : [
+        '| - | No workflow passed equivalently for every selected engine | - | - | - | - | - | - |',
+      ]),
+  '',
+  '## Startup and installed package footprint',
+  '',
+  '| Engine | Import | RSS after import | First JPEG metadata | First JPEG resize | Installed footprint | Production packages |',
+  '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
+  ...startup.map(
+    ({ engine, importMilliseconds, rssAfterImportBytes, firstMetadata, firstResize, footprint }) =>
+      `| ${engine.id} | ${formatMilliseconds(importMilliseconds)} ms | ${formatMegabytes(rssAfterImportBytes)} MiB | ${formatMilliseconds(firstMetadata.wallMilliseconds)} ms (${firstMetadata.status}) | ${formatMilliseconds(firstResize.wallMilliseconds)} ms (${firstResize.status}) | ${formatMegabytes(footprint.bytes)} MiB | ${footprint.productionPackageCount} |`,
+  ),
+  '',
+  'Installed footprint includes each engine package and the production dependencies present for this platform, including Sharp platform packages. Exact package lists are recorded in JSON.',
+  '',
+  'A timing only counts when output validation passes. Input file reads, worker startup, warmups, and output validation are outside warm workflow timings. Startup measurements use a separate fresh process for each engine.',
+  '',
+  'Timing comparisons include encoding. Lossy encoders do not share a calibrated quality scale, so output quality and compression efficiency cannot be compared solely because each API received `quality: 80`; that requires a separate matched-quality study.',
   '',
 ]
 
@@ -376,6 +493,8 @@ await writeFile(markdownPath, markdown.join('\n'))
 console.log(`JSON: ${jsonPath}`)
 console.log(`Markdown: ${markdownPath}`)
 
-if (results.some(({ summary }) => summary.status !== 'passed')) {
+if (
+  results.some(({ summary }) => summary.status === 'error' || summary.status === 'invalid-output')
+) {
   process.exitCode = 1
 }
