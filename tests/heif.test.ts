@@ -1244,9 +1244,11 @@ describe('HEIF HEVC bitstream inspection', () => {
     expect(output).toEqual(reference)
   })
 
-  it('decodes and tone-maps independently encoded Main 10 BT.2020 pictures', async () => {
+  it('renders independently encoded Main 10 BT.2020 pictures through explicit display paths', async () => {
     // x265 4.1 encoded this 32x32 testsrc2 picture as HEVC Main 10. The two SPS
-    // variants and nclx properties signal limited-range BT.2020 PQ and HLG.
+    // variants and nclx properties signal limited-range BT.2020 PQ and HLG. PQ
+    // uses the libheif-compatible 8-bit display path; HLG retains its explicit
+    // transfer/tone-map path but is not promoted as independently validated.
     const input = decodedMain10HeifFixture()
     await expect((await Image.open(input)).metadata()).resolves.toMatchObject({
       format: 'heif',
@@ -1265,7 +1267,7 @@ describe('HEIF HEVC bitstream inspection', () => {
 
     expect(decoder).toMatchObject({ width: 32, height: 32, pixelFormat: 'rgba8' })
     expect(createHash('sha256').update(rgba).digest('hex')).toBe(
-      'e4db96d9a1211bfd1d02196e57d07398d7348c0f1fb6ba1660b8d509b0547f20',
+      'd2efde1f4dd7008114fbf6e70d83cee62af0d1c6cd1d9cbf20b7541e2a0d2fba',
     )
 
     const hlgDecoder = await heifCodec.createDecoder?.(
