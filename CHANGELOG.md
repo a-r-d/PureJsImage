@@ -4,6 +4,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-08-08
+
 ### Added
 
 - Added first-party JPEG 2000 / JP2 decoding for common Part 1 grayscale and RGB still images,
@@ -190,4 +192,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.3.0]: https://github.com/a-r-d/PureJsImage/compare/v0.2.0...v0.3.0
 [0.4.0]: https://github.com/a-r-d/PureJsImage/compare/v0.3.0...v0.4.0
 [0.5.0]: https://github.com/a-r-d/PureJsImage/compare/v0.4.0...v0.5.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.5.0...HEAD
+[0.6.0]: https://github.com/a-r-d/PureJsImage/compare/v0.5.0...v0.6.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.6.0...HEAD

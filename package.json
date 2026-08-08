@@ -1,6 +1,6 @@
 {
   "name": "purejsimage",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Low-memory, dependency-free image processing in pure TypeScript",
   "keywords": [
     "image",
