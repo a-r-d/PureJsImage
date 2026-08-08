@@ -587,21 +587,18 @@ const predictBlock = (plane: Plane, offset: number, mode: number): void => {
     return
   }
   if (mode === 7) {
-    for (let y = 0; y < 4; y += 1)
-      for (let x = 0; x < 4; x += 1) {
-        const index = x + (y >> 1)
-        set(
-          x,
-          y,
-          (y & 1) === 0
-            ? average2(top[index] ?? 0, top[index + 1] ?? top[7] ?? 0)
-            : average3(
-                top[index] ?? 0,
-                top[index + 1] ?? top[7] ?? 0,
-                top[index + 2] ?? top[7] ?? 0,
-              ),
-        )
-      }
+    for (let x = 0; x < 4; x += 1) {
+      set(x, 0, average2(top[x] ?? 0, top[x + 1] ?? 0))
+      set(x, 1, average3(top[x] ?? 0, top[x + 1] ?? 0, top[x + 2] ?? 0))
+    }
+    set(0, 2, average2(top[1] ?? 0, top[2] ?? 0))
+    set(1, 2, average2(top[2] ?? 0, top[3] ?? 0))
+    set(2, 2, average2(top[3] ?? 0, top[4] ?? 0))
+    set(3, 2, average3(top[4] ?? 0, top[5] ?? 0, top[6] ?? 0))
+    set(0, 3, average3(top[1] ?? 0, top[2] ?? 0, top[3] ?? 0))
+    set(1, 3, average3(top[2] ?? 0, top[3] ?? 0, top[4] ?? 0))
+    set(2, 3, average3(top[3] ?? 0, top[4] ?? 0, top[5] ?? 0))
+    set(3, 3, average3(top[5] ?? 0, top[6] ?? 0, top[7] ?? 0))
     return
   }
   const diagonal = [left[3] ?? 0, left[2] ?? 0, left[1] ?? 0, left[0] ?? 0, corner, ...top]

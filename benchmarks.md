@@ -199,25 +199,28 @@ Reports:
 ## WebP
 
 Jimp 1.6 does not expose a WebP codec, so these are absolute PureJsImage
-baselines rather than head-to-head comparisons.
+baselines rather than head-to-head comparisons. Lossy encoder output is decoded
+after timing in a separate Sharp/libwebp process and must pass pinned pixel
+checks before the sample counts.
 
 | Workflow | Median wall | Peak RSS |
 | --- | ---: | ---: |
-| Large metadata | 0.2 ms | 89.4 MiB |
-| Large resize to JPEG | 519.4 ms | 166.6 MiB |
-| Lossy WebP to PNG | 215.6 ms | 139.6 MiB |
-| Lossy crop and resize | 98.8 ms | 118.0 MiB |
-| Lossless-alpha WebP to PNG | 48.4 ms | 97.6 MiB |
-| Odd-sized lossless WebP to PNG | 34.9 ms | 97.2 MiB |
-| Lossy-alpha WebP to PNG | 163.0 ms | 134.3 MiB |
-| JPEG to lossy WebP | 965.4 ms | 112.2 MiB |
-| PNG to lossless WebP | 50.0 ms | 107.5 MiB |
+| Large metadata | 0.1 ms | 91.4 MiB |
+| Large resize to JPEG | 508.1 ms | 179.1 MiB |
+| Lossy WebP to PNG | 214.5 ms | 143.1 MiB |
+| Lossy crop and resize | 94.0 ms | 121.6 MiB |
+| Lossless-alpha WebP to PNG | 46.9 ms | 102.2 MiB |
+| Odd-sized lossless WebP to PNG | 38.5 ms | 103.7 MiB |
+| Lossy-alpha WebP to PNG | 175.2 ms | 151.9 MiB |
+| JPEG to lossy WebP | 979.6 ms | 123.7 MiB |
+| PNG to lossless WebP | 56.3 ms | 114.6 MiB |
 
 The current VP8/VP8L implementations still retain full-frame working planes.
 Bounded macroblock-row reconstruction and better lossless compression remain
 open targets.
 
-See the [complete WebP report](benchmark/results/webp-cleanup-final-profile-2026-08-07.md).
+See the
+[oracle-validated WebP report](benchmark/results/webp-oracle-validated-2026-08-08.md).
 
 ## ICO
 

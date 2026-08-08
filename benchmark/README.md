@@ -156,7 +156,10 @@ npm run bench:webp
 Jimp 1.6.0 does not provide a WebP codec, so this profile is intentionally
 PureJsImage-only. Decode results still require independently generated pixel
 samples to pass. The profile records absolute time, output size, and memory
-without inventing an invalid direct Jimp comparison.
+without inventing an invalid direct Jimp comparison. Lossy WebP encoder output
+is decoded in a separate Sharp/libwebp oracle process after timing and must pass
+pinned pixel checks; the native oracle is never loaded into the measured
+PureJsImage process.
 
 Ordered spatial transforms ending in JPEG output:
 

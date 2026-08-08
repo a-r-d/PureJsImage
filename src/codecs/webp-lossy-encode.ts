@@ -325,6 +325,34 @@ const predictDc = (plane: ReconstructionPlane, offset: number, size: number): nu
   return value
 }
 
+const predictChromaDc = (
+  plane: ReconstructionPlane,
+  offset: number,
+  row: number,
+  column: number,
+): number => {
+  const size = 8
+  let total = 0
+  if (row > 0) {
+    for (let index = 0; index < size; index += 1) {
+      total += plane.data[offset - plane.stride + index] ?? 0
+    }
+  }
+  if (column > 0) {
+    for (let index = 0; index < size; index += 1) {
+      total += plane.data[offset - 1 + index * plane.stride] ?? 0
+    }
+  }
+  const value =
+    row === 0 && column === 0
+      ? 128
+      : (total + (row > 0 && column > 0 ? size : size >> 1)) >> (row > 0 && column > 0 ? 4 : 3)
+  for (let y = 0; y < size; y += 1) {
+    plane.data.fill(value, offset + y * plane.stride, offset + y * plane.stride + size)
+  }
+  return value
+}
+
 const encodeVp8 = (
   width: number,
   height: number,
@@ -412,7 +440,7 @@ const encodeVp8 = (
         const source = planeIndex === 0 ? uSource : vSource
         const output = plane.origin + row * 8 * plane.stride + column * 8
         prepareEdges(plane, output, 8, row, column)
-        const predictor = predictDc(plane, output, 8)
+        const predictor = predictChromaDc(plane, output, row, column)
         for (let block = 0; block < 4; block += 1) {
           const blockX = column * 8 + (block & 1) * 4
           const blockY = row * 8 + (block >> 1) * 4

@@ -140,6 +140,8 @@ supported until its output is independently validated.
   Web Platform Tests' progressive MozJPEG RGB and YUV browser fixtures
 - [x] Decode encoded output independently and require correct dimensions and
   pixels before benchmark timing counts
+- [x] Gate both libjpeg-to-PureJsImage decode and
+  PureJsImage-to-libjpeg encode/decode paths with PSNR floors in CI
 - [x] Measure absolute peak RSS in isolated cold and warm processes for the
   primary large-JPEG resize workflow
 - [ ] Continue broadening the compatibility corpus with more phone and camera

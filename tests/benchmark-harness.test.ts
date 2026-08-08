@@ -1,3 +1,4 @@
+import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 import { engine as imageJsEngine } from '../benchmark/engines/image-js.ts'
 import { engine as jimpEngine } from '../benchmark/engines/jimp.ts'
@@ -30,9 +31,9 @@ describe('competitor benchmark classification', () => {
     )
   })
 
-  it('cannot aggregate invalid output as a successful timing', () => {
+  it('cannot aggregate invalid output as a successful timing', async () => {
     const workflow = competitorWorkflow('metadata-jpeg-large')
-    const validation = validateExecution({
+    const validation = await validateExecution({
       workflow,
       execution: { metadata: { format: 'jpeg', width: 1, height: 1 } },
     })
@@ -42,6 +43,33 @@ describe('competitor benchmark classification', () => {
     expect(summary.status).toBe('invalid-output')
     expect(summary.wallMilliseconds).toBeUndefined()
     expect(summary.successfulSamples).toBeUndefined()
+  })
+
+  it('rejects structurally valid WebP whose oracle-decoded pixels are invalid', async () => {
+    const workflow: PipelineWorkflow = {
+      id: 'invalid-webp-pixels',
+      title: 'Invalid WebP pixels',
+      tier: 'webp',
+      input: 'unused',
+      operations: [],
+      expected: {
+        format: 'webp',
+        width: 2,
+        height: 2,
+        pixelSamples: [{ x: 1, y: 1, red: 255, green: 255, blue: 255, tolerance: 0 }],
+      },
+    }
+    const output = await sharp({
+      create: { width: 2, height: 2, channels: 3, background: '#000000' },
+    })
+      .webp({ lossless: true })
+      .toBuffer()
+    const validation = await validateExecution({ workflow, execution: { output } })
+
+    expect(validation.valid).toBe(false)
+    expect(validation.errors.join('; ')).toContain('pixel (1, 1) red')
+    const summary = summarizeSamples([{ status: 'invalid-output', errors: validation.errors }])
+    expect(summary.wallMilliseconds).toBeUndefined()
   })
 
   it('keeps Sharp default and single-thread configurations identifiable', () => {

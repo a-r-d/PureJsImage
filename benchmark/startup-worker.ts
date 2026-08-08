@@ -45,7 +45,7 @@ const runFirstOperation = async ({
     const startedAt = performance.now()
     const execution = await engine.execute({ workflow, inputs: [input] })
     const wallMilliseconds = performance.now() - startedAt
-    const validation = validateExecution({ workflow, execution })
+    const validation = await validateExecution({ workflow, execution })
     if (!validation.valid) return { status: 'invalid-output', errors: validation.errors }
     return { status: 'pass', wallMilliseconds, errors: [] }
   } catch (error) {

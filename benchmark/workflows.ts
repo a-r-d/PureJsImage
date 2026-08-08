@@ -1054,7 +1054,18 @@ export const workflows: readonly Workflow[] = [
     tier: 'webp',
     input: 'tundra-4000x3000',
     operations: [{ type: 'resize', width: 1200 }, webp(80)],
-    expected: { format: 'webp', width: 1200, height: 900 },
+    expected: {
+      format: 'webp',
+      width: 1200,
+      height: 900,
+      pixelSamples: [
+        { x: 0, y: 0, red: 169, green: 217, blue: 255, alpha: 255, tolerance: 20 },
+        { x: 300, y: 225, red: 94, green: 110, blue: 84, alpha: 255, tolerance: 20 },
+        { x: 600, y: 450, red: 206, green: 216, blue: 154, alpha: 255, tolerance: 20 },
+        { x: 900, y: 675, red: 103, green: 131, blue: 58, alpha: 255, tolerance: 20 },
+        { x: 1199, y: 899, red: 192, green: 200, blue: 179, alpha: 255, tolerance: 20 },
+      ],
+    },
   },
   {
     id: 'png-to-webp-lossless',

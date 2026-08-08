@@ -75,7 +75,7 @@ const main = async (): Promise<void> => {
 
   for (let index = 0; index < warmups; index += 1) {
     const warmup = await engine.execute({ workflow, inputs })
-    const validation = validateExecution({ workflow, execution: warmup })
+    const validation = await validateExecution({ workflow, execution: warmup })
     if (!validation.valid) {
       sendResult({
         status: 'invalid-output',
@@ -109,7 +109,7 @@ const main = async (): Promise<void> => {
   const execution = await engine.execute({ workflow, inputs })
   const wallMilliseconds = performance.now() - startedAt
   const cpu = process.cpuUsage(cpuStart)
-  const validation = validateExecution({ workflow, execution })
+  const validation = await validateExecution({ workflow, execution })
   if (!validation.valid) {
     sendResult({ status: 'invalid-output', errors: validation.errors })
     return

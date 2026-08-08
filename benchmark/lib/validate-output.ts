@@ -1,4 +1,6 @@
+import { fork } from 'node:child_process'
 import { createHash } from 'node:crypto'
+import { fileURLToPath } from 'node:url'
 import { decode as decodeBmp } from 'bmp-ts'
 import { imageDimensionsFromData } from 'image-dimensions'
 import jpeg from 'jpeg-js'
@@ -10,6 +12,82 @@ interface DecodedPixels {
   width: number
   height: number
   data: Uint8Array
+}
+
+interface OracleSample extends PixelCorner {
+  readonly x: number
+  readonly y: number
+}
+
+interface WebpOracleResult {
+  readonly width: number
+  readonly height: number
+  readonly samples: readonly OracleSample[]
+}
+
+const isNumber = (value: unknown): value is number => typeof value === 'number'
+
+const isOracleSample = (value: unknown): value is OracleSample =>
+  typeof value === 'object' &&
+  value !== null &&
+  'x' in value &&
+  isNumber(value.x) &&
+  'y' in value &&
+  isNumber(value.y) &&
+  'red' in value &&
+  isNumber(value.red) &&
+  'green' in value &&
+  isNumber(value.green) &&
+  'blue' in value &&
+  isNumber(value.blue) &&
+  'alpha' in value &&
+  isNumber(value.alpha)
+
+const isWebpOracleResult = (value: unknown): value is WebpOracleResult =>
+  typeof value === 'object' &&
+  value !== null &&
+  'width' in value &&
+  isNumber(value.width) &&
+  'height' in value &&
+  isNumber(value.height) &&
+  'samples' in value &&
+  Array.isArray(value.samples) &&
+  value.samples.every(isOracleSample)
+
+const decodeWebpSamples = async (
+  output: Buffer,
+  points: readonly { readonly x: number; readonly y: number }[],
+): Promise<WebpOracleResult> => {
+  const worker = new URL('./webp-oracle-worker.ts', import.meta.url)
+  return new Promise<WebpOracleResult>((resolve, reject) => {
+    const child = fork(fileURLToPath(worker), [JSON.stringify(points)], {
+      serialization: 'advanced',
+      stdio: ['ignore', 'ignore', 'pipe', 'ipc'],
+    })
+    const stderr: Buffer[] = []
+    let settled = false
+    child.stderr?.on('data', (chunk: unknown) => {
+      if (chunk instanceof Uint8Array) stderr.push(Buffer.from(chunk))
+    })
+    child.once('message', (message: unknown) => {
+      settled = true
+      if (isWebpOracleResult(message)) resolve(message)
+      else reject(new Error('WebP oracle returned invalid data'))
+    })
+    child.once('error', (error) => {
+      if (!settled) reject(error)
+    })
+    child.once('close', (code) => {
+      if (!settled) {
+        reject(
+          new Error(
+            Buffer.concat(stderr).toString('utf8') || `WebP oracle exited ${code} without a result`,
+          ),
+        )
+      }
+    })
+    child.send(output)
+  })
 }
 
 const decodePixels = (output: Buffer, format: string): DecodedPixels | undefined => {
@@ -62,13 +140,13 @@ const identifyOutput = (
   }
 }
 
-export const validateExecution = ({
+export const validateExecution = async ({
   workflow,
   execution,
 }: {
   workflow: Workflow
   execution: EngineExecution
-}): ValidationResult => {
+}): Promise<ValidationResult> => {
   const errors: string[] = []
 
   if (execution.metadata) {
@@ -121,11 +199,38 @@ export const validateExecution = ({
     workflow.expected.cornerAlpha !== undefined ||
     workflow.expected.cornerRgbMinimum !== undefined ||
     (workflow.expected.pixelSamples?.length ?? 0) > 0
-  const decoded = needsPixels ? decodePixels(output, dimensions.type) : undefined
-  if (needsPixels && !decoded) {
+  const decoded =
+    needsPixels && dimensions.type !== 'webp' ? decodePixels(output, dimensions.type) : undefined
+  const points = [
+    ...(workflow.expected.cornerAlpha !== undefined ||
+    workflow.expected.cornerRgbMinimum !== undefined
+      ? [{ x: 0, y: 0 }]
+      : []),
+    ...(workflow.expected.pixelSamples ?? []).map(({ x, y }) => ({ x, y })),
+  ]
+  let webpOracle: WebpOracleResult | undefined
+  if (needsPixels && dimensions.type === 'webp') {
+    try {
+      webpOracle = await decodeWebpSamples(output, points)
+      if (webpOracle.width !== dimensions.width || webpOracle.height !== dimensions.height) {
+        errors.push(
+          `WebP oracle dimensions: expected ${dimensions.width}x${dimensions.height}, got ${webpOracle.width}x${webpOracle.height}`,
+        )
+      }
+    } catch (error) {
+      errors.push(
+        `WebP oracle validation failed: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
+  }
+  if (needsPixels && !decoded && !webpOracle && dimensions.type !== 'webp') {
     errors.push(`pixel validation is unavailable for ${dimensions.type} output`)
   }
-  const corner = decoded ? pixelAt(decoded, 0, 0) : undefined
+  const oraclePixelAt = (x: number, y: number): PixelCorner | undefined =>
+    webpOracle?.samples.find((sample) => sample.x === x && sample.y === y)
+  const validatedPixelAt = (x: number, y: number): PixelCorner | undefined =>
+    decoded ? pixelAt(decoded, x, y) : oraclePixelAt(x, y)
+  const corner = validatedPixelAt(0, 0)
 
   if (
     workflow.expected.cornerAlpha !== undefined &&
@@ -145,7 +250,7 @@ export const validateExecution = ({
   }
 
   for (const sample of workflow.expected.pixelSamples ?? []) {
-    const actual = decoded ? pixelAt(decoded, sample.x, sample.y) : undefined
+    const actual = validatedPixelAt(sample.x, sample.y)
     if (!actual) {
       errors.push(`pixel (${sample.x}, ${sample.y}) is outside the decoded output`)
       continue

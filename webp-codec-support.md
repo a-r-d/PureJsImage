@@ -154,8 +154,11 @@ coverage.
   and compressed lossy alpha in the permanent benchmark profile
 - [x] Benchmark metadata, decode, conversion, crop, resize, lossy encode, and
   lossless encode in isolated processes
-- [ ] Validate encoder output pixels with an independent libwebp-based oracle;
-  current focused encoder tests round-trip through PureJsImage
+- [x] Gate lossy decode against a pinned libwebp encode and gate lossy encode
+  through an independent libwebp decode with PSNR floors in the focused test
+  suite
+- [x] Decode benchmark WebP output in a separate libwebp-backed oracle process
+  and require pinned pixels before accepting a timing
 - [ ] Account for cumulative VP8/VP8L planes, transforms, alpha, and output in a
   dedicated working-memory limit; the general decoded-byte limit does not yet
   represent every simultaneous allocation

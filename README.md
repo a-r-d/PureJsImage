@@ -367,10 +367,10 @@ same validity and correctness checks for both engines.
 | 4000x3000 PNG resize | 496 ms | 944 ms | 142 MiB | 301 MiB |
 | 4000x3000 BMP resize to JPEG | 149 ms | 719 ms | 153 MiB | 262 MiB |
 | Large TIFF resize to JPEG | 109 ms | 639 ms | 133 MiB | 319 MiB |
-| 1600x2000 WebP resize to JPEG | 519 ms | Unsupported | 167 MiB | — |
+| 1600x2000 WebP resize to JPEG | 508 ms | Unsupported | 179 MiB | — |
 | 96x96 ICO resize to 192px JPEG | 14 ms | Unsupported | 95 MiB | — |
-| JPEG to lossy WebP | 965 ms | Unsupported | 112 MiB | — |
-| PNG to lossless WebP | 50 ms | Unsupported | 107 MiB | — |
+| JPEG to lossy WebP | 980 ms | Unsupported | 124 MiB | — |
+| PNG to lossless WebP | 56 ms | Unsupported | 115 MiB | — |
 | 4032x3024 iPhone HEIC, orient and resize to 1200px JPEG | 8,080 ms | Unsupported | 190 MiB | — |
 
 The ordered transform planner also has isolated, correctness-gated
@@ -397,7 +397,9 @@ memory. The 4000x3000 BMP resize is 79% faster and uses 42% less peak memory.
 The WebP, ICO, and HEIC results are PureJsImage-only absolute baselines because
 Jimp 1.6 does not expose those codecs. The HEIC workflow uses an original iPhone
 12 Pro camera file. Every workflow runs in an isolated process and counts only
-after the output passes its pinned validation checks.
+after the output passes its pinned validation checks. For lossy WebP encode,
+validation runs in a separate Sharp/libwebp process and checks decoded pixels;
+the native oracle is not loaded into the measured PureJsImage process.
 
 See the
 [detailed benchmarks](https://github.com/a-r-d/PureJsImage/blob/main/benchmarks.md)
