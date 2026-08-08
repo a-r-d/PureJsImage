@@ -1,0 +1,21 @@
+tests/project-contract.test.ts
+  s_3070dced1b3aff::t_c662cfe4158855 27,40
+docs/performance.html
+  s_3070dced1b3aff::t_c662cfe4158855 6,23-61,66-67,95-96,163-164,173,187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "26fb975b17334e7f011d17e4442fc8c31ee56808",
+  "prompts": {},
+  "sessions": {
+    "s_3070dced1b3aff": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe309-2b37-7a92-b053-803b904cd6ff",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
