@@ -1,0 +1,38 @@
+benchmark/scripts/render-competitor-charts.ts
+  s_3070dced1b3aff::t_95ab6decf4d8b3 1,11,212-213,215,223-228,233-234
+docs/styles.css
+  s_3070dced1b3aff::t_6f0996e4314d81 1959-2141
+  s_3070dced1b3aff::t_b49edbf20a1cfb 2962-2967,3034-3050
+  s_74376132a55770::t_2d6839dbe0eea0 3051
+tests/project-contract.test.ts
+  s_3070dced1b3aff::t_436cd0dee82483 24
+  s_3070dced1b3aff::t_1d354dbb84b1f0 26,34-39
+  s_74376132a55770::t_c1e335143dfeb9 40
+docs/index.html
+  s_3070dced1b3aff::t_7d6ec98e329d2e 55-56,138-139,142-144,146-156,158-161,163-166,168-169
+  s_3070dced1b3aff::t_9f8c8b381341a3 141,157,162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "6280ddcc806520493938b51b7d0cdae4be49ff10",
+  "prompts": {},
+  "sessions": {
+    "s_3070dced1b3aff": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe309-2b37-7a92-b053-803b904cd6ff",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_74376132a55770": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe205-7b4b-7cb3-8899-fe988f8f08bf",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
