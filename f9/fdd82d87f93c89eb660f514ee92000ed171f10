@@ -1,0 +1,102 @@
+AGENTS.md
+  s_8117ea1ef73ff5::t_20c15d9587567c 40-67
+src/node-source.ts
+  s_8117ea1ef73ff5::t_ce9758a3991803 1-70
+benchmark/avif/inspect-bitstreams.ts
+  s_8117ea1ef73ff5::t_ce9758a3991803 3
+project-spec.md
+  s_8117ea1ef73ff5::t_7e9b0de6818272 94-97,223-242,2334-2336,2348-2349
+README.md
+  s_8117ea1ef73ff5::t_6ffd2fbc1b50d1 25,68-73
+  s_8117ea1ef73ff5::t_7e9b0de6818272 41-43,56-59,132-163,256-259,280,283-285,298-299
+src/browser-runtime.ts
+  s_8117ea1ef73ff5::t_b6cb961a1ea0ff 171-172,175
+  s_8117ea1ef73ff5::t_65c2d7f4d2924e 133,136-137,139
+  s_8117ea1ef73ff5::t_bb38177d9da1a8 1-52,56-76,78-94,98-132,134-135,138,140-147,149-170,173-174,176-247
+  s_8117ea1ef73ff5::t_d118f0079040df 53-55,77,95-97,148
+tests/project-contract.test.ts
+  s_8117ea1ef73ff5::t_523c25b4cd9231 71,74
+src/index.ts
+  s_8117ea1ef73ff5::t_ca77842467e99d 39,44
+  s_8117ea1ef73ff5::t_eea8ea6f23fe0f 40-43
+src/codec.ts
+  s_8117ea1ef73ff5::t_b6cb961a1ea0ff 129
+  s_8117ea1ef73ff5::t_0db4b90e439b78 5
+package.json
+  s_8117ea1ef73ff5::t_c4d07533d4bb06 19,41,45,50-54,118
+  s_8117ea1ef73ff5::t_51c54851cba027 120
+  s_8117ea1ef73ff5::t_6ffd2fbc1b50d1 4
+docs/guides.html
+  s_8117ea1ef73ff5::t_69a0185113b66f 6,23,32,37-58,81,228
+ROADMAP.md
+  s_8117ea1ef73ff5::t_7e9b0de6818272 20-21,75-88,147-148
+CHANGELOG.md
+  s_8117ea1ef73ff5::t_c2c11baaad239f 7-20
+src/rotate.ts
+  s_8117ea1ef73ff5::t_71eb01ab5b052b 5,38-46,50-58,63,105,113,141,149-152,158-161,165-166,206-207,289,291,307,328
+src/browser.ts
+  s_8117ea1ef73ff5::t_ca77842467e99d 1-54
+src/orient.ts
+  s_8117ea1ef73ff5::t_de25fd9ac826c8 3,52-60,64-72,117,159,168,178,184-187,194-197,199,215-216,241,243,258,267
+  s_8117ea1ef73ff5::t_d118f0079040df 201
+src/node-platform.ts
+  s_8117ea1ef73ff5::t_99517ae8efd025 1-21
+docs/api.html
+  s_8117ea1ef73ff5::t_6ffd2fbc1b50d1 72
+  s_8117ea1ef73ff5::t_69a0185113b66f 78-81,169-170,179,217
+src/node-sink.ts
+  s_8117ea1ef73ff5::t_9977292155906d 1-56
+src/browser-platform.ts
+  s_8117ea1ef73ff5::t_99517ae8efd025 1-17
+src/sink.ts
+  s_8117ea1ef73ff5::t_b6cb961a1ea0ff 20
+  s_8117ea1ef73ff5::t_9977292155906d 7,25-28,30-32,34
+src/node-runtime.ts
+  s_8117ea1ef73ff5::t_d118f0079040df 5,72
+  s_8117ea1ef73ff5::t_bb38177d9da1a8 1-4,6-71,73-154
+src/image.ts
+  s_8117ea1ef73ff5::t_99517ae8efd025 1,3-8,10,12-13,15-16
+tests/core-abstractions.test.ts
+  s_8117ea1ef73ff5::t_b6cb961a1ea0ff 14-15
+tests/browser-runtime.test.ts
+  s_8117ea1ef73ff5::t_b984ca833c16e6 21,35,44
+  s_8117ea1ef73ff5::t_d118f0079040df 11-12
+  s_8117ea1ef73ff5::t_c4d07533d4bb06 1-10,13-20,22-34,36-43,45-58
+docs/index.html
+  s_8117ea1ef73ff5::t_69a0185113b66f 141,144
+tsconfig.browser.json
+  s_8117ea1ef73ff5::t_51c54851cba027 1-19
+src/runtime.ts
+  s_8117ea1ef73ff5::t_9977292155906d 1-37
+src/codecs/png.ts
+  s_8117ea1ef73ff5::t_d118f0079040df 1357
+  s_8117ea1ef73ff5::t_8449a668a17107 22,1217,1229,1277,1287,1293,1356,1358-1361
+  s_8117ea1ef73ff5::t_b6cb961a1ea0ff 1310-1311,1346,1355
+src/image-core.ts
+  s_8117ea1ef73ff5::t_b6cb961a1ea0ff 54,85
+  s_8117ea1ef73ff5::t_99517ae8efd025 1-53,55-84,86-264
+src/source.ts
+  s_8117ea1ef73ff5::t_ce9758a3991803 16,214
+src/executor.ts
+  s_8117ea1ef73ff5::t_0db4b90e439b78 10,21,196,207,219,231,251
+scripts/check-browser-build.ts
+  s_8117ea1ef73ff5::t_c4d07533d4bb06 1-29
+tests/orient-storage.test.ts
+  s_8117ea1ef73ff5::t_b6cb961a1ea0ff 8,80,93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "f9fdd82d87f93c89eb660f514ee92000ed171f10",
+  "prompts": {},
+  "sessions": {
+    "s_8117ea1ef73ff5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdf88-9c3e-74c3-8640-add1f8c27019",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
