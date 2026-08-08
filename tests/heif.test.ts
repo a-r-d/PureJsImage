@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
 
-import { inspectHeifBitstream } from '../src/codecs/heif.ts'
+import { inspectHeifBitstream, resolveHeifColorMatrix } from '../src/codecs/heif.ts'
 import { heicCodec, heifCodec } from '../src/codec-entries/heif.ts'
 import {
   inspectHevcPps,
@@ -989,6 +989,41 @@ describe('HEIF metadata and registration', () => {
 })
 
 describe('HEIF HEVC bitstream inspection', () => {
+  it('resolves HEIF color matrices only from explicit or narrowly compatible evidence', () => {
+    const compatibilityEvidence = {
+      brands: ['heic', 'mif1'],
+      chromaSubsampling: '420' as const,
+      colorPrimaries: 2,
+      hasIcc: false,
+      nclxMatrix: 2,
+      profile: 1,
+      transferCharacteristics: 2,
+      vuiMatrix: undefined,
+    }
+
+    expect(resolveHeifColorMatrix({ ...compatibilityEvidence, nclxMatrix: 1 })).toBe(1)
+    expect(resolveHeifColorMatrix({ ...compatibilityEvidence, vuiMatrix: 6 })).toBe(6)
+    expect(resolveHeifColorMatrix(compatibilityEvidence)).toBe(6)
+    expect(
+      resolveHeifColorMatrix({
+        ...compatibilityEvidence,
+        colorPrimaries: 12,
+        hasIcc: true,
+        profile: 3,
+      }),
+    ).toBe(6)
+    expect(() =>
+      resolveHeifColorMatrix({
+        ...compatibilityEvidence,
+        colorPrimaries: 9,
+        transferCharacteristics: 16,
+      }),
+    ).toThrow('Unresolved HEIF color matrix')
+    expect(() =>
+      resolveHeifColorMatrix({ ...compatibilityEvidence, nclxMatrix: 1, vuiMatrix: 6 }),
+    ).toThrow('Conflicting HEIF color matrices')
+  })
+
   it('parses hvcC parameter arrays and length-prefixed image NAL units', async () => {
     const inspection = await inspectHeifBitstream(new MemorySource(heifFixture()))
 

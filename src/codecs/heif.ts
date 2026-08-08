@@ -1083,6 +1083,17 @@ interface HeifColorConversion {
   readonly transferCharacteristics: number | undefined
 }
 
+export interface HeifColorMatrixEvidence {
+  readonly brands: readonly string[]
+  readonly chromaSubsampling: ChromaSubsampling
+  readonly colorPrimaries: number | undefined
+  readonly hasIcc: boolean
+  readonly nclxMatrix: number | undefined
+  readonly profile: number
+  readonly transferCharacteristics: number | undefined
+  readonly vuiMatrix: number | undefined
+}
+
 const chromaLocationValue = (value: number | undefined): 0 | 1 | 2 | 3 | 4 | 5 => {
   if (value === undefined) return 0
   if (value === 0 || value === 1 || value === 2 || value === 3 || value === 4 || value === 5) {
@@ -1091,28 +1102,86 @@ const chromaLocationValue = (value: number | undefined): 0 | 1 | 2 | 3 | 4 | 5 =
   throw unsupportedOperation(`Unsupported HEVC chroma sample location: ${value}`)
 }
 
-const matrixCoefficientValue = (value: number | undefined): 1 | 5 | 6 | 9 => {
+const matrixCoefficientValue = (value: number): 1 | 5 | 6 | 9 => {
   if (value === 1 || value === 5 || value === 6 || value === 9) return value
-  throw unsupportedOperation(`Unsupported or unspecified HEIF color matrix: ${value ?? 'none'}`)
+  throw unsupportedOperation(`Unsupported HEIF color matrix: ${value}`)
+}
+
+const specifiedColorValue = (
+  containerValue: number | undefined,
+  bitstreamValue: number | undefined,
+): number | undefined =>
+  containerValue !== undefined && containerValue !== 2 ? containerValue : bitstreamValue
+
+export const resolveHeifColorMatrix = (
+  evidence: HeifColorMatrixEvidence,
+): 1 | 5 | 6 | 9 => {
+  const nclxMatrix = evidence.nclxMatrix === 2 ? undefined : evidence.nclxMatrix
+  const vuiMatrix = evidence.vuiMatrix === 2 ? undefined : evidence.vuiMatrix
+  if (nclxMatrix !== undefined && vuiMatrix !== undefined && nclxMatrix !== vuiMatrix) {
+    throw unsupportedOperation(
+      `Conflicting HEIF color matrices: nclx ${nclxMatrix}, VUI ${vuiMatrix}`,
+    )
+  }
+  const declaredMatrix = nclxMatrix ?? vuiMatrix
+  if (declaredMatrix !== undefined) return matrixCoefficientValue(declaredMatrix)
+
+  const sdrPrimaries =
+    evidence.colorPrimaries === undefined ||
+    evidence.colorPrimaries === 1 ||
+    evidence.colorPrimaries === 2
+  const sdrTransfer =
+    evidence.transferCharacteristics === undefined ||
+    evidence.transferCharacteristics === 2 ||
+    evidence.transferCharacteristics === 13
+  const compatibleProfile = evidence.profile === 1 || evidence.profile === 3
+  const hevcStillImageBrand = evidence.brands.some((brand) => HEVC_BRANDS.has(brand))
+  if (
+    evidence.chromaSubsampling === '420' &&
+    compatibleProfile &&
+    hevcStillImageBrand &&
+    (evidence.hasIcc || (sdrPrimaries && sdrTransfer))
+  ) {
+    // This is the HEIF/libheif SDR compatibility convention, not a generic
+    // YCbCr default. It is deliberately gated by codec family, profile,
+    // subsampling, and SDR/ICC evidence so ambiguous HDR and other profiles fail.
+    return 6
+  }
+  throw unsupportedOperation('Unresolved HEIF color matrix')
 }
 
 const colorConversionFor = (
   properties: readonly Property[],
   sequence: HevcSpsInspection,
+  configuration: HevcConfiguration,
+  brands: readonly string[],
 ): HeifColorConversion => {
-  const nclx = oneProperty(properties, 'colr')?.nclx
+  const colorProperty = oneProperty(properties, 'colr')
+  const nclx = colorProperty?.nclx
   const topLocation = sequence.vui?.chromaLocationTop
   const bottomLocation = sequence.vui?.chromaLocationBottom
   if (topLocation !== undefined && bottomLocation !== undefined && topLocation !== bottomLocation) {
     throw unsupportedOperation('Different top and bottom HEVC chroma locations are unsupported')
   }
+  const colorPrimaries = specifiedColorValue(nclx?.primaries, sequence.vui?.colorPrimaries)
+  const transferCharacteristics = specifiedColorValue(
+    nclx?.transferCharacteristics,
+    sequence.vui?.transferCharacteristics,
+  )
   return {
     fullRange: nclx?.fullRange ?? sequence.vui?.fullRange ?? false,
-    colorPrimaries: nclx?.primaries ?? sequence.vui?.colorPrimaries,
-    matrixCoefficients: matrixCoefficientValue(
-      nclx?.matrixCoefficients ?? sequence.vui?.matrixCoefficients,
-    ),
-    transferCharacteristics: nclx?.transferCharacteristics ?? sequence.vui?.transferCharacteristics,
+    colorPrimaries,
+    matrixCoefficients: resolveHeifColorMatrix({
+      brands,
+      chromaSubsampling: configuration.chromaSubsampling,
+      colorPrimaries,
+      hasIcc: colorProperty?.icc !== undefined,
+      nclxMatrix: nclx?.matrixCoefficients,
+      profile: configuration.profile,
+      transferCharacteristics,
+      vuiMatrix: sequence.vui?.matrixCoefficients,
+    }),
+    transferCharacteristics,
     chromaLocation: chromaLocationValue(topLocation ?? bottomLocation),
   }
 }
@@ -1551,7 +1620,7 @@ const createHeifDecoder = async (
   const sequence = coded.configuration.sps[0]
   if (!sequence) throw invalidInput('HEIF image has no sequence parameter set')
   const colorProperties = colorPropertiesFor(parsed)
-  const color = colorConversionFor(colorProperties, sequence)
+  const color = colorConversionFor(colorProperties, sequence, coded.configuration, parsed.brands)
   let decoder: ImageDecoder
   if (parsed.primaryItemType === 'grid') {
     if (!parsed.grid) throw invalidInput('HEIF grid layout is missing')
