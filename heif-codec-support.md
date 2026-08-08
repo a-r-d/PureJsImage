@@ -1,4 +1,4 @@
-# HEIF / HEIC decode support plan
+# HEIF / HEIC decode capability and support plan
 
 This document is the implementation plan and eventual capability contract for
 PureJsImage's first-party HEIF decoder. HEIF is the ISO Base Media File Format
@@ -10,6 +10,53 @@ A checked implementation item is already present and tested in the repository.
 An unchecked item is not supported yet. Items in the deferred groups do not
 block the initial release and must continue to produce explicit unsupported
 errors rather than partial or incorrect output.
+
+## Measured compatibility snapshot (2026-08-08)
+
+The reproducible compatibility corpus contains 25 HEIC/HEIF files. It covers
+iPhone 7, 12 Pro, and 13/13 Pro camera output across iOS 11.0.3 and several iOS
+16 releases; Xiaomi, Samsung, Nokia, libheif, and x265 encoders; direct and grid
+primaries; Main, Main Still Picture, Main 10, and Range Extensions; both color
+ranges; sRGB and Display P3; `irot`, `imir`, and `clap`; and valid SDR primaries
+beside gain-map, depth, spatial, thumbnail, or alpha items.
+
+Each PureJsImage decode runs in a fresh process with a 512 MiB RSS limit.
+ImageMagick 7.1.2 with libheif 1.20.2 independently validates metadata and
+displayed pixels. The 200 MP case uses libheif's thumbnailer plus a streaming
+PNG downscale because ImageMagick's system pixel-cache policy cannot
+materialize that 199.8 MP frame.
+
+The current results are:
+
+- 10 compatible
+- 12 explicitly unsupported
+- 1 incorrect-pixels result
+- 2 unexpected exceptions on valid libheif files
+- 0 invalid inputs, timeouts, or excessive-memory results
+
+The compatible set includes iPhone 12/13 grids, Apple depth and HDR gain-map
+companions beside valid SDR primaries, Xiaomi and Samsung grids, a Vision Pro
+spatial primary, and the 200 MP Samsung file. The 200 MP full decode peaks at
+338.4 MiB RSS and matches the independent downscaled pixels at 0.030091
+normalized sRGB RMSE.
+
+The largest realistic failure cluster is color-matrix resolution. Eight
+downloaded files, plus the generated `imir` case, are rejected because the
+primary has either no matrix coefficient or the unspecified value 2. This one
+gap accounts for 9 of 12 explicitly unsupported results. The next separate
+implementation project should define spec- and metadata-driven defaults for
+these absent or unspecified signals, using ICC, `nclx`, VUI, brand, and profile
+evidence without guessing when the input remains ambiguous.
+
+Two valid current-libheif files are reported as unexpected exceptions because
+the `hvcC` parser treats the array-completeness bit as reserved. A separate
+container-correctness fix should accept that defined bit before claiming broad
+libheif interoperability. The Main 10/PQ file reconstructs its HEVC samples but
+its displayed SDR pixels differ from ImageMagick/libheif by 0.112799 normalized
+RMSE, so displayed Main 10 compatibility is not currently claimed.
+
+See `benchmark/results/heif-compatibility-2026-08-08.md` for the complete
+per-file matrix. No new HEVC syntax was added while producing this baseline.
 
 ## Scope decisions
 
@@ -86,6 +133,9 @@ not every auxiliary asset stored beside it.
   than first assembling a source-sized RGBA canvas
 - [ ] Support multiple slices and tiles within one coded HEVC picture
 - [x] Apply `irot`, `imir`, and `clap` in the defined order
+- [ ] Independently validate displayed real-world `imir` and `clap` pixels;
+  the current cases stop first on unsupported color signaling or the `hvcC`
+  array-completeness parser error
 - [x] Return display dimensions after clean-aperture and orientation transforms
 - [ ] Define and test precedence between native HEIF transforms and EXIF
   orientation so a photo is never rotated twice
@@ -93,7 +143,9 @@ not every auxiliary asset stored beside it.
 ### Common HEVC profiles and samples
 
 - [x] HEVC Main and Main Still Picture profile decode for 8-bit YUV 4:2:0
-- [x] HEVC Main 10 profile decode for 10-bit YUV 4:2:0
+- [x] HEVC Main 10 profile reconstruction for 10-bit YUV 4:2:0
+- [ ] Claim displayed Main 10 compatibility only after its SDR output agrees
+  with an independent oracle under a documented common tone-map policy
 - [ ] VPS, SPS, PPS, NAL-unit, picture, and slice-header syntax required by
   supported still pictures
 - [x] Implement bounded EBSP-to-RBSP validation and parse common SPS and PPS
@@ -117,8 +169,8 @@ not every auxiliary asset stored beside it.
   Main Still Picture tiles
 - [ ] Tiles within a coded picture, dependent slice segments, and their
   entry-point layouts
-- [ ] Chroma-location, limited/full-range, and odd-dimension handling without
-  off-by-one reads or color-plane shifts
+- [ ] Complete chroma-location, limited/full-range, and odd-dimension handling
+  without off-by-one reads or color-plane shifts
 - [x] Reject inter-predicted pictures and multilayer NAL units explicitly in the
   still-image inspection path
 - [x] Reject profiles outside Main, Main 10, and Main Still Picture, non-IDR
@@ -127,14 +179,15 @@ not every auxiliary asset stored beside it.
 
 ### Color and output
 
-- [ ] Parse `colr` properties containing `nclx`, restricted ICC (`rICC`), and
+- [x] Parse `colr` properties containing `nclx`, restricted ICC (`rICC`), and
   unrestricted ICC (`prof`) data
-- [ ] Correctly render the common sRGB and Display P3 cases to the pipeline's
-  declared output color space
+- [x] Correctly render the compatible sRGB and Display P3 cases to the
+  pipeline's declared output color space
 - [x] Convert 8-bit YUV to pipeline pixel blocks without a duplicate full-frame
   RGB or RGBA allocation
-- [x] Convert 10-bit YUV to pipeline pixel blocks and validate it against an
-  independent oracle
+- [ ] Make 10-bit displayed SDR output agree with an independent oracle; HEVC
+  sample reconstruction is tested separately, but the corpus tone-map output
+  currently exceeds the displayed-pixel tolerance
 - [ ] Preserve opaque, binary-alpha, and partial-alpha values when a supported
   auxiliary alpha item is present
 - [x] Decode a valid SDR base image even when unsupported depth, matte, or gain
@@ -147,11 +200,12 @@ not every auxiliary asset stored beside it.
 
 ### Common metadata
 
-- [ ] Parse bounded EXIF item extents and expose the metadata fields supported
+- [x] Parse bounded EXIF item extents and expose the metadata fields supported
   by PureJsImage
 - [ ] Parse bounded XMP MIME items without making XMP parsing necessary for
   pixel decode
-- [ ] Ignore unknown non-essential metadata and auxiliary items safely
+- [x] Ignore unknown non-essential metadata and auxiliary items safely while
+  decoding a valid SDR primary
 - [ ] Preserve or intentionally strip EXIF, XMP, and ICC metadata according to
   an explicit pipeline policy; never preserve it accidentally
 
@@ -237,15 +291,15 @@ work. Their absence should be documented and detected cleanly.
 
 ## Decode tests, fixtures, and benchmarks
 
-- [ ] Pin redistributable fixtures from multiple iPhone/iOS generations and at
-  least two independent non-Apple encoders
-- [ ] Cover landscape and portrait orientation, mirrored orientation, grids,
+- [x] Pin redistributable or reproducibly downloadable fixtures from multiple
+  iPhone/iOS generations and at least two independent non-Apple encoders
+- [x] Cover landscape and portrait orientation, mirrored orientation, grids,
   odd dimensions, crop apertures, sRGB, Display P3, 8-bit Main, and 10-bit Main
-- [ ] Cover auxiliary alpha, EXIF, XMP, ICC, thumbnails, unsupported auxiliary
+- [x] Cover auxiliary alpha, EXIF, XMP, ICC, thumbnails, unsupported auxiliary
   data, HDR base images, and gain maps as their groups are implemented
-- [ ] Record fixture provenance, encoder, brands, item graph, profile, bit depth,
+- [x] Record fixture provenance, encoder, brands, item graph, profile, bit depth,
   chroma format, color metadata, dimensions, and checksums in the corpus
-- [ ] Validate metadata against independent development-only parsers
+- [x] Validate metadata against independent development-only parsers
 - [x] Validate supported iPhone benchmark pixels against an independent
   HEIF/HEVC oracle with documented tolerances for color conversion, resizing,
   and lossy JPEG output
@@ -255,7 +309,7 @@ work. Their absence should be documented and detected cleanly.
 - [ ] Add distinct raw full-decode and full-size HEIC-to-JPEG workflows
 - [x] Measure cold and warm absolute peak RSS, RSS delta, external memory, and
   ArrayBuffer memory on realistic phone-photo dimensions
-- [ ] Include large single-image and multi-tile inputs that expose source-sized
+- [x] Include large single-image and multi-tile inputs that expose source-sized
   intermediate allocations
 - [ ] Add malformed-box, extent, item-graph, `hvcC`, parameter-set, slice,
   CABAC, coefficient, tile, and decompression-bomb regression fixtures

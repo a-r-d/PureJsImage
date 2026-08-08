@@ -178,11 +178,30 @@ First-party TIFF compatibility and performance profile:
 npm run bench:tiff
 ```
 
-Verify the pinned iPhone HEIF container and HEVC configuration:
+Prepare the checksum-pinned HEIF compatibility corpus, regenerate its two
+first-party transform/profile fixtures, and verify the pinned matrix:
 
 ```sh
+npm run fixtures:heif:prepare
 npm run fixtures:heif
 ```
+
+Re-run the isolated PureJsImage versus ImageMagick/libheif compatibility and
+RSS report:
+
+```sh
+npm run report:heif:compatibility
+```
+
+The report command requires ImageMagick with its HEIC delegate, FFmpeg, and
+`heif-thumbnailer` from libheif. These are development oracles only and are not
+package dependencies.
+
+The 2026-08-08 baseline classifies 25 files as 10 compatible, 12 explicitly
+unsupported, 1 incorrect-pixels result, and 2 unexpected exceptions. The
+largest unsupported cluster is absent or unspecified color-matrix signaling;
+see `results/heif-compatibility-2026-08-08.md` for the evidence and next-project
+recommendation.
 
 Run the isolated cold and warm HEIF/HEVC pipeline profiles:
 

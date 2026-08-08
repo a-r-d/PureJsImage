@@ -130,7 +130,8 @@
     "fixtures:prepare": "node benchmark/scripts/prepare-corpus.ts",
     "fixtures:verify": "node benchmark/scripts/verify-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
-    "fixtures:heif": "node benchmark/heif/verify-corpus.ts",
+    "fixtures:heif:prepare": "node benchmark/heif/compatibility/prepare.ts",
+    "fixtures:heif": "node benchmark/heif/verify-corpus.ts && node benchmark/heif/compatibility/verify.ts",
     "fixtures:ico": "node benchmark/ico/verify-corpus.ts",
     "fixtures:jpeg": "node benchmark/jpeg/verify-corpus.ts",
     "fixtures:jpeg2000": "node benchmark/jpeg2000/verify-corpus.ts",
@@ -152,6 +153,7 @@
     "bench:heif": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif",
     "bench:heif:cold": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif --runs 3 --warmups 0",
     "bench:heif:warm": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile heif --runs 3 --warmups 1",
+    "report:heif:compatibility": "node benchmark/heif/compatibility/run.ts --write",
     "bench:ico": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile ico",
     "bench:jpeg:encode": "npm run build && node --expose-gc benchmark/jpeg/encode-probe.ts",
     "bench:jpeg2000:rss": "node benchmark/jpeg2000/run-rss.ts"

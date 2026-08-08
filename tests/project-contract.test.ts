@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { avifCorpusRevision, avifFixtures } from '../benchmark/avif/corpus.ts'
 import corpusManifest from '../benchmark/corpus/manifest.json' with { type: 'json' }
 import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
+import { readCompatibilityManifest } from '../benchmark/heif/compatibility/corpus.ts'
 import { jpegCompatibilityFixtureIds } from '../benchmark/jpeg/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
 import packageJson from '../package.json' with { type: 'json' }
@@ -146,6 +147,27 @@ describe('benchmark contract', () => {
     expect(pixelWorkflows.every(({ expected }) => (expected.pixelSamples?.length ?? 0) >= 4)).toBe(
       true,
     )
+  })
+
+  it('pins a provenance-rich HEIF compatibility corpus before expanding syntax', async () => {
+    const manifest = await readCompatibilityManifest()
+
+    expect(manifest.fixtures).toHaveLength(25)
+    expect(new Set(manifest.fixtures.map(({ id }) => id)).size).toBe(25)
+    expect(manifest.fixtures.every(({ sha256 }) => /^[a-f0-9]{64}$/.test(sha256))).toBe(true)
+    expect(manifest.fixtures.every(({ license, provenance }) => license && provenance)).toBe(true)
+    const primaryTypes = new Set(manifest.fixtures.map(({ primaryItemType }) => primaryItemType))
+    expect(primaryTypes.has('grid')).toBe(true)
+    expect(primaryTypes.has('hvc1')).toBe(true)
+    expect(new Set(manifest.fixtures.map(({ hevc }) => hevc.bitDepth)).has(10)).toBe(true)
+    const transforms = new Set(manifest.fixtures.flatMap(({ transforms }) => transforms))
+    expect(transforms.has('irot')).toBe(true)
+    expect(transforms.has('imir')).toBe(true)
+    expect(transforms.has('clap')).toBe(true)
+    expect(new Set(manifest.fixtures.map(({ color }) => color.range))).toEqual(
+      new Set(['full', 'limited']),
+    )
+    expect(manifest.fixtures.some(({ auxiliaryItems }) => auxiliaryItems.length > 0)).toBe(true)
   })
 
   it('pins ICC and Apple gain-map JPEG compatibility fixtures', () => {
