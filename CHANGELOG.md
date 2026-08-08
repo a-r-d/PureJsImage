@@ -6,6 +6,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added native 1/2, 1/4, and 1/8 JPEG IDCT output, decoder-driven scale selection for safe
+  full-frame downscales, baseline/progressive/restart/subsampling regressions, and an isolated
+  runtime, RSS, avoided-pixel, and output-error benchmark against the full-resolution path.
 - Added an explicit modern-browser entry with File/Blob, ArrayBuffer, Uint8Array, Blob output,
   custom sinks, browser-safe TypeScript declarations, and a browser bundle gate that rejects Node
   built-ins across the full codec graph.

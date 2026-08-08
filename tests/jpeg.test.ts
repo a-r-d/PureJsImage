@@ -6,6 +6,7 @@ import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { ImageError } from '../src/index.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelBlock } from '../src/pixel.ts'
+import { createResizeTransform } from '../src/resize.ts'
 import { MemorySource } from '../src/source.ts'
 import { channelSwappingRgbProfile, rgbLutOnlyProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
@@ -297,6 +298,68 @@ const expectCorruptJpegRejection = async (input: Uint8Array): Promise<void> => {
   }
 }
 
+const collectRgb = async (
+  blocks: AsyncIterable<PixelBlock>,
+  width: number,
+  height: number,
+): Promise<Uint8Array> => {
+  const output = new Uint8Array(width * height * 3)
+  for await (const block of blocks) {
+    expect(block.format).toBe('rgb8')
+    for (let y = 0; y < block.height; y += 1) {
+      const source = y * block.stride
+      const target = ((block.y + y) * width + block.x) * 3
+      output.set(block.data.subarray(source, source + block.width * 3), target)
+    }
+    block.release?.()
+  }
+  return output
+}
+
+const decodeRgb = async (
+  input: Uint8Array,
+  scaleDenominator: 1 | 2 | 4 | 8,
+): Promise<{ readonly width: number; readonly height: number; readonly data: Uint8Array }> => {
+  const decoder = await jpegCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+  if (!decoder) throw new Error('JPEG decoder is unavailable')
+  const width = Math.ceil(decoder.width / scaleDenominator)
+  const height = Math.ceil(decoder.height / scaleDenominator)
+  const data = await collectRgb(decoder.decode({ width, height, scaleDenominator }), width, height)
+  return { width, height, data }
+}
+
+const fullResolutionResize = async (
+  input: Uint8Array,
+  width: number,
+  height: number,
+): Promise<Uint8Array> => {
+  const decoder = await jpegCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+  if (!decoder) throw new Error('JPEG decoder is unavailable')
+  const resize = createResizeTransform(decoder.width, decoder.height, decoder.pixelFormat, {
+    width,
+    height,
+    fit: 'fill',
+  })
+  return collectRgb(resize.apply(decoder.decode()), width, height)
+}
+
+const meanAbsoluteError = (first: Uint8Array, second: Uint8Array): number => {
+  expect(first.byteLength).toBe(second.byteLength)
+  let error = 0
+  for (let index = 0; index < first.byteLength; index += 1) {
+    error += Math.abs((first[index] ?? 0) - (second[index] ?? 0))
+  }
+  return error / first.byteLength
+}
+
+const scaledBaselineCases = ([2, 4, 8] as const).flatMap((scaleDenominator) =>
+  Object.entries(baselineJpegFixtures).map(([name, base64]) => ({
+    name,
+    base64,
+    scaleDenominator,
+  })),
+)
+
 const sourceCoordinate = (
   x: number,
   y: number,
@@ -315,6 +378,25 @@ const sourceCoordinate = (
 }
 
 describe('JPEG pixel pipeline', () => {
+  it.each(scaledBaselineCases)(
+    'decodes baseline $name with a native 1/$scaleDenominator IDCT',
+    async ({ base64, scaleDenominator }) => {
+      const input = Buffer.from(base64, 'base64')
+      const scaled = await decodeRgb(input, scaleDenominator)
+      const reference = await fullResolutionResize(input, scaled.width, scaled.height)
+      expect(meanAbsoluteError(scaled.data, reference)).toBeLessThan(64)
+    },
+  )
+
+  it.each([2, 4, 8] as const)(
+    'decodes progressive JPEG coefficients with a native 1/%i IDCT',
+    async (scaleDenominator) => {
+      const scaled = await decodeRgb(progressiveJpeg, scaleDenominator)
+      const reference = await fullResolutionResize(progressiveJpeg, scaled.width, scaled.height)
+      expect(meanAbsoluteError(scaled.data, reference)).toBeLessThan(24)
+    },
+  )
+
   it('retains decoder blocks unless their typed storage is explicitly released', async () => {
     const input = encodedJpeg(32, 32, (x, y) => [x * 7, y * 5, (x + y) * 3, 255])
     const retainedDecoder = await jpegCodec.createDecoder?.(

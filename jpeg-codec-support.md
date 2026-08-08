@@ -81,9 +81,11 @@ supported until its output is independently validated.
   pipelines
 - [ ] Incremental entropy decoding from `ImageSource`; the current pixel decoder
   retains the complete compressed JPEG input
-- [ ] Native 1/2, 1/4, and 1/8 scaled IDCT decode for large downscales
-- [ ] Decoder-driven resize planning that avoids reconstructing source samples
-  which cannot contribute to the output
+- [x] Native 1/2, 1/4, and 1/8 scaled IDCT decode for baseline and progressive
+  JPEGs, including restart-marker and common subsampling paths
+- [x] Decoder-driven resize planning for full-frame downscales; it selects the
+  largest safe denominator that still supplies the requested output dimensions
+  and avoids reconstructing discarded full-resolution MCU samples
 - [ ] True region decode with restart-marker-assisted seeking where the file
   permits it
 - [ ] Lossless coefficient-domain rotate, flip, transpose, and MCU-aligned crop
@@ -146,6 +148,9 @@ supported until its output is independently validated.
   PureJsImage-to-libjpeg encode/decode paths with PSNR floors in CI
 - [x] Measure absolute peak RSS in isolated cold and warm processes for the
   primary large-JPEG resize workflow
+- [x] Compare 1/2, 1/4, and 1/8 output against the full-resolution resize path
+  and report decoded pixels avoided, wall time, absolute peak RSS, MAE, and
+  PSNR from isolated processes
 - [ ] Continue broadening the compatibility corpus with more phone and camera
   models, image editors, common web upload sources, and a Motion Photo fixture
 - [ ] Add dedicated Adobe RGB, 4:4:0, 4:1:1, unusual

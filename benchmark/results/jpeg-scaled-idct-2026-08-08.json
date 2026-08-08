@@ -1,0 +1,240 @@
+{
+  "generatedAt": "2026-08-08T22:48:33.693Z",
+  "fixture": {
+    "id": "tundra-4000x3000",
+    "file": "tundra-4000x3000.jpg",
+    "bytes": 4768216,
+    "sha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6",
+    "width": 4000,
+    "height": 3000,
+    "sourcePage": "https://commons.wikimedia.org/wiki/File:Tundra_Landscape_(31354285547).jpg",
+    "author": "Pacific Northwest Research Station, Forest Service, USDA; photograph by Janet Prevey",
+    "license": "Public domain, United States Department of Agriculture"
+  },
+  "methodology": {
+    "runs": 3,
+    "isolatedProcessPerMeasurement": true,
+    "warmupsPerMeasurement": 1,
+    "timingScope": "JPEG parse, entropy decode, IDCT, YCbCr-to-RGB conversion, and bilinear resize",
+    "fullResolutionOracle": "The previous 8x8 IDCT path forced with scale denominator 1",
+    "memory": "Absolute process RSS high-water mark after a same-mode warmup; delta uses a post-warmup, five-GC baseline.",
+    "outputError": "Raw resized RGB8 compared channel-by-channel against the full-resolution path"
+  },
+  "summaries": [
+    {
+      "targetWidth": 200,
+      "mode": "full",
+      "scaleDenominator": 1,
+      "decodedWidth": 4000,
+      "decodedHeight": 3000,
+      "decodedPixels": 12000000,
+      "decodedPixelsAvoided": 0,
+      "decodedPixelsAvoidedPercent": 0,
+      "outputBytes": 90000,
+      "outputSha256": "a283fa3e46211e3ccb65b499f21aefa7c54b20ec92474984c4ab4608665db828",
+      "wallMilliseconds": {
+        "median": 728.7727539999998,
+        "p95": 732.203819
+      },
+      "maximumRssBytes": {
+        "median": 101707776,
+        "maximum": 104378368
+      },
+      "peakRssDeltaBytes": {
+        "median": 585728,
+        "maximum": 655360
+      }
+    },
+    {
+      "targetWidth": 200,
+      "mode": "scaled",
+      "scaleDenominator": 8,
+      "decodedWidth": 500,
+      "decodedHeight": 375,
+      "decodedPixels": 187500,
+      "decodedPixelsAvoided": 11812500,
+      "decodedPixelsAvoidedPercent": 98.4375,
+      "outputBytes": 90000,
+      "outputSha256": "db4e40baa5ccbbcb27dcb1983e8aa6145053d3f2ab6b494b615725a34d460354",
+      "wallMilliseconds": {
+        "median": 278.199632,
+        "p95": 280.275893
+      },
+      "maximumRssBytes": {
+        "median": 102207488,
+        "maximum": 103002112
+      },
+      "peakRssDeltaBytes": {
+        "median": 1310720,
+        "maximum": 1310720
+      }
+    },
+    {
+      "targetWidth": 800,
+      "mode": "full",
+      "scaleDenominator": 1,
+      "decodedWidth": 4000,
+      "decodedHeight": 3000,
+      "decodedPixels": 12000000,
+      "decodedPixelsAvoided": 0,
+      "decodedPixelsAvoidedPercent": 0,
+      "outputBytes": 1440000,
+      "outputSha256": "694d6da04ec1345c0f4abe64b1b8d444163dac80b4f19df01d3a4be2cdd0f566",
+      "wallMilliseconds": {
+        "median": 766.912102,
+        "p95": 769.417886
+      },
+      "maximumRssBytes": {
+        "median": 106450944,
+        "maximum": 108404736
+      },
+      "peakRssDeltaBytes": {
+        "median": 3407872,
+        "maximum": 3801088
+      }
+    },
+    {
+      "targetWidth": 800,
+      "mode": "scaled",
+      "scaleDenominator": 4,
+      "decodedWidth": 1000,
+      "decodedHeight": 750,
+      "decodedPixels": 750000,
+      "decodedPixelsAvoided": 11250000,
+      "decodedPixelsAvoidedPercent": 93.75,
+      "outputBytes": 1440000,
+      "outputSha256": "50a7cc1a3c58b44d51a55d34f8ea9522b4694e74db37151da61661a078c0779b",
+      "wallMilliseconds": {
+        "median": 383.608724,
+        "p95": 383.82367999999997
+      },
+      "maximumRssBytes": {
+        "median": 104198144,
+        "maximum": 105914368
+      },
+      "peakRssDeltaBytes": {
+        "median": 1966080,
+        "maximum": 2809856
+      }
+    },
+    {
+      "targetWidth": 1200,
+      "mode": "full",
+      "scaleDenominator": 1,
+      "decodedWidth": 4000,
+      "decodedHeight": 3000,
+      "decodedPixels": 12000000,
+      "decodedPixelsAvoided": 0,
+      "decodedPixelsAvoidedPercent": 0,
+      "outputBytes": 3240000,
+      "outputSha256": "4b0ca4a68f05a8c86bb6a3493ddbb1ab35412b36f04e8430891a5d870c88aa47",
+      "wallMilliseconds": {
+        "median": 819.7519269999999,
+        "p95": 822.0290060000001
+      },
+      "maximumRssBytes": {
+        "median": 108916736,
+        "maximum": 109662208
+      },
+      "peakRssDeltaBytes": {
+        "median": 3670016,
+        "maximum": 4063232
+      }
+    },
+    {
+      "targetWidth": 1200,
+      "mode": "scaled",
+      "scaleDenominator": 2,
+      "decodedWidth": 2000,
+      "decodedHeight": 1500,
+      "decodedPixels": 3000000,
+      "decodedPixelsAvoided": 9000000,
+      "decodedPixelsAvoidedPercent": 75,
+      "outputBytes": 3240000,
+      "outputSha256": "9638bf0a4f02c6dca61f5c9684b3bd752cb563d81696ee75bf9c65456301606c",
+      "wallMilliseconds": {
+        "median": 592.369565,
+        "p95": 598.516579
+      },
+      "maximumRssBytes": {
+        "median": 107089920,
+        "maximum": 108720128
+      },
+      "peakRssDeltaBytes": {
+        "median": 2752512,
+        "maximum": 4325376
+      }
+    }
+  ],
+  "correctness": [
+    {
+      "targetWidth": 200,
+      "width": 200,
+      "height": 150,
+      "scaleDenominator": 8,
+      "fullOutputSha256": "a283fa3e46211e3ccb65b499f21aefa7c54b20ec92474984c4ab4608665db828",
+      "scaledOutputSha256": "db4e40baa5ccbbcb27dcb1983e8aa6145053d3f2ab6b494b615725a34d460354",
+      "maximumChannelError": 156,
+      "meanAbsoluteError": 16.2443,
+      "rootMeanSquareError": 24.723452878233296,
+      "peakSignalToNoiseRatio": 20.26862112399741
+    },
+    {
+      "targetWidth": 800,
+      "width": 800,
+      "height": 600,
+      "scaleDenominator": 4,
+      "fullOutputSha256": "694d6da04ec1345c0f4abe64b1b8d444163dac80b4f19df01d3a4be2cdd0f566",
+      "scaledOutputSha256": "50a7cc1a3c58b44d51a55d34f8ea9522b4694e74db37151da61661a078c0779b",
+      "maximumChannelError": 158,
+      "meanAbsoluteError": 14.090788194444444,
+      "rootMeanSquareError": 21.97402268399363,
+      "peakSignalToNoiseRatio": 21.29261223855223
+    },
+    {
+      "targetWidth": 1200,
+      "width": 1200,
+      "height": 900,
+      "scaleDenominator": 2,
+      "fullOutputSha256": "4b0ca4a68f05a8c86bb6a3493ddbb1ab35412b36f04e8430891a5d870c88aa47",
+      "scaledOutputSha256": "9638bf0a4f02c6dca61f5c9684b3bd752cb563d81696ee75bf9c65456301606c",
+      "maximumChannelError": 84,
+      "meanAbsoluteError": 5.368680555555556,
+      "rootMeanSquareError": 8.799639951248286,
+      "peakSignalToNoiseRatio": 29.241505552914425
+    }
+  ],
+  "independentOracle": {
+    "available": true,
+    "implementation": "ImageMagick scaled JPEG decode with fancy upsampling disabled",
+    "results": [
+      {
+        "width": 500,
+        "height": 375,
+        "scaleDenominator": 8,
+        "maximumChannelError": 1,
+        "meanAbsoluteError": 0.4829262222222222,
+        "rootMeanSquareError": 0.6949289332170753,
+        "peakSignalToNoiseRatio": 51.291995732409575
+      },
+      {
+        "width": 1000,
+        "height": 750,
+        "scaleDenominator": 4,
+        "maximumChannelError": 35,
+        "meanAbsoluteError": 2.6006804444444445,
+        "rootMeanSquareError": 3.8428855477796025,
+        "peakSignalToNoiseRatio": 36.43765460639679
+      },
+      {
+        "width": 2000,
+        "height": 1500,
+        "scaleDenominator": 2,
+        "maximumChannelError": 45,
+        "meanAbsoluteError": 2.3639093333333334,
+        "rootMeanSquareError": 3.6218993789324285,
+        "peakSignalToNoiseRatio": 36.95207599105875
+      }
+    ]
+  }
+}

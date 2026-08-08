@@ -67,7 +67,7 @@
           <p>The public API is common, but codec structure determines the working set. “Supported” does not automatically mean “bounded independently of source dimensions.”</p>
           <!-- capabilities:memory:start -->
           <div class="table-wrap"><table><thead><tr><th>Path</th><th>Current working model</th></tr></thead><tbody>
-            <tr><td><strong>JPEG</strong></td><td>Bounded MCU-row output for baseline JPEG; progressive input retains compact coefficient state</td></tr>
+            <tr><td><strong>JPEG</strong></td><td>Bounded MCU-row output with scaled IDCT for safe full-frame downscales; progressive input retains compact coefficient state</td></tr>
             <tr><td><strong>PNG</strong></td><td>Sequential scanlines and bounded output blocks; Adam7 retains compact requested samples</td></tr>
             <tr><td><strong>WebP</strong></td><td>Current VP8 and VP8L implementations retain source-sized working planes</td></tr>
             <tr><td><strong>BMP</strong></td><td>Region-based row reads; RLE uses compact full-frame index storage</td></tr>
