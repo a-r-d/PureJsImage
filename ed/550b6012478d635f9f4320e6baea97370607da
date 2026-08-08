@@ -1,0 +1,83 @@
+README.md
+  s_4669831c864f0c::t_f48327e851a62d 227-232
+tests/corruption-fuzz.test.ts
+  s_4669831c864f0c::t_f48327e851a62d 12-17,21-22,27-28,30-33,37,39
+  s_4669831c864f0c::t_14c3ec2827f05a 10,29,34,209,213
+  s_4669831c864f0c::t_551dbb40c22d28 215-217,245-252,254-256
+  s_4669831c864f0c::t_dce423c39b8d56 1-2,18-20,23-26,35-36,38,40-122,149,153,155,158,161-162,170-172,176-198,200-202,205-208,210-212,214,218,230,238,257-260,262
+  s_4669831c864f0c::t_4a5e78a81f2567 11
+.agents/skills/release-purejsimage/SKILL.md
+  s_4669831c864f0c::t_14c3ec2827f05a 46,56-59,61,63,65,67,103-104
+  s_4669831c864f0c::t_99f6642fc840fb 52-55
+docs/api.html
+  s_4669831c864f0c::t_f48327e851a62d 177
+docs/performance.html
+  s_74376132a55770::t_1d264f42670b81 92
+  s_74376132a55770::t_20236abe7739f9 93
+tests/source-contract.test.ts
+  s_4669831c864f0c::t_dddbcdec53e6e2 3-4,47-102
+  s_4669831c864f0c::t_4883994b0a6d01 103
+.gitignore
+  s_4669831c864f0c::t_99f6642fc840fb 148-154,160-162,168
+benchmark/results/jpeg2000-real-world-rss-2026-08-08.md
+  s_74376132a55770::t_20236abe7739f9 13-16
+  s_74376132a55770::t_4341731bb4ab38 1-12,17-26
+jpeg2000-codec-support.md
+  s_74376132a55770::t_e7017504e6667f 350
+  s_74376132a55770::t_1d264f42670b81 310-312,320-322,329,342-344
+src/source.ts
+  s_4669831c864f0c::t_dddbcdec53e6e2 1,65-106,267
+  s_4669831c864f0c::t_f48327e851a62d 8,10-11
+benchmark/README.md
+  s_74376132a55770::t_1d264f42670b81 104-111
+CHANGELOG.md
+  s_4669831c864f0c::t_dce423c39b8d56 35-36
+  s_74376132a55770::t_1d264f42670b81 13-15
+  s_4669831c864f0c::t_14c3ec2827f05a 37-39
+tests/jpeg2000-hardening.test.ts
+  s_74376132a55770::t_cecdcea1fd96c9 1-4,6-8,10-95,104-136,140-165,182-204
+  s_74376132a55770::t_4341731bb4ab38 5,9,96-103,166-181
+  s_74376132a55770::t_399fd4c7422715 137-139
+benchmark/jpeg2000/run-rss.ts
+  s_74376132a55770::t_f04960d42fb22a 1-36,39-57
+  s_74376132a55770::t_486518496455db 37-38
+benchmark/jpeg2000/rss-worker.ts
+  s_74376132a55770::t_1bb26341ba3147 96
+  s_74376132a55770::t_f04960d42fb22a 1-92,104-112,116-118
+  s_74376132a55770::t_4341731bb4ab38 93-95,97-103,113-114
+  s_74376132a55770::t_1d264f42670b81 115
+docs/guides.html
+  s_4669831c864f0c::t_f48327e851a62d 72,83
+tests/fuzz-regressions/README.md
+  s_4669831c864f0c::t_dce423c39b8d56 1-6,10-17
+  s_4669831c864f0c::t_14c3ec2827f05a 7-9
+package.json
+  s_4669831c864f0c::t_14c3ec2827f05a 128
+  s_74376132a55770::t_486518496455db 147-148
+benchmark/jpeg2000/verify-corpus.ts
+  s_74376132a55770::t_cecdcea1fd96c9 20-37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "ed550b6012478d635f9f4320e6baea97370607da",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_74376132a55770": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe205-7b4b-7cb3-8899-fe988f8f08bf",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
