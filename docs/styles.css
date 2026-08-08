@@ -2913,6 +2913,17 @@ tr:last-child td {
   text-decoration: none;
 }
 
+.engineering-section .section-note {
+  max-width: 820px;
+  margin: 16px 0 0;
+  color: var(--text-soft);
+  font-size: 14px;
+}
+
+.engineering-section .section-note a {
+  font-weight: 700;
+}
+
 .home-cta-section {
   padding-bottom: 74px;
 }

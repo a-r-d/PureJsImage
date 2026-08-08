@@ -15,9 +15,15 @@ All notable changes to PureJsImage are documented in this file.
   normalization, plus structured ICC and nclx color-profile metadata for HEIF and AVIF.
 - Refreshed the static GitHub Pages documentation with responsive guides, API and codec references,
   benchmark tables, memory-model explanations, and clearer capability boundaries.
+- Documented the progressive JavaScript, optional WASM, and future WebGPU backend roadmap,
+  including capability probing, workload-based selection, bounded GPU memory rules, runtime
+  fallback policy, correctness gates, and a staged browser-first delivery plan.
 
 ### Changed
 
+- Reworked the root README into a shorter human-facing overview with a practical all-codec example,
+  bundle sizes, codec support and compatibility links, benchmark charts, and direct routes to the
+  API, benchmark, browser, temporary-storage, specification, and contributor details.
 - Split Node file, Buffer, zlib, and temporary-file services from the portable codec and pipeline
   core while preserving the existing Node API and measured transform performance.
 - Made Node.js and modern-browser portability an explicit project goal and release requirement.

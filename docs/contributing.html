@@ -40,7 +40,7 @@
           <p>Explain why the feature belongs in PureJsImage and compare its technical value with its bundle-size, memory, maintenance, and API cost.</p>
           <p>For a substantial addition to the core or a default entry point, you may open an issue or discussion first. This is encouraged when the design or bundle impact is uncertain, but it is not required.</p>
           <div class="callout"><strong>Module boundaries.</strong> A transform, codec, provider, or other feature that can use a separate explicit import should remain outside the default bundle. A focused pull request does not require a prior issue.</div>
-          <p>The optimized TypeScript codec remains the default reference and fallback. Optional WASM codecs require explicit imports and registration and must never load or bundle themselves by default.</p>
+          <p>The optimized TypeScript engine remains the default reference and fallback. Optional WASM and future WebGPU providers require explicit imports and registration and must never load or bundle themselves by default. An accelerator must preserve exact pipeline semantics and decline work it cannot express equivalently.</p>
         </section>
 
         <section id="validation">

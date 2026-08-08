@@ -26,7 +26,7 @@
       <article class="content">
         <section id="matrix">
           <h2>At a glance</h2>
-          <p>The current reference implementations are first-party strict TypeScript and never runtime-import native libraries, WASM modules, browsers, or system tools. Future per-codec WASM accelerators will use explicit opt-in imports and registration; the TypeScript codecs remain the default implementations and portable fallbacks.</p>
+          <p>The current reference implementations are first-party strict TypeScript and never runtime-import native libraries, WASM modules, browsers, or system tools. Future WASM codec providers and WebGPU compute providers will use explicit opt-in imports and registration; the TypeScript codecs remain the default implementations and portable fallbacks.</p>
           <div class="table-wrap"><table><thead><tr><th>Codec</th><th>Decode</th><th>Encode</th><th>Primary boundary</th></tr></thead><tbody>
             <tr><td><strong>JPEG</strong></td><td><span class="yes">● Yes</span></td><td><span class="yes">● Baseline</span></td><td>No arithmetic, lossless, or progressive encoding</td></tr>
             <tr><td><strong>JPEG 2000 / JP2</strong></td><td><span class="partial">● Part 1</span></td><td><span class="no">— No</span></td><td>Full-frame grayscale/RGB still-image subset</td></tr>
