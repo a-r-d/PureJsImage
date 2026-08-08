@@ -1,0 +1,424 @@
+{
+  "generatedAt": "2026-08-08T21:11:37.558Z",
+  "revision": "d4b17508923b190308b63d166032b3bb5b553c54",
+  "corpusVersion": 1,
+  "fixtureCount": 25,
+  "isolation": {
+    "timeoutMilliseconds": "120000 (180000 for 200 MP)",
+    "maximumRssBytes": 536870912,
+    "process": "one fresh Node process per PureJsImage decode"
+  },
+  "oracle": {
+    "imageMagick": "Version: ImageMagick 7.1.2-3 Q16 x86_64 23340 https://imagemagick.org",
+    "ffprobe": "ffprobe version 7.1.1-1ubuntu4.2 Copyright (c) 2007-2025 the FFmpeg developers",
+    "pixelComparison": "displayed primary, normalized to sRGB RGBA and at most 1024x1024",
+    "compatibleRmseLimit": 0.035
+  },
+  "statusCounts": {
+    "Compatible": 10,
+    "Explicitly unsupported": 12,
+    "Invalid": 0,
+    "Incorrect pixels": 1,
+    "Unexpected exception": 2,
+    "Timeout": 0,
+    "Excessive memory": 0
+  },
+  "analysis": {
+    "largestFailureCluster": {
+      "feature": "absent or unspecified HEIF/HEVC color-matrix resolution",
+      "explicitUnsupportedResults": 9,
+      "downloadedRealWorldResults": 8,
+      "evidence": [
+        { "fixture": "iphone7-portrait", "details": "Unsupported or unspecified HEIF color matrix: 2" },
+        { "fixture": "iphone7-landscape", "details": "Unsupported or unspecified HEIF color matrix: 2" },
+        { "fixture": "iphone7-front-camera", "details": "Unsupported or unspecified HEIF color matrix: 2" },
+        { "fixture": "iphone7-rotated-180", "details": "Unsupported or unspecified HEIF color matrix: 2" },
+        { "fixture": "libheif-example-main", "details": "Unsupported or unspecified HEIF color matrix: none" },
+        { "fixture": "nokia-winter-direct", "details": "Unsupported or unspecified HEIF color matrix: none" },
+        { "fixture": "nokia-autumn-direct", "details": "Unsupported or unspecified HEIF color matrix: none" },
+        { "fixture": "sdweb-grid", "details": "Unsupported or unspecified HEIF color matrix: none" },
+        { "fixture": "generated-imir", "details": "Unsupported or unspecified HEIF color matrix: 2" }
+      ]
+    },
+    "nextImplementationProject": "Define safe, spec- and metadata-driven matrix defaults from ICC, nclx, VUI, brand, and profile evidence; continue rejecting ambiguous inputs.",
+    "separateCorrectnessFindings": [
+      "Accept the defined hvcC array-completeness bit before claiming current-libheif interoperability.",
+      "Reconcile Main 10/PQ displayed SDR tone mapping with the independent oracle before claiming displayed Main 10 compatibility."
+    ],
+    "multiSliceFixture": "No redistributable or reproducibly downloadable direct multi-slice still fixture was found. Multi-slice inspection exists, while reconstruction remains explicitly unsupported."
+  },
+  "results": [
+    {
+      "fixture": "iphone7-portrait",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: 2",
+      "wallMilliseconds": 86.046,
+      "maximumRssMiB": 141.6,
+      "oracleDimensions": "3024x4032"
+    },
+    {
+      "fixture": "iphone7-landscape",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: 2",
+      "wallMilliseconds": 67.607,
+      "maximumRssMiB": 102,
+      "oracleDimensions": "4032x3024"
+    },
+    {
+      "fixture": "iphone7-front-camera",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: 2",
+      "wallMilliseconds": 53.091,
+      "maximumRssMiB": 125.7,
+      "oracleDimensions": "2320x3088"
+    },
+    {
+      "fixture": "iphone7-rotated-180",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: 2",
+      "wallMilliseconds": 204.891,
+      "maximumRssMiB": 129,
+      "oracleDimensions": "4032x3024"
+    },
+    {
+      "fixture": "iphone12-greyhounds",
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.011517 (limit 0.035)",
+      "wallMilliseconds": 11960.18,
+      "maximumRssMiB": 172.7,
+      "oracleDimensions": "3024x4032",
+      "metadata": {
+        "width": 4032,
+        "height": 3024,
+        "orientation": 8,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3,
+        "colorSpace": "icc",
+        "colorProfile": {
+          "kind": "icc",
+          "description": "Display P3"
+        }
+      },
+      "normalizedRmse": 0.0115165
+    },
+    {
+      "fixture": "iphone12-classic-car",
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.003298 (limit 0.035)",
+      "wallMilliseconds": 10619.859,
+      "maximumRssMiB": 177.7,
+      "oracleDimensions": "3024x4032",
+      "metadata": {
+        "width": 4032,
+        "height": 3024,
+        "orientation": 6,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3,
+        "colorSpace": "icc",
+        "colorProfile": {
+          "kind": "icc",
+          "description": "Display P3"
+        }
+      },
+      "normalizedRmse": 0.00329827
+    },
+    {
+      "fixture": "iphone12-old-safe",
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.011145 (limit 0.035)",
+      "wallMilliseconds": 11755.769,
+      "maximumRssMiB": 187.6,
+      "oracleDimensions": "3024x4032",
+      "metadata": {
+        "width": 4032,
+        "height": 3024,
+        "orientation": 6,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3,
+        "colorSpace": "icc",
+        "colorProfile": {
+          "kind": "icc",
+          "description": "Display P3"
+        }
+      },
+      "normalizedRmse": 0.0111455
+    },
+    {
+      "fixture": "iphone13-ios16-6",
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.011119 (limit 0.035)",
+      "wallMilliseconds": 10558.865,
+      "maximumRssMiB": 216.2,
+      "oracleDimensions": "4032x3024",
+      "metadata": {
+        "width": 4032,
+        "height": 3024,
+        "orientation": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3,
+        "colorSpace": "icc",
+        "colorProfile": {
+          "kind": "icc",
+          "description": "Display P3"
+        }
+      },
+      "normalizedRmse": 0.0111192
+    },
+    {
+      "fixture": "iphone13-ios16-5",
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.033673 (limit 0.035)",
+      "wallMilliseconds": 12108.134,
+      "maximumRssMiB": 274.7,
+      "oracleDimensions": "3024x4032",
+      "metadata": {
+        "width": 4032,
+        "height": 3024,
+        "orientation": 6,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3,
+        "colorSpace": "icc",
+        "colorProfile": {
+          "kind": "icc",
+          "description": "Display P3"
+        }
+      },
+      "normalizedRmse": 0.033673
+    },
+    {
+      "fixture": "iphone13-pro-depth",
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.003127 (limit 0.035)",
+      "wallMilliseconds": 9595.838,
+      "maximumRssMiB": 168.6,
+      "oracleDimensions": "4032x3024",
+      "metadata": {
+        "width": 4032,
+        "height": 3024,
+        "orientation": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3,
+        "colorSpace": "icc",
+        "colorProfile": {
+          "kind": "icc",
+          "description": "Display P3"
+        }
+      },
+      "normalizedRmse": 0.00312728
+    },
+    {
+      "fixture": "xiaomi-mi11i",
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.003605 (limit 0.035)",
+      "wallMilliseconds": 4415.386,
+      "maximumRssMiB": 141.2,
+      "oracleDimensions": "2592x1944",
+      "metadata": {
+        "width": 2592,
+        "height": 1944,
+        "orientation": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3
+      },
+      "normalizedRmse": 0.00360519
+    },
+    {
+      "fixture": "samsung-s24-200mp",
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.030091 (limit 0.035)",
+      "wallMilliseconds": 142949.775,
+      "maximumRssMiB": 338.4,
+      "oracleDimensions": "12240x16320",
+      "metadata": {
+        "width": 16320,
+        "height": 12240,
+        "orientation": 6,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 1
+      },
+      "normalizedRmse": 0.0300914
+    },
+    {
+      "fixture": "samsung-s25-gain-map",
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.009013 (limit 0.035)",
+      "wallMilliseconds": 6585.612,
+      "maximumRssMiB": 172.3,
+      "oracleDimensions": "4000x1848",
+      "metadata": {
+        "width": 4000,
+        "height": 1848,
+        "orientation": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3,
+        "colorSpace": "icc",
+        "colorProfile": {
+          "kind": "icc",
+          "description": "DCI-P3 D65 Gamut with sRGB Transfer"
+        }
+      },
+      "normalizedRmse": 0.00901256
+    },
+    {
+      "fixture": "libheif-example-main",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: none",
+      "wallMilliseconds": 26.479,
+      "maximumRssMiB": 108.3,
+      "oracleDimensions": "1280x854"
+    },
+    {
+      "fixture": "nokia-overlay-alpha",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: Unsupported HEIF primary item type: iovl",
+      "wallMilliseconds": 3.827,
+      "maximumRssMiB": 95.4,
+      "oracleDimensions": "1440x960"
+    },
+    {
+      "fixture": "nokia-winter-direct",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: none",
+      "wallMilliseconds": 15.37,
+      "maximumRssMiB": 107.5,
+      "oracleDimensions": "1440x960"
+    },
+    {
+      "fixture": "nokia-autumn-direct",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: none",
+      "wallMilliseconds": 9.345,
+      "maximumRssMiB": 96.7,
+      "oracleDimensions": "1440x960"
+    },
+    {
+      "fixture": "nokia-timed-sequence",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: Timed HEIF image sequences are unsupported",
+      "wallMilliseconds": 1.37,
+      "maximumRssMiB": 93.6,
+      "oracleDimensions": "256x144"
+    },
+    {
+      "fixture": "libheif-aux-alpha",
+      "expectedStatus": "Unexpected exception",
+      "status": "Unexpected exception",
+      "details": "INVALID_INPUT: HEIF hvcC array reserved bit is set",
+      "wallMilliseconds": 2.311,
+      "maximumRssMiB": 96.1,
+      "oracleDimensions": "512x512"
+    },
+    {
+      "fixture": "apple-vision-pro-spatial",
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.005599 (limit 0.035)",
+      "wallMilliseconds": 6581.588,
+      "maximumRssMiB": 156.6,
+      "oracleDimensions": "2560x2560",
+      "metadata": {
+        "width": 2560,
+        "height": 2560,
+        "orientation": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3,
+        "colorSpace": "icc",
+        "colorProfile": {
+          "kind": "icc",
+          "description": "Display P3"
+        }
+      },
+      "normalizedRmse": 0.00559863
+    },
+    {
+      "fixture": "sdweb-grid",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: none",
+      "wallMilliseconds": 22.431,
+      "maximumRssMiB": 107.6,
+      "oracleDimensions": "1440x960"
+    },
+    {
+      "fixture": "pillow-rext-10bit",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: HEIF item 1 uses an unsupported HEVC profile, chroma format, or bit depth",
+      "wallMilliseconds": 4.77,
+      "maximumRssMiB": 95.4,
+      "oracleDimensions": "128x128"
+    },
+    {
+      "fixture": "libheif-clap",
+      "expectedStatus": "Unexpected exception",
+      "status": "Unexpected exception",
+      "details": "INVALID_INPUT: HEIF hvcC array reserved bit is set",
+      "wallMilliseconds": 2.353,
+      "maximumRssMiB": 93.6,
+      "oracleDimensions": "451x461"
+    },
+    {
+      "fixture": "generated-main10-pq",
+      "expectedStatus": "Incorrect pixels",
+      "status": "Incorrect pixels",
+      "details": "normalized sRGB RMSE 0.112799 (limit 0.035)",
+      "wallMilliseconds": 27.05,
+      "maximumRssMiB": 98.2,
+      "oracleDimensions": "32x32",
+      "metadata": {
+        "width": 32,
+        "height": 32,
+        "orientation": 1,
+        "bitDepth": 10,
+        "chromaSubsampling": "420",
+        "codecProfile": 2,
+        "colorSpace": "rec2020",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 9,
+          "transferCharacteristics": 16,
+          "matrixCoefficients": 9,
+          "fullRange": false
+        }
+      },
+      "normalizedRmse": 0.112799
+    },
+    {
+      "fixture": "generated-imir",
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: 2",
+      "wallMilliseconds": 95.595,
+      "maximumRssMiB": 140.3,
+      "oracleDimensions": "4032x3024"
+    }
+  ]
+}
