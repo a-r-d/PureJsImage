@@ -17,6 +17,11 @@ describe('package contract', () => {
     expect('optionalDependencies' in packageJson).toBe(false)
   })
 
+  it('keeps bundle and deployment size reporting in the full check gate', () => {
+    expect(packageJson.scripts.check).toContain('npm run size')
+    expect(packageJson.scripts.size).toContain('npm run build')
+  })
+
   it('pins benchmark competitors without adding a Canvas library', () => {
     expect(packageJson.devDependencies.sharp).toBe('0.35.3')
     expect(packageJson.devDependencies['image-js']).toBe('1.7.0')

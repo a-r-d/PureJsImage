@@ -1,3 +1,4 @@
+<!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
 # WebP codec support
 
 This document is the capability contract for PureJsImage's first-party WebP
@@ -72,10 +73,12 @@ coverage.
 
 - [x] Static image width, height, alpha, bit-depth, and frame-count reporting
 - [x] Opaque, binary-alpha, and partial-alpha output through `rgba8`
-- [ ] Embedded ICC profile (`ICCP`) parsing and color-managed conversion
-- [ ] EXIF metadata and orientation parsing
+- [x] Embedded ICC profile (`ICCP`) parsing and color-managed conversion
+- [x] EXIF metadata parsing for opt-in preservation and orientation handling
+  through the public pipeline
 - [ ] XMP metadata parsing
-- [ ] Metadata preservation or explicit stripping controls when re-encoding
+- [x] Opt-in compatible ICC and EXIF preservation, with metadata stripped by
+  default
 
 ### Pipeline execution
 
@@ -135,8 +138,9 @@ coverage.
 ### Common container output planned
 
 - [ ] Animated WebP encoding
-- [ ] ICC, EXIF, and XMP writing or preservation
-- [ ] Explicit control over metadata stripping versus preservation
+- [x] ICC and EXIF writing when explicitly preserved
+- [ ] XMP writing or preservation
+- [x] Explicit control over ICC and EXIF stripping versus preservation
 
 ## Correctness and safety contract
 
@@ -164,7 +168,8 @@ coverage.
   represent every simultaneous allocation
 - [ ] Expand the pinned corpus across independent libwebp versions, browsers,
   graphics tools, and real upload sources
-- [ ] Add animated, ICC, EXIF, XMP, unusual partition, alpha-preprocessing, and
+- [x] Cover ICC and EXIF preservation with focused round-trip fixtures
+- [ ] Add animated, XMP, unusual partition, alpha-preprocessing, and
   transform-stress fixtures as those capabilities are implemented
 - [ ] Add malformed RIFF, chunk, Huffman, LZ77, VP8 partition, coefficient, and
   decompression-bomb fuzzing with strict allocation limits

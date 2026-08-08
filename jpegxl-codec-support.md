@@ -1,3 +1,4 @@
+<!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
 # JPEG XL decode support plan
 
 This document is the implementation plan and eventual capability contract for

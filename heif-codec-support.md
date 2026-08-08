@@ -1,3 +1,4 @@
+<!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
 # HEIF / HEIC decode capability and support plan
 
 This document is the implementation plan and eventual capability contract for
@@ -206,8 +207,9 @@ not every auxiliary asset stored beside it.
   pixel decode
 - [x] Ignore unknown non-essential metadata and auxiliary items safely while
   decoding a valid SDR primary
-- [ ] Preserve or intentionally strip EXIF, XMP, and ICC metadata according to
-  an explicit pipeline policy; never preserve it accidentally
+- [x] Preserve compatible EXIF and ICC metadata according to explicit caller
+  options and output-codec support, with stripping as the default
+- [ ] Preserve XMP metadata when explicitly requested
 
 ## Group 2: common compatibility improvements — should have
 

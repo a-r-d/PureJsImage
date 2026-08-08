@@ -110,6 +110,7 @@ coverage, and test commands.
 
 ## Supported codecs
 
+<!-- capabilities:readme:start -->
 | Format | Read | Write |
 | --- | --- | --- |
 | JPEG | Yes | Yes |
@@ -129,16 +130,17 @@ outside it.
 [See the exact codec support matrix →](https://a-r-d.github.io/PureJsImage/codecs.html)
 
 Detailed codec compatibility roadmaps:
-[PNG](https://github.com/a-r-d/PureJsImage/blob/main/png-codec-support.md),
 [JPEG](https://github.com/a-r-d/PureJsImage/blob/main/jpeg-codec-support.md),
-[JPEG 2000](https://github.com/a-r-d/PureJsImage/blob/main/jpeg2000-codec-support.md),
-[GIF](https://github.com/a-r-d/PureJsImage/blob/main/gif-codec-support.md),
+[PNG](https://github.com/a-r-d/PureJsImage/blob/main/png-codec-support.md),
 [WebP](https://github.com/a-r-d/PureJsImage/blob/main/webp-codec-support.md),
 [BMP](https://github.com/a-r-d/PureJsImage/blob/main/bmp-codec-support.md),
-[ICO](https://github.com/a-r-d/PureJsImage/blob/main/ico-codec-support.md),
 [TIFF](https://github.com/a-r-d/PureJsImage/blob/main/tiff-codec-support.md),
-[AVIF](https://github.com/a-r-d/PureJsImage/blob/main/avif-codec-support.md), and
-[HEIF / HEIC](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md).
+[GIF](https://github.com/a-r-d/PureJsImage/blob/main/gif-codec-support.md),
+[ICO](https://github.com/a-r-d/PureJsImage/blob/main/ico-codec-support.md),
+[JPEG 2000 / JP2](https://github.com/a-r-d/PureJsImage/blob/main/jpeg2000-codec-support.md),
+[AVIF](https://github.com/a-r-d/PureJsImage/blob/main/avif-codec-support.md),
+and [HEIF / HEIC](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md).
+<!-- capabilities:readme:end -->
 
 ## Benchmarks
 

@@ -54,6 +54,18 @@ failed benchmark.
 Changes that add or extend public APIs must update the applicable documentation, including the root
 README and public `/docs` pages. Keep capability claims precise and document unsupported boundaries.
 
+Codec support has one authoritative source: `capabilities/manifest.json`. Update its summary fields,
+checklist lines, and test-evidence paths when codec behavior changes, then run:
+
+```sh
+npm run capabilities:generate
+npm run capabilities:check
+```
+
+Do not edit generated README support tables, codec support pages, `docs/capabilities.json`, website
+capability tables, or generated test expectations directly. `npm run check` fails when these outputs
+are stale or when published decoder/encoder support disagrees with the registered codec objects.
+
 Every pull request must update `CHANGELOG.md`. Add a concise entry under the appropriate heading in
 the `[Unreleased]` section. Do not create a release, change the package version, or move entries into
 a versioned section. The release manager, Aaron Decker (`a-r-d`), will prepare releases.

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "codecs": [
+    {
+      "id": "jpeg",
+      "format": "jpeg",
+      "decoder": true,
+      "encoder": true,
+      "evidence": [
+        "tests/jpeg.test.ts",
+        "tests/metadata-preservation.test.ts",
+        "tests/lossy-codec-quality.test.ts"
+      ]
+    },
+    {
+      "id": "png",
+      "format": "png",
+      "decoder": true,
+      "encoder": true,
+      "evidence": [
+        "tests/png.test.ts",
+        "tests/png-compatibility.test.ts",
+        "tests/metadata-preservation.test.ts"
+      ]
+    },
+    {
+      "id": "webp",
+      "format": "webp",
+      "decoder": true,
+      "encoder": true,
+      "evidence": [
+        "tests/webp.test.ts",
+        "tests/metadata-preservation.test.ts",
+        "tests/lossy-codec-quality.test.ts"
+      ]
+    },
+    {
+      "id": "bmp",
+      "format": "bmp",
+      "decoder": true,
+      "encoder": true,
+      "evidence": ["tests/bmp.test.ts"]
+    },
+    {
+      "id": "tiff",
+      "format": "tiff",
+      "decoder": true,
+      "encoder": true,
+      "evidence": ["tests/tiff.test.ts", "tests/metadata-preservation.test.ts"]
+    },
+    {
+      "id": "gif",
+      "format": "gif",
+      "decoder": true,
+      "encoder": false,
+      "evidence": ["tests/gif.test.ts"]
+    },
+    {
+      "id": "ico",
+      "format": "ico",
+      "decoder": true,
+      "encoder": false,
+      "evidence": ["tests/ico.test.ts"]
+    },
+    {
+      "id": "jpeg2000",
+      "format": "jp2",
+      "decoder": true,
+      "encoder": false,
+      "evidence": ["tests/jpeg2000.test.ts", "tests/jpeg2000-hardening.test.ts"]
+    },
+    {
+      "id": "avif",
+      "format": "avif",
+      "decoder": true,
+      "encoder": false,
+      "evidence": ["tests/avif.test.ts", "tests/av1.test.ts", "tests/av1-post-filter.test.ts"]
+    },
+    {
+      "id": "heif",
+      "format": "heif",
+      "decoder": true,
+      "encoder": false,
+      "evidence": ["tests/heif.test.ts", "tests/metadata-preservation.test.ts"]
+    }
+  ]
+}

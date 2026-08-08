@@ -20,9 +20,13 @@ All notable changes to PureJsImage are documented in this file.
   fallback policy, correctness gates, and a staged browser-first delivery plan.
 - Added a reproducible bundle and deployment-footprint comparison for PureJsImage, Jimp, image-js,
   and Sharp, with a matched common codec set and explicit accounting for Sharp's native payload.
+- Added one machine-readable codec capability manifest that generates README, detailed codec,
+  website, public JSON, and compatibility-test expectations, with a stale-output CI gate and a
+  repository agent skill for rolling capabilities out consistently.
 
 ### Changed
 
+- Made bundle and installed-package size reporting part of the mandatory `npm run check` gate.
 - Reworked the root README into a shorter human-facing overview with a practical all-codec example,
   bundle sizes, codec support and compatibility links, benchmark charts, and direct routes to the
   API, benchmark, browser, temporary-storage, specification, and contributor details.

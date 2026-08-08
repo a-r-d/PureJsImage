@@ -18,6 +18,15 @@
   versions, create tags, push release commits, publish to npm, or create GitHub releases.
 - Never request, expose, or store release credentials or npm one-time passwords.
 
+## Codec capability rollouts
+
+- When adding, expanding, restricting, deprecating, or documenting a codec capability, follow the
+  `rollout-codec-capability` repository skill in
+  `.agents/skills/rollout-codec-capability/SKILL.md`.
+- Treat `capabilities/manifest.json` as the only manually edited source for published codec support.
+  Regenerate README, codec pages, website tables, public JSON, and compatibility expectations; do
+  not edit generated capability surfaces directly.
+
 ## Code style
 
 - Write all source, benchmark, script, and test code in TypeScript with strict mode enabled.

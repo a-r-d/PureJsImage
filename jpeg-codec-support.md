@@ -1,3 +1,4 @@
+<!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
 # JPEG codec support
 
 This document is the capability contract for PureJsImage's first-party JPEG
@@ -48,7 +49,8 @@ supported until its output is independently validated.
   device-link, gray, and uncommon parametric or sampled profile forms
 - [ ] Full EXIF, XMP, IPTC/IIM, Photoshop image-resource, JFIF density,
   comment, and application-marker exposure
-- [ ] Metadata preservation when converting or re-encoding a JPEG
+- [x] Opt-in compatible ICC and EXIF preservation, with metadata stripped by
+  default
 - [ ] Higher-quality, chroma-siting-aware upsampling; the current decoder uses
   nearest-sample chroma expansion
 
@@ -117,9 +119,9 @@ supported until its output is independently validated.
 - [ ] Faster integer/fixed-point DCT and quantization without changing decoded
   output beyond defined error bounds
 - [ ] Restart interval and restart marker output
-- [ ] EXIF orientation, ICC, XMP, JFIF density, comment, and application-marker
-  writing or preservation
-- [ ] Explicit control over metadata stripping versus preservation
+- [x] Compatible ICC and EXIF metadata writing when explicitly preserved
+- [ ] XMP, JFIF density, comment, and application-marker writing or preservation
+- [x] Explicit control over ICC and EXIF stripping versus preservation
 - [ ] Custom quantization tables for reproducible advanced workflows
 - [ ] CMYK output if real upload or print workflows justify it
 

@@ -1,3 +1,4 @@
+<!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
 # JPEG 2000 / JP2 decode support plan
 
 This document is the implementation plan and eventual capability contract for

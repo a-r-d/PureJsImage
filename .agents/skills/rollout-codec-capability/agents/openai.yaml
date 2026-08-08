@@ -1,0 +1,4 @@
+interface:
+  display_name: "Roll Out Codec Capability"
+  short_description: "Ship codec capabilities without docs drift"
+  default_prompt: "Use $rollout-codec-capability to add or update a PureJsImage codec capability with tests, manifest updates, generated documentation, and validation."

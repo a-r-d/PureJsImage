@@ -1,3 +1,4 @@
+<!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
 # PNG codec support
 
 This document is the capability contract for PureJsImage's first-party PNG
@@ -52,14 +53,16 @@ have focused fixture or benchmark coverage.
 - [x] Structural grayscale, indexed, and RGB color-family classification from
   the PNG color type
 - [x] Alpha-presence reporting from the color type or `tRNS`
-- [ ] Embedded ICC profile (`iCCP`) parsing and color-managed conversion
-- [ ] `sRGB`, `gAMA`, and `cHRM` parsing with defined color-conversion behavior
-- [ ] EXIF (`eXIf`) orientation and metadata parsing
+- [x] Embedded ICC profile (`iCCP`) parsing and color-managed conversion
+- [x] `sRGB`, `gAMA`, and `cHRM` parsing with defined color-conversion behavior
+- [x] EXIF (`eXIf`) metadata parsing for opt-in preservation and orientation
+  handling through the public pipeline
 - [ ] Physical pixel dimensions (`pHYs`)
 - [ ] Text chunks (`tEXt`, `zTXt`, and `iTXt`) with decompression limits
 - [ ] Significant bits (`sBIT`), suggested palettes, background color, and
   histogram metadata where application workflows need them
-- [ ] Metadata preservation or explicit stripping controls when re-encoding
+- [x] Opt-in compatible ICC and EXIF preservation, with metadata stripped by
+  default
 
 ### Memory and execution
 
@@ -108,9 +111,9 @@ have focused fixture or benchmark coverage.
   current adaptive heuristic
 - [ ] Additional Deflate strategy and memory controls where they improve Lambda
   peak RSS or output size
-- [ ] ICC, sRGB, gamma, chromaticity, EXIF, physical-dimension, and text metadata
-  writing or preservation
-- [ ] Explicit control over metadata stripping versus preservation
+- [x] Compatible ICC and EXIF metadata writing when explicitly preserved
+- [ ] sRGB, gamma, chromaticity, physical-dimension, and text metadata writing
+- [x] Explicit control over ICC and EXIF stripping versus preservation
 
 ## Correctness and safety contract
 

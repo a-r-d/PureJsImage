@@ -1,3 +1,4 @@
+<!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
 # TIFF codec support
 
 This document is the capability contract for PureJsImage's first-party TIFF codec. A checked item is implemented and covered by tests or pinned fixtures. An unchecked item is planned and must remain an explicit unsupported operation until implemented.
@@ -57,6 +58,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Uncompressed 8-bit grayscale
 - [x] Uncompressed 8-bit RGB
 - [x] Uncompressed 8-bit RGBA with unassociated alpha metadata
+- [x] Compatible ICC profile writing when explicitly preserved
 - [x] Public `image.tiff()` and `image.encode('tiff')` APIs
 
 ### Planned
@@ -69,7 +71,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [ ] Tiled and pyramidal TIFF output
 - [ ] Multi-image TIFF output
 - [ ] BigTIFF output
-- [ ] EXIF, XMP, ICC, resolution, and application metadata preservation
+- [ ] EXIF, XMP, resolution, and application metadata preservation
 
 ## Correctness and safety contract
 

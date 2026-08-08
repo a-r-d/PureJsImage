@@ -1,3 +1,4 @@
+<!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
 # BMP codec support
 
 This document is the capability contract for PureJsImage's first-party BMP
