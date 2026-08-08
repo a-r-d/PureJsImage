@@ -22,7 +22,7 @@
 
 <p>
   <a href="https://github.com/a-r-d/PureJsImage/blob/main/package.json"><img alt="Zero runtime dependencies" src="https://img.shields.io/badge/runtime_dependencies-0-2ea44f?style=for-the-badge"></a>
-  <a href="#bundle-size"><img alt="Core bundle Brotli size" src="https://img.shields.io/badge/core_Brotli-8.6_KiB-6f42c1?style=for-the-badge"></a>
+  <a href="#bundle-size"><img alt="Core bundle Brotli size" src="https://img.shields.io/badge/core_Brotli-11.1_KiB-6f42c1?style=for-the-badge"></a>
   <a href="https://github.com/a-r-d/PureJsImage/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/npm/l/purejsimage?style=for-the-badge&amp;color=blue"></a>
   <a href="https://github.com/a-r-d/PureJsImage"><img alt="Pure JavaScript core" src="https://img.shields.io/badge/core-pure_JS-f7df1e?style=for-the-badge&amp;logo=javascript&amp;logoColor=black"></a>
 </p>
@@ -38,8 +38,9 @@
 </div>
 
 PureJsImage is a dependency-free image processing library written in strict
-TypeScript. It is designed for serverless workloads where memory pressure,
-startup portability, and predictable behavior matter as much as raw speed.
+TypeScript. The same first-party codec and pipeline core runs in Node.js and
+modern browsers, with small platform adapters for files, compression, output,
+and bounded temporary storage.
 
 The original motivation was AWS Lambda: common Jimp workflows often retain a
 full source bitmap and large intermediate buffers. PureJsImage instead aims to
@@ -52,9 +53,10 @@ allows it.
 npm install purejsimage
 ```
 
-PureJsImage requires Node.js 22 or newer. Installing it will install one
-package: there are no runtime dependencies, native addons, external binaries,
-or WebAssembly modules.
+The Node entry requires Node.js 22 or newer. Browser applications use the
+explicit `purejsimage/browser` entry (modern bundlers may also select the
+package browser condition). Installing it adds no runtime dependencies, native
+addons, external binaries, or WebAssembly modules.
 
 ### Bundle size
 
@@ -63,12 +65,12 @@ with esbuild minification, gzip level 9, and Brotli quality 11.
 
 | Entry | Minified | gzip | Brotli |
 | --- | ---: | ---: | ---: |
-| Core API | 34.0 KiB | 11.6 KiB | 10.4 KiB |
-| Core + PNG | 61.7 KiB | 21.1 KiB | 18.6 KiB |
-| Core + JPEG | 77.0 KiB | 26.0 KiB | 22.2 KiB |
-| Core + JPEG 2000 | 69.8 KiB | 23.1 KiB | 20.3 KiB |
-| Core + WebP | 83.4 KiB | 30.0 KiB | 25.9 KiB |
-| Core + all codecs | 425.5 KiB | 144.1 KiB | 115.6 KiB |
+| Core API | 36.9 KiB | 12.5 KiB | 11.1 KiB |
+| Core + PNG | 64.1 KiB | 21.8 KiB | 19.1 KiB |
+| Core + JPEG | 79.9 KiB | 26.9 KiB | 23.0 KiB |
+| Core + JPEG 2000 | 72.7 KiB | 24.0 KiB | 21.0 KiB |
+| Core + WebP | 86.3 KiB | 30.9 KiB | 26.6 KiB |
+| Core + all codecs | 427.9 KiB | 144.7 KiB | 116.1 KiB |
 
 Run `npm run size` to reproduce these numbers and see every codec entry.
 Applications import only the codecs they use, so the root API does not pull
@@ -126,6 +128,38 @@ import { pngCodec } from 'purejsimage/codecs/png'
 
 const images = createImageLibrary([jpegCodec, pngCodec])
 ```
+
+### Browser usage
+
+Use the browser entry for DOM-native input and output. A browser `File` is a
+`Blob`, so file inputs, drag-and-drop items, fetched blobs, `ArrayBuffer`,
+`Uint8Array`, and custom range sources all use the same pipeline:
+
+```ts
+import { createImageLibrary } from 'purejsimage/browser'
+import { jpegCodec } from 'purejsimage/codecs/jpeg'
+import { pngCodec } from 'purejsimage/codecs/png'
+
+const images = createImageLibrary([jpegCodec, pngCodec])
+const image = await images.open(file)
+
+const output = await image
+  .autoOrient()
+  .resize({ width: 1200, withoutEnlargement: true })
+  .jpeg({ quality: 80, background: '#ffffff' })
+  .toBlob()
+
+const previewUrl = URL.createObjectURL(output)
+```
+
+Use `toUint8Array()` for encoded bytes or `toSink()` for a custom streaming
+destination. Browsers cannot open arbitrary local path strings; use a `File`,
+`Blob`, fetched bytes, or a custom `ImageSource`. `toFile(path)` remains a Node
+API.
+
+PNG encoding in browsers uses `CompressionStream` and currently supports the
+default `compressionLevel: 6`; other levels fail explicitly because the browser
+API does not expose compression tuning.
 
 Create the library once and reuse it across requests. Codec registration is
 immutable after initialization.
@@ -219,8 +253,10 @@ entropy decode, palette/component mapping, alpha channels, ICC color, or
 encoding. Unsupported color, channel-mapping, and coding inputs fail explicitly;
 ordinary crop and resize workflows currently use the documented full-frame path.
 
-Inputs can be file paths, `Buffer`, `Uint8Array`, `ArrayBuffer`, `Blob`, or a custom
-`ImageSource`. Pipelines are immutable and can output a `Buffer` or write directly to a file.
+Node inputs can be file paths, `Buffer`, `Uint8Array`, `ArrayBuffer`, `Blob`, or
+a custom `ImageSource`, with Buffer and direct-file output. Browser inputs can
+be `File`/`Blob`, `Uint8Array`, `ArrayBuffer`, or a custom `ImageSource`, with
+`Uint8Array`, `Blob`, or custom-sink output.
 
 `Buffer`, `Uint8Array`, and `ArrayBuffer` inputs are borrowed without copying to keep peak memory
 bounded. Do not mutate or detach them until every pipeline created from the image has finished.
@@ -241,10 +277,12 @@ header dimensions. Both limits can be overridden through `open(input, { limits: 
 
 EXIF orientations 3 through 8 and arbitrary-angle rotations require output rows in a different
 order from a sequential decoder. PureJsImage keeps memory bounded by spooling 32x32 pixel tiles to a
-temporary file under `os.tmpdir()` and removes the temporary directory on success or failure. Plan
+runtime temporary store. Node uses a temporary file under `os.tmpdir()` and removes the temporary directory on success or failure. Plan
 for roughly one decoded frame of temporary disk capacity: a 100-megapixel RGBA image needs about
 400 MB, including small tile-edge padding. On AWS Lambda this consumes the function's configured
-`/tmp` storage.
+`/tmp` storage. Modern browsers use origin-private file storage when available;
+otherwise images requiring at most 32 MiB of tile storage use a chunked memory
+fallback, and larger transforms fail explicitly.
 Exhausted or unavailable temporary storage fails with an `ImageError`; capacity errors such as
 `ENOSPC` use `LIMIT_EXCEEDED`.
 
@@ -257,7 +295,8 @@ until decoder or encoder boundaries can carry transposed tiles directly.
 
 - Keep peak memory low enough for practical AWS Lambda image processing.
 - Avoid source-sized RGBA bitmaps when a bounded codec path is possible.
-- Ship as one portable npm package with zero runtime dependencies.
+- Ship as one portable npm package with zero runtime dependencies, with tested
+  Node.js and modern-browser entries over one codec and pipeline core.
 - Keep the reference codecs in first-party strict TypeScript with no required
   native modules or WASM.
 - Reject malformed or unsupported input explicitly.

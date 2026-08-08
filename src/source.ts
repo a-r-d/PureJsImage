@@ -13,7 +13,7 @@ export interface ImageSource {
   read(offset: number, length: number): Promise<Uint8Array>
 }
 
-export type ImageInput = ArrayBuffer | Blob | ImageSource | Uint8Array | string
+export type ImageInput = ArrayBuffer | Blob | ImageSource | Uint8Array
 
 const defaultBufferBytes = 262_144
 const defaultBufferSlots = 4
@@ -206,54 +206,12 @@ export class BufferedSource implements ImageSource {
   }
 }
 
-const fileBackingSource = (path: string, size: number): ImageSource => ({
-  size,
-  async read(offset: number, length: number): Promise<Uint8Array> {
-    const available = readLength(size, offset, length)
-    if (available === 0) return new Uint8Array()
-
-    const { open } = await import('node:fs/promises')
-    const file = await open(path, 'r')
-    try {
-      const output = new Uint8Array(available)
-      const { bytesRead } = await file.read(output, 0, available, offset)
-      return output.subarray(0, bytesRead)
-    } finally {
-      await file.close()
-    }
-  },
-})
-
-export class FileSource implements ImageSource {
-  readonly path: string
-  readonly size: number
-  readonly #backing: ImageSource
-
-  private constructor(path: string, size: number) {
-    this.path = path
-    this.size = size
-    this.#backing = fileBackingSource(path, size)
-  }
-
-  static async open(path: string): Promise<FileSource> {
-    const { stat } = await import('node:fs/promises')
-    const file = await stat(path)
-    if (!file.isFile()) throw invalidInput(`Image path is not a file: ${path}`)
-    return new FileSource(path, file.size)
-  }
-
-  async read(offset: number, length: number): Promise<Uint8Array> {
-    return this.#backing.read(offset, length)
-  }
-}
-
 export const createImageSource = async (
   input: ImageInput,
   limits: ImageLimits,
 ): Promise<ImageSource> => {
   let source: ImageSource
-  if (typeof input === 'string') source = await FileSource.open(input)
-  else if (input instanceof Blob) source = new BlobSource(input)
+  if (input instanceof Blob) source = new BlobSource(input)
   else if (input instanceof Uint8Array || input instanceof ArrayBuffer)
     source = new MemorySource(input)
   else if (

@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createOrientationTransform } from '../src/orient.ts'
+import { nodeRuntime } from '../src/node-runtime.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 
 interface StorageFailure {
@@ -76,7 +77,7 @@ describe('auto-orient temporary storage', () => {
         yield block(0, 1)
         throw decoderFailure
       }
-      const orientation = createOrientationTransform(2, 2, 'rgba8', 6)
+      const orientation = createOrientationTransform(2, 2, 'rgba8', 6, nodeRuntime)
 
       await expect(drain(orientation.apply(blocks()))).rejects.toBe(decoderFailure)
       expect(await readdir(root)).toEqual([])
@@ -89,7 +90,7 @@ describe('auto-orient temporary storage', () => {
       const blocks = async function* (): AsyncGenerator<PixelBlock> {
         yield block(0, 2)
       }
-      const orientation = createOrientationTransform(2, 2, 'rgba8', 8)
+      const orientation = createOrientationTransform(2, 2, 'rgba8', 8, nodeRuntime)
 
       await expect(drain(orientation.apply(blocks()))).rejects.toMatchObject({
         name: 'ImageError',

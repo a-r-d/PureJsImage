@@ -68,9 +68,10 @@ describe('package contract', () => {
     expect(runtimeModules.some((path) => path.startsWith(`codec-entries/`))).toBe(false)
   })
 
-  it('publishes codecs only through explicit package subpaths', () => {
+  it('publishes browser and codec capabilities through explicit package subpaths', () => {
     expect(Object.keys(packageJson.exports)).toEqual([
       '.',
+      './browser',
       './codecs/all',
       './codecs/avif',
       './codecs/bmp',

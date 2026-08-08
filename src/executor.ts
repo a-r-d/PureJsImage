@@ -7,6 +7,7 @@ import { normalizeExifOrientation } from './metadata.ts'
 import { createOrientationTransform, type ExifOrientation } from './orient.ts'
 import { normalizedRotation, type PipelineOperation } from './pipeline.ts'
 import type { PixelBlock } from './pixel.ts'
+import type { ImageRuntime } from './runtime.ts'
 import { createResizeTransform } from './resize.ts'
 import { createRotationTransform } from './rotate.ts'
 import type { ImageSink } from './sink.ts'
@@ -17,6 +18,7 @@ interface ExecutionContext {
   readonly codec: ImageCodec
   readonly registry: CodecRegistry
   readonly limits: ImageLimits
+  readonly runtime: ImageRuntime
 }
 
 interface Region {
@@ -191,6 +193,7 @@ export const executePipeline = async (
           height,
           pixelFormat,
           sourceOrientation,
+          context.runtime,
         )
         width = orientation.width
         height = orientation.height
@@ -201,6 +204,7 @@ export const executePipeline = async (
           height,
           pixelFormat,
           operation.type === 'flip' ? 4 : 2,
+          context.runtime,
         )
         blocks = orientation.apply(blocks)
       } else if (operation.type === 'rotate') {
@@ -212,6 +216,7 @@ export const executePipeline = async (
             height,
             pixelFormat,
             degrees === 90 ? 6 : degrees === 180 ? 3 : 8,
+            context.runtime,
           )
           width = orientation.width
           height = orientation.height
@@ -223,6 +228,7 @@ export const executePipeline = async (
             pixelFormat,
             degrees,
             operation.options.background,
+            context.runtime,
           )
           width = rotation.width
           height = rotation.height
@@ -242,6 +248,7 @@ export const executePipeline = async (
       height,
       pixelFormat,
       options: output.options,
+      runtime: context.runtime,
       ...(!exif && !icc
         ? {}
         : {

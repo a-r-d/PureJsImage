@@ -37,6 +37,34 @@
 - Do not add features solely for API breadth. Optimize the workflows in the project specification and
   benchmark suite.
 
+## Runtime portability
+
+- PureJsImage must support both Node.js and modern browsers. Treat browser support as a release
+  requirement for the shared codec, pipeline, transform, source, sink, and public API behavior—not
+  as a best-effort compatibility layer.
+- Keep the portable module graph free of Node built-ins, Node-only globals, and Node-only public
+  types. Do not use `node:*`, `Buffer`, filesystem paths, or Node streams in modules reachable from
+  `purejsimage/browser` or the codec entry points.
+- Put Node path, Buffer, zlib, and temporary-file behavior behind the Node platform adapters. Put
+  browser File/Blob, Uint8Array/Blob output, CompressionStream, and origin-private storage behavior
+  behind the browser adapters. Do not duplicate codec or pixel-processing implementations between
+  runtimes.
+- Browsers cannot open arbitrary local path strings. Browser inputs should use File/Blob,
+  ArrayBuffer, Uint8Array, fetched bytes, or an explicit `ImageSource`; browser outputs should use
+  Uint8Array, Blob, or an explicit `ImageSink`.
+- Resolve runtime capabilities and select adapters before entering codec or pixel hot loops. Never
+  add repeated environment detection, polymorphic runtime branching, or platform lookups inside
+  per-pixel, per-row, per-coefficient, or entropy loops.
+- Feature-detect browser primitives such as CompressionStream and OPFS. Any fallback must be
+  bounded, documented, and tested; when a safe bounded fallback is unavailable, throw an explicit
+  `ImageError` instead of silently allocating a source-sized bitmap or loading a polyfill.
+- Preserve existing Node performance and memory behavior when adding browser support. Browser
+  portability work must not replace a bounded Node path with a generic full-frame implementation.
+- For changes to public APIs, codecs, transforms, compression, sources, sinks, packaging, or runtime
+  adapters, run `npm run browser:check` and add focused browser coverage. Changes to browser runtime
+  behavior must also be exercised in a real modern browser, while `npm run check` remains the full
+  handoff gate.
+
 ## Lambda memory northstar
 
 - The original production problem behind PureJsImage is Jimp's high peak memory in AWS Lambda image

@@ -4,6 +4,20 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added an explicit modern-browser entry with File/Blob, ArrayBuffer, Uint8Array, Blob output,
+  custom sinks, browser-safe TypeScript declarations, and a browser bundle gate that rejects Node
+  built-ins across the full codec graph.
+- Added browser PNG encoding through `CompressionStream` and bounded browser rotation/orientation
+  storage through OPFS with a capped 32 MiB chunked-memory fallback.
+
+### Changed
+
+- Split Node file, Buffer, zlib, and temporary-file services from the portable codec and pipeline
+  core while preserving the existing Node API and measured transform performance.
+- Made Node.js and modern-browser portability an explicit project goal and release requirement.
+
 ## [0.6.0] - 2026-08-08
 
 ### Added

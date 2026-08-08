@@ -11,7 +11,8 @@ import {
   MemorySource,
   type ImageSource,
 } from '../src/index.ts'
-import { BufferedSource, createImageSource, SourceReader } from '../src/source.ts'
+import { createImageSource } from '../src/node-source.ts'
+import { BufferedSource, SourceReader } from '../src/source.ts'
 
 const temporaryDirectories: string[] = []
 

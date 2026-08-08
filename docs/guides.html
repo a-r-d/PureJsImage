@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Install PureJsImage, register codecs, compose immutable image pipelines, and deploy safely in AWS Lambda.">
+  <meta name="description" content="Use PureJsImage in Node.js and modern browsers, register codecs, and compose low-memory immutable image pipelines.">
   <meta name="theme-color" content="#f6f7f2">
   <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/guides.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -20,7 +20,7 @@
   </div></header>
 
   <main id="main">
-    <header class="page-hero"><div class="container"><p class="eyebrow">Getting started</p><h1>A direct path from bytes to a validated image.</h1><p class="page-lede">Set up a codec registry once, compose an immutable pipeline, and execute only when you choose an output sink.</p><div class="page-meta"><span class="pill">Node.js 22+</span><span class="pill">ES modules</span><span class="pill">Strict TypeScript</span></div></div></header>
+    <header class="page-hero"><div class="container"><p class="eyebrow">Getting started</p><h1>A direct path from bytes to a validated image.</h1><p class="page-lede">Set up a codec registry once, compose an immutable pipeline, and execute only when you choose an output sink.</p><div class="page-meta"><span class="pill">Node.js 22+</span><span class="pill">Modern browsers</span><span class="pill">Strict TypeScript</span></div></div></header>
     <div class="container docs-layout">
       <aside class="side-nav" aria-label="Documentation pages">
         <div class="nav-group"><strong>Learn</strong><a href="guides.html" aria-current="page">Getting started</a><a href="guides.html#recipes">Recipes</a><a href="guides.html#lambda">Lambda guide</a></div>
@@ -29,9 +29,31 @@
       <article class="content">
         <section id="install">
           <h2>Install</h2>
-          <p>PureJsImage requires Node.js 22 or newer. The published package has no runtime dependencies, native addons, external binaries, or WebAssembly modules.</p>
+          <p>The Node entry requires Node.js 22 or newer. Modern browser applications use <code>purejsimage/browser</code>. The published package has no runtime dependencies, native addons, external binaries, or required WebAssembly modules.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">Terminal</span></div><button class="code-copy" type="button" data-copy="install-code">Copy</button><pre><code id="install-code">npm install purejsimage</code></pre></div>
           <p>The package is ESM and includes its TypeScript declarations. Import the core API and each codec from its own entry point so your application loads only what it accepts.</p>
+        </section>
+
+        <section id="browser">
+          <h2>Run in a browser</h2>
+          <p>The browser entry uses the same codecs, limits, immutable pipeline, and pixel kernels as Node. Its platform adapter accepts DOM-native files and returns web-native output without Buffer polyfills or Node built-ins.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">browser-images.ts</span></div><button class="code-copy" type="button" data-copy="browser-code">Copy</button><pre><code id="browser-code"><span class="tok-key">import</span> { createImageLibrary } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/browser'</span>
+<span class="tok-key">import</span> { jpegCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/jpeg'</span>
+<span class="tok-key">import</span> { pngCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/png'</span>
+
+<span class="tok-key">const</span> images = <span class="tok-method">createImageLibrary</span>([jpegCodec, pngCodec])
+<span class="tok-key">const</span> image = <span class="tok-key">await</span> images.<span class="tok-method">open</span>(file)
+
+<span class="tok-key">const</span> output = <span class="tok-key">await</span> image
+  .<span class="tok-method">autoOrient</span>()
+  .<span class="tok-method">resize</span>({ width: <span class="tok-number">1200</span>, withoutEnlargement: <span class="tok-key">true</span> })
+  .<span class="tok-method">jpeg</span>({ quality: <span class="tok-number">80</span> })
+  .<span class="tok-method">toBlob</span>()
+
+preview.src = URL.<span class="tok-method">createObjectURL</span>(output)</code></pre></div>
+          <p>Use <code>File</code>/<code>Blob</code>, <code>ArrayBuffer</code>, <code>Uint8Array</code>, or a custom <code>ImageSource</code> for input. Use <code>toUint8Array()</code>, <code>toBlob()</code>, or <code>toSink()</code> for output. Browser security does not permit arbitrary local path strings, so <code>toFile(path)</code> is Node-only.</p>
+          <div class="callout"><strong>Bounded browser transforms.</strong> Rotation and row-reordering orientation use origin-private file storage when available. A 32 MiB chunked memory fallback handles smaller images when private storage is unavailable; larger requests fail explicitly instead of allocating an unbounded bitmap.</div>
+          <div class="callout warning"><strong>PNG compression.</strong> Browser PNG output uses <code>CompressionStream</code> and currently accepts the default <code>compressionLevel: 6</code> only. Other levels fail with <code>UNSUPPORTED_OPERATION</code>.</div>
         </section>
 
         <section id="library">
@@ -56,7 +78,7 @@ console.<span class="tok-method">log</span>(images.<span class="tok-method">form
 
         <section id="open">
           <h2>Open an image</h2>
-          <p><code>open()</code> detects the registered format from content, not the filename. It accepts a path, <code>Buffer</code>, <code>Uint8Array</code>, <code>ArrayBuffer</code>, <code>Blob</code>, or custom <code>ImageSource</code>.</p>
+          <p><code>open()</code> detects the registered format from content, not the filename. Node accepts a path, <code>Buffer</code>, <code>Uint8Array</code>, <code>ArrayBuffer</code>, <code>Blob</code>, or custom <code>ImageSource</code>. Browsers accept <code>File</code>/<code>Blob</code>, <code>Uint8Array</code>, <code>ArrayBuffer</code>, or a custom source.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">inspect.ts</span></div><button class="code-copy" type="button" data-copy="open-code">Copy</button><pre><code id="open-code"><span class="tok-key">const</span> image = <span class="tok-key">await</span> images.<span class="tok-method">open</span>(<span class="tok-string">'photo.jpg'</span>)
 <span class="tok-key">const</span> metadata = <span class="tok-key">await</span> image.<span class="tok-method">metadata</span>()
 
@@ -203,7 +225,7 @@ console.<span class="tok-method">log</span>({
           <p>See the <a href="api.html#errors">error reference</a> for the meaning of each category.</p>
         </section>
       </article>
-      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#install">Install</a><a href="#library">Create a library</a><a href="#open">Open an image</a><a href="#pipeline">Build a pipeline</a><a href="#recipes">Recipes</a><a href="#lambda">Deploy on Lambda</a><a href="#errors">Handle failures</a></aside>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#install">Install</a><a href="#library">Create a library</a><a href="#browser">Browser</a><a href="#open">Open an image</a><a href="#pipeline">Build a pipeline</a><a href="#recipes">Recipes</a><a href="#lambda">Deploy on Lambda</a><a href="#errors">Handle failures</a></aside>
     </div>
   </main>
 

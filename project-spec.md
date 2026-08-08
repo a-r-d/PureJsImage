@@ -91,7 +91,10 @@ problem.
 
 # 2. Project Goals
 
-PureJsImage has four top-level goals, in priority order.
+PureJsImage has five top-level goals. Runtime portability is a release
+requirement alongside size, speed, memory behavior, and codec compatibility;
+an implementation is not complete if the same public pipeline can only run in
+one JavaScript host.
 
 ## 2.1 Small
 
@@ -217,7 +220,26 @@ their capacity requirement still scales with decoded pixel area.
 
 ---
 
-## 2.4 Broad modern format compatibility
+## 2.4 Portable across modern JavaScript runtimes
+
+The first-party TypeScript engine should run in modern browsers and server
+runtimes without changing codec or pipeline semantics. Node.js is a primary
+production target, not an assumption embedded in the portable core.
+
+The shared runtime graph must use standard JavaScript, TypedArrays, Blob, and
+explicit source, sink, compression, and temporary-storage interfaces. Platform
+adapters may provide Node file paths and temporary files, browser File/Blob
+input, browser Blob output, CompressionStream, and origin-private storage.
+
+Platform capability selection must happen outside codec and pixel hot loops.
+Missing browser primitives must fail explicitly or use a documented bounded
+fallback; they must never silently switch to an unbounded full-frame bitmap.
+Every release should verify a browser-targeted bundle with no Node built-ins and
+run representative decode, transform, and encode pipelines in a real browser.
+
+---
+
+## 2.5 Broad modern format compatibility
 
 The architecture should not hard-code knowledge of five image formats into the processing engine.
 
@@ -2309,6 +2331,9 @@ Required:
 * metadata access without mutable bitmap access
 * Buffer input/output
 * file input/output on Node
+* Blob, File, ArrayBuffer, and Uint8Array input in modern browsers
+* Uint8Array, Blob, and custom sink output in modern browsers
+* browser-targeted packaging without Node built-ins or Buffer polyfills
 * strict input limits
 * good error handling
 * benchmark suite
@@ -2320,7 +2345,8 @@ Strongly desirable:
 
 * streaming output
 * WebP
-* browser support
+* additional browser storage and compression backends beyond the required
+  modern baseline
 
 Not required:
 

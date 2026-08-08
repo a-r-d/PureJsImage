@@ -2,6 +2,7 @@ import { invalidInput, unsupportedFormat, unsupportedOperation } from './errors.
 import { recognizeInputFormat } from './input-format.ts'
 import type { ImageLimits } from './limits.ts'
 import type { PixelBlock, PixelFormat } from './pixel.ts'
+import type { ImageRuntime } from './runtime.ts'
 import type { ImageSink } from './sink.ts'
 import type { ImageSource } from './source.ts'
 
@@ -125,6 +126,7 @@ export interface EncodeRequest {
   readonly pixelFormat: PixelFormat
   readonly options: unknown
   readonly metadata?: Readonly<PreservedMetadata>
+  readonly runtime?: ImageRuntime
 }
 
 export interface ImageCodec {

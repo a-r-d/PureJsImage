@@ -1,9 +1,8 @@
-import type { FileHandle } from 'node:fs/promises'
-
 import { ImageError, invalidInput, truncatedInput } from './errors.ts'
 import type { Background } from './pipeline.ts'
 import { normalizedRotation, rotationDimensions } from './pipeline.ts'
 import type { PixelBlock, PixelFormat } from './pixel.ts'
+import type { ImageRuntime, TemporaryStore } from './runtime.ts'
 
 export interface RotationTransform {
   readonly width: number
@@ -36,41 +35,32 @@ const temporaryStorageError = (operation: string, error: unknown): ImageError =>
   )
 }
 
-const writeAll = async (file: FileHandle, data: Uint8Array, position: number): Promise<void> => {
-  let written = 0
-  while (written < data.byteLength) {
-    let bytesWritten: number
-    try {
-      ;({ bytesWritten } = await file.write(
-        data,
-        written,
-        data.byteLength - written,
-        position + written,
-      ))
-    } catch (error) {
-      throw temporaryStorageError('write', error)
-    }
-    if (bytesWritten < 1) throw temporaryStorageError('write', new Error('Write made no progress'))
-    written += bytesWritten
+const writeAll = async (
+  store: TemporaryStore,
+  data: Uint8Array,
+  position: number,
+): Promise<void> => {
+  try {
+    await store.write(position, data)
+  } catch (error) {
+    throw temporaryStorageError('write', error)
   }
 }
 
-const readAll = async (file: FileHandle, data: Uint8Array, position: number): Promise<void> => {
-  let read = 0
-  while (read < data.byteLength) {
-    let bytesRead: number
-    try {
-      ;({ bytesRead } = await file.read(data, read, data.byteLength - read, position + read))
-    } catch (error) {
-      throw temporaryStorageError('read', error)
-    }
-    if (bytesRead < 1) throw truncatedInput('Temporary rotation data is truncated')
-    read += bytesRead
+const readAll = async (
+  store: TemporaryStore,
+  data: Uint8Array,
+  position: number,
+): Promise<void> => {
+  try {
+    await store.read(position, data)
+  } catch (error) {
+    throw temporaryStorageError('read', error)
   }
 }
 
 const spoolTiles = async (
-  file: FileHandle,
+  store: TemporaryStore,
   blocks: AsyncIterable<PixelBlock>,
   width: number,
   height: number,
@@ -112,7 +102,7 @@ const spoolTiles = async (
       }
       receivedRows += 1
       if (receivedRows % tileSize === 0) {
-        await writeAll(file, tileRow, tileY * tileRow.byteLength)
+        await writeAll(store, tileRow, tileY * tileRow.byteLength)
         tileRow.fill(0)
         tileY += 1
       }
@@ -120,7 +110,7 @@ const spoolTiles = async (
   }
   if (receivedRows !== height)
     throw truncatedInput(`Rotate received ${receivedRows} of ${height} rows`)
-  if (receivedRows % tileSize !== 0) await writeAll(file, tileRow, tileY * tileRow.byteLength)
+  if (receivedRows % tileSize !== 0) await writeAll(store, tileRow, tileY * tileRow.byteLength)
   return { tilesAcross, tileBytes }
 }
 
@@ -148,6 +138,7 @@ const rotatedBlocks = async function* (
   outputWidth: number,
   outputHeight: number,
   outputFormat: PixelFormat,
+  runtime: ImageRuntime,
 ): AsyncGenerator<PixelBlock> {
   const sourceChannels = channels(sourceFormat)
   const outputChannels = channels(outputFormat)
@@ -155,25 +146,24 @@ const rotatedBlocks = async function* (
   const radians = (normalizedRotation(degrees) * Math.PI) / 180
   const cosine = Math.cos(radians)
   const sine = Math.sin(radians)
-  const { join } = await import('node:path')
-  const { tmpdir } = await import('node:os')
-  const { mkdtemp, open, rm } = await import('node:fs/promises')
-  let directory: string | undefined
-  let file: FileHandle | undefined
+  const tilesAcross = Math.ceil(sourceWidth / tileSize)
+  const tileRows = Math.ceil(sourceHeight / tileSize)
+  const tileBytes = tileSize * tileSize * sourceChannels
+  let store: TemporaryStore | undefined
   let operationError: unknown
   let cleanupError: ImageError | undefined
 
   try {
     try {
-      directory = await mkdtemp(join(tmpdir(), 'purejsimage-rotate-'))
-      file = await open(join(directory, 'tiles'), 'w+')
+      store = await runtime.createTemporaryStore({
+        expectedBytes: tilesAcross * tileRows * tileBytes,
+        prefix: 'purejsimage-rotate-',
+      })
     } catch (error) {
       throw temporaryStorageError('setup', error)
     }
-    if (!file) throw temporaryStorageError('setup', new Error('Temporary file was not opened'))
-    const activeFile = file
-    const { tilesAcross, tileBytes } = await spoolTiles(
-      activeFile,
+    const spooled = await spoolTiles(
+      store,
       blocks,
       sourceWidth,
       sourceHeight,
@@ -213,8 +203,8 @@ const rotatedBlocks = async function* (
           for (let tileY = firstTileY; tileY <= lastTileY; tileY += 1) {
             for (let tileX = firstTileX; tileX <= lastTileX; tileX += 1) {
               const tileIndex = tileY * tilesAcross + tileX
-              const tile = new Uint8Array(tileBytes)
-              await readAll(activeFile, tile, tileIndex * tileBytes)
+              const tile = new Uint8Array(spooled.tileBytes)
+              await readAll(store, tile, tileIndex * spooled.tileBytes)
               cachedTiles.set(tileIndex, tile)
             }
           }
@@ -296,18 +286,11 @@ const rotatedBlocks = async function* (
   } catch (error) {
     operationError = error
   } finally {
-    if (file) {
+    if (store) {
       try {
-        await file.close()
+        await store.close()
       } catch (error) {
         cleanupError = temporaryStorageError('close', error)
-      }
-    }
-    if (directory) {
-      try {
-        await rm(directory, { recursive: true, force: true })
-      } catch (error) {
-        cleanupError ??= temporaryStorageError('cleanup', error)
       }
     }
   }
@@ -321,6 +304,7 @@ export const createRotationTransform = (
   format: PixelFormat,
   degrees: number,
   backgroundOption: Background | undefined,
+  runtime: ImageRuntime,
 ): RotationTransform => {
   channels(format)
   const dimensions = rotationDimensions(width, height, degrees)
@@ -341,6 +325,7 @@ export const createRotationTransform = (
         dimensions.width,
         dimensions.height,
         pixelFormat,
+        runtime,
       ),
   }
 }

@@ -69,13 +69,16 @@
             <article class="api-item" data-search-item><h3>flip()</h3><p>Mirrors pixels vertically, from top to bottom.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>flop()</h3><p>Mirrors pixels horizontally, from left to right.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>jpeg(options?)</h3><p>Appends JPEG output. Quality is 1–100; background accepts transparent, #RRGGBB, or #RRGGBBAA; chroma subsampling is 420, 422, or 444.</p><span class="returns">returns Image</span></article>
-            <article class="api-item" data-search-item><h3>png(options?)</h3><p>Appends 8-bit PNG output. Compression level is an integer from 0–9.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>png(options?)</h3><p>Appends 8-bit PNG output. Node supports compression levels 0–9; browser CompressionStream output currently supports the default level 6.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>webp(options?)</h3><p>Appends static lossy or lossless WebP output. Lossy quality is 1–100.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>bmp(options?)</h3><p>Appends BMP output. The alpha option selects 32-bit RGBA or 24-bit RGB output.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>tiff(options?)</h3><p>Appends TIFF output. The current encoder supports uncompressed output only.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>encode(format, options?)</h3><p>Generic equivalent to the format-specific encoder methods for <code>jpeg</code>, <code>png</code>, <code>webp</code>, <code>bmp</code>, and <code>tiff</code>.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>toBuffer()</h3><p>Executes the pipeline and collects encoded chunks into a Node.js <code>Buffer</code>.</p><span class="returns">returns Promise&lt;Buffer&gt;</span></article>
-            <article class="api-item" data-search-item><h3>toFile(path)</h3><p>Executes into a file sink. If encoding fails, the partial output file is removed.</p><span class="returns">returns Promise&lt;void&gt;</span></article>
+            <article class="api-item" data-search-item><h3>toUint8Array()</h3><p>Executes and returns portable encoded bytes. Available in Node and browsers.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
+            <article class="api-item" data-search-item><h3>toBlob()</h3><p>Executes and returns a Blob with the registered output codec MIME type. Intended for browser previews, uploads, and downloads.</p><span class="returns">returns Promise&lt;Blob&gt;</span></article>
+            <article class="api-item" data-search-item><h3>toSink(sink)</h3><p>Executes into a custom <code>ImageSink</code> for streaming or application-owned output.</p><span class="returns">returns Promise&lt;void&gt;</span></article>
+            <article class="api-item" data-search-item><h3>toFile(path)</h3><p>Node-only file output. If encoding fails, the partial output file is removed.</p><span class="returns">returns Promise&lt;void&gt;</span></article>
           </div>
           <div class="callout warning"><strong>Progressive output.</strong> <code>JpegEncodeOptions</code> reserves a <code>progressive</code> field, but progressive JPEG encoding is not implemented in the current codec. Progressive JPEG decoding is supported.</div>
         </section>
@@ -163,7 +166,8 @@
 
         <section id="sources" data-search-item>
           <h2>Inputs &amp; sources</h2>
-          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">type</span> ImageInput = ArrayBuffer | Blob | ImageSource | Uint8Array | string
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">type</span> BrowserImageInput = ArrayBuffer | Blob | ImageSource | Uint8Array
+<span class="tok-key">type</span> NodeImageInput = BrowserImageInput | string
 
 <span class="tok-key">interface</span> ImageSource {
   readonly size: number
@@ -172,7 +176,7 @@
           <div class="api-list">
             <article class="api-item" data-search-item><h3>MemorySource</h3><p>Zero-copy reads over an ArrayBuffer or Uint8Array.</p></article>
             <article class="api-item" data-search-item><h3>BlobSource</h3><p>Range reads through <code>Blob.slice()</code>.</p></article>
-            <article class="api-item" data-search-item><h3>FileSource</h3><p>Use <code>await FileSource.open(path)</code> to build a file-backed source explicitly.</p></article>
+            <article class="api-item" data-search-item><h3>FileSource</h3><p>Node-only. Use <code>await FileSource.open(path)</code> to build a file-backed source explicitly.</p></article>
           </div>
           <p>For an in-range read, custom <code>read()</code> implementations must return exactly <code>min(length, size - offset)</code> bytes as a <code>Uint8Array</code>, or reject when the backing read fails. Returned bytes may be reused or invalidated when the next read begins. Short, oversized, detached, and rejected reads surface as <code>ImageError</code> results.</p>
         </section>
@@ -210,7 +214,7 @@
 
         <section id="advanced" data-search-item>
           <h2>Advanced contracts</h2>
-          <p>The root entry also exports the primitives used to author custom codecs and sinks: <code>ImageCodec</code>, <code>ImageDecoder</code>, <code>ImageEncoder</code>, <code>CodecRegistry</code>, <code>ImageSink</code>, <code>BufferSink</code>, <code>FileSink</code>, <code>PixelBlock</code>, <code>PixelFormat</code>, and <code>BufferPool</code>.</p>
+          <p>The Node root and browser entry export the primitives used to author custom codecs and sinks: <code>ImageCodec</code>, <code>ImageDecoder</code>, <code>ImageEncoder</code>, <code>CodecRegistry</code>, <code>ImageSink</code>, <code>Uint8ArraySink</code>, <code>PixelBlock</code>, <code>PixelFormat</code>, and <code>BufferPool</code>. Node additionally exports <code>BufferSink</code>, <code>FileSink</code>, and <code>FileSource</code>.</p>
           <p>These interfaces are useful for first-party extensions and controlled integrations. A decoder yields ordered pixel blocks; an encoder consumes them and writes encoded chunks to a sink. Preserve the release callback and source-buffer lifetime contracts when implementing either side.</p>
           <p><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/src/index.ts" target="_blank" rel="noreferrer">View public exports on GitHub →</a></p>
         </section>

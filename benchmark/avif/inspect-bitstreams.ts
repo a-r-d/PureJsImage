@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { inspectAvifBitstreams } from '../../src/codecs/avif.ts'
-import { FileSource } from '../../src/source.ts'
+import { FileSource } from '../../src/node-source.ts'
 import { avifCorpusDirectory, avifFixtures } from './corpus.ts'
 
 let codedImages = 0

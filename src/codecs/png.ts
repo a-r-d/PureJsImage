@@ -1,5 +1,3 @@
-import type { Deflate } from 'node:zlib'
-
 import type {
   DecoderOptions,
   DecodeRequest,
@@ -21,6 +19,7 @@ import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
+import type { DeflateEncoder } from '../runtime.ts'
 import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
@@ -1213,40 +1212,21 @@ const filterScanline = (
   }
 }
 
-const waitForDrain = (deflater: Deflate): Promise<void> =>
-  new Promise((resolve, reject) => {
-    const cleanup = (): void => {
-      deflater.off('drain', drained)
-      deflater.off('error', failed)
-    }
-    const drained = (): void => {
-      cleanup()
-      resolve()
-    }
-    const failed = (error: unknown): void => {
-      cleanup()
-      reject(error)
-    }
-    deflater.once('drain', drained)
-    deflater.once('error', failed)
-  })
-
 class PngEncoder implements ImageEncoder {
   readonly #sink: ImageSink
-  readonly #deflater: Deflate
+  readonly #deflater: DeflateEncoder
   readonly #width: number
   readonly #height: number
   readonly #format: PixelFormat
   readonly #channels: number
   readonly #adaptiveFiltering: boolean
   readonly #previousRow: Uint8Array
-  readonly #completion: Promise<void>
   #expectedY = 0
   #finished = false
 
   constructor(
     sink: ImageSink,
-    deflater: Deflate,
+    deflater: DeflateEncoder,
     width: number,
     height: number,
     format: PixelFormat,
@@ -1260,26 +1240,6 @@ class PngEncoder implements ImageEncoder {
     this.#channels = bytesPerPixel(format)
     this.#adaptiveFiltering = adaptiveFiltering
     this.#previousRow = new Uint8Array(width * this.#channels)
-    this.#completion = new Promise((resolve, reject) => {
-      let writes = Promise.resolve()
-      deflater.on('data', (chunk: unknown) => {
-        deflater.pause()
-        if (!(chunk instanceof Uint8Array)) {
-          reject(invalidInput('PNG compressor returned invalid data'))
-          return
-        }
-        writes = writes.then(() => writeChunk(sink, 'IDAT', chunk))
-        writes.then(
-          () => deflater.resume(),
-          (error: unknown) => {
-            reject(error)
-            deflater.destroy(error instanceof Error ? error : new Error('PNG output failed'))
-          },
-        )
-      })
-      deflater.once('error', (error: unknown) => reject(error))
-      deflater.once('end', () => writes.then(resolve, reject))
-    })
   }
 
   async write(block: PixelBlock): Promise<void> {
@@ -1314,7 +1274,7 @@ class PngEncoder implements ImageEncoder {
       )
       this.#previousRow.set(source)
     }
-    if (!this.#deflater.write(scanlines)) await waitForDrain(this.#deflater)
+    await this.#deflater.write(scanlines)
     this.#expectedY += block.height
   }
 
@@ -1324,21 +1284,13 @@ class PngEncoder implements ImageEncoder {
     if (this.#expectedY !== this.#height) {
       throw invalidInput(`PNG encoder received ${this.#expectedY} of ${this.#height} rows`)
     }
-    this.#deflater.end()
-    await this.#completion
+    await this.#deflater.finish()
     await writeChunk(this.#sink, 'IEND', new Uint8Array())
   }
 
   async abort(reason: unknown): Promise<void> {
     this.#finished = true
-    if (!this.#deflater.destroyed) {
-      this.#deflater.destroy(reason instanceof Error ? reason : new Error('PNG encoding aborted'))
-    }
-    try {
-      await this.#completion
-    } catch {
-      // The pipeline rethrows the original failure after releasing encoder resources.
-    }
+    await this.#deflater.abort(reason)
   }
 }
 
@@ -1355,6 +1307,8 @@ const createPngEncoder = async (sink: ImageSink, request: EncodeRequest): Promis
   }
   const channels = bytesPerPixel(request.pixelFormat)
   const level = compressionLevel(request.options)
+  const runtime = request.runtime
+  if (!runtime) throw unsupportedOperation('PNG encoding requires a runtime compression provider')
   await sink.write(signature)
   const header = new Uint8Array(13)
   const view = new DataView(header.buffer)
@@ -1364,7 +1318,6 @@ const createPngEncoder = async (sink: ImageSink, request: EncodeRequest): Promis
   header[9] = channels === 1 ? 0 : channels === 3 ? 2 : 6
   await writeChunk(sink, 'IHDR', header)
 
-  const { constants, createDeflate, deflateSync } = await import('node:zlib')
   const icc = request.metadata?.icc
   if (icc) {
     const colorSpace = iccColorSpace(icc)
@@ -1390,7 +1343,7 @@ const createPngEncoder = async (sink: ImageSink, request: EncodeRequest): Promis
       0,
       0,
     )
-    const compressed = deflateSync(icc)
+    const compressed = await runtime.deflate(icc, { level: 6, strategy: 'default' })
     const payload = new Uint8Array(name.byteLength + compressed.byteLength)
     payload.set(name)
     payload.set(compressed, name.byteLength)
@@ -1399,10 +1352,13 @@ const createPngEncoder = async (sink: ImageSink, request: EncodeRequest): Promis
   if (request.metadata?.exif) await writeChunk(sink, 'eXIf', request.metadata.exif)
   return new PngEncoder(
     sink,
-    createDeflate({
-      level,
-      strategy: request.pixelFormat === 'rgb8' ? constants.Z_RLE : constants.Z_DEFAULT_STRATEGY,
-    }),
+    runtime.createDeflateEncoder(
+      {
+        level,
+        strategy: request.pixelFormat === 'rgb8' ? 'rle' : 'default',
+      },
+      (chunk) => writeChunk(sink, 'IDAT', chunk),
+    ),
     request.width,
     request.height,
     request.pixelFormat,

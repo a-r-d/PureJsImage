@@ -1,0 +1,58 @@
+import { PNG } from 'pngjs'
+import { describe, expect, it } from 'vitest'
+
+import { createImageLibrary } from '../src/browser.ts'
+import { jpegCodec } from '../src/codec-entries/jpeg.ts'
+import { pngCodec } from '../src/codec-entries/png.ts'
+
+const inputPng = (): Uint8Array => {
+  const image = new PNG({ width: 3, height: 2 })
+  image.data.set([
+    255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255, 255, 0, 255, 255, 0, 255, 255,
+    255,
+  ])
+  return PNG.sync.write(image)
+}
+
+describe('browser image library', () => {
+  const images = createImageLibrary([pngCodec, jpegCodec])
+
+  it('accepts Blob input and returns Uint8Array and Blob output', async () => {
+    const image = await images.open(new Blob([Uint8Array.from(inputPng())]))
+    await expect(image.metadata()).resolves.toMatchObject({ width: 3, height: 2, format: 'png' })
+
+    const jpeg = await image.jpeg({ quality: 80 }).toUint8Array()
+    expect(jpeg).toBeInstanceOf(Uint8Array)
+    expect([...jpeg.subarray(0, 2)]).toEqual([0xff, 0xd8])
+
+    const blob = await image.jpeg({ quality: 80 }).toBlob()
+    expect(blob.type).toBe('image/jpeg')
+    expect(blob.size).toBeGreaterThan(100)
+  })
+
+  it('encodes PNG with CompressionStream and keeps output decodable', async () => {
+    const output = await (await images.open(inputPng())).png().toUint8Array()
+    const decoded = PNG.sync.read(Buffer.from(output))
+
+    expect(decoded.width).toBe(3)
+    expect(decoded.height).toBe(2)
+    expect([...decoded.data.subarray(0, 4)]).toEqual([255, 0, 0, 255])
+  })
+
+  it('uses bounded browser temporary storage for rotation', async () => {
+    const output = await (await images.open(inputPng())).rotate(90).png().toUint8Array()
+    const decoded = PNG.sync.read(Buffer.from(output))
+
+    expect(decoded.width).toBe(2)
+    expect(decoded.height).toBe(3)
+  })
+
+  it('rejects PNG levels that browser CompressionStream cannot honor', async () => {
+    await expect(
+      (await images.open(inputPng())).png({ compressionLevel: 9 }).toUint8Array(),
+    ).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'Browser PNG compression supports the default compressionLevel (6) only',
+    })
+  })
+})

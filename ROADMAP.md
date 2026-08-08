@@ -17,7 +17,8 @@ For common image workflows, PureJsImage should be:
 
 - fast enough for production JavaScript services;
 - low-memory enough to reduce practical AWS Lambda memory tiers and OOM risk;
-- portable across runtimes without native addons or external binaries;
+- portable across Node.js, modern browsers, and other capable JavaScript
+  runtimes without native addons or external binaries;
 - explicit about unsupported input instead of returning plausible corruption;
 - broad enough to cover many real image codecs and basic transformations; and
 - able to opt into substantially faster Rust/WASM codecs without changing the
@@ -70,6 +71,20 @@ work, copies, or peak memory.
   and lossy quality/size where relevant.
 - Pin real phone, camera, browser, editor, and adversarial fixtures.
 - Treat a fast invalid output as a failed benchmark.
+
+### 5. Keep every runtime boundary explicit
+
+- Keep codecs, pipeline planning, limits, and hot pixel kernels independent of
+  Node globals and built-in modules.
+- Preserve the established Node.js path, Buffer, zlib, and temporary-file
+  adapters without adding browser checks to hot loops.
+- Support browser File/Blob, ArrayBuffer, Uint8Array, Blob output,
+  CompressionStream, and origin-private temporary storage through an explicit
+  browser entry point.
+- Use a strictly bounded memory fallback when browser private storage is
+  unavailable, and fail explicitly above that bound.
+- Gate releases on a browser bundle with no Node built-ins plus real-browser
+  decode, transform, and encode coverage.
 
 ### Phase 1 exit signal
 
@@ -129,5 +144,7 @@ contract is implemented rather than being guessed in advance.
 - Finish practical missing encode/decode subsets before widening APIs.
 - Keep bundle-size, correctness, and isolated-process memory measurements
   reproducible in the repository.
+- Expand the current Chromium portability coverage to other modern browser
+  engines as their CI harnesses are added.
 - Design the optional provider interface only after the corresponding
   TypeScript codec behavior is stable enough to serve as its oracle.

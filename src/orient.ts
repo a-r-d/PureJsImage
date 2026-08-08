@@ -1,7 +1,6 @@
-import type { FileHandle } from 'node:fs/promises'
-
 import { ImageError, invalidInput, truncatedInput } from './errors.ts'
 import type { PixelBlock, PixelFormat } from './pixel.ts'
+import type { ImageRuntime, TemporaryStore } from './runtime.ts'
 
 export type ExifOrientation = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
@@ -50,35 +49,27 @@ const sourcePixel = (
   return y * width + x
 }
 
-const writeAll = async (file: FileHandle, data: Uint8Array, position: number): Promise<void> => {
-  let written = 0
-  while (written < data.byteLength) {
-    let bytesWritten: number
-    try {
-      const result = await file.write(data, written, data.byteLength - written, position + written)
-      bytesWritten = result.bytesWritten
-    } catch (error) {
-      throw temporaryStorageError('write', error)
-    }
-    if (bytesWritten < 1) {
-      throw temporaryStorageError('write', new Error('Write made no progress'))
-    }
-    written += bytesWritten
+const writeAll = async (
+  store: TemporaryStore,
+  data: Uint8Array,
+  position: number,
+): Promise<void> => {
+  try {
+    await store.write(position, data)
+  } catch (error) {
+    throw temporaryStorageError('write', error)
   }
 }
 
-const readAll = async (file: FileHandle, data: Uint8Array, position: number): Promise<void> => {
-  let read = 0
-  while (read < data.byteLength) {
-    let bytesRead: number
-    try {
-      const result = await file.read(data, read, data.byteLength - read, position + read)
-      bytesRead = result.bytesRead
-    } catch (error) {
-      throw temporaryStorageError('read', error)
-    }
-    if (bytesRead < 1) throw truncatedInput('Temporary orientation data is truncated')
-    read += bytesRead
+const readAll = async (
+  store: TemporaryStore,
+  data: Uint8Array,
+  position: number,
+): Promise<void> => {
+  try {
+    await store.read(position, data)
+  } catch (error) {
+    throw temporaryStorageError('read', error)
   }
 }
 
@@ -123,7 +114,7 @@ const flipHorizontal = async function* (
 }
 
 const spoolTiles = async (
-  file: FileHandle,
+  store: TemporaryStore,
   blocks: AsyncIterable<PixelBlock>,
   width: number,
   height: number,
@@ -165,7 +156,7 @@ const spoolTiles = async (
       }
       receivedRows += 1
       if (receivedRows % tileSize === 0) {
-        await writeAll(file, tileRow, tileY * tileRow.byteLength)
+        await writeAll(store, tileRow, tileY * tileRow.byteLength)
         tileRow.fill(0)
         tileY += 1
       }
@@ -174,7 +165,7 @@ const spoolTiles = async (
   if (receivedRows !== height) {
     throw truncatedInput(`Orientation received ${receivedRows} of ${height} rows`)
   }
-  if (receivedRows % tileSize !== 0) await writeAll(file, tileRow, tileY * tileRow.byteLength)
+  if (receivedRows % tileSize !== 0) await writeAll(store, tileRow, tileY * tileRow.byteLength)
   return { tilesAcross, tileBytes }
 }
 
@@ -184,39 +175,30 @@ const orientedBlocks = async function* (
   height: number,
   format: PixelFormat,
   orientation: ExifOrientation,
+  runtime: ImageRuntime,
 ): AsyncGenerator<PixelBlock> {
   const channelCount = channels(format)
   const outputWidth = orientation >= 5 ? height : width
   const outputHeight = orientation >= 5 ? width : height
   const outputStride = outputWidth * channelCount
-  const { join } = await import('node:path')
-  const { tmpdir } = await import('node:os')
-  const { mkdtemp, open, rm } = await import('node:fs/promises')
-  let directory: string | undefined
-  let file: FileHandle | undefined
+  const tilesAcross = Math.ceil(width / tileSize)
+  const tileRows = Math.ceil(height / tileSize)
+  const tileBytes = tileSize * tileSize * channelCount
+  let store: TemporaryStore | undefined
   let operationFailed = false
   let operationError: unknown
   let cleanupError: ImageError | undefined
 
   try {
     try {
-      directory = await mkdtemp(join(tmpdir(), 'purejsimage-orient-'))
+      store = await runtime.createTemporaryStore({
+        expectedBytes: tilesAcross * tileRows * tileBytes,
+        prefix: 'purejsimage-orient-',
+      })
     } catch (error) {
-      throw temporaryStorageError('directory creation', error)
+      throw temporaryStorageError('setup', error)
     }
-    try {
-      file = await open(join(directory, 'tiles'), 'w+')
-    } catch (error) {
-      throw temporaryStorageError('open', error)
-    }
-    const { tilesAcross, tileBytes } = await spoolTiles(
-      file,
-      blocks,
-      width,
-      height,
-      format,
-      channelCount,
-    )
+    const spooled = await spoolTiles(store, blocks, width, height, format, channelCount)
     for (let outputY = 0; outputY < outputHeight; outputY += tileSize) {
       const blockHeight = Math.min(tileSize, outputHeight - outputY)
       const data = new Uint8Array(outputStride * blockHeight)
@@ -230,8 +212,8 @@ const orientedBlocks = async function* (
             Math.floor(sourceY / tileSize) * tilesAcross + Math.floor(sourceX / tileSize)
           let tile = cachedTiles.get(tileIndex)
           if (!tile) {
-            tile = new Uint8Array(tileBytes)
-            await readAll(file, tile, tileIndex * tileBytes)
+            tile = new Uint8Array(spooled.tileBytes)
+            await readAll(store, tile, tileIndex * spooled.tileBytes)
             cachedTiles.set(tileIndex, tile)
           }
           const sourceOffset =
@@ -256,18 +238,11 @@ const orientedBlocks = async function* (
     operationFailed = true
     operationError = error
   } finally {
-    if (file) {
+    if (store) {
       try {
-        await file.close()
+        await store.close()
       } catch (error) {
         cleanupError = temporaryStorageError('close', error)
-      }
-    }
-    if (directory) {
-      try {
-        await rm(directory, { recursive: true, force: true })
-      } catch (error) {
-        cleanupError ??= temporaryStorageError('cleanup', error)
       }
     }
   }
@@ -280,6 +255,7 @@ export const createOrientationTransform = (
   height: number,
   format: PixelFormat,
   orientation: ExifOrientation,
+  runtime: ImageRuntime,
 ): OrientationTransform => {
   channels(format)
   return {
@@ -288,7 +264,7 @@ export const createOrientationTransform = (
     apply(blocks: AsyncIterable<PixelBlock>): AsyncIterable<PixelBlock> {
       if (orientation === 1) return blocks
       if (orientation === 2) return flipHorizontal(blocks, width, height, format)
-      return orientedBlocks(blocks, width, height, format, orientation)
+      return orientedBlocks(blocks, width, height, format, orientation, runtime)
     },
   }
 }
