@@ -1,0 +1,103 @@
+CONTRIBUTING.md
+  s_3070dced1b3aff::t_ac97a5fb30dfae 57-68
+tiff-codec-support.md
+  s_3070dced1b3aff::t_79a8ba5437925f 1
+  s_3070dced1b3aff::t_c8529d7ef93acc 61,74
+scripts/render-capabilities.ts
+  s_3070dced1b3aff::t_947e9c16435f75 2,136,172-183,190-193
+  s_3070dced1b3aff::t_ab949d371d9458 22-23,30-32,44-49,60-61
+  s_3070dced1b3aff::t_4b95bb1f3e7fbc 161,164-167
+  s_3070dced1b3aff::t_d20b20a1198b40 21,39,83-85
+  s_3070dced1b3aff::t_fafbf1e22992a9 1,3-20,24-29,33-38,40-43,50-59,62-82,86-135,137-160,162-163,168-171,184-189,194-206
+gif-codec-support.md
+  s_3070dced1b3aff::t_79a8ba5437925f 1
+tests/generated/capability-expectations.json
+  s_3070dced1b3aff::t_f00388e0123915 1-87
+.agents/skills/rollout-codec-capability/SKILL.md
+  s_3070dced1b3aff::t_188c8ebc97761c 1-2,4-5
+  s_3070dced1b3aff::t_322e3214d63487 3,6-93
+AGENTS.md
+  s_3070dced1b3aff::t_322e3214d63487 21-29
+jpeg-codec-support.md
+  s_3070dced1b3aff::t_79a8ba5437925f 1
+  s_74376132a55770::t_a81214e0d3784c 52-53,122-124
+tests/project-contract.test.ts
+  s_3070dced1b3aff::t_f65f0d08b104eb 20-24
+package.json
+  s_3070dced1b3aff::t_c270121dfcaa3c 128
+  s_3070dced1b3aff::t_947e9c16435f75 127
+  s_3070dced1b3aff::t_f65f0d08b104eb 118
+avif-codec-support.md
+  s_3070dced1b3aff::t_79a8ba5437925f 1
+capabilities/manifest.json
+  s_3070dced1b3aff::t_a5788c9afea121 1-23,25-26,184-206,351-373,551-568,722-739,828-845,992-1009,1176-1193,1559-1576,1887-1904,2246-2263,2635-2637
+  s_3070dced1b3aff::t_ab949d371d9458 24,78-79,148-150,544-545,2115-2117
+  s_3070dced1b3aff::t_d20b20a1198b40 569,740,846,1010,1194,1577,1905
+  s_3070dced1b3aff::t_ea852b135036bf 27-77,80-147,151-183,207-350,374-543,546-550,570-721,741-827,847-991,1011-1175,1195-1558,1578-1886,1906-2114,2118-2245,2264-2634
+tests/capability-manifest.test.ts
+  s_3070dced1b3aff::t_947e9c16435f75 15-17,36,39,52
+  s_3070dced1b3aff::t_d20b20a1198b40 56-58
+  s_3070dced1b3aff::t_c270121dfcaa3c 1-14,18-35,37-38,40-51,53-55,59-77
+jpeg2000-codec-support.md
+  s_3070dced1b3aff::t_79a8ba5437925f 1
+jpegxl-codec-support.md
+  s_3070dced1b3aff::t_79a8ba5437925f 1
+webp-codec-support.md
+  s_3070dced1b3aff::t_79a8ba5437925f 1
+  s_3070dced1b3aff::t_c8529d7ef93acc 76-78,80-81,141-143
+  s_74376132a55770::t_a81214e0d3784c 171-172
+README.md
+  s_74376132a55770::t_a81214e0d3784c 134,138-142
+  s_3070dced1b3aff::t_282707aefd59f8 113,143
+heif-codec-support.md
+  s_3070dced1b3aff::t_f00388e0123915 210-212
+  s_3070dced1b3aff::t_79a8ba5437925f 1
+docs/codecs.html
+  s_3070dced1b3aff::t_282707aefd59f8 30,49,68,86
+  s_3070dced1b3aff::t_79a8ba5437925f 32-41,43,51-53,55-60,62,70,72-79,81,88-92,94
+CHANGELOG.md
+  s_3070dced1b3aff::t_a7132c2c5ef9c3 29
+  s_3070dced1b3aff::t_cbfb3901f5efe5 24-25
+  s_3070dced1b3aff::t_ac97a5fb30dfae 23
+scripts/capability-manifest.ts
+  s_3070dced1b3aff::t_d20b20a1198b40 59,61-64,80,82,87-92,126-127
+  s_3070dced1b3aff::t_4986319e2bc955 70,76-79,101,106,114
+  s_3070dced1b3aff::t_a5088d7488e9f5 71-75
+  s_3070dced1b3aff::t_a90675d9089323 1-58,60,65-69,81,83-86,93-100,102-105,107-113,115-125,128-173
+docs/capabilities.json
+  s_3070dced1b3aff::t_79a8ba5437925f 1-138,141-266,269-271,273-1103,1105-4007,4009-4876
+  s_3070dced1b3aff::t_a4900810370db7 139-140,267-268,272,1104,4008
+ico-codec-support.md
+  s_3070dced1b3aff::t_79a8ba5437925f 1
+png-codec-support.md
+  s_3070dced1b3aff::t_c8529d7ef93acc 56-59,64-65,114-116
+  s_3070dced1b3aff::t_79a8ba5437925f 1
+bmp-codec-support.md
+  s_3070dced1b3aff::t_79a8ba5437925f 1
+.agents/skills/rollout-codec-capability/agents/openai.yaml
+  s_3070dced1b3aff::t_188c8ebc97761c 1-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "20c2ee8e4c80d0e24977ff53c98880ffd39dcdca",
+  "prompts": {},
+  "sessions": {
+    "s_3070dced1b3aff": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe309-2b37-7a92-b053-803b904cd6ff",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_74376132a55770": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe205-7b4b-7cb3-8899-fe988f8f08bf",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
