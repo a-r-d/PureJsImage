@@ -377,7 +377,7 @@ const createIccTransform = (
   return transform
 }
 
-export const parseBaselineJpeg = (data: Uint8Array): BaselineJpeg | undefined => {
+export const parseBaselineJpeg = (data: Uint8Array, applyIcc = true): BaselineJpeg | undefined => {
   if (data.byteLength < 4 || readUint16(data, 0) !== 0xffd8)
     throw invalidInput('JPEG start marker is missing')
   const quantizationTables = new Map<number, Int32Array>()
@@ -455,7 +455,7 @@ export const parseBaselineJpeg = (data: Uint8Array): BaselineJpeg | undefined =>
         components.push({ ...component, quantization, dcTable, acTable })
       }
       const jpegColorTransform = colorTransform(frame, adobeTransform)
-      const iccTransform = createIccTransform(iccChunks, jpegColorTransform)
+      const iccTransform = applyIcc ? createIccTransform(iccChunks, jpegColorTransform) : undefined
       return {
         data,
         width: frame.width,
@@ -1381,6 +1381,7 @@ const progressiveFrameComponents = (
 export const parseProgressiveJpeg = (
   data: Uint8Array,
   validateDimensions: (width: number, height: number) => void,
+  applyIcc = true,
 ): ProgressiveJpeg | undefined => {
   if (data.byteLength < 4 || readUint16(data, 0) !== 0xffd8)
     throw invalidInput('JPEG start marker is missing')
@@ -1414,7 +1415,7 @@ export const parseProgressiveJpeg = (
         return { ...component, quantization }
       })
       const jpegColorTransform = colorTransform(frame, adobeTransform)
-      const iccTransform = createIccTransform(iccChunks, jpegColorTransform)
+      const iccTransform = applyIcc ? createIccTransform(iccChunks, jpegColorTransform) : undefined
       return {
         width: frame.width,
         height: frame.height,

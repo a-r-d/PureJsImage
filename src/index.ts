@@ -3,11 +3,14 @@ export type {
   ChromaSubsampling,
   DecodeRequest,
   DecoderCapabilities,
+  DecoderOptions,
   EncodeRequest,
   ImageCodec,
   ImageDecoder,
   ImageEncoder,
   ImageMetadata,
+  MetadataPreservationOptions,
+  PreservedMetadata,
 } from './codec.ts'
 export { CodecRegistry } from './codec.ts'
 export type { ImageErrorCode } from './errors.ts'
@@ -26,6 +29,7 @@ export type {
   ResizeKernel,
   ResizeOptions,
   ResizePosition,
+  RotateOptions,
   TiffEncodeOptions,
   WebpEncodeOptions,
 } from './pipeline.ts'

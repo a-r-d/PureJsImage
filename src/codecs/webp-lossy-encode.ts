@@ -1,5 +1,6 @@
-import type { ImageEncoder } from '../codec.ts'
+import type { ImageEncoder, PreservedMetadata } from '../codec.ts'
 import { invalidInput } from '../errors.ts'
+import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import { addInverseVp8Block, vp8AcQuantizers, vp8DcQuantizers } from './vp8.ts'
@@ -484,6 +485,7 @@ export class LossyWebpEncoder implements ImageEncoder {
   readonly #format: PixelFormat
   readonly #channels: number
   readonly #quality: number
+  readonly #metadata: Readonly<PreservedMetadata> | undefined
   readonly #y: Uint8Array
   readonly #u: Uint16Array
   readonly #v: Uint16Array
@@ -498,6 +500,7 @@ export class LossyWebpEncoder implements ImageEncoder {
     height: number,
     format: PixelFormat,
     quality: number,
+    metadata: Readonly<PreservedMetadata> | undefined,
   ) {
     this.#sink = sink
     this.#width = width
@@ -506,6 +509,7 @@ export class LossyWebpEncoder implements ImageEncoder {
     this.#channels = channels(format)
     if (this.#channels === 0) throw invalidInput(`WebP encoder does not support ${format} pixels`)
     this.#quality = quality
+    this.#metadata = metadata
     this.#y = new Uint8Array(width * height)
     const chromaPixels = Math.ceil(width / 2) * Math.ceil(height / 2)
     this.#u = new Uint16Array(chromaPixels)
@@ -560,12 +564,25 @@ export class LossyWebpEncoder implements ImageEncoder {
     this.#finished = true
     const vp8 = encodeVp8(this.#width, this.#height, this.#y, this.#u, this.#v, this.#quality)
     const alpha = this.#hasAlpha ? this.#alpha : undefined
-    const extended = alpha !== undefined
+    const icc = this.#metadata?.icc
+    const exif = this.#metadata?.exif
+    if (icc && iccColorSpace(icc) !== 'rgb')
+      throw invalidInput('Preserved ICC profile does not match WebP RGB output pixels')
+    const extended = alpha !== undefined || icc !== undefined || exif !== undefined
     const vp8Padding = vp8.length & 1
-    const alphaLength = extended ? 1 + alpha.length : 0
+    const alphaLength = alpha ? 1 + alpha.length : 0
     const alphaPadding = alphaLength & 1
+    const iccBytes = icc ? 8 + icc.byteLength + (icc.byteLength & 1) : 0
+    const exifBytes = exif ? 8 + exif.byteLength + (exif.byteLength & 1) : 0
     const bodyLength = extended
-      ? 4 + 18 + 8 + alphaLength + alphaPadding + 8 + vp8.length + vp8Padding
+      ? 4 +
+        18 +
+        iccBytes +
+        (alpha ? 8 + alphaLength + alphaPadding : 0) +
+        8 +
+        vp8.length +
+        vp8Padding +
+        exifBytes
       : 4 + 8 + vp8.length + vp8Padding
     const output = new Uint8Array(8 + bodyLength)
     output.set([82, 73, 70, 70], 0)
@@ -575,19 +592,33 @@ export class LossyWebpEncoder implements ImageEncoder {
     if (extended) {
       output.set([86, 80, 56, 88], offset)
       uint32(output, offset + 4, 10)
-      output[offset + 8] = 0x10
+      output[offset + 8] = (icc ? 0x20 : 0) | (alpha ? 0x10 : 0) | (exif ? 0x08 : 0)
       uint24(output, offset + 12, this.#width - 1)
       uint24(output, offset + 15, this.#height - 1)
       offset += 18
-      output.set([65, 76, 80, 72], offset)
-      uint32(output, offset + 4, alphaLength)
-      output[offset + 8] = 0
-      output.set(alpha, offset + 9)
-      offset += 8 + alphaLength + alphaPadding
+      if (icc) {
+        output.set([73, 67, 67, 80], offset)
+        uint32(output, offset + 4, icc.byteLength)
+        output.set(icc, offset + 8)
+        offset += iccBytes
+      }
+      if (alpha) {
+        output.set([65, 76, 80, 72], offset)
+        uint32(output, offset + 4, alphaLength)
+        output[offset + 8] = 0
+        output.set(alpha, offset + 9)
+        offset += 8 + alphaLength + alphaPadding
+      }
     }
     output.set([86, 80, 56, 32], offset)
     uint32(output, offset + 4, vp8.length)
     output.set(vp8, offset + 8)
+    offset += 8 + vp8.length + vp8Padding
+    if (exif) {
+      output.set([69, 88, 73, 70], offset)
+      uint32(output, offset + 4, exif.byteLength)
+      output.set(exif, offset + 8)
+    }
     await this.#sink.write(output)
   }
 

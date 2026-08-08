@@ -593,6 +593,9 @@ class BmpEncoder implements ImageEncoder {
   }
 
   static async create(sink: ImageSink, request: EncodeRequest): Promise<BmpEncoder> {
+    if (request.metadata?.exif || request.metadata?.icc) {
+      throw unsupportedOperation('BMP output cannot preserve EXIF or ICC metadata')
+    }
     if (
       request.pixelFormat !== 'gray8' &&
       request.pixelFormat !== 'rgb8' &&

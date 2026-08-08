@@ -199,3 +199,10 @@ Prefer a simpler implementation unless the more complex implementation demonstra
 The guiding rule is:
 
 > Make JavaScript do less work before trying to make individual JavaScript instructions faster.
+
+
+## Rust / WASM
+
+* Rust/WASM is allowed only for explicitly imported optional codecs or accelerators. The default package and pure-JS codecs must remain WASM-free.
+* When adding or modifying Rust/WASM code, follow the `rust-wasm` repo skill.
+

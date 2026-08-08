@@ -108,6 +108,8 @@ console.<span class="tok-method">log</span>({
           </tbody></table></div>
           <p>Choose <code>nearest</code>, <code>bilinear</code> (the default), or <code>lanczos3</code>. Set <code>withoutEnlargement: true</code> when small uploads should remain at their original size.</p>
           <div class="callout"><strong>Contain options.</strong> <code>position</code> and <code>background</code> are available only with <code>fit: 'contain'</code>, and fit options require both width and height.</div>
+          <h3>Transform order</h3>
+          <p>Spatial operations execute in call order. A crop after a resize uses resized coordinates, and a second resize works from the first resize result. <code>rotate()</code> uses clockwise degrees, <code>flip()</code> mirrors top-to-bottom, and <code>flop()</code> mirrors left-to-right.</p>
         </section>
 
         <section id="recipes">
@@ -118,6 +120,16 @@ console.<span class="tok-method">log</span>({
   .<span class="tok-method">resize</span>({ width: <span class="tok-number">2048</span>, fit: <span class="tok-string">'inside'</span>, withoutEnlargement: <span class="tok-key">true</span> })
   .<span class="tok-method">jpeg</span>({ quality: <span class="tok-number">80</span>, background: <span class="tok-string">'#ffffff'</span> })
   .<span class="tok-method">toBuffer</span>()</code></pre></div>
+          <h3>Retain EXIF and ICC metadata</h3>
+          <p>Metadata is stripped by default. Opt in to EXIF and ICC independently. Reorienting pixels also normalizes the retained EXIF orientation so downstream viewers do not rotate them a second time.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">preserve-metadata.ts</span></div><button class="code-copy" type="button" data-copy="metadata-code">Copy</button><pre><code id="metadata-code"><span class="tok-key">await</span> (<span class="tok-key">await</span> images.<span class="tok-method">open</span>(<span class="tok-string">'camera.jpg'</span>))
+  .<span class="tok-method">keepExif</span>()
+  .<span class="tok-method">keepIcc</span>()
+  .<span class="tok-method">autoOrient</span>()
+  .<span class="tok-method">resize</span>({ width: <span class="tok-number">1600</span>, withoutEnlargement: <span class="tok-key">true</span> })
+  .<span class="tok-method">jpeg</span>({ quality: <span class="tok-number">82</span> })
+  .<span class="tok-method">toFile</span>(<span class="tok-string">'camera-web.jpg'</span>)</code></pre></div>
+          <p>JPEG, PNG, and WebP support retained EXIF and compatible ICC profiles. TIFF supports compatible ICC profiles but not retained EXIF. Unsupported combinations fail explicitly.</p>
           <h3>Convert a Windows icon to PNG</h3>
           <p>The ICO decoder selects the largest entry, then prefers useful bit depth and alpha. It decodes only that selected PNG- or DIB-backed image.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">favicon.ts</span></div><button class="code-copy" type="button" data-copy="ico-code">Copy</button><pre><code id="ico-code"><span class="tok-key">import</span> { createImageLibrary } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
@@ -140,14 +152,17 @@ console.<span class="tok-method">log</span>({
   })
   .<span class="tok-method">png</span>({ compressionLevel: <span class="tok-number">7</span> })
   .<span class="tok-method">toFile</span>(<span class="tok-string">'logo.png'</span>)</code></pre></div>
-          <h3>Crop before resizing</h3>
-          <p>Use crop coordinates in the image state at that point in the pipeline. Calling <code>autoOrient()</code> first means the crop coordinates refer to the visually oriented image.</p>
+          <h3>Compose ordered transforms</h3>
+          <p>Use coordinates in the image state at that point in the pipeline. Here the crop uses resized coordinates, then the cropped image is resized again and rotated clockwise onto an opaque canvas.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">crop.ts</span></div><button class="code-copy" type="button" data-copy="crop-code">Copy</button><pre><code id="crop-code"><span class="tok-key">await</span> (<span class="tok-key">await</span> images.<span class="tok-method">open</span>(<span class="tok-string">'camera.jpg'</span>))
   .<span class="tok-method">autoOrient</span>()
-  .<span class="tok-method">crop</span>({ x: <span class="tok-number">120</span>, y: <span class="tok-number">80</span>, width: <span class="tok-number">1600</span>, height: <span class="tok-number">1200</span> })
-  .<span class="tok-method">resize</span>({ width: <span class="tok-number">800</span>, kernel: <span class="tok-string">'lanczos3'</span> })
-  .<span class="tok-method">webp</span>({ quality: <span class="tok-number">78</span> })
-  .<span class="tok-method">toFile</span>(<span class="tok-string">'crop.webp'</span>)</code></pre></div>
+  .<span class="tok-method">resize</span>({ width: <span class="tok-number">1600</span> })
+  .<span class="tok-method">crop</span>({ x: <span class="tok-number">200</span>, y: <span class="tok-number">150</span>, width: <span class="tok-number">1200</span>, height: <span class="tok-number">900</span> })
+  .<span class="tok-method">resize</span>({ width: <span class="tok-number">600</span>, kernel: <span class="tok-string">'lanczos3'</span> })
+  .<span class="tok-method">rotate</span>(<span class="tok-number">12</span>, { background: <span class="tok-string">'#ffffffff'</span> })
+  .<span class="tok-method">flop</span>()
+  .<span class="tok-method">jpeg</span>({ quality: <span class="tok-number">80</span> })
+  .<span class="tok-method">toFile</span>(<span class="tok-string">'transformed.jpg'</span>)</code></pre></div>
         </section>
 
         <section id="lambda">
@@ -168,7 +183,7 @@ console.<span class="tok-method">log</span>({
     maxDecodedBytes: <span class="tok-number">240_000_000</span>,
   },
 })</code></pre></div>
-          <div class="callout warning"><strong>Auto-orient and temporary storage.</strong> EXIF orientations 3–8 use a bounded-memory 32 × 32 tile spool under <code>os.tmpdir()</code>. Plan for about one decoded frame of temporary disk capacity. A 100-megapixel RGBA image needs roughly 400 MB; on Lambda, that consumes configured <code>/tmp</code> storage.</div>
+          <div class="callout warning"><strong>Orientation, rotation, and temporary storage.</strong> EXIF orientations 3–8 and arbitrary-angle rotations use a bounded-memory 32 × 32 tile spool under <code>os.tmpdir()</code>. Plan for about one decoded frame of temporary disk capacity. A 100-megapixel RGBA image needs roughly 400 MB; on Lambda, that consumes configured <code>/tmp</code> storage.</div>
           <p>The temporary directory is removed on success or failure. Capacity errors such as <code>ENOSPC</code> become <code>ImageError</code> with code <code>LIMIT_EXCEEDED</code>.</p>
         </section>
 

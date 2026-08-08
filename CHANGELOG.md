@@ -4,6 +4,25 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added ordered, composable spatial stages: crop-after-resize, multiple resize stages, clockwise
+  `rotate()` with arbitrary-angle bilinear sampling, vertical `flip()`, and horizontal `flop()`.
+- Added opt-in `keepExif()` and `keepIcc()` pipeline operations with JPEG, PNG, and WebP metadata
+  round trips, TIFF ICC round trips, orientation normalization after pixel reorientation, and
+  explicit errors for unsupported preservation combinations.
+- Added a transform-to-JPEG benchmark profile covering quarter-turn and arbitrary rotation,
+  crop-after-resize with a second resize, and combined flip/flop workflows, with isolated timing,
+  peak RSS, dimensions, pinned output-pixel validation, and an equivalent-workflow Jimp comparison.
+- Added a cross-codec transform contract that runs the full ordered transform chain from every
+  supported decoder through JPEG output, plus focused arbitrary-rotation coverage for grayscale,
+  RGB, and RGBA sample formats.
+
+### Changed
+
+- Kept arbitrary-angle rotation memory bounded with a temporary 32x32 tile spool and small
+  destination blocks, without per-pixel promises or temporary sample arrays.
+
 ## [0.5.0] - 2026-08-08
 
 ### Added

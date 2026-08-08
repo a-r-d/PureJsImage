@@ -1,5 +1,6 @@
 import type { EncodeRequest, ImageEncoder } from '../codec.ts'
 import { invalidInput } from '../errors.ts'
+import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 
@@ -642,6 +643,10 @@ class ByteWriter {
     this.byte(value)
   }
 
+  bytes(values: Uint8Array): void {
+    for (const value of values) this.byte(value)
+  }
+
   bits(value: number, length: number): void {
     this.#pending = (this.#pending << length) | (value & ((1 << length) - 1))
     this.#pendingBits += length
@@ -691,12 +696,55 @@ const jpegHeader = (
   luminance: Uint8Array,
   chrominance: Uint8Array,
   luminanceSampling: number,
+  metadata: EncodeRequest['metadata'],
 ): Uint8Array => {
   const writer = new ByteWriter()
   writer.word(0xffd8)
   writer.word(0xffe0)
   writer.word(16)
   for (const value of [0x4a, 0x46, 0x49, 0x46, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0]) writer.byte(value)
+
+  if (metadata?.exif) {
+    if (metadata.exif.byteLength > 65_527)
+      throw invalidInput('Preserved EXIF data exceeds one JPEG APP1 segment')
+    writer.word(0xffe1)
+    writer.word(metadata.exif.byteLength + 8)
+    writer.bytes(Uint8Array.of(0x45, 0x78, 0x69, 0x66, 0, 0))
+    writer.bytes(metadata.exif)
+  }
+  if (metadata?.icc) {
+    if (iccColorSpace(metadata.icc) !== 'rgb')
+      throw invalidInput('Preserved ICC profile does not match JPEG RGB output pixels')
+    const chunkBytes = 65_519
+    const count = Math.ceil(metadata.icc.byteLength / chunkBytes)
+    if (count > 255) throw invalidInput('Preserved ICC profile needs too many JPEG APP2 segments')
+    const signature = Uint8Array.of(
+      0x49,
+      0x43,
+      0x43,
+      0x5f,
+      0x50,
+      0x52,
+      0x4f,
+      0x46,
+      0x49,
+      0x4c,
+      0x45,
+      0,
+    )
+    for (let index = 0; index < count; index += 1) {
+      const chunk = metadata.icc.subarray(
+        index * chunkBytes,
+        Math.min(metadata.icc.byteLength, (index + 1) * chunkBytes),
+      )
+      writer.word(0xffe2)
+      writer.word(chunk.byteLength + 16)
+      writer.bytes(signature)
+      writer.byte(index + 1)
+      writer.byte(count)
+      writer.bytes(chunk)
+    }
+  }
 
   writer.word(0xffdb)
   writer.word(132)
@@ -966,6 +1014,7 @@ class BaselineJpegEncoder implements ImageEncoder {
   readonly #width: number
   readonly #height: number
   readonly #format: PixelFormat
+  readonly #metadata: EncodeRequest['metadata']
   readonly #sourceChannels: number
   readonly #background: readonly [number, number, number]
   readonly #sampling: SamplingGeometry
@@ -991,11 +1040,13 @@ class BaselineJpegEncoder implements ImageEncoder {
     height: number,
     format: PixelFormat,
     encoderOptions: EncoderOptions,
+    metadata: EncodeRequest['metadata'],
   ) {
     this.#sink = sink
     this.#width = width
     this.#height = height
     this.#format = format
+    this.#metadata = metadata
     this.#sourceChannels = channels(format)
     this.#background = encoderOptions.background
     this.#sampling = samplingGeometry(encoderOptions.chromaSubsampling)
@@ -1012,6 +1063,7 @@ class BaselineJpegEncoder implements ImageEncoder {
         this.#luminanceTable,
         this.#chrominanceTable,
         (this.#sampling.luminanceHorizontal << 4) | this.#sampling.luminanceVertical,
+        this.#metadata,
       ),
     )
   }
@@ -1202,6 +1254,7 @@ export const createBaselineJpegEncoder = async (
     request.height,
     request.pixelFormat,
     options(request.options),
+    request.metadata,
   )
   await encoder.start()
   return encoder

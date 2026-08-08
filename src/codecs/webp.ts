@@ -1,10 +1,12 @@
 import type {
+  DecoderOptions,
   DecodeRequest,
   EncodeRequest,
   ImageCodec,
   ImageDecoder,
   ImageEncoder,
   ImageMetadata,
+  PreservedMetadata,
 } from '../codec.ts'
 import { invalidInput, truncatedInput, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
@@ -33,6 +35,8 @@ interface ParsedWebp {
   readonly frames: number
   readonly image: WebpChunk | undefined
   readonly alpha: WebpChunk | undefined
+  readonly icc: WebpChunk | undefined
+  readonly exif: WebpChunk | undefined
   readonly colorTransform: RgbIccTransform | undefined
 }
 
@@ -96,11 +100,13 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
   let extended = false
   let extendedAlpha = false
   let extendedIcc = false
+  let extendedExif = false
   let animated = false
   let frames = 0
   let image: WebpChunk | undefined
   let alpha: WebpChunk | undefined
   let icc: WebpChunk | undefined
+  let exif: WebpChunk | undefined
   let imageDataStarted = false
   let offset = 12
   while (offset < end) {
@@ -130,6 +136,7 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
       extended = true
       extendedIcc = (flags & 0x20) !== 0
       extendedAlpha = (flags & 0x10) !== 0
+      extendedExif = (flags & 0x08) !== 0
       animated = (flags & 0x02) !== 0
       canvasWidth = uint24(data, payload + 4) + 1
       canvasHeight = uint24(data, payload + 7) + 1
@@ -138,6 +145,10 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
         throw invalidInput('WebP ICCP chunk is missing VP8X or appears late')
       if (icc) throw invalidInput('WebP contains multiple ICCP chunks')
       icc = chunk
+    } else if (type === 'EXIF') {
+      if (!extended) throw invalidInput('WebP EXIF chunk is missing VP8X')
+      if (exif) throw invalidInput('WebP contains multiple EXIF chunks')
+      exif = chunk
     } else if (type === 'ANIM') imageDataStarted = true
     else if (type === 'ANMF') {
       imageDataStarted = true
@@ -178,6 +189,9 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
   if (extendedIcc !== (icc !== undefined)) {
     throw invalidInput('WebP ICCP chunk is inconsistent with the extended header')
   }
+  if (extendedExif !== (exif !== undefined)) {
+    throw invalidInput('WebP EXIF chunk is inconsistent with the extended header')
+  }
   return {
     width,
     height,
@@ -188,6 +202,8 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
     frames: animated ? Math.max(1, frames) : 1,
     image,
     alpha,
+    icc,
+    exif,
     colorTransform: icc
       ? parseRgbIccTransform(data.subarray(icc.offset, icc.offset + icc.length))
       : undefined,
@@ -351,7 +367,14 @@ const createWebpEncoder = async (
   if (!Number.isInteger(quality) || quality < 1 || quality > 100) {
     throw invalidInput('WebP quality must be an integer from 1 to 100')
   }
-  return new LossyWebpEncoder(sink, request.width, request.height, request.pixelFormat, quality)
+  return new LossyWebpEncoder(
+    sink,
+    request.width,
+    request.height,
+    request.pixelFormat,
+    quality,
+    request.metadata,
+  )
 }
 
 export const webpCodec: ImageCodec = {
@@ -373,7 +396,32 @@ export const webpCodec: ImageCodec = {
       frames: parsed.frames,
     }
   },
-  async createDecoder(source: ImageSource, limits: ImageLimits): Promise<ImageDecoder> {
+  async preservedMetadata(source: ImageSource, limits: ImageLimits): Promise<PreservedMetadata> {
+    const data = await input(source)
+    const parsed = parseWebp(data)
+    validateImageDimensions(parsed.width, parsed.height, parsed.frames, limits)
+    return {
+      ...(parsed.exif
+        ? {
+            exif: Uint8Array.from(
+              data.subarray(parsed.exif.offset, parsed.exif.offset + parsed.exif.length),
+            ),
+          }
+        : {}),
+      ...(parsed.icc
+        ? {
+            icc: Uint8Array.from(
+              data.subarray(parsed.icc.offset, parsed.icc.offset + parsed.icc.length),
+            ),
+          }
+        : {}),
+    }
+  },
+  async createDecoder(
+    source: ImageSource,
+    limits: ImageLimits,
+    options: Readonly<DecoderOptions> = {},
+  ): Promise<ImageDecoder> {
     const data = await input(source)
     const parsed = parseWebp(data)
     validateImageDimensions(parsed.width, parsed.height, parsed.frames, limits)
@@ -399,7 +447,9 @@ export const webpCodec: ImageCodec = {
       throw invalidInput('WebP canvas and image bitstream dimensions do not match')
     }
     const decoder = new WebpPixelDecoder(decoded.width, decoded.height, decoded.pixels)
-    return parsed.colorTransform ? new ColorManagedDecoder(decoder, parsed.colorTransform) : decoder
+    return parsed.colorTransform && options.preserveIcc !== true
+      ? new ColorManagedDecoder(decoder, parsed.colorTransform)
+      : decoder
   },
   createEncoder: createWebpEncoder,
 }

@@ -170,6 +170,31 @@ await image
   .toFile('output.webp')
 ```
 
+Spatial operations run in call order, so multiple resize stages and crops after a resize are
+supported. `rotate()` uses clockwise degrees, accepts arbitrary angles, and expands the output
+canvas; `flip()` mirrors top-to-bottom and `flop()` mirrors left-to-right.
+
+```ts
+const output = await image
+  .resize({ width: 800 })
+  .crop({ x: 40, y: 20, width: 640, height: 480 })
+  .rotate(12, { background: '#ffffffff' })
+  .flop()
+  .jpeg({ quality: 82 })
+  .toBuffer()
+```
+
+EXIF and ICC data are stripped by default. Opt in independently with `keepExif()` and
+`keepIcc()`. When ICC is retained, decoding leaves the tagged samples in their source color space
+and the output encoder embeds the original profile, avoiding a double conversion. Pixel
+reorientation through `autoOrient()`, `rotate()`, `flip()`, or `flop()` normalizes the retained EXIF
+orientation to 1.
+
+JPEG, PNG, and WebP can read and write retained EXIF and RGB ICC metadata. TIFF can read and write
+compatible ICC profiles, but retaining EXIF into or out of TIFF is not implemented. BMP cannot
+carry either through this API. Unsupported source or output combinations fail explicitly instead
+of silently stripping requested metadata.
+
 To enable every supported codec explicitly, use the separate all-codec entry
 point:
 
@@ -202,13 +227,14 @@ the surrounding service can safely accept larger uploads. The default `maxDecode
 1 GiB and is also enforced while compressed image data is streaming, rather than only from declared
 header dimensions. Both limits can be overridden through `open(input, { limits: { ... } })`.
 
-### Temporary storage for auto-orientation
+### Temporary storage for orientation and rotation
 
-EXIF orientations 3 through 8 require output rows in a different order from a sequential decoder.
-PureJsImage keeps memory bounded by spooling 32x32 pixel tiles to a temporary file under
-`os.tmpdir()` and removes the temporary directory on success or failure. Plan for roughly one
-decoded frame of temporary disk capacity: a 100-megapixel RGBA image needs about 400 MB, including
-small tile-edge padding. On AWS Lambda this consumes the function's configured `/tmp` storage.
+EXIF orientations 3 through 8 and arbitrary-angle rotations require output rows in a different
+order from a sequential decoder. PureJsImage keeps memory bounded by spooling 32x32 pixel tiles to a
+temporary file under `os.tmpdir()` and removes the temporary directory on success or failure. Plan
+for roughly one decoded frame of temporary disk capacity: a 100-megapixel RGBA image needs about
+400 MB, including small tile-edge padding. On AWS Lambda this consumes the function's configured
+`/tmp` storage.
 Exhausted or unavailable temporary storage fails with an `ImageError`; capacity errors such as
 `ENOSPC` use `LIMIT_EXCEEDED`.
 
@@ -264,6 +290,21 @@ same validity and correctness checks for both engines.
 | JPEG to lossy WebP | 965 ms | Unsupported | 112 MiB | — |
 | PNG to lossless WebP | 50 ms | Unsupported | 107 MiB | — |
 | 4032x3024 iPhone HEIC, orient and resize to 1200px JPEG | 8,080 ms | Unsupported | 190 MiB | — |
+
+The ordered transform planner also has isolated, correctness-gated
+transform-to-JPEG comparisons. These measurements use three runs after one
+warmup on an Intel i7-10700 with Node 24.16.0:
+
+| Workflow | PureJsImage | Jimp | Faster | PureJsImage peak RSS | Jimp peak RSS |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 4000x3000 JPEG, rotate 90 degrees, resize to 1200px, JPEG | 1,795 ms | 2,052 ms | 12% | 175 MiB | 609 MiB |
+| 4000x3000 JPEG, resize, crop, resize again, JPEG | 952 ms | 1,434 ms | 34% | 121 MiB | 584 MiB |
+| 257x193 RGBA PNG, flip, flop, flatten to JPEG | 22 ms | 70 ms | 68% | 101 MiB | 153 MiB |
+
+PureJsImage's 17-degree RGBA rotation and JPEG flattening takes 254 ms with
+141 MiB peak RSS. It is not presented as a Jimp speed comparison because Jimp
+uses a 1290x812 canvas and different sampling semantics for the same input and
+angle, while PureJsImage produces 1288x810.
 
 The primary 6000x4000 workflow currently uses about **90% less peak memory**
 than Jimp while running about 14% faster. The 100-megapixel PNG workflow uses

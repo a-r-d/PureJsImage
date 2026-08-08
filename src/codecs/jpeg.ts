@@ -1,11 +1,13 @@
 import type {
   ChromaSubsampling,
+  DecoderOptions,
   DecodeRequest,
   ImageCodec,
   ImageDecoder,
   ImageMetadata,
+  PreservedMetadata,
 } from '../codec.ts'
-import { invalidInput } from '../errors.ts'
+import { invalidInput, truncatedInput } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
@@ -261,18 +263,114 @@ class ProgressiveJpegDecoder implements ImageDecoder {
   }
 }
 
-const decodeJpeg = async (source: ImageSource, limits: ImageLimits): Promise<ImageDecoder> => {
+const decodeJpeg = async (
+  source: ImageSource,
+  limits: ImageLimits,
+  options: Readonly<DecoderOptions> = {},
+): Promise<ImageDecoder> => {
   const input = await readExactly(source, 0, source.size)
-  const baseline = parseBaselineJpeg(input)
+  const applyIcc = options.preserveIcc !== true
+  const baseline = parseBaselineJpeg(input, applyIcc)
   if (baseline) {
     validateImageDimensions(baseline.width, baseline.height, 1, limits)
     return new JpegDecoder(baseline)
   }
-  const progressive = parseProgressiveJpeg(input, (width, height) => {
-    validateImageDimensions(width, height, 1, limits)
-  })
+  const progressive = parseProgressiveJpeg(
+    input,
+    (width, height) => {
+      validateImageDimensions(width, height, 1, limits)
+    },
+    applyIcc,
+  )
   if (!progressive) throw invalidInput('JPEG coding process is unsupported')
   return new ProgressiveJpegDecoder(progressive)
+}
+
+interface JpegIccChunk {
+  readonly sequence: number
+  readonly count: number
+  readonly data: Uint8Array
+}
+
+const jpegPreservedMetadata = async (source: ImageSource): Promise<PreservedMetadata> => {
+  const data = await readExactly(source, 0, source.size)
+  let exif: Uint8Array | undefined
+  const iccChunks: JpegIccChunk[] = []
+  let offset = 2
+  while (offset < data.byteLength) {
+    while (data[offset] === 0xff) offset += 1
+    const marker = data[offset]
+    if (marker === undefined) throw truncatedInput('JPEG marker is truncated')
+    offset += 1
+    if (marker === 0xd9 || marker === 0xda) break
+    if (marker === 0x00 || standaloneMarkers.has(marker)) continue
+    if (offset + 2 > data.byteLength) throw truncatedInput('JPEG segment length is truncated')
+    const length = uint16BigEndian(data, offset)
+    if (length < 2) throw invalidInput('JPEG segment length is invalid')
+    const start = offset + 2
+    const end = offset + length
+    if (end > data.byteLength) throw truncatedInput('JPEG segment is truncated')
+    if (
+      marker === 0xe1 &&
+      exif === undefined &&
+      end - start >= 6 &&
+      data[start] === 0x45 &&
+      data[start + 1] === 0x78 &&
+      data[start + 2] === 0x69 &&
+      data[start + 3] === 0x66 &&
+      data[start + 4] === 0 &&
+      data[start + 5] === 0
+    ) {
+      exif = Uint8Array.from(data.subarray(start + 6, end))
+    } else if (
+      marker === 0xe2 &&
+      end - start >= 14 &&
+      data[start] === 0x49 &&
+      data[start + 1] === 0x43 &&
+      data[start + 2] === 0x43 &&
+      data[start + 3] === 0x5f &&
+      data[start + 4] === 0x50 &&
+      data[start + 5] === 0x52 &&
+      data[start + 6] === 0x4f &&
+      data[start + 7] === 0x46 &&
+      data[start + 8] === 0x49 &&
+      data[start + 9] === 0x4c &&
+      data[start + 10] === 0x45 &&
+      data[start + 11] === 0
+    ) {
+      const sequence = data[start + 12] ?? 0
+      const count = data[start + 13] ?? 0
+      if (sequence < 1 || count < 1 || sequence > count)
+        throw invalidInput('JPEG ICC chunk numbering is invalid')
+      iccChunks.push({ sequence, count, data: Uint8Array.from(data.subarray(start + 14, end)) })
+    }
+    offset = end
+  }
+  let icc: Uint8Array | undefined
+  if (iccChunks.length > 0) {
+    const count = iccChunks[0]?.count ?? 0
+    if (count !== iccChunks.length || iccChunks.some((chunk) => chunk.count !== count))
+      throw invalidInput('JPEG ICC profile chunks are incomplete')
+    const ordered = new Array<Uint8Array | undefined>(count)
+    let size = 0
+    for (const chunk of iccChunks) {
+      if (ordered[chunk.sequence - 1]) throw invalidInput('JPEG ICC profile repeats a chunk')
+      ordered[chunk.sequence - 1] = chunk.data
+      size += chunk.data.byteLength
+      if (size > 16 * 1024 * 1024) throw invalidInput('JPEG ICC profile exceeds 16 MiB')
+    }
+    icc = new Uint8Array(size)
+    let position = 0
+    for (const chunk of ordered) {
+      if (!chunk) throw invalidInput('JPEG ICC profile chunks are incomplete')
+      icc.set(chunk, position)
+      position += chunk.byteLength
+    }
+  }
+  return {
+    ...(exif ? { exif } : {}),
+    ...(icc ? { icc } : {}),
+  }
 }
 
 export const jpegCodec: ImageCodec = {
@@ -374,6 +472,7 @@ export const jpegCodec: ImageCodec = {
       frames: frames ?? 1,
     }
   },
+  preservedMetadata: jpegPreservedMetadata,
   createDecoder: decodeJpeg,
   createEncoder: createBaselineJpegEncoder,
 }

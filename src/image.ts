@@ -9,6 +9,7 @@ import type {
   PipelineOperation,
   PngEncodeOptions,
   ResizeOptions,
+  RotateOptions,
   TiffEncodeOptions,
   WebpEncodeOptions,
 } from './pipeline.ts'
@@ -18,6 +19,7 @@ import {
   createJpegEncodeOperation,
   createPngEncodeOperation,
   createResizeOperation,
+  createRotateOperation,
   createTiffEncodeOperation,
   createWebpEncodeOperation,
   planMetadata,
@@ -75,12 +77,32 @@ export class Image {
     return this.#append(Object.freeze({ type: 'autoOrient' }))
   }
 
+  keepExif(): Image {
+    return this.#append(Object.freeze({ type: 'keepExif' }))
+  }
+
+  keepIcc(): Image {
+    return this.#append(Object.freeze({ type: 'keepIcc' }))
+  }
+
   crop(options: CropOptions): Image {
     return this.#append(createCropOperation(options))
   }
 
   resize(options: ResizeOptions): Image {
     return this.#append(createResizeOperation(options))
+  }
+
+  rotate(degrees: number, options: RotateOptions = {}): Image {
+    return this.#append(createRotateOperation(degrees, options))
+  }
+
+  flip(): Image {
+    return this.#append(Object.freeze({ type: 'flip' }))
+  }
+
+  flop(): Image {
+    return this.#append(Object.freeze({ type: 'flop' }))
   }
 
   encode(format: 'jpeg', options?: JpegEncodeOptions): Image

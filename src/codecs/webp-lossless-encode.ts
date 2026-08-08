@@ -1,5 +1,6 @@
 import type { EncodeRequest, ImageEncoder } from '../codec.ts'
 import { invalidInput } from '../errors.ts'
+import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 
@@ -102,6 +103,12 @@ const uint32 = (data: Uint8Array, offset: number, value: number): void => {
   view.setUint32(offset, value, true)
 }
 
+const uint24 = (data: Uint8Array, offset: number, value: number): void => {
+  data[offset] = value & 255
+  data[offset + 1] = (value >>> 8) & 255
+  data[offset + 2] = (value >>> 16) & 255
+}
+
 const channels = (format: PixelFormat): number => {
   if (format === 'gray8') return 1
   if (format === 'rgb8') return 3
@@ -110,20 +117,31 @@ const channels = (format: PixelFormat): number => {
 }
 
 class LosslessWebpEncoder implements ImageEncoder {
+  readonly #sink: ImageSink
   readonly #writer: BitWriter
   readonly #width: number
   readonly #height: number
   readonly #format: PixelFormat
   readonly #channels: number
+  readonly #exif: Uint8Array | undefined
   #expectedY = 0
   #finished = false
 
-  constructor(writer: BitWriter, width: number, height: number, format: PixelFormat) {
+  constructor(
+    sink: ImageSink,
+    writer: BitWriter,
+    width: number,
+    height: number,
+    format: PixelFormat,
+    exif: Uint8Array | undefined,
+  ) {
+    this.#sink = sink
     this.#writer = writer
     this.#width = width
     this.#height = height
     this.#format = format
     this.#channels = channels(format)
+    this.#exif = exif
   }
 
   async write(block: PixelBlock): Promise<void> {
@@ -166,6 +184,7 @@ class LosslessWebpEncoder implements ImageEncoder {
       throw invalidInput(`WebP encoder received ${this.#expectedY} of ${this.#height} rows`)
     }
     await this.#writer.finish()
+    if (this.#exif) await writeChunk(this.#sink, Uint8Array.of(69, 88, 73, 70), this.#exif)
   }
 
   async abort(): Promise<void> {
@@ -175,6 +194,14 @@ class LosslessWebpEncoder implements ImageEncoder {
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
+
+const writeChunk = async (sink: ImageSink, type: Uint8Array, data: Uint8Array): Promise<void> => {
+  const output = new Uint8Array(8 + data.byteLength + (data.byteLength & 1))
+  output.set(type)
+  uint32(output, 4, data.byteLength)
+  output.set(data, 8)
+  await sink.write(output)
+}
 
 export const createLosslessWebpEncoder = async (
   sink: ImageSink,
@@ -196,19 +223,44 @@ export const createLosslessWebpEncoder = async (
     throw invalidInput('Lossless WebP encoding requires lossless: true')
   }
   channels(request.pixelFormat)
+  const icc = request.metadata?.icc
+  const exif = request.metadata?.exif
+  if (icc && iccColorSpace(icc) !== 'rgb')
+    throw invalidInput('Preserved ICC profile does not match WebP RGB output pixels')
 
   const pixels = request.width * request.height
   const prefixBits = 900
   const payloadLength = 5 + Math.ceil((prefixBits + pixels * 32) / 8)
-  const header = new Uint8Array(25)
+  const iccBytes = icc ? 8 + icc.byteLength + (icc.byteLength & 1) : 0
+  const exifBytes = exif ? 8 + exif.byteLength + (exif.byteLength & 1) : 0
+  const extended = icc !== undefined || exif !== undefined
+  const bodyLength = 4 + (extended ? 18 + iccBytes : 0) + 8 + payloadLength + exifBytes
+  const header = new Uint8Array(12 + (extended ? 18 + iccBytes : 0) + 13)
   header.set([0x52, 0x49, 0x46, 0x46], 0)
-  uint32(header, 4, 4 + 8 + payloadLength)
-  header.set([0x57, 0x45, 0x42, 0x50, 0x56, 0x50, 0x38, 0x4c], 8)
-  uint32(header, 16, payloadLength)
-  header[20] = 0x2f
+  uint32(header, 4, bodyLength)
+  header.set([0x57, 0x45, 0x42, 0x50], 8)
+  let offset = 12
+  if (extended) {
+    header.set([0x56, 0x50, 0x38, 0x58], offset)
+    uint32(header, offset + 4, 10)
+    header[offset + 8] =
+      (icc ? 0x20 : 0) | (request.pixelFormat === 'rgba8' ? 0x10 : 0) | (exif ? 0x08 : 0)
+    uint24(header, offset + 12, request.width - 1)
+    uint24(header, offset + 15, request.height - 1)
+    offset += 18
+    if (icc) {
+      header.set([0x49, 0x43, 0x43, 0x50], offset)
+      uint32(header, offset + 4, icc.byteLength)
+      header.set(icc, offset + 8)
+      offset += iccBytes
+    }
+  }
+  header.set([0x56, 0x50, 0x38, 0x4c], offset)
+  uint32(header, offset + 4, payloadLength)
+  header[offset + 8] = 0x2f
   uint32(
     header,
-    21,
+    offset + 9,
     (request.width - 1) |
       ((request.height - 1) << 14) |
       (request.pixelFormat === 'rgba8' ? 1 << 28 : 0),
@@ -224,5 +276,12 @@ export const createLosslessWebpEncoder = async (
   writeFixedLiteralTree(writer, 256)
   writeFixedLiteralTree(writer, 256)
   writeSingleZeroTree(writer)
-  return new LosslessWebpEncoder(writer, request.width, request.height, request.pixelFormat)
+  return new LosslessWebpEncoder(
+    sink,
+    writer,
+    request.width,
+    request.height,
+    request.pixelFormat,
+    exif,
+  )
 }

@@ -73,6 +73,14 @@
             <tr><td>Twilio MMS JPEG to 1024 px</td><td>853 ms</td><td>1,364 ms</td><td>105 MiB</td><td>601 MiB</td></tr>
             <tr><td>EXIF orientation 6</td><td>388 ms</td><td>576 ms</td><td>105 MiB</td><td>254 MiB</td></tr>
           </tbody></table></div>
+          <h3>Ordered transforms to JPEG</h3>
+          <p>These workflows use three isolated runs after one warmup and accept timings only when dimensions and pinned output pixels pass. PureJsImage’s arbitrary-angle rotation has a separate absolute baseline because Jimp uses different canvas sizing and sampling semantics.</p>
+          <div class="table-wrap"><table><thead><tr><th>Workflow</th><th>PureJsImage wall</th><th>Jimp wall</th><th>PJI RSS</th><th>Jimp RSS</th></tr></thead><tbody>
+            <tr><td>Rotate 90°, resize, JPEG</td><td>1,795 ms</td><td>2,052 ms</td><td>175 MiB</td><td>609 MiB</td></tr>
+            <tr><td>Resize, crop, resize, JPEG</td><td>952 ms</td><td>1,434 ms</td><td>121 MiB</td><td>584 MiB</td></tr>
+            <tr><td>Flip, flop, flatten to JPEG</td><td>22 ms</td><td>70 ms</td><td>101 MiB</td><td>153 MiB</td></tr>
+          </tbody></table></div>
+          <p>The 17-degree RGBA rotation and JPEG flattening absolute baseline is 254 ms with 141 MiB peak RSS.</p>
           <h3>WebP</h3>
           <p>Jimp 1.6 exposes no WebP codec, so these are absolute baselines—not synthetic comparisons.</p>
           <div class="table-wrap"><table><thead><tr><th>Workflow</th><th>Median wall</th><th>Peak RSS</th></tr></thead><tbody>
@@ -113,6 +121,8 @@ npm run build
 npm run bench:smoke
 npm run bench:bmp
 npm run bench:tiff
+npm run bench:transforms
+npm run bench:transforms:compare
 npm run bench:webp
 npm run bench:avif:b2
 npm run bench:heif:cold</code></pre></div>

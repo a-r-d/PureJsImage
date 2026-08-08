@@ -196,6 +196,18 @@ describe('streaming resize', () => {
     expect(pixelAt(output, 1, 1)).toEqual([100, 120, 9, 255])
   })
 
+  it('composes multiple resize stages and crops in the current stage coordinates', async () => {
+    const input = png(8, 8, (x, y) => [x * 20, y * 20, x + y, 255])
+    const pipeline = (await Image.open(input))
+      .resize({ width: 4, height: 4, fit: 'fill', kernel: 'nearest' })
+      .crop({ x: 1, y: 1, width: 2, height: 2 })
+      .resize({ width: 1, height: 1, fit: 'fill', kernel: 'nearest' })
+    const output = PNG.sync.read(await pipeline.png().toBuffer())
+
+    await expect(pipeline.metadata()).resolves.toMatchObject({ width: 1, height: 1 })
+    expect(pixelAt(output, 0, 0)).toEqual([100, 100, 10, 255])
+  })
+
   it('honors withoutEnlargement for executable width-only resize', async () => {
     const output = await execute(
       png(4, 2, () => [1, 2, 3, 255]),

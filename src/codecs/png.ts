@@ -1,12 +1,14 @@
 import type { Deflate } from 'node:zlib'
 
 import type {
+  DecoderOptions,
   DecodeRequest,
   EncodeRequest,
   ImageCodec,
   ImageDecoder,
   ImageEncoder,
   ImageMetadata,
+  PreservedMetadata,
 } from '../codec.ts'
 import {
   ImageError,
@@ -17,6 +19,7 @@ import {
 } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
+import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
@@ -60,6 +63,8 @@ interface PngDescription {
   readonly idat: readonly ChunkRange[]
   readonly colorTransform: RgbIccTransform | undefined
   readonly grayTransform: Uint8Array | undefined
+  readonly iccProfile: Uint8Array | undefined
+  readonly exif: Uint8Array | undefined
 }
 
 interface CropRegion {
@@ -315,6 +320,7 @@ const parsePng = async (
   let foundSrgb = false
   let foundCicp = false
   let compressedIcc: Uint8Array | undefined
+  let exif: Uint8Array | undefined
   let gamma: number | undefined
   let chromaticities: RgbChromaticities | undefined
   let imageDataState: 'before' | 'inside' | 'after' = 'before'
@@ -336,6 +342,10 @@ const parsePng = async (
         throw invalidInput('PNG iCCP must precede the palette and image data')
       compressedIcc = parseIccChunk(await readExactly(source, dataOffset, length))
       foundIcc = true
+    } else if (type === 'eXIf') {
+      if (exif) throw invalidInput('PNG contains multiple eXIf chunks')
+      if (length > 16 * 1024 * 1024) throw limitExceeded('PNG EXIF data exceeds 16 MiB')
+      exif = Uint8Array.from(await readExactly(source, dataOffset, length))
     } else if (type === 'gAMA') {
       if (foundGamma) throw invalidInput('PNG contains multiple gAMA chunks')
       if (imageDataState !== 'before' || foundPalette)
@@ -449,8 +459,10 @@ const parsePng = async (
   }
   let colorTransform: RgbIccTransform | undefined
   let grayTransform: Uint8Array | undefined
+  let iccProfile: Uint8Array | undefined
   if (compressedIcc) {
-    colorTransform = parseRgbIccTransform(await inflateIccProfile(compressedIcc))
+    iccProfile = await inflateIccProfile(compressedIcc)
+    colorTransform = parseRgbIccTransform(iccProfile)
   } else if (!foundSrgb && gamma !== undefined) {
     if (rawColorType === 0 && !hasAlpha) {
       grayTransform = createPngGrayTransform(gamma)
@@ -472,6 +484,8 @@ const parsePng = async (
     idat,
     colorTransform,
     grayTransform,
+    iccProfile,
+    exif,
   }
 }
 
@@ -1350,7 +1364,39 @@ const createPngEncoder = async (sink: ImageSink, request: EncodeRequest): Promis
   header[9] = channels === 1 ? 0 : channels === 3 ? 2 : 6
   await writeChunk(sink, 'IHDR', header)
 
-  const { constants, createDeflate } = await import('node:zlib')
+  const { constants, createDeflate, deflateSync } = await import('node:zlib')
+  const icc = request.metadata?.icc
+  if (icc) {
+    const colorSpace = iccColorSpace(icc)
+    if (
+      colorSpace === 'other' ||
+      (request.pixelFormat === 'gray8' && colorSpace !== 'gray') ||
+      (request.pixelFormat !== 'gray8' && colorSpace !== 'rgb')
+    ) {
+      throw invalidInput('Preserved ICC profile does not match PNG output pixels')
+    }
+    const name = Uint8Array.of(
+      0x50,
+      0x75,
+      0x72,
+      0x65,
+      0x4a,
+      0x73,
+      0x49,
+      0x6d,
+      0x61,
+      0x67,
+      0x65,
+      0,
+      0,
+    )
+    const compressed = deflateSync(icc)
+    const payload = new Uint8Array(name.byteLength + compressed.byteLength)
+    payload.set(name)
+    payload.set(compressed, name.byteLength)
+    await writeChunk(sink, 'iCCP', payload)
+  }
+  if (request.metadata?.exif) await writeChunk(sink, 'eXIf', request.metadata.exif)
   return new PngEncoder(
     sink,
     createDeflate({
@@ -1382,9 +1428,21 @@ export const pngCodec: ImageCodec = {
       frames: description.frames,
     }
   },
-  async createDecoder(source: ImageSource, limits: ImageLimits): Promise<ImageDecoder> {
+  async preservedMetadata(source: ImageSource, limits: ImageLimits): Promise<PreservedMetadata> {
+    const description = await parsePng(source, limits, true)
+    return {
+      ...(description.exif ? { exif: Uint8Array.from(description.exif) } : {}),
+      ...(description.iccProfile ? { icc: Uint8Array.from(description.iccProfile) } : {}),
+    }
+  },
+  async createDecoder(
+    source: ImageSource,
+    limits: ImageLimits,
+    options: Readonly<DecoderOptions> = {},
+  ): Promise<ImageDecoder> {
     const description = await parsePng(source, limits, true)
     const decoder = new PngDecoder(source, description, limits)
+    if (options.preserveIcc === true && description.iccProfile) return decoder
     if (description.colorTransform)
       return new ColorManagedDecoder(decoder, description.colorTransform)
     return description.grayTransform

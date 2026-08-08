@@ -9,6 +9,7 @@ export type BenchmarkProfile =
   | 'smoke'
   | 'standard'
   | 'tiff'
+  | 'transforms'
   | 'webp'
 
 export interface FixtureExpectation {
@@ -75,6 +76,9 @@ export interface FixtureInspection {
 export type Operation =
   | { type: 'metadata' }
   | { type: 'autoOrient' }
+  | { type: 'rotate'; degrees: number }
+  | { type: 'flip' }
+  | { type: 'flop' }
   | { type: 'crop'; x: number; y: number; width: number; height: number }
   | {
       type: 'resize'

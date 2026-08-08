@@ -1,14 +1,17 @@
 import type {
+  DecoderOptions,
   DecodeRequest,
   EncodeRequest,
   ImageCodec,
   ImageDecoder,
   ImageEncoder,
   ImageMetadata,
+  PreservedMetadata,
 } from '../codec.ts'
 import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
+import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
@@ -360,6 +363,7 @@ interface TiffDescription {
   readonly frames: number
   readonly pixelFormat: 'gray8' | 'rgb8' | 'rgba8'
   readonly colorTransform: RgbIccTransform | undefined
+  readonly iccProfile: Uint8Array | undefined
   readonly jpegTables: Uint8Array | undefined
   readonly jpegInterchange: Uint8Array | undefined
   readonly oldJpeg: OldJpegDescription | undefined
@@ -1112,13 +1116,15 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
       : undefined
   const iccEntry = ifd.entries.get(34675)
   let colorTransform: RgbIccTransform | undefined
+  let iccProfile: Uint8Array | undefined
   if (iccEntry) {
     if (photometric !== photometricRgb && photometric !== photometricPalette && !jpegCompression) {
       throw unsupportedOperation(
         'TIFF ICC color management is not implemented for this color space',
       )
     }
-    colorTransform = parseRgbIccTransform(await undefinedEntryBytes(source, iccEntry, 34675))
+    iccProfile = Uint8Array.from(await undefinedEntryBytes(source, iccEntry, 34675))
+    colorTransform = parseRgbIccTransform(iccProfile)
   }
   const jpegTablesEntry = ifd.entries.get(347)
   const jpegTables = jpegTablesEntry
@@ -1212,6 +1218,7 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
           ? 'gray8'
           : 'rgb8',
     colorTransform,
+    iccProfile,
     jpegTables,
     jpegInterchange,
     oldJpeg,
@@ -2447,13 +2454,19 @@ const writeIfdEntry = (
   else view.setUint32(offset + 8, value, true)
 }
 
-const tiffHeader = (width: number, height: number, format: PixelFormat): Uint8Array => {
+const tiffHeader = (
+  width: number,
+  height: number,
+  format: PixelFormat,
+  icc: Uint8Array | undefined,
+): Uint8Array => {
   const samples = format === 'gray8' ? 1 : format === 'rgb8' ? 3 : 4
-  const entryCount = format === 'rgba8' ? 12 : 11
+  const entryCount = (format === 'rgba8' ? 12 : 11) + (icc ? 1 : 0)
   const ifdOffset = 8
   const ifdBytes = 2 + entryCount * 12 + 4
   const bitsBytes = samples === 1 ? 0 : samples * 2
-  const pixelOffset = ifdOffset + ifdBytes + bitsBytes
+  const iccOffset = ifdOffset + ifdBytes + bitsBytes
+  const pixelOffset = iccOffset + (icc?.byteLength ?? 0)
   const output = new Uint8Array(pixelOffset)
   const view = new DataView(output.buffer)
   output.set([0x49, 0x49, 0x2a, 0])
@@ -2476,12 +2489,14 @@ const tiffHeader = (width: number, height: number, format: PixelFormat): Uint8Ar
   entry(279, 4, 1, width * height * samples)
   entry(284, 3, 1, 1)
   if (format === 'rgba8') entry(338, 3, 1, 2)
+  if (icc) entry(34675, 7, icc.byteLength, iccOffset)
   view.setUint32(entryOffset, 0, true)
   if (samples > 1) {
     for (let sample = 0; sample < samples; sample += 1) {
       view.setUint16(ifdOffset + ifdBytes + sample * 2, 8, true)
     }
   }
+  if (icc) output.set(icc, iccOffset)
   return output
 }
 
@@ -2513,7 +2528,20 @@ class TiffEncoder implements ImageEncoder {
     ) {
       throw unsupportedOperation(`TIFF encoding does not support ${request.pixelFormat} pixels`)
     }
-    await sink.write(tiffHeader(request.width, request.height, request.pixelFormat))
+    if (request.metadata?.exif)
+      throw unsupportedOperation('Preserving EXIF into TIFF output is not implemented')
+    const icc = request.metadata?.icc
+    if (icc) {
+      const colorSpace = iccColorSpace(icc)
+      if (
+        colorSpace === 'other' ||
+        (request.pixelFormat === 'gray8' && colorSpace !== 'gray') ||
+        (request.pixelFormat !== 'gray8' && colorSpace !== 'rgb')
+      ) {
+        throw invalidInput('Preserved ICC profile does not match TIFF output pixels')
+      }
+    }
+    await sink.write(tiffHeader(request.width, request.height, request.pixelFormat, icc))
     return new TiffEncoder(sink, request.width, request.height, request.pixelFormat)
   }
 
@@ -2572,10 +2600,16 @@ export const tiffCodec: ImageCodec = {
   minimumBytes: 4,
   detect: isTiff,
   metadata: async (source, limits) => metadata(await describeTiff(source, limits)),
-  createDecoder: async (source, limits) => {
+  preservedMetadata: async (source, limits, options): Promise<PreservedMetadata> => {
+    if (options?.exif)
+      throw unsupportedOperation('Preserving EXIF from TIFF input is not implemented')
+    const description = await describeTiff(source, limits)
+    return description.iccProfile ? { icc: Uint8Array.from(description.iccProfile) } : {}
+  },
+  createDecoder: async (source, limits, options: Readonly<DecoderOptions> = {}) => {
     const description = await describeTiff(source, limits)
     const decoder = new TiffDecoder(source, description, limits)
-    return description.colorTransform
+    return description.colorTransform && options.preserveIcc !== true
       ? new ColorManagedDecoder(decoder, description.colorTransform)
       : decoder
   },

@@ -4,6 +4,9 @@ import type { Engine, EngineExecution, ImageMetadata, PipelineWorkflow } from '.
 interface PureImage {
   metadata(): Promise<ImageMetadata>
   autoOrient(): PureImage
+  rotate(degrees: number): PureImage
+  flip(): PureImage
+  flop(): PureImage
   crop(options: { x: number; y: number; width: number; height: number }): PureImage
   resize(options: {
     width?: number
@@ -82,6 +85,15 @@ const applyOperations = async ({
         return { metadata: await image.metadata() }
       case 'autoOrient':
         image = image.autoOrient()
+        break
+      case 'rotate':
+        image = image.rotate(operation.degrees)
+        break
+      case 'flip':
+        image = image.flip()
+        break
+      case 'flop':
+        image = image.flop()
         break
       case 'crop':
         image = image.crop({

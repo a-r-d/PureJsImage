@@ -98,11 +98,26 @@ export interface ImageEncoder {
   abort?(reason: unknown): Promise<void>
 }
 
+export interface PreservedMetadata {
+  readonly exif?: Uint8Array
+  readonly icc?: Uint8Array
+}
+
+export interface DecoderOptions {
+  readonly preserveIcc?: boolean
+}
+
+export interface MetadataPreservationOptions {
+  readonly exif: boolean
+  readonly icc: boolean
+}
+
 export interface EncodeRequest {
   readonly width: number
   readonly height: number
   readonly pixelFormat: PixelFormat
   readonly options: unknown
+  readonly metadata?: Readonly<PreservedMetadata>
 }
 
 export interface ImageCodec {
@@ -111,7 +126,16 @@ export interface ImageCodec {
   readonly minimumBytes: number
   detect(header: Uint8Array): boolean
   metadata(source: ImageSource, limits: ImageLimits): Promise<ImageMetadata>
-  createDecoder?(source: ImageSource, limits: ImageLimits): Promise<ImageDecoder>
+  preservedMetadata?(
+    source: ImageSource,
+    limits: ImageLimits,
+    options?: Readonly<MetadataPreservationOptions>,
+  ): Promise<Readonly<PreservedMetadata>>
+  createDecoder?(
+    source: ImageSource,
+    limits: ImageLimits,
+    options?: Readonly<DecoderOptions>,
+  ): Promise<ImageDecoder>
   createEncoder?(sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder>
 }
 

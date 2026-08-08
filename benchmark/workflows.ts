@@ -264,6 +264,83 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'jpeg', width: 2048, height: 2048 },
   },
   {
+    id: 'transform-quarter-turn-jpeg',
+    title: '4000x3000 JPEG rotate 90 clockwise, resize to 1200px, and encode JPEG 80',
+    tier: 'transforms',
+    input: 'tundra-4000x3000',
+    operations: [{ type: 'rotate', degrees: 90 }, { type: 'resize', width: 1200 }, jpeg(80)],
+    expected: {
+      format: 'jpeg',
+      width: 1200,
+      height: 1600,
+      pixelSamples: [
+        { x: 100, y: 200, red: 69, green: 94, blue: 54, tolerance: 12 },
+        { x: 600, y: 800, red: 155, green: 160, blue: 101, tolerance: 15 },
+        { x: 1199, y: 1599, red: 95, green: 167, blue: 235, tolerance: 6 },
+      ],
+    },
+    timeoutMs: 120000,
+  },
+  {
+    id: 'transform-arbitrary-angle-jpeg',
+    title: '1200x480 transparent PNG rotate 17 degrees and flatten to JPEG 80',
+    tier: 'transforms',
+    input: 'transparent-logo-1200x480',
+    operations: [{ type: 'rotate', degrees: 17 }, jpeg(80, '#ffffff')],
+    expected: {
+      format: 'jpeg',
+      width: 1288,
+      height: 810,
+      cornerRgbMinimum: 240,
+      pixelSamples: [
+        { x: 300, y: 200, red: 52, green: 152, blue: 216, tolerance: 15 },
+        { x: 644, y: 405, red: 52, green: 139, blue: 216, tolerance: 15 },
+        { x: 987, y: 612, red: 53, green: 181, blue: 216, tolerance: 15 },
+      ],
+    },
+    timeoutMs: 120000,
+  },
+  {
+    id: 'transform-crop-after-resize-jpeg',
+    title: '4000x3000 JPEG resize, crop in resized coordinates, resize again, and encode JPEG 80',
+    tier: 'transforms',
+    input: 'tundra-4000x3000',
+    operations: [
+      { type: 'resize', width: 1600 },
+      { type: 'crop', x: 200, y: 150, width: 1200, height: 900 },
+      { type: 'resize', width: 600 },
+      jpeg(80),
+    ],
+    expected: {
+      format: 'jpeg',
+      width: 600,
+      height: 450,
+      pixelSamples: [
+        { x: 100, y: 100, red: 57, green: 80, blue: 67, tolerance: 8 },
+        { x: 300, y: 225, red: 146, green: 155, blue: 97, tolerance: 12 },
+        { x: 599, y: 449, red: 162, green: 166, blue: 151, tolerance: 7 },
+      ],
+    },
+    timeoutMs: 120000,
+  },
+  {
+    id: 'transform-flip-flop-jpeg',
+    title: '257x193 RGBA PNG vertical flip, horizontal flop, and flatten to JPEG 90',
+    tier: 'transforms',
+    input: 'odd-rgba-257x193',
+    operations: [{ type: 'flip' }, { type: 'flop' }, jpeg(90, '#ffffff')],
+    expected: {
+      format: 'jpeg',
+      width: 257,
+      height: 193,
+      pixelSamples: [
+        { x: 64, y: 48, red: 235, green: 220, blue: 190, tolerance: 25 },
+        { x: 128, y: 96, red: 143, green: 116, blue: 59, tolerance: 45 },
+        { x: 256, y: 192, red: 255, green: 255, blue: 255, tolerance: 4 },
+      ],
+    },
+  },
+  {
     id: 'heif-iphone-metadata',
     title: 'Read metadata from a 4032x3024 iPhone HEIC grid image',
     tier: 'heif',
@@ -943,6 +1020,12 @@ const phase5WorkflowIds = new Set([
   'lambda-logo-gif',
 ])
 
+const comparableTransformWorkflowIds = new Set([
+  'transform-quarter-turn-jpeg',
+  'transform-crop-after-resize-jpeg',
+  'transform-flip-flop-jpeg',
+])
+
 export const workflowsForProfile = (profile: string): readonly Workflow[] => {
   if (profile === 'smoke') {
     return workflows.filter((workflow) => workflow.tier === 'smoke')
@@ -980,6 +1063,12 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
   }
   if (profile === 'tiff') {
     return workflows.filter((workflow) => workflow.tier === 'tiff')
+  }
+  if (profile === 'transforms') {
+    return workflows.filter((workflow) => workflow.tier === 'transforms')
+  }
+  if (profile === 'transforms-comparable') {
+    return workflows.filter((workflow) => comparableTransformWorkflowIds.has(workflow.id))
   }
   throw new Error(`Unknown profile: ${profile}`)
 }

@@ -26,6 +26,10 @@ export interface CropOptions {
   height: number
 }
 
+export interface RotateOptions {
+  background?: Background
+}
+
 export interface JpegEncodeOptions {
   quality?: number
   progressive?: boolean
@@ -52,6 +56,11 @@ export interface TiffEncodeOptions {
 
 export type PipelineOperation =
   | { readonly type: 'autoOrient' }
+  | { readonly type: 'keepExif' }
+  | { readonly type: 'keepIcc' }
+  | { readonly type: 'flip' }
+  | { readonly type: 'flop' }
+  | { readonly type: 'rotate'; readonly degrees: number; readonly options: Readonly<RotateOptions> }
   | ({ readonly type: 'crop' } & Readonly<CropOptions>)
   | ({ readonly type: 'resize' } & Readonly<ResizeOptions>)
   | {
@@ -100,6 +109,42 @@ export const createCropOperation = (options: CropOptions): PipelineOperation => 
     }
   }
   return Object.freeze({ type: 'crop', ...options })
+}
+
+export const createRotateOperation = (
+  degrees: number,
+  options: RotateOptions = {},
+): PipelineOperation => {
+  if (!Number.isFinite(degrees)) throw invalidInput('Rotate degrees must be a finite number')
+  validBackground(options.background)
+  return Object.freeze({
+    type: 'rotate',
+    degrees,
+    options: Object.freeze({ ...options }),
+  })
+}
+
+export const normalizedRotation = (degrees: number): number => ((degrees % 360) + 360) % 360
+
+export const rotationDimensions = (
+  width: number,
+  height: number,
+  degrees: number,
+): { readonly width: number; readonly height: number } => {
+  const normalized = normalizedRotation(degrees)
+  if (normalized === 0 || normalized === 180) return { width, height }
+  if (normalized === 90 || normalized === 270) return { width: height, height: width }
+  const radians = (normalized * Math.PI) / 180
+  return {
+    width: Math.max(
+      1,
+      Math.ceil(Math.abs(width * Math.cos(radians)) + Math.abs(height * Math.sin(radians))),
+    ),
+    height: Math.max(
+      1,
+      Math.ceil(Math.abs(width * Math.sin(radians)) + Math.abs(height * Math.cos(radians))),
+    ),
+  }
 }
 
 export const createResizeOperation = (options: ResizeOptions): PipelineOperation => {
@@ -232,6 +277,7 @@ export const planMetadata = (
   let metadata = { ...source }
 
   for (const operation of operations) {
+    if (operation.type === 'keepExif' || operation.type === 'keepIcc') continue
     if (operation.type === 'autoOrient') {
       if (
         metadata.orientation !== undefined &&
@@ -242,6 +288,29 @@ export const planMetadata = (
       } else if (metadata.orientation !== undefined) {
         metadata = { ...metadata, orientation: 1 }
       }
+      continue
+    }
+
+    if (operation.type === 'flip' || operation.type === 'flop') {
+      if (metadata.orientation !== undefined) metadata = { ...metadata, orientation: 1 }
+      continue
+    }
+
+    if (operation.type === 'rotate') {
+      const dimensions = rotationDimensions(metadata.width, metadata.height, operation.degrees)
+      const transparentCanvas =
+        normalizedRotation(operation.degrees) % 90 !== 0 &&
+        (operation.options.background === undefined ||
+          operation.options.background === 'transparent' ||
+          (operation.options.background.length === 9 &&
+            operation.options.background.slice(7, 9).toLowerCase() !== 'ff'))
+      metadata = {
+        ...metadata,
+        ...dimensions,
+        hasAlpha: metadata.hasAlpha || transparentCanvas,
+        ...(metadata.orientation === undefined ? {} : { orientation: 1 }),
+      }
+      validateImageDimensions(metadata.width, metadata.height, metadata.frames ?? 1, limits)
       continue
     }
 

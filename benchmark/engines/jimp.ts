@@ -18,6 +18,8 @@ interface JimpImage {
   blit(options: { src: JimpImage; x: number; y: number }): JimpImage
   crop(options: { x: number; y: number; w: number; h: number }): JimpImage
   getBuffer(mime: string, options?: Record<string, unknown>): Promise<Buffer>
+  flip(options: { horizontal?: boolean; vertical?: boolean }): JimpImage
+  rotate(degrees: number): JimpImage
   resize(options: ResizeOptions): JimpImage
   scaleToFit(options: { w: number; h: number }): JimpImage
 }
@@ -34,8 +36,10 @@ const isJimpImage = (value: unknown): value is JimpImage => {
     typeof value.bitmap.height === 'number' &&
     typeof value.blit === 'function' &&
     typeof value.crop === 'function' &&
+    typeof value.flip === 'function' &&
     typeof value.getBuffer === 'function' &&
     typeof value.resize === 'function' &&
+    typeof value.rotate === 'function' &&
     typeof value.scaleToFit === 'function'
   )
 }
@@ -119,6 +123,16 @@ const executePipeline = async (
         }
       case 'autoOrient':
         // Jimp.read() already applies EXIF orientation in @jimp/core.
+        break
+      case 'rotate':
+        // PureJsImage uses positive clockwise angles; Jimp uses positive counter-clockwise.
+        image.rotate(-operation.degrees)
+        break
+      case 'flip':
+        image.flip({ vertical: true })
+        break
+      case 'flop':
+        image.flip({ horizontal: true })
         break
       case 'crop':
         image.crop({

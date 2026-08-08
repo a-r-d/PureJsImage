@@ -118,6 +118,22 @@ PureJsImage-only. Decode results still require independently generated pixel
 samples to pass. The profile records absolute time, output size, and memory
 without inventing an invalid direct Jimp comparison.
 
+Ordered spatial transforms ending in JPEG output:
+
+```sh
+npm run bench:transforms
+npm run bench:transforms:compare
+```
+
+This profile measures a 90-degree rotation and downscale, arbitrary-angle
+rotation with alpha flattening, crop-after-resize followed by a second resize,
+and combined vertical and horizontal reflection. Every result is checked for
+the expected dimensions and pinned pixels before its timing is accepted. The
+arbitrary-angle workflow is intentionally a PureJsImage absolute baseline:
+Jimp uses different canvas sizing and sampling semantics, so its output is not
+an equivalent comparison. The comparison command runs the other three
+workflows through both engines with the same correctness gates.
+
 Verify and benchmark ICO inputs:
 
 ```sh
