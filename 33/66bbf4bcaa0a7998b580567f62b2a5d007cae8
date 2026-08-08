@@ -1,0 +1,38 @@
+benchmark/corpus/files/jp2/README.md
+  s_74376132a55770::t_94ebd5cfd9f3c3 35,37-39
+  s_74376132a55770::t_cecdcea1fd96c9 3-5,7-23,27-30,47-50
+  s_74376132a55770::t_7bf3123e789611 1-2,6,24-26,31,33,36,40
+  s_74376132a55770::t_0484c2d8983e07 32,34,41-46,51
+CHANGELOG.md
+  s_4669831c864f0c::t_5826fa652428f4 7-8,195-196
+package.json
+  s_4669831c864f0c::t_5826fa652428f4 3
+.gitignore
+  s_4669831c864f0c::t_fe433c4d050549 162-170,172-173
+package-lock.json
+  s_4669831c864f0c::t_13379859caed0e 3,9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "3366bbf4bcaa0a7998b580567f62b2a5d007cae8",
+  "prompts": {},
+  "sessions": {
+    "s_4669831c864f0c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fddbd-b8f8-7813-a5e6-bc4de65bdf83",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_74376132a55770": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe205-7b4b-7cb3-8899-fe988f8f08bf",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
