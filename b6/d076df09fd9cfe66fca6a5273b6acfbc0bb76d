@@ -1,0 +1,107 @@
+README.md
+  s_3070dced1b3aff::t_d4e65f6cf68bce 36,338-357
+benchmark/run.ts
+  s_3070dced1b3aff::t_544e3d945afa45 225
+  s_3070dced1b3aff::t_dc6b032dedee64 8-9,15-16,23,26,51-56,101-109,115-117,119-126,128,159,211,220-223,229-230,237-242,245-255,258-267,269-302,318,320,328,334-344,379,387,393-394,405,412-426,435-437,439-440,442-448,451,454-462,466-480,496,498
+  s_3070dced1b3aff::t_d5277b3c567aa1 27,112-114,441,463-465,497
+benchmark/engines/sharp.ts
+  s_3070dced1b3aff::t_315707535eccdd 116,127-137
+  s_3070dced1b3aff::t_6eaa78d19f15ae 118-126
+  s_3070dced1b3aff::t_69b218e1051f67 6-8
+  s_3070dced1b3aff::t_851c34d541b17f 1-5,9-11,15-115,117,138-171
+  s_3070dced1b3aff::t_d5277b3c567aa1 12-14
+tests/project-contract.test.ts
+  s_3070dced1b3aff::t_83ae1df12774c3 185,195-198,200-202
+  s_3070dced1b3aff::t_516acbe20db50c 18-23
+  s_3070dced1b3aff::t_28737b2e1db8df 24-34
+  s_3070dced1b3aff::t_d5277b3c567aa1 199
+benchmark/types.ts
+  s_3070dced1b3aff::t_315707535eccdd 173-176,230,254
+  s_3070dced1b3aff::t_24c6d84e449de5 6,166-167,171-172,208-209,212-224,229,245-246,261,273-293,306-307,326
+  s_3070dced1b3aff::t_69b218e1051f67 225-228,240-244
+benchmarks.md
+  s_3070dced1b3aff::t_3714a9a6d2a963 63-68
+  s_3070dced1b3aff::t_a291471cf66600 8-13,37-61,319
+  s_3070dced1b3aff::t_8d140a9554798a 62
+benchmark/workflows.ts
+  s_3070dced1b3aff::t_81a5dac2836f45 36-45,58-67,79-88,96-105,118-122,131-140,153-157,166-175,493-502,807-816,954-963,1084-1093
+  s_3070dced1b3aff::t_c9895478c95a87 1129-1145,1190-1191
+  s_74376132a55770::t_42a6e5ea0461d8 1192
+benchmark/engines/purejsimage.ts
+  s_3070dced1b3aff::t_8671e932422c99 2,144
+  s_3070dced1b3aff::t_c9895478c95a87 39
+  s_3070dced1b3aff::t_851c34d541b17f 68-69,145-147
+benchmark/README.md
+  s_3070dced1b3aff::t_663e6fe8e93fdd 112-115
+  s_3070dced1b3aff::t_a291471cf66600 4-5,16,19-21,86-111,243-250,269-273
+benchmark/scripts/combine-results.ts
+  s_3070dced1b3aff::t_69b218e1051f67 36-43,46,59-62,104-105,123-124,165,173,197
+benchmark/lib/results.ts
+  s_3070dced1b3aff::t_24c6d84e449de5 1-61
+benchmark/engines/sharp-single-thread.ts
+  s_3070dced1b3aff::t_851c34d541b17f 1-3
+benchmark/engines/image-js.ts
+  s_3070dced1b3aff::t_d5277b3c567aa1 46
+  s_3070dced1b3aff::t_315707535eccdd 9-22
+  s_3070dced1b3aff::t_851c34d541b17f 1-8,23-45,47-128
+package.json
+  s_3070dced1b3aff::t_a2cc65378e4c6b 176
+  s_3070dced1b3aff::t_3f1fe35af6c08f 181
+  s_3070dced1b3aff::t_5a5e37506ad92e 163
+  s_3070dced1b3aff::t_c9895478c95a87 141,161-162,164
+  s_3070dced1b3aff::t_9704489873ccd3 142
+  s_74376132a55770::t_1dd8cc78851c80 165
+benchmark/lib/package-footprint.ts
+  s_3070dced1b3aff::t_d5277b3c567aa1 23,106
+  s_3070dced1b3aff::t_8671e932422c99 68,75
+  s_3070dced1b3aff::t_1104bf5025a596 1-22,24-66,69-74,76-105,107-114
+  s_3070dced1b3aff::t_f41d7104c4a8af 67
+benchmark/startup-worker.ts
+  s_3070dced1b3aff::t_d5277b3c567aa1 13
+  s_3070dced1b3aff::t_1104bf5025a596 1-12,14-23,27-108
+  s_3070dced1b3aff::t_8671e932422c99 24-26
+benchmark/worker.ts
+  s_3070dced1b3aff::t_d5277b3c567aa1 13
+  s_3070dced1b3aff::t_8671e932422c99 24-26
+  s_3070dced1b3aff::t_69b218e1051f67 121-123
+  s_3070dced1b3aff::t_315707535eccdd 5,27-28,33-34,44-85,88,90-99,101-104,106-120,129-136
+benchmark/engines/jimp.ts
+  s_3070dced1b3aff::t_851c34d541b17f 210-227
+tests/benchmark-harness.test.ts
+  s_3070dced1b3aff::t_bcbe0921e990f4 25,28-30
+  s_3070dced1b3aff::t_83ae1df12774c3 1-21,26-27,31-40,42-54
+  s_3070dced1b3aff::t_d5277b3c567aa1 22-24,41
+benchmark/scripts/render-competitor-charts.ts
+  s_3070dced1b3aff::t_6818b82198ee50 8,132-134,213-218
+  s_3070dced1b3aff::t_9704489873ccd3 1-7,9-131,135-212,219-222
+benchmark/results/competitors-2026-08-08.json
+  s_3070dced1b3aff::t_81c054a2f45cd2 1-10787
+benchmark/results/competitors-2026-08-08.md
+  s_3070dced1b3aff::t_12428b136d8c4a 1-160
+package-lock.json
+  s_3070dced1b3aff::t_dcdd71efb9fc74 21,26,209-219,608-1174,1177-1180,1185,1191-1194,1197-1200,1205,1211-1214,1217-1220,1225,1231-1234,2544-2550,2558-2564,2600-2613,2726-2757,2776-2789,2871-2907,2925-2961,3008-3014,3298-3304,3318-3491,3511-3517,3718-3765,3830-3892,3920-3926,3969-3979,4049-4077,4113-4119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "b6d076df09fd9cfe66fca6a5273b6acfbc0bb76d",
+  "prompts": {},
+  "sessions": {
+    "s_3070dced1b3aff": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe309-2b37-7a92-b053-803b904cd6ff",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_74376132a55770": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe205-7b4b-7cb3-8899-fe988f8f08bf",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
