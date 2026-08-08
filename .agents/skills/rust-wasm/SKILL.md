@@ -1,16 +1,20 @@
 ---
-
 name: rust-wasm
 description: Use when adding or modifying Rust/WebAssembly codecs, SIMD kernels, WASM acceleration, or JS/WASM integration in PureJsImage.
-------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 # Rust / WASM
 
-Use Rust/WASM only when it materially improves codec compatibility, throughput, or memory use.
+PureJsImage first implements and optimizes every codec as a first-party pure-JavaScript reference.
+Each mature codec will then gain an equivalent optional Rust/WASM implementation. The accelerator
+must not replace, weaken, or make the TypeScript reference non-production-quality.
 
 ## Architecture
 
-* WASM is optional and explicitly imported. Never load or bundle it from the root `purejsimage` entrypoint or a pure-JS codec.
+* WASM is optional and explicitly imported and registered. Never load, bundle, download, or silently
+  select it from the root `purejsimage` entrypoint, a default codec path, or a pure-JS codec.
+* Applications that do not explicitly opt in must retain the zero-runtime-dependency pure-JavaScript
+  behavior.
 * Production Rust must live in this repository. Do not wrap, vendor, or compile third-party codec implementations such as libavif, libaom, libjpeg, libwebp, or OpenJPEG.
 * Prefer `wasm32-unknown-unknown`; avoid WASI and OS dependencies.
 * JavaScript owns I/O, pipeline planning, codec registration, validation, and orchestration. Rust owns expensive numeric/codec work.

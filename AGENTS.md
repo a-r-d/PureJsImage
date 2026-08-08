@@ -73,7 +73,11 @@
 
 ## Performance Rules for PureJsImage
 
-PureJsImage must remain pure JavaScript: no native addons, WASM, external binaries, or runtime-specific image libraries in the core implementation.
+The initial and reference implementation of every codec must remain first-party pure JavaScript:
+no native addons, WASM, external binaries, or runtime-specific image libraries in the core or
+reference codecs. Optimize these TypeScript implementations as real production paths; they define
+portable behavior, provide the always-available fallback, and must not become neglected compatibility
+stubs after accelerators exist.
 
 Performance work should prioritize doing less work, reducing memory traffic, and producing JIT-friendly JavaScript.
 
@@ -200,9 +204,16 @@ The guiding rule is:
 
 > Make JavaScript do less work before trying to make individual JavaScript instructions faster.
 
-
 ## Rust / WASM
 
-* Rust/WASM is allowed only for explicitly imported optional codecs or accelerators. The default package and pure-JS codecs must remain WASM-free.
+* After a pure-JavaScript reference codec is stable, build an equivalent optional Rust/WASM
+  implementation for it. The long-term goal is an optional WASM implementation of every mature
+  codec, without replacing its TypeScript reference.
+* WASM codecs and accelerators must use distinct explicit imports and registration. The root
+  `purejsimage` entrypoint, default codec paths, and pure-JavaScript codec entries must never load,
+  bundle, download, or silently select WASM.
+* The default package remains a zero-runtime-dependency pure-JavaScript implementation. Applications
+  that do not explicitly opt into WASM must behave exactly as they do before accelerators exist.
+* Optional WASM implementations must preserve the same API, limits, errors, metadata behavior,
+  conformance fixtures, and bounded-memory goals as their TypeScript references.
 * When adding or modifying Rust/WASM code, follow the `rust-wasm` repo skill.
-
