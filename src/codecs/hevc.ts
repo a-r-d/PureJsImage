@@ -453,6 +453,8 @@ export interface HevcSpsInspection extends ProfileTierLevel {
   readonly chromaFormat: 0 | 1 | 2 | 3
   readonly codedHeight: number
   readonly codedWidth: number
+  readonly conformanceX: number
+  readonly conformanceY: number
   readonly ctbCount: number
   readonly ctbHeight: number
   readonly ctbWidth: number
@@ -621,6 +623,8 @@ export const inspectHevcSps = (nalUnit: Uint8Array): HevcSpsInspection => {
   const subHeight = chromaArrayType === 1 ? 2 : 1
   const width = codedWidth - subWidth * (leftOffset + rightOffset)
   const height = codedHeight - subHeight * (topOffset + bottomOffset)
+  const conformanceX = subWidth * leftOffset
+  const conformanceY = subHeight * topOffset
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1) {
     throw invalidInput('HEVC SPS conformance window exceeds the coded dimensions')
   }
@@ -639,6 +643,8 @@ export const inspectHevcSps = (nalUnit: Uint8Array): HevcSpsInspection => {
     separateColorPlane,
     codedWidth,
     codedHeight,
+    conformanceX,
+    conformanceY,
     width,
     height,
     bitDepth: bitDepthLuma,

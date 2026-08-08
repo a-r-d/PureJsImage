@@ -107,6 +107,12 @@ const parameterNal = (
   height: number,
   unsupportedExtension = false,
   profile = 1,
+  conformanceWindow?: {
+    readonly bottom: number
+    readonly left: number
+    readonly right: number
+    readonly top: number
+  },
 ): readonly number[] => {
   const writer = new BitWriter()
   if (type === 32) {
@@ -127,7 +133,13 @@ const parameterNal = (
     writer.writeUnsignedExpGolomb(1)
     writer.writeUnsignedExpGolomb(width)
     writer.writeUnsignedExpGolomb(height)
-    writer.writeBit(0)
+    writer.writeBit(conformanceWindow ? 1 : 0)
+    if (conformanceWindow) {
+      writer.writeUnsignedExpGolomb(conformanceWindow.left)
+      writer.writeUnsignedExpGolomb(conformanceWindow.right)
+      writer.writeUnsignedExpGolomb(conformanceWindow.top)
+      writer.writeUnsignedExpGolomb(conformanceWindow.bottom)
+    }
     writer.writeUnsignedExpGolomb(0)
     writer.writeUnsignedExpGolomb(0)
     writer.writeUnsignedExpGolomb(4)
@@ -989,6 +1001,23 @@ describe('HEIF metadata and registration', () => {
 })
 
 describe('HEIF HEVC bitstream inspection', () => {
+  it('reports the HEVC conformance-window origin in luma samples', () => {
+    expect(
+      inspectHevcSps(
+        Uint8Array.from(
+          parameterNal(33, 456, 464, false, 3, { left: 1, right: 1, top: 1, bottom: 0 }),
+        ),
+      ),
+    ).toMatchObject({
+      codedWidth: 456,
+      codedHeight: 464,
+      conformanceX: 2,
+      conformanceY: 2,
+      width: 452,
+      height: 462,
+    })
+  })
+
   it('resolves HEIF color matrices only from explicit or narrowly compatible evidence', () => {
     const compatibilityEvidence = {
       brands: ['heic', 'mif1'],
@@ -1280,6 +1309,21 @@ describe('HEIF HEVC bitstream inspection', () => {
     expect(createHash('sha256').update(Uint8Array.from(hlg)).digest('hex')).toBe(
       'd448f14948c8193f6bc1d0bf1d5e94403d41c780c0fd37fab514d262b76246e9',
     )
+  })
+
+  it('rejects linked HEIF auxiliary alpha before emitting opaque pixels', async () => {
+    const input = decodedHeifFixture(
+      false,
+      false,
+      undefined,
+      undefined,
+      false,
+      ['urn:mpeg:hevc:2015:auxid:1'],
+    )
+
+    await expect(
+      heifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits),
+    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
   })
 
   it('parses HEIF prof transforms and rejects corrupt embedded profiles', async () => {

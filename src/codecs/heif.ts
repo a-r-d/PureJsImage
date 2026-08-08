@@ -77,6 +77,7 @@ export interface HevcConfiguration {
 }
 
 type Property =
+  | { readonly type: 'auxC'; readonly auxiliaryType: string }
   | { readonly type: 'clap'; readonly aperture: CleanAperture }
   | {
       readonly type: 'colr'
@@ -309,6 +310,15 @@ const parseHevcConfiguration = (data: Uint8Array): HevcConfiguration => {
 }
 
 const parseProperty = async (reader: IsobmffReader, box: IsobmffBox): Promise<Property> => {
+  if (box.type === 'auxC') {
+    const data = await reader.payload(box, 4096)
+    const header = parseFullBox(data, box.type, 'HEIF')
+    const terminator = data.indexOf(0, 4)
+    if (header.version !== 0 || header.flags !== 0 || terminator < 5) {
+      throw invalidInput('HEIF auxC property is malformed')
+    }
+    return { type: 'auxC', auxiliaryType: ascii(data, 4, terminator - 4) }
+  }
   if (box.type === 'ispe') {
     const data = await reader.payload(box, 12)
     const header = parseFullBox(data, box.type, 'HEIF')
@@ -824,6 +834,28 @@ const colorPropertiesFor = (parsed: ParsedHeif): readonly Property[] =>
   oneProperty(parsed.properties, 'colr')
     ? parsed.properties
     : (parsed.codedImages[0]?.properties ?? parsed.properties)
+
+const hasLinkedAlphaAuxiliary = (parsed: ParsedHeif): boolean => {
+  const isAlphaAuxiliary = (property: Property): boolean =>
+    property.type === 'auxC' && property.auxiliaryType.endsWith('auxid:1')
+  const hasAlphaProperty = parsed.meta.properties.some(
+    (property) => isAlphaAuxiliary(property),
+  )
+  if (!hasAlphaProperty) return false
+  const alphaItemIds = new Set(
+    [...parsed.meta.items.keys()].filter((itemId) =>
+      propertiesFor(parsed.meta, itemId).some((property) => isAlphaAuxiliary(property)),
+    ),
+  )
+  return parsed.meta.references.some(
+    (reference) =>
+      reference.type === 'auxl' &&
+      ((reference.fromItemId === parsed.primaryItemId &&
+        reference.toItemIds.some((itemId) => alphaItemIds.has(itemId))) ||
+        (alphaItemIds.has(reference.fromItemId) &&
+          reference.toItemIds.includes(parsed.primaryItemId))),
+  ) || alphaItemIds.size > 0
+}
 
 const metadataItem = (
   parsed: ParsedHeif,
@@ -1661,6 +1693,9 @@ const createHeifDecoder = async (
 ): Promise<ImageDecoder> => {
   const parsed = await parseHeif(source)
   validateImageDimensions(parsed.dimensions.width, parsed.dimensions.height, 1, limits)
+  if (hasLinkedAlphaAuxiliary(parsed)) {
+    throw unsupportedOperation('HEIF auxiliary alpha reconstruction is unsupported')
+  }
   const inspection = await inspectParsedHeifBitstream(parsed)
   const coded = inspection.codedImages[0]
   if (!coded) throw invalidInput('HEIF image has no coded image')
@@ -1681,10 +1716,18 @@ const createHeifDecoder = async (
       throw invalidInput('Direct HEIF primary image has multiple coded items')
     }
     const picture = decodeCodedHeifPicture(coded)
-    if (picture.width !== parsed.dimensions.width || picture.height !== parsed.dimensions.height) {
+    if (picture.width !== sequence.codedWidth || picture.height !== sequence.codedHeight) {
       throw invalidInput('HEIF decoded picture dimensions do not match its spatial extents')
     }
-    decoder = new HeifPixelDecoder(picture, aperture, color)
+    decoder = new HeifPixelDecoder(
+      picture,
+      {
+        ...aperture,
+        x: aperture.x + sequence.conformanceX,
+        y: aperture.y + sequence.conformanceY,
+      },
+      color,
+    )
   }
   const colorTransform = oneProperty(colorProperties, 'colr')?.colorTransform
   return colorTransform && !options.preserveIcc
