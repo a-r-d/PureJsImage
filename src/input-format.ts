@@ -1,4 +1,14 @@
-type RegisteredFormat = 'avif' | 'bmp' | 'gif' | 'heif' | 'ico' | 'jpeg' | 'png' | 'tiff' | 'webp'
+type RegisteredFormat =
+  | 'avif'
+  | 'bmp'
+  | 'gif'
+  | 'heif'
+  | 'ico'
+  | 'jp2'
+  | 'jpeg'
+  | 'png'
+  | 'tiff'
+  | 'webp'
 
 export interface RecognizedInputFormat {
   readonly name: string
@@ -47,6 +57,7 @@ const magicFormats: readonly MagicFormat[] = [
   },
   {
     name: 'JPEG 2000 container',
+    registeredFormat: 'jp2',
     signatures: [[0, 0, 0, 12, 106, 80, 32, 32, 13, 10, 135, 10]],
   },
   { name: 'JPEG 2000 codestream', signatures: [[0xff, 0x4f, 0xff, 0x51]] },

@@ -15,7 +15,7 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header"><div class="container header-inner">
     <a class="brand" href="index.html" aria-label="PureJsImage home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a>
-    <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a><a href="performance.html" aria-current="page">Performance</a></nav>
+    <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a><a href="performance.html" aria-current="page">Performance</a><a href="contributing.html">Contribute</a></nav>
     <div class="header-actions"><button class="icon-button" type="button" data-theme-toggle aria-label="Use dark theme"></button><a class="button secondary small github-header" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><button class="icon-button menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button></div>
   </div></header>
 
@@ -99,11 +99,12 @@
           <h2>Bundle size</h2>
           <p>Applications import only the codec entries they use. The root API itself pulls no codec implementation into the module graph.</p>
           <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Minified</th><th>gzip</th><th>Brotli</th></tr></thead><tbody>
-            <tr><td><strong>Core API</strong></td><td>27.2 KiB</td><td>9.6 KiB</td><td>8.6 KiB</td></tr>
-            <tr><td><strong>Core + PNG</strong></td><td>54.0 KiB</td><td>18.7 KiB</td><td>16.5 KiB</td></tr>
-            <tr><td><strong>Core + JPEG</strong></td><td>67.9 KiB</td><td>23.2 KiB</td><td>20.0 KiB</td></tr>
-            <tr><td><strong>Core + WebP</strong></td><td>74.7 KiB</td><td>27.4 KiB</td><td>23.7 KiB</td></tr>
-            <tr><td><strong>Core + all codecs</strong></td><td>373.5 KiB</td><td>127.8 KiB</td><td>102.9 KiB</td></tr>
+            <tr><td><strong>Core API</strong></td><td>34.0 KiB</td><td>11.6 KiB</td><td>10.4 KiB</td></tr>
+            <tr><td><strong>Core + PNG</strong></td><td>61.7 KiB</td><td>21.1 KiB</td><td>18.6 KiB</td></tr>
+            <tr><td><strong>Core + JPEG</strong></td><td>77.0 KiB</td><td>26.0 KiB</td><td>22.2 KiB</td></tr>
+            <tr><td><strong>Core + JPEG 2000</strong></td><td>69.8 KiB</td><td>23.1 KiB</td><td>20.3 KiB</td></tr>
+            <tr><td><strong>Core + WebP</strong></td><td>83.4 KiB</td><td>30.0 KiB</td><td>25.9 KiB</td></tr>
+            <tr><td><strong>Core + all codecs</strong></td><td>425.5 KiB</td><td>144.1 KiB</td><td>115.6 KiB</td></tr>
           </tbody></table></div>
           <p>Sizes use esbuild minification, gzip level 9, and Brotli quality 11. Reproduce the complete entry-point report with <code>npm run size</code>.</p>
         </section>

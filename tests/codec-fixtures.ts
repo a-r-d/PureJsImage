@@ -62,6 +62,10 @@ export const createCodecFixtures = async (): Promise<readonly CodecFixture[]> =>
   const png = noisyPng()
   return [
     { format: 'jpeg', input: await (await Image.open(png)).jpeg({ quality: 90 }).toBuffer() },
+    {
+      format: 'jp2',
+      input: await readFile('benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2'),
+    },
     { format: 'png', input: png },
     { format: 'gif', input: gifFixture() },
     { format: 'webp', input: await (await Image.open(png)).webp({ lossless: true }).toBuffer() },

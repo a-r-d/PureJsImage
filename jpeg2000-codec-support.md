@@ -10,6 +10,11 @@ An unchecked item is not supported yet. Items in the deferred groups do not
 block the first release and must remain explicit unsupported cases until they
 are implemented and independently validated.
 
+The current codec is a useful first decode subset, not the completed v1 memory
+contract below. It decodes common Part 1 grayscale and RGB JP2 files through an
+explicit full-frame fallback. Reduced-resolution, crop-aware entropy decode and
+the less common JP2 channel-mapping features remain unchecked.
+
 ## Scope decisions
 
 - [x] Prioritize decoding static `image/jp2` uploads
@@ -25,7 +30,7 @@ are implemented and independently validated.
   a hint and never proof that the input is valid
 - [x] Target the Part 1 JP2 file format and Part 1 JPEG 2000 codestream first
 - [x] Decode one static image from one contiguous codestream
-- [x] Make reduced-resolution, crop-aware, bounded-memory decode the primary
+- [ ] Make reduced-resolution, crop-aware, bounded-memory decode the primary
   Lambda path
 - [x] Do not implement JPEG 2000 encoding as part of this plan
 
@@ -36,17 +41,17 @@ codestream reader.
 
 ### Detection and box parsing
 
-- [ ] Recognize the 12-byte JP2 signature box, including its fixed signature
+- [x] Recognize the 12-byte JP2 signature box, including its fixed signature
   payload
-- [ ] Parse big-endian box headers with 32-bit lengths, extended 64-bit lengths,
+- [x] Parse big-endian box headers with 32-bit lengths, extended 64-bit lengths,
   and boxes extending to end-of-file
-- [ ] Validate every box header, length, nesting level, and end offset before
+- [x] Validate every box header, length, nesting level, and end offset before
   reading or allocating
-- [ ] Require the JP2 signature, file type (`ftyp`), JP2 header (`jp2h`), and
+- [x] Require the JP2 signature, file type (`ftyp`), JP2 header (`jp2h`), and
   contiguous codestream (`jp2c`) structure expected by a baseline JP2 file
-- [ ] Validate the `jp2 ` brand and compatible-brand list
-- [ ] Enforce required box ordering, uniqueness, and containment rules
-- [ ] Skip unknown and application-specific boxes by their validated extents
+- [x] Validate the `jp2 ` brand and compatible-brand list
+- [x] Enforce required box ordering, uniqueness, and containment rules
+- [x] Skip unknown and application-specific boxes by their validated extents
 - [ ] Reject truncated, overlapping, recursively nested, or contradictory box
   structures explicitly
 - [ ] Read the `jp2c` box through a bounded byte reader rather than copying the
@@ -54,9 +59,9 @@ codestream reader.
 
 ### Image header and color boxes
 
-- [ ] Parse the image header (`ihdr`) dimensions, component count, bit depth,
+- [x] Parse the image header (`ihdr`) dimensions, component count, bit depth,
   compression type, color-space-known flag, and intellectual-property flag
-- [ ] Parse per-component bit depth (`bpcc`) when components do not share one
+- [x] Parse per-component bit depth (`bpcc`) when components do not share one
   precision and signedness
 - [ ] Parse all color specification (`colr`) boxes and choose the applicable
   entry using their precedence and approximation fields
@@ -64,9 +69,9 @@ codestream reader.
   (`cdef`) boxes as one validated channel-mapping graph
 - [ ] Parse capture and display resolution (`res `, `resc`, and `resd`) without
   allowing rational or exponent arithmetic to overflow
-- [ ] Cross-check `ihdr` dimensions, component count, precision, and compression
+- [x] Cross-check `ihdr` dimensions, component count, precision, and compression
   claims against the codestream `SIZ` marker
-- [ ] Reject contradictory required metadata instead of silently choosing the
+- [x] Reject contradictory required metadata instead of silently choosing the
   more convenient value
 - [ ] Report width, height, component count, channel count, channel precision,
   alpha presence, color description, lossless capability, tile geometry, and
@@ -74,8 +79,8 @@ codestream reader.
 
 ### Upload behavior
 
-- [ ] Register `.jp2` and `image/jp2` on the public decode surface
-- [ ] Accept `Buffer` and `Uint8Array` inputs through the configured library's `open`
+- [x] Register `.jp2` and `image/jp2` on the public decode surface
+- [x] Accept `Buffer` and `Uint8Array` inputs through the configured library's `open`
   path
 - [ ] Preserve the original Twilio media content type as provenance only; use
   content detection for codec selection
@@ -91,80 +96,81 @@ both lossless and lossy still images produced by independent encoders.
 
 ### Main and tile-part syntax
 
-- [ ] Parse and validate `SOC`, `SIZ`, `COD`, `COC`, `QCD`, `QCC`, `SOT`,
+- [x] Parse and validate `SOC`, `SIZ`, `COD`, `COC`, `QCD`, `QCC`, `SOT`,
   `SOD`, and `EOC` markers
 - [ ] Handle marker segments split across input chunks without concatenating
   the entire codestream
-- [ ] Validate reference-grid origins, image extents, tile origins, tile sizes,
+- [x] Validate reference-grid origins, image extents, tile origins, tile sizes,
   component sampling, precision, and signedness before allocation
-- [ ] Support one tile and multiple independently reconstructed tiles
+- [x] Support one tile and multiple independently reconstructed tiles
 - [ ] Support multiple tile-parts per tile and verify tile-part indexes, counts,
   declared lengths, and ordering
-- [ ] Apply main-header coding and quantization defaults plus valid
+- [x] Apply main-header coding and quantization defaults plus valid
   component-specific and tile-specific overrides
-- [ ] Support one or more quality layers without assuming every layer is
+- [x] Support one or more quality layers without assuming every layer is
   present in one packet
-- [ ] Support all five Part 1 progression orders: LRCP, RLCP, RPCL, PCRL, and
+- [x] Support all five Part 1 progression orders: LRCP, RLCP, RPCL, PCRL, and
   CPRL
-- [ ] Validate every resolution, component, precinct, layer, packet, code-block,
+- [x] Validate every resolution, component, precinct, layer, packet, code-block,
   and byte-range calculation before reading packet data
 
 ### Packet and code-block reconstruction
 
-- [ ] Generate the precinct and packet sequence for every supported progression
+- [x] Generate the precinct and packet sequence for every supported progression
   order
-- [ ] Decode packet inclusion and zero-bit-plane tag trees with bounded depth
+- [x] Decode packet inclusion and zero-bit-plane tag trees with bounded depth
   and node counts
-- [ ] Parse code-block contribution counts, coding-pass counts, segment lengths,
+- [x] Parse code-block contribution counts, coding-pass counts, segment lengths,
   and layer accumulation without integer overflow
-- [ ] Implement JPEG 2000 bit stuffing and packet-header alignment exactly
-- [ ] Implement the MQ binary arithmetic decoder, context state transitions,
+- [x] Implement JPEG 2000 bit stuffing and packet-header alignment exactly
+- [x] Implement the MQ binary arithmetic decoder, context state transitions,
   renormalization, byte input, and termination checks
-- [ ] Implement significance-propagation, magnitude-refinement, and cleanup
+- [x] Implement significance-propagation, magnitude-refinement, and cleanup
   coding passes
-- [ ] Reconstruct coefficient signs, magnitudes, and subband contexts
+- [x] Reconstruct coefficient signs, magnitudes, and subband contexts
 - [ ] Support the Part 1 code-block style flags: selective arithmetic bypass,
   context reset, termination after each pass, vertical causal context, predictable
   termination, and segmentation symbols
-- [ ] Validate predictable termination and segmentation symbols when signaled
-- [ ] Reject malformed tag trees, impossible pass counts, invalid segment
+- [ ] Validate predictable termination when signaled
+- [x] Validate segmentation symbols when signaled
+- [x] Reject malformed tag trees, impossible pass counts, invalid segment
   lengths, coefficient-plane overflow, and arithmetic reads past packet bounds
 
 ### Quantization, wavelets, and samples
 
-- [ ] Decode no-quantization, scalar-derived, and scalar-expounded quantization
+- [x] Decode no-quantization, scalar-derived, and scalar-expounded quantization
   styles
 - [ ] Apply subband guard bits, exponents, mantissas, ROI shifts, and coefficient
   scaling without unsafe integer arithmetic
-- [ ] Implement exact reversible 5/3 inverse wavelet reconstruction for
+- [x] Implement exact reversible 5/3 inverse wavelet reconstruction for
   lossless images
-- [ ] Implement irreversible 9/7 inverse wavelet reconstruction for lossy
+- [x] Implement irreversible 9/7 inverse wavelet reconstruction for lossy
   images with defined numeric precision and output rounding
-- [ ] Handle symmetric wavelet extension at odd image, tile, component, and
+- [x] Handle symmetric wavelet extension at odd image, tile, component, and
   resolution boundaries
 - [ ] Reconstruct component sample ranges using each component's precision and
   signedness
-- [ ] Implement the reversible color transform for lossless RGB codestreams
-- [ ] Implement the irreversible color transform for lossy RGB codestreams
-- [ ] Combine tiles without gaps, overlaps, seams, or incorrect edge samples
+- [x] Implement the reversible color transform for lossless RGB codestreams
+- [x] Implement the irreversible color transform for lossy RGB codestreams
+- [x] Combine tiles without gaps, overlaps, seams, or incorrect edge samples
 
 ### Common pixel and color output
 
-- [ ] One-component unsigned grayscale at 1-16 bits per sample
-- [ ] Three-component unsigned RGB at 8 and 16 bits per sample
-- [ ] Enumerated grayscale, sRGB, and sYCC JP2 color spaces
-- [ ] Correct sYCC chroma offsets, component sampling, and conversion to the
+- [x] One-component unsigned grayscale at 1-16 bits per sample
+- [x] Three-component unsigned RGB at 8 and 16 bits per sample
+- [x] Enumerated grayscale, sRGB, and sYCC JP2 color spaces
+- [x] Correct sYCC chroma offsets, component sampling, and conversion to the
   pipeline output color space
 - [ ] Restricted ICC profiles for common gray, sRGB, and Display P3 images
 - [ ] Palette and component mapping for indexed images
 - [ ] Unassociated and premultiplied opacity channels declared by `cdef`
 - [ ] Correct channel ordering when codestream component order differs from
   display channel order
-- [ ] Convert high-precision samples to `gray8`, `rgb8`, or `rgba8` with a
+- [x] Convert high-precision samples to `gray8`, `rgb8`, or `rgba8` with a
   documented rounding policy rather than truncating low bits accidentally
 - [ ] Emit bounded, ordered pixel blocks into the existing crop, resize, and
   encoder pipeline
-- [ ] Support JP2-to-JPEG, JP2-to-PNG, JP2-to-WebP, crop, resize, and
+- [x] Support JP2-to-JPEG, JP2-to-PNG, JP2-to-WebP, crop, resize, and
   resize-plus-encode workflows
 
 ## Group 2: Part 1 compatibility — should have
@@ -266,7 +272,7 @@ absence does not block JP2 v1.
 - [ ] Treat all box lengths, marker lengths, offsets, counts, coding parameters,
   tag trees, packet headers, arithmetic bytes, coefficient states, and tile
   coordinates as hostile input
-- [ ] Reject dimensions or component geometry that disagree between JP2 boxes
+- [x] Reject dimensions or component geometry that disagree between JP2 boxes
   and the codestream
 - [ ] Reject duplicate mandatory markers, illegal marker ordering, missing end
   markers, impossible tile-part lengths, and unsupported coding styles
@@ -296,8 +302,8 @@ absence does not block JP2 v1.
   internal data structures, or tests into production code
 - [ ] Pin a sanitized, redistributable fixture representative of an actual
   `image/jp2` Twilio upload, without customer data
-- [ ] Pin fixtures from at least two independent JPEG 2000 encoders
-- [ ] Include lossless 5/3 and lossy 9/7 images
+- [x] Pin fixtures from at least two independent JPEG 2000 encoders
+- [x] Include lossless 5/3 and lossy 9/7 images
 - [ ] Include grayscale, RGB, sYCC, palette, 16-bit, alpha, tiled, odd-dimension,
   subsampled-component, multi-layer, and every progression-order case required
   by the implemented groups
@@ -314,7 +320,7 @@ absence does not block JP2 v1.
 - [ ] Use documented tolerances for irreversible 9/7 and color-managed output
 - [ ] Use official JPEG 2000 conformance cases where their licensing permits
   redistribution or reproducible local preparation
-- [ ] Verify benchmark output before recording time or memory; unsupported or
+- [x] Verify benchmark output before recording time or memory; unsupported or
   incorrect output is a failed benchmark
 - [ ] Benchmark metadata, full decode, JP2-to-JPEG, JP2-to-PNG, crop, resize,
   reduced-resolution resize, and resize-plus-encode workflows

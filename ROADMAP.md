@@ -41,9 +41,10 @@ This is the current phase.
 ### 2. Build broad codec coverage
 
 Current practical implementations cover PNG, JPEG, GIF, WebP, BMP, TIFF,
-AVIF, and HEIF/HEIC, with capability depth documented separately for each
-codec. CUR, JPEG 2000, and JPEG XL already have tracked implementation
-plans.
+JPEG 2000, AVIF, and HEIF/HEIC, with capability depth documented separately
+for each codec. CUR and JPEG XL have tracked implementation plans. JPEG 2000's
+first decode subset is available; bounded reduced-resolution and region decode
+remain roadmap work.
 
 The goal is not to claim an entire specification prematurely. Each codec
 should first provide a useful, coherent subset for common files, fail

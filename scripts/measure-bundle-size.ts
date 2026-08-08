@@ -16,6 +16,10 @@ const targets: readonly BundleTarget[] = [
   { name: 'Core API', entries: ['src/index.ts'] },
   { name: 'Core + PNG', entries: ['src/index.ts', 'src/codec-entries/png.ts'] },
   { name: 'Core + JPEG', entries: ['src/index.ts', 'src/codec-entries/jpeg.ts'] },
+  {
+    name: 'Core + JPEG 2000',
+    entries: ['src/index.ts', 'src/codec-entries/jpeg2000.ts'],
+  },
   { name: 'Core + WebP', entries: ['src/index.ts', 'src/codec-entries/webp.ts'] },
   { name: 'Core + GIF', entries: ['src/index.ts', 'src/codec-entries/gif.ts'] },
   { name: 'Core + BMP', entries: ['src/index.ts', 'src/codec-entries/bmp.ts'] },

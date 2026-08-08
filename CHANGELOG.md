@@ -6,6 +6,10 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added first-party JPEG 2000 / JP2 decoding for common Part 1 grayscale and RGB still images,
+  including reversible 5/3 and irreversible 9/7 reconstruction, all five progression orders,
+  multiple tiles, 1-16-bit unsigned samples, strict container validation, public pipeline
+  conversion, and checksum-pinned fixtures from independent encoders.
 - Added ordered, composable spatial stages: crop-after-resize, multiple resize stages, clockwise
   `rotate()` with arbitrary-angle bilinear sampling, vertical `flip()`, and horizontal `flop()`.
 - Added opt-in `keepExif()` and `keepIcc()` pipeline operations with JPEG, PNG, and WebP metadata
@@ -17,6 +21,14 @@ All notable changes to PureJsImage are documented in this file.
 - Added a cross-codec transform contract that runs the full ordered transform chain from every
   supported decoder through JPEG output, plus focused arbitrary-rotation coverage for grayscale,
   RGB, and RGBA sample formats.
+- Added a contributor guide covering tests, benchmarks, modular feature design, documentation,
+  changelog entries, AI-assisted changes, MIT licensing, and conflict-free pull requests to `main`.
+- Added a repository release skill with explicit authority, validation, packaging, publishing,
+  provenance, and post-release consistency gates.
+- Added a private vulnerability disclosure policy that defines the dependency-free runtime boundary
+  while keeping CI, build, credential, and published-artifact supply-chain risks in scope.
+- Added weekly and change-triggered CodeQL analysis for JavaScript and TypeScript using the extended
+  security query suite.
 
 ### Changed
 

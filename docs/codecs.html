@@ -15,12 +15,12 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header"><div class="container header-inner">
     <a class="brand" href="index.html" aria-label="PureJsImage home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a>
-    <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html" aria-current="page">Codecs</a><a href="performance.html">Performance</a></nav>
+    <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html" aria-current="page">Codecs</a><a href="performance.html">Performance</a><a href="contributing.html">Contribute</a></nav>
     <div class="header-actions"><button class="icon-button" type="button" data-theme-toggle aria-label="Use dark theme"></button><a class="button secondary small github-header" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><button class="icon-button menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button></div>
   </div></header>
 
   <main id="main">
-    <header class="page-hero"><div class="container"><p class="eyebrow">Codec support</p><h1>Claim the subset.<br>Test the boundary.</h1><p class="page-lede">PureJsImage does not treat a format name as a promise to implement every historical coding mode. These are the practical subsets supported today.</p><div class="page-meta"><span class="pill">9 codecs</span><span class="pill">5 output formats</span><span class="pill">Explicit unsupported errors</span></div></div></header>
+    <header class="page-hero"><div class="container"><p class="eyebrow">Codec support</p><h1>Claim the subset.<br>Test the boundary.</h1><p class="page-lede">PureJsImage does not treat a format name as a promise to implement every historical coding mode. These are the practical subsets supported today.</p><div class="page-meta"><span class="pill">10 codecs</span><span class="pill">5 output formats</span><span class="pill">Explicit unsupported errors</span></div></div></header>
     <div class="container docs-layout">
       <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="guides.html">Getting started</a><a href="guides.html#recipes">Recipes</a></div><div class="nav-group"><strong>Reference</strong><a href="api.html">API reference</a><a href="codecs.html" aria-current="page">Codec support</a><a href="performance.html">Performance</a></div></aside>
       <article class="content">
@@ -29,6 +29,7 @@
           <p>The current reference implementations are first-party strict TypeScript and never runtime-import native libraries, WASM modules, browsers, or system tools. Future per-codec WASM accelerators will use explicit opt-in imports and registration; the TypeScript codecs remain the default implementations and portable fallbacks.</p>
           <div class="table-wrap"><table><thead><tr><th>Codec</th><th>Decode</th><th>Encode</th><th>Primary boundary</th></tr></thead><tbody>
             <tr><td><strong>JPEG</strong></td><td><span class="yes">● Yes</span></td><td><span class="yes">● Baseline</span></td><td>No arithmetic, lossless, or progressive encoding</td></tr>
+            <tr><td><strong>JPEG 2000 / JP2</strong></td><td><span class="partial">● Part 1</span></td><td><span class="no">— No</span></td><td>Full-frame grayscale/RGB still-image subset</td></tr>
             <tr><td><strong>PNG</strong></td><td><span class="yes">● Yes</span></td><td><span class="yes">● 8-bit</span></td><td>No APNG frame decode or indexed/16-bit output</td></tr>
             <tr><td><strong>WebP</strong></td><td><span class="yes">● Static</span></td><td><span class="yes">● Static</span></td><td>No animated WebP; current paths retain full-frame planes</td></tr>
             <tr><td><strong>GIF</strong></td><td><span class="partial">● First frame</span></td><td><span class="no">— No</span></td><td>No animation editing or output</td></tr>
@@ -38,13 +39,14 @@
             <tr><td><strong>AVIF</strong></td><td><span class="partial">● Restricted</span></td><td><span class="no">— No</span></td><td>Opaque 8-bit YUV 4:2:0 still subset</td></tr>
             <tr><td><strong>HEIF / HEIC</strong></td><td><span class="partial">● Restricted</span></td><td><span class="no">— No</span></td><td>Opaque 8/10-bit YUV 4:2:0 HEVC intra stills</td></tr>
           </tbody></table></div>
-          <div class="callout"><strong>Detection is separate from support.</strong> Recognizable PDF, SVG, CUR, JPEG XL, JPEG 2000, or unregistered codec input gets a specific error instead of being mistaken for unknown bytes.</div>
+          <div class="callout"><strong>Detection is separate from support.</strong> Recognizable PDF, SVG, CUR, JPEG XL, or unregistered codec input gets a specific error instead of being mistaken for unknown bytes.</div>
         </section>
 
         <section id="codec-details">
           <h2>Codec details</h2>
           <div class="codec-grid">
             <article class="card codec-card" id="jpeg"><div class="codec-card-head"><h3>JPEG</h3><span class="status stable">Practical</span></div><p>Decodes 8-bit baseline and progressive grayscale, YCbCr, RGB, CMYK, and YCCK. Handles 4:4:4, 4:2:2, 4:2:0, EXIF orientation, selected ICC profiles, and SDR primaries in gain-map files. Encodes baseline JPEG with quality and 4:2:0, 4:2:2, or 4:4:4 sampling, with opt-in EXIF and RGB ICC preservation.</p><a class="card-link" href="https://github.com/a-r-d/PureJsImage/blob/main/jpeg-codec-support.md" target="_blank" rel="noreferrer">Full JPEG checklist →</a></article>
+            <article class="card codec-card" id="jpeg2000"><div class="codec-card-head"><h3>JPEG 2000 / JP2</h3><span class="status decode">Decode only</span></div><p>Decodes common static Part 1 JP2 grayscale and RGB images at 1-16 bits with reversible 5/3 or irreversible 9/7 wavelets, all five progression orders, multiple tiles, RCT/ICT, and enumerated grayscale, sRGB, or sYCC color. The current path retains full-frame component and output state. Palette/component mapping, alpha, ICC color, advanced code-block styles, Part 2, HTJ2K, and encoding fail explicitly.</p><a class="card-link" href="https://github.com/a-r-d/PureJsImage/blob/main/jpeg2000-codec-support.md" target="_blank" rel="noreferrer">Full JPEG 2000 checklist →</a></article>
             <article class="card codec-card" id="png"><div class="codec-card-head"><h3>PNG</h3><span class="status stable">Practical</span></div><p>Decodes every legal grayscale, truecolor, indexed, and alpha combination at 1–16 bits, including Adam7, palettes, transparency, and color-profile handling. Encodes streaming 8-bit grayscale, RGB, or RGBA PNG with adaptive filters, compression levels 0–9, and opt-in EXIF and compatible ICC preservation.</p><a class="card-link" href="https://github.com/a-r-d/PureJsImage/blob/main/png-codec-support.md" target="_blank" rel="noreferrer">Full PNG checklist →</a></article>
             <article class="card codec-card" id="webp"><div class="codec-card-head"><h3>WebP</h3><span class="status stable">Static</span></div><p>Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy or lossless WebP with opt-in EXIF and RGB ICC preservation. Animation is detected and rejected for pixel decode; full-frame VP8/VP8L working planes remain a documented memory target.</p><a class="card-link" href="https://github.com/a-r-d/PureJsImage/blob/main/webp-codec-support.md" target="_blank" rel="noreferrer">Full WebP checklist →</a></article>
             <article class="card codec-card" id="gif"><div class="codec-card-head"><h3>GIF</h3><span class="status decode">Decode only</span></div><p>Parses GIF87a/GIF89a, palettes, transparency, interlace, LZW data, frame rectangles, and disposal needed to produce the first composited frame. Metadata can count frames. Full animation decode/editing and GIF encoding are outside the current subset.</p><a class="card-link" href="https://github.com/a-r-d/PureJsImage/blob/main/gif-codec-support.md" target="_blank" rel="noreferrer">Full GIF checklist →</a></article>
@@ -62,6 +64,7 @@
           <div class="table-wrap"><table><thead><tr><th>Path</th><th>Current working model</th></tr></thead><tbody>
             <tr><td><strong>Baseline JPEG</strong></td><td>One bounded MCU row; crop-aware RGB emission</td></tr>
             <tr><td><strong>Progressive JPEG</strong></td><td>Compact 16-bit coefficient planes, then bounded-row RGB reconstruction</td></tr>
+            <tr><td><strong>JPEG 2000 / JP2</strong></td><td>Explicit full-frame component and RGBA fallback; bounded wavelet-resolution and region decode remain unfinished</td></tr>
             <tr><td><strong>PNG</strong></td><td>Sequential scanlines and bounded output blocks; Adam7 retains compact requested samples</td></tr>
             <tr><td><strong>BMP / TIFF</strong></td><td>Row-, strip-, or tile-oriented paths for common layouts</td></tr>
             <tr><td><strong>ICO</strong></td><td>Inspects the directory first, keeps embedded payloads as bounded views, and decodes only the selected image in rows</td></tr>
@@ -86,8 +89,8 @@
 
         <section id="planned">
           <h2>Planned formats</h2>
-          <p>CUR, JPEG 2000, and JPEG XL are not current codec entry points. The roadmap favors a coherent, tested common subset over premature format-name coverage.</p>
-          <p><a href="https://github.com/a-r-d/PureJsImage/blob/main/ico-codec-support.md" target="_blank" rel="noreferrer">CUR scope</a> · <a href="https://github.com/a-r-d/PureJsImage/blob/main/jpeg2000-codec-support.md" target="_blank" rel="noreferrer">JPEG 2000 plan</a> · <a href="https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md" target="_blank" rel="noreferrer">JPEG XL plan</a></p>
+          <p>CUR and JPEG XL are not current codec entry points. The roadmap favors a coherent, tested common subset over premature format-name coverage.</p>
+          <p><a href="https://github.com/a-r-d/PureJsImage/blob/main/ico-codec-support.md" target="_blank" rel="noreferrer">CUR scope</a> · <a href="https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md" target="_blank" rel="noreferrer">JPEG XL plan</a></p>
         </section>
       </article>
       <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#matrix">At a glance</a><a href="#codec-details">Codec details</a><a href="#memory">Memory classes</a><a href="#choose">Choose an output</a><a href="#planned">Planned formats</a></aside>

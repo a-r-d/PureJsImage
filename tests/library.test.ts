@@ -60,10 +60,6 @@ describe('configured image library', () => {
       'JPEG XL container',
       Uint8Array.of(0, 0, 0, 12, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a),
     ],
-    [
-      'JPEG 2000 container',
-      Uint8Array.of(0, 0, 0, 12, 0x6a, 0x50, 0x20, 0x20, 0x0d, 0x0a, 0x87, 0x0a),
-    ],
   ] as const)('names recognized but unimplemented %s input', async (name, input) => {
     await expect(createImageLibrary(allCodecs).open(input)).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
@@ -100,7 +96,18 @@ describe('configured image library', () => {
   it('provides one opt-in helper containing every codec exactly once', () => {
     const formats = createImageLibrary(allCodecs).formats()
 
-    expect(formats).toEqual(['jpeg', 'png', 'gif', 'webp', 'avif', 'heif', 'bmp', 'ico', 'tiff'])
+    expect(formats).toEqual([
+      'jpeg',
+      'jp2',
+      'png',
+      'gif',
+      'webp',
+      'avif',
+      'heif',
+      'bmp',
+      'ico',
+      'tiff',
+    ])
     expect(new Set(formats).size).toBe(formats.length)
   })
 

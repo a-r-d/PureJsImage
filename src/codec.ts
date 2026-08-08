@@ -50,6 +50,7 @@ export type BuiltInFormat =
   | 'heif'
   | 'ico'
   | 'jpeg'
+  | 'jp2'
   | 'png'
   | 'tiff'
   | 'webp'
@@ -68,6 +69,12 @@ export interface ImageMetadata {
   chromaSubsampling?: ChromaSubsampling
   codecProfile?: number
   frames?: number
+  components?: number
+  channels?: number
+  channelBitDepths?: readonly number[]
+  lossless?: boolean
+  tiles?: number
+  resolutionLevels?: number
 }
 
 export interface DecoderCapabilities {

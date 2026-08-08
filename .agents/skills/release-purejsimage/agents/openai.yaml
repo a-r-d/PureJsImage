@@ -1,0 +1,4 @@
+interface:
+  display_name: "Release PureJsImage"
+  short_description: "Prepare and verify a safe PureJsImage release"
+  default_prompt: "Prepare and verify a PureJsImage release using the repository release policy."

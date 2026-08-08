@@ -63,11 +63,12 @@ with esbuild minification, gzip level 9, and Brotli quality 11.
 
 | Entry | Minified | gzip | Brotli |
 | --- | ---: | ---: | ---: |
-| Core API | 27.2 KiB | 9.6 KiB | 8.6 KiB |
-| Core + PNG | 54.0 KiB | 18.7 KiB | 16.5 KiB |
-| Core + JPEG | 67.9 KiB | 23.2 KiB | 20.0 KiB |
-| Core + WebP | 74.7 KiB | 27.4 KiB | 23.7 KiB |
-| Core + all codecs | 377.5 KiB | 129.1 KiB | 103.7 KiB |
+| Core API | 34.0 KiB | 11.6 KiB | 10.4 KiB |
+| Core + PNG | 61.7 KiB | 21.1 KiB | 18.6 KiB |
+| Core + JPEG | 77.0 KiB | 26.0 KiB | 22.2 KiB |
+| Core + JPEG 2000 | 69.8 KiB | 23.1 KiB | 20.3 KiB |
+| Core + WebP | 83.4 KiB | 30.0 KiB | 25.9 KiB |
+| Core + all codecs | 425.5 KiB | 144.1 KiB | 115.6 KiB |
 
 Run `npm run size` to reproduce these numbers and see every codec entry.
 Applications import only the codecs they use, so the root API does not pull
@@ -79,6 +80,7 @@ AVIF, HEIF/HEVC, or any other codec implementation into the module graph.
 | --- | --- | --- |
 | PNG | Grayscale, RGB, indexed, alpha, and Adam7 interlace | Yes |
 | JPEG | Baseline and progressive | Baseline |
+| JPEG 2000 / JP2 | Part 1 grayscale and RGB, reversible 5/3 and irreversible 9/7 | No |
 | GIF | First composited frame | No |
 | WebP | Static lossy, lossless, and alpha | Static lossy and lossless |
 | BMP | Indexed, RLE, RGB, bitfields, and alpha | RGB and RGBA |
@@ -104,6 +106,7 @@ still fail explicitly.
 Detailed capability checklists:
 [PNG](https://github.com/a-r-d/PureJsImage/blob/main/png-codec-support.md),
 [JPEG](https://github.com/a-r-d/PureJsImage/blob/main/jpeg-codec-support.md),
+[JPEG 2000](https://github.com/a-r-d/PureJsImage/blob/main/jpeg2000-codec-support.md),
 [GIF](https://github.com/a-r-d/PureJsImage/blob/main/gif-codec-support.md),
 [WebP](https://github.com/a-r-d/PureJsImage/blob/main/webp-codec-support.md),
 [BMP](https://github.com/a-r-d/PureJsImage/blob/main/bmp-codec-support.md),
@@ -206,9 +209,15 @@ const images = createImageLibrary(allCodecs)
 ```
 
 Individual codec entry points are available at `purejsimage/codecs/jpeg`,
-`png`, `gif`, `webp`, `bmp`, `tiff`, `avif`, and `heif`. The `allCodecs` entry
+`jpeg2000`, `png`, `gif`, `webp`, `bmp`, `tiff`, `avif`, and `heif`. The `allCodecs` entry
 point is the only convenience module that imports every implementation. HEVC
 code is reachable only through `purejsimage/codecs/heif` or `codecs/all`.
+
+The initial JP2 decoder is an explicit full-frame fallback. It supports common
+Part 1 still images, but does not yet provide reduced-resolution or crop-aware
+entropy decode, palette/component mapping, alpha channels, ICC color, or
+encoding. Unsupported color, channel-mapping, and coding inputs fail explicitly;
+ordinary crop and resize workflows currently use the documented full-frame path.
 
 Inputs can be file paths, `Buffer`, `Uint8Array`, `ArrayBuffer`, `Blob`, or a custom
 `ImageSource`. Pipelines are immutable and can output a `Buffer` or write directly to a file.
@@ -334,3 +343,6 @@ npm run check
 See the
 [project specification](https://github.com/a-r-d/PureJsImage/blob/main/project-spec.md)
 for the architecture and implementation principles.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution requirements, tests,
+benchmarks, modular feature guidance, and the pull-request checklist.

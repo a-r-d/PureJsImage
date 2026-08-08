@@ -10,6 +10,14 @@
   vendor, copy, or runtime-import a third-party implementation to disguise a dependency as local
   package contents. Dev dependencies may be used only as test or benchmark oracles.
 
+## Releases
+
+- When preparing, verifying, publishing, or auditing a release, follow the `release-purejsimage`
+  repository skill in `.agents/skills/release-purejsimage/SKILL.md`.
+- Only release manager Aaron Decker (`a-r-d`) publishes releases. Do not infer permission to change
+  versions, create tags, push release commits, publish to npm, or create GitHub releases.
+- Never request, expose, or store release credentials or npm one-time passwords.
+
 ## Code style
 
 - Write all source, benchmark, script, and test code in TypeScript with strict mode enabled.
