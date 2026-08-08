@@ -4,11 +4,13 @@ export interface BrowserWorkflowResult {
 }
 
 export interface BrowserCompatibilityHarness {
+  avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
   failureCleanup(): Promise<BrowserWorkflowResult>
   inputTypes(): Promise<readonly BrowserWorkflowResult[]>
   jpegPipeline(): Promise<BrowserWorkflowResult>
   orientation(): Promise<BrowserWorkflowResult>
   pngAlphaPipeline(): Promise<BrowserWorkflowResult>
+  webpLossless(): Promise<BrowserWorkflowResult>
 }
 
 export interface BrowserBenchmarkMeasurement {

@@ -659,6 +659,7 @@ class RestrictedIntraTileDecoder {
   readonly #cflAlphaCdfs = cflAlphaDefaults.map(cdf)
   readonly #filterCdfs = new Map<number, Uint16Array>()
   readonly #filterModeCdf = cdf(filterIntraModeDefault)
+  readonly #deltaQCdf = cdf([28160, 32120, 32677, 32768, 0])
   readonly #restorationWienerCdf = cdf([11570, 32768, 0])
   readonly #restorationSgrCdf = cdf([16855, 32768, 0])
   readonly #restorationSwitchableCdf = cdf([9413, 22581, 32768, 0])
@@ -678,6 +679,7 @@ class RestrictedIntraTileDecoder {
   readonly #allZero16x16Cdfs: readonly Uint16Array[]
   readonly #allZero32x32Cdfs: readonly Uint16Array[]
   readonly #allZero64x64Cdfs: readonly Uint16Array[]
+  #currentQuantizer: number
   constructor(
     sequence: Av1SequenceHeader,
     frame: Av1Frame,
@@ -689,6 +691,7 @@ class RestrictedIntraTileDecoder {
     }
     this.#sequence = sequence
     this.#frame = frame
+    this.#currentQuantizer = frame.header.baseQuantizer
     this.#symbols = new Av1SymbolDecoder(tile.data, !frame.header.disableCdfUpdate)
     this.#miColumns = 2 * ((frame.header.frameWidth + 7) >> 3)
     this.#miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
@@ -997,6 +1000,7 @@ class RestrictedIntraTileDecoder {
     if (!skipCdf) throw invalidInput('AV1 skip context is invalid')
     const skip = this.#symbols.readSymbol(skipCdf)
     this.#readCdefIndex(row, column, width, height, skip === 1)
+    this.#readDeltaQuantizer(row, column, width, height, skip === 1)
     const aboveMode = row > 0 ? (this.#yModes[(row - 1) * this.#miColumns + column] ?? 0) : 0
     const leftMode = column > 0 ? (this.#yModes[row * this.#miColumns + column - 1] ?? 0) : 0
     const aboveContext = intraModeContexts[aboveMode]
@@ -1496,6 +1500,7 @@ class RestrictedIntraTileDecoder {
             txType,
             planeIndex,
             this.#frame.header,
+            this.#currentQuantizer,
           )
           for (
             let localY = 0;
@@ -1531,6 +1536,29 @@ class RestrictedIntraTileDecoder {
         }
       }
     }
+  }
+
+  #readDeltaQuantizer(
+    row: number,
+    column: number,
+    width: number,
+    height: number,
+    skip: boolean,
+  ): void {
+    if (!this.#frame.header.deltaQPresent) return
+    const superblockSize = this.#sequence.use128x128Superblock ? 128 : 64
+    const superblockMi = superblockSize >> 2
+    if (((row | column) & (superblockMi - 1)) !== 0) return
+    if (width === superblockSize && height === superblockSize && skip) return
+
+    let delta = this.#symbols.readSymbol(this.#deltaQCdf)
+    if (delta === 3) {
+      const bits = 1 + this.#symbols.readLiteral(3)
+      delta = this.#symbols.readLiteral(bits) + 1 + 2 ** bits
+    }
+    if (delta !== 0 && this.#symbols.readBoolean() === 1) delta = -delta
+    delta *= 2 ** this.#frame.header.deltaQResolution
+    this.#currentQuantizer = Math.max(1, Math.min(255, this.#currentQuantizer + delta))
   }
 
   #predictIntra(
@@ -1885,19 +1913,14 @@ export const decodeRestrictedAv1Intra = (
   if (frame.header.allowIntrabc) {
     throw unsupportedOperation('Phase B2 reconstruction does not support intra block copy')
   }
-  if (frame.header.usingQMatrix) {
-    throw unsupportedOperation('Phase B2 reconstruction does not support AV1 quantization matrices')
-  }
   if (frame.header.frameWidth !== frame.header.upscaledWidth) {
     throw unsupportedOperation('Phase B2 reconstruction does not support AV1 super-resolution')
   }
   if (frame.header.segmentationEnabled) {
     throw unsupportedOperation('Phase B2 reconstruction does not support AV1 segmentation maps')
   }
-  if (frame.header.deltaQPresent || frame.header.deltaLfPresent) {
-    throw unsupportedOperation(
-      'Phase B2 reconstruction does not support AV1 block quantizer or loop-filter deltas',
-    )
+  if (frame.header.deltaLfPresent) {
+    throw unsupportedOperation('Phase B2 reconstruction does not support AV1 loop-filter deltas')
   }
   const miColumns = 2 * ((frame.header.frameWidth + 7) >> 3)
   const miRows = 2 * ((frame.header.frameHeight + 7) >> 3)

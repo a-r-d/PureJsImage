@@ -709,7 +709,7 @@
       },
       "boundary": "Static images only; current paths retain full-frame working planes",
       "description": "Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy or lossless WebP with opt-in EXIF and compatible ICC preservation. Animation is detected and rejected for pixel decode.",
-      "memory": "Current VP8 and VP8L implementations retain source-sized working planes",
+      "memory": "VP8 and VP8L retain source-sized working planes; lossless encode uses a measured 32-bit transformed frame and buffers its encoded payload",
       "recommendation": "Static web delivery with lossy or exact lossless modes; benchmark memory for large inputs.",
       "evidence": [
         "tests/webp.test.ts",
@@ -939,11 +939,23 @@
         },
         {
           "status": "supported",
-          "text": "Streaming, ordered pixel input without a full source-frame staging buffer"
+          "text": "Ordered pixel input staged in one 32-bit transformed frame with two predictor rows; the encoded payload is buffered so the RIFF length is known before output begins"
         },
         {
           "status": "supported",
-          "text": "Fixed Huffman trees with literal pixel emission"
+          "text": "Predictor transform using the left mode and VP8L-specified edge behavior"
+        },
+        {
+          "status": "supported",
+          "text": "Subtract-green transform"
+        },
+        {
+          "status": "supported",
+          "text": "LZ77 backward references with adjacent-pixel, previous-row, and bounded hash-chain match candidates plus two-dimensional VP8L distance coding"
+        },
+        {
+          "status": "supported",
+          "text": "Per-image adaptive canonical Huffman trees with a complete-tree fallback"
         },
         {
           "status": "supported",
@@ -951,11 +963,7 @@
         },
         {
           "status": "planned",
-          "text": "LZ77 match finding and backward-reference emission"
-        },
-        {
-          "status": "planned",
-          "text": "Adaptive Huffman trees and spatial entropy groups"
+          "text": "Spatially varying Huffman entropy groups"
         },
         {
           "status": "planned",
@@ -963,7 +971,7 @@
         },
         {
           "status": "planned",
-          "text": "Predictor, color, subtract-green, and color-indexing transform selection"
+          "text": "Adaptive predictor modes, cross-color transform, and color-indexing transform selection"
         },
         {
           "status": "planned",
@@ -1092,6 +1100,18 @@
         {
           "status": "supported",
           "text": "Decode benchmark WebP output in a separate libwebp-backed oracle process and require pinned pixels before accepting a timing"
+        },
+        {
+          "status": "supported",
+          "text": "Decode lossless encoder output through pinned Sharp/libwebp and require exact RGBA pixels, including deterministic high-entropy and graphic fixtures"
+        },
+        {
+          "status": "supported",
+          "text": "Require the deterministic graphic's lossless WebP output to be smaller than PureJsImage PNG, and record the pinned production-style logo result alongside libwebp in an isolated size and peak-RSS benchmark"
+        },
+        {
+          "status": "supported",
+          "text": "Document and benchmark the lossless encoder's source-sized 32-bit transformed frame and potentially source-sized buffered payload"
         },
         {
           "status": "planned",
@@ -3060,7 +3080,7 @@
         "label": "No"
       },
       "boundary": "Restricted opaque 8-bit YUV 4:2:0 still-image decode",
-      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets opaque 8-bit YUV 4:2:0 still images. Alpha, grids, high bit depth, complete filtering, and encoding remain unfinished and fail explicitly.",
+      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets opaque 8-bit YUV 4:2:0 still images, including the documented in-loop filters and restricted Sharp/libaom quantization-matrix path. Alpha, grids, high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
       "memory": "Metadata reads are bounded; the restricted decoder uses compact YUV state",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
       "evidence": ["tests/avif.test.ts", "tests/av1.test.ts", "tests/av1-post-filter.test.ts"],
@@ -3359,7 +3379,7 @@
         },
         {
           "status": "supported",
-          "text": "Nonzero coefficient reconstruction in quantizer contexts 2 and 3"
+          "text": "Nonzero coefficient reconstruction in quantizer contexts 1, 2, and 3"
         },
         {
           "status": "supported",
@@ -3370,8 +3390,12 @@
           "text": "8-bit dequantization and inverse transforms"
         },
         {
-          "status": "planned",
-          "text": "Quantization-matrix reconstruction; frames that signal quantization matrices are parsed without losing synchronization and rejected explicitly before pixel allocation"
+          "status": "supported",
+          "text": "Quantization-matrix reconstruction for every supported two-dimensional transform size, including flat level 15 matrices"
+        },
+        {
+          "status": "supported",
+          "text": "Block delta-Q reconstruction in the supported one-tile intra-only path"
         },
         {
           "status": "supported",
@@ -3403,7 +3427,7 @@
         },
         {
           "status": "planned",
-          "text": "Complete segmentation-map, delta-Q, and delta-loop-filter reconstruction outside the combinations exercised by the current corpus"
+          "text": "Complete segmentation-map and delta-loop-filter reconstruction, plus delta-Q combinations outside the restricted one-tile intra-only path"
         },
         {
           "status": "planned",
@@ -3727,7 +3751,11 @@
         },
         {
           "status": "supported",
-          "text": "Reject signaled AV1 quantization matrices explicitly before reconstruction"
+          "text": "Decode two checksum-pinned default Sharp 0.35.3/libaom q50 and q80 quantization-matrix fixtures and match both dav1d and libaom YUV output exactly with numeric tolerance zero"
+        },
+        {
+          "status": "supported",
+          "text": "Keep delta loop-filter syntax explicitly unsupported in the restricted quantization-matrix path"
         },
         {
           "status": "planned",

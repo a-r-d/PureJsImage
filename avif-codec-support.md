@@ -120,12 +120,12 @@ coverage.
 - [x] Square and rectangular transform traversal through 64x64
 - [x] DCT, ADST, flipped-ADST, and identity inverse-transform combinations
   needed by the permanent common-photo corpus
-- [x] Nonzero coefficient reconstruction in quantizer contexts 2 and 3
+- [x] Nonzero coefficient reconstruction in quantizer contexts 1, 2, and 3
 - [x] All-zero coefficient blocks in the supported frame path
 - [x] 8-bit dequantization and inverse transforms
-- [ ] Quantization-matrix reconstruction; frames that signal quantization
-  matrices are parsed without losing synchronization and rejected explicitly
-  before pixel allocation
+- [x] Quantization-matrix reconstruction for every supported two-dimensional
+  transform size, including flat level 15 matrices
+- [x] Block delta-Q reconstruction in the supported one-tile intra-only path
 - [x] Odd-dimension edge clipping without decoding transforms outside the coded
   frame
 - [x] Bilinear YUV 4:2:0 to RGBA conversion
@@ -135,8 +135,8 @@ coverage.
 - [ ] Tile-list or partial tile-group OBUs
 - [ ] Intra block copy and other screen-content tools
 - [ ] Palette mode
-- [ ] Complete segmentation-map, delta-Q, and delta-loop-filter reconstruction
-  outside the combinations exercised by the current corpus
+- [ ] Complete segmentation-map and delta-loop-filter reconstruction, plus
+  delta-Q combinations outside the restricted one-tile intra-only path
 - [ ] Every legal transform-size, transform-type, coefficient-context, and
   quantizer-context combination
 - [ ] Super-resolution reconstruction
@@ -287,7 +287,11 @@ so Kodak is not classified as an exact post-filter fixture.
   production dependency
 - [x] Add exact post-filter comparisons against both dav1d and libaom for five
   checksum-pinned deterministic fixtures
-- [x] Reject signaled AV1 quantization matrices explicitly before reconstruction
+- [x] Decode two checksum-pinned default Sharp 0.35.3/libaom q50 and q80
+  quantization-matrix fixtures and match both dav1d and libaom YUV output
+  exactly with numeric tolerance zero
+- [x] Keep delta loop-filter syntax explicitly unsupported in the restricted
+  quantization-matrix path
 - [ ] Resolve Kodak's documented one-sample CDEF discrepancy before requiring
   exact full-size Kodak and Fox post-filter pixels
 - [ ] Expand to a 200-500 image corpus from libaom, rav1e, SVT-AV1, browsers,
@@ -305,3 +309,4 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-phase-b2-restricted-decode-2026-08-06.md`](benchmark/results/avif-phase-b2-restricted-decode-2026-08-06.md)
 - [`benchmark/results/avif-common-opaque-420-2026-08-07.md`](benchmark/results/avif-common-opaque-420-2026-08-07.md)
 - [`benchmark/results/avif-post-filters-2026-08-08.md`](benchmark/results/avif-post-filters-2026-08-08.md)
+- [`benchmark/results/avif-qmatrix-sharp-2026-08-08.md`](benchmark/results/avif-qmatrix-sharp-2026-08-08.md)

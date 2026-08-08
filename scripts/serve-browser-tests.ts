@@ -38,6 +38,22 @@ const alphaFixture = (): Uint8Array => {
   return PNG.sync.write(image)
 }
 
+const webpGraphicFixture = (): Uint8Array => {
+  const image = new PNG({ width: 32, height: 24 })
+  for (let y = 0; y < image.height; y += 1) {
+    for (let x = 0; x < image.width; x += 1) {
+      const offset = (y * image.width + x) * 4
+      const panel = x >= 4 && x < 28 && y >= 3 && y < 21
+      const stripe = panel && ((x + y) & 7) === 0
+      image.data.set(
+        stripe ? [240, 96, 48, 255] : panel ? [36, 48, 72, 255] : [248, 248, 248, 255],
+        offset,
+      )
+    }
+  }
+  return PNG.sync.write(image)
+}
+
 const benchmarkPng = (): Uint8Array => {
   const image = new PNG({ width: 640, height: 480 })
   let state = 0x4b1d_5eed
@@ -137,9 +153,14 @@ await writeFile(resolve(fixtureDirectory, 'benchmark-input.png'), png)
 await writeFile(resolve(fixtureDirectory, 'benchmark-input.jpg'), jpeg)
 await writeFile(resolve(fixtureDirectory, 'oriented-6.jpg'), withOrientation(jpeg, 6))
 await writeFile(resolve(fixtureDirectory, 'alpha.png'), alphaFixture())
+await writeFile(resolve(fixtureDirectory, 'webp-graphic.png'), webpGraphicFixture())
 await copyFile(
   'benchmark/corpus/files/webp-lossless-tux-386x395.webp',
   resolve(fixtureDirectory, 'benchmark-input.webp'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/sharp-qmatrix-q50-256x192.avif',
+  resolve(fixtureDirectory, 'sharp-qmatrix-q50-256x192.avif'),
 )
 await writeFile(
   resolve(outputDirectory, 'index.html'),
@@ -147,6 +168,7 @@ await writeFile(
 )
 
 const contentTypes: Readonly<Record<string, string>> = {
+  '.avif': 'image/avif',
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.jpg': 'image/jpeg',

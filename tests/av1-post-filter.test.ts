@@ -7,10 +7,12 @@ import {
   avifPostFilterFixtureDirectory,
   avifPostFilterFixtures,
 } from '../benchmark/avif/post-filter-fixtures.ts'
+import { avifQmatrixFixtures } from '../benchmark/avif/qmatrix-fixtures.ts'
 import { parseAv1Frame, type Av1Frame, type Av1FrameHeader } from '../src/codecs/av1-frame.ts'
 import { decodeRestrictedAv1Intra, type Av1Yuv420Frame } from '../src/codecs/av1-intra.ts'
 import { av1ObuType, type Av1SequenceHeader } from '../src/codecs/av1.ts'
 import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
+import { av1InverseQuantizationMatrix } from '../src/codecs/av1-qmatrix.ts'
 import { MemorySource } from '../src/source.ts'
 
 const packVisibleYuv = (frame: Av1Yuv420Frame): Uint8Array => {
@@ -126,15 +128,61 @@ describe('AV1 post-reconstruction filters', () => {
     )
   })
 
-  it('rejects quantization matrices before decoding a deterministic frame fixture', async () => {
+  it('keeps the flat quantization-matrix level pixel-identical', async () => {
     const { frame, sequence } = await decodeFixture('post-filter-disabled-66x70.avif')
     const qmatrixFrame: Av1Frame = {
       ...frame,
-      header: { ...frame.header, usingQMatrix: true },
+      header: { ...frame.header, usingQMatrix: true, qmY: 15, qmU: 15, qmV: 15 },
     }
 
-    expect(() => decodeRestrictedAv1Intra(sequence, qmatrixFrame)).toThrowError(
-      'Phase B2 reconstruction does not support AV1 quantization matrices',
+    expect(packVisibleYuv(decodeRestrictedAv1Intra(sequence, qmatrixFrame))).toEqual(
+      packVisibleYuv(decodeRestrictedAv1Intra(sequence, frame)),
+    )
+  })
+})
+
+describe('AV1 quantization matrices', () => {
+  it('exposes the normative luma weights and flat level', () => {
+    expect(Array.from(av1InverseQuantizationMatrix(0, 0, 4, 4) ?? [])).toEqual([
+      32, 43, 73, 97, 43, 67, 94, 110, 73, 94, 137, 150, 97, 110, 150, 200,
+    ])
+    expect(av1InverseQuantizationMatrix(15, 0, 4, 4)).toBeUndefined()
+  })
+
+  it.each(avifQmatrixFixtures)(
+    'matches independently decoded Sharp q$quality YUV pixels',
+    async (fixture) => {
+      const input = await readFile(join(avifPostFilterFixtureDirectory, fixture.file))
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+
+      const decoded = await decodeFixture(fixture.file)
+      expect([decoded.header.renderWidth, decoded.header.renderHeight]).toEqual([
+        fixture.width,
+        fixture.height,
+      ])
+      expect(decoded.header.baseQuantizer).toBe(fixture.baseQuantizer)
+      expect(decoded.header.usingQMatrix).toBe(true)
+      expect([decoded.header.qmY, decoded.header.qmU, decoded.header.qmV]).toEqual([
+        fixture.matrixLevel,
+        fixture.matrixLevel,
+        fixture.matrixLevel,
+      ])
+      expect(decoded.header.deltaQPresent).toBe(true)
+      expect(decoded.header.deltaQResolution).toBe(fixture.deltaQResolution)
+      expect(decoded.header.deltaLfPresent).toBe(false)
+      expect(createHash('sha256').update(decoded.yuv).digest('hex')).toBe(fixture.yuvSha256)
+    },
+  )
+
+  it('keeps delta loop-filter syntax explicitly unsupported', async () => {
+    const { frame, sequence } = await decodeFixture('sharp-qmatrix-q50-256x192.avif')
+    const deltaLoopFilterFrame: Av1Frame = {
+      ...frame,
+      header: { ...frame.header, deltaLfPresent: true },
+    }
+
+    expect(() => decodeRestrictedAv1Intra(sequence, deltaLoopFilterFrame)).toThrow(
+      'does not support AV1 loop-filter deltas',
     )
   })
 })
