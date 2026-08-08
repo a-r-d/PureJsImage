@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { createImageLibrary } from '../src/browser.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
+import { browserRuntime } from '../src/browser-runtime.ts'
 
 const inputPng = (): Uint8Array => {
   const image = new PNG({ width: 3, height: 2 })
@@ -45,6 +46,32 @@ describe('browser image library', () => {
 
     expect(decoded.width).toBe(2)
     expect(decoded.height).toBe(3)
+  })
+
+  it('keeps a normal 12-megapixel photo within the memory fallback', async () => {
+    const expectedBytes = Math.ceil(4032 / 32) * Math.ceil(3024 / 32) * 32 * 32 * 4
+    expect(expectedBytes).toBe(49_029_120)
+    const store = await browserRuntime.createTemporaryStore({
+      expectedBytes,
+      prefix: 'purejsimage-browser-test-',
+    })
+    await store.write(expectedBytes - 4, Uint8Array.of(1, 2, 3, 4))
+    const output = new Uint8Array(4)
+    await store.read(expectedBytes - 4, output)
+    expect(output).toEqual(Uint8Array.of(1, 2, 3, 4))
+    await store.close()
+  })
+
+  it('still refuses oversized heap storage when persistent browser storage is unavailable', async () => {
+    await expect(
+      browserRuntime.createTemporaryStore({
+        expectedBytes: 65 * 1024 * 1024,
+        prefix: 'purejsimage-browser-test-',
+      }),
+    ).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('exceeds the 64 MiB memory fallback'),
+    })
   })
 
   it('rejects PNG levels that browser CompressionStream cannot honor', async () => {

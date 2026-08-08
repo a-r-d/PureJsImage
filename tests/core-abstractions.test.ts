@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -11,8 +11,8 @@ import {
   MemorySource,
   type ImageSource,
 } from '../src/index.ts'
-import { createImageSource } from '../src/node-source.ts'
-import { BufferedSource, SourceReader } from '../src/source.ts'
+import { createImageSource, FileSource } from '../src/node-source.ts'
+import { BufferedSource, SourceReader, withSourceSession } from '../src/source.ts'
 
 const temporaryDirectories: string[] = []
 
@@ -113,6 +113,23 @@ describe('core abstractions', () => {
     await expect(createImageSource(path, defaultImageLimits)).resolves.toBeInstanceOf(
       BufferedSource,
     )
+  })
+
+  it('reuses one open file descriptor for every read in a source session', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'purejsimage-source-session-'))
+    temporaryDirectories.push(directory)
+    const path = join(directory, 'input.bin')
+    const moved = join(directory, 'moved.bin')
+    await writeFile(path, Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8))
+    const source = await FileSource.open(path)
+
+    await withSourceSession(source, async () => {
+      await expect(source.read(0, 2)).resolves.toEqual(Uint8Array.of(1, 2))
+      await rename(path, moved)
+      await expect(source.read(6, 2)).resolves.toEqual(Uint8Array.of(7, 8))
+    })
+    await rename(moved, path)
+    await expect(source.read(2, 2)).resolves.toEqual(Uint8Array.of(3, 4))
   })
 
   it('reuses only configured buffer size classes', () => {

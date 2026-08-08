@@ -19,6 +19,7 @@ import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import {
   ColorManagedDecoder,
   createDisplayP3Transform,
+  inspectIccProfile,
   parseRgbIccTransform,
   type RgbIccTransform,
 } from './icc.ts'
@@ -53,6 +54,13 @@ type Property =
       readonly type: 'colr'
       readonly colorSpace: string
       readonly colorTransform?: RgbIccTransform
+      readonly iccDescription?: string
+      readonly nclx?: {
+        readonly fullRange: boolean
+        readonly matrixCoefficients: number
+        readonly primaries: number
+        readonly transferCharacteristics: number
+      }
     }
   | { readonly type: 'irot'; readonly angle: number }
   | { readonly type: 'ispe'; readonly width: number; readonly height: number }
@@ -199,24 +207,30 @@ const parseProperty = async (source: ImageSource, box: Box): Promise<Property> =
       if (data.byteLength < 11) throw invalidInput('AVIF nclx color property is truncated')
       const primaries = uint16BigEndian(data, 4)
       const transfer = uint16BigEndian(data, 6)
+      const matrixCoefficients = uint16BigEndian(data, 8)
+      const fullRange = ((data[10] ?? 0) & 0x80) !== 0
       return {
         type: 'colr',
-        colorSpace: colorSpaceName(
+        colorSpace: colorSpaceName(primaries, transfer, matrixCoefficients, fullRange),
+        nclx: {
           primaries,
-          transfer,
-          uint16BigEndian(data, 8),
-          ((data[10] ?? 0) & 0x80) !== 0,
-        ),
+          transferCharacteristics: transfer,
+          matrixCoefficients,
+          fullRange,
+        },
         ...(primaries === 12 && transfer === 13
           ? { colorTransform: createDisplayP3Transform() }
           : {}),
       }
     }
     if (method === 'prof' || method === 'rICC') {
+      const icc = data.subarray(4)
+      const description = inspectIccProfile(icc).description
       return {
         type: 'colr',
         colorSpace: 'icc',
-        colorTransform: parseRgbIccTransform(data.subarray(4)),
+        ...(description === undefined ? {} : { iccDescription: description }),
+        colorTransform: parseRgbIccTransform(icc),
       }
     }
   }
@@ -516,6 +530,13 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
         }
       : {}),
     ...(color ? { colorSpace: color.colorSpace } : {}),
+    ...(color?.iccDescription !== undefined
+      ? { colorProfile: { kind: 'icc' as const, description: color.iccDescription } }
+      : color?.colorSpace === 'icc'
+        ? { colorProfile: { kind: 'icc' as const } }
+        : color?.nclx
+          ? { colorProfile: { kind: 'nclx' as const, ...color.nclx } }
+          : {}),
     ...(orientation !== undefined ? { orientation } : {}),
   }
 }

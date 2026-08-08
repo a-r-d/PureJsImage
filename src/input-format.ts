@@ -82,8 +82,54 @@ const svgFormat = (data: Uint8Array): RecognizedInputFormat | undefined => {
   const text = new TextDecoder('utf-8', { fatal: false })
     .decode(data.subarray(offset))
     .toLowerCase()
-  const element = text.indexOf('<svg')
-  if (element < 0) return undefined
+  let element = 0
+  const skipWhitespace = (): void => {
+    while (
+      text[element] === ' ' ||
+      text[element] === '\t' ||
+      text[element] === '\r' ||
+      text[element] === '\n'
+    ) {
+      element += 1
+    }
+  }
+  skipWhitespace()
+  while (element < text.length) {
+    if (text.startsWith('<?', element)) {
+      const end = text.indexOf('?>', element + 2)
+      if (end < 0) return undefined
+      element = end + 2
+      skipWhitespace()
+      continue
+    }
+    if (text.startsWith('<!--', element)) {
+      const end = text.indexOf('-->', element + 4)
+      if (end < 0) return undefined
+      element = end + 3
+      skipWhitespace()
+      continue
+    }
+    if (text.startsWith('<!doctype', element)) {
+      let end = element + 9
+      let quote: '"' | "'" | undefined
+      let subsetDepth = 0
+      for (; end < text.length; end += 1) {
+        const character = text[end]
+        if (quote) {
+          if (character === quote) quote = undefined
+        } else if (character === '"' || character === "'") quote = character
+        else if (character === '[') subsetDepth += 1
+        else if (character === ']') subsetDepth = Math.max(0, subsetDepth - 1)
+        else if (character === '>' && subsetDepth === 0) break
+      }
+      if (end >= text.length) return undefined
+      element = end + 1
+      skipWhitespace()
+      continue
+    }
+    break
+  }
+  if (!text.startsWith('<svg', element)) return undefined
   const terminator = text[element + 4]
   return terminator === '>' ||
     terminator === '/' ||

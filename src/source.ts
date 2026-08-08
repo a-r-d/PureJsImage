@@ -13,6 +13,50 @@ export interface ImageSource {
   read(offset: number, length: number): Promise<Uint8Array>
 }
 
+export const sourceSessionStart = Symbol('purejsimage.sourceSessionStart')
+export const sourceSessionEnd = Symbol('purejsimage.sourceSessionEnd')
+export const stableSourceBuffers = Symbol('purejsimage.stableSourceBuffers')
+
+interface StableBufferSource extends ImageSource {
+  readonly [stableSourceBuffers]: true
+  read(offset: number, length: number): Promise<Uint8Array<ArrayBuffer>>
+}
+
+interface SessionManagedSource extends ImageSource {
+  [sourceSessionStart](): void
+  [sourceSessionEnd](): Promise<void>
+}
+
+const isSessionManagedSource = (source: ImageSource): source is SessionManagedSource =>
+  sourceSessionStart in source &&
+  typeof source[sourceSessionStart] === 'function' &&
+  sourceSessionEnd in source &&
+  typeof source[sourceSessionEnd] === 'function'
+
+const hasStableSourceBuffers = (source: ImageSource): source is StableBufferSource =>
+  stableSourceBuffers in source && source[stableSourceBuffers] === true
+
+export const withSourceSession = async <Result>(
+  source: ImageSource,
+  operation: () => Promise<Result>,
+): Promise<Result> => {
+  if (!isSessionManagedSource(source)) return operation()
+  source[sourceSessionStart]()
+  const outcome = await Promise.resolve()
+    .then(operation)
+    .then(
+      (value) => ({ kind: 'success' as const, value }),
+      (error: unknown) => ({ kind: 'failure' as const, error }),
+    )
+  try {
+    await source[sourceSessionEnd]()
+  } catch (releaseError) {
+    if (outcome.kind === 'success') throw releaseError
+  }
+  if (outcome.kind === 'failure') throw outcome.error
+  return outcome.value
+}
+
 export type ImageInput = ArrayBuffer | Blob | ImageSource | Uint8Array
 
 const defaultBufferBytes = 262_144
@@ -49,6 +93,7 @@ export class MemorySource implements ImageSource {
 
 export class BlobSource implements ImageSource {
   readonly size: number
+  readonly [stableSourceBuffers] = true
   readonly #blob: Blob
 
   constructor(blob: Blob) {
@@ -56,7 +101,7 @@ export class BlobSource implements ImageSource {
     this.size = blob.size
   }
 
-  async read(offset: number, length: number): Promise<Uint8Array> {
+  async read(offset: number, length: number): Promise<Uint8Array<ArrayBuffer>> {
     const available = readLength(this.size, offset, length)
     return new Uint8Array(await this.#blob.slice(offset, offset + available).arrayBuffer())
   }
@@ -118,6 +163,14 @@ export class BufferedSource implements ImageSource {
     this.#source = source
     this.#bufferBytes = bufferBytes
     this.size = source.size
+  }
+
+  [sourceSessionStart](): void {
+    if (isSessionManagedSource(this.#source)) this.#source[sourceSessionStart]()
+  }
+
+  async [sourceSessionEnd](): Promise<void> {
+    if (isSessionManagedSource(this.#source)) await this.#source[sourceSessionEnd]()
   }
 
   #coveringBuffer(position: number): BufferedRegion | undefined {
@@ -198,7 +251,9 @@ export class BufferedSource implements ImageSource {
     ) {
       if (!this.#buffers.some((buffer) => buffer.start === regionStart)) {
         const amount = Math.min(this.size - regionStart, this.#bufferBytes)
-        const data = Uint8Array.from(await this.#source.read(regionStart, amount))
+        const data = hasStableSourceBuffers(this.#source)
+          ? await this.#source.read(regionStart, amount)
+          : Uint8Array.from(await this.#source.read(regionStart, amount))
         this.#storeBuffer({ data, lastUsed: ++this.#accessCounter, start: regionStart })
       }
     }

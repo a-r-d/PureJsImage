@@ -1,9 +1,12 @@
 import type {
   ChromaSubsampling,
+  DecoderOptions,
   DecodeRequest,
   ImageCodec,
   ImageDecoder,
   ImageMetadata,
+  MetadataPreservationOptions,
+  PreservedMetadata,
 } from '../codec.ts'
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
@@ -23,6 +26,7 @@ import { decodeHevcIntraPicture, type DecodedHevcPicture } from './hevc-picture.
 import {
   ColorManagedDecoder,
   createDisplayP3Transform,
+  inspectIccProfile,
   parseRgbIccTransform,
   type RgbIccTransform,
 } from './icc.ts'
@@ -44,6 +48,7 @@ const MAX_CONFIGURATION_BYTES = 1024 * 1024
 const MAX_ITEM_BYTES = 128 * 1024 * 1024
 const MAX_NAL_UNITS = 16_384
 const MAX_NAL_BYTES = 32 * 1024 * 1024
+const MAX_PRESERVED_METADATA_BYTES = 16 * 1024 * 1024
 
 export interface HevcNalUnit {
   readonly data: Uint8Array
@@ -76,6 +81,8 @@ type Property =
   | {
       readonly type: 'colr'
       readonly colorSpace: string
+      readonly icc?: Uint8Array
+      readonly iccDescription?: string
       readonly nclx?: NclxColor
       readonly colorTransform?: RgbIccTransform
     }
@@ -362,10 +369,14 @@ const parseProperty = async (reader: IsobmffReader, box: IsobmffBox): Promise<Pr
       }
     }
     if (method === 'prof' || method === 'rICC') {
+      const icc = data.slice(4)
+      const description = inspectIccProfile(icc).description
       return {
         type: 'colr',
         colorSpace: 'icc',
-        colorTransform: parseRgbIccTransform(data.subarray(4)),
+        icc,
+        ...(description === undefined ? {} : { iccDescription: description }),
+        colorTransform: parseRgbIccTransform(icc),
       }
     }
   }
@@ -810,6 +821,75 @@ const readAcrossRanges = async (
   throw invalidInput('HEIF item NAL extent is truncated')
 }
 
+const colorPropertiesFor = (parsed: ParsedHeif): readonly Property[] =>
+  oneProperty(parsed.properties, 'colr')
+    ? parsed.properties
+    : (parsed.codedImages[0]?.properties ?? parsed.properties)
+
+const metadataItem = (
+  parsed: ParsedHeif,
+  type: string,
+): { readonly id: number; readonly protectionIndex: number } | undefined => {
+  const candidates = [...parsed.meta.items.values()].filter((item) => item.type === type)
+  const linked = candidates.filter((item) =>
+    parsed.meta.references.some(
+      (reference) =>
+        reference.type === 'cdsc' &&
+        reference.fromItemId === item.id &&
+        reference.toItemIds.includes(parsed.primaryItemId),
+    ),
+  )
+  const usable = linked.length > 0 ? linked : candidates
+  if (usable.length > 1) throw invalidInput(`HEIF contains multiple ${type} metadata items`)
+  const item = usable[0]
+  return item ? { id: item.id, protectionIndex: item.protectionIndex } : undefined
+}
+
+const readMetadataItem = async (parsed: ParsedHeif, itemId: number): Promise<Uint8Array> => {
+  const item = itemRanges(parsed.reader, parsed.meta, itemId)
+  if (item.length > MAX_PRESERVED_METADATA_BYTES) {
+    throw invalidInput(`HEIF metadata item ${itemId} is unreasonably large`)
+  }
+  return readAcrossRanges(parsed.reader.source, item.ranges, 0, item.length)
+}
+
+const preservedExif = async (parsed: ParsedHeif): Promise<Uint8Array | undefined> => {
+  const item = metadataItem(parsed, 'Exif')
+  if (!item) return undefined
+  if (item.protectionIndex !== 0) {
+    throw unsupportedOperation('Protected HEIF EXIF metadata is unsupported')
+  }
+  const data = await readMetadataItem(parsed, item.id)
+  if (data.byteLength < 12) throw invalidInput('HEIF EXIF item is truncated')
+  const tiffOffset = checkedAdd(4, uint32BigEndian(data, 0), 'HEIF EXIF offset overflows')
+  const littleEndian = data[tiffOffset] === 0x49 && data[tiffOffset + 1] === 0x49
+  const bigEndian = data[tiffOffset] === 0x4d && data[tiffOffset + 1] === 0x4d
+  const magic = littleEndian
+    ? (data[tiffOffset + 2] ?? 0) + (data[tiffOffset + 3] ?? 0) * 256
+    : (data[tiffOffset + 2] ?? 0) * 256 + (data[tiffOffset + 3] ?? 0)
+  if (tiffOffset + 8 > data.byteLength || (!littleEndian && !bigEndian) || magic !== 42) {
+    throw invalidInput('HEIF EXIF item has an invalid TIFF header')
+  }
+  return data.slice(tiffOffset)
+}
+
+const preservedHeifMetadata = async (
+  source: ImageSource,
+  limits: ImageLimits,
+  options?: Readonly<MetadataPreservationOptions>,
+): Promise<PreservedMetadata> => {
+  const parsed = await parseHeif(source)
+  validateImageDimensions(parsed.dimensions.width, parsed.dimensions.height, 1, limits)
+  const keepExif = options?.exif ?? true
+  const keepIcc = options?.icc ?? true
+  const exif = keepExif ? await preservedExif(parsed) : undefined
+  const icc = keepIcc ? oneProperty(colorPropertiesFor(parsed), 'colr')?.icc : undefined
+  return {
+    ...(exif === undefined ? {} : { exif }),
+    ...(icc === undefined ? {} : { icc }),
+  }
+}
+
 const readLength = (data: Uint8Array): number => {
   let value = 0
   for (const part of data) value = value * 256 + part
@@ -960,6 +1040,16 @@ const inspectHeifMetadata = async (
     chromaSubsampling: configuration.chromaSubsampling,
     codecProfile: configuration.profile,
     ...(color ? { colorSpace: color.colorSpace } : {}),
+    ...(color?.icc
+      ? {
+          colorProfile: {
+            kind: 'icc' as const,
+            ...(color.iccDescription === undefined ? {} : { description: color.iccDescription }),
+          },
+        }
+      : color?.nclx
+        ? { colorProfile: { kind: 'nclx' as const, ...color.nclx } }
+        : {}),
     ...(orientation !== undefined ? { orientation } : {}),
   }
 }
@@ -1448,6 +1538,7 @@ class HeifGridPixelDecoder implements ImageDecoder {
 const createHeifDecoder = async (
   source: ImageSource,
   limits: ImageLimits,
+  options: Readonly<DecoderOptions> = {},
 ): Promise<ImageDecoder> => {
   const parsed = await parseHeif(source)
   validateImageDimensions(parsed.dimensions.width, parsed.dimensions.height, 1, limits)
@@ -1460,9 +1551,7 @@ const createHeifDecoder = async (
   )
   const sequence = coded.configuration.sps[0]
   if (!sequence) throw invalidInput('HEIF image has no sequence parameter set')
-  const colorProperties = oneProperty(parsed.properties, 'colr')
-    ? parsed.properties
-    : (parsed.codedImages[0]?.properties ?? parsed.properties)
+  const colorProperties = colorPropertiesFor(parsed)
   const color = colorConversionFor(colorProperties, sequence)
   let decoder: ImageDecoder
   if (parsed.primaryItemType === 'grid') {
@@ -1479,7 +1568,9 @@ const createHeifDecoder = async (
     decoder = new HeifPixelDecoder(picture, aperture, color)
   }
   const colorTransform = oneProperty(colorProperties, 'colr')?.colorTransform
-  return colorTransform ? new ColorManagedDecoder(decoder, colorTransform) : decoder
+  return colorTransform && !options.preserveIcc
+    ? new ColorManagedDecoder(decoder, colorTransform)
+    : decoder
 }
 
 export const heifCodec: ImageCodec = {
@@ -1492,6 +1583,7 @@ export const heifCodec: ImageCodec = {
     return brands.some((brand) => HEVC_BRANDS.has(brand) || GENERIC_HEIF_BRANDS.has(brand))
   },
   metadata: inspectHeifMetadata,
+  preservedMetadata: preservedHeifMetadata,
   createDecoder: createHeifDecoder,
 }
 

@@ -91,6 +91,13 @@ AVIF, HEIF/HEVC, or any other codec implementation into the module graph.
 | AVIF | Opaque 8-bit YUV 4:2:0 still-image subset | No |
 | HEIF / HEIC | Opaque 8/10-bit YUV 4:2:0 intra stills, including grids | No |
 
+JPEG 2000 decoding is currently a full-frame memory fallback. A measured
+1920x2172 JP2 resize reached 191.8 MiB cold and 211.0 MiB warm absolute peak
+RSS, so it is not safe for a 256 MiB Lambda tier after normal runtime headroom
+or concurrency. Use at least a 512 MiB tier for comparable inputs, or lower
+`maxPixels` and `maxDecodedBytes`. See the
+[reproducible RSS report](benchmark/results/jpeg2000-real-world-rss-2026-08-08.md).
+
 AVIF support is still expanding. Metadata inspection covers a much broader set
 of AVIF files than pixel decoding, while alpha, grids, high bit depth, in-loop
 filter application, and encoding remain unfinished. HEIF/HEIC support decodes
@@ -227,10 +234,14 @@ and the output encoder embeds the original profile, avoiding a double conversion
 reorientation through `autoOrient()`, `rotate()`, `flip()`, or `flop()` normalizes the retained EXIF
 orientation to 1.
 
-JPEG, PNG, and WebP can read and write retained EXIF and RGB ICC metadata. TIFF can read and write
-compatible ICC profiles, but retaining EXIF into or out of TIFF is not implemented. BMP cannot
-carry either through this API. Unsupported source or output combinations fail explicitly instead
-of silently stripping requested metadata.
+JPEG, PNG, WebP, and HEIF/HEIC can read retained EXIF and RGB ICC metadata; the selected output
+codec must also support writing it. TIFF can read and write compatible ICC profiles, but retaining
+EXIF into or out of TIFF is not implemented. BMP cannot carry either through this API. Unsupported
+source or output combinations fail explicitly instead of silently stripping requested metadata.
+
+`metadata().colorSpace` remains a compact compatibility label. HEIF and AVIF additionally expose
+`colorProfile`: ICC profiles report a validated description when present, while nclx profiles
+report their numeric primaries, transfer characteristics, matrix coefficients, and range.
 
 To enable every supported codec explicitly, use the separate all-codec entry
 point:
@@ -280,9 +291,12 @@ order from a sequential decoder. PureJsImage keeps memory bounded by spooling 32
 runtime temporary store. Node uses a temporary file under `os.tmpdir()` and removes the temporary directory on success or failure. Plan
 for roughly one decoded frame of temporary disk capacity: a 100-megapixel RGBA image needs about
 400 MB, including small tile-edge padding. On AWS Lambda this consumes the function's configured
-`/tmp` storage. Modern browsers use origin-private file storage when available;
-otherwise images requiring at most 32 MiB of tile storage use a chunked memory
-fallback, and larger transforms fail explicitly.
+`/tmp` storage. Modern browsers use origin-private file storage when available, then use a lazy
+chunked-memory store for images requiring at most 64 MiB of tile storage. This keeps ordinary
+12-megapixel RGBA photos working without allocating the full 64 MiB up front. Larger transforms
+fall back to a temporary chunked IndexedDB store, allowing 12–48-megapixel transforms without a
+source-sized heap allocation. They fail explicitly only when neither persistent browser store is
+available.
 Exhausted or unavailable temporary storage fails with an `ImageError`; capacity errors such as
 `ENOSPC` use `LIMIT_EXCEEDED`.
 

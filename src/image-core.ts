@@ -27,7 +27,7 @@ import {
 } from './pipeline.ts'
 import type { CollectedOutput, ImageRuntime } from './runtime.ts'
 import type { ImageSink } from './sink.ts'
-import type { ImageSource } from './source.ts'
+import { type ImageSource, withSourceSession } from './source.ts'
 
 export interface ImageOpenOptions {
   limits?: ImageLimitOptions
@@ -75,7 +75,7 @@ export class Image<Input, Output extends Uint8Array> {
   ): Promise<Image<Input, Output>> {
     const limits = resolveLimits(options.limits)
     const source = await platform.createImageSource(input, limits)
-    const codec = await registry.detect(source)
+    const codec = await withSourceSession(source, () => registry.detect(source))
     return new Image({
       source,
       codec,
@@ -88,9 +88,8 @@ export class Image<Input, Output extends Uint8Array> {
   }
 
   async metadata(): Promise<ImageMetadata> {
-    this.#context.metadataPromise ??= this.#context.codec.metadata(
-      this.#context.source,
-      this.#context.limits,
+    this.#context.metadataPromise ??= withSourceSession(this.#context.source, () =>
+      this.#context.codec.metadata(this.#context.source, this.#context.limits),
     )
     return planMetadata(await this.#context.metadataPromise, this.#operations, this.#context.limits)
   }
@@ -235,7 +234,9 @@ export class Image<Input, Output extends Uint8Array> {
   }
 
   async toSink(sink: ImageSink): Promise<void> {
-    await executePipeline(this.#context, this.#operations, sink)
+    await withSourceSession(this.#context.source, () =>
+      executePipeline(this.#context, this.#operations, sink),
+    )
   }
 
   async toFile(path: string): Promise<void> {

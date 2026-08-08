@@ -7,8 +7,16 @@ import type {
   TemporaryStoreOptions,
 } from './runtime.ts'
 
-const memoryTemporaryStoreLimit = 32 * 1024 * 1024
+const memoryTemporaryStoreLimit = 64 * 1024 * 1024
 const memoryChunkBytes = 1024 * 1024
+const indexedDbChunkBytes = 4 * 1024
+const indexedDbStoreName = 'chunks'
+let temporaryStoreSequence = 0
+
+const temporaryStoreName = (prefix: string): string => {
+  temporaryStoreSequence += 1
+  return `${prefix}${Date.now().toString(36)}-${temporaryStoreSequence.toString(36)}`
+}
 
 class MemoryTemporaryStore implements TemporaryStore {
   readonly #expectedBytes: number
@@ -127,6 +135,117 @@ class OpfsTemporaryStore implements TemporaryStore {
   }
 }
 
+const requestResult = <Result>(request: IDBRequest<Result>): Promise<Result> =>
+  new Promise((resolve, reject) => {
+    request.addEventListener('success', () => resolve(request.result), { once: true })
+    request.addEventListener('error', () => reject(request.error), { once: true })
+  })
+
+const transactionCompletion = (transaction: IDBTransaction): Promise<void> =>
+  new Promise((resolve, reject) => {
+    transaction.addEventListener('complete', () => resolve(), { once: true })
+    transaction.addEventListener(
+      'error',
+      () => reject(transaction.error ?? new Error('IndexedDB transaction failed')),
+      { once: true },
+    )
+    transaction.addEventListener(
+      'abort',
+      () => reject(transaction.error ?? new Error('IndexedDB transaction was aborted')),
+      { once: true },
+    )
+  })
+
+class IndexedDbTemporaryStore implements TemporaryStore {
+  readonly #database: IDBDatabase
+  readonly #databaseName: string
+  readonly #expectedBytes: number
+  #closed = false
+
+  constructor(database: IDBDatabase, databaseName: string, expectedBytes: number) {
+    this.#database = database
+    this.#databaseName = databaseName
+    this.#expectedBytes = expectedBytes
+  }
+
+  async read(position: number, target: Uint8Array): Promise<void> {
+    if (this.#closed) throw new Error('Temporary store is closed')
+    if (position < 0 || position + target.byteLength > this.#expectedBytes) {
+      throw new Error('Temporary read exceeds its bounded store')
+    }
+    const transaction = this.#database.transaction(indexedDbStoreName, 'readonly')
+    const completion = transactionCompletion(transaction)
+    const store = transaction.objectStore(indexedDbStoreName)
+    let copied = 0
+    while (copied < target.byteLength) {
+      const absolute = position + copied
+      const chunkIndex = Math.floor(absolute / indexedDbChunkBytes)
+      const chunkOffset = absolute % indexedDbChunkBytes
+      const amount = Math.min(target.byteLength - copied, indexedDbChunkBytes - chunkOffset)
+      const result: unknown = await requestResult(store.get(chunkIndex))
+      if (!(result instanceof Uint8Array) || chunkOffset + amount > result.byteLength) {
+        throw new Error('Temporary data is truncated')
+      }
+      target.set(result.subarray(chunkOffset, chunkOffset + amount), copied)
+      copied += amount
+    }
+    await completion
+  }
+
+  async write(position: number, data: Uint8Array): Promise<void> {
+    if (this.#closed) throw new Error('Temporary store is closed')
+    if (position < 0 || position + data.byteLength > this.#expectedBytes) {
+      throw new Error('Temporary write exceeds its bounded store')
+    }
+    const transaction = this.#database.transaction(indexedDbStoreName, 'readwrite')
+    const completion = transactionCompletion(transaction)
+    const store = transaction.objectStore(indexedDbStoreName)
+    let copied = 0
+    while (copied < data.byteLength) {
+      const absolute = position + copied
+      const chunkIndex = Math.floor(absolute / indexedDbChunkBytes)
+      const chunkOffset = absolute % indexedDbChunkBytes
+      const amount = Math.min(data.byteLength - copied, indexedDbChunkBytes - chunkOffset)
+      const chunkBytes = Math.min(
+        indexedDbChunkBytes,
+        this.#expectedBytes - chunkIndex * indexedDbChunkBytes,
+      )
+      let chunk: Uint8Array
+      if (chunkOffset === 0 && amount === chunkBytes) {
+        chunk = data.slice(copied, copied + amount)
+      } else {
+        const result: unknown = await requestResult(store.get(chunkIndex))
+        if (result !== undefined && !(result instanceof Uint8Array)) {
+          throw new Error('Temporary data has an invalid type')
+        }
+        chunk = result instanceof Uint8Array ? result : new Uint8Array(chunkBytes)
+        chunk.set(data.subarray(copied, copied + amount), chunkOffset)
+      }
+      await requestResult(store.put(chunk, chunkIndex))
+      copied += amount
+    }
+    await completion
+  }
+
+  async close(): Promise<void> {
+    if (this.#closed) return
+    this.#closed = true
+    this.#database.close()
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.deleteDatabase(this.#databaseName)
+      request.addEventListener('success', () => resolve(), { once: true })
+      request.addEventListener('error', () => reject(request.error), { once: true })
+      request.addEventListener(
+        'blocked',
+        () => reject(new Error('IndexedDB cleanup was blocked')),
+        {
+          once: true,
+        },
+      )
+    })
+  }
+}
+
 const createOpfsTemporaryStore = async (
   options: TemporaryStoreOptions,
 ): Promise<TemporaryStore | undefined> => {
@@ -137,10 +256,36 @@ const createOpfsTemporaryStore = async (
   if (!storage || typeof storage.getDirectory !== 'function') return undefined
   try {
     const directory = await storage.getDirectory()
-    const name = `${options.prefix}${crypto.randomUUID()}`
+    const name = temporaryStoreName(options.prefix)
     const handle = await directory.getFileHandle(name, { create: true })
     return new OpfsTemporaryStore(directory, name, handle)
   } catch {
+    return undefined
+  }
+}
+
+const createIndexedDbTemporaryStore = async (
+  options: TemporaryStoreOptions,
+): Promise<TemporaryStore | undefined> => {
+  if (typeof indexedDB === 'undefined') return undefined
+  const name = temporaryStoreName(options.prefix)
+  try {
+    const request = indexedDB.open(name, 1)
+    request.addEventListener(
+      'upgradeneeded',
+      () => {
+        request.result.createObjectStore(indexedDbStoreName)
+      },
+      { once: true },
+    )
+    const database = await requestResult(request)
+    return new IndexedDbTemporaryStore(database, name, options.expectedBytes)
+  } catch {
+    try {
+      indexedDB.deleteDatabase(name)
+    } catch {
+      // Nothing was created, or the browser has already discarded it.
+    }
     return undefined
   }
 }
@@ -151,8 +296,10 @@ const createTemporaryStore = async (options: TemporaryStoreOptions): Promise<Tem
   if (options.expectedBytes <= memoryTemporaryStoreLimit) {
     return new MemoryTemporaryStore(options.expectedBytes)
   }
+  const indexedDb = await createIndexedDbTemporaryStore(options)
+  if (indexedDb) return indexedDb
   throw unsupportedOperation(
-    `Browser temporary storage is unavailable and ${options.expectedBytes} bytes exceeds the 32 MiB memory fallback`,
+    `Browser temporary storage is unavailable and ${options.expectedBytes} bytes exceeds the 64 MiB memory fallback`,
   )
 }
 

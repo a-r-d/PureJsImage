@@ -20,7 +20,7 @@
   </div></header>
 
   <main id="main">
-    <header class="page-hero"><div class="container"><p class="eyebrow">API reference</p><h1>Small surface.<br>Explicit behavior.</h1><p class="page-lede">The public API for codec registration, lazy transforms, sources, sinks, limits, and typed failures.</p><div class="page-meta"><span class="pill">Current main</span><span class="pill">TypeScript declarations included</span></div></div></header>
+    <header class="page-hero"><div class="container"><p class="eyebrow">API reference</p><h1>Public API and runtime contracts.</h1><p class="page-lede">Codec registration, immutable image pipelines, operation options, sources, sinks, safety limits, metadata preservation, and typed errors.</p><div class="page-meta"><span class="pill">Current main</span><span class="pill">TypeScript declarations included</span></div></div></header>
     <div class="container docs-layout">
       <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="guides.html">Getting started</a><a href="guides.html#recipes">Recipes</a></div><div class="nav-group"><strong>Reference</strong><a href="api.html" aria-current="page">API reference</a><a href="codecs.html">Codec support</a><a href="performance.html">Performance</a></div></aside>
       <article class="content">
@@ -139,6 +139,7 @@
             <tr><td><strong>JPEG</strong></td><td>EXIF and RGB ICC</td><td>EXIF and RGB ICC</td></tr>
             <tr><td><strong>PNG</strong></td><td>EXIF and compatible ICC</td><td>EXIF and compatible ICC</td></tr>
             <tr><td><strong>WebP</strong></td><td>EXIF and RGB ICC</td><td>EXIF and RGB ICC</td></tr>
+            <tr><td><strong>HEIF / HEIC</strong></td><td>EXIF and RGB ICC</td><td>Not implemented</td></tr>
             <tr><td><strong>TIFF</strong></td><td>Compatible ICC only</td><td>Compatible ICC only</td></tr>
             <tr><td><strong>Other formats</strong></td><td>Not implemented</td><td>Not implemented</td></tr>
           </tbody></table></div>
@@ -156,12 +157,21 @@
   hasAlpha: boolean
   orientation?: number
   colorSpace?: string
+  colorProfile?:
+    | { kind: <span class="tok-string">'icc'</span>; description?: string }
+    | {
+        kind: <span class="tok-string">'nclx'</span>
+        primaries: number
+        transferCharacteristics: number
+        matrixCoefficients: number
+        fullRange: boolean
+      }
   bitDepth?: number
   chromaSubsampling?: <span class="tok-string">'400'</span> | <span class="tok-string">'420'</span> | <span class="tok-string">'422'</span> | <span class="tok-string">'444'</span>
   codecProfile?: number
   frames?: number
 }</code></pre></div>
-          <p>Optional fields depend on what the container and registered codec can determine safely. Animated formats may report frame counts even when the current pixel decoder handles only a still subset.</p>
+          <p>Optional fields depend on what the container and registered codec can determine safely. HEIF and AVIF expose validated ICC descriptions when present or the numeric nclx primaries, transfer characteristics, matrix coefficients, and range. Animated formats may report frame counts even when the current pixel decoder handles only a still subset.</p>
         </section>
 
         <section id="sources" data-search-item>
@@ -192,7 +202,7 @@
             <tr><td><code>maxFrames</code></td><td>1,000</td><td>Declared frame count</td></tr>
             <tr><td><code>maxDecodedBytes</code></td><td>1,073,741,824 (1 GiB)</td><td>Worst-case dimensions and streaming expansion</td></tr>
           </tbody></table></div>
-          <div class="callout"><strong>Set product limits.</strong> The defaults are general guardrails, not a recommendation that every service accept 100,000-pixel dimensions or 128 MiB uploads.</div>
+          <div class="callout"><strong>Configure application limits.</strong> The defaults are general guardrails, not a recommendation that every deployment accept 100,000-pixel dimensions or 128 MiB inputs.</div>
         </section>
 
         <section id="errors" data-search-item>
@@ -215,7 +225,7 @@
         <section id="advanced" data-search-item>
           <h2>Advanced contracts</h2>
           <p>The Node root and browser entry export the primitives used to author custom codecs and sinks: <code>ImageCodec</code>, <code>ImageDecoder</code>, <code>ImageEncoder</code>, <code>CodecRegistry</code>, <code>ImageSink</code>, <code>Uint8ArraySink</code>, <code>PixelBlock</code>, <code>PixelFormat</code>, and <code>BufferPool</code>. Node additionally exports <code>BufferSink</code>, <code>FileSink</code>, and <code>FileSource</code>.</p>
-          <p>These interfaces are useful for first-party extensions and controlled integrations. A decoder yields ordered pixel blocks; an encoder consumes them and writes encoded chunks to a sink. Preserve the release callback and source-buffer lifetime contracts when implementing either side.</p>
+          <p>These interfaces support custom codecs and sinks. A decoder yields ordered pixel blocks; an encoder consumes them and writes encoded chunks to a sink. Implementations must preserve the release callback and source-buffer lifetime contracts.</p>
           <p><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/src/index.ts" target="_blank" rel="noreferrer">View public exports on GitHub →</a></p>
         </section>
         <div class="empty-search" data-search-empty>No API entries match that filter.</div>
@@ -224,7 +234,7 @@
     </div>
   </main>
 
-  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>Fast, low-memory image processing in pure TypeScript.</p></div><div class="footer-column"><strong>Docs</strong><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md">Changelog</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>API snapshot: current main</span></div></div></footer>
+  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div><div class="footer-column"><strong>Docs</strong><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md">Changelog</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>API snapshot: current main</span></div></div></footer>
   <script src="site.js" defer></script>
 </body>
 </html>

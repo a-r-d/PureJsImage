@@ -10,13 +10,26 @@ All notable changes to PureJsImage are documented in this file.
   custom sinks, browser-safe TypeScript declarations, and a browser bundle gate that rejects Node
   built-ins across the full codec graph.
 - Added browser PNG encoding through `CompressionStream` and bounded browser rotation/orientation
-  storage through OPFS with a capped 32 MiB chunked-memory fallback.
+  storage through OPFS, a lazy 64 MiB chunked-memory fallback, and IndexedDB for larger transforms.
+- Added HEIF/HEIC EXIF and RGB ICC preservation for conversion workflows, including orientation
+  normalization, plus structured ICC and nclx color-profile metadata for HEIF and AVIF.
+- Refreshed the static GitHub Pages documentation with responsive guides, API and codec references,
+  benchmark tables, memory-model explanations, and clearer capability boundaries.
 
 ### Changed
 
 - Split Node file, Buffer, zlib, and temporary-file services from the portable codec and pipeline
   core while preserving the existing Node API and measured transform performance.
 - Made Node.js and modern-browser portability an explicit project goal and release requirement.
+- Reused a single Node file descriptor across detection, metadata, and execution reads, and avoided
+  redundant copies when stable sources fill codec regions.
+- Surfaced the measured 191.8-211.0 MiB JPEG 2000 decode peak and its 512 MiB Lambda-tier guidance
+  in the README and codec documentation.
+
+### Fixed
+
+- Restricted SVG recognition to the document's first element so HTML with inline SVG and JSON text
+  mentioning `<svg` are no longer misreported as SVG input.
 
 ## [0.6.0] - 2026-08-08
 

@@ -188,6 +188,13 @@ describe('AVIF metadata', () => {
       chromaSubsampling: '420',
       codecProfile: 0,
       colorSpace: 'srgb',
+      colorProfile: {
+        kind: 'nclx',
+        primaries: 1,
+        transferCharacteristics: 13,
+        matrixCoefficients: 6,
+        fullRange: true,
+      },
       frames: 1,
     })
   })

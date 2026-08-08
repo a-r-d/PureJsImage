@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Use PureJsImage in Node.js and modern browsers, register codecs, and compose low-memory immutable image pipelines.">
+  <meta name="description" content="Install PureJsImage, register codecs, open images, compose immutable transforms, configure limits, and run the library in Node.js, browsers, or AWS Lambda.">
   <meta name="theme-color" content="#f6f7f2">
   <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/guides.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
-  <title>Getting started — PureJsImage</title>
+  <title>Usage guide — PureJsImage</title>
   <script>document.documentElement.dataset.theme=localStorage.getItem('purejsimage-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
 </head>
 <body>
@@ -20,7 +20,7 @@
   </div></header>
 
   <main id="main">
-    <header class="page-hero"><div class="container"><p class="eyebrow">Getting started</p><h1>A direct path from bytes to a validated image.</h1><p class="page-lede">Set up a codec registry once, compose an immutable pipeline, and execute only when you choose an output sink.</p><div class="page-meta"><span class="pill">Node.js 22+</span><span class="pill">Modern browsers</span><span class="pill">Strict TypeScript</span></div></div></header>
+    <header class="page-hero"><div class="container"><p class="eyebrow">Usage guide</p><h1>Install, register codecs, and execute an image pipeline.</h1><p class="page-lede">This guide covers Node.js and browser entry points, accepted inputs, transform ordering, output methods, limits, and Lambda-specific storage behavior.</p><div class="page-meta"><span class="pill">Node.js 22+</span><span class="pill">Modern browsers</span><span class="pill">Strict TypeScript</span></div></div></header>
     <div class="container docs-layout">
       <aside class="side-nav" aria-label="Documentation pages">
         <div class="nav-group"><strong>Learn</strong><a href="guides.html" aria-current="page">Getting started</a><a href="guides.html#recipes">Recipes</a><a href="guides.html#lambda">Lambda guide</a></div>
@@ -52,7 +52,7 @@
 
 preview.src = URL.<span class="tok-method">createObjectURL</span>(output)</code></pre></div>
           <p>Use <code>File</code>/<code>Blob</code>, <code>ArrayBuffer</code>, <code>Uint8Array</code>, or a custom <code>ImageSource</code> for input. Use <code>toUint8Array()</code>, <code>toBlob()</code>, or <code>toSink()</code> for output. Browser security does not permit arbitrary local path strings, so <code>toFile(path)</code> is Node-only.</p>
-          <div class="callout"><strong>Bounded browser transforms.</strong> Rotation and row-reordering orientation use origin-private file storage when available. A 32 MiB chunked memory fallback handles smaller images when private storage is unavailable; larger requests fail explicitly instead of allocating an unbounded bitmap.</div>
+          <div class="callout"><strong>Bounded browser transforms.</strong> Rotation and row-reordering orientation use origin-private file storage when available. If that is unavailable, a lazy 64 MiB chunked-memory store handles ordinary photos and IndexedDB handles larger transforms without a source-sized heap allocation. Requests fail explicitly when no suitable persistent store is available.</div>
           <div class="callout warning"><strong>PNG compression.</strong> Browser PNG output uses <code>CompressionStream</code> and currently accepts the default <code>compressionLevel: 6</code> only. Other levels fail with <code>UNSUPPORTED_OPERATION</code>.</div>
         </section>
 
@@ -192,7 +192,7 @@ console.<span class="tok-method">log</span>({
           <p>Keep the library at module scope. The immutable registry and small coefficient caches can be reused on warm invocations.</p>
           <ol>
             <li>Register only the codecs your endpoint accepts and produces.</li>
-            <li>Set input limits to the smallest values your product needs.</li>
+            <li>Set input limits to the smallest values the application accepts.</li>
             <li>Prefer downscaling and decoder-aware crops before expensive format conversion.</li>
             <li>Measure absolute peak RSS under realistic concurrent workloads—not only allocation deltas.</li>
           </ol>
@@ -229,7 +229,7 @@ console.<span class="tok-method">log</span>({
     </div>
   </main>
 
-  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>Fast, low-memory image processing in pure TypeScript.</p></div><div class="footer-column"><strong>Docs</strong><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>MIT licensed</span></div></div></footer>
+  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div><div class="footer-column"><strong>Docs</strong><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>MIT licensed</span></div></div></footer>
   <script src="site.js" defer></script>
 </body>
 </html>

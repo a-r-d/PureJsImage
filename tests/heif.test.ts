@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
 
 import { inspectHeifBitstream } from '../src/codecs/heif.ts'
@@ -884,6 +885,13 @@ describe('HEIF metadata and registration', () => {
       chromaSubsampling: '420',
       codecProfile: 1,
       colorSpace: 'srgb',
+      colorProfile: {
+        kind: 'nclx',
+        primaries: 1,
+        transferCharacteristics: 13,
+        matrixCoefficients: 6,
+        fullRange: true,
+      },
       orientation: 6,
     })
     expect(heicCodec).toBe(heifCodec)
@@ -1218,16 +1226,34 @@ describe('HEIF HEVC bitstream inspection', () => {
   })
 
   it('parses HEIF prof transforms and rejects corrupt embedded profiles', async () => {
-    const profiled = await Image.open(
-      decodedHeifFixture(false, false, undefined, channelSwappingRgbProfile()),
-    )
+    const profile = channelSwappingRgbProfile()
+    const input = decodedHeifFixture(false, false, undefined, profile)
+    const profiled = await Image.open(input)
     await expect(profiled.metadata()).resolves.toMatchObject({ colorSpace: 'icc' })
+    await expect(
+      heifCodec.preservedMetadata?.(new MemorySource(input), defaultImageLimits),
+    ).resolves.toEqual({ icc: profile })
 
     await expect(
       (
         await Image.open(decodedHeifFixture(false, false, undefined, Uint8Array.of(1, 2, 3)))
       ).metadata(),
     ).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
+  })
+
+  it('extracts EXIF and Display P3 ICC metadata from the iPhone HEIC corpus', async () => {
+    const input = await readFile('benchmark/corpus/files/iphone12-greyhounds-4032x3024.heic')
+    const source = new MemorySource(input)
+
+    await expect(heifCodec.metadata(source, defaultImageLimits)).resolves.toMatchObject({
+      colorSpace: 'icc',
+      colorProfile: { kind: 'icc', description: 'Display P3' },
+      orientation: 8,
+    })
+    const metadata = await heifCodec.preservedMetadata?.(source, defaultImageLimits)
+    expect(metadata?.exif?.subarray(0, 8)).toEqual(Uint8Array.of(0x4d, 0x4d, 0, 0x2a, 0, 0, 0, 8))
+    expect(metadata?.exif?.byteLength).toBe(2386)
+    expect(metadata?.icc?.byteLength).toBe(536)
   })
 
   it('converts Display-P3 nclx HEIF pixels to sRGB', async () => {

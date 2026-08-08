@@ -10,6 +10,7 @@ import type { ImageInput } from './source.ts'
 export type {
   BuiltInFormat,
   ChromaSubsampling,
+  ColorProfile,
   DecodeRequest,
   DecoderCapabilities,
   DecoderOptions,

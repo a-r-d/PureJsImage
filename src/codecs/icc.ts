@@ -95,6 +95,86 @@ const tags = (profile: Uint8Array, profileBytes: number): ReadonlyMap<string, Ic
   return output
 }
 
+const validatedProfile = (
+  profile: Uint8Array,
+): { readonly profileBytes: number; readonly allTags: ReadonlyMap<string, IccTag> } => {
+  if (profile.byteLength < ICC_HEADER_BYTES + 4) throw truncatedInput('ICC profile is truncated')
+  const profileBytes = uint32(profile, 0)
+  if (
+    profileBytes < ICC_HEADER_BYTES + 4 ||
+    profileBytes > profile.byteLength ||
+    profile.byteLength > MAX_ICC_PROFILE_BYTES ||
+    profileBytes > MAX_ICC_PROFILE_BYTES ||
+    signature(profile, 36) !== 'acsp'
+  ) {
+    throw invalidInput('ICC profile header is invalid')
+  }
+  return { profileBytes, allTags: tags(profile, profileBytes) }
+}
+
+const utf16BigEndian = (data: Uint8Array): string => {
+  if (data.byteLength % 2 !== 0) throw invalidInput('ICC localized description is malformed')
+  const characters: string[] = []
+  for (let offset = 0; offset < data.byteLength; offset += 2) {
+    const code = uint16(data, offset)
+    if (code !== 0) characters.push(String.fromCharCode(code))
+  }
+  return characters.join('').trim()
+}
+
+const profileDescription = (
+  profile: Uint8Array,
+  allTags: ReadonlyMap<string, IccTag>,
+): string | undefined => {
+  const tag = allTags.get('desc')
+  if (!tag) return undefined
+  const type = signature(profile, tag.offset)
+  if (type === 'desc') {
+    if (tag.size < 12) throw invalidInput('ICC profile description is truncated')
+    const length = uint32(profile, tag.offset + 8)
+    if (length < 1 || 12 + length > tag.size) {
+      throw invalidInput('ICC profile description has an invalid extent')
+    }
+    if (profile[tag.offset + 12 + length - 1] !== 0) {
+      throw invalidInput('ICC profile description is not null terminated')
+    }
+    const bytes = profile.subarray(tag.offset + 12, tag.offset + 12 + length - 1)
+    return new TextDecoder('latin1').decode(bytes).trim() || undefined
+  }
+  if (type === 'mluc') {
+    if (tag.size < 16) throw invalidInput('ICC localized description is truncated')
+    const count = uint32(profile, tag.offset + 8)
+    const recordBytes = uint32(profile, tag.offset + 12)
+    if (count > 4096 || recordBytes !== 12 || 16 + count * recordBytes > tag.size) {
+      throw invalidInput('ICC localized description table is invalid')
+    }
+    for (let index = 0; index < count; index += 1) {
+      const record = tag.offset + 16 + index * recordBytes
+      const length = uint32(profile, record + 4)
+      const relativeOffset = uint32(profile, record + 8)
+      if (
+        length % 2 !== 0 ||
+        relativeOffset < 16 + count * recordBytes ||
+        relativeOffset + length > tag.size
+      ) {
+        throw invalidInput('ICC localized description has an invalid extent')
+      }
+      const value = utf16BigEndian(
+        profile.subarray(tag.offset + relativeOffset, tag.offset + relativeOffset + length),
+      )
+      if (value) return value
+    }
+    return undefined
+  }
+  return undefined
+}
+
+export const inspectIccProfile = (profile: Uint8Array): { readonly description?: string } => {
+  const { allTags } = validatedProfile(profile)
+  const description = profileDescription(profile, allTags)
+  return description === undefined ? {} : { description }
+}
+
 const requiredTag = (allTags: ReadonlyMap<string, IccTag>, name: string): IccTag => {
   const tag = allTags.get(name)
   if (!tag) throw invalidInput(`ICC profile is missing ${name}`)
@@ -538,21 +618,10 @@ const cmykTransform = (
 }
 
 export const parseJpegIccTransform = (profile: Uint8Array): JpegIccTransform => {
-  if (profile.byteLength < ICC_HEADER_BYTES + 4) throw truncatedInput('ICC profile is truncated')
-  const profileBytes = uint32(profile, 0)
-  if (
-    profileBytes < ICC_HEADER_BYTES + 4 ||
-    profileBytes > profile.byteLength ||
-    profile.byteLength > MAX_ICC_PROFILE_BYTES ||
-    profileBytes > MAX_ICC_PROFILE_BYTES ||
-    signature(profile, 36) !== 'acsp'
-  ) {
-    throw invalidInput('ICC profile header is invalid')
-  }
+  const { allTags } = validatedProfile(profile)
   const colorSpace = signature(profile, 16)
   const pcs = signature(profile, 20)
   if (pcs !== 'Lab ' && pcs !== 'XYZ ') throw invalidInput(`ICC PCS ${pcs} is unsupported`)
-  const allTags = tags(profile, profileBytes)
   if (colorSpace === 'RGB ') return rgbTransform(profile, allTags)
   if (colorSpace === 'CMYK') return cmykTransform(profile, allTags, pcs)
   throw invalidInput(`ICC input color space ${colorSpace} is unsupported`)

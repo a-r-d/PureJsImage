@@ -67,6 +67,16 @@ describe('configured image library', () => {
     })
   })
 
+  it.each([
+    ['HTML with inline SVG', ascii('<!doctype html><html><body><svg></svg></body></html>')],
+    ['JSON mentioning SVG', ascii('{"markup":"<svg viewBox=\\"0 0 1 1\\"></svg>"}')],
+  ])('does not misidentify %s as an SVG document', async (_name, input) => {
+    await expect(createImageLibrary(allCodecs).open(input)).rejects.toMatchObject({
+      code: 'UNSUPPORTED_FORMAT',
+      message: 'Input format is not recognized',
+    })
+  })
+
   it('distinguishes malformed recognizable input from an unknown format', async () => {
     const jpeg = jpegFixture(8, 8)
     const prefixed = new Uint8Array(jpeg.byteLength + 2)

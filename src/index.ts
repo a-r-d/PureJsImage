@@ -1,6 +1,7 @@
 export type {
   BuiltInFormat,
   ChromaSubsampling,
+  ColorProfile,
   DecodeRequest,
   DecoderCapabilities,
   DecoderOptions,

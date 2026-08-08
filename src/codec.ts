@@ -58,6 +58,19 @@ export type BuiltInFormat =
 
 export type ChromaSubsampling = '400' | '420' | '422' | '444'
 
+export type ColorProfile =
+  | {
+      readonly kind: 'icc'
+      readonly description?: string
+    }
+  | {
+      readonly kind: 'nclx'
+      readonly primaries: number
+      readonly transferCharacteristics: number
+      readonly matrixCoefficients: number
+      readonly fullRange: boolean
+    }
+
 export interface ImageMetadata {
   width: number
   height: number
@@ -66,6 +79,7 @@ export interface ImageMetadata {
   hasAlpha: boolean
   orientation?: number
   colorSpace?: string
+  colorProfile?: ColorProfile
   bitDepth?: number
   chromaSubsampling?: ChromaSubsampling
   codecProfile?: number
