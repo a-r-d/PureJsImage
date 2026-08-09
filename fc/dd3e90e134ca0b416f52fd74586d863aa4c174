@@ -1,0 +1,33 @@
+scripts/serve-browser-tests.ts
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 151-167
+package.json
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 118,129
+tests/project-contract.test.ts
+  s_84d542edc0aa8c::t_b1f5e0a9c2dcf8 107-109,118-125
+.github/workflows/pages.yml
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 1-67
+.gitignore
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 187
+scripts/build-docs-site.ts
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 1-2,5-9,11-20,23,32,38-40,42-47
+CHANGELOG.md
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 16-18
+biome.json
+  s_84d542edc0aa8c::t_6831d20f32ce39 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "fcdd3e90e134ca0b416f52fd74586d863aa4c174",
+  "prompts": {},
+  "sessions": {
+    "s_84d542edc0aa8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe30a-1315-7a91-ac72-83d2bf53d5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
