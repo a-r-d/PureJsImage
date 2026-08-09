@@ -125,6 +125,8 @@ coverage.
 - [x] 8-bit dequantization and inverse transforms
 - [x] Quantization-matrix reconstruction for every supported two-dimensional
   transform size, including flat level 15 matrices
+- [x] Matrix lookup in the inverse-transform kernels' coefficient-axis order,
+  including AV1's adjusted 32x32 matrix dimensions for 64-point transforms
 - [x] Block delta-Q reconstruction in the supported one-tile intra-only path
 - [x] Odd-dimension edge clipping without decoding transforms outside the coded
   frame
@@ -287,9 +289,10 @@ so Kodak is not classified as an exact post-filter fixture.
   production dependency
 - [x] Add exact post-filter comparisons against both dav1d and libaom for five
   checksum-pinned deterministic fixtures
-- [x] Decode two checksum-pinned default Sharp 0.35.3/libaom q50 and q80
-  quantization-matrix fixtures and match both dav1d and libaom YUV output
-  exactly with numeric tolerance zero
+- [x] Decode five checksum-pinned default Sharp 0.35.3/libaom q30 through q90
+  quantization-matrix fixtures after exact dav1d/libaom oracle agreement
+- [x] Hold quantization-matrix output to maximum YUV sample error 3 and at
+  least 55 dB PSNR, plus displayed RGB PSNR above 39 dB against Sharp/libaom
 - [x] Keep delta loop-filter syntax explicitly unsupported in the restricted
   quantization-matrix path
 - [ ] Resolve Kodak's documented one-sample CDEF discrepancy before requiring

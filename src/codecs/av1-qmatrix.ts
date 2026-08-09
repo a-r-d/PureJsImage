@@ -762,5 +762,5 @@ export const av1InverseQuantizationMatrix = (
     throw new Error(`Invalid AV1 quantization matrix size ${width}x${height}`)
   const matrices = unpackMatrices()
   const base = (level * 2 + (plane === 0 ? 0 : 1)) * matrixSetSize + offset
-  return matrices.subarray(base, base + width * height)
+  return matrices.subarray(base, base + Math.min(width, 32) * Math.min(height, 32))
 }

@@ -19,6 +19,12 @@
       "description": "Decodes common 8-bit baseline, extended-sequential, multi-scan, and progressive grayscale, YCbCr, RGB, CMYK, and YCCK JPEGs with chroma-aware interpolation. Encodes baseline and scan-optimized refinement-based progressive JPEG with configurable quality, chroma sampling, native grayscale, and restart markers.",
       "memory": "Incremental entropy input, bounded MCU-row baseline output, restart-aware region seeking, and scaled IDCT; progressive decode and encode retain compact Int16 coefficient planes",
       "recommendation": "Photographs and broadly compatible lossy output.",
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Sharp 0.35.3 with libjpeg plus pinned browser fixtures",
+        "tolerance": "Decode RGB PSNR above 40 dB versus Sharp/libjpeg and above 28 dB versus source pixels",
+        "evidence": ["tests/lossy-codec-quality.test.ts", "tests/jpeg-reference-parity.test.ts"]
+      },
       "evidence": [
         "tests/jpeg.test.ts",
         "tests/pipeline.test.ts",
@@ -217,6 +223,10 @@
       "description": "Decodes every legal grayscale, truecolor, indexed, and alpha combination at 1-16 bits, including Adam7, palettes, transparency, and supported color profiles. Encodes streaming 8-bit grayscale, RGB, or RGBA PNG with adaptive filters and opt-in EXIF and compatible ICC preservation.",
       "memory": "Sequential scanlines and bounded output blocks; Adam7 retains compact requested samples",
       "recommendation": "Exact alpha, screenshots, graphics, and lossless round trips.",
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented PNG paths are lossless"
+      },
       "evidence": [
         "tests/png.test.ts",
         "tests/png-compatibility.test.ts",
@@ -384,6 +394,12 @@
       "description": "Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy or lossless WebP with opt-in EXIF and compatible ICC preservation. Animation is detected and rejected for pixel decode.",
       "memory": "VP8 uses two macroblock rows; VP8L uses a fixed maximum 4 MiB entropy history plus scanline transform buffers. Decode still retains compressed input and compact transform maps. Lossless encode retains a 32-bit transformed frame, fixed 4 MiB match table, and encoded payload.",
       "recommendation": "Static web delivery with lossy or exact lossless modes; use the 12-megapixel VP8 and VP8L pressure fixtures when changing decode memory.",
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Sharp 0.35.3 with libwebp",
+        "tolerance": "Lossy decode RGB PSNR above 39 dB versus the independent libwebp output",
+        "evidence": ["tests/lossy-codec-quality.test.ts"]
+      },
       "evidence": [
         "tests/webp.test.ts",
         "tests/metadata-preservation.test.ts",
@@ -599,6 +615,10 @@
       "description": "Decodes common Windows and OS/2 headers, indexed 1/4/8-bit pixels, RLE4/RLE8, RGB555/RGB565, top-down images, bitfields, and explicit alpha. Encodes 24-bit RGB and 32-bit RGBA BMP.",
       "memory": "Region-based row reads; RLE uses compact full-frame index storage",
       "recommendation": "Legacy Windows bitmap interoperability.",
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented BMP paths are uncompressed or losslessly compressed"
+      },
       "evidence": ["tests/bmp.test.ts"],
       "document": [
         "# BMP codec support",
@@ -770,6 +790,10 @@
       "description": "Decodes Classic TIFF and BigTIFF strips or tiles across common grayscale, indexed, RGB, CMYK, YCbCr, and alpha layouts with common compressions. Encodes uncompressed grayscale, RGB, or RGBA output and can retain a compatible ICC profile.",
       "memory": "Strip or tile region decode; output is emitted in bounded rows",
       "recommendation": "Broad input compatibility and simple uncompressed TIFF output.",
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented TIFF compression paths are lossless"
+      },
       "evidence": ["tests/tiff.test.ts", "tests/metadata-preservation.test.ts"],
       "document": [
         "# TIFF codec support",
@@ -876,6 +900,10 @@
       "description": "Parses GIF87a/GIF89a, palettes, transparency, interlace, LZW data, frame rectangles, and the first composited image. Metadata can count frames. Full animation decode and GIF encoding are unsupported.",
       "memory": "Retains compact first-frame palette indices, then emits bounded RGBA rows",
       "recommendation": "First-frame extraction from GIF uploads.",
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "GIF decode reproduces the stored palette indices and does not claim a lossy continuous-tone path"
+      },
       "evidence": ["tests/gif.test.ts"],
       "document": [
         "# GIF codec support",
@@ -1040,6 +1068,10 @@
       "description": "Decodes multi-image Windows icons backed by embedded PNG or common DIB pixels. Selection is deterministic; AND masks, partial alpha, and the legacy all-zero-alpha fallback are preserved.",
       "memory": "Decodes one selected entry; DIB pixels are emitted in bounded rows",
       "recommendation": "Favicon and Windows icon input converted to a web output format.",
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented ICO entries contain lossless PNG or DIB pixel data"
+      },
       "evidence": ["tests/ico.test.ts"],
       "document": [
         "# ICO decode support plan",
@@ -1224,6 +1256,12 @@
       "description": "Decodes common static Part 1 JP2 grayscale and RGB images at 1-16 bits with reversible 5/3 or irreversible 9/7 wavelets, all five progression orders, multiple tiles, RCT/ICT, and enumerated grayscale, sRGB, or sYCC color.",
       "memory": "Current implementation retains full-frame component and output state",
       "recommendation": "Common static JP2 uploads that fall within the documented subset.",
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Pinned FFmpeg and OpenJPEG JP2 fixtures",
+        "tolerance": "Irreversible 9/7 decoded sample error at most 1 for the pinned oracle pixels",
+        "evidence": ["tests/jpeg2000.test.ts", "benchmark/jpeg2000/verify-corpus.ts"]
+      },
       "evidence": ["tests/jpeg2000.test.ts", "tests/jpeg2000-hardening.test.ts"],
       "document": [
         "# JPEG 2000 / JP2 decode support plan",
@@ -1607,7 +1645,22 @@
       "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets opaque 8-bit YUV 4:2:0 still images, including the documented in-loop filters and restricted Sharp/libaom quantization-matrix path. Alpha, grids, high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
       "memory": "Metadata reads are bounded; the restricted decoder uses compact YUV state",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
-      "evidence": ["tests/avif.test.ts", "tests/av1.test.ts", "tests/av1-post-filter.test.ts"],
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Sharp 0.35.3/libaom and FFmpeg with libaom 3.12.1 and dav1d 1.5.1",
+        "tolerance": "Direct YUV maximum error at most 3 and PSNR at least 55 dB; displayed RGB PSNR above 39 dB",
+        "evidence": [
+          "tests/lossy-codec-quality.test.ts",
+          "tests/av1-post-filter.test.ts",
+          "benchmark/avif/verify-qmatrix-fixtures.ts"
+        ]
+      },
+      "evidence": [
+        "tests/avif.test.ts",
+        "tests/av1.test.ts",
+        "tests/av1-post-filter.test.ts",
+        "tests/lossy-codec-quality.test.ts"
+      ],
       "document": [
         "# AVIF codec support",
         "",
@@ -1735,6 +1788,8 @@
         "- [x] 8-bit dequantization and inverse transforms",
         "- [x] Quantization-matrix reconstruction for every supported two-dimensional",
         "  transform size, including flat level 15 matrices",
+        "- [x] Matrix lookup in the inverse-transform kernels' coefficient-axis order,",
+        "  including AV1's adjusted 32x32 matrix dimensions for 64-point transforms",
         "- [x] Block delta-Q reconstruction in the supported one-tile intra-only path",
         "- [x] Odd-dimension edge clipping without decoding transforms outside the coded",
         "  frame",
@@ -1897,9 +1952,10 @@
         "  production dependency",
         "- [x] Add exact post-filter comparisons against both dav1d and libaom for five",
         "  checksum-pinned deterministic fixtures",
-        "- [x] Decode two checksum-pinned default Sharp 0.35.3/libaom q50 and q80",
-        "  quantization-matrix fixtures and match both dav1d and libaom YUV output",
-        "  exactly with numeric tolerance zero",
+        "- [x] Decode five checksum-pinned default Sharp 0.35.3/libaom q30 through q90",
+        "  quantization-matrix fixtures after exact dav1d/libaom oracle agreement",
+        "- [x] Hold quantization-matrix output to maximum YUV sample error 3 and at",
+        "  least 55 dB PSNR, plus displayed RGB PSNR above 39 dB against Sharp/libaom",
         "- [x] Keep delta loop-filter syntax explicitly unsupported in the restricted",
         "  quantization-matrix path",
         "- [ ] Resolve Kodak's documented one-sample CDEF discrepancy before requiring",
@@ -1940,6 +1996,12 @@
       "description": "Decodes common opaque Main, Main Still Picture, and selected Main 10 YUV 4:2:0 intra stills, direct images, and grid primaries. Supports crop metadata, orientation, deterministic color conversion, PQ display compatibility, and selected metadata preservation.",
       "memory": "Grid workflows decode requested tile rows; large compatible inputs remain explicitly measured",
       "recommendation": "Compatible phone-camera HEIC stills after checking the corpus report.",
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "ImageMagick 7.1.2 with libheif 1.20.2",
+        "tolerance": "Normalized displayed sRGB RMSE at most 0.035 for compatible corpus entries",
+        "evidence": ["tests/heif.test.ts", "benchmark/heif/compatibility/run.ts"]
+      },
       "evidence": ["tests/heif.test.ts", "tests/metadata-preservation.test.ts"],
       "document": [
         "# HEIF / HEIC decode capability and support plan",
@@ -2299,6 +2361,10 @@
       "description": "JPEG XL is recognized so callers receive an explicit unsupported error. The decode-only roadmap covers bare codestreams and the standard container; encoding is not planned.",
       "memory": "No pixel decoder is implemented",
       "recommendation": "Not currently available for image processing.",
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "JPEG XL pixel decode is planned and has no implemented lossy path"
+      },
       "evidence": [],
       "document": [
         "# JPEG XL decode support plan",

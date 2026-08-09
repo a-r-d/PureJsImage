@@ -184,6 +184,24 @@ const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8Clam
   return context.getImageData(0, 0, canvas.width, canvas.height).data
 }
 
+const rgbPsnr = (expected: Uint8ClampedArray, actual: Uint8ClampedArray): number => {
+  if (actual.byteLength !== expected.byteLength) {
+    throw new Error(`Browser pixel lengths differ: ${actual.byteLength} != ${expected.byteLength}`)
+  }
+  let squaredError = 0
+  let samples = 0
+  for (let offset = 0; offset < expected.byteLength; offset += 4) {
+    for (let channel = 0; channel < 3; channel += 1) {
+      const difference = (actual[offset + channel] ?? 0) - (expected[offset + channel] ?? 0)
+      squaredError += difference * difference
+      samples += 1
+    }
+  }
+  return squaredError === 0
+    ? Number.POSITIVE_INFINITY
+    : 10 * Math.log10((255 * 255 * samples) / squaredError)
+}
+
 const webpLossless = async (): Promise<BrowserWorkflowResult> => {
   const input = await fetchBytes('/fixtures/webp-graphic.png')
   const output = await (await images.open(input)).webp({ lossless: true }).toUint8Array()
@@ -235,7 +253,7 @@ const webpLossyDecode = async (): Promise<BrowserWorkflowResult> => {
 }
 
 const avifQuantizationMatrix = async (): Promise<BrowserWorkflowResult> => {
-  const input = await fetchBytes('/fixtures/sharp-qmatrix-q50-256x192.avif')
+  const input = await fetchBytes('/fixtures/sharp-qmatrix-q30-256x192.avif')
   const output = await (await images.open(input)).png().toUint8Array()
   const metadata = await outputMetadata(output)
   if (metadata.format !== 'png' || metadata.width !== 256 || metadata.height !== 192) {
@@ -243,8 +261,16 @@ const avifQuantizationMatrix = async (): Promise<BrowserWorkflowResult> => {
       `Quantization-matrix AVIF output was ${metadata.format} ${metadata.width}x${metadata.height}`,
     )
   }
+  const [oraclePixels, outputPixels] = await Promise.all([
+    browserPixels(input, 'image/avif'),
+    browserPixels(output, 'image/png'),
+  ])
+  const psnr = rgbPsnr(oraclePixels, outputPixels)
+  if (psnr <= 39) {
+    throw new Error(`Quantization-matrix AVIF browser RGB PSNR was ${psnr.toFixed(2)} dB`)
+  }
   return {
-    detail: 'Sharp/libaom quantization-matrix AVIF decoded to 256x192 PNG',
+    detail: `Sharp/libaom quantization-matrix AVIF matched Chromium at ${psnr.toFixed(2)} dB`,
     outputBytes: output.byteLength,
   }
 }
