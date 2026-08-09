@@ -5,10 +5,16 @@ import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 
 import { Image } from './image-library.ts'
+import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
 import {
   avifQmatrixFixtureDirectory,
   avifQmatrixFixtures,
 } from '../benchmark/avif/qmatrix-fixtures.ts'
+import { av1ObuType } from '../src/codecs/av1.ts'
+import { parseAv1Frame } from '../src/codecs/av1-frame.ts'
+import { decodeRestrictedAv1Intra } from '../src/codecs/av1-intra.ts'
+import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
+import { MemorySource } from '../src/source.ts'
 
 const width = 256
 const height = 192
@@ -122,4 +128,30 @@ describe('lossy codec oracle quality', () => {
       expect(psnr(oracle, decoded)).toBeGreaterThan(39)
     },
   )
+
+  it('matches the Sharp/libaom luma oracle for 8-bit monochrome AVIF', async () => {
+    const input = await readFile(
+      join(avifCorpusDirectory, 'fox.profile0.8bpc.yuv420.monochrome.avif'),
+    )
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('Monochrome AVIF fixture has no complete color frame')
+    const frame = decodeRestrictedAv1Intra(
+      coded.sequence,
+      parseAv1Frame(coded.sequence, frameObu.payload),
+    )
+    const oracleRgb = await sharp(input).removeAlpha().raw().toBuffer()
+    const oracleLuma = new Uint8Array(frame.width * frame.height)
+    const decodedLuma = new Uint8Array(oracleLuma.byteLength)
+    for (let y = 0; y < frame.height; y += 1) {
+      for (let x = 0; x < frame.width; x += 1) {
+        const pixel = y * frame.width + x
+        oracleLuma[pixel] = oracleRgb[pixel * 3] ?? 0
+        decodedLuma[pixel] = frame.y[y * frame.yStride + x] ?? 0
+      }
+    }
+
+    expect(decodedLuma).toEqual(oracleLuma)
+  }, 30_000)
 })

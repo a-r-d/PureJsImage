@@ -14,7 +14,7 @@ import { readExactly } from '../source.ts'
 import { av1ObuType, inspectAv1Bitstream } from './av1.ts'
 import type { Av1Obu, Av1SequenceHeader } from './av1.ts'
 import { parseAv1Frame } from './av1-frame.ts'
-import { decodeRestrictedAv1Intra, yuv420ToRgba } from './av1-intra.ts'
+import { av1ToRgba, decodeRestrictedAv1Intra } from './av1-intra.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import {
   ColorManagedDecoder,
@@ -634,7 +634,7 @@ const createAvifDecoder = async (
   ) {
     throw invalidInput('AVIF display dimensions do not match its AV1 frame')
   }
-  const pixels = yuv420ToRgba(coded.sequence, decodeRestrictedAv1Intra(coded.sequence, frame))
+  const pixels = av1ToRgba(coded.sequence, decodeRestrictedAv1Intra(coded.sequence, frame))
   const decoder = new AvifPixelDecoder(metadata.width, metadata.height, pixels)
   return inspection.colorTransform
     ? new ColorManagedDecoder(decoder, inspection.colorTransform)

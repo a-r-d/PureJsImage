@@ -520,6 +520,29 @@ const avifQuantizationMatrix = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const avifMonochrome = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/fox.profile0.8bpc.yuv420.monochrome.avif')
+  const output = await (await images.open(input)).png().toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.format !== 'png' || metadata.width !== 1204 || metadata.height !== 800) {
+    throw new Error(
+      `Monochrome AVIF output was ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  const [oraclePixels, outputPixels] = await Promise.all([
+    browserPixels(input, 'image/avif'),
+    browserPixels(output, 'image/png'),
+  ])
+  const psnr = rgbPsnr(oraclePixels, outputPixels)
+  if (psnr <= 60) {
+    throw new Error(`Monochrome AVIF browser RGB PSNR was ${psnr.toFixed(2)} dB`)
+  }
+  return {
+    detail: `8-bit monochrome AVIF matched Chromium at ${psnr.toFixed(2)} dB`,
+    outputBytes: output.byteLength,
+  }
+}
+
 const heifPqDisplay = async (): Promise<BrowserWorkflowResult> => {
   const input = await fetchBytes('/fixtures/main10-pq.heic')
   const image = await images.open(input)
@@ -612,6 +635,7 @@ const failureCleanup = async (): Promise<BrowserWorkflowResult> => {
 const harness: BrowserCompatibilityHarness = Object.freeze({
   animatedGifFrameSelection,
   avifQuantizationMatrix,
+  avifMonochrome,
   failureCleanup,
   heifPqDisplay,
   inputTypes,

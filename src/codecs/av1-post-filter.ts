@@ -484,7 +484,9 @@ export const applyAv1Cdef = (
       for (let planeIndex = 1; planeIndex < 3; planeIndex += 1) {
         const sourcePlane = planes[planeIndex]
         const outputPlane = output[planeIndex]
-        if (!sourcePlane || !outputPlane) continue
+        if (!sourcePlane || !outputPlane || sourcePlane.width === 0 || sourcePlane.height === 0) {
+          continue
+        }
         filterCdefBlock(
           sourcePlane,
           outputPlane,

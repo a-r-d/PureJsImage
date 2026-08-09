@@ -122,12 +122,13 @@
         "tests/avif.test.ts",
         "tests/av1.test.ts",
         "tests/av1-post-filter.test.ts",
-        "tests/lossy-codec-quality.test.ts"
+        "tests/lossy-codec-quality.test.ts",
+        "browser-tests/compatibility.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
-        "oracle": "Sharp 0.35.3/libaom and FFmpeg with libaom 3.12.1 and dav1d 1.5.1",
-        "tolerance": "Direct YUV maximum error at most 3 and PSNR at least 55 dB; displayed RGB PSNR above 39 dB",
+        "oracle": "Sharp 0.35.3/libaom, FFmpeg with libaom 3.12.1 and dav1d 1.5.1, and Chromium",
+        "tolerance": "8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; direct YUV maximum error at most 3 and PSNR at least 55 dB; other displayed RGB PSNR above 39 dB",
         "evidence": [
           "tests/lossy-codec-quality.test.ts",
           "tests/av1-post-filter.test.ts",

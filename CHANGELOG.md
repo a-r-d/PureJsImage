@@ -34,6 +34,9 @@ All notable changes to PureJsImage are documented in this file.
 - Added a fully client-side browser conversion demo with content-based format detection, optional
   transforms, honest timing and memory reporting, and an artifact-only GitHub Pages deployment
   that keeps its generated all-codec bundle out of repository history.
+- Added restricted opaque 8-bit monochrome AVIF decode with luma-only entropy
+  reconstruction, exact Sharp/libaom and FFmpeg luma validation, and real-Chromium
+  displayed-RGB coverage above 60 dB PSNR.
 
 ### Changed
 

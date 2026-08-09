@@ -476,7 +476,7 @@ const allZero64x64Defaults = [
   [31539, 8433, 20576, 27904, 27852, 30026, 32441, 16384, 16384, 16384, 16384, 16384, 16384],
 ] as const
 
-export interface Av1Yuv420Frame {
+export interface Av1DecodedFrame {
   readonly chromaHeight: number
   readonly chromaStride: number
   readonly chromaWidth: number
@@ -695,7 +695,7 @@ class RestrictedIntraTileDecoder {
     this.#symbols = new Av1SymbolDecoder(tile.data, !frame.header.disableCdfUpdate)
     this.#miColumns = 2 * ((frame.header.frameWidth + 7) >> 3)
     this.#miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
-    this.#chromaMiColumns = this.#miColumns >> 1
+    this.#chromaMiColumns = sequence.monochrome ? 0 : this.#miColumns >> 1
     this.#blockWidths = new Uint8Array(this.#miColumns * this.#miRows)
     this.#blockHeights = new Uint8Array(this.#miColumns * this.#miRows)
     this.#skips = new Uint8Array(this.#miColumns * this.#miRows)
@@ -1021,7 +1021,10 @@ class RestrictedIntraTileDecoder {
     const yAngleDelta = this.#readAngleDelta(yMode, width, height)
     const yEdgeSmooth = (aboveMode >= 9 && aboveMode <= 11) || (leftMode >= 9 && leftMode <= 11)
 
-    const hasChroma = !(height === 4 && (row & 1) === 0) && !(width === 4 && (column & 1) === 0)
+    const hasChroma =
+      !this.#sequence.monochrome &&
+      !(height === 4 && (row & 1) === 0) &&
+      !(width === 4 && (column & 1) === 0)
     let uvMode = 0
     let cflAlphaU = 0
     let cflAlphaV = 0
@@ -1901,14 +1904,12 @@ class RestrictedIntraTileDecoder {
 export const decodeRestrictedAv1Intra = (
   sequence: Av1SequenceHeader,
   frame: Av1Frame,
-): Av1Yuv420Frame => {
-  if (
-    sequence.profile !== 0 ||
-    sequence.bitDepth !== 8 ||
-    sequence.chromaSubsampling !== '420' ||
-    sequence.monochrome
-  ) {
-    throw unsupportedOperation('Phase B2 supports 8-bit Main Profile YUV 4:2:0 AV1 only')
+): Av1DecodedFrame => {
+  const supportedChroma = sequence.monochrome
+    ? sequence.chromaSubsampling === '400'
+    : sequence.chromaSubsampling === '420'
+  if (sequence.profile !== 0 || sequence.bitDepth !== 8 || !supportedChroma) {
+    throw unsupportedOperation('Phase B2 supports 8-bit Main Profile YUV 4:0:0 and 4:2:0 AV1 only')
   }
   if (frame.header.allowIntrabc) {
     throw unsupportedOperation('Phase B2 reconstruction does not support intra block copy')
@@ -1926,8 +1927,8 @@ export const decodeRestrictedAv1Intra = (
   const miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
   const yStride = miColumns * 4
   const yHeight = miRows * 4
-  const chromaStride = yStride >> 1
-  const chromaHeight = yHeight >> 1
+  const chromaStride = sequence.monochrome ? 0 : yStride >> 1
+  const chromaHeight = sequence.monochrome ? 0 : yHeight >> 1
   const y: Plane = {
     data: new Uint8Array(yStride * yHeight),
     width: yStride,
@@ -1952,8 +1953,8 @@ export const decodeRestrictedAv1Intra = (
   return {
     width: frame.header.frameWidth,
     height: frame.header.frameHeight,
-    chromaWidth: Math.ceil(frame.header.frameWidth / 2),
-    chromaHeight: Math.ceil(frame.header.frameHeight / 2),
+    chromaWidth: sequence.monochrome ? 0 : Math.ceil(frame.header.frameWidth / 2),
+    chromaHeight: sequence.monochrome ? 0 : Math.ceil(frame.header.frameHeight / 2),
     yStride,
     chromaStride,
     y: filtered[0].data,
@@ -1989,8 +1990,22 @@ const sampleChroma = (
   return (topSample * (4 - bottomWeight) + bottomSample * bottomWeight) / 16
 }
 
-export const yuv420ToRgba = (sequence: Av1SequenceHeader, frame: Av1Yuv420Frame): Uint8Array => {
+export const av1ToRgba = (sequence: Av1SequenceHeader, frame: Av1DecodedFrame): Uint8Array => {
   const output = new Uint8Array(frame.width * frame.height * 4)
+  if (sequence.monochrome) {
+    for (let y = 0; y < frame.height; y += 1) {
+      for (let x = 0; x < frame.width; x += 1) {
+        const luma = frame.y[y * frame.yStride + x] ?? 0
+        const sample = sequence.fullRange ? luma : clampByte(((luma - 16) * 255) / 219)
+        const target = (y * frame.width + x) * 4
+        output[target] = sample
+        output[target + 1] = sample
+        output[target + 2] = sample
+        output[target + 3] = 255
+      }
+    }
+    return output
+  }
   const redWeight =
     sequence.matrixCoefficients === 1 ? 0.2126 : sequence.matrixCoefficients === 9 ? 0.2627 : 0.299
   const blueWeight =

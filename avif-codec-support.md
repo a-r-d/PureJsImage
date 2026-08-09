@@ -97,11 +97,11 @@ coverage.
 - [ ] Annex B AV1 byte streams
 - [ ] Inter-frame or general video decoding
 
-### Implemented opaque 8-bit 4:2:0 still path
+### Implemented opaque 8-bit monochrome and 4:2:0 still path
 
 - [x] One `av01` primary image with one complete AV1 frame OBU
 - [x] Reduced still-picture, intra-only AV1
-- [x] AV1 Main Profile, 8-bit YUV 4:2:0 output
+- [x] AV1 Main Profile, 8-bit monochrome and YUV 4:2:0 output
 - [x] Lossless and lossy quantization paths used by the permanent fixtures
 - [x] 64x64 and 128x128 superblocks
 - [x] One complete AV1 tile
@@ -130,7 +130,7 @@ coverage.
 - [x] Block delta-Q reconstruction in the supported one-tile intra-only path
 - [x] Odd-dimension edge clipping without decoding transforms outside the coded
   frame
-- [x] Bilinear YUV 4:2:0 to RGBA conversion
+- [x] Monochrome replication and bilinear YUV 4:2:0 to RGBA conversion
 - [x] Public crop, resize, AVIF-to-PNG, AVIF-to-JPEG, AVIF-to-WebP, and
   AVIF-to-other-implemented-codec pipelines after frame reconstruction
 - [ ] Multiple independently decoded AV1 tiles
@@ -179,7 +179,7 @@ so Kodak is not classified as an exact post-filter fixture.
 
 ### Additional still-image compatibility
 
-- [ ] 8-bit monochrome
+- [x] 8-bit monochrome
 - [ ] 10-bit and 12-bit Main Profile YUV 4:2:0
 - [ ] 8/10/12-bit YUV 4:2:2
 - [ ] 8/10/12-bit YUV 4:4:4
@@ -279,12 +279,15 @@ so Kodak is not classified as an exact post-filter fixture.
 - [x] Pass metadata expectations for all 25 permanent corpus files
 - [x] Decode exact independent reference pixels for the embedded 2x2 lossless
   fixture and the 4x4 lossy fixture
-- [x] Decode and pin RGBA regression hashes for Kodak 768x512 and Fox 1204x800
-  opaque 8-bit YUV 4:2:0 photographs
+- [x] Decode and pin RGBA regression hashes for Kodak 768x512 color, Fox
+  1204x800 color, and Fox 1204x800 monochrome 8-bit photographs
 - [x] Benchmark both full-size photographs through the public AVIF-to-PNG
   workflow
-- [x] Report the current broad decode corpus as 3 compatible, 22 explicitly
+- [x] Report the current broad decode corpus as 4 compatible, 21 explicitly
   unsupported, zero invalid, and zero unexpected
+- [x] Match Sharp/libaom, FFmpeg/dav1d, and FFmpeg/libaom luma exactly and
+  exceed 60 dB displayed-RGB PSNR against Chromium for the checksum-pinned
+  8-bit monochrome Fox fixture
 - [x] Keep `@stacksjs/ts-avif` development-only; the published package is not a
   production dependency
 - [x] Add exact post-filter comparisons against both dav1d and libaom for five

@@ -9,13 +9,13 @@ import {
 } from '../benchmark/avif/post-filter-fixtures.ts'
 import { avifQmatrixFixtures } from '../benchmark/avif/qmatrix-fixtures.ts'
 import { parseAv1Frame, type Av1Frame, type Av1FrameHeader } from '../src/codecs/av1-frame.ts'
-import { decodeRestrictedAv1Intra, type Av1Yuv420Frame } from '../src/codecs/av1-intra.ts'
+import { decodeRestrictedAv1Intra, type Av1DecodedFrame } from '../src/codecs/av1-intra.ts'
 import { av1ObuType, type Av1SequenceHeader } from '../src/codecs/av1.ts'
 import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
 import { av1InverseQuantizationMatrix } from '../src/codecs/av1-qmatrix.ts'
 import { MemorySource } from '../src/source.ts'
 
-const packVisibleYuv = (frame: Av1Yuv420Frame): Uint8Array => {
+const packVisibleYuv = (frame: Av1DecodedFrame): Uint8Array => {
   const output = new Uint8Array(
     frame.width * frame.height + 2 * frame.chromaWidth * frame.chromaHeight,
   )

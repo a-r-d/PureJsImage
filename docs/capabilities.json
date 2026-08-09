@@ -3145,20 +3145,21 @@
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Restricted opaque 8-bit YUV 4:2:0 still-image decode",
-      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets opaque 8-bit YUV 4:2:0 still images, including the documented in-loop filters and restricted Sharp/libaom quantization-matrix path. Alpha, grids, high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
-      "memory": "Metadata reads are bounded; the restricted decoder uses compact YUV state",
+      "boundary": "Restricted opaque 8-bit monochrome and YUV 4:2:0 still-image decode",
+      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets opaque 8-bit monochrome and YUV 4:2:0 still images, including the documented in-loop filters and restricted Sharp/libaom quantization-matrix path. Alpha, grids, high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
+      "memory": "Metadata reads are bounded; the restricted decoder uses compact luma or YUV state",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
       "evidence": [
         "tests/avif.test.ts",
         "tests/av1.test.ts",
         "tests/av1-post-filter.test.ts",
-        "tests/lossy-codec-quality.test.ts"
+        "tests/lossy-codec-quality.test.ts",
+        "browser-tests/compatibility.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
-        "oracle": "Sharp 0.35.3/libaom and FFmpeg with libaom 3.12.1 and dav1d 1.5.1",
-        "tolerance": "Direct YUV maximum error at most 3 and PSNR at least 55 dB; displayed RGB PSNR above 39 dB",
+        "oracle": "Sharp 0.35.3/libaom, FFmpeg with libaom 3.12.1 and dav1d 1.5.1, and Chromium",
+        "tolerance": "8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; direct YUV maximum error at most 3 and PSNR at least 55 dB; other displayed RGB PSNR above 39 dB",
         "evidence": [
           "tests/lossy-codec-quality.test.ts",
           "tests/av1-post-filter.test.ts",
@@ -3408,7 +3409,7 @@
         },
         {
           "status": "supported",
-          "text": "AV1 Main Profile, 8-bit YUV 4:2:0 output"
+          "text": "AV1 Main Profile, 8-bit monochrome and YUV 4:2:0 output"
         },
         {
           "status": "supported",
@@ -3488,7 +3489,7 @@
         },
         {
           "status": "supported",
-          "text": "Bilinear YUV 4:2:0 to RGBA conversion"
+          "text": "Monochrome replication and bilinear YUV 4:2:0 to RGBA conversion"
         },
         {
           "status": "supported",
@@ -3575,7 +3576,7 @@
           "text": "Match dav1d and libaom post-filter YUV pixels exactly for deterministic disabled, deblock, luma/chroma CDEF, Wiener, self-guided, odd-dimension, frame-edge, and multiple-restoration-unit fixtures; the numeric tolerance is zero"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "8-bit monochrome"
         },
         {
@@ -3816,7 +3817,7 @@
         },
         {
           "status": "supported",
-          "text": "Decode and pin RGBA regression hashes for Kodak 768x512 and Fox 1204x800 opaque 8-bit YUV 4:2:0 photographs"
+          "text": "Decode and pin RGBA regression hashes for Kodak 768x512 color, Fox 1204x800 color, and Fox 1204x800 monochrome 8-bit photographs"
         },
         {
           "status": "supported",
@@ -3824,7 +3825,11 @@
         },
         {
           "status": "supported",
-          "text": "Report the current broad decode corpus as 3 compatible, 22 explicitly unsupported, zero invalid, and zero unexpected"
+          "text": "Report the current broad decode corpus as 4 compatible, 21 explicitly unsupported, zero invalid, and zero unexpected"
+        },
+        {
+          "status": "supported",
+          "text": "Match Sharp/libaom, FFmpeg/dav1d, and FFmpeg/libaom luma exactly and exceed 60 dB displayed-RGB PSNR against Chromium for the checksum-pinned 8-bit monochrome Fox fixture"
         },
         {
           "status": "supported",
