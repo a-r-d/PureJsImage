@@ -22,6 +22,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Fixed
 
+- Reduced lossless WebP output for screenshot-style pixels with block-adaptive VP8L predictors,
+  adaptive color-cache codes, and a deeper bounded match search, while retaining exact independent
+  libwebp pixel validation and documenting the fixed match-table memory cost.
 - Fixed progressive JPEG AC refinement after a zero-run-length symbol so common Sharp/libjpeg
   output decodes correctly and can be resized and converted to WebP in Node.js and browsers.
 

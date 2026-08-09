@@ -99,10 +99,12 @@ coverage.
 - [x] Ordered pixel input staged in one 32-bit transformed frame with two
   predictor rows; the encoded payload is buffered so the RIFF length is known
   before output begins
-- [x] Predictor transform using the left mode and VP8L-specified edge behavior
+- [x] Block-adaptive predictor transform across all 14 VP8L modes with
+  VP8L-specified top-row, left-column, and right-edge behavior
 - [x] Subtract-green transform
-- [x] LZ77 backward references with adjacent-pixel, previous-row, and bounded
-  hash-chain match candidates plus two-dimensional VP8L distance coding
+- [x] LZ77 backward references with adjacent-pixel, previous-row, and 16 recent
+  hash-bucket match candidates plus two-dimensional VP8L distance coding
+- [x] Adaptive 8-to-10-bit color-cache emission for repeated transformed colors
 - [x] Per-image adaptive canonical Huffman trees with a complete-tree fallback
 - [x] Public `image.webp({ lossless: true })` and
   `image.encode('webp', { lossless: true })` APIs
@@ -110,9 +112,7 @@ coverage.
 ### Lossless planned
 
 - [ ] Spatially varying Huffman entropy groups
-- [ ] Color-cache emission
-- [ ] Adaptive predictor modes, cross-color transform, and color-indexing
-  transform selection
+- [ ] Cross-color and color-indexing transform selection
 - [ ] Compression-effort controls and better output-size optimization
 - [ ] Near-lossless WebP encoding
 
@@ -171,8 +171,8 @@ coverage.
   and require pinned pixels before accepting a timing
 - [x] Decode lossless encoder output through pinned Sharp/libwebp and require
   exact RGBA pixels, including deterministic high-entropy and graphic fixtures
-- [x] Require the deterministic graphic's lossless WebP output to be smaller
-  than PureJsImage PNG, and record the pinned production-style logo result
+- [x] Require deterministic PNG and JPEG-decoded graphics' lossless WebP output
+  to remain smaller than PureJsImage PNG, and record the pinned production-style logo result
   alongside libwebp in an isolated size and peak-RSS benchmark
 - [x] Document and benchmark the lossless encoder's source-sized 32-bit
   transformed frame and potentially source-sized buffered payload

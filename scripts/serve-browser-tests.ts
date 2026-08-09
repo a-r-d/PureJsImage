@@ -41,14 +41,19 @@ const alphaFixture = (): Uint8Array => {
 }
 
 const webpGraphicFixture = (): Uint8Array => {
-  const image = new PNG({ width: 32, height: 24 })
+  const image = new PNG({ width: 192, height: 128 })
   for (let y = 0; y < image.height; y += 1) {
     for (let x = 0; x < image.width; x += 1) {
       const offset = (y * image.width + x) * 4
-      const panel = x >= 4 && x < 28 && y >= 3 && y < 21
-      const stripe = panel && ((x + y) & 7) === 0
+      const panel = x >= 20 && x < 172 && y >= 16 && y < 112
+      const stripe = panel && ((x + y) & 15) < 3
+      const detail = (x * 13 + y * 7) & 3
       image.data.set(
-        stripe ? [240, 96, 48, 255] : panel ? [36, 48, 72, 255] : [248, 248, 248, 255],
+        stripe
+          ? [240 - detail, 96 + detail, 48, 255]
+          : panel
+            ? [36 + detail, 48 + detail, 72 + detail, 255]
+            : [248 - detail, 248 - detail, 248 - detail, 255],
         offset,
       )
     }

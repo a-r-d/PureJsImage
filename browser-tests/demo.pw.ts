@@ -120,12 +120,14 @@ test('converts a progressive JPEG with AC-refinement ZRLs to WebP', async ({ pag
 
   await expect(page.locator('#demo-source-badges')).toContainText('JPEG')
   await page.locator('#demo-output-format').selectOption('webp')
+  await page.locator('#demo-webp-lossless').check()
   await page.locator('#demo-resize-enabled').check()
   await page.locator('#demo-resize-width').fill('200')
   await page.locator('#demo-convert').click()
 
   await expect(page.locator('#demo-result')).toBeVisible()
   await expect(page.locator('#demo-result-summary')).toContainText('WebP · 200 × 133')
+  await expect(page.locator('#demo-log-list')).toContainText('lossless WebP')
   await expect(page.locator('#demo-log-list')).toContainText('WebP output validated as 200×133')
   await expect(page.locator('#demo-log-list')).not.toContainText('ERROR')
 })
