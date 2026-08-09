@@ -1,0 +1,23 @@
+CHANGELOG.md
+  s_3070dced1b3aff::t_6b91072a7ce1c5 7-8,250-251
+package.json
+  s_3070dced1b3aff::t_6b91072a7ce1c5 3
+package-lock.json
+  s_3070dced1b3aff::t_92fa7800b4019a 3,9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "3cfa7dd4dd559ac48fab2b02337d1ac41a8d0df3",
+  "prompts": {},
+  "sessions": {
+    "s_3070dced1b3aff": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe309-2b37-7a92-b053-803b904cd6ff",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
