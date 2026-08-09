@@ -1,0 +1,139 @@
+src/codecs/jpeg.ts
+  s_4a8abb1f2ae0c6::t_bdf327f81bce2b 289,292-295,522-526,530,533-537
+  s_4a8abb1f2ae0c6::t_1984025b69e643 236,238,242,248-257,297-298,300-304,306-307,312,318,527-528,531,538,542
+  s_4a8abb1f2ae0c6::t_473bb21388b843 299,305,532,539-541
+  s_4a8abb1f2ae0c6::t_a3ee70d21905f7 529
+  s_4a8abb1f2ae0c6::t_99d851da3abb95 258
+  s_4a8abb1f2ae0c6::t_29d9b3639e3779 290-291,296
+README.md
+  s_4a8abb1f2ae0c6::t_edc95dc0a56651 112-113,126-129
+  s_4a8abb1f2ae0c6::t_93133f8189655f 68-69
+  s_84d542edc0aa8c::t_f5dbb2c0228d87 54-56,110-111,114-125,130,193
+scripts/check-browser-build.ts
+  s_4a8abb1f2ae0c6::t_bff3b5d8d8517b 34-61,63-65
+docs/jpeg-wasm-acceleration.md
+  s_4a8abb1f2ae0c6::t_0f873f6f3e234c 3-6,14-33,36-39,41-45,50,52-53,56-57,60-63,67,81-125,139,177-178,181-182,188,190-191
+  s_4a8abb1f2ae0c6::t_f66879093a99c0 1-2,7-13,34-35,40,46-49,51,54-55,58-59,64-66,68-80,126-138,140-176,179-180,183-187,189,192-202
+scripts/copy-wasm-artifacts.ts
+  s_4a8abb1f2ae0c6::t_c5394a3b958914 1-4
+  s_4a8abb1f2ae0c6::t_e333077c2de7ac 5
+src/image-core.ts
+  s_4a8abb1f2ae0c6::t_e02243466730d7 260,263
+  s_4a8abb1f2ae0c6::t_3427a8676b2751 1
+tsconfig.browser.json
+  s_4a8abb1f2ae0c6::t_bff3b5d8d8517b 18-22
+docs/api.html
+  s_4a8abb1f2ae0c6::t_bf0628fb739c66 32,228
+benchmark/jpeg/wasm-decoder-worker.ts
+  s_4a8abb1f2ae0c6::t_e333077c2de7ac 1-83
+benchmark/results/jpeg-wasm-decoder-2026-08-08.md
+  s_4a8abb1f2ae0c6::t_e82aacfcb97c72 10-11,13-17,23-26
+  s_4a8abb1f2ae0c6::t_2176a09fce5b8a 1-9,12,18-22,27-38
+src/image.ts
+  s_4a8abb1f2ae0c6::t_e02243466730d7 1,15-16
+src/accelerator.ts
+  s_4a8abb1f2ae0c6::t_e02243466730d7 1-58
+benchmark/jpeg/run-wasm-decoder.ts
+  s_4a8abb1f2ae0c6::t_e333077c2de7ac 1-4,6-64,76-101,114-143,149-162
+  s_4a8abb1f2ae0c6::t_9d794992da9bb6 5,65-75,102-113,144-148
+package.json
+  s_4a8abb1f2ae0c6::t_c5394a3b958914 55-61,126,130
+  s_4a8abb1f2ae0c6::t_e333077c2de7ac 181
+src/index.ts
+  s_4a8abb1f2ae0c6::t_e02243466730d7 2-6
+  s_4a8abb1f2ae0c6::t_2d26a023a95995 1
+CHANGELOG.md
+  s_4a8abb1f2ae0c6::t_edc95dc0a56651 9-11
+browser-tests/compatibility.pw.ts
+  s_4a8abb1f2ae0c6::t_1415dea2e379e2 24-30
+scripts/build-wasm-jpeg.ts
+  s_4a8abb1f2ae0c6::t_e333077c2de7ac 9,20-21
+  s_4a8abb1f2ae0c6::t_c5394a3b958914 1-8,10-19,22
+src/accelerator-entries/wasm-jpeg-browser.ts
+  s_4a8abb1f2ae0c6::t_e333077c2de7ac 7
+  s_4a8abb1f2ae0c6::t_a5144889c0e1e1 1-6,8-22
+scripts/serve-browser-tests.ts
+  s_4a8abb1f2ae0c6::t_e333077c2de7ac 141
+src/accelerators/wasm/jpeg.ts
+  s_4a8abb1f2ae0c6::t_57cf1a88501ce3 223-228,330-333,398-399
+  s_4a8abb1f2ae0c6::t_a3ee70d21905f7 210-219
+  s_4a8abb1f2ae0c6::t_f7a153517a3fc9 50-54
+  s_4a8abb1f2ae0c6::t_2b25c032504425 111,142-145,369
+  s_4a8abb1f2ae0c6::t_3427a8676b2751 57-62,151,155
+  s_4a8abb1f2ae0c6::t_a3519c4ac464df 221-222,328-329
+  s_4a8abb1f2ae0c6::t_1bbf5bb891882d 163,167,171,179
+  s_4a8abb1f2ae0c6::t_9554ddc2010cc3 3-5,12-13,15-21,24-27,34-41,44-47,65-71,75,81-82,84-86,91-99,101,103-108,110,112-132,134-137,146-150,152-154,156-158,160-162,164-166,168-170,172-178,180-182,184-189,191-196,198-200,204,207-209,220,229-327,334-360,376-396,400,407-415,417-423
+  s_4a8abb1f2ae0c6::t_2dd868c6ed5024 76-80,83,87-90,100,102,109,424
+  s_4a8abb1f2ae0c6::t_642043b0254a37 42-43,201,203,205-206,361
+  s_4a8abb1f2ae0c6::t_ab1ffaee2c83f8 365-368,370-375
+  s_4a8abb1f2ae0c6::t_a5144889c0e1e1 1-2,6-11,14,22-23,28-33,48-49,55-56,63-64,72-74,133,138-141,159,183,190,197,202,362-364,397,401-406,416,425-435
+browser-tests/compatibility-harness.ts
+  s_4a8abb1f2ae0c6::t_1415dea2e379e2 2,13-14,16,83-97,99-102,324
+  s_4a8abb1f2ae0c6::t_e333077c2de7ac 15,98
+src/accelerator-entries/wasm-jpeg-node.ts
+  s_4a8abb1f2ae0c6::t_a5144889c0e1e1 1-8,10-22
+  s_4a8abb1f2ae0c6::t_e333077c2de7ac 9
+.gitignore
+  s_4a8abb1f2ae0c6::t_c5394a3b958914 191-193
+tests/project-contract.test.ts
+  s_4a8abb1f2ae0c6::t_c5394a3b958914 164
+  s_4a8abb1f2ae0c6::t_bff3b5d8d8517b 156-157
+tests/wasm-jpeg.test.ts
+  s_4a8abb1f2ae0c6::t_cbcc6c402200f2 81,85,92,115,128,203,216,225-230
+  s_4a8abb1f2ae0c6::t_bff3b5d8d8517b 57-63,102-103,114,116-124
+  s_4a8abb1f2ae0c6::t_e333077c2de7ac 12
+  s_4a8abb1f2ae0c6::t_8d0aefa06ef69b 44-48,54-56,125-127,129-147
+  s_4a8abb1f2ae0c6::t_dfe88b2d6f567d 7,184-186
+  s_4a8abb1f2ae0c6::t_ad46270069c3cf 65-79
+  s_4a8abb1f2ae0c6::t_3427a8676b2751 87-91,93,198-202,204
+  s_4a8abb1f2ae0c6::t_7b509270ca315c 6,80,82-84
+  s_4a8abb1f2ae0c6::t_2629535816f340 1-5,8-11,13-43,49-53,64,86,94-101,148-151,156-164,196-197,205-211,224,231-232
+  s_4a8abb1f2ae0c6::t_52524e4694e7e4 152-155
+  s_4a8abb1f2ae0c6::t_86b8237a541f28 104-109,111-113
+  s_84d542edc0aa8c::t_fd7285686a7bf0 110
+  s_4a8abb1f2ae0c6::t_fb6bc55512a3b4 165-183,187-195
+  s_4a8abb1f2ae0c6::t_26e2ba5c7fb1b7 212-215,217-223
+tests/library.test.ts
+  s_4a8abb1f2ae0c6::t_2629535816f340 9-15,49-68
+  s_4a8abb1f2ae0c6::t_e3f4f5769f7702 69-70
+browser-tests/types.ts
+  s_4a8abb1f2ae0c6::t_1415dea2e379e2 12
+src/browser.ts
+  s_4a8abb1f2ae0c6::t_e02243466730d7 1,10-15,60-61
+docs/performance.html
+  s_4a8abb1f2ae0c6::t_4e78fee42ce411 160
+  s_4a8abb1f2ae0c6::t_93133f8189655f 145-146,163
+  s_4a8abb1f2ae0c6::t_ed45a41b806ceb 158-159,161-162
+wasm/jpeg-decoder/Cargo.toml
+  s_4a8abb1f2ae0c6::t_e333077c2de7ac 1-16
+wasm/jpeg-decoder/.cargo/config.toml
+  s_4a8abb1f2ae0c6::t_c6e38b4c37d43e 1-5
+wasm/jpeg-decoder/Cargo.lock
+  s_4a8abb1f2ae0c6::t_58f169114b0206 1-7
+wasm/jpeg-decoder/src/lib.rs
+  s_4a8abb1f2ae0c6::t_93ead50a3bcb71 1-1084
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "d641b328effa4af74166ddad534b5c16a115fde9",
+  "prompts": {},
+  "sessions": {
+    "s_4a8abb1f2ae0c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe42e-2b77-7a50-8579-4b622c789c8f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_84d542edc0aa8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe30a-1315-7a91-ac72-83d2bf53d5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
