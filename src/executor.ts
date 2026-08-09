@@ -309,6 +309,7 @@ export const executePipeline = async (
       pixelFormat,
       options: output.options,
       runtime: context.runtime,
+      limits: context.limits,
       ...(!exif && !icc
         ? {}
         : {

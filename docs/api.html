@@ -80,7 +80,7 @@
             <article class="api-item" data-search-item><h3>toSink(sink)</h3><p>Executes into a custom <code>ImageSink</code> for streaming or application-owned output.</p><span class="returns">returns Promise&lt;void&gt;</span></article>
             <article class="api-item" data-search-item><h3>toFile(path)</h3><p>Node-only file output. If encoding fails, the partial output file is removed.</p><span class="returns">returns Promise&lt;void&gt;</span></article>
           </div>
-          <div class="callout warning"><strong>Progressive output.</strong> <code>JpegEncodeOptions</code> reserves a <code>progressive</code> field, but progressive JPEG encoding is not implemented in the current codec. Progressive JPEG decoding is supported.</div>
+          <div class="callout"><strong>Progressive output.</strong> Set <code>progressive: true</code> to emit a refinement-based progressive JPEG. This retains compact quantized coefficient planes until all scans are written; baseline output remains the bounded-row default.</div>
         </section>
 
         <section id="options" data-search-item>
@@ -121,7 +121,7 @@
           <h3>Encoder options</h3>
           <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">interface</span> JpegEncodeOptions {
   quality?: number                <span class="tok-comment">// 1–100</span>
-  progressive?: boolean          <span class="tok-comment">// reserved; true is not implemented</span>
+  progressive?: boolean          <span class="tok-comment">// refinement-based output; false by default</span>
   background?: Background
   chromaSubsampling?: <span class="tok-string">'420'</span> | <span class="tok-string">'422'</span> | <span class="tok-string">'444'</span>
   restartInterval?: number       <span class="tok-comment">// 0–65535; 0 disables restart markers</span>

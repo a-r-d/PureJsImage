@@ -132,11 +132,18 @@ npm run fixtures:jpeg
 npm run fixtures:jpeg:prepare # optional reproducibility check; requires pnmtojpeg
 npm run bench:jpeg:encode -- 420
 npm run bench:jpeg:encode -- 444
+npm run bench:jpeg:progressive
 ```
 
 The generated reference fixtures add 4:4:0, 4:1:1, eight-bit SOF1, sequential component scans,
 progressive refinement scans, restart behavior, and explicit RGB coverage. Their generator refuses
 output whose SHA-256 differs from the checked-in corpus record.
+
+The progressive encoder benchmark runs baseline, refinement-based progressive, restart-marker,
+and progressive-plus-restart output in isolated cold and warm processes. It rejects output that
+does not independently decode before reporting runtime, absolute peak RSS, retained coefficient
+bytes, output size, and PSNR. The checked-in result is
+[`jpeg-progressive-encode-2026-08-09.md`](results/jpeg-progressive-encode-2026-08-09.md).
 
 Run the isolated scaled-IDCT comparison for the pinned 4000x3000 JPEG:
 

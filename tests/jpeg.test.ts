@@ -8,6 +8,7 @@ import { ImageError } from '../src/index.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import { createResizeTransform } from '../src/resize.ts'
+import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
 import { channelSwappingRgbProfile, rgbLutOnlyProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
@@ -63,6 +64,87 @@ interface JpegStructure {
   readonly componentCount: number
   readonly restartInterval: number
   readonly restartMarkers: readonly number[]
+}
+
+interface JpegScanDescription {
+  readonly components: number
+  readonly spectralStart: number
+  readonly spectralEnd: number
+  readonly successiveHigh: number
+  readonly successiveLow: number
+  readonly restartMarkers: readonly number[]
+}
+
+interface ProgressiveJpegStructure {
+  readonly frameMarker: number
+  readonly componentCount: number
+  readonly restartInterval: number
+  readonly scans: readonly JpegScanDescription[]
+}
+
+const progressiveJpegStructure = (input: Uint8Array): ProgressiveJpegStructure => {
+  let offset = 2
+  let frameMarker = 0
+  let componentCount = 0
+  let restartInterval = 0
+  const scans: JpegScanDescription[] = []
+  while (offset + 1 < input.byteLength) {
+    if (input[offset] !== 0xff) throw new Error('JPEG marker prefix is missing')
+    while (input[offset] === 0xff) offset += 1
+    const marker = input[offset] ?? 0
+    offset += 1
+    if (marker === 0xd9) break
+    const length = ((input[offset] ?? 0) << 8) | (input[offset + 1] ?? 0)
+    if (length < 2 || offset + length > input.byteLength) {
+      throw new Error('JPEG marker length is invalid')
+    }
+    if (marker === 0xc0 || marker === 0xc2) {
+      frameMarker = marker
+      componentCount = input[offset + 7] ?? 0
+    }
+    if (marker === 0xdd) {
+      restartInterval = ((input[offset + 2] ?? 0) << 8) | (input[offset + 3] ?? 0)
+    }
+    if (marker !== 0xda) {
+      offset += length
+      continue
+    }
+
+    const components = input[offset + 2] ?? 0
+    const spectralOffset = offset + 3 + components * 2
+    const successive = input[spectralOffset + 2] ?? 0
+    offset += length
+    const restartMarkers: number[] = []
+    while (offset + 1 < input.byteLength) {
+      if (input[offset] !== 0xff) {
+        offset += 1
+        continue
+      }
+      const markerOffset = offset
+      while (input[offset] === 0xff) offset += 1
+      const entropyMarker = input[offset] ?? 0
+      if (entropyMarker === 0) {
+        offset += 1
+        continue
+      }
+      if (entropyMarker >= 0xd0 && entropyMarker <= 0xd7) {
+        restartMarkers.push(entropyMarker)
+        offset += 1
+        continue
+      }
+      offset = markerOffset
+      break
+    }
+    scans.push({
+      components,
+      spectralStart: input[spectralOffset] ?? 0,
+      spectralEnd: input[spectralOffset + 1] ?? 0,
+      successiveHigh: successive >>> 4,
+      successiveLow: successive & 15,
+      restartMarkers,
+    })
+  }
+  return { frameMarker, componentCount, restartInterval, scans }
 }
 
 const jpegStructure = (input: Uint8Array): JpegStructure => {
@@ -702,6 +784,63 @@ describe('JPEG pixel pipeline', () => {
     }
   })
 
+  it.each(['420', '422', '444'] as const)(
+    'encodes refinement-based progressive JPEG with %s sampling',
+    async (chromaSubsampling) => {
+      const image = new PNG({ width: 37, height: 23 })
+      for (let y = 0; y < image.height; y += 1) {
+        for (let x = 0; x < image.width; x += 1) {
+          const offset = (y * image.width + x) * 4
+          image.data.set(
+            [(x * 29 + y * 3) & 255, (x * 7 + y * 31) & 255, (x * 17 + y * 13) & 255, 255],
+            offset,
+          )
+        }
+      }
+      const opened = await Image.open(PNG.sync.write(image))
+      const baseline = await opened.jpeg({ quality: 91, chromaSubsampling }).toBuffer()
+      const progressive = await opened
+        .jpeg({ quality: 91, chromaSubsampling, progressive: true })
+        .toBuffer()
+      const structure = progressiveJpegStructure(progressive)
+      const baselinePixels = await sharp(baseline).removeAlpha().raw().toBuffer()
+      const independentPixels = await sharp(progressive).removeAlpha().raw().toBuffer()
+      const nativePixels = PNG.sync.read(await (await Image.open(progressive)).png().toBuffer())
+
+      expect(structure.frameMarker).toBe(0xc2)
+      expect(structure.componentCount).toBe(3)
+      expect(
+        structure.scans.map(
+          ({ components, spectralStart, spectralEnd, successiveHigh, successiveLow }) => ({
+            components,
+            spectralStart,
+            spectralEnd,
+            successiveHigh,
+            successiveLow,
+          }),
+        ),
+      ).toEqual([
+        { components: 3, spectralStart: 0, spectralEnd: 0, successiveHigh: 0, successiveLow: 1 },
+        { components: 3, spectralStart: 0, spectralEnd: 0, successiveHigh: 1, successiveLow: 0 },
+        { components: 1, spectralStart: 1, spectralEnd: 63, successiveHigh: 0, successiveLow: 1 },
+        { components: 1, spectralStart: 1, spectralEnd: 63, successiveHigh: 0, successiveLow: 0 },
+        { components: 1, spectralStart: 1, spectralEnd: 63, successiveHigh: 0, successiveLow: 0 },
+        { components: 1, spectralStart: 1, spectralEnd: 63, successiveHigh: 1, successiveLow: 0 },
+      ])
+      expect(independentPixels).toEqual(baselinePixels)
+      for (let pixel = 0; pixel < image.width * image.height; pixel += 1) {
+        for (let channel = 0; channel < 3; channel += 1) {
+          expect(
+            Math.abs(
+              (nativePixels.data[pixel * 4 + channel] ?? 0) -
+                (independentPixels[pixel * 3 + channel] ?? 0),
+            ),
+          ).toBeLessThanOrEqual(3)
+        }
+      }
+    },
+  )
+
   it('encodes gray8 input as a native one-component JPEG', async () => {
     const image = new PNG({ width: 17, height: 9 })
     for (let y = 0; y < image.height; y += 1) {
@@ -711,8 +850,11 @@ describe('JPEG pixel pipeline', () => {
       }
     }
     const input = PNG.sync.write(image, { colorType: 0 })
-    const output = await (await Image.open(input)).jpeg({ quality: 95 }).toBuffer()
+    const opened = await Image.open(input)
+    const output = await opened.jpeg({ quality: 95 }).toBuffer()
+    const progressive = await opened.jpeg({ quality: 95, progressive: true }).toBuffer()
     const structure = jpegStructure(output)
+    const progressiveStructure = progressiveJpegStructure(progressive)
     const decoded = jpeg.decode(output, {
       useTArray: true,
       formatAsRGBA: false,
@@ -721,6 +863,12 @@ describe('JPEG pixel pipeline', () => {
     const libjpeg = await sharp(output).removeAlpha().raw().toBuffer({ resolveWithObject: true })
 
     expect(structure.componentCount).toBe(1)
+    expect(progressiveStructure.frameMarker).toBe(0xc2)
+    expect(progressiveStructure.componentCount).toBe(1)
+    expect(progressiveStructure.scans).toHaveLength(4)
+    await expect(sharp(progressive).removeAlpha().raw().toBuffer()).resolves.toEqual(
+      await sharp(output).removeAlpha().raw().toBuffer(),
+    )
     expect(output.byteLength).toBeLessThan(
       (await (await Image.open(PNG.sync.write(image))).jpeg({ quality: 95 }).toBuffer()).byteLength,
     )
@@ -750,7 +898,19 @@ describe('JPEG pixel pipeline', () => {
     const output = await (await Image.open(input))
       .encode('jpeg', { quality: 92, chromaSubsampling: '444', restartInterval: 3 })
       .toBuffer()
+    const progressiveBaseline = await (await Image.open(input))
+      .encode('jpeg', { quality: 92, chromaSubsampling: '420', restartInterval: 3 })
+      .toBuffer()
+    const progressive = await (await Image.open(input))
+      .encode('jpeg', {
+        quality: 92,
+        chromaSubsampling: '420',
+        restartInterval: 3,
+        progressive: true,
+      })
+      .toBuffer()
     const structure = jpegStructure(output)
+    const progressiveStructure = progressiveJpegStructure(progressive)
     const decoded = jpeg.decode(output, {
       useTArray: true,
       formatAsRGBA: false,
@@ -760,6 +920,19 @@ describe('JPEG pixel pipeline', () => {
 
     expect(structure.restartInterval).toBe(3)
     expect(structure.restartMarkers).toEqual([0xd0, 0xd1, 0xd2, 0xd3])
+    expect(progressiveStructure.restartInterval).toBe(3)
+    expect(progressiveStructure.scans).toHaveLength(6)
+    expect(progressiveStructure.scans.map(({ restartMarkers }) => restartMarkers)).toEqual([
+      [0xd0],
+      [0xd0],
+      [0xd0, 0xd1, 0xd2, 0xd3],
+      [0xd0],
+      [0xd0],
+      [0xd0, 0xd1, 0xd2, 0xd3],
+    ])
+    await expect(sharp(progressive).removeAlpha().raw().toBuffer()).resolves.toEqual(
+      await sharp(progressiveBaseline).removeAlpha().raw().toBuffer(),
+    )
     expect({ width: decoded.width, height: decoded.height }).toEqual({ width: 35, height: 19 })
     expect({ width: libjpeg.info.width, height: libjpeg.info.height }).toEqual({
       width: 35,
@@ -776,9 +949,14 @@ describe('JPEG pixel pipeline', () => {
       }
     }
     const input = PNG.sync.write(image)
-    const output = jpeg.decode(
-      await (await Image.open(input)).jpeg({ quality: 100, background: '#ffffff' }).toBuffer(),
-      { useTArray: true, formatAsRGBA: false },
+    const opened = await Image.open(input)
+    const encoded = await opened.jpeg({ quality: 100, background: '#ffffff' }).toBuffer()
+    const progressive = await opened
+      .jpeg({ quality: 100, background: '#ffffff', progressive: true })
+      .toBuffer()
+    const output = jpeg.decode(encoded, { useTArray: true, formatAsRGBA: false })
+    await expect(sharp(progressive).removeAlpha().raw().toBuffer()).resolves.toEqual(
+      await sharp(encoded).removeAlpha().raw().toBuffer(),
     )
 
     expect(output.data[0]).toBeGreaterThan(245)
@@ -842,6 +1020,32 @@ describe('JPEG pixel pipeline', () => {
         .png()
         .toBuffer(),
     ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+  })
+
+  it('limits progressive coefficient storage without restricting baseline streaming encode', async () => {
+    const limits = { ...defaultImageLimits, maxDecodedBytes: 20_000 }
+    await expect(
+      jpegCodec.createEncoder?.(new Uint8ArraySink(), {
+        width: 64,
+        height: 64,
+        pixelFormat: 'rgb8',
+        options: { chromaSubsampling: '444', progressive: true },
+        limits,
+      }),
+    ).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+      message: expect.stringContaining('coefficient storage'),
+    })
+
+    const baseline = await jpegCodec.createEncoder?.(new Uint8ArraySink(), {
+      width: 64,
+      height: 64,
+      pixelFormat: 'rgb8',
+      options: { chromaSubsampling: '444' },
+      limits,
+    })
+    expect(baseline).toBeDefined()
+    await baseline?.abort?.(new Error('test complete'))
   })
 
   it.each([
@@ -917,19 +1121,24 @@ describe('JPEG pixel pipeline', () => {
     }
   })
 
-  it('rejects unsupported progressive output and malformed input cleanly', async () => {
+  it('rejects invalid output options and malformed input cleanly', async () => {
     const input = encodedJpeg(8, 8, () => [20, 40, 60, 255])
     const opened = await Image.open(input)
     const incompleteIcc = withIccProfile(input, channelSwappingRgbProfile())
     incompleteIcc[18] = 2
     incompleteIcc[19] = 2
 
-    await expect((await Image.open(input)).jpeg({ progressive: true }).toBuffer()).rejects.toThrow(
-      'Progressive JPEG encoding',
-    )
     expect(() => opened.jpeg({ restartInterval: -1 })).toThrow(
       'JPEG restartInterval must be an integer from 0 to 65535',
     )
+    await expect(
+      jpegCodec.createEncoder?.(new Uint8ArraySink(), {
+        width: 8,
+        height: 8,
+        pixelFormat: 'rgb8',
+        options: { progressive: 'yes' },
+      }),
+    ).rejects.toThrow('JPEG progressive must be a boolean')
     expect(() => opened.jpeg({ restartInterval: 65_536 })).toThrow(
       'JPEG restartInterval must be an integer from 0 to 65535',
     )

@@ -142,6 +142,7 @@ export interface EncodeRequest {
   readonly options: unknown
   readonly metadata?: Readonly<PreservedMetadata>
   readonly runtime?: ImageRuntime
+  readonly limits?: Readonly<ImageLimits>
 }
 
 export interface ImageCodec {

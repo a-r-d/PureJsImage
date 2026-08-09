@@ -108,7 +108,7 @@ describe('metadata preservation', () => {
     const kept = await (await Image.open(input.data))
       .keepExif()
       .keepIcc()
-      .jpeg({ quality: 100, chromaSubsampling: '444' })
+      .jpeg({ quality: 100, chromaSubsampling: '444', progressive: true })
       .toBuffer()
     const keptMetadata = await jpegCodec.preservedMetadata?.(
       new MemorySource(kept),
@@ -116,6 +116,7 @@ describe('metadata preservation', () => {
     )
     expect(keptMetadata?.exif).toEqual(input.exif)
     expect(keptMetadata?.icc).toEqual(input.icc)
+    expect(kept.some((value, index) => value === 0xff && kept[index + 1] === 0xc2)).toBe(true)
   })
 
   it('keeps ICC-tagged samples unconverted until the preserved profile is decoded again', async () => {

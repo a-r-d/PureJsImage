@@ -75,6 +75,47 @@ const jpegPipeline = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const progressiveJpeg = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = await fetchBytes('/fixtures/benchmark-input.png')
+  const resized = (await images.open(bytes)).resize({ width: 160 })
+  const baseline = await resized.jpeg({ quality: 86, chromaSubsampling: '420' }).toUint8Array()
+  const progressive = await resized
+    .jpeg({ quality: 86, chromaSubsampling: '420', progressive: true })
+    .toUint8Array()
+  let frameMarkers = 0
+  let scanMarkers = 0
+  for (let offset = 0; offset + 1 < progressive.byteLength; offset += 1) {
+    if (progressive[offset] !== 0xff) continue
+    if (progressive[offset + 1] === 0xc2) frameMarkers += 1
+    if (progressive[offset + 1] === 0xda) scanMarkers += 1
+  }
+  if (frameMarkers !== 1 || scanMarkers !== 6) {
+    throw new Error(
+      `Progressive JPEG structure had ${frameMarkers} frames and ${scanMarkers} scans`,
+    )
+  }
+  const metadata = await outputMetadata(progressive)
+  if (metadata.format !== 'jpeg' || metadata.width !== 160 || metadata.height !== 120) {
+    throw new Error(
+      `Progressive JPEG output was ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  const baselinePixels = await browserPixels(baseline, 'image/jpeg')
+  const progressivePixels = await browserPixels(progressive, 'image/jpeg')
+  if (baselinePixels.length !== progressivePixels.length) {
+    throw new Error('Progressive browser decode changed pixel dimensions')
+  }
+  for (let offset = 0; offset < baselinePixels.length; offset += 1) {
+    if (baselinePixels[offset] !== progressivePixels[offset]) {
+      throw new Error(`Progressive browser decode changed pixel ${offset}`)
+    }
+  }
+  return {
+    detail: 'six-scan progressive JPEG matched baseline pixels in the browser',
+    outputBytes: progressive.byteLength,
+  }
+}
+
 const pngAlphaPipeline = async (): Promise<BrowserWorkflowResult> => {
   const bytes = await fetchBytes('/fixtures/alpha.png')
   const image = await images.open(new Blob([bytes], { type: 'image/png' }))
@@ -221,13 +262,27 @@ const failureCleanup = async (): Promise<BrowserWorkflowResult> => {
   }
   if (!failed || !sink.aborted) throw new Error('Failed browser output did not abort its sink')
 
+  const jpegSink = new FailingSink()
+  failed = false
+  try {
+    await (await images.open(bytes))
+      .resize({ width: 32 })
+      .jpeg({ progressive: true })
+      .toSink(jpegSink)
+  } catch (error: unknown) {
+    failed = error instanceof Error && error.message === 'intentional browser sink failure'
+  }
+  if (!failed || !jpegSink.aborted) {
+    throw new Error('Failed progressive JPEG output did not abort its sink')
+  }
+
   const recovered = await (await images.open(bytes)).rotate(90).png().toUint8Array()
   const metadata = await outputMetadata(recovered)
   if (metadata.width !== 3 || metadata.height !== 4) {
     throw new Error('A failed pipeline left browser execution unable to recover')
   }
   return {
-    detail: 'failed rotated output aborted its sink; next rotated output succeeded',
+    detail: 'failed PNG and progressive JPEG outputs aborted their sinks; next output succeeded',
     outputBytes: recovered.byteLength,
   }
 }
@@ -240,6 +295,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   jpegPipeline,
   orientation,
   pngAlphaPipeline,
+  progressiveJpeg,
   webpLossless,
 })
 

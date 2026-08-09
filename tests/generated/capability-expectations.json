@@ -14,7 +14,8 @@
         "tests/lossy-codec-quality.test.ts",
         "tests/jpeg-reference-fixtures.test.ts",
         "tests/jpeg-hardening.test.ts",
-        "tests/jpeg-reference-parity.test.ts"
+        "tests/jpeg-reference-parity.test.ts",
+        "browser-tests/compatibility.pw.ts"
       ]
     },
     {
