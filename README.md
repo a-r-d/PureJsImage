@@ -63,8 +63,8 @@ and Sharp imports include the additional codecs shown.
 
 | Import | Version | Codecs included | Minified JS | gzip | Brotli |
 | --- | --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | **0.7.0** | JPEG, PNG | 116.1 KiB | 38.2 KiB | 32.3 KiB |
-| PureJsImage all codecs | 0.7.0 | 10 codecs | 560.2 KiB | 209.3 KiB | 174.8 KiB |
+| **PureJsImage matched** | **0.7.0** | JPEG, PNG | 121.4 KiB | 39.7 KiB | 33.5 KiB |
+| PureJsImage all codecs | 0.7.0 | 10 codecs | 565.5 KiB | 210.7 KiB | 175.9 KiB |
 | Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
 | image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
 | jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
@@ -157,8 +157,8 @@ A result appears only when its output passed validation.
 
 [![Image workflow absolute peak memory comparison.](benchmark/results/competitors-memory-2026-08-08.png)](benchmark/results/competitors-memory-2026-08-08.png)
 
-On the 24-megapixel photo workflow, PureJsImage used 87.6% less peak memory
-than Jimp and 88.4% less than image-js. Timing and memory vary by image,
+On the 24-megapixel photo workflow, PureJsImage used 87.1% less peak memory
+than Jimp and 88.0% less than image-js. Timing and memory vary by image,
 operation, machine, and library version, so the full report includes the test
 environment, compatibility results, and reproduction commands.
 

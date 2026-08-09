@@ -52,8 +52,8 @@
           <h1>Low-memory image processing in <span class="gradient-text">pure TypeScript.</span></h1>
           <p class="hero-lede">PureJsImage provides first-party codecs and an immutable processing pipeline for Node.js and modern browsers. Its baseline JPEG resize path processes bounded MCU rows instead of retaining a source-sized RGBA bitmap.</p>
           <div class="headline-metrics">
-            <div><strong>87.6%</strong><span>lower peak RSS vs Jimp</span><small>147.5 vs 1,189.1 MiB</small></div>
-            <div><strong>88.4%</strong><span>lower peak RSS vs image-js</span><small>147.5 vs 1,275.5 MiB</small></div>
+            <div><strong>87.1%</strong><span>lower peak RSS vs Jimp</span><small>153.3 vs 1,188.6 MiB</small></div>
+            <div><strong>88.0%</strong><span>lower peak RSS vs image-js</span><small>153.3 vs 1,275.8 MiB</small></div>
           </div>
           <div class="hero-actions">
             <a class="button" href="guides.html">Usage guide <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></a>
@@ -135,12 +135,12 @@
     <section class="proof-section" id="benchmark" aria-labelledby="benchmark-title">
       <div class="container">
         <div class="proof-heading">
-          <div><p class="section-label">Validated 24 MP northstar workflow</p><h2 id="benchmark-title">87.6% lower peak RSS than Jimp. 88.4% lower than image-js.</h2></div>
+          <div><p class="section-label">Validated 24 MP northstar workflow</p><h2 id="benchmark-title">87.1% lower peak RSS than Jimp. 88.0% lower than image-js.</h2></div>
           <p>The complete charts show five equivalent workflows from the same pinned inputs. Every engine runs in isolation. Sharp uses native libvips, jSquash uses WebAssembly, and PureJsImage, Jimp, and image-js are pure JavaScript.</p>
         </div>
         <div class="benchmark-facts">
-          <div><strong>60</strong><span>validated passes</span></div>
-          <div><strong>10</strong><span>explicit unsupported results</span></div>
+          <div><strong>67</strong><span>validated passes</span></div>
+          <div><strong>17</strong><span>explicit unsupported results</span></div>
           <div><strong>0</strong><span>invalid outputs or errors</span></div>
         </div>
         <fieldset class="benchmark-gallery">
