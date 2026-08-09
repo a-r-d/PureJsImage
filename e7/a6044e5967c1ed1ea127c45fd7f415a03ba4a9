@@ -1,0 +1,24 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 56-58
+capabilities/manifest.json
+  h_9f4a25732fa0c1 383-384
+docs/capabilities.json
+  h_9f4a25732fa0c1 730
+png-codec-support.md
+  h_9f4a25732fa0c1 143-144
+src/image.ts
+  h_9f4a25732fa0c1 2
+tests/wasm-png.test.ts
+  h_9f4a25732fa0c1 25-26,61-110,412-431,437,441-442,509-556
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "e7a6044e5967c1ed1ea127c45fd7f415a03ba4a9",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
