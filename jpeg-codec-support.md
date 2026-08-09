@@ -23,9 +23,9 @@ supported until its output is independently validated.
 - [x] Image dimensions that do not end on an MCU boundary
 - [x] Per-image quantization and Huffman tables
 - [x] Entropy byte stuffing and restart intervals (`DRI` / `RST0`-`RST7`)
-- [x] Compatible restart recovery by default for out-of-order markers, bounded
-  intervening bytes, and premature scan ends, with explicit strict validation
-  through `tolerantDecoding: false`
+- [x] Compatible restart recovery in TypeScript and opt-in Rust/WASM by default
+  for out-of-order markers, bounded intervening bytes, and premature scan ends,
+  with explicit strict validation through `tolerantDecoding: false`
 - [x] Multi-scan progressive DC and AC first-pass and refinement scans
 - [x] Extended sequential 8-bit JPEG (`SOF1`)
 - [ ] Extended sequential 12-bit JPEG (`SOF1`)
@@ -167,5 +167,5 @@ supported until its output is independently validated.
   multi-scan, and unusual progressive scan fixtures
 - [x] Add structured malformed-marker, entropy, table, restart, sampling, and
   scan-progression regressions with strict allocation and source-cleanup checks
-- [x] Define provider-neutral metadata, pixel, limit, and typed-error vectors for
-  later explicit WASM parity testing
+- [x] Keep opt-in Rust/WASM baseline decoding at pixel parity, including tolerant
+  restart recovery and bounded TypeScript fallback after setup or midstream failures

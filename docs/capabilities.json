@@ -26,6 +26,7 @@
         "tests/jpeg-reference-fixtures.test.ts",
         "tests/jpeg-hardening.test.ts",
         "tests/jpeg-reference-parity.test.ts",
+        "tests/wasm-jpeg.test.ts",
         "browser-tests/compatibility.pw.ts"
       ],
       "lossyPixelValidation": {
@@ -77,7 +78,7 @@
         },
         {
           "status": "supported",
-          "text": "Compatible restart recovery by default for out-of-order markers, bounded intervening bytes, and premature scan ends, with explicit strict validation through `tolerantDecoding: false`"
+          "text": "Compatible restart recovery in TypeScript and opt-in Rust/WASM by default for out-of-order markers, bounded intervening bytes, and premature scan ends, with explicit strict validation through `tolerantDecoding: false`"
         },
         {
           "status": "supported",
@@ -365,7 +366,7 @@
         },
         {
           "status": "supported",
-          "text": "Define provider-neutral metadata, pixel, limit, and typed-error vectors for later explicit WASM parity testing"
+          "text": "Keep opt-in Rust/WASM baseline decoding at pixel parity, including tolerant restart recovery and bounded TypeScript fallback after setup or midstream failures"
         }
       ]
     },
@@ -388,7 +389,8 @@
       "evidence": [
         "tests/png.test.ts",
         "tests/png-compatibility.test.ts",
-        "tests/metadata-preservation.test.ts"
+        "tests/metadata-preservation.test.ts",
+        "tests/wasm-png.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "not-applicable",
@@ -722,6 +724,10 @@
         {
           "status": "supported",
           "text": "Add focused malformed fixtures for CRC failures, duplicate and misplaced chunks and non-consecutive `IDAT`; bytes after the complete `IEND` datastream are ignored for compatibility with padded or concatenated real-world files"
+        },
+        {
+          "status": "supported",
+          "text": "Keep opt-in Rust/WASM non-interlaced 8-bit decoding at exact pixel parity with bounded TypeScript fallback after setup or midstream accelerator failures"
         },
         {
           "status": "planned",

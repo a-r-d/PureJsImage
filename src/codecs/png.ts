@@ -18,7 +18,7 @@ import {
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import { iccColorSpace } from '../metadata.ts'
-import type { PixelBlock, PixelFormat } from '../pixel.ts'
+import { type PixelBlock, type PixelFormat, resumePixelBlocks } from '../pixel.ts'
 import type { DeflateEncoder } from '../runtime.ts'
 import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
@@ -951,33 +951,57 @@ class PngDecoder implements ImageDecoder {
     }
     for (const acceleration of this.#accelerations) {
       if (!acceleration.decode) continue
-      const accelerated = await acceleration.decode({
-        width: this.width,
-        height: this.height,
-        bitDepth: this.#description.bitDepth,
-        colorType: this.#description.colorType,
-        interlace: this.#description.interlace,
-        frames: this.#description.frames,
-        transparency: this.#description.transparency !== undefined,
-        pixelFormat: this.pixelFormat,
-        region,
-        inflated: decompressedChunks(
-          this.#source,
-          this.#description.idat,
-          this.#limits.maxDecodedBytes,
-        ),
-      })
-      if (accelerated) {
-        yield* accelerated
-        return
+      let accelerated: AsyncIterable<PixelBlock> | undefined
+      try {
+        accelerated = await acceleration.decode({
+          width: this.width,
+          height: this.height,
+          bitDepth: this.#description.bitDepth,
+          colorType: this.#description.colorType,
+          interlace: this.#description.interlace,
+          frames: this.#description.frames,
+          transparency: this.#description.transparency !== undefined,
+          pixelFormat: this.pixelFormat,
+          region,
+          inflated: decompressedChunks(
+            this.#source,
+            this.#description.idat,
+            this.#limits.maxDecodedBytes,
+          ),
+        })
+      } catch {
+        continue
+      }
+      if (!accelerated) continue
+
+      const iterator = accelerated[Symbol.asyncIterator]()
+      let firstOutputRow = 0
+      while (true) {
+        let result: IteratorResult<PixelBlock>
+        try {
+          result = await iterator.next()
+        } catch {
+          try {
+            await iterator.return?.()
+          } catch {}
+          yield* resumePixelBlocks(this.#decodeTypeScript(region, bitsPerPixel), firstOutputRow)
+          return
+        }
+        if (result.done) return
+        const block = result.value
+        firstOutputRow = Math.max(firstOutputRow, block.y + block.height)
+        yield block
       }
     }
+    yield* this.#decodeTypeScript(region, bitsPerPixel)
+  }
+
+  async *#decodeTypeScript(region: PngRegion, bitsPerPixel: number): AsyncGenerator<PixelBlock> {
     if (this.#description.interlace === 1) {
       yield* this.#decodeAdam7(region)
       return
     }
     const rowBytes = Math.ceil((this.width * bitsPerPixel) / 8)
-
     const filterBytesPerPixel = Math.max(1, Math.ceil(bitsPerPixel / 8))
     const scanline = new Uint8Array(rowBytes + 1)
     const previous = new Uint8Array(rowBytes)

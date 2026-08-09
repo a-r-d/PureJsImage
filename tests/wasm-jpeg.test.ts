@@ -2,8 +2,9 @@ import { readFile } from 'node:fs/promises'
 
 import { describe, expect, it } from 'vitest'
 
-import type { DecodeRequest, ImageCodec, ImageDecoder } from '../src/codec.ts'
+import type { DecoderOptions, DecodeRequest, ImageCodec, ImageDecoder } from '../src/codec.ts'
 import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-node.ts'
+import { decodeBaselineJpeg } from '../src/codecs/jpeg-baseline.ts'
 import { accelerateJpegCodec, type JpegDecodeAcceleration, jpegCodec } from '../src/codecs/jpeg.ts'
 import {
   createWasmJpegAcceleratorWithLoader,
@@ -12,7 +13,7 @@ import {
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelFormat } from '../src/pixel.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
-import { MemorySource } from '../src/source.ts'
+import { type ImageSource, MemorySource } from '../src/source.ts'
 
 const artifactUrl = new URL('../src/accelerator-entries/jpeg-decoder.wasm', import.meta.url)
 const simdDecoderArtifactUrl = new URL(
@@ -61,13 +62,13 @@ const decoderPixels = async (
   }
   return output
 }
-
 const decodeInput = async (
   codec: ImageCodec,
   input: Uint8Array,
   request: DecodeRequest = {},
+  options: DecoderOptions = {},
 ): Promise<Uint8Array> => {
-  const decoder = await codec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+  const decoder = await codec.createDecoder?.(new MemorySource(input), defaultImageLimits, options)
   if (!decoder) throw new Error('JPEG decoder is unavailable')
   return decoderPixels(decoder, request)
 }
@@ -221,6 +222,105 @@ describe('Rust/WASM JPEG accelerator', () => {
     await expect(decodeFile(accelerated, progressiveUrl)).resolves.toEqual(
       await decodeFile(jpegCodec, progressiveUrl),
     )
+  })
+
+  it('keeps tolerant restart decoding on the Rust/WASM path with strict opt-out', async () => {
+    const { output } = await encodePixels(jpegCodec, 'rgb8', '420', 3, 128, 64)
+    let restartMarkers = 0
+    let secondMarkerOffset = -1
+    for (let offset = 0; offset + 1 < output.byteLength; offset += 1) {
+      const marker = output[offset + 1] ?? 0
+      if (output[offset] !== 0xff || marker < 0xd0 || marker > 0xd7) continue
+      restartMarkers += 1
+      if (restartMarkers === 2) {
+        secondMarkerOffset = offset
+        break
+      }
+    }
+    expect(secondMarkerOffset).toBeGreaterThan(0)
+
+    const wrongSequence = Uint8Array.from(output)
+    wrongSequence[secondMarkerOffset + 1] = 0xd7
+    const extraBytes = new Uint8Array(output.byteLength + 3)
+    extraBytes.set(output.subarray(0, secondMarkerOffset))
+    extraBytes.set([0x12, 0x34, 0x56], secondMarkerOffset)
+    extraBytes.set(output.subarray(secondMarkerOffset), secondMarkerOffset + 3)
+    const prematureEnd = Uint8Array.from(output)
+    prematureEnd[secondMarkerOffset + 1] = 0xd9
+    let scanOffset = -1
+    for (let offset = 0; offset + 3 < output.byteLength; offset += 1) {
+      if (output[offset] !== 0xff || output[offset + 1] !== 0xda) continue
+      const scanLength = ((output[offset + 2] ?? 0) << 8) | (output[offset + 3] ?? 0)
+      scanOffset = offset + 2 + scanLength
+      break
+    }
+    expect(scanOffset).toBeGreaterThan(0)
+    const unexpectedOffset =
+      output[scanOffset] === 0xff && output[scanOffset + 1] === 0 ? scanOffset + 2 : scanOffset + 1
+    const unexpectedMarker = new Uint8Array(output.byteLength + 2)
+    unexpectedMarker.set(output.subarray(0, unexpectedOffset))
+    unexpectedMarker.set([0xff, 0xd7], unexpectedOffset)
+    unexpectedMarker.set(output.subarray(unexpectedOffset), unexpectedOffset + 2)
+
+    const accelerator = createWasmJpegAcceleratorWithLoader(instantiate, { minimumPixels: 1 })
+    const accelerated = accelerator.accelerate(jpegCodec)
+    for (const corrupted of [wrongSequence, extraBytes, prematureEnd, unexpectedMarker]) {
+      let reads = 0
+      const source: ImageSource = {
+        size: corrupted.byteLength,
+        async read(offset, length) {
+          reads += 1
+          if (reads > 2) throw new Error('TypeScript JPEG fallback was reached')
+          return corrupted.subarray(offset, Math.min(offset + length, corrupted.byteLength))
+        },
+      }
+      const decoder = await accelerated.createDecoder?.(source, defaultImageLimits, {
+        tolerantDecoding: true,
+      })
+      if (!decoder) throw new Error('Accelerated JPEG decoder is unavailable')
+
+      const expected = await decodeInput(jpegCodec, corrupted, {}, { tolerantDecoding: true })
+      await expect(decoderPixels(decoder)).resolves.toEqual(expected)
+      expect(reads).toBe(2)
+    }
+    await expect(
+      decodeInput(accelerated, wrongSequence, {}, { tolerantDecoding: false }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
+  it('falls back to TypeScript when an accelerator fails before or during output', async () => {
+    const { output } = await encodePixels(jpegCodec, 'rgb8', '420', 0, 128, 64)
+    const expected = await decodeInput(jpegCodec, output)
+    const unavailable: JpegDecodeAcceleration = {
+      async decode() {
+        throw new Error('accelerator setup failed')
+      },
+    }
+    await expect(decodeInput(accelerateJpegCodec(jpegCodec, unavailable), output)).resolves.toEqual(
+      expected,
+    )
+
+    const midstreamFailure: JpegDecodeAcceleration = {
+      async decode(request) {
+        return {
+          async *[Symbol.asyncIterator]() {
+            for await (const block of decodeBaselineJpeg(
+              request.jpeg,
+              request.region,
+              request.scaleDenominator,
+              undefined,
+              request.tolerantDecoding,
+            )) {
+              yield block
+              throw new Error('accelerator failed after yielding rows')
+            }
+          },
+        }
+      },
+    }
+    await expect(
+      decodeInput(accelerateJpegCodec(jpegCodec, midstreamFailure), output),
+    ).resolves.toEqual(expected)
   })
 
   it('falls back under concurrent use and releases the WASM lease after failure', async () => {

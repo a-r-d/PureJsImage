@@ -50,8 +50,10 @@ All notable changes to PureJsImage are documented in this file.
 - Animated GIF pixel decode now fails with `UNSUPPORTED_OPERATION` instead of silently discarding
   animation; callers can explicitly request the supported first image with `open(input, { frame: 0 })`.
 - Baseline JPEG restart recovery now defaults to tolerant decoding for malformed real-world files;
-  pass `open(input, { tolerantDecoding: false })` to require strict restart sequencing. The same
-  corpus-driven work completed ICC v4 RGB `mAB` LUT
+  pass `open(input, { tolerantDecoding: false })` to require strict restart sequencing. Explicit
+  Rust/WASM decoding now implements the same bounded recovery instead of being skipped. JPEG and
+  PNG decode accelerator setup or midstream failures now resume through their TypeScript decoders
+  without duplicate rows. The same corpus-driven work completed ICC v4 RGB `mAB` LUT
   conversion, accepted PNG bytes after a complete `IEND` datastream, and color-managed
   common full-range RGB PNG `cICP` signals found in the private upload corpus.
 

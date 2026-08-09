@@ -12,6 +12,29 @@ export interface PixelBlock {
   readonly data: Uint8Array
   readonly release?: () => void
 }
+export const resumePixelBlocks = async function* (
+  blocks: AsyncIterable<PixelBlock>,
+  firstOutputRow: number,
+): AsyncGenerator<PixelBlock> {
+  for await (const block of blocks) {
+    const blockEnd = block.y + block.height
+    if (blockEnd <= firstOutputRow) {
+      block.release?.()
+      continue
+    }
+    if (block.y < firstOutputRow) {
+      const skippedRows = firstOutputRow - block.y
+      yield {
+        ...block,
+        y: firstOutputRow,
+        height: block.height - skippedRows,
+        data: block.data.subarray(skippedRows * block.stride),
+      }
+      continue
+    }
+    yield block
+  }
+}
 
 const defaultSizeClasses = [65_536, 262_144, 1_048_576, 4_194_304] as const
 

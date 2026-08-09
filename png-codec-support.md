@@ -140,5 +140,7 @@ have focused fixture or benchmark coverage.
 - [x] Add focused malformed fixtures for CRC failures, duplicate and misplaced
   chunks and non-consecutive `IDAT`; bytes after the complete `IEND` datastream
   are ignored for compatibility with padded or concatenated real-world files
+- [x] Keep opt-in Rust/WASM non-interlaced 8-bit decoding at exact pixel parity
+  with bounded TypeScript fallback after setup or midstream accelerator failures
 - [ ] Add malformed chunk-order, CRC, Deflate, palette, transparency, and
   decompression-bomb fuzzing with strict allocation limits

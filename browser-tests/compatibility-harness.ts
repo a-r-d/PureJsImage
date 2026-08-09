@@ -8,6 +8,7 @@ import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts
 import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
+import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
 import type { ImageInput } from '../src/source.ts'
 import type { ImageSink } from '../src/sink.ts'
@@ -142,14 +143,25 @@ const tolerantJpegRestartRecovery = async (): Promise<BrowserWorkflowResult> => 
   corrupted[corruptOffset] = 0xd7
 
   try {
-    await (await images.open(corrupted, { tolerantDecoding: false })).png().toUint8Array()
+    await (await wasmImages.open(corrupted, { tolerantDecoding: false })).png().toUint8Array()
     throw new Error('Strict browser JPEG decode accepted an out-of-order restart marker')
   } catch (error) {
     if (!(error instanceof ImageError) || error.message !== 'Expected JPEG restart marker 1') {
       throw error
     }
   }
-  const output = await (await images.open(corrupted)).png().toUint8Array()
+  const [reference, output] = await Promise.all([
+    (await images.open(corrupted)).png().toUint8Array(),
+    (await wasmImages.open(corrupted)).png().toUint8Array(),
+  ])
+  if (reference.byteLength !== output.byteLength) {
+    throw new Error('Tolerant WASM JPEG output length differs from the TypeScript reference')
+  }
+  for (let offset = 0; offset < reference.byteLength; offset += 1) {
+    if (reference[offset] !== output[offset]) {
+      throw new Error(`Tolerant WASM JPEG output differs at byte ${offset}`)
+    }
+  }
   const metadata = await outputMetadata(output)
   if (metadata.format !== 'png' || metadata.width !== 640 || metadata.height !== 480) {
     throw new Error(
@@ -157,7 +169,7 @@ const tolerantJpegRestartRecovery = async (): Promise<BrowserWorkflowResult> => 
     )
   }
   return {
-    detail: 'default tolerant JPEG restart recovery produced a 640x480 PNG',
+    detail: 'default tolerant Rust/WASM JPEG restart recovery matched TypeScript at 640x480',
     outputBytes: output.byteLength,
   }
 }
@@ -166,7 +178,7 @@ const wasmJpeg = async (): Promise<BrowserWorkflowResult> => {
   const bytes = await fetchBytes('/fixtures/benchmark-input.jpg')
   const [reference, accelerated] = await Promise.all([
     (await images.open(bytes)).png().toUint8Array(),
-    (await wasmImages.open(bytes, { tolerantDecoding: false })).png().toUint8Array(),
+    (await wasmImages.open(bytes)).png().toUint8Array(),
   ])
   if (reference.byteLength !== accelerated.byteLength) {
     throw new Error('WASM JPEG output length differs from the TypeScript reference')
@@ -313,11 +325,18 @@ const wasmPng = async (): Promise<BrowserWorkflowResult> => {
       ),
     ],
   })
-  const [reference, publicOutput, scalarFallback, simd] = await Promise.all([
+  const failedDecode: PngDecodeAcceleration = {
+    async decode() {
+      throw new Error('simulated PNG WASM decode failure')
+    },
+  }
+  const typescriptFallbackImages = createImageLibrary([acceleratePngCodec(pngCodec, failedDecode)])
+  const [reference, publicOutput, scalarFallback, simd, typescriptFallback] = await Promise.all([
     (await images.open(bytes)).png({ compressionLevel: 6 }).toUint8Array(),
     (await publicImages.open(bytes)).png({ compressionLevel: 6 }).toUint8Array(),
     (await scalarFallbackImages.open(bytes)).png({ compressionLevel: 6 }).toUint8Array(),
     (await simdImages.open(bytes)).png({ compressionLevel: 6 }).toUint8Array(),
+    (await typescriptFallbackImages.open(bytes)).png({ compressionLevel: 6 }).toUint8Array(),
   ])
   const assertExact = (label: string, actual: Uint8Array): void => {
     if (reference.byteLength !== actual.byteLength) {
@@ -332,6 +351,7 @@ const wasmPng = async (): Promise<BrowserWorkflowResult> => {
   assertExact('Public Rust/WASM', publicOutput)
   assertExact('Scalar fallback Rust/WASM', scalarFallback)
   assertExact('SIMD Rust/WASM', simd)
+  assertExact('TypeScript decode fallback', typescriptFallback)
   if (
     unavailableSimdDecoderLoads !== 1 ||
     unavailableSimdEncoderLoads !== 1 ||
@@ -353,7 +373,8 @@ const wasmPng = async (): Promise<BrowserWorkflowResult> => {
     )
   }
   return {
-    detail: 'SIMD selection and scalar PNG decode/encode fallback matched exact public output',
+    detail:
+      'SIMD selection plus scalar and TypeScript PNG decode fallback matched exact public output',
     outputBytes: simd.byteLength,
   }
 }

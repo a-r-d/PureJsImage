@@ -150,14 +150,12 @@ const applyOperations = async ({
   Image,
   workflow,
   input,
-  strictDecoding,
 }: {
   Image: PureImageLibrary
   workflow: PipelineWorkflow
   input: Buffer
-  strictDecoding: boolean
 }): Promise<EngineExecution> => {
-  let image = await Image.open(input, strictDecoding ? { tolerantDecoding: false } : undefined)
+  let image = await Image.open(input)
   let output: Uint8Array | undefined
 
   for (const operation of workflow.operations) {
@@ -224,7 +222,6 @@ export const createPureJsImageEngine = async (
   options: PureJsImageEngineOptions,
 ): Promise<Engine> => {
   const Image = await loadImageLibrary(options.codecs ?? [], options.accelerators ?? [])
-  const strictDecoding = (options.accelerators?.length ?? 0) > 0
   return {
     id: options.id,
     version: `${packageJson.version} (workspace${options.versionSuffix})`,
@@ -235,7 +232,7 @@ export const createPureJsImageEngine = async (
       if (!workflow.batch) {
         const input = inputs[0]
         if (!input) throw new Error('Pipeline workflow has no input image')
-        return applyOperations({ Image, workflow, input, strictDecoding })
+        return applyOperations({ Image, workflow, input })
       }
 
       let output: Uint8Array | undefined
@@ -243,10 +240,7 @@ export const createPureJsImageEngine = async (
       for (let index = 0; index < workflow.batch.count; index += 1) {
         const input = inputs[index % inputs.length]
         if (!input) throw new Error('Batch workflow has no input images')
-        const image = await Image.open(
-          input,
-          strictDecoding ? { tolerantDecoding: false } : undefined,
-        )
+        const image = await Image.open(input)
         output = await image
           .resize({ width: workflow.batch.width })
           .encode('jpeg', { quality: workflow.batch.quality })

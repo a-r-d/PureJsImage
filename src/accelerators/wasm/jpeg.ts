@@ -10,7 +10,7 @@ import {
   type JpegAcceleration,
 } from '../../codecs/jpeg.ts'
 
-const abiVersion = 3
+const abiVersion = 4
 const components = 3
 const blockValues = 64
 const huffmanLengths = 16
@@ -358,6 +358,7 @@ const createDecoderPool = (
           jpeg.mcusPerLine,
           jpeg.mcusPerColumn,
           jpeg.restartInterval,
+          request.tolerantDecoding ? 1 : 0,
         )
         if (status !== 0) return undefined
         releaseNeeded = false

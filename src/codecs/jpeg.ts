@@ -12,7 +12,7 @@ import type {
 import { invalidInput, truncatedInput } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
-import type { PixelBlock } from '../pixel.ts'
+import { type PixelBlock, resumePixelBlocks } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly, SourceReader } from '../source.ts'
@@ -254,16 +254,41 @@ class JpegDecoder implements ImageDecoder {
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const scale = scaleDenominator(request)
     const output = region(Math.ceil(this.width / scale), Math.ceil(this.height / scale), request)
-    for (const acceleration of this.#tolerantDecoding ? [] : this.#accelerations) {
+    for (const acceleration of this.#accelerations) {
       if (!acceleration.decode) continue
-      const accelerated = await acceleration.decode({
-        jpeg: this.#jpeg,
-        region: output,
-        scaleDenominator: scale,
-      })
-      if (accelerated) {
-        yield* accelerated
-        return
+      let accelerated: AsyncIterable<PixelBlock> | undefined
+      try {
+        accelerated = await acceleration.decode({
+          jpeg: this.#jpeg,
+          region: output,
+          scaleDenominator: scale,
+          tolerantDecoding: this.#tolerantDecoding,
+        })
+      } catch {
+        continue
+      }
+      if (!accelerated) continue
+
+      const iterator = accelerated[Symbol.asyncIterator]()
+      let firstOutputRow = 0
+      while (true) {
+        let result: IteratorResult<PixelBlock>
+        try {
+          result = await iterator.next()
+        } catch {
+          try {
+            await iterator.return?.()
+          } catch {}
+          yield* resumePixelBlocks(
+            decodeBaselineJpeg(this.#jpeg, output, scale, undefined, this.#tolerantDecoding),
+            firstOutputRow,
+          )
+          return
+        }
+        if (result.done) return
+        const block = result.value
+        firstOutputRow = Math.max(firstOutputRow, block.y + block.height)
+        yield block
       }
     }
     yield* decodeBaselineJpeg(this.#jpeg, output, scale, undefined, this.#tolerantDecoding)
@@ -300,6 +325,7 @@ export interface JpegAccelerationRequest {
   readonly jpeg: BaselineJpeg
   readonly region: JpegRegion
   readonly scaleDenominator: 1 | 2 | 4 | 8
+  readonly tolerantDecoding: boolean
 }
 
 export interface JpegAcceleration {

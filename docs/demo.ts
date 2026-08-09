@@ -531,7 +531,6 @@ const convert = async (): Promise<void> => {
     const library = mode === 'wasm' ? acceleratedImages : referenceImages
     const sourceImage = await library.open(selectedFile, {
       limits: demoLimits,
-      tolerantDecoding: mode !== 'wasm',
     })
     const plan = plannedPipeline(sourceImage)
     const plannedMetadata = await plan.image.metadata()

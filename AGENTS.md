@@ -272,4 +272,11 @@ The guiding rule is:
   that do not explicitly opt into WASM must behave exactly as they do before accelerators exist.
 * Optional WASM implementations must preserve the same API, limits, errors, metadata behavior,
   conformance fixtures, and bounded-memory goals as their TypeScript references.
+* Compatibility or tolerant decoding modes must not disable an explicitly registered WASM
+  accelerator. Pass the mode through the accelerator ABI and implement equivalent bounded recovery
+  in Rust.
+* A WASM decode accelerator failure during loading, initialization, or execution must transparently
+  fall back to the first-party TypeScript decoder. Streaming fallback must resume without
+  duplicate output rows or full-frame buffering, and regressions must cover failures after output
+  has begun.
 * When adding or modifying Rust/WASM code, follow the `rust-wasm` repo skill.

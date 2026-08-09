@@ -15,6 +15,7 @@ import {
 } from '../src/accelerators/wasm/png.ts'
 import type { DecodeRequest, ImageCodec, ImageDecoder, ImageEncoder } from '../src/codec.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
+import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { crc32 } from '../src/codecs/crc32.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { nodeRuntime } from '../src/node-runtime.ts'
@@ -705,6 +706,38 @@ describe('Rust/WASM PNG accelerator', () => {
     await expect(encode(invalid, 'rgb8')).resolves.toEqual(await encode(pngCodec, 'rgb8'))
     expect(invalidDecoderLoads).toBe(1)
     expect(invalidEncoderLoads).toBe(1)
+  })
+
+  it('falls back to TypeScript when decode acceleration fails before or during output', async () => {
+    const input = supportedFixture(rgbaFormat, 4, 83, 97)
+    const expected = await decode(pngCodec, input)
+    const unavailable: PngDecodeAcceleration = {
+      async decode() {
+        throw new Error('accelerator setup failed')
+      },
+    }
+    await expect(decode(acceleratePngCodec(pngCodec, unavailable), input)).resolves.toEqual(
+      expected,
+    )
+
+    const referenceDecoder = await createDecoder(pngCodec, input)
+    const referenceIterator = referenceDecoder.decode()[Symbol.asyncIterator]()
+    const first = await referenceIterator.next()
+    if (first.done) throw new Error('PNG reference decoder did not yield its first block')
+    await referenceIterator.return?.()
+    const midstreamFailure: PngDecodeAcceleration = {
+      async decode() {
+        return {
+          async *[Symbol.asyncIterator]() {
+            yield first.value
+            throw new Error('accelerator failed after yielding rows')
+          },
+        }
+      },
+    }
+    await expect(decode(acceleratePngCodec(pngCodec, midstreamFailure), input)).resolves.toEqual(
+      expected,
+    )
   })
 
   it('falls back while instances are leased and releases decoder and encoder leases after completion', async () => {
