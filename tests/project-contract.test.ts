@@ -8,10 +8,17 @@ import { readCompatibilityManifest } from '../benchmark/heif/compatibility/corpu
 import { jpegCompatibilityFixtureIds } from '../benchmark/jpeg/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
 import packageJson from '../package.json' with { type: 'json' }
+import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
 import { commonCompetitorCodecs, competitorBundleTargets } from '../scripts/bundle-size-config.ts'
 import * as publicApi from '../src/index.ts'
 
 describe('package contract', () => {
+  it('does not publish unusable source maps without source files', () => {
+    expect(buildTsconfig.compilerOptions.sourceMap).toBe(false)
+    expect(buildTsconfig.compilerOptions.declarationMap).toBe(false)
+    expect(packageJson.files).not.toContain('src')
+  })
+
   it('has no production dependencies', () => {
     expect('dependencies' in packageJson).toBe(false)
     expect('optionalDependencies' in packageJson).toBe(false)

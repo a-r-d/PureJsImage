@@ -89,7 +89,7 @@ complete installed deployment tells the other half of the story:
 
 | Package | Version | Installed footprint | Production packages |
 | --- | --- | ---: | ---: |
-| **PureJsImage** | **0.7.0** | **3.1 MiB** | **1** |
+| **PureJsImage** | **0.7.0** | **1.6 MiB** | **1** |
 | Jimp | 1.6.0 | 29.3 MiB | 70 |
 | image-js | 1.7.0 | 17.0 MiB | 46 |
 | jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |
