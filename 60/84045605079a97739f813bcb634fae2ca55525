@@ -1,0 +1,63 @@
+tests/lossy-codec-quality.test.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 1-2,8-11,113-124
+scripts/capability-manifest.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 10-21,34,111-131,148
+tests/av1-post-filter.test.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 152-160,174-176,180
+tests/capability-manifest.test.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 63-82
+.agents/skills/rollout-codec-capability/SKILL.md
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 28-31
+browser-tests/demo.pw.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 56,60,112
+src/codecs/av1-transform.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 394-395,401-408
+benchmark/results/avif-qmatrix-sharp-2026-08-08.md
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 5-9,11-17,19-32,35-36
+scripts/serve-browser-tests.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 73-74,94-153,261-263,266-267,278-279
+CHANGELOG.md
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 30-32
+benchmark/avif/prepare-qmatrix-fixtures.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 11,15-23
+.gitignore
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 169
+benchmark/corpus/files/avif/README.md
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 26-33
+browser-tests/compatibility.pw.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 63
+capabilities/manifest.json
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 22-27,226-229,397-402,618-621,793-796,903-906,1071-1074,1259-1264,1648-1663,1791-1792,1955-1958,1999-2004,2364-2367
+docs/capabilities.json
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 31-36,389-392,745-750,1191-1194,1571-1574,1831-1834,2171-2174,2507-2512,3144-3159,3469-3472,3831-3835,3880-3885,4385-4388
+src/codecs/av1-qmatrix.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 765
+benchmark/avif/verify-qmatrix-fixtures.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 85-107,110-111,113,130-138,143-146
+browser-tests/compatibility-harness.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 187-204,256,264-271,273
+benchmark/avif/qmatrix-fixtures.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 6,11-14,26-38,45,47-63,71-84,86-89
+scripts/render-capabilities.ts
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 135,152
+avif-codec-support.md
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 128-129,292-295
+tests/generated/capability-expectations.json
+  s_4a8abb1f2ae0c6::t_e4f33e09510387 19-25,36-40,51-57,64-68,75-79,86-90,97-101,108-114,121-136,143-149
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "6084045605079a97739f813bcb634fae2ca55525",
+  "prompts": {},
+  "sessions": {
+    "s_4a8abb1f2ae0c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe42e-2b77-7a50-8579-4b622c789c8f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
