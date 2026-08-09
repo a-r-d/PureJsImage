@@ -9,6 +9,10 @@ All notable changes to PureJsImage are documented in this file.
 - Added first-party refinement-based progressive JPEG encoding for grayscale and 4:2:0, 4:2:2,
   and 4:4:4 YCbCr output, with compact coefficient limits, per-scan restart markers, independent
   pixel validation, browser coverage, and isolated runtime/RSS/size benchmarks.
+- Added jSquash as an isolated WebAssembly competitor using its pinned JPEG, PNG, WebP, and resize
+  packages, with documented Node WASM initialization, explicit unsupported classifications,
+  startup/package-footprint measurements, a codec-matched bundle comparison with exact package
+  versions, validated workflow results, and regenerated charts.
 
 ## [0.7.0] - 2026-08-08
 

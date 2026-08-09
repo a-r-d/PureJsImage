@@ -86,9 +86,13 @@ export const measurePackageFootprint = async ({
 }): Promise<PackageFootprint> => {
   if (engine.packageName === 'purejsimage') return workspaceFootprint(repositoryDirectory)
 
-  const rootPackageJson = await findInstalledPackage(engine.packageName, repositoryDirectory)
-  if (!rootPackageJson) throw new Error(`Installed package not found: ${engine.packageName}`)
-  const pending = [rootPackageJson]
+  const rootPackageNames = engine.packageNames ?? [engine.packageName]
+  const pending: string[] = []
+  for (const packageName of rootPackageNames) {
+    const rootPackageJson = await findInstalledPackage(packageName, repositoryDirectory)
+    if (!rootPackageJson) throw new Error(`Installed package not found: ${packageName}`)
+    pending.push(rootPackageJson)
+  }
   const visited = new Set<string>()
   const packages: string[] = []
   let bytes = 0

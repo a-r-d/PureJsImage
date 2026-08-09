@@ -2,6 +2,7 @@ import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 import { engine as imageJsEngine } from '../benchmark/engines/image-js.ts'
 import { engine as jimpEngine } from '../benchmark/engines/jimp.ts'
+import { engine as jsquashEngine } from '../benchmark/engines/jsquash.ts'
 import { engine as sharpSingleThreadEngine } from '../benchmark/engines/sharp-single-thread.ts'
 import { engine as sharpEngine } from '../benchmark/engines/sharp.ts'
 import { summarizeSamples } from '../benchmark/lib/results.ts'
@@ -29,6 +30,17 @@ describe('competitor benchmark classification', () => {
     await expect(Promise.resolve(jimpEngine.unsupportedReason(webp, []))).resolves.toContain(
       'no WebP decoder',
     )
+    await expect(
+      Promise.resolve(
+        jsquashEngine.unsupportedReason(competitorWorkflow('metadata-jpeg-large'), []),
+      ),
+    ).resolves.toContain('no metadata inspection API')
+    await expect(
+      Promise.resolve(jsquashEngine.unsupportedReason(competitorWorkflow('jpeg-crop-resize'), [])),
+    ).resolves.toContain('exact crop coordinates')
+    await expect(
+      Promise.resolve(jsquashEngine.unsupportedReason(competitorWorkflow('png-to-jpeg'), [])),
+    ).resolves.toContain('flattening alpha')
   })
 
   it('cannot aggregate invalid output as a successful timing', async () => {
@@ -78,5 +90,17 @@ describe('competitor benchmark classification', () => {
     expect(sharpSingleThreadEngine.id).toBe('sharp-single-thread')
     expect(sharpSingleThreadEngine.kind).toBe('native-single-thread')
     expect(sharpSingleThreadEngine.version).toBe(sharpEngine.version)
+  })
+
+  it('identifies jSquash as a multi-package WebAssembly engine', () => {
+    expect(jsquashEngine.id).toBe('jsquash')
+    expect(jsquashEngine.kind).toBe('webassembly')
+    expect(jsquashEngine.version).toContain('resize 2.1.1')
+    expect(jsquashEngine.packageNames).toEqual([
+      '@jsquash/jpeg',
+      '@jsquash/png',
+      '@jsquash/webp',
+      '@jsquash/resize',
+    ])
   })
 })

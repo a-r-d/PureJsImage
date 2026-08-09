@@ -25,16 +25,18 @@ describe('package contract', () => {
   it('pins benchmark competitors without adding a Canvas library', () => {
     expect(packageJson.devDependencies.sharp).toBe('0.35.3')
     expect(packageJson.devDependencies['image-js']).toBe('1.7.0')
+    expect(packageJson.devDependencies['@jsquash/resize']).toBe('2.1.1')
     expect('skia-canvas' in packageJson.devDependencies).toBe(false)
   })
 
   it('keeps bundle comparisons codec-scoped and identifies native payloads', () => {
-    expect(commonCompetitorCodecs).toEqual(['JPEG', 'PNG', 'TIFF'])
+    expect(commonCompetitorCodecs).toEqual(['JPEG', 'PNG'])
     expect(competitorBundleTargets.map((target) => target.id)).toEqual([
       'purejsimage-matched',
       'purejsimage-all',
       'jimp',
       'image-js',
+      'jsquash',
       'sharp',
     ])
     for (const target of competitorBundleTargets) {
@@ -43,12 +45,25 @@ describe('package contract', () => {
     expect(competitorBundleTargets.find((target) => target.id === 'sharp')?.implementation).toBe(
       'native-wrapper',
     )
+    expect(competitorBundleTargets.find((target) => target.id === 'jsquash')?.implementation).toBe(
+      'webassembly',
+    )
 
     const readme = readFileSync('README.md', 'utf8')
     const performancePage = readFileSync('docs/performance.html', 'utf8')
-    for (const label of ['PureJsImage matched', 'Jimp', 'image-js', 'Sharp JS wrapper']) {
+    for (const label of [
+      'PureJsImage matched',
+      'Jimp',
+      'image-js',
+      'jSquash',
+      'Sharp JS wrapper',
+    ]) {
       expect(readme).toContain(label)
       expect(performancePage).toContain(label)
+    }
+    for (const version of ['0.7.0', '1.6.0', '1.7.0', '0.35.3']) {
+      expect(readme).toContain(version)
+      expect(performancePage).toContain(version)
     }
     expect(readme).toContain('Sharp, including native libvips')
     expect(performancePage).toContain('Native payload.')
@@ -58,7 +73,9 @@ describe('package contract', () => {
     expect(packageJson.devDependencies['@playwright/test']).toBe('1.62.1')
     expect(packageJson.devDependencies['@jsquash/jpeg']).toBe('1.6.0')
     expect(packageJson.devDependencies['@jsquash/png']).toBe('3.1.1')
+    expect(packageJson.devDependencies['@jsquash/resize']).toBe('2.1.1')
     expect(packageJson.devDependencies['@jsquash/webp']).toBe('1.5.0')
+    expect(packageJson.scripts['bench:competitors']).toContain('image-js,jsquash')
     expect(packageJson.scripts['browser:test']).toBe('playwright test')
     expect(packageJson.scripts['browser:bench']).toContain('--project=chromium')
   })

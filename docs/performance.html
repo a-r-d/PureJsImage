@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Reproducible PureJsImage benchmarks: validated wall time, absolute peak RSS, startup cost, package footprint, and comparisons with Jimp, Sharp, and image-js.">
+  <meta name="description" content="Reproducible PureJsImage benchmarks: validated wall time, absolute peak RSS, startup cost, package footprint, and comparisons with Jimp, Sharp, image-js, and jSquash.">
   <meta name="theme-color" content="#f6f7f2">
   <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/performance.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -20,12 +20,12 @@
   </div></header>
 
   <main id="main">
-    <header class="page-hero"><div class="container"><p class="eyebrow">Performance</p><h1>Benchmark methodology and recorded results.</h1><p class="page-lede">Complete decode–transform–encode workflows measured in isolated processes with pinned inputs, absolute peak RSS, and independently validated output.</p><div class="page-meta"><span class="pill">Five-engine competitor profile</span><span class="pill">Recorded August 2026</span><span class="pill">Linux x64</span></div></div></header>
+    <header class="page-hero"><div class="container"><p class="eyebrow">Performance</p><h1>Benchmark methodology and recorded results.</h1><p class="page-lede">Complete decode–transform–encode workflows measured in isolated processes with pinned inputs, absolute peak RSS, and independently validated output.</p><div class="page-meta"><span class="pill">Six-engine competitor profile</span><span class="pill">Recorded August 2026</span><span class="pill">Linux x64</span></div></div></header>
     <section class="proof-section performance-showcase" id="competitor-charts" aria-labelledby="competitor-charts-title">
       <div class="container">
         <div class="proof-heading">
-          <div><p class="section-label">Validated competitor profile</p><h2 id="competitor-charts-title">Speed and memory across five isolated engines.</h2></div>
-          <p>Every displayed result passed equivalent-output validation. Sharp and Sharp single-thread use native libvips code; PureJsImage, Jimp, and image-js are pure JavaScript.</p>
+          <div><p class="section-label">Validated competitor profile</p><h2 id="competitor-charts-title">Speed and memory across six isolated engines.</h2></div>
+          <p>Every displayed result passed equivalent-output validation. Sharp uses native libvips, jSquash uses WebAssembly, and PureJsImage, Jimp, and image-js are pure JavaScript.</p>
         </div>
         <div class="benchmark-facts">
           <div><strong>87.6%</strong><span>lower northstar RSS vs Jimp</span></div>
@@ -43,12 +43,12 @@
           <div class="benchmark-gallery-panels">
             <figure class="benchmark-gallery-panel" data-chart="speed">
               <div class="benchmark-gallery-head"><div><span>Median wall time</span><strong>Logarithmic scale · lower is better</strong></div><small>Sharp = native libvips</small></div>
-              <div class="benchmark-image-scroll"><img src="assets/competitors-speed-2026-08-08.png" width="2400" height="2070" alt="Grouped horizontal bars comparing median wall time for all five benchmark engines across nine equivalent workflows. The two Sharp configurations use native libvips code." fetchpriority="high"></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-speed-2026-08-08.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median wall time for all six benchmark engines across five equivalent workflows. Sharp uses native libvips and jSquash uses WebAssembly." fetchpriority="high"></div>
               <figcaption>Timings include encoding. Lossy quality scales are not calibrated across encoders. <a href="assets/competitors-speed-2026-08-08.png">Open full-size chart</a>.</figcaption>
             </figure>
             <figure class="benchmark-gallery-panel" data-chart="memory">
               <div class="benchmark-gallery-head"><div><span>Absolute process memory</span><strong>Median peak RSS · lower is better</strong></div><small>Isolated worker processes</small></div>
-              <div class="benchmark-image-scroll"><img src="assets/competitors-memory-2026-08-08.png" width="2400" height="2070" alt="Grouped horizontal bars comparing median absolute peak RSS for all five benchmark engines across nine equivalent workflows." loading="lazy" decoding="async"></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-memory-2026-08-08.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median absolute peak RSS for all six benchmark engines across five equivalent workflows." loading="lazy" decoding="async"></div>
               <figcaption>RSS includes the Node.js runtime and native allocations. <a href="assets/competitors-memory-2026-08-08.png">Open full-size chart</a>.</figcaption>
             </figure>
           </div>
@@ -64,7 +64,7 @@
       <article class="content">
         <section id="headline">
           <h2>Earlier Jimp baseline</h2>
-          <p>This separately recorded Jimp-only baseline predates the five-engine profile above. In its 6000 × 4000 JPEG orientation, crop, resize, and encode workflow, PureJsImage used 118.6 MiB peak RSS versus Jimp’s 1,188.3 MiB and completed in 3,242.5 ms versus 3,762.9 ms.</p>
+          <p>This separately recorded Jimp-only baseline predates the six-engine profile above. In its 6000 × 4000 JPEG orientation, crop, resize, and encode workflow, PureJsImage used 118.6 MiB peak RSS versus Jimp’s 1,188.3 MiB and completed in 3,242.5 ms versus 3,762.9 ms.</p>
           <div class="stat-grid">
             <div class="card stat-card"><strong>90%</strong><span>lower peak RSS · 24 MP JPEG</span></div>
             <div class="card stat-card"><strong>14%</strong><span>faster wall time · 24 MP JPEG</span></div>
@@ -92,7 +92,7 @@
             <div class="method-step"><b>04</b><span>Decode and validate the output against structural or pixel references.</span></div>
           </div>
           <ul>
-            <li>Competitor profile: PureJsImage, <code>jimp@1.6.0</code>, <code>sharp@0.35.3</code> with default concurrency and one processing thread, and <code>image-js@1.7.0</code>.</li>
+            <li>Competitor profile: PureJsImage, <code>jimp@1.6.0</code>, <code>sharp@0.35.3</code> with default concurrency and one processing thread, <code>image-js@1.7.0</code>, and jSquash JPEG 1.6.0, PNG 3.1.1, WebP 1.5.0, and resize 2.1.1.</li>
             <li>The detailed historical tables below use the separately recorded Jimp 1.6 baseline.</li>
             <li>Recorded environment: Node.js 24.16.0 on Linux x64, Intel Core i7-10700.</li>
             <li>Reports use median and p95 wall time across repeated runs.</li>
@@ -139,26 +139,28 @@
 
         <section id="bundle">
           <h2>Bundle and deployment size</h2>
-          <p>JPEG, PNG, and TIFF are available in every installed engine, so they form the matched codec set. PureJsImage can bundle exactly those entries. The normal public imports for Jimp, image-js, and Sharp include the additional codecs shown rather than offering equivalent codec-level tree shaking.</p>
+          <p>JPEG and PNG form the matched codec set because all five libraries support them. PureJsImage and jSquash can assemble exactly those entries. The normal public imports for Jimp, image-js, and Sharp include the additional codecs shown rather than offering equivalent codec-level tree shaking.</p>
           <h3>Competitor comparison</h3>
           <div class="table-wrap"><table><thead><tr><th>Import</th><th>Version</th><th>Codecs included</th><th>Minified JS</th><th>gzip</th><th>Brotli</th><th>Installed</th><th>Packages</th></tr></thead><tbody>
-            <tr><td><strong>PureJsImage matched</strong></td><td>0.6.0</td><td>JPEG, PNG, TIFF</td><td><strong>139.5 KiB</strong></td><td><strong>45.8 KiB</strong></td><td><strong>38.6 KiB</strong></td><td><strong>2.6 MiB</strong></td><td><strong>1</strong></td></tr>
-            <tr><td><strong>PureJsImage all</strong></td><td>0.6.0</td><td>10 codecs</td><td>444.3 KiB</td><td>150.7 KiB</td><td>121.1 KiB</td><td>2.6 MiB</td><td>1</td></tr>
+            <tr><td><strong>PureJsImage matched</strong></td><td>0.7.0</td><td>JPEG, PNG</td><td>116.1 KiB</td><td>38.2 KiB</td><td>32.3 KiB</td><td>3.1 MiB</td><td>1</td></tr>
+            <tr><td><strong>PureJsImage all</strong></td><td>0.7.0</td><td>10 codecs</td><td>560.2 KiB</td><td>209.3 KiB</td><td>174.8 KiB</td><td>3.1 MiB</td><td>1</td></tr>
             <tr><td><strong>Jimp</strong></td><td>1.6.0</td><td>JPEG, PNG, TIFF, BMP, GIF</td><td>577.4 KiB</td><td>174.6 KiB</td><td>139.5 KiB</td><td>29.3 MiB</td><td>70</td></tr>
             <tr><td><strong>image-js</strong></td><td>1.7.0</td><td>JPEG, PNG, TIFF, BMP</td><td>361.5 KiB</td><td>111.2 KiB</td><td>94.3 KiB</td><td>17.0 MiB</td><td>46</td></tr>
+            <tr><td><strong>jSquash</strong></td><td>JPEG 1.6.0; PNG 3.1.1; resize 2.1.1</td><td>JPEG, PNG</td><td><strong>52.4 KiB</strong></td><td><strong>16.0 KiB</strong></td><td><strong>13.2 KiB</strong></td><td><strong>1.0 MiB</strong></td><td><strong>3</strong></td></tr>
             <tr><td><strong>Sharp JS wrapper</strong></td><td>0.35.3</td><td>JPEG, PNG, TIFF, WebP, GIF, AVIF</td><td>128.4 KiB</td><td>38.3 KiB</td><td>33.5 KiB</td><td>18.9 MiB</td><td>6</td></tr>
           </tbody></table></div>
           <div class="callout warning"><strong>Native payload.</strong> Sharp's JavaScript bundle is only the wrapper. Its installed footprint includes the native addon and the required Linux x64 libvips package, so 128.4 KiB is not its deployment size. Installed footprints vary by operating system and architecture.</div>
+          <div class="callout"><strong>WebAssembly payload.</strong> jSquash's 52.4 KiB JavaScript bundle is codec and resize glue. Its 1.0 MiB installed footprint includes the selected JPEG, PNG, and resize WebAssembly packages.</div>
           <p>All JavaScript rows use the same esbuild settings: Node 22 target, ESM output, tree shaking, minification, no source map, gzip level 9, and Brotli quality 11. Installed size includes each engine's production dependency tree and required platform packages.</p>
           <h3>PureJsImage entry points</h3>
           <p>Applications can import only the codec entries they use. The root API itself pulls no codec implementation into the module graph.</p>
           <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Minified</th><th>gzip</th><th>Brotli</th></tr></thead><tbody>
-            <tr><td><strong>Core API</strong></td><td>38.4 KiB</td><td>13.0 KiB</td><td>11.6 KiB</td></tr>
-            <tr><td><strong>Core + PNG</strong></td><td>65.7 KiB</td><td>22.4 KiB</td><td>19.6 KiB</td></tr>
-            <tr><td><strong>Core + JPEG</strong></td><td>81.5 KiB</td><td>27.5 KiB</td><td>23.5 KiB</td></tr>
-            <tr><td><strong>Core + JPEG 2000</strong></td><td>74.2 KiB</td><td>24.5 KiB</td><td>21.5 KiB</td></tr>
-            <tr><td><strong>Core + WebP</strong></td><td>88.3 KiB</td><td>31.6 KiB</td><td>27.3 KiB</td></tr>
-            <tr><td><strong>Core + all codecs</strong></td><td>444.3 KiB</td><td>150.7 KiB</td><td>121.1 KiB</td></tr>
+            <tr><td><strong>Core API</strong></td><td>39.4 KiB</td><td>13.3 KiB</td><td>11.9 KiB</td></tr>
+            <tr><td><strong>Core + PNG</strong></td><td>66.7 KiB</td><td>22.6 KiB</td><td>19.8 KiB</td></tr>
+            <tr><td><strong>Core + JPEG</strong></td><td>93.6 KiB</td><td>31.3 KiB</td><td>26.5 KiB</td></tr>
+            <tr><td><strong>Core + JPEG 2000</strong></td><td>75.2 KiB</td><td>24.8 KiB</td><td>21.7 KiB</td></tr>
+            <tr><td><strong>Core + WebP</strong></td><td>93.9 KiB</td><td>33.2 KiB</td><td>28.8 KiB</td></tr>
+            <tr><td><strong>Core + all codecs</strong></td><td>560.2 KiB</td><td>209.3 KiB</td><td>174.8 KiB</td></tr>
           </tbody></table></div>
           <p>Run <code>npm run size</code> to rebuild PureJsImage and reproduce both tables on the current platform.</p>
         </section>
@@ -183,7 +185,7 @@ npm run bench:transforms:compare
 npm run bench:webp
 npm run bench:avif:b2
 npm run bench:heif:cold</code></pre></div>
-          <p><code>npm run bench:competitors</code> builds PureJsImage and runs all five engines in isolated workers. The chart command regenerates both checked-in PNGs from the JSON report. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md" target="_blank" rel="noreferrer">benchmark harness guide</a> for profiles and result interpretation.</p>
+          <p><code>npm run bench:competitors</code> builds PureJsImage and runs all six engines in isolated workers. The chart command regenerates both checked-in PNGs from the JSON report. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md" target="_blank" rel="noreferrer">benchmark harness guide</a> for profiles and result interpretation.</p>
         </section>
 
         <section id="interpretation">

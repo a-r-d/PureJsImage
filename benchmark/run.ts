@@ -24,7 +24,14 @@ const repositoryDirectory = dirname(benchmarkDirectory)
 const resultsDirectory = join(benchmarkDirectory, 'results')
 const workerPath = join(benchmarkDirectory, 'worker.ts')
 const startupWorkerPath = join(benchmarkDirectory, 'startup-worker.ts')
-const engineIds = new Set(['image-js', 'jimp', 'purejsimage', 'sharp', 'sharp-single-thread'])
+const engineIds = new Set([
+  'image-js',
+  'jimp',
+  'jsquash',
+  'purejsimage',
+  'sharp',
+  'sharp-single-thread',
+])
 
 function argument(name: string): string | undefined
 function argument(name: string, fallback: string): string
@@ -104,8 +111,12 @@ const isEngineMetadata = (value: unknown): value is EngineMetadata => {
     typeof value.version === 'string' &&
     (value.kind === 'native' ||
       value.kind === 'native-single-thread' ||
-      value.kind === 'pure-javascript') &&
-    typeof value.packageName === 'string'
+      value.kind === 'pure-javascript' ||
+      value.kind === 'webassembly') &&
+    typeof value.packageName === 'string' &&
+    (value.packageNames === undefined ||
+      (Array.isArray(value.packageNames) &&
+        value.packageNames.every((name) => typeof name === 'string')))
   )
 }
 
@@ -440,7 +451,7 @@ const markdown = [
   '| --- | --- | --- |',
   ...startup.map(({ engine }) => `| ${engine.id} | ${engine.version} | ${engine.kind} |`),
   '',
-  'PureJsImage, Jimp, and image-js are pure JavaScript. Sharp is a native dependency; `sharp-single-thread` is the same native package configured with `sharp.concurrency(1)` before processing.',
+  'PureJsImage, Jimp, and image-js are pure JavaScript. jSquash uses WebAssembly codecs and resizing. Sharp is a native dependency; `sharp-single-thread` is the same native package configured with `sharp.concurrency(1)` before processing.',
   '',
   '## Compatibility',
   '',
@@ -473,7 +484,7 @@ const markdown = [
       `| ${engine.id} | ${formatMilliseconds(importMilliseconds)} ms | ${formatMegabytes(rssAfterImportBytes)} MiB | ${formatMilliseconds(firstMetadata.wallMilliseconds)} ms (${firstMetadata.status}) | ${formatMilliseconds(firstResize.wallMilliseconds)} ms (${firstResize.status}) | ${formatMegabytes(footprint.bytes)} MiB | ${footprint.productionPackageCount} |`,
   ),
   '',
-  'Installed footprint includes each engine package and the production dependencies present for this platform, including Sharp platform packages. Exact package lists are recorded in JSON.',
+  'Installed footprint includes every package required by an engine and the production dependencies present for this platform, including jSquash codec/resize packages and Sharp platform packages. Exact package lists are recorded in JSON.',
   '',
   'A timing only counts when output validation passes. Input file reads, worker startup, warmups, and output validation are outside warm workflow timings. Startup measurements use a separate fresh process for each engine.',
   '',

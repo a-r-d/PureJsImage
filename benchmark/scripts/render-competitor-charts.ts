@@ -20,9 +20,10 @@ const engines = [
     color: '#dc2626',
   },
   { id: 'image-js', label: 'image-js · pure JS', color: '#059669' },
+  { id: 'jsquash', label: 'jSquash · WebAssembly', color: '#0891b2' },
 ] as const
 
-const workflows = [
+const workflowCandidates = [
   { id: 'metadata-jpeg-large', label: 'Large JPEG metadata' },
   { id: 'jpeg-resize-1200', label: 'JPEG resize → JPEG' },
   { id: 'northstar-photo-pipeline', label: 'Northstar photo pipeline' },
@@ -77,6 +78,21 @@ const resultByKey = new Map(
   report.results.map((result) => [`${result.engine}:${result.workflow}`, result]),
 )
 
+for (const workflow of workflowCandidates) {
+  for (const engine of engines) {
+    if (!resultByKey.has(`${engine.id}:${workflow.id}`)) {
+      throw new Error(`Missing ${engine.id}/${workflow.id} in ${reportPath}`)
+    }
+  }
+}
+
+const workflows = workflowCandidates.filter((workflow) =>
+  engines.every(
+    (engine) => resultByKey.get(`${engine.id}:${workflow.id}`)?.summary.status === 'pass',
+  ),
+)
+if (workflows.length === 0) throw new Error('No workflow passed validation for every chart engine')
+
 type Metric = 'memory' | 'speed'
 
 const metricValue = (result: BenchmarkResult, metric: Metric): number => {
@@ -109,17 +125,31 @@ const formatMetric = (value: number, metric: Metric): string => {
 
 const chartSvg = (metric: Metric): string => {
   const width = 2400
-  const height = 2070
+  const groupHeight = 204
+  const height = 490 + workflows.length * groupHeight
   const plotLeft = 760
   const plotRight = 2220
   const plotWidth = plotRight - plotLeft
-  const plotTop = 300
-  const groupHeight = 178
+  const plotTop = 330
   const barHeight = 19
   const rowHeight = 26
   const gridBottom = plotTop + workflows.length * groupHeight - 28
   const speedTicks = [0.1, 1, 10, 100, 1000, 10_000]
-  const memoryTicks = [0, 200, 400, 600, 800, 1000, 1200, 1400]
+  const largestMemory = Math.max(
+    ...workflows.flatMap((workflow) =>
+      engines.map((engine) => {
+        const result = resultByKey.get(`${engine.id}:${workflow.id}`)
+        if (!result) throw new Error(`Missing ${engine.id}/${workflow.id} in ${reportPath}`)
+        return metricValue(result, 'memory')
+      }),
+    ),
+  )
+  const memoryStep = largestMemory > 2000 ? 500 : 200
+  const memoryMaximum = Math.ceil(largestMemory / memoryStep) * memoryStep
+  const memoryTicks = Array.from(
+    { length: memoryMaximum / memoryStep + 1 },
+    (_, index) => index * memoryStep,
+  )
   const ticks = metric === 'speed' ? speedTicks : memoryTicks
   const title = metric === 'speed' ? 'Image workflow speed' : 'Image workflow memory'
   const subtitle =
@@ -127,7 +157,7 @@ const chartSvg = (metric: Metric): string => {
       ? 'Median wall time · logarithmic scale · lower is better'
       : 'Median absolute peak RSS · linear scale · lower is better'
   const valueToX = (value: number): number => {
-    if (metric === 'memory') return plotLeft + (value / 1400) * plotWidth
+    if (metric === 'memory') return plotLeft + (value / memoryMaximum) * plotWidth
     const minimum = Math.log10(0.1)
     const maximum = Math.log10(10_000)
     return (
@@ -146,9 +176,10 @@ const chartSvg = (metric: Metric): string => {
 
   const legend = engines
     .map((engine, index) => {
-      const x = 54 + index * 455
-      return `<rect x="${x}" y="218" width="24" height="24" rx="5" fill="${engine.color}" />
-        <text x="${x + 36}" y="237" class="legend">${escapeXml(engine.label)}</text>`
+      const x = 54 + (index % 3) * 780
+      const y = 214 + Math.floor(index / 3) * 38
+      return `<rect x="${x}" y="${y}" width="24" height="24" rx="5" fill="${engine.color}" />
+        <text x="${x + 36}" y="${y + 19}" class="legend">${escapeXml(engine.label)}</text>`
     })
     .join('\n')
 
@@ -179,8 +210,8 @@ const chartSvg = (metric: Metric): string => {
   const environment = `${report.environment.platform} ${report.environment.architecture} · ${report.environment.node}`
   const footer =
     metric === 'speed'
-      ? 'Sharp and Sharp 1 thread use native libvips code. All other engines are pure JavaScript. Timings include encoding; lossy quality scales are not matched across encoders.'
-      : 'Absolute process RSS from isolated workers. Sharp and Sharp 1 thread use native libvips code; all other engines are pure JavaScript.'
+      ? 'Sharp uses native libvips; jSquash uses WebAssembly; PureJsImage, Jimp, and image-js are pure JavaScript. Timings include encoding; lossy quality scales are not matched.'
+      : 'Absolute process RSS from isolated workers. Sharp uses native libvips; jSquash uses WebAssembly; PureJsImage, Jimp, and image-js are pure JavaScript.'
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
     <rect width="${width}" height="${height}" fill="#f8fafc" />
@@ -202,8 +233,8 @@ const chartSvg = (metric: Metric): string => {
     ${legend}
     ${grid}
     ${bars}
-    <text x="54" y="1980" class="footer">${escapeXml(footer)}</text>
-    <text x="54" y="2020" class="source">Source: ${escapeXml(basename(reportPath))} · Only workflows that passed equivalent-output validation for all five engines are shown.</text>
+    <text x="54" y="${height - 90}" class="footer">${escapeXml(footer)}</text>
+    <text x="54" y="${height - 50}" class="source">Source: ${escapeXml(basename(reportPath))} · Only workflows that passed equivalent-output validation for all six engines are shown.</text>
   </svg>`
 }
 

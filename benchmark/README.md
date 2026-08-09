@@ -2,7 +2,8 @@
 
 This suite is the performance and workflow-success contract for PureJsImage.
 Jimp 1.6.0 remains the original Lambda baseline. The broader competitor profile
-also pins Sharp 0.35.3 and image-js 1.7.0.
+also pins Sharp 0.35.3, image-js 1.7.0, and jSquash's JPEG 1.6.0, PNG 3.1.1,
+WebP 1.5.0, and resize 2.1.1 packages.
 
 ## Principles
 
@@ -92,7 +93,7 @@ npm run bench:competitors
 The equivalent direct harness command, after `npm run build`, is:
 
 ```sh
-node benchmark/run.ts --engines purejsimage,jimp,sharp,sharp-single-thread,image-js --profile competitors
+node benchmark/run.ts --engines purejsimage,jimp,sharp,sharp-single-thread,image-js,jsquash --profile competitors
 ```
 
 The profile covers large JPEG metadata; JPEG resize, crop, and orientation;
@@ -108,6 +109,15 @@ engine and process that calls `sharp.concurrency(1)` before processing.
 image-js uses its normal public decode, transform, and encode APIs. Its optional
 Canvas integration is omitted and is not part of the benchmark dependency
 tree.
+
+jSquash uses its public WebAssembly JPEG, PNG, WebP, and resize APIs. The worker
+uses jSquash's documented manual Node WASM initialization and a minimal
+`ImageData` environment shim; it does not use a Canvas package or modify the
+codec implementations. Input conversion happens before timing. Its PNG encoder
+does not expose compression-level tuning, so the normal package default is used
+and output size remains recorded. Workflows requiring metadata-only inspection,
+exact crop coordinates, explicit alpha flattening, BMP, TIFF, or HEIC are
+reported as unsupported rather than approximated.
 
 The current checked-in artifacts are
 [`competitors-2026-08-08.md`](results/competitors-2026-08-08.md) and

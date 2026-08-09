@@ -136,7 +136,7 @@
       <div class="container">
         <div class="proof-heading">
           <div><p class="section-label">Validated 24 MP northstar workflow</p><h2 id="benchmark-title">87.6% lower peak RSS than Jimp. 88.4% lower than image-js.</h2></div>
-          <p>The complete charts show nine equivalent workflows from the same pinned inputs. Every engine runs in isolation. Sharp uses native libvips code; PureJsImage, Jimp, and image-js are pure JavaScript.</p>
+          <p>The complete charts show five equivalent workflows from the same pinned inputs. Every engine runs in isolation. Sharp uses native libvips, jSquash uses WebAssembly, and PureJsImage, Jimp, and image-js are pure JavaScript.</p>
         </div>
         <div class="benchmark-facts">
           <div><strong>60</strong><span>validated passes</span></div>
@@ -154,12 +154,12 @@
           <div class="benchmark-gallery-panels">
             <figure class="benchmark-gallery-panel" data-chart="speed">
               <div class="benchmark-gallery-head"><div><span>Median wall time</span><strong>Logarithmic scale · lower is better</strong></div><small>Sharp = native libvips</small></div>
-              <div class="benchmark-image-scroll"><img src="assets/competitors-speed-2026-08-08.png" width="2400" height="2070" alt="Grouped horizontal bars comparing median wall time for all five benchmark engines across nine equivalent workflows. The two Sharp configurations use native libvips code." fetchpriority="high"></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-speed-2026-08-08.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median wall time for all six benchmark engines across five equivalent workflows. Sharp uses native libvips and jSquash uses WebAssembly." fetchpriority="high"></div>
               <figcaption>Timings include encoding. Lossy quality scales are not calibrated across encoders. <a href="assets/competitors-speed-2026-08-08.png">Open full-size chart</a>.</figcaption>
             </figure>
             <figure class="benchmark-gallery-panel" data-chart="memory">
               <div class="benchmark-gallery-head"><div><span>Absolute process memory</span><strong>Median peak RSS · lower is better</strong></div><small>Isolated worker processes</small></div>
-              <div class="benchmark-image-scroll"><img src="assets/competitors-memory-2026-08-08.png" width="2400" height="2070" alt="Grouped horizontal bars comparing median absolute peak RSS for all five benchmark engines across nine equivalent workflows." loading="lazy" decoding="async"></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-memory-2026-08-08.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median absolute peak RSS for all six benchmark engines across five equivalent workflows." loading="lazy" decoding="async"></div>
               <figcaption>RSS includes the Node.js runtime and native allocations. <a href="assets/competitors-memory-2026-08-08.png">Open full-size chart</a>.</figcaption>
             </figure>
           </div>

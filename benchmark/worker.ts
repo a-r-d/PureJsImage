@@ -10,7 +10,14 @@ const readArgument = (name: string): string | undefined => {
   return index === -1 ? undefined : process.argv[index + 1]
 }
 
-const engineIds = new Set(['image-js', 'jimp', 'purejsimage', 'sharp', 'sharp-single-thread'])
+const engineIds = new Set([
+  'image-js',
+  'jimp',
+  'jsquash',
+  'purejsimage',
+  'sharp',
+  'sharp-single-thread',
+])
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null
@@ -23,8 +30,13 @@ const isEngine = (value: unknown): value is Engine => {
     typeof value.version === 'string' &&
     (value.kind === 'native' ||
       value.kind === 'native-single-thread' ||
-      value.kind === 'pure-javascript') &&
+      value.kind === 'pure-javascript' ||
+      value.kind === 'webassembly') &&
     typeof value.packageName === 'string' &&
+    (value.packageNames === undefined ||
+      (Array.isArray(value.packageNames) &&
+        value.packageNames.every((name) => typeof name === 'string'))) &&
+    (value.prepareInputs === undefined || typeof value.prepareInputs === 'function') &&
     typeof value.unsupportedReason === 'function' &&
     typeof value.execute === 'function'
   )
@@ -73,6 +85,8 @@ const main = async (): Promise<void> => {
     return
   }
 
+  await engine.prepareInputs?.(workflow, inputs)
+
   for (let index = 0; index < warmups; index += 1) {
     const warmup = await engine.execute({ workflow, inputs })
     const validation = await validateExecution({ workflow, execution: warmup })
@@ -95,6 +109,7 @@ const main = async (): Promise<void> => {
       version: engine.version,
       kind: engine.kind,
       packageName: engine.packageName,
+      ...(engine.packageNames ? { packageNames: engine.packageNames } : {}),
     },
   })
 

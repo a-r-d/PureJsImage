@@ -18,18 +18,15 @@ export interface BundleTarget {
 
 export interface CompetitorBundleTarget extends BundleTarget {
   readonly codecs: readonly BundleCodec[]
-  readonly implementation: 'native-wrapper' | 'pure-javascript'
-  readonly packageName: 'image-js' | 'jimp' | 'purejsimage' | 'sharp'
+  readonly implementation: 'native-wrapper' | 'pure-javascript' | 'webassembly'
+  readonly packageName: '@jsquash/jpeg' | 'image-js' | 'jimp' | 'purejsimage' | 'sharp'
+  readonly packageNames?: readonly string[]
 }
 
 const exportsFrom = (entries: readonly string[]): string =>
   entries.map((entry) => `export * from '${entry}'`).join('\n')
 
-export const commonCompetitorCodecs = [
-  'JPEG',
-  'PNG',
-  'TIFF',
-] as const satisfies readonly BundleCodec[]
+export const commonCompetitorCodecs = ['JPEG', 'PNG'] as const satisfies readonly BundleCodec[]
 
 export const pureJsImageEntryTargets: readonly BundleTarget[] = [
   { id: 'core', name: 'Core API', contents: exportsFrom(['./src/index.ts']) },
@@ -101,7 +98,6 @@ export const competitorBundleTargets: readonly CompetitorBundleTarget[] = [
       './src/index.ts',
       './src/codec-entries/jpeg.ts',
       './src/codec-entries/png.ts',
-      './src/codec-entries/tiff.ts',
     ]),
   },
   {
@@ -138,6 +134,19 @@ export const competitorBundleTargets: readonly CompetitorBundleTarget[] = [
     implementation: 'pure-javascript',
     codecs: ['JPEG', 'PNG', 'TIFF', 'BMP'],
     contents: "export * from 'image-js'",
+  },
+  {
+    id: 'jsquash',
+    name: 'jSquash',
+    packageName: '@jsquash/jpeg',
+    packageNames: ['@jsquash/jpeg', '@jsquash/png', '@jsquash/resize'],
+    implementation: 'webassembly',
+    codecs: commonCompetitorCodecs,
+    contents: [
+      "export { decode as decodeJpeg, encode as encodeJpeg } from '@jsquash/jpeg'",
+      "export { decode as decodePng, encode as encodePng } from '@jsquash/png'",
+      "export { default as resize } from '@jsquash/resize'",
+    ].join('\n'),
   },
   {
     id: 'sharp',

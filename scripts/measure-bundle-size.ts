@@ -74,7 +74,11 @@ const packageJsonPath = (packageName: string): string =>
   packageName === 'purejsimage' ? 'package.json' : `node_modules/${packageName}/package.json`
 
 const packageKind = (target: CompetitorBundleTarget): EngineKind =>
-  target.implementation === 'native-wrapper' ? 'native' : 'pure-javascript'
+  target.implementation === 'native-wrapper'
+    ? 'native'
+    : target.implementation === 'webassembly'
+      ? 'webassembly'
+      : 'pure-javascript'
 
 const footprints = new Map<string, PackageFootprint>()
 const versions = new Map<string, string>()
@@ -82,22 +86,35 @@ const versions = new Map<string, string>()
 const packageDetails = async (
   target: CompetitorBundleTarget,
 ): Promise<{ footprint: PackageFootprint; version: string }> => {
-  let version = versions.get(target.packageName)
-  if (!version) {
-    version = (await readPackageJson(packageJsonPath(target.packageName))).version
-    versions.set(target.packageName, version)
+  const packageNames = target.packageNames ?? [target.packageName]
+  const packageVersions: string[] = []
+  for (const packageName of packageNames) {
+    let version = versions.get(packageName)
+    if (!version) {
+      version = (await readPackageJson(packageJsonPath(packageName))).version
+      versions.set(packageName, version)
+    }
+    packageVersions.push(version)
   }
+  const version =
+    packageNames.length === 1
+      ? (packageVersions[0] ?? 'unknown')
+      : packageNames
+          .map((packageName, index) => `${packageName} ${packageVersions[index] ?? 'unknown'}`)
+          .join('; ')
 
-  let footprint = footprints.get(target.packageName)
+  const footprintKey = packageNames.join('\0')
+  let footprint = footprints.get(footprintKey)
   if (!footprint) {
     const engine: EngineMetadata = {
       id: target.id,
       version,
       kind: packageKind(target),
       packageName: target.packageName,
+      ...(target.packageNames ? { packageNames: target.packageNames } : {}),
     }
     footprint = await measurePackageFootprint({ engine, repositoryDirectory: process.cwd() })
-    footprints.set(target.packageName, footprint)
+    footprints.set(footprintKey, footprint)
   }
   return { footprint, version }
 }
@@ -120,10 +137,13 @@ for (const measurement of competitorMeasurements) {
 
 console.log('')
 console.log(
-  'The matched set is JPEG, PNG, and TIFF, the codecs available in every installed engine. PureJsImage can bundle exactly that set. The normal public imports for Jimp, image-js, and Sharp include the additional codecs shown rather than offering equivalent codec-level tree shaking.',
+  'JPEG and PNG are the codecs available in all five compared libraries. PureJsImage and jSquash can assemble that matched set explicitly. The normal public imports for Jimp, image-js, and Sharp include the additional codecs shown rather than offering equivalent codec-level tree shaking.',
 )
 console.log(
   "Sharp's JavaScript number is only its wrapper. Its installed footprint includes the native addon and this platform's libvips package, so the wrapper size must not be presented as its deployment size.",
+)
+console.log(
+  "jSquash's JavaScript number is its codec and resize glue. Its installed footprint includes the JPEG, PNG, and resize WebAssembly payloads, so the JavaScript number must not be presented as its deployment size.",
 )
 
 const entryMeasurements = await Promise.all(pureJsImageEntryTargets.map(measure))

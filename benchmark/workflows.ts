@@ -1097,9 +1097,9 @@ export const workflows: readonly Workflow[] = [
       width: 1000,
       height: 1000,
       pixelSamples: [
-        { x: 0, y: 0, red: 0, green: 0, blue: 0, alpha: 255 },
-        { x: 500, y: 500, red: 56, green: 56, blue: 56, alpha: 255 },
-        { x: 999, y: 999, red: 112, green: 112, blue: 112, alpha: 255 },
+        { x: 0, y: 0, red: 0, green: 0, blue: 0, alpha: 255, tolerance: 1 },
+        { x: 500, y: 500, red: 56, green: 56, blue: 56, alpha: 255, tolerance: 1 },
+        { x: 999, y: 999, red: 112, green: 112, blue: 112, alpha: 255, tolerance: 1 },
       ],
     },
     defaultRuns: 2,

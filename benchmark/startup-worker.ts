@@ -10,7 +10,14 @@ const readArgument = (name: string): string | undefined => {
   return index === -1 ? undefined : process.argv[index + 1]
 }
 
-const engineIds = new Set(['image-js', 'jimp', 'purejsimage', 'sharp', 'sharp-single-thread'])
+const engineIds = new Set([
+  'image-js',
+  'jimp',
+  'jsquash',
+  'purejsimage',
+  'sharp',
+  'sharp-single-thread',
+])
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null
@@ -23,8 +30,13 @@ const isEngine = (value: unknown): value is Engine => {
     typeof value.version === 'string' &&
     (value.kind === 'native' ||
       value.kind === 'native-single-thread' ||
-      value.kind === 'pure-javascript') &&
+      value.kind === 'pure-javascript' ||
+      value.kind === 'webassembly') &&
     typeof value.packageName === 'string' &&
+    (value.packageNames === undefined ||
+      (Array.isArray(value.packageNames) &&
+        value.packageNames.every((name) => typeof name === 'string'))) &&
+    (value.prepareInputs === undefined || typeof value.prepareInputs === 'function') &&
     typeof value.unsupportedReason === 'function' &&
     typeof value.execute === 'function'
   )
@@ -42,6 +54,7 @@ const runFirstOperation = async ({
   const unsupported = await engine.unsupportedReason(workflow, [input])
   if (unsupported) return { status: 'unsupported', errors: [unsupported] }
   try {
+    await engine.prepareInputs?.(workflow, [input])
     const startedAt = performance.now()
     const execution = await engine.execute({ workflow, inputs: [input] })
     const wallMilliseconds = performance.now() - startedAt
@@ -99,6 +112,7 @@ process.send?.({
       version: engine.version,
       kind: engine.kind,
       packageName: engine.packageName,
+      ...(engine.packageNames ? { packageNames: engine.packageNames } : {}),
     },
     importMilliseconds,
     rssAfterImportBytes,

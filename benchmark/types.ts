@@ -163,13 +163,15 @@ export interface EngineExecution {
   batchSha256?: string
 }
 
-export type EngineKind = 'native' | 'native-single-thread' | 'pure-javascript'
+export type EngineKind = 'native' | 'native-single-thread' | 'pure-javascript' | 'webassembly'
 
 export interface Engine {
   id: string
   version: string
   kind: EngineKind
   packageName: string
+  packageNames?: readonly string[]
+  prepareInputs?(workflow: Workflow, inputs: readonly Buffer[]): Promise<void> | void
   unsupportedReason(
     workflow: Workflow,
     inputs: readonly Buffer[],
@@ -207,6 +209,7 @@ export interface EngineMetadata {
   version: string
   kind: EngineKind
   packageName: string
+  packageNames?: readonly string[]
 }
 
 interface WorkerFailure {

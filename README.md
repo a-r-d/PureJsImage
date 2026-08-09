@@ -57,27 +57,30 @@ addons, external programs, or WebAssembly modules.
 
 ### Bundle size
 
-JPEG, PNG, and TIFF are available in every installed engine, so they form the
-matched set. PureJsImage can bundle exactly those codecs; the competitors'
-normal public imports include the additional codecs shown.
+JPEG and PNG form the matched set because all five libraries support them.
+PureJsImage and jSquash can assemble only that set; the normal Jimp, image-js,
+and Sharp imports include the additional codecs shown.
 
-| Import | Codecs included | Minified JS | gzip | Brotli |
-| --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | JPEG, PNG, TIFF | **139.5 KiB** | **45.8 KiB** | **38.6 KiB** |
-| PureJsImage all codecs | 10 codecs | 444.3 KiB | 150.7 KiB | 121.1 KiB |
-| Jimp | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
-| image-js | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
-| Sharp JS wrapper | JPEG, PNG, TIFF, WebP, GIF, AVIF | 128.4 KiB | 38.3 KiB | 33.5 KiB |
+| Import | Version | Codecs included | Minified JS | gzip | Brotli |
+| --- | --- | --- | ---: | ---: | ---: |
+| **PureJsImage matched** | **0.7.0** | JPEG, PNG | 116.1 KiB | 38.2 KiB | 32.3 KiB |
+| PureJsImage all codecs | 0.7.0 | 10 codecs | 560.2 KiB | 209.3 KiB | 174.8 KiB |
+| Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
+| image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
+| jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
+| Sharp JS wrapper | 0.35.3 | JPEG, PNG, TIFF, WebP, GIF, AVIF | 128.4 KiB | 38.3 KiB | 33.5 KiB |
 
-Sharp's JavaScript bundle is only a wrapper around native code. The complete
-installed deployment tells the other half of the story:
+Sharp's JavaScript bundle is only a wrapper around native code, while jSquash's
+JavaScript bundle is glue around its WebAssembly codecs and resizer. The
+complete installed deployment tells the other half of the story:
 
-| Package | Installed footprint | Production packages |
-| --- | ---: | ---: |
-| **PureJsImage** | **2.6 MiB** | **1** |
-| Jimp | 29.3 MiB | 70 |
-| image-js | 17.0 MiB | 46 |
-| Sharp, including native libvips | 18.9 MiB | 6 |
+| Package | Version | Installed footprint | Production packages |
+| --- | --- | ---: | ---: |
+| **PureJsImage** | **0.7.0** | **3.1 MiB** | **1** |
+| Jimp | 1.6.0 | 29.3 MiB | 70 |
+| image-js | 1.7.0 | 17.0 MiB | 46 |
+| jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |
+| Sharp, including native libvips | 0.35.3 | 18.9 MiB | 6 |
 
 [See bundle details and reproduction commands →](https://a-r-d.github.io/PureJsImage/performance.html#bundle)
 
@@ -145,12 +148,12 @@ and [HEIF / HEIC](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-supp
 ## Benchmarks
 
 The competitor profile compares PureJsImage with Jimp, Sharp, Sharp configured
-for one processing thread, and image-js. Sharp uses native libvips code; the
-other engines shown here are pure JavaScript. Each library received the same
-files and ran in a separate process. A result appears only when its output
-passed validation.
+for one processing thread, image-js, and jSquash. Sharp uses native libvips,
+jSquash uses WebAssembly, and PureJsImage, Jimp, and image-js are pure
+JavaScript. Each engine received the same files and ran in a separate process.
+A result appears only when its output passed validation.
 
-[![Image workflow speed comparison. Sharp and Sharp single-thread use native libvips code.](benchmark/results/competitors-speed-2026-08-08.png)](benchmark/results/competitors-speed-2026-08-08.png)
+[![Image workflow speed comparison. Sharp and Sharp single-thread use native libvips code; jSquash uses WebAssembly.](benchmark/results/competitors-speed-2026-08-08.png)](benchmark/results/competitors-speed-2026-08-08.png)
 
 [![Image workflow absolute peak memory comparison.](benchmark/results/competitors-memory-2026-08-08.png)](benchmark/results/competitors-memory-2026-08-08.png)
 

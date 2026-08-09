@@ -5,11 +5,12 @@ workflows, with peak memory as the primary AWS Lambda constraint. These are
 comparisons with the JavaScript library **Jimp**, not the desktop application
 GIMP.
 
-The `competitors` profile expands the comparison to `sharp@0.35.3` and
-`image-js@1.7.0`. Sharp is the native dependency, image-js and Jimp are pure
-JavaScript, and `sharp-single-thread` is reported separately after calling
-`sharp.concurrency(1)` in its own process. These versions were the stable npm
-releases when the profile was added on August 8, 2026.
+The `competitors` profile expands the comparison to `sharp@0.35.3`,
+`image-js@1.7.0`, and jSquash's pinned JPEG 1.6.0, PNG 3.1.1, WebP 1.5.0, and
+resize 2.1.1 packages. Sharp is the native dependency, jSquash uses
+WebAssembly, image-js and Jimp are pure JavaScript, and `sharp-single-thread`
+is reported separately after calling `sharp.concurrency(1)` in its own process.
+These versions were the stable npm releases when pinned on August 8, 2026.
 
 A result only counts when the output is supported, decodes successfully, has
 the expected dimensions, and passes the workflow's pixel or structural checks.
@@ -28,7 +29,7 @@ Unless a section says otherwise, the recorded results use:
 
 Input reads, worker startup, warmups, and output validation are outside the
 timed region. Fixtures are checksum-pinned and prepared before measurement.
-Results were recorded on August 6-8, 2026.
+Results were recorded on August 6-9, 2026.
 
 Peak RSS is an absolute process high-water mark, not a codec-only allocation
 counter. Small workflows therefore include a large fixed Node.js baseline. The
@@ -60,8 +61,11 @@ also record output size, but matching `quality: 80` settings do not imply matche
 visual quality across encoders. A quality or compression-efficiency claim needs
 a separate matched-quality study.
 
-The first complete five-engine run recorded 60 passing engine/workflow pairs
-and 10 explicit unsupported results, with no invalid output or runtime errors:
+The complete six-engine run recorded 67 passing engine/workflow pairs and 17
+explicit unsupported results, with no invalid output or runtime errors.
+jSquash passed seven workflows and reported seven unsupported without
+substituting a decode for metadata inspection or approximating crop and alpha
+semantics:
 
 - [readable competitor report](benchmark/results/competitors-2026-08-08.md)
 - [machine-readable competitor report](benchmark/results/competitors-2026-08-08.json)
@@ -75,14 +79,18 @@ npm run size
 ```
 
 It bundles each public import with the same esbuild settings and also measures
-the installed production dependency tree. JPEG, PNG, and TIFF are the matched
-codec set because all four installed engines support them. PureJsImage can
-include exactly those codecs; the normal Jimp, image-js, and Sharp imports bring
-the additional codecs reported in the output.
+the installed production dependency tree. JPEG and PNG are the matched codec
+set because all five libraries support them. PureJsImage and jSquash can
+assemble exactly that set; the normal Jimp, image-js, and Sharp imports bring
+the additional codecs reported in the output. The report records exact
+versions: PureJsImage 0.7.0, Jimp 1.6.0, image-js 1.7.0, Sharp 0.35.3, and
+jSquash JPEG 1.6.0, PNG 3.1.1, and resize 2.1.1.
 
 Sharp's minified JavaScript is only its wrapper. Its deployment footprint also
 includes the native addon and platform-specific libvips package. Both values are
 reported so the wrapper is never presented as the complete Sharp deployment.
+jSquash is treated the same way: its minified JavaScript is codec/resize glue,
+while its installed footprint includes the three required WebAssembly packages.
 
 ## Headline results
 
