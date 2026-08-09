@@ -1,0 +1,56 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 44-46,49-51
+README.md
+  h_9f4a25732fa0c1 79-80,200-209,218-227
+benchmark/avif/run-b2.ts
+  h_9f4a25732fa0c1 5,8
+benchmark/ico/verify-corpus.ts
+  h_9f4a25732fa0c1 5,62
+benchmark/jpeg/verify-corpus.ts
+  h_9f4a25732fa0c1 5,104
+benchmark/jpeg2000/verify-corpus.ts
+  h_9f4a25732fa0c1 7,121
+docs/api.html
+  h_9f4a25732fa0c1 126
+docs/guides.html
+  h_9f4a25732fa0c1 199
+docs/performance.html
+  h_9f4a25732fa0c1 28,98,191-192,204-210
+package.json
+  h_9f4a25732fa0c1 132,135
+scripts/check-package-types.ts
+  h_9f4a25732fa0c1 1-84
+src/image.ts
+  h_9f4a25732fa0c1 6,11-12,15
+src/node-image.ts
+  h_9f4a25732fa0c1 1-14
+src/node-platform.ts
+  h_9f4a25732fa0c1 16-22
+src/node-sink.ts
+  h_9f4a25732fa0c1 19
+tests/ico.test.ts
+  h_9f4a25732fa0c1 7,28
+tests/image-library.ts
+  h_9f4a25732fa0c1 2-3,18-19
+tests/jpeg2000.test.ts
+  h_9f4a25732fa0c1 9,11
+tests/library.test.ts
+  h_9f4a25732fa0c1 46
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 37-41
+tests/tooldesk-workflows.test.ts
+  h_9f4a25732fa0c1 10-11,16
+tests/transform-codecs.test.ts
+  h_9f4a25732fa0c1 4,8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "65ef9e9eb5d5b58242236cab5949921fcf975ede",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
