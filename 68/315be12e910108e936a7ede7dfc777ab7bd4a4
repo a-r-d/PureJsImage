@@ -1,0 +1,44 @@
+.gitignore
+  h_9f4a25732fa0c1 164
+CHANGELOG.md
+  h_9f4a25732fa0c1 40-42
+avif-codec-support.md
+  h_9f4a25732fa0c1 100,104-105,134-135,187-188,285-286,289,294-296
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 3,8
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 546-568,662
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 104-110
+browser-tests/types.ts
+  h_9f4a25732fa0c1 10
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1648-1649,1655,1768,1772-1773,1802-1803,1855-1856,1953-1954,1957,1962-1964
+docs/capabilities.json
+  h_9f4a25732fa0c1 3148-3149,3162,3412,3492,3590-3593,3596,3824,3832,3838-3841
+docs/codecs.html
+  h_9f4a25732fa0c1 40,60
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 302-305
+src/codecs/av1-intra.ts
+  h_9f4a25732fa0c1 609-614,643,703-704,709,726-728,788,806,1033-1034,1057-1058,1120-1130,1163-1166,1169-1170,1195-1196,1243-1246,1815-1816,1820-1828,1928-1934,1952-1954,1979-1980,2041-2061
+src/codecs/av1-post-filter.ts
+  h_9f4a25732fa0c1 22,66-69,78,207,384,774
+tests/avif.test.ts
+  h_9f4a25732fa0c1 378-383
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 131
+tests/lossy-codec-quality.test.ts
+  h_9f4a25732fa0c1 1,133-163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "68315be12e910108e936a7ede7dfc777ab7bd4a4",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
