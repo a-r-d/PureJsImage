@@ -1,0 +1,44 @@
+.gitignore
+  h_9f4a25732fa0c1 164
+CHANGELOG.md
+  h_9f4a25732fa0c1 43-45
+avif-codec-support.md
+  h_9f4a25732fa0c1 100,104-105,134-135,186-187,287,290,298-303
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 3,9
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 432-436,551-573,690
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 104-110
+browser-tests/types.ts
+  h_9f4a25732fa0c1 10
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1648-1649,1655,1768,1772-1773,1802-1803,1854-1855,1955,1958,1966-1971
+docs/capabilities.json
+  h_9f4a25732fa0c1 3148-3149,3162,3412,3492,3586-3589,3592,3828,3836,3846-3853
+docs/codecs.html
+  h_9f4a25732fa0c1 40,60
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 302-305
+src/codecs/av1-intra.ts
+  h_9f4a25732fa0c1 612-613,615-616,618-622,648-649,709-711,716,733-735,795-796,814-815,823-825,828,830,833,1043-1044,1067-1068,1130-1133,1136,1140,1174-1177,1180-1181,1206-1207,1255,1826-1828,1832-1833,1835-1836,1944-1945,1947-1949,1967-1970,1995-1996,2014-2015,2017-2020,2022,2024,2080-2081,2086-2095,2097-2106
+src/codecs/av1-post-filter.ts
+  h_9f4a25732fa0c1 22-23,68-69,79-82,209-212,216-217,227-232,388-393,416-417,779-780,783-789,794-795
+tests/avif.test.ts
+  h_9f4a25732fa0c1 384-389
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 131
+tests/lossy-codec-quality.test.ts
+  h_9f4a25732fa0c1 16,75-92,151-172,174-187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "b2c66a41616fcb292840fe8ff99d3b2bd0d56ef8",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
