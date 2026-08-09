@@ -1,0 +1,21 @@
+benchmark/aws-lambda/build-assets.ts
+  s_4a8abb1f2ae0c6::t_17d3847cb5bd14 1-45
+benchmark/aws-lambda/cdk.json
+  s_4a8abb1f2ae0c6::t_3ae0801492a385 1-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "0cdd971ef9e650d3eb3b78286da5042480e304ae",
+  "prompts": {},
+  "sessions": {
+    "s_4a8abb1f2ae0c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe42e-2b77-7a50-8579-4b622c789c8f",
+        "model": "unknown"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
