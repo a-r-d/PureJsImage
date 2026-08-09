@@ -50,9 +50,19 @@
             <tr><td><code>purejsimage/codecs/bmp</code></td><td><code>bmpCodec</code></td></tr>
             <tr><td><code>purejsimage/codecs/tiff</code></td><td><code>tiffCodec</code></td></tr>
             <tr><td><code>purejsimage/codecs/avif</code></td><td><code>avifCodec</code></td></tr>
-            <tr><td><code>purejsimage/codecs/heif</code></td><td><code>heifCodec</code>, <code>heicCodec</code></td></tr>
+            <tr><td><code>purejsimage/codecs/experimental/heic</code></td><td><code>experimentalHeicCodec</code>, <code>experimentalHeifCodec</code></td></tr>
             <tr><td><code>purejsimage/codecs/all</code></td><td><code>allCodecs</code></td></tr>
           </tbody></table></div>
+          <p><code>allCodecs</code> contains the nine default codecs and intentionally excludes experimental HEIF/HEIC.</p>
+          <h3 id="experimental-heic">Experimental HEIC opt-in</h3>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">import</span> { createImageLibrary } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
+<span class="tok-key">import</span> { allCodecs } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/all'</span>
+<span class="tok-key">import</span> { experimentalHeicCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/experimental/heic'</span>
+
+<span class="tok-key">const</span> images = createImageLibrary({
+  codecs: [...allCodecs, experimentalHeicCodec],
+})</code></pre></div>
+          <div class="callout warning"><strong>Experimental and opt-in.</strong> HEIC commonly contains HEVC/H.265 image data that may be subject to third-party patent rights. PureJsImage's MIT license covers this implementation's copyright and grants no third-party patent rights. Users and distributors are responsible for determining whether their use requires additional licenses, particularly for commercial products, services, or high-volume distribution. The codec is shipped in the package but is never loaded by the root entry, <code>allCodecs</code>, or the default browser demo. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md" target="_blank" rel="noreferrer">experimental HEIF/HEIC contract</a>.</div>
         </section>
 
         <section id="wasm-acceleration" data-search-item>
@@ -179,7 +189,7 @@
             <tr><td><strong>JPEG</strong></td><td>EXIF and RGB ICC</td><td>EXIF and RGB ICC</td></tr>
             <tr><td><strong>PNG</strong></td><td>EXIF and compatible ICC</td><td>EXIF and compatible ICC</td></tr>
             <tr><td><strong>WebP</strong></td><td>EXIF and RGB ICC</td><td>EXIF and RGB ICC</td></tr>
-            <tr><td><strong>HEIF / HEIC</strong></td><td>EXIF and RGB ICC</td><td>Not implemented</td></tr>
+            <tr><td><strong>HEIF / HEIC (experimental)</strong></td><td>EXIF and RGB ICC</td><td>Not implemented</td></tr>
             <tr><td><strong>TIFF</strong></td><td>Compatible ICC only</td><td>Compatible ICC only</td></tr>
             <tr><td><strong>Other formats</strong></td><td>Not implemented</td><td>Not implemented</td></tr>
           </tbody></table></div>

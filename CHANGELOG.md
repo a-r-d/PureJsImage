@@ -35,6 +35,13 @@ All notable changes to PureJsImage are documented in this file.
   transforms, honest timing and memory reporting, and an artifact-only GitHub Pages deployment
   that keeps its generated all-codec bundle out of repository history.
 
+### Changed
+
+- Moved HEIF/HEIC decode to the explicit
+  `purejsimage/codecs/experimental/heic` entry, removed it from `allCodecs` and
+  the default browser demo, and documented that MIT grants no third-party HEVC
+  patent rights.
+
 ### Fixed
 - Changed the default resize kernel from bilinear to scale-aware Lanczos 3 so ordinary downscales
   no longer discard most source samples and alias heavily; strong downscales now use bounded

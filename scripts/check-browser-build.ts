@@ -38,6 +38,14 @@ if (
 ) {
   throw new Error('Default browser bundle contains an optional accelerator')
 }
+if (
+  Object.keys(result.metafile.inputs).some(
+    (input) =>
+      input.endsWith('/codecs/heif.ts') || input.endsWith('/codec-entries/experimental/heic.ts'),
+  )
+) {
+  throw new Error('Default browser bundle contains experimental HEIF/HEIC')
+}
 
 const acceleratorResult = await build({
   bundle: true,
@@ -64,5 +72,5 @@ for (const [input, metadata] of Object.entries(acceleratorResult.metafile.inputs
 }
 
 console.log(
-  `Browser bundle OK (${output.length.toLocaleString()} bytes, all codecs; optional JPEG and PNG WASM entries isolated)`,
+  `Browser bundle OK (${output.length.toLocaleString()} bytes, 9 default codecs; optional JPEG/PNG WASM and experimental HEIF/HEIC entries isolated)`,
 )

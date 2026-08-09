@@ -27,6 +27,17 @@
   Regenerate README, codec pages, website tables, public JSON, and compatibility expectations; do
   not edit generated capability surfaces directly.
 
+## Experimental HEIF / HEIC
+
+- HEIF/HEIC decoding must remain experimental and explicit opt-in because HEIC commonly carries
+  HEVC/H.265 content that may be subject to third-party patent rights.
+- Never export the HEIF/HEIC codec from the root package, include it in `allCodecs`, register it in
+  the default browser demo, or activate it automatically on file detection. Keep the public codec
+  available only through `purejsimage/codecs/experimental/heic`.
+- The package may ship the first-party implementation under MIT, but project documentation must
+  state that MIT grants no third-party patent rights and that users and distributors—including
+  commercial products and services—must evaluate their own licensing obligations.
+
 ## Code style
 
 - Write all source, benchmark, script, and test code in TypeScript with strict mode enabled.

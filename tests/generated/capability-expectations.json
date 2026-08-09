@@ -140,7 +140,7 @@
       "format": "heif",
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/heif.test.ts", "tests/metadata-preservation.test.ts"],
+      "evidence": ["tests/heif.test.ts"],
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "ImageMagick 7.1.2 with libheif 1.20.2",

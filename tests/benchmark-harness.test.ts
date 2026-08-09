@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { engine as imageJsEngine } from '../benchmark/engines/image-js.ts'
 import { engine as jimpEngine } from '../benchmark/engines/jimp.ts'
 import { engine as jsquashEngine } from '../benchmark/engines/jsquash.ts'
+import { engine as pureJsImageExperimentalHeicEngine } from '../benchmark/engines/purejsimage-experimental-heic.ts'
 import { engine as pureJsImageWasmEngine } from '../benchmark/engines/purejsimage-wasm.ts'
 import { engine as sharpSingleThreadEngine } from '../benchmark/engines/sharp-single-thread.ts'
 import { engine as sharpEngine } from '../benchmark/engines/sharp.ts'
@@ -151,6 +152,13 @@ describe('competitor benchmark classification', () => {
     expect(pureJsImageWasmEngine.kind).toBe('webassembly')
     expect(pureJsImageWasmEngine.packageName).toBe('purejsimage')
     expect(pureJsImageWasmEngine.version).toContain('workspace WASM')
+  })
+
+  it('identifies experimental HEIC registration as a separate opt-in engine', () => {
+    expect(pureJsImageExperimentalHeicEngine.id).toBe('purejsimage-experimental-heic')
+    expect(pureJsImageExperimentalHeicEngine.kind).toBe('pure-javascript')
+    expect(pureJsImageExperimentalHeicEngine.packageName).toBe('purejsimage')
+    expect(pureJsImageExperimentalHeicEngine.version).toContain('experimental HEIC')
   })
 
   it('identifies jSquash as a multi-package WebAssembly engine', () => {

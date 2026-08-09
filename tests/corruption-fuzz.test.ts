@@ -78,11 +78,6 @@ const benchmarkSeeds = [
     path: 'benchmark/corpus/files/avif/kodim03_yuv420_8bpc.avif',
   },
   {
-    format: 'heif',
-    id: 'iphone12-greyhounds-4032x3024',
-    path: 'benchmark/corpus/files/iphone12-greyhounds-4032x3024.heic',
-  },
-  {
     format: 'bmp',
     id: 'bmpsuite-rgb24',
     path: 'benchmark/corpus/files/bmpsuite-rgb24.bmp',

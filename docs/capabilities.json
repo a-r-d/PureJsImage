@@ -3862,21 +3862,21 @@
     },
     {
       "id": "heif",
-      "name": "HEIF / HEIC",
+      "name": "HEIF / HEIC (experimental)",
       "packageFormat": "heif",
       "read": {
         "status": "limited",
-        "label": "Limited"
+        "label": "Experimental"
       },
       "write": {
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Common intra-only HEVC still subsets; no auxiliary alpha or encoding",
-      "description": "Decodes common opaque Main, Main Still Picture, and selected Main 10 YUV 4:2:0 intra stills, direct images, and grid primaries. Supports crop metadata, orientation, deterministic color conversion, PQ display compatibility, and selected metadata preservation.",
-      "memory": "Grid workflows decode requested tile rows; large compatible inputs remain explicitly measured",
-      "recommendation": "Compatible phone-camera HEIC stills after checking the corpus report.",
-      "evidence": ["tests/heif.test.ts", "tests/metadata-preservation.test.ts"],
+      "boundary": "Experimental opt-in common intra-only HEVC still subsets; excluded from the default allCodecs set; no auxiliary alpha or encoding",
+      "description": "Optional experimental decoder available only through the direct purejsimage/codecs/experimental/heic entry. Decodes common opaque Main, Main Still Picture, and selected Main 10 YUV 4:2:0 intra stills, direct images, and grid primaries. It is not registered by the default allCodecs set.",
+      "memory": "Explicitly registered grid workflows decode requested tile rows; large compatible inputs remain explicitly measured",
+      "recommendation": "Evaluate compatibility and applicable HEVC patent licensing obligations before opting in, especially for commercial distribution or services.",
+      "evidence": ["tests/heif.test.ts"],
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "ImageMagick 7.1.2 with libheif 1.20.2",
@@ -3890,7 +3890,7 @@
         },
         {
           "status": "supported",
-          "text": "Implement one shared `heifCodec` core for `.heif` and `.heic`; any `heicCodec` public name should be an alias, not a second decoder"
+          "text": "Implement one shared internal codec for `.heif` and `.heic`; the public `experimentalHeicCodec` and `experimentalHeifCodec` names alias that decoder"
         },
         {
           "status": "supported",
@@ -3906,7 +3906,15 @@
         },
         {
           "status": "supported",
-          "text": "Require a patent and licensing review before publishing HEVC decode; a first-party open-source implementation does not remove that release consideration"
+          "text": "Publish HEIF/HEIC only through the experimental direct import and exclude it from the root export, `allCodecs`, and automatic demo registration"
+        },
+        {
+          "status": "supported",
+          "text": "Ship the implementation in the npm package without automatically registering or activating it when HEIF/HEIC input is detected"
+        },
+        {
+          "status": "supported",
+          "text": "State that MIT copyright permission grants no third-party HEVC patent rights and that users must assess obligations for their own use"
         },
         {
           "status": "supported",
@@ -4114,7 +4122,7 @@
         },
         {
           "status": "supported",
-          "text": "Expose `.heif` and `.heic` content detection and the public decode path through the normal image pipeline"
+          "text": "Expose `.heif` and `.heic` detection through the normal image pipeline only after the experimental codec is explicitly imported and registered"
         },
         {
           "status": "supported",

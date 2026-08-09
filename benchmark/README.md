@@ -5,8 +5,8 @@ Jimp 1.6.0 remains the original Lambda baseline. The broader competitor profile
 also pins Sharp 0.35.3, image-js 1.7.0, and jSquash's JPEG 1.6.0, PNG 3.1.1,
 WebP 1.5.0, and resize 2.1.1 packages.
 The profile treats the default pure-JavaScript implementation and the explicitly registered
-first-party JPEG/PNG WASM accelerators as separate PureJsImage engines.
-
+first-party JPEG/PNG WASM accelerators as separate PureJsImage engines. HEIF/HEIC measurements use
+another explicit `purejsimage-experimental-heic` engine; the default engine never registers it.
 
 ## Principles
 
@@ -112,7 +112,8 @@ a generic HEIF capability flag.
 published JPEG and PNG scalar/SIMD accelerator providers and retains their normal eligibility and
 fallback rules; workflows outside those accelerated subsets still execute through the same
 TypeScript reference codecs.
-
+`purejsimage-experimental-heic` is reserved for the HEIF profile and directly imports the
+experimental codec. It must not be added to the default or competitor engine lists.
 
 Resize workflows use each engine's public default kernel. PureJsImage and Sharp
 use Lanczos 3; Jimp uses bilinear. Cross-kernel timings describe each package's
@@ -336,8 +337,9 @@ npm run bench:heif:cold
 npm run bench:heif:warm
 ```
 
-The pinned Jimp engine has no HEIF decoder, so these are correctness-gated
-PureJsImage baselines rather than a synthetic head-to-head comparison.
+These commands select the explicit `purejsimage-experimental-heic` engine. The default PureJsImage
+engine does not register HEIF/HEIC, and the pinned Jimp engine has no HEIF decoder, so the results
+are correctness-gated experimental baselines rather than a synthetic head-to-head comparison.
 
 The planar PackBits alpha fixture is validated against its source alpha plane,
 and the trailing-data Deflate fixture is validated against independent TIFF

@@ -30,6 +30,7 @@ const engineIds = new Set([
   'jsquash',
   'purejsimage',
   'purejsimage-wasm',
+  'purejsimage-experimental-heic',
   'sharp',
   'sharp-single-thread',
 ])

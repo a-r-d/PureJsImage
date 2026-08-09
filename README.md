@@ -76,8 +76,8 @@ and Sharp imports include the additional codecs shown.
 
 | Import | Version | Codecs included | Minified JS | gzip | Brotli |
 | --- | --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | **0.7.0** | JPEG, PNG | 122.0 KiB | 39.9 KiB | 33.7 KiB |
-| PureJsImage all codecs | 0.7.0 | 10 codecs | 566.1 KiB | 210.9 KiB | 176.1 KiB |
+| **PureJsImage matched** | **0.7.0** | JPEG, PNG | 129.2 KiB | 42.1 KiB | 35.5 KiB |
+| PureJsImage all codecs | 0.7.0 | 9 codecs | 501.6 KiB | 190.1 KiB | 160.1 KiB |
 | Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
 | image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
 | jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
@@ -89,7 +89,7 @@ complete installed deployment tells the other half of the story:
 
 | Package | Version | Installed footprint | Production packages |
 | --- | --- | ---: | ---: |
-| **PureJsImage** | **0.7.0** | **1.6 MiB** | **1** |
+| **PureJsImage** | **0.7.0** | **1.7 MiB** | **1** |
 | Jimp | 1.6.0 | 29.3 MiB | 70 |
 | image-js | 1.7.0 | 17.0 MiB | 46 |
 | jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |
@@ -140,10 +140,12 @@ use the default TypeScript codecs.
 | ICO | Yes | No |
 | JPEG 2000 / JP2 | Limited | No |
 | AVIF | Limited | No |
-| HEIF / HEIC | Limited | No |
+| HEIF / HEIC (experimental) | Experimental | No |
 
 “Limited” means PureJsImage supports a useful subset and clearly rejects files
 outside it.
+“Experimental” means the codec is excluded from `allCodecs` and requires an
+explicit direct import and registration.
 
 [See the exact codec support matrix →](https://a-r-d.github.io/PureJsImage/codecs.html)
 
@@ -157,8 +159,12 @@ Detailed codec compatibility roadmaps:
 [ICO](https://github.com/a-r-d/PureJsImage/blob/main/ico-codec-support.md),
 [JPEG 2000 / JP2](https://github.com/a-r-d/PureJsImage/blob/main/jpeg2000-codec-support.md),
 [AVIF](https://github.com/a-r-d/PureJsImage/blob/main/avif-codec-support.md),
-and [HEIF / HEIC](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md).
+and [HEIF / HEIC (experimental)](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md).
 <!-- capabilities:readme:end -->
+
+HEIF/HEIC is experimental, excluded from `allCodecs`, and available only through
+`purejsimage/codecs/experimental/heic`. Its [support contract](heif-codec-support.md)
+includes the HEVC patent notice for users and distributors.
 
 ## Benchmarks
 

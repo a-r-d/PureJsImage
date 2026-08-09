@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { allCodecs } from '../src/codec-entries/all.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
-import { heifCodec } from '../src/codec-entries/heif.ts'
+import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import {
@@ -131,22 +131,20 @@ describe('configured image library', () => {
     })
   })
 
-  it('provides one opt-in helper containing every codec exactly once', () => {
+  it('provides one opt-in helper containing every default codec exactly once', () => {
     const formats = createImageLibrary(allCodecs).formats()
 
-    expect(formats).toEqual([
-      'jpeg',
-      'jp2',
-      'png',
-      'gif',
-      'webp',
-      'avif',
-      'heif',
-      'bmp',
-      'ico',
-      'tiff',
-    ])
+    expect(formats).toEqual(['jpeg', 'jp2', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico', 'tiff'])
     expect(new Set(formats).size).toBe(formats.length)
+  })
+
+  it('does not activate recognizable HEIC input through the default codec set', async () => {
+    const images = createImageLibrary(allCodecs)
+
+    await expect(images.open(ftyp('heic', ['mif1']))).rejects.toMatchObject({
+      code: 'UNSUPPORTED_FORMAT',
+      message: 'HEIF/HEIC input was recognized, but its codec is not registered',
+    })
   })
 
   it('uses a stable base probe independent of the registered codec minimums', async () => {
@@ -165,12 +163,12 @@ describe('configured image library', () => {
   })
 
   it('expands detection through the declared ftyp box for late AVIF and HEIC brands', async () => {
-    const registry = new CodecRegistry([avifCodec, heifCodec])
+    const registry = new CodecRegistry([avifCodec, experimentalHeifCodec])
     const lateAvif = ftyp('mif1', ['iso8', 'miaf', 'MA1B', 'dash', 'avif'])
     const lateHeic = ftyp('sams', ['iso8', 'vend', 's001', 's002', 'heic'])
 
     await expect(registry.detect(new MemorySource(lateAvif))).resolves.toBe(avifCodec)
-    await expect(registry.detect(new MemorySource(lateHeic))).resolves.toBe(heifCodec)
+    await expect(registry.detect(new MemorySource(lateHeic))).resolves.toBe(experimentalHeifCodec)
   })
 
   it('does not treat the ftyp minor version or bytes beyond the declared box as brands', () => {

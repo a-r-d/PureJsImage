@@ -1,16 +1,32 @@
 <!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
-# HEIF / HEIC decode capability and support plan
+# HEIF / HEIC experimental decode capability and support plan
 
-This document is the implementation plan and eventual capability contract for
-PureJsImage's first-party HEIF decoder. HEIF is the ISO Base Media File Format
-container; HEIC is the common HEIF variant whose image items are compressed
-with HEVC. The target is a HEIF container reader plus a first-party HEVC
-still-picture decoder. HEIF and HEIC encoding are not planned.
+PureJsImage's first-party HEIF/HEIC decoder is experimental and opt-in only.
+HEIF is the ISO Base Media File Format container; HEIC commonly stores image
+items encoded with HEVC/H.265. The decoder is shipped in the npm package but
+is excluded from the root module, `allCodecs`, and automatic demo registration.
+Applications must import it directly from
+`purejsimage/codecs/experimental/heic`.
 
-A checked implementation item is already present and tested in the repository.
-An unchecked item is not supported yet. Items in the deferred groups do not
-block the initial release and must continue to produce explicit unsupported
-errors rather than partial or incorrect output.
+## Experimental opt-in and patent notice
+
+HEIC files commonly contain images encoded with HEVC/H.265, which may be
+subject to third-party patent rights in some jurisdictions. The PureJsImage
+MIT license covers copyright in this implementation and does not grant rights
+under third-party patents. Users and distributors are responsible for
+determining whether their particular use requires additional licenses.
+Commercial products, paid cloud conversion services, and high-volume device
+distribution should receive their own licensing assessment before enabling it.
+
+This codec must remain experimental and explicitly registered. Future changes
+must not add it to the root export, `allCodecs`, the default browser demo, or
+any other automatic codec set. See the [FFmpeg legal page](https://ffmpeg.org/legal.html)
+and [Access Advance licensing scope](https://accessadvance.com/topic-what-do-we-license/)
+for external context; these links are informational and are not legal advice.
+
+A checked implementation item is present and tested in the repository. An
+unchecked item is unsupported and must continue to produce explicit errors
+rather than partial or incorrect output. HEIF and HEIC encoding are not planned.
 
 ## Measured compatibility snapshot (2026-08-08)
 
@@ -61,16 +77,19 @@ per-file matrix. No new HEVC syntax was added while producing this baseline.
 
 - [x] Prioritize decode for user-upload workflows, including photos uploaded
   from iPhones, photo libraries, and messaging services
-- [x] Implement one shared `heifCodec` core for `.heif` and `.heic`; any
-  `heicCodec` public name should be an alias, not a second decoder
+- [x] Implement one shared internal codec for `.heif` and `.heic`; the public
+  `experimentalHeicCodec` and `experimentalHeifCodec` names alias that decoder
 - [x] Scope the first release to HEVC-coded still images in HEIF containers
 - [x] Keep AV1-coded AVIF in the existing `avifCodec` rather than routing it
   through the HEIF public surface
 - [x] Do not implement HEIF or HEIC encoding, container writing, or public
   `.heif()` / `.heic()` output APIs
-- [x] Require a patent and licensing review before publishing HEVC decode; a
-  first-party open-source implementation does not remove that release
-  consideration
+- [x] Publish HEIF/HEIC only through the experimental direct import and exclude
+  it from the root export, `allCodecs`, and automatic demo registration
+- [x] Ship the implementation in the npm package without automatically
+  registering or activating it when HEIF/HEIC input is detected
+- [x] State that MIT copyright permission grants no third-party HEVC patent
+  rights and that users must assess obligations for their own use
 - [x] Keep all non-PureJsImage decoders and encoders as development-only fixture
   oracles; the published package must retain no runtime dependencies
 
@@ -196,8 +215,8 @@ not every auxiliary asset stored beside it.
   that `pitm` primary selection wins
 - [x] Return stable metadata for width, height, bit depth, alpha, frame count,
   primary item, color description, and orientation
-- [x] Expose `.heif` and `.heic` content detection and the public decode path
-  through the normal image pipeline
+- [x] Expose `.heif` and `.heic` detection through the normal image pipeline only
+  after the experimental codec is explicitly imported and registered
 
 ### Common metadata
 

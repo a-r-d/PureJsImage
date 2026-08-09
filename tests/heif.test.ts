@@ -3,7 +3,11 @@ import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
 
 import { inspectHeifBitstream, resolveHeifColorMatrix } from '../src/codecs/heif.ts'
-import { heicCodec, heifCodec } from '../src/codec-entries/heif.ts'
+import {
+  experimentalHeicCodec,
+  experimentalHeifCodec,
+} from '../src/codec-entries/experimental/heic.ts'
+import { allCodecs } from '../src/codec-entries/all.ts'
 import {
   inspectHevcPps,
   inspectHevcSlice,
@@ -12,7 +16,11 @@ import {
 } from '../src/codecs/hevc.ts'
 import { defaultImageLimits, MemorySource } from '../src/index.ts'
 import { channelSwappingRgbProfile } from './icc-fixtures.ts'
-import { Image } from './image-library.ts'
+import { createTestImageLibrary } from './image-library.ts'
+
+const DefaultImage = createTestImageLibrary(allCodecs)
+const Image = createTestImageLibrary([...allCodecs, experimentalHeifCodec])
+const heifCodec = experimentalHeifCodec
 
 const bytes32 = (value: number): readonly number[] => [
   (value >>> 24) & 0xff,
@@ -913,7 +921,17 @@ describe('HEIF metadata and registration', () => {
       },
       orientation: 6,
     })
-    expect(heicCodec).toBe(heifCodec)
+    expect(experimentalHeicCodec).toBe(experimentalHeifCodec)
+  })
+
+  it('requires explicit experimental registration', async () => {
+    expect(allCodecs.map(({ format }) => format)).not.toContain('heif')
+    await expect(DefaultImage.open(heifFixture())).rejects.toMatchObject({
+      code: 'UNSUPPORTED_FORMAT',
+    })
+    await expect((await Image.open(heifFixture())).metadata()).resolves.toMatchObject({
+      format: 'heif',
+    })
   })
 
   it('accepts a generic HEIF brand when the primary item is HEVC-coded', async () => {

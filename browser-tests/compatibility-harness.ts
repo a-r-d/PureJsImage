@@ -4,7 +4,7 @@ import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-br
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
 import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
-import { heifCodec } from '../src/codec-entries/heif.ts'
+import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
@@ -12,7 +12,13 @@ import type { ImageInput } from '../src/source.ts'
 import type { ImageSink } from '../src/sink.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
 
-const images = createImageLibrary([jpegCodec, pngCodec, webpCodec, avifCodec, heifCodec])
+const images = createImageLibrary([
+  jpegCodec,
+  pngCodec,
+  webpCodec,
+  avifCodec,
+  experimentalHeifCodec,
+])
 const wasmImages = createImageLibrary({
   codecs: [jpegCodec, pngCodec],
   accelerators: [createWasmJpegAccelerator({ minimumEncodePixels: 1, minimumPixels: 1 })],

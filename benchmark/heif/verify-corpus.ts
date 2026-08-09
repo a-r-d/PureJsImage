@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { allCodecs } from '../../src/codec-entries/all.ts'
+import { experimentalHeifCodec } from '../../src/codec-entries/experimental/heic.ts'
 import { inspectHeifBitstream } from '../../src/codecs/heif.ts'
 import { createImageLibrary, MemorySource } from '../../src/index.ts'
 import {
@@ -11,7 +12,7 @@ import {
 } from '../lib/corpus.ts'
 import { heifBenchmarkFixtures } from './corpus.ts'
 
-const Image = createImageLibrary(allCodecs)
+const Image = createImageLibrary([...allCodecs, experimentalHeifCodec])
 
 const manifest = await readManifest()
 const fixtures = new Map(allFixtures(manifest).map((fixture) => [fixture.id, fixture]))

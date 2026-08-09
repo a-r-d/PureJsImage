@@ -1,12 +1,13 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { allCodecs } from '../../../src/codec-entries/all.ts'
+import { experimentalHeifCodec } from '../../../src/codec-entries/experimental/heic.ts'
 import { inspectHeifBitstream } from '../../../src/codecs/heif.ts'
 import { createImageLibrary, ImageError, MemorySource } from '../../../src/index.ts'
 
 const [fixturePath, outputPath] = process.argv.slice(2)
 if (!fixturePath || !outputPath) throw new Error('Usage: worker.ts <fixture> <output-png>')
 
-const Image = createImageLibrary(allCodecs)
+const Image = createImageLibrary([...allCodecs, experimentalHeifCodec])
 const input = await readFile(fixturePath)
 const started = performance.now()
 

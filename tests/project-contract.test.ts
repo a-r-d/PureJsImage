@@ -10,6 +10,11 @@ import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
 import packageJson from '../package.json' with { type: 'json' }
 import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
 import { commonCompetitorCodecs, competitorBundleTargets } from '../scripts/bundle-size-config.ts'
+import { allCodecs } from '../src/codec-entries/all.ts'
+import {
+  experimentalHeicCodec,
+  experimentalHeifCodec,
+} from '../src/codec-entries/experimental/heic.ts'
 import * as publicApi from '../src/index.ts'
 
 describe('package contract', () => {
@@ -205,7 +210,7 @@ describe('package contract', () => {
       './codecs/avif',
       './codecs/bmp',
       './codecs/gif',
-      './codecs/heif',
+      './codecs/experimental/heic',
       './codecs/ico',
       './codecs/jpeg',
       './codecs/jpeg2000',
@@ -218,6 +223,9 @@ describe('package contract', () => {
       'avifCodec',
       'bmpCodec',
       'gifCodec',
+      'experimentalHeicCodec',
+      'experimentalHeifCodec',
+      'heicCodec',
       'heifCodec',
       'icoCodec',
       'jpegCodec',
@@ -228,6 +236,12 @@ describe('package contract', () => {
     ]) {
       expect(name in publicApi).toBe(false)
     }
+  })
+
+  it('keeps experimental HEIC out of the default codec set', () => {
+    expect(allCodecs.map(({ format }) => format)).not.toContain('heif')
+    expect(experimentalHeicCodec).toBe(experimentalHeifCodec)
+    expect(experimentalHeicCodec.format).toBe('heif')
   })
 })
 

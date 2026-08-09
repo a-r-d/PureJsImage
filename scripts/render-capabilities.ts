@@ -54,6 +54,8 @@ const readmeBlock = (codecs: readonly CodecCapability[]): string => {
     '',
     '“Limited” means PureJsImage supports a useful subset and clearly rejects files',
     'outside it.',
+    '“Experimental” means the codec is excluded from `allCodecs` and requires an',
+    'explicit direct import and registration.',
     '',
     '[See the exact codec support matrix →](https://a-r-d.github.io/PureJsImage/codecs.html)',
     '',

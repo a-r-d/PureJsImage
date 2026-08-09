@@ -56,7 +56,7 @@ interface PureImageModule {
   ): PureImageLibrary
 }
 
-interface AcceleratorImport {
+interface NamedImport {
   readonly path: string
   readonly exportName: string
 }
@@ -65,7 +65,8 @@ export interface PureJsImageEngineOptions {
   readonly id: string
   readonly kind: EngineKind
   readonly versionSuffix: string
-  readonly accelerators?: readonly AcceleratorImport[]
+  readonly codecs?: readonly NamedImport[]
+  readonly accelerators?: readonly NamedImport[]
 }
 
 const entry = process.env.PUREJSIMAGE_ENTRY ?? './dist/index.js'
@@ -88,14 +89,22 @@ const isAccelerator = (value: unknown): value is PureImageAccelerator =>
   'accelerate' in value &&
   typeof value.accelerate === 'function'
 
+const isImageCodec = (value: unknown): boolean =>
+  typeof value === 'object' &&
+  value !== null &&
+  'format' in value &&
+  typeof value.format === 'string'
+
 const loadImageLibrary = async (
-  acceleratorImports: readonly AcceleratorImport[],
+  codecImports: readonly NamedImport[],
+  acceleratorImports: readonly NamedImport[],
 ): Promise<PureImageLibrary> => {
   const entryUrl = pathToFileURL(entry)
-  const [module, codecModule, ...acceleratorModules]: unknown[] = await Promise.all([
+  const namedImports = [...codecImports, ...acceleratorImports]
+  const [module, codecModule, ...namedModules]: unknown[] = await Promise.all([
     import(entryUrl.href),
     import(new URL('./codec-entries/all.js', entryUrl).href),
-    ...acceleratorImports.map(({ path }) => import(new URL(path, entryUrl).href)),
+    ...namedImports.map(({ path }) => import(new URL(path, entryUrl).href)),
   ])
   if (!isImageModule(module)) {
     throw new Error(`${entry} does not export createImageLibrary`)
@@ -108,8 +117,21 @@ const loadImageLibrary = async (
   ) {
     throw new Error(`${entry} has no valid all-codec entry point`)
   }
-  if (acceleratorImports.length === 0) return module.createImageLibrary(codecModule.allCodecs)
+  const additionalCodecs = codecImports.map(({ exportName }, index) => {
+    const codecModule = namedModules[index]
+    const codec =
+      typeof codecModule === 'object' && codecModule !== null
+        ? Reflect.get(codecModule, exportName)
+        : undefined
+    if (!isImageCodec(codec)) {
+      throw new Error(`${entry} has no valid ${exportName} codec export`)
+    }
+    return codec
+  })
+  const codecs = [...codecModule.allCodecs, ...additionalCodecs]
+  if (acceleratorImports.length === 0) return module.createImageLibrary(codecs)
 
+  const acceleratorModules = namedModules.slice(codecImports.length)
   const accelerators = acceleratorImports.map(({ exportName }, index) => {
     const acceleratorModule = acceleratorModules[index]
     const accelerator =
@@ -121,7 +143,7 @@ const loadImageLibrary = async (
     }
     return accelerator
   })
-  return module.createImageLibrary({ codecs: codecModule.allCodecs, accelerators })
+  return module.createImageLibrary({ codecs, accelerators })
 }
 
 const applyOperations = async ({
@@ -199,7 +221,7 @@ const applyOperations = async ({
 export const createPureJsImageEngine = async (
   options: PureJsImageEngineOptions,
 ): Promise<Engine> => {
-  const Image = await loadImageLibrary(options.accelerators ?? [])
+  const Image = await loadImageLibrary(options.codecs ?? [], options.accelerators ?? [])
   return {
     id: options.id,
     version: `${packageJson.version} (workspace${options.versionSuffix})`,

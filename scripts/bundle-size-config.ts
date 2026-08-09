@@ -76,9 +76,9 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     contents: exportsFrom(['./src/index.ts', './src/codec-entries/avif.ts']),
   },
   {
-    id: 'heif',
-    name: 'Core + HEIF / HEIC',
-    contents: exportsFrom(['./src/index.ts', './src/codec-entries/heif.ts']),
+    id: 'experimental-heic',
+    name: 'Core + experimental HEIF / HEIC',
+    contents: exportsFrom(['./src/index.ts', './src/codec-entries/experimental/heic.ts']),
   },
   {
     id: 'all',
@@ -105,18 +105,7 @@ export const competitorBundleTargets: readonly CompetitorBundleTarget[] = [
     name: 'PureJsImage (all codecs)',
     packageName: 'purejsimage',
     implementation: 'pure-javascript',
-    codecs: [
-      'JPEG',
-      'PNG',
-      'WebP',
-      'BMP',
-      'TIFF',
-      'GIF',
-      'ICO',
-      'JPEG 2000',
-      'AVIF',
-      'HEIF / HEIC',
-    ],
+    codecs: ['JPEG', 'PNG', 'WebP', 'BMP', 'TIFF', 'GIF', 'ICO', 'JPEG 2000', 'AVIF'],
     contents: exportsFrom(['./src/index.ts', './src/codec-entries/all.ts']),
   },
   {

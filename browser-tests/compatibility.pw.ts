@@ -85,7 +85,7 @@ test('decodes a Sharp/libaom quantization-matrix AVIF', async ({ page }) => {
   expect(result.detail).toContain('matched Chromium')
 })
 
-test('decodes the independently validated Main 10/PQ HEIF display fixture', async ({ page }) => {
+test('decodes Main 10/PQ HEIF through explicit experimental registration', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.heifPqDisplay())
   expect(result.outputBytes).toBeGreaterThan(100)

@@ -56,6 +56,11 @@ for each codec. CUR and JPEG XL have tracked implementation plans. JPEG 2000's
 first decode subset is available; bounded reduced-resolution and region decode
 remain roadmap work.
 
+HEIF/HEIC must remain experimental and explicitly imported from
+`purejsimage/codecs/experimental/heic`. It is intentionally excluded from the
+root package, `allCodecs`, and automatic demo registration; its patent and
+licensing notice is part of the permanent codec contract.
+
 The goal is not to claim an entire specification prematurely. Each codec
 should first provide a useful, coherent subset for common files, fail
 explicitly outside that subset, and expand against pinned real-world fixtures.
