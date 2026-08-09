@@ -69,7 +69,7 @@
           <div class="table-wrap"><table><thead><tr><th>Path</th><th>Current working model</th></tr></thead><tbody>
             <tr><td><strong>JPEG</strong></td><td>Incremental entropy input, bounded MCU-row baseline output, restart-aware region seeking, and scaled IDCT; progressive decode and encode retain compact Int16 coefficient planes</td></tr>
             <tr><td><strong>PNG</strong></td><td>Sequential scanlines and bounded output blocks; Adam7 retains compact requested samples</td></tr>
-            <tr><td><strong>WebP</strong></td><td>VP8 and VP8L retain source-sized working planes; lossless encode uses a measured 32-bit transformed frame and buffers its encoded payload</td></tr>
+            <tr><td><strong>WebP</strong></td><td>VP8 and VP8L retain source-sized working planes; lossless encode uses a measured 32-bit transformed frame, a fixed 4 MiB match table for nontrivial images, and buffers its encoded payload</td></tr>
             <tr><td><strong>BMP</strong></td><td>Region-based row reads; RLE uses compact full-frame index storage</td></tr>
             <tr><td><strong>TIFF</strong></td><td>Strip or tile region decode; output is emitted in bounded rows</td></tr>
             <tr><td><strong>GIF</strong></td><td>Retains compact first-frame palette indices, then emits bounded RGBA rows</td></tr>

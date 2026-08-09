@@ -27,6 +27,9 @@ All notable changes to PureJsImage are documented in this file.
 - Reduced progressive JPEG output with two-pass, scan-specific optimized Huffman tables; the pinned
   quality-80 benchmark moved from 3.29% larger than baseline to 7.26% smaller with identical decoded
   PSNR.
+- Reduced lossless WebP output for screenshot-style pixels with block-adaptive VP8L predictors,
+  adaptive color-cache codes, and a deeper bounded match search, while retaining exact independent
+  libwebp pixel validation and documenting the fixed match-table memory cost.
 - Fixed progressive JPEG AC refinement after a zero-run-length symbol so common Sharp/libjpeg
   output decodes correctly and can be resized and converted to WebP in Node.js and browsers.
 

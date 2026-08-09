@@ -236,6 +236,16 @@ describe('WebP codec', () => {
 
     const oracle = await sharp(encoded).ensureAlpha().raw().toBuffer()
     expect(oracle).toEqual(source.data)
+
+    const jpeg = await image.jpeg({ quality: 88 }).toBuffer()
+    const jpegImage = await Image.open(jpeg)
+    const jpegWebp = await jpegImage.webp({ lossless: true }).toBuffer()
+    const jpegPng = await jpegImage.png().toBuffer()
+    expect(jpegWebp.length * 100).toBeLessThan(jpegPng.length * 11)
+
+    const jpegPixels = PNG.sync.read(jpegPng).data
+    const jpegOracle = await sharp(jpegWebp).ensureAlpha().raw().toBuffer()
+    expect(jpegOracle).toEqual(jpegPixels)
   })
 
   it('lossily encodes WebP with effective quality control', async () => {
