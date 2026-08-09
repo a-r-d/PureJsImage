@@ -1,0 +1,36 @@
+benchmark/README.md
+  h_9f4a25732fa0c1 331-335,340,344-385
+benchmark/aws-lambda/build-assets.ts
+  h_9f4a25732fa0c1 2,9-11,14-17,19,26,41
+benchmark/aws-lambda/handler.ts
+  h_9f4a25732fa0c1 4,8-9,11-18,24-26,36-48,50,68,72-117,120-155,159-162,171-175,188-214,217-218,224,227,230-233,253-256,258,264,267,285-288
+benchmark/aws-lambda/run-arm-wasm.ts
+  h_9f4a25732fa0c1 1-583
+benchmark/aws-lambda/stack.ts
+  h_9f4a25732fa0c1 19-48,86,88-90,94-96,98,101,108,112
+benchmark/aws-lambda/stage-assets.ts
+  h_9f4a25732fa0c1 25-55,87-89,122,125-131,133-135,138-140
+benchmark/results/aws-lambda-2026-08-09.json
+  h_9f4a25732fa0c1 24-25
+benchmark/results/aws-lambda-2026-08-09.md
+  h_9f4a25732fa0c1 7-8
+benchmark/results/aws-lambda-arm-wasm-2026-08-09.json
+  h_9f4a25732fa0c1 1-5451
+benchmark/results/aws-lambda-arm-wasm-2026-08-09.md
+  h_9f4a25732fa0c1 1-33
+docs/performance.html
+  h_9f4a25732fa0c1 67,69-71,73-78,80-91,93-96,98,227
+package.json
+  h_9f4a25732fa0c1 187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "2680fe9a14df194bee1d3de64f5ff6ac2c5e15e9",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
