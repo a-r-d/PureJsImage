@@ -55,17 +55,19 @@ for (let y = 0; y < height; y += 1) {
   }
 }
 
-const artifactUrl = new URL(
-  engine === 'simd'
-    ? '../../src/accelerator-entries/jpeg-encoder-simd.wasm'
-    : '../../src/accelerator-entries/jpeg-encoder.wasm',
-  import.meta.url,
-)
+const artifactPath =
+  process.argv[8] ??
+  new URL(
+    engine === 'simd'
+      ? '../../src/accelerator-entries/jpeg-encoder-simd.wasm'
+      : '../../src/accelerator-entries/jpeg-encoder.wasm',
+    import.meta.url,
+  )
 let initializationMilliseconds = 0
 let wasmInstance: WebAssembly.Instance | undefined
 const loadInstance: WasmJpegInstanceLoader = async () => {
   const start = performance.now()
-  const result = await WebAssembly.instantiate(await readFile(artifactUrl))
+  const result = await WebAssembly.instantiate(await readFile(artifactPath))
   initializationMilliseconds = performance.now() - start
   wasmInstance = result.instance
   return result.instance

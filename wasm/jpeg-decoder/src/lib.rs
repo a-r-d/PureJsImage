@@ -14,6 +14,8 @@ const OUTPUT_CAPACITY: usize = 1_048_576;
 const PAGE_BYTES: usize = 65_536;
 
 const STATUS_OK: u32 = 0;
+const HUFFMAN_LOOKAHEAD: usize = 8;
+const HUFFMAN_LOOKUP_SIZE: usize = 1 << HUFFMAN_LOOKAHEAD;
 const STATUS_DONE: u32 = 1;
 const ERROR_CONFIGURATION: u32 = 10;
 const ERROR_TRUNCATED: u32 = 11;
@@ -93,7 +95,7 @@ struct DecoderState {
     input_pointer: usize,
     input_length: usize,
     input_offset: usize,
-    bits: u8,
+    bits: u32,
     bit_count: u8,
     width: usize,
     height: usize,
@@ -182,6 +184,10 @@ struct Scratch {
     dc_first_symbols: [i32; COMPONENTS * HUFFMAN_LENGTHS],
     ac_first_codes: [i32; COMPONENTS * HUFFMAN_LENGTHS],
     ac_first_symbols: [i32; COMPONENTS * HUFFMAN_LENGTHS],
+    dc_lookup_lengths: [u8; COMPONENTS * HUFFMAN_LOOKUP_SIZE],
+    dc_lookup_symbols: [u8; COMPONENTS * HUFFMAN_LOOKUP_SIZE],
+    ac_lookup_lengths: [u8; COMPONENTS * HUFFMAN_LOOKUP_SIZE],
+    ac_lookup_symbols: [u8; COMPONENTS * HUFFMAN_LOOKUP_SIZE],
     coefficients: [i32; BLOCK_VALUES],
     workspace: [f64; BLOCK_VALUES],
     active_rows: [u8; BLOCK],
@@ -206,6 +212,10 @@ static SCRATCH: SharedScratch = SharedScratch(UnsafeCell::new(Scratch {
     dc_first_symbols: [0; COMPONENTS * HUFFMAN_LENGTHS],
     ac_first_codes: [0; COMPONENTS * HUFFMAN_LENGTHS],
     ac_first_symbols: [0; COMPONENTS * HUFFMAN_LENGTHS],
+    dc_lookup_lengths: [0; COMPONENTS * HUFFMAN_LOOKUP_SIZE],
+    dc_lookup_symbols: [0; COMPONENTS * HUFFMAN_LOOKUP_SIZE],
+    ac_lookup_lengths: [0; COMPONENTS * HUFFMAN_LOOKUP_SIZE],
+    ac_lookup_symbols: [0; COMPONENTS * HUFFMAN_LOOKUP_SIZE],
     coefficients: [0; BLOCK_VALUES],
     workspace: [0.0; BLOCK_VALUES],
     active_rows: [0; BLOCK],
@@ -284,6 +294,33 @@ fn configure_huffman(
     Ok(())
 }
 
+fn configure_huffman_lookup(
+    counts: &[u8],
+    symbols: &[u8],
+    lengths: &mut [u8],
+    lookup_symbols: &mut [u8],
+) {
+    lengths.fill(0);
+    let mut code = 0usize;
+    let mut symbol_offset = 0usize;
+    for length in 1..=HUFFMAN_LENGTHS {
+        let count = usize::from(counts[length - 1]);
+        if length <= HUFFMAN_LOOKAHEAD {
+            let repetitions = 1usize << (HUFFMAN_LOOKAHEAD - length);
+            for relative in 0..count {
+                let lookup_start = (code + relative) << (HUFFMAN_LOOKAHEAD - length);
+                let symbol = symbols[symbol_offset + relative];
+                for lookup in lookup_start..lookup_start + repetitions {
+                    lengths[lookup] = length as u8;
+                    lookup_symbols[lookup] = symbol;
+                }
+            }
+        }
+        code = (code + count) << 1;
+        symbol_offset += count;
+    }
+}
+
 fn input_byte(scratch: &Scratch, offset: usize) -> Result<u8, u32> {
     if offset >= scratch.state.input_length {
         return Err(ERROR_TRUNCATED);
@@ -330,26 +367,51 @@ fn entropy_byte(scratch: &mut Scratch) -> Result<u8, u32> {
     Ok(0xff)
 }
 
-fn read_bit(scratch: &mut Scratch) -> Result<u32, u32> {
-    if scratch.state.bit_count == 0 {
-        scratch.state.bits = entropy_byte(scratch)?;
-        scratch.state.bit_count = 8;
+#[inline(always)]
+fn fill_bits(scratch: &mut Scratch, length: u8) -> Result<(), u32> {
+    while scratch.state.bit_count < length {
+        let retained = if scratch.state.bit_count == 0 {
+            0
+        } else {
+            scratch.state.bits & ((1u32 << scratch.state.bit_count) - 1)
+        };
+        scratch.state.bits = (retained << 8) | u32::from(entropy_byte(scratch)?);
+        scratch.state.bit_count += 8;
     }
-    scratch.state.bit_count -= 1;
-    Ok(u32::from(
-        (scratch.state.bits >> scratch.state.bit_count) & 1,
-    ))
+    Ok(())
 }
 
+#[inline(always)]
 fn read_bits(scratch: &mut Scratch, length: u8) -> Result<i32, u32> {
     if length > 16 {
         return Err(ERROR_ENTROPY);
     }
-    let mut value = 0i32;
-    for _ in 0..length {
-        value = (value << 1) | read_bit(scratch)? as i32;
+    fill_bits(scratch, length)?;
+    scratch.state.bit_count -= length;
+    let mask = if length == 0 { 0 } else { (1u32 << length) - 1 };
+    Ok(((scratch.state.bits >> scratch.state.bit_count) & mask) as i32)
+}
+
+#[inline(always)]
+fn read_bit(scratch: &mut Scratch) -> Result<u32, u32> {
+    Ok(read_bits(scratch, 1)? as u32)
+}
+
+#[inline(always)]
+fn huffman_lookahead(scratch: &mut Scratch) -> Option<usize> {
+    let bits = scratch.state.bits;
+    let bit_count = scratch.state.bit_count;
+    let input_offset = scratch.state.input_offset;
+    if fill_bits(scratch, HUFFMAN_LOOKAHEAD as u8).is_err() {
+        scratch.state.bits = bits;
+        scratch.state.bit_count = bit_count;
+        scratch.state.input_offset = input_offset;
+        return None;
     }
-    Ok(value)
+    Some(
+        ((scratch.state.bits >> (scratch.state.bit_count - HUFFMAN_LOOKAHEAD as u8))
+            & (HUFFMAN_LOOKUP_SIZE as u32 - 1)) as usize,
+    )
 }
 
 fn receive_and_extend(scratch: &mut Scratch, length: u8) -> Result<i32, u32> {
@@ -366,6 +428,22 @@ fn receive_and_extend(scratch: &mut Scratch, length: u8) -> Result<i32, u32> {
 }
 
 fn decode_huffman(scratch: &mut Scratch, component: usize, ac: bool) -> Result<u8, u32> {
+    if let Some(lookup) = huffman_lookahead(scratch) {
+        let lookup_offset = component * HUFFMAN_LOOKUP_SIZE + lookup;
+        let length = if ac {
+            scratch.ac_lookup_lengths[lookup_offset]
+        } else {
+            scratch.dc_lookup_lengths[lookup_offset]
+        };
+        if length != 0 {
+            scratch.state.bit_count -= length;
+            return Ok(if ac {
+                scratch.ac_lookup_symbols[lookup_offset]
+            } else {
+                scratch.dc_lookup_symbols[lookup_offset]
+            });
+        }
+    }
     let mut code = 0i32;
     for length in 0..HUFFMAN_LENGTHS {
         code = (code << 1) | read_bit(scratch)? as i32;
@@ -796,38 +874,121 @@ fn clamp_to_u8(value: f64) -> u8 {
 }
 
 #[inline(always)]
-fn sample_420_chroma(
+fn half_resolution_coordinates(output_x: usize, width: usize) -> (usize, usize, usize) {
+    if output_x == 0 {
+        return (0, 0, 0);
+    }
+    let left = (output_x - 1) >> 1;
+    if left >= width - 1 {
+        return (width - 1, width - 1, 0);
+    }
+    (left, left + 1, if output_x & 1 == 0 { 192 } else { 64 })
+}
+
+#[inline(always)]
+fn sample_half_horizontal(
     scratch: &Scratch,
     component: usize,
     buffer: usize,
-    output_x: usize,
+    left: usize,
+    right: usize,
+    weight: usize,
+    row: usize,
+) -> i32 {
+    let width = scratch.state.plane_widths[component];
+    let offset = scratch.state.plane_offsets[component] + row * width;
+    (i32::from(plane_byte(scratch, buffer, offset + left)) * (256 - weight) as i32
+        + i32::from(plane_byte(scratch, buffer, offset + right)) * weight as i32
+        + 128)
+        >> 8
+}
+
+#[inline(always)]
+fn sample_half_bilinear(
+    scratch: &Scratch,
+    component: usize,
+    buffer: usize,
+    left: usize,
+    right: usize,
+    x_weight: usize,
     top_y: usize,
     bottom_y: usize,
     y_weight: usize,
 ) -> i32 {
     let width = scratch.state.plane_widths[component];
-    let left_x = x_left(scratch, 1, output_x);
-    let right_x = x_right(scratch, 1, output_x);
-    let x_weight = x_weight(scratch, 1, output_x);
     let offset = scratch.state.plane_offsets[component];
-    let top = i32::from(plane_byte(scratch, buffer, offset + top_y * width + left_x))
+    let top_offset = offset + top_y * width;
+    let bottom_offset = offset + bottom_y * width;
+    let top = i32::from(plane_byte(scratch, buffer, top_offset + left)) * (256 - x_weight) as i32
+        + i32::from(plane_byte(scratch, buffer, top_offset + right)) * x_weight as i32;
+    let bottom = i32::from(plane_byte(scratch, buffer, bottom_offset + left))
         * (256 - x_weight) as i32
-        + i32::from(plane_byte(
-            scratch,
-            buffer,
-            offset + top_y * width + right_x,
-        )) * x_weight as i32;
-    let bottom = i32::from(plane_byte(
+        + i32::from(plane_byte(scratch, buffer, bottom_offset + right)) * x_weight as i32;
+    (top * (256 - y_weight) as i32 + bottom * y_weight as i32 + 32_768) >> 16
+}
+
+#[inline(always)]
+fn sample_half_pair_numerators(
+    scratch: &Scratch,
+    component: usize,
+    buffer: usize,
+    output_x: usize,
+    row: usize,
+) -> (i32, i32) {
+    let width = scratch.state.plane_widths[component];
+    let offset = scratch.state.plane_offsets[component] + row * width;
+    let middle = output_x >> 1;
+    if output_x == 0 {
+        let first = i32::from(plane_byte(scratch, buffer, offset));
+        let second = if width == 1 {
+            first << 8
+        } else {
+            let right = i32::from(plane_byte(scratch, buffer, offset + 1));
+            first * 192 + right * 64
+        };
+        return (first << 8, second);
+    }
+    let left = i32::from(plane_byte(scratch, buffer, offset + middle - 1));
+    let center = i32::from(plane_byte(scratch, buffer, offset + middle));
+    let first = left * 64 + center * 192;
+    let second = if middle >= width - 1 {
+        center << 8
+    } else {
+        let right = i32::from(plane_byte(scratch, buffer, offset + middle + 1));
+        center * 192 + right * 64
+    };
+    (first, second)
+}
+
+#[inline(always)]
+fn sample_half_vertical(top: i32, bottom: i32, weight: i32) -> i32 {
+    ((top * (256 - weight) + bottom * weight + 32_768) >> 16) - 128
+}
+
+#[inline(always)]
+fn sample_420_pixel(
+    scratch: &Scratch,
+    buffer: usize,
+    output_x: usize,
+    y_row: usize,
+    top: usize,
+    bottom: usize,
+    y_weight: usize,
+) -> (i32, i32, i32) {
+    let y = i32::from(plane_byte(
         scratch,
         buffer,
-        offset + bottom_y * width + left_x,
-    )) * (256 - x_weight) as i32
-        + i32::from(plane_byte(
-            scratch,
-            buffer,
-            offset + bottom_y * width + right_x,
-        )) * x_weight as i32;
-    (top * (256 - y_weight) as i32 + bottom * y_weight as i32 + 32_768) >> 16
+        scratch.state.plane_offsets[0] + y_row * scratch.state.plane_widths[0] + output_x,
+    ));
+    let (left, right, x_weight) =
+        half_resolution_coordinates(output_x, scratch.state.plane_widths[1]);
+    let cb = sample_half_bilinear(
+        scratch, 1, buffer, left, right, x_weight, top, bottom, y_weight,
+    ) - 128;
+    let cr = sample_half_bilinear(
+        scratch, 2, buffer, left, right, x_weight, top, bottom, y_weight,
+    ) - 128;
+    (y, cb, cr)
 }
 
 #[inline(always)]
@@ -895,42 +1056,164 @@ unsafe fn write_rgb_pair(
     );
 }
 
-fn render_420(scratch: &Scratch, row_start: usize, height: usize, stride: usize) {
+fn render_420(scratch: &Scratch, height: usize, stride: usize) {
     let buffer = scratch.state.pending_buffer;
-    let y_width = scratch.state.plane_widths[0];
     let y_offset = scratch.state.plane_offsets[0];
+    let y_width = scratch.state.plane_widths[0];
     for local_y in 0..height {
-        let chroma_position = local_y as f64 * 0.5 + 0.75;
-        let top = chroma_position as usize;
+        let top = (local_y + 1) >> 1;
         let bottom = top + 1;
-        let weight = rounded_weight(chroma_position - top as f64);
-        let y_row = 1 + local_y;
+        let weight = if local_y & 1 == 0 { 192 } else { 64 };
+        let y_row_offset = y_offset + (1 + local_y) * y_width;
+        let mut x = 0;
+        while x + 1 < scratch.state.width {
+            let (cb_top_first, cb_top_second) =
+                sample_half_pair_numerators(scratch, 1, buffer, x, top);
+            let (cb_bottom_first, cb_bottom_second) =
+                sample_half_pair_numerators(scratch, 1, buffer, x, bottom);
+            let (cr_top_first, cr_top_second) =
+                sample_half_pair_numerators(scratch, 2, buffer, x, top);
+            let (cr_bottom_first, cr_bottom_second) =
+                sample_half_pair_numerators(scratch, 2, buffer, x, bottom);
+            let weight = weight as i32;
+            let first = (
+                i32::from(plane_byte(scratch, buffer, y_row_offset + x)),
+                sample_half_vertical(cb_top_first, cb_bottom_first, weight),
+                sample_half_vertical(cr_top_first, cr_bottom_first, weight),
+            );
+            let second = (
+                i32::from(plane_byte(scratch, buffer, y_row_offset + x + 1)),
+                sample_half_vertical(cb_top_second, cb_bottom_second, weight),
+                sample_half_vertical(cr_top_second, cr_bottom_second, weight),
+            );
+            #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+            unsafe {
+                write_rgb_pair(scratch, local_y * stride + x * 3, first, second);
+            }
+            #[cfg(not(all(target_arch = "wasm32", feature = "simd")))]
+            {
+                write_rgb(scratch, local_y * stride + x * 3, first.0, first.1, first.2);
+                write_rgb(
+                    scratch,
+                    local_y * stride + x * 3 + 3,
+                    second.0,
+                    second.1,
+                    second.2,
+                );
+            }
+            x += 2;
+        }
+        if x < scratch.state.width {
+            let tail = sample_420_pixel(scratch, buffer, x, 1 + local_y, top, bottom, weight);
+            write_rgb(scratch, local_y * stride + x * 3, tail.0, tail.1, tail.2);
+        }
+    }
+}
+
+#[inline(always)]
+fn sample_422_pixel(
+    scratch: &Scratch,
+    buffer: usize,
+    output_x: usize,
+    row: usize,
+) -> (i32, i32, i32) {
+    let (left, right, weight) =
+        half_resolution_coordinates(output_x, scratch.state.plane_widths[1]);
+    (
+        i32::from(plane_byte(
+            scratch,
+            buffer,
+            scratch.state.plane_offsets[0] + row * scratch.state.plane_widths[0] + output_x,
+        )),
+        sample_half_horizontal(scratch, 1, buffer, left, right, weight, row) - 128,
+        sample_half_horizontal(scratch, 2, buffer, left, right, weight, row) - 128,
+    )
+}
+
+fn render_422(scratch: &Scratch, height: usize, stride: usize) {
+    let buffer = scratch.state.pending_buffer;
+    let y_offset = scratch.state.plane_offsets[0];
+    let y_width = scratch.state.plane_widths[0];
+    for local_y in 0..height {
+        let row = local_y + 1;
+        let y_row_offset = y_offset + row * y_width;
+        let mut x = 0;
+        while x + 1 < scratch.state.width {
+            let (cb_first, cb_second) = sample_half_pair_numerators(scratch, 1, buffer, x, row);
+            let (cr_first, cr_second) = sample_half_pair_numerators(scratch, 2, buffer, x, row);
+            let first = (
+                i32::from(plane_byte(scratch, buffer, y_row_offset + x)),
+                ((cb_first + 128) >> 8) - 128,
+                ((cr_first + 128) >> 8) - 128,
+            );
+            let second = (
+                i32::from(plane_byte(scratch, buffer, y_row_offset + x + 1)),
+                ((cb_second + 128) >> 8) - 128,
+                ((cr_second + 128) >> 8) - 128,
+            );
+            #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+            unsafe {
+                write_rgb_pair(scratch, local_y * stride + x * 3, first, second);
+            }
+            #[cfg(not(all(target_arch = "wasm32", feature = "simd")))]
+            {
+                write_rgb(scratch, local_y * stride + x * 3, first.0, first.1, first.2);
+                write_rgb(
+                    scratch,
+                    local_y * stride + x * 3 + 3,
+                    second.0,
+                    second.1,
+                    second.2,
+                );
+            }
+            x += 2;
+        }
+        if x < scratch.state.width {
+            let tail = sample_422_pixel(scratch, buffer, x, row);
+            write_rgb(scratch, local_y * stride + x * 3, tail.0, tail.1, tail.2);
+        }
+    }
+}
+
+fn render_444(scratch: &Scratch, height: usize, stride: usize) {
+    let buffer = scratch.state.pending_buffer;
+    let widths = scratch.state.plane_widths;
+    let offsets = scratch.state.plane_offsets;
+    for local_y in 0..height {
+        let row = local_y + 1;
         let mut x = 0;
         while x < scratch.state.width {
-            let sample = |output_x: usize| -> (i32, i32, i32) {
-                let y = i32::from(plane_byte(
-                    scratch,
-                    buffer,
-                    y_offset + y_row * y_width + output_x,
-                ));
-                let cb = sample_420_chroma(scratch, 1, buffer, output_x, top, bottom, weight) - 128;
-                let cr = sample_420_chroma(scratch, 2, buffer, output_x, top, bottom, weight) - 128;
-                (y, cb, cr)
+            let sample = |output_x: usize| {
+                (
+                    i32::from(plane_byte(
+                        scratch,
+                        buffer,
+                        offsets[0] + row * widths[0] + output_x,
+                    )),
+                    i32::from(plane_byte(
+                        scratch,
+                        buffer,
+                        offsets[1] + row * widths[1] + output_x,
+                    )) - 128,
+                    i32::from(plane_byte(
+                        scratch,
+                        buffer,
+                        offsets[2] + row * widths[2] + output_x,
+                    )) - 128,
+                )
             };
+            let first = sample(x);
             #[cfg(all(target_arch = "wasm32", feature = "simd"))]
             if x + 1 < scratch.state.width {
-                let first = sample(x);
                 let second = sample(x + 1);
                 unsafe { write_rgb_pair(scratch, local_y * stride + x * 3, first, second) };
                 x += 2;
                 continue;
             }
-            let (y, cb, cr) = sample(x);
-            write_rgb(scratch, local_y * stride + x * 3, y, cb, cr);
+            write_rgb(scratch, local_y * stride + x * 3, first.0, first.1, first.2);
             x += 1;
         }
     }
-    let _ = row_start;
 }
 
 fn render_pending(scratch: &mut Scratch) -> Result<(), u32> {
@@ -954,7 +1237,19 @@ fn render_pending(scratch: &mut Scratch) -> Result<(), u32> {
         return Err(ERROR_CAPACITY);
     }
     if scratch.horizontal_sampling == [2, 1, 1] && scratch.vertical_sampling == [2, 1, 1] {
-        render_420(scratch, row_start, height, stride);
+        render_420(scratch, height, stride);
+        scratch.state.output_y = row_start;
+        scratch.state.output_height = height;
+        return Ok(());
+    }
+    if scratch.horizontal_sampling == [2, 1, 1] && scratch.vertical_sampling == [1, 1, 1] {
+        render_422(scratch, height, stride);
+        scratch.state.output_y = row_start;
+        scratch.state.output_height = height;
+        return Ok(());
+    }
+    if scratch.horizontal_sampling == [1, 1, 1] && scratch.vertical_sampling == [1, 1, 1] {
+        render_444(scratch, height, stride);
         scratch.state.output_y = row_start;
         scratch.state.output_height = height;
         return Ok(());
@@ -1218,11 +1513,6 @@ pub extern "C" fn jpeg_decoder_start(
                 return ERROR_CONFIGURATION;
             }
         }
-        for symbol in &scratch.ac_symbols[symbol_offset..symbol_offset + ac_count] {
-            if (*symbol & 15) > 16 {
-                return ERROR_CONFIGURATION;
-            }
-        }
         if let Err(status) = configure_huffman(
             &scratch.dc_counts[table_offset..table_offset + HUFFMAN_LENGTHS],
             &mut scratch.dc_first_codes[table_offset..table_offset + HUFFMAN_LENGTHS],
@@ -1230,6 +1520,13 @@ pub extern "C" fn jpeg_decoder_start(
         ) {
             return status;
         }
+        let lookup_offset = component * HUFFMAN_LOOKUP_SIZE;
+        configure_huffman_lookup(
+            &scratch.dc_counts[table_offset..table_offset + HUFFMAN_LENGTHS],
+            &scratch.dc_symbols[symbol_offset..symbol_offset + dc_count],
+            &mut scratch.dc_lookup_lengths[lookup_offset..lookup_offset + HUFFMAN_LOOKUP_SIZE],
+            &mut scratch.dc_lookup_symbols[lookup_offset..lookup_offset + HUFFMAN_LOOKUP_SIZE],
+        );
         if let Err(status) = configure_huffman(
             &scratch.ac_counts[table_offset..table_offset + HUFFMAN_LENGTHS],
             &mut scratch.ac_first_codes[table_offset..table_offset + HUFFMAN_LENGTHS],
@@ -1237,6 +1534,12 @@ pub extern "C" fn jpeg_decoder_start(
         ) {
             return status;
         }
+        configure_huffman_lookup(
+            &scratch.ac_counts[table_offset..table_offset + HUFFMAN_LENGTHS],
+            &scratch.ac_symbols[symbol_offset..symbol_offset + ac_count],
+            &mut scratch.ac_lookup_lengths[lookup_offset..lookup_offset + HUFFMAN_LOOKUP_SIZE],
+            &mut scratch.ac_lookup_symbols[lookup_offset..lookup_offset + HUFFMAN_LOOKUP_SIZE],
+        );
     }
 
     scratch.state = DecoderState {

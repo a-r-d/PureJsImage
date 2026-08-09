@@ -137,7 +137,7 @@ struct State {
     output_pointer: usize,
     output_capacity: usize,
     output_length: usize,
-    pending: u32,
+    pending: u64,
     pending_bits: u8,
     received_rows: usize,
     mcu: usize,
@@ -259,11 +259,11 @@ impl Writer<'_> {
         self.byte((value >> 8) as u8)?;
         self.byte(value as u8)
     }
-    fn bits(&mut self, value: u32, length: u8) -> Result<(), u32> {
-        let mask = if length == 32 {
-            u32::MAX
+    fn bits(&mut self, value: u64, length: u8) -> Result<(), u32> {
+        let mask = if length == 64 {
+            u64::MAX
         } else {
-            (1u32 << length) - 1
+            (1u64 << length) - 1
         };
         self.state.pending = (self.state.pending << length) | (value & mask);
         self.state.pending_bits += length;
@@ -278,7 +278,7 @@ impl Writer<'_> {
             self.state.pending &= if remaining == 0 {
                 0
             } else {
-                (1u32 << remaining) - 1
+                (1u64 << remaining) - 1
             };
         }
         Ok(())
@@ -288,7 +288,7 @@ impl Writer<'_> {
             return Ok(());
         }
         let length = 8 - self.state.pending_bits;
-        self.bits((1u32 << length) - 1, length)
+        self.bits((1u64 << length) - 1, length)
     }
 }
 
@@ -442,71 +442,64 @@ fn write_header(state: &mut State) -> Result<(), u32> {
     Ok(())
 }
 
+// SAFETY: callers use this only after `jpeg_encoder_write` has validated the
+// complete MCU-row extent against `input_length`.
 #[inline(always)]
-fn input_byte(pointer: usize, length: usize, offset: usize) -> Result<u8, u32> {
-    if offset >= length {
-        return Err(ERROR_INPUT);
-    }
-    Ok(unsafe { *((pointer + offset) as *const u8) })
+unsafe fn validated_input_byte(pointer: usize, offset: usize) -> u8 {
+    unsafe { *((pointer + offset) as *const u8) }
 }
 
 #[inline(always)]
-fn rgb(
+fn rgb<const RGBA: bool, const CLAMP: bool>(
     state: &State,
     pointer: usize,
-    length: usize,
     stride: usize,
     row: usize,
     x: usize,
-) -> Result<(f64, f64, f64), u32> {
-    let x = x.min(state.width - 1);
-    let offset = row
-        .checked_mul(stride)
-        .and_then(|value| value.checked_add(x * state.channels))
-        .ok_or(ERROR_INPUT)?;
-    if state.format == 3 {
-        return Ok((
-            input_byte(pointer, length, offset)? as f64,
-            input_byte(pointer, length, offset + 1)? as f64,
-            input_byte(pointer, length, offset + 2)? as f64,
-        ));
+) -> (f64, f64, f64) {
+    let x = if CLAMP { x.min(state.width - 1) } else { x };
+    let offset = row * stride + x * state.channels;
+    if !RGBA {
+        return unsafe {
+            (
+                validated_input_byte(pointer, offset) as f64,
+                validated_input_byte(pointer, offset + 1) as f64,
+                validated_input_byte(pointer, offset + 2) as f64,
+            )
+        };
     }
-    let alpha = input_byte(pointer, length, offset + 3)? as u32;
+    let alpha = unsafe { validated_input_byte(pointer, offset + 3) } as u32;
     let inverse = 255 - alpha;
-    let red = (input_byte(pointer, length, offset)? as u32 * alpha
+    let red = (unsafe { validated_input_byte(pointer, offset) } as u32 * alpha
         + state.background[0] as u32 * inverse
         + 127)
         / 255;
-    let green = (input_byte(pointer, length, offset + 1)? as u32 * alpha
+    let green = (unsafe { validated_input_byte(pointer, offset + 1) } as u32 * alpha
         + state.background[1] as u32 * inverse
         + 127)
         / 255;
-    let blue = (input_byte(pointer, length, offset + 2)? as u32 * alpha
+    let blue = (unsafe { validated_input_byte(pointer, offset + 2) } as u32 * alpha
         + state.background[2] as u32 * inverse
         + 127)
         / 255;
-    Ok((red as f64, green as f64, blue as f64))
+    (red as f64, green as f64, blue as f64)
 }
 
 fn fill_gray(
     state: &State,
     pointer: usize,
-    length: usize,
     stride: usize,
     origin_x: usize,
     output: &mut [f64; 64],
-) -> Result<(), u32> {
+) {
     for y in 0..8 {
         for x in 0..8 {
-            output[y * 8 + x] = input_byte(
-                pointer,
-                length,
-                y * stride + (origin_x + x).min(state.width - 1),
-            )? as f64
+            output[y * 8 + x] = unsafe {
+                validated_input_byte(pointer, y * stride + (origin_x + x).min(state.width - 1))
+            } as f64
                 - 128.0;
         }
     }
-    Ok(())
 }
 #[inline(always)]
 fn store_color(
@@ -525,20 +518,19 @@ fn store_color(
     blue_plane[index] = blue;
 }
 
-fn fill_color_planes(
+fn fill_color_planes_inner<const RGBA: bool, const CLAMP: bool>(
     state: &State,
     pointer: usize,
-    length: usize,
     stride: usize,
     origin_x: usize,
     luminance: &mut [f64; 256],
     red_plane: &mut [f64; 256],
     green_plane: &mut [f64; 256],
     blue_plane: &mut [f64; 256],
-) -> Result<(), u32> {
+) {
     for y in 0..state.row_height {
         for x in 0..state.mcu_width {
-            let pixel = rgb(state, pointer, length, stride, y, origin_x + x)?;
+            let pixel = rgb::<RGBA, CLAMP>(state, pointer, stride, y, origin_x + x);
             store_color(
                 pixel.0,
                 pixel.1,
@@ -551,7 +543,76 @@ fn fill_color_planes(
             );
         }
     }
-    Ok(())
+}
+
+fn fill_color_planes_format<const RGBA: bool>(
+    state: &State,
+    pointer: usize,
+    stride: usize,
+    origin_x: usize,
+    luminance: &mut [f64; 256],
+    red_plane: &mut [f64; 256],
+    green_plane: &mut [f64; 256],
+    blue_plane: &mut [f64; 256],
+) {
+    if origin_x + state.mcu_width <= state.width {
+        fill_color_planes_inner::<RGBA, false>(
+            state,
+            pointer,
+            stride,
+            origin_x,
+            luminance,
+            red_plane,
+            green_plane,
+            blue_plane,
+        );
+    } else {
+        fill_color_planes_inner::<RGBA, true>(
+            state,
+            pointer,
+            stride,
+            origin_x,
+            luminance,
+            red_plane,
+            green_plane,
+            blue_plane,
+        );
+    }
+}
+
+fn fill_color_planes(
+    state: &State,
+    pointer: usize,
+    stride: usize,
+    origin_x: usize,
+    luminance: &mut [f64; 256],
+    red_plane: &mut [f64; 256],
+    green_plane: &mut [f64; 256],
+    blue_plane: &mut [f64; 256],
+) {
+    if state.format == 4 {
+        fill_color_planes_format::<true>(
+            state,
+            pointer,
+            stride,
+            origin_x,
+            luminance,
+            red_plane,
+            green_plane,
+            blue_plane,
+        );
+    } else {
+        fill_color_planes_format::<false>(
+            state,
+            pointer,
+            stride,
+            origin_x,
+            luminance,
+            red_plane,
+            green_plane,
+            blue_plane,
+        );
+    }
 }
 
 fn copy_luminance_block(
@@ -567,16 +628,14 @@ fn copy_luminance_block(
     }
 }
 
-fn downsample_chroma(
-    state: &State,
+fn downsample_chroma_inner<const HORIZONTAL: usize, const VERTICAL: usize>(
     red_plane: &[f64; 256],
     green_plane: &[f64; 256],
     blue_plane: &[f64; 256],
     blue: &mut [f64; 64],
     red: &mut [f64; 64],
 ) {
-    let samples = state.luminance_horizontal * state.luminance_vertical;
-    let (cb_red, cb_green, cb_blue, cr_red, cr_green, cr_blue) = match samples {
+    let (cb_red, cb_green, cb_blue, cr_red, cr_green, cr_blue) = match HORIZONTAL * VERTICAL {
         4 => (-0.042184, -0.082816, 0.125, 0.125, -0.104672, -0.020328),
         2 => (-0.084368, -0.165632, 0.25, 0.25, -0.209344, -0.040656),
         _ => (-0.168736, -0.331264, 0.5, 0.5, -0.418688, -0.081312),
@@ -586,11 +645,9 @@ fn downsample_chroma(
             let mut red_sum = 0.0;
             let mut green_sum = 0.0;
             let mut blue_sum = 0.0;
-            for dy in 0..state.luminance_vertical {
-                for dx in 0..state.luminance_horizontal {
-                    let offset = (y * state.luminance_vertical + dy) * state.mcu_width
-                        + x * state.luminance_horizontal
-                        + dx;
+            for dy in 0..VERTICAL {
+                for dx in 0..HORIZONTAL {
+                    let offset = (y * VERTICAL + dy) * (HORIZONTAL * 8) + x * HORIZONTAL + dx;
                     red_sum += red_plane[offset];
                     green_sum += green_plane[offset];
                     blue_sum += blue_plane[offset];
@@ -599,6 +656,23 @@ fn downsample_chroma(
             blue[y * 8 + x] = cb_red * red_sum + cb_green * green_sum + cb_blue * blue_sum;
             red[y * 8 + x] = cr_red * red_sum + cr_green * green_sum + cr_blue * blue_sum;
         }
+    }
+}
+
+fn downsample_chroma(
+    state: &State,
+    red_plane: &[f64; 256],
+    green_plane: &[f64; 256],
+    blue_plane: &[f64; 256],
+    blue: &mut [f64; 64],
+    red: &mut [f64; 64],
+) {
+    if state.luminance_vertical == 2 {
+        downsample_chroma_inner::<2, 2>(red_plane, green_plane, blue_plane, blue, red);
+    } else if state.luminance_horizontal == 2 {
+        downsample_chroma_inner::<2, 1>(red_plane, green_plane, blue_plane, blue, red);
+    } else {
+        downsample_chroma_inner::<1, 1>(red_plane, green_plane, blue_plane, blue, red);
     }
 }
 
@@ -824,56 +898,80 @@ fn magnitude(value: i32) -> u8 {
         (32 - value.unsigned_abs().leading_zeros()) as u8
     }
 }
-fn write_code(
-    writer: &mut Writer<'_>,
-    values: &[u16; 256],
-    lengths: &[u8; 256],
+#[inline(always)]
+fn huffman_code<const CHROMA: bool, const AC: bool>(
+    state: &State,
     symbol: usize,
-) -> Result<(), u32> {
-    let length = lengths[symbol];
+) -> Result<(u64, u8), u32> {
+    let (value, length) = if CHROMA {
+        if AC {
+            (
+                state.chrominance_ac_values[symbol],
+                state.chrominance_ac_lengths[symbol],
+            )
+        } else {
+            (
+                state.chrominance_dc_values[symbol],
+                state.chrominance_dc_lengths[symbol],
+            )
+        }
+    } else if AC {
+        (
+            state.luminance_ac_values[symbol],
+            state.luminance_ac_lengths[symbol],
+        )
+    } else {
+        (
+            state.luminance_dc_values[symbol],
+            state.luminance_dc_lengths[symbol],
+        )
+    };
     if length == 0 {
         return Err(ERROR_CONFIGURATION);
     }
-    writer.bits(values[symbol] as u32, length)
+    Ok((u64::from(value), length))
 }
-fn write_signed(writer: &mut Writer<'_>, value: i32, length: u8) -> Result<(), u32> {
-    if length == 0 {
-        return Ok(());
-    }
-    let bits = if value < 0 {
-        value + (1i32 << length) - 1
+
+#[inline(always)]
+fn write_huffman<const CHROMA: bool, const AC: bool>(
+    state: &mut State,
+    symbol: usize,
+) -> Result<(), u32> {
+    let (value, length) = huffman_code::<CHROMA, AC>(state, symbol)?;
+    Writer { state }.bits(value, length)
+}
+
+fn signed_bits(value: i32, length: u8) -> u64 {
+    if value < 0 {
+        (value + (1i32 << length) - 1) as u64
     } else {
-        value
-    };
-    writer.bits(bits as u32, length)
+        value as u64
+    }
 }
-fn encode_block(
+
+#[inline(always)]
+fn write_huffman_signed<const CHROMA: bool, const AC: bool>(
+    state: &mut State,
+    symbol: usize,
+    value: i32,
+    value_length: u8,
+) -> Result<(), u32> {
+    let (code, code_length) = huffman_code::<CHROMA, AC>(state, symbol)?;
+    Writer { state }.bits(
+        (code << value_length) | signed_bits(value, value_length),
+        code_length + value_length,
+    )
+}
+
+fn encode_block<const CHROMA: bool>(
     state: &mut State,
     coefficients: &[i32; 64],
     previous: i32,
-    chroma: bool,
 ) -> Result<i32, u32> {
     let dc = coefficients[0];
     let difference = dc - previous;
     let category = magnitude(difference);
-    let (dc_values, dc_lengths, ac_values, ac_lengths) = if chroma {
-        (
-            state.chrominance_dc_values,
-            state.chrominance_dc_lengths,
-            state.chrominance_ac_values,
-            state.chrominance_ac_lengths,
-        )
-    } else {
-        (
-            state.luminance_dc_values,
-            state.luminance_dc_lengths,
-            state.luminance_ac_values,
-            state.luminance_ac_lengths,
-        )
-    };
-    let mut writer = Writer { state };
-    write_code(&mut writer, &dc_values, &dc_lengths, category as usize)?;
-    write_signed(&mut writer, difference, category)?;
+    write_huffman_signed::<CHROMA, false>(state, category as usize, difference, category)?;
     let mut zeroes = 0usize;
     for index in 1..64 {
         let coefficient = coefficients[ZIG_ZAG[index]];
@@ -882,31 +980,25 @@ fn encode_block(
             continue;
         }
         while zeroes >= 16 {
-            write_code(&mut writer, &ac_values, &ac_lengths, 0xf0)?;
+            write_huffman::<CHROMA, true>(state, 0xf0)?;
             zeroes -= 16;
         }
         let length = magnitude(coefficient);
-        write_code(
-            &mut writer,
-            &ac_values,
-            &ac_lengths,
+        write_huffman_signed::<CHROMA, true>(
+            state,
             (zeroes << 4) | length as usize,
+            coefficient,
+            length,
         )?;
-        write_signed(&mut writer, coefficient, length)?;
         zeroes = 0;
     }
     if zeroes > 0 {
-        write_code(&mut writer, &ac_values, &ac_lengths, 0)?;
+        write_huffman::<CHROMA, true>(state, 0)?;
     }
     Ok(dc)
 }
 
-fn encode_rows(
-    scratch: &mut Scratch,
-    pointer: usize,
-    length: usize,
-    stride: usize,
-) -> Result<(), u32> {
+fn encode_rows(scratch: &mut Scratch, pointer: usize, stride: usize) -> Result<(), u32> {
     let state = &mut scratch.state;
     let mcus = (state.width + state.mcu_width - 1) / state.mcu_width;
     for mcu_x in 0..mcus {
@@ -926,11 +1018,10 @@ fn encode_rows(
             fill_gray(
                 state,
                 pointer,
-                length,
                 stride,
                 mcu_x * 8,
                 &mut scratch.luminance_samples,
-            )?;
+            );
             quantize(
                 &scratch.luminance_samples,
                 &state.luminance_table,
@@ -940,21 +1031,21 @@ fn encode_rows(
                 &mut scratch.simd_samples,
                 &mut scratch.simd_intermediate,
             );
-            state.previous_y = encode_block(state, &scratch.coefficients, state.previous_y, false)?;
+            state.previous_y =
+                encode_block::<false>(state, &scratch.coefficients, state.previous_y)?;
             state.mcu += 1;
             continue;
         }
         fill_color_planes(
             state,
             pointer,
-            length,
             stride,
             mcu_x * state.mcu_width,
             &mut scratch.luminance_plane,
             &mut scratch.red_plane,
             &mut scratch.green_plane,
             &mut scratch.blue_plane,
-        )?;
+        );
         for block_y in 0..state.luminance_vertical {
             for block_x in 0..state.luminance_horizontal {
                 copy_luminance_block(
@@ -974,7 +1065,7 @@ fn encode_rows(
                     &mut scratch.simd_intermediate,
                 );
                 state.previous_y =
-                    encode_block(state, &scratch.coefficients, state.previous_y, false)?;
+                    encode_block::<false>(state, &scratch.coefficients, state.previous_y)?;
             }
         }
         downsample_chroma(
@@ -994,7 +1085,7 @@ fn encode_rows(
             &mut scratch.simd_samples,
             &mut scratch.simd_intermediate,
         );
-        state.previous_cb = encode_block(state, &scratch.coefficients, state.previous_cb, true)?;
+        state.previous_cb = encode_block::<true>(state, &scratch.coefficients, state.previous_cb)?;
         quantize(
             &scratch.red_difference_samples,
             &state.chrominance_table,
@@ -1004,7 +1095,7 @@ fn encode_rows(
             &mut scratch.simd_samples,
             &mut scratch.simd_intermediate,
         );
-        state.previous_cr = encode_block(state, &scratch.coefficients, state.previous_cr, true)?;
+        state.previous_cr = encode_block::<true>(state, &scratch.coefficients, state.previous_cr)?;
         state.mcu += 1;
     }
     Ok(())
@@ -1160,12 +1251,7 @@ pub extern "C" fn jpeg_encoder_write(
     if remaining == 0 {
         return ERROR_STATE;
     }
-    match encode_rows(
-        scratch,
-        input_pointer as usize,
-        input_length as usize,
-        stride as usize,
-    ) {
+    match encode_rows(scratch, input_pointer as usize, stride as usize) {
         Ok(()) => {
             scratch.state.received_rows += remaining.min(scratch.state.row_height);
             STATUS_OK

@@ -18,6 +18,14 @@ if (
   throw new Error('Usage: wasm-decoder-worker.ts [javascript|scalar|simd] [cold|warm] input.jpg')
 }
 if (!inputPath) throw new Error('JPEG WASM benchmark input path is required')
+const artifactPath =
+  process.argv[5] ??
+  new URL(
+    engine === 'simd'
+      ? '../../src/accelerator-entries/jpeg-decoder-simd.wasm'
+      : '../../src/accelerator-entries/jpeg-decoder.wasm',
+    import.meta.url,
+  )
 
 const input = await readFile(inputPath)
 let initializationMilliseconds = 0
@@ -28,9 +36,7 @@ const accelerator = createWasmJpegAcceleratorWithLoaders(
     ...(engine === 'scalar'
       ? {
           decoder: async () => {
-            const bytes = await readFile(
-              new URL('../../src/accelerator-entries/jpeg-decoder.wasm', import.meta.url),
-            )
+            const bytes = await readFile(artifactPath)
             const start = performance.now()
             const result = await WebAssembly.instantiate(bytes)
             initializationMilliseconds = performance.now() - start
@@ -47,9 +53,7 @@ const accelerator = createWasmJpegAcceleratorWithLoaders(
     ...(engine === 'simd'
       ? {
           simdDecoder: async () => {
-            const bytes = await readFile(
-              new URL('../../src/accelerator-entries/jpeg-decoder-simd.wasm', import.meta.url),
-            )
+            const bytes = await readFile(artifactPath)
             const start = performance.now()
             const result = await WebAssembly.instantiate(bytes)
             initializationMilliseconds = performance.now() - start

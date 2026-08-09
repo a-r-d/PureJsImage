@@ -12,6 +12,9 @@ All notable changes to PureJsImage are documented in this file.
 - Added optional first-party scalar and SIMD Rust/WASM baseline JPEG encoders with bounded MCU-row
   input, JavaScript-owned sink backpressure, RGB/RGBA/grayscale and 4:2:0/4:2:2/4:4:4 parity, explicit
   workload selection, plus an ABI-compatible SIMD JPEG decoder artifact with scalar fallback.
+  Specialized entropy writes, validated-row input reads, chroma sampling, Huffman lookup, and paired
+  decoder upsampling reduce pinned warm encoder time by 61.7%-66.0% versus TypeScript and pinned warm
+  decoder time by 58.4%, while retaining the same output contracts and bounded memory.
 - Added first-party refinement-based progressive JPEG encoding for grayscale and 4:2:0, 4:2:2,
   and 4:4:4 YCbCr output, with compact coefficient limits, per-scan restart markers, independent
   pixel validation, browser coverage, and isolated runtime/RSS/size benchmarks.

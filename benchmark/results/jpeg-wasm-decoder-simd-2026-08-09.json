@@ -6,52 +6,52 @@
     "dimensions": "4000x3000"
   },
   "artifact": {
-    "scalarBytes": 22183,
-    "scalarGzipBytes": 5535,
-    "scalarBrotliBytes": 4683,
-    "simdBytes": 22179,
-    "simdGzipBytes": 5723,
-    "simdBrotliBytes": 4907,
+    "scalarBytes": 30464,
+    "scalarGzipBytes": 7380,
+    "scalarBrotliBytes": 6284,
+    "simdBytes": 30316,
+    "simdGzipBytes": 7534,
+    "simdBrotliBytes": 6463,
     "wasmMemoryBytes": 6291456
   },
   "outputSha256": "f63be628feb9f3a0b6b6be517c8f7b238f082bf46f1fb889de0b56fb7af161fc",
   "copy": {
-    "inputMilliseconds": 0.1525949999995646,
-    "outputMilliseconds": 0.6368190000030154,
-    "totalMilliseconds": 0.78941400000258
+    "inputMilliseconds": 0.17083000000275206,
+    "outputMilliseconds": 0.6055669999987003,
+    "totalMilliseconds": 0.7763970000014524
   },
   "cold": {
     "javascript": {
-      "milliseconds": 1124.2326170000001,
-      "maximumRssBytes": 104964096,
+      "milliseconds": 1124.912549,
+      "maximumRssBytes": 105316352,
       "initializationMilliseconds": 0
     },
     "scalar": {
-      "milliseconds": 693.8053699999999,
-      "maximumRssBytes": 105267200,
-      "initializationMilliseconds": 0.2750549999999947
+      "milliseconds": 497.526371,
+      "maximumRssBytes": 105295872,
+      "initializationMilliseconds": 0.27370899999999665
     },
     "simd": {
-      "milliseconds": 621.860652,
-      "maximumRssBytes": 105484288,
-      "initializationMilliseconds": 0.20938699999999244
+      "milliseconds": 429.784005,
+      "maximumRssBytes": 105590784,
+      "initializationMilliseconds": 0.27857600000000105
     }
   },
   "warm": {
     "javascript": {
-      "milliseconds": 1107.6601249999999,
-      "maximumRssBytes": 108781568,
+      "milliseconds": 1106.727867,
+      "maximumRssBytes": 109010944,
       "initializationMilliseconds": 0
     },
     "scalar": {
-      "milliseconds": 677.4376650000002,
-      "maximumRssBytes": 106840064,
-      "initializationMilliseconds": 0.2605300000000028
+      "milliseconds": 492.16717199999994,
+      "maximumRssBytes": 106442752,
+      "initializationMilliseconds": 0.2653099999999995
     },
     "simd": {
-      "milliseconds": 615.380015,
-      "maximumRssBytes": 106401792,
-      "initializationMilliseconds": 0.23789899999999875
+      "milliseconds": 460.811915,
+      "maximumRssBytes": 105590784,
+      "initializationMilliseconds": 0.33304300000000353
     }
   }
 }

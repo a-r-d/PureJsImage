@@ -181,15 +181,67 @@ const rows = measurements.map((measurement) => {
   const peakDelta = Math.max(0, measurement.maximumRssBytes - measurement.baselineRssBytes)
   return `| ${measurement.dimensions} | ${measurement.mode} | ${measurement.entropy} | ${measurement.profile} | ${measurement.engine} | ${measurement.medianMilliseconds.toFixed(2)} | ${measurement.throughputMegapixelsPerSecond.toFixed(2)} | ${(peakDelta / 1_048_576).toFixed(1)} | ${(measurement.wasmMemoryBytes / 1_048_576).toFixed(1)} | ${measurement.outputBytes} | ${measurement.psnr.toFixed(3)} |`
 })
+const measurementTime = (
+  dimensions: string,
+  mode: Measurement['mode'],
+  entropy: Measurement['entropy'],
+  profile: Measurement['profile'],
+  engine: Measurement['engine'],
+): number => {
+  const measurement = measurements.find(
+    (candidate) =>
+      candidate.dimensions === dimensions &&
+      candidate.mode === mode &&
+      candidate.entropy === entropy &&
+      candidate.profile === profile &&
+      candidate.engine === engine,
+  )
+  if (!measurement) throw new Error(`Missing JPEG WASM measurement for ${dimensions} ${mode}`)
+  return measurement.medianMilliseconds
+}
+const percentageReduction = (baseline: number, optimized: number): number =>
+  ((baseline - optimized) / baseline) * 100
+const coverageModes = ['gray', '420', '422', '444'] as const
+const scalarCoverageGains = coverageModes.map((mode) =>
+  percentageReduction(
+    measurementTime('1024x768', mode, 'high', 'warm', 'javascript'),
+    measurementTime('1024x768', mode, 'high', 'warm', 'scalar'),
+  ),
+)
+const simdCoverageGains = coverageModes.map((mode) =>
+  percentageReduction(
+    measurementTime('1024x768', mode, 'high', 'warm', 'scalar'),
+    measurementTime('1024x768', mode, 'high', 'warm', 'simd'),
+  ),
+)
+const largeLowGain = percentageReduction(
+  measurementTime('2048x1536', '420', 'low', 'warm', 'scalar'),
+  measurementTime('2048x1536', '420', 'low', 'warm', 'simd'),
+)
+const largeHighGain = percentageReduction(
+  measurementTime('2048x1536', '420', 'high', 'warm', 'scalar'),
+  measurementTime('2048x1536', '420', 'high', 'warm', 'simd'),
+)
+const coldDimensions = ['64x64', '128x128', '256x256', '512x512', '1024x1024']
+const simdWonEveryColdSize = coldDimensions.every(
+  (dimensions) =>
+    measurementTime(dimensions, '420', 'high', 'cold', 'simd') <
+    measurementTime(dimensions, '420', 'high', 'cold', 'javascript'),
+)
+const coldSummary = simdWonEveryColdSize
+  ? 'Cold SIMD remained faster than TypeScript at every measured size.'
+  : 'Cold SIMD did not beat TypeScript at every measured size.'
+const thresholdSimd = measurementTime('256x256', '420', 'high', 'cold', 'simd')
+const thresholdJavaScript = measurementTime('256x256', '420', 'high', 'cold', 'javascript')
 const markdown = `# JPEG WASM encoder benchmark — 2026-08-09
 
 Correctness gate: scalar WASM output is byte-identical to the TypeScript reference. The alternative SIMD AAN FDCT must remain within 0.05 dB decoded PSNR and 1% output size for every matching workload before timings are accepted.
 
 - Scalar artifact: ${artifacts.scalar.bytes} bytes (${artifacts.scalar.gzipBytes} gzip, ${artifacts.scalar.brotliBytes} brotli).
 - SIMD artifact: ${artifacts.simd.bytes} bytes (${artifacts.simd.gzipBytes} gzip, ${artifacts.simd.brotliBytes} brotli).
-- On 1024x768 high-entropy mode coverage, scalar WASM reduced warm time by 56.5%-61.8% versus TypeScript. SIMD reduced scalar time by another 9.4%-10.5%.
-- On 2048x1536 4:2:0, SIMD reduced scalar warm time by 12.7% for low entropy and 10.0% for high entropy.
-- Cold SIMD remained faster than TypeScript at every measured size. The production selector uses a conservative 65,536-pixel minimum based on the 256x256 result (5.52 ms versus 10.18 ms).
+- On 1024x768 high-entropy mode coverage, scalar WASM reduced warm time by ${Math.min(...scalarCoverageGains).toFixed(1)}%-${Math.max(...scalarCoverageGains).toFixed(1)}% versus TypeScript. SIMD reduced scalar time by another ${Math.min(...simdCoverageGains).toFixed(1)}%-${Math.max(...simdCoverageGains).toFixed(1)}%.
+- On 2048x1536 4:2:0, SIMD reduced scalar warm time by ${largeLowGain.toFixed(1)}% for low entropy and ${largeHighGain.toFixed(1)}% for high entropy.
+- ${coldSummary} The production selector uses a conservative 65,536-pixel minimum based on the 256x256 result (${thresholdSimd.toFixed(2)} ms versus ${thresholdJavaScript.toFixed(2)} ms).
 - The SIMD artifact adds ${artifacts.simd.bytes - artifacts.scalar.bytes} raw bytes and ${artifacts.simd.gzipBytes - artifacts.scalar.gzipBytes} gzip bytes over scalar.
 - Warm rows report the median of five measured encodes after two warmups. Cold rows include lazy module read, compile, instantiate, and the first encode.
 - Peak RSS is the absolute process high-water mark minus the pre-measurement baseline. WASM memory is the linear-memory high-water mark.
