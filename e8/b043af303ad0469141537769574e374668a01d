@@ -1,0 +1,52 @@
+benchmark/results/jpeg-progressive-encode-2026-08-09.json
+  s_4a8abb1f2ae0c6::t_6d9010316b3093 2,13,15-17,30,32-34,36,47,49-51,64,66-68,70,81,83-85,98,100-102,104,115,117-119,132,134-136,138
+docs/performance.html
+  s_4a8abb1f2ae0c6::t_d50dc5c8953b79 109
+docs/demo.ts
+  s_4a8abb1f2ae0c6::t_7c53c676b7f73c 308,365-366,378-387,682
+  s_4a8abb1f2ae0c6::t_72713eea4b270f 307,309-313,315,320,362
+benchmark/results/jpeg-progressive-encode-2026-08-09.md
+  s_4a8abb1f2ae0c6::t_6d9010316b3093 3,7,9-16,19-20
+docs/codecs.html
+  s_4a8abb1f2ae0c6::t_3f667a5c3f6a31 51
+CHANGELOG.md
+  s_4a8abb1f2ae0c6::t_d50dc5c8953b79 27-29
+  s_4a8abb1f2ae0c6::t_7c53c676b7f73c 25-26
+benchmark/jpeg/run-progressive-encode.ts
+  s_4a8abb1f2ae0c6::t_7c2ae2f657817b 15,62,123,127,131-132
+tests/jpeg.test.ts
+  s_4a8abb1f2ae0c6::t_b48b1e13281f4b 848-876
+  s_4a8abb1f2ae0c6::t_73691f16c0fab3 81,90,110,150,815,901
+jpeg-codec-support.md
+  s_4a8abb1f2ae0c6::t_3f667a5c3f6a31 106,117-118,124-125
+capabilities/manifest.json
+  s_4a8abb1f2ae0c6::t_16cba12da915d6 19,138,149-150,156-157
+src/codecs/jpeg-encode.ts
+  s_4a8abb1f2ae0c6::t_4577b366ba6511 2020-2021,2039,2092,2097-2098,2100
+  s_4a8abb1f2ae0c6::t_562d24eb5075f9 1145-1171,1241-1302
+  s_4a8abb1f2ae0c6::t_39965abc4272a7 548-552,645-748,826-850,941-949
+  s_4a8abb1f2ae0c6::t_366dc0f777bbf5 1054-1058,1892-1945,1947-1960,2003,2037-2038
+  s_4a8abb1f2ae0c6::t_9c7c47522d6797 1303
+benchmark/jpeg/encode-probe.ts
+  s_4a8abb1f2ae0c6::t_7c2ae2f657817b 150-157,178
+docs/capabilities.json
+  s_4a8abb1f2ae0c6::t_3f667a5c3f6a31 17,230,256-259,270
+browser-tests/demo.pw.ts
+  s_4a8abb1f2ae0c6::t_7c53c676b7f73c 109-137
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "e8b043af303ad0469141537769574e374668a01d",
+  "prompts": {},
+  "sessions": {
+    "s_4a8abb1f2ae0c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe42e-2b77-7a50-8579-4b622c789c8f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
