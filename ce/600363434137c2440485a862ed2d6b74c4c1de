@@ -1,0 +1,41 @@
+docs/capabilities.json
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 728,962,970-974,990,1126
+docs/codecs.html
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 72
+capabilities/manifest.json
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 385,493-494,496-498,506,565-566
+scripts/serve-browser-tests.ts
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 44,48-50,52-56
+CHANGELOG.md
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 30-32
+benchmark/results/webp-lossless-adaptive-2026-08-08.md
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 1-65
+webp-codec-support.md
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 102-103,105-107,115,174-175
+src/codecs/webp-lossless-encode.ts
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 252,255-256,260-453,495-519,524,526,534-543,561,564-568,572-578,580,587,590,598,603-610,620,638,640,643,646,655,660-667,673,684,686-691,693-702,708-714,717-746,750-751,755-757,760-761,767,851,865-884
+browser-tests/compatibility-harness.ts
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 191
+tests/webp.test.ts
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 239-248
+benchmark/results/webp-lossless-adaptive-2026-08-08.json
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 1-215
+browser-tests/demo.pw.ts
+  s_4a8abb1f2ae0c6::t_f280aaa329934c 152,159
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "ce600363434137c2440485a862ed2d6b74c4c1de",
+  "prompts": {},
+  "sessions": {
+    "s_4a8abb1f2ae0c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe42e-2b77-7a50-8579-4b622c789c8f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
