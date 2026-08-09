@@ -326,6 +326,31 @@ All Jimp-comparable workflows, including batch and 100-megapixel stress cases:
 npm run bench:jimp -- --profile full
 ```
 
+### Real AWS Lambda
+
+The Lambda profile deploys three temporary Node.js 22 x86_64 functions at 256,
+512, and 1024 MiB. It benchmarks pinned 4000x3000 JPEG and PNG inputs through
+JPEG/PNG/WebP resize-and-encode workflows in `us-east-1`. Set credentials
+explicitly, then always destroy the stack after the run:
+
+```sh
+AWS_PROFILE=<profile> AWS_REGION=us-east-1 npm run bench:lambda:deploy
+AWS_PROFILE=<profile> AWS_REGION=us-east-1 npm run bench:lambda:run
+AWS_PROFILE=<profile> AWS_REGION=us-east-1 npm run bench:lambda:destroy
+```
+
+The runner changes an environment nonce before every cold sample, waits for the
+Lambda update, and pairs that invocation with an immediate warm invocation. The
+Lambda log stream must match before the warm sample is accepted. AWS `REPORT`
+lines provide Init Duration, Duration, billed duration, memory size, and maximum
+memory used; handler results separately report input-read, codec-operation, and
+output-validation time.
+
+The deploy command creates a temporary S3 staging bucket because the benchmark
+profile does not require the ECR permission used by the standard CDK bootstrap.
+The destroy command removes the functions, their explicit log groups, IAM role,
+CloudFormation stack, staged object, and staging bucket.
+
 Results are written as both JSON and Markdown under `results/`. JSON is the
 authoritative machine-readable artifact. Markdown is the review summary.
 

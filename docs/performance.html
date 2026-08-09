@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Reproducible PureJsImage benchmarks: validated wall time, absolute peak RSS, startup cost, package footprint, and comparisons with Jimp, Sharp, image-js, and jSquash.">
+  <meta name="description" content="Reproducible PureJsImage benchmarks from real AWS Lambda and isolated local processes: cold starts, memory use, validated wall time, package footprint, and competitor comparisons.">
   <meta name="theme-color" content="#f6f7f2">
   <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/performance.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -20,7 +20,7 @@
   </div></header>
 
   <main id="main">
-    <header class="page-hero"><div class="container"><p class="eyebrow">Performance</p><h1>Benchmark methodology and recorded results.</h1><p class="page-lede">Complete decode–transform–encode workflows measured in isolated processes with pinned inputs, absolute peak RSS, and independently validated output.</p><div class="page-meta"><span class="pill">Six-engine competitor profile</span><span class="pill">Recorded August 2026</span><span class="pill">Linux x64</span></div></div></header>
+    <header class="page-hero"><div class="container"><p class="eyebrow">Performance</p><h1>Benchmark methodology and recorded results.</h1><p class="page-lede">Complete decode–transform–encode workflows measured on real AWS Lambda and in isolated local processes, with pinned inputs, absolute memory, and independently validated output.</p><div class="page-meta"><span class="pill">Real AWS Lambda</span><span class="pill">Six-engine competitor profile</span><span class="pill">Recorded August 2026</span><span class="pill">Linux x64</span></div></div></header>
     <section class="proof-section performance-showcase" id="competitor-charts" aria-labelledby="competitor-charts-title">
       <div class="container">
         <div class="proof-heading">
@@ -62,6 +62,31 @@
     <div class="container docs-layout">
       <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="guides.html">Getting started</a><a href="guides.html#lambda">Lambda guide</a></div><div class="nav-group"><strong>Reference</strong><a href="api.html">API reference</a><a href="codecs.html">Codec support</a><a href="performance.html" aria-current="page">Performance</a></div></aside>
       <article class="content">
+        <section id="aws-lambda">
+          <h2>Measured on real AWS Lambda</h2>
+          <p>On August 9, 2026, PureJsImage ran in temporary Lambda functions deployed to <code>us-east-1</code>. The profile used the managed Node.js 22 runtime on x86_64 and exercised complete 4000 × 3000 decode, resize-to-1024 × 768, and encode workflows. Every result below is based on three verified cold environments and three immediately paired warm invocations.</p>
+          <div class="stat-grid">
+            <div class="card stat-card"><strong>120–156 MiB</strong><span>maximum memory reported by AWS</span></div>
+            <div class="card stat-card"><strong>182–203 ms</strong><span>median cold initialization range</span></div>
+            <div class="card stat-card"><strong>72</strong><span>validated cold and warm invocations</span></div>
+          </div>
+          <div class="table-wrap"><table class="lambda-results-table"><thead><tr><th>Workflow</th><th>Maximum used</th><th>256 MiB warm</th><th>512 MiB warm</th><th>1024 MiB warm</th></tr></thead><tbody>
+            <tr><td><strong>JPEG → resize → PNG</strong></td><td>123 MiB</td><td>9,912 ms</td><td>4,784 ms</td><td>2,410 ms</td></tr>
+            <tr><td><strong>JPEG → resize → WebP</strong></td><td>122 MiB</td><td>10,671 ms</td><td>5,271 ms</td><td>2,542 ms</td></tr>
+            <tr><td><strong>PNG → resize → JPEG</strong></td><td>148 MiB</td><td>10,451 ms</td><td>5,082 ms</td><td>2,472 ms</td></tr>
+            <tr><td><strong>PNG → resize → WebP</strong></td><td>156 MiB</td><td>10,465 ms</td><td>5,234 ms</td><td>2,501 ms</td></tr>
+          </tbody></table></div>
+          <p>All four workflows completed in the 256 MiB tier. Maximum memory stayed nearly constant as configured memory increased, while the additional Lambda CPU allocation approximately halved runtime at each step from 256 to 512 to 1024 MiB. Cold initialization was a small part of total latency; codec work dominated these 12-megapixel conversions.</p>
+          <div class="callout"><strong>What this proves.</strong> These are direct AWS measurements of PureJsImage’s absolute memory use, cold initialization, and complete handler duration—not local estimates. They establish that the tested 12-megapixel workflows fit in a 256 MiB Lambda. The <a href="#headline">separately recorded Jimp baseline</a> provides the head-to-head memory comparison; no Jimp result is inferred from this AWS run.</div>
+          <div class="method-steps">
+            <div class="method-step"><b>01</b><span>Deploy three CDK-managed functions at 256, 512, and 1024 MiB.</span></div>
+            <div class="method-step"><b>02</b><span>Change a configuration nonce and wait for Lambda before each cold invocation.</span></div>
+            <div class="method-step"><b>03</b><span>Require the paired warm invocation to reuse the same Lambda log stream.</span></div>
+            <div class="method-step"><b>04</b><span>Validate output format, dimensions, and deterministic SHA-256 before accepting results.</span></div>
+          </div>
+          <p><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/aws-lambda-2026-08-09.md" target="_blank" rel="noreferrer">Read the complete AWS report →</a> <a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/aws-lambda-2026-08-09.json" target="_blank" rel="noreferrer">Inspect all 72 samples →</a></p>
+        </section>
+
         <section id="headline">
           <h2>Earlier Jimp baseline</h2>
           <p>This separately recorded Jimp-only baseline predates the six-engine profile above. In its 6000 × 4000 JPEG orientation, crop, resize, and encode workflow, PureJsImage used 118.6 MiB peak RSS versus Jimp’s 1,188.3 MiB and completed in 3,242.5 ms versus 3,762.9 ms.</p>
@@ -184,7 +209,11 @@ npm run bench:transforms
 npm run bench:transforms:compare
 npm run bench:webp
 npm run bench:avif:b2
-npm run bench:heif:cold</code></pre></div>
+npm run bench:heif:cold
+
+AWS_PROFILE=&lt;profile&gt; AWS_REGION=us-east-1 npm run bench:lambda:deploy
+AWS_PROFILE=&lt;profile&gt; AWS_REGION=us-east-1 npm run bench:lambda:run
+AWS_PROFILE=&lt;profile&gt; AWS_REGION=us-east-1 npm run bench:lambda:destroy</code></pre></div>
           <p><code>npm run bench:competitors</code> builds PureJsImage and runs all six engines in isolated workers. The chart command regenerates both checked-in PNGs from the JSON report. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md" target="_blank" rel="noreferrer">benchmark harness guide</a> for profiles and result interpretation.</p>
         </section>
 
@@ -199,7 +228,7 @@ npm run bench:heif:cold</code></pre></div>
           </ul>
         </section>
       </article>
-      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#competitor-charts">Competitor charts</a><a href="#headline">Earlier Jimp baseline</a><a href="#methodology">Methodology</a><a href="#codec-results">Codec results</a><a href="#bundle">Bundle &amp; deployment</a><a href="#reproduce">Reproduce it</a><a href="#interpretation">Interpret results</a></aside>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#competitor-charts">Competitor charts</a><a href="#aws-lambda">Real AWS Lambda</a><a href="#headline">Earlier Jimp baseline</a><a href="#methodology">Methodology</a><a href="#codec-results">Codec results</a><a href="#bundle">Bundle &amp; deployment</a><a href="#reproduce">Reproduce it</a><a href="#interpretation">Interpret results</a></aside>
     </div>
   </main>
 
