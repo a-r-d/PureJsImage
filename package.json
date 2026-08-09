@@ -162,6 +162,7 @@
     "fixtures:jpeg:prepare": "node benchmark/jpeg/prepare-reference-fixtures.ts",
     "fixtures:jpeg2000": "node benchmark/jpeg2000/verify-corpus.ts",
     "fuzz:release": "PUREJSIMAGE_FUZZ_RELEASE=1 PUREJSIMAGE_FUZZ_CASES=512 PUREJSIMAGE_FUZZ_SEED=1592598566 PUREJSIMAGE_FUZZ_CRASH_DIR=artifacts/fuzz-crashes vitest run tests/corruption-fuzz.test.ts",
+    "corpus:exercise": "node scripts/exercise-corpus.ts",
     "results:combine": "node benchmark/scripts/combine-results.ts",
     "bench": "node benchmark/run.ts",
     "bench:jimp": "node benchmark/run.ts --engines jimp",

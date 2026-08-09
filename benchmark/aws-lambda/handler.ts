@@ -227,7 +227,7 @@ export const handler = async (event: unknown): Promise<BenchmarkResult> => {
   const wasmBefore = wasmSnapshot()
 
   const operationStart = performance.now()
-  const image = (await Image.open(input)).resize({
+  const image = (await Image.open(input, { tolerantDecoding: false })).resize({
     width: workflow.resizeWidth,
     withoutEnlargement: true,
   })

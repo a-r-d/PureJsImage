@@ -27,6 +27,15 @@ test('decodes JPEG metadata and runs crop, resize, rotation, and JPEG encoding',
   expect(result.detail).toContain('100x120')
 })
 
+test('recovers malformed JPEG restart streams by default with strict opt-out', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.tolerantJpegRestartRecovery(),
+  )
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('default tolerant JPEG restart recovery')
+})
+
 test('runs the opt-in Rust/WASM JPEG accelerator in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.wasmJpeg())

@@ -428,7 +428,7 @@ describe('PNG parser hardening', () => {
     ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
   })
 
-  it('rejects unknown critical chunks, invalid reserved bits, and trailing data', async () => {
+  it('rejects invalid chunk types but accepts bytes after the complete PNG datastream', async () => {
     const format: PngFormat = { label: 'RGBA structure', colorType: 6, bitDepth: 8 }
     const input = pngFixture(format)
     const base = chunks(input)
@@ -437,17 +437,22 @@ describe('PNG parser hardening', () => {
     unknownCritical.splice(idat, 0, pngChunk('ABCD', new Uint8Array()))
     const invalidReserved = [...base]
     invalidReserved.splice(idat, 0, pngChunk('abca', new Uint8Array()))
-    const trailing = Buffer.concat([input, Buffer.of(0)])
 
     for (const malformed of [
       Buffer.concat([signature, ...unknownCritical]),
       Buffer.concat([signature, ...invalidReserved]),
-      trailing,
     ]) {
       await expect((await Image.open(malformed)).png().toBuffer()).rejects.toMatchObject({
         code: 'INVALID_INPUT',
       })
     }
+
+    const trailing = Buffer.concat([input, Buffer.of(0xde, 0xad, 0xbe, 0xef)])
+    const [reference, compatible] = await Promise.all([
+      (await Image.open(input)).png().toBuffer(),
+      (await Image.open(trailing)).png().toBuffer(),
+    ])
+    expect(compatible).toEqual(reference)
   })
 
   it('validates ancillary CRCs after image data', async () => {

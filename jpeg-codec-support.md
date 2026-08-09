@@ -23,6 +23,9 @@ supported until its output is independently validated.
 - [x] Image dimensions that do not end on an MCU boundary
 - [x] Per-image quantization and Huffman tables
 - [x] Entropy byte stuffing and restart intervals (`DRI` / `RST0`-`RST7`)
+- [x] Compatible restart recovery by default for out-of-order markers, bounded
+  intervening bytes, and premature scan ends, with explicit strict validation
+  through `tolerantDecoding: false`
 - [x] Multi-scan progressive DC and AC first-pass and refinement scans
 - [x] Extended sequential 8-bit JPEG (`SOF1`)
 - [ ] Extended sequential 12-bit JPEG (`SOF1`)
@@ -44,9 +47,10 @@ supported until its output is independently validated.
 - [x] Adobe YCCK JPEG decode and Adobe color-transform detection
 - [x] Three-component JPEGs explicitly encoded as RGB rather than YCbCr
 - [x] Ordered multi-segment ICC profile assembly and color-managed conversion
-  to sRGB for RGB matrix/TRC profiles and CMYK `lut16` `A2B0` profiles
-- [ ] Broader ICC transform coverage, including `lut8`, multi-process-element,
-  device-link, gray, and uncommon parametric or sampled profile forms
+  to sRGB for RGB matrix/TRC and ICC v4 `mAB` LUT `A2B0` profiles plus CMYK
+  `lut16` `A2B0` profiles
+- [ ] Broader ICC transform coverage, including `lut8`, device-link, gray, and
+  uncommon parametric or sampled profile forms
 - [ ] Full EXIF, XMP, IPTC/IIM, Photoshop image-resource, JFIF density,
   comment, and application-marker exposure
 - [x] Opt-in compatible ICC and EXIF preservation, with metadata stripped by

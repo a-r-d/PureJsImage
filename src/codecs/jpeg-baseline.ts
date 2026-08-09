@@ -9,7 +9,7 @@ import {
   parseJpegIccTransform,
   writeCmykIcc,
 } from './icc.ts'
-import { indexJpegEntropy, JpegEntropyReader } from './jpeg-source.ts'
+import { indexJpegEntropy, JpegEntropyReader, JpegUnexpectedRestart } from './jpeg-source.ts'
 
 const zigZag = Int32Array.of(
   0,
@@ -635,13 +635,19 @@ interface JpegBitReader {
 
 class EntropyReader implements JpegBitReader {
   readonly #data: Uint8Array
+  readonly #tolerant: boolean
   #offset: number
   #bits = 0
+  #ended = false
   #bitCount = 0
 
-  constructor(data: Uint8Array, offset: number) {
+  constructor(data: Uint8Array, offset: number, tolerant = false) {
     this.#data = data
     this.#offset = offset
+    this.#tolerant = tolerant
+  }
+  get ended(): boolean {
+    return this.#ended
   }
 
   readBit(): number {
@@ -653,6 +659,9 @@ class EntropyReader implements JpegBitReader {
       if (this.#bits === 0xff) {
         const stuffed = byte(this.#data, this.#offset)
         this.#offset += 1
+        if (this.#tolerant && stuffed >= 0xd0 && stuffed <= 0xd7) {
+          throw new JpegUnexpectedRestart(stuffed)
+        }
         if (stuffed !== 0) throw invalidInput(`Unexpected JPEG marker ff${stuffed.toString(16)}`)
       }
       this.#bitCount = 8
@@ -673,14 +682,39 @@ class EntropyReader implements JpegBitReader {
     return value >= 1 << (length - 1) ? value : value + (-1 << length) + 1
   }
 
-  restart(expected: number): void {
+  restart(expected: number): number {
     this.#bitCount = 0
-    while (byte(this.#data, this.#offset) === 0xff) this.#offset += 1
-    const marker = byte(this.#data, this.#offset)
-    this.#offset += 1
-    if (marker !== 0xd0 + (expected & 7)) {
+    if (!this.#tolerant) {
+      while (byte(this.#data, this.#offset) === 0xff) this.#offset += 1
+      const marker = byte(this.#data, this.#offset)
+      this.#offset += 1
+      if (marker !== 0xd0 + (expected & 7)) {
+        throw invalidInput(`Expected JPEG restart marker ${expected & 7}`)
+      }
+      return marker
+    }
+    const recoveryEnd = Math.min(this.#data.byteLength, this.#offset + 65_536)
+    while (this.#offset < recoveryEnd) {
+      if (byte(this.#data, this.#offset) !== 0xff) {
+        this.#offset += 1
+        continue
+      }
+      this.#offset += 1
+      while (this.#offset < recoveryEnd && byte(this.#data, this.#offset) === 0xff) {
+        this.#offset += 1
+      }
+      if (this.#offset >= recoveryEnd) break
+      const marker = byte(this.#data, this.#offset)
+      this.#offset += 1
+      if (marker === 0) continue
+      if (marker === 0xd9) {
+        this.#ended = true
+        return marker
+      }
+      if (marker >= 0xd0 && marker <= 0xd7) return marker
       throw invalidInput(`Expected JPEG restart marker ${expected & 7}`)
     }
+    throw invalidInput('JPEG restart recovery exceeded 64 KiB')
   }
 
   scanEnd(): number {
@@ -692,6 +726,7 @@ class EntropyReader implements JpegBitReader {
 
   finish(): void {
     this.#bitCount = 0
+    if (this.#ended) return
     while (this.#offset < this.#data.byteLength) {
       if (byte(this.#data, this.#offset) !== 0xff) {
         this.#offset += 1
@@ -1495,6 +1530,7 @@ export const decodeBaselineJpeg = async function* (
   region: JpegRegion,
   scaleDenominator: JpegScaleDenominator = 1,
   metrics?: JpegDecodeMetrics,
+  tolerantDecoding = false,
 ): AsyncGenerator<PixelBlock> {
   const blockSize = outputSizeForScale(scaleDenominator)
   const mcuWidth = jpeg.maximumHorizontalSampling * blockSize
@@ -1525,6 +1561,7 @@ export const decodeBaselineJpeg = async function* (
             ? Math.ceil((jpeg.mcusPerLine * jpeg.mcusPerColumn - 1) / jpeg.restartInterval)
             : 0,
           targetMcu,
+          tolerantDecoding,
         )
       : undefined
   const restartPoint = entropyIndex?.restart
@@ -1533,13 +1570,14 @@ export const decodeBaselineJpeg = async function* (
     jpeg.restartInterval > 0 ? initialMcu + jpeg.restartInterval : Number.MAX_SAFE_INTEGER
   let restart = restartPoint ? restartPoint.marker - 0xd0 + 1 : 0
   const reader = jpeg.source
-    ? new JpegEntropyReader(jpeg.source, restartPoint?.offset ?? jpeg.scanOffset)
+    ? new JpegEntropyReader(jpeg.source, restartPoint?.offset ?? jpeg.scanOffset, tolerantDecoding)
     : new EntropyReader(
         jpeg.data ??
           (() => {
             throw invalidInput('JPEG entropy source is missing')
           })(),
         jpeg.scanOffset,
+        tolerantDecoding,
       )
   const predictors = new Int32Array(jpeg.components.length)
   const coefficients = new Int32Array(64)
@@ -1561,6 +1599,7 @@ export const decodeBaselineJpeg = async function* (
     metrics.entropyMcusDecoded = 0
     metrics.blocksReconstructed = 0
   }
+  let entropyEnded = false
   for (let mcu = initialMcu; mcu < totalMcus; mcu += 1) {
     if (metrics) metrics.entropyMcusDecoded += 1
     const mcuRow = Math.floor(mcu / jpeg.mcusPerLine)
@@ -1570,41 +1609,64 @@ export const decodeBaselineJpeg = async function* (
       mcuRow <= reconstructLastRow &&
       mcuColumn >= reconstructFirstColumn &&
       mcuColumn <= reconstructLastColumn
-    if (reader instanceof JpegEntropyReader && reader.available < 8_192) await reader.refill()
-    if (mcu === nextRestartMcu) {
-      reader.restart(restart)
-      restart += 1
-      predictors.fill(0)
-      nextRestartMcu += jpeg.restartInterval
+    if (!entropyEnded && reader instanceof JpegEntropyReader && reader.available < 8_192) {
+      await reader.refill()
     }
-    for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
-      const component = jpeg.components[componentIndex]
-      const plane = currentPlanes[componentIndex]
-      if (!component || !plane) throw invalidInput('JPEG component storage is missing')
-      const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * blockSize
-      for (let blockY = 0; blockY < component.verticalSampling; blockY += 1) {
-        for (let blockX = 0; blockX < component.horizontalSampling; blockX += 1) {
-          predictors[componentIndex] = decodeBlock(
-            reader,
-            component,
-            byte(predictors, componentIndex),
-            coefficients,
-          )
-          if (reconstruct) {
-            if (metrics) metrics.blocksReconstructed += 1
-            inverseBlock(
-              coefficients,
-              component.quantization,
-              workspace,
-              activeRowIndices,
-              sampleWorkspace,
-              plane,
-              planeWidth,
-              mcuColumn * component.horizontalSampling + blockX,
-              blockY + 1,
-            )
+    if (mcu === nextRestartMcu) {
+      const marker = reader.restart(restart)
+      if (marker === 0xd9) {
+        entropyEnded = true
+        nextRestartMcu = Number.MAX_SAFE_INTEGER
+      } else {
+        restart = marker - 0xd0 + 1
+        predictors.fill(0)
+        nextRestartMcu += jpeg.restartInterval
+      }
+    }
+    if (!entropyEnded) {
+      let unexpectedRestart: JpegUnexpectedRestart | undefined
+      try {
+        for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
+          const component = jpeg.components[componentIndex]
+          const plane = currentPlanes[componentIndex]
+          if (!component || !plane) throw invalidInput('JPEG component storage is missing')
+          const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * blockSize
+          for (let blockY = 0; blockY < component.verticalSampling; blockY += 1) {
+            for (let blockX = 0; blockX < component.horizontalSampling; blockX += 1) {
+              predictors[componentIndex] = decodeBlock(
+                reader,
+                component,
+                byte(predictors, componentIndex),
+                coefficients,
+              )
+              if (reconstruct) {
+                if (metrics) metrics.blocksReconstructed += 1
+                inverseBlock(
+                  coefficients,
+                  component.quantization,
+                  workspace,
+                  activeRowIndices,
+                  sampleWorkspace,
+                  plane,
+                  planeWidth,
+                  mcuColumn * component.horizontalSampling + blockX,
+                  blockY + 1,
+                )
+              }
+            }
           }
         }
+      } catch (error) {
+        if (!(error instanceof JpegUnexpectedRestart)) throw error
+        unexpectedRestart = error
+      }
+      if (unexpectedRestart) {
+        if (jpeg.restartInterval === 0) {
+          throw invalidInput('JPEG restart marker has no restart interval')
+        }
+        restart = unexpectedRestart.marker - 0xd0 + 1
+        predictors.fill(0)
+        nextRestartMcu = mcu + 1 + jpeg.restartInterval
       }
     }
     if (mcuColumn !== jpeg.mcusPerLine - 1) continue

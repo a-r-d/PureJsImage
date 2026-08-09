@@ -20,7 +20,9 @@ const markerOffsets = (input: Uint8Array, marker: number): readonly number[] => 
 }
 
 const expectTypedFailure = async (input: Uint8Array): Promise<void> => {
-  await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
+  await expect(
+    (await Image.open(input, { tolerantDecoding: false })).png().toBuffer(),
+  ).rejects.toMatchObject({
     name: 'ImageError',
   })
 }
@@ -67,7 +69,7 @@ const withLargeApplicationSegments = (input: Uint8Array, count: number): Uint8Ar
 }
 
 describe('JPEG hostile-input contract', () => {
-  it('rejects invalid restart ordering and marker-like entropy without returning pixels', async () => {
+  it('rejects invalid restart ordering and marker-like entropy in strict mode', async () => {
     const restart = Uint8Array.from(Buffer.from(baselineJpegFixtures.restart, 'base64'))
     const restartMarker = markerOffsets(restart, 0xd0)[0]
     if (restartMarker === undefined) throw new Error('Restart fixture is missing RST0')

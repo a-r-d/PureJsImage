@@ -77,6 +77,10 @@
         },
         {
           "status": "supported",
+          "text": "Compatible restart recovery by default for out-of-order markers, bounded intervening bytes, and premature scan ends, with explicit strict validation through `tolerantDecoding: false`"
+        },
+        {
+          "status": "supported",
           "text": "Multi-scan progressive DC and AC first-pass and refinement scans"
         },
         {
@@ -137,11 +141,11 @@
         },
         {
           "status": "supported",
-          "text": "Ordered multi-segment ICC profile assembly and color-managed conversion to sRGB for RGB matrix/TRC profiles and CMYK `lut16` `A2B0` profiles"
+          "text": "Ordered multi-segment ICC profile assembly and color-managed conversion to sRGB for RGB matrix/TRC and ICC v4 `mAB` LUT `A2B0` profiles plus CMYK `lut16` `A2B0` profiles"
         },
         {
           "status": "planned",
-          "text": "Broader ICC transform coverage, including `lut8`, multi-process-element, device-link, gray, and uncommon parametric or sampled profile forms"
+          "text": "Broader ICC transform coverage, including `lut8`, device-link, gray, and uncommon parametric or sampled profile forms"
         },
         {
           "status": "planned",
@@ -521,6 +525,10 @@
         },
         {
           "status": "supported",
+          "text": "Common full-range RGB `cICP` signaling for sRGB and Display P3"
+        },
+        {
+          "status": "supported",
           "text": "EXIF (`eXIf`) metadata parsing for opt-in preservation and orientation handling through the public pipeline"
         },
         {
@@ -713,7 +721,7 @@
         },
         {
           "status": "supported",
-          "text": "Add focused malformed fixtures for CRC failures, duplicate and misplaced chunks, non-consecutive `IDAT`, invalid chunk types, and trailing data"
+          "text": "Add focused malformed fixtures for CRC failures, duplicate and misplaced chunks and non-consecutive `IDAT`; bytes after the complete `IEND` datastream are ignored for compatibility with padded or concatenated real-world files"
         },
         {
           "status": "planned",

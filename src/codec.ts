@@ -129,6 +129,7 @@ export interface PreservedMetadata {
 export interface DecoderOptions {
   readonly frame?: number
   readonly preserveIcc?: boolean
+  readonly tolerantDecoding?: boolean
 }
 
 export interface MetadataPreservationOptions {

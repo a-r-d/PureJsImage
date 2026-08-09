@@ -81,6 +81,35 @@ partial alpha. Exact decoded pixels are pinned and were cross-checked with
 ImageMagick. The profile measures metadata, PNG-backed and DIB-backed decode,
 favicon resize, alpha flattening, absolute peak RSS, and output correctness.
 
+### Private user-upload corpus
+
+Exercise a local JSONL corpus without copying its images or identifying object
+names into this repository:
+
+```sh
+npm run corpus:exercise -- /path/to/corpus
+```
+
+The corpus directory must contain `manifest.jsonl`; each downloaded image record
+must provide `detectedFormat`, `localRelativePath`, `sha256`, and `sizeBytes`.
+The runner opens every selected image at frame 0 using the library's default
+tolerant JPEG decoding, reads metadata, auto-orients it, resizes inside 256x256
+without enlargement, encodes JPEG, and verifies the output metadata. Selecting
+frame 0 makes animated inputs exercise their decoder and transform path without
+treating the API's explicit-frame requirement as a codec failure. Pass
+`tolerantDecoding: false` to a normal library open when strict baseline JPEG
+restart validation is required.
+It defaults to one image at a time to bound memory. Use `--concurrency N`,
+`--limit N`, or `--format jpeg,png` for controlled runs. To use multiple CPU
+cores, launch separate processes with `--shard 0/N` through `--shard N-1/N`;
+shards are assigned deterministically from each image's SHA-256.
+
+The default report is
+`benchmark/results/artifacts/user-corpus-report.json`, an ignored path. Reports
+identify failures only by SHA-256, include both affected-record and unique-file
+counts, and never include manifest object keys or local image paths. A nonzero
+exit status means at least one file failed.
+
 ## Running
 
 Quick harness validation:

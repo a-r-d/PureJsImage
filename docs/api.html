@@ -38,11 +38,12 @@
 
 <span class="tok-key">interface</span> ImageOpenOptions {
   frame?: number
+  tolerantDecoding?: boolean
   limits?: ImageLimitOptions
 }</code></pre></div>
           <div class="api-list">
             <article class="api-item" data-search-item><h3>formats()</h3><p>Returns the format names registered in this library.</p><span class="returns">returns readonly string[]</span></article>
-            <article class="api-item" data-search-item><h3>open(input, options?)</h3><p>Creates a source, validates an optional zero-based frame selection, enforces the input-byte limit, probes registered codecs, and returns a lazy image pipeline. Only frame 0 is currently selectable. Static GIFs decode without a selection; animated GIF metadata remains available, but pixel output requires an explicit <code>{ frame: 0 }</code> to prevent silent animation loss.</p><span class="returns">returns Promise&lt;Image&gt;</span></article>
+            <article class="api-item" data-search-item><h3>open(input, options?)</h3><p>Creates a source, validates an optional zero-based frame selection, enforces the input-byte limit, probes registered codecs, and returns a lazy image pipeline. Only frame 0 is currently selectable. Static GIFs decode without a selection; animated GIF metadata remains available, but pixel output requires an explicit <code>{ frame: 0 }</code> to prevent silent animation loss. Baseline JPEG restart recovery defaults to <code>tolerantDecoding: true</code> for compatibility with malformed real-world files. Set <code>{ tolerantDecoding: false }</code> to require exact restart sequencing and permit an explicitly registered JPEG decode accelerator.</p><span class="returns">returns Promise&lt;Image&gt;</span></article>
           </div>
           <h3>Codec imports</h3>
           <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Named export</th></tr></thead><tbody>

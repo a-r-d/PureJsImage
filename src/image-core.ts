@@ -33,6 +33,7 @@ import { type ImageSource, withSourceSession } from './source.ts'
 export interface ImageOpenOptions {
   limits?: ImageLimitOptions
   frame?: number
+  tolerantDecoding?: boolean
 }
 
 export interface ImagePlatform<Input, Output extends Uint8Array> {
@@ -53,6 +54,7 @@ interface ImageContext<Input, Output extends Uint8Array> {
   readonly registry: CodecRegistry
   readonly limits: Readonly<ImageLimits>
   readonly frame: number | undefined
+  readonly tolerantDecoding: boolean
   readonly platform: ImagePlatform<Input, Output>
   readonly runtime: ImageRuntime
   metadataPromise: Promise<ImageMetadata> | undefined
@@ -87,6 +89,9 @@ export class Image<Input, Output extends Uint8Array> {
         'Only frame 0 can be selected; later frame selection is unsupported',
       )
     }
+    if (options.tolerantDecoding !== undefined && typeof options.tolerantDecoding !== 'boolean') {
+      throw invalidInput('tolerantDecoding must be a boolean')
+    }
     const limits = resolveLimits(options.limits)
     const source = await platform.createImageSource(input, limits)
     const codec = await withSourceSession(source, () => registry.detect(source))
@@ -94,6 +99,7 @@ export class Image<Input, Output extends Uint8Array> {
       source,
       codec,
       frame: options.frame,
+      tolerantDecoding: options.tolerantDecoding ?? true,
       registry,
       limits,
       platform,

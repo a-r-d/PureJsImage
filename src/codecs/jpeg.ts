@@ -237,18 +237,24 @@ class JpegDecoder implements ImageDecoder {
   })
   readonly #jpeg: BaselineJpeg
   readonly #accelerations: readonly JpegAcceleration[]
+  readonly #tolerantDecoding: boolean
 
-  constructor(jpeg: BaselineJpeg, accelerations: readonly JpegAcceleration[]) {
+  constructor(
+    jpeg: BaselineJpeg,
+    accelerations: readonly JpegAcceleration[],
+    tolerantDecoding: boolean,
+  ) {
     this.width = jpeg.width
     this.height = jpeg.height
     this.#jpeg = jpeg
     this.#accelerations = accelerations
+    this.#tolerantDecoding = tolerantDecoding
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const scale = scaleDenominator(request)
     const output = region(Math.ceil(this.width / scale), Math.ceil(this.height / scale), request)
-    for (const acceleration of this.#accelerations) {
+    for (const acceleration of this.#tolerantDecoding ? [] : this.#accelerations) {
       if (!acceleration.decode) continue
       const accelerated = await acceleration.decode({
         jpeg: this.#jpeg,
@@ -260,7 +266,7 @@ class JpegDecoder implements ImageDecoder {
         return
       }
     }
-    yield* decodeBaselineJpeg(this.#jpeg, output, scale)
+    yield* decodeBaselineJpeg(this.#jpeg, output, scale, undefined, this.#tolerantDecoding)
   }
 }
 
@@ -328,7 +334,7 @@ const decodeJpeg = async (
   const baseline = await parseBaselineJpegSource(source, applyIcc)
   if (baseline) {
     validateImageDimensions(baseline.width, baseline.height, 1, limits)
-    return new JpegDecoder(baseline, accelerations)
+    return new JpegDecoder(baseline, accelerations, options.tolerantDecoding === true)
   }
   const progressive = await parseCoefficientJpegSource(
     source,

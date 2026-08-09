@@ -3,6 +3,7 @@ import { PNG } from 'pngjs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
+import { applyRgbIcc, parseRgbIccTransform } from '../src/codecs/icc.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { ImageError } from '../src/index.ts'
 import { defaultImageLimits } from '../src/limits.ts'
@@ -64,6 +65,7 @@ interface JpegStructure {
   readonly componentCount: number
   readonly restartInterval: number
   readonly restartMarkers: readonly number[]
+  readonly restartMarkerOffsets: readonly number[]
 }
 
 interface JpegScanDescription {
@@ -171,6 +173,7 @@ const jpegStructure = (input: Uint8Array): JpegStructure => {
     offset += length
   }
   const restartMarkers: number[] = []
+  const restartMarkerOffsets: number[] = []
   while (offset + 1 < input.byteLength) {
     if (input[offset] !== 0xff) {
       offset += 1
@@ -179,10 +182,12 @@ const jpegStructure = (input: Uint8Array): JpegStructure => {
     const marker = input[offset + 1] ?? 0
     offset += 2
     if (marker === 0) continue
-    if (marker >= 0xd0 && marker <= 0xd7) restartMarkers.push(marker)
-    else if (marker === 0xd9) break
+    if (marker >= 0xd0 && marker <= 0xd7) {
+      restartMarkers.push(marker)
+      restartMarkerOffsets.push(offset - 2)
+    } else if (marker === 0xd9) break
   }
-  return { componentCount, restartInterval, restartMarkers }
+  return { componentCount, restartInterval, restartMarkers, restartMarkerOffsets }
 }
 
 const withOrientation = (input: Uint8Array, orientation: Orientation): Uint8Array => {
@@ -628,15 +633,30 @@ describe('JPEG pixel pipeline', () => {
     }
   })
 
-  it('rejects RGB v4 LUT-only profiles explicitly instead of treating their pixels as sRGB', async () => {
+  it('applies RGB v4 mAB A2B0 LUT profiles to sRGB output', async () => {
     const input = Buffer.from(baselineJpegFixtures['4:4:4'], 'base64')
-
-    await expect(
+    const [reference, profiled] = await Promise.all([
+      (await Image.open(input)).png().toBuffer(),
       (await Image.open(withIccProfile(input, rgbLutOnlyProfile()))).png().toBuffer(),
-    ).rejects.toMatchObject({
-      code: 'UNSUPPORTED_OPERATION',
-      message: 'RGB ICC LUT-only A2B0 transforms are not implemented',
+    ])
+    const referencePixels = PNG.sync.read(reference)
+    const profiledPixels = PNG.sync.read(profiled)
+
+    expect(profiledPixels.width).toBe(referencePixels.width)
+    expect(profiledPixels.height).toBe(referencePixels.height)
+    expect(meanAbsoluteError(profiledPixels.data, referencePixels.data)).toBeLessThan(1)
+    const offsetPixels = ([0, 1, 2] as const).map((axis) => {
+      const offsets: [number, number, number] = [0, 0, 0]
+      offsets[axis] = 0.01
+      const pixel = Uint8Array.of(0, 0, 0)
+      applyRgbIcc(pixel, parseRgbIccTransform(rgbLutOnlyProfile(offsets)))
+      return Array.from(pixel)
     })
+    expect(offsetPixels).toEqual([
+      [71, 0, 5],
+      [0, 55, 0],
+      [0, 2, 47],
+    ])
   })
 
   it('honors an explicit Adobe RGB component transform', async () => {
@@ -972,6 +992,56 @@ describe('JPEG pixel pipeline', () => {
       width: 35,
       height: 19,
     })
+  })
+
+  it('recovers malformed restart streams by default and keeps strict decoding explicit', async () => {
+    const image = new PNG({ width: 35, height: 19 })
+    for (let y = 0; y < image.height; y += 1) {
+      for (let x = 0; x < image.width; x += 1) {
+        const offset = (y * image.width + x) * 4
+        image.data.set([x * 7, y * 11, (x + y) * 4, 255], offset)
+      }
+    }
+    const encoded = await (await Image.open(PNG.sync.write(image)))
+      .encode('jpeg', { quality: 92, chromaSubsampling: '444', restartInterval: 3 })
+      .toBuffer()
+    const markerOffsets = jpegStructure(encoded).restartMarkerOffsets
+    const secondMarkerOffset = markerOffsets[1]
+    if (secondMarkerOffset === undefined) throw new Error('JPEG restart fixture is incomplete')
+
+    const wrongSequence = Uint8Array.from(encoded)
+    wrongSequence[secondMarkerOffset + 1] = 0xd7
+    const extraBytes = Buffer.concat([
+      encoded.subarray(0, secondMarkerOffset),
+      Uint8Array.of(0x12, 0x34, 0x56),
+      encoded.subarray(secondMarkerOffset),
+    ])
+    const prematureEnd = encoded.slice()
+    prematureEnd[secondMarkerOffset + 1] = 0xd9
+
+    await expect(
+      (await Image.open(wrongSequence, { tolerantDecoding: false })).png().toBuffer(),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'Expected JPEG restart marker 1',
+    })
+    await expect(
+      (await Image.open(extraBytes, { tolerantDecoding: false })).png().toBuffer(),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'Expected JPEG restart marker 1',
+    })
+
+    const recovered = await Promise.all(
+      [wrongSequence, extraBytes, prematureEnd].map(async (input) =>
+        PNG.sync.read(await (await Image.open(input)).png().toBuffer()),
+      ),
+    )
+    expect(recovered.map(({ width, height }) => ({ width, height }))).toEqual([
+      { width: 35, height: 19 },
+      { width: 35, height: 19 },
+      { width: 35, height: 19 },
+    ])
   })
 
   it('flattens transparent PNG input onto the requested JPEG background', async () => {

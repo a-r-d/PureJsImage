@@ -121,11 +121,52 @@ const jpegPipeline = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const tolerantJpegRestartRecovery = async (): Promise<BrowserWorkflowResult> => {
+  const source = await fetchBytes('/fixtures/benchmark-input.png')
+  const encoded = await (await images.open(source))
+    .jpeg({ quality: 82, restartInterval: 3 })
+    .toUint8Array()
+  let restartMarkers = 0
+  let corruptOffset = -1
+  for (let offset = 0; offset + 1 < encoded.byteLength; offset += 1) {
+    const marker = encoded[offset + 1] ?? 0
+    if (encoded[offset] !== 0xff || marker < 0xd0 || marker > 0xd7) continue
+    restartMarkers += 1
+    if (restartMarkers === 2) {
+      corruptOffset = offset + 1
+      break
+    }
+  }
+  if (corruptOffset < 0) throw new Error('Browser JPEG restart fixture is incomplete')
+  const corrupted = Uint8Array.from(encoded)
+  corrupted[corruptOffset] = 0xd7
+
+  try {
+    await (await images.open(corrupted, { tolerantDecoding: false })).png().toUint8Array()
+    throw new Error('Strict browser JPEG decode accepted an out-of-order restart marker')
+  } catch (error) {
+    if (!(error instanceof ImageError) || error.message !== 'Expected JPEG restart marker 1') {
+      throw error
+    }
+  }
+  const output = await (await images.open(corrupted)).png().toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.format !== 'png' || metadata.width !== 640 || metadata.height !== 480) {
+    throw new Error(
+      `Default JPEG recovery output was ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  return {
+    detail: 'default tolerant JPEG restart recovery produced a 640x480 PNG',
+    outputBytes: output.byteLength,
+  }
+}
+
 const wasmJpeg = async (): Promise<BrowserWorkflowResult> => {
   const bytes = await fetchBytes('/fixtures/benchmark-input.jpg')
   const [reference, accelerated] = await Promise.all([
     (await images.open(bytes)).png().toUint8Array(),
-    (await wasmImages.open(bytes)).png().toUint8Array(),
+    (await wasmImages.open(bytes, { tolerantDecoding: false })).png().toUint8Array(),
   ])
   if (reference.byteLength !== accelerated.byteLength) {
     throw new Error('WASM JPEG output length differs from the TypeScript reference')
@@ -616,6 +657,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   heifPqDisplay,
   inputTypes,
   jpegPipeline,
+  tolerantJpegRestartRecovery,
   orientation,
   pngAlphaPipeline,
   progressiveJpeg,
