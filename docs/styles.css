@@ -1252,6 +1252,10 @@ table {
   font-size: 13px;
 }
 
+.lambda-results-table {
+  min-width: 680px;
+}
+
 th,
 td {
   padding: 12px 14px;

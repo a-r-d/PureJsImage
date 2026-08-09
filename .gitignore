@@ -185,6 +185,10 @@ benchmark/corpus/files/jp2/*
 !benchmark/corpus/files/ico-dib32-alpha-128.ico
 !benchmark/corpus/files/ico-mixed-16-32-256.ico
 benchmark/.tmp/
+benchmark/aws-lambda/.asset/
+benchmark/aws-lambda/.asset.zip
+benchmark/aws-lambda/.asset-location.json
+/cdk.out/
 /docs/assets/demo-app.js
 benchmark/results/artifacts/
 artifacts/fuzz-crashes/

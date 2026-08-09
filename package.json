@@ -180,7 +180,12 @@
     "bench:jpeg:region-rss": "node benchmark/jpeg/run-region-rss.ts",
     "bench:jpeg:upsampling": "node benchmark/jpeg/run-upsampling.ts",
     "bench:jpeg:wasm": "npm run build && node benchmark/jpeg/run-wasm-decoder.ts",
-    "bench:jpeg2000:rss": "node benchmark/jpeg2000/run-rss.ts"
+    "bench:jpeg2000:rss": "node benchmark/jpeg2000/run-rss.ts",
+    "bench:lambda:assets": "npm run build && npm run fixtures:prepare -- tundra-4000x3000 rgba-gradient-4000x3000 && node benchmark/aws-lambda/build-assets.ts",
+    "bench:lambda:deploy": "npm run bench:lambda:assets && node benchmark/aws-lambda/stage-assets.ts && cdk deploy --app \"node benchmark/aws-lambda/stack.ts\" PureJsImageLambdaBenchmark --require-approval never --method direct",
+    "bench:lambda:run": "node benchmark/aws-lambda/run.ts",
+    "bench:lambda:run:arm-wasm": "node benchmark/aws-lambda/run-arm-wasm.ts",
+    "bench:lambda:destroy": "cdk destroy --app \"node benchmark/aws-lambda/stack.ts\" PureJsImageLambdaBenchmark --force && node benchmark/aws-lambda/stage-assets.ts --cleanup"
   },
   "overrides": {
     "image-js": {
@@ -188,6 +193,8 @@
     }
   },
   "devDependencies": {
+    "@aws-sdk/client-lambda": "3.1106.0",
+    "@aws-sdk/client-s3": "3.1106.0",
     "@biomejs/biome": "2.5.7",
     "@jsquash/jpeg": "1.6.0",
     "@jsquash/png": "3.1.1",
@@ -195,10 +202,15 @@
     "@jsquash/webp": "1.5.0",
     "@playwright/test": "1.62.1",
     "@stacksjs/ts-avif": "0.1.3",
+    "@types/archiver": "8.0.0",
     "@types/node": "26.1.2",
     "@types/omggif": "1.0.5",
     "@types/pngjs": "6.0.5",
+    "archiver": "8.0.0",
+    "aws-cdk": "2.1135.1",
+    "aws-cdk-lib": "2.263.0",
     "bmp-ts": "^1.0.9",
+    "constructs": "10.8.1",
     "esbuild": "0.28.1",
     "exif-parser": "0.1.12",
     "image-dimensions": "2.5.1",
