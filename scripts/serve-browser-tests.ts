@@ -210,8 +210,8 @@ await copyFile(
   resolve(fixtureDirectory, 'benchmark-input.webp'),
 )
 await copyFile(
-  'benchmark/corpus/files/avif/sharp-qmatrix-q50-256x192.avif',
-  resolve(fixtureDirectory, 'sharp-qmatrix-q50-256x192.avif'),
+  'benchmark/corpus/files/avif/sharp-qmatrix-q30-256x192.avif',
+  resolve(fixtureDirectory, 'sharp-qmatrix-q30-256x192.avif'),
 )
 await writeFile(
   resolve(outputDirectory, 'index.html'),

@@ -391,12 +391,21 @@ const dequantizeAv1Coefficients = (
       : undefined
 
   const dequantized = new Int32Array(width * height)
+  const matrixWidth = Math.min(width, 32)
+  const matrixHeight = Math.min(height, 32)
   const rectangularScale = width * 2 === height || height * 2 === width
   const sizeContext = (Math.log2(width >> 2) + Math.log2(height >> 2) + 1) >> 1
   const dequantizerDivisor = 2 ** Math.max(0, sizeContext - 2)
   for (let index = 0; index < dequantized.length; index += 1) {
     const quantization = index === 0 ? dc : ac
-    const weighted = matrix ? roundedShift(quantization * (matrix[index] ?? 32), 5) : quantization
+    const row = Math.floor(index / width)
+    const column = index % width
+    // Transform coefficients use the opposite axis order from the normative matrix tables.
+    const matrixWeight =
+      matrix && row < matrixHeight && column < matrixWidth
+        ? (matrix[column * matrixHeight + row] ?? 32)
+        : 32
+    const weighted = matrix ? roundedShift(quantization * matrixWeight, 5) : quantization
     const scaled = (quantized[index] ?? 0) * weighted
     const value = Math.max(
       -32768,

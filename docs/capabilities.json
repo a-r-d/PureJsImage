@@ -28,6 +28,12 @@
         "tests/jpeg-reference-parity.test.ts",
         "browser-tests/compatibility.pw.ts"
       ],
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Sharp 0.35.3 with libjpeg plus pinned browser fixtures",
+        "tolerance": "Decode RGB PSNR above 40 dB versus Sharp/libjpeg and above 28 dB versus source pixels",
+        "evidence": ["tests/lossy-codec-quality.test.ts", "tests/jpeg-reference-parity.test.ts"]
+      },
       "claims": [
         {
           "status": "supported",
@@ -380,6 +386,10 @@
         "tests/png-compatibility.test.ts",
         "tests/metadata-preservation.test.ts"
       ],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented PNG paths are lossless"
+      },
       "claims": [
         {
           "status": "supported",
@@ -732,6 +742,12 @@
         "tests/metadata-preservation.test.ts",
         "tests/lossy-codec-quality.test.ts"
       ],
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Sharp 0.35.3 with libwebp",
+        "tolerance": "Lossy decode RGB PSNR above 39 dB versus the independent libwebp output",
+        "evidence": ["tests/lossy-codec-quality.test.ts"]
+      },
       "claims": [
         {
           "status": "supported",
@@ -1168,6 +1184,10 @@
       "memory": "Region-based row reads; RLE uses compact full-frame index storage",
       "recommendation": "Legacy Windows bitmap interoperability.",
       "evidence": ["tests/bmp.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented BMP paths are uncompressed or losslessly compressed"
+      },
       "claims": [
         {
           "status": "supported",
@@ -1544,6 +1564,10 @@
       "memory": "Strip or tile region decode; output is emitted in bounded rows",
       "recommendation": "Broad input compatibility and simple uncompressed TIFF output.",
       "evidence": ["tests/tiff.test.ts", "tests/metadata-preservation.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented TIFF compression paths are lossless"
+      },
       "claims": [
         {
           "status": "supported",
@@ -1800,6 +1824,10 @@
       "memory": "Retains compact first-frame palette indices, then emits bounded RGBA rows",
       "recommendation": "First-frame extraction from GIF uploads.",
       "evidence": ["tests/gif.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "GIF decode reproduces the stored palette indices and does not claim a lossy continuous-tone path"
+      },
       "claims": [
         {
           "status": "supported",
@@ -2136,6 +2164,10 @@
       "memory": "Decodes one selected entry; DIB pixels are emitted in bounded rows",
       "recommendation": "Favicon and Windows icon input converted to a web output format.",
       "evidence": ["tests/ico.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented ICO entries contain lossless PNG or DIB pixel data"
+      },
       "claims": [
         {
           "status": "supported",
@@ -2468,6 +2500,12 @@
       "memory": "Current implementation retains full-frame component and output state",
       "recommendation": "Common static JP2 uploads that fall within the documented subset.",
       "evidence": ["tests/jpeg2000.test.ts", "tests/jpeg2000-hardening.test.ts"],
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Pinned FFmpeg and OpenJPEG JP2 fixtures",
+        "tolerance": "Irreversible 9/7 decoded sample error at most 1 for the pinned oracle pixels",
+        "evidence": ["tests/jpeg2000.test.ts", "benchmark/jpeg2000/verify-corpus.ts"]
+      },
       "claims": [
         {
           "status": "supported",
@@ -3099,7 +3137,22 @@
       "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets opaque 8-bit YUV 4:2:0 still images, including the documented in-loop filters and restricted Sharp/libaom quantization-matrix path. Alpha, grids, high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
       "memory": "Metadata reads are bounded; the restricted decoder uses compact YUV state",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
-      "evidence": ["tests/avif.test.ts", "tests/av1.test.ts", "tests/av1-post-filter.test.ts"],
+      "evidence": [
+        "tests/avif.test.ts",
+        "tests/av1.test.ts",
+        "tests/av1-post-filter.test.ts",
+        "tests/lossy-codec-quality.test.ts"
+      ],
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Sharp 0.35.3/libaom and FFmpeg with libaom 3.12.1 and dav1d 1.5.1",
+        "tolerance": "Direct YUV maximum error at most 3 and PSNR at least 55 dB; displayed RGB PSNR above 39 dB",
+        "evidence": [
+          "tests/lossy-codec-quality.test.ts",
+          "tests/av1-post-filter.test.ts",
+          "benchmark/avif/verify-qmatrix-fixtures.ts"
+        ]
+      },
       "claims": [
         {
           "status": "supported",
@@ -3408,6 +3461,10 @@
         {
           "status": "supported",
           "text": "Quantization-matrix reconstruction for every supported two-dimensional transform size, including flat level 15 matrices"
+        },
+        {
+          "status": "supported",
+          "text": "Matrix lookup in the inverse-transform kernels' coefficient-axis order, including AV1's adjusted 32x32 matrix dimensions for 64-point transforms"
         },
         {
           "status": "supported",
@@ -3767,7 +3824,11 @@
         },
         {
           "status": "supported",
-          "text": "Decode two checksum-pinned default Sharp 0.35.3/libaom q50 and q80 quantization-matrix fixtures and match both dav1d and libaom YUV output exactly with numeric tolerance zero"
+          "text": "Decode five checksum-pinned default Sharp 0.35.3/libaom q30 through q90 quantization-matrix fixtures after exact dav1d/libaom oracle agreement"
+        },
+        {
+          "status": "supported",
+          "text": "Hold quantization-matrix output to maximum YUV sample error 3 and at least 55 dB PSNR, plus displayed RGB PSNR above 39 dB against Sharp/libaom"
         },
         {
           "status": "supported",
@@ -3812,6 +3873,12 @@
       "memory": "Grid workflows decode requested tile rows; large compatible inputs remain explicitly measured",
       "recommendation": "Compatible phone-camera HEIC stills after checking the corpus report.",
       "evidence": ["tests/heif.test.ts", "tests/metadata-preservation.test.ts"],
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "ImageMagick 7.1.2 with libheif 1.20.2",
+        "tolerance": "Normalized displayed sRGB RMSE at most 0.035 for compatible corpus entries",
+        "evidence": ["tests/heif.test.ts", "benchmark/heif/compatibility/run.ts"]
+      },
       "claims": [
         {
           "status": "supported",
@@ -4311,6 +4378,10 @@
       "memory": "No pixel decoder is implemented",
       "recommendation": "Not currently available for image processing.",
       "evidence": [],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "JPEG XL pixel decode is planned and has no implemented lossy path"
+      },
       "claims": [
         {
           "status": "supported",

@@ -25,6 +25,10 @@ claim. Never make generated documentation authoritative.
    third-party codec. Development dependencies may act only as test or benchmark oracles.
 2. Add or update focused tests for the public behavior and important failure boundary. Use pinned
    independent fixtures or oracles where format compatibility or lossy quality is involved.
+   Every codec manifest entry must declare `lossyPixelValidation`: use `independent-oracle` with
+   the named oracle, numeric tolerance, and repository evidence for any implemented lossy pixel
+   path, or `not-applicable` with a concrete rationale. A lossy codec rollout is incomplete if that
+   declaration or its executable evidence is missing.
 3. Assert explicit `UNSUPPORTED_OPERATION` behavior when a recognized subset remains unsupported.
    Never silently approximate semantics or emit plausible but invalid output.
 4. Exercise browser behavior when the changed codec path is reachable from browser entry points.

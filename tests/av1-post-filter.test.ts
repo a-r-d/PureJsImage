@@ -149,6 +149,15 @@ describe('AV1 quantization matrices', () => {
     expect(av1InverseQuantizationMatrix(15, 0, 4, 4)).toBeUndefined()
   })
 
+  it('uses the adjusted 32x32 matrix dimensions for 64-point transforms', () => {
+    expect(av1InverseQuantizationMatrix(0, 0, 64, 64)).toEqual(
+      av1InverseQuantizationMatrix(0, 0, 32, 32),
+    )
+    expect(av1InverseQuantizationMatrix(0, 1, 64, 16)).toEqual(
+      av1InverseQuantizationMatrix(0, 1, 32, 16),
+    )
+  })
+
   it.each(avifQmatrixFixtures)(
     'matches independently decoded Sharp q$quality YUV pixels',
     async (fixture) => {
@@ -162,15 +171,13 @@ describe('AV1 quantization matrices', () => {
       ])
       expect(decoded.header.baseQuantizer).toBe(fixture.baseQuantizer)
       expect(decoded.header.usingQMatrix).toBe(true)
-      expect([decoded.header.qmY, decoded.header.qmU, decoded.header.qmV]).toEqual([
-        fixture.matrixLevel,
-        fixture.matrixLevel,
-        fixture.matrixLevel,
-      ])
+      expect([decoded.header.qmY, decoded.header.qmU, decoded.header.qmV]).toEqual(
+        fixture.matrixLevels,
+      )
       expect(decoded.header.deltaQPresent).toBe(true)
       expect(decoded.header.deltaQResolution).toBe(fixture.deltaQResolution)
       expect(decoded.header.deltaLfPresent).toBe(false)
-      expect(createHash('sha256').update(decoded.yuv).digest('hex')).toBe(fixture.yuvSha256)
+      expect(createHash('sha256').update(decoded.yuv).digest('hex')).toBe(fixture.decodedYuvSha256)
     },
   )
 

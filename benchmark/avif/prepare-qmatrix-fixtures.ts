@@ -8,13 +8,19 @@ import { avifQmatrixFixtureDirectory, avifQmatrixFixtures } from './qmatrix-fixt
 const width = 256
 const height = 192
 const source = new Uint8Array(width * height * 3)
+const clampByte = (value: number): number => Math.max(0, Math.min(255, value))
 for (let y = 0; y < height; y += 1) {
   for (let x = 0; x < width; x += 1) {
-    const value = ((x >> 5) + (y >> 5)) & 1 ? 210 : 40
     const offset = (y * width + x) * 3
-    source[offset] = value
-    source[offset + 1] = 255 - value
-    source[offset + 2] = (value + 80) & 255
+    const texture = ((x * 29 + y * 17 + ((x * y) % 97)) & 31) - 16
+    const patch = ((x >> 4) + (y >> 4)) & 1 ? 10 : -10
+    source[offset] = clampByte(25 + (x * 180) / width + (y * 30) / height + texture / 2 + patch)
+    source[offset + 1] = clampByte(
+      35 + (y * 150) / height + ((width - x) * 50) / width - texture / 3 - patch,
+    )
+    source[offset + 2] = clampByte(
+      180 - (y * 120) / height + (x * 50) / width + texture + patch / 2,
+    )
   }
 }
 

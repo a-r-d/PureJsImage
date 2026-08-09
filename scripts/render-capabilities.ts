@@ -132,6 +132,7 @@ const generatedExpectations = (codecs: readonly CodecCapability[]): string => {
     decoder: codec.read.status === 'supported' || codec.read.status === 'limited',
     encoder: codec.write.status === 'supported' || codec.write.status === 'limited',
     evidence: codec.evidence,
+    lossyPixelValidation: codec.lossyPixelValidation,
   }))
   return `${JSON.stringify({ schemaVersion: 1, codecs: expectations }, null, 2)}\n`
 }
@@ -148,6 +149,7 @@ const publicJson = (manifestCodecs: readonly CodecCapability[]): string => {
     memory: codec.memory,
     recommendation: codec.recommendation,
     evidence: codec.evidence,
+    lossyPixelValidation: codec.lossyPixelValidation,
     claims: capabilityClaims(codec.document),
   }))
   return `${JSON.stringify({ schemaVersion: 1, codecs }, null, 2)}\n`

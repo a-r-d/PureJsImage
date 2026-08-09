@@ -7,6 +7,18 @@ export interface CapabilityLevel {
   readonly label: string
 }
 
+export type LossyPixelValidation =
+  | {
+      readonly status: 'independent-oracle'
+      readonly oracle: string
+      readonly tolerance: string
+      readonly evidence: readonly string[]
+    }
+  | {
+      readonly status: 'not-applicable'
+      readonly rationale: string
+    }
+
 export interface CodecCapability {
   readonly id: string
   readonly name: string
@@ -19,6 +31,7 @@ export interface CodecCapability {
   readonly memory: string
   readonly recommendation: string
   readonly evidence: readonly string[]
+  readonly lossyPixelValidation: LossyPixelValidation
   readonly document: string
 }
 
@@ -95,6 +108,27 @@ const capabilityLevel = (value: unknown, codecId: string, operation: string): Ca
   throw new Error(`${codecId}.${operation} has unreachable status ${status}`)
 }
 
+const lossyPixelValidation = (value: unknown, codecId: string): LossyPixelValidation => {
+  if (!isRecord(value)) throw new Error(`${codecId}.lossyPixelValidation must be an object`)
+  const status = requiredString(value, 'status')
+  if (status === 'not-applicable') {
+    return { status, rationale: requiredString(value, 'rationale') }
+  }
+  if (status === 'independent-oracle') {
+    const evidence = stringArray(value, 'evidence')
+    if (evidence.length === 0) {
+      throw new Error(`${codecId}.lossyPixelValidation requires oracle test evidence`)
+    }
+    return {
+      status,
+      oracle: requiredString(value, 'oracle'),
+      tolerance: requiredString(value, 'tolerance'),
+      evidence,
+    }
+  }
+  throw new Error(`${codecId}.lossyPixelValidation has unknown status ${status}`)
+}
+
 const codecCapability = (value: unknown): CodecCapability => {
   if (!isRecord(value)) throw new Error('Capability manifest codec entries must be objects')
   const id = requiredString(value, 'id')
@@ -111,6 +145,7 @@ const codecCapability = (value: unknown): CodecCapability => {
     memory: requiredString(value, 'memory'),
     recommendation: requiredString(value, 'recommendation'),
     evidence: stringArray(value, 'evidence'),
+    lossyPixelValidation: lossyPixelValidation(value.lossyPixelValidation, id),
     document: documentText(value),
   }
 }

@@ -1,8 +1,14 @@
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 
 import { Image } from './image-library.ts'
+import {
+  avifQmatrixFixtureDirectory,
+  avifQmatrixFixtures,
+} from '../benchmark/avif/qmatrix-fixtures.ts'
 
 const width = 256
 const height = 192
@@ -104,4 +110,16 @@ describe('lossy codec oracle quality', () => {
 
     expect(psnr(source, decoded)).toBeGreaterThan(26)
   })
+
+  it.each(avifQmatrixFixtures)(
+    'decodes Sharp/libaom AVIF q$quality within the displayed-RGB oracle tolerance',
+    async (fixture) => {
+      const input = await readFile(join(avifQmatrixFixtureDirectory, fixture.file))
+      const oracle = await sharp(input).removeAlpha().raw().toBuffer()
+      const decodedPng = await (await Image.open(input)).png().toBuffer()
+      const decoded = pngRgb(decodedPng)
+
+      expect(psnr(oracle, decoded)).toBeGreaterThan(39)
+    },
+  )
 })
