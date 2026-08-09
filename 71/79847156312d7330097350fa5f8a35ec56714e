@@ -1,0 +1,88 @@
+tests/project-contract.test.ts
+  s_84d542edc0aa8c::t_a17bd8bb045b72 115-116
+  s_84d542edc0aa8c::t_cf811abca5ae98 104-106,110-114,117,126-128
+  s_84d542edc0aa8c::t_b1f5e0a9c2dcf8 107-109,118-125
+docs/contributing.html
+  s_84d542edc0aa8c::t_b621d8de499222 18
+README.md
+  s_84d542edc0aa8c::t_b621d8de499222 31,47-55
+  s_84d542edc0aa8c::t_f4eaef43e48abf 56
+docs/sitemap.xml
+  s_84d542edc0aa8c::t_b621d8de499222 4
+docs/demo.html
+  s_84d542edc0aa8c::t_26cffad8e94160 1-32,34-37,39-54,56-68,70-75,77-114,116-169
+  s_84d542edc0aa8c::t_219a72349614ea 33
+  s_84d542edc0aa8c::t_797c24bcdc9d29 38,55,69,115
+  s_84d542edc0aa8c::t_344a42a1772a47 76
+docs/index.html
+  s_84d542edc0aa8c::t_b621d8de499222 28,60-61
+docs/performance.html
+  s_84d542edc0aa8c::t_b621d8de499222 18
+docs/styles.css
+  s_84d542edc0aa8c::t_71a170384f2ad4 3130-3265,3272-3355,3361-3606,3611-3923
+  s_84d542edc0aa8c::t_797c24bcdc9d29 3266-3271,3356-3360
+  s_84d542edc0aa8c::t_d8760fdd580b6b 3607-3610
+docs/codecs.html
+  s_84d542edc0aa8c::t_b621d8de499222 18
+scripts/serve-browser-tests.ts
+  s_84d542edc0aa8c::t_cf811abca5ae98 150,168-172,173-177,213,219
+  s_84d542edc0aa8c::t_c6807c8ec50fee 5,59-67,196
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 151-167
+docs/api.html
+  s_84d542edc0aa8c::t_b621d8de499222 18
+tsconfig.json
+  s_84d542edc0aa8c::t_d03497560719fa 19
+tsconfig.browser.json
+  s_84d542edc0aa8c::t_d03497560719fa 18
+docs/demo.ts
+  s_84d542edc0aa8c::t_9bb883141b83c7 1-33,35-87,92-106,108-181,184-191,194-213,221-256,260-302,309-326,329-333,340-421,426-463,468-472,478-491,493-545,550-557
+  s_84d542edc0aa8c::t_344a42a1772a47 34,492
+  s_84d542edc0aa8c::t_bb6b61073a2116 88-91,107,182-183,192-193,214-220,257-259,303-308,327-328,334-339,422-425,464-467,473-477,546-549
+docs/guides.html
+  s_84d542edc0aa8c::t_b621d8de499222 18
+browser-tests/demo.pw.ts
+  s_84d542edc0aa8c::t_2b7aeba2d21454 42-43,45-46
+  s_84d542edc0aa8c::t_442fc0fe5a4c12 61-62
+  s_84d542edc0aa8c::t_c6807c8ec50fee 49-60,63-68
+  s_84d542edc0aa8c::t_cf811abca5ae98 1-41,44,47-48
+  s_84d542edc0aa8c::t_8a842557fb172a 69-88
+  s_84d542edc0aa8c::t_d8760fdd580b6b 89
+  s_84d542edc0aa8c::t_a8910f2b1cf758 90-92
+tests/jpeg-reference-fixtures.test.ts
+  s_84d542edc0aa8c::t_8a842557fb172a 20-21,75-86,119-120,148-150,152-156
+  s_84d542edc0aa8c::t_9f80725adef51e 151
+  s_84d542edc0aa8c::t_6484d32a92796f 157-161
+benchmark/jpeg/prepare-reference-fixtures.ts
+  s_84d542edc0aa8c::t_8a842557fb172a 6,18-19,39-62,106-110,123
+src/codecs/jpeg-baseline.ts
+  s_84d542edc0aa8c::t_28d7aa8039ed3c 1823-1832,1834-1835,1847-1850
+CHANGELOG.md
+  s_84d542edc0aa8c::t_8a842557fb172a 20-24
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 16-18
+package.json
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 118,129
+.github/workflows/pages.yml
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 1-67
+.gitignore
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 187
+scripts/build-docs-site.ts
+  s_84d542edc0aa8c::t_1bfdbe67d908a5 1-2,5-9,11-20,23,32,38-40,42-47
+biome.json
+  s_84d542edc0aa8c::t_6831d20f32ce39 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "7179847156312d7330097350fa5f8a35ec56714e",
+  "prompts": {},
+  "sessions": {
+    "s_84d542edc0aa8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe30a-1315-7a91-ac72-83d2bf53d5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
