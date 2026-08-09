@@ -87,6 +87,27 @@ test('decodes lossy WebP macroblock rows in a real browser', async ({ page }) =>
   expect(result.detail).toContain('macroblock rows decoded')
 })
 
+test('decodes and composes straight-alpha AVIF items', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifAlphaStraight())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
+test('decodes and unpremultiplies premultiplied-alpha AVIF items', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifAlphaPremultiplied())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
+test('decodes and composes a cropped-edge AVIF image grid', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifGrid())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
 test('decodes a Sharp/libaom quantization-matrix AVIF', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifQuantizationMatrix())

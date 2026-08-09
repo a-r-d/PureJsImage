@@ -3145,9 +3145,9 @@
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Restricted opaque 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode",
-      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets opaque 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images, including the documented in-loop filters and restricted Sharp/libaom quantization-matrix path. Alpha, grids, high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
-      "memory": "Metadata reads are bounded; the restricted decoder uses compact luma or YUV state",
+      "boundary": "Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode, including compatible alpha auxiliaries and opaque grids",
+      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images, including compatible full-range monochrome alpha auxiliaries, opaque image grids, the documented in-loop filters, and the restricted Sharp/libaom quantization-matrix path. Grid alpha, high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
+      "memory": "Metadata reads are bounded; the restricted decoder uses compact luma or YUV state plus the requested RGBA output and, for grids, one decoded tile",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
       "evidence": [
         "tests/avif.test.ts",
@@ -3159,7 +3159,7 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Sharp 0.35.3/libaom, FFmpeg with libaom 3.12.1 and dav1d 1.5.1, and Chromium",
-        "tolerance": "8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; 8-bit YUV 4:2:2 and 4:4:4 planes are exact and displayed RGB exceeds 50 dB against Sharp; YUV 4:4:4 displayed RGB also exceeds 50 dB against Chromium; YUV 4:2:0 maximum error is at most 3 with PSNR at least 55 dB and displayed RGB above 39 dB",
+        "tolerance": "8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; 8-bit YUV 4:2:2 and 4:4:4 planes are exact and displayed RGB exceeds 50 dB against Sharp; YUV 4:4:4 displayed RGB also exceeds 50 dB against Chromium; YUV 4:2:0 maximum error is at most 3 with PSNR at least 55 dB and displayed RGB above 39 dB; straight and premultiplied alpha RGBA is exact against Sharp/libavif after semantic unpremultiplication; the 1x5 grid exceeds 54 dB RGBA PSNR against Sharp/libavif",
         "evidence": [
           "tests/lossy-codec-quality.test.ts",
           "tests/av1-post-filter.test.ts",
@@ -3320,12 +3320,12 @@
           "text": "Cross-check `av1C` profile, bit depth, chroma, level, and tier against the authoritative AV1 sequence header during bitstream inspection"
         },
         {
-          "status": "planned",
-          "text": "Pixel decoding and composition of grid items"
+          "status": "supported",
+          "text": "Pixel decoding and composition of compatible opaque grid items"
         },
         {
-          "status": "planned",
-          "text": "Pixel decoding and composition of alpha auxiliary items"
+          "status": "supported",
+          "text": "Pixel decoding and composition of compatible alpha auxiliary items"
         },
         {
           "status": "planned",
@@ -3401,7 +3401,7 @@
         },
         {
           "status": "supported",
-          "text": "One `av01` primary image with one complete AV1 frame OBU"
+          "text": "One complete AV1 frame OBU per coded image item"
         },
         {
           "status": "supported",
@@ -3493,6 +3493,14 @@
         },
         {
           "status": "supported",
+          "text": "Straight and premultiplied alpha auxiliary composition using full-range 8-bit monochrome alpha, including normalization to straight RGBA output"
+        },
+        {
+          "status": "supported",
+          "text": "Opaque image grids with consistent independently coded tile dimensions and cropped right or bottom edge tiles"
+        },
+        {
+          "status": "supported",
           "text": "Public crop, resize, AVIF-to-PNG, AVIF-to-JPEG, AVIF-to-WebP, and AVIF-to-other-implemented-codec pipelines after frame reconstruction"
         },
         {
@@ -3502,6 +3510,10 @@
         {
           "status": "planned",
           "text": "Tile-list or partial tile-group OBUs"
+        },
+        {
+          "status": "planned",
+          "text": "Alpha-bearing image grids"
         },
         {
           "status": "planned",
@@ -3825,7 +3837,7 @@
         },
         {
           "status": "supported",
-          "text": "Decode and pin RGBA regression hashes for Kodak 768x512 color plus Fox 1204x800 YUV 4:2:0, monochrome, YUV 4:2:2, and YUV 4:4:4 photographs"
+          "text": "Decode and pin RGBA regression hashes for Kodak 768x512 color; Fox 1204x800 YUV 4:2:0, monochrome, YUV 4:2:2, and YUV 4:4:4 photographs; deterministic straight and premultiplied alpha fixtures; and a 1024x770 cropped-edge image grid"
         },
         {
           "status": "supported",
@@ -3833,7 +3845,7 @@
         },
         {
           "status": "supported",
-          "text": "Report the current broad decode corpus as 7 compatible, 18 explicitly unsupported, zero invalid, and zero unexpected"
+          "text": "Report the current broad decode corpus as 8 compatible, 17 explicitly unsupported, zero invalid, and zero unexpected"
         },
         {
           "status": "supported",
@@ -3850,6 +3862,18 @@
         {
           "status": "supported",
           "text": "Exercise YUV 4:2:2 decode in Chromium through the portable TypeScript codec and pin its RGBA output; Chromium's native AVIF decoder rejects this Professional Profile source and is not used as its browser oracle"
+        },
+        {
+          "status": "supported",
+          "text": "Match Sharp/libavif RGBA exactly for checksum-pinned straight and premultiplied alpha fixtures after normalizing premultiplied color to the library's straight-RGBA pixel contract"
+        },
+        {
+          "status": "supported",
+          "text": "Exceed 54 dB RGBA PSNR against Sharp/libavif for the checksum-pinned cropped-edge 1x5 image grid"
+        },
+        {
+          "status": "supported",
+          "text": "Exercise straight alpha, premultiplied alpha, and image-grid composition through the portable TypeScript codec in Chromium and pin each PNG output"
         },
         {
           "status": "supported",

@@ -14,7 +14,7 @@ import { readExactly } from '../source.ts'
 import { av1ObuType, inspectAv1Bitstream } from './av1.ts'
 import type { Av1Obu, Av1SequenceHeader } from './av1.ts'
 import { parseAv1Frame } from './av1-frame.ts'
-import { av1ToRgba, decodeRestrictedAv1Intra } from './av1-intra.ts'
+import { av1ToRgba, decodeRestrictedAv1Intra, type Av1DecodedFrame } from './av1-intra.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import {
   ColorManagedDecoder,
@@ -327,14 +327,14 @@ const readItemPayload = async (
   return output
 }
 
-interface GridDescription {
+export interface AvifGridDescription {
   readonly columns: number
   readonly height: number
   readonly rows: number
   readonly width: number
 }
 
-const parseGrid = (data: Uint8Array): GridDescription => {
+const parseGrid = (data: Uint8Array): AvifGridDescription => {
   const version = data[0]
   const flags = data[1]
   const rowsMinusOne = data[2]
@@ -361,20 +361,25 @@ const parseGrid = (data: Uint8Array): GridDescription => {
 
 export interface AvifCodedImageInspection {
   readonly configurationMatchesSequence: boolean
+  readonly height: number
   readonly itemId: number
   readonly obus: readonly Av1Obu[]
   readonly payloadBytes: number
   readonly role: 'alpha' | 'color'
+  readonly rotation: number
   readonly sequence: Av1SequenceHeader
+  readonly width: number
 }
 
 export interface AvifBitstreamInspection {
   readonly alphaItemId?: number
   readonly codedImages: readonly AvifCodedImageInspection[]
   readonly colorItemIds: readonly number[]
+  readonly colorTransform?: RgbIccTransform
+  readonly grid?: AvifGridDescription
+  readonly premultipliedAlpha: boolean
   readonly primaryItemId: number
   readonly primaryItemType: 'av01' | 'grid'
-  readonly colorTransform?: RgbIccTransform
 }
 
 const av1ConfigurationMatches = (
@@ -408,9 +413,10 @@ export const inspectAvifBitstreams = async (
   const colorTransform = firstProperty(propertiesFor(meta, primaryItemId), 'colr')?.colorTransform
 
   let colorItemIds: readonly number[]
+  let grid: AvifGridDescription | undefined
   if (primaryType === 'av01') colorItemIds = [primaryItemId]
   else {
-    const grid = parseGrid(await readItemPayload(source, meta, primaryItemId))
+    grid = parseGrid(await readItemPayload(source, meta, primaryItemId))
     const dimensions = firstProperty(propertiesFor(meta, primaryItemId), 'ispe')
     if (!dimensions || dimensions.width !== grid.width || dimensions.height !== grid.height) {
       throw invalidInput('AVIF grid dimensions do not match its spatial extents')
@@ -440,19 +446,36 @@ export const inspectAvifBitstreams = async (
   if (alphaItemId !== undefined && meta.items.get(alphaItemId)?.type !== 'av01') {
     throw invalidInput('AVIF alpha auxiliary item is not AV1-coded')
   }
+  if (alphaItemId !== undefined && colorItemIds.includes(alphaItemId)) {
+    throw invalidInput('AVIF alpha auxiliary item is also referenced as color')
+  }
 
+  const premultipliedAlpha =
+    alphaItemId !== undefined &&
+    meta.references.some(
+      (reference) =>
+        reference.type === 'prem' &&
+        reference.fromItemId === primaryItemId &&
+        reference.toItemIds.includes(alphaItemId),
+    )
   const roles = new Map<number, 'alpha' | 'color'>()
   for (const itemId of colorItemIds) roles.set(itemId, 'color')
   if (alphaItemId !== undefined) roles.set(alphaItemId, 'alpha')
   const codedImages: AvifCodedImageInspection[] = []
   for (const [itemId, role] of roles) {
-    const configuration = firstProperty(propertiesFor(meta, itemId), 'av1C')?.configuration
+    const itemProperties = propertiesFor(meta, itemId)
+    const configuration = firstProperty(itemProperties, 'av1C')?.configuration
     if (!configuration) throw invalidInput(`AVIF item ${itemId} has no av1C property`)
+    const dimensions = firstProperty(itemProperties, 'ispe')
+    if (!dimensions) throw invalidInput(`AVIF item ${itemId} has no spatial extents`)
     const data = await readItemPayload(source, meta, itemId)
     const stream = inspectAv1Bitstream(data)
     codedImages.push({
       itemId,
       role,
+      width: dimensions.width,
+      height: dimensions.height,
+      rotation: firstProperty(itemProperties, 'irot')?.angle ?? 0,
       configurationMatchesSequence: av1ConfigurationMatches(configuration, stream.sequence),
       payloadBytes: data.byteLength,
       obus: stream.obus,
@@ -464,7 +487,9 @@ export const inspectAvifBitstreams = async (
     primaryItemId,
     primaryItemType: primaryType,
     colorItemIds,
+    premultipliedAlpha,
     ...(colorTransform ? { colorTransform } : {}),
+    ...(grid ? { grid } : {}),
     ...(alphaItemId !== undefined ? { alphaItemId } : {}),
     codedImages,
   }
@@ -609,32 +634,180 @@ class AvifPixelDecoder implements ImageDecoder {
   }
 }
 
+const decodeCodedImage = (
+  coded: AvifCodedImageInspection,
+  limits: ImageLimits,
+): Av1DecodedFrame => {
+  validateImageDimensions(coded.width, coded.height, 1, limits)
+  const frames = coded.obus.filter((obu) => obu.type === av1ObuType.frame)
+  if (frames.length !== 1) {
+    throw unsupportedOperation('Phase B2 requires one complete AV1 frame OBU per coded AVIF item')
+  }
+  const frame = parseAv1Frame(coded.sequence, frames[0]?.payload ?? new Uint8Array())
+  if (frame.header.renderWidth !== coded.width || frame.header.renderHeight !== coded.height) {
+    throw invalidInput(`AVIF item ${coded.itemId} dimensions do not match its AV1 frame`)
+  }
+  return decodeRestrictedAv1Intra(coded.sequence, frame)
+}
+
+const unpremultiplyRgba = (pixels: Uint8Array): void => {
+  for (let offset = 0; offset < pixels.byteLength; offset += 4) {
+    const alpha = pixels[offset + 3] ?? 0
+    if (alpha === 255) continue
+    if (alpha === 0) {
+      pixels[offset] = 0
+      pixels[offset + 1] = 0
+      pixels[offset + 2] = 0
+      continue
+    }
+    pixels[offset] = Math.min(255, Math.round(((pixels[offset] ?? 0) * 255) / alpha))
+    pixels[offset + 1] = Math.min(255, Math.round(((pixels[offset + 1] ?? 0) * 255) / alpha))
+    pixels[offset + 2] = Math.min(255, Math.round(((pixels[offset + 2] ?? 0) * 255) / alpha))
+  }
+}
+
+const applyAlpha = (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  colorRotation: number,
+  alpha: AvifCodedImageInspection,
+  alphaFrame: Av1DecodedFrame,
+  premultiplied: boolean,
+): void => {
+  if (
+    !alpha.sequence.monochrome ||
+    alpha.sequence.bitDepth !== 8 ||
+    !alpha.sequence.fullRange ||
+    alpha.sequence.chromaSubsampling !== '400'
+  ) {
+    throw unsupportedOperation('Phase B2 supports full-range 8-bit monochrome AVIF alpha only')
+  }
+  const rotation = (alpha.rotation - colorRotation + 4) & 3
+  const rotatedWidth = (rotation & 1) === 0 ? alphaFrame.width : alphaFrame.height
+  const rotatedHeight = (rotation & 1) === 0 ? alphaFrame.height : alphaFrame.width
+  if (rotatedWidth !== width || rotatedHeight !== height) {
+    throw invalidInput('AVIF alpha dimensions do not align with the color item')
+  }
+  if (rotation === 0) {
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        pixels[(y * width + x) * 4 + 3] = alphaFrame.y[y * alphaFrame.yStride + x] ?? 0
+      }
+    }
+  } else if (rotation === 1) {
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const sourceX = alphaFrame.width - 1 - y
+        const sourceY = x
+        pixels[(y * width + x) * 4 + 3] = alphaFrame.y[sourceY * alphaFrame.yStride + sourceX] ?? 0
+      }
+    }
+  } else if (rotation === 2) {
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const sourceX = alphaFrame.width - 1 - x
+        const sourceY = alphaFrame.height - 1 - y
+        pixels[(y * width + x) * 4 + 3] = alphaFrame.y[sourceY * alphaFrame.yStride + sourceX] ?? 0
+      }
+    }
+  } else {
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const sourceX = y
+        const sourceY = alphaFrame.height - 1 - x
+        pixels[(y * width + x) * 4 + 3] = alphaFrame.y[sourceY * alphaFrame.yStride + sourceX] ?? 0
+      }
+    }
+  }
+  if (premultiplied) unpremultiplyRgba(pixels)
+}
+
+const decodeGrid = (inspection: AvifBitstreamInspection, limits: ImageLimits): Uint8Array => {
+  const grid = inspection.grid
+  if (!grid) throw invalidInput('AVIF grid description is missing')
+  if (inspection.alphaItemId !== undefined) {
+    throw unsupportedOperation('Phase B2 does not yet decode AVIF grids with alpha')
+  }
+  const output = new Uint8Array(grid.width * grid.height * 4)
+  let tileWidth = 0
+  let tileHeight = 0
+  for (let index = 0; index < inspection.colorItemIds.length; index += 1) {
+    const itemId = inspection.colorItemIds[index]
+    const coded = inspection.codedImages.find((image) => image.itemId === itemId)
+    if (!coded) throw invalidInput(`AVIF grid tile ${itemId ?? 'missing'} is not coded`)
+    if (coded.rotation !== 0) {
+      throw unsupportedOperation('Phase B2 does not support independently rotated AVIF grid tiles')
+    }
+    const frame = decodeCodedImage(coded, limits)
+    if (index === 0) {
+      tileWidth = frame.width
+      tileHeight = frame.height
+      if (
+        grid.width <= (grid.columns - 1) * tileWidth ||
+        grid.width > grid.columns * tileWidth ||
+        grid.height <= (grid.rows - 1) * tileHeight ||
+        grid.height > grid.rows * tileHeight
+      ) {
+        throw invalidInput('AVIF grid output dimensions do not match its tile geometry')
+      }
+    } else if (frame.width !== tileWidth || frame.height !== tileHeight) {
+      throw invalidInput('AVIF grid tiles have inconsistent dimensions')
+    }
+    const tile = av1ToRgba(coded.sequence, frame)
+    const column = index % grid.columns
+    const row = Math.floor(index / grid.columns)
+    const outputX = column * tileWidth
+    const outputY = row * tileHeight
+    const copyWidth = Math.min(tileWidth, grid.width - outputX)
+    const copyHeight = Math.min(tileHeight, grid.height - outputY)
+    for (let y = 0; y < copyHeight; y += 1) {
+      const sourceOffset = y * tileWidth * 4
+      const targetOffset = ((outputY + y) * grid.width + outputX) * 4
+      output.set(tile.subarray(sourceOffset, sourceOffset + copyWidth * 4), targetOffset)
+    }
+  }
+  return output
+}
+
 const createAvifDecoder = async (
   source: ImageSource,
   limits: ImageLimits,
 ): Promise<ImageDecoder> => {
   const metadata = await inspectAvif(source, limits)
   const inspection = await inspectAvifBitstreams(source)
-  if (inspection.primaryItemType !== 'av01' || inspection.colorItemIds.length !== 1) {
-    throw unsupportedOperation('Phase B2 does not yet decode AVIF image grids')
+  let pixels: Uint8Array
+  if (inspection.primaryItemType === 'grid') {
+    pixels = decodeGrid(inspection, limits)
+  } else {
+    if (inspection.colorItemIds.length !== 1) {
+      throw invalidInput('Single-image AVIF has an invalid color item count')
+    }
+    const coded = inspection.codedImages.find(
+      (image) => image.itemId === inspection.primaryItemId && image.role === 'color',
+    )
+    if (!coded) throw invalidInput('AVIF has no coded primary color item')
+    const frame = decodeCodedImage(coded, limits)
+    if (frame.width !== metadata.width || frame.height !== metadata.height) {
+      throw invalidInput('AVIF display dimensions do not match its AV1 frame')
+    }
+    pixels = av1ToRgba(coded.sequence, frame)
+    if (inspection.alphaItemId !== undefined) {
+      const alpha = inspection.codedImages.find(
+        (image) => image.itemId === inspection.alphaItemId && image.role === 'alpha',
+      )
+      if (!alpha) throw invalidInput('AVIF alpha auxiliary item is not coded')
+      applyAlpha(
+        pixels,
+        metadata.width,
+        metadata.height,
+        coded.rotation,
+        alpha,
+        decodeCodedImage(alpha, limits),
+        inspection.premultipliedAlpha,
+      )
+    }
   }
-  if (inspection.alphaItemId !== undefined) {
-    throw unsupportedOperation('Phase B2 does not yet decode AVIF alpha auxiliary items')
-  }
-  const coded = inspection.codedImages.find((image) => image.role === 'color')
-  if (!coded) throw invalidInput('AVIF has no coded color item')
-  const frames = coded.obus.filter((obu) => obu.type === av1ObuType.frame)
-  if (frames.length !== 1) {
-    throw unsupportedOperation('Phase B2 requires one complete AV1 frame OBU')
-  }
-  const frame = parseAv1Frame(coded.sequence, frames[0]?.payload ?? new Uint8Array())
-  if (
-    frame.header.renderWidth !== metadata.width ||
-    frame.header.renderHeight !== metadata.height
-  ) {
-    throw invalidInput('AVIF display dimensions do not match its AV1 frame')
-  }
-  const pixels = av1ToRgba(coded.sequence, decodeRestrictedAv1Intra(coded.sequence, frame))
   const decoder = new AvifPixelDecoder(metadata.width, metadata.height, pixels)
   return inspection.colorTransform
     ? new ColorManagedDecoder(decoder, inspection.colorTransform)

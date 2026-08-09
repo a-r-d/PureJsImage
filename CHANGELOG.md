@@ -43,6 +43,10 @@ All notable changes to PureJsImage are documented in this file.
 - Added opaque 8-bit YUV 4:2:2 AVIF decode with axis-specific chroma prediction,
   transforms, restoration, and horizontal RGB upsampling; the pinned Fox fixture
   matches dav1d/libaom YUV exactly and exceeds 50 dB displayed-RGB PSNR against Sharp.
+- Added compatible AVIF alpha auxiliary-item decoding for straight and premultiplied
+  full-range 8-bit monochrome alpha, plus opaque image-grid composition with cropped
+  edge tiles; deterministic libavif fixtures match Sharp exactly for alpha and exceed
+  54 dB RGBA PSNR for the pinned 1x5 grid.
 
 ### Changed
 

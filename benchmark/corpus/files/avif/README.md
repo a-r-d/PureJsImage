@@ -35,5 +35,17 @@ compare PureJsImage's visible YUV planes with a maximum sample error of 3 and
 PSNR of at least 55 dB. `npm run fixtures:avif:qmatrix:prepare` regenerates the
 encoded fixtures and rejects byte-level drift from the pinned checksums.
 
+The `alpha-*.avif` files are deterministic 64x48 YUV 4:4:4 color plus
+full-range monochrome alpha fixtures encoded with libavif 1.3.0 and libaom
+3.12.1. They cover straight-alpha and premultiplied-alpha item relationships.
+Run `npm run fixtures:avif:alpha:prepare` to regenerate them from the
+deterministic RGBA source with one encoder worker and reject byte-level drift.
+The encoded and decoded RGBA checksums are pinned in
+`benchmark/avif/alpha-fixtures.ts`.
+
+`sofa_grid1x5_420.avif` comes from the pinned libavif corpus revision documented
+in `benchmark/avif/corpus.ts`. It covers a 1x5 image grid whose final tile and
+display height exercise cropped edge-tile composition.
+
 The remaining benchmark corpus is intentionally ignored and can be prepared with
 `npm run fixtures:avif`.

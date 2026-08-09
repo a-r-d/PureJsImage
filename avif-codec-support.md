@@ -69,8 +69,8 @@ coverage.
 - [x] Cross-check `pixi` bit depth against `av1C`
 - [x] Cross-check `av1C` profile, bit depth, chroma, level, and tier against the
   authoritative AV1 sequence header during bitstream inspection
-- [ ] Pixel decoding and composition of grid items
-- [ ] Pixel decoding and composition of alpha auxiliary items
+- [x] Pixel decoding and composition of compatible opaque grid items
+- [x] Pixel decoding and composition of compatible alpha auxiliary items
 - [ ] Clean-aperture cropping through `clap`
 - [ ] Mirroring through `imir`
 - [ ] Pixel-aspect-ratio and other transformative item properties
@@ -97,9 +97,9 @@ coverage.
 - [ ] Annex B AV1 byte streams
 - [ ] Inter-frame or general video decoding
 
-### Implemented opaque 8-bit monochrome, 4:2:0, 4:2:2, and 4:4:4 still path
+### Implemented 8-bit monochrome, 4:2:0, 4:2:2, and 4:4:4 still path
 
-- [x] One `av01` primary image with one complete AV1 frame OBU
+- [x] One complete AV1 frame OBU per coded image item
 - [x] Reduced still-picture, intra-only AV1
 - [x] AV1 Main, High, and Professional Profiles with 8-bit monochrome, YUV
   4:2:0, YUV 4:2:2, and YUV 4:4:4 output
@@ -133,10 +133,15 @@ coverage.
   frame
 - [x] Monochrome replication, direct YUV 4:4:4 sampling, horizontal YUV 4:2:2
   interpolation, and bilinear YUV 4:2:0 to RGBA conversion
+- [x] Straight and premultiplied alpha auxiliary composition using full-range
+  8-bit monochrome alpha, including normalization to straight RGBA output
+- [x] Opaque image grids with consistent independently coded tile dimensions
+  and cropped right or bottom edge tiles
 - [x] Public crop, resize, AVIF-to-PNG, AVIF-to-JPEG, AVIF-to-WebP, and
   AVIF-to-other-implemented-codec pipelines after frame reconstruction
 - [ ] Multiple independently decoded AV1 tiles
 - [ ] Tile-list or partial tile-group OBUs
+- [ ] Alpha-bearing image grids
 - [ ] Intra block copy and other screen-content tools
 - [ ] Palette mode
 - [ ] Complete segmentation-map and delta-loop-filter reconstruction, plus
@@ -283,11 +288,13 @@ so Kodak is not classified as an exact post-filter fixture.
 - [x] Pass metadata expectations for all 25 permanent corpus files
 - [x] Decode exact independent reference pixels for the embedded 2x2 lossless
   fixture and the 4x4 lossy fixture
-- [x] Decode and pin RGBA regression hashes for Kodak 768x512 color plus Fox
-  1204x800 YUV 4:2:0, monochrome, YUV 4:2:2, and YUV 4:4:4 photographs
+- [x] Decode and pin RGBA regression hashes for Kodak 768x512 color; Fox
+  1204x800 YUV 4:2:0, monochrome, YUV 4:2:2, and YUV 4:4:4 photographs;
+  deterministic straight and premultiplied alpha fixtures; and a 1024x770
+  cropped-edge image grid
 - [x] Benchmark both full-size photographs through the public AVIF-to-PNG
   workflow
-- [x] Report the current broad decode corpus as 7 compatible, 18 explicitly
+- [x] Report the current broad decode corpus as 8 compatible, 17 explicitly
   unsupported, zero invalid, and zero unexpected
 - [x] Match Sharp/libaom, FFmpeg/dav1d, and FFmpeg/libaom luma exactly and
   exceed 60 dB displayed-RGB PSNR against Chromium for the checksum-pinned
@@ -301,6 +308,13 @@ so Kodak is not classified as an exact post-filter fixture.
 - [x] Exercise YUV 4:2:2 decode in Chromium through the portable TypeScript
   codec and pin its RGBA output; Chromium's native AVIF decoder rejects this
   Professional Profile source and is not used as its browser oracle
+- [x] Match Sharp/libavif RGBA exactly for checksum-pinned straight and
+  premultiplied alpha fixtures after normalizing premultiplied color to the
+  library's straight-RGBA pixel contract
+- [x] Exceed 54 dB RGBA PSNR against Sharp/libavif for the checksum-pinned
+  cropped-edge 1x5 image grid
+- [x] Exercise straight alpha, premultiplied alpha, and image-grid composition
+  through the portable TypeScript codec in Chromium and pin each PNG output
 - [x] Keep `@stacksjs/ts-avif` development-only; the published package is not a
   production dependency
 - [x] Add exact post-filter comparisons against both dav1d and libaom for five

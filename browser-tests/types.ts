@@ -5,6 +5,9 @@ export interface BrowserWorkflowResult {
 
 export interface BrowserCompatibilityHarness {
   animatedGifFrameSelection(): Promise<BrowserWorkflowResult>
+  avifAlphaPremultiplied(): Promise<BrowserWorkflowResult>
+  avifAlphaStraight(): Promise<BrowserWorkflowResult>
+  avifGrid(): Promise<BrowserWorkflowResult>
   avifMonochrome(): Promise<BrowserWorkflowResult>
   avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
   avifYuv422(): Promise<BrowserWorkflowResult>

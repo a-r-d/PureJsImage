@@ -7,6 +7,7 @@ import { PNG } from 'pngjs'
 
 import { Image } from './image-library.ts'
 import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
+import { avifAlphaFixtureDirectory, avifAlphaFixtures } from '../benchmark/avif/alpha-fixtures.ts'
 import {
   avifQmatrixFixtureDirectory,
   avifQmatrixFixtures,
@@ -72,6 +73,9 @@ const pngRgb = (input: Uint8Array): Uint8Array => {
   return output
 }
 
+const pngRgba = (input: Uint8Array): Uint8Array =>
+  Uint8Array.from(PNG.sync.read(Buffer.from(input)).data)
+
 const packVisibleYuv = (frame: Av1DecodedFrame): Uint8Array => {
   const output = new Uint8Array(
     frame.width * frame.height + 2 * frame.chromaWidth * frame.chromaHeight,
@@ -99,6 +103,22 @@ const psnr = (expected: Uint8Array, actual: Uint8Array): number => {
   }
   if (squaredError === 0) return Number.POSITIVE_INFINITY
   return 10 * Math.log10((255 * 255 * expected.byteLength) / squaredError)
+}
+
+const normalizePremultipliedRgba = (pixels: Uint8Array): void => {
+  for (let offset = 0; offset < pixels.byteLength; offset += 4) {
+    const alpha = pixels[offset + 3] ?? 0
+    if (alpha === 255) continue
+    if (alpha === 0) {
+      pixels[offset] = 0
+      pixels[offset + 1] = 0
+      pixels[offset + 2] = 0
+      continue
+    }
+    pixels[offset] = Math.min(255, Math.round(((pixels[offset] ?? 0) * 255) / alpha))
+    pixels[offset + 1] = Math.min(255, Math.round(((pixels[offset + 1] ?? 0) * 255) / alpha))
+    pixels[offset + 2] = Math.min(255, Math.round(((pixels[offset + 2] ?? 0) * 255) / alpha))
+  }
 }
 
 const sharpSource = () => sharp(source, { raw: { width, height, channels: 3 } })
@@ -147,6 +167,26 @@ describe('lossy codec oracle quality', () => {
       expect(psnr(oracle, decoded)).toBeGreaterThan(39)
     },
   )
+
+  it.each(avifAlphaFixtures)(
+    'matches the independent libavif oracle for $file',
+    async (fixture) => {
+      const input = await readFile(join(avifAlphaFixtureDirectory, fixture.file))
+      const oracle = Uint8Array.from(await sharp(input).ensureAlpha().raw().toBuffer())
+      if (fixture.premultiplied) normalizePremultipliedRgba(oracle)
+      const decoded = pngRgba(await (await Image.open(input)).png().toBuffer())
+
+      expect(decoded).toEqual(oracle)
+    },
+  )
+
+  it('matches the independent libavif oracle for the cropped-edge AVIF grid', async () => {
+    const input = await readFile(join(avifCorpusDirectory, 'sofa_grid1x5_420.avif'))
+    const oracle = await sharp(input).ensureAlpha().raw().toBuffer()
+    const decoded = pngRgba(await (await Image.open(input)).png().toBuffer())
+
+    expect(psnr(oracle, decoded)).toBeGreaterThan(50)
+  }, 30_000)
 
   it.each([
     {

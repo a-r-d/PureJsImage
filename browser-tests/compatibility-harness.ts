@@ -502,6 +502,57 @@ const webpLossyDecode = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const avifPinnedPng = async (
+  file: string,
+  width: number,
+  height: number,
+  expectedSha256: string,
+  detail: string,
+): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes(`/fixtures/${file}`)
+  const output = await (await images.open(input)).png().toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.format !== 'png' || metadata.width !== width || metadata.height !== height) {
+    throw new Error(`${detail} output was ${metadata.format} ${metadata.width}x${metadata.height}`)
+  }
+  const outputPixels = await browserPixels(output, 'image/png')
+  const outputSha256 = await sha256(Uint8Array.from(outputPixels))
+  if (outputSha256 !== expectedSha256) {
+    throw new Error(`${detail} browser RGBA hash was ${outputSha256}`)
+  }
+  return {
+    detail: `${detail} matched the pinned portable RGBA output`,
+    outputBytes: output.byteLength,
+  }
+}
+
+const avifAlphaStraight = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'alpha-straight-64x48.avif',
+    64,
+    48,
+    '1f71b6185c44986fa75681b492345cb5562903e85291a1d3d28b32a1e871b456',
+    'Straight-alpha AVIF',
+  )
+
+const avifAlphaPremultiplied = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'alpha-premultiplied-64x48.avif',
+    64,
+    48,
+    '23e32ff582d47da3001ceb4058021e61a7683a8bb0e77abaf03b56ec0426e031',
+    'Premultiplied-alpha AVIF',
+  )
+
+const avifGrid = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'sofa_grid1x5_420.avif',
+    1024,
+    770,
+    '7d3fb76660d21f8ffc24a440dc62f3e0ff90dcd933d5b3ee045b93b013dfd962',
+    'Cropped-edge 1x5 AVIF grid',
+  )
+
 const avifQuantizationMatrix = async (): Promise<BrowserWorkflowResult> => {
   const input = await fetchBytes('/fixtures/sharp-qmatrix-q30-256x192.avif')
   const output = await (await images.open(input)).png().toUint8Array()
@@ -685,6 +736,9 @@ const failureCleanup = async (): Promise<BrowserWorkflowResult> => {
 
 const harness: BrowserCompatibilityHarness = Object.freeze({
   animatedGifFrameSelection,
+  avifAlphaPremultiplied,
+  avifAlphaStraight,
+  avifGrid,
   avifQuantizationMatrix,
   avifMonochrome,
   avifYuv422,

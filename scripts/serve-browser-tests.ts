@@ -307,6 +307,18 @@ await copyFile(
   'benchmark/corpus/files/avif/fox.profile1.8bpc.yuv444.avif',
   resolve(fixtureDirectory, 'fox.profile1.8bpc.yuv444.avif'),
 )
+await copyFile(
+  'benchmark/corpus/files/avif/alpha-straight-64x48.avif',
+  resolve(fixtureDirectory, 'alpha-straight-64x48.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/alpha-premultiplied-64x48.avif',
+  resolve(fixtureDirectory, 'alpha-premultiplied-64x48.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/sofa_grid1x5_420.avif',
+  resolve(fixtureDirectory, 'sofa_grid1x5_420.avif'),
+)
 await writeFile(
   resolve(outputDirectory, 'index.html'),
   '<!doctype html><meta charset="utf-8"><title>PureJsImage browser validation</title><script type="module" src="/compatibility.js"></script><script type="module" src="/benchmark.js"></script>',

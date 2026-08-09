@@ -1,8 +1,10 @@
 import { createHash } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
+import { avifAlphaFixtures } from '../benchmark/avif/alpha-fixtures.ts'
 import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
 import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
 import { MemorySource } from '../src/source.ts'
@@ -394,6 +396,43 @@ describe('AVIF restricted pixel decode', () => {
 
     expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
+  })
+
+  it.each(avifAlphaFixtures)('decodes $file and composes its alpha item', async (fixture) => {
+    const input = await readFile(join(avifCorpusDirectory, fixture.file))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const image = await Image.open(input)
+    const metadata = await image.metadata()
+    const output = PNG.sync.read(await image.png().toBuffer())
+
+    expect(inspection.premultipliedAlpha).toBe(fixture.premultiplied)
+    expect(metadata.hasAlpha).toBe(true)
+    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+  })
+
+  it('decodes and composes a cropped-edge 1x5 AVIF image grid', async () => {
+    const input = await readFile(join(avifCorpusDirectory, 'sofa_grid1x5_420.avif'))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(inspection.primaryItemType).toBe('grid')
+    expect(inspection.grid).toEqual({ rows: 5, columns: 1, width: 1024, height: 770 })
+    expect([output.width, output.height]).toEqual([1024, 770])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      '7d3fb76660d21f8ffc24a440dc62f3e0ff90dcd933d5b3ee045b93b013dfd962',
+    )
+  })
+
+  it('rejects an image grid whose payload and spatial extents disagree', async () => {
+    const input = await readFile(join(avifCorpusDirectory, 'sofa_grid1x5_420.avif'))
+    const gridPayloadOffset = input.indexOf(Uint8Array.of(0, 0, 4, 0, 4, 0, 3, 2))
+    expect(gridPayloadOffset).toBeGreaterThanOrEqual(0)
+    input[gridPayloadOffset + 5] = 1
+
+    await expect(inspectAvifBitstreams(new MemorySource(input))).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
   })
 
   it('rejects a sequence-only AVIF instead of fabricating pixels', async () => {
