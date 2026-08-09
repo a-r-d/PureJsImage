@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, rm, stat } from 'node:fs/promises'
+import { copyFile, cp, mkdir, readFile, rm, stat } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { build } from 'esbuild'
 
@@ -7,6 +7,7 @@ const outputDirectory = resolve('benchmark/.tmp/docs-site')
 const demoSource = resolve(sourceDirectory, 'demo.ts')
 const legacyBundle = resolve(sourceDirectory, 'assets/demo-app.js')
 const outputBundle = join(outputDirectory, 'assets/demo-app.js')
+const outputWasm = join(outputDirectory, 'assets/jpeg-decoder.wasm')
 
 await rm(outputDirectory, { force: true, recursive: true })
 await cp(sourceDirectory, outputDirectory, {
@@ -34,6 +35,7 @@ await build({
   sourcemap: false,
   target: ['es2022'],
 })
+await copyFile(resolve('src/accelerator-entries/jpeg-decoder.wasm'), outputWasm)
 
 const demoHtml = await readFile(join(outputDirectory, 'demo.html'), 'utf8')
 if (!demoHtml.includes('assets/demo-app.js')) {
@@ -41,7 +43,9 @@ if (!demoHtml.includes('assets/demo-app.js')) {
 }
 const bundle = await stat(outputBundle)
 if (bundle.size === 0) throw new Error('Generated docs demo bundle is empty')
+const wasm = await stat(outputWasm)
+if (wasm.size === 0) throw new Error('Generated docs JPEG WASM module is empty')
 
 console.log(
-  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle)`,
+  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${wasm.size.toLocaleString()} byte JPEG WASM module)`,
 )

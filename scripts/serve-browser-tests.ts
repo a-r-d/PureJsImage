@@ -174,6 +174,10 @@ const docsDemoFiles = [
 for (const [source, destination] of docsDemoFiles) {
   await copyFile(source, resolve(outputDirectory, destination))
 }
+await copyFile(
+  'src/accelerator-entries/jpeg-decoder.wasm',
+  resolve(outputDirectory, 'assets/jpeg-decoder.wasm'),
+)
 
 const wasmFiles: readonly (readonly [string, string])[] = [
   ['src/accelerator-entries/jpeg-decoder.wasm', 'jpeg-decoder.wasm'],

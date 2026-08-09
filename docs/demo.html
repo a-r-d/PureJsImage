@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Convert and transform images entirely in your browser with PureJsImage. Files stay on your device, with visible timing and memory measurements.">
+  <meta name="description" content="Convert and transform images entirely in your browser with PureJsImage. Compare the TypeScript JPEG decoder with optional Rust/WASM acceleration.">
   <meta name="theme-color" content="#f6f7f2">
   <meta property="og:title" content="PureJsImage browser demo">
-  <meta property="og:description" content="Upload, inspect, transform, and convert an image entirely in your browser with first-party TypeScript codecs.">
+  <meta property="og:description" content="Upload, inspect, transform, and convert an image in your browser, with an explicit TypeScript versus Rust/WASM JPEG comparison.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://a-r-d.github.io/PureJsImage/demo.html">
   <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/demo.html">
@@ -31,8 +31,8 @@
         <div>
           <p class="eyebrow">Live browser demo</p>
           <h1>Convert an image in your browser. Try it out.</h1>
-          <p class="page-lede">PureJsImage detects the file from its bytes, applies your transforms, and encodes the result with first-party TypeScript codecs. Everything runs on this page.</p>
-          <div class="page-meta"><span class="pill">No server upload</span><span class="pill">No WASM</span><span class="pill">No runtime dependencies</span></div>
+          <p class="page-lede">PureJsImage detects the file from its bytes, applies your transforms, and encodes the result with first-party codecs. Toggle the optional Rust/WASM JPEG decoder to compare it with the TypeScript reference.</p>
+          <div class="page-meta"><span class="pill">No server upload</span><span class="pill">Optional WASM</span><span class="pill">No runtime dependencies</span></div>
         </div>
         <aside class="demo-privacy-card" aria-label="Privacy summary">
           <span class="demo-privacy-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.8 2.9 8.2 7 10 4.1-1.8 7-5.2 7-10V6l-7-3Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/><path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg></span>
@@ -100,7 +100,13 @@
                 </div>
               </div>
 
-              <button class="button demo-convert-button" id="demo-convert" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg>Convert in browser</button>
+              <div class="demo-control-section">
+                <div class="demo-control-heading"><span>Acceleration</span><small>Explicit opt-in</small></div>
+                <label class="demo-check"><input id="demo-wasm-enabled" type="checkbox"><span><strong>Rust/WASM JPEG decoder</strong><small>Toggle this on, then repeat the same conversion to compare complete pipeline time. Ineligible work safely stays on TypeScript.</small></span></label>
+                <p class="demo-accelerator-status" id="demo-accelerator-status">TypeScript reference selected.</p>
+              </div>
+
+              <button class="button demo-convert-button" id="demo-convert" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg><span id="demo-convert-label">Convert with TypeScript</span></button>
             </fieldset>
             <p class="demo-operation-status" id="demo-operation-status" role="status" aria-live="polite">Choose a file to begin.</p>
           </form>
@@ -115,7 +121,9 @@
             <a class="button" id="demo-download" href="#demo-result" download>Download converted file</a>
           </div>
           <dl class="demo-metrics" aria-label="Conversion measurements">
-            <div><dt>Conversion time</dt><dd id="demo-metric-elapsed">—</dd><small>Encode pipeline only</small></div>
+            <div><dt>Conversion time</dt><dd id="demo-metric-elapsed">—</dd><small>Decode, transform, and encode</small></div>
+            <div><dt>Decode mode</dt><dd id="demo-metric-provider">—</dd><small>Enabled mode; selectors may fall back</small></div>
+            <div><dt>WASM vs TypeScript</dt><dd id="demo-metric-comparison">—</dd><small>Same file and settings in this tab</small></div>
             <div><dt>Max observed JS heap</dt><dd id="demo-metric-memory">—</dd><small>Browser estimate at checkpoints</small></div>
             <div><dt>Known file bytes</dt><dd id="demo-metric-known-bytes">—</dd><small>Input + output, not scratch memory</small></div>
             <div><dt>Output size</dt><dd id="demo-metric-output">—</dd><small>Validated encoded Blob</small></div>
@@ -143,7 +151,7 @@
         <div>
           <p class="eyebrow">Use it in a site</p>
           <h2 id="loading-title">How this demo loads PureJsImage</h2>
-          <p>This page serves a deterministic ESM bundle generated from <code>src/browser.ts</code> and the explicit all-codec entry on the same repository commit. The bundle is checked into <code>docs/assets</code>, so GitHub Pages needs no build server and the demo makes no CDN request.</p>
+          <p>This page serves a deterministic ESM bundle generated from <code>src/browser.ts</code>, the explicit all-codec entry, and the optional JPEG WASM entry on the same repository commit. The TypeScript path remains the default; the WASM module is fetched from this site only after you enable it and submit eligible work.</p>
           <p>For an application, install from npm and let your bundler resolve the browser export. For a quick no-build experiment, the pinned npm package is also available from jsDelivr. Raw GitHub file URLs are not used because they are not a dependable JavaScript package CDN.</p>
         </div>
         <div class="code-window">

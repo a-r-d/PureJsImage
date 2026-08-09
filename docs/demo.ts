@@ -1,13 +1,20 @@
 import { createImageLibrary, ImageError, type Image, type ImageMetadata } from '../src/browser.ts'
+import { wasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
 
 type OutputFormat = 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp'
 type LogLevel = 'detect' | 'error' | 'info' | 'metric' | 'plan' | 'success' | 'warning'
+type DecodeMode = 'typescript' | 'wasm'
 
 interface LogEntry {
   readonly level: LogLevel
   readonly message: string
   readonly timestamp: string
+}
+
+interface ModeTimings {
+  typescript?: number
+  wasm?: number
 }
 
 type ElementConstructor<ElementType extends Element> = {
@@ -49,7 +56,10 @@ const resizeHeight = requiredElement('demo-resize-height', HTMLInputElement)
 const rotation = requiredElement('demo-rotation', HTMLSelectElement)
 const flipVertical = requiredElement('demo-flip', HTMLInputElement)
 const flipHorizontal = requiredElement('demo-flop', HTMLInputElement)
+const wasmEnabled = requiredElement('demo-wasm-enabled', HTMLInputElement)
+const acceleratorStatus = requiredElement('demo-accelerator-status', HTMLElement)
 const convertButton = requiredElement('demo-convert', HTMLButtonElement)
+const convertLabel = requiredElement('demo-convert-label', HTMLElement)
 const operationStatus = requiredElement('demo-operation-status', HTMLElement)
 const resultPanel = requiredElement('demo-result', HTMLElement)
 const resultPreview = requiredElement('demo-result-preview', HTMLImageElement)
@@ -57,6 +67,8 @@ const resultFallback = requiredElement('demo-result-fallback', HTMLElement)
 const resultSummary = requiredElement('demo-result-summary', HTMLElement)
 const downloadLink = requiredElement('demo-download', HTMLAnchorElement)
 const elapsedMetric = requiredElement('demo-metric-elapsed', HTMLElement)
+const providerMetric = requiredElement('demo-metric-provider', HTMLElement)
+const comparisonMetric = requiredElement('demo-metric-comparison', HTMLElement)
 const memoryMetric = requiredElement('demo-metric-memory', HTMLElement)
 const knownBytesMetric = requiredElement('demo-metric-known-bytes', HTMLElement)
 const outputBytesMetric = requiredElement('demo-metric-output', HTMLElement)
@@ -64,10 +76,16 @@ const logList = requiredElement('demo-log-list', HTMLOListElement)
 const clearLogButton = requiredElement('demo-clear-log', HTMLButtonElement)
 const copyLogButton = requiredElement('demo-copy-log', HTMLButtonElement)
 
-const images = createImageLibrary(allCodecs)
+const referenceImages = createImageLibrary(allCodecs)
+const acceleratedImages = createImageLibrary({
+  codecs: allCodecs,
+  accelerators: [wasmJpegAccelerator],
+})
 const sessionStartedAt = performance.now()
 const logEntries: LogEntry[] = []
+const comparisonTimings = new Map<string, ModeTimings>()
 const maximumLogEntries = 200
+const maximumComparisonEntries = 32
 const demoLimits = Object.freeze({
   maxDecodedBytes: 268_435_456,
   maxFrames: 256,
@@ -204,6 +222,8 @@ const resetResult = (): void => {
   resultPanel.hidden = true
   downloadLink.removeAttribute('href')
   elapsedMetric.textContent = '—'
+  providerMetric.textContent = '—'
+  comparisonMetric.textContent = '—'
   memoryMetric.textContent = '—'
   knownBytesMetric.textContent = '—'
   outputBytesMetric.textContent = '—'
@@ -242,6 +262,41 @@ const updateResizeFields = (): void => {
   resizeHeight.disabled = !resizeEnabled.checked
 }
 
+const selectedDecodeMode = (): DecodeMode => (wasmEnabled.checked ? 'wasm' : 'typescript')
+
+const updateAccelerationStatus = (): void => {
+  const mode = selectedDecodeMode()
+  convertLabel.textContent =
+    mode === 'wasm' ? 'Convert with WASM enabled' : 'Convert with TypeScript'
+  if (mode === 'typescript') {
+    acceleratorStatus.textContent =
+      'TypeScript reference selected. Run the same settings in both modes to compare complete pipeline time.'
+    return
+  }
+  if (!selectedMetadata) {
+    acceleratorStatus.textContent =
+      'WASM is enabled. Eligible baseline JPEG decode will load the optional module only when conversion starts.'
+    return
+  }
+  if (selectedMetadata.format !== 'jpeg') {
+    acceleratorStatus.textContent =
+      'WASM is enabled, but the current accelerator only handles JPEG decode. This input stays on TypeScript.'
+    return
+  }
+  if (selectedMetadata.width * selectedMetadata.height < 1_000_000) {
+    acceleratorStatus.textContent =
+      'WASM is enabled, but this JPEG is below the production one-megapixel threshold and stays on TypeScript.'
+    return
+  }
+  if (resizeEnabled.checked) {
+    acceleratorStatus.textContent =
+      'WASM is enabled. Resize planning may keep TypeScript when native scaled decode can do less work.'
+    return
+  }
+  acceleratorStatus.textContent =
+    'WASM is enabled. Eligible full-image baseline YCbCr JPEGs use it; unsupported syntax falls back safely.'
+}
+
 const createBadge = (label: string): HTMLElement => {
   const badge = document.createElement('span')
   badge.className = 'demo-badge'
@@ -265,6 +320,7 @@ const inspectFile = async (file: File): Promise<void> => {
   selectedFile = undefined
   selectedImage = undefined
   selectedMetadata = undefined
+  comparisonTimings.clear()
   controls.disabled = true
   convertButton.disabled = true
   operationStatus.textContent = 'Inspecting the file header…'
@@ -280,7 +336,7 @@ const inspectFile = async (file: File): Promise<void> => {
   addLog('info', `Selected ${file.name} (${formatBytes(file.size)}). No bytes leave this browser.`)
 
   try {
-    const image = await images.open(file, { limits: demoLimits })
+    const image = await referenceImages.open(file, { limits: demoLimits })
     const metadata = await image.metadata()
     if (sequence !== inspectionSequence) return
 
@@ -292,6 +348,7 @@ const inspectFile = async (file: File): Promise<void> => {
     outputFormat.value = recommendedOutput(metadata)
     webpLossless.checked = metadata.hasAlpha
     updateOutputOptions()
+    updateAccelerationStatus()
     resizeWidth.placeholder = String(Math.min(metadata.width, 1_600))
     resizeHeight.placeholder = String(Math.min(metadata.height, 1_600))
     addLog(
@@ -339,9 +396,11 @@ const safeBaseName = (name: string): string => {
   )
 }
 
-const plannedPipeline = (): { readonly image: Image; readonly steps: readonly string[] } => {
-  if (!selectedImage || !selectedMetadata) throw new Error('Choose a supported image first')
-  let image = selectedImage
+const plannedPipeline = (
+  sourceImage: Image,
+): { readonly image: Image; readonly steps: readonly string[] } => {
+  if (!selectedMetadata) throw new Error('Choose a supported image first')
+  let image = sourceImage
   const steps: string[] = []
 
   if (autoOrient.checked) {
@@ -408,6 +467,42 @@ const plannedPipeline = (): { readonly image: Image; readonly steps: readonly st
   return Object.freeze({ image, steps: Object.freeze(steps) })
 }
 
+const comparisonKey = (): string => {
+  if (!selectedFile) throw new Error('Choose a supported image first')
+  return JSON.stringify([
+    selectedFile.name,
+    selectedFile.size,
+    selectedFile.lastModified,
+    outputFormat.value,
+    qualityInput.value,
+    webpLossless.checked,
+    jpegProgressive.checked,
+    autoOrient.checked,
+    resizeEnabled.checked,
+    resizeWidth.value.trim(),
+    resizeHeight.value.trim(),
+    rotation.value,
+    flipVertical.checked,
+    flipHorizontal.checked,
+  ])
+}
+
+const recordComparison = (key: string, mode: DecodeMode, milliseconds: number): string => {
+  const timings = comparisonTimings.get(key) ?? {}
+  timings[mode] = milliseconds
+  comparisonTimings.set(key, timings)
+  if (comparisonTimings.size > maximumComparisonEntries) {
+    const oldest = comparisonTimings.keys().next().value
+    if (typeof oldest === 'string') comparisonTimings.delete(oldest)
+  }
+  if (timings.typescript === undefined) return 'Run TypeScript to compare'
+  if (timings.wasm === undefined) return 'Run WASM to compare'
+  const difference = timings.typescript - timings.wasm
+  if (Math.abs(difference) < 0.05) return 'Same measured time'
+  const percent = (Math.abs(difference) / timings.typescript) * 100
+  return difference > 0 ? `${percent.toFixed(1)}% faster` : `${percent.toFixed(1)}% slower`
+}
+
 const convert = async (): Promise<void> => {
   if (!selectedFile || !selectedImage || !selectedMetadata) return
   convertButton.disabled = true
@@ -416,9 +511,19 @@ const convert = async (): Promise<void> => {
   resetResult()
 
   try {
-    const plan = plannedPipeline()
+    const mode = selectedDecodeMode()
+    const library = mode === 'wasm' ? acceleratedImages : referenceImages
+    const sourceImage = await library.open(selectedFile, { limits: demoLimits })
+    const plan = plannedPipeline(sourceImage)
     const plannedMetadata = await plan.image.metadata()
+    const key = comparisonKey()
     addLog('plan', plan.steps.join(' → '))
+    addLog(
+      'plan',
+      mode === 'wasm'
+        ? 'Rust/WASM JPEG acceleration enabled for this run; the selector may fall back when it cannot help.'
+        : 'TypeScript reference selected for this run.',
+    )
     addLog(
       'plan',
       `Planned output: ${plannedMetadata.width}×${plannedMetadata.height} ${plannedMetadata.format.toUpperCase()}.`,
@@ -435,12 +540,13 @@ const convert = async (): Promise<void> => {
     const elapsed = performance.now() - startedAt
     sampleHeap()
 
-    const verification = await (await images.open(blob, { limits: demoLimits })).metadata()
+    const verification = await (await referenceImages.open(blob, { limits: demoLimits })).metadata()
     sampleHeap()
     const maximumHeap = heapSamples.length > 0 ? Math.max(...heapSamples) : undefined
     const format = outputFormatValue()
     const outputType = outputTypes[format]
     const knownFileBytes = selectedFile.size + blob.size
+    const comparison = recordComparison(key, mode, elapsed)
 
     revokeUrl(resultObjectUrl)
     resultObjectUrl = URL.createObjectURL(blob)
@@ -452,6 +558,8 @@ const convert = async (): Promise<void> => {
     )
     resultSummary.textContent = `${outputType.label} · ${verification.width.toLocaleString()} × ${verification.height.toLocaleString()} · ${formatBytes(blob.size)}`
     elapsedMetric.textContent = formatDuration(elapsed)
+    providerMetric.textContent = mode === 'wasm' ? 'WASM enabled' : 'TypeScript'
+    comparisonMetric.textContent = comparison
     memoryMetric.textContent = maximumHeap === undefined ? 'Not exposed' : formatBytes(maximumHeap)
     knownBytesMetric.textContent = formatBytes(knownFileBytes)
     outputBytesMetric.textContent = formatBytes(blob.size)
@@ -466,6 +574,7 @@ const convert = async (): Promise<void> => {
       `${outputType.label} output validated as ${verification.width}×${verification.height} (${formatBytes(blob.size)}).`,
     )
     addLog('metric', `Conversion time: ${formatDuration(elapsed)}.`)
+    addLog('metric', `Mode comparison: ${comparison}.`)
     addLog(
       'metric',
       maximumHeap === undefined
@@ -514,6 +623,14 @@ qualityInput.addEventListener('input', () => {
   qualityValue.value = qualityInput.value
 })
 resizeEnabled.addEventListener('change', updateResizeFields)
+resizeEnabled.addEventListener('change', updateAccelerationStatus)
+wasmEnabled.addEventListener('change', () => {
+  resetResult()
+  updateAccelerationStatus()
+  operationStatus.textContent = wasmEnabled.checked
+    ? 'WASM enabled. Convert with the same settings to compare against TypeScript.'
+    : 'TypeScript selected. Convert with the same settings to compare against WASM.'
+})
 convertButton.addEventListener('click', () => void convert())
 clearLogButton.addEventListener('click', () => {
   logEntries.length = 0
@@ -542,7 +659,8 @@ window.addEventListener('beforeunload', () => {
 
 updateOutputOptions()
 updateResizeFields()
-addLog('info', `PureJsImage loaded with ${images.formats().length} first-party codecs.`)
+updateAccelerationStatus()
+addLog('info', `PureJsImage loaded with ${referenceImages.formats().length} first-party codecs.`)
 addLog(
   'info',
   'Demo guardrails: 64 MiB input, 64 megapixels, 256 MiB worst-case decoded bytes, single-frame output.',

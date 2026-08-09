@@ -3552,6 +3552,17 @@ tr:last-child td {
   padding-block: 8px;
 }
 
+.demo-accelerator-status {
+  margin: 0;
+  padding: 10px 11px;
+  border-left: 3px solid var(--brand);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--brand-soft) 55%, transparent);
+  color: var(--text-soft);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
 .demo-check-grid,
 .demo-dimension-fields {
   display: grid;
@@ -3663,6 +3674,12 @@ tr:last-child td {
   font-size: clamp(17px, 2.2vw, 23px);
   font-weight: 800;
   letter-spacing: -0.04em;
+}
+
+#demo-metric-provider,
+#demo-metric-comparison {
+  font-size: clamp(13px, 1.7vw, 18px);
+  line-height: 1.2;
 }
 
 .demo-metrics small {

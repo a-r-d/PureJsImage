@@ -47,6 +47,45 @@ test('detects, transforms, converts, measures, and downloads from the docs demo'
   ).toBe(true)
 })
 
+test('toggles JPEG WASM acceleration and compares the same complete pipeline', async ({ page }) => {
+  const requestedUrls: string[] = []
+  page.on('request', (request) => requestedUrls.push(request.url()))
+  await page.goto('/demo.html')
+  await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+
+  const input = await readFile('benchmark/corpus/files/earthrise-2400x2400.jpg')
+  await page.locator('#demo-file').setInputFiles({
+    buffer: input,
+    mimeType: 'image/jpeg',
+    name: 'earthrise-2400x2400.jpg',
+  })
+
+  await expect(page.locator('#demo-source-badges')).toContainText('JPEG')
+  await expect(page.locator('#demo-controls')).toBeEnabled()
+  await page.locator('#demo-output-format').selectOption('bmp')
+  await expect(page.locator('#demo-convert-label')).toHaveText('Convert with TypeScript')
+  await page.locator('#demo-convert').click()
+
+  await expect(page.locator('#demo-result')).toBeVisible()
+  await expect(page.locator('#demo-metric-provider')).toHaveText('TypeScript')
+  await expect(page.locator('#demo-metric-comparison')).toHaveText('Run WASM to compare')
+
+  await page.locator('#demo-wasm-enabled').check()
+  await expect(page.locator('#demo-accelerator-status')).toContainText(
+    'Eligible full-image baseline YCbCr JPEGs use it',
+  )
+  await expect(page.locator('#demo-convert-label')).toHaveText('Convert with WASM enabled')
+  await page.locator('#demo-convert').click()
+
+  await expect(page.locator('#demo-result')).toBeVisible()
+  await expect(page.locator('#demo-metric-provider')).toHaveText('WASM enabled')
+  await expect(page.locator('#demo-metric-comparison')).toHaveText(/% (?:faster|slower)/)
+  await expect(page.locator('#demo-log-list')).toContainText(
+    'Rust/WASM JPEG acceleration enabled for this run',
+  )
+  expect(requestedUrls.some((url) => url.endsWith('/assets/jpeg-decoder.wasm'))).toBe(true)
+})
+
 test('refuses to silently flatten an animated input to its first frame', async ({ page }) => {
   await page.goto('/demo.html')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
