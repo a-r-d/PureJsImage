@@ -1312,14 +1312,9 @@ describe('HEIF HEVC bitstream inspection', () => {
   })
 
   it('rejects linked HEIF auxiliary alpha before emitting opaque pixels', async () => {
-    const input = decodedHeifFixture(
-      false,
-      false,
-      undefined,
-      undefined,
-      false,
-      ['urn:mpeg:hevc:2015:auxid:1'],
-    )
+    const input = decodedHeifFixture(false, false, undefined, undefined, false, [
+      'urn:mpeg:hevc:2015:auxid:1',
+    ])
 
     await expect(
       heifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits),

@@ -3799,7 +3799,7 @@
         "label": "No"
       },
       "boundary": "Common intra-only HEVC still subsets; no auxiliary alpha or encoding",
-      "description": "Decodes common opaque Main, Main Still Picture, and Main 10 YUV 4:2:0 intra stills, direct images, and grid primaries. Supports crop metadata, orientation, color conversion, HDR tone mapping, and selected metadata preservation.",
+      "description": "Decodes common opaque Main, Main Still Picture, and selected Main 10 YUV 4:2:0 intra stills, direct images, and grid primaries. Supports crop metadata, orientation, deterministic color conversion, PQ display compatibility, and selected metadata preservation.",
       "memory": "Grid workflows decode requested tile rows; large compatible inputs remain explicitly measured",
       "recommendation": "Compatible phone-camera HEIC stills after checking the corpus report.",
       "evidence": ["tests/heif.test.ts", "tests/metadata-preservation.test.ts"],
@@ -3878,6 +3878,10 @@
         },
         {
           "status": "supported",
+          "text": "Parse the hvcC array-completeness bit independently from its reserved bit"
+        },
+        {
+          "status": "supported",
           "text": "Support multiple extents without concatenating the complete compressed item when a bounded reader can traverse them directly"
         },
         {
@@ -3913,8 +3917,8 @@
           "text": "Apply `irot`, `imir`, and `clap` in the defined order"
         },
         {
-          "status": "planned",
-          "text": "Independently validate displayed real-world `imir` and `clap` pixels; the current cases stop first on unsupported color signaling or the `hvcC` array-completeness parser error"
+          "status": "supported",
+          "text": "Independently validate displayed real-world `imir` and `clap` pixels"
         },
         {
           "status": "supported",
@@ -3933,8 +3937,8 @@
           "text": "HEVC Main 10 profile reconstruction for 10-bit YUV 4:2:0"
         },
         {
-          "status": "planned",
-          "text": "Claim displayed Main 10 compatibility only after its SDR output agrees with an independent oracle under a documented common tone-map policy"
+          "status": "supported",
+          "text": "Claim displayed Main 10/PQ compatibility only for the independently validated 8-bit display policy documented below; HLG is not yet promoted"
         },
         {
           "status": "planned",
@@ -4006,11 +4010,15 @@
         },
         {
           "status": "supported",
+          "text": "Resolve matching explicit nclx/VUI matrices, and resolve absent or unspecified matrices only for the pinned SDR/ICC Main or Main Still Picture 4:2:0 HEVC-family evidence policy; reject conflicts and ambiguity explicitly"
+        },
+        {
+          "status": "supported",
           "text": "Convert 8-bit YUV to pipeline pixel blocks without a duplicate full-frame RGB or RGBA allocation"
         },
         {
-          "status": "planned",
-          "text": "Make 10-bit displayed SDR output agree with an independent oracle; HEVC sample reconstruction is tested separately, but the corpus tone-map output currently exceeds the displayed-pixel tolerance"
+          "status": "supported",
+          "text": "Match the Main 10/PQ displayed SDR oracle at 0.001007 normalized RMSE using signaled-matrix conversion, nearest 4:2:0 chroma, 8-bit rounding, and hard clipping while preserving PQ code values"
         },
         {
           "status": "planned",
@@ -4066,7 +4074,11 @@
         },
         {
           "status": "supported",
-          "text": "PQ and HLG 10-bit inputs with a documented SDR tone-map policy: decode the signaled transfer to linear light, convert BT.2020 primaries to sRGB, apply a luminance-preserving global Reinhard curve with 203-nit PQ reference white, and encode 8-bit sRGB"
+          "text": "PQ 10-bit inputs with a documented libheif-compatible 8-bit display policy: preserve PQ code values, apply the signaled YCbCr matrix with nearest 4:2:0 chroma, round to 8-bit, and hard-clip to the SDR display gamut"
+        },
+        {
+          "status": "planned",
+          "text": "Independently validate HLG displayed pixels; its existing linear-light BT.2020-to-sRGB Reinhard path remains unit-tested but is not corpus-promoted"
         },
         {
           "status": "planned",

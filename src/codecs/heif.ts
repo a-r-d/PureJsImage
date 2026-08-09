@@ -838,23 +838,23 @@ const colorPropertiesFor = (parsed: ParsedHeif): readonly Property[] =>
 const hasLinkedAlphaAuxiliary = (parsed: ParsedHeif): boolean => {
   const isAlphaAuxiliary = (property: Property): boolean =>
     property.type === 'auxC' && property.auxiliaryType.endsWith('auxid:1')
-  const hasAlphaProperty = parsed.meta.properties.some(
-    (property) => isAlphaAuxiliary(property),
-  )
+  const hasAlphaProperty = parsed.meta.properties.some((property) => isAlphaAuxiliary(property))
   if (!hasAlphaProperty) return false
   const alphaItemIds = new Set(
     [...parsed.meta.items.keys()].filter((itemId) =>
       propertiesFor(parsed.meta, itemId).some((property) => isAlphaAuxiliary(property)),
     ),
   )
-  return parsed.meta.references.some(
-    (reference) =>
-      reference.type === 'auxl' &&
-      ((reference.fromItemId === parsed.primaryItemId &&
-        reference.toItemIds.some((itemId) => alphaItemIds.has(itemId))) ||
-        (alphaItemIds.has(reference.fromItemId) &&
-          reference.toItemIds.includes(parsed.primaryItemId))),
-  ) || alphaItemIds.size > 0
+  return (
+    parsed.meta.references.some(
+      (reference) =>
+        reference.type === 'auxl' &&
+        ((reference.fromItemId === parsed.primaryItemId &&
+          reference.toItemIds.some((itemId) => alphaItemIds.has(itemId))) ||
+          (alphaItemIds.has(reference.fromItemId) &&
+            reference.toItemIds.includes(parsed.primaryItemId))),
+    ) || alphaItemIds.size > 0
+  )
 }
 
 const metadataItem = (
@@ -1145,9 +1145,7 @@ const specifiedColorValue = (
 ): number | undefined =>
   containerValue !== undefined && containerValue !== 2 ? containerValue : bitstreamValue
 
-export const resolveHeifColorMatrix = (
-  evidence: HeifColorMatrixEvidence,
-): 1 | 5 | 6 | 9 => {
+export const resolveHeifColorMatrix = (evidence: HeifColorMatrixEvidence): 1 | 5 | 6 | 9 => {
   const nclxMatrix = evidence.nclxMatrix === 2 ? undefined : evidence.nclxMatrix
   const vuiMatrix = evidence.vuiMatrix === 2 ? undefined : evidence.vuiMatrix
   if (nclxMatrix !== undefined && vuiMatrix !== undefined && nclxMatrix !== vuiMatrix) {
@@ -1324,8 +1322,7 @@ const samplePqDisplayChroma = (
   height: number,
   x: number,
   y: number,
-): number =>
-  plane[Math.min(height - 1, y >>> 1) * width + Math.min(width - 1, x >>> 1)] ?? 0
+): number => plane[Math.min(height - 1, y >>> 1) * width + Math.min(width - 1, x >>> 1)] ?? 0
 
 const writeHevcRgbaPixel = (
   picture: DecodedHevcPicture,

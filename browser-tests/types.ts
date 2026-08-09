@@ -6,6 +6,7 @@ export interface BrowserWorkflowResult {
 export interface BrowserCompatibilityHarness {
   avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
   failureCleanup(): Promise<BrowserWorkflowResult>
+  heifPqDisplay(): Promise<BrowserWorkflowResult>
   inputTypes(): Promise<readonly BrowserWorkflowResult[]>
   jpegPipeline(): Promise<BrowserWorkflowResult>
   orientation(): Promise<BrowserWorkflowResult>

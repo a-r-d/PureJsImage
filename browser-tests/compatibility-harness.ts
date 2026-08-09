@@ -1,5 +1,6 @@
 import { createImageLibrary } from '../src/browser.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
+import { heifCodec } from '../src/codec-entries/heif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
@@ -7,7 +8,7 @@ import type { ImageInput } from '../src/source.ts'
 import type { ImageSink } from '../src/sink.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
 
-const images = createImageLibrary([jpegCodec, pngCodec, webpCodec, avifCodec])
+const images = createImageLibrary([jpegCodec, pngCodec, webpCodec, avifCodec, heifCodec])
 
 const fetchBytes = async (path: string): Promise<Uint8Array<ArrayBuffer>> => {
   const response = await fetch(path)
@@ -156,6 +157,26 @@ const avifQuantizationMatrix = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const heifPqDisplay = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/main10-pq.heic')
+  const image = await images.open(input)
+  const metadata = await image.metadata()
+  if (metadata.format !== 'heif' || metadata.width !== 32 || metadata.height !== 32) {
+    throw new Error(
+      `Main 10/PQ HEIF metadata was ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  const output = await image.png().toUint8Array()
+  const result = await outputMetadata(output)
+  if (result.format !== 'png' || result.width !== 32 || result.height !== 32) {
+    throw new Error(`Main 10/PQ HEIF output was ${result.format} ${result.width}x${result.height}`)
+  }
+  return {
+    detail: 'Main 10/PQ HEIF displayed as 32x32 PNG in the browser',
+    outputBytes: output.byteLength,
+  }
+}
+
 const orientation = async (): Promise<BrowserWorkflowResult> => {
   const bytes = await fetchBytes('/fixtures/oriented-6.jpg')
   const source = await images.open(bytes.buffer)
@@ -214,6 +235,7 @@ const failureCleanup = async (): Promise<BrowserWorkflowResult> => {
 const harness: BrowserCompatibilityHarness = Object.freeze({
   avifQuantizationMatrix,
   failureCleanup,
+  heifPqDisplay,
   inputTypes,
   jpegPipeline,
   orientation,
