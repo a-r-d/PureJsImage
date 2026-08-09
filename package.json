@@ -140,7 +140,8 @@
     "fixtures:heif:prepare": "node benchmark/heif/compatibility/prepare.ts",
     "fixtures:heif": "node benchmark/heif/verify-corpus.ts && node benchmark/heif/compatibility/verify.ts",
     "fixtures:ico": "node benchmark/ico/verify-corpus.ts",
-    "fixtures:jpeg": "node benchmark/jpeg/verify-corpus.ts",
+    "fixtures:jpeg": "node benchmark/jpeg/verify-corpus.ts && vitest run tests/jpeg-reference-fixtures.test.ts tests/jpeg-reference-parity.test.ts",
+    "fixtures:jpeg:prepare": "node benchmark/jpeg/prepare-reference-fixtures.ts",
     "fixtures:jpeg2000": "node benchmark/jpeg2000/verify-corpus.ts",
     "fuzz:release": "PUREJSIMAGE_FUZZ_RELEASE=1 PUREJSIMAGE_FUZZ_CASES=512 PUREJSIMAGE_FUZZ_SEED=1592598566 PUREJSIMAGE_FUZZ_CRASH_DIR=artifacts/fuzz-crashes vitest run tests/corruption-fuzz.test.ts",
     "results:combine": "node benchmark/scripts/combine-results.ts",
@@ -166,6 +167,8 @@
     "bench:ico": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile ico",
     "bench:jpeg:encode": "npm run build && node --expose-gc benchmark/jpeg/encode-probe.ts",
     "bench:jpeg:scaled-idct": "node benchmark/jpeg/run-scaled-idct.ts",
+    "bench:jpeg:region-rss": "node benchmark/jpeg/run-region-rss.ts",
+    "bench:jpeg:upsampling": "node benchmark/jpeg/run-upsampling.ts",
     "bench:jpeg2000:rss": "node benchmark/jpeg2000/run-rss.ts"
   },
   "overrides": {

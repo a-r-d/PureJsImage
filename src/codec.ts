@@ -56,7 +56,7 @@ export type BuiltInFormat =
   | 'tiff'
   | 'webp'
 
-export type ChromaSubsampling = '400' | '420' | '422' | '444'
+export type ChromaSubsampling = '400' | '411' | '420' | '422' | '440' | '444'
 
 export type ColorProfile =
   | {

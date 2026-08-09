@@ -1,5 +1,7 @@
-import { invalidInput, truncatedInput } from '../errors.ts'
+import { invalidInput, limitExceeded, truncatedInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
+import type { ImageSource } from '../source.ts'
+import { SourceReader } from '../source.ts'
 import {
   applyRgbIcc,
   type CmykIccTransform,
@@ -7,6 +9,7 @@ import {
   parseJpegIccTransform,
   writeCmykIcc,
 } from './icc.ts'
+import { indexJpegEntropy, JpegEntropyReader } from './jpeg-source.ts'
 
 const zigZag = Int32Array.of(
   0,
@@ -136,11 +139,15 @@ interface RenderJpeg {
 
 interface RenderPlan {
   readonly componentX: readonly Int32Array[]
+  readonly componentRightX: readonly Int32Array[]
   readonly componentWidths: Int32Array
+  readonly componentXWeights: readonly Uint16Array[]
+  readonly haloRows: number
 }
 
 export interface BaselineJpeg {
-  readonly data: Uint8Array
+  readonly data?: Uint8Array
+  readonly source?: ImageSource
   readonly width: number
   readonly height: number
   readonly components: readonly FrameComponent[]
@@ -159,6 +166,13 @@ export interface JpegRegion {
   readonly y: number
   readonly width: number
   readonly height: number
+}
+
+export interface JpegDecodeMetrics {
+  totalMcus: number
+  entropyStartMcu: number
+  entropyMcusDecoded: number
+  blocksReconstructed: number
 }
 
 interface ParsedComponent {
@@ -496,7 +510,130 @@ export const parseBaselineJpeg = (data: Uint8Array, applyIcc = true): BaselineJp
   throw truncatedInput('JPEG is missing image data')
 }
 
-class EntropyReader {
+const nextSourceMarker = async (reader: SourceReader): Promise<number> => {
+  let prefix = await reader.readByte()
+  if (prefix !== 0xff) throw invalidInput('JPEG marker prefix is missing')
+  while (prefix === 0xff) prefix = await reader.readByte()
+  if (prefix === 0x00 || (prefix >= 0xd0 && prefix <= 0xd8)) {
+    throw invalidInput('JPEG contains an unexpected standalone marker')
+  }
+  return prefix
+}
+
+const sourceSegment = async (reader: SourceReader): Promise<Uint8Array> => {
+  const lengthBytes = await reader.read(2)
+  const length = readUint16(lengthBytes, 0)
+  if (length < 2) throw invalidInput('JPEG segment length is invalid')
+  return reader.read(length - 2)
+}
+
+export const parseBaselineJpegSource = async (
+  source: ImageSource,
+  applyIcc = true,
+): Promise<BaselineJpeg | undefined> => {
+  const reader = new SourceReader(source)
+  const signature = await reader.read(2)
+  if (readUint16(signature, 0) !== 0xffd8) throw invalidInput('JPEG start marker is missing')
+  const quantizationTables = new Map<number, Int32Array>()
+  const dcTables = new Map<number, HuffmanTable>()
+  const acTables = new Map<number, HuffmanTable>()
+  let frame: ParsedFrame | undefined
+  let adobeTransform: number | undefined
+  const iccChunks: IccChunk[] = []
+  let restartInterval = 0
+
+  while (reader.position < source.size) {
+    const marker = await nextSourceMarker(reader)
+    if (marker === 0xd9) throw invalidInput('JPEG ended before image data')
+    const payload = await sourceSegment(reader)
+    const start = 0
+    const end = payload.byteLength
+    if (marker === 0xdb) parseQuantizationTables(payload, start, end, quantizationTables)
+    else if (marker === 0xc4) parseHuffmanTables(payload, start, end, dcTables, acTables)
+    else if (marker === 0xe2) {
+      const chunk = parseIccChunk(payload, start, end)
+      if (chunk) iccChunks.push(chunk)
+    } else if (marker === 0xee) {
+      adobeTransform = parseAdobeTransform(payload, start, end) ?? adobeTransform
+    } else if (marker === 0xc0 || marker === 0xc1) {
+      if (frame) throw invalidInput('JPEG contains multiple frames')
+      frame = parseFrame(payload, start, end)
+    } else if (marker === 0xc2) {
+      return undefined
+    } else if (marker === 0xdd) {
+      if (end !== 2) throw invalidInput('JPEG restart interval is invalid')
+      restartInterval = readUint16(payload, 0)
+    } else if (marker === 0xda) {
+      if (!frame) throw invalidInput('JPEG scan appears before its frame')
+      const selectors = byte(payload, 0)
+      if (selectors !== frame.components.length || 1 + selectors * 2 + 3 !== end) {
+        return undefined
+      }
+      for (let index = 0; index < selectors; index += 1) {
+        const selectorOffset = 1 + index * 2
+        const component = frame.components.find(
+          (candidate) => candidate.id === byte(payload, selectorOffset),
+        )
+        if (!component) throw invalidInput('JPEG scan references an unknown component')
+        const tables = byte(payload, selectorOffset + 1)
+        component.dcTableId = tables >>> 4
+        component.acTableId = tables & 15
+      }
+      const spectralOffset = 1 + selectors * 2
+      if (
+        byte(payload, spectralOffset) !== 0 ||
+        byte(payload, spectralOffset + 1) !== 63 ||
+        byte(payload, spectralOffset + 2) !== 0
+      ) {
+        return undefined
+      }
+      let maximumHorizontalSampling = 1
+      let maximumVerticalSampling = 1
+      const components: FrameComponent[] = []
+      for (const component of frame.components) {
+        const quantization = quantizationTables.get(component.quantizationId)
+        const dcTable =
+          component.dcTableId === undefined ? undefined : dcTables.get(component.dcTableId)
+        const acTable =
+          component.acTableId === undefined ? undefined : acTables.get(component.acTableId)
+        if (!quantization || !dcTable || !acTable) {
+          throw invalidInput('JPEG scan references a missing coding table')
+        }
+        maximumHorizontalSampling = Math.max(
+          maximumHorizontalSampling,
+          component.horizontalSampling,
+        )
+        maximumVerticalSampling = Math.max(maximumVerticalSampling, component.verticalSampling)
+        components.push({ ...component, quantization, dcTable, acTable })
+      }
+      const jpegColorTransform = colorTransform(frame, adobeTransform)
+      const iccTransform = applyIcc ? createIccTransform(iccChunks, jpegColorTransform) : undefined
+      return {
+        source,
+        width: frame.width,
+        height: frame.height,
+        components,
+        colorTransform: jpegColorTransform,
+        ...(iccTransform ? { iccTransform } : {}),
+        maximumHorizontalSampling,
+        maximumVerticalSampling,
+        mcusPerLine: Math.ceil(frame.width / (8 * maximumHorizontalSampling)),
+        mcusPerColumn: Math.ceil(frame.height / (8 * maximumVerticalSampling)),
+        restartInterval,
+        scanOffset: reader.position,
+      }
+    }
+  }
+  throw truncatedInput('JPEG is missing image data')
+}
+
+interface JpegBitReader {
+  readBit(): number
+  readBits(length: number): number
+  receiveAndExtend(length: number): number
+}
+
+class EntropyReader implements JpegBitReader {
   readonly #data: Uint8Array
   #offset: number
   #bits = 0
@@ -577,7 +714,7 @@ class EntropyReader {
   }
 }
 
-const decodeHuffman = (reader: EntropyReader, table: HuffmanTable): number => {
+const decodeHuffman = (reader: JpegBitReader, table: HuffmanTable): number => {
   let code = 0
   for (let length = 0; length < 16; length += 1) {
     code = (code << 1) | reader.readBit()
@@ -593,7 +730,7 @@ const decodeHuffman = (reader: EntropyReader, table: HuffmanTable): number => {
 }
 
 const decodeBlock = (
-  reader: EntropyReader,
+  reader: JpegBitReader,
   component: FrameComponent,
   predictor: number,
   coefficients: Int32Array,
@@ -850,29 +987,118 @@ const componentPlanes = (jpeg: RenderJpeg, blockSize: number): Uint8Array[] =>
         jpeg.mcusPerLine *
           component.horizontalSampling *
           blockSize *
-          component.verticalSampling *
+          (component.verticalSampling + 2) *
           blockSize,
       ),
   )
+
+const copyPlaneRow = (
+  plane: Uint8Array,
+  width: number,
+  sourceRow: number,
+  targetRow: number,
+): void => {
+  plane.copyWithin(targetRow * width, sourceRow * width, (sourceRow + 1) * width)
+}
+
+const replicateTopHalo = (
+  jpeg: RenderJpeg,
+  planes: readonly Uint8Array[],
+  blockSize: number,
+): void => {
+  for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
+    const component = jpeg.components[componentIndex]
+    const plane = planes[componentIndex]
+    if (!component || !plane) throw invalidInput('JPEG component storage is missing')
+    const width = jpeg.mcusPerLine * component.horizontalSampling * blockSize
+    for (let row = 0; row < blockSize; row += 1) copyPlaneRow(plane, width, blockSize, row)
+  }
+}
+
+const replicateBottomHalo = (
+  jpeg: RenderJpeg,
+  planes: readonly Uint8Array[],
+  blockSize: number,
+): void => {
+  for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
+    const component = jpeg.components[componentIndex]
+    const plane = planes[componentIndex]
+    if (!component || !plane) throw invalidInput('JPEG component storage is missing')
+    const width = jpeg.mcusPerLine * component.horizontalSampling * blockSize
+    const lastCoreRow = blockSize + component.verticalSampling * blockSize - 1
+    const bottom = blockSize + component.verticalSampling * blockSize
+    for (let row = 0; row < blockSize; row += 1) {
+      copyPlaneRow(plane, width, lastCoreRow, bottom + row)
+    }
+  }
+}
+
+const linkPlaneHalos = (
+  jpeg: RenderJpeg,
+  upper: readonly Uint8Array[],
+  lower: readonly Uint8Array[],
+  blockSize: number,
+): void => {
+  for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
+    const component = jpeg.components[componentIndex]
+    const upperPlane = upper[componentIndex]
+    const lowerPlane = lower[componentIndex]
+    if (!component || !upperPlane || !lowerPlane) {
+      throw invalidInput('JPEG component storage is missing')
+    }
+    const width = jpeg.mcusPerLine * component.horizontalSampling * blockSize
+    const upperLastCore = blockSize + component.verticalSampling * blockSize - 1
+    const upperBottom = blockSize + component.verticalSampling * blockSize
+    const lowerFirstCore = blockSize
+    for (let row = 0; row < blockSize; row += 1) {
+      upperPlane.set(
+        lowerPlane.subarray(lowerFirstCore * width, (lowerFirstCore + 1) * width),
+        (upperBottom + row) * width,
+      )
+      lowerPlane.set(
+        upperPlane.subarray(upperLastCore * width, (upperLastCore + 1) * width),
+        row * width,
+      )
+    }
+  }
+}
 
 const clamp = (value: number): number => (value < 0 ? 0 : value > 255 ? 255 : value)
 
 const createRenderPlan = (jpeg: RenderJpeg, region: JpegRegion, blockSize: number): RenderPlan => {
   const componentX: Int32Array[] = []
+  const componentRightX: Int32Array[] = []
+  const componentXWeights: Uint16Array[] = []
   const componentWidths = new Int32Array(jpeg.components.length)
   for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
     const component = jpeg.components[componentIndex]
     if (!component) throw invalidInput('JPEG component metadata is missing')
     componentWidths[componentIndex] = jpeg.mcusPerLine * component.horizontalSampling * blockSize
     const indices = new Int32Array(region.width)
+    const rightIndices = new Int32Array(region.width)
+    const weights = new Uint16Array(region.width)
+    const maximumX = (componentWidths[componentIndex] ?? 1) - 1
     for (let x = 0; x < region.width; x += 1) {
-      indices[x] = Math.floor(
-        ((region.x + x) * component.horizontalSampling) / jpeg.maximumHorizontalSampling,
-      )
+      const coordinate =
+        ((region.x + x + 0.5) * component.horizontalSampling) / jpeg.maximumHorizontalSampling - 0.5
+      const left = Math.floor(coordinate)
+      if (left < 0) {
+        indices[x] = 0
+        rightIndices[x] = 0
+      } else if (left >= maximumX) {
+        indices[x] = maximumX
+        rightIndices[x] = maximumX
+      } else {
+        indices[x] = left
+        rightIndices[x] = left + 1
+        weights[x] = Math.round((coordinate - left) * 256)
+      }
     }
     componentX.push(indices)
+    componentRightX.push(rightIndices)
+    componentXWeights.push(weights)
   }
-  return { componentX, componentWidths }
+  return { componentX, componentRightX, componentWidths, componentXWeights, haloRows: blockSize }
 }
 
 const renderGrayRows = (
@@ -893,9 +1119,9 @@ const renderGrayRows = (
   if (!luminanceX) throw invalidInput('JPEG luminance render plan is missing')
   for (let row = 0; row < height; row += 1) {
     const sourceY = first + row - rowStart
-    const luminanceY = Math.floor(
-      (sourceY * luminance.verticalSampling) / jpeg.maximumVerticalSampling,
-    )
+    const luminanceY =
+      plan.haloRows +
+      Math.floor((sourceY * luminance.verticalSampling) / jpeg.maximumVerticalSampling)
     for (let x = 0; x < region.width; x += 1) {
       const y = byte(luminancePlane, luminanceY * luminanceWidth + (luminanceX[x] ?? 0))
       const target = (row * region.width + x) * 3
@@ -941,15 +1167,15 @@ const renderRgbRows = (
   if (!firstX || !secondX || !thirdX) throw invalidInput('JPEG color render plan is missing')
   for (let row = 0; row < height; row += 1) {
     const sourceY = first + row - rowStart
-    const firstY = Math.floor(
-      (sourceY * firstComponent.verticalSampling) / jpeg.maximumVerticalSampling,
-    )
-    const secondY = Math.floor(
-      (sourceY * secondComponent.verticalSampling) / jpeg.maximumVerticalSampling,
-    )
-    const thirdY = Math.floor(
-      (sourceY * thirdComponent.verticalSampling) / jpeg.maximumVerticalSampling,
-    )
+    const firstY =
+      plan.haloRows +
+      Math.floor((sourceY * firstComponent.verticalSampling) / jpeg.maximumVerticalSampling)
+    const secondY =
+      plan.haloRows +
+      Math.floor((sourceY * secondComponent.verticalSampling) / jpeg.maximumVerticalSampling)
+    const thirdY =
+      plan.haloRows +
+      Math.floor((sourceY * thirdComponent.verticalSampling) / jpeg.maximumVerticalSampling)
     for (let x = 0; x < region.width; x += 1) {
       const firstSample = byte(firstPlane, firstY * firstWidth + (firstX[x] ?? 0))
       const secondSample = byte(secondPlane, secondY * secondWidth + (secondX[x] ?? 0))
@@ -994,24 +1220,120 @@ const renderYcbcrRows = (
   const luminanceX = plan.componentX[0]
   const blueChromaX = plan.componentX[1]
   const redChromaX = plan.componentX[2]
-  if (!luminanceX || !blueChromaX || !redChromaX) {
+  const luminanceRightX = plan.componentRightX[0]
+  const blueChromaRightX = plan.componentRightX[1]
+  const redChromaRightX = plan.componentRightX[2]
+  const luminanceXWeights = plan.componentXWeights[0]
+  const blueChromaXWeights = plan.componentXWeights[1]
+  const redChromaXWeights = plan.componentXWeights[2]
+  if (
+    !luminanceX ||
+    !blueChromaX ||
+    !redChromaX ||
+    !luminanceRightX ||
+    !blueChromaRightX ||
+    !redChromaRightX ||
+    !luminanceXWeights ||
+    !blueChromaXWeights ||
+    !redChromaXWeights
+  ) {
     throw invalidInput('JPEG color render plan is missing')
   }
+  if (
+    luminance.horizontalSampling === jpeg.maximumHorizontalSampling &&
+    luminance.verticalSampling === jpeg.maximumVerticalSampling &&
+    blueChroma.horizontalSampling === jpeg.maximumHorizontalSampling &&
+    blueChroma.verticalSampling === jpeg.maximumVerticalSampling &&
+    redChroma.horizontalSampling === jpeg.maximumHorizontalSampling &&
+    redChroma.verticalSampling === jpeg.maximumVerticalSampling
+  ) {
+    for (let row = 0; row < height; row += 1) {
+      const sourceY = plan.haloRows + first + row - rowStart
+      for (let x = 0; x < region.width; x += 1) {
+        const y = byte(luminancePlane, sourceY * luminanceWidth + (luminanceX[x] ?? 0))
+        const cb = byte(blueChromaPlane, sourceY * blueChromaWidth + (blueChromaX[x] ?? 0)) - 128
+        const cr = byte(redChromaPlane, sourceY * redChromaWidth + (redChromaX[x] ?? 0)) - 128
+        const target = (row * region.width + x) * 3
+        data[target] = clamp(y + 1.402 * cr)
+        data[target + 1] = clamp(y - 0.3441363 * cb - 0.71413636 * cr)
+        data[target + 2] = clamp(y + 1.772 * cb)
+      }
+    }
+    return
+  }
   for (let row = 0; row < height; row += 1) {
-    const sourceY = first + row - rowStart
-    const luminanceY = Math.floor(
-      (sourceY * luminance.verticalSampling) / jpeg.maximumVerticalSampling,
-    )
-    const blueChromaY = Math.floor(
-      (sourceY * blueChroma.verticalSampling) / jpeg.maximumVerticalSampling,
-    )
-    const redChromaY = Math.floor(
-      (sourceY * redChroma.verticalSampling) / jpeg.maximumVerticalSampling,
-    )
+    const outputY = first + row
+    const luminancePosition =
+      ((outputY + 0.5) * luminance.verticalSampling) / jpeg.maximumVerticalSampling -
+      0.5 -
+      (rowStart * luminance.verticalSampling) / jpeg.maximumVerticalSampling +
+      plan.haloRows
+    const blueChromaPosition =
+      ((outputY + 0.5) * blueChroma.verticalSampling) / jpeg.maximumVerticalSampling -
+      0.5 -
+      (rowStart * blueChroma.verticalSampling) / jpeg.maximumVerticalSampling +
+      plan.haloRows
+    const redChromaPosition =
+      ((outputY + 0.5) * redChroma.verticalSampling) / jpeg.maximumVerticalSampling -
+      0.5 -
+      (rowStart * redChroma.verticalSampling) / jpeg.maximumVerticalSampling +
+      plan.haloRows
+    const luminanceY = Math.floor(luminancePosition)
+    const blueChromaY = Math.floor(blueChromaPosition)
+    const redChromaY = Math.floor(redChromaPosition)
+    const luminanceBottomY = luminanceY + 1
+    const blueChromaBottomY = blueChromaY + 1
+    const redChromaBottomY = redChromaY + 1
+    const luminanceYWeight = Math.round((luminancePosition - luminanceY) * 256)
+    const blueChromaYWeight = Math.round((blueChromaPosition - blueChromaY) * 256)
+    const redChromaYWeight = Math.round((redChromaPosition - redChromaY) * 256)
     for (let x = 0; x < region.width; x += 1) {
-      const y = byte(luminancePlane, luminanceY * luminanceWidth + (luminanceX[x] ?? 0))
-      const cb = byte(blueChromaPlane, blueChromaY * blueChromaWidth + (blueChromaX[x] ?? 0)) - 128
-      const cr = byte(redChromaPlane, redChromaY * redChromaWidth + (redChromaX[x] ?? 0)) - 128
+      const luminanceXWeight = luminanceXWeights[x] ?? 0
+      const blueChromaXWeight = blueChromaXWeights[x] ?? 0
+      const redChromaXWeight = redChromaXWeights[x] ?? 0
+      const luminanceTop =
+        byte(luminancePlane, luminanceY * luminanceWidth + (luminanceX[x] ?? 0)) *
+          (256 - luminanceXWeight) +
+        byte(luminancePlane, luminanceY * luminanceWidth + (luminanceRightX[x] ?? 0)) *
+          luminanceXWeight
+      const luminanceBottom =
+        byte(luminancePlane, luminanceBottomY * luminanceWidth + (luminanceX[x] ?? 0)) *
+          (256 - luminanceXWeight) +
+        byte(luminancePlane, luminanceBottomY * luminanceWidth + (luminanceRightX[x] ?? 0)) *
+          luminanceXWeight
+      const blueChromaTop =
+        byte(blueChromaPlane, blueChromaY * blueChromaWidth + (blueChromaX[x] ?? 0)) *
+          (256 - blueChromaXWeight) +
+        byte(blueChromaPlane, blueChromaY * blueChromaWidth + (blueChromaRightX[x] ?? 0)) *
+          blueChromaXWeight
+      const blueChromaBottom =
+        byte(blueChromaPlane, blueChromaBottomY * blueChromaWidth + (blueChromaX[x] ?? 0)) *
+          (256 - blueChromaXWeight) +
+        byte(blueChromaPlane, blueChromaBottomY * blueChromaWidth + (blueChromaRightX[x] ?? 0)) *
+          blueChromaXWeight
+      const redChromaTop =
+        byte(redChromaPlane, redChromaY * redChromaWidth + (redChromaX[x] ?? 0)) *
+          (256 - redChromaXWeight) +
+        byte(redChromaPlane, redChromaY * redChromaWidth + (redChromaRightX[x] ?? 0)) *
+          redChromaXWeight
+      const redChromaBottom =
+        byte(redChromaPlane, redChromaBottomY * redChromaWidth + (redChromaX[x] ?? 0)) *
+          (256 - redChromaXWeight) +
+        byte(redChromaPlane, redChromaBottomY * redChromaWidth + (redChromaRightX[x] ?? 0)) *
+          redChromaXWeight
+      const y =
+        (luminanceTop * (256 - luminanceYWeight) + luminanceBottom * luminanceYWeight + 32_768) >>
+        16
+      const cb =
+        ((blueChromaTop * (256 - blueChromaYWeight) +
+          blueChromaBottom * blueChromaYWeight +
+          32_768) >>
+          16) -
+        128
+      const cr =
+        ((redChromaTop * (256 - redChromaYWeight) + redChromaBottom * redChromaYWeight + 32_768) >>
+          16) -
+        128
       const target = (row * region.width + x) * 3
       data[target] = clamp(y + 1.402 * cr)
       data[target + 1] = clamp(y - 0.3441363 * cb - 0.71413636 * cr)
@@ -1065,18 +1387,18 @@ const renderFourComponentRows = (
   }
   for (let row = 0; row < height; row += 1) {
     const sourceY = first + row - rowStart
-    const firstY = Math.floor(
-      (sourceY * firstComponent.verticalSampling) / jpeg.maximumVerticalSampling,
-    )
-    const secondY = Math.floor(
-      (sourceY * secondComponent.verticalSampling) / jpeg.maximumVerticalSampling,
-    )
-    const thirdY = Math.floor(
-      (sourceY * thirdComponent.verticalSampling) / jpeg.maximumVerticalSampling,
-    )
-    const blackY = Math.floor(
-      (sourceY * blackComponent.verticalSampling) / jpeg.maximumVerticalSampling,
-    )
+    const firstY =
+      plan.haloRows +
+      Math.floor((sourceY * firstComponent.verticalSampling) / jpeg.maximumVerticalSampling)
+    const secondY =
+      plan.haloRows +
+      Math.floor((sourceY * secondComponent.verticalSampling) / jpeg.maximumVerticalSampling)
+    const thirdY =
+      plan.haloRows +
+      Math.floor((sourceY * thirdComponent.verticalSampling) / jpeg.maximumVerticalSampling)
+    const blackY =
+      plan.haloRows +
+      Math.floor((sourceY * blackComponent.verticalSampling) / jpeg.maximumVerticalSampling)
     for (let x = 0; x < region.width; x += 1) {
       const firstSample = byte(firstPlane, firstY * firstWidth + (firstX[x] ?? 0))
       const secondSample = byte(secondPlane, secondY * secondWidth + (secondX[x] ?? 0))
@@ -1172,42 +1494,104 @@ export const decodeBaselineJpeg = async function* (
   jpeg: BaselineJpeg,
   region: JpegRegion,
   scaleDenominator: JpegScaleDenominator = 1,
+  metrics?: JpegDecodeMetrics,
 ): AsyncGenerator<PixelBlock> {
-  const reader = new EntropyReader(jpeg.data, jpeg.scanOffset)
+  const blockSize = outputSizeForScale(scaleDenominator)
+  const mcuWidth = jpeg.maximumHorizontalSampling * blockSize
+  const mcuHeight = jpeg.maximumVerticalSampling * blockSize
+  const firstMcuColumn = Math.floor(region.x / mcuWidth)
+  const lastMcuColumn = Math.floor((region.x + region.width - 1) / mcuWidth)
+  const firstMcuRow = Math.floor(region.y / mcuHeight)
+  const lastMcuRow = Math.floor((region.y + region.height - 1) / mcuHeight)
+  const reconstructFirstColumn = Math.max(0, firstMcuColumn - 1)
+  const reconstructLastColumn = Math.min(jpeg.mcusPerLine - 1, lastMcuColumn + 1)
+  const reconstructFirstRow = Math.max(0, firstMcuRow - 1)
+  const reconstructLastRow = Math.min(jpeg.mcusPerColumn - 1, lastMcuRow + 1)
+  const scaledWidth = Math.ceil(jpeg.width / scaleDenominator)
+  const scaledHeight = Math.ceil(jpeg.height / scaleDenominator)
+  const cropped =
+    region.x !== 0 ||
+    region.y !== 0 ||
+    region.width !== scaledWidth ||
+    region.height !== scaledHeight
+  const targetMcu = reconstructFirstRow * jpeg.mcusPerLine + reconstructFirstColumn
+  const entropyIndex =
+    cropped && jpeg.source
+      ? await indexJpegEntropy(
+          jpeg.source,
+          jpeg.scanOffset,
+          jpeg.restartInterval,
+          jpeg.restartInterval > 0
+            ? Math.ceil((jpeg.mcusPerLine * jpeg.mcusPerColumn - 1) / jpeg.restartInterval)
+            : 0,
+          targetMcu,
+        )
+      : undefined
+  const restartPoint = entropyIndex?.restart
+  const initialMcu = restartPoint?.mcu ?? 0
+  let nextRestartMcu =
+    jpeg.restartInterval > 0 ? initialMcu + jpeg.restartInterval : Number.MAX_SAFE_INTEGER
+  let restart = restartPoint ? restartPoint.marker - 0xd0 + 1 : 0
+  const reader = jpeg.source
+    ? new JpegEntropyReader(jpeg.source, restartPoint?.offset ?? jpeg.scanOffset)
+    : new EntropyReader(
+        jpeg.data ??
+          (() => {
+            throw invalidInput('JPEG entropy source is missing')
+          })(),
+        jpeg.scanOffset,
+      )
   const predictors = new Int32Array(jpeg.components.length)
   const coefficients = new Int32Array(64)
   const workspace = new Float64Array(64)
   const activeRowIndices = new Uint8Array(8)
   const sampleWorkspace = new Float64Array(8)
-  const blockSize = outputSizeForScale(scaleDenominator)
   const inverseBlock = inverseDctForScale(scaleDenominator)
-  let mcu = 0
-  let restart = 0
   const plan = createRenderPlan(jpeg, region, blockSize)
-  const planes = componentPlanes(jpeg, blockSize)
+  let currentPlanes = componentPlanes(jpeg, blockSize)
+  let pendingPlanes: Uint8Array[] | undefined
+  let pendingRow = -1
   const recycledOutput: Uint8Array[] = []
   const outputBytes = region.width * 3 * jpeg.maximumVerticalSampling * blockSize
 
-  for (let mcuRow = 0; mcuRow < jpeg.mcusPerColumn; mcuRow += 1) {
-    for (let mcuColumn = 0; mcuColumn < jpeg.mcusPerLine; mcuColumn += 1) {
-      if (jpeg.restartInterval > 0 && mcu > 0 && mcu % jpeg.restartInterval === 0) {
-        reader.restart(restart)
-        restart += 1
-        predictors.fill(0)
-      }
-      for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
-        const component = jpeg.components[componentIndex]
-        const plane = planes[componentIndex]
-        if (!component || !plane) throw invalidInput('JPEG component storage is missing')
-        const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * blockSize
-        for (let blockY = 0; blockY < component.verticalSampling; blockY += 1) {
-          for (let blockX = 0; blockX < component.horizontalSampling; blockX += 1) {
-            predictors[componentIndex] = decodeBlock(
-              reader,
-              component,
-              byte(predictors, componentIndex),
-              coefficients,
-            )
+  const totalMcus = jpeg.mcusPerLine * jpeg.mcusPerColumn
+  if (metrics) {
+    metrics.totalMcus = totalMcus
+    metrics.entropyStartMcu = initialMcu
+    metrics.entropyMcusDecoded = 0
+    metrics.blocksReconstructed = 0
+  }
+  for (let mcu = initialMcu; mcu < totalMcus; mcu += 1) {
+    if (metrics) metrics.entropyMcusDecoded += 1
+    const mcuRow = Math.floor(mcu / jpeg.mcusPerLine)
+    const mcuColumn = mcu % jpeg.mcusPerLine
+    const reconstruct =
+      mcuRow >= reconstructFirstRow &&
+      mcuRow <= reconstructLastRow &&
+      mcuColumn >= reconstructFirstColumn &&
+      mcuColumn <= reconstructLastColumn
+    if (reader instanceof JpegEntropyReader && reader.available < 8_192) await reader.refill()
+    if (mcu === nextRestartMcu) {
+      reader.restart(restart)
+      restart += 1
+      predictors.fill(0)
+      nextRestartMcu += jpeg.restartInterval
+    }
+    for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
+      const component = jpeg.components[componentIndex]
+      const plane = currentPlanes[componentIndex]
+      if (!component || !plane) throw invalidInput('JPEG component storage is missing')
+      const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * blockSize
+      for (let blockY = 0; blockY < component.verticalSampling; blockY += 1) {
+        for (let blockX = 0; blockX < component.horizontalSampling; blockX += 1) {
+          predictors[componentIndex] = decodeBlock(
+            reader,
+            component,
+            byte(predictors, componentIndex),
+            coefficients,
+          )
+          if (reconstruct) {
+            if (metrics) metrics.blocksReconstructed += 1
             inverseBlock(
               coefficients,
               component.quantization,
@@ -1217,30 +1601,56 @@ export const decodeBaselineJpeg = async function* (
               plane,
               planeWidth,
               mcuColumn * component.horizontalSampling + blockX,
-              blockY,
+              blockY + 1,
             )
           }
         }
       }
-      mcu += 1
     }
-    const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
-    const output = renderRows(jpeg, planes, mcuRow, region, plan, data, blockSize)
-    if (output) {
-      let released = false
-      yield {
-        ...output,
-        release: () => {
-          if (released) return
-          released = true
-          recycledOutput.push(data)
-        },
-      }
+    if (mcuColumn !== jpeg.mcusPerLine - 1) continue
+    if (mcuRow < reconstructFirstRow) continue
+    if (!pendingPlanes) {
+      if (mcuRow === 0) replicateTopHalo(jpeg, currentPlanes, blockSize)
     } else {
-      recycledOutput.push(data)
+      linkPlaneHalos(jpeg, pendingPlanes, currentPlanes, blockSize)
+      const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
+      const output = renderRows(jpeg, pendingPlanes, pendingRow, region, plan, data, blockSize)
+      if (output) {
+        let released = false
+        yield {
+          ...output,
+          release: () => {
+            if (released) return
+            released = true
+            recycledOutput.push(data)
+          },
+        }
+      } else {
+        recycledOutput.push(data)
+      }
+      if (pendingRow >= lastMcuRow) return
     }
+    const previous = pendingPlanes
+    pendingPlanes = currentPlanes
+    pendingRow = mcuRow
+    currentPlanes = previous ?? componentPlanes(jpeg, blockSize)
+    for (const plane of currentPlanes) plane.fill(0)
   }
-  reader.finish()
+  await reader.finish()
+  if (!pendingPlanes) return
+  replicateBottomHalo(jpeg, pendingPlanes, blockSize)
+  const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
+  const output = renderRows(jpeg, pendingPlanes, pendingRow, region, plan, data, blockSize)
+  if (!output) return
+  let released = false
+  yield {
+    ...output,
+    release: () => {
+      if (released) return
+      released = true
+      recycledOutput.push(data)
+    },
+  }
 }
 
 interface ProgressiveFrameComponent extends RenderComponent {
@@ -1263,6 +1673,7 @@ export interface ProgressiveJpeg extends RenderJpeg {
   readonly height: number
   readonly components: readonly ProgressiveComponent[]
   readonly mcusPerColumn: number
+  readonly progressive: boolean
 }
 
 interface ProgressiveScanComponent {
@@ -1297,7 +1708,7 @@ const setCoefficient = (coefficients: Int16Array, index: number, value: number):
 }
 
 const decodeProgressiveDcFirst = (
-  reader: EntropyReader,
+  reader: JpegBitReader,
   selected: ProgressiveScanComponent,
   predictors: Int32Array,
   blockOffset: number,
@@ -1312,7 +1723,7 @@ const decodeProgressiveDcFirst = (
 }
 
 const decodeProgressiveDcRefinement = (
-  reader: EntropyReader,
+  reader: JpegBitReader,
   component: ProgressiveFrameComponent,
   blockOffset: number,
   successiveLow: number,
@@ -1323,7 +1734,7 @@ const decodeProgressiveDcRefinement = (
 }
 
 const decodeProgressiveAcFirst = (
-  reader: EntropyReader,
+  reader: JpegBitReader,
   selected: ProgressiveScanComponent,
   blockOffset: number,
   scan: ProgressiveScan,
@@ -1362,7 +1773,7 @@ const decodeProgressiveAcFirst = (
 }
 
 const refineNonzeroCoefficient = (
-  reader: EntropyReader,
+  reader: JpegBitReader,
   coefficients: Int16Array,
   index: number,
   bit: number,
@@ -1373,7 +1784,7 @@ const refineNonzeroCoefficient = (
 }
 
 const decodeProgressiveAcRefinement = (
-  reader: EntropyReader,
+  reader: JpegBitReader,
   selected: ProgressiveScanComponent,
   blockOffset: number,
   scan: ProgressiveScan,
@@ -1532,8 +1943,24 @@ const progressiveFrameComponents = (
   maximumVerticalSampling: number,
   mcusPerLine: number,
   mcusPerColumn: number,
-): ProgressiveFrameComponent[] =>
-  frame.components.map((component) => {
+  maximumCoefficientBytes = Number.MAX_SAFE_INTEGER,
+): ProgressiveFrameComponent[] => {
+  let coefficientBytes = 0n
+  for (const component of frame.components) {
+    coefficientBytes +=
+      BigInt(mcusPerLine) *
+      BigInt(component.horizontalSampling) *
+      BigInt(mcusPerColumn) *
+      BigInt(component.verticalSampling) *
+      64n *
+      2n
+  }
+  if (coefficientBytes > BigInt(maximumCoefficientBytes)) {
+    throw limitExceeded(
+      `JPEG coefficient storage is ${coefficientBytes} bytes; limit is ${maximumCoefficientBytes}`,
+    )
+  }
+  return frame.components.map((component) => {
     const blocksPerLine = Math.ceil(
       (Math.ceil(frame.width / 8) * component.horizontalSampling) / maximumHorizontalSampling,
     )
@@ -1554,6 +1981,7 @@ const progressiveFrameComponents = (
       successiveBits,
     }
   })
+}
 
 export const parseProgressiveJpeg = (
   data: Uint8Array,
@@ -1603,6 +2031,7 @@ export const parseProgressiveJpeg = (
         maximumVerticalSampling,
         mcusPerLine,
         mcusPerColumn,
+        progressive: true,
       }
     }
     if (marker === 0x00 || (marker >= 0xd0 && marker <= 0xd8))
@@ -1690,6 +2119,314 @@ export const parseProgressiveJpeg = (
   throw truncatedInput('Progressive JPEG is missing its end marker')
 }
 
+const decodeProgressiveSourceScan = async (
+  source: ImageSource,
+  offset: number,
+  scan: ProgressiveScan,
+  mcusPerLine: number,
+  mcusPerColumn: number,
+  restartInterval: number,
+): Promise<number> => {
+  validateProgressiveScan(scan)
+  const reader = new JpegEntropyReader(source, offset)
+  const predictors = new Int32Array(
+    Math.max(...scan.components.map((selected) => selected.componentIndex)) + 1,
+  )
+  const state: ProgressiveState = { eobRun: 0 }
+  const single = scan.components.length === 1 ? scan.components[0] : undefined
+  const scanMcusPerLine = single ? single.component.blocksPerLine : mcusPerLine
+  const scanMcusPerColumn = single ? single.component.blocksPerColumn : mcusPerColumn
+  let mcu = 0
+  let restart = 0
+
+  for (let mcuY = 0; mcuY < scanMcusPerColumn; mcuY += 1) {
+    for (let mcuX = 0; mcuX < scanMcusPerLine; mcuX += 1) {
+      if (reader.available < 8_192) await reader.refill()
+      if (restartInterval > 0 && mcu > 0 && mcu % restartInterval === 0) {
+        reader.restart(restart)
+        restart += 1
+        predictors.fill(0)
+        state.eobRun = 0
+      }
+      for (const selected of scan.components) {
+        const blocksWide = single ? 1 : selected.component.horizontalSampling
+        const blocksHigh = single ? 1 : selected.component.verticalSampling
+        for (let blockY = 0; blockY < blocksHigh; blockY += 1) {
+          for (let blockX = 0; blockX < blocksWide; blockX += 1) {
+            const x = single ? mcuX : mcuX * blocksWide + blockX
+            const y = single ? mcuY : mcuY * blocksHigh + blockY
+            const target = coefficientOffset(selected.component, x, y)
+            if (scan.spectralStart === 0) {
+              if (scan.successiveHigh === 0) {
+                decodeProgressiveDcFirst(reader, selected, predictors, target, scan.successiveLow)
+              } else {
+                decodeProgressiveDcRefinement(
+                  reader,
+                  selected.component,
+                  target,
+                  scan.successiveLow,
+                )
+              }
+            } else if (scan.successiveHigh === 0) {
+              decodeProgressiveAcFirst(reader, selected, target, scan, state)
+            } else {
+              decodeProgressiveAcRefinement(reader, selected, target, scan, state)
+            }
+          }
+        }
+      }
+      mcu += 1
+    }
+  }
+  if (reader.available === 0) await reader.refill()
+  return reader.scanEnd()
+}
+
+const decodeSequentialSourceScan = async (
+  source: ImageSource,
+  offset: number,
+  scan: ProgressiveScan,
+  mcusPerLine: number,
+  mcusPerColumn: number,
+  restartInterval: number,
+  quantizationTables: ReadonlyMap<number, Int32Array>,
+): Promise<number> => {
+  if (
+    scan.spectralStart !== 0 ||
+    scan.spectralEnd !== 63 ||
+    scan.successiveHigh !== 0 ||
+    scan.successiveLow !== 0
+  ) {
+    throw invalidInput('Sequential JPEG scan parameters are invalid')
+  }
+  const selectedComponents = scan.components.map((selected) => {
+    const quantization = quantizationTables.get(selected.component.quantizationId)
+    if (!quantization || !selected.dcTable || !selected.acTable) {
+      throw invalidInput('Sequential JPEG scan references a missing coding table')
+    }
+    return {
+      selected,
+      decoder: {
+        id: selected.component.id,
+        horizontalSampling: selected.component.horizontalSampling,
+        verticalSampling: selected.component.verticalSampling,
+        quantization,
+        dcTable: selected.dcTable,
+        acTable: selected.acTable,
+      } satisfies FrameComponent,
+    }
+  })
+  const reader = new JpegEntropyReader(source, offset)
+  const predictors = new Int32Array(
+    Math.max(...scan.components.map((selected) => selected.componentIndex)) + 1,
+  )
+  const coefficients = new Int32Array(64)
+  const single = selectedComponents.length === 1 ? selectedComponents[0] : undefined
+  const scanMcusPerLine = single ? single.selected.component.blocksPerLine : mcusPerLine
+  const scanMcusPerColumn = single ? single.selected.component.blocksPerColumn : mcusPerColumn
+  let mcu = 0
+  let restart = 0
+  for (let mcuY = 0; mcuY < scanMcusPerColumn; mcuY += 1) {
+    for (let mcuX = 0; mcuX < scanMcusPerLine; mcuX += 1) {
+      if (reader.available < 8_192) await reader.refill()
+      if (restartInterval > 0 && mcu > 0 && mcu % restartInterval === 0) {
+        reader.restart(restart)
+        restart += 1
+        predictors.fill(0)
+      }
+      for (const entry of selectedComponents) {
+        const blocksWide = single ? 1 : entry.selected.component.horizontalSampling
+        const blocksHigh = single ? 1 : entry.selected.component.verticalSampling
+        for (let blockY = 0; blockY < blocksHigh; blockY += 1) {
+          for (let blockX = 0; blockX < blocksWide; blockX += 1) {
+            const x = single ? mcuX : mcuX * blocksWide + blockX
+            const y = single ? mcuY : mcuY * blocksHigh + blockY
+            const predictor = decodeBlock(
+              reader,
+              entry.decoder,
+              predictors[entry.selected.componentIndex] ?? 0,
+              coefficients,
+            )
+            predictors[entry.selected.componentIndex] = predictor
+            const target = coefficientOffset(entry.selected.component, x, y)
+            for (let coefficient = 0; coefficient < 64; coefficient += 1) {
+              setCoefficient(
+                entry.selected.component.coefficients,
+                target + coefficient,
+                coefficients[coefficient] ?? 0,
+              )
+            }
+          }
+        }
+      }
+      mcu += 1
+    }
+  }
+  if (reader.available === 0) await reader.refill()
+  return reader.scanEnd()
+}
+
+export const parseCoefficientJpegSource = async (
+  source: ImageSource,
+  validateDimensions: (width: number, height: number) => void,
+  applyIcc = true,
+  maximumCoefficientBytes = Number.MAX_SAFE_INTEGER,
+): Promise<ProgressiveJpeg | undefined> => {
+  let reader = new SourceReader(source)
+  const signature = await reader.read(2)
+  if (readUint16(signature, 0) !== 0xffd8) throw invalidInput('JPEG start marker is missing')
+  const quantizationTables = new Map<number, Int32Array>()
+  const dcTables = new Map<number, HuffmanTable>()
+  const acTables = new Map<number, HuffmanTable>()
+  let frame: ParsedFrame | undefined
+  let progressive = false
+  let adobeTransform: number | undefined
+  const iccChunks: IccChunk[] = []
+  let components: ProgressiveFrameComponent[] | undefined
+  let maximumHorizontalSampling = 1
+  let maximumVerticalSampling = 1
+  let mcusPerLine = 0
+  let mcusPerColumn = 0
+  let restartInterval = 0
+  let scanCount = 0
+  const sequentialSeen = new Set<number>()
+
+  while (reader.position < source.size) {
+    const marker = await nextSourceMarker(reader)
+    if (marker === 0xd9) {
+      if (!frame || !components || scanCount === 0) {
+        throw invalidInput('JPEG ended before complete image data')
+      }
+      if (!progressive && sequentialSeen.size !== components.length) {
+        throw invalidInput('Sequential JPEG is missing component scans')
+      }
+      const outputComponents: ProgressiveComponent[] = components.map((component) => {
+        const quantization = quantizationTables.get(component.quantizationId)
+        if (!quantization) {
+          throw invalidInput('JPEG component references a missing quantization table')
+        }
+        return { ...component, quantization }
+      })
+      const jpegColorTransform = colorTransform(frame, adobeTransform)
+      const iccTransform = applyIcc ? createIccTransform(iccChunks, jpegColorTransform) : undefined
+      return {
+        width: frame.width,
+        height: frame.height,
+        components: outputComponents,
+        colorTransform: jpegColorTransform,
+        ...(iccTransform ? { iccTransform } : {}),
+        maximumHorizontalSampling,
+        maximumVerticalSampling,
+        mcusPerLine,
+        mcusPerColumn,
+        progressive,
+      }
+    }
+    const payload = await sourceSegment(reader)
+    const end = payload.byteLength
+    if (marker === 0xdb) parseQuantizationTables(payload, 0, end, quantizationTables)
+    else if (marker === 0xc4) parseHuffmanTables(payload, 0, end, dcTables, acTables)
+    else if (marker === 0xe2) {
+      const chunk = parseIccChunk(payload, 0, end)
+      if (chunk) iccChunks.push(chunk)
+    } else if (marker === 0xee) {
+      adobeTransform = parseAdobeTransform(payload, 0, end) ?? adobeTransform
+    } else if (marker === 0xc0 || marker === 0xc1 || marker === 0xc2) {
+      if (frame) throw invalidInput('JPEG contains multiple frames')
+      progressive = marker === 0xc2
+      frame = parseFrame(payload, 0, end)
+      validateDimensions(frame.width, frame.height)
+      for (const component of frame.components) {
+        maximumHorizontalSampling = Math.max(
+          maximumHorizontalSampling,
+          component.horizontalSampling,
+        )
+        maximumVerticalSampling = Math.max(maximumVerticalSampling, component.verticalSampling)
+      }
+      mcusPerLine = Math.ceil(frame.width / (8 * maximumHorizontalSampling))
+      mcusPerColumn = Math.ceil(frame.height / (8 * maximumVerticalSampling))
+      components = progressiveFrameComponents(
+        frame,
+        maximumHorizontalSampling,
+        maximumVerticalSampling,
+        mcusPerLine,
+        mcusPerColumn,
+        maximumCoefficientBytes,
+      )
+    } else if (marker >= 0xc3 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8) {
+      return undefined
+    } else if (marker === 0xdd) {
+      if (end !== 2) throw invalidInput('JPEG restart interval is invalid')
+      restartInterval = readUint16(payload, 0)
+    } else if (marker === 0xda) {
+      if (!frame || !components) throw invalidInput('JPEG scan appears before its frame')
+      scanCount += 1
+      if (scanCount > 1_024) throw invalidInput('JPEG scan count exceeds 1024')
+      const selectorCount = byte(payload, 0)
+      if (
+        selectorCount < 1 ||
+        selectorCount > components.length ||
+        1 + selectorCount * 2 + 3 !== end
+      ) {
+        throw invalidInput('JPEG scan header is invalid')
+      }
+      const selected: ProgressiveScanComponent[] = []
+      const selectedIds = new Set<number>()
+      for (let index = 0; index < selectorCount; index += 1) {
+        const selectorOffset = 1 + index * 2
+        const selectedId = byte(payload, selectorOffset)
+        if (selectedIds.has(selectedId)) throw invalidInput('JPEG scan repeats a component')
+        if (!progressive && sequentialSeen.has(selectedId)) {
+          throw invalidInput('Sequential JPEG repeats a component scan')
+        }
+        selectedIds.add(selectedId)
+        const component = components.find((candidate) => candidate.id === selectedId)
+        if (!component) throw invalidInput('JPEG scan references an unknown component')
+        const componentIndex = components.indexOf(component)
+        const tables = byte(payload, selectorOffset + 1)
+        const dcTable = dcTables.get(tables >>> 4)
+        const acTable = acTables.get(tables & 15)
+        selected.push({
+          component,
+          componentIndex,
+          ...(dcTable ? { dcTable } : {}),
+          ...(acTable ? { acTable } : {}),
+        })
+      }
+      const spectralOffset = 1 + selectorCount * 2
+      const successive = byte(payload, spectralOffset + 2)
+      const scan: ProgressiveScan = {
+        components: selected,
+        spectralStart: byte(payload, spectralOffset),
+        spectralEnd: byte(payload, spectralOffset + 1),
+        successiveHigh: successive >>> 4,
+        successiveLow: successive & 15,
+      }
+      const nextOffset = progressive
+        ? await decodeProgressiveSourceScan(
+            source,
+            reader.position,
+            scan,
+            mcusPerLine,
+            mcusPerColumn,
+            restartInterval,
+          )
+        : await decodeSequentialSourceScan(
+            source,
+            reader.position,
+            scan,
+            mcusPerLine,
+            mcusPerColumn,
+            restartInterval,
+            quantizationTables,
+          )
+      if (!progressive) for (const id of selectedIds) sequentialSeen.add(id)
+      reader = new SourceReader(source, nextOffset)
+    }
+  }
+  throw truncatedInput('JPEG is missing its end marker')
+}
+
 export const decodeProgressiveJpeg = async function* (
   jpeg: ProgressiveJpeg,
   region: JpegRegion,
@@ -1701,47 +2438,87 @@ export const decodeProgressiveJpeg = async function* (
   const blockSize = outputSizeForScale(scaleDenominator)
   const inverseBlock = inverseDctForScale(scaleDenominator)
   const plan = createRenderPlan(jpeg, region, blockSize)
-  const planes = componentPlanes(jpeg, blockSize)
+  const mcuWidth = jpeg.maximumHorizontalSampling * blockSize
+  const mcuHeight = jpeg.maximumVerticalSampling * blockSize
+  const firstMcuColumn = Math.max(0, Math.floor(region.x / mcuWidth) - 1)
+  const lastMcuColumn = Math.min(
+    jpeg.mcusPerLine - 1,
+    Math.floor((region.x + region.width - 1) / mcuWidth) + 1,
+  )
+  const firstMcuRow = Math.max(0, Math.floor(region.y / mcuHeight) - 1)
+  const lastOutputMcuRow = Math.floor((region.y + region.height - 1) / mcuHeight)
+  const lastMcuRow = Math.min(jpeg.mcusPerColumn - 1, lastOutputMcuRow + 1)
+  let currentPlanes = componentPlanes(jpeg, blockSize)
+  let pendingPlanes: Uint8Array[] | undefined
+  let pendingRow = -1
   const recycledOutput: Uint8Array[] = []
   const outputBytes = region.width * 3 * jpeg.maximumVerticalSampling * blockSize
-  for (let mcuRow = 0; mcuRow < jpeg.mcusPerColumn; mcuRow += 1) {
+  for (let mcuRow = firstMcuRow; mcuRow <= lastMcuRow; mcuRow += 1) {
     for (let componentIndex = 0; componentIndex < jpeg.components.length; componentIndex += 1) {
       const component = jpeg.components[componentIndex]
-      const plane = planes[componentIndex]
+      const plane = currentPlanes[componentIndex]
       if (!component || !plane) throw invalidInput('JPEG component storage is missing')
       const planeWidth = jpeg.mcusPerLine * component.horizontalSampling * blockSize
       for (let blockY = 0; blockY < component.verticalSampling; blockY += 1) {
         const sourceBlockY = mcuRow * component.verticalSampling + blockY
-        for (let blockX = 0; blockX < component.blocksPerLineForMcu; blockX += 1) {
-          inverseBlock(
-            component.coefficients,
-            component.quantization,
-            workspace,
-            activeRowIndices,
-            sampleWorkspace,
-            plane,
-            planeWidth,
-            blockX,
-            blockY,
-            coefficientOffset(component, blockX, sourceBlockY),
-          )
+        for (let mcuColumn = firstMcuColumn; mcuColumn <= lastMcuColumn; mcuColumn += 1) {
+          for (let blockX = 0; blockX < component.horizontalSampling; blockX += 1) {
+            const sourceBlockX = mcuColumn * component.horizontalSampling + blockX
+            inverseBlock(
+              component.coefficients,
+              component.quantization,
+              workspace,
+              activeRowIndices,
+              sampleWorkspace,
+              plane,
+              planeWidth,
+              sourceBlockX,
+              blockY + 1,
+              coefficientOffset(component, sourceBlockX, sourceBlockY),
+            )
+          }
         }
       }
     }
-    const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
-    const output = renderRows(jpeg, planes, mcuRow, region, plan, data, blockSize)
-    if (output) {
-      let released = false
-      yield {
-        ...output,
-        release: () => {
-          if (released) return
-          released = true
-          recycledOutput.push(data)
-        },
-      }
+    if (!pendingPlanes) {
+      if (mcuRow === 0) replicateTopHalo(jpeg, currentPlanes, blockSize)
     } else {
-      recycledOutput.push(data)
+      linkPlaneHalos(jpeg, pendingPlanes, currentPlanes, blockSize)
+      const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
+      const output = renderRows(jpeg, pendingPlanes, pendingRow, region, plan, data, blockSize)
+      if (output) {
+        let released = false
+        yield {
+          ...output,
+          release: () => {
+            if (released) return
+            released = true
+            recycledOutput.push(data)
+          },
+        }
+      } else {
+        recycledOutput.push(data)
+      }
+      if (pendingRow >= lastOutputMcuRow) return
     }
+    const previous = pendingPlanes
+    pendingPlanes = currentPlanes
+    pendingRow = mcuRow
+    currentPlanes = previous ?? componentPlanes(jpeg, blockSize)
+    for (const plane of currentPlanes) plane.fill(0)
+  }
+  if (!pendingPlanes) return
+  replicateBottomHalo(jpeg, pendingPlanes, blockSize)
+  const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)
+  const output = renderRows(jpeg, pendingPlanes, pendingRow, region, plan, data, blockSize)
+  if (!output) return
+  let released = false
+  yield {
+    ...output,
+    release: () => {
+      if (released) return
+      released = true
+      recycledOutput.push(data)
+    },
   }
 }

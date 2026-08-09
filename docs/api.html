@@ -124,6 +124,7 @@
   progressive?: boolean          <span class="tok-comment">// reserved; true is not implemented</span>
   background?: Background
   chromaSubsampling?: <span class="tok-string">'420'</span> | <span class="tok-string">'422'</span> | <span class="tok-string">'444'</span>
+  restartInterval?: number       <span class="tok-comment">// 0–65535; 0 disables restart markers</span>
 }
 
 <span class="tok-key">interface</span> PngEncodeOptions { compressionLevel?: number } <span class="tok-comment">// 0–9</span>
@@ -167,7 +168,7 @@
         fullRange: boolean
       }
   bitDepth?: number
-  chromaSubsampling?: <span class="tok-string">'400'</span> | <span class="tok-string">'420'</span> | <span class="tok-string">'422'</span> | <span class="tok-string">'444'</span>
+  chromaSubsampling?: <span class="tok-string">'400'</span> | <span class="tok-string">'411'</span> | <span class="tok-string">'420'</span> | <span class="tok-string">'422'</span> | <span class="tok-string">'440'</span> | <span class="tok-string">'444'</span>
   codecProfile?: number
   frames?: number
 }</code></pre></div>

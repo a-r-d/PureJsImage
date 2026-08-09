@@ -1,4 +1,4 @@
-import type { ChromaSubsampling, ImageMetadata } from './codec.ts'
+import type { ImageMetadata } from './codec.ts'
 import { invalidInput } from './errors.ts'
 import type { ImageLimits } from './limits.ts'
 import { validateImageDimensions } from './limits.ts'
@@ -34,7 +34,8 @@ export interface JpegEncodeOptions {
   quality?: number
   progressive?: boolean
   background?: Background
-  chromaSubsampling?: Exclude<ChromaSubsampling, '400'>
+  chromaSubsampling?: '420' | '422' | '444'
+  restartInterval?: number
 }
 
 export interface PngEncodeOptions {
@@ -188,6 +189,14 @@ export const createJpegEncodeOperation = (options: JpegEncodeOptions): PipelineO
     options.chromaSubsampling !== '444'
   ) {
     throw invalidInput('JPEG chromaSubsampling must be 420, 422, or 444')
+  }
+  if (
+    options.restartInterval !== undefined &&
+    (!Number.isInteger(options.restartInterval) ||
+      options.restartInterval < 0 ||
+      options.restartInterval > 65_535)
+  ) {
+    throw invalidInput('JPEG restartInterval must be an integer from 0 to 65535')
   }
   validBackground(options.background)
   return Object.freeze({ type: 'encode', format: 'jpeg', options: Object.freeze({ ...options }) })

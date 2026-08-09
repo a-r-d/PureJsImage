@@ -1,5 +1,6 @@
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
+import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
 import { jpegCodec } from '../src/codecs/jpeg.ts'
@@ -56,6 +57,47 @@ const jpegLuminanceSampling = (input: Uint8Array): number => {
     offset += length
   }
   throw new Error('JPEG baseline frame was not found')
+}
+
+interface JpegStructure {
+  readonly componentCount: number
+  readonly restartInterval: number
+  readonly restartMarkers: readonly number[]
+}
+
+const jpegStructure = (input: Uint8Array): JpegStructure => {
+  let offset = 2
+  let componentCount = 0
+  let restartInterval = 0
+  while (offset + 4 <= input.byteLength) {
+    while (input[offset] === 0xff) offset += 1
+    const marker = input[offset]
+    offset += 1
+    if (marker === 0xd9) break
+    const length = ((input[offset] ?? 0) << 8) | (input[offset + 1] ?? 0)
+    if (length < 2) throw new Error('JPEG marker length is invalid')
+    if (marker === 0xc0) componentCount = input[offset + 7] ?? 0
+    if (marker === 0xdd)
+      restartInterval = ((input[offset + 2] ?? 0) << 8) | (input[offset + 3] ?? 0)
+    if (marker === 0xda) {
+      offset += length
+      break
+    }
+    offset += length
+  }
+  const restartMarkers: number[] = []
+  while (offset + 1 < input.byteLength) {
+    if (input[offset] !== 0xff) {
+      offset += 1
+      continue
+    }
+    const marker = input[offset + 1] ?? 0
+    offset += 2
+    if (marker === 0) continue
+    if (marker >= 0xd0 && marker <= 0xd7) restartMarkers.push(marker)
+    else if (marker === 0xd9) break
+  }
+  return { componentCount, restartInterval, restartMarkers }
 }
 
 const withOrientation = (input: Uint8Array, orientation: Orientation): Uint8Array => {
@@ -433,13 +475,20 @@ describe('JPEG pixel pipeline', () => {
 
   it.each(Object.entries(baselineJpegFixtures))(
     'decodes baseline %s input consistently with the development oracle',
-    async (_name, base64) => {
+    async (name, base64) => {
       const input = Buffer.from(base64, 'base64')
-      const reference = jpeg.decode(input, {
-        useTArray: true,
-        formatAsRGBA: false,
-        tolerantDecoding: false,
-      })
+      const reference =
+        name === 'cmyk' || name === 'ycck'
+          ? jpeg.decode(input, {
+              useTArray: true,
+              formatAsRGBA: false,
+              tolerantDecoding: false,
+            })
+          : await sharp(input)
+              .removeAlpha()
+              .raw()
+              .toBuffer({ resolveWithObject: true })
+              .then(({ data, info }) => ({ data, width: info.width, height: info.height }))
       const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
 
       expect({ width: output.width, height: output.height }).toEqual({
@@ -531,11 +580,11 @@ describe('JPEG pixel pipeline', () => {
   })
 
   it('decodes a multi-scan progressive JPEG consistently with the development oracle', async () => {
-    const reference = jpeg.decode(progressiveJpeg, {
-      useTArray: true,
-      formatAsRGBA: false,
-      tolerantDecoding: false,
-    })
+    const reference = await sharp(progressiveJpeg)
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true })
+      .then(({ data, info }) => ({ data, width: info.width, height: info.height }))
     const output = PNG.sync.read(await (await Image.open(progressiveJpeg)).png().toBuffer())
 
     expect({ width: output.width, height: output.height }).toEqual({ width: 32, height: 24 })
@@ -651,6 +700,71 @@ describe('JPEG pixel pipeline', () => {
         }
       }
     }
+  })
+
+  it('encodes gray8 input as a native one-component JPEG', async () => {
+    const image = new PNG({ width: 17, height: 9 })
+    for (let y = 0; y < image.height; y += 1) {
+      for (let x = 0; x < image.width; x += 1) {
+        const value = x * 11 + y * 5
+        image.data.set([value, value, value, 255], (y * image.width + x) * 4)
+      }
+    }
+    const input = PNG.sync.write(image, { colorType: 0 })
+    const output = await (await Image.open(input)).jpeg({ quality: 95 }).toBuffer()
+    const structure = jpegStructure(output)
+    const decoded = jpeg.decode(output, {
+      useTArray: true,
+      formatAsRGBA: false,
+      tolerantDecoding: false,
+    })
+    const libjpeg = await sharp(output).removeAlpha().raw().toBuffer({ resolveWithObject: true })
+
+    expect(structure.componentCount).toBe(1)
+    expect(output.byteLength).toBeLessThan(
+      (await (await Image.open(PNG.sync.write(image))).jpeg({ quality: 95 }).toBuffer()).byteLength,
+    )
+    expect({ width: decoded.width, height: decoded.height }).toEqual({ width: 17, height: 9 })
+    expect({ width: libjpeg.info.width, height: libjpeg.info.height }).toEqual({
+      width: 17,
+      height: 9,
+    })
+    for (let pixel = 0; pixel < decoded.width * decoded.height; pixel += 1) {
+      const expected = image.data[pixel * 4] ?? 0
+      for (let channel = 0; channel < 3; channel += 1) {
+        expect(Math.abs((decoded.data[pixel * 3 + channel] ?? 0) - expected)).toBeLessThanOrEqual(8)
+        expect(Math.abs((libjpeg.data[pixel * 3 + channel] ?? 0) - expected)).toBeLessThanOrEqual(8)
+      }
+    }
+  })
+
+  it('writes ordered restart markers and resets predictors at the requested interval', async () => {
+    const image = new PNG({ width: 35, height: 19 })
+    for (let y = 0; y < image.height; y += 1) {
+      for (let x = 0; x < image.width; x += 1) {
+        const offset = (y * image.width + x) * 4
+        image.data.set([x * 7, y * 11, (x + y) * 4, 255], offset)
+      }
+    }
+    const input = PNG.sync.write(image)
+    const output = await (await Image.open(input))
+      .encode('jpeg', { quality: 92, chromaSubsampling: '444', restartInterval: 3 })
+      .toBuffer()
+    const structure = jpegStructure(output)
+    const decoded = jpeg.decode(output, {
+      useTArray: true,
+      formatAsRGBA: false,
+      tolerantDecoding: false,
+    })
+    const libjpeg = await sharp(output).removeAlpha().raw().toBuffer({ resolveWithObject: true })
+
+    expect(structure.restartInterval).toBe(3)
+    expect(structure.restartMarkers).toEqual([0xd0, 0xd1, 0xd2, 0xd3])
+    expect({ width: decoded.width, height: decoded.height }).toEqual({ width: 35, height: 19 })
+    expect({ width: libjpeg.info.width, height: libjpeg.info.height }).toEqual({
+      width: 35,
+      height: 19,
+    })
   })
 
   it('flattens transparent PNG input onto the requested JPEG background', async () => {
@@ -805,12 +919,19 @@ describe('JPEG pixel pipeline', () => {
 
   it('rejects unsupported progressive output and malformed input cleanly', async () => {
     const input = encodedJpeg(8, 8, () => [20, 40, 60, 255])
+    const opened = await Image.open(input)
     const incompleteIcc = withIccProfile(input, channelSwappingRgbProfile())
     incompleteIcc[18] = 2
     incompleteIcc[19] = 2
 
     await expect((await Image.open(input)).jpeg({ progressive: true }).toBuffer()).rejects.toThrow(
       'Progressive JPEG encoding',
+    )
+    expect(() => opened.jpeg({ restartInterval: -1 })).toThrow(
+      'JPEG restartInterval must be an integer from 0 to 65535',
+    )
+    expect(() => opened.jpeg({ restartInterval: 65_536 })).toThrow(
+      'JPEG restartInterval must be an integer from 0 to 65535',
     )
     await expect(
       (await Image.open(withProgressiveFrameMarker(input))).png().toBuffer(),

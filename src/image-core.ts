@@ -155,6 +155,9 @@ export class Image<Input, Output extends Uint8Array> {
           ...('chromaSubsampling' in options && options.chromaSubsampling !== undefined
             ? { chromaSubsampling: options.chromaSubsampling }
             : {}),
+          ...('restartInterval' in options && options.restartInterval !== undefined
+            ? { restartInterval: options.restartInterval }
+            : {}),
         }),
       )
     }

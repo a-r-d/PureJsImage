@@ -548,6 +548,7 @@ interface EncoderOptions {
   readonly quality: number
   readonly background: readonly [number, number, number]
   readonly chromaSubsampling: '420' | '422' | '444'
+  readonly restartInterval: number
 }
 
 const channels = (format: PixelFormat): number => {
@@ -572,9 +573,18 @@ const options = (value: unknown): EncoderOptions => {
   if (chromaSubsampling !== '420' && chromaSubsampling !== '422' && chromaSubsampling !== '444') {
     throw invalidInput('JPEG chromaSubsampling must be 420, 422, or 444')
   }
+  const restartInterval = value.restartInterval ?? 0
+  if (
+    typeof restartInterval !== 'number' ||
+    !Number.isInteger(restartInterval) ||
+    restartInterval < 0 ||
+    restartInterval > 65_535
+  ) {
+    throw invalidInput('JPEG restartInterval must be an integer from 0 to 65535')
+  }
   const background = value.background
   if (background === undefined || background === 'transparent') {
-    return { quality, background: [255, 255, 255], chromaSubsampling }
+    return { quality, background: [255, 255, 255], chromaSubsampling, restartInterval }
   }
   if (typeof background !== 'string' || !/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(background)) {
     throw invalidInput('JPEG background must be transparent, #RRGGBB, or #RRGGBBAA')
@@ -582,6 +592,7 @@ const options = (value: unknown): EncoderOptions => {
   return {
     quality,
     chromaSubsampling,
+    restartInterval,
     background: [
       Number.parseInt(background.slice(1, 3), 16),
       Number.parseInt(background.slice(3, 5), 16),
@@ -697,6 +708,8 @@ const jpegHeader = (
   chrominance: Uint8Array,
   luminanceSampling: number,
   metadata: EncodeRequest['metadata'],
+  grayscale: boolean,
+  restartInterval: number,
 ): Uint8Array => {
   const writer = new ByteWriter()
   writer.word(0xffd8)
@@ -713,6 +726,7 @@ const jpegHeader = (
     writer.bytes(metadata.exif)
   }
   if (metadata?.icc) {
+    if (grayscale) throw invalidInput('Preserved ICC profile does not match JPEG grayscale output')
     if (iccColorSpace(metadata.icc) !== 'rgb')
       throw invalidInput('Preserved ICC profile does not match JPEG RGB output pixels')
     const chunkBytes = 65_519
@@ -747,44 +761,61 @@ const jpegHeader = (
   }
 
   writer.word(0xffdb)
-  writer.word(132)
+  writer.word(grayscale ? 67 : 132)
   writer.byte(0)
   for (let index = 0; index < 64; index += 1) writer.byte(luminance[zigZag[index] ?? 0] ?? 0)
-  writer.byte(1)
-  for (let index = 0; index < 64; index += 1) writer.byte(chrominance[zigZag[index] ?? 0] ?? 0)
+  if (!grayscale) {
+    writer.byte(1)
+    for (let index = 0; index < 64; index += 1) {
+      writer.byte(chrominance[zigZag[index] ?? 0] ?? 0)
+    }
+  }
 
   writer.word(0xffc0)
-  writer.word(17)
+  writer.word(grayscale ? 11 : 17)
   writer.byte(8)
   writer.word(height)
   writer.word(width)
-  writer.byte(3)
-  for (const [id, table] of [
-    [1, 0],
-    [2, 1],
-    [3, 1],
-  ] as const) {
+  writer.byte(grayscale ? 1 : 3)
+  const components = grayscale
+    ? ([[1, 0]] as const)
+    : ([
+        [1, 0],
+        [2, 1],
+        [3, 1],
+      ] as const)
+  for (const [id, table] of components) {
     writer.byte(id)
     writer.byte(id === 1 ? luminanceSampling : 0x11)
     writer.byte(table)
   }
 
   writer.word(0xffc4)
-  writer.word(418)
+  writer.word(grayscale ? 210 : 418)
   writeTable(writer, 0, 0, luminanceDcCounts, luminanceDcValues)
   writeTable(writer, 1, 0, luminanceAcCounts, luminanceAcValues)
-  writeTable(writer, 0, 1, chrominanceDcCounts, chrominanceDcValues)
-  writeTable(writer, 1, 1, chrominanceAcCounts, chrominanceAcValues)
+  if (!grayscale) {
+    writeTable(writer, 0, 1, chrominanceDcCounts, chrominanceDcValues)
+    writeTable(writer, 1, 1, chrominanceAcCounts, chrominanceAcValues)
+  }
+
+  if (restartInterval > 0) {
+    writer.word(0xffdd)
+    writer.word(4)
+    writer.word(restartInterval)
+  }
 
   writer.word(0xffda)
-  writer.word(12)
-  writer.byte(3)
+  writer.word(grayscale ? 8 : 12)
+  writer.byte(grayscale ? 1 : 3)
   writer.byte(1)
   writer.byte(0x00)
-  writer.byte(2)
-  writer.byte(0x11)
-  writer.byte(3)
-  writer.byte(0x11)
+  if (!grayscale) {
+    writer.byte(2)
+    writer.byte(0x11)
+    writer.byte(3)
+    writer.byte(0x11)
+  }
   writer.byte(0)
   writer.byte(63)
   writer.byte(0)
@@ -920,6 +951,25 @@ const fillLuminance8 = (
   }
 }
 
+const fillGray8 = (
+  rows: Uint8Array,
+  width: number,
+  originX: number,
+  output: Float64Array,
+): void => {
+  const lastX = width - 1
+  for (let y = 0; y < 8; y += 1) {
+    let source = y * width + Math.min(originX, lastX)
+    const rowEnd = y * width + lastX
+    let target = y * 8
+    for (let x = 0; x < 8; x += 1) {
+      output[target] = (rows[source] ?? 0) - 128
+      source = source < rowEnd ? source + 1 : rowEnd
+      target += 1
+    }
+  }
+}
+
 const fillChroma444 = (
   rows: Uint8Array,
   width: number,
@@ -1016,8 +1066,10 @@ class BaselineJpegEncoder implements ImageEncoder {
   readonly #format: PixelFormat
   readonly #metadata: EncodeRequest['metadata']
   readonly #sourceChannels: number
+  readonly #grayscale: boolean
   readonly #background: readonly [number, number, number]
   readonly #sampling: SamplingGeometry
+  readonly #restartInterval: number
   readonly #luminanceTable: Uint8Array
   readonly #chrominanceTable: Uint8Array
   readonly #rows: Uint8Array
@@ -1032,6 +1084,8 @@ class BaselineJpegEncoder implements ImageEncoder {
   #previousY = 0
   #previousCb = 0
   #previousCr = 0
+  #mcu = 0
+  #restart = 0
   #finished = false
 
   constructor(
@@ -1048,11 +1102,13 @@ class BaselineJpegEncoder implements ImageEncoder {
     this.#format = format
     this.#metadata = metadata
     this.#sourceChannels = channels(format)
+    this.#grayscale = format === 'gray8'
     this.#background = encoderOptions.background
-    this.#sampling = samplingGeometry(encoderOptions.chromaSubsampling)
+    this.#sampling = samplingGeometry(this.#grayscale ? '444' : encoderOptions.chromaSubsampling)
+    this.#restartInterval = encoderOptions.restartInterval
     this.#luminanceTable = quantizationTable(luminanceQuantization, encoderOptions.quality)
     this.#chrominanceTable = quantizationTable(chrominanceQuantization, encoderOptions.quality)
-    this.#rows = new Uint8Array(width * this.#sampling.rowHeight * 3)
+    this.#rows = new Uint8Array(width * this.#sampling.rowHeight * (this.#grayscale ? 1 : 3))
   }
 
   async start(): Promise<void> {
@@ -1064,6 +1120,8 @@ class BaselineJpegEncoder implements ImageEncoder {
         this.#chrominanceTable,
         (this.#sampling.luminanceHorizontal << 4) | this.#sampling.luminanceVertical,
         this.#metadata,
+        this.#grayscale,
+        this.#restartInterval,
       ),
     )
   }
@@ -1096,15 +1154,10 @@ class BaselineJpegEncoder implements ImageEncoder {
   }
 
   #appendRow(source: Uint8Array, sourceOffset: number): void {
-    const targetOffset = this.#bufferedRows * this.#width * 3
+    const targetOffset = this.#bufferedRows * this.#width * (this.#grayscale ? 1 : 3)
     if (this.#format === 'gray8') {
       for (let x = 0; x < this.#width; x += 1) {
-        const input = sourceOffset + x
-        const output = targetOffset + x * 3
-        const gray = source[input] ?? 0
-        this.#rows[output] = gray
-        this.#rows[output + 1] = gray
-        this.#rows[output + 2] = gray
+        this.#rows[targetOffset + x] = source[sourceOffset + x] ?? 0
       }
     } else if (this.#format === 'rgb8') {
       for (let x = 0; x < this.#width; x += 1) {
@@ -1143,6 +1196,32 @@ class BaselineJpegEncoder implements ImageEncoder {
           ? fillChroma422
           : fillChroma444
     for (let mcuX = 0; mcuX < mcus; mcuX += 1) {
+      if (this.#restartInterval > 0 && this.#mcu > 0 && this.#mcu % this.#restartInterval === 0) {
+        this.#writer.flushBits()
+        this.#writer.word(0xffd0 + (this.#restart & 7))
+        this.#restart += 1
+        this.#previousY = 0
+        this.#previousCb = 0
+        this.#previousCr = 0
+      }
+      if (this.#grayscale) {
+        fillGray8(this.#rows, this.#width, mcuX * 8, this.#luminanceSamples)
+        quantize(
+          this.#luminanceSamples,
+          this.#luminanceTable,
+          this.#intermediate,
+          this.#coefficients,
+        )
+        this.#previousY = encodeBlock(
+          this.#writer,
+          this.#coefficients,
+          this.#previousY,
+          luminanceDcCodes,
+          luminanceAcCodes,
+        )
+        this.#mcu += 1
+        continue
+      }
       for (let blockY = 0; blockY < this.#sampling.luminanceVertical; blockY += 1) {
         for (let blockX = 0; blockX < this.#sampling.luminanceHorizontal; blockX += 1) {
           fillLuminance8(
@@ -1202,6 +1281,7 @@ class BaselineJpegEncoder implements ImageEncoder {
         chrominanceDcCodes,
         chrominanceAcCodes,
       )
+      this.#mcu += 1
     }
     this.#bufferedRows = 0
     const output = this.#writer.take()
@@ -1215,7 +1295,7 @@ class BaselineJpegEncoder implements ImageEncoder {
       throw invalidInput(`JPEG encoder received ${this.#receivedRows} of ${this.#height} rows`)
     }
     if (this.#bufferedRows > 0) {
-      const rowBytes = this.#width * 3
+      const rowBytes = this.#width * (this.#grayscale ? 1 : 3)
       const lastOffset = (this.#bufferedRows - 1) * rowBytes
       while (this.#bufferedRows < this.#sampling.rowHeight) {
         this.#rows.copyWithin(this.#bufferedRows * rowBytes, lastOffset, lastOffset + rowBytes)

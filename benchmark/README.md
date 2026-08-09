@@ -129,9 +129,14 @@ Verify the pinned JPEG compatibility pixels and run the isolated encoder probe:
 
 ```sh
 npm run fixtures:jpeg
+npm run fixtures:jpeg:prepare # optional reproducibility check; requires pnmtojpeg
 npm run bench:jpeg:encode -- 420
 npm run bench:jpeg:encode -- 444
 ```
+
+The generated reference fixtures add 4:4:0, 4:1:1, eight-bit SOF1, sequential component scans,
+progressive refinement scans, restart behavior, and explicit RGB coverage. Their generator refuses
+output whose SHA-256 differs from the checked-in corpus record.
 
 Run the isolated scaled-IDCT comparison for the pinned 4000x3000 JPEG:
 
@@ -144,6 +149,18 @@ output. Each is compared with the forced full-resolution decoder path and
 reports decoded pixels avoided, runtime, absolute peak RSS, MAE, and PSNR. The
 checked-in result is
 [`jpeg-scaled-idct-2026-08-08.md`](results/jpeg-scaled-idct-2026-08-08.md).
+
+Measure chroma interpolation quality against Sharp/libvips/libjpeg and compare full versus
+restart-aware crop decoding in isolated cold and warm workers:
+
+```sh
+npm run bench:jpeg:upsampling
+npm run bench:jpeg:region-rss
+```
+
+The region benchmark uses the same decoded crop for both paths and rejects a hash mismatch before
+reporting timing. It records absolute peak RSS, fixed compressed-byte retention, entropy MCUs, and
+reconstructed blocks; `full` is the explicit no-region baseline.
 
 Verify the checksum-pinned JPEG 2000 corpus, then run its isolated real-photo
 metadata and resize-to-JPEG RSS gates:
