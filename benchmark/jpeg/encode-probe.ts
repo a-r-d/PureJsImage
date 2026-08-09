@@ -18,9 +18,13 @@ if (!isRecord(codecModule) || !isImageCodec(codecModule.jpegCodec)) {
 }
 const jpegCodec = codecModule.jpegCodec
 
-const width = 2_048
-const height = 1_536
+const width = Number.parseInt(process.env.JPEG_BENCH_WIDTH ?? '2048', 10)
+const height = Number.parseInt(process.env.JPEG_BENCH_HEIGHT ?? '1536', 10)
+if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1) {
+  throw new Error('JPEG benchmark dimensions must be positive safe integers')
+}
 const pixels = width * height
+if (!Number.isSafeInteger(pixels)) throw new Error('JPEG benchmark pixel count is unsafe')
 const requestedMode = process.argv[2] ?? '420'
 const profile = process.argv[3] ?? 'warm'
 if (
@@ -192,3 +196,5 @@ const serialized = `${JSON.stringify(result, undefined, 2)}\n`
 const outputPath = process.argv[4]
 if (outputPath) await writeFile(outputPath, serialized)
 else console.log(serialized.trimEnd())
+const jpegOutputPath = process.argv[5]
+if (jpegOutputPath) await writeFile(jpegOutputPath, output)

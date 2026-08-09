@@ -1,12 +1,13 @@
 import type { ImageCodecAccelerator } from '../../accelerator.ts'
-import type { ImageCodec } from '../../codec.ts'
+import type { EncodeRequest, ImageCodec, ImageEncoder } from '../../codec.ts'
 import { invalidInput } from '../../errors.ts'
-import type { PixelBlock } from '../../pixel.ts'
+import type { PixelBlock, PixelFormat } from '../../pixel.ts'
+import type { ImageSink } from '../../sink.ts'
 import { readExactly } from '../../source.ts'
 import {
   accelerateJpegCodec,
   type JpegAccelerationRequest,
-  type JpegDecodeAcceleration,
+  type JpegAcceleration,
 } from '../../codecs/jpeg.ts'
 
 const abiVersion = 3
@@ -15,19 +16,32 @@ const blockValues = 64
 const huffmanLengths = 16
 const huffmanSymbols = 256
 const wasmPageBytes = 65_536
-const defaultMinimumPixels = 1_000_000
+const defaultMinimumPixels = 65_536
+const defaultMinimumEncodePixels = 65_536
 const defaultMaximumInputBytes = 32 * 1024 * 1024
 const maximumPlaneBytes = 1_048_576
 const maximumOutputBytes = 1_048_576
+const encoderAbiVersion = 1
+const defaultMaximumEncoderRowBytes = 16 * 1024 * 1024
 
 export interface WasmJpegAcceleratorOptions {
   /** Minimum full-resolution pixel count needed to amortize loading and the input copy. */
   readonly minimumPixels?: number
   /** Largest compressed JPEG copied into the cached WASM instance. */
   readonly maximumInputBytes?: number
+  /** Minimum pixel count needed to amortize encoder module loading and row copies. */
+  readonly minimumEncodePixels?: number
+  /** Largest bounded encoder input MCU row retained by JavaScript. */
+  readonly maximumEncoderRowBytes?: number
 }
 
 export type WasmJpegInstanceLoader = () => Promise<WebAssembly.Instance>
+export interface WasmJpegInstanceLoaders {
+  readonly decoder?: WasmJpegInstanceLoader
+  readonly simdDecoder?: WasmJpegInstanceLoader
+  readonly encoder?: WasmJpegInstanceLoader
+  readonly simdEncoder?: WasmJpegInstanceLoader
+}
 
 type WasmNumberFunction = (...arguments_: readonly number[]) => number
 
@@ -134,6 +148,7 @@ const createRows = (
 const createDecoderPool = (
   instance: WebAssembly.Instance,
   maximumInputBytes: number,
+  expectSimd = false,
 ): JpegDecoderPool => {
   const memoryExport: unknown = instance.exports.memory
   if (!(memoryExport instanceof WebAssembly.Memory)) {
@@ -144,6 +159,10 @@ const createDecoderPool = (
     'jpeg_decoder_abi_version',
   )
   if (version() !== abiVersion) throw new Error('JPEG WASM ABI version is unsupported')
+  const simd = numberFunction(instance.exports.jpeg_decoder_simd, 'jpeg_decoder_simd')
+  if (simd() !== (expectSimd ? 1 : 0)) {
+    throw new Error('JPEG WASM SIMD contract is unsupported')
+  }
 
   const quantizationPointer = numberFunction(
     instance.exports.jpeg_decoder_quantization_ptr,
@@ -399,29 +418,431 @@ const shouldAccelerate = (
   const outputBytes = estimatedOutputBytes(jpeg)
   return planeBytes <= maximumPlaneBytes && outputBytes <= maximumOutputBytes
 }
+interface EncoderConfiguration {
+  readonly background: number
+  readonly channels: 1 | 3 | 4
+  readonly quality: number
+  readonly restartInterval: number
+  readonly rowHeight: 8 | 16
+  readonly sampling: 1 | 2 | 3
+}
 
-export const createWasmJpegAcceleratorWithLoader = (
-  loadInstance: WasmJpegInstanceLoader,
+interface EncoderExports {
+  readonly abort: WasmNumberFunction
+  readonly finish: WasmNumberFunction
+  readonly memory: WebAssembly.Memory
+  readonly outputLength: WasmNumberFunction
+  readonly start: WasmNumberFunction
+  readonly write: WasmNumberFunction
+}
+
+interface JpegEncoderPool {
+  prepare(
+    sink: ImageSink,
+    request: EncodeRequest,
+    configuration: EncoderConfiguration,
+  ): Promise<ImageEncoder | undefined>
+}
+
+interface RawEncoderOptions {
+  readonly background?: unknown
+  readonly chromaSubsampling?: unknown
+  readonly progressive?: unknown
+  readonly quality?: unknown
+  readonly restartInterval?: unknown
+}
+
+const encoderChannels = (format: PixelFormat): 1 | 3 | 4 | undefined => {
+  if (format === 'gray8') return 1
+  if (format === 'rgb8') return 3
+  if (format === 'rgba8') return 4
+  return undefined
+}
+
+const encoderConfiguration = (request: EncodeRequest): EncoderConfiguration | undefined => {
+  if (
+    request.metadata !== undefined ||
+    !Number.isSafeInteger(request.width) ||
+    !Number.isSafeInteger(request.height) ||
+    request.width < 1 ||
+    request.height < 1 ||
+    request.width > 65_535 ||
+    request.height > 65_535 ||
+    typeof request.options !== 'object' ||
+    request.options === null
+  ) {
+    return undefined
+  }
+  const channels = encoderChannels(request.pixelFormat)
+  if (!channels) return undefined
+  const rawOptions = request.options as RawEncoderOptions
+  const quality = rawOptions.quality ?? 80
+  const progressive = rawOptions.progressive ?? false
+  const chromaSubsampling = rawOptions.chromaSubsampling ?? '420'
+  const restartInterval = rawOptions.restartInterval ?? 0
+  const background = rawOptions.background
+  if (
+    typeof quality !== 'number' ||
+    !Number.isInteger(quality) ||
+    quality < 1 ||
+    quality > 100 ||
+    progressive !== false ||
+    (chromaSubsampling !== '420' && chromaSubsampling !== '422' && chromaSubsampling !== '444') ||
+    typeof restartInterval !== 'number' ||
+    !Number.isInteger(restartInterval) ||
+    restartInterval < 0 ||
+    restartInterval > 65_535
+  ) {
+    return undefined
+  }
+  let backgroundValue = 0xff_ff_ff
+  if (background !== undefined && background !== 'transparent') {
+    if (typeof background !== 'string' || !/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(background)) {
+      return undefined
+    }
+    backgroundValue = Number.parseInt(background.slice(1, 7), 16)
+  }
+  const sampling = chromaSubsampling === '420' ? 1 : chromaSubsampling === '422' ? 2 : 3
+  return {
+    background: backgroundValue,
+    channels,
+    quality,
+    restartInterval,
+    rowHeight: channels === 1 || chromaSubsampling !== '420' ? 8 : 16,
+    sampling,
+  }
+}
+
+class WasmJpegEncoder implements ImageEncoder {
+  readonly #configuration: EncoderConfiguration
+  readonly #exports: EncoderExports
+  readonly #height: number
+  readonly #inputOffset: number
+  readonly #inputRows: Uint8Array
+  readonly #outputCapacity: number
+  readonly #outputOffset: number
+  readonly #pixelFormat: PixelFormat
+  readonly #release: () => void
+  readonly #sink: ImageSink
+  readonly #width: number
+  #bufferedRows = 0
+  #finished = false
+  #receivedRows = 0
+
+  constructor(
+    exports_: EncoderExports,
+    sink: ImageSink,
+    request: EncodeRequest,
+    configuration: EncoderConfiguration,
+    inputOffset: number,
+    outputOffset: number,
+    outputCapacity: number,
+    release: () => void,
+  ) {
+    this.#configuration = configuration
+    this.#exports = exports_
+    this.#height = request.height
+    this.#inputOffset = inputOffset
+    this.#inputRows = new Uint8Array(
+      request.width * configuration.rowHeight * configuration.channels,
+    )
+    this.#outputCapacity = outputCapacity
+    this.#outputOffset = outputOffset
+    this.#pixelFormat = request.pixelFormat
+    this.#release = release
+    this.#sink = sink
+    this.#width = request.width
+  }
+
+  async write(block: PixelBlock): Promise<void> {
+    if (this.#finished) throw new Error('Cannot write to a finished JPEG encoder')
+    if (
+      block.x !== 0 ||
+      block.y !== this.#receivedRows ||
+      block.width !== this.#width ||
+      block.height < 1 ||
+      block.y + block.height > this.#height ||
+      block.format !== this.#pixelFormat
+    ) {
+      throw invalidInput('JPEG encoder requires ordered, full-width pixel blocks')
+    }
+    const sourceRowBytes = this.#width * this.#configuration.channels
+    if (
+      block.stride < sourceRowBytes ||
+      block.data.byteLength < block.stride * (block.height - 1) + sourceRowBytes
+    ) {
+      throw invalidInput('JPEG encoder pixel block data is truncated')
+    }
+    try {
+      for (let row = 0; row < block.height; row += 1) {
+        this.#inputRows.set(
+          block.data.subarray(row * block.stride, row * block.stride + sourceRowBytes),
+          this.#bufferedRows * sourceRowBytes,
+        )
+        this.#bufferedRows += 1
+        this.#receivedRows += 1
+        if (this.#bufferedRows === this.#configuration.rowHeight) await this.#encodeRows()
+      }
+    } catch (error) {
+      this.#abort()
+      throw error
+    }
+  }
+
+  async #encodeRows(): Promise<void> {
+    new Uint8Array(this.#exports.memory.buffer, this.#inputOffset, this.#inputRows.byteLength).set(
+      this.#inputRows,
+    )
+    const status = this.#exports.write(
+      this.#inputOffset,
+      this.#inputRows.byteLength,
+      this.#width * this.#configuration.channels,
+      this.#configuration.rowHeight,
+    )
+    if (status !== 0) throw new Error(`JPEG WASM encoder write failed with status ${status}`)
+    await this.#writeOutput()
+    this.#bufferedRows = 0
+  }
+
+  async #writeOutput(): Promise<void> {
+    const length = this.#exports.outputLength()
+    if (!Number.isInteger(length) || length < 0 || length > this.#outputCapacity) {
+      throw new Error('JPEG WASM encoder returned an invalid output length')
+    }
+    if (length === 0) return
+    await this.#sink.write(
+      new Uint8Array(this.#exports.memory.buffer, this.#outputOffset, length).slice(),
+    )
+  }
+
+  async finish(): Promise<void> {
+    if (this.#finished) throw new Error('JPEG encoder is already finished')
+    this.#finished = true
+    try {
+      if (this.#receivedRows !== this.#height) {
+        throw invalidInput(`JPEG encoder received ${this.#receivedRows} of ${this.#height} rows`)
+      }
+      if (this.#bufferedRows > 0) {
+        const rowBytes = this.#width * this.#configuration.channels
+        const lastOffset = (this.#bufferedRows - 1) * rowBytes
+        while (this.#bufferedRows < this.#configuration.rowHeight) {
+          this.#inputRows.copyWithin(
+            this.#bufferedRows * rowBytes,
+            lastOffset,
+            lastOffset + rowBytes,
+          )
+          this.#bufferedRows += 1
+        }
+        await this.#encodeRows()
+      }
+      const status = this.#exports.finish()
+      if (status !== 1) throw new Error(`JPEG WASM encoder finish failed with status ${status}`)
+      await this.#writeOutput()
+      this.#release()
+    } catch (error) {
+      this.#abort()
+      throw error
+    }
+  }
+
+  async abort(): Promise<void> {
+    this.#abort()
+  }
+
+  #abort(): void {
+    if (!this.#finished) this.#finished = true
+    this.#exports.abort()
+    this.#release()
+  }
+}
+
+const createEncoderPool = (
+  instance: WebAssembly.Instance,
+  expectSimd: boolean,
+): JpegEncoderPool => {
+  const memoryExport: unknown = instance.exports.memory
+  if (!(memoryExport instanceof WebAssembly.Memory)) {
+    throw new Error('JPEG encoder WASM memory export is missing')
+  }
+  const version = numberFunction(
+    instance.exports.jpeg_encoder_abi_version,
+    'jpeg_encoder_abi_version',
+  )
+  const simd = numberFunction(instance.exports.jpeg_encoder_simd, 'jpeg_encoder_simd')
+  if (version() !== encoderAbiVersion || simd() !== (expectSimd ? 1 : 0)) {
+    throw new Error('JPEG encoder WASM ABI is unsupported')
+  }
+  const exports_: EncoderExports = Object.freeze({
+    abort: numberFunction(instance.exports.jpeg_encoder_abort, 'jpeg_encoder_abort'),
+    finish: numberFunction(instance.exports.jpeg_encoder_finish, 'jpeg_encoder_finish'),
+    memory: memoryExport,
+    outputLength: numberFunction(
+      instance.exports.jpeg_encoder_output_length,
+      'jpeg_encoder_output_length',
+    ),
+    start: numberFunction(instance.exports.jpeg_encoder_start, 'jpeg_encoder_start'),
+    write: numberFunction(instance.exports.jpeg_encoder_write, 'jpeg_encoder_write'),
+  })
+  const initialMemoryBytes = memoryExport.buffer.byteLength
+  let inUse = false
+  return Object.freeze({
+    async prepare(
+      sink: ImageSink,
+      request: EncodeRequest,
+      configuration: EncoderConfiguration,
+    ): Promise<ImageEncoder | undefined> {
+      if (inUse) return undefined
+      inUse = true
+      let releaseNeeded = true
+      let outputCommitted = false
+      try {
+        const inputBytes = request.width * configuration.rowHeight * configuration.channels
+        const inputOffset = initialMemoryBytes
+        const outputOffset = inputOffset + inputBytes
+        const outputCapacity = request.width * configuration.rowHeight * 12 + 16_384
+        const requiredBytes = outputOffset + outputCapacity
+        if (!Number.isSafeInteger(requiredBytes)) return undefined
+        if (requiredBytes > memoryExport.buffer.byteLength) {
+          memoryExport.grow(
+            Math.ceil((requiredBytes - memoryExport.buffer.byteLength) / wasmPageBytes),
+          )
+        }
+        pointer(inputOffset, inputBytes, memoryExport, 'encoder input')
+        pointer(outputOffset, outputCapacity, memoryExport, 'encoder output')
+        const status = exports_.start(
+          request.width,
+          request.height,
+          configuration.channels,
+          configuration.quality,
+          configuration.sampling,
+          configuration.restartInterval,
+          configuration.background,
+          outputOffset,
+          outputCapacity,
+        )
+        if (status !== 0) return undefined
+        const headerLength = exports_.outputLength()
+        if (!Number.isInteger(headerLength) || headerLength < 1 || headerLength > outputCapacity) {
+          return undefined
+        }
+        outputCommitted = true
+        await sink.write(new Uint8Array(memoryExport.buffer, outputOffset, headerLength).slice())
+        const release = (): void => {
+          if (!inUse) return
+          inUse = false
+        }
+        const encoder = new WasmJpegEncoder(
+          exports_,
+          sink,
+          request,
+          configuration,
+          inputOffset,
+          outputOffset,
+          outputCapacity,
+          release,
+        )
+        releaseNeeded = false
+        return encoder
+      } catch (error) {
+        if (outputCommitted) {
+          exports_.abort()
+          throw error
+        }
+        return undefined
+      } finally {
+        if (releaseNeeded) inUse = false
+      }
+    },
+  })
+}
+
+const shouldAccelerateEncode = (
+  request: EncodeRequest,
+  configuration: EncoderConfiguration,
+  minimumPixels: number,
+  maximumRowBytes: number,
+): boolean =>
+  request.width * request.height >= minimumPixels &&
+  request.width * configuration.rowHeight * configuration.channels <= maximumRowBytes
+
+export const createWasmJpegAcceleratorWithLoaders = (
+  loaders: WasmJpegInstanceLoaders,
   options: WasmJpegAcceleratorOptions = {},
 ): ImageCodecAccelerator => {
   const minimumPixels = positiveInteger(
     'minimumPixels',
     options.minimumPixels ?? defaultMinimumPixels,
   )
+  const minimumEncodePixels = positiveInteger(
+    'minimumEncodePixels',
+    options.minimumEncodePixels ?? defaultMinimumEncodePixels,
+  )
   const maximumInputBytes = positiveInteger(
     'maximumInputBytes',
     options.maximumInputBytes ?? defaultMaximumInputBytes,
   )
-  let poolPromise: Promise<JpegDecoderPool | undefined> | undefined
-  const acceleration: JpegDecodeAcceleration = {
+  const maximumEncoderRowBytes = positiveInteger(
+    'maximumEncoderRowBytes',
+    options.maximumEncoderRowBytes ?? defaultMaximumEncoderRowBytes,
+  )
+  let decoderPoolPromise: Promise<JpegDecoderPool | undefined> | undefined
+  let encoderPoolPromise: Promise<JpegEncoderPool | undefined> | undefined
+  const acceleration: JpegAcceleration = {
     async decode(request: JpegAccelerationRequest): Promise<AsyncIterable<PixelBlock> | undefined> {
-      if (!shouldAccelerate(request, minimumPixels, maximumInputBytes)) return undefined
-      if (typeof WebAssembly !== 'object') return undefined
-      poolPromise ??= loadInstance()
-        .then((instance) => createDecoderPool(instance, maximumInputBytes))
-        .catch(() => undefined)
-      const session = await (await poolPromise)?.prepare(request)
+      if (
+        (!loaders.decoder && !loaders.simdDecoder) ||
+        !shouldAccelerate(request, minimumPixels, maximumInputBytes) ||
+        typeof WebAssembly !== 'object'
+      ) {
+        return undefined
+      }
+      decoderPoolPromise ??= (async (): Promise<JpegDecoderPool | undefined> => {
+        if (loaders.simdDecoder) {
+          try {
+            return createDecoderPool(await loaders.simdDecoder(), maximumInputBytes, true)
+          } catch {
+            if (!loaders.decoder) return undefined
+          }
+        }
+        if (!loaders.decoder) return undefined
+        try {
+          return createDecoderPool(await loaders.decoder(), maximumInputBytes)
+        } catch {
+          return undefined
+        }
+      })()
+      const session = await (await decoderPoolPromise)?.prepare(request)
       return session ? createRows(session, request.jpeg.width, request.jpeg.height) : undefined
+    },
+    async encode(sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder | undefined> {
+      const configuration = encoderConfiguration(request)
+      if (
+        !configuration ||
+        (!loaders.encoder && !loaders.simdEncoder) ||
+        !shouldAccelerateEncode(
+          request,
+          configuration,
+          minimumEncodePixels,
+          maximumEncoderRowBytes,
+        ) ||
+        typeof WebAssembly !== 'object'
+      ) {
+        return undefined
+      }
+      encoderPoolPromise ??= (async (): Promise<JpegEncoderPool | undefined> => {
+        if (loaders.simdEncoder) {
+          try {
+            return createEncoderPool(await loaders.simdEncoder(), true)
+          } catch {}
+        }
+        if (!loaders.encoder) return undefined
+        try {
+          return createEncoderPool(await loaders.encoder(), false)
+        } catch {
+          return undefined
+        }
+      })()
+      return (await encoderPoolPromise)?.prepare(sink, request, configuration)
     },
   }
   return Object.freeze({
@@ -433,3 +854,8 @@ export const createWasmJpegAcceleratorWithLoader = (
     },
   })
 }
+
+export const createWasmJpegAcceleratorWithLoader = (
+  loadInstance: WasmJpegInstanceLoader,
+  options: WasmJpegAcceleratorOptions = {},
+): ImageCodecAccelerator => createWasmJpegAcceleratorWithLoaders({ decoder: loadInstance }, options)

@@ -227,6 +227,10 @@ fn scratch() -> &'static mut Scratch {
 pub extern "C" fn jpeg_decoder_abi_version() -> u32 {
     ABI_VERSION
 }
+#[unsafe(no_mangle)]
+pub extern "C" fn jpeg_decoder_simd() -> u32 {
+    if cfg!(feature = "simd") { 1 } else { 0 }
+}
 
 macro_rules! export_pointer {
     ($name:ident, $field:ident) => {
@@ -457,6 +461,128 @@ fn decode_block(scratch: &mut Scratch, component: usize) -> Result<(), u32> {
     Ok(())
 }
 
+#[inline(always)]
+fn idct_sample(value: f64) -> u8 {
+    let rounded = value + 128.5;
+    if rounded <= 0.0 {
+        0
+    } else if rounded >= 255.0 {
+        255
+    } else {
+        rounded as u8
+    }
+}
+
+fn initialize_workspace_row(
+    workspace: &mut [f64; BLOCK_VALUES],
+    row_offset: usize,
+    basis_offset: usize,
+    scaled: f64,
+) {
+    #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+    {
+        use core::arch::wasm32::*;
+        // Both fixed arrays contain eight contiguous validated f64 values.
+        unsafe {
+            let scale = f64x2_splat(scaled);
+            for x in (0..BLOCK).step_by(2) {
+                let basis = v128_load(IDCT_BASIS.as_ptr().add(basis_offset + x) as *const v128);
+                v128_store(
+                    workspace.as_mut_ptr().add(row_offset + x) as *mut v128,
+                    f64x2_mul(scale, basis),
+                );
+            }
+        }
+    }
+    #[cfg(not(all(target_arch = "wasm32", feature = "simd")))]
+    {
+        for x in 0..BLOCK {
+            workspace[row_offset + x] = scaled * IDCT_BASIS[basis_offset + x];
+        }
+    }
+}
+
+fn accumulate_workspace_row(
+    workspace: &mut [f64; BLOCK_VALUES],
+    row_offset: usize,
+    basis_offset: usize,
+    scaled: f64,
+) {
+    #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+    {
+        use core::arch::wasm32::*;
+        // Both fixed arrays contain eight contiguous validated f64 values.
+        unsafe {
+            let scale = f64x2_splat(scaled);
+            for x in (0..BLOCK).step_by(2) {
+                let target = workspace.as_mut_ptr().add(row_offset + x);
+                let current = v128_load(target as *const v128);
+                let basis = v128_load(IDCT_BASIS.as_ptr().add(basis_offset + x) as *const v128);
+                v128_store(
+                    target as *mut v128,
+                    f64x2_add(current, f64x2_mul(scale, basis)),
+                );
+            }
+        }
+    }
+    #[cfg(not(all(target_arch = "wasm32", feature = "simd")))]
+    {
+        for x in 0..BLOCK {
+            workspace[row_offset + x] += scaled * IDCT_BASIS[basis_offset + x];
+        }
+    }
+}
+
+fn render_idct_row(
+    scratch: &Scratch,
+    buffer: usize,
+    target: usize,
+    y: usize,
+    active_row_count: usize,
+) {
+    #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+    {
+        use core::arch::wasm32::*;
+        // Workspace pairs are contiguous and active_rows contains validated row indices.
+        unsafe {
+            for x in (0..BLOCK).step_by(2) {
+                let mut value = f64x2_splat(0.0);
+                for active_index in 0..active_row_count {
+                    let vertical = usize::from(scratch.active_rows[active_index]);
+                    let basis = f64x2_splat(IDCT_BASIS[vertical * BLOCK + y]);
+                    let workspace = v128_load(
+                        scratch.workspace.as_ptr().add(vertical * BLOCK + x) as *const v128
+                    );
+                    value = f64x2_add(value, f64x2_mul(basis, workspace));
+                }
+                set_plane_byte(
+                    scratch,
+                    buffer,
+                    target + x,
+                    idct_sample(f64x2_extract_lane::<0>(value)),
+                );
+                set_plane_byte(
+                    scratch,
+                    buffer,
+                    target + x + 1,
+                    idct_sample(f64x2_extract_lane::<1>(value)),
+                );
+            }
+        }
+    }
+    #[cfg(not(all(target_arch = "wasm32", feature = "simd")))]
+    {
+        for x in 0..BLOCK {
+            let mut value = 0.0;
+            for active_index in 0..active_row_count {
+                let vertical = usize::from(scratch.active_rows[active_index]);
+                value += IDCT_BASIS[vertical * BLOCK + y] * scratch.workspace[vertical * BLOCK + x];
+            }
+            set_plane_byte(scratch, buffer, target + x, idct_sample(value));
+        }
+    }
+}
+
 fn inverse_dct(
     scratch: &mut Scratch,
     component: usize,
@@ -481,14 +607,19 @@ fn inverse_dct(
                 scratch.active_rows[active_row_count] = vertical as u8;
                 active_row_count += 1;
                 row_active = true;
-                for x in 0..BLOCK {
-                    scratch.workspace[row_offset + x] = scaled * IDCT_BASIS[horizontal * BLOCK + x];
-                }
+                initialize_workspace_row(
+                    &mut scratch.workspace,
+                    row_offset,
+                    horizontal * BLOCK,
+                    scaled,
+                );
             } else {
-                for x in 0..BLOCK {
-                    scratch.workspace[row_offset + x] +=
-                        scaled * IDCT_BASIS[horizontal * BLOCK + x];
-                }
+                accumulate_workspace_row(
+                    &mut scratch.workspace,
+                    row_offset,
+                    horizontal * BLOCK,
+                    scaled,
+                );
             }
         }
     }
@@ -497,22 +628,7 @@ fn inverse_dct(
     let plane_offset = scratch.state.plane_offsets[component];
     for y in 0..BLOCK {
         let target = plane_offset + (1 + block_y * BLOCK + y) * stride + block_x * BLOCK;
-        for x in 0..BLOCK {
-            let mut value = 0.0;
-            for active_index in 0..active_row_count {
-                let vertical = usize::from(scratch.active_rows[active_index]);
-                value += IDCT_BASIS[vertical * BLOCK + y] * scratch.workspace[vertical * BLOCK + x];
-            }
-            let rounded = value + 128.5;
-            let sample = if rounded <= 0.0 {
-                0
-            } else if rounded >= 255.0 {
-                255
-            } else {
-                rounded as u8
-            };
-            set_plane_byte(scratch, buffer, target + x, sample);
-        }
+        render_idct_row(scratch, buffer, target, y, active_row_count);
     }
 }
 
@@ -679,6 +795,144 @@ fn clamp_to_u8(value: f64) -> u8 {
     value as u8
 }
 
+#[inline(always)]
+fn sample_420_chroma(
+    scratch: &Scratch,
+    component: usize,
+    buffer: usize,
+    output_x: usize,
+    top_y: usize,
+    bottom_y: usize,
+    y_weight: usize,
+) -> i32 {
+    let width = scratch.state.plane_widths[component];
+    let left_x = x_left(scratch, 1, output_x);
+    let right_x = x_right(scratch, 1, output_x);
+    let x_weight = x_weight(scratch, 1, output_x);
+    let offset = scratch.state.plane_offsets[component];
+    let top = i32::from(plane_byte(scratch, buffer, offset + top_y * width + left_x))
+        * (256 - x_weight) as i32
+        + i32::from(plane_byte(
+            scratch,
+            buffer,
+            offset + top_y * width + right_x,
+        )) * x_weight as i32;
+    let bottom = i32::from(plane_byte(
+        scratch,
+        buffer,
+        offset + bottom_y * width + left_x,
+    )) * (256 - x_weight) as i32
+        + i32::from(plane_byte(
+            scratch,
+            buffer,
+            offset + bottom_y * width + right_x,
+        )) * x_weight as i32;
+    (top * (256 - y_weight) as i32 + bottom * y_weight as i32 + 32_768) >> 16
+}
+
+#[inline(always)]
+fn write_rgb(scratch: &Scratch, target: usize, y: i32, cb: i32, cr: i32) {
+    set_output_byte(
+        scratch,
+        target,
+        clamp_to_u8(f64::from(y) + 1.402 * f64::from(cr)),
+    );
+    set_output_byte(
+        scratch,
+        target + 1,
+        clamp_to_u8(f64::from(y) - 0.3441363 * f64::from(cb) - 0.71413636 * f64::from(cr)),
+    );
+    set_output_byte(
+        scratch,
+        target + 2,
+        clamp_to_u8(f64::from(y) + 1.772 * f64::from(cb)),
+    );
+}
+
+#[cfg(all(target_arch = "wasm32", feature = "simd"))]
+#[target_feature(enable = "simd128")]
+unsafe fn write_rgb_pair(
+    scratch: &Scratch,
+    target: usize,
+    first: (i32, i32, i32),
+    second: (i32, i32, i32),
+) {
+    use core::arch::wasm32::*;
+    let y = f64x2(first.0 as f64, second.0 as f64);
+    let cb = f64x2(first.1 as f64, second.1 as f64);
+    let cr = f64x2(first.2 as f64, second.2 as f64);
+    let red = f64x2_add(y, f64x2_mul(cr, f64x2_splat(1.402)));
+    let green = f64x2_sub(
+        f64x2_sub(y, f64x2_mul(cb, f64x2_splat(0.3441363))),
+        f64x2_mul(cr, f64x2_splat(0.71413636)),
+    );
+    let blue = f64x2_add(y, f64x2_mul(cb, f64x2_splat(1.772)));
+    set_output_byte(scratch, target, clamp_to_u8(f64x2_extract_lane::<0>(red)));
+    set_output_byte(
+        scratch,
+        target + 1,
+        clamp_to_u8(f64x2_extract_lane::<0>(green)),
+    );
+    set_output_byte(
+        scratch,
+        target + 2,
+        clamp_to_u8(f64x2_extract_lane::<0>(blue)),
+    );
+    set_output_byte(
+        scratch,
+        target + 3,
+        clamp_to_u8(f64x2_extract_lane::<1>(red)),
+    );
+    set_output_byte(
+        scratch,
+        target + 4,
+        clamp_to_u8(f64x2_extract_lane::<1>(green)),
+    );
+    set_output_byte(
+        scratch,
+        target + 5,
+        clamp_to_u8(f64x2_extract_lane::<1>(blue)),
+    );
+}
+
+fn render_420(scratch: &Scratch, row_start: usize, height: usize, stride: usize) {
+    let buffer = scratch.state.pending_buffer;
+    let y_width = scratch.state.plane_widths[0];
+    let y_offset = scratch.state.plane_offsets[0];
+    for local_y in 0..height {
+        let chroma_position = local_y as f64 * 0.5 + 0.75;
+        let top = chroma_position as usize;
+        let bottom = top + 1;
+        let weight = rounded_weight(chroma_position - top as f64);
+        let y_row = 1 + local_y;
+        let mut x = 0;
+        while x < scratch.state.width {
+            let sample = |output_x: usize| -> (i32, i32, i32) {
+                let y = i32::from(plane_byte(
+                    scratch,
+                    buffer,
+                    y_offset + y_row * y_width + output_x,
+                ));
+                let cb = sample_420_chroma(scratch, 1, buffer, output_x, top, bottom, weight) - 128;
+                let cr = sample_420_chroma(scratch, 2, buffer, output_x, top, bottom, weight) - 128;
+                (y, cb, cr)
+            };
+            #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+            if x + 1 < scratch.state.width {
+                let first = sample(x);
+                let second = sample(x + 1);
+                unsafe { write_rgb_pair(scratch, local_y * stride + x * 3, first, second) };
+                x += 2;
+                continue;
+            }
+            let (y, cb, cr) = sample(x);
+            write_rgb(scratch, local_y * stride + x * 3, y, cb, cr);
+            x += 1;
+        }
+    }
+    let _ = row_start;
+}
+
 fn render_pending(scratch: &mut Scratch) -> Result<(), u32> {
     let row_start = scratch
         .state
@@ -698,6 +952,12 @@ fn render_pending(scratch: &mut Scratch) -> Result<(), u32> {
     let required = height.checked_mul(stride).ok_or(ERROR_ARITHMETIC)?;
     if required > scratch.state.output_capacity {
         return Err(ERROR_CAPACITY);
+    }
+    if scratch.horizontal_sampling == [2, 1, 1] && scratch.vertical_sampling == [2, 1, 1] {
+        render_420(scratch, row_start, height, stride);
+        scratch.state.output_y = row_start;
+        scratch.state.output_height = height;
+        return Ok(());
     }
     for local_y in 0..height {
         let output_y = row_start + local_y;

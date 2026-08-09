@@ -33,6 +33,14 @@ test('runs the opt-in Rust/WASM JPEG accelerator in a real browser', async ({ pa
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('matched the TypeScript reference')
 })
+test('selects SIMD and preserves scalar JPEG encoding fallback in a real browser', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.wasmJpegEncode())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('SIMD selection and scalar JPEG encoder fallback passed')
+})
 
 test('encodes and decodes a refinement-based progressive JPEG', async ({ page }) => {
   await harness(page)

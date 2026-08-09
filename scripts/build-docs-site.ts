@@ -8,6 +8,9 @@ const demoSource = resolve(sourceDirectory, 'demo.ts')
 const legacyBundle = resolve(sourceDirectory, 'assets/demo-app.js')
 const outputBundle = join(outputDirectory, 'assets/demo-app.js')
 const outputWasm = join(outputDirectory, 'assets/jpeg-decoder.wasm')
+const outputSimdDecoderWasm = join(outputDirectory, 'assets/jpeg-decoder-simd.wasm')
+const outputEncoderWasm = join(outputDirectory, 'assets/jpeg-encoder.wasm')
+const outputSimdEncoderWasm = join(outputDirectory, 'assets/jpeg-encoder-simd.wasm')
 
 await rm(outputDirectory, { force: true, recursive: true })
 await cp(sourceDirectory, outputDirectory, {
@@ -36,6 +39,9 @@ await build({
   target: ['es2022'],
 })
 await copyFile(resolve('src/accelerator-entries/jpeg-decoder.wasm'), outputWasm)
+await copyFile(resolve('src/accelerator-entries/jpeg-decoder-simd.wasm'), outputSimdDecoderWasm)
+await copyFile(resolve('src/accelerator-entries/jpeg-encoder.wasm'), outputEncoderWasm)
+await copyFile(resolve('src/accelerator-entries/jpeg-encoder-simd.wasm'), outputSimdEncoderWasm)
 
 const demoHtml = await readFile(join(outputDirectory, 'demo.html'), 'utf8')
 if (!demoHtml.includes('assets/demo-app.js')) {
@@ -44,8 +50,18 @@ if (!demoHtml.includes('assets/demo-app.js')) {
 const bundle = await stat(outputBundle)
 if (bundle.size === 0) throw new Error('Generated docs demo bundle is empty')
 const wasm = await stat(outputWasm)
-if (wasm.size === 0) throw new Error('Generated docs JPEG WASM module is empty')
+const simdDecoderWasm = await stat(outputSimdDecoderWasm)
+const encoderWasm = await stat(outputEncoderWasm)
+const simdEncoderWasm = await stat(outputSimdEncoderWasm)
+if (
+  wasm.size === 0 ||
+  simdDecoderWasm.size === 0 ||
+  encoderWasm.size === 0 ||
+  simdEncoderWasm.size === 0
+) {
+  throw new Error('Generated docs JPEG WASM module is empty')
+}
 
 console.log(
-  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${wasm.size.toLocaleString()} byte JPEG WASM module)`,
+  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${(wasm.size + simdDecoderWasm.size + encoderWasm.size + simdEncoderWasm.size).toLocaleString()} bytes of JPEG WASM modules)`,
 )

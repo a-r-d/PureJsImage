@@ -2,8 +2,10 @@ import type {
   ChromaSubsampling,
   DecoderOptions,
   DecodeRequest,
+  EncodeRequest,
   ImageCodec,
   ImageDecoder,
+  ImageEncoder,
   ImageMetadata,
   PreservedMetadata,
 } from '../codec.ts'
@@ -11,6 +13,7 @@ import { invalidInput, truncatedInput } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
+import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly, SourceReader } from '../source.ts'
 import { uint16BigEndian } from './helpers.ts'
@@ -233,9 +236,9 @@ class JpegDecoder implements ImageDecoder {
     progressive: false,
   })
   readonly #jpeg: BaselineJpeg
-  readonly #accelerations: readonly JpegDecodeAcceleration[]
+  readonly #accelerations: readonly JpegAcceleration[]
 
-  constructor(jpeg: BaselineJpeg, accelerations: readonly JpegDecodeAcceleration[]) {
+  constructor(jpeg: BaselineJpeg, accelerations: readonly JpegAcceleration[]) {
     this.width = jpeg.width
     this.height = jpeg.height
     this.#jpeg = jpeg
@@ -246,6 +249,7 @@ class JpegDecoder implements ImageDecoder {
     const scale = scaleDenominator(request)
     const output = region(Math.ceil(this.width / scale), Math.ceil(this.height / scale), request)
     for (const acceleration of this.#accelerations) {
+      if (!acceleration.decode) continue
       const accelerated = await acceleration.decode({
         jpeg: this.#jpeg,
         region: output,
@@ -292,15 +296,24 @@ export interface JpegAccelerationRequest {
   readonly scaleDenominator: 1 | 2 | 4 | 8
 }
 
-export interface JpegDecodeAcceleration {
+export interface JpegAcceleration {
+  decode?(request: JpegAccelerationRequest): Promise<AsyncIterable<PixelBlock> | undefined>
+  encode?(sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder | undefined>
+}
+
+export interface JpegDecodeAcceleration extends JpegAcceleration {
   decode(request: JpegAccelerationRequest): Promise<AsyncIterable<PixelBlock> | undefined>
 }
 
-const acceleratedJpegCodecs = new WeakMap<ImageCodec, readonly JpegDecodeAcceleration[]>()
+export interface JpegEncodeAcceleration extends JpegAcceleration {
+  encode(sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder | undefined>
+}
+
+const acceleratedJpegCodecs = new WeakMap<ImageCodec, readonly JpegAcceleration[]>()
 
 const registeredJpegAccelerations = (
   codec: ImageCodec,
-): readonly JpegDecodeAcceleration[] | undefined => {
+): readonly JpegAcceleration[] | undefined => {
   if (codec === jpegCodec) return []
   return acceleratedJpegCodecs.get(codec)
 }
@@ -309,7 +322,7 @@ const decodeJpeg = async (
   source: ImageSource,
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
-  accelerations: readonly JpegDecodeAcceleration[] = [],
+  accelerations: readonly JpegAcceleration[] = [],
 ): Promise<ImageDecoder> => {
   const applyIcc = options.preserveIcc !== true
   const baseline = await parseBaselineJpegSource(source, applyIcc)
@@ -327,6 +340,18 @@ const decodeJpeg = async (
   )
   if (!progressive) throw invalidInput('JPEG coding process is unsupported')
   return new ProgressiveJpegDecoder(progressive)
+}
+const encodeJpeg = async (
+  sink: ImageSink,
+  request: EncodeRequest,
+  accelerations: readonly JpegAcceleration[],
+): Promise<ImageEncoder> => {
+  for (const acceleration of accelerations) {
+    if (!acceleration.encode) continue
+    const encoder = await acceleration.encode(sink, request)
+    if (encoder) return encoder
+  }
+  return createBaselineJpegEncoder(sink, request)
 }
 
 interface JpegIccChunk {
@@ -522,7 +547,7 @@ export const jpegCodec: ImageCodec = {
 
 export const accelerateJpegCodec = (
   reference: ImageCodec,
-  acceleration: JpegDecodeAcceleration,
+  acceleration: JpegAcceleration,
 ): ImageCodec => {
   const registered = registeredJpegAccelerations(reference)
   if (!registered) {
@@ -536,6 +561,8 @@ export const accelerateJpegCodec = (
       limits: ImageLimits,
       options?: Readonly<DecoderOptions>,
     ): Promise<ImageDecoder> => decodeJpeg(source, limits, options, accelerations),
+    createEncoder: (sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder> =>
+      encodeJpeg(sink, request, accelerations),
   })
   acceleratedJpegCodecs.set(accelerated, accelerations)
   return accelerated

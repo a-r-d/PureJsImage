@@ -1,5 +1,5 @@
 [package]
-name = "purejsimage-jpeg-decoder"
+name = "purejsimage-jpeg-encoder"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
@@ -7,10 +7,10 @@ publish = false
 
 [lib]
 crate-type = ["cdylib"]
+
 [features]
 default = []
 simd = []
-
 
 [profile.release]
 codegen-units = 1

@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 interface Measurement {
   readonly arrayBuffersBytes: number
   readonly baselineRssBytes: number
-  readonly engine: 'javascript' | 'wasm'
+  readonly engine: 'javascript' | 'scalar' | 'simd'
   readonly externalBytes: number
   readonly hash: string
   readonly initializationMilliseconds: number
@@ -34,7 +34,7 @@ const parseMeasurement = (text: string): Measurement => {
   const value: unknown = JSON.parse(text)
   if (
     !isRecord(value) ||
-    (value.engine !== 'javascript' && value.engine !== 'wasm') ||
+    (value.engine !== 'javascript' && value.engine !== 'scalar' && value.engine !== 'simd') ||
     (value.profile !== 'cold' && value.profile !== 'warm') ||
     typeof value.hash !== 'string'
   ) {
@@ -77,7 +77,7 @@ const worker = fileURLToPath(new URL('./wasm-decoder-worker.ts', import.meta.url
 const inputPath = 'benchmark/corpus/files/tundra-4000x3000.jpg'
 const measurements: Measurement[] = []
 for (const profile of ['cold', 'warm'] as const) {
-  for (const engine of ['javascript', 'wasm'] as const) {
+  for (const engine of ['javascript', 'scalar', 'simd'] as const) {
     for (let run = 0; run < 3; run += 1) {
       const child = spawnSync(
         process.execPath,
@@ -97,7 +97,8 @@ for (const profile of ['cold', 'warm'] as const) {
 
 const hashes = new Set(measurements.map(({ hash }) => hash))
 if (hashes.size !== 1) throw new Error('JPEG WASM output differs from the TypeScript reference')
-const artifact = await readFile('src/accelerator-entries/jpeg-decoder.wasm')
+const scalarArtifact = await readFile('src/accelerator-entries/jpeg-decoder.wasm')
+const simdArtifact = await readFile('src/accelerator-entries/jpeg-decoder-simd.wasm')
 const input = await readFile(inputPath)
 const outputRowBytes = 4_000 * 8 * 3
 const outputRows = 3_000 / 8
@@ -131,12 +132,15 @@ const result = {
     dimensions: '4000x3000',
   },
   artifact: {
-    bytes: artifact.byteLength,
-    gzipBytes: gzipSync(artifact, { level: 9 }).byteLength,
-    brotliBytes: brotliCompressSync(artifact).byteLength,
+    scalarBytes: scalarArtifact.byteLength,
+    scalarGzipBytes: gzipSync(scalarArtifact, { level: 9 }).byteLength,
+    scalarBrotliBytes: brotliCompressSync(scalarArtifact).byteLength,
+    simdBytes: simdArtifact.byteLength,
+    simdGzipBytes: gzipSync(simdArtifact, { level: 9 }).byteLength,
+    simdBrotliBytes: brotliCompressSync(simdArtifact).byteLength,
     wasmMemoryBytes: median(
       measurements
-        .filter(({ engine }) => engine === 'wasm')
+        .filter(({ engine }) => engine !== 'javascript')
         .map(({ wasmMemoryBytes }) => wasmMemoryBytes),
     ),
   },
@@ -148,11 +152,13 @@ const result = {
   },
   cold: {
     javascript: summary('javascript', 'cold'),
-    wasm: summary('wasm', 'cold'),
+    scalar: summary('scalar', 'cold'),
+    simd: summary('simd', 'cold'),
   },
   warm: {
     javascript: summary('javascript', 'warm'),
-    wasm: summary('wasm', 'warm'),
+    scalar: summary('scalar', 'warm'),
+    simd: summary('simd', 'warm'),
   },
 }
 const serialized = `${JSON.stringify(result, undefined, 2)}\n`

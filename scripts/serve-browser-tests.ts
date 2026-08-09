@@ -243,9 +243,24 @@ await copyFile(
   'src/accelerator-entries/jpeg-decoder.wasm',
   resolve(outputDirectory, 'assets/jpeg-decoder.wasm'),
 )
+await copyFile(
+  'src/accelerator-entries/jpeg-decoder-simd.wasm',
+  resolve(outputDirectory, 'assets/jpeg-decoder-simd.wasm'),
+)
+await copyFile(
+  'src/accelerator-entries/jpeg-encoder.wasm',
+  resolve(outputDirectory, 'assets/jpeg-encoder.wasm'),
+)
+await copyFile(
+  'src/accelerator-entries/jpeg-encoder-simd.wasm',
+  resolve(outputDirectory, 'assets/jpeg-encoder-simd.wasm'),
+)
 
 const wasmFiles: readonly (readonly [string, string])[] = [
   ['src/accelerator-entries/jpeg-decoder.wasm', 'jpeg-decoder.wasm'],
+  ['src/accelerator-entries/jpeg-decoder-simd.wasm', 'jpeg-decoder-simd.wasm'],
+  ['src/accelerator-entries/jpeg-encoder.wasm', 'jpeg-encoder.wasm'],
+  ['src/accelerator-entries/jpeg-encoder-simd.wasm', 'jpeg-encoder-simd.wasm'],
   ['node_modules/@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm', 'mozjpeg_dec.wasm'],
   ['node_modules/@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm', 'mozjpeg_enc.wasm'],
   ['node_modules/@jsquash/png/codec/pkg/squoosh_png_bg.wasm', 'squoosh_png_bg.wasm'],

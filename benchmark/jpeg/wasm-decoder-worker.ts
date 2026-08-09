@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { performance } from 'node:perf_hooks'
 
 import type { ImageCodec } from '../../src/codec.ts'
-import { createWasmJpegAcceleratorWithLoader } from '../../src/accelerators/wasm/jpeg.ts'
+import { createWasmJpegAcceleratorWithLoaders } from '../../src/accelerators/wasm/jpeg.ts'
 import { jpegCodec } from '../../src/codecs/jpeg.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
 import { MemorySource } from '../../src/source.ts'
@@ -11,8 +11,11 @@ import { MemorySource } from '../../src/source.ts'
 const engine = process.argv[2]
 const profile = process.argv[3]
 const inputPath = process.argv[4]
-if ((engine !== 'javascript' && engine !== 'wasm') || (profile !== 'cold' && profile !== 'warm')) {
-  throw new Error('Usage: wasm-decoder-worker.ts [javascript|wasm] [cold|warm] input.jpg')
+if (
+  (engine !== 'javascript' && engine !== 'scalar' && engine !== 'simd') ||
+  (profile !== 'cold' && profile !== 'warm')
+) {
+  throw new Error('Usage: wasm-decoder-worker.ts [javascript|scalar|simd] [cold|warm] input.jpg')
 }
 if (!inputPath) throw new Error('JPEG WASM benchmark input path is required')
 
@@ -20,23 +23,50 @@ const input = await readFile(inputPath)
 let initializationMilliseconds = 0
 let wasmMemoryBytes = 0
 let wasmMemory: WebAssembly.Memory | undefined
-const accelerator = createWasmJpegAcceleratorWithLoader(
-  async () => {
-    const bytes = await readFile(
-      new URL('../../src/accelerator-entries/jpeg-decoder.wasm', import.meta.url),
-    )
-    const start = performance.now()
-    const result = await WebAssembly.instantiate(bytes)
-    initializationMilliseconds = performance.now() - start
-    const memory: unknown = result.instance.exports.memory
-    if (!(memory instanceof WebAssembly.Memory)) throw new Error('JPEG WASM memory is unavailable')
-    wasmMemory = memory
-    wasmMemoryBytes = memory.buffer.byteLength
-    return result.instance
+const accelerator = createWasmJpegAcceleratorWithLoaders(
+  {
+    ...(engine === 'scalar'
+      ? {
+          decoder: async () => {
+            const bytes = await readFile(
+              new URL('../../src/accelerator-entries/jpeg-decoder.wasm', import.meta.url),
+            )
+            const start = performance.now()
+            const result = await WebAssembly.instantiate(bytes)
+            initializationMilliseconds = performance.now() - start
+            const memory: unknown = result.instance.exports.memory
+            if (!(memory instanceof WebAssembly.Memory)) {
+              throw new Error('JPEG WASM memory is unavailable')
+            }
+            wasmMemory = memory
+            wasmMemoryBytes = memory.buffer.byteLength
+            return result.instance
+          },
+        }
+      : {}),
+    ...(engine === 'simd'
+      ? {
+          simdDecoder: async () => {
+            const bytes = await readFile(
+              new URL('../../src/accelerator-entries/jpeg-decoder-simd.wasm', import.meta.url),
+            )
+            const start = performance.now()
+            const result = await WebAssembly.instantiate(bytes)
+            initializationMilliseconds = performance.now() - start
+            const memory: unknown = result.instance.exports.memory
+            if (!(memory instanceof WebAssembly.Memory)) {
+              throw new Error('JPEG WASM memory is unavailable')
+            }
+            wasmMemory = memory
+            wasmMemoryBytes = memory.buffer.byteLength
+            return result.instance
+          },
+        }
+      : {}),
   },
   { minimumPixels: 1 },
 )
-const codec: ImageCodec = engine === 'wasm' ? accelerator.accelerate(jpegCodec) : jpegCodec
+const codec: ImageCodec = engine === 'javascript' ? jpegCodec : accelerator.accelerate(jpegCodec)
 
 const decode = async (): Promise<{ hash: string; milliseconds: number }> => {
   const start = performance.now()

@@ -1,5 +1,6 @@
 import { createImageLibrary } from '../src/browser.ts'
 import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
+import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
 import { heifCodec } from '../src/codec-entries/heif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
@@ -12,13 +13,19 @@ import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types
 const images = createImageLibrary([jpegCodec, pngCodec, webpCodec, avifCodec, heifCodec])
 const wasmImages = createImageLibrary({
   codecs: [jpegCodec, pngCodec],
-  accelerators: [createWasmJpegAccelerator({ minimumPixels: 1 })],
+  accelerators: [createWasmJpegAccelerator({ minimumEncodePixels: 1, minimumPixels: 1 })],
 })
 
 const fetchBytes = async (path: string): Promise<Uint8Array<ArrayBuffer>> => {
   const response = await fetch(path)
   if (!response.ok) throw new Error(`Fixture request failed: ${response.status} ${path}`)
   return new Uint8Array(await response.arrayBuffer())
+}
+const instantiateWasm = async (path: string): Promise<WebAssembly.Instance> => {
+  const response = await fetch(path)
+  if (!response.ok) throw new Error(`WASM request failed: ${response.status} ${path}`)
+  const result = await WebAssembly.instantiate(await response.arrayBuffer())
+  return result.instance
 }
 
 const outputMetadata = async (bytes: Uint8Array) => (await images.open(bytes)).metadata()
@@ -121,6 +128,72 @@ const wasmJpeg = async (): Promise<BrowserWorkflowResult> => {
   return {
     detail: 'Rust/WASM baseline JPEG decode matched the TypeScript reference in the browser',
     outputBytes: accelerated.byteLength,
+  }
+}
+const wasmJpegEncode = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = await fetchBytes('/fixtures/benchmark-input.png')
+  let scalarLoads = 0
+  let simdLoads = 0
+  const scalarImages = createImageLibrary({
+    codecs: [jpegCodec, pngCodec],
+    accelerators: [
+      createWasmJpegAcceleratorWithLoaders(
+        {
+          encoder: async () => {
+            scalarLoads += 1
+            return instantiateWasm('/jpeg-encoder.wasm')
+          },
+        },
+        { minimumEncodePixels: 1 },
+      ),
+    ],
+  })
+  const selectedImages = createImageLibrary({
+    codecs: [jpegCodec, pngCodec],
+    accelerators: [
+      createWasmJpegAcceleratorWithLoaders(
+        {
+          encoder: async () => {
+            scalarLoads += 1
+            return instantiateWasm('/jpeg-encoder.wasm')
+          },
+          simdEncoder: async () => {
+            simdLoads += 1
+            return instantiateWasm('/jpeg-encoder-simd.wasm')
+          },
+        },
+        { minimumEncodePixels: 1 },
+      ),
+    ],
+  })
+  const options = { chromaSubsampling: '420' as const, quality: 84 }
+  const [reference, scalar, selected] = await Promise.all([
+    (await images.open(bytes)).jpeg(options).toUint8Array(),
+    (await scalarImages.open(bytes)).jpeg(options).toUint8Array(),
+    (await selectedImages.open(bytes)).jpeg(options).toUint8Array(),
+  ])
+  if (scalarLoads !== 1 || simdLoads !== 1) {
+    throw new Error(`WASM JPEG encoder selection loaded scalar=${scalarLoads}, SIMD=${simdLoads}`)
+  }
+  if (reference.byteLength !== scalar.byteLength) {
+    throw new Error('Scalar WASM JPEG output length differs from the TypeScript reference')
+  }
+  for (let offset = 0; offset < reference.byteLength; offset += 1) {
+    if (reference[offset] !== scalar[offset]) {
+      throw new Error(`Scalar WASM JPEG output differs at byte ${offset}`)
+    }
+  }
+  const sizeDifference = Math.abs(selected.byteLength - reference.byteLength) / reference.byteLength
+  if (sizeDifference > 0.01) {
+    throw new Error(`SIMD WASM JPEG output size differs by ${(sizeDifference * 100).toFixed(2)}%`)
+  }
+  const metadata = await outputMetadata(selected)
+  if (metadata.format !== 'jpeg' || metadata.width < 1 || metadata.height < 1) {
+    throw new Error('SIMD WASM JPEG output metadata is invalid')
+  }
+  return {
+    detail: 'SIMD selection and scalar JPEG encoder fallback passed in the browser',
+    outputBytes: selected.byteLength,
   }
 }
 
@@ -399,6 +472,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   progressiveJpeg,
   resizeDefaultKernel,
   wasmJpeg,
+  wasmJpegEncode,
   webpLossless,
   webpLossyDecode,
 })
