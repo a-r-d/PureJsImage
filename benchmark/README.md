@@ -4,6 +4,9 @@ This suite is the performance and workflow-success contract for PureJsImage.
 Jimp 1.6.0 remains the original Lambda baseline. The broader competitor profile
 also pins Sharp 0.35.3, image-js 1.7.0, and jSquash's JPEG 1.6.0, PNG 3.1.1,
 WebP 1.5.0, and resize 2.1.1 packages.
+The profile treats the default pure-JavaScript implementation and the explicitly registered
+first-party JPEG/PNG WASM accelerators as separate PureJsImage engines.
+
 
 ## Principles
 
@@ -95,7 +98,7 @@ npm run bench:competitors
 The equivalent direct harness command, after `npm run build`, is:
 
 ```sh
-node benchmark/run.ts --engines purejsimage,jimp,sharp,sharp-single-thread,image-js,jsquash --profile competitors
+node benchmark/run.ts --engines purejsimage,purejsimage-wasm,jimp,sharp,sharp-single-thread,image-js,jsquash --profile competitors
 ```
 
 The profile covers large JPEG metadata; JPEG resize, crop, and orientation;
@@ -105,6 +108,11 @@ fixtures. An engine is marked unsupported when its public API or installed
 codec build cannot express the exact workflow. In particular, the installed
 Sharp build is probed against the pinned iPhone HEIC file rather than relying on
 a generic HEIF capability flag.
+`purejsimage` uses the default TypeScript codecs. `purejsimage-wasm` explicitly registers the
+published JPEG and PNG scalar/SIMD accelerator providers and retains their normal eligibility and
+fallback rules; workflows outside those accelerated subsets still execute through the same
+TypeScript reference codecs.
+
 
 Resize workflows use each engine's public default kernel. PureJsImage and Sharp
 use Lanczos 3; Jimp uses bilinear. Cross-kernel timings describe each package's

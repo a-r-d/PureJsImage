@@ -41,7 +41,7 @@ const idatType = Uint8Array.of(73, 68, 65, 84)
 const scanlineBlockRows = 32
 const sourceReadSize = 65_536
 
-type PngColorType = 0 | 2 | 3 | 4 | 6
+export type PngColorType = 0 | 2 | 3 | 4 | 6
 
 interface ChunkRange {
   readonly offset: number
@@ -66,11 +66,49 @@ interface PngDescription {
   readonly exif: Uint8Array | undefined
 }
 
-interface CropRegion {
+export interface PngRegion {
   readonly x: number
   readonly y: number
   readonly width: number
   readonly height: number
+}
+
+export interface PngAccelerationRequest {
+  readonly width: number
+  readonly height: number
+  readonly bitDepth: number
+  readonly colorType: PngColorType
+  readonly interlace: 0 | 1
+  readonly frames: number
+  readonly transparency: boolean
+  readonly pixelFormat: PixelFormat
+  readonly region: PngRegion
+  readonly inflated: AsyncIterable<Uint8Array>
+}
+
+export interface PngRowFilter {
+  filter(data: Uint8Array, stride: number, rows: number): Uint8Array
+  release(): void
+}
+
+export interface PngEncodeAccelerationRequest {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: PixelFormat
+  readonly adaptiveFiltering: boolean
+}
+
+export interface PngAcceleration {
+  decode?(request: PngAccelerationRequest): Promise<AsyncIterable<PixelBlock> | undefined>
+  encode?(request: PngEncodeAccelerationRequest): Promise<PngRowFilter | undefined>
+}
+
+export interface PngDecodeAcceleration extends PngAcceleration {
+  decode(request: PngAccelerationRequest): Promise<AsyncIterable<PixelBlock> | undefined>
+}
+
+export interface PngEncodeAcceleration extends PngAcceleration {
+  encode(request: PngEncodeAccelerationRequest): Promise<PngRowFilter | undefined>
 }
 
 interface Adam7Pass {
@@ -817,7 +855,7 @@ const convertRow = (
   }
 }
 
-const cropRegion = (width: number, height: number, request: DecodeRequest = {}): CropRegion => {
+const cropRegion = (width: number, height: number, request: DecodeRequest = {}): PngRegion => {
   const x = request.x ?? 0
   const y = request.y ?? 0
   const cropWidth = request.width ?? width - x
@@ -848,11 +886,18 @@ class PngDecoder implements ImageDecoder {
   readonly #source: ImageSource
   readonly #description: PngDescription
   readonly #limits: ImageLimits
+  readonly #accelerations: readonly PngAcceleration[]
 
-  constructor(source: ImageSource, description: PngDescription, limits: ImageLimits) {
+  constructor(
+    source: ImageSource,
+    description: PngDescription,
+    limits: ImageLimits,
+    accelerations: readonly PngAcceleration[],
+  ) {
     this.#source = source
     this.#description = description
     this.#limits = limits
+    this.#accelerations = accelerations
     this.width = description.width
     this.height = description.height
     this.pixelFormat = outputFormat(description)
@@ -860,19 +905,45 @@ class PngDecoder implements ImageDecoder {
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const region = cropRegion(this.width, this.height, request)
+    const sourceChannels = channelsForColorType(this.#description.colorType)
+    const bitsPerPixel = sourceChannels * this.#description.bitDepth
+    if (this.#description.interlace === 0) {
+      const rowBytes = Math.ceil((this.width * bitsPerPixel) / 8)
+      const inflatedBytes = BigInt(rowBytes + 1) * BigInt(this.height)
+      if (inflatedBytes > BigInt(this.#limits.maxDecodedBytes)) {
+        throw limitExceeded(
+          `PNG scanlines require ${inflatedBytes} bytes; maxDecodedBytes is ${this.#limits.maxDecodedBytes}`,
+        )
+      }
+    }
+    for (const acceleration of this.#accelerations) {
+      if (!acceleration.decode) continue
+      const accelerated = await acceleration.decode({
+        width: this.width,
+        height: this.height,
+        bitDepth: this.#description.bitDepth,
+        colorType: this.#description.colorType,
+        interlace: this.#description.interlace,
+        frames: this.#description.frames,
+        transparency: this.#description.transparency !== undefined,
+        pixelFormat: this.pixelFormat,
+        region,
+        inflated: decompressedChunks(
+          this.#source,
+          this.#description.idat,
+          this.#limits.maxDecodedBytes,
+        ),
+      })
+      if (accelerated) {
+        yield* accelerated
+        return
+      }
+    }
     if (this.#description.interlace === 1) {
       yield* this.#decodeAdam7(region)
       return
     }
-    const sourceChannels = channelsForColorType(this.#description.colorType)
-    const bitsPerPixel = sourceChannels * this.#description.bitDepth
     const rowBytes = Math.ceil((this.width * bitsPerPixel) / 8)
-    const inflatedBytes = BigInt(rowBytes + 1) * BigInt(this.height)
-    if (inflatedBytes > BigInt(this.#limits.maxDecodedBytes)) {
-      throw limitExceeded(
-        `PNG scanlines require ${inflatedBytes} bytes; maxDecodedBytes is ${this.#limits.maxDecodedBytes}`,
-      )
-    }
 
     const filterBytesPerPixel = Math.max(1, Math.ceil(bitsPerPixel / 8))
     const scanline = new Uint8Array(rowBytes + 1)
@@ -949,7 +1020,7 @@ class PngDecoder implements ImageDecoder {
     }
   }
 
-  async *#decodeAdam7(region: CropRegion): AsyncGenerator<PixelBlock> {
+  async *#decodeAdam7(region: PngRegion): AsyncGenerator<PixelBlock> {
     const sourceChannels = channelsForColorType(this.#description.colorType)
     const bitsPerPixel = sourceChannels * this.#description.bitDepth
     const passes = adam7RuntimePasses(this.width, this.height, bitsPerPixel)
@@ -1221,6 +1292,7 @@ class PngEncoder implements ImageEncoder {
   readonly #channels: number
   readonly #adaptiveFiltering: boolean
   readonly #previousRow: Uint8Array
+  #acceleratedFilter: PngRowFilter | undefined
   #expectedY = 0
   #finished = false
 
@@ -1231,6 +1303,7 @@ class PngEncoder implements ImageEncoder {
     height: number,
     format: PixelFormat,
     adaptiveFiltering: boolean,
+    acceleratedFilter: PngRowFilter | undefined,
   ) {
     this.#sink = sink
     this.#deflater = deflater
@@ -1240,61 +1313,100 @@ class PngEncoder implements ImageEncoder {
     this.#channels = bytesPerPixel(format)
     this.#adaptiveFiltering = adaptiveFiltering
     this.#previousRow = new Uint8Array(width * this.#channels)
+    this.#acceleratedFilter = acceleratedFilter
   }
 
   async write(block: PixelBlock): Promise<void> {
     if (this.#finished) throw new Error('Cannot write to a finished PNG encoder')
-    if (
-      block.x !== 0 ||
-      block.y !== this.#expectedY ||
-      block.width !== this.#width ||
-      block.height < 1 ||
-      block.y + block.height > this.#height ||
-      block.format !== this.#format
-    ) {
-      throw invalidInput('PNG encoder requires ordered, full-width pixel blocks')
-    }
-    const rowBytes = this.#width * this.#channels
-    if (
-      block.stride < rowBytes ||
-      block.data.byteLength < block.stride * (block.height - 1) + rowBytes
-    ) {
-      throw invalidInput('PNG encoder pixel block data is truncated')
-    }
+    try {
+      if (
+        block.x !== 0 ||
+        block.y !== this.#expectedY ||
+        block.width !== this.#width ||
+        block.height < 1 ||
+        block.y + block.height > this.#height ||
+        block.format !== this.#format
+      ) {
+        throw invalidInput('PNG encoder requires ordered, full-width pixel blocks')
+      }
+      const rowBytes = this.#width * this.#channels
+      if (
+        block.stride < rowBytes ||
+        block.data.byteLength < block.stride * (block.height - 1) + rowBytes
+      ) {
+        throw invalidInput('PNG encoder pixel block data is truncated')
+      }
 
-    const scanlines = new Uint8Array((rowBytes + 1) * block.height)
-    for (let row = 0; row < block.height; row += 1) {
-      const source = block.data.subarray(row * block.stride, row * block.stride + rowBytes)
-      filterScanline(
-        source,
-        this.#previousRow,
-        this.#channels,
-        scanlines.subarray(row * (rowBytes + 1), (row + 1) * (rowBytes + 1)),
-        this.#adaptiveFiltering,
-      )
-      this.#previousRow.set(source)
+      for (let firstRow = 0; firstRow < block.height; firstRow += scanlineBlockRows) {
+        const rows = Math.min(scanlineBlockRows, block.height - firstRow)
+        let scanlines: Uint8Array
+        if (this.#acceleratedFilter) {
+          scanlines = this.#acceleratedFilter.filter(
+            block.data.subarray(firstRow * block.stride),
+            block.stride,
+            rows,
+          )
+        } else {
+          scanlines = new Uint8Array((rowBytes + 1) * rows)
+          for (let row = 0; row < rows; row += 1) {
+            const sourceOffset = (firstRow + row) * block.stride
+            const source = block.data.subarray(sourceOffset, sourceOffset + rowBytes)
+            filterScanline(
+              source,
+              this.#previousRow,
+              this.#channels,
+              scanlines.subarray(row * (rowBytes + 1), (row + 1) * (rowBytes + 1)),
+              this.#adaptiveFiltering,
+            )
+            this.#previousRow.set(source)
+          }
+        }
+        await this.#deflater.write(scanlines)
+      }
+      this.#expectedY += block.height
+    } catch (error) {
+      if (this.#acceleratedFilter) {
+        this.#finished = true
+        this.#releaseFilter()
+      }
+      throw error
     }
-    await this.#deflater.write(scanlines)
-    this.#expectedY += block.height
   }
 
   async finish(): Promise<void> {
     if (this.#finished) throw new Error('PNG encoder is already finished')
     this.#finished = true
-    if (this.#expectedY !== this.#height) {
-      throw invalidInput(`PNG encoder received ${this.#expectedY} of ${this.#height} rows`)
+    try {
+      if (this.#expectedY !== this.#height) {
+        throw invalidInput(`PNG encoder received ${this.#expectedY} of ${this.#height} rows`)
+      }
+      await this.#deflater.finish()
+      await writeChunk(this.#sink, 'IEND', new Uint8Array())
+    } finally {
+      this.#releaseFilter()
     }
-    await this.#deflater.finish()
-    await writeChunk(this.#sink, 'IEND', new Uint8Array())
   }
 
   async abort(reason: unknown): Promise<void> {
     this.#finished = true
-    await this.#deflater.abort(reason)
+    try {
+      await this.#deflater.abort(reason)
+    } finally {
+      this.#releaseFilter()
+    }
+  }
+
+  #releaseFilter(): void {
+    this.#acceleratedFilter?.release()
+    this.#acceleratedFilter = undefined
   }
 }
 
-const createPngEncoder = async (sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder> => {
+const createPngEncoder = async (
+  sink: ImageSink,
+  request: EncodeRequest,
+  accelerations: readonly PngAcceleration[] = [],
+): Promise<ImageEncoder> => {
   if (
     !Number.isSafeInteger(request.width) ||
     !Number.isSafeInteger(request.height) ||
@@ -1309,61 +1421,96 @@ const createPngEncoder = async (sink: ImageSink, request: EncodeRequest): Promis
   const level = compressionLevel(request.options)
   const runtime = request.runtime
   if (!runtime) throw unsupportedOperation('PNG encoding requires a runtime compression provider')
-  await sink.write(signature)
-  const header = new Uint8Array(13)
-  const view = new DataView(header.buffer)
-  view.setUint32(0, request.width)
-  view.setUint32(4, request.height)
-  header[8] = 8
-  header[9] = channels === 1 ? 0 : channels === 3 ? 2 : 6
-  await writeChunk(sink, 'IHDR', header)
 
-  const icc = request.metadata?.icc
-  if (icc) {
-    const colorSpace = iccColorSpace(icc)
-    if (
-      colorSpace === 'other' ||
-      (request.pixelFormat === 'gray8' && colorSpace !== 'gray') ||
-      (request.pixelFormat !== 'gray8' && colorSpace !== 'rgb')
-    ) {
-      throw invalidInput('Preserved ICC profile does not match PNG output pixels')
-    }
-    const name = Uint8Array.of(
-      0x50,
-      0x75,
-      0x72,
-      0x65,
-      0x4a,
-      0x73,
-      0x49,
-      0x6d,
-      0x61,
-      0x67,
-      0x65,
-      0,
-      0,
-    )
-    const compressed = await runtime.deflate(icc, { level: 6, strategy: 'default' })
-    const payload = new Uint8Array(name.byteLength + compressed.byteLength)
-    payload.set(name)
-    payload.set(compressed, name.byteLength)
-    await writeChunk(sink, 'iCCP', payload)
+  let acceleratedFilter: PngRowFilter | undefined
+  for (const acceleration of accelerations) {
+    if (!acceleration.encode) continue
+    acceleratedFilter = await acceleration.encode({
+      width: request.width,
+      height: request.height,
+      pixelFormat: request.pixelFormat,
+      adaptiveFiltering: level !== 0,
+    })
+    if (acceleratedFilter) break
   }
-  if (request.metadata?.exif) await writeChunk(sink, 'eXIf', request.metadata.exif)
-  return new PngEncoder(
-    sink,
-    runtime.createDeflateEncoder(
-      {
-        level,
-        strategy: request.pixelFormat === 'rgb8' ? 'rle' : 'default',
-      },
-      (chunk) => writeChunk(sink, 'IDAT', chunk),
-    ),
-    request.width,
-    request.height,
-    request.pixelFormat,
-    level !== 0,
-  )
+
+  try {
+    await sink.write(signature)
+    const header = new Uint8Array(13)
+    const view = new DataView(header.buffer)
+    view.setUint32(0, request.width)
+    view.setUint32(4, request.height)
+    header[8] = 8
+    header[9] = channels === 1 ? 0 : channels === 3 ? 2 : 6
+    await writeChunk(sink, 'IHDR', header)
+
+    const icc = request.metadata?.icc
+    if (icc) {
+      const colorSpace = iccColorSpace(icc)
+      if (
+        colorSpace === 'other' ||
+        (request.pixelFormat === 'gray8' && colorSpace !== 'gray') ||
+        (request.pixelFormat !== 'gray8' && colorSpace !== 'rgb')
+      ) {
+        throw invalidInput('Preserved ICC profile does not match PNG output pixels')
+      }
+      const name = Uint8Array.of(
+        0x50,
+        0x75,
+        0x72,
+        0x65,
+        0x4a,
+        0x73,
+        0x49,
+        0x6d,
+        0x61,
+        0x67,
+        0x65,
+        0,
+        0,
+      )
+      const compressed = await runtime.deflate(icc, { level: 6, strategy: 'default' })
+      const payload = new Uint8Array(name.byteLength + compressed.byteLength)
+      payload.set(name)
+      payload.set(compressed, name.byteLength)
+      await writeChunk(sink, 'iCCP', payload)
+    }
+    if (request.metadata?.exif) await writeChunk(sink, 'eXIf', request.metadata.exif)
+    return new PngEncoder(
+      sink,
+      runtime.createDeflateEncoder(
+        {
+          level,
+          strategy: request.pixelFormat === 'rgb8' ? 'rle' : 'default',
+        },
+        (chunk) => writeChunk(sink, 'IDAT', chunk),
+      ),
+      request.width,
+      request.height,
+      request.pixelFormat,
+      level !== 0,
+      acceleratedFilter,
+    )
+  } catch (error) {
+    acceleratedFilter?.release()
+    throw error
+  }
+}
+
+const decodePng = async (
+  source: ImageSource,
+  limits: ImageLimits,
+  options: Readonly<DecoderOptions> = {},
+  accelerations: readonly PngAcceleration[] = [],
+): Promise<ImageDecoder> => {
+  const description = await parsePng(source, limits, true)
+  const decoder = new PngDecoder(source, description, limits, accelerations)
+  if (options.preserveIcc === true && description.iccProfile) return decoder
+  if (description.colorTransform)
+    return new ColorManagedDecoder(decoder, description.colorTransform)
+  return description.grayTransform
+    ? new GrayColorManagedDecoder(decoder, description.grayTransform)
+    : decoder
 }
 
 export const pngCodec: ImageCodec = {
@@ -1391,19 +1538,36 @@ export const pngCodec: ImageCodec = {
       ...(description.iccProfile ? { icc: Uint8Array.from(description.iccProfile) } : {}),
     }
   },
-  async createDecoder(
-    source: ImageSource,
-    limits: ImageLimits,
-    options: Readonly<DecoderOptions> = {},
-  ): Promise<ImageDecoder> {
-    const description = await parsePng(source, limits, true)
-    const decoder = new PngDecoder(source, description, limits)
-    if (options.preserveIcc === true && description.iccProfile) return decoder
-    if (description.colorTransform)
-      return new ColorManagedDecoder(decoder, description.colorTransform)
-    return description.grayTransform
-      ? new GrayColorManagedDecoder(decoder, description.grayTransform)
-      : decoder
-  },
+  createDecoder: decodePng,
   createEncoder: createPngEncoder,
+}
+
+const acceleratedPngCodecs = new WeakMap<ImageCodec, readonly PngAcceleration[]>()
+
+const registeredPngAccelerations = (codec: ImageCodec): readonly PngAcceleration[] | undefined => {
+  if (codec === pngCodec) return []
+  return acceleratedPngCodecs.get(codec)
+}
+
+export const acceleratePngCodec = (
+  reference: ImageCodec,
+  acceleration: PngAcceleration,
+): ImageCodec => {
+  const registered = registeredPngAccelerations(reference)
+  if (!registered) {
+    throw new Error('PNG acceleration requires the PureJsImage reference PNG codec')
+  }
+  const accelerations = Object.freeze([...registered, acceleration])
+  const accelerated: ImageCodec = Object.freeze({
+    ...reference,
+    createDecoder: (
+      source: ImageSource,
+      limits: ImageLimits,
+      options?: Readonly<DecoderOptions>,
+    ): Promise<ImageDecoder> => decodePng(source, limits, options, accelerations),
+    createEncoder: (sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder> =>
+      createPngEncoder(sink, request, accelerations),
+  })
+  acceleratedPngCodecs.set(accelerated, accelerations)
+  return accelerated
 }

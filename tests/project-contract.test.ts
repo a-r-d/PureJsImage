@@ -200,6 +200,7 @@ describe('package contract', () => {
       '.',
       './browser',
       './accelerators/wasm/jpeg',
+      './accelerators/wasm/png',
       './codecs/all',
       './codecs/avif',
       './codecs/bmp',

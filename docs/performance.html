@@ -20,16 +20,16 @@
   </div></header>
 
   <main id="main">
-    <header class="page-hero"><div class="container"><p class="eyebrow">Performance</p><h1>Benchmark methodology and recorded results.</h1><p class="page-lede">Complete decode–transform–encode workflows measured on real AWS Lambda and in isolated local processes, with pinned inputs, absolute memory, and independently validated output.</p><div class="page-meta"><span class="pill">Real AWS Lambda</span><span class="pill">Six-engine competitor profile</span><span class="pill">Recorded August 2026</span><span class="pill">Linux x64</span></div></div></header>
+    <header class="page-hero"><div class="container"><p class="eyebrow">Performance</p><h1>Benchmark methodology and recorded results.</h1><p class="page-lede">Complete decode–transform–encode workflows measured on real AWS Lambda and in isolated local processes, with pinned inputs, absolute memory, and independently validated output.</p><div class="page-meta"><span class="pill">Real AWS Lambda</span><span class="pill">Seven-engine competitor profile</span><span class="pill">Recorded August 2026</span><span class="pill">Linux x64</span></div></div></header>
     <section class="proof-section performance-showcase" id="competitor-charts" aria-labelledby="competitor-charts-title">
       <div class="container">
         <div class="proof-heading">
-          <div><p class="section-label">Validated competitor profile</p><h2 id="competitor-charts-title">Speed, quality, and memory across six isolated engines.</h2></div>
-          <p>Every displayed result passed output validation on commonly supported workflows. Engines use their public defaults; quality is measured separately against an independently decoded exact-area reference. Sharp uses native libvips, jSquash uses WebAssembly, and PureJsImage, Jimp, and image-js are pure JavaScript.</p>
+          <div><p class="section-label">Validated competitor profile</p><h2 id="competitor-charts-title">Speed, quality, and memory across seven isolated engines.</h2></div>
+          <p>Default PureJsImage and its explicitly registered JPEG/PNG WASM accelerators are measured as separate engines. Every displayed result passed output validation on commonly supported workflows. Engines use their public defaults; quality is measured separately against an independently decoded exact-area reference. Sharp uses native libvips; PureJsImage WASM and jSquash use WebAssembly; default PureJsImage, Jimp, and image-js are pure JavaScript. Default PureJsImage retained 87.2% lower northstar RSS than Jimp and 87.3% lower than image-js.</p>
         </div>
         <div class="benchmark-facts">
-          <div><strong>87.2%</strong><span>lower northstar RSS vs Jimp</span></div>
-          <div><strong>88.1%</strong><span>lower northstar RSS vs image-js</span></div>
+          <div><strong>53.2%</strong><span>faster JPEG → PNG · WASM vs default</span></div>
+          <div><strong>40.7%</strong><span>faster 100 MP PNG · WASM vs default</span></div>
           <div><strong>0</strong><span>invalid outputs or errors</span></div>
         </div>
         <fieldset class="benchmark-gallery">
@@ -45,17 +45,17 @@
           <div class="benchmark-gallery-panels">
             <figure class="benchmark-gallery-panel" data-chart="speed">
               <div class="benchmark-gallery-head"><div><span>Median wall time</span><strong>Logarithmic scale · lower is better</strong></div><small>Sharp = native libvips</small></div>
-              <div class="benchmark-image-scroll"><img src="assets/competitors-speed-2026-08-09.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median wall time for all six benchmark engines across five commonly supported workflows. Sharp uses native libvips and jSquash uses WebAssembly." fetchpriority="high"></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-speed-2026-08-09.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median wall time for seven benchmark engines across five commonly supported workflows, including default and WASM PureJsImage variants." fetchpriority="high"></div>
               <figcaption>Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3 while Jimp uses bilinear, so cross-kernel rows are not matched quality. Lossy encoder quality scales are also uncalibrated. <a href="assets/competitors-speed-2026-08-09.png">Open full-size chart</a>.</figcaption>
             </figure>
             <figure class="benchmark-gallery-panel" data-chart="quality">
               <div class="benchmark-gallery-head"><div><span>Output fidelity</span><strong>Premultiplied-RGBA PSNR · higher is better</strong></div><small>Independent exact-area reference</small></div>
-              <div class="benchmark-image-scroll"><img src="assets/competitors-quality-2026-08-09.png" width="2400" height="1510" alt="Grouped horizontal bars comparing independently measured output PSNR for all six benchmark engines across five quality-enabled workflows." loading="lazy" decoding="async"></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-quality-2026-08-09.png" width="2400" height="1510" alt="Grouped horizontal bars comparing independently measured output PSNR for seven benchmark engines across five quality-enabled workflows." loading="lazy" decoding="async"></div>
               <figcaption>PSNR includes visible premultiplied color and alpha error. Exact means every compared channel matched. The oracle runs outside benchmark timing and peak-memory sampling. <a href="assets/competitors-quality-2026-08-09.png">Open full-size chart</a>.</figcaption>
             </figure>
             <figure class="benchmark-gallery-panel" data-chart="memory">
               <div class="benchmark-gallery-head"><div><span>Absolute process memory</span><strong>Median peak RSS · lower is better</strong></div><small>Isolated worker processes</small></div>
-              <div class="benchmark-image-scroll"><img src="assets/competitors-memory-2026-08-09.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median absolute peak RSS for all six benchmark engines across five commonly supported workflows." loading="lazy" decoding="async"></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-memory-2026-08-09.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median absolute peak RSS for seven benchmark engines across five commonly supported workflows." loading="lazy" decoding="async"></div>
               <figcaption>RSS includes the Node.js runtime and native allocations. <a href="assets/competitors-memory-2026-08-09.png">Open full-size chart</a>.</figcaption>
             </figure>
           </div>
@@ -107,7 +107,7 @@
 
         <section id="headline">
           <h2>Earlier Jimp baseline</h2>
-          <p>This separately recorded Jimp-only baseline predates the six-engine profile above. In its 6000 × 4000 JPEG orientation, crop, resize, and encode workflow, PureJsImage used 118.6 MiB peak RSS versus Jimp’s 1,188.3 MiB and completed in 3,242.5 ms versus 3,762.9 ms.</p>
+          <p>This separately recorded Jimp-only baseline predates the seven-engine profile above. In its 6000 × 4000 JPEG orientation, crop, resize, and encode workflow, PureJsImage used 118.6 MiB peak RSS versus Jimp’s 1,188.3 MiB and completed in 3,242.5 ms versus 3,762.9 ms.</p>
           <div class="stat-grid">
             <div class="card stat-card"><strong>90%</strong><span>lower peak RSS · 24 MP JPEG</span></div>
             <div class="card stat-card"><strong>14%</strong><span>faster wall time · 24 MP JPEG</span></div>
@@ -235,7 +235,7 @@ AWS_PROFILE=&lt;profile&gt; AWS_REGION=us-east-1 npm run bench:lambda:deploy
 AWS_PROFILE=&lt;profile&gt; AWS_REGION=us-east-1 npm run bench:lambda:run
 AWS_PROFILE=&lt;profile&gt; AWS_REGION=us-east-1 npm run bench:lambda:run:arm-wasm
 AWS_PROFILE=&lt;profile&gt; AWS_REGION=us-east-1 npm run bench:lambda:destroy</code></pre></div>
-          <p><code>npm run bench:competitors</code> builds PureJsImage and runs all six engines in isolated workers. The chart command regenerates both checked-in PNGs from the JSON report. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md" target="_blank" rel="noreferrer">benchmark harness guide</a> for profiles and result interpretation.</p>
+          <p><code>npm run bench:competitors</code> builds PureJsImage and runs all seven engines in isolated workers. The chart command regenerates the three checked-in PNGs from the JSON report. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/README.md" target="_blank" rel="noreferrer">benchmark harness guide</a> for profiles and result interpretation.</p>
         </section>
 
         <section id="interpretation">

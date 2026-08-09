@@ -62,9 +62,9 @@ npm install purejsimage
 
 PureJsImage requires Node.js 22 or newer. Browser applications use the
 `purejsimage/browser` entry. Installing it adds no runtime dependencies, native
-addons, or external programs. The optional JPEG accelerator is included as a
-separate WebAssembly entry and is never loaded by the root, browser, or codec
-imports.
+addons, or external programs. The optional first-party JPEG and PNG accelerators
+are separate WebAssembly entries and are never loaded by the root, browser, or
+codec imports.
 
 [Read the installation and browser guide →](https://a-r-d.github.io/PureJsImage/guides.html)
 
@@ -118,32 +118,13 @@ await image
 In a browser, import from `purejsimage/browser` and use `toBlob()` or
 `toUint8Array()` for output.
 
-### Optional JPEG acceleration
+### Optional WASM acceleration
 
-The first Rust/WebAssembly provider accelerates common full-image baseline JPEG
-decode in Node and modern browsers. Import and register it explicitly:
+JPEG and PNG have optional first-party WebAssembly accelerators. They are never
+loaded unless you explicitly register them, and unsupported work continues to
+use the default TypeScript codecs.
 
-```ts
-import { createImageLibrary } from 'purejsimage'
-import { wasmJpegAccelerator } from 'purejsimage/accelerators/wasm/jpeg'
-import { allCodecs } from 'purejsimage/codecs/all'
-
-const images = createImageLibrary({
-  codecs: allCodecs,
-  accelerators: [wasmJpegAccelerator],
-})
-```
-
-The module is lazy and reused across warm operations. It fuses entropy decode,
-IDCT, chroma upsampling, and RGB conversion while yielding bounded MCU rows.
-Crops, scaled decode, progressive or ICC-transformed input, small work, and
-unavailable modules stay on the TypeScript path. JPEG encoding is unchanged.
-
-Browser behavior is tested in Chromium, Firefox, and WebKit. See the
-[browser compatibility report](browser-support.md) for exact versions,
-coverage, and test commands.
-
-[Read the API documentation and examples →](https://a-r-d.github.io/PureJsImage/api.html)
+[See WASM setup, options, and supported workflows →](https://a-r-d.github.io/PureJsImage/api.html#wasm-acceleration)
 
 ## Supported codecs
 
@@ -181,18 +162,18 @@ and [HEIF / HEIC](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-supp
 
 ## Benchmarks
 
-The competitor profile compares PureJsImage with Jimp, Sharp, Sharp configured
-for one processing thread, image-js, and jSquash. Sharp uses native libvips,
-jSquash uses WebAssembly, and PureJsImage, Jimp, and image-js are pure
-JavaScript. Each engine received the same files, used its public default resize
-kernel, and ran in a separate process. A result appears only when its output
-passed validation.
+The seven-engine competitor profile measures the default PureJsImage TypeScript codecs and the
+explicitly registered PureJsImage JPEG/PNG WASM accelerators as separate variants alongside Jimp,
+Sharp, Sharp configured for one processing thread, image-js, and jSquash. Sharp uses native libvips;
+PureJsImage WASM and jSquash use WebAssembly; default PureJsImage, Jimp, and image-js are pure
+JavaScript. Each engine received the same files, used its public default resize kernel, and ran in a
+separate process. A result appears only when its output passed validation.
 
-[![Image workflow speed comparison. Sharp and Sharp single-thread use native libvips code; jSquash uses WebAssembly.](benchmark/results/competitors-speed-2026-08-09.png)](benchmark/results/competitors-speed-2026-08-09.png)
+[![Image workflow speed comparison across seven isolated engines, including default and WASM PureJsImage variants.](benchmark/results/competitors-speed-2026-08-09.png)](benchmark/results/competitors-speed-2026-08-09.png)
 
-[![Image workflow output quality comparison measured as premultiplied-RGBA PSNR against an exact-area reference.](benchmark/results/competitors-quality-2026-08-09.png)](benchmark/results/competitors-quality-2026-08-09.png)
+[![Image workflow output quality comparison across seven engines measured as premultiplied-RGBA PSNR against an exact-area reference.](benchmark/results/competitors-quality-2026-08-09.png)](benchmark/results/competitors-quality-2026-08-09.png)
 
-[![Image workflow absolute peak memory comparison.](benchmark/results/competitors-memory-2026-08-09.png)](benchmark/results/competitors-memory-2026-08-09.png)
+[![Image workflow absolute peak memory comparison across seven isolated engines.](benchmark/results/competitors-memory-2026-08-09.png)](benchmark/results/competitors-memory-2026-08-09.png)
 
 Resize workflows use engine defaults: PureJsImage and Sharp use Lanczos 3 while
 Jimp uses bilinear. The quality chart reports premultiplied-RGBA PSNR against an
@@ -201,10 +182,12 @@ and alpha channel matched. This exposes quality differences, but cross-kernel
 timings remain default-experience measurements rather than matched-quality
 comparisons.
 
-On the 24-megapixel photo workflow, PureJsImage used 87.2% less peak memory
-than Jimp and 88.1% less than image-js. Timing, memory, and quality vary by
-image, operation, machine, and library version, so the full report includes the
-test environment, compatibility results, and reproduction commands.
+Against the default TypeScript path, the opt-in WASM variant reduced median wall time by 53.2% for
+JPEG-to-PNG, 40.7% for the 100-megapixel PNG downscale, and 16.4% for the large PNG resize while
+returning the same measured output quality. On the 24-megapixel photo workflow, default PureJsImage
+used 87.2% less peak memory than Jimp and 87.3% less than image-js. Timing, memory, and quality vary by
+image, operation, machine, and library version, so the full report includes the test environment,
+compatibility results, and reproduction commands.
 
 [See the complete benchmark report and methodology →](https://a-r-d.github.io/PureJsImage/performance.html)
 

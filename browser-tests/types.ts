@@ -11,6 +11,7 @@ export interface BrowserCompatibilityHarness {
   jpegPipeline(): Promise<BrowserWorkflowResult>
   wasmJpeg(): Promise<BrowserWorkflowResult>
   wasmJpegEncode(): Promise<BrowserWorkflowResult>
+  wasmPng(): Promise<BrowserWorkflowResult>
   progressiveJpeg(): Promise<BrowserWorkflowResult>
   orientation(): Promise<BrowserWorkflowResult>
   pngAlphaPipeline(): Promise<BrowserWorkflowResult>

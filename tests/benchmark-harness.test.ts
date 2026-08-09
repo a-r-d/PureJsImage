@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { engine as imageJsEngine } from '../benchmark/engines/image-js.ts'
 import { engine as jimpEngine } from '../benchmark/engines/jimp.ts'
 import { engine as jsquashEngine } from '../benchmark/engines/jsquash.ts'
+import { engine as pureJsImageWasmEngine } from '../benchmark/engines/purejsimage-wasm.ts'
 import { engine as sharpSingleThreadEngine } from '../benchmark/engines/sharp-single-thread.ts'
 import { engine as sharpEngine } from '../benchmark/engines/sharp.ts'
 import { createQualityReference, measureQualityPsnr } from '../benchmark/lib/quality.ts'
@@ -144,6 +145,12 @@ describe('competitor benchmark classification', () => {
     expect(sharpSingleThreadEngine.id).toBe('sharp-single-thread')
     expect(sharpSingleThreadEngine.kind).toBe('native-single-thread')
     expect(sharpSingleThreadEngine.version).toBe(sharpEngine.version)
+  })
+  it('identifies explicit PureJsImage WASM registration as a separate engine', () => {
+    expect(pureJsImageWasmEngine.id).toBe('purejsimage-wasm')
+    expect(pureJsImageWasmEngine.kind).toBe('webassembly')
+    expect(pureJsImageWasmEngine.packageName).toBe('purejsimage')
+    expect(pureJsImageWasmEngine.version).toContain('workspace WASM')
   })
 
   it('identifies jSquash as a multi-package WebAssembly engine', () => {

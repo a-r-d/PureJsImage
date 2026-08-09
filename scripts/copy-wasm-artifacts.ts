@@ -12,3 +12,8 @@ await copyFile(
   'src/accelerator-entries/jpeg-encoder-simd.wasm',
   `${outputDirectory}/jpeg-encoder-simd.wasm`,
 )
+await copyFile('src/accelerator-entries/png-codec.wasm', `${outputDirectory}/png-codec.wasm`)
+await copyFile(
+  'src/accelerator-entries/png-codec-simd.wasm',
+  `${outputDirectory}/png-codec-simd.wasm`,
+)

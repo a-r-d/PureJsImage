@@ -46,7 +46,10 @@ const acceleratorResult = await build({
   metafile: true,
   platform: 'browser',
   stdin: {
-    contents: `export * from './src/accelerator-entries/wasm-jpeg-browser.ts'`,
+    contents: `
+      export * from './src/accelerator-entries/wasm-jpeg-browser.ts'
+      export * from './src/accelerator-entries/wasm-png-browser.ts'
+    `,
     loader: 'ts',
     resolveDir: process.cwd(),
   },
@@ -61,5 +64,5 @@ for (const [input, metadata] of Object.entries(acceleratorResult.metafile.inputs
 }
 
 console.log(
-  `Browser bundle OK (${output.length.toLocaleString()} bytes, all codecs; optional JPEG WASM entry isolated)`,
+  `Browser bundle OK (${output.length.toLocaleString()} bytes, all codecs; optional JPEG and PNG WASM entries isolated)`,
 )

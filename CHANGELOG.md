@@ -6,6 +6,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added an explicitly imported first-party Rust/WASM PNG accelerator for common non-interlaced
+  8-bit grayscale, RGB, and RGBA scanline decode and encode, retaining native runtime zlib,
+  bounded-row memory, scalar fallback, and the TypeScript reference for every ineligible workload.
+- Added a separate `purejsimage-wasm` competitor benchmark engine and seven-engine speed, memory,
+  and quality reports so the explicitly registered JPEG/PNG accelerators can be compared directly
+  with the unchanged default TypeScript package.
 - Added an explicit optional first-party Rust/WASM baseline JPEG decoder that fuses entropy decode,
   IDCT, chroma upsampling, and RGB conversion while preserving bounded MCU-row output, exact
   TypeScript parity, lazy warm reuse, and clean fallback for unsupported or unhelpful workloads.

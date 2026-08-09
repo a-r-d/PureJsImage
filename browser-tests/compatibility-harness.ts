@@ -1,6 +1,8 @@
 import { createImageLibrary } from '../src/browser.ts'
 import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
+import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
+import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
 import { heifCodec } from '../src/codec-entries/heif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
@@ -194,6 +196,116 @@ const wasmJpegEncode = async (): Promise<BrowserWorkflowResult> => {
   return {
     detail: 'SIMD selection and scalar JPEG encoder fallback passed in the browser',
     outputBytes: selected.byteLength,
+  }
+}
+const wasmPng = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = await fetchBytes('/fixtures/benchmark-input.png')
+  let scalarDecoderLoads = 0
+  let scalarEncoderLoads = 0
+  let unavailableSimdDecoderLoads = 0
+  let unavailableSimdEncoderLoads = 0
+  let selectedSimdDecoderLoads = 0
+  let selectedSimdEncoderLoads = 0
+  let selectedScalarDecoderLoads = 0
+  let selectedScalarEncoderLoads = 0
+  const publicImages = createImageLibrary({
+    codecs: [pngCodec],
+    accelerators: [createWasmPngAccelerator({ minimumEncodePixels: 1, minimumPixels: 1 })],
+  })
+  const scalarFallbackImages = createImageLibrary({
+    codecs: [pngCodec],
+    accelerators: [
+      createWasmPngAcceleratorWithLoaders(
+        {
+          decoder: async () => {
+            scalarDecoderLoads += 1
+            return instantiateWasm('/png-codec.wasm')
+          },
+          simdDecoder: async () => {
+            unavailableSimdDecoderLoads += 1
+            throw new Error('simulated unavailable SIMD PNG decoder')
+          },
+          encoder: async () => {
+            scalarEncoderLoads += 1
+            return instantiateWasm('/png-codec.wasm')
+          },
+          simdEncoder: async () => {
+            unavailableSimdEncoderLoads += 1
+            throw new Error('simulated unavailable SIMD PNG encoder')
+          },
+        },
+        { minimumEncodePixels: 1, minimumPixels: 1 },
+      ),
+    ],
+  })
+  const simdImages = createImageLibrary({
+    codecs: [pngCodec],
+    accelerators: [
+      createWasmPngAcceleratorWithLoaders(
+        {
+          decoder: async () => {
+            selectedScalarDecoderLoads += 1
+            return instantiateWasm('/png-codec.wasm')
+          },
+          simdDecoder: async () => {
+            selectedSimdDecoderLoads += 1
+            return instantiateWasm('/png-codec-simd.wasm')
+          },
+          encoder: async () => {
+            selectedScalarEncoderLoads += 1
+            return instantiateWasm('/png-codec.wasm')
+          },
+          simdEncoder: async () => {
+            selectedSimdEncoderLoads += 1
+            return instantiateWasm('/png-codec-simd.wasm')
+          },
+        },
+        { minimumEncodePixels: 1, minimumPixels: 1 },
+      ),
+    ],
+  })
+  const [reference, publicOutput, scalarFallback, simd] = await Promise.all([
+    (await images.open(bytes)).png({ compressionLevel: 6 }).toUint8Array(),
+    (await publicImages.open(bytes)).png({ compressionLevel: 6 }).toUint8Array(),
+    (await scalarFallbackImages.open(bytes)).png({ compressionLevel: 6 }).toUint8Array(),
+    (await simdImages.open(bytes)).png({ compressionLevel: 6 }).toUint8Array(),
+  ])
+  const assertExact = (label: string, actual: Uint8Array): void => {
+    if (reference.byteLength !== actual.byteLength) {
+      throw new Error(`${label} PNG output length differs from the TypeScript reference`)
+    }
+    for (let offset = 0; offset < reference.byteLength; offset += 1) {
+      if (reference[offset] !== actual[offset]) {
+        throw new Error(`${label} PNG output differs at byte ${offset}`)
+      }
+    }
+  }
+  assertExact('Public Rust/WASM', publicOutput)
+  assertExact('Scalar fallback Rust/WASM', scalarFallback)
+  assertExact('SIMD Rust/WASM', simd)
+  if (
+    unavailableSimdDecoderLoads !== 1 ||
+    unavailableSimdEncoderLoads !== 1 ||
+    scalarDecoderLoads !== 1 ||
+    scalarEncoderLoads !== 1
+  ) {
+    throw new Error(
+      `PNG scalar fallback loaded SIMD decode=${unavailableSimdDecoderLoads}, SIMD encode=${unavailableSimdEncoderLoads}, scalar decode=${scalarDecoderLoads}, scalar encode=${scalarEncoderLoads}`,
+    )
+  }
+  if (
+    selectedSimdDecoderLoads !== 1 ||
+    selectedSimdEncoderLoads !== 1 ||
+    selectedScalarDecoderLoads !== 0 ||
+    selectedScalarEncoderLoads !== 0
+  ) {
+    throw new Error(
+      `PNG SIMD selection loaded SIMD decoder=${selectedSimdDecoderLoads}, SIMD encoder=${selectedSimdEncoderLoads}, scalar decoder=${selectedScalarDecoderLoads}, scalar encoder=${selectedScalarEncoderLoads}`,
+    )
+  }
+  return {
+    detail: 'SIMD selection and scalar PNG decode/encode fallback matched exact public output',
+    outputBytes: simd.byteLength,
   }
 }
 
@@ -473,6 +585,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   resizeDefaultKernel,
   wasmJpeg,
   wasmJpegEncode,
+  wasmPng,
   webpLossless,
   webpLossyDecode,
 })

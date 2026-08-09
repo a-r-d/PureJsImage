@@ -59,6 +59,13 @@
       "import": "./dist/accelerator-entries/wasm-jpeg-node.js",
       "default": "./dist/accelerator-entries/wasm-jpeg-node.js"
     },
+    "./accelerators/wasm/png": {
+      "browser": "./dist/accelerator-entries/wasm-png-browser.js",
+      "types": "./dist/accelerator-entries/wasm-png-node.d.ts",
+      "node": "./dist/accelerator-entries/wasm-png-node.js",
+      "import": "./dist/accelerator-entries/wasm-png-node.js",
+      "default": "./dist/accelerator-entries/wasm-png-node.js"
+    },
     "./codecs/all": {
       "types": "./dist/codec-entries/all.d.ts",
       "import": "./dist/codec-entries/all.js",
@@ -128,6 +135,7 @@
     "browser:test": "playwright test",
     "browser:bench": "PUREJSIMAGE_WRITE_BROWSER_BENCHMARK=1 playwright test browser-tests/benchmark.pw.ts --project=chromium",
     "wasm:build:jpeg": "node scripts/build-wasm-jpeg.ts",
+    "wasm:build:png": "node scripts/build-wasm-png.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format --write .",
@@ -156,7 +164,7 @@
     "results:combine": "node benchmark/scripts/combine-results.ts",
     "bench": "node benchmark/run.ts",
     "bench:jimp": "node benchmark/run.ts --engines jimp",
-    "bench:competitors": "npm run build && node benchmark/run.ts --engines purejsimage,jimp,sharp,sharp-single-thread,image-js,jsquash --profile competitors",
+    "bench:competitors": "npm run build && node benchmark/run.ts --engines purejsimage,purejsimage-wasm,jimp,sharp,sharp-single-thread,image-js,jsquash --profile competitors",
     "bench:competitors:charts": "node benchmark/scripts/render-competitor-charts.ts",
     "bench:smoke": "node benchmark/run.ts --engines jimp --profile smoke --runs 1 --warmups 0",
     "bench:bmp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile bmp",
@@ -181,6 +189,7 @@
     "bench:jpeg:upsampling": "node benchmark/jpeg/run-upsampling.ts",
     "bench:jpeg:wasm": "npm run build && node benchmark/jpeg/run-wasm-decoder.ts",
     "bench:jpeg:wasm:encode": "npm run build && node benchmark/jpeg/run-wasm-encoder.ts",
+    "bench:png:wasm": "node benchmark/png/run-wasm.ts",
     "bench:jpeg2000:rss": "node benchmark/jpeg2000/run-rss.ts",
     "bench:lambda:assets": "npm run build && npm run fixtures:prepare -- tundra-4000x3000 rgba-gradient-4000x3000 && node benchmark/aws-lambda/build-assets.ts",
     "bench:lambda:deploy": "npm run bench:lambda:assets && node benchmark/aws-lambda/stage-assets.ts && cdk deploy --app \"node benchmark/aws-lambda/stack.ts\" PureJsImageLambdaBenchmark --require-approval never --method direct",

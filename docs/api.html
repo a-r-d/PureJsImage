@@ -55,6 +55,45 @@
           </tbody></table></div>
         </section>
 
+        <section id="wasm-acceleration" data-search-item>
+          <h2>Optional WASM acceleration</h2>
+          <p>JPEG and PNG provide first-party WebAssembly accelerators as explicit package entries. The root, browser, and codec imports never load them automatically. Register either provider through <code>ImageLibraryConfiguration</code>; ineligible or unavailable work continues through the corresponding TypeScript codec.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">Node.js</span></div><pre><code><span class="tok-key">import</span> { createImageLibrary } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
+<span class="tok-key">import</span> { wasmJpegAccelerator } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/accelerators/wasm/jpeg'</span>
+<span class="tok-key">import</span> { wasmPngAccelerator } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/accelerators/wasm/png'</span>
+<span class="tok-key">import</span> { allCodecs } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/all'</span>
+
+<span class="tok-key">const</span> images = createImageLibrary({
+  codecs: allCodecs,
+  accelerators: [wasmJpegAccelerator, wasmPngAccelerator],
+})</code></pre></div>
+          <p>Browser applications use <code>createImageLibrary</code> from <code>purejsimage/browser</code>; the two accelerator import paths are unchanged and resolve to browser-safe loaders.</p>
+          <h3>Configuration</h3>
+          <p>The ready-made providers use defaults chosen to avoid paying module and copy overhead on small images. Use the factory exports when an application needs different thresholds or input limits.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">interface</span> WasmJpegAcceleratorOptions {
+  minimumPixels?: number
+  minimumEncodePixels?: number
+  maximumInputBytes?: number
+  maximumEncoderRowBytes?: number
+}
+
+<span class="tok-key">interface</span> WasmPngAcceleratorOptions {
+  minimumPixels?: number
+  minimumEncodePixels?: number
+  maximumRowBytes?: number
+}
+
+<span class="tok-key">function</span> <span class="tok-method">createWasmJpegAccelerator</span>(options?: WasmJpegAcceleratorOptions): ImageCodecAccelerator
+<span class="tok-key">function</span> <span class="tok-method">createWasmPngAccelerator</span>(options?: WasmPngAcceleratorOptions): ImageCodecAccelerator</code></pre></div>
+          <p>Both pixel thresholds default to 65,536. JPEG accepts at most 32 MiB of compressed input and a 16 MiB encoder row by default; PNG accepts at most a 16 MiB row. Every supplied value must be a positive integer.</p>
+          <h3>Eligible workflows</h3>
+          <div class="table-wrap"><table><thead><tr><th>Provider</th><th>Accelerated work</th><th>TypeScript fallback examples</th></tr></thead><tbody>
+            <tr><td><strong>JPEG</strong></td><td>Common full-image baseline YCbCr decode and baseline <code>gray8</code>, <code>rgb8</code>, or <code>rgba8</code> encode</td><td>Progressive output, crop or scaled decode, ICC-transformed decode, metadata-preserving output, small images, and inputs beyond configured limits</td></tr>
+            <tr><td><strong>PNG</strong></td><td>Full-image, non-interlaced 8-bit grayscale, RGB, or RGBA decode without <code>tRNS</code>; adaptive-filter <code>gray8</code>, <code>rgb8</code>, or <code>rgba8</code> encode</td><td>Palette, grayscale-alpha, sub-byte, 16-bit, <code>tRNS</code>, Adam7, APNG frames, crop, compression level 0, small images, and rows beyond configured limits</td></tr>
+          </tbody></table></div>
+          <div class="callout"><strong>Runtime behavior.</strong> Modules load lazily and are reused. SIMD is preferred when the runtime validates it, with scalar WASM and then TypeScript as fallbacks. Node retains native <code>zlib</code>; browsers retain platform compression streams. Codec parsing, metadata, limits, CRC validation, sources, and sinks remain in JavaScript, and pixel processing remains bounded by rows or blocks.</div>
+        </section>
+
         <section id="image" data-search-item>
           <h2>Image</h2>
           <p>Every transform returns a new immutable <code>Image</code> sharing the same input context. No pixel work occurs until an output method is called.</p>

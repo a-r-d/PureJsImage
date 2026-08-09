@@ -12,6 +12,7 @@ const docsAssetsDirectory = join(dirname(benchmarkDirectory), 'docs', 'assets')
 
 const engines = [
   { id: 'purejsimage', label: 'PureJsImage · pure JS', color: '#2563eb' },
+  { id: 'purejsimage-wasm', label: 'PureJsImage · WASM opt-in', color: '#c026d3' },
   { id: 'jimp', label: 'Jimp · pure JS', color: '#7c3aed' },
   { id: 'sharp', label: 'Sharp · native/libvips', color: '#ea580c' },
   {
@@ -258,7 +259,7 @@ const chartSvg = (metric: Metric): string => {
     metric === 'speed'
       ? 'Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3; Jimp uses bilinear. Timings include encoding and are not matched quality across kernels or lossy encoders.'
       : metric === 'memory'
-        ? 'Absolute process RSS from isolated workers. Sharp uses native libvips; jSquash uses WebAssembly; PureJsImage, Jimp, and image-js are pure JavaScript.'
+        ? 'Absolute process RSS from isolated workers. Sharp uses native libvips; PureJsImage WASM and jSquash use WebAssembly; default PureJsImage, Jimp, and image-js are pure JavaScript.'
         : 'Premultiplied-RGBA PSNR against an independently decoded exact-area reference. Exact means every compared channel matched. Quality measurement is outside timing.'
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -282,7 +283,7 @@ const chartSvg = (metric: Metric): string => {
     ${grid}
     ${bars}
     <text x="54" y="${height - 90}" class="footer">${escapeXml(footer)}</text>
-    <text x="54" y="${height - 50}" class="source">Source: ${escapeXml(basename(reportPath))} · Only workflows with validated output and the displayed metric for all six engines are shown.</text>
+    <text x="54" y="${height - 50}" class="source">Source: ${escapeXml(basename(reportPath))} · Only workflows with validated output and the displayed metric for all ${engines.length} engines are shown.</text>
   </svg>`
 }
 

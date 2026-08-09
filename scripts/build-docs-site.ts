@@ -11,6 +11,8 @@ const outputWasm = join(outputDirectory, 'assets/jpeg-decoder.wasm')
 const outputSimdDecoderWasm = join(outputDirectory, 'assets/jpeg-decoder-simd.wasm')
 const outputEncoderWasm = join(outputDirectory, 'assets/jpeg-encoder.wasm')
 const outputSimdEncoderWasm = join(outputDirectory, 'assets/jpeg-encoder-simd.wasm')
+const outputPngWasm = join(outputDirectory, 'assets/png-codec.wasm')
+const outputSimdPngWasm = join(outputDirectory, 'assets/png-codec-simd.wasm')
 
 await rm(outputDirectory, { force: true, recursive: true })
 await cp(sourceDirectory, outputDirectory, {
@@ -42,6 +44,8 @@ await copyFile(resolve('src/accelerator-entries/jpeg-decoder.wasm'), outputWasm)
 await copyFile(resolve('src/accelerator-entries/jpeg-decoder-simd.wasm'), outputSimdDecoderWasm)
 await copyFile(resolve('src/accelerator-entries/jpeg-encoder.wasm'), outputEncoderWasm)
 await copyFile(resolve('src/accelerator-entries/jpeg-encoder-simd.wasm'), outputSimdEncoderWasm)
+await copyFile(resolve('src/accelerator-entries/png-codec.wasm'), outputPngWasm)
+await copyFile(resolve('src/accelerator-entries/png-codec-simd.wasm'), outputSimdPngWasm)
 
 const demoHtml = await readFile(join(outputDirectory, 'demo.html'), 'utf8')
 if (!demoHtml.includes('assets/demo-app.js')) {
@@ -53,15 +57,19 @@ const wasm = await stat(outputWasm)
 const simdDecoderWasm = await stat(outputSimdDecoderWasm)
 const encoderWasm = await stat(outputEncoderWasm)
 const simdEncoderWasm = await stat(outputSimdEncoderWasm)
+const pngWasm = await stat(outputPngWasm)
+const simdPngWasm = await stat(outputSimdPngWasm)
 if (
   wasm.size === 0 ||
   simdDecoderWasm.size === 0 ||
   encoderWasm.size === 0 ||
-  simdEncoderWasm.size === 0
+  simdEncoderWasm.size === 0 ||
+  pngWasm.size === 0 ||
+  simdPngWasm.size === 0
 ) {
-  throw new Error('Generated docs JPEG WASM module is empty')
+  throw new Error('Generated docs WASM module is empty')
 }
 
 console.log(
-  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${(wasm.size + simdDecoderWasm.size + encoderWasm.size + simdEncoderWasm.size).toLocaleString()} bytes of JPEG WASM modules)`,
+  `Built GitHub Pages artifact at benchmark/.tmp/docs-site (${bundle.size.toLocaleString()} byte demo bundle, ${(wasm.size + simdDecoderWasm.size + encoderWasm.size + simdEncoderWasm.size + pngWasm.size + simdPngWasm.size).toLocaleString()} bytes of JPEG and PNG WASM modules)`,
 )
