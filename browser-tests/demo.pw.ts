@@ -83,7 +83,7 @@ test('toggles JPEG WASM acceleration and compares the same complete pipeline', a
   await expect(page.locator('#demo-log-list')).toContainText(
     'Rust/WASM JPEG acceleration enabled for this run',
   )
-  expect(requestedUrls.some((url) => url.endsWith('/assets/jpeg-decoder.wasm'))).toBe(true)
+  expect(requestedUrls.some((url) => url.endsWith('/assets/jpeg-decoder-simd.wasm'))).toBe(true)
 })
 
 test('refuses to silently flatten an animated input to its first frame', async ({ page }) => {
