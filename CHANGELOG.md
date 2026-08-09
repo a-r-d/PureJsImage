@@ -4,6 +4,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added first-party refinement-based progressive JPEG encoding for grayscale and 4:2:0, 4:2:2,
+  and 4:4:4 YCbCr output, with compact coefficient limits, per-scan restart markers, independent
+  pixel validation, browser coverage, and isolated runtime/RSS/size benchmarks.
+
 ## [0.7.0] - 2026-08-08
 
 ### Added

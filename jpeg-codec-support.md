@@ -110,14 +110,15 @@ supported until its output is independently validated.
   DC predictor resets
 - [x] Deterministic alpha flattening onto white by default or a requested RGB
   background
-- [x] Streaming top-to-bottom encoding with an 8- or 16-row MCU working buffer
+- [x] Streaming top-to-bottom baseline encoding with an 8- or 16-row MCU working buffer
   rather than a full output frame
+- [x] Refinement-based progressive encoding with fixed four-scan grayscale and six-scan
+  YCbCr scripts backed by compact quantized `Int16` coefficient planes
 - [x] Edge replication for dimensions that are not multiples of eight
 - [x] Public `image.jpeg()` and `image.encode('jpeg')` APIs
 
 ### Planned for common output
 
-- [ ] Progressive JPEG encoding
 - [ ] Optimized per-image Huffman tables
 - [ ] Faster integer/fixed-point DCT and quantization without changing decoded
   output beyond defined error bounds
@@ -144,6 +145,8 @@ supported until its output is independently validated.
   Web Platform Tests' progressive MozJPEG RGB and YUV browser fixtures
 - [x] Decode encoded output independently and require correct dimensions and
   pixels before benchmark timing counts
+- [x] Decode progressive encoder output through libjpeg and Chromium, Firefox, and
+  WebKit; require the same final pixels as baseline output from identical coefficients
 - [x] Gate both libjpeg-to-PureJsImage decode and
   PureJsImage-to-libjpeg encode/decode paths with PSNR floors in CI
 - [x] Measure absolute peak RSS in isolated cold and warm processes for the

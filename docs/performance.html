@@ -105,7 +105,8 @@
         <section id="codec-results">
           <h2>Codec results</h2>
           <h3>JPEG</h3>
-          <p>Baseline JPEG reconstruction retains one MCU row instead of a full source-resolution RGB or RGBA bitmap. Progressive decode retains compact 16-bit coefficient planes and reconstructs output in bounded rows.</p>
+          <p>Baseline JPEG reconstruction and encoding retain bounded MCU rows instead of a full source-resolution RGB or RGBA bitmap. Progressive decode and encode retain compact 16-bit coefficient planes; final decode reconstruction remains bounded-row.</p>
+          <p>For deterministic 2048×1536 quality-80 4:2:0 output, isolated cold progressive encoding took 313.03 ms and 101.32 MiB peak RSS versus 232.40 ms and 87.64 MiB for baseline. It retained 9.00 MiB of coefficients and produced 1,541,467 bytes versus 1,492,375 bytes, with identical independently decoded PSNR. These are separate memory classes, and standard rather than optimized Huffman tables were used.</p>
           <div class="table-wrap"><table><thead><tr><th>Workflow</th><th>PureJsImage wall</th><th>Jimp wall</th><th>PJI RSS</th><th>Jimp RSS</th></tr></thead><tbody>
             <tr><td>Large JPEG metadata</td><td>0.2 ms</td><td>5,285 ms</td><td>97 MiB</td><td>1,184 MiB</td></tr>
             <tr><td>4000×3000 resize to 1200 px</td><td>894 ms</td><td>1,395 ms</td><td>106 MiB</td><td>596 MiB</td></tr>

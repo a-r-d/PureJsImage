@@ -166,6 +166,7 @@
     "report:heif:compatibility": "node benchmark/heif/compatibility/run.ts --write",
     "bench:ico": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile ico",
     "bench:jpeg:encode": "npm run build && node --expose-gc benchmark/jpeg/encode-probe.ts",
+    "bench:jpeg:progressive": "npm run build && node benchmark/jpeg/run-progressive-encode.ts",
     "bench:jpeg:scaled-idct": "node benchmark/jpeg/run-scaled-idct.ts",
     "bench:jpeg:region-rss": "node benchmark/jpeg/run-region-rss.ts",
     "bench:jpeg:upsampling": "node benchmark/jpeg/run-upsampling.ts",

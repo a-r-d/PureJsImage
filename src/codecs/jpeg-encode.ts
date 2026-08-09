@@ -1,5 +1,6 @@
 import type { EncodeRequest, ImageEncoder } from '../codec.ts'
-import { invalidInput } from '../errors.ts'
+import { invalidInput, limitExceeded } from '../errors.ts'
+import { defaultImageLimits } from '../limits.ts'
 import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
@@ -546,6 +547,7 @@ interface HuffmanCodes {
 
 interface EncoderOptions {
   readonly quality: number
+  readonly progressive: boolean
   readonly background: readonly [number, number, number]
   readonly chromaSubsampling: '420' | '422' | '444'
   readonly restartInterval: number
@@ -567,8 +569,8 @@ const options = (value: unknown): EncoderOptions => {
   if (typeof quality !== 'number' || !Number.isInteger(quality) || quality < 1 || quality > 100) {
     throw invalidInput('JPEG quality must be an integer from 1 to 100')
   }
-  if (value.progressive === true)
-    throw invalidInput('Progressive JPEG encoding is not supported yet')
+  const progressive = value.progressive ?? false
+  if (typeof progressive !== 'boolean') throw invalidInput('JPEG progressive must be a boolean')
   const chromaSubsampling = value.chromaSubsampling ?? '420'
   if (chromaSubsampling !== '420' && chromaSubsampling !== '422' && chromaSubsampling !== '444') {
     throw invalidInput('JPEG chromaSubsampling must be 420, 422, or 444')
@@ -584,13 +586,20 @@ const options = (value: unknown): EncoderOptions => {
   }
   const background = value.background
   if (background === undefined || background === 'transparent') {
-    return { quality, background: [255, 255, 255], chromaSubsampling, restartInterval }
+    return {
+      quality,
+      progressive,
+      background: [255, 255, 255],
+      chromaSubsampling,
+      restartInterval,
+    }
   }
   if (typeof background !== 'string' || !/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(background)) {
     throw invalidInput('JPEG background must be transparent, #RRGGBB, or #RRGGBBAA')
   }
   return {
     quality,
+    progressive,
     chromaSubsampling,
     restartInterval,
     background: [
@@ -638,6 +647,10 @@ class ByteWriter {
   #length = 0
   #pending = 0
   #pendingBits = 0
+
+  get length(): number {
+    return this.#length
+  }
 
   byte(value: number): void {
     if (this.#length === this.#bytes.byteLength) {
@@ -710,6 +723,7 @@ const jpegHeader = (
   metadata: EncodeRequest['metadata'],
   grayscale: boolean,
   restartInterval: number,
+  progressive: boolean,
 ): Uint8Array => {
   const writer = new ByteWriter()
   writer.word(0xffd8)
@@ -771,7 +785,7 @@ const jpegHeader = (
     }
   }
 
-  writer.word(0xffc0)
+  writer.word(progressive ? 0xffc2 : 0xffc0)
   writer.word(grayscale ? 11 : 17)
   writer.byte(8)
   writer.word(height)
@@ -805,20 +819,22 @@ const jpegHeader = (
     writer.word(restartInterval)
   }
 
-  writer.word(0xffda)
-  writer.word(grayscale ? 8 : 12)
-  writer.byte(grayscale ? 1 : 3)
-  writer.byte(1)
-  writer.byte(0x00)
-  if (!grayscale) {
-    writer.byte(2)
-    writer.byte(0x11)
-    writer.byte(3)
-    writer.byte(0x11)
+  if (!progressive) {
+    writer.word(0xffda)
+    writer.word(grayscale ? 8 : 12)
+    writer.byte(grayscale ? 1 : 3)
+    writer.byte(1)
+    writer.byte(0x00)
+    if (!grayscale) {
+      writer.byte(2)
+      writer.byte(0x11)
+      writer.byte(3)
+      writer.byte(0x11)
+    }
+    writer.byte(0)
+    writer.byte(63)
+    writer.byte(0)
   }
-  writer.byte(0)
-  writer.byte(63)
-  writer.byte(0)
   return writer.take()
 }
 
@@ -892,6 +908,182 @@ const encodeBlock = (
   return dc
 }
 
+interface ProgressivePlane {
+  readonly coefficients: Int16Array
+  readonly blocksPerLine: number
+  readonly blocksPerColumn: number
+  readonly storageBlocksPerLine: number
+}
+
+interface ProgressiveScanComponent {
+  readonly id: 1 | 2 | 3
+  readonly table: 0 | 1
+}
+
+const luminanceScanComponent = Object.freeze({ id: 1, table: 0 } as const)
+const blueDifferenceScanComponent = Object.freeze({ id: 2, table: 1 } as const)
+const redDifferenceScanComponent = Object.freeze({ id: 3, table: 1 } as const)
+const grayscaleScanComponents = Object.freeze([luminanceScanComponent])
+const colorScanComponents = Object.freeze([
+  luminanceScanComponent,
+  blueDifferenceScanComponent,
+  redDifferenceScanComponent,
+])
+
+const writeScanHeader = (
+  writer: ByteWriter,
+  components: readonly ProgressiveScanComponent[],
+  spectralStart: number,
+  spectralEnd: number,
+  successiveHigh: number,
+  successiveLow: number,
+): void => {
+  writer.word(0xffda)
+  writer.word(6 + components.length * 2)
+  writer.byte(components.length)
+  for (const component of components) {
+    writer.byte(component.id)
+    writer.byte((component.table << 4) | component.table)
+  }
+  writer.byte(spectralStart)
+  writer.byte(spectralEnd)
+  writer.byte((successiveHigh << 4) | successiveLow)
+}
+
+const coefficientMagnitude = (value: number): number =>
+  value === 0 ? 0 : 32 - Math.clz32(Math.abs(value))
+
+const writeSignedBits = (writer: ByteWriter, value: number, length: number): void => {
+  writer.bits(value < 0 ? value + (1 << length) - 1 : value, length)
+}
+
+const encodeProgressiveDcFirst = (
+  writer: ByteWriter,
+  coefficient: number,
+  previousDc: number,
+  codes: HuffmanCodes,
+  successiveLow: number,
+): number => {
+  const dc = coefficient >> successiveLow
+  const difference = dc - previousDc
+  const category = coefficientMagnitude(difference)
+  writer.code(codes, category)
+  if (category > 0) writeSignedBits(writer, difference, category)
+  return dc
+}
+
+const encodeProgressiveAcFirst = (
+  writer: ByteWriter,
+  coefficients: Int16Array,
+  offset: number,
+  codes: HuffmanCodes,
+  spectralStart: number,
+  spectralEnd: number,
+  successiveLow: number,
+): void => {
+  const divisor = 2 ** successiveLow
+  let zeroes = 0
+  for (let spectral = spectralStart; spectral <= spectralEnd; spectral += 1) {
+    const coefficient = Math.trunc((coefficients[offset + (zigZag[spectral] ?? 0)] ?? 0) / divisor)
+    if (coefficient === 0) {
+      zeroes += 1
+      continue
+    }
+    while (zeroes >= 16) {
+      writer.code(codes, 0xf0)
+      zeroes -= 16
+    }
+    const category = coefficientMagnitude(coefficient)
+    writer.code(codes, (zeroes << 4) | category)
+    writeSignedBits(writer, coefficient, category)
+    zeroes = 0
+  }
+  if (zeroes > 0) writer.code(codes, 0)
+}
+
+const isExistingRefinementCoefficient = (coefficient: number, bit: number): boolean =>
+  Math.abs(coefficient) >= bit * 2
+
+const refinementBit = (coefficient: number, bit: number): number =>
+  (Math.abs(coefficient) & bit) === 0 ? 0 : 1
+
+const encodeProgressiveAcRefinement = (
+  writer: ByteWriter,
+  coefficients: Int16Array,
+  offset: number,
+  codes: HuffmanCodes,
+  spectralStart: number,
+  spectralEnd: number,
+  successiveLow: number,
+): void => {
+  const bit = 1 << successiveLow
+  let spectral = spectralStart
+  while (spectral <= spectralEnd) {
+    let zeroes = 0
+    let newCoefficient = -1
+    for (let candidate = spectral; candidate <= spectralEnd; candidate += 1) {
+      const coefficient = coefficients[offset + (zigZag[candidate] ?? 0)] ?? 0
+      if (isExistingRefinementCoefficient(coefficient, bit)) continue
+      if (Math.abs(coefficient) === bit) {
+        newCoefficient = candidate
+        break
+      }
+      zeroes += 1
+    }
+
+    if (newCoefficient < 0) {
+      writer.code(codes, 0)
+      for (; spectral <= spectralEnd; spectral += 1) {
+        const coefficient = coefficients[offset + (zigZag[spectral] ?? 0)] ?? 0
+        if (isExistingRefinementCoefficient(coefficient, bit)) {
+          writer.bits(refinementBit(coefficient, bit), 1)
+        }
+      }
+      return
+    }
+
+    if (zeroes >= 16) {
+      writer.code(codes, 0xf0)
+      let remainingZeroes = 16
+      while (spectral <= spectralEnd && remainingZeroes > 0) {
+        const coefficient = coefficients[offset + (zigZag[spectral] ?? 0)] ?? 0
+        if (isExistingRefinementCoefficient(coefficient, bit)) {
+          writer.bits(refinementBit(coefficient, bit), 1)
+        } else {
+          remainingZeroes -= 1
+        }
+        spectral += 1
+      }
+      continue
+    }
+
+    const coefficient = coefficients[offset + (zigZag[newCoefficient] ?? 0)] ?? 0
+    writer.code(codes, (zeroes << 4) | 1)
+    writer.bits(coefficient > 0 ? 1 : 0, 1)
+    for (; spectral < newCoefficient; spectral += 1) {
+      const preceding = coefficients[offset + (zigZag[spectral] ?? 0)] ?? 0
+      if (isExistingRefinementCoefficient(preceding, bit)) {
+        writer.bits(refinementBit(preceding, bit), 1)
+      }
+    }
+    spectral += 1
+  }
+}
+
+const storeQuantizedBlock = (
+  target: Int16Array,
+  offset: number,
+  coefficients: Int32Array,
+): void => {
+  for (let index = 0; index < 64; index += 1) {
+    const coefficient = coefficients[index] ?? 0
+    if (coefficient < -32_768 || coefficient > 32_767) {
+      throw invalidInput('JPEG coefficient exceeds progressive 16-bit storage')
+    }
+    target[offset + index] = coefficient
+  }
+}
+
 interface SamplingGeometry {
   readonly chromaSubsampling: '420' | '422' | '444'
   readonly luminanceHorizontal: 1 | 2
@@ -925,6 +1117,79 @@ const samplingGeometry = (chromaSubsampling: '420' | '422' | '444'): SamplingGeo
     luminanceVertical: 1,
     mcuWidth: 8,
     rowHeight: 8,
+  }
+}
+
+interface ProgressivePlanes {
+  readonly luminance: ProgressivePlane
+  readonly blueDifference?: ProgressivePlane
+  readonly redDifference?: ProgressivePlane
+}
+
+const planeCoefficientCount = (blocksPerLine: number, blocksPerColumn: number): bigint =>
+  BigInt(blocksPerLine) * BigInt(blocksPerColumn) * 64n
+
+const createProgressivePlane = (
+  blocksPerLine: number,
+  blocksPerColumn: number,
+  storageBlocksPerLine = blocksPerLine,
+  storageBlocksPerColumn = blocksPerColumn,
+): ProgressivePlane => ({
+  blocksPerLine,
+  blocksPerColumn,
+  storageBlocksPerLine,
+  coefficients: new Int16Array(
+    Number(planeCoefficientCount(storageBlocksPerLine, storageBlocksPerColumn)),
+  ),
+})
+
+const createProgressivePlanes = (
+  width: number,
+  height: number,
+  sampling: SamplingGeometry,
+  grayscale: boolean,
+  maximumCoefficientBytes: number,
+): ProgressivePlanes => {
+  const mcusPerLine = Math.ceil(width / sampling.mcuWidth)
+  const mcusPerColumn = Math.ceil(height / sampling.rowHeight)
+  const luminanceBlocksPerLine = mcusPerLine * sampling.luminanceHorizontal
+  const luminanceBlocksPerColumn = mcusPerColumn * sampling.luminanceVertical
+  const luminanceCoefficients = planeCoefficientCount(
+    luminanceBlocksPerLine,
+    luminanceBlocksPerColumn,
+  )
+  const chrominanceCoefficients = grayscale
+    ? 0n
+    : planeCoefficientCount(mcusPerLine, mcusPerColumn) * 2n
+  const coefficientBytes = (luminanceCoefficients + chrominanceCoefficients) * 2n
+  if (coefficientBytes > BigInt(maximumCoefficientBytes)) {
+    throw limitExceeded(
+      `Progressive JPEG coefficient storage is ${coefficientBytes} bytes; maxDecodedBytes is ${maximumCoefficientBytes}`,
+    )
+  }
+  const imageBlocksPerLine = Math.ceil(width / 8)
+  const imageBlocksPerColumn = Math.ceil(height / 8)
+  const luminance = createProgressivePlane(
+    imageBlocksPerLine,
+    imageBlocksPerColumn,
+    luminanceBlocksPerLine,
+    luminanceBlocksPerColumn,
+  )
+  if (grayscale) return { luminance }
+  return {
+    luminance,
+    blueDifference: createProgressivePlane(
+      Math.ceil(imageBlocksPerLine / sampling.luminanceHorizontal),
+      Math.ceil(imageBlocksPerColumn / sampling.luminanceVertical),
+      mcusPerLine,
+      mcusPerColumn,
+    ),
+    redDifference: createProgressivePlane(
+      Math.ceil(imageBlocksPerLine / sampling.luminanceHorizontal),
+      Math.ceil(imageBlocksPerColumn / sampling.luminanceVertical),
+      mcusPerLine,
+      mcusPerColumn,
+    ),
   }
 }
 
@@ -1059,7 +1324,7 @@ const fillChroma420 = (
   }
 }
 
-class BaselineJpegEncoder implements ImageEncoder {
+class JpegEncoder implements ImageEncoder {
   readonly #sink: ImageSink
   readonly #width: number
   readonly #height: number
@@ -1067,6 +1332,7 @@ class BaselineJpegEncoder implements ImageEncoder {
   readonly #metadata: EncodeRequest['metadata']
   readonly #sourceChannels: number
   readonly #grayscale: boolean
+  readonly #progressive: boolean
   readonly #background: readonly [number, number, number]
   readonly #sampling: SamplingGeometry
   readonly #restartInterval: number
@@ -1079,8 +1345,10 @@ class BaselineJpegEncoder implements ImageEncoder {
   readonly #redDifferenceSamples = new Float64Array(64)
   readonly #intermediate = new Float64Array(64)
   readonly #coefficients = new Int32Array(64)
+  #progressivePlanes: ProgressivePlanes | undefined
   #receivedRows = 0
   #bufferedRows = 0
+  #mcuRow = 0
   #previousY = 0
   #previousCb = 0
   #previousCr = 0
@@ -1095,6 +1363,7 @@ class BaselineJpegEncoder implements ImageEncoder {
     format: PixelFormat,
     encoderOptions: EncoderOptions,
     metadata: EncodeRequest['metadata'],
+    maximumCoefficientBytes: number,
   ) {
     this.#sink = sink
     this.#width = width
@@ -1103,12 +1372,22 @@ class BaselineJpegEncoder implements ImageEncoder {
     this.#metadata = metadata
     this.#sourceChannels = channels(format)
     this.#grayscale = format === 'gray8'
+    this.#progressive = encoderOptions.progressive
     this.#background = encoderOptions.background
     this.#sampling = samplingGeometry(this.#grayscale ? '444' : encoderOptions.chromaSubsampling)
     this.#restartInterval = encoderOptions.restartInterval
     this.#luminanceTable = quantizationTable(luminanceQuantization, encoderOptions.quality)
     this.#chrominanceTable = quantizationTable(chrominanceQuantization, encoderOptions.quality)
     this.#rows = new Uint8Array(width * this.#sampling.rowHeight * (this.#grayscale ? 1 : 3))
+    this.#progressivePlanes = this.#progressive
+      ? createProgressivePlanes(
+          width,
+          height,
+          this.#sampling,
+          this.#grayscale,
+          maximumCoefficientBytes,
+        )
+      : undefined
   }
 
   async start(): Promise<void> {
@@ -1122,6 +1401,7 @@ class BaselineJpegEncoder implements ImageEncoder {
         this.#metadata,
         this.#grayscale,
         this.#restartInterval,
+        this.#progressive,
       ),
     )
   }
@@ -1187,7 +1467,91 @@ class BaselineJpegEncoder implements ImageEncoder {
     this.#bufferedRows += 1
   }
 
+  #captureProgressiveRows(planes: ProgressivePlanes): void {
+    const mcus = Math.ceil(this.#width / this.#sampling.mcuWidth)
+    const fillChroma =
+      this.#sampling.chromaSubsampling === '420'
+        ? fillChroma420
+        : this.#sampling.chromaSubsampling === '422'
+          ? fillChroma422
+          : fillChroma444
+    for (let mcuX = 0; mcuX < mcus; mcuX += 1) {
+      if (this.#grayscale) {
+        fillGray8(this.#rows, this.#width, mcuX * 8, this.#luminanceSamples)
+        quantize(
+          this.#luminanceSamples,
+          this.#luminanceTable,
+          this.#intermediate,
+          this.#coefficients,
+        )
+        const offset = (this.#mcuRow * planes.luminance.storageBlocksPerLine + mcuX) * 64
+        storeQuantizedBlock(planes.luminance.coefficients, offset, this.#coefficients)
+        continue
+      }
+
+      for (let blockY = 0; blockY < this.#sampling.luminanceVertical; blockY += 1) {
+        for (let blockX = 0; blockX < this.#sampling.luminanceHorizontal; blockX += 1) {
+          fillLuminance8(
+            this.#rows,
+            this.#width,
+            mcuX * this.#sampling.mcuWidth + blockX * 8,
+            blockY * 8,
+            this.#luminanceSamples,
+          )
+          quantize(
+            this.#luminanceSamples,
+            this.#luminanceTable,
+            this.#intermediate,
+            this.#coefficients,
+          )
+          const x = mcuX * this.#sampling.luminanceHorizontal + blockX
+          const y = this.#mcuRow * this.#sampling.luminanceVertical + blockY
+          storeQuantizedBlock(
+            planes.luminance.coefficients,
+            (y * planes.luminance.storageBlocksPerLine + x) * 64,
+            this.#coefficients,
+          )
+        }
+      }
+
+      const blueDifference = planes.blueDifference
+      const redDifference = planes.redDifference
+      if (!blueDifference || !redDifference) {
+        throw invalidInput('Progressive JPEG chrominance coefficient storage is missing')
+      }
+      const originX = mcuX * this.#sampling.mcuWidth
+      fillChroma(
+        this.#rows,
+        this.#width,
+        originX,
+        this.#blueDifferenceSamples,
+        this.#redDifferenceSamples,
+      )
+      const chrominanceOffset = (this.#mcuRow * blueDifference.storageBlocksPerLine + mcuX) * 64
+      quantize(
+        this.#blueDifferenceSamples,
+        this.#chrominanceTable,
+        this.#intermediate,
+        this.#coefficients,
+      )
+      storeQuantizedBlock(blueDifference.coefficients, chrominanceOffset, this.#coefficients)
+      quantize(
+        this.#redDifferenceSamples,
+        this.#chrominanceTable,
+        this.#intermediate,
+        this.#coefficients,
+      )
+      storeQuantizedBlock(redDifference.coefficients, chrominanceOffset, this.#coefficients)
+    }
+    this.#mcuRow += 1
+    this.#bufferedRows = 0
+  }
+
   async #encodeRows(): Promise<void> {
+    if (this.#progressivePlanes) {
+      this.#captureProgressiveRows(this.#progressivePlanes)
+      return
+    }
     const mcus = Math.ceil(this.#width / this.#sampling.mcuWidth)
     const fillChroma =
       this.#sampling.chromaSubsampling === '420'
@@ -1288,6 +1652,186 @@ class BaselineJpegEncoder implements ImageEncoder {
     if (output.byteLength > 0) await this.#sink.write(output)
   }
 
+  async #writePending(force = false): Promise<void> {
+    if (!force && this.#writer.length < 65_536) return
+    const output = this.#writer.take()
+    if (output.byteLength > 0) await this.#sink.write(output)
+  }
+
+  async #writeProgressiveDcScan(planes: ProgressivePlanes, refinement: boolean): Promise<void> {
+    writeScanHeader(
+      this.#writer,
+      this.#grayscale ? grayscaleScanComponents : colorScanComponents,
+      0,
+      0,
+      refinement ? 1 : 0,
+      refinement ? 0 : 1,
+    )
+    await this.#writePending(true)
+    const mcusPerLine = Math.ceil(this.#width / this.#sampling.mcuWidth)
+    const mcusPerColumn = Math.ceil(this.#height / this.#sampling.rowHeight)
+    const blueDifference = planes.blueDifference
+    const redDifference = planes.redDifference
+    let previousY = 0
+    let previousCb = 0
+    let previousCr = 0
+    let mcu = 0
+    let restart = 0
+    for (let mcuY = 0; mcuY < mcusPerColumn; mcuY += 1) {
+      for (let mcuX = 0; mcuX < mcusPerLine; mcuX += 1) {
+        if (this.#restartInterval > 0 && mcu > 0 && mcu % this.#restartInterval === 0) {
+          this.#writer.flushBits()
+          this.#writer.word(0xffd0 + (restart & 7))
+          restart += 1
+          previousY = 0
+          previousCb = 0
+          previousCr = 0
+          await this.#writePending()
+        }
+        for (let blockY = 0; blockY < this.#sampling.luminanceVertical; blockY += 1) {
+          for (let blockX = 0; blockX < this.#sampling.luminanceHorizontal; blockX += 1) {
+            const x = mcuX * this.#sampling.luminanceHorizontal + blockX
+            const y = mcuY * this.#sampling.luminanceVertical + blockY
+            const coefficient =
+              planes.luminance.coefficients[(y * planes.luminance.storageBlocksPerLine + x) * 64] ??
+              0
+            if (refinement) this.#writer.bits(coefficient & 1, 1)
+            else {
+              previousY = encodeProgressiveDcFirst(
+                this.#writer,
+                coefficient,
+                previousY,
+                luminanceDcCodes,
+                1,
+              )
+            }
+          }
+        }
+        if (!this.#grayscale) {
+          if (!blueDifference || !redDifference) {
+            throw invalidInput('Progressive JPEG chrominance coefficient storage is missing')
+          }
+          const offset = (mcuY * blueDifference.storageBlocksPerLine + mcuX) * 64
+          const cb = blueDifference.coefficients[offset] ?? 0
+          const cr = redDifference.coefficients[offset] ?? 0
+          if (refinement) {
+            this.#writer.bits(cb & 1, 1)
+            this.#writer.bits(cr & 1, 1)
+          } else {
+            previousCb = encodeProgressiveDcFirst(
+              this.#writer,
+              cb,
+              previousCb,
+              chrominanceDcCodes,
+              1,
+            )
+            previousCr = encodeProgressiveDcFirst(
+              this.#writer,
+              cr,
+              previousCr,
+              chrominanceDcCodes,
+              1,
+            )
+          }
+        }
+        mcu += 1
+        await this.#writePending()
+      }
+    }
+    this.#writer.flushBits()
+    await this.#writePending(true)
+  }
+
+  async #writeProgressiveAcScan(
+    plane: ProgressivePlane,
+    component: ProgressiveScanComponent,
+    codes: HuffmanCodes,
+    refinement: boolean,
+  ): Promise<void> {
+    writeScanHeader(
+      this.#writer,
+      [component],
+      1,
+      63,
+      refinement ? 1 : 0,
+      refinement ? 0 : component.id === 1 ? 1 : 0,
+    )
+    await this.#writePending(true)
+    const successiveLow = refinement ? 0 : component.id === 1 ? 1 : 0
+    let block = 0
+    let restart = 0
+    for (let blockY = 0; blockY < plane.blocksPerColumn; blockY += 1) {
+      for (let blockX = 0; blockX < plane.blocksPerLine; blockX += 1) {
+        if (this.#restartInterval > 0 && block > 0 && block % this.#restartInterval === 0) {
+          this.#writer.flushBits()
+          this.#writer.word(0xffd0 + (restart & 7))
+          restart += 1
+          await this.#writePending()
+        }
+        const offset = (blockY * plane.storageBlocksPerLine + blockX) * 64
+        if (refinement) {
+          encodeProgressiveAcRefinement(
+            this.#writer,
+            plane.coefficients,
+            offset,
+            codes,
+            1,
+            63,
+            successiveLow,
+          )
+        } else {
+          encodeProgressiveAcFirst(
+            this.#writer,
+            plane.coefficients,
+            offset,
+            codes,
+            1,
+            63,
+            successiveLow,
+          )
+        }
+        block += 1
+        await this.#writePending()
+      }
+    }
+    this.#writer.flushBits()
+    await this.#writePending(true)
+  }
+
+  async #writeProgressiveScans(planes: ProgressivePlanes): Promise<void> {
+    await this.#writeProgressiveDcScan(planes, false)
+    await this.#writeProgressiveDcScan(planes, true)
+    await this.#writeProgressiveAcScan(
+      planes.luminance,
+      luminanceScanComponent,
+      luminanceAcCodes,
+      false,
+    )
+    if (!this.#grayscale) {
+      if (!planes.blueDifference || !planes.redDifference) {
+        throw invalidInput('Progressive JPEG chrominance coefficient storage is missing')
+      }
+      await this.#writeProgressiveAcScan(
+        planes.blueDifference,
+        blueDifferenceScanComponent,
+        chrominanceAcCodes,
+        false,
+      )
+      await this.#writeProgressiveAcScan(
+        planes.redDifference,
+        redDifferenceScanComponent,
+        chrominanceAcCodes,
+        false,
+      )
+    }
+    await this.#writeProgressiveAcScan(
+      planes.luminance,
+      luminanceScanComponent,
+      luminanceAcCodes,
+      true,
+    )
+  }
+
   async finish(): Promise<void> {
     if (this.#finished) throw new Error('JPEG encoder is already finished')
     this.#finished = true
@@ -1303,6 +1847,16 @@ class BaselineJpegEncoder implements ImageEncoder {
       }
       await this.#encodeRows()
     }
+    const progressivePlanes = this.#progressivePlanes
+    if (progressivePlanes) {
+      try {
+        await this.#writeProgressiveScans(progressivePlanes)
+      } finally {
+        this.#progressivePlanes = undefined
+      }
+      await this.#sink.write(Uint8Array.of(0xff, 0xd9))
+      return
+    }
     this.#writer.flushBits()
     const remaining = this.#writer.take()
     if (remaining.byteLength > 0) await this.#sink.write(remaining)
@@ -1311,6 +1865,7 @@ class BaselineJpegEncoder implements ImageEncoder {
 
   async abort(): Promise<void> {
     this.#finished = true
+    this.#progressivePlanes = undefined
   }
 }
 
@@ -1328,13 +1883,15 @@ export const createBaselineJpegEncoder = async (
   ) {
     throw invalidInput(`Invalid JPEG output dimensions: ${request.width}x${request.height}`)
   }
-  const encoder = new BaselineJpegEncoder(
+  const encoderOptions = options(request.options)
+  const encoder = new JpegEncoder(
     sink,
     request.width,
     request.height,
     request.pixelFormat,
-    options(request.options),
+    encoderOptions,
     request.metadata,
+    request.limits?.maxDecodedBytes ?? defaultImageLimits.maxDecodedBytes,
   )
   await encoder.start()
   return encoder

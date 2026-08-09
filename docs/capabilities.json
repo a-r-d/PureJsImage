@@ -13,9 +13,9 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "Static 8-bit Huffman JPEG; no arithmetic, lossless, 12-bit, or progressive output coding",
-      "description": "Decodes common 8-bit baseline, extended-sequential, multi-scan, and progressive grayscale, YCbCr, RGB, CMYK, and YCCK JPEGs with chroma-aware interpolation. Encodes bounded-row baseline JPEG with configurable quality, chroma sampling, native grayscale, and restart markers.",
-      "memory": "Incremental entropy input, bounded MCU-row output, restart-aware region seeking, and scaled IDCT; progressive and sequential multi-scan input retain compact coefficient state",
+      "boundary": "Static 8-bit Huffman JPEG; no arithmetic, lossless, or 12-bit coding",
+      "description": "Decodes common 8-bit baseline, extended-sequential, multi-scan, and progressive grayscale, YCbCr, RGB, CMYK, and YCCK JPEGs with chroma-aware interpolation. Encodes baseline and refinement-based progressive JPEG with configurable quality, chroma sampling, native grayscale, and restart markers.",
+      "memory": "Incremental entropy input, bounded MCU-row baseline output, restart-aware region seeking, and scaled IDCT; progressive decode and encode retain compact Int16 coefficient planes",
       "recommendation": "Photographs and broadly compatible lossy output.",
       "evidence": [
         "tests/jpeg.test.ts",
@@ -25,7 +25,8 @@
         "tests/lossy-codec-quality.test.ts",
         "tests/jpeg-reference-fixtures.test.ts",
         "tests/jpeg-hardening.test.ts",
-        "tests/jpeg-reference-parity.test.ts"
+        "tests/jpeg-reference-parity.test.ts",
+        "browser-tests/compatibility.pw.ts"
       ],
       "claims": [
         {
@@ -246,7 +247,11 @@
         },
         {
           "status": "supported",
-          "text": "Streaming top-to-bottom encoding with an 8- or 16-row MCU working buffer rather than a full output frame"
+          "text": "Streaming top-to-bottom baseline encoding with an 8- or 16-row MCU working buffer rather than a full output frame"
+        },
+        {
+          "status": "supported",
+          "text": "Refinement-based progressive encoding with fixed four-scan grayscale and six-scan YCbCr scripts backed by compact quantized `Int16` coefficient planes"
         },
         {
           "status": "supported",
@@ -255,10 +260,6 @@
         {
           "status": "supported",
           "text": "Public `image.jpeg()` and `image.encode('jpeg')` APIs"
-        },
-        {
-          "status": "planned",
-          "text": "Progressive JPEG encoding"
         },
         {
           "status": "planned",
@@ -319,6 +320,10 @@
         {
           "status": "supported",
           "text": "Decode encoded output independently and require correct dimensions and pixels before benchmark timing counts"
+        },
+        {
+          "status": "supported",
+          "text": "Decode progressive encoder output through libjpeg and Chromium, Firefox, and WebKit; require the same final pixels as baseline output from identical coefficients"
         },
         {
           "status": "supported",

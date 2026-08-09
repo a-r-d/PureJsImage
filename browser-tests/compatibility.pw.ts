@@ -21,6 +21,13 @@ test('decodes JPEG metadata and runs crop, resize, rotation, and JPEG encoding',
   expect(result.detail).toContain('100x120')
 })
 
+test('encodes and decodes a refinement-based progressive JPEG', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.progressiveJpeg())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('matched baseline pixels')
+})
+
 test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.pngAlphaPipeline())
@@ -58,5 +65,5 @@ test('applies JPEG EXIF orientation in the browser', async ({ page }) => {
 test('aborts failed output and permits a clean subsequent operation', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.failureCleanup())
-  expect(result.detail).toContain('aborted its sink')
+  expect(result.detail).toContain('aborted their sinks')
 })
