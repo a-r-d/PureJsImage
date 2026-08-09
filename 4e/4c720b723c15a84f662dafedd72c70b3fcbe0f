@@ -1,0 +1,84 @@
+AGENTS.md
+  h_9f4a25732fa0c1 30-40
+CHANGELOG.md
+  h_9f4a25732fa0c1 38-44
+README.md
+  h_9f4a25732fa0c1 79-80,92,143,147-148,162,165-168
+ROADMAP.md
+  h_9f4a25732fa0c1 59-63
+benchmark/README.md
+  h_9f4a25732fa0c1 8-9,115-116,340-342
+benchmark/engines/purejsimage-experimental-heic.ts
+  h_9f4a25732fa0c1 1-13
+benchmark/engines/purejsimage-shared.ts
+  h_9f4a25732fa0c1 59,68-69,92-97,99-100,103-104,107,120-132,134,146,224
+benchmark/heif/compatibility/worker.ts
+  h_9f4a25732fa0c1 3,10
+benchmark/heif/verify-corpus.ts
+  h_9f4a25732fa0c1 3,15
+benchmark/run.ts
+  h_9f4a25732fa0c1 33
+benchmark/startup-worker.ts
+  h_9f4a25732fa0c1 19
+benchmark/worker.ts
+  h_9f4a25732fa0c1 20
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 7,15-21
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 88
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1984,1989,1995-1998,2005,2007-2034,2085-2086,2092-2097,2223-2224
+docs/api.html
+  h_9f4a25732fa0c1 53,56-65,192
+docs/capabilities.json
+  h_9f4a25732fa0c1 3865,3869,3875-3879,3893,3909-3917,4125
+docs/codecs.html
+  h_9f4a25732fa0c1 41,45,61,80
+docs/demo.html
+  h_9f4a25732fa0c1 54
+docs/guides.html
+  h_9f4a25732fa0c1 76
+docs/index.html
+  h_9f4a25732fa0c1 233,237
+docs/performance.html
+  h_9f4a25732fa0c1 179,181-182,191-192,204-210
+heif-codec-support.md
+  h_9f4a25732fa0c1 2-29,80-81,87-92,218-219
+package.json
+  h_9f4a25732fa0c1 89-92,180-182
+scripts/build-docs-site.ts
+  h_9f4a25732fa0c1 26,37,44-51
+scripts/bundle-size-config.ts
+  h_9f4a25732fa0c1 79-81,108
+scripts/check-browser-build.ts
+  h_9f4a25732fa0c1 41-48,75
+scripts/render-capabilities.ts
+  h_9f4a25732fa0c1 57-58
+src/codec-entries/all.ts
+  h_9f4a25732fa0c1 12-15
+src/codec-entries/experimental/heic.ts
+  h_9f4a25732fa0c1 1-4
+tests/benchmark-harness.test.ts
+  h_9f4a25732fa0c1 7,157-163
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 143
+tests/heif.test.ts
+  h_9f4a25732fa0c1 6-10,19-23,924-934
+tests/image-library.ts
+  h_9f4a25732fa0c1 4,23-32
+tests/library.test.ts
+  h_9f4a25732fa0c1 6,134,137,141-149,166,171
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 13-17,213,226-228,240-245
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "4e4c720b723c15a84f662dafedd72c70b3fcbe0f",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
