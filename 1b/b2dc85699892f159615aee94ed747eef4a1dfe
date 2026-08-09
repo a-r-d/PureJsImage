@@ -1,0 +1,46 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 50-52
+README.md
+  h_9f4a25732fa0c1 139
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 1,8,17,361-388,613
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 60-68
+browser-tests/types.ts
+  h_9f4a25732fa0c1 7
+capabilities/manifest.json
+  h_9f4a25732fa0c1 893,899-900,902,907,914-915,958-959,965-969
+docs/api.html
+  h_9f4a25732fa0c1 37-41,45
+docs/capabilities.json
+  h_9f4a25732fa0c1 1820,1826-1827,1829-1830,1950,1966-1974,1978
+docs/codecs.html
+  h_9f4a25732fa0c1 37,57
+gif-codec-support.md
+  h_9f4a25732fa0c1 7-8,51-52,58-62
+src/codec.ts
+  h_9f4a25732fa0c1 130
+src/codecs/gif.ts
+  h_9f4a25732fa0c1 1-8,383-399
+src/executor.ts
+  h_9f4a25732fa0c1 24,209
+src/image-core.ts
+  h_9f4a25732fa0c1 3,35,55,79-89,96
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 86
+tests/gif.test.ts
+  h_9f4a25732fa0c1 58,63-65,81,86,92-108,110-123,126-128,150,153-158
+tests/tooldesk-workflows.test.ts
+  h_9f4a25732fa0c1 168-174,259,261
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "1bb2dc85699892f159615aee94ed747eef4a1dfe",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
