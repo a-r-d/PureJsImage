@@ -1,0 +1,35 @@
+tests/jpeg-reference-fixtures.test.ts
+  s_84d542edc0aa8c::t_8a842557fb172a 20-21,75-86,119-120,148-150,152-156
+  s_84d542edc0aa8c::t_9f80725adef51e 151
+  s_84d542edc0aa8c::t_6484d32a92796f 157-161
+browser-tests/demo.pw.ts
+  s_84d542edc0aa8c::t_8a842557fb172a 69-88
+  s_84d542edc0aa8c::t_d8760fdd580b6b 89
+  s_84d542edc0aa8c::t_a8910f2b1cf758 90-92
+benchmark/jpeg/prepare-reference-fixtures.ts
+  s_84d542edc0aa8c::t_8a842557fb172a 6,18-19,39-62,106-110,123
+src/codecs/jpeg-baseline.ts
+  s_84d542edc0aa8c::t_28d7aa8039ed3c 1823-1832,1834-1835,1847-1850
+docs/styles.css
+  s_84d542edc0aa8c::t_d8760fdd580b6b 3607-3610
+CHANGELOG.md
+  s_84d542edc0aa8c::t_8a842557fb172a 17-21
+docs/assets/demo-app.js
+  s_84d542edc0aa8c::t_445bc10aca4114 2,4-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "884eaa0ee28d807a59726b044dd312d7de9b7740",
+  "prompts": {},
+  "sessions": {
+    "s_84d542edc0aa8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe30a-1315-7a91-ac72-83d2bf53d5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
