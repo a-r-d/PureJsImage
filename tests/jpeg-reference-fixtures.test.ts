@@ -17,6 +17,8 @@ interface FixtureExpectation {
   readonly scans: number
   readonly maximumMeanAbsoluteError: number
   readonly maximumChannelError: number
+  readonly width?: number
+  readonly height?: number
 }
 
 const fixtures: readonly FixtureExpectation[] = [
@@ -71,6 +73,18 @@ const fixtures: readonly FixtureExpectation[] = [
     maximumChannelError: 3,
   },
   {
+    file: 'generated-progressive-zrl.jpg',
+    sha256: '4b7f5882755add89103be3895efdc0eea0c41d3096d015ac22f847650d68beda',
+    colorSpace: 'ycbcr',
+    chromaSubsampling: '420',
+    frameMarker: 0xc2,
+    scans: 10,
+    maximumMeanAbsoluteError: 1,
+    maximumChannelError: 3,
+    width: 240,
+    height: 160,
+  },
+  {
     file: 'generated-adobe-rgb.jpg',
     sha256: 'd075ab672879c684eeacb84e88d2a7a9c9b300e65eed97eab31a46399dfdedc4',
     colorSpace: 'rgb',
@@ -102,8 +116,8 @@ describe('JPEG reference compatibility fixtures', () => {
 
     const image = await Image.open(input)
     await expect(image.metadata()).resolves.toMatchObject({
-      width: 37,
-      height: 23,
+      width: fixture.width ?? 37,
+      height: fixture.height ?? 23,
       bitDepth: 8,
       colorSpace: fixture.colorSpace,
       chromaSubsampling: fixture.chromaSubsampling,
@@ -129,6 +143,20 @@ describe('JPEG reference compatibility fixtures', () => {
     const meanAbsoluteError = errorTotal / (actual.width * actual.height * 3)
     expect(meanAbsoluteError).toBeLessThanOrEqual(fixture.maximumMeanAbsoluteError)
     expect(maximumError).toBeLessThanOrEqual(fixture.maximumChannelError)
+  })
+
+  it('converts a progressive ZRL refinement image through resize to WebP', async () => {
+    const input = await readFile(join(fixtureDirectory, 'generated-progressive-zrl.jpg'))
+    const output = await (await Image.open(input))
+      .resize({ width: 200 })
+      .webp({ quality: 80 })
+      .toBuffer()
+    expect(String.fromCharCode(...output.subarray(0, 4))).toBe('RIFF')
+    await expect(sharp(output).metadata()).resolves.toMatchObject({
+      format: 'webp',
+      width: 200,
+      height: 133,
+    })
   })
 
   it('matches libjpeg at odd crop edges without full-frame chroma materialization', async () => {

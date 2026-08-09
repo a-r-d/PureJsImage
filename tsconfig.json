@@ -16,6 +16,7 @@
   },
   "include": [
     "src/**/*.ts",
+    "docs/**/*.ts",
     "benchmark/**/*.ts",
     "browser-tests/**/*.ts",
     "playwright.config.ts",

@@ -28,6 +28,7 @@
 
 <p>
   <a href="https://a-r-d.github.io/PureJsImage/">Documentation</a> ·
+  <a href="https://a-r-d.github.io/PureJsImage/demo.html"><strong>Live browser demo</strong></a> ·
   <a href="#install">Install</a> ·
   <a href="#usage">Usage</a> ·
   <a href="#supported-codecs">Codecs</a> ·
@@ -42,6 +43,16 @@ less memory than image libraries that keep an entire source image in memory.
 
 It includes first-party image codecs, has no runtime dependencies, and fails
 clearly when a file or operation is not supported.
+
+## Live browser demo
+
+[Open the client-side image converter →](https://a-r-d.github.io/PureJsImage/demo.html)
+
+Upload an image, let PureJsImage detect its actual format, apply optional
+orientation, resize, rotation, and flip transforms, then download JPEG, PNG,
+WebP, BMP, or TIFF output. The demo runs entirely in the browser, makes no
+image-upload request, and reports conversion time plus the browser memory
+measurements it can honestly observe.
 
 ## Install
 

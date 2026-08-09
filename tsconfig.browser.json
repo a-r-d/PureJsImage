@@ -18,6 +18,7 @@
   "files": [
     "src/browser.ts",
     "src/codec-entries/all.ts",
-    "src/accelerator-entries/wasm-jpeg-browser.ts"
+    "src/accelerator-entries/wasm-jpeg-browser.ts",
+    "docs/demo.ts"
   ]
 }

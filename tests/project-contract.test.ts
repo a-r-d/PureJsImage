@@ -101,6 +101,31 @@ describe('package contract', () => {
     }
   })
 
+  it('publishes a self-contained browser conversion demo with a separate README link', () => {
+    const readme = readFileSync('README.md', 'utf8')
+    const demo = readFileSync('docs/demo.html', 'utf8')
+    const docsBuild = readFileSync('scripts/build-docs-site.ts', 'utf8')
+    const gitignore = readFileSync('.gitignore', 'utf8')
+    const pagesWorkflow = readFileSync('.github/workflows/pages.yml', 'utf8')
+    const sitemap = readFileSync('docs/sitemap.xml', 'utf8')
+    expect(readme).toContain('https://a-r-d.github.io/PureJsImage/demo.html')
+    expect(demo).toContain('assets/demo-app.js')
+    expect(demo).toContain('No server upload')
+    expect(demo).toContain('Max observed JS heap')
+    expect(demo).toContain(`purejsimage@${packageJson.version}/dist/browser.js`)
+    expect(demo).toContain(`purejsimage@${packageJson.version}/dist/codec-entries/all.js`)
+    expect(demo).not.toMatch(/<script[^>]+src=["']https?:/)
+    expect(packageJson.scripts['docs:build']).toBe('node scripts/build-docs-site.ts')
+    expect(packageJson.scripts.check).toContain('npm run docs:build')
+    expect(docsBuild).toContain("entryPoints: ['docs/demo.ts']")
+    expect(docsBuild).toContain("resolve('benchmark/.tmp/docs-site')")
+    expect(gitignore).toContain('/docs/assets/demo-app.js')
+    expect(pagesWorkflow).toContain('actions/upload-pages-artifact@v5')
+    expect(pagesWorkflow).toContain('actions/deploy-pages@v5')
+    expect(pagesWorkflow).toContain('path: benchmark/.tmp/docs-site')
+    expect(sitemap).toContain('https://a-r-d.github.io/PureJsImage/demo.html')
+  })
+
   it('keeps source, benchmark, scripts, and test code in TypeScript', () => {
     const javascriptSources = globSync([
       'benchmark/**/*.{cjs,js,jsx,mjs}',

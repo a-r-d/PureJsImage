@@ -2,6 +2,7 @@ import { createServer } from 'node:http'
 import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { extname, relative, resolve } from 'node:path'
 import { build } from 'esbuild'
+import { GifWriter } from 'omggif'
 import { PNG } from 'pngjs'
 import { createImageLibrary } from '../src/index.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
@@ -53,6 +54,15 @@ const webpGraphicFixture = (): Uint8Array => {
     }
   }
   return PNG.sync.write(image)
+}
+
+const animatedGifFixture = (): Uint8Array => {
+  const output = new Uint8Array(1_024)
+  const writer = new GifWriter(output, 2, 2, { loop: 0 })
+  const palette = [0x151b17, 0xb7ed55]
+  writer.addFrame(0, 0, 2, 2, [0, 1, 1, 0], { delay: 5, palette })
+  writer.addFrame(0, 0, 2, 2, [1, 0, 0, 1], { delay: 5, palette })
+  return output.slice(0, writer.end())
 }
 
 const benchmarkPng = (): Uint8Array => {
@@ -137,6 +147,34 @@ await build({
   target: ['es2022'],
 })
 
+await mkdir(resolve(outputDirectory, 'assets'), { recursive: true })
+await build({
+  absWorkingDir: process.cwd(),
+  banner: {
+    js: '/* Generated from docs/demo.ts for browser validation. */',
+  },
+  bundle: true,
+  charset: 'utf8',
+  entryPoints: ['docs/demo.ts'],
+  format: 'esm',
+  legalComments: 'none',
+  logLevel: 'silent',
+  minify: true,
+  outfile: resolve(outputDirectory, 'assets/demo-app.js'),
+  platform: 'browser',
+  sourcemap: false,
+  target: ['es2022'],
+})
+const docsDemoFiles = [
+  ['docs/demo.html', 'demo.html'],
+  ['docs/favicon.svg', 'favicon.svg'],
+  ['docs/site.js', 'site.js'],
+  ['docs/styles.css', 'styles.css'],
+] as const
+for (const [source, destination] of docsDemoFiles) {
+  await copyFile(source, resolve(outputDirectory, destination))
+}
+
 const wasmFiles: readonly (readonly [string, string])[] = [
   ['src/accelerator-entries/jpeg-decoder.wasm', 'jpeg-decoder.wasm'],
   ['node_modules/@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm', 'mozjpeg_dec.wasm'],
@@ -156,6 +194,7 @@ await writeFile(resolve(fixtureDirectory, 'benchmark-input.jpg'), jpeg)
 await writeFile(resolve(fixtureDirectory, 'oriented-6.jpg'), withOrientation(jpeg, 6))
 await writeFile(resolve(fixtureDirectory, 'alpha.png'), alphaFixture())
 await writeFile(resolve(fixtureDirectory, 'webp-graphic.png'), webpGraphicFixture())
+await writeFile(resolve(fixtureDirectory, 'animated.gif'), animatedGifFixture())
 await writeFile(resolve(fixtureDirectory, 'main10-pq.heic'), main10PqFixture())
 await copyFile(
   'benchmark/corpus/files/webp-lossless-tux-386x395.webp',
@@ -172,11 +211,13 @@ await writeFile(
 
 const contentTypes: Readonly<Record<string, string>> = {
   '.avif': 'image/avif',
+  '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
   '.heic': 'image/heic',
   '.js': 'text/javascript; charset=utf-8',
   '.jpg': 'image/jpeg',
   '.png': 'image/png',
+  '.svg': 'image/svg+xml',
   '.wasm': 'application/wasm',
   '.webp': 'image/webp',
 }

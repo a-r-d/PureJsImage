@@ -16,6 +16,14 @@ All notable changes to PureJsImage are documented in this file.
   packages, with documented Node WASM initialization, explicit unsupported classifications,
   startup/package-footprint measurements, a codec-matched bundle comparison with exact package
   versions, validated workflow results, and regenerated charts.
+- Added a fully client-side browser conversion demo with content-based format detection, optional
+  transforms, honest timing and memory reporting, and an artifact-only GitHub Pages deployment
+  that keeps its generated all-codec bundle out of repository history.
+
+### Fixed
+
+- Fixed progressive JPEG AC refinement after a zero-run-length symbol so common Sharp/libjpeg
+  output decodes correctly and can be resized and converted to WebP in Node.js and browsers.
 
 ## [0.7.0] - 2026-08-08
 
