@@ -1,0 +1,25 @@
+tsconfig.build.json
+  s_4a8abb1f2ae0c6::t_745c7f7003366c 5,9
+README.md
+  s_4a8abb1f2ae0c6::t_16e8ea93d79276 92
+docs/performance.html
+  s_4a8abb1f2ae0c6::t_16e8ea93d79276 145-146
+tests/project-contract.test.ts
+  s_4a8abb1f2ae0c6::t_745c7f7003366c 11,16-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "efc2899cad87c7da9553fe733fe52b97e4bb9de8",
+  "prompts": {},
+  "sessions": {
+    "s_4a8abb1f2ae0c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe42e-2b77-7a50-8579-4b622c789c8f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
