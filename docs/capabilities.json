@@ -727,7 +727,7 @@
         },
         {
           "status": "supported",
-          "text": "Keep opt-in Rust/WASM non-interlaced 8-bit decoding at exact pixel parity with bounded TypeScript fallback after setup or midstream accelerator failures"
+          "text": "Keep opt-in scalar and SIMD Rust/WASM non-interlaced 8-bit decoding at exact pixel parity for trailing `IEND` data, full-range `cICP`, and ICC v4 RGB `mAB`, with bounded TypeScript fallback after setup or midstream accelerator failures"
         },
         {
           "status": "planned",

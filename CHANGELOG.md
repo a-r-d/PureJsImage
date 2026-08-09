@@ -53,9 +53,9 @@ All notable changes to PureJsImage are documented in this file.
   pass `open(input, { tolerantDecoding: false })` to require strict restart sequencing. Explicit
   Rust/WASM decoding now implements the same bounded recovery instead of being skipped. JPEG and
   PNG decode accelerator setup or midstream failures now resume through their TypeScript decoders
-  without duplicate rows. The same corpus-driven work completed ICC v4 RGB `mAB` LUT
-  conversion, accepted PNG bytes after a complete `IEND` datastream, and color-managed
-  common full-range RGB PNG `cICP` signals found in the private upload corpus.
+  without duplicate rows. Focused scalar and SIMD PNG regressions keep trailing `IEND` data,
+  full-range `cICP`, and ICC v4 RGB `mAB` color conversion at parity without silently falling back.
+  The same corpus-driven work completed those compatibility fixes for the TypeScript reference.
 
 - Removed ambient `Buffer` references from the Node entry's published declarations so strict
   TypeScript consumers can compile the zero-dependency package without installing `@types/node`.

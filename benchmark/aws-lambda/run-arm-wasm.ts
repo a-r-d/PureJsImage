@@ -42,8 +42,6 @@ const targets = [
 ] as const
 
 type Architecture = (typeof targets)[number]['architecture']
-type ArchitectureWorkflow = (typeof architectureWorkflows)[number]
-type WasmWorkflow = (typeof wasmWorkflows)[number]
 type WorkflowId = keyof typeof workflowLookup
 type EngineId = keyof typeof engineLookup
 type Phase = 'cold' | 'warm'

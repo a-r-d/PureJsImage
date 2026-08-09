@@ -22,7 +22,8 @@ import { nodeRuntime } from '../src/node-runtime.ts'
 import type { PixelBlock, PixelFormat } from '../src/pixel.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
-import { MemorySource } from '../src/source.ts'
+import { type ImageSource, MemorySource } from '../src/source.ts'
+import { rgbLutOnlyProfile } from './icc-fixtures.ts'
 
 const scalarArtifactUrl = new URL('../src/accelerator-entries/png-codec.wasm', import.meta.url)
 const simdArtifactUrl = new URL('../src/accelerator-entries/png-codec-simd.wasm', import.meta.url)
@@ -56,6 +57,56 @@ const pngChunk = (type: string, data: Uint8Array): Buffer => {
   const checksum = Buffer.alloc(4)
   checksum.writeUInt32BE(crc32(encodedType, data))
   return Buffer.concat([length, encodedType, data, checksum])
+}
+interface PngChunkLocation {
+  readonly dataOffset: number
+  readonly length: number
+  readonly offset: number
+}
+
+const pngChunkLocation = (input: Uint8Array, target: string): PngChunkLocation => {
+  const view = new DataView(input.buffer, input.byteOffset, input.byteLength)
+  let offset = signature.byteLength
+  while (offset + 12 <= input.byteLength) {
+    const length = view.getUint32(offset)
+    const end = offset + length + 12
+    if (end > input.byteLength) throw new Error(`PNG ${target} fixture is truncated`)
+    const type = Buffer.from(input.subarray(offset + 4, offset + 8)).toString('ascii')
+    if (type === target) return { dataOffset: offset + 8, length, offset }
+    offset = end
+  }
+  throw new Error(`PNG fixture has no ${target} chunk`)
+}
+
+const withChunkBeforeIdat = (input: Uint8Array, type: string, data: Uint8Array): Buffer => {
+  const idat = pngChunkLocation(input, 'IDAT')
+  return Buffer.concat([
+    input.subarray(0, idat.offset),
+    pngChunk(type, data),
+    input.subarray(idat.offset),
+  ])
+}
+
+const singleUseIdatSource = (
+  input: Uint8Array,
+): { readonly idatReads: () => number; readonly source: ImageSource } => {
+  const idat = pngChunkLocation(input, 'IDAT')
+  const idatEnd = idat.dataOffset + idat.length
+  let reads = 0
+  return {
+    idatReads: () => reads,
+    source: {
+      size: input.byteLength,
+      async read(offset, length) {
+        const end = Math.min(offset + length, input.byteLength)
+        if (offset < idatEnd && end > idat.dataOffset) {
+          reads += 1
+          if (reads > 1) throw new Error('TypeScript PNG fallback reread IDAT')
+        }
+        return input.subarray(offset, end)
+      },
+    },
+  }
 }
 
 const pngFromScanlines = (
@@ -358,15 +409,37 @@ const expectedRgba = (format: SupportedFormat['format'], width: number, height: 
   return output
 }
 
+const instrumentPngUnfilter = (
+  instance: WebAssembly.Instance,
+  onUnfilter: () => void,
+): WebAssembly.Instance => {
+  const unfilter: unknown = instance.exports.png_unfilter_rows
+  if (typeof unfilter !== 'function') throw new Error('PNG WASM unfilter export is missing')
+  const instrumentedUnfilter = (...arguments_: readonly number[]): number => {
+    onUnfilter()
+    const result: unknown = Reflect.apply(unfilter, undefined, arguments_)
+    if (typeof result !== 'number') throw new Error('PNG WASM unfilter export returned no number')
+    return result
+  }
+  return {
+    exports: {
+      ...instance.exports,
+      png_unfilter_rows: instrumentedUnfilter,
+    },
+  }
+}
+
 const acceleratedWithArtifact = (
   kind: 'scalar' | 'simd',
   url: URL,
   direction: 'decode' | 'encode',
   onLoad?: () => void,
+  onUnfilter?: () => void,
 ): ImageCodec => {
   const loader = async (): Promise<WebAssembly.Instance> => {
     onLoad?.()
-    return instantiateArtifact(url)
+    const instance = await instantiateArtifact(url)
+    return onUnfilter ? instrumentPngUnfilter(instance, onUnfilter) : instance
   }
   const loaders =
     direction === 'decode'
@@ -430,6 +503,54 @@ describe('Rust/WASM PNG accelerator', () => {
 
       expect(actual).toEqual(expected)
       expect(actual.blockHeights).toEqual([32, 32, 3])
+      expect(loads).toBe(1)
+    },
+  )
+
+  it.each(artifactCases)(
+    'preserves trailing IEND, cICP, and ICC mAB fixes through the $kind artifact',
+    async ({ kind, url }) => {
+      const base = supportedFixture(rgbFormat, 4)
+      const trailing = Buffer.concat([base, Buffer.of(0xde, 0xad, 0xbe, 0xef)])
+      const displayP3 = withChunkBeforeIdat(base, 'cICP', Uint8Array.of(12, 13, 0, 1))
+      const icc = withChunkBeforeIdat(
+        base,
+        'iCCP',
+        Buffer.concat([
+          Buffer.from('PureJsImage\0', 'latin1'),
+          Buffer.of(0),
+          deflateSync(rgbLutOnlyProfile([0, 2, 47])),
+        ]),
+      )
+      let loads = 0
+      let unfilterCalls = 0
+      const accelerated = acceleratedWithArtifact(
+        kind,
+        url,
+        'decode',
+        () => {
+          loads += 1
+        },
+        () => {
+          unfilterCalls += 1
+        },
+      )
+      const basePixels = await decode(pngCodec, base)
+
+      for (const input of [trailing, displayP3, icc]) {
+        const expected = await decode(pngCodec, input)
+        const guarded = singleUseIdatSource(input)
+        const callsBeforeDecode = unfilterCalls
+        const decoder = await accelerated.createDecoder?.(guarded.source, defaultImageLimits)
+        if (!decoder) throw new Error('Accelerated PNG decoder is unavailable')
+        const actual = await decoderPixels(decoder)
+        expect(actual).toEqual(expected)
+        expect(guarded.idatReads()).toBe(1)
+        expect(unfilterCalls).toBeGreaterThan(callsBeforeDecode)
+      }
+      expect((await decode(pngCodec, trailing)).data).toEqual(basePixels.data)
+      expect((await decode(pngCodec, displayP3)).data).not.toEqual(basePixels.data)
+      expect((await decode(pngCodec, icc)).data).not.toEqual(basePixels.data)
       expect(loads).toBe(1)
     },
   )
