@@ -13,6 +13,7 @@ export interface BrowserCompatibilityHarness {
   progressiveJpeg(): Promise<BrowserWorkflowResult>
   orientation(): Promise<BrowserWorkflowResult>
   pngAlphaPipeline(): Promise<BrowserWorkflowResult>
+  resizeDefaultKernel(): Promise<BrowserWorkflowResult>
   webpLossless(): Promise<BrowserWorkflowResult>
   webpLossyDecode(): Promise<BrowserWorkflowResult>
 }

@@ -56,6 +56,30 @@ const inputTypes = async (): Promise<readonly BrowserWorkflowResult[]> => {
   results.push({ detail: `toBlob(): ${blob.type}`, outputBytes: blob.size })
   return results
 }
+const resizeDefaultKernel = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = await fetchBytes('/fixtures/benchmark-input.png')
+  const [defaultOutput, lanczosOutput, bilinearOutput] = await Promise.all([
+    (await images.open(bytes)).resize({ width: 64 }).png().toUint8Array(),
+    (await images.open(bytes)).resize({ width: 64, kernel: 'lanczos3' }).png().toUint8Array(),
+    (await images.open(bytes)).resize({ width: 64, kernel: 'bilinear' }).png().toUint8Array(),
+  ])
+  if (
+    defaultOutput.byteLength !== lanczosOutput.byteLength ||
+    defaultOutput.some((value, offset) => value !== lanczosOutput[offset])
+  ) {
+    throw new Error('Default browser resize output did not match explicit Lanczos3 output')
+  }
+  if (
+    defaultOutput.byteLength === bilinearOutput.byteLength &&
+    defaultOutput.every((value, offset) => value === bilinearOutput[offset])
+  ) {
+    throw new Error('Default browser resize output still matched bilinear output')
+  }
+  return {
+    detail: 'default browser resize matched explicit Lanczos3 and differed from bilinear',
+    outputBytes: defaultOutput.byteLength,
+  }
+}
 
 const jpegPipeline = async (): Promise<BrowserWorkflowResult> => {
   const bytes = await fetchBytes('/fixtures/benchmark-input.jpg')
@@ -373,6 +397,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   orientation,
   pngAlphaPipeline,
   progressiveJpeg,
+  resizeDefaultKernel,
   wasmJpeg,
   webpLossless,
   webpLossyDecode,

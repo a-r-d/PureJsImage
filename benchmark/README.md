@@ -104,8 +104,11 @@ codec build cannot express the exact workflow. In particular, the installed
 Sharp build is probed against the pinned iPhone HEIC file rather than relying on
 a generic HEIF capability flag.
 
-`sharp` uses its production defaults. `sharp-single-thread` is a separate
-engine and process that calls `sharp.concurrency(1)` before processing.
+Resize workflows use each engine's public default kernel. PureJsImage and Sharp
+use Lanczos 3; Jimp uses bilinear. Cross-kernel timings describe each package's
+default experience and are not matched-quality speed comparisons. `sharp` uses
+its production defaults. `sharp-single-thread` is a separate engine and process
+that calls `sharp.concurrency(1)` before processing.
 image-js uses its normal public decode, transform, and encode APIs. Its optional
 Canvas integration is omitted and is not part of the benchmark dependency
 tree.
@@ -120,8 +123,10 @@ exact crop coordinates, explicit alpha flattening, BMP, TIFF, or HEIC are
 reported as unsupported rather than approximated.
 
 The current checked-in artifacts are
-[`competitors-2026-08-08.md`](results/competitors-2026-08-08.md) and
-[`competitors-2026-08-08.json`](results/competitors-2026-08-08.json).
+[`competitors-2026-08-09.md`](results/competitors-2026-08-09.md) and
+[`competitors-2026-08-09.json`](results/competitors-2026-08-09.json).
+The August 8 artifacts are retained as historical measurements from before
+PureJsImage changed its default resize kernel from bilinear to Lanczos 3.
 
 Standard Jimp baseline:
 

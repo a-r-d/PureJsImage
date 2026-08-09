@@ -21,6 +21,13 @@ All notable changes to PureJsImage are documented in this file.
   that keeps its generated all-codec bundle out of repository history.
 
 ### Fixed
+- Changed the default resize kernel from bilinear to scale-aware Lanczos 3 so ordinary downscales
+  no longer discard most source samples and alias heavily; strong downscales now use bounded
+  streaming box pre-shrink before the final Lanczos pass, format-specialized horizontal kernels,
+  opaque-RGBA handling, and a fixed retained-row ring instead of a map. Bilinear remains available
+  as an explicit faster, lower-quality option, and benchmark reports identify cross-kernel
+  comparisons. On the pinned profiles, the 4× PNG resize fell from 1,253 ms to 530 ms and the
+  10× 100-megapixel downscale fell from 8,455 ms to 2,408 ms.
 
 - Allowed the browser demo to convert the supported primary image from iPhone-style MPF JPEGs while
   warning that auxiliary images and gain maps are not preserved; true animated inputs remain blocked.

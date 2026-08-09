@@ -1,6 +1,6 @@
 # Benchmark result
 
-Created: 2026-08-09T01:34:09.393Z
+Created: 2026-08-09T05:15:37.531Z
 
 Profile: `competitors`
 
@@ -17,7 +17,7 @@ Environment: Linux 6.17.0-41-generic, x64, Node v24.16.0, Intel(R) Core(TM) i7-1
 | image-js | 1.7.0 | pure-javascript |
 | jsquash | jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1 | webassembly |
 
-PureJsImage, Jimp, and image-js are pure JavaScript. jSquash uses WebAssembly codecs and resizing. Sharp is a native dependency; `sharp-single-thread` is the same native package configured with `sharp.concurrency(1)` before processing.
+Resize workflows use each engine’s public default kernel. PureJsImage and Sharp use Lanczos 3; Jimp uses bilinear. Cross-kernel timings are default-experience comparisons, not matched-quality comparisons.
 
 ## Compatibility
 
@@ -110,55 +110,52 @@ PureJsImage, Jimp, and image-js are pure JavaScript. jSquash uses WebAssembly co
 
 ## Performance on workflows supported by every selected engine
 
-Historical filter note: PureJsImage used its former bilinear default while Sharp used Lanczos 3.
-These resize timings compare the packages' defaults at the time, not matched filter quality.
-
 | Engine | Workflow | Median wall | p95 wall | Median CPU | Peak RSS | Peak RSS delta | Output |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| purejsimage | jpeg-resize-1200 | 770.1 ms | 777.3 ms | 862.0 ms | 151.8 MiB | 19.6 MiB | 0.3 MiB |
-| purejsimage | png-resize-1000 | 500.9 ms | 517.1 ms | 744.9 ms | 167.1 MiB | 11.0 MiB | 0.1 MiB |
-| purejsimage | png-alpha-resize | 48.3 ms | 48.6 ms | 87.4 ms | 118.1 MiB | 4.8 MiB | 0.0 MiB |
-| purejsimage | jpeg-to-png | 544.3 ms | 547.1 ms | 635.1 ms | 201.7 MiB | 55.3 MiB | 1.6 MiB |
-| purejsimage | stress-100mp-downscale | 1963.3 ms | 2017.2 ms | 2712.4 ms | 185.8 MiB | 74.6 MiB | 0.0 MiB |
-| jimp | jpeg-resize-1200 | 1414.1 ms | 1460.6 ms | 1633.2 ms | 596.7 MiB | 174.8 MiB | 0.4 MiB |
-| jimp | png-resize-1000 | 893.2 ms | 954.9 ms | 981.7 ms | 303.8 MiB | 144.0 MiB | 0.7 MiB |
-| jimp | png-alpha-resize | 76.6 ms | 83.6 ms | 124.2 ms | 131.5 MiB | 3.4 MiB | 0.0 MiB |
-| jimp | jpeg-to-png | 660.4 ms | 664.5 ms | 777.1 ms | 328.0 MiB | 128.0 MiB | 2.0 MiB |
-| jimp | stress-100mp-downscale | 3815.7 ms | 3830.4 ms | 3965.1 ms | 1277.0 MiB | 1162.8 MiB | 0.3 MiB |
-| sharp | jpeg-resize-1200 | 68.7 ms | 69.7 ms | 76.9 ms | 170.7 MiB | 27.4 MiB | 0.3 MiB |
-| sharp | png-resize-1000 | 266.1 ms | 274.8 ms | 313.1 ms | 167.7 MiB | 39.3 MiB | 2.5 MiB |
-| sharp | png-alpha-resize | 11.9 ms | 12.2 ms | 13.0 ms | 116.4 MiB | 9.0 MiB | 0.0 MiB |
-| sharp | jpeg-to-png | 62.0 ms | 64.4 ms | 70.7 ms | 196.1 MiB | 81.3 MiB | 2.3 MiB |
-| sharp | stress-100mp-downscale | 687.2 ms | 715.9 ms | 718.8 ms | 215.8 MiB | 100.2 MiB | 1.5 MiB |
-| sharp-single-thread | jpeg-resize-1200 | 75.5 ms | 84.8 ms | 84.0 ms | 169.7 MiB | 26.2 MiB | 0.3 MiB |
-| sharp-single-thread | png-resize-1000 | 279.2 ms | 284.6 ms | 322.3 ms | 169.6 MiB | 41.9 MiB | 2.5 MiB |
-| sharp-single-thread | png-alpha-resize | 11.9 ms | 11.9 ms | 12.9 ms | 116.4 MiB | 9.1 MiB | 0.0 MiB |
-| sharp-single-thread | jpeg-to-png | 65.6 ms | 66.0 ms | 74.5 ms | 195.7 MiB | 81.5 MiB | 2.3 MiB |
-| sharp-single-thread | stress-100mp-downscale | 686.2 ms | 700.1 ms | 720.7 ms | 216.1 MiB | 100.8 MiB | 1.5 MiB |
-| image-js | jpeg-resize-1200 | 1033.8 ms | 1105.6 ms | 1200.4 ms | 571.0 MiB | 112.7 MiB | 0.4 MiB |
-| image-js | png-resize-1000 | 726.0 ms | 731.7 ms | 861.1 ms | 292.4 MiB | 144.6 MiB | 1.6 MiB |
-| image-js | png-alpha-resize | 80.7 ms | 85.2 ms | 134.0 ms | 126.2 MiB | 17.0 MiB | 0.0 MiB |
-| image-js | jpeg-to-png | 692.2 ms | 697.3 ms | 797.2 ms | 407.2 MiB | 193.0 MiB | 2.4 MiB |
-| image-js | stress-100mp-downscale | 1913.7 ms | 2015.3 ms | 2188.1 ms | 1271.2 MiB | 1147.8 MiB | 1.2 MiB |
-| jsquash | jpeg-resize-1200 | 1127.7 ms | 1157.1 ms | 1136.7 ms | 606.2 MiB | 46.7 MiB | 0.3 MiB |
-| jsquash | png-resize-1000 | 841.5 ms | 842.5 ms | 842.0 ms | 524.6 MiB | 56.4 MiB | 1.4 MiB |
-| jsquash | png-alpha-resize | 63.9 ms | 64.3 ms | 70.0 ms | 129.4 MiB | 1.0 MiB | 0.2 MiB |
-| jsquash | jpeg-to-png | 90.7 ms | 90.7 ms | 91.4 ms | 290.2 MiB | 91.0 MiB | 2.3 MiB |
-| jsquash | stress-100mp-downscale | 7079.7 ms | 7082.4 ms | 7205.2 ms | 3008.7 MiB | 2887.5 MiB | 1.1 MiB |
+| purejsimage | jpeg-resize-1200 | 826.5 ms | 830.4 ms | 927.5 ms | 143.4 MiB | 15.1 MiB | 0.3 MiB |
+| purejsimage | png-resize-1000 | 529.8 ms | 531.4 ms | 779.3 ms | 173.1 MiB | 22.4 MiB | 0.0 MiB |
+| purejsimage | png-alpha-resize | 76.5 ms | 107.6 ms | 117.8 ms | 120.1 MiB | 3.3 MiB | 0.0 MiB |
+| purejsimage | jpeg-to-png | 550.6 ms | 571.0 ms | 644.4 ms | 211.4 MiB | 58.0 MiB | 1.6 MiB |
+| purejsimage | stress-100mp-downscale | 2408.5 ms | 2441.1 ms | 3225.5 ms | 185.6 MiB | 73.2 MiB | 0.0 MiB |
+| jimp | jpeg-resize-1200 | 1410.4 ms | 1414.5 ms | 1647.4 ms | 596.3 MiB | 175.0 MiB | 0.4 MiB |
+| jimp | png-resize-1000 | 869.2 ms | 904.6 ms | 969.8 ms | 297.2 MiB | 135.5 MiB | 0.7 MiB |
+| jimp | png-alpha-resize | 74.7 ms | 75.0 ms | 117.9 ms | 133.7 MiB | 5.7 MiB | 0.0 MiB |
+| jimp | jpeg-to-png | 656.3 ms | 676.6 ms | 789.1 ms | 327.9 MiB | 126.9 MiB | 2.0 MiB |
+| jimp | stress-100mp-downscale | 3810.3 ms | 3810.7 ms | 3939.8 ms | 1276.8 MiB | 1164.7 MiB | 0.3 MiB |
+| sharp | jpeg-resize-1200 | 68.3 ms | 74.4 ms | 76.5 ms | 170.1 MiB | 27.4 MiB | 0.3 MiB |
+| sharp | png-resize-1000 | 265.8 ms | 267.2 ms | 306.6 ms | 169.9 MiB | 41.8 MiB | 2.5 MiB |
+| sharp | png-alpha-resize | 11.8 ms | 11.8 ms | 12.9 ms | 116.6 MiB | 9.1 MiB | 0.0 MiB |
+| sharp | jpeg-to-png | 62.1 ms | 63.5 ms | 70.8 ms | 195.4 MiB | 81.3 MiB | 2.3 MiB |
+| sharp | stress-100mp-downscale | 696.5 ms | 699.7 ms | 729.2 ms | 214.9 MiB | 102.3 MiB | 1.5 MiB |
+| sharp-single-thread | jpeg-resize-1200 | 70.6 ms | 70.7 ms | 79.2 ms | 170.2 MiB | 27.2 MiB | 0.3 MiB |
+| sharp-single-thread | png-resize-1000 | 266.5 ms | 266.6 ms | 309.5 ms | 169.8 MiB | 42.0 MiB | 2.5 MiB |
+| sharp-single-thread | png-alpha-resize | 11.6 ms | 12.0 ms | 12.7 ms | 115.8 MiB | 9.0 MiB | 0.0 MiB |
+| sharp-single-thread | jpeg-to-png | 63.3 ms | 65.8 ms | 71.9 ms | 196.0 MiB | 81.3 MiB | 2.3 MiB |
+| sharp-single-thread | stress-100mp-downscale | 691.8 ms | 697.6 ms | 733.8 ms | 215.8 MiB | 100.6 MiB | 1.5 MiB |
+| image-js | jpeg-resize-1200 | 1051.5 ms | 1061.1 ms | 1235.5 ms | 569.0 MiB | 111.3 MiB | 0.4 MiB |
+| image-js | png-resize-1000 | 727.8 ms | 737.2 ms | 873.0 ms | 292.4 MiB | 144.7 MiB | 1.6 MiB |
+| image-js | png-alpha-resize | 85.1 ms | 89.4 ms | 150.8 ms | 132.5 MiB | 5.2 MiB | 0.0 MiB |
+| image-js | jpeg-to-png | 692.4 ms | 693.9 ms | 784.7 ms | 410.3 MiB | 193.0 MiB | 2.4 MiB |
+| image-js | stress-100mp-downscale | 1878.5 ms | 1943.4 ms | 2186.5 ms | 1273.9 MiB | 1149.5 MiB | 1.2 MiB |
+| jsquash | jpeg-resize-1200 | 1103.9 ms | 1104.2 ms | 1116.4 ms | 606.4 MiB | 46.5 MiB | 0.3 MiB |
+| jsquash | png-resize-1000 | 826.0 ms | 876.6 ms | 826.5 ms | 524.8 MiB | 56.2 MiB | 1.4 MiB |
+| jsquash | png-alpha-resize | 63.9 ms | 63.9 ms | 70.1 ms | 128.4 MiB | 1.6 MiB | 0.2 MiB |
+| jsquash | jpeg-to-png | 91.2 ms | 93.5 ms | 92.6 ms | 290.9 MiB | 91.0 MiB | 2.3 MiB |
+| jsquash | stress-100mp-downscale | 6901.4 ms | 6917.9 ms | 7023.8 ms | 3012.7 MiB | 2891.7 MiB | 1.1 MiB |
 
 ## Startup and installed package footprint
 
 | Engine | Import | RSS after import | First JPEG metadata | First JPEG resize | Installed footprint | Production packages |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| purejsimage | 49.3 ms | 92.4 MiB | 1.5 ms (pass) | 776.3 ms (pass) | 3.1 MiB | 1 |
-| jimp | 63.6 ms | 93.3 MiB | 2574.4 ms (pass) | 1394.8 ms (pass) | 29.3 MiB | 70 |
-| sharp | 28.8 ms | 93.8 MiB | 1.9 ms (pass) | 67.4 ms (pass) | 18.9 MiB | 6 |
-| sharp-single-thread | 27.7 ms | 94.1 MiB | 1.9 ms (pass) | 67.3 ms (pass) | 18.9 MiB | 6 |
-| image-js | 162.2 ms | 102.0 MiB | 2571.3 ms (pass) | 995.3 ms (pass) | 17.0 MiB | 46 |
-| jsquash | 10.7 ms | 84.7 MiB | - ms (unsupported) | 1439.3 ms (pass) | 1.9 MiB | 5 |
+| purejsimage | 50.3 ms | 93.4 MiB | 1.4 ms (pass) | 829.5 ms (pass) | 1.6 MiB | 1 |
+| jimp | 63.1 ms | 93.3 MiB | 2554.4 ms (pass) | 1431.1 ms (pass) | 29.3 MiB | 70 |
+| sharp | 27.1 ms | 92.9 MiB | 1.8 ms (pass) | 67.8 ms (pass) | 18.9 MiB | 6 |
+| sharp-single-thread | 27.0 ms | 93.0 MiB | 1.7 ms (pass) | 70.0 ms (pass) | 18.9 MiB | 6 |
+| image-js | 155.8 ms | 101.6 MiB | 2719.9 ms (pass) | 1032.3 ms (pass) | 17.0 MiB | 46 |
+| jsquash | 9.8 ms | 84.1 MiB | - ms (unsupported) | 1437.6 ms (pass) | 1.9 MiB | 5 |
 
 Installed footprint includes every package required by an engine and the production dependencies present for this platform, including jSquash codec/resize packages and Sharp platform packages. Exact package lists are recorded in JSON.
 
 A timing only counts when output validation passes. Input file reads, worker startup, warmups, and output validation are outside warm workflow timings. Startup measurements use a separate fresh process for each engine.
 
-Timing comparisons include encoding. Resize timings used engine-default kernels and are not matched-quality comparisons across different kernels. Lossy encoders do not share a calibrated quality scale, so output quality and compression efficiency cannot be compared solely because each API received `quality: 80`; that requires a separate matched-quality study.
+Timing comparisons include encoding. Resize timings use the engine-default kernels identified above and are not matched-quality comparisons across different kernels. Lossy encoders do not share a calibrated quality scale, so output quality and compression efficiency cannot be compared solely because each API received `quality: 80`; that requires a separate matched-quality study.

@@ -5,7 +5,7 @@ import sharp from 'sharp'
 import type { BenchmarkReport, BenchmarkResult } from '../types.ts'
 
 const benchmarkDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
-const defaultReportPath = join(benchmarkDirectory, 'results', 'competitors-2026-08-08.json')
+const defaultReportPath = join(benchmarkDirectory, 'results', 'competitors-2026-08-09.json')
 const reportPath = process.argv[2] ?? defaultReportPath
 const outputDirectory = join(benchmarkDirectory, 'results')
 const docsAssetsDirectory = join(dirname(benchmarkDirectory), 'docs', 'assets')
@@ -73,6 +73,7 @@ if (!isBenchmarkReport(parsedReport)) {
   throw new Error(`Invalid benchmark report: ${reportPath}`)
 }
 const report = parsedReport
+const reportDate = new Date(report.createdAt).toISOString().slice(0, 10)
 
 const resultByKey = new Map(
   report.results.map((result) => [`${result.engine}:${result.workflow}`, result]),
@@ -210,7 +211,7 @@ const chartSvg = (metric: Metric): string => {
   const environment = `${report.environment.platform} ${report.environment.architecture} · ${report.environment.node}`
   const footer =
     metric === 'speed'
-      ? 'Sharp uses native libvips; jSquash uses WebAssembly; PureJsImage, Jimp, and image-js are pure JavaScript. Timings include encoding; lossy quality scales are not matched.'
+      ? 'Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3; Jimp uses bilinear. Timings include encoding and are not matched quality across kernels or lossy encoders.'
       : 'Absolute process RSS from isolated workers. Sharp uses native libvips; jSquash uses WebAssembly; PureJsImage, Jimp, and image-js are pure JavaScript.'
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -229,7 +230,7 @@ const chartSvg = (metric: Metric): string => {
     </style>
     <text x="54" y="78" class="title">${title}</text>
     <text x="54" y="124" class="subtitle">${subtitle}</text>
-    <text x="54" y="168" class="source">Validated competitors profile · ${escapeXml(new Date(report.createdAt).toISOString().slice(0, 10))} · ${escapeXml(environment)}</text>
+    <text x="54" y="168" class="source">Validated competitors profile · ${escapeXml(reportDate)} · ${escapeXml(environment)}</text>
     ${legend}
     ${grid}
     ${bars}
@@ -238,10 +239,10 @@ const chartSvg = (metric: Metric): string => {
   </svg>`
 }
 
-const speedPath = join(outputDirectory, 'competitors-speed-2026-08-08.png')
-const memoryPath = join(outputDirectory, 'competitors-memory-2026-08-08.png')
-const docsSpeedPath = join(docsAssetsDirectory, 'competitors-speed-2026-08-08.png')
-const docsMemoryPath = join(docsAssetsDirectory, 'competitors-memory-2026-08-08.png')
+const speedPath = join(outputDirectory, `competitors-speed-${reportDate}.png`)
+const memoryPath = join(outputDirectory, `competitors-memory-${reportDate}.png`)
+const docsSpeedPath = join(docsAssetsDirectory, `competitors-speed-${reportDate}.png`)
+const docsMemoryPath = join(docsAssetsDirectory, `competitors-memory-${reportDate}.png`)
 
 await mkdir(docsAssetsDirectory, { recursive: true })
 await Promise.all([

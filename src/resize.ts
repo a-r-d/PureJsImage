@@ -188,7 +188,7 @@ const resizePlan = (width: number, height: number, options: ResizeOptions): Resi
     options.width !== undefined && options.height !== undefined
       ? (options.fit ?? 'cover')
       : undefined
-  const kernel = options.kernel ?? 'bilinear'
+  const kernel = options.kernel ?? 'lanczos3'
 
   if (fit === 'contain') {
     const requestedWidth = options.width ?? output.width
@@ -291,42 +291,320 @@ const rows = async function* (
   }
   if (expectedY !== height) throw truncatedInput(`Resize received ${expectedY} of ${height} rows`)
 }
+const boxShrinkFactor = (sourceSize: number, scaledSize: number, kernel: ResizeKernel): number => {
+  if (kernel !== 'lanczos3' || scaledSize >= sourceSize) return 1
+  const ratio = sourceSize / scaledSize
+  let factor = 1
+  while (factor * 2 <= ratio && sourceSize % (factor * 2) === 0) factor *= 2
+  return factor
+}
 
-const horizontalRow = (
+const accumulateBoxRow = (
   source: Uint8Array,
-  sourceFormat: PixelFormat,
+  format: PixelFormat,
+  sourceWidth: number,
+  factorX: number,
+  sums: Float64Array,
+): void => {
+  const outputWidth = Math.ceil(sourceWidth / factorX)
+  if (format === 'gray8') {
+    for (let outputX = 0; outputX < outputWidth; outputX += 1) {
+      const first = outputX * factorX
+      const last = Math.min(first + factorX, sourceWidth)
+      let gray = 0
+      for (let sourceX = first; sourceX < last; sourceX += 1) {
+        gray += source[sourceX] ?? 0
+      }
+      sums[outputX] = (sums[outputX] ?? 0) + gray
+    }
+    return
+  }
+  if (format === 'rgb8') {
+    for (let outputX = 0; outputX < outputWidth; outputX += 1) {
+      const first = outputX * factorX
+      const last = Math.min(first + factorX, sourceWidth)
+      let red = 0
+      let green = 0
+      let blue = 0
+      for (let sourceX = first; sourceX < last; sourceX += 1) {
+        const sourceOffset = sourceX * 3
+        red += source[sourceOffset] ?? 0
+        green += source[sourceOffset + 1] ?? 0
+        blue += source[sourceOffset + 2] ?? 0
+      }
+      const outputOffset = outputX * 3
+      sums[outputOffset] = (sums[outputOffset] ?? 0) + red
+      sums[outputOffset + 1] = (sums[outputOffset + 1] ?? 0) + green
+      sums[outputOffset + 2] = (sums[outputOffset + 2] ?? 0) + blue
+    }
+    return
+  }
+  for (let outputX = 0; outputX < outputWidth; outputX += 1) {
+    const first = outputX * factorX
+    const last = Math.min(first + factorX, sourceWidth)
+    let redAlpha = 0
+    let greenAlpha = 0
+    let blueAlpha = 0
+    let alpha = 0
+    for (let sourceX = first; sourceX < last; sourceX += 1) {
+      const sourceOffset = sourceX * 4
+      const sourceAlpha = source[sourceOffset + 3] ?? 0
+      redAlpha += (source[sourceOffset] ?? 0) * sourceAlpha
+      greenAlpha += (source[sourceOffset + 1] ?? 0) * sourceAlpha
+      blueAlpha += (source[sourceOffset + 2] ?? 0) * sourceAlpha
+      alpha += sourceAlpha
+    }
+    const outputOffset = outputX * 4
+    sums[outputOffset] = (sums[outputOffset] ?? 0) + redAlpha
+    sums[outputOffset + 1] = (sums[outputOffset + 1] ?? 0) + greenAlpha
+    sums[outputOffset + 2] = (sums[outputOffset + 2] ?? 0) + blueAlpha
+    sums[outputOffset + 3] = (sums[outputOffset + 3] ?? 0) + alpha
+  }
+}
+
+const writeBoxRow = (
+  sums: Float64Array,
+  format: PixelFormat,
+  sourceWidth: number,
+  factorX: number,
+  sourceRows: number,
+  output: Uint8Array,
+  outputOffset: number,
+): void => {
+  const outputWidth = Math.ceil(sourceWidth / factorX)
+  if (format === 'gray8') {
+    for (let outputX = 0; outputX < outputWidth; outputX += 1) {
+      const columns = Math.min(factorX, sourceWidth - outputX * factorX)
+      output[outputOffset + outputX] = byte((sums[outputX] ?? 0) / (columns * sourceRows))
+    }
+    return
+  }
+  if (format === 'rgb8') {
+    for (let outputX = 0; outputX < outputWidth; outputX += 1) {
+      const columns = Math.min(factorX, sourceWidth - outputX * factorX)
+      const area = columns * sourceRows
+      const sourceOffset = outputX * 3
+      const target = outputOffset + sourceOffset
+      output[target] = byte((sums[sourceOffset] ?? 0) / area)
+      output[target + 1] = byte((sums[sourceOffset + 1] ?? 0) / area)
+      output[target + 2] = byte((sums[sourceOffset + 2] ?? 0) / area)
+    }
+    return
+  }
+  for (let outputX = 0; outputX < outputWidth; outputX += 1) {
+    const columns = Math.min(factorX, sourceWidth - outputX * factorX)
+    const area = columns * sourceRows
+    const sourceOffset = outputX * 4
+    const target = outputOffset + sourceOffset
+    const alpha = sums[sourceOffset + 3] ?? 0
+    const unpremultiply = alpha > 0 ? 1 / alpha : 0
+    output[target] = byte((sums[sourceOffset] ?? 0) * unpremultiply)
+    output[target + 1] = byte((sums[sourceOffset + 1] ?? 0) * unpremultiply)
+    output[target + 2] = byte((sums[sourceOffset + 2] ?? 0) * unpremultiply)
+    output[target + 3] = byte(alpha / area)
+  }
+}
+
+const boxShrinkBlocks = async function* (
+  input: AsyncIterable<PixelBlock>,
+  sourceWidth: number,
+  sourceHeight: number,
+  format: PixelFormat,
+  factorX: number,
+  factorY: number,
+): AsyncGenerator<PixelBlock> {
+  const outputWidth = Math.ceil(sourceWidth / factorX)
+  const outputHeight = Math.ceil(sourceHeight / factorY)
+  const channelCount = channels(format)
+  const outputStride = outputWidth * channelCount
+  const blockCapacity = Math.min(outputBlockRows, outputHeight)
+  const sourceRows = rows(input, sourceWidth, sourceHeight, format)[Symbol.asyncIterator]()
+  const sums = new Float64Array(outputStride)
+  let block = new Uint8Array(outputStride * blockCapacity)
+  let sourceY = 0
+  let blockHeight = 0
+  let blockY = 0
+
+  try {
+    while (sourceY < sourceHeight) {
+      const rowsInGroup = Math.min(factorY, sourceHeight - sourceY)
+      sums.fill(0)
+      for (let row = 0; row < rowsInGroup; row += 1) {
+        const next = await sourceRows.next()
+        if (next.done) throw truncatedInput(`Resize input ended before row ${sourceY + row}`)
+        accumulateBoxRow(next.value, format, sourceWidth, factorX, sums)
+      }
+      writeBoxRow(
+        sums,
+        format,
+        sourceWidth,
+        factorX,
+        rowsInGroup,
+        block,
+        blockHeight * outputStride,
+      )
+      sourceY += rowsInGroup
+      blockHeight += 1
+
+      if (blockHeight === blockCapacity) {
+        yield {
+          x: 0,
+          y: blockY,
+          width: outputWidth,
+          height: blockHeight,
+          stride: outputStride,
+          format,
+          data: block,
+        }
+        blockY += blockHeight
+        blockHeight = 0
+        const remaining = outputHeight - blockY
+        if (remaining > 0) block = new Uint8Array(outputStride * Math.min(blockCapacity, remaining))
+      }
+    }
+
+    while (!(await sourceRows.next()).done) {
+      // Drain the decoder so compressed input and checksums are fully validated.
+    }
+    if (blockHeight > 0) {
+      yield {
+        x: 0,
+        y: blockY,
+        width: outputWidth,
+        height: blockHeight,
+        stride: outputStride,
+        format,
+        data: block.subarray(0, outputStride * blockHeight),
+      }
+    }
+  } finally {
+    await sourceRows.return?.(undefined)
+  }
+}
+
+type HorizontalKernel = (
+  source: Uint8Array,
+  outputWidth: number,
+  axis: AxisCoefficients,
+  output: Float32Array,
+) => void
+
+const horizontalGray8: HorizontalKernel = (source, outputWidth, axis, output): void => {
+  for (let x = 0; x < outputWidth; x += 1) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[x + 1] ?? first
+    let gray = 0
+    for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
+      const sourceX = axis.indices[sampleIndex] ?? 0
+      gray += (source[sourceX] ?? 0) * (axis.weights[sampleIndex] ?? 0)
+    }
+    output[x] = gray
+  }
+}
+
+const horizontalRgb8: HorizontalKernel = (source, outputWidth, axis, output): void => {
+  for (let x = 0; x < outputWidth; x += 1) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[x + 1] ?? first
+    let red = 0
+    let green = 0
+    let blue = 0
+    for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
+      const sourceOffset = (axis.indices[sampleIndex] ?? 0) * 3
+      const weight = axis.weights[sampleIndex] ?? 0
+      red += (source[sourceOffset] ?? 0) * weight
+      green += (source[sourceOffset + 1] ?? 0) * weight
+      blue += (source[sourceOffset + 2] ?? 0) * weight
+    }
+    const outputOffset = x * 3
+    output[outputOffset] = red
+    output[outputOffset + 1] = green
+    output[outputOffset + 2] = blue
+  }
+}
+
+const horizontalRgbaOpaque = (
+  source: Uint8Array,
   outputWidth: number,
   axis: AxisCoefficients,
   output: Float32Array,
 ): void => {
-  const channelCount = channels(sourceFormat)
-  output.fill(0)
   for (let x = 0; x < outputWidth; x += 1) {
     const first = axis.offsets[x] ?? 0
     const last = axis.offsets[x + 1] ?? first
+    let red = 0
+    let green = 0
+    let blue = 0
     for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
-      const sourceX = axis.indices[sampleIndex] ?? 0
+      const sourceOffset = (axis.indices[sampleIndex] ?? 0) * 4
       const weight = axis.weights[sampleIndex] ?? 0
-      const sourceOffset = sourceX * channelCount
-      const outputOffset = x * channelCount
-      if (sourceFormat === 'rgba8') {
-        const alpha = source[sourceOffset + 3] ?? 0
-        const alphaScale = alpha / 255
-        output[outputOffset] =
-          (output[outputOffset] ?? 0) + (source[sourceOffset] ?? 0) * alphaScale * weight
-        output[outputOffset + 1] =
-          (output[outputOffset + 1] ?? 0) + (source[sourceOffset + 1] ?? 0) * alphaScale * weight
-        output[outputOffset + 2] =
-          (output[outputOffset + 2] ?? 0) + (source[sourceOffset + 2] ?? 0) * alphaScale * weight
-        output[outputOffset + 3] = (output[outputOffset + 3] ?? 0) + alpha * weight
-      } else {
-        for (let channel = 0; channel < channelCount; channel += 1) {
-          output[outputOffset + channel] =
-            (output[outputOffset + channel] ?? 0) + (source[sourceOffset + channel] ?? 0) * weight
-        }
-      }
+      red += (source[sourceOffset] ?? 0) * weight
+      green += (source[sourceOffset + 1] ?? 0) * weight
+      blue += (source[sourceOffset + 2] ?? 0) * weight
+    }
+    const outputOffset = x * 4
+    output[outputOffset] = red
+    output[outputOffset + 1] = green
+    output[outputOffset + 2] = blue
+    output[outputOffset + 3] = 255
+  }
+}
+
+const horizontalRgba8: HorizontalKernel = (source, outputWidth, axis, output): void => {
+  let opaque = true
+  for (let offset = 3; offset < source.length; offset += 4) {
+    if (source[offset] !== 255) {
+      opaque = false
+      break
     }
   }
+  if (opaque) {
+    horizontalRgbaOpaque(source, outputWidth, axis, output)
+    return
+  }
+  for (let x = 0; x < outputWidth; x += 1) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[x + 1] ?? first
+    let red = 0
+    let green = 0
+    let blue = 0
+    let alpha = 0
+    for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
+      const sourceOffset = (axis.indices[sampleIndex] ?? 0) * 4
+      const weight = axis.weights[sampleIndex] ?? 0
+      const sourceAlpha = source[sourceOffset + 3] ?? 0
+      const alphaScale = sourceAlpha / 255
+      red += (source[sourceOffset] ?? 0) * alphaScale * weight
+      green += (source[sourceOffset + 1] ?? 0) * alphaScale * weight
+      blue += (source[sourceOffset + 2] ?? 0) * alphaScale * weight
+      alpha += sourceAlpha * weight
+    }
+    const outputOffset = x * 4
+    output[outputOffset] = red
+    output[outputOffset + 1] = green
+    output[outputOffset + 2] = blue
+    output[outputOffset + 3] = alpha
+  }
+}
+
+const horizontalKernel = (format: PixelFormat): HorizontalKernel => {
+  if (format === 'gray8') return horizontalGray8
+  if (format === 'rgb8') return horizontalRgb8
+  return horizontalRgba8
+}
+
+const verticalRingCapacity = (axis: AxisCoefficients, outputHeight: number): number => {
+  let capacity = 1
+  for (let outputY = 0; outputY < outputHeight; outputY += 1) {
+    const first = axis.offsets[outputY] ?? 0
+    const last = axis.offsets[outputY + 1] ?? first
+    const minimum = axis.indices[first]
+    const maximum = axis.indices[last - 1]
+    if (minimum !== undefined && maximum !== undefined) {
+      capacity = Math.max(capacity, maximum - minimum + 1)
+    }
+  }
+  return capacity
 }
 
 const fillBackground = (
@@ -407,11 +685,14 @@ const resizedBlocks = async function* (
     plan.kernel,
   )
   const sourceRows = rows(input, sourceWidth, sourceHeight, sourceFormat)[Symbol.asyncIterator]()
-  const retained = new Map<number, Float32Array>()
   const sourceChannels = channels(sourceFormat)
   const requiredSourceRows = new Uint8Array(sourceHeight)
   for (const sourceRow of vertical.indices) requiredSourceRows[sourceRow] = 1
-  const recycledRows: Float32Array[] = []
+  const ringCapacity = verticalRingCapacity(vertical, plan.contentHeight)
+  const retainedSourceRows = new Int32Array(ringCapacity)
+  retainedSourceRows.fill(-1)
+  const retainedRows: (Float32Array | undefined)[] = new Array(ringCapacity)
+  const resizeHorizontal = horizontalKernel(sourceFormat)
   const outputChannels = channels(outputFormat)
   const outputStride = plan.canvasWidth * outputChannels
   const blockCapacity = Math.min(outputBlockRows, plan.canvasHeight)
@@ -438,10 +719,12 @@ const resizedBlocks = async function* (
           const next = await sourceRows.next()
           if (next.done) throw truncatedInput(`Resize input ended before row ${loadedRows}`)
           if (requiredSourceRows[loadedRows] !== 0) {
+            const slot = loadedRows % ringCapacity
             const resizedRow =
-              recycledRows.pop() ?? new Float32Array(plan.contentWidth * sourceChannels)
-            horizontalRow(next.value, sourceFormat, plan.contentWidth, horizontal, resizedRow)
-            retained.set(loadedRows, resizedRow)
+              retainedRows[slot] ?? new Float32Array(plan.contentWidth * sourceChannels)
+            resizeHorizontal(next.value, plan.contentWidth, horizontal, resizedRow)
+            retainedRows[slot] = resizedRow
+            retainedSourceRows[slot] = loadedRows
           }
           loadedRows += 1
         }
@@ -450,7 +733,9 @@ const resizedBlocks = async function* (
         for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
           const sourceY = vertical.indices[sampleIndex]
           const weight = vertical.weights[sampleIndex]
-          const row = sourceY === undefined ? undefined : retained.get(sourceY)
+          const slot = sourceY === undefined ? -1 : sourceY % ringCapacity
+          const row =
+            slot >= 0 && retainedSourceRows[slot] === sourceY ? retainedRows[slot] : undefined
           if (!row || weight === undefined) throw invalidInput('Resize source row is unavailable')
           for (let index = 0; index < accumulated.length; index += 1) {
             accumulated[index] = (accumulated[index] ?? 0) + (row[index] ?? 0) * weight
@@ -464,18 +749,6 @@ const resizedBlocks = async function* (
           plan.contentWidth,
           outputFormat,
         )
-
-        const nextFirst = vertical.offsets[contentY + 1] ?? last
-        const nextMinimum = vertical.indices[nextFirst]
-        if (nextMinimum !== undefined) {
-          for (const row of retained.keys()) {
-            if (row < nextMinimum) {
-              const resizedRow = retained.get(row)
-              retained.delete(row)
-              if (resizedRow) recycledRows.push(resizedRow)
-            }
-          }
-        }
       }
 
       blockHeight += 1
@@ -522,15 +795,22 @@ export const createResizeTransform = (
   pixelFormat: PixelFormat,
   options: ResizeOptions,
 ): ResizeTransform => {
-  channels(pixelFormat)
   const plan = resizePlan(width, height, options)
   const format = resultFormat(pixelFormat, plan.background)
+  const factorX = boxShrinkFactor(width, plan.scaledWidth, plan.kernel)
+  const factorY = boxShrinkFactor(height, plan.scaledHeight, plan.kernel)
+  const resizedWidth = width / factorX
+  const resizedHeight = height / factorY
   return {
     width: plan.canvasWidth,
     height: plan.canvasHeight,
     pixelFormat: format,
     apply(blocks: AsyncIterable<PixelBlock>): AsyncIterable<PixelBlock> {
-      return resizedBlocks(blocks, width, height, pixelFormat, plan, format)
+      const shrunk =
+        factorX === 1 && factorY === 1
+          ? blocks
+          : boxShrinkBlocks(blocks, width, height, pixelFormat, factorX, factorY)
+      return resizedBlocks(shrunk, resizedWidth, resizedHeight, pixelFormat, plan, format)
     },
   }
 }

@@ -398,6 +398,12 @@ const report: BenchmarkReport = {
     isolatedStartupProcessPerEngine: true,
     inputFileReadTimed: false,
     outputValidationTimed: false,
+    resizeKernelPolicy: {
+      mode: 'engine-defaults',
+      purejsimage: 'lanczos3',
+      sharp: 'lanczos3',
+      jimp: 'bilinear',
+    },
   },
   environment: {
     platform: process.platform,
@@ -451,7 +457,7 @@ const markdown = [
   '| --- | --- | --- |',
   ...startup.map(({ engine }) => `| ${engine.id} | ${engine.version} | ${engine.kind} |`),
   '',
-  'PureJsImage, Jimp, and image-js are pure JavaScript. jSquash uses WebAssembly codecs and resizing. Sharp is a native dependency; `sharp-single-thread` is the same native package configured with `sharp.concurrency(1)` before processing.',
+  'Resize workflows use each engine’s public default kernel. PureJsImage and Sharp use Lanczos 3; Jimp uses bilinear. Cross-kernel timings are default-experience comparisons, not matched-quality comparisons.',
   '',
   '## Compatibility',
   '',
@@ -462,7 +468,7 @@ const markdown = [
       `| ${engine} | ${workflow} | ${displayStatus(summary.status)} | ${summary.errors.join('; ') || '-'} |`,
   ),
   '',
-  '## Performance on workflows supported equivalently by every selected engine',
+  '## Performance on workflows supported by every selected engine',
   '',
   '| Engine | Workflow | Median wall | p95 wall | Median CPU | Peak RSS | Peak RSS delta | Output |',
   '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |',
@@ -488,7 +494,7 @@ const markdown = [
   '',
   'A timing only counts when output validation passes. Input file reads, worker startup, warmups, and output validation are outside warm workflow timings. Startup measurements use a separate fresh process for each engine.',
   '',
-  'Timing comparisons include encoding. Lossy encoders do not share a calibrated quality scale, so output quality and compression efficiency cannot be compared solely because each API received `quality: 80`; that requires a separate matched-quality study.',
+  'Timing comparisons include encoding. Resize timings use the engine-default kernels identified above and are not matched-quality comparisons across different kernels. Lossy encoders do not share a calibrated quality scale, so output quality and compression efficiency cannot be compared solely because each API received `quality: 80`; that requires a separate matched-quality study.',
   '',
 ]
 

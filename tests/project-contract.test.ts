@@ -92,15 +92,15 @@ describe('package contract', () => {
     const docsHome = readFileSync('docs/index.html', 'utf8')
     const docsPerformance = readFileSync('docs/performance.html', 'utf8')
     for (const chart of [
-      'benchmark/results/competitors-speed-2026-08-08.png',
-      'benchmark/results/competitors-memory-2026-08-08.png',
+      'benchmark/results/competitors-speed-2026-08-09.png',
+      'benchmark/results/competitors-memory-2026-08-09.png',
     ]) {
       expect(readme).toContain(`](${chart})`)
       expect(readFileSync(chart).byteLength).toBeGreaterThan(0)
     }
     for (const chart of [
-      'assets/competitors-speed-2026-08-08.png',
-      'assets/competitors-memory-2026-08-08.png',
+      'assets/competitors-speed-2026-08-09.png',
+      'assets/competitors-memory-2026-08-09.png',
     ]) {
       expect(docsHome).toContain(`src="${chart}"`)
       expect(docsPerformance).toContain(`src="${chart}"`)

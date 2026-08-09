@@ -11,6 +11,12 @@ test('uses File, Blob, ArrayBuffer, Uint8Array, toBlob, and toUint8Array', async
   expect(results).toHaveLength(5)
   expect(results.every(({ outputBytes }) => outputBytes > 0)).toBe(true)
 })
+test('uses Lanczos3 as the default resize kernel in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.resizeDefaultKernel())
+  expect(result.outputBytes).toBeGreaterThan(50)
+  expect(result.detail).toContain('matched explicit Lanczos3')
+})
 
 test('decodes JPEG metadata and runs crop, resize, rotation, and JPEG encoding', async ({
   page,

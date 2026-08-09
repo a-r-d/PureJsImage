@@ -64,7 +64,7 @@
             <article class="api-item" data-search-item><h3>keepExif()</h3><p>Opts into retaining source EXIF in a compatible output. EXIF is stripped by default; pixel reorientation normalizes a retained orientation tag to 1.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>keepIcc()</h3><p>Opts into retaining a compatible source ICC profile instead of converting tagged samples and stripping the profile.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>crop(options)</h3><p>Crops to an integer rectangle. <code>x</code> and <code>y</code> may be zero; width and height must be positive. Out-of-bounds crops fail.</p><span class="returns">returns Image</span></article>
-            <article class="api-item" data-search-item><h3>resize(options)</h3><p>Resizes by one dimension or two. Supports contain, cover, fill, inside, and outside fits with nearest, bilinear, or Lanczos 3 sampling.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>resize(options)</h3><p>Resizes by one dimension or two. Supports contain, cover, fill, inside, and outside fits. Lanczos 3 is the default; nearest and bilinear sampling are available for explicit lower-cost resizing.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>rotate(degrees, options?)</h3><p>Rotates clockwise by any finite number of degrees. Quarter turns are exact; other angles use bilinear sampling and expand the canvas.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>flip()</h3><p>Mirrors pixels vertically, from top to bottom.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>flop()</h3><p>Mirrors pixels horizontally, from left to right.</p><span class="returns">returns Image</span></article>
@@ -110,7 +110,7 @@
             <tr><td><code>fit</code></td><td><code>cover</code> with two dimensions</td><td>Fit, position, and background require both width and height.</td></tr>
             <tr><td><code>position</code></td><td><code>center</code></td><td>Currently center only; valid with contain.</td></tr>
             <tr><td><code>background</code></td><td>transparent</td><td>Valid with contain. Accepts six- or eight-digit hex.</td></tr>
-            <tr><td><code>kernel</code></td><td><code>bilinear</code></td><td>Nearest, bilinear, or lanczos3.</td></tr>
+            <tr><td><code>kernel</code></td><td><code>lanczos3</code></td><td>Lanczos 3 minimizes downscale aliasing. Bilinear is faster but lower quality; nearest preserves hard pixel edges.</td></tr>
             <tr><td><code>withoutEnlargement</code></td><td><code>false</code></td><td>Caps the scale at 1 where the fit permits it.</td></tr>
           </tbody></table></div>
           <h3>RotateOptions</h3>

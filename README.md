@@ -184,14 +184,19 @@ and [HEIF / HEIC](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-supp
 The competitor profile compares PureJsImage with Jimp, Sharp, Sharp configured
 for one processing thread, image-js, and jSquash. Sharp uses native libvips,
 jSquash uses WebAssembly, and PureJsImage, Jimp, and image-js are pure
-JavaScript. Each engine received the same files and ran in a separate process.
-A result appears only when its output passed validation.
+JavaScript. Each engine received the same files, used its public default resize
+kernel, and ran in a separate process. A result appears only when its output
+passed validation.
 
-[![Image workflow speed comparison. Sharp and Sharp single-thread use native libvips code; jSquash uses WebAssembly.](benchmark/results/competitors-speed-2026-08-08.png)](benchmark/results/competitors-speed-2026-08-08.png)
+[![Image workflow speed comparison. Sharp and Sharp single-thread use native libvips code; jSquash uses WebAssembly.](benchmark/results/competitors-speed-2026-08-09.png)](benchmark/results/competitors-speed-2026-08-09.png)
 
-[![Image workflow absolute peak memory comparison.](benchmark/results/competitors-memory-2026-08-08.png)](benchmark/results/competitors-memory-2026-08-08.png)
+[![Image workflow absolute peak memory comparison.](benchmark/results/competitors-memory-2026-08-09.png)](benchmark/results/competitors-memory-2026-08-09.png)
 
-On the 24-megapixel photo workflow, PureJsImage used 87.1% less peak memory
+Resize workflows use engine defaults: PureJsImage and Sharp use Lanczos 3 while
+Jimp uses bilinear. Treat cross-kernel rows as default-experience measurements,
+not matched-quality comparisons.
+
+On the 24-megapixel photo workflow, PureJsImage used 87.3% less peak memory
 than Jimp and 88.0% less than image-js. Timing and memory vary by image,
 operation, machine, and library version, so the full report includes the test
 environment, compatibility results, and reproduction commands.

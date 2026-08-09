@@ -60,21 +60,22 @@ describe('streaming resize', () => {
     expect(pixelAt(output, 3, 3)).toEqual(colors[3])
   })
 
-  it('uses bilinear sampling by default', async () => {
-    const output = await execute(
-      png(2, 1, (x) => (x === 0 ? [255, 0, 0, 255] : [0, 0, 255, 255])),
-      { width: 3, height: 1, fit: 'fill' },
-    )
+  it('uses Lanczos3 sampling by default', async () => {
+    const input = png(1, 8, (_x, y) => [y * 20, 0, 0, 255])
+    const [output, lanczos, bilinear] = await Promise.all([
+      execute(input, { width: 1, height: 3, fit: 'fill' }),
+      execute(input, { width: 1, height: 3, fit: 'fill', kernel: 'lanczos3' }),
+      execute(input, { width: 1, height: 3, fit: 'fill', kernel: 'bilinear' }),
+    ])
 
-    expect(pixelAt(output, 0, 0)).toEqual([255, 0, 0, 255])
-    expect(pixelAt(output, 1, 0)).toEqual([128, 0, 128, 255])
-    expect(pixelAt(output, 2, 0)).toEqual([0, 0, 255, 255])
+    expect(output.data).toEqual(lanczos.data)
+    expect(output.data).not.toEqual(bilinear.data)
   })
 
   it('preserves non-constant pixels when bilinear downsampling skips source rows', async () => {
     const output = await execute(
       png(1, 8, (_x, y) => [y * 20, 0, 0, 255]),
-      { width: 1, height: 3, fit: 'fill' },
+      { width: 1, height: 3, fit: 'fill', kernel: 'bilinear' },
     )
 
     expect(Array.from({ length: output.height }, (_value, y) => pixelAt(output, 0, y))).toEqual([
@@ -119,7 +120,7 @@ describe('streaming resize', () => {
   it('interpolates alpha in premultiplied color space', async () => {
     const output = await execute(
       png(2, 1, (x) => (x === 0 ? [255, 0, 0, 0] : [0, 0, 255, 255])),
-      { width: 1, height: 1, fit: 'fill' },
+      { width: 1, height: 1, fit: 'fill', kernel: 'bilinear' },
     )
 
     expect(pixelAt(output, 0, 0)).toEqual([0, 0, 255, 128])
@@ -142,6 +143,24 @@ describe('streaming resize', () => {
         expect(pixelAt(output, x, y)).toEqual([37, 91, 203, 170])
       }
     }
+  })
+
+  it('preserves image energy during an eightfold Lanczos3 downscale', async () => {
+    const output = await execute(
+      png(8, 8, (x, y) => (x === 0 && y === 0 ? [255, 255, 255, 255] : [0, 0, 0, 255])),
+      { width: 1, height: 1, fit: 'fill' },
+    )
+
+    expect(pixelAt(output, 0, 0)).toEqual([4, 4, 4, 255])
+  })
+
+  it('pre-shrinks strong alpha downscales in premultiplied color space', async () => {
+    const output = await execute(
+      png(8, 8, (x, y) => (x === 0 && y === 0 ? [255, 0, 0, 0] : [0, 0, 255, 255])),
+      { width: 1, height: 1, fit: 'fill' },
+    )
+
+    expect(pixelAt(output, 0, 0)).toEqual([0, 0, 255, 251])
   })
 
   it('centers contain output on a transparent canvas', async () => {
