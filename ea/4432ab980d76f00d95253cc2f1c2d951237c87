@@ -1,0 +1,22 @@
+scripts/serve-browser-tests.ts
+  s_84d542edc0aa8c::t_a2fcea6ae18c5c 73-74,94-143,145-153,261-263,266-267
+  s_84d542edc0aa8c::t_0fb406ee1cd88f 144
+browser-tests/demo.pw.ts
+  s_84d542edc0aa8c::t_a2fcea6ae18c5c 56,60,112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "ea4432ab980d76f00d95253cc2f1c2d951237c87",
+  "prompts": {},
+  "sessions": {
+    "s_84d542edc0aa8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe30a-1315-7a91-ac72-83d2bf53d5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
