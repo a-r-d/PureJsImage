@@ -1,0 +1,66 @@
+browser-tests/compatibility.pw.ts
+  s_84d542edc0aa8c::t_131731255e8130 56
+src/codecs/av1-transform.ts
+  s_84d542edc0aa8c::t_6f5e709beebb27 394-395,401-402,404-405,407-408
+  s_84d542edc0aa8c::t_131731255e8130 403
+  s_84d542edc0aa8c::t_50a1ff9a80da20 406
+benchmark/results/avif-qmatrix-sharp-2026-08-08.md
+  s_84d542edc0aa8c::t_49f17a7b0dfd18 5-9,11-17,19-32,35-36
+.agents/skills/rollout-codec-capability/SKILL.md
+  s_84d542edc0aa8c::t_7fcfb0de3e0926 28-31
+benchmark/corpus/files/avif/README.md
+  s_84d542edc0aa8c::t_49f17a7b0dfd18 26-33
+scripts/serve-browser-tests.ts
+  s_84d542edc0aa8c::t_131731255e8130 213-214
+tests/capability-manifest.test.ts
+  s_84d542edc0aa8c::t_a0772ad87e00c5 63-79,81
+  s_84d542edc0aa8c::t_409de5a946769b 80,82
+tests/lossy-codec-quality.test.ts
+  s_84d542edc0aa8c::t_dd02436d8d3248 1-2,8-11,113-124
+benchmark/avif/qmatrix-fixtures.ts
+  s_84d542edc0aa8c::t_700039d29517c9 6,11-14,26-38,45,47-63,71-84,86-89
+benchmark/avif/prepare-qmatrix-fixtures.ts
+  s_84d542edc0aa8c::t_700039d29517c9 11,15-23
+CHANGELOG.md
+  s_84d542edc0aa8c::t_49f17a7b0dfd18 30-32
+benchmark/avif/verify-qmatrix-fixtures.ts
+  s_84d542edc0aa8c::t_707be873402c5a 85-107,110-111,113,130-138,143-146
+capabilities/manifest.json
+  s_84d542edc0aa8c::t_d7818f39a4e264 22-27,226-229,397-402,616-619,791-794,901-904,1069-1072,1257-1262,1646-1655,1997-2002,2362-2365
+  s_84d542edc0aa8c::t_49f17a7b0dfd18 1656-1661,1789-1790,1953-1956
+.gitignore
+  s_84d542edc0aa8c::t_fe7894aee715e6 169
+tests/av1-post-filter.test.ts
+  s_84d542edc0aa8c::t_131731255e8130 152-160
+  s_84d542edc0aa8c::t_700039d29517c9 174-176,180
+scripts/render-capabilities.ts
+  s_84d542edc0aa8c::t_a0772ad87e00c5 135,152
+src/codecs/av1-qmatrix.ts
+  s_84d542edc0aa8c::t_6f5e709beebb27 765
+browser-tests/compatibility-harness.ts
+  s_84d542edc0aa8c::t_131731255e8130 187-204,230,238-245,247
+scripts/capability-manifest.ts
+  s_84d542edc0aa8c::t_a0772ad87e00c5 10-21,34,111-131,148
+avif-codec-support.md
+  s_84d542edc0aa8c::t_e03df85336dfb4 128-129,292-295
+docs/capabilities.json
+  s_84d542edc0aa8c::t_ba710214be57c9 31-36,389-392,745-750,1187-1190,1567-1570,1827-1830,2167-2170,2503-2508,3140-3155,3465-3468,3827-3831,3876-3881,4381-4384
+tests/generated/capability-expectations.json
+  s_84d542edc0aa8c::t_e81642f443a4d6 19-25,36-40,51-57,64-68,75-79,86-90,97-101,108-114,121-136,143-149
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "4db909db0771ab79187f3a3147c25f537c0faede",
+  "prompts": {},
+  "sessions": {
+    "s_84d542edc0aa8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe30a-1315-7a91-ac72-83d2bf53d5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
