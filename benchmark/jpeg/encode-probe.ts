@@ -147,8 +147,14 @@ const scanCount = output.reduce(
   (count, value, index) => count + (value === 0xff && output[index + 1] === 0xda ? 1 : 0),
   0,
 )
-if (progressive && (frameMarker !== 'SOF2' || scanCount !== 6)) {
-  throw new Error(`Progressive benchmark output was ${frameMarker} with ${scanCount} scans`)
+const huffmanTableMarkers = output.reduce(
+  (count, value, index) => count + (value === 0xff && output[index + 1] === 0xc4 ? 1 : 0),
+  0,
+)
+if (progressive && (frameMarker !== 'SOF2' || scanCount !== 6 || huffmanTableMarkers !== 5)) {
+  throw new Error(
+    `Progressive benchmark output was ${frameMarker} with ${scanCount} scans and ${huffmanTableMarkers} DHT markers`,
+  )
 }
 const geometry =
   chromaSubsampling === '420'
@@ -169,6 +175,7 @@ const result = {
   progressive,
   frameMarker,
   scanCount,
+  huffmanTableMarkers,
   chromaSubsampling: grayscale ? '400' : chromaSubsampling,
   restartMarkers,
   dimensions: `${width}x${height}`,

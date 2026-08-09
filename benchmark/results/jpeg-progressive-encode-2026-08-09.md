@@ -1,21 +1,22 @@
 # Progressive JPEG encode benchmark
 
-Generated: 2026-08-09T00:50:04.192Z
+Generated: 2026-08-09T03:37:38.474Z
 
 Each row ran in an isolated process. Pixels were independently decoded before timing counted. RSS is absolute process peak RSS; progressive retained bytes are compact quantized Int16 coefficients.
 
-| Mode | Profile | Frame/scans | Median | Throughput | Peak RSS | Coefficients | Output | PSNR |
+| Mode | Profile | Frame/scans/DHT | Median | Throughput | Peak RSS | Coefficients | Output | PSNR |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 420 | cold | SOF0/1 | 232.40 ms | 13.54 MP/s | 87.64 MiB | 0.00 MiB | 1492375 B | 18.44 dB |
-| progressive | cold | SOF2/6 | 313.03 ms | 10.05 MP/s | 101.32 MiB | 9.00 MiB | 1541467 B | 18.44 dB |
-| restart | cold | SOF0/1 | 233.76 ms | 13.46 MP/s | 88.00 MiB | 0.00 MiB | 1496677 B | 18.44 dB |
-| progressive-restart | cold | SOF2/6 | 296.07 ms | 10.62 MP/s | 102.54 MiB | 9.00 MiB | 1630737 B | 18.44 dB |
-| 420 | warm | SOF0/1 | 244.64 ms | 12.86 MP/s | 100.13 MiB | 0.00 MiB | 1492375 B | 18.44 dB |
-| progressive | warm | SOF2/6 | 282.39 ms | 11.14 MP/s | 115.37 MiB | 9.00 MiB | 1541467 B | 18.44 dB |
-| restart | warm | SOF0/1 | 238.97 ms | 13.16 MP/s | 102.36 MiB | 0.00 MiB | 1496677 B | 18.44 dB |
-| progressive-restart | warm | SOF2/6 | 266.69 ms | 11.80 MP/s | 117.37 MiB | 9.00 MiB | 1630737 B | 18.44 dB |
+| 420 | cold | SOF0/1/1 | 230.55 ms | 13.64 MP/s | 86.89 MiB | 0.00 MiB | 1492375 B | 18.44 dB |
+| progressive | cold | SOF2/6/5 | 343.01 ms | 9.17 MP/s | 100.44 MiB | 9.00 MiB | 1384013 B | 18.44 dB |
+| restart | cold | SOF0/1/1 | 227.80 ms | 13.81 MP/s | 87.86 MiB | 0.00 MiB | 1496677 B | 18.44 dB |
+| progressive-restart | cold | SOF2/6/5 | 335.01 ms | 9.39 MP/s | 101.31 MiB | 9.00 MiB | 1471776 B | 18.44 dB |
+| 420 | warm | SOF0/1/1 | 247.39 ms | 12.72 MP/s | 106.38 MiB | 0.00 MiB | 1492375 B | 18.44 dB |
+| progressive | warm | SOF2/6/5 | 329.55 ms | 9.55 MP/s | 115.71 MiB | 9.00 MiB | 1384013 B | 18.44 dB |
+| restart | warm | SOF0/1/1 | 238.87 ms | 13.17 MP/s | 103.82 MiB | 0.00 MiB | 1496677 B | 18.44 dB |
+| progressive-restart | warm | SOF2/6/5 | 328.94 ms | 9.56 MP/s | 117.45 MiB | 9.00 MiB | 1471776 B | 18.44 dB |
 
 Baseline and progressive rows use the same deterministic 2048x1536 RGB input, quality 80,
-4:2:0 sampling, standard Huffman tables, and independent `jpeg-js` final-pixel validation.
+4:2:0 sampling and independent `jpeg-js` final-pixel validation. Baseline uses the standard
+Huffman tables; progressive gathers statistics and writes optimized tables per entropy-coded scan.
 Restart rows add a four-MCU restart interval; progressive restart intervals apply independently
 to each scan, as required by JPEG scan semantics.

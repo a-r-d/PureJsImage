@@ -22,6 +22,11 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Fixed
 
+- Allowed the browser demo to convert the supported primary image from iPhone-style MPF JPEGs while
+  warning that auxiliary images and gain maps are not preserved; true animated inputs remain blocked.
+- Reduced progressive JPEG output with two-pass, scan-specific optimized Huffman tables; the pinned
+  quality-80 benchmark moved from 3.29% larger than baseline to 7.26% smaller with identical decoded
+  PSNR.
 - Fixed progressive JPEG AC refinement after a zero-run-length symbol so common Sharp/libjpeg
   output decodes correctly and can be resized and converted to WebP in Node.js and browsers.
 

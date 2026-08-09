@@ -103,7 +103,7 @@ supported until its output is independently validated.
   photographic default
 - [x] Quality control from 1-100 using scaled luminance and chrominance
   quantization tables
-- [x] Standard luminance and chrominance Huffman tables
+- [x] Standard luminance and chrominance Huffman tables for bounded-row baseline output
 - [x] `gray8`, `rgb8`, and `rgba8` pipeline input
 - [x] Native one-component grayscale output for `gray8` input
 - [x] Configurable `DRI` restart intervals with ordered `RST0`-`RST7` markers and
@@ -114,12 +114,15 @@ supported until its output is independently validated.
   rather than a full output frame
 - [x] Refinement-based progressive encoding with fixed four-scan grayscale and six-scan
   YCbCr scripts backed by compact quantized `Int16` coefficient planes
+- [x] Two-pass, scan-specific optimized Huffman tables for progressive DC-first, AC-first,
+  and AC-refinement entropy
 - [x] Edge replication for dimensions that are not multiples of eight
 - [x] Public `image.jpeg()` and `image.encode('jpeg')` APIs
 
 ### Planned for common output
 
-- [ ] Optimized per-image Huffman tables
+- [ ] Optimized per-image Huffman tables for baseline output without retaining full
+  coefficient planes
 - [ ] Faster integer/fixed-point DCT and quantization without changing decoded
   output beyond defined error bounds
 - [x] Compatible ICC and EXIF metadata writing when explicitly preserved

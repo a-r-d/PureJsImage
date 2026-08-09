@@ -106,6 +106,35 @@ test('refuses to silently flatten an animated input to its first frame', async (
   )
 })
 
+test('converts the supported primary image from an MPF JPEG', async ({ page }) => {
+  await page.goto('/demo.html')
+  await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+  const input = await readFile('benchmark/corpus/files/tundra-4000x3000.jpg')
+  await page.locator('#demo-file').setInputFiles({
+    buffer: input,
+    mimeType: 'image/jpeg',
+    name: 'iphone-mpf.jpg',
+  })
+
+  await expect(page.locator('#demo-source-badges')).toContainText('2 images')
+  await expect(page.locator('#demo-controls')).toBeEnabled()
+  await expect(page.locator('#demo-operation-status')).toContainText(
+    'conversion uses its supported primary image',
+  )
+  await expect(page.locator('#demo-log-list')).toContainText(
+    'auxiliary images and gain maps are not preserved',
+  )
+
+  await page.locator('#demo-output-format').selectOption('bmp')
+  await page.locator('#demo-resize-enabled').check()
+  await page.locator('#demo-resize-width').fill('200')
+  await page.locator('#demo-convert').click()
+
+  await expect(page.locator('#demo-result')).toBeVisible()
+  await expect(page.locator('#demo-result-summary')).toContainText('BMP · 200 × 150')
+  await expect(page.locator('#demo-log-list')).toContainText('BMP output validated as 200×150')
+})
+
 test('converts a progressive JPEG with AC-refinement ZRLs to WebP', async ({ page }) => {
   await page.goto('/demo.html')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)

@@ -304,14 +304,20 @@ const createBadge = (label: string): HTMLElement => {
   return badge
 }
 
+const countLabel = (metadata: ImageMetadata): string | undefined => {
+  const count = metadata.frames
+  if (count === undefined) return undefined
+  const noun = metadata.format === 'jpeg' ? 'image' : 'frame'
+  return `${count} ${noun}${count === 1 ? '' : 's'}`
+}
+
 const describeMetadata = (metadata: ImageMetadata): void => {
+  const count = countLabel(metadata)
   sourceBadges.replaceChildren(
     createBadge(metadata.format.toUpperCase()),
     createBadge(metadata.hasAlpha ? 'Alpha' : 'Opaque'),
     createBadge(`${metadata.bitDepth ?? 8}-bit`),
-    ...(metadata.frames !== undefined
-      ? [createBadge(`${metadata.frames} frame${metadata.frames === 1 ? '' : 's'}`)]
-      : []),
+    ...(count === undefined ? [] : [createBadge(count)]),
   )
 }
 
@@ -353,10 +359,11 @@ const inspectFile = async (file: File): Promise<void> => {
     resizeHeight.placeholder = String(Math.min(metadata.height, 1_600))
     addLog(
       'detect',
-      `${metadata.format.toUpperCase()} detected from content: ${metadata.width}×${metadata.height}, ${metadata.hasAlpha ? 'alpha' : 'opaque'}, ${metadata.frames ?? 1} frame(s).`,
+      `${metadata.format.toUpperCase()} detected from content: ${metadata.width}×${metadata.height}, ${metadata.hasAlpha ? 'alpha' : 'opaque'}, ${countLabel(metadata) ?? '1 image'}.`,
     )
 
-    if ((metadata.frames ?? 1) > 1) {
+    const multipleImages = (metadata.frames ?? 1) > 1
+    if (multipleImages && metadata.format !== 'jpeg') {
       operationStatus.textContent =
         'Animated input detected. This demo refuses to silently convert only the first frame.'
       addLog(
@@ -368,7 +375,16 @@ const inspectFile = async (file: File): Promise<void> => {
 
     controls.disabled = false
     convertButton.disabled = false
-    operationStatus.textContent = `Ready. Choose an output format and optional transforms.`
+    if (multipleImages) {
+      operationStatus.textContent =
+        'Ready. This MPF JPEG contains auxiliary images; conversion uses its supported primary image.'
+      addLog(
+        'warning',
+        'MPF JPEG detected. Conversion uses the primary JPEG image; auxiliary images and gain maps are not preserved.',
+      )
+    } else {
+      operationStatus.textContent = `Ready. Choose an output format and optional transforms.`
+    }
   } catch (error: unknown) {
     if (sequence !== inspectionSequence) return
     operationStatus.textContent = errorMessage(error)
@@ -663,7 +679,7 @@ updateAccelerationStatus()
 addLog('info', `PureJsImage loaded with ${referenceImages.formats().length} first-party codecs.`)
 addLog(
   'info',
-  'Demo guardrails: 64 MiB input, 64 megapixels, 256 MiB worst-case decoded bytes, single-frame output.',
+  'Demo guardrails: 64 MiB input, 64 megapixels, 256 MiB worst-case decoded bytes, and one output image. MPF JPEG uses its primary image.',
 )
 
 declare global {

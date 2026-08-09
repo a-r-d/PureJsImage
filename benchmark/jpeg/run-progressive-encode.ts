@@ -12,6 +12,7 @@ interface ProbeResult {
   readonly progressive: boolean
   readonly frameMarker: 'SOF0' | 'SOF2'
   readonly scanCount: number
+  readonly huffmanTableMarkers: number
   readonly restartMarkers: number
   readonly dimensions: string
   readonly medianMilliseconds: number
@@ -58,6 +59,7 @@ const parseProbe = (output: string, mode: ProbeMode, profile: ProbeProfile): Pro
     independentDecode,
     dimensions,
     scanCount: numberField(parsed, 'scanCount'),
+    huffmanTableMarkers: numberField(parsed, 'huffmanTableMarkers'),
     restartMarkers: numberField(parsed, 'restartMarkers'),
     medianMilliseconds: numberField(parsed, 'medianMilliseconds'),
     throughputMegapixelsPerSecond: numberField(parsed, 'throughputMegapixelsPerSecond'),
@@ -118,15 +120,16 @@ const markdown = [
   '',
   report.note,
   '',
-  '| Mode | Profile | Frame/scans | Median | Throughput | Peak RSS | Coefficients | Output | PSNR |',
+  '| Mode | Profile | Frame/scans/DHT | Median | Throughput | Peak RSS | Coefficients | Output | PSNR |',
   '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |',
   ...results.map(
     (result) =>
-      `| ${result.mode} | ${result.profile} | ${result.frameMarker}/${result.scanCount} | ${result.medianMilliseconds.toFixed(2)} ms | ${result.throughputMegapixelsPerSecond.toFixed(2)} MP/s | ${result.peakRssMiB.toFixed(2)} MiB | ${(result.retainedCoefficientBytes / 1_048_576).toFixed(2)} MiB | ${result.outputBytes} B | ${result.psnr.toFixed(2)} dB |`,
+      `| ${result.mode} | ${result.profile} | ${result.frameMarker}/${result.scanCount}/${result.huffmanTableMarkers} | ${result.medianMilliseconds.toFixed(2)} ms | ${result.throughputMegapixelsPerSecond.toFixed(2)} MP/s | ${result.peakRssMiB.toFixed(2)} MiB | ${(result.retainedCoefficientBytes / 1_048_576).toFixed(2)} MiB | ${result.outputBytes} B | ${result.psnr.toFixed(2)} dB |`,
   ),
   '',
   'Baseline and progressive rows use the same deterministic 2048x1536 RGB input, quality 80,',
-  '4:2:0 sampling, standard Huffman tables, and independent `jpeg-js` final-pixel validation.',
+  '4:2:0 sampling and independent `jpeg-js` final-pixel validation. Baseline uses the standard',
+  'Huffman tables; progressive gathers statistics and writes optimized tables per entropy-coded scan.',
   'Restart rows add a four-MCU restart interval; progressive restart intervals apply independently',
   'to each scan, as required by JPEG scan semantics.',
   '',

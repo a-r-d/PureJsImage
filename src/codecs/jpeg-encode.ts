@@ -545,6 +545,11 @@ interface HuffmanCodes {
   readonly lengths: Uint8Array
 }
 
+interface OptimizedHuffmanTable extends HuffmanCodes {
+  readonly counts: Uint8Array
+  readonly symbols: Uint8Array
+}
+
 interface EncoderOptions {
   readonly quality: number
   readonly progressive: boolean
@@ -637,6 +642,110 @@ const huffmanCodes = (counts: Uint8Array, symbols: Uint8Array): HuffmanCodes => 
   return { values, lengths }
 }
 
+const optimizedHuffmanTable = (sourceFrequencies: Uint32Array): OptimizedHuffmanTable => {
+  const frequencies = new Float64Array(257)
+  let usedSymbols = 0
+  for (let symbol = 0; symbol < 256; symbol += 1) {
+    const frequency = sourceFrequencies[symbol] ?? 0
+    frequencies[symbol] = frequency
+    if (frequency > 0) usedSymbols += 1
+  }
+  if (usedSymbols === 0) {
+    frequencies[0] = 1
+    usedSymbols = 1
+  }
+
+  // The dummy symbol prevents the all-ones code that JPEG reserves for marker padding.
+  frequencies[256] = 1
+  const codeSizes = new Uint16Array(257)
+  const others = new Int16Array(257)
+  others.fill(-1)
+
+  while (true) {
+    let first = -1
+    let firstFrequency = Number.POSITIVE_INFINITY
+    for (let symbol = 0; symbol <= 256; symbol += 1) {
+      const frequency = frequencies[symbol] ?? 0
+      if (frequency > 0 && frequency <= firstFrequency) {
+        first = symbol
+        firstFrequency = frequency
+      }
+    }
+    let second = -1
+    let secondFrequency = Number.POSITIVE_INFINITY
+    for (let symbol = 0; symbol <= 256; symbol += 1) {
+      const frequency = frequencies[symbol] ?? 0
+      if (symbol !== first && frequency > 0 && frequency <= secondFrequency) {
+        second = symbol
+        secondFrequency = frequency
+      }
+    }
+    if (second < 0) break
+    if (first < 0) throw new Error('JPEG Huffman frequency tree is empty')
+
+    frequencies[first] = firstFrequency + secondFrequency
+    frequencies[second] = 0
+    codeSizes[first] = (codeSizes[first] ?? 0) + 1
+    let branch = first
+    while ((others[branch] ?? -1) >= 0) {
+      branch = others[branch] ?? -1
+      codeSizes[branch] = (codeSizes[branch] ?? 0) + 1
+    }
+    others[branch] = second
+    codeSizes[second] = (codeSizes[second] ?? 0) + 1
+    branch = second
+    while ((others[branch] ?? -1) >= 0) {
+      branch = others[branch] ?? -1
+      codeSizes[branch] = (codeSizes[branch] ?? 0) + 1
+    }
+  }
+
+  const lengthCounts = new Uint16Array(257)
+  for (const size of codeSizes) {
+    if (size > 0) lengthCounts[size] = (lengthCounts[size] ?? 0) + 1
+  }
+  for (let length = 256; length > 16; length -= 1) {
+    while ((lengthCounts[length] ?? 0) > 0) {
+      let shorter = length - 2
+      while (shorter > 0 && (lengthCounts[shorter] ?? 0) === 0) shorter -= 1
+      if (shorter === 0 || (lengthCounts[length] ?? 0) < 2) {
+        throw new Error('JPEG Huffman code lengths cannot be limited to 16 bits')
+      }
+      lengthCounts[length] = (lengthCounts[length] ?? 0) - 2
+      lengthCounts[length - 1] = (lengthCounts[length - 1] ?? 0) + 1
+      lengthCounts[shorter + 1] = (lengthCounts[shorter + 1] ?? 0) + 2
+      lengthCounts[shorter] = (lengthCounts[shorter] ?? 0) - 1
+    }
+  }
+
+  let longest = 16
+  while (longest > 0 && (lengthCounts[longest] ?? 0) === 0) longest -= 1
+  if (longest === 0) throw new Error('JPEG Huffman table has no real symbols')
+  lengthCounts[longest] = (lengthCounts[longest] ?? 0) - 1
+
+  const counts = new Uint8Array(16)
+  let encodedSymbols = 0
+  for (let length = 1; length <= 16; length += 1) {
+    const count = lengthCounts[length] ?? 0
+    if (count > 255) throw new Error('JPEG Huffman code-length count exceeds one byte')
+    counts[length - 1] = count
+    encodedSymbols += count
+  }
+  if (encodedSymbols !== usedSymbols) throw new Error('JPEG Huffman symbol count is inconsistent')
+
+  const symbols = new Uint8Array(usedSymbols)
+  let output = 0
+  for (let length = 1; length <= 256; length += 1) {
+    for (let symbol = 0; symbol < 256; symbol += 1) {
+      if ((codeSizes[symbol] ?? 0) !== length) continue
+      symbols[output] = symbol
+      output += 1
+    }
+  }
+  if (output !== usedSymbols) throw new Error('JPEG Huffman symbol ordering is inconsistent')
+  return { counts, symbols, ...huffmanCodes(counts, symbols) }
+}
+
 const luminanceDcCodes = huffmanCodes(luminanceDcCounts, luminanceDcValues)
 const luminanceAcCodes = huffmanCodes(luminanceAcCounts, luminanceAcValues)
 const chrominanceDcCodes = huffmanCodes(chrominanceDcCounts, chrominanceDcValues)
@@ -712,6 +821,31 @@ const writeTable = (
   writer.byte((tableClass << 4) | tableId)
   for (const count of counts) writer.byte(count)
   for (const value of values) writer.byte(value)
+}
+
+interface HuffmanTableDefinition {
+  readonly tableClass: 0 | 1
+  readonly tableId: 0 | 1
+  readonly table: OptimizedHuffmanTable
+}
+
+const writeHuffmanTables = (
+  writer: ByteWriter,
+  definitions: readonly HuffmanTableDefinition[],
+): void => {
+  let length = 2
+  for (const definition of definitions) length += 17 + definition.table.symbols.byteLength
+  writer.word(0xffc4)
+  writer.word(length)
+  for (const definition of definitions) {
+    writeTable(
+      writer,
+      definition.tableClass,
+      definition.tableId,
+      definition.table.counts,
+      definition.table.symbols,
+    )
+  }
 }
 
 const jpegHeader = (
@@ -804,13 +938,15 @@ const jpegHeader = (
     writer.byte(table)
   }
 
-  writer.word(0xffc4)
-  writer.word(grayscale ? 210 : 418)
-  writeTable(writer, 0, 0, luminanceDcCounts, luminanceDcValues)
-  writeTable(writer, 1, 0, luminanceAcCounts, luminanceAcValues)
-  if (!grayscale) {
-    writeTable(writer, 0, 1, chrominanceDcCounts, chrominanceDcValues)
-    writeTable(writer, 1, 1, chrominanceAcCounts, chrominanceAcValues)
+  if (!progressive) {
+    writer.word(0xffc4)
+    writer.word(grayscale ? 210 : 418)
+    writeTable(writer, 0, 0, luminanceDcCounts, luminanceDcValues)
+    writeTable(writer, 1, 0, luminanceAcCounts, luminanceAcValues)
+    if (!grayscale) {
+      writeTable(writer, 0, 1, chrominanceDcCounts, chrominanceDcValues)
+      writeTable(writer, 1, 1, chrominanceAcCounts, chrominanceAcValues)
+    }
   }
 
   if (restartInterval > 0) {
@@ -915,6 +1051,11 @@ interface ProgressivePlane {
   readonly storageBlocksPerLine: number
 }
 
+interface ProgressiveDcTables {
+  readonly luminance: OptimizedHuffmanTable
+  readonly chrominance?: OptimizedHuffmanTable
+}
+
 interface ProgressiveScanComponent {
   readonly id: 1 | 2 | 3
   readonly table: 0 | 1
@@ -1001,6 +1142,33 @@ const encodeProgressiveAcFirst = (
   if (zeroes > 0) writer.code(codes, 0)
 }
 
+const countProgressiveAcFirst = (
+  frequencies: Uint32Array,
+  coefficients: Int16Array,
+  offset: number,
+  spectralStart: number,
+  spectralEnd: number,
+  successiveLow: number,
+): void => {
+  const divisor = 2 ** successiveLow
+  let zeroes = 0
+  for (let spectral = spectralStart; spectral <= spectralEnd; spectral += 1) {
+    const coefficient = Math.trunc((coefficients[offset + (zigZag[spectral] ?? 0)] ?? 0) / divisor)
+    if (coefficient === 0) {
+      zeroes += 1
+      continue
+    }
+    while (zeroes >= 16) {
+      frequencies[0xf0] = (frequencies[0xf0] ?? 0) + 1
+      zeroes -= 16
+    }
+    const symbol = (zeroes << 4) | coefficientMagnitude(coefficient)
+    frequencies[symbol] = (frequencies[symbol] ?? 0) + 1
+    zeroes = 0
+  }
+  if (zeroes > 0) frequencies[0] = (frequencies[0] ?? 0) + 1
+}
+
 const isExistingRefinementCoefficient = (coefficient: number, bit: number): boolean =>
   Math.abs(coefficient) >= bit * 2
 
@@ -1068,6 +1236,69 @@ const encodeProgressiveAcRefinement = (
     }
     spectral += 1
   }
+}
+
+const countProgressiveAcRefinement = (
+  frequencies: Uint32Array,
+  coefficients: Int16Array,
+  offset: number,
+  spectralStart: number,
+  spectralEnd: number,
+  successiveLow: number,
+): void => {
+  const bit = 1 << successiveLow
+  let spectral = spectralStart
+  while (spectral <= spectralEnd) {
+    let zeroes = 0
+    let newCoefficient = -1
+    for (let candidate = spectral; candidate <= spectralEnd; candidate += 1) {
+      const coefficient = coefficients[offset + (zigZag[candidate] ?? 0)] ?? 0
+      if (isExistingRefinementCoefficient(coefficient, bit)) continue
+      if (Math.abs(coefficient) === bit) {
+        newCoefficient = candidate
+        break
+      }
+      zeroes += 1
+    }
+
+    if (newCoefficient < 0) {
+      frequencies[0] = (frequencies[0] ?? 0) + 1
+      return
+    }
+    if (zeroes >= 16) {
+      frequencies[0xf0] = (frequencies[0xf0] ?? 0) + 1
+      let remainingZeroes = 16
+      while (spectral <= spectralEnd && remainingZeroes > 0) {
+        const coefficient = coefficients[offset + (zigZag[spectral] ?? 0)] ?? 0
+        if (!isExistingRefinementCoefficient(coefficient, bit)) remainingZeroes -= 1
+        spectral += 1
+      }
+      continue
+    }
+
+    const symbol = (zeroes << 4) | 1
+    frequencies[symbol] = (frequencies[symbol] ?? 0) + 1
+    spectral = newCoefficient + 1
+  }
+}
+
+const progressiveAcTable = (
+  plane: ProgressivePlane,
+  refinement: boolean,
+  successiveLow: number,
+): OptimizedHuffmanTable => {
+  const frequencies = new Uint32Array(256)
+  for (let blockY = 0; blockY < plane.blocksPerColumn; blockY += 1) {
+    for (let blockX = 0; blockX < plane.blocksPerLine; blockX += 1) {
+      const offset = (blockY * plane.storageBlocksPerLine + blockX) * 64
+      if (refinement) {
+        countProgressiveAcRefinement(frequencies, plane.coefficients, offset, 1, 63, successiveLow)
+      } else {
+        countProgressiveAcFirst(frequencies, plane.coefficients, offset, 1, 63, successiveLow)
+      }
+    }
+  }
+  return optimizedHuffmanTable(frequencies)
 }
 
 const storeQuantizedBlock = (
@@ -1658,7 +1889,75 @@ class JpegEncoder implements ImageEncoder {
     if (output.byteLength > 0) await this.#sink.write(output)
   }
 
+  #progressiveDcTables(planes: ProgressivePlanes): ProgressiveDcTables {
+    const luminanceFrequencies = new Uint32Array(256)
+    const chrominanceFrequencies = new Uint32Array(256)
+    const mcusPerLine = Math.ceil(this.#width / this.#sampling.mcuWidth)
+    const mcusPerColumn = Math.ceil(this.#height / this.#sampling.rowHeight)
+    const blueDifference = planes.blueDifference
+    const redDifference = planes.redDifference
+    let previousY = 0
+    let previousCb = 0
+    let previousCr = 0
+    let mcu = 0
+    for (let mcuY = 0; mcuY < mcusPerColumn; mcuY += 1) {
+      for (let mcuX = 0; mcuX < mcusPerLine; mcuX += 1) {
+        if (this.#restartInterval > 0 && mcu > 0 && mcu % this.#restartInterval === 0) {
+          previousY = 0
+          previousCb = 0
+          previousCr = 0
+        }
+        for (let blockY = 0; blockY < this.#sampling.luminanceVertical; blockY += 1) {
+          for (let blockX = 0; blockX < this.#sampling.luminanceHorizontal; blockX += 1) {
+            const x = mcuX * this.#sampling.luminanceHorizontal + blockX
+            const y = mcuY * this.#sampling.luminanceVertical + blockY
+            const coefficient =
+              planes.luminance.coefficients[(y * planes.luminance.storageBlocksPerLine + x) * 64] ??
+              0
+            const dc = coefficient >> 1
+            const category = coefficientMagnitude(dc - previousY)
+            luminanceFrequencies[category] = (luminanceFrequencies[category] ?? 0) + 1
+            previousY = dc
+          }
+        }
+        if (!this.#grayscale) {
+          if (!blueDifference || !redDifference) {
+            throw invalidInput('Progressive JPEG chrominance coefficient storage is missing')
+          }
+          const offset = (mcuY * blueDifference.storageBlocksPerLine + mcuX) * 64
+          const cb = (blueDifference.coefficients[offset] ?? 0) >> 1
+          const cr = (redDifference.coefficients[offset] ?? 0) >> 1
+          const cbCategory = coefficientMagnitude(cb - previousCb)
+          const crCategory = coefficientMagnitude(cr - previousCr)
+          chrominanceFrequencies[cbCategory] = (chrominanceFrequencies[cbCategory] ?? 0) + 1
+          chrominanceFrequencies[crCategory] = (chrominanceFrequencies[crCategory] ?? 0) + 1
+          previousCb = cb
+          previousCr = cr
+        }
+        mcu += 1
+      }
+    }
+    const luminance = optimizedHuffmanTable(luminanceFrequencies)
+    return this.#grayscale
+      ? { luminance }
+      : { luminance, chrominance: optimizedHuffmanTable(chrominanceFrequencies) }
+  }
+
   async #writeProgressiveDcScan(planes: ProgressivePlanes, refinement: boolean): Promise<void> {
+    let luminanceCodes: HuffmanCodes = luminanceDcCodes
+    let chrominanceCodes: HuffmanCodes = chrominanceDcCodes
+    if (!refinement) {
+      const tables = this.#progressiveDcTables(planes)
+      const definitions: HuffmanTableDefinition[] = [
+        { tableClass: 0, tableId: 0, table: tables.luminance },
+      ]
+      if (tables.chrominance) {
+        chrominanceCodes = tables.chrominance
+        definitions.push({ tableClass: 0, tableId: 1, table: tables.chrominance })
+      }
+      luminanceCodes = tables.luminance
+      writeHuffmanTables(this.#writer, definitions)
+    }
     writeScanHeader(
       this.#writer,
       this.#grayscale ? grayscaleScanComponents : colorScanComponents,
@@ -1701,7 +2000,7 @@ class JpegEncoder implements ImageEncoder {
                 this.#writer,
                 coefficient,
                 previousY,
-                luminanceDcCodes,
+                luminanceCodes,
                 1,
               )
             }
@@ -1718,20 +2017,8 @@ class JpegEncoder implements ImageEncoder {
             this.#writer.bits(cb & 1, 1)
             this.#writer.bits(cr & 1, 1)
           } else {
-            previousCb = encodeProgressiveDcFirst(
-              this.#writer,
-              cb,
-              previousCb,
-              chrominanceDcCodes,
-              1,
-            )
-            previousCr = encodeProgressiveDcFirst(
-              this.#writer,
-              cr,
-              previousCr,
-              chrominanceDcCodes,
-              1,
-            )
+            previousCb = encodeProgressiveDcFirst(this.#writer, cb, previousCb, chrominanceCodes, 1)
+            previousCr = encodeProgressiveDcFirst(this.#writer, cr, previousCr, chrominanceCodes, 1)
           }
         }
         mcu += 1
@@ -1745,9 +2032,11 @@ class JpegEncoder implements ImageEncoder {
   async #writeProgressiveAcScan(
     plane: ProgressivePlane,
     component: ProgressiveScanComponent,
-    codes: HuffmanCodes,
     refinement: boolean,
   ): Promise<void> {
+    const successiveLow = refinement ? 0 : component.id === 1 ? 1 : 0
+    const codes = progressiveAcTable(plane, refinement, successiveLow)
+    writeHuffmanTables(this.#writer, [{ tableClass: 1, tableId: component.table, table: codes }])
     writeScanHeader(
       this.#writer,
       [component],
@@ -1757,7 +2046,6 @@ class JpegEncoder implements ImageEncoder {
       refinement ? 0 : component.id === 1 ? 1 : 0,
     )
     await this.#writePending(true)
-    const successiveLow = refinement ? 0 : component.id === 1 ? 1 : 0
     let block = 0
     let restart = 0
     for (let blockY = 0; blockY < plane.blocksPerColumn; blockY += 1) {
@@ -1801,35 +2089,15 @@ class JpegEncoder implements ImageEncoder {
   async #writeProgressiveScans(planes: ProgressivePlanes): Promise<void> {
     await this.#writeProgressiveDcScan(planes, false)
     await this.#writeProgressiveDcScan(planes, true)
-    await this.#writeProgressiveAcScan(
-      planes.luminance,
-      luminanceScanComponent,
-      luminanceAcCodes,
-      false,
-    )
+    await this.#writeProgressiveAcScan(planes.luminance, luminanceScanComponent, false)
     if (!this.#grayscale) {
       if (!planes.blueDifference || !planes.redDifference) {
         throw invalidInput('Progressive JPEG chrominance coefficient storage is missing')
       }
-      await this.#writeProgressiveAcScan(
-        planes.blueDifference,
-        blueDifferenceScanComponent,
-        chrominanceAcCodes,
-        false,
-      )
-      await this.#writeProgressiveAcScan(
-        planes.redDifference,
-        redDifferenceScanComponent,
-        chrominanceAcCodes,
-        false,
-      )
+      await this.#writeProgressiveAcScan(planes.blueDifference, blueDifferenceScanComponent, false)
+      await this.#writeProgressiveAcScan(planes.redDifference, redDifferenceScanComponent, false)
     }
-    await this.#writeProgressiveAcScan(
-      planes.luminance,
-      luminanceScanComponent,
-      luminanceAcCodes,
-      true,
-    )
+    await this.#writeProgressiveAcScan(planes.luminance, luminanceScanComponent, true)
   }
 
   async finish(): Promise<void> {

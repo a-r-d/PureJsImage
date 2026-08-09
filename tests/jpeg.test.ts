@@ -78,6 +78,7 @@ interface JpegScanDescription {
 interface ProgressiveJpegStructure {
   readonly frameMarker: number
   readonly componentCount: number
+  readonly huffmanTableMarkers: number
   readonly restartInterval: number
   readonly scans: readonly JpegScanDescription[]
 }
@@ -86,6 +87,7 @@ const progressiveJpegStructure = (input: Uint8Array): ProgressiveJpegStructure =
   let offset = 2
   let frameMarker = 0
   let componentCount = 0
+  let huffmanTableMarkers = 0
   let restartInterval = 0
   const scans: JpegScanDescription[] = []
   while (offset + 1 < input.byteLength) {
@@ -105,6 +107,7 @@ const progressiveJpegStructure = (input: Uint8Array): ProgressiveJpegStructure =
     if (marker === 0xdd) {
       restartInterval = ((input[offset + 2] ?? 0) << 8) | (input[offset + 3] ?? 0)
     }
+    if (marker === 0xc4) huffmanTableMarkers += 1
     if (marker !== 0xda) {
       offset += length
       continue
@@ -144,7 +147,7 @@ const progressiveJpegStructure = (input: Uint8Array): ProgressiveJpegStructure =
       restartMarkers,
     })
   }
-  return { frameMarker, componentCount, restartInterval, scans }
+  return { frameMarker, componentCount, huffmanTableMarkers, restartInterval, scans }
 }
 
 const jpegStructure = (input: Uint8Array): JpegStructure => {
@@ -809,6 +812,7 @@ describe('JPEG pixel pipeline', () => {
 
       expect(structure.frameMarker).toBe(0xc2)
       expect(structure.componentCount).toBe(3)
+      expect(structure.huffmanTableMarkers).toBe(5)
       expect(
         structure.scans.map(
           ({ components, spectralStart, spectralEnd, successiveHigh, successiveLow }) => ({
@@ -841,6 +845,35 @@ describe('JPEG pixel pipeline', () => {
     },
   )
 
+  it('makes representative progressive output smaller with scan-specific Huffman tables', async () => {
+    const image = new PNG({ width: 512, height: 384 })
+    for (let y = 0; y < image.height; y += 1) {
+      for (let x = 0; x < image.width; x += 1) {
+        const offset = (y * image.width + x) * 4
+        const texture = Math.round(18 * Math.sin(x / 13) + 12 * Math.cos(y / 9))
+        image.data.set(
+          [
+            Math.max(0, Math.min(255, 35 + x / 3 + texture)),
+            Math.max(0, Math.min(255, 25 + y / 2 + texture)),
+            Math.max(0, Math.min(255, 45 + (x + y) / 5 - texture)),
+            255,
+          ],
+          offset,
+        )
+      }
+    }
+    const opened = await Image.open(PNG.sync.write(image))
+    const baseline = await opened.jpeg({ quality: 85 }).toBuffer()
+    const progressive = await opened.jpeg({ quality: 85, progressive: true }).toBuffer()
+    const structure = progressiveJpegStructure(progressive)
+
+    expect(structure.huffmanTableMarkers).toBe(5)
+    expect(progressive.byteLength).toBeLessThan(baseline.byteLength)
+    await expect(sharp(progressive).removeAlpha().raw().toBuffer()).resolves.toEqual(
+      await sharp(baseline).removeAlpha().raw().toBuffer(),
+    )
+  })
+
   it('encodes gray8 input as a native one-component JPEG', async () => {
     const image = new PNG({ width: 17, height: 9 })
     for (let y = 0; y < image.height; y += 1) {
@@ -865,6 +898,7 @@ describe('JPEG pixel pipeline', () => {
     expect(structure.componentCount).toBe(1)
     expect(progressiveStructure.frameMarker).toBe(0xc2)
     expect(progressiveStructure.componentCount).toBe(1)
+    expect(progressiveStructure.huffmanTableMarkers).toBe(3)
     expect(progressiveStructure.scans).toHaveLength(4)
     await expect(sharp(progressive).removeAlpha().raw().toBuffer()).resolves.toEqual(
       await sharp(output).removeAlpha().raw().toBuffer(),
