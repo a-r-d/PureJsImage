@@ -60,6 +60,26 @@ describe('generated codec capability contract', () => {
     }
   })
 
+  it('requires every codec to declare its independent lossy-pixel validation contract', async () => {
+    const manifest = await readCapabilityManifest()
+    for (const codec of manifest.codecs) {
+      const validation = codec.lossyPixelValidation
+      if (validation.status === 'not-applicable') {
+        expect(validation.rationale, `${codec.id} lossy validation rationale`).not.toBe('')
+        continue
+      }
+      expect(validation.oracle, `${codec.id} lossy oracle`).not.toBe('')
+      expect(validation.tolerance, `${codec.id} lossy tolerance`).not.toBe('')
+      expect(validation.evidence.length, `${codec.id} lossy oracle evidence`).toBeGreaterThan(0)
+      for (const path of validation.evidence) {
+        expect(
+          readFileSync(path, 'utf8').length,
+          `${codec.id} lossy evidence in ${path}`,
+        ).toBeGreaterThan(0)
+      }
+    }
+  })
+
   it('keeps corrected PNG and WebP metadata claims in the authoritative manifest', async () => {
     const manifest = await readCapabilityManifest()
     for (const id of ['png', 'webp']) {

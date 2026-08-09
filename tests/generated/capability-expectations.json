@@ -16,7 +16,13 @@
         "tests/jpeg-hardening.test.ts",
         "tests/jpeg-reference-parity.test.ts",
         "browser-tests/compatibility.pw.ts"
-      ]
+      ],
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Sharp 0.35.3 with libjpeg plus pinned browser fixtures",
+        "tolerance": "Decode RGB PSNR above 40 dB versus Sharp/libjpeg and above 28 dB versus source pixels",
+        "evidence": ["tests/lossy-codec-quality.test.ts", "tests/jpeg-reference-parity.test.ts"]
+      }
     },
     {
       "id": "png",
@@ -27,7 +33,11 @@
         "tests/png.test.ts",
         "tests/png-compatibility.test.ts",
         "tests/metadata-preservation.test.ts"
-      ]
+      ],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented PNG paths are lossless"
+      }
     },
     {
       "id": "webp",
@@ -38,56 +48,105 @@
         "tests/webp.test.ts",
         "tests/metadata-preservation.test.ts",
         "tests/lossy-codec-quality.test.ts"
-      ]
+      ],
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Sharp 0.35.3 with libwebp",
+        "tolerance": "Lossy decode RGB PSNR above 39 dB versus the independent libwebp output",
+        "evidence": ["tests/lossy-codec-quality.test.ts"]
+      }
     },
     {
       "id": "bmp",
       "format": "bmp",
       "decoder": true,
       "encoder": true,
-      "evidence": ["tests/bmp.test.ts"]
+      "evidence": ["tests/bmp.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented BMP paths are uncompressed or losslessly compressed"
+      }
     },
     {
       "id": "tiff",
       "format": "tiff",
       "decoder": true,
       "encoder": true,
-      "evidence": ["tests/tiff.test.ts", "tests/metadata-preservation.test.ts"]
+      "evidence": ["tests/tiff.test.ts", "tests/metadata-preservation.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented TIFF compression paths are lossless"
+      }
     },
     {
       "id": "gif",
       "format": "gif",
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/gif.test.ts"]
+      "evidence": ["tests/gif.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "GIF decode reproduces the stored palette indices and does not claim a lossy continuous-tone path"
+      }
     },
     {
       "id": "ico",
       "format": "ico",
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/ico.test.ts"]
+      "evidence": ["tests/ico.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented ICO entries contain lossless PNG or DIB pixel data"
+      }
     },
     {
       "id": "jpeg2000",
       "format": "jp2",
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/jpeg2000.test.ts", "tests/jpeg2000-hardening.test.ts"]
+      "evidence": ["tests/jpeg2000.test.ts", "tests/jpeg2000-hardening.test.ts"],
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Pinned FFmpeg and OpenJPEG JP2 fixtures",
+        "tolerance": "Irreversible 9/7 decoded sample error at most 1 for the pinned oracle pixels",
+        "evidence": ["tests/jpeg2000.test.ts", "benchmark/jpeg2000/verify-corpus.ts"]
+      }
     },
     {
       "id": "avif",
       "format": "avif",
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/avif.test.ts", "tests/av1.test.ts", "tests/av1-post-filter.test.ts"]
+      "evidence": [
+        "tests/avif.test.ts",
+        "tests/av1.test.ts",
+        "tests/av1-post-filter.test.ts",
+        "tests/lossy-codec-quality.test.ts"
+      ],
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "Sharp 0.35.3/libaom and FFmpeg with libaom 3.12.1 and dav1d 1.5.1",
+        "tolerance": "Direct YUV maximum error at most 3 and PSNR at least 55 dB; displayed RGB PSNR above 39 dB",
+        "evidence": [
+          "tests/lossy-codec-quality.test.ts",
+          "tests/av1-post-filter.test.ts",
+          "benchmark/avif/verify-qmatrix-fixtures.ts"
+        ]
+      }
     },
     {
       "id": "heif",
       "format": "heif",
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/heif.test.ts", "tests/metadata-preservation.test.ts"]
+      "evidence": ["tests/heif.test.ts", "tests/metadata-preservation.test.ts"],
+      "lossyPixelValidation": {
+        "status": "independent-oracle",
+        "oracle": "ImageMagick 7.1.2 with libheif 1.20.2",
+        "tolerance": "Normalized displayed sRGB RMSE at most 0.035 for compatible corpus entries",
+        "evidence": ["tests/heif.test.ts", "benchmark/heif/compatibility/run.ts"]
+      }
     }
   ]
 }

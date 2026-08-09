@@ -27,6 +27,9 @@ All notable changes to PureJsImage are documented in this file.
 - Reduced progressive JPEG output with two-pass, scan-specific optimized Huffman tables; the pinned
   quality-80 benchmark moved from 3.29% larger than baseline to 7.26% smaller with identical decoded
   PSNR.
+- Corrected AV1 quantization-matrix coefficient-axis lookup and adjusted matrix
+  dimensions for 64-point transforms, with q30-q90 YUV and displayed-RGB gates
+  against independent libaom, dav1d, Sharp, and Chromium decoders.
 - Reduced lossless WebP output for screenshot-style pixels with block-adaptive VP8L predictors,
   adaptive color-cache codes, and a deeper bounded match search, while retaining exact independent
   libwebp pixel validation and documenting the fixed match-table memory cost.

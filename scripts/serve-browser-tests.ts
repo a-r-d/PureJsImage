@@ -70,8 +70,8 @@ const animatedGifFixture = (): Uint8Array => {
   return output.slice(0, writer.end())
 }
 
-const benchmarkPng = (): Uint8Array => {
-  const image = new PNG({ width: 640, height: 480 })
+const benchmarkPng = (width = 640, height = 480): Uint8Array => {
+  const image = new PNG({ width, height })
   let state = 0x4b1d_5eed
   for (let y = 0; y < image.height; y += 1) {
     for (let x = 0; x < image.width; x += 1) {
@@ -89,6 +89,66 @@ const benchmarkPng = (): Uint8Array => {
     }
   }
   return PNG.sync.write(image)
+}
+
+const writeSignature = (output: Uint8Array, offset: number, value: string): void => {
+  for (let index = 0; index < value.length; index += 1) {
+    output[offset + index] = value.charCodeAt(index)
+  }
+}
+
+const mpfSegment = (
+  primaryBytes: number,
+  secondaryBytes: number,
+  secondaryOffset: number,
+): Uint8Array => {
+  const payload = new Uint8Array(86)
+  const view = new DataView(payload.buffer)
+  writeSignature(payload, 0, 'MPF\0')
+  writeSignature(payload, 4, 'MM')
+  view.setUint16(6, 42, false)
+  view.setUint32(8, 8, false)
+  view.setUint16(12, 3, false)
+  let entry = 14
+  view.setUint16(entry, 0xb000, false)
+  view.setUint16(entry + 2, 7, false)
+  view.setUint32(entry + 4, 4, false)
+  writeSignature(payload, entry + 8, '0100')
+  entry += 12
+  view.setUint16(entry, 0xb001, false)
+  view.setUint16(entry + 2, 4, false)
+  view.setUint32(entry + 4, 1, false)
+  view.setUint32(entry + 8, 2, false)
+  entry += 12
+  view.setUint16(entry, 0xb002, false)
+  view.setUint16(entry + 2, 7, false)
+  view.setUint32(entry + 4, 32, false)
+  view.setUint32(entry + 8, 50, false)
+  view.setUint32(50, 0, false)
+  view.setUint32(54, 0x2003_0000, false)
+  view.setUint32(58, primaryBytes, false)
+  view.setUint32(62, 0, false)
+  view.setUint32(70, 0, false)
+  view.setUint32(74, secondaryBytes, false)
+  view.setUint32(78, secondaryOffset, false)
+
+  const segment = new Uint8Array(payload.byteLength + 4)
+  segment.set([0xff, 0xe2, 0, payload.byteLength + 2])
+  segment.set(payload, 4)
+  return segment
+}
+
+const mpfJpeg = (primary: Uint8Array, secondary: Uint8Array): Uint8Array => {
+  const provisionalMpf = mpfSegment(0, secondary.byteLength, 0)
+  const primaryBytes = primary.byteLength + provisionalMpf.byteLength
+  const tiffOffset = 2 + 4 + 4 // SOI, APP2 marker/length, and MPF signature.
+  const mpf = mpfSegment(primaryBytes, secondary.byteLength, primaryBytes - tiffOffset)
+  const output = new Uint8Array(primaryBytes + secondary.byteLength)
+  output.set(primary.subarray(0, 2))
+  output.set(mpf, 2)
+  output.set(primary.subarray(2), 2 + mpf.byteLength)
+  output.set(secondary, primaryBytes)
+  return output
 }
 
 const withOrientation = (input: Uint8Array, orientation: number): Uint8Array => {
@@ -198,8 +258,13 @@ for (const [source, name] of wasmFiles) await copyFile(source, resolve(outputDir
 const png = benchmarkPng()
 const image = createImageLibrary([pngCodec, jpegCodec])
 const jpeg = await (await image.open(png)).jpeg({ quality: 85 }).toUint8Array()
+const wasmJpeg = await (await image.open(benchmarkPng(1_024, 1_024)))
+  .jpeg({ quality: 85 })
+  .toUint8Array()
 await writeFile(resolve(fixtureDirectory, 'benchmark-input.png'), png)
 await writeFile(resolve(fixtureDirectory, 'benchmark-input.jpg'), jpeg)
+await writeFile(resolve(fixtureDirectory, 'wasm-input.jpg'), wasmJpeg)
+await writeFile(resolve(fixtureDirectory, 'mpf-primary.jpg'), mpfJpeg(jpeg, jpeg))
 await writeFile(resolve(fixtureDirectory, 'oriented-6.jpg'), withOrientation(jpeg, 6))
 await writeFile(resolve(fixtureDirectory, 'alpha.png'), alphaFixture())
 await writeFile(resolve(fixtureDirectory, 'webp-graphic.png'), webpGraphicFixture())
@@ -210,8 +275,8 @@ await copyFile(
   resolve(fixtureDirectory, 'benchmark-input.webp'),
 )
 await copyFile(
-  'benchmark/corpus/files/avif/sharp-qmatrix-q50-256x192.avif',
-  resolve(fixtureDirectory, 'sharp-qmatrix-q50-256x192.avif'),
+  'benchmark/corpus/files/avif/sharp-qmatrix-q30-256x192.avif',
+  resolve(fixtureDirectory, 'sharp-qmatrix-q30-256x192.avif'),
 )
 await writeFile(
   resolve(outputDirectory, 'index.html'),

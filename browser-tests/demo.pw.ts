@@ -53,11 +53,11 @@ test('toggles JPEG WASM acceleration and compares the same complete pipeline', a
   await page.goto('/demo.html')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
 
-  const input = await readFile('benchmark/corpus/files/earthrise-2400x2400.jpg')
+  const input = await readFile('benchmark/.tmp/browser-tests/fixtures/wasm-input.jpg')
   await page.locator('#demo-file').setInputFiles({
     buffer: input,
     mimeType: 'image/jpeg',
-    name: 'earthrise-2400x2400.jpg',
+    name: 'wasm-input.jpg',
   })
 
   await expect(page.locator('#demo-source-badges')).toContainText('JPEG')
@@ -109,7 +109,7 @@ test('refuses to silently flatten an animated input to its first frame', async (
 test('converts the supported primary image from an MPF JPEG', async ({ page }) => {
   await page.goto('/demo.html')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
-  const input = await readFile('benchmark/corpus/files/tundra-4000x3000.jpg')
+  const input = await readFile('benchmark/.tmp/browser-tests/fixtures/mpf-primary.jpg')
   await page.locator('#demo-file').setInputFiles({
     buffer: input,
     mimeType: 'image/jpeg',

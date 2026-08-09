@@ -53,7 +53,7 @@ test('decodes a Sharp/libaom quantization-matrix AVIF', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifQuantizationMatrix())
   expect(result.outputBytes).toBeGreaterThan(100)
-  expect(result.detail).toContain('256x192 PNG')
+  expect(result.detail).toContain('matched Chromium')
 })
 
 test('decodes the independently validated Main 10/PQ HEIF display fixture', async ({ page }) => {

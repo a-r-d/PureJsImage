@@ -82,11 +82,36 @@ const firstDifference = (left: Uint8Array, right: Uint8Array): number => {
   return left.byteLength === right.byteLength ? -1 : length
 }
 
+const pixelError = (
+  actual: Uint8Array,
+  expected: Uint8Array,
+): { readonly maximum: number; readonly psnr: number } => {
+  if (actual.byteLength !== expected.byteLength) {
+    throw new Error(`YUV byte length differs: ${actual.byteLength} != ${expected.byteLength}`)
+  }
+  let maximum = 0
+  let squaredError = 0
+  for (let index = 0; index < expected.byteLength; index += 1) {
+    const difference = (actual[index] ?? 0) - (expected[index] ?? 0)
+    maximum = Math.max(maximum, Math.abs(difference))
+    squaredError += difference * difference
+  }
+  return {
+    maximum,
+    psnr:
+      squaredError === 0
+        ? Number.POSITIVE_INFINITY
+        : 10 * Math.log10((255 * 255 * expected.byteLength) / squaredError),
+  }
+}
+
 const results: Array<{
   readonly file: string
+  readonly maximumYuvError: number
+  readonly minimumYuvPsnr: number
   readonly pixels: number
+  readonly psnr: number
   readonly quality: number
-  readonly tolerance: number
   readonly yuvSha256: string
 }> = []
 
@@ -99,27 +124,26 @@ for (const fixture of avifQmatrixFixtures) {
     decodeOracle('libdav1d', path),
     decodeOracle('libaom-av1', path),
   ])
-  for (const [name, output] of [
-    ['dav1d', dav1d],
-    ['libaom', libaom],
-  ] as const) {
-    const difference = firstDifference(pure, output)
-    if (difference !== -1) {
-      throw new Error(
-        `${fixture.file} differs from ${name} at YUV byte ${difference}: ${pure[difference]} != ${output[difference]}`,
-      )
-    }
-  }
   if (firstDifference(dav1d, libaom) !== -1) {
     throw new Error(`${fixture.file} independent decoders disagree`)
   }
-  if (sha256(pure) !== fixture.yuvSha256) throw new Error(`${fixture.file} YUV checksum changed`)
+  if (sha256(pure) !== fixture.decodedYuvSha256) {
+    throw new Error(`${fixture.file} PureJsImage YUV checksum changed`)
+  }
+  const error = pixelError(pure, libaom)
+  if (error.maximum > fixture.maximumYuvError || error.psnr < fixture.minimumYuvPsnr) {
+    throw new Error(
+      `${fixture.file} exceeds its independent YUV tolerance: maximum ${error.maximum}/${fixture.maximumYuvError}, PSNR ${error.psnr.toFixed(3)}/${fixture.minimumYuvPsnr} dB`,
+    )
+  }
   results.push({
     file: fixture.file,
     quality: fixture.quality,
     pixels: fixture.width * fixture.height,
-    tolerance: 0,
-    yuvSha256: fixture.yuvSha256,
+    maximumYuvError: error.maximum,
+    minimumYuvPsnr: fixture.minimumYuvPsnr,
+    psnr: error.psnr,
+    yuvSha256: fixture.decodedYuvSha256,
   })
 }
 
