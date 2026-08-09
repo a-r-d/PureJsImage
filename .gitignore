@@ -184,6 +184,7 @@ benchmark/corpus/files/jp2/*
 !benchmark/corpus/files/ico-dib32-alpha-128.ico
 !benchmark/corpus/files/ico-mixed-16-32-256.ico
 benchmark/.tmp/
+/docs/assets/demo-app.js
 benchmark/results/artifacts/
 artifacts/fuzz-crashes/
 playwright-report/

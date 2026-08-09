@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Convert and transform images entirely in your browser with PureJsImage. Files stay on your device, with visible timing and memory measurements.">
+  <meta name="theme-color" content="#f6f7f2">
+  <meta property="og:title" content="PureJsImage browser demo">
+  <meta property="og:description" content="Upload, inspect, transform, and convert an image entirely in your browser with first-party TypeScript codecs.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://a-r-d.github.io/PureJsImage/demo.html">
+  <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/demo.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>Browser demo — PureJsImage</title>
+  <script>document.documentElement.dataset.theme=localStorage.getItem('purejsimage-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
+</head>
+<body class="demo-page">
+  <a class="skip-link" href="#main">Skip to converter</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="PureJsImage home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a>
+      <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="demo.html" aria-current="page">Demo</a><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a><a href="performance.html">Performance</a><a href="contributing.html">Contribute</a></nav>
+      <div class="header-actions"><button class="icon-button" type="button" data-theme-toggle aria-label="Use dark theme"></button><a class="button secondary small github-header" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><button class="icon-button menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button></div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero demo-hero">
+      <div class="container demo-hero-grid">
+        <div>
+          <p class="eyebrow">Live browser demo</p>
+          <h1>Convert an image in your browser. Try it out.</h1>
+          <p class="page-lede">PureJsImage detects the file from its bytes, applies your transforms, and encodes the result with first-party TypeScript codecs. Everything runs on this page.</p>
+          <div class="page-meta"><span class="pill">No server upload</span><span class="pill">No WASM</span><span class="pill">No runtime dependencies</span></div>
+        </div>
+        <aside class="demo-privacy-card" aria-label="Privacy summary">
+          <span class="demo-privacy-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.8 2.9 8.2 7 10 4.1-1.8 7-5.2 7-10V6l-7-3Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/><path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg></span>
+          <div><strong>Your image stays local</strong><p>The demo makes no image upload or conversion API request. Closing the tab releases its temporary object URLs.</p></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="demo-workspace" aria-labelledby="converter-title">
+      <div class="container">
+        <div class="demo-section-heading">
+          <div><span>01</span><h2 id="converter-title">Choose, transform, convert</h2></div>
+          <p>Input is detected by signature—not filename or browser MIME type. Unsupported codec syntax fails with an explicit error in the operation log.</p>
+        </div>
+
+        <div class="demo-converter-grid">
+          <div class="demo-input-column">
+            <label class="demo-drop-zone" id="demo-drop-zone" for="demo-file">
+              <input class="demo-file-input" id="demo-file" type="file" accept="image/*,.avif,.heic,.heif,.ico,.jp2,.j2c,.j2k,.tif,.tiff">
+              <span class="demo-drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg></span>
+              <strong>Drop an image here</strong>
+              <span>or choose a file from this device</span>
+              <span class="button small" aria-hidden="true">Choose image</span>
+              <small>Up to 64 MiB and 64 megapixels in this public demo</small>
+            </label>
+
+            <article class="demo-source-card" id="demo-source" hidden>
+              <div class="demo-preview-frame">
+                <img id="demo-source-preview" alt="">
+                <div class="demo-preview-fallback" id="demo-source-fallback" hidden></div>
+              </div>
+              <div class="demo-source-copy">
+                <p class="demo-card-kicker">Detected input</p>
+                <h3 id="demo-source-name">Selected image</h3>
+                <p id="demo-source-details"></p>
+                <div class="demo-badges" id="demo-source-badges"></div>
+              </div>
+            </article>
+          </div>
+
+          <form class="demo-controls-card" id="demo-form" aria-label="Conversion options">
+            <fieldset id="demo-controls" disabled>
+              <legend>Conversion options</legend>
+              <div class="demo-control-section">
+                <div class="demo-control-heading"><span>Output</span><small>Write support</small></div>
+                <label class="demo-field"><span>Convert to</span><select id="demo-output-format"><option value="jpeg">JPEG</option><option value="png">PNG</option><option value="webp">WebP</option><option value="bmp">BMP</option><option value="tiff">TIFF (uncompressed)</option></select></label>
+                <label class="demo-field" id="demo-quality-group"><span>Quality <output id="demo-quality-value" for="demo-quality">82</output></span><input id="demo-quality" type="range" min="1" max="100" value="82"></label>
+                <label class="demo-check" id="demo-webp-lossless-group" hidden><input id="demo-webp-lossless" type="checkbox"><span><strong>Lossless WebP</strong><small>Ignore the quality setting and preserve exact pixels.</small></span></label>
+                <label class="demo-check" id="demo-jpeg-progressive-group"><input id="demo-jpeg-progressive" type="checkbox"><span><strong>Progressive JPEG</strong><small>Write a six-scan progressive file.</small></span></label>
+              </div>
+
+              <div class="demo-control-section">
+                <div class="demo-control-heading"><span>Transforms</span><small>Applied in order</small></div>
+                <label class="demo-check"><input id="demo-auto-orient" type="checkbox" checked><span><strong>Auto-orient</strong><small>Apply EXIF orientation before other transforms.</small></span></label>
+                <label class="demo-check"><input id="demo-resize-enabled" type="checkbox"><span><strong>Resize</strong><small>Fit inside the dimensions without enlarging.</small></span></label>
+                <div class="demo-dimension-fields" id="demo-resize-fields" hidden>
+                  <label class="demo-field"><span>Maximum width</span><input id="demo-resize-width" type="number" min="1" inputmode="numeric"></label>
+                  <span aria-hidden="true">×</span>
+                  <label class="demo-field"><span>Maximum height</span><input id="demo-resize-height" type="number" min="1" inputmode="numeric"></label>
+                </div>
+                <label class="demo-field"><span>Rotate</span><select id="demo-rotation"><option value="0">Do not rotate</option><option value="90">90° clockwise</option><option value="180">180°</option><option value="270">270° clockwise</option></select></label>
+                <div class="demo-check-grid">
+                  <label class="demo-check compact"><input id="demo-flop" type="checkbox"><span><strong>Flip horizontal</strong></span></label>
+                  <label class="demo-check compact"><input id="demo-flip" type="checkbox"><span><strong>Flip vertical</strong></span></label>
+                </div>
+              </div>
+
+              <button class="button demo-convert-button" id="demo-convert" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg>Convert in browser</button>
+            </fieldset>
+            <p class="demo-operation-status" id="demo-operation-status" role="status" aria-live="polite">Choose a file to begin.</p>
+          </form>
+        </div>
+
+        <section class="demo-result" id="demo-result" aria-labelledby="result-title" hidden>
+          <div class="demo-result-preview-wrap">
+            <p class="demo-card-kicker">Validated output</p>
+            <h2 id="result-title">Your converted image is ready.</h2>
+            <p id="demo-result-summary"></p>
+            <div class="demo-result-preview-frame"><img id="demo-result-preview" alt=""><div class="demo-preview-fallback" id="demo-result-fallback" hidden></div></div>
+            <a class="button" id="demo-download" href="#demo-result" download>Download converted file</a>
+          </div>
+          <dl class="demo-metrics" aria-label="Conversion measurements">
+            <div><dt>Conversion time</dt><dd id="demo-metric-elapsed">—</dd><small>Encode pipeline only</small></div>
+            <div><dt>Max observed JS heap</dt><dd id="demo-metric-memory">—</dd><small>Browser estimate at checkpoints</small></div>
+            <div><dt>Known file bytes</dt><dd id="demo-metric-known-bytes">—</dd><small>Input + output, not scratch memory</small></div>
+            <div><dt>Output size</dt><dd id="demo-metric-output">—</dd><small>Validated encoded Blob</small></div>
+          </dl>
+        </section>
+      </div>
+    </section>
+
+    <section class="demo-log-section" aria-labelledby="log-title">
+      <div class="container">
+        <div class="demo-section-heading">
+          <div><span>02</span><h2 id="log-title">Operation log</h2></div>
+          <p>Every detection, planned transform, validation result, error, timing measurement, and available memory reading appears here.</p>
+        </div>
+        <div class="demo-log-window">
+          <div class="demo-log-toolbar"><div><i></i><i></i><i></i><strong>purejsimage://browser-operation</strong></div><div><button id="demo-clear-log" type="button">Clear</button><button id="demo-copy-log" type="button">Copy log</button></div></div>
+          <ol id="demo-log-list" aria-live="polite" aria-label="Conversion operation log"></ol>
+        </div>
+        <div class="callout warning demo-memory-note"><strong>What “max memory” means here.</strong> Chromium exposes an estimated current JavaScript heap size, so this demo records the maximum observed value at operation checkpoints. It is not process RSS and can miss short-lived allocations while JavaScript is running. Firefox and Safari do not expose a comparable value, so the UI says “Not exposed” instead of inventing one. Input and output file bytes are reported separately and exactly.</div>
+      </div>
+    </section>
+
+    <section class="section demo-loading" aria-labelledby="loading-title">
+      <div class="container demo-loading-grid">
+        <div>
+          <p class="eyebrow">Use it in a site</p>
+          <h2 id="loading-title">How this demo loads PureJsImage</h2>
+          <p>This page serves a deterministic ESM bundle generated from <code>src/browser.ts</code> and the explicit all-codec entry on the same repository commit. The bundle is checked into <code>docs/assets</code>, so GitHub Pages needs no build server and the demo makes no CDN request.</p>
+          <p>For an application, install from npm and let your bundler resolve the browser export. For a quick no-build experiment, the pinned npm package is also available from jsDelivr. Raw GitHub file URLs are not used because they are not a dependable JavaScript package CDN.</p>
+        </div>
+        <div class="code-window">
+          <div class="window-bar"><span class="window-dot"></span><span class="window-dot"></span><span class="window-dot"></span><span class="window-title">npm CDN · pinned release</span></div>
+          <button class="code-copy" type="button" data-copy="demo-cdn-code">Copy</button>
+          <pre><code id="demo-cdn-code">import { createImageLibrary } from
+  'https://cdn.jsdelivr.net/npm/purejsimage@0.7.0/dist/browser.js'
+import { allCodecs } from
+  'https://cdn.jsdelivr.net/npm/purejsimage@0.7.0/dist/codec-entries/all.js'
+
+const images = createImageLibrary(allCodecs)
+const image = await images.open(file)
+const output = await image.webp({ quality: 82 }).toBlob()</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>First-party browser image conversion with explicit measurements and honest capability boundaries.</p></div><div class="footer-column"><strong>Try</strong><a href="demo.html">Browser demo</a><a href="guides.html">Guides</a><a href="api.html">API</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Files stay on your device</span></div></div></footer>
+  <script src="site.js" defer></script>
+  <script src="assets/demo-app.js" type="module"></script>
+</body>
+</html>

@@ -115,7 +115,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "check": "npm run capabilities:check && npm run typecheck && npm run size && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
+    "check": "npm run capabilities:check && npm run docs:build && npm run typecheck && npm run size && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
     "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json",
     "browser:check": "tsc -p tsconfig.browser.json && node scripts/check-browser-build.ts",
     "browser:test": "playwright test",
@@ -126,6 +126,7 @@
     "format:check": "biome format .",
     "capabilities:generate": "node scripts/render-capabilities.ts && biome format --write docs/capabilities.json tests/generated/capability-expectations.json",
     "capabilities:check": "node scripts/render-capabilities.ts --check",
+    "docs:build": "node scripts/build-docs-site.ts",
     "size": "npm run build && node scripts/measure-bundle-size.ts",
     "test": "vitest run",
     "test:hostile-source": "PUREJSIMAGE_HOSTILE_SOURCE=1 vitest run",
