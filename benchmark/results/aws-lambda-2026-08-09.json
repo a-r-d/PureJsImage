@@ -21,7 +21,8 @@
     "coldStart": "Update function environment with a unique nonce, wait for update, then invoke once.",
     "warmStart": "Immediately invoke the same function and verify the Lambda log stream is unchanged.",
     "operationTiming": "Input read and output metadata validation are excluded from handler operationMs.",
-    "awsTiming": "AWS REPORT Duration and Init Duration are parsed from the synchronous log tail."
+    "awsTiming": "AWS REPORT Duration and Init Duration are parsed from the synchronous log tail.",
+    "fixtureDelivery": "This initial memory-tier experiment embedded both fixtures in the Lambda code ZIP. Its initialization values therefore include a roughly 5.4 MB compressed deployment package. The later ARM64/WASM experiment stages fixtures as separate S3 objects."
   },
   "samples": [
     {

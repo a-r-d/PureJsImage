@@ -16,7 +16,36 @@ import type { Construct } from 'constructs'
 import { readFileSync } from 'node:fs'
 
 const stackName = 'PureJsImageLambdaBenchmark'
-const memorySizes = [256, 512, 1024] as const
+const functionConfigurations = [
+  {
+    id: 'X86256',
+    functionName: 'purejsimage-lambda-bench-256',
+    architectureName: 'x86_64',
+    architecture: lambda.Architecture.X86_64,
+    memorySize: 256,
+  },
+  {
+    id: 'X86512',
+    functionName: 'purejsimage-lambda-bench-512',
+    architectureName: 'x86_64',
+    architecture: lambda.Architecture.X86_64,
+    memorySize: 512,
+  },
+  {
+    id: 'X861024',
+    functionName: 'purejsimage-lambda-bench-1024',
+    architectureName: 'x86_64',
+    architecture: lambda.Architecture.X86_64,
+    memorySize: 1024,
+  },
+  {
+    id: 'Arm64512',
+    functionName: 'purejsimage-lambda-bench-arm64-512',
+    architectureName: 'arm64',
+    architecture: lambda.Architecture.ARM_64,
+    memorySize: 512,
+  },
+] as const
 const parsedAssetLocation: unknown = JSON.parse(
   readFileSync(new URL('./.asset-location.json', import.meta.url), 'utf8'),
 )
@@ -54,32 +83,33 @@ class LambdaBenchmarkStack extends Stack {
       ],
     })
     const assetBucket = s3.Bucket.fromBucketName(this, 'BenchmarkAssetBucket', assetLocation.bucket)
+    assetBucket.grantRead(role, 'fixtures/*')
 
-    for (const memorySize of memorySizes) {
-      const functionName = `purejsimage-lambda-bench-${memorySize}`
-      const logGroup = new logs.LogGroup(this, `BenchmarkLogGroup${memorySize}`, {
-        logGroupName: `/aws/lambda/${functionName}`,
+    for (const configuration of functionConfigurations) {
+      const logGroup = new logs.LogGroup(this, `BenchmarkLogGroup${configuration.id}`, {
+        logGroupName: `/aws/lambda/${configuration.functionName}`,
         removalPolicy: RemovalPolicy.DESTROY,
         retention: logs.RetentionDays.ONE_DAY,
       })
-      const benchmarkFunction = new lambda.Function(this, `BenchmarkFunction${memorySize}`, {
-        functionName,
-        description: `Temporary PureJsImage benchmark at ${memorySize} MiB`,
+      const benchmarkFunction = new lambda.Function(this, `BenchmarkFunction${configuration.id}`, {
+        functionName: configuration.functionName,
+        description: `Temporary PureJsImage ${configuration.architectureName} benchmark at ${configuration.memorySize} MiB`,
         runtime: lambda.Runtime.NODEJS_22_X,
-        architecture: lambda.Architecture.X86_64,
+        architecture: configuration.architecture,
         handler: 'index.handler',
         code: lambda.Code.fromBucket(assetBucket, assetLocation.key),
-        memorySize,
+        memorySize: configuration.memorySize,
         timeout: Duration.minutes(2),
         ephemeralStorageSize: Size.mebibytes(512),
         role,
         logGroup,
         environment: {
           BENCHMARK_RUN_NONCE: 'deployed',
+          BENCHMARK_FIXTURE_BUCKET: assetLocation.bucket,
         },
       })
 
-      new CfnOutput(this, `FunctionName${memorySize}`, {
+      new CfnOutput(this, `FunctionName${configuration.id}`, {
         value: benchmarkFunction.functionName,
       })
     }

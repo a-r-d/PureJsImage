@@ -1,0 +1,5451 @@
+{
+  "schemaVersion": 1,
+  "measuredAt": "2026-08-09T05:51:03.589Z",
+  "region": "us-east-1",
+  "runtime": "nodejs22.x",
+  "packageVersion": "0.7.0",
+  "repeats": 3,
+  "memorySizeMb": 512,
+  "architectures": [
+    "x86_64",
+    "arm64"
+  ],
+  "benchmarkCases": [
+    {
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png"
+    },
+    {
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp"
+    },
+    {
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg"
+    },
+    {
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp"
+    },
+    {
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png"
+    },
+    {
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png"
+    },
+    {
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp"
+    },
+    {
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp"
+    }
+  ],
+  "wasmArtifact": {
+    "bytes": 21100,
+    "gzipBytes": 5160,
+    "brotliBytes": 4363
+  },
+  "deploymentArtifacts": {
+    "codeZipBytes": 98517,
+    "fixtureObjectBytes": 14160578,
+    "fixturesEmbeddedInCode": false
+  },
+  "methodology": {
+    "coldStart": "Update function environment with a unique nonce, wait for update, then invoke once.",
+    "warmStart": "Immediately invoke the same function and verify the Lambda log stream is unchanged.",
+    "wasmSelection": "The 3000px JPEG workflows require full-resolution decode. WASM samples are accepted only when the loader instantiates exactly once and the warm invocation reuses it.",
+    "outputParity": "Every workflow must produce one SHA-256 across cold and warm invocations, both architectures, and both engines where applicable.",
+    "operationTiming": "Input read and output metadata validation are excluded from handler operationMs. WASM input and row-copy overhead remains inside operationMs.",
+    "awsTiming": "AWS REPORT Duration and Init Duration are parsed from the synchronous log tail."
+  },
+  "samples": [
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]9a28cdf5f463487baf36ee96a62377fd",
+        "invocation": 1,
+        "moduleAgeMs": 6251,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 627.512768,
+        "operationMs": 5581.430826,
+        "validationMs": 17.877191000000494,
+        "totalHandlerMs": 6227.466428000001,
+        "memoryBefore": {
+          "rss": 99586048,
+          "heapUsed": 12527936,
+          "external": 19099185,
+          "arrayBuffers": 16319252
+        },
+        "memoryAfter": {
+          "rss": 114532352,
+          "heapUsed": 13496024,
+          "external": 16851641,
+          "arrayBuffers": 14071668
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6248.26,
+        "billedDurationMs": 6678,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 142,
+        "initDurationMs": 429.29
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]9a28cdf5f463487baf36ee96a62377fd",
+        "invocation": 2,
+        "moduleAgeMs": 11769,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 287.0890389999995,
+        "operationMs": 5043.042543999999,
+        "validationMs": 16.92100500000015,
+        "totalHandlerMs": 5365.07666,
+        "memoryBefore": {
+          "rss": 130076672,
+          "heapUsed": 15641256,
+          "external": 35925104,
+          "arrayBuffers": 33145131
+        },
+        "memoryAfter": {
+          "rss": 137551872,
+          "heapUsed": 13885624,
+          "external": 22209905,
+          "arrayBuffers": 19429932
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5366.95,
+        "billedDurationMs": 5367,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 164,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]e0bbb84314114a0f9de5e14c3bb9994f",
+        "invocation": 1,
+        "moduleAgeMs": 6052,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 496.143086,
+        "operationMs": 5521.7647879999995,
+        "validationMs": 17.95303999999942,
+        "totalHandlerMs": 6036.4297369999995,
+        "memoryBefore": {
+          "rss": 99270656,
+          "heapUsed": 12483000,
+          "external": 19157337,
+          "arrayBuffers": 16377404
+        },
+        "memoryAfter": {
+          "rss": 113967104,
+          "heapUsed": 15528936,
+          "external": 19317967,
+          "arrayBuffers": 16537994
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6056.71,
+        "billedDurationMs": 6479,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 140,
+        "initDurationMs": 421.95
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]e0bbb84314114a0f9de5e14c3bb9994f",
+        "invocation": 2,
+        "moduleAgeMs": 11550,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 311.04431899999963,
+        "operationMs": 5021.474690999999,
+        "validationMs": 4.85788599999978,
+        "totalHandlerMs": 5370.051285,
+        "memoryBefore": {
+          "rss": 131334144,
+          "heapUsed": 13831984,
+          "external": 31724476,
+          "arrayBuffers": 28944503
+        },
+        "memoryAfter": {
+          "rss": 142573568,
+          "heapUsed": 14393888,
+          "external": 22800009,
+          "arrayBuffers": 20020036
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5372.09,
+        "billedDurationMs": 5373,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 168,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]355955eebc4846a194c0caed9ac4319a",
+        "invocation": 1,
+        "moduleAgeMs": 6310,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 536.747686,
+        "operationMs": 5720.684562,
+        "validationMs": 17.883396999999604,
+        "totalHandlerMs": 6294.056276,
+        "memoryBefore": {
+          "rss": 102641664,
+          "heapUsed": 12258328,
+          "external": 18096617,
+          "arrayBuffers": 15316684
+        },
+        "memoryAfter": {
+          "rss": 114876416,
+          "heapUsed": 13035904,
+          "external": 16654921,
+          "arrayBuffers": 13874948
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6297.79,
+        "billedDurationMs": 6734,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 141,
+        "initDurationMs": 436.2
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]355955eebc4846a194c0caed9ac4319a",
+        "invocation": 2,
+        "moduleAgeMs": 11790,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 436.7451229999997,
+        "operationMs": 4901.792776,
+        "validationMs": 4.898670000000493,
+        "totalHandlerMs": 5372.1271750000005,
+        "memoryBefore": {
+          "rss": 129658880,
+          "heapUsed": 15119824,
+          "external": 35734971,
+          "arrayBuffers": 32949587
+        },
+        "memoryAfter": {
+          "rss": 128344064,
+          "heapUsed": 13574864,
+          "external": 16957695,
+          "arrayBuffers": 14177722
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5374.51,
+        "billedDurationMs": 5375,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 155,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]5170e7ed0e394c79a825986a3a5255b4",
+        "invocation": 1,
+        "moduleAgeMs": 6688,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 548.3731230000001,
+        "operationMs": 6119.242575,
+        "validationMs": 1.8278100000006816,
+        "totalHandlerMs": 6670.0187670000005,
+        "memoryBefore": {
+          "rss": 100061184,
+          "heapUsed": 12520296,
+          "external": 19090603,
+          "arrayBuffers": 16310670
+        },
+        "memoryAfter": {
+          "rss": 114331648,
+          "heapUsed": 15631512,
+          "external": 18330063,
+          "arrayBuffers": 15550090
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6688.54,
+        "billedDurationMs": 7134,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 141,
+        "initDurationMs": 444.62
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]5170e7ed0e394c79a825986a3a5255b4",
+        "invocation": 2,
+        "moduleAgeMs": 12104,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 192.3220740000006,
+        "operationMs": 5125.092449000001,
+        "validationMs": 0.9942849999988539,
+        "totalHandlerMs": 5345.296655,
+        "memoryBefore": {
+          "rss": 128258048,
+          "heapUsed": 13655784,
+          "external": 31330558,
+          "arrayBuffers": 28550585
+        },
+        "memoryAfter": {
+          "rss": 125988864,
+          "heapUsed": 15205720,
+          "external": 18027505,
+          "arrayBuffers": 15247532
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5348.17,
+        "billedDurationMs": 5349,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 154,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]3c8106e8658a4ca283f287ea4791f54a",
+        "invocation": 1,
+        "moduleAgeMs": 6450,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 516.8528409999999,
+        "operationMs": 5902.235242,
+        "validationMs": 1.7989410000000134,
+        "totalHandlerMs": 6434.369207,
+        "memoryBefore": {
+          "rss": 99598336,
+          "heapUsed": 12436544,
+          "external": 19220337,
+          "arrayBuffers": 16440404
+        },
+        "memoryAfter": {
+          "rss": 113692672,
+          "heapUsed": 13893256,
+          "external": 17993813,
+          "arrayBuffers": 15213840
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6439.27,
+        "billedDurationMs": 6871,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 141,
+        "initDurationMs": 431.16
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]3c8106e8658a4ca283f287ea4791f54a",
+        "invocation": 2,
+        "moduleAgeMs": 11994,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 267.7536660000005,
+        "operationMs": 5141.630359000001,
+        "validationMs": 0.9645860000000539,
+        "totalHandlerMs": 5430.339092000001,
+        "memoryBefore": {
+          "rss": 131403776,
+          "heapUsed": 16145744,
+          "external": 37073863,
+          "arrayBuffers": 34288479
+        },
+        "memoryAfter": {
+          "rss": 132173824,
+          "heapUsed": 14721704,
+          "external": 17889109,
+          "arrayBuffers": 15109136
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5432.72,
+        "billedDurationMs": 5433,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 158,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]755f3e11754d4e2c8ef39fdec9938ce8",
+        "invocation": 1,
+        "moduleAgeMs": 6416,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 481.60709399999996,
+        "operationMs": 5900.647004,
+        "validationMs": 17.8832739999998,
+        "totalHandlerMs": 6400.700049,
+        "memoryBefore": {
+          "rss": 99594240,
+          "heapUsed": 12536728,
+          "external": 19142827,
+          "arrayBuffers": 16362894
+        },
+        "memoryAfter": {
+          "rss": 113242112,
+          "heapUsed": 13334576,
+          "external": 18002383,
+          "arrayBuffers": 15222410
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6404.24,
+        "billedDurationMs": 6820,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 140,
+        "initDurationMs": 414.85
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]755f3e11754d4e2c8ef39fdec9938ce8",
+        "invocation": 2,
+        "moduleAgeMs": 11937,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 309.7896209999999,
+        "operationMs": 5140.883122,
+        "validationMs": 0.9776200000014796,
+        "totalHandlerMs": 5469.381208,
+        "memoryBefore": {
+          "rss": 130953216,
+          "heapUsed": 15464424,
+          "external": 37082413,
+          "arrayBuffers": 34297029
+        },
+        "memoryAfter": {
+          "rss": 130699264,
+          "heapUsed": 16261464,
+          "external": 18256315,
+          "arrayBuffers": 15476342
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5471.57,
+        "billedDurationMs": 5472,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 157,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]db695f47344d4aea9324e011c338c444",
+        "invocation": 1,
+        "moduleAgeMs": 7399,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 883.132531,
+        "operationMs": 6480.705783,
+        "validationMs": 2.056547000000137,
+        "totalHandlerMs": 7382.782637,
+        "memoryBefore": {
+          "rss": 122765312,
+          "heapUsed": 14097744,
+          "external": 37720832,
+          "arrayBuffers": 34940899
+        },
+        "memoryAfter": {
+          "rss": 152367104,
+          "heapUsed": 11231664,
+          "external": 17615098,
+          "arrayBuffers": 14796854
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 7386.83,
+        "billedDurationMs": 7862,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 177,
+        "initDurationMs": 475
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]db695f47344d4aea9324e011c338c444",
+        "invocation": 2,
+        "moduleAgeMs": 13420,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 454.54313900000034,
+        "operationMs": 5421.416251000001,
+        "validationMs": 2.00296999999955,
+        "totalHandlerMs": 5909.497256000001,
+        "memoryBefore": {
+          "rss": 170061824,
+          "heapUsed": 13671360,
+          "external": 55191732,
+          "arrayBuffers": 52368077
+        },
+        "memoryAfter": {
+          "rss": 166236160,
+          "heapUsed": 11368136,
+          "external": 24139646,
+          "arrayBuffers": 21321423
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5912.49,
+        "billedDurationMs": 5913,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 194,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]02766d1be4f84953b7b78d6c4a6496b0",
+        "invocation": 1,
+        "moduleAgeMs": 7877,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 818.849223,
+        "operationMs": 7022.127152999999,
+        "validationMs": 18.33734100000038,
+        "totalHandlerMs": 7860.01703,
+        "memoryBefore": {
+          "rss": 123801600,
+          "heapUsed": 13818456,
+          "external": 31177241,
+          "arrayBuffers": 28397308
+        },
+        "memoryAfter": {
+          "rss": 142938112,
+          "heapUsed": 10992560,
+          "external": 14715833,
+          "arrayBuffers": 11897589
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 7864.05,
+        "billedDurationMs": 8332,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 169,
+        "initDurationMs": 467.15
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]02766d1be4f84953b7b78d6c4a6496b0",
+        "invocation": 2,
+        "moduleAgeMs": 14296,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 400.5369869999995,
+        "operationMs": 5885.864152,
+        "validationMs": 14.282084000000395,
+        "totalHandlerMs": 6301.2281060000005,
+        "memoryBefore": {
+          "rss": 152215552,
+          "heapUsed": 13174792,
+          "external": 52292447,
+          "arrayBuffers": 49468792
+        },
+        "memoryAfter": {
+          "rss": 162406400,
+          "heapUsed": 12010056,
+          "external": 29698511,
+          "arrayBuffers": 26880288
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6303.88,
+        "billedDurationMs": 6304,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 187,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]aef91fdecef14d57bfbc1b535f1a48bc",
+        "invocation": 1,
+        "moduleAgeMs": 7092,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 836.848028,
+        "operationMs": 6220.55856,
+        "validationMs": 18.117833999999675,
+        "totalHandlerMs": 7076.10243,
+        "memoryBefore": {
+          "rss": 118947840,
+          "heapUsed": 14102792,
+          "external": 37637661,
+          "arrayBuffers": 34857728
+        },
+        "memoryAfter": {
+          "rss": 145203200,
+          "heapUsed": 10899024,
+          "external": 14522441,
+          "arrayBuffers": 11704197
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 7079.68,
+        "billedDurationMs": 7458,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 171,
+        "initDurationMs": 378.07
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]aef91fdecef14d57bfbc1b535f1a48bc",
+        "invocation": 2,
+        "moduleAgeMs": 12970,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 433.6738439999999,
+        "operationMs": 5321.038572000001,
+        "validationMs": 1.7245219999986148,
+        "totalHandlerMs": 5791.567398000001,
+        "memoryBefore": {
+          "rss": 163491840,
+          "heapUsed": 13575184,
+          "external": 52099075,
+          "arrayBuffers": 49275420
+        },
+        "memoryAfter": {
+          "rss": 164126720,
+          "heapUsed": 11291296,
+          "external": 24124558,
+          "arrayBuffers": 21306335
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5794.12,
+        "billedDurationMs": 5795,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 189,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]a624068da5f14347b7f3a6e7a6f58063",
+        "invocation": 1,
+        "moduleAgeMs": 7573,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 892.877651,
+        "operationMs": 6641.498738,
+        "validationMs": 19.924887000000126,
+        "totalHandlerMs": 7554.983397,
+        "memoryBefore": {
+          "rss": 119336960,
+          "heapUsed": 14242248,
+          "external": 37656799,
+          "arrayBuffers": 34876866
+        },
+        "memoryAfter": {
+          "rss": 128618496,
+          "heapUsed": 11033952,
+          "external": 20657319,
+          "arrayBuffers": 17839075
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 7558.7,
+        "billedDurationMs": 8002,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 173,
+        "initDurationMs": 442.87
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]a624068da5f14347b7f3a6e7a6f58063",
+        "invocation": 2,
+        "moduleAgeMs": 13990,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 482.8260169999994,
+        "operationMs": 5826.322750000001,
+        "validationMs": 15.928288000000975,
+        "totalHandlerMs": 6360.350561,
+        "memoryBefore": {
+          "rss": 136077312,
+          "heapUsed": 11968792,
+          "external": 36165786,
+          "arrayBuffers": 33347563
+        },
+        "memoryAfter": {
+          "rss": 161488896,
+          "heapUsed": 15474976,
+          "external": 30338356,
+          "arrayBuffers": 27520133
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6363.27,
+        "billedDurationMs": 6364,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 185,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]c475d42675724cbea89e6091261e154b",
+        "invocation": 1,
+        "moduleAgeMs": 7017,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 824.760083,
+        "operationMs": 6145.426494,
+        "validationMs": 15.587453000000096,
+        "totalHandlerMs": 7004.2324579999995,
+        "memoryBefore": {
+          "rss": 122564608,
+          "heapUsed": 13992296,
+          "external": 37577537,
+          "arrayBuffers": 34797604
+        },
+        "memoryAfter": {
+          "rss": 134504448,
+          "heapUsed": 12339384,
+          "external": 30115217,
+          "arrayBuffers": 27296973
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 7008.1,
+        "billedDurationMs": 7377,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 178,
+        "initDurationMs": 368.86
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]c475d42675724cbea89e6091261e154b",
+        "invocation": 2,
+        "moduleAgeMs": 12939,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 516.1795940000002,
+        "operationMs": 5281.712455,
+        "validationMs": 19.746155999999246,
+        "totalHandlerMs": 5837.477932000001,
+        "memoryBefore": {
+          "rss": 146333696,
+          "heapUsed": 12077680,
+          "external": 34977119,
+          "arrayBuffers": 32158896
+        },
+        "memoryAfter": {
+          "rss": 163631104,
+          "heapUsed": 16088320,
+          "external": 34211936,
+          "arrayBuffers": 31393713
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5877.32,
+        "billedDurationMs": 5878,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 188,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]ea6cec8110974259b485e025755fcdf8",
+        "invocation": 1,
+        "moduleAgeMs": 7009,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 794.0258820000001,
+        "operationMs": 6181.653447,
+        "validationMs": 3.262488000000303,
+        "totalHandlerMs": 6991.8868520000005,
+        "memoryBefore": {
+          "rss": 125341696,
+          "heapUsed": 12739800,
+          "external": 33098017,
+          "arrayBuffers": 30318084
+        },
+        "memoryAfter": {
+          "rss": 132677632,
+          "heapUsed": 11612904,
+          "external": 30049681,
+          "arrayBuffers": 27231437
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6995.91,
+        "billedDurationMs": 7384,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 177,
+        "initDurationMs": 387.56
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]ea6cec8110974259b485e025755fcdf8",
+        "invocation": 2,
+        "moduleAgeMs": 12869,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 408.4712159999999,
+        "operationMs": 5346.915367,
+        "validationMs": 15.378910999999789,
+        "totalHandlerMs": 5807.112155000001,
+        "memoryBefore": {
+          "rss": 161423360,
+          "heapUsed": 13767632,
+          "external": 67626315,
+          "arrayBuffers": 64802660
+        },
+        "memoryAfter": {
+          "rss": 165376000,
+          "heapUsed": 15748680,
+          "external": 30338356,
+          "arrayBuffers": 27520133
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5810.61,
+        "billedDurationMs": 5811,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 189,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]ab3502d7a36b44f29f0fe23acb964cd1",
+        "invocation": 1,
+        "moduleAgeMs": 16168,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 538.010421,
+        "operationMs": 15404.931789999999,
+        "validationMs": 195.91007900000113,
+        "totalHandlerMs": 16153.008854,
+        "memoryBefore": {
+          "rss": 102576128,
+          "heapUsed": 15170696,
+          "external": 21776373,
+          "arrayBuffers": 18996440
+        },
+        "memoryAfter": {
+          "rss": 130883584,
+          "heapUsed": 13654520,
+          "external": 35473679,
+          "arrayBuffers": 32693706
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 16156.9,
+        "billedDurationMs": 16590,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 157,
+        "initDurationMs": 432.6
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]ab3502d7a36b44f29f0fe23acb964cd1",
+        "invocation": 2,
+        "moduleAgeMs": 31127,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 283.94752399999925,
+        "operationMs": 14437.664220999999,
+        "validationMs": 162.40725199999724,
+        "totalHandlerMs": 14901.754539999998,
+        "memoryBefore": {
+          "rss": 141082624,
+          "heapUsed": 15091808,
+          "external": 53100513,
+          "arrayBuffers": 50315129
+        },
+        "memoryAfter": {
+          "rss": 142737408,
+          "heapUsed": 12291992,
+          "external": 36711392,
+          "arrayBuffers": 33936028
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 14906.71,
+        "billedDurationMs": 14907,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 168,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]8660d74fdf374587a38dc21715b85713",
+        "invocation": 1,
+        "moduleAgeMs": 15961,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 524.926912,
+        "operationMs": 15260.588489000002,
+        "validationMs": 159.25601300000017,
+        "totalHandlerMs": 15945.38544,
+        "memoryBefore": {
+          "rss": 99741696,
+          "heapUsed": 12577208,
+          "external": 19220217,
+          "arrayBuffers": 16440284
+        },
+        "memoryAfter": {
+          "rss": 128626688,
+          "heapUsed": 13440504,
+          "external": 35383663,
+          "arrayBuffers": 32603690
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 15966.75,
+        "billedDurationMs": 16388,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 154,
+        "initDurationMs": 420.95
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]8660d74fdf374587a38dc21715b85713",
+        "invocation": 2,
+        "moduleAgeMs": 30944,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 359.5125880000014,
+        "operationMs": 14366.614164999999,
+        "validationMs": 178.43527000000176,
+        "totalHandlerMs": 14905.138055,
+        "memoryBefore": {
+          "rss": 144015360,
+          "heapUsed": 13354600,
+          "external": 53100513,
+          "arrayBuffers": 50315129
+        },
+        "memoryAfter": {
+          "rss": 144961536,
+          "heapUsed": 11973288,
+          "external": 35559096,
+          "arrayBuffers": 32783732
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 14926.83,
+        "billedDurationMs": 14927,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 170,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]376219d0a35c4c8a9f9ae5f1398f14d3",
+        "invocation": 1,
+        "moduleAgeMs": 16636,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 542.0647799999999,
+        "operationMs": 15885.268671000002,
+        "validationMs": 180.00319600000148,
+        "totalHandlerMs": 16620.879861999998,
+        "memoryBefore": {
+          "rss": 99192832,
+          "heapUsed": 12593632,
+          "external": 19209619,
+          "arrayBuffers": 16429686
+        },
+        "memoryAfter": {
+          "rss": 135561216,
+          "heapUsed": 13995232,
+          "external": 36716049,
+          "arrayBuffers": 33936076
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 16624.71,
+        "billedDurationMs": 17094,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 162,
+        "initDurationMs": 469.04
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]376219d0a35c4c8a9f9ae5f1398f14d3",
+        "invocation": 2,
+        "moduleAgeMs": 31962,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 325.01141899999857,
+        "operationMs": 14760.663082000003,
+        "validationMs": 182.91020199999912,
+        "totalHandlerMs": 15269.214357,
+        "memoryBefore": {
+          "rss": 145526784,
+          "heapUsed": 12490288,
+          "external": 51037452,
+          "arrayBuffers": 48257479
+        },
+        "memoryAfter": {
+          "rss": 143237120,
+          "heapUsed": 12417920,
+          "external": 37287504,
+          "arrayBuffers": 34512140
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 15287.58,
+        "billedDurationMs": 15288,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 171,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]24666c69a8a446f893b8fa97697b176b",
+        "invocation": 1,
+        "moduleAgeMs": 14918,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 462.87857199999996,
+        "operationMs": 14243.801205,
+        "validationMs": 194.24461599999995,
+        "totalHandlerMs": 14902.223783,
+        "memoryBefore": {
+          "rss": 101842944,
+          "heapUsed": 15124496,
+          "external": 21630457,
+          "arrayBuffers": 18850524
+        },
+        "memoryAfter": {
+          "rss": 139739136,
+          "heapUsed": 13485976,
+          "external": 41194843,
+          "arrayBuffers": 32123414
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 40.817586000000006,
+          "instantiateMs": 62.286204999999995,
+          "loadMs": 103.11342400000012,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 14906.31,
+        "billedDurationMs": 15338,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 165,
+        "initDurationMs": 431.18
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]24666c69a8a446f893b8fa97697b176b",
+        "invocation": 2,
+        "moduleAgeMs": 28737,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 366.51983499999915,
+        "operationMs": 13200.997785000001,
+        "validationMs": 178.30939600000056,
+        "totalHandlerMs": 13760.091196,
+        "memoryBefore": {
+          "rss": 150814720,
+          "heapUsed": 12225112,
+          "external": 57300748,
+          "arrayBuffers": 48229319
+        },
+        "memoryAfter": {
+          "rss": 149942272,
+          "heapUsed": 12326736,
+          "external": 43584884,
+          "arrayBuffers": 34518064
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 40.817586000000006,
+          "instantiateMs": 62.286204999999995,
+          "loadMs": 103.11342400000012,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 13768.21,
+        "billedDurationMs": 13769,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 177,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]c7624e759222453d897b0af19ce5ebd3",
+        "invocation": 1,
+        "moduleAgeMs": 14120,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 485.68551600000006,
+        "operationMs": 13441.609773,
+        "validationMs": 179.4862809999995,
+        "totalHandlerMs": 14107.433163,
+        "memoryBefore": {
+          "rss": 103243776,
+          "heapUsed": 12566800,
+          "external": 19136953,
+          "arrayBuffers": 16357020
+        },
+        "memoryAfter": {
+          "rss": 142647296,
+          "heapUsed": 11578952,
+          "external": 41856452,
+          "arrayBuffers": 32789632
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 77.69019700000001,
+          "instantiateMs": 40.82400099999995,
+          "loadMs": 118.52164100000005,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 14110.81,
+        "billedDurationMs": 14514,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 168,
+        "initDurationMs": 402.9
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]c7624e759222453d897b0af19ce5ebd3",
+        "invocation": 2,
+        "moduleAgeMs": 27321,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 340.4379950000002,
+        "operationMs": 12619.822792,
+        "validationMs": 161.88208799999848,
+        "totalHandlerMs": 13122.585284,
+        "memoryBefore": {
+          "rss": 151793664,
+          "heapUsed": 12096760,
+          "external": 57325851,
+          "arrayBuffers": 48259031
+        },
+        "memoryAfter": {
+          "rss": 151490560,
+          "heapUsed": 11591336,
+          "external": 41100202,
+          "arrayBuffers": 32033382
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 77.69019700000001,
+          "instantiateMs": 40.82400099999995,
+          "loadMs": 118.52164100000005,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 13138.68,
+        "billedDurationMs": 13139,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 177,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]071511dfe94748a6ab069285e6078463",
+        "invocation": 1,
+        "moduleAgeMs": 15211,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 589.6806180000001,
+        "operationMs": 14399.720530999999,
+        "validationMs": 183.51747899999827,
+        "totalHandlerMs": 15189.519307,
+        "memoryBefore": {
+          "rss": 99913728,
+          "heapUsed": 12600936,
+          "external": 19214973,
+          "arrayBuffers": 16435040
+        },
+        "memoryAfter": {
+          "rss": 140070912,
+          "heapUsed": 11808344,
+          "external": 42437125,
+          "arrayBuffers": 33365696
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 37.496894999999995,
+          "instantiateMs": 100.21136999999999,
+          "loadMs": 137.71994200000017,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 15193.92,
+        "billedDurationMs": 15642,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 166,
+        "initDurationMs": 447.56
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]071511dfe94748a6ab069285e6078463",
+        "invocation": 2,
+        "moduleAgeMs": 29228,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 355.86652199999844,
+        "operationMs": 13336.953533,
+        "validationMs": 179.85426000000007,
+        "totalHandlerMs": 13873.772687,
+        "memoryBefore": {
+          "rss": 152358912,
+          "heapUsed": 11815728,
+          "external": 56813295,
+          "arrayBuffers": 47746475
+        },
+        "memoryAfter": {
+          "rss": 148029440,
+          "heapUsed": 11891928,
+          "external": 41856436,
+          "arrayBuffers": 32789616
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 37.496894999999995,
+          "instantiateMs": 100.21136999999999,
+          "loadMs": 137.71994200000017,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 13879.4,
+        "billedDurationMs": 13880,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 178,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]9d08bc57401048e4bff40097207f5bc8",
+        "invocation": 1,
+        "moduleAgeMs": 15368,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 494.992663,
+        "operationMs": 14819.72573,
+        "validationMs": 18.169145000001663,
+        "totalHandlerMs": 15352.884006,
+        "memoryBefore": {
+          "rss": 105918464,
+          "heapUsed": 15231456,
+          "external": 21823675,
+          "arrayBuffers": 19043742
+        },
+        "memoryAfter": {
+          "rss": 150941696,
+          "heapUsed": 13887520,
+          "external": 49064977,
+          "arrayBuffers": 46285004
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 15416.02,
+        "billedDurationMs": 15859,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 175,
+        "initDurationMs": 442.47
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]9d08bc57401048e4bff40097207f5bc8",
+        "invocation": 2,
+        "moduleAgeMs": 29611,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 215.25487700000122,
+        "operationMs": 13841.04958,
+        "validationMs": 20.726314999999886,
+        "totalHandlerMs": 14096.517951,
+        "memoryBefore": {
+          "rss": 137723904,
+          "heapUsed": 13885160,
+          "external": 31319503,
+          "arrayBuffers": 28539530
+        },
+        "memoryAfter": {
+          "rss": 156307456,
+          "heapUsed": 11567328,
+          "external": 49246129,
+          "arrayBuffers": 46466156
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 14098.89,
+        "billedDurationMs": 14099,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 181,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]4454acf25f9e43529f36fe920b3662ab",
+        "invocation": 1,
+        "moduleAgeMs": 15989,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 466.91218299999997,
+        "operationMs": 15403.075715,
+        "validationMs": 18.20238199999949,
+        "totalHandlerMs": 15965.278352000001,
+        "memoryBefore": {
+          "rss": 101773312,
+          "heapUsed": 15073608,
+          "external": 21440699,
+          "arrayBuffers": 18660766
+        },
+        "memoryAfter": {
+          "rss": 149065728,
+          "heapUsed": 13370528,
+          "external": 49040023,
+          "arrayBuffers": 46260050
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 16028.45,
+        "billedDurationMs": 16466,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 174,
+        "initDurationMs": 437.33
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]4454acf25f9e43529f36fe920b3662ab",
+        "invocation": 2,
+        "moduleAgeMs": 30569,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 266.7600649999986,
+        "operationMs": 14102.755156,
+        "validationMs": 17.300145999997767,
+        "totalHandlerMs": 14464.793671,
+        "memoryBefore": {
+          "rss": 128815104,
+          "heapUsed": 13186920,
+          "external": 28944937,
+          "arrayBuffers": 26164964
+        },
+        "memoryAfter": {
+          "rss": 156110848,
+          "heapUsed": 12116440,
+          "external": 49188427,
+          "arrayBuffers": 46408454
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 14467.79,
+        "billedDurationMs": 14468,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 180,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]8b5f979725d54311a94d5d2c3550fd47",
+        "invocation": 1,
+        "moduleAgeMs": 15907,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 511.08095,
+        "operationMs": 15325.824033,
+        "validationMs": 34.50518600000032,
+        "totalHandlerMs": 15890.602342,
+        "memoryBefore": {
+          "rss": 106016768,
+          "heapUsed": 15280360,
+          "external": 21839373,
+          "arrayBuffers": 19059440
+        },
+        "memoryAfter": {
+          "rss": 148860928,
+          "heapUsed": 13971936,
+          "external": 49054043,
+          "arrayBuffers": 46274070
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 15933.8,
+        "billedDurationMs": 16417,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 174,
+        "initDurationMs": 482.86
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]8b5f979725d54311a94d5d2c3550fd47",
+        "invocation": 2,
+        "moduleAgeMs": 30227,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 229.00585099999807,
+        "operationMs": 13900.440973,
+        "validationMs": 21.347329000000173,
+        "totalHandlerMs": 14186.304165000001,
+        "memoryBefore": {
+          "rss": 128749568,
+          "heapUsed": 13803984,
+          "external": 31319503,
+          "arrayBuffers": 28539530
+        },
+        "memoryAfter": {
+          "rss": 157577216,
+          "heapUsed": 12184336,
+          "external": 49208023,
+          "arrayBuffers": 46428050
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 14189.04,
+        "billedDurationMs": 14190,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 182,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]12c8383751944f11bc5c334b581263c5",
+        "invocation": 1,
+        "moduleAgeMs": 14331,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 457.77145900000005,
+        "operationMs": 13802.674351000001,
+        "validationMs": 38.439706000001024,
+        "totalHandlerMs": 14314.357402,
+        "memoryBefore": {
+          "rss": 102313984,
+          "heapUsed": 15242224,
+          "external": 21841083,
+          "arrayBuffers": 19061150
+        },
+        "memoryAfter": {
+          "rss": 158208000,
+          "heapUsed": 13308376,
+          "external": 55389278,
+          "arrayBuffers": 46317849
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 56.51481799999999,
+          "instantiateMs": 63.844691000000125,
+          "loadMs": 120.37452299999995,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 14394.36,
+        "billedDurationMs": 14830,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 183,
+        "initDurationMs": 435.14
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]12c8383751944f11bc5c334b581263c5",
+        "invocation": 2,
+        "moduleAgeMs": 27489,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 278.57628099999965,
+        "operationMs": 12641.541685999999,
+        "validationMs": 5.25339200000235,
+        "totalHandlerMs": 12956.767117000001,
+        "memoryBefore": {
+          "rss": 144785408,
+          "heapUsed": 13229576,
+          "external": 36275449,
+          "arrayBuffers": 27204020
+        },
+        "memoryAfter": {
+          "rss": 160641024,
+          "heapUsed": 11304624,
+          "external": 55556474,
+          "arrayBuffers": 46489654
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 56.51481799999999,
+          "instantiateMs": 63.844691000000125,
+          "loadMs": 120.37452299999995,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 12977.7,
+        "billedDurationMs": 12978,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 185,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]82b0ee056b744b56bca3d960890ed316",
+        "invocation": 1,
+        "moduleAgeMs": 12417,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 486.5137629999999,
+        "operationMs": 11879.370671,
+        "validationMs": 21.139197000000422,
+        "totalHandlerMs": 12404.517178,
+        "memoryBefore": {
+          "rss": 103497728,
+          "heapUsed": 12498280,
+          "external": 19225749,
+          "arrayBuffers": 16445816
+        },
+        "memoryAfter": {
+          "rss": 158724096,
+          "heapUsed": 12938344,
+          "external": 55352414,
+          "arrayBuffers": 46280985
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 19.417108999999982,
+          "instantiateMs": 19.94155699999999,
+          "loadMs": 39.36670700000002,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 12487.2,
+        "billedDurationMs": 12858,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 183,
+        "initDurationMs": 370.16
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]82b0ee056b744b56bca3d960890ed316",
+        "invocation": 2,
+        "moduleAgeMs": 23637,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 236.23699300000044,
+        "operationMs": 10682.784227,
+        "validationMs": 77.44728300000133,
+        "totalHandlerMs": 11015.502108,
+        "memoryBefore": {
+          "rss": 138559488,
+          "heapUsed": 13113304,
+          "external": 35401521,
+          "arrayBuffers": 26330092
+        },
+        "memoryAfter": {
+          "rss": 160190464,
+          "heapUsed": 11987896,
+          "external": 55458874,
+          "arrayBuffers": 46392054
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 19.417108999999982,
+          "instantiateMs": 19.94155699999999,
+          "loadMs": 39.36670700000002,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 11038.49,
+        "billedDurationMs": 11039,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 184,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]63a5f001430040fba99cf78906545b1a",
+        "invocation": 1,
+        "moduleAgeMs": 14488,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 515.41524,
+        "operationMs": 13886.919995999999,
+        "validationMs": 33.808671000000686,
+        "totalHandlerMs": 14471.854384,
+        "memoryBefore": {
+          "rss": 99762176,
+          "heapUsed": 12532432,
+          "external": 19125399,
+          "arrayBuffers": 16345466
+        },
+        "memoryAfter": {
+          "rss": 160096256,
+          "heapUsed": 13210488,
+          "external": 55344222,
+          "arrayBuffers": 46272793
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 98.40792499999998,
+          "instantiateMs": 21.098295000000007,
+          "loadMs": 119.52051499999993,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 14553.78,
+        "billedDurationMs": 14993,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 184,
+        "initDurationMs": 438.5
+      }
+    },
+    {
+      "architecture": "x86_64",
+      "functionName": "purejsimage-lambda-bench-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-512[$LATEST]63a5f001430040fba99cf78906545b1a",
+        "invocation": 2,
+        "moduleAgeMs": 27468,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 207.88496699999996,
+        "operationMs": 12601.801467000001,
+        "validationMs": 37.67020000000048,
+        "totalHandlerMs": 12847.726381,
+        "memoryBefore": {
+          "rss": 140025856,
+          "heapUsed": 12905544,
+          "external": 34959077,
+          "arrayBuffers": 25887648
+        },
+        "memoryAfter": {
+          "rss": 160825344,
+          "heapUsed": 11401496,
+          "external": 55509702,
+          "arrayBuffers": 46442882
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 98.40792499999998,
+          "instantiateMs": 21.098295000000007,
+          "loadMs": 119.52051499999993,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 12868.22,
+        "billedDurationMs": 12869,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 185,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]3180fe9bece24edea03ed3c6fb336552",
+        "invocation": 1,
+        "moduleAgeMs": 6048,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 550.869316,
+        "operationMs": 5464.878367,
+        "validationMs": 2.64014700000007,
+        "totalHandlerMs": 6031.12283,
+        "memoryBefore": {
+          "rss": 106090496,
+          "heapUsed": 13887624,
+          "external": 19216889,
+          "arrayBuffers": 16436956
+        },
+        "memoryAfter": {
+          "rss": 121319424,
+          "heapUsed": 14337680,
+          "external": 23689047,
+          "arrayBuffers": 20909074
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6053.79,
+        "billedDurationMs": 6567,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 147,
+        "initDurationMs": 512.75
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]3180fe9bece24edea03ed3c6fb336552",
+        "invocation": 2,
+        "moduleAgeMs": 11208,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 227.69140499999958,
+        "operationMs": 4823.768590999999,
+        "validationMs": 1.602657999999792,
+        "totalHandlerMs": 5083.701843,
+        "memoryBefore": {
+          "rss": 138878976,
+          "heapUsed": 15979032,
+          "external": 42762490,
+          "arrayBuffers": 39982517
+        },
+        "memoryAfter": {
+          "rss": 135028736,
+          "heapUsed": 16175976,
+          "external": 25369518,
+          "arrayBuffers": 22589545
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5086.23,
+        "billedDurationMs": 5087,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 164,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]7e2343b70e00422fae831e004de08c77",
+        "invocation": 1,
+        "moduleAgeMs": 6167,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 629.5307890000001,
+        "operationMs": 5502.847138,
+        "validationMs": 2.537321000000702,
+        "totalHandlerMs": 6147.618855,
+        "memoryBefore": {
+          "rss": 102797312,
+          "heapUsed": 12032032,
+          "external": 19202809,
+          "arrayBuffers": 16422876
+        },
+        "memoryAfter": {
+          "rss": 120213504,
+          "heapUsed": 14974864,
+          "external": 19211929,
+          "arrayBuffers": 16431956
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6151.74,
+        "billedDurationMs": 6637,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 146,
+        "initDurationMs": 484.39
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]7e2343b70e00422fae831e004de08c77",
+        "invocation": 2,
+        "moduleAgeMs": 11310,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 312.6204550000002,
+        "operationMs": 4721.172555,
+        "validationMs": 1.6976660000000265,
+        "totalHandlerMs": 5048.795833,
+        "memoryBefore": {
+          "rss": 136417280,
+          "heapUsed": 13071272,
+          "external": 31607622,
+          "arrayBuffers": 28827649
+        },
+        "memoryAfter": {
+          "rss": 140468224,
+          "heapUsed": 13408904,
+          "external": 32001043,
+          "arrayBuffers": 29221070
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5050.78,
+        "billedDurationMs": 5051,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 165,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]b97f5d93798744dc80bca2ca43444013",
+        "invocation": 1,
+        "moduleAgeMs": 4809,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 496.60608299999996,
+        "operationMs": 4242.8507930000005,
+        "validationMs": 2.264205999999831,
+        "totalHandlerMs": 4791.6885919999995,
+        "memoryBefore": {
+          "rss": 108019712,
+          "heapUsed": 12196368,
+          "external": 19164884,
+          "arrayBuffers": 16384951
+        },
+        "memoryAfter": {
+          "rss": 118161408,
+          "heapUsed": 13147552,
+          "external": 16952519,
+          "arrayBuffers": 14172546
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 4795.63,
+        "billedDurationMs": 5214,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 144,
+        "initDurationMs": 417.61
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-png",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]b97f5d93798744dc80bca2ca43444013",
+        "invocation": 2,
+        "moduleAgeMs": 8833,
+        "inputBytes": 4768216,
+        "outputBytes": 1780541,
+        "outputFormat": "png",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "c66eeb281c1f8b91f96e2600b5afb79665874d930fd5e1a02473f2a3019f050a",
+        "inputReadMs": 246.69756299999972,
+        "operationMs": 3701.9097650000003,
+        "validationMs": 1.5186850000009144,
+        "totalHandlerMs": 3965.6672020000005,
+        "memoryBefore": {
+          "rss": 135327744,
+          "heapUsed": 15127896,
+          "external": 36025982,
+          "arrayBuffers": 33246009
+        },
+        "memoryAfter": {
+          "rss": 141283328,
+          "heapUsed": 13648800,
+          "external": 22124205,
+          "arrayBuffers": 19344232
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 3983.31,
+        "billedDurationMs": 3984,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 168,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]1824e590d0ed47859e0b7cdc88512265",
+        "invocation": 1,
+        "moduleAgeMs": 5195,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 483.61426500000005,
+        "operationMs": 4662.878094000001,
+        "validationMs": 1.0598040000004403,
+        "totalHandlerMs": 5178.782230999999,
+        "memoryBefore": {
+          "rss": 103751680,
+          "heapUsed": 13815992,
+          "external": 19225807,
+          "arrayBuffers": 16445874
+        },
+        "memoryAfter": {
+          "rss": 111886336,
+          "heapUsed": 14842896,
+          "external": 23675819,
+          "arrayBuffers": 20895846
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5182.76,
+        "billedDurationMs": 5583,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 139,
+        "initDurationMs": 399.74
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]1824e590d0ed47859e0b7cdc88512265",
+        "invocation": 2,
+        "moduleAgeMs": 9255,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 209.94967899999938,
+        "operationMs": 3749.6479499999996,
+        "validationMs": 30.537680000001274,
+        "totalHandlerMs": 4002.325564999999,
+        "memoryBefore": {
+          "rss": 129703936,
+          "heapUsed": 16933432,
+          "external": 42749282,
+          "arrayBuffers": 39969309
+        },
+        "memoryAfter": {
+          "rss": 128868352,
+          "heapUsed": 13126064,
+          "external": 22504824,
+          "arrayBuffers": 19724851
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 4004.4,
+        "billedDurationMs": 4005,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 156,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]2200e116a8f7468abf2a2a2a85cc4005",
+        "invocation": 1,
+        "moduleAgeMs": 6647,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 631.7155270000001,
+        "operationMs": 5977.359096,
+        "validationMs": 1.5634140000001935,
+        "totalHandlerMs": 6628.3990300000005,
+        "memoryBefore": {
+          "rss": 101683200,
+          "heapUsed": 12360072,
+          "external": 19215737,
+          "arrayBuffers": 16435804
+        },
+        "memoryAfter": {
+          "rss": 118497280,
+          "heapUsed": 13481256,
+          "external": 17988253,
+          "arrayBuffers": 15208280
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6632.6,
+        "billedDurationMs": 7096,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 145,
+        "initDurationMs": 462.77
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]2200e116a8f7468abf2a2a2a85cc4005",
+        "invocation": 2,
+        "moduleAgeMs": 11847,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 248.3300509999999,
+        "operationMs": 4886.157539,
+        "validationMs": 0.4369479999986652,
+        "totalHandlerMs": 5146.209576,
+        "memoryBefore": {
+          "rss": 135708672,
+          "heapUsed": 15212304,
+          "external": 37068283,
+          "arrayBuffers": 34282899
+        },
+        "memoryAfter": {
+          "rss": 136675328,
+          "heapUsed": 14119720,
+          "external": 17895489,
+          "arrayBuffers": 15115516
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5148.76,
+        "billedDurationMs": 5149,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 162,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]e35ccb6eac414267bbb7b75e99085288",
+        "invocation": 1,
+        "moduleAgeMs": 6656,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 584.265009,
+        "operationMs": 6040.840032,
+        "validationMs": 1.2946790000005421,
+        "totalHandlerMs": 6638.522723,
+        "memoryBefore": {
+          "rss": 100122624,
+          "heapUsed": 14003040,
+          "external": 19220373,
+          "arrayBuffers": 16440440
+        },
+        "memoryAfter": {
+          "rss": 114651136,
+          "heapUsed": 13685528,
+          "external": 23652337,
+          "arrayBuffers": 20872364
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6659.56,
+        "billedDurationMs": 7134,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 143,
+        "initDurationMs": 474.24
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-webp",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]e35ccb6eac414267bbb7b75e99085288",
+        "invocation": 2,
+        "moduleAgeMs": 11914,
+        "inputBytes": 4768216,
+        "outputBytes": 289470,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "526df316d5d9b91bba1d5dca25131bb0bb388307aa0ebf594f6503c3a9560ebe",
+        "inputReadMs": 263.0316299999995,
+        "operationMs": 4900.917023,
+        "validationMs": 0.43488799999977346,
+        "totalHandlerMs": 5181.48329,
+        "memoryBefore": {
+          "rss": 132952064,
+          "heapUsed": 15474800,
+          "external": 42732367,
+          "arrayBuffers": 39946983
+        },
+        "memoryAfter": {
+          "rss": 130392064,
+          "heapUsed": 14223576,
+          "external": 17895489,
+          "arrayBuffers": 15115516
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5184.15,
+        "billedDurationMs": 5185,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 161,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]e09bd8586f0e4a7da52797c1c3a07a3b",
+        "invocation": 1,
+        "moduleAgeMs": 7878,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 1024.742201,
+        "operationMs": 6809.086931,
+        "validationMs": 11.969066999999995,
+        "totalHandlerMs": 7861.476583,
+        "memoryBefore": {
+          "rss": 123600896,
+          "heapUsed": 13634112,
+          "external": 31302915,
+          "arrayBuffers": 28522982
+        },
+        "memoryAfter": {
+          "rss": 157474816,
+          "heapUsed": 10800368,
+          "external": 14739706,
+          "arrayBuffers": 11921462
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 7883.78,
+        "billedDurationMs": 8354,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 184,
+        "initDurationMs": 469.44
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]e09bd8586f0e4a7da52797c1c3a07a3b",
+        "invocation": 2,
+        "moduleAgeMs": 13979,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 453.15229399999953,
+        "operationMs": 5458.725661,
+        "validationMs": 1.8453909999989264,
+        "totalHandlerMs": 5952.847384000001,
+        "memoryBefore": {
+          "rss": 175226880,
+          "heapUsed": 13517632,
+          "external": 52316320,
+          "arrayBuffers": 49492665
+        },
+        "memoryAfter": {
+          "rss": 169447424,
+          "heapUsed": 11109464,
+          "external": 24123322,
+          "arrayBuffers": 21305099
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 5955.81,
+        "billedDurationMs": 5956,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 201,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]f2bde36700c1426a8be8d31c28caeb56",
+        "invocation": 1,
+        "moduleAgeMs": 7584,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 967.5667020000001,
+        "operationMs": 6568.176843,
+        "validationMs": 12.073108000000502,
+        "totalHandlerMs": 7566.809235999999,
+        "memoryBefore": {
+          "rss": 127062016,
+          "heapUsed": 13600848,
+          "external": 31171364,
+          "arrayBuffers": 28391431
+        },
+        "memoryAfter": {
+          "rss": 152203264,
+          "heapUsed": 11097568,
+          "external": 18139386,
+          "arrayBuffers": 15321142
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 7571.18,
+        "billedDurationMs": 8035,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 176,
+        "initDurationMs": 463.27
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]f2bde36700c1426a8be8d31c28caeb56",
+        "invocation": 2,
+        "moduleAgeMs": 13727,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 481.67608500000006,
+        "operationMs": 5560.181702,
+        "validationMs": 1.8485829999990528,
+        "totalHandlerMs": 6078.722280000001,
+        "memoryBefore": {
+          "rss": 148525056,
+          "heapUsed": 11630800,
+          "external": 34970747,
+          "arrayBuffers": 32152524
+        },
+        "memoryAfter": {
+          "rss": 159305728,
+          "heapUsed": 11753168,
+          "external": 29632975,
+          "arrayBuffers": 26814752
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6081.7,
+        "billedDurationMs": 6082,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 184,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]4f2ba7be8acd4715991130f6c0fde802",
+        "invocation": 1,
+        "moduleAgeMs": 7730,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 897.0418040000001,
+        "operationMs": 6708.935686000001,
+        "validationMs": 52.28892700000051,
+        "totalHandlerMs": 7713.387287,
+        "memoryBefore": {
+          "rss": 125566976,
+          "heapUsed": 14019160,
+          "external": 37707313,
+          "arrayBuffers": 34927380
+        },
+        "memoryAfter": {
+          "rss": 151232512,
+          "heapUsed": 11820888,
+          "external": 25289698,
+          "arrayBuffers": 22471454
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 7753.57,
+        "billedDurationMs": 8271,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 177,
+        "initDurationMs": 516.48
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-jpeg",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-jpeg",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]4f2ba7be8acd4715991130f6c0fde802",
+        "invocation": 2,
+        "moduleAgeMs": 13931,
+        "inputBytes": 9392362,
+        "outputBytes": 185517,
+        "outputFormat": "jpeg",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "f7f8013ad09988c989abe9bb99b34ec2daef6b7df042a6524843053bf838313f",
+        "inputReadMs": 435.67021900000145,
+        "operationMs": 5621.015196,
+        "validationMs": 1.8078519999999116,
+        "totalHandlerMs": 6111.496999999999,
+        "memoryBefore": {
+          "rss": 159506432,
+          "heapUsed": 13446704,
+          "external": 51759810,
+          "arrayBuffers": 48936155
+        },
+        "memoryAfter": {
+          "rss": 162111488,
+          "heapUsed": 11110520,
+          "external": 24123431,
+          "arrayBuffers": 21305208
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6130.9,
+        "billedDurationMs": 6131,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 187,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]3e46929179844d3996a5ff6e3d4e7782",
+        "invocation": 1,
+        "moduleAgeMs": 7968,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 954.5251269999999,
+        "operationMs": 6947.666689,
+        "validationMs": 32.449845999999525,
+        "totalHandlerMs": 7949.65273,
+        "memoryBefore": {
+          "rss": 125095936,
+          "heapUsed": 13597856,
+          "external": 31169421,
+          "arrayBuffers": 28389488
+        },
+        "memoryAfter": {
+          "rss": 151367680,
+          "heapUsed": 16143168,
+          "external": 24362079,
+          "arrayBuffers": 21543835
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 7954.06,
+        "billedDurationMs": 8432,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 177,
+        "initDurationMs": 477.6
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]3e46929179844d3996a5ff6e3d4e7782",
+        "invocation": 2,
+        "moduleAgeMs": 14252,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 454.21817400000145,
+        "operationMs": 5721.608427000001,
+        "validationMs": 2.1316679999999906,
+        "totalHandlerMs": 6230.069324,
+        "memoryBefore": {
+          "rss": 142774272,
+          "heapUsed": 12621344,
+          "external": 40484936,
+          "arrayBuffers": 37661302
+        },
+        "memoryAfter": {
+          "rss": 162652160,
+          "heapUsed": 15129200,
+          "external": 30314483,
+          "arrayBuffers": 27496260
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6247.8,
+        "billedDurationMs": 6248,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 187,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]386c7d025809452fae78eef1dcdcdd58",
+        "invocation": 1,
+        "moduleAgeMs": 7869,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 932.3337170000001,
+        "operationMs": 6842.5730029999995,
+        "validationMs": 2.195551999999225,
+        "totalHandlerMs": 7850.659984,
+        "memoryBefore": {
+          "rss": 125718528,
+          "heapUsed": 13619472,
+          "external": 31173565,
+          "arrayBuffers": 28393632
+        },
+        "memoryAfter": {
+          "rss": 162512896,
+          "heapUsed": 15649128,
+          "external": 35347785,
+          "arrayBuffers": 32529541
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 7933.07,
+        "billedDurationMs": 8400,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 186,
+        "initDurationMs": 466.63
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]386c7d025809452fae78eef1dcdcdd58",
+        "invocation": 2,
+        "moduleAgeMs": 14509,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 421.46257999999943,
+        "operationMs": 6027.5258570000005,
+        "validationMs": 1.9941329999983282,
+        "totalHandlerMs": 6499.120777999999,
+        "memoryBefore": {
+          "rss": 143519744,
+          "heapUsed": 12670448,
+          "external": 40485012,
+          "arrayBuffers": 37661378
+        },
+        "memoryAfter": {
+          "rss": 165974016,
+          "heapUsed": 17401304,
+          "external": 30313247,
+          "arrayBuffers": 27495024
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6509.46,
+        "billedDurationMs": 6510,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 190,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]c46a5fe78ee34caba11f333489910723",
+        "invocation": 1,
+        "moduleAgeMs": 7709,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 1009.515797,
+        "operationMs": 6679.057245,
+        "validationMs": 2.215843999999379,
+        "totalHandlerMs": 7691.5009279999995,
+        "memoryBefore": {
+          "rss": 121708544,
+          "heapUsed": 13802896,
+          "external": 37709023,
+          "arrayBuffers": 34929090
+        },
+        "memoryAfter": {
+          "rss": 154480640,
+          "heapUsed": 11196248,
+          "external": 20585390,
+          "arrayBuffers": 17767146
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 7712.49,
+        "billedDurationMs": 8181,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 178,
+        "initDurationMs": 468.06
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "architecture",
+      "engine": "javascript",
+      "workflow": "png-resize-webp",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "png-resize-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]c46a5fe78ee34caba11f333489910723",
+        "invocation": 2,
+        "moduleAgeMs": 14008,
+        "inputBytes": 9392362,
+        "outputBytes": 877960,
+        "outputFormat": "webp",
+        "outputWidth": 1024,
+        "outputHeight": 768,
+        "outputSha256": "9ab375f377ff7b2cfb932c47916ec03a97ed0576cc7f11da52d247820a288281",
+        "inputReadMs": 371.6225800000011,
+        "operationMs": 5748.172118,
+        "validationMs": 32.36911499999951,
+        "totalHandlerMs": 6223.918506,
+        "memoryBefore": {
+          "rss": 154480640,
+          "heapUsed": 13962944,
+          "external": 58162024,
+          "arrayBuffers": 55338369
+        },
+        "memoryAfter": {
+          "rss": 164212736,
+          "heapUsed": 15611648,
+          "external": 30314483,
+          "arrayBuffers": 27496260
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 6227.75,
+        "billedDurationMs": 6228,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 188,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]8a2e5ed4c04648ec87c3e999ec9e4a21",
+        "invocation": 1,
+        "moduleAgeMs": 15187,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 514.898706,
+        "operationMs": 14560.563515,
+        "validationMs": 39.828872999998566,
+        "totalHandlerMs": 15167.945988000001,
+        "memoryBefore": {
+          "rss": 110751744,
+          "heapUsed": 14655136,
+          "external": 21841103,
+          "arrayBuffers": 19061170
+        },
+        "memoryAfter": {
+          "rss": 143843328,
+          "heapUsed": 13395504,
+          "external": 34794921,
+          "arrayBuffers": 32014948
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 15190.08,
+        "billedDurationMs": 15723,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 169,
+        "initDurationMs": 532.36
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]8a2e5ed4c04648ec87c3e999ec9e4a21",
+        "invocation": 2,
+        "moduleAgeMs": 29426,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 282.8905680000007,
+        "operationMs": 13781.887635,
+        "validationMs": 39.88116500000251,
+        "totalHandlerMs": 14139.919323000002,
+        "memoryBefore": {
+          "rss": 125997056,
+          "heapUsed": 12241656,
+          "external": 22047002,
+          "arrayBuffers": 19261618
+        },
+        "memoryAfter": {
+          "rss": 155447296,
+          "heapUsed": 11810032,
+          "external": 36135280,
+          "arrayBuffers": 33359916
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 14211.72,
+        "billedDurationMs": 14212,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 180,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]8a184b8cc0c9432abc3a97ee09a65e80",
+        "invocation": 1,
+        "moduleAgeMs": 15628,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 610.410387,
+        "operationMs": 14885.643276,
+        "validationMs": 113.82515699999931,
+        "totalHandlerMs": 15610.557851,
+        "memoryBefore": {
+          "rss": 102010880,
+          "heapUsed": 12205672,
+          "external": 19247275,
+          "arrayBuffers": 16467342
+        },
+        "memoryAfter": {
+          "rss": 144322560,
+          "heapUsed": 12462152,
+          "external": 39020657,
+          "arrayBuffers": 36240684
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 15633.37,
+        "billedDurationMs": 16103,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 170,
+        "initDurationMs": 468.95
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]8a184b8cc0c9432abc3a97ee09a65e80",
+        "invocation": 2,
+        "moduleAgeMs": 29728,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 303.8431669999991,
+        "operationMs": 13623.641235,
+        "validationMs": 39.14176800000132,
+        "totalHandlerMs": 14021.817332999999,
+        "memoryBefore": {
+          "rss": 155766784,
+          "heapUsed": 12913704,
+          "external": 53095924,
+          "arrayBuffers": 50315149
+        },
+        "memoryAfter": {
+          "rss": 174104576,
+          "heapUsed": 11858712,
+          "external": 36423216,
+          "arrayBuffers": 33647852
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 14066.24,
+        "billedDurationMs": 14067,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 198,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]8e22af673a4b4d19bb928d3ae53f1df2",
+        "invocation": 1,
+        "moduleAgeMs": 11970,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 478.04407399999997,
+        "operationMs": 11319.741383,
+        "validationMs": 9.377340999999433,
+        "totalHandlerMs": 11952.211146000001,
+        "memoryBefore": {
+          "rss": 113868800,
+          "heapUsed": 15109680,
+          "external": 21841083,
+          "arrayBuffers": 19061150
+        },
+        "memoryAfter": {
+          "rss": 147537920,
+          "heapUsed": 14883784,
+          "external": 40172961,
+          "arrayBuffers": 37392988
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 11956.4,
+        "billedDurationMs": 12354,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 173,
+        "initDurationMs": 397.35
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]8e22af673a4b4d19bb928d3ae53f1df2",
+        "invocation": 2,
+        "moduleAgeMs": 22570,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 225.87610700000005,
+        "operationMs": 10247.915936000001,
+        "validationMs": 38.29472700000042,
+        "totalHandlerMs": 10544.721273,
+        "memoryBefore": {
+          "rss": 139587584,
+          "heapUsed": 12906568,
+          "external": 35186998,
+          "arrayBuffers": 32401614
+        },
+        "memoryAfter": {
+          "rss": 169467904,
+          "heapUsed": 13491688,
+          "external": 41320680,
+          "arrayBuffers": 38545316
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 10628.26,
+        "billedDurationMs": 10629,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 193,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]bef2c563f5594f8a88f1ac7953c11ea0",
+        "invocation": 1,
+        "moduleAgeMs": 13368,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 535.874896,
+        "operationMs": 12761.945278,
+        "validationMs": 20.331576999999015,
+        "totalHandlerMs": 13351.083705,
+        "memoryBefore": {
+          "rss": 103792640,
+          "heapUsed": 15048288,
+          "external": 21841083,
+          "arrayBuffers": 19061150
+        },
+        "memoryAfter": {
+          "rss": 144814080,
+          "heapUsed": 11143888,
+          "external": 40407186,
+          "arrayBuffers": 31340366
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 17.85890399999994,
+          "instantiateMs": 19.972956000000067,
+          "loadMs": 37.84421700000007,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 13413.67,
+        "billedDurationMs": 13883,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 170,
+        "initDurationMs": 468.56
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]bef2c563f5594f8a88f1ac7953c11ea0",
+        "invocation": 2,
+        "moduleAgeMs": 25388,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 306.8378580000008,
+        "operationMs": 11525.568262,
+        "validationMs": 38.66644499999893,
+        "totalHandlerMs": 11899.470677999998,
+        "memoryBefore": {
+          "rss": 127029248,
+          "heapUsed": 12051608,
+          "external": 28333873,
+          "arrayBuffers": 19261642
+        },
+        "memoryAfter": {
+          "rss": 160067584,
+          "heapUsed": 13779272,
+          "external": 49922644,
+          "arrayBuffers": 40855824
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 17.85890399999994,
+          "instantiateMs": 19.972956000000067,
+          "loadMs": 37.84421700000007,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 11983.51,
+        "billedDurationMs": 11984,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 185,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]1d18c50d909c4063b75ed9063b895ab2",
+        "invocation": 1,
+        "moduleAgeMs": 13467,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 630.625172,
+        "operationMs": 12742.991358,
+        "validationMs": 40.602231999999276,
+        "totalHandlerMs": 13449.048218,
+        "memoryBefore": {
+          "rss": 102137856,
+          "heapUsed": 12233776,
+          "external": 19247275,
+          "arrayBuffers": 16467342
+        },
+        "memoryAfter": {
+          "rss": 147062784,
+          "heapUsed": 12211432,
+          "external": 44737308,
+          "arrayBuffers": 35670488
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 156.34660099999996,
+          "instantiateMs": 1.3225930000000972,
+          "loadMs": 157.67873600000007,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 13511.3,
+        "billedDurationMs": 13961,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 172,
+        "initDurationMs": 448.97
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]1d18c50d909c4063b75ed9063b895ab2",
+        "invocation": 2,
+        "moduleAgeMs": 25448,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 291.03053100000034,
+        "operationMs": 11461.91625,
+        "validationMs": 38.639006999997946,
+        "totalHandlerMs": 11865.340816000002,
+        "memoryBefore": {
+          "rss": 157224960,
+          "heapUsed": 12538272,
+          "external": 59387364,
+          "arrayBuffers": 50315133
+        },
+        "memoryAfter": {
+          "rss": 173002752,
+          "heapUsed": 16383736,
+          "external": 60293220,
+          "arrayBuffers": 51226400
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 156.34660099999996,
+          "instantiateMs": 1.3225930000000972,
+          "loadMs": 157.67873600000007,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 11890.65,
+        "billedDurationMs": 11891,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 197,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]3e1c13818bf140f49c77a4375fa0257b",
+        "invocation": 1,
+        "moduleAgeMs": 10330,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 475.6961089999999,
+        "operationMs": 9760.053504,
+        "validationMs": 40.06249100000059,
+        "totalHandlerMs": 10312.311625,
+        "memoryBefore": {
+          "rss": 109039616,
+          "heapUsed": 15072072,
+          "external": 21841083,
+          "arrayBuffers": 19061150
+        },
+        "memoryAfter": {
+          "rss": 145977344,
+          "heapUsed": 11069208,
+          "external": 40608236,
+          "arrayBuffers": 31541416
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 17.496285000000057,
+          "instantiateMs": 20.17279199999996,
+          "loadMs": 37.678443000000016,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 10374.35,
+        "billedDurationMs": 10771,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 171,
+        "initDurationMs": 396.39
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-png",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-png",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]3e1c13818bf140f49c77a4375fa0257b",
+        "invocation": 2,
+        "moduleAgeMs": 19409,
+        "inputBytes": 4768216,
+        "outputBytes": 13145319,
+        "outputFormat": "png",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "c8508489c478e5d814d673dc19663929a3d1c942ee4e6b3486bc3abf6b06e68c",
+        "inputReadMs": 203.94702999999936,
+        "operationMs": 8620.937852999998,
+        "validationMs": 46.76745200000005,
+        "totalHandlerMs": 8959.343553,
+        "memoryBefore": {
+          "rss": 128434176,
+          "heapUsed": 11802960,
+          "external": 28333853,
+          "arrayBuffers": 19261622
+        },
+        "memoryAfter": {
+          "rss": 170463232,
+          "heapUsed": 16360736,
+          "external": 64485332,
+          "arrayBuffers": 55418512
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 17.496285000000057,
+          "instantiateMs": 20.17279199999996,
+          "loadMs": 37.678443000000016,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 8968.39,
+        "billedDurationMs": 8969,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 194,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]7a1fb81e9f9a406793a4f12f7943500b",
+        "invocation": 1,
+        "moduleAgeMs": 11570,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 518.522934,
+        "operationMs": 10987.271301,
+        "validationMs": 32.23609600000054,
+        "totalHandlerMs": 11552.527225,
+        "memoryBefore": {
+          "rss": 101625856,
+          "heapUsed": 12524168,
+          "external": 19212459,
+          "arrayBuffers": 16432526
+        },
+        "memoryAfter": {
+          "rss": 159424512,
+          "heapUsed": 19126472,
+          "external": 47062053,
+          "arrayBuffers": 44282080
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 11574.54,
+        "billedDurationMs": 11930,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 184,
+        "initDurationMs": 355.26
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]7a1fb81e9f9a406793a4f12f7943500b",
+        "invocation": 2,
+        "moduleAgeMs": 21832,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 200.30534400000033,
+        "operationMs": 9979.231554,
+        "validationMs": 1.694720999999845,
+        "totalHandlerMs": 10182.030242,
+        "memoryBefore": {
+          "rss": 139771904,
+          "heapUsed": 14102168,
+          "external": 31583358,
+          "arrayBuffers": 28797974
+        },
+        "memoryAfter": {
+          "rss": 174063616,
+          "heapUsed": 17826240,
+          "external": 48978178,
+          "arrayBuffers": 46202814
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 10245.75,
+        "billedDurationMs": 10246,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 198,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]78f95d506eb64299a57ea5a6a238dbcc",
+        "invocation": 1,
+        "moduleAgeMs": 15825,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 669.0051109999999,
+        "operationMs": 15102.381942,
+        "validationMs": 2.3576610000000073,
+        "totalHandlerMs": 15808.374319,
+        "memoryBefore": {
+          "rss": 101842944,
+          "heapUsed": 12348608,
+          "external": 19195031,
+          "arrayBuffers": 16415098
+        },
+        "memoryAfter": {
+          "rss": 157343744,
+          "heapUsed": 18869592,
+          "external": 47066129,
+          "arrayBuffers": 44286156
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 15890.64,
+        "billedDurationMs": 16371,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 182,
+        "initDurationMs": 480.26
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]78f95d506eb64299a57ea5a6a238dbcc",
+        "invocation": 2,
+        "moduleAgeMs": 29985,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 272.6369799999993,
+        "operationMs": 13604.401931999997,
+        "validationMs": 1.9111219999977038,
+        "totalHandlerMs": 14026.474285,
+        "memoryBefore": {
+          "rss": 139431936,
+          "heapUsed": 14461552,
+          "external": 31583454,
+          "arrayBuffers": 28798070
+        },
+        "memoryAfter": {
+          "rss": 173608960,
+          "heapUsed": 11068080,
+          "external": 49231410,
+          "arrayBuffers": 46456046
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 14068.82,
+        "billedDurationMs": 14069,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 197,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]9d826ffffd03404b80e24d7de5a7560f",
+        "invocation": 1,
+        "moduleAgeMs": 15611,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 535.1641669999999,
+        "operationMs": 14947.18383,
+        "validationMs": 32.97959400000036,
+        "totalHandlerMs": 15592.44202,
+        "memoryBefore": {
+          "rss": 104382464,
+          "heapUsed": 15030144,
+          "external": 21875919,
+          "arrayBuffers": 19095986
+        },
+        "memoryAfter": {
+          "rss": 155729920,
+          "heapUsed": 13453408,
+          "external": 49063267,
+          "arrayBuffers": 46283294
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 15615.68,
+        "billedDurationMs": 16065,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 180,
+        "initDurationMs": 449.3
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "javascript",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "javascript",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]9d826ffffd03404b80e24d7de5a7560f",
+        "invocation": 2,
+        "moduleAgeMs": 29650,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 191.08913199999915,
+        "operationMs": 13687.864429999998,
+        "validationMs": 1.8236389999983658,
+        "totalHandlerMs": 13965.511929999999,
+        "memoryBefore": {
+          "rss": 135872512,
+          "heapUsed": 13556456,
+          "external": 31509261,
+          "arrayBuffers": 28729288
+        },
+        "memoryAfter": {
+          "rss": 161058816,
+          "heapUsed": 11469464,
+          "external": 49221175,
+          "arrayBuffers": 46441202
+        },
+        "wasm": {
+          "instantiations": 0,
+          "moduleBytes": 0,
+          "memoryBytes": 0,
+          "readMs": 0,
+          "instantiateMs": 0,
+          "loadMs": 0,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 13968.95,
+        "billedDurationMs": 13969,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 185,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 1,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]7d051dcfb6514208a6512868c905b3e5",
+        "invocation": 1,
+        "moduleAgeMs": 9718,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 542.802958,
+        "operationMs": 9140.499194,
+        "validationMs": 2.10858300000109,
+        "totalHandlerMs": 9701.985969,
+        "memoryBefore": {
+          "rss": 104222720,
+          "heapUsed": 14992032,
+          "external": 21858511,
+          "arrayBuffers": 19078578
+        },
+        "memoryAfter": {
+          "rss": 155869184,
+          "heapUsed": 14938440,
+          "external": 54402142,
+          "arrayBuffers": 45330713
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 1.1661900000001424,
+          "instantiateMs": 1.0691320000000815,
+          "loadMs": 2.243948000000046,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 9784.97,
+        "billedDurationMs": 10151,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 180,
+        "initDurationMs": 365.92
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 1,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]7d051dcfb6514208a6512868c905b3e5",
+        "invocation": 2,
+        "moduleAgeMs": 18098,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 167.25527799999873,
+        "operationMs": 8002.274017,
+        "validationMs": 1.3167039999971166,
+        "totalHandlerMs": 8224.454388000002,
+        "memoryBefore": {
+          "rss": 134746112,
+          "heapUsed": 14071616,
+          "external": 37874894,
+          "arrayBuffers": 28798054
+        },
+        "memoryAfter": {
+          "rss": 168919040,
+          "heapUsed": 11889368,
+          "external": 54524986,
+          "arrayBuffers": 45458166
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 1.1661900000001424,
+          "instantiateMs": 1.0691320000000815,
+          "loadMs": 2.243948000000046,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 8226.5,
+        "billedDurationMs": 8227,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 192,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 2,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]133b48b9674345df97fb6999c5f74eae",
+        "invocation": 1,
+        "moduleAgeMs": 9789,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 541.819107,
+        "operationMs": 9148.947255,
+        "validationMs": 32.25379299999986,
+        "totalHandlerMs": 9772.847549,
+        "memoryBefore": {
+          "rss": 100179968,
+          "heapUsed": 12108776,
+          "external": 18131337,
+          "arrayBuffers": 15351404
+        },
+        "memoryAfter": {
+          "rss": 159977472,
+          "heapUsed": 15107792,
+          "external": 54389854,
+          "arrayBuffers": 45318425
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 75.51265799999999,
+          "instantiateMs": 1.3383929999999964,
+          "loadMs": 76.86124099999995,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 9834.81,
+        "billedDurationMs": 10203,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 187,
+        "initDurationMs": 367.8
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 2,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]133b48b9674345df97fb6999c5f74eae",
+        "invocation": 2,
+        "moduleAgeMs": 18251,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 155.64946000000054,
+        "operationMs": 8160.250443999999,
+        "validationMs": 1.3515100000004168,
+        "totalHandlerMs": 8349.811422,
+        "memoryBefore": {
+          "rss": 133152768,
+          "heapUsed": 14452232,
+          "external": 37874894,
+          "arrayBuffers": 28798054
+        },
+        "memoryAfter": {
+          "rss": 171528192,
+          "heapUsed": 14442016,
+          "external": 53484731,
+          "arrayBuffers": 44413302
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 75.51265799999999,
+          "instantiateMs": 1.3383929999999964,
+          "loadMs": 76.86124099999995,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 8351.73,
+        "billedDurationMs": 8352,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 197,
+        "initDurationMs": null
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 3,
+      "phase": "cold",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": true,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]12cdeb14f5a345f681c1427f636ebde7",
+        "invocation": 1,
+        "moduleAgeMs": 13773,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 636.948307,
+        "operationMs": 13040.500813,
+        "validationMs": 2.4302040000002307,
+        "totalHandlerMs": 13753.412706000001,
+        "memoryBefore": {
+          "rss": 112644096,
+          "heapUsed": 12388152,
+          "external": 19214563,
+          "arrayBuffers": 16434630
+        },
+        "memoryAfter": {
+          "rss": 168443904,
+          "heapUsed": 20210496,
+          "external": 54984182,
+          "arrayBuffers": 45912753
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 36.77302899999995,
+          "instantiateMs": 20.622843000000103,
+          "loadMs": 57.40609600000016,
+          "loadedThisInvocation": true
+        }
+      },
+      "report": {
+        "durationMs": 13778.42,
+        "billedDurationMs": 14321,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 193,
+        "initDurationMs": 542.05
+      }
+    },
+    {
+      "architecture": "arm64",
+      "functionName": "purejsimage-lambda-bench-arm64-512",
+      "memorySizeMb": 512,
+      "suite": "wasm",
+      "engine": "wasm-jpeg",
+      "workflow": "jpeg-resize-3000-webp",
+      "repetition": 3,
+      "phase": "warm",
+      "handler": {
+        "engine": "wasm-jpeg",
+        "workflow": "jpeg-resize-3000-webp",
+        "coldStart": false,
+        "containerId": "2026/08/09/purejsimage-lambda-bench-arm64-512[$LATEST]12cdeb14f5a345f681c1427f636ebde7",
+        "invocation": 2,
+        "moduleAgeMs": 25731,
+        "inputBytes": 4768216,
+        "outputBytes": 1727264,
+        "outputFormat": "webp",
+        "outputWidth": 3000,
+        "outputHeight": 2250,
+        "outputSha256": "8b5c34ad8ee58c3dd07bc463edee15702ea66d5fafd0b76214af55346b70db49",
+        "inputReadMs": 206.8014030000013,
+        "operationMs": 11547.618034,
+        "validationMs": 73.69065799999953,
+        "totalHandlerMs": 11884.841492,
+        "memoryBefore": {
+          "rss": 155398144,
+          "heapUsed": 14479304,
+          "external": 39602178,
+          "arrayBuffers": 30525338
+        },
+        "memoryAfter": {
+          "rss": 181616640,
+          "heapUsed": 17249064,
+          "external": 54997015,
+          "arrayBuffers": 45925586
+        },
+        "wasm": {
+          "instantiations": 1,
+          "moduleBytes": 21100,
+          "memoryBytes": 6291456,
+          "readMs": 36.77302899999995,
+          "instantiateMs": 20.622843000000103,
+          "loadMs": 57.40609600000016,
+          "loadedThisInvocation": false
+        }
+      },
+      "report": {
+        "durationMs": 11887.42,
+        "billedDurationMs": 11888,
+        "memorySizeMb": 512,
+        "maxMemoryUsedMb": 205,
+        "initDurationMs": null
+      }
+    }
+  ]
+}

@@ -1,33 +1,29 @@
 import { copyFile, mkdir, rm, stat } from 'node:fs/promises'
-import { basename, dirname } from 'node:path'
+import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 
 const benchmarkDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url))
 const assetDirectory = fileURLToPath(new URL('./.asset/', import.meta.url))
-const fixtureDirectory = fileURLToPath(new URL('./.asset/fixtures/', import.meta.url))
-const fixturePaths = [
-  fileURLToPath(new URL('../corpus/files/tundra-4000x3000.jpg', import.meta.url)),
-  fileURLToPath(new URL('../corpus/files/rgba-gradient-4000x3000.png', import.meta.url)),
-] as const
+const wasmPath = fileURLToPath(
+  new URL('../../src/accelerator-entries/jpeg-decoder.wasm', import.meta.url),
+)
 
 await rm(assetDirectory, { force: true, recursive: true })
-await mkdir(fixtureDirectory, { recursive: true })
-
-for (const fixturePath of fixturePaths) {
-  const fixtureStat = await stat(fixturePath)
-  if (!fixtureStat.isFile() || fixtureStat.size === 0) {
-    throw new Error(`Lambda benchmark fixture is missing or empty: ${fixturePath}`)
-  }
-  await copyFile(fixturePath, `${fixtureDirectory}/${basename(fixturePath)}`)
+await mkdir(assetDirectory, { recursive: true })
+const wasmStat = await stat(wasmPath)
+if (!wasmStat.isFile() || wasmStat.size === 0) {
+  throw new Error(`Lambda benchmark WASM module is missing or empty: ${wasmPath}`)
 }
+await copyFile(wasmPath, `${assetDirectory}/jpeg-decoder.wasm`)
 
 const result = await build({
   absWorkingDir: repositoryRoot,
   entryPoints: [`${benchmarkDirectory}/handler.ts`],
   outfile: `${assetDirectory}/index.mjs`,
   bundle: true,
+  external: ['@aws-sdk/client-s3'],
   format: 'esm',
   platform: 'node',
   target: 'node22',
@@ -42,4 +38,4 @@ const bundledBytes = Object.values(result.metafile.outputs).reduce(
   (total, output) => total + output.bytes,
   0,
 )
-console.log(`Prepared Lambda asset: ${bundledBytes} bundled bytes, ${fixturePaths.length} fixtures`)
+console.log(`Prepared Lambda asset: ${bundledBytes} bundled bytes, ${wasmStat.size} WASM bytes`)

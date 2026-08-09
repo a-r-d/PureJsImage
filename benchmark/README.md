@@ -328,31 +328,61 @@ npm run bench:jimp -- --profile full
 
 ### Real AWS Lambda
 
-The Lambda profile deploys three temporary Node.js 22 x86_64 functions at 256,
-512, and 1024 MiB. It benchmarks pinned 4000x3000 JPEG and PNG inputs through
-JPEG/PNG/WebP resize-and-encode workflows in `us-east-1`. Set credentials
-explicitly, then always destroy the stack after the run:
+The Lambda deployment creates temporary Node.js 22 functions in `us-east-1`:
+x86_64 at 256, 512, and 1024 MiB, plus ARM64 at 512 MiB. The original runner
+measures the x86_64 memory-tier profile. The ARM/WASM runner compares x86_64 and
+ARM64 at 512 MiB on the same JavaScript bundle, then explicitly selects the JPEG
+WASM accelerator for eligible full-resolution decode:
 
 ```sh
 AWS_PROFILE=<profile> AWS_REGION=us-east-1 npm run bench:lambda:deploy
 AWS_PROFILE=<profile> AWS_REGION=us-east-1 npm run bench:lambda:run
+AWS_PROFILE=<profile> AWS_REGION=us-east-1 npm run bench:lambda:run:arm-wasm
 AWS_PROFILE=<profile> AWS_REGION=us-east-1 npm run bench:lambda:destroy
 ```
 
-The runner changes an environment nonce before every cold sample, waits for the
-Lambda update, and pairs that invocation with an immediate warm invocation. The
-Lambda log stream must match before the warm sample is accepted. AWS `REPORT`
-lines provide Init Duration, Duration, billed duration, memory size, and maximum
-memory used; handler results separately report input-read, codec-operation, and
-output-validation time.
+Always destroy the stack after the run. The x86_64 and ARM64 target chains run
+concurrently because they use separate functions. Within each target, the runner
+serializes the environment-nonce update, waits for the Lambda update, invokes
+one cold sample, and immediately invokes its paired warm sample. The Lambda log
+stream must match before the warm sample is accepted, so samples sharing one
+function cannot run concurrently without invalidating the lifecycle check.
 
-The deploy command creates a temporary S3 staging bucket because the benchmark
-profile does not require the ECR permission used by the standard CDK bootstrap.
-The destroy command removes the functions, their explicit log groups, IAM role,
-CloudFormation stack, staged object, and staging bucket.
+The final 05:51 UTC profile staged the pinned 4000x3000 JPEG and deterministic
+4000x3000 RGBA PNG as external S3 fixture objects. The deployed code ZIP was
+98,517 bytes; the two fixture objects totaled 14,160,578 bytes and were not part
+of that ZIP. The deploy command creates the temporary staging bucket without
+requiring the ECR permission used by the standard CDK bootstrap. The destroy
+command removes the functions, explicit log groups, IAM role, CloudFormation
+stack, code object, fixture objects, and bucket. An earlier development pass
+embedded the fixtures in a roughly 5.2 MiB package; that package and cold-start
+profile are obsolete and are not the final published result.
 
-Results are written as both JSON and Markdown under `results/`. JSON is the
-authoritative machine-readable artifact. Markdown is the review summary.
+The JPEG WASM module measured 21,100 bytes raw, 5,160 bytes gzip, and 4,363 bytes
+Brotli. It remains opt-in: the JavaScript reference path is the default, and the
+accelerator applies only when the planner requests an eligible full-resolution
+JPEG decode. An accepted accelerated cold sample must instantiate the module
+exactly once during the operation; its paired warm invocation must reuse that
+instance. WASM memory was 6.0 MiB for every accelerated workflow, but maximum
+AWS-reported memory did not always fall.
+
+Interpret the architecture rows per workflow rather than declaring one platform
+faster. ARM64 warm operation medians were about 5–6% lower for the JPEG inputs
+and about 3–8% higher for the PNG inputs. The WASM warm medians improved by about
+9% on x86_64 and 16% on ARM64 for PNG output. ARM64 WebP measured 13,604.4 ms on
+the reference path and 8,160.3 ms with WASM, but the three-sample distributions
+were variable, so use the exact samples rather than generalizing that result.
+
+Every accepted workflow must produce one output SHA-256 across cold and warm
+invocations, both architectures, and both engines where applicable.
+`operationMs` excludes the S3 fixture read and output metadata validation but
+includes JS/WASM input and output copies. AWS `Duration` includes the complete
+handler, including the S3 read; cold total adds `Init Duration`. Maximum memory
+is the largest AWS `REPORT` value across cold and warm samples.
+
+Read the final
+[ARM64 and JPEG WASM report](results/aws-lambda-arm-wasm-2026-08-09.md) and
+[raw JSON samples](results/aws-lambda-arm-wasm-2026-08-09.json).
 
 Every report contains a compatibility table, a performance table limited to
 workflows that passed equivalently for every selected engine, and a separate

@@ -22,6 +22,37 @@ const directory = dirname(fileURLToPath(import.meta.url))
 const assetDirectory = `${directory}/.asset`
 const archivePath = `${directory}/.asset.zip`
 const locationPath = `${directory}/.asset-location.json`
+const fixtureFiles = [
+  {
+    key: 'fixtures/tundra-4000x3000.jpg',
+    path: fileURLToPath(new URL('../corpus/files/tundra-4000x3000.jpg', import.meta.url)),
+  },
+  {
+    key: 'fixtures/rgba-gradient-4000x3000.png',
+    path: fileURLToPath(new URL('../corpus/files/rgba-gradient-4000x3000.png', import.meta.url)),
+  },
+] as const
+
+const uploadFile = async (
+  client: S3Client,
+  bucket: string,
+  key: string,
+  path: string,
+): Promise<number> => {
+  const fileStat = await stat(path)
+  if (!fileStat.isFile() || fileStat.size === 0) {
+    throw new Error(`Lambda benchmark asset is missing or empty: ${path}`)
+  }
+  await client.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Body: createReadStream(path),
+      ContentLength: fileStat.size,
+    }),
+  )
+  return fileStat.size
+}
 
 const readAssetLocation = async (): Promise<AssetLocation | undefined> => {
   let text: string
@@ -53,7 +84,9 @@ const cleanup = async (): Promise<void> => {
   const location = await readAssetLocation()
   if (location) {
     const client = new S3Client({ region: location.region })
-    await client.send(new DeleteObjectCommand({ Bucket: location.bucket, Key: location.key }))
+    for (const key of [location.key, ...fixtureFiles.map((fixture) => fixture.key)]) {
+      await client.send(new DeleteObjectCommand({ Bucket: location.bucket, Key: key }))
+    }
     await client.send(new DeleteBucketCommand({ Bucket: location.bucket }))
     client.destroy()
     console.log(`Deleted temporary asset bucket ${location.bucket}`)
@@ -86,21 +119,25 @@ if (process.argv.includes('--cleanup')) {
     region,
   }
   const client = new S3Client({ region })
+  const uploadedKeys: string[] = []
   try {
     await client.send(new CreateBucketCommand({ Bucket: location.bucket }))
-    const archiveStat = await stat(archivePath)
-    await client.send(
-      new PutObjectCommand({
-        Bucket: location.bucket,
-        Key: location.key,
-        Body: createReadStream(archivePath),
-        ContentLength: archiveStat.size,
-      }),
-    )
+    const archiveBytes = await uploadFile(client, location.bucket, location.key, archivePath)
+    uploadedKeys.push(location.key)
+    let fixtureBytes = 0
+    for (const fixture of fixtureFiles) {
+      fixtureBytes += await uploadFile(client, location.bucket, fixture.key, fixture.path)
+      uploadedKeys.push(fixture.key)
+    }
     await writeFile(locationPath, `${JSON.stringify(location, null, 2)}\n`)
-    console.log(`Staged ${archiveStat.size} bytes in s3://${location.bucket}/${location.key}`)
+    console.log(
+      `Staged ${archiveBytes} code bytes and ${fixtureBytes} fixture bytes in s3://${location.bucket}/`,
+    )
   } catch (error: unknown) {
     try {
+      for (const key of uploadedKeys) {
+        await client.send(new DeleteObjectCommand({ Bucket: location.bucket, Key: key }))
+      }
       await client.send(new DeleteBucketCommand({ Bucket: location.bucket }))
     } catch {
       // Preserve the original staging error; the bucket may not have been created.

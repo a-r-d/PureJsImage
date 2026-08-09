@@ -184,6 +184,7 @@
     "bench:lambda:assets": "npm run build && npm run fixtures:prepare -- tundra-4000x3000 rgba-gradient-4000x3000 && node benchmark/aws-lambda/build-assets.ts",
     "bench:lambda:deploy": "npm run bench:lambda:assets && node benchmark/aws-lambda/stage-assets.ts && cdk deploy --app \"node benchmark/aws-lambda/stack.ts\" PureJsImageLambdaBenchmark --require-approval never --method direct",
     "bench:lambda:run": "node benchmark/aws-lambda/run.ts",
+    "bench:lambda:run:arm-wasm": "node benchmark/aws-lambda/run-arm-wasm.ts",
     "bench:lambda:destroy": "cdk destroy --app \"node benchmark/aws-lambda/stack.ts\" PureJsImageLambdaBenchmark --force && node benchmark/aws-lambda/stage-assets.ts --cleanup"
   },
   "overrides": {
