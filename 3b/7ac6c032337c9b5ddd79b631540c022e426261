@@ -1,0 +1,70 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 52-56
+benchmark/README.md
+  h_9f4a25732fa0c1 84-112
+benchmark/aws-lambda/handler.ts
+  h_9f4a25732fa0c1 230
+benchmark/engines/purejsimage-shared.ts
+  h_9f4a25732fa0c1 38,153,158,160,227,238,246-249
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 124-164,169,660
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 30-38
+browser-tests/types.ts
+  h_9f4a25732fa0c1 13
+capabilities/manifest.json
+  h_9f4a25732fa0c1 64-66,88-91,296,379-380
+docs/api.html
+  h_9f4a25732fa0c1 41,46
+docs/capabilities.json
+  h_9f4a25732fa0c1 78-81,144,148,526-529,724
+docs/demo.ts
+  h_9f4a25732fa0c1 532-535
+jpeg-codec-support.md
+  h_9f4a25732fa0c1 26-28,50-53
+package.json
+  h_9f4a25732fa0c1 165
+png-codec-support.md
+  h_9f4a25732fa0c1 58,141-142
+scripts/exercise-corpus.ts
+  h_9f4a25732fa0c1 1-589
+src/codec.ts
+  h_9f4a25732fa0c1 132
+src/codecs/icc.ts
+  h_9f4a25732fa0c1 14,16,29-43,260-314,399,413-482,486,488-496,766,784-926,928-931,962-965
+src/codecs/jpeg-baseline.ts
+  h_9f4a25732fa0c1 12,638,641,644,647-650,662-664,685,687-714,717,729,1533,1564,1573,1580,1602,1612-1614,1616-1624,1626-1656,1659-1669
+src/codecs/jpeg-source.ts
+  h_9f4a25732fa0c1 18-26,34,39,42,48,58-60,93-95,116,118-144,147,160,192,218
+src/codecs/jpeg.ts
+  h_9f4a25732fa0c1 240,242-246,251,257,269,337
+src/codecs/png.ts
+  h_9f4a25732fa0c1 32,310-342,397,448,531-534
+src/executor.ts
+  h_9f4a25732fa0c1 25,210
+src/image-core.ts
+  h_9f4a25732fa0c1 36,57,92-94,102
+tests/exercise-corpus.test.ts
+  h_9f4a25732fa0c1 1-128
+tests/icc-fixtures.ts
+  h_9f4a25732fa0c1 81-83,85-92,98,103-104,106-158
+tests/jpeg-hardening.test.ts
+  h_9f4a25732fa0c1 23-25,72
+tests/jpeg.test.ts
+  h_9f4a25732fa0c1 6,68,176,185-188,190,636,638-639,641-653,655-659,997-1046
+tests/png-compatibility.test.ts
+  h_9f4a25732fa0c1 431,449-455
+tests/png.test.ts
+  h_9f4a25732fa0c1 121,125,128-130,136-138,140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "3b7ac6c032337c9b5ddd79b631540c022e426261",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
