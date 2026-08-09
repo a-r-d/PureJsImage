@@ -1,0 +1,62 @@
+src/codecs/webp-lossless-encode.ts
+  s_84d542edc0aa8c::t_564c97157530b1 384,396,697
+  s_84d542edc0aa8c::t_610d8c7503a50b 362,364
+  s_84d542edc0aa8c::t_9cbb27d32ddaaf 414-415,513-514,730
+  s_84d542edc0aa8c::t_6729fbde4b9d6e 495-512,572-575,577-578,580,587,598,603-610,620,638,643,655,660-667,673,717-718,736,756-757
+  s_84d542edc0aa8c::t_902ab6a6782bc0 519,526,534-535,561,564-565,576,640,702,708
+  s_84d542edc0aa8c::t_11085c12f423d7 711,713
+  s_84d542edc0aa8c::t_7a659dc98a467d 252,255-256,260-261,263-264,345,376,448,709-710,712,714,738
+  s_84d542edc0aa8c::t_f6546ab0158874 265-275,290-309,311-332,343-344,346-361,363,365-375,377-383,385-389,419-437,439-447,449-453,740-744,746,750-751,851,869-876
+  s_84d542edc0aa8c::t_50160669fa6196 416
+  s_84d542edc0aa8c::t_1bd38780dd4e9a 515
+  s_84d542edc0aa8c::t_dc0008c606516c 761,767
+  s_84d542edc0aa8c::t_c126eb6020fe6c 686-691,693-696,698-700
+  s_84d542edc0aa8c::t_a7631dd80584f2 516,524,536-543,566-568,590,646
+  s_84d542edc0aa8c::t_fc020eb0e08fee 877
+  s_84d542edc0aa8c::t_0296e53df54da2 719-720,722-729,731-735,737
+  s_84d542edc0aa8c::t_b8961d0f0f2a12 721
+  s_84d542edc0aa8c::t_ed84322d2cf1f0 390-395,397-413,417-418,517-518,701,745,755,760,865-868,878-884
+  s_84d542edc0aa8c::t_5017526225a0a4 262,310,438,684
+  s_84d542edc0aa8c::t_b9ae8d5bef0b46 276-289,333-342
+  s_84d542edc0aa8c::t_dcd9b7bab48775 739
+scripts/serve-browser-tests.ts
+  s_84d542edc0aa8c::t_6c259bf4142a1f 44,48-50,52-56
+browser-tests/compatibility-harness.ts
+  s_84d542edc0aa8c::t_6c259bf4142a1f 166
+browser-tests/demo.pw.ts
+  s_84d542edc0aa8c::t_6c259bf4142a1f 84,91
+tests/webp.test.ts
+  s_84d542edc0aa8c::t_6846dc0d21a79c 239-248
+benchmark/results/webp-lossless-adaptive-2026-08-08.md
+  s_84d542edc0aa8c::t_747dd0d61aa765 59,62
+  s_84d542edc0aa8c::t_5ce7ed88a562a1 1-58,60-61,63-65
+CHANGELOG.md
+  s_84d542edc0aa8c::t_7ef77e44d89d94 22-24
+capabilities/manifest.json
+  s_84d542edc0aa8c::t_c045df5ee79bda 562-563
+  s_84d542edc0aa8c::t_7ef77e44d89d94 382,490-491,493-495,503
+benchmark/results/webp-lossless-adaptive-2026-08-08.json
+  s_84d542edc0aa8c::t_b7927c32c698c9 1-215
+docs/capabilities.json
+  s_84d542edc0aa8c::t_691be5cf9c9dbc 724,958,966-970,986,1122
+docs/codecs.html
+  s_84d542edc0aa8c::t_c84f8c9b6c7d48 72
+webp-codec-support.md
+  s_84d542edc0aa8c::t_63c2725ba805f3 102-103,105-107,115,174-175
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "cf03aa5fcbde147f98a16d68f808260934292488",
+  "prompts": {},
+  "sessions": {
+    "s_84d542edc0aa8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe30a-1315-7a91-ac72-83d2bf53d5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
