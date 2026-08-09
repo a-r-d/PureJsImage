@@ -1,0 +1,48 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 24-30
+README.md
+  h_9f4a25732fa0c1 187-189,191,193,195-199
+benchmark/README.md
+  h_9f4a25732fa0c1 107-111,126-129
+benchmark/results/competitors-2026-08-08.md
+  h_9f4a25732fa0c1 111-114,164
+benchmark/results/competitors-2026-08-09.json
+  h_9f4a25732fa0c1 1-12295
+benchmark/results/competitors-2026-08-09.md
+  h_9f4a25732fa0c1 1-161
+benchmark/run.ts
+  h_9f4a25732fa0c1 401-406,460,471,497
+benchmark/scripts/render-competitor-charts.ts
+  h_9f4a25732fa0c1 8,76,214,233,242-245
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 59-82,400
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 14-19
+browser-tests/types.ts
+  h_9f4a25732fa0c1 16
+docs/api.html
+  h_9f4a25732fa0c1 67,113
+docs/guides.html
+  h_9f4a25732fa0c1 131
+docs/index.html
+  h_9f4a25732fa0c1 56-57,139-140,158-159,163-164,170
+docs/performance.html
+  h_9f4a25732fa0c1 28,31,46-47,51-52,58,96
+src/resize.ts
+  h_9f4a25732fa0c1 191,294-300,302-485,490-492,496,499-513,515-580,582-586,590-609,691-695,722,724-727,736-738,800-803,809-813
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 95-96,102-103
+tests/resize.test.ts
+  h_9f4a25732fa0c1 63-69,71-72,78,123,148-165
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "f528148d2e425306d6c5d39dd44dcc769c29837e",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
