@@ -83,7 +83,7 @@
       "format": "gif",
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/gif.test.ts"],
+      "evidence": ["tests/gif.test.ts", "browser-tests/compatibility.pw.ts"],
       "lossyPixelValidation": {
         "status": "not-applicable",
         "rationale": "GIF decode reproduces the stored palette indices and does not claim a lossy continuous-tone path"

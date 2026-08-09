@@ -34,10 +34,15 @@
 <span class="tok-key">interface</span> ImageLibrary {
   <span class="tok-method">formats</span>(): readonly string[]
   <span class="tok-method">open</span>(input: ImageInput, options?: ImageOpenOptions): Promise&lt;Image&gt;
+}
+
+<span class="tok-key">interface</span> ImageOpenOptions {
+  frame?: number
+  limits?: ImageLimitOptions
 }</code></pre></div>
           <div class="api-list">
             <article class="api-item" data-search-item><h3>formats()</h3><p>Returns the format names registered in this library.</p><span class="returns">returns readonly string[]</span></article>
-            <article class="api-item" data-search-item><h3>open(input, options?)</h3><p>Creates a source, enforces the input-byte limit, probes registered codecs, and returns a lazy image pipeline.</p><span class="returns">returns Promise&lt;Image&gt;</span></article>
+            <article class="api-item" data-search-item><h3>open(input, options?)</h3><p>Creates a source, validates an optional zero-based frame selection, enforces the input-byte limit, probes registered codecs, and returns a lazy image pipeline. Only frame 0 is currently selectable. Static GIFs decode without a selection; animated GIF metadata remains available, but pixel output requires an explicit <code>{ frame: 0 }</code> to prevent silent animation loss.</p><span class="returns">returns Promise&lt;Image&gt;</span></article>
           </div>
           <h3>Codec imports</h3>
           <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Named export</th></tr></thead><tbody>

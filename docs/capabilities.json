@@ -1817,17 +1817,17 @@
       "packageFormat": "gif",
       "read": {
         "status": "limited",
-        "label": "First image"
+        "label": "Static / explicit frame 0"
       },
       "write": {
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "First composited image only; no animation editing or GIF output",
-      "description": "Parses GIF87a/GIF89a, palettes, transparency, interlace, LZW data, frame rectangles, and the first composited image. Metadata can count frames. Full animation decode and GIF encoding are unsupported.",
+      "boundary": "Static images decode directly; animated inputs require explicit frame 0 selection; no animation editing or GIF output",
+      "description": "Parses GIF87a/GIF89a, palettes, transparency, interlace, LZW data, frame rectangles, and static images. Metadata counts animation frames. Animated pixel decode fails unless frame 0 is explicitly selected; later frames and GIF encoding are unsupported.",
       "memory": "Retains compact first-frame palette indices, then emits bounded RGBA rows",
-      "recommendation": "First-frame extraction from GIF uploads.",
-      "evidence": ["tests/gif.test.ts"],
+      "recommendation": "Static GIF uploads or explicit first-frame extraction from animated GIFs.",
+      "evidence": ["tests/gif.test.ts", "browser-tests/compatibility.pw.ts"],
       "lossyPixelValidation": {
         "status": "not-applicable",
         "rationale": "GIF decode reproduces the stored palette indices and does not claim a lossy continuous-tone path"
@@ -1947,7 +1947,7 @@
         },
         {
           "status": "supported",
-          "text": "Decode only the first image descriptor"
+          "text": "Decode the first image descriptor for static GIFs and explicit frame 0 selections"
         },
         {
           "status": "supported",
@@ -1963,11 +1963,19 @@
         },
         {
           "status": "supported",
-          "text": "Public crop, resize, GIF-to-PNG, and GIF-to-JPEG pipelines"
+          "text": "Public crop, resize, GIF-to-PNG, and GIF-to-JPEG pipelines for static GIFs and explicit frame 0 selections"
+        },
+        {
+          "status": "supported",
+          "text": "Reject implicit animated GIF pixel decode with `UNSUPPORTED_OPERATION`"
+        },
+        {
+          "status": "supported",
+          "text": "Explicit API selection of frame 0"
         },
         {
           "status": "planned",
-          "text": "Explicit API selection of a frame by index"
+          "text": "Explicit API selection of later frames by index"
         },
         {
           "status": "planned",

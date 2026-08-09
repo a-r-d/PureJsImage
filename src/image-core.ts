@@ -1,6 +1,6 @@
 import { type ImageLibraryRegistration, resolveCodecRegistration } from './accelerator.ts'
 import { CodecRegistry, type ImageCodec, type ImageMetadata } from './codec.ts'
-import { unsupportedOperation } from './errors.ts'
+import { invalidInput, unsupportedOperation } from './errors.ts'
 import { executePipeline } from './executor.ts'
 import type { ImageLimitOptions, ImageLimits } from './limits.ts'
 import { resolveLimits } from './limits.ts'
@@ -32,6 +32,7 @@ import { type ImageSource, withSourceSession } from './source.ts'
 
 export interface ImageOpenOptions {
   limits?: ImageLimitOptions
+  frame?: number
 }
 
 export interface ImagePlatform<Input, Output extends Uint8Array> {
@@ -51,6 +52,7 @@ interface ImageContext<Input, Output extends Uint8Array> {
   readonly codec: ImageCodec
   readonly registry: CodecRegistry
   readonly limits: Readonly<ImageLimits>
+  readonly frame: number | undefined
   readonly platform: ImagePlatform<Input, Output>
   readonly runtime: ImageRuntime
   metadataPromise: Promise<ImageMetadata> | undefined
@@ -74,12 +76,24 @@ export class Image<Input, Output extends Uint8Array> {
     platform: ImagePlatform<Input, Output>,
     options: ImageOpenOptions = {},
   ): Promise<Image<Input, Output>> {
+    if (
+      options.frame !== undefined &&
+      (!Number.isSafeInteger(options.frame) || options.frame < 0)
+    ) {
+      throw invalidInput('frame must be a non-negative safe integer')
+    }
+    if (options.frame !== undefined && options.frame !== 0) {
+      throw unsupportedOperation(
+        'Only frame 0 can be selected; later frame selection is unsupported',
+      )
+    }
     const limits = resolveLimits(options.limits)
     const source = await platform.createImageSource(input, limits)
     const codec = await withSourceSession(source, () => registry.detect(source))
     return new Image({
       source,
       codec,
+      frame: options.frame,
       registry,
       limits,
       platform,

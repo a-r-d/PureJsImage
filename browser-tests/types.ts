@@ -4,6 +4,7 @@ export interface BrowserWorkflowResult {
 }
 
 export interface BrowserCompatibilityHarness {
+  animatedGifFrameSelection(): Promise<BrowserWorkflowResult>
   avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
   failureCleanup(): Promise<BrowserWorkflowResult>
   heifPqDisplay(): Promise<BrowserWorkflowResult>

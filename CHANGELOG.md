@@ -47,6 +47,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Fixed
 
+- Animated GIF pixel decode now fails with `UNSUPPORTED_OPERATION` instead of silently discarding
+  animation; callers can explicitly request the supported first image with `open(input, { frame: 0 })`.
+
 - Removed ambient `Buffer` references from the Node entry's published declarations so strict
   TypeScript consumers can compile the zero-dependency package without installing `@types/node`.
 - Changed the default resize kernel from bilinear to scale-aware Lanczos 3 so ordinary downscales

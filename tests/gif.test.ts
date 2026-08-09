@@ -55,12 +55,14 @@ const codeSizeOffset = (data: Uint8Array, descriptor: number): number => {
   return descriptor + 10 + ((packed & 0x80) !== 0 ? 3 * 2 ** ((packed & 7) + 1) : 0)
 }
 
-const gifFixture = (interlaced = false): Uint8Array => {
+const gifFixture = (interlaced = false, animated = true): Uint8Array => {
   const output = new Uint8Array(4096)
   const writer = new GifWriter(output, 9, 12, { loop: 0 })
   const pixels = Array.from({ length: 45 }, (_, index) => (index % 5 === 0 ? 0 : (index % 3) + 1))
   writer.addFrame(2, 1, 5, 9, pixels, { palette, transparent: 0, disposal: 1 })
-  writer.addFrame(0, 0, 9, 12, new Array<number>(108).fill(3), { palette })
+  if (animated) {
+    writer.addFrame(0, 0, 9, 12, new Array<number>(108).fill(3), { palette })
+  }
   const data = output.slice(0, writer.end())
   if (interlaced) {
     const descriptor = imageDescriptor(data)
@@ -76,22 +78,54 @@ const oracleFirstFrame = (input: Uint8Array): Uint8Array => {
   return output
 }
 
-describe('GIF first-frame pipeline', () => {
+describe('GIF decode pipeline', () => {
   it.each([false, true])(
     'decodes local palettes, offsets, transparency, and interlace=%s',
     async (interlaced) => {
       const input = gifFixture(interlaced)
-      const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+      const output = PNG.sync.read(await (await Image.open(input, { frame: 0 })).png().toBuffer())
 
       expect({ width: output.width, height: output.height }).toEqual({ width: 9, height: 12 })
       expect(Buffer.from(output.data)).toEqual(Buffer.from(oracleFirstFrame(input)))
     },
   )
+  it('decodes a static GIF without requiring a frame selection', async () => {
+    const input = gifFixture(false, false)
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
 
-  it('uses only the first frame and flattens transparent pixels deterministically', async () => {
+    expect(Buffer.from(output.data)).toEqual(Buffer.from(oracleFirstFrame(input)))
+  })
+
+  it('reports animation metadata and rejects pixel decode without explicit selection', async () => {
+    const input = gifFixture()
+    const image = await Image.open(input)
+
+    await expect(image.metadata()).resolves.toMatchObject({ frames: 2 })
+    await expect(image.png().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('pass { frame: 0 } to open()'),
+    })
+  })
+
+  it('rejects unsupported and invalid frame selections', async () => {
+    const input = gifFixture()
+
+    await expect(Image.open(input, { frame: 1 })).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('Only frame 0 can be selected'),
+    })
+    await expect(Image.open(input, { frame: -1 })).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'frame must be a non-negative safe integer',
+    })
+  })
+
+  it('explicitly uses the first frame and flattens transparent pixels deterministically', async () => {
     const input = gifFixture()
     const output = jpeg.decode(
-      await (await Image.open(input)).jpeg({ quality: 100, background: '#ffffff' }).toBuffer(),
+      await (await Image.open(input, { frame: 0 }))
+        .jpeg({ quality: 100, background: '#ffffff' })
+        .toBuffer(),
       { useTArray: true, formatAsRGBA: true, tolerantDecoding: false },
     )
 
@@ -113,13 +147,15 @@ describe('GIF first-frame pipeline', () => {
     invalidCodeSize[descriptor + 10 + localPaletteBytes] = 1
     const truncated = input.subarray(0, descriptor + 10 + localPaletteBytes + 3)
 
-    await expect((await Image.open(noPalette)).png().toBuffer()).rejects.toThrow(
+    await expect((await Image.open(noPalette, { frame: 0 })).png().toBuffer()).rejects.toThrow(
       'has no color table',
     )
-    await expect((await Image.open(invalidCodeSize)).png().toBuffer()).rejects.toThrow(
-      'minimum code size',
-    )
-    await expect((await Image.open(truncated)).png().toBuffer()).rejects.toMatchObject({
+    await expect(
+      (await Image.open(invalidCodeSize, { frame: 0 })).png().toBuffer(),
+    ).rejects.toThrow('minimum code size')
+    await expect(
+      (await Image.open(truncated, { frame: 0 })).png().toBuffer(),
+    ).rejects.toMatchObject({
       code: 'TRUNCATED_INPUT',
     })
   })

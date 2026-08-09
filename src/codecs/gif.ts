@@ -1,5 +1,11 @@
-import type { DecodeRequest, ImageCodec, ImageDecoder, ImageMetadata } from '../codec.ts'
-import { invalidInput, truncatedInput } from '../errors.ts'
+import type {
+  DecoderOptions,
+  DecodeRequest,
+  ImageCodec,
+  ImageDecoder,
+  ImageMetadata,
+} from '../codec.ts'
+import { invalidInput, truncatedInput, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
@@ -374,7 +380,23 @@ class GifDecoder implements ImageDecoder {
   }
 }
 
-const decodeGif = async (source: ImageSource, limits: ImageLimits): Promise<ImageDecoder> => {
+const decodeGif = async (
+  source: ImageSource,
+  limits: ImageLimits,
+  options: Readonly<DecoderOptions> = {},
+): Promise<ImageDecoder> => {
+  if (options.frame !== undefined && options.frame !== 0) {
+    throw unsupportedOperation(
+      `GIF frame ${options.frame} cannot be decoded; only frame 0 is supported`,
+    )
+  }
+  const metadata = await gifCodec.metadata(source, limits)
+  const frames = metadata.frames ?? 1
+  if (frames > 1 && options.frame === undefined) {
+    throw unsupportedOperation(
+      `Animated GIF has ${frames} frames; pass { frame: 0 } to open() to explicitly decode its first frame`,
+    )
+  }
   const data = await readExactly(source, 0, source.size)
   return new GifDecoder(parseFirstFrame(data, limits))
 }

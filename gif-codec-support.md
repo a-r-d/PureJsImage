@@ -4,8 +4,8 @@
 This document is the capability contract for PureJsImage's first-party GIF
 codec. A checked item is implemented in the current code. An unchecked item is
 planned and must not be presented as supported until its output is independently
-validated. The current pixel pipeline deliberately decodes only the first image
-frame; metadata inspection still counts every frame.
+validated. Static GIFs decode directly. Animated GIF metadata still counts
+every frame, but pixel output requires an explicit frame 0 selection.
 
 ## Decode
 
@@ -48,14 +48,18 @@ frame; metadata inspection still counts every frame.
 
 ### First-frame behavior
 
-- [x] Decode only the first image descriptor
+- [x] Decode the first image descriptor for static GIFs and explicit frame 0
+  selections
 - [x] Composite that frame at its declared offset on a transparent logical
   screen
 - [x] Preserve transparent pixels in PNG and other alpha-capable output
 - [x] Deterministically flatten transparency when converting to JPEG with a
   requested background
-- [x] Public crop, resize, GIF-to-PNG, and GIF-to-JPEG pipelines
-- [ ] Explicit API selection of a frame by index
+- [x] Public crop, resize, GIF-to-PNG, and GIF-to-JPEG pipelines for static GIFs
+  and explicit frame 0 selections
+- [x] Reject implicit animated GIF pixel decode with `UNSUPPORTED_OPERATION`
+- [x] Explicit API selection of frame 0
+- [ ] Explicit API selection of later frames by index
 - [ ] Explicit API selection by animation timestamp
 - [ ] Poster-frame or representative-frame selection policies
 

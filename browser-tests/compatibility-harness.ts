@@ -1,10 +1,11 @@
-import { createImageLibrary } from '../src/browser.ts'
+import { createImageLibrary, ImageError } from '../src/browser.ts'
 import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
 import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
 import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
 import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
+import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
@@ -13,6 +14,7 @@ import type { ImageSink } from '../src/sink.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
 
 const images = createImageLibrary([
+  gifCodec,
   jpegCodec,
   pngCodec,
   webpCodec,
@@ -356,6 +358,34 @@ const progressiveJpeg = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const animatedGifFrameSelection = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = await fetchBytes('/fixtures/animated.gif')
+  const image = await images.open(bytes)
+  const metadata = await image.metadata()
+  if (metadata.frames !== 2) {
+    throw new Error(`Animated GIF metadata reported ${metadata.frames ?? 0} frames`)
+  }
+
+  try {
+    await image.png().toUint8Array()
+    throw new Error('Animated GIF pixel decode succeeded without a frame selection')
+  } catch (error: unknown) {
+    if (!(error instanceof ImageError) || error.code !== 'UNSUPPORTED_OPERATION') throw error
+  }
+
+  const output = await (await images.open(bytes, { frame: 0 })).png().toUint8Array()
+  const selected = await outputMetadata(output)
+  if (selected.format !== 'png' || selected.width !== 2 || selected.height !== 2) {
+    throw new Error(
+      `Explicit GIF frame 0 output was ${selected.format} ${selected.width}x${selected.height}`,
+    )
+  }
+  return {
+    detail: 'animated GIF required explicit frame 0 selection in the browser',
+    outputBytes: output.byteLength,
+  }
+}
+
 const pngAlphaPipeline = async (): Promise<BrowserWorkflowResult> => {
   const bytes = await fetchBytes('/fixtures/alpha.png')
   const image = await images.open(new Blob([bytes], { type: 'image/png' }))
@@ -580,6 +610,7 @@ const failureCleanup = async (): Promise<BrowserWorkflowResult> => {
 }
 
 const harness: BrowserCompatibilityHarness = Object.freeze({
+  animatedGifFrameSelection,
   avifQuantizationMatrix,
   failureCleanup,
   heifPqDisplay,

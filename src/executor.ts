@@ -21,6 +21,7 @@ interface ExecutionContext {
   readonly source: ImageSource
   readonly codec: ImageCodec
   readonly registry: CodecRegistry
+  readonly frame: number | undefined
   readonly limits: ImageLimits
   readonly runtime: ImageRuntime
 }
@@ -205,6 +206,7 @@ export const executePipeline = async (
       : 1
     const decoder = await context.codec.createDecoder(context.source, context.limits, {
       preserveIcc: icc !== undefined,
+      ...(context.frame === undefined ? {} : { frame: context.frame }),
     })
     const output = planOutput(
       decoder.width,

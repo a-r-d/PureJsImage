@@ -57,6 +57,15 @@ test('encodes and decodes a refinement-based progressive JPEG', async ({ page })
   expect(result.detail).toContain('matched baseline pixels')
 })
 
+test('requires explicit first-frame selection for animated GIF decode', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.animatedGifFrameSelection(),
+  )
+  expect(result.outputBytes).toBeGreaterThan(50)
+  expect(result.detail).toContain('required explicit frame 0 selection')
+})
+
 test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.pngAlphaPipeline())

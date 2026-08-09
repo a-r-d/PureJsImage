@@ -165,9 +165,13 @@ const alphaBounds = (
 
 const solidGreen: Rgba = [20, 220, 60, 255]
 const logoInputs = [
-  { name: 'JPEG', input: jpegImage(60, 20, () => solidGreen) },
-  { name: 'PNG', input: pngImage(60, 20, () => solidGreen) },
-  { name: 'animated GIF first frame', input: animatedGif(60, 20) },
+  { name: 'JPEG', input: jpegImage(60, 20, () => solidGreen), options: {} },
+  { name: 'PNG', input: pngImage(60, 20, () => solidGreen), options: {} },
+  {
+    name: 'animated GIF first frame',
+    input: animatedGif(60, 20),
+    options: { frame: 0 },
+  },
 ] as const
 
 describe('Tooldesk image workflows', () => {
@@ -252,9 +256,9 @@ describe('Tooldesk image workflows', () => {
 
   it.each(logoInputs)(
     'normalizes $name onto a centered transparent logo canvas',
-    async ({ input }) => {
+    async ({ input, options }) => {
       const output = PNG.sync.read(
-        await (await images.open(input))
+        await (await images.open(input, options))
           .autoOrient()
           .resize({
             width: 256,

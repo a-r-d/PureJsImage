@@ -136,7 +136,7 @@ use the default TypeScript codecs.
 | WebP | Yes | Yes |
 | BMP | Yes | Yes |
 | TIFF | Yes | Limited |
-| GIF | First image | No |
+| GIF | Static / explicit frame 0 | No |
 | ICO | Yes | No |
 | JPEG 2000 / JP2 | Limited | No |
 | AVIF | Limited | No |
