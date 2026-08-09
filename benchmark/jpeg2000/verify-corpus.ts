@@ -4,7 +4,7 @@ import { PNG } from 'pngjs'
 
 import { jpeg2000Codec } from '../../src/codecs/jpeg2000.ts'
 import { pngCodec } from '../../src/codecs/png.ts'
-import { createImageLibrary } from '../../src/image.ts'
+import { createNodeImageLibrary } from '../../src/node-image.ts'
 
 interface FixtureExpectation {
   readonly file: string
@@ -118,7 +118,7 @@ const fixtures: readonly FixtureExpectation[] = [
   },
 ]
 
-const library = createImageLibrary([jpeg2000Codec, pngCodec])
+const library = createNodeImageLibrary([jpeg2000Codec, pngCodec])
 
 for (const fixture of fixtures) {
   const path = `benchmark/corpus/files/jp2/${fixture.file}`

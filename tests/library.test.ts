@@ -43,6 +43,7 @@ describe('configured image library', () => {
     const output = await (await images.open(pngFixture())).jpeg().toBuffer()
 
     expect(images.formats()).toEqual(['png', 'jpeg'])
+    expect(Buffer.isBuffer(output)).toBe(true)
     expect([...output.subarray(0, 2)]).toEqual([0xff, 0xd8])
   })
 

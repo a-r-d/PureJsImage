@@ -13,7 +13,13 @@ export const nodePlatform: ImagePlatform<ImageInput, Buffer> = Object.freeze({
   },
   createCollectedOutput(): CollectedOutput<Buffer> {
     const sink = new BufferSink()
-    return { sink, result: () => sink.toBuffer() }
+    return {
+      sink,
+      result: () => {
+        const data = sink.toBuffer()
+        return Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+      },
+    }
   },
   createFileSink(path: string): FileSink {
     return new FileSink(path)

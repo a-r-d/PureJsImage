@@ -7,12 +7,13 @@ import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { crc32 } from '../src/codecs/crc32.ts'
-import { createImageLibrary, type ImageSource } from '../src/index.ts'
+import type { ImageSource } from '../src/index.ts'
+import { createNodeImageLibrary } from '../src/node-image.ts'
 import { pngFixture } from './fixtures.ts'
 
 type Rgba = readonly [number, number, number, number]
 
-const images = createImageLibrary([jpegCodec, pngCodec, gifCodec])
+const images = createNodeImageLibrary([jpegCodec, pngCodec, gifCodec])
 
 const rgbaPixels = (
   width: number,

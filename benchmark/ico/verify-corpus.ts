@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { PNG } from 'pngjs'
 
 import { allCodecs } from '../../src/codec-entries/all.ts'
-import { createImageLibrary } from '../../src/image.ts'
+import { createNodeImageLibrary } from '../../src/node-image.ts'
 import { allFixtures, inspectFixture, readManifest, verifyInspection } from '../lib/corpus.ts'
 
 type Rgba = readonly [red: number, green: number, blue: number, alpha: number]
@@ -59,7 +59,7 @@ const pixel = (image: PNG, x: number, y: number): Rgba => {
 
 const manifest = await readManifest()
 const fixtures = new Map(allFixtures(manifest).map((fixture) => [fixture.id, fixture]))
-const images = createImageLibrary(allCodecs)
+const images = createNodeImageLibrary(allCodecs)
 
 for (const expectation of expectations) {
   const fixture = fixtures.get(expectation.id)

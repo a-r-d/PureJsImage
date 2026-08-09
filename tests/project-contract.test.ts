@@ -34,6 +34,11 @@ describe('package contract', () => {
     expect(packageJson.scripts.size).toContain('npm run build')
   })
 
+  it('checks packed declarations without Node ambient types', () => {
+    expect(packageJson.scripts.check).toContain('npm run package:types')
+    expect(packageJson.scripts['package:types']).toBe('node scripts/check-package-types.ts')
+  })
+
   it('pins benchmark competitors without adding a Canvas library', () => {
     expect(packageJson.devDependencies.sharp).toBe('0.35.3')
     expect(packageJson.devDependencies['image-js']).toBe('1.7.0')

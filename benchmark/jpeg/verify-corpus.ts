@@ -2,7 +2,7 @@ import { join } from 'node:path'
 import { PNG } from 'pngjs'
 
 import { allCodecs } from '../../src/codec-entries/all.ts'
-import { createImageLibrary } from '../../src/index.ts'
+import { createNodeImageLibrary } from '../../src/node-image.ts'
 import { corpusFilesDirectory } from '../lib/corpus.ts'
 import { jpegCompatibilityFixtureIds } from './corpus.ts'
 
@@ -101,7 +101,7 @@ const expectations: Record<
   },
 }
 
-const Image = createImageLibrary(allCodecs)
+const Image = createNodeImageLibrary(allCodecs)
 
 const close = (actual: number, expected: number, tolerance: number): boolean =>
   Math.abs(actual - expected) <= tolerance

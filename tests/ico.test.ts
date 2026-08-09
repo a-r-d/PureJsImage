@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { icoCodec } from '../src/codecs/ico.ts'
 import { pngCodec } from '../src/codecs/png.ts'
-import { createImageLibrary } from '../src/image.ts'
+import { createNodeImageLibrary } from '../src/node-image.ts'
 
 type Rgba = readonly [red: number, green: number, blue: number, alpha: number]
 
@@ -25,7 +25,7 @@ interface DibFixtureOptions {
   readonly palette?: readonly Rgba[]
 }
 
-const images = createImageLibrary([icoCodec, pngCodec])
+const images = createNodeImageLibrary([icoCodec, pngCodec])
 
 const iconFixture = (entries: readonly IconEntryFixture[]): Uint8Array => {
   const directoryBytes = 6 + entries.length * 16

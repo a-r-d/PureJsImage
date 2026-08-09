@@ -16,7 +16,7 @@ export class BufferSink implements ImageSink {
     await this.#sink.abort(reason)
   }
 
-  toBuffer(): Buffer {
+  toBuffer(): Uint8Array {
     const data = this.#sink.toUint8Array()
     return Buffer.from(data.buffer, data.byteOffset, data.byteLength)
   }

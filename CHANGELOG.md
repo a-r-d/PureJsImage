@@ -41,8 +41,14 @@ All notable changes to PureJsImage are documented in this file.
   `purejsimage/codecs/experimental/heic` entry, removed it from `allCodecs` and
   the default browser demo, and documented that MIT grants no third-party HEVC
   patent rights.
+- Documented when native Sharp is the better performance choice and added measured Lambda sizing
+  guidance: 256 MiB completed every pinned 12-megapixel workflow, but 1024 MiB cut the JPEG-to-WebP
+  warm operation from 10.6 seconds to 2.5 seconds while peak use remained about 120 MiB.
 
 ### Fixed
+
+- Removed ambient `Buffer` references from the Node entry's published declarations so strict
+  TypeScript consumers can compile the zero-dependency package without installing `@types/node`.
 - Changed the default resize kernel from bilinear to scale-aware Lanczos 3 so ordinary downscales
   no longer discard most source samples and alias heavily; strong downscales now use bounded
   streaming box pre-shrink before the final Lanczos pass, format-specialized horizontal kernels,

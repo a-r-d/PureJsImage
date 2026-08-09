@@ -76,8 +76,8 @@ and Sharp imports include the additional codecs shown.
 
 | Import | Version | Codecs included | Minified JS | gzip | Brotli |
 | --- | --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | **0.7.0** | JPEG, PNG | 129.2 KiB | 42.1 KiB | 35.5 KiB |
-| PureJsImage all codecs | 0.7.0 | 9 codecs | 501.6 KiB | 190.1 KiB | 160.1 KiB |
+| **PureJsImage matched** | **0.7.0** | JPEG, PNG | 129.3 KiB | 42.2 KiB | 35.5 KiB |
+| PureJsImage all codecs | 0.7.0 | 9 codecs | 501.7 KiB | 190.2 KiB | 159.9 KiB |
 | Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
 | image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
 | jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
@@ -197,6 +197,16 @@ compatibility results, and reproduction commands.
 
 [See the complete benchmark report and methodology →](https://a-r-d.github.io/PureJsImage/performance.html)
 
+### Lambda memory sizing
+
+A 256 MiB Lambda completed every measured 12-megapixel resize/conversion workflow and used
+121–156 MiB at peak. That does not make 256 MiB the fastest setting: Lambda also allocates CPU with
+memory. For JPEG → WebP, warm operation time fell from 10,601 ms at 256 MiB to 5,261 ms at 512 MiB
+and 2,533 ms at 1024 MiB, while peak use stayed at 120–122 MiB. For latency-sensitive endpoints,
+start at 1024 MiB even when the process only consumes about 150 MiB; use 256 MiB when its lower CPU
+allocation and roughly 10-second latency are acceptable. Re-measure with your own images and
+concurrency.
+
 ## Why PureJsImage?
 
 - Lower peak memory for common server and Lambda image workflows.
@@ -204,6 +214,16 @@ compatibility results, and reproduction commands.
 - The same processing API in Node.js and modern browsers.
 - Unsupported files and operations return clear errors instead of broken
   output.
+
+### When to use Sharp instead
+
+If you can deploy native libvips and throughput or latency is the main constraint, use
+[Sharp](https://sharp.pixelplumbing.com/). It was 1.8×–11.7× faster than the default TypeScript path
+across the five commonly supported benchmark workflows. PureJsImage is the better fit when the same
+code must run in Node.js and browsers or edge workers, native addons or WASM are prohibited, or a
+zero-dependency deployment materially simplifies an air-gapped or supply-chain-restricted build.
+The measured installed footprint was 1.7 MiB and one package for PureJsImage versus 18.9 MiB and six
+production packages for Sharp.
 
 [Read the practical guides →](https://a-r-d.github.io/PureJsImage/guides.html)
 

@@ -25,7 +25,7 @@
       <div class="container">
         <div class="proof-heading">
           <div><p class="section-label">Validated competitor profile</p><h2 id="competitor-charts-title">Speed, quality, and memory across seven isolated engines.</h2></div>
-          <p>Default PureJsImage and its explicitly registered JPEG/PNG WASM accelerators are measured as separate engines. Every displayed result passed output validation on commonly supported workflows. Engines use their public defaults; quality is measured separately against an independently decoded exact-area reference. Sharp uses native libvips; PureJsImage WASM and jSquash use WebAssembly; default PureJsImage, Jimp, and image-js are pure JavaScript. Default PureJsImage retained 87.2% lower northstar RSS than Jimp and 87.3% lower than image-js.</p>
+          <p>Default PureJsImage and its explicitly registered JPEG/PNG WASM accelerators are measured as separate engines. Every displayed result passed output validation on commonly supported workflows. Engines use their public defaults; quality is measured separately against an independently decoded exact-area reference. Sharp uses native libvips; PureJsImage WASM and jSquash use WebAssembly; default PureJsImage, Jimp, and image-js are pure JavaScript. Default PureJsImage retained 87.2% lower northstar RSS than Jimp and 87.3% lower than image-js.<br><br><strong>When Sharp is the better choice:</strong> if native libvips is deployable and throughput or latency is the primary constraint, use Sharp. It was 1.8×–11.7× faster than the default PureJsImage TypeScript path across these five common-workflow medians. PureJsImage trades that ceiling for browser and edge portability, no required native addon or WASM, and a measured 1.7 MiB single-package install instead of Sharp’s 18.9 MiB and six production packages.</p>
         </div>
         <div class="benchmark-facts">
           <div><strong>53.2%</strong><span>faster JPEG → PNG · WASM vs default</span></div>
@@ -95,7 +95,7 @@
           </tbody></table></div>
           <p>The accepted cold operation lazily instantiated the module exactly once; its paired warm invocation reused that instance. WASM memory was 6.0 MiB in every accelerated row, while maximum AWS-reported memory sometimes increased. The ARM64 WebP median was substantially lower, but its three-sample distributions were variable; the exact values above should not be generalized beyond this fixture and profile.</p>
           <div class="callout"><strong>Correctness and timing boundary.</strong> Every accepted output had identical SHA-256 across cold and warm invocations, architectures, and JavaScript/WASM engines where applicable. <code>operationMs</code> includes JS/WASM input and output copies but excludes the S3 fixture read and output metadata validation. Those steps remain inside AWS <code>Duration</code>; cold total is <code>Duration</code> plus <code>Init Duration</code>.</div>
-          <p>An earlier 04:50 UTC x86-only tier sweep embedded the fixtures in a roughly 5.2 MiB deployment. It was useful as an initial memory-tier observation, but its package and cold-start profile is obsolete. The final run staged the 14,160,578 bytes of fixture objects outside the 98,517-byte deployed code ZIP; only the final external-S3-fixture report is published below.</p>
+          <p>An earlier 04:50 UTC x86-only tier sweep embedded the fixtures in a roughly 5.2 MiB deployment, so its package and cold-start profile is obsolete. Its warm results still show the Lambda CPU-allocation effect: the JPEG → WebP operation took 10,601 ms at 256 MiB, 5,261 ms at 512 MiB, and 2,533 ms at 1024 MiB while maximum use stayed at 121, 122, and 120 MiB. All four measured 12-megapixel workflows completed at 256 MiB with 121–156 MiB maximum use. For latency-sensitive endpoints, start at 1024 MiB rather than sizing only from RSS. <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/aws-lambda-2026-08-09.md" target="_blank" rel="noreferrer">Read the tier-sweep report →</a></p>
           <div class="method-steps">
             <div class="method-step"><b>01</b><span>Deploy x86_64 and ARM64 functions with the same 512 MiB configuration and code asset.</span></div>
             <div class="method-step"><b>02</b><span>For each target, change a configuration nonce and wait for Lambda before the cold invocation.</span></div>
@@ -188,8 +188,8 @@
           <p>JPEG and PNG form the matched codec set because all five libraries support them. PureJsImage and jSquash can assemble exactly those entries. The normal public imports for Jimp, image-js, and Sharp include the additional codecs shown rather than offering equivalent codec-level tree shaking.</p>
           <h3>Competitor comparison</h3>
           <div class="table-wrap"><table><thead><tr><th>Import</th><th>Version</th><th>Codecs included</th><th>Minified JS</th><th>gzip</th><th>Brotli</th><th>Installed</th><th>Packages</th></tr></thead><tbody>
-            <tr><td><strong>PureJsImage matched</strong></td><td>0.7.0</td><td>JPEG, PNG</td><td>129.2 KiB</td><td>42.1 KiB</td><td>35.5 KiB</td><td>1.7 MiB</td><td>1</td></tr>
-            <tr><td><strong>PureJsImage all</strong></td><td>0.7.0</td><td>9 codecs</td><td>501.6 KiB</td><td>190.1 KiB</td><td>160.1 KiB</td><td>1.7 MiB</td><td>1</td></tr>
+            <tr><td><strong>PureJsImage matched</strong></td><td>0.7.0</td><td>JPEG, PNG</td><td>129.3 KiB</td><td>42.2 KiB</td><td>35.5 KiB</td><td>1.7 MiB</td><td>1</td></tr>
+            <tr><td><strong>PureJsImage all</strong></td><td>0.7.0</td><td>9 codecs</td><td>501.7 KiB</td><td>190.2 KiB</td><td>159.9 KiB</td><td>1.7 MiB</td><td>1</td></tr>
             <tr><td><strong>Jimp</strong></td><td>1.6.0</td><td>JPEG, PNG, TIFF, BMP, GIF</td><td>577.4 KiB</td><td>174.6 KiB</td><td>139.5 KiB</td><td>29.3 MiB</td><td>70</td></tr>
             <tr><td><strong>image-js</strong></td><td>1.7.0</td><td>JPEG, PNG, TIFF, BMP</td><td>361.5 KiB</td><td>111.2 KiB</td><td>94.3 KiB</td><td>17.0 MiB</td><td>46</td></tr>
             <tr><td><strong>jSquash</strong></td><td>JPEG 1.6.0; PNG 3.1.1; resize 2.1.1</td><td>JPEG, PNG</td><td><strong>52.4 KiB</strong></td><td><strong>16.0 KiB</strong></td><td><strong>13.2 KiB</strong></td><td><strong>1.0 MiB</strong></td><td><strong>3</strong></td></tr>
@@ -201,13 +201,13 @@
           <h3>PureJsImage entry points</h3>
           <p>Applications can import only the codec entries they use. The root API itself pulls no codec implementation into the module graph.</p>
           <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Minified</th><th>gzip</th><th>Brotli</th></tr></thead><tbody>
-            <tr><td><strong>Core API</strong></td><td>42.6 KiB</td><td>14.3 KiB</td><td>12.7 KiB</td></tr>
-            <tr><td><strong>Core + PNG</strong></td><td>70.8 KiB</td><td>23.9 KiB</td><td>21.0 KiB</td></tr>
-            <tr><td><strong>Core + JPEG</strong></td><td>105.9 KiB</td><td>34.9 KiB</td><td>29.6 KiB</td></tr>
-            <tr><td><strong>Core + JPEG 2000</strong></td><td>78.4 KiB</td><td>25.8 KiB</td><td>22.6 KiB</td></tr>
-            <tr><td><strong>Core + WebP</strong></td><td>102.0 KiB</td><td>35.9 KiB</td><td>30.9 KiB</td></tr>
-            <tr><td><strong>Core + experimental HEIF / HEIC</strong></td><td>135.2 KiB</td><td>44.3 KiB</td><td>38.4 KiB</td></tr>
-            <tr><td><strong>Core + all codecs</strong></td><td>501.6 KiB</td><td>190.1 KiB</td><td>160.1 KiB</td></tr>
+            <tr><td><strong>Core API</strong></td><td>42.7 KiB</td><td>14.3 KiB</td><td>12.7 KiB</td></tr>
+            <tr><td><strong>Core + PNG</strong></td><td>70.9 KiB</td><td>23.9 KiB</td><td>20.9 KiB</td></tr>
+            <tr><td><strong>Core + JPEG</strong></td><td>106.0 KiB</td><td>34.9 KiB</td><td>29.5 KiB</td></tr>
+            <tr><td><strong>Core + JPEG 2000</strong></td><td>78.5 KiB</td><td>25.8 KiB</td><td>22.6 KiB</td></tr>
+            <tr><td><strong>Core + WebP</strong></td><td>102.1 KiB</td><td>35.9 KiB</td><td>31.0 KiB</td></tr>
+            <tr><td><strong>Core + experimental HEIF / HEIC</strong></td><td>135.3 KiB</td><td>44.4 KiB</td><td>38.3 KiB</td></tr>
+            <tr><td><strong>Core + all codecs</strong></td><td>501.7 KiB</td><td>190.2 KiB</td><td>159.9 KiB</td></tr>
           </tbody></table></div>
           <p>Run <code>npm run size</code> to rebuild PureJsImage and reproduce both tables on the current platform.</p>
         </section>

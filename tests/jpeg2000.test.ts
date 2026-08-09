@@ -6,9 +6,9 @@ import { describe, expect, it } from 'vitest'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { jpeg2000Codec } from '../src/codecs/jpeg2000.ts'
 import { pngCodec } from '../src/codecs/png.ts'
-import { createImageLibrary } from '../src/image.ts'
+import { createNodeImageLibrary } from '../src/node-image.ts'
 
-const images = createImageLibrary([jpeg2000Codec, pngCodec, jpegCodec])
+const images = createNodeImageLibrary([jpeg2000Codec, pngCodec, jpegCodec])
 const fixture = (name: string): Promise<Buffer> => readFile(`benchmark/corpus/files/jp2/${name}`)
 
 const asciiOffset = (data: Uint8Array, value: string): number => {

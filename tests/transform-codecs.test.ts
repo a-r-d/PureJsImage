@@ -1,11 +1,11 @@
 import jpeg from 'jpeg-js'
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import type { Image as ImagePipeline } from '../src/index.ts'
+import type { NodeImage } from '../src/node-image.ts'
 import { createCodecFixtures, type CodecFixture } from './codec-fixtures.ts'
 import { Image } from './image-library.ts'
 
-const transformedJpeg = (image: ImagePipeline): Promise<Buffer> =>
+const transformedJpeg = (image: NodeImage): Promise<Buffer> =>
   image
     .resize({ width: 16, height: 14, fit: 'fill', kernel: 'nearest' })
     .crop({ x: 2, y: 2, width: 12, height: 10 })

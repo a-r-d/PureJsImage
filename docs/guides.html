@@ -196,6 +196,7 @@ console.<span class="tok-method">log</span>({
             <li>Prefer downscaling and decoder-aware crops before expensive format conversion.</li>
             <li>Measure absolute peak RSS under realistic concurrent workloads—not only allocation deltas.</li>
           </ol>
+          <div class="callout"><strong>Size for CPU as well as memory.</strong> A 256 MiB Lambda completed all four measured 4000 × 3000 resize/conversion workflows with 121–156 MiB maximum use. But JPEG → WebP warm operation time fell from 10,601 ms at 256 MiB to 5,261 ms at 512 MiB and 2,533 ms at 1024 MiB while maximum use stayed at 120–122 MiB. For latency-sensitive endpoints, start at 1024 MiB even if the process consumes only about 150 MiB; choose 256 MiB only when its lower CPU allocation and roughly 10-second latency are acceptable. Re-measure with your images and concurrency. <a href="performance.html#aws-lambda">See the Lambda results.</a></div>
           <div class="code-window"><div class="window-bar"><span class="window-title">handler.ts</span></div><button class="code-copy" type="button" data-copy="lambda-code">Copy</button><pre><code id="lambda-code"><span class="tok-key">const</span> image = <span class="tok-key">await</span> images.<span class="tok-method">open</span>(body, {
   limits: {
     maxInputBytes: <span class="tok-number">15</span> * <span class="tok-number">1024</span> * <span class="tok-number">1024</span>,
