@@ -181,6 +181,7 @@ for (const [source, destination] of docsDemoFiles) {
 }
 
 const wasmFiles: readonly (readonly [string, string])[] = [
+  ['src/accelerator-entries/jpeg-decoder.wasm', 'jpeg-decoder.wasm'],
   ['node_modules/@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm', 'mozjpeg_dec.wasm'],
   ['node_modules/@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm', 'mozjpeg_enc.wasm'],
   ['node_modules/@jsquash/png/codec/pkg/squoosh_png_bg.wasm', 'squoosh_png_bg.wasm'],

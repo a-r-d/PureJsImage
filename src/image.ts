@@ -1,4 +1,4 @@
-import type { ImageCodec } from './codec.ts'
+import type { ImageLibraryRegistration } from './accelerator.ts'
 import {
   createImageLibraryForPlatform,
   type Image as RuntimeImage,
@@ -12,5 +12,5 @@ export type { ImageOpenOptions } from './image-core.ts'
 export type Image = RuntimeImage<ImageInput, Buffer>
 export type ImageLibrary = RuntimeImageLibrary<ImageInput, Buffer>
 
-export const createImageLibrary = (codecs: Iterable<ImageCodec>): ImageLibrary =>
-  createImageLibraryForPlatform(codecs, nodePlatform)
+export const createImageLibrary = (registration: ImageLibraryRegistration): ImageLibrary =>
+  createImageLibraryForPlatform(registration, nodePlatform)

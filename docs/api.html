@@ -29,7 +29,7 @@
         <section id="library" data-search-item>
           <h2>ImageLibrary</h2>
           <p>Create a frozen library with the codec implementations your application accepts. Registration order is preserved in <code>formats()</code>; duplicate format names are rejected.</p>
-          <div class="code-window"><div class="window-bar"><span class="window-title">Signature</span></div><pre><code><span class="tok-key">function</span> <span class="tok-method">createImageLibrary</span>(codecs: Iterable&lt;ImageCodec&gt;): ImageLibrary
+          <div class="code-window"><div class="window-bar"><span class="window-title">Signature</span></div><pre><code><span class="tok-key">function</span> <span class="tok-method">createImageLibrary</span>(registration: Iterable&lt;ImageCodec&gt; | ImageLibraryConfiguration): ImageLibrary
 
 <span class="tok-key">interface</span> ImageLibrary {
   <span class="tok-method">formats</span>(): readonly string[]
@@ -225,7 +225,7 @@
 
         <section id="advanced" data-search-item>
           <h2>Advanced contracts</h2>
-          <p>The Node root and browser entry export the primitives used to author custom codecs and sinks: <code>ImageCodec</code>, <code>ImageDecoder</code>, <code>ImageEncoder</code>, <code>CodecRegistry</code>, <code>ImageSink</code>, <code>Uint8ArraySink</code>, <code>PixelBlock</code>, <code>PixelFormat</code>, and <code>BufferPool</code>. Node additionally exports <code>BufferSink</code>, <code>FileSink</code>, and <code>FileSource</code>.</p>
+          <p>The Node root and browser entry export the primitives used to author custom codecs, accelerators, and sinks: <code>ImageCodec</code>, <code>ImageCodecAccelerator</code>, <code>ImageLibraryConfiguration</code>, <code>ImageDecoder</code>, <code>ImageEncoder</code>, <code>CodecRegistry</code>, <code>ImageSink</code>, <code>Uint8ArraySink</code>, <code>PixelBlock</code>, <code>PixelFormat</code>, and <code>BufferPool</code>. Node additionally exports <code>BufferSink</code>, <code>FileSink</code>, and <code>FileSource</code>.</p>
           <p>These interfaces support custom codecs and sinks. A decoder yields ordered pixel blocks; an encoder consumes them and writes encoded chunks to a sink. Implementations must preserve the release callback and source-buffer lifetime contracts.</p>
           <p><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/src/index.ts" target="_blank" rel="noreferrer">View public exports on GitHub →</a></p>
         </section>

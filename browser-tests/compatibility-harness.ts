@@ -1,4 +1,5 @@
 import { createImageLibrary } from '../src/browser.ts'
+import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
 import { heifCodec } from '../src/codec-entries/heif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
@@ -9,6 +10,10 @@ import type { ImageSink } from '../src/sink.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
 
 const images = createImageLibrary([jpegCodec, pngCodec, webpCodec, avifCodec, heifCodec])
+const wasmImages = createImageLibrary({
+  codecs: [jpegCodec, pngCodec],
+  accelerators: [createWasmJpegAccelerator({ minimumPixels: 1 })],
+})
 
 const fetchBytes = async (path: string): Promise<Uint8Array<ArrayBuffer>> => {
   const response = await fetch(path)
@@ -72,6 +77,26 @@ const jpegPipeline = async (): Promise<BrowserWorkflowResult> => {
   return {
     detail: 'JPEG crop + resize + rotate + JPEG encode -> 100x120',
     outputBytes: output.size,
+  }
+}
+
+const wasmJpeg = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = await fetchBytes('/fixtures/benchmark-input.jpg')
+  const [reference, accelerated] = await Promise.all([
+    (await images.open(bytes)).png().toUint8Array(),
+    (await wasmImages.open(bytes)).png().toUint8Array(),
+  ])
+  if (reference.byteLength !== accelerated.byteLength) {
+    throw new Error('WASM JPEG output length differs from the TypeScript reference')
+  }
+  for (let offset = 0; offset < reference.byteLength; offset += 1) {
+    if (reference[offset] !== accelerated[offset]) {
+      throw new Error(`WASM JPEG output differs at byte ${offset}`)
+    }
+  }
+  return {
+    detail: 'Rust/WASM baseline JPEG decode matched the TypeScript reference in the browser',
+    outputBytes: accelerated.byteLength,
   }
 }
 
@@ -296,6 +321,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   orientation,
   pngAlphaPipeline,
   progressiveJpeg,
+  wasmJpeg,
   webpLossless,
 })
 

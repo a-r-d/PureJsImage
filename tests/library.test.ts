@@ -6,7 +6,13 @@ import { avifCodec } from '../src/codec-entries/avif.ts'
 import { heifCodec } from '../src/codec-entries/heif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
-import { CodecRegistry, createImageLibrary, type ImageSource, MemorySource } from '../src/index.ts'
+import {
+  CodecRegistry,
+  createImageLibrary,
+  type ImageCodecAccelerator,
+  type ImageSource,
+  MemorySource,
+} from '../src/index.ts'
 import { jpegFixture } from './fixtures.ts'
 
 const pngFixture = (): Uint8Array => PNG.sync.write(new PNG({ width: 4, height: 3 }))
@@ -38,6 +44,28 @@ describe('configured image library', () => {
 
     expect(images.formats()).toEqual(['png', 'jpeg'])
     expect([...output.subarray(0, 2)]).toEqual([0xff, 0xd8])
+  })
+
+  it('applies only explicitly registered codec accelerators', () => {
+    let registrations = 0
+    const accelerator: ImageCodecAccelerator = {
+      format: 'jpeg',
+      id: 'test-jpeg-accelerator',
+      kind: 'wasm',
+      accelerate(reference) {
+        registrations += 1
+        return reference
+      },
+    }
+    const reference = createImageLibrary([jpegCodec])
+    const accelerated = createImageLibrary({ codecs: [jpegCodec], accelerators: [accelerator] })
+
+    expect(reference.formats()).toEqual(['jpeg'])
+    expect(accelerated.formats()).toEqual(['jpeg'])
+    expect(registrations).toBe(1)
+    expect(() => createImageLibrary({ codecs: [pngCodec], accelerators: [accelerator] })).toThrow(
+      'Accelerator test-jpeg-accelerator requires a registered jpeg codec',
+    )
   })
 
   it('rejects input whose decoder was not registered', async () => {

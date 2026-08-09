@@ -31,5 +31,35 @@ for (const [input, metadata] of Object.entries(result.metafile.inputs)) {
 if (output.includes('from"node:') || output.includes("from'node:")) {
   throw new Error('Browser bundle contains a Node built-in import')
 }
+if (
+  Object.keys(result.metafile.inputs).some(
+    (input) => input.includes('/accelerators/') || input.includes('/accelerator-entries/'),
+  )
+) {
+  throw new Error('Default browser bundle contains an optional accelerator')
+}
 
-console.log(`Browser bundle OK (${output.length.toLocaleString()} bytes, all codecs)`)
+const acceleratorResult = await build({
+  bundle: true,
+  format: 'esm',
+  logLevel: 'silent',
+  metafile: true,
+  platform: 'browser',
+  stdin: {
+    contents: `export * from './src/accelerator-entries/wasm-jpeg-browser.ts'`,
+    loader: 'ts',
+    resolveDir: process.cwd(),
+  },
+  write: false,
+})
+for (const [input, metadata] of Object.entries(acceleratorResult.metafile.inputs)) {
+  for (const imported of metadata.imports) {
+    if (imported.path.startsWith('node:')) {
+      throw new Error(`Browser accelerator input ${input} contains Node built-in ${imported.path}`)
+    }
+  }
+}
+
+console.log(
+  `Browser bundle OK (${output.length.toLocaleString()} bytes, all codecs; optional JPEG WASM entry isolated)`,
+)

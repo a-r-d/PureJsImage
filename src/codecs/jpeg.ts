@@ -233,16 +233,29 @@ class JpegDecoder implements ImageDecoder {
     progressive: false,
   })
   readonly #jpeg: BaselineJpeg
+  readonly #accelerations: readonly JpegDecodeAcceleration[]
 
-  constructor(jpeg: BaselineJpeg) {
+  constructor(jpeg: BaselineJpeg, accelerations: readonly JpegDecodeAcceleration[]) {
     this.width = jpeg.width
     this.height = jpeg.height
     this.#jpeg = jpeg
+    this.#accelerations = accelerations
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const scale = scaleDenominator(request)
     const output = region(Math.ceil(this.width / scale), Math.ceil(this.height / scale), request)
+    for (const acceleration of this.#accelerations) {
+      const accelerated = await acceleration.decode({
+        jpeg: this.#jpeg,
+        region: output,
+        scaleDenominator: scale,
+      })
+      if (accelerated) {
+        yield* accelerated
+        return
+      }
+    }
     yield* decodeBaselineJpeg(this.#jpeg, output, scale)
   }
 }
@@ -273,16 +286,36 @@ class ProgressiveJpegDecoder implements ImageDecoder {
   }
 }
 
+export interface JpegAccelerationRequest {
+  readonly jpeg: BaselineJpeg
+  readonly region: JpegRegion
+  readonly scaleDenominator: 1 | 2 | 4 | 8
+}
+
+export interface JpegDecodeAcceleration {
+  decode(request: JpegAccelerationRequest): Promise<AsyncIterable<PixelBlock> | undefined>
+}
+
+const acceleratedJpegCodecs = new WeakMap<ImageCodec, readonly JpegDecodeAcceleration[]>()
+
+const registeredJpegAccelerations = (
+  codec: ImageCodec,
+): readonly JpegDecodeAcceleration[] | undefined => {
+  if (codec === jpegCodec) return []
+  return acceleratedJpegCodecs.get(codec)
+}
+
 const decodeJpeg = async (
   source: ImageSource,
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
+  accelerations: readonly JpegDecodeAcceleration[] = [],
 ): Promise<ImageDecoder> => {
   const applyIcc = options.preserveIcc !== true
   const baseline = await parseBaselineJpegSource(source, applyIcc)
   if (baseline) {
     validateImageDimensions(baseline.width, baseline.height, 1, limits)
-    return new JpegDecoder(baseline)
+    return new JpegDecoder(baseline, accelerations)
   }
   const progressive = await parseCoefficientJpegSource(
     source,
@@ -485,4 +518,25 @@ export const jpegCodec: ImageCodec = {
   preservedMetadata: jpegPreservedMetadata,
   createDecoder: decodeJpeg,
   createEncoder: createBaselineJpegEncoder,
+}
+
+export const accelerateJpegCodec = (
+  reference: ImageCodec,
+  acceleration: JpegDecodeAcceleration,
+): ImageCodec => {
+  const registered = registeredJpegAccelerations(reference)
+  if (!registered) {
+    throw new Error('JPEG acceleration requires the PureJsImage reference JPEG codec')
+  }
+  const accelerations = Object.freeze([...registered, acceleration])
+  const accelerated: ImageCodec = Object.freeze({
+    ...reference,
+    createDecoder: (
+      source: ImageSource,
+      limits: ImageLimits,
+      options?: Readonly<DecoderOptions>,
+    ): Promise<ImageDecoder> => decodeJpeg(source, limits, options, accelerations),
+  })
+  acceleratedJpegCodecs.set(accelerated, accelerations)
+  return accelerated
 }
