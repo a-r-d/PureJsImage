@@ -300,6 +300,10 @@ await copyFile(
   resolve(fixtureDirectory, 'fox.profile0.8bpc.yuv420.monochrome.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/fox.profile2.8bpc.yuv422.avif',
+  resolve(fixtureDirectory, 'fox.profile2.8bpc.yuv422.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/fox.profile1.8bpc.yuv444.avif',
   resolve(fixtureDirectory, 'fox.profile1.8bpc.yuv444.avif'),
 )

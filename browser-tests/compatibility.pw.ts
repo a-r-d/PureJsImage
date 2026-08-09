@@ -101,6 +101,13 @@ test('decodes an 8-bit monochrome AVIF', async ({ page }) => {
   expect(result.detail).toContain('matched Chromium at')
 })
 
+test('decodes an 8-bit YUV 4:2:2 AVIF', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifYuv422())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned browser RGBA output')
+})
+
 test('decodes an 8-bit YUV 4:4:4 AVIF', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifYuv444())

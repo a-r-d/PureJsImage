@@ -429,6 +429,11 @@ const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8Clam
   return context.getImageData(0, 0, canvas.width, canvas.height).data
 }
 
+const sha256 = async (bytes: Uint8Array): Promise<string> => {
+  const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', Uint8Array.from(bytes)))
+  return Array.from(digest, (value) => value.toString(16).padStart(2, '0')).join('')
+}
+
 const rgbPsnr = (expected: Uint8ClampedArray, actual: Uint8ClampedArray): number => {
   if (actual.byteLength !== expected.byteLength) {
     throw new Error(`Browser pixel lengths differ: ${actual.byteLength} != ${expected.byteLength}`)
@@ -539,6 +544,29 @@ const avifMonochrome = async (): Promise<BrowserWorkflowResult> => {
   }
   return {
     detail: `8-bit monochrome AVIF matched Chromium at ${psnr.toFixed(2)} dB`,
+    outputBytes: output.byteLength,
+  }
+}
+
+const avifYuv422 = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/fox.profile2.8bpc.yuv422.avif')
+  const output = await (await images.open(input)).png().toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.format !== 'png' || metadata.width !== 1204 || metadata.height !== 800) {
+    throw new Error(
+      `YUV 4:2:2 AVIF output was ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  const outputPixels = await browserPixels(output, 'image/png')
+  if (outputPixels.byteLength !== 1204 * 800 * 4) {
+    throw new Error(`YUV 4:2:2 AVIF browser output had ${outputPixels.byteLength} RGBA bytes`)
+  }
+  const outputSha256 = await sha256(Uint8Array.from(outputPixels))
+  if (outputSha256 !== '4ef692312c9c87692b548ebbd6ba100feb3ec53f5b1929bdd9f2c86d78a31f95') {
+    throw new Error(`YUV 4:2:2 AVIF browser RGBA hash was ${outputSha256}`)
+  }
+  return {
+    detail: '8-bit YUV 4:2:2 AVIF matched the pinned browser RGBA output',
     outputBytes: output.byteLength,
   }
 }
@@ -659,6 +687,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   animatedGifFrameSelection,
   avifQuantizationMatrix,
   avifMonochrome,
+  avifYuv422,
   avifYuv444,
   failureCleanup,
   heifPqDisplay,

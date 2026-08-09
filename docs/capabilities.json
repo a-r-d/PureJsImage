@@ -3145,8 +3145,8 @@
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Restricted opaque 8-bit monochrome, YUV 4:2:0, and YUV 4:4:4 still-image decode",
-      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets opaque 8-bit monochrome, YUV 4:2:0, and YUV 4:4:4 still images, including the documented in-loop filters and restricted Sharp/libaom quantization-matrix path. Alpha, grids, high bit depth, YUV 4:2:2, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
+      "boundary": "Restricted opaque 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode",
+      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets opaque 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images, including the documented in-loop filters and restricted Sharp/libaom quantization-matrix path. Alpha, grids, high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
       "memory": "Metadata reads are bounded; the restricted decoder uses compact luma or YUV state",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
       "evidence": [
@@ -3159,7 +3159,7 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Sharp 0.35.3/libaom, FFmpeg with libaom 3.12.1 and dav1d 1.5.1, and Chromium",
-        "tolerance": "8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; 8-bit YUV 4:4:4 planes are exact and displayed RGB exceeds 50 dB against Sharp and Chromium; YUV 4:2:0 maximum error is at most 3 with PSNR at least 55 dB and displayed RGB above 39 dB",
+        "tolerance": "8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; 8-bit YUV 4:2:2 and 4:4:4 planes are exact and displayed RGB exceeds 50 dB against Sharp; YUV 4:4:4 displayed RGB also exceeds 50 dB against Chromium; YUV 4:2:0 maximum error is at most 3 with PSNR at least 55 dB and displayed RGB above 39 dB",
         "evidence": [
           "tests/lossy-codec-quality.test.ts",
           "tests/av1-post-filter.test.ts",
@@ -3409,7 +3409,7 @@
         },
         {
           "status": "supported",
-          "text": "AV1 Main and High Profiles with 8-bit monochrome, YUV 4:2:0, and YUV 4:4:4 output"
+          "text": "AV1 Main, High, and Professional Profiles with 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 output"
         },
         {
           "status": "supported",
@@ -3489,7 +3489,7 @@
         },
         {
           "status": "supported",
-          "text": "Monochrome replication, direct YUV 4:4:4 sampling, and bilinear YUV 4:2:0 to RGBA conversion"
+          "text": "Monochrome replication, direct YUV 4:4:4 sampling, horizontal YUV 4:2:2 interpolation, and bilinear YUV 4:2:0 to RGBA conversion"
         },
         {
           "status": "supported",
@@ -3584,8 +3584,12 @@
           "text": "10-bit and 12-bit Main Profile YUV 4:2:0"
         },
         {
+          "status": "supported",
+          "text": "8-bit YUV 4:2:2"
+        },
+        {
           "status": "planned",
-          "text": "8/10/12-bit YUV 4:2:2"
+          "text": "10/12-bit YUV 4:2:2"
         },
         {
           "status": "supported",
@@ -3821,7 +3825,7 @@
         },
         {
           "status": "supported",
-          "text": "Decode and pin RGBA regression hashes for Kodak 768x512 color plus Fox 1204x800 YUV 4:2:0, monochrome, and YUV 4:4:4 photographs"
+          "text": "Decode and pin RGBA regression hashes for Kodak 768x512 color plus Fox 1204x800 YUV 4:2:0, monochrome, YUV 4:2:2, and YUV 4:4:4 photographs"
         },
         {
           "status": "supported",
@@ -3829,7 +3833,7 @@
         },
         {
           "status": "supported",
-          "text": "Report the current broad decode corpus as 6 compatible, 19 explicitly unsupported, zero invalid, and zero unexpected"
+          "text": "Report the current broad decode corpus as 7 compatible, 18 explicitly unsupported, zero invalid, and zero unexpected"
         },
         {
           "status": "supported",
@@ -3838,6 +3842,14 @@
         {
           "status": "supported",
           "text": "Match FFmpeg/dav1d and FFmpeg/libaom YUV 4:4:4 planes exactly and exceed 50 dB displayed-RGB PSNR against Sharp/libaom and Chromium for the checksum-pinned 8-bit YUV 4:4:4 Fox fixture"
+        },
+        {
+          "status": "supported",
+          "text": "Match FFmpeg/dav1d and FFmpeg/libaom YUV 4:2:2 planes exactly and exceed 50 dB displayed-RGB PSNR against Sharp/libaom for the checksum-pinned 8-bit YUV 4:2:2 Fox fixture"
+        },
+        {
+          "status": "supported",
+          "text": "Exercise YUV 4:2:2 decode in Chromium through the portable TypeScript codec and pin its RGBA output; Chromium's native AVIF decoder rejects this Professional Profile source and is not used as its browser oracle"
         },
         {
           "status": "supported",

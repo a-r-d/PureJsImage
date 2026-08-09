@@ -13,7 +13,7 @@ import {
 } from '../benchmark/avif/qmatrix-fixtures.ts'
 import { av1ObuType } from '../src/codecs/av1.ts'
 import { parseAv1Frame } from '../src/codecs/av1-frame.ts'
-import { decodeRestrictedAv1Intra } from '../src/codecs/av1-intra.ts'
+import { decodeRestrictedAv1Intra, type Av1DecodedFrame } from '../src/codecs/av1-intra.ts'
 import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
 import { MemorySource } from '../src/source.ts'
 
@@ -68,6 +68,24 @@ const pngRgb = (input: Uint8Array): Uint8Array => {
     output[pixel * 3] = decoded.data[pixel * 4] ?? 0
     output[pixel * 3 + 1] = decoded.data[pixel * 4 + 1] ?? 0
     output[pixel * 3 + 2] = decoded.data[pixel * 4 + 2] ?? 0
+  }
+  return output
+}
+
+const packVisibleYuv = (frame: Av1DecodedFrame): Uint8Array => {
+  const output = new Uint8Array(
+    frame.width * frame.height + 2 * frame.chromaWidth * frame.chromaHeight,
+  )
+  let offset = 0
+  for (const [plane, width, height, stride] of [
+    [frame.y, frame.width, frame.height, frame.yStride],
+    [frame.u, frame.chromaWidth, frame.chromaHeight, frame.chromaStride],
+    [frame.v, frame.chromaWidth, frame.chromaHeight, frame.chromaStride],
+  ] as const) {
+    for (let y = 0; y < height; y += 1) {
+      output.set(plane.subarray(y * stride, y * stride + width), offset)
+      offset += width
+    }
   }
   return output
 }
@@ -130,36 +148,43 @@ describe('lossy codec oracle quality', () => {
     },
   )
 
-  it('matches independent YUV and RGB oracles for 8-bit YUV 4:4:4 AVIF', async () => {
-    const input = await readFile(join(avifCorpusDirectory, 'fox.profile1.8bpc.yuv444.avif'))
-    const inspection = await inspectAvifBitstreams(new MemorySource(input))
-    const coded = inspection.codedImages.find((image) => image.role === 'color')
-    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
-    if (!coded || !frameObu) throw new Error('YUV 4:4:4 AVIF fixture has no complete color frame')
-    const frame = decodeRestrictedAv1Intra(
-      coded.sequence,
-      parseAv1Frame(coded.sequence, frameObu.payload),
-    )
-    const yuv = new Uint8Array(frame.width * frame.height * 3)
-    let offset = 0
-    for (const [plane, stride] of [
-      [frame.y, frame.yStride],
-      [frame.u, frame.chromaStride],
-      [frame.v, frame.chromaStride],
-    ] as const) {
-      for (let y = 0; y < frame.height; y += 1) {
-        yuv.set(plane.subarray(y * stride, y * stride + frame.width), offset)
-        offset += frame.width
+  it.each([
+    {
+      chroma: '4:4:4',
+      file: 'fox.profile1.8bpc.yuv444.avif',
+      minimumRgbPsnr: 50,
+      yuvSha256: 'aed39a4af8687b7f27256f112a5ab17b78766391c309dcfb946a23a27c627a06',
+    },
+    {
+      chroma: '4:2:2',
+      file: 'fox.profile2.8bpc.yuv422.avif',
+      minimumRgbPsnr: 50,
+      yuvSha256: '3534664338a6fbe189c37e98fc6866c185586681a1f926c0a2a8e3d9f5aa0a6f',
+    },
+  ] as const)(
+    'matches independent YUV and RGB oracles for 8-bit YUV $chroma AVIF',
+    async (fixture) => {
+      const input = await readFile(join(avifCorpusDirectory, fixture.file))
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+      const coded = inspection.codedImages.find((image) => image.role === 'color')
+      const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+      if (!coded || !frameObu) {
+        throw new Error(`YUV ${fixture.chroma} AVIF fixture has no complete color frame`)
       }
-    }
-    expect(createHash('sha256').update(yuv).digest('hex')).toBe(
-      'aed39a4af8687b7f27256f112a5ab17b78766391c309dcfb946a23a27c627a06',
-    )
+      const frame = decodeRestrictedAv1Intra(
+        coded.sequence,
+        parseAv1Frame(coded.sequence, frameObu.payload),
+      )
+      expect(createHash('sha256').update(packVisibleYuv(frame)).digest('hex')).toBe(
+        fixture.yuvSha256,
+      )
 
-    const oracle = await sharp(input).removeAlpha().raw().toBuffer()
-    const decodedPng = await (await Image.open(input)).png().toBuffer()
-    expect(psnr(oracle, pngRgb(decodedPng))).toBeGreaterThan(50)
-  }, 30_000)
+      const oracle = await sharp(input).removeAlpha().raw().toBuffer()
+      const decodedPng = await (await Image.open(input)).png().toBuffer()
+      expect(psnr(oracle, pngRgb(decodedPng))).toBeGreaterThan(fixture.minimumRgbPsnr)
+    },
+    30_000,
+  )
 
   it('matches the Sharp/libaom luma oracle for 8-bit monochrome AVIF', async () => {
     const input = await readFile(

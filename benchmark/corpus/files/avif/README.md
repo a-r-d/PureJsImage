@@ -1,11 +1,12 @@
 # Committed AVIF fixtures
 
-The four common-photo files are committed because the AVIF unit tests require
+The five common-photo files are committed because the AVIF unit tests require
 them:
 
 - `fox.profile0.8bpc.yuv420.avif`
 - `fox.profile0.8bpc.yuv420.monochrome.avif`
 - `fox.profile1.8bpc.yuv444.avif`
+- `fox.profile2.8bpc.yuv422.avif`
 - `kodim03_yuv420_8bpc.avif`
 
 They come from the libavif repository at revision

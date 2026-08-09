@@ -19,7 +19,8 @@ export interface Av1RestorationPlaneState {
 
 export interface Av1PostFilterState {
   readonly cdefColumns: number
-  readonly chromaShift: number
+  readonly chromaShiftX: number
+  readonly chromaShiftY: number
   readonly cdefIndices: Uint16Array
   readonly miColumns: number
   readonly miRows: number
@@ -64,8 +65,8 @@ const clonePlanes = (
 ]
 
 const planeContextWidth = (state: Av1PostFilterState, plane: number): number => {
-  const shift = plane === 0 ? 0 : state.chromaShift
-  return (state.miColumns + (1 << shift) - 1) >> shift
+  const shiftX = plane === 0 ? 0 : state.chromaShiftX
+  return (state.miColumns + (1 << shiftX) - 1) >> shiftX
 }
 
 const transformAt = (
@@ -75,9 +76,10 @@ const transformAt = (
   row: number,
   column: number,
 ): number => {
-  const sub = plane === 0 ? 0 : state.chromaShift
-  const contextColumn = column >> sub
-  const contextRow = row >> sub
+  const shiftX = plane === 0 ? 0 : state.chromaShiftX
+  const shiftY = plane === 0 ? 0 : state.chromaShiftY
+  const contextColumn = column >> shiftX
+  const contextRow = row >> shiftY
   return transforms[plane]?.[contextRow * planeContextWidth(state, plane) + contextColumn] ?? 0
 }
 
@@ -204,13 +206,15 @@ export const applyAv1LoopFilter = (
     if (planeIndex > 0 && (header.loopFilterLevels[planeIndex + 1] ?? 0) === 0) continue
     const plane = planes[planeIndex]
     if (!plane) continue
-    const sub = planeIndex === 0 ? 0 : state.chromaShift
-    const step = 1 << sub
+    const shiftX = planeIndex === 0 ? 0 : state.chromaShiftX
+    const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
+    const stepX = 1 << shiftX
+    const stepY = 1 << shiftY
     for (let pass = 0; pass < 2; pass += 1) {
       const dx = pass === 0 ? 1 : 0
       const dy = pass === 0 ? 0 : 1
-      for (let inputRow = 0; inputRow < state.miRows; inputRow += step) {
-        for (let inputColumn = 0; inputColumn < state.miColumns; inputColumn += step) {
+      for (let inputRow = 0; inputRow < state.miRows; inputRow += stepY) {
+        for (let inputColumn = 0; inputColumn < state.miColumns; inputColumn += stepX) {
           const lumaX = inputColumn * 4
           const lumaY = inputRow * 4
           if (
@@ -220,12 +224,12 @@ export const applyAv1LoopFilter = (
           ) {
             continue
           }
-          const row = inputRow | sub
-          const column = inputColumn | sub
-          const previousRow = row - (dy << sub)
-          const previousColumn = column - (dx << sub)
-          const x = lumaX >> sub
-          const y = lumaY >> sub
+          const row = inputRow | shiftY
+          const column = inputColumn | shiftX
+          const previousRow = row - (dy << shiftY)
+          const previousColumn = column - (dx << shiftX)
+          const x = lumaX >> shiftX
+          const y = lumaY >> shiftY
           const transformWidth = transformAt(state.transformWidths, state, planeIndex, row, column)
           const transformHeight = transformAt(
             state.transformHeights,
@@ -381,11 +385,12 @@ const filterCdefBlock = (
   damping: number,
   direction: number,
 ): void => {
-  const sub = planeIndex === 0 ? 0 : state.chromaShift
-  const x0 = (column * 4) >> sub
-  const y0 = (row * 4) >> sub
-  const width = 8 >> sub
-  const height = 8 >> sub
+  const shiftX = planeIndex === 0 ? 0 : state.chromaShiftX
+  const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
+  const x0 = (column * 4) >> shiftX
+  const y0 = (row * 4) >> shiftY
+  const width = 8 >> shiftX
+  const height = 8 >> shiftY
   const tapSet = primaryStrength & 1
   for (let localY = 0; localY < height; localY += 1) {
     for (let localX = 0; localX < width; localX += 1) {
@@ -408,8 +413,8 @@ const filterCdefBlock = (
             const directionOffset = sampleDirection * 4 + tap * 2
             const sampleY = y0 + localY + sign * (cdefDirections[directionOffset] ?? 0)
             const sampleX = x0 + localX + sign * (cdefDirections[directionOffset + 1] ?? 0)
-            const candidateRow = (sampleY << sub) >> 2
-            const candidateColumn = (sampleX << sub) >> 2
+            const candidateRow = (sampleY << shiftY) >> 2
+            const candidateColumn = (sampleX << shiftX) >> 2
             if (
               candidateRow < 0 ||
               candidateRow >= state.miRows ||
@@ -771,22 +776,23 @@ export const applyAv1LoopRestoration = (
         const deblockedPlane = deblocked[planeIndex]
         const outputPlane = output[planeIndex]
         if (!unit || !deblockedPlane || !outputPlane || unit.types.length === 0) continue
-        const sub = planeIndex === 0 ? 0 : state.chromaShift
+        const shiftX = planeIndex === 0 ? 0 : state.chromaShiftX
+        const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
         const plane = cdef[planeIndex]
         if (!plane) continue
-        const planeEndX = Math.ceil(header.upscaledWidth / 2 ** sub) - 1
-        const planeEndY = Math.ceil(header.frameHeight / 2 ** sub) - 1
-        const x = lumaX >> sub
-        const y = lumaY >> sub
-        const width = Math.min(4 >> sub, planeEndX - x + 1)
-        const height = Math.min(4 >> sub, planeEndY - y + 1)
-        const unitRow = Math.min(unit.rows - 1, Math.floor(((lumaY + 8) >> sub) / unit.unitSize))
+        const planeEndX = Math.ceil(header.upscaledWidth / 2 ** shiftX) - 1
+        const planeEndY = Math.ceil(header.frameHeight / 2 ** shiftY) - 1
+        const x = lumaX >> shiftX
+        const y = lumaY >> shiftY
+        const width = Math.min(4 >> shiftX, planeEndX - x + 1)
+        const height = Math.min(4 >> shiftY, planeEndY - y + 1)
+        const unitRow = Math.min(unit.rows - 1, Math.floor(((lumaY + 8) >> shiftY) / unit.unitSize))
         const unitColumn = Math.min(unit.columns - 1, Math.floor(x / unit.unitSize))
         const unitIndex = unitRow * unit.columns + unitColumn
         const type = unit.types[unitIndex] ?? 0
         if (type === 0) continue
-        const stripeStartY = (-8 + stripeNumber * 64) >> sub
-        const stripeEndY = stripeStartY + (64 >> sub) - 1
+        const stripeStartY = (-8 + stripeNumber * 64) >> shiftY
+        const stripeEndY = stripeStartY + (64 >> shiftY) - 1
         if (type === 1) {
           restoreWienerBlock(
             deblockedPlane,
