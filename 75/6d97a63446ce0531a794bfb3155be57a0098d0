@@ -1,0 +1,26 @@
+src/codecs/heif.ts
+  s_84d542edc0aa8c::t_9c13981329b03b 1267,1272,1290-1294,1375,1380-1394,1396-1397,1399-1412,1430,1438,1453,1455-1463,1529,1547
+  s_84d542edc0aa8c::t_9d93deed916de9 1248,1261,1264,1330,1334,1353,1357,1363,1366,1377-1379,1431,1439,1464-1466,1470,1530,1548,1608,1614,1618
+  s_84d542edc0aa8c::t_865b9b3c17b0f0 1295-1296
+  s_84d542edc0aa8c::t_c6f0c515120f82 1289,1395,1398
+  s_84d542edc0aa8c::t_a949dfca286b62 1593-1607
+  s_84d542edc0aa8c::t_0abb22143067e0 1297
+tests/heif.test.ts
+  s_84d542edc0aa8c::t_85ea42561b7f30 1247,1249-1251,1270
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "756d97a63446ce0531a794bfb3155be57a0098d0",
+  "prompts": {},
+  "sessions": {
+    "s_84d542edc0aa8c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe30a-1315-7a91-ac72-83d2bf53d5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
