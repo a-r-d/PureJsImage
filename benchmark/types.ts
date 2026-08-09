@@ -1,6 +1,7 @@
 export type ImageFormat = 'bmp' | 'gif' | 'heic' | 'heif' | 'ico' | 'jpeg' | 'png' | 'tiff' | 'webp'
 export type OutputFormat = 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp'
 export type BenchmarkColor = '#ffffff' | 'transparent'
+export type QualityPsnr = number | 'exact'
 export type BenchmarkProfile =
   | 'bmp'
   | 'competitors'
@@ -133,6 +134,7 @@ interface WorkflowBase {
   defaultRuns?: number
   defaultWarmups?: number
   timeoutMs?: number
+  qualityReference?: 'exact-area'
 }
 
 export interface PipelineWorkflow extends WorkflowBase {
@@ -240,6 +242,7 @@ export interface MeasuredWorkerResult {
   cpuMilliseconds: number
   finalMemory: NodeJS.MemoryUsage
   resourceMaxRssBytes: number
+  qualityPsnrDb?: QualityPsnr
 }
 
 export type WorkerResult =
@@ -272,6 +275,7 @@ export interface BenchmarkSummary {
   peakRssBytes?: { median: number; maximum: number }
   peakRssDeltaBytes?: { median: number; maximum: number }
   outputBytes?: { median: number }
+  qualityPsnrDb?: QualityPsnr
   output?: ValidatedOutput | ImageMetadata
 }
 

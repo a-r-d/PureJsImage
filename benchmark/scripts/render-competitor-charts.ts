@@ -87,23 +87,45 @@ for (const workflow of workflowCandidates) {
   }
 }
 
-const workflows = workflowCandidates.filter((workflow) =>
+const performanceWorkflows = workflowCandidates.filter((workflow) =>
   engines.every(
     (engine) => resultByKey.get(`${engine.id}:${workflow.id}`)?.summary.status === 'pass',
   ),
 )
-if (workflows.length === 0) throw new Error('No workflow passed validation for every chart engine')
+if (performanceWorkflows.length === 0) {
+  throw new Error('No workflow passed validation for every chart engine')
+}
+const qualityWorkflows = performanceWorkflows.filter((workflow) =>
+  engines.every(
+    (engine) => resultByKey.get(`${engine.id}:${workflow.id}`)?.summary.qualityPsnrDb !== undefined,
+  ),
+)
+if (qualityWorkflows.length === 0) {
+  throw new Error('No workflow reported quality for every chart engine')
+}
+const finiteQualityValues = qualityWorkflows.flatMap((workflow) =>
+  engines.flatMap((engine) => {
+    const quality = resultByKey.get(`${engine.id}:${workflow.id}`)?.summary.qualityPsnrDb
+    return typeof quality === 'number' ? [quality] : []
+  }),
+)
+if (finiteQualityValues.length === 0) throw new Error('No finite quality values are available')
+const qualityMinimum = Math.max(0, Math.floor(Math.min(...finiteQualityValues) / 5) * 5 - 5)
+const qualityMaximum = Math.ceil((Math.max(...finiteQualityValues) + 5) / 5) * 5
 
-type Metric = 'memory' | 'speed'
+type Metric = 'memory' | 'quality' | 'speed'
 
 const metricValue = (result: BenchmarkResult, metric: Metric): number => {
   if (result.summary.status !== 'pass') {
     throw new Error(`${result.engine}/${result.workflow} did not pass output validation`)
   }
-  const value =
-    metric === 'speed'
-      ? result.summary.wallMilliseconds?.median
-      : result.summary.peakRssBytes?.median
+  let value: number | undefined
+  if (metric === 'speed') value = result.summary.wallMilliseconds?.median
+  else if (metric === 'memory') value = result.summary.peakRssBytes?.median
+  else {
+    const quality = result.summary.qualityPsnrDb
+    value = quality === 'exact' ? qualityMaximum : quality
+  }
   if (value === undefined || !Number.isFinite(value) || value < 0) {
     throw new Error(`${result.engine}/${result.workflow} has no valid ${metric} metric`)
   }
@@ -118,13 +140,17 @@ const escapeXml = (value: string): string =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&apos;')
 
-const formatMetric = (value: number, metric: Metric): string => {
+const formatMetric = (result: BenchmarkResult, value: number, metric: Metric): string => {
   if (metric === 'memory') return `${value.toFixed(1)} MiB`
+  if (metric === 'quality') {
+    return result.summary.qualityPsnrDb === 'exact' ? 'exact' : `${value.toFixed(2)} dB`
+  }
   if (value < 10) return `${value.toFixed(1)} ms`
   return `${Math.round(value).toLocaleString('en-US')} ms`
 }
 
 const chartSvg = (metric: Metric): string => {
+  const workflows = metric === 'quality' ? qualityWorkflows : performanceWorkflows
   const width = 2400
   const groupHeight = 204
   const height = 490 + workflows.length * groupHeight
@@ -151,14 +177,28 @@ const chartSvg = (metric: Metric): string => {
     { length: memoryMaximum / memoryStep + 1 },
     (_, index) => index * memoryStep,
   )
-  const ticks = metric === 'speed' ? speedTicks : memoryTicks
-  const title = metric === 'speed' ? 'Image workflow speed' : 'Image workflow memory'
+  const qualityTicks = Array.from(
+    { length: (qualityMaximum - qualityMinimum) / 5 + 1 },
+    (_, index) => qualityMinimum + index * 5,
+  )
+  const ticks = metric === 'speed' ? speedTicks : metric === 'memory' ? memoryTicks : qualityTicks
+  const title =
+    metric === 'speed'
+      ? 'Image workflow speed'
+      : metric === 'memory'
+        ? 'Image workflow memory'
+        : 'Image workflow quality'
   const subtitle =
     metric === 'speed'
       ? 'Median wall time · logarithmic scale · lower is better'
-      : 'Median absolute peak RSS · linear scale · lower is better'
+      : metric === 'memory'
+        ? 'Median absolute peak RSS · linear scale · lower is better'
+        : 'Premultiplied RGBA PSNR · linear scale · higher is better'
   const valueToX = (value: number): number => {
     if (metric === 'memory') return plotLeft + (value / memoryMaximum) * plotWidth
+    if (metric === 'quality') {
+      return plotLeft + ((value - qualityMinimum) / (qualityMaximum - qualityMinimum)) * plotWidth
+    }
     const minimum = Math.log10(0.1)
     const maximum = Math.log10(10_000)
     return (
@@ -169,7 +209,12 @@ const chartSvg = (metric: Metric): string => {
   const grid = ticks
     .map((tick) => {
       const x = valueToX(tick)
-      const label = metric === 'memory' ? `${tick}` : tick.toLocaleString('en-US')
+      const label =
+        metric === 'memory'
+          ? `${tick}`
+          : metric === 'quality'
+            ? `${tick} dB`
+            : tick.toLocaleString('en-US')
       return `<line x1="${x}" y1="${plotTop - 22}" x2="${x}" y2="${gridBottom}" stroke="#dbe3ef" stroke-width="2" />
         <text x="${x}" y="${plotTop - 38}" text-anchor="middle" class="tick">${label}</text>`
     })
@@ -199,7 +244,7 @@ const chartSvg = (metric: Metric): string => {
           const widthValue = Math.max(endX - plotLeft, 3)
           return `<text x="730" y="${y + 15}" text-anchor="end" class="engine">${escapeXml(engine.label)}</text>
             <rect x="${plotLeft}" y="${y}" width="${widthValue}" height="${barHeight}" rx="4" fill="${engine.color}" />
-            <text x="${Math.min(endX + 12, 2290)}" y="${y + 15}" class="value">${escapeXml(formatMetric(value, metric))}</text>`
+            <text x="${Math.min(endX + 12, 2290)}" y="${y + 15}" class="value">${escapeXml(formatMetric(result, value, metric))}</text>`
         })
         .join('\n')
       return `<text x="54" y="${groupTop + 17}" class="workflow">${escapeXml(workflow.label)}</text>
@@ -212,7 +257,9 @@ const chartSvg = (metric: Metric): string => {
   const footer =
     metric === 'speed'
       ? 'Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3; Jimp uses bilinear. Timings include encoding and are not matched quality across kernels or lossy encoders.'
-      : 'Absolute process RSS from isolated workers. Sharp uses native libvips; jSquash uses WebAssembly; PureJsImage, Jimp, and image-js are pure JavaScript.'
+      : metric === 'memory'
+        ? 'Absolute process RSS from isolated workers. Sharp uses native libvips; jSquash uses WebAssembly; PureJsImage, Jimp, and image-js are pure JavaScript.'
+        : 'Premultiplied-RGBA PSNR against an independently decoded exact-area reference. Exact means every compared channel matched. Quality measurement is outside timing.'
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
     <rect width="${width}" height="${height}" fill="#f8fafc" />
@@ -235,14 +282,16 @@ const chartSvg = (metric: Metric): string => {
     ${grid}
     ${bars}
     <text x="54" y="${height - 90}" class="footer">${escapeXml(footer)}</text>
-    <text x="54" y="${height - 50}" class="source">Source: ${escapeXml(basename(reportPath))} · Only workflows that passed equivalent-output validation for all six engines are shown.</text>
+    <text x="54" y="${height - 50}" class="source">Source: ${escapeXml(basename(reportPath))} · Only workflows with validated output and the displayed metric for all six engines are shown.</text>
   </svg>`
 }
 
 const speedPath = join(outputDirectory, `competitors-speed-${reportDate}.png`)
 const memoryPath = join(outputDirectory, `competitors-memory-${reportDate}.png`)
+const qualityPath = join(outputDirectory, `competitors-quality-${reportDate}.png`)
 const docsSpeedPath = join(docsAssetsDirectory, `competitors-speed-${reportDate}.png`)
 const docsMemoryPath = join(docsAssetsDirectory, `competitors-memory-${reportDate}.png`)
+const docsQualityPath = join(docsAssetsDirectory, `competitors-quality-${reportDate}.png`)
 
 await mkdir(docsAssetsDirectory, { recursive: true })
 await Promise.all([
@@ -252,15 +301,23 @@ await Promise.all([
   sharp(Buffer.from(chartSvg('memory')))
     .png()
     .toFile(memoryPath),
+  sharp(Buffer.from(chartSvg('quality')))
+    .png()
+    .toFile(qualityPath),
   sharp(Buffer.from(chartSvg('speed')))
     .png()
     .toFile(docsSpeedPath),
   sharp(Buffer.from(chartSvg('memory')))
     .png()
     .toFile(docsMemoryPath),
+  sharp(Buffer.from(chartSvg('quality')))
+    .png()
+    .toFile(docsQualityPath),
 ])
 
 console.log(speedPath)
 console.log(memoryPath)
+console.log(qualityPath)
 console.log(docsSpeedPath)
 console.log(docsMemoryPath)
+console.log(docsQualityPath)

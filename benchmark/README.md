@@ -11,8 +11,8 @@ WebP 1.5.0, and resize 2.1.1 packages.
   loops.
 * Require a valid output before treating a timing as successful.
 * Keep input bytes identical across engines.
-* Record wall time, CPU time, output size, absolute peak RSS, and peak RSS delta
-  from the post-warmup baseline.
+* Record wall time, CPU time, output size, absolute peak RSS, peak RSS delta,
+  and premultiplied-RGBA PSNR where the workflow defines a quality reference.
 * Run each measured sample in an isolated process after an optional untimed
   warmup. A measured process loads exactly one engine.
 * Keep real photographs, standards fixtures, transparent graphics, pathological
@@ -20,6 +20,8 @@ WebP 1.5.0, and resize 2.1.1 packages.
 * Classify every engine/workflow pair as pass, unsupported, invalid output, or
   error. Unsupported and invalid output never contribute timing results.
 * Keep startup/import measurements separate from warm workflow timings.
+* Build and decode the exact-area quality reference after measurement, outside
+  both wall timing and peak-RSS sampling.
 
 ## Corpus
 
@@ -108,10 +110,19 @@ Resize workflows use each engine's public default kernel. PureJsImage and Sharp
 use Lanczos 3; Jimp uses bilinear. Cross-kernel timings describe each package's
 default experience and are not matched-quality speed comparisons. `sharp` uses
 its production defaults. `sharp-single-thread` is a separate engine and process
-that calls `sharp.concurrency(1)` before processing.
-image-js uses its normal public decode, transform, and encode APIs. Its optional
-Canvas integration is omitted and is not part of the benchmark dependency
-tree.
+that calls `sharp.concurrency(1)` before processing. image-js uses its normal
+public decode, transform, and encode APIs. Its optional Canvas integration is
+omitted and is not part of the benchmark dependency tree.
+
+For quality-enabled JPEG and PNG workflows, the harness independently decodes
+the pinned input, applies crop and exact-area resize semantics, applies alpha
+flattening where requested, and independently decodes each engine's output.
+It reports PSNR over premultiplied RGB plus alpha, so invisible RGB values in
+fully transparent pixels cannot inflate error. `exact` means every compared
+channel matched. The oracle runs only for the first measured sample and after
+the timed and peak-RSS regions. This makes quality loss visible alongside speed
+and output size without claiming that different lossy quality scales are
+calibrated or matched.
 
 jSquash uses its public WebAssembly JPEG, PNG, WebP, and resize APIs. The worker
 uses jSquash's documented manual Node WASM initialization and a minimal

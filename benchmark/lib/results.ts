@@ -35,6 +35,9 @@ export const summarizeSamples = (samples: readonly BenchmarkSample[]): Benchmark
   const peakDelta = successful.map((sample) => sample.peakRssDeltaBytes)
   const outputBytes = successful.map((sample) => sample.outputBytes)
   const output = successful[0]?.output
+  const qualityPsnrDb = successful.find(
+    (sample) => sample.qualityPsnrDb !== undefined,
+  )?.qualityPsnrDb
   return {
     status: 'pass',
     samples: samples.length,
@@ -56,6 +59,7 @@ export const summarizeSamples = (samples: readonly BenchmarkSample[]): Benchmark
     },
     outputBytes: { median: percentile(outputBytes, 0.5) },
     ...(output ? { output } : {}),
+    ...(qualityPsnrDb !== undefined ? { qualityPsnrDb } : {}),
     errors: [],
   }
 }

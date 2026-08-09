@@ -1,3 +1,4 @@
+import { PNG } from 'pngjs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 import { engine as imageJsEngine } from '../benchmark/engines/image-js.ts'
@@ -5,6 +6,7 @@ import { engine as jimpEngine } from '../benchmark/engines/jimp.ts'
 import { engine as jsquashEngine } from '../benchmark/engines/jsquash.ts'
 import { engine as sharpSingleThreadEngine } from '../benchmark/engines/sharp-single-thread.ts'
 import { engine as sharpEngine } from '../benchmark/engines/sharp.ts'
+import { createQualityReference, measureQualityPsnr } from '../benchmark/lib/quality.ts'
 import { summarizeSamples } from '../benchmark/lib/results.ts'
 import { validateExecution } from '../benchmark/lib/validate-output.ts'
 import type { PipelineWorkflow } from '../benchmark/types.ts'
@@ -82,6 +84,58 @@ describe('competitor benchmark classification', () => {
     expect(validation.errors.join('; ')).toContain('pixel (1, 1) red')
     const summary = summarizeSamples([{ status: 'invalid-output', errors: validation.errors }])
     expect(summary.wallMilliseconds).toBeUndefined()
+  })
+
+  it('records exact-area PSNR without treating transparent RGB as visible error', () => {
+    const source = new PNG({ width: 4, height: 4 })
+    for (let y = 0; y < 4; y += 1) {
+      for (let x = 0; x < 4; x += 1) {
+        const offset = (y * 4 + x) * 4
+        source.data[offset] = x < 2 ? 20 : 180
+        source.data[offset + 1] = y < 2 ? 40 : 200
+        source.data[offset + 2] = 90
+        source.data[offset + 3] = x < 2 && y < 2 ? 0 : 255
+      }
+    }
+    const workflow: PipelineWorkflow = {
+      id: 'quality-oracle',
+      title: 'Quality oracle',
+      tier: 'smoke',
+      qualityReference: 'exact-area',
+      input: 'unused',
+      operations: [
+        { type: 'resize', width: 2, height: 2 },
+        { type: 'encode', format: 'png', compressionLevel: 6 },
+      ],
+      expected: { format: 'png', width: 2, height: 2 },
+    }
+    const reference = createQualityReference(workflow, PNG.sync.write(source))
+    const exact = new PNG({ width: 2, height: 2 })
+    exact.data.set([255, 0, 0, 0, 180, 40, 90, 255, 20, 200, 90, 255, 180, 200, 90, 255])
+    const exactOutput = PNG.sync.write(exact)
+    expect(measureQualityPsnr(exactOutput, reference)).toBe('exact')
+
+    exact.data[4] = 179
+    const measured = measureQualityPsnr(PNG.sync.write(exact), reference)
+    if (typeof measured !== 'number') throw new Error('Expected a finite PSNR')
+    expect(measured).toBeGreaterThan(60)
+
+    const memory = process.memoryUsage()
+    const summary = summarizeSamples([
+      {
+        status: 'pass',
+        errors: [],
+        outputBytes: exactOutput.byteLength,
+        wallMilliseconds: 1,
+        cpuMilliseconds: 1,
+        finalMemory: memory,
+        resourceMaxRssBytes: memory.rss,
+        peakRssBytes: memory.rss,
+        peakRssDeltaBytes: 0,
+        qualityPsnrDb: measured,
+      },
+    ])
+    expect(summary.qualityPsnrDb).toBe(measured)
   })
 
   it('keeps Sharp default and single-thread configurations identifiable', () => {

@@ -2043,6 +2043,7 @@ tr:last-child td {
 }
 
 #benchmark-speed:checked ~ .benchmark-gallery-tabs label[for="benchmark-speed"],
+#benchmark-quality:checked ~ .benchmark-gallery-tabs label[for="benchmark-quality"],
 #benchmark-memory:checked ~ .benchmark-gallery-tabs label[for="benchmark-memory"] {
   border-color: rgba(197, 236, 123, 0.2);
   background: #1a211c;
@@ -2050,11 +2051,13 @@ tr:last-child td {
 }
 
 #benchmark-speed:checked ~ .benchmark-gallery-tabs label[for="benchmark-speed"] span,
+#benchmark-quality:checked ~ .benchmark-gallery-tabs label[for="benchmark-quality"] span,
 #benchmark-memory:checked ~ .benchmark-gallery-tabs label[for="benchmark-memory"] span {
   color: var(--lime);
 }
 
 #benchmark-speed:focus-visible ~ .benchmark-gallery-tabs label[for="benchmark-speed"],
+#benchmark-quality:focus-visible ~ .benchmark-gallery-tabs label[for="benchmark-quality"],
 #benchmark-memory:focus-visible ~ .benchmark-gallery-tabs label[for="benchmark-memory"] {
   outline: 2px solid #9c8dff;
   outline-offset: 2px;
@@ -2067,6 +2070,7 @@ tr:last-child td {
 }
 
 #benchmark-speed:checked ~ .benchmark-gallery-panels [data-chart="speed"],
+#benchmark-quality:checked ~ .benchmark-gallery-panels [data-chart="quality"],
 #benchmark-memory:checked ~ .benchmark-gallery-panels [data-chart="memory"] {
   display: block;
 }

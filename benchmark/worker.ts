@@ -1,8 +1,9 @@
 import { readFile } from 'node:fs/promises'
 import { performance } from 'node:perf_hooks'
 import { allFixtures, fixturePath, readManifest } from './lib/corpus.ts'
+import { createQualityReference, measureQualityPsnr } from './lib/quality.ts'
 import { validateExecution } from './lib/validate-output.ts'
-import type { Engine, WorkerResult } from './types.ts'
+import type { Engine, QualityPsnr, WorkerResult } from './types.ts'
 import { workflows } from './workflows.ts'
 
 const readArgument = (name: string): string | undefined => {
@@ -57,6 +58,7 @@ const main = async (): Promise<void> => {
   const engineId = readArgument('engine')
   const workflowId = readArgument('workflow')
   const warmups = Number(readArgument('warmups') ?? 1)
+  const measureQuality = readArgument('quality') === 'true'
   const workflow = workflows.find((candidate) => candidate.id === workflowId)
 
   if (!engineId || !engineIds.has(engineId) || !workflow) {
@@ -130,6 +132,28 @@ const main = async (): Promise<void> => {
     return
   }
   const resourceUsage = process.resourceUsage()
+  const finalMemory = process.memoryUsage()
+  if (process.send) {
+    await new Promise<void>((resolve) => {
+      const acknowledgeMeasurement = (message: unknown): void => {
+        if (!isRecord(message) || message.type !== 'measurement-acknowledged') return
+        process.off('message', acknowledgeMeasurement)
+        resolve()
+      }
+      process.on('message', acknowledgeMeasurement)
+      process.send?.({ type: 'measurement-complete' })
+    })
+  }
+  let qualityPsnrDb: QualityPsnr | undefined
+  if (measureQuality && workflow.qualityReference) {
+    if (workflow.batch || !execution.output) {
+      throw new Error(`Quality-reference workflow ${workflow.id} did not produce one image`)
+    }
+    const input = inputs[0]
+    if (!input) throw new Error(`Quality-reference workflow ${workflow.id} has no input`)
+    const reference = createQualityReference(workflow, input)
+    qualityPsnrDb = measureQualityPsnr(execution.output, reference)
+  }
   sendResult({
     status: 'pass',
     errors: [],
@@ -139,8 +163,9 @@ const main = async (): Promise<void> => {
     outputBytes: validation.outputBytes,
     wallMilliseconds,
     cpuMilliseconds: (cpu.user + cpu.system) / 1000,
-    finalMemory: process.memoryUsage(),
+    finalMemory,
     resourceMaxRssBytes: resourceUsage.maxRSS * 1024,
+    ...(qualityPsnrDb !== undefined ? { qualityPsnrDb } : {}),
   })
 }
 

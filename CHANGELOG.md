@@ -16,6 +16,9 @@ All notable changes to PureJsImage are documented in this file.
   packages, with documented Node WASM initialization, explicit unsupported classifications,
   startup/package-footprint measurements, a codec-matched bundle comparison with exact package
   versions, validated workflow results, and regenerated charts.
+- Added premultiplied-RGBA PSNR against independent exact-area references to quality-enabled
+  competitor workflows, with quality recorded outside timing and peak-RSS sampling, included in
+  Markdown and JSON reports, and published as a dedicated comparison chart.
 - Added a fully client-side browser conversion demo with content-based format detection, optional
   transforms, honest timing and memory reporting, and an artifact-only GitHub Pages deployment
   that keeps its generated all-codec bundle out of repository history.

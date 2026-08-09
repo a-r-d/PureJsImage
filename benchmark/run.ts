@@ -141,15 +141,20 @@ const isWorkerResult = (value: unknown): value is WorkerResult => {
     typeof value.wallMilliseconds === 'number' &&
     typeof value.cpuMilliseconds === 'number' &&
     isMemoryUsage(value.finalMemory) &&
-    typeof value.resourceMaxRssBytes === 'number'
+    typeof value.resourceMaxRssBytes === 'number' &&
+    (value.qualityPsnrDb === undefined ||
+      value.qualityPsnrDb === 'exact' ||
+      (typeof value.qualityPsnrDb === 'number' && Number.isFinite(value.qualityPsnrDb)))
   )
 }
 
 const runSample = ({
   engine,
   workflow,
+  quality,
   warmups,
 }: {
+  quality: boolean
   engine: string
   workflow: Workflow
   warmups: number
@@ -166,6 +171,8 @@ const runSample = ({
         workflow.id,
         '--warmups',
         String(warmups),
+        '--quality',
+        String(quality),
       ],
       { cwd: repositoryDirectory, stdio: ['ignore', 'pipe', 'pipe', 'ipc'] },
     )
@@ -206,6 +213,9 @@ const runSample = ({
         engineMetadata = message.engine
         peakRssBytes = readRss(child.pid)
         child.send({ type: 'run' })
+      } else if (isRecord(message) && message.type === 'measurement-complete') {
+        ready = false
+        child.send({ type: 'measurement-acknowledged' })
       } else if (isRecord(message) && message.type === 'result' && isWorkerResult(message.result)) {
         result = message.result
       }
@@ -323,10 +333,14 @@ for (const engine of options.engines) {
     )
     const samples: BenchmarkSample[] = []
     for (let run = 0; run < runs; run += 1) {
-      const sample = await runSample({ engine, workflow, warmups })
+      const sample = await runSample({ engine, workflow, warmups, quality: run === 0 })
       samples.push(sample)
+      const quality =
+        isSuccessfulSample(sample) && sample.qualityPsnrDb !== undefined
+          ? `, quality ${sample.qualityPsnrDb === 'exact' ? 'exact' : `${sample.qualityPsnrDb.toFixed(2)} dB`}`
+          : ''
       process.stdout.write(
-        `  ${run + 1}/${runs} ${isSuccessfulSample(sample) ? `${sample.wallMilliseconds.toFixed(1)} ms` : `${sample.status.toUpperCase()} ${sample.errors.join(' | ')}`}\n`,
+        `  ${run + 1}/${runs} ${isSuccessfulSample(sample) ? `${sample.wallMilliseconds.toFixed(1)} ms${quality}` : `${sample.status.toUpperCase()} ${sample.errors.join(' | ')}`}\n`,
       )
       if (!isSuccessfulSample(sample)) break
     }
@@ -398,6 +412,8 @@ const report: BenchmarkReport = {
     isolatedStartupProcessPerEngine: true,
     inputFileReadTimed: false,
     outputValidationTimed: false,
+    qualityMeasurementTimed: false,
+    qualityMetric: 'premultiplied-rgba-psnr-vs-independent-exact-area-reference',
     resizeKernelPolicy: {
       mode: 'engine-defaults',
       purejsimage: 'lanczos3',
@@ -426,6 +442,8 @@ const formatMilliseconds = (value: number | undefined): string =>
   value === undefined ? '-' : value.toFixed(1)
 const formatMegabytes = (value: number | undefined): string =>
   value === undefined ? '-' : (value / 1024 / 1024).toFixed(1)
+const formatQuality = (value: BenchmarkResult['summary']['qualityPsnrDb']): string =>
+  value === undefined ? '-' : value === 'exact' ? 'exact' : `${value.toFixed(2)} dB`
 const displayStatus = (status: BenchmarkResult['summary']['status']): string =>
   status === 'invalid-output' ? 'invalid output' : status
 
@@ -470,16 +488,14 @@ const markdown = [
   '',
   '## Performance on workflows supported by every selected engine',
   '',
-  '| Engine | Workflow | Median wall | p95 wall | Median CPU | Peak RSS | Peak RSS delta | Output |',
-  '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |',
+  '| Engine | Workflow | Median wall | p95 wall | Median CPU | Peak RSS | Peak RSS delta | Quality | Output |',
+  '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
   ...(comparableResults.length > 0
     ? comparableResults.map(
         ({ engine, workflow, summary }) =>
-          `| ${engine} | ${workflow} | ${formatMilliseconds(summary.wallMilliseconds?.median)} ms | ${formatMilliseconds(summary.wallMilliseconds?.p95)} ms | ${formatMilliseconds(summary.cpuMilliseconds?.median)} ms | ${formatMegabytes(summary.peakRssBytes?.median)} MiB | ${formatMegabytes(summary.peakRssDeltaBytes?.median)} MiB | ${formatMegabytes(summary.outputBytes?.median)} MiB |`,
+          `| ${engine} | ${workflow} | ${formatMilliseconds(summary.wallMilliseconds?.median)} ms | ${formatMilliseconds(summary.wallMilliseconds?.p95)} ms | ${formatMilliseconds(summary.cpuMilliseconds?.median)} ms | ${formatMegabytes(summary.peakRssBytes?.median)} MiB | ${formatMegabytes(summary.peakRssDeltaBytes?.median)} MiB | ${formatQuality(summary.qualityPsnrDb)} | ${formatMegabytes(summary.outputBytes?.median)} MiB |`,
       )
-    : [
-        '| - | No workflow passed equivalently for every selected engine | - | - | - | - | - | - |',
-      ]),
+    : ['| - | No workflow passed for every selected engine | - | - | - | - | - | - | - |']),
   '',
   '## Startup and installed package footprint',
   '',
@@ -492,9 +508,9 @@ const markdown = [
   '',
   'Installed footprint includes every package required by an engine and the production dependencies present for this platform, including jSquash codec/resize packages and Sharp platform packages. Exact package lists are recorded in JSON.',
   '',
-  'A timing only counts when output validation passes. Input file reads, worker startup, warmups, and output validation are outside warm workflow timings. Startup measurements use a separate fresh process for each engine.',
+  'A timing only counts when output validation passes. Input file reads, worker startup, warmups, output validation, and quality measurement are outside warm workflow timings. Startup measurements use a separate fresh process for each engine.',
   '',
-  'Timing comparisons include encoding. Resize timings use the engine-default kernels identified above and are not matched-quality comparisons across different kernels. Lossy encoders do not share a calibrated quality scale, so output quality and compression efficiency cannot be compared solely because each API received `quality: 80`; that requires a separate matched-quality study.',
+  'Quality is premultiplied-RGBA PSNR against an independently decoded exact-area reference. `exact` means every compared channel matched. Resize timings use the engine-default kernels identified above, so cross-kernel rows are default-experience rather than matched-quality comparisons. Lossy encoder quality scales are not calibrated; the quality column makes that difference visible but does not by itself turn equal API quality settings into a matched-quality size study.',
   '',
 ]
 

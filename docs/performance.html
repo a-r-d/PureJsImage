@@ -24,27 +24,34 @@
     <section class="proof-section performance-showcase" id="competitor-charts" aria-labelledby="competitor-charts-title">
       <div class="container">
         <div class="proof-heading">
-          <div><p class="section-label">Validated competitor profile</p><h2 id="competitor-charts-title">Speed and memory across six isolated engines.</h2></div>
-          <p>Every displayed result passed output validation on commonly supported workflows. Engines use their public defaults. Sharp uses native libvips, jSquash uses WebAssembly, and PureJsImage, Jimp, and image-js are pure JavaScript.</p>
+          <div><p class="section-label">Validated competitor profile</p><h2 id="competitor-charts-title">Speed, quality, and memory across six isolated engines.</h2></div>
+          <p>Every displayed result passed output validation on commonly supported workflows. Engines use their public defaults; quality is measured separately against an independently decoded exact-area reference. Sharp uses native libvips, jSquash uses WebAssembly, and PureJsImage, Jimp, and image-js are pure JavaScript.</p>
         </div>
         <div class="benchmark-facts">
-          <div><strong>87.3%</strong><span>lower northstar RSS vs Jimp</span></div>
-          <div><strong>88.0%</strong><span>lower northstar RSS vs image-js</span></div>
+          <div><strong>87.2%</strong><span>lower northstar RSS vs Jimp</span></div>
+          <div><strong>88.1%</strong><span>lower northstar RSS vs image-js</span></div>
           <div><strong>0</strong><span>invalid outputs or errors</span></div>
         </div>
         <fieldset class="benchmark-gallery">
           <legend>Choose a benchmark chart</legend>
           <input id="benchmark-speed" name="benchmark-chart" type="radio" checked>
+          <input id="benchmark-quality" name="benchmark-chart" type="radio">
           <input id="benchmark-memory" name="benchmark-chart" type="radio">
           <div class="benchmark-gallery-tabs">
             <label for="benchmark-speed"><span>01</span> Speed</label>
-            <label for="benchmark-memory"><span>02</span> Memory</label>
+            <label for="benchmark-quality"><span>02</span> Quality</label>
+            <label for="benchmark-memory"><span>03</span> Memory</label>
           </div>
           <div class="benchmark-gallery-panels">
             <figure class="benchmark-gallery-panel" data-chart="speed">
               <div class="benchmark-gallery-head"><div><span>Median wall time</span><strong>Logarithmic scale · lower is better</strong></div><small>Sharp = native libvips</small></div>
               <div class="benchmark-image-scroll"><img src="assets/competitors-speed-2026-08-09.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median wall time for all six benchmark engines across five commonly supported workflows. Sharp uses native libvips and jSquash uses WebAssembly." fetchpriority="high"></div>
               <figcaption>Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3 while Jimp uses bilinear, so cross-kernel rows are not matched quality. Lossy encoder quality scales are also uncalibrated. <a href="assets/competitors-speed-2026-08-09.png">Open full-size chart</a>.</figcaption>
+            </figure>
+            <figure class="benchmark-gallery-panel" data-chart="quality">
+              <div class="benchmark-gallery-head"><div><span>Output fidelity</span><strong>Premultiplied-RGBA PSNR · higher is better</strong></div><small>Independent exact-area reference</small></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-quality-2026-08-09.png" width="2400" height="1510" alt="Grouped horizontal bars comparing independently measured output PSNR for all six benchmark engines across five quality-enabled workflows." loading="lazy" decoding="async"></div>
+              <figcaption>PSNR includes visible premultiplied color and alpha error. Exact means every compared channel matched. The oracle runs outside benchmark timing and peak-memory sampling. <a href="assets/competitors-quality-2026-08-09.png">Open full-size chart</a>.</figcaption>
             </figure>
             <figure class="benchmark-gallery-panel" data-chart="memory">
               <div class="benchmark-gallery-head"><div><span>Absolute process memory</span><strong>Median peak RSS · lower is better</strong></div><small>Isolated worker processes</small></div>
@@ -84,16 +91,17 @@
 
         <section id="methodology">
           <h2>Methodology</h2>
-          <p>A timing is accepted only after its output passes the workflow’s structural or pixel validation. Input preparation and output validation remain outside the timed region.</p>
+          <p>A timing is accepted only after its output passes the workflow’s structural or pixel validation. Input preparation, output validation, and exact-area quality measurement remain outside the timed and peak-RSS regions.</p>
           <div class="method-steps">
             <div class="method-step"><b>01</b><span>Verify checksum-pinned input and expected dimensions.</span></div>
             <div class="method-step"><b>02</b><span>Run each measured sample in an isolated worker process.</span></div>
             <div class="method-step"><b>03</b><span>Record wall time, CPU time, output size, and peak RSS.</span></div>
-            <div class="method-step"><b>04</b><span>Decode and validate the output against structural or pixel references.</span></div>
+            <div class="method-step"><b>04</b><span>Decode and validate output, then measure premultiplied-RGBA PSNR where configured.</span></div>
           </div>
           <ul>
             <li>Competitor profile: PureJsImage, <code>jimp@1.6.0</code>, <code>sharp@0.35.3</code> with default concurrency and one processing thread, <code>image-js@1.7.0</code>, and jSquash JPEG 1.6.0, PNG 3.1.1, WebP 1.5.0, and resize 2.1.1.</li>
             <li>Resize workflows use engine defaults. PureJsImage and Sharp use Lanczos 3; Jimp uses bilinear. Cross-kernel timings describe each package's default experience and are not matched-quality comparisons.</li>
+            <li>Quality-enabled JPEG and PNG workflows independently decode input and output, apply exact-area resize and requested alpha flattening, and report premultiplied-RGBA PSNR. Fully transparent RGB does not count as visible error; <code>exact</code> means every compared channel matched.</li>
             <li>The detailed historical tables below use the separately recorded Jimp 1.6 baseline.</li>
             <li>Recorded environment: Node.js 24.16.0 on Linux x64, Intel Core i7-10700.</li>
             <li>Reports use median and p95 wall time across repeated runs.</li>

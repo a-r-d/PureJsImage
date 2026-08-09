@@ -31,6 +31,7 @@ export const workflows: readonly Workflow[] = [
     id: 'jpeg-resize-1200',
     title: '4000x3000 JPEG to 1200px JPEG quality 80',
     tier: 'smoke',
+    qualityReference: 'exact-area',
     input: 'tundra-4000x3000',
     operations: [{ type: 'resize', width: 1200 }, jpeg(80)],
     expected: {
@@ -70,6 +71,7 @@ export const workflows: readonly Workflow[] = [
     id: 'jpeg-crop-resize',
     title: '6000x4000 JPEG, center crop 3000x2000, resize 800x533',
     tier: 'standard',
+    qualityReference: 'exact-area',
     input: 'old-faithful-6000x4000',
     operations: [
       { type: 'crop', x: 1500, y: 1000, width: 3000, height: 2000 },
@@ -91,6 +93,7 @@ export const workflows: readonly Workflow[] = [
     id: 'png-resize-1000',
     title: '4000x3000 RGBA PNG to 1000px PNG',
     tier: 'standard',
+    qualityReference: 'exact-area',
     input: 'rgba-gradient-4000x3000',
     operations: [{ type: 'resize', width: 1000 }, png(6)],
     expected: {
@@ -108,6 +111,7 @@ export const workflows: readonly Workflow[] = [
     id: 'png-alpha-resize',
     title: 'Transparent PNG resize with alpha preservation',
     tier: 'smoke',
+    qualityReference: 'exact-area',
     input: 'transparent-logo-1200x480',
     operations: [{ type: 'resize', width: 800 }, png(6)],
     expected: {
@@ -126,6 +130,7 @@ export const workflows: readonly Workflow[] = [
     id: 'jpeg-to-png',
     title: '2400x2400 JPEG to PNG',
     tier: 'standard',
+    qualityReference: 'exact-area',
     input: 'earthrise-2400x2400',
     operations: [png(6)],
     expected: {
@@ -143,6 +148,7 @@ export const workflows: readonly Workflow[] = [
     id: 'png-to-jpeg',
     title: 'Transparent PNG to JPEG quality 80 on white',
     tier: 'standard',
+    qualityReference: 'exact-area',
     input: 'transparent-logo-1200x480',
     operations: [jpeg(80, '#ffffff')],
     expected: {
@@ -1128,6 +1134,7 @@ export const workflows: readonly Workflow[] = [
     id: 'stress-100mp-downscale',
     title: '10000x10000 RGBA PNG to 1000x1000 PNG',
     tier: 'full',
+    qualityReference: 'exact-area',
     input: 'stress-gradient-10000x10000',
     operations: [{ type: 'resize', width: 1000, height: 1000 }, png(6)],
     expected: {

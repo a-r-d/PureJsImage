@@ -53,8 +53,8 @@
           <h1>Low-memory image processing in <span class="gradient-text">pure TypeScript.</span></h1>
           <p class="hero-lede">PureJsImage provides first-party codecs and an immutable processing pipeline for Node.js and modern browsers. Its baseline JPEG resize path processes bounded MCU rows instead of retaining a source-sized RGBA bitmap.</p>
           <div class="headline-metrics">
-            <div><strong>87.3%</strong><span>lower peak RSS vs Jimp</span><small>152.7 vs 1,206.5 MiB</small></div>
-            <div><strong>88.0%</strong><span>lower peak RSS vs image-js</span><small>152.7 vs 1,275.7 MiB</small></div>
+            <div><strong>87.2%</strong><span>lower peak RSS vs Jimp</span><small>151.7 vs 1,189.1 MiB</small></div>
+            <div><strong>88.1%</strong><span>lower peak RSS vs image-js</span><small>151.7 vs 1,275.8 MiB</small></div>
           </div>
           <div class="hero-actions">
             <a class="button" href="demo.html">Try the browser demo <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></a>
@@ -136,8 +136,8 @@
     <section class="proof-section" id="benchmark" aria-labelledby="benchmark-title">
       <div class="container">
         <div class="proof-heading">
-          <div><p class="section-label">Validated 24 MP northstar workflow</p><h2 id="benchmark-title">87.3% lower peak RSS than Jimp. 88.0% lower than image-js.</h2></div>
-          <p>The complete charts show five commonly supported workflows from the same pinned inputs. Every engine runs in isolation with its public defaults. Sharp uses native libvips, jSquash uses WebAssembly, and PureJsImage, Jimp, and image-js are pure JavaScript.</p>
+          <div><p class="section-label">Validated 24 MP northstar workflow</p><h2 id="benchmark-title">87.2% lower peak RSS than Jimp. 88.1% lower than image-js.</h2></div>
+          <p>The speed, quality, and memory charts use the same pinned inputs and validated outputs. Every engine runs in isolation with its public defaults; quality is measured separately against an independently decoded exact-area reference. Sharp uses native libvips, jSquash uses WebAssembly, and PureJsImage, Jimp, and image-js are pure JavaScript.</p>
         </div>
         <div class="benchmark-facts">
           <div><strong>67</strong><span>validated passes</span></div>
@@ -147,16 +147,23 @@
         <fieldset class="benchmark-gallery">
           <legend>Choose a benchmark chart</legend>
           <input id="benchmark-speed" name="benchmark-chart" type="radio" checked>
+          <input id="benchmark-quality" name="benchmark-chart" type="radio">
           <input id="benchmark-memory" name="benchmark-chart" type="radio">
           <div class="benchmark-gallery-tabs">
             <label for="benchmark-speed"><span>01</span> Speed</label>
-            <label for="benchmark-memory"><span>02</span> Memory</label>
+            <label for="benchmark-quality"><span>02</span> Quality</label>
+            <label for="benchmark-memory"><span>03</span> Memory</label>
           </div>
           <div class="benchmark-gallery-panels">
             <figure class="benchmark-gallery-panel" data-chart="speed">
               <div class="benchmark-gallery-head"><div><span>Median wall time</span><strong>Logarithmic scale · lower is better</strong></div><small>Sharp = native libvips</small></div>
               <div class="benchmark-image-scroll"><img src="assets/competitors-speed-2026-08-09.png" width="2400" height="1510" alt="Grouped horizontal bars comparing median wall time for all six benchmark engines across five commonly supported workflows. Sharp uses native libvips and jSquash uses WebAssembly." fetchpriority="high"></div>
               <figcaption>Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3 while Jimp uses bilinear, so cross-kernel rows are not matched quality. Lossy encoder quality scales are also uncalibrated. <a href="assets/competitors-speed-2026-08-09.png">Open full-size chart</a>.</figcaption>
+            </figure>
+            <figure class="benchmark-gallery-panel" data-chart="quality">
+              <div class="benchmark-gallery-head"><div><span>Output fidelity</span><strong>Premultiplied-RGBA PSNR · higher is better</strong></div><small>Independent exact-area reference</small></div>
+              <div class="benchmark-image-scroll"><img src="assets/competitors-quality-2026-08-09.png" width="2400" height="1510" alt="Grouped horizontal bars comparing independently measured output PSNR for all six benchmark engines across five quality-enabled workflows." loading="lazy" decoding="async"></div>
+              <figcaption>PSNR includes visible premultiplied color and alpha error. Exact means every compared channel matched. The oracle runs outside benchmark timing and peak-memory sampling. <a href="assets/competitors-quality-2026-08-09.png">Open full-size chart</a>.</figcaption>
             </figure>
             <figure class="benchmark-gallery-panel" data-chart="memory">
               <div class="benchmark-gallery-head"><div><span>Absolute process memory</span><strong>Median peak RSS · lower is better</strong></div><small>Isolated worker processes</small></div>

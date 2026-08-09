@@ -190,16 +190,21 @@ passed validation.
 
 [![Image workflow speed comparison. Sharp and Sharp single-thread use native libvips code; jSquash uses WebAssembly.](benchmark/results/competitors-speed-2026-08-09.png)](benchmark/results/competitors-speed-2026-08-09.png)
 
+[![Image workflow output quality comparison measured as premultiplied-RGBA PSNR against an exact-area reference.](benchmark/results/competitors-quality-2026-08-09.png)](benchmark/results/competitors-quality-2026-08-09.png)
+
 [![Image workflow absolute peak memory comparison.](benchmark/results/competitors-memory-2026-08-09.png)](benchmark/results/competitors-memory-2026-08-09.png)
 
 Resize workflows use engine defaults: PureJsImage and Sharp use Lanczos 3 while
-Jimp uses bilinear. Treat cross-kernel rows as default-experience measurements,
-not matched-quality comparisons.
+Jimp uses bilinear. The quality chart reports premultiplied-RGBA PSNR against an
+independently decoded exact-area reference; `exact` means every visible color
+and alpha channel matched. This exposes quality differences, but cross-kernel
+timings remain default-experience measurements rather than matched-quality
+comparisons.
 
-On the 24-megapixel photo workflow, PureJsImage used 87.3% less peak memory
-than Jimp and 88.0% less than image-js. Timing and memory vary by image,
-operation, machine, and library version, so the full report includes the test
-environment, compatibility results, and reproduction commands.
+On the 24-megapixel photo workflow, PureJsImage used 87.2% less peak memory
+than Jimp and 88.1% less than image-js. Timing, memory, and quality vary by
+image, operation, machine, and library version, so the full report includes the
+test environment, compatibility results, and reproduction commands.
 
 [See the complete benchmark report and methodology →](https://a-r-d.github.io/PureJsImage/performance.html)
 
