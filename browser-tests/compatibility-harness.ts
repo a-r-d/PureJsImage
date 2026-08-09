@@ -543,6 +543,14 @@ const avifAlphaPremultiplied = (): Promise<BrowserWorkflowResult> =>
     '23e32ff582d47da3001ceb4058021e61a7683a8bb0e77abaf03b56ec0426e031',
     'Premultiplied-alpha AVIF',
   )
+const avifQ0Lossless = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'lossless-q0-64x48.avif',
+    64,
+    48,
+    'd49269082c04c18e7c81ef36bed98bbcd34dd0217e7d4042dad22801fbbbd7bf',
+    'Lossless quantizer-context-0 identity-color AVIF',
+  )
 
 const avifGrid = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
@@ -740,6 +748,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifAlphaStraight,
   avifGrid,
   avifQuantizationMatrix,
+  avifQ0Lossless,
   avifMonochrome,
   avifYuv422,
   avifYuv444,

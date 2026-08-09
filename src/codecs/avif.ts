@@ -46,6 +46,12 @@ interface Av1Configuration {
   readonly profile: number
   readonly tier: number
 }
+interface NclxColor {
+  readonly fullRange: boolean
+  readonly matrixCoefficients: number
+  readonly primaries: number
+  readonly transferCharacteristics: number
+}
 
 type Property =
   | { readonly type: 'av1C'; readonly configuration: Av1Configuration }
@@ -55,12 +61,7 @@ type Property =
       readonly colorSpace: string
       readonly colorTransform?: RgbIccTransform
       readonly iccDescription?: string
-      readonly nclx?: {
-        readonly fullRange: boolean
-        readonly matrixCoefficients: number
-        readonly primaries: number
-        readonly transferCharacteristics: number
-      }
+      readonly nclx?: NclxColor
     }
   | { readonly type: 'irot'; readonly angle: number }
   | { readonly type: 'ispe'; readonly width: number; readonly height: number }
@@ -376,6 +377,7 @@ export interface AvifBitstreamInspection {
   readonly codedImages: readonly AvifCodedImageInspection[]
   readonly colorItemIds: readonly number[]
   readonly colorTransform?: RgbIccTransform
+  readonly nclx?: NclxColor
   readonly grid?: AvifGridDescription
   readonly premultipliedAlpha: boolean
   readonly primaryItemId: number
@@ -410,7 +412,9 @@ export const inspectAvifBitstreams = async (
   if (primaryType !== 'av01' && primaryType !== 'grid') {
     throw invalidInput(`Unsupported AVIF primary item type: ${primaryType ?? 'missing'}`)
   }
-  const colorTransform = firstProperty(propertiesFor(meta, primaryItemId), 'colr')?.colorTransform
+  const colorProperty = firstProperty(propertiesFor(meta, primaryItemId), 'colr')
+  const colorTransform = colorProperty?.colorTransform
+  const nclx = colorProperty?.nclx
 
   let colorItemIds: readonly number[]
   let grid: AvifGridDescription | undefined
@@ -491,6 +495,7 @@ export const inspectAvifBitstreams = async (
     ...(colorTransform ? { colorTransform } : {}),
     ...(grid ? { grid } : {}),
     ...(alphaItemId !== undefined ? { alphaItemId } : {}),
+    ...(nclx ? { nclx } : {}),
     codedImages,
   }
 }
@@ -754,7 +759,7 @@ const decodeGrid = (inspection: AvifBitstreamInspection, limits: ImageLimits): U
     } else if (frame.width !== tileWidth || frame.height !== tileHeight) {
       throw invalidInput('AVIF grid tiles have inconsistent dimensions')
     }
-    const tile = av1ToRgba(coded.sequence, frame)
+    const tile = av1ToRgba(coded.sequence, frame, inspection.nclx)
     const column = index % grid.columns
     const row = Math.floor(index / grid.columns)
     const outputX = column * tileWidth
@@ -791,7 +796,7 @@ const createAvifDecoder = async (
     if (frame.width !== metadata.width || frame.height !== metadata.height) {
       throw invalidInput('AVIF display dimensions do not match its AV1 frame')
     }
-    pixels = av1ToRgba(coded.sequence, frame)
+    pixels = av1ToRgba(coded.sequence, frame, inspection.nclx)
     if (inspection.alphaItemId !== undefined) {
       const alpha = inspection.codedImages.find(
         (image) => image.itemId === inspection.alphaItemId && image.role === 'alpha',

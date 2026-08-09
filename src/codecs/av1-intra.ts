@@ -519,20 +519,24 @@ interface IntraEdgeNode {
   readonly vertical4: number
 }
 
-const EDGE_LUMA_TOP_RIGHT = 1
-const EDGE_CHROMA_TOP_RIGHT = 4
-const EDGE_LUMA_BOTTOM_LEFT = 8
-const EDGE_CHROMA_BOTTOM_LEFT = 32
-const EDGE_ALL_TOP_RIGHT = 7
-const EDGE_ALL_BOTTOM_LEFT = 56
+const EDGE_I444_TOP_RIGHT = 1
+const EDGE_I422_TOP_RIGHT = 2
+const EDGE_I420_TOP_RIGHT = 4
+const EDGE_I444_BOTTOM_LEFT = 8
+const EDGE_I422_BOTTOM_LEFT = 16
+const EDGE_I420_BOTTOM_LEFT = 32
+const EDGE_LUMA_TOP_RIGHT = EDGE_I444_TOP_RIGHT
+const EDGE_LUMA_BOTTOM_LEFT = EDGE_I444_BOTTOM_LEFT
+const EDGE_ALL_TOP_RIGHT = EDGE_I444_TOP_RIGHT | EDGE_I422_TOP_RIGHT | EDGE_I420_TOP_RIGHT
+const EDGE_ALL_BOTTOM_LEFT = EDGE_I444_BOTTOM_LEFT | EDGE_I422_BOTTOM_LEFT | EDGE_I420_BOTTOM_LEFT
 
 const createEdgeNode = (size: number, flags: number): IntraEdgeNode => {
   const tipSplit: readonly [number, number, number] =
     size === 8
       ? [
-          flags & EDGE_ALL_TOP_RIGHT,
-          flags | 1,
-          flags & (EDGE_CHROMA_TOP_RIGHT | EDGE_CHROMA_BOTTOM_LEFT | 16),
+          (flags & EDGE_ALL_TOP_RIGHT) | EDGE_I422_BOTTOM_LEFT,
+          flags | EDGE_I444_TOP_RIGHT,
+          flags & (EDGE_I420_TOP_RIGHT | EDGE_I422_BOTTOM_LEFT | EDGE_I420_BOTTOM_LEFT),
         ]
       : [0, 0, 0]
   return {
@@ -540,17 +544,19 @@ const createEdgeNode = (size: number, flags: number): IntraEdgeNode => {
     horizontal: [
       flags | EDGE_ALL_BOTTOM_LEFT,
       size === 8
-        ? flags & (EDGE_ALL_BOTTOM_LEFT | EDGE_CHROMA_TOP_RIGHT)
+        ? flags & (EDGE_ALL_BOTTOM_LEFT | EDGE_I420_TOP_RIGHT)
         : flags & EDGE_ALL_BOTTOM_LEFT,
     ],
     vertical: [
       flags | EDGE_ALL_TOP_RIGHT,
       size === 8
-        ? flags & (EDGE_ALL_TOP_RIGHT | EDGE_CHROMA_BOTTOM_LEFT | 16)
+        ? flags & (EDGE_ALL_TOP_RIGHT | EDGE_I422_BOTTOM_LEFT | EDGE_I420_BOTTOM_LEFT)
         : flags & EDGE_ALL_TOP_RIGHT,
     ],
-    horizontal4: EDGE_ALL_BOTTOM_LEFT | (size === 16 ? flags & EDGE_CHROMA_TOP_RIGHT : 0),
-    vertical4: EDGE_ALL_TOP_RIGHT | (size === 16 ? flags & (EDGE_CHROMA_BOTTOM_LEFT | 16) : 0),
+    horizontal4: EDGE_ALL_BOTTOM_LEFT | (size === 16 ? flags & EDGE_I420_TOP_RIGHT : 0),
+    vertical4:
+      EDGE_ALL_TOP_RIGHT |
+      (size === 16 ? flags & (EDGE_I422_BOTTOM_LEFT | EDGE_I420_BOTTOM_LEFT) : 0),
     tipSplit,
     split: [],
   }
@@ -585,10 +591,6 @@ const createModeNode = (
 const intraEdgeRoots = new Map([
   [64, createModeNode(64, true, false)],
   [128, createModeNode(128, true, false)],
-])
-const intraEdgeRightRoots = new Map([
-  [64, createModeNode(64, false, false)],
-  [128, createModeNode(128, false, false)],
 ])
 
 interface RestorationReference {
@@ -647,6 +649,8 @@ class RestrictedIntraTileDecoder {
   readonly #chromaMiColumns: number
   readonly #chromaShiftX: number
   readonly #chromaShiftY: number
+  readonly #chromaTopRightEdge: number
+  readonly #chromaBottomLeftEdge: number
   readonly #blockWidths: Uint8Array
   readonly #blockHeights: Uint8Array
   readonly #skips: Uint8Array
@@ -708,6 +712,8 @@ class RestrictedIntraTileDecoder {
     this.#miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
     this.#chromaShiftX = sequence.chromaSubsampling === '444' ? 0 : 1
     this.#chromaShiftY = sequence.chromaSubsampling === '420' ? 1 : 0
+    this.#chromaTopRightEdge = 1 << (this.#chromaShiftX + this.#chromaShiftY)
+    this.#chromaBottomLeftEdge = this.#chromaTopRightEdge << 3
     this.#chromaMiColumns = sequence.monochrome ? 0 : this.#miColumns >> this.#chromaShiftX
     this.#blockWidths = new Uint8Array(this.#miColumns * this.#miRows)
     this.#blockHeights = new Uint8Array(this.#miColumns * this.#miRows)
@@ -778,8 +784,7 @@ class RestrictedIntraTileDecoder {
     const superblockMi = superblockPixels >> 2
     for (let row = 0; row < this.#miRows; row += superblockMi) {
       for (let column = 0; column < this.#miColumns; column += superblockMi) {
-        const roots = column + superblockMi < this.#miColumns ? intraEdgeRoots : intraEdgeRightRoots
-        const edgeRoot = roots.get(superblockPixels)
+        const edgeRoot = intraEdgeRoots.get(superblockPixels)
         if (!edgeRoot) throw invalidInput('AV1 intra edge root is missing')
         this.#readRestorationForSuperblock(row, column)
         this.#decodePartition(row, column, superblockPixels, edgeRoot)
@@ -1046,7 +1051,10 @@ class RestrictedIntraTileDecoder {
     let cflAlphaU = 0
     let cflAlphaV = 0
     if (hasChroma) {
-      const cflAllowed = Math.max(width, height) <= 32
+      const cflAllowed = this.#frame.header.codedLossless
+        ? Math.max(4, width >> this.#chromaShiftX) === 4 &&
+          Math.max(4, height >> this.#chromaShiftY) === 4
+        : Math.max(width, height) <= 32
       const uvModeKey = `${Number(cflAllowed)}:${yMode}`
       let uvModeCdf = this.#uvModeCdfs.get(uvModeKey)
       if (!uvModeCdf) {
@@ -1139,10 +1147,12 @@ class RestrictedIntraTileDecoder {
       chromaHeight,
       (((codedHeight >> 2) + chromaRoundY) >> this.#chromaShiftY) * 4,
     )
-    const chromaTransform: TransformShape = {
-      width: Math.min(chromaWidth, 32) as TransformDimension,
-      height: Math.min(chromaHeight, 32) as TransformDimension,
-    }
+    const chromaTransform: TransformShape = this.#frame.header.codedLossless
+      ? { width: 4, height: 4 }
+      : {
+          width: Math.min(chromaWidth, 32) as TransformDimension,
+          height: Math.min(chromaHeight, 32) as TransformDimension,
+        }
     for (let chunkY = 0; chunkY < codedHeight; chunkY += 64) {
       for (let chunkX = 0; chunkX < codedWidth; chunkX += 64) {
         const chunkWidth = Math.min(64, codedWidth - chunkX)
@@ -1193,8 +1203,8 @@ class RestrictedIntraTileDecoder {
               codedChromaHeight,
               chromaChunkWidth,
               chromaChunkHeight,
-              (intraEdgeFlags & EDGE_CHROMA_TOP_RIGHT) !== 0,
-              (intraEdgeFlags & EDGE_CHROMA_BOTTOM_LEFT) !== 0,
+              (intraEdgeFlags & this.#chromaTopRightEdge) !== 0,
+              (intraEdgeFlags & this.#chromaBottomLeftEdge) !== 0,
             ),
             undefined,
             cflAlphaU,
@@ -1219,8 +1229,8 @@ class RestrictedIntraTileDecoder {
               codedChromaHeight,
               chromaChunkWidth,
               chromaChunkHeight,
-              (intraEdgeFlags & EDGE_CHROMA_TOP_RIGHT) !== 0,
-              (intraEdgeFlags & EDGE_CHROMA_BOTTOM_LEFT) !== 0,
+              (intraEdgeFlags & this.#chromaTopRightEdge) !== 0,
+              (intraEdgeFlags & this.#chromaBottomLeftEdge) !== 0,
             ),
             undefined,
             cflAlphaV,
@@ -1382,6 +1392,7 @@ class RestrictedIntraTileDecoder {
           x > 0 ||
           ((chunkEdgeFlags & EDGE_LUMA_BOTTOM_LEFT) === 0 && y + transform.height >= height)
         )
+
         this.#predictIntra(
           planeIndex,
           plane,
@@ -1491,9 +1502,12 @@ class RestrictedIntraTileDecoder {
           const intraDirection =
             filterMode === undefined ? mode : (filterModeToDirection[filterMode] ?? mode)
           const transformCategory = Math.min(transform.width, transform.height)
-          let txType: number | undefined =
-            Math.max(transform.width, transform.height) >= 32 ? 0 : modeToTransform[mode]
-          if (planeIndex === 0) {
+          let txType: number | undefined = this.#frame.header.codedLossless
+            ? 0
+            : Math.max(transform.width, transform.height) >= 32
+              ? 0
+              : modeToTransform[mode]
+          if (planeIndex === 0 && !this.#frame.header.codedLossless) {
             if (Math.max(transform.width, transform.height) >= 32) txType = 0
             else {
               const txTypeKey = `${transformCategory}:${intraDirection}`
@@ -2030,14 +2044,22 @@ const sampleChroma = (
   const bottomSample = bottomLeft * (4 - rightWeight) + bottomRight * rightWeight
   return (topSample * (4 - bottomWeight) + bottomSample * bottomWeight) / 16
 }
+interface Av1ColorConversion {
+  readonly fullRange: boolean
+  readonly matrixCoefficients: number
+}
 
-export const av1ToRgba = (sequence: Av1SequenceHeader, frame: Av1DecodedFrame): Uint8Array => {
+export const av1ToRgba = (
+  sequence: Av1SequenceHeader,
+  frame: Av1DecodedFrame,
+  color: Av1ColorConversion = sequence,
+): Uint8Array => {
   const output = new Uint8Array(frame.width * frame.height * 4)
   if (sequence.monochrome) {
     for (let y = 0; y < frame.height; y += 1) {
       for (let x = 0; x < frame.width; x += 1) {
         const luma = frame.y[y * frame.yStride + x] ?? 0
-        const sample = sequence.fullRange ? luma : clampByte(((luma - 16) * 255) / 219)
+        const sample = color.fullRange ? luma : clampByte(((luma - 16) * 255) / 219)
         const target = (y * frame.width + x) * 4
         output[target] = sample
         output[target + 1] = sample
@@ -2047,10 +2069,27 @@ export const av1ToRgba = (sequence: Av1SequenceHeader, frame: Av1DecodedFrame): 
     }
     return output
   }
+  if (color.matrixCoefficients === 0) {
+    if (sequence.chromaSubsampling !== '444' || !color.fullRange) {
+      throw invalidInput('AV1 identity color transform requires full-range YUV 4:4:4')
+    }
+    for (let y = 0; y < frame.height; y += 1) {
+      for (let x = 0; x < frame.width; x += 1) {
+        const lumaOffset = y * frame.yStride + x
+        const chromaOffset = y * frame.chromaStride + x
+        const target = (y * frame.width + x) * 4
+        output[target] = frame.v[chromaOffset] ?? 0
+        output[target + 1] = frame.y[lumaOffset] ?? 0
+        output[target + 2] = frame.u[chromaOffset] ?? 0
+        output[target + 3] = 255
+      }
+    }
+    return output
+  }
   const redWeight =
-    sequence.matrixCoefficients === 1 ? 0.2126 : sequence.matrixCoefficients === 9 ? 0.2627 : 0.299
+    color.matrixCoefficients === 1 ? 0.2126 : color.matrixCoefficients === 9 ? 0.2627 : 0.299
   const blueWeight =
-    sequence.matrixCoefficients === 1 ? 0.0722 : sequence.matrixCoefficients === 9 ? 0.0593 : 0.114
+    color.matrixCoefficients === 1 ? 0.0722 : color.matrixCoefficients === 9 ? 0.0593 : 0.114
   const greenWeight = 1 - redWeight - blueWeight
   const redChroma = 2 * (1 - redWeight)
   const blueChroma = 2 * (1 - blueWeight)
@@ -2063,9 +2102,9 @@ export const av1ToRgba = (sequence: Av1SequenceHeader, frame: Av1DecodedFrame): 
         const chromaOffset = y * frame.chromaStride + x
         const cb = (frame.u[chromaOffset] ?? 128) - 128
         const cr = (frame.v[chromaOffset] ?? 128) - 128
-        const adjustedLuma = sequence.fullRange ? luma / 255 : (luma - 16) / 219
-        const adjustedCb = cb / (sequence.fullRange ? 255 : 224)
-        const adjustedCr = cr / (sequence.fullRange ? 255 : 224)
+        const adjustedLuma = color.fullRange ? luma / 255 : (luma - 16) / 219
+        const adjustedCb = cb / (color.fullRange ? 255 : 224)
+        const adjustedCr = cr / (color.fullRange ? 255 : 224)
         const target = (y * frame.width + x) * 4
         output[target] = clampByte((adjustedLuma + redChroma * adjustedCr) * 255)
         output[target + 1] = clampByte(
@@ -2104,9 +2143,9 @@ export const av1ToRgba = (sequence: Av1SequenceHeader, frame: Av1DecodedFrame): 
           chromaShiftX,
           chromaShiftY,
         ) - 128
-      const adjustedLuma = sequence.fullRange ? luma / 255 : (luma - 16) / 219
-      const adjustedCb = cb / (sequence.fullRange ? 255 : 224)
-      const adjustedCr = cr / (sequence.fullRange ? 255 : 224)
+      const adjustedLuma = color.fullRange ? luma / 255 : (luma - 16) / 219
+      const adjustedCb = cb / (color.fullRange ? 255 : 224)
+      const adjustedCr = cr / (color.fullRange ? 255 : 224)
       const target = (y * frame.width + x) * 4
       output[target] = clampByte((adjustedLuma + redChroma * adjustedCr) * 255)
       output[target + 1] = clampByte(

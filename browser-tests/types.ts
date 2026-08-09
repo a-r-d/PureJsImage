@@ -10,6 +10,7 @@ export interface BrowserCompatibilityHarness {
   avifGrid(): Promise<BrowserWorkflowResult>
   avifMonochrome(): Promise<BrowserWorkflowResult>
   avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
+  avifQ0Lossless(): Promise<BrowserWorkflowResult>
   avifYuv422(): Promise<BrowserWorkflowResult>
   avifYuv444(): Promise<BrowserWorkflowResult>
   failureCleanup(): Promise<BrowserWorkflowResult>

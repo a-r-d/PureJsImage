@@ -121,8 +121,8 @@ coverage.
 - [x] Square and rectangular transform traversal through 64x64
 - [x] DCT, ADST, flipped-ADST, and identity inverse-transform combinations
   needed by the permanent common-photo corpus
-- [x] Nonzero coefficient reconstruction in quantizer contexts 1, 2, and 3
-- [x] All-zero coefficient blocks in the supported frame path
+- [x] Lossless 4x4 Walsh-Hadamard inverse transforms
+- [x] Nonzero coefficient reconstruction in quantizer contexts 0, 1, 2, and 3
 - [x] 8-bit dequantization and inverse transforms
 - [x] Quantization-matrix reconstruction for every supported two-dimensional
   transform size, including flat level 15 matrices
@@ -132,7 +132,8 @@ coverage.
 - [x] Odd-dimension edge clipping without decoding transforms outside the coded
   frame
 - [x] Monochrome replication, direct YUV 4:4:4 sampling, horizontal YUV 4:2:2
-  interpolation, and bilinear YUV 4:2:0 to RGBA conversion
+  interpolation, bilinear YUV 4:2:0 sampling, and container-signaled NCLX
+  conversion to RGBA, including the full-range identity color transform
 - [x] Straight and premultiplied alpha auxiliary composition using full-range
   8-bit monochrome alpha, including normalization to straight RGBA output
 - [x] Opaque image grids with consistent independently coded tile dimensions
@@ -323,6 +324,8 @@ so Kodak is not classified as an exact post-filter fixture.
   quantization-matrix fixtures after exact dav1d/libaom oracle agreement
 - [x] Hold quantization-matrix output to maximum YUV sample error 3 and at
   least 55 dB PSNR, plus displayed RGB PSNR above 39 dB against Sharp/libaom
+- [x] Match Sharp/libavif RGB exactly for checksum-pinned lossy and lossless
+  quantizer-context-0 YUV 4:4:4 fixtures, including lossless identity color
 - [x] Keep delta loop-filter syntax explicitly unsupported in the restricted
   quantization-matrix path
 - [ ] Resolve Kodak's documented one-sample CDEF discrepancy before requiring

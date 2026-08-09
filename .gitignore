@@ -171,6 +171,8 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/post-filter-wiener-sgr-66x70.avif
 !benchmark/corpus/files/avif/sharp-qmatrix-*.avif
 !benchmark/corpus/files/avif/alpha-*.avif
+!benchmark/corpus/files/avif/lossless-q0-64x48.avif
+!benchmark/corpus/files/avif/lossy-q0-64x48.avif
 !benchmark/corpus/files/avif/sofa_grid1x5_420.avif
 !benchmark/corpus/files/jp2/
 benchmark/corpus/files/jp2/*

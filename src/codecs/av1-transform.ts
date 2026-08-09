@@ -360,6 +360,20 @@ const inverseIdentity = (input: ArrayLike<number>): Int32Array => {
   }
   return output
 }
+const inverseWht4 = (input: ArrayLike<number>, shift: number): Int32Array => {
+  let a = (input[0] ?? 0) >> shift
+  let c = (input[1] ?? 0) >> shift
+  let d = (input[2] ?? 0) >> shift
+  let b = (input[3] ?? 0) >> shift
+  a += c
+  d -= b
+  const e = (a - d) >> 1
+  b = e - b
+  c = e - c
+  a -= b
+  d += c
+  return Int32Array.of(a, b, c, d)
+}
 
 const rowDctMask = (1 << 0) | (1 << 1) | (1 << 4) | (1 << 11)
 const rowAdstMask =
@@ -437,6 +451,32 @@ export const inverseTransform = (
     header,
     quantizer,
   )
+  if (header.codedLossless) {
+    if (width !== 4 || height !== 4) {
+      throw invalidInput(
+        `Lossless AV1 transform dimensions must be 4x4, received ${width}x${height}`,
+      )
+    }
+    const intermediate = new Int32Array(16)
+    for (let row = 0; row < 4; row += 1) {
+      const transformed = inverseWht4(dequantized.subarray(row * 4, row * 4 + 4), 2)
+      for (let column = 0; column < 4; column += 1) {
+        intermediate[row * 4 + column] = clampTransform(transformed[column] ?? 0)
+      }
+    }
+    const residual = new Int32Array(16)
+    const columnInput = new Int32Array(4)
+    for (let column = 0; column < 4; column += 1) {
+      for (let row = 0; row < 4; row += 1) {
+        columnInput[row] = intermediate[row * 4 + column] ?? 0
+      }
+      const transformed = inverseWht4(columnInput, 0)
+      for (let row = 0; row < 4; row += 1) {
+        residual[row * 4 + column] = transformed[row] ?? 0
+      }
+    }
+    return residual
+  }
   const intermediate = new Int32Array(width * height)
   const rowUsesDct = ((rowDctMask >>> transformType) & 1) !== 0
   const rowUsesAdst = ((rowAdstMask >>> transformType) & 1) !== 0

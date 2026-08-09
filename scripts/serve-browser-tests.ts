@@ -316,6 +316,10 @@ await copyFile(
   resolve(fixtureDirectory, 'alpha-premultiplied-64x48.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/lossless-q0-64x48.avif',
+  resolve(fixtureDirectory, 'lossless-q0-64x48.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/sofa_grid1x5_420.avif',
   resolve(fixtureDirectory, 'sofa_grid1x5_420.avif'),
 )

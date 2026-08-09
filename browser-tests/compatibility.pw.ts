@@ -100,6 +100,12 @@ test('decodes and unpremultiplies premultiplied-alpha AVIF items', async ({ page
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('pinned portable RGBA output')
 })
+test('decodes lossless quantizer-context-0 identity-color AVIF', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifQ0Lossless())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
 
 test('decodes and composes a cropped-edge AVIF image grid', async ({ page }) => {
   await harness(page)

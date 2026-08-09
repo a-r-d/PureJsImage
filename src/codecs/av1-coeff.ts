@@ -1,5 +1,6 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { Av1SymbolDecoder } from './av1-symbol.ts'
+import { coefficientQ0Defaults } from './av1-coeff-q0.ts'
 import { coefficientQ1Defaults, coefficientQ3Defaults } from './av1-coeff-q1-q3.ts'
 import { coefficientQ2Defaults } from './av1-coeff-q2.ts'
 import { av1LargeScans } from './av1-scans.ts'
@@ -170,11 +171,13 @@ export class Av1CoefficientDecoder {
     this.#symbols = symbols
     this.#quantizerContext = quantizerContext
     const defaults =
-      quantizerContext === 1
-        ? coefficientQ1Defaults
-        : quantizerContext === 2
-          ? coefficientQ2Defaults
-          : coefficientQ3Defaults
+      quantizerContext === 0
+        ? coefficientQ0Defaults
+        : quantizerContext === 1
+          ? coefficientQ1Defaults
+          : quantizerContext === 2
+            ? coefficientQ2Defaults
+            : coefficientQ3Defaults
     this.#eobPoint4x4 = defaults.eob4.map((plane) => plane.map(makeCdf))
     this.#eobPoint4x8 = defaults.eob4x8.map((plane) => plane.map(makeCdf))
     this.#eobPoint8x8 = defaults.eob8.map((plane) => plane.map(makeCdf))
@@ -210,7 +213,7 @@ export class Av1CoefficientDecoder {
     transformType: number,
     dcSignContext = 0,
   ): Av1CoefficientBlock {
-    if (this.#quantizerContext < 1 || this.#quantizerContext > 3) {
+    if (this.#quantizerContext < 0 || this.#quantizerContext > 3) {
       throw unsupportedOperation(
         `AV1 nonzero coefficients for quantizer context ${this.#quantizerContext}`,
       )

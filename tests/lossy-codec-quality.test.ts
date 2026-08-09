@@ -12,6 +12,11 @@ import {
   avifQmatrixFixtureDirectory,
   avifQmatrixFixtures,
 } from '../benchmark/avif/qmatrix-fixtures.ts'
+import {
+  avifQ0FixtureDirectory,
+  avifQ0LosslessFixture,
+  avifQ0LossyFixture,
+} from '../benchmark/avif/q0-fixtures.ts'
 import { av1ObuType } from '../src/codecs/av1.ts'
 import { parseAv1Frame } from '../src/codecs/av1-frame.ts'
 import { decodeRestrictedAv1Intra, type Av1DecodedFrame } from '../src/codecs/av1-intra.ts'
@@ -165,6 +170,23 @@ describe('lossy codec oracle quality', () => {
       const decoded = pngRgb(decodedPng)
 
       expect(psnr(oracle, decoded)).toBeGreaterThan(39)
+    },
+  )
+  it.each([avifQ0LossyFixture, avifQ0LosslessFixture])(
+    'matches the independent libavif oracle for quantizer-context-0 fixture $file',
+    async (fixture) => {
+      const input = await readFile(join(avifQ0FixtureDirectory, fixture.file))
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+      const coded = inspection.codedImages[0]
+      const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+      if (!coded || !frameObu) throw new Error(`${fixture.file} has no complete AV1 frame`)
+      const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+      const oracle = Uint8Array.from(await sharp(input).removeAlpha().raw().toBuffer())
+      const decoded = pngRgb(await (await Image.open(input)).png().toBuffer())
+
+      expect(frame.header.baseQuantizer).toBe(fixture.baseQuantizer)
+      expect(frame.header.baseQuantizer).toBeLessThanOrEqual(20)
+      expect(decoded).toEqual(oracle)
     },
   )
 

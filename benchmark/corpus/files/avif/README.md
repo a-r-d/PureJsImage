@@ -42,6 +42,16 @@ Run `npm run fixtures:avif:alpha:prepare` to regenerate them from the
 deterministic RGBA source with one encoder worker and reject byte-level drift.
 The encoded and decoded RGBA checksums are pinned in
 `benchmark/avif/alpha-fixtures.ts`.
+The `lossy-q0-64x48.avif` and `lossless-q0-64x48.avif` fixtures are deterministic
+full-range YUV 4:4:4 images encoded with libavif 1.3.0 and libaom 3.12.1. They
+cover base-quantizer context 0, lossless 4x4 Walsh-Hadamard transforms,
+partition-edge chroma prediction, and container-signaled matrix conversion,
+including the identity transform. Run `npm run fixtures:avif:q0:prepare` to
+regenerate them from the deterministic RGB source and reject byte-level drift.
+The encoded and decoded RGBA checksums are pinned in
+`benchmark/avif/q0-fixtures.ts`; lossless decoded RGB must match the source
+exactly.
+
 
 `sofa_grid1x5_420.avif` comes from the pinned libavif corpus revision documented
 in `benchmark/avif/corpus.ts`. It covers a 1x5 image grid whose final tile and

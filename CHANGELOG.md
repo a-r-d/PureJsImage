@@ -47,6 +47,10 @@ All notable changes to PureJsImage are documented in this file.
   full-range 8-bit monochrome alpha, plus opaque image-grid composition with cropped
   edge tiles; deterministic libavif fixtures match Sharp exactly for alpha and exceed
   54 dB RGBA PSNR for the pinned 1x5 grid.
+- Added AVIF quantizer-context-0 coefficient decoding, coded-lossless 4x4
+  Walsh-Hadamard reconstruction, and container-signaled NCLX conversion including
+  full-range identity color; deterministic lossy and lossless libavif fixtures
+  match Sharp/libavif RGB exactly.
 
 ### Changed
 

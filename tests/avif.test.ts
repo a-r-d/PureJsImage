@@ -5,6 +5,11 @@ import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
 import { avifAlphaFixtures } from '../benchmark/avif/alpha-fixtures.ts'
+import {
+  avifQ0FixtureDirectory,
+  avifQ0LosslessFixture,
+  avifQ0LossyFixture,
+} from '../benchmark/avif/q0-fixtures.ts'
 import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
 import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
 import { MemorySource } from '../src/source.ts'
@@ -356,6 +361,27 @@ describe('AVIF restricted pixel decode', () => {
       103, 255, 255, 255, 114, 255, 255, 122, 129, 121, 255, 210, 142, 220, 255, 255, 114, 255, 255,
       255, 125, 255, 255,
     ])
+  })
+  it.each([
+    {
+      ...avifQ0LossyFixture,
+      label: 'lossy quantizer-context-0 coefficients',
+      nclx: { fullRange: true, matrixCoefficients: 6 },
+    },
+    {
+      ...avifQ0LosslessFixture,
+      label: 'lossless 4x4 Walsh-Hadamard and identity color',
+      nclx: { fullRange: true, matrixCoefficients: 0 },
+    },
+  ])('decodes $label exactly against the pinned libavif oracle', async (fixture) => {
+    const input = await readFile(join(avifQ0FixtureDirectory, fixture.file))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(inspection.nclx).toMatchObject(fixture.nclx)
+    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
   })
 
   it.each([
