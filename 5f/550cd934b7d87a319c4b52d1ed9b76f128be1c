@@ -1,0 +1,56 @@
+.gitignore
+  h_9f4a25732fa0c1 174-175
+CHANGELOG.md
+  h_9f4a25732fa0c1 50-53
+avif-codec-support.md
+  h_9f4a25732fa0c1 124-125,135-136,327-328
+benchmark/avif/prepare-q0-fixtures.ts
+  h_9f4a25732fa0c1 1-59
+benchmark/avif/q0-fixtures.ts
+  h_9f4a25732fa0c1 1-27
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 45-54
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 546-553,751
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 103-108
+browser-tests/types.ts
+  h_9f4a25732fa0c1 13
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1649,1655,1792-1793,1803-1804,1995-1996
+docs/capabilities.json
+  h_9f4a25732fa0c1 3149,3162,3464,3468,3492,3894-3897
+docs/codecs.html
+  h_9f4a25732fa0c1 60
+package.json
+  h_9f4a25732fa0c1 156
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 318-321
+src/codecs/av1-coeff-q0.ts
+  h_9f4a25732fa0c1 1-942
+src/codecs/av1-coeff.ts
+  h_9f4a25732fa0c1 3,174-180,216
+src/codecs/av1-intra.ts
+  h_9f4a25732fa0c1 522-531,537-539,547,553,556-559,652-653,715-716,787,1054-1057,1150-1155,1206-1207,1232-1233,1395,1505-1510,2047-2050,2052-2056,2062,2072-2088,2090,2092,2105-2107,2146-2148
+src/codecs/av1-transform.ts
+  h_9f4a25732fa0c1 363-376,454-479
+src/codecs/avif.ts
+  h_9f4a25732fa0c1 49-54,64,380,415-417,498,762,799
+tests/avif.test.ts
+  h_9f4a25732fa0c1 8-12,365-385
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 131
+tests/lossy-codec-quality.test.ts
+  h_9f4a25732fa0c1 15-19,175-191
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "5f550cd934b7d87a319c4b52d1ed9b76f128be1c",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
