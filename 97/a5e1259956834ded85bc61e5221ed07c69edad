@@ -1,0 +1,72 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 12-14
+benchmark/jpeg/encode-probe.ts
+  h_9f4a25732fa0c1 21-25,27,199-200
+benchmark/jpeg/run-wasm-decoder.ts
+  h_9f4a25732fa0c1 11,37,80,100-101,135-140,143,155-156,160-161
+benchmark/jpeg/run-wasm-encoder.ts
+  h_9f4a25732fa0c1 1-202
+benchmark/jpeg/wasm-decoder-worker.ts
+  h_9f4a25732fa0c1 6,14-18,26-65,69
+benchmark/jpeg/wasm-encoder-worker.ts
+  h_9f4a25732fa0c1 1-188
+benchmark/results/jpeg-wasm-decoder-simd-2026-08-09.json
+  h_9f4a25732fa0c1 1-57
+benchmark/results/jpeg-wasm-decoder-simd-2026-08-09.md
+  h_9f4a25732fa0c1 1-57
+benchmark/results/jpeg-wasm-encoder-2026-08-09.json
+  h_9f4a25732fa0c1 1-1156
+benchmark/results/jpeg-wasm-encoder-2026-08-09.md
+  h_9f4a25732fa0c1 1-63
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 3,16,24-29,133-198,475
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 36-43
+browser-tests/types.ts
+  h_9f4a25732fa0c1 13
+docs/jpeg-wasm-acceleration.md
+  h_9f4a25732fa0c1 71-72,74-76,86,88,90,92,94,96,98,100,107-108,110,112,114,117,127-128,130,132,134,136,150,155-160,164,170-192,202,204
+package.json
+  h_9f4a25732fa0c1 183
+scripts/build-docs-site.ts
+  h_9f4a25732fa0c1 11-13,42-44,53-63,66
+scripts/build-wasm-jpeg.ts
+  h_9f4a25732fa0c1 4-13,16,20-31,33-34,38-56
+scripts/copy-wasm-artifacts.ts
+  h_9f4a25732fa0c1 6-14
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 246-257,261-263
+src/accelerator-entries/wasm-jpeg-browser.ts
+  h_9f4a25732fa0c1 3,7-10,12-13,23-32
+src/accelerator-entries/wasm-jpeg-node.ts
+  h_9f4a25732fa0c1 5,9-12,14-15,23-32
+src/accelerators/wasm/jpeg.ts
+  h_9f4a25732fa0c1 2,4-5,10,19-20,24-25,32-35,39-44,151,162-165,421-428,430-769,776-779,784-790,792-814,817-846,857-861
+src/codecs/jpeg.ts
+  h_9f4a25732fa0c1 5,8,16,239,241,252,299-304,308-312,316,325,344-355,550,564-565
+tests/wasm-jpeg.test.ts
+  h_9f4a25732fa0c1 8-11,13-14,18-29,39-42,84-146,187-201,323-425,433-438
+wasm/jpeg-decoder/Cargo.toml
+  h_9f4a25732fa0c1 10-13
+wasm/jpeg-decoder/src/lib.rs
+  h_9f4a25732fa0c1 230-233,464-585,610-615,617-622,631,798-935,956-961
+wasm/jpeg-encoder/.cargo/config.toml
+  h_9f4a25732fa0c1 1-5
+wasm/jpeg-encoder/Cargo.lock
+  h_9f4a25732fa0c1 1-7
+wasm/jpeg-encoder/Cargo.toml
+  h_9f4a25732fa0c1 1-20
+wasm/jpeg-encoder/src/lib.rs
+  h_9f4a25732fa0c1 1-1202
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "97a5e1259956834ded85bc61e5221ed07c69edad",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
