@@ -51,7 +51,9 @@ npm install purejsimage
 
 PureJsImage requires Node.js 22 or newer. Browser applications use the
 `purejsimage/browser` entry. Installing it adds no runtime dependencies, native
-addons, external programs, or WebAssembly modules.
+addons, or external programs. The optional JPEG accelerator is included as a
+separate WebAssembly entry and is never loaded by the root, browser, or codec
+imports.
 
 [Read the installation and browser guide →](https://a-r-d.github.io/PureJsImage/guides.html)
 
@@ -63,8 +65,8 @@ and Sharp imports include the additional codecs shown.
 
 | Import | Version | Codecs included | Minified JS | gzip | Brotli |
 | --- | --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | **0.7.0** | JPEG, PNG | 121.4 KiB | 39.7 KiB | 33.5 KiB |
-| PureJsImage all codecs | 0.7.0 | 10 codecs | 565.5 KiB | 210.7 KiB | 175.9 KiB |
+| **PureJsImage matched** | **0.7.0** | JPEG, PNG | 122.0 KiB | 39.9 KiB | 33.7 KiB |
+| PureJsImage all codecs | 0.7.0 | 10 codecs | 566.1 KiB | 210.9 KiB | 176.1 KiB |
 | Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
 | image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
 | jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
@@ -104,6 +106,27 @@ await image
 
 In a browser, import from `purejsimage/browser` and use `toBlob()` or
 `toUint8Array()` for output.
+
+### Optional JPEG acceleration
+
+The first Rust/WebAssembly provider accelerates common full-image baseline JPEG
+decode in Node and modern browsers. Import and register it explicitly:
+
+```ts
+import { createImageLibrary } from 'purejsimage'
+import { wasmJpegAccelerator } from 'purejsimage/accelerators/wasm/jpeg'
+import { allCodecs } from 'purejsimage/codecs/all'
+
+const images = createImageLibrary({
+  codecs: allCodecs,
+  accelerators: [wasmJpegAccelerator],
+})
+```
+
+The module is lazy and reused across warm operations. It fuses entropy decode,
+IDCT, chroma upsampling, and RGB conversion while yielding bounded MCU rows.
+Crops, scaled decode, progressive or ICC-transformed input, small work, and
+unavailable modules stay on the TypeScript path. JPEG encoding is unchanged.
 
 Browser behavior is tested in Chromium, Firefox, and WebKit. See the
 [browser compatibility report](browser-support.md) for exact versions,
@@ -167,7 +190,7 @@ environment, compatibility results, and reproduction commands.
 ## Why PureJsImage?
 
 - Lower peak memory for common server and Lambda image workflows.
-- No runtime dependencies, native addons, or external image programs.
+- No runtime dependencies, required WebAssembly, native addons, or external image programs.
 - The same processing API in Node.js and modern browsers.
 - Unsupported files and operations return clear errors instead of broken
   output.

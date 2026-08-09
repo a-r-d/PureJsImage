@@ -1,4 +1,4 @@
-import type { ImageCodec } from './codec.ts'
+import type { ImageLibraryRegistration } from './accelerator.ts'
 import {
   createImageLibraryForPlatform,
   type Image as RuntimeImage,
@@ -7,6 +7,12 @@ import {
 import { browserPlatform } from './browser-platform.ts'
 import type { ImageInput } from './source.ts'
 
+export type {
+  ImageAcceleratorKind,
+  ImageCodecAccelerator,
+  ImageLibraryConfiguration,
+  ImageLibraryRegistration,
+} from './accelerator.ts'
 export type {
   BuiltInFormat,
   ChromaSubsampling,
@@ -51,5 +57,5 @@ export { Uint8ArraySink } from './sink.ts'
 export type { ImageInput, ImageSource } from './source.ts'
 export { BlobSource, MemorySource } from './source.ts'
 
-export const createImageLibrary = (codecs: Iterable<ImageCodec>): ImageLibrary =>
-  createImageLibraryForPlatform(codecs, browserPlatform)
+export const createImageLibrary = (registration: ImageLibraryRegistration): ImageLibrary =>
+  createImageLibraryForPlatform(registration, browserPlatform)

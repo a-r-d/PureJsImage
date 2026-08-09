@@ -52,6 +52,13 @@
       "import": "./dist/browser.js",
       "default": "./dist/browser.js"
     },
+    "./accelerators/wasm/jpeg": {
+      "browser": "./dist/accelerator-entries/wasm-jpeg-browser.js",
+      "types": "./dist/accelerator-entries/wasm-jpeg-node.d.ts",
+      "node": "./dist/accelerator-entries/wasm-jpeg-node.js",
+      "import": "./dist/accelerator-entries/wasm-jpeg-node.js",
+      "default": "./dist/accelerator-entries/wasm-jpeg-node.js"
+    },
     "./codecs/all": {
       "types": "./dist/codec-entries/all.d.ts",
       "import": "./dist/codec-entries/all.js",
@@ -116,10 +123,11 @@
   },
   "scripts": {
     "check": "npm run capabilities:check && npm run typecheck && npm run size && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
-    "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json",
+    "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json && node scripts/copy-wasm-artifacts.ts",
     "browser:check": "tsc -p tsconfig.browser.json && node scripts/check-browser-build.ts",
     "browser:test": "playwright test",
     "browser:bench": "PUREJSIMAGE_WRITE_BROWSER_BENCHMARK=1 playwright test browser-tests/benchmark.pw.ts --project=chromium",
+    "wasm:build:jpeg": "node scripts/build-wasm-jpeg.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format --write .",
@@ -170,6 +178,7 @@
     "bench:jpeg:scaled-idct": "node benchmark/jpeg/run-scaled-idct.ts",
     "bench:jpeg:region-rss": "node benchmark/jpeg/run-region-rss.ts",
     "bench:jpeg:upsampling": "node benchmark/jpeg/run-upsampling.ts",
+    "bench:jpeg:wasm": "npm run build && node benchmark/jpeg/run-wasm-decoder.ts",
     "bench:jpeg2000:rss": "node benchmark/jpeg2000/run-rss.ts"
   },
   "overrides": {

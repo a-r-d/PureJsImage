@@ -6,6 +6,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added an explicit optional first-party Rust/WASM baseline JPEG decoder that fuses entropy decode,
+  IDCT, chroma upsampling, and RGB conversion while preserving bounded MCU-row output, exact
+  TypeScript parity, lazy warm reuse, and clean fallback for unsupported or unhelpful workloads.
 - Added first-party refinement-based progressive JPEG encoding for grayscale and 4:2:0, 4:2:2,
   and 4:4:4 YCbCr output, with compact coefficient limits, per-scan restart markers, independent
   pixel validation, browser coverage, and isolated runtime/RSS/size benchmarks.

@@ -153,12 +153,15 @@ describe('package contract', () => {
     const runtimeModules = [...visited].map((path) => relative(sourceRoot, path))
     expect(runtimeModules.some((path) => path.startsWith(`codecs/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`codec-entries/`))).toBe(false)
+    expect(runtimeModules.some((path) => path.startsWith(`accelerators/`))).toBe(false)
+    expect(runtimeModules.some((path) => path.startsWith(`accelerator-entries/`))).toBe(false)
   })
 
   it('publishes browser and codec capabilities through explicit package subpaths', () => {
     expect(Object.keys(packageJson.exports)).toEqual([
       '.',
       './browser',
+      './accelerators/wasm/jpeg',
       './codecs/all',
       './codecs/avif',
       './codecs/bmp',

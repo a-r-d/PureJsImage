@@ -21,6 +21,13 @@ test('decodes JPEG metadata and runs crop, resize, rotation, and JPEG encoding',
   expect(result.detail).toContain('100x120')
 })
 
+test('runs the opt-in Rust/WASM JPEG accelerator in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.wasmJpeg())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('matched the TypeScript reference')
+})
+
 test('encodes and decodes a refinement-based progressive JPEG', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.progressiveJpeg())

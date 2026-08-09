@@ -15,5 +15,9 @@
     "types": [],
     "verbatimModuleSyntax": true
   },
-  "files": ["src/browser.ts", "src/codec-entries/all.ts"]
+  "files": [
+    "src/browser.ts",
+    "src/codec-entries/all.ts",
+    "src/accelerator-entries/wasm-jpeg-browser.ts"
+  ]
 }

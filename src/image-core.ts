@@ -1,3 +1,4 @@
+import { type ImageLibraryRegistration, resolveCodecRegistration } from './accelerator.ts'
 import { CodecRegistry, type ImageCodec, type ImageMetadata } from './codec.ts'
 import { unsupportedOperation } from './errors.ts'
 import { executePipeline } from './executor.ts'
@@ -256,10 +257,10 @@ export class Image<Input, Output extends Uint8Array> {
 }
 
 export const createImageLibraryForPlatform = <Input, Output extends Uint8Array>(
-  codecs: Iterable<ImageCodec>,
+  registration: ImageLibraryRegistration,
   platform: ImagePlatform<Input, Output>,
 ): ImageLibrary<Input, Output> => {
-  const registry = new CodecRegistry(codecs)
+  const registry = new CodecRegistry(resolveCodecRegistration(registration))
   return Object.freeze({
     formats: (): readonly string[] => registry.formats(),
     open: (input: Input, options?: ImageOpenOptions): Promise<Image<Input, Output>> =>

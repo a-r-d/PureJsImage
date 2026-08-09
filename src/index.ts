@@ -1,4 +1,10 @@
 export type {
+  ImageAcceleratorKind,
+  ImageCodecAccelerator,
+  ImageLibraryConfiguration,
+  ImageLibraryRegistration,
+} from './accelerator.ts'
+export type {
   BuiltInFormat,
   ChromaSubsampling,
   ColorProfile,
