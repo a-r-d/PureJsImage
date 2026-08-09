@@ -1,0 +1,79 @@
+benchmark/scripts/prepare-corpus.ts
+  s_4a8abb1f2ae0c6::t_dbc4bbb61ef3b1 7,262-280,502-505
+benchmark/README.md
+  s_4a8abb1f2ae0c6::t_f590a1b537324f 202-205
+benchmark/results/webp-memory-lossless-2026-08-09.md
+  s_4a8abb1f2ae0c6::t_73bb7206f9c229 1-39
+benchmark/lib/corpus.ts
+  s_4a8abb1f2ae0c6::t_dbc4bbb61ef3b1 76-77
+benchmark/corpus/manifest.json
+  s_4a8abb1f2ae0c6::t_a16a61d61055a5 737-744,746-755,757-758
+  s_4a8abb1f2ae0c6::t_4e411d886642c4 745
+  s_4a8abb1f2ae0c6::t_e2b9062df9a21c 756
+benchmark/results/webp-memory-lossless-2026-08-09.json
+  s_4a8abb1f2ae0c6::t_73bb7206f9c229 1-239
+browser-tests/compatibility-harness.ts
+  s_4a8abb1f2ae0c6::t_b028422cfa60e7 197-198,212-236,352
+tests/project-contract.test.ts
+  s_4a8abb1f2ae0c6::t_bb1bf7fa24f0b9 317
+benchmark/types.ts
+  s_4a8abb1f2ae0c6::t_dbc4bbb61ef3b1 51-52
+src/codecs/webp.ts
+  s_4a8abb1f2ae0c6::t_69da39d816ed2a 247-248
+  s_4a8abb1f2ae0c6::t_e8b782a0e493ca 478,480-496,500-507,511
+  s_4a8abb1f2ae0c6::t_88c9291d66b120 213-216,222,228-229,231-246,249-276,306-317,328-329,331-335,340-354,358-359,361-362,367,372
+src/codecs/webp-lossless.ts
+  s_4a8abb1f2ae0c6::t_54faf86c54a61c 483-485,490,525-527,529-539,552-553,561,563,566-568,575-590
+  s_4a8abb1f2ae0c6::t_9f3452ff3624fe 670-671,673-674,677,679-681,687-690,693,701-702,704,707,710,718,745-746,749,751,753-759
+  s_4a8abb1f2ae0c6::t_f9a9c6437ba041 767-771,775-779,808-830,847-858,867-873
+benchmarks.md
+  s_4a8abb1f2ae0c6::t_8d528908845fef 236-237,252-254
+  s_4a8abb1f2ae0c6::t_a503b9a4404942 235,246-249
+benchmark/workflows.ts
+  s_4a8abb1f2ae0c6::t_b280f5d864919b 976-978,995-997
+  s_4a8abb1f2ae0c6::t_2d7f4b7523b1ff 965-975,979-994,998-1002
+src/codecs/vp8.ts
+  s_4a8abb1f2ae0c6::t_3f9bcaf1e7bf15 8-13,17,331,334,338-365,368-371,373
+  s_4a8abb1f2ae0c6::t_939170b3f47582 1226
+  s_4a8abb1f2ae0c6::t_490e12ef9cd96d 977,981-983,988-1000,1003,1006,1009,1011-1032,1034-1036,1038,1045-1066
+  s_4a8abb1f2ae0c6::t_69da39d816ed2a 1268
+  s_4a8abb1f2ae0c6::t_fc07d806468fa8 1082-1119,1141-1162,1164-1176,1178-1179,1181-1188,1190-1209,1211-1225,1227-1255,1257-1267,1269-1291
+docs/codecs.html
+  s_4a8abb1f2ae0c6::t_6020ffea6b1e96 34,72,90
+capabilities/manifest.json
+  s_4a8abb1f2ae0c6::t_b41e41a78811cf 558-559
+  s_4a8abb1f2ae0c6::t_43fa24e1d78829 383,385-386,434,436,455,461,476-477
+webp-codec-support.md
+  s_4a8abb1f2ae0c6::t_6020ffea6b1e96 43,45,64,70,85-86
+  s_4a8abb1f2ae0c6::t_59870a843e9d5a 167-168
+benchmark/results/webp-memory-lossy-2026-08-09.json
+  s_4a8abb1f2ae0c6::t_10661d9a09e944 1-239
+benchmark/results/webp-memory-lossy-2026-08-09.md
+  s_4a8abb1f2ae0c6::t_10661d9a09e944 1-39
+browser-tests/compatibility.pw.ts
+  s_4a8abb1f2ae0c6::t_b028422cfa60e7 52-58
+browser-tests/types.ts
+  s_4a8abb1f2ae0c6::t_b028422cfa60e7 17
+docs/capabilities.json
+  s_4a8abb1f2ae0c6::t_6020ffea6b1e96 726,728-729,829,833,885,897,926,930,1113
+  s_4a8abb1f2ae0c6::t_59870a843e9d5a 1114-1115
+  s_4a8abb1f2ae0c6::t_99c2eedc645552 1112
+tests/webp.test.ts
+  s_4a8abb1f2ae0c6::t_a760f5ec0aa063 5-7,121-143
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "4ee34e1c77364bd253bc4c3f0041019dffd77761",
+  "prompts": {},
+  "sessions": {
+    "s_4a8abb1f2ae0c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe42e-2b77-7a50-8579-4b622c789c8f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
