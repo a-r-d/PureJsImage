@@ -21,11 +21,20 @@ describe('immutable image pipelines', () => {
       selectDecodeScaleDenominator(
         6000,
         4000,
-        { x: 1000, y: 500, width: 4000, height: 3000 },
+        { x: 1001, y: 501, width: 3999, height: 2999 },
         [{ type: 'resize', width: 200 }],
         true,
       ),
     ).toBe(1)
+    expect(
+      selectDecodeScaleDenominator(
+        6000,
+        4000,
+        { x: 1000, y: 500, width: 4000, height: 3000 },
+        [{ type: 'resize', width: 200 }],
+        true,
+      ),
+    ).toBe(4)
   })
 
   it('plans orientation, crop, resize, and encoding without mutating the source image', async () => {

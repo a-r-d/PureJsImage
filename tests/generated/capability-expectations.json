@@ -11,7 +11,10 @@
         "tests/pipeline.test.ts",
         "tests/transform-codecs.test.ts",
         "tests/metadata-preservation.test.ts",
-        "tests/lossy-codec-quality.test.ts"
+        "tests/lossy-codec-quality.test.ts",
+        "tests/jpeg-reference-fixtures.test.ts",
+        "tests/jpeg-hardening.test.ts",
+        "tests/jpeg-reference-parity.test.ts"
       ]
     },
     {

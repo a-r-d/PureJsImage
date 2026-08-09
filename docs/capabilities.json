@@ -13,16 +13,19 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "Static 8-bit JPEG; no arithmetic coding or JPEG output progression",
-      "description": "Decodes 8-bit baseline and progressive grayscale, YCbCr, RGB, CMYK, and YCCK. Handles common chroma sampling, EXIF orientation, selected ICC profiles, and SDR primaries in gain-map files. Encodes baseline JPEG with configurable quality and chroma sampling.",
-      "memory": "Bounded MCU-row output with scaled IDCT for safe full-frame downscales; progressive input retains compact coefficient state",
+      "boundary": "Static 8-bit Huffman JPEG; no arithmetic, lossless, 12-bit, or progressive output coding",
+      "description": "Decodes common 8-bit baseline, extended-sequential, multi-scan, and progressive grayscale, YCbCr, RGB, CMYK, and YCCK JPEGs with chroma-aware interpolation. Encodes bounded-row baseline JPEG with configurable quality, chroma sampling, native grayscale, and restart markers.",
+      "memory": "Incremental entropy input, bounded MCU-row output, restart-aware region seeking, and scaled IDCT; progressive and sequential multi-scan input retain compact coefficient state",
       "recommendation": "Photographs and broadly compatible lossy output.",
       "evidence": [
         "tests/jpeg.test.ts",
         "tests/pipeline.test.ts",
         "tests/transform-codecs.test.ts",
         "tests/metadata-preservation.test.ts",
-        "tests/lossy-codec-quality.test.ts"
+        "tests/lossy-codec-quality.test.ts",
+        "tests/jpeg-reference-fixtures.test.ts",
+        "tests/jpeg-hardening.test.ts",
+        "tests/jpeg-reference-parity.test.ts"
       ],
       "claims": [
         {
@@ -51,11 +54,7 @@
         },
         {
           "status": "supported",
-          "text": "4:4:4, 4:2:2, and 4:2:0 chroma sampling"
-        },
-        {
-          "status": "planned",
-          "text": "Pinned compatibility coverage for 4:4:0, 4:1:1, and other valid asymmetric sampling layouts"
+          "text": "4:4:4, 4:4:0, 4:2:2, 4:2:0, and 4:1:1 chroma sampling with pinned asymmetric-layout compatibility fixtures"
         },
         {
           "status": "supported",
@@ -74,8 +73,12 @@
           "text": "Multi-scan progressive DC and AC first-pass and refinement scans"
         },
         {
+          "status": "supported",
+          "text": "Extended sequential 8-bit JPEG (`SOF1`)"
+        },
+        {
           "status": "planned",
-          "text": "Extended sequential 8-bit and 12-bit JPEG (`SOF1`)"
+          "text": "Extended sequential 12-bit JPEG (`SOF1`)"
         },
         {
           "status": "planned",
@@ -90,8 +93,8 @@
           "text": "Hierarchical JPEG processes"
         },
         {
-          "status": "planned",
-          "text": "Baseline images split into multiple non-progressive scans"
+          "status": "supported",
+          "text": "Sequential images split into multiple non-progressive component scans"
         },
         {
           "status": "planned",
@@ -142,8 +145,8 @@
           "text": "Opt-in compatible ICC and EXIF preservation, with metadata stripped by default"
         },
         {
-          "status": "planned",
-          "text": "Higher-quality, chroma-siting-aware upsampling; the current decoder uses nearest-sample chroma expansion"
+          "status": "supported",
+          "text": "Bounded-row, chroma-siting-aware bilinear upsampling with horizontal and vertical halo samples across MCU-row boundaries"
         },
         {
           "status": "supported",
@@ -182,8 +185,8 @@
           "text": "Public crop, resize, auto-orient, JPEG-to-JPEG, and JPEG-to-other-codec pipelines"
         },
         {
-          "status": "planned",
-          "text": "Incremental entropy decoding from `ImageSource`; the current pixel decoder retains the complete compressed JPEG input"
+          "status": "supported",
+          "text": "Incremental header and entropy decoding from `ImageSource` without retaining the complete compressed JPEG input"
         },
         {
           "status": "supported",
@@ -194,8 +197,8 @@
           "text": "Decoder-driven resize planning for full-frame downscales; it selects the largest safe denominator that still supplies the requested output dimensions and avoids reconstructing discarded full-resolution MCU samples"
         },
         {
-          "status": "planned",
-          "text": "True region decode with restart-marker-assisted seeking where the file permits it"
+          "status": "supported",
+          "text": "Restart-marker-assisted region seeking plus skipped IDCT and color work for MCUs outside the requested crop where the file permits it"
         },
         {
           "status": "planned",
@@ -231,6 +234,14 @@
         },
         {
           "status": "supported",
+          "text": "Native one-component grayscale output for `gray8` input"
+        },
+        {
+          "status": "supported",
+          "text": "Configurable `DRI` restart intervals with ordered `RST0`-`RST7` markers and DC predictor resets"
+        },
+        {
+          "status": "supported",
           "text": "Deterministic alpha flattening onto white by default or a requested RGB background"
         },
         {
@@ -255,15 +266,7 @@
         },
         {
           "status": "planned",
-          "text": "Native single-component grayscale output instead of expanding grayscale input to three YCbCr components"
-        },
-        {
-          "status": "planned",
           "text": "Faster integer/fixed-point DCT and quantization without changing decoded output beyond defined error bounds"
-        },
-        {
-          "status": "planned",
-          "text": "Restart interval and restart marker output"
         },
         {
           "status": "supported",
@@ -291,7 +294,7 @@
         },
         {
           "status": "supported",
-          "text": "Apply configurable input-size, dimension, pixel-count, and decoded-byte limits before large allocations"
+          "text": "Apply configurable input-size, dimension, pixel-count, decoded-byte, compact coefficient, scan-count, restart-index, and ICC limits before large allocations"
         },
         {
           "status": "supported",
@@ -334,12 +337,16 @@
           "text": "Continue broadening the compatibility corpus with more phone and camera models, image editors, common web upload sources, and a Motion Photo fixture"
         },
         {
-          "status": "planned",
-          "text": "Add dedicated Adobe RGB, 4:4:0, 4:1:1, unusual progressive scan, and metadata round-trip fixtures as those capabilities are implemented"
+          "status": "supported",
+          "text": "Add checksum-pinned generated Adobe RGB, 4:4:0, 4:1:1, SOF1, sequential multi-scan, and unusual progressive scan fixtures"
         },
         {
-          "status": "planned",
-          "text": "Add malformed-marker, entropy, table, and scan-progression fuzzing with strict allocation limits"
+          "status": "supported",
+          "text": "Add structured malformed-marker, entropy, table, restart, sampling, and scan-progression regressions with strict allocation and source-cleanup checks"
+        },
+        {
+          "status": "supported",
+          "text": "Define provider-neutral metadata, pixel, limit, and typed-error vectors for later explicit WASM parity testing"
         }
       ]
     },

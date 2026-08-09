@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-08T22:48:33.693Z",
+  "generatedAt": "2026-08-08T23:57:14.672Z",
   "fixture": {
     "id": "tundra-4000x3000",
     "file": "tundra-4000x3000.jpg",
@@ -31,18 +31,18 @@
       "decodedPixelsAvoided": 0,
       "decodedPixelsAvoidedPercent": 0,
       "outputBytes": 90000,
-      "outputSha256": "a283fa3e46211e3ccb65b499f21aefa7c54b20ec92474984c4ab4608665db828",
+      "outputSha256": "e9d28383972596779d8846223157b83fc9130a0661ea09dab0043c6b6127c8e5",
       "wallMilliseconds": {
-        "median": 728.7727539999998,
-        "p95": 732.203819
+        "median": 1142.346469,
+        "p95": 1209.948949
       },
       "maximumRssBytes": {
-        "median": 101707776,
-        "maximum": 104378368
+        "median": 107655168,
+        "maximum": 110350336
       },
       "peakRssDeltaBytes": {
-        "median": 585728,
-        "maximum": 655360
+        "median": 3670016,
+        "maximum": 4456448
       }
     },
     {
@@ -55,18 +55,18 @@
       "decodedPixelsAvoided": 11812500,
       "decodedPixelsAvoidedPercent": 98.4375,
       "outputBytes": 90000,
-      "outputSha256": "db4e40baa5ccbbcb27dcb1983e8aa6145053d3f2ab6b494b615725a34d460354",
+      "outputSha256": "2a04ee4e9abb93e8ce08a9bff0496e02a98972f35296b6e657630acb3737a665",
       "wallMilliseconds": {
-        "median": 278.199632,
-        "p95": 280.275893
+        "median": 287.19055799999995,
+        "p95": 287.323432
       },
       "maximumRssBytes": {
-        "median": 102207488,
-        "maximum": 103002112
+        "median": 109277184,
+        "maximum": 109887488
       },
       "peakRssDeltaBytes": {
-        "median": 1310720,
-        "maximum": 1310720
+        "median": 4718592,
+        "maximum": 5898240
       }
     },
     {
@@ -79,18 +79,18 @@
       "decodedPixelsAvoided": 0,
       "decodedPixelsAvoidedPercent": 0,
       "outputBytes": 1440000,
-      "outputSha256": "694d6da04ec1345c0f4abe64b1b8d444163dac80b4f19df01d3a4be2cdd0f566",
+      "outputSha256": "fc24ed6e6cb6cf31b0000dd9567bd2e912f620d3236b32695678d2442b67e858",
       "wallMilliseconds": {
-        "median": 766.912102,
-        "p95": 769.417886
+        "median": 1154.6775859999998,
+        "p95": 1209.9433800000002
       },
       "maximumRssBytes": {
-        "median": 106450944,
-        "maximum": 108404736
+        "median": 109203456,
+        "maximum": 109228032
       },
       "peakRssDeltaBytes": {
-        "median": 3407872,
-        "maximum": 3801088
+        "median": 2097152,
+        "maximum": 4587520
       }
     },
     {
@@ -103,18 +103,18 @@
       "decodedPixelsAvoided": 11250000,
       "decodedPixelsAvoidedPercent": 93.75,
       "outputBytes": 1440000,
-      "outputSha256": "50a7cc1a3c58b44d51a55d34f8ea9522b4694e74db37151da61661a078c0779b",
+      "outputSha256": "d7e5cde68dc84f8b78e9fae847e3f7c9d1ecb8af492d9fa921cc4a31525211c0",
       "wallMilliseconds": {
-        "median": 383.608724,
-        "p95": 383.82367999999997
+        "median": 412.457036,
+        "p95": 418.80270699999994
       },
       "maximumRssBytes": {
-        "median": 104198144,
-        "maximum": 105914368
+        "median": 109899776,
+        "maximum": 110497792
       },
       "peakRssDeltaBytes": {
-        "median": 1966080,
-        "maximum": 2809856
+        "median": 4718592,
+        "maximum": 4980736
       }
     },
     {
@@ -127,18 +127,18 @@
       "decodedPixelsAvoided": 0,
       "decodedPixelsAvoidedPercent": 0,
       "outputBytes": 3240000,
-      "outputSha256": "4b0ca4a68f05a8c86bb6a3493ddbb1ab35412b36f04e8430891a5d870c88aa47",
+      "outputSha256": "04fda60cf617852aa98421f30b6c0ffef17b81fa01a8adad45fd0ec257c1001a",
       "wallMilliseconds": {
-        "median": 819.7519269999999,
-        "p95": 822.0290060000001
+        "median": 1183.0684469999999,
+        "p95": 1227.981222
       },
       "maximumRssBytes": {
-        "median": 108916736,
-        "maximum": 109662208
+        "median": 113766400,
+        "maximum": 114339840
       },
       "peakRssDeltaBytes": {
-        "median": 3670016,
-        "maximum": 4063232
+        "median": 4587520,
+        "maximum": 6291456
       }
     },
     {
@@ -151,18 +151,18 @@
       "decodedPixelsAvoided": 9000000,
       "decodedPixelsAvoidedPercent": 75,
       "outputBytes": 3240000,
-      "outputSha256": "9638bf0a4f02c6dca61f5c9684b3bd752cb563d81696ee75bf9c65456301606c",
+      "outputSha256": "41cfd4e0c3dd1c424e44ec02ca6f00eadcc5afe49a87796dec477f22d8b69c0e",
       "wallMilliseconds": {
-        "median": 592.369565,
-        "p95": 598.516579
+        "median": 679.20851,
+        "p95": 701.3087879999999
       },
       "maximumRssBytes": {
-        "median": 107089920,
-        "maximum": 108720128
+        "median": 111554560,
+        "maximum": 112087040
       },
       "peakRssDeltaBytes": {
-        "median": 2752512,
-        "maximum": 4325376
+        "median": 2359296,
+        "maximum": 5242880
       }
     }
   ],
@@ -172,68 +172,68 @@
       "width": 200,
       "height": 150,
       "scaleDenominator": 8,
-      "fullOutputSha256": "a283fa3e46211e3ccb65b499f21aefa7c54b20ec92474984c4ab4608665db828",
-      "scaledOutputSha256": "db4e40baa5ccbbcb27dcb1983e8aa6145053d3f2ab6b494b615725a34d460354",
-      "maximumChannelError": 156,
-      "meanAbsoluteError": 16.2443,
-      "rootMeanSquareError": 24.723452878233296,
-      "peakSignalToNoiseRatio": 20.26862112399741
+      "fullOutputSha256": "e9d28383972596779d8846223157b83fc9130a0661ea09dab0043c6b6127c8e5",
+      "scaledOutputSha256": "2a04ee4e9abb93e8ce08a9bff0496e02a98972f35296b6e657630acb3737a665",
+      "maximumChannelError": 157,
+      "meanAbsoluteError": 16.27118888888889,
+      "rootMeanSquareError": 24.755174318827883,
+      "peakSignalToNoiseRatio": 20.257483831573445
     },
     {
       "targetWidth": 800,
       "width": 800,
       "height": 600,
       "scaleDenominator": 4,
-      "fullOutputSha256": "694d6da04ec1345c0f4abe64b1b8d444163dac80b4f19df01d3a4be2cdd0f566",
-      "scaledOutputSha256": "50a7cc1a3c58b44d51a55d34f8ea9522b4694e74db37151da61661a078c0779b",
+      "fullOutputSha256": "fc24ed6e6cb6cf31b0000dd9567bd2e912f620d3236b32695678d2442b67e858",
+      "scaledOutputSha256": "d7e5cde68dc84f8b78e9fae847e3f7c9d1ecb8af492d9fa921cc4a31525211c0",
       "maximumChannelError": 158,
-      "meanAbsoluteError": 14.090788194444444,
-      "rootMeanSquareError": 21.97402268399363,
-      "peakSignalToNoiseRatio": 21.29261223855223
+      "meanAbsoluteError": 14.082645833333334,
+      "rootMeanSquareError": 21.961606745257352,
+      "peakSignalToNoiseRatio": 21.297521396695082
     },
     {
       "targetWidth": 1200,
       "width": 1200,
       "height": 900,
       "scaleDenominator": 2,
-      "fullOutputSha256": "4b0ca4a68f05a8c86bb6a3493ddbb1ab35412b36f04e8430891a5d870c88aa47",
-      "scaledOutputSha256": "9638bf0a4f02c6dca61f5c9684b3bd752cb563d81696ee75bf9c65456301606c",
+      "fullOutputSha256": "04fda60cf617852aa98421f30b6c0ffef17b81fa01a8adad45fd0ec257c1001a",
+      "scaledOutputSha256": "41cfd4e0c3dd1c424e44ec02ca6f00eadcc5afe49a87796dec477f22d8b69c0e",
       "maximumChannelError": 84,
-      "meanAbsoluteError": 5.368680555555556,
-      "rootMeanSquareError": 8.799639951248286,
-      "peakSignalToNoiseRatio": 29.241505552914425
+      "meanAbsoluteError": 5.320602469135802,
+      "rootMeanSquareError": 8.746782971223135,
+      "peakSignalToNoiseRatio": 29.293836593364354
     }
   ],
   "independentOracle": {
     "available": true,
-    "implementation": "ImageMagick scaled JPEG decode with fancy upsampling disabled",
+    "implementation": "ImageMagick scaled JPEG decode with default fancy upsampling",
     "results": [
       {
         "width": 500,
         "height": 375,
         "scaleDenominator": 8,
-        "maximumChannelError": 1,
-        "meanAbsoluteError": 0.4829262222222222,
-        "rootMeanSquareError": 0.6949289332170753,
-        "peakSignalToNoiseRatio": 51.291995732409575
+        "maximumChannelError": 23,
+        "meanAbsoluteError": 1.0372693333333334,
+        "rootMeanSquareError": 1.6166786253853231,
+        "peakSignalToNoiseRatio": 43.95832968047473
       },
       {
         "width": 1000,
         "height": 750,
         "scaleDenominator": 4,
         "maximumChannelError": 35,
-        "meanAbsoluteError": 2.6006804444444445,
-        "rootMeanSquareError": 3.8428855477796025,
-        "peakSignalToNoiseRatio": 36.43765460639679
+        "meanAbsoluteError": 2.606933777777778,
+        "rootMeanSquareError": 3.83789299833472,
+        "peakSignalToNoiseRatio": 36.448946362652435
       },
       {
         "width": 2000,
         "height": 1500,
         "scaleDenominator": 2,
-        "maximumChannelError": 45,
-        "meanAbsoluteError": 2.3639093333333334,
-        "rootMeanSquareError": 3.6218993789324285,
-        "peakSignalToNoiseRatio": 36.95207599105875
+        "maximumChannelError": 46,
+        "meanAbsoluteError": 2.375963222222222,
+        "rootMeanSquareError": 3.626027471244836,
+        "peakSignalToNoiseRatio": 36.94218180783652
       }
     ]
   }

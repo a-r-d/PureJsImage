@@ -211,16 +211,7 @@ try {
     const oraclePath = join(oracleDirectory, `imagemagick-${width}.rgb`)
     const child = spawnSync(
       'magick',
-      [
-        '-define',
-        `jpeg:size=${width}x${height}`,
-        '-define',
-        'jpeg:fancy-upsampling=off',
-        inputPath,
-        '-depth',
-        '8',
-        `RGB:${oraclePath}`,
-      ],
+      ['-define', `jpeg:size=${width}x${height}`, inputPath, '-depth', '8', `RGB:${oraclePath}`],
       { encoding: 'utf8', maxBuffer: 1024 * 1024, timeout: 120_000 },
     )
     if (child.error?.message.includes('ENOENT')) {
@@ -332,7 +323,7 @@ const report = {
   independentOracle: {
     available: independentOracleAvailable,
     implementation: independentOracleAvailable
-      ? 'ImageMagick scaled JPEG decode with fancy upsampling disabled'
+      ? 'ImageMagick scaled JPEG decode with default fancy upsampling'
       : 'ImageMagick executable not available',
     results: independentOracle,
   },
@@ -385,8 +376,9 @@ speedups were ${speedups.join(', ')}. Peak RSS remained close to the full path b
 decoder was already bounded to MCU rows and the process/module baseline dominates these runs; the
 measured benefit is less IDCT, color-conversion, and resize work rather than a new RSS claim.
 
-Crop-pushed regions and orientation-dependent pipelines intentionally remain on the full-resolution
-path until restart-aware region decoding can preserve their coordinate semantics.
+Safely aligned crop-resize plans may use the same scaled IDCT. Restart-aware baseline crops also
+seek their closest usable restart boundary; unsafe coordinate mappings retain the explicit
+full-resolution fallback.
 `
 
 if (writeBase) {

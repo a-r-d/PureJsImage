@@ -20,8 +20,8 @@ import {
   decodeProgressiveJpeg,
   type JpegRegion,
   type ProgressiveJpeg,
-  parseBaselineJpeg,
-  parseProgressiveJpeg,
+  parseBaselineJpegSource,
+  parseCoefficientJpegSource,
 } from './jpeg-baseline.ts'
 import { createBaselineJpegEncoder } from './jpeg-encode.ts'
 
@@ -140,8 +140,10 @@ const jpegChromaSubsampling = (frame: JpegFrameMetadata): ChromaSubsampling | un
     return undefined
   }
   if (yH === cbH && yV === cbV) return '444'
+  if (yH === cbH && yV === cbV * 2) return '440'
   if (yH === cbH * 2 && yV === cbV) return '422'
   if (yH === cbH * 2 && yV === cbV * 2) return '420'
+  if (yH === cbH * 4 && yV === cbV) return '411'
   return undefined
 }
 
@@ -226,7 +228,7 @@ class JpegDecoder implements ImageDecoder {
   readonly pixelFormat = 'rgb8' as const
   readonly capabilities = Object.freeze({
     sequential: true,
-    regionDecode: false,
+    regionDecode: true,
     scaledDecode: true,
     progressive: false,
   })
@@ -249,18 +251,19 @@ class ProgressiveJpegDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat = 'rgb8' as const
-  readonly capabilities = Object.freeze({
-    sequential: true,
-    regionDecode: false,
-    scaledDecode: true,
-    progressive: true,
-  })
+  readonly capabilities: ImageDecoder['capabilities']
   readonly #jpeg: ProgressiveJpeg
 
   constructor(jpeg: ProgressiveJpeg) {
     this.width = jpeg.width
     this.height = jpeg.height
     this.#jpeg = jpeg
+    this.capabilities = Object.freeze({
+      sequential: true,
+      regionDecode: false,
+      scaledDecode: true,
+      progressive: jpeg.progressive,
+    })
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
@@ -275,19 +278,19 @@ const decodeJpeg = async (
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
 ): Promise<ImageDecoder> => {
-  const input = await readExactly(source, 0, source.size)
   const applyIcc = options.preserveIcc !== true
-  const baseline = parseBaselineJpeg(input, applyIcc)
+  const baseline = await parseBaselineJpegSource(source, applyIcc)
   if (baseline) {
     validateImageDimensions(baseline.width, baseline.height, 1, limits)
     return new JpegDecoder(baseline)
   }
-  const progressive = parseProgressiveJpeg(
-    input,
+  const progressive = await parseCoefficientJpegSource(
+    source,
     (width, height) => {
       validateImageDimensions(width, height, 1, limits)
     },
     applyIcc,
+    limits.maxDecodedBytes,
   )
   if (!progressive) throw invalidInput('JPEG coding process is unsupported')
   return new ProgressiveJpegDecoder(progressive)

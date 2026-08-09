@@ -3,6 +3,7 @@ import { writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import type { ChromaSubsampling } from '../../src/index.ts'
 import {
   avifCorpusDirectory,
   avifCorpusLicense,
@@ -21,7 +22,7 @@ interface Result {
   readonly height?: number
   readonly outputBytes?: number
   readonly bitDepth?: number
-  readonly chromaSubsampling?: '400' | '420' | '422' | '444'
+  readonly chromaSubsampling?: ChromaSubsampling
   readonly codecProfile?: number
   readonly hasAlpha?: boolean
   readonly wallMilliseconds: number

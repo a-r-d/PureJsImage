@@ -49,22 +49,26 @@ export const selectDecodeScaleDenominator = (
   scaledDecode: boolean,
 ): DecodeScaleDenominator => {
   const firstStage = stages[0]
-  if (
-    !scaledDecode ||
-    firstStage?.type !== 'resize' ||
-    decoderRegion.x !== 0 ||
-    decoderRegion.y !== 0 ||
-    decoderRegion.width !== sourceWidth ||
-    decoderRegion.height !== sourceHeight
-  ) {
+  if (!scaledDecode || firstStage?.type !== 'resize') {
     return 1
   }
 
-  const target = calculateResizeDimensions(sourceWidth, sourceHeight, firstStage)
+  const target = calculateResizeDimensions(decoderRegion.width, decoderRegion.height, firstStage)
   const candidates = [8, 4, 2] as const
   for (const denominator of candidates) {
-    const scaledWidth = Math.ceil(sourceWidth / denominator)
-    const scaledHeight = Math.ceil(sourceHeight / denominator)
+    const fullFrame =
+      decoderRegion.x === 0 &&
+      decoderRegion.y === 0 &&
+      decoderRegion.width === sourceWidth &&
+      decoderRegion.height === sourceHeight
+    const alignedRegion =
+      decoderRegion.x % denominator === 0 &&
+      decoderRegion.y % denominator === 0 &&
+      decoderRegion.width % denominator === 0 &&
+      decoderRegion.height % denominator === 0
+    if (!fullFrame && !alignedRegion) continue
+    const scaledWidth = Math.ceil(decoderRegion.width / denominator)
+    const scaledHeight = Math.ceil(decoderRegion.height / denominator)
     if (scaledWidth < target.width || scaledHeight < target.height) continue
     const scaledTarget = calculateResizeDimensions(scaledWidth, scaledHeight, firstStage)
     if (scaledTarget.width === target.width && scaledTarget.height === target.height) {
@@ -223,8 +227,8 @@ export const executePipeline = async (
       scaleDenominator === 1
         ? output.decoderRegion
         : {
-            x: 0,
-            y: 0,
+            x: Math.floor(output.decoderRegion.x / scaleDenominator),
+            y: Math.floor(output.decoderRegion.y / scaleDenominator),
             width,
             height,
             scaleDenominator,

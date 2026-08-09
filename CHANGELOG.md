@@ -6,6 +6,10 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Completed the common static 8-bit Huffman JPEG reference before optional WASM work: incremental
+  entropy input, restart-aware region seeking, chroma-aware bilinear upsampling, SOF1 and sequential
+  multi-scan decode, 4:4:0 and 4:1:1 fixtures, native grayscale and restart-marker output, hostile
+  input limits, and provider-neutral parity vectors.
 - Added native 1/2, 1/4, and 1/8 JPEG IDCT output, decoder-driven scale selection for safe
   full-frame downscales, baseline/progressive/restart/subsampling regressions, and an isolated
   runtime, RSS, avoided-pixel, and output-error benchmark against the full-resolution path.

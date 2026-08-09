@@ -1,5 +1,7 @@
 import { readFile } from 'node:fs/promises'
 
+import type { ChromaSubsampling } from '../../src/index.ts'
+
 type Action = 'pure-metadata' | 'reference-decode' | 'reference-metadata'
 
 const [actionArgument, path] = process.argv.slice(2)
@@ -19,7 +21,7 @@ interface Output {
   readonly height: number
   readonly outputBytes: number
   readonly bitDepth?: number
-  readonly chromaSubsampling?: '400' | '420' | '422' | '444'
+  readonly chromaSubsampling?: ChromaSubsampling
   readonly codecProfile?: number
   readonly hasAlpha?: boolean
 }

@@ -152,6 +152,10 @@ benchmark/corpus/files/*
 !benchmark/corpus/files/static-transparent-640x360.gif
 !benchmark/corpus/files/webp-lossless-tux-386x395.webp
 !benchmark/corpus/files/wpt-webcodecs-mozjpeg-rgb.jpg
+!benchmark/corpus/files/jpeg-reference/
+benchmark/corpus/files/jpeg-reference/*
+!benchmark/corpus/files/jpeg-reference/README.md
+!benchmark/corpus/files/jpeg-reference/*.jpg
 !benchmark/corpus/files/avif/
 benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/README.md

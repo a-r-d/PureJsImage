@@ -2,6 +2,7 @@ import { performance } from 'node:perf_hooks'
 import jpeg from 'jpeg-js'
 
 import type { ImageCodec } from '../../src/codec.ts'
+import type { PixelFormat } from '../../src/pixel.ts'
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
@@ -20,17 +21,30 @@ const width = 2_048
 const height = 1_536
 const pixels = width * height
 const requestedMode = process.argv[2] ?? '420'
-if (requestedMode !== '420' && requestedMode !== '422' && requestedMode !== '444') {
-  throw new Error('Usage: node benchmark/jpeg/encode-probe.ts [420|422|444]')
+if (
+  requestedMode !== '420' &&
+  requestedMode !== '422' &&
+  requestedMode !== '444' &&
+  requestedMode !== 'gray' &&
+  requestedMode !== 'restart'
+) {
+  throw new Error('Usage: node benchmark/jpeg/encode-probe.ts [420|422|444|gray|restart]')
 }
-const chromaSubsampling = requestedMode
-const source = new Uint8Array(pixels * 3)
+const grayscale = requestedMode === 'gray'
+const restart = requestedMode === 'restart'
+const chromaSubsampling = requestedMode === '422' || requestedMode === '444' ? requestedMode : '420'
+const sourceChannels = grayscale ? 1 : 3
+const pixelFormat: PixelFormat = grayscale ? 'gray8' : 'rgb8'
+const source = new Uint8Array(pixels * sourceChannels)
 for (let y = 0; y < height; y += 1) {
   for (let x = 0; x < width; x += 1) {
-    const offset = (y * width + x) * 3
-    source[offset] = (x * 13 + y * 3) & 255
-    source[offset + 1] = (x * 5 + y * 11) & 255
-    source[offset + 2] = (x * 7 + y * 17) & 255
+    const offset = (y * width + x) * sourceChannels
+    if (grayscale) source[offset] = (x * 13 + y * 3) & 255
+    else {
+      source[offset] = (x * 13 + y * 3) & 255
+      source[offset + 1] = (x * 5 + y * 11) & 255
+      source[offset + 2] = (x * 7 + y * 17) & 255
+    }
   }
 }
 
@@ -47,8 +61,12 @@ const encode = async (): Promise<{ elapsed: number; output: Buffer }> => {
   const encoder = await jpegCodec.createEncoder?.(sink, {
     width,
     height,
-    pixelFormat: 'rgb8',
-    options: { quality: 80, chromaSubsampling },
+    pixelFormat,
+    options: {
+      quality: 80,
+      chromaSubsampling,
+      ...(restart ? { restartInterval: 4 } : {}),
+    },
   })
   if (!encoder) throw new Error('JPEG encoder is unavailable')
   await encoder.write({
@@ -56,8 +74,8 @@ const encode = async (): Promise<{ elapsed: number; output: Buffer }> => {
     y: 0,
     width,
     height,
-    stride: width * 3,
-    format: 'rgb8',
+    stride: width * sourceChannels,
+    format: pixelFormat,
     data: source,
   })
   await encoder.finish()
@@ -90,17 +108,32 @@ if (decoded.width !== width || decoded.height !== height) {
   throw new Error(`Independent decode returned ${decoded.width}x${decoded.height}`)
 }
 let squaredError = 0
-for (let index = 0; index < source.byteLength; index += 1) {
-  const difference = (source[index] ?? 0) - (decoded.data[index] ?? 0)
-  squaredError += difference * difference
+for (let pixel = 0; pixel < pixels; pixel += 1) {
+  for (let channel = 0; channel < 3; channel += 1) {
+    const sourceIndex = grayscale ? pixel : pixel * 3 + channel
+    const difference = (source[sourceIndex] ?? 0) - (decoded.data[pixel * 3 + channel] ?? 0)
+    squaredError += difference * difference
+  }
 }
+const restartMarkers = restart
+  ? output.reduce(
+      (count, value, index) =>
+        value === 0xff && (output[index + 1] ?? 0) >= 0xd0 && (output[index + 1] ?? 0) <= 0xd7
+          ? count + 1
+          : count,
+      0,
+    )
+  : 0
+if (restart && restartMarkers === 0) throw new Error('Restart benchmark output has no markers')
 const sorted = elapsed.toSorted((left, right) => left - right)
 const medianMilliseconds = sorted[2] ?? 0
-const meanSquaredError = squaredError / source.byteLength
+const meanSquaredError = squaredError / (pixels * 3)
 console.log(
   JSON.stringify(
     {
-      chromaSubsampling,
+      mode: requestedMode,
+      chromaSubsampling: grayscale ? '400' : chromaSubsampling,
+      restartMarkers,
       dimensions: `${width}x${height}`,
       samples: elapsed,
       medianMilliseconds,

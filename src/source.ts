@@ -116,6 +116,14 @@ class ValidatedSource implements ImageSource {
     this.size = source.size
   }
 
+  [sourceSessionStart](): void {
+    if (isSessionManagedSource(this.#source)) this.#source[sourceSessionStart]()
+  }
+
+  async [sourceSessionEnd](): Promise<void> {
+    if (isSessionManagedSource(this.#source)) await this.#source[sourceSessionEnd]()
+  }
+
   async read(offset: number, length: number): Promise<Uint8Array> {
     const expected = readLength(this.size, offset, length)
     if (expected === 0) return new Uint8Array()
