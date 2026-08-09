@@ -1809,7 +1809,6 @@ const decodeProgressiveAcRefinement = (
     const symbol = decodeHuffman(reader, selected.acTable)
     let zeroes = symbol >>> 4
     const length = symbol & 15
-    let newCoefficient = 0
     if (length === 0) {
       if (zeroes !== 15) {
         state.eobRun = (1 << zeroes) + reader.readBits(zeroes) - 1
@@ -1821,10 +1820,19 @@ const decodeProgressiveAcRefinement = (
         return
       }
       zeroes = 16
-    } else {
-      if (length !== 1) throw invalidInput('Progressive JPEG AC refinement coefficient is invalid')
-      newCoefficient = reader.readBit() === 1 ? bit : -bit
+      while (spectral <= scan.spectralEnd && zeroes > 0) {
+        const target = blockOffset + byte(zigZag, spectral)
+        if (byte(coefficients, target) !== 0) {
+          refineNonzeroCoefficient(reader, coefficients, target, bit)
+        } else {
+          zeroes -= 1
+        }
+        spectral += 1
+      }
+      continue
     }
+    if (length !== 1) throw invalidInput('Progressive JPEG AC refinement coefficient is invalid')
+    const newCoefficient = reader.readBit() === 1 ? bit : -bit
 
     while (spectral <= scan.spectralEnd) {
       const target = blockOffset + byte(zigZag, spectral)
@@ -1836,12 +1844,10 @@ const decodeProgressiveAcRefinement = (
       }
       spectral += 1
     }
-    if (newCoefficient !== 0) {
-      if (spectral > scan.spectralEnd)
-        throw invalidInput('Progressive JPEG AC refinement exceeds its spectral band')
-      setCoefficient(coefficients, blockOffset + byte(zigZag, spectral), newCoefficient)
-      spectral += 1
-    }
+    if (spectral > scan.spectralEnd)
+      throw invalidInput('Progressive JPEG AC refinement exceeds its spectral band')
+    setCoefficient(coefficients, blockOffset + byte(zigZag, spectral), newCoefficient)
+    spectral += 1
   }
 }
 

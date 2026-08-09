@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import sharp from 'sharp'
 
 const width = 37
 const height = 23
@@ -14,6 +15,8 @@ const expectedSha256: Readonly<Record<string, string>> = Object.freeze({
   'generated-sequential-multiscan.jpg':
     'c916cbd242f3a1fc2a41870fb536f2e30f609055cd75165ab9d1df2285f21279',
   'generated-progressive.jpg': 'ef15e5eafc4eb4d98e012f03ea2b8b1a400c7dff29fb0303e6c7c98ade0981ee',
+  'generated-progressive-zrl.jpg':
+    '4b7f5882755add89103be3895efdc0eea0c41d3096d015ac22f847650d68beda',
   'generated-adobe-rgb.jpg': 'd075ab672879c684eeacb84e88d2a7a9c9b300e65eed97eab31a46399dfdedc4',
 })
 
@@ -28,6 +31,30 @@ const ppm = (): Uint8Array => {
       output[offset + 1] = (x * 2 + y * 11) & 0xff
       output[offset + 2] = (x * 13 + y * 5) & 0xff
       offset += 3
+    }
+  }
+  return output
+}
+
+const progressiveZrlSource = (): Uint8Array => {
+  const sourceWidth = 240
+  const sourceHeight = 160
+  const output = new Uint8Array(sourceWidth * sourceHeight * 3)
+  output.fill(248)
+  for (let y = 0; y < sourceHeight; y += 1) {
+    for (let x = 0; x < sourceWidth; x += 1) {
+      const offset = (y * sourceWidth + x) * 3
+      if (y <= sourceHeight * 0.2 || x <= sourceWidth * 0.1 || x >= sourceWidth * 0.9) continue
+      const slot = Math.floor((x - sourceWidth * 0.1) / ((sourceWidth * 0.8) / 16))
+      if (slot % 2 === 0 && y > sourceHeight * (0.3 + (slot % 7) * 0.04)) {
+        output[offset] = 45
+        output[offset + 1] = 125
+        output[offset + 2] = 180
+      } else if (y % 53 === 0) {
+        output[offset] = 205
+        output[offset + 1] = 205
+        output[offset + 2] = 205
+      }
     }
   }
   return output
@@ -76,6 +103,11 @@ try {
   )
   const source = ppm()
   const baseline = encode(['-quality=91', '-sample=2x2'], source)
+  const progressiveZrl = await sharp(progressiveZrlSource(), {
+    raw: { width: 240, height: 160, channels: 3 },
+  })
+    .jpeg({ progressive: true, quality: 50, chromaSubsampling: '4:2:0' })
+    .toBuffer()
   const fixtures = new Map<string, Uint8Array>([
     ['generated-yuv440.jpg', encode(['-quality=91', '-sample=1x2'], source)],
     ['generated-yuv411.jpg', encode(['-quality=91', '-sample=4x1'], source)],
@@ -88,6 +120,7 @@ try {
       'generated-progressive.jpg',
       encode(['-quality=91', `-scans=${progressiveScanScript}`], source),
     ],
+    ['generated-progressive-zrl.jpg', progressiveZrl],
     ['generated-adobe-rgb.jpg', encode(['-quality=91', '-rgb'], source)],
   ])
   mkdirSync(fixtureDirectory, { recursive: true })
