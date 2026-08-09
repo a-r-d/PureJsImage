@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
 
+import { webpCodec } from '../src/codecs/webp.ts'
+import { defaultImageLimits } from '../src/limits.ts'
+import { MemorySource } from '../src/source.ts'
 import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
@@ -115,6 +118,29 @@ const expectPixelClose = (
 }
 
 describe('WebP codec', () => {
+  it('releases lossy macroblock rows and lossless scanlines as decoding advances', async () => {
+    const lossyDecoder = await webpCodec.createDecoder?.(
+      new MemorySource(lossy),
+      defaultImageLimits,
+    )
+    const losslessDecoder = await webpCodec.createDecoder?.(
+      new MemorySource(lossless),
+      defaultImageLimits,
+    )
+    if (!lossyDecoder || !losslessDecoder) throw new Error('WebP decoder is unavailable')
+
+    const lossyHeights: number[] = []
+    for await (const block of lossyDecoder.decode()) lossyHeights.push(block.height)
+    expect(lossyHeights).toEqual([16, 8])
+
+    let losslessRows = 0
+    for await (const block of losslessDecoder.decode()) {
+      expect(block.height).toBe(1)
+      losslessRows += block.height
+    }
+    expect(losslessRows).toBe(193)
+  })
+
   it('converts an ICCP RGB profile to sRGB and preserves alpha', async () => {
     const reference = PNG.sync.read(await (await Image.open(lossless)).png().toBuffer())
     const profiled = withIccProfile(lossless, channelSwappingRgbProfile())

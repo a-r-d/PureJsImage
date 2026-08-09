@@ -480,12 +480,14 @@ const insertCache = (cache: Uint32Array | undefined, bits: number, color: number
   if (cache) cache[cacheIndex(color, bits)] = color
 }
 
-const decodeImageData = (
+const maximumBackwardDistance = 1_048_576
+
+function* decodeImageRows(
   reader: BitReader,
   width: number,
   height: number,
   spatial: boolean,
-): Uint32Array => {
+): IterableIterator<Uint32Array> {
   let cacheBits = 0
   let cache: Uint32Array | undefined
   if (reader.readBits(1) === 1) {
@@ -520,9 +522,21 @@ const decodeImageData = (
     })
   }
 
-  const pixels = new Uint32Array(width * height)
+  const pixelCount = width * height
+  const history = new Uint32Array(Math.min(pixelCount, maximumBackwardDistance))
+  let row = new Uint32Array(width)
   let position = 0
-  while (position < pixels.length) {
+  const write = (color: number): Uint32Array | undefined => {
+    history[position % history.length] = color
+    row[position % width] = color
+    insertCache(cache, cacheBits, color)
+    position += 1
+    if (position % width !== 0) return undefined
+    const completed = row
+    row = new Uint32Array(width)
+    return completed
+  }
+  while (position < pixelCount) {
     const x = position % width
     const y = Math.floor(position / width)
     const metaIndex = (y >>> prefixBits) * prefixWidth + (x >>> prefixBits)
@@ -535,9 +549,8 @@ const decodeImageData = (
       const blue = readHuffmanSymbol(reader, group.blue)
       const alpha = readHuffmanSymbol(reader, group.alpha)
       const color = ((alpha << 24) | (red << 16) | (symbol << 8) | blue) >>> 0
-      pixels[position] = color
-      insertCache(cache, cacheBits, color)
-      position += 1
+      const completed = write(color)
+      if (completed) yield completed
       continue
     }
     if (symbol < 280) {
@@ -545,24 +558,36 @@ const decodeImageData = (
       const distancePrefix = readHuffmanSymbol(reader, group.distance)
       const distanceCode = prefixValue(reader, distancePrefix)
       const distance = distanceValue(distanceCode, width)
-      if (distance > position || position + length > pixels.length)
+      if (distance > position || position + length > pixelCount)
         throw invalidInput(
-          `WebP backward reference exceeds decoded pixels (${position}, length ${length}, distance prefix ${distancePrefix}, code ${distanceCode}, distance ${distance}, size ${pixels.length})`,
+          `WebP backward reference exceeds decoded pixels (${position}, length ${length}, distance prefix ${distancePrefix}, code ${distanceCode}, distance ${distance}, size ${pixelCount})`,
         )
       for (let index = 0; index < length; index += 1) {
-        const color = pixels[position - distance] ?? 0
-        pixels[position] = color
-        insertCache(cache, cacheBits, color)
-        position += 1
+        const color = history[(position - distance) % history.length] ?? 0
+        const completed = write(color)
+        if (completed) yield completed
       }
       continue
     }
     const cacheEntry = symbol - 280
     if (!cache || cacheEntry >= cache.length) throw invalidInput('WebP color cache code is invalid')
     const color = cache[cacheEntry] ?? 0
-    pixels[position] = color
-    insertCache(cache, cacheBits, color)
-    position += 1
+    const completed = write(color)
+    if (completed) yield completed
+  }
+}
+
+const decodeImageData = (
+  reader: BitReader,
+  width: number,
+  height: number,
+  spatial: boolean,
+): Uint32Array => {
+  const pixels = new Uint32Array(width * height)
+  let offset = 0
+  for (const row of decodeImageRows(reader, width, height, spatial)) {
+    pixels.set(row, offset)
+    offset += row.length
   }
   return pixels
 }
@@ -642,35 +667,30 @@ const addPixels = (residual: number, predicted: number): number =>
     channel(residual, 0) + channel(predicted, 0),
   )
 
-const inversePredictor = (
-  pixels: Uint32Array,
+const inversePredictorRow = (
+  row: Uint32Array,
   width: number,
+  y: number,
+  previous: Uint32Array | undefined,
   transform: Extract<Transform, { type: 'predictor' }>,
 ): void => {
-  let x = 0
-  let y = 0
-  for (let position = 0; position < pixels.length; position += 1) {
+  for (let x = 0; x < width; x += 1) {
     let predicted: number
-    if (position === 0) predicted = 0xff000000
-    else if (y === 0) predicted = pixels[position - 1] ?? 0
-    else if (x === 0) predicted = pixels[position - width] ?? 0
+    if (y === 0 && x === 0) predicted = 0xff000000
+    else if (y === 0) predicted = row[x - 1] ?? 0
+    else if (x === 0) predicted = previous?.[0] ?? 0
     else {
       const modePosition = (y >>> transform.sizeBits) * transform.width + (x >>> transform.sizeBits)
       const mode = ((transform.data[modePosition] ?? 0) >>> 8) & 255
       predicted = predictor(
         mode,
-        pixels[position - 1] ?? 0,
-        pixels[position - width] ?? 0,
-        pixels[position - width - 1] ?? 0,
-        x === width - 1 ? (pixels[y * width] ?? 0) : (pixels[position - width + 1] ?? 0),
+        row[x - 1] ?? 0,
+        previous?.[x] ?? 0,
+        previous?.[x - 1] ?? 0,
+        x === width - 1 ? (row[0] ?? 0) : (previous?.[x + 1] ?? 0),
       )
     }
-    pixels[position] = addPixels(pixels[position] ?? 0, predicted)
-    x += 1
-    if (x === width) {
-      x = 0
-      y += 1
-    }
+    row[x] = addPixels(row[x] ?? 0, predicted)
   }
 }
 
@@ -678,17 +698,16 @@ const signedByte = (value: number): number => (value < 128 ? value : value - 256
 const colorDelta = (transform: number, color: number): number =>
   (signedByte(transform) * signedByte(color)) >> 5
 
-const inverseColor = (
-  pixels: Uint32Array,
+const inverseColorRow = (
+  row: Uint32Array,
   width: number,
+  y: number,
   transform: Extract<Transform, { type: 'color' }>,
 ): void => {
-  let x = 0
-  let y = 0
-  for (let position = 0; position < pixels.length; position += 1) {
+  for (let x = 0; x < width; x += 1) {
     const element =
       transform.data[(y >>> transform.sizeBits) * transform.width + (x >>> transform.sizeBits)] ?? 0
-    const color = pixels[position] ?? 0
+    const color = row[x] ?? 0
     const green = channel(color, 8)
     const red = (channel(color, 16) + colorDelta(channel(element, 0), green)) & 255
     const blue =
@@ -696,12 +715,7 @@ const inverseColor = (
         colorDelta(channel(element, 8), green) +
         colorDelta(channel(element, 16), red)) &
       255
-    pixels[position] = pack(channel(color, 24), red, green, blue)
-    x += 1
-    if (x === width) {
-      x = 0
-      y += 1
-    }
+    row[x] = pack(channel(color, 24), red, green, blue)
   }
 }
 
@@ -728,23 +742,21 @@ const addPaletteDeltas = (deltas: Uint32Array): Uint32Array => {
   return palette
 }
 
-const inverseColorIndexing = (
-  pixels: Uint32Array,
-  height: number,
+const inverseColorIndexingRow = (
+  row: Uint32Array,
   transform: Extract<Transform, { type: 'color-indexing' }>,
 ): Uint32Array => {
-  const output = new Uint32Array(transform.width * height)
+  const output = new Uint32Array(transform.width)
   const packedWidth = Math.ceil(transform.width / 2 ** transform.widthBits)
+  if (row.length !== packedWidth) throw invalidInput('WebP color-index row width is invalid')
   const mask = (1 << (8 >>> transform.widthBits)) - 1
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < transform.width; x += 1) {
-      const packed = pixels[y * packedWidth + (x >>> transform.widthBits)] ?? 0
-      const index =
-        (channel(packed, 8) >>>
-          ((x & ((1 << transform.widthBits) - 1)) * (8 >>> transform.widthBits))) &
-        mask
-      output[y * transform.width + x] = transform.palette[index] ?? 0
-    }
+  for (let x = 0; x < transform.width; x += 1) {
+    const packed = row[x >>> transform.widthBits] ?? 0
+    const index =
+      (channel(packed, 8) >>>
+        ((x & ((1 << transform.widthBits) - 1)) * (8 >>> transform.widthBits))) &
+      mask
+    output[x] = transform.palette[index] ?? 0
   }
   return output
 }
@@ -752,10 +764,19 @@ const inverseColorIndexing = (
 export interface LosslessWebpImage {
   readonly width: number
   readonly height: number
+  rows(): Iterable<LosslessWebpRows>
+}
+
+export interface LosslessWebpRows {
+  readonly y: number
   readonly pixels: Uint32Array
 }
 
-const decodeLosslessImage = (reader: BitReader, width: number, height: number): Uint32Array => {
+function* decodeLosslessImageRows(
+  reader: BitReader,
+  width: number,
+  height: number,
+): IterableIterator<LosslessWebpRows> {
   const transforms: Transform[] = []
   const seen = new Set<number>()
   let encodedWidth = width
@@ -784,22 +805,30 @@ const decodeLosslessImage = (reader: BitReader, width: number, height: number): 
     }
   }
 
-  let pixels = decodeImageData(reader, encodedWidth, height, true)
-  let currentWidth = encodedWidth
-  for (let index = transforms.length - 1; index >= 0; index -= 1) {
-    const transform = transforms[index]
-    if (!transform) continue
-    if (transform.type === 'color-indexing') {
-      pixels = inverseColorIndexing(pixels, height, transform)
-      currentWidth = transform.width
-    } else if (transform.type === 'subtract-green') inverseSubtractGreen(pixels)
-    else if (transform.type === 'color') inverseColor(pixels, currentWidth, transform)
-    else inversePredictor(pixels, currentWidth, transform)
+  let predictorPrevious: Uint32Array | undefined
+  let y = 0
+  for (const encodedRow of decodeImageRows(reader, encodedWidth, height, true)) {
+    let row = encodedRow
+    let currentWidth = encodedWidth
+    for (let index = transforms.length - 1; index >= 0; index -= 1) {
+      const transform = transforms[index]
+      if (!transform) continue
+      if (transform.type === 'color-indexing') {
+        row = inverseColorIndexingRow(row, transform)
+        currentWidth = transform.width
+      } else if (transform.type === 'subtract-green') inverseSubtractGreen(row)
+      else if (transform.type === 'color') inverseColorRow(row, currentWidth, y, transform)
+      else {
+        inversePredictorRow(row, currentWidth, y, predictorPrevious, transform)
+        predictorPrevious = Uint32Array.from(row)
+      }
+    }
+    if (currentWidth !== width || row.length !== width) {
+      throw invalidInput('WebP lossless transforms produced invalid dimensions')
+    }
+    yield { y, pixels: row }
+    y += 1
   }
-  if (currentWidth !== width || pixels.length !== width * height) {
-    throw invalidInput('WebP lossless transforms produced invalid dimensions')
-  }
-  return pixels
 }
 
 export const decodeLosslessWebp = (
@@ -815,7 +844,18 @@ export const decodeLosslessWebp = (
   reader.readBits(1)
   if (reader.readBits(3) !== 0) throw invalidInput('WebP lossless version is unsupported')
   validateDimensions(width, height)
-  return { width, height, pixels: decodeLosslessImage(reader, width, height) }
+  return {
+    width,
+    height,
+    *rows(): IterableIterator<LosslessWebpRows> {
+      const imageReader = new BitReader(data, offset + 1, length - 1)
+      imageReader.readBits(14)
+      imageReader.readBits(14)
+      imageReader.readBits(1)
+      imageReader.readBits(3)
+      yield* decodeLosslessImageRows(imageReader, width, height)
+    },
+  }
 }
 
 export const decodeLosslessWebpAlpha = (
@@ -824,7 +864,10 @@ export const decodeLosslessWebpAlpha = (
   length: number,
   width: number,
   height: number,
-): Uint8Array => {
-  const pixels = decodeLosslessImage(new BitReader(data, offset, length), width, height)
-  return Uint8Array.from(pixels, (pixel) => (pixel >>> 8) & 255)
-}
+): LosslessWebpImage => ({
+  width,
+  height,
+  *rows(): IterableIterator<LosslessWebpRows> {
+    yield* decodeLosslessImageRows(new BitReader(data, offset, length), width, height)
+  },
+})

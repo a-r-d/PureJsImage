@@ -49,6 +49,13 @@ test('losslessly encodes WebP with exact browser pixels', async ({ page }) => {
   expect(result.detail).toContain('matched browser RGBA pixels')
 })
 
+test('decodes lossy WebP macroblock rows in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.webpLossyDecode())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('macroblock rows decoded')
+})
+
 test('decodes a Sharp/libaom quantization-matrix AVIF', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifQuantizationMatrix())

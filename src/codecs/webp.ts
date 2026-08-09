@@ -210,51 +210,71 @@ const parseWebp = (data: Uint8Array): ParsedWebp => {
   }
 }
 
+interface AlphaRows {
+  rows(): Iterable<Uint8Array>
+}
+
 const decodeAlpha = (
   data: Uint8Array,
   chunk: WebpChunk,
   width: number,
   height: number,
-): Uint8Array => {
+): AlphaRows => {
   if (chunk.length < 1) throw truncatedInput('WebP alpha chunk is truncated')
   const flags = byte(data, chunk.offset)
   if ((flags & 0xc0) !== 0) throw invalidInput('WebP alpha reserved bits are set')
   const compression = flags & 3
   const filter = (flags >>> 2) & 3
+  if (compression > 1)
+    throw unsupportedOperation(`WebP alpha compression method ${compression} is unsupported`)
   const pixelCount = width * height
-  let alpha: Uint8Array
-  if (compression === 0) {
-    if (chunk.length - 1 < pixelCount) throw truncatedInput('WebP raw alpha payload is truncated')
-    alpha = data.slice(chunk.offset + 1, chunk.offset + 1 + pixelCount)
-  } else if (compression === 1) {
-    alpha = decodeLosslessWebpAlpha(data, chunk.offset + 1, chunk.length - 1, width, height)
-  } else throw unsupportedOperation(`WebP alpha compression method ${compression} is unsupported`)
-
-  if (filter === 0) return alpha
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const index = y * width + x
-      const left = x > 0 ? (alpha[index - 1] ?? 0) : 0
-      const above = y > 0 ? (alpha[index - width] ?? 0) : 0
-      const upperLeft = x > 0 && y > 0 ? (alpha[index - width - 1] ?? 0) : 0
-      const predictor =
-        filter === 1
-          ? x > 0
-            ? left
-            : above
-          : filter === 2
-            ? y > 0
-              ? above
-              : left
-            : x === 0
-              ? above
-              : y === 0
-                ? left
-                : Math.max(0, Math.min(255, left + above - upperLeft))
-      alpha[index] = ((alpha[index] ?? 0) + predictor) & 255
-    }
+  if (compression === 0 && chunk.length - 1 < pixelCount) {
+    throw truncatedInput('WebP raw alpha payload is truncated')
   }
-  return alpha
+  const compressed =
+    compression === 1
+      ? decodeLosslessWebpAlpha(data, chunk.offset + 1, chunk.length - 1, width, height)
+      : undefined
+  return {
+    *rows(): IterableIterator<Uint8Array> {
+      const sourceRows = compressed?.rows()[Symbol.iterator]()
+      let previous: Uint8Array | undefined
+      for (let y = 0; y < height; y += 1) {
+        const source =
+          compression === 0
+            ? data.subarray(chunk.offset + 1 + y * width, chunk.offset + 1 + (y + 1) * width)
+            : sourceRows?.next().value?.pixels
+        if (!source || source.length !== width)
+          throw truncatedInput('WebP alpha rows are truncated')
+        const alpha = new Uint8Array(width)
+        for (let x = 0; x < width; x += 1) {
+          const left = x > 0 ? (alpha[x - 1] ?? 0) : 0
+          const above = previous?.[x] ?? 0
+          const upperLeft = x > 0 ? (previous?.[x - 1] ?? 0) : 0
+          const predictor =
+            filter === 0
+              ? 0
+              : filter === 1
+                ? x > 0
+                  ? left
+                  : above
+                : filter === 2
+                  ? y > 0
+                    ? above
+                    : left
+                  : x === 0
+                    ? above
+                    : y === 0
+                      ? left
+                      : Math.max(0, Math.min(255, left + above - upperLeft))
+          const residual = compression === 0 ? (source[x] ?? 0) : ((source[x] ?? 0) >>> 8) & 255
+          alpha[x] = (residual + predictor) & 255
+        }
+        yield alpha
+        previous = alpha
+      }
+    },
+  }
 }
 
 const decodeRegion = (
@@ -283,6 +303,18 @@ const decodeRegion = (
   return { x, y, width: outputWidth, height: outputHeight }
 }
 
+interface WebpPixelRows {
+  readonly y: number
+  readonly height: number
+  readonly pixels: Uint32Array
+}
+
+interface WebpPixelSource {
+  readonly width: number
+  readonly height: number
+  rows(): Iterable<WebpPixelRows>
+}
+
 class WebpPixelDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
@@ -293,35 +325,51 @@ class WebpPixelDecoder implements ImageDecoder {
     scaledDecode: false,
     progressive: false,
   })
-  readonly #pixels: Uint32Array
+  readonly #source: WebpPixelSource
+  readonly #alpha: AlphaRows | undefined
 
-  constructor(width: number, height: number, pixels: Uint32Array) {
-    this.width = width
-    this.height = height
-    this.#pixels = pixels
+  constructor(source: WebpPixelSource, alpha?: AlphaRows) {
+    this.width = source.width
+    this.height = source.height
+    this.#source = source
+    this.#alpha = alpha
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const region = decodeRegion(this.width, this.height, request)
-    const rowsPerBlock = 32
-    for (let rowStart = 0; rowStart < region.height; rowStart += rowsPerBlock) {
-      const blockHeight = Math.min(rowsPerBlock, region.height - rowStart)
+    const alphaRows = this.#alpha?.rows()[Symbol.iterator]()
+    for (const block of this.#source.rows()) {
+      const alphaBlock: Uint8Array[] = []
+      if (alphaRows) {
+        for (let row = 0; row < block.height; row += 1) {
+          const alpha = alphaRows.next().value
+          if (!alpha || alpha.length !== this.width)
+            throw truncatedInput('WebP alpha rows are truncated')
+          alphaBlock.push(alpha)
+        }
+      }
+      const sourceStart = Math.max(block.y, region.y)
+      const sourceEnd = Math.min(block.y + block.height, region.y + region.height)
+      if (sourceStart >= sourceEnd) continue
+      const blockHeight = sourceEnd - sourceStart
       const stride = region.width * 4
       const data = new Uint8Array(stride * blockHeight)
       for (let row = 0; row < blockHeight; row += 1) {
-        const sourceY = region.y + rowStart + row
+        const sourceY = sourceStart + row
+        const blockRow = sourceY - block.y
         for (let x = 0; x < region.width; x += 1) {
-          const color = this.#pixels[sourceY * this.width + region.x + x] ?? 0
+          const sourceX = region.x + x
+          const color = block.pixels[blockRow * this.width + sourceX] ?? 0
           const target = row * stride + x * 4
           data[target] = (color >>> 16) & 255
           data[target + 1] = (color >>> 8) & 255
           data[target + 2] = color & 255
-          data[target + 3] = color >>> 24
+          data[target + 3] = alphaRows ? (alphaBlock[blockRow]?.[sourceX] ?? 0) : color >>> 24
         }
       }
       yield {
         x: 0,
-        y: rowStart,
+        y: sourceStart - region.y,
         width: region.width,
         height: blockHeight,
         stride,
@@ -427,26 +475,40 @@ export const webpCodec: ImageCodec = {
     validateImageDimensions(parsed.width, parsed.height, parsed.frames, limits)
     if (parsed.animated) throw unsupportedOperation('Animated WebP decoding is not implemented')
     if (!parsed.image) throw invalidInput('WebP image bitstream is missing')
-    const decoded =
+    const decoded: WebpPixelSource =
       parsed.image.type === 'VP8L'
-        ? decodeLosslessWebp(data, parsed.image.offset, parsed.image.length, (width, height) => {
-            validateImageDimensions(width, height, 1, limits)
-          })
+        ? (() => {
+            const lossless = decodeLosslessWebp(
+              data,
+              parsed.image.offset,
+              parsed.image.length,
+              (width, height) => validateImageDimensions(width, height, 1, limits),
+            )
+            return {
+              width: lossless.width,
+              height: lossless.height,
+              *rows(): IterableIterator<WebpPixelRows> {
+                for (const row of lossless.rows()) {
+                  yield { y: row.y, height: 1, pixels: row.pixels }
+                }
+              },
+            }
+          })()
         : decodeVp8(data, parsed.image.offset, parsed.image.length, (width, height) => {
             validateImageDimensions(width, height, 1, limits)
           })
-    if (parsed.image.type === 'VP8 ' && parsed.hasAlpha) {
-      if (!parsed.alpha) throw invalidInput('WebP extended alpha chunk is missing')
-      const alpha = decodeAlpha(data, parsed.alpha, decoded.width, decoded.height)
-      for (let index = 0; index < decoded.pixels.length; index += 1) {
-        decoded.pixels[index] =
-          ((alpha[index] ?? 0) << 24) | ((decoded.pixels[index] ?? 0) & 0x00ffffff)
-      }
-    }
+    const alpha =
+      parsed.image.type === 'VP8 ' && parsed.hasAlpha
+        ? parsed.alpha
+          ? decodeAlpha(data, parsed.alpha, decoded.width, decoded.height)
+          : (() => {
+              throw invalidInput('WebP extended alpha chunk is missing')
+            })()
+        : undefined
     if (decoded.width !== parsed.width || decoded.height !== parsed.height) {
       throw invalidInput('WebP canvas and image bitstream dimensions do not match')
     }
-    const decoder = new WebpPixelDecoder(decoded.width, decoded.height, decoded.pixels)
+    const decoder = new WebpPixelDecoder(decoded, alpha)
     return parsed.colorTransform && options.preserveIcc !== true
       ? new ColorManagedDecoder(decoder, parsed.colorTransform)
       : decoder

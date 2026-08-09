@@ -73,6 +73,8 @@ const fixtureGenerators: ReadonlySet<unknown> = new Set([
   'tiff-gradient',
   'tiny-transparent',
   'transparent-logo',
+  'webp-gradient-lossless',
+  'webp-gradient-lossy',
 ])
 
 const isGeneratedFixture = (value: unknown): value is GeneratedFixture => {

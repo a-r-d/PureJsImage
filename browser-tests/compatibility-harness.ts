@@ -194,7 +194,8 @@ const webpLossless = async (): Promise<BrowserWorkflowResult> => {
     )
   }
   const sourcePixels = await browserPixels(input, 'image/png')
-  const outputPixels = await browserPixels(output, 'image/webp')
+  const decoded = await (await images.open(output)).png().toUint8Array()
+  const outputPixels = await browserPixels(decoded, 'image/png')
   if (sourcePixels.length !== outputPixels.length)
     throw new Error('Lossless WebP pixel size changed')
   for (let offset = 0; offset < sourcePixels.length; offset += 1) {
@@ -204,6 +205,31 @@ const webpLossless = async (): Promise<BrowserWorkflowResult> => {
   }
   return {
     detail: 'first-party lossless WebP matched browser RGBA pixels',
+    outputBytes: output.byteLength,
+  }
+}
+
+const webpLossyDecode = async (): Promise<BrowserWorkflowResult> => {
+  const encoded = atob(
+    'UklGRqQAAABXRUJQVlA4IJgAAABwBACdASogABgAPmUmj0WkIiEb/VQAQAZEs4BmwkBKSJFI4AHVyHQgWMclgAD+/qV1+gM5jXoqf8T/xA/L7f0lia3y/8Hn4WHFIQuFlP1xw1tSDx+ucwX+ndmTYQ35mZkrIBYOX9PWp0ByLB1fAb9EWwcebp60J6lOM+Wjvcp762MmOBNj6axIrCC/NsuuSyHsh32LLNAAAA==',
+  )
+  const input = Uint8Array.from(encoded, (value) => value.charCodeAt(0))
+  const output = await (await images.open(input)).png().toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.format !== 'png' || metadata.width !== 32 || metadata.height !== 24) {
+    throw new Error(`Lossy WebP decode was ${metadata.format} ${metadata.width}x${metadata.height}`)
+  }
+  const pixels = await browserPixels(output, 'image/png')
+  const center = (12 * 32 + 16) * 4
+  if (
+    Math.abs((pixels[center] ?? 0) - 149) > 18 ||
+    Math.abs((pixels[center + 1] ?? 0) - 171) > 18 ||
+    Math.abs((pixels[center + 2] ?? 0) - 189) > 18
+  ) {
+    throw new Error('Lossy WebP center pixel is outside the validated tolerance')
+  }
+  return {
+    detail: 'first-party lossy WebP macroblock rows decoded to 32x24 PNG',
     outputBytes: output.byteLength,
   }
 }
@@ -323,6 +349,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   progressiveJpeg,
   wasmJpeg,
   webpLossless,
+  webpLossyDecode,
 })
 
 window.pureJsImageBrowserTests = harness

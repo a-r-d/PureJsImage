@@ -723,10 +723,10 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "Static images only; current paths retain full-frame working planes",
+      "boundary": "Static images only; compressed RIFF input and compact VP8L transform maps remain source-sized",
       "description": "Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy or lossless WebP with opt-in EXIF and compatible ICC preservation. Animation is detected and rejected for pixel decode.",
-      "memory": "VP8 and VP8L retain source-sized working planes; lossless encode uses a measured 32-bit transformed frame, a fixed 4 MiB match table for nontrivial images, and buffers its encoded payload",
-      "recommendation": "Static web delivery with lossy or exact lossless modes; benchmark memory for large inputs.",
+      "memory": "VP8 uses two macroblock rows; VP8L uses a fixed maximum 4 MiB entropy history plus scanline transform buffers. Decode still retains compressed input and compact transform maps. Lossless encode retains a 32-bit transformed frame, fixed 4 MiB match table, and encoded payload.",
+      "recommendation": "Static web delivery with lossy or exact lossless modes; use the 12-megapixel VP8 and VP8L pressure fixtures when changing decode memory.",
       "evidence": [
         "tests/webp.test.ts",
         "tests/metadata-preservation.test.ts",
@@ -826,11 +826,11 @@
           "text": "Exact alpha reconstruction"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Bounded-row or tiled lossless reconstruction without retaining a full 32-bit source pixel plane"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Avoid duplicate full-frame storage while reversing color-indexing and other transforms"
         },
         {
@@ -882,7 +882,7 @@
           "text": "None, horizontal, vertical, and gradient alpha filtering"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Bounded macroblock-row VP8 reconstruction without full Y, U, V, and RGBA frame allocations"
         },
         {
@@ -894,7 +894,7 @@
           "text": "Higher-quality chroma-siting-aware upsampling instead of nearest chroma sample selection"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Alpha-plane reconstruction in bounded rows"
         },
         {
@@ -923,11 +923,11 @@
         },
         {
           "status": "supported",
-          "text": "Region selection from the decoded pixel plane"
+          "text": "Region selection while decoded rows advance"
         },
         {
           "status": "supported",
-          "text": "Bounded 32-row `rgba8` output blocks after full-frame reconstruction"
+          "text": "Bounded `rgba8` output blocks during VP8 and VP8L reconstruction"
         },
         {
           "status": "supported",
@@ -1108,6 +1108,10 @@
         {
           "status": "supported",
           "text": "Benchmark metadata, decode, conversion, crop, resize, lossy encode, and lossless encode in isolated processes"
+        },
+        {
+          "status": "supported",
+          "text": "Gate VP8 and VP8L decode memory with reproducible 4000x3000 pressure fixtures and oracle-derived output samples"
         },
         {
           "status": "supported",

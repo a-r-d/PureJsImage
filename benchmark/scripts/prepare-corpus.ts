@@ -4,6 +4,7 @@ import { basename } from 'node:path'
 import { createDeflate } from 'node:zlib'
 import { GifWriter } from 'omggif'
 import { PNG } from 'pngjs'
+import sharp from 'sharp'
 import {
   allFixtures,
   corpusFilesDirectory,
@@ -258,6 +259,25 @@ const writeTiffGradient = async (fixture: GeneratedCorpusFixture): Promise<void>
   }
 }
 
+const writeWebpGradient = async (
+  fixture: GeneratedCorpusFixture,
+  lossless: boolean,
+): Promise<void> => {
+  const { width, height } = fixture.expected
+  const pixels = new Uint8Array(width * height * 3)
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const offset = (y * width + x) * 3
+      pixels[offset] = Math.round((x / (width - 1)) * 255)
+      pixels[offset + 1] = Math.round((y / (height - 1)) * 255)
+      pixels[offset + 2] = (x + y) & 255
+    }
+  }
+  await sharp(pixels, { raw: { width, height, channels: 3 } })
+    .webp({ lossless, quality: 82, effort: 6 })
+    .toFile(fixturePath(fixture))
+}
+
 interface IcoPayload {
   readonly width: number
   readonly height: number
@@ -479,6 +499,10 @@ const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
       return writeStreamingStressPng(fixture)
     case 'tiff-gradient':
       return writeTiffGradient(fixture)
+    case 'webp-gradient-lossless':
+      return writeWebpGradient(fixture, true)
+    case 'webp-gradient-lossy':
+      return writeWebpGradient(fixture, false)
     default:
       throw new Error(`Unknown fixture generator: ${fixture.generator}`)
   }

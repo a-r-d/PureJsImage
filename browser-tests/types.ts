@@ -14,6 +14,7 @@ export interface BrowserCompatibilityHarness {
   orientation(): Promise<BrowserWorkflowResult>
   pngAlphaPipeline(): Promise<BrowserWorkflowResult>
   webpLossless(): Promise<BrowserWorkflowResult>
+  webpLossyDecode(): Promise<BrowserWorkflowResult>
 }
 
 export interface BrowserBenchmarkMeasurement {

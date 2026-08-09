@@ -5,10 +5,16 @@ import {
   keyframeBlockModeProbabilities,
 } from './vp8-tables.ts'
 
+export interface DecodedVp8Rows {
+  readonly y: number
+  readonly height: number
+  readonly pixels: Uint32Array
+}
+
 export interface DecodedVp8 {
   readonly width: number
   readonly height: number
-  readonly pixels: Uint32Array
+  rows(): Iterable<DecodedVp8Rows>
 }
 
 const DC = 0
@@ -322,54 +328,49 @@ const macroToBlockMode = (block: Macroblock, position: number): number => {
   return 0
 }
 
-const decodeModes = (
+const decodeModeRow = (
   decoder: BooleanDecoder,
-  rows: number,
   columns: number,
+  above: Macroblock[],
   segmentation: Segmentation,
   skipEnabled: boolean,
   skipProbability: number,
-): Macroblock[][] => {
-  const output: Macroblock[][] = []
-  const above = Array.from({ length: columns }, macroblock)
-  for (let row = 0; row < rows; row += 1) {
-    const currentRow: Macroblock[] = []
-    let left = macroblock()
-    for (let column = 0; column < columns; column += 1) {
-      const current = macroblock()
-      if (segmentation.updateMap) {
-        current.segment =
-          decoder.bit(segmentation.treeProbabilities[0]) === 1
-            ? 2 + decoder.bit(segmentation.treeProbabilities[2])
-            : decoder.bit(segmentation.treeProbabilities[1])
-      }
-      if (skipEnabled) current.skip = decoder.bit(skipProbability) === 1
-      current.yMode = readTree(decoder, keyframeYModeTree, keyframeYModeProbabilities)
-      const aboveMacroblock = above[column] ?? macroblock()
-      if (current.yMode === BLOCK) {
-        for (let block = 0; block < 16; block += 1) {
-          const aboveMode =
-            block < 4
-              ? macroToBlockMode(aboveMacroblock, block + 12)
-              : (current.modes[block - 4] ?? 0)
-          const leftMode =
-            (block & 3) === 0 ? macroToBlockMode(left, block + 3) : (current.modes[block - 1] ?? 0)
-          current.modes[block] = readTree(
-            decoder,
-            blockModeTree,
-            keyframeBlockModeProbabilities,
-            (aboveMode * 10 + leftMode) * 9,
-          )
-        }
-      }
-      current.uvMode = readTree(decoder, uvModeTree, keyframeUvModeProbabilities)
-      currentRow.push(current)
-      above[column] = current
-      left = current
+): Macroblock[] => {
+  const currentRow: Macroblock[] = []
+  let left = macroblock()
+  for (let column = 0; column < columns; column += 1) {
+    const current = macroblock()
+    if (segmentation.updateMap) {
+      current.segment =
+        decoder.bit(segmentation.treeProbabilities[0]) === 1
+          ? 2 + decoder.bit(segmentation.treeProbabilities[2])
+          : decoder.bit(segmentation.treeProbabilities[1])
     }
-    output.push(currentRow)
+    if (skipEnabled) current.skip = decoder.bit(skipProbability) === 1
+    current.yMode = readTree(decoder, keyframeYModeTree, keyframeYModeProbabilities)
+    const aboveMacroblock = above[column] ?? macroblock()
+    if (current.yMode === BLOCK) {
+      for (let block = 0; block < 16; block += 1) {
+        const aboveMode =
+          block < 4
+            ? macroToBlockMode(aboveMacroblock, block + 12)
+            : (current.modes[block - 4] ?? 0)
+        const leftMode =
+          (block & 3) === 0 ? macroToBlockMode(left, block + 3) : (current.modes[block - 1] ?? 0)
+        current.modes[block] = readTree(
+          decoder,
+          blockModeTree,
+          keyframeBlockModeProbabilities,
+          (aboveMode * 10 + leftMode) * 9,
+        )
+      }
+    }
+    current.uvMode = readTree(decoder, uvModeTree, keyframeUvModeProbabilities)
+    currentRow.push(current)
+    above[column] = current
+    left = current
   }
-  return output
+  return currentRow
 }
 
 const probabilityIndex = (type: number, coefficient: number, context: number): number =>
@@ -973,97 +974,96 @@ const loopFilterParameters = (
   return [level, interior, variance]
 }
 
-const applyLoopFilter = (
+const applyLoopFilterRow = (
   yPlane: Plane,
   uPlane: Plane,
   vPlane: Plane,
-  macroblocks: readonly (readonly Macroblock[])[],
+  blocks: readonly Macroblock[],
+  planeRow: number,
+  imageRow: number,
   segmentation: Segmentation,
   filter: LoopFilter,
 ): void => {
   if (filter.level === 0 && !segmentation.enabled) return
-  for (let row = 0; row < macroblocks.length; row += 1) {
-    const blocks = macroblocks[row] ?? []
-    for (let column = 0; column < blocks.length; column += 1) {
-      const block = blocks[column]
-      if (!block) continue
-      const [level, interior, variance] = loopFilterParameters(block, segmentation, filter)
-      if (level === 0) continue
-      const y = yPlane.origin + row * 16 * yPlane.stride + column * 16
-      const u = uPlane.origin + row * 8 * uPlane.stride + column * 8
-      const v = vPlane.origin + row * 8 * vPlane.stride + column * 8
-      const subblocks = block.hasCoefficients || block.yMode === BLOCK
-      if (filter.simple) {
-        const macroblockLimit = (level + 2) * 2 + interior
-        const subblockLimit = level * 2 + interior
-        if (column > 0) filterSimpleEdge(yPlane, y, 1, yPlane.stride, 16, macroblockLimit)
-        if (subblocks) {
-          for (const edge of [4, 8, 12]) {
-            filterSimpleEdge(yPlane, y + edge, 1, yPlane.stride, 16, subblockLimit)
-          }
-        }
-        if (row > 0) filterSimpleEdge(yPlane, y, yPlane.stride, 1, 16, macroblockLimit)
-        if (subblocks) {
-          for (const edge of [4, 8, 12]) {
-            filterSimpleEdge(yPlane, y + edge * yPlane.stride, yPlane.stride, 1, 16, subblockLimit)
-          }
-        }
-        continue
-      }
-      if (column > 0) {
-        filterNormalEdge(yPlane, y, 1, yPlane.stride, 16, level + 2, interior, variance, true)
-        filterNormalEdge(uPlane, u, 1, uPlane.stride, 8, level + 2, interior, variance, true)
-        filterNormalEdge(vPlane, v, 1, vPlane.stride, 8, level + 2, interior, variance, true)
-      }
+  for (let column = 0; column < blocks.length; column += 1) {
+    const block = blocks[column]
+    if (!block) continue
+    const [level, interior, variance] = loopFilterParameters(block, segmentation, filter)
+    if (level === 0) continue
+    const y = yPlane.origin + planeRow * 16 * yPlane.stride + column * 16
+    const u = uPlane.origin + planeRow * 8 * uPlane.stride + column * 8
+    const v = vPlane.origin + planeRow * 8 * vPlane.stride + column * 8
+    const subblocks = block.hasCoefficients || block.yMode === BLOCK
+    if (filter.simple) {
+      const macroblockLimit = (level + 2) * 2 + interior
+      const subblockLimit = level * 2 + interior
+      if (column > 0) filterSimpleEdge(yPlane, y, 1, yPlane.stride, 16, macroblockLimit)
       if (subblocks) {
         for (const edge of [4, 8, 12]) {
-          filterNormalEdge(yPlane, y + edge, 1, yPlane.stride, 16, level, interior, variance, false)
+          filterSimpleEdge(yPlane, y + edge, 1, yPlane.stride, 16, subblockLimit)
         }
-        filterNormalEdge(uPlane, u + 4, 1, uPlane.stride, 8, level, interior, variance, false)
-        filterNormalEdge(vPlane, v + 4, 1, vPlane.stride, 8, level, interior, variance, false)
       }
-      if (row > 0) {
-        filterNormalEdge(yPlane, y, yPlane.stride, 1, 16, level + 2, interior, variance, true)
-        filterNormalEdge(uPlane, u, uPlane.stride, 1, 8, level + 2, interior, variance, true)
-        filterNormalEdge(vPlane, v, vPlane.stride, 1, 8, level + 2, interior, variance, true)
-      }
+      if (imageRow > 0) filterSimpleEdge(yPlane, y, yPlane.stride, 1, 16, macroblockLimit)
       if (subblocks) {
         for (const edge of [4, 8, 12]) {
-          filterNormalEdge(
-            yPlane,
-            y + edge * yPlane.stride,
-            yPlane.stride,
-            1,
-            16,
-            level,
-            interior,
-            variance,
-            false,
-          )
+          filterSimpleEdge(yPlane, y + edge * yPlane.stride, yPlane.stride, 1, 16, subblockLimit)
         }
+      }
+      continue
+    }
+    if (column > 0) {
+      filterNormalEdge(yPlane, y, 1, yPlane.stride, 16, level + 2, interior, variance, true)
+      filterNormalEdge(uPlane, u, 1, uPlane.stride, 8, level + 2, interior, variance, true)
+      filterNormalEdge(vPlane, v, 1, vPlane.stride, 8, level + 2, interior, variance, true)
+    }
+    if (subblocks) {
+      for (const edge of [4, 8, 12]) {
+        filterNormalEdge(yPlane, y + edge, 1, yPlane.stride, 16, level, interior, variance, false)
+      }
+      filterNormalEdge(uPlane, u + 4, 1, uPlane.stride, 8, level, interior, variance, false)
+      filterNormalEdge(vPlane, v + 4, 1, vPlane.stride, 8, level, interior, variance, false)
+    }
+    if (imageRow > 0) {
+      filterNormalEdge(yPlane, y, yPlane.stride, 1, 16, level + 2, interior, variance, true)
+      filterNormalEdge(uPlane, u, uPlane.stride, 1, 8, level + 2, interior, variance, true)
+      filterNormalEdge(vPlane, v, vPlane.stride, 1, 8, level + 2, interior, variance, true)
+    }
+    if (subblocks) {
+      for (const edge of [4, 8, 12]) {
         filterNormalEdge(
-          uPlane,
-          u + 4 * uPlane.stride,
-          uPlane.stride,
+          yPlane,
+          y + edge * yPlane.stride,
+          yPlane.stride,
           1,
-          8,
-          level,
-          interior,
-          variance,
-          false,
-        )
-        filterNormalEdge(
-          vPlane,
-          v + 4 * vPlane.stride,
-          vPlane.stride,
-          1,
-          8,
+          16,
           level,
           interior,
           variance,
           false,
         )
       }
+      filterNormalEdge(
+        uPlane,
+        u + 4 * uPlane.stride,
+        uPlane.stride,
+        1,
+        8,
+        level,
+        interior,
+        variance,
+        false,
+      )
+      filterNormalEdge(
+        vPlane,
+        v + 4 * vPlane.stride,
+        vPlane.stride,
+        1,
+        8,
+        level,
+        interior,
+        variance,
+        false,
+      )
     }
   }
 }
@@ -1078,6 +1078,44 @@ const yuvToArgb = (y: number, u: number, v: number): number => {
 
 const uint24 = (data: Uint8Array, offset: number): number =>
   (data[offset] ?? 0) | ((data[offset + 1] ?? 0) << 8) | ((data[offset + 2] ?? 0) << 16)
+
+const physicalRowOffset = (plane: Plane, pixelRow: number): number =>
+  plane.origin - 1 + pixelRow * plane.stride
+
+const copyPlaneMacroblockRow = (plane: Plane, rowHeight: number): void => {
+  const target = physicalRowOffset(plane, 0)
+  const source = physicalRowOffset(plane, rowHeight)
+  plane.data.copyWithin(target, source, source + rowHeight * plane.stride)
+}
+
+const savePlaneRow = (plane: Plane, pixelRow: number): Uint8Array => {
+  const offset = physicalRowOffset(plane, pixelRow)
+  return plane.data.slice(offset, offset + plane.stride)
+}
+
+const restorePlaneRow = (plane: Plane, pixelRow: number, row: Uint8Array): void => {
+  plane.data.set(row, physicalRowOffset(plane, pixelRow))
+}
+
+const convertVp8Rows = (
+  yPlane: Plane,
+  uPlane: Plane,
+  vPlane: Plane,
+  width: number,
+  height: number,
+): Uint32Array => {
+  const pixels = new Uint32Array(width * height)
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      pixels[y * width + x] = yuvToArgb(
+        yPlane.data[yPlane.origin + y * yPlane.stride + x] ?? 0,
+        uPlane.data[uPlane.origin + (y >> 1) * uPlane.stride + (x >> 1)] ?? 0,
+        vPlane.data[vPlane.origin + (y >> 1) * vPlane.stride + (x >> 1)] ?? 0,
+      )
+    }
+  }
+  return pixels
+}
 
 export const decodeVp8 = (
   data: Uint8Array,
@@ -1100,101 +1138,156 @@ export const decodeVp8 = (
   const width = ((data[offset + 6] ?? 0) | ((data[offset + 7] ?? 0) << 8)) & 0x3fff
   const height = ((data[offset + 8] ?? 0) | ((data[offset + 9] ?? 0) << 8)) & 0x3fff
   validateDimensions(width, height)
-  const header = new BooleanDecoder(data, firstPartitionOffset, firstPartitionLength)
-  if (header.uint(2) !== 0)
-    throw unsupportedOperation('VP8 reserved color-space bits are unsupported')
-  const segmentation = parseSegmentation(header)
-  const loopFilter = parseLoopFilter(header)
-  const partitionCount = 1 << header.uint(2)
-  const quantization = parseQuantization(header)
-  header.bit()
-  const probabilities = defaultCoefficientProbabilities.slice()
-  for (let index = 0; index < probabilities.length; index += 1) {
-    if (header.bit(coefficientUpdateProbabilities[index]) === 1)
-      probabilities[index] = header.uint(8)
-  }
-  const skipEnabled = header.bit() === 1
-  const skipProbability = skipEnabled ? header.uint(8) : 0
-  const rows = Math.ceil(height / 16)
-  const columns = Math.ceil(width / 16)
-  const macroblocks = decodeModes(header, rows, columns, segmentation, skipEnabled, skipProbability)
-
-  const sizeTableOffset = firstPartitionOffset + firstPartitionLength
-  const tokenOffset = sizeTableOffset + 3 * (partitionCount - 1)
-  if (tokenOffset > offset + length) throw truncatedInput('VP8 token partition table is truncated')
-  const tokenDecoders: BooleanDecoder[] = []
-  let currentOffset = tokenOffset
-  for (let index = 0; index < partitionCount; index += 1) {
-    const partitionLength =
-      index + 1 < partitionCount
-        ? uint24(data, sizeTableOffset + index * 3)
-        : offset + length - currentOffset
-    if (currentOffset + partitionLength > offset + length) {
-      throw truncatedInput('VP8 token partition is truncated')
-    }
-    tokenDecoders.push(new BooleanDecoder(data, currentOffset, partitionLength))
-    currentOffset += partitionLength
-  }
-
-  const yPlane = createPlane(columns * 16, rows * 16)
-  const uPlane = createPlane(columns * 8, rows * 8)
-  const vPlane = createPlane(columns * 8, rows * 8)
-  const aboveContexts = Array.from({ length: columns }, () => new Int8Array(9))
-  const inverseDctTemporary = new Int32Array(16)
-  const factors = Array.from({ length: 4 }, (_, segment) =>
-    factorSet(segment, segmentation, quantization),
-  )
-  for (let row = 0; row < rows; row += 1) {
-    const leftContext = new Int8Array(9)
-    const tokenDecoder = tokenDecoders[row % partitionCount]
-    if (!tokenDecoder) throw invalidInput('VP8 token partition is missing')
-    for (let column = 0; column < columns; column += 1) {
-      const block = macroblocks[row]?.[column]
-      const aboveContext = aboveContexts[column]
-      if (!block || !aboveContext) throw invalidInput('VP8 macroblock state is missing')
-      let coefficients: Int32Array = new Int32Array(25 * 16)
-      if (block.skip) {
-        leftContext.fill(0, 0, 8)
-        aboveContext.fill(0, 0, 8)
-        if (block.yMode !== BLOCK) {
-          leftContext[8] = 0
-          aboveContext[8] = 0
-        }
-      } else {
-        coefficients = decodeMacroblockCoefficients(
-          tokenDecoder,
-          probabilities,
-          block,
-          factors[block.segment] ?? factorSet(0, segmentation, quantization),
-          leftContext,
-          aboveContext,
-        )
+  return {
+    width,
+    height,
+    *rows(): IterableIterator<DecodedVp8Rows> {
+      const header = new BooleanDecoder(data, firstPartitionOffset, firstPartitionLength)
+      if (header.uint(2) !== 0)
+        throw unsupportedOperation('VP8 reserved color-space bits are unsupported')
+      const segmentation = parseSegmentation(header)
+      const loopFilter = parseLoopFilter(header)
+      const partitionCount = 1 << header.uint(2)
+      const quantization = parseQuantization(header)
+      header.bit()
+      const probabilities = defaultCoefficientProbabilities.slice()
+      for (let index = 0; index < probabilities.length; index += 1) {
+        if (header.bit(coefficientUpdateProbabilities[index]) === 1)
+          probabilities[index] = header.uint(8)
       }
-      reconstruct(
-        yPlane,
-        uPlane,
-        vPlane,
-        row,
-        column,
-        block,
-        coefficients,
-        column + 1 === columns,
-        inverseDctTemporary,
-      )
-    }
-  }
+      const skipEnabled = header.bit() === 1
+      const skipProbability = skipEnabled ? header.uint(8) : 0
+      const macroblockRows = Math.ceil(height / 16)
+      const columns = Math.ceil(width / 16)
+      const modeAbove = Array.from({ length: columns }, macroblock)
 
-  applyLoopFilter(yPlane, uPlane, vPlane, macroblocks, segmentation, loopFilter)
+      const sizeTableOffset = firstPartitionOffset + firstPartitionLength
+      const tokenOffset = sizeTableOffset + 3 * (partitionCount - 1)
+      if (tokenOffset > offset + length)
+        throw truncatedInput('VP8 token partition table is truncated')
+      const tokenDecoders: BooleanDecoder[] = []
+      let currentOffset = tokenOffset
+      for (let index = 0; index < partitionCount; index += 1) {
+        const partitionLength =
+          index + 1 < partitionCount
+            ? uint24(data, sizeTableOffset + index * 3)
+            : offset + length - currentOffset
+        if (currentOffset + partitionLength > offset + length) {
+          throw truncatedInput('VP8 token partition is truncated')
+        }
+        tokenDecoders.push(new BooleanDecoder(data, currentOffset, partitionLength))
+        currentOffset += partitionLength
+      }
 
-  const pixels = new Uint32Array(width * height)
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      pixels[y * width + x] = yuvToArgb(
-        yPlane.data[yPlane.origin + y * yPlane.stride + x] ?? 0,
-        uPlane.data[uPlane.origin + (y >> 1) * uPlane.stride + (x >> 1)] ?? 0,
-        vPlane.data[vPlane.origin + (y >> 1) * vPlane.stride + (x >> 1)] ?? 0,
+      const yPlane = createPlane(columns * 16, 32)
+      const uPlane = createPlane(columns * 8, 16)
+      const vPlane = createPlane(columns * 8, 16)
+      const aboveContexts = Array.from({ length: columns }, () => new Int8Array(9))
+      const inverseDctTemporary = new Int32Array(16)
+      const factors = Array.from({ length: 4 }, (_, segment) =>
+        factorSet(segment, segmentation, quantization),
       )
-    }
+      let unfilteredYAbove: Uint8Array | undefined
+      let unfilteredUAbove: Uint8Array | undefined
+      let unfilteredVAbove: Uint8Array | undefined
+
+      for (let row = 0; row < macroblockRows; row += 1) {
+        const planeRow = row === 0 ? 0 : 1
+        let filteredYAbove: Uint8Array | undefined
+        let filteredUAbove: Uint8Array | undefined
+        let filteredVAbove: Uint8Array | undefined
+        if (row > 0) {
+          filteredYAbove = savePlaneRow(yPlane, 15)
+          filteredUAbove = savePlaneRow(uPlane, 7)
+          filteredVAbove = savePlaneRow(vPlane, 7)
+          if (!unfilteredYAbove || !unfilteredUAbove || !unfilteredVAbove) {
+            throw invalidInput('VP8 predictor row is missing')
+          }
+          restorePlaneRow(yPlane, 15, unfilteredYAbove)
+          restorePlaneRow(uPlane, 7, unfilteredUAbove)
+          restorePlaneRow(vPlane, 7, unfilteredVAbove)
+        }
+
+        const blocks = decodeModeRow(
+          header,
+          columns,
+          modeAbove,
+          segmentation,
+          skipEnabled,
+          skipProbability,
+        )
+        const leftContext = new Int8Array(9)
+        const tokenDecoder = tokenDecoders[row % partitionCount]
+        if (!tokenDecoder) throw invalidInput('VP8 token partition is missing')
+        for (let column = 0; column < columns; column += 1) {
+          const block = blocks[column]
+          const aboveContext = aboveContexts[column]
+          if (!block || !aboveContext) throw invalidInput('VP8 macroblock state is missing')
+          let coefficients: Int32Array = new Int32Array(25 * 16)
+          if (block.skip) {
+            leftContext.fill(0, 0, 8)
+            aboveContext.fill(0, 0, 8)
+            if (block.yMode !== BLOCK) {
+              leftContext[8] = 0
+              aboveContext[8] = 0
+            }
+          } else {
+            coefficients = decodeMacroblockCoefficients(
+              tokenDecoder,
+              probabilities,
+              block,
+              factors[block.segment] ?? factorSet(0, segmentation, quantization),
+              leftContext,
+              aboveContext,
+            )
+          }
+          reconstruct(
+            yPlane,
+            uPlane,
+            vPlane,
+            planeRow,
+            column,
+            block,
+            coefficients,
+            column + 1 === columns,
+            inverseDctTemporary,
+          )
+        }
+
+        unfilteredYAbove = savePlaneRow(yPlane, planeRow * 16 + 15)
+        unfilteredUAbove = savePlaneRow(uPlane, planeRow * 8 + 7)
+        unfilteredVAbove = savePlaneRow(vPlane, planeRow * 8 + 7)
+        if (row > 0) {
+          if (!filteredYAbove || !filteredUAbove || !filteredVAbove) {
+            throw invalidInput('VP8 filtered row is missing')
+          }
+          restorePlaneRow(yPlane, 15, filteredYAbove)
+          restorePlaneRow(uPlane, 7, filteredUAbove)
+          restorePlaneRow(vPlane, 7, filteredVAbove)
+        }
+        applyLoopFilterRow(yPlane, uPlane, vPlane, blocks, planeRow, row, segmentation, loopFilter)
+
+        if (row > 0) {
+          const outputY = (row - 1) * 16
+          const outputHeight = Math.min(16, height - outputY)
+          yield {
+            y: outputY,
+            height: outputHeight,
+            pixels: convertVp8Rows(yPlane, uPlane, vPlane, width, outputHeight),
+          }
+          copyPlaneMacroblockRow(yPlane, 16)
+          copyPlaneMacroblockRow(uPlane, 8)
+          copyPlaneMacroblockRow(vPlane, 8)
+        }
+      }
+
+      const outputY = (macroblockRows - 1) * 16
+      const outputHeight = height - outputY
+      yield {
+        y: outputY,
+        height: outputHeight,
+        pixels: convertVp8Rows(yPlane, uPlane, vPlane, width, outputHeight),
+      }
+    },
   }
-  return { width, height, pixels }
 }

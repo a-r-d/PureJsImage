@@ -232,7 +232,9 @@ checks before the sample counts.
 | Workflow | Median wall | Peak RSS |
 | --- | ---: | ---: |
 | Large metadata | 0.1 ms | 91.4 MiB |
-| Large resize to JPEG | 508.1 ms | 179.1 MiB |
+| Large resize to JPEG | 510.9 ms | 127.0 MiB |
+| 12 MP lossy pressure resize | 843.0 ms | 140.7 MiB |
+| 12 MP lossless pressure resize | 921.5 ms | 130.4 MiB |
 | Lossy WebP to PNG | 214.5 ms | 143.1 MiB |
 | Lossy crop and resize | 94.0 ms | 121.6 MiB |
 | Lossless-alpha WebP to PNG | 46.9 ms | 102.2 MiB |
@@ -241,12 +243,15 @@ checks before the sample counts.
 | JPEG to lossy WebP | 979.6 ms | 123.7 MiB |
 | PNG to lossless WebP | 56.3 ms | 114.6 MiB |
 
-The current VP8/VP8L implementations still retain full-frame working planes.
-Bounded macroblock-row reconstruction and better lossless compression remain
-open targets.
+VP8 decode now retains two macroblock rows, while VP8L uses scanline transform
+buffers and a fixed maximum 4 MiB entropy history instead of full-frame pixel
+planes. Reproducible 4000x3000 lossy and lossless pressure fixtures gate both
+paths; compressed RIFF input and compact VP8L transform maps remain source-sized.
 
 See the
-[oracle-validated WebP report](benchmark/results/webp-oracle-validated-2026-08-08.md).
+[oracle-validated WebP report](benchmark/results/webp-oracle-validated-2026-08-08.md),
+[12 MP lossy pressure report](benchmark/results/webp-memory-lossy-2026-08-09.md), and
+[12 MP lossless pressure report](benchmark/results/webp-memory-lossless-2026-08-09.md).
 
 ## ICO
 

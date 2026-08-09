@@ -48,6 +48,8 @@ export type FixtureGenerator =
   | 'tiff-gradient'
   | 'tiny-transparent'
   | 'transparent-logo'
+  | 'webp-gradient-lossless'
+  | 'webp-gradient-lossy'
 
 export interface GeneratedFixture extends FixtureBase {
   generator: FixtureGenerator

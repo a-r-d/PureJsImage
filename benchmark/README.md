@@ -199,6 +199,10 @@ Static WebP decode, transform, and encode profile:
 npm run bench:webp
 ```
 
+The profile includes reproducible 4000x3000 lossy VP8 and lossless VP8L resize-to-JPEG
+pressure fixtures. Both run in isolated processes, require oracle-derived pixel samples to pass,
+and report absolute peak RSS so source-height-scaled decode buffers cannot regress unnoticed.
+
 Jimp 1.6.0 does not provide a WebP codec, so this profile is intentionally
 PureJsImage-only. Decode results still require independently generated pixel
 samples to pass. The profile records absolute time, output size, and memory

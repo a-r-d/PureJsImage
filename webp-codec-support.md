@@ -40,9 +40,9 @@ coverage.
 - [x] Subtract-green transform
 - [x] Color-indexing transform and packed palette indices
 - [x] Exact alpha reconstruction
-- [ ] Bounded-row or tiled lossless reconstruction without retaining a full
+- [x] Bounded-row or tiled lossless reconstruction without retaining a full
   32-bit source pixel plane
-- [ ] Avoid duplicate full-frame storage while reversing color-indexing and
+- [x] Avoid duplicate full-frame storage while reversing color-indexing and
   other transforms
 
 ### Lossy VP8 pixels
@@ -61,13 +61,13 @@ coverage.
 - [x] Raw extended alpha
 - [x] VP8L-compressed extended alpha
 - [x] None, horizontal, vertical, and gradient alpha filtering
-- [ ] Bounded macroblock-row VP8 reconstruction without full Y, U, V, and RGBA
+- [x] Bounded macroblock-row VP8 reconstruction without full Y, U, V, and RGBA
   frame allocations
 - [ ] Crop- and resize-aware reconstruction that avoids RGB conversion for
   pixels which cannot contribute to the output
 - [ ] Higher-quality chroma-siting-aware upsampling instead of nearest chroma
   sample selection
-- [ ] Alpha-plane reconstruction in bounded rows
+- [x] Alpha-plane reconstruction in bounded rows
 
 ### Color and metadata
 
@@ -82,8 +82,8 @@ coverage.
 
 ### Pipeline execution
 
-- [x] Region selection from the decoded pixel plane
-- [x] Bounded 32-row `rgba8` output blocks after full-frame reconstruction
+- [x] Region selection while decoded rows advance
+- [x] Bounded `rgba8` output blocks during VP8 and VP8L reconstruction
 - [x] Public crop, resize, WebP-to-WebP, and WebP-to-other-codec pipelines
 - [ ] True region decode rather than cropping a fully reconstructed source
   frame
@@ -164,6 +164,8 @@ coverage.
   and compressed lossy alpha in the permanent benchmark profile
 - [x] Benchmark metadata, decode, conversion, crop, resize, lossy encode, and
   lossless encode in isolated processes
+- [x] Gate VP8 and VP8L decode memory with reproducible 4000x3000 pressure
+  fixtures and oracle-derived output samples
 - [x] Gate lossy decode against a pinned libwebp encode and gate lossy encode
   through an independent libwebp decode with PSNR floors in the focused test
   suite

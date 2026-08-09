@@ -735,6 +735,28 @@
       }
     },
     {
+      "id": "webp-gradient-lossy-4000x3000",
+      "file": "webp-gradient-lossy-4000x3000.webp",
+      "generator": "webp-gradient-lossy",
+      "expected": {
+        "format": "webp",
+        "width": 4000,
+        "height": 3000,
+        "sha256": "973d0d6afe0dd48e7acf8bc34b0244a773492df17131a89b80772c7ea1f803f3"
+      }
+    },
+    {
+      "id": "webp-gradient-lossless-4000x3000",
+      "file": "webp-gradient-lossless-4000x3000.webp",
+      "generator": "webp-gradient-lossless",
+      "expected": {
+        "format": "webp",
+        "width": 4000,
+        "height": 3000,
+        "sha256": "d98e01a786e40f1fdf8c21fcdf7d4a8af10df94c766fe05c473cc56bcceca1b6"
+      }
+    },
+    {
       "id": "stress-gradient-10000x10000",
       "file": "stress-gradient-10000x10000.png",
       "generator": "streaming-stress-gradient",

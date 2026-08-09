@@ -31,7 +31,7 @@
           <div class="table-wrap"><table><thead><tr><th>Codec</th><th>Decode</th><th>Encode</th><th>Primary boundary</th></tr></thead><tbody>
             <tr><td><strong>JPEG</strong></td><td><span class="yes">● Yes</span></td><td><span class="yes">● Yes</span></td><td>Static 8-bit Huffman JPEG; no arithmetic, lossless, or 12-bit coding</td></tr>
             <tr><td><strong>PNG</strong></td><td><span class="yes">● Yes</span></td><td><span class="yes">● Yes</span></td><td>No APNG frame decode or indexed/16-bit output</td></tr>
-            <tr><td><strong>WebP</strong></td><td><span class="yes">● Yes</span></td><td><span class="yes">● Yes</span></td><td>Static images only; current paths retain full-frame working planes</td></tr>
+            <tr><td><strong>WebP</strong></td><td><span class="yes">● Yes</span></td><td><span class="yes">● Yes</span></td><td>Static images only; compressed RIFF input and compact VP8L transform maps remain source-sized</td></tr>
             <tr><td><strong>BMP</strong></td><td><span class="yes">● Yes</span></td><td><span class="yes">● Yes</span></td><td>Common Windows and OS/2 raster subsets; no embedded JPEG or PNG</td></tr>
             <tr><td><strong>TIFF</strong></td><td><span class="yes">● Yes</span></td><td><span class="partial">● Limited</span></td><td>Uncompressed 8-bit output; no multi-image or compressed TIFF encoding</td></tr>
             <tr><td><strong>GIF</strong></td><td><span class="partial">● First image</span></td><td><span class="no">— No</span></td><td>First composited image only; no animation editing or GIF output</td></tr>
@@ -69,7 +69,7 @@
           <div class="table-wrap"><table><thead><tr><th>Path</th><th>Current working model</th></tr></thead><tbody>
             <tr><td><strong>JPEG</strong></td><td>Incremental entropy input, bounded MCU-row baseline output, restart-aware region seeking, and scaled IDCT; progressive decode and encode retain compact Int16 coefficient planes</td></tr>
             <tr><td><strong>PNG</strong></td><td>Sequential scanlines and bounded output blocks; Adam7 retains compact requested samples</td></tr>
-            <tr><td><strong>WebP</strong></td><td>VP8 and VP8L retain source-sized working planes; lossless encode uses a measured 32-bit transformed frame, a fixed 4 MiB match table for nontrivial images, and buffers its encoded payload</td></tr>
+            <tr><td><strong>WebP</strong></td><td>VP8 uses two macroblock rows; VP8L uses a fixed maximum 4 MiB entropy history plus scanline transform buffers. Decode still retains compressed input and compact transform maps. Lossless encode retains a 32-bit transformed frame, fixed 4 MiB match table, and encoded payload.</td></tr>
             <tr><td><strong>BMP</strong></td><td>Region-based row reads; RLE uses compact full-frame index storage</td></tr>
             <tr><td><strong>TIFF</strong></td><td>Strip or tile region decode; output is emitted in bounded rows</td></tr>
             <tr><td><strong>GIF</strong></td><td>Retains compact first-frame palette indices, then emits bounded RGBA rows</td></tr>
@@ -87,7 +87,7 @@
           <ul>
             <li><strong>JPEG:</strong> Photographs and broadly compatible lossy output.</li>
             <li><strong>PNG:</strong> Exact alpha, screenshots, graphics, and lossless round trips.</li>
-            <li><strong>WebP:</strong> Static web delivery with lossy or exact lossless modes; benchmark memory for large inputs.</li>
+            <li><strong>WebP:</strong> Static web delivery with lossy or exact lossless modes; use the 12-megapixel VP8 and VP8L pressure fixtures when changing decode memory.</li>
             <li><strong>BMP:</strong> Legacy Windows bitmap interoperability.</li>
             <li><strong>TIFF:</strong> Broad input compatibility and simple uncompressed TIFF output.</li>
           </ul>
