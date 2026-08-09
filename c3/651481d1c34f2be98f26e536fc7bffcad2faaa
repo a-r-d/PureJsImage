@@ -1,0 +1,67 @@
+.gitignore
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 187
+docs/guides.html
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 18
+docs/demo.ts
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 1-557
+scripts/serve-browser-tests.ts
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 5,59-67,150-177,197,214,220
+src/codecs/jpeg-baseline.ts
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 1823-1832,1834-1835,1847-1850
+tests/project-contract.test.ts
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 104-128
+tsconfig.json
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 19
+docs/performance.html
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 18
+docs/api.html
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 18
+package.json
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 125,137
+browser-tests/demo.pw.ts
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 1-92
+docs/contributing.html
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 18
+docs/index.html
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 28,60-61
+docs/sitemap.xml
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 4
+docs/styles.css
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 3130-3923
+tests/jpeg-reference-fixtures.test.ts
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 20-21,75-86,119-120,148-159
+  s_4a8abb1f2ae0c6::t_2cc5281162e758 160-161
+tsconfig.browser.json
+  s_4a8abb1f2ae0c6::t_46dd6a8889cad7 21-22
+.github/workflows/pages.yml
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 1-67
+docs/demo.html
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 1-169
+docs/codecs.html
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 18
+README.md
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 31,47-55
+  s_4a8abb1f2ae0c6::t_8aabd858fffa52 56
+CHANGELOG.md
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 19-26
+benchmark/jpeg/prepare-reference-fixtures.ts
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 6,18-19,39-62,106-110,123
+scripts/build-docs-site.ts
+  s_4a8abb1f2ae0c6::t_50c4be2bd13b2a 1-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "c3651481d1c34f2be98f26e536fc7bffcad2faaa",
+  "prompts": {},
+  "sessions": {
+    "s_4a8abb1f2ae0c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe42e-2b77-7a50-8579-4b622c789c8f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
