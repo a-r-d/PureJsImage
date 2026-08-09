@@ -19,6 +19,7 @@ export interface Av1RestorationPlaneState {
 
 export interface Av1PostFilterState {
   readonly cdefColumns: number
+  readonly chromaShift: number
   readonly cdefIndices: Uint16Array
   readonly miColumns: number
   readonly miRows: number
@@ -62,8 +63,10 @@ const clonePlanes = (
   { ...planes[2], data: planes[2].data.slice() },
 ]
 
-const planeContextWidth = (state: Av1PostFilterState, plane: number): number =>
-  plane === 0 ? state.miColumns : (state.miColumns + 1) >> 1
+const planeContextWidth = (state: Av1PostFilterState, plane: number): number => {
+  const shift = plane === 0 ? 0 : state.chromaShift
+  return (state.miColumns + (1 << shift) - 1) >> shift
+}
 
 const transformAt = (
   transforms: readonly [Uint8Array, Uint8Array, Uint8Array],
@@ -72,7 +75,7 @@ const transformAt = (
   row: number,
   column: number,
 ): number => {
-  const sub = plane === 0 ? 0 : 1
+  const sub = plane === 0 ? 0 : state.chromaShift
   const contextColumn = column >> sub
   const contextRow = row >> sub
   return transforms[plane]?.[contextRow * planeContextWidth(state, plane) + contextColumn] ?? 0
@@ -201,7 +204,7 @@ export const applyAv1LoopFilter = (
     if (planeIndex > 0 && (header.loopFilterLevels[planeIndex + 1] ?? 0) === 0) continue
     const plane = planes[planeIndex]
     if (!plane) continue
-    const sub = planeIndex === 0 ? 0 : 1
+    const sub = planeIndex === 0 ? 0 : state.chromaShift
     const step = 1 << sub
     for (let pass = 0; pass < 2; pass += 1) {
       const dx = pass === 0 ? 1 : 0
@@ -378,7 +381,7 @@ const filterCdefBlock = (
   damping: number,
   direction: number,
 ): void => {
-  const sub = planeIndex === 0 ? 0 : 1
+  const sub = planeIndex === 0 ? 0 : state.chromaShift
   const x0 = (column * 4) >> sub
   const y0 = (row * 4) >> sub
   const width = 8 >> sub
@@ -768,7 +771,7 @@ export const applyAv1LoopRestoration = (
         const deblockedPlane = deblocked[planeIndex]
         const outputPlane = output[planeIndex]
         if (!unit || !deblockedPlane || !outputPlane || unit.types.length === 0) continue
-        const sub = planeIndex === 0 ? 0 : 1
+        const sub = planeIndex === 0 ? 0 : state.chromaShift
         const plane = cdef[planeIndex]
         if (!plane) continue
         const planeEndX = Math.ceil(header.upscaledWidth / 2 ** sub) - 1

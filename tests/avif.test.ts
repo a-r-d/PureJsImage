@@ -375,6 +375,12 @@ describe('AVIF restricted pixel decode', () => {
       height: 800,
       rgbaSha256: '207521f4de944619a5f14b107d39b2a4dab7aafe8fae3082ea6bbb4ba27b38bc',
     },
+    {
+      file: 'fox.profile1.8bpc.yuv444.avif',
+      width: 1204,
+      height: 800,
+      rgbaSha256: 'd46498beea49ddf03420810e33d30a2534395827bd19b22a287a6031debf9cd1',
+    },
   ] as const)('decodes the common opaque 8-bit photograph $file', async (fixture) => {
     const output = PNG.sync.read(
       await (await Image.open(join(avifCorpusDirectory, fixture.file))).png().toBuffer(),

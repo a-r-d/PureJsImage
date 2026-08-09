@@ -606,8 +606,12 @@ const createRestorationReference = (): RestorationReference => ({
 const countRestorationUnits = (unitSize: number, frameSize: number): number =>
   Math.max(Math.floor((frameSize + (unitSize >> 1)) / unitSize), 1)
 
-const createRestorationPlaneState = (frame: Av1Frame, plane: number): Av1RestorationPlaneState => {
-  const sub = plane === 0 ? 0 : 1
+const createRestorationPlaneState = (
+  frame: Av1Frame,
+  plane: number,
+  chromaShift: number,
+): Av1RestorationPlaneState => {
+  const sub = plane === 0 ? 0 : chromaShift
   const unitSize = frame.header.restorationUnitSizes[plane] ?? 256
   const rows = countRestorationUnits(unitSize, Math.ceil(frame.header.frameHeight / 2 ** sub))
   const columns = countRestorationUnits(unitSize, Math.ceil(frame.header.upscaledWidth / 2 ** sub))
@@ -636,6 +640,7 @@ class RestrictedIntraTileDecoder {
   readonly #miColumns: number
   readonly #miRows: number
   readonly #chromaMiColumns: number
+  readonly #chromaShift: number
   readonly #blockWidths: Uint8Array
   readonly #blockHeights: Uint8Array
   readonly #skips: Uint8Array
@@ -695,12 +700,13 @@ class RestrictedIntraTileDecoder {
     this.#symbols = new Av1SymbolDecoder(tile.data, !frame.header.disableCdfUpdate)
     this.#miColumns = 2 * ((frame.header.frameWidth + 7) >> 3)
     this.#miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
-    this.#chromaMiColumns = sequence.monochrome ? 0 : this.#miColumns >> 1
+    this.#chromaShift = sequence.chromaSubsampling === '444' ? 0 : 1
+    this.#chromaMiColumns = sequence.monochrome ? 0 : this.#miColumns >> this.#chromaShift
     this.#blockWidths = new Uint8Array(this.#miColumns * this.#miRows)
     this.#blockHeights = new Uint8Array(this.#miColumns * this.#miRows)
     this.#skips = new Uint8Array(this.#miColumns * this.#miRows)
     this.#yModes = new Uint8Array(this.#miColumns * this.#miRows)
-    this.#uvModes = new Uint8Array(this.#chromaMiColumns * (this.#miRows >> 1))
+    this.#uvModes = new Uint8Array(this.#chromaMiColumns * (this.#miRows >> this.#chromaShift))
     const transformContextLength = (plane: Plane): number =>
       (plane.width >> 2) * (plane.height >> 2)
     this.#transformWidths = [
@@ -717,9 +723,9 @@ class RestrictedIntraTileDecoder {
     this.#cdefIndices = new Uint16Array(this.#cdefColumns * Math.ceil(this.#miRows / 16))
     this.#planes = planes
     this.#restoration = [
-      createRestorationPlaneState(frame, 0),
-      createRestorationPlaneState(frame, 1),
-      createRestorationPlaneState(frame, 2),
+      createRestorationPlaneState(frame, 0, this.#chromaShift),
+      createRestorationPlaneState(frame, 1, this.#chromaShift),
+      createRestorationPlaneState(frame, 2, this.#chromaShift),
     ]
     const contextLength = (plane: Plane): number => (plane.width >> 2) * (plane.height >> 2)
     this.#levelContexts = [
@@ -779,6 +785,7 @@ class RestrictedIntraTileDecoder {
     return {
       miColumns: this.#miColumns,
       miRows: this.#miRows,
+      chromaShift: this.#chromaShift,
       skips: this.#skips,
       transformWidths: this.#transformWidths,
       transformHeights: this.#transformHeights,
@@ -796,7 +803,7 @@ class RestrictedIntraTileDecoder {
     for (let plane = 0; plane < 3; plane += 1) {
       const frameType = this.#frame.header.restorationTypes[plane] ?? 0
       if (frameType === 0) continue
-      const subsampling = plane === 0 ? 0 : 1
+      const subsampling = plane === 0 ? 0 : this.#chromaShift
       const unitSize = this.#frame.header.restorationUnitSizes[plane]
       if (unitSize === undefined || unitSize < 32 || (unitSize & (unitSize - 1)) !== 0) {
         throw invalidInput('AV1 restoration unit size is invalid')
@@ -1023,8 +1030,8 @@ class RestrictedIntraTileDecoder {
 
     const hasChroma =
       !this.#sequence.monochrome &&
-      !(height === 4 && (row & 1) === 0) &&
-      !(width === 4 && (column & 1) === 0)
+      !(this.#chromaShift === 1 && height === 4 && (row & 1) === 0) &&
+      !(this.#chromaShift === 1 && width === 4 && (column & 1) === 0)
     let uvMode = 0
     let cflAlphaU = 0
     let cflAlphaV = 0
@@ -1047,8 +1054,8 @@ class RestrictedIntraTileDecoder {
       }
     }
     const uvAngleDelta = this.#readAngleDelta(uvMode, width, height)
-    const chromaRow = row >> 1
-    const chromaColumn = column >> 1
+    const chromaRow = row >> this.#chromaShift
+    const chromaColumn = column >> this.#chromaShift
     const aboveUvMode =
       chromaRow > 0
         ? (this.#uvModes[(chromaRow - 1) * this.#chromaMiColumns + chromaColumn] ?? 0)
@@ -1110,10 +1117,17 @@ class RestrictedIntraTileDecoder {
     const lumaTransform = this.#transformShape(row, column, width, height, skip === 1)
     const codedWidth = Math.min(width, (this.#miColumns - column) * 4)
     const codedHeight = Math.min(height, (this.#miRows - row) * 4)
-    const chromaWidth = Math.max(4, width >> 1)
-    const chromaHeight = Math.max(4, height >> 1)
-    const codedChromaWidth = Math.min(chromaWidth, (((codedWidth >> 2) + 1) >> 1) * 4)
-    const codedChromaHeight = Math.min(chromaHeight, (((codedHeight >> 2) + 1) >> 1) * 4)
+    const chromaWidth = Math.max(4, width >> this.#chromaShift)
+    const chromaHeight = Math.max(4, height >> this.#chromaShift)
+    const chromaRound = (1 << this.#chromaShift) - 1
+    const codedChromaWidth = Math.min(
+      chromaWidth,
+      (((codedWidth >> 2) + chromaRound) >> this.#chromaShift) * 4,
+    )
+    const codedChromaHeight = Math.min(
+      chromaHeight,
+      (((codedHeight >> 2) + chromaRound) >> this.#chromaShift) * 4,
+    )
     const chromaTransform: TransformShape = {
       width: Math.min(chromaWidth, 32) as TransformDimension,
       height: Math.min(chromaHeight, 32) as TransformDimension,
@@ -1146,14 +1160,14 @@ class RestrictedIntraTileDecoder {
           filterMode,
         )
         if (hasChroma) {
-          const chromaChunkX = chunkX >> 1
-          const chromaChunkY = chunkY >> 1
-          const chromaChunkWidth = chunkWidth >> 1
-          const chromaChunkHeight = chunkHeight >> 1
+          const chromaChunkX = chunkX >> this.#chromaShift
+          const chromaChunkY = chunkY >> this.#chromaShift
+          const chromaChunkWidth = chunkWidth >> this.#chromaShift
+          const chromaChunkHeight = chunkHeight >> this.#chromaShift
           this.#decodePlane(
             1,
-            (row >> 1) * 4 + chromaChunkY,
-            (column >> 1) * 4 + chromaChunkX,
+            (row >> this.#chromaShift) * 4 + chromaChunkY,
+            (column >> this.#chromaShift) * 4 + chromaChunkX,
             chromaChunkWidth,
             chromaChunkHeight,
             chromaTransform,
@@ -1178,8 +1192,8 @@ class RestrictedIntraTileDecoder {
           )
           this.#decodePlane(
             2,
-            (row >> 1) * 4 + chromaChunkY,
-            (column >> 1) * 4 + chromaChunkX,
+            (row >> this.#chromaShift) * 4 + chromaChunkY,
+            (column >> this.#chromaShift) * 4 + chromaChunkX,
             chromaChunkWidth,
             chromaChunkHeight,
             chromaTransform,
@@ -1226,7 +1240,10 @@ class RestrictedIntraTileDecoder {
           const contextRow = chromaRow + localRow
           const contextColumn = chromaColumn + localColumn
           const target = contextRow * this.#chromaMiColumns + contextColumn
-          if (contextRow < this.#miRows >> 1 && contextColumn < this.#chromaMiColumns) {
+          if (
+            contextRow < this.#miRows >> this.#chromaShift &&
+            contextColumn < this.#chromaMiColumns
+          ) {
             this.#uvModes[target] = uvMode
           }
         }
@@ -1795,17 +1812,20 @@ class RestrictedIntraTileDecoder {
   ): void {
     const luma = this.#planes[0]
     const samples = new Uint16Array(width * height)
+    const sampleSize = 1 << this.#chromaShift
+    const sampleScale = 8 / (sampleSize * sampleSize)
     let sum = 0
     for (let localY = 0; localY < height; localY += 1) {
       for (let localX = 0; localX < width; localX += 1) {
-        const lumaX = Math.min((x + localX) * 2, lumaEndX - 2)
-        const lumaY = Math.min((y + localY) * 2, lumaEndY - 2)
-        const value =
-          ((luma.data[lumaY * luma.stride + lumaX] ?? 0) +
-            (luma.data[lumaY * luma.stride + lumaX + 1] ?? 0) +
-            (luma.data[(lumaY + 1) * luma.stride + lumaX] ?? 0) +
-            (luma.data[(lumaY + 1) * luma.stride + lumaX + 1] ?? 0)) *
-          2
+        const lumaX = Math.min((x + localX) << this.#chromaShift, lumaEndX - sampleSize)
+        const lumaY = Math.min((y + localY) << this.#chromaShift, lumaEndY - sampleSize)
+        let sampleSum = 0
+        for (let sampleY = 0; sampleY < sampleSize; sampleY += 1) {
+          for (let sampleX = 0; sampleX < sampleSize; sampleX += 1) {
+            sampleSum += luma.data[(lumaY + sampleY) * luma.stride + lumaX + sampleX] ?? 0
+          }
+        }
+        const value = sampleSum * sampleScale
         samples[localY * width + localX] = value
         sum += value
       }
@@ -1905,11 +1925,13 @@ export const decodeRestrictedAv1Intra = (
   sequence: Av1SequenceHeader,
   frame: Av1Frame,
 ): Av1DecodedFrame => {
-  const supportedChroma = sequence.monochrome
-    ? sequence.chromaSubsampling === '400'
-    : sequence.chromaSubsampling === '420'
-  if (sequence.profile !== 0 || sequence.bitDepth !== 8 || !supportedChroma) {
-    throw unsupportedOperation('Phase B2 supports 8-bit Main Profile YUV 4:0:0 and 4:2:0 AV1 only')
+  const supportedChroma =
+    (sequence.monochrome && sequence.profile === 0 && sequence.chromaSubsampling === '400') ||
+    (!sequence.monochrome &&
+      ((sequence.profile === 0 && sequence.chromaSubsampling === '420') ||
+        (sequence.profile === 1 && sequence.chromaSubsampling === '444')))
+  if (sequence.bitDepth !== 8 || !supportedChroma) {
+    throw unsupportedOperation('Phase B2 supports 8-bit AV1 YUV 4:0:0, 4:2:0, and 4:4:4 only')
   }
   if (frame.header.allowIntrabc) {
     throw unsupportedOperation('Phase B2 reconstruction does not support intra block copy')
@@ -1927,8 +1949,9 @@ export const decodeRestrictedAv1Intra = (
   const miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
   const yStride = miColumns * 4
   const yHeight = miRows * 4
-  const chromaStride = sequence.monochrome ? 0 : yStride >> 1
-  const chromaHeight = sequence.monochrome ? 0 : yHeight >> 1
+  const chromaShift = sequence.chromaSubsampling === '444' ? 0 : 1
+  const chromaStride = sequence.monochrome ? 0 : yStride >> chromaShift
+  const chromaHeight = sequence.monochrome ? 0 : yHeight >> chromaShift
   const y: Plane = {
     data: new Uint8Array(yStride * yHeight),
     width: yStride,
@@ -1953,8 +1976,8 @@ export const decodeRestrictedAv1Intra = (
   return {
     width: frame.header.frameWidth,
     height: frame.header.frameHeight,
-    chromaWidth: sequence.monochrome ? 0 : Math.ceil(frame.header.frameWidth / 2),
-    chromaHeight: sequence.monochrome ? 0 : Math.ceil(frame.header.frameHeight / 2),
+    chromaWidth: sequence.monochrome ? 0 : Math.ceil(frame.header.frameWidth / 2 ** chromaShift),
+    chromaHeight: sequence.monochrome ? 0 : Math.ceil(frame.header.frameHeight / 2 ** chromaShift),
     yStride,
     chromaStride,
     y: filtered[0].data,
@@ -2015,6 +2038,27 @@ export const av1ToRgba = (sequence: Av1SequenceHeader, frame: Av1DecodedFrame): 
   const blueChroma = 2 * (1 - blueWeight)
   const redGreenChroma = (2 * redWeight * (1 - redWeight)) / greenWeight
   const blueGreenChroma = (2 * blueWeight * (1 - blueWeight)) / greenWeight
+  if (sequence.chromaSubsampling === '444') {
+    for (let y = 0; y < frame.height; y += 1) {
+      for (let x = 0; x < frame.width; x += 1) {
+        const luma = frame.y[y * frame.yStride + x] ?? 0
+        const chromaOffset = y * frame.chromaStride + x
+        const cb = (frame.u[chromaOffset] ?? 128) - 128
+        const cr = (frame.v[chromaOffset] ?? 128) - 128
+        const adjustedLuma = sequence.fullRange ? luma / 255 : (luma - 16) / 219
+        const adjustedCb = cb / (sequence.fullRange ? 255 : 224)
+        const adjustedCr = cr / (sequence.fullRange ? 255 : 224)
+        const target = (y * frame.width + x) * 4
+        output[target] = clampByte((adjustedLuma + redChroma * adjustedCr) * 255)
+        output[target + 1] = clampByte(
+          (adjustedLuma - redGreenChroma * adjustedCr - blueGreenChroma * adjustedCb) * 255,
+        )
+        output[target + 2] = clampByte((adjustedLuma + blueChroma * adjustedCb) * 255)
+        output[target + 3] = 255
+      }
+    }
+    return output
+  }
   for (let y = 0; y < frame.height; y += 1) {
     for (let x = 0; x < frame.width; x += 1) {
       const luma = frame.y[y * frame.yStride + x] ?? 0

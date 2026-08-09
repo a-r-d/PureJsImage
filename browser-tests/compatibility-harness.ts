@@ -543,6 +543,29 @@ const avifMonochrome = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const avifYuv444 = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/fox.profile1.8bpc.yuv444.avif')
+  const output = await (await images.open(input)).png().toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.format !== 'png' || metadata.width !== 1204 || metadata.height !== 800) {
+    throw new Error(
+      `YUV 4:4:4 AVIF output was ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  const [oraclePixels, outputPixels] = await Promise.all([
+    browserPixels(input, 'image/avif'),
+    browserPixels(output, 'image/png'),
+  ])
+  const psnr = rgbPsnr(oraclePixels, outputPixels)
+  if (psnr <= 50) {
+    throw new Error(`YUV 4:4:4 AVIF browser RGB PSNR was ${psnr.toFixed(2)} dB`)
+  }
+  return {
+    detail: `8-bit YUV 4:4:4 AVIF matched Chromium at ${psnr.toFixed(2)} dB`,
+    outputBytes: output.byteLength,
+  }
+}
+
 const heifPqDisplay = async (): Promise<BrowserWorkflowResult> => {
   const input = await fetchBytes('/fixtures/main10-pq.heic')
   const image = await images.open(input)
@@ -636,6 +659,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   animatedGifFrameSelection,
   avifQuantizationMatrix,
   avifMonochrome,
+  avifYuv444,
   failureCleanup,
   heifPqDisplay,
   inputTypes,

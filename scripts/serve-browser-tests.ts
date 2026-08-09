@@ -299,6 +299,10 @@ await copyFile(
   'benchmark/corpus/files/avif/fox.profile0.8bpc.yuv420.monochrome.avif',
   resolve(fixtureDirectory, 'fox.profile0.8bpc.yuv420.monochrome.avif'),
 )
+await copyFile(
+  'benchmark/corpus/files/avif/fox.profile1.8bpc.yuv444.avif',
+  resolve(fixtureDirectory, 'fox.profile1.8bpc.yuv444.avif'),
+)
 await writeFile(
   resolve(outputDirectory, 'index.html'),
   '<!doctype html><meta charset="utf-8"><title>PureJsImage browser validation</title><script type="module" src="/compatibility.js"></script><script type="module" src="/benchmark.js"></script>',

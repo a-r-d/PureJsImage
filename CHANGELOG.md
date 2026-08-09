@@ -37,6 +37,9 @@ All notable changes to PureJsImage are documented in this file.
 - Added restricted opaque 8-bit monochrome AVIF decode with luma-only entropy
   reconstruction, exact Sharp/libaom and FFmpeg luma validation, and real-Chromium
   displayed-RGB coverage above 60 dB PSNR.
+- Added opaque 8-bit YUV 4:4:4 AVIF decode with full-resolution chroma prediction,
+  transforms, post-filters, and direct RGB conversion; the pinned Fox fixture matches
+  dav1d/libaom YUV exactly and exceeds 50 dB displayed-RGB PSNR against Sharp and Chromium.
 
 ### Changed
 
