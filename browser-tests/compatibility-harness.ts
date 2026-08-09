@@ -163,7 +163,7 @@ const webpLossless = async (): Promise<BrowserWorkflowResult> => {
   const input = await fetchBytes('/fixtures/webp-graphic.png')
   const output = await (await images.open(input)).webp({ lossless: true }).toUint8Array()
   const metadata = await outputMetadata(output)
-  if (metadata.format !== 'webp' || metadata.width !== 32 || metadata.height !== 24) {
+  if (metadata.format !== 'webp' || metadata.width !== 192 || metadata.height !== 128) {
     throw new Error(
       `Lossless WebP output was ${metadata.format} ${metadata.width}x${metadata.height}`,
     )

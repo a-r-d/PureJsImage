@@ -721,7 +721,7 @@
       },
       "boundary": "Static images only; current paths retain full-frame working planes",
       "description": "Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy or lossless WebP with opt-in EXIF and compatible ICC preservation. Animation is detected and rejected for pixel decode.",
-      "memory": "VP8 and VP8L retain source-sized working planes; lossless encode uses a measured 32-bit transformed frame and buffers its encoded payload",
+      "memory": "VP8 and VP8L retain source-sized working planes; lossless encode uses a measured 32-bit transformed frame, a fixed 4 MiB match table for nontrivial images, and buffers its encoded payload",
       "recommendation": "Static web delivery with lossy or exact lossless modes; benchmark memory for large inputs.",
       "evidence": [
         "tests/webp.test.ts",
@@ -955,7 +955,7 @@
         },
         {
           "status": "supported",
-          "text": "Predictor transform using the left mode and VP8L-specified edge behavior"
+          "text": "Block-adaptive predictor transform across all 14 VP8L modes with VP8L-specified top-row, left-column, and right-edge behavior"
         },
         {
           "status": "supported",
@@ -963,7 +963,11 @@
         },
         {
           "status": "supported",
-          "text": "LZ77 backward references with adjacent-pixel, previous-row, and bounded hash-chain match candidates plus two-dimensional VP8L distance coding"
+          "text": "LZ77 backward references with adjacent-pixel, previous-row, and 16 recent hash-bucket match candidates plus two-dimensional VP8L distance coding"
+        },
+        {
+          "status": "supported",
+          "text": "Adaptive 8-to-10-bit color-cache emission for repeated transformed colors"
         },
         {
           "status": "supported",
@@ -979,11 +983,7 @@
         },
         {
           "status": "planned",
-          "text": "Color-cache emission"
-        },
-        {
-          "status": "planned",
-          "text": "Adaptive predictor modes, cross-color transform, and color-indexing transform selection"
+          "text": "Cross-color and color-indexing transform selection"
         },
         {
           "status": "planned",
@@ -1119,7 +1119,7 @@
         },
         {
           "status": "supported",
-          "text": "Require the deterministic graphic's lossless WebP output to be smaller than PureJsImage PNG, and record the pinned production-style logo result alongside libwebp in an isolated size and peak-RSS benchmark"
+          "text": "Require deterministic PNG and JPEG-decoded graphics' lossless WebP output to remain smaller than PureJsImage PNG, and record the pinned production-style logo result alongside libwebp in an isolated size and peak-RSS benchmark"
         },
         {
           "status": "supported",
