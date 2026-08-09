@@ -25,7 +25,7 @@ const base64Bytes = (value: string): Uint8Array => Uint8Array.from(Buffer.from(v
 const lengthPrefixedNal = (nal: Uint8Array): readonly number[] => [...bytes32(nal.length), ...nal]
 
 const parameterArray = (type: number, nal: Uint8Array): readonly number[] => [
-  0x80 | type,
+  0x40 | type,
   0,
   1,
   (nal.length >>> 8) & 0xff,

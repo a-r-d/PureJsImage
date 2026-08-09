@@ -42,6 +42,13 @@ test('decodes a Sharp/libaom quantization-matrix AVIF', async ({ page }) => {
   expect(result.detail).toContain('256x192 PNG')
 })
 
+test('decodes the independently validated Main 10/PQ HEIF display fixture', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.heifPqDisplay())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('32x32 PNG')
+})
+
 test('applies JPEG EXIF orientation in the browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.orientation())

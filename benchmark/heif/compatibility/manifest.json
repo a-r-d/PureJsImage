@@ -32,7 +32,7 @@
       },
       "color": { "range": "full", "space": "Display P3", "metadata": "ICC" },
       "auxiliaryItems": ["thumbnail"],
-      "expectedStatus": "Explicitly unsupported"
+      "expectedStatus": "Compatible"
     },
     {
       "id": "iphone7-landscape",
@@ -60,7 +60,7 @@
       },
       "color": { "range": "full", "space": "Display P3", "metadata": "ICC" },
       "auxiliaryItems": ["thumbnail"],
-      "expectedStatus": "Explicitly unsupported"
+      "expectedStatus": "Compatible"
     },
     {
       "id": "iphone7-front-camera",
@@ -88,7 +88,7 @@
       },
       "color": { "range": "full", "space": "Display P3", "metadata": "ICC" },
       "auxiliaryItems": ["thumbnail"],
-      "expectedStatus": "Explicitly unsupported"
+      "expectedStatus": "Compatible"
     },
     {
       "id": "iphone7-rotated-180",
@@ -116,7 +116,7 @@
       },
       "color": { "range": "full", "space": "Display P3", "metadata": "ICC" },
       "auxiliaryItems": ["thumbnail"],
-      "expectedStatus": "Explicitly unsupported"
+      "expectedStatus": "Compatible"
     },
     {
       "id": "iphone12-greyhounds",
@@ -400,7 +400,7 @@
       },
       "color": { "range": "limited", "space": "sRGB", "metadata": "unspecified/VUI" },
       "auxiliaryItems": ["thumbnail"],
-      "expectedStatus": "Explicitly unsupported"
+      "expectedStatus": "Incorrect pixels"
     },
     {
       "id": "nokia-overlay-alpha",
@@ -540,7 +540,7 @@
       },
       "color": { "range": "full", "space": "sRGB", "metadata": "ICC" },
       "auxiliaryItems": ["alpha"],
-      "expectedStatus": "Unexpected exception"
+      "expectedStatus": "Explicitly unsupported"
     },
     {
       "id": "apple-vision-pro-spatial",
@@ -596,7 +596,7 @@
       },
       "color": { "range": "full", "space": "sRGB", "metadata": "ICC" },
       "auxiliaryItems": [],
-      "expectedStatus": "Explicitly unsupported"
+      "expectedStatus": "Compatible"
     },
     {
       "id": "pillow-rext-10bit",
@@ -652,7 +652,7 @@
       },
       "color": { "range": "limited", "space": "sRGB", "metadata": "unspecified" },
       "auxiliaryItems": [],
-      "expectedStatus": "Unexpected exception"
+      "expectedStatus": "Compatible"
     },
     {
       "id": "generated-main10-pq",
@@ -661,7 +661,7 @@
       "source": "PureJsImage deterministic fixture from an x265 4.1 32x32 testsrc2 intra picture",
       "sourcePage": "benchmark/heif/compatibility/generated-fixtures.ts",
       "license": "MIT (PureJsImage test fixture)",
-      "sha256": "e6ff957ca11b242c65cd1a3e55013d7cd5f2147f3b7c599379820be8bffa4510",
+      "sha256": "c73d53d1db43e66622eba0e83db229836f8a3baba20e1e215fa09d6954a6a48d",
       "provenance": "x265 4.1 Main 10 bitstream in a first-party HEIF container",
       "brands": ["heic", "mif1"],
       "primaryItemType": "hvc1",
@@ -680,7 +680,7 @@
       },
       "color": { "range": "limited", "space": "BT.2020 PQ", "metadata": "nclx and VUI" },
       "auxiliaryItems": [],
-      "expectedStatus": "Incorrect pixels"
+      "expectedStatus": "Compatible"
     },
     {
       "id": "generated-imir",
@@ -709,7 +709,7 @@
       },
       "color": { "range": "full", "space": "Display P3", "metadata": "ICC" },
       "auxiliaryItems": ["thumbnail"],
-      "expectedStatus": "Explicitly unsupported"
+      "expectedStatus": "Compatible"
     }
   ]
 }

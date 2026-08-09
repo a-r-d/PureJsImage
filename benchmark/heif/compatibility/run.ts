@@ -396,25 +396,47 @@ const statusCounts = Object.fromEntries(
     'Excessive memory',
   ].map((status) => [status, results.filter((result) => result.status === status).length]),
 )
-const colorMatrixFailures = results.filter((result) =>
-  result.details.includes('Unsupported or unspecified HEIF color matrix'),
-)
-const downloadedColorMatrixFailures = colorMatrixFailures.filter(
-  (result) => result.fixture !== 'generated-imir',
-)
+const evidenceFor = (fixtureIds: readonly string[]): readonly FixtureResult[] =>
+  fixtureIds.map((fixtureId) => {
+    const result = results.find(({ fixture }) => fixture === fixtureId)
+    if (!result) throw new Error(`HEIF compatibility result is missing ${fixtureId}`)
+    return result
+  })
+const matrixEvidence = evidenceFor([
+  'iphone7-portrait',
+  'iphone7-landscape',
+  'iphone7-front-camera',
+  'iphone7-rotated-180',
+  'libheif-example-main',
+  'nokia-winter-direct',
+  'nokia-autumn-direct',
+  'sdweb-grid',
+  'generated-imir',
+])
+const hvccEvidence = evidenceFor(['libheif-aux-alpha', 'libheif-clap'])
+const pqEvidence = evidenceFor(['generated-main10-pq'])
 const analysis = {
-  largestFailureCluster: {
-    feature: 'absent or unspecified HEIF/HEVC color-matrix resolution',
-    explicitUnsupportedResults: colorMatrixFailures.length,
-    downloadedRealWorldResults: downloadedColorMatrixFailures.length,
-    evidence: colorMatrixFailures.map(({ fixture, details }) => ({ fixture, details })),
+  focusedFixes: {
+    deterministicColorMatrixResolution: {
+      fixtureCount: matrixEvidence.length,
+      compatibleResults: matrixEvidence.filter(({ status }) => status === 'Compatible').length,
+      downstreamResults: matrixEvidence
+        .filter(({ status }) => status !== 'Compatible')
+        .map(({ fixture, status, details }) => ({ fixture, status, details })),
+    },
+    hvccArrayCompleteness: {
+      fixtureCount: hvccEvidence.length,
+      evidence: hvccEvidence.map(({ fixture, status, details }) => ({ fixture, status, details })),
+    },
+    pqDisplayedSdr: {
+      fixtureCount: pqEvidence.length,
+      evidence: pqEvidence.map(({ fixture, status, details }) => ({ fixture, status, details })),
+      policy:
+        'Preserve PQ code values, use the signaled YCbCr matrix with nearest 4:2:0 chroma, round to 8-bit, and hard-clip to the SDR display gamut.',
+    },
   },
   nextImplementationProject:
-    'Define safe, spec- and metadata-driven matrix defaults from ICC, nclx, VUI, brand, and profile evidence; continue rejecting ambiguous inputs.',
-  separateCorrectnessFindings: [
-    'Accept the defined hvcC array-completeness bit before claiming current-libheif interoperability.',
-    'Reconcile Main 10/PQ displayed SDR tone mapping with the independent oracle before claiming displayed Main 10 compatibility.',
-  ],
+    'Investigate the remaining libheif-example-main displayed-pixel discrepancy and the two Nokia slice-segmentation failures without widening the pixel tolerance.',
   multiSliceFixture:
     'No redistributable or reproducibly downloadable direct multi-slice still fixture was found. Multi-slice inspection exists, while reconstruction remains explicitly unsupported.',
 }
@@ -460,8 +482,11 @@ if (process.argv.includes('--write')) {
       .join('\n') +
     `\n\n## Coverage\n\nThe 25-file corpus spans iPhone 7, 12 Pro, and 13/13 Pro across iOS 11.0.3 and iOS 16.2-16.7; Xiaomi, Samsung, Nokia, libheif, and x265 encoders; direct and grid primaries; Main, Main Still Picture, Main 10, and Range Extensions; irot, imir, and clap; full and limited range; sRGB and Display P3; and auxiliary gain-map, depth, alpha, thumbnail, tone-map, and spatial items.\n\n` +
     `No redistributable or reproducibly downloadable direct multi-slice still fixture was found. Multi-slice inspection exists, while reconstruction remains explicitly unsupported.\n\n` +
-    `## Next implementation project\n\nThe largest realistic failure cluster is absent or unspecified color-matrix resolution: ${downloadedColorMatrixFailures.length} downloaded real-world files plus the generated imir case, ${colorMatrixFailures.length} of the 12 explicit unsupported results. Define safe defaults from ICC, nclx, VUI, brand, and profile evidence, while continuing to reject ambiguous inputs. This is evidence for a separate project; this matrix adds no HEVC syntax.\n\n` +
-    `Two valid libheif files separately expose an hvcC array-completeness parser error. The Main 10/PQ fixture reconstructs but differs from the independent displayed SDR output by 0.112799 normalized RMSE.\n\n` +
+    `## Focused fix evidence\n\n` +
+    `Deterministic matrix resolution advances all nine previously blocked fixtures. Six now match independently displayed pixels within tolerance; the remaining three fail later checks without an implicit BT.601/BT.709 fallback: libheif-example-main is 0.035339 RMSE, while the two Nokia files fail explicit slice-segmentation checks.\n\n` +
+    `The hvcC array-completeness fix advances both libheif fixtures. libheif-clap now matches at 0.001507 RMSE after applying its SPS conformance window and clap; libheif-aux-alpha now fails explicitly because auxiliary alpha reconstruction remains unsupported instead of emitting opaque incorrect pixels.\n\n` +
+    `The Main 10/PQ display fixture now matches the independent displayed RGB oracle at 0.001007 RMSE. Its explicit 8-bit compatibility policy preserves PQ code values, applies the signaled YCbCr matrix with nearest 4:2:0 chroma, rounds to 8-bit, and hard-clips to the SDR display gamut. HLG remains separately tested but is not independently promoted by this corpus.\n\n` +
+    `## Remaining discrepancies\n\nInvestigate libheif-example-main and the two Nokia slice-segmentation failures without widening the 0.035 pixel tolerance.\n\n` +
     `## Methodology\n\nEach PureJsImage decode runs in a fresh Node process with a 512 MiB RSS ceiling and a wall-clock timeout. ImageMagick/libheif validates displayed metadata and sRGB RGBA pixels. The 200 MP case uses libheif-thumbnailer plus a streaming FFmpeg downscale because the system ImageMagick pixel-cache policy cannot materialize the full frame. RMSE at or below 0.035 is compatible.\n\n` +
     `## Matrix\n\n| Fixture | Status | Peak RSS | Evidence |\n| --- | --- | ---: | --- |\n${rows.join('\n')}\n`
   await writeFile(reportMarkdownPath, markdown)

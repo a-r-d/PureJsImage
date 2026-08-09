@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
 
-import { inspectHeifBitstream } from '../src/codecs/heif.ts'
+import { inspectHeifBitstream, resolveHeifColorMatrix } from '../src/codecs/heif.ts'
 import { heicCodec, heifCodec } from '../src/codec-entries/heif.ts'
 import {
   inspectHevcPps,
@@ -107,6 +107,12 @@ const parameterNal = (
   height: number,
   unsupportedExtension = false,
   profile = 1,
+  conformanceWindow?: {
+    readonly bottom: number
+    readonly left: number
+    readonly right: number
+    readonly top: number
+  },
 ): readonly number[] => {
   const writer = new BitWriter()
   if (type === 32) {
@@ -127,7 +133,13 @@ const parameterNal = (
     writer.writeUnsignedExpGolomb(1)
     writer.writeUnsignedExpGolomb(width)
     writer.writeUnsignedExpGolomb(height)
-    writer.writeBit(0)
+    writer.writeBit(conformanceWindow ? 1 : 0)
+    if (conformanceWindow) {
+      writer.writeUnsignedExpGolomb(conformanceWindow.left)
+      writer.writeUnsignedExpGolomb(conformanceWindow.right)
+      writer.writeUnsignedExpGolomb(conformanceWindow.top)
+      writer.writeUnsignedExpGolomb(conformanceWindow.bottom)
+    }
     writer.writeUnsignedExpGolomb(0)
     writer.writeUnsignedExpGolomb(0)
     writer.writeUnsignedExpGolomb(4)
@@ -363,10 +375,11 @@ const parameterArray = (
   height: number,
   profile: number,
   ppsOverride: readonly number[] | Uint8Array | undefined,
+  arrayHeaderFlags: number,
 ): readonly number[] => {
   const nal =
     type === 34 && ppsOverride ? ppsOverride : parameterNal(type, width, height, false, profile)
-  return [0x80 | type, 0, 1, (nal.length >>> 8) & 0xff, nal.length & 0xff, ...nal]
+  return [arrayHeaderFlags | type, 0, 1, (nal.length >>> 8) & 0xff, nal.length & 0xff, ...nal]
 }
 
 const hevcConfiguration = (
@@ -375,6 +388,7 @@ const hevcConfiguration = (
   height = 3024,
   profile = 1,
   ppsOverride?: readonly number[] | Uint8Array,
+  arrayHeaderFlags = 0x40,
 ): readonly number[] => [
   1,
   profile,
@@ -399,7 +413,9 @@ const hevcConfiguration = (
   0,
   7,
   parameterTypes.length,
-  ...parameterTypes.flatMap((type) => parameterArray(type, width, height, profile, ppsOverride)),
+  ...parameterTypes.flatMap((type) =>
+    parameterArray(type, width, height, profile, ppsOverride, arrayHeaderFlags),
+  ),
 ]
 
 const heifFixture = ({
@@ -407,6 +423,7 @@ const heifFixture = ({
   cleanAperture,
   configurationPps,
   configurationProfile = 1,
+  configurationArrayHeaderFlags = 0x40,
   configurationWidth,
   externalDataReference = false,
   height = 3024,
@@ -429,6 +446,7 @@ const heifFixture = ({
     readonly widthDenominator?: number
   }
   configurationPps?: readonly number[] | Uint8Array
+  configurationArrayHeaderFlags?: number
   configurationProfile?: number
   configurationWidth?: number
   externalDataReference?: boolean
@@ -461,6 +479,7 @@ const heifFixture = ({
         height,
         configurationProfile,
         configurationPps,
+        configurationArrayHeaderFlags,
       ),
     ),
     box('colr', [...ascii('nclx'), 0, 1, 0, 13, 0, 6, 0x80]),
@@ -549,7 +568,7 @@ const decodedHeifFixture = (
     'KAGvLpQdSZY47HVNRR1H+qRYfo/4VfDD+a8z6v94yOQOTu5XAumEQ+E017fKnEFKFJnArxcwX8xxt8Gtg12WQfdrkHlYNMguGfBa/HqfbsJ+RD//fXmGkFQ5hveQFWBK+98fOkraWGRPyQLMVkS1SPdB+8ZOqklLrkNZK1aBcoqqdG6eAkCLtdoM31YFsc194IxN+oX+EeUfXBCEESlw72eha39NYXMYHMr9Bru7s1oMQMsE+cTWw4RrpWGb9h/Vb5Xabxkn7Oo9ABu+s06ZaMRyHtRIwXjUM9w9c8AvLdHW/ESAqUZeeoqo1VZAzns2oYG2zryOLbgWc0VzXlN9d5mK879KJxsk47JOzc9bGKIY4Dp3ia2yCS8dTEJVvwSvVcRgOfZPQ32r9f9Oq6h8KsuEhu/dK5ktzfcCaNsx3BR3NYdRStb3EdgqnYsP+MDMMKLFisPQdyN8LTv5kLelnc36h4H5MTieHYQ/DyAXldMY+n+GbHm01pcNifw/MRZRScxwSXhadCEOX5nuB1hrwlW7Q5j29RuNVpwXet13TiEXJ+ekxtOMivHmBuhNR5nY2wrmSU70G0w18eomPgh9eIYrRV2oADKdrE2NqQZifX1JdI0ByMNMpLxEXfxh7VbWZfI5ONGTSh63PVv6PrWPb5vLGVxu5ozrEjrqcsTmijcxBIt/9/PhngZjTWeG1WVw4g/9DJHC6fvHGldtctoFB8t9zc2/kq7Nwjq6JtqUhgGX/v33mjFiVhjZtXZR7XeFchOx8Pu3/lHEBOLrB0nKymbvjr6wgZcELrNzjb7LgX1iQNaLn1pPZKieLaab6xGP4OjxLpCz+xA2coFXZ4LCStYtiSCzEvET1tupwmDeXxTMkKQjEkUN8gCk6jwkH/FCMYgeadWuWL9vtYEdEcLw/Wb6xh6+YhC0HF1xAa/lnr2VRJBox3RnQcEYkfnRH7daf34SndLnF1AsaleP7BEWgX0FxIdAiZhshxFEnA48YHGhHiWN1e3jedXSKgenxUMYu2brN/sbVhJgfgbnnufLdiBo/ZHUuCR/2v9V/ebMUZyPHKsLYRsTJNAtmRrLY/mvHYazJ6N4AYH+n2lX6PpUZyTiSID41hDZe1jwkaVSqaFcJ1cMKBc5PwcS7Drjkk4A3+3W4mEdy3icjoMrz9YolOZzeWV1K+FFQIZ3V4yYexfq/dohOdOqi/ltzpvEK4QBSpAVrWB+XInAZdg2gfnDYfQomdaCkMlSSNHWqIcIdiGBVPfAZ0PSGJg2P7ntrUTuqiys7LanfWNyCmD1S1CYjSVh7Jljm4a4Dr8pGqvucF/ACWKk1sft2hQ7O8Ma8pIErRGrSCgpMPuWc/+3zUlA22fG6ERlgws8UHkT/psWIJkOEQa8w0t2l+mznrn5wyP3T/p81zxUkloxtNqc+oDzKaLAi+rMsfs8XjMD36f/hEiv/j70ThTObqsMAETA3YyL0mNUuQlhWuD3OhUds3+Mbywijqf+dhzlsoFgZ7vUNQrL6VJy56q72+qToRtiSmQIjWPqMJiE79kn+jOrHALQo2mOTWkCycUz8v/aiV7jqaOr+5wfVz06yfsfDN+f3pJJRvWDnapAFLzzAKcjm12urJIKaLNVBLTgpK9Pih+DhUhFMQqKoYaksmDhfH2E0DI6kxusNMWbpzV4Gbf5E5cW1EpFA8IfvahnjXZxwDl//gaL68BAdFJXWP0j9Fxa+fvW+UtA',
   )
   const parameterArrayFromNal = (type: number, nal: Uint8Array): readonly number[] => [
-    0x80 | type,
+    0x40 | type,
     0,
     1,
     (nal.length >>> 8) & 0xff,
@@ -734,7 +753,7 @@ const decodedMain10HeifFixture = (transfer: 16 | 18 = 16): Uint8Array => {
     'KAGtwCNGBl0lp1HvS4/wcZzXmuUtHUA/o3vHJ+gpBpIZd4Z+CHeJCRjbOdvpwooNEzM/IT7lyQbvAsDVdVNBshoohnOIjwrH6czmINr7Z7D6aXz//8/gLZglLCknsJowtSw57pL0kg5bOZjl3cbBdXeeBPZpqggAF+UJCTXRNWm1bDnsxe1ByKixfwxXhYTLELSfhtHiaW5SJje21FEBxSoPcnbcxEHNJ4QD0neBRcfW8AlfJRv75+ebNlQ3WZa/vTe+xgRvhJgL90Zkhgo9gImQi5KsH4IitkcwLe4c3RU9Z/WYbAN79wmDWBBjzGiqcJdickqZowHCkSS4ZoKHtxATDbEt28jORaIOhsbMBsJb8pVHrTB5LX28H/olM/kFpNrcjvBnyLd5mGU+LSmLY3i2kMqyXGUkkX9OuU09sej1MdGddXnr/946SB6+23jCV3uwKexwYZNXDsFC8U1ZBjcR2YNmDP5vOTiZv0xVZiYbBQO+C3WbI0R0utTuIRAMsj6GxJyeJEIA+GykmipVv8slhigPo7Bg',
   )
   const parameterArrayFromNal = (type: number, nal: Uint8Array): readonly number[] => [
-    0x80 | type,
+    0x40 | type,
     0,
     1,
     (nal.length >>> 8) & 0xff,
@@ -982,6 +1001,58 @@ describe('HEIF metadata and registration', () => {
 })
 
 describe('HEIF HEVC bitstream inspection', () => {
+  it('reports the HEVC conformance-window origin in luma samples', () => {
+    expect(
+      inspectHevcSps(
+        Uint8Array.from(
+          parameterNal(33, 456, 464, false, 3, { left: 1, right: 1, top: 1, bottom: 0 }),
+        ),
+      ),
+    ).toMatchObject({
+      codedWidth: 456,
+      codedHeight: 464,
+      conformanceX: 2,
+      conformanceY: 2,
+      width: 452,
+      height: 462,
+    })
+  })
+
+  it('resolves HEIF color matrices only from explicit or narrowly compatible evidence', () => {
+    const compatibilityEvidence = {
+      brands: ['heic', 'mif1'],
+      chromaSubsampling: '420' as const,
+      colorPrimaries: 2,
+      hasIcc: false,
+      nclxMatrix: 2,
+      profile: 1,
+      transferCharacteristics: 2,
+      vuiMatrix: undefined,
+    }
+
+    expect(resolveHeifColorMatrix({ ...compatibilityEvidence, nclxMatrix: 1 })).toBe(1)
+    expect(resolveHeifColorMatrix({ ...compatibilityEvidence, vuiMatrix: 6 })).toBe(6)
+    expect(resolveHeifColorMatrix(compatibilityEvidence)).toBe(6)
+    expect(
+      resolveHeifColorMatrix({
+        ...compatibilityEvidence,
+        colorPrimaries: 12,
+        hasIcc: true,
+        profile: 3,
+      }),
+    ).toBe(6)
+    expect(() =>
+      resolveHeifColorMatrix({
+        ...compatibilityEvidence,
+        colorPrimaries: 9,
+        transferCharacteristics: 16,
+      }),
+    ).toThrow('Unresolved HEIF color matrix')
+    expect(() =>
+      resolveHeifColorMatrix({ ...compatibilityEvidence, nclxMatrix: 1, vuiMatrix: 6 }),
+    ).toThrow('Conflicting HEIF color matrices')
+  })
+
   it('parses hvcC parameter arrays and length-prefixed image NAL units', async () => {
     const inspection = await inspectHeifBitstream(new MemorySource(heifFixture()))
 
@@ -1005,6 +1076,9 @@ describe('HEIF HEVC bitstream inspection', () => {
     expect(
       inspection.codedImages[0]?.configuration.arrays.map((array) => array.nalUnitType),
     ).toEqual([32, 33, 34])
+    expect(
+      inspection.codedImages[0]?.configuration.arrays.map((array) => array.arrayCompleteness),
+    ).toEqual([true, true, true])
     expect(inspection.codedImages[0]?.configuration.sps).toMatchObject([
       {
         id: 0,
@@ -1044,6 +1118,16 @@ describe('HEIF HEVC bitstream inspection', () => {
         payloadBytes: 2,
       },
     ])
+  })
+
+  it('does not confuse the hvcC reserved bit with array completeness', async () => {
+    const inspection = await inspectHeifBitstream(
+      new MemorySource(heifFixture({ configurationArrayHeaderFlags: 0x80 })),
+    )
+
+    expect(
+      inspection.codedImages[0]?.configuration.arrays.map((array) => array.arrayCompleteness),
+    ).toEqual([false, false, false])
   })
 
   it('reads a NAL across discontiguous item extents without materializing the item', async () => {
@@ -1189,9 +1273,11 @@ describe('HEIF HEVC bitstream inspection', () => {
     expect(output).toEqual(reference)
   })
 
-  it('decodes and tone-maps independently encoded Main 10 BT.2020 pictures', async () => {
+  it('renders independently encoded Main 10 BT.2020 pictures through explicit display paths', async () => {
     // x265 4.1 encoded this 32x32 testsrc2 picture as HEVC Main 10. The two SPS
-    // variants and nclx properties signal limited-range BT.2020 PQ and HLG.
+    // variants and nclx properties signal limited-range BT.2020 PQ and HLG. PQ
+    // uses the libheif-compatible 8-bit display path; HLG retains its explicit
+    // transfer/tone-map path but is not promoted as independently validated.
     const input = decodedMain10HeifFixture()
     await expect((await Image.open(input)).metadata()).resolves.toMatchObject({
       format: 'heif',
@@ -1210,7 +1296,7 @@ describe('HEIF HEVC bitstream inspection', () => {
 
     expect(decoder).toMatchObject({ width: 32, height: 32, pixelFormat: 'rgba8' })
     expect(createHash('sha256').update(rgba).digest('hex')).toBe(
-      'e4db96d9a1211bfd1d02196e57d07398d7348c0f1fb6ba1660b8d509b0547f20',
+      'd2efde1f4dd7008114fbf6e70d83cee62af0d1c6cd1d9cbf20b7541e2a0d2fba',
     )
 
     const hlgDecoder = await heifCodec.createDecoder?.(
@@ -1223,6 +1309,16 @@ describe('HEIF HEVC bitstream inspection', () => {
     expect(createHash('sha256').update(Uint8Array.from(hlg)).digest('hex')).toBe(
       'd448f14948c8193f6bc1d0bf1d5e94403d41c780c0fd37fab514d262b76246e9',
     )
+  })
+
+  it('rejects linked HEIF auxiliary alpha before emitting opaque pixels', async () => {
+    const input = decodedHeifFixture(false, false, undefined, undefined, false, [
+      'urn:mpeg:hevc:2015:auxid:1',
+    ])
+
+    await expect(
+      heifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits),
+    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
   })
 
   it('parses HEIF prof transforms and rejects corrupt embedded profiles', async () => {

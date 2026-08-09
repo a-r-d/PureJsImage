@@ -77,6 +77,7 @@ export interface HevcConfiguration {
 }
 
 type Property =
+  | { readonly type: 'auxC'; readonly auxiliaryType: string }
   | { readonly type: 'clap'; readonly aperture: CleanAperture }
   | {
       readonly type: 'colr'
@@ -188,7 +189,6 @@ const parseHevcConfiguration = (data: Uint8Array): HevcConfiguration => {
   for (let arrayIndex = 0; arrayIndex < arrayCount; arrayIndex += 1) {
     const arrayHeader = byte(data, offset, 'HEIF hvcC array header is truncated')
     offset += 1
-    if ((arrayHeader & 0x40) !== 0) throw invalidInput('HEIF hvcC array reserved bit is set')
     const count = uint16BigEndian(data, offset)
     offset += 2
     const nalUnits: HevcNalUnit[] = []
@@ -208,7 +208,7 @@ const parseHevcConfiguration = (data: Uint8Array): HevcConfiguration => {
       offset += length
     }
     arrays.push({
-      arrayCompleteness: (arrayHeader & 0x80) !== 0,
+      arrayCompleteness: (arrayHeader & 0x40) !== 0,
       nalUnitType: arrayHeader & 0x3f,
       nalUnits,
     })
@@ -310,6 +310,15 @@ const parseHevcConfiguration = (data: Uint8Array): HevcConfiguration => {
 }
 
 const parseProperty = async (reader: IsobmffReader, box: IsobmffBox): Promise<Property> => {
+  if (box.type === 'auxC') {
+    const data = await reader.payload(box, 4096)
+    const header = parseFullBox(data, box.type, 'HEIF')
+    const terminator = data.indexOf(0, 4)
+    if (header.version !== 0 || header.flags !== 0 || terminator < 5) {
+      throw invalidInput('HEIF auxC property is malformed')
+    }
+    return { type: 'auxC', auxiliaryType: ascii(data, 4, terminator - 4) }
+  }
   if (box.type === 'ispe') {
     const data = await reader.payload(box, 12)
     const header = parseFullBox(data, box.type, 'HEIF')
@@ -826,6 +835,28 @@ const colorPropertiesFor = (parsed: ParsedHeif): readonly Property[] =>
     ? parsed.properties
     : (parsed.codedImages[0]?.properties ?? parsed.properties)
 
+const hasLinkedAlphaAuxiliary = (parsed: ParsedHeif): boolean => {
+  const isAlphaAuxiliary = (property: Property): boolean =>
+    property.type === 'auxC' && property.auxiliaryType.endsWith('auxid:1')
+  const hasAlphaProperty = parsed.meta.properties.some((property) => isAlphaAuxiliary(property))
+  if (!hasAlphaProperty) return false
+  const alphaItemIds = new Set(
+    [...parsed.meta.items.keys()].filter((itemId) =>
+      propertiesFor(parsed.meta, itemId).some((property) => isAlphaAuxiliary(property)),
+    ),
+  )
+  return (
+    parsed.meta.references.some(
+      (reference) =>
+        reference.type === 'auxl' &&
+        ((reference.fromItemId === parsed.primaryItemId &&
+          reference.toItemIds.some((itemId) => alphaItemIds.has(itemId))) ||
+          (alphaItemIds.has(reference.fromItemId) &&
+            reference.toItemIds.includes(parsed.primaryItemId))),
+    ) || alphaItemIds.size > 0
+  )
+}
+
 const metadataItem = (
   parsed: ParsedHeif,
   type: string,
@@ -1084,6 +1115,17 @@ interface HeifColorConversion {
   readonly transferCharacteristics: number | undefined
 }
 
+export interface HeifColorMatrixEvidence {
+  readonly brands: readonly string[]
+  readonly chromaSubsampling: ChromaSubsampling
+  readonly colorPrimaries: number | undefined
+  readonly hasIcc: boolean
+  readonly nclxMatrix: number | undefined
+  readonly profile: number
+  readonly transferCharacteristics: number | undefined
+  readonly vuiMatrix: number | undefined
+}
+
 const chromaLocationValue = (value: number | undefined): 0 | 1 | 2 | 3 | 4 | 5 => {
   if (value === undefined) return 0
   if (value === 0 || value === 1 || value === 2 || value === 3 || value === 4 || value === 5) {
@@ -1092,28 +1134,84 @@ const chromaLocationValue = (value: number | undefined): 0 | 1 | 2 | 3 | 4 | 5 =
   throw unsupportedOperation(`Unsupported HEVC chroma sample location: ${value}`)
 }
 
-const matrixCoefficientValue = (value: number | undefined): 1 | 5 | 6 | 9 => {
+const matrixCoefficientValue = (value: number): 1 | 5 | 6 | 9 => {
   if (value === 1 || value === 5 || value === 6 || value === 9) return value
-  throw unsupportedOperation(`Unsupported or unspecified HEIF color matrix: ${value ?? 'none'}`)
+  throw unsupportedOperation(`Unsupported HEIF color matrix: ${value}`)
+}
+
+const specifiedColorValue = (
+  containerValue: number | undefined,
+  bitstreamValue: number | undefined,
+): number | undefined =>
+  containerValue !== undefined && containerValue !== 2 ? containerValue : bitstreamValue
+
+export const resolveHeifColorMatrix = (evidence: HeifColorMatrixEvidence): 1 | 5 | 6 | 9 => {
+  const nclxMatrix = evidence.nclxMatrix === 2 ? undefined : evidence.nclxMatrix
+  const vuiMatrix = evidence.vuiMatrix === 2 ? undefined : evidence.vuiMatrix
+  if (nclxMatrix !== undefined && vuiMatrix !== undefined && nclxMatrix !== vuiMatrix) {
+    throw unsupportedOperation(
+      `Conflicting HEIF color matrices: nclx ${nclxMatrix}, VUI ${vuiMatrix}`,
+    )
+  }
+  const declaredMatrix = nclxMatrix ?? vuiMatrix
+  if (declaredMatrix !== undefined) return matrixCoefficientValue(declaredMatrix)
+
+  const sdrPrimaries =
+    evidence.colorPrimaries === undefined ||
+    evidence.colorPrimaries === 1 ||
+    evidence.colorPrimaries === 2
+  const sdrTransfer =
+    evidence.transferCharacteristics === undefined ||
+    evidence.transferCharacteristics === 2 ||
+    evidence.transferCharacteristics === 13
+  const compatibleProfile = evidence.profile === 1 || evidence.profile === 3
+  const hevcStillImageBrand = evidence.brands.some((brand) => HEVC_BRANDS.has(brand))
+  if (
+    evidence.chromaSubsampling === '420' &&
+    compatibleProfile &&
+    hevcStillImageBrand &&
+    (evidence.hasIcc || (sdrPrimaries && sdrTransfer))
+  ) {
+    // This is the HEIF/libheif SDR compatibility convention, not a generic
+    // YCbCr default. It is deliberately gated by codec family, profile,
+    // subsampling, and SDR/ICC evidence so ambiguous HDR and other profiles fail.
+    return 6
+  }
+  throw unsupportedOperation('Unresolved HEIF color matrix')
 }
 
 const colorConversionFor = (
   properties: readonly Property[],
   sequence: HevcSpsInspection,
+  configuration: HevcConfiguration,
+  brands: readonly string[],
 ): HeifColorConversion => {
-  const nclx = oneProperty(properties, 'colr')?.nclx
+  const colorProperty = oneProperty(properties, 'colr')
+  const nclx = colorProperty?.nclx
   const topLocation = sequence.vui?.chromaLocationTop
   const bottomLocation = sequence.vui?.chromaLocationBottom
   if (topLocation !== undefined && bottomLocation !== undefined && topLocation !== bottomLocation) {
     throw unsupportedOperation('Different top and bottom HEVC chroma locations are unsupported')
   }
+  const colorPrimaries = specifiedColorValue(nclx?.primaries, sequence.vui?.colorPrimaries)
+  const transferCharacteristics = specifiedColorValue(
+    nclx?.transferCharacteristics,
+    sequence.vui?.transferCharacteristics,
+  )
   return {
     fullRange: nclx?.fullRange ?? sequence.vui?.fullRange ?? false,
-    colorPrimaries: nclx?.primaries ?? sequence.vui?.colorPrimaries,
-    matrixCoefficients: matrixCoefficientValue(
-      nclx?.matrixCoefficients ?? sequence.vui?.matrixCoefficients,
-    ),
-    transferCharacteristics: nclx?.transferCharacteristics ?? sequence.vui?.transferCharacteristics,
+    colorPrimaries,
+    matrixCoefficients: resolveHeifColorMatrix({
+      brands,
+      chromaSubsampling: configuration.chromaSubsampling,
+      colorPrimaries,
+      hasIcc: colorProperty?.icc !== undefined,
+      nclxMatrix: nclx?.matrixCoefficients,
+      profile: configuration.profile,
+      transferCharacteristics,
+      vuiMatrix: sequence.vui?.matrixCoefficients,
+    }),
+    transferCharacteristics,
     chromaLocation: chromaLocationValue(topLocation ?? bottomLocation),
   }
 }
@@ -1177,26 +1275,10 @@ const rgbaCoefficients = (color: HeifColorConversion, bitDepth: 8 | 10): HeifRgb
 }
 
 const TONE_MAP_LUT_MAX = 4096
-const PQ_REFERENCE_WHITE_NITS = 203
-
-interface HeifToneMap {
+interface HeifHlgDisplayMap {
   readonly encodedToLinear: Float32Array
-  readonly exposure: number
   readonly linearToSrgb: Uint8Array
   readonly rec2020ToSrgb: boolean
-  readonly whiteMap: number
-}
-
-const pqToLinear = (encoded: number): number => {
-  const m1 = 2610 / 16384
-  const m2 = 2523 / 32
-  const c1 = 3424 / 4096
-  const c2 = 2413 / 128
-  const c3 = 2392 / 128
-  const powered = encoded ** (1 / m2)
-  const numerator = Math.max(powered - c1, 0)
-  const denominator = c2 - c3 * powered
-  return denominator <= 0 ? 0 : (numerator / denominator) ** (1 / m1)
 }
 
 const hlgToLinear = (encoded: number): number => {
@@ -1206,28 +1288,25 @@ const hlgToLinear = (encoded: number): number => {
   return encoded <= 0.5 ? (encoded * encoded) / 3 : (Math.exp((encoded - c) / a) + b) / 12
 }
 
-const createHeifToneMap = (
+const createHeifHlgDisplayMap = (
   color: HeifColorConversion,
   bitDepth: 8 | 10,
-): HeifToneMap | undefined => {
+): HeifHlgDisplayMap | undefined => {
   if (bitDepth !== 10) return undefined
   const transfer = color.transferCharacteristics
-  if (transfer !== 16 && transfer !== 18) return undefined
+  if (transfer !== 18) return undefined
   const encodedToLinear = new Float32Array(TONE_MAP_LUT_MAX + 1)
   const linearToSrgb = new Uint8Array(TONE_MAP_LUT_MAX + 1)
   for (let index = 0; index <= TONE_MAP_LUT_MAX; index += 1) {
     const encoded = index / TONE_MAP_LUT_MAX
-    encodedToLinear[index] = transfer === 16 ? pqToLinear(encoded) : hlgToLinear(encoded)
+    encodedToLinear[index] = hlgToLinear(encoded)
     const srgb = encoded <= 0.0031308 ? encoded * 12.92 : 1.055 * encoded ** (1 / 2.4) - 0.055
     linearToSrgb[index] = clampByte(srgb * 255)
   }
-  const exposure = transfer === 16 ? 10_000 / PQ_REFERENCE_WHITE_NITS : 1
   return {
     encodedToLinear,
-    exposure,
     linearToSrgb,
     rec2020ToSrgb: color.colorPrimaries === 9,
-    whiteMap: exposure / (1 + exposure),
   }
 }
 
@@ -1236,6 +1315,14 @@ const lookupLinear = (table: Float32Array, value: number): number =>
 
 const lookupSrgb = (table: Uint8Array, value: number): number =>
   table[Math.max(0, Math.min(TONE_MAP_LUT_MAX, Math.round(value * TONE_MAP_LUT_MAX)))] ?? 0
+
+const samplePqDisplayChroma = (
+  plane: Uint16Array,
+  width: number,
+  height: number,
+  x: number,
+  y: number,
+): number => plane[Math.min(height - 1, y >>> 1) * width + Math.min(width - 1, x >>> 1)] ?? 0
 
 const writeHevcRgbaPixel = (
   picture: DecodedHevcPicture,
@@ -1269,11 +1356,11 @@ const writeHevcRgbaPixel = (
   data[target + 3] = 255
 }
 
-const writeHevcToneMappedRgbaPixel = (
+const writeHevcHlgDisplayRgbaPixel = (
   picture: DecodedHevcPicture,
   color: HeifColorConversion,
   coefficients: HeifRgbaCoefficients,
-  toneMap: HeifToneMap,
+  displayMap: HeifHlgDisplayMap,
   sourceX: number,
   sourceY: number,
   data: Uint8Array,
@@ -1292,20 +1379,20 @@ const writeHevcToneMappedRgbaPixel = (
   const adjustedCb = cb / coefficients.chromaRange
   const adjustedCr = cr / coefficients.chromaRange
   let red = lookupLinear(
-    toneMap.encodedToLinear,
+    displayMap.encodedToLinear,
     adjustedLuma + coefficients.redChroma * adjustedCr,
   )
   let green = lookupLinear(
-    toneMap.encodedToLinear,
+    displayMap.encodedToLinear,
     adjustedLuma -
       coefficients.redGreenChroma * adjustedCr -
       coefficients.blueGreenChroma * adjustedCb,
   )
   let blue = lookupLinear(
-    toneMap.encodedToLinear,
+    displayMap.encodedToLinear,
     adjustedLuma + coefficients.blueChroma * adjustedCb,
   )
-  if (toneMap.rec2020ToSrgb) {
+  if (displayMap.rec2020ToSrgb) {
     const sourceRed = red
     const sourceGreen = green
     const sourceBlue = blue
@@ -1314,13 +1401,44 @@ const writeHevcToneMappedRgbaPixel = (
     blue = -0.018151 * sourceRed - 0.100579 * sourceGreen + 1.11873 * sourceBlue
   }
   const luminance = Math.max(0, 0.2126 * red + 0.7152 * green + 0.0722 * blue)
-  const exposedLuminance = luminance * toneMap.exposure
-  const mappedLuminance =
-    luminance === 0 ? 0 : exposedLuminance / (1 + exposedLuminance) / toneMap.whiteMap
+  const mappedLuminance = luminance / (1 + luminance) / 0.5
   const scale = luminance === 0 ? 0 : mappedLuminance / luminance
-  data[target] = lookupSrgb(toneMap.linearToSrgb, red * scale)
-  data[target + 1] = lookupSrgb(toneMap.linearToSrgb, green * scale)
-  data[target + 2] = lookupSrgb(toneMap.linearToSrgb, blue * scale)
+  data[target] = lookupSrgb(displayMap.linearToSrgb, red * scale)
+  data[target + 1] = lookupSrgb(displayMap.linearToSrgb, green * scale)
+  data[target + 2] = lookupSrgb(displayMap.linearToSrgb, blue * scale)
+  data[target + 3] = 255
+}
+
+const writeHevcPqDisplayRgbaPixel = (
+  picture: DecodedHevcPicture,
+  coefficients: HeifRgbaCoefficients,
+  sourceX: number,
+  sourceY: number,
+  data: Uint8Array,
+  target: number,
+): void => {
+  const chromaWidth = Math.ceil(picture.width / 2)
+  const chromaHeight = Math.ceil(picture.height / 2)
+  const luma = picture.y[sourceY * picture.width + sourceX] ?? 0
+  const cb =
+    samplePqDisplayChroma(picture.u, chromaWidth, chromaHeight, sourceX, sourceY) -
+    coefficients.chromaCenter
+  const cr =
+    samplePqDisplayChroma(picture.v, chromaWidth, chromaHeight, sourceX, sourceY) -
+    coefficients.chromaCenter
+  const adjustedLuma = (luma - coefficients.lumaOffset) / coefficients.lumaRange
+  const adjustedCb = cb / coefficients.chromaRange
+  const adjustedCr = cr / coefficients.chromaRange
+  // Match libheif's displayed 8-bit compatibility path: preserve PQ code values,
+  // apply the signaled YCbCr matrix, and hard-clip to the SDR display gamut.
+  data[target] = clampByte((adjustedLuma + coefficients.redChroma * adjustedCr) * 255)
+  data[target + 1] = clampByte(
+    (adjustedLuma -
+      coefficients.redGreenChroma * adjustedCr -
+      coefficients.blueGreenChroma * adjustedCb) *
+      255,
+  )
+  data[target + 2] = clampByte((adjustedLuma + coefficients.blueChroma * adjustedCb) * 255)
   data[target + 3] = 255
 }
 
@@ -1338,14 +1456,16 @@ class HeifPixelDecoder implements ImageDecoder {
   readonly #color: HeifColorConversion
   readonly #coefficients: HeifRgbaCoefficients
   readonly #picture: DecodedHevcPicture
-  readonly #toneMap: HeifToneMap | undefined
+  readonly #pqDisplay: boolean
+  readonly #hlgDisplay: HeifHlgDisplayMap | undefined
 
   constructor(picture: DecodedHevcPicture, aperture: PixelRegion, color: HeifColorConversion) {
     this.#picture = picture
     this.#aperture = aperture
     this.#color = color
     this.#coefficients = rgbaCoefficients(color, picture.bitDepth)
-    this.#toneMap = createHeifToneMap(color, picture.bitDepth)
+    this.#pqDisplay = picture.bitDepth === 10 && color.transferCharacteristics === 16
+    this.#hlgDisplay = createHeifHlgDisplayMap(color, picture.bitDepth)
     this.width = aperture.width
     this.height = aperture.height
   }
@@ -1359,13 +1479,24 @@ class HeifPixelDecoder implements ImageDecoder {
       const data = new Uint8Array(stride * blockHeight)
       for (let row = 0; row < blockHeight; row += 1) {
         const sourceY = this.#aperture.y + region.y + rowStart + row
-        if (this.#toneMap) {
+        if (this.#pqDisplay) {
           for (let x = 0; x < region.width; x += 1) {
-            writeHevcToneMappedRgbaPixel(
+            writeHevcPqDisplayRgbaPixel(
+              this.#picture,
+              this.#coefficients,
+              this.#aperture.x + region.x + x,
+              sourceY,
+              data,
+              (row * region.width + x) * 4,
+            )
+          }
+        } else if (this.#hlgDisplay) {
+          for (let x = 0; x < region.width; x += 1) {
+            writeHevcHlgDisplayRgbaPixel(
               this.#picture,
               this.#color,
               this.#coefficients,
-              this.#toneMap,
+              this.#hlgDisplay,
               this.#aperture.x + region.x + x,
               sourceY,
               data,
@@ -1424,7 +1555,8 @@ class HeifGridPixelDecoder implements ImageDecoder {
   readonly #color: HeifColorConversion
   readonly #coefficients: HeifRgbaCoefficients
   readonly #grid: GridLayout
-  readonly #toneMap: HeifToneMap | undefined
+  readonly #pqDisplay: boolean
+  readonly #hlgDisplay: HeifHlgDisplayMap | undefined
 
   constructor(
     codedImages: readonly HeifCodedImageInspection[],
@@ -1441,7 +1573,8 @@ class HeifGridPixelDecoder implements ImageDecoder {
       throw unsupportedOperation(`Unsupported HEIF grid bit depth: ${bitDepth ?? 'none'}`)
     }
     this.#coefficients = rgbaCoefficients(color, bitDepth)
-    this.#toneMap = createHeifToneMap(color, bitDepth)
+    this.#pqDisplay = bitDepth === 10 && color.transferCharacteristics === 16
+    this.#hlgDisplay = createHeifHlgDisplayMap(color, bitDepth)
     this.width = aperture.width
     this.height = aperture.height
   }
@@ -1486,17 +1619,32 @@ class HeifGridPixelDecoder implements ImageDecoder {
         const data = new Uint8Array(stride * blockHeight)
         for (let row = 0; row < blockHeight; row += 1) {
           const sourceY = sourceRow + row
-          if (this.#toneMap) {
+          if (this.#pqDisplay) {
             for (let x = 0; x < sourceRegion.width; x += 1) {
               const sourceX = sourceRegion.x + x
               const tileColumn = Math.floor(sourceX / this.#grid.tileWidth)
               const picture = pictures.get(tileColumn)
               if (!picture) throw invalidInput('HEIF grid tile is missing during output')
-              writeHevcToneMappedRgbaPixel(
+              writeHevcPqDisplayRgbaPixel(
+                picture,
+                this.#coefficients,
+                sourceX - tileColumn * this.#grid.tileWidth,
+                sourceY - tileRow * this.#grid.tileHeight,
+                data,
+                (row * sourceRegion.width + x) * 4,
+              )
+            }
+          } else if (this.#hlgDisplay) {
+            for (let x = 0; x < sourceRegion.width; x += 1) {
+              const sourceX = sourceRegion.x + x
+              const tileColumn = Math.floor(sourceX / this.#grid.tileWidth)
+              const picture = pictures.get(tileColumn)
+              if (!picture) throw invalidInput('HEIF grid tile is missing during output')
+              writeHevcHlgDisplayRgbaPixel(
                 picture,
                 this.#color,
                 this.#coefficients,
-                this.#toneMap,
+                this.#hlgDisplay,
                 sourceX - tileColumn * this.#grid.tileWidth,
                 sourceY - tileRow * this.#grid.tileHeight,
                 data,
@@ -1542,6 +1690,9 @@ const createHeifDecoder = async (
 ): Promise<ImageDecoder> => {
   const parsed = await parseHeif(source)
   validateImageDimensions(parsed.dimensions.width, parsed.dimensions.height, 1, limits)
+  if (hasLinkedAlphaAuxiliary(parsed)) {
+    throw unsupportedOperation('HEIF auxiliary alpha reconstruction is unsupported')
+  }
   const inspection = await inspectParsedHeifBitstream(parsed)
   const coded = inspection.codedImages[0]
   if (!coded) throw invalidInput('HEIF image has no coded image')
@@ -1552,7 +1703,7 @@ const createHeifDecoder = async (
   const sequence = coded.configuration.sps[0]
   if (!sequence) throw invalidInput('HEIF image has no sequence parameter set')
   const colorProperties = colorPropertiesFor(parsed)
-  const color = colorConversionFor(colorProperties, sequence)
+  const color = colorConversionFor(colorProperties, sequence, coded.configuration, parsed.brands)
   let decoder: ImageDecoder
   if (parsed.primaryItemType === 'grid') {
     if (!parsed.grid) throw invalidInput('HEIF grid layout is missing')
@@ -1562,10 +1713,18 @@ const createHeifDecoder = async (
       throw invalidInput('Direct HEIF primary image has multiple coded items')
     }
     const picture = decodeCodedHeifPicture(coded)
-    if (picture.width !== parsed.dimensions.width || picture.height !== parsed.dimensions.height) {
+    if (picture.width !== sequence.codedWidth || picture.height !== sequence.codedHeight) {
       throw invalidInput('HEIF decoded picture dimensions do not match its spatial extents')
     }
-    decoder = new HeifPixelDecoder(picture, aperture, color)
+    decoder = new HeifPixelDecoder(
+      picture,
+      {
+        ...aperture,
+        x: aperture.x + sequence.conformanceX,
+        y: aperture.y + sequence.conformanceY,
+      },
+      color,
+    )
   }
   const colorTransform = oneProperty(colorProperties, 'colr')?.colorTransform
   return colorTransform && !options.preserveIcc

@@ -6,6 +6,7 @@ import { PNG } from 'pngjs'
 import { createImageLibrary } from '../src/index.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
+import { main10PqFixture } from '../benchmark/heif/compatibility/generated-fixtures.ts'
 
 const outputDirectory = resolve('benchmark/.tmp/browser-tests')
 const fixtureDirectory = resolve(outputDirectory, 'fixtures')
@@ -154,6 +155,7 @@ await writeFile(resolve(fixtureDirectory, 'benchmark-input.jpg'), jpeg)
 await writeFile(resolve(fixtureDirectory, 'oriented-6.jpg'), withOrientation(jpeg, 6))
 await writeFile(resolve(fixtureDirectory, 'alpha.png'), alphaFixture())
 await writeFile(resolve(fixtureDirectory, 'webp-graphic.png'), webpGraphicFixture())
+await writeFile(resolve(fixtureDirectory, 'main10-pq.heic'), main10PqFixture())
 await copyFile(
   'benchmark/corpus/files/webp-lossless-tux-386x395.webp',
   resolve(fixtureDirectory, 'benchmark-input.webp'),
@@ -170,6 +172,7 @@ await writeFile(
 const contentTypes: Readonly<Record<string, string>> = {
   '.avif': 'image/avif',
   '.html': 'text/html; charset=utf-8',
+  '.heic': 'image/heic',
   '.js': 'text/javascript; charset=utf-8',
   '.jpg': 'image/jpeg',
   '.png': 'image/png',

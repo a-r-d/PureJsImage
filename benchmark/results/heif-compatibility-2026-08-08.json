@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-08T21:11:37.558Z",
-  "revision": "d4b17508923b190308b63d166032b3bb5b553c54",
+  "generatedAt": "2026-08-08T23:56:43.181Z",
+  "revision": "02b58fa3364fc8209f0348d9e11625fb8799c02c",
   "corpusVersion": 1,
   "fixtureCount": 25,
   "isolation": {
@@ -15,82 +15,147 @@
     "compatibleRmseLimit": 0.035
   },
   "statusCounts": {
-    "Compatible": 10,
-    "Explicitly unsupported": 12,
+    "Compatible": 18,
+    "Explicitly unsupported": 6,
     "Invalid": 0,
     "Incorrect pixels": 1,
-    "Unexpected exception": 2,
+    "Unexpected exception": 0,
     "Timeout": 0,
     "Excessive memory": 0
   },
   "analysis": {
-    "largestFailureCluster": {
-      "feature": "absent or unspecified HEIF/HEVC color-matrix resolution",
-      "explicitUnsupportedResults": 9,
-      "downloadedRealWorldResults": 8,
-      "evidence": [
-        { "fixture": "iphone7-portrait", "details": "Unsupported or unspecified HEIF color matrix: 2" },
-        { "fixture": "iphone7-landscape", "details": "Unsupported or unspecified HEIF color matrix: 2" },
-        { "fixture": "iphone7-front-camera", "details": "Unsupported or unspecified HEIF color matrix: 2" },
-        { "fixture": "iphone7-rotated-180", "details": "Unsupported or unspecified HEIF color matrix: 2" },
-        { "fixture": "libheif-example-main", "details": "Unsupported or unspecified HEIF color matrix: none" },
-        { "fixture": "nokia-winter-direct", "details": "Unsupported or unspecified HEIF color matrix: none" },
-        { "fixture": "nokia-autumn-direct", "details": "Unsupported or unspecified HEIF color matrix: none" },
-        { "fixture": "sdweb-grid", "details": "Unsupported or unspecified HEIF color matrix: none" },
-        { "fixture": "generated-imir", "details": "Unsupported or unspecified HEIF color matrix: 2" }
-      ]
+    "focusedFixes": {
+      "deterministicColorMatrixResolution": {
+        "fixtureCount": 9,
+        "compatibleResults": 6,
+        "downstreamResults": [
+          {
+            "fixture": "libheif-example-main",
+            "status": "Incorrect pixels",
+            "details": "normalized sRGB RMSE 0.035339 (limit 0.035)"
+          },
+          {
+            "fixture": "nokia-winter-direct",
+            "status": "Explicitly unsupported",
+            "details": "UNSUPPORTED_OPERATION: HEVC slice segmentation does not match the coded picture at CTB 344"
+          },
+          {
+            "fixture": "nokia-autumn-direct",
+            "status": "Explicitly unsupported",
+            "details": "UNSUPPORTED_OPERATION: HEVC slice segmentation does not match the coded picture at CTB 23"
+          }
+        ]
+      },
+      "hvccArrayCompleteness": {
+        "fixtureCount": 2,
+        "evidence": [
+          {
+            "fixture": "libheif-aux-alpha",
+            "status": "Explicitly unsupported",
+            "details": "UNSUPPORTED_OPERATION: HEIF auxiliary alpha reconstruction is unsupported"
+          },
+          {
+            "fixture": "libheif-clap",
+            "status": "Compatible",
+            "details": "normalized sRGB RMSE 0.001507 (limit 0.035)"
+          }
+        ]
+      },
+      "pqDisplayedSdr": {
+        "fixtureCount": 1,
+        "evidence": [
+          {
+            "fixture": "generated-main10-pq",
+            "status": "Compatible",
+            "details": "normalized sRGB RMSE 0.001007 (limit 0.035)"
+          }
+        ],
+        "policy": "Preserve PQ code values, use the signaled YCbCr matrix with nearest 4:2:0 chroma, round to 8-bit, and hard-clip to the SDR display gamut."
+      }
     },
-    "nextImplementationProject": "Define safe, spec- and metadata-driven matrix defaults from ICC, nclx, VUI, brand, and profile evidence; continue rejecting ambiguous inputs.",
-    "separateCorrectnessFindings": [
-      "Accept the defined hvcC array-completeness bit before claiming current-libheif interoperability.",
-      "Reconcile Main 10/PQ displayed SDR tone mapping with the independent oracle before claiming displayed Main 10 compatibility."
-    ],
+    "nextImplementationProject": "Investigate the remaining libheif-example-main displayed-pixel discrepancy and the two Nokia slice-segmentation failures without widening the pixel tolerance.",
     "multiSliceFixture": "No redistributable or reproducibly downloadable direct multi-slice still fixture was found. Multi-slice inspection exists, while reconstruction remains explicitly unsupported."
   },
   "results": [
     {
       "fixture": "iphone7-portrait",
-      "expectedStatus": "Explicitly unsupported",
-      "status": "Explicitly unsupported",
-      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: 2",
-      "wallMilliseconds": 86.046,
-      "maximumRssMiB": 141.6,
-      "oracleDimensions": "3024x4032"
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.028804 (limit 0.035)",
+      "wallMilliseconds": 11840.556,
+      "maximumRssMiB": 168.5,
+      "oracleDimensions": "3024x4032",
+      "metadata": {
+        "width": 4032,
+        "height": 3024,
+        "orientation": 8,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3
+      },
+      "normalizedRmse": 0.0288043
     },
     {
       "fixture": "iphone7-landscape",
-      "expectedStatus": "Explicitly unsupported",
-      "status": "Explicitly unsupported",
-      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: 2",
-      "wallMilliseconds": 67.607,
-      "maximumRssMiB": 102,
-      "oracleDimensions": "4032x3024"
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.006027 (limit 0.035)",
+      "wallMilliseconds": 9519.691,
+      "maximumRssMiB": 168.8,
+      "oracleDimensions": "4032x3024",
+      "metadata": {
+        "width": 4032,
+        "height": 3024,
+        "orientation": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3
+      },
+      "normalizedRmse": 0.00602699
     },
     {
       "fixture": "iphone7-front-camera",
-      "expectedStatus": "Explicitly unsupported",
-      "status": "Explicitly unsupported",
-      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: 2",
-      "wallMilliseconds": 53.091,
-      "maximumRssMiB": 125.7,
-      "oracleDimensions": "2320x3088"
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.030535 (limit 0.035)",
+      "wallMilliseconds": 7321.147,
+      "maximumRssMiB": 156.2,
+      "oracleDimensions": "2320x3088",
+      "metadata": {
+        "width": 3088,
+        "height": 2320,
+        "orientation": 6,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3
+      },
+      "normalizedRmse": 0.0305346
     },
     {
       "fixture": "iphone7-rotated-180",
-      "expectedStatus": "Explicitly unsupported",
-      "status": "Explicitly unsupported",
-      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: 2",
-      "wallMilliseconds": 204.891,
-      "maximumRssMiB": 129,
-      "oracleDimensions": "4032x3024"
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.010261 (limit 0.035)",
+      "wallMilliseconds": 12581.808,
+      "maximumRssMiB": 301.6,
+      "oracleDimensions": "4032x3024",
+      "metadata": {
+        "width": 4032,
+        "height": 3024,
+        "orientation": 3,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3
+      },
+      "normalizedRmse": 0.0102612
     },
     {
       "fixture": "iphone12-greyhounds",
       "expectedStatus": "Compatible",
       "status": "Compatible",
       "details": "normalized sRGB RMSE 0.011517 (limit 0.035)",
-      "wallMilliseconds": 11960.18,
-      "maximumRssMiB": 172.7,
+      "wallMilliseconds": 13691.707,
+      "maximumRssMiB": 176.1,
       "oracleDimensions": "3024x4032",
       "metadata": {
         "width": 4032,
@@ -112,7 +177,7 @@
       "expectedStatus": "Compatible",
       "status": "Compatible",
       "details": "normalized sRGB RMSE 0.003298 (limit 0.035)",
-      "wallMilliseconds": 10619.859,
+      "wallMilliseconds": 11052.89,
       "maximumRssMiB": 177.7,
       "oracleDimensions": "3024x4032",
       "metadata": {
@@ -135,8 +200,8 @@
       "expectedStatus": "Compatible",
       "status": "Compatible",
       "details": "normalized sRGB RMSE 0.011145 (limit 0.035)",
-      "wallMilliseconds": 11755.769,
-      "maximumRssMiB": 187.6,
+      "wallMilliseconds": 12628.833,
+      "maximumRssMiB": 185.8,
       "oracleDimensions": "3024x4032",
       "metadata": {
         "width": 4032,
@@ -158,8 +223,8 @@
       "expectedStatus": "Compatible",
       "status": "Compatible",
       "details": "normalized sRGB RMSE 0.011119 (limit 0.035)",
-      "wallMilliseconds": 10558.865,
-      "maximumRssMiB": 216.2,
+      "wallMilliseconds": 10688.539,
+      "maximumRssMiB": 187.3,
       "oracleDimensions": "4032x3024",
       "metadata": {
         "width": 4032,
@@ -181,8 +246,8 @@
       "expectedStatus": "Compatible",
       "status": "Compatible",
       "details": "normalized sRGB RMSE 0.033673 (limit 0.035)",
-      "wallMilliseconds": 12108.134,
-      "maximumRssMiB": 274.7,
+      "wallMilliseconds": 12262.149,
+      "maximumRssMiB": 274.9,
       "oracleDimensions": "3024x4032",
       "metadata": {
         "width": 4032,
@@ -204,8 +269,8 @@
       "expectedStatus": "Compatible",
       "status": "Compatible",
       "details": "normalized sRGB RMSE 0.003127 (limit 0.035)",
-      "wallMilliseconds": 9595.838,
-      "maximumRssMiB": 168.6,
+      "wallMilliseconds": 9322.896,
+      "maximumRssMiB": 169.4,
       "oracleDimensions": "4032x3024",
       "metadata": {
         "width": 4032,
@@ -227,8 +292,8 @@
       "expectedStatus": "Compatible",
       "status": "Compatible",
       "details": "normalized sRGB RMSE 0.003605 (limit 0.035)",
-      "wallMilliseconds": 4415.386,
-      "maximumRssMiB": 141.2,
+      "wallMilliseconds": 4412.767,
+      "maximumRssMiB": 142.3,
       "oracleDimensions": "2592x1944",
       "metadata": {
         "width": 2592,
@@ -245,8 +310,8 @@
       "expectedStatus": "Compatible",
       "status": "Compatible",
       "details": "normalized sRGB RMSE 0.030091 (limit 0.035)",
-      "wallMilliseconds": 142949.775,
-      "maximumRssMiB": 338.4,
+      "wallMilliseconds": 146436.786,
+      "maximumRssMiB": 401.8,
       "oracleDimensions": "12240x16320",
       "metadata": {
         "width": 16320,
@@ -263,8 +328,8 @@
       "expectedStatus": "Compatible",
       "status": "Compatible",
       "details": "normalized sRGB RMSE 0.009013 (limit 0.035)",
-      "wallMilliseconds": 6585.612,
-      "maximumRssMiB": 172.3,
+      "wallMilliseconds": 6792.829,
+      "maximumRssMiB": 159.2,
       "oracleDimensions": "4000x1848",
       "metadata": {
         "width": 4000,
@@ -283,38 +348,47 @@
     },
     {
       "fixture": "libheif-example-main",
-      "expectedStatus": "Explicitly unsupported",
-      "status": "Explicitly unsupported",
-      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: none",
-      "wallMilliseconds": 26.479,
-      "maximumRssMiB": 108.3,
-      "oracleDimensions": "1280x854"
+      "expectedStatus": "Incorrect pixels",
+      "status": "Incorrect pixels",
+      "details": "normalized sRGB RMSE 0.035339 (limit 0.035)",
+      "wallMilliseconds": 1050.739,
+      "maximumRssMiB": 149.8,
+      "oracleDimensions": "1280x854",
+      "metadata": {
+        "width": 1280,
+        "height": 854,
+        "orientation": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 1
+      },
+      "normalizedRmse": 0.0353386
     },
     {
       "fixture": "nokia-overlay-alpha",
       "expectedStatus": "Explicitly unsupported",
       "status": "Explicitly unsupported",
       "details": "UNSUPPORTED_OPERATION: Unsupported HEIF primary item type: iovl",
-      "wallMilliseconds": 3.827,
-      "maximumRssMiB": 95.4,
+      "wallMilliseconds": 5.647,
+      "maximumRssMiB": 97.2,
       "oracleDimensions": "1440x960"
     },
     {
       "fixture": "nokia-winter-direct",
       "expectedStatus": "Explicitly unsupported",
       "status": "Explicitly unsupported",
-      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: none",
-      "wallMilliseconds": 15.37,
-      "maximumRssMiB": 107.5,
+      "details": "UNSUPPORTED_OPERATION: HEVC slice segmentation does not match the coded picture at CTB 344",
+      "wallMilliseconds": 395.474,
+      "maximumRssMiB": 120.1,
       "oracleDimensions": "1440x960"
     },
     {
       "fixture": "nokia-autumn-direct",
       "expectedStatus": "Explicitly unsupported",
       "status": "Explicitly unsupported",
-      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: none",
-      "wallMilliseconds": 9.345,
-      "maximumRssMiB": 96.7,
+      "details": "UNSUPPORTED_OPERATION: HEVC slice segmentation does not match the coded picture at CTB 23",
+      "wallMilliseconds": 64.533,
+      "maximumRssMiB": 103.1,
       "oracleDimensions": "1440x960"
     },
     {
@@ -322,17 +396,17 @@
       "expectedStatus": "Explicitly unsupported",
       "status": "Explicitly unsupported",
       "details": "UNSUPPORTED_OPERATION: Timed HEIF image sequences are unsupported",
-      "wallMilliseconds": 1.37,
-      "maximumRssMiB": 93.6,
+      "wallMilliseconds": 1.423,
+      "maximumRssMiB": 98.1,
       "oracleDimensions": "256x144"
     },
     {
       "fixture": "libheif-aux-alpha",
-      "expectedStatus": "Unexpected exception",
-      "status": "Unexpected exception",
-      "details": "INVALID_INPUT: HEIF hvcC array reserved bit is set",
-      "wallMilliseconds": 2.311,
-      "maximumRssMiB": 96.1,
+      "expectedStatus": "Explicitly unsupported",
+      "status": "Explicitly unsupported",
+      "details": "UNSUPPORTED_OPERATION: HEIF auxiliary alpha reconstruction is unsupported",
+      "wallMilliseconds": 11.686,
+      "maximumRssMiB": 97.7,
       "oracleDimensions": "512x512"
     },
     {
@@ -340,8 +414,8 @@
       "expectedStatus": "Compatible",
       "status": "Compatible",
       "details": "normalized sRGB RMSE 0.005599 (limit 0.035)",
-      "wallMilliseconds": 6581.588,
-      "maximumRssMiB": 156.6,
+      "wallMilliseconds": 5720.727,
+      "maximumRssMiB": 157.1,
       "oracleDimensions": "2560x2560",
       "metadata": {
         "width": 2560,
@@ -360,38 +434,61 @@
     },
     {
       "fixture": "sdweb-grid",
-      "expectedStatus": "Explicitly unsupported",
-      "status": "Explicitly unsupported",
-      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: none",
-      "wallMilliseconds": 22.431,
-      "maximumRssMiB": 107.6,
-      "oracleDimensions": "1440x960"
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.001654 (limit 0.035)",
+      "wallMilliseconds": 1154.605,
+      "maximumRssMiB": 129.5,
+      "oracleDimensions": "1440x960",
+      "metadata": {
+        "width": 1440,
+        "height": 960,
+        "orientation": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3
+      },
+      "normalizedRmse": 0.00165404
     },
     {
       "fixture": "pillow-rext-10bit",
       "expectedStatus": "Explicitly unsupported",
       "status": "Explicitly unsupported",
       "details": "UNSUPPORTED_OPERATION: HEIF item 1 uses an unsupported HEVC profile, chroma format, or bit depth",
-      "wallMilliseconds": 4.77,
-      "maximumRssMiB": 95.4,
+      "wallMilliseconds": 4.832,
+      "maximumRssMiB": 96.2,
       "oracleDimensions": "128x128"
     },
     {
       "fixture": "libheif-clap",
-      "expectedStatus": "Unexpected exception",
-      "status": "Unexpected exception",
-      "details": "INVALID_INPUT: HEIF hvcC array reserved bit is set",
-      "wallMilliseconds": 2.353,
-      "maximumRssMiB": 93.6,
-      "oracleDimensions": "451x461"
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.001507 (limit 0.035)",
+      "wallMilliseconds": 294.325,
+      "maximumRssMiB": 111.8,
+      "oracleDimensions": "451x461",
+      "metadata": {
+        "width": 451,
+        "height": 461,
+        "orientation": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3,
+        "colorSpace": "icc",
+        "colorProfile": {
+          "kind": "icc",
+          "description": "GIMP built-in sRGB"
+        }
+      },
+      "normalizedRmse": 0.00150696
     },
     {
       "fixture": "generated-main10-pq",
-      "expectedStatus": "Incorrect pixels",
-      "status": "Incorrect pixels",
-      "details": "normalized sRGB RMSE 0.112799 (limit 0.035)",
-      "wallMilliseconds": 27.05,
-      "maximumRssMiB": 98.2,
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.001007 (limit 0.035)",
+      "wallMilliseconds": 21.858,
+      "maximumRssMiB": 99.4,
       "oracleDimensions": "32x32",
       "metadata": {
         "width": 32,
@@ -409,16 +506,25 @@
           "fullRange": false
         }
       },
-      "normalizedRmse": 0.112799
+      "normalizedRmse": 0.00100684
     },
     {
       "fixture": "generated-imir",
-      "expectedStatus": "Explicitly unsupported",
-      "status": "Explicitly unsupported",
-      "details": "UNSUPPORTED_OPERATION: Unsupported or unspecified HEIF color matrix: 2",
-      "wallMilliseconds": 95.595,
-      "maximumRssMiB": 140.3,
-      "oracleDimensions": "4032x3024"
+      "expectedStatus": "Compatible",
+      "status": "Compatible",
+      "details": "normalized sRGB RMSE 0.028805 (limit 0.035)",
+      "wallMilliseconds": 11709.256,
+      "maximumRssMiB": 178.3,
+      "oracleDimensions": "4032x3024",
+      "metadata": {
+        "width": 4032,
+        "height": 3024,
+        "orientation": 4,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 3
+      },
+      "normalizedRmse": 0.0288045
     }
   ]
 }

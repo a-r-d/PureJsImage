@@ -29,32 +29,30 @@ materialize that 199.8 MP frame.
 
 The current results are:
 
-- 10 compatible
-- 12 explicitly unsupported
+- 18 compatible
+- 6 explicitly unsupported
 - 1 incorrect-pixels result
-- 2 unexpected exceptions on valid libheif files
+- 0 unexpected exceptions
 - 0 invalid inputs, timeouts, or excessive-memory results
 
-The compatible set includes iPhone 12/13 grids, Apple depth and HDR gain-map
+The compatible set includes iPhone 7/12/13 grids, Apple depth and HDR gain-map
 companions beside valid SDR primaries, Xiaomi and Samsung grids, a Vision Pro
-spatial primary, and the 200 MP Samsung file. The 200 MP full decode peaks at
-338.4 MiB RSS and matches the independent downscaled pixels at 0.030091
-normalized sRGB RMSE.
+spatial primary, clean-aperture and mirrored libheif/iPhone cases, and the 200 MP
+Samsung file. The 200 MP full decode peaks at 401.8 MiB RSS and matches the
+independent downscaled pixels at 0.030091 normalized sRGB RMSE.
 
-The largest realistic failure cluster is color-matrix resolution. Eight
-downloaded files, plus the generated `imir` case, are rejected because the
-primary has either no matrix coefficient or the unspecified value 2. This one
-gap accounts for 9 of 12 explicitly unsupported results. The next separate
-implementation project should define spec- and metadata-driven defaults for
-these absent or unspecified signals, using ICC, `nclx`, VUI, brand, and profile
-evidence without guessing when the input remains ambiguous.
+Deterministic color-matrix resolution advances all nine formerly blocked cases.
+Six now match the displayed oracle within the unchanged 0.035 RMSE limit. The
+libheif example reaches a later 0.035339 displayed-pixel discrepancy, and two
+Nokia files reach explicit slice-segmentation failures. Inputs outside the
+narrow ICC/SDR Main or Main Still Picture 4:2:0 evidence policy remain
+explicitly unsupported instead of silently assuming BT.601 or BT.709.
 
-Two valid current-libheif files are reported as unexpected exceptions because
-the `hvcC` parser treats the array-completeness bit as reserved. A separate
-container-correctness fix should accept that defined bit before claiming broad
-libheif interoperability. The Main 10/PQ file reconstructs its HEVC samples but
-its displayed SDR pixels differ from ImageMagick/libheif by 0.112799 normalized
-RMSE, so displayed Main 10 compatibility is not currently claimed.
+The `hvcC` array-completeness bit is parsed correctly. The clean-aperture
+libheif file now matches at 0.001507 RMSE after applying its SPS conformance
+window; the alpha fixture fails explicitly until auxiliary alpha reconstruction
+is implemented. The Main 10/PQ displayed path matches ImageMagick/libheif at
+0.001007 RMSE under the documented hard-clipped 8-bit compatibility policy.
 
 See `benchmark/results/heif-compatibility-2026-08-08.md` for the complete
 per-file matrix. No new HEVC syntax was added while producing this baseline.
@@ -111,6 +109,7 @@ AVIF codecs from growing separate parsers for the same hostile container.
   and consistent HEVC decoder configurations without claiming pixel decode
 - [x] Parse HEVC configuration arrays and length-prefixed VPS, SPS, PPS, and
   image-item NAL units with strict extent and count limits
+- [x] Parse the hvcC array-completeness bit independently from its reserved bit
 - [x] Support multiple extents without concatenating the complete compressed
   item when a bounded reader can traverse them directly
 - [x] Parse and validate `imir` mirror and `clap` clean-aperture properties,
@@ -134,9 +133,7 @@ not every auxiliary asset stored beside it.
   than first assembling a source-sized RGBA canvas
 - [ ] Support multiple slices and tiles within one coded HEVC picture
 - [x] Apply `irot`, `imir`, and `clap` in the defined order
-- [ ] Independently validate displayed real-world `imir` and `clap` pixels;
-  the current cases stop first on unsupported color signaling or the `hvcC`
-  array-completeness parser error
+- [x] Independently validate displayed real-world `imir` and `clap` pixels
 - [x] Return display dimensions after clean-aperture and orientation transforms
 - [ ] Define and test precedence between native HEIF transforms and EXIF
   orientation so a photo is never rotated twice
@@ -145,8 +142,8 @@ not every auxiliary asset stored beside it.
 
 - [x] HEVC Main and Main Still Picture profile decode for 8-bit YUV 4:2:0
 - [x] HEVC Main 10 profile reconstruction for 10-bit YUV 4:2:0
-- [ ] Claim displayed Main 10 compatibility only after its SDR output agrees
-  with an independent oracle under a documented common tone-map policy
+- [x] Claim displayed Main 10/PQ compatibility only for the independently
+  validated 8-bit display policy documented below; HLG is not yet promoted
 - [ ] VPS, SPS, PPS, NAL-unit, picture, and slice-header syntax required by
   supported still pictures
 - [x] Implement bounded EBSP-to-RBSP validation and parse common SPS and PPS
@@ -184,11 +181,14 @@ not every auxiliary asset stored beside it.
   unrestricted ICC (`prof`) data
 - [x] Correctly render the compatible sRGB and Display P3 cases to the
   pipeline's declared output color space
+- [x] Resolve matching explicit nclx/VUI matrices, and resolve absent or
+  unspecified matrices only for the pinned SDR/ICC Main or Main Still Picture
+  4:2:0 HEVC-family evidence policy; reject conflicts and ambiguity explicitly
 - [x] Convert 8-bit YUV to pipeline pixel blocks without a duplicate full-frame
   RGB or RGBA allocation
-- [ ] Make 10-bit displayed SDR output agree with an independent oracle; HEVC
-  sample reconstruction is tested separately, but the corpus tone-map output
-  currently exceeds the displayed-pixel tolerance
+- [x] Match the Main 10/PQ displayed SDR oracle at 0.001007 normalized RMSE
+  using signaled-matrix conversion, nearest 4:2:0 chroma, 8-bit rounding, and
+  hard clipping while preserving PQ code values
 - [ ] Preserve opaque, binary-alpha, and partial-alpha values when a supported
   auxiliary alpha item is present
 - [x] Decode a valid SDR base image even when unsupported depth, matte, or gain
@@ -220,10 +220,11 @@ ship before all of them are complete.
 - [ ] Thumbnail (`thmb`) relationships and an explicit thumbnail-selection API
 - [ ] Identity-derived images (`iden`) without recursive-reference loops
 - [ ] Pixel aspect ratio (`pasp`) and additional display-aperture behavior
-- [x] PQ and HLG 10-bit inputs with a documented SDR tone-map policy: decode
-  the signaled transfer to linear light, convert BT.2020 primaries to sRGB,
-  apply a luminance-preserving global Reinhard curve with 203-nit PQ reference
-  white, and encode 8-bit sRGB
+- [x] PQ 10-bit inputs with a documented libheif-compatible 8-bit display
+  policy: preserve PQ code values, apply the signaled YCbCr matrix with nearest
+  4:2:0 chroma, round to 8-bit, and hard-clip to the SDR display gamut
+- [ ] Independently validate HLG displayed pixels; its existing linear-light
+  BT.2020-to-sRGB Reinhard path remains unit-tested but is not corpus-promoted
 - [ ] Optional higher-precision output when the core pixel model supports more
   than 8 bits per channel
 - [ ] Monochrome HEVC still images
