@@ -1,0 +1,48 @@
+AGENTS.md
+  h_9f4a25732fa0c1 275-281
+CHANGELOG.md
+  h_9f4a25732fa0c1 53-56
+benchmark/aws-lambda/handler.ts
+  h_9f4a25732fa0c1 230
+benchmark/engines/purejsimage-shared.ts
+  h_9f4a25732fa0c1 158,235,243
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 11,146,153-164,172,181,328-334,339,354,376-377
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 30-32,38
+capabilities/manifest.json
+  h_9f4a25732fa0c1 37,65-67,209-210,238-239,383-384
+docs/capabilities.json
+  h_9f4a25732fa0c1 29,81,369,392-393,728-731
+jpeg-codec-support.md
+  h_9f4a25732fa0c1 26-28,170-171
+png-codec-support.md
+  h_9f4a25732fa0c1 143-144
+src/accelerators/wasm/jpeg.ts
+  h_9f4a25732fa0c1 13,361
+src/codecs/jpeg.ts
+  h_9f4a25732fa0c1 15,257,259-291,328
+src/codecs/png.ts
+  h_9f4a25732fa0c1 21,954-993,996-999
+src/pixel.ts
+  h_9f4a25732fa0c1 15-37
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 18,36-37
+tests/wasm-jpeg.test.ts
+  h_9f4a25732fa0c1 5,7,16,69,71,227-325
+tests/wasm-png.test.ts
+  h_9f4a25732fa0c1 18,711-742
+wasm/jpeg-decoder/src/lib.rs
+  h_9f4a25732fa0c1 6,25,107,110-112,150,153-155,372-375,493,495-506,508-518,520-525,528-535,538,750-759,762-764,766-776,778-804,806-814,1419,1483,1636,1639-1641
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "1f5a2dfdb89a13b1dce856a95ef18f4895fad9c4",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
