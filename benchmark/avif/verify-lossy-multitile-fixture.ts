@@ -2,15 +2,12 @@ import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 
-import { parseAv1Frame } from '../../src/codecs/av1-frame.ts'
+import { parseAv1FrameObus } from '../../src/codecs/av1-frame.ts'
 import { decodeRestrictedAv1Intra, type Av1DecodedFrame } from '../../src/codecs/av1-intra.ts'
 import { av1ObuType } from '../../src/codecs/av1.ts'
 import { inspectAvifBitstreams } from '../../src/codecs/avif.ts'
 import { MemorySource } from '../../src/source.ts'
-import {
-  avifLossyMultitileFixture,
-  avifLossyMultitileFixturePath,
-} from './lossy-multitile-fixture.ts'
+import { avifLossyMultitileFixtures } from './lossy-multitile-fixture.ts'
 
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
 
@@ -32,7 +29,7 @@ const packVisibleYuv = (frame: Av1DecodedFrame): Uint8Array => {
   return output
 }
 
-const decodeOracle = (decoder: 'libaom-av1' | 'libdav1d'): Promise<Uint8Array> =>
+const decodeOracle = (path: string, decoder: 'libaom-av1' | 'libdav1d'): Promise<Uint8Array> =>
   new Promise((resolve, reject) => {
     const child = spawn('ffmpeg', [
       '-v',
@@ -40,7 +37,7 @@ const decodeOracle = (decoder: 'libaom-av1' | 'libdav1d'): Promise<Uint8Array> =
       '-c:v',
       decoder,
       '-i',
-      avifLossyMultitileFixturePath,
+      path,
       '-frames:v',
       '1',
       '-pix_fmt',
@@ -63,61 +60,75 @@ const decodeOracle = (decoder: 'libaom-av1' | 'libdav1d'): Promise<Uint8Array> =
     })
   })
 
-const fixture = avifLossyMultitileFixture
-const input = new Uint8Array(await readFile(avifLossyMultitileFixturePath))
-if (sha256(input) !== fixture.fileSha256) throw new Error(`${fixture.file} checksum changed`)
-const inspection = await inspectAvifBitstreams(new MemorySource(input))
-const coded = inspection.codedImages.find((image) => image.role === 'color')
-const obu = coded?.obus.find((candidate) => candidate.type === av1ObuType.frame)
-if (!coded || !obu) throw new Error(`${fixture.file} has no color frame OBU`)
-const parsed = parseAv1Frame(coded.sequence, obu.payload)
-if (
-  parsed.tiles.length !== fixture.columns * fixture.rows ||
-  parsed.header.allLossless ||
-  parsed.header.loopFilterLevels.every((level) => level === 0) ||
-  parsed.header.cdefYPrimaryStrengths.every((strength) => strength === 0) ||
-  parsed.header.restorationTypes.every((type) => type === 0)
-) {
-  throw new Error(`${fixture.file} lossy multi-tile filter configuration changed`)
-}
-const pure = packVisibleYuv(decodeRestrictedAv1Intra(coded.sequence, parsed))
-if (sha256(pure) !== fixture.pureYuvSha256) {
-  throw new Error(`PureJsImage ${fixture.file} YUV checksum changed`)
-}
-const [dav1d, libaom] = await Promise.all([decodeOracle('libdav1d'), decodeOracle('libaom-av1')])
-for (const [name, output] of [
-  ['dav1d', dav1d],
-  ['libaom', libaom],
-] as const) {
-  if (sha256(output) !== fixture.oracleYuvSha256) {
-    throw new Error(`${name} ${fixture.file} YUV checksum changed`)
+const results: Array<{
+  readonly differences: number
+  readonly file: string
+  readonly maximumDifference: number
+  readonly tileGroups: number
+  readonly tiles: string
+}> = []
+for (const { fixture, path } of avifLossyMultitileFixtures) {
+  const input = new Uint8Array(await readFile(path))
+  if (sha256(input) !== fixture.fileSha256) throw new Error(`${fixture.file} checksum changed`)
+  const inspection = await inspectAvifBitstreams(new MemorySource(input))
+  const coded = inspection.codedImages.find((image) => image.role === 'color')
+  if (!coded) throw new Error(`${fixture.file} has no color coded image`)
+  const parsed = parseAv1FrameObus(coded.sequence, coded.obus)
+  const tileGroups = coded.obus.filter(
+    (candidate) => candidate.type === av1ObuType.tileGroup,
+  ).length
+  const filtersMatch = fixture.fullPostFilters
+    ? parsed.header.loopFilterLevels.some((level) => level !== 0) &&
+      parsed.header.cdefYPrimaryStrengths.some((strength) => strength !== 0) &&
+      parsed.header.restorationTypes.some((type) => type !== 0)
+    : parsed.header.cdefYPrimaryStrengths.every((strength) => strength === 0) &&
+      parsed.header.restorationTypes.every((type) => type === 0)
+  if (
+    parsed.tiles.length !== fixture.columns * fixture.rows ||
+    parsed.header.allLossless ||
+    coded.sequence.reducedStillPictureHeader !== fixture.reducedStillPictureHeader ||
+    tileGroups !== fixture.tileGroups ||
+    !filtersMatch
+  ) {
+    throw new Error(`${fixture.file} lossy multi-tile syntax changed`)
   }
+  const pure = packVisibleYuv(decodeRestrictedAv1Intra(coded.sequence, parsed))
+  if (sha256(pure) !== fixture.pureYuvSha256) {
+    throw new Error(`PureJsImage ${fixture.file} YUV checksum changed`)
+  }
+  const [dav1d, libaom] = await Promise.all([
+    decodeOracle(path, 'libdav1d'),
+    decodeOracle(path, 'libaom-av1'),
+  ])
+  for (const [name, output] of [
+    ['dav1d', dav1d],
+    ['libaom', libaom],
+  ] as const) {
+    if (sha256(output) !== fixture.oracleYuvSha256) {
+      throw new Error(`${name} ${fixture.file} YUV checksum changed`)
+    }
+  }
+  let differences = 0
+  let maximumDifference = 0
+  for (let index = 0; index < pure.length; index += 1) {
+    const difference = Math.abs((pure[index] ?? 0) - (dav1d[index] ?? 0))
+    if (difference !== 0) differences += 1
+    maximumDifference = Math.max(maximumDifference, difference)
+  }
+  if (
+    differences !== fixture.nativeYuvDifferenceCount ||
+    maximumDifference !== fixture.maximumNativeYuvDifference
+  ) {
+    throw new Error(
+      `${fixture.file} native YUV tolerance changed: ${differences} differences, maximum ${maximumDifference}`,
+    )
+  }
+  results.push({
+    differences,
+    file: fixture.file,
+    maximumDifference,
+    tileGroups,
+    tiles: `${fixture.columns}x${fixture.rows}`,
+  })
 }
-let differences = 0
-let maximumDifference = 0
-for (let index = 0; index < pure.length; index += 1) {
-  const difference = Math.abs((pure[index] ?? 0) - (dav1d[index] ?? 0))
-  if (difference !== 0) differences += 1
-  maximumDifference = Math.max(maximumDifference, difference)
-}
-if (
-  differences !== fixture.nativeYuvDifferenceCount ||
-  maximumDifference !== fixture.maximumNativeYuvDifference
-) {
-  throw new Error(
-    `${fixture.file} native YUV tolerance changed: ${differences} differences, maximum ${maximumDifference}`,
-  )
-}
-console.log(
-  JSON.stringify(
-    {
-      decoders: ['PureJsImage', 'dav1d', 'libaom'],
-      differences,
-      file: fixture.file,
-      maximumDifference,
-      tiles: `${fixture.columns}x${fixture.rows}`,
-    },
-    null,
-    2,
-  ),
-)
+console.log(JSON.stringify({ decoders: ['PureJsImage', 'dav1d', 'libaom'], results }, null, 2))

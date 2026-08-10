@@ -3145,8 +3145,8 @@
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode with compatible integer clean-aperture cropping, skipped intra-block copy, compatible lossy multi-tile frames with full post-filtering, and single-tile AV1 super-resolution including filtered frames; coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 decode including compatible YUV 4:4:4 multi-tile frames; filter-free lossy 10-bit YUV 4:4:4 decode; compatible alpha auxiliaries; and opaque grids",
-      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images; coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 images with native high-depth reconstruction before explicit RGBA conversion; and filter-free lossy 10-bit YUV 4:4:4 images using the normative high-bit-depth dequantization tables. The supported path includes complete compatible lossy 8-bit and coded-lossless high-depth multi-tile frames in one frame OBU with independent entropy, context, and prediction boundaries; compatible full-range monochrome alpha auxiliaries; opaque image grids; validated integer clean-aperture cropping; palette-coded screen content; skipped intra-block copy with adaptive integer motion vectors; one-tile 8-bit frames with normative eight-tap horizontal super-resolution, including CDEF-before-upscale and loop-restoration-after-upscale ordering; quantizer contexts 0-3 used by the pinned fixtures; coded-lossless 4x4 transforms; container-signaled NCLX conversion including identity color; the documented 8-bit in-loop filters; and the restricted Sharp/libaom quantization-matrix path. Fractional clean apertures, multi-tile super-resolution, multi-tile intra-block-copy frames, multiple tile-group OBUs, grid alpha, filtered lossy 10-bit frames, lossy 10-bit YUV 4:2:0 or 4:2:2, any lossy 12-bit frame, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
+      "boundary": "Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode with compatible integer clean-aperture cropping, skipped intra-block copy, compatible lossy multi-tile frames with full post-filtering, compatible non-reduced shown key-frame headers with contiguous tile-group OBUs, and single-tile AV1 super-resolution including filtered frames; coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 decode including compatible YUV 4:4:4 multi-tile frames; filter-free lossy 10-bit YUV 4:4:4 decode; compatible alpha auxiliaries; and opaque grids",
+      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images; coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 images with native high-depth reconstruction before explicit RGBA conversion; and filter-free lossy 10-bit YUV 4:4:4 images using the normative high-bit-depth dequantization tables. The supported path includes complete compatible lossy 8-bit and coded-lossless high-depth multi-tile frames in one frame OBU with independent entropy, context, and prediction boundaries; compatible non-reduced shown 8-bit key-frame headers followed by complete contiguous tile-group OBUs; compatible full-range monochrome alpha auxiliaries; opaque image grids; validated integer clean-aperture cropping; palette-coded screen content; skipped intra-block copy with adaptive integer motion vectors; one-tile 8-bit frames with normative eight-tap horizontal super-resolution, including CDEF-before-upscale and loop-restoration-after-upscale ordering; quantizer contexts 0-3 used by the pinned fixtures; coded-lossless 4x4 transforms; container-signaled NCLX conversion including identity color; the documented 8-bit in-loop filters; and the restricted Sharp/libaom quantization-matrix path. Fractional clean apertures, multi-tile super-resolution, multi-tile intra-block-copy frames, partial or noncontiguous tile groups, multiple AV1 frame units, non-reduced headers with decoder timing, frame IDs, or dimension overrides, grid alpha, filtered lossy 10-bit frames, lossy 10-bit YUV 4:2:0 or 4:2:2, any lossy 12-bit frame, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
       "memory": "Metadata reads are bounded and all decoded RGBA is emitted in ordered 32-row blocks without a source-sized RGBA bitmap. Every decoder path enforces a 64 MiB aggregate coded-payload and conservatively estimated working-state limit. Compatible opaque, single-item, filter-free AV1 frames reconstruct through two-superblock YUV, prediction, palette, and coefficient-context rings, with finalized bands copied before reuse. Compatible filter-free alpha auxiliaries with aligned orientation reconstruct through a synchronized second row ring. Compatible full-aperture 2x, 4x, and 8x resize input is box-filtered directly from bounded YUV rows before RGBA conversion. Integer clean-aperture regions convert only contributing samples, opaque grids retain one contributing tile row, CDEF uses delayed 8-row bands, and restoration retains deblocked stripe-boundary rows plus delayed 4-row output bands. Post-filtered, super-resolution, rotated-alpha, grid, and multi-tile paths retain padded full-frame YUV reconstruction state; super-resolution additionally retains the upscaled YUV planes, and multi-tile working-set estimates account for one entropy and context allocation per tile.",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
       "evidence": [
@@ -3408,11 +3408,11 @@
         },
         {
           "status": "supported",
-          "text": "One complete AV1 frame OBU per coded image item"
+          "text": "One complete AV1 frame OBU or one frame-header OBU followed by complete contiguous tile-group OBUs per coded image item"
         },
         {
           "status": "supported",
-          "text": "Reduced still-picture, intra-only AV1"
+          "text": "Reduced still-picture headers and compatible non-reduced shown key frames"
         },
         {
           "status": "supported",
@@ -3432,7 +3432,7 @@
         },
         {
           "status": "supported",
-          "text": "Complete compatible lossy 8-bit and coded-lossless high-bit-depth multi-tile frames contained in one frame OBU"
+          "text": "Complete compatible lossy 8-bit and coded-lossless high-bit-depth multi-tile frames in one frame OBU, plus compatible 8-bit frames split across complete contiguous tile-group OBUs"
         },
         {
           "status": "supported",
@@ -3520,7 +3520,7 @@
         },
         {
           "status": "planned",
-          "text": "Tile-list or partial tile-group OBUs"
+          "text": "Tile-list OBUs or partial, overlapping, reordered, or missing tile groups"
         },
         {
           "status": "planned",
@@ -3655,12 +3655,16 @@
           "text": "Multi-item opaque grids with cropped right and bottom edge composition"
         },
         {
-          "status": "planned",
-          "text": "Non-reduced still-picture headers"
+          "status": "supported",
+          "text": "Compatible non-reduced shown key-frame headers without decoder timing, frame IDs, or frame-dimension overrides"
+        },
+        {
+          "status": "supported",
+          "text": "One still frame stored as a frame-header OBU followed by multiple complete contiguous tile-group OBUs"
         },
         {
           "status": "planned",
-          "text": "Still images stored across multiple frame or tile-group OBUs"
+          "text": "Multiple AV1 frame units in one coded image item"
         },
         {
           "status": "planned",
@@ -3925,6 +3929,10 @@
         {
           "status": "supported",
           "text": "Exercise lossy multi-tile AVIF decode through the portable TypeScript codec in Chromium and pin its RGBA output"
+        },
+        {
+          "status": "supported",
+          "text": "Match a checksum-pinned non-reduced 8-bit YUV 4:2:0 frame split across four tile-group OBUs byte for byte against agreeing dav1d and libaom native YUV, and exercise its pinned RGBA output in Chromium"
         },
         {
           "status": "supported",

@@ -673,14 +673,28 @@ const avifExpandedHighBit = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
-const avifLossyMultitile = (): Promise<BrowserWorkflowResult> =>
-  avifPinnedPng(
-    'libaom-lossy-multitile-yuv420-256x256.avif',
-    256,
-    256,
-    '64d50b1df2d192b1dcac24d4bd0e0df6996c00a1a3ecbd97bd9a888edf3dd737',
-    'Lossy 8-bit 2x2-tile AVIF with loop filter, CDEF, and restoration',
-  )
+const avifLossyMultitile = async (): Promise<BrowserWorkflowResult> => {
+  const results = await Promise.all([
+    avifPinnedPng(
+      'libaom-lossy-multitile-yuv420-256x256.avif',
+      256,
+      256,
+      '64d50b1df2d192b1dcac24d4bd0e0df6996c00a1a3ecbd97bd9a888edf3dd737',
+      'Lossy 8-bit 2x2-tile AVIF with loop filter, CDEF, and restoration',
+    ),
+    avifPinnedPng(
+      'libaom-full-header-tile-groups-yuv420-256x256.avif',
+      256,
+      256,
+      '05ab2273ba3952c41d53daf0b45afd709e5025f709ea8c87fef4a0dbacb0a966',
+      'Non-reduced AV1 frame header with four tile-group OBUs',
+    ),
+  ])
+  return {
+    detail: results.map((result) => result.detail).join('; '),
+    outputBytes: results.reduce((total, result) => total + result.outputBytes, 0),
+  }
+}
 
 const avifSuperres = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(

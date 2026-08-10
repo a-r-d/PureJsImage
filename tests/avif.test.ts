@@ -29,6 +29,8 @@ import {
   tiledLosslessSample,
 } from '../benchmark/avif/tiled-lossless-fixture.ts'
 import {
+  avifFullHeaderTileGroupsFixture,
+  avifFullHeaderTileGroupsFixturePath,
   avifLossyMultitileFixture,
   avifLossyMultitileFixturePath,
 } from '../benchmark/avif/lossy-multitile-fixture.ts'
@@ -47,7 +49,7 @@ import {
   avifBoundedAlphaRowFixturePath,
 } from '../benchmark/avif/row-alpha-fixture.ts'
 import { av1ObuType } from '../src/codecs/av1.ts'
-import { parseAv1Frame } from '../src/codecs/av1-frame.ts'
+import { parseAv1Frame, parseAv1FrameObus } from '../src/codecs/av1-frame.ts'
 import { decodeRestrictedAv1Intra } from '../src/codecs/av1-intra.ts'
 import {
   avifCodec,
@@ -789,6 +791,39 @@ describe('AVIF restricted pixel decode', () => {
       }
     }
     expect(createHash('sha256').update(nativeYuv).digest('hex')).toBe(fixture.pureYuvSha256)
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+  })
+
+  it('decodes non-reduced AV1 frame headers split across tile-group OBUs', async () => {
+    const fixture = avifFullHeaderTileGroupsFixture
+    const input = await readFile(avifFullHeaderTileGroupsFixturePath)
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    if (!coded) throw new Error('Full-header AVIF fixture has no color coded image')
+    const frame = parseAv1FrameObus(coded.sequence, coded.obus)
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(coded.sequence).toMatchObject({
+      bitDepth: fixture.bitDepth,
+      chromaSubsampling: fixture.chromaSubsampling,
+      reducedStillPictureHeader: false,
+      stillPicture: true,
+    })
+    expect(coded.obus.map((obu) => obu.type)).toEqual([
+      av1ObuType.sequenceHeader,
+      av1ObuType.frameHeader,
+      av1ObuType.tileGroup,
+      av1ObuType.tileGroup,
+      av1ObuType.tileGroup,
+      av1ObuType.tileGroup,
+    ])
+    expect(frame.header).toMatchObject({
+      allLossless: false,
+      tileColumns: fixture.columns,
+      tileRows: fixture.rows,
+    })
+    expect(frame.tiles).toHaveLength(fixture.columns * fixture.rows)
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
   })
 

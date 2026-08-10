@@ -1,6 +1,6 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
-import { Av1BitReader } from './av1.ts'
-import type { Av1SequenceHeader } from './av1.ts'
+import { av1ObuType, Av1BitReader } from './av1.ts'
+import type { Av1Obu, Av1SequenceHeader } from './av1.ts'
 
 const MAX_TILE_WIDTH = 4096
 const MAX_TILE_AREA = 4096 * 2304
@@ -391,20 +391,44 @@ const littleEndian = (data: Uint8Array, offset: number, bytes: number): number =
   return value
 }
 
-export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av1Frame => {
-  if (!sequence.reducedStillPictureHeader || !sequence.stillPicture) {
-    throw unsupportedOperation('Phase B2 supports reduced still-picture AV1 frames only')
+export const parseAv1Frame = (
+  sequence: Av1SequenceHeader,
+  data: Uint8Array,
+  tileGroups?: readonly Uint8Array[],
+): Av1Frame => {
+  if (!sequence.stillPicture) {
+    throw unsupportedOperation('AV1 video frame headers are not supported')
   }
   if (sequence.filmGrainParamsPresent) {
-    throw unsupportedOperation('Phase B2 does not support AV1 film grain')
+    throw unsupportedOperation('AV1 film grain is not supported')
   }
   const reader = new Av1BitReader(data)
+  if (!sequence.reducedStillPictureHeader) {
+    if (reader.readBit() === 1) {
+      throw unsupportedOperation('AV1 show-existing-frame headers are not supported')
+    }
+    if (reader.readBits(2) !== 0 || reader.readBit() !== 1) {
+      throw unsupportedOperation('Non-reduced AV1 still images must use a shown key frame')
+    }
+    if (sequence.decoderModelInfoPresent) {
+      throw unsupportedOperation('AV1 decoder-model frame timing is not supported')
+    }
+  }
   const disableCdfUpdate = reader.readBit() === 1
   const allowScreenContentTools =
     sequence.forceScreenContentTools === 2
       ? reader.readBit() === 1
       : sequence.forceScreenContentTools === 1
   if (allowScreenContentTools && sequence.forceIntegerMv === 2) reader.readBit()
+  if (sequence.frameIdNumbersPresent) {
+    throw unsupportedOperation('AV1 frame ID numbers are not supported')
+  }
+  if (!sequence.reducedStillPictureHeader) {
+    if (reader.readBit() === 1) {
+      throw unsupportedOperation('Non-reduced AV1 still images must use maximum frame dimensions')
+    }
+    if (sequence.orderHintBits > 0) reader.readBits(sequence.orderHintBits)
+  }
 
   let frameWidth = sequence.maxFrameWidth
   const frameHeight = sequence.maxFrameHeight
@@ -421,6 +445,7 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
   const renderHeight = differentRenderSize ? reader.readBits(16) + 1 : frameHeight
   const allowIntrabc =
     allowScreenContentTools && upscaledWidth === frameWidth ? reader.readBit() === 1 : false
+  if (!sequence.reducedStillPictureHeader && !disableCdfUpdate) reader.readBit()
   const layout = parseTileLayout(reader, sequence, miColumns, miRows)
   const quantization = parseQuantization(reader, sequence)
   const segmentation = parseSegmentation(reader)
@@ -464,55 +489,67 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
   const restoration = parseRestoration(reader, sequence, planes, allLossless, allowIntrabc)
   const transformMode = codedLossless ? '4x4' : reader.readBit() === 1 ? 'select' : 'largest'
   const reducedTransformSet = reader.readBit() === 1
-  reader.alignToByte()
+  if (tileGroups === undefined) reader.alignToByte()
+  else reader.readTrailingBits()
   const headerBytes = reader.bytePosition
 
-  const tileReader = new Av1BitReader(data.subarray(headerBytes))
+  const tilePayloads = tileGroups ?? [data.subarray(headerBytes)]
+  if (tilePayloads.length === 0) throw invalidInput('AV1 frame has no tile groups')
   const tileCount = layout.columns * layout.rows
-  const hasRange = tileCount > 1 && tileReader.readBit() === 1
   const tileBits = layout.columnsLog2 + layout.rowsLog2
-  const tileStart = hasRange ? tileReader.readBits(tileBits) : 0
-  const tileEnd = hasRange ? tileReader.readBits(tileBits) : tileCount - 1
-  if (tileStart !== 0 || tileEnd !== tileCount - 1) {
-    throw unsupportedOperation('Phase B2 requires every AV1 tile in one frame OBU')
-  }
-  tileReader.alignToByte()
-  let offset = headerBytes + tileReader.bytePosition
   const tiles: Av1Tile[] = []
-  for (let tile = tileStart; tile <= tileEnd; tile += 1) {
-    let length = data.byteLength - offset
-    if (tile !== tileEnd) {
-      length = littleEndian(data, offset, layout.tileSizeBytes) + 1
-      offset += layout.tileSizeBytes
+  let expectedTile = 0
+  for (const tilePayload of tilePayloads) {
+    const tileReader = new Av1BitReader(tilePayload)
+    const hasRange = tileCount > 1 && tileReader.readBit() === 1
+    const tileStart = hasRange ? tileReader.readBits(tileBits) : 0
+    const tileEnd = hasRange ? tileReader.readBits(tileBits) : tileCount - 1
+    if (tileStart !== expectedTile || tileEnd < tileStart || tileEnd >= tileCount) {
+      throw invalidInput(
+        `AV1 tile group ${tileStart}-${tileEnd} does not continue at tile ${expectedTile} of ${tileCount}`,
+      )
     }
-    const end = offset + length
-    if (length < 1 || end > data.byteLength) throw invalidInput('AV1 tile payload is truncated')
-    const row = Math.floor(tile / layout.columns)
-    const column = tile % layout.columns
-    const miRowStart = layout.rowStarts[row]
-    const miRowEnd = layout.rowStarts[row + 1]
-    const miColumnStart = layout.columnStarts[column]
-    const miColumnEnd = layout.columnStarts[column + 1]
-    if (
-      miRowStart === undefined ||
-      miRowEnd === undefined ||
-      miColumnStart === undefined ||
-      miColumnEnd === undefined
-    ) {
-      throw invalidInput('AV1 tile boundaries are invalid')
+    tileReader.alignToByte()
+    let offset = tileReader.bytePosition
+    for (let tile = tileStart; tile <= tileEnd; tile += 1) {
+      let length = tilePayload.byteLength - offset
+      if (tile !== tileEnd) {
+        length = littleEndian(tilePayload, offset, layout.tileSizeBytes) + 1
+        offset += layout.tileSizeBytes
+      }
+      const end = offset + length
+      if (length < 1 || end > tilePayload.byteLength) {
+        throw invalidInput('AV1 tile payload is truncated')
+      }
+      const row = Math.floor(tile / layout.columns)
+      const column = tile % layout.columns
+      const miRowStart = layout.rowStarts[row]
+      const miRowEnd = layout.rowStarts[row + 1]
+      const miColumnStart = layout.columnStarts[column]
+      const miColumnEnd = layout.columnStarts[column + 1]
+      if (
+        miRowStart === undefined ||
+        miRowEnd === undefined ||
+        miColumnStart === undefined ||
+        miColumnEnd === undefined
+      ) {
+        throw invalidInput('AV1 tile boundaries are invalid')
+      }
+      tiles.push({
+        row,
+        column,
+        miRowStart,
+        miRowEnd,
+        miColumnStart,
+        miColumnEnd,
+        data: tilePayload.subarray(offset, end),
+      })
+      offset = end
     }
-    tiles.push({
-      row,
-      column,
-      miRowStart,
-      miRowEnd,
-      miColumnStart,
-      miColumnEnd,
-      data: data.subarray(offset, end),
-    })
-    offset = end
+    if (offset !== tilePayload.byteLength) throw invalidInput('AV1 tile group has trailing data')
+    expectedTile = tileEnd + 1
   }
-  if (offset !== data.byteLength) throw invalidInput('AV1 frame has trailing tile data')
+  if (expectedTile !== tileCount) throw invalidInput('AV1 frame is missing tile groups')
 
   return {
     header: {
@@ -563,4 +600,34 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
     },
     tiles,
   }
+}
+
+export const parseAv1FrameObus = (
+  sequence: Av1SequenceHeader,
+  obus: readonly Av1Obu[],
+): Av1Frame => {
+  const frames = obus.filter((obu) => obu.type === av1ObuType.frame)
+  const frameHeaders = obus.filter((obu) => obu.type === av1ObuType.frameHeader)
+  const tileGroups = obus.filter((obu) => obu.type === av1ObuType.tileGroup)
+  if (frames.length === 1 && frameHeaders.length === 0 && tileGroups.length === 0) {
+    const frame = frames[0]
+    if (!frame) throw invalidInput('AV1 frame OBU is missing')
+    return parseAv1Frame(sequence, frame.payload)
+  }
+  if (frames.length === 0 && frameHeaders.length === 1 && tileGroups.length > 0) {
+    const frameHeader = frameHeaders[0]
+    if (!frameHeader) throw invalidInput('AV1 frame-header OBU is missing')
+    const frameHeaderIndex = obus.indexOf(frameHeader)
+    if (tileGroups.some((obu) => obus.indexOf(obu) <= frameHeaderIndex)) {
+      throw invalidInput('AV1 tile-group OBUs must follow the frame-header OBU')
+    }
+    return parseAv1Frame(
+      sequence,
+      frameHeader.payload,
+      tileGroups.map((obu) => obu.payload),
+    )
+  }
+  throw unsupportedOperation(
+    'AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups',
+  )
 }

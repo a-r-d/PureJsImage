@@ -99,8 +99,9 @@ coverage.
 - [ ] Inter-frame or general video decoding
 ### Implemented restricted still-image path
 
-- [x] One complete AV1 frame OBU per coded image item
-- [x] Reduced still-picture, intra-only AV1
+- [x] One complete AV1 frame OBU or one frame-header OBU followed by complete
+  contiguous tile-group OBUs per coded image item
+- [x] Reduced still-picture headers and compatible non-reduced shown key frames
 - [x] AV1 Main, High, and Professional Profiles with 8-bit monochrome, YUV
   4:2:0, YUV 4:2:2, and YUV 4:4:4 output
 - [x] Coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 output with
@@ -108,7 +109,8 @@ coverage.
 - [x] Lossless and lossy quantization paths used by the permanent fixtures
 - [x] 64x64 and 128x128 superblocks
 - [x] Complete compatible lossy 8-bit and coded-lossless high-bit-depth
-  multi-tile frames contained in one frame OBU
+  multi-tile frames in one frame OBU, plus compatible 8-bit frames split
+  across complete contiguous tile-group OBUs
 - [x] Range-coded symbol decoding with adaptive CDF updates and final-state
   validation
 - [x] Skip signaling, keyframe intra modes, angle deltas, transform selection,
@@ -145,7 +147,7 @@ coverage.
 - [x] Public crop, resize, AVIF-to-PNG, AVIF-to-JPEG, AVIF-to-WebP, and
   AVIF-to-other-implemented-codec pipelines after frame reconstruction
 - [ ] Multiple independently decoded AV1 tiles
-- [ ] Tile-list or partial tile-group OBUs
+- [ ] Tile-list OBUs or partial, overlapping, reordered, or missing tile groups
 - [ ] Alpha-bearing image grids
 - [x] Skipped intra block copy with adaptive integer motion-vector coding
 - [ ] Intra-block-copy residual transforms and other screen-content tools
@@ -205,8 +207,11 @@ byte. The full-size tolerance remains zero.
 - [x] Compatible full-range 8-bit monochrome alpha auxiliaries
 - [x] Premultiplied-alpha signaling and normalization to straight RGBA
 - [x] Multi-item opaque grids with cropped right and bottom edge composition
-- [ ] Non-reduced still-picture headers
-- [ ] Still images stored across multiple frame or tile-group OBUs
+- [x] Compatible non-reduced shown key-frame headers without decoder timing,
+  frame IDs, or frame-dimension overrides
+- [x] One still frame stored as a frame-header OBU followed by multiple complete
+  contiguous tile-group OBUs
+- [ ] Multiple AV1 frame units in one coded image item
 - [ ] Progressive layered AVIF items
 - [ ] HDR PQ and HLG inputs with a documented SDR or HDR output policy
 - [ ] Wide-gamut NCLX and ICC-managed conversion
@@ -336,6 +341,9 @@ byte. The full-size tolerance remains zero.
   deblocking, CDEF, and restoration
 - [x] Exercise lossy multi-tile AVIF decode through the portable TypeScript
   codec in Chromium and pin its RGBA output
+- [x] Match a checksum-pinned non-reduced 8-bit YUV 4:2:0 frame split across
+  four tile-group OBUs byte for byte against agreeing dav1d and libaom native
+  YUV, and exercise its pinned RGBA output in Chromium
 - [x] Exercise filter-free AV1 super-resolution through the portable TypeScript
   codec in Chromium and pin its RGBA output
 - [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte

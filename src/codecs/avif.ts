@@ -11,9 +11,9 @@ import { validateImageDimensions } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
-import { av1ObuType, inspectAv1Bitstream } from './av1.ts'
+import { inspectAv1Bitstream } from './av1.ts'
 import type { Av1Obu, Av1SequenceHeader } from './av1.ts'
-import { parseAv1Frame, type Av1Frame } from './av1-frame.ts'
+import { parseAv1FrameObus, type Av1Frame } from './av1-frame.ts'
 import {
   av1ToRgbaRegion,
   estimateRestrictedAv1RowWorkingBytes,
@@ -833,11 +833,7 @@ export const validateAvifFrameDimensions = (
 
 const parseCodedImageFrame = (coded: AvifCodedImageInspection, limits: ImageLimits): Av1Frame => {
   validateImageDimensions(coded.width, coded.height, 1, limits)
-  const frames = coded.obus.filter((obu) => obu.type === av1ObuType.frame)
-  if (frames.length !== 1) {
-    throw unsupportedOperation('Phase B2 requires one complete AV1 frame OBU per coded AVIF item')
-  }
-  const frame = parseAv1Frame(coded.sequence, frames[0]?.payload ?? new Uint8Array())
+  const frame = parseAv1FrameObus(coded.sequence, coded.obus)
   validateAvifFrameDimensions(coded, frame)
   return frame
 }

@@ -5,6 +5,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import {
+  type AvifLossyMultitileFixture,
+  avifFullHeaderTileGroupsFixture,
+  avifFullHeaderTileGroupsFixturePath,
   avifLossyMultitileFixture,
   avifLossyMultitileFixturePath,
   lossyMultitileSample,
@@ -36,11 +39,12 @@ if (sha256(source) !== fixture.sourceY4mSha256) {
   throw new Error(`Lossy multi-tile AVIF source checksum changed: ${sha256(source)}`)
 }
 
-const temporaryDirectory = await mkdtemp(join(tmpdir(), 'purejsimage-avif-lossy-tiles-'))
-try {
-  const sourcePath = join(temporaryDirectory, 'source.y4m')
-  const obuPath = join(temporaryDirectory, 'output.obu')
-  await writeFile(sourcePath, source)
+const encodeFixture = (
+  fixture: AvifLossyMultitileFixture,
+  outputPath: string,
+  sourcePath: string,
+  obuPath: string,
+): void => {
   const encoded = spawnSync(
     'aomenc',
     [
@@ -48,13 +52,16 @@ try {
       '--obu',
       '--allintra',
       '--passes=1',
-      '--cpu-used=4',
+      `--cpu-used=${fixture.reducedStillPictureHeader ? 4 : 6}`,
       '--end-usage=q',
-      '--cq-level=35',
+      `--cq-level=${fixture.reducedStillPictureHeader ? 35 : 30}`,
       '--tile-columns=1',
       '--tile-rows=1',
-      '--enable-cdef=1',
-      '--enable-restoration=1',
+      ...(fixture.tileGroups > 0
+        ? [`--num-tile-groups=${fixture.tileGroups}`, '--full-still-picture-hdr']
+        : []),
+      `--enable-cdef=${fixture.fullPostFilters ? 1 : 0}`,
+      `--enable-restoration=${fixture.fullPostFilters ? 1 : 0}`,
       '--limit=1',
       '--i420',
       '--color-primaries=bt709',
@@ -87,17 +94,30 @@ try {
       'bt709',
       '-color_trc',
       'iec61966-2-1',
-      avifLossyMultitileFixturePath,
+      outputPath,
     ],
     { encoding: 'utf8' },
   )
   if (muxed.error) throw muxed.error
   if (muxed.status !== 0) throw new Error(`ffmpeg failed: ${muxed.stderr.trim()}`)
-  const checksum = sha256(await readFile(avifLossyMultitileFixturePath))
-  if (checksum !== fixture.fileSha256) {
-    throw new Error(`Lossy multi-tile AVIF fixture checksum changed: ${checksum}`)
+}
+
+const temporaryDirectory = await mkdtemp(join(tmpdir(), 'purejsimage-avif-lossy-tiles-'))
+try {
+  const sourcePath = join(temporaryDirectory, 'source.y4m')
+  const obuPath = join(temporaryDirectory, 'output.obu')
+  await writeFile(sourcePath, source)
+  for (const [candidate, outputPath] of [
+    [avifLossyMultitileFixture, avifLossyMultitileFixturePath],
+    [avifFullHeaderTileGroupsFixture, avifFullHeaderTileGroupsFixturePath],
+  ] as const) {
+    encodeFixture(candidate, outputPath, sourcePath, obuPath)
+    const checksum = sha256(await readFile(outputPath))
+    if (checksum !== candidate.fileSha256) {
+      throw new Error(`Lossy multi-tile AVIF fixture checksum changed: ${checksum}`)
+    }
+    console.log(`generated ${candidate.file}`)
   }
-  console.log(`generated ${fixture.file}`)
 } finally {
   await rm(temporaryDirectory, { recursive: true, force: true })
 }

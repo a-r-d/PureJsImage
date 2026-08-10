@@ -112,6 +112,14 @@ it with libaom 3.12.1 and FFmpeg 7.1.1 from its checksum-pinned Y4M source.
 byte-identical native YUV. Checksums are pinned in
 `benchmark/avif/lossy-multitile-fixture.ts`.
 
+`libaom-full-header-tile-groups-yuv420-256x256.avif` uses the same pinned source
+with a non-reduced shown key-frame header and four separate tile-group OBUs.
+Deblocking remains enabled while CDEF and restoration are disabled so the
+fixture isolates frame-header and tile-group assembly. The same
+`fixtures:avif:tiles:prepare` and `fixtures:avif:tiles` commands regenerate it
+and require byte-identical PureJsImage, dav1d, and libaom native YUV. Checksums
+are pinned in `benchmark/avif/lossy-multitile-fixture.ts`.
+
 `libaom-superres-denom12-96x64.avif` and
 `libaom-superres-denom12-yuv420-96x64.avif` are deterministic full-range
 8-bit YUV 4:4:4 and YUV 4:2:0 frames whose AV1 payloads reconstruct at 64x64
