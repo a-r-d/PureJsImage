@@ -128,6 +128,11 @@ describe('external Leica TIFF profile', () => {
     await expect(registry.open(document)).resolves.toMatchObject({
       profileId: 'leica-scn-single-area',
     })
+    const typedSlide = await registry.openWith(document, leicaScnProfile)
+    expect(typedSlide.width).toBe(4)
+    await expect(
+      createTiffProfileRegistry().openWith(document, leicaScnProfile),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
     const slide = await openLeicaScn(document)
     expect({
       size: [slide.width, slide.height],

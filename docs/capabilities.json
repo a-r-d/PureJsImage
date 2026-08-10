@@ -1950,6 +1950,10 @@
         },
         {
           "status": "supported",
+          "text": "Expose stable IFD offsets and graph lookup, bounded defensive-copy source reads, per-directory immutable tag caching with per-call limits, and typed explicit profile opening through public TIFF APIs"
+        },
+        {
+          "status": "supported",
           "text": "Validate strip/tile counts, byte ranges, decoded sizes, and predictor boundaries"
         },
         {

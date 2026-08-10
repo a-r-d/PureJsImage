@@ -34,7 +34,7 @@ export interface TiffProfileOpenResult {
   readonly detectionFailures: readonly TiffProfileDetectionFailure[]
 }
 
-const checkedProfile = (profile: TiffProfile): TiffProfile => {
+const checkedProfile = <Value>(profile: TiffProfile<Value>): TiffProfile<Value> => {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(profile.id)) {
     throw invalidInput(`TIFF profile id ${profile.id || '<empty>'} is invalid`)
   }
@@ -81,6 +81,14 @@ export class TiffProfileRegistry {
     }
     matches.sort((left, right) => right.priority - left.priority || left.id.localeCompare(right.id))
     return Object.freeze({ matches: Object.freeze(matches), failures: Object.freeze(failures) })
+  }
+
+  async openWith<Value>(document: TiffDocument, profile: TiffProfile<Value>): Promise<Value> {
+    const checked = checkedProfile(profile)
+    if (this.#profilesById.get(checked.id) !== checked) {
+      throw invalidInput(`TIFF profile ${checked.id} is not registered`)
+    }
+    return checked.open(Object.freeze({ document }))
   }
 
   async open(

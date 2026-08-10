@@ -25,6 +25,7 @@ export type {
   TiffProfileOpenResult,
 } from './profiles.ts'
 export type {
+  TiffByteReadOptions,
   TiffDirectory,
   TiffDocument,
   TiffDocumentOpener,

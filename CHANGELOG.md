@@ -36,9 +36,11 @@ All notable changes to PureJsImage are documented in this file.
   `lut16` A2B0 ICC-profile conversion with profile precedence over numeric display, and
   `FillOrder=2` normalization for non-fax strips and tiles before predictor reversal without
   mutating aliased source buffers.
-- Added a public TIFF document layer at `purejsimage/tiff` with bounded typed tag reads, stable
-  top-level/SubIFD graphs, per-directory display and native raster decoders, and deterministic
-  third-party profile registration with isolated detector failures and ambiguity rejection.
+- Added a public TIFF document layer at `purejsimage/tiff` with stable top-level/SubIFD graphs,
+  absolute IFD offsets and lookup, bounded defensive-copy private metadata reads, cached immutable
+  typed tags with per-call limits, per-directory display and native raster decoders, deterministic
+  third-party profile registration with isolated detector failures and ambiguity rejection, and
+  typed explicit `TiffProfile<T>` opening.
 - Added native-precision planar or interleaved N-channel `RasterBlock` output plus explicit
   `rasterToPixels()` range mapping, so scientific samples no longer require an implicit RGB
   interpretation.

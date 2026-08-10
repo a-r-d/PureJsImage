@@ -29,11 +29,11 @@
     <section class="demo-intro">
       <div class="container demo-intro-row">
         <div>
-          <p class="eyebrow">Browser TIFF viewer</p>
-          <h1 id="workspace-title">Drop in a TIFF and inspect it.</h1>
-          <p>Open TIFF, BigTIFF, GeoTIFF, OME-TIFF, and whole-slide images locally. Drag to pan, scroll to zoom, switch directories, or save the visible region as PNG.</p>
+          <p class="eyebrow">Browser image viewer + converter</p>
+          <h1 id="workspace-title">Open an image. Choose what to do.</h1>
+          <p>View any supported image with pan and zoom, or switch to Convert and create JPEG, PNG, WebP, BMP, or TIFF output. The selected mode never changes when you choose a file.</p>
         </div>
-        <p class="demo-local-summary"><strong>No server upload</strong><span>Your files stay in this tab. Public examples load directly from their named source only when clicked.</span></p>
+        <p class="demo-local-summary"><strong>No server upload</strong><span>Your files stay in this tab. Public samples load from their named source only when you click Open here.</span></p>
       </div>
     </section>
 
@@ -50,35 +50,71 @@
 
             <section class="demo-example-panel" aria-labelledby="demo-example-title">
               <header>
-                <div><p class="demo-card-kicker">One-click samples</p><h2 id="demo-example-title">Try a GeoTIFF</h2></div>
-                <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/" target="_blank" rel="noreferrer">NOAA catalog ↗</a>
+                <div><p class="demo-card-kicker">Verified direct files</p><h2 id="demo-example-title">Sample library</h2></div>
+                <span>8 files</span>
               </header>
-              <div class="demo-example-list">
-                <button class="demo-example-button" type="button" data-demo-sample data-sample-name="noaa-fd.tif" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-fd.tif">
-                  <span aria-hidden="true">F32</span><span><strong>Fire danger</strong><small>Float32 GeoTIFF · 47.5 KiB</small></span><b>Open</b>
-                </button>
-                <button class="demo-example-button" type="button" data-demo-sample data-sample-name="csic-spei-1d-01m.tif" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/csic-spei-1d-01m.tif">
-                  <span aria-hidden="true">F32</span><span><strong>Drought index</strong><small>Float32 GeoTIFF · about 100 KiB</small></span><b>Open</b>
-                </button>
-                <button class="demo-example-button" type="button" data-demo-sample data-sample-name="noaa-qpf-5km-2d.tif" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-qpf-5km-2d.tif">
-                  <span aria-hidden="true">F64</span><span><strong>Precipitation forecast</strong><small>Float64 · 3 images · about 1 MiB</small></span><b>Open</b>
-                </button>
-                <button class="demo-example-button" type="button" data-demo-sample data-sample-name="smokec_cog.tif" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/smokec_cog.tif">
-                  <span aria-hidden="true">COG</span><span><strong>Smoke concentration</strong><small>Cloud-optimized · 3 images · 1–2 MiB</small></span><b>Open</b>
-                </button>
-                <button class="demo-example-button" type="button" data-demo-sample data-sample-name="noaa-ob.tif" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-ob.tif">
-                  <span aria-hidden="true">F32</span><span><strong>Outlook boundary</strong><small>Float32 GeoTIFF · 13.6 KiB</small></span><b>Open</b>
-                </button>
+              <label class="demo-sample-search">
+                <span>Search samples</span>
+                <input id="demo-sample-search" type="search" placeholder="microscopy, WebP, float…" autocomplete="off">
+              </label>
+              <div class="demo-example-list" aria-live="polite">
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="microscopy ome tiff single channel scientific">
+                  <div class="demo-sample-summary"><span aria-hidden="true">OME</span><span><strong>Single-channel microscopy</strong><small>OME-TIFF · 74.3 KiB · Open Microscopy</small></span></div>
+                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/single-channel.ome.tif" target="_blank" rel="noreferrer" download="single-channel.ome.tif">Download file ↗</a></div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="jpeg 2000 jp2 photograph lossless">
+                  <div class="demo-sample-summary"><span aria-hidden="true">JP2</span><span><strong>JPEG 2000 photograph</strong><small>Lossless JP2 · 277.4 KiB · project fixture</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="loc-court-day-openjpeg-lossless.jp2" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/loc-court-day-openjpeg-lossless.jp2">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/loc-court-day-openjpeg-lossless.jp2" target="_blank" rel="noreferrer" download="loc-court-day-openjpeg-lossless.jp2">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="webp lossless transparency tux">
+                  <div class="demo-sample-summary"><span aria-hidden="true">WEBP</span><span><strong>Lossless WebP with alpha</strong><small>386 × 395 · project fixture</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="webp-lossless-tux-386x395.webp" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/webp-lossless-tux-386x395.webp">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/webp-lossless-tux-386x395.webp" target="_blank" rel="noreferrer" download="webp-lossless-tux-386x395.webp">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff fire danger float32 noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F32</span><span><strong>Fire danger</strong><small>Float32 GeoTIFF · 47.5 KiB · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="noaa-fd.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-fd.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-fd.tif" target="_blank" rel="noreferrer" download="noaa-fd.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff drought index spei float32 noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F32</span><span><strong>Drought index</strong><small>Float32 GeoTIFF · about 100 KiB · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="csic-spei-1d-01m.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/csic-spei-1d-01m.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/csic-spei-1d-01m.tif" target="_blank" rel="noreferrer" download="csic-spei-1d-01m.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff precipitation forecast float64 multi image noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F64</span><span><strong>Precipitation forecast</strong><small>Float64 GeoTIFF · 3 images · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="noaa-qpf-5km-2d.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-qpf-5km-2d.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-qpf-5km-2d.tif" target="_blank" rel="noreferrer" download="noaa-qpf-5km-2d.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="cloud optimized cog smoke concentration geotiff noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">COG</span><span><strong>Smoke concentration</strong><small>Cloud-optimized TIFF · 3 images · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="smokec_cog.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/smokec_cog.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/smokec_cog.tif" target="_blank" rel="noreferrer" download="smokec_cog.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff outlook boundary float32 noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F32</span><span><strong>Outlook boundary</strong><small>Float32 GeoTIFF · 13.6 KiB · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="noaa-ob.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-ob.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-ob.tif" target="_blank" rel="noreferrer" download="noaa-ob.tif">Download ↗</a>
+                  </div>
+                </article>
+                <p class="demo-sample-empty" id="demo-sample-empty" hidden>No sample names match that search.</p>
               </div>
-              <p class="demo-example-status" id="demo-example-status" role="status" aria-live="polite">Examples are fetched from NOAA only after you click Open.</p>
+              <p class="demo-example-status" id="demo-example-status" role="status" aria-live="polite">8 verified sample files. Download any file, then open it above.</p>
             </section>
-
-            <nav class="demo-file-sources" aria-label="More public TIFF collections">
-              <strong>More weird files</strong>
-              <a href="https://pubs.usgs.gov/of/2006/1216/htmldocs/data.htm" target="_blank" rel="noreferrer"><span>USGS GeoTIFF datasets</span><b>↗</b></a>
-              <a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/" target="_blank" rel="noreferrer"><span>OME-TIFF microscopy</span><b>↗</b></a>
-              <a href="https://openslide.cs.cmu.edu/download/openslide-testdata/" target="_blank" rel="noreferrer"><span>Whole-slide pathology</span><b>↗</b></a>
-            </nav>
           </aside>
 
           <div class="demo-workbench">
@@ -86,7 +122,7 @@
               <div class="demo-mode-switch" role="tablist" aria-label="Demo mode">
                 <button id="demo-mode-view" class="demo-mode-button active" type="button" role="tab" aria-selected="true" aria-controls="demo-view-panel">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
-                  <span><strong>View TIFF</strong><small>Zoom, pan, inspect, and clip</small></span>
+                  <span><strong>View image</strong><small>Zoom, pan, inspect, and clip</small></span>
                 </button>
                 <button id="demo-mode-convert" class="demo-mode-button" type="button" role="tab" aria-selected="false" aria-controls="demo-convert-panel">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg>
@@ -112,7 +148,7 @@
             <header class="demo-viewer-toolbar">
               <div class="demo-viewer-title">
                 <span class="demo-live-dot" aria-hidden="true"></span>
-                <div><strong id="demo-viewer-name">TIFF viewport</strong><small id="demo-viewer-subtitle">Drop a file or open a GeoTIFF example</small></div>
+                <div><strong id="demo-viewer-name">Image viewport</strong><small id="demo-viewer-subtitle">Drop a file or open a sample</small></div>
               </div>
               <fieldset class="demo-viewer-actions" aria-label="Viewer controls">
                 <button id="demo-zoom-out" type="button" disabled aria-label="Zoom out" title="Zoom out">−</button>
@@ -134,23 +170,23 @@
                 <div class="demo-viewer-empty" id="demo-viewer-empty">
                   <span aria-hidden="true"><svg viewBox="0 0 48 48"><title>Image placeholder</title><path d="M9 8h30v32H9zM9 31l8-8 7 7 5-5 10 10M31 18h.1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/></svg></span>
                   <h3>Drop a file or open an example</h3>
-                  <p>The viewer decodes the first visible region locally. Drag to pan, scroll to zoom, or choose a different image directory.</p>
+                  <p>The viewer decodes the visible region locally for any supported image. Drag to pan, scroll to zoom, or choose a TIFF page or pyramid level.</p>
                 </div>
                 <div class="demo-viewer-loading" id="demo-viewer-loading" role="status" aria-live="polite" hidden>
                   <span class="demo-spinner" aria-hidden="true"></span>
-                  <strong id="demo-viewer-loading-label">Reading TIFF structure…</strong>
-                  <small>Large strips can take a moment. No upload is occurring.</small>
+                  <strong id="demo-viewer-loading-label">Reading image structure…</strong>
+                  <small>Large images can take a moment. No upload is occurring.</small>
                 </div>
               </div>
 
-              <aside class="demo-viewer-inspector" aria-label="TIFF image details">
-                <div class="demo-inspector-heading"><span>Image directory</span><small>Page or pyramid image</small></div>
-                <label class="demo-field"><span>Visible image</span><select id="demo-viewer-directory" disabled><option>Choose a TIFF first</option></select></label>
+              <aside class="demo-viewer-inspector" aria-label="Image details">
+                <div class="demo-inspector-heading"><span>Source image</span><small>Page or pyramid level when available</small></div>
+                <label class="demo-field"><span>Visible image</span><select id="demo-viewer-directory" disabled><option>Choose an image first</option></select></label>
                 <dl class="demo-viewer-facts">
                   <div><dt>Dimensions</dt><dd id="demo-viewer-dimensions">—</dd></div>
-                  <div><dt>Compression</dt><dd id="demo-viewer-compression">—</dd></div>
-                  <div><dt>Samples</dt><dd id="demo-viewer-samples">—</dd></div>
-                  <div><dt>Storage</dt><dd id="demo-viewer-storage">—</dd></div>
+                  <div><dt>Format</dt><dd id="demo-viewer-compression">—</dd></div>
+                  <div><dt>Pixels</dt><dd id="demo-viewer-samples">—</dd></div>
+                  <div><dt>Layout</dt><dd id="demo-viewer-storage">—</dd></div>
                 </dl>
                 <div class="demo-viewer-help">
                   <strong>Navigate the source</strong>
@@ -159,7 +195,7 @@
                 </div>
               </aside>
             </div>
-            <footer class="demo-viewer-status"><span id="demo-viewer-status" role="status" aria-live="polite">Waiting for a local TIFF.</span><span id="demo-viewer-region">No region selected</span></footer>
+            <footer class="demo-viewer-status"><span id="demo-viewer-status" role="status" aria-live="polite">Waiting for a local image.</span><span id="demo-viewer-region">No region selected</span></footer>
           </div>
         </section>
 

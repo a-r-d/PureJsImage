@@ -3508,6 +3508,85 @@ describe('TIFF document and scientific raster API', () => {
     expect(samples.map((_, index) => outputView.getUint16(index * 2, false))).toEqual(samples)
   })
 
+  it('exposes directory offsets, bounded source reads, and cached immutable tags', async () => {
+    const descriptionBytes = [...new TextEncoder().encode('cached profile metadata'), 0]
+    const privateBytes = [9, 8, 7, 6, 5, 4]
+    const fixture = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8],
+      compression: 1,
+      photometric: 1,
+      strips: [Uint8Array.of(42)],
+      extraEntries: [
+        { tag: 270, type: 2, values: descriptionBytes },
+        { tag: 65_000, type: 7, values: privateBytes },
+      ],
+    })
+    let reads = 0
+    const source: ImageSource = {
+      size: fixture.byteLength,
+      async read(offset, length) {
+        reads += 1
+        return fixture.subarray(offset, Math.min(offset + length, fixture.byteLength))
+      },
+    }
+    const document = await openTiffDocument(source)
+    const directory = document.getDirectory(0)
+    if (!directory) throw new Error('TIFF directory is missing')
+    expect(directory.offset).toBe(8)
+    expect(document.getDirectoryByOffset(directory.offset)).toBe(directory)
+    expect(document.getDirectoryByOffset(-1)).toBeUndefined()
+
+    const description = await directory.getTag(270, { maxBytes: 64 })
+    expect(description).toEqual({ kind: 'ascii', value: 'cached profile metadata' })
+    expect(Object.isFrozen(description)).toBe(true)
+    const readsAfterDescription = reads
+    await expect(directory.getTag(270, { maxBytes: 4 })).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+    })
+    expect(await directory.getTag(270, { maxBytes: 64 })).toBe(description)
+    expect(reads).toBe(readsAfterDescription)
+
+    const firstPrivate = await directory.getTag(65_000, { maxBytes: 6 })
+    if (firstPrivate?.kind !== 'bytes') throw new Error('Private TIFF tag is missing')
+    firstPrivate.value[0] = 0
+    const readsAfterPrivate = reads
+    await expect(directory.getTag(65_000, { maxBytes: 5 })).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+    })
+    const secondPrivate = await directory.getTag(65_000, { maxBytes: 6 })
+    expect(secondPrivate).toEqual({ kind: 'bytes', value: Uint8Array.from(privateBytes) })
+    expect(secondPrivate).not.toBe(firstPrivate)
+    expect(reads).toBe(readsAfterPrivate)
+
+    const header = await document.readBytes(0, 4, { maxBytes: 4 })
+    expect(Array.from(header)).toEqual([0x49, 0x49, 0x2a, 0])
+    header[0] = 0
+    await expect(document.readBytes(0, 5, { maxBytes: 4 })).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+    })
+    await expect(
+      document.readBytes(fixture.byteLength - 1, 2, { maxBytes: 2 }),
+    ).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
+    expect(Array.from(await document.readBytes(0, 4, { maxBytes: 4 }))).toEqual([
+      0x49, 0x49, 0x2a, 0,
+    ])
+  })
+
+  it('resolves parsed SubIFD directories by their absolute offsets', async () => {
+    const fixture = tiffGraphFixture([
+      { width: 2, height: 2, pixels: Uint8Array.of(1, 2, 3, 4), subIfds: [1] },
+      { width: 1, height: 1, pixels: Uint8Array.of(5) },
+    ])
+    const document = await openTiffDocument(new MemorySource(fixture))
+    const parent = document.topLevelDirectories[0]
+    const child = parent?.subIfds[0]
+    if (!parent || !child) throw new Error('TIFF SubIFD graph is missing')
+    expect(document.getDirectoryByOffset(parent.offset)).toBe(parent)
+    expect(document.getDirectoryByOffset(child.offset)).toBe(child)
+  })
+
   it('preserves planar float32 channels and validates tag read bounds', async () => {
     const planes = [
       new Float32Array([0.25, 0.5]),
@@ -3827,6 +3906,8 @@ describe('OME-TIFF scientific semantics', () => {
     const result = await registry.open(document)
     expect(result?.profileId).toBe('ome-tiff')
     expect(result?.detectionFailures.map((failure) => failure.id)).toEqual(['broken-vendor'])
+    const typedDataset = await registry.openWith(document, omeTiffProfile)
+    expect(typedDataset.sizeX).toBe(2)
 
     const conflict = createTiffProfileRegistry([
       omeTiffProfile,

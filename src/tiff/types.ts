@@ -14,8 +14,15 @@ export interface TiffTagReadOptions {
   readonly maxBytes?: number
 }
 
+export interface TiffByteReadOptions {
+  /** Maximum bytes read for this call. Required so profile readers cannot issue unbounded reads. */
+  readonly maxBytes: number
+}
+
 export interface TiffDirectory {
   readonly index: number
+  /** Absolute byte offset of this IFD in the TIFF source. */
+  readonly offset: number
   readonly width: number
   readonly height: number
   readonly compression: number
@@ -41,6 +48,17 @@ export interface TiffDocument {
   readonly topLevelDirectories: readonly TiffDirectory[]
 
   getDirectory(index: number): TiffDirectory | undefined
+  /** Resolve any parsed top-level or SubIFD directory by its absolute source offset. */
+  getDirectoryByOffset(offset: number): TiffDirectory | undefined
+  /**
+   * Read an exact byte range from the TIFF source. The requested range must be
+   * in bounds and no larger than options.maxBytes.
+   */
+  readBytes(
+    offset: number,
+    length: number,
+    options: Readonly<TiffByteReadOptions>,
+  ): Promise<Uint8Array>
 }
 
 export interface TiffDocumentOptions extends ImageLimitOptions {

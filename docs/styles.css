@@ -3945,6 +3945,8 @@ tr:last-child td {
   top: calc(var(--header-height) + 16px);
   display: grid;
   gap: 12px;
+  max-height: calc(100vh - var(--header-height) - 32px);
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .demo-sidebar .demo-drop-zone {
@@ -3991,13 +3993,15 @@ tr:last-child td {
   margin: 2px 0 0;
 }
 
-.demo-example-panel,
-.demo-file-sources {
+.demo-example-panel {
+  display: flex;
+  min-height: 0;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface);
   box-shadow: var(--shadow-sm);
+  flex-direction: column;
 }
 
 .demo-example-panel > header {
@@ -4014,51 +4018,82 @@ tr:last-child td {
   font-size: 15px;
 }
 
-.demo-example-panel header a {
+.demo-example-panel > header > span {
   flex: 0 0 auto;
+  color: var(--text-faint);
   font-family: var(--font-mono);
   font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.demo-sample-search {
+  display: grid;
+  gap: 6px;
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.demo-sample-search > span {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.demo-sample-search input {
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  outline: none;
+  background: var(--surface);
+  color: var(--text);
+  font: 500 10px / 1 var(--font-sans);
+}
+
+.demo-sample-search input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 16%, transparent);
 }
 
 .demo-example-list {
-  display: grid;
+  flex: 1 1 auto;
+  min-height: 120px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
-.demo-example-button {
+.demo-sample-card {
   display: grid;
-  width: 100%;
-  min-height: 62px;
-  align-items: center;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 0;
+  gap: 8px;
+  padding: 11px 12px;
   border-bottom: 1px solid var(--line);
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  text-align: left;
 }
 
-.demo-example-button:last-child {
+.demo-sample-card:last-of-type {
   border-bottom: 0;
 }
 
-.demo-example-button:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--brand-soft) 42%, transparent);
+.demo-sample-card[hidden],
+.demo-sample-empty[hidden] {
+  display: none;
 }
 
-.demo-example-button:disabled {
-  cursor: wait;
-  opacity: 0.58;
+.demo-sample-summary {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
 }
 
-.demo-example-button.loading {
-  background: color-mix(in srgb, var(--brand-soft) 52%, transparent);
-  opacity: 1;
-}
-
-.demo-example-button > span:first-child {
+.demo-sample-summary > span:first-child {
   display: grid;
   width: 34px;
   height: 34px;
@@ -4067,35 +4102,81 @@ tr:last-child td {
   background: var(--brand-soft);
   color: var(--brand-strong);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 7.5px;
   font-weight: 850;
 }
 
-.demo-example-button > span:nth-child(2),
-.demo-example-button strong,
-.demo-example-button small {
+.demo-sample-summary strong,
+.demo-sample-summary small {
   display: block;
   min-width: 0;
 }
 
-.demo-example-button strong {
+.demo-sample-summary strong {
   overflow: hidden;
   font-size: 10.5px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.demo-example-button small {
+.demo-sample-summary small {
   margin-top: 2px;
   color: var(--text-faint);
   font-size: 8px;
+  line-height: 1.35;
 }
 
-.demo-example-button b {
+.demo-sample-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.demo-sample-actions button,
+.demo-sample-actions a {
+  display: inline-flex;
+  min-height: 27px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-soft);
+  cursor: pointer;
+  font: 750 8px / 1 var(--font-mono);
+  text-decoration: none;
+}
+
+.demo-sample-actions button {
+  border-color: color-mix(in srgb, var(--brand) 35%, var(--line));
   color: var(--brand-strong);
-  font-family: var(--font-mono);
-  font-size: 8px;
-  text-transform: uppercase;
+}
+
+.demo-sample-actions button:hover:not(:disabled),
+.demo-sample-actions a:hover {
+  border-color: var(--brand);
+  background: color-mix(in srgb, var(--brand-soft) 42%, transparent);
+  color: var(--brand-strong);
+}
+
+.demo-sample-actions button:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+.demo-sample-actions button.loading {
+  background: color-mix(in srgb, var(--brand-soft) 58%, transparent);
+  opacity: 1;
+}
+
+.demo-sample-empty {
+  margin: 0;
+  padding: 24px 14px;
+  color: var(--text-faint);
+  font-size: 9px;
+  text-align: center;
 }
 
 .demo-example-status {
@@ -4105,40 +4186,6 @@ tr:last-child td {
   color: var(--text-faint);
   font-size: 8.5px;
   line-height: 1.45;
-}
-
-.demo-file-sources {
-  display: grid;
-  padding: 8px 12px;
-}
-
-.demo-file-sources > strong {
-  padding: 4px 2px 6px;
-  color: var(--text-faint);
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.demo-file-sources a {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 7px 2px;
-  border-top: 1px solid var(--line);
-  color: var(--text-soft);
-  font-size: 9px;
-  text-decoration: none;
-}
-
-.demo-file-sources a:hover {
-  color: var(--brand-strong);
-}
-
-.demo-file-sources b {
-  font-family: var(--font-mono);
 }
 
 .demo-workbench {
@@ -4648,11 +4695,13 @@ tr:last-child td {
 
   .demo-sidebar {
     position: static;
+    max-height: none;
     grid-template-columns: minmax(240px, 0.72fr) minmax(360px, 1.28fr);
+    grid-template-rows: auto;
   }
 
-  .demo-file-sources {
-    grid-column: 1 / -1;
+  .demo-example-list {
+    max-height: 420px;
   }
 }
 
@@ -4722,10 +4771,6 @@ tr:last-child td {
 
   .demo-example-panel {
     order: 3;
-  }
-
-  .demo-file-sources {
-    order: 4;
   }
 
   .demo-workbench-header {

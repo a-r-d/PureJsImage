@@ -73,7 +73,7 @@
         </section>
         <section id="tiff-documents" data-search-item>
           <h2>TIFF documents, rasters, and profiles</h2>
-          <p><code>purejsimage/tiff</code> exposes the validated TIFF IFD graph independently of the display-image pipeline. <code>openTiffDocument(source, options?)</code> returns a <code>TiffDocument</code> with stable top-level and SubIFD directory objects. A directory reads bounded public tag values and creates either an <code>ImageDecoder</code> for display pixels or a <code>RasterDecoder</code> for native-precision, arbitrary-channel samples.</p>
+          <p><code>purejsimage/tiff</code> exposes the validated TIFF IFD graph independently of the display-image pipeline. <code>openTiffDocument(source, options?)</code> returns a <code>TiffDocument</code> with stable top-level and SubIFD directory objects. Each <code>TiffDirectory</code> exposes its absolute source <code>offset</code>; <code>getDirectoryByOffset(offset)</code> resolves parsed metadata pointers. A directory reads bounded, cached public tag values and creates either an <code>ImageDecoder</code> for display pixels or a <code>RasterDecoder</code> for native-precision, arbitrary-channel samples. <code>readBytes(offset, length, { maxBytes })</code> performs an exact bounded private-metadata read and returns a defensive copy without exposing the underlying <code>ImageSource</code>.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">Scientific OME-TIFF</span></div><pre><code><span class="tok-key">import</span> { MemorySource } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
 <span class="tok-key">import</span> { openOmeTiff } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
 <span class="tok-key">import</span> { openTiffDocument } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
@@ -89,21 +89,37 @@
           <p><code>openOmeTiff()</code> validates OME dimensions, sample type, channel metadata, physical pixel size, dimension order, and explicit or implicit <code>TiffData</code> mappings before exposing a <code>MultidimensionalRasterDataset</code>. <code>readPlane()</code> preserves native sample types and can combine separately stored channel planes without materializing a source-sized display bitmap.</p>
           <p><code>purejsimage/pathology</code> exports <code>openAperioSvs()</code>, <code>aperioSvsProfile</code>, and the generic <code>WholeSlideImage</code> contract. Aperio levels and label, macro, or thumbnail images decode by requested region. TIFF compression tags 33003 and 33005 use the reusable <code>createJpeg2000CodestreamDecoder()</code>; JPEG 2000 reconstruction remains bounded to the current TIFF tile or strip, though the current codestream decoder retains that segment's complete component state.</p>
           <h3 id="tiff-profile-authoring">Third-party TIFF profile authoring</h3>
-          <p>A separately shipped integration implements <code>TiffProfile&lt;T&gt;</code> using only package exports. Register profiles with <code>createTiffProfileRegistry()</code>. Detection runs every profile in isolation, orders matches by descending integer priority then id, reports detector failures, and rejects equal-priority matches as ambiguous.</p>
-          <div class="code-window"><div class="window-bar"><span class="window-title">Vendor profile</span></div><pre><code><span class="tok-key">import type</span> { TiffProfile } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
+          <p>A separately shipped integration implements <code>TiffProfile&lt;T&gt;</code> using only package exports. Register profiles with <code>createTiffProfileRegistry()</code>. Detection runs every profile in isolation, orders matches by descending integer priority then id, reports detector failures, and rejects equal-priority matches as ambiguous. For an explicitly selected profile, <code>registry.openWith(document, profile)</code> preserves <code>T</code> and returns <code>Promise&lt;T&gt;</code>.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">Vendor profile</span></div><pre><code><span class="tok-key">import</span> { createTiffProfileRegistry } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
+<span class="tok-key">import type</span> { TiffProfile } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
 
 <span class="tok-key">export const</span> vendorProfile: TiffProfile&lt;VendorDataset&gt; = {
   id: <span class="tok-string">'vendor-format'</span>,
   priority: 50,
   <span class="tok-key">async</span> detect({ document }) {
-    <span class="tok-key">const</span> tag = <span class="tok-key">await</span> document.topLevelDirectories[0]?.getTag(270)
+    <span class="tok-key">const</span> tag = <span class="tok-key">await</span> document.topLevelDirectories[0]?.getTag(270, {
+      maxBytes: 1024 * 1024,
+    })
     <span class="tok-key">return</span> tag?.kind === <span class="tok-string">'ascii'</span> &amp;&amp; tag.value.startsWith(<span class="tok-string">'Vendor'</span>)
   },
   <span class="tok-key">async</span> open({ document }) {
-    <span class="tok-key">return</span> openVendorDataset(document)
+    <span class="tok-key">const</span> pointer = <span class="tok-key">await</span> document.topLevelDirectories[0]?.getTag(65000, {
+      maxBytes: 24,
+    })
+    <span class="tok-key">if</span> (pointer?.kind !== <span class="tok-string">'numbers'</span>) <span class="tok-key">throw new</span> Error(<span class="tok-string">'Vendor pointer is missing'</span>)
+    <span class="tok-key">const</span> directory = document.getDirectoryByOffset(pointer.values[0] ?? -1)
+    <span class="tok-key">if</span> (!directory) <span class="tok-key">throw new</span> Error(<span class="tok-string">'Vendor IFD is missing'</span>)
+    <span class="tok-key">const</span> length = pointer.values[2] ?? -1
+    <span class="tok-key">const</span> metadata = <span class="tok-key">await</span> document.readBytes(
+      pointer.values[1] ?? -1, length, { maxBytes: 1024 * 1024 },
+    )
+    <span class="tok-key">return</span> openVendorDataset(directory, metadata)
   },
-}</code></pre></div>
-          <div class="callout"><strong>Public boundary.</strong> Profile code should bound every metadata read with <code>getTag(tag, { maxBytes })</code>, validate metadata-to-IFD mappings before decoding, and retain structured unsupported errors for ambiguous vendor semantics. The checked <code>examples/tiff-profile-leica</code> driver compiles as an external package and imports only <code>purejsimage</code>, <code>purejsimage/tiff</code>, and <code>purejsimage/pathology</code>.</div>
+}
+
+<span class="tok-key">const</span> registry = createTiffProfileRegistry([vendorProfile])
+<span class="tok-key">const</span> dataset = <span class="tok-key">await</span> registry.openWith(document, vendorProfile)</code></pre></div>
+          <div class="callout"><strong>Public boundary.</strong> Profile code must bound every metadata read with <code>getTag(tag, { maxBytes })</code> or <code>readBytes(offset, length, { maxBytes })</code>, validate metadata-to-IFD mappings before decoding, and retain structured unsupported errors for ambiguous vendor semantics. Tag values are cached, but each caller's limit is checked before cache access; byte-valued tags and raw reads return defensive copies. The checked <code>examples/tiff-profile-leica</code> driver compiles as an external package and imports only <code>purejsimage</code>, <code>purejsimage/tiff</code>, and <code>purejsimage/pathology</code>.</div>
           <p><a href="tiff.html">See the dedicated TIFF guide for the complete supported-format list, scientific and whole-slide workflows, output profile, memory model, and current limitations →</a></p>
         </section>
         <section id="zstandard" data-search-item>

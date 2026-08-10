@@ -36,15 +36,27 @@ interface ViewerRegion {
   readonly viewTop: number
 }
 
-interface ViewerSelection {
-  readonly decoder: ImageDecoder
-  readonly choice: ViewerChoice
-  readonly document: TiffDocument
+interface ViewerSelectionBase {
   readonly file: File
-  readonly choices: readonly ViewerChoice[]
   readonly width: number
   readonly height: number
 }
+
+interface TiffViewerSelection extends ViewerSelectionBase {
+  readonly kind: 'tiff'
+  readonly decoder: ImageDecoder
+  readonly choice: ViewerChoice
+  readonly document: TiffDocument
+  readonly choices: readonly ViewerChoice[]
+}
+
+interface ImageViewerSelection extends ViewerSelectionBase {
+  readonly kind: 'image'
+  readonly image: Image
+  readonly metadata: ImageMetadata
+}
+
+type ViewerSelection = TiffViewerSelection | ImageViewerSelection
 
 interface LogEntry {
   readonly level: LogLevel
@@ -144,18 +156,24 @@ const panRightButton = requiredElement('demo-pan-right', HTMLButtonElement)
 const zoomValue = requiredElement('demo-zoom-value', HTMLOutputElement)
 const saveClipButton = requiredElement('demo-save-clip', HTMLButtonElement)
 const exampleStatus = requiredElement('demo-example-status', HTMLElement)
+const sampleSearch = requiredElement('demo-sample-search', HTMLInputElement)
+const sampleEmpty = requiredElement('demo-sample-empty', HTMLElement)
+const sampleCards = Array.from(document.querySelectorAll<HTMLElement>('[data-demo-sample-card]'))
 const exampleButtons = Array.from(
   document.querySelectorAll<HTMLButtonElement>('[data-demo-sample]'),
 )
-if (exampleButtons.length === 0) throw new Error('Demo example buttons are missing')
+if (sampleCards.length === 0 || exampleButtons.length === 0) {
+  throw new Error('Demo sample library is missing')
+}
 
-const viewerImages = createImageLibrary([
+const demoCodecs = [
   ...allCodecs.filter((codec) => codec.format !== 'tiff'),
   createTiffCodec({ embeddedCodecs: [webpCodec] }),
-])
-const referenceImages = createImageLibrary(allCodecs)
+]
+const viewerImages = createImageLibrary(demoCodecs)
+const referenceImages = createImageLibrary(demoCodecs)
 const acceleratedImages = createImageLibrary({
-  codecs: allCodecs,
+  codecs: demoCodecs,
   accelerators: [wasmJpegAccelerator],
 })
 const sessionStartedAt = performance.now()
@@ -432,16 +450,19 @@ const setMode = (mode: DemoMode): void => {
   convertModeButton.setAttribute('aria-selected', String(!viewing))
   viewPanel.hidden = !viewing
   convertPanel.hidden = viewing
-  if (viewing && viewerSelection) scheduleViewerRender()
+  if (viewing && viewerSelection) {
+    if (viewerCanvas.dataset.rendered !== 'true') fitViewer()
+    scheduleViewerRender()
+  }
 }
 
-const setViewerLoading = (visible: boolean, label = 'Rendering visible TIFF region…'): void => {
+const setViewerLoading = (visible: boolean, label = 'Rendering visible image region…'): void => {
   viewerLoading.hidden = !visible
   viewerLoadingLabel.textContent = label
 }
 
-const setViewerControls = (enabled: boolean): void => {
-  viewerDirectory.disabled = !enabled
+const setViewerControls = (enabled: boolean, directoryEnabled = enabled): void => {
+  viewerDirectory.disabled = !directoryEnabled
   zoomOutButton.disabled = !enabled
   zoomInButton.disabled = !enabled
   zoomFitButton.disabled = !enabled
@@ -464,14 +485,14 @@ const resetViewer = (): void => {
   viewerEmpty.hidden = false
   setViewerLoading(false)
   setViewerControls(false)
-  viewerDirectory.replaceChildren(new Option('Choose a TIFF first', ''))
-  viewerName.textContent = 'TIFF viewport'
-  viewerSubtitle.textContent = 'Choose a TIFF, BigTIFF, OME-TIFF, or SVS file'
+  viewerDirectory.replaceChildren(new Option('Choose an image first', ''))
+  viewerName.textContent = 'Image viewport'
+  viewerSubtitle.textContent = 'Choose any supported image'
   viewerDimensions.textContent = '—'
   viewerCompression.textContent = '—'
   viewerSamples.textContent = '—'
   viewerStorage.textContent = '—'
-  viewerStatus.textContent = 'Waiting for a local TIFF.'
+  viewerStatus.textContent = 'Waiting for a local image.'
   viewerRegion.textContent = 'No region selected'
   zoomValue.value = '—'
 }
@@ -648,8 +669,7 @@ const renderViewer = async (): Promise<void> => {
   if (!region) return
   const { dpr } = canvasMetrics()
   const context = viewerCanvas.getContext('2d', { alpha: false })
-  const scratch = scratchCanvas.getContext('2d', { alpha: false })
-  if (!context || !scratch) throw new Error('Canvas 2D rendering is unavailable')
+  if (!context) throw new Error('Canvas 2D rendering is unavailable')
 
   viewerStatus.textContent = 'Decoding the visible region…'
   viewerRegion.textContent = `${region.x.toLocaleString()}, ${region.y.toLocaleString()} · ${region.width.toLocaleString()} × ${region.height.toLocaleString()} px`
@@ -664,35 +684,64 @@ const renderViewer = async (): Promise<void> => {
     context.fillRect(0, 0, viewerCanvas.width, viewerCanvas.height)
     context.imageSmoothingEnabled = viewerZoom < 1
     context.imageSmoothingQuality = 'high'
-    const blocks = normalizePixelBlocks(
-      selection.decoder.decode({
-        x: region.x,
-        y: region.y,
-        width: region.width,
-        height: region.height,
-      }),
-      selection.decoder.pixelFormat,
-    )
-    for await (const block of blocks) {
-      if (sequence !== viewerRenderSequence) {
-        block.release?.()
-        return
-      }
-      const imageData = normalizedBlockImageData(block)
-      if (scratchCanvas.width !== imageData.width) scratchCanvas.width = imageData.width
-      if (scratchCanvas.height !== imageData.height) scratchCanvas.height = imageData.height
-      const activeScratch = scratchCanvas.getContext('2d', { alpha: false })
-      if (!activeScratch) throw new Error('Scratch canvas rendering is unavailable')
-      activeScratch.putImageData(imageData, 0, 0)
-      const sourceX = region.x + block.x
-      const sourceY = region.y + block.y
-      context.drawImage(
-        scratchCanvas,
-        (sourceX - region.viewLeft) * viewerZoom * dpr,
-        (sourceY - region.viewTop) * viewerZoom * dpr,
-        block.width * viewerZoom * dpr,
-        block.height * viewerZoom * dpr,
+    if (selection.kind === 'tiff') {
+      const blocks = normalizePixelBlocks(
+        selection.decoder.decode({
+          x: region.x,
+          y: region.y,
+          width: region.width,
+          height: region.height,
+        }),
+        selection.decoder.pixelFormat,
       )
+      for await (const block of blocks) {
+        if (sequence !== viewerRenderSequence) {
+          block.release?.()
+          return
+        }
+        const imageData = normalizedBlockImageData(block)
+        if (scratchCanvas.width !== imageData.width) scratchCanvas.width = imageData.width
+        if (scratchCanvas.height !== imageData.height) scratchCanvas.height = imageData.height
+        const scratch = scratchCanvas.getContext('2d', { alpha: false })
+        if (!scratch) throw new Error('Scratch canvas rendering is unavailable')
+        scratch.putImageData(imageData, 0, 0)
+        const sourceX = region.x + block.x
+        const sourceY = region.y + block.y
+        context.drawImage(
+          scratchCanvas,
+          (sourceX - region.viewLeft) * viewerZoom * dpr,
+          (sourceY - region.viewTop) * viewerZoom * dpr,
+          block.width * viewerZoom * dpr,
+          block.height * viewerZoom * dpr,
+        )
+      }
+    } else {
+      const targetWidth = Math.max(
+        1,
+        Math.min(viewerCanvas.width, Math.round(region.width * viewerZoom * dpr)),
+      )
+      const targetHeight = Math.max(
+        1,
+        Math.min(viewerCanvas.height, Math.round(region.height * viewerZoom * dpr)),
+      )
+      const blob = await selection.image
+        .crop({ x: region.x, y: region.y, width: region.width, height: region.height })
+        .resize({ width: targetWidth, height: targetHeight, fit: 'fill' })
+        .png()
+        .toBlob()
+      const bitmap = await createImageBitmap(blob)
+      try {
+        if (sequence !== viewerRenderSequence) return
+        context.drawImage(
+          bitmap,
+          (region.x - region.viewLeft) * viewerZoom * dpr,
+          (region.y - region.viewTop) * viewerZoom * dpr,
+          region.width * viewerZoom * dpr,
+          region.height * viewerZoom * dpr,
+        )
+      } finally {
+        bitmap.close()
+      }
     }
     if (sequence !== viewerRenderSequence) return
     const elapsed = performance.now() - startedAt
@@ -702,7 +751,7 @@ const renderViewer = async (): Promise<void> => {
     viewerStatus.textContent = `Visible region rendered in ${formatDuration(elapsed)}. Drag to pan or scroll to zoom.`
     addLog(
       'metric',
-      `TIFF viewport ${region.x},${region.y} ${region.width}×${region.height} rendered in ${formatDuration(elapsed)}.`,
+      `${selection.kind === 'tiff' ? 'TIFF' : selection.metadata.format.toUpperCase()} viewport ${region.x},${region.y} ${region.width}×${region.height} rendered in ${formatDuration(elapsed)}.`,
     )
   } catch (error: unknown) {
     if (sequence !== viewerRenderSequence) return
@@ -748,11 +797,19 @@ const panViewer = (horizontal: number, vertical: number): void => {
 }
 
 const updateViewerFacts = (selection: ViewerSelection): void => {
-  const { directory } = selection.choice
   viewerName.textContent = selection.file.name
+  viewerDimensions.textContent = `${selection.width.toLocaleString()} × ${selection.height.toLocaleString()}`
+  if (selection.kind === 'image') {
+    const count = countLabel(selection.metadata)
+    viewerSubtitle.textContent = `${selection.metadata.format.toUpperCase()} · ${selection.metadata.mimeType}`
+    viewerCompression.textContent = selection.metadata.format.toUpperCase()
+    viewerSamples.textContent = `${selection.metadata.bitDepth ?? 8}-bit · ${selection.metadata.hasAlpha ? 'alpha' : 'opaque'}`
+    viewerStorage.textContent = count ?? '1 image'
+    return
+  }
+  const { directory } = selection.choice
   viewerSubtitle.textContent = `${selection.document.bigTiff ? 'BigTIFF' : 'Classic TIFF'} · ${selection.document.topLevelDirectories.length} top-level image${selection.document.topLevelDirectories.length === 1 ? '' : 's'}`
-  viewerDimensions.textContent = `${directory.width.toLocaleString()} × ${directory.height.toLocaleString()}`
-  viewerCompression.textContent = compressionName(directory.compression)
+  viewerCompression.textContent = `TIFF · ${compressionName(directory.compression)}`
   viewerSamples.textContent = `${directory.samplesPerPixel} × ${directory.bitsPerSample.join('/')} bit · format ${directory.sampleFormats.join('/')}`
   viewerStorage.textContent = directory.tiled
     ? `Tiled ${directory.tileWidth ?? '?'} × ${directory.tileHeight ?? '?'} · ${directory.planar ? 'planar' : 'chunky'}`
@@ -761,12 +818,12 @@ const updateViewerFacts = (selection: ViewerSelection): void => {
 
 const selectViewerChoice = async (index: number, renderImmediately: boolean): Promise<void> => {
   const current = viewerSelection
-  if (!current) return
+  if (current?.kind !== 'tiff') return
   const choice = current.choices[index]
   if (!choice) throw new Error('Selected TIFF image is unavailable')
   setViewerLoading(true, 'Preparing TIFF image…')
   const decoder = await choice.directory.createImageDecoder()
-  const selection: ViewerSelection = {
+  const selection: TiffViewerSelection = {
     ...current,
     choice,
     decoder,
@@ -787,7 +844,6 @@ const selectViewerChoice = async (index: number, renderImmediately: boolean): Pr
 }
 
 const prepareTiffViewer = async (file: File): Promise<void> => {
-  setMode('view')
   setViewerLoading(true, 'Reading TIFF directory graph…')
   const document = await openTiffDocument(new BlobSource(file), {
     ...viewerLimits,
@@ -798,6 +854,7 @@ const prepareTiffViewer = async (file: File): Promise<void> => {
   if (!first) throw new Error('TIFF contains no displayable directories')
   const decoder = await first.directory.createImageDecoder()
   viewerSelection = {
+    kind: 'tiff',
     choice: first,
     choices,
     decoder,
@@ -825,6 +882,36 @@ const prepareTiffViewer = async (file: File): Promise<void> => {
   await renderViewer()
 }
 
+const prepareImageViewer = async (
+  file: File,
+  image: Image,
+  metadata: ImageMetadata,
+): Promise<void> => {
+  setViewerLoading(true, `Preparing ${metadata.format.toUpperCase()} image…`)
+  const selection: ImageViewerSelection = {
+    kind: 'image',
+    file,
+    image,
+    metadata,
+    width: metadata.width,
+    height: metadata.height,
+  }
+  viewerSelection = selection
+  viewerDirectory.replaceChildren(
+    new Option(
+      `Image 1 · ${metadata.width.toLocaleString()} × ${metadata.height.toLocaleString()}`,
+      '0',
+    ),
+  )
+  setViewerControls(true, false)
+  updateViewerFacts(selection)
+  sourceDetails.textContent = `${metadata.width.toLocaleString()} × ${metadata.height.toLocaleString()} · ${metadata.mimeType} · ${formatBytes(file.size)}`
+  describeMetadata(metadata)
+  fitViewer()
+  setViewerLoading(false)
+  await renderViewer()
+}
+
 const saveVisibleClip = async (): Promise<void> => {
   const selection = viewerSelection
   const region = currentViewerRegion()
@@ -840,13 +927,16 @@ const saveVisibleClip = async (): Promise<void> => {
   setViewerLoading(true, 'Encoding visible region as PNG…')
   const startedAt = performance.now()
   try {
-    const image = await viewerImages.open(selection.file, {
-      frame: selection.choice.frame,
-      limits: viewerLimits,
-      ...(selection.choice.resolutionLevel === undefined
-        ? {}
-        : { resolutionLevel: selection.choice.resolutionLevel }),
-    })
+    const image =
+      selection.kind === 'tiff'
+        ? await viewerImages.open(selection.file, {
+            frame: selection.choice.frame,
+            limits: viewerLimits,
+            ...(selection.choice.resolutionLevel === undefined
+              ? {}
+              : { resolutionLevel: selection.choice.resolutionLevel }),
+          })
+        : selection.image
     const blob = await image
       .crop({ x: region.x, y: region.y, width: region.width, height: region.height })
       .png()
@@ -920,8 +1010,10 @@ const inspectFile = async (file: File): Promise<void> => {
     selectedImage = image
     selectedMetadata = metadata
     if (!viewerReady) {
-      sourceDetails.textContent = `${metadata.width.toLocaleString()} × ${metadata.height.toLocaleString()} · ${metadata.mimeType} · ${formatBytes(file.size)}`
-      describeMetadata(metadata)
+      await prepareImageViewer(file, image, metadata)
+      if (sequence !== inspectionSequence) return
+      viewerReady = true
+      addLog('success', `${metadata.format.toUpperCase()} opened in the client-side viewer.`)
     }
     outputFormat.value = recommendedOutput(metadata)
     webpLossless.checked = metadata.hasAlpha
@@ -935,33 +1027,25 @@ const inspectFile = async (file: File): Promise<void> => {
     )
 
     const multipleImages = (metadata.frames ?? 1) > 1
-    if (multipleImages && metadata.format !== 'jpeg') {
-      operationStatus.textContent = viewerReady
-        ? 'Viewer ready. Multi-image TIFF conversion is disabled so later images are not silently discarded.'
-        : 'Animated input detected. This demo refuses to silently convert only the first frame.'
-      addLog(
-        'warning',
-        'Multi-frame conversion is unavailable; no static first-frame output will be emitted.',
-      )
-      setMode(viewerReady ? 'view' : 'convert')
-      return
-    }
-
     controls.disabled = false
     convertButton.disabled = false
-    if (multipleImages) {
+    if (multipleImages && metadata.format === 'jpeg') {
       operationStatus.textContent =
         'Ready. This MPF JPEG contains auxiliary images; conversion uses its supported primary image.'
       addLog(
         'warning',
         'MPF JPEG detected. Conversion uses the primary JPEG image; auxiliary images and gain maps are not preserved.',
       )
+    } else if (multipleImages) {
+      operationStatus.textContent =
+        'Ready. Conversion uses the first image or frame; additional images are not included.'
+      addLog(
+        'warning',
+        `${metadata.format.toUpperCase()} contains ${metadata.frames ?? 1} images or frames. Conversion uses the first image or frame.`,
+      )
     } else {
-      operationStatus.textContent = viewerReady
-        ? 'Viewer and conversion pipeline ready.'
-        : 'Ready. Choose an output format and optional transforms.'
+      operationStatus.textContent = 'Viewer and conversion pipeline ready.'
     }
-    setMode(viewerReady ? 'view' : 'convert')
   } catch (error: unknown) {
     if (sequence !== inspectionSequence) return
     const conversionFailure = errorMessage(error)
@@ -969,7 +1053,6 @@ const inspectFile = async (file: File): Promise<void> => {
       operationStatus.textContent =
         'Viewer ready. Complete-image conversion is outside the public demo guardrails for this file.'
       addLog('warning', `Full conversion unavailable: ${conversionFailure}`)
-      setMode('view')
       return
     }
     operationStatus.textContent = conversionFailure
@@ -979,12 +1062,12 @@ const inspectFile = async (file: File): Promise<void> => {
       addLog('error', `Viewer: ${viewerFailure}`)
     }
     addLog('error', conversionFailure)
-    setMode('convert')
   }
 }
 const loadExample = async (button: HTMLButtonElement): Promise<void> => {
   const name = button.dataset.sampleName
   const url = button.dataset.sampleUrl
+  const source = button.dataset.sampleSource ?? 'its public source'
   if (name === undefined || url === undefined) {
     exampleStatus.textContent = 'This example is missing its source information.'
     return
@@ -993,8 +1076,8 @@ const loadExample = async (button: HTMLButtonElement): Promise<void> => {
   for (const candidate of exampleButtons) candidate.disabled = true
   button.classList.add('loading')
   button.setAttribute('aria-busy', 'true')
-  exampleStatus.textContent = `Fetching ${name} directly from NOAA…`
-  addLog('info', `Fetching public example ${name} from NOAA after explicit user selection.`)
+  exampleStatus.textContent = `Fetching ${name} directly from ${source}…`
+  addLog('info', `Fetching public example ${name} from ${source} after explicit user selection.`)
 
   try {
     const response = await fetch(url, { mode: 'cors' })
@@ -1012,11 +1095,9 @@ const loadExample = async (button: HTMLButtonElement): Promise<void> => {
       throw new Error('Example size changed while downloading')
     }
 
-    setMode('view')
-    await inspectFile(new File([blob], name, { type: 'image/tiff' }))
-    if (viewerSelection === undefined)
-      throw new Error('The example did not open in the TIFF viewer')
-    exampleStatus.textContent = `${name} opened from NOAA (${formatBytes(blob.size)}).`
+    await inspectFile(new File([blob], name, { type: blob.type }))
+    if (viewerSelection === undefined) throw new Error('The example did not open in the viewer')
+    exampleStatus.textContent = `${name} opened from ${source} (${formatBytes(blob.size)}).`
   } catch (error: unknown) {
     const message = errorMessage(error)
     exampleStatus.textContent = `${name} could not be loaded: ${message}`
@@ -1026,6 +1107,21 @@ const loadExample = async (button: HTMLButtonElement): Promise<void> => {
     button.removeAttribute('aria-busy')
     for (const candidate of exampleButtons) candidate.disabled = false
   }
+}
+
+const filterSamples = (): void => {
+  const query = sampleSearch.value.trim().toLowerCase()
+  let visible = 0
+  for (const card of sampleCards) {
+    const searchable = (card.dataset.sampleSearch ?? card.textContent ?? '').toLowerCase()
+    card.hidden = query !== '' && !searchable.includes(query)
+    if (!card.hidden) visible += 1
+  }
+  sampleEmpty.hidden = visible !== 0
+  exampleStatus.textContent =
+    query === ''
+      ? `${sampleCards.length} verified sample files. Download any file, then open it above.`
+      : `${visible} sample${visible === 1 ? '' : 's'} match “${sampleSearch.value.trim()}”.`
 }
 
 const optionalDimension = (input: HTMLInputElement, label: string): number | undefined => {
@@ -1164,9 +1260,10 @@ const convert = async (): Promise<void> => {
   try {
     const mode = selectedDecodeMode()
     const library = mode === 'wasm' ? acceleratedImages : referenceImages
-    const sourceImage = await library.open(selectedFile, {
-      limits: demoLimits,
-    })
+    const sourceImage =
+      (selectedMetadata.frames ?? 1) > 1
+        ? await library.open(selectedFile, { frame: 0, limits: demoLimits })
+        : await library.open(selectedFile, { limits: demoLimits })
     const plan = plannedPipeline(sourceImage)
     const plannedMetadata = await plan.image.metadata()
     const key = comparisonKey()
@@ -1254,6 +1351,7 @@ fileInput.addEventListener('change', () => {
 for (const button of exampleButtons) {
   button.addEventListener('click', () => void loadExample(button))
 }
+sampleSearch.addEventListener('input', filterSamples)
 conversionForm.addEventListener('submit', (event) => event.preventDefault())
 
 for (const eventName of ['dragenter', 'dragover'] as const) {

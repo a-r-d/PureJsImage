@@ -12,12 +12,16 @@ import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
-import { openOmeTiff } from '../src/scientific/ome-tiff.ts'
+import { omeTiffProfile } from '../src/scientific/ome-tiff.ts'
 import { browserRuntime } from '../src/browser-runtime.ts'
 import { rasterToPixels } from '../src/raster.ts'
 import { MemorySource } from '../src/source.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
-import { encodeTiffDocument, openTiffDocument } from '../src/tiff/index.ts'
+import {
+  createTiffProfileRegistry,
+  encodeTiffDocument,
+  openTiffDocument,
+} from '../src/tiff/index.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import type { ImageInput } from '../src/source.ts'
 import type { ImageSink } from '../src/sink.ts'
@@ -798,11 +802,31 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
     [strip],
   )
   const document = await openTiffDocument(new MemorySource(input))
-  const tag = await document.topLevelDirectories[0]?.getTag(270, { maxBytes: 4096 })
+  const directory = document.topLevelDirectories[0]
+  if (directory?.offset !== 8 || document.getDirectoryByOffset(8) !== directory) {
+    throw new Error('Browser TIFF document did not expose stable IFD offsets')
+  }
+  const header = await document.readBytes(0, 4, { maxBytes: 4 })
+  if (header.join(',') !== '73,73,42,0') {
+    throw new Error('Browser TIFF document bounded byte read returned the wrong bytes')
+  }
+  try {
+    await document.readBytes(0, 5, { maxBytes: 4 })
+    throw new Error('Browser TIFF document accepted an over-budget byte read')
+  } catch (error: unknown) {
+    if (!(error instanceof ImageError) || error.code !== 'LIMIT_EXCEEDED') throw error
+  }
+  const tag = await directory.getTag(270, { maxBytes: 4096 })
   if (tag?.kind !== 'ascii' || !tag.value.includes('<OME')) {
     throw new Error('Browser TIFF document did not expose bounded OME metadata')
   }
-  const dataset = await openOmeTiff(document)
+  if ((await directory.getTag(270, { maxBytes: 4096 })) !== tag) {
+    throw new Error('Browser TIFF document did not reuse an immutable parsed tag')
+  }
+  const dataset = await createTiffProfileRegistry([omeTiffProfile]).openWith(
+    document,
+    omeTiffProfile,
+  )
   if (
     dataset.sizeX !== 2 ||
     dataset.sizeY !== 1 ||
@@ -836,7 +860,8 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
     throw new Error(`Browser OME-TIFF display conversion produced ${pixels.join(',')}`)
   }
   return {
-    detail: 'public TIFF document, native OME-TIFF raster, and explicit display conversion passed',
+    detail:
+      'bounded TIFF extension APIs, typed profile opening, native OME-TIFF raster, and explicit display conversion passed',
     outputBytes: input.byteLength,
   }
 }

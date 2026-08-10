@@ -29,6 +29,7 @@ import type {
   TiffDirectory,
   TiffDocument,
   TiffDocumentOptions,
+  TiffByteReadOptions,
   TiffTagReadOptions,
   TiffTagValue,
 } from '../tiff/types.ts'
@@ -4242,6 +4243,35 @@ const tagFieldBytes = (fieldType: number, tag: number): 1 | 2 | 4 | 8 => {
   throw invalidInput(`TIFF tag ${tag} has unsupported field type ${fieldType}`)
 }
 
+interface PublicTagReadRequest {
+  readonly entry: IfdEntry
+  readonly maximumBytes: number
+}
+
+const publicTagReadRequest = (
+  ifd: TiffIfd,
+  tag: number,
+  options: Readonly<TiffTagReadOptions>,
+): PublicTagReadRequest | undefined => {
+  if (!Number.isSafeInteger(tag) || tag < 0 || tag > 65_535) {
+    throw invalidInput('TIFF tag number must be an unsigned 16-bit integer')
+  }
+  const entry = ifd.entries.get(tag)
+  if (!entry) return undefined
+  const maximumBytes = options.maxBytes ?? 1_048_576
+  if (!Number.isSafeInteger(maximumBytes) || maximumBytes < 1) {
+    throw invalidInput('TIFF tag maxBytes must be a positive safe integer')
+  }
+  const byteLength = entry.count * tagFieldBytes(entry.fieldType, tag)
+  if (!Number.isSafeInteger(byteLength) || byteLength < 0) {
+    throw invalidInput(`TIFF tag ${tag} byte length is invalid`)
+  }
+  if (byteLength > maximumBytes) {
+    throw limitExceeded(`TIFF tag ${tag} needs ${byteLength} bytes; maxBytes is ${maximumBytes}`)
+  }
+  return { entry, maximumBytes }
+}
+
 const tagPayload = async (
   source: ImageSource,
   entry: IfdEntry,
@@ -4270,16 +4300,10 @@ const readPublicTag = async (
   tag: number,
   options: Readonly<TiffTagReadOptions>,
 ): Promise<TiffTagValue | undefined> => {
-  if (!Number.isSafeInteger(tag) || tag < 0 || tag > 65_535) {
-    throw invalidInput('TIFF tag number must be an unsigned 16-bit integer')
-  }
-  const entry = ifd.entries.get(tag)
-  if (!entry) return undefined
-  const maximumBytes = options.maxBytes ?? 1_048_576
-  if (!Number.isSafeInteger(maximumBytes) || maximumBytes < 1) {
-    throw invalidInput('TIFF tag maxBytes must be a positive safe integer')
-  }
-  const bytes = await tagPayload(source, entry, littleEndian, tag, maximumBytes)
+  const request = publicTagReadRequest(ifd, tag, options)
+  if (!request) return undefined
+  const bytes = await tagPayload(source, request.entry, littleEndian, tag, request.maximumBytes)
+  const { entry } = request
   if (entry.fieldType === 2) {
     let end = bytes.byteLength
     while (end > 0 && bytes[end - 1] === 0) end -= 1
@@ -4333,8 +4357,15 @@ const readPublicTag = async (
   return { kind: 'numbers', values: Object.freeze(values) }
 }
 
+const cachedPublicTag = (value: TiffTagValue | undefined): TiffTagValue | undefined =>
+  value === undefined ? undefined : Object.freeze(value)
+
+const publicTagResult = (value: TiffTagValue | undefined): TiffTagValue | undefined =>
+  value?.kind === 'bytes' ? Object.freeze({ kind: 'bytes', value: value.value.slice() }) : value
+
 class PublicTiffDirectory implements TiffDirectory {
   readonly index: number
+  readonly offset: number
   readonly width: number
   readonly height: number
   readonly compression: number
@@ -4352,6 +4383,7 @@ class PublicTiffDirectory implements TiffDirectory {
   readonly #graph: TiffIfdGraph
   readonly #ifd: TiffIfd
   readonly #embeddedCodecs: readonly ImageCodec[]
+  readonly #tagCache = new Map<number, Promise<TiffTagValue | undefined>>()
 
   private constructor(options: {
     readonly index: number
@@ -4373,6 +4405,7 @@ class PublicTiffDirectory implements TiffDirectory {
     readonly tileHeight?: number
   }) {
     this.index = options.index
+    this.offset = options.ifd.offset
     this.#source = options.source
     this.#limits = options.limits
     this.#graph = options.graph
@@ -4462,11 +4495,23 @@ class PublicTiffDirectory implements TiffDirectory {
     this.#subIfds = Object.freeze([...subIfds])
   }
 
-  getTag(
+  async getTag(
     tag: number,
     options: Readonly<TiffTagReadOptions> = {},
   ): Promise<TiffTagValue | undefined> {
-    return readPublicTag(this.#source, this.#ifd, this.#graph.littleEndian, tag, options)
+    const request = publicTagReadRequest(this.#ifd, tag, options)
+    if (!request) return undefined
+    let pending = this.#tagCache.get(tag)
+    if (!pending) {
+      pending = readPublicTag(this.#source, this.#ifd, this.#graph.littleEndian, tag, {
+        maxBytes: request.maximumBytes,
+      }).then(cachedPublicTag)
+      this.#tagCache.set(tag, pending)
+      pending.catch(() => {
+        if (this.#tagCache.get(tag) === pending) this.#tagCache.delete(tag)
+      })
+    }
+    return publicTagResult(await pending)
   }
 
   async createImageDecoder(): Promise<ImageDecoder> {
@@ -4506,12 +4551,18 @@ class PublicTiffDocument implements TiffDocument {
   readonly bigTiff: boolean
   readonly directories: readonly TiffDirectory[]
   readonly topLevelDirectories: readonly TiffDirectory[]
+  readonly #source: ImageSource
+  readonly #byOffset: ReadonlyMap<number, TiffDirectory>
 
   constructor(
+    source: ImageSource,
     graph: TiffIfdGraph,
     directories: readonly TiffDirectory[],
     topLevelDirectories: readonly TiffDirectory[],
+    byOffset: ReadonlyMap<number, TiffDirectory>,
   ) {
+    this.#source = source
+    this.#byOffset = byOffset
     this.littleEndian = graph.littleEndian
     this.bigTiff = graph.layout.bigTiff
     this.directories = Object.freeze([...directories])
@@ -4520,6 +4571,29 @@ class PublicTiffDocument implements TiffDocument {
 
   getDirectory(index: number): TiffDirectory | undefined {
     return Number.isSafeInteger(index) && index >= 0 ? this.directories[index] : undefined
+  }
+
+  getDirectoryByOffset(offset: number): TiffDirectory | undefined {
+    return Number.isSafeInteger(offset) && offset >= 0 ? this.#byOffset.get(offset) : undefined
+  }
+
+  async readBytes(
+    offset: number,
+    length: number,
+    options: Readonly<TiffByteReadOptions>,
+  ): Promise<Uint8Array> {
+    const maximumBytes = options?.maxBytes
+    if (!Number.isSafeInteger(maximumBytes) || maximumBytes < 1) {
+      throw invalidInput('TIFF byte read maxBytes must be a positive safe integer')
+    }
+    if (!Number.isSafeInteger(length) || length < 0) {
+      throw invalidInput('TIFF byte read length must be a non-negative safe integer')
+    }
+    if (length > maximumBytes) {
+      throw limitExceeded(`TIFF byte read needs ${length} bytes; maxBytes is ${maximumBytes}`)
+    }
+    checkedEnd(offset, length, this.#source.size, 'profile byte read')
+    return Uint8Array.from(await readExactly(this.#source, offset, length))
   }
 }
 
@@ -4562,7 +4636,7 @@ export const openTiffDocument = async (
   const topLevelDirectories = graph.topLevel
     .map((ifd) => byOffset.get(ifd.offset))
     .filter((directory): directory is PublicTiffDirectory => directory !== undefined)
-  return new PublicTiffDocument(graph, directories, topLevelDirectories)
+  return new PublicTiffDocument(source, graph, directories, topLevelDirectories, byOffset)
 }
 
 export interface TiffCodecOptions {

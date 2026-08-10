@@ -122,6 +122,7 @@ TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples direct
 
 - [x] Validate IFD extents, field types, counts, and offset arithmetic before reading or allocating
 - [x] Traverse top-level and SubIFD graphs with bounded directory counts, cycle rejection, and alias-safe shared-directory reuse
+- [x] Expose stable IFD offsets and graph lookup, bounded defensive-copy source reads, per-directory immutable tag caching with per-call limits, and typed explicit profile opening through public TIFF APIs
 - [x] Validate strip/tile counts, byte ranges, decoded sizes, and predictor boundaries
 - [x] Bound decompression output to the declared strip or tile geometry
 - [x] Reject unsupported photometric interpretations, sample formats, and compressions explicitly
