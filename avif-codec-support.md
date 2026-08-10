@@ -107,8 +107,8 @@ coverage.
   native high-depth planes and explicit conversion to the 8-bit RGBA contract
 - [x] Lossless and lossy quantization paths used by the permanent fixtures
 - [x] 64x64 and 128x128 superblocks
-- [x] One complete AV1 tile for supported lossy frames, plus complete
-  coded-lossless multi-tile frames contained in one frame OBU
+- [x] Complete compatible lossy 8-bit and coded-lossless high-bit-depth
+  multi-tile frames contained in one frame OBU
 - [x] Range-coded symbol decoding with adaptive CDF updates and final-state
   validation
 - [x] Skip signaling, keyframe intra modes, angle deltas, transform selection,
@@ -181,6 +181,8 @@ coverage.
   disabled, deblock, luma/chroma CDEF, Wiener, self-guided, odd-dimension,
   frame-edge, multiple-restoration-unit, and filtered super-resolution
   fixtures; the numeric tolerance is zero
+- [x] Apply deblocking, CDEF, and restoration once across a complete lossy
+  multi-tile frame and match agreeing dav1d and libaom native YUV byte for byte
 
 The two full-size Kodak and Fox photographic fixtures receive the complete
 post-filter pipeline and match agreeing dav1d and libaom native YUV byte for
@@ -327,6 +329,11 @@ byte. The full-size tolerance remains zero.
 - [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
   for checksum-pinned filter-free denominator-12 YUV 4:2:0 and 4:4:4
   super-resolution fixtures
+- [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
+  for a checksum-pinned lossy 8-bit YUV 4:2:0 2x2 tile frame exercising
+  deblocking, CDEF, and restoration
+- [x] Exercise lossy multi-tile AVIF decode through the portable TypeScript
+  codec in Chromium and pin its RGBA output
 - [x] Exercise filter-free AV1 super-resolution through the portable TypeScript
   codec in Chromium and pin its RGBA output
 - [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte

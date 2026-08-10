@@ -336,6 +336,10 @@ await copyFile(
   resolve(fixtureDirectory, 'tiled-lossless-10bpc-yuv444-2x2-256x256.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/libaom-lossy-multitile-yuv420-256x256.avif',
+  resolve(fixtureDirectory, 'libaom-lossy-multitile-yuv420-256x256.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/libaom-superres-denom12-96x64.avif',
   resolve(fixtureDirectory, 'libaom-superres-denom12-96x64.avif'),
 )

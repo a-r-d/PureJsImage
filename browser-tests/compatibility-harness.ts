@@ -643,6 +643,15 @@ const avifHighBitTiles = (): Promise<BrowserWorkflowResult> =>
     'Coded-lossless 10-bit 2x2-tile AVIF',
   )
 
+const avifLossyMultitile = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'libaom-lossy-multitile-yuv420-256x256.avif',
+    256,
+    256,
+    '64d50b1df2d192b1dcac24d4bd0e0df6996c00a1a3ecbd97bd9a888edf3dd737',
+    'Lossy 8-bit 2x2-tile AVIF with loop filter, CDEF, and restoration',
+  )
+
 const avifSuperres = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
     'libaom-superres-denom12-96x64.avif',
@@ -864,6 +873,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifHighBit12,
   avifHighBitTiles,
   avifFilteredSuperres,
+  avifLossyMultitile,
   avifSuperres,
   avifIntrabc,
   avifQuantizationMatrix,

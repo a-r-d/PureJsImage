@@ -25,6 +25,10 @@ import {
   tiledLosslessSample,
 } from '../benchmark/avif/tiled-lossless-fixture.ts'
 import {
+  avifLossyMultitileFixture,
+  avifLossyMultitileFixturePath,
+} from '../benchmark/avif/lossy-multitile-fixture.ts'
+import {
   avifFilteredSuperresFixture,
   avifFilteredSuperresFixturePath,
   avifSuperres420Fixture,
@@ -691,6 +695,49 @@ describe('AVIF restricted pixel decode', () => {
       }
     }
     expect(maximumPlaneDifference).toBe(0)
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+  })
+
+  it('decodes a lossy 8-bit 2x2 AV1 tile layout through all post-filters', async () => {
+    const fixture = avifLossyMultitileFixture
+    const input = await readFile(avifLossyMultitileFixturePath)
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('Lossy multi-tile AVIF fixture has no color frame OBU')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+    const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(coded.sequence).toMatchObject({
+      bitDepth: fixture.bitDepth,
+      chromaSubsampling: fixture.chromaSubsampling,
+      fullRange: false,
+    })
+    expect(frame.header).toMatchObject({
+      allLossless: false,
+      tileColumns: fixture.columns,
+      tileRows: fixture.rows,
+      loopFilterLevels: [23, 23, 0, 45],
+      restorationTypes: [0, 2, 0],
+    })
+    expect(frame.header.cdefYPrimaryStrengths.some((strength) => strength !== 0)).toBe(true)
+    const nativeYuv = new Uint8Array(
+      decoded.width * decoded.height + 2 * decoded.chromaWidth * decoded.chromaHeight,
+    )
+    let offset = 0
+    for (const [plane, stride, width, height] of [
+      [decoded.y, decoded.yStride, decoded.width, decoded.height],
+      [decoded.u, decoded.chromaStride, decoded.chromaWidth, decoded.chromaHeight],
+      [decoded.v, decoded.chromaStride, decoded.chromaWidth, decoded.chromaHeight],
+    ] as const) {
+      for (let row = 0; row < height; row += 1) {
+        nativeYuv.set(plane.subarray(row * stride, row * stride + width), offset)
+        offset += width
+      }
+    }
+    expect(createHash('sha256').update(nativeYuv).digest('hex')).toBe(fixture.pureYuvSha256)
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
   })
 

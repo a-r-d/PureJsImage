@@ -110,6 +110,10 @@ All notable changes to PureJsImage are documented in this file.
 - Corrected AV1 CDEF primary-direction selection for Kodak's remaining luma
   sample; both full-size Kodak and Fox post-filter fixtures now match agreeing
   dav1d and libaom native YUV byte for byte.
+- Added lossy 8-bit AVIF multi-tile reconstruction with independent tile
+  contexts and one full-frame deblocking, CDEF, and restoration pass; the pinned
+  2x2 YUV 4:2:0 fixture matches agreeing dav1d and libaom native YUV byte for
+  byte in Node.js and Chromium.
 
 - Animated GIF pixel decode now fails with `UNSUPPORTED_OPERATION` instead of silently discarding
   animation; callers can explicitly request the supported first image with `open(input, { frame: 0 })`.

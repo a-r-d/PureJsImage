@@ -896,8 +896,8 @@ class RestrictedIntraTileDecoder {
     this.#frame = frame
     this.#currentQuantizer = frame.header.baseQuantizer
     this.#symbols = new Av1SymbolDecoder(tile.data, !frame.header.disableCdfUpdate)
-    this.#miColumns = tile.miColumnEnd
-    this.#miRows = tile.miRowEnd
+    this.#miColumns = 2 * ((frame.header.frameWidth + 7) >> 3)
+    this.#miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
     this.#chromaShiftX = sequence.chromaSubsampling === '444' ? 0 : 1
     this.#chromaShiftY = sequence.chromaSubsampling === '420' ? 1 : 0
     this.#chromaTopRightEdge = 1 << (this.#chromaShiftX + this.#chromaShiftY)
@@ -3037,6 +3037,117 @@ const createReconstructionPlanes = (
   }
 }
 
+const createFramePostFilterState = (
+  frame: Av1Frame,
+  reconstruction: ReconstructionPlanes,
+): Av1PostFilterState => {
+  const miColumns = reconstruction.yStride >> 2
+  const miRows = reconstruction.yHeight >> 2
+  const cdefColumns = Math.ceil(miColumns / 16)
+  const transformContextLength = (plane: Plane, shiftY: number): number =>
+    (plane.width >> 2) * (miRows >> shiftY)
+  return {
+    miColumns,
+    miRows,
+    chromaShiftX: reconstruction.chromaShiftX,
+    chromaShiftY: reconstruction.chromaShiftY,
+    skips: new Uint8Array(miColumns * miRows),
+    transformWidths: [
+      new Uint8Array(transformContextLength(reconstruction.planes[0], 0)),
+      new Uint8Array(transformContextLength(reconstruction.planes[1], reconstruction.chromaShiftY)),
+      new Uint8Array(transformContextLength(reconstruction.planes[2], reconstruction.chromaShiftY)),
+    ],
+    transformHeights: [
+      new Uint8Array(transformContextLength(reconstruction.planes[0], 0)),
+      new Uint8Array(transformContextLength(reconstruction.planes[1], reconstruction.chromaShiftY)),
+      new Uint8Array(transformContextLength(reconstruction.planes[2], reconstruction.chromaShiftY)),
+    ],
+    cdefColumns,
+    cdefIndices: new Uint16Array(cdefColumns * Math.ceil(miRows / 16)),
+    restoration: [
+      createRestorationPlaneState(
+        frame,
+        0,
+        reconstruction.chromaShiftX,
+        reconstruction.chromaShiftY,
+      ),
+      createRestorationPlaneState(
+        frame,
+        1,
+        reconstruction.chromaShiftX,
+        reconstruction.chromaShiftY,
+      ),
+      createRestorationPlaneState(
+        frame,
+        2,
+        reconstruction.chromaShiftX,
+        reconstruction.chromaShiftY,
+      ),
+    ],
+  }
+}
+
+const mergeTilePostFilterState = (
+  target: Av1PostFilterState,
+  source: Av1PostFilterState,
+  tile: Av1Tile,
+  reconstruction: ReconstructionPlanes,
+): void => {
+  for (let row = tile.miRowStart; row < tile.miRowEnd; row += 1) {
+    const sourceStart = row * source.miColumns + tile.miColumnStart
+    const targetStart = row * target.miColumns + tile.miColumnStart
+    target.skips.set(
+      source.skips.subarray(sourceStart, sourceStart + tile.miColumnEnd - tile.miColumnStart),
+      targetStart,
+    )
+  }
+  for (let plane = 0; plane < 3; plane += 1) {
+    const shiftX = plane === 0 ? 0 : target.chromaShiftX
+    const shiftY = plane === 0 ? 0 : target.chromaShiftY
+    const columnStart = tile.miColumnStart >> shiftX
+    const columnEnd = tile.miColumnEnd >> shiftX
+    const rowStart = tile.miRowStart >> shiftY
+    const rowEnd = tile.miRowEnd >> shiftY
+    const stride = (reconstruction.planes[plane]?.width ?? 0) >> 2
+    const sourceWidths = source.transformWidths[plane]
+    const sourceHeights = source.transformHeights[plane]
+    const targetWidths = target.transformWidths[plane]
+    const targetHeights = target.transformHeights[plane]
+    if (!sourceWidths || !sourceHeights || !targetWidths || !targetHeights) continue
+    for (let row = rowStart; row < rowEnd; row += 1) {
+      const start = row * stride + columnStart
+      const end = row * stride + columnEnd
+      targetWidths.set(sourceWidths.subarray(start, end), start)
+      targetHeights.set(sourceHeights.subarray(start, end), start)
+    }
+  }
+  const cdefRowStart = tile.miRowStart >> 4
+  const cdefRowEnd = Math.ceil(tile.miRowEnd / 16)
+  const cdefColumnStart = tile.miColumnStart >> 4
+  const cdefColumnEnd = Math.ceil(tile.miColumnEnd / 16)
+  for (let row = cdefRowStart; row < cdefRowEnd; row += 1) {
+    const sourceStart = row * source.cdefColumns + cdefColumnStart
+    const targetStart = row * target.cdefColumns + cdefColumnStart
+    target.cdefIndices.set(
+      source.cdefIndices.subarray(sourceStart, sourceStart + cdefColumnEnd - cdefColumnStart),
+      targetStart,
+    )
+  }
+  for (let plane = 0; plane < 3; plane += 1) {
+    const sourcePlane = source.restoration[plane]
+    const targetPlane = target.restoration[plane]
+    if (!sourcePlane || !targetPlane) continue
+    for (let unit = 0; unit < sourcePlane.types.length; unit += 1) {
+      const type = sourcePlane.types[unit] ?? 0
+      if (type === 0) continue
+      targetPlane.types[unit] = type
+      targetPlane.wiener.set(sourcePlane.wiener.subarray(unit * 6, unit * 6 + 6), unit * 6)
+      targetPlane.sgrSets[unit] = sourcePlane.sgrSets[unit] ?? 0
+      targetPlane.sgrXqd.set(sourcePlane.sgrXqd.subarray(unit * 2, unit * 2 + 2), unit * 2)
+    }
+  }
+}
+
 const upscaleReconstructionPlanes = (
   planes: readonly [Plane, Plane, Plane],
   sequence: Av1SequenceHeader,
@@ -3281,19 +3392,34 @@ export const decodeRestrictedAv1Intra = (
   frame: Av1Frame,
 ): Av1DecodedFrame => {
   validateRestrictedAv1Intra(sequence, frame)
-  if (frame.tiles.length > 1 && (!frame.header.allLossless || frame.header.allowIntrabc)) {
+  if (frame.tiles.length > 1 && frame.header.allowIntrabc) {
     throw unsupportedOperation(
-      'Restricted multi-tile AV1 reconstruction requires lossless intra-only tile payloads',
+      'Restricted multi-tile AV1 reconstruction does not support intra block copy',
     )
   }
   const reconstruction = createReconstructionPlanes(sequence, frame)
-  let decoder: RestrictedIntraTileDecoder | undefined
+  const mergedPostFilterState =
+    frame.tiles.length > 1 ? createFramePostFilterState(frame, reconstruction) : undefined
+  let postFilterState: Av1PostFilterState | undefined
   for (let tileIndex = 0; tileIndex < frame.tiles.length; tileIndex += 1) {
-    decoder = new RestrictedIntraTileDecoder(sequence, frame, reconstruction.planes, tileIndex)
+    const tile = frame.tiles[tileIndex]
+    if (!tile) throw invalidInput('AV1 tile payload is missing')
+    const decoder = new RestrictedIntraTileDecoder(
+      sequence,
+      frame,
+      reconstruction.planes,
+      tileIndex,
+    )
     decoder.decode()
+    const tilePostFilterState = decoder.postFilterState()
+    if (mergedPostFilterState) {
+      mergeTilePostFilterState(mergedPostFilterState, tilePostFilterState, tile, reconstruction)
+    } else {
+      postFilterState = tilePostFilterState
+    }
   }
-  if (!decoder) throw invalidInput('AV1 frame has no tiles')
-  const postFilterState = decoder.postFilterState()
+  postFilterState ??= mergedPostFilterState
+  if (!postFilterState) throw invalidInput('AV1 frame has no tiles')
   let decodedPlanes: [Plane, Plane, Plane]
   if (frame.header.frameWidth !== frame.header.upscaledWidth) {
     const preRestoration = applyAv1DeblockAndCdef(

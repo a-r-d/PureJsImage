@@ -93,6 +93,15 @@ checksum-pinned Y4M source. Run `npm run fixtures:avif:tiles` to require
 PureJsImage, dav1d, and libaom to reconstruct identical native YUV samples.
 Checksums are pinned in `benchmark/avif/tiled-lossless-fixture.ts`.
 
+`libaom-lossy-multitile-yuv420-256x256.avif` is a deterministic limited-range
+8-bit YUV 4:2:0 image split into a 2x2 AV1 tile layout. It exercises independent
+tile entropy and prediction state followed by one full-frame deblocking, CDEF,
+and loop-restoration pipeline. `npm run fixtures:avif:tiles:prepare` regenerates
+it with libaom 3.12.1 and FFmpeg 7.1.1 from its checksum-pinned Y4M source.
+`npm run fixtures:avif:tiles` requires PureJsImage, dav1d, and libaom to produce
+byte-identical native YUV. Checksums are pinned in
+`benchmark/avif/lossy-multitile-fixture.ts`.
+
 `libaom-superres-denom12-96x64.avif` and
 `libaom-superres-denom12-yuv420-96x64.avif` are deterministic full-range
 8-bit YUV 4:4:4 and YUV 4:2:0 frames whose AV1 payloads reconstruct at 64x64
