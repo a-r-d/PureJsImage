@@ -1,0 +1,22 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 7-8,55-56,349-350
+docs/demo.html
+  h_9f4a25732fa0c1 161,163
+package-lock.json
+  h_9f4a25732fa0c1 3,9
+package.json
+  h_9f4a25732fa0c1 3
+scripts/check-package-types.ts
+  h_9f4a25732fa0c1 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "dd4164c2b89de4f3cb8568eb657214097bb036bd",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
