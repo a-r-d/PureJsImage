@@ -1,0 +1,3884 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-09T23:10:49.173Z",
+  "pureJsImageVersion": "0.7.0",
+  "pureJsImageGitCommit": "e7a6044e5967c1ed1ea127c45fd7f415a03ba4a9",
+  "codecCorpusGitCommit": "28205bbc5cf40364d012c462240ba28143373d67",
+  "nodeVersion": "v24.16.0",
+  "platform": "linux-x64",
+  "format": "png",
+  "commandSettings": {
+    "corpus": "../codec-corpus",
+    "format": "png",
+    "output": "benchmark/results",
+    "timeoutMs": 30000,
+    "memoryMb": 512,
+    "concurrency": 2,
+    "limit": null,
+    "filter": null
+  },
+  "totalsByCorpusCategory": [
+    {
+      "category": "invalid/ascii_transfer_cr",
+      "total": 1,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 1,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "invalid/ascii_transfer_lf",
+      "total": 1,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 1,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "invalid/checksum_error",
+      "total": 1,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 1,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "invalid/ihdr_checksum",
+      "total": 1,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 1,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "invalid/invalid_bit_depth",
+      "total": 3,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 3,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "invalid/invalid_color_type",
+      "total": 2,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 2,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "invalid/invalid_signature",
+      "total": 4,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 4,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "invalid/missing_idat",
+      "total": 1,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 1,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/ancillary-chunks",
+      "total": 14,
+      "outcomes": {
+        "pass": 14,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/background-information",
+      "total": 8,
+      "outcomes": {
+        "pass": 8,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/basic-color-types-and-bit-depths",
+      "total": 15,
+      "outcomes": {
+        "pass": 15,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/chunk-ordering-and-idat",
+      "total": 8,
+      "outcomes": {
+        "pass": 8,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/filtering",
+      "total": 11,
+      "outcomes": {
+        "pass": 11,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/gamma-and-color-information",
+      "total": 26,
+      "outcomes": {
+        "pass": 26,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/image-dimensions-and-interlacing",
+      "total": 36,
+      "outcomes": {
+        "pass": 36,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/interlacing",
+      "total": 15,
+      "outcomes": {
+        "pass": 15,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/palettes",
+      "total": 6,
+      "outcomes": {
+        "pass": 6,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/physical-dimensions",
+      "total": 4,
+      "outcomes": {
+        "pass": 4,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/suite-overview",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/transparency",
+      "total": 14,
+      "outcomes": {
+        "pass": 14,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/zlib-compression",
+      "total": 4,
+      "outcomes": {
+        "pass": 4,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    }
+  ],
+  "totalsByOutcome": {
+    "pass": 162,
+    "unsupported": 0,
+    "decode-failure": 0,
+    "invalid-output": 0,
+    "rejected-safely": 14,
+    "accepted": 0,
+    "raw-exception": 0,
+    "timeout": 0,
+    "process-crash": 0,
+    "out-of-memory": 0
+  },
+  "records": [
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi0g01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-0",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 146,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi0g02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-0",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 152,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 144,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi0g08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 150,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 143,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 143,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 142,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi3p01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 150,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 148,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 145,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 154,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi4a08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-4",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 150,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi4a16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-4",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 166,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi6a08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-6",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 155,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basi6a16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlaced",
+        "color-type-6",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 158,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn0g01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 143,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn0g02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 142,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 136,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn0g08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 145,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 140,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 175,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 170,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn3p01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 149,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 143,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 137,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 140,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn4a08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-4",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 145,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn4a16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-4",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 138,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn6a08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-6",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 143,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/basn6a16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/basic-color-types-and-bit-depths",
+      "testGroup": "basic-color-types-and-bit-depths",
+      "features": [
+        "non-interlaced",
+        "color-type-6",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 144,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/bgai4a08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/background-information",
+      "testGroup": "background-information",
+      "features": [
+        "interlaced",
+        "color-type-4",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 147,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/bgai4a16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/background-information",
+      "testGroup": "background-information",
+      "features": [
+        "interlaced",
+        "color-type-4",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 155,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/bgan6a08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/background-information",
+      "testGroup": "background-information",
+      "features": [
+        "non-interlaced",
+        "color-type-6",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 149,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/bgan6a16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/background-information",
+      "testGroup": "background-information",
+      "features": [
+        "non-interlaced",
+        "color-type-6",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 138,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/bgbn4a08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/background-information",
+      "testGroup": "background-information",
+      "features": [
+        "non-interlaced",
+        "color-type-4",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 149,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/bggn4a16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/background-information",
+      "testGroup": "background-information",
+      "features": [
+        "non-interlaced",
+        "color-type-4",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 153,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/bgwn6a08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/background-information",
+      "testGroup": "background-information",
+      "features": [
+        "non-interlaced",
+        "color-type-6",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 139,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/bgyn6a16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/background-information",
+      "testGroup": "background-information",
+      "features": [
+        "non-interlaced",
+        "color-type-6",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 151,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ccwn2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 142,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ccwn3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 141,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cdfn2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/physical-dimensions",
+      "testGroup": "physical-dimensions",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 140,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cdhn2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/physical-dimensions",
+      "testGroup": "physical-dimensions",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 137,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cdsn2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/physical-dimensions",
+      "testGroup": "physical-dimensions",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 145,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cdun2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/physical-dimensions",
+      "testGroup": "physical-dimensions",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 146,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ch1n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 137,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ch2n3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 142,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cm0n0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 139,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cm7n0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 150,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cm9n0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 161,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cs3n2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 155,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cs3n3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 155,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cs5n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 150,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cs5n3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 137,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cs8n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 139,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cs8n3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 137,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ct0n0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 140,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ct1n0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 168,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cten0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 156,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ctfn0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 143,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ctgn0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 144,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/cthn0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 137,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ctjn0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 140,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ctzn0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 146,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/exif2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/ancillary-chunks",
+      "testGroup": "ancillary-chunks",
+      "features": [],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 143,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/f00n0g08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/filtering",
+      "testGroup": "filtering",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 138,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/f00n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/filtering",
+      "testGroup": "filtering",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 153,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/f01n0g08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/filtering",
+      "testGroup": "filtering",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 146,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/f01n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/filtering",
+      "testGroup": "filtering",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 137,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/f02n0g08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/filtering",
+      "testGroup": "filtering",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 141,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/f02n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/filtering",
+      "testGroup": "filtering",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 137,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/f03n0g08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/filtering",
+      "testGroup": "filtering",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 137,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/f03n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/filtering",
+      "testGroup": "filtering",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 143,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/f04n0g08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/filtering",
+      "testGroup": "filtering",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 154,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/f04n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/filtering",
+      "testGroup": "filtering",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 142,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/f99n0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/filtering",
+      "testGroup": "filtering",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 139,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g03n0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 145,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g03n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 145,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g03n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 142,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g04n0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 146,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g04n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 148,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g04n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 171,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g05n0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 157,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g05n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 147,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g05n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 160,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g07n0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 155,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g07n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 147,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g07n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 149,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g10n0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 159,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g10n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 143,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g10n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 158,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g25n0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 162,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g25n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 149,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/g25n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/gamma-and-color-information",
+      "testGroup": "gamma-and-color-information",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 152,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/oi1n0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/chunk-ordering-and-idat",
+      "testGroup": "chunk-ordering-and-idat",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 152,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/oi1n2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/chunk-ordering-and-idat",
+      "testGroup": "chunk-ordering-and-idat",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 144,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/oi2n0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/chunk-ordering-and-idat",
+      "testGroup": "chunk-ordering-and-idat",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 146,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/oi2n2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/chunk-ordering-and-idat",
+      "testGroup": "chunk-ordering-and-idat",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 146,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/oi4n0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/chunk-ordering-and-idat",
+      "testGroup": "chunk-ordering-and-idat",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 163,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/oi4n2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/chunk-ordering-and-idat",
+      "testGroup": "chunk-ordering-and-idat",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 151,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/oi9n0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/chunk-ordering-and-idat",
+      "testGroup": "chunk-ordering-and-idat",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 153,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/oi9n2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/chunk-ordering-and-idat",
+      "testGroup": "chunk-ordering-and-idat",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 163,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/PngSuite.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/suite-overview",
+      "testGroup": "suite-overview",
+      "features": [],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 174,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/pp0n2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/palettes",
+      "testGroup": "palettes",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 167,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/pp0n6a08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/palettes",
+      "testGroup": "palettes",
+      "features": [
+        "non-interlaced",
+        "color-type-6",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 156,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ps1n0g08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/palettes",
+      "testGroup": "palettes",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 151,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ps1n2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/palettes",
+      "testGroup": "palettes",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 150,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ps2n0g08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/palettes",
+      "testGroup": "palettes",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 176,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/ps2n2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/palettes",
+      "testGroup": "palettes",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 170,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s01i3p01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 148,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s01n3p01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 168,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s02i3p01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 151,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s02n3p01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 153,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s03i3p01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 149,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s03n3p01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 144,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s04i3p01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 141,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s04n3p01.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 149,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s05i3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 165,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s05n3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 139,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s06i3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 154,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s06n3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 142,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s07i3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 162,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s07n3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 159,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s08i3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 145,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s08n3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 152,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s09i3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 182,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s09n3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 146,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s32i3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 147,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s32n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 154,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s33i3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 150,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s33n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 149,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s34i3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 161,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s34n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 156,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s35i3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 146,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s35n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 148,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s36i3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 148,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s36n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 148,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s37i3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 152,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s37n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 143,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s38i3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 150,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s38n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 150,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s39i3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 149,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s39n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 147,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s40i3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 148,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/s40n3p04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/image-dimensions-and-interlacing",
+      "testGroup": "image-dimensions-and-interlacing",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 154,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tbbn0g04.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 154,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tbbn2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 155,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tbbn3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 168,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tbgn2c16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 155,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tbgn3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 152,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tbrn2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 152,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tbwn0g16.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-16"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 158,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tbwn3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 151,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tbyn3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 156,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tm3n3p02.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-2"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 139,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tp0n0g08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 145,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tp0n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 161,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tp0n3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 165,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/tp1n3p08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "non-interlaced",
+        "color-type-3",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 148,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xc1n0g08.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid_color_type",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": "Color type 1 is not valid in PNG spec",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "PNG has unsupported or invalid color metadata",
+      "elapsedMs": 123,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xc9n2c08.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid_color_type",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": "Color type 9 is not valid in PNG spec (valid: 0,2,3,4,6)",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "PNG has unsupported or invalid color metadata",
+      "elapsedMs": 129,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xcrn0g04.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/ascii_transfer_cr",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": "Carriage return bytes inserted (simulates ASCII/text mode transfer)",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "Input format is not recognized",
+      "elapsedMs": 140,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xcsn0g01.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/checksum_error",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": "IDAT chunk has incorrect CRC checksum",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "metadata",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "PNG IDAT checksum does not match its data",
+      "elapsedMs": 142,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xd0n2c08.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid_bit_depth",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": "Bit depth 0 is not valid",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "PNG has unsupported or invalid color metadata",
+      "elapsedMs": 140,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xd3n2c08.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid_bit_depth",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": "Bit depth 3 is not valid for this color type",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "PNG has unsupported or invalid color metadata",
+      "elapsedMs": 128,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xd9n2c08.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid_bit_depth",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": "Bit depth 9 is not valid in PNG spec",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "PNG has unsupported or invalid color metadata",
+      "elapsedMs": 125,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xdtn0g01.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/missing_idat",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": "No IDAT chunk present",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "metadata",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "PNG is missing image data",
+      "elapsedMs": 132,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xhdn0g08.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/ihdr_checksum",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": "IHDR chunk has incorrect CRC checksum",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "PNG IHDR checksum does not match its data",
+      "elapsedMs": 127,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xlfn0g04.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/ascii_transfer_lf",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-4"
+      ],
+      "upstreamExpectation": "Line feed bytes inserted (simulates ASCII/text mode transfer)",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "Input format is not recognized",
+      "elapsedMs": 131,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xs1n0g01.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid_signature",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": "Corrupted PNG signature (byte 1)",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "Input format is not recognized",
+      "elapsedMs": 157,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xs2n0g01.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid_signature",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": "Corrupted PNG signature (byte 2)",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "Input format is not recognized",
+      "elapsedMs": 126,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xs4n0g01.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid_signature",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": "Corrupted PNG signature (byte 4)",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "Input format is not recognized",
+      "elapsedMs": 148,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/xs7n0g01.png",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/invalid_signature",
+      "testGroup": "corrupted-or-invalid-inputs",
+      "features": [
+        "non-interlaced",
+        "color-type-0",
+        "bit-depth-1"
+      ],
+      "upstreamExpectation": "Corrupted PNG signature (byte 7)",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "Input format is not recognized",
+      "elapsedMs": 150,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/z00n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/zlib-compression",
+      "testGroup": "zlib-compression",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 144,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/z03n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/zlib-compression",
+      "testGroup": "zlib-compression",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 160,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/z06n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/zlib-compression",
+      "testGroup": "zlib-compression",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 145,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "png",
+      "relativeFilename": "pngsuite/z09n2c08.png",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/zlib-compression",
+      "testGroup": "zlib-compression",
+      "features": [
+        "non-interlaced",
+        "color-type-2",
+        "bit-depth-8"
+      ],
+      "upstreamExpectation": null,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 143,
+      "childExitCode": 0,
+      "childSignal": null
+    }
+  ]
+}

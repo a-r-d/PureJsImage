@@ -47,6 +47,12 @@ export type FixtureGenerator =
   | 'static-transparent-gif'
   | 'streaming-stress-gradient'
   | 'tiff-gradient'
+  | 'tiff-cielab8-strip'
+  | 'tiff-fillorder6-strip'
+  | 'tiff-bigtiff-rgb16'
+  | 'tiff-cmyk8-planar'
+  | 'tiff-packed12-strip'
+  | 'tiff-packed12-tile'
   | 'tiny-transparent'
   | 'transparent-logo'
   | 'webp-gradient-lossless'
@@ -79,6 +85,13 @@ export interface FixtureInspection {
 
 export type Operation =
   | { type: 'metadata' }
+  | {
+      type: 'raw'
+      x?: number
+      y?: number
+      width?: number
+      height?: number
+    }
   | { type: 'autoOrient' }
   | { type: 'rotate'; degrees: number }
   | { type: 'flip' }
@@ -124,6 +137,9 @@ export interface WorkflowExpectation {
   cornerAlpha?: number
   cornerRgbMinimum?: number
   pixelSamples?: readonly PixelSampleExpectation[]
+  rawSha256?: string
+  pixelFormat?: string
+  decodedBytes?: number
 }
 
 interface WorkflowBase {
@@ -159,12 +175,24 @@ export interface ImageMetadata {
   height: number
 }
 
+export interface DecodedOutput {
+  format: string
+  width: number
+  height: number
+  pixelFormat: string
+  bytes: number
+  sha256: string
+}
+
 export interface EngineExecution {
   output?: Uint8Array
   metadata?: ImageMetadata
   outputBytes?: number
   outputCount?: number
   batchSha256?: string
+  decoded?: DecodedOutput
+  sourceBytesRead?: number
+  maximumDecodedBlockBytes?: number
 }
 
 export type EngineKind = 'native' | 'native-single-thread' | 'pure-javascript' | 'webassembly'
@@ -206,6 +234,7 @@ export interface ValidationResult {
   outputBytes: number
   output?: ValidatedOutput
   metadata?: ImageMetadata
+  decoded?: DecodedOutput
 }
 
 export interface EngineMetadata {
@@ -236,13 +265,15 @@ export interface InvalidOutputWorkerResult extends WorkerFailure {
 export interface MeasuredWorkerResult {
   status: 'pass'
   errors: string[]
-  output?: ValidatedOutput | ImageMetadata
+  output?: ValidatedOutput | ImageMetadata | DecodedOutput
   outputBytes: number
   wallMilliseconds: number
   cpuMilliseconds: number
   finalMemory: NodeJS.MemoryUsage
   resourceMaxRssBytes: number
   qualityPsnrDb?: QualityPsnr
+  sourceBytesRead?: number
+  maximumDecodedBlockBytes?: number
 }
 
 export type WorkerResult =
@@ -276,7 +307,11 @@ export interface BenchmarkSummary {
   peakRssDeltaBytes?: { median: number; maximum: number }
   outputBytes?: { median: number }
   qualityPsnrDb?: QualityPsnr
-  output?: ValidatedOutput | ImageMetadata
+  finalExternalBytes?: { median: number }
+  finalArrayBuffersBytes?: { median: number }
+  sourceBytesRead?: { median: number }
+  maximumDecodedBlockBytes?: { median: number; maximum: number }
+  output?: ValidatedOutput | ImageMetadata | DecodedOutput
 }
 
 export interface StartupOperationResult {

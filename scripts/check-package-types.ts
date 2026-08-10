@@ -11,7 +11,7 @@ const run = (command: string, arguments_: readonly string[], cwd: string): void 
   const result = spawnSync(command, arguments_, {
     cwd,
     encoding: 'utf8',
-    env: process.env,
+    env: { ...process.env, npm_config_dry_run: 'false' },
   })
   if (result.error) throw result.error
   if (result.status === 0) return

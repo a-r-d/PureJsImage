@@ -118,20 +118,26 @@ describe('PNG pixel pipeline', () => {
     expect(Array.from(srgbDecoded.data)).toEqual([128, 128, 128, 91])
   })
 
-  it('rejects corrupt compressed ICC data and unsupported cICP color signaling explicitly', async () => {
+  it('rejects corrupt ICC data and color-manages common full-range cICP signaling', async () => {
     const corruptIcc = specializedPng(1, 1, 8, 2, Uint8Array.of(0, 1, 2, 3), undefined, [
       pngChunk('iCCP', Buffer.concat([Buffer.from('profile\0'), Buffer.from([0, 1, 2, 3])])),
     ])
-    const cicp = specializedPng(1, 1, 8, 2, Uint8Array.of(0, 1, 2, 3), undefined, [
+    const displayP3 = specializedPng(1, 1, 8, 6, Uint8Array.of(0, 180, 100, 40, 77), undefined, [
       pngChunk('cICP', Uint8Array.of(12, 13, 0, 1)),
+    ])
+    const unsupportedHdr = specializedPng(1, 1, 8, 2, Uint8Array.of(0, 1, 2, 3), undefined, [
+      pngChunk('cICP', Uint8Array.of(9, 16, 0, 1)),
     ])
 
     await expect((await Image.open(corruptIcc)).metadata()).rejects.toMatchObject({
       code: 'INVALID_INPUT',
       message: 'PNG iCCP profile could not be decompressed',
     })
-    await expect((await Image.open(cicp)).metadata()).rejects.toMatchObject({
+    const decoded = PNG.sync.read(await (await Image.open(displayP3)).png().toBuffer())
+    expect(Array.from(decoded.data)).toEqual([193, 95, 14, 77])
+    await expect((await Image.open(unsupportedHdr)).metadata()).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
+      message: 'PNG cICP primaries 9 and transfer 16 are not implemented',
     })
   })
 

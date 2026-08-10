@@ -52,7 +52,14 @@ export interface BmpEncodeOptions {
 }
 
 export interface TiffEncodeOptions {
-  compression?: 'none'
+  compression?: 'deflate'
+  predictor?: 'horizontal'
+  layout?: 'strips' | 'tiles'
+  compressionLevel?: number
+  rowsPerStrip?: number
+  tileWidth?: number
+  tileHeight?: number
+  format?: 'classic' | 'bigtiff' | 'auto'
 }
 
 export type PipelineOperation =
@@ -235,8 +242,49 @@ export const createBmpEncodeOperation = (options: BmpEncodeOptions): PipelineOpe
 }
 
 export const createTiffEncodeOperation = (options: TiffEncodeOptions): PipelineOperation => {
-  if (options.compression !== undefined && options.compression !== 'none') {
-    throw invalidInput('TIFF compression must be none')
+  if (options.compression !== undefined && options.compression !== 'deflate') {
+    throw invalidInput('TIFF compression must be deflate')
+  }
+  if (options.predictor !== undefined && options.predictor !== 'horizontal') {
+    throw invalidInput('TIFF predictor must be horizontal')
+  }
+  if (options.layout !== undefined && options.layout !== 'strips' && options.layout !== 'tiles') {
+    throw invalidInput('TIFF layout must be strips or tiles')
+  }
+  if (
+    options.format !== undefined &&
+    options.format !== 'classic' &&
+    options.format !== 'bigtiff' &&
+    options.format !== 'auto'
+  ) {
+    throw invalidInput('TIFF format must be classic, bigtiff, or auto')
+  }
+  for (const [label, value] of [
+    ['rowsPerStrip', options.rowsPerStrip],
+    ['tileWidth', options.tileWidth],
+    ['tileHeight', options.tileHeight],
+  ] as const) {
+    if (value !== undefined && (!Number.isSafeInteger(value) || value < 1)) {
+      throw invalidInput(`TIFF ${label} must be a positive safe integer`)
+    }
+  }
+  if (options.layout === 'tiles' && options.rowsPerStrip !== undefined) {
+    throw invalidInput('TIFF rowsPerStrip requires layout: strips')
+  }
+  if (
+    options.layout === 'tiles' &&
+    ((options.tileWidth !== undefined && options.tileWidth % 16 !== 0) ||
+      (options.tileHeight !== undefined && options.tileHeight % 16 !== 0))
+  ) {
+    throw invalidInput('TIFF tile dimensions must be multiples of 16')
+  }
+  if (
+    options.compressionLevel !== undefined &&
+    (!Number.isInteger(options.compressionLevel) ||
+      options.compressionLevel < 0 ||
+      options.compressionLevel > 9)
+  ) {
+    throw invalidInput('TIFF compressionLevel must be an integer from 0 to 9')
   }
   return Object.freeze({ type: 'encode', format: 'tiff', options: Object.freeze({ ...options }) })
 }

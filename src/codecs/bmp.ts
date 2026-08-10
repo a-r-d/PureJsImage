@@ -382,8 +382,15 @@ const decodeRleIndices = (data: Uint8Array, description: BmpDescription): Uint8A
       throw truncatedInput('BMP RLE command is truncated')
     offset += 2
     if (count > 0) {
-      if (x + count > description.width) throw invalidInput('BMP RLE encoded run exceeds its row')
-      for (let index = 0; index < count; index += 1) {
+      const writable = Math.min(count, description.width - x)
+      const paddedRle4Row =
+        description.compression === rle4 &&
+        (description.width & 1) === 1 &&
+        x + count === description.width + 1
+      if (writable !== count && !paddedRle4Row) {
+        throw invalidInput('BMP RLE encoded run exceeds its row')
+      }
+      for (let index = 0; index < writable; index += 1) {
         write(description.compression === rle8 ? value : index & 1 ? value & 15 : value >>> 4)
       }
       continue

@@ -55,6 +55,7 @@ have focused fixture or benchmark coverage.
 - [x] Alpha-presence reporting from the color type or `tRNS`
 - [x] Embedded ICC profile (`iCCP`) parsing and color-managed conversion
 - [x] `sRGB`, `gAMA`, and `cHRM` parsing with defined color-conversion behavior
+- [x] Common full-range RGB `cICP` signaling for sRGB and Display P3
 - [x] EXIF (`eXIf`) metadata parsing for opt-in preservation and orientation
   handling through the public pipeline
 - [ ] Physical pixel dimensions (`pHYs`)
@@ -137,6 +138,10 @@ have focused fixture or benchmark coverage.
 - [ ] Add APNG fixtures covering default-image rules, frame rectangles, delay
   denominators, disposal operations, and blend operations
 - [x] Add focused malformed fixtures for CRC failures, duplicate and misplaced
-  chunks, non-consecutive `IDAT`, invalid chunk types, and trailing data
+  chunks and non-consecutive `IDAT`; bytes after the complete `IEND` datastream
+  are ignored for compatibility with padded or concatenated real-world files
+- [x] Keep opt-in scalar and SIMD Rust/WASM non-interlaced 8-bit decoding at exact
+  pixel parity for trailing `IEND` data, full-range `cICP`, and ICC v4 RGB `mAB`,
+  with bounded TypeScript fallback after setup or midstream accelerator failures
 - [ ] Add malformed chunk-order, CRC, Deflate, palette, transparency, and
   decompression-bomb fuzzing with strict allocation limits

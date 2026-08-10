@@ -15,6 +15,7 @@
         "tests/jpeg-reference-fixtures.test.ts",
         "tests/jpeg-hardening.test.ts",
         "tests/jpeg-reference-parity.test.ts",
+        "tests/wasm-jpeg.test.ts",
         "browser-tests/compatibility.pw.ts"
       ],
       "lossyPixelValidation": {
@@ -32,7 +33,8 @@
       "evidence": [
         "tests/png.test.ts",
         "tests/png-compatibility.test.ts",
-        "tests/metadata-preservation.test.ts"
+        "tests/metadata-preservation.test.ts",
+        "tests/wasm-png.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "not-applicable",
@@ -47,7 +49,8 @@
       "evidence": [
         "tests/webp.test.ts",
         "tests/metadata-preservation.test.ts",
-        "tests/lossy-codec-quality.test.ts"
+        "tests/lossy-codec-quality.test.ts",
+        "tests/imazen-corpus-harness.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -61,7 +64,11 @@
       "format": "bmp",
       "decoder": true,
       "encoder": true,
-      "evidence": ["tests/bmp.test.ts"],
+      "evidence": [
+        "tests/bmp.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/imazen-corpus-harness.test.ts"
+      ],
       "lossyPixelValidation": {
         "status": "not-applicable",
         "rationale": "The implemented BMP paths are uncompressed or losslessly compressed"
@@ -72,10 +79,26 @@
       "format": "tiff",
       "decoder": true,
       "encoder": true,
-      "evidence": ["tests/tiff.test.ts", "tests/metadata-preservation.test.ts"],
+      "evidence": [
+        "tests/tiff.test.ts",
+        "tests/tiff-lerc.test.ts",
+        "tests/zstd.test.ts",
+        "tests/source-contract.test.ts",
+        "tests/external-tiff-profile.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/metadata-preservation.test.ts",
+        "tests/imazen-corpus-harness.test.ts",
+        "tests/tiff-competitor-harness.test.ts"
+      ],
       "lossyPixelValidation": {
-        "status": "not-applicable",
-        "rationale": "The implemented TIFF compression paths are lossless"
+        "status": "independent-oracle",
+        "oracle": "ImageMagick 7.1.2 with LibTIFF 4.7, tifffile with imagecodecs, libwebp, and OpenSlide 3.4.1",
+        "tolerance": "16-bit indexed color, packed, FillOrder 2, unsigned 24-/32-bit display, floating-point display, numeric CMYK display, CMYK-alpha, CIELab, SGILog24/32 color, Zstandard-compressed samples, lossless WebP paths, OME native planes, and canonical TIFF-encoded RGB/RGBA reopened through independent tools are exact; the CMYK lut16 ICC path differs by at most one 8-bit code value from ImageMagick/LittleCMS for its pinned fixture; LogL CIE Y reconstruction and unsigned 64-bit and signed samples are exact at native precision in pinned fixtures; the pinned irreversible Aperio JPEG 2000 tile differs from OpenSlide by at most two 8-bit code values across 54 of 196,608 channels; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
+        "evidence": [
+          "tests/tiff.test.ts",
+          "tests/jpeg2000.test.ts",
+          "tests/lossy-codec-quality.test.ts"
+        ]
       }
     },
     {
@@ -83,7 +106,11 @@
       "format": "gif",
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/gif.test.ts", "browser-tests/compatibility.pw.ts"],
+      "evidence": [
+        "tests/gif.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/imazen-corpus-harness.test.ts"
+      ],
       "lossyPixelValidation": {
         "status": "not-applicable",
         "rationale": "GIF decode reproduces the stored palette indices and does not claim a lossy continuous-tone path"

@@ -138,6 +138,14 @@ describe('BMP codec', () => {
       palette,
       data: Uint8Array.from([4, 2, 0, 0, 0, 4, 0, 1, 2, 3, 0, 0, 0, 1]),
     })
+    const paddedRle4Input = bmpFixture({
+      width: 3,
+      height: 1,
+      bitDepth: 4,
+      compression: 2,
+      palette,
+      data: Uint8Array.from([4, 0x12, 0, 0, 0, 1]),
+    })
 
     for (const [input, lastBottomPixel] of [
       [rle4Input, [255, 255, 255, 255]],
@@ -149,6 +157,10 @@ describe('BMP codec', () => {
       expect(pixel(decoded, 2, 1)).toEqual([0, 0, 255, 255])
       expect(pixel(decoded, 3, 1)).toEqual(lastBottomPixel)
     }
+    const padded = await decodedPng(paddedRle4Input)
+    expect(pixel(padded, 0, 0)).toEqual([0, 255, 0, 255])
+    expect(pixel(padded, 1, 0)).toEqual([0, 0, 255, 255])
+    expect(pixel(padded, 2, 0)).toEqual([0, 255, 0, 255])
   })
 
   it('supports OS/2 headers and full-range bitfield scaling', async () => {

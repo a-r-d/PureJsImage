@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-10T14:06:45.576Z",
+  "sourceReport": "imazen-tiff-conformance.json",
+  "unsupportedFiles": 2,
+  "dependencyCounts": [
+    {
+      "dependency": "compression:32809",
+      "count": 1
+    },
+    {
+      "dependency": "display-range-unspecified",
+      "count": 1
+    },
+    {
+      "dependency": "extra-samples:0,0,0,0",
+      "count": 1
+    },
+    {
+      "dependency": "generic-five-band",
+      "count": 1
+    },
+    {
+      "dependency": "sample-format:2,2,2,2,2",
+      "count": 1
+    },
+    {
+      "dependency": "samples-per-pixel:5",
+      "count": 1
+    }
+  ],
+  "currentPass": 148,
+  "projectedPass": 148,
+  "implementationWaves": [
+    {
+      "id": "A",
+      "capability": "Unsigned 10/12/14-bit grayscale and RGB",
+      "dependencies": [
+        "color-depth:10,10,10",
+        "color-depth:12,12,12",
+        "color-depth:14,14,14",
+        "grayscale-depth:10",
+        "grayscale-depth:12",
+        "grayscale-depth:14"
+      ],
+      "visibleFiles": 0,
+      "files": [],
+      "projectedPassAfterWave": 148
+    },
+    {
+      "id": "B",
+      "capability": "Unsigned 2/4-bit RGB and 6-bit grayscale",
+      "dependencies": [
+        "color-depth:2,2,2",
+        "color-depth:4,4,4",
+        "grayscale-depth:6"
+      ],
+      "visibleFiles": 0,
+      "files": [],
+      "projectedPassAfterWave": 148
+    },
+    {
+      "id": "C",
+      "capability": "CMYK plus alpha",
+      "dependencies": [
+        "cmyk-alpha"
+      ],
+      "visibleFiles": 0,
+      "files": [],
+      "projectedPassAfterWave": 148
+    },
+    {
+      "id": "D",
+      "capability": "WebP-in-TIFF",
+      "dependencies": [
+        "compression:50001"
+      ],
+      "visibleFiles": 0,
+      "files": [],
+      "projectedPassAfterWave": 148
+    }
+  ],
+  "files": [
+    {
+      "file": "tiff-conformance/edge-cases/geo-5b.tif",
+      "byteOrder": "II",
+      "bigTiff": false,
+      "width": [
+        10
+      ],
+      "height": [
+        10
+      ],
+      "bitsPerSample": [
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "sampleFormat": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "samplesPerPixel": [
+        5
+      ],
+      "extraSamples": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "photometric": [
+        1
+      ],
+      "compression": [
+        1
+      ],
+      "predictor": [],
+      "planarConfiguration": [
+        1
+      ],
+      "fillOrder": [],
+      "rowsPerStrip": [
+        10
+      ],
+      "stripOffsets": 1,
+      "tileWidth": [],
+      "tileLength": [],
+      "tileOffsets": 0,
+      "subIfds": 0,
+      "hasIccProfile": false,
+      "iccProfileBytes": 0,
+      "sMinSampleValue": [],
+      "sMaxSampleValue": [],
+      "jpegTablesBytes": 0,
+      "dependencies": [
+        "display-range-unspecified",
+        "extra-samples:0,0,0,0",
+        "generic-five-band",
+        "sample-format:2,2,2,2,2",
+        "samples-per-pixel:5"
+      ]
+    },
+    {
+      "file": "tiff-conformance/valid/text.tif",
+      "byteOrder": "MM",
+      "bigTiff": false,
+      "width": [
+        1512
+      ],
+      "height": [
+        359
+      ],
+      "bitsPerSample": [
+        4
+      ],
+      "sampleFormat": [],
+      "samplesPerPixel": [
+        1
+      ],
+      "extraSamples": [],
+      "photometric": [
+        0
+      ],
+      "compression": [
+        32809
+      ],
+      "predictor": [],
+      "planarConfiguration": [
+        1
+      ],
+      "fillOrder": [
+        1
+      ],
+      "rowsPerStrip": [
+        64
+      ],
+      "stripOffsets": 6,
+      "tileWidth": [],
+      "tileLength": [],
+      "tileOffsets": 0,
+      "subIfds": 0,
+      "hasIccProfile": false,
+      "iccProfileBytes": 0,
+      "sMinSampleValue": [],
+      "sMaxSampleValue": [],
+      "jpegTablesBytes": 0,
+      "dependencies": [
+        "compression:32809"
+      ]
+    }
+  ]
+}

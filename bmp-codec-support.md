@@ -146,5 +146,7 @@ coverage.
 - [ ] Add focused fixtures for every accepted DIB header size and every RLE
   command boundary rather than relying on shared parser paths
 - [ ] Verify encoded opaque and alpha pixels with an independent BMP decoder
+- [x] Complete the 125-file Imazen BMP corpus decode-to-PNG baseline with all
+  supported valid files decoded and every invalid input rejected safely
 - [ ] Add malformed-header, palette, mask, offset, stride, RLE, and allocation
   fuzzing with strict limits

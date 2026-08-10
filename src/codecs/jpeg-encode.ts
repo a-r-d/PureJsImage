@@ -205,10 +205,10 @@ const chrominanceQuantization = Uint8Array.of(
   99,
 )
 
-const luminanceDcCounts = Uint8Array.of(0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0)
-const luminanceDcValues = Uint8Array.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
-const luminanceAcCounts = Uint8Array.of(0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 0x7d)
-const luminanceAcValues = Uint8Array.of(
+export const luminanceDcCounts = Uint8Array.of(0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0)
+export const luminanceDcValues = Uint8Array.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
+export const luminanceAcCounts = Uint8Array.of(0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 0x7d)
+export const luminanceAcValues = Uint8Array.of(
   0x01,
   0x02,
   0x03,
@@ -372,10 +372,10 @@ const luminanceAcValues = Uint8Array.of(
   0xf9,
   0xfa,
 )
-const chrominanceDcCounts = Uint8Array.of(0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0)
-const chrominanceDcValues = luminanceDcValues
-const chrominanceAcCounts = Uint8Array.of(0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 0x77)
-const chrominanceAcValues = Uint8Array.of(
+export const chrominanceDcCounts = Uint8Array.of(0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0)
+export const chrominanceDcValues = luminanceDcValues
+export const chrominanceAcCounts = Uint8Array.of(0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 0x77)
+export const chrominanceAcValues = Uint8Array.of(
   0x00,
   0x01,
   0x02,

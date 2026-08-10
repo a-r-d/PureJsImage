@@ -1,0 +1,3176 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-10T14:06:37.855Z",
+  "pureJsImageVersion": "0.8.0",
+  "pureJsImageGitCommit": "a53c1cff922a0bfc687abd0cfc3a0c53c64b462c-dirty",
+  "codecCorpusGitCommit": "28205bbc5cf40364d012c462240ba28143373d67",
+  "nodeVersion": "v24.16.0",
+  "platform": "linux-x64",
+  "format": "tiff",
+  "commandSettings": {
+    "corpus": "../codec-corpus",
+    "format": "tiff",
+    "output": "benchmark/results",
+    "timeoutMs": 30000,
+    "memoryMb": 512,
+    "concurrency": 2,
+    "limit": null,
+    "filter": null
+  },
+  "totalsByCorpusCategory": [
+    {
+      "category": "edge-cases/compression-webp",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "edge-cases/general",
+      "total": 4,
+      "outcomes": {
+        "pass": 3,
+        "unsupported": 1,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "robustness/compression-lzw",
+      "total": 1,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 1,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "robustness/general",
+      "total": 3,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 3,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/bigtiff",
+      "total": 3,
+      "outcomes": {
+        "pass": 3,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/compression-ccitt-group3",
+      "total": 4,
+      "outcomes": {
+        "pass": 4,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/compression-ccitt-group4",
+      "total": 3,
+      "outcomes": {
+        "pass": 3,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/compression-deflate",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/compression-jpeg",
+      "total": 5,
+      "outcomes": {
+        "pass": 5,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/compression-lzw",
+      "total": 9,
+      "outcomes": {
+        "pass": 9,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/compression-old-jpeg",
+      "total": 3,
+      "outcomes": {
+        "pass": 3,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/compression-packbits",
+      "total": 2,
+      "outcomes": {
+        "pass": 2,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/compression-webp",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/compression-zstd",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/floating-point",
+      "total": 9,
+      "outcomes": {
+        "pass": 9,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/general",
+      "total": 63,
+      "outcomes": {
+        "pass": 62,
+        "unsupported": 1,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/photometric-cmyk",
+      "total": 8,
+      "outcomes": {
+        "pass": 8,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/photometric-logluv",
+      "total": 3,
+      "outcomes": {
+        "pass": 3,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/photometric-palette",
+      "total": 7,
+      "outcomes": {
+        "pass": 7,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/photometric-ycbcr",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/planar",
+      "total": 10,
+      "outcomes": {
+        "pass": 10,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/predictor",
+      "total": 6,
+      "outcomes": {
+        "pass": 6,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/tiled",
+      "total": 6,
+      "outcomes": {
+        "pass": 6,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    }
+  ],
+  "totalsByOutcome": {
+    "pass": 148,
+    "unsupported": 2,
+    "decode-failure": 0,
+    "invalid-output": 0,
+    "rejected-safely": 4,
+    "accepted": 0,
+    "raw-exception": 0,
+    "timeout": 0,
+    "process-crash": 0,
+    "out-of-memory": 0
+  },
+  "records": [
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/edge-cases/geo-5b.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "edge-cases/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "TIFF supports at most one alpha sample",
+      "elapsedMs": 208,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/edge-cases/subsubifds.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "edge-cases/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 253,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/edge-cases/test_two_ifds.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "edge-cases/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 213,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/edge-cases/tiff_with_subifd_chain.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "edge-cases/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 242,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/edge-cases/usda_naip_256_webp_z3.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "edge-cases/compression-webp",
+      "testGroup": "compression-webp",
+      "features": [
+        "compression-webp"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 914,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/robustness/sample-get-lzw-stuck.tiff",
+      "expectedCategory": "invalid",
+      "corpusCategory": "robustness/compression-lzw",
+      "testGroup": "compression-lzw",
+      "features": [
+        "compression-lzw"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "TRUNCATED_INPUT",
+      "sanitizedErrorMessage": "TIFF segment 0 exceeds the input",
+      "elapsedMs": 200,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/robustness/test_ifd_loop_subifd.tif",
+      "expectedCategory": "invalid",
+      "corpusCategory": "robustness/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "TIFF top-level IFD chain contains a loop",
+      "elapsedMs": 213,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/robustness/test_ifd_loop_to_first.tif",
+      "expectedCategory": "invalid",
+      "corpusCategory": "robustness/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "TIFF top-level IFD chain contains a loop",
+      "elapsedMs": 196,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/robustness/test_ifd_loop_to_self.tif",
+      "expectedCategory": "invalid",
+      "corpusCategory": "robustness/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "TIFF top-level IFD chain contains a loop",
+      "elapsedMs": 207,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/12bit.cropped.rgb.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 239,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/12bit.cropped.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 242,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/32bpp-None-jpeg.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-jpeg",
+      "testGroup": "compression-jpeg",
+      "features": [
+        "compression-jpeg"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 309,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/32bpp-None.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 316,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/big_g4.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-ccitt-group4",
+      "testGroup": "compression-ccitt-group4",
+      "features": [
+        "compression-ccitt-group4"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 380,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/BigTIFF.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/bigtiff",
+      "testGroup": "bigtiff",
+      "features": [
+        "bigtiff"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 246,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/BigTIFFLong.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/bigtiff",
+      "testGroup": "bigtiff",
+      "features": [
+        "bigtiff"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 231,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/BigTIFFMotorola.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/bigtiff",
+      "testGroup": "bigtiff",
+      "features": [
+        "bigtiff"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 250,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/caspian.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 335,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/cmyk-3c-16b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-cmyk",
+      "testGroup": "photometric-cmyk",
+      "features": [
+        "photometric-cmyk"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 275,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/cmyk-3c-32b-float.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/floating-point",
+      "testGroup": "floating-point",
+      "features": [
+        "floating-point"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 240,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/cmyk-3c-8b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-cmyk",
+      "testGroup": "photometric-cmyk",
+      "features": [
+        "photometric-cmyk"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 271,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/cmyk-4c-8b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-cmyk",
+      "testGroup": "photometric-cmyk",
+      "features": [
+        "photometric-cmyk"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 283,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/cramps-tile.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/tiled",
+      "testGroup": "tiled",
+      "features": [
+        "tiled"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 313,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/cramps.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 298,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/custom_dir_EXIF_GPS.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 227,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/deflate-last-strip-extra-data.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-deflate",
+      "testGroup": "compression-deflate",
+      "features": [
+        "compression-deflate"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 306,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/dscf0013.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 365,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/extra_bits_gray_8b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 257,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/extra_bits_rgb_8b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 228,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/fax2d.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-ccitt-group3",
+      "testGroup": "compression-ccitt-group3",
+      "features": [
+        "compression-ccitt-group3"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 440,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/fax4.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-ccitt-group4",
+      "testGroup": "compression-ccitt-group4",
+      "features": [
+        "compression-ccitt-group4"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 343,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-minisblack-02.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 232,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-minisblack-04.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 229,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-minisblack-06.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 290,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-minisblack-08.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 279,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-minisblack-10.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 240,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-minisblack-12.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 233,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-minisblack-14.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 240,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-minisblack-16.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 253,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-minisblack-24.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 232,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-minisblack-32.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 219,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-palette-02.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-palette",
+      "testGroup": "photometric-palette",
+      "features": [
+        "photometric-palette"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 226,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-palette-04.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-palette",
+      "testGroup": "photometric-palette",
+      "features": [
+        "photometric-palette"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 229,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-palette-08.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-palette",
+      "testGroup": "photometric-palette",
+      "features": [
+        "photometric-palette"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 226,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-palette-16.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-palette",
+      "testGroup": "photometric-palette",
+      "features": [
+        "photometric-palette"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 237,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-contig-02.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 243,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-contig-04.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 242,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-contig-08.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 229,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-contig-10.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 239,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-contig-12.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 259,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-contig-14.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 251,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-contig-16.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 257,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-contig-24.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 236,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-contig-32.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 233,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-planar-02.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/planar",
+      "testGroup": "planar",
+      "features": [
+        "planar"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 223,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-planar-04.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/planar",
+      "testGroup": "planar",
+      "features": [
+        "planar"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 195,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-planar-08.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/planar",
+      "testGroup": "planar",
+      "features": [
+        "planar"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 218,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-planar-10.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/planar",
+      "testGroup": "planar",
+      "features": [
+        "planar"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 226,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-planar-12.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/planar",
+      "testGroup": "planar",
+      "features": [
+        "planar"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 227,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-planar-14.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/planar",
+      "testGroup": "planar",
+      "features": [
+        "planar"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 217,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-planar-16.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/planar",
+      "testGroup": "planar",
+      "features": [
+        "planar"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 214,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-planar-24.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/planar",
+      "testGroup": "planar",
+      "features": [
+        "planar"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 223,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-rgb-planar-32.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/planar",
+      "testGroup": "planar",
+      "features": [
+        "planar"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 204,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-separated-contig-08.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-cmyk",
+      "testGroup": "photometric-cmyk",
+      "features": [
+        "photometric-cmyk"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 214,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-separated-contig-16.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-cmyk",
+      "testGroup": "photometric-cmyk",
+      "features": [
+        "photometric-cmyk"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 221,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-separated-planar-08.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-cmyk",
+      "testGroup": "photometric-cmyk",
+      "features": [
+        "photometric-cmyk"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 224,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/flower-separated-planar-16.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-cmyk",
+      "testGroup": "photometric-cmyk",
+      "features": [
+        "photometric-cmyk"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 266,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/g3test.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-ccitt-group3",
+      "testGroup": "compression-ccitt-group3",
+      "features": [
+        "compression-ccitt-group3"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 383,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/gradient-1c-32b-float.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/floating-point",
+      "testGroup": "floating-point",
+      "features": [
+        "floating-point"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 236,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/gradient-1c-32b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 209,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/gradient-1c-64b-float.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/floating-point",
+      "testGroup": "floating-point",
+      "features": [
+        "floating-point"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 232,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/gradient-1c-64b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 213,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/gradient-3c-32b-float.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/floating-point",
+      "testGroup": "floating-point",
+      "features": [
+        "floating-point"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 235,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/gradient-3c-32b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 232,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/gradient-3c-64b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 226,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/hpredict_cmyk.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/predictor",
+      "testGroup": "predictor",
+      "features": [
+        "predictor"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 211,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/hpredict_packbits.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-packbits",
+      "testGroup": "compression-packbits",
+      "features": [
+        "compression-packbits"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 210,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/hpredict.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/predictor",
+      "testGroup": "predictor",
+      "features": [
+        "predictor"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 230,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/imagemagick_group4.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-ccitt-group4",
+      "testGroup": "compression-ccitt-group4",
+      "features": [
+        "compression-ccitt-group4"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 245,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/int16_rgb.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 217,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/int16_zstd.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-zstd",
+      "testGroup": "compression-zstd",
+      "features": [
+        "compression-zstd"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 245,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/int16.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 219,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/int8_rgb.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 248,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/int8.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 222,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/issue_69_lzw.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-lzw",
+      "testGroup": "compression-lzw",
+      "features": [
+        "compression-lzw"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 219,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/issue_69_packbits.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-packbits",
+      "testGroup": "compression-packbits",
+      "features": [
+        "compression-packbits"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 219,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/jello.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 254,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/jim___ah.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 287,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/jim___cg.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 278,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/jim___dg.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 307,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/jim___gg.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 265,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/kodim02-lzw.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-lzw",
+      "testGroup": "compression-lzw",
+      "features": [
+        "compression-lzw"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 383,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/kodim07-lzw.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-lzw",
+      "testGroup": "compression-lzw",
+      "features": [
+        "compression-lzw"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 397,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/l1_xmp.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 228,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/l1.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 237,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/ladoga.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 264,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/logluv-3c-16b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-logluv",
+      "testGroup": "photometric-logluv",
+      "features": [
+        "photometric-logluv"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 218,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/lzw-single-strip.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-lzw",
+      "testGroup": "compression-lzw",
+      "features": [
+        "compression-lzw"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 1825,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/mandrill.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 315,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/minisblack-1c-16b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 221,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/minisblack-1c-8b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 213,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/minisblack-1c-i16b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 289,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/minisblack-1c-i8b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 223,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/minisblack-2c-8b-alpha.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 218,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/miniswhite-1c-1b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 226,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/no_rows_per_strip.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 341,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/off_l16.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 300,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/off_luv24.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-logluv",
+      "testGroup": "photometric-logluv",
+      "features": [
+        "photometric-logluv"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 302,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/off_luv32.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-logluv",
+      "testGroup": "photometric-logluv",
+      "features": [
+        "photometric-logluv"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 284,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/ojpeg_chewey_subsamp21_multi_strip.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-old-jpeg",
+      "testGroup": "compression-old-jpeg",
+      "features": [
+        "compression-old-jpeg"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 331,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/ojpeg_single_strip_no_rowsperstrip.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-old-jpeg",
+      "testGroup": "compression-old-jpeg",
+      "features": [
+        "compression-old-jpeg"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 313,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/ojpeg_zackthecat_subsamp22_single_strip.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-old-jpeg",
+      "testGroup": "compression-old-jpeg",
+      "features": [
+        "compression-old-jpeg"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 325,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/oxford.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 331,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/palette-1c-1b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-palette",
+      "testGroup": "photometric-palette",
+      "features": [
+        "photometric-palette"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 276,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/palette-1c-4b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-palette",
+      "testGroup": "photometric-palette",
+      "features": [
+        "photometric-palette"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 293,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/palette-1c-8b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-palette",
+      "testGroup": "photometric-palette",
+      "features": [
+        "photometric-palette"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 255,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/pc260001.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 321,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/planar-rgb-u8.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/planar",
+      "testGroup": "planar",
+      "features": [
+        "planar"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 325,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/predictor-3-gray-f32.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/predictor",
+      "testGroup": "predictor",
+      "features": [
+        "predictor"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 286,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/predictor-3-rgb-f32.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/predictor",
+      "testGroup": "predictor",
+      "features": [
+        "predictor"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 343,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/quad-jpeg.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-jpeg",
+      "testGroup": "compression-jpeg",
+      "features": [
+        "compression-jpeg"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 333,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/quad-lzw-compat.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-lzw",
+      "testGroup": "compression-lzw",
+      "features": [
+        "compression-lzw"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 278,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/quad-lzw.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-lzw",
+      "testGroup": "compression-lzw",
+      "features": [
+        "compression-lzw"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 300,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/quad-tile.jpg.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-jpeg",
+      "testGroup": "compression-jpeg",
+      "features": [
+        "compression-jpeg"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 332,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/quad-tile.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/tiled",
+      "testGroup": "tiled",
+      "features": [
+        "tiled"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 284,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/random-fp16-pred2.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/predictor",
+      "testGroup": "predictor",
+      "features": [
+        "predictor"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 261,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/random-fp16-pred3.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/floating-point",
+      "testGroup": "floating-point",
+      "features": [
+        "floating-point"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 235,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/random-fp16.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/floating-point",
+      "testGroup": "floating-point",
+      "features": [
+        "floating-point"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 212,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/rgb-3c-16b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 264,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/rgb-3c-8b.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 244,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/rgb32f_bw.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 221,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/rgb32f_color.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 228,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/single-black-fp16.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/floating-point",
+      "testGroup": "floating-point",
+      "features": [
+        "floating-point"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 278,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/smallliz.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 275,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/strike.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 284,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/test_float64_predictor2_be_lzw.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-lzw",
+      "testGroup": "compression-lzw",
+      "features": [
+        "compression-lzw"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 229,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/test_float64_predictor2_le_lzw.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-lzw",
+      "testGroup": "compression-lzw",
+      "features": [
+        "compression-lzw"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 229,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/testfax3_bug_513.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-ccitt-group3",
+      "testGroup": "compression-ccitt-group3",
+      "features": [
+        "compression-ccitt-group3"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 220,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/testfax3_bug54_1dnoEOL.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-ccitt-group3",
+      "testGroup": "compression-ccitt-group3",
+      "features": [
+        "compression-ccitt-group3"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 514,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/text.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "TIFF compression 32809 is unsupported",
+      "elapsedMs": 191,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/tiled-cmyk-i8.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-cmyk",
+      "testGroup": "photometric-cmyk",
+      "features": [
+        "photometric-cmyk"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 384,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/tiled-gray-i1.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/tiled",
+      "testGroup": "tiled",
+      "features": [
+        "tiled"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 234,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/tiled-jpeg-rgb-u8.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-jpeg",
+      "testGroup": "compression-jpeg",
+      "features": [
+        "compression-jpeg"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 328,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/tiled-jpeg-ycbcr.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-jpeg",
+      "testGroup": "compression-jpeg",
+      "features": [
+        "compression-jpeg"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 338,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/tiled-oversize-gray-i8.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/tiled",
+      "testGroup": "tiled",
+      "features": [
+        "tiled"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 286,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/tiled-rect-rgb-u8.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/tiled",
+      "testGroup": "tiled",
+      "features": [
+        "tiled"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 296,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/tiled-rgb-u8.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/tiled",
+      "testGroup": "tiled",
+      "features": [
+        "tiled"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 296,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/Transparency-lzw.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-lzw",
+      "testGroup": "compression-lzw",
+      "features": [
+        "compression-lzw"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 261,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/webp_lossless_rgba_alpha_fully_opaque.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/compression-webp",
+      "testGroup": "compression-webp",
+      "features": [
+        "compression-webp"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 244,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/white-fp16-pred2.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/predictor",
+      "testGroup": "predictor",
+      "features": [
+        "predictor"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 309,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/white-fp16-pred3.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/floating-point",
+      "testGroup": "floating-point",
+      "features": [
+        "floating-point"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 314,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/white-fp16.tiff",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/floating-point",
+      "testGroup": "floating-point",
+      "features": [
+        "floating-point"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 265,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/ycbcr-cat.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/photometric-ycbcr",
+      "testGroup": "photometric-ycbcr",
+      "features": [
+        "photometric-ycbcr"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 303,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "tiff",
+      "relativeFilename": "tiff-conformance/valid/zackthecat.tif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/general",
+      "testGroup": "general",
+      "features": [
+        "general"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 280,
+      "childExitCode": 0,
+      "childSignal": null
+    }
+  ]
+}

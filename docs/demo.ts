@@ -1,10 +1,62 @@
-import { createImageLibrary, ImageError, type Image, type ImageMetadata } from '../src/browser.ts'
+import {
+  BlobSource,
+  createImageLibrary,
+  ImageError,
+  type Image,
+  type ImageDecoder,
+  type ImageMetadata,
+  type PixelBlock,
+} from '../src/browser.ts'
 import { wasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
+import { webpCodec } from '../src/codec-entries/webp.ts'
+import { createTiffCodec } from '../src/codec-entries/tiff.ts'
+import { normalizePixelBlocks } from '../src/pixel.ts'
+import { openTiffDocument } from '../src/tiff/index.ts'
+import type { TiffDirectory, TiffDocument } from '../src/tiff/types.ts'
 
 type OutputFormat = 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp'
 type LogLevel = 'detect' | 'error' | 'info' | 'metric' | 'plan' | 'success' | 'warning'
 type DecodeMode = 'typescript' | 'wasm'
+type DemoMode = 'convert' | 'view'
+
+interface ViewerChoice {
+  readonly directory: TiffDirectory
+  readonly frame: number
+  readonly resolutionLevel?: number
+  readonly label: string
+}
+
+interface ViewerRegion {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+  readonly viewLeft: number
+  readonly viewTop: number
+}
+
+interface ViewerSelectionBase {
+  readonly file: File
+  readonly width: number
+  readonly height: number
+}
+
+interface TiffViewerSelection extends ViewerSelectionBase {
+  readonly kind: 'tiff'
+  readonly decoder: ImageDecoder
+  readonly choice: ViewerChoice
+  readonly document: TiffDocument
+  readonly choices: readonly ViewerChoice[]
+}
+
+interface ImageViewerSelection extends ViewerSelectionBase {
+  readonly kind: 'image'
+  readonly image: Image
+  readonly metadata: ImageMetadata
+}
+
+type ViewerSelection = TiffViewerSelection | ImageViewerSelection
 
 interface LogEntry {
   readonly level: LogLevel
@@ -30,6 +82,10 @@ const requiredElement = <ElementType extends Element>(
   return candidate
 }
 
+const viewModeButton = requiredElement('demo-mode-view', HTMLButtonElement)
+const convertModeButton = requiredElement('demo-mode-convert', HTMLButtonElement)
+const viewPanel = requiredElement('demo-view-panel', HTMLElement)
+const convertPanel = requiredElement('demo-convert-panel', HTMLElement)
 const fileInput = requiredElement('demo-file', HTMLInputElement)
 const dropZone = requiredElement('demo-drop-zone', HTMLElement)
 const sourcePanel = requiredElement('demo-source', HTMLElement)
@@ -75,10 +131,49 @@ const outputBytesMetric = requiredElement('demo-metric-output', HTMLElement)
 const logList = requiredElement('demo-log-list', HTMLOListElement)
 const clearLogButton = requiredElement('demo-clear-log', HTMLButtonElement)
 const copyLogButton = requiredElement('demo-copy-log', HTMLButtonElement)
+const viewerName = requiredElement('demo-viewer-name', HTMLElement)
+const viewerSubtitle = requiredElement('demo-viewer-subtitle', HTMLElement)
+const viewerStage = requiredElement('demo-viewer-stage', HTMLElement)
+const viewerCanvas = requiredElement('demo-viewer-canvas', HTMLCanvasElement)
+const viewerEmpty = requiredElement('demo-viewer-empty', HTMLElement)
+const viewerLoading = requiredElement('demo-viewer-loading', HTMLElement)
+const viewerLoadingLabel = requiredElement('demo-viewer-loading-label', HTMLElement)
+const viewerDirectory = requiredElement('demo-viewer-directory', HTMLSelectElement)
+const viewerDimensions = requiredElement('demo-viewer-dimensions', HTMLElement)
+const viewerCompression = requiredElement('demo-viewer-compression', HTMLElement)
+const viewerSamples = requiredElement('demo-viewer-samples', HTMLElement)
+const viewerStorage = requiredElement('demo-viewer-storage', HTMLElement)
+const viewerStatus = requiredElement('demo-viewer-status', HTMLElement)
+const viewerRegion = requiredElement('demo-viewer-region', HTMLElement)
+const zoomOutButton = requiredElement('demo-zoom-out', HTMLButtonElement)
+const zoomInButton = requiredElement('demo-zoom-in', HTMLButtonElement)
+const zoomFitButton = requiredElement('demo-zoom-fit', HTMLButtonElement)
+const zoomActualButton = requiredElement('demo-zoom-actual', HTMLButtonElement)
+const panLeftButton = requiredElement('demo-pan-left', HTMLButtonElement)
+const panUpButton = requiredElement('demo-pan-up', HTMLButtonElement)
+const panDownButton = requiredElement('demo-pan-down', HTMLButtonElement)
+const panRightButton = requiredElement('demo-pan-right', HTMLButtonElement)
+const zoomValue = requiredElement('demo-zoom-value', HTMLOutputElement)
+const saveClipButton = requiredElement('demo-save-clip', HTMLButtonElement)
+const exampleStatus = requiredElement('demo-example-status', HTMLElement)
+const sampleSearch = requiredElement('demo-sample-search', HTMLInputElement)
+const sampleEmpty = requiredElement('demo-sample-empty', HTMLElement)
+const sampleCards = Array.from(document.querySelectorAll<HTMLElement>('[data-demo-sample-card]'))
+const exampleButtons = Array.from(
+  document.querySelectorAll<HTMLButtonElement>('[data-demo-sample]'),
+)
+if (sampleCards.length === 0 || exampleButtons.length === 0) {
+  throw new Error('Demo sample library is missing')
+}
 
-const referenceImages = createImageLibrary(allCodecs)
+const demoCodecs = [
+  ...allCodecs.filter((codec) => codec.format !== 'tiff'),
+  createTiffCodec({ embeddedCodecs: [webpCodec] }),
+]
+const viewerImages = createImageLibrary(demoCodecs)
+const referenceImages = createImageLibrary(demoCodecs)
 const acceleratedImages = createImageLibrary({
-  codecs: allCodecs,
+  codecs: demoCodecs,
   accelerators: [wasmJpegAccelerator],
 })
 const sessionStartedAt = performance.now()
@@ -94,6 +189,16 @@ const demoLimits = Object.freeze({
   maxPixels: 67_108_864,
   maxWidth: 65_536,
 })
+const viewerLimits = Object.freeze({
+  maxDecodedBytes: 268_435_456,
+  maxFrames: 4_096,
+  maxHeight: 500_000,
+  maxInputBytes: 1_073_741_824,
+  maxPixels: 100_000_000_000,
+  maxWidth: 500_000,
+})
+const maximumClipPixels = 16_777_216
+const maximumExampleBytes = 8_388_608
 
 let selectedFile: File | undefined
 let selectedImage: Image | undefined
@@ -101,6 +206,22 @@ let selectedMetadata: ImageMetadata | undefined
 let sourceObjectUrl: string | undefined
 let resultObjectUrl: string | undefined
 let inspectionSequence = 0
+let viewerSelection: ViewerSelection | undefined
+let viewerZoom = 1
+let viewerCenterX = 0
+let viewerCenterY = 0
+let viewerRenderSequence = 0
+let viewerRenderFrame: number | undefined
+let viewerClipUrl: string | undefined
+let pointerDrag:
+  | {
+      readonly id: number
+      readonly startCenterX: number
+      readonly startCenterY: number
+      readonly startX: number
+      readonly startY: number
+    }
+  | undefined
 
 const outputTypes: Readonly<
   Record<
@@ -321,6 +442,526 @@ const describeMetadata = (metadata: ImageMetadata): void => {
   )
 }
 
+const setMode = (mode: DemoMode): void => {
+  const viewing = mode === 'view'
+  viewModeButton.classList.toggle('active', viewing)
+  convertModeButton.classList.toggle('active', !viewing)
+  viewModeButton.setAttribute('aria-selected', String(viewing))
+  convertModeButton.setAttribute('aria-selected', String(!viewing))
+  viewPanel.hidden = !viewing
+  convertPanel.hidden = viewing
+  if (viewing && viewerSelection) {
+    if (viewerCanvas.dataset.rendered !== 'true') fitViewer()
+    scheduleViewerRender()
+  }
+}
+
+const setViewerLoading = (visible: boolean, label = 'Rendering visible image region…'): void => {
+  viewerLoading.hidden = !visible
+  viewerLoadingLabel.textContent = label
+}
+
+const setViewerControls = (enabled: boolean, directoryEnabled = enabled): void => {
+  viewerDirectory.disabled = !directoryEnabled
+  zoomOutButton.disabled = !enabled
+  zoomInButton.disabled = !enabled
+  zoomFitButton.disabled = !enabled
+  zoomActualButton.disabled = !enabled
+  panLeftButton.disabled = !enabled
+  panUpButton.disabled = !enabled
+  panDownButton.disabled = !enabled
+  panRightButton.disabled = !enabled
+  saveClipButton.disabled = !enabled
+}
+
+const resetViewer = (): void => {
+  viewerRenderSequence += 1
+  if (viewerRenderFrame !== undefined) cancelAnimationFrame(viewerRenderFrame)
+  viewerRenderFrame = undefined
+  viewerSelection = undefined
+  pointerDrag = undefined
+  viewerCanvas.hidden = true
+  viewerCanvas.removeAttribute('data-rendered')
+  viewerEmpty.hidden = false
+  setViewerLoading(false)
+  setViewerControls(false)
+  viewerDirectory.replaceChildren(new Option('Choose an image first', ''))
+  viewerName.textContent = 'Image viewport'
+  viewerSubtitle.textContent = 'Choose any supported image'
+  viewerDimensions.textContent = '—'
+  viewerCompression.textContent = '—'
+  viewerSamples.textContent = '—'
+  viewerStorage.textContent = '—'
+  viewerStatus.textContent = 'Waiting for a local image.'
+  viewerRegion.textContent = 'No region selected'
+  zoomValue.value = '—'
+}
+
+const tiffHeader = async (file: File): Promise<boolean> => {
+  const bytes = new Uint8Array(await file.slice(0, 4).arrayBuffer())
+  return (
+    (bytes[0] === 0x49 &&
+      bytes[1] === 0x49 &&
+      ((bytes[2] === 0x2a && bytes[3] === 0) || (bytes[2] === 0x2b && bytes[3] === 0))) ||
+    (bytes[0] === 0x4d &&
+      bytes[1] === 0x4d &&
+      ((bytes[2] === 0 && bytes[3] === 0x2a) || (bytes[2] === 0 && bytes[3] === 0x2b)))
+  )
+}
+
+const compressionName = (compression: number): string => {
+  const names: Readonly<Record<number, string>> = {
+    1: 'Uncompressed',
+    2: 'CCITT RLE',
+    3: 'CCITT Group 3',
+    4: 'CCITT Group 4',
+    5: 'LZW',
+    6: 'Old-style JPEG',
+    7: 'JPEG',
+    32773: 'PackBits',
+    32946: 'Deflate',
+    33003: 'Aperio JPEG 2000 YCbCr',
+    33005: 'Aperio JPEG 2000 MCT',
+    34676: 'SGILog',
+    34677: 'SGILog24',
+    34925: 'LZMA',
+    50000: 'Zstandard',
+    50001: 'WebP',
+  }
+  return names[compression] ?? `Tag ${compression}`
+}
+
+const viewerChoices = (document: TiffDocument): readonly ViewerChoice[] => {
+  const choices: ViewerChoice[] = []
+  document.topLevelDirectories.forEach((directory, frame) => {
+    choices.push({
+      directory,
+      frame,
+      label: `Image ${frame + 1} · ${directory.width.toLocaleString()} × ${directory.height.toLocaleString()}`,
+    })
+    directory.subIfds.forEach((child, childIndex) => {
+      choices.push({
+        directory: child,
+        frame,
+        resolutionLevel: childIndex + 1,
+        label: `Image ${frame + 1} · reduced ${childIndex + 1} · ${child.width.toLocaleString()} × ${child.height.toLocaleString()}`,
+      })
+    })
+  })
+  return Object.freeze(choices)
+}
+
+const canvasMetrics = (): {
+  readonly cssWidth: number
+  readonly cssHeight: number
+  readonly dpr: number
+} => {
+  const cssWidth = Math.max(1, viewerStage.clientWidth)
+  const cssHeight = Math.max(1, viewerStage.clientHeight)
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  const pixelWidth = Math.max(1, Math.round(cssWidth * dpr))
+  const pixelHeight = Math.max(1, Math.round(cssHeight * dpr))
+  if (viewerCanvas.width !== pixelWidth) viewerCanvas.width = pixelWidth
+  if (viewerCanvas.height !== pixelHeight) viewerCanvas.height = pixelHeight
+  return { cssWidth, cssHeight, dpr }
+}
+
+const minimumViewerZoom = (selection: ViewerSelection): number => {
+  const { cssWidth, cssHeight } = canvasMetrics()
+  return Math.max(
+    0.000_01,
+    Math.min((cssWidth * 0.96) / selection.width, (cssHeight * 0.96) / selection.height) / 8,
+  )
+}
+
+const clampViewerCenter = (): void => {
+  const selection = viewerSelection
+  if (!selection) return
+  const { cssWidth, cssHeight } = canvasMetrics()
+  const halfWidth = cssWidth / (2 * viewerZoom)
+  const halfHeight = cssHeight / (2 * viewerZoom)
+  viewerCenterX =
+    halfWidth >= selection.width / 2
+      ? selection.width / 2
+      : Math.max(halfWidth, Math.min(selection.width - halfWidth, viewerCenterX))
+  viewerCenterY =
+    halfHeight >= selection.height / 2
+      ? selection.height / 2
+      : Math.max(halfHeight, Math.min(selection.height - halfHeight, viewerCenterY))
+}
+
+const currentViewerRegion = (): ViewerRegion | undefined => {
+  const selection = viewerSelection
+  if (!selection) return undefined
+  const { cssWidth, cssHeight } = canvasMetrics()
+  const visibleWidth = cssWidth / viewerZoom
+  const visibleHeight = cssHeight / viewerZoom
+  const viewLeft = viewerCenterX - visibleWidth / 2
+  const viewTop = viewerCenterY - visibleHeight / 2
+  const x = Math.max(0, Math.floor(viewLeft))
+  const y = Math.max(0, Math.floor(viewTop))
+  const right = Math.min(selection.width, Math.ceil(viewLeft + visibleWidth))
+  const bottom = Math.min(selection.height, Math.ceil(viewTop + visibleHeight))
+  return {
+    x,
+    y,
+    width: Math.max(1, right - x),
+    height: Math.max(1, bottom - y),
+    viewLeft,
+    viewTop,
+  }
+}
+
+const fitViewer = (): void => {
+  const selection = viewerSelection
+  if (!selection) return
+  const { cssWidth, cssHeight } = canvasMetrics()
+  viewerZoom = Math.min((cssWidth * 0.96) / selection.width, (cssHeight * 0.96) / selection.height)
+  viewerCenterX = selection.width / 2
+  viewerCenterY = selection.height / 2
+}
+
+const normalizedBlockImageData = (block: PixelBlock): ImageData => {
+  const channels = block.format === 'gray8' ? 1 : block.format === 'rgb8' ? 3 : 4
+  if (block.format !== 'gray8' && block.format !== 'rgb8' && block.format !== 'rgba8') {
+    block.release?.()
+    throw new Error(`Viewer cannot paint ${block.format} pixels`)
+  }
+  const rowBytes = block.width * channels
+  const requiredBytes = block.stride * (block.height - 1) + rowBytes
+  if (block.stride < rowBytes || block.data.byteLength < requiredBytes) {
+    block.release?.()
+    throw new Error('Viewer received a truncated pixel block')
+  }
+  const rgba = new Uint8ClampedArray(block.width * block.height * 4)
+  for (let y = 0; y < block.height; y += 1) {
+    let source = y * block.stride
+    let target = y * block.width * 4
+    for (let x = 0; x < block.width; x += 1) {
+      if (channels === 1) {
+        const gray = block.data[source] ?? 0
+        rgba[target] = gray
+        rgba[target + 1] = gray
+        rgba[target + 2] = gray
+        rgba[target + 3] = 255
+      } else {
+        rgba[target] = block.data[source] ?? 0
+        rgba[target + 1] = block.data[source + 1] ?? 0
+        rgba[target + 2] = block.data[source + 2] ?? 0
+        rgba[target + 3] = channels === 4 ? (block.data[source + 3] ?? 0) : 255
+      }
+      source += channels
+      target += 4
+    }
+  }
+  block.release?.()
+  return new ImageData(rgba, block.width, block.height)
+}
+
+const scratchCanvas = document.createElement('canvas')
+
+const renderViewer = async (): Promise<void> => {
+  const selection = viewerSelection
+  if (!selection || viewPanel.hidden) return
+  const sequence = ++viewerRenderSequence
+  clampViewerCenter()
+  const region = currentViewerRegion()
+  if (!region) return
+  const { dpr } = canvasMetrics()
+  const context = viewerCanvas.getContext('2d', { alpha: false })
+  if (!context) throw new Error('Canvas 2D rendering is unavailable')
+
+  viewerStatus.textContent = 'Decoding the visible region…'
+  viewerRegion.textContent = `${region.x.toLocaleString()}, ${region.y.toLocaleString()} · ${region.width.toLocaleString()} × ${region.height.toLocaleString()} px`
+  zoomValue.value = `${Math.round(viewerZoom * 100)}%`
+  const loadingTimer = window.setTimeout(() => {
+    if (sequence === viewerRenderSequence) setViewerLoading(true)
+  }, 120)
+  const startedAt = performance.now()
+
+  try {
+    context.fillStyle = '#101411'
+    context.fillRect(0, 0, viewerCanvas.width, viewerCanvas.height)
+    context.imageSmoothingEnabled = viewerZoom < 1
+    context.imageSmoothingQuality = 'high'
+    if (selection.kind === 'tiff') {
+      const blocks = normalizePixelBlocks(
+        selection.decoder.decode({
+          x: region.x,
+          y: region.y,
+          width: region.width,
+          height: region.height,
+        }),
+        selection.decoder.pixelFormat,
+      )
+      for await (const block of blocks) {
+        if (sequence !== viewerRenderSequence) {
+          block.release?.()
+          return
+        }
+        const imageData = normalizedBlockImageData(block)
+        if (scratchCanvas.width !== imageData.width) scratchCanvas.width = imageData.width
+        if (scratchCanvas.height !== imageData.height) scratchCanvas.height = imageData.height
+        const scratch = scratchCanvas.getContext('2d', { alpha: false })
+        if (!scratch) throw new Error('Scratch canvas rendering is unavailable')
+        scratch.putImageData(imageData, 0, 0)
+        const sourceX = region.x + block.x
+        const sourceY = region.y + block.y
+        context.drawImage(
+          scratchCanvas,
+          (sourceX - region.viewLeft) * viewerZoom * dpr,
+          (sourceY - region.viewTop) * viewerZoom * dpr,
+          block.width * viewerZoom * dpr,
+          block.height * viewerZoom * dpr,
+        )
+      }
+    } else {
+      const targetWidth = Math.max(
+        1,
+        Math.min(viewerCanvas.width, Math.round(region.width * viewerZoom * dpr)),
+      )
+      const targetHeight = Math.max(
+        1,
+        Math.min(viewerCanvas.height, Math.round(region.height * viewerZoom * dpr)),
+      )
+      const blob = await selection.image
+        .crop({ x: region.x, y: region.y, width: region.width, height: region.height })
+        .resize({ width: targetWidth, height: targetHeight, fit: 'fill' })
+        .png()
+        .toBlob()
+      const bitmap = await createImageBitmap(blob)
+      try {
+        if (sequence !== viewerRenderSequence) return
+        context.drawImage(
+          bitmap,
+          (region.x - region.viewLeft) * viewerZoom * dpr,
+          (region.y - region.viewTop) * viewerZoom * dpr,
+          region.width * viewerZoom * dpr,
+          region.height * viewerZoom * dpr,
+        )
+      } finally {
+        bitmap.close()
+      }
+    }
+    if (sequence !== viewerRenderSequence) return
+    const elapsed = performance.now() - startedAt
+    viewerCanvas.hidden = false
+    viewerCanvas.dataset.rendered = 'true'
+    viewerEmpty.hidden = true
+    viewerStatus.textContent = `Visible region rendered in ${formatDuration(elapsed)}. Drag to pan or scroll to zoom.`
+    addLog(
+      'metric',
+      `${selection.kind === 'tiff' ? 'TIFF' : selection.metadata.format.toUpperCase()} viewport ${region.x},${region.y} ${region.width}×${region.height} rendered in ${formatDuration(elapsed)}.`,
+    )
+  } catch (error: unknown) {
+    if (sequence !== viewerRenderSequence) return
+    viewerStatus.textContent = errorMessage(error)
+    addLog('error', `Viewer: ${errorMessage(error)}`)
+  } finally {
+    window.clearTimeout(loadingTimer)
+    if (sequence === viewerRenderSequence) setViewerLoading(false)
+  }
+}
+
+const scheduleViewerRender = (): void => {
+  if (viewerRenderFrame !== undefined) cancelAnimationFrame(viewerRenderFrame)
+  viewerRenderFrame = requestAnimationFrame(() => {
+    viewerRenderFrame = undefined
+    void renderViewer()
+  })
+}
+
+const zoomViewer = (factor: number, clientX?: number, clientY?: number): void => {
+  const selection = viewerSelection
+  if (!selection) return
+  const bounds = viewerStage.getBoundingClientRect()
+  const anchorX = clientX === undefined ? bounds.width / 2 : clientX - bounds.left
+  const anchorY = clientY === undefined ? bounds.height / 2 : clientY - bounds.top
+  const sourceX = viewerCenterX + (anchorX - bounds.width / 2) / viewerZoom
+  const sourceY = viewerCenterY + (anchorY - bounds.height / 2) / viewerZoom
+  const nextZoom = Math.max(minimumViewerZoom(selection), Math.min(32, viewerZoom * factor))
+  viewerCenterX = sourceX - (anchorX - bounds.width / 2) / nextZoom
+  viewerCenterY = sourceY - (anchorY - bounds.height / 2) / nextZoom
+  viewerZoom = nextZoom
+  clampViewerCenter()
+  scheduleViewerRender()
+}
+
+const panViewer = (horizontal: number, vertical: number): void => {
+  if (!viewerSelection) return
+  const { cssWidth, cssHeight } = canvasMetrics()
+  viewerCenterX += (horizontal * cssWidth) / viewerZoom / 8
+  viewerCenterY += (vertical * cssHeight) / viewerZoom / 8
+  clampViewerCenter()
+  scheduleViewerRender()
+}
+
+const updateViewerFacts = (selection: ViewerSelection): void => {
+  viewerName.textContent = selection.file.name
+  viewerDimensions.textContent = `${selection.width.toLocaleString()} × ${selection.height.toLocaleString()}`
+  if (selection.kind === 'image') {
+    const count = countLabel(selection.metadata)
+    viewerSubtitle.textContent = `${selection.metadata.format.toUpperCase()} · ${selection.metadata.mimeType}`
+    viewerCompression.textContent = selection.metadata.format.toUpperCase()
+    viewerSamples.textContent = `${selection.metadata.bitDepth ?? 8}-bit · ${selection.metadata.hasAlpha ? 'alpha' : 'opaque'}`
+    viewerStorage.textContent = count ?? '1 image'
+    return
+  }
+  const { directory } = selection.choice
+  viewerSubtitle.textContent = `${selection.document.bigTiff ? 'BigTIFF' : 'Classic TIFF'} · ${selection.document.topLevelDirectories.length} top-level image${selection.document.topLevelDirectories.length === 1 ? '' : 's'}`
+  viewerCompression.textContent = `TIFF · ${compressionName(directory.compression)}`
+  viewerSamples.textContent = `${directory.samplesPerPixel} × ${directory.bitsPerSample.join('/')} bit · format ${directory.sampleFormats.join('/')}`
+  viewerStorage.textContent = directory.tiled
+    ? `Tiled ${directory.tileWidth ?? '?'} × ${directory.tileHeight ?? '?'} · ${directory.planar ? 'planar' : 'chunky'}`
+    : `Stripped · ${directory.planar ? 'planar' : 'chunky'}`
+}
+
+const selectViewerChoice = async (index: number, renderImmediately: boolean): Promise<void> => {
+  const current = viewerSelection
+  if (current?.kind !== 'tiff') return
+  const choice = current.choices[index]
+  if (!choice) throw new Error('Selected TIFF image is unavailable')
+  setViewerLoading(true, 'Preparing TIFF image…')
+  const decoder = await choice.directory.createImageDecoder()
+  const selection: TiffViewerSelection = {
+    ...current,
+    choice,
+    decoder,
+    width: choice.directory.width,
+    height: choice.directory.height,
+  }
+  viewerSelection = selection
+  viewerDirectory.value = String(index)
+  updateViewerFacts(selection)
+  fitViewer()
+  setViewerLoading(false)
+  addLog(
+    'detect',
+    `${choice.label}; ${compressionName(choice.directory.compression)}, ${decoder.pixelFormat}, ${choice.directory.tiled ? 'tiled' : 'stripped'}.`,
+  )
+  if (renderImmediately) await renderViewer()
+  else scheduleViewerRender()
+}
+
+const prepareTiffViewer = async (file: File): Promise<void> => {
+  setViewerLoading(true, 'Reading TIFF directory graph…')
+  const document = await openTiffDocument(new BlobSource(file), {
+    ...viewerLimits,
+    embeddedCodecs: [webpCodec],
+  })
+  const choices = viewerChoices(document)
+  const first = choices[0]
+  if (!first) throw new Error('TIFF contains no displayable directories')
+  const decoder = await first.directory.createImageDecoder()
+  viewerSelection = {
+    kind: 'tiff',
+    choice: first,
+    choices,
+    decoder,
+    document,
+    file,
+    width: first.directory.width,
+    height: first.directory.height,
+  }
+  viewerDirectory.replaceChildren(
+    ...choices.map((choice, index) => new Option(choice.label, String(index))),
+  )
+  setViewerControls(true)
+  updateViewerFacts(viewerSelection)
+  sourceDetails.textContent = `${first.directory.width.toLocaleString()} × ${first.directory.height.toLocaleString()} · ${formatBytes(file.size)} · ${choices.length} viewable image${choices.length === 1 ? '' : 's'}`
+  sourceBadges.replaceChildren(
+    createBadge(document.bigTiff ? 'BigTIFF' : 'TIFF'),
+    createBadge(`${first.directory.bitsPerSample.join('/')}-bit`),
+    createBadge(first.directory.tiled ? 'Tiled' : 'Stripped'),
+    createBadge(
+      `${document.topLevelDirectories.length} image${document.topLevelDirectories.length === 1 ? '' : 's'}`,
+    ),
+  )
+  fitViewer()
+  setViewerLoading(false)
+  await renderViewer()
+}
+
+const prepareImageViewer = async (
+  file: File,
+  image: Image,
+  metadata: ImageMetadata,
+): Promise<void> => {
+  setViewerLoading(true, `Preparing ${metadata.format.toUpperCase()} image…`)
+  const selection: ImageViewerSelection = {
+    kind: 'image',
+    file,
+    image,
+    metadata,
+    width: metadata.width,
+    height: metadata.height,
+  }
+  viewerSelection = selection
+  viewerDirectory.replaceChildren(
+    new Option(
+      `Image 1 · ${metadata.width.toLocaleString()} × ${metadata.height.toLocaleString()}`,
+      '0',
+    ),
+  )
+  setViewerControls(true, false)
+  updateViewerFacts(selection)
+  sourceDetails.textContent = `${metadata.width.toLocaleString()} × ${metadata.height.toLocaleString()} · ${metadata.mimeType} · ${formatBytes(file.size)}`
+  describeMetadata(metadata)
+  fitViewer()
+  setViewerLoading(false)
+  await renderViewer()
+}
+
+const saveVisibleClip = async (): Promise<void> => {
+  const selection = viewerSelection
+  const region = currentViewerRegion()
+  if (!selection || !region) return
+  const pixels = region.width * region.height
+  if (!Number.isSafeInteger(pixels) || pixels > maximumClipPixels) {
+    const message = `Visible clip is ${region.width.toLocaleString()}×${region.height.toLocaleString()} (${pixels.toLocaleString()} pixels). Zoom in until it is at most 16 megapixels.`
+    viewerStatus.textContent = message
+    addLog('warning', message)
+    return
+  }
+  saveClipButton.disabled = true
+  setViewerLoading(true, 'Encoding visible region as PNG…')
+  const startedAt = performance.now()
+  try {
+    const image =
+      selection.kind === 'tiff'
+        ? await viewerImages.open(selection.file, {
+            frame: selection.choice.frame,
+            limits: viewerLimits,
+            ...(selection.choice.resolutionLevel === undefined
+              ? {}
+              : { resolutionLevel: selection.choice.resolutionLevel }),
+          })
+        : selection.image
+    const blob = await image
+      .crop({ x: region.x, y: region.y, width: region.width, height: region.height })
+      .png()
+      .toBlob()
+    revokeUrl(viewerClipUrl)
+    viewerClipUrl = URL.createObjectURL(blob)
+    const download = document.createElement('a')
+    download.href = viewerClipUrl
+    download.download = `${safeBaseName(selection.file.name)}-${region.x}-${region.y}-${region.width}x${region.height}.png`
+    download.click()
+    const elapsed = performance.now() - startedAt
+    viewerStatus.textContent = `Saved ${region.width.toLocaleString()} × ${region.height.toLocaleString()} PNG clip (${formatBytes(blob.size)}) in ${formatDuration(elapsed)}.`
+    addLog(
+      'success',
+      `PNG clip encoded and downloaded: ${region.width}×${region.height}, ${formatBytes(blob.size)}, ${formatDuration(elapsed)}.`,
+    )
+  } catch (error: unknown) {
+    viewerStatus.textContent = errorMessage(error)
+    addLog('error', `Clip export: ${errorMessage(error)}`)
+  } finally {
+    setViewerLoading(false)
+    saveClipButton.disabled = false
+  }
+}
+
 const inspectFile = async (file: File): Promise<void> => {
   const sequence = ++inspectionSequence
   selectedFile = undefined
@@ -331,6 +972,7 @@ const inspectFile = async (file: File): Promise<void> => {
   convertButton.disabled = true
   operationStatus.textContent = 'Inspecting the file header…'
   resetResult()
+  resetViewer()
 
   revokeUrl(sourceObjectUrl)
   sourceObjectUrl = URL.createObjectURL(file)
@@ -341,6 +983,24 @@ const inspectFile = async (file: File): Promise<void> => {
   sourceBadges.replaceChildren(createBadge('Inspecting'))
   addLog('info', `Selected ${file.name} (${formatBytes(file.size)}). No bytes leave this browser.`)
 
+  const isTiff = await tiffHeader(file)
+  if (sequence !== inspectionSequence) return
+  let viewerReady = false
+  let viewerFailure: string | undefined
+  if (isTiff) {
+    try {
+      await prepareTiffViewer(file)
+      if (sequence !== inspectionSequence) return
+      viewerReady = true
+      addLog('success', 'TIFF document opened for bounded client-side viewport decoding.')
+    } catch (error: unknown) {
+      if (sequence !== inspectionSequence) return
+      viewerFailure = errorMessage(error)
+      resetViewer()
+      addLog('warning', `TIFF viewer unavailable: ${viewerFailure}`)
+    }
+  }
+
   try {
     const image = await referenceImages.open(file, { limits: demoLimits })
     const metadata = await image.metadata()
@@ -349,8 +1009,12 @@ const inspectFile = async (file: File): Promise<void> => {
     selectedFile = file
     selectedImage = image
     selectedMetadata = metadata
-    sourceDetails.textContent = `${metadata.width.toLocaleString()} × ${metadata.height.toLocaleString()} · ${metadata.mimeType} · ${formatBytes(file.size)}`
-    describeMetadata(metadata)
+    if (!viewerReady) {
+      await prepareImageViewer(file, image, metadata)
+      if (sequence !== inspectionSequence) return
+      viewerReady = true
+      addLog('success', `${metadata.format.toUpperCase()} opened in the client-side viewer.`)
+    }
     outputFormat.value = recommendedOutput(metadata)
     webpLossless.checked = metadata.hasAlpha
     updateOutputOptions()
@@ -363,34 +1027,101 @@ const inspectFile = async (file: File): Promise<void> => {
     )
 
     const multipleImages = (metadata.frames ?? 1) > 1
-    if (multipleImages && metadata.format !== 'jpeg') {
-      operationStatus.textContent =
-        'Animated input detected. This demo refuses to silently convert only the first frame.'
-      addLog(
-        'warning',
-        'Multi-frame conversion is unavailable; no static first-frame output will be emitted.',
-      )
-      return
-    }
-
     controls.disabled = false
     convertButton.disabled = false
-    if (multipleImages) {
+    if (multipleImages && metadata.format === 'jpeg') {
       operationStatus.textContent =
         'Ready. This MPF JPEG contains auxiliary images; conversion uses its supported primary image.'
       addLog(
         'warning',
         'MPF JPEG detected. Conversion uses the primary JPEG image; auxiliary images and gain maps are not preserved.',
       )
+    } else if (multipleImages) {
+      operationStatus.textContent =
+        'Ready. Conversion uses the first image or frame; additional images are not included.'
+      addLog(
+        'warning',
+        `${metadata.format.toUpperCase()} contains ${metadata.frames ?? 1} images or frames. Conversion uses the first image or frame.`,
+      )
     } else {
-      operationStatus.textContent = `Ready. Choose an output format and optional transforms.`
+      operationStatus.textContent = 'Viewer and conversion pipeline ready.'
     }
   } catch (error: unknown) {
     if (sequence !== inspectionSequence) return
-    operationStatus.textContent = errorMessage(error)
+    const conversionFailure = errorMessage(error)
+    if (viewerReady) {
+      operationStatus.textContent =
+        'Viewer ready. Complete-image conversion is outside the public demo guardrails for this file.'
+      addLog('warning', `Full conversion unavailable: ${conversionFailure}`)
+      return
+    }
+    operationStatus.textContent = conversionFailure
     sourceBadges.replaceChildren(createBadge('Unsupported'))
-    addLog('error', errorMessage(error))
+    if (viewerFailure !== undefined) {
+      viewerStatus.textContent = viewerFailure
+      addLog('error', `Viewer: ${viewerFailure}`)
+    }
+    addLog('error', conversionFailure)
   }
+}
+const loadExample = async (button: HTMLButtonElement): Promise<void> => {
+  const name = button.dataset.sampleName
+  const url = button.dataset.sampleUrl
+  const source = button.dataset.sampleSource ?? 'its public source'
+  if (name === undefined || url === undefined) {
+    exampleStatus.textContent = 'This example is missing its source information.'
+    return
+  }
+
+  for (const candidate of exampleButtons) candidate.disabled = true
+  button.classList.add('loading')
+  button.setAttribute('aria-busy', 'true')
+  exampleStatus.textContent = `Fetching ${name} directly from ${source}…`
+  addLog('info', `Fetching public example ${name} from ${source} after explicit user selection.`)
+
+  try {
+    const response = await fetch(url, { mode: 'cors' })
+    if (!response.ok) throw new Error(`Example request returned HTTP ${response.status}`)
+    const contentLength = Number(response.headers.get('content-length'))
+    if (
+      !Number.isSafeInteger(contentLength) ||
+      contentLength < 1 ||
+      contentLength > maximumExampleBytes
+    ) {
+      throw new Error('Example size is missing or exceeds the 8 MiB demo limit')
+    }
+    const blob = await response.blob()
+    if (blob.size !== contentLength || blob.size > maximumExampleBytes) {
+      throw new Error('Example size changed while downloading')
+    }
+
+    await inspectFile(new File([blob], name, { type: blob.type }))
+    if (viewerSelection === undefined) throw new Error('The example did not open in the viewer')
+    exampleStatus.textContent = `${name} opened from ${source} (${formatBytes(blob.size)}).`
+  } catch (error: unknown) {
+    const message = errorMessage(error)
+    exampleStatus.textContent = `${name} could not be loaded: ${message}`
+    addLog('error', `Public example ${name}: ${message}`)
+  } finally {
+    button.classList.remove('loading')
+    button.removeAttribute('aria-busy')
+    for (const candidate of exampleButtons) candidate.disabled = false
+  }
+}
+
+const filterSamples = (): void => {
+  const query = sampleSearch.value.trim().toLowerCase()
+  let visible = 0
+  for (const card of sampleCards) {
+    const searchable = (card.dataset.sampleSearch ?? card.textContent ?? '').toLowerCase()
+    card.hidden = query !== '' && !searchable.includes(query)
+    if (!card.hidden) visible += 1
+  }
+  sampleEmpty.hidden = visible !== 0
+  exampleStatus.textContent =
+    query === ''
+      ? `${sampleCards.length} verified sample files. Download any file, then open it above.`
+      : `${visible} sample${visible === 1 ? '' : 's'} match “${sampleSearch.value.trim()}”.`
 }
 
 const optionalDimension = (input: HTMLInputElement, label: string): number | undefined => {
@@ -477,8 +1208,8 @@ const plannedPipeline = (
     image = image.bmp({ alpha: selectedMetadata.hasAlpha })
     steps.push(selectedMetadata.hasAlpha ? '32-bit BMP' : '24-bit BMP')
   } else {
-    image = image.tiff({ compression: 'none' })
-    steps.push('uncompressed TIFF')
+    image = image.tiff({ compression: 'deflate', predictor: 'horizontal', layout: 'strips' })
+    steps.push('Deflate TIFF')
   }
   return Object.freeze({ image, steps: Object.freeze(steps) })
 }
@@ -529,7 +1260,10 @@ const convert = async (): Promise<void> => {
   try {
     const mode = selectedDecodeMode()
     const library = mode === 'wasm' ? acceleratedImages : referenceImages
-    const sourceImage = await library.open(selectedFile, { limits: demoLimits })
+    const sourceImage =
+      (selectedMetadata.frames ?? 1) > 1
+        ? await library.open(selectedFile, { frame: 0, limits: demoLimits })
+        : await library.open(selectedFile, { limits: demoLimits })
     const plan = plannedPipeline(sourceImage)
     const plannedMetadata = await plan.image.metadata()
     const key = comparisonKey()
@@ -614,6 +1348,10 @@ fileInput.addEventListener('change', () => {
   const file = fileInput.files?.item(0)
   if (file) void inspectFile(file)
 })
+for (const button of exampleButtons) {
+  button.addEventListener('click', () => void loadExample(button))
+}
+sampleSearch.addEventListener('input', filterSamples)
 conversionForm.addEventListener('submit', (event) => event.preventDefault())
 
 for (const eventName of ['dragenter', 'dragover'] as const) {
@@ -632,6 +1370,73 @@ dropZone.addEventListener('drop', (event) => {
   const file = event.dataTransfer?.files.item(0)
   if (file) void inspectFile(file)
 })
+
+viewModeButton.addEventListener('click', () => setMode('view'))
+convertModeButton.addEventListener('click', () => setMode('convert'))
+viewerDirectory.addEventListener('change', () => {
+  const index = Number(viewerDirectory.value)
+  if (!Number.isSafeInteger(index) || index < 0) return
+  void selectViewerChoice(index, false).catch((error: unknown) => {
+    viewerStatus.textContent = errorMessage(error)
+    addLog('error', `TIFF image selection: ${errorMessage(error)}`)
+    setViewerLoading(false)
+  })
+})
+zoomOutButton.addEventListener('click', () => zoomViewer(1 / 1.5))
+zoomInButton.addEventListener('click', () => zoomViewer(1.5))
+zoomFitButton.addEventListener('click', () => {
+  fitViewer()
+  scheduleViewerRender()
+})
+zoomActualButton.addEventListener('click', () => {
+  if (!viewerSelection) return
+  viewerZoom = 1
+  clampViewerCenter()
+  scheduleViewerRender()
+})
+panLeftButton.addEventListener('click', () => panViewer(-1, 0))
+panUpButton.addEventListener('click', () => panViewer(0, -1))
+panDownButton.addEventListener('click', () => panViewer(0, 1))
+panRightButton.addEventListener('click', () => panViewer(1, 0))
+saveClipButton.addEventListener('click', () => void saveVisibleClip())
+
+viewerStage.addEventListener('wheel', (event) => {
+  if (!viewerSelection) return
+  event.preventDefault()
+  zoomViewer(Math.exp(-event.deltaY * 0.0015), event.clientX, event.clientY)
+})
+viewerStage.addEventListener('pointerdown', (event) => {
+  if (!viewerSelection || event.button !== 0) return
+  pointerDrag = {
+    id: event.pointerId,
+    startCenterX: viewerCenterX,
+    startCenterY: viewerCenterY,
+    startX: event.clientX,
+    startY: event.clientY,
+  }
+  viewerStage.setPointerCapture(event.pointerId)
+  viewerStage.classList.add('dragging')
+})
+viewerStage.addEventListener('pointermove', (event) => {
+  const drag = pointerDrag
+  if (!drag || drag.id !== event.pointerId) return
+  viewerCenterX = drag.startCenterX - (event.clientX - drag.startX) / viewerZoom
+  viewerCenterY = drag.startCenterY - (event.clientY - drag.startY) / viewerZoom
+  clampViewerCenter()
+  scheduleViewerRender()
+})
+const finishPointerDrag = (event: PointerEvent): void => {
+  if (!pointerDrag || pointerDrag.id !== event.pointerId) return
+  pointerDrag = undefined
+  viewerStage.classList.remove('dragging')
+  if (viewerStage.hasPointerCapture(event.pointerId))
+    viewerStage.releasePointerCapture(event.pointerId)
+}
+viewerStage.addEventListener('pointerup', finishPointerDrag)
+viewerStage.addEventListener('pointercancel', finishPointerDrag)
+new ResizeObserver(() => {
+  if (viewerSelection && !viewPanel.hidden) scheduleViewerRender()
+}).observe(viewerStage)
 
 outputFormat.addEventListener('change', updateOutputOptions)
 webpLossless.addEventListener('change', updateOutputOptions)
@@ -671,15 +1476,18 @@ copyLogButton.addEventListener('click', async () => {
 window.addEventListener('beforeunload', () => {
   revokeUrl(sourceObjectUrl)
   revokeUrl(resultObjectUrl)
+  revokeUrl(viewerClipUrl)
 })
 
 updateOutputOptions()
 updateResizeFields()
 updateAccelerationStatus()
+resetViewer()
+setMode('view')
 addLog('info', `PureJsImage loaded with ${referenceImages.formats().length} first-party codecs.`)
 addLog(
   'info',
-  'Demo guardrails: 64 MiB input, 64 megapixels, 256 MiB worst-case decoded bytes, and one output image. MPF JPEG uses its primary image.',
+  'Viewer guardrails: 1 GiB local TIFF input, 500,000-pixel dimensions, bounded viewport rows, and 16-megapixel PNG clips. Complete conversion remains capped at 64 MiB input and 64 megapixels.',
 )
 
 declare global {

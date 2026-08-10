@@ -81,6 +81,7 @@ export interface ImageMetadata {
   colorSpace?: string
   colorProfile?: ColorProfile
   bitDepth?: number
+  sampleFormat?: 'unsigned-integer' | 'signed-integer' | 'floating-point'
   chromaSubsampling?: ChromaSubsampling
   codecProfile?: number
   frames?: number
@@ -128,12 +129,16 @@ export interface PreservedMetadata {
 
 export interface DecoderOptions {
   readonly frame?: number
+  readonly resolutionLevel?: number
   readonly preserveIcc?: boolean
+  readonly tolerantDecoding?: boolean
 }
 
 export interface MetadataPreservationOptions {
   readonly exif: boolean
   readonly icc: boolean
+  readonly frame?: number
+  readonly resolutionLevel?: number
 }
 
 export interface EncodeRequest {
@@ -150,8 +155,16 @@ export interface ImageCodec {
   readonly format: string
   readonly mimeTypes: readonly string[]
   readonly minimumBytes: number
+  readonly selection?: {
+    readonly frames: boolean
+    readonly resolutionLevels: boolean
+  }
   detect(header: Uint8Array): boolean
-  metadata(source: ImageSource, limits: ImageLimits): Promise<ImageMetadata>
+  metadata(
+    source: ImageSource,
+    limits: ImageLimits,
+    options?: Readonly<DecoderOptions>,
+  ): Promise<ImageMetadata>
   preservedMetadata?(
     source: ImageSource,
     limits: ImageLimits,

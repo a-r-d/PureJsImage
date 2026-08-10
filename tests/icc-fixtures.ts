@@ -78,20 +78,130 @@ export const displayP3RgbProfile = (): Uint8Array =>
     [0.157179, 0.06659, 0.784546],
   )
 
-export const rgbLutOnlyProfile = (): Uint8Array => {
+export const rgbLutOnlyProfile = (
+  offsets: readonly [first: number, second: number, third: number] = [0, 0, 0],
+): Uint8Array => {
   const tagOffset = 144
-  const profile = new Uint8Array(tagOffset + 32)
+  const outputCurveOffset = 32
+  const matrixOffset = 68
+  const middleCurveOffset = 116
+  const clutOffset = 152
+  const inputCurveOffset = 220
+  const sampledCurveBytes = 12 + 256 * 2
+  const tagBytes = inputCurveOffset + sampledCurveBytes * 3
+  const profile = new Uint8Array(tagOffset + tagBytes)
   const view = new DataView(profile.buffer)
   writeUint32(view, 0, profile.byteLength)
   profile[8] = 4
   writeSignature(profile, 12, 'mntr')
   writeSignature(profile, 16, 'RGB ')
-  writeSignature(profile, 20, 'Lab ')
+  writeSignature(profile, 20, 'XYZ ')
   writeSignature(profile, 36, 'acsp')
   writeUint32(view, 128, 1)
   writeSignature(profile, 132, 'A2B0')
   writeUint32(view, 136, tagOffset)
-  writeUint32(view, 140, 32)
+  writeUint32(view, 140, tagBytes)
+
   writeSignature(profile, tagOffset, 'mAB ')
+  profile[tagOffset + 8] = 3
+  profile[tagOffset + 9] = 3
+  writeUint32(view, tagOffset + 12, outputCurveOffset)
+  writeUint32(view, tagOffset + 16, matrixOffset)
+  writeUint32(view, tagOffset + 20, middleCurveOffset)
+  writeUint32(view, tagOffset + 24, clutOffset)
+  writeUint32(view, tagOffset + 28, inputCurveOffset)
+
+  const writeIdentityCurve = (offset: number): void => {
+    writeSignature(profile, offset, 'curv')
+    writeUint32(view, offset + 8, 0)
+  }
+  for (let channel = 0; channel < 3; channel += 1) {
+    writeIdentityCurve(tagOffset + outputCurveOffset + channel * 12)
+    writeIdentityCurve(tagOffset + middleCurveOffset + channel * 12)
+  }
+  const matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1, offsets[0], offsets[1], offsets[2]]
+  for (let index = 0; index < matrix.length; index += 1) {
+    writeFixed(view, tagOffset + matrixOffset + index * 4, matrix[index] ?? 0)
+  }
+
+  const clut = tagOffset + clutOffset
+  profile.set([2, 2, 2], clut)
+  profile[clut + 16] = 2
+  const red = [0.4360747, 0.2225045, 0.0139322] as const
+  const green = [0.3850649, 0.7168786, 0.0971045] as const
+  const blue = [0.1430804, 0.0606169, 0.7141733] as const
+  let clutValue = clut + 20
+  for (let redIndex = 0; redIndex < 2; redIndex += 1) {
+    for (let greenIndex = 0; greenIndex < 2; greenIndex += 1) {
+      for (let blueIndex = 0; blueIndex < 2; blueIndex += 1) {
+        for (let channel = 0; channel < 3; channel += 1) {
+          const xyz =
+            redIndex * (red[channel] ?? 0) +
+            greenIndex * (green[channel] ?? 0) +
+            blueIndex * (blue[channel] ?? 0)
+          writeUint16(view, clutValue, Math.round(xyz * 32_768))
+          clutValue += 2
+        }
+      }
+    }
+  }
+
+  for (let channel = 0; channel < 3; channel += 1) {
+    const offset = tagOffset + inputCurveOffset + channel * sampledCurveBytes
+    writeSignature(profile, offset, 'curv')
+    writeUint32(view, offset + 8, 256)
+    for (let value = 0; value < 256; value += 1) {
+      const encoded = value / 255
+      const linear = encoded <= 0.04045 ? encoded / 12.92 : ((encoded + 0.055) / 1.055) ** 2.4
+      writeUint16(view, offset + 12 + value * 2, Math.round(linear * 65_535))
+    }
+  }
+  return profile
+}
+
+export const constantGrayCmykProfile = (pcs: 'XYZ ' | 'Lab ' = 'XYZ '): Uint8Array => {
+  const tagOffset = 144
+  const tagBytes = 176
+  const profile = new Uint8Array(tagOffset + tagBytes)
+  const view = new DataView(profile.buffer)
+  writeUint32(view, 0, profile.byteLength)
+  writeSignature(profile, 12, 'mntr')
+  writeSignature(profile, 16, 'CMYK')
+  writeSignature(profile, 20, pcs)
+  writeSignature(profile, 36, 'acsp')
+  writeUint32(view, 128, 1)
+  writeSignature(profile, 132, 'A2B0')
+  writeUint32(view, 136, tagOffset)
+  writeUint32(view, 140, tagBytes)
+
+  writeSignature(profile, tagOffset, 'mft2')
+  profile[tagOffset + 8] = 4
+  profile[tagOffset + 9] = 3
+  profile[tagOffset + 10] = 2
+  writeFixed(view, tagOffset + 12, 1)
+  writeFixed(view, tagOffset + 28, 1)
+  writeFixed(view, tagOffset + 44, 1)
+  writeUint16(view, tagOffset + 48, 2)
+  writeUint16(view, tagOffset + 50, 2)
+  let offset = tagOffset + 52
+  for (let channel = 0; channel < 4; channel += 1) {
+    writeUint16(view, offset, 0)
+    writeUint16(view, offset + 2, 65_535)
+    offset += 4
+  }
+  const first = pcs === 'Lab ' ? 32_768 : 15_797
+  const second = pcs === 'Lab ' ? 32_768 : 16_384
+  const third = pcs === 'Lab ' ? 32_768 : 13_515
+  for (let corner = 0; corner < 16; corner += 1) {
+    writeUint16(view, offset, first)
+    writeUint16(view, offset + 2, second)
+    writeUint16(view, offset + 4, third)
+    offset += 6
+  }
+  for (let channel = 0; channel < 3; channel += 1) {
+    writeUint16(view, offset, 0)
+    writeUint16(view, offset + 2, 65_535)
+    offset += 4
+  }
   return profile
 }

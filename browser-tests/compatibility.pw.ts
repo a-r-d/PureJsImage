@@ -26,6 +26,26 @@ test('decodes JPEG metadata and runs crop, resize, rotation, and JPEG encoding',
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('100x120')
 })
+test('handles supported and unsupported JPEG coding boundaries', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.unsupportedJpegBoundaries(),
+  )
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('UNSUPPORTED_OPERATION')
+  expect(result.detail).toContain('AVI1/MJPEG')
+})
+
+test('recovers malformed JPEG restarts through Rust/WASM by default with strict opt-out', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.tolerantJpegRestartRecovery(),
+  )
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('tolerant Rust/WASM JPEG restart recovery matched TypeScript')
+})
 
 test('runs the opt-in Rust/WASM JPEG accelerator in a real browser', async ({ page }) => {
   await harness(page)
@@ -66,11 +86,45 @@ test('requires explicit first-frame selection for animated GIF decode', async ({
   expect(result.detail).toContain('required explicit frame 0 selection')
 })
 
+test('decodes legacy TIFF and odd-width BMP compatibility cases', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.legacyTiffAndBmp())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('legacy TIFF LZW')
+  expect(result.detail).toContain('first-party Zstandard')
+  expect(result.detail).toContain('first-party Zstandard and LERC')
+  expect(result.detail).toContain('odd-width BMP RLE4')
+  expect(result.detail).toContain('wide unsigned, and SGILog TIFF')
+  expect(result.detail).toContain('numeric and ICC-managed CMYK')
+  expect(result.detail).toContain('CIELab')
+  expect(result.detail).toContain('FillOrder 2')
+  expect(result.detail).toContain('TIFF SubIFD pyramids')
+})
+
+test('uses public scientific TIFF APIs in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificTiffDocument())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('bounded TIFF extension APIs')
+  expect(result.detail).toContain('typed profile opening')
+  expect(result.detail).toContain('native OME-TIFF raster')
+  expect(result.detail).toContain('explicit display conversion')
+})
+
 test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.pngAlphaPipeline())
   expect(result.outputBytes).toBeGreaterThan(50)
   expect(result.detail).toContain('preserved alpha')
+})
+
+test('encodes tiled BigTIFF and a structured TIFF document in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.tiffEncodePipeline())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('tiled BigTIFF')
+  expect(result.detail).toContain('multi-page and SubIFD-pyramid')
+  expect(result.detail).toContain('exact browser pixels')
 })
 
 test('losslessly encodes WebP with exact browser pixels', async ({ page }) => {

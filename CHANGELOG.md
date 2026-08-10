@@ -3,9 +3,98 @@
 All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
+### Added
+
+- Expanded TIFF decoding with unsigned 6-, 10-, 12-, and 14-bit grayscale, 2-, 4-, 10-, 12-,
+  and 14-bit chunky or planar RGB, native packed horizontal prediction, direct 16-bit output,
+  and five-sample CMYK plus associated or unassociated alpha while retaining bounded segment
+  memory.
+- Added explicit WebP-in-TIFF composition through
+  `createTiffCodec({ embeddedCodecs: [webpCodec] })`; the default TIFF codec and root package do
+  not import or activate WebP automatically.
+- Added a complete development-only TIFF dependency matrix plus isolated raw full-image and region
+  benchmark operations with source-read, maximum decoded-block, external-memory, and ArrayBuffer
+  measurements.
+- Added a generated evidence-backed TIFF library comparison across the README and documentation,
+  backed by pinned versions and a 154-file isolated-process conformance run that reports exact
+  pixels, mismatches, unsupported cases, errors, timeouts, crashes, native scientific rasters, and
+  malformed-input behavior separately.
+- Added a published `llms.txt` with a capability-manifest-generated codec map, complete quick API
+  reference, runtime and safety boundaries, and migration guidance for Jimp, Sharp, image-js,
+  jSquash, GeoTIFF.js, and UTIF.js; every website footer now links the guide and sitemap.
+- Added TIFF signed 8-/16-bit and IEEE float16/float32/float64 grayscale and RGB decoding with
+  native-precision raw pixel blocks, deterministic display ranges, bounded Predictor 2 and
+  floating Predictor 3 reversal, and browser-compatible display conversion.
+- Added unsigned 24-/32-/64-bit TIFF grayscale and RGB decoding with canonical `gray32`,
+  `rgb32`, `gray64`, and `rgb64` raw blocks, exact values above JavaScript's safe-integer range,
+  bounded wide Predictor 2 reversal, and deterministic display conversion without an 8-/16-bit
+  raw intermediate or per-pixel BigInt arithmetic.
+- Added bounded TIFF SGILog and SGILog24 decompression with native CIE Y/XYZ float32 pixel
+  blocks, logarithmic luminance and chroma reconstruction, deterministic CCIR 709 gamma-2
+  display conversion, exact segment validation, and browser-compatible strip and tile decoding.
+- Added explicit TIFF top-level frame and reduced-resolution SubIFD selection for Classic TIFF
+  and BigTIFF, with selected-level metadata, bounded IFD graph traversal, cycle rejection,
+  alias-safe shared-directory reuse, global directory limits, and no reads from unselected pixel
+  segments.
+- Added 16-bit TIFF palette decode with exact full-range ColorMap scaling, plus signed 8-/16-bit
+  and float16/float32/float64 CMYK display conversion using declared sample ranges or deterministic
+  full-type defaults, bounded segment output, and independent pixel validation.
+- Added TIFF 6 8-bit CIELab conversion from D65-referenced L*a*b* to sRGB, bounded CMYK
+  `lut16` A2B0 ICC-profile conversion with profile precedence over numeric display, and
+  `FillOrder=2` normalization for non-fax strips and tiles before predictor reversal without
+  mutating aliased source buffers.
+- Added a public TIFF document layer at `purejsimage/tiff` with stable top-level/SubIFD graphs,
+  absolute IFD offsets and lookup, bounded defensive-copy private metadata reads, cached immutable
+  typed tags with per-call limits, per-directory display and native raster decoders, deterministic
+  third-party profile registration with isolated detector failures and ambiguity rejection, and
+  typed explicit `TiffProfile<T>` opening.
+- Added native-precision planar or interleaved N-channel `RasterBlock` output plus explicit
+  `rasterToPixels()` range mapping, so scientific samples no longer require an implicit RGB
+  interpretation.
+- Added `purejsimage/scientific` OME-TIFF datasets with validated Z/C/T dimensions, channel and
+  physical-pixel metadata, explicit or implicit `TiffData` plane mappings, separate-channel
+  assembly, and reduced-resolution SubIFD selection.
+- Added a generic `WholeSlideImage` contract and first-party Aperio SVS profile with bounded
+  pyramid/associated-image region reads, MPP and objective metadata, reusable JPEG 2000 codestream
+  composition, and TIFF compression tags 33003/33005. The pinned irreversible Aperio tile is
+  independently validated against OpenSlide within two 8-bit code values.
+- Added a separately compiled Leica SCN single-area profile example that imports only published
+  package entries, with an automated boundary check suitable for independent vendor packages.
+- Added a dedicated TIFF documentation page covering the complete decode matrix, scientific and
+  whole-slide APIs, third-party profiles, canonical output, memory model, and unsupported
+  boundaries; reduced the README TIFF and Zstandard sections to direct documentation links and
+  refreshed its measured 0.8.0 bundle and installed-size tables.
+- Added a reusable first-party Zstandard decompressor at `purejsimage/compression/zstd` with
+  explicit output and window bounds, raw/RLE/compressed blocks, Huffman and FSE entropy decoding,
+  repeated tables and offsets, frame checksums, and structured malformed-input failures.
+- Added bounded TIFF `Compression=50000` strip and tile decoding through the reusable Zstandard
+  backend, preserving existing predictor, sample, and pixel processing.
+- Replaced simple uncompressed TIFF output with a canonical Classic little-endian 8-bit RGB/RGBA
+  encoder using independently Deflate-compressed, horizontally predicted strips, automatic
+  roughly 128 KiB strip planning, strict extensible strategy options, bounded raw strip scratch,
+  compatible RGB ICC preservation, and exact ImageMagick/LibTIFF interoperability validation.
+- Added bounded first-party TIFF LERC2 and LERC-plus-Deflate segment decoding with mask handling,
+  native numeric sample reconstruction, independently validated byte/float pixels, and structured
+  rejection of corrupt headers, dimensions, masks, checksums, and codec metadata.
+- Added first-party GeoTIFF model, coordinate, bounding-box, GeoKey, GDAL metadata, and nodata
+  helpers over the public TIFF document API, with exact affine and tiepoint semantics.
+- Added a bounded `HttpRangeSource` with request coalescing, validator-protected reads, byte-capped
+  LRU caching, response cancellation, and selective COG-style region access that does not fetch
+  unrelated tiles.
+- Expanded structured TIFF output with explicit rows per strip, tiled RGB/RGBA segments, automatic
+  or explicit BigTIFF selection, multi-page top-level IFD chains, and reduced-resolution SubIFD
+  pyramids, independently reopened through GeoTIFF.js.
+- Added a development-only TIFF conformance harness that scores PureJsImage, GeoTIFF.js, UTIF.js,
+  image-js, and Jimp against independent sharp/ImageMagick RGBA output with isolated memory,
+  timeout, crash, exact-pixel, and error reporting.
+
+## [0.8.0] - 2026-08-09
 
 ### Added
 
+- Extended the isolated Imazen codec-corpus harness and independent baselines across JPEG, PNG,
+  WebP, TIFF, GIF, and BMP, covering complete decode-to-PNG round trips, structured rejection,
+  timeouts, crashes, memory failures, upstream categories, and format-specific feature groups.
 - Added an explicitly imported first-party Rust/WASM PNG accelerator for common non-interlaced
   8-bit grayscale, RGB, and RGBA scanline decode and encode, retaining native runtime zlib,
   bounded-row memory, scalar fallback, and the TypeScript reference for every ineligible workload.
@@ -186,8 +275,31 @@ All notable changes to PureJsImage are documented in this file.
   remain unchanged, and the sole remaining entropy/reconstruction error is an
   intentionally corrupted conformance input.
 
+- Kept the nested packed-declaration smoke test operational during `npm pack --dry-run`, so the
+  documented release gate validates package contents instead of inheriting npm's outer dry-run mode.
+- JPEG decoding now treats sampling factors as one for single-component non-interleaved scans,
+  tolerantly preserves completed progressive coefficients when a partial scan reaches a DHT, SOS,
+  or EOI boundary, and decodes AVI1/MJPEG baseline frames that omit standard Huffman tables. Strict
+  progressive decoding continues to reject partial entropy.
+- Recognized 12-bit and arithmetic-coded JPEG inputs now fail with `UNSUPPORTED_OPERATION`,
+  separating deliberate codec boundaries from supported-subset failures in the Imazen conformance
+  baseline.
+- TIFF decoding now defers BigTIFF offset validation until an inline value actually needs an
+  external offset, recognizes legacy LSB-packed LZW streams with late code-width changes, accepts
+  legacy tile tables in strip tags, bounds padded final YCbCr LZW strips, reconstructs multi-strip
+  old-style JPEGs with omitted legacy fields, and decodes one-dimensional Group 3 fax rows without
+  EOL markers. Recognized 64-bit sample layouts remain structured unsupported boundaries. BMP RLE4
+  now accepts the single encoded padding pixel used for odd-width scanlines while retaining overrun
+  rejection.
 - Animated GIF pixel decode now fails with `UNSUPPORTED_OPERATION` instead of silently discarding
   animation; callers can explicitly request the supported first image with `open(input, { frame: 0 })`.
+- Baseline JPEG restart recovery now defaults to tolerant decoding for malformed real-world files;
+  pass `open(input, { tolerantDecoding: false })` to require strict restart sequencing. Explicit
+  Rust/WASM decoding now implements the same bounded recovery instead of being skipped. JPEG and
+  PNG decode accelerator setup or midstream failures now resume through their TypeScript decoders
+  without duplicate rows. Focused scalar and SIMD PNG regressions keep trailing `IEND` data,
+  full-range `cICP`, and ICC v4 RGB `mAB` color conversion at parity without silently falling back.
+  The same corpus-driven work completed those compatibility fixes for the TypeScript reference.
 
 - Removed ambient `Buffer` references from the Node entry's published declarations so strict
   TypeScript consumers can compile the zero-dependency package without installing `@types/node`.
@@ -457,4 +569,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.5.0]: https://github.com/a-r-d/PureJsImage/compare/v0.4.0...v0.5.0
 [0.6.0]: https://github.com/a-r-d/PureJsImage/compare/v0.5.0...v0.6.0
 [0.7.0]: https://github.com/a-r-d/PureJsImage/compare/v0.6.0...v0.7.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.7.0...HEAD
+[0.8.0]: https://github.com/a-r-d/PureJsImage/compare/v0.7.0...v0.8.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.8.0...HEAD

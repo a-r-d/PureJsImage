@@ -127,6 +127,56 @@ const outputsBlock = (codecs: readonly CodecCapability[]): string => {
   ].join('\n')
 }
 
+interface CodecImport {
+  readonly entry: string
+  readonly exports: string
+}
+
+const codecImport = (codec: CodecCapability): CodecImport => {
+  if (codec.id === 'jp2') {
+    return {
+      entry: 'purejsimage/codecs/jpeg2000',
+      exports: 'jpeg2000Codec',
+    }
+  }
+  if (codec.id === 'heif') {
+    return {
+      entry: 'purejsimage/codecs/experimental/heic',
+      exports: 'experimentalHeicCodec, experimentalHeifCodec',
+    }
+  }
+  return {
+    entry: `purejsimage/codecs/${codec.id}`,
+    exports: `${codec.id}Codec`,
+  }
+}
+
+const llmsBlock = (codecs: readonly CodecCapability[]): string => {
+  const sections = codecs.flatMap((codec) => {
+    const packageImport = codecImport(codec)
+    return [
+      `### ${codec.name}`,
+      '',
+      `- Import: \`import { ${packageImport.exports} } from '${packageImport.entry}'\``,
+      `- Decode: ${codec.read.label} (\`${codec.read.status}\`)`,
+      `- Encode: ${codec.write.label} (\`${codec.write.status}\`)`,
+      `- Implemented scope: ${codec.description}`,
+      `- Primary boundary: ${codec.boundary}`,
+      `- Memory model: ${codec.memory}`,
+      `- Recommended output use: ${codec.recommendation}`,
+      `- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/${codec.supportFile}`,
+      '',
+    ]
+  })
+  return [
+    '## Codec capability map',
+    '',
+    'This section is generated from `capabilities/manifest.json`. Status and boundary text are evidence-backed public claims. Read each linked checklist before relying on an uncommon format subset.',
+    '',
+    ...sections,
+  ].join('\n')
+}
+
 const generatedExpectations = (codecs: readonly CodecCapability[]): string => {
   const expectations = codecs.map((codec) => ({
     id: codec.id,
@@ -163,6 +213,9 @@ const outputs = new Map<string, string>()
 
 const readme = await readFile('README.md', 'utf8')
 outputs.set('README.md', replaceRegion(readme, 'readme', readmeBlock(codecs)))
+
+const llmsGuide = await readFile('docs/llms.txt', 'utf8')
+outputs.set('docs/llms.txt', replaceRegion(llmsGuide, 'llms', llmsBlock(codecs)))
 
 let codecPage = await readFile('docs/codecs.html', 'utf8')
 codecPage = replaceRegion(codecPage, 'matrix', matrixBlock(codecs))

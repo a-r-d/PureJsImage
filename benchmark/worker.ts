@@ -159,14 +159,20 @@ const main = async (): Promise<void> => {
   sendResult({
     status: 'pass',
     errors: [],
-    ...(validation.output || validation.metadata
-      ? { output: validation.output ?? validation.metadata }
+    ...(validation.output || validation.metadata || validation.decoded
+      ? { output: validation.output ?? validation.metadata ?? validation.decoded }
       : {}),
     outputBytes: validation.outputBytes,
     wallMilliseconds,
     cpuMilliseconds: (cpu.user + cpu.system) / 1000,
     finalMemory,
     resourceMaxRssBytes: resourceUsage.maxRSS * 1024,
+    ...(execution.sourceBytesRead === undefined
+      ? {}
+      : { sourceBytesRead: execution.sourceBytesRead }),
+    ...(execution.maximumDecodedBlockBytes === undefined
+      ? {}
+      : { maximumDecodedBlockBytes: execution.maximumDecodedBlockBytes }),
     ...(qualityPsnrDb !== undefined ? { qualityPsnrDb } : {}),
   })
 }

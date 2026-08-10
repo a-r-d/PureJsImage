@@ -668,6 +668,72 @@
       }
     },
     {
+      "id": "tiff-cielab8-strip-2048x1536",
+      "file": "tiff-cielab8-strip-2048x1536.tiff",
+      "generator": "tiff-cielab8-strip",
+      "expected": {
+        "format": "tiff",
+        "width": 2048,
+        "height": 1536,
+        "sha256": "c0bed5de1c77b12f0181045c809a6bc41f76c24034a12635edf4758df31b7a8c"
+      }
+    },
+    {
+      "id": "tiff-fillorder6-strip-2049x1537",
+      "file": "tiff-fillorder6-strip-2049x1537.tiff",
+      "generator": "tiff-fillorder6-strip",
+      "expected": {
+        "format": "tiff",
+        "width": 2049,
+        "height": 1537,
+        "sha256": "4b58018f36acb257ac1f0163a6da95d207b305b03eb5618e18b6f3a07771c432"
+      }
+    },
+    {
+      "id": "tiff-bigtiff-rgb16-1024x768",
+      "file": "tiff-bigtiff-rgb16-1024x768.tiff",
+      "generator": "tiff-bigtiff-rgb16",
+      "expected": {
+        "format": "tiff",
+        "width": 1024,
+        "height": 768,
+        "sha256": "917879507006b64f86d27437d79d53859794df7563079974815873a5f2327855"
+      }
+    },
+    {
+      "id": "tiff-cmyk8-planar-1024x768",
+      "file": "tiff-cmyk8-planar-1024x768.tiff",
+      "generator": "tiff-cmyk8-planar",
+      "expected": {
+        "format": "tiff",
+        "width": 1024,
+        "height": 768,
+        "sha256": "5f8b0f1875d36a86de86327b43f58d819d81ba93f09a9e517de4cf31de549216"
+      }
+    },
+    {
+      "id": "tiff-packed12-strip-2048x1536",
+      "file": "tiff-packed12-strip-2048x1536.tiff",
+      "generator": "tiff-packed12-strip",
+      "expected": {
+        "format": "tiff",
+        "width": 2048,
+        "height": 1536,
+        "sha256": "472c2de3bb1ff2fc61460c3f9432c97e02c5cf9ac797ff175df05d5f84771e42"
+      }
+    },
+    {
+      "id": "tiff-packed12-tile-2051x1539",
+      "file": "tiff-packed12-tile-2051x1539.tiff",
+      "generator": "tiff-packed12-tile",
+      "expected": {
+        "format": "tiff",
+        "width": 2051,
+        "height": 1539,
+        "sha256": "b23ee09f5aa1566905f87fd5adb5fb0b847a230ce87c19bed28a0add8caf6a0e"
+      }
+    },
+    {
       "id": "rgba-gradient-4000x3000",
       "file": "rgba-gradient-4000x3000.png",
       "generator": "rgba-gradient",

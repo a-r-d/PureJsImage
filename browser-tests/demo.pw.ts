@@ -8,6 +8,8 @@ test('detects, transforms, converts, measures, and downloads from the docs demo'
   page.on('request', (request) => requestedUrls.push(request.url()))
   await page.goto('/demo.html')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+  await page.locator('#demo-mode-convert').click()
+  await expect(page.locator('#demo-mode-convert')).toHaveAttribute('aria-selected', 'true')
 
   const input = await readFile('benchmark/.tmp/browser-tests/fixtures/benchmark-input.png')
   await page.locator('#demo-file').setInputFiles({
@@ -19,6 +21,8 @@ test('detects, transforms, converts, measures, and downloads from the docs demo'
   await expect(page.locator('#demo-source-details')).toContainText('640 × 480')
   await expect(page.locator('#demo-source-badges')).toContainText('PNG')
   await expect(page.locator('#demo-controls')).toBeEnabled()
+  await expect(page.locator('#demo-mode-convert')).toHaveAttribute('aria-selected', 'true')
+  await expect(page.locator('#demo-view-panel')).toBeHidden()
 
   await page.locator('#demo-output-format').selectOption('jpeg')
   await page.locator('#demo-resize-enabled').check()
@@ -47,11 +51,103 @@ test('detects, transforms, converts, measures, and downloads from the docs demo'
   ).toBe(true)
 })
 
+test('views, pans, zooms, and clips a TIFF without leaving the browser', async ({ page }) => {
+  const requestedUrls: string[] = []
+  page.on('request', (request) => requestedUrls.push(request.url()))
+  await page.goto('/demo.html')
+  await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+  await page.locator('#demo-mode-convert').click()
+
+  const input = await readFile('benchmark/corpus/files/libtiff-rgb-3c-8b.tiff')
+  await page.locator('#demo-file').setInputFiles({
+    buffer: input,
+    mimeType: 'image/tiff',
+    name: 'bounded-view.tiff',
+  })
+
+  await expect(page.locator('#demo-mode-convert')).toHaveAttribute('aria-selected', 'true')
+  await page.locator('#demo-mode-view').click()
+  await expect(page.locator('#demo-mode-view')).toHaveAttribute('aria-selected', 'true')
+  await expect(page.locator('#demo-viewer')).toBeVisible()
+  await expect(page.locator('#demo-viewer-dimensions')).toHaveText('157 × 151')
+  await expect(page.locator('#demo-viewer-directory')).toHaveValue('0')
+  await expect(page.locator('#demo-viewer-canvas')).toHaveAttribute('data-rendered', 'true')
+  await expect(page.locator('#demo-viewer-empty')).toBeHidden()
+  await expect(page.locator('#demo-log-list')).toContainText(
+    'TIFF document opened for bounded client-side viewport decoding',
+  )
+
+  const initialZoom = await page.locator('#demo-zoom-value').textContent()
+  await page.locator('#demo-zoom-in').click()
+  await expect(page.locator('#demo-zoom-value')).not.toHaveText(initialZoom ?? '')
+
+  await expect(page.locator('#demo-viewer-region')).not.toHaveText('0, 0 · 157 × 151 px')
+  await expect(page.locator('#demo-viewer-loading')).toBeHidden()
+  const initialRegion = await page.locator('#demo-viewer-region').textContent()
+  await page.locator('#demo-pan-down').click()
+  await expect(page.locator('#demo-viewer-region')).not.toHaveText(initialRegion ?? '')
+
+  const downloadPromise = page.waitForEvent('download')
+  await page.locator('#demo-save-clip').click()
+  const download = await downloadPromise
+  expect(download.suggestedFilename()).toMatch(/^bounded-view-\d+-\d+-\d+x\d+\.png$/)
+  await expect(page.locator('#demo-viewer-status')).toContainText('Saved ')
+  await expect(page.locator('#demo-log-list')).toContainText('PNG clip encoded and downloaded')
+
+  await page.locator('#demo-mode-convert').click()
+  await expect(page.locator('#demo-mode-convert')).toHaveAttribute('aria-selected', 'true')
+  await expect(page.locator('#demo-convert-panel')).toBeVisible()
+  await page.locator('#demo-output-format').selectOption('png')
+  await page.locator('#demo-convert').click()
+  await expect(page.locator('#demo-result-summary')).toContainText('PNG · 157 × 151')
+
+  const networkRequests = requestedUrls.filter((url) => /^https?:/.test(url))
+  expect(
+    networkRequests.every((url) => url.startsWith('http://127.0.0.1:')),
+    `Unexpected external request: ${networkRequests.find((url) => !url.startsWith('http://127.0.0.1:')) ?? 'unknown'}`,
+  ).toBe(true)
+})
+
+test('searches direct samples and keeps JPEG 2000 in the selected mode', async ({ page }) => {
+  await page.goto('/demo.html')
+  await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+
+  await page.locator('#demo-sample-search').fill('microscopy')
+  await expect(page.locator('[data-demo-sample-card]:visible')).toHaveCount(1)
+  const microscopy = page.locator('[data-demo-sample-card]:visible')
+  await expect(microscopy).toContainText('Single-channel microscopy')
+  await expect(microscopy.locator('a')).toHaveAttribute(
+    'href',
+    'https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/single-channel.ome.tif',
+  )
+
+  const input = await readFile('benchmark/corpus/files/jp2/loc-court-day-openjpeg-lossless.jp2')
+  await page.locator('#demo-file').setInputFiles({
+    buffer: input,
+    mimeType: 'image/jp2',
+    name: 'weird-lossless.jp2',
+  })
+
+  await expect(page.locator('#demo-mode-view')).toHaveAttribute('aria-selected', 'true')
+  await expect(page.locator('#demo-convert-panel')).toBeHidden()
+  await expect(page.locator('#demo-viewer-canvas')).toHaveAttribute('data-rendered', 'true')
+
+  await page.locator('#demo-mode-convert').click()
+  await expect(page.locator('#demo-mode-convert')).toHaveAttribute('aria-selected', 'true')
+  await expect(page.locator('#demo-controls')).toBeEnabled()
+  await page.locator('#demo-output-format').selectOption('png')
+  await page.locator('#demo-resize-enabled').check()
+  await page.locator('#demo-resize-width').fill('120')
+  await page.locator('#demo-convert').click()
+  await expect(page.locator('#demo-result-summary')).toContainText('PNG · 120 ×')
+})
+
 test('toggles JPEG WASM acceleration and compares the same complete pipeline', async ({ page }) => {
   const requestedUrls: string[] = []
   page.on('request', (request) => requestedUrls.push(request.url()))
   await page.goto('/demo.html')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+  await page.locator('#demo-mode-convert').click()
 
   const input = await readFile('benchmark/.tmp/browser-tests/fixtures/wasm-input.jpg')
   await page.locator('#demo-file').setInputFiles({
@@ -86,9 +182,10 @@ test('toggles JPEG WASM acceleration and compares the same complete pipeline', a
   expect(requestedUrls.some((url) => url.endsWith('/assets/jpeg-decoder-simd.wasm'))).toBe(true)
 })
 
-test('refuses to silently flatten an animated input to its first frame', async ({ page }) => {
+test('views an animated input and explicitly converts its first frame', async ({ page }) => {
   await page.goto('/demo.html')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+  await page.locator('#demo-mode-convert').click()
   const input = await readFile('benchmark/.tmp/browser-tests/fixtures/animated.gif')
   await page.locator('#demo-file').setInputFiles({
     buffer: input,
@@ -97,18 +194,23 @@ test('refuses to silently flatten an animated input to its first frame', async (
   })
 
   await expect(page.locator('#demo-source-badges')).toContainText('2 frames')
-  await expect(page.locator('#demo-controls')).toHaveAttribute('disabled', '')
-  await expect(page.locator('#demo-convert')).toBeDisabled()
-  await expect(page.locator('#demo-operation-status')).toContainText('refuses to silently convert')
-  await expect(page.locator('#demo-result')).toBeHidden()
+  await expect(page.locator('#demo-mode-convert')).toHaveAttribute('aria-selected', 'true')
+  await expect(page.locator('#demo-controls')).toBeEnabled()
+  await expect(page.locator('#demo-operation-status')).toContainText(
+    'Conversion uses the first image or frame',
+  )
+  await page.locator('#demo-output-format').selectOption('png')
+  await page.locator('#demo-convert').click()
+  await expect(page.locator('#demo-result')).toBeVisible()
   await expect(page.locator('#demo-log-list')).toContainText(
-    'no static first-frame output will be emitted',
+    'Conversion uses the first image or frame',
   )
 })
 
 test('converts the supported primary image from an MPF JPEG', async ({ page }) => {
   await page.goto('/demo.html')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+  await page.locator('#demo-mode-convert').click()
   const input = await readFile('benchmark/.tmp/browser-tests/fixtures/mpf-primary.jpg')
   await page.locator('#demo-file').setInputFiles({
     buffer: input,
@@ -138,6 +240,7 @@ test('converts the supported primary image from an MPF JPEG', async ({ page }) =
 test('converts a progressive JPEG with AC-refinement ZRLs to WebP', async ({ page }) => {
   await page.goto('/demo.html')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+  await page.locator('#demo-mode-convert').click()
   const input = await readFile(
     'benchmark/corpus/files/jpeg-reference/generated-progressive-zrl.jpg',
   )

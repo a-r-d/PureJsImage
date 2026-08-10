@@ -62,9 +62,25 @@ npm run capabilities:generate
 npm run capabilities:check
 ```
 
-Do not edit generated README support tables, codec support pages, `docs/capabilities.json`, website
-capability tables, or generated test expectations directly. `npm run check` fails when these outputs
-are stale or when published decoder/encoder support disagrees with the registered codec objects.
+Do not edit generated README support tables, codec support pages, `docs/capabilities.json`, the
+capability map inside `docs/llms.txt`, website capability tables, or generated test expectations
+directly. `npm run check` fails when these outputs are stale or when published decoder/encoder
+support disagrees with the registered codec objects.
+
+The TIFF library comparison has one typed capability source,
+`docs/data/library-comparison.ts`, and one checked conformance result,
+`benchmark/results/tiff-competitor-conformance.json`. When a compared package version or harness
+behavior changes, rerun and regenerate it:
+
+```sh
+npm run corpus:tiff:competitors -- --timeout-ms 30000 --memory-mb 512 --concurrency 2
+npm run comparison:generate
+npm run comparison:check
+```
+
+The corpus run is intentionally explicit because it is expensive. `npm run check` validates package
+versions, report coverage, evidence references, and generated README and website surfaces so a stale
+report cannot be presented as current.
 
 Every pull request must update `CHANGELOG.md`. Add a concise entry under the appropriate heading in
 the `[Unreleased]` section. Do not create a release, change the package version, or move entries into

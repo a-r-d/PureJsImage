@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-10T18:40:42.323Z",
+  "oracle": "Version: ImageMagick 7.1.2-3 Q16 x86_64 23340 https://imagemagick.org",
+  "pixelValidation": "Exact raw RGB/RGBA decode through ImageMagick/LibTIFF",
+  "results": [
+    {
+      "name": "rgb",
+      "width": 1024,
+      "height": 100,
+      "encodedBytes": 1183,
+      "inspection": {
+        "compression": 8,
+        "photometric": 2,
+        "samplesPerPixel": 3,
+        "rowsPerStrip": 42,
+        "stripCount": 3,
+        "predictor": 2
+      },
+      "exactPixels": true
+    },
+    {
+      "name": "rgba",
+      "width": 31,
+      "height": 17,
+      "encodedBytes": 293,
+      "inspection": {
+        "compression": 8,
+        "photometric": 2,
+        "samplesPerPixel": 4,
+        "rowsPerStrip": 17,
+        "stripCount": 1,
+        "predictor": 2
+      },
+      "exactPixels": true
+    }
+  ]
+}

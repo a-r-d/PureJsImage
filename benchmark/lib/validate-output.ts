@@ -6,7 +6,7 @@ import { imageDimensionsFromData } from 'image-dimensions'
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 import type { EngineExecution, PixelCorner, ValidationResult, Workflow } from '../types.ts'
-import { identifyClassicTiff } from './tiff.ts'
+import { identifyTiff } from './tiff.ts'
 
 interface DecodedPixels {
   width: number
@@ -129,7 +129,7 @@ const identifyOutput = (
   const bytes = new Uint8Array(output.buffer, output.byteOffset, output.byteLength)
   const detected = imageDimensionsFromData(bytes)
   if (detected) return detected
-  const tiff = identifyClassicTiff(bytes)
+  const tiff = identifyTiff(bytes)
   if (tiff) return tiff
   if (bytes[0] !== 0x42 || bytes[1] !== 0x4d) return undefined
   try {
@@ -148,6 +148,53 @@ export const validateExecution = async ({
   execution: EngineExecution
 }): Promise<ValidationResult> => {
   const errors: string[] = []
+  if (execution.decoded) {
+    if (execution.decoded.format !== workflow.expected.format) {
+      errors.push(`format: expected ${workflow.expected.format}, got ${execution.decoded.format}`)
+    }
+    if (
+      workflow.expected.width !== undefined &&
+      execution.decoded.width !== workflow.expected.width
+    ) {
+      errors.push(`width: expected ${workflow.expected.width}, got ${execution.decoded.width}`)
+    }
+    if (
+      workflow.expected.height !== undefined &&
+      execution.decoded.height !== workflow.expected.height
+    ) {
+      errors.push(`height: expected ${workflow.expected.height}, got ${execution.decoded.height}`)
+    }
+    if (
+      workflow.expected.pixelFormat !== undefined &&
+      execution.decoded.pixelFormat !== workflow.expected.pixelFormat
+    ) {
+      errors.push(
+        `pixel format: expected ${workflow.expected.pixelFormat}, got ${execution.decoded.pixelFormat}`,
+      )
+    }
+    if (
+      workflow.expected.decodedBytes !== undefined &&
+      execution.decoded.bytes !== workflow.expected.decodedBytes
+    ) {
+      errors.push(
+        `decoded bytes: expected ${workflow.expected.decodedBytes}, got ${execution.decoded.bytes}`,
+      )
+    }
+    if (
+      workflow.expected.rawSha256 !== undefined &&
+      execution.decoded.sha256 !== workflow.expected.rawSha256
+    ) {
+      errors.push(
+        `raw SHA-256: expected ${workflow.expected.rawSha256}, got ${execution.decoded.sha256}`,
+      )
+    }
+    return {
+      valid: errors.length === 0,
+      errors,
+      decoded: execution.decoded,
+      outputBytes: execution.decoded.bytes,
+    }
+  }
 
   if (execution.metadata) {
     for (const field of ['format', 'width', 'height'] as const) {

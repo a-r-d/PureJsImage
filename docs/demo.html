@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Convert and transform images entirely in your browser with PureJsImage. Compare the TypeScript JPEG decoder with optional Rust/WASM acceleration.">
+  <meta name="description" content="Open TIFF, BigTIFF, GeoTIFF, OME-TIFF, and whole-slide images locally in your browser. Drop a file or load a public example to inspect, pan, and zoom.">
   <meta name="theme-color" content="#f6f7f2">
-  <meta property="og:title" content="PureJsImage browser demo">
-  <meta property="og:description" content="Upload, inspect, transform, and convert an image in your browser, with an explicit TypeScript versus Rust/WASM JPEG comparison.">
+  <meta property="og:title" content="PureJsImage browser TIFF viewer">
+  <meta property="og:description" content="Drop a TIFF into a local browser viewer, or open a public GeoTIFF example and inspect it without an upload.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://a-r-d.github.io/PureJsImage/demo.html">
   <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/demo.html">
@@ -16,7 +16,7 @@
   <script>document.documentElement.dataset.theme=localStorage.getItem('purejsimage-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
 </head>
 <body class="demo-page">
-  <a class="skip-link" href="#main">Skip to converter</a>
+  <a class="skip-link" href="#main">Skip to image workspace</a>
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="index.html" aria-label="PureJsImage home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a>
@@ -26,121 +26,257 @@
   </header>
 
   <main id="main">
-    <section class="page-hero demo-hero">
-      <div class="container demo-hero-grid">
+    <section class="demo-intro">
+      <div class="container demo-intro-row">
         <div>
-          <p class="eyebrow">Live browser demo</p>
-          <h1>Convert an image in your browser. Try it out.</h1>
-          <p class="page-lede">PureJsImage detects the file from its bytes, applies your transforms, and encodes the result with first-party codecs. Toggle the optional Rust/WASM JPEG decoder to compare it with the TypeScript reference.</p>
-          <div class="page-meta"><span class="pill">No server upload</span><span class="pill">Optional WASM</span><span class="pill">No runtime dependencies</span></div>
+          <p class="eyebrow">Browser image viewer + converter</p>
+          <h1 id="workspace-title">Open an image. Choose what to do.</h1>
+          <p>View any supported image with pan and zoom, or switch to Convert and create JPEG, PNG, WebP, BMP, or TIFF output. The selected mode never changes when you choose a file.</p>
         </div>
-        <aside class="demo-privacy-card" aria-label="Privacy summary">
-          <span class="demo-privacy-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.8 2.9 8.2 7 10 4.1-1.8 7-5.2 7-10V6l-7-3Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/><path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg></span>
-          <div><strong>Your image stays local</strong><p>The demo makes no image upload or conversion API request. Closing the tab releases its temporary object URLs.</p></div>
-        </aside>
+        <p class="demo-local-summary"><strong>No server upload</strong><span>Your files stay in this tab. Public samples load from their named source only when you click Open here.</span></p>
       </div>
     </section>
 
-    <section class="demo-workspace" aria-labelledby="converter-title">
-      <div class="container">
-        <div class="demo-section-heading">
-          <div><span>01</span><h2 id="converter-title">Choose, transform, convert</h2></div>
-          <p>Input is detected by signature—not filename or browser MIME type. Unsupported codec syntax fails with an explicit error in the operation log.</p>
-        </div>
-
-        <div class="demo-converter-grid">
-          <div class="demo-input-column">
+    <section class="demo-workspace" aria-labelledby="workspace-title">
+      <div class="container demo-tool-container">
+        <div class="demo-app-layout">
+          <aside class="demo-sidebar" aria-label="Open an image">
             <label class="demo-drop-zone" id="demo-drop-zone" for="demo-file">
-              <input class="demo-file-input" id="demo-file" type="file" accept="image/*,.avif,.ico,.jp2,.j2c,.j2k,.tif,.tiff">
+              <input class="demo-file-input" id="demo-file" type="file" accept="image/*,.avif,.btf,.ico,.jp2,.j2c,.j2k,.svs,.tf2,.tf8,.tif,.tiff">
               <span class="demo-drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg></span>
-              <strong>Drop an image here</strong>
-              <span>or choose a file from this device</span>
-              <span class="button small" aria-hidden="true">Choose image</span>
-              <small>Up to 64 MiB and 64 megapixels in this public demo</small>
+              <span><strong>Open or drop a weird image</strong><small>TIFF, BigTIFF, OME-TIFF, SVS, or another supported image</small></span>
+              <span class="button small" aria-hidden="true">Choose file</span>
             </label>
 
-            <article class="demo-source-card" id="demo-source" hidden>
-              <div class="demo-preview-frame">
-                <img id="demo-source-preview" alt="">
-                <div class="demo-preview-fallback" id="demo-source-fallback" hidden></div>
+            <section class="demo-example-panel" aria-labelledby="demo-example-title">
+              <header>
+                <div><p class="demo-card-kicker">Verified direct files</p><h2 id="demo-example-title">Sample library</h2></div>
+                <span>8 files</span>
+              </header>
+              <label class="demo-sample-search">
+                <span>Search samples</span>
+                <input id="demo-sample-search" type="search" placeholder="microscopy, WebP, float…" autocomplete="off">
+              </label>
+              <div class="demo-example-list" aria-live="polite">
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="microscopy ome tiff single channel scientific">
+                  <div class="demo-sample-summary"><span aria-hidden="true">OME</span><span><strong>Single-channel microscopy</strong><small>OME-TIFF · 74.3 KiB · Open Microscopy</small></span></div>
+                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/single-channel.ome.tif" target="_blank" rel="noreferrer" download="single-channel.ome.tif">Download file ↗</a></div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="jpeg 2000 jp2 photograph lossless">
+                  <div class="demo-sample-summary"><span aria-hidden="true">JP2</span><span><strong>JPEG 2000 photograph</strong><small>Lossless JP2 · 277.4 KiB · project fixture</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="loc-court-day-openjpeg-lossless.jp2" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/loc-court-day-openjpeg-lossless.jp2">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/loc-court-day-openjpeg-lossless.jp2" target="_blank" rel="noreferrer" download="loc-court-day-openjpeg-lossless.jp2">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="webp lossless transparency tux">
+                  <div class="demo-sample-summary"><span aria-hidden="true">WEBP</span><span><strong>Lossless WebP with alpha</strong><small>386 × 395 · project fixture</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="webp-lossless-tux-386x395.webp" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/webp-lossless-tux-386x395.webp">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/webp-lossless-tux-386x395.webp" target="_blank" rel="noreferrer" download="webp-lossless-tux-386x395.webp">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff fire danger float32 noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F32</span><span><strong>Fire danger</strong><small>Float32 GeoTIFF · 47.5 KiB · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="noaa-fd.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-fd.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-fd.tif" target="_blank" rel="noreferrer" download="noaa-fd.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff drought index spei float32 noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F32</span><span><strong>Drought index</strong><small>Float32 GeoTIFF · about 100 KiB · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="csic-spei-1d-01m.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/csic-spei-1d-01m.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/csic-spei-1d-01m.tif" target="_blank" rel="noreferrer" download="csic-spei-1d-01m.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff precipitation forecast float64 multi image noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F64</span><span><strong>Precipitation forecast</strong><small>Float64 GeoTIFF · 3 images · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="noaa-qpf-5km-2d.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-qpf-5km-2d.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-qpf-5km-2d.tif" target="_blank" rel="noreferrer" download="noaa-qpf-5km-2d.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="cloud optimized cog smoke concentration geotiff noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">COG</span><span><strong>Smoke concentration</strong><small>Cloud-optimized TIFF · 3 images · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="smokec_cog.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/smokec_cog.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/smokec_cog.tif" target="_blank" rel="noreferrer" download="smokec_cog.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff outlook boundary float32 noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F32</span><span><strong>Outlook boundary</strong><small>Float32 GeoTIFF · 13.6 KiB · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="noaa-ob.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-ob.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-ob.tif" target="_blank" rel="noreferrer" download="noaa-ob.tif">Download ↗</a>
+                  </div>
+                </article>
+                <p class="demo-sample-empty" id="demo-sample-empty" hidden>No sample names match that search.</p>
               </div>
-              <div class="demo-source-copy">
-                <p class="demo-card-kicker">Detected input</p>
-                <h3 id="demo-source-name">Selected image</h3>
-                <p id="demo-source-details"></p>
-                <div class="demo-badges" id="demo-source-badges"></div>
-              </div>
-            </article>
-          </div>
+              <p class="demo-example-status" id="demo-example-status" role="status" aria-live="polite">8 verified sample files. Download any file, then open it above.</p>
+            </section>
+          </aside>
 
-          <form class="demo-controls-card" id="demo-form" aria-label="Conversion options">
-            <fieldset id="demo-controls" disabled>
-              <legend>Conversion options</legend>
-              <div class="demo-control-section">
-                <div class="demo-control-heading"><span>Output</span><small>Write support</small></div>
-                <label class="demo-field"><span>Convert to</span><select id="demo-output-format"><option value="jpeg">JPEG</option><option value="png">PNG</option><option value="webp">WebP</option><option value="bmp">BMP</option><option value="tiff">TIFF (uncompressed)</option></select></label>
-                <label class="demo-field" id="demo-quality-group"><span>Quality <output id="demo-quality-value" for="demo-quality">82</output></span><input id="demo-quality" type="range" min="1" max="100" value="82"></label>
-                <label class="demo-check" id="demo-webp-lossless-group" hidden><input id="demo-webp-lossless" type="checkbox"><span><strong>Lossless WebP</strong><small>Ignore the quality setting and preserve exact pixels.</small></span></label>
-                <label class="demo-check" id="demo-jpeg-progressive-group"><input id="demo-jpeg-progressive" type="checkbox"><span><strong>Progressive JPEG</strong><small>Write a six-scan progressive file.</small></span></label>
+          <div class="demo-workbench">
+            <div class="demo-workbench-header">
+              <div class="demo-mode-switch" role="tablist" aria-label="Demo mode">
+                <button id="demo-mode-view" class="demo-mode-button active" type="button" role="tab" aria-selected="true" aria-controls="demo-view-panel">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                  <span><strong>View image</strong><small>Zoom, pan, inspect, and clip</small></span>
+                </button>
+                <button id="demo-mode-convert" class="demo-mode-button" type="button" role="tab" aria-selected="false" aria-controls="demo-convert-panel">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg>
+                  <span><strong>Convert</strong><small>Transform and encode an output</small></span>
+                </button>
               </div>
 
-              <div class="demo-control-section">
-                <div class="demo-control-heading"><span>Transforms</span><small>Applied in order</small></div>
-                <label class="demo-check"><input id="demo-auto-orient" type="checkbox" checked><span><strong>Auto-orient</strong><small>Apply EXIF orientation before other transforms.</small></span></label>
-                <label class="demo-check"><input id="demo-resize-enabled" type="checkbox"><span><strong>Resize</strong><small>Fit inside the dimensions without enlarging.</small></span></label>
-                <div class="demo-dimension-fields" id="demo-resize-fields" hidden>
-                  <label class="demo-field"><span>Maximum width</span><input id="demo-resize-width" type="number" min="1" inputmode="numeric"></label>
-                  <span aria-hidden="true">×</span>
-                  <label class="demo-field"><span>Maximum height</span><input id="demo-resize-height" type="number" min="1" inputmode="numeric"></label>
+              <article class="demo-source-card" id="demo-source" hidden>
+                <div class="demo-preview-frame">
+                  <img id="demo-source-preview" alt="">
+                  <div class="demo-preview-fallback" id="demo-source-fallback" hidden>Waiting for the client-side viewer.</div>
                 </div>
-                <label class="demo-field"><span>Rotate</span><select id="demo-rotation"><option value="0">Do not rotate</option><option value="90">90° clockwise</option><option value="180">180°</option><option value="270">270° clockwise</option></select></label>
-                <div class="demo-check-grid">
-                  <label class="demo-check compact"><input id="demo-flop" type="checkbox"><span><strong>Flip horizontal</strong></span></label>
-                  <label class="demo-check compact"><input id="demo-flip" type="checkbox"><span><strong>Flip vertical</strong></span></label>
+                <div class="demo-source-copy">
+                  <p class="demo-card-kicker">Open now</p>
+                  <h3 id="demo-source-name">Selected image</h3>
+                  <p id="demo-source-details"></p>
+                  <div class="demo-badges" id="demo-source-badges"></div>
+                </div>
+              </article>
+            </div>
+        <section class="demo-mode-panel" id="demo-view-panel" role="tabpanel" aria-labelledby="demo-mode-view">
+          <div class="demo-viewer" id="demo-viewer">
+            <header class="demo-viewer-toolbar">
+              <div class="demo-viewer-title">
+                <span class="demo-live-dot" aria-hidden="true"></span>
+                <div><strong id="demo-viewer-name">Image viewport</strong><small id="demo-viewer-subtitle">Drop a file or open a sample</small></div>
+              </div>
+              <fieldset class="demo-viewer-actions" aria-label="Viewer controls">
+                <button id="demo-zoom-out" type="button" disabled aria-label="Zoom out" title="Zoom out">−</button>
+                <output id="demo-zoom-value" aria-live="polite">—</output>
+                <button id="demo-zoom-in" type="button" disabled aria-label="Zoom in" title="Zoom in">+</button>
+                <button id="demo-zoom-fit" type="button" disabled>Fit</button>
+                <button id="demo-zoom-actual" type="button" disabled>1:1</button>
+                <button id="demo-pan-left" type="button" disabled aria-label="Pan left" title="Pan left">←</button>
+                <button id="demo-pan-up" type="button" disabled aria-label="Pan up" title="Pan up">↑</button>
+                <button id="demo-pan-down" type="button" disabled aria-label="Pan down" title="Pan down">↓</button>
+                <button id="demo-pan-right" type="button" disabled aria-label="Pan right" title="Pan right">→</button>
+                <button class="demo-save-clip" id="demo-save-clip" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg>Save visible clip</button>
+              </fieldset>
+            </header>
+
+            <div class="demo-viewer-body">
+              <div class="demo-canvas-stage" id="demo-viewer-stage" role="img" aria-label="Image viewer. Drag to pan, or use the mouse wheel and viewer controls to navigate.">
+                <canvas id="demo-viewer-canvas" hidden></canvas>
+                <div class="demo-viewer-empty" id="demo-viewer-empty">
+                  <span aria-hidden="true"><svg viewBox="0 0 48 48"><title>Image placeholder</title><path d="M9 8h30v32H9zM9 31l8-8 7 7 5-5 10 10M31 18h.1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/></svg></span>
+                  <h3>Drop a file or open an example</h3>
+                  <p>The viewer decodes the visible region locally for any supported image. Drag to pan, scroll to zoom, or choose a TIFF page or pyramid level.</p>
+                </div>
+                <div class="demo-viewer-loading" id="demo-viewer-loading" role="status" aria-live="polite" hidden>
+                  <span class="demo-spinner" aria-hidden="true"></span>
+                  <strong id="demo-viewer-loading-label">Reading image structure…</strong>
+                  <small>Large images can take a moment. No upload is occurring.</small>
                 </div>
               </div>
 
-              <div class="demo-control-section">
-                <div class="demo-control-heading"><span>Acceleration</span><small>Explicit opt-in</small></div>
-                <label class="demo-check"><input id="demo-wasm-enabled" type="checkbox"><span><strong>Rust/WASM JPEG decoder</strong><small>Toggle this on, then repeat the same conversion to compare complete pipeline time. Ineligible work safely stays on TypeScript.</small></span></label>
-                <p class="demo-accelerator-status" id="demo-accelerator-status">TypeScript reference selected.</p>
-              </div>
-
-              <button class="button demo-convert-button" id="demo-convert" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg><span id="demo-convert-label">Convert with TypeScript</span></button>
-            </fieldset>
-            <p class="demo-operation-status" id="demo-operation-status" role="status" aria-live="polite">Choose a file to begin.</p>
-          </form>
-        </div>
-
-        <section class="demo-result" id="demo-result" aria-labelledby="result-title" hidden>
-          <div class="demo-result-preview-wrap">
-            <p class="demo-card-kicker">Validated output</p>
-            <h2 id="result-title">Your converted image is ready.</h2>
-            <p id="demo-result-summary"></p>
-            <div class="demo-result-preview-frame"><img id="demo-result-preview" alt=""><div class="demo-preview-fallback" id="demo-result-fallback" hidden></div></div>
-            <a class="button" id="demo-download" href="#demo-result" download>Download converted file</a>
+              <aside class="demo-viewer-inspector" aria-label="Image details">
+                <div class="demo-inspector-heading"><span>Source image</span><small>Page or pyramid level when available</small></div>
+                <label class="demo-field"><span>Visible image</span><select id="demo-viewer-directory" disabled><option>Choose an image first</option></select></label>
+                <dl class="demo-viewer-facts">
+                  <div><dt>Dimensions</dt><dd id="demo-viewer-dimensions">—</dd></div>
+                  <div><dt>Format</dt><dd id="demo-viewer-compression">—</dd></div>
+                  <div><dt>Pixels</dt><dd id="demo-viewer-samples">—</dd></div>
+                  <div><dt>Layout</dt><dd id="demo-viewer-storage">—</dd></div>
+                </dl>
+                <div class="demo-viewer-help">
+                  <strong>Navigate the source</strong>
+                  <p>Drag to pan. Scroll, pinch, or use +/− to zoom around the pointer. <b>Fit</b> frames the image; <b>1:1</b> maps one source pixel to one CSS pixel.</p>
+                  <p>“Save visible clip” runs the current source region through the PureJsImage PNG encoder. Clips above 16 megapixels require zooming in first.</p>
+                </div>
+              </aside>
+            </div>
+            <footer class="demo-viewer-status"><span id="demo-viewer-status" role="status" aria-live="polite">Waiting for a local image.</span><span id="demo-viewer-region">No region selected</span></footer>
           </div>
-          <dl class="demo-metrics" aria-label="Conversion measurements">
-            <div><dt>Conversion time</dt><dd id="demo-metric-elapsed">—</dd><small>Decode, transform, and encode</small></div>
-            <div><dt>Decode mode</dt><dd id="demo-metric-provider">—</dd><small>Enabled mode; selectors may fall back</small></div>
-            <div><dt>WASM vs TypeScript</dt><dd id="demo-metric-comparison">—</dd><small>Same file and settings in this tab</small></div>
-            <div><dt>Max observed JS heap</dt><dd id="demo-metric-memory">—</dd><small>Browser estimate at checkpoints</small></div>
-            <div><dt>Known file bytes</dt><dd id="demo-metric-known-bytes">—</dd><small>Input + output, not scratch memory</small></div>
-            <div><dt>Output size</dt><dd id="demo-metric-output">—</dd><small>Validated encoded Blob</small></div>
-          </dl>
         </section>
+
+        <section class="demo-mode-panel" id="demo-convert-panel" role="tabpanel" aria-labelledby="demo-mode-convert" hidden>
+          <div class="demo-convert-layout">
+            <form class="demo-controls-card" id="demo-form" aria-label="Conversion options">
+              <fieldset id="demo-controls" disabled>
+                <legend>Conversion options</legend>
+                <div class="demo-control-section">
+                  <div class="demo-control-heading"><span>Output</span><small>First-party encoder</small></div>
+                  <label class="demo-field"><span>Convert to</span><select id="demo-output-format"><option value="jpeg">JPEG</option><option value="png">PNG</option><option value="webp">WebP</option><option value="bmp">BMP</option><option value="tiff">TIFF (Deflate)</option></select></label>
+                  <label class="demo-field" id="demo-quality-group"><span>Quality <output id="demo-quality-value" for="demo-quality">82</output></span><input id="demo-quality" type="range" min="1" max="100" value="82"></label>
+                  <label class="demo-check" id="demo-webp-lossless-group" hidden><input id="demo-webp-lossless" type="checkbox"><span><strong>Lossless WebP</strong><small>Ignore quality and preserve exact pixels.</small></span></label>
+                  <label class="demo-check" id="demo-jpeg-progressive-group"><input id="demo-jpeg-progressive" type="checkbox"><span><strong>Progressive JPEG</strong><small>Write a six-scan progressive file.</small></span></label>
+                </div>
+                <div class="demo-control-section">
+                  <div class="demo-control-heading"><span>Transforms</span><small>Applied in order</small></div>
+                  <label class="demo-check"><input id="demo-auto-orient" type="checkbox" checked><span><strong>Auto-orient</strong><small>Apply EXIF orientation before transforms.</small></span></label>
+                  <label class="demo-check"><input id="demo-resize-enabled" type="checkbox"><span><strong>Resize</strong><small>Fit inside dimensions without enlarging.</small></span></label>
+                  <div class="demo-dimension-fields" id="demo-resize-fields" hidden>
+                    <label class="demo-field"><span>Maximum width</span><input id="demo-resize-width" type="number" min="1" inputmode="numeric"></label>
+                    <span aria-hidden="true">×</span>
+                    <label class="demo-field"><span>Maximum height</span><input id="demo-resize-height" type="number" min="1" inputmode="numeric"></label>
+                  </div>
+                  <label class="demo-field"><span>Rotate</span><select id="demo-rotation"><option value="0">Do not rotate</option><option value="90">90° clockwise</option><option value="180">180°</option><option value="270">270° clockwise</option></select></label>
+                  <div class="demo-check-grid">
+                    <label class="demo-check compact"><input id="demo-flop" type="checkbox"><span><strong>Flip horizontal</strong></span></label>
+                    <label class="demo-check compact"><input id="demo-flip" type="checkbox"><span><strong>Flip vertical</strong></span></label>
+                  </div>
+                </div>
+                <div class="demo-control-section">
+                  <div class="demo-control-heading"><span>Acceleration</span><small>Explicit opt-in</small></div>
+                  <label class="demo-check"><input id="demo-wasm-enabled" type="checkbox"><span><strong>Rust/WASM JPEG decoder</strong><small>Eligible baseline JPEG input can use the optional accelerator. Other work remains TypeScript.</small></span></label>
+                  <p class="demo-accelerator-status" id="demo-accelerator-status">TypeScript reference selected.</p>
+                </div>
+                <button class="button demo-convert-button" id="demo-convert" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg><span id="demo-convert-label">Convert with TypeScript</span></button>
+              </fieldset>
+              <p class="demo-operation-status" id="demo-operation-status" role="status" aria-live="polite">Choose a file to begin.</p>
+            </form>
+
+            <div class="demo-convert-note">
+              <p class="demo-card-kicker">Complete pipeline</p>
+              <h3>Decode, transform, encode, validate.</h3>
+              <p>The converter reopens its own output and verifies its dimensions before offering the download. Whole-slide inputs should use a visible clip rather than converting the complete base level.</p>
+              <div><span>INPUT</span><i></i><span>PIXELS</span><i></i><span>OUTPUT</span></div>
+            </div>
+          </div>
+
+          <section class="demo-result" id="demo-result" aria-labelledby="result-title" hidden>
+            <div class="demo-result-preview-wrap">
+              <p class="demo-card-kicker">Validated output</p>
+              <h2 id="result-title">Your converted image is ready.</h2>
+              <p id="demo-result-summary"></p>
+              <div class="demo-result-preview-frame"><img id="demo-result-preview" alt=""><div class="demo-preview-fallback" id="demo-result-fallback" hidden></div></div>
+              <a class="button" id="demo-download" href="#demo-result" download>Download converted file</a>
+            </div>
+            <dl class="demo-metrics" aria-label="Conversion measurements">
+              <div><dt>Conversion time</dt><dd id="demo-metric-elapsed">—</dd><small>Decode, transform, and encode</small></div>
+              <div><dt>Decode mode</dt><dd id="demo-metric-provider">—</dd><small>Enabled mode; selectors may fall back</small></div>
+              <div><dt>WASM vs TypeScript</dt><dd id="demo-metric-comparison">—</dd><small>Same file and settings in this tab</small></div>
+              <div><dt>Max observed JS heap</dt><dd id="demo-metric-memory">—</dd><small>Browser estimate at checkpoints</small></div>
+              <div><dt>Known file bytes</dt><dd id="demo-metric-known-bytes">—</dd><small>Input + output, not scratch memory</small></div>
+              <div><dt>Output size</dt><dd id="demo-metric-output">—</dd><small>Validated encoded Blob</small></div>
+            </dl>
+          </section>
+        </section>
+          </div>
+        </div>
       </div>
     </section>
+
 
     <section class="demo-log-section" aria-labelledby="log-title">
       <div class="container">
         <div class="demo-section-heading">
-          <div><span>02</span><h2 id="log-title">Operation log</h2></div>
-          <p>Every detection, planned transform, validation result, error, timing measurement, and available memory reading appears here.</p>
+          <div><h2 id="log-title">Operation log</h2></div>
+          <p>Detection, directory selection, viewport reads, exports, validation, errors, timings, and available memory observations appear here.</p>
         </div>
         <div class="demo-log-window">
           <div class="demo-log-toolbar"><div><i></i><i></i><i></i><strong>purejsimage://browser-operation</strong></div><div><button id="demo-clear-log" type="button">Clear</button><button id="demo-copy-log" type="button">Copy log</button></div></div>
-          <ol id="demo-log-list" aria-live="polite" aria-label="Conversion operation log"></ol>
+          <ol id="demo-log-list" aria-live="polite" aria-label="Image operation log"></ol>
         </div>
         <div class="callout warning demo-memory-note"><strong>What “max memory” means here.</strong> Chromium exposes an estimated current JavaScript heap size, so this demo records the maximum observed value at operation checkpoints. It is not process RSS and can miss short-lived allocations while JavaScript is running. Firefox and Safari do not expose a comparable value, so the UI says “Not exposed” instead of inventing one. Input and output file bytes are reported separately and exactly.</div>
       </div>
@@ -158,9 +294,9 @@
           <div class="window-bar"><span class="window-dot"></span><span class="window-dot"></span><span class="window-dot"></span><span class="window-title">npm CDN · pinned release</span></div>
           <button class="code-copy" type="button" data-copy="demo-cdn-code">Copy</button>
           <pre><code id="demo-cdn-code">import { createImageLibrary } from
-  'https://cdn.jsdelivr.net/npm/purejsimage@0.7.0/dist/browser.js'
+  'https://cdn.jsdelivr.net/npm/purejsimage@0.8.0/dist/browser.js'
 import { allCodecs } from
-  'https://cdn.jsdelivr.net/npm/purejsimage@0.7.0/dist/codec-entries/all.js'
+  'https://cdn.jsdelivr.net/npm/purejsimage@0.8.0/dist/codec-entries/all.js'
 
 const images = createImageLibrary(allCodecs)
 const image = await images.open(file)
@@ -170,7 +306,7 @@ const output = await image.webp({ quality: 82 }).toBlob()</code></pre>
     </section>
   </main>
 
-  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>First-party browser image conversion with explicit measurements and honest capability boundaries.</p></div><div class="footer-column"><strong>Try</strong><a href="demo.html">Browser demo</a><a href="guides.html">Guides</a><a href="api.html">API</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Files stay on your device</span></div></div></footer>
+  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>First-party browser image conversion with explicit measurements and honest capability boundaries.</p></div><div class="footer-column"><strong>Try</strong><a href="demo.html">Browser demo</a><a href="guides.html">Guides</a><a href="api.html">API</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a><a href="llms.txt">LLM guide</a><a href="sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Files stay on your device</span></div></div></footer>
   <script src="site.js" defer></script>
   <script src="assets/demo-app.js" type="module"></script>
 </body>

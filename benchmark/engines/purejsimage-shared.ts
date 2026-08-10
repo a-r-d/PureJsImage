@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
 import packageJson from '../../package.json' with { type: 'json' }
 import type {
@@ -7,6 +8,8 @@ import type {
   ImageMetadata,
   PipelineWorkflow,
 } from '../types.ts'
+
+type RawOperation = Extract<PipelineWorkflow['operations'][number], { type: 'raw' }>
 
 interface PureImage {
   metadata(): Promise<ImageMetadata>
@@ -35,7 +38,7 @@ interface PureImage {
 }
 
 interface PureImageLibrary {
-  open(input: Uint8Array): Promise<PureImage>
+  open(input: Uint8Array, options?: { readonly tolerantDecoding?: boolean }): Promise<PureImage>
 }
 
 interface PureImageLibraryConfiguration {
@@ -67,6 +70,141 @@ export interface PureJsImageEngineOptions {
   readonly versionSuffix: string
   readonly codecs?: readonly NamedImport[]
   readonly accelerators?: readonly NamedImport[]
+}
+interface DirectPixelBlock {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+  readonly stride: number
+  readonly format: string
+  readonly data: Uint8Array
+  readonly release?: () => void
+}
+
+interface DirectDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: string
+  decode(request?: {
+    readonly x?: number
+    readonly y?: number
+    readonly width?: number
+    readonly height?: number
+  }): AsyncIterable<DirectPixelBlock>
+}
+
+interface DirectCodec {
+  createDecoder(
+    source: {
+      readonly size: number
+      read(offset: number, length: number): Promise<Uint8Array>
+    },
+    limits: Readonly<Record<string, number>>,
+  ): Promise<DirectDecoder>
+}
+const isDirectCodec = (value: unknown): value is DirectCodec =>
+  typeof value === 'object' &&
+  value !== null &&
+  'createDecoder' in value &&
+  typeof value.createDecoder === 'function'
+
+const isDirectLimits = (value: unknown): value is Readonly<Record<string, number>> =>
+  typeof value === 'object' &&
+  value !== null &&
+  Object.values(value).every((limit) => typeof limit === 'number')
+
+const bytesPerPixel = (format: string): number => {
+  if (format === 'gray8') return 1
+  if (format === 'gray16') return 2
+  if (format === 'rgb8') return 3
+  if (format === 'rgba8') return 4
+  if (format === 'rgb16') return 6
+  if (format === 'rgba16') return 8
+  throw new Error(`Raw TIFF benchmark does not support ${format} pixels`)
+}
+
+const rawTiffDecode = async (
+  input: Buffer,
+  operation: RawOperation,
+  format: string,
+): Promise<EngineExecution> => {
+  const entryUrl = pathToFileURL(entry)
+  const [codecModule, limitsModule]: unknown[] = await Promise.all([
+    import(new URL('./codec-entries/tiff.js', entryUrl).href),
+    import(new URL('./limits.js', entryUrl).href),
+  ])
+  const codec =
+    typeof codecModule === 'object' && codecModule !== null
+      ? Reflect.get(codecModule, 'tiffCodec')
+      : undefined
+  const limits =
+    typeof limitsModule === 'object' && limitsModule !== null
+      ? Reflect.get(limitsModule, 'defaultImageLimits')
+      : undefined
+  if (!isDirectCodec(codec) || !isDirectLimits(limits)) {
+    throw new Error(`${entry} does not expose the direct TIFF decoder`)
+  }
+
+  let sourceBytesRead = 0
+  const source = {
+    size: input.byteLength,
+    async read(offset: number, length: number): Promise<Uint8Array> {
+      const end = Math.min(input.byteLength, offset + length)
+      const bytes = input.subarray(offset, end)
+      sourceBytesRead += bytes.byteLength
+      return bytes
+    },
+  }
+  const decoder = await codec.createDecoder(source, limits)
+  const width = operation.width ?? decoder.width - (operation.x ?? 0)
+  const height = operation.height ?? decoder.height - (operation.y ?? 0)
+  const digest = createHash('sha256')
+  const pixelBytes = bytesPerPixel(decoder.pixelFormat)
+  const rowBytes = width * pixelBytes
+  let decodedBytes = 0
+  let maximumDecodedBlockBytes = 0
+  let expectedY = 0
+  for await (const block of decoder.decode({
+    ...(operation.x === undefined ? {} : { x: operation.x }),
+    ...(operation.y === undefined ? {} : { y: operation.y }),
+    ...(operation.width === undefined ? {} : { width: operation.width }),
+    ...(operation.height === undefined ? {} : { height: operation.height }),
+  })) {
+    if (
+      block.x !== 0 ||
+      block.y !== expectedY ||
+      block.width !== width ||
+      block.stride < rowBytes ||
+      block.format !== decoder.pixelFormat
+    ) {
+      block.release?.()
+      throw new Error('Direct TIFF decoder returned invalid raw block geometry')
+    }
+    maximumDecodedBlockBytes = Math.max(maximumDecodedBlockBytes, block.data.byteLength)
+    for (let row = 0; row < block.height; row += 1) {
+      const start = row * block.stride
+      digest.update(block.data.subarray(start, start + rowBytes))
+      decodedBytes += rowBytes
+    }
+    expectedY += block.height
+    block.release?.()
+  }
+  if (expectedY !== height) {
+    throw new Error(`Direct TIFF decoder returned ${expectedY} of ${height} rows`)
+  }
+  return {
+    decoded: {
+      format,
+      width,
+      height,
+      pixelFormat: decoder.pixelFormat,
+      bytes: decodedBytes,
+      sha256: digest.digest('hex'),
+    },
+    sourceBytesRead,
+    maximumDecodedBlockBytes,
+  }
 }
 
 const entry = process.env.PUREJSIMAGE_ENTRY ?? './dist/index.js'
@@ -155,6 +293,16 @@ const applyOperations = async ({
   workflow: PipelineWorkflow
   input: Buffer
 }): Promise<EngineExecution> => {
+  const rawOperation = workflow.operations.find(
+    (operation): operation is RawOperation => operation.type === 'raw',
+  )
+  if (rawOperation) {
+    if (workflow.operations.length !== 1) {
+      throw new Error('Raw TIFF benchmark operation must be the only pipeline operation')
+    }
+    return rawTiffDecode(input, rawOperation, workflow.expected.format)
+  }
+
   let image = await Image.open(input)
   let output: Uint8Array | undefined
 

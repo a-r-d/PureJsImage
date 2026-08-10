@@ -1,0 +1,664 @@
+# PureJsImage
+
+> PureJsImage is a zero-runtime-dependency image processing library written in strict TypeScript. It provides first-party JavaScript codecs, an immutable lazy pipeline, bounded row/block processing, Node.js 22+ support, and modern-browser support.
+
+This file is the compact implementation guide for coding agents and other LLM clients. It describes the public API on the current `main` branch. It is not a substitute for the checked codec capability contracts when an exact format subset matters.
+
+## Authoritative links
+
+- Package: https://www.npmjs.com/package/purejsimage
+- Source: https://github.com/a-r-d/PureJsImage
+- Getting started: https://a-r-d.github.io/PureJsImage/guides.html
+- API reference: https://a-r-d.github.io/PureJsImage/api.html
+- Codec matrix: https://a-r-d.github.io/PureJsImage/codecs.html
+- Machine-readable codec capabilities: https://a-r-d.github.io/PureJsImage/capabilities.json
+- TIFF guide: https://a-r-d.github.io/PureJsImage/tiff.html
+- Performance evidence: https://a-r-d.github.io/PureJsImage/performance.html
+- Sitemap: https://a-r-d.github.io/PureJsImage/sitemap.xml
+
+## Choose PureJsImage when
+
+Use PureJsImage when the application needs one or more of these properties:
+
+- The same codec and transform API in Node.js and modern browsers.
+- No runtime dependencies, native addons, external programs, or automatically loaded WebAssembly.
+- Explicit codec registration so the application loads and accepts only selected formats.
+- Bounded row, strip, tile, or block processing instead of a source-sized RGBA bitmap where the codec permits it.
+- A lazy, immutable conversion pipeline for crop, resize, orientation, rotation, flip, flop, and encode.
+- Structured limits and stable error codes for untrusted image input.
+- Broad TIFF support, including native scientific samples, regions, OME-TIFF, GeoTIFF, and whole-slide profiles.
+- An optional first-party WASM accelerator for eligible JPEG or PNG work without replacing the TypeScript fallback.
+
+## Choose another library when
+
+PureJsImage is not a drop-in replacement for every image library. Keep or choose another tool when the required operation is outside the documented API:
+
+- Use a drawing/compositing library for text, fonts, vector drawing, layers, arbitrary pixel mutation, masks, blur, convolution, or a large plugin ecosystem.
+- Keep Sharp/libvips when native deployment is acceptable and its broader native operation set or measured throughput is the primary requirement.
+- Keep image-js when the application depends on its scientific matrix operations, ROI analysis, filters, morphology, or mutable image algorithms rather than codec conversion.
+- Keep a dedicated geospatial stack when the application depends on an established GeoTIFF projection, resampling, or map-rendering ecosystem beyond PureJsImage's public GeoTIFF model and raster APIs.
+- Use a codec with the required animation contract when later animated GIF/APNG/WebP frames or animated encoding are required. PureJsImage currently exposes only the documented still/static subsets.
+- Do not assume an unchecked item in a codec support checklist works. Recognized unsupported subsets fail with `UNSUPPORTED_OPERATION`.
+- Experimental HEIF/HEIC is explicit opt-in. HEVC/H.265 content may carry third-party patent obligations; the MIT license grants no third-party patent rights.
+
+## Install and runtime entry points
+
+```sh
+npm install purejsimage
+```
+
+The package is ESM and includes TypeScript declarations.
+
+Node.js 22+:
+
+```ts
+import { createImageLibrary, ImageError } from 'purejsimage'
+```
+
+Modern browsers:
+
+```ts
+import { createImageLibrary, ImageError } from 'purejsimage/browser'
+```
+
+Import codecs from explicit subpaths. Do not import codec implementations from the root entry.
+
+```ts
+import { jpegCodec } from 'purejsimage/codecs/jpeg'
+import { pngCodec } from 'purejsimage/codecs/png'
+import { webpCodec } from 'purejsimage/codecs/webp'
+
+const images = createImageLibrary([jpegCodec, pngCodec, webpCodec])
+```
+
+Use every default codec only when the application genuinely accepts all of them:
+
+```ts
+import { createImageLibrary } from 'purejsimage'
+import { allCodecs } from 'purejsimage/codecs/all'
+
+const images = createImageLibrary(allCodecs)
+```
+
+`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, and AVIF. It intentionally excludes experimental HEIF/HEIC.
+
+## Mental model
+
+1. `createImageLibrary(registration)` creates an immutable codec registry. Create it once and reuse it.
+2. `await images.open(input, options?)` probes registered codecs and returns a lazy `Image`.
+3. Every transform returns another immutable `Image`; transforms execute in call order.
+4. `metadata()` inspects metadata and planned dimensions without running the pixel pipeline.
+5. An encoder method such as `jpeg()`, `png()`, or `webp()` selects output.
+6. A terminal method such as `toFile()`, `toUint8Array()`, `toBlob()`, or `toSink()` executes the pipeline.
+
+There is no mutable canvas. Branching is safe because pipelines share the source but retain separate operation lists.
+
+```ts
+const source = await images.open(input)
+const large = source.resize({ width: 1600 }).jpeg({ quality: 82 })
+const thumb = source
+  .resize({ width: 320, height: 320, fit: 'cover' })
+  .webp({ quality: 76 })
+
+const [largeBytes, thumbBytes] = await Promise.all([
+  large.toUint8Array(),
+  thumb.toUint8Array(),
+])
+```
+
+## Complete common Node.js conversion
+
+```ts
+import { createImageLibrary } from 'purejsimage'
+import { jpegCodec } from 'purejsimage/codecs/jpeg'
+import { pngCodec } from 'purejsimage/codecs/png'
+import { webpCodec } from 'purejsimage/codecs/webp'
+
+const images = createImageLibrary([jpegCodec, pngCodec, webpCodec])
+
+await (await images.open('input.png', {
+  limits: {
+    maxInputBytes: 20 * 1024 * 1024,
+    maxWidth: 12_000,
+    maxHeight: 12_000,
+    maxPixels: 60_000_000,
+    maxDecodedBytes: 240_000_000,
+  },
+}))
+  .autoOrient()
+  .resize({ width: 1600, fit: 'inside', withoutEnlargement: true })
+  .jpeg({ quality: 82, background: '#ffffff', chromaSubsampling: '420' })
+  .toFile('output.jpg')
+```
+
+Register both the input and output codecs. An unregistered source format fails with `UNSUPPORTED_FORMAT`; selecting an encoder that is not registered also fails.
+
+## Complete common browser conversion
+
+```ts
+import { createImageLibrary } from 'purejsimage/browser'
+import { jpegCodec } from 'purejsimage/codecs/jpeg'
+import { pngCodec } from 'purejsimage/codecs/png'
+
+const images = createImageLibrary([jpegCodec, pngCodec])
+const image = await images.open(file) // File is a Blob
+const blob = await image
+  .autoOrient()
+  .resize({ width: 1200, withoutEnlargement: true })
+  .jpeg({ quality: 80, background: '#ffffff' })
+  .toBlob()
+
+const previewUrl = URL.createObjectURL(blob)
+```
+
+Browser input: `Blob`/`File`, `ArrayBuffer`, `Uint8Array`, or `ImageSource`. Browser output: `toBlob()`, `toUint8Array()`, or `toSink()`. Browsers cannot open arbitrary local path strings and do not expose `toFile()`.
+
+## ImageLibrary quick API
+
+```ts
+interface ImageLibrary {
+  formats(): readonly string[]
+  open(input: ImageInput, options?: ImageOpenOptions): Promise<Image>
+}
+
+interface ImageOpenOptions {
+  frame?: number
+  resolutionLevel?: number
+  tolerantDecoding?: boolean
+  limits?: ImageLimitOptions
+}
+```
+
+- `formats()` returns registered format names in registration order.
+- `frame` is zero-based. Animated GIF pixel output requires explicit `{ frame: 0 }`; later frames are unsupported.
+- TIFF `frame` selects a top-level IFD. TIFF `resolutionLevel` selects level 0 or a reduced-resolution SubIFD ordered largest to smallest.
+- Nonzero frame or resolution selections fail when the selected codec does not implement them.
+- JPEG tolerant restart/partial-scan recovery is enabled by default. Use `tolerantDecoding: false` for strict validation.
+
+## Image transform quick API
+
+All transform methods return a new `Image`.
+
+- `metadata()` returns `Promise<ImageMetadata>` without decoding pixels.
+- `autoOrient()` applies EXIF orientations 1 through 8.
+- `keepExif()` opts into compatible EXIF preservation. EXIF is stripped by default.
+- `keepIcc()` opts into compatible ICC preservation. ICC is stripped or converted by default.
+- `crop({ x, y, width, height })` uses integer coordinates in the current pipeline state. The rectangle must be in bounds.
+- `resize(options)` supports one or two dimensions.
+- `rotate(degrees, options?)` rotates clockwise. Quarter turns are exact; arbitrary angles use bilinear sampling and expand the canvas.
+- `flip()` mirrors top to bottom.
+- `flop()` mirrors left to right.
+
+Spatial operations execute in call order. A crop after resize uses resized coordinates.
+
+### Resize options
+
+```ts
+type ResizeFit = 'contain' | 'cover' | 'fill' | 'inside' | 'outside'
+type ResizeKernel = 'nearest' | 'bilinear' | 'lanczos3'
+type Background = 'transparent' | `#${string}`
+
+type ResizeOptions = {
+  width?: number
+  height?: number
+  fit?: ResizeFit
+  position?: 'center'
+  background?: Background
+  withoutEnlargement?: boolean
+  kernel?: ResizeKernel
+}
+```
+
+At least one dimension is required.
+
+- One dimension preserves aspect ratio.
+- With two dimensions, `cover` is the default and center-crops overflow.
+- `contain` fits inside the box and pads; only center positioning is currently supported.
+- `fill` uses exact dimensions without preserving aspect ratio.
+- `inside` preserves aspect ratio within maximum dimensions.
+- `outside` preserves aspect ratio while meeting both minimum dimensions.
+- `lanczos3` is the default. Use `bilinear` for a faster lower-quality path or `nearest` for hard pixel edges.
+- `withoutEnlargement: true` prevents permitted fits from scaling above 1.
+- Background colors are `transparent`, `#RRGGBB`, or `#RRGGBBAA`.
+
+## Encoder quick API
+
+Encoder methods return a new `Image`; a terminal output method performs the work.
+
+```ts
+image.jpeg({
+  quality: 80,                 // 1..100
+  progressive: false,
+  background: '#ffffff',
+  chromaSubsampling: '420',    // '420' | '422' | '444'
+  restartInterval: 0,          // 0..65535
+})
+
+image.png({ compressionLevel: 6 }) // Node: 0..9; browser: 6
+image.webp({ lossless: false, quality: 80 })
+image.bmp({ alpha: true })
+image.tiff({
+  compression: 'deflate',
+  predictor: 'horizontal',
+  layout: 'strips',
+  compressionLevel: 6,
+})
+```
+
+`encode(format, options?)` is the generic equivalent for `jpeg`, `png`, `webp`, `bmp`, and `tiff`.
+
+Important boundaries:
+
+- JPEG output supports baseline and optional refinement-based progressive output.
+- PNG output is 8-bit. Node compression levels are 0 through 9; browser `CompressionStream` currently supports level 6.
+- WebP output is static lossy or lossless.
+- BMP output is 24-bit RGB or 32-bit RGBA.
+- TIFF output is canonical Classic TIFF: little-endian, chunky 8-bit RGB/RGBA, Deflate strips, and horizontal prediction.
+- GIF, ICO, JPEG 2000, AVIF, and experimental HEIF/HEIC currently have no public pipeline encoder.
+
+## Terminal output methods
+
+- `toFile(path)`: Node-only; removes a partial file if encoding fails.
+- `toBuffer()`: Node execution returning a runtime `Buffer` through the portable `Uint8Array` public type.
+- `toUint8Array()`: portable encoded bytes in Node or browsers.
+- `toBlob()`: browser-oriented `Blob` with the registered output MIME type.
+- `toSink(sink)`: streams encoded chunks to a custom `ImageSink`.
+
+Node exports `FileSink` and `BufferSink`. Both runtimes export `Uint8ArraySink` and the `ImageSink` contract.
+
+## Inputs and range sources
+
+```ts
+type BrowserImageInput = ArrayBuffer | Blob | ImageSource | Uint8Array
+type NodeImageInput = BrowserImageInput | string
+
+interface ImageSource {
+  readonly size: number
+  read(offset: number, length: number): Promise<Uint8Array>
+}
+```
+
+Available source adapters:
+
+- `MemorySource`: zero-copy reads over `ArrayBuffer` or `Uint8Array`.
+- `BlobSource`: browser range reads using `Blob.slice()`.
+- `FileSource`: Node-only; use `await FileSource.open(path)`.
+- `HttpRangeSource`: bounded HTTP range-backed reads with request and byte statistics.
+
+A custom source must return exactly the requested in-range byte count or reject. Short, oversized, detached, and rejected reads become structured `ImageError` results.
+
+## Metadata
+
+```ts
+interface ImageMetadata {
+  width: number
+  height: number
+  format: string
+  mimeType: string
+  hasAlpha: boolean
+  orientation?: number
+  colorSpace?: string
+  colorProfile?:
+    | { kind: 'icc'; description?: string }
+    | {
+        kind: 'nclx'
+        primaries: number
+        transferCharacteristics: number
+        matrixCoefficients: number
+        fullRange: boolean
+      }
+  bitDepth?: number
+  chromaSubsampling?: '400' | '411' | '420' | '422' | '440' | '444'
+  codecProfile?: number
+  frames?: number
+}
+```
+
+`keepExif()` and `keepIcc()` are independent opt-ins. Unsupported preservation combinations fail instead of silently dropping requested metadata. JPEG, PNG, and WebP support compatible EXIF and ICC preservation. TIFF supports compatible ICC preservation but not retained EXIF.
+
+## Safety limits
+
+```ts
+interface ImageLimitOptions {
+  maxWidth?: number
+  maxHeight?: number
+  maxPixels?: number
+  maxInputBytes?: number
+  maxFrames?: number
+  maxDecodedBytes?: number
+}
+```
+
+Defaults:
+
+- `maxWidth`: 100,000
+- `maxHeight`: 100,000
+- `maxPixels`: 268,435,456
+- `maxInputBytes`: 134,217,728 bytes
+- `maxFrames`: 1,000
+- `maxDecodedBytes`: 1,073,741,824 bytes
+
+Every supplied limit must be a positive safe integer. Set smaller application-specific limits for untrusted uploads.
+
+## Errors
+
+```ts
+type ImageErrorCode =
+  | 'INVALID_INPUT'
+  | 'LIMIT_EXCEEDED'
+  | 'TRUNCATED_INPUT'
+  | 'UNSUPPORTED_FORMAT'
+  | 'UNSUPPORTED_OPERATION'
+```
+
+```ts
+import { ImageError } from 'purejsimage'
+
+try {
+  return await pipeline.toUint8Array()
+} catch (error) {
+  if (error instanceof ImageError) {
+    console.warn(error.code, error.message)
+  }
+  throw error
+}
+```
+
+- `INVALID_INPUT`: malformed structure, invalid options, dimensions, or source behavior.
+- `LIMIT_EXCEEDED`: an input, dimension, frame, decoded-byte, or temporary-storage budget was exceeded.
+- `TRUNCATED_INPUT`: required bytes or pixels ended early.
+- `UNSUPPORTED_FORMAT`: the format is unknown or its codec was not registered.
+- `UNSUPPORTED_OPERATION`: the format is recognized but the requested subset or operation is not implemented.
+
+<!-- capabilities:llms:start -->
+## Codec capability map
+
+This section is generated from `capabilities/manifest.json`. Status and boundary text are evidence-backed public claims. Read each linked checklist before relying on an uncommon format subset.
+
+### JPEG
+
+- Import: `import { jpegCodec } from 'purejsimage/codecs/jpeg'`
+- Decode: Yes (`supported`)
+- Encode: Yes (`supported`)
+- Implemented scope: Decodes common 8-bit baseline, extended-sequential, multi-scan, and progressive grayscale, YCbCr, RGB, CMYK, and YCCK JPEGs with chroma-aware interpolation, plus AVI1/MJPEG baseline frames that use omitted standard Huffman tables. Encodes baseline and scan-optimized refinement-based progressive JPEG with configurable quality, chroma sampling, native grayscale, and restart markers.
+- Primary boundary: Static 8-bit Huffman JPEG, including AVI1/MJPEG frames with omitted standard tables; no arithmetic, lossless, 12-bit, or omitted nonstandard external tables
+- Memory model: Incremental entropy input, bounded MCU-row baseline output, restart-aware region seeking, and scaled IDCT; progressive decode and encode retain compact Int16 coefficient planes
+- Recommended output use: Photographs and broadly compatible lossy output.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/jpeg-codec-support.md
+
+### PNG
+
+- Import: `import { pngCodec } from 'purejsimage/codecs/png'`
+- Decode: Yes (`supported`)
+- Encode: Yes (`supported`)
+- Implemented scope: Decodes every legal grayscale, truecolor, indexed, and alpha combination at 1-16 bits, including Adam7, palettes, transparency, and supported color profiles. Encodes streaming 8-bit grayscale, RGB, or RGBA PNG with adaptive filters and opt-in EXIF and compatible ICC preservation.
+- Primary boundary: No APNG frame decode or indexed/16-bit output
+- Memory model: Sequential scanlines and bounded output blocks; Adam7 retains compact requested samples
+- Recommended output use: Exact alpha, screenshots, graphics, and lossless round trips.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/png-codec-support.md
+
+### WebP
+
+- Import: `import { webpCodec } from 'purejsimage/codecs/webp'`
+- Decode: Yes (`supported`)
+- Encode: Yes (`supported`)
+- Implemented scope: Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy or lossless WebP with opt-in EXIF and compatible ICC preservation. Animation is detected and rejected for pixel decode.
+- Primary boundary: Static images only; compressed RIFF input and compact VP8L transform maps remain source-sized
+- Memory model: VP8 uses two macroblock rows; VP8L uses a fixed maximum 4 MiB entropy history plus scanline transform buffers. Decode still retains compressed input and compact transform maps. Lossless encode retains a 32-bit transformed frame, fixed 4 MiB match table, and encoded payload.
+- Recommended output use: Static web delivery with lossy or exact lossless modes; use the 12-megapixel VP8 and VP8L pressure fixtures when changing decode memory.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/webp-codec-support.md
+
+### BMP
+
+- Import: `import { bmpCodec } from 'purejsimage/codecs/bmp'`
+- Decode: Yes (`supported`)
+- Encode: Yes (`supported`)
+- Implemented scope: Decodes common Windows and OS/2 headers, indexed 1/4/8-bit pixels, RLE4/RLE8, RGB555/RGB565, top-down images, bitfields, and explicit alpha. Encodes 24-bit RGB and 32-bit RGBA BMP.
+- Primary boundary: Common Windows and OS/2 raster subsets; no embedded JPEG or PNG
+- Memory model: Region-based row reads; RLE uses compact full-frame index storage
+- Recommended output use: Legacy Windows bitmap interoperability.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/bmp-codec-support.md
+
+### TIFF
+
+- Import: `import { tiffCodec } from 'purejsimage/codecs/tiff'`
+- Decode: Yes (`supported`)
+- Encode: Yes (`supported`)
+- Implemented scope: Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. Supported compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes. Public APIs expose bounded tag reads, native-precision N-channel rasters, GeoTIFF georeferencing and GDAL metadata, OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, and validator-protected HTTP range reads. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.
+- Primary boundary: Broad validated IFD-graph and strip/tile decode plus public TIFF document, native scientific-raster, GeoTIFF, OME-TIFF, deterministic profile, whole-slide, and bounded HTTP-range access APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles
+- Memory model: Selected-frame, GeoTIFF, OME plane, and whole-slide region decode remain strip- or tile-bounded; IFD traversal and profile detection do not read unselected pixel segments. HTTP range reads use a bounded deduplicating LRU cache and reject resource changes. LERC, Zstandard, bit-order normalization, color conversion, prediction, raster/display output, and embedded codec pixels are bounded to the current metadata table or segment and emitted in bounded rows. JPEG 2000 reconstructs complete component state only for the current TIFF segment, not the source slide. Encoding retains compressed segment payloads until their offsets are known but never stages a full uncompressed frame.
+- Recommended output use: Broad display-image input compatibility, native scientific and GeoTIFF raster access, validated OME and whole-slide pyramids, selective remote COG-style reads, explicit frame/pyramid selection, and structured Deflate RGB/RGBA strip, tile, BigTIFF, multi-page, and SubIFD-pyramid output.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/tiff-codec-support.md
+
+### GIF
+
+- Import: `import { gifCodec } from 'purejsimage/codecs/gif'`
+- Decode: Static / explicit frame 0 (`limited`)
+- Encode: No (`unsupported`)
+- Implemented scope: Parses GIF87a/GIF89a, palettes, transparency, interlace, LZW data, frame rectangles, and static images. Metadata counts animation frames. Animated pixel decode fails unless frame 0 is explicitly selected; later frames and GIF encoding are unsupported.
+- Primary boundary: Static images decode directly; animated inputs require explicit frame 0 selection; no animation editing or GIF output
+- Memory model: Retains compact first-frame palette indices, then emits bounded RGBA rows
+- Recommended output use: Static GIF uploads or explicit first-frame extraction from animated GIFs.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/gif-codec-support.md
+
+### ICO
+
+- Import: `import { icoCodec } from 'purejsimage/codecs/ico'`
+- Decode: Yes (`supported`)
+- Encode: No (`unsupported`)
+- Implemented scope: Decodes multi-image Windows icons backed by embedded PNG or common DIB pixels. Selection is deterministic; AND masks, partial alpha, and the legacy all-zero-alpha fallback are preserved.
+- Primary boundary: Static ICO decode only; no CUR or ICO output
+- Memory model: Decodes one selected entry; DIB pixels are emitted in bounded rows
+- Recommended output use: Favicon and Windows icon input converted to a web output format.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/ico-codec-support.md
+
+### JPEG 2000 / JP2
+
+- Import: `import { jpeg2000Codec } from 'purejsimage/codecs/jpeg2000'`
+- Decode: Limited (`limited`)
+- Encode: No (`unsupported`)
+- Implemented scope: Decodes common static Part 1 JP2 grayscale and RGB images at 1-16 bits with reversible 5/3 or irreversible 9/7 wavelets, all five progression orders, multiple tiles, RCT/ICT, and enumerated grayscale, sRGB, or sYCC color.
+- Primary boundary: Static Part 1 JP2 subset; current decoder is a full-frame fallback
+- Memory model: Current implementation retains full-frame component and output state
+- Recommended output use: Common static JP2 uploads that fall within the documented subset.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/jpeg2000-codec-support.md
+
+### AVIF
+
+- Import: `import { avifCodec } from 'purejsimage/codecs/avif'`
+- Decode: Limited (`limited`)
+- Encode: No (`unsupported`)
+- Implemented scope: Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode targets compatible static 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 images; coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 images; filter-free lossy 10-bit and 12-bit YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 images; and lossy 10-bit YUV 4:4:4 images with compatible deblocking, CDEF, and Wiener restoration. Every supported high-depth path retains native samples through reconstruction and filtering before explicit RGBA conversion. The supported static path includes reduced still-picture sequences and compatible non-reduced sequences with one operating point, still_picture=0, and one shown key frame at maximum dimensions; complete compatible lossy 8-bit and coded-lossless high-depth multi-tile frames; contiguous tile-group OBUs; explicit lsel spatial-layer selection from a1lx-indexed multi-frame items when the selected frame is an independently decodable shown key frame in the selected a1op operating point; full-range monochrome alpha auxiliaries; opaque grids; integer clean-aperture cropping; palette screen content; skipped and residual intra-block copy; one-tile AV1 super-resolution; quantizer contexts 0-3 used by pinned fixtures; sRGB, linear and extended-sRGB, and linear BT.2020 NCLX conversion; compatible RGB matrix/TRC ICC conversion; same-size single-channel ISO gain-map composition for HDR-to-SDR output; documented in-loop filters; and the restricted Sharp/libaom quantization-matrix path. The avis sequence brand, dependent inter-frame enhancement layers, lsel=0xFFFF progressive output, show-existing-frame, decoder timing, frame IDs, dimension overrides, fractional clean apertures, multi-tile super-resolution, multi-tile intra-block-copy, partial or noncontiguous tile groups, grid alpha, gain-map grids, gain-map resampling, gain maps with alpha, broader NCLX or ICC conversion, filtered lossy 10-bit YUV 4:2:0 or 4:2:2, self-guided-restored lossy 10-bit frames, filtered lossy 12-bit frames, HDR output, broader AV1 syntax, and encoding remain unsupported and fail explicitly. PQ and HLG metadata remains inspectable, but pixel decode rejects both before SDR conversion unless a compatible SDR gain-map alternate is selected.
+- Primary boundary: Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode with compatible integer clean-aperture cropping, skipped and residual intra-block copy, compatible lossy multi-tile frames with full post-filtering, compatible non-reduced sequence headers and shown key-frame headers with contiguous tile-group OBUs, single-tile AV1 super-resolution including filtered frames, and explicit spatial-layer selection from multi-frame items when the selected layer is an independently decodable shown key frame; coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 decode including compatible YUV 4:4:4 multi-tile frames; filter-free lossy 10-bit and 12-bit YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 decode; lossy 10-bit YUV 4:4:4 decode with compatible deblocking, CDEF, and Wiener restoration; compatible alpha auxiliaries; opaque grids; compatible sRGB, linear and extended-sRGB, linear BT.2020 NCLX, and RGB matrix/TRC ICC conversion; and compatible same-size, single-channel ISO gain maps for HDR-to-SDR output
+- Memory model: Metadata reads are bounded and all decoded RGBA is emitted in ordered 32-row blocks without a source-sized RGBA bitmap. Every decoder path enforces a 64 MiB aggregate coded-payload and conservatively estimated working-state limit. Compatible opaque, single-item, filter-free AV1 frames reconstruct through two-superblock YUV, prediction, palette, and coefficient-context rings, with finalized bands copied before reuse. Layered items retain unselected OBUs only as views into the bounded item payload; only the selected complete frame enters reconstruction, without OBU concatenation or copies. Compatible filter-free alpha auxiliaries with aligned orientation reconstruct through a synchronized second row ring. Compatible full-aperture 2x, 4x, and 8x resize input is box-filtered directly from bounded YUV rows before RGBA conversion. Integer clean-aperture regions convert only contributing samples, opaque grids retain one contributing tile row, CDEF uses delayed 8-row bands, and restoration retains deblocked stripe-boundary rows plus delayed 4-row output bands. Compatible filter-free single-tile super-resolution reuses bounded upscaled luma and chroma band buffers while retaining the source chroma halo across ring reuse. Filtered super-resolution, rotated-alpha, grid, and multi-tile paths retain padded full-frame YUV reconstruction state; filtered super-resolution additionally retains the upscaled YUV planes, and multi-tile working-set estimates account for one entropy and context allocation per tile.
+- Recommended output use: Only pinned, compatible still-image subsets; inspect explicit limitations first.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/avif-codec-support.md
+
+### HEIF / HEIC (experimental)
+
+- Import: `import { experimentalHeicCodec, experimentalHeifCodec } from 'purejsimage/codecs/experimental/heic'`
+- Decode: Experimental (`limited`)
+- Encode: No (`unsupported`)
+- Implemented scope: Optional experimental decoder available only through the direct purejsimage/codecs/experimental/heic entry. Decodes common opaque Main, Main Still Picture, and selected Main 10 YUV 4:2:0 intra stills, direct images, and grid primaries. It is not registered by the default allCodecs set.
+- Primary boundary: Experimental opt-in common intra-only HEVC still subsets; excluded from the default allCodecs set; no auxiliary alpha or encoding
+- Memory model: Explicitly registered grid workflows decode requested tile rows; large compatible inputs remain explicitly measured
+- Recommended output use: Evaluate compatibility and applicable HEVC patent licensing obligations before opting in, especially for commercial distribution or services.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md
+<!-- capabilities:llms:end -->
+
+## TIFF, scientific rasters, and whole-slide images
+
+Use the normal `tiffCodec` and image pipeline for display-image conversion. Use `purejsimage/tiff` when the application needs the TIFF document graph, public tags, native sample precision, arbitrary channels, regions, SubIFDs, or vendor profiles.
+
+```ts
+import { MemorySource } from 'purejsimage'
+import { openTiffDocument } from 'purejsimage/tiff'
+
+const document = await openTiffDocument(new MemorySource(bytes))
+const first = document.topLevelDirectories[0]
+if (!first) throw new Error('TIFF has no top-level image')
+const description = await first.getTag(270, { maxBytes: 1024 * 1024 })
+const rasterDecoder = await first.createRasterDecoder()
+```
+
+Use `purejsimage/scientific` for OME-TIFF:
+
+```ts
+import { openOmeTiff } from 'purejsimage/scientific'
+
+const dataset = await openOmeTiff(document)
+for await (const block of dataset.readPlane({
+  z: 0,
+  c: [0, 1, 2],
+  t: 0,
+  resolutionLevel: 0,
+  x: 0,
+  y: 0,
+  width: 512,
+  height: 512,
+})) {
+  consume(block)
+}
+```
+
+Use `purejsimage/pathology` for `openAperioSvs()` and the generic `WholeSlideImage` contract. TIFF profile code must bound all private metadata reads and validate metadata-to-IFD mappings before decoding.
+
+## Optional JPEG and PNG WASM
+
+The root, browser, and codec imports never load WASM automatically. Register explicit first-party accelerators; unsupported or ineligible work falls back to TypeScript.
+
+```ts
+import { createImageLibrary } from 'purejsimage'
+import { allCodecs } from 'purejsimage/codecs/all'
+import { wasmJpegAccelerator } from 'purejsimage/accelerators/wasm/jpeg'
+import { wasmPngAccelerator } from 'purejsimage/accelerators/wasm/png'
+
+const images = createImageLibrary({
+  codecs: allCodecs,
+  accelerators: [wasmJpegAccelerator, wasmPngAccelerator],
+})
+```
+
+Browser code imports `createImageLibrary` from `purejsimage/browser`; accelerator subpaths stay the same.
+
+## Migration rules shared by every library
+
+PureJsImage intentionally has no compatibility shim. Migrate workflows, not method names:
+
+1. Inventory every input format, output format, metadata requirement, animation requirement, and transform.
+2. Register only codecs required by those workflows.
+3. Replace mutable edits with an immutable ordered pipeline.
+4. Convert short option names such as `w`/`h` to `width`/`height`.
+5. Select the output encoder explicitly before a terminal method.
+6. Replace implicit metadata retention with `keepExif()` and/or `keepIcc()`.
+7. Set application-specific input and decoded-size limits.
+8. Test unsupported subsets and compare output quality before removing the previous library.
+
+## Replace Jimp
+
+Typical PureJsImage replacement:
+
+```ts
+import { createImageLibrary } from 'purejsimage'
+import { jpegCodec } from 'purejsimage/codecs/jpeg'
+import { pngCodec } from 'purejsimage/codecs/png'
+
+const images = createImageLibrary([jpegCodec, pngCodec])
+const output = await (await images.open(input))
+  .autoOrient()
+  .resize({ width: 1200, height: 800, fit: 'cover' })
+  .jpeg({ quality: 80, background: '#ffffff' })
+  .toUint8Array()
+```
+
+Concept mapping:
+
+- `Jimp.read(input)` -> `await images.open(input)`
+- resize with `w`/`h` -> `resize({ width, height })`
+- cover -> `resize({ width, height, fit: 'cover' })`
+- contain -> `resize({ width, height, fit: 'contain', background })`
+- crop with `w`/`h` -> `crop({ x, y, width, height })`
+- horizontal mirror -> `flop()`
+- vertical mirror -> `flip()`
+- rotate -> `rotate(degrees, { background })`
+- MIME-based output plus quality -> explicit `jpeg({ quality })`, `png()`, `webp()`, `bmp()`, or `tiff()` followed by a terminal method
+
+Choose PureJsImage over Jimp for codec conversion, explicit limits, browser/server parity, lower dependency count, and bounded-memory pipelines. Keep Jimp when the application needs its mutable bitmap, text/fonts, drawing, blit/composite, color manipulation, per-pixel callbacks, or plugins. There is no replacement API for those operations in PureJsImage.
+
+## Replace Sharp
+
+Common Sharp workflow:
+
+```ts
+const output = await sharp(input)
+  .rotate()
+  .resize({ width: 1200, withoutEnlargement: true })
+  .jpeg({ quality: 80 })
+  .toBuffer()
+```
+
+PureJsImage equivalent:
+
+```ts
+const output = await (await images.open(input))
+  .autoOrient()
+  .resize({ width: 1200, withoutEnlargement: true })
+  .jpeg({ quality: 80 })
+  .toBuffer()
+```
+
+Concept mapping:
+
+- `sharp(input)` -> `await images.open(input)`
+- metadata -> `metadata()`
+- `rotate()` with no angle -> `autoOrient()`
+- `extract({ left, top, width, height })` -> `crop({ x: left, y: top, width, height })`
+- resize `fit` -> the same fit names where supported; PureJsImage position is currently center only
+- `flop()` -> `flop()`; `flip()` -> `flip()`
+- encoder selection -> `jpeg()`, `png()`, `webp()`, `bmp()`, or `tiff()`
+- `toBuffer()` -> `toBuffer()` or portable `toUint8Array()`
+- `toFile(path)` -> `toFile(path)`
+
+Choose PureJsImage when native binaries are unacceptable, a modern-browser path is required, zero runtime dependencies matter, or bounded-memory TypeScript behavior is the priority. Keep Sharp when native libvips deployment is acceptable and the workflow needs operations PureJsImage does not expose, such as compositing, blur/sharpen, richer color adjustment, more animated-image behavior, broader output controls, or native throughput. Benchmark the actual workload; this guide does not claim PureJsImage is universally faster.
+
+## Replace image-js
+
+For decode, transform, and encode:
+
+```ts
+const output = await (await images.open(input))
+  .crop({ x: 20, y: 20, width: 800, height: 600 })
+  .resize({ width: 400, kernel: 'lanczos3' })
+  .png({ compressionLevel: 6 })
+  .toUint8Array()
+```
+
+Choose PureJsImage when image-js is used mainly as a format loader/converter and the goal is lazy immutable transforms, explicit codec loading, Node/browser parity, untrusted-input limits, or bounded codec memory. Keep image-js for its image-analysis and mutable matrix ecosystem: channels, masks, ROI management, filters, morphology, convolution, statistics, or algorithms not represented by PureJsImage's pipeline. PureJsImage raster APIs preserve scientific samples but do not replace a full analysis toolkit.
+
+## Replace @jsquash packages
+
+PureJsImage combines format detection, codecs, transforms, sources, limits, and outputs behind one API and always has a TypeScript path. Use it when more than a narrow JPEG/PNG browser workflow is needed, when Node and browser code should share the same API, or when required WASM is undesirable.
+
+Keep `@jsquash/*` when its small, codec-scoped WASM packages cover the complete browser workload and required WASM initialization is acceptable. Do not replace it solely on theoretical bundle or speed claims; compare the exact imports and images.
+
+## Replace GeoTIFF.js or UTIF.js/utif2
+
+Use the normal PureJsImage pipeline when TIFF is an image input that should become JPEG, PNG, WebP, BMP, or TIFF. Use `openTiffDocument()`, native `RasterDecoder` output, `openOmeTiff()`, the GeoTIFF profile, or whole-slide APIs when TIFF structure and sample precision matter.
+
+Choose PureJsImage when the application needs one bounded image/scientific pipeline, validated IFD traversal, exact native samples, explicit display conversion, OME-TIFF semantics, or the documented whole-slide/profile APIs. Keep GeoTIFF.js when an existing geospatial workflow depends on its API or ecosystem and PureJsImage's public GeoTIFF model does not cover the requirement. Keep UTIF.js/utif2 only when its existing low-level decode contract is sufficient and migration cost outweighs the need for PureJsImage's limits, region/native-raster APIs, or broader validation.
+
+## Review checklist for generated code
+
+Before emitting PureJsImage code, an LLM should verify all of the following:
+
+- The runtime imports `createImageLibrary` from `purejsimage` for Node or `purejsimage/browser` for browsers.
+- Every required input and output codec is explicitly registered.
+- Experimental HEIF/HEIC is not imported or enabled unless the user explicitly requests it and accepts the patent notice.
+- Transform order matches the intended coordinate space.
+- `autoOrient()` is explicit when camera orientation should be applied.
+- Metadata preservation is explicit rather than assumed.
+- Browser code does not use path strings, `toFile()`, `Buffer`, or Node built-ins.
+- Untrusted input has deployment-appropriate limits.
+- A terminal output method is present.
+- Unsupported animation, encoder, color, scientific, or codec subsets are not silently promised.
+- The exact codec checklist or `capabilities.json` was consulted for unusual files.

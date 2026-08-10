@@ -18,7 +18,7 @@ import {
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import { iccColorSpace } from '../metadata.ts'
-import type { PixelBlock, PixelFormat } from '../pixel.ts'
+import { type PixelBlock, type PixelFormat, resumePixelBlocks } from '../pixel.ts'
 import type { DeflateEncoder } from '../runtime.ts'
 import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
@@ -29,6 +29,7 @@ import {
   ColorManagedDecoder,
   GrayColorManagedDecoder,
   MAX_ICC_PROFILE_BYTES,
+  createDisplayP3Transform,
   createPngColorTransform,
   createPngGrayTransform,
   parseRgbIccTransform,
@@ -306,6 +307,39 @@ const parseChromaticities = (data: Uint8Array): RgbChromaticities => {
   return chromaticities
 }
 
+type PngCicp = readonly [primaries: number, transfer: number, matrix: number, fullRange: number]
+
+const parseCicp = (data: Uint8Array): PngCicp => {
+  if (data.byteLength !== 4) throw invalidInput('PNG cICP chunk must contain four bytes')
+  const primaries = data[0] ?? 0
+  const transfer = data[1] ?? 0
+  const matrix = data[2] ?? 0
+  const fullRange = data[3] ?? 0
+  if (matrix !== 0) throw invalidInput('PNG cICP matrix coefficients must be zero')
+  if (fullRange !== 0 && fullRange !== 1) {
+    throw invalidInput('PNG cICP full-range flag must be zero or one')
+  }
+  return [primaries, transfer, matrix, fullRange]
+}
+
+const cicpColorTransform = (
+  cicp: PngCicp,
+  colorType: PngColorType,
+): RgbIccTransform | undefined => {
+  const [primaries, transfer, , fullRange] = cicp
+  if (colorType === 0 || colorType === 4) {
+    throw unsupportedOperation('PNG cICP color management for grayscale pixels is not implemented')
+  }
+  if (fullRange !== 1) {
+    throw unsupportedOperation('PNG cICP narrow-range color management is not implemented')
+  }
+  if (transfer === 13 && primaries === 1) return undefined
+  if (transfer === 13 && primaries === 12) return createDisplayP3Transform()
+  throw unsupportedOperation(
+    `PNG cICP primaries ${primaries} and transfer ${transfer} are not implemented`,
+  )
+}
+
 const parsePng = async (
   source: ImageSource,
   limits: ImageLimits,
@@ -360,6 +394,7 @@ const parsePng = async (
   let exif: Uint8Array | undefined
   let gamma: number | undefined
   let chromaticities: RgbChromaticities | undefined
+  let cicp: PngCicp | undefined
   let imageDataState: 'before' | 'inside' | 'after' = 'before'
 
   while (offset + 12 <= source.size && chunks < 10_000) {
@@ -410,7 +445,7 @@ const parsePng = async (
       if (foundCicp) throw invalidInput('PNG contains multiple cICP chunks')
       if (imageDataState !== 'before' || foundPalette)
         throw invalidInput('PNG cICP must precede the palette and image data')
-      if (length !== 4) throw invalidInput('PNG cICP chunk must contain four bytes')
+      cicp = parseCicp(await readExactly(source, dataOffset, length))
       foundCicp = true
     } else if (type === 'PLTE') {
       if (foundPalette) throw invalidInput('PNG contains multiple PLTE chunks')
@@ -453,7 +488,6 @@ const parsePng = async (
       if (!requireImageData) break
     } else if (type === 'IEND') {
       if (length !== 0) throw invalidInput('PNG IEND chunk is invalid')
-      if (end !== source.size) throw invalidInput('PNG contains data after its IEND chunk')
       foundEnd = true
       break
     } else {
@@ -491,14 +525,13 @@ const parsePng = async (
     }
   }
 
-  if (foundCicp) {
-    throw unsupportedOperation('PNG cICP color management is not implemented')
-  }
   let colorTransform: RgbIccTransform | undefined
   let grayTransform: Uint8Array | undefined
   let iccProfile: Uint8Array | undefined
-  if (compressedIcc) {
-    iccProfile = await inflateIccProfile(compressedIcc)
+  if (compressedIcc) iccProfile = await inflateIccProfile(compressedIcc)
+  if (cicp) {
+    colorTransform = cicpColorTransform(cicp, rawColorType)
+  } else if (iccProfile) {
     colorTransform = parseRgbIccTransform(iccProfile)
   } else if (!foundSrgb && gamma !== undefined) {
     if (rawColorType === 0 && !hasAlpha) {
@@ -918,33 +951,57 @@ class PngDecoder implements ImageDecoder {
     }
     for (const acceleration of this.#accelerations) {
       if (!acceleration.decode) continue
-      const accelerated = await acceleration.decode({
-        width: this.width,
-        height: this.height,
-        bitDepth: this.#description.bitDepth,
-        colorType: this.#description.colorType,
-        interlace: this.#description.interlace,
-        frames: this.#description.frames,
-        transparency: this.#description.transparency !== undefined,
-        pixelFormat: this.pixelFormat,
-        region,
-        inflated: decompressedChunks(
-          this.#source,
-          this.#description.idat,
-          this.#limits.maxDecodedBytes,
-        ),
-      })
-      if (accelerated) {
-        yield* accelerated
-        return
+      let accelerated: AsyncIterable<PixelBlock> | undefined
+      try {
+        accelerated = await acceleration.decode({
+          width: this.width,
+          height: this.height,
+          bitDepth: this.#description.bitDepth,
+          colorType: this.#description.colorType,
+          interlace: this.#description.interlace,
+          frames: this.#description.frames,
+          transparency: this.#description.transparency !== undefined,
+          pixelFormat: this.pixelFormat,
+          region,
+          inflated: decompressedChunks(
+            this.#source,
+            this.#description.idat,
+            this.#limits.maxDecodedBytes,
+          ),
+        })
+      } catch {
+        continue
+      }
+      if (!accelerated) continue
+
+      const iterator = accelerated[Symbol.asyncIterator]()
+      let firstOutputRow = 0
+      while (true) {
+        let result: IteratorResult<PixelBlock>
+        try {
+          result = await iterator.next()
+        } catch {
+          try {
+            await iterator.return?.()
+          } catch {}
+          yield* resumePixelBlocks(this.#decodeTypeScript(region, bitsPerPixel), firstOutputRow)
+          return
+        }
+        if (result.done) return
+        const block = result.value
+        firstOutputRow = Math.max(firstOutputRow, block.y + block.height)
+        yield block
       }
     }
+    yield* this.#decodeTypeScript(region, bitsPerPixel)
+  }
+
+  async *#decodeTypeScript(region: PngRegion, bitsPerPixel: number): AsyncGenerator<PixelBlock> {
     if (this.#description.interlace === 1) {
       yield* this.#decodeAdam7(region)
       return
     }
     const rowBytes = Math.ceil((this.width * bitsPerPixel) / 8)
-
     const filterBytesPerPixel = Math.max(1, Math.ceil(bitsPerPixel / 8))
     const scanline = new Uint8Array(rowBytes + 1)
     const previous = new Uint8Array(rowBytes)

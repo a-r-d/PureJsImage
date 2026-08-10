@@ -1,7 +1,7 @@
 import type { DecodeRequest, ImageCodec, ImageDecoder, ImageMetadata } from '../codec.ts'
 import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
-import type { ImageLimits } from '../limits.ts'
-import { validateImageDimensions } from '../limits.ts'
+import type { ImageLimitOptions, ImageLimits } from '../limits.ts'
+import { resolveLimits, validateImageDimensions, validateInputSize } from '../limits.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
@@ -1721,6 +1721,24 @@ const reconstructComponent = (
   }
 }
 
+const roundHalfAwayFromZero = (value: number): number =>
+  value < 0 ? -Math.round(-value) : Math.round(value)
+
+const ycbcrTables = (() => {
+  const redFromCr = new Int16Array(256)
+  const greenFromCb = new Int32Array(256)
+  const greenFromCr = new Int32Array(256)
+  const blueFromCb = new Int16Array(256)
+  for (let value = 0; value < 256; value += 1) {
+    const chroma = value - 128
+    redFromCr[value] = roundHalfAwayFromZero(1.402 * chroma)
+    greenFromCb[value] = roundHalfAwayFromZero(65_536 * (0.5 - 0.34414 * chroma))
+    greenFromCr[value] = roundHalfAwayFromZero(65_536 * -0.71414 * chroma)
+    blueFromCb[value] = roundHalfAwayFromZero(1.772 * chroma)
+  }
+  return Object.freeze({ redFromCr, greenFromCb, greenFromCr, blueFromCb })
+})()
+
 const clampByte = (value: number): number => Math.max(0, Math.min(255, Math.round(value)))
 
 const normalizedSample = (value: number, specification: ComponentSpec): number => {
@@ -1735,8 +1753,8 @@ const componentValueAt = (
   referenceX: number,
   referenceY: number,
 ): number => {
-  const x = Math.ceil(referenceX / specification.xSampling) - component.x0
-  const y = Math.ceil(referenceY / specification.ySampling) - component.y0
+  const x = Math.floor(referenceX / specification.xSampling) - component.x0
+  const y = Math.floor(referenceY / specification.ySampling) - component.y0
   const clampedX = Math.max(0, Math.min(component.width - 1, x))
   const clampedY = Math.max(0, Math.min(component.height - 1, y))
   return component.values[clampedY * component.width + clampedX] ?? 0
@@ -1824,19 +1842,18 @@ const reconstructPixels = (
             componentValueAt(first, firstSpec, referenceX, referenceY),
             firstSpec,
           )
-          const cb =
-            normalizedSample(
-              componentValueAt(second, secondSpec, referenceX, referenceY),
-              secondSpec,
-            ) - 128
-          const cr =
-            normalizedSample(
-              componentValueAt(third, thirdSpec, referenceX, referenceY),
-              thirdSpec,
-            ) - 128
-          red = y + 1.402 * cr
-          green = y - 0.344136 * cb - 0.714136 * cr
-          blue = y + 1.772 * cb
+          const cb = normalizedSample(
+            componentValueAt(second, secondSpec, referenceX, referenceY),
+            secondSpec,
+          )
+          const cr = normalizedSample(
+            componentValueAt(third, thirdSpec, referenceX, referenceY),
+            thirdSpec,
+          )
+          red = y + (ycbcrTables.redFromCr[cr] ?? 0)
+          green =
+            y + (((ycbcrTables.greenFromCb[cb] ?? 0) + (ycbcrTables.greenFromCr[cr] ?? 0)) >> 16)
+          blue = y + (ycbcrTables.blueFromCb[cb] ?? 0)
         } else {
           red = normalizedSample(
             componentValueAt(first, firstSpec, referenceX, referenceY),
@@ -2001,6 +2018,48 @@ class Jpeg2000Decoder implements ImageDecoder {
       }
     }
   }
+}
+
+export type Jpeg2000CodestreamColorSpace = 'gray' | 'rgb' | 'ycbcr'
+
+export type Jpeg2000CodestreamOptions = ImageLimitOptions & {
+  readonly colorSpace?: Jpeg2000CodestreamColorSpace
+}
+
+export const createJpeg2000CodestreamDecoder = (
+  codestream: Uint8Array,
+  options: Readonly<Jpeg2000CodestreamOptions> = {},
+): ImageDecoder => {
+  const limits = resolveLimits(options)
+  validateInputSize(codestream.byteLength, limits)
+  const parsed = parseCodestream(codestream, limits)
+  const width = parsed.size.xSize - parsed.size.xOrigin
+  const height = parsed.size.ySize - parsed.size.yOrigin
+  const components = parsed.size.components
+  if (components.some((component) => component.signed)) {
+    throw unsupportedOperation('Signed JPEG 2000 display components are not implemented')
+  }
+  const requestedColorSpace = options.colorSpace ?? (components.length === 1 ? 'gray' : 'rgb')
+  if (
+    (requestedColorSpace === 'gray' && components.length !== 1) ||
+    (requestedColorSpace !== 'gray' && components.length !== 3)
+  ) {
+    throw unsupportedOperation(
+      `JPEG 2000 ${requestedColorSpace} decoding does not support ${components.length} components`,
+    )
+  }
+  const container: Jp2Header = {
+    width,
+    height,
+    components: components.length,
+    bitDepths: Object.freeze(components.map((component) => component.precision)),
+    signed: Object.freeze(components.map((component) => component.signed)),
+    colorSpace:
+      requestedColorSpace === 'gray' ? 'gray' : requestedColorSpace === 'ycbcr' ? 'sycc' : 'srgb',
+    codestreamOffset: 0,
+    codestreamLength: codestream.byteLength,
+  }
+  return new Jpeg2000Decoder({ container, codestream, parsed })
 }
 
 export const jpeg2000Codec: ImageCodec = {

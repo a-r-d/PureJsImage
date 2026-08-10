@@ -3,12 +3,11 @@ import { dirname, relative, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { avifCorpusRevision, avifFixtures } from '../benchmark/avif/corpus.ts'
 import corpusManifest from '../benchmark/corpus/manifest.json' with { type: 'json' }
-import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
 import { readCompatibilityManifest } from '../benchmark/heif/compatibility/corpus.ts'
+import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
 import { jpegCompatibilityFixtureIds } from '../benchmark/jpeg/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
 import packageJson from '../package.json' with { type: 'json' }
-import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
 import { commonCompetitorCodecs, competitorBundleTargets } from '../scripts/bundle-size-config.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
 import {
@@ -16,6 +15,7 @@ import {
   experimentalHeifCodec,
 } from '../src/codec-entries/experimental/heic.ts'
 import * as publicApi from '../src/index.ts'
+import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
 
 describe('package contract', () => {
   it('does not publish unusable source maps without source files', () => {
@@ -78,7 +78,9 @@ describe('package contract', () => {
       expect(readme).toContain(label)
       expect(performancePage).toContain(label)
     }
-    for (const version of ['0.7.0', '1.6.0', '1.7.0', '0.35.3']) {
+    expect(readme).toContain(packageJson.version)
+    expect(performancePage).toContain('0.7.0')
+    for (const version of ['1.6.0', '1.7.0', '0.35.3']) {
       expect(readme).toContain(version)
       expect(performancePage).toContain(version)
     }
@@ -117,6 +119,72 @@ describe('package contract', () => {
       expect(docsHome).toContain(`src="${chart}"`)
       expect(docsPerformance).toContain(`src="${chart}"`)
       expect(readFileSync(`docs/${chart}`).byteLength).toBeGreaterThan(0)
+    }
+  })
+
+  it('publishes one generated TIFF library comparison across documentation surfaces', () => {
+    const readme = readFileSync('README.md', 'utf8')
+    const docsHome = readFileSync('docs/index.html', 'utf8')
+    const tiffGuide = readFileSync('docs/tiff.html', 'utf8')
+    const comparison = readFileSync('docs/tiff-comparison.html', 'utf8')
+    const sitemap = readFileSync('docs/sitemap.xml', 'utf8')
+
+    expect(packageJson.scripts['comparison:generate']).toBe(
+      'node scripts/render-library-comparison.ts',
+    )
+    expect(packageJson.scripts['comparison:check']).toBe(
+      'node scripts/render-library-comparison.ts --check',
+    )
+    expect(packageJson.scripts.check).toContain('npm run comparison:check')
+    expect(readme).toContain('https://a-r-d.github.io/PureJsImage/tiff-comparison.html')
+    expect(docsHome).toContain('href="tiff-comparison.html"')
+    expect(tiffGuide).toContain('href="tiff-comparison.html"')
+    expect(comparison).toContain('Grouped by TIFF workflow')
+    expect(comparison).toContain('Not verified')
+    expect(comparison).toContain('Versioned evidence')
+    expect(sitemap).toContain('https://a-r-d.github.io/PureJsImage/tiff-comparison.html')
+  })
+
+  it('publishes a capability-backed LLM guide and footer discovery links', () => {
+    const llms = readFileSync('docs/llms.txt', 'utf8')
+    const sitemap = readFileSync('docs/sitemap.xml', 'utf8')
+    for (const section of [
+      '## Image transform quick API',
+      '## Encoder quick API',
+      '## Codec capability map',
+      '## Replace Jimp',
+      '## Replace Sharp',
+      '## Replace image-js',
+      '## Replace @jsquash packages',
+      '## Replace GeoTIFF.js or UTIF.js/utif2',
+    ]) {
+      expect(llms).toContain(section)
+    }
+    for (const codec of [
+      '### JPEG',
+      '### PNG',
+      '### WebP',
+      '### BMP',
+      '### TIFF',
+      '### GIF',
+      '### ICO',
+      '### JPEG 2000 / JP2',
+      '### AVIF',
+      '### HEIF / HEIC (experimental)',
+    ]) {
+      expect(llms).toContain(codec)
+    }
+    expect(llms).toContain('<!-- capabilities:llms:start -->')
+    expect(llms).toContain('<!-- capabilities:llms:end -->')
+    expect(sitemap).toContain('https://a-r-d.github.io/PureJsImage/llms.txt')
+
+    const websitePages = globSync('docs/*.html')
+      .map((path) => ({ path, html: readFileSync(path, 'utf8') }))
+      .filter(({ html }) => html.includes('class="site-footer"'))
+    expect(websitePages.length).toBeGreaterThan(0)
+    for (const { path, html } of websitePages) {
+      expect(html, path).toContain('href="llms.txt">LLM guide</a>')
+      expect(html, path).toContain('href="sitemap.xml">Sitemap</a>')
     }
   })
 
@@ -209,6 +277,10 @@ describe('package contract', () => {
     expect(Object.keys(packageJson.exports)).toEqual([
       '.',
       './browser',
+      './tiff',
+      './scientific',
+      './pathology',
+      './compression/zstd',
       './accelerators/wasm/jpeg',
       './accelerators/wasm/png',
       './codecs/all',
@@ -342,7 +414,7 @@ describe('benchmark contract', () => {
     expect(bmp.length).toBe(16)
     expect(heif.length).toBe(4)
     expect(ico.length).toBe(6)
-    expect(tiff.length).toBe(10)
+    expect(tiff.length).toBe(18)
     expect(webp.length).toBe(11)
     expect(competitors).toHaveLength(14)
     expect(

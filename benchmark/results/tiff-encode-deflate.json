@@ -1,0 +1,451 @@
+{
+  "schemaVersion": 2,
+  "createdAt": "2026-08-10T14:29:24.134Z",
+  "profile": "tiff",
+  "configuration": {
+    "engines": [
+      "purejsimage"
+    ],
+    "defaultRuns": 9,
+    "defaultWarmups": 2,
+    "isolatedProcessPerSample": true,
+    "isolatedStartupProcessPerEngine": true,
+    "inputFileReadTimed": false,
+    "outputValidationTimed": false,
+    "qualityMeasurementTimed": false,
+    "qualityMetric": "premultiplied-rgba-psnr-vs-independent-exact-area-reference",
+    "resizeKernelPolicy": {
+      "mode": "engine-defaults",
+      "purejsimage": "lanczos3",
+      "sharp": "lanczos3",
+      "jimp": "bilinear"
+    }
+  },
+  "environment": {
+    "platform": "linux",
+    "osName": "Linux",
+    "osRelease": "6.17.0-41-generic",
+    "architecture": "x64",
+    "node": "v24.16.0",
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+    "logicalCpus": 16,
+    "totalMemoryBytes": 64924508160,
+    "gitRevision": "38d2fa9",
+    "dirty": true
+  },
+  "fixtures": [
+    "transparent-logo-1200x480"
+  ],
+  "results": [
+    {
+      "engine": "purejsimage",
+      "workflow": "png-to-tiff",
+      "title": "Transparent 1200x480 PNG to Deflate-predicted strip RGBA TIFF",
+      "runs": 9,
+      "warmups": 2,
+      "summary": {
+        "status": "pass",
+        "samples": 9,
+        "successfulSamples": 9,
+        "wallMilliseconds": {
+          "median": 36.06248199999999,
+          "p95": 85.84408899999994,
+          "minimum": 27.903067999999962,
+          "maximum": 85.84408899999994
+        },
+        "cpuMilliseconds": {
+          "median": 40.145
+        },
+        "peakRssBytes": {
+          "median": 115875840,
+          "maximum": 116330496
+        },
+        "peakRssDeltaBytes": {
+          "median": 1081344,
+          "maximum": 1335296
+        },
+        "outputBytes": {
+          "median": 9866
+        },
+        "finalExternalBytes": {
+          "median": 17535128
+        },
+        "finalArrayBuffersBytes": {
+          "median": 7607098
+        },
+        "output": {
+          "format": "tiff",
+          "width": 1200,
+          "height": 480,
+          "bytes": 9866,
+          "sha256": "f26f4e9e74aab95ae582ffd8a2bbc4533dd252d36ecaf57d305aa79916266ff8"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "tiff",
+            "width": 1200,
+            "height": 480,
+            "bytes": 9866,
+            "sha256": "f26f4e9e74aab95ae582ffd8a2bbc4533dd252d36ecaf57d305aa79916266ff8"
+          },
+          "outputBytes": 9866,
+          "wallMilliseconds": 85.84408899999994,
+          "cpuMilliseconds": 61.904,
+          "finalMemory": {
+            "rss": 115228672,
+            "heapTotal": 33173504,
+            "heapUsed": 16883288,
+            "external": 17535128,
+            "arrayBuffers": 7607098
+          },
+          "resourceMaxRssBytes": 115228672,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.8.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 116064256,
+          "peakRssDeltaBytes": 835584,
+          "baselineMemory": {
+            "rss": 115228672,
+            "heapTotal": 33173504,
+            "heapUsed": 14650424,
+            "external": 10106022,
+            "arrayBuffers": 178032
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "tiff",
+            "width": 1200,
+            "height": 480,
+            "bytes": 9866,
+            "sha256": "f26f4e9e74aab95ae582ffd8a2bbc4533dd252d36ecaf57d305aa79916266ff8"
+          },
+          "outputBytes": 9866,
+          "wallMilliseconds": 58.71172899999999,
+          "cpuMilliseconds": 54.296,
+          "finalMemory": {
+            "rss": 113856512,
+            "heapTotal": 33173504,
+            "heapUsed": 16928424,
+            "external": 17535128,
+            "arrayBuffers": 7607098
+          },
+          "resourceMaxRssBytes": 113856512,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.8.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 114962432,
+          "peakRssDeltaBytes": 1105920,
+          "baselineMemory": {
+            "rss": 113856512,
+            "heapTotal": 33173504,
+            "heapUsed": 14633944,
+            "external": 10106022,
+            "arrayBuffers": 178032
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "tiff",
+            "width": 1200,
+            "height": 480,
+            "bytes": 9866,
+            "sha256": "f26f4e9e74aab95ae582ffd8a2bbc4533dd252d36ecaf57d305aa79916266ff8"
+          },
+          "outputBytes": 9866,
+          "wallMilliseconds": 46.04224099999999,
+          "cpuMilliseconds": 49.954,
+          "finalMemory": {
+            "rss": 115511296,
+            "heapTotal": 33173504,
+            "heapUsed": 16883128,
+            "external": 17535128,
+            "arrayBuffers": 7607098
+          },
+          "resourceMaxRssBytes": 115511296,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.8.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 116330496,
+          "peakRssDeltaBytes": 1081344,
+          "baselineMemory": {
+            "rss": 115249152,
+            "heapTotal": 32911360,
+            "heapUsed": 14650312,
+            "external": 10106022,
+            "arrayBuffers": 178032
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "tiff",
+            "width": 1200,
+            "height": 480,
+            "bytes": 9866,
+            "sha256": "f26f4e9e74aab95ae582ffd8a2bbc4533dd252d36ecaf57d305aa79916266ff8"
+          },
+          "outputBytes": 9866,
+          "wallMilliseconds": 37.01246699999996,
+          "cpuMilliseconds": 44.861,
+          "finalMemory": {
+            "rss": 114679808,
+            "heapTotal": 33435648,
+            "heapUsed": 16899184,
+            "external": 17535128,
+            "arrayBuffers": 7607098
+          },
+          "resourceMaxRssBytes": 114679808,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.8.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 115884032,
+          "peakRssDeltaBytes": 1335296,
+          "baselineMemory": {
+            "rss": 114548736,
+            "heapTotal": 33435648,
+            "heapUsed": 14634080,
+            "external": 10106022,
+            "arrayBuffers": 178032
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "tiff",
+            "width": 1200,
+            "height": 480,
+            "bytes": 9866,
+            "sha256": "f26f4e9e74aab95ae582ffd8a2bbc4533dd252d36ecaf57d305aa79916266ff8"
+          },
+          "outputBytes": 9866,
+          "wallMilliseconds": 28.760042,
+          "cpuMilliseconds": 31.837,
+          "finalMemory": {
+            "rss": 115105792,
+            "heapTotal": 34222080,
+            "heapUsed": 16875240,
+            "external": 17535128,
+            "arrayBuffers": 7607098
+          },
+          "resourceMaxRssBytes": 115105792,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.8.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 115937280,
+          "peakRssDeltaBytes": 831488,
+          "baselineMemory": {
+            "rss": 115105792,
+            "heapTotal": 34222080,
+            "heapUsed": 14638064,
+            "external": 10106022,
+            "arrayBuffers": 178032
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "tiff",
+            "width": 1200,
+            "height": 480,
+            "bytes": 9866,
+            "sha256": "f26f4e9e74aab95ae582ffd8a2bbc4533dd252d36ecaf57d305aa79916266ff8"
+          },
+          "outputBytes": 9866,
+          "wallMilliseconds": 36.06248199999999,
+          "cpuMilliseconds": 40.145,
+          "finalMemory": {
+            "rss": 113868800,
+            "heapTotal": 33435648,
+            "heapUsed": 16875336,
+            "external": 17535128,
+            "arrayBuffers": 7607098
+          },
+          "resourceMaxRssBytes": 113868800,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.8.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 114892800,
+          "peakRssDeltaBytes": 1155072,
+          "baselineMemory": {
+            "rss": 113737728,
+            "heapTotal": 33435648,
+            "heapUsed": 14638160,
+            "external": 10106022,
+            "arrayBuffers": 178032
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "tiff",
+            "width": 1200,
+            "height": 480,
+            "bytes": 9866,
+            "sha256": "f26f4e9e74aab95ae582ffd8a2bbc4533dd252d36ecaf57d305aa79916266ff8"
+          },
+          "outputBytes": 9866,
+          "wallMilliseconds": 29.097165000000018,
+          "cpuMilliseconds": 32.736,
+          "finalMemory": {
+            "rss": 115191808,
+            "heapTotal": 33697792,
+            "heapUsed": 16875168,
+            "external": 17535128,
+            "arrayBuffers": 7607098
+          },
+          "resourceMaxRssBytes": 115191808,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.8.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 115875840,
+          "peakRssDeltaBytes": 815104,
+          "baselineMemory": {
+            "rss": 115060736,
+            "heapTotal": 33697792,
+            "heapUsed": 14637992,
+            "external": 10106022,
+            "arrayBuffers": 178032
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "tiff",
+            "width": 1200,
+            "height": 480,
+            "bytes": 9866,
+            "sha256": "f26f4e9e74aab95ae582ffd8a2bbc4533dd252d36ecaf57d305aa79916266ff8"
+          },
+          "outputBytes": 9866,
+          "wallMilliseconds": 27.903067999999962,
+          "cpuMilliseconds": 31.308,
+          "finalMemory": {
+            "rss": 114491392,
+            "heapTotal": 33959936,
+            "heapUsed": 16875336,
+            "external": 17535128,
+            "arrayBuffers": 7607098
+          },
+          "resourceMaxRssBytes": 114491392,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.8.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 115597312,
+          "peakRssDeltaBytes": 1236992,
+          "baselineMemory": {
+            "rss": 114360320,
+            "heapTotal": 33959936,
+            "heapUsed": 14638160,
+            "external": 10106022,
+            "arrayBuffers": 178032
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "tiff",
+            "width": 1200,
+            "height": 480,
+            "bytes": 9866,
+            "sha256": "f26f4e9e74aab95ae582ffd8a2bbc4533dd252d36ecaf57d305aa79916266ff8"
+          },
+          "outputBytes": 9866,
+          "wallMilliseconds": 30.492704000000003,
+          "cpuMilliseconds": 33.986,
+          "finalMemory": {
+            "rss": 114925568,
+            "heapTotal": 33959936,
+            "heapUsed": 16875264,
+            "external": 17535128,
+            "arrayBuffers": 7607098
+          },
+          "resourceMaxRssBytes": 114925568,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.8.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 115724288,
+          "peakRssDeltaBytes": 929792,
+          "baselineMemory": {
+            "rss": 114794496,
+            "heapTotal": 33959936,
+            "heapUsed": 14638088,
+            "external": 10106022,
+            "arrayBuffers": 178032
+          }
+        }
+      ]
+    }
+  ],
+  "startup": [
+    {
+      "engine": {
+        "id": "purejsimage",
+        "version": "0.8.0 (workspace)",
+        "kind": "pure-javascript",
+        "packageName": "purejsimage"
+      },
+      "importMilliseconds": 59.62871700000001,
+      "rssAfterImportBytes": 97869824,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 1.7071149999999875,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 1016.4488489999999,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 1987733,
+        "packages": [
+          "purejsimage@0.8.0"
+        ],
+        "productionPackageCount": 1
+      }
+    }
+  ]
+}

@@ -17,14 +17,23 @@ supported until its output is independently validated.
 - [x] 8-bit baseline sequential DCT with Huffman coding (`SOF0`)
 - [x] 8-bit progressive DCT with Huffman coding (`SOF2`)
 - [x] Single-component grayscale images
+- [x] Non-interleaved grayscale scans with non-unit frame sampling factors
 - [x] Three-component YCbCr images
 - [x] 4:4:4, 4:4:0, 4:2:2, 4:2:0, and 4:1:1 chroma sampling with pinned
   asymmetric-layout compatibility fixtures
 - [x] Image dimensions that do not end on an MCU boundary
 - [x] Per-image quantization and Huffman tables
 - [x] Entropy byte stuffing and restart intervals (`DRI` / `RST0`-`RST7`)
+- [x] Compatible restart recovery in TypeScript and opt-in Rust/WASM by default
+  for out-of-order markers, bounded intervening bytes, and premature scan ends,
+  with explicit strict validation through `tolerantDecoding: false`
 - [x] Multi-scan progressive DC and AC first-pass and refinement scans
+- [x] Bounded tolerant recovery for partial progressive scans ending at inter-scan
+  DHT, SOS, or EOI boundaries, with strict rejection through
+  `tolerantDecoding: false`
 - [x] Extended sequential 8-bit JPEG (`SOF1`)
+- [x] Structured `UNSUPPORTED_OPERATION` rejection for recognized 12-bit and
+  arithmetic-coded frames
 - [ ] Extended sequential 12-bit JPEG (`SOF1`)
 - [ ] Lossless JPEG (`SOF3`)
 - [ ] Arithmetic-coded sequential, progressive, and lossless JPEG
@@ -32,8 +41,10 @@ supported until its output is independently validated.
 - [x] Sequential images split into multiple non-progressive component scans
 - [ ] Define-number-of-lines (`DNL`) images whose height is supplied after the
   frame header
-- [ ] Abbreviated JPEG and MJPEG frames that omit coding tables and depend on
-  tables supplied outside the individual image
+- [x] AVI1/MJPEG baseline frames that omit DHT segments and use standard
+  luminance/chrominance Huffman table identifiers 0 and 1
+- [ ] Abbreviated JPEG or MJPEG frames that depend on omitted nonstandard
+  coding tables supplied outside the individual image
 
 ### Color and metadata
 
@@ -44,9 +55,10 @@ supported until its output is independently validated.
 - [x] Adobe YCCK JPEG decode and Adobe color-transform detection
 - [x] Three-component JPEGs explicitly encoded as RGB rather than YCbCr
 - [x] Ordered multi-segment ICC profile assembly and color-managed conversion
-  to sRGB for RGB matrix/TRC profiles and CMYK `lut16` `A2B0` profiles
-- [ ] Broader ICC transform coverage, including `lut8`, multi-process-element,
-  device-link, gray, and uncommon parametric or sampled profile forms
+  to sRGB for RGB matrix/TRC and ICC v4 `mAB` LUT `A2B0` profiles plus CMYK
+  `lut16` `A2B0` profiles
+- [ ] Broader ICC transform coverage, including `lut8`, device-link, gray, and
+  uncommon parametric or sampled profile forms
 - [ ] Full EXIF, XMP, IPTC/IIM, Photoshop image-resource, JFIF density,
   comment, and application-marker exposure
 - [x] Opt-in compatible ICC and EXIF preservation, with metadata stripped by
@@ -163,5 +175,5 @@ supported until its output is independently validated.
   multi-scan, and unusual progressive scan fixtures
 - [x] Add structured malformed-marker, entropy, table, restart, sampling, and
   scan-progression regressions with strict allocation and source-cleanup checks
-- [x] Define provider-neutral metadata, pixel, limit, and typed-error vectors for
-  later explicit WASM parity testing
+- [x] Keep opt-in Rust/WASM baseline decoding at pixel parity, including tolerant
+  restart recovery and bounded TypeScript fallback after setup or midstream failures

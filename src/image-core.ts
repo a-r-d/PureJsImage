@@ -33,6 +33,8 @@ import { type ImageSource, withSourceSession } from './source.ts'
 export interface ImageOpenOptions {
   limits?: ImageLimitOptions
   frame?: number
+  resolutionLevel?: number
+  tolerantDecoding?: boolean
 }
 
 export interface ImagePlatform<Input, Output extends Uint8Array> {
@@ -53,6 +55,8 @@ interface ImageContext<Input, Output extends Uint8Array> {
   readonly registry: CodecRegistry
   readonly limits: Readonly<ImageLimits>
   readonly frame: number | undefined
+  readonly resolutionLevel: number | undefined
+  readonly tolerantDecoding: boolean
   readonly platform: ImagePlatform<Input, Output>
   readonly runtime: ImageRuntime
   metadataPromise: Promise<ImageMetadata> | undefined
@@ -82,18 +86,36 @@ export class Image<Input, Output extends Uint8Array> {
     ) {
       throw invalidInput('frame must be a non-negative safe integer')
     }
-    if (options.frame !== undefined && options.frame !== 0) {
-      throw unsupportedOperation(
-        'Only frame 0 can be selected; later frame selection is unsupported',
-      )
+    if (
+      options.resolutionLevel !== undefined &&
+      (!Number.isSafeInteger(options.resolutionLevel) || options.resolutionLevel < 0)
+    ) {
+      throw invalidInput('resolutionLevel must be a non-negative safe integer')
+    }
+    if (options.tolerantDecoding !== undefined && typeof options.tolerantDecoding !== 'boolean') {
+      throw invalidInput('tolerantDecoding must be a boolean')
     }
     const limits = resolveLimits(options.limits)
     const source = await platform.createImageSource(input, limits)
     const codec = await withSourceSession(source, () => registry.detect(source))
+    if (options.frame !== undefined && options.frame !== 0 && codec.selection?.frames !== true) {
+      throw unsupportedOperation(
+        'Only frame 0 can be selected; later frame selection is unsupported',
+      )
+    }
+    if (
+      options.resolutionLevel !== undefined &&
+      options.resolutionLevel !== 0 &&
+      codec.selection?.resolutionLevels !== true
+    ) {
+      throw unsupportedOperation(`${codec.format} does not support reduced-resolution selection`)
+    }
     return new Image({
       source,
       codec,
       frame: options.frame,
+      resolutionLevel: options.resolutionLevel,
+      tolerantDecoding: options.tolerantDecoding ?? true,
       registry,
       limits,
       platform,
@@ -104,7 +126,12 @@ export class Image<Input, Output extends Uint8Array> {
 
   async metadata(): Promise<ImageMetadata> {
     this.#context.metadataPromise ??= withSourceSession(this.#context.source, () =>
-      this.#context.codec.metadata(this.#context.source, this.#context.limits),
+      this.#context.codec.metadata(this.#context.source, this.#context.limits, {
+        ...(this.#context.frame === undefined ? {} : { frame: this.#context.frame }),
+        ...(this.#context.resolutionLevel === undefined
+          ? {}
+          : { resolutionLevel: this.#context.resolutionLevel }),
+      }),
     )
     return planMetadata(await this.#context.metadataPromise, this.#operations, this.#context.limits)
   }
@@ -197,6 +224,27 @@ export class Image<Input, Output extends Uint8Array> {
         createTiffEncodeOperation({
           ...('compression' in options && options.compression !== undefined
             ? { compression: options.compression }
+            : {}),
+          ...('predictor' in options && options.predictor !== undefined
+            ? { predictor: options.predictor }
+            : {}),
+          ...('layout' in options && options.layout !== undefined
+            ? { layout: options.layout }
+            : {}),
+          ...('compressionLevel' in options && options.compressionLevel !== undefined
+            ? { compressionLevel: options.compressionLevel }
+            : {}),
+          ...('rowsPerStrip' in options && options.rowsPerStrip !== undefined
+            ? { rowsPerStrip: options.rowsPerStrip }
+            : {}),
+          ...('tileWidth' in options && options.tileWidth !== undefined
+            ? { tileWidth: options.tileWidth }
+            : {}),
+          ...('tileHeight' in options && options.tileHeight !== undefined
+            ? { tileHeight: options.tileHeight }
+            : {}),
+          ...('format' in options && options.format !== undefined
+            ? { format: options.format }
             : {}),
         }),
       )

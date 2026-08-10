@@ -3,7 +3,7 @@
 use core::cell::UnsafeCell;
 
 // The ABI is intentionally scalar so it works in every modern WASM runtime.
-const ABI_VERSION: u32 = 3;
+const ABI_VERSION: u32 = 4;
 const BLOCK: usize = 8;
 const BLOCK_VALUES: usize = BLOCK * BLOCK;
 const COMPONENTS: usize = 3;
@@ -22,6 +22,7 @@ const ERROR_TRUNCATED: u32 = 11;
 const ERROR_ENTROPY: u32 = 12;
 const ERROR_CAPACITY: u32 = 13;
 const ERROR_ARITHMETIC: u32 = 14;
+const INTERNAL_UNEXPECTED_RESTART: u32 = 15;
 
 const IDCT_BASIS: [f64; BLOCK_VALUES] = [
     0.35355339059327379,
@@ -103,13 +104,16 @@ struct DecoderState {
     mcus_per_line: usize,
     mcus_per_column: usize,
     restart_interval: usize,
+    next_restart_mcu: usize,
     decoded_mcus: usize,
     restart_index: u8,
+    tolerant_decoding: bool,
+    entropy_ended: bool,
+    unexpected_restart: u8,
     predictors: [i32; COMPONENTS],
     plane_offsets: [usize; COMPONENTS],
     plane_widths: [usize; COMPONENTS],
     plane_core_heights: [usize; COMPONENTS],
-    plane_bytes: usize,
     pending_buffer: usize,
     current_buffer: usize,
     pending_row: usize,
@@ -143,13 +147,16 @@ impl DecoderState {
             mcus_per_line: 0,
             mcus_per_column: 0,
             restart_interval: 0,
+            next_restart_mcu: 0,
             decoded_mcus: 0,
             restart_index: 0,
+            tolerant_decoding: false,
+            entropy_ended: false,
+            unexpected_restart: 0,
             predictors: [0; COMPONENTS],
             plane_offsets: [0; COMPONENTS],
             plane_widths: [0; COMPONENTS],
             plane_core_heights: [0; COMPONENTS],
-            plane_bytes: 0,
             pending_buffer: 0,
             current_buffer: 1,
             pending_row: 0,
@@ -362,6 +369,10 @@ fn entropy_byte(scratch: &mut Scratch) -> Result<u8, u32> {
     let stuffed = input_byte(scratch, scratch.state.input_offset)?;
     scratch.state.input_offset += 1;
     if stuffed != 0 {
+        if scratch.state.tolerant_decoding && (0xd0..=0xd7).contains(&stuffed) {
+            scratch.state.unexpected_restart = stuffed;
+            return Err(INTERNAL_UNEXPECTED_RESTART);
+        }
         return Err(ERROR_ENTROPY);
     }
     Ok(0xff)
@@ -479,27 +490,52 @@ fn decode_huffman(scratch: &mut Scratch, component: usize, ac: bool) -> Result<u
     Err(ERROR_ENTROPY)
 }
 
-fn restart(scratch: &mut Scratch) -> Result<(), u32> {
+fn restart(scratch: &mut Scratch) -> Result<u8, u32> {
     scratch.state.bit_count = 0;
-    let mut prefix = input_byte(scratch, scratch.state.input_offset)?;
-    scratch.state.input_offset += 1;
-    if prefix != 0xff {
-        return Err(ERROR_ENTROPY);
-    }
-    loop {
-        prefix = input_byte(scratch, scratch.state.input_offset)?;
+    if !scratch.state.tolerant_decoding {
+        let mut marker = input_byte(scratch, scratch.state.input_offset)?;
         scratch.state.input_offset += 1;
-        if prefix != 0xff {
+        while marker == 0xff {
+            marker = input_byte(scratch, scratch.state.input_offset)?;
+            scratch.state.input_offset += 1;
+        }
+        let expected = 0xd0 + (scratch.state.restart_index & 7);
+        if marker != expected {
+            return Err(ERROR_ENTROPY);
+        }
+        return Ok(marker);
+    }
+
+    let recovery_end = scratch
+        .state
+        .input_offset
+        .saturating_add(PAGE_BYTES)
+        .min(scratch.state.input_length);
+    while scratch.state.input_offset < recovery_end {
+        if input_byte(scratch, scratch.state.input_offset)? != 0xff {
+            scratch.state.input_offset += 1;
+            continue;
+        }
+        scratch.state.input_offset += 1;
+        while scratch.state.input_offset < recovery_end
+            && input_byte(scratch, scratch.state.input_offset)? == 0xff
+        {
+            scratch.state.input_offset += 1;
+        }
+        if scratch.state.input_offset >= recovery_end {
             break;
         }
-    }
-    let expected = 0xd0 + (scratch.state.restart_index & 7);
-    if prefix != expected {
+        let marker = input_byte(scratch, scratch.state.input_offset)?;
+        scratch.state.input_offset += 1;
+        if marker == 0 {
+            continue;
+        }
+        if marker == 0xd9 || (0xd0..=0xd7).contains(&marker) {
+            return Ok(marker);
+        }
         return Err(ERROR_ENTROPY);
     }
-    scratch.state.restart_index = scratch.state.restart_index.wrapping_add(1);
-    scratch.state.predictors = [0; COMPONENTS];
-    Ok(())
+    Err(ERROR_ENTROPY)
 }
 
 fn decode_block(scratch: &mut Scratch, component: usize) -> Result<(), u32> {
@@ -711,30 +747,71 @@ fn inverse_dct(
 }
 
 fn decode_mcu_row(scratch: &mut Scratch, row: usize, buffer: usize) -> Result<(), u32> {
-    for offset in 0..scratch.state.plane_bytes {
-        set_plane_byte(scratch, buffer, offset, 0);
+    if scratch.state.tolerant_decoding {
+        // SAFETY: start validates both complete plane buffers against WASM memory.
+        unsafe {
+            core::ptr::write_bytes(
+                (scratch.state.planes_pointer + buffer * scratch.state.plane_buffer_bytes)
+                    as *mut u8,
+                0,
+                scratch.state.plane_buffer_bytes,
+            );
+        }
     }
     for mcu_x in 0..scratch.state.mcus_per_line {
-        if scratch.state.restart_interval > 0
-            && scratch.state.decoded_mcus > 0
-            && scratch.state.decoded_mcus % scratch.state.restart_interval == 0
+        if !scratch.state.entropy_ended
+            && scratch.state.restart_interval > 0
+            && scratch.state.decoded_mcus == scratch.state.next_restart_mcu
         {
-            restart(scratch)?;
+            let marker = restart(scratch)?;
+            if marker == 0xd9 {
+                scratch.state.entropy_ended = true;
+            } else {
+                scratch.state.restart_index = marker - 0xd0 + 1;
+                scratch.state.predictors = [0; COMPONENTS];
+                scratch.state.next_restart_mcu = scratch
+                    .state
+                    .next_restart_mcu
+                    .saturating_add(scratch.state.restart_interval);
+            }
         }
-        for component in 0..COMPONENTS {
-            let horizontal = usize::from(scratch.horizontal_sampling[component]);
-            let vertical = usize::from(scratch.vertical_sampling[component]);
-            for block_y in 0..vertical {
-                for block_x in 0..horizontal {
-                    decode_block(scratch, component)?;
-                    inverse_dct(
-                        scratch,
-                        component,
-                        buffer,
-                        mcu_x * horizontal + block_x,
-                        block_y,
-                    );
+        if !scratch.state.entropy_ended {
+            let mut recovered_restart = false;
+            'components: for component in 0..COMPONENTS {
+                let horizontal = usize::from(scratch.horizontal_sampling[component]);
+                let vertical = usize::from(scratch.vertical_sampling[component]);
+                for block_y in 0..vertical {
+                    for block_x in 0..horizontal {
+                        match decode_block(scratch, component) {
+                            Ok(()) => inverse_dct(
+                                scratch,
+                                component,
+                                buffer,
+                                mcu_x * horizontal + block_x,
+                                block_y,
+                            ),
+                            Err(INTERNAL_UNEXPECTED_RESTART) => {
+                                recovered_restart = true;
+                                break 'components;
+                            }
+                            Err(status) => return Err(status),
+                        }
+                    }
                 }
+            }
+            if recovered_restart {
+                if scratch.state.restart_interval == 0 {
+                    return Err(ERROR_ENTROPY);
+                }
+                scratch.state.bits = 0;
+                scratch.state.bit_count = 0;
+                scratch.state.restart_index = scratch.state.unexpected_restart - 0xd0 + 1;
+                scratch.state.predictors = [0; COMPONENTS];
+                scratch.state.next_restart_mcu = scratch
+                    .state
+                    .decoded_mcus
+                    .saturating_add(1)
+                    .saturating_add(scratch.state.restart_interval);
             }
         }
         scratch.state.decoded_mcus += 1;
@@ -1339,6 +1416,7 @@ pub extern "C" fn jpeg_decoder_start(
     mcus_per_line: u32,
     mcus_per_column: u32,
     restart_interval: u32,
+    tolerant_decoding: u32,
 ) -> u32 {
     let scratch = scratch();
     let pointer = input_pointer as usize;
@@ -1402,6 +1480,7 @@ pub extern "C" fn jpeg_decoder_start(
         || maximum_vertical_sampling > 4
         || mcus_per_line == 0
         || mcus_per_column == 0
+        || tolerant_decoding > 1
     {
         return ERROR_CONFIGURATION;
     }
@@ -1554,13 +1633,16 @@ pub extern "C" fn jpeg_decoder_start(
         mcus_per_line: mcus_per_line as usize,
         mcus_per_column: mcus_per_column as usize,
         restart_interval: restart_interval as usize,
+        next_restart_mcu: restart_interval as usize,
         decoded_mcus: 0,
         restart_index: 0,
+        tolerant_decoding: tolerant_decoding != 0,
+        entropy_ended: false,
+        unexpected_restart: 0,
         predictors: [0; COMPONENTS],
         plane_offsets,
         plane_widths,
         plane_core_heights,
-        plane_bytes,
         pending_buffer: 0,
         current_buffer: 1,
         pending_row: 0,

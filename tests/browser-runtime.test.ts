@@ -74,12 +74,12 @@ describe('browser image library', () => {
     })
   })
 
-  it('rejects PNG levels that browser CompressionStream cannot honor', async () => {
+  it('rejects levels that browser CompressionStream cannot honor', async () => {
     await expect(
       (await images.open(inputPng())).png({ compressionLevel: 9 }).toUint8Array(),
     ).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
-      message: 'Browser PNG compression supports the default compressionLevel (6) only',
+      message: 'Browser Deflate compression supports the default compressionLevel (6) only',
     })
   })
 })

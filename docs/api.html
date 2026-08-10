@@ -38,11 +38,13 @@
 
 <span class="tok-key">interface</span> ImageOpenOptions {
   frame?: number
+  resolutionLevel?: number
+  tolerantDecoding?: boolean
   limits?: ImageLimitOptions
 }</code></pre></div>
           <div class="api-list">
             <article class="api-item" data-search-item><h3>formats()</h3><p>Returns the format names registered in this library.</p><span class="returns">returns readonly string[]</span></article>
-            <article class="api-item" data-search-item><h3>open(input, options?)</h3><p>Creates a source, validates an optional zero-based frame selection, enforces the input-byte limit, probes registered codecs, and returns a lazy image pipeline. Only frame 0 is currently selectable. Static GIFs decode without a selection; animated GIF metadata remains available, but pixel output requires an explicit <code>{ frame: 0 }</code> to prevent silent animation loss.</p><span class="returns">returns Promise&lt;Image&gt;</span></article>
+            <article class="api-item" data-search-item><h3>open(input, options?)</h3><p>Creates a source, validates optional zero-based frame and resolution-level selections, enforces the input-byte limit, probes registered codecs, and returns a lazy image pipeline. TIFF supports explicit top-level <code>frame</code> selection and <code>resolutionLevel</code> selection, where level 0 is the full-resolution frame and later levels are reduced-resolution SubIFDs ordered from largest to smallest. Codecs reject nonzero selections they do not support. Static GIFs decode without a selection; animated GIF metadata remains available, but pixel output requires an explicit <code>{ frame: 0 }</code> to prevent silent animation loss. Baseline JPEG restart recovery defaults to <code>tolerantDecoding: true</code> for compatibility with malformed real-world files. Set <code>{ tolerantDecoding: false }</code> to require exact restart sequencing and permit an explicitly registered JPEG decode accelerator.</p><span class="returns">returns Promise&lt;Image&gt;</span></article>
           </div>
           <h3>Codec imports</h3>
           <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Named export</th></tr></thead><tbody>
@@ -69,6 +71,70 @@
 })</code></pre></div>
           <div class="callout warning"><strong>Experimental and opt-in.</strong> HEIC commonly contains HEVC/H.265 image data that may be subject to third-party patent rights. PureJsImage's MIT license covers this implementation's copyright and grants no third-party patent rights. Users and distributors are responsible for determining whether their use requires additional licenses, particularly for commercial products, services, or high-volume distribution. The codec is shipped in the package but is never loaded by the root entry, <code>allCodecs</code>, or the default browser demo. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md" target="_blank" rel="noreferrer">experimental HEIF/HEIC contract</a>.</div>
         </section>
+        <section id="tiff-documents" data-search-item>
+          <h2>TIFF documents, rasters, and profiles</h2>
+          <p><code>purejsimage/tiff</code> exposes the validated TIFF IFD graph independently of the display-image pipeline. <code>openTiffDocument(source, options?)</code> returns a <code>TiffDocument</code> with stable top-level and SubIFD directory objects. Each <code>TiffDirectory</code> exposes its absolute source <code>offset</code>; <code>getDirectoryByOffset(offset)</code> resolves parsed metadata pointers. A directory reads bounded, cached public tag values and creates either an <code>ImageDecoder</code> for display pixels or a <code>RasterDecoder</code> for native-precision, arbitrary-channel samples. <code>readBytes(offset, length, { maxBytes })</code> performs an exact bounded private-metadata read and returns a defensive copy without exposing the underlying <code>ImageSource</code>.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">Scientific OME-TIFF</span></div><pre><code><span class="tok-key">import</span> { MemorySource } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
+<span class="tok-key">import</span> { openOmeTiff } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
+<span class="tok-key">import</span> { openTiffDocument } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
+
+<span class="tok-key">const</span> document = <span class="tok-key">await</span> openTiffDocument(<span class="tok-key">new</span> MemorySource(bytes))
+<span class="tok-key">const</span> dataset = <span class="tok-key">await</span> openOmeTiff(document)
+<span class="tok-key">for await</span> (<span class="tok-key">const</span> block <span class="tok-key">of</span> dataset.readPlane({
+  z: 0, c: [0, 1, 2], t: 0, resolutionLevel: 0,
+  x: 0, y: 0, width: 512, height: 512,
+})) {
+  consume(block)
+}</code></pre></div>
+          <p><code>openOmeTiff()</code> validates OME dimensions, sample type, channel metadata, physical pixel size, dimension order, and explicit or implicit <code>TiffData</code> mappings before exposing a <code>MultidimensionalRasterDataset</code>. <code>readPlane()</code> preserves native sample types and can combine separately stored channel planes without materializing a source-sized display bitmap.</p>
+          <p><code>purejsimage/pathology</code> exports <code>openAperioSvs()</code>, <code>aperioSvsProfile</code>, and the generic <code>WholeSlideImage</code> contract. Aperio levels and label, macro, or thumbnail images decode by requested region. TIFF compression tags 33003 and 33005 use the reusable <code>createJpeg2000CodestreamDecoder()</code>; JPEG 2000 reconstruction remains bounded to the current TIFF tile or strip, though the current codestream decoder retains that segment's complete component state.</p>
+          <h3 id="tiff-profile-authoring">Third-party TIFF profile authoring</h3>
+          <p>A separately shipped integration implements <code>TiffProfile&lt;T&gt;</code> using only package exports. Register profiles with <code>createTiffProfileRegistry()</code>. Detection runs every profile in isolation, orders matches by descending integer priority then id, reports detector failures, and rejects equal-priority matches as ambiguous. For an explicitly selected profile, <code>registry.openWith(document, profile)</code> preserves <code>T</code> and returns <code>Promise&lt;T&gt;</code>.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">Vendor profile</span></div><pre><code><span class="tok-key">import</span> { createTiffProfileRegistry } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
+<span class="tok-key">import type</span> { TiffProfile } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
+
+<span class="tok-key">export const</span> vendorProfile: TiffProfile&lt;VendorDataset&gt; = {
+  id: <span class="tok-string">'vendor-format'</span>,
+  priority: 50,
+  <span class="tok-key">async</span> detect({ document }) {
+    <span class="tok-key">const</span> tag = <span class="tok-key">await</span> document.topLevelDirectories[0]?.getTag(270, {
+      maxBytes: 1024 * 1024,
+    })
+    <span class="tok-key">return</span> tag?.kind === <span class="tok-string">'ascii'</span> &amp;&amp; tag.value.startsWith(<span class="tok-string">'Vendor'</span>)
+  },
+  <span class="tok-key">async</span> open({ document }) {
+    <span class="tok-key">const</span> pointer = <span class="tok-key">await</span> document.topLevelDirectories[0]?.getTag(65000, {
+      maxBytes: 24,
+    })
+    <span class="tok-key">if</span> (pointer?.kind !== <span class="tok-string">'numbers'</span>) <span class="tok-key">throw new</span> Error(<span class="tok-string">'Vendor pointer is missing'</span>)
+    <span class="tok-key">const</span> directory = document.getDirectoryByOffset(pointer.values[0] ?? -1)
+    <span class="tok-key">if</span> (!directory) <span class="tok-key">throw new</span> Error(<span class="tok-string">'Vendor IFD is missing'</span>)
+    <span class="tok-key">const</span> length = pointer.values[2] ?? -1
+    <span class="tok-key">const</span> metadata = <span class="tok-key">await</span> document.readBytes(
+      pointer.values[1] ?? -1, length, { maxBytes: 1024 * 1024 },
+    )
+    <span class="tok-key">return</span> openVendorDataset(directory, metadata)
+  },
+}
+
+<span class="tok-key">const</span> registry = createTiffProfileRegistry([vendorProfile])
+<span class="tok-key">const</span> dataset = <span class="tok-key">await</span> registry.openWith(document, vendorProfile)</code></pre></div>
+          <div class="callout"><strong>Public boundary.</strong> Profile code must bound every metadata read with <code>getTag(tag, { maxBytes })</code> or <code>readBytes(offset, length, { maxBytes })</code>, validate metadata-to-IFD mappings before decoding, and retain structured unsupported errors for ambiguous vendor semantics. Tag values are cached, but each caller's limit is checked before cache access; byte-valued tags and raw reads return defensive copies. The checked <code>examples/tiff-profile-leica</code> driver compiles as an external package and imports only <code>purejsimage</code>, <code>purejsimage/tiff</code>, and <code>purejsimage/pathology</code>.</div>
+          <p><a href="tiff.html">See the dedicated TIFF guide for the complete supported-format list, scientific and whole-slide workflows, output profile, memory model, and current limitations →</a></p>
+        </section>
+        <section id="zstandard" data-search-item>
+          <h2>Zstandard decompression</h2>
+          <p>The portable <code>purejsimage/compression/zstd</code> subpath exports the reusable first-party decoder used by TIFF <code>Compression=50000</code>. It has no format-specific parameters and does not load native code, WebAssembly, or a runtime dependency.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">import</span> { decodeZstd } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/compression/zstd'</span>
+
+<span class="tok-key">const</span> output = decodeZstd(compressed, {
+  expectedOutputBytes: 8192,
+  maxOutputBytes: 8192,
+  maxWindowBytes: 64 * 1024 * 1024,
+})</code></pre></div>
+          <p><code>maxOutputBytes</code> and <code>maxWindowBytes</code> default to 64 MiB. Supplying <code>expectedOutputBytes</code> preallocates the exact bounded output and rejects a different decoded size. Dictionary-dependent frames fail with <code>UNSUPPORTED_OPERATION</code>.</p>
+        </section>
+
 
         <section id="wasm-acceleration" data-search-item>
           <h2>Optional WASM acceleration</h2>
@@ -126,7 +192,7 @@
             <article class="api-item" data-search-item><h3>png(options?)</h3><p>Appends 8-bit PNG output. Node supports compression levels 0–9; browser CompressionStream output currently supports the default level 6.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>webp(options?)</h3><p>Appends static lossy or lossless WebP output. Lossy quality is 1–100.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>bmp(options?)</h3><p>Appends BMP output. The alpha option selects 32-bit RGBA or 24-bit RGB output.</p><span class="returns">returns Image</span></article>
-            <article class="api-item" data-search-item><h3>tiff(options?)</h3><p>Appends TIFF output. The current encoder supports uncompressed output only.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>tiff(options?)</h3><p>Appends canonical Classic TIFF output: little-endian, chunky 8-bit RGB or RGBA, independently Deflate-compressed strips, and horizontal prediction. Node supports compression levels 0–9; browser CompressionStream output supports level 6.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>encode(format, options?)</h3><p>Generic equivalent to the format-specific encoder methods for <code>jpeg</code>, <code>png</code>, <code>webp</code>, <code>bmp</code>, and <code>tiff</code>.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>toBuffer()</h3><p>Executes the pipeline and collects encoded chunks into Node.js bytes. The runtime value remains a <code>Buffer</code>, exposed through the portable <code>Uint8Array</code> public type so consumers do not need Node ambient declarations.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
             <article class="api-item" data-search-item><h3>toUint8Array()</h3><p>Executes and returns portable encoded bytes. Available in Node and browsers.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
@@ -184,7 +250,12 @@
 <span class="tok-key">interface</span> PngEncodeOptions { compressionLevel?: number } <span class="tok-comment">// 0–9</span>
 <span class="tok-key">interface</span> WebpEncodeOptions { lossless?: boolean; quality?: number }
 <span class="tok-key">interface</span> BmpEncodeOptions { alpha?: boolean }
-<span class="tok-key">interface</span> TiffEncodeOptions { compression?: <span class="tok-string">'none'</span> }</code></pre></div>
+<span class="tok-key">interface</span> TiffEncodeOptions {
+  compression?: <span class="tok-string">'deflate'</span>
+  predictor?: <span class="tok-string">'horizontal'</span>
+  layout?: <span class="tok-string">'strips'</span>
+  compressionLevel?: number       <span class="tok-comment">// 0–9; browser supports 6</span>
+}</code></pre></div>
         </section>
 
         <section id="preservation" data-search-item>
@@ -289,7 +360,7 @@
     </div>
   </main>
 
-  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div><div class="footer-column"><strong>Docs</strong><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md">Changelog</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>API snapshot: current main</span></div></div></footer>
+  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div><div class="footer-column"><strong>Docs</strong><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md">Changelog</a><a href="llms.txt">LLM guide</a><a href="sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>API snapshot: current main</span></div></div></footer>
   <script src="site.js" defer></script>
 </body>
 </html>

@@ -40,6 +40,9 @@ export interface BrowserCompatibilityHarness {
   heifPqDisplay(): Promise<BrowserWorkflowResult>
   inputTypes(): Promise<readonly BrowserWorkflowResult[]>
   jpegPipeline(): Promise<BrowserWorkflowResult>
+  legacyTiffAndBmp(): Promise<BrowserWorkflowResult>
+  unsupportedJpegBoundaries(): Promise<BrowserWorkflowResult>
+  tolerantJpegRestartRecovery(): Promise<BrowserWorkflowResult>
   wasmJpeg(): Promise<BrowserWorkflowResult>
   wasmJpegEncode(): Promise<BrowserWorkflowResult>
   wasmPng(): Promise<BrowserWorkflowResult>
@@ -47,6 +50,8 @@ export interface BrowserCompatibilityHarness {
   orientation(): Promise<BrowserWorkflowResult>
   pngAlphaPipeline(): Promise<BrowserWorkflowResult>
   resizeDefaultKernel(): Promise<BrowserWorkflowResult>
+  scientificTiffDocument(): Promise<BrowserWorkflowResult>
+  tiffEncodePipeline(): Promise<BrowserWorkflowResult>
   webpLossless(): Promise<BrowserWorkflowResult>
   webpLossyDecode(): Promise<BrowserWorkflowResult>
 }

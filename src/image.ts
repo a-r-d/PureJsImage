@@ -1,8 +1,5 @@
 import type { ImageLibraryRegistration } from './accelerator.ts'
-import {
-  type Image as RuntimeImage,
-  type ImageLibrary as RuntimeImageLibrary,
-} from './image-core.ts'
+import type { Image as RuntimeImage, ImageLibrary as RuntimeImageLibrary } from './image-core.ts'
 import { createNodeImageLibrary } from './node-image.ts'
 import type { ImageInput } from './node-source.ts'
 

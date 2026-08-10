@@ -1,6 +1,6 @@
 {
   "name": "purejsimage",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Low-memory, dependency-free image processing for Node.js and modern browsers",
   "keywords": [
     "image",
@@ -51,6 +51,26 @@
       "types": "./dist/browser.d.ts",
       "import": "./dist/browser.js",
       "default": "./dist/browser.js"
+    },
+    "./tiff": {
+      "types": "./dist/tiff/index.d.ts",
+      "import": "./dist/tiff/index.js",
+      "default": "./dist/tiff/index.js"
+    },
+    "./scientific": {
+      "types": "./dist/scientific/index.d.ts",
+      "import": "./dist/scientific/index.js",
+      "default": "./dist/scientific/index.js"
+    },
+    "./pathology": {
+      "types": "./dist/pathology/index.d.ts",
+      "import": "./dist/pathology/index.js",
+      "default": "./dist/pathology/index.js"
+    },
+    "./compression/zstd": {
+      "types": "./dist/compression/zstd/index.d.ts",
+      "import": "./dist/compression/zstd/index.js",
+      "default": "./dist/compression/zstd/index.js"
     },
     "./accelerators/wasm/jpeg": {
       "browser": "./dist/accelerator-entries/wasm-jpeg-browser.js",
@@ -129,10 +149,11 @@
     "node": ">=22"
   },
   "scripts": {
-    "check": "npm run capabilities:check && npm run docs:build && npm run typecheck && npm run size && npm run package:types && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
+    "check": "npm run capabilities:check && npm run comparison:check && npm run docs:build && npm run typecheck && npm run size && npm run package:types && npm run profile:example:check && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
     "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json && node scripts/copy-wasm-artifacts.ts",
     "browser:check": "tsc -p tsconfig.browser.json && node scripts/check-browser-build.ts",
     "package:types": "node scripts/check-package-types.ts",
+    "profile:example:check": "node scripts/check-external-tiff-profile.ts && tsc -p examples/tiff-profile-leica/tsconfig.json",
     "browser:test": "playwright test",
     "browser:bench": "PUREJSIMAGE_WRITE_BROWSER_BENCHMARK=1 playwright test browser-tests/benchmark.pw.ts --project=chromium",
     "wasm:build:jpeg": "node scripts/build-wasm-jpeg.ts",
@@ -143,6 +164,8 @@
     "format:check": "biome format .",
     "capabilities:generate": "node scripts/render-capabilities.ts && biome format --write docs/capabilities.json tests/generated/capability-expectations.json",
     "capabilities:check": "node scripts/render-capabilities.ts --check",
+    "comparison:generate": "node scripts/render-library-comparison.ts",
+    "comparison:check": "node scripts/render-library-comparison.ts --check",
     "docs:build": "node scripts/build-docs-site.ts",
     "size": "npm run build && node scripts/measure-bundle-size.ts",
     "test": "vitest run",
@@ -180,7 +203,12 @@
     "fixtures:jpeg": "node benchmark/jpeg/verify-corpus.ts && vitest run tests/jpeg-reference-fixtures.test.ts tests/jpeg-reference-parity.test.ts",
     "fixtures:jpeg:prepare": "node benchmark/jpeg/prepare-reference-fixtures.ts",
     "fixtures:jpeg2000": "node benchmark/jpeg2000/verify-corpus.ts",
+    "fixtures:tiff:encode": "npm run build && node benchmark/scripts/verify-tiff-encode.ts",
     "fuzz:release": "PUREJSIMAGE_FUZZ_RELEASE=1 PUREJSIMAGE_FUZZ_CASES=512 PUREJSIMAGE_FUZZ_SEED=1592598566 PUREJSIMAGE_FUZZ_CRASH_DIR=artifacts/fuzz-crashes vitest run tests/corruption-fuzz.test.ts",
+    "corpus:exercise": "node scripts/exercise-corpus.ts",
+    "corpus:imazen": "node scripts/validate-imazen-corpus.ts",
+    "corpus:tiff:matrix": "node scripts/analyze-tiff-dependencies.ts",
+    "corpus:tiff:competitors": "node scripts/compare-tiff-competitors.ts",
     "results:combine": "node benchmark/scripts/combine-results.ts",
     "bench": "node benchmark/run.ts",
     "bench:jimp": "node benchmark/run.ts --engines jimp",
@@ -194,6 +222,7 @@
     "bench:transforms": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile transforms",
     "bench:transforms:compare": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines jimp,purejsimage --profile transforms-comparable",
     "bench:webp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile webp",
+    "bench:zstd": "node --expose-gc benchmark/scripts/run-zstd.ts",
     "bench:avif:inspect": "node benchmark/avif/inspect-bitstreams.ts",
     "bench:avif:b2": "node --expose-gc benchmark/avif/run-b2.ts",
     "bench:avif:memory": "node benchmark/avif/run-memory.ts",
@@ -247,14 +276,18 @@
     "constructs": "10.8.1",
     "esbuild": "0.28.1",
     "exif-parser": "0.1.12",
+    "geotiff": "^3.0.5",
     "image-dimensions": "2.5.1",
     "image-js": "1.7.0",
     "jimp": "1.6.0",
     "jpeg-js": "0.4.4",
+    "lerc": "^4.2.0",
     "omggif": "1.0.10",
     "pngjs": "7.0.0",
     "sharp": "0.35.3",
+    "tiff": "7.1.3",
     "typescript": "7.0.2",
+    "utif2": "4.1.0",
     "vitest": "4.1.10"
   }
 }

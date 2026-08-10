@@ -10,7 +10,7 @@ import {
   normalizedRotation,
   type PipelineOperation,
 } from './pipeline.ts'
-import type { PixelBlock } from './pixel.ts'
+import { normalizePixelBlocks, normalizedPixelFormat, type PixelBlock } from './pixel.ts'
 import type { ImageRuntime } from './runtime.ts'
 import { createResizeTransform } from './resize.ts'
 import { createRotationTransform } from './rotate.ts'
@@ -22,6 +22,8 @@ interface ExecutionContext {
   readonly codec: ImageCodec
   readonly registry: CodecRegistry
   readonly frame: number | undefined
+  readonly resolutionLevel: number | undefined
+  readonly tolerantDecoding: boolean
   readonly limits: ImageLimits
   readonly runtime: ImageRuntime
 }
@@ -185,6 +187,10 @@ export const executePipeline = async (
         ? await context.codec.preservedMetadata(context.source, context.limits, {
             exif: keepExif,
             icc: keepIcc,
+            ...(context.frame === undefined ? {} : { frame: context.frame }),
+            ...(context.resolutionLevel === undefined
+              ? {}
+              : { resolutionLevel: context.resolutionLevel }),
           })
         : {}
     const reoriented = operations.some(
@@ -202,11 +208,24 @@ export const executePipeline = async (
         : undefined
     const icc = keepIcc ? sourcePreservedMetadata.icc : undefined
     const sourceOrientation = needsOrientation
-      ? orientationValue((await context.codec.metadata(context.source, context.limits)).orientation)
+      ? orientationValue(
+          (
+            await context.codec.metadata(context.source, context.limits, {
+              ...(context.frame === undefined ? {} : { frame: context.frame }),
+              ...(context.resolutionLevel === undefined
+                ? {}
+                : { resolutionLevel: context.resolutionLevel }),
+            })
+          ).orientation,
+        )
       : 1
     const decoder = await context.codec.createDecoder(context.source, context.limits, {
       preserveIcc: icc !== undefined,
+      tolerantDecoding: context.tolerantDecoding,
       ...(context.frame === undefined ? {} : { frame: context.frame }),
+      ...(context.resolutionLevel === undefined
+        ? {}
+        : { resolutionLevel: context.resolutionLevel }),
     })
     const output = planOutput(
       decoder.width,
@@ -224,7 +243,7 @@ export const executePipeline = async (
     )
     let width = Math.ceil(output.decoderRegion.width / scaleDenominator)
     let height = Math.ceil(output.decoderRegion.height / scaleDenominator)
-    let pixelFormat = decoder.pixelFormat
+    let pixelFormat = normalizedPixelFormat(decoder.pixelFormat)
     let blocks: AsyncIterable<PixelBlock> = decoder.decode(
       scaleDenominator === 1
         ? output.decoderRegion
@@ -236,6 +255,7 @@ export const executePipeline = async (
             scaleDenominator,
           },
     )
+    blocks = normalizePixelBlocks(blocks, decoder.pixelFormat)
     for (const operation of output.stages) {
       if (operation.type === 'encode') continue
       if (operation.type === 'crop') {

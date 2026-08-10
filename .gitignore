@@ -143,6 +143,9 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
+# Repository-local exploratory outputs
+/.tmp/
+
 # Reproducible benchmark inputs and temporary outputs
 benchmark/corpus/files/*
 !benchmark/corpus/files/bmpsuite-rgb24.bmp

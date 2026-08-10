@@ -15,6 +15,27 @@ export interface JpegEntropyIndex {
   readonly restartCount: number
 }
 
+export class JpegUnexpectedRestart extends Error {
+  readonly marker: number
+
+  constructor(marker: number) {
+    super(`Unexpected JPEG restart marker ${marker - 0xd0}`)
+    this.name = 'JpegUnexpectedRestart'
+    this.marker = marker
+  }
+}
+export class JpegUnexpectedScanBoundary extends Error {
+  readonly marker: number
+  readonly offset: number
+
+  constructor(marker: number, offset: number) {
+    super(`Unexpected JPEG scan boundary ff${marker.toString(16)}`)
+    this.name = 'JpegUnexpectedScanBoundary'
+    this.marker = marker
+    this.offset = offset
+  }
+}
+
 /**
  * Bounded source buffer for JPEG entropy decoding. Call refill() at MCU boundaries;
  * bit reads remain synchronous inside the MCU hot loop.
@@ -22,18 +43,23 @@ export interface JpegEntropyIndex {
 export class JpegEntropyReader {
   readonly #source: ImageSource
   readonly #buffer = new Uint8Array(bufferBytes)
+  readonly #tolerant: boolean
+  readonly #recoverScanBoundary: boolean
   #bufferStart: number
   #offset = 0
   #end = 0
   #bits = 0
+  #ended = false
   #bitCount = 0
 
-  constructor(source: ImageSource, offset: number) {
+  constructor(source: ImageSource, offset: number, tolerant = false, recoverScanBoundary = false) {
     if (!Number.isSafeInteger(offset) || offset < 0 || offset > source.size) {
       throw invalidInput(`Invalid JPEG entropy offset: ${offset}`)
     }
     this.#source = source
     this.#bufferStart = offset
+    this.#tolerant = tolerant
+    this.#recoverScanBoundary = recoverScanBoundary
   }
 
   get available(): number {
@@ -42,6 +68,9 @@ export class JpegEntropyReader {
 
   get position(): number {
     return this.#bufferStart + this.#offset
+  }
+  get ended(): boolean {
+    return this.#ended
   }
 
   async refill(): Promise<void> {
@@ -75,6 +104,15 @@ export class JpegEntropyReader {
           throw truncatedInput('JPEG entropy byte stuffing is truncated')
         const stuffed = this.#buffer[this.#offset] ?? 0
         this.#offset += 1
+        if (this.#tolerant && stuffed >= 0xd0 && stuffed <= 0xd7) {
+          throw new JpegUnexpectedRestart(stuffed)
+        }
+        if (
+          this.#recoverScanBoundary &&
+          (stuffed === 0xc4 || stuffed === 0xda || stuffed === 0xd9)
+        ) {
+          throw new JpegUnexpectedScanBoundary(stuffed, this.position - 2)
+        }
         if (stuffed !== 0) throw invalidInput(`Unexpected JPEG marker ff${stuffed.toString(16)}`)
       }
       this.#bitCount = 8
@@ -95,15 +133,38 @@ export class JpegEntropyReader {
     return value >= 1 << (length - 1) ? value : value + (-1 << length) + 1
   }
 
-  restart(expected: number): void {
+  restart(expected: number): number {
     this.#bitCount = 0
-    while (this.#offset < this.#end && this.#buffer[this.#offset] === 0xff) this.#offset += 1
-    if (this.#offset >= this.#end) throw truncatedInput('JPEG restart marker is truncated')
-    const marker = this.#buffer[this.#offset] ?? 0
-    this.#offset += 1
-    if (marker !== 0xd0 + (expected & 7)) {
+    if (!this.#tolerant) {
+      while (this.#offset < this.#end && this.#buffer[this.#offset] === 0xff) this.#offset += 1
+      if (this.#offset >= this.#end) throw truncatedInput('JPEG restart marker is truncated')
+      const marker = this.#buffer[this.#offset] ?? 0
+      this.#offset += 1
+      if (marker !== 0xd0 + (expected & 7)) {
+        throw invalidInput(`Expected JPEG restart marker ${expected & 7}`)
+      }
+      return marker
+    }
+    const recoveryEnd = Math.min(this.#end, this.#offset + bufferBytes)
+    while (this.#offset < recoveryEnd) {
+      if (this.#buffer[this.#offset] !== 0xff) {
+        this.#offset += 1
+        continue
+      }
+      this.#offset += 1
+      while (this.#offset < recoveryEnd && this.#buffer[this.#offset] === 0xff) this.#offset += 1
+      if (this.#offset >= recoveryEnd) break
+      const marker = this.#buffer[this.#offset] ?? 0
+      this.#offset += 1
+      if (marker === 0) continue
+      if (marker === 0xd9) {
+        this.#ended = true
+        return marker
+      }
+      if (marker >= 0xd0 && marker <= 0xd7) return marker
       throw invalidInput(`Expected JPEG restart marker ${expected & 7}`)
     }
+    throw invalidInput('JPEG restart recovery exceeded 64 KiB')
   }
 
   scanEnd(): number {
@@ -116,6 +177,7 @@ export class JpegEntropyReader {
 
   async finish(): Promise<void> {
     this.#bitCount = 0
+    if (this.#ended) return
     while (true) {
       if (this.available < 4) await this.refill()
       if (this.#offset >= this.#end) throw truncatedInput('JPEG end marker is missing')
@@ -147,6 +209,7 @@ export const indexJpegEntropy = async (
   restartInterval: number,
   maximumRestarts = Number.MAX_SAFE_INTEGER,
   targetMcu = Number.MAX_SAFE_INTEGER,
+  tolerant = false,
 ): Promise<JpegEntropyIndex> => {
   let position = scanOffset
   let restart = 0
@@ -172,7 +235,7 @@ export const indexJpegEntropy = async (
       const markerPosition = position + offset + 1
       if (value >= 0xd0 && value <= 0xd7) {
         if (restartInterval === 0) throw invalidInput('JPEG restart marker has no restart interval')
-        if (value !== 0xd0 + (restart & 7)) {
+        if (!tolerant && value !== 0xd0 + (restart & 7)) {
           throw invalidInput(`Expected JPEG restart marker ${restart & 7}`)
         }
         restart += 1

@@ -188,3 +188,5 @@ coverage.
   transform-stress fixtures as those capabilities are implemented
 - [ ] Add malformed RIFF, chunk, Huffman, LZ77, VP8 partition, coefficient, and
   decompression-bomb fuzzing with strict allocation limits
+- [x] Complete the 225-file Imazen WebP corpus decode-to-PNG baseline with 223
+  successful static decodes and two structured animated-input rejections

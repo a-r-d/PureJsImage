@@ -11,8 +11,9 @@ interface IccTag {
   readonly size: number
 }
 
-export interface RgbIccTransform {
+interface RgbMatrixIccTransform {
   readonly kind: 'rgb'
+  readonly method: 'matrix'
   readonly redToRed: Float32Array
   readonly redToGreen: Float32Array
   readonly redToBlue: Float32Array
@@ -24,6 +25,21 @@ export interface RgbIccTransform {
   readonly blueToBlue: Float32Array
   readonly encode: Uint8Array
 }
+
+interface RgbLutIccTransform {
+  readonly kind: 'rgb'
+  readonly method: 'lut'
+  readonly inputCurves: readonly Float32Array[]
+  readonly gridPoints: readonly number[]
+  readonly clut: Uint16Array
+  readonly middleCurves: readonly Float32Array[]
+  readonly matrix: Float64Array
+  readonly outputCurves: readonly Float32Array[]
+  readonly pcs: 'Lab ' | 'XYZ '
+  readonly encode: Uint8Array
+}
+
+export type RgbIccTransform = RgbLutIccTransform | RgbMatrixIccTransform
 
 interface CmykInputAxis {
   readonly low: Uint8Array
@@ -241,6 +257,61 @@ const curveValue = (profile: Uint8Array, tag: IccTag, input: number): number => 
 const curveLut = (profile: Uint8Array, tag: IccTag): Float32Array =>
   Float32Array.from({ length: 256 }, (_, value) => curveValue(profile, tag, value / 255))
 
+const curveAt = (
+  profile: Uint8Array,
+  offset: number,
+  end: number,
+): { readonly tag: IccTag; readonly next: number } => {
+  if (offset < 0 || offset + 12 > end) throw truncatedInput('ICC curve set is truncated')
+  const type = signature(profile, offset)
+  let size: number
+  if (type === 'curv') {
+    const count = uint32(profile, offset + 8)
+    if (count > 65_536) throw invalidInput('ICC sampled curve is invalid')
+    size = 12 + count * 2
+  } else if (type === 'para') {
+    const functionType = uint16(profile, offset + 8)
+    const parameterCount = [1, 3, 4, 5, 7][functionType]
+    if (parameterCount === undefined) {
+      throw invalidInput(`ICC parametric curve ${functionType} is unsupported`)
+    }
+    size = 12 + parameterCount * 4
+  } else {
+    throw invalidInput(`ICC tone curve type ${type} is unsupported`)
+  }
+  if (offset + size > end) throw truncatedInput('ICC curve set is truncated')
+  return { tag: { offset, size }, next: offset + ((size + 3) & ~3) }
+}
+
+const curveSet = (
+  profile: Uint8Array,
+  tag: IccTag,
+  relativeOffset: number,
+  channels: number,
+  entries: number,
+): readonly Float32Array[] => {
+  if (relativeOffset === 0) {
+    const identity = Float32Array.from({ length: entries }, (_, index) => index / (entries - 1))
+    return Array.from({ length: channels }, () => identity)
+  }
+  if (relativeOffset < 32 || relativeOffset >= tag.size) {
+    throw invalidInput('ICC mAB curve offset is invalid')
+  }
+  const end = tag.offset + tag.size
+  let offset = tag.offset + relativeOffset
+  const output: Float32Array[] = []
+  for (let channel = 0; channel < channels; channel += 1) {
+    const curve = curveAt(profile, offset, end)
+    output.push(
+      Float32Array.from({ length: entries }, (_, index) =>
+        curveValue(profile, curve.tag, index / (entries - 1)),
+      ),
+    )
+    offset = curve.next
+  }
+  return output
+}
+
 let cachedSrgbEncodeLut: Uint8Array | undefined
 
 const srgbEncodeLut = (): Uint8Array => {
@@ -325,6 +396,7 @@ const transformFromMatrixAndCurves = (
     Float32Array.from(curve, (value) => value * scale)
   return {
     kind: 'rgb',
+    method: 'matrix',
     redToRed: contribution(redCurve, matrix[0] ?? 0),
     redToGreen: contribution(redCurve, matrix[3] ?? 0),
     redToBlue: contribution(redCurve, matrix[6] ?? 0),
@@ -338,21 +410,90 @@ const transformFromMatrixAndCurves = (
   }
 }
 
+const mabMatrix = (profile: Uint8Array, tag: IccTag, relativeOffset: number): Float64Array => {
+  if (relativeOffset === 0) {
+    return Float64Array.of(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+  }
+  if (relativeOffset < 32 || relativeOffset + 48 > tag.size) {
+    throw invalidInput('ICC mAB matrix offset is invalid')
+  }
+  const offset = tag.offset + relativeOffset
+  return Float64Array.from({ length: 12 }, (_, index) => fixed(profile, offset + index * 4))
+}
+
+const rgbLutTransform = (
+  profile: Uint8Array,
+  tag: IccTag,
+  pcs: 'Lab ' | 'XYZ ',
+): RgbIccTransform => {
+  if (tag.size < 32 || signature(profile, tag.offset) !== 'mAB ') {
+    throw unsupportedOperation('RGB ICC A2B0 must use a supported mAB transform')
+  }
+  const inputChannels = byte(profile, tag.offset + 8)
+  const outputChannels = byte(profile, tag.offset + 9)
+  if (inputChannels !== 3 || outputChannels !== 3) {
+    throw unsupportedOperation('RGB ICC mAB transforms must use three input and output channels')
+  }
+  const outputCurveOffset = uint32(profile, tag.offset + 12)
+  const matrixOffset = uint32(profile, tag.offset + 16)
+  const middleCurveOffset = uint32(profile, tag.offset + 20)
+  const clutOffset = uint32(profile, tag.offset + 24)
+  const inputCurveOffset = uint32(profile, tag.offset + 28)
+  if (clutOffset < 32 || clutOffset + 20 > tag.size) {
+    throw invalidInput('ICC mAB CLUT offset is invalid')
+  }
+  const clutHeader = tag.offset + clutOffset
+  const gridPoints = [
+    byte(profile, clutHeader),
+    byte(profile, clutHeader + 1),
+    byte(profile, clutHeader + 2),
+  ]
+  if (gridPoints.some((value) => value < 2 || value > 33)) {
+    throw unsupportedOperation('RGB ICC mAB CLUT grid dimensions are unsupported')
+  }
+  const precision = byte(profile, clutHeader + 16)
+  if (precision !== 1 && precision !== 2) {
+    throw invalidInput('ICC mAB CLUT precision must be one or two bytes')
+  }
+  const clutValues = (gridPoints[0] ?? 0) * (gridPoints[1] ?? 0) * (gridPoints[2] ?? 0) * 3
+  const clutBytes = clutValues * precision
+  if (clutOffset + 20 + clutBytes > tag.size) throw truncatedInput('ICC mAB CLUT is truncated')
+  const clut = new Uint16Array(clutValues)
+  const clutData = clutHeader + 20
+  for (let index = 0; index < clutValues; index += 1) {
+    clut[index] =
+      precision === 1
+        ? byte(profile, clutData + index) * 257
+        : uint16(profile, clutData + index * 2)
+  }
+  return {
+    kind: 'rgb',
+    method: 'lut',
+    inputCurves: curveSet(profile, tag, inputCurveOffset, 3, 256),
+    gridPoints,
+    clut,
+    middleCurves: curveSet(profile, tag, middleCurveOffset, 3, SRGB_ENCODE_STEPS + 1),
+    matrix: mabMatrix(profile, tag, matrixOffset),
+    outputCurves: curveSet(profile, tag, outputCurveOffset, 3, SRGB_ENCODE_STEPS + 1),
+    pcs,
+    encode: srgbEncodeLut(),
+  }
+}
+
 const rgbTransform = (
   profile: Uint8Array,
   allTags: ReadonlyMap<string, IccTag>,
+  pcs: 'Lab ' | 'XYZ ',
 ): RgbIccTransform => {
-  if (
-    !allTags.has('rXYZ') ||
-    !allTags.has('gXYZ') ||
-    !allTags.has('bXYZ') ||
-    !allTags.has('rTRC') ||
-    !allTags.has('gTRC') ||
-    !allTags.has('bTRC')
-  ) {
-    if (allTags.has('A2B0')) {
-      throw unsupportedOperation('RGB ICC LUT-only A2B0 transforms are not implemented')
-    }
+  const matrixAndCurves =
+    allTags.has('rXYZ') &&
+    allTags.has('gXYZ') &&
+    allTags.has('bXYZ') &&
+    allTags.has('rTRC') &&
+    allTags.has('gTRC') &&
+    allTags.has('bTRC')
+  if (!matrixAndCurves) {
+    return rgbLutTransform(profile, requiredTag(allTags, 'A2B0'), pcs)
   }
   const red = xyzTag(profile, requiredTag(allTags, 'rXYZ'))
   const green = xyzTag(profile, requiredTag(allTags, 'gXYZ'))
@@ -697,7 +838,7 @@ export const parseJpegIccTransform = (profile: Uint8Array): JpegIccTransform => 
   const colorSpace = signature(profile, 16)
   const pcs = signature(profile, 20)
   if (pcs !== 'Lab ' && pcs !== 'XYZ ') throw invalidInput(`ICC PCS ${pcs} is unsupported`)
-  if (colorSpace === 'RGB ') return rgbTransform(profile, allTags)
+  if (colorSpace === 'RGB ') return rgbTransform(profile, allTags, pcs)
   if (colorSpace === 'CMYK') return cmykTransform(profile, allTags, pcs)
   throw invalidInput(`ICC input color space ${colorSpace} is unsupported`)
 }
@@ -710,12 +851,186 @@ export const parseRgbIccTransform = (profile: Uint8Array): RgbIccTransform => {
   return transform
 }
 
+export const parseCmykIccTransform = (profile: Uint8Array): CmykIccTransform => {
+  const transform = parseJpegIccTransform(profile)
+  if (transform.kind !== 'cmyk') {
+    throw invalidInput('Embedded ICC profile must use the CMYK input color space')
+  }
+  return transform
+}
+
 const encodeLinear = (value: number, table: Uint8Array): number => {
   const index = Math.round(Math.max(0, Math.min(1, value)) * SRGB_ENCODE_STEPS)
   return table[index] ?? 0
 }
 
+export const tiffCieLabToSrgb = (lightness: number, a: number, b: number): number => {
+  const fy = (lightness + 16) / 116
+  const fx = fy + a / 500
+  const fz = fy - b / 200
+  const epsilon = 216 / 24_389
+  const inverseScale = 27 / 24_389
+  const fx3 = fx * fx * fx
+  const fy3 = fy * fy * fy
+  const fz3 = fz * fz * fz
+  const x = 0.95047 * (fx3 > epsilon ? fx3 : (116 * fx - 16) * inverseScale)
+  const y = fy3 > epsilon ? fy3 : (116 * fy - 16) * inverseScale
+  const z = 1.08883 * (fz3 > epsilon ? fz3 : (116 * fz - 16) * inverseScale)
+  const encode = srgbEncodeLut()
+  const red = encodeLinear(3.2404542 * x - 1.5371385 * y - 0.4985314 * z, encode)
+  const green = encodeLinear(-0.969266 * x + 1.8760108 * y + 0.041556 * z, encode)
+  const blue = encodeLinear(0.0556434 * x - 0.2040259 * y + 1.0572252 * z, encode)
+  return (red << 16) | (green << 8) | blue
+}
+
+const sampleCurveLut = (curve: Float32Array, input: number): number => {
+  const position = Math.max(0, Math.min(1, input)) * (curve.length - 1)
+  const low = Math.floor(position)
+  const high = Math.min(curve.length - 1, low + 1)
+  const fraction = position - low
+  const first = curve[low] ?? 0
+  return first + ((curve[high] ?? first) - first) * fraction
+}
+
+const applyRgbLutPixels = (
+  data: Uint8Array,
+  channels: number,
+  stride: number,
+  width: number,
+  height: number,
+  transform: RgbLutIccTransform,
+): void => {
+  const inputRed = transform.inputCurves[0]
+  const inputGreen = transform.inputCurves[1]
+  const inputBlue = transform.inputCurves[2]
+  const middleRed = transform.middleCurves[0]
+  const middleGreen = transform.middleCurves[1]
+  const middleBlue = transform.middleCurves[2]
+  const outputRed = transform.outputCurves[0]
+  const outputGreen = transform.outputCurves[1]
+  const outputBlue = transform.outputCurves[2]
+  const redGrid = transform.gridPoints[0]
+  const greenGrid = transform.gridPoints[1]
+  const blueGrid = transform.gridPoints[2]
+  if (
+    !inputRed ||
+    !inputGreen ||
+    !inputBlue ||
+    !middleRed ||
+    !middleGreen ||
+    !middleBlue ||
+    !outputRed ||
+    !outputGreen ||
+    !outputBlue ||
+    !redGrid ||
+    !greenGrid ||
+    !blueGrid
+  ) {
+    throw invalidInput('RGB ICC mAB transform storage is incomplete')
+  }
+  const matrix = transform.matrix
+  for (let row = 0; row < height; row += 1) {
+    const end = row * stride + width * channels
+    for (let offset = row * stride; offset < end; offset += channels) {
+      const redPosition = (inputRed[data[offset] ?? 0] ?? 0) * (redGrid - 1)
+      const greenPosition = (inputGreen[data[offset + 1] ?? 0] ?? 0) * (greenGrid - 1)
+      const bluePosition = (inputBlue[data[offset + 2] ?? 0] ?? 0) * (blueGrid - 1)
+      const redLow = Math.min(redGrid - 2, Math.max(0, Math.floor(redPosition)))
+      const greenLow = Math.min(greenGrid - 2, Math.max(0, Math.floor(greenPosition)))
+      const blueLow = Math.min(blueGrid - 2, Math.max(0, Math.floor(bluePosition)))
+      const redFraction = redPosition - redLow
+      const greenFraction = greenPosition - greenLow
+      const blueFraction = bluePosition - blueLow
+      let first = 0
+      let second = 0
+      let third = 0
+      for (let mask = 0; mask < 8; mask += 1) {
+        const useRed = mask & 1
+        const useGreen = (mask >>> 1) & 1
+        const useBlue = (mask >>> 2) & 1
+        const weight =
+          (useRed ? redFraction : 1 - redFraction) *
+          (useGreen ? greenFraction : 1 - greenFraction) *
+          (useBlue ? blueFraction : 1 - blueFraction)
+        const index =
+          (((redLow + useRed) * greenGrid + greenLow + useGreen) * blueGrid + blueLow + useBlue) * 3
+        first += (transform.clut[index] ?? 0) * weight
+        second += (transform.clut[index + 1] ?? 0) * weight
+        third += (transform.clut[index + 2] ?? 0) * weight
+      }
+      const middleFirst = sampleCurveLut(middleRed, first / 65_535)
+      const middleSecond = sampleCurveLut(middleGreen, second / 65_535)
+      const middleThird = sampleCurveLut(middleBlue, third / 65_535)
+      first = sampleCurveLut(
+        outputRed,
+        (matrix[0] ?? 0) * middleFirst +
+          (matrix[1] ?? 0) * middleSecond +
+          (matrix[2] ?? 0) * middleThird +
+          (matrix[9] ?? 0),
+      )
+      second = sampleCurveLut(
+        outputGreen,
+        (matrix[3] ?? 0) * middleFirst +
+          (matrix[4] ?? 0) * middleSecond +
+          (matrix[5] ?? 0) * middleThird +
+          (matrix[10] ?? 0),
+      )
+      third = sampleCurveLut(
+        outputBlue,
+        (matrix[6] ?? 0) * middleFirst +
+          (matrix[7] ?? 0) * middleSecond +
+          (matrix[8] ?? 0) * middleThird +
+          (matrix[11] ?? 0),
+      )
+      let x: number
+      let y: number
+      let z: number
+      if (transform.pcs === 'Lab ') {
+        const legacyScale = 65_535 / 65_280
+        first = Math.min(1, first * legacyScale)
+        second = Math.min(1, second * legacyScale)
+        third = Math.min(1, third * legacyScale)
+        const fy = (first * 100 + 16) / 116
+        const fx = fy + (second * 255 - 128) / 500
+        const fz = fy - (third * 255 - 128) / 200
+        const epsilon = 216 / 24_389
+        const inverseScale = 27 / 24_389
+        const fx3 = fx * fx * fx
+        const fy3 = fy * fy * fy
+        const fz3 = fz * fz * fz
+        x = 0.9642 * (fx3 > epsilon ? fx3 : (116 * fx - 16) * inverseScale)
+        y = fy3 > epsilon ? fy3 : (116 * fy - 16) * inverseScale
+        z = 0.8249 * (fz3 > epsilon ? fz3 : (116 * fz - 16) * inverseScale)
+      } else {
+        const xyzScale = 65_535 / 32_768
+        x = first * xyzScale
+        y = second * xyzScale
+        z = third * xyzScale
+      }
+      const d65X = 0.9555766 * x - 0.0230393 * y + 0.0631636 * z
+      const d65Y = -0.0282895 * x + 1.0099416 * y + 0.0210077 * z
+      const d65Z = 0.0122982 * x - 0.020483 * y + 1.3299098 * z
+      data[offset] = encodeLinear(
+        3.2404542 * d65X - 1.5371385 * d65Y - 0.4985314 * d65Z,
+        transform.encode,
+      )
+      data[offset + 1] = encodeLinear(
+        -0.969266 * d65X + 1.8760108 * d65Y + 0.041556 * d65Z,
+        transform.encode,
+      )
+      data[offset + 2] = encodeLinear(
+        0.0556434 * d65X - 0.2040259 * d65Y + 1.0572252 * d65Z,
+        transform.encode,
+      )
+    }
+  }
+}
+
 export const applyRgbIcc = (data: Uint8Array, transform: RgbIccTransform): void => {
+  if (transform.method === 'lut') {
+    applyRgbLutPixels(data, 3, data.byteLength, data.byteLength / 3, 1, transform)
+    return
+  }
   for (let offset = 0; offset < data.byteLength; offset += 3) {
     const red = data[offset] ?? 0
     const green = data[offset + 1] ?? 0
@@ -745,6 +1060,10 @@ const applyRgbIccBlock = (block: PixelBlock, transform: RgbIccTransform): void =
   const channels = block.format === 'rgb8' ? 3 : block.format === 'rgba8' ? 4 : 0
   if (channels === 0) {
     throw unsupportedOperation(`RGB ICC conversion does not support ${block.format} pixels`)
+  }
+  if (transform.method === 'lut') {
+    applyRgbLutPixels(block.data, channels, block.stride, block.width, block.height, transform)
+    return
   }
   for (let row = 0; row < block.height; row += 1) {
     const start = row * block.stride

@@ -1,0 +1,4246 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-10T01:25:49.681Z",
+  "pureJsImageVersion": "0.7.0",
+  "pureJsImageGitCommit": "e12e46471cbeac610a779ff926edd9b35ff14c1a",
+  "codecCorpusGitCommit": "28205bbc5cf40364d012c462240ba28143373d67",
+  "nodeVersion": "v24.16.0",
+  "platform": "linux-x64",
+  "format": "webp",
+  "commandSettings": {
+    "corpus": "../codec-corpus",
+    "format": "webp",
+    "output": "benchmark/results",
+    "timeoutMs": 30000,
+    "memoryMb": 512,
+    "concurrency": 2,
+    "limit": null,
+    "filter": null
+  },
+  "totalsByCorpusCategory": [
+    {
+      "category": "valid/animation",
+      "total": 1,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 1,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/extended-container",
+      "total": 1,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 1,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/generated-checker-vp8",
+      "total": 72,
+      "outcomes": {
+        "pass": 72,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/generated-gradient-vp8",
+      "total": 72,
+      "outcomes": {
+        "pass": 72,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/generated-noise-vp8",
+      "total": 72,
+      "outcomes": {
+        "pass": 72,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/lossless-vp8l",
+      "total": 3,
+      "outcomes": {
+        "pass": 3,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/lossy-alpha",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/lossy-grayscale-vp8",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/lossy-vp8",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/metadata",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    }
+  ],
+  "totalsByOutcome": {
+    "pass": 223,
+    "unsupported": 2,
+    "decode-failure": 0,
+    "invalid-output": 0,
+    "rejected-safely": 0,
+    "accepted": 0,
+    "raw-exception": 0,
+    "timeout": 0,
+    "process-crash": 0,
+    "out-of-memory": 0
+  },
+  "records": [
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/2-color.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/lossless-vp8l",
+      "testGroup": "lossless-vp8l",
+      "features": [
+        "lossless-vp8l"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 243,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/advertises_rgba_but_frames_are_rgb.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/extended-container",
+      "testGroup": "extended-container",
+      "features": [
+        "extended-container"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "metadata",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Animated WebP decoding is not implemented",
+      "elapsedMs": 214,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/anim.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/animation",
+      "testGroup": "animation",
+      "features": [
+        "animation"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "unsupported",
+      "lastCompletedStage": "metadata",
+      "structuredErrorCode": "UNSUPPORTED_OPERATION",
+      "sanitizedErrorMessage": "Animated WebP decoding is not implemented",
+      "elapsedMs": 167,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/lossy_alpha.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/lossy-alpha",
+      "testGroup": "lossy-alpha",
+      "features": [
+        "lossy-alpha"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 208,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/multi-color.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/lossless-vp8l",
+      "testGroup": "lossless-vp8l",
+      "features": [
+        "lossless-vp8l"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 314,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/simple_xmp.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/metadata",
+      "testGroup": "metadata",
+      "features": [
+        "metadata"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 269,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/simple-gray.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/lossy-grayscale-vp8",
+      "testGroup": "lossy-grayscale-vp8",
+      "features": [
+        "lossy-grayscale-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/simple-rgb.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/lossy-vp8",
+      "testGroup": "lossy-vp8",
+      "features": [
+        "lossy-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/simple.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/lossless-vp8l",
+      "testGroup": "lossless-vp8l",
+      "features": [
+        "lossless-vp8l"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 274,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 200,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 251,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 208,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 210,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 207,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 199,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 214,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 207,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 201,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 197,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m0_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 208,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 231,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 193,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 200,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 200,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 195,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 198,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 207,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 207,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q0_m4_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 191,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 201,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 193,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 212,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 204,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 201,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 205,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 207,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 190,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 203,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m0_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 206,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 193,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 197,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 212,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 196,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 195,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 191,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 198,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q50_m4_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 202,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 212,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 186,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 193,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 192,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 192,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 198,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 197,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 192,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 193,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 198,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m0_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 215,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 197,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 192,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 216,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 190,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 193,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_checker_odd_q90_m4_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-checker-vp8",
+      "testGroup": "generated-checker-vp8",
+      "features": [
+        "generated-checker-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 199,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 208,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 204,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 176,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 184,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 200,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 195,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 199,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 203,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 180,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 203,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 176,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m0_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 208,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 202,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 186,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 184,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 174,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 191,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 198,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 190,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 196,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 195,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q0_m4_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 175,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 202,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 190,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 179,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 190,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 193,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 199,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 198,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 184,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m0_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 195,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 182,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 203,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 180,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 178,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 180,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q50_m4_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 182,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 204,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 181,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 186,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 186,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 196,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 184,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 210,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 185,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 181,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 214,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m0_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 185,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 179,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 186,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 192,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 191,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 198,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 191,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 191,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 205,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 200,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 216,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_grad_16_q90_m4_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-gradient-vp8",
+      "testGroup": "generated-gradient-vp8",
+      "features": [
+        "generated-gradient-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 183,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 185,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 205,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 196,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 192,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 204,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 193,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 190,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m0_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 205,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 215,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 182,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 193,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 200,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 205,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 186,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 180,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q0_m4_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 190,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 199,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 184,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 190,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 182,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 198,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 205,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 197,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 190,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m0_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 185,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 197,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 206,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 215,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 192,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 202,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 196,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 200,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 198,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 198,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 193,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q50_m4_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 195,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 219,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 197,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 216,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 191,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 195,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 209,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 199,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 196,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m0_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 192,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_def_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 190,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_def_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 192,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_def_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 197,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_ff0_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 186,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_ff0_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 217,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_ff0_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 208,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_ff50nostrong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 229,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_ff50nostrong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 210,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_ff50nostrong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 200,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_ff50strong_def.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 203,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_ff50strong_segsegments2sns80.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 195,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "webp",
+      "relativeFilename": "webp-conformance/valid/src_noise_q90_m4_ff50strong_segsegments4.webp",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/generated-noise-vp8",
+      "testGroup": "generated-noise-vp8",
+      "features": [
+        "generated-noise-vp8"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 200,
+      "childExitCode": 0,
+      "childSignal": null
+    }
+  ]
+}
