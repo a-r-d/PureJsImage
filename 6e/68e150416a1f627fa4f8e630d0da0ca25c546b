@@ -1,0 +1,36 @@
+README.md
+  h_9f4a25732fa0c1 77-79,82-83,95,213,215,217,226-248,273,277
+benchmark/engines/purejsimage-shared.ts
+  h_9f4a25732fa0c1 373-375,381-384
+benchmark/results/competitors-2026-08-10.json
+  h_9f4a25732fa0c1 1-15006
+benchmark/results/competitors-2026-08-10.md
+  h_9f4a25732fa0c1 1-182
+benchmark/results/jimp-tiff-profile-2026-08-10.json
+  h_9f4a25732fa0c1 1-3271
+benchmark/results/jimp-tiff-profile-2026-08-10.md
+  h_9f4a25732fa0c1 1-62
+benchmark/results/tiff-profile-2026-08-10.json
+  h_9f4a25732fa0c1 1-7702
+benchmark/results/tiff-profile-2026-08-10.md
+  h_9f4a25732fa0c1 1-73
+docs/index.html
+  h_9f4a25732fa0c1 56-57,139-140,143-144,160-161,165-166,170-171,177
+docs/performance.html
+  h_9f4a25732fa0c1 28,31-32,48-49,53-54,58-59,65,169-177,200-201,213-219
+tests/benchmark-harness.test.ts
+  h_9f4a25732fa0c1 8,49-66
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 94,119-121,127-129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "6e68e150416a1f627fa4f8e630d0da0ca25c546b",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
