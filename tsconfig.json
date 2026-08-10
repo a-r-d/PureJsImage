@@ -12,7 +12,12 @@
     "skipLibCheck": true,
     "strict": true,
     "verbatimModuleSyntax": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "purejsimage": ["./src/index.ts"],
+      "purejsimage/pathology": ["./src/pathology/index.ts"],
+      "purejsimage/tiff": ["./src/tiff/index.ts"]
+    }
   },
   "include": [
     "src/**/*.ts",
@@ -23,5 +28,6 @@
     "scripts/**/*.ts",
     "tests/**/*.ts",
     "types/**/*.d.ts"
-  ]
+  ],
+  "exclude": ["benchmark/scripts/verify-tiff-encode.ts"]
 }

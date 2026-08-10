@@ -77,10 +77,25 @@ export type {
   RasterPlaneRequest,
 } from './scientific/dataset.ts'
 export { isOmeTiff, omeTiffProfile, openOmeTiff } from './scientific/ome-tiff.ts'
+export { geoTiffProfile } from './geotiff.ts'
+export type {
+  GeoTiffBoundingBox,
+  GeoTiffGdalMetadataItem,
+  GeoTiffKey,
+  GeoTiffModel,
+  GeoTiffPoint,
+  GeoTiffProfile,
+  GeoTiffRasterType,
+} from './geotiff.ts'
 export type { ImageSink } from './sink.ts'
 export { Uint8ArraySink } from './sink.ts'
 export type { ImageInput, ImageSource } from './source.ts'
-export { BlobSource, MemorySource } from './source.ts'
+export {
+  BlobSource,
+  HttpRangeSource,
+  MemorySource,
+} from './source.ts'
+export type { HttpRangeSourceOptions, HttpRangeSourceStats } from './source.ts'
 
 export const createImageLibrary = (registration: ImageLibraryRegistration): ImageLibrary =>
   createImageLibraryForPlatform(registration, browserPlatform)

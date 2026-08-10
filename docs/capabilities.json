@@ -1606,17 +1606,20 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "Broad validated IFD-graph and strip/tile decode plus a public TIFF document, native scientific-raster, OME-TIFF, deterministic profile, and Aperio whole-slide layer with JPEG 2000 tags 33003/33005; canonical Deflate-predicted strip RGB/RGBA encoding; no implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate TIFF encode profiles",
-      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common grayscale, indexed, RGB, CMYK, YCbCr, CIELab, alpha, packed unsigned, wide unsigned, signed integer, IEEE floating-point, LogL, and LogLuv layouts with common compressions including first-party Zstandard. IFD graphs are traversed with global directory limits, cycle rejection, and alias-safe shared-directory reuse; only the selected frame and resolution level's strips or tiles are decoded. The public TIFF document entry exposes bounded tag reads, stable top-level and SubIFD directories, display decoders, and native-precision N-channel raster decoders without forcing scientific data through RGB. OME-TIFF maps validated Z/C/T coordinates, channels, physical pixel sizes, explicit or implicit TiffData IFD assignments, and reduced-resolution planes. The deterministic profile registry isolates detector failures and rejects equal-priority ambiguity. The first-party Aperio SVS profile exposes pyramids, region reads, associated images, MPP and objective metadata, and JPEG 2000 tile compression tags 33003/33005. A separately compiled Leica SCN single-area example demonstrates a public-only third-party profile boundary. Indexed samples through 16 bits use exact TIFF ColorMap scaling. TIFF 6 8-bit CIELab L* and L*a*b* samples convert directly from the format's D65 reference white to bounded sRGB rows; associated alpha and CIELab ICC transforms remain explicit unsupported boundaries. Signed 8-/16-bit and float16/float32/float64 CMYK use deterministic display normalization through SMinSampleValue/SMaxSampleValue or full-type defaults before bounded CMYK-to-RGB conversion. Embedded CMYK lut16 A2B0 ICC profiles take precedence over numeric conversion and transform bounded rows; raw numeric CMYK preservation and other CMYK ICC profile classes are not exposed. LogL and LogLuv samples are reconstructed as native CIE Y or XYZ float32 pixel blocks with deterministic display conversion. Unsigned 24-, 32-, and 64-bit samples are preserved in canonical 32- or 64-bit numeric pixel blocks. FillOrder 2 is normalized in each decoded strip or tile before predictor reversal. WebP-in-TIFF is available only through explicit codec composition. Encodes a canonical Classic little-endian, chunky 8-bit RGB or RGBA, Deflate-compressed, horizontally predicted, multi-strip profile and can retain a compatible RGB ICC profile.",
-      "memory": "Selected-frame, OME plane, and whole-slide region decode remain strip- or tile-bounded; IFD traversal and profile detection do not read unselected pixel segments. Zstandard decompression, bit-order normalization, palette lookup, CIELab conversion, numeric or ICC-managed CMYK conversion, SGILog row scratch, wide numeric predictor reversal, raster/display output, and embedded WebP pixels are bounded to the current metadata table or segment and emitted in bounded rows. JPEG 2000 reconstructs complete component state only for the current TIFF segment, not the source slide. Encoding uses one roughly 128 KiB uncompressed strip buffer and retains compressed strips until their Classic TIFF offsets are known; it never stages a full uncompressed frame.",
-      "recommendation": "Broad display-image input compatibility, native scientific raster access, validated multidimensional OME-TIFF planes, Aperio whole-slide pyramids and associated images, extensible vendor profiles, explicit frame/pyramid selection, and canonical Deflate-predicted RGB/RGBA strip output.",
+      "boundary": "Broad validated IFD-graph and strip/tile decode plus public TIFF document, native scientific-raster, GeoTIFF, OME-TIFF, deterministic profile, whole-slide, and bounded HTTP-range access APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles",
+      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. Supported compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes. Public APIs expose bounded tag reads, native-precision N-channel rasters, GeoTIFF georeferencing and GDAL metadata, OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, and validator-protected HTTP range reads. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.",
+      "memory": "Selected-frame, GeoTIFF, OME plane, and whole-slide region decode remain strip- or tile-bounded; IFD traversal and profile detection do not read unselected pixel segments. HTTP range reads use a bounded deduplicating LRU cache and reject resource changes. LERC, Zstandard, bit-order normalization, color conversion, prediction, raster/display output, and embedded codec pixels are bounded to the current metadata table or segment and emitted in bounded rows. JPEG 2000 reconstructs complete component state only for the current TIFF segment, not the source slide. Encoding retains compressed segment payloads until their offsets are known but never stages a full uncompressed frame.",
+      "recommendation": "Broad display-image input compatibility, native scientific and GeoTIFF raster access, validated OME and whole-slide pyramids, selective remote COG-style reads, explicit frame/pyramid selection, and structured Deflate RGB/RGBA strip, tile, BigTIFF, multi-page, and SubIFD-pyramid output.",
       "evidence": [
         "tests/tiff.test.ts",
+        "tests/tiff-lerc.test.ts",
         "tests/zstd.test.ts",
+        "tests/source-contract.test.ts",
         "tests/external-tiff-profile.test.ts",
         "browser-tests/compatibility.pw.ts",
         "tests/metadata-preservation.test.ts",
-        "tests/imazen-corpus-harness.test.ts"
+        "tests/imazen-corpus-harness.test.ts",
+        "tests/tiff-competitor-harness.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -1683,6 +1686,10 @@
         },
         {
           "status": "supported",
+          "text": "Bounded validator-protected HTTP range input with request deduplication, an LRU byte cap, and selective COG-style tile reads"
+        },
+        {
+          "status": "supported",
           "text": "Public `openTiffDocument()` entry with stable top-level and SubIFD directory objects"
         },
         {
@@ -1696,6 +1703,10 @@
         {
           "status": "supported",
           "text": "Explicit `rasterToPixels()` display conversion with declared per-channel ranges"
+        },
+        {
+          "status": "supported",
+          "text": "First-party GeoTIFF model, coordinate conversion, bounding-box, GeoKey, GDAL metadata, and nodata helpers"
         },
         {
           "status": "supported",
@@ -1866,8 +1877,12 @@
           "text": "Zstandard (`Compression=50000`) through the reusable first-party bounded decompressor"
         },
         {
+          "status": "supported",
+          "text": "LERC and LERC plus Deflate (`Compression=34887`) with bounded first-party LERC2 decoding"
+        },
+        {
           "status": "planned",
-          "text": "LERC, ThunderScan, and other extension compressions"
+          "text": "ThunderScan and other extension compressions"
         },
         {
           "status": "supported",
@@ -1875,11 +1890,7 @@
         },
         {
           "status": "supported",
-          "text": "Establish a canonical Deflate-predicted RGB/RGBA multi-strip encoding profile"
-        },
-        {
-          "status": "supported",
-          "text": "Classic little-endian TIFF with 32-bit offsets"
+          "text": "Classic little-endian TIFF and BigTIFF with automatic or explicit container selection"
         },
         {
           "status": "supported",
@@ -1887,15 +1898,15 @@
         },
         {
           "status": "supported",
-          "text": "Independently Deflate-compressed strips with horizontal differencing (`Predictor=2`)"
+          "text": "Independently Deflate-compressed strips or tiles with horizontal differencing (`Predictor=2`)"
         },
         {
           "status": "supported",
-          "text": "Automatic rows-per-strip planning targeting roughly 128 KiB of uncompressed pixels"
+          "text": "Automatic roughly 128 KiB strips or explicit `rowsPerStrip`; tile dimensions validated as multiples of 16"
         },
         {
           "status": "supported",
-          "text": "Bounded current-strip pixel and predictor scratch without a full uncompressed frame"
+          "text": "Bounded current-segment pixel and predictor scratch without a full uncompressed frame"
         },
         {
           "status": "supported",
@@ -1903,11 +1914,11 @@
         },
         {
           "status": "supported",
-          "text": "Strict `compression`, `predictor`, `layout`, and `compressionLevel` options on public `image.tiff()` and `image.encode('tiff')` APIs"
+          "text": "Multi-page top-level IFD chains and reduced-resolution SubIFD pyramids"
         },
         {
-          "status": "planned",
-          "text": "Explicit rows-per-strip configuration"
+          "status": "supported",
+          "text": "Strict `compression`, `predictor`, `layout`, `compressionLevel`, `format`, strip, and tile options on the public encode APIs"
         },
         {
           "status": "planned",
@@ -1924,18 +1935,6 @@
         {
           "status": "planned",
           "text": "Associated-alpha encoding"
-        },
-        {
-          "status": "planned",
-          "text": "Tiled and pyramidal TIFF output"
-        },
-        {
-          "status": "planned",
-          "text": "Multi-image TIFF output"
-        },
-        {
-          "status": "planned",
-          "text": "BigTIFF output"
         },
         {
           "status": "planned",
@@ -2020,6 +2019,22 @@
         {
           "status": "supported",
           "text": "Verify canonical Deflate-predicted RGB and RGBA output exactly after ImageMagick/LibTIFF reopen"
+        },
+        {
+          "status": "supported",
+          "text": "Verify first-party LERC and LERC-plus-Deflate pixels against the independent Esri decoder and reject corrupt masks, headers, dimensions, checksums, and missing TIFF metadata"
+        },
+        {
+          "status": "supported",
+          "text": "Verify bounded HTTP range caching, resource validators, failure propagation, and selective tile reads without fetching unrelated segment payloads"
+        },
+        {
+          "status": "supported",
+          "text": "Verify tiled RGB/RGBA, BigTIFF, multi-page, and SubIFD-pyramid writer output through independent GeoTIFF.js reopen"
+        },
+        {
+          "status": "supported",
+          "text": "Compare PureJsImage, GeoTIFF.js, UTIF.js, image-js, and Jimp against sharp with an ImageMagick fallback on the targeted TIFF feature corpus"
         },
         {
           "status": "supported",

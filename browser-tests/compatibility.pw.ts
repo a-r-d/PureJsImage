@@ -92,6 +92,7 @@ test('decodes legacy TIFF and odd-width BMP compatibility cases', async ({ page 
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('legacy TIFF LZW')
   expect(result.detail).toContain('first-party Zstandard')
+  expect(result.detail).toContain('first-party Zstandard and LERC')
   expect(result.detail).toContain('odd-width BMP RLE4')
   expect(result.detail).toContain('wide unsigned, and SGILog TIFF')
   expect(result.detail).toContain('numeric and ICC-managed CMYK')
@@ -115,11 +116,12 @@ test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   expect(result.detail).toContain('preserved alpha')
 })
 
-test('encodes canonical multi-strip TIFF in a real browser', async ({ page }) => {
+test('encodes tiled BigTIFF and a structured TIFF document in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.tiffEncodePipeline())
   expect(result.outputBytes).toBeGreaterThan(100)
-  expect(result.detail).toContain('Deflate-predicted multi-strip TIFF')
+  expect(result.detail).toContain('tiled BigTIFF')
+  expect(result.detail).toContain('multi-page and SubIFD-pyramid')
   expect(result.detail).toContain('exact browser pixels')
 })
 

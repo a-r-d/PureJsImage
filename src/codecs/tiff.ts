@@ -33,6 +33,7 @@ import type {
   TiffTagValue,
 } from '../tiff/types.ts'
 import { decodeZstd } from '../compression/zstd/index.ts'
+import { decodeLerc2 } from './tiff-lerc.ts'
 import {
   type CmykIccTransform,
   ColorManagedDecoder,
@@ -47,6 +48,12 @@ import { jpegCodec } from './jpeg.ts'
 import { createJpeg2000CodestreamDecoder } from './jpeg2000.ts'
 import { decodeLogLuvSegment, type LogLuvEncoding } from './tiff-logluv.ts'
 import { TiffEncoder } from './tiff-encode.ts'
+export { encodeTiffDocument } from './tiff-encode.ts'
+export type {
+  TiffDocumentEncodeRequest,
+  TiffEncodeOptions,
+  TiffPageEncodeRequest,
+} from './tiff-encode.ts'
 
 const blockRows = 32
 const compressionNone = 1
@@ -55,6 +62,7 @@ const compressionCcittGroup3 = 3
 const compressionCcittGroup4 = 4
 const compressionLzw = 5
 const compressionOldJpeg = 6
+const compressionLerc = 34887
 const compressionJpeg = 7
 const compressionDeflate = 8
 const compressionAdobeDeflate = 32946
@@ -377,6 +385,7 @@ interface TiffDescription {
   readonly sampleBitOffsets: Uint32Array
   readonly rowBytes: Uint32Array
   readonly compression: number
+  readonly lercAdditionalCompression: 0 | 1
   readonly group3TwoDimensional: boolean
   readonly photometric: number
   readonly fillOrder: number
@@ -1063,6 +1072,31 @@ const describeTiffIfd = async (
   }
 
   const compression = await singleValue(source, ifd, littleEndian, 259, compressionNone)
+  const rawLercParameters =
+    compression === compressionLerc
+      ? await optionalValues(source, ifd, littleEndian, 50674, 2)
+      : undefined
+  if (
+    compression === compressionLerc &&
+    (rawLercParameters === undefined ||
+      rawLercParameters.length !== 2 ||
+      !Number.isSafeInteger(rawLercParameters[0]) ||
+      (rawLercParameters[0] ?? 0) < 2 ||
+      (rawLercParameters[0] ?? 0) > 6)
+  ) {
+    throw invalidInput('TIFF LercParameters must declare a supported LERC2 version')
+  }
+  const rawLercAdditionalCompression = rawLercParameters?.[1] ?? 0
+  if (!Number.isSafeInteger(rawLercAdditionalCompression) || rawLercAdditionalCompression < 0) {
+    throw invalidInput('TIFF LERC additional compression is invalid')
+  }
+  if (rawLercAdditionalCompression === 2) {
+    throw unsupportedOperation('TIFF LERC plus Zstandard compression is unsupported')
+  }
+  if (rawLercAdditionalCompression > 2) {
+    throw invalidInput('TIFF LERC additional compression is invalid')
+  }
+  const lercAdditionalCompression: 0 | 1 = rawLercAdditionalCompression === 1 ? 1 : 0
   if (
     compression !== compressionNone &&
     compression !== compressionCcittModifiedHuffman &&
@@ -1077,6 +1111,7 @@ const describeTiffIfd = async (
     compression !== compressionSgiLog &&
     compression !== compressionSgiLog24 &&
     compression !== compressionZstandard &&
+    compression !== compressionLerc &&
     compression !== compressionWebp &&
     compression !== compressionAperioJpeg2000Ycbcr &&
     compression !== compressionAperioJpeg2000Mct
@@ -1089,10 +1124,11 @@ const describeTiffIfd = async (
     compression === compressionDeflate ||
     compression === compressionAdobeDeflate ||
     compression === compressionZstandard ||
-    compression === compressionPackBits
+    compression === compressionPackBits ||
+    compression === compressionLerc
   if (mode === 'raster' && !byteRasterCompression) {
     throw unsupportedOperation(
-      'TIFF raster decoding supports uncompressed, PackBits, LZW, Deflate, and Zstandard segments',
+      'TIFF raster decoding supports uncompressed, PackBits, LZW, Deflate, Zstandard, and LERC segments',
     )
   }
   const photometric = await singleValue(source, ifd, littleEndian, 262)
@@ -1286,6 +1322,9 @@ const describeTiffIfd = async (
   if (logLuvEncoding && predictor !== 1) {
     throw unsupportedOperation('TIFF LogLuv decoding does not use TIFF predictors')
   }
+  if (compression === compressionLerc && (fillOrder !== 1 || predictor !== 1)) {
+    throw unsupportedOperation('TIFF LERC compression requires FillOrder 1 and no TIFF predictor')
+  }
   const supportedHorizontalDepth =
     baseSampleFormat === sampleFormatUnsigned
       ? [2, 4, 6, 8, 10, 12, 14, 16, 24, 32, 64].includes(baseBitDepth)
@@ -1304,6 +1343,17 @@ const describeTiffIfd = async (
     throw unsupportedOperation(
       'TIFF floating-point prediction requires 16-bit, 32-bit, or 64-bit floating samples',
     )
+  }
+  if (compression === compressionLerc) {
+    const supportedLercSamples =
+      (baseSampleFormat === sampleFormatUnsigned &&
+        (baseBitDepth === 8 || baseBitDepth === 16 || baseBitDepth === 32)) ||
+      (baseSampleFormat === sampleFormatSigned &&
+        (baseBitDepth === 8 || baseBitDepth === 16 || baseBitDepth === 32)) ||
+      (baseSampleFormat === sampleFormatFloat && (baseBitDepth === 32 || baseBitDepth === 64))
+    if (!supportedLercSamples) {
+      throw unsupportedOperation('TIFF LERC compression does not support this sample type')
+    }
   }
 
   const wideUnsigned =
@@ -1799,6 +1849,7 @@ const describeTiffIfd = async (
     associatedAlpha: extraSamples[0] === 1,
     orientation,
     frames,
+    lercAdditionalCompression,
     resolutionLevels,
     pixelFormat,
     displayRanges,
@@ -2342,11 +2393,10 @@ const decodeLzw = (
   }
   return output.subarray(0, expectedBytes)
 }
-
-const decodeDeflate = async (
+const decodeDeflateBounded = async (
   encoded: Uint8Array,
-  expectedBytes: number,
   maximumBytes: number,
+  label: string,
 ): Promise<Uint8Array> => {
   const output = new Uint8Array(maximumBytes)
   let offset = 0
@@ -2360,21 +2410,133 @@ const decodeDeflate = async (
       const result = await reader.read()
       if (result.done) break
       if (offset + result.value.byteLength > maximumBytes) {
-        throw invalidInput('TIFF Deflate output exceeds RowsPerStrip')
+        throw invalidInput(`${label} output exceeds its bounded segment size`)
       }
       output.set(result.value, offset)
       offset += result.value.byteLength
     }
   } catch (error) {
     if (error instanceof Error && error.name === 'ImageError') throw error
-    throw invalidInput('TIFF Deflate strip is invalid')
+    throw invalidInput(`${label} stream is invalid`)
   } finally {
     reader?.releaseLock()
   }
-  if (offset < expectedBytes) {
-    throw truncatedInput(`TIFF Deflate produced ${offset} of at least ${expectedBytes} bytes`)
+  return output.subarray(0, offset)
+}
+
+const decodeDeflate = async (
+  encoded: Uint8Array,
+  expectedBytes: number,
+  maximumBytes: number,
+): Promise<Uint8Array> => {
+  const output = await decodeDeflateBounded(encoded, maximumBytes, 'TIFF Deflate')
+  if (output.byteLength < expectedBytes) {
+    throw truncatedInput(
+      `TIFF Deflate produced ${output.byteLength} of at least ${expectedBytes} bytes`,
+    )
   }
   return output.subarray(0, expectedBytes)
+}
+const lercDataTypeForSegment = (
+  description: TiffDescription,
+  physicalSegment: number,
+): 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 => {
+  const sample =
+    description.planarConfiguration === 1
+      ? 0
+      : Math.floor(physicalSegment / description.segmentsPerPlane)
+  const bits = description.bitsPerSample[sample]
+  const format = description.sampleFormats[sample]
+  if (format === sampleFormatSigned) {
+    if (bits === 8) return 0
+    if (bits === 16) return 2
+    if (bits === 32) return 4
+  } else if (format === sampleFormatUnsigned) {
+    if (bits === 8) return 1
+    if (bits === 16) return 3
+    if (bits === 32) return 5
+  } else if (format === sampleFormatFloat) {
+    if (bits === 32) return 6
+    if (bits === 64) return 7
+  }
+  throw unsupportedOperation('TIFF LERC compression does not support this sample type')
+}
+
+const swapSampleBytes = (data: Uint8Array, bytesPerSample: number): void => {
+  for (let offset = 0; offset < data.byteLength; offset += bytesPerSample) {
+    for (let left = 0, right = bytesPerSample - 1; left < right; left += 1, right -= 1) {
+      const value = data[offset + left] ?? 0
+      data[offset + left] = data[offset + right] ?? 0
+      data[offset + right] = value
+    }
+  }
+}
+
+const decodeLercSegment = async (
+  encoded: Uint8Array,
+  description: TiffDescription,
+  physicalSegment: number,
+  expectedBytes: number,
+  rows: number,
+): Promise<Uint8Array> => {
+  const maximumLercBytes = expectedBytes + Math.floor(expectedBytes / 3) + 256
+  if (!Number.isSafeInteger(maximumLercBytes)) throw limitExceeded('TIFF LERC segment is too large')
+  const blob =
+    description.lercAdditionalCompression === 1
+      ? await decodeDeflateBounded(encoded, maximumLercBytes, 'TIFF LERC Deflate')
+      : encoded
+  const decoded = decodeLerc2(blob)
+  const dataType = lercDataTypeForSegment(description, physicalSegment)
+  const expectedDepth = description.planarConfiguration === 1 ? description.samplesPerPixel : 1
+  const alphaFromMask =
+    description.planarConfiguration === 1 &&
+    dataType === 1 &&
+    description.alphaSample === description.samplesPerPixel - 1 &&
+    !description.associatedAlpha &&
+    decoded.depth === expectedDepth - 1
+  if (
+    decoded.width !== description.segmentWidth ||
+    decoded.height !== rows ||
+    decoded.dataType !== dataType ||
+    (!alphaFromMask && decoded.depth !== expectedDepth)
+  ) {
+    throw invalidInput('TIFF LERC segment dimensions or sample type do not match its directory')
+  }
+  let output: Uint8Array
+  if (alphaFromMask) {
+    const pixels = decoded.width * decoded.height
+    output = new Uint8Array(expectedBytes)
+    for (let pixel = 0; pixel < pixels; pixel += 1) {
+      const sourceOffset = pixel * decoded.depth
+      const targetOffset = pixel * expectedDepth
+      output.set(decoded.data.subarray(sourceOffset, sourceOffset + decoded.depth), targetOffset)
+      output[targetOffset + expectedDepth - 1] = decoded.mask[pixel] === 0 ? 0 : 255
+    }
+  } else {
+    if (decoded.data.byteLength !== expectedBytes) {
+      throw invalidInput(
+        `TIFF LERC decoder produced ${decoded.data.byteLength}, expected ${expectedBytes} bytes`,
+      )
+    }
+    output = decoded.data
+    if (dataType === 6 || dataType === 7) {
+      const view = new DataView(output.buffer, output.byteOffset, output.byteLength)
+      const samplesPerPixel = decoded.depth
+      for (let pixel = 0; pixel < decoded.mask.length; pixel += 1) {
+        for (let sample = 0; sample < samplesPerPixel; sample += 1) {
+          const sampleMask = decoded.sampleMasks[sample] ?? decoded.mask
+          if (sampleMask[pixel] !== 0) continue
+          const index = pixel * samplesPerPixel + sample
+          if (dataType === 6) view.setFloat32(index * 4, Number.NaN, true)
+          else view.setFloat64(index * 8, Number.NaN, true)
+        }
+      }
+    }
+  }
+  if (!description.littleEndian && decoded.bytesPerSample > 1) {
+    swapSampleBytes(output, decoded.bytesPerSample)
+  }
+  return output
 }
 
 const readPackedUnsigned = (data: Uint8Array, bitOffset: number, bitDepth: number): number => {
@@ -2619,6 +2781,8 @@ const decodeSegment = async (
       ? rowBytes * Math.ceil(description.segmentHeight / description.ycbcr.verticalSubsampling)
       : expectedBytes
     decoded = decodeLzw(encoded, expectedBytes, maximumBytes)
+  } else if (description.compression === compressionLerc) {
+    decoded = await decodeLercSegment(encoded, description, physicalSegment, expectedBytes, rows)
   } else if (description.compression === compressionZstandard) {
     decoded = decodeZstd(encoded, {
       expectedOutputBytes: expectedBytes,

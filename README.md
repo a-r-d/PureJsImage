@@ -76,8 +76,8 @@ and Sharp imports include the additional codecs shown.
 
 | Import | Version | Codecs included | Minified JS | gzip | Brotli |
 | --- | --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | **0.8.0** | JPEG, PNG | 161.3 KiB | 52.4 KiB | 43.9 KiB |
-| PureJsImage all codecs | 0.8.0 | 9 codecs | 578.5 KiB | 214.4 KiB | 179.4 KiB |
+| **PureJsImage matched** | **0.8.0** | JPEG, PNG | 172.6 KiB | 56.0 KiB | 46.9 KiB |
+| PureJsImage all codecs | 0.8.0 | 9 codecs | 611.6 KiB | 225.2 KiB | 188.1 KiB |
 | Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
 | image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
 | jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
@@ -89,7 +89,7 @@ complete installed deployment tells the other half of the story:
 
 | Package | Version | Installed footprint | Production packages |
 | --- | --- | ---: | ---: |
-| **PureJsImage** | **0.8.0** | **2.0 MiB** | **1** |
+| **PureJsImage** | **0.8.0** | **2.1 MiB** | **1** |
 | Jimp | 1.6.0 | 29.3 MiB | 70 |
 | image-js | 1.7.0 | 17.0 MiB | 46 |
 | jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |

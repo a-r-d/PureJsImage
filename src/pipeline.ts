@@ -54,8 +54,12 @@ export interface BmpEncodeOptions {
 export interface TiffEncodeOptions {
   compression?: 'deflate'
   predictor?: 'horizontal'
-  layout?: 'strips'
+  layout?: 'strips' | 'tiles'
   compressionLevel?: number
+  rowsPerStrip?: number
+  tileWidth?: number
+  tileHeight?: number
+  format?: 'classic' | 'bigtiff' | 'auto'
 }
 
 export type PipelineOperation =
@@ -244,8 +248,35 @@ export const createTiffEncodeOperation = (options: TiffEncodeOptions): PipelineO
   if (options.predictor !== undefined && options.predictor !== 'horizontal') {
     throw invalidInput('TIFF predictor must be horizontal')
   }
-  if (options.layout !== undefined && options.layout !== 'strips') {
-    throw invalidInput('TIFF layout must be strips')
+  if (options.layout !== undefined && options.layout !== 'strips' && options.layout !== 'tiles') {
+    throw invalidInput('TIFF layout must be strips or tiles')
+  }
+  if (
+    options.format !== undefined &&
+    options.format !== 'classic' &&
+    options.format !== 'bigtiff' &&
+    options.format !== 'auto'
+  ) {
+    throw invalidInput('TIFF format must be classic, bigtiff, or auto')
+  }
+  for (const [label, value] of [
+    ['rowsPerStrip', options.rowsPerStrip],
+    ['tileWidth', options.tileWidth],
+    ['tileHeight', options.tileHeight],
+  ] as const) {
+    if (value !== undefined && (!Number.isSafeInteger(value) || value < 1)) {
+      throw invalidInput(`TIFF ${label} must be a positive safe integer`)
+    }
+  }
+  if (options.layout === 'tiles' && options.rowsPerStrip !== undefined) {
+    throw invalidInput('TIFF rowsPerStrip requires layout: strips')
+  }
+  if (
+    options.layout === 'tiles' &&
+    ((options.tileWidth !== undefined && options.tileWidth % 16 !== 0) ||
+      (options.tileHeight !== undefined && options.tileHeight % 16 !== 0))
+  ) {
+    throw invalidInput('TIFF tile dimensions must be multiples of 16')
   }
   if (
     options.compressionLevel !== undefined &&

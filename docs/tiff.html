@@ -20,7 +20,7 @@
   </div></header>
 
   <main id="main">
-    <header class="page-hero"><div class="container"><p class="eyebrow">TIFF reference</p><h1>TIFF is a full document, raster, and image codec.</h1><p class="page-lede">PureJsImage supports broad Classic TIFF and BigTIFF display decoding, native scientific samples, OME-TIFF datasets, Aperio whole-slide pyramids, bounded region reads, and one canonical interoperable output profile.</p><div class="page-meta"><span class="pill">Classic TIFF + BigTIFF</span><span class="pill">Strip/tile bounded</span><span class="pill">Node + browser</span></div></div></header>
+    <header class="page-hero"><div class="container"><p class="eyebrow">TIFF reference</p><h1>TIFF is a full document, raster, and image codec.</h1><p class="page-lede">PureJsImage supports broad Classic TIFF and BigTIFF display decoding, native scientific and GeoTIFF rasters, OME-TIFF datasets, Aperio whole-slide pyramids, bounded remote region reads, and structured RGB/RGBA output.</p><div class="page-meta"><span class="pill">Classic TIFF + BigTIFF</span><span class="pill">Strip/tile bounded</span><span class="pill">Node + browser</span></div></div></header>
     <div class="container docs-layout">
       <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="guides.html">Getting started</a><a href="guides.html#recipes">Recipes</a></div><div class="nav-group"><strong>Reference</strong><a href="api.html">API reference</a><a href="codecs.html">Codec support</a><a href="tiff.html" aria-current="page">TIFF</a><a href="performance.html">Performance</a></div></aside>
       <article class="content">
@@ -70,6 +70,7 @@
             <li>Aperio JPEG 2000 Compression 33003 YCbCr and 33005 MCT tiles.</li>
             <li>SGILog Compression 34676 and SGILog24 Compression 34677.</li>
             <li>Zstandard Compression 50000 through the bounded first-party decoder.</li>
+            <li>LERC and LERC-plus-Deflate Compression 34887 through the bounded first-party LERC2 decoder.</li>
             <li>WebP Compression 50001 through explicit <code>createTiffCodec({ embeddedCodecs: [webpCodec] })</code> composition.</li>
             <li>Horizontal Predictor 2 for supported 2- through 64-bit samples and floating Predictor 3 for float16/32/64.</li>
             <li>FillOrder 2 normalization before predictor reversal.</li>
@@ -77,10 +78,19 @@
           <div class="callout"><strong>Full contract.</strong> The generated <a href="https://github.com/a-r-d/PureJsImage/blob/main/tiff-codec-support.md" target="_blank" rel="noreferrer">TIFF capability checklist</a> is generated from the authoritative manifest and records every implemented and planned boundary.</div>
         </section>
 
+        <section id="conformance" data-search-item>
+          <h2>Imazen conformance baseline</h2>
+          <p>The 2026-08-10 154-file TIFF corpus run records 148 passes, 2 structured <code>UNSUPPORTED_OPERATION</code> results, and 4 safely rejected robustness inputs. It records zero decode failures, invalid outputs, raw exceptions, timeouts, crashes, or out-of-memory results.</p>
+          <p>Every file runs in an isolated worker with a 30-second timeout and 512 MiB heap limit. A pass means metadata inspection, TIFF-to-PNG decode, PNG reopen, and output-dimension validation all completed. This corpus result demonstrates safe end-to-end handling; it is not by itself an exact-pixel comparison.</p>
+          <p>Exact pixels are tested separately with pinned fixtures and independent ImageMagick/LibTIFF, tifffile/imagecodecs, Esri LERC, libwebp, GeoTIFF.js, and OpenSlide oracles. The corpus worker explicitly composes WebP-in-TIFF while the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.</p>
+          <p><a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/imazen-tiff-conformance.md" target="_blank" rel="noreferrer">Read the complete Imazen TIFF report →</a></p>
+        </section>
+
         <section id="scientific" data-search-item>
           <h2>Scientific TIFF and OME-TIFF</h2>
           <p><code>openTiffDocument()</code> exposes stable top-level and SubIFD directories without forcing samples into a display format. Each directory supports bounded typed <code>getTag()</code> reads plus a normal <code>ImageDecoder</code> or native-precision <code>RasterDecoder</code>. <code>RasterBlock</code> supports planar or interleaved N-channel data; <code>rasterToPixels()</code> requires an explicit one- or three-channel selection and display range.</p>
           <p><code>openOmeTiff()</code> validates OME XML, dimensions, sample type, channel metadata, physical pixel size, all valid Z/C/T dimension orders, explicit or implicit <code>TiffData</code> IFD mappings, interleaved or separately stored channels, and reduced-resolution SubIFDs.</p>
+          <p><code>geoTiffProfile.open()</code> exposes validated GeoKeys, GDAL metadata and nodata, pixel-to-model and model-to-pixel conversion, origin, resolution, and bounding-box helpers for tiepoint/scale or affine transformation models.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">OME-TIFF plane</span></div><pre><code><span class="tok-key">import</span> { MemorySource } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
 <span class="tok-key">import</span> { openOmeTiff } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
 <span class="tok-key">import</span> { openTiffDocument } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
@@ -127,24 +137,28 @@
 
         <section id="encode" data-search-item>
           <h2>TIFF output</h2>
-          <p>The writer intentionally exposes one interoperability profile: Classic little-endian TIFF, chunky 8-bit RGB or RGBA, independently Deflate-compressed strips, horizontal prediction, automatic roughly 128 KiB raw strip planning, and unassociated alpha metadata. Compatible RGB ICC profiles can be retained explicitly.</p>
-          <div class="code-window"><div class="window-bar"><span class="window-title">Canonical TIFF output</span></div><pre><code><span class="tok-key">await</span> image.tiff({
+          <p>The writer emits chunky 8-bit RGB or RGBA with horizontal prediction and independently Deflate-compressed strips or tiles. It supports automatic roughly 128 KiB strip planning, explicit rows per strip, validated tile dimensions, Classic TIFF, automatic or explicit BigTIFF, multi-page top-level IFD chains, and reduced-resolution SubIFD pyramids. Compatible RGB ICC profiles can be retained explicitly.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TIFF output</span></div><pre><code><span class="tok-key">await</span> image.tiff({
   compression: <span class="tok-string">'deflate'</span>,
   predictor: <span class="tok-string">'horizontal'</span>,
-  layout: <span class="tok-string">'strips'</span>,
+  layout: <span class="tok-string">'tiles'</span>,
+  tileWidth: 256,
+  tileHeight: 256,
+  format: <span class="tok-string">'auto'</span>,
   compressionLevel: 6,
 }).toFile(<span class="tok-string">'output.tiff'</span>)</code></pre></div>
-          <p>Alternate compression profiles, explicit rows per strip, grayscale or palette output, 16-bit channels, associated alpha, tiles, pyramids, multiple images, BigTIFF output, and broader metadata writing remain unsupported.</p>
+          <p><code>encodeTiffDocument()</code> writes multiple top-level pages and nested reduced-resolution images. Alternate compression profiles, grayscale or palette output, 16-bit channels, associated alpha, and broader metadata writing remain unsupported.</p>
         </section>
 
         <section id="memory" data-search-item>
           <h2>Memory and safety</h2>
           <ul>
-            <li>Display, native raster, OME plane, and whole-slide reads are bounded to selected strips or tiles.</li>
+            <li>Display, native raster, GeoTIFF, OME plane, and whole-slide reads are bounded to selected strips or tiles.</li>
+            <li><code>HttpRangeSource</code> deduplicates bounded requests, enforces a byte-capped LRU cache, and rejects ETag or Last-Modified changes while reading remote COG-style TIFFs.</li>
             <li>IFD traversal and profile detection do not read unselected pixel segments.</li>
             <li>Tag payloads, IFD counts, offsets, dimensions, segment geometry, decompression output, predictors, and nested graph traversal are validated before allocation or indexing.</li>
-            <li>Zstandard, FillOrder normalization, palette lookup, color conversion, predictors, SGILog scratch, and output blocks stay bounded to the current metadata table or segment.</li>
-            <li>The encoder keeps one roughly 128 KiB uncompressed strip buffer and compressed strips until final Classic TIFF offsets are known; it does not stage a full uncompressed frame.</li>
+            <li>LERC, Zstandard, FillOrder normalization, palette lookup, color conversion, predictors, SGILog scratch, and output blocks stay bounded to the current metadata table or segment.</li>
+            <li>The encoder bounds raw pixel and predictor scratch to the current strip or tile and retains compressed segments until final offsets are known; it does not stage a full uncompressed frame.</li>
           </ul>
         </section>
 
@@ -153,15 +167,15 @@
           <ul>
             <li>No automatic display mapping for arbitrary scientific multiband data. Use native raster blocks or provide an explicit channel/range mapping.</li>
             <li>No raw numeric CMYK preservation or general CMYK ICC profile classes beyond the supported bounded <code>lut16 A2B0</code> path.</li>
-            <li>No LERC, ThunderScan, or unspecified extension compression.</li>
+            <li>No ThunderScan or unspecified extension compression.</li>
             <li>No automatic WebP composition in the default TIFF codec.</li>
             <li>No multi-area Leica scene composition in the external example.</li>
-            <li>No alternate TIFF output profiles beyond the canonical Deflate-predicted RGB/RGBA writer.</li>
+            <li>No alternate TIFF compression or pixel profiles beyond Deflate-predicted RGB/RGBA strips and tiles.</li>
           </ul>
           <p>Recognized but unsupported combinations fail with a structured <code>ImageError</code>; they are not silently approximated.</p>
         </section>
       </article>
-      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#overview">Entry points</a><a href="#decode">Decode</a><a href="#scientific">Scientific + OME</a><a href="#whole-slide">Whole-slide</a><a href="#profiles">Profiles</a><a href="#encode">Output</a><a href="#memory">Memory</a><a href="#limits">Boundaries</a></aside>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#overview">Entry points</a><a href="#decode">Decode</a><a href="#conformance">Conformance</a><a href="#scientific">Scientific + OME</a><a href="#whole-slide">Whole-slide</a><a href="#profiles">Profiles</a><a href="#encode">Output</a><a href="#memory">Memory</a><a href="#limits">Boundaries</a></aside>
     </div>
   </main>
 

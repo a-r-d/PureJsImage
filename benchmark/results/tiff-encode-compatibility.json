@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-10T14:28:14.616Z",
+  "generatedAt": "2026-08-10T18:40:42.323Z",
   "oracle": "Version: ImageMagick 7.1.2-3 Q16 x86_64 23340 https://imagemagick.org",
   "pixelValidation": "Exact raw RGB/RGBA decode through ImageMagick/LibTIFF",
   "results": [

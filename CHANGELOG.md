@@ -64,6 +64,20 @@ All notable changes to PureJsImage are documented in this file.
   encoder using independently Deflate-compressed, horizontally predicted strips, automatic
   roughly 128 KiB strip planning, strict extensible strategy options, bounded raw strip scratch,
   compatible RGB ICC preservation, and exact ImageMagick/LibTIFF interoperability validation.
+- Added bounded first-party TIFF LERC2 and LERC-plus-Deflate segment decoding with mask handling,
+  native numeric sample reconstruction, independently validated byte/float pixels, and structured
+  rejection of corrupt headers, dimensions, masks, checksums, and codec metadata.
+- Added first-party GeoTIFF model, coordinate, bounding-box, GeoKey, GDAL metadata, and nodata
+  helpers over the public TIFF document API, with exact affine and tiepoint semantics.
+- Added a bounded `HttpRangeSource` with request coalescing, validator-protected reads, byte-capped
+  LRU caching, response cancellation, and selective COG-style region access that does not fetch
+  unrelated tiles.
+- Expanded structured TIFF output with explicit rows per strip, tiled RGB/RGBA segments, automatic
+  or explicit BigTIFF selection, multi-page top-level IFD chains, and reduced-resolution SubIFD
+  pyramids, independently reopened through GeoTIFF.js.
+- Added a development-only TIFF conformance harness that scores PureJsImage, GeoTIFF.js, UTIF.js,
+  image-js, and Jimp against independent sharp/ImageMagick RGBA output with isolated memory,
+  timeout, crash, exact-pixel, and error reporting.
 
 ## [0.8.0] - 2026-08-09
 

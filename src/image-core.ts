@@ -234,6 +234,18 @@ export class Image<Input, Output extends Uint8Array> {
           ...('compressionLevel' in options && options.compressionLevel !== undefined
             ? { compressionLevel: options.compressionLevel }
             : {}),
+          ...('rowsPerStrip' in options && options.rowsPerStrip !== undefined
+            ? { rowsPerStrip: options.rowsPerStrip }
+            : {}),
+          ...('tileWidth' in options && options.tileWidth !== undefined
+            ? { tileWidth: options.tileWidth }
+            : {}),
+          ...('tileHeight' in options && options.tileHeight !== undefined
+            ? { tileHeight: options.tileHeight }
+            : {}),
+          ...('format' in options && options.format !== undefined
+            ? { format: options.format }
+            : {}),
         }),
       )
     }

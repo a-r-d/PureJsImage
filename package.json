@@ -187,6 +187,7 @@
     "corpus:exercise": "node scripts/exercise-corpus.ts",
     "corpus:imazen": "node scripts/validate-imazen-corpus.ts",
     "corpus:tiff:matrix": "node scripts/analyze-tiff-dependencies.ts",
+    "corpus:tiff:competitors": "node scripts/compare-tiff-competitors.ts",
     "results:combine": "node benchmark/scripts/combine-results.ts",
     "bench": "node benchmark/run.ts",
     "bench:jimp": "node benchmark/run.ts --engines jimp",
@@ -250,14 +251,17 @@
     "constructs": "10.8.1",
     "esbuild": "0.28.1",
     "exif-parser": "0.1.12",
+    "geotiff": "^3.0.5",
     "image-dimensions": "2.5.1",
     "image-js": "1.7.0",
     "jimp": "1.6.0",
     "jpeg-js": "0.4.4",
+    "lerc": "^4.2.0",
     "omggif": "1.0.10",
     "pngjs": "7.0.0",
     "sharp": "0.35.3",
     "typescript": "7.0.2",
+    "utif": "^3.1.0",
     "vitest": "4.1.10"
   }
 }

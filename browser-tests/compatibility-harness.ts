@@ -13,9 +13,12 @@ import { pngCodec } from '../src/codec-entries/png.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
 import { openOmeTiff } from '../src/scientific/ome-tiff.ts'
+import { browserRuntime } from '../src/browser-runtime.ts'
 import { rasterToPixels } from '../src/raster.ts'
 import { MemorySource } from '../src/source.ts'
-import { openTiffDocument } from '../src/tiff/index.ts'
+import { Uint8ArraySink } from '../src/sink.ts'
+import { encodeTiffDocument, openTiffDocument } from '../src/tiff/index.ts'
+import type { PixelBlock } from '../src/pixel.ts'
 import type { ImageInput } from '../src/source.ts'
 import type { ImageSink } from '../src/sink.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
@@ -607,7 +610,10 @@ const tiffEncodePipeline = async (): Promise<BrowserWorkflowResult> => {
     .tiff({
       compression: 'deflate',
       predictor: 'horizontal',
-      layout: 'strips',
+      layout: 'tiles',
+      tileWidth: 128,
+      tileHeight: 128,
+      format: 'bigtiff',
       compressionLevel: 6,
     })
     .toUint8Array()
@@ -630,9 +636,71 @@ const tiffEncodePipeline = async (): Promise<BrowserWorkflowResult> => {
       throw new Error(`Browser TIFF round-trip pixel ${offset} changed`)
     }
   }
+  const blocks = (
+    width: number,
+    height: number,
+    format: 'rgb8' | 'rgba8',
+    data: Uint8Array,
+  ): AsyncIterable<PixelBlock> => ({
+    async *[Symbol.asyncIterator]() {
+      yield {
+        x: 0,
+        y: 0,
+        width,
+        height,
+        stride: width * (format === 'rgb8' ? 3 : 4),
+        format,
+        data,
+      }
+    },
+  })
+  const documentSink = new Uint8ArraySink()
+  await encodeTiffDocument(documentSink, {
+    runtime: browserRuntime,
+    options: {
+      compression: 'deflate',
+      predictor: 'horizontal',
+      layout: 'tiles',
+      tileWidth: 16,
+      tileHeight: 16,
+      format: 'bigtiff',
+    },
+    pages: [
+      {
+        width: 2,
+        height: 1,
+        pixelFormat: 'rgb8',
+        blocks: blocks(2, 1, 'rgb8', Uint8Array.of(1, 2, 3, 4, 5, 6)),
+        reducedImages: [
+          {
+            width: 1,
+            height: 1,
+            pixelFormat: 'rgb8',
+            blocks: blocks(1, 1, 'rgb8', Uint8Array.of(7, 8, 9)),
+          },
+        ],
+      },
+      {
+        width: 1,
+        height: 1,
+        pixelFormat: 'rgba8',
+        blocks: blocks(1, 1, 'rgba8', Uint8Array.of(10, 11, 12, 13)),
+      },
+    ],
+  })
+  const documentBytes = documentSink.toUint8Array()
+  const document = await openTiffDocument(new MemorySource(documentBytes))
+  if (
+    document.topLevelDirectories.length !== 2 ||
+    document.directories.length !== 3 ||
+    document.topLevelDirectories[0]?.subIfds.length !== 1
+  ) {
+    throw new Error('Browser structured TIFF document lost pages or its SubIFD pyramid')
+  }
   return {
-    detail: 'Deflate-predicted multi-strip TIFF encoding round-tripped exact browser pixels',
-    outputBytes: encoded.byteLength,
+    detail:
+      'Deflate-predicted tiled BigTIFF round-tripped exact browser pixels; structured multi-page and SubIFD-pyramid output reopened',
+    outputBytes: encoded.byteLength + documentBytes.byteLength,
   }
 }
 
@@ -968,6 +1036,33 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
     if (decodedZstdPixels[index * 4] !== zstdPixels[index]) {
       throw new Error(`Zstandard TIFF pixel ${index} changed in the browser`)
     }
+  }
+  const lercStrip = await fetchBytes('/fixtures/bluemarble_256_256_3_byte.lerc2')
+  const lercTiff = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [256] },
+      { tag: 257, type: 4, values: [256] },
+      { tag: 258, type: 3, values: [8, 8, 8] },
+      { tag: 259, type: 3, values: [34_887] },
+      { tag: 262, type: 3, values: [2] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [3] },
+      { tag: 278, type: 4, values: [256] },
+      { tag: 279, type: 4, values: [lercStrip.byteLength] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 50_674, type: 4, values: [4, 0] },
+    ],
+    [lercStrip],
+  )
+  const lercOutput = await (await images.open(lercTiff)).png().toUint8Array()
+  const lercPixels = await browserPixels(lercOutput, 'image/png')
+  if (
+    lercPixels[0] !== 1 ||
+    lercPixels[1] !== 4 ||
+    lercPixels[2] !== 19 ||
+    lercPixels[(256 * 256 - 1) * 4] !== 0
+  ) {
+    throw new Error('First-party LERC TIFF pixels changed in the browser')
   }
 
   const entries = [
@@ -1541,10 +1636,11 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
 
   return {
     detail:
-      'legacy TIFF LZW, first-party Zstandard, packed 12-bit and FillOrder 2 TIFF, signed, float, numeric and ICC-managed CMYK, CIELab, 16-bit palette, wide unsigned, and SGILog TIFF, TIFF SubIFD pyramids, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
+      'legacy TIFF LZW, first-party Zstandard and LERC, packed 12-bit and FillOrder 2 TIFF, signed, float, numeric and ICC-managed CMYK, CIELab, 16-bit palette, wide unsigned, and SGILog TIFF, TIFF SubIFD pyramids, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
     outputBytes:
       legacyOutput.byteLength +
       zstdOutput.byteLength +
+      lercOutput.byteLength +
       wide64Output.byteLength +
       packedOutput.byteLength +
       webpTiffOutput.byteLength +

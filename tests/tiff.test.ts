@@ -3,14 +3,22 @@ import { deflateSync } from 'node:zlib'
 import { readFile } from 'node:fs/promises'
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
+import * as Lerc from 'lerc'
+import { fromArrayBuffer as openGeoTiffOracle } from 'geotiff'
 import { describe, expect, it } from 'vitest'
 import aperioFixture from './fixtures/aperio-33003-first-tile.json' with { type: 'json' }
 import type { DecoderOptions, ImageCodec } from '../src/codec.ts'
-import { createTiffCodec, openTiffDocument, tiffCodec } from '../src/codecs/tiff.ts'
+import {
+  createTiffCodec,
+  encodeTiffDocument,
+  openTiffDocument,
+  tiffCodec,
+} from '../src/codecs/tiff.ts'
 import { isAperioSvs, openAperioSvs } from '../src/pathology/aperio-svs.ts'
 import { isOmeTiff, omeTiffProfile, openOmeTiff } from '../src/scientific/ome-tiff.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import { geoTiffProfile } from '../src/geotiff.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import type { RasterBlock } from '../src/raster.ts'
 import { createTiffProfileRegistry } from '../src/tiff/profiles.ts'
@@ -1304,6 +1312,107 @@ describe('TIFF codec', () => {
     const paddedPixels = await decodedPng(deflateLastStripPadding)
     expect(pixel(paddedPixels, 0, 2)).toEqual([3, 3, 3, 255])
   })
+  it('decodes bounded LERC and LERC plus Deflate strips exactly', async () => {
+    await Lerc.load()
+    const blob = new Uint8Array(await readFile('tests/fixtures/bluemarble_256_256_3_byte.lerc2'))
+    const oracle = Lerc.decode(blob.buffer)
+    const expected = new Uint8Array(oracle.width * oracle.height * oracle.pixels.length)
+    for (let pixel = 0; pixel < oracle.width * oracle.height; pixel += 1) {
+      for (let band = 0; band < oracle.pixels.length; band += 1) {
+        expected[pixel * oracle.pixels.length + band] = oracle.pixels[band]?.[pixel] ?? 0
+      }
+    }
+    for (const additionalCompression of [0, 1] as const) {
+      const input = tiffFixture({
+        width: 256,
+        height: 256,
+        bitsPerSample: [8, 8, 8],
+        compression: 34887,
+        photometric: 2,
+        strips: [additionalCompression === 0 ? blob : deflateSync(blob)],
+        extraEntries: [{ tag: 50674, type: 4, values: [4, additionalCompression] }],
+      })
+      const decoded = await decodeDirect(input)
+      expect(decoded.format).toBe('rgb8')
+      expect(decoded.data).toEqual(expected)
+    }
+
+    const floatBlob = new Uint8Array(
+      await readFile('tests/fixtures/california_400_400_1_float.lerc2'),
+    )
+    const floatOracle = Lerc.decode(floatBlob.buffer)
+    const floatBand = floatOracle.pixels[0]
+    if (!(floatBand instanceof Float32Array)) throw new Error('Expected float32 LERC oracle data')
+    const floatInput = tiffFixture({
+      width: 400,
+      height: 400,
+      bitsPerSample: [32],
+      compression: 34887,
+      photometric: 1,
+      strips: [floatBlob],
+      extraEntries: [
+        { tag: 339, type: 3, values: [3] },
+        { tag: 50674, type: 4, values: [4, 0] },
+      ],
+    })
+    const floatDecoded = await decodeDirect(floatInput)
+    expect(floatDecoded.format).toBe('grayf32')
+    const floatExpected = new Uint8Array(floatBand.byteLength)
+    const floatExpectedView = new DataView(floatExpected.buffer)
+    for (let pixel = 0; pixel < floatOracle.width * floatOracle.height; pixel += 1) {
+      const value = floatOracle.mask?.[pixel] === 0 ? Number.NaN : (floatBand[pixel] ?? 0)
+      floatExpectedView.setFloat32(pixel * 4, value)
+    }
+    expect(floatDecoded.data.byteLength).toBe(floatExpected.byteLength)
+    expect(createHash('sha256').update(floatDecoded.data).digest('hex')).toBe(
+      createHash('sha256').update(floatExpected).digest('hex'),
+    )
+
+    const mismatched = tiffFixture({
+      width: 255,
+      height: 256,
+      bitsPerSample: [8, 8, 8],
+      compression: 34887,
+      photometric: 2,
+      strips: [blob],
+      extraEntries: [{ tag: 50674, type: 4, values: [4, 0] }],
+    })
+    await expect(decodeDirect(mismatched)).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    const invalidDeflate = tiffFixture({
+      width: 256,
+      height: 256,
+      bitsPerSample: [8, 8, 8],
+      compression: 34887,
+      photometric: 2,
+      strips: [deflateSync(blob).subarray(0, -2)],
+      extraEntries: [{ tag: 50674, type: 4, values: [4, 1] }],
+    })
+    await expect(decodeDirect(invalidDeflate)).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+
+    const zstandard = tiffFixture({
+      width: 256,
+      height: 256,
+      bitsPerSample: [8, 8, 8],
+      compression: 34887,
+      photometric: 2,
+      strips: [blob],
+      extraEntries: [{ tag: 50674, type: 4, values: [4, 2] }],
+    })
+    await expect(decodeDirect(zstandard)).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+    })
+
+    const missingParameters = tiffFixture({
+      width: 256,
+      height: 256,
+      bitsPerSample: [8, 8, 8],
+      compression: 34887,
+      photometric: 2,
+      strips: [blob],
+    })
+    await expect(decodeDirect(missingParameters)).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
   it('decodes bounded Zstandard strips before predictor reversal', async () => {
     const predicted = [10, 10, 15, 40, 10, 10]
     const input = tiffFixture({
@@ -3107,6 +3216,131 @@ describe('TIFF codec', () => {
     expect(rgbRoundTrip.data).toEqual(rgbPixels)
   })
 
+  it('encodes tiled RGB and RGBA BigTIFF output with padded edge tiles', async () => {
+    const source = new PNG({ width: 19, height: 17 })
+    for (let index = 0; index < source.data.length; index += 4) {
+      source.data[index] = index & 0xff
+      source.data[index + 1] = (index * 3) & 0xff
+      source.data[index + 2] = (index * 7) & 0xff
+      source.data[index + 3] = index % 12 === 0 ? 64 : 255
+    }
+    const png = PNG.sync.write(source)
+    const output = await (await Image.open(png))
+      .tiff({
+        layout: 'tiles',
+        tileWidth: 16,
+        tileHeight: 16,
+        format: 'bigtiff',
+      })
+      .toBuffer()
+    expect(Array.from(output.subarray(0, 8))).toEqual([0x49, 0x49, 43, 0, 8, 0, 0, 0])
+    const document = await openTiffDocument(new MemorySource(output))
+    expect(document.bigTiff).toBe(true)
+    expect(document.getDirectory(0)).toMatchObject({
+      tiled: true,
+      tileWidth: 16,
+      tileHeight: 16,
+    })
+    const decoded = await decodeDirect(output)
+    expect(decoded.format).toBe('rgba8')
+    const rendered = PNG.sync.read(await (await Image.open(output)).png().toBuffer())
+    expect(rendered.data).toEqual(source.data)
+    const oracleFile = await openGeoTiffOracle(output.slice().buffer)
+    const oracleImage = await oracleFile.getImage()
+    expect([oracleImage.getWidth(), oracleImage.getHeight()]).toEqual([19, 17])
+    const oraclePixels = await oracleImage.readRasters({ interleave: true })
+    if (!(oraclePixels instanceof Uint8Array)) {
+      throw new Error('Expected independent TIFF oracle to return interleaved bytes')
+    }
+    expect(oraclePixels.byteLength).toBe(source.data.byteLength)
+    expect(createHash('sha256').update(oraclePixels).digest('hex')).toBe(
+      createHash('sha256').update(source.data).digest('hex'),
+    )
+  })
+
+  it('writes multi-page TIFF with reduced-resolution SubIFD pyramids', async () => {
+    const blocks = (
+      width: number,
+      height: number,
+      format: 'rgb8' | 'rgba8',
+      data: Uint8Array,
+    ): AsyncIterable<PixelBlock> => ({
+      async *[Symbol.asyncIterator]() {
+        yield {
+          x: 0,
+          y: 0,
+          width,
+          height,
+          stride: width * (format === 'rgb8' ? 3 : 4),
+          format,
+          data,
+        }
+      },
+    })
+    const first = Uint8Array.of(1, 2, 3, 4, 5, 6)
+    const reduced = Uint8Array.of(7, 8, 9)
+    const second = Uint8Array.of(10, 11, 12, 13)
+    const sink = new Uint8ArraySink()
+    await encodeTiffDocument(sink, {
+      runtime: nodeRuntime,
+      options: { rowsPerStrip: 1, format: 'classic' },
+      pages: [
+        {
+          width: 2,
+          height: 1,
+          pixelFormat: 'rgb8',
+          blocks: blocks(2, 1, 'rgb8', first),
+          reducedImages: [
+            {
+              width: 1,
+              height: 1,
+              pixelFormat: 'rgb8',
+              blocks: blocks(1, 1, 'rgb8', reduced),
+            },
+          ],
+        },
+        {
+          width: 1,
+          height: 1,
+          pixelFormat: 'rgba8',
+          blocks: blocks(1, 1, 'rgba8', second),
+        },
+      ],
+    })
+    const output = sink.toUint8Array()
+    const document = await openTiffDocument(new MemorySource(output))
+    expect(document.topLevelDirectories).toHaveLength(2)
+    expect(document.directories).toHaveLength(3)
+    expect(document.topLevelDirectories[0]?.subIfds).toHaveLength(1)
+    await expect(document.topLevelDirectories[0]?.subIfds[0]?.getTag(254)).resolves.toMatchObject({
+      kind: 'numbers',
+      values: [1],
+    })
+
+    const decodeDirectory = async (index: number): Promise<Uint8Array> => {
+      const decoder = await document.getDirectory(index)?.createImageDecoder()
+      if (!decoder) throw new Error(`TIFF directory ${index} decoder is missing`)
+      const decoded = await decoder.decode()
+      const chunks: Uint8Array[] = []
+      for await (const block of decoded) chunks.push(block.data)
+      return Uint8Array.from(chunks.flatMap((chunk) => Array.from(chunk)))
+    }
+    expect(await decodeDirectory(0)).toEqual(first)
+    expect(await decodeDirectory(1)).toEqual(second)
+    expect(await decodeDirectory(2)).toEqual(reduced)
+    const oracleFile = await openGeoTiffOracle(output.slice().buffer)
+    expect(await oracleFile.getImageCount()).toBe(2)
+    const oracleFirst = await oracleFile.getImage(0)
+    const oracleSecond = await oracleFile.getImage(1)
+    const oracleFirstPixels = await oracleFirst.readRasters({ interleave: true })
+    const oracleSecondPixels = await oracleSecond.readRasters({ interleave: true })
+    if (!(oracleFirstPixels instanceof Uint8Array) || !(oracleSecondPixels instanceof Uint8Array)) {
+      throw new Error('Expected independent multi-page TIFF oracle byte output')
+    }
+    expect(Array.from(oracleFirstPixels)).toEqual(Array.from(first))
+    expect(Array.from(oracleSecondPixels)).toEqual(Array.from(second))
+  })
+
   it('encodes bounded independently compressed strips without full-frame raw staging', async () => {
     const width = 1024
     const height = 100
@@ -3161,12 +3395,7 @@ describe('TIFF codec', () => {
 
     const createEncoder = tiffCodec.createEncoder
     if (!createEncoder) throw new Error('TIFF encoder is unavailable')
-    for (const options of [
-      { compression: 'lzw' },
-      { predictor: 'none' },
-      { layout: 'tiles' },
-      { layout: 'planar' },
-    ]) {
+    for (const options of [{ compression: 'lzw' }, { predictor: 'none' }, { layout: 'planar' }]) {
       await expect(
         createEncoder(new Uint8ArraySink(), {
           width: 1,
@@ -3352,6 +3581,118 @@ describe('TIFF document and scientific raster API', () => {
     for await (const block of decoder.decode({ y: 1, height: 1 })) blocks.push(block)
     expect(touchedStrips).toEqual(new Set([1]))
     expect(Array.from(blocks[0]?.data ?? [])).toEqual([3, 4])
+  })
+})
+
+describe('GeoTIFF metadata profile', () => {
+  it('decodes GeoKeys, affine coordinates, GDAL metadata, and nodata', async () => {
+    const geoAscii = new TextEncoder().encode('WGS 84|')
+    const gdalXml = new TextEncoder().encode(
+      '<GDALMetadata><Item name="STATISTICS_MINIMUM" sample="0" role="minimum">1.5</Item></GDALMetadata>',
+    )
+    const fixture = tiffFixture({
+      width: 4,
+      height: 2,
+      bitsPerSample: [8],
+      compression: 1,
+      photometric: 1,
+      strips: [Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8)],
+      extraEntries: [
+        { tag: 33_550, type: 12, values: [10, 20, 0] },
+        { tag: 33_922, type: 12, values: [0, 0, 0, 100, 200, 0] },
+        {
+          tag: 34_735,
+          type: 3,
+          values: [
+            1,
+            1,
+            0,
+            4,
+            1_024,
+            0,
+            1,
+            2,
+            1_025,
+            0,
+            1,
+            1,
+            2_048,
+            0,
+            1,
+            4_326,
+            2_049,
+            34_737,
+            geoAscii.byteLength,
+            0,
+          ],
+        },
+        { tag: 34_737, type: 2, values: [...geoAscii, 0] },
+        { tag: 42_112, type: 2, values: [...gdalXml, 0] },
+        { tag: 42_113, type: 2, values: [...new TextEncoder().encode('-9999'), 0] },
+      ],
+    })
+    const document = await openTiffDocument(new MemorySource(fixture))
+    expect(await geoTiffProfile.detect({ document })).toBe(true)
+    const profile = await geoTiffProfile.open({ document })
+    expect({
+      modelType: profile.modelType,
+      rasterType: profile.rasterType,
+      geographicCrs: profile.geographicCrs,
+      citation: profile.citation,
+      origin: profile.origin,
+      resolution: profile.resolution,
+      boundingBox: profile.boundingBox,
+      noData: profile.noData,
+      metadata: profile.gdalMetadata,
+    }).toEqual({
+      modelType: 2,
+      rasterType: 'pixel-is-area',
+      geographicCrs: 4_326,
+      citation: 'WGS 84',
+      origin: { x: 100, y: 200, z: 0 },
+      resolution: { x: 10, y: -20, z: 0 },
+      boundingBox: { minX: 100, minY: 160, maxX: 140, maxY: 200 },
+      noData: -9_999,
+      metadata: [{ name: 'STATISTICS_MINIMUM', value: '1.5', sample: 0, role: 'minimum' }],
+    })
+    expect(profile.model?.kind).toBe('tiepoint-scale')
+    expect(profile.model?.pixelToModel(2, 1)).toEqual({ x: 120, y: 180, z: 0 })
+    const oracleFile = await openGeoTiffOracle(fixture.slice().buffer)
+    const oracleImage = await oracleFile.getImage()
+    expect(profile.origin && [profile.origin.x, profile.origin.y, profile.origin.z]).toEqual(
+      oracleImage.getOrigin(),
+    )
+    expect(
+      profile.resolution && [profile.resolution.x, profile.resolution.y, profile.resolution.z],
+    ).toEqual(oracleImage.getResolution())
+    expect(
+      profile.boundingBox && [
+        profile.boundingBox.minX,
+        profile.boundingBox.minY,
+        profile.boundingBox.maxX,
+        profile.boundingBox.maxY,
+      ],
+    ).toEqual(oracleImage.getBoundingBox())
+    expect(profile.geographicCrs).toBe(oracleImage.getGeoKeys()?.GeographicTypeGeoKey)
+  })
+
+  it('keeps arbitrary five-band GeoTIFF samples available through the raster API', async () => {
+    const fixture = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8, 8],
+      compression: 1,
+      photometric: 1,
+      strips: [Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)],
+      extraEntries: [{ tag: 34_735, type: 3, values: [1, 1, 0, 1, 1_024, 0, 1, 1] }],
+    })
+    const document = await openTiffDocument(new MemorySource(fixture))
+    const decoder = await document.getDirectory(0)?.createRasterDecoder()
+    if (!decoder) throw new Error('GeoTIFF raster decoder is missing')
+    const blocks: RasterBlock[] = []
+    for await (const block of decoder.decode()) blocks.push(block)
+    expect(blocks[0]?.format).toEqual({ sampleType: 'uint8', channels: 5, planar: false })
+    expect(Array.from(blocks[0]?.data ?? [])).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
   })
 })
 
