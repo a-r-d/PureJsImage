@@ -11,7 +11,11 @@ import type { PixelBlock } from '../src/pixel.ts'
 import { createResizeTransform } from '../src/resize.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
-import { channelSwappingRgbProfile, rgbLutOnlyProfile } from './icc-fixtures.ts'
+import {
+  channelSwappingRgbProfile,
+  constantGrayCmykProfile,
+  rgbLutOnlyProfile,
+} from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 import { baselineJpegFixtures } from './jpeg-compatibility-fixtures.ts'
 
@@ -241,18 +245,6 @@ const writeSignature = (data: Uint8Array, offset: number, value: string): void =
   }
 }
 
-const writeUint16 = (view: DataView, offset: number, value: number): void => {
-  view.setUint16(offset, value, false)
-}
-
-const writeUint32 = (view: DataView, offset: number, value: number): void => {
-  view.setUint32(offset, value, false)
-}
-
-const writeFixed = (view: DataView, offset: number, value: number): void => {
-  view.setInt32(offset, Math.round(value * 65_536), false)
-}
-
 const withIccProfile = (input: Uint8Array, profile: Uint8Array): Uint8Array => {
   const name = Uint8Array.from('ICC_PROFILE\0', (character) => character.charCodeAt(0))
   const payload = new Uint8Array(name.byteLength + 2 + profile.byteLength)
@@ -279,50 +271,6 @@ const withAdobeTransform = (input: Uint8Array, transform: 0 | 1 | 2): Uint8Array
   output.set(segment, 2)
   output.set(input.subarray(2), 2 + segment.byteLength)
   return output
-}
-
-const constantGrayCmykProfile = (): Uint8Array => {
-  const tagOffset = 144
-  const tagBytes = 176
-  const profile = new Uint8Array(tagOffset + tagBytes)
-  const view = new DataView(profile.buffer)
-  writeUint32(view, 0, profile.byteLength)
-  writeSignature(profile, 12, 'mntr')
-  writeSignature(profile, 16, 'CMYK')
-  writeSignature(profile, 20, 'XYZ ')
-  writeSignature(profile, 36, 'acsp')
-  writeUint32(view, 128, 1)
-  writeSignature(profile, 132, 'A2B0')
-  writeUint32(view, 136, tagOffset)
-  writeUint32(view, 140, tagBytes)
-
-  writeSignature(profile, tagOffset, 'mft2')
-  profile[tagOffset + 8] = 4
-  profile[tagOffset + 9] = 3
-  profile[tagOffset + 10] = 2
-  writeFixed(view, tagOffset + 12, 1)
-  writeFixed(view, tagOffset + 28, 1)
-  writeFixed(view, tagOffset + 44, 1)
-  writeUint16(view, tagOffset + 48, 2)
-  writeUint16(view, tagOffset + 50, 2)
-  let offset = tagOffset + 52
-  for (let channel = 0; channel < 4; channel += 1) {
-    writeUint16(view, offset, 0)
-    writeUint16(view, offset + 2, 65_535)
-    offset += 4
-  }
-  for (let corner = 0; corner < 16; corner += 1) {
-    writeUint16(view, offset, 15_797)
-    writeUint16(view, offset + 2, 16_384)
-    writeUint16(view, offset + 4, 13_515)
-    offset += 6
-  }
-  for (let channel = 0; channel < 3; channel += 1) {
-    writeUint16(view, offset, 0)
-    writeUint16(view, offset + 2, 65_535)
-    offset += 4
-  }
-  return profile
 }
 
 const withProgressiveFrameMarker = (input: Uint8Array): Uint8Array => {

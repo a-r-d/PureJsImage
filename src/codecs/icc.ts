@@ -776,6 +776,14 @@ export const parseRgbIccTransform = (profile: Uint8Array): RgbIccTransform => {
   return transform
 }
 
+export const parseCmykIccTransform = (profile: Uint8Array): CmykIccTransform => {
+  const transform = parseJpegIccTransform(profile)
+  if (transform.kind !== 'cmyk') {
+    throw invalidInput('Embedded ICC profile must use the CMYK input color space')
+  }
+  return transform
+}
+
 const encodeLinear = (value: number, table: Uint8Array): number => {
   const index = Math.round(Math.max(0, Math.min(1, value)) * SRGB_ENCODE_STEPS)
   return table[index] ?? 0

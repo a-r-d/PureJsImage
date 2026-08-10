@@ -8,7 +8,7 @@ import { webpCodec } from '../src/codecs/webp.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource } from '../src/source.ts'
 
-import { channelSwappingRgbProfile } from './icc-fixtures.ts'
+import { channelSwappingRgbProfile, constantGrayCmykProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
 type Rgba = readonly [red: number, green: number, blue: number, alpha: number]
@@ -2107,6 +2107,104 @@ describe('TIFF codec', () => {
     await expect(decodeDirect(profiled)).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
       message: 'TIFF CIELab ICC transforms are not implemented',
+    })
+  })
+
+  it('applies CMYK lut16 ICC profiles before bounded RGB output', async () => {
+    const profile = constantGrayCmykProfile()
+    const chunky = tiffFixture({
+      width: 4,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 1,
+      photometric: 5,
+      iccProfile: profile,
+      strips: [Uint8Array.of(0, 0, 0, 0, 255, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 255)],
+    })
+    const planar16 = tiffFixture({
+      width: 2,
+      height: 1,
+      littleEndian: false,
+      bitsPerSample: [16, 16, 16, 16],
+      compression: 1,
+      photometric: 5,
+      planarConfiguration: 2,
+      iccProfile: profile,
+      strips: [
+        Uint8Array.of(0, 0, 255, 255),
+        Uint8Array.of(255, 255, 0, 0),
+        Uint8Array.of(0, 0, 255, 255),
+        Uint8Array.of(255, 255, 0, 0),
+      ],
+    })
+    const alpha = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8, 8],
+      compression: 1,
+      photometric: 5,
+      extraSamples: [2],
+      iccProfile: profile,
+      strips: [Uint8Array.of(0, 0, 0, 0, 127)],
+    })
+    const labPcs = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 1,
+      photometric: 5,
+      iccProfile: constantGrayCmykProfile('Lab '),
+      strips: [Uint8Array.of(255, 0, 0, 0)],
+    })
+
+    // ImageMagick 7.1.2 with LittleCMS produced [187, 187, 187] for this profile.
+    const chunkyPixels = await decodeDirect(chunky)
+    const planarPixels = await decodeDirect(planar16)
+    const alphaPixels = await decodeDirect(alpha)
+    for (const data of [chunkyPixels.data, planarPixels.data]) {
+      for (const value of data) expect(Math.abs(value - 187)).toBeLessThanOrEqual(1)
+    }
+    expect(alphaPixels).toMatchObject({
+      format: 'rgba8',
+      data: Uint8Array.of(188, 188, 187, 127),
+    })
+    // The same independent LittleCMS oracle produced exact [119, 119, 119] for Lab PCS.
+    await expect(decodeDirect(labPcs)).resolves.toMatchObject({
+      format: 'rgb8',
+      data: Uint8Array.of(119, 119, 119),
+    })
+
+    await expect(decodeDirect(chunky, tiffCodec, { preserveIcc: true })).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'Preserving a CMYK TIFF ICC profile requires a raw CMYK pixel format',
+    })
+    const wrongColorSpace = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 1,
+      photometric: 5,
+      iccProfile: channelSwappingRgbProfile(),
+      strips: [Uint8Array.of(0, 0, 0, 0)],
+    })
+    await expect(decodeDirect(wrongColorSpace)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'Embedded ICC profile must use the CMYK input color space',
+    })
+    const unsupportedClass = constantGrayCmykProfile()
+    unsupportedClass.set(Uint8Array.of(0x6d, 0x41, 0x42, 0x20), 144)
+    const unsupportedProfile = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 1,
+      photometric: 5,
+      iccProfile: unsupportedClass,
+      strips: [Uint8Array.of(0, 0, 0, 0)],
+    })
+    await expect(decodeDirect(unsupportedProfile)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'CMYK ICC profile must provide a lut16 A2B0 transform',
     })
   })
 

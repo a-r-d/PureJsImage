@@ -158,3 +158,50 @@ export const rgbLutOnlyProfile = (
   }
   return profile
 }
+
+export const constantGrayCmykProfile = (pcs: 'XYZ ' | 'Lab ' = 'XYZ '): Uint8Array => {
+  const tagOffset = 144
+  const tagBytes = 176
+  const profile = new Uint8Array(tagOffset + tagBytes)
+  const view = new DataView(profile.buffer)
+  writeUint32(view, 0, profile.byteLength)
+  writeSignature(profile, 12, 'mntr')
+  writeSignature(profile, 16, 'CMYK')
+  writeSignature(profile, 20, pcs)
+  writeSignature(profile, 36, 'acsp')
+  writeUint32(view, 128, 1)
+  writeSignature(profile, 132, 'A2B0')
+  writeUint32(view, 136, tagOffset)
+  writeUint32(view, 140, tagBytes)
+
+  writeSignature(profile, tagOffset, 'mft2')
+  profile[tagOffset + 8] = 4
+  profile[tagOffset + 9] = 3
+  profile[tagOffset + 10] = 2
+  writeFixed(view, tagOffset + 12, 1)
+  writeFixed(view, tagOffset + 28, 1)
+  writeFixed(view, tagOffset + 44, 1)
+  writeUint16(view, tagOffset + 48, 2)
+  writeUint16(view, tagOffset + 50, 2)
+  let offset = tagOffset + 52
+  for (let channel = 0; channel < 4; channel += 1) {
+    writeUint16(view, offset, 0)
+    writeUint16(view, offset + 2, 65_535)
+    offset += 4
+  }
+  const first = pcs === 'Lab ' ? 32_768 : 15_797
+  const second = pcs === 'Lab ' ? 32_768 : 16_384
+  const third = pcs === 'Lab ' ? 32_768 : 13_515
+  for (let corner = 0; corner < 16; corner += 1) {
+    writeUint16(view, offset, first)
+    writeUint16(view, offset + 2, second)
+    writeUint16(view, offset + 4, third)
+    offset += 6
+  }
+  for (let channel = 0; channel < 3; channel += 1) {
+    writeUint16(view, offset, 0)
+    writeUint16(view, offset + 2, 65_535)
+    offset += 4
+  }
+  return profile
+}

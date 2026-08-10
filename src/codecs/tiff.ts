@@ -23,11 +23,14 @@ import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
 import { MemorySource, readExactly } from '../source.ts'
 import {
+  type CmykIccTransform,
   ColorManagedDecoder,
   tiffCieLabToSrgb,
   MAX_ICC_PROFILE_BYTES,
+  parseCmykIccTransform,
   parseRgbIccTransform,
   type RgbIccTransform,
+  writeCmykIcc,
 } from './icc.ts'
 import { jpegCodec } from './jpeg.ts'
 import { decodeLogLuvSegment, type LogLuvEncoding } from './tiff-logluv.ts'
@@ -405,6 +408,7 @@ interface TiffDescription {
     | 'xyzf32'
   readonly displayRanges: readonly PixelSampleDisplayRange[] | undefined
   readonly colorTransform: RgbIccTransform | undefined
+  readonly cmykColorTransform: CmykIccTransform | undefined
   readonly cieLabSamples: 1 | 3 | undefined
   readonly iccProfile: Uint8Array | undefined
   readonly jpegTables: Uint8Array | undefined
@@ -1572,6 +1576,7 @@ const describeTiff = async (
       : undefined
   const iccEntry = ifd.entries.get(34675)
   let colorTransform: RgbIccTransform | undefined
+  let cmykColorTransform: CmykIccTransform | undefined
   let iccProfile: Uint8Array | undefined
   if (iccEntry) {
     if (baseSampleFormat !== sampleFormatUnsigned || baseBitDepth > 16) {
@@ -1580,7 +1585,14 @@ const describeTiff = async (
       )
     }
     iccProfile = Uint8Array.from(await undefinedEntryBytes(source, iccEntry, littleEndian, 34675))
-    if (
+    if (photometric === photometricSeparated && !jpegCompression) {
+      if (options.preserveIcc === true) {
+        throw unsupportedOperation(
+          'Preserving a CMYK TIFF ICC profile requires a raw CMYK pixel format',
+        )
+      }
+      cmykColorTransform = parseCmykIccTransform(iccProfile)
+    } else if (
       photometric === photometricRgb ||
       photometric === photometricPalette ||
       jpegCompression
@@ -1726,6 +1738,7 @@ const describeTiff = async (
     pixelFormat,
     displayRanges,
     colorTransform,
+    cmykColorTransform,
     cieLabSamples: photometric === photometricCieLab ? (baseSamples === 1 ? 1 : 3) : undefined,
     iccProfile,
     jpegTables,
@@ -3559,9 +3572,24 @@ class TiffDecoder implements ImageDecoder {
                   3,
                   this.#description,
                 )
-                red = Math.round(((255 - cyan) * (255 - black)) / 255)
-                green = Math.round(((255 - magenta) * (255 - black)) / 255)
-                blue = Math.round(((255 - yellow) * (255 - black)) / 255)
+                if (this.#description.cmykColorTransform) {
+                  writeCmykIcc(
+                    this.#description.cmykColorTransform,
+                    cyan,
+                    magenta,
+                    yellow,
+                    black,
+                    output,
+                    target,
+                  )
+                  red = output[target] ?? 0
+                  green = output[target + 1] ?? 0
+                  blue = output[target + 2] ?? 0
+                } else {
+                  red = Math.round(((255 - cyan) * (255 - black)) / 255)
+                  green = Math.round(((255 - magenta) * (255 - black)) / 255)
+                  blue = Math.round(((255 - yellow) * (255 - black)) / 255)
+                }
               } else if (this.#description.photometric === photometricCieLab) {
                 const lightness =
                   (sampleAt(planes, this.#description, rowWithinSegment, sourceX, 0) * 100) / 255
