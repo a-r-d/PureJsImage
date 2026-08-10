@@ -21,6 +21,13 @@ import {
   avifCommonPhotoSyntaxFixturePath,
   avifCommonPhotoSyntaxFixtures,
 } from '../benchmark/avif/common-photo-syntax-fixtures.ts'
+import {
+  avifColorFixturePath,
+  avifHdrGainMapFixture,
+  avifIccFixtures,
+  avifRec2020Fixture,
+  avifWrongAlternativeGainMapFixture,
+} from '../benchmark/avif/color-fixtures.ts'
 import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
 import {
   avifHighBitExpandedFixturePath,
@@ -1593,6 +1600,93 @@ describe('AVIF restricted pixel decode', () => {
     })
   })
 
+  it('converts linear BT.2020 NCLX pixels to sRGB', async () => {
+    const input = await readFile(avifColorFixturePath(avifRec2020Fixture))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(avifRec2020Fixture.fileSha256)
+    expect(inspection.nclx).toMatchObject({
+      primaries: 9,
+      transferCharacteristics: 8,
+    })
+    expect([output.width, output.height]).toEqual([
+      avifRec2020Fixture.width,
+      avifRec2020Fixture.height,
+    ])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      avifRec2020Fixture.rgbaSha256,
+    )
+  })
+
+  it.each(avifIccFixtures)('applies the compatible RGB ICC profile in $file', async (fixture) => {
+    const input = await readFile(avifColorFixturePath(fixture))
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+    const oracle = await sharp(input).toColourspace('srgb').ensureAlpha().raw().toBuffer()
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(output.data).toEqual(oracle)
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
+  })
+
+  it('applies an ISO gain map to an HDR base for SDR output', async () => {
+    const input = await readFile(avifColorFixturePath(avifHdrGainMapFixture))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(avifHdrGainMapFixture.fileSha256)
+    expect(inspection.gainMap).toMatchObject({
+      gainMapItemId: 3,
+      gainMapItemType: 'av01',
+      toneMapItemId: 2,
+      alternateColor: {
+        primaries: 1,
+        transferCharacteristics: 13,
+      },
+      metadata: {
+        baseHdrHeadroom: { numerator: 13, denominator: 10 },
+        alternateHdrHeadroom: { numerator: 0, denominator: 1 },
+      },
+    })
+    expect(inspection.codedImages.filter((image) => image.role === 'gain-map')).toHaveLength(1)
+    expect([output.width, output.height]).toEqual([
+      avifHdrGainMapFixture.width,
+      avifHdrGainMapFixture.height,
+    ])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      avifHdrGainMapFixture.rgbaSha256,
+    )
+  })
+
+  it('ignores a gain map whose tmap is not the preferred alternative', async () => {
+    const input = await readFile(avifColorFixturePath(avifWrongAlternativeGainMapFixture))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(
+      avifWrongAlternativeGainMapFixture.fileSha256,
+    )
+    expect(inspection.gainMap).toBeUndefined()
+    expect(inspection.codedImages.filter((image) => image.role === 'gain-map')).toHaveLength(0)
+    await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'HDR AVIF SDR decode requires a compatible gain-map alternate image',
+    })
+  })
+
+  it('rejects a gain map with a zero HDR-headroom denominator', async () => {
+    const input = Buffer.from(await readFile(avifColorFixturePath(avifHdrGainMapFixture)))
+    const marker = Buffer.from('0000000000800000000d0000000a0000000000000001', 'hex')
+    const toneMapPayload = input.indexOf(marker)
+    expect(toneMapPayload).toBeGreaterThanOrEqual(0)
+    input.writeUInt32BE(0, toneMapPayload + 10)
+
+    await expect(inspectAvifBitstreams(new MemorySource(input))).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'AVIF gain-map metadata has a zero headroom denominator',
+    })
+  })
+
   it.each([
     ['PQ', 'unsupported-hdr-pq-10bpc-yuv420-32x24.avif', 16],
     ['HLG', 'unsupported-hdr-hlg-10bpc-yuv420-32x24.avif', 18],
@@ -1608,7 +1702,7 @@ describe('AVIF restricted pixel decode', () => {
       expect((await image.metadata()).bitDepth).toBe(10)
       await expect(image.png().toBuffer()).rejects.toMatchObject({
         code: 'UNSUPPORTED_OPERATION',
-        message: 'HDR AVIF transfer characteristics are not supported by SDR decode',
+        message: 'HDR AVIF SDR decode requires a compatible gain-map alternate image',
       })
     },
   )

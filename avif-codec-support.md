@@ -75,10 +75,12 @@ coverage.
   dimensions and origins remain explicitly unsupported
 - [ ] Mirroring through `imir`
 - [ ] Pixel-aspect-ratio and other transformative item properties
-- [ ] Gain maps, depth maps, thumbnails, overlays, derived images other than
-  grids, and other auxiliary-image semantics
+- [x] ISO 21496-1 gain-map metadata, `dimg` relationships, and preferred
+  alternative selection through `altr` entity groups
+- [ ] Depth maps, thumbnails, overlays, derived images other than grids and
+  compatible gain maps, and other auxiliary-image semantics
 - [ ] EXIF and XMP item discovery and metadata exposure
-- [ ] ICC profile parsing and color-managed conversion
+- [x] Compatible RGB matrix/TRC ICC profile parsing and color-managed conversion
 - [ ] Metadata preservation or explicit stripping controls when re-encoding
 
 ### AV1 low-overhead bitstream inspection
@@ -146,6 +148,10 @@ coverage.
 - [x] Monochrome replication, direct YUV 4:4:4 sampling, horizontal YUV 4:2:2
   interpolation, bilinear YUV 4:2:0 sampling, and container-signaled NCLX
   conversion to RGBA, including the full-range identity color transform
+- [x] Linear and extended-sRGB plus linear BT.2020 NCLX conversion to sRGB,
+  and compatible RGB matrix/TRC ICC conversion to sRGB
+- [x] Compatible same-size, single-channel ISO gain-map composition in linear
+  light for HDR base images with an SDR alternate
 - [x] Straight and premultiplied alpha auxiliary composition using full-range
   8-bit monochrome alpha, including normalization to straight RGBA output
 - [x] Opaque image grids with consistent independently coded tile dimensions
@@ -232,8 +238,9 @@ byte. The full-size tolerance remains zero.
 - [x] Explicit lsel spatial-layer selection from a1lx-indexed multi-frame items
   when the selected output is an independently decodable shown key frame
 - [ ] Dependent enhancement layers, frame-dimension overrides, and rendering all intermediate layers
-- [x] Reject PQ and HLG transfer signaling before the SDR pixel-conversion path
-- [ ] Wide-gamut NCLX and ICC-managed conversion
+- [x] Reject PQ and HLG transfer signaling before SDR pixel conversion unless
+  a compatible SDR gain-map alternate is selected
+- [ ] Broader wide-gamut NCLX and ICC-managed conversion
 
 ### Animation
 
@@ -305,6 +312,8 @@ byte. The full-size tolerance remains zero.
   across reconstruction-ring reuse
 - [x] Compatible aligned filter-free alpha auxiliaries reconstruct through a
   synchronized second row ring before per-block alpha composition
+- [x] Compatible gain-map composition synchronizes bounded base and gain-map
+  row decoders without retaining a source-sized RGBA frame
 - [x] Every decoder path rejects coded payload plus conservatively estimated
   live working state above the 64 MiB codec limit
 - [ ] Decode one tile or bounded superblock working set at a time
@@ -332,11 +341,12 @@ byte. The full-size tolerance remains zero.
 - [x] Reject malformed OBU sizes, duplicate sequence headers, truncated frame
   headers, tile overruns, invalid arithmetic symbols, impossible partitions,
   coefficient scans, and transform bounds explicitly
-- [x] Inspect all 39 checksum-pinned permanent corpus files and 49 unique coded
-  items across `mdat`, `idat`, multiple extents, grids, alpha, 8/10/12-bit,
-  4:0:0/4:2:0/4:2:2/4:4:4, progressive storage, HDR signaling, layered frame
-  units, reduced and full still-picture headers, and a non-still sequence header
-- [x] Pass metadata expectations for all 39 permanent corpus files
+- [x] Inspect all 44 checksum-pinned permanent corpus files and 56 unique coded
+  items across `mdat`, `idat`, multiple extents, grids, alpha, gain maps,
+  8/10/12-bit, 4:0:0/4:2:0/4:2:2/4:4:4, progressive storage, HDR signaling,
+  layered frame units, reduced and full still-picture headers, and a non-still
+  sequence header
+- [x] Pass metadata expectations for all 44 permanent corpus files
 - [x] Decode exact independent reference pixels for the embedded 2x2 lossless
   fixture and the 4x4 lossy fixture
 - [x] Decode and pin RGBA regression hashes for Kodak 768x512 color; Fox
@@ -399,6 +409,14 @@ byte. The full-size tolerance remains zero.
   cropped-edge 1x5 image grid
 - [x] Exercise straight alpha, premultiplied alpha, and image-grid composition
   through the portable TypeScript codec in Chromium and pin each PNG output
+- [x] Match compatible RGB matrix/TRC ICC output exactly against Sharp/libvips
+  for two checksum-pinned fixtures
+- [x] Hold linear BT.2020 conversion to maximum channel error 13 and mean error
+  at most 0.5 against an FFmpeg/zimg staged-sRGB oracle
+- [x] Hold checksum-pinned ISO gain-map output to maximum channel error 4 and
+  mean error at most 1 against libavif 1.3.0, and reject a non-preferred `tmap`
+- [x] Exercise Rec.2020, RGB ICC, and gain-map SDR output through the portable
+  TypeScript codec in Chromium and pin each RGBA output
 - [x] Keep `@stacksjs/ts-avif` development-only; the published package is not a
   production dependency
 - [x] Add exact post-filter comparisons against both dav1d and libaom for five

@@ -623,6 +623,33 @@ const avifStillPictureEntropy = (): Promise<BrowserWorkflowResult> =>
     'Still-picture intra-block-copy AVIF',
   )
 
+const avifRec2020 = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'libavif-colors-text-wcg-sdr-rec2020.avif',
+    200,
+    200,
+    '087173f8afaaf7c42640d07ef6f0ab873abb494dd3a89d920b11e13b2ad66717',
+    'Linear BT.2020 NCLX color-managed AVIF',
+  )
+
+const avifHdrGainMap = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'libavif-seine-hdr-gainmap-srgb.avif',
+    400,
+    300,
+    '352475a2b3f3c60de9b6feee3f756a00cfcaa3b4ad19594ea72260064f84bc57',
+    'ISO gain-map HDR-to-SDR AVIF',
+  )
+
+const avifIcc = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'libavif-paris-icc-exif-xmp.avif',
+    403,
+    302,
+    '2a283d662a75d7b522146ee8e559153b00fe16523e2958a17f988e34929e0b33',
+    'RGB matrix/TRC ICC color-managed AVIF',
+  )
+
 const avifCleanAperture = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
     'clean-aperture-lossless-16x12.avif',
@@ -793,7 +820,7 @@ const avifHdrRejected = async (): Promise<BrowserWorkflowResult> => {
       if (
         !(error instanceof ImageError) ||
         error.code !== 'UNSUPPORTED_OPERATION' ||
-        error.message !== 'HDR AVIF transfer characteristics are not supported by SDR decode'
+        error.message !== 'HDR AVIF SDR decode requires a compatible gain-map alternate image'
       ) {
         throw error
       }
@@ -1111,6 +1138,8 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifExpandedHighBit,
   avifExpandedAlpha,
   avifHdrRejected,
+  avifHdrGainMap,
+  avifIcc,
   avifFilteredSuperres,
   avifLossyMultitile,
   avifNonstillSequence,
@@ -1120,6 +1149,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifResidualIntrabc,
   avifStillPictureEntropy,
   avifQuantizationMatrix,
+  avifRec2020,
   avifQ0Lossless,
   avifPalette,
   avifMonochrome,

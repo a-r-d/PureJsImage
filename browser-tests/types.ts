@@ -20,6 +20,8 @@ export interface BrowserCompatibilityHarness {
   avifExpandedHighBit(): Promise<BrowserWorkflowResult>
   avifExpandedAlpha(): Promise<BrowserWorkflowResult>
   avifHdrRejected(): Promise<BrowserWorkflowResult>
+  avifHdrGainMap(): Promise<BrowserWorkflowResult>
+  avifIcc(): Promise<BrowserWorkflowResult>
   avifLossyMultitile(): Promise<BrowserWorkflowResult>
   avifLayeredSelection(): Promise<BrowserWorkflowResult>
   avifIntrabc(): Promise<BrowserWorkflowResult>
@@ -27,6 +29,7 @@ export interface BrowserCompatibilityHarness {
   avifStillPictureEntropy(): Promise<BrowserWorkflowResult>
   avifMonochrome(): Promise<BrowserWorkflowResult>
   avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
+  avifRec2020(): Promise<BrowserWorkflowResult>
   avifNonstillSequence(): Promise<BrowserWorkflowResult>
   avifPalette(): Promise<BrowserWorkflowResult>
   avifSuperres(): Promise<BrowserWorkflowResult>

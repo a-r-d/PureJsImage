@@ -186,6 +186,9 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/libavif-*-role*.avif
 !benchmark/corpus/files/avif/libavif-color-grid-alpha-*.avif
 !benchmark/corpus/files/avif/libavif-color-irot-alpha-*.avif
+!benchmark/corpus/files/avif/libavif-colors-text-wcg-sdr-rec2020.avif
+!benchmark/corpus/files/avif/libavif-paris-icc-exif-xmp.avif
+!benchmark/corpus/files/avif/libavif-seine-*-gainmap-srgb*.avif
 !benchmark/corpus/files/avif/ms-thumbnail-roles.avif
 !benchmark/corpus/files/avif/ms-monochrome-residual-intrabc.avif
 !benchmark/corpus/files/avif/ms-Tomsk-with-thumbnails.avif

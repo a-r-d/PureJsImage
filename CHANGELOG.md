@@ -110,6 +110,15 @@ All notable changes to PureJsImage are documented in this file.
   without allocating a second full-frame buffer; malformed, out-of-bounds, and
   fractional apertures fail explicitly, and the pinned fixture matches
   Sharp/libavif RGBA exactly in Node.js and Chromium.
+- Added AVIF SDR color management for linear and extended-sRGB and linear BT.2020
+  NCLX signaling, compatible RGB matrix/TRC ICC profiles, and ISO 21496-1 gain
+  maps with `altr` preferred-alternative selection and bounded row composition.
+  Pinned outputs match Sharp/libvips exactly for ICC, stay within maximum channel
+  error 13 and mean error 0.5 against FFmpeg/zimg for BT.2020, and stay within
+  maximum channel error 4 and mean error 1 against libavif for HDR-to-SDR gain
+  maps in Node.js and Chromium. PQ/HLG without a compatible SDR alternate,
+  broader ICC/NCLX conversion, gain-map grids, resampling, and alpha remain
+  explicit errors.
 
 ### Changed
 

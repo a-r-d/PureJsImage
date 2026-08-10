@@ -157,6 +157,26 @@ test('rejects HDR AVIF transfer signaling before SDR pixel conversion', async ({
   expect(result.detail).toContain('PQ and HLG')
   expect(result.detail).toContain('SDR pixel decode rejected both')
 })
+test('converts linear BT.2020 AVIF pixels to sRGB', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifRec2020())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
+test('applies an AVIF HDR gain map for SDR output', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifHdrGainMap())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
+test('applies an AVIF RGB ICC profile', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifIcc())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
 
 test('decodes coded-lossless 10-bit AVIF tiles', async ({ page }) => {
   await harness(page)

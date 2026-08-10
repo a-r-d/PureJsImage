@@ -51,6 +51,12 @@ export interface IsobmffItemReference {
   readonly toItemIds: readonly number[]
 }
 
+export interface IsobmffEntityGroup {
+  readonly entityIds: readonly number[]
+  readonly groupId: number
+  readonly type: string
+}
+
 export interface IsobmffMeta<Property> {
   primaryItemId?: number
   idat?: IsobmffBox
@@ -59,6 +65,7 @@ export interface IsobmffMeta<Property> {
   readonly properties: Property[]
   readonly associations: Map<number, IsobmffPropertyAssociation[]>
   readonly references: IsobmffItemReference[]
+  readonly groups: IsobmffEntityGroup[]
 }
 
 export type IsobmffPropertyParser<Property> = (
@@ -434,6 +441,49 @@ const parseItemReferences = async <Property>(
   }
 }
 
+const parseEntityGroups = async <Property>(
+  reader: IsobmffReader,
+  box: IsobmffBox,
+  meta: IsobmffMeta<Property>,
+): Promise<void> => {
+  for (const groupBox of await reader.boxes(box.contentStart, box.end)) {
+    const data = await reader.payload(groupBox)
+    if (data.byteLength < 12) {
+      throw invalidInput(`${reader.context} ${groupBox.type} entity group is truncated`)
+    }
+    const header = parseFullBox(data, groupBox.type, reader.context)
+    if (groupBox.type === 'altr' && (header.version !== 0 || header.flags !== 0)) {
+      throw invalidInput(`${reader.context} altr entity group has unsupported version or flags`)
+    }
+    const groupId = uint32BigEndian(data, 4)
+    const entityCount = uint32BigEndian(data, 8)
+    if (entityCount > (data.byteLength - 12) / 4 || data.byteLength !== 12 + entityCount * 4) {
+      throw invalidInput(`${reader.context} ${groupBox.type} entity group is malformed`)
+    }
+    const entityIds: number[] = []
+    for (let index = 0; index < entityCount; index += 1) {
+      entityIds.push(uint32BigEndian(data, 12 + index * 4))
+    }
+    if (new Set(entityIds).size !== entityIds.length) {
+      throw invalidInput(`${reader.context} ${groupBox.type} entity group repeats an entity`)
+    }
+    if (
+      meta.groups.some(
+        (group) =>
+          (group.type === groupBox.type && group.groupId === groupId) ||
+          (group.type === 'altr' &&
+            groupBox.type === 'altr' &&
+            group.entityIds.some((entityId) => entityIds.includes(entityId))),
+      )
+    ) {
+      throw invalidInput(
+        `${reader.context} ${groupBox.type} entity group conflicts with another group`,
+      )
+    }
+    meta.groups.push({ type: groupBox.type, groupId, entityIds })
+  }
+}
+
 export const parseIsobmffMeta = async <Property>(
   reader: IsobmffReader,
   box: IsobmffBox,
@@ -453,7 +503,9 @@ export const parseIsobmffMeta = async <Property>(
     properties: [],
     associations: new Map(),
     references: [],
+    groups: [],
   }
+  let groupsListSeen = false
   for (const child of await reader.boxes(box.contentStart + 4, box.end)) {
     if (child.type === 'pitm') {
       const data = await reader.payload(child, 8)
@@ -477,6 +529,12 @@ export const parseIsobmffMeta = async <Property>(
       await parseItemProperties(reader, child, meta, parseProperty)
     } else if (child.type === 'iref') {
       await parseItemReferences(reader, child, meta)
+    } else if (child.type === 'grpl') {
+      if (groupsListSeen) {
+        throw invalidInput(`${reader.context} meta box contains multiple grpl boxes`)
+      }
+      groupsListSeen = true
+      await parseEntityGroups(reader, child, meta)
     } else if (child.type === 'idat') {
       if (meta.idat) {
         throw invalidInput(`${reader.context} meta box contains multiple idat boxes`)

@@ -229,5 +229,17 @@ rejects any encoded-input or decoded-output checksum drift. The command
 requires `avifenc` 1.3.0 with libaom 3.12.1 to reproduce the recorded
 `benchmark/results/avif-bounded-row-output-2026-08-09.md` evidence.
 
+The five `libavif-*-color*`, `libavif-paris-*`, and `libavif-seine-*` color
+fixtures are byte-identical files from the Imazen AVIF Conformance corpus at
+revision `28205bbc5cf40364d012c462240ba28143373d67`, sourced from libavif's
+BSD-2-Clause test corpus. They cover linear BT.2020 NCLX conversion, compatible
+RGB matrix/TRC ICC conversion, ISO 21496-1 HDR gain-map application to an sRGB
+SDR alternate, and the `altr` preference rule that makes a swapped-order `tmap`
+inactive. Run `npm run fixtures:avif:color` to check encoded and decoded
+checksums, exact ICC agreement with Sharp/libvips, BT.2020 agreement with
+FFmpeg/zimg (maximum channel error 13, mean error at most 0.5), SDR gain-map
+agreement with libavif 1.3.0 (maximum channel error 4, mean error at most 1),
+and rejection of the non-preferred gain map.
+
 The remaining benchmark corpus is intentionally ignored and can be prepared with
 `npm run fixtures:avif`.

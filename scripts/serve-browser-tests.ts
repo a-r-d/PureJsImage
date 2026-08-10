@@ -467,6 +467,18 @@ await copyFile(
   'benchmark/corpus/files/avif/sofa_grid1x5_420.avif',
   resolve(fixtureDirectory, 'sofa_grid1x5_420.avif'),
 )
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-colors-text-wcg-sdr-rec2020.avif',
+  resolve(fixtureDirectory, 'libavif-colors-text-wcg-sdr-rec2020.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-seine-hdr-gainmap-srgb.avif',
+  resolve(fixtureDirectory, 'libavif-seine-hdr-gainmap-srgb.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-paris-icc-exif-xmp.avif',
+  resolve(fixtureDirectory, 'libavif-paris-icc-exif-xmp.avif'),
+)
 await writeFile(
   resolve(outputDirectory, 'index.html'),
   '<!doctype html><meta charset="utf-8"><title>PureJsImage browser validation</title><script type="module" src="/compatibility.js"></script><script type="module" src="/benchmark.js"></script>',

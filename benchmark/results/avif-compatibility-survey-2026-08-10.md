@@ -31,13 +31,13 @@ Conformance categories:
 
 | Declared category | Files | Completed decode | Explicit error |
 |---|---:|---:|---:|
-| Valid | 106 | 59 | 47 |
+| Valid | 106 | 60 | 46 |
 | Invalid | 12 | 1 | 11 |
-| Edge cases | 19 | 13 | 6 |
+| Edge cases | 19 | 12 | 7 |
 
-The one decoded file in the corpus's `invalid` directory is a gain-map-version case. PureJsImage
-currently ignores gain-map semantics rather than claiming gain-map support; it is not counted as
-proof that the invalid gain map is accepted semantically.
+The one decoded file in the corpus's `invalid` directory is `wrong_brand.avif`; the byte stream
+contains a decodable AVIF item despite its intentionally wrong file brand. The decoder does not use
+that result as evidence that the declared invalid container is a conforming AVIF file.
 
 Common-photo encoders:
 
@@ -50,12 +50,12 @@ Common-photo encoders:
 
 | Boundary | Conformance | Common photo | Total |
 |---|---:|---:|---:|
-| Unsupported AV1 or container feature | 38 | 0 | 38 |
-| Malformed or unsupported container | 9 | 0 | 9 |
+| Unsupported AV1 or container feature | 35 | 0 | 35 |
+| Malformed or unsupported container | 11 | 0 | 11 |
 | Animation | 8 | 0 | 8 |
 | 64 MiB working-set limit | 4 | 0 | 4 |
 | Film grain | 2 | 0 | 2 |
-| Alpha auxiliary subset | 1 | 0 | 1 |
+| Alpha auxiliary subset | 2 | 0 | 2 |
 | Entropy or reconstruction syntax | 1 | 0 | 1 |
 | Presentation transform | 1 | 0 | 1 |
 
@@ -107,6 +107,20 @@ The pinned 1280x720 reduced-header, 1280x720 full-header, and 3840x2160 full-hea
 agreeing dav1d and libaom visible native YUV byte for byte. The decoder still rejects invalid trailing
 bits; it does not relax arithmetic-symbol or tile-padding validation.
 
+## Implemented blockers: SDR color management and HDR gain maps
+
+The decoder now converts the independently verifiable color subset to its public sRGB output:
+linear and extended-sRGB NCLX transfer functions, linear BT.2020 NCLX primaries, and compatible
+RGB matrix/TRC ICC profiles. PQ and HLG still fail before SDR pixel conversion when no compatible
+gain-map alternate is selected.
+
+ISO 21496-1 gain-map metadata and `altr` entity groups are parsed from the AVIF container. Compatible
+single-channel, same-size, 8-bit coded gain maps are decoded in bounded rows and composed in linear
+light. The pinned HDR-base/SDR-alternate fixture agrees with libavif 1.3.0 within maximum channel
+error 4 and mean channel error 1. The swapped-order `altr` edge case is rejected instead of applying
+an inactive `tmap`. Gain-map grids, resampling, alpha, and color conversion outside the supported
+NCLX subset remain explicit errors.
+
 ## Reproduction
 
 ```sh
@@ -122,8 +136,9 @@ npm run bench:avif:compatibility -- \
 npm run fixtures:avif:common-photo-syntax
 npm run fixtures:avif:nonstill-sequence
 npm run fixtures:avif:still-picture-entropy
+npm run fixtures:avif:color
 ```
 
-The survey is intentionally broader than the published decoder claim. HDR/PQ/HLG policy, wide-gamut
-color management, animation, encoding, gain maps, general inter frames, and the unsupported syntax
-classes above remain outside the public capability boundary.
+The survey is intentionally broader than the published decoder claim. PQ/HLG without a compatible
+gain-map alternate, broader wide-gamut and ICC color management, animation, encoding, general inter
+frames, and the unsupported syntax classes above remain outside the public capability boundary.
