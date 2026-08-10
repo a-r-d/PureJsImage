@@ -1,0 +1,34 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 97-99
+README.md
+  h_9f4a25732fa0c1 186,188,190-195
+benchmark/results/tiff-competitor-conformance.json
+  h_9f4a25732fa0c1 2,4-8
+benchmark/results/tiff-competitor-conformance.md
+  h_9f4a25732fa0c1 11-12,15
+docs/index.html
+  h_9f4a25732fa0c1 246-252
+docs/tiff-comparison.html
+  h_9f4a25732fa0c1 6,25-31,36,46,54,62,74,83,85,91-93
+docs/tiff.html
+  h_9f4a25732fa0c1 89-94
+scripts/compare-tiff-competitors.ts
+  h_9f4a25732fa0c1 14,72-76,79,90-91,414-415,420-423,425,505-538,543-544,552,563-570
+scripts/render-library-comparison.ts
+  h_9f4a25732fa0c1 32-36,47,77-80,96,101-109,152,169-173,175,178,181,215-218,306-321,330-334,341,348,350,362,368-369,375,389,402,414,417,420-423,426-427,433-442,449,523
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 157-163
+tests/tiff-competitor-harness.test.ts
+  h_9f4a25732fa0c1 50-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "f28bc700308b61ef689bea085cd815424fe968ac",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
