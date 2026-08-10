@@ -1,0 +1,64 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 128-142
+avif-codec-support.md
+  h_9f4a25732fa0c1 96-99,226-227,307-308,319,321-322,358-360,412-415,432
+benchmark/avif/memory-scaling-worker.ts
+  h_9f4a25732fa0c1 59-64,125-126
+benchmark/avif/memory-worker.ts
+  h_9f4a25732fa0c1 93-98,178-179
+benchmark/avif/nonstill-sequence-fixture.ts
+  h_9f4a25732fa0c1 1-17
+benchmark/avif/prepare-compatibility-survey.ts
+  h_9f4a25732fa0c1 1-78
+benchmark/avif/run-compatibility-survey.ts
+  h_9f4a25732fa0c1 1-195
+benchmark/avif/run-memory-scaling.ts
+  h_9f4a25732fa0c1 10,38-40,186,204-205
+benchmark/avif/run-memory.ts
+  h_9f4a25732fa0c1 23,76-77,111,168,189-190
+benchmark/avif/verify-nonstill-sequence-fixture.ts
+  h_9f4a25732fa0c1 1-95
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 16-23
+benchmark/results/avif-compatibility-survey-2026-08-09.json
+  h_9f4a25732fa0c1 1-2650
+benchmark/results/avif-compatibility-survey-2026-08-09.md
+  h_9f4a25732fa0c1 1-106
+benchmark/results/avif-memory-bounded-superres-2026-08-09.json
+  h_9f4a25732fa0c1 2,5,17,19,24-29,33-35,38,42-51
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 698-705,944
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 152-157
+browser-tests/types.ts
+  h_9f4a25732fa0c1 24
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1648-1649,1665-1666,1772-1775,1902-1903,1983-1984,1995,1997-1998,2034-2036,2088-2091,2108
+docs/capabilities.json
+  h_9f4a25732fa0c1 3148-3149,3173-3174,3394-3397,3400,3690-3693,3880,3896,3900,3954-3957,4050-4053,4056
+docs/codecs.html
+  h_9f4a25732fa0c1 40,60
+package.json
+  h_9f4a25732fa0c1 167,195-196
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 358-361
+src/codecs/av1-frame.ts
+  h_9f4a25732fa0c1 408,425
+src/codecs/avif.ts
+  h_9f4a25732fa0c1 1278-1280
+tests/avif.test.ts
+  h_9f4a25732fa0c1 53-56,493-526
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 142-143
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "f7081d6375d46cd65ced3e31e7129c4a475249dd",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
