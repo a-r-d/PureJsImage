@@ -10,8 +10,9 @@ const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).d
 const directory = await mkdtemp(join(tmpdir(), 'purejsimage-avif-superres-'))
 try {
   for (const fixture of avifSuperresFixtures) {
-    const sourcePath = join(directory, `${fixture.chromaSubsampling}.y4m`)
-    const obuPath = join(directory, `${fixture.chromaSubsampling}.obu`)
+    const stem = fixture.file.slice(0, -'.avif'.length)
+    const sourcePath = join(directory, `${stem}.y4m`)
+    const obuPath = join(directory, `${stem}.obu`)
     const chromaWidth = fixture.chromaSubsampling === '444' ? fixture.width : fixture.width >> 1
     const chromaHeight = fixture.chromaSubsampling === '444' ? fixture.height : fixture.height >> 1
     const chromaHeader =
@@ -24,13 +25,20 @@ try {
     const v = Buffer.alloc(chromaWidth * chromaHeight)
     for (let y = 0; y < fixture.height; y += 1) {
       for (let x = 0; x < fixture.width; x += 1) {
-        luma[y * fixture.width + x] = (x * 5 + y * 3) & 0xff
+        const detail =
+          fixture.sourcePattern === 'detail' ? (((x >> 3) ^ (y >> 3)) & 1) * 71 + ((x * y) >> 4) : 0
+        luma[y * fixture.width + x] = (x * 5 + y * 3 + detail) & 0xff
       }
     }
     for (let y = 0; y < chromaHeight; y += 1) {
       for (let x = 0; x < chromaWidth; x += 1) {
-        u[y * chromaWidth + x] = (x * 7 + y) & 0xff
-        v[y * chromaWidth + x] = (x + y * 11) & 0xff
+        if (fixture.sourcePattern === 'detail') {
+          u[y * chromaWidth + x] = (x * 11 + y * 7 + (((x >> 2) ^ (y >> 2)) & 1) * 53) & 0xff
+          v[y * chromaWidth + x] = (x * 3 + y * 13 + ((x * y) >> 3)) & 0xff
+        } else {
+          u[y * chromaWidth + x] = (x * 7 + y) & 0xff
+          v[y * chromaWidth + x] = (x + y * 11) & 0xff
+        }
       }
     }
     const source = Buffer.concat([header, luma, u, v])
@@ -46,15 +54,15 @@ try {
         '--obu',
         '--allintra',
         '--passes=1',
-        '--cpu-used=6',
+        `--cpu-used=${fixture.cpuUsed}`,
         '--end-usage=q',
-        '--cq-level=32',
+        `--cq-level=${fixture.cqLevel}`,
         '--superres-mode=1',
         `--superres-denominator=${fixture.superresDenominator}`,
         `--superres-kf-denominator=${fixture.superresDenominator}`,
         '--loopfilter-control=0',
-        '--enable-cdef=0',
-        '--enable-restoration=0',
+        `--enable-cdef=${Number(fixture.filters.includes('cdef'))}`,
+        `--enable-restoration=${Number(fixture.filters.includes('restoration'))}`,
         '--limit=1',
         `--i${fixture.chromaSubsampling}`,
         '--color-primaries=bt709',

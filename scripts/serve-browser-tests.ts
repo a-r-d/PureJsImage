@@ -340,6 +340,10 @@ await copyFile(
   resolve(fixtureDirectory, 'libaom-superres-denom12-96x64.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/libaom-filtered-superres-denom12-yuv420-320x192.avif',
+  resolve(fixtureDirectory, 'libaom-filtered-superres-denom12-yuv420-320x192.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/blue-and-magenta-crop.avif',
   resolve(fixtureDirectory, 'blue-and-magenta-crop.avif'),
 )

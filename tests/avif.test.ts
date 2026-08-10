@@ -25,6 +25,8 @@ import {
   tiledLosslessSample,
 } from '../benchmark/avif/tiled-lossless-fixture.ts'
 import {
+  avifFilteredSuperresFixture,
+  avifFilteredSuperresFixturePath,
   avifSuperres420Fixture,
   avifSuperres420FixturePath,
   avifSuperresFixture,
@@ -729,12 +731,46 @@ describe('AVIF restricted pixel decode', () => {
       }
     }
     expect(maximumDifference).toBe(0)
-    expect(() =>
-      decodeRestrictedAv1Intra(coded.sequence, {
-        ...frame,
-        header: { ...frame.header, loopFilterLevels: [1, 0, 0, 0] },
-      }),
-    ).toThrow(expect.objectContaining({ code: 'UNSUPPORTED_OPERATION' }))
+  })
+
+  it('orders CDEF, super-resolution, and loop restoration for a filtered frame', async () => {
+    const fixture = avifFilteredSuperresFixture
+    const input = await readFile(avifFilteredSuperresFixturePath)
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('Filtered super-resolution fixture has no frame OBU')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+    const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+    const yuvHash = createHash('sha256')
+    for (const [plane, stride, width, height] of [
+      [decoded.y, decoded.yStride, decoded.width, decoded.height],
+      [decoded.u, decoded.chromaStride, decoded.chromaWidth, decoded.chromaHeight],
+      [decoded.v, decoded.chromaStride, decoded.chromaWidth, decoded.chromaHeight],
+    ] as const) {
+      for (let row = 0; row < height; row += 1) {
+        yuvHash.update(plane.subarray(row * stride, row * stride + width))
+      }
+    }
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(frame.header).toMatchObject({
+      frameWidth: fixture.codedWidth,
+      frameHeight: fixture.height,
+      upscaledWidth: fixture.width,
+      superresDenominator: fixture.superresDenominator,
+      loopFilterLevels: [0, 0, 0, 0],
+      restorationTypes: [1, 1, 1],
+    })
+    expect(
+      [...frame.header.cdefYPrimaryStrengths, ...frame.header.cdefUvPrimaryStrengths].some(
+        (value) => value !== 0,
+      ),
+    ).toBe(true)
+    expect(yuvHash.digest('hex')).toBe(fixture.decodedYuvSha256)
+    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
   })
 
   it('upscales subsampled AV1 chroma planes at their normative widths', async () => {
@@ -768,7 +804,7 @@ describe('AVIF restricted pixel decode', () => {
       file: 'kodim03_yuv420_8bpc.avif',
       width: 768,
       height: 512,
-      rgbaSha256: 'b10ee50244d047f22a35e99fb288882ac1a223605c2b62be393a484a06eb0ba0',
+      rgbaSha256: '47e9bd0a4f371bc44abd8afeb3d1e271c94b423bd60f3edff7761cfbdcbe2375',
     },
     {
       file: 'fox.profile0.8bpc.yuv420.avif',

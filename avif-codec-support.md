@@ -175,21 +175,16 @@ coverage.
 - [x] Apply self-guided loop restoration with stripe-aware source selection
 - [x] Apply filters in deblock, CDEF, then loop-restoration order when
   super-resolution is not signaled
-- [ ] Apply super-resolution between CDEF and loop restoration for filtered
+- [x] Apply super-resolution between CDEF and loop restoration for filtered
   frames
 - [x] Match dav1d and libaom post-filter YUV pixels exactly for deterministic
   disabled, deblock, luma/chroma CDEF, Wiener, self-guided, odd-dimension,
-  frame-edge, and multiple-restoration-unit fixtures; the numeric tolerance is
-  zero
+  frame-edge, multiple-restoration-unit, and filtered super-resolution
+  fixtures; the numeric tolerance is zero
 
-The two full-size photographic regression fixtures now receive the complete
-post-filter pipeline. They are not included in the exact-reference claim:
-comparison with agreeing dav1d and libaom output still exposes one luma sample
-difference. Fixing below-left availability at superblock boundaries and using a
-dedicated subsampled chroma-mode context made Fox byte-exact on all three planes
-and Kodak chroma byte-exact. Kodak has one luma sample off by one after CDEF,
-for plane MAE 0.000003 Y, 0 U, and 0 V. The full-size tolerance remains zero,
-so Kodak is not classified as an exact post-filter fixture.
+The two full-size Kodak and Fox photographic fixtures receive the complete
+post-filter pipeline and match agreeing dav1d and libaom native YUV byte for
+byte. The full-size tolerance remains zero.
 
 ### Additional still-image compatibility
 
@@ -334,6 +329,11 @@ so Kodak is not classified as an exact post-filter fixture.
   super-resolution fixtures
 - [x] Exercise filter-free AV1 super-resolution through the portable TypeScript
   codec in Chromium and pin its RGBA output
+- [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
+  for a checksum-pinned CDEF-plus-Wiener denominator-12 YUV 4:2:0
+  super-resolution fixture with a non-block-aligned coded width
+- [x] Exercise filtered AV1 super-resolution through the portable TypeScript
+  codec in Chromium and pin its RGBA output
 - [x] Match Sharp/libavif RGBA exactly for checksum-pinned straight and
   premultiplied alpha fixtures after normalizing premultiplied color to the
   library's straight-RGBA pixel contract
@@ -371,8 +371,8 @@ so Kodak is not classified as an exact post-filter fixture.
 - [x] Normalize deterministic bit-flip corruption as `ImageError` across
   checksum-pinned super-resolution, high-bit tile, premultiplied-alpha,
   restoration-unit, and cropped-grid AVIF syntax classes
-- [ ] Resolve Kodak's documented one-sample CDEF discrepancy before requiring
-  exact full-size Kodak and Fox post-filter pixels
+- [x] Match full-size Kodak and Fox post-filter pixels exactly against agreeing
+  dav1d and libaom native YUV output
 - [ ] Expand to a 200-500 image corpus from libaom, rav1e, SVT-AV1, browsers,
   ImageMagick, Sharp/libvips, cameras, and real web uploads
 - [ ] Add malformed ISOBMFF, OBU, entropy, partition, coefficient, restoration,

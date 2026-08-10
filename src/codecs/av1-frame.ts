@@ -63,6 +63,7 @@ export interface Av1FrameHeader {
   readonly tileRows: number
   readonly tileSizeBytes: number
   readonly transformMode: '4x4' | 'largest' | 'select'
+  readonly superresDenominator: number
   readonly upscaledWidth: number
   readonly usingQMatrix: boolean
 }
@@ -408,9 +409,10 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
   let frameWidth = sequence.maxFrameWidth
   const frameHeight = sequence.maxFrameHeight
   const upscaledWidth = frameWidth
+  let superresDenominator = 8
   if (sequence.enableSuperres && reader.readBit() === 1) {
-    const denominator = reader.readBits(3) + 9
-    frameWidth = Math.floor((upscaledWidth * 8 + denominator / 2) / denominator)
+    superresDenominator = reader.readBits(3) + 9
+    frameWidth = Math.floor((upscaledWidth * 8 + superresDenominator / 2) / superresDenominator)
   }
   const miColumns = 2 * ((frameWidth + 7) >> 3)
   const miRows = 2 * ((frameHeight + 7) >> 3)
@@ -517,6 +519,7 @@ export const parseAv1Frame = (sequence: Av1SequenceHeader, data: Uint8Array): Av
       frameWidth,
       frameHeight,
       upscaledWidth,
+      superresDenominator,
       usingQMatrix: quantization.usingQMatrix,
       qmY: quantization.qmY,
       qmU: quantization.qmU,

@@ -9,7 +9,10 @@ import {
   paletteYModeDefaults,
 } from './av1-palette-cdfs.ts'
 import {
+  applyAv1DeblockAndCdef,
+  applyAv1LoopRestoration,
   applyAv1PostFilters,
+  type Av1FilterPlane,
   type Av1PostFilterState,
   type Av1RestorationPlaneState,
 } from './av1-post-filter.ts'
@@ -543,17 +546,18 @@ const av1SuperresFilter = Int16Array.from([
   127, -4, 1, 0, 0, 1, -2, 4, 127, -3, 1, 0, 0, 0, -1, 2, 128, -1, 0, 0,
 ])
 
-const upscaleAv1Plane = (
-  plane: Plane,
+const upscaleAv1Rows = (
+  data: Av1SampleArray,
+  sourceStride: number,
   sourceWidth: number,
   targetWidth: number,
-  height: number,
+  rows: number,
   sampleMaximum: number,
-): Plane => {
+): Av1SampleArray => {
   const output =
-    plane.data instanceof Uint8Array
-      ? new Uint8Array(targetWidth * height)
-      : new Uint16Array(targetWidth * height)
+    data instanceof Uint8Array
+      ? new Uint8Array(targetWidth * rows)
+      : new Uint16Array(targetWidth * rows)
   const step = Math.floor((sourceWidth * 16_384 + Math.floor(targetWidth / 2)) / targetWidth)
   const error = targetWidth * step - sourceWidth * 16_384
   const initial =
@@ -563,23 +567,57 @@ const upscaleAv1Plane = (
       128 -
       Math.trunc(error / 2)) &
     16_383
-  for (let y = 0; y < height; y += 1) {
+  const maximumSourceX = sourceStride - 1
+  for (let y = 0; y < rows; y += 1) {
     let position = initial
-    const sourceRow = y * plane.stride
+    const sourceRow = y * sourceStride
     const targetRow = y * targetWidth
     for (let x = 0; x < targetWidth; x += 1) {
       const sourceStart = Math.floor(position / 16_384) - 4
       const filterOffset = ((position & 16_383) >> 8) * 8
       let sum = 0
       for (let tap = 0; tap < 8; tap += 1) {
-        const sourceX = Math.max(0, Math.min(sourceWidth - 1, sourceStart + tap))
-        sum += (plane.data[sourceRow + sourceX] ?? 0) * (av1SuperresFilter[filterOffset + tap] ?? 0)
+        const sourceX = Math.max(0, Math.min(maximumSourceX, sourceStart + tap))
+        sum += (data[sourceRow + sourceX] ?? 0) * (av1SuperresFilter[filterOffset + tap] ?? 0)
       }
       output[targetRow + x] = Math.max(0, Math.min(sampleMaximum, (sum + 64) >> 7))
       position += step
     }
   }
-  return { data: output, width: targetWidth, height, stride: targetWidth }
+  return output
+}
+
+const upscaleAv1Plane = (
+  plane: Plane,
+  sourceWidth: number,
+  targetWidth: number,
+  height: number,
+  sampleMaximum: number,
+): Plane => ({
+  data: upscaleAv1Rows(plane.data, plane.stride, sourceWidth, targetWidth, height, sampleMaximum),
+  width: targetWidth,
+  height,
+  stride: targetWidth,
+})
+
+const upscaleAv1BoundaryPlane = (
+  plane: Av1FilterPlane,
+  sourceWidth: number,
+  targetWidth: number,
+  sampleMaximum: number,
+): Av1FilterPlane => {
+  if (!plane.rowOffsets) throw invalidInput('AV1 restoration boundary snapshot has no row map')
+  const rows = plane.data.length / plane.stride
+  if (!Number.isSafeInteger(rows)) {
+    throw invalidInput('AV1 restoration boundary snapshot has an invalid stride')
+  }
+  return {
+    data: upscaleAv1Rows(plane.data, plane.stride, sourceWidth, targetWidth, rows, sampleMaximum),
+    width: targetWidth,
+    height: plane.height,
+    rowOffsets: plane.rowOffsets,
+    stride: targetWidth,
+  }
 }
 
 const planeStorageOffset = (plane: Plane, logicalOffset: number): number => {
@@ -1084,9 +1122,6 @@ class RestrictedIntraTileDecoder {
 
   #readRestorationForSuperblock(row: number, column: number): void {
     if (this.#frame.header.restorationTypes.every((type) => type === 0)) return
-    if (this.#frame.header.frameWidth !== this.#frame.header.upscaledWidth) {
-      throw unsupportedOperation('AV1 restoration with super-resolution')
-    }
     for (let plane = 0; plane < 3; plane += 1) {
       const frameType = this.#frame.header.restorationTypes[plane] ?? 0
       if (frameType === 0) continue
@@ -1101,15 +1136,24 @@ class RestrictedIntraTileDecoder {
       const superblockMi = this.#sequence.use128x128Superblock ? 32 : 16
       const rowNumerator = 4 >> subsamplingY
       const columnNumerator = 4 >> subsamplingX
+      const usesSuperres = this.#frame.header.frameWidth !== this.#frame.header.upscaledWidth
+      const unitColumnNumerator =
+        columnNumerator * (usesSuperres ? this.#frame.header.superresDenominator : 1)
+      const unitColumnDenominator = unitSize * (usesSuperres ? 8 : 1)
       const unitRowStart = Math.floor((row * rowNumerator + unitSize - 1) / unitSize)
       const unitRowEnd = Math.min(
         planeState.rows,
         Math.floor(((row + superblockMi) * rowNumerator + unitSize - 1) / unitSize),
       )
-      const unitColumnStart = Math.floor((column * columnNumerator + unitSize - 1) / unitSize)
+      const unitColumnStart = Math.floor(
+        (column * unitColumnNumerator + unitColumnDenominator - 1) / unitColumnDenominator,
+      )
       const unitColumnEnd = Math.min(
         planeState.columns,
-        Math.floor(((column + superblockMi) * columnNumerator + unitSize - 1) / unitSize),
+        Math.floor(
+          ((column + superblockMi) * unitColumnNumerator + unitColumnDenominator - 1) /
+            unitColumnDenominator,
+        ),
       )
       for (let unitRow = unitRowStart; unitRow < unitRowEnd; unitRow += 1) {
         for (let unitColumn = unitColumnStart; unitColumn < unitColumnEnd; unitColumn += 1) {
@@ -2915,13 +2959,10 @@ const validateRestrictedAv1Intra = (sequence: Av1SequenceHeader, frame: Av1Frame
   }
   if (
     frame.header.frameWidth !== frame.header.upscaledWidth &&
-    (sequence.bitDepth !== 8 ||
-      frame.tiles.length !== 1 ||
-      frame.header.allowIntrabc ||
-      !hasNoAv1PostFilters(frame))
+    (sequence.bitDepth !== 8 || frame.tiles.length !== 1 || frame.header.allowIntrabc)
   ) {
     throw unsupportedOperation(
-      'Restricted AV1 super-resolution supports one filter-free 8-bit intra tile',
+      'Restricted AV1 super-resolution supports one 8-bit intra tile without intra block copy',
     )
   }
   if (frame.header.segmentationEnabled) {
@@ -2994,6 +3035,64 @@ const createReconstructionPlanes = (
     yHeight,
     yStride,
   }
+}
+
+const upscaleReconstructionPlanes = (
+  planes: readonly [Plane, Plane, Plane],
+  sequence: Av1SequenceHeader,
+  frame: Av1Frame,
+  reconstruction: ReconstructionPlanes,
+): [Plane, Plane, Plane] => [
+  upscaleAv1Plane(
+    planes[0],
+    frame.header.frameWidth,
+    frame.header.upscaledWidth,
+    frame.header.frameHeight,
+    2 ** sequence.bitDepth - 1,
+  ),
+  sequence.monochrome
+    ? planes[1]
+    : upscaleAv1Plane(
+        planes[1],
+        Math.ceil(frame.header.frameWidth / 2 ** reconstruction.chromaShiftX),
+        Math.ceil(frame.header.upscaledWidth / 2 ** reconstruction.chromaShiftX),
+        Math.ceil(frame.header.frameHeight / 2 ** reconstruction.chromaShiftY),
+        2 ** sequence.bitDepth - 1,
+      ),
+  sequence.monochrome
+    ? planes[2]
+    : upscaleAv1Plane(
+        planes[2],
+        Math.ceil(frame.header.frameWidth / 2 ** reconstruction.chromaShiftX),
+        Math.ceil(frame.header.upscaledWidth / 2 ** reconstruction.chromaShiftX),
+        Math.ceil(frame.header.frameHeight / 2 ** reconstruction.chromaShiftY),
+        2 ** sequence.bitDepth - 1,
+      ),
+]
+
+const upscaleRestorationBoundaries = (
+  planes: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
+  sequence: Av1SequenceHeader,
+  frame: Av1Frame,
+  reconstruction: ReconstructionPlanes,
+): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
+  const sampleMaximum = 2 ** sequence.bitDepth - 1
+  const chromaSourceWidth = Math.ceil(frame.header.frameWidth / 2 ** reconstruction.chromaShiftX)
+  const chromaTargetWidth = Math.ceil(frame.header.upscaledWidth / 2 ** reconstruction.chromaShiftX)
+  return [
+    upscaleAv1BoundaryPlane(
+      planes[0],
+      frame.header.frameWidth,
+      frame.header.upscaledWidth,
+      sampleMaximum,
+    ),
+    sequence.monochrome
+      ? planes[1]
+      : upscaleAv1BoundaryPlane(planes[1], chromaSourceWidth, chromaTargetWidth, sampleMaximum),
+    sequence.monochrome
+      ? planes[2]
+      : upscaleAv1BoundaryPlane(planes[2], chromaSourceWidth, chromaTargetWidth, sampleMaximum),
+  ]
 }
 
 const copyPlaneRows = (plane: Plane, startY: number, rows: number): Av1SampleArray => {
@@ -3194,42 +3293,42 @@ export const decodeRestrictedAv1Intra = (
     decoder.decode()
   }
   if (!decoder) throw invalidInput('AV1 frame has no tiles')
-  const filtered =
-    frame.header.frameWidth !== frame.header.upscaledWidth
-      ? reconstruction.planes
-      : sequence.bitDepth === 8 && !frame.header.allLossless
-        ? applyAv1PostFilters(reconstruction.planes, frame.header, decoder.postFilterState())
+  const postFilterState = decoder.postFilterState()
+  let decodedPlanes: [Plane, Plane, Plane]
+  if (frame.header.frameWidth !== frame.header.upscaledWidth) {
+    const preRestoration = applyAv1DeblockAndCdef(
+      reconstruction.planes,
+      frame.header,
+      postFilterState,
+    )
+    const upscaledCdef = upscaleReconstructionPlanes(
+      preRestoration.cdef,
+      sequence,
+      frame,
+      reconstruction,
+    )
+    if (preRestoration.hasRestoration) {
+      const upscaledDeblocked = upscaleRestorationBoundaries(
+        preRestoration.deblocked,
+        sequence,
+        frame,
+        reconstruction,
+      )
+      decodedPlanes = applyAv1LoopRestoration(
+        upscaledDeblocked,
+        upscaledCdef,
+        frame.header,
+        postFilterState,
+      )
+    } else {
+      decodedPlanes = upscaledCdef
+    }
+  } else {
+    decodedPlanes =
+      sequence.bitDepth === 8 && !frame.header.allLossless
+        ? applyAv1PostFilters(reconstruction.planes, frame.header, postFilterState)
         : reconstruction.planes
-  const decodedPlanes: [Plane, Plane, Plane] =
-    frame.header.frameWidth === frame.header.upscaledWidth
-      ? filtered
-      : [
-          upscaleAv1Plane(
-            filtered[0],
-            frame.header.frameWidth,
-            frame.header.upscaledWidth,
-            frame.header.frameHeight,
-            2 ** sequence.bitDepth - 1,
-          ),
-          sequence.monochrome
-            ? filtered[1]
-            : upscaleAv1Plane(
-                filtered[1],
-                Math.ceil(frame.header.frameWidth / 2 ** reconstruction.chromaShiftX),
-                Math.ceil(frame.header.upscaledWidth / 2 ** reconstruction.chromaShiftX),
-                Math.ceil(frame.header.frameHeight / 2 ** reconstruction.chromaShiftY),
-                2 ** sequence.bitDepth - 1,
-              ),
-          sequence.monochrome
-            ? filtered[2]
-            : upscaleAv1Plane(
-                filtered[2],
-                Math.ceil(frame.header.frameWidth / 2 ** reconstruction.chromaShiftX),
-                Math.ceil(frame.header.upscaledWidth / 2 ** reconstruction.chromaShiftX),
-                Math.ceil(frame.header.frameHeight / 2 ** reconstruction.chromaShiftY),
-                2 ** sequence.bitDepth - 1,
-              ),
-        ]
+  }
   return {
     width: frame.header.upscaledWidth,
     height: frame.header.frameHeight,

@@ -11,6 +11,7 @@ export interface BrowserCompatibilityHarness {
   avifBoundedRows(): Promise<BrowserWorkflowResult>
   avifBoundedResize(): Promise<BrowserWorkflowResult>
   avifCleanAperture(): Promise<BrowserWorkflowResult>
+  avifFilteredSuperres(): Promise<BrowserWorkflowResult>
   avifGrid(): Promise<BrowserWorkflowResult>
   avifHighBit10(): Promise<BrowserWorkflowResult>
   avifHighBit12(): Promise<BrowserWorkflowResult>

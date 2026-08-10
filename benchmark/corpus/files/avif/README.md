@@ -98,11 +98,13 @@ Checksums are pinned in `benchmark/avif/tiled-lossless-fixture.ts`.
 8-bit YUV 4:4:4 and YUV 4:2:0 frames whose AV1 payloads reconstruct at 64x64
 before normative super-resolution expands luma to 96x64 and chroma to its
 subsampling-specific width. Deblocking, CDEF, and restoration are disabled so
-the fixtures isolate the eight-tap horizontal upscaler. Run
-`npm run fixtures:avif:superres:prepare` to regenerate them with libaom 3.12.1,
-then `npm run fixtures:avif:superres` to require PureJsImage, dav1d, and libaom
-to produce byte-identical native YUV. Checksums are pinned in
-`benchmark/avif/superres-fixture.ts`.
+the fixtures isolate the eight-tap horizontal upscaler.
+`libaom-filtered-superres-denom12-yuv420-320x192.avif` reconstructs at 213x192,
+then exercises CDEF, denominator-12 super-resolution, and Wiener restoration in
+their normative order. Run `npm run fixtures:avif:superres:prepare` to regenerate
+all three fixtures with libaom 3.12.1, then `npm run fixtures:avif:superres` to
+require PureJsImage, dav1d, and libaom to produce byte-identical native YUV.
+Checksums are pinned in `benchmark/avif/superres-fixture.ts`.
 
 `clean-aperture-lossless-16x12.avif` is a deterministic full-range,
 identity-color YUV 4:4:4 fixture encoded with libavif 1.3.0 and libaom 3.12.1.

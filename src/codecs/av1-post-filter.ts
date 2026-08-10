@@ -582,7 +582,7 @@ export const applyAv1Cdef = (
         lumaPrimary,
         lumaSecondary,
         header.cdefDamping,
-        lumaPrimary === 0 ? 0 : lumaDirection,
+        lumaPrimaryBase === 0 ? 0 : lumaDirection,
       )
       const chromaPrimary = header.cdefUvPrimaryStrengths[index] ?? 0
       const chromaSecondary = header.cdefUvSecondaryStrengths[index] ?? 0
@@ -1051,11 +1051,17 @@ export const applyAv1LoopRestoration = (
   return [cdef[0], cdef[1], cdef[2]]
 }
 
-export const applyAv1PostFilters = (
+export interface Av1PreRestorationPlanes {
+  readonly cdef: [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane]
+  readonly deblocked: [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane]
+  readonly hasRestoration: boolean
+}
+
+export const applyAv1DeblockAndCdef = (
   planes: [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
   header: Av1FrameHeader,
   state: Av1PostFilterState,
-): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
+): Av1PreRestorationPlanes => {
   applyAv1LoopFilter(planes, header, state)
   const hasRestoration = state.restoration.some((plane) => plane.types.some((value) => value !== 0))
   const deblocked = hasRestoration ? snapshotRestorationBoundaries(planes, header, state) : planes
@@ -1066,5 +1072,16 @@ export const applyAv1PostFilters = (
       header.cdefUvPrimaryStrengths.some((value) => value !== 0) ||
       header.cdefUvSecondaryStrengths.some((value) => value !== 0))
   const cdef = hasCdef ? applyAv1Cdef(planes, header, state) : planes
-  return hasRestoration ? applyAv1LoopRestoration(deblocked, cdef, header, state) : cdef
+  return { cdef, deblocked, hasRestoration }
+}
+
+export const applyAv1PostFilters = (
+  planes: [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
+  header: Av1FrameHeader,
+  state: Av1PostFilterState,
+): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
+  const filtered = applyAv1DeblockAndCdef(planes, header, state)
+  return filtered.hasRestoration
+    ? applyAv1LoopRestoration(filtered.deblocked, filtered.cdef, header, state)
+    : filtered.cdef
 }

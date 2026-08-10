@@ -63,12 +63,12 @@ All notable changes to PureJsImage are documented in this file.
   checksum-pinned 10-bit 2x2 YUV 4:4:4 fixture matches its source and agreeing
   dav1d/libaom native YUV byte for byte; lossy, intra-block-copy, and
   multi-OBU tile-group paths remain explicitly unsupported.
-- Added normative eight-tap AV1 super-resolution for filter-free one-tile
-  8-bit AVIF frames. The denominator-12 YUV 4:2:0 and YUV 4:4:4 fixtures match
-  agreeing dav1d/libaom native YUV byte for byte, while the 4:4:4 fixture
-  matches Sharp/libavif displayed RGB exactly. Filtered and multi-tile
-  super-resolution remain explicitly unsupported, and the supported path
-  retains full coded and upscaled YUV planes.
+- Added normative eight-tap AV1 super-resolution for one-tile 8-bit AVIF
+  frames, including CDEF-before-upscale and loop-restoration-after-upscale
+  ordering. The filter-free denominator-12 YUV 4:2:0 and YUV 4:4:4 fixtures
+  and the CDEF-plus-Wiener YUV 4:2:0 fixture match agreeing dav1d/libaom
+  native YUV byte for byte. Multi-tile super-resolution remains explicitly
+  unsupported, and the supported path retains full coded and upscaled YUV planes.
 - Expanded deterministic AVIF corruption fuzzing across checksum-pinned
   super-resolution, high-bit tile, premultiplied-alpha, restoration-unit, and
   cropped-grid inputs; malformed variants must fail only through `ImageError`.
@@ -106,6 +106,10 @@ All notable changes to PureJsImage are documented in this file.
   warm operation from 10.6 seconds to 2.5 seconds while peak use remained about 120 MiB.
 
 ### Fixed
+
+- Corrected AV1 CDEF primary-direction selection for Kodak's remaining luma
+  sample; both full-size Kodak and Fox post-filter fixtures now match agreeing
+  dav1d and libaom native YUV byte for byte.
 
 - Animated GIF pixel decode now fails with `UNSUPPORTED_OPERATION` instead of silently discarding
   animation; callers can explicitly request the supported first image with `open(input, { frame: 0 })`.

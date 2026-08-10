@@ -142,6 +142,13 @@ test('decodes filter-free AV1 super-resolution', async ({ page }) => {
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 
+test('decodes filtered AV1 super-resolution', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifFilteredSuperres())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
 test('decodes AVIF through bounded reconstruction rings', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifBoundedRows())

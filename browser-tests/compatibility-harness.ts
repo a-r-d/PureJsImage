@@ -652,6 +652,15 @@ const avifSuperres = (): Promise<BrowserWorkflowResult> =>
     'Filter-free AV1 super-resolution AVIF',
   )
 
+const avifFilteredSuperres = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'libaom-filtered-superres-denom12-yuv420-320x192.avif',
+    320,
+    192,
+    '87d8605b420d0aeb1e2f012fdab7a8fa9c30ff4f7fa9115a927485122125f8a8',
+    'CDEF and loop-restored AV1 super-resolution AVIF',
+  )
+
 const avifGrid = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
     'sofa_grid1x5_420.avif',
@@ -854,6 +863,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifHighBit10,
   avifHighBit12,
   avifHighBitTiles,
+  avifFilteredSuperres,
   avifSuperres,
   avifIntrabc,
   avifQuantizationMatrix,

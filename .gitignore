@@ -182,6 +182,7 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif
 !benchmark/corpus/files/avif/libaom-superres-denom12-96x64.avif
 !benchmark/corpus/files/avif/libaom-superres-denom12-yuv420-96x64.avif
+!benchmark/corpus/files/avif/libaom-filtered-superres-denom12-yuv420-320x192.avif
 !benchmark/corpus/files/avif/sofa_grid1x5_420.avif
 !benchmark/corpus/files/jp2/
 benchmark/corpus/files/jp2/*
