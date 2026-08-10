@@ -24,6 +24,18 @@ export class JpegUnexpectedRestart extends Error {
     this.marker = marker
   }
 }
+export class JpegUnexpectedScanBoundary extends Error {
+  readonly marker: number
+  readonly offset: number
+
+  constructor(marker: number, offset: number) {
+    super(`Unexpected JPEG scan boundary ff${marker.toString(16)}`)
+    this.name = 'JpegUnexpectedScanBoundary'
+    this.marker = marker
+    this.offset = offset
+  }
+}
+
 /**
  * Bounded source buffer for JPEG entropy decoding. Call refill() at MCU boundaries;
  * bit reads remain synchronous inside the MCU hot loop.
@@ -32,6 +44,7 @@ export class JpegEntropyReader {
   readonly #source: ImageSource
   readonly #buffer = new Uint8Array(bufferBytes)
   readonly #tolerant: boolean
+  readonly #recoverScanBoundary: boolean
   #bufferStart: number
   #offset = 0
   #end = 0
@@ -39,13 +52,14 @@ export class JpegEntropyReader {
   #ended = false
   #bitCount = 0
 
-  constructor(source: ImageSource, offset: number, tolerant = false) {
+  constructor(source: ImageSource, offset: number, tolerant = false, recoverScanBoundary = false) {
     if (!Number.isSafeInteger(offset) || offset < 0 || offset > source.size) {
       throw invalidInput(`Invalid JPEG entropy offset: ${offset}`)
     }
     this.#source = source
     this.#bufferStart = offset
     this.#tolerant = tolerant
+    this.#recoverScanBoundary = recoverScanBoundary
   }
 
   get available(): number {
@@ -92,6 +106,12 @@ export class JpegEntropyReader {
         this.#offset += 1
         if (this.#tolerant && stuffed >= 0xd0 && stuffed <= 0xd7) {
           throw new JpegUnexpectedRestart(stuffed)
+        }
+        if (
+          this.#recoverScanBoundary &&
+          (stuffed === 0xc4 || stuffed === 0xda || stuffed === 0xd9)
+        ) {
+          throw new JpegUnexpectedScanBoundary(stuffed, this.position - 2)
         }
         if (stuffed !== 0) throw invalidInput(`Unexpected JPEG marker ff${stuffed.toString(16)}`)
       }

@@ -1,4 +1,10 @@
-import { invalidInput, limitExceeded, truncatedInput } from '../errors.ts'
+import {
+  ImageError,
+  invalidInput,
+  limitExceeded,
+  truncatedInput,
+  unsupportedOperation,
+} from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
 import { SourceReader } from '../source.ts'
@@ -9,7 +15,22 @@ import {
   parseJpegIccTransform,
   writeCmykIcc,
 } from './icc.ts'
-import { indexJpegEntropy, JpegEntropyReader, JpegUnexpectedRestart } from './jpeg-source.ts'
+import {
+  chrominanceAcCounts,
+  chrominanceAcValues,
+  chrominanceDcCounts,
+  chrominanceDcValues,
+  luminanceAcCounts,
+  luminanceAcValues,
+  luminanceDcCounts,
+  luminanceDcValues,
+} from './jpeg-encode.ts'
+import {
+  indexJpegEntropy,
+  JpegEntropyReader,
+  JpegUnexpectedRestart,
+  JpegUnexpectedScanBoundary,
+} from './jpeg-source.ts'
 
 const zigZag = Int32Array.of(
   0,
@@ -191,6 +212,20 @@ interface ParsedFrame {
 }
 
 const byte = (data: ArrayLike<number>, index: number): number => data[index] ?? 0
+const isArithmeticFrameMarker = (marker: number): boolean =>
+  marker === 0xc9 ||
+  marker === 0xca ||
+  marker === 0xcb ||
+  marker === 0xcd ||
+  marker === 0xce ||
+  marker === 0xcf
+
+const isAvi1Segment = (data: Uint8Array, start: number, end: number): boolean =>
+  end - start >= 4 &&
+  byte(data, start) === 0x41 &&
+  byte(data, start + 1) === 0x56 &&
+  byte(data, start + 2) === 0x49 &&
+  byte(data, start + 3) === 0x31
 
 const readUint16 = (data: Uint8Array, offset: number): number => {
   if (offset < 0 || offset + 2 > data.byteLength) throw truncatedInput('JPEG segment is truncated')
@@ -218,6 +253,15 @@ const huffmanTable = (counts: Uint8Array, symbols: Uint8Array): HuffmanTable => 
     symbol += count
   }
   return { counts, symbols, firstCodes, firstSymbols }
+}
+const installMjpegHuffmanTables = (
+  dcTables: Map<number, HuffmanTable>,
+  acTables: Map<number, HuffmanTable>,
+): void => {
+  if (!dcTables.has(0)) dcTables.set(0, huffmanTable(luminanceDcCounts, luminanceDcValues))
+  if (!acTables.has(0)) acTables.set(0, huffmanTable(luminanceAcCounts, luminanceAcValues))
+  if (!dcTables.has(1)) dcTables.set(1, huffmanTable(chrominanceDcCounts, chrominanceDcValues))
+  if (!acTables.has(1)) acTables.set(1, huffmanTable(chrominanceAcCounts, chrominanceAcValues))
 }
 
 const parseQuantizationTables = (
@@ -275,7 +319,9 @@ const parseHuffmanTables = (
 
 const parseFrame = (data: Uint8Array, start: number, end: number): ParsedFrame => {
   if (end - start < 6) throw truncatedInput('JPEG frame header is truncated')
-  if (byte(data, start) !== 8) throw invalidInput('JPEG precision must be 8 bits')
+  const precision = byte(data, start)
+  if (precision === 12) throw unsupportedOperation('12-bit JPEG samples are unsupported')
+  if (precision !== 8) throw invalidInput('JPEG precision must be 8 or 12 bits')
   const height = readUint16(data, start + 1)
   const width = readUint16(data, start + 3)
   const componentCount = byte(data, start + 5)
@@ -421,6 +467,7 @@ export const parseBaselineJpeg = (data: Uint8Array, applyIcc = true): BaselineJp
   let adobeTransform: number | undefined
   const iccChunks: IccChunk[] = []
   let restartInterval = 0
+  let motionJpeg = false
   let offset = 2
 
   while (offset < data.byteLength) {
@@ -436,11 +483,14 @@ export const parseBaselineJpeg = (data: Uint8Array, applyIcc = true): BaselineJp
 
     if (marker === 0xdb) parseQuantizationTables(data, start, end, quantizationTables)
     else if (marker === 0xc4) parseHuffmanTables(data, start, end, dcTables, acTables)
+    else if (marker === 0xe0) motionJpeg ||= isAvi1Segment(data, start, end)
     else if (marker === 0xe2) {
       const chunk = parseIccChunk(data, start, end)
       if (chunk) iccChunks.push(chunk)
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(data, start, end) ?? adobeTransform
+    } else if (isArithmeticFrameMarker(marker)) {
+      throw unsupportedOperation('Arithmetic-coded JPEG images are unsupported')
     } else if (marker === 0xc0) frame = parseFrame(data, start, end)
     else if (marker === 0xc1 || marker === 0xc2) return undefined
     else if (marker === 0xdd) {
@@ -470,23 +520,38 @@ export const parseBaselineJpeg = (data: Uint8Array, applyIcc = true): BaselineJp
       ) {
         return undefined
       }
+      if (motionJpeg) installMjpegHuffmanTables(dcTables, acTables)
       let maximumHorizontalSampling = 1
       let maximumVerticalSampling = 1
       const components: FrameComponent[] = []
+      const singleComponent = frame.components.length === 1
       for (const component of frame.components) {
         const quantization = quantizationTables.get(component.quantizationId)
         const dcTable =
           component.dcTableId === undefined ? undefined : dcTables.get(component.dcTableId)
         const acTable =
           component.acTableId === undefined ? undefined : acTables.get(component.acTableId)
-        if (!quantization || !dcTable || !acTable)
-          throw invalidInput('JPEG scan references a missing coding table')
-        maximumHorizontalSampling = Math.max(
-          maximumHorizontalSampling,
-          component.horizontalSampling,
-        )
-        maximumVerticalSampling = Math.max(maximumVerticalSampling, component.verticalSampling)
-        components.push({ ...component, quantization, dcTable, acTable })
+        if (!quantization) throw invalidInput('JPEG scan references a missing quantization table')
+        if (!dcTable || !acTable) {
+          if (motionJpeg) {
+            throw unsupportedOperation(
+              'AVI1/MJPEG frames that omit nonstandard Huffman tables are unsupported',
+            )
+          }
+          throw invalidInput('JPEG scan references a missing Huffman table')
+        }
+        const horizontalSampling = singleComponent ? 1 : component.horizontalSampling
+        const verticalSampling = singleComponent ? 1 : component.verticalSampling
+        maximumHorizontalSampling = Math.max(maximumHorizontalSampling, horizontalSampling)
+        maximumVerticalSampling = Math.max(maximumVerticalSampling, verticalSampling)
+        components.push({
+          ...component,
+          horizontalSampling,
+          verticalSampling,
+          quantization,
+          dcTable,
+          acTable,
+        })
       }
       const jpegColorTransform = colorTransform(frame, adobeTransform)
       const iccTransform = applyIcc ? createIccTransform(iccChunks, jpegColorTransform) : undefined
@@ -510,9 +575,17 @@ export const parseBaselineJpeg = (data: Uint8Array, applyIcc = true): BaselineJp
   throw truncatedInput('JPEG is missing image data')
 }
 
-const nextSourceMarker = async (reader: SourceReader): Promise<number> => {
+const nextSourceMarker = async (reader: SourceReader, tolerant = false): Promise<number> => {
   let prefix = await reader.readByte()
-  if (prefix !== 0xff) throw invalidInput('JPEG marker prefix is missing')
+  if (prefix !== 0xff) {
+    if (!tolerant) throw invalidInput('JPEG marker prefix is missing')
+    let previous = prefix
+    while (true) {
+      const current = await reader.readByte()
+      if (previous === 0xff && current === 0xd9) return current
+      previous = current
+    }
+  }
   while (prefix === 0xff) prefix = await reader.readByte()
   if (prefix === 0x00 || (prefix >= 0xd0 && prefix <= 0xd8)) {
     throw invalidInput('JPEG contains an unexpected standalone marker')
@@ -541,6 +614,7 @@ export const parseBaselineJpegSource = async (
   let adobeTransform: number | undefined
   const iccChunks: IccChunk[] = []
   let restartInterval = 0
+  let motionJpeg = false
 
   while (reader.position < source.size) {
     const marker = await nextSourceMarker(reader)
@@ -550,11 +624,14 @@ export const parseBaselineJpegSource = async (
     const end = payload.byteLength
     if (marker === 0xdb) parseQuantizationTables(payload, start, end, quantizationTables)
     else if (marker === 0xc4) parseHuffmanTables(payload, start, end, dcTables, acTables)
+    else if (marker === 0xe0) motionJpeg ||= isAvi1Segment(payload, start, end)
     else if (marker === 0xe2) {
       const chunk = parseIccChunk(payload, start, end)
       if (chunk) iccChunks.push(chunk)
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(payload, start, end) ?? adobeTransform
+    } else if (isArithmeticFrameMarker(marker)) {
+      throw unsupportedOperation('Arithmetic-coded JPEG images are unsupported')
     } else if (marker === 0xc0 || marker === 0xc1) {
       if (frame) throw invalidInput('JPEG contains multiple frames')
       frame = parseFrame(payload, start, end)
@@ -587,24 +664,38 @@ export const parseBaselineJpegSource = async (
       ) {
         return undefined
       }
+      if (motionJpeg) installMjpegHuffmanTables(dcTables, acTables)
       let maximumHorizontalSampling = 1
       let maximumVerticalSampling = 1
       const components: FrameComponent[] = []
+      const singleComponent = frame.components.length === 1
       for (const component of frame.components) {
         const quantization = quantizationTables.get(component.quantizationId)
         const dcTable =
           component.dcTableId === undefined ? undefined : dcTables.get(component.dcTableId)
         const acTable =
           component.acTableId === undefined ? undefined : acTables.get(component.acTableId)
-        if (!quantization || !dcTable || !acTable) {
-          throw invalidInput('JPEG scan references a missing coding table')
+        if (!quantization) throw invalidInput('JPEG scan references a missing quantization table')
+        if (!dcTable || !acTable) {
+          if (motionJpeg) {
+            throw unsupportedOperation(
+              'AVI1/MJPEG frames that omit nonstandard Huffman tables are unsupported',
+            )
+          }
+          throw invalidInput('JPEG scan references a missing Huffman table')
         }
-        maximumHorizontalSampling = Math.max(
-          maximumHorizontalSampling,
-          component.horizontalSampling,
-        )
-        maximumVerticalSampling = Math.max(maximumVerticalSampling, component.verticalSampling)
-        components.push({ ...component, quantization, dcTable, acTable })
+        const horizontalSampling = singleComponent ? 1 : component.horizontalSampling
+        const verticalSampling = singleComponent ? 1 : component.verticalSampling
+        maximumHorizontalSampling = Math.max(maximumHorizontalSampling, horizontalSampling)
+        maximumVerticalSampling = Math.max(maximumVerticalSampling, verticalSampling)
+        components.push({
+          ...component,
+          horizontalSampling,
+          verticalSampling,
+          quantization,
+          dcTable,
+          acTable,
+        })
       }
       const jpegColorTransform = colorTransform(frame, adobeTransform)
       const iccTransform = applyIcc ? createIccTransform(iccChunks, jpegColorTransform) : undefined
@@ -2115,6 +2206,8 @@ export const parseProgressiveJpeg = (
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(data, start, end) ?? adobeTransform
     } else if (marker === 0xc0 || marker === 0xc1) return undefined
+    else if (isArithmeticFrameMarker(marker))
+      throw unsupportedOperation('Arithmetic-coded JPEG images are unsupported')
     else if (marker === 0xc2) {
       if (frame) throw invalidInput('Progressive JPEG contains multiple frames')
       frame = parseFrame(data, start, end)
@@ -2187,6 +2280,11 @@ export const parseProgressiveJpeg = (
   throw truncatedInput('Progressive JPEG is missing its end marker')
 }
 
+interface ProgressiveSourceScanResult {
+  readonly offset: number
+  readonly recovered: boolean
+}
+
 const decodeProgressiveSourceScan = async (
   source: ImageSource,
   offset: number,
@@ -2194,9 +2292,10 @@ const decodeProgressiveSourceScan = async (
   mcusPerLine: number,
   mcusPerColumn: number,
   restartInterval: number,
-): Promise<number> => {
+  tolerantDecoding = false,
+): Promise<ProgressiveSourceScanResult> => {
   validateProgressiveScan(scan)
-  const reader = new JpegEntropyReader(source, offset)
+  const reader = new JpegEntropyReader(source, offset, false, tolerantDecoding)
   const predictors = new Int32Array(
     Math.max(...scan.components.map((selected) => selected.componentIndex)) + 1,
   )
@@ -2216,38 +2315,49 @@ const decodeProgressiveSourceScan = async (
         predictors.fill(0)
         state.eobRun = 0
       }
-      for (const selected of scan.components) {
-        const blocksWide = single ? 1 : selected.component.horizontalSampling
-        const blocksHigh = single ? 1 : selected.component.verticalSampling
-        for (let blockY = 0; blockY < blocksHigh; blockY += 1) {
-          for (let blockX = 0; blockX < blocksWide; blockX += 1) {
-            const x = single ? mcuX : mcuX * blocksWide + blockX
-            const y = single ? mcuY : mcuY * blocksHigh + blockY
-            const target = coefficientOffset(selected.component, x, y)
-            if (scan.spectralStart === 0) {
-              if (scan.successiveHigh === 0) {
-                decodeProgressiveDcFirst(reader, selected, predictors, target, scan.successiveLow)
+      try {
+        for (const selected of scan.components) {
+          const blocksWide = single ? 1 : selected.component.horizontalSampling
+          const blocksHigh = single ? 1 : selected.component.verticalSampling
+          for (let blockY = 0; blockY < blocksHigh; blockY += 1) {
+            for (let blockX = 0; blockX < blocksWide; blockX += 1) {
+              const x = single ? mcuX : mcuX * blocksWide + blockX
+              const y = single ? mcuY : mcuY * blocksHigh + blockY
+              const target = coefficientOffset(selected.component, x, y)
+              if (scan.spectralStart === 0) {
+                if (scan.successiveHigh === 0) {
+                  decodeProgressiveDcFirst(reader, selected, predictors, target, scan.successiveLow)
+                } else {
+                  decodeProgressiveDcRefinement(
+                    reader,
+                    selected.component,
+                    target,
+                    scan.successiveLow,
+                  )
+                }
+              } else if (scan.successiveHigh === 0) {
+                decodeProgressiveAcFirst(reader, selected, target, scan, state)
               } else {
-                decodeProgressiveDcRefinement(
-                  reader,
-                  selected.component,
-                  target,
-                  scan.successiveLow,
-                )
+                decodeProgressiveAcRefinement(reader, selected, target, scan, state)
               }
-            } else if (scan.successiveHigh === 0) {
-              decodeProgressiveAcFirst(reader, selected, target, scan, state)
-            } else {
-              decodeProgressiveAcRefinement(reader, selected, target, scan, state)
             }
           }
         }
+      } catch (error) {
+        if (
+          !tolerantDecoding ||
+          !(error instanceof JpegUnexpectedScanBoundary) ||
+          (error.marker !== 0xc4 && error.marker !== 0xda && error.marker !== 0xd9)
+        ) {
+          throw error
+        }
+        return { offset: error.offset, recovered: true }
       }
       mcu += 1
     }
   }
   if (reader.available === 0) await reader.refill()
-  return reader.scanEnd()
+  return { offset: reader.scanEnd(), recovered: false }
 }
 
 const decodeSequentialSourceScan = async (
@@ -2339,6 +2449,7 @@ export const parseCoefficientJpegSource = async (
   validateDimensions: (width: number, height: number) => void,
   applyIcc = true,
   maximumCoefficientBytes = Number.MAX_SAFE_INTEGER,
+  tolerantDecoding = false,
 ): Promise<ProgressiveJpeg | undefined> => {
   let reader = new SourceReader(source)
   const signature = await reader.read(2)
@@ -2357,10 +2468,11 @@ export const parseCoefficientJpegSource = async (
   let mcusPerColumn = 0
   let restartInterval = 0
   let scanCount = 0
+  let recoveredProgressiveScan = false
   const sequentialSeen = new Set<number>()
 
   while (reader.position < source.size) {
-    const marker = await nextSourceMarker(reader)
+    const marker = await nextSourceMarker(reader, tolerantDecoding && scanCount > 0)
     if (marker === 0xd9) {
       if (!frame || !components || scanCount === 0) {
         throw invalidInput('JPEG ended before complete image data')
@@ -2376,7 +2488,20 @@ export const parseCoefficientJpegSource = async (
         return { ...component, quantization }
       })
       const jpegColorTransform = colorTransform(frame, adobeTransform)
-      const iccTransform = applyIcc ? createIccTransform(iccChunks, jpegColorTransform) : undefined
+      let iccTransform: JpegIccTransform | undefined
+      if (applyIcc) {
+        try {
+          iccTransform = createIccTransform(iccChunks, jpegColorTransform)
+        } catch (error) {
+          if (
+            !recoveredProgressiveScan ||
+            !(error instanceof ImageError) ||
+            (error.code !== 'INVALID_INPUT' && error.code !== 'TRUNCATED_INPUT')
+          ) {
+            throw error
+          }
+        }
+      }
       return {
         width: frame.width,
         height: frame.height,
@@ -2399,6 +2524,8 @@ export const parseCoefficientJpegSource = async (
       if (chunk) iccChunks.push(chunk)
     } else if (marker === 0xee) {
       adobeTransform = parseAdobeTransform(payload, 0, end) ?? adobeTransform
+    } else if (isArithmeticFrameMarker(marker)) {
+      throw unsupportedOperation('Arithmetic-coded JPEG images are unsupported')
     } else if (marker === 0xc0 || marker === 0xc1 || marker === 0xc2) {
       if (frame) throw invalidInput('JPEG contains multiple frames')
       progressive = marker === 0xc2
@@ -2470,24 +2597,30 @@ export const parseCoefficientJpegSource = async (
         successiveHigh: successive >>> 4,
         successiveLow: successive & 15,
       }
-      const nextOffset = progressive
-        ? await decodeProgressiveSourceScan(
-            source,
-            reader.position,
-            scan,
-            mcusPerLine,
-            mcusPerColumn,
-            restartInterval,
-          )
-        : await decodeSequentialSourceScan(
-            source,
-            reader.position,
-            scan,
-            mcusPerLine,
-            mcusPerColumn,
-            restartInterval,
-            quantizationTables,
-          )
+      let nextOffset: number
+      if (progressive) {
+        const result = await decodeProgressiveSourceScan(
+          source,
+          reader.position,
+          scan,
+          mcusPerLine,
+          mcusPerColumn,
+          restartInterval,
+          tolerantDecoding,
+        )
+        nextOffset = result.offset
+        recoveredProgressiveScan ||= result.recovered
+      } else {
+        nextOffset = await decodeSequentialSourceScan(
+          source,
+          reader.position,
+          scan,
+          mcusPerLine,
+          mcusPerColumn,
+          restartInterval,
+          quantizationTables,
+        )
+      }
       if (!progressive) for (const id of selectedIds) sequentialSeen.add(id)
       reader = new SourceReader(source, nextOffset)
     }

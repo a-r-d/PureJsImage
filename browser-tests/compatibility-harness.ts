@@ -121,6 +121,81 @@ const jpegPipeline = async (): Promise<BrowserWorkflowResult> => {
     outputBytes: output.size,
   }
 }
+const unsupportedJpegBoundaries = async (): Promise<BrowserWorkflowResult> => {
+  const source = await fetchBytes('/fixtures/benchmark-input.jpg')
+  let frame = -1
+  for (let offset = 0; offset + 4 < source.byteLength; offset += 1) {
+    if (source[offset] === 0xff && source[offset + 1] === 0xc0) {
+      frame = offset
+      break
+    }
+  }
+  if (frame < 0) throw new Error('Browser JPEG fixture is missing SOF0')
+
+  const arithmetic = Uint8Array.from(source)
+  arithmetic[frame + 1] = 0xc9
+  const twelveBit = Uint8Array.from(source)
+  twelveBit[frame + 4] = 12
+  for (const [input, message] of [
+    [arithmetic, 'Arithmetic-coded JPEG images are unsupported'],
+    [twelveBit, '12-bit JPEG samples are unsupported'],
+  ] as const) {
+    try {
+      await (await images.open(input)).png().toUint8Array()
+      throw new Error(`Browser JPEG decode accepted: ${message}`)
+    } catch (error) {
+      if (
+        !(error instanceof ImageError) ||
+        error.code !== 'UNSUPPORTED_OPERATION' ||
+        error.message !== message
+      ) {
+        throw error
+      }
+    }
+  }
+  const png = await fetchBytes('/fixtures/benchmark-input.png')
+  const encoded = await (await images.open(png)).jpeg({ quality: 80 }).toUint8Array()
+  const reference = await (await images.open(encoded)).png().toUint8Array()
+  let motionJpeg = Uint8Array.from(encoded)
+  const huffmanSegments: number[] = []
+  for (let offset = 0; offset + 3 < motionJpeg.byteLength; offset += 1) {
+    if (motionJpeg[offset] === 0xff && motionJpeg[offset + 1] === 0xc4) {
+      huffmanSegments.push(offset)
+    }
+  }
+  for (let index = huffmanSegments.length - 1; index >= 0; index -= 1) {
+    const offset = huffmanSegments[index]
+    if (offset === undefined) continue
+    const length = ((motionJpeg[offset + 2] ?? 0) << 8) | (motionJpeg[offset + 3] ?? 0)
+    const end = offset + 2 + length
+    const next = new Uint8Array(motionJpeg.byteLength - (end - offset))
+    next.set(motionJpeg.subarray(0, offset))
+    next.set(motionJpeg.subarray(end), offset)
+    motionJpeg = next
+  }
+  let application = -1
+  for (let offset = 0; offset + 7 < motionJpeg.byteLength; offset += 1) {
+    if (motionJpeg[offset] === 0xff && motionJpeg[offset + 1] === 0xe0) {
+      application = offset
+      break
+    }
+  }
+  if (application < 0) throw new Error('Browser JPEG encoder did not write APP0')
+  motionJpeg.set([0x41, 0x56, 0x49, 0x31], application + 4)
+  const recovered = await (await images.open(motionJpeg)).png().toUint8Array()
+  if (
+    recovered.byteLength !== reference.byteLength ||
+    recovered.some((value, offset) => value !== reference[offset])
+  ) {
+    throw new Error('Browser AVI1/MJPEG default Huffman tables changed decoded pixels')
+  }
+
+  return {
+    detail:
+      'arithmetic-coded and 12-bit JPEG returned UNSUPPORTED_OPERATION; AVI1/MJPEG default Huffman tables matched the explicit-table decode',
+    outputBytes: recovered.byteLength,
+  }
+}
 
 const tolerantJpegRestartRecovery = async (): Promise<BrowserWorkflowResult> => {
   const source = await fetchBytes('/fixtures/benchmark-input.png')
@@ -387,15 +462,17 @@ const progressiveJpeg = async (): Promise<BrowserWorkflowResult> => {
     .jpeg({ quality: 86, chromaSubsampling: '420', progressive: true })
     .toUint8Array()
   let frameMarkers = 0
-  let scanMarkers = 0
+  const scanOffsets: number[] = []
+  const huffmanOffsets: number[] = []
   for (let offset = 0; offset + 1 < progressive.byteLength; offset += 1) {
     if (progressive[offset] !== 0xff) continue
     if (progressive[offset + 1] === 0xc2) frameMarkers += 1
-    if (progressive[offset + 1] === 0xda) scanMarkers += 1
+    if (progressive[offset + 1] === 0xda) scanOffsets.push(offset)
+    if (progressive[offset + 1] === 0xc4) huffmanOffsets.push(offset)
   }
-  if (frameMarkers !== 1 || scanMarkers !== 6) {
+  if (frameMarkers !== 1 || scanOffsets.length !== 6) {
     throw new Error(
-      `Progressive JPEG structure had ${frameMarkers} frames and ${scanMarkers} scans`,
+      `Progressive JPEG structure had ${frameMarkers} frames and ${scanOffsets.length} scans`,
     )
   }
   const metadata = await outputMetadata(progressive)
@@ -414,8 +491,39 @@ const progressiveJpeg = async (): Promise<BrowserWorkflowResult> => {
       throw new Error(`Progressive browser decode changed pixel ${offset}`)
     }
   }
+  const acScan = scanOffsets[2]
+  if (acScan === undefined) throw new Error('Progressive browser JPEG is missing its AC scan')
+  const scanLength = ((progressive[acScan + 2] ?? 0) << 8) | (progressive[acScan + 3] ?? 0)
+  const entropyStart = acScan + 2 + scanLength
+  const nextHuffmanTable = huffmanOffsets.find((offset) => offset > entropyStart)
+  if (nextHuffmanTable === undefined) {
+    throw new Error('Progressive browser JPEG is missing its inter-scan DHT')
+  }
+  const huffmanLength =
+    ((progressive[nextHuffmanTable + 2] ?? 0) << 8) | (progressive[nextHuffmanTable + 3] ?? 0)
+  const huffmanEnd = nextHuffmanTable + 2 + huffmanLength
+  const truncatedAt = entropyStart + Math.floor((nextHuffmanTable - entropyStart) / 2)
+  const partial = new Uint8Array(truncatedAt + huffmanEnd - nextHuffmanTable + 2)
+  partial.set(progressive.subarray(0, truncatedAt))
+  partial.set(progressive.subarray(nextHuffmanTable, huffmanEnd), truncatedAt)
+  partial.set([0xff, 0xd9], partial.byteLength - 2)
+  const recovered = await (await images.open(partial)).png().toUint8Array()
+  let strictRejected = false
+  try {
+    await (await images.open(partial, { tolerantDecoding: false })).png().toUint8Array()
+  } catch (error) {
+    strictRejected =
+      error instanceof ImageError &&
+      error.code === 'INVALID_INPUT' &&
+      error.message === 'Unexpected JPEG marker ffc4'
+  }
+  if (recovered.byteLength < 50 || !strictRejected) {
+    throw new Error('Progressive browser DHT-boundary recovery did not preserve strict opt-out')
+  }
+
   return {
-    detail: 'six-scan progressive JPEG matched baseline pixels in the browser',
+    detail:
+      'six-scan progressive JPEG matched baseline pixels and recovered a partial AC scan at a DHT boundary in the browser',
     outputBytes: progressive.byteLength,
   }
 }
@@ -678,6 +786,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   heifPqDisplay,
   inputTypes,
   jpegPipeline,
+  unsupportedJpegBoundaries,
   tolerantJpegRestartRecovery,
   orientation,
   pngAlphaPipeline,

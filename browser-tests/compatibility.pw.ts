@@ -26,6 +26,15 @@ test('decodes JPEG metadata and runs crop, resize, rotation, and JPEG encoding',
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('100x120')
 })
+test('handles supported and unsupported JPEG coding boundaries', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.unsupportedJpegBoundaries(),
+  )
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('UNSUPPORTED_OPERATION')
+  expect(result.detail).toContain('AVI1/MJPEG')
+})
 
 test('recovers malformed JPEG restarts through Rust/WASM by default with strict opt-out', async ({
   page,

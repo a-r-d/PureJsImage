@@ -6,6 +6,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added an isolated Imazen codec-corpus conformance harness and independent JPEG and PNG baseline
+  reports covering complete decode-to-PNG round trips, structured rejection, timeouts, crashes,
+  memory failures, upstream categories, and PNGSuite feature groups.
 - Added an explicitly imported first-party Rust/WASM PNG accelerator for common non-interlaced
   8-bit grayscale, RGB, and RGBA scanline decode and encode, retaining native runtime zlib,
   bounded-row memory, scalar fallback, and the TypeScript reference for every ineligible workload.
@@ -47,6 +50,13 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Fixed
 
+- JPEG decoding now treats sampling factors as one for single-component non-interleaved scans,
+  tolerantly preserves completed progressive coefficients when a partial scan reaches a DHT, SOS,
+  or EOI boundary, and decodes AVI1/MJPEG baseline frames that omit standard Huffman tables. Strict
+  progressive decoding continues to reject partial entropy.
+- Recognized 12-bit and arithmetic-coded JPEG inputs now fail with `UNSUPPORTED_OPERATION`,
+  separating deliberate codec boundaries from supported-subset failures in the Imazen conformance
+  baseline.
 - Animated GIF pixel decode now fails with `UNSUPPORTED_OPERATION` instead of silently discarding
   animation; callers can explicitly request the supported first image with `open(input, { frame: 0 })`.
 - Baseline JPEG restart recovery now defaults to tolerant decoding for malformed real-world files;

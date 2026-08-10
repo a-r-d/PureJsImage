@@ -13,8 +13,8 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "Static 8-bit Huffman JPEG; no arithmetic, lossless, or 12-bit coding",
-      "description": "Decodes common 8-bit baseline, extended-sequential, multi-scan, and progressive grayscale, YCbCr, RGB, CMYK, and YCCK JPEGs with chroma-aware interpolation. Encodes baseline and scan-optimized refinement-based progressive JPEG with configurable quality, chroma sampling, native grayscale, and restart markers.",
+      "boundary": "Static 8-bit Huffman JPEG, including AVI1/MJPEG frames with omitted standard tables; no arithmetic, lossless, 12-bit, or omitted nonstandard external tables",
+      "description": "Decodes common 8-bit baseline, extended-sequential, multi-scan, and progressive grayscale, YCbCr, RGB, CMYK, and YCCK JPEGs with chroma-aware interpolation, plus AVI1/MJPEG baseline frames that use omitted standard Huffman tables. Encodes baseline and scan-optimized refinement-based progressive JPEG with configurable quality, chroma sampling, native grayscale, and restart markers.",
       "memory": "Incremental entropy input, bounded MCU-row baseline output, restart-aware region seeking, and scaled IDCT; progressive decode and encode retain compact Int16 coefficient planes",
       "recommendation": "Photographs and broadly compatible lossy output.",
       "evidence": [
@@ -58,6 +58,10 @@
         },
         {
           "status": "supported",
+          "text": "Non-interleaved grayscale scans with non-unit frame sampling factors"
+        },
+        {
+          "status": "supported",
           "text": "Three-component YCbCr images"
         },
         {
@@ -86,7 +90,15 @@
         },
         {
           "status": "supported",
+          "text": "Bounded tolerant recovery for partial progressive scans ending at inter-scan DHT, SOS, or EOI boundaries, with strict rejection through `tolerantDecoding: false`"
+        },
+        {
+          "status": "supported",
           "text": "Extended sequential 8-bit JPEG (`SOF1`)"
+        },
+        {
+          "status": "supported",
+          "text": "Structured `UNSUPPORTED_OPERATION` rejection for recognized 12-bit and arithmetic-coded frames"
         },
         {
           "status": "planned",
@@ -113,8 +125,12 @@
           "text": "Define-number-of-lines (`DNL`) images whose height is supplied after the frame header"
         },
         {
+          "status": "supported",
+          "text": "AVI1/MJPEG baseline frames that omit DHT segments and use standard luminance/chrominance Huffman table identifiers 0 and 1"
+        },
+        {
           "status": "planned",
-          "text": "Abbreviated JPEG and MJPEG frames that omit coding tables and depend on tables supplied outside the individual image"
+          "text": "Abbreviated JPEG or MJPEG frames that depend on omitted nonstandard coding tables supplied outside the individual image"
         },
         {
           "status": "supported",

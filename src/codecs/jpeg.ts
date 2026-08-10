@@ -369,6 +369,7 @@ const decodeJpeg = async (
     },
     applyIcc,
     limits.maxDecodedBytes,
+    options.tolerantDecoding === true,
   )
   if (!progressive) throw invalidInput('JPEG coding process is unsupported')
   return new ProgressiveJpegDecoder(progressive)
