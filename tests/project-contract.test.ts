@@ -91,7 +91,7 @@ describe('package contract', () => {
       expect(performancePage).toContain(label)
     }
     expect(readme).toContain(packageJson.version)
-    expect(performancePage).toContain('0.7.0')
+    expect(performancePage).toContain(packageJson.version)
     for (const version of ['1.6.0', '1.7.0', '0.35.3']) {
       expect(readme).toContain(version)
       expect(performancePage).toContain(version)
@@ -116,17 +116,17 @@ describe('package contract', () => {
     const docsHome = readFileSync('docs/index.html', 'utf8')
     const docsPerformance = readFileSync('docs/performance.html', 'utf8')
     for (const chart of [
-      'benchmark/results/competitors-speed-2026-08-09.png',
-      'benchmark/results/competitors-quality-2026-08-09.png',
-      'benchmark/results/competitors-memory-2026-08-09.png',
+      'benchmark/results/competitors-speed-2026-08-10.png',
+      'benchmark/results/competitors-quality-2026-08-10.png',
+      'benchmark/results/competitors-memory-2026-08-10.png',
     ]) {
       expect(readme).toContain(`](${chart})`)
       expect(readFileSync(chart).byteLength).toBeGreaterThan(0)
     }
     for (const chart of [
-      'assets/competitors-speed-2026-08-09.png',
-      'assets/competitors-quality-2026-08-09.png',
-      'assets/competitors-memory-2026-08-09.png',
+      'assets/competitors-speed-2026-08-10.png',
+      'assets/competitors-quality-2026-08-10.png',
+      'assets/competitors-memory-2026-08-10.png',
     ]) {
       expect(docsHome).toContain(`src="${chart}"`)
       expect(docsPerformance).toContain(`src="${chart}"`)

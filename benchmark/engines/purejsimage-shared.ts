@@ -370,12 +370,18 @@ export const createPureJsImageEngine = async (
   options: PureJsImageEngineOptions,
 ): Promise<Engine> => {
   const Image = await loadImageLibrary(options.codecs ?? [], options.accelerators ?? [])
+  const hasExperimentalHeic = options.codecs?.some(
+    ({ exportName }) => exportName === 'experimentalHeifCodec',
+  )
   return {
     id: options.id,
     version: `${packageJson.version} (workspace${options.versionSuffix})`,
     kind: options.kind,
     packageName: 'purejsimage',
-    unsupportedReason: (): undefined => undefined,
+    unsupportedReason: (workflow): string | undefined =>
+      workflow.id === 'heif-iphone-resize-jpeg' && !hasExperimentalHeic
+        ? 'The default PureJsImage codecs do not include experimental HEIF/HEIC'
+        : undefined,
     execute: async ({ workflow, inputs }): Promise<EngineExecution> => {
       if (!workflow.batch) {
         const input = inputs[0]

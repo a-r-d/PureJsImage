@@ -5,6 +5,7 @@ import { engine as imageJsEngine } from '../benchmark/engines/image-js.ts'
 import { engine as jimpEngine } from '../benchmark/engines/jimp.ts'
 import { engine as jsquashEngine } from '../benchmark/engines/jsquash.ts'
 import { engine as pureJsImageExperimentalHeicEngine } from '../benchmark/engines/purejsimage-experimental-heic.ts'
+import { engine as pureJsImageEngine } from '../benchmark/engines/purejsimage.ts'
 import { engine as pureJsImageWasmEngine } from '../benchmark/engines/purejsimage-wasm.ts'
 import { engine as sharpSingleThreadEngine } from '../benchmark/engines/sharp-single-thread.ts'
 import { engine as sharpEngine } from '../benchmark/engines/sharp.ts'
@@ -45,6 +46,24 @@ describe('competitor benchmark classification', () => {
     await expect(
       Promise.resolve(jsquashEngine.unsupportedReason(competitorWorkflow('png-to-jpeg'), [])),
     ).resolves.toContain('flattening alpha')
+    await expect(
+      Promise.resolve(
+        pureJsImageEngine.unsupportedReason(competitorWorkflow('heif-iphone-resize-jpeg'), []),
+      ),
+    ).resolves.toContain('do not include experimental HEIF/HEIC')
+    await expect(
+      Promise.resolve(
+        pureJsImageWasmEngine.unsupportedReason(competitorWorkflow('heif-iphone-resize-jpeg'), []),
+      ),
+    ).resolves.toContain('do not include experimental HEIF/HEIC')
+    await expect(
+      Promise.resolve(
+        pureJsImageExperimentalHeicEngine.unsupportedReason(
+          competitorWorkflow('heif-iphone-resize-jpeg'),
+          [],
+        ),
+      ),
+    ).resolves.toBeUndefined()
   })
 
   it('cannot aggregate invalid output as a successful timing', async () => {

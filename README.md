@@ -74,10 +74,13 @@ JPEG and PNG form the matched set because all five libraries support them.
 PureJsImage and jSquash can assemble only that set; the normal Jimp, image-js,
 and Sharp imports include the additional codecs shown.
 
+Measured on Linux x64 with Node.js 24.16.0 using the repository's reproducible
+esbuild, gzip, and Brotli settings:
+
 | Import | Version | Codecs included | Minified JS | gzip | Brotli |
 | --- | --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | **0.8.0** | JPEG, PNG | 172.6 KiB | 56.0 KiB | 46.9 KiB |
-| PureJsImage all codecs | 0.8.0 | 9 codecs | 611.6 KiB | 225.2 KiB | 188.1 KiB |
+| **PureJsImage matched** | **0.8.0** | JPEG, PNG | 145.4 KiB | 47.2 KiB | 39.6 KiB |
+| PureJsImage all codecs | 0.8.0 | 9 codecs | 668.9 KiB | 240.7 KiB | 201.6 KiB |
 | Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
 | image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
 | jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
@@ -89,7 +92,7 @@ complete installed deployment tells the other half of the story:
 
 | Package | Version | Installed footprint | Production packages |
 | --- | --- | ---: | ---: |
-| **PureJsImage** | **0.8.0** | **2.1 MiB** | **1** |
+| **PureJsImage** | **0.8.0** | **2.3 MiB** | **1** |
 | Jimp | 1.6.0 | 29.3 MiB | 70 |
 | image-js | 1.7.0 | 17.0 MiB | 46 |
 | jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |
@@ -207,11 +210,11 @@ PureJsImage WASM and jSquash use WebAssembly; default PureJsImage, Jimp, and ima
 JavaScript. Each engine received the same files, used its public default resize kernel, and ran in a
 separate process. A result appears only when its output passed validation.
 
-[![Image workflow speed comparison across seven isolated engines, including default and WASM PureJsImage variants.](benchmark/results/competitors-speed-2026-08-09.png)](benchmark/results/competitors-speed-2026-08-09.png)
+[![Image workflow speed comparison across seven isolated engines, including default and WASM PureJsImage variants.](benchmark/results/competitors-speed-2026-08-10.png)](benchmark/results/competitors-speed-2026-08-10.png)
 
-[![Image workflow output quality comparison across seven engines measured as premultiplied-RGBA PSNR against an exact-area reference.](benchmark/results/competitors-quality-2026-08-09.png)](benchmark/results/competitors-quality-2026-08-09.png)
+[![Image workflow output quality comparison across seven engines measured as premultiplied-RGBA PSNR against an exact-area reference.](benchmark/results/competitors-quality-2026-08-10.png)](benchmark/results/competitors-quality-2026-08-10.png)
 
-[![Image workflow absolute peak memory comparison across seven isolated engines.](benchmark/results/competitors-memory-2026-08-09.png)](benchmark/results/competitors-memory-2026-08-09.png)
+[![Image workflow absolute peak memory comparison across seven isolated engines.](benchmark/results/competitors-memory-2026-08-10.png)](benchmark/results/competitors-memory-2026-08-10.png)
 
 Resize workflows use engine defaults: PureJsImage and Sharp use Lanczos 3 while
 Jimp uses bilinear. The quality chart reports premultiplied-RGBA PSNR against an
@@ -220,12 +223,29 @@ and alpha channel matched. This exposes quality differences, but cross-kernel
 timings remain default-experience measurements rather than matched-quality
 comparisons.
 
-Against the default TypeScript path, the opt-in WASM variant reduced median wall time by 53.2% for
-JPEG-to-PNG, 40.7% for the 100-megapixel PNG downscale, and 16.4% for the large PNG resize while
-returning the same measured output quality. On the 24-megapixel photo workflow, default PureJsImage
-used 87.2% less peak memory than Jimp and 87.3% less than image-js. Timing, memory, and quality vary by
-image, operation, machine, and library version, so the full report includes the test environment,
-compatibility results, and reproduction commands.
+The August 10 profile used PureJsImage 0.8.0 on Node.js 24.16.0. Against the default TypeScript path,
+the opt-in WASM variant reduced median wall time by 53.0% for JPEG-to-PNG, 38.9% for the
+100-megapixel PNG downscale, and 11.6% for the large PNG resize while returning the same measured
+output quality. On the 24-megapixel photo workflow, default PureJsImage used 86.7% less peak memory
+than Jimp and 87.6% less than image-js. Timing, memory, and quality vary by image, operation,
+machine, and library version.
+
+The focused nine-run TIFF profile recorded:
+
+| Workflow | PureJsImage wall | PureJsImage RSS | Jimp wall | Jimp RSS |
+| --- | ---: | ---: | ---: | ---: |
+| 4000×3000 TIFF metadata | 0.4 ms | 134.4 MiB | 150.4 ms | 289.8 MiB |
+| 4000×3000 TIFF → 1000px JPEG | 144.4 ms | 214.9 MiB | 663.0 ms | 372.1 MiB |
+| 7795×3122 LZW TIFF → 1000px PNG | 1,026.2 ms | 133.0 MiB | 753.2 ms | 284.8 MiB |
+| PNG → Deflate TIFF | 24.5 ms | 111.4 MiB | 97.3 ms | 152.8 MiB |
+
+PureJsImage passed all 18 TIFF workflows. Jimp passed seven, lacked the eight bounded raw/region
+workflows, and produced invalid pixels in three decode-to-PNG cases. The LZW row is the measured
+exception to the speed advantage: PureJsImage was slower there but used 53.3% less peak RSS.
+
+[Raw competitor report](benchmark/results/competitors-2026-08-10.md) ·
+[PureJsImage TIFF report](benchmark/results/tiff-profile-2026-08-10.md) ·
+[Jimp TIFF report](benchmark/results/jimp-tiff-profile-2026-08-10.md)
 
 [See the complete benchmark report and methodology →](https://a-r-d.github.io/PureJsImage/performance.html)
 
@@ -250,11 +270,11 @@ concurrency.
 ### When to use Sharp instead
 
 If you can deploy native libvips and throughput or latency is the main constraint, use
-[Sharp](https://sharp.pixelplumbing.com/). It was 1.8×–11.7× faster than the default TypeScript path
+[Sharp](https://sharp.pixelplumbing.com/). It was 1.9×–12.2× faster than the default TypeScript path
 across the five commonly supported benchmark workflows. PureJsImage is the better fit when the same
 code must run in Node.js and browsers or edge workers, native addons or WASM are prohibited, or a
 zero-dependency deployment materially simplifies an air-gapped or supply-chain-restricted build.
-The measured installed footprint was 2.0 MiB and one package for PureJsImage versus 18.9 MiB and six
+The measured installed footprint was 2.3 MiB and one package for PureJsImage versus 18.9 MiB and six
 production packages for Sharp.
 
 [Read the practical guides →](https://a-r-d.github.io/PureJsImage/guides.html)
