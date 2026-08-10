@@ -143,6 +143,11 @@ const panDownButton = requiredElement('demo-pan-down', HTMLButtonElement)
 const panRightButton = requiredElement('demo-pan-right', HTMLButtonElement)
 const zoomValue = requiredElement('demo-zoom-value', HTMLOutputElement)
 const saveClipButton = requiredElement('demo-save-clip', HTMLButtonElement)
+const exampleStatus = requiredElement('demo-example-status', HTMLElement)
+const exampleButtons = Array.from(
+  document.querySelectorAll<HTMLButtonElement>('[data-demo-sample]'),
+)
+if (exampleButtons.length === 0) throw new Error('Demo example buttons are missing')
 
 const viewerImages = createImageLibrary([
   ...allCodecs.filter((codec) => codec.format !== 'tiff'),
@@ -175,6 +180,7 @@ const viewerLimits = Object.freeze({
   maxWidth: 500_000,
 })
 const maximumClipPixels = 16_777_216
+const maximumExampleBytes = 8_388_608
 
 let selectedFile: File | undefined
 let selectedImage: Image | undefined
@@ -976,6 +982,51 @@ const inspectFile = async (file: File): Promise<void> => {
     setMode('convert')
   }
 }
+const loadExample = async (button: HTMLButtonElement): Promise<void> => {
+  const name = button.dataset.sampleName
+  const url = button.dataset.sampleUrl
+  if (name === undefined || url === undefined) {
+    exampleStatus.textContent = 'This example is missing its source information.'
+    return
+  }
+
+  for (const candidate of exampleButtons) candidate.disabled = true
+  button.classList.add('loading')
+  button.setAttribute('aria-busy', 'true')
+  exampleStatus.textContent = `Fetching ${name} directly from NOAA…`
+  addLog('info', `Fetching public example ${name} from NOAA after explicit user selection.`)
+
+  try {
+    const response = await fetch(url, { mode: 'cors' })
+    if (!response.ok) throw new Error(`Example request returned HTTP ${response.status}`)
+    const contentLength = Number(response.headers.get('content-length'))
+    if (
+      !Number.isSafeInteger(contentLength) ||
+      contentLength < 1 ||
+      contentLength > maximumExampleBytes
+    ) {
+      throw new Error('Example size is missing or exceeds the 8 MiB demo limit')
+    }
+    const blob = await response.blob()
+    if (blob.size !== contentLength || blob.size > maximumExampleBytes) {
+      throw new Error('Example size changed while downloading')
+    }
+
+    setMode('view')
+    await inspectFile(new File([blob], name, { type: 'image/tiff' }))
+    if (viewerSelection === undefined)
+      throw new Error('The example did not open in the TIFF viewer')
+    exampleStatus.textContent = `${name} opened from NOAA (${formatBytes(blob.size)}).`
+  } catch (error: unknown) {
+    const message = errorMessage(error)
+    exampleStatus.textContent = `${name} could not be loaded: ${message}`
+    addLog('error', `Public example ${name}: ${message}`)
+  } finally {
+    button.classList.remove('loading')
+    button.removeAttribute('aria-busy')
+    for (const candidate of exampleButtons) candidate.disabled = false
+  }
+}
 
 const optionalDimension = (input: HTMLInputElement, label: string): number | undefined => {
   const text = input.value.trim()
@@ -1200,6 +1251,9 @@ fileInput.addEventListener('change', () => {
   const file = fileInput.files?.item(0)
   if (file) void inspectFile(file)
 })
+for (const button of exampleButtons) {
+  button.addEventListener('click', () => void loadExample(button))
+}
 conversionForm.addEventListener('submit', (event) => event.preventDefault())
 
 for (const eventName of ['dragenter', 'dragover'] as const) {
