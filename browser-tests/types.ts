@@ -16,6 +16,7 @@ export interface BrowserCompatibilityHarness {
   avifHighBit10(): Promise<BrowserWorkflowResult>
   avifHighBit12(): Promise<BrowserWorkflowResult>
   avifHighBitTiles(): Promise<BrowserWorkflowResult>
+  avifExpandedHighBit(): Promise<BrowserWorkflowResult>
   avifLossyMultitile(): Promise<BrowserWorkflowResult>
   avifIntrabc(): Promise<BrowserWorkflowResult>
   avifMonochrome(): Promise<BrowserWorkflowResult>

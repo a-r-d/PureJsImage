@@ -128,6 +128,13 @@ test('decodes coded-lossless 12-bit AVIF', async ({ page }) => {
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 
+test('decodes expanded high-bit AVIF subsets', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifExpandedHighBit())
+  expect(result.outputBytes).toBeGreaterThan(300)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
 test('decodes coded-lossless 10-bit AVIF tiles', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifHighBitTiles())

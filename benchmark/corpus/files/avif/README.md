@@ -85,6 +85,16 @@ conversion to the library's 8-bit RGBA output contract. Run
 Y4M sources with one encoder worker. Encoded, source, Sharp RGB, and decoded
 RGBA checksums are pinned in `benchmark/avif/high-bit-lossless-fixtures.ts`.
 
+`coded-lossless-10bpc-yuv420-32x24.avif`,
+`coded-lossless-12bpc-yuv420-32x24.avif`, and
+`filter-free-lossy-10bpc-yuv444-32x24.avif` extend the native high-depth corpus
+to subsampled coded-lossless frames and the normative 10-bit dequantization
+tables. `npm run fixtures:avif:high-bit:prepare` regenerates them with libaom
+3.12.1 and FFmpeg 7.1.1 from checksum-pinned Y4M sources.
+`npm run fixtures:avif:high-bit` requires PureJsImage, dav1d, and libaom to
+produce byte-identical native YUV. Checksums are pinned in
+`benchmark/avif/high-bit-expanded-fixtures.ts`.
+
 `tiled-lossless-10bpc-yuv444-2x2-256x256.avif` is a deterministic full-range
 10-bit YUV 4:4:4 image split into four AV1 tiles. It covers independent entropy
 and context initialization plus prediction boundaries at both tile columns and

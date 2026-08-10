@@ -103,7 +103,7 @@ coverage.
 - [x] Reduced still-picture, intra-only AV1
 - [x] AV1 Main, High, and Professional Profiles with 8-bit monochrome, YUV
   4:2:0, YUV 4:2:2, and YUV 4:4:4 output
-- [x] Coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color output with
+- [x] Coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 output with
   native high-depth planes and explicit conversion to the 8-bit RGBA contract
 - [x] Lossless and lossy quantization paths used by the permanent fixtures
 - [x] 64x64 and 128x128 superblocks
@@ -126,7 +126,8 @@ coverage.
   needed by the permanent common-photo corpus
 - [x] Lossless 4x4 Walsh-Hadamard inverse transforms
 - [x] Nonzero coefficient reconstruction in quantizer contexts 0, 1, 2, and 3
-- [x] 8-bit dequantization and inverse transforms
+- [x] 8-bit and filter-free 10-bit dequantization and inverse transforms using
+  the normative depth-specific AV1 lookup tables
 - [x] Quantization-matrix reconstruction for every supported two-dimensional
   transform size, including flat level 15 matrices
 - [x] Matrix lookup in the inverse-transform kernels' coefficient-axis order,
@@ -191,13 +192,14 @@ byte. The full-size tolerance remains zero.
 ### Additional still-image compatibility
 
 - [x] 8-bit monochrome
-- [ ] 10-bit and 12-bit Main Profile YUV 4:2:0
+- [x] Coded-lossless 10-bit and 12-bit YUV 4:2:0
 - [x] 8-bit YUV 4:2:2
 - [ ] 10/12-bit YUV 4:2:2
 - [x] 8-bit YUV 4:4:4
 - [x] Coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode,
   including complete compatible multi-tile frames
-- [ ] Lossy 10-bit and 12-bit YUV 4:4:4 decode
+- [x] Filter-free lossy 10-bit YUV 4:4:4 decode
+- [ ] Filtered lossy 10-bit and any lossy 12-bit YUV 4:4:4 decode
 - [x] Full-range high-bit-depth reconstruction without premature truncation
   before explicit conversion to the library's 8-bit RGBA output contract
 - [x] Compatible full-range 8-bit monochrome alpha auxiliaries
@@ -369,6 +371,11 @@ byte. The full-size tolerance remains zero.
 - [x] Reconstruct native 10-bit and 12-bit planes exactly for two
   checksum-pinned coded-lossless YUV 4:4:4 fixtures and hold displayed RGB
   maximum error to 1 against Sharp/libavif
+- [x] Reconstruct native coded-lossless 10-bit and 12-bit YUV 4:2:0 planes
+  and filter-free lossy 10-bit YUV 4:4:4 planes byte for byte against agreeing
+  dav1d and libaom for three checksum-pinned fixtures
+- [x] Exercise coded-lossless high-bit YUV 4:2:0 and filter-free lossy 10-bit
+  YUV 4:4:4 decode through the portable codec entry in Chromium
 - [x] Exercise palette-coded 8-bit and coded-lossless 10-bit and 12-bit
   decoding through the portable codec entry in Chromium
 - [x] Exercise skipped intra-block-copy decoding through the portable codec

@@ -643,6 +643,36 @@ const avifHighBitTiles = (): Promise<BrowserWorkflowResult> =>
     'Coded-lossless 10-bit 2x2-tile AVIF',
   )
 
+const avifExpandedHighBit = async (): Promise<BrowserWorkflowResult> => {
+  const results = await Promise.all([
+    avifPinnedPng(
+      'coded-lossless-10bpc-yuv420-32x24.avif',
+      32,
+      24,
+      'dd5a14ac11b1c93d66f85cf2cad18c53f87e7beb3c7d53f6d41bd001fa2f0d85',
+      'Coded-lossless 10-bit YUV 4:2:0 AVIF',
+    ),
+    avifPinnedPng(
+      'coded-lossless-12bpc-yuv420-32x24.avif',
+      32,
+      24,
+      'dcbcade0a186058362a48c34b1401d8059ac793d4cd8072eb91ff9d3d8423fba',
+      'Coded-lossless 12-bit YUV 4:2:0 AVIF',
+    ),
+    avifPinnedPng(
+      'filter-free-lossy-10bpc-yuv444-32x24.avif',
+      32,
+      24,
+      '432698d3b277e8f80d0c3e1d518bd432a64aed3ff6b1ee78dbf658863fc0a818',
+      'Filter-free lossy 10-bit YUV 4:4:4 AVIF',
+    ),
+  ])
+  return {
+    detail: results.map((result) => result.detail).join('; '),
+    outputBytes: results.reduce((total, result) => total + result.outputBytes, 0),
+  }
+}
+
 const avifLossyMultitile = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
     'libaom-lossy-multitile-yuv420-256x256.avif',
@@ -872,6 +902,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifHighBit10,
   avifHighBit12,
   avifHighBitTiles,
+  avifExpandedHighBit,
   avifFilteredSuperres,
   avifLossyMultitile,
   avifSuperres,

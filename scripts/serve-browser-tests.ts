@@ -332,6 +332,18 @@ await copyFile(
   resolve(fixtureDirectory, 'lossless-identity-16x12-12bpc.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/coded-lossless-10bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'coded-lossless-10bpc-yuv420-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/coded-lossless-12bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'coded-lossless-12bpc-yuv420-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-10bpc-yuv444-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-10bpc-yuv444-32x24.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif',
   resolve(fixtureDirectory, 'tiled-lossless-10bpc-yuv444-2x2-256x256.avif'),
 )

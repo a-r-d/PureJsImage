@@ -114,6 +114,10 @@ All notable changes to PureJsImage are documented in this file.
   contexts and one full-frame deblocking, CDEF, and restoration pass; the pinned
   2x2 YUV 4:2:0 fixture matches agreeing dav1d and libaom native YUV byte for
   byte in Node.js and Chromium.
+- Added coded-lossless 10-bit and 12-bit AVIF YUV 4:2:0 decode and filter-free
+  lossy 10-bit YUV 4:4:4 decode using the normative depth-specific AV1
+  dequantization tables; three pinned fixtures match agreeing dav1d and libaom
+  native YUV byte for byte in Node.js and Chromium.
 
 - Animated GIF pixel decode now fails with `UNSUPPORTED_OPERATION` instead of silently discarding
   animation; callers can explicitly request the supported first image with `open(input, { frame: 0 })`.

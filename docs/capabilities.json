@@ -3145,8 +3145,8 @@
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode with compatible integer clean-aperture cropping, skipped intra-block copy, compatible lossy multi-tile frames with full post-filtering, and single-tile AV1 super-resolution including filtered frames, plus coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode including compatible multi-tile frames, compatible alpha auxiliaries, and opaque grids",
-      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images, plus coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color images with native high-depth reconstruction before explicit RGBA conversion. The supported path includes complete compatible lossy 8-bit and coded-lossless high-depth multi-tile frames in one frame OBU with independent entropy, context, and prediction boundaries; compatible full-range monochrome alpha auxiliaries; opaque image grids; validated integer clean-aperture cropping; palette-coded screen content; skipped intra-block copy with adaptive integer motion vectors; one-tile 8-bit frames with normative eight-tap horizontal super-resolution, including CDEF-before-upscale and loop-restoration-after-upscale ordering; quantizer contexts 0-3 used by the pinned fixtures; coded-lossless 4x4 transforms; container-signaled NCLX conversion including identity color; the documented 8-bit in-loop filters; and the restricted Sharp/libaom quantization-matrix path. Fractional clean apertures, multi-tile super-resolution, multi-tile intra-block-copy frames, multiple tile-group OBUs, grid alpha, lossy high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
+      "boundary": "Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode with compatible integer clean-aperture cropping, skipped intra-block copy, compatible lossy multi-tile frames with full post-filtering, and single-tile AV1 super-resolution including filtered frames; coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 decode including compatible YUV 4:4:4 multi-tile frames; filter-free lossy 10-bit YUV 4:4:4 decode; compatible alpha auxiliaries; and opaque grids",
+      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images; coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 images with native high-depth reconstruction before explicit RGBA conversion; and filter-free lossy 10-bit YUV 4:4:4 images using the normative high-bit-depth dequantization tables. The supported path includes complete compatible lossy 8-bit and coded-lossless high-depth multi-tile frames in one frame OBU with independent entropy, context, and prediction boundaries; compatible full-range monochrome alpha auxiliaries; opaque image grids; validated integer clean-aperture cropping; palette-coded screen content; skipped intra-block copy with adaptive integer motion vectors; one-tile 8-bit frames with normative eight-tap horizontal super-resolution, including CDEF-before-upscale and loop-restoration-after-upscale ordering; quantizer contexts 0-3 used by the pinned fixtures; coded-lossless 4x4 transforms; container-signaled NCLX conversion including identity color; the documented 8-bit in-loop filters; and the restricted Sharp/libaom quantization-matrix path. Fractional clean apertures, multi-tile super-resolution, multi-tile intra-block-copy frames, multiple tile-group OBUs, grid alpha, filtered lossy 10-bit frames, lossy 10-bit YUV 4:2:0 or 4:2:2, any lossy 12-bit frame, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
       "memory": "Metadata reads are bounded and all decoded RGBA is emitted in ordered 32-row blocks without a source-sized RGBA bitmap. Every decoder path enforces a 64 MiB aggregate coded-payload and conservatively estimated working-state limit. Compatible opaque, single-item, filter-free AV1 frames reconstruct through two-superblock YUV, prediction, palette, and coefficient-context rings, with finalized bands copied before reuse. Compatible filter-free alpha auxiliaries with aligned orientation reconstruct through a synchronized second row ring. Compatible full-aperture 2x, 4x, and 8x resize input is box-filtered directly from bounded YUV rows before RGBA conversion. Integer clean-aperture regions convert only contributing samples, opaque grids retain one contributing tile row, CDEF uses delayed 8-row bands, and restoration retains deblocked stripe-boundary rows plus delayed 4-row output bands. Post-filtered, super-resolution, rotated-alpha, grid, and multi-tile paths retain padded full-frame YUV reconstruction state; super-resolution additionally retains the upscaled YUV planes, and multi-tile working-set estimates account for one entropy and context allocation per tile.",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
       "evidence": [
@@ -3160,7 +3160,7 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Sharp 0.35.3/libaom, avifdec 1.3.0 with libaom 3.12.1 and dav1d 1.5.1, FFmpeg with libaom and dav1d, and Chromium",
-        "tolerance": "Quantizer-context-0 8-bit YUV 4:4:4 fixtures match Sharp/libavif exactly, including lossless identity-color and palette-coded screen-content output; the skipped intra-block-copy fixture matches agreeing libaom and dav1d native YUV exactly and displayed RGB differs by at most 1; coded-lossless 10-bit and 12-bit YUV 4:4:4 native planes are exact against their deterministic Y4M sources and displayed RGB differs from Sharp/libavif by at most 1; the pinned coded-lossless 10-bit 2x2 AV1 tile layout matches its deterministic source and agreeing libaom and dav1d native YUV byte for byte; the pinned lossy 8-bit YUV 4:2:0 2x2 AV1 tile layout with deblocking, CDEF, and restoration matches agreeing libaom and dav1d native YUV byte for byte; the pinned filter-free denominator-12 YUV 4:2:0 and YUV 4:4:4 super-resolution fixtures match agreeing libaom and dav1d native YUV byte for byte, and the YUV 4:4:4 fixture matches Sharp/libavif displayed RGB exactly; the pinned CDEF-plus-Wiener denominator-12 YUV 4:2:0 super-resolution fixture matches agreeing libaom and dav1d native YUV byte for byte; 8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; 8-bit YUV 4:2:2 and 4:4:4 planes are exact and displayed RGB exceeds 50 dB against Sharp; YUV 4:4:4 displayed RGB also exceeds 50 dB against Chromium; YUV 4:2:0 maximum error is at most 3 with PSNR at least 55 dB and displayed RGB above 39 dB; straight and premultiplied alpha RGBA is exact against Sharp/libavif after semantic unpremultiplication; the 1x5 grid exceeds 54 dB RGBA PSNR against Sharp/libavif",
+        "tolerance": "Quantizer-context-0 8-bit YUV 4:4:4 fixtures match Sharp/libavif exactly, including lossless identity-color and palette-coded screen-content output; the skipped intra-block-copy fixture matches agreeing libaom and dav1d native YUV exactly and displayed RGB differs by at most 1; coded-lossless 10-bit and 12-bit YUV 4:4:4 native planes are exact against their deterministic Y4M sources and displayed RGB differs from Sharp/libavif by at most 1; pinned coded-lossless 10-bit and 12-bit YUV 4:2:0 native planes and the filter-free lossy 10-bit YUV 4:4:4 native planes match agreeing libaom and dav1d byte for byte; the pinned coded-lossless 10-bit 2x2 AV1 tile layout matches its deterministic source and agreeing libaom and dav1d native YUV byte for byte; the pinned lossy 8-bit YUV 4:2:0 2x2 AV1 tile layout with deblocking, CDEF, and restoration matches agreeing libaom and dav1d native YUV byte for byte; the pinned filter-free denominator-12 YUV 4:2:0 and YUV 4:4:4 super-resolution fixtures match agreeing libaom and dav1d native YUV byte for byte, and the YUV 4:4:4 fixture matches Sharp/libavif displayed RGB exactly; the pinned CDEF-plus-Wiener denominator-12 YUV 4:2:0 super-resolution fixture matches agreeing libaom and dav1d native YUV byte for byte; 8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; 8-bit YUV 4:2:2 and 4:4:4 planes are exact and displayed RGB exceeds 50 dB against Sharp; YUV 4:4:4 displayed RGB also exceeds 50 dB against Chromium; YUV 4:2:0 maximum error is at most 3 with PSNR at least 55 dB and displayed RGB above 39 dB; straight and premultiplied alpha RGBA is exact against Sharp/libavif after semantic unpremultiplication; the 1x5 grid exceeds 54 dB RGBA PSNR against Sharp/libavif",
         "evidence": [
           "tests/avif.test.ts",
           "tests/lossy-codec-quality.test.ts",
@@ -3169,6 +3169,7 @@
           "benchmark/avif/verify-intrabc-fixture.ts",
           "benchmark/avif/verify-tiled-lossless-fixture.ts",
           "benchmark/avif/verify-lossy-multitile-fixture.ts",
+          "benchmark/avif/verify-high-bit-expanded-fixtures.ts",
           "benchmark/avif/verify-superres-fixture.ts"
         ]
       },
@@ -3419,7 +3420,7 @@
         },
         {
           "status": "supported",
-          "text": "Coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color output with native high-depth planes and explicit conversion to the 8-bit RGBA contract"
+          "text": "Coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 output with native high-depth planes and explicit conversion to the 8-bit RGBA contract"
         },
         {
           "status": "supported",
@@ -3479,7 +3480,7 @@
         },
         {
           "status": "supported",
-          "text": "8-bit dequantization and inverse transforms"
+          "text": "8-bit and filter-free 10-bit dequantization and inverse transforms using the normative depth-specific AV1 lookup tables"
         },
         {
           "status": "supported",
@@ -3610,8 +3611,8 @@
           "text": "8-bit monochrome"
         },
         {
-          "status": "planned",
-          "text": "10-bit and 12-bit Main Profile YUV 4:2:0"
+          "status": "supported",
+          "text": "Coded-lossless 10-bit and 12-bit YUV 4:2:0"
         },
         {
           "status": "supported",
@@ -3630,8 +3631,12 @@
           "text": "Coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode, including complete compatible multi-tile frames"
         },
         {
+          "status": "supported",
+          "text": "Filter-free lossy 10-bit YUV 4:4:4 decode"
+        },
+        {
           "status": "planned",
-          "text": "Lossy 10-bit and 12-bit YUV 4:4:4 decode"
+          "text": "Filtered lossy 10-bit and any lossy 12-bit YUV 4:4:4 decode"
         },
         {
           "status": "supported",
@@ -3984,6 +3989,14 @@
         {
           "status": "supported",
           "text": "Reconstruct native 10-bit and 12-bit planes exactly for two checksum-pinned coded-lossless YUV 4:4:4 fixtures and hold displayed RGB maximum error to 1 against Sharp/libavif"
+        },
+        {
+          "status": "supported",
+          "text": "Reconstruct native coded-lossless 10-bit and 12-bit YUV 4:2:0 planes and filter-free lossy 10-bit YUV 4:4:4 planes byte for byte against agreeing dav1d and libaom for three checksum-pinned fixtures"
+        },
+        {
+          "status": "supported",
+          "text": "Exercise coded-lossless high-bit YUV 4:2:0 and filter-free lossy 10-bit YUV 4:4:4 decode through the portable codec entry in Chromium"
         },
         {
           "status": "supported",

@@ -2952,9 +2952,18 @@ const validateRestrictedAv1Intra = (sequence: Av1SequenceHeader, frame: Av1Frame
   if (!supportedChroma) {
     throw unsupportedOperation('Unsupported AV1 bit-depth, profile, and chroma combination')
   }
-  if (sequence.bitDepth !== 8 && !frame.header.codedLossless) {
+  if (
+    !frame.header.codedLossless &&
+    sequence.bitDepth !== 8 &&
+    (sequence.bitDepth !== 10 || sequence.chromaSubsampling !== '444')
+  ) {
     throw unsupportedOperation(
-      'The restricted high-bit-depth AV1 path supports coded-lossless frames only',
+      'The restricted lossy high-bit-depth AV1 path supports 10-bit YUV 4:4:4 only',
+    )
+  }
+  if (sequence.bitDepth === 10 && !frame.header.codedLossless && !hasNoAv1PostFilters(frame)) {
+    throw unsupportedOperation(
+      'The restricted lossy 10-bit YUV 4:4:4 AV1 path supports filter-free frames only',
     )
   }
   if (
