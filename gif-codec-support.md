@@ -145,3 +145,5 @@ exist.
   local palettes, zero/short delays, transparency, and finite/infinite loops
 - [ ] Add malformed extension, sub-block, palette, LZW, frame-count, and
   decompression-bomb fuzzing with strict allocation limits
+- [x] Complete the 39-file Imazen GIF corpus first-frame decode-to-PNG baseline,
+  including all documented valid, edge-case, and invalid inputs

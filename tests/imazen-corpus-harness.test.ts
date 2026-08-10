@@ -6,8 +6,10 @@ import { PNG } from 'pngjs'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import {
+  bmpFeatureGroup,
   buildImazenReport,
   discoverImazenCorpus,
+  gifFeatureGroup,
   type ImazenCommandSettings,
   type ImazenCorpusEntry,
   type ImazenFormat,
@@ -16,6 +18,8 @@ import {
   renderImazenMarkdown,
   runIsolatedFile,
   serializeImazenJson,
+  tiffFeatureGroup,
+  webpFeatureGroup,
   writeImazenReports,
 } from '../scripts/validate-imazen-corpus.ts'
 
@@ -36,7 +40,8 @@ const corpusEntry = (
 ): ImazenCorpusEntry => ({
   format,
   absolutePath: join(root, filename),
-  relativeFilename: `${format === 'jpeg' ? 'jpeg-conformance/valid' : 'pngsuite'}/${filename}`,
+  relativeFilename:
+    format === 'png' ? `pngsuite/${filename}` : `${format}-conformance/valid/${filename}`,
   expectedCategory: expectation === 'flexible' ? 'non-conformant' : expectation,
   expectation,
   corpusCategory: expectation,
@@ -70,7 +75,10 @@ const resultRecord = (
   outcome: ImazenResultRecord['actualOutcome'],
 ): ImazenResultRecord => ({
   format,
-  relativeFilename: format === 'jpeg' ? 'jpeg-conformance/valid/a.jpg' : 'pngsuite/basn0g08.png',
+  relativeFilename:
+    format === 'png'
+      ? 'pngsuite/basn0g08.png'
+      : `${format}-conformance/valid/a.${format === 'jpeg' ? 'jpg' : format === 'tiff' ? 'tif' : format}`,
   expectedCategory: 'valid',
   corpusCategory: 'valid',
   testGroup: 'valid',
@@ -193,14 +201,24 @@ describe('Imazen corpus isolation and classification', () => {
 })
 
 describe('Imazen corpus discovery and reports', () => {
-  it('detects format, upstream category, and PNGSuite feature groups', async () => {
+  it('detects all formats, upstream categories, and feature groups', async () => {
     const root = await temporaryDirectory()
     await Promise.all([
+      mkdir(join(root, 'bmp-conformance', 'invalid'), { recursive: true }),
+      mkdir(join(root, 'bmp-conformance', 'non-conformant'), { recursive: true }),
+      mkdir(join(root, 'bmp-conformance', 'valid'), { recursive: true }),
+      mkdir(join(root, 'gif-conformance', 'edge-cases'), { recursive: true }),
+      mkdir(join(root, 'gif-conformance', 'invalid'), { recursive: true }),
+      mkdir(join(root, 'gif-conformance', 'valid'), { recursive: true }),
       mkdir(join(root, 'jpeg-conformance', 'valid'), { recursive: true }),
       mkdir(join(root, 'jpeg-conformance', 'invalid'), { recursive: true }),
       mkdir(join(root, 'jpeg-conformance', 'non-conformant', 'truncated'), { recursive: true }),
       mkdir(join(root, 'jpeg-conformance', 'crash-repro', 'zune-jpeg'), { recursive: true }),
       mkdir(join(root, 'pngsuite'), { recursive: true }),
+      mkdir(join(root, 'tiff-conformance', 'edge-cases'), { recursive: true }),
+      mkdir(join(root, 'tiff-conformance', 'robustness'), { recursive: true }),
+      mkdir(join(root, 'tiff-conformance', 'valid'), { recursive: true }),
+      mkdir(join(root, 'webp-conformance', 'valid'), { recursive: true }),
     ])
     await Promise.all([
       writeFile(join(root, 'jpeg-conformance', 'valid', 'valid.jpg'), ''),
@@ -209,6 +227,16 @@ describe('Imazen corpus discovery and reports', () => {
       writeFile(join(root, 'jpeg-conformance', 'crash-repro', 'zune-jpeg', 'repro.jpg'), ''),
       writeFile(join(root, 'pngsuite', 'f00n0g08.png'), ''),
       writeFile(join(root, 'pngsuite', 'xcsn0g01.png'), ''),
+      writeFile(join(root, 'bmp-conformance', 'invalid', 'badwidth.bmp'), ''),
+      writeFile(join(root, 'bmp-conformance', 'non-conformant', 'pal8rlecut.bmp'), ''),
+      writeFile(join(root, 'bmp-conformance', 'valid', 'rgba16-4444.bmp'), ''),
+      writeFile(join(root, 'gif-conformance', 'edge-cases', 'comment_ext.gif'), ''),
+      writeFile(join(root, 'gif-conformance', 'invalid', 'bad_magic.gif'), ''),
+      writeFile(join(root, 'gif-conformance', 'valid', 'anim_2frame.gif'), ''),
+      writeFile(join(root, 'tiff-conformance', 'edge-cases', 'test_two_ifds.tif'), ''),
+      writeFile(join(root, 'tiff-conformance', 'robustness', 'sample-get-lzw-stuck.tiff'), ''),
+      writeFile(join(root, 'tiff-conformance', 'valid', 'tiled-rgb-u8.tif'), ''),
+      writeFile(join(root, 'webp-conformance', 'valid', 'lossy_alpha.webp'), ''),
       writeFile(
         join(root, 'expected_errors.json'),
         JSON.stringify({
@@ -223,41 +251,59 @@ describe('Imazen corpus discovery and reports', () => {
 
     const entries = await discoverImazenCorpus(root, 'all')
     expect(entries.map(({ format, corpusCategory }) => [format, corpusCategory])).toEqual([
+      ['bmp', 'invalid/general'],
+      ['bmp', 'non-conformant/rle'],
+      ['bmp', 'valid/rgba-bitfields'],
+      ['gif', 'edge-cases/extensions'],
+      ['gif', 'invalid/static'],
+      ['gif', 'valid/animation'],
       ['jpeg', 'crash-repro/zune-jpeg'],
       ['jpeg', 'invalid'],
       ['jpeg', 'non-conformant/truncated'],
       ['jpeg', 'valid'],
       ['png', 'valid/filtering'],
       ['png', 'invalid/checksum_error'],
+      ['tiff', 'edge-cases/general'],
+      ['tiff', 'robustness/compression-lzw'],
+      ['tiff', 'valid/tiled'],
+      ['webp', 'valid/lossy-alpha'],
     ])
     expect(pngFeatureGroup('basi6a16.png')).toBe('interlacing')
     expect(pngFeatureGroup('cdfn2c08.png')).toBe('physical-dimensions')
     expect(pngFeatureGroup('bgwn6a08.png')).toBe('background-information')
+    expect(webpFeatureGroup('src_noise_q50_m4_def.webp')).toBe('generated-noise-vp8')
+    expect(tiffFeatureGroup('quad-jpeg.tif')).toBe('compression-jpeg')
+    expect(gifFeatureGroup('dispose_previous.gif')).toBe('disposal')
+    expect(bmpFeatureGroup('g08rle.bmp')).toBe('rle')
   })
 
-  it('writes separate JPEG and PNG JSON and Markdown reports', async () => {
+  it('writes separate JSON and Markdown reports for every format', async () => {
     const root = await temporaryDirectory()
-    const jpeg = buildImazenReport('jpeg', [resultRecord('jpeg', 'pass')], settings, environment)
-    const png = buildImazenReport('png', [resultRecord('png', 'pass')], settings, environment)
+    const reports = (['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp'] as const).map((format) =>
+      buildImazenReport(format, [resultRecord(format, 'pass')], settings, environment),
+    )
 
-    await writeImazenReports(root, [png, jpeg])
+    await writeImazenReports(root, reports)
 
     expect((await readdir(root)).sort()).toEqual([
+      'imazen-bmp-conformance.json',
+      'imazen-bmp-conformance.md',
+      'imazen-gif-conformance.json',
+      'imazen-gif-conformance.md',
       'imazen-jpeg-conformance.json',
       'imazen-jpeg-conformance.md',
       'imazen-png-conformance.json',
       'imazen-png-conformance.md',
+      'imazen-tiff-conformance.json',
+      'imazen-tiff-conformance.md',
+      'imazen-webp-conformance.json',
+      'imazen-webp-conformance.md',
     ])
-    expect(
-      JSON.parse(await readFile(join(root, 'imazen-jpeg-conformance.json'), 'utf8')),
-    ).toMatchObject({
-      format: 'jpeg',
-    })
-    expect(
-      JSON.parse(await readFile(join(root, 'imazen-png-conformance.json'), 'utf8')),
-    ).toMatchObject({
-      format: 'png',
-    })
+    for (const format of ['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp'] as const) {
+      expect(
+        JSON.parse(await readFile(join(root, `imazen-${format}-conformance.json`), 'utf8')),
+      ).toMatchObject({ format })
+    }
   })
 
   it('renders deterministic JSON and Markdown from a fixed result set', () => {

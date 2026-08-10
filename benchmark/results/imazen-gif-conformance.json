@@ -1,0 +1,946 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-10T01:26:30.729Z",
+  "pureJsImageVersion": "0.7.0",
+  "pureJsImageGitCommit": "e12e46471cbeac610a779ff926edd9b35ff14c1a",
+  "codecCorpusGitCommit": "28205bbc5cf40364d012c462240ba28143373d67",
+  "nodeVersion": "v24.16.0",
+  "platform": "linux-x64",
+  "format": "gif",
+  "commandSettings": {
+    "corpus": "../codec-corpus",
+    "format": "gif",
+    "output": "benchmark/results",
+    "timeoutMs": 30000,
+    "memoryMb": 512,
+    "concurrency": 2,
+    "limit": null,
+    "filter": null
+  },
+  "totalsByCorpusCategory": [
+    {
+      "category": "edge-cases/color-tables",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "edge-cases/extensions",
+      "total": 2,
+      "outcomes": {
+        "pass": 2,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "edge-cases/static",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "invalid/static",
+      "total": 7,
+      "outcomes": {
+        "pass": 0,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 7,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/animation",
+      "total": 3,
+      "outcomes": {
+        "pass": 3,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/color-tables",
+      "total": 3,
+      "outcomes": {
+        "pass": 3,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/disposal",
+      "total": 4,
+      "outcomes": {
+        "pass": 4,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/frame-geometry",
+      "total": 2,
+      "outcomes": {
+        "pass": 2,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/interlacing",
+      "total": 1,
+      "outcomes": {
+        "pass": 1,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/looping",
+      "total": 4,
+      "outcomes": {
+        "pass": 4,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/static",
+      "total": 5,
+      "outcomes": {
+        "pass": 5,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/timing",
+      "total": 4,
+      "outcomes": {
+        "pass": 4,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    },
+    {
+      "category": "valid/transparency",
+      "total": 2,
+      "outcomes": {
+        "pass": 2,
+        "unsupported": 0,
+        "decode-failure": 0,
+        "invalid-output": 0,
+        "rejected-safely": 0,
+        "accepted": 0,
+        "raw-exception": 0,
+        "timeout": 0,
+        "process-crash": 0,
+        "out-of-memory": 0
+      }
+    }
+  ],
+  "totalsByOutcome": {
+    "pass": 32,
+    "unsupported": 0,
+    "decode-failure": 0,
+    "invalid-output": 0,
+    "rejected-safely": 7,
+    "accepted": 0,
+    "raw-exception": 0,
+    "timeout": 0,
+    "process-crash": 0,
+    "out-of-memory": 0
+  },
+  "records": [
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/edge-cases/comment_ext.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "edge-cases/extensions",
+      "testGroup": "extensions",
+      "features": [
+        "extensions"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 215,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/edge-cases/gif87a.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "edge-cases/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 177,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/edge-cases/large_palette_small_image.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "edge-cases/color-tables",
+      "testGroup": "color-tables",
+      "features": [
+        "color-tables"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 181,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/edge-cases/plain_text_ext.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "edge-cases/extensions",
+      "testGroup": "extensions",
+      "features": [
+        "extensions"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 195,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/invalid/bad_lzw_code.gif",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "metadata",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "GIF LZW stream starts with an invalid code",
+      "elapsedMs": 173,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/invalid/bad_magic.gif",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "Input format is not recognized",
+      "elapsedMs": 183,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/invalid/empty.gif",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "Input format is not recognized",
+      "elapsedMs": 170,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/invalid/no_trailer.gif",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "TRUNCATED_INPUT",
+      "sanitizedErrorMessage": "GIF trailer is missing",
+      "elapsedMs": 175,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/invalid/truncated_header.gif",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "start",
+      "structuredErrorCode": "UNSUPPORTED_FORMAT",
+      "sanitizedErrorMessage": "Input format is not recognized",
+      "elapsedMs": 175,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/invalid/truncated_lzw.gif",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "TRUNCATED_INPUT",
+      "sanitizedErrorMessage": "Expected 1 bytes at offset 38",
+      "elapsedMs": 170,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/invalid/zero_dimensions.gif",
+      "expectedCategory": "invalid",
+      "corpusCategory": "invalid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must reject safely",
+      "actualOutcome": "rejected-safely",
+      "lastCompletedStage": "open",
+      "structuredErrorCode": "INVALID_INPUT",
+      "sanitizedErrorMessage": "Invalid image dimensions: 0x0",
+      "elapsedMs": 168,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/1x1.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 177,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/2color.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 195,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/anim_10frame.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/animation",
+      "testGroup": "animation",
+      "features": [
+        "animation"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 179,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/anim_2frame.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/animation",
+      "testGroup": "animation",
+      "features": [
+        "animation"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/anim_3frame_rgb.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/animation",
+      "testGroup": "animation",
+      "features": [
+        "animation"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 181,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/delay_0.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/timing",
+      "testGroup": "timing",
+      "features": [
+        "timing"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 183,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/delay_10ms.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/timing",
+      "testGroup": "timing",
+      "features": [
+        "timing"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 182,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/delay_1s.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/timing",
+      "testGroup": "timing",
+      "features": [
+        "timing"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 191,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/dispose_background.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/disposal",
+      "testGroup": "disposal",
+      "features": [
+        "disposal"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 196,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/dispose_none.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/disposal",
+      "testGroup": "disposal",
+      "features": [
+        "disposal"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 184,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/dispose_previous.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/disposal",
+      "testGroup": "disposal",
+      "features": [
+        "disposal"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 205,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/dispose_unspecified.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/disposal",
+      "testGroup": "disposal",
+      "features": [
+        "disposal"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 188,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/global_ct_only.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/color-tables",
+      "testGroup": "color-tables",
+      "features": [
+        "color-tables"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 180,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/local_ct.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/color-tables",
+      "testGroup": "color-tables",
+      "features": [
+        "color-tables"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 182,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/loop_3.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/looping",
+      "testGroup": "looping",
+      "features": [
+        "looping"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 186,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/loop_infinite.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/looping",
+      "testGroup": "looping",
+      "features": [
+        "looping"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 185,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/loop_once.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/looping",
+      "testGroup": "looping",
+      "features": [
+        "looping"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 178,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/mixed_ct.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/color-tables",
+      "testGroup": "color-tables",
+      "features": [
+        "color-tables"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/no_loop_ext.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/looping",
+      "testGroup": "looping",
+      "features": [
+        "looping"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 175,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/overlapping_frames.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/frame-geometry",
+      "testGroup": "frame-geometry",
+      "features": [
+        "frame-geometry"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 208,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/small_frame_big_canvas.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/frame-geometry",
+      "testGroup": "frame-geometry",
+      "features": [
+        "frame-geometry"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 184,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/static_256colors.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/static_4x4_red.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 184,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/static_8x8_palette.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/static",
+      "testGroup": "static",
+      "features": [
+        "static"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/static_interlaced.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/interlacing",
+      "testGroup": "interlacing",
+      "features": [
+        "interlacing"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/transparent_bg.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "transparency"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 178,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/transparent_frame.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/transparency",
+      "testGroup": "transparency",
+      "features": [
+        "transparency"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 190,
+      "childExitCode": 0,
+      "childSignal": null
+    },
+    {
+      "format": "gif",
+      "relativeFilename": "gif-conformance/valid/variable_delay.gif",
+      "expectedCategory": "valid",
+      "corpusCategory": "valid/timing",
+      "testGroup": "timing",
+      "features": [
+        "timing"
+      ],
+      "upstreamExpectation": "Must decode successfully",
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 184,
+      "childExitCode": 0,
+      "childSignal": null
+    }
+  ]
+}

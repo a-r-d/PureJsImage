@@ -16,7 +16,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Planar pixel layout (`PlanarConfiguration=2`)
 - [x] Region decode without materializing a full RGBA source image
 - [x] Orientation metadata (`Orientation` values 1-8)
-- [x] Tiled images, including padded right and bottom edges
+- [x] Tiled images, including padded edges and legacy tile tables stored in strip tags
 - [x] BigTIFF with validated 64-bit IFDs, counts, values, and offsets
 - [ ] SubIFDs, pyramids, and reduced-resolution images
 
@@ -39,13 +39,13 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 
 - [x] Uncompressed strips
 - [x] PackBits
-- [x] LZW
+- [x] LZW with standard MSB/early-change and legacy LSB/late-change code packing, including bounded final-strip padding
 - [x] Deflate / Adobe Deflate
 - [x] CCITT Group 4 (`T6`) bilevel fax, including multi-strip and `FillOrder=2` input
-- [x] CCITT Modified Huffman and Group 3 (`T4`) fax, including mixed 1D/2D rows
+- [x] CCITT Modified Huffman and Group 3 (`T4`) fax, including mixed 1D/2D rows and legacy 1D rows without EOL markers
 - [x] Horizontal differencing predictor for uniform 8-bit and 16-bit samples
 - [x] JPEG-in-TIFF (`Compression=7`) complete and abbreviated streams with `JPEGTables`
-- [x] Old-style JPEG (`Compression=6`) complete interchange streams and baseline Q/DC/AC table reconstruction
+- [x] Old-style JPEG (`Compression=6`) complete interchange streams, multi-strip scans, omitted `RowsPerStrip`, and baseline Q/DC/AC table reconstruction
 - [ ] Zstandard, WebP, LERC, and other extension compressions
 - [ ] Reversed bit fill order (`FillOrder=2`) outside CCITT fax compression
 
@@ -83,3 +83,5 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Verify CCITT Group 4 output against independently encoded ImageMagick/LibTIFF fixtures
 - [x] Verify tiled LZW and BigTIFF output against independently encoded ImageMagick/LibTIFF fixtures
 - [x] Benchmark absolute peak RSS in isolated cold and warm processes
+- [x] Complete the 154-file Imazen TIFF corpus decode-to-PNG baseline with every
+  supported valid file decoded and all remaining inputs classified at structured boundaries

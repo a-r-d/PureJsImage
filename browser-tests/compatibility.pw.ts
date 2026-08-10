@@ -86,6 +86,14 @@ test('requires explicit first-frame selection for animated GIF decode', async ({
   expect(result.detail).toContain('required explicit frame 0 selection')
 })
 
+test('decodes legacy TIFF and odd-width BMP compatibility cases', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.legacyTiffAndBmp())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('legacy TIFF LZW')
+  expect(result.detail).toContain('odd-width BMP RLE4')
+})
+
 test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.pngAlphaPipeline())

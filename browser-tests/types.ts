@@ -10,6 +10,7 @@ export interface BrowserCompatibilityHarness {
   heifPqDisplay(): Promise<BrowserWorkflowResult>
   inputTypes(): Promise<readonly BrowserWorkflowResult[]>
   jpegPipeline(): Promise<BrowserWorkflowResult>
+  legacyTiffAndBmp(): Promise<BrowserWorkflowResult>
   unsupportedJpegBoundaries(): Promise<BrowserWorkflowResult>
   tolerantJpegRestartRecovery(): Promise<BrowserWorkflowResult>
   wasmJpeg(): Promise<BrowserWorkflowResult>

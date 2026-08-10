@@ -276,6 +276,7 @@ interface OldJpegFixtureParts {
   readonly acTables: readonly Uint8Array[]
   readonly horizontalSubsampling: number
   readonly verticalSubsampling: number
+  readonly scan: Uint8Array
 }
 
 const oldJpegFixtureParts = (input: Uint8Array): OldJpegFixtureParts => {
@@ -288,6 +289,7 @@ const oldJpegFixtureParts = (input: Uint8Array): OldJpegFixtureParts => {
   const verticalSampling: number[] = []
   const scanSelectors = new Map<number, number>()
   let entropy: Uint8Array | undefined
+  let scan: Uint8Array | undefined
   let offset = 2
   while (offset + 4 <= input.byteLength) {
     const marker = input[offset + 1]
@@ -339,11 +341,12 @@ const oldJpegFixtureParts = (input: Uint8Array): OldJpegFixtureParts => {
           ? input.byteLength - 2
           : input.byteLength
       entropy = input.slice(end, entropyEnd)
+      scan = input.slice(offset, entropyEnd)
       break
     }
     offset = end
   }
-  if (!entropy || componentIds.length !== 3) throw new Error('Incomplete JPEG fixture')
+  if (!entropy || !scan || componentIds.length !== 3) throw new Error('Incomplete JPEG fixture')
   const quantizationTables: Uint8Array[] = []
   const dcTables: Uint8Array[] = []
   const acTables: Uint8Array[] = []
@@ -358,6 +361,7 @@ const oldJpegFixtureParts = (input: Uint8Array): OldJpegFixtureParts => {
     acTables.push(acTable)
   }
   return {
+    scan,
     entropy,
     quantizationTables,
     dcTables,
@@ -380,6 +384,34 @@ const packNineBitCodes = (codes: readonly number[]): Uint8Array => {
     }
   }
   return output
+}
+const packLegacyLzwLiterals = (values: Uint8Array): Uint8Array => {
+  const output = new Uint8Array(Math.ceil(((values.byteLength + 2) * 12) / 8))
+  let bitOffset = 0
+  let codeWidth = 9
+  let nextCode = 258
+  let hasPrevious = false
+  const writeCode = (code: number): void => {
+    for (let bit = 0; bit < codeWidth; bit += 1) {
+      if ((code & (1 << bit)) !== 0) {
+        const byte = bitOffset >>> 3
+        output[byte] = (output[byte] ?? 0) | (1 << (bitOffset & 7))
+      }
+      bitOffset += 1
+    }
+  }
+
+  writeCode(256)
+  for (const value of values) {
+    writeCode(value)
+    if (hasPrevious && nextCode < 4096) {
+      nextCode += 1
+      if (codeWidth < 12 && nextCode === 1 << codeWidth) codeWidth += 1
+    }
+    hasPrevious = true
+  }
+  writeCode(257)
+  return output.subarray(0, Math.ceil(bitOffset / 8))
 }
 
 const decodedPng = async (input: Uint8Array): Promise<PNG> => {
@@ -410,6 +442,34 @@ const appendEmptyIfd = (input: Uint8Array, littleEndian: boolean): Uint8Array =>
   view.setUint16(input.byteLength, 0, littleEndian)
   view.setUint32(input.byteLength + 2, 0, littleEndian)
   return output
+}
+
+const renameClassicTiffTag = (input: Uint8Array, from: number, to: number): void => {
+  const view = new DataView(input.buffer, input.byteOffset, input.byteLength)
+  const littleEndian = input[0] === 0x49
+  const entryCount = view.getUint16(8, littleEndian)
+  for (let index = 0; index < entryCount; index += 1) {
+    const offset = 10 + index * 12
+    if (view.getUint16(offset, littleEndian) === from) {
+      view.setUint16(offset, to, littleEndian)
+      return
+    }
+  }
+  throw new Error(`TIFF fixture tag ${from} is missing`)
+}
+
+const clearClassicTiffTag = (input: Uint8Array, tag: number): void => {
+  const view = new DataView(input.buffer, input.byteOffset, input.byteLength)
+  const littleEndian = input[0] === 0x49
+  const entryCount = view.getUint16(8, littleEndian)
+  for (let index = 0; index < entryCount; index += 1) {
+    const offset = 10 + index * 12
+    if (view.getUint16(offset, littleEndian) === tag) {
+      input.fill(0, offset, offset + 12)
+      return
+    }
+  }
+  throw new Error(`TIFF fixture tag ${tag} is missing`)
 }
 
 const pixel = (image: PNG, x: number, y: number): Rgba => {
@@ -626,6 +686,26 @@ describe('TIFF codec', () => {
     expect(pixel(decoded, 2, 2)).toEqual([127, 127, 127, 255])
   })
 
+  it('accepts legacy tiled TIFFs that store tile tables in strip tags', async () => {
+    const input = tiffFixture({
+      width: 3,
+      height: 1,
+      bitsPerSample: [8],
+      compression: 1,
+      photometric: 1,
+      tileWidth: 2,
+      tileHeight: 1,
+      strips: [Uint8Array.of(10, 20), Uint8Array.of(30, 99)],
+    })
+    renameClassicTiffTag(input, 324, 273)
+    renameClassicTiffTag(input, 325, 279)
+
+    const decoded = await decodedPng(input)
+    expect(pixel(decoded, 0, 0)).toEqual([10, 10, 10, 255])
+    expect(pixel(decoded, 1, 0)).toEqual([20, 20, 20, 255])
+    expect(pixel(decoded, 2, 0)).toEqual([30, 30, 30, 255])
+  })
+
   it('decodes 16-bit RGB in both byte orders and BigTIFF 64-bit offsets', async () => {
     const rgb16 = tiffFixture({
       width: 2,
@@ -637,12 +717,30 @@ describe('TIFF codec', () => {
       strips: [Uint8Array.from([0, 0, 0x80, 0, 0xff, 0xff, 0xff, 0xff, 0, 0, 1, 1])],
     })
     const decoded16 = await decodedPng(rgb16)
-    const bigTiff = await decodedPng(bigTiffRgbFixture())
+    const bigTiffInput = bigTiffRgbFixture()
+    bigTiffInput[63] = 0xff
+    const bigTiff = await decodedPng(bigTiffInput)
 
     expect(pixel(decoded16, 0, 0)).toEqual([0, 128, 255, 255])
     expect(pixel(decoded16, 1, 0)).toEqual([255, 0, 1, 255])
     expect(pixel(bigTiff, 0, 0)).toEqual([10, 20, 30, 255])
     expect(pixel(bigTiff, 1, 0)).toEqual([200, 150, 100, 255])
+  })
+  it('decodes legacy LSB-packed TIFF LZW through its late code-width transition', async () => {
+    const values = Uint8Array.from({ length: 300 }, (_, index) => index & 0xff)
+    const input = tiffFixture({
+      width: values.byteLength,
+      height: 1,
+      bitsPerSample: [8],
+      compression: 5,
+      photometric: 1,
+      strips: [packLegacyLzwLiterals(values)],
+    })
+
+    const decoded = await decodedPng(input)
+    expect(pixel(decoded, 0, 0)).toEqual([0, 0, 0, 255])
+    expect(pixel(decoded, 255, 0)).toEqual([255, 255, 255, 255])
+    expect(pixel(decoded, 299, 0)).toEqual([43, 43, 43, 255])
   })
 
   it('decodes independently encoded tiled LZW and BigTIFF files', async () => {
@@ -692,6 +790,28 @@ describe('TIFF codec', () => {
     expect(pixel(ycbcrPixels, 0, 0)).toEqual([254, 0, 0, 255])
     expect(pixel(ycbcrPixels, 1, 0)).toEqual([254, 0, 0, 255])
     expect(pixel(ycbcrPixels, 2, 0)).toEqual([0, 0, 254, 255])
+  })
+
+  it('accepts bounded LZW padding in the final subsampled YCbCr strip', async () => {
+    const firstStrip = Uint8Array.from([10, 20, 30, 40, 128, 128, 50, 60, 70, 80, 128, 128])
+    const paddedLastStrip = Uint8Array.from([90, 100, 200, 200, 128, 128, 0, 0, 0, 0, 128, 128])
+    const input = tiffFixture({
+      width: 2,
+      height: 5,
+      bitsPerSample: [8, 8, 8],
+      compression: 5,
+      photometric: 6,
+      rowsPerStrip: 4,
+      extraEntries: [{ tag: 530, type: 3, values: [2, 2] }],
+      strips: [
+        packNineBitCodes([256, ...firstStrip, 257]),
+        packNineBitCodes([256, ...paddedLastStrip, 257]),
+      ],
+    })
+
+    const decoded = await decodedPng(input)
+    expect(pixel(decoded, 0, 4)).toEqual([90, 90, 90, 255])
+    expect(pixel(decoded, 1, 4)).toEqual([100, 100, 100, 255])
   })
 
   it('matches independently encoded LZW CMYK, YCbCr, and 16-bit RGB fixtures', async () => {
@@ -773,6 +893,87 @@ describe('TIFF codec', () => {
     expect(tablePixels.data).toEqual(oldPixels.data)
     expect(pixel(newPixels, 0, 0)[0]).toBeGreaterThan(220)
     expect(pixel(newPixels, 2, 0)[1]).toBeGreaterThan(190)
+  })
+
+  it('reconstructs legacy old-style JPEG strip boundaries and padded IFDs', async () => {
+    const solidRgba = (red: number, green: number, blue: number): Uint8Array => {
+      const output = new Uint8Array(4 * 2 * 4)
+      for (let offset = 0; offset < output.byteLength; offset += 4) {
+        output[offset] = red
+        output[offset + 1] = green
+        output[offset + 2] = blue
+        output[offset + 3] = 255
+      }
+      return output
+    }
+    const topJpeg = jpeg.encode({ width: 4, height: 2, data: solidRgba(240, 20, 30) }, 100).data
+    const bottomJpeg = jpeg.encode({ width: 4, height: 2, data: solidRgba(20, 40, 230) }, 100).data
+    const top = oldJpegFixtureParts(topJpeg)
+    const bottom = oldJpegFixtureParts(bottomJpeg)
+    const scanOffset = topJpeg.byteLength - top.scan.byteLength - 2
+    const commonEntries: readonly TiffEntryFixture[] = [
+      { tag: 512, type: 3, values: [1] },
+      {
+        tag: 530,
+        type: 3,
+        values: [top.horizontalSubsampling, top.verticalSubsampling],
+      },
+    ]
+    const commonTables = [
+      { tag: 519, tables: top.quantizationTables },
+      { tag: 520, tables: top.dcTables },
+      { tag: 521, tables: top.acTables },
+    ]
+    const multiStrip = tiffFixture({
+      width: 4,
+      height: 4,
+      bitsPerSample: [8, 8, 8],
+      compression: 6,
+      photometric: 6,
+      rowsPerStrip: 2,
+      extraEntries: commonEntries,
+      pointedEntries: commonTables,
+      strips: [top.scan, bottom.scan],
+      jpegInterchange: topJpeg.slice(0, scanOffset),
+    })
+    const missingRowsPerStrip = tiffFixture({
+      width: 4,
+      height: 2,
+      bitsPerSample: [8, 8, 8],
+      compression: 6,
+      photometric: 6,
+      extraEntries: commonEntries,
+      pointedEntries: commonTables,
+      strips: [top.entropy],
+    })
+    clearClassicTiffTag(missingRowsPerStrip, 278)
+    clearClassicTiffTag(missingRowsPerStrip, 284)
+
+    const malformedInterchange = Uint8Array.from(topJpeg)
+    malformedInterchange[scanOffset + 11] = 0
+    malformedInterchange[scanOffset + 12] = 0
+    malformedInterchange[scanOffset + 13] = 0
+    const malformedScan = tiffFixture({
+      width: 4,
+      height: 2,
+      bitsPerSample: [8, 8, 8],
+      compression: 6,
+      photometric: 6,
+      extraEntries: commonEntries,
+      pointedEntries: commonTables,
+      strips: [top.entropy],
+      jpegInterchange: malformedInterchange,
+    })
+
+    const multiPixels = await decodedPng(multiStrip)
+    const missingRowsPixels = await decodedPng(missingRowsPerStrip)
+    const malformedPixels = await decodedPng(malformedScan)
+    const expectedTop = await decodedPng(topJpeg)
+
+    expect(pixel(multiPixels, 0, 0)[0]).toBeGreaterThan(220)
+    expect(pixel(multiPixels, 0, 3)[2]).toBeGreaterThan(210)
+    expect(missingRowsPixels.data).toEqual(expectedTop.data)
+    expect(malformedPixels.data).toEqual(expectedTop.data)
   })
 
   it('rejects corrupt BigTIFF, tile tables, JPEG tables, and Group 3 data as ImageErrors', async () => {
@@ -880,6 +1081,21 @@ describe('TIFF codec', () => {
     expect(pixel(modifiedPixels, 7, 1)).toEqual([0, 0, 0, 255])
     expect(pixel(group3Pixels, 0, 0)).toEqual([255, 255, 255, 255])
     expect(pixel(group3Pixels, 7, 1)).toEqual([255, 255, 255, 255])
+  })
+
+  it('decodes one-dimensional Group 3 rows without EOL markers', async () => {
+    const input = tiffFixture({
+      width: 8,
+      height: 2,
+      bitsPerSample: [1],
+      compression: 3,
+      photometric: 0,
+      strips: [packedFaxBits('1001110011')],
+    })
+
+    const decoded = await decodedPng(input)
+    expect(pixel(decoded, 0, 0)).toEqual([255, 255, 255, 255])
+    expect(pixel(decoded, 7, 1)).toEqual([255, 255, 255, 255])
   })
 
   it('decodes independently encoded CCITT Group 4 fax strips', async () => {

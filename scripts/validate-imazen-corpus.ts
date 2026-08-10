@@ -6,8 +6,11 @@ import { promisify } from 'node:util'
 
 import type { ImazenWorkerMessage, ImazenWorkerStage } from './validate-imazen-worker.ts'
 
-export type ImazenFormat = 'jpeg' | 'png'
+export const imazenFormats = ['jpeg', 'png', 'webp', 'tiff', 'gif', 'bmp'] as const
+export type ImazenFormat = (typeof imazenFormats)[number]
 export type ImazenFormatSelection = ImazenFormat | 'all'
+export const isImazenFormat = (value: string): value is ImazenFormat =>
+  imazenFormats.some((format) => format === value)
 export type ImazenExpectation = 'valid' | 'invalid' | 'flexible'
 export type ImazenOutcome =
   | 'pass'
@@ -165,8 +168,8 @@ export const parseImazenCli = (arguments_: readonly string[]): ParsedCli => {
       index += 1
     } else if (argument === '--format') {
       const value = argumentValue(arguments_, index, argument)
-      if (value !== 'jpeg' && value !== 'png' && value !== 'all') {
-        throw new Error('--format must be jpeg, png, or all')
+      if (!isImazenFormat(value) && value !== 'all') {
+        throw new Error(`--format must be ${imazenFormats.join(', ')}, or all`)
       }
       format = value
       index += 1
@@ -195,7 +198,7 @@ export const parseImazenCli = (arguments_: readonly string[]): ParsedCli => {
 
   if (!corpusDirectory) {
     throw new Error(
-      'Usage: npm run corpus:imazen -- --corpus <path> --format jpeg|png|all [--output <directory>] [--timeout-ms N] [--memory-mb N] [--concurrency N] [--limit N] [--filter substring]',
+      `Usage: npm run corpus:imazen -- --corpus <path> --format ${imazenFormats.join('|')}|all [--output <directory>] [--timeout-ms N] [--memory-mb N] [--concurrency N] [--limit N] [--filter substring]`,
     )
   }
 
@@ -371,6 +374,114 @@ const pngEntry = (
     upstreamExpectation: expectedError?.details ?? null,
   }
 }
+export const webpFeatureGroup = (filename: string): string => {
+  const name = filename.toLowerCase()
+  if (name.includes('anim')) return 'animation'
+  if (name.includes('lossy_alpha')) return 'lossy-alpha'
+  if (name.includes('xmp')) return 'metadata'
+  if (name === 'simple.webp' || name === '2-color.webp' || name === 'multi-color.webp') {
+    return 'lossless-vp8l'
+  }
+  if (name.includes('checker')) return 'generated-checker-vp8'
+  if (name.includes('grad')) return 'generated-gradient-vp8'
+  if (name.includes('noise')) return 'generated-noise-vp8'
+  if (name.includes('gray')) return 'lossy-grayscale-vp8'
+  if (name.includes('advertises_')) return 'extended-container'
+  return 'lossy-vp8'
+}
+
+export const tiffFeatureGroup = (filename: string): string => {
+  const name = filename.toLowerCase()
+  if (name.includes('webp')) return 'compression-webp'
+  if (name.includes('zstd')) return 'compression-zstd'
+  if (name.includes('ojpeg')) return 'compression-old-jpeg'
+  if (name.includes('jpeg') || name.includes('.jpg')) return 'compression-jpeg'
+  if (name.includes('group4') || name.includes('fax4') || name.includes('_g4')) {
+    return 'compression-ccitt-group4'
+  }
+  if (name.includes('fax') || name.includes('g3')) return 'compression-ccitt-group3'
+  if (name.includes('lzw')) return 'compression-lzw'
+  if (name.includes('deflate') || name.includes('zip')) return 'compression-deflate'
+  if (name.includes('packbits')) return 'compression-packbits'
+  if (name.includes('logluv') || name.includes('luv')) return 'photometric-logluv'
+  if (name.includes('predictor') || name.includes('hpredict') || name.includes('pred2')) {
+    return 'predictor'
+  }
+  if (name.includes('fp16') || name.includes('float')) return 'floating-point'
+  if (name.includes('cmyk') || name.includes('separated')) return 'photometric-cmyk'
+  if (name.includes('ycbcr')) return 'photometric-ycbcr'
+  if (name.includes('palette')) return 'photometric-palette'
+  if (name.includes('planar')) return 'planar'
+  if (name.includes('bigtiff')) return 'bigtiff'
+  if (name.includes('tile')) return 'tiled'
+  return 'general'
+}
+
+export const gifFeatureGroup = (filename: string): string => {
+  const name = filename.toLowerCase()
+  if (name.startsWith('dispose_')) return 'disposal'
+  if (name.startsWith('transparent_')) return 'transparency'
+  if (name.startsWith('delay_') || name === 'variable_delay.gif') return 'timing'
+  if (name.startsWith('loop_') || name === 'no_loop_ext.gif') return 'looping'
+  if (name.startsWith('anim_')) return 'animation'
+  if (name.includes('_ct') || name === 'mixed_ct.gif') return 'color-tables'
+  if (name.includes('frame') || name === 'overlapping_frames.gif') return 'frame-geometry'
+  if (name.includes('interlaced')) return 'interlacing'
+  if (name.includes('ext')) return 'extensions'
+  if (name === 'large_palette_small_image.gif') return 'color-tables'
+  return 'static'
+}
+
+export const bmpFeatureGroup = (filename: string): string => {
+  const name = filename.toLowerCase()
+  if (name.includes('rle')) return 'rle'
+  if (name.includes('os2')) return 'os2'
+  if (name.includes('topdown')) return 'top-down'
+  if (name.startsWith('pal') || /^g0[148]/u.test(name)) return 'indexed-palette'
+  if (name.includes('rgba') || name.includes('alpha')) return 'rgba-bitfields'
+  if (name.includes('16') || name.includes('bf') || name.includes('bitfield')) return 'bitfields'
+  if (name.includes('32') || name.startsWith('g32')) return 'rgb32'
+  if (name.includes('24') || name.startsWith('g24')) return 'rgb24'
+  return 'general'
+}
+
+const directoryEntry = (
+  corpusRoot: string,
+  absolutePath: string,
+  format: Exclude<ImazenFormat, 'jpeg' | 'png'>,
+  suiteDirectory: string,
+  featureGroup: (filename: string) => string,
+): ImazenCorpusEntry => {
+  const relativeFilename = portablePath(relative(corpusRoot, absolutePath))
+  const parts = relativeFilename.split('/')
+  const category = parts[1]
+  const filename = parts.at(-1)
+  if (parts[0] !== suiteDirectory || !category || !filename) {
+    throw new Error(`Unexpected ${format.toUpperCase()} corpus path: ${relativeFilename}`)
+  }
+  const valid = category === 'valid' || category === 'edge-cases'
+  const invalid = category === 'invalid' || category === 'robustness'
+  const flexible = category === 'non-conformant'
+  if (!valid && !invalid && !flexible) {
+    throw new Error(`Unknown ${format.toUpperCase()} corpus category: ${relativeFilename}`)
+  }
+  const testGroup = featureGroup(filename)
+  return {
+    format,
+    absolutePath,
+    relativeFilename,
+    expectedCategory: valid ? 'valid' : invalid ? 'invalid' : 'non-conformant',
+    expectation: valid ? 'valid' : invalid ? 'invalid' : 'flexible',
+    corpusCategory: `${category}/${testGroup}`,
+    testGroup,
+    features: [testGroup],
+    upstreamExpectation: valid
+      ? 'Must decode successfully'
+      : invalid
+        ? 'Must reject safely'
+        : 'Successful decode or structured rejection is acceptable',
+  }
+}
 
 export const discoverImazenCorpus = async (
   corpusDirectory: string,
@@ -393,6 +504,38 @@ export const discoverImazenCorpus = async (
     const expectedErrors = await pngErrorExpectations(corpusRoot)
     for (const path of await filesRecursively(pngRoot)) {
       if (/\.png$/iu.test(path)) entries.push(pngEntry(corpusRoot, path, expectedErrors))
+    }
+  }
+  if (selection === 'webp' || selection === 'all') {
+    const webpRoot = join(corpusRoot, 'webp-conformance')
+    for (const path of await filesRecursively(webpRoot)) {
+      if (/\.webp$/iu.test(path)) {
+        entries.push(directoryEntry(corpusRoot, path, 'webp', 'webp-conformance', webpFeatureGroup))
+      }
+    }
+  }
+  if (selection === 'tiff' || selection === 'all') {
+    const tiffRoot = join(corpusRoot, 'tiff-conformance')
+    for (const path of await filesRecursively(tiffRoot)) {
+      if (/\.tiff?$/iu.test(path)) {
+        entries.push(directoryEntry(corpusRoot, path, 'tiff', 'tiff-conformance', tiffFeatureGroup))
+      }
+    }
+  }
+  if (selection === 'gif' || selection === 'all') {
+    const gifRoot = join(corpusRoot, 'gif-conformance')
+    for (const path of await filesRecursively(gifRoot)) {
+      if (/\.gif$/iu.test(path)) {
+        entries.push(directoryEntry(corpusRoot, path, 'gif', 'gif-conformance', gifFeatureGroup))
+      }
+    }
+  }
+  if (selection === 'bmp' || selection === 'all') {
+    const bmpRoot = join(corpusRoot, 'bmp-conformance')
+    for (const path of await filesRecursively(bmpRoot)) {
+      if (/\.bmp$/iu.test(path)) {
+        entries.push(directoryEntry(corpusRoot, path, 'bmp', 'bmp-conformance', bmpFeatureGroup))
+      }
     }
   }
 
@@ -869,7 +1012,7 @@ const punchList = (report: ImazenReport): readonly string[] => {
 }
 
 export const renderImazenMarkdown = (report: ImazenReport): string => {
-  const title = report.format === 'jpeg' ? 'JPEG' : 'PNG'
+  const title = report.format.toUpperCase()
   const lines = [
     `# Imazen ${title} conformance baseline`,
     '',
@@ -1018,7 +1161,7 @@ const runCli = async (): Promise<void> => {
     parsed.settings.filter,
     parsed.settings.limit,
   )
-  if (entries.length === 0) throw new Error('No matching JPEG or PNG corpus images were discovered')
+  if (entries.length === 0) throw new Error('No matching corpus images were discovered')
 
   let lastPrinted = 0
   const records = await processConcurrently(
@@ -1047,7 +1190,7 @@ const runCli = async (): Promise<void> => {
     generatedAt: new Date().toISOString(),
   }
   const formats: readonly ImazenFormat[] =
-    parsed.settings.format === 'all' ? ['jpeg', 'png'] : [parsed.settings.format]
+    parsed.settings.format === 'all' ? imazenFormats : [parsed.settings.format]
   const reports = formats.map((format) =>
     buildImazenReport(format, records, parsed.settings, environment),
   )

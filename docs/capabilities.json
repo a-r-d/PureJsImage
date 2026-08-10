@@ -770,7 +770,8 @@
       "evidence": [
         "tests/webp.test.ts",
         "tests/metadata-preservation.test.ts",
-        "tests/lossy-codec-quality.test.ts"
+        "tests/lossy-codec-quality.test.ts",
+        "tests/imazen-corpus-harness.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -1198,6 +1199,10 @@
         {
           "status": "planned",
           "text": "Add malformed RIFF, chunk, Huffman, LZ77, VP8 partition, coefficient, and decompression-bomb fuzzing with strict allocation limits"
+        },
+        {
+          "status": "supported",
+          "text": "Complete the 225-file Imazen WebP corpus decode-to-PNG baseline with 223 successful static decodes and two structured animated-input rejections"
         }
       ]
     },
@@ -1217,7 +1222,11 @@
       "description": "Decodes common Windows and OS/2 headers, indexed 1/4/8-bit pixels, RLE4/RLE8, RGB555/RGB565, top-down images, bitfields, and explicit alpha. Encodes 24-bit RGB and 32-bit RGBA BMP.",
       "memory": "Region-based row reads; RLE uses compact full-frame index storage",
       "recommendation": "Legacy Windows bitmap interoperability.",
-      "evidence": ["tests/bmp.test.ts"],
+      "evidence": [
+        "tests/bmp.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/imazen-corpus-harness.test.ts"
+      ],
       "lossyPixelValidation": {
         "status": "not-applicable",
         "rationale": "The implemented BMP paths are uncompressed or losslessly compressed"
@@ -1576,6 +1585,10 @@
           "text": "Verify encoded opaque and alpha pixels with an independent BMP decoder"
         },
         {
+          "status": "supported",
+          "text": "Complete the 125-file Imazen BMP corpus decode-to-PNG baseline with all supported valid files decoded and every invalid input rejected safely"
+        },
+        {
           "status": "planned",
           "text": "Add malformed-header, palette, mask, offset, stride, RLE, and allocation fuzzing with strict limits"
         }
@@ -1597,7 +1610,12 @@
       "description": "Decodes Classic TIFF and BigTIFF strips or tiles across common grayscale, indexed, RGB, CMYK, YCbCr, and alpha layouts with common compressions. Encodes uncompressed grayscale, RGB, or RGBA output and can retain a compatible ICC profile.",
       "memory": "Strip or tile region decode; output is emitted in bounded rows",
       "recommendation": "Broad input compatibility and simple uncompressed TIFF output.",
-      "evidence": ["tests/tiff.test.ts", "tests/metadata-preservation.test.ts"],
+      "evidence": [
+        "tests/tiff.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/metadata-preservation.test.ts",
+        "tests/imazen-corpus-harness.test.ts"
+      ],
       "lossyPixelValidation": {
         "status": "not-applicable",
         "rationale": "The implemented TIFF compression paths are lossless"
@@ -1641,7 +1659,7 @@
         },
         {
           "status": "supported",
-          "text": "Tiled images, including padded right and bottom edges"
+          "text": "Tiled images, including padded edges and legacy tile tables stored in strip tags"
         },
         {
           "status": "supported",
@@ -1709,7 +1727,7 @@
         },
         {
           "status": "supported",
-          "text": "LZW"
+          "text": "LZW with standard MSB/early-change and legacy LSB/late-change code packing, including bounded final-strip padding"
         },
         {
           "status": "supported",
@@ -1721,7 +1739,7 @@
         },
         {
           "status": "supported",
-          "text": "CCITT Modified Huffman and Group 3 (`T4`) fax, including mixed 1D/2D rows"
+          "text": "CCITT Modified Huffman and Group 3 (`T4`) fax, including mixed 1D/2D rows and legacy 1D rows without EOL markers"
         },
         {
           "status": "supported",
@@ -1733,7 +1751,7 @@
         },
         {
           "status": "supported",
-          "text": "Old-style JPEG (`Compression=6`) complete interchange streams and baseline Q/DC/AC table reconstruction"
+          "text": "Old-style JPEG (`Compression=6`) complete interchange streams, multi-strip scans, omitted `RowsPerStrip`, and baseline Q/DC/AC table reconstruction"
         },
         {
           "status": "planned",
@@ -1838,6 +1856,10 @@
         {
           "status": "supported",
           "text": "Benchmark absolute peak RSS in isolated cold and warm processes"
+        },
+        {
+          "status": "supported",
+          "text": "Complete the 154-file Imazen TIFF corpus decode-to-PNG baseline with every supported valid file decoded and all remaining inputs classified at structured boundaries"
         }
       ]
     },
@@ -1857,7 +1879,11 @@
       "description": "Parses GIF87a/GIF89a, palettes, transparency, interlace, LZW data, frame rectangles, and static images. Metadata counts animation frames. Animated pixel decode fails unless frame 0 is explicitly selected; later frames and GIF encoding are unsupported.",
       "memory": "Retains compact first-frame palette indices, then emits bounded RGBA rows",
       "recommendation": "Static GIF uploads or explicit first-frame extraction from animated GIFs.",
-      "evidence": ["tests/gif.test.ts", "browser-tests/compatibility.pw.ts"],
+      "evidence": [
+        "tests/gif.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/imazen-corpus-harness.test.ts"
+      ],
       "lossyPixelValidation": {
         "status": "not-applicable",
         "rationale": "GIF decode reproduces the stored palette indices and does not claim a lossy continuous-tone path"
@@ -2186,6 +2212,10 @@
         {
           "status": "planned",
           "text": "Add malformed extension, sub-block, palette, LZW, frame-count, and decompression-bomb fuzzing with strict allocation limits"
+        },
+        {
+          "status": "supported",
+          "text": "Complete the 39-file Imazen GIF corpus first-frame decode-to-PNG baseline, including all documented valid, edge-case, and invalid inputs"
         }
       ]
     },

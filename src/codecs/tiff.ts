@@ -8,7 +8,13 @@ import type {
   ImageMetadata,
   PreservedMetadata,
 } from '../codec.ts'
-import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
+import {
+  ImageError,
+  invalidInput,
+  limitExceeded,
+  truncatedInput,
+  unsupportedOperation,
+} from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import { iccColorSpace } from '../metadata.ts'
@@ -297,7 +303,6 @@ const blackFaxCodes = buildFaxCodeLookup(blackTerminatingCodes, blackMakeupCodes
 interface IfdEntry {
   readonly fieldType: number
   readonly count: number
-  readonly valueOffset: number
   readonly inline: Uint8Array
 }
 
@@ -470,16 +475,19 @@ const readIfd = async (
   for (let index = 0; index < entryCount; index += 1) {
     const entryOffset = layout.countBytes + index * layout.entryBytes
     const tag = uint16(bytes, entryOffset, littleEndian)
-    if (entries.has(tag)) throw invalidInput(`TIFF IFD contains duplicate tag ${tag}`)
+    const fieldType = uint16(bytes, entryOffset + 2, littleEndian)
     const count = layout.bigTiff
       ? uint64(bytes, entryOffset + 4, littleEndian, `tag ${tag} count`)
       : uint32(bytes, entryOffset + 4, littleEndian)
     const valuePosition = entryOffset + (layout.bigTiff ? 12 : 8)
+    const inline = bytes.slice(valuePosition, valuePosition + layout.inlineBytes)
+    if (tag === 0 && fieldType === 0 && count === 0 && inline.every((value) => value === 0))
+      continue
+    if (entries.has(tag)) throw invalidInput(`TIFF IFD contains duplicate tag ${tag}`)
     entries.set(tag, {
-      fieldType: uint16(bytes, entryOffset + 2, littleEndian),
+      fieldType,
       count,
-      valueOffset: offsetValue(bytes, valuePosition, littleEndian, layout, `tag ${tag} offset`),
-      inline: bytes.slice(valuePosition, valuePosition + layout.inlineBytes),
+      inline,
     })
   }
 
@@ -490,6 +498,10 @@ const readIfd = async (
     nextOffset: offsetValue(bytes, nextPosition, littleEndian, layout, 'next IFD offset'),
   }
 }
+const externalValueOffset = (entry: IfdEntry, littleEndian: boolean, tag: number): number =>
+  entry.inline.byteLength === 8
+    ? uint64(entry.inline, 0, littleEndian, `tag ${tag} offset`)
+    : uint32(entry.inline, 0, littleEndian)
 
 const fieldBytes = (fieldType: number): number => {
   if (fieldType === 1) return 1
@@ -514,14 +526,17 @@ const entryValues = async (
   if (entry.fieldType === 5) throw invalidInput(`TIFF tag ${tag} must contain integer values`)
   const byteLength = entry.count * bytesPerValue
   if (!Number.isSafeInteger(byteLength)) throw invalidInput(`TIFF tag ${tag} is too large`)
-  const bytes =
-    byteLength <= entry.inline.byteLength
-      ? entry.inline.subarray(0, byteLength)
-      : await readExactly(
-          source,
-          entry.valueOffset,
-          checkedEnd(entry.valueOffset, byteLength, source.size, `tag ${tag}`) - entry.valueOffset,
-        )
+  let bytes: Uint8Array
+  if (byteLength <= entry.inline.byteLength) {
+    bytes = entry.inline.subarray(0, byteLength)
+  } else {
+    const valueOffset = externalValueOffset(entry, littleEndian, tag)
+    bytes = await readExactly(
+      source,
+      valueOffset,
+      checkedEnd(valueOffset, byteLength, source.size, `tag ${tag}`) - valueOffset,
+    )
+  }
   const values = new Float64Array(entry.count)
   for (let index = 0; index < entry.count; index += 1) {
     const valueOffset = index * bytesPerValue
@@ -574,14 +589,17 @@ const rationalValues = async (
     throw invalidInput(`TIFF tag ${tag} must contain ${expectedCount} values`)
   }
   const byteLength = entry.count * 8
-  const bytes =
-    byteLength <= entry.inline.byteLength
-      ? entry.inline.subarray(0, byteLength)
-      : await readExactly(
-          source,
-          entry.valueOffset,
-          checkedEnd(entry.valueOffset, byteLength, source.size, `tag ${tag}`) - entry.valueOffset,
-        )
+  let bytes: Uint8Array
+  if (byteLength <= entry.inline.byteLength) {
+    bytes = entry.inline.subarray(0, byteLength)
+  } else {
+    const valueOffset = externalValueOffset(entry, littleEndian, tag)
+    bytes = await readExactly(
+      source,
+      valueOffset,
+      checkedEnd(valueOffset, byteLength, source.size, `tag ${tag}`) - valueOffset,
+    )
+  }
   const values = new Float64Array(entry.count)
   for (let index = 0; index < entry.count; index += 1) {
     const numerator = uint32(bytes, index * 8, littleEndian)
@@ -595,6 +613,7 @@ const rationalValues = async (
 const undefinedEntryBytes = async (
   source: ImageSource,
   entry: IfdEntry,
+  littleEndian: boolean,
   tag: number,
 ): Promise<Uint8Array> => {
   if (entry.fieldType !== 7) throw invalidInput(`TIFF tag ${tag} must use the UNDEFINED field type`)
@@ -602,13 +621,13 @@ const undefinedEntryBytes = async (
   if (entry.count > MAX_ICC_PROFILE_BYTES) {
     throw limitExceeded(`TIFF tag ${tag} exceeds 16 MiB`)
   }
-  return entry.count <= entry.inline.byteLength
-    ? entry.inline.subarray(0, entry.count)
-    : readExactly(
-        source,
-        entry.valueOffset,
-        checkedEnd(entry.valueOffset, entry.count, source.size, `tag ${tag}`) - entry.valueOffset,
-      )
+  if (entry.count <= entry.inline.byteLength) return entry.inline.subarray(0, entry.count)
+  const valueOffset = externalValueOffset(entry, littleEndian, tag)
+  return readExactly(
+    source,
+    valueOffset,
+    checkedEnd(valueOffset, entry.count, source.size, `tag ${tag}`) - valueOffset,
+  )
 }
 
 const singleValue = async (
@@ -785,7 +804,7 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   }
   const rawBits =
     (await optionalValues(source, ifd, littleEndian, 258, samplesPerPixel)) ?? Float64Array.of(1)
-  if (rawBits.some((bits) => !Number.isSafeInteger(bits) || bits < 1 || bits > 32)) {
+  if (rawBits.some((bits) => !Number.isSafeInteger(bits) || bits < 1 || bits > 64)) {
     throw invalidInput('TIFF BitsPerSample contains an invalid value')
   }
   const bitsPerSample =
@@ -947,13 +966,25 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     }
   }
 
-  const tileTags = [322, 323, 324, 325]
-  const presentTileTags = tileTags.filter((tag) => ifd.entries.has(tag)).length
-  if (presentTileTags !== 0 && presentTileTags !== tileTags.length) {
+  const tileDimensionTags = [322, 323]
+  const presentTileDimensionTags = tileDimensionTags.filter((tag) => ifd.entries.has(tag)).length
+  if (presentTileDimensionTags === 1) {
     throw invalidInput('TIFF tiled image is missing a required tile tag')
   }
-  const tiled = presentTileTags === tileTags.length
+  const tileStorageTags = [324, 325]
+  const presentTileStorageTags = tileStorageTags.filter((tag) => ifd.entries.has(tag)).length
+  if (presentTileStorageTags === 1) {
+    throw invalidInput('TIFF tiled image is missing a required tile tag')
+  }
   const presentStripTags = Number(ifd.entries.has(273)) + Number(ifd.entries.has(279))
+  if (presentTileStorageTags === tileStorageTags.length && presentTileDimensionTags === 0) {
+    throw invalidInput('TIFF tiled image is missing required tile dimensions')
+  }
+  const tiled = presentTileDimensionTags === tileDimensionTags.length
+  const legacyTileStorage = tiled && presentTileStorageTags === 0
+  if (legacyTileStorage && (!ifd.entries.has(273) || !ifd.entries.has(279))) {
+    throw invalidInput('TIFF tiled image is missing required tile offsets and byte counts')
+  }
   if (presentStripTags === 1) throw invalidInput('TIFF strip layout is missing a required tag')
   const interchangeOnly =
     compression === compressionOldJpeg &&
@@ -979,8 +1010,8 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     }
     segmentsAcross = Math.ceil(width / segmentWidth)
     segmentsDown = Math.ceil(height / segmentHeight)
-    offsetTag = 324
-    byteCountTag = 325
+    offsetTag = legacyTileStorage ? 273 : 324
+    byteCountTag = legacyTileStorage ? 279 : 325
   } else if (interchangeOnly) {
     segmentWidth = width
     segmentHeight = height
@@ -1123,12 +1154,12 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
         'TIFF ICC color management is not implemented for this color space',
       )
     }
-    iccProfile = Uint8Array.from(await undefinedEntryBytes(source, iccEntry, 34675))
+    iccProfile = Uint8Array.from(await undefinedEntryBytes(source, iccEntry, littleEndian, 34675))
     colorTransform = parseRgbIccTransform(iccProfile)
   }
   const jpegTablesEntry = ifd.entries.get(347)
   const jpegTables = jpegTablesEntry
-    ? (await undefinedEntryBytes(source, jpegTablesEntry, 347)).slice()
+    ? (await undefinedEntryBytes(source, jpegTablesEntry, littleEndian, 347)).slice()
     : undefined
   let jpegInterchange: Uint8Array | undefined
   if (interchangeOffset !== undefined && interchangeLength !== undefined) {
@@ -1553,13 +1584,14 @@ const decodeCcittModifiedHuffman = (
   return output
 }
 
-const decodeCcittGroup3 = (
+const decodeCcittGroup3Rows = (
   encoded: Uint8Array,
   width: number,
   rows: number,
   rowBytes: number,
   fillOrder: number,
   twoDimensional: boolean,
+  requireEndOfLine: boolean,
 ): Uint8Array => {
   const output = new Uint8Array(rowBytes * rows)
   const reader = new FaxBitReader(encoded, fillOrder)
@@ -1569,7 +1601,7 @@ const decodeCcittGroup3 = (
   referenceChanges[1] = width
   let referenceCount = 2
   for (let row = 0; row < rows; row += 1) {
-    readFaxEol(reader)
+    if (requireEndOfLine) readFaxEol(reader)
     const oneDimensional = !twoDimensional || faxBit(reader, 'line mode') === 1
     if (row === 0 && !oneDimensional) {
       throw invalidInput('TIFF CCITT Group 3 strip must begin with a one-dimensional row')
@@ -1593,12 +1625,36 @@ const decodeCcittGroup3 = (
   return output
 }
 
+const decodeCcittGroup3 = (
+  encoded: Uint8Array,
+  width: number,
+  rows: number,
+  rowBytes: number,
+  fillOrder: number,
+  twoDimensional: boolean,
+): Uint8Array => {
+  try {
+    return decodeCcittGroup3Rows(encoded, width, rows, rowBytes, fillOrder, twoDimensional, true)
+  } catch (error) {
+    if (
+      twoDimensional ||
+      !(error instanceof ImageError) ||
+      (error.code !== 'INVALID_INPUT' && error.code !== 'TRUNCATED_INPUT')
+    ) {
+      throw error
+    }
+    return decodeCcittGroup3Rows(encoded, width, rows, rowBytes, fillOrder, false, false)
+  }
+}
+
 class LzwBitReader {
   readonly #data: Uint8Array
+  readonly #leastSignificantBitFirst: boolean
   #bitOffset = 0
 
-  constructor(data: Uint8Array) {
+  constructor(data: Uint8Array, leastSignificantBitFirst = false) {
     this.#data = data
+    this.#leastSignificantBitFirst = leastSignificantBitFirst
   }
 
   read(width: number): number | undefined {
@@ -1607,21 +1663,30 @@ class LzwBitReader {
     for (let bit = 0; bit < width; bit += 1) {
       const absolute = this.#bitOffset + bit
       const byte = this.#data[absolute >>> 3] ?? 0
-      value = (value << 1) | ((byte >>> (7 - (absolute & 7))) & 1)
+      const bitValue =
+        (byte >>> (this.#leastSignificantBitFirst ? absolute & 7 : 7 - (absolute & 7))) & 1
+      value = this.#leastSignificantBitFirst ? value | (bitValue << bit) : (value << 1) | bitValue
     }
     this.#bitOffset += width
     return value
   }
 }
 
-const decodeLzw = (encoded: Uint8Array, expectedBytes: number): Uint8Array => {
+const decodeLzw = (
+  encoded: Uint8Array,
+  expectedBytes: number,
+  maximumBytes = expectedBytes,
+): Uint8Array => {
   const clearCode = 256
   const endCode = 257
   const prefixes = new Uint16Array(4096)
   const suffixes = new Uint8Array(4096)
   const stack = new Uint8Array(4096)
-  const output = new Uint8Array(expectedBytes)
-  const reader = new LzwBitReader(encoded)
+  const output = new Uint8Array(maximumBytes)
+  const standardInitialCode = new LzwBitReader(encoded).read(9)
+  const legacyInitialCode = new LzwBitReader(encoded, true).read(9)
+  const legacyBitPacking = standardInitialCode !== clearCode && legacyInitialCode === clearCode
+  const reader = new LzwBitReader(encoded, legacyBitPacking)
   let nextCode = 258
   let codeWidth = 9
   let previousCode = -1
@@ -1651,8 +1716,8 @@ const decodeLzw = (encoded: Uint8Array, expectedBytes: number): Uint8Array => {
   }
 
   const writeExpanded = (length: number): void => {
-    if (outputOffset + length > expectedBytes) {
-      throw invalidInput('TIFF LZW output exceeds the declared strip size')
+    if (outputOffset + length > maximumBytes) {
+      throw invalidInput('TIFF LZW output exceeds the maximum strip size')
     }
     for (let index = length - 1; index >= 0; index -= 1) {
       output[outputOffset] = stack[index] ?? 0
@@ -1660,7 +1725,7 @@ const decodeLzw = (encoded: Uint8Array, expectedBytes: number): Uint8Array => {
     }
   }
 
-  while (outputOffset < expectedBytes) {
+  while (outputOffset < maximumBytes) {
     const code = reader.read(codeWidth)
     if (code === undefined) break
     if (code === clearCode) {
@@ -1681,8 +1746,8 @@ const decodeLzw = (encoded: Uint8Array, expectedBytes: number): Uint8Array => {
       const sequence = expand(previousCode)
       first = sequence.first
       writeExpanded(sequence.length)
-      if (outputOffset >= expectedBytes) {
-        throw invalidInput('TIFF LZW special code exceeds the declared strip size')
+      if (outputOffset >= maximumBytes) {
+        throw invalidInput('TIFF LZW special code exceeds the maximum strip size')
       }
       output[outputOffset] = first
       outputOffset += 1
@@ -1694,13 +1759,14 @@ const decodeLzw = (encoded: Uint8Array, expectedBytes: number): Uint8Array => {
       prefixes[nextCode] = previousCode
       suffixes[nextCode] = first
       nextCode += 1
-      if (codeWidth < 12 && nextCode === (1 << codeWidth) - 1) codeWidth += 1
+      const widthLimit = legacyBitPacking ? 1 << codeWidth : (1 << codeWidth) - 1
+      if (codeWidth < 12 && nextCode === widthLimit) codeWidth += 1
     }
     previousCode = code
   }
 
-  if (outputOffset !== expectedBytes) {
-    throw truncatedInput(`TIFF LZW produced ${outputOffset} of ${expectedBytes} bytes`)
+  if (outputOffset < expectedBytes) {
+    throw truncatedInput(`TIFF LZW produced ${outputOffset} of at least ${expectedBytes} bytes`)
   }
   if (!ended) {
     const end = reader.read(codeWidth)
@@ -1708,7 +1774,7 @@ const decodeLzw = (encoded: Uint8Array, expectedBytes: number): Uint8Array => {
       throw invalidInput('TIFF LZW data continues past the declared strip size')
     }
   }
-  return output
+  return output.subarray(0, expectedBytes)
 }
 
 const decodeDeflate = async (
@@ -1802,7 +1868,10 @@ const decodeSegment = async (
   } else if (description.compression === compressionPackBits) {
     decoded = decodePackBits(encoded, expectedBytes)
   } else if (description.compression === compressionLzw) {
-    decoded = decodeLzw(encoded, expectedBytes)
+    const maximumBytes = description.ycbcr
+      ? rowBytes * Math.ceil(description.segmentHeight / description.ycbcr.verticalSubsampling)
+      : expectedBytes
+    decoded = decodeLzw(encoded, expectedBytes, maximumBytes)
   } else if (description.compression === compressionCcittModifiedHuffman) {
     decoded = decodeCcittModifiedHuffman(
       encoded,
@@ -1847,6 +1916,51 @@ const decodeSegment = async (
 
 const hasJpegBoundary = (data: Uint8Array, first: number, second: number): boolean =>
   data[0] === first && data[1] === second
+
+const jpegEntropyData = (data: Uint8Array): Uint8Array | undefined => {
+  if (!hasJpegBoundary(data, 0xff, 0xd8)) return undefined
+  let offset = 2
+  while (offset + 1 < data.byteLength) {
+    if (data[offset] !== 0xff) throw invalidInput('TIFF JPEG interchange marker is invalid')
+    while (data[offset] === 0xff) offset += 1
+    const marker = data[offset]
+    offset += 1
+    if (marker === undefined || marker === 0xd9) return undefined
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) continue
+    const high = data[offset]
+    const low = data[offset + 1]
+    if (high === undefined || low === undefined) {
+      throw truncatedInput('TIFF JPEG interchange marker is truncated')
+    }
+    const length = (high << 8) | low
+    if (length < 2 || offset + length > data.byteLength) {
+      throw truncatedInput('TIFF JPEG interchange marker is truncated')
+    }
+    offset += length
+    if (marker === 0xda) {
+      const end =
+        data[data.byteLength - 2] === 0xff && data[data.byteLength - 1] === 0xd9
+          ? data.byteLength - 2
+          : data.byteLength
+      return data.subarray(offset, end)
+    }
+  }
+  return undefined
+}
+
+const oldJpegStripEntropy = (data: Uint8Array): Uint8Array => {
+  if (!hasJpegBoundary(data, 0xff, 0xda)) return data
+  const high = data[2]
+  const low = data[3]
+  if (high === undefined || low === undefined) {
+    throw truncatedInput('TIFF old-style JPEG scan header is truncated')
+  }
+  const length = (high << 8) | low
+  if (length < 2 || length + 2 > data.byteLength) {
+    throw truncatedInput('TIFF old-style JPEG scan header is truncated')
+  }
+  return data.subarray(length + 2)
+}
 
 const jpegWithTables = (tables: Uint8Array, segment: Uint8Array): Uint8Array => {
   if (
@@ -1967,16 +2081,21 @@ const decodeJpegSegment = async (
   const byteCount = description.segmentByteCounts[physicalSegment]
   if (offset === undefined || byteCount === undefined) throw invalidInput('TIFF segment is missing')
   let encoded = await readExactly(source, offset, byteCount)
-  if (!hasJpegBoundary(encoded, 0xff, 0xd8) && description.jpegInterchange) {
+  if (
+    description.compression === compressionOldJpeg &&
+    description.oldJpeg &&
+    !hasJpegBoundary(encoded, 0xff, 0xd8)
+  ) {
+    const interchangeEntropy =
+      description.segmentOffsets.length === 1 && description.jpegInterchange
+        ? jpegEntropyData(description.jpegInterchange)
+        : undefined
+    encoded = oldJpegStream(description, oldJpegStripEntropy(interchangeEntropy ?? encoded), rows)
+  } else if (!hasJpegBoundary(encoded, 0xff, 0xd8) && description.jpegInterchange) {
     encoded = description.jpegInterchange
   }
   if (description.compression === compressionJpeg && description.jpegTables) {
     encoded = jpegWithTables(description.jpegTables, encoded)
-  } else if (
-    description.compression === compressionOldJpeg &&
-    !hasJpegBoundary(encoded, 0xff, 0xd8)
-  ) {
-    encoded = oldJpegStream(description, encoded, rows)
   } else if (!hasJpegBoundary(encoded, 0xff, 0xd8)) {
     throw invalidInput('TIFF JPEG segment is missing its SOI marker')
   }

@@ -422,7 +422,8 @@
       "evidence": [
         "tests/webp.test.ts",
         "tests/metadata-preservation.test.ts",
-        "tests/lossy-codec-quality.test.ts"
+        "tests/lossy-codec-quality.test.ts",
+        "tests/imazen-corpus-harness.test.ts"
       ],
       "document": [
         "# WebP codec support",
@@ -614,6 +615,8 @@
         "  transform-stress fixtures as those capabilities are implemented",
         "- [ ] Add malformed RIFF, chunk, Huffman, LZ77, VP8 partition, coefficient, and",
         "  decompression-bomb fuzzing with strict allocation limits",
+        "- [x] Complete the 225-file Imazen WebP corpus decode-to-PNG baseline with 223",
+        "  successful static decodes and two structured animated-input rejections",
         ""
       ]
     },
@@ -638,7 +641,11 @@
         "status": "not-applicable",
         "rationale": "The implemented BMP paths are uncompressed or losslessly compressed"
       },
-      "evidence": ["tests/bmp.test.ts"],
+      "evidence": [
+        "tests/bmp.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/imazen-corpus-harness.test.ts"
+      ],
       "document": [
         "# BMP codec support",
         "",
@@ -787,6 +794,8 @@
         "- [ ] Add focused fixtures for every accepted DIB header size and every RLE",
         "  command boundary rather than relying on shared parser paths",
         "- [ ] Verify encoded opaque and alpha pixels with an independent BMP decoder",
+        "- [x] Complete the 125-file Imazen BMP corpus decode-to-PNG baseline with all",
+        "  supported valid files decoded and every invalid input rejected safely",
         "- [ ] Add malformed-header, palette, mask, offset, stride, RLE, and allocation",
         "  fuzzing with strict limits",
         ""
@@ -813,7 +822,12 @@
         "status": "not-applicable",
         "rationale": "The implemented TIFF compression paths are lossless"
       },
-      "evidence": ["tests/tiff.test.ts", "tests/metadata-preservation.test.ts"],
+      "evidence": [
+        "tests/tiff.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/metadata-preservation.test.ts",
+        "tests/imazen-corpus-harness.test.ts"
+      ],
       "document": [
         "# TIFF codec support",
         "",
@@ -832,7 +846,7 @@
         "- [x] Planar pixel layout (`PlanarConfiguration=2`)",
         "- [x] Region decode without materializing a full RGBA source image",
         "- [x] Orientation metadata (`Orientation` values 1-8)",
-        "- [x] Tiled images, including padded right and bottom edges",
+        "- [x] Tiled images, including padded edges and legacy tile tables stored in strip tags",
         "- [x] BigTIFF with validated 64-bit IFDs, counts, values, and offsets",
         "- [ ] SubIFDs, pyramids, and reduced-resolution images",
         "",
@@ -855,13 +869,13 @@
         "",
         "- [x] Uncompressed strips",
         "- [x] PackBits",
-        "- [x] LZW",
+        "- [x] LZW with standard MSB/early-change and legacy LSB/late-change code packing, including bounded final-strip padding",
         "- [x] Deflate / Adobe Deflate",
         "- [x] CCITT Group 4 (`T6`) bilevel fax, including multi-strip and `FillOrder=2` input",
-        "- [x] CCITT Modified Huffman and Group 3 (`T4`) fax, including mixed 1D/2D rows",
+        "- [x] CCITT Modified Huffman and Group 3 (`T4`) fax, including mixed 1D/2D rows and legacy 1D rows without EOL markers",
         "- [x] Horizontal differencing predictor for uniform 8-bit and 16-bit samples",
         "- [x] JPEG-in-TIFF (`Compression=7`) complete and abbreviated streams with `JPEGTables`",
-        "- [x] Old-style JPEG (`Compression=6`) complete interchange streams and baseline Q/DC/AC table reconstruction",
+        "- [x] Old-style JPEG (`Compression=6`) complete interchange streams, multi-strip scans, omitted `RowsPerStrip`, and baseline Q/DC/AC table reconstruction",
         "- [ ] Zstandard, WebP, LERC, and other extension compressions",
         "- [ ] Reversed bit fill order (`FillOrder=2`) outside CCITT fax compression",
         "",
@@ -899,6 +913,8 @@
         "- [x] Verify CCITT Group 4 output against independently encoded ImageMagick/LibTIFF fixtures",
         "- [x] Verify tiled LZW and BigTIFF output against independently encoded ImageMagick/LibTIFF fixtures",
         "- [x] Benchmark absolute peak RSS in isolated cold and warm processes",
+        "- [x] Complete the 154-file Imazen TIFF corpus decode-to-PNG baseline with every",
+        "  supported valid file decoded and all remaining inputs classified at structured boundaries",
         ""
       ]
     },
@@ -923,7 +939,11 @@
         "status": "not-applicable",
         "rationale": "GIF decode reproduces the stored palette indices and does not claim a lossy continuous-tone path"
       },
-      "evidence": ["tests/gif.test.ts", "browser-tests/compatibility.pw.ts"],
+      "evidence": [
+        "tests/gif.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/imazen-corpus-harness.test.ts"
+      ],
       "document": [
         "# GIF codec support",
         "",
@@ -1071,6 +1091,8 @@
         "  local palettes, zero/short delays, transparency, and finite/infinite loops",
         "- [ ] Add malformed extension, sub-block, palette, LZW, frame-count, and",
         "  decompression-bomb fuzzing with strict allocation limits",
+        "- [x] Complete the 39-file Imazen GIF corpus first-frame decode-to-PNG baseline,",
+        "  including all documented valid, edge-case, and invalid inputs",
         ""
       ]
     },

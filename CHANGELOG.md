@@ -6,9 +6,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
-- Added an isolated Imazen codec-corpus conformance harness and independent JPEG and PNG baseline
-  reports covering complete decode-to-PNG round trips, structured rejection, timeouts, crashes,
-  memory failures, upstream categories, and PNGSuite feature groups.
+- Extended the isolated Imazen codec-corpus harness and independent baselines across JPEG, PNG,
+  WebP, TIFF, GIF, and BMP, covering complete decode-to-PNG round trips, structured rejection,
+  timeouts, crashes, memory failures, upstream categories, and format-specific feature groups.
 - Added an explicitly imported first-party Rust/WASM PNG accelerator for common non-interlaced
   8-bit grayscale, RGB, and RGBA scanline decode and encode, retaining native runtime zlib,
   bounded-row memory, scalar fallback, and the TypeScript reference for every ineligible workload.
@@ -57,6 +57,13 @@ All notable changes to PureJsImage are documented in this file.
 - Recognized 12-bit and arithmetic-coded JPEG inputs now fail with `UNSUPPORTED_OPERATION`,
   separating deliberate codec boundaries from supported-subset failures in the Imazen conformance
   baseline.
+- TIFF decoding now defers BigTIFF offset validation until an inline value actually needs an
+  external offset, recognizes legacy LSB-packed LZW streams with late code-width changes, accepts
+  legacy tile tables in strip tags, bounds padded final YCbCr LZW strips, reconstructs multi-strip
+  old-style JPEGs with omitted legacy fields, and decodes one-dimensional Group 3 fax rows without
+  EOL markers. Recognized 64-bit sample layouts remain structured unsupported boundaries. BMP RLE4
+  now accepts the single encoded padding pixel used for odd-width scanlines while retaining overrun
+  rejection.
 - Animated GIF pixel decode now fails with `UNSUPPORTED_OPERATION` instead of silently discarding
   animation; callers can explicitly request the supported first image with `open(input, { frame: 0 })`.
 - Baseline JPEG restart recovery now defaults to tolerant decoding for malformed real-world files;

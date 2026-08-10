@@ -1,9 +1,14 @@
 import { pathToFileURL } from 'node:url'
 
+import { bmpCodec } from '../src/codecs/bmp.ts'
+import { gifCodec } from '../src/codecs/gif.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { pngCodec } from '../src/codecs/png.ts'
+import { tiffCodec } from '../src/codecs/tiff.ts'
+import { webpCodec } from '../src/codecs/webp.ts'
 import { ImageError } from '../src/errors.ts'
 import { createNodeImageLibrary } from '../src/node-image.ts'
+import { type ImazenFormat, imazenFormats, isImazenFormat } from './validate-imazen-corpus.ts'
 
 export type ImazenWorkerStage =
   | 'start'
@@ -32,10 +37,17 @@ export type ImazenWorkerMessage =
 
 interface WorkerOptions {
   readonly file: string
-  readonly format: 'jpeg' | 'png'
+  readonly format: ImazenFormat
 }
 
-const imageLibrary = createNodeImageLibrary([jpegCodec, pngCodec])
+const imageLibrary = createNodeImageLibrary([
+  jpegCodec,
+  pngCodec,
+  webpCodec,
+  tiffCodec,
+  gifCodec,
+  bmpCodec,
+])
 const stagePrefix = 'PUREJSIMAGE_IMAZEN_STAGE '
 
 const argumentValue = (arguments_: readonly string[], index: number, name: string): string => {
@@ -46,7 +58,7 @@ const argumentValue = (arguments_: readonly string[], index: number, name: strin
 
 const parseOptions = (arguments_: readonly string[]): WorkerOptions => {
   let file: string | undefined
-  let format: 'jpeg' | 'png' | undefined
+  let format: ImazenFormat | undefined
   for (let index = 0; index < arguments_.length; index += 1) {
     const argument = arguments_[index]
     if (argument === '--file') {
@@ -54,7 +66,9 @@ const parseOptions = (arguments_: readonly string[]): WorkerOptions => {
       index += 1
     } else if (argument === '--format') {
       const value = argumentValue(arguments_, index, argument)
-      if (value !== 'jpeg' && value !== 'png') throw new Error('--format must be jpeg or png')
+      if (!isImazenFormat(value)) {
+        throw new Error(`--format must be one of ${imazenFormats.join(', ')}`)
+      }
       format = value
       index += 1
     } else {
@@ -94,7 +108,10 @@ const failureMessage = (
 export const validateImage = async (options: WorkerOptions): Promise<ImazenWorkerMessage> => {
   let lastCompletedStage: ImazenWorkerStage = 'start'
   try {
-    const image = await imageLibrary.open(options.file)
+    const image = await imageLibrary.open(
+      options.file,
+      options.format === 'gif' ? { frame: 0 } : {},
+    )
     lastCompletedStage = 'open'
     process.stderr.write(`${stagePrefix}${lastCompletedStage}\n`)
 

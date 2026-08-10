@@ -3,8 +3,10 @@ import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-
 import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
 import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
+import { bmpCodec } from '../src/codec-entries/bmp.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
 import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
+import { tiffCodec } from '../src/codec-entries/tiff.ts'
 import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
@@ -19,6 +21,8 @@ const images = createImageLibrary([
   jpegCodec,
   pngCodec,
   webpCodec,
+  bmpCodec,
+  tiffCodec,
   avifCodec,
   experimentalHeifCodec,
 ])
@@ -599,6 +603,281 @@ const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8Clam
   return context.getImageData(0, 0, canvas.width, canvas.height).data
 }
 
+interface BrowserTiffEntry {
+  readonly tag: number
+  readonly type: 3 | 4
+  readonly values: readonly number[]
+}
+
+const browserTiffFixture = (
+  entriesFor: (stripOffsets: readonly number[]) => BrowserTiffEntry[],
+  strips: readonly Uint8Array[],
+): Uint8Array => {
+  const placeholder = entriesFor(strips.map(() => 0)).sort((left, right) => left.tag - right.tag)
+  const entryBytes = (entry: BrowserTiffEntry): number =>
+    entry.values.length * (entry.type === 3 ? 2 : 4)
+  const ifdBytes = 2 + placeholder.length * 12 + 4
+  const externalBytes = placeholder.reduce((total, entry) => {
+    const bytes = entryBytes(entry)
+    return total + (bytes > 4 ? bytes : 0)
+  }, 0)
+  const pixelOffset = 8 + ifdBytes + externalBytes
+  const stripOffsets: number[] = []
+  let nextStripOffset = pixelOffset
+  for (const strip of strips) {
+    stripOffsets.push(nextStripOffset)
+    nextStripOffset += strip.byteLength
+  }
+  const entries = entriesFor(stripOffsets).sort((left, right) => left.tag - right.tag)
+  const output = new Uint8Array(nextStripOffset)
+  const view = new DataView(output.buffer)
+  output.set([0x49, 0x49, 0x2a, 0])
+  view.setUint32(4, 8, true)
+  view.setUint16(8, entries.length, true)
+  let externalOffset = 8 + ifdBytes
+  for (let index = 0; index < entries.length; index += 1) {
+    const entry = entries[index]
+    if (!entry) continue
+    const entryOffset = 10 + index * 12
+    const valueBytes = entryBytes(entry)
+    const valuesOffset = valueBytes > 4 ? externalOffset : entryOffset + 8
+    view.setUint16(entryOffset, entry.tag, true)
+    view.setUint16(entryOffset + 2, entry.type, true)
+    view.setUint32(entryOffset + 4, entry.values.length, true)
+    if (valueBytes > 4) {
+      view.setUint32(entryOffset + 8, externalOffset, true)
+      externalOffset += valueBytes
+    }
+    for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
+      const offset = valuesOffset + valueIndex * (entry.type === 3 ? 2 : 4)
+      const value = entry.values[valueIndex] ?? 0
+      if (entry.type === 3) view.setUint16(offset, value, true)
+      else view.setUint32(offset, value, true)
+    }
+  }
+  for (let index = 0; index < strips.length; index += 1) {
+    output.set(strips[index] ?? new Uint8Array(), stripOffsets[index] ?? 0)
+  }
+  return output
+}
+
+const packBrowserTiffLzw = (values: Uint8Array): Uint8Array => {
+  const codes = [256, ...values, 257]
+  const output = new Uint8Array(Math.ceil((codes.length * 9) / 8))
+  let bitOffset = 0
+  for (const code of codes) {
+    for (let bit = 8; bit >= 0; bit -= 1) {
+      if ((code & (1 << bit)) !== 0) {
+        const byte = bitOffset >>> 3
+        output[byte] = (output[byte] ?? 0) | (1 << (7 - (bitOffset & 7)))
+      }
+      bitOffset += 1
+    }
+  }
+  return output
+}
+
+const packBrowserFaxBits = (bits: string): Uint8Array => {
+  const output = new Uint8Array(Math.ceil(bits.length / 8))
+  for (let index = 0; index < bits.length; index += 1) {
+    if (bits[index] === '1') {
+      const byte = index >>> 3
+      output[byte] = (output[byte] ?? 0) | (1 << (7 - (index & 7)))
+    }
+  }
+  return output
+}
+const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
+  const encoded = atob(
+    'SUkqAAgAAAAKAAABBAABAAAALAEAAAEBBAABAAAAAQAAAAIBAwABAAAACAAAAAMBAwABAAAABQAAAAYBAwABAAAAAQAAABEBBAABAAAAhgAAABUBAwABAAAAAQAAABYBBAABAAAAAQAAABcBBAABAAAAWgEAABwBAwABAAAAAQAAAAAAAAAAAQQQMIBAAQMHECRQsIBBAwcPIESQMIFCBQsXMGTQsIFDBw8fQIQQMYJECRMnUKRQsYJFCxcvYMSQMYNGDRs3cOTQsYNHDx8/gAQRMoRIESNHkCRRsoRJEydPoESRMoVKFStXsGTRsoVLFy9fwIQRM4ZMGTNn0KRRs4ZNGzdv4MSRM4dOHTt38OTRs4dPHz9/AAUSNIhQIUOHECVStIhRI0ePIEWSNIlSJUuXMGXStIlTJ0+fQIUSNYpUKVOnUKVStYpVK1evYMWSNYtWLVu3cOXStYtXL1+/gAUTNoxYMWPHkCVTtoxZM2fPoEWTNo1aNWvXsGXTto1bN2/fwIUTN45cOXPn0KVTt45dO3fv4MWTN49ePXv38OXTt49fP3//ABCAAAMQUIABByCQgAILMNCAAw9AEIEEE1BQgQUXYJCBBhtw0IEHH4AQgggjkFCCCSegkIIKKwQE',
+  )
+  const legacyTiff = Uint8Array.from(encoded, (value) => value.charCodeAt(0))
+  const legacyOutput = await (await images.open(legacyTiff)).png().toUint8Array()
+  const legacyPixels = await browserPixels(legacyOutput, 'image/png')
+  for (const [x, expected] of [
+    [0, 0],
+    [255, 255],
+    [299, 43],
+  ] as const) {
+    const offset = x * 4
+    if (
+      legacyPixels[offset] !== expected ||
+      legacyPixels[offset + 1] !== expected ||
+      legacyPixels[offset + 2] !== expected
+    ) {
+      throw new Error(`Legacy TIFF LZW pixel ${x} did not decode to ${expected}`)
+    }
+  }
+
+  const entries = [
+    [256, 4, 1, 2],
+    [257, 3, 1, 1],
+    [258, 3, 3, 0x0008_0008_0008],
+    [259, 3, 1, 1],
+    [262, 3, 1, 2],
+    [273, 16, 1, 0],
+    [277, 3, 1, 3],
+    [278, 4, 1, 1],
+    [279, 16, 1, 6],
+    [284, 3, 1, 1],
+  ] as const
+  const bigTiffPixelOffset = 16 + 8 + entries.length * 20 + 8
+  const bigTiff = new Uint8Array(bigTiffPixelOffset + 6)
+  const bigView = new DataView(bigTiff.buffer)
+  bigTiff.set([0x49, 0x49, 0x2b, 0])
+  bigView.setUint16(4, 8, true)
+  bigView.setBigUint64(8, 16n, true)
+  bigView.setBigUint64(16, BigInt(entries.length), true)
+  for (let index = 0; index < entries.length; index += 1) {
+    const entry = entries[index]
+    if (!entry) continue
+    const offset = 24 + index * 20
+    bigView.setUint16(offset, entry[0], true)
+    bigView.setUint16(offset + 2, entry[1], true)
+    bigView.setBigUint64(offset + 4, BigInt(entry[2]), true)
+    bigView.setBigUint64(
+      offset + 12,
+      BigInt(entry[0] === 273 ? bigTiffPixelOffset : entry[3]),
+      true,
+    )
+    if (entry[0] === 257) bigTiff[offset + 19] = 0xff
+  }
+  bigTiff.set([10, 20, 30, 200, 150, 100], bigTiffPixelOffset)
+  const bigOutput = await (await images.open(bigTiff)).png().toUint8Array()
+  const bigPixels = await browserPixels(bigOutput, 'image/png')
+  if (
+    bigPixels[0] !== 10 ||
+    bigPixels[1] !== 20 ||
+    bigPixels[2] !== 30 ||
+    bigPixels[4] !== 200 ||
+    bigPixels[5] !== 150 ||
+    bigPixels[6] !== 100
+  ) {
+    throw new Error('BigTIFF inline SHORT padding changed decoded pixels')
+  }
+
+  const tileSegments = [Uint8Array.of(10, 20), Uint8Array.of(30, 99)]
+  const legacyTile = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [3] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [8] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [1] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 279, type: 4, values: [2, 2] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 322, type: 4, values: [2] },
+      { tag: 323, type: 4, values: [1] },
+    ],
+    tileSegments,
+  )
+  const tileOutput = await (await images.open(legacyTile)).png().toUint8Array()
+  const tilePixels = await browserPixels(tileOutput, 'image/png')
+  if (tilePixels[0] !== 10 || tilePixels[4] !== 20 || tilePixels[8] !== 30) {
+    throw new Error('Legacy TIFF tile tables in strip tags changed decoded pixels')
+  }
+
+  const faxStrip = packBrowserFaxBits('1001110011')
+  const fax = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [8] },
+      { tag: 257, type: 4, values: [2] },
+      { tag: 258, type: 3, values: [1] },
+      { tag: 259, type: 3, values: [3] },
+      { tag: 262, type: 3, values: [0] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 278, type: 4, values: [2] },
+      { tag: 279, type: 4, values: [faxStrip.byteLength] },
+      { tag: 284, type: 3, values: [1] },
+    ],
+    [faxStrip],
+  )
+  const faxOutput = await (await images.open(fax)).png().toUint8Array()
+  const faxPixels = await browserPixels(faxOutput, 'image/png')
+  if (faxPixels[0] !== 255 || faxPixels[(8 * 2 - 1) * 4] !== 255) {
+    throw new Error('TIFF Group 3 rows without EOL markers changed decoded pixels')
+  }
+
+  const ycbcrValues = [
+    Uint8Array.from([10, 20, 30, 40, 128, 128, 50, 60, 70, 80, 128, 128]),
+    Uint8Array.from([90, 100, 200, 200, 128, 128, 0, 0, 0, 0, 128, 128]),
+  ]
+  const ycbcrStrips = ycbcrValues.map(packBrowserTiffLzw)
+  const ycbcr = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [2] },
+      { tag: 257, type: 4, values: [5] },
+      { tag: 258, type: 3, values: [8, 8, 8] },
+      { tag: 259, type: 3, values: [5] },
+      { tag: 262, type: 3, values: [6] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [3] },
+      { tag: 278, type: 4, values: [4] },
+      { tag: 279, type: 4, values: ycbcrStrips.map((strip) => strip.byteLength) },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 530, type: 3, values: [2, 2] },
+    ],
+    ycbcrStrips,
+  )
+  const ycbcrOutput = await (await images.open(ycbcr)).png().toUint8Array()
+  const ycbcrPixels = await browserPixels(ycbcrOutput, 'image/png')
+  const lastRow = 4 * 2 * 4
+  if (
+    ycbcrPixels[lastRow] !== 90 ||
+    ycbcrPixels[lastRow + 1] !== 90 ||
+    ycbcrPixels[lastRow + 4] !== 100 ||
+    ycbcrPixels[lastRow + 5] !== 100
+  ) {
+    throw new Error('Bounded TIFF YCbCr LZW strip padding changed decoded pixels')
+  }
+
+  const bmp = new Uint8Array(76)
+  const bmpView = new DataView(bmp.buffer)
+  bmp.set([0x42, 0x4d])
+  bmpView.setUint32(2, bmp.byteLength, true)
+  bmpView.setUint32(10, 70, true)
+  bmpView.setUint32(14, 40, true)
+  bmpView.setInt32(18, 3, true)
+  bmpView.setInt32(22, 1, true)
+  bmpView.setUint16(26, 1, true)
+  bmpView.setUint16(28, 4, true)
+  bmpView.setUint32(30, 2, true)
+  bmpView.setUint32(34, 6, true)
+  bmpView.setUint32(46, 4, true)
+  bmp.set([0, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 0, 255, 255, 255, 0], 54)
+  bmp.set([4, 0x12, 0, 0, 0, 1], 70)
+  const bmpOutput = await (await images.open(bmp)).png().toUint8Array()
+  const bmpPixels = await browserPixels(bmpOutput, 'image/png')
+  if (
+    bmpPixels[0] !== 0 ||
+    bmpPixels[1] !== 255 ||
+    bmpPixels[2] !== 0 ||
+    bmpPixels[4] !== 0 ||
+    bmpPixels[5] !== 0 ||
+    bmpPixels[6] !== 255 ||
+    bmpPixels[8] !== 0 ||
+    bmpPixels[9] !== 255 ||
+    bmpPixels[10] !== 0
+  ) {
+    throw new Error('Odd-width RLE4 padding changed decoded BMP pixels')
+  }
+
+  return {
+    detail:
+      'legacy TIFF LZW, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
+    outputBytes:
+      legacyOutput.byteLength +
+      bigOutput.byteLength +
+      tileOutput.byteLength +
+      faxOutput.byteLength +
+      ycbcrOutput.byteLength +
+      bmpOutput.byteLength,
+  }
+}
+
 const rgbPsnr = (expected: Uint8ClampedArray, actual: Uint8ClampedArray): number => {
   if (actual.byteLength !== expected.byteLength) {
     throw new Error(`Browser pixel lengths differ: ${actual.byteLength} != ${expected.byteLength}`)
@@ -785,6 +1064,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   failureCleanup,
   heifPqDisplay,
   inputTypes,
+  legacyTiffAndBmp,
   jpegPipeline,
   unsupportedJpegBoundaries,
   tolerantJpegRestartRecovery,

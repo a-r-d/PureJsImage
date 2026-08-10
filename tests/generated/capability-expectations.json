@@ -49,7 +49,8 @@
       "evidence": [
         "tests/webp.test.ts",
         "tests/metadata-preservation.test.ts",
-        "tests/lossy-codec-quality.test.ts"
+        "tests/lossy-codec-quality.test.ts",
+        "tests/imazen-corpus-harness.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -63,7 +64,11 @@
       "format": "bmp",
       "decoder": true,
       "encoder": true,
-      "evidence": ["tests/bmp.test.ts"],
+      "evidence": [
+        "tests/bmp.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/imazen-corpus-harness.test.ts"
+      ],
       "lossyPixelValidation": {
         "status": "not-applicable",
         "rationale": "The implemented BMP paths are uncompressed or losslessly compressed"
@@ -74,7 +79,12 @@
       "format": "tiff",
       "decoder": true,
       "encoder": true,
-      "evidence": ["tests/tiff.test.ts", "tests/metadata-preservation.test.ts"],
+      "evidence": [
+        "tests/tiff.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/metadata-preservation.test.ts",
+        "tests/imazen-corpus-harness.test.ts"
+      ],
       "lossyPixelValidation": {
         "status": "not-applicable",
         "rationale": "The implemented TIFF compression paths are lossless"
@@ -85,7 +95,11 @@
       "format": "gif",
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/gif.test.ts", "browser-tests/compatibility.pw.ts"],
+      "evidence": [
+        "tests/gif.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/imazen-corpus-harness.test.ts"
+      ],
       "lossyPixelValidation": {
         "status": "not-applicable",
         "rationale": "GIF decode reproduces the stored palette indices and does not claim a lossy continuous-tone path"
