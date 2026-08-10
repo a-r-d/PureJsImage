@@ -1,0 +1,56 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 9-11,53-59
+benchmark/results/imazen-jpeg-conformance.json
+  h_9f4a25732fa0c1 1-4276
+benchmark/results/imazen-jpeg-conformance.md
+  h_9f4a25732fa0c1 1-60
+benchmark/results/imazen-png-conformance.json
+  h_9f4a25732fa0c1 1-3884
+benchmark/results/imazen-png-conformance.md
+  h_9f4a25732fa0c1 1-67
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 124-198,465-466,470-471,473,475,494-523,525-526,789
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 29-37
+browser-tests/types.ts
+  h_9f4a25732fa0c1 13
+capabilities/manifest.json
+  h_9f4a25732fa0c1 18-19,59,70-72,74-75,83-86
+docs/capabilities.json
+  h_9f4a25732fa0c1 16-17,59-62,91-94,99-102,127-130,133
+docs/codecs.html
+  h_9f4a25732fa0c1 32,52
+jpeg-codec-support.md
+  h_9f4a25732fa0c1 20,31-33,35-36,44-47
+package.json
+  h_9f4a25732fa0c1 166
+scripts/validate-imazen-corpus.ts
+  h_9f4a25732fa0c1 1-1072
+scripts/validate-imazen-worker.ts
+  h_9f4a25732fa0c1 1-172
+src/codecs/jpeg-baseline.ts
+  h_9f4a25732fa0c1 1-7,18-33,215-228,257-265,322-324,470,486,492-493,523,527,534-554,578,580-588,617,627,633-634,667,671,678-685,687-698,2209-2210,2283-2287,2295-2296,2298,2318-2339,2341,2346-2354,2360,2452,2471,2475,2491-2504,2527-2528,2600-2623
+src/codecs/jpeg-encode.ts
+  h_9f4a25732fa0c1 208-211,375-378
+src/codecs/jpeg-source.ts
+  h_9f4a25732fa0c1 27-38,47,55,62,110-115
+src/codecs/jpeg.ts
+  h_9f4a25732fa0c1 372
+tests/fixtures/imazen-worker-control.ts
+  h_9f4a25732fa0c1 1-53
+tests/imazen-corpus-harness.test.ts
+  h_9f4a25732fa0c1 1-279
+tests/jpeg-hardening.test.ts
+  h_9f4a25732fa0c1 118-230
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "e12e46471cbeac610a779ff926edd9b35ff14c1a",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
