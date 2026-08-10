@@ -40,7 +40,7 @@ export type {
   TiffEncodeOptions,
   WebpEncodeOptions,
 } from './pipeline.ts'
-export type { PixelBlock, PixelFormat } from './pixel.ts'
+export type { PixelBlock, PixelFormat, PixelSampleDisplayRange } from './pixel.ts'
 export { BufferPool } from './pixel.ts'
 export type { ImageSink } from './sink.ts'
 export { Uint8ArraySink } from './sink.ts'

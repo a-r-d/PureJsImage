@@ -3,12 +3,27 @@ import { invalidInput } from './errors.ts'
 export type PixelFormat =
   | 'gray8'
   | 'gray16'
+  | 'grayi8'
+  | 'grayi16'
+  | 'grayf16'
+  | 'grayf32'
+  | 'grayf64'
   | 'rgb8'
   | 'rgba8'
   | 'rgb16'
   | 'rgba16'
+  | 'rgbi8'
+  | 'rgbi16'
+  | 'rgbf16'
+  | 'rgbf32'
+  | 'rgbf64'
   | 'yuv420p8'
   | 'yuv420p10'
+
+export interface PixelSampleDisplayRange {
+  readonly black: number
+  readonly white: number
+}
 
 export interface PixelBlock {
   readonly x: number
@@ -18,6 +33,7 @@ export interface PixelBlock {
   readonly stride: number
   readonly format: PixelFormat
   readonly data: Uint8Array
+  readonly displayRanges?: readonly PixelSampleDisplayRange[]
   readonly release?: () => void
 }
 export const resumePixelBlocks = async function* (
@@ -43,45 +59,170 @@ export const resumePixelBlocks = async function* (
     yield block
   }
 }
-export const normalizedPixelFormat = (format: PixelFormat): PixelFormat => {
-  if (format === 'gray16') return 'gray8'
-  if (format === 'rgb16') return 'rgb8'
+const normalizedFormat = (format: PixelFormat): PixelFormat => {
+  if (
+    format === 'gray16' ||
+    format === 'grayi8' ||
+    format === 'grayi16' ||
+    format === 'grayf16' ||
+    format === 'grayf32' ||
+    format === 'grayf64'
+  ) {
+    return 'gray8'
+  }
+  if (
+    format === 'rgb16' ||
+    format === 'rgbi8' ||
+    format === 'rgbi16' ||
+    format === 'rgbf16' ||
+    format === 'rgbf32' ||
+    format === 'rgbf64'
+  ) {
+    return 'rgb8'
+  }
   if (format === 'rgba16') return 'rgba8'
   return format
+}
+
+export const normalizedPixelFormat = (format: PixelFormat): PixelFormat => normalizedFormat(format)
+
+interface NumericFormat {
+  readonly channels: 1 | 3 | 4
+  readonly bytesPerSample: 1 | 2 | 4 | 8
+  readonly read: (data: Uint8Array, view: DataView, offset: number) => number
+}
+
+const halfFloat = (bits: number): number => {
+  const sign = (bits & 0x8000) === 0 ? 1 : -1
+  const exponent = (bits >>> 10) & 0x1f
+  const fraction = bits & 0x03ff
+  if (exponent === 0) return sign * 2 ** -14 * (fraction / 1024)
+  if (exponent === 0x1f) return fraction === 0 ? sign * Number.POSITIVE_INFINITY : Number.NaN
+  return sign * 2 ** (exponent - 15) * (1 + fraction / 1024)
+}
+
+const numericFormat = (format: PixelFormat): NumericFormat | undefined => {
+  if (format === 'gray16' || format === 'rgb16' || format === 'rgba16') {
+    return {
+      channels: format === 'gray16' ? 1 : format === 'rgb16' ? 3 : 4,
+      bytesPerSample: 2,
+      read: (data, _view, offset) => ((data[offset] ?? 0) << 8) | (data[offset + 1] ?? 0),
+    }
+  }
+  const channels = format.startsWith('gray') ? 1 : format.startsWith('rgb') ? 3 : undefined
+  if (channels === undefined) return undefined
+  if (format === 'grayi8' || format === 'rgbi8') {
+    return {
+      channels,
+      bytesPerSample: 1,
+      read: (data, _view, offset) => ((data[offset] ?? 0) << 24) >> 24,
+    }
+  }
+  if (format === 'grayi16' || format === 'rgbi16') {
+    return {
+      channels,
+      bytesPerSample: 2,
+      read: (data, _view, offset) =>
+        ((((data[offset] ?? 0) << 8) | (data[offset + 1] ?? 0)) << 16) >> 16,
+    }
+  }
+  if (format === 'grayf16' || format === 'rgbf16') {
+    return {
+      channels,
+      bytesPerSample: 2,
+      read: (data, _view, offset) =>
+        halfFloat(((data[offset] ?? 0) << 8) | (data[offset + 1] ?? 0)),
+    }
+  }
+  if (format === 'grayf32' || format === 'rgbf32') {
+    return {
+      channels,
+      bytesPerSample: 4,
+      read: (_data, view, offset) => view.getFloat32(offset, false),
+    }
+  }
+  if (format === 'grayf64' || format === 'rgbf64') {
+    return {
+      channels,
+      bytesPerSample: 8,
+      read: (_data, view, offset) => view.getFloat64(offset, false),
+    }
+  }
+  return undefined
+}
+
+const defaultDisplayRange = (format: PixelFormat): PixelSampleDisplayRange => {
+  if (format === 'grayi8' || format === 'rgbi8') return { black: -128, white: 127 }
+  if (format === 'grayi16' || format === 'rgbi16') return { black: -32_768, white: 32_767 }
+  if (
+    format === 'grayf16' ||
+    format === 'rgbf16' ||
+    format === 'grayf32' ||
+    format === 'rgbf32' ||
+    format === 'grayf64' ||
+    format === 'rgbf64'
+  ) {
+    return { black: 0, white: 1 }
+  }
+  return { black: 0, white: 65_535 }
+}
+
+const displayByte = (value: number, range: PixelSampleDisplayRange, nearest: boolean): number => {
+  if (Number.isNaN(value)) return 0
+  const scaled = (value - range.black) / (range.white - range.black)
+  if (scaled <= 0) return 0
+  if (scaled >= 1) return 255
+  return nearest ? Math.round(scaled * 255) : Math.floor(Math.round(scaled * 65_535) / 257)
 }
 
 export const normalizePixelBlocks = async function* (
   blocks: AsyncIterable<PixelBlock>,
   format: PixelFormat,
 ): AsyncGenerator<PixelBlock> {
-  const normalized = normalizedPixelFormat(format)
+  const normalized = normalizedFormat(format)
   if (normalized === format) {
     yield* blocks
     return
   }
-  const channels = format === 'gray16' ? 1 : format === 'rgb16' ? 3 : 4
+  const numeric = numericFormat(format)
+  if (!numeric) throw invalidInput(`Normalization does not support ${format} pixels`)
+  const sourceRowBytes = (width: number): number =>
+    width * numeric.channels * numeric.bytesPerSample
+  const fallbackRange = defaultDisplayRange(format)
+  const nearest = format === 'gray16' || format === 'rgb16' || format === 'rgba16'
   for await (const block of blocks) {
-    const sourceRowBytes = block.width * channels * 2
+    const rowBytes = sourceRowBytes(block.width)
     if (
       block.format !== format ||
       block.height < 1 ||
-      block.stride < sourceRowBytes ||
-      block.data.byteLength < block.stride * (block.height - 1) + sourceRowBytes
+      block.stride < rowBytes ||
+      block.data.byteLength < block.stride * (block.height - 1) + rowBytes ||
+      (block.displayRanges !== undefined &&
+        (block.displayRanges.length !== numeric.channels ||
+          block.displayRanges.some(
+            (range) =>
+              !Number.isFinite(range.black) ||
+              !Number.isFinite(range.white) ||
+              range.black === range.white,
+          )))
     ) {
       block.release?.()
-      throw invalidInput('16-bit normalization received an invalid pixel block')
+      throw invalidInput('Numeric normalization received an invalid pixel block')
     }
-    const outputStride = block.width * channels
+    const outputStride = block.width * numeric.channels
     const output = new Uint8Array(outputStride * block.height)
+    const sourceView = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
     for (let row = 0; row < block.height; row += 1) {
       let source = row * block.stride
       let target = row * outputStride
-      const end = source + sourceRowBytes
+      const end = source + rowBytes
+      let channel = 0
       while (source < end) {
-        const value = ((block.data[source] ?? 0) << 8) | (block.data[source + 1] ?? 0)
-        output[target] = Math.round((value * 255) / 65_535)
-        source += 2
+        const range = block.displayRanges?.[channel] ?? fallbackRange
+        output[target] = displayByte(numeric.read(block.data, sourceView, source), range, nearest)
+        source += numeric.bytesPerSample
         target += 1
+        channel = (channel + 1) % numeric.channels
       }
     }
     block.release?.()

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-10T04:39:04.788Z",
+  "generatedAt": "2026-08-10T11:11:36.169Z",
   "pureJsImageVersion": "0.8.0",
-  "pureJsImageGitCommit": "dd4164c2b89de4f3cb8568eb657214097bb036bd-dirty",
+  "pureJsImageGitCommit": "06a4a26f20bb72551881fe81b083c452d8123912-dirty",
   "codecCorpusGitCommit": "28205bbc5cf40364d012c462240ba28143373d67",
   "nodeVersion": "v24.16.0",
   "platform": "linux-x64",
@@ -166,8 +166,8 @@
       "category": "valid/compression-lzw",
       "total": 9,
       "outcomes": {
-        "pass": 7,
-        "unsupported": 2,
+        "pass": 9,
+        "unsupported": 0,
         "decode-failure": 0,
         "invalid-output": 0,
         "rejected-safely": 0,
@@ -246,8 +246,8 @@
       "category": "valid/floating-point",
       "total": 9,
       "outcomes": {
-        "pass": 0,
-        "unsupported": 9,
+        "pass": 8,
+        "unsupported": 1,
         "decode-failure": 0,
         "invalid-output": 0,
         "rejected-safely": 0,
@@ -262,8 +262,8 @@
       "category": "valid/general",
       "total": 63,
       "outcomes": {
-        "pass": 44,
-        "unsupported": 19,
+        "pass": 53,
+        "unsupported": 10,
         "decode-failure": 0,
         "invalid-output": 0,
         "rejected-safely": 0,
@@ -358,8 +358,8 @@
       "category": "valid/predictor",
       "total": 6,
       "outcomes": {
-        "pass": 2,
-        "unsupported": 4,
+        "pass": 6,
+        "unsupported": 0,
         "decode-failure": 0,
         "invalid-output": 0,
         "rejected-safely": 0,
@@ -374,8 +374,8 @@
       "category": "valid/tiled",
       "total": 6,
       "outcomes": {
-        "pass": 5,
-        "unsupported": 1,
+        "pass": 6,
+        "unsupported": 0,
         "decode-failure": 0,
         "invalid-output": 0,
         "rejected-safely": 0,
@@ -388,8 +388,8 @@
     }
   ],
   "totalsByOutcome": {
-    "pass": 106,
-    "unsupported": 44,
+    "pass": 130,
+    "unsupported": 20,
     "decode-failure": 0,
     "invalid-output": 0,
     "rejected-safely": 4,
@@ -413,8 +413,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 179,
+      "sanitizedErrorMessage": "TIFF supports at most one alpha sample",
+      "elapsedMs": 175,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -432,7 +432,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 184,
+      "elapsedMs": 195,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -450,7 +450,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 170,
+      "elapsedMs": 180,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -468,7 +468,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 199,
+      "elapsedMs": 213,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -486,7 +486,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 778,
+      "elapsedMs": 813,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -504,7 +504,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "TRUNCATED_INPUT",
       "sanitizedErrorMessage": "TIFF segment 0 exceeds the input",
-      "elapsedMs": 156,
+      "elapsedMs": 159,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -522,7 +522,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "INVALID_INPUT",
       "sanitizedErrorMessage": "TIFF top-level IFD chain contains a loop",
-      "elapsedMs": 171,
+      "elapsedMs": 155,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -540,7 +540,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "INVALID_INPUT",
       "sanitizedErrorMessage": "TIFF top-level IFD chain contains a loop",
-      "elapsedMs": 152,
+      "elapsedMs": 165,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -558,7 +558,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "INVALID_INPUT",
       "sanitizedErrorMessage": "TIFF top-level IFD chain contains a loop",
-      "elapsedMs": 150,
+      "elapsedMs": 170,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -576,7 +576,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 176,
+      "elapsedMs": 179,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -594,7 +594,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 179,
+      "elapsedMs": 180,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -612,7 +612,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 175,
+      "elapsedMs": 178,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -630,7 +630,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 178,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -648,7 +648,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 263,
+      "elapsedMs": 280,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -666,7 +666,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 173,
+      "elapsedMs": 183,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -684,7 +684,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 187,
+      "elapsedMs": 184,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -702,7 +702,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 188,
+      "elapsedMs": 185,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -716,11 +716,11 @@
         "general"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 165,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 256,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -738,7 +738,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 198,
+      "elapsedMs": 208,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -755,8 +755,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 157,
+      "sanitizedErrorMessage": "TIFF signed or floating-point decoding supports only grayscale and RGB photometrics",
+      "elapsedMs": 196,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -774,7 +774,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 211,
+      "elapsedMs": 246,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -792,7 +792,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 203,
+      "elapsedMs": 245,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -810,7 +810,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 236,
+      "elapsedMs": 280,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -828,7 +828,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 228,
+      "elapsedMs": 255,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -846,7 +846,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 171,
+      "elapsedMs": 182,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -864,7 +864,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 201,
+      "elapsedMs": 222,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -882,7 +882,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 287,
+      "elapsedMs": 292,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -900,7 +900,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 174,
+      "elapsedMs": 188,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -918,7 +918,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 180,
+      "elapsedMs": 178,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -936,7 +936,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 338,
+      "elapsedMs": 336,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -954,7 +954,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 263,
+      "elapsedMs": 284,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -972,7 +972,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 187,
+      "elapsedMs": 193,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -990,7 +990,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 191,
+      "elapsedMs": 180,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1026,7 +1026,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 183,
+      "elapsedMs": 180,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1044,7 +1044,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 198,
+      "elapsedMs": 189,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1062,7 +1062,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 193,
+      "elapsedMs": 191,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1080,7 +1080,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 173,
+      "elapsedMs": 183,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1098,7 +1098,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 196,
+      "elapsedMs": 204,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1116,7 +1116,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
       "sanitizedErrorMessage": "TIFF 24-bit grayscale data is unsupported",
-      "elapsedMs": 157,
+      "elapsedMs": 174,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1134,7 +1134,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
       "sanitizedErrorMessage": "TIFF 32-bit grayscale data is unsupported",
-      "elapsedMs": 179,
+      "elapsedMs": 169,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1152,7 +1152,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 171,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1170,7 +1170,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 180,
+      "elapsedMs": 189,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1188,7 +1188,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 194,
+      "elapsedMs": 221,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1206,7 +1206,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
       "sanitizedErrorMessage": "TIFF 16-bit palette data is unsupported",
-      "elapsedMs": 168,
+      "elapsedMs": 189,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1224,7 +1224,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 190,
+      "elapsedMs": 180,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1242,7 +1242,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 204,
+      "elapsedMs": 176,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1260,7 +1260,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 199,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1278,7 +1278,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 203,
+      "elapsedMs": 178,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1296,7 +1296,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 179,
+      "elapsedMs": 190,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1314,7 +1314,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 181,
+      "elapsedMs": 179,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1332,7 +1332,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 177,
+      "elapsedMs": 184,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1349,8 +1349,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF color decoding requires uniform supported unsigned sample depths",
-      "elapsedMs": 164,
+      "sanitizedErrorMessage": "TIFF color decoding requires supported unsigned sample depths",
+      "elapsedMs": 165,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1367,8 +1367,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF color decoding requires uniform supported unsigned sample depths",
-      "elapsedMs": 159,
+      "sanitizedErrorMessage": "TIFF color decoding requires supported unsigned sample depths",
+      "elapsedMs": 176,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1386,7 +1386,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 175,
+      "elapsedMs": 184,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1404,7 +1404,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 184,
+      "elapsedMs": 208,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1422,7 +1422,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 173,
+      "elapsedMs": 218,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1440,7 +1440,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 175,
+      "elapsedMs": 197,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1458,7 +1458,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 208,
+      "elapsedMs": 196,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1476,7 +1476,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 176,
+      "elapsedMs": 181,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1494,7 +1494,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 193,
+      "elapsedMs": 183,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1511,8 +1511,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF color decoding requires uniform supported unsigned sample depths",
-      "elapsedMs": 161,
+      "sanitizedErrorMessage": "TIFF color decoding requires supported unsigned sample depths",
+      "elapsedMs": 171,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1529,8 +1529,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF color decoding requires uniform supported unsigned sample depths",
-      "elapsedMs": 154,
+      "sanitizedErrorMessage": "TIFF color decoding requires supported unsigned sample depths",
+      "elapsedMs": 157,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1548,7 +1548,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 174,
+      "elapsedMs": 184,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1566,7 +1566,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 203,
+      "elapsedMs": 199,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1584,7 +1584,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 189,
+      "elapsedMs": 218,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1602,7 +1602,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 209,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1620,7 +1620,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 324,
+      "elapsedMs": 366,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1634,11 +1634,11 @@
         "floating-point"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 162,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 179,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1656,7 +1656,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
       "sanitizedErrorMessage": "TIFF 32-bit grayscale data is unsupported",
-      "elapsedMs": 157,
+      "elapsedMs": 160,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1670,11 +1670,11 @@
         "floating-point"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 158,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 178,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1692,7 +1692,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
       "sanitizedErrorMessage": "TIFF 64-bit grayscale data is unsupported",
-      "elapsedMs": 154,
+      "elapsedMs": 159,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1706,11 +1706,11 @@
         "floating-point"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 179,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 184,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1727,8 +1727,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF color decoding requires uniform supported unsigned sample depths",
-      "elapsedMs": 165,
+      "sanitizedErrorMessage": "TIFF color decoding requires supported unsigned sample depths",
+      "elapsedMs": 174,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1745,8 +1745,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF color decoding requires uniform supported unsigned sample depths",
-      "elapsedMs": 171,
+      "sanitizedErrorMessage": "TIFF color decoding requires supported unsigned sample depths",
+      "elapsedMs": 163,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1764,7 +1764,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 176,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1782,7 +1782,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 177,
+      "elapsedMs": 183,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1800,7 +1800,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 193,
+      "elapsedMs": 186,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1818,7 +1818,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 195,
+      "elapsedMs": 198,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1832,11 +1832,11 @@
         "general"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 164,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1853,8 +1853,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 171,
+      "sanitizedErrorMessage": "TIFF compression 50000 is unsupported",
+      "elapsedMs": 181,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1868,11 +1868,11 @@
         "general"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 158,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 181,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1886,11 +1886,11 @@
         "general"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 179,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 182,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1904,11 +1904,11 @@
         "general"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 169,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1926,7 +1926,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 184,
+      "elapsedMs": 182,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1944,7 +1944,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 182,
+      "elapsedMs": 183,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1980,7 +1980,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 237,
+      "elapsedMs": 253,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1998,7 +1998,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 199,
+      "elapsedMs": 202,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2016,7 +2016,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 206,
+      "elapsedMs": 218,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2034,7 +2034,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 199,
+      "elapsedMs": 222,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2052,7 +2052,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 326,
+      "elapsedMs": 332,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2070,7 +2070,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 320,
+      "elapsedMs": 330,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2088,7 +2088,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 180,
+      "elapsedMs": 194,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2106,7 +2106,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 178,
+      "elapsedMs": 205,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2124,7 +2124,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 203,
+      "elapsedMs": 221,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2141,8 +2141,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 172,
+      "sanitizedErrorMessage": "TIFF compression 34676 is unsupported",
+      "elapsedMs": 164,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2160,7 +2160,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 1561,
+      "elapsedMs": 1635,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2178,7 +2178,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 246,
+      "elapsedMs": 275,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2196,7 +2196,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 192,
+      "elapsedMs": 210,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2214,7 +2214,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 172,
+      "elapsedMs": 194,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2228,11 +2228,11 @@
         "general"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 151,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 189,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2246,11 +2246,11 @@
         "general"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 166,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 186,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2268,7 +2268,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 181,
+      "elapsedMs": 188,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2286,7 +2286,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 180,
+      "elapsedMs": 202,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2304,7 +2304,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 247,
+      "elapsedMs": 268,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2321,8 +2321,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 155,
+      "sanitizedErrorMessage": "TIFF compression 34676 is unsupported",
+      "elapsedMs": 190,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2339,8 +2339,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 170,
+      "sanitizedErrorMessage": "TIFF compression 34677 is unsupported",
+      "elapsedMs": 179,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2357,8 +2357,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 165,
+      "sanitizedErrorMessage": "TIFF compression 34676 is unsupported",
+      "elapsedMs": 166,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2376,7 +2376,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 272,
+      "elapsedMs": 269,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2394,7 +2394,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 227,
+      "elapsedMs": 236,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2412,7 +2412,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 229,
+      "elapsedMs": 219,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2430,7 +2430,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 209,
+      "elapsedMs": 213,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2448,7 +2448,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 185,
+      "elapsedMs": 215,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2466,7 +2466,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 186,
+      "elapsedMs": 190,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2484,7 +2484,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 189,
+      "elapsedMs": 207,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2502,7 +2502,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 251,
+      "elapsedMs": 264,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2520,7 +2520,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 250,
+      "elapsedMs": 268,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2534,11 +2534,11 @@
         "predictor"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 157,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 219,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2552,11 +2552,11 @@
         "predictor"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 152,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 211,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2574,7 +2574,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 251,
+      "elapsedMs": 258,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2592,7 +2592,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 237,
+      "elapsedMs": 233,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2610,7 +2610,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 235,
+      "elapsedMs": 243,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2628,7 +2628,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 249,
+      "elapsedMs": 259,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2646,7 +2646,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 226,
+      "elapsedMs": 262,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2660,11 +2660,11 @@
         "predictor"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 170,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 186,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2678,11 +2678,11 @@
         "floating-point"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 156,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 186,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2696,11 +2696,11 @@
         "floating-point"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 166,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 191,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2718,7 +2718,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 208,
+      "elapsedMs": 214,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2736,7 +2736,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 200,
+      "elapsedMs": 218,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2750,11 +2750,11 @@
         "general"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 180,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 184,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2768,11 +2768,11 @@
         "general"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 157,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 181,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2786,11 +2786,11 @@
         "floating-point"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 180,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 197,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2808,7 +2808,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 210,
+      "elapsedMs": 212,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2826,7 +2826,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 222,
+      "elapsedMs": 231,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2840,11 +2840,11 @@
         "compression-lzw"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 150,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2858,11 +2858,11 @@
         "compression-lzw"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 158,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 183,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2880,7 +2880,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 170,
+      "elapsedMs": 192,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2898,7 +2898,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 430,
+      "elapsedMs": 455,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2916,7 +2916,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
       "sanitizedErrorMessage": "TIFF compression 32809 is unsupported",
-      "elapsedMs": 167,
+      "elapsedMs": 178,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2933,8 +2933,8 @@
       "actualOutcome": "unsupported",
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 155,
+      "sanitizedErrorMessage": "TIFF signed or floating-point decoding supports only grayscale and RGB photometrics",
+      "elapsedMs": 161,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2952,7 +2952,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 191,
+      "elapsedMs": 216,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2970,7 +2970,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 282,
+      "elapsedMs": 313,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2988,7 +2988,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 269,
+      "elapsedMs": 273,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3002,11 +3002,11 @@
         "tiled"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 158,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 259,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3024,7 +3024,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 228,
+      "elapsedMs": 236,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3042,7 +3042,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 246,
+      "elapsedMs": 255,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3060,7 +3060,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 214,
+      "elapsedMs": 235,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3078,7 +3078,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 183,
+      "elapsedMs": 188,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3092,11 +3092,11 @@
         "predictor"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 155,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 209,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3110,11 +3110,11 @@
         "floating-point"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 168,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 200,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3128,11 +3128,11 @@
         "floating-point"
       ],
       "upstreamExpectation": "Must decode successfully",
-      "actualOutcome": "unsupported",
-      "lastCompletedStage": "open",
-      "structuredErrorCode": "UNSUPPORTED_OPERATION",
-      "sanitizedErrorMessage": "TIFF currently supports only unsigned integer samples",
-      "elapsedMs": 174,
+      "actualOutcome": "pass",
+      "lastCompletedStage": "verify-output",
+      "structuredErrorCode": null,
+      "sanitizedErrorMessage": null,
+      "elapsedMs": 194,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3150,7 +3150,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 237,
+      "elapsedMs": 223,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3168,7 +3168,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 206,
+      "elapsedMs": 217,
       "childExitCode": 0,
       "childSignal": null
     }

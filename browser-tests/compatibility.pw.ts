@@ -92,6 +92,7 @@ test('decodes legacy TIFF and odd-width BMP compatibility cases', async ({ page 
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('legacy TIFF LZW')
   expect(result.detail).toContain('odd-width BMP RLE4')
+  expect(result.detail).toContain('signed and float TIFF')
 })
 
 test('decodes and encodes PNG while preserving alpha', async ({ page }) => {

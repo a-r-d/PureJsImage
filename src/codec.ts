@@ -81,6 +81,7 @@ export interface ImageMetadata {
   colorSpace?: string
   colorProfile?: ColorProfile
   bitDepth?: number
+  sampleFormat?: 'unsigned-integer' | 'signed-integer' | 'floating-point'
   chromaSubsampling?: ChromaSubsampling
   codecProfile?: number
   frames?: number

@@ -1606,10 +1606,10 @@
         "status": "limited",
         "label": "Limited"
       },
-      "boundary": "Broad strip/tile decode including packed unsigned samples and explicitly composed WebP segments; no signed, floating-point, scientific multiband, or compressed TIFF encoding",
-      "description": "Decodes Classic TIFF and BigTIFF strips or tiles across common grayscale, indexed, RGB, CMYK, YCbCr, alpha, and packed unsigned layouts with common compressions. WebP-in-TIFF is available only through explicit codec composition. Encodes uncompressed grayscale, RGB, or RGBA output and can retain a compatible ICC profile.",
-      "memory": "Strip or tile region decode; output and embedded WebP pixels are bounded to the current segment and emitted in bounded rows",
-      "recommendation": "Broad input compatibility and simple uncompressed TIFF output.",
+      "boundary": "Broad strip/tile decode including packed unsigned, signed integer, and IEEE floating-point samples plus explicitly composed WebP segments; no wide unsigned, scientific multiband, signed/float CMYK, or compressed TIFF encoding",
+      "description": "Decodes Classic TIFF and BigTIFF strips or tiles across common grayscale, indexed, RGB, CMYK, YCbCr, alpha, packed unsigned, signed integer, and IEEE floating-point layouts with common compressions. Signed and floating-point samples are preserved in typed numeric pixel blocks and normalized deterministically for display conversion. WebP-in-TIFF is available only through explicit codec composition. Encodes uncompressed grayscale, RGB, or RGBA output and can retain a compatible ICC profile.",
+      "memory": "Strip or tile region decode; numeric predictor reversal, output, and embedded WebP pixels are bounded to the current segment and emitted in bounded rows",
+      "recommendation": "Broad display-image input compatibility, raw signed/float sample preservation, and simple uncompressed TIFF output.",
       "evidence": [
         "tests/tiff.test.ts",
         "browser-tests/compatibility.pw.ts",
@@ -1619,7 +1619,7 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "ImageMagick 7.1.2 with LibTIFF 4.7 and libwebp",
-        "tolerance": "Packed, CMYK-alpha, and lossless WebP paths are exact; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
+        "tolerance": "Packed, floating-point display, CMYK-alpha, and lossless WebP paths are exact against the independent oracle; signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
         "evidence": [
           "tests/tiff.test.ts",
           "tests/lossy-codec-quality.test.ts",
@@ -1720,12 +1720,20 @@
           "text": "RGB, indexed, and JPEG-backed ICC-profile color conversion"
         },
         {
-          "status": "planned",
-          "text": "CIELab and CMYK ICC-profile color conversion"
+          "status": "supported",
+          "text": "Signed 8- and 16-bit grayscale and RGB with raw numeric preservation"
+        },
+        {
+          "status": "supported",
+          "text": "IEEE float16, float32, and float64 grayscale and RGB with raw numeric preservation"
+        },
+        {
+          "status": "supported",
+          "text": "Deterministic display conversion using `SMinSampleValue` / `SMaxSampleValue` or documented full-type defaults"
         },
         {
           "status": "planned",
-          "text": "Floating-point sample formats"
+          "text": "CIELab, CMYK ICC-profile conversion, and signed/floating-point CMYK"
         },
         {
           "status": "supported",
@@ -1753,7 +1761,11 @@
         },
         {
           "status": "supported",
-          "text": "Horizontal differencing predictor for uniform 2-, 4-, 6-, 8-, 10-, 12-, 14-, and 16-bit unsigned samples"
+          "text": "Horizontal differencing predictor for uniform 2-, 4-, 6-, 8-, 10-, 12-, 14-, 16-, 32-, and 64-bit integer or floating-point samples"
+        },
+        {
+          "status": "supported",
+          "text": "Floating-point predictor 3 byte unshuffle and accumulation for float16, float32, and float64 samples"
         },
         {
           "status": "supported",
@@ -1777,15 +1789,15 @@
         },
         {
           "status": "planned",
-          "text": "Define raw preservation and deterministic display conversion semantics for signed integer and floating-point samples"
+          "text": "Define raw preservation or explicit display conversion semantics for unsigned 24-, 32-, and 64-bit samples"
         },
         {
           "status": "planned",
-          "text": "Add pixel formats or explicit normalization APIs before accepting scientific values"
+          "text": "Add wide unsigned pixel formats without routing values through 16-bit intermediates"
         },
         {
           "status": "planned",
-          "text": "Keep predictor reversal bounded to strip or tile buffers"
+          "text": "Keep wide predictor reversal bounded to strip or tile buffers"
         },
         {
           "status": "supported",
@@ -1882,6 +1894,14 @@
         {
           "status": "supported",
           "text": "Verify explicitly composed lossy WebP-in-TIFF against the independently validated WebP decoder contract"
+        },
+        {
+          "status": "supported",
+          "text": "Verify float16, float32, float64, and floating Predictor 3 display output exactly against ImageMagick/LibTIFF"
+        },
+        {
+          "status": "supported",
+          "text": "Verify signed integer and IEEE floating-point raw values at native precision in both byte orders"
         },
         {
           "status": "supported",

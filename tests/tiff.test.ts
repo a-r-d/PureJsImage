@@ -12,7 +12,7 @@ import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
 type Rgba = readonly [red: number, green: number, blue: number, alpha: number]
-type TiffFieldType = 3 | 4 | 7
+type TiffFieldType = 3 | 4 | 6 | 7 | 8 | 11 | 12
 
 interface TiffEntryFixture {
   readonly tag: number
@@ -33,7 +33,7 @@ interface TiffFixtureOptions {
   readonly rowsPerStrip?: number
   readonly fillOrder?: 1 | 2
   readonly planarConfiguration?: 1 | 2
-  readonly predictor?: 1 | 2
+  readonly predictor?: 1 | 2 | 3
   readonly t6Options?: number
   readonly t4Options?: number
   readonly extraSamples?: readonly number[]
@@ -48,7 +48,12 @@ interface TiffFixtureOptions {
   }[]
 }
 
-const typeBytes = (type: TiffFieldType): number => (type === 3 ? 2 : type === 4 ? 4 : 1)
+const typeBytes = (type: TiffFieldType): number => {
+  if (type === 3 || type === 8) return 2
+  if (type === 4 || type === 11) return 4
+  if (type === 12) return 8
+  return 1
+}
 
 const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
   const littleEndian = options.littleEndian ?? true
@@ -189,6 +194,10 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
       const value = entry.values[valueIndex] ?? 0
       if (entry.type === 3) view.setUint16(offset, value, littleEndian)
       else if (entry.type === 4) view.setUint32(offset, value, littleEndian)
+      else if (entry.type === 6) view.setInt8(offset, value)
+      else if (entry.type === 8) view.setInt16(offset, value, littleEndian)
+      else if (entry.type === 11) view.setFloat32(offset, value, littleEndian)
+      else if (entry.type === 12) view.setFloat64(offset, value, littleEndian)
       else output[offset] = value
     }
   }
@@ -277,14 +286,85 @@ const predictorDifferences = (
   )
 }
 
+const signedPayload = (
+  values: readonly number[],
+  bitDepth: 8 | 16,
+  littleEndian: boolean,
+): Uint8Array => {
+  const bytesPerSample = bitDepth >>> 3
+  const output = new Uint8Array(values.length * bytesPerSample)
+  const view = new DataView(output.buffer)
+  for (let index = 0; index < values.length; index += 1) {
+    if (bitDepth === 8) view.setInt8(index, values[index] ?? 0)
+    else view.setInt16(index * 2, values[index] ?? 0, littleEndian)
+  }
+  return output
+}
+
+const floatPayload = (
+  values: readonly number[],
+  bitDepth: 32 | 64,
+  littleEndian: boolean,
+): Uint8Array => {
+  const bytesPerSample = bitDepth >>> 3
+  const output = new Uint8Array(values.length * bytesPerSample)
+  const view = new DataView(output.buffer)
+  for (let index = 0; index < values.length; index += 1) {
+    if (bitDepth === 32) view.setFloat32(index * 4, values[index] ?? 0, littleEndian)
+    else view.setFloat64(index * 8, values[index] ?? 0, littleEndian)
+  }
+  return output
+}
+
+const floatingPredictorDifferences = (
+  source: Uint8Array,
+  bytesPerSample: 2 | 4 | 8,
+  stride: number,
+  littleEndian: boolean,
+): Uint8Array => {
+  const samples = source.byteLength / bytesPerSample
+  const shuffled = new Uint8Array(source.byteLength)
+  for (let sample = 0; sample < samples; sample += 1) {
+    for (let byte = 0; byte < bytesPerSample; byte += 1) {
+      const plane = littleEndian ? bytesPerSample - byte - 1 : byte
+      shuffled[plane * samples + sample] = source[sample * bytesPerSample + byte] ?? 0
+    }
+  }
+  for (let index = shuffled.byteLength - 1; index >= stride; index -= 1) {
+    shuffled[index] = ((shuffled[index] ?? 0) - (shuffled[index - stride] ?? 0)) & 0xff
+  }
+  return shuffled
+}
+
+const horizontal64Differences = (source: Uint8Array, littleEndian: boolean): Uint8Array => {
+  const output = Uint8Array.from(source)
+  const view = new DataView(output.buffer)
+  const samples = output.byteLength / 8
+  const mask = 0xffff_ffff_ffff_ffffn
+  for (let sample = samples - 1; sample >= 1; sample -= 1) {
+    const current = view.getBigUint64(sample * 8, littleEndian)
+    const previous = view.getBigUint64((sample - 1) * 8, littleEndian)
+    view.setBigUint64(sample * 8, (current - previous) & mask, littleEndian)
+  }
+  return output
+}
+
 const decodeDirect = async (
   input: Uint8Array,
   codec: ImageCodec = tiffCodec,
-): Promise<{ readonly format: string; readonly data: Uint8Array }> => {
+): Promise<{
+  readonly format: string
+  readonly data: Uint8Array
+  readonly displayRanges: readonly { readonly black: number; readonly white: number }[] | undefined
+}> => {
   if (!codec.createDecoder) throw new Error('TIFF decoder is unavailable')
   const decoder = await codec.createDecoder(new MemorySource(input), defaultImageLimits)
+  let displayRanges: readonly { readonly black: number; readonly white: number }[] | undefined
   const blocks: Uint8Array[] = []
-  for await (const block of decoder.decode()) blocks.push(Uint8Array.from(block.data))
+  for await (const block of decoder.decode()) {
+    blocks.push(Uint8Array.from(block.data))
+    displayRanges ??= block.displayRanges
+  }
   const bytes = blocks.reduce((total, block) => total + block.byteLength, 0)
   const data = new Uint8Array(bytes)
   let offset = 0
@@ -292,7 +372,7 @@ const decodeDirect = async (
     data.set(block, offset)
     offset += block.byteLength
   }
-  return { format: decoder.pixelFormat, data }
+  return { format: decoder.pixelFormat, data, displayRanges }
 }
 
 const uint16BigEndian = (data: Uint8Array, offset: number): number =>
@@ -938,6 +1018,189 @@ describe('TIFF codec', () => {
     expect(pixel(decoded, 0, 0)).toEqual([0, 0, 0, 255])
     expect(pixel(decoded, 1, 0)).toEqual([129, 129, 129, 255])
     expect(pixel(decoded, 2, 0)).toEqual([255, 255, 255, 255])
+  })
+
+  it('preserves signed integer samples and converts declared display ranges', async () => {
+    const signed8 = tiffFixture({
+      width: 3,
+      height: 1,
+      bitsPerSample: [8],
+      compression: 1,
+      photometric: 1,
+      strips: [signedPayload([-128, 0, 127], 8, true)],
+      extraEntries: [
+        { tag: 339, type: 3, values: [2] },
+        { tag: 340, type: 6, values: [-100] },
+        { tag: 341, type: 6, values: [100] },
+      ],
+    })
+    const raw8 = await decodeDirect(signed8)
+    expect(raw8).toEqual({
+      format: 'grayi8',
+      data: Uint8Array.of(128, 0, 127),
+      displayRanges: [{ black: -100, white: 100 }],
+    })
+    const metadata = await (await Image.open(signed8)).metadata()
+    expect(metadata.sampleFormat).toBe('signed-integer')
+    const pixels8 = await decodedPng(signed8)
+    expect(pixel(pixels8, 0, 0)).toEqual([0, 0, 0, 255])
+    expect(pixel(pixels8, 1, 0)).toEqual([127, 127, 127, 255])
+    expect(pixel(pixels8, 2, 0)).toEqual([255, 255, 255, 255])
+
+    const whiteIsZero = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [8],
+      compression: 1,
+      photometric: 0,
+      strips: [signedPayload([-128, 127], 8, true)],
+      extraEntries: [{ tag: 339, type: 3, values: [2] }],
+    })
+    const inverse = await decodedPng(whiteIsZero)
+    expect(pixel(inverse, 0, 0)).toEqual([255, 255, 255, 255])
+    expect(pixel(inverse, 1, 0)).toEqual([0, 0, 0, 255])
+
+    const values = [-32_768, 0, 32_767, 32_767, -32_768, 0] as const
+    const rawValues = values.map((value) => value & 0xffff)
+    const predicted = predictorDifferences(rawValues, 3, 16)
+    for (const littleEndian of [true, false]) {
+      const payload = new Uint8Array(predicted.length * 2)
+      const view = new DataView(payload.buffer)
+      for (let index = 0; index < predicted.length; index += 1) {
+        view.setUint16(index * 2, predicted[index] ?? 0, littleEndian)
+      }
+      const signed16 = tiffFixture({
+        width: 2,
+        height: 1,
+        littleEndian,
+        bitsPerSample: [16, 16, 16],
+        compression: 1,
+        photometric: 2,
+        predictor: 2,
+        strips: [payload],
+        extraEntries: [{ tag: 339, type: 3, values: [2, 2, 2] }],
+      })
+      const raw16 = await decodeDirect(signed16)
+      expect(raw16.format).toBe('rgbi16')
+      expect(raw16.data).toEqual(signedPayload(values, 16, false))
+      expect(raw16.displayRanges).toEqual([
+        { black: -32_768, white: 32_767 },
+        { black: -32_768, white: 32_767 },
+        { black: -32_768, white: 32_767 },
+      ])
+      const pixels16 = await decodedPng(signed16)
+      expect(pixel(pixels16, 0, 0)).toEqual([0, 127, 255, 255])
+      expect(pixel(pixels16, 1, 0)).toEqual([255, 0, 127, 255])
+    }
+  })
+
+  it('preserves IEEE floats and converts finite and non-finite samples deterministically', async () => {
+    const halfBits = [0, 0x3800, 0x3c00, 0x7e01, 0x7c00, 0xfc00] as const
+    const halfPayload = new Uint8Array(halfBits.length * 2)
+    const halfView = new DataView(halfPayload.buffer)
+    for (let index = 0; index < halfBits.length; index += 1) {
+      halfView.setUint16(index * 2, halfBits[index] ?? 0, true)
+    }
+    const float16 = tiffFixture({
+      width: halfBits.length,
+      height: 1,
+      bitsPerSample: [16],
+      compression: 1,
+      photometric: 1,
+      strips: [halfPayload],
+      extraEntries: [
+        { tag: 339, type: 3, values: [3] },
+        { tag: 340, type: 11, values: [0] },
+        { tag: 341, type: 11, values: [1] },
+      ],
+    })
+    const raw16 = await decodeDirect(float16)
+    expect(raw16.format).toBe('grayf16')
+    expect(raw16.data).toEqual(
+      Uint8Array.from(halfBits.flatMap((bits) => [bits >>> 8, bits & 0xff])),
+    )
+    const pixels16 = await decodedPng(float16)
+    expect(halfBits.map((_bits, x) => pixel(pixels16, x, 0)[0])).toEqual([0, 127, 255, 0, 255, 0])
+
+    const rgbValues = [0, 0.5, 1, 1, 0.25, 0] as const
+    for (const littleEndian of [true, false]) {
+      const rawRgb = floatPayload(rgbValues, 32, littleEndian)
+      const predictedRgb = floatingPredictorDifferences(rawRgb, 4, 3, littleEndian)
+      const float32 = tiffFixture({
+        width: 2,
+        height: 1,
+        littleEndian,
+        bitsPerSample: [32, 32, 32],
+        compression: 8,
+        photometric: 2,
+        predictor: 3,
+        strips: [deflateSync(predictedRgb)],
+        extraEntries: [
+          { tag: 339, type: 3, values: [3, 3, 3] },
+          { tag: 340, type: 11, values: [0, 0, 0] },
+          { tag: 341, type: 11, values: [1, 1, 1] },
+        ],
+      })
+      const raw32 = await decodeDirect(float32)
+      expect(raw32.format).toBe('rgbf32')
+      expect(raw32.data).toEqual(floatPayload(rgbValues, 32, false))
+      const pixels32 = await decodedPng(float32)
+      expect(pixel(pixels32, 0, 0)).toEqual([0, 127, 255, 255])
+      expect(pixel(pixels32, 1, 0)).toEqual([255, 63, 0, 255])
+    }
+
+    const float64Values = [0, 0.25, 0.5, 1] as const
+    for (const littleEndian of [true, false]) {
+      const rawFloat64 = floatPayload(float64Values, 64, littleEndian)
+      const float64 = tiffFixture({
+        width: float64Values.length,
+        height: 1,
+        littleEndian,
+        bitsPerSample: [64],
+        compression: 1,
+        photometric: 1,
+        predictor: 2,
+        strips: [horizontal64Differences(rawFloat64, littleEndian)],
+        extraEntries: [{ tag: 339, type: 3, values: [3] }],
+      })
+      const raw64 = await decodeDirect(float64)
+      expect(raw64.format).toBe('grayf64')
+      expect(raw64.data).toEqual(floatPayload(float64Values, 64, false))
+      const pixels64 = await decodedPng(float64)
+      expect(float64Values.map((_value, x) => pixel(pixels64, x, 0)[0])).toEqual([0, 63, 127, 255])
+    }
+  })
+
+  it('keeps signed and floating CMYK and invalid display ranges unsupported or invalid', async () => {
+    const floatCmyk = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [32, 32, 32, 32],
+      compression: 1,
+      photometric: 5,
+      strips: [floatPayload([0, 0, 0, 1], 32, true)],
+      extraEntries: [{ tag: 339, type: 3, values: [3, 3, 3, 3] }],
+    })
+    await expect(
+      Image.open(floatCmyk).then((image) => image.png().toBuffer()),
+    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+
+    const invalidRange = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [32],
+      compression: 1,
+      photometric: 1,
+      strips: [floatPayload([0], 32, true)],
+      extraEntries: [
+        { tag: 339, type: 3, values: [3] },
+        { tag: 340, type: 11, values: [1] },
+        { tag: 341, type: 11, values: [0] },
+      ],
+    })
+    await expect(
+      Image.open(invalidRange).then((image) => image.png().toBuffer()),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
   })
 
   it('decodes CMYK alpha but keeps generic five-band data unsupported', async () => {

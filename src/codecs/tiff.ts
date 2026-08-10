@@ -18,7 +18,7 @@ import {
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import { iccColorSpace } from '../metadata.ts'
-import type { PixelBlock, PixelFormat } from '../pixel.ts'
+import type { PixelBlock, PixelFormat, PixelSampleDisplayRange } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
 import { MemorySource, readExactly } from '../source.ts'
@@ -42,6 +42,9 @@ const compressionDeflate = 8
 const compressionAdobeDeflate = 32946
 const compressionPackBits = 32773
 const compressionWebp = 50001
+const sampleFormatUnsigned = 1
+const sampleFormatSigned = 2
+const sampleFormatFloat = 3
 const photometricWhiteIsZero = 0
 const photometricBlackIsZero = 1
 const photometricRgb = 2
@@ -342,6 +345,7 @@ interface TiffDescription {
   readonly width: number
   readonly height: number
   readonly bitsPerSample: Uint32Array
+  readonly sampleFormats: Uint32Array
   readonly bitsPerPixel: number
   readonly sampleBitOffsets: Uint32Array
   readonly rowBytes: Uint32Array
@@ -367,7 +371,24 @@ interface TiffDescription {
   readonly associatedAlpha: boolean
   readonly orientation: number
   readonly frames: number
-  readonly pixelFormat: 'gray8' | 'gray16' | 'rgb8' | 'rgba8' | 'rgb16' | 'rgba16'
+  readonly pixelFormat:
+    | 'gray8'
+    | 'gray16'
+    | 'grayi8'
+    | 'grayi16'
+    | 'grayf16'
+    | 'grayf32'
+    | 'grayf64'
+    | 'rgb8'
+    | 'rgba8'
+    | 'rgb16'
+    | 'rgba16'
+    | 'rgbi8'
+    | 'rgbi16'
+    | 'rgbf16'
+    | 'rgbf32'
+    | 'rgbf64'
+  readonly displayRanges: readonly PixelSampleDisplayRange[] | undefined
   readonly colorTransform: RgbIccTransform | undefined
   readonly iccProfile: Uint8Array | undefined
   readonly jpegTables: Uint8Array | undefined
@@ -574,6 +595,55 @@ const optionalValues = async (
 ): Promise<Float64Array | undefined> => {
   const entry = ifd.entries.get(tag)
   return entry ? entryValues(source, entry, littleEndian, tag, maximumCount) : undefined
+}
+
+const numericFieldBytes = (fieldType: number, tag: number): 1 | 2 | 4 | 8 => {
+  if (fieldType === 1 || fieldType === 6) return 1
+  if (fieldType === 3 || fieldType === 8) return 2
+  if (fieldType === 4 || fieldType === 9 || fieldType === 11) return 4
+  if (fieldType === 12) return 8
+  throw invalidInput(`TIFF tag ${tag} has unsupported numeric field type ${fieldType}`)
+}
+
+const numericOptionalValues = async (
+  source: ImageSource,
+  ifd: TiffIfd,
+  littleEndian: boolean,
+  tag: number,
+  maximumCount: number,
+): Promise<Float64Array | undefined> => {
+  const entry = ifd.entries.get(tag)
+  if (!entry) return undefined
+  if (entry.count < 1 || entry.count > maximumCount) {
+    throw invalidInput(`TIFF tag ${tag} has invalid count ${entry.count}`)
+  }
+  const bytesPerValue = numericFieldBytes(entry.fieldType, tag)
+  const byteLength = entry.count * bytesPerValue
+  let bytes: Uint8Array
+  if (byteLength <= entry.inline.byteLength) {
+    bytes = entry.inline.subarray(0, byteLength)
+  } else {
+    const valueOffset = externalValueOffset(entry, littleEndian, tag)
+    bytes = await readExactly(
+      source,
+      valueOffset,
+      checkedEnd(valueOffset, byteLength, source.size, `tag ${tag}`) - valueOffset,
+    )
+  }
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  const values = new Float64Array(entry.count)
+  for (let index = 0; index < entry.count; index += 1) {
+    const offset = index * bytesPerValue
+    if (entry.fieldType === 1) values[index] = view.getUint8(offset)
+    else if (entry.fieldType === 3) values[index] = view.getUint16(offset, littleEndian)
+    else if (entry.fieldType === 4) values[index] = view.getUint32(offset, littleEndian)
+    else if (entry.fieldType === 6) values[index] = view.getInt8(offset)
+    else if (entry.fieldType === 8) values[index] = view.getInt16(offset, littleEndian)
+    else if (entry.fieldType === 9) values[index] = view.getInt32(offset, littleEndian)
+    else if (entry.fieldType === 11) values[index] = view.getFloat32(offset, littleEndian)
+    else values[index] = view.getFloat64(offset, littleEndian)
+  }
+  return values
 }
 
 const rationalValues = async (
@@ -816,11 +886,32 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     throw invalidInput('TIFF BitsPerSample count does not match SamplesPerPixel')
   }
 
-  const sampleFormats =
-    (await optionalValues(source, ifd, littleEndian, 339, samplesPerPixel)) ?? Uint32Array.of(1)
-  if (sampleFormats.some((format) => format !== 1)) {
-    throw unsupportedOperation('TIFF currently supports only unsigned integer samples')
+  const rawSampleFormats =
+    (await optionalValues(source, ifd, littleEndian, 339, samplesPerPixel)) ??
+    Float64Array.of(sampleFormatUnsigned)
+  if (
+    rawSampleFormats.some(
+      (format) =>
+        !Number.isSafeInteger(format) ||
+        (format !== sampleFormatUnsigned &&
+          format !== sampleFormatSigned &&
+          format !== sampleFormatFloat),
+    )
+  ) {
+    throw unsupportedOperation('TIFF SampleFormat contains an unsupported value')
   }
+  const sampleFormats =
+    rawSampleFormats.length === 1 && samplesPerPixel > 1
+      ? new Uint32Array(samplesPerPixel).fill(rawSampleFormats[0] ?? sampleFormatUnsigned)
+      : Uint32Array.from(rawSampleFormats)
+  if (sampleFormats.length !== samplesPerPixel) {
+    throw invalidInput('TIFF SampleFormat count does not match SamplesPerPixel')
+  }
+  const baseSampleFormat = sampleFormats[0] ?? sampleFormatUnsigned
+  if (sampleFormats.some((format) => format !== baseSampleFormat)) {
+    throw unsupportedOperation('TIFF mixed sample formats are unsupported')
+  }
+
   const compression = await singleValue(source, ifd, littleEndian, 259, compressionNone)
   if (
     compression !== compressionNone &&
@@ -870,28 +961,55 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   if (extraSamples.length > 0 && alphaSample === undefined) {
     throw invalidInput('TIFF ExtraSamples does not match SamplesPerPixel')
   }
+  if (baseSampleFormat !== sampleFormatUnsigned && alphaSample !== undefined) {
+    throw unsupportedOperation('TIFF signed or floating-point alpha samples are unsupported')
+  }
+  if (
+    baseSampleFormat !== sampleFormatUnsigned &&
+    photometric !== photometricWhiteIsZero &&
+    photometric !== photometricBlackIsZero &&
+    photometric !== photometricRgb
+  ) {
+    throw unsupportedOperation(
+      'TIFF signed or floating-point decoding supports only grayscale and RGB photometrics',
+    )
+  }
 
   const baseBitDepth = bitsPerSample[0] ?? 0
-  if (photometric === photometricRgb || photometric === photometricSeparated) {
-    const supportedColorDepth =
-      photometric === photometricRgb
-        ? [2, 4, 8, 10, 12, 14, 16].includes(baseBitDepth)
-        : baseBitDepth === 8 || baseBitDepth === 16
-    if (!supportedColorDepth || bitsPerSample.some((bits) => bits !== baseBitDepth)) {
+  const uniformBitDepth = bitsPerSample.every((bits) => bits === baseBitDepth)
+  if (!uniformBitDepth) {
+    throw unsupportedOperation('TIFF decoding requires uniform sample depths')
+  }
+  if (baseSampleFormat === sampleFormatUnsigned) {
+    if (photometric === photometricRgb || photometric === photometricSeparated) {
+      const supportedColorDepth =
+        photometric === photometricRgb
+          ? [2, 4, 8, 10, 12, 14, 16].includes(baseBitDepth)
+          : baseBitDepth === 8 || baseBitDepth === 16
+      if (!supportedColorDepth) {
+        throw unsupportedOperation('TIFF color decoding requires supported unsigned sample depths')
+      }
+    } else if (photometric === photometricYCbCr) {
+      if (baseBitDepth !== 8) {
+        throw unsupportedOperation('TIFF YCbCr decoding requires 8-bit samples')
+      }
+    } else if (photometric === photometricPalette) {
+      if (![1, 2, 4, 8].includes(baseBitDepth)) {
+        throw unsupportedOperation(`TIFF ${baseBitDepth}-bit palette data is unsupported`)
+      }
+    } else if (![1, 2, 4, 6, 8, 10, 12, 14, 16].includes(baseBitDepth)) {
+      throw unsupportedOperation(`TIFF ${baseBitDepth}-bit grayscale data is unsupported`)
+    }
+  } else if (baseSampleFormat === sampleFormatSigned) {
+    if (baseBitDepth !== 8 && baseBitDepth !== 16) {
       throw unsupportedOperation(
-        'TIFF color decoding requires uniform supported unsigned sample depths',
+        'TIFF signed integer decoding supports only 8-bit and 16-bit samples',
       )
     }
-  } else if (photometric === photometricYCbCr) {
-    if (bitsPerSample.some((bits) => bits !== 8)) {
-      throw unsupportedOperation('TIFF YCbCr decoding requires 8-bit samples')
-    }
-  } else if (photometric === photometricPalette) {
-    if (![1, 2, 4, 8].includes(baseBitDepth)) {
-      throw unsupportedOperation(`TIFF ${baseBitDepth}-bit palette data is unsupported`)
-    }
-  } else if (![1, 2, 4, 6, 8, 10, 12, 14, 16].includes(baseBitDepth)) {
-    throw unsupportedOperation(`TIFF ${baseBitDepth}-bit grayscale data is unsupported`)
+  } else if (![16, 32, 64].includes(baseBitDepth)) {
+    throw unsupportedOperation(
+      'TIFF floating-point decoding supports only 16-bit, 32-bit, and 64-bit samples',
+    )
   }
   if (
     alphaSample !== undefined &&
@@ -917,24 +1035,79 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     throw unsupportedOperation('TIFF packed grayscale or palette alpha requires planar storage')
   }
   const predictor = await singleValue(source, ifd, littleEndian, 317, 1)
-  if (predictor !== 1 && predictor !== 2) {
+  if (predictor !== 1 && predictor !== 2 && predictor !== 3) {
     throw unsupportedOperation(`TIFF Predictor ${predictor} is unsupported`)
   }
+  const supportedHorizontalDepth =
+    baseSampleFormat === sampleFormatUnsigned
+      ? [2, 4, 6, 8, 10, 12, 14, 16].includes(baseBitDepth)
+      : baseSampleFormat === sampleFormatSigned
+        ? baseBitDepth === 8 || baseBitDepth === 16
+        : baseBitDepth === 16 || baseBitDepth === 32 || baseBitDepth === 64
+  if (predictor === 2 && !supportedHorizontalDepth) {
+    throw unsupportedOperation('TIFF horizontal prediction is unsupported for this sample layout')
+  }
   if (
-    predictor === 2 &&
-    (bitsPerSample.some((bits) => bits !== baseBitDepth) ||
-      ![2, 4, 6, 8, 10, 12, 14, 16].includes(baseBitDepth))
+    predictor === 3 &&
+    (baseSampleFormat !== sampleFormatFloat || ![16, 32, 64].includes(baseBitDepth))
   ) {
     throw unsupportedOperation(
-      'TIFF horizontal prediction requires uniform supported unsigned sample depths',
+      'TIFF floating-point prediction requires 16-bit, 32-bit, or 64-bit floating samples',
     )
   }
-  if (faxCompression && (samplesPerPixel !== 1 || baseBitDepth !== 1 || predictor !== 1)) {
+
+  const rawMinimums =
+    baseSampleFormat === sampleFormatUnsigned
+      ? undefined
+      : await numericOptionalValues(source, ifd, littleEndian, 340, samplesPerPixel)
+  const rawMaximums =
+    baseSampleFormat === sampleFormatUnsigned
+      ? undefined
+      : await numericOptionalValues(source, ifd, littleEndian, 341, samplesPerPixel)
+  if (
+    (rawMinimums !== undefined &&
+      rawMinimums.length !== 1 &&
+      rawMinimums.length !== samplesPerPixel) ||
+    (rawMaximums !== undefined &&
+      rawMaximums.length !== 1 &&
+      rawMaximums.length !== samplesPerPixel)
+  ) {
+    throw invalidInput('TIFF SMinSampleValue and SMaxSampleValue counts are invalid')
+  }
+  let displayRanges: readonly PixelSampleDisplayRange[] | undefined
+  if (baseSampleFormat !== sampleFormatUnsigned) {
+    const defaultMinimum =
+      baseSampleFormat === sampleFormatFloat ? 0 : baseBitDepth === 8 ? -128 : -32_768
+    const defaultMaximum =
+      baseSampleFormat === sampleFormatFloat ? 1 : baseBitDepth === 8 ? 127 : 32_767
+    const ranges: PixelSampleDisplayRange[] = []
+    for (let sample = 0; sample < baseSamples; sample += 1) {
+      const minimum = rawMinimums?.[rawMinimums.length === 1 ? 0 : sample] ?? defaultMinimum
+      const maximum = rawMaximums?.[rawMaximums.length === 1 ? 0 : sample] ?? defaultMaximum
+      if (!Number.isFinite(minimum) || !Number.isFinite(maximum) || minimum >= maximum) {
+        throw invalidInput('TIFF numeric sample display range is invalid')
+      }
+      ranges.push(
+        photometric === photometricWhiteIsZero
+          ? Object.freeze({ black: maximum, white: minimum })
+          : Object.freeze({ black: minimum, white: maximum }),
+      )
+    }
+    displayRanges = Object.freeze(ranges)
+  }
+  if (
+    faxCompression &&
+    (baseSampleFormat !== sampleFormatUnsigned ||
+      samplesPerPixel !== 1 ||
+      baseBitDepth !== 1 ||
+      predictor !== 1)
+  ) {
     throw unsupportedOperation('TIFF CCITT fax decoding requires one 1-bit bilevel sample')
   }
   if (
     compression === compressionWebp &&
-    (photometric !== photometricRgb ||
+    (baseSampleFormat !== sampleFormatUnsigned ||
+      photometric !== photometricRgb ||
       (samplesPerPixel !== 3 && samplesPerPixel !== 4) ||
       bitsPerSample.some((bits) => bits !== 8) ||
       predictor !== 1 ||
@@ -953,7 +1126,8 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     (samplesPerPixel === 4 && photometric === photometricSeparated)
   if (
     jpegCompression &&
-    (!jpegSamplesMatchPhotometric ||
+    (baseSampleFormat !== sampleFormatUnsigned ||
+      !jpegSamplesMatchPhotometric ||
       bitsPerSample.some((bits) => bits !== 8) ||
       predictor !== 1 ||
       planarConfiguration !== 1)
@@ -1173,6 +1347,11 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   let colorTransform: RgbIccTransform | undefined
   let iccProfile: Uint8Array | undefined
   if (iccEntry) {
+    if (baseSampleFormat !== sampleFormatUnsigned) {
+      throw unsupportedOperation(
+        'TIFF ICC color management is not implemented for signed or floating-point samples',
+      )
+    }
     if (photometric !== photometricRgb && photometric !== photometricPalette && !jpegCompression) {
       throw unsupportedOperation(
         'TIFF ICC color management is not implemented for this color space',
@@ -1236,15 +1415,42 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   }
 
   const preserve16 =
+    baseSampleFormat === sampleFormatUnsigned &&
     baseBitDepth > 8 &&
     (photometric === photometricWhiteIsZero ||
       photometric === photometricBlackIsZero ||
       photometric === photometricRgb)
+  let pixelFormat: TiffDescription['pixelFormat']
+  if (baseSampleFormat === sampleFormatSigned) {
+    if (baseSamples === 1) pixelFormat = baseBitDepth === 8 ? 'grayi8' : 'grayi16'
+    else pixelFormat = baseBitDepth === 8 ? 'rgbi8' : 'rgbi16'
+  } else if (baseSampleFormat === sampleFormatFloat) {
+    if (baseSamples === 1) {
+      pixelFormat = baseBitDepth === 16 ? 'grayf16' : baseBitDepth === 32 ? 'grayf32' : 'grayf64'
+    } else {
+      pixelFormat = baseBitDepth === 16 ? 'rgbf16' : baseBitDepth === 32 ? 'rgbf32' : 'rgbf64'
+    }
+  } else {
+    pixelFormat = jpegCompression
+      ? 'rgb8'
+      : alphaSample !== undefined
+        ? preserve16
+          ? 'rgba16'
+          : 'rgba8'
+        : photometric === photometricWhiteIsZero || photometric === photometricBlackIsZero
+          ? preserve16
+            ? 'gray16'
+            : 'gray8'
+          : photometric === photometricRgb && preserve16
+            ? 'rgb16'
+            : 'rgb8'
+  }
   return {
     littleEndian,
     width,
     height,
     bitsPerSample,
+    sampleFormats,
     bitsPerPixel,
     sampleBitOffsets,
     rowBytes,
@@ -1270,19 +1476,8 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     associatedAlpha: extraSamples[0] === 1,
     orientation,
     frames,
-    pixelFormat: jpegCompression
-      ? 'rgb8'
-      : alphaSample !== undefined
-        ? preserve16
-          ? 'rgba16'
-          : 'rgba8'
-        : photometric === photometricWhiteIsZero || photometric === photometricBlackIsZero
-          ? preserve16
-            ? 'gray16'
-            : 'gray8'
-          : photometric === photometricRgb && preserve16
-            ? 'rgb16'
-            : 'rgb8',
+    pixelFormat,
+    displayRanges,
     colorTransform,
     iccProfile,
     jpegTables,
@@ -1892,6 +2087,49 @@ const reversePredictor = (
   bitDepth: number,
   littleEndian: boolean,
 ): void => {
+  if (bitDepth === 64) {
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength)
+    for (let row = 0; row < rows; row += 1) {
+      const rowSample = row * samplesPerRow
+      for (let sample = stride; sample < samplesPerRow; sample += 1) {
+        const offset = (rowSample + sample) * 8
+        const previousOffset = (rowSample + sample - stride) * 8
+        const lowOffset = littleEndian ? offset : offset + 4
+        const highOffset = littleEndian ? offset + 4 : offset
+        const previousLowOffset = littleEndian ? previousOffset : previousOffset + 4
+        const previousHighOffset = littleEndian ? previousOffset + 4 : previousOffset
+        const low = view.getUint32(lowOffset, littleEndian)
+        const previousLow = view.getUint32(previousLowOffset, littleEndian)
+        const sumLow = (low + previousLow) >>> 0
+        const carry = sumLow < low ? 1 : 0
+        const sumHigh =
+          (view.getUint32(highOffset, littleEndian) +
+            view.getUint32(previousHighOffset, littleEndian) +
+            carry) >>>
+          0
+        view.setUint32(lowOffset, sumLow, littleEndian)
+        view.setUint32(highOffset, sumHigh, littleEndian)
+      }
+    }
+    return
+  }
+  if (bitDepth === 32) {
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength)
+    for (let row = 0; row < rows; row += 1) {
+      const rowSample = row * samplesPerRow
+      for (let sample = stride; sample < samplesPerRow; sample += 1) {
+        const offset = (rowSample + sample) * 4
+        const previousOffset = (rowSample + sample - stride) * 4
+        view.setUint32(
+          offset,
+          (view.getUint32(offset, littleEndian) + view.getUint32(previousOffset, littleEndian)) >>>
+            0,
+          littleEndian,
+        )
+      }
+    }
+    return
+  }
   if (bitDepth === 16) {
     const view = new DataView(data.buffer, data.byteOffset, data.byteLength)
     for (let row = 0; row < rows; row += 1) {
@@ -1929,6 +2167,41 @@ const reversePredictor = (
     }
     for (let sample = 0; sample < samplesPerRow; sample += 1) {
       writePackedUnsigned(data, rowBitOffset + sample * bitDepth, bitDepth, samples[sample] ?? 0)
+    }
+  }
+}
+
+const reverseFloatingPredictor = (
+  data: Uint8Array,
+  rowBytes: number,
+  rows: number,
+  stride: number,
+  bitDepth: number,
+  littleEndian: boolean,
+): void => {
+  const bytesPerSample = bitDepth / 8
+  if (
+    !Number.isSafeInteger(bytesPerSample) ||
+    rowBytes % (bytesPerSample * stride) !== 0 ||
+    rowBytes * rows > data.byteLength
+  ) {
+    throw invalidInput('TIFF floating-point predictor row layout is invalid')
+  }
+  const samplesPerRow = rowBytes / bytesPerSample
+  const scratch = new Uint8Array(rowBytes)
+  for (let row = 0; row < rows; row += 1) {
+    const rowOffset = row * rowBytes
+    for (let index = stride; index < rowBytes; index += 1) {
+      const offset = rowOffset + index
+      data[offset] = ((data[offset] ?? 0) + (data[offset - stride] ?? 0)) & 0xff
+    }
+    scratch.set(data.subarray(rowOffset, rowOffset + rowBytes))
+    for (let sample = 0; sample < samplesPerRow; sample += 1) {
+      const outputOffset = rowOffset + sample * bytesPerSample
+      for (let byte = 0; byte < bytesPerSample; byte += 1) {
+        const plane = littleEndian ? bytesPerSample - byte - 1 : byte
+        data[outputOffset + byte] = scratch[plane * samplesPerRow + sample] ?? 0
+      }
     }
   }
 }
@@ -2003,6 +2276,21 @@ const decodeSegment = async (
       rowBytes,
       rows,
       description.segmentWidth * predictorStride,
+      predictorStride,
+      bitDepth,
+      description.littleEndian,
+    )
+  }
+  if (description.predictor === 3) {
+    const bitDepth =
+      description.planarConfiguration === 1
+        ? (description.bitsPerSample[0] ?? 8)
+        : (description.bitsPerSample[Math.floor(physicalSegment / description.segmentsPerPlane)] ??
+          8)
+    reverseFloatingPredictor(
+      decoded,
+      rowBytes,
+      rows,
       predictorStride,
       bitDepth,
       description.littleEndian,
@@ -2391,6 +2679,49 @@ const sampleAt = (
   return packedSample(plane, bitOffset, bitDepth, description.littleEndian)
 }
 
+const writeRawSample = (
+  output: Uint8Array,
+  target: number,
+  planes: readonly Uint8Array[],
+  description: TiffDescription,
+  rowWithinSegment: number,
+  x: number,
+  sample: number,
+): void => {
+  const bitDepth = description.bitsPerSample[sample]
+  if (bitDepth === undefined || (bitDepth & 7) !== 0) {
+    throw invalidInput('TIFF raw numeric sample layout is invalid')
+  }
+  const bytesPerSample = bitDepth >>> 3
+  let plane: Uint8Array | undefined
+  let source: number
+  if (description.planarConfiguration === 2) {
+    plane = planes[sample]
+    const rowBytes = description.rowBytes[sample]
+    if (rowBytes === undefined) throw invalidInput('TIFF numeric sample row size is missing')
+    source = rowWithinSegment * rowBytes + x * bytesPerSample
+  } else {
+    plane = planes[0]
+    const rowBytes = description.rowBytes[0]
+    const sampleBitOffset = description.sampleBitOffsets[sample]
+    if (rowBytes === undefined || sampleBitOffset === undefined || (sampleBitOffset & 7) !== 0) {
+      throw invalidInput('TIFF numeric chunky sample layout is invalid')
+    }
+    source =
+      rowWithinSegment * rowBytes + x * (description.bitsPerPixel >>> 3) + (sampleBitOffset >>> 3)
+  }
+  if (!plane || source < 0 || source + bytesPerSample > plane.byteLength) {
+    throw truncatedInput('TIFF numeric sample is truncated')
+  }
+  if (bytesPerSample === 1 || !description.littleEndian) {
+    output.set(plane.subarray(source, source + bytesPerSample), target)
+    return
+  }
+  for (let byte = 0; byte < bytesPerSample; byte += 1) {
+    output[target + byte] = plane[source + bytesPerSample - byte - 1] ?? 0
+  }
+}
+
 const scaleSample = (value: number, bits: number, maximum: 255 | 65_535): number => {
   if (maximum === 255) {
     return bits === 8 ? value : Math.floor((value * 255) / ((1 << bits) - 1))
@@ -2506,16 +2837,23 @@ class TiffDecoder implements ImageDecoder {
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const region = regionFor(this.#description, request)
+    const rawNumeric = this.#description.sampleFormats[0] !== sampleFormatUnsigned
     const output16 =
       this.pixelFormat === 'gray16' || this.pixelFormat === 'rgb16' || this.pixelFormat === 'rgba16'
     const outputMaximum = output16 ? 65_535 : 255
-    const outputChannels =
-      this.pixelFormat === 'gray8' || this.pixelFormat === 'gray16'
+    const outputChannels = rawNumeric
+      ? this.#description.samplesPerPixel
+      : this.pixelFormat === 'gray8' || this.pixelFormat === 'gray16'
         ? 1
         : this.pixelFormat === 'rgb8' || this.pixelFormat === 'rgb16'
           ? 3
           : 4
-    const outputBytesPerPixel = outputChannels * (output16 ? 2 : 1)
+    const outputBytesPerSample = rawNumeric
+      ? (this.#description.bitsPerSample[0] ?? 8) >>> 3
+      : output16
+        ? 2
+        : 1
+    const outputBytesPerPixel = outputChannels * outputBytesPerSample
     const directChunkyChannels =
       this.#description.compression === compressionOldJpeg ||
       this.#description.compression === compressionJpeg
@@ -2735,6 +3073,20 @@ class TiffDecoder implements ImageDecoder {
               const sourceX = localStartX + localX
               const outputX = outputStartX + localX
               const target = (localY * region.width + outputX) * outputBytesPerPixel
+              if (rawNumeric) {
+                for (let sample = 0; sample < outputChannels; sample += 1) {
+                  writeRawSample(
+                    output,
+                    target + sample * outputBytesPerSample,
+                    planes,
+                    this.#description,
+                    rowWithinSegment,
+                    sourceX,
+                    sample,
+                  )
+                }
+                continue
+              }
               const alpha =
                 this.#description.alphaSample === undefined
                   ? outputMaximum
@@ -2850,6 +3202,9 @@ class TiffDecoder implements ImageDecoder {
           stride: region.width * outputBytesPerPixel,
           format: this.pixelFormat,
           data: output,
+          ...(this.#description.displayRanges
+            ? { displayRanges: this.#description.displayRanges }
+            : {}),
         }
       }
     }
@@ -3010,7 +3365,9 @@ const metadata = (description: TiffDescription): ImageMetadata => ({
   orientation: description.orientation,
   colorSpace:
     description.photometric === photometricRgb
-      ? 'srgb'
+      ? description.sampleFormats[0] === sampleFormatUnsigned
+        ? 'srgb'
+        : 'rgb'
       : description.photometric === photometricSeparated
         ? 'cmyk'
         : description.photometric === photometricYCbCr
@@ -3019,6 +3376,12 @@ const metadata = (description: TiffDescription): ImageMetadata => ({
             ? 'indexed'
             : 'gray',
   bitDepth: Math.max(...description.bitsPerSample),
+  sampleFormat:
+    description.sampleFormats[0] === sampleFormatSigned
+      ? 'signed-integer'
+      : description.sampleFormats[0] === sampleFormatFloat
+        ? 'floating-point'
+        : 'unsigned-integer',
   frames: description.frames,
 })
 

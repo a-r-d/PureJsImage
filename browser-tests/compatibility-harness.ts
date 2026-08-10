@@ -860,6 +860,59 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
     throw new Error('Packed 12-bit TIFF samples did not preserve their full range')
   }
 
+  const signed8 = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [3] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [8] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [1] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [3] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 339, type: 3, values: [2] },
+    ],
+    [Uint8Array.of(0x80, 0, 0x7f)],
+  )
+  const signedOutput = await (await images.open(signed8)).png().toUint8Array()
+  const signedPixels = await browserPixels(signedOutput, 'image/png')
+  if (signedPixels[0] !== 0 || signedPixels[4] !== 128 || signedPixels[8] !== 255) {
+    throw new Error(
+      `Signed 8-bit TIFF display conversion changed in the browser: ${signedPixels[0]},${signedPixels[4]},${signedPixels[8]}`,
+    )
+  }
+
+  const floatSamples = new Uint8Array(12)
+  const floatView = new DataView(floatSamples.buffer)
+  floatView.setFloat32(0, 0, true)
+  floatView.setFloat32(4, 0.5, true)
+  floatView.setFloat32(8, 1, true)
+  const float32 = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [3] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [32] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [1] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [floatSamples.byteLength] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 339, type: 3, values: [3] },
+    ],
+    [floatSamples],
+  )
+  const floatOutput = await (await images.open(float32)).png().toUint8Array()
+  const floatPixels = await browserPixels(floatOutput, 'image/png')
+  if (floatPixels[0] !== 0 || floatPixels[4] !== 127 || floatPixels[8] !== 255) {
+    throw new Error(
+      `Float32 TIFF display conversion changed in the browser: ${floatPixels[0]},${floatPixels[4]},${floatPixels[8]}`,
+    )
+  }
+
   const embeddedWebp = await (await images.open(legacyOutput))
     .webp({ lossless: true })
     .toUint8Array()
@@ -924,11 +977,13 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
 
   return {
     detail:
-      'legacy TIFF LZW, packed 12-bit TIFF, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
+      'legacy TIFF LZW, packed 12-bit TIFF, signed and float TIFF, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
     outputBytes:
       legacyOutput.byteLength +
       packedOutput.byteLength +
       webpTiffOutput.byteLength +
+      signedOutput.byteLength +
+      floatOutput.byteLength +
       bigOutput.byteLength +
       tileOutput.byteLength +
       faxOutput.byteLength +

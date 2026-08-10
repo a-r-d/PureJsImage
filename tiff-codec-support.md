@@ -33,8 +33,10 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Five-sample CMYK plus associated or unassociated alpha
 - [x] Chunky subsampled YCbCr and planar 1x1 YCbCr
 - [x] RGB, indexed, and JPEG-backed ICC-profile color conversion
-- [ ] CIELab and CMYK ICC-profile color conversion
-- [ ] Floating-point sample formats
+- [x] Signed 8- and 16-bit grayscale and RGB with raw numeric preservation
+- [x] IEEE float16, float32, and float64 grayscale and RGB with raw numeric preservation
+- [x] Deterministic display conversion using `SMinSampleValue` / `SMaxSampleValue` or documented full-type defaults
+- [ ] CIELab, CMYK ICC-profile conversion, and signed/floating-point CMYK
 
 ### Compression and prediction
 
@@ -44,7 +46,8 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Deflate / Adobe Deflate
 - [x] CCITT Group 4 (`T6`) bilevel fax, including multi-strip and `FillOrder=2` input
 - [x] CCITT Modified Huffman and Group 3 (`T4`) fax, including mixed 1D/2D rows and legacy 1D rows without EOL markers
-- [x] Horizontal differencing predictor for uniform 2-, 4-, 6-, 8-, 10-, 12-, 14-, and 16-bit unsigned samples
+- [x] Horizontal differencing predictor for uniform 2-, 4-, 6-, 8-, 10-, 12-, 14-, 16-, 32-, and 64-bit integer or floating-point samples
+- [x] Floating-point predictor 3 byte unshuffle and accumulation for float16, float32, and float64 samples
 - [x] JPEG-in-TIFF (`Compression=7`) complete and abbreviated streams with `JPEGTables`
 - [x] Old-style JPEG (`Compression=6`) complete interchange streams, multi-strip scans, omitted `RowsPerStrip`, and baseline Q/DC/AC table reconstruction
 - [x] WebP-in-TIFF (`Compression=50001`) through explicit `createTiffCodec({ embeddedCodecs: [webpCodec] })` composition
@@ -53,19 +56,19 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 
 ## Decode roadmap
 
-The 154-file Imazen baseline currently has no decode failures: 106 inputs pass, 44 reach structured `UNSUPPORTED_OPERATION` boundaries, and 4 robustness inputs are rejected safely. The TIFF conformance worker explicitly composes WebP; the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.
+The 154-file Imazen baseline currently has no decode failures: 130 inputs pass, 20 reach structured `UNSUPPORTED_OPERATION` boundaries, and 4 robustness inputs are rejected safely. The TIFF conformance worker explicitly composes WebP; the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.
 
 ### Next recommended capability
 
-- [ ] Define raw preservation and deterministic display conversion semantics for signed integer and floating-point samples
-- [ ] Add pixel formats or explicit normalization APIs before accepting scientific values
-- [ ] Keep predictor reversal bounded to strip or tile buffers
+- [ ] Define raw preservation or explicit display conversion semantics for unsigned 24-, 32-, and 64-bit samples
+- [ ] Add wide unsigned pixel formats without routing values through 16-bit intermediates
+- [ ] Keep wide predictor reversal bounded to strip or tile buffers
 
-This design checkpoint precedes signed or floating-point decoder work because the contract affects transforms, browser behavior, metadata, and memory accounting.
+Signed integer and IEEE floating-point samples now use explicit raw numeric pixel formats with per-channel display ranges. Generic scientific bands and signed/floating-point CMYK remain structured unsupported until their public color semantics are defined.
 
 ### Follow-on priorities
 
-1. Add wide unsigned 24-, 32-, and 64-bit samples only after the raw/display pixel contract is defined.
+1. Add wide unsigned 24-, 32-, and 64-bit samples only after their raw/display pixel contract is defined.
 2. Add SubIFD traversal, explicit frame selection, and reduced-resolution pyramid selection with cycle detection.
 3. Keep generic five-band data unsupported until the public API has explicit band-selection semantics.
 4. Treat LogLuv/SGILog and Zstandard as separate scientific and compression projects.
@@ -105,6 +108,8 @@ This design checkpoint precedes signed or floating-point decoder work because th
 - [x] Verify packed 10-, 12-, and 14-bit output exactly at native 16-bit depth against ImageMagick/LibTIFF
 - [x] Verify low packed depths, CMYK-alpha, and lossless WebP-in-TIFF output exactly against ImageMagick/LibTIFF
 - [x] Verify explicitly composed lossy WebP-in-TIFF against the independently validated WebP decoder contract
+- [x] Verify float16, float32, float64, and floating Predictor 3 display output exactly against ImageMagick/LibTIFF
+- [x] Verify signed integer and IEEE floating-point raw values at native precision in both byte orders
 - [x] Verify CCITT Group 4 output against independently encoded ImageMagick/LibTIFF fixtures
 - [x] Verify tiled LZW and BigTIFF output against independently encoded ImageMagick/LibTIFF fixtures
 - [x] Complete the 154-file Imazen TIFF corpus decode-to-PNG baseline with every
