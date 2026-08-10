@@ -209,6 +209,7 @@ describe('package contract', () => {
     expect(Object.keys(packageJson.exports)).toEqual([
       '.',
       './browser',
+      './compression/zstd',
       './accelerators/wasm/jpeg',
       './accelerators/wasm/png',
       './codecs/all',

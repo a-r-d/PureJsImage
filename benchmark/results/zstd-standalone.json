@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-08-10T14:11:43.490Z",
+  "runtime": {
+    "node": "v24.16.0",
+    "platform": "linux-x64"
+  },
+  "fixture": {
+    "path": "tests/fixtures/zstd-entropy-multiblock.zst",
+    "compressedBytes": 68610,
+    "decodedBytes": 350726,
+    "decodedSha256": "245687da21aee8c6763f98d07c6af824cb355398ff52259869c0c767dcc4e8a7"
+  },
+  "configuration": {
+    "runs": 9,
+    "warmups": 2,
+    "maxOutputBytes": 350726
+  },
+  "timing": {
+    "samplesMilliseconds": [
+      40.762088000000006,
+      26.73076900000001,
+      27.279218000000014,
+      27.849576000000013,
+      26.637946999999997,
+      29.985021000000017,
+      27.275642000000005,
+      26.112588999999957,
+      26.944277999999997
+    ],
+    "medianMilliseconds": 27.275642000000005,
+    "p95Milliseconds": 40.762088000000006,
+    "medianMegabytesPerSecond": 12.85857909412361
+  },
+  "memory": {
+    "peakRssBytes": 109260800,
+    "baselineRssBytes": 96677888,
+    "maximumExternalBytes": 12855111,
+    "maximumArrayBufferBytes": 3676195
+  },
+  "bundle": {
+    "minifiedBytes": 17426,
+    "gzipBytes": 6127,
+    "brotliBytes": 5455
+  }
+}

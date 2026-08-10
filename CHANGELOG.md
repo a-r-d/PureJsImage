@@ -36,6 +36,9 @@ All notable changes to PureJsImage are documented in this file.
   `lut16` A2B0 ICC-profile conversion with profile precedence over numeric display, and
   `FillOrder=2` normalization for non-fax strips and tiles before predictor reversal without
   mutating aliased source buffers.
+- Added a reusable first-party Zstandard decompressor at `purejsimage/compression/zstd` with
+  explicit output and window bounds, raw/RLE/compressed blocks, Huffman and FSE entropy decoding,
+  repeated tables and offsets, frame checksums, and structured malformed-input failures.
 
 ## [0.8.0] - 2026-08-09
 

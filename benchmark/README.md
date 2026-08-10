@@ -70,6 +70,13 @@ block size. The large RGB, packed 12-bit, 16-bit BigTIFF, planar CMYK,
 CIELab, packed `FillOrder=2`, and 7795x3122 single-strip LZW cases establish
 the decode and Lambda-memory baselines.
 
+`npm run bench:zstd -- --runs 9 --warmups 2` measures the standalone
+first-party Zstandard decoder against a committed independently generated
+multi-block compressed fixture. It validates the exact decoded SHA-256 and
+records median and p95 time, throughput, process memory, and minified,
+gzip, and Brotli browser bundle sizes in
+`benchmark/results/zstd-standalone.{json,md}`.
+
 The HEIF corpus pins three original 4032x3024 iPhone 12 Pro HEIC camera files.
 All three are 48-tile HEVC Main Still Picture grids with 8-bit YUV 4:2:0,
 orientation metadata, WPP, scaling lists, SAO, and CU QP deltas. The profile

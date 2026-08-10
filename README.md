@@ -117,6 +117,24 @@ await image
 
 In a browser, import from `purejsimage/browser` and use `toBlob()` or
 `toUint8Array()` for output.
+### Zstandard decompression
+
+The reusable first-party Zstandard decoder is a separate portable subpath:
+
+```ts
+import { decodeZstd } from 'purejsimage/compression/zstd'
+
+const output = decodeZstd(compressed, {
+  expectedOutputBytes: 8192,
+  maxOutputBytes: 8192,
+  maxWindowBytes: 64 * 1024 * 1024,
+})
+```
+
+Output and window limits are enforced while decoding. Dictionary-dependent frames
+are rejected explicitly; no native library, WebAssembly module, or runtime
+dependency is loaded.
+
 
 ### Optional WASM acceleration
 

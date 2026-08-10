@@ -71,6 +71,19 @@
 })</code></pre></div>
           <div class="callout warning"><strong>Experimental and opt-in.</strong> HEIC commonly contains HEVC/H.265 image data that may be subject to third-party patent rights. PureJsImage's MIT license covers this implementation's copyright and grants no third-party patent rights. Users and distributors are responsible for determining whether their use requires additional licenses, particularly for commercial products, services, or high-volume distribution. The codec is shipped in the package but is never loaded by the root entry, <code>allCodecs</code>, or the default browser demo. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md" target="_blank" rel="noreferrer">experimental HEIF/HEIC contract</a>.</div>
         </section>
+        <section id="zstandard" data-search-item>
+          <h2>Zstandard decompression</h2>
+          <p>The portable <code>purejsimage/compression/zstd</code> subpath exports a reusable first-party decoder with no format-specific parameters. It does not load native code, WebAssembly, or a runtime dependency.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">import</span> { decodeZstd } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/compression/zstd'</span>
+
+<span class="tok-key">const</span> output = decodeZstd(compressed, {
+  expectedOutputBytes: 8192,
+  maxOutputBytes: 8192,
+  maxWindowBytes: 64 * 1024 * 1024,
+})</code></pre></div>
+          <p><code>maxOutputBytes</code> and <code>maxWindowBytes</code> default to 64 MiB. Supplying <code>expectedOutputBytes</code> preallocates the exact bounded output and rejects a different decoded size. Dictionary-dependent frames fail with <code>UNSUPPORTED_OPERATION</code>.</p>
+        </section>
+
 
         <section id="wasm-acceleration" data-search-item>
           <h2>Optional WASM acceleration</h2>

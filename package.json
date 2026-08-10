@@ -52,6 +52,11 @@
       "import": "./dist/browser.js",
       "default": "./dist/browser.js"
     },
+    "./compression/zstd": {
+      "types": "./dist/compression/zstd/index.d.ts",
+      "import": "./dist/compression/zstd/index.js",
+      "default": "./dist/compression/zstd/index.js"
+    },
     "./accelerators/wasm/jpeg": {
       "browser": "./dist/accelerator-entries/wasm-jpeg-browser.js",
       "types": "./dist/accelerator-entries/wasm-jpeg-node.d.ts",
@@ -178,6 +183,7 @@
     "bench:transforms": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile transforms",
     "bench:transforms:compare": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines jimp,purejsimage --profile transforms-comparable",
     "bench:webp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile webp",
+    "bench:zstd": "node --expose-gc benchmark/scripts/run-zstd.ts",
     "bench:avif:inspect": "node benchmark/avif/inspect-bitstreams.ts",
     "bench:avif:b2": "node --expose-gc benchmark/avif/run-b2.ts",
     "bench:avif:reference": "node benchmark/avif/run-reference.ts",
