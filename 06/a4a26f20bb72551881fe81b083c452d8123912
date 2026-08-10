@@ -1,0 +1,106 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 6-18
+benchmark/README.md
+  h_9f4a25732fa0c1 59-69
+benchmark/corpus/manifest.json
+  h_9f4a25732fa0c1 670-713
+benchmark/engines/jimp.ts
+  h_9f4a25732fa0c1 219-221
+benchmark/engines/purejsimage-shared.ts
+  h_9f4a25732fa0c1 1,12-13,74-208,296-305
+benchmark/lib/corpus.ts
+  h_9f4a25732fa0c1 16,74-77,182
+benchmark/lib/results.ts
+  h_9f4a25732fa0c1 37-44,69-81
+benchmark/lib/tiff.ts
+  h_9f4a25732fa0c1 7,9,12-14,17,26-36,38-45,47-56,61,63-79
+benchmark/lib/validate-output.ts
+  h_9f4a25732fa0c1 9,132,151-197
+benchmark/results/2026-08-10T03-36-33-678Z-purejsimage-tiff.json
+  h_9f4a25732fa0c1 1-4288
+benchmark/results/2026-08-10T03-36-33-678Z-purejsimage-tiff.md
+  h_9f4a25732fa0c1 1-57
+benchmark/results/2026-08-10T03-37-38-256Z-jimp-tiff.json
+  h_9f4a25732fa0c1 1-3469
+benchmark/results/2026-08-10T03-37-38-256Z-jimp-tiff.md
+  h_9f4a25732fa0c1 1-55
+benchmark/results/2026-08-10T03-38-30-429Z-purejsimage-tiff.json
+  h_9f4a25732fa0c1 1-960
+benchmark/results/2026-08-10T03-38-30-429Z-purejsimage-tiff.md
+  h_9f4a25732fa0c1 1-57
+benchmark/results/imazen-tiff-conformance.json
+  h_9f4a25732fa0c1 3-5,25-26,217-218,265-266,281-282,313-314,345-346,361-362,391-392,416-417,453,471,485-489,507,525,543,561,575-579,593-597,615,633,651,669,687,705,723,741,759,777,791-795,813,831,849,867,885,903,921,939,957,975,993,1007-1011,1029,1043-1046,1061-1065,1079-1083,1101,1118-1119,1136-1137,1155,1173,1191,1205-1209,1223-1227,1241-1245,1263,1277-1281,1295-1299,1313-1317,1335,1352-1353,1370-1371,1385-1389,1403-1407,1425,1439-1443,1457-1461,1475-1479,1497,1514-1515,1532-1533,1551,1569,1587,1605,1623,1641,1658-1659,1677,1694-1695,1713,1730-1731,1748-1749,1763-1767,1785,1803,1821,1839,1857,1875,1893,1911,1929,1965,2001,2019,2037,2055,2073,2091,2109,2127,2145,2163,2181,2199,2217,2253,2271,2289,2307,2325,2343,2361,2379,2397,2415,2433,2451,2487,2505,2523,2541,2559,2577,2595,2613,2631,2649,2667,2685,2703,2721,2739,2757,2775,2793,2811,2829,2847,2865,2883,2901,2919,2937,2955,2973,2991,3009,3027,3045,3063,3077-3081,3099,3117,3135,3153,3171
+benchmark/results/imazen-tiff-conformance.md
+  h_9f4a25732fa0c1 9-10,24,36,39-40,42,44-45,56,64,71
+benchmark/results/imazen-tiff-dependencies.json
+  h_9f4a25732fa0c1 1-2453
+benchmark/results/imazen-tiff-dependencies.md
+  h_9f4a25732fa0c1 1-97
+benchmark/results/tiff-expanded-baseline-2026-08-09.json
+  h_9f4a25732fa0c1 1-5180
+benchmark/results/tiff-expanded-baseline-2026-08-09.md
+  h_9f4a25732fa0c1 1-61
+benchmark/results/tiff-expanded-cold-baseline-2026-08-09.json
+  h_9f4a25732fa0c1 1-2204
+benchmark/results/tiff-expanded-cold-baseline-2026-08-09.md
+  h_9f4a25732fa0c1 1-61
+benchmark/results/tiff-expanded-final-2026-08-10.json
+  h_9f4a25732fa0c1 1-6848
+benchmark/results/tiff-expanded-final-2026-08-10.md
+  h_9f4a25732fa0c1 1-69
+benchmark/run.ts
+  h_9f4a25732fa0c1 493-494,498,500-502
+benchmark/scripts/prepare-corpus.ts
+  h_9f4a25732fa0c1 262-529,770-777
+benchmark/types.ts
+  h_9f4a25732fa0c1 50-53,86-92,138-140,176-184,191-193,235,266,273-274,308-312
+benchmark/worker.ts
+  h_9f4a25732fa0c1 162-163,170-175
+benchmark/workflows.ts
+  h_9f4a25732fa0c1 807-896
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 9,29-33,842-893,927,930-931
+capabilities/manifest.json
+  h_9f4a25732fa0c1 817-819,822-829,861,863,867,869,883,886-887,892,896-898,900,904-908,941-943
+docs/capabilities.json
+  h_9f4a25732fa0c1 1609-1611,1620-1627,1680,1688,1704,1710-1713,1756,1766-1769,1772,1780,1784,1788,1876,1880,1884-1892
+docs/codecs.html
+  h_9f4a25732fa0c1 36,56,75
+package.json
+  h_9f4a25732fa0c1 167
+scripts/analyze-tiff-dependencies.ts
+  h_9f4a25732fa0c1 1-508
+scripts/validate-imazen-corpus.ts
+  h_9f4a25732fa0c1 1136-1141
+scripts/validate-imazen-worker.ts
+  h_9f4a25732fa0c1 7,43-44
+src/codec-entries/tiff.ts
+  h_9f4a25732fa0c1 1
+src/codecs/tiff.ts
+  h_9f4a25732fa0c1 44,370,803,835-836,876-883,889-894,926,929,935-947,1087-1090,1238-1242,1276-1278,1280-1285,1849-1885,1890,1910-1921,1923-1931,2001-2009,2228-2301,2345-2351,2368-2374,2385-2391,2394-2399,2464-2474,2484,2486-2491,2495,2509-2518,2532-2550,2573-2584,2640,2668,2673-2731,2737,2740,2750,2788,2793,2798,2811,2813-2815,2821-2823,2827-2835,2850,3025-3026,3028-3059
+src/executor.ts
+  h_9f4a25732fa0c1 13,229,241
+src/pixel.ts
+  h_9f4a25732fa0c1 3-11,46-98
+tests/benchmark-tiff.test.ts
+  h_9f4a25732fa0c1 2-4,6,31-78,81-82,87,92-96,100-101,105-149
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 89-96
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 345
+tests/tiff.test.ts
+  h_9f4a25732fa0c1 5-9,252-302,719-769,836-1013
+tiff-codec-support.md
+  h_9f4a25732fa0c1 25,27,31,33,47,50-51,56,60-62,64,68-72,105-107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "06a4a26f20bb72551881fe81b083c452d8123912",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
