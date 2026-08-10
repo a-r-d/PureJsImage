@@ -23,17 +23,17 @@ checksum-pinned dav1d, libaom, FFmpeg, Sharp, and Chromium fixtures in the AVIF 
 
 | Source | Files | Completed decode | Explicit error |
 |---|---:|---:|---:|
-| Imazen AVIF Conformance | 137 | 62 | 75 |
+| Imazen AVIF Conformance | 137 | 73 | 64 |
 | GB82 common-photo matrix | 100 | 100 | 0 |
-| **Total** | **237** | **162 (68.4%)** | **75** |
+| **Total** | **237** | **173 (73.0%)** | **64** |
 
 Conformance categories:
 
 | Declared category | Files | Completed decode | Explicit error |
 |---|---:|---:|---:|
-| Valid | 106 | 50 | 56 |
+| Valid | 106 | 59 | 47 |
 | Invalid | 12 | 1 | 11 |
-| Edge cases | 19 | 11 | 8 |
+| Edge cases | 19 | 13 | 6 |
 
 The one decoded file in the corpus's `invalid` directory is a gain-map-version case. PureJsImage
 currently ignores gain-map semantics rather than claiming gain-map support; it is not counted as
@@ -50,15 +50,12 @@ Common-photo encoders:
 
 | Boundary | Conformance | Common photo | Total |
 |---|---:|---:|---:|
-| High-bit-depth subset | 19 | 0 | 19 |
-| Alpha auxiliary subset | 15 | 0 | 15 |
-| Multiple-frame or tile-group layout | 13 | 0 | 13 |
+| Unsupported AV1 or container feature | 38 | 0 | 38 |
+| Malformed or unsupported container | 9 | 0 | 9 |
 | Animation | 8 | 0 | 8 |
-| Malformed or unsupported container | 7 | 0 | 7 |
-| Intra-block-copy residuals | 6 | 0 | 6 |
+| 64 MiB working-set limit | 4 | 0 | 4 |
 | Film grain | 2 | 0 | 2 |
-| 64 MiB working-set limit | 2 | 0 | 2 |
-| Other unsupported AV1/container feature | 1 | 0 | 1 |
+| Alpha auxiliary subset | 1 | 0 | 1 |
 | Entropy or reconstruction syntax | 1 | 0 | 1 |
 | Presentation transform | 1 | 0 | 1 |
 
@@ -97,6 +94,19 @@ permanent `diagnostic-*.avif` fixtures cover FFmpeg/libaom YUV 4:2:0 and 4:4:4 p
 Sharp/libvips/libaom YUV 4:2:0. PureJsImage, dav1d, and libaom agree byte for byte over each
 fixture's visible native YUV, and their public RGBA checksums are pinned in Node.js and Chromium.
 
+## Implemented blocker: still-picture intra-block-copy state
+
+Four Microsoft conformance inputs that previously ended as arithmetic-symbol or tile-termination
+errors now complete strict tile termination. The underlying divergence was earlier: intra-block-copy
+blocks used transform dimensions instead of their full block dimensions for neighboring transform
+contexts, selected only one immediate reference motion instead of the normative weighted candidate
+stack, and copied subsampled chroma without bilinear interpolation when an integer luma motion vector
+lands between chroma samples.
+
+The pinned 1280x720 reduced-header, 1280x720 full-header, and 3840x2160 full-header fixtures match
+agreeing dav1d and libaom visible native YUV byte for byte. The decoder still rejects invalid trailing
+bits; it does not relax arithmetic-symbol or tile-padding validation.
+
 ## Reproduction
 
 ```sh
@@ -111,6 +121,7 @@ npm run bench:avif:compatibility -- \
   --output benchmark/results/avif-compatibility-survey-2026-08-10.json
 npm run fixtures:avif:common-photo-syntax
 npm run fixtures:avif:nonstill-sequence
+npm run fixtures:avif:still-picture-entropy
 ```
 
 The survey is intentionally broader than the published decoder claim. HDR/PQ/HLG policy, wide-gamut

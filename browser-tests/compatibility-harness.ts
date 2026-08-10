@@ -614,6 +614,14 @@ const avifResidualIntrabc = (): Promise<BrowserWorkflowResult> =>
     '6e036207ef682d41edad54421d20bb36ec7f03e34113e2f6fa4ab954779d71c0',
     'Residual intra-block-copy AVIF',
   )
+const avifStillPictureEntropy = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'ms-Tomsk-with-thumbnails.avif',
+    1280,
+    720,
+    '3277bbd3ada1d7dc560080465c9957bf9595ff6eaf2b023c62aca4e7a3679c3b',
+    'Still-picture intra-block-copy AVIF',
+  )
 
 const avifCleanAperture = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
@@ -1110,6 +1118,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifSuperres,
   avifIntrabc,
   avifResidualIntrabc,
+  avifStillPictureEntropy,
   avifQuantizationMatrix,
   avifQ0Lossless,
   avifPalette,

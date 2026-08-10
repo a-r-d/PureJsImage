@@ -96,9 +96,10 @@ All notable changes to PureJsImage are documented in this file.
   in-place plane copies; the pinned 320x280 fixture matches agreeing libaom and
   dav1d native YUV exactly.
 - Added residual intra-block-copy reconstruction for compatible one-tile AVIF
-  frames, including transform partitions, inter transform contexts and types,
-  coefficients, inverse transforms, and adaptive top-right motion references.
-  The pinned 1280x720 monochrome fixture matches agreeing libaom and dav1d
+  frames, including transform partitions, full-block transform contexts and types,
+  coefficients, inverse transforms, weighted reference-motion candidate stacks,
+  and bilinear chroma prediction for subsampled motion. The pinned monochrome and
+  four Microsoft YUV 4:2:0 still-picture fixtures match agreeing libaom and dav1d
   native YUV byte for byte, and checksum-pinned entropy mutations verify that
   superblock-overlapping and plane-escaping motion vectors fail explicitly.
 - Added block delta-Q integration coverage for skipped intra-block copy. The

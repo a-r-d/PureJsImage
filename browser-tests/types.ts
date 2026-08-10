@@ -24,6 +24,7 @@ export interface BrowserCompatibilityHarness {
   avifLayeredSelection(): Promise<BrowserWorkflowResult>
   avifIntrabc(): Promise<BrowserWorkflowResult>
   avifResidualIntrabc(): Promise<BrowserWorkflowResult>
+  avifStillPictureEntropy(): Promise<BrowserWorkflowResult>
   avifMonochrome(): Promise<BrowserWorkflowResult>
   avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
   avifNonstillSequence(): Promise<BrowserWorkflowResult>

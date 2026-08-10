@@ -192,6 +192,12 @@ test('decodes common-photo AV1 coefficient and palette contexts', async ({ page 
   expect(result.outputBytes).toBeGreaterThan(300)
   expect(result.detail).toContain('pinned portable RGBA output')
 })
+test('decodes still-picture intra-block-copy AVIF state', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifStillPictureEntropy())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
 
 test('decodes filter-free AV1 super-resolution', async ({ page }) => {
   await harness(page)

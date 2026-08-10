@@ -448,6 +448,10 @@ await copyFile(
   resolve(fixtureDirectory, 'ms-monochrome-residual-intrabc.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/ms-Tomsk-with-thumbnails.avif',
+  resolve(fixtureDirectory, 'ms-Tomsk-with-thumbnails.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/clean-aperture-lossless-16x12.avif',
   resolve(fixtureDirectory, 'clean-aperture-lossless-16x12.avif'),
 )

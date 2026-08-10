@@ -903,6 +903,10 @@ class RestrictedIntraTileDecoder {
   readonly #intraFlags: Uint8Array
   readonly #motionX: Int32Array
   readonly #motionY: Int32Array
+  readonly #motionCandidateX = new Int32Array(8)
+  readonly #motionCandidateY = new Int32Array(8)
+  readonly #motionCandidateWeights = new Uint16Array(8)
+  #motionCandidateCount = 0
   readonly #paletteSizes: readonly [Uint8Array, Uint8Array]
   readonly #paletteColors: readonly [Uint16Array, Uint16Array, Uint16Array]
   readonly #transformWidths: readonly [Uint8Array, Uint8Array, Uint8Array]
@@ -1439,7 +1443,7 @@ class RestrictedIntraTileDecoder {
     const useIntrabc =
       this.#frame.header.allowIntrabc && this.#symbols.readSymbol(this.#intrabcCdf) === 1
     if (useIntrabc) {
-      this.#decodeIntrabcBlock(row, column, width, height, skip)
+      this.#decodeIntrabcBlock(row, column, width, height, skip, intraEdgeFlags)
       return
     }
     const aboveMode =
@@ -1802,7 +1806,7 @@ class RestrictedIntraTileDecoder {
           const target = this.#chromaContextIndex(contextRow, contextColumn)
           if (
             contextRow < this.#miRows >> this.#chromaShiftY &&
-            contextColumn < this.#chromaMiColumns
+            contextColumn < this.#miColumns >> this.#chromaShiftX
           ) {
             this.#uvModes[target] = uvMode
           }
@@ -1811,12 +1815,218 @@ class RestrictedIntraTileDecoder {
     }
   }
 
+  #addIntrabcMotionCandidate(row: number, column: number, weight: number): void {
+    if (
+      row < this.#tile.miRowStart ||
+      row >= this.#tile.miRowEnd ||
+      column < this.#tile.miColumnStart ||
+      column >= this.#tile.miColumnEnd
+    ) {
+      return
+    }
+    const index = this.#lumaContextIndex(row, column)
+    if ((this.#blockWidths[index] ?? 0) === 0 || this.#intraFlags[index] !== 0) return
+    const motionX = this.#motionX[index] ?? 0
+    const motionY = this.#motionY[index] ?? 0
+    for (let candidate = 0; candidate < this.#motionCandidateCount; candidate += 1) {
+      if (
+        this.#motionCandidateX[candidate] === motionX &&
+        this.#motionCandidateY[candidate] === motionY
+      ) {
+        this.#motionCandidateWeights[candidate] =
+          (this.#motionCandidateWeights[candidate] ?? 0) + weight
+        return
+      }
+    }
+    if (this.#motionCandidateCount >= this.#motionCandidateX.length) return
+    this.#motionCandidateX[this.#motionCandidateCount] = motionX
+    this.#motionCandidateY[this.#motionCandidateCount] = motionY
+    this.#motionCandidateWeights[this.#motionCandidateCount] = weight
+    this.#motionCandidateCount += 1
+  }
+
+  #scanIntrabcMotionRow(
+    row: number,
+    column: number,
+    blockColumns: number,
+    rowOffset: number,
+    maximumRowOffset: number,
+  ): number {
+    const end = Math.min(blockColumns, this.#miColumns - column, 16)
+    let columnOffset = 0
+    if (Math.abs(rowOffset) > 1) {
+      columnOffset = 1
+      if ((column & 1) !== 0 && blockColumns < 2) columnOffset -= 1
+    }
+    let processedRows = 0
+    for (let offset = 0; offset < end; ) {
+      const index = this.#lumaContextIndex(row + rowOffset, column + columnOffset + offset)
+      const candidateColumns = Math.max(1, (this.#blockWidths[index] ?? 0) >> 2)
+      const candidateRows = Math.max(1, (this.#blockHeights[index] ?? 0) >> 2)
+      let length = Math.min(blockColumns, candidateColumns)
+      if (blockColumns >= 16) length = Math.max(4, length)
+      else if (Math.abs(rowOffset) > 1) length = Math.max(2, length)
+      let weight = 2
+      if (blockColumns >= 2 && blockColumns <= candidateColumns) {
+        const increment = Math.min(-maximumRowOffset + rowOffset + 1, candidateRows)
+        weight = Math.max(weight, increment)
+        processedRows = increment - rowOffset - 1
+      }
+      this.#addIntrabcMotionCandidate(
+        row + rowOffset,
+        column + columnOffset + offset,
+        length * weight,
+      )
+      offset += length
+    }
+    return processedRows
+  }
+
+  #scanIntrabcMotionColumn(
+    row: number,
+    column: number,
+    blockRows: number,
+    columnOffset: number,
+    maximumColumnOffset: number,
+  ): number {
+    const end = Math.min(blockRows, this.#miRows - row, 16)
+    let rowOffset = 0
+    if (Math.abs(columnOffset) > 1) {
+      rowOffset = 1
+      if ((row & 1) !== 0 && blockRows < 2) rowOffset -= 1
+    }
+    let processedColumns = 0
+    for (let offset = 0; offset < end; ) {
+      const index = this.#lumaContextIndex(row + rowOffset + offset, column + columnOffset)
+      const candidateColumns = Math.max(1, (this.#blockWidths[index] ?? 0) >> 2)
+      const candidateRows = Math.max(1, (this.#blockHeights[index] ?? 0) >> 2)
+      let length = Math.min(blockRows, candidateRows)
+      if (blockRows >= 16) length = Math.max(4, length)
+      else if (Math.abs(columnOffset) > 1) length = Math.max(2, length)
+      let weight = 2
+      if (blockRows >= 2 && blockRows <= candidateRows) {
+        const increment = Math.min(-maximumColumnOffset + columnOffset + 1, candidateColumns)
+        weight = Math.max(weight, increment)
+        processedColumns = increment - columnOffset - 1
+      }
+      this.#addIntrabcMotionCandidate(
+        row + rowOffset + offset,
+        column + columnOffset,
+        length * weight,
+      )
+      offset += length
+    }
+    return processedColumns
+  }
+
+  #sortIntrabcMotionCandidates(start: number, end: number): void {
+    for (let index = start + 1; index < end; index += 1) {
+      const motionX = this.#motionCandidateX[index] ?? 0
+      const motionY = this.#motionCandidateY[index] ?? 0
+      const weight = this.#motionCandidateWeights[index] ?? 0
+      let target = index
+      while (target > start && (this.#motionCandidateWeights[target - 1] ?? 0) < weight) {
+        this.#motionCandidateX[target] = this.#motionCandidateX[target - 1] ?? 0
+        this.#motionCandidateY[target] = this.#motionCandidateY[target - 1] ?? 0
+        this.#motionCandidateWeights[target] = this.#motionCandidateWeights[target - 1] ?? 0
+        target -= 1
+      }
+      this.#motionCandidateX[target] = motionX
+      this.#motionCandidateY[target] = motionY
+      this.#motionCandidateWeights[target] = weight
+    }
+  }
+
+  #intrabcReferenceMotion(
+    row: number,
+    column: number,
+    blockRows: number,
+    blockColumns: number,
+    topRightAvailable: boolean,
+  ): readonly [number, number] {
+    this.#motionCandidateCount = 0
+    const rowAdjustment = blockRows < 2 && (row & 1) !== 0 ? 1 : 0
+    const columnAdjustment = blockColumns < 2 && (column & 1) !== 0 ? 1 : 0
+    let maximumRowOffset = 0
+    let maximumColumnOffset = 0
+    if (row > this.#tile.miRowStart) {
+      maximumRowOffset = Math.max(
+        blockRows < 2 ? -4 + rowAdjustment : -6 + rowAdjustment,
+        this.#tile.miRowStart - row,
+      )
+    }
+    if (column > this.#tile.miColumnStart) {
+      maximumColumnOffset = Math.max(
+        blockColumns < 2 ? -4 + columnAdjustment : -6 + columnAdjustment,
+        this.#tile.miColumnStart - column,
+      )
+    }
+    let processedRows = 0
+    let processedColumns = 0
+    if (Math.abs(maximumRowOffset) >= 1) {
+      processedRows = this.#scanIntrabcMotionRow(row, column, blockColumns, -1, maximumRowOffset)
+    }
+    if (Math.abs(maximumColumnOffset) >= 1) {
+      processedColumns = this.#scanIntrabcMotionColumn(
+        row,
+        column,
+        blockRows,
+        -1,
+        maximumColumnOffset,
+      )
+    }
+    if (topRightAvailable) this.#addIntrabcMotionCandidate(row - 1, column + blockColumns, 4)
+    const nearestCount = this.#motionCandidateCount
+    for (let index = 0; index < nearestCount; index += 1) {
+      this.#motionCandidateWeights[index] = (this.#motionCandidateWeights[index] ?? 0) + 640
+    }
+    this.#addIntrabcMotionCandidate(row - 1, column - 1, 4)
+    for (let distance = 2; distance <= 3; distance += 1) {
+      const rowOffset = -(distance << 1) + 1 + rowAdjustment
+      const columnOffset = -(distance << 1) + 1 + columnAdjustment
+      if (
+        Math.abs(rowOffset) <= Math.abs(maximumRowOffset) &&
+        Math.abs(rowOffset) > processedRows
+      ) {
+        processedRows = this.#scanIntrabcMotionRow(
+          row,
+          column,
+          blockColumns,
+          rowOffset,
+          maximumRowOffset,
+        )
+      }
+      if (
+        Math.abs(columnOffset) <= Math.abs(maximumColumnOffset) &&
+        Math.abs(columnOffset) > processedColumns
+      ) {
+        processedColumns = this.#scanIntrabcMotionColumn(
+          row,
+          column,
+          blockRows,
+          columnOffset,
+          maximumColumnOffset,
+        )
+      }
+    }
+    this.#sortIntrabcMotionCandidates(0, nearestCount)
+    this.#sortIntrabcMotionCandidates(nearestCount, this.#motionCandidateCount)
+    if (this.#motionCandidateCount > 0) {
+      return [this.#motionCandidateX[0] ?? 0, this.#motionCandidateY[0] ?? 0]
+    }
+    const superblockMi = this.#sequence.use128x128Superblock ? 32 : 16
+    return row - superblockMi < this.#tile.miRowStart
+      ? [-(superblockMi * 4 + 256) * 8, 0]
+      : [0, -(superblockMi * 4) * 8]
+  }
+
   #decodeIntrabcBlock(
     row: number,
     column: number,
     width: number,
     height: number,
     skip: number,
+    intraEdgeFlags: number,
   ): void {
     const blockColumns = width >> 2
     const blockRows = height >> 2
@@ -1824,35 +2034,13 @@ class RestrictedIntraTileDecoder {
       !this.#sequence.monochrome &&
       !(this.#chromaShiftY === 1 && height === 4 && (row & 1) === 0) &&
       !(this.#chromaShiftX === 1 && width === 4 && (column & 1) === 0)
-    let motionX: number
-    let motionY: number
-    const left = this.#lumaContextIndex(row, column - 1)
-    const above = this.#lumaContextIndex(row - 1, column)
-    const aboveRight = this.#lumaContextIndex(row - 1, column + blockColumns)
-    if (column > this.#tile.miColumnStart && this.#intraFlags[left] === 0) {
-      motionX = this.#motionX[left] ?? 0
-      motionY = this.#motionY[left] ?? 0
-    } else if (row > this.#tile.miRowStart && this.#intraFlags[above] === 0) {
-      motionX = this.#motionX[above] ?? 0
-      motionY = this.#motionY[above] ?? 0
-    } else if (
-      row > this.#tile.miRowStart &&
-      column + blockColumns < this.#tile.miColumnEnd &&
-      this.#blockWidths[aboveRight] !== 0 &&
-      this.#intraFlags[aboveRight] === 0
-    ) {
-      motionX = this.#motionX[aboveRight] ?? 0
-      motionY = this.#motionY[aboveRight] ?? 0
-    } else {
-      const superblockMi = this.#sequence.use128x128Superblock ? 32 : 16
-      if (row < superblockMi) {
-        motionX = -(superblockMi * 4 + 256) * 8
-        motionY = 0
-      } else {
-        motionX = 0
-        motionY = -(superblockMi * 4) * 8
-      }
-    }
+    let [motionX, motionY] = this.#intrabcReferenceMotion(
+      row,
+      column,
+      blockRows,
+      blockColumns,
+      (intraEdgeFlags & EDGE_LUMA_TOP_RIGHT) !== 0,
+    )
     const joint = this.#symbols.readSymbol(this.#motionVectorJointCdf)
     if ((joint & 2) !== 0) motionY += this.#readMotionVectorComponent(0)
     if ((joint & 1) !== 0) motionX += this.#readMotionVectorComponent(1)
@@ -2310,6 +2498,8 @@ class RestrictedIntraTileDecoder {
       const targetY = (row >> shiftY) * 4
       const sourceX = targetX + (motionX >> (3 + shiftX))
       const sourceY = targetY + (motionY >> (3 + shiftY))
+      const phaseX = shiftX === 0 ? 0 : motionX & 15
+      const phaseY = shiftY === 0 ? 0 : motionY & 15
       const plane = this.#planes[planeIndex as 0 | 1 | 2]
       if (
         sourceX < 0 ||
@@ -2321,10 +2511,34 @@ class RestrictedIntraTileDecoder {
       ) {
         throw invalidInput('AV1 intra-block-copy motion vector escapes its plane')
       }
+      if (phaseX === 0 && phaseY === 0) {
+        for (let localY = 0; localY < height; localY += 1) {
+          const source = (sourceY + localY) * plane.stride + sourceX
+          const target = (targetY + localY) * plane.stride + targetX
+          plane.data.copyWithin(target, source, source + width)
+        }
+        continue
+      }
+      const inversePhaseX = 16 - phaseX
+      const inversePhaseY = 16 - phaseY
       for (let localY = 0; localY < height; localY += 1) {
-        const source = (sourceY + localY) * plane.stride + sourceX
-        const target = (targetY + localY) * plane.stride + targetX
-        plane.data.copyWithin(target, source, source + width)
+        const sourceRow = sourceY + localY
+        const nextSourceRow = Math.min(plane.height - 1, sourceRow + 1)
+        for (let localX = 0; localX < width; localX += 1) {
+          const sourceColumn = sourceX + localX
+          const nextSourceColumn = Math.min(plane.width - 1, sourceColumn + 1)
+          const top =
+            planeRead(plane, sourceRow * plane.stride + sourceColumn, 0) * inversePhaseX +
+            planeRead(plane, sourceRow * plane.stride + nextSourceColumn, 0) * phaseX
+          const bottom =
+            planeRead(plane, nextSourceRow * plane.stride + sourceColumn, 0) * inversePhaseX +
+            planeRead(plane, nextSourceRow * plane.stride + nextSourceColumn, 0) * phaseX
+          planeWrite(
+            plane,
+            (targetY + localY) * plane.stride + targetX + localX,
+            (top * inversePhaseY + bottom * phaseY + 128) >> 8,
+          )
+        }
       }
     }
   }
@@ -2628,14 +2842,22 @@ class RestrictedIntraTileDecoder {
     let height = Math.min(blockHeight, 64) as TransformDimension
     if (this.#frame.header.transformMode !== 'select' || skip) return { width, height }
     const category = Math.max(width, height) as 8 | 16 | 32 | 64
+    const aboveIndex =
+      row > this.#tile.miRowStart ? this.#lumaContextIndex(row - 1, column) : undefined
+    const leftIndex =
+      column > this.#tile.miColumnStart ? this.#lumaContextIndex(row, column - 1) : undefined
     const above =
-      row > this.#tile.miRowStart
-        ? (this.#transformWidths[0][this.#lumaContextIndex(row - 1, column)] ?? 0)
-        : 0
+      aboveIndex === undefined
+        ? 0
+        : this.#intraFlags[aboveIndex] === 0
+          ? (this.#blockWidths[aboveIndex] ?? 0)
+          : (this.#transformWidths[0][aboveIndex] ?? 0)
     const left =
-      column > this.#tile.miColumnStart
-        ? (this.#transformHeights[0][this.#lumaContextIndex(row, column - 1)] ?? 0)
-        : 0
+      leftIndex === undefined
+        ? 0
+        : this.#intraFlags[leftIndex] === 0
+          ? (this.#blockHeights[leftIndex] ?? 0)
+          : (this.#transformHeights[0][leftIndex] ?? 0)
     const context = Number(above >= width) + Number(left >= height)
     const key = `${category}:${context}`
     let transformDepthCdf = this.#transformDepthCdfs.get(key)

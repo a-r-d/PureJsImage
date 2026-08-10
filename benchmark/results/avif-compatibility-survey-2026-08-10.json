@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-10T15:15:23.004Z",
+  "generatedAt": "2026-08-10T19:22:45.421Z",
   "node": "v24.16.0",
   "platform": "linux/x64",
   "sources": [
@@ -14,27 +14,24 @@
   ],
   "summary": {
     "files": 237,
-    "decoded": 162,
-    "errors": 75,
-    "decodedPercent": 68.4,
+    "decoded": 173,
+    "errors": 64,
+    "decodedPercent": 73,
     "bySourceAndOutcome": {
       "common-photo:decoded": 100,
-      "conformance:decoded": 62,
-      "conformance:error": 75
+      "conformance:decoded": 73,
+      "conformance:error": 64
     },
     "errorTaxonomy": {
-      "alpha-auxiliary": 15,
+      "alpha-auxiliary": 1,
       "animation": 8,
-      "decoded": 162,
+      "decoded": 173,
       "entropy-or-reconstruction-syntax": 1,
       "film-grain": 2,
-      "frame-layout": 13,
-      "high-bit-depth": 19,
-      "intra-block-copy-residual": 6,
-      "malformed-or-unsupported-container": 7,
+      "malformed-or-unsupported-container": 9,
       "presentation-transform": 1,
-      "unsupported-av1-or-container-feature": 1,
-      "working-set-limit": 2
+      "unsupported-av1-or-container-feature": 38,
+      "working-set-limit": 4
     }
   },
   "outcomes": [
@@ -46,7 +43,7 @@
       "outcome": "decoded",
       "rgbaSha256": "faefee7339b7e5b966e962ad9cb117b6d45bab921ddce2a30d0a23ffe8dac612",
       "source": "conformance",
-      "wallMilliseconds": 5098.558,
+      "wallMilliseconds": 5427.274,
       "width": 2048
     },
     {
@@ -57,7 +54,7 @@
       "outcome": "decoded",
       "rgbaSha256": "faefee7339b7e5b966e962ad9cb117b6d45bab921ddce2a30d0a23ffe8dac612",
       "source": "conformance",
-      "wallMilliseconds": 4925.786,
+      "wallMilliseconds": 5365.186,
       "width": 2048
     },
     {
@@ -69,7 +66,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.896
+      "wallMilliseconds": 0.88
     },
     {
       "category": "edge-cases",
@@ -79,7 +76,7 @@
       "outcome": "decoded",
       "rgbaSha256": "5f8d1153b0251d1a19306fe5f54a8dac482bf5f07c59c57e6e4a893f000aeabe",
       "source": "conformance",
-      "wallMilliseconds": 8.079,
+      "wallMilliseconds": 8.154,
       "width": 64
     },
     {
@@ -90,41 +87,41 @@
       "outcome": "decoded",
       "rgbaSha256": "dc9634d740e6ada143e8c451cfe25a9d492788c8a431095aabc4810e08d3c9f8",
       "source": "conformance",
-      "wallMilliseconds": 8.938,
+      "wallMilliseconds": 7.879,
       "width": 100
     },
     {
       "category": "edge-cases",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "edge-cases/libavif_clap_irot_imir_non_essential.avif",
       "fileSha256": "33f869fcf2a879913eb394982b8fc03e9a60c25831aa37622ddefa656fd39fc1",
-      "message": "Phase B2 supports full-range 8-bit monochrome AVIF alpha only",
-      "outcome": "error",
+      "height": 10,
+      "outcome": "decoded",
+      "rgbaSha256": "75bd30ada66f702e044648022b72590e75cbc244815c4a1c9b6f007f0b145ae2",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.699
+      "wallMilliseconds": 3.909,
+      "width": 8
     },
     {
       "category": "edge-cases",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "edge-cases/libavif_clop_irot_imor.avif",
       "fileSha256": "28e96ad4c913d75a32d66bce116f2963e29d93c01952698c7b33dd893f8bd541",
-      "message": "Phase B2 supports full-range 8-bit monochrome AVIF alpha only",
-      "outcome": "error",
+      "height": 34,
+      "outcome": "decoded",
+      "rgbaSha256": "c5d33b2a815c42e2cb5235fadc0aa8b27481f4d7fe358b283c2028385c707095",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.392
+      "wallMilliseconds": 2.677,
+      "width": 12
     },
     {
       "category": "edge-cases",
       "code": "INVALID_INPUT",
       "file": "edge-cases/libavif_color_grid_alpha_grid_tile_shared_in_dimg.avif",
       "fileSha256": "1924ad27fa74aff5278367245d56e14804f6f5a6ac9fbc3da19b39033e167235",
-      "message": "AVIF alpha auxiliary item is not AV1-coded",
+      "message": "AVIF alpha auxiliary item is also referenced as color",
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.486
+      "wallMilliseconds": 0.545
     },
     {
       "category": "edge-cases",
@@ -134,7 +131,7 @@
       "outcome": "decoded",
       "rgbaSha256": "f803b121d2471ac44b32170380ab02f8174ddf1079f9425de921dde00ac91fc7",
       "source": "conformance",
-      "wallMilliseconds": 3.243,
+      "wallMilliseconds": 2.594,
       "width": 33
     },
     {
@@ -145,7 +142,7 @@
       "outcome": "decoded",
       "rgbaSha256": "f803b121d2471ac44b32170380ab02f8174ddf1079f9425de921dde00ac91fc7",
       "source": "conformance",
-      "wallMilliseconds": 2.837,
+      "wallMilliseconds": 1.521,
       "width": 33
     },
     {
@@ -153,22 +150,22 @@
       "code": "UNSUPPORTED_OPERATION",
       "file": "edge-cases/libavif_draw_points_idat_progressive.avif",
       "fileSha256": "077ab2ad1e46dd912a973e4f024cb1eb242a08298be2dbf1a52a058e88c48a4a",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "Non-reduced AV1 images must use a shown key frame",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 0.43
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.362
     },
     {
       "category": "edge-cases",
       "code": "UNSUPPORTED_OPERATION",
       "file": "edge-cases/libavif_draw_points_idat_progressive_metasize0.avif",
       "fileSha256": "1921cbbf0002c1fba64072298a1a232d106b46ea1b427574723db66d90c3443e",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "Non-reduced AV1 images must use a shown key frame",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 0.365
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.218
     },
     {
       "category": "edge-cases",
@@ -178,7 +175,7 @@
       "outcome": "decoded",
       "rgbaSha256": "48fcfccfce1a2219ef9cbd4197862df1b5c5e751b38e384a082ba980dd589971",
       "source": "conformance",
-      "wallMilliseconds": 1.063,
+      "wallMilliseconds": 0.578,
       "width": 4
     },
     {
@@ -186,11 +183,11 @@
       "code": "UNSUPPORTED_OPERATION",
       "file": "edge-cases/libavif_seine_hdr_gainmap_wrongaltr.avif",
       "fileSha256": "23990f6493467f13a313c629dec3c98a6560b85dbfbb11bfb2ab8a6bc9850bbf",
-      "message": "The restricted lossy 10-bit YUV 4:4:4 AV1 path supports filter-free frames only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.527
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.394
     },
     {
       "category": "edge-cases",
@@ -200,7 +197,7 @@
       "outcome": "decoded",
       "rgbaSha256": "dfcafa1a6dbaecb920c91cdd35ab82647c50121be5a4fbd491d53112101c71ad",
       "source": "conformance",
-      "wallMilliseconds": 149.771,
+      "wallMilliseconds": 152.715,
       "width": 400
     },
     {
@@ -211,7 +208,7 @@
       "outcome": "decoded",
       "rgbaSha256": "dfcafa1a6dbaecb920c91cdd35ab82647c50121be5a4fbd491d53112101c71ad",
       "source": "conformance",
-      "wallMilliseconds": 135.166,
+      "wallMilliseconds": 145.152,
       "width": 400
     },
     {
@@ -222,7 +219,7 @@
       "outcome": "decoded",
       "rgbaSha256": "9c7c6b07287ca09612ba2e9016817df11b289b6ae6d56c8cae5774205c5d38ce",
       "source": "conformance",
-      "wallMilliseconds": 378.627,
+      "wallMilliseconds": 399.184,
       "width": 1024
     },
     {
@@ -233,7 +230,7 @@
       "outcome": "decoded",
       "rgbaSha256": "f50be4adf61e1be72dc8f4bca8cd73c5a0abd7496b0d38ffebfc2de1acb208e7",
       "source": "conformance",
-      "wallMilliseconds": 369.891,
+      "wallMilliseconds": 423.894,
       "width": 1024
     },
     {
@@ -241,11 +238,11 @@
       "code": "UNSUPPORTED_OPERATION",
       "file": "edge-cases/libavif_supported_gainmap_writer_version_with_extra_bytes.avif",
       "fileSha256": "189398ea72d391c75c8679942c539ae7d4324152fa2f948d742b73f3bd6cc8f1",
-      "message": "Phase B2 supports full-range 8-bit monochrome AVIF alpha only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.614
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.413
     },
     {
       "category": "invalid",
@@ -256,7 +253,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 4.323
+      "wallMilliseconds": 3.698
     },
     {
       "category": "invalid",
@@ -267,7 +264,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.201
+      "wallMilliseconds": 0.213
     },
     {
       "category": "invalid",
@@ -278,7 +275,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "entropy-or-reconstruction-syntax",
-      "wallMilliseconds": 355.581
+      "wallMilliseconds": 368.582
     },
     {
       "category": "invalid",
@@ -289,40 +286,40 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.035
+      "wallMilliseconds": 0.07
     },
     {
       "category": "invalid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "invalid/libavif_unsupported_gainmap_minimum_version.avif",
       "fileSha256": "d675f46519029ce3da98fac587cb25fa2eb33c7b77d7ae5c04903b2825367331",
-      "message": "Phase B2 supports full-range 8-bit monochrome AVIF alpha only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.403
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.31
     },
     {
       "category": "invalid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "invalid/libavif_unsupported_gainmap_version.avif",
       "fileSha256": "f67ef979ee9df50c7893eafea591030b3897dba1285ea8331dc0687e063dda9b",
-      "message": "Phase B2 supports full-range 8-bit monochrome AVIF alpha only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.217
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.189
     },
     {
       "category": "invalid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "invalid/libavif_unsupported_gainmap_writer_version_with_extra_bytes.avif",
       "fileSha256": "1ede5af67433062cffd620833d2b132e1572348596c5659ad2ed4c4d708edd83",
-      "message": "Phase B2 supports full-range 8-bit monochrome AVIF alpha only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.208
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.171
     },
     {
       "category": "invalid",
@@ -333,7 +330,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.055
+      "wallMilliseconds": 0.067
     },
     {
       "category": "invalid",
@@ -344,7 +341,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.12
+      "wallMilliseconds": 0.118
     },
     {
       "category": "invalid",
@@ -355,7 +352,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.034
+      "wallMilliseconds": 0.028
     },
     {
       "category": "invalid",
@@ -365,7 +362,7 @@
       "outcome": "decoded",
       "rgbaSha256": "5e76e644437818edbdc977ebd1558d3c106da3929789a87b3cc039cd58eda519",
       "source": "conformance",
-      "wallMilliseconds": 565.905,
+      "wallMilliseconds": 596.63,
       "width": 1204
     },
     {
@@ -377,7 +374,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.292
+      "wallMilliseconds": 0.273
     },
     {
       "category": "valid",
@@ -388,73 +385,73 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.388
+      "wallMilliseconds": 0.386
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/apple_animals_00_multilayer_a1lx.avif",
       "fileSha256": "62edad3dffbdd094d91c729cf3c599efe60a15274d283a8604affb0e3b6abcc4",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "Non-reduced AV1 images must use a shown key frame",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 3.706
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 3.812
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/apple_animals_00_multilayer_a1op.avif",
       "fileSha256": "5b150c2e9bdf8bde459a81d74827c1ae07dacc2684054fcac78e4a8676021743",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "Non-reduced AV1 images must use a shown key frame",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 4.293
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 3.756
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/apple_animals_00_multilayer_a1op_lsel.avif",
       "fileSha256": "8c58289820b0ab4a1345e997fbc7d697860ab1488b6f84891a414f32edef5fe4",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "Non-reduced AV1 images must use a shown key frame",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 4.212
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 4.24
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/apple_animals_00_multilayer_grid_a1lx.avif",
       "fileSha256": "b65d38bf37acad4d91ef6b9c6a7b8e785a344db37ef248afd91cd583d54111d1",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "Non-reduced AV1 images must use a shown key frame",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 4.524
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 4.603
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/apple_animals_00_multilayer_grid_lsel.avif",
       "fileSha256": "5260c251d9f0161be51d134cbe39642357cd4d36826599d408ae5c3c88b902a1",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "Non-reduced AV1 images must use a shown key frame",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 4.431
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 5.038
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/apple_animals_00_multilayer_lsel.avif",
       "fileSha256": "eae84e3e812db46af7953da1ce208e11541a362fbcfc91417bbe60b93341d588",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "Non-reduced AV1 images must use a shown key frame",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 4.228
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 3.849
     },
     {
       "category": "valid",
@@ -464,19 +461,19 @@
       "outcome": "decoded",
       "rgbaSha256": "faefee7339b7e5b966e962ad9cb117b6d45bab921ddce2a30d0a23ffe8dac612",
       "source": "conformance",
-      "wallMilliseconds": 5022.506,
+      "wallMilliseconds": 5331.507,
       "width": 2048
     },
     {
       "category": "valid",
-      "code": "INVALID_INPUT",
       "file": "valid/libavif_abc_color_irot_alpha_NOirot.avif",
       "fileSha256": "f2c8cd6ded641c68d13b3363417a62288a5eb335870de8d0b9da5093865ffb9a",
-      "message": "AVIF alpha dimensions do not align with the color item",
-      "outcome": "error",
+      "height": 256,
+      "outcome": "decoded",
+      "rgbaSha256": "5102863ca73f618c60944e490aa3982e7a1afd6975f4d0edf12b40ac85c88f82",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.359
+      "wallMilliseconds": 52.634,
+      "width": 512
     },
     {
       "category": "valid",
@@ -486,19 +483,19 @@
       "outcome": "decoded",
       "rgbaSha256": "5102863ca73f618c60944e490aa3982e7a1afd6975f4d0edf12b40ac85c88f82",
       "source": "conformance",
-      "wallMilliseconds": 52.834,
+      "wallMilliseconds": 50.476,
       "width": 512
     },
     {
       "category": "valid",
-      "code": "INVALID_INPUT",
+      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_color_grid_alpha_grid_gainmap_nogrid.avif",
       "fileSha256": "c424c43fe4bab3b8ef37b86c0bab3851b850b94e5d46b9fae979586dae45de0a",
-      "message": "AVIF alpha auxiliary item is not AV1-coded",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.378
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.712
     },
     {
       "category": "valid",
@@ -506,32 +503,32 @@
       "fileSha256": "bae56368b348b1d847e2bfb662522599f0c63dfe62fb68826c9e42a300ff405d",
       "height": 80,
       "outcome": "decoded",
-      "rgbaSha256": "463b22790160ea4fc9bfd037213240954705cb40af07c79dac856a713b3d2512",
+      "rgbaSha256": "bfc6eb86c18a9be89e5b52ff7dfc2faba3e84d4c1368bf18b478ec4f4947ff49",
       "source": "conformance",
-      "wallMilliseconds": 6.279,
+      "wallMilliseconds": 9.178,
       "width": 80
     },
     {
       "category": "valid",
-      "code": "INVALID_INPUT",
+      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_color_grid_gainmap_different_grid.avif",
       "fileSha256": "73a68c3d6daad7b8298db975a00f02bca46b6c3f292eac09d3c1443d2006fab2",
-      "message": "AVIF alpha auxiliary item is not AV1-coded",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.501
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.671
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_color_nogrid_alpha_nogrid_gainmap_grid.avif",
       "fileSha256": "d783e0d9ce778f972e88586b6b1b9eb062f54d38f28521721a8b9cbbda3b7fb0",
-      "message": "Phase B2 supports full-range 8-bit monochrome AVIF alpha only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.394
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.247
     },
     {
       "category": "valid",
@@ -542,7 +539,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.154
+      "wallMilliseconds": 0.092
     },
     {
       "category": "valid",
@@ -553,7 +550,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.188
+      "wallMilliseconds": 0.11
     },
     {
       "category": "valid",
@@ -564,7 +561,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.094
+      "wallMilliseconds": 0.066
     },
     {
       "category": "valid",
@@ -575,7 +572,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.134
+      "wallMilliseconds": 0.093
     },
     {
       "category": "valid",
@@ -586,40 +583,40 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.094
+      "wallMilliseconds": 0.06
     },
     {
       "category": "valid",
+      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_colors_hdr_p3.avif",
       "fileSha256": "ec4b67fa129360f4b44768bdd1027fb32834d1a1f7e49ae53bed44c819def9c4",
-      "height": 200,
-      "outcome": "decoded",
-      "rgbaSha256": "7ee4af7bd46430f8add3c85e25074c3626253503047e01ff0b9237e5e564ed90",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
+      "outcome": "error",
       "source": "conformance",
-      "wallMilliseconds": 60.222,
-      "width": 200
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.277
     },
     {
       "category": "valid",
+      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_colors_hdr_rec2020.avif",
       "fileSha256": "9980e58ddf718a923f1738c34aad1c72f8e5795ec07e68f1a5f9bd216ca19740",
-      "height": 200,
-      "outcome": "decoded",
-      "rgbaSha256": "d56de68735aee8c97df19ff9e14d877f2f964ac6cf4befd90e0c15e620018887",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
+      "outcome": "error",
       "source": "conformance",
-      "wallMilliseconds": 51.527,
-      "width": 200
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.202
     },
     {
       "category": "valid",
+      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_colors_hdr_srgb.avif",
       "fileSha256": "1aecb78d6d363caae95a5dd198f347ce4b200073ced638647364a2ad04d9707d",
-      "height": 200,
-      "outcome": "decoded",
-      "rgbaSha256": "d0932cac8a3eeabb66c2fe145b72f8015dd745e2186c8c1260af86d0145584d0",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
+      "outcome": "error",
       "source": "conformance",
-      "wallMilliseconds": 56.488,
-      "width": 200
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.205
     },
     {
       "category": "valid",
@@ -629,41 +626,41 @@
       "outcome": "decoded",
       "rgbaSha256": "ccc18c043a72b2138799f63307a40fbe201bd632102557b02d9f510ba8b98ccd",
       "source": "conformance",
-      "wallMilliseconds": 49.591,
+      "wallMilliseconds": 47.066,
       "width": 200
     },
     {
       "category": "valid",
+      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_colors_text_hdr_p3.avif",
       "fileSha256": "69a5e7171e13591be94371acd63c65f8f73ee096af0cfe6b819c5f4e2350ed01",
-      "height": 200,
-      "outcome": "decoded",
-      "rgbaSha256": "f837d90a3a0777c2451fecc4ca086b95e0079c9b6cebc96f5ddf8c7a33c79aad",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
+      "outcome": "error",
       "source": "conformance",
-      "wallMilliseconds": 56.103,
-      "width": 200
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.286
     },
     {
       "category": "valid",
+      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_colors_text_hdr_rec2020.avif",
       "fileSha256": "ebc4313b728be41b105e5828726089e82a785fdbdf2ad5cdef3aacc009ee7e25",
-      "height": 200,
-      "outcome": "decoded",
-      "rgbaSha256": "d130dc26c5ea31868e4960be63d0b619438e66897ab3c323484564dc775e4b61",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
+      "outcome": "error",
       "source": "conformance",
-      "wallMilliseconds": 48.24,
-      "width": 200
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.248
     },
     {
       "category": "valid",
+      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_colors_text_hdr_srgb.avif",
       "fileSha256": "2f9fe21f6e3363c233f0444534b7b747f2f386257dc776416357db5b970cc73e",
-      "height": 200,
-      "outcome": "decoded",
-      "rgbaSha256": "872ba6b1fc75656df899ebf7d460ec06a3ccb2bc3cac4f9880b235d88af68848",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
+      "outcome": "error",
       "source": "conformance",
-      "wallMilliseconds": 55.091,
-      "width": 200
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.233
     },
     {
       "category": "valid",
@@ -673,19 +670,19 @@
       "outcome": "decoded",
       "rgbaSha256": "e6ce979088085a270ffee30983afeec3c6e69b82d465499698102b7ba56681fb",
       "source": "conformance",
-      "wallMilliseconds": 48.9,
+      "wallMilliseconds": 53.354,
       "width": 200
     },
     {
       "category": "valid",
+      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_colors_text_wcg_hdr_rec2020.avif",
       "fileSha256": "26cfca294b9403133eba46fdbf15ab04f68e48855c835be8cbec24097aa8b846",
-      "height": 200,
-      "outcome": "decoded",
-      "rgbaSha256": "9323d1726ac83e83f9807c01075e48d671248170b583bb43eca39275ec34924a",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
+      "outcome": "error",
       "source": "conformance",
-      "wallMilliseconds": 53.168,
-      "width": 200
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.454
     },
     {
       "category": "valid",
@@ -695,30 +692,30 @@
       "outcome": "decoded",
       "rgbaSha256": "fead51fe2859ef7cb1765a943a360c193210f4ef195a2a002b3d39707c022c6b",
       "source": "conformance",
-      "wallMilliseconds": 53.721,
+      "wallMilliseconds": 55.307,
       "width": 200
     },
     {
       "category": "valid",
+      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_colors_wcg_hdr_rec2020.avif",
       "fileSha256": "848d4e3ad357e73c9d7183146ab65ef2e5e4e482183d3617fcb7e31804a54110",
-      "height": 200,
-      "outcome": "decoded",
-      "rgbaSha256": "01ed1b3b6a76de403dfbc67adabdaf347721758f94dc1de3442ccd396c583e32",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
+      "outcome": "error",
       "source": "conformance",
-      "wallMilliseconds": 49.527,
-      "width": 200
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.211
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_io_cosmos1650_yuv444_10bpc_p3pq.avif",
       "fileSha256": "1c3db1867051ae23ba61ed217f6b7372a4248e6322d76a239feab14bc4c55ab5",
-      "message": "The restricted lossy 10-bit YUV 4:4:4 AV1 path supports filter-free frames only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.405
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.178
     },
     {
       "category": "valid",
@@ -728,7 +725,7 @@
       "outcome": "decoded",
       "rgbaSha256": "47e9bd0a4f371bc44abd8afeb3d1e271c94b423bd60f3edff7761cfbdcbe2375",
       "source": "conformance",
-      "wallMilliseconds": 383.107,
+      "wallMilliseconds": 406.504,
       "width": 768
     },
     {
@@ -739,7 +736,7 @@
       "outcome": "decoded",
       "rgbaSha256": "4700b0eacf73f69d11850b46f2ca0c00afb03b3261c9539b1f5fab1d445461c4",
       "source": "conformance",
-      "wallMilliseconds": 373.451,
+      "wallMilliseconds": 385.249,
       "width": 768
     },
     {
@@ -750,7 +747,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2a283d662a75d7b522146ee8e559153b00fe16523e2958a17f988e34929e0b33",
       "source": "conformance",
-      "wallMilliseconds": 117.488,
+      "wallMilliseconds": 121.53,
       "width": 403
     },
     {
@@ -758,44 +755,44 @@
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_seine_hdr_gainmap_small_srgb.avif",
       "fileSha256": "573a67fdd581f6e634da198a819cc92a071539dfb720c5d7dfdf02e4e87a0346",
-      "message": "The restricted lossy 10-bit YUV 4:4:4 AV1 path supports filter-free frames only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.501
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.489
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_seine_hdr_gainmap_srgb.avif",
       "fileSha256": "9bf9c6a7606951de07e4079cd63c2cfe379d95139cd99ab9142d8a6ee22d28c7",
-      "message": "The restricted lossy 10-bit YUV 4:4:4 AV1 path supports filter-free frames only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.398
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.382
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_seine_hdr_rec2020.avif",
       "fileSha256": "fd002bd4d51152b1cac533046ebfbc710aca7aaa519c0e7dc59d668aa12313ac",
-      "message": "The restricted lossy 10-bit YUV 4:4:4 AV1 path supports filter-free frames only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.383
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.476
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_seine_hdr_srgb.avif",
       "fileSha256": "b4f440392ad8cdfd398aea0c8817c93d98cfd8cde381bbe430aceae0207e93c8",
-      "message": "The restricted lossy 10-bit YUV 4:4:4 AV1 path supports filter-free frames only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.505
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.515
     },
     {
       "category": "valid",
@@ -805,7 +802,7 @@
       "outcome": "decoded",
       "rgbaSha256": "7e3a2627fd6cb752c512f248a1c80151b18167730f6b88d7394532eed25cd1a8",
       "source": "conformance",
-      "wallMilliseconds": 150.646,
+      "wallMilliseconds": 133.902,
       "width": 400
     },
     {
@@ -816,7 +813,7 @@
       "outcome": "decoded",
       "rgbaSha256": "dfcafa1a6dbaecb920c91cdd35ab82647c50121be5a4fbd491d53112101c71ad",
       "source": "conformance",
-      "wallMilliseconds": 129.476,
+      "wallMilliseconds": 133.939,
       "width": 400
     },
     {
@@ -827,7 +824,7 @@
       "outcome": "decoded",
       "rgbaSha256": "9c5e940c2b043aeccd6516fe440cdd3e86a53244781b1422d20ffb3a909303a2",
       "source": "conformance",
-      "wallMilliseconds": 143.731,
+      "wallMilliseconds": 147.538,
       "width": 400
     },
     {
@@ -838,19 +835,19 @@
       "outcome": "decoded",
       "rgbaSha256": "7d3fb76660d21f8ffc24a440dc62f3e0ff90dcd933d5b3ee045b93b013dfd962",
       "source": "conformance",
-      "wallMilliseconds": 371.417,
+      "wallMilliseconds": 390.749,
       "width": 1024
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/libavif_weld_sato_12B_8B_q0.avif",
       "fileSha256": "fa41d615d244d50fc99d71c1fea14561e0814382a748d1b8b672c3fd5a595dbe",
-      "message": "The restricted lossy high-bit-depth AV1 path supports 10-bit YUV 4:4:4 only",
-      "outcome": "error",
+      "height": 684,
+      "outcome": "decoded",
+      "rgbaSha256": "1793915b04d79c29638fa3a6db031edf2d4a40b83f57baea2f950cc5200f6630",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.351
+      "wallMilliseconds": 282.578,
+      "width": 1024
     },
     {
       "category": "valid",
@@ -860,7 +857,7 @@
       "outcome": "decoded",
       "rgbaSha256": "340dab2cf54d9052ea365d06f26673e3440bf8d9c3ad63b3c3867a9a72c3e078",
       "source": "conformance",
-      "wallMilliseconds": 0.429,
+      "wallMilliseconds": 0.591,
       "width": 1
     },
     {
@@ -871,7 +868,7 @@
       "outcome": "decoded",
       "rgbaSha256": "9a378256bf921eb1f166ddd8c06850437fd7cc836cdee892e1dd08e6d37ddb24",
       "source": "conformance",
-      "wallMilliseconds": 551.007,
+      "wallMilliseconds": 627.103,
       "width": 1203
     },
     {
@@ -882,7 +879,7 @@
       "outcome": "decoded",
       "rgbaSha256": "8e276a4765a756d73e38a7046eecc54c6f2669e18456be77356c92ccbc7e6e72",
       "source": "conformance",
-      "wallMilliseconds": 554.053,
+      "wallMilliseconds": 599.354,
       "width": 1204
     },
     {
@@ -893,30 +890,30 @@
       "outcome": "decoded",
       "rgbaSha256": "cd227d633ff396468cd3074f3afcb4bb5610234045578fb1027c49e96088a8b2",
       "source": "conformance",
-      "wallMilliseconds": 549.18,
+      "wallMilliseconds": 581.738,
       "width": 1203
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/linku_fox_p0_10bpc_mono.avif",
       "fileSha256": "e35713343e9ee04c51ab9cfdc99a0c7d126a1917cb83f5b9a23c71ed59269be2",
-      "message": "The restricted lossy high-bit-depth AV1 path supports 10-bit YUV 4:4:4 only",
-      "outcome": "error",
+      "height": 800,
+      "outcome": "decoded",
+      "rgbaSha256": "d7e0c6596f54923f47d8386e829527af0d2105d78693197b83c189b5089b486a",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.355
+      "wallMilliseconds": 405.334,
+      "width": 1204
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/linku_fox_p0_10bpc_yuv420.avif",
       "fileSha256": "811af5e96631309030a14cbc30c3bacfaa667f2e36e16a4f30434b8f5a23310c",
-      "message": "The restricted lossy high-bit-depth AV1 path supports 10-bit YUV 4:4:4 only",
-      "outcome": "error",
+      "height": 800,
+      "outcome": "decoded",
+      "rgbaSha256": "f19da7cab695742ef085ff5b132aebc24f0aa3d0fc8a42d4102a89fb2f5d0979",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.298
+      "wallMilliseconds": 610.988,
+      "width": 1204
     },
     {
       "category": "valid",
@@ -926,19 +923,19 @@
       "outcome": "decoded",
       "rgbaSha256": "5e76e644437818edbdc977ebd1558d3c106da3929789a87b3cc039cd58eda519",
       "source": "conformance",
-      "wallMilliseconds": 542.266,
+      "wallMilliseconds": 581.698,
       "width": 1204
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/linku_fox_p1_10bpc_yuv444.avif",
       "fileSha256": "a10de8204aee73ba1786daca6390546bd7aa6b069aaa644012219a1c11246a43",
-      "message": "The restricted lossy 10-bit YUV 4:4:4 AV1 path supports filter-free frames only",
-      "outcome": "error",
+      "height": 800,
+      "outcome": "decoded",
+      "rgbaSha256": "9f487a6d7a7e9eac004f5796cfe58e5aa4d7e34f0242aa1ce54d3966d6b15e53",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.387
+      "wallMilliseconds": 934.681,
+      "width": 1204
     },
     {
       "category": "valid",
@@ -948,41 +945,41 @@
       "outcome": "decoded",
       "rgbaSha256": "37260354562716ec41e6e33e6597e3c617b8795daecbc5d409ff8c34b208b93a",
       "source": "conformance",
-      "wallMilliseconds": 832.979,
+      "wallMilliseconds": 919.87,
       "width": 1204
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/linku_fox_p2_10bpc_yuv422.avif",
       "fileSha256": "e34f3bab5df802be2d422c685824464eb5f7e182b235ca99bde11c4c34ff3ac2",
-      "message": "The restricted lossy high-bit-depth AV1 path supports 10-bit YUV 4:4:4 only",
-      "outcome": "error",
+      "height": 800,
+      "outcome": "decoded",
+      "rgbaSha256": "0fb7568ed4c1fe7872d9a15cda04e9430702f24a8a0d5e8b41662088ea53634f",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.386
+      "wallMilliseconds": 743.245,
+      "width": 1204
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/linku_fox_p2_12bpc_yuv422.avif",
       "fileSha256": "51476b8471e1c0a5ebbd1e7545709495bef619cc96c02d277aad32b1deff8ea9",
-      "message": "The restricted lossy high-bit-depth AV1 path supports 10-bit YUV 4:4:4 only",
-      "outcome": "error",
+      "height": 800,
+      "outcome": "decoded",
+      "rgbaSha256": "f4d9a0c7e2fcdcf009f4812d0d362fac8f74db7bcc6f1b6718c380eccc95aa69",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.329
+      "wallMilliseconds": 736.3,
+      "width": 1204
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/linku_fox_p2_12bpc_yuv444.avif",
       "fileSha256": "ed96eca6ed79863eaf91e4d666e4e220b5fa4e5a6cb1696477ba901ac12f5dde",
-      "message": "The restricted lossy high-bit-depth AV1 path supports 10-bit YUV 4:4:4 only",
-      "outcome": "error",
+      "height": 800,
+      "outcome": "decoded",
+      "rgbaSha256": "017ff3eea9b53b521fda13797a7d555c5f528cda0ca652d42b8a2f791cdeeff7",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.321
+      "wallMilliseconds": 922.398,
+      "width": 1204
     },
     {
       "category": "valid",
@@ -992,7 +989,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2dff2742439182f932b3504019884a59cae8a6881626860b6db9f4b1b5784f91",
       "source": "conformance",
-      "wallMilliseconds": 658.889,
+      "wallMilliseconds": 714.724,
       "width": 1204
     },
     {
@@ -1003,30 +1000,30 @@
       "outcome": "decoded",
       "rgbaSha256": "79724244c30d14532ca5c9b9108de7cc533343a8bacd674dee7b420f42082a8d",
       "source": "conformance",
-      "wallMilliseconds": 3125.176,
+      "wallMilliseconds": 3350.628,
       "width": 3082
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/linku_hato_p2_12bpc_mono.avif",
       "fileSha256": "e28b4cacda95750e465e205fbfcba6a6af1d8418dac649838730c555ff7d828f",
-      "message": "The restricted lossy high-bit-depth AV1 path supports 10-bit YUV 4:4:4 only",
-      "outcome": "error",
+      "height": 2048,
+      "outcome": "decoded",
+      "rgbaSha256": "2544fade96d93bd2e2f91a1fc67009f15d92f8cc1ab5676109af9e9a2a2a0c90",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.686
+      "wallMilliseconds": 2350.113,
+      "width": 3078
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/linku_hato_p2_12bpc_yuv422.avif",
       "fileSha256": "ad361ac7d94fbc6af7ef30cbd3601ff366bc360c304480387a58a4c6fecee9b6",
-      "message": "The restricted lossy high-bit-depth AV1 path supports 10-bit YUV 4:4:4 only",
-      "outcome": "error",
+      "height": 2048,
+      "outcome": "decoded",
+      "rgbaSha256": "e88286bfba8dd18f88c967268a703c9ba20008c2d0d44dddadf36fa586e159d4",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.785
+      "wallMilliseconds": 4762.656,
+      "width": 3078
     },
     {
       "category": "valid",
@@ -1036,7 +1033,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e2eef16ad3336e7693338d3bef3b907693ff221f408bd7fa7d1b24945b3cce7d",
       "source": "conformance",
-      "wallMilliseconds": 436.017,
+      "wallMilliseconds": 478.556,
       "width": 800
     },
     {
@@ -1047,7 +1044,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e770094922e0085f2d0c0a68534a5f91217fdd5db4b450664bce33283475c2ef",
       "source": "conformance",
-      "wallMilliseconds": 567.031,
+      "wallMilliseconds": 618.987,
       "width": 800
     },
     {
@@ -1058,7 +1055,7 @@
       "outcome": "decoded",
       "rgbaSha256": "cba1be44060a55f61629284661ce0c0b25b9ac1ccedc1718a2548cddc230604c",
       "source": "conformance",
-      "wallMilliseconds": 323.911,
+      "wallMilliseconds": 352.933,
       "width": 800
     },
     {
@@ -1069,7 +1066,7 @@
       "outcome": "decoded",
       "rgbaSha256": "6aceee91d46469dd350717904e65b9cc6b2de6fe6134c3eb31e0bbf6377424d0",
       "source": "conformance",
-      "wallMilliseconds": 459.977,
+      "wallMilliseconds": 524.132,
       "width": 722
     },
     {
@@ -1081,7 +1078,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "presentation-transform",
-      "wallMilliseconds": 0.363
+      "wallMilliseconds": 0.346
     },
     {
       "category": "valid",
@@ -1091,7 +1088,7 @@
       "outcome": "decoded",
       "rgbaSha256": "6ce72c04f0697425172ee7dfc12a5e6cdf91087f5adbcca326501ebe9bdc8d4d",
       "source": "conformance",
-      "wallMilliseconds": 455.84,
+      "wallMilliseconds": 493.554,
       "width": 722
     },
     {
@@ -1102,7 +1099,7 @@
       "outcome": "decoded",
       "rgbaSha256": "3de718c92926397c6ac7709e80d698e4ae3645e82f89bc2fbcd39c0a80fd79d7",
       "source": "conformance",
-      "wallMilliseconds": 460.959,
+      "wallMilliseconds": 505.107,
       "width": 722
     },
     {
@@ -1113,7 +1110,7 @@
       "outcome": "decoded",
       "rgbaSha256": "fa70559089b3cbd2377918aba187a00367e25c33bd171c65a238d0d5b6eef37d",
       "source": "conformance",
-      "wallMilliseconds": 466.258,
+      "wallMilliseconds": 473.17,
       "width": 1024
     },
     {
@@ -1124,7 +1121,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e7f54279df31f626f56f514ae33a4290cce2d0e2d07fcbe8c3cce2955b41b358",
       "source": "conformance",
-      "wallMilliseconds": 455.563,
+      "wallMilliseconds": 476.856,
       "width": 1024
     },
     {
@@ -1135,19 +1132,19 @@
       "outcome": "decoded",
       "rgbaSha256": "b423f3365f789e9288fe3617696fa9c84928d54daf98179849291116064fc741",
       "source": "conformance",
-      "wallMilliseconds": 456.754,
+      "wallMilliseconds": 471.895,
       "width": 1024
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/linku_plum_p0_10bpc_alpha_full.avif",
       "fileSha256": "cf8e15ec4b210235f3d68332a1adeb64e35c41b8d8e1e7586ae38b6d9cd8926c",
-      "message": "Phase B2 supports full-range 8-bit monochrome AVIF alpha only",
-      "outcome": "error",
+      "height": 2048,
+      "outcome": "decoded",
+      "rgbaSha256": "329ca4150fe4c81ea1288afcff01e724016373c62bebedbd14244f0ab2fba09c",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.467
+      "wallMilliseconds": 1103.881,
+      "width": 2048
     },
     {
       "category": "valid",
@@ -1157,19 +1154,19 @@
       "outcome": "decoded",
       "rgbaSha256": "46808513940abeabd129f72fd59fe61bcf3e9c9ab6243f71da8af956a98923cc",
       "source": "conformance",
-      "wallMilliseconds": 995.263,
+      "wallMilliseconds": 1038.438,
       "width": 2048
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/linku_plum_p0_8bpc_alpha_limited.avif",
       "fileSha256": "f4809df9188fa46ed100f63c78c4cf42559d90a98351a8f69e177385920672b4",
-      "message": "Phase B2 supports full-range 8-bit monochrome AVIF alpha only",
-      "outcome": "error",
+      "height": 2048,
+      "outcome": "decoded",
+      "rgbaSha256": "8264cd14f144270bc3594da6f02ef3c6b22658e93a0844f660ac8648871e8d1a",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.398
+      "wallMilliseconds": 1073.982,
+      "width": 2048
     },
     {
       "category": "valid",
@@ -1179,19 +1176,19 @@
       "outcome": "decoded",
       "rgbaSha256": "d3717b242b5792b0e0207ed07c82caddbd60a27b69f970bc2d3772e882a3ada6",
       "source": "conformance",
-      "wallMilliseconds": 696.696,
+      "wallMilliseconds": 765.901,
       "width": 2048
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
+      "code": "LIMIT_EXCEEDED",
       "file": "valid/linku_plum_p1_10bpc_alpha_full.avif",
       "fileSha256": "0a615cfb673ab45e37da3582c17dd36f86d5da3d81246a32951d1db4ed90149d",
-      "message": "Phase B2 supports full-range 8-bit monochrome AVIF alpha only",
+      "message": "AVIF decoder working set 75548251 exceeds 67108864 bytes",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.53
+      "taxonomy": "working-set-limit",
+      "wallMilliseconds": 0.589
     },
     {
       "category": "valid",
@@ -1202,18 +1199,18 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "film-grain",
-      "wallMilliseconds": 0.388
+      "wallMilliseconds": 0.477
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/ms_Chimera_10bit_cropped_to_1920x1008_with_HDR_metadata.avif",
       "fileSha256": "b52996d7dc8bde2145770fc1977ccd45e7faf78c561599f325b48669d5ff6aee",
-      "message": "AV1 film grain is not supported",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "film-grain",
-      "wallMilliseconds": 0.338
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.376
     },
     {
       "category": "valid",
@@ -1223,7 +1220,7 @@
       "outcome": "decoded",
       "rgbaSha256": "17ba4c90c746c5dd97f593c6c1917519611d7a63a7c232f76f07a184bb2e0798",
       "source": "conformance",
-      "wallMilliseconds": 163.661,
+      "wallMilliseconds": 167.176,
       "width": 480
     },
     {
@@ -1234,7 +1231,7 @@
       "outcome": "decoded",
       "rgbaSha256": "fe10aea77e33f9cc2ad24be487066d25ca32f6cb9d882d73319d01a08bf814d9",
       "source": "conformance",
-      "wallMilliseconds": 315.54,
+      "wallMilliseconds": 327.009,
       "width": 480
     },
     {
@@ -1245,7 +1242,7 @@
       "outcome": "decoded",
       "rgbaSha256": "99f28f0e2fdc30dab25ad903ce043e7af30b7097d1f3402e692b3f8629bff6c1",
       "source": "conformance",
-      "wallMilliseconds": 2498.449,
+      "wallMilliseconds": 2648.786,
       "width": 1920
     },
     {
@@ -1256,30 +1253,30 @@
       "outcome": "decoded",
       "rgbaSha256": "878fca61fd82d25c03898ce02ed39a5523ade6b2c9da1fed29ac549320c24006",
       "source": "conformance",
-      "wallMilliseconds": 1109.844,
+      "wallMilliseconds": 1164.582,
       "width": 960
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/ms_Monochrome.avif",
       "fileSha256": "deeb37c2cf321d3ccacff085a6fed50cc774dd38d7ed271c15517ccd01bd7a4f",
-      "message": "The restricted AV1 intra-block-copy path supports skipped blocks",
-      "outcome": "error",
+      "height": 720,
+      "outcome": "decoded",
+      "rgbaSha256": "6e036207ef682d41edad54421d20bb36ec7f03e34113e2f6fa4ab954779d71c0",
       "source": "conformance",
-      "taxonomy": "intra-block-copy-residual",
-      "wallMilliseconds": 27.098
+      "wallMilliseconds": 179.01,
+      "width": 1280
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/ms_Ronda_rotate90.avif",
       "fileSha256": "3909699e338935e7934591c0bc20da5e698e5d968d29c29cc37c02de4576996b",
-      "message": "The restricted AV1 intra-block-copy path supports skipped blocks",
-      "outcome": "error",
+      "height": 1080,
+      "outcome": "decoded",
+      "rgbaSha256": "e995ffa2cb5c88ceda26891151ba8148e00c280cb61ec558d5e0a40a46c009e7",
       "source": "conformance",
-      "taxonomy": "intra-block-copy-residual",
-      "wallMilliseconds": 385.239
+      "wallMilliseconds": 931.452,
+      "width": 1920
     },
     {
       "category": "valid",
@@ -1290,7 +1287,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "working-set-limit",
-      "wallMilliseconds": 0.831
+      "wallMilliseconds": 0.829
     },
     {
       "category": "valid",
@@ -1301,40 +1298,40 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "working-set-limit",
-      "wallMilliseconds": 4.49
+      "wallMilliseconds": 4.654
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/ms_Tomsk_with_thumbnails.avif",
       "fileSha256": "e1635d66a6ba59c59893a0a2f17dc4fbda89183d8f2e78919bc472091a9de6e8",
-      "message": "The restricted AV1 intra-block-copy path supports skipped blocks",
-      "outcome": "error",
+      "height": 720,
+      "outcome": "decoded",
+      "rgbaSha256": "3277bbd3ada1d7dc560080465c9957bf9595ff6eaf2b023c62aca4e7a3679c3b",
       "source": "conformance",
-      "taxonomy": "intra-block-copy-residual",
-      "wallMilliseconds": 37.097
+      "wallMilliseconds": 246.716,
+      "width": 1280
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/ms_bbb_4k.avif",
       "fileSha256": "5ba24612f2a7a8a6eae122e8422a723413b969bca4253ab2ce19eb65e3e15abf",
-      "message": "The restricted AV1 intra-block-copy path supports skipped blocks",
-      "outcome": "error",
+      "height": 2160,
+      "outcome": "decoded",
+      "rgbaSha256": "2ad091efd1d893980a05d5793150cccd53719c5393df0bc5f0f78c84bcae253d",
       "source": "conformance",
-      "taxonomy": "intra-block-copy-residual",
-      "wallMilliseconds": 34.552
+      "wallMilliseconds": 2816.256,
+      "width": 3840
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
+      "code": "LIMIT_EXCEEDED",
       "file": "valid/ms_bbb_alpha_inverted.avif",
       "fileSha256": "83d68084a93f043a89d10373f0ca26dafc988eec811b8076cabb2ff1580c1817",
-      "message": "Phase B2 supports full-range 8-bit monochrome AVIF alpha only",
+      "message": "AVIF decoder working set 92058334 exceeds 67108864 bytes",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.36
+      "taxonomy": "working-set-limit",
+      "wallMilliseconds": 0.323
     },
     {
       "category": "valid",
@@ -1344,30 +1341,30 @@
       "outcome": "decoded",
       "rgbaSha256": "68d17f89e963029243ca02097a549d4da19922f08bdb4d72e2c104d8d64f2063",
       "source": "conformance",
-      "wallMilliseconds": 1102.116,
+      "wallMilliseconds": 1183.907,
       "width": 1280
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/ms_reduced_still_picture_header.avif",
       "fileSha256": "89e803ae15fa438bcce2b955c36b174b836daf93a1fff9187bb9ee0ec1b2f5a7",
-      "message": "The restricted AV1 intra-block-copy path supports skipped blocks",
-      "outcome": "error",
+      "height": 720,
+      "outcome": "decoded",
+      "rgbaSha256": "3277bbd3ada1d7dc560080465c9957bf9595ff6eaf2b023c62aca4e7a3679c3b",
       "source": "conformance",
-      "taxonomy": "intra-block-copy-residual",
-      "wallMilliseconds": 37.048
+      "wallMilliseconds": 248.11,
+      "width": 1280
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/ms_still_picture.avif",
       "fileSha256": "6f06c9fb62908bff0165dcbd3e51b143cc80619f46b41b382f8cf6e634b009bd",
-      "message": "The restricted AV1 intra-block-copy path supports skipped blocks",
-      "outcome": "error",
+      "height": 720,
+      "outcome": "decoded",
+      "rgbaSha256": "3277bbd3ada1d7dc560080465c9957bf9595ff6eaf2b023c62aca4e7a3679c3b",
       "source": "conformance",
-      "taxonomy": "intra-block-copy-residual",
-      "wallMilliseconds": 37.219
+      "wallMilliseconds": 251.865,
+      "width": 1280
     },
     {
       "category": "valid",
@@ -1378,7 +1375,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.232
+      "wallMilliseconds": 0.218
     },
     {
       "category": "valid",
@@ -1389,62 +1386,62 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.532
+      "wallMilliseconds": 0.427
     },
     {
       "category": "valid",
+      "code": "UNSUPPORTED_OPERATION",
       "file": "valid/netflix_hdr_cosmos01000_lossless.avif",
       "fileSha256": "efe30713c631bab92b3cdfee9e20a655af239e9bf77a3a900e619e314e792ee1",
-      "height": 858,
-      "outcome": "decoded",
-      "rgbaSha256": "f425ea464a49493fbcdbe87e1d13390eaeda4c27c1070a637fd9ef5c999043a3",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
+      "outcome": "error",
       "source": "conformance",
-      "wallMilliseconds": 3624.99,
-      "width": 2048
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 3.731
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/netflix_hdr_yuv420_qp10.avif",
       "fileSha256": "7795531dda81d609b47c2172ad543750bda1bf576c5da9f040bd81127a2040fc",
-      "message": "The restricted lossy high-bit-depth AV1 path supports 10-bit YUV 4:4:4 only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.413
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.317
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/netflix_hdr_yuv420_qp40.avif",
       "fileSha256": "f5a675c7bc8751a6aef568ab6104ef2095216c49f18ad847cf3433f4c92ace7a",
-      "message": "The restricted lossy high-bit-depth AV1 path supports 10-bit YUV 4:4:4 only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.23
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.12
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/netflix_hdr_yuv444_qp10.avif",
       "fileSha256": "d44f67cb7f486cc28b40c9d53e9c32bff682ce4112686e2afbb3b98518e3d8d1",
-      "message": "The restricted lossy 10-bit YUV 4:4:4 AV1 path supports filter-free frames only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.418
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.34
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/netflix_hdr_yuv444_qp40.avif",
       "fileSha256": "81e166029297a08a8567d9c2ba101370fac8beadfc1bcd9e9a63c93c0330a2c1",
-      "message": "The restricted lossy 10-bit YUV 4:4:4 AV1 path supports filter-free frames only",
+      "message": "HDR AVIF transfer characteristics are not supported by SDR decode",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "high-bit-depth",
-      "wallMilliseconds": 0.219
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.124
     },
     {
       "category": "valid",
@@ -1454,7 +1451,7 @@
       "outcome": "decoded",
       "rgbaSha256": "b1a672bc3a2f91726c2e87d41b1418374b93b24f94a17ffbdf6f2cf19aed0948",
       "source": "conformance",
-      "wallMilliseconds": 2678.928,
+      "wallMilliseconds": 2690.474,
       "width": 2048
     },
     {
@@ -1465,7 +1462,7 @@
       "outcome": "decoded",
       "rgbaSha256": "0fc1f6c09f43ab3dc04499ea49e0f59e133faf90a211a9b94b956f9cf07650ef",
       "source": "conformance",
-      "wallMilliseconds": 2382.597,
+      "wallMilliseconds": 2436.983,
       "width": 2048
     },
     {
@@ -1476,7 +1473,7 @@
       "outcome": "decoded",
       "rgbaSha256": "8d114c799533b85c988f8af249f977ff2173354b5f3160172cdedf1547c670ab",
       "source": "conformance",
-      "wallMilliseconds": 2479.926,
+      "wallMilliseconds": 2429.744,
       "width": 2048
     },
     {
@@ -1487,7 +1484,7 @@
       "outcome": "decoded",
       "rgbaSha256": "4522d5204d29c391025df87b52c40fdad9ac75916ffad650c9374ea31d05db36",
       "source": "conformance",
-      "wallMilliseconds": 4234.712,
+      "wallMilliseconds": 4344.671,
       "width": 2048
     },
     {
@@ -1495,55 +1492,55 @@
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/xiph_abandoned_filmgrain.avif",
       "fileSha256": "d7c35d24ec249c2c8ed5361995b0dad11dbda9a0f565a574154fc7cbc5e5bcb2",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "AV1 film grain is not supported",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 0.515
+      "taxonomy": "film-grain",
+      "wallMilliseconds": 0.796
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/xiph_fruits_2layer_thumbsize.avif",
       "fileSha256": "50946ccc489beec9e649f8f6bb63a18582043218afd1c1ee0df4c2cdf72b7e22",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "Non-reduced AV1 images must use a shown key frame",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 0.223
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.369
     },
     {
       "category": "valid",
       "code": "UNSUPPORTED_OPERATION",
       "file": "valid/xiph_quebec_3layer_op2.avif",
       "fileSha256": "d7baadb0f75d230dabeb9b376bbb75ab15dbe1e05ad92b7487937815f21daa25",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "Non-reduced AV1 images must use maximum frame dimensions",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 0.342
+      "taxonomy": "unsupported-av1-or-container-feature",
+      "wallMilliseconds": 0.432
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
+      "code": "INVALID_INPUT",
       "file": "valid/xiph_tiger_3layer_1res.avif",
       "fileSha256": "46cb55301f5d4a36a72c8c00f1d7e10c6c9ae0297811dc0f38a26a0285daa316",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "AVIF item 1 a1lx range does not contain one complete frame",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 0.247
+      "taxonomy": "malformed-or-unsupported-container",
+      "wallMilliseconds": 0.39
     },
     {
       "category": "valid",
-      "code": "UNSUPPORTED_OPERATION",
+      "code": "INVALID_INPUT",
       "file": "valid/xiph_tiger_3layer_3res.avif",
       "fileSha256": "ffe6d8f7f1d027c49425068ab4acddab99e5fd1fdacfd61a74b25a47e9849fad",
-      "message": "AVIF decode requires one complete AV1 frame OBU or one frame-header OBU followed by tile groups",
+      "message": "AVIF item 1 a1lx range does not contain one complete frame",
       "outcome": "error",
       "source": "conformance",
-      "taxonomy": "frame-layout",
-      "wallMilliseconds": 0.221
+      "taxonomy": "malformed-or-unsupported-container",
+      "wallMilliseconds": 0.287
     },
     {
       "category": "generated",
@@ -1553,7 +1550,7 @@
       "outcome": "decoded",
       "rgbaSha256": "819d046be8dfc6b72fb722488216cdb4dfcb8e6eb2953a53932a7a2f03baeccb",
       "source": "common-photo",
-      "wallMilliseconds": 319.621,
+      "wallMilliseconds": 341.163,
       "width": 576
     },
     {
@@ -1564,7 +1561,7 @@
       "outcome": "decoded",
       "rgbaSha256": "030e44892698be8cb28a3d2fd75bfc65b0fc656f2e03314c89dadd1e8f99f89f",
       "source": "common-photo",
-      "wallMilliseconds": 502.811,
+      "wallMilliseconds": 523.549,
       "width": 576
     },
     {
@@ -1575,7 +1572,7 @@
       "outcome": "decoded",
       "rgbaSha256": "5ce757f0fc6e4c53e1496cf69cb8de6027a1c8788af49176f7b020f28f4f327b",
       "source": "common-photo",
-      "wallMilliseconds": 285.789,
+      "wallMilliseconds": 289.632,
       "width": 576
     },
     {
@@ -1586,7 +1583,7 @@
       "outcome": "decoded",
       "rgbaSha256": "be3405e3a8d8f0b561e01b93be0a1f3fb25972ce7075c21fe069b112bef406bc",
       "source": "common-photo",
-      "wallMilliseconds": 420.302,
+      "wallMilliseconds": 439.867,
       "width": 576
     },
     {
@@ -1597,7 +1594,7 @@
       "outcome": "decoded",
       "rgbaSha256": "1142e6efaa9b68bcb9fef086cc94ad14cadcfb63608535e1b488641ab7e74df8",
       "source": "common-photo",
-      "wallMilliseconds": 313.725,
+      "wallMilliseconds": 341.599,
       "width": 576
     },
     {
@@ -1608,7 +1605,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2eea8631b4ed31cc295046e49d9834d4939f223f7481f4b6b1a126cbaab5737e",
       "source": "common-photo",
-      "wallMilliseconds": 567.284,
+      "wallMilliseconds": 611.636,
       "width": 576
     },
     {
@@ -1619,7 +1616,7 @@
       "outcome": "decoded",
       "rgbaSha256": "5c4e4b27f79312ec35a0031dadc745cee3ff4eb4c5c3645395cc058a83886250",
       "source": "common-photo",
-      "wallMilliseconds": 279.981,
+      "wallMilliseconds": 306.32,
       "width": 576
     },
     {
@@ -1630,7 +1627,7 @@
       "outcome": "decoded",
       "rgbaSha256": "d7f5f66573ff3876fb40c8b151567d72858999847c1afda112a87f5d97310c36",
       "source": "common-photo",
-      "wallMilliseconds": 253.141,
+      "wallMilliseconds": 276.308,
       "width": 576
     },
     {
@@ -1641,7 +1638,7 @@
       "outcome": "decoded",
       "rgbaSha256": "cf28d8de9868cc595f486b1a24a14438425404a09b30fc28424e6aeca7642d01",
       "source": "common-photo",
-      "wallMilliseconds": 424.787,
+      "wallMilliseconds": 466.176,
       "width": 576
     },
     {
@@ -1652,7 +1649,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2006e87758260bf38a75aeefa0702aa99216694b968db8f36790eeb9d925410d",
       "source": "common-photo",
-      "wallMilliseconds": 579.518,
+      "wallMilliseconds": 632.332,
       "width": 576
     },
     {
@@ -1663,7 +1660,7 @@
       "outcome": "decoded",
       "rgbaSha256": "491cfa8704a0142dca3fde419975acceec02711cbfa4504019413f9ffb0f480b",
       "source": "common-photo",
-      "wallMilliseconds": 324.768,
+      "wallMilliseconds": 329.978,
       "width": 576
     },
     {
@@ -1674,7 +1671,7 @@
       "outcome": "decoded",
       "rgbaSha256": "d671eb43149f4e13fb33d050d41f0c1a55a2dd735095e7bc504c87bebeffbd16",
       "source": "common-photo",
-      "wallMilliseconds": 355.381,
+      "wallMilliseconds": 376.015,
       "width": 576
     },
     {
@@ -1685,7 +1682,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e824a7ff6c8c99a37e96fa3599c17150faa31e62ccdbb0a386e5ebb7cca1b856",
       "source": "common-photo",
-      "wallMilliseconds": 346.289,
+      "wallMilliseconds": 356.113,
       "width": 576
     },
     {
@@ -1696,7 +1693,7 @@
       "outcome": "decoded",
       "rgbaSha256": "52d18fa66b46a2206557df09baebc068ab7be02ffcd5cca8c04d9360314c8a0f",
       "source": "common-photo",
-      "wallMilliseconds": 587.958,
+      "wallMilliseconds": 621.418,
       "width": 576
     },
     {
@@ -1707,7 +1704,7 @@
       "outcome": "decoded",
       "rgbaSha256": "11d7feb59ec5e82f4e59a3d07653db7904ae192e49529a263474d87f760f789a",
       "source": "common-photo",
-      "wallMilliseconds": 313.1,
+      "wallMilliseconds": 321.662,
       "width": 576
     },
     {
@@ -1718,7 +1715,7 @@
       "outcome": "decoded",
       "rgbaSha256": "95fe7c2cb40e34c3c2e92ff2b58b4a38a5073e312f4fc1867c6c10f5d4fb4f4e",
       "source": "common-photo",
-      "wallMilliseconds": 392.971,
+      "wallMilliseconds": 366.657,
       "width": 576
     },
     {
@@ -1729,7 +1726,7 @@
       "outcome": "decoded",
       "rgbaSha256": "36372105b4ccedf63720799f03ed247c7e18b7e4dc978f6b0213f66bebc6061a",
       "source": "common-photo",
-      "wallMilliseconds": 452.831,
+      "wallMilliseconds": 487.113,
       "width": 576
     },
     {
@@ -1740,7 +1737,7 @@
       "outcome": "decoded",
       "rgbaSha256": "f4b474118fd15e8be3b4bf3ff731914ff256433dd7529343053ffc7441b34d4a",
       "source": "common-photo",
-      "wallMilliseconds": 661.895,
+      "wallMilliseconds": 732.888,
       "width": 576
     },
     {
@@ -1751,7 +1748,7 @@
       "outcome": "decoded",
       "rgbaSha256": "d82c5f7d7ed6105ec89af8f8e022a2bffad5b69284e11a6e658fec2d4b61ea35",
       "source": "common-photo",
-      "wallMilliseconds": 367.87,
+      "wallMilliseconds": 377.649,
       "width": 576
     },
     {
@@ -1762,7 +1759,7 @@
       "outcome": "decoded",
       "rgbaSha256": "de9188b996010d2390670eaadaf69a7182ad960fc36e70618c255b5f612b57b1",
       "source": "common-photo",
-      "wallMilliseconds": 415.062,
+      "wallMilliseconds": 446.576,
       "width": 576
     },
     {
@@ -1773,7 +1770,7 @@
       "outcome": "decoded",
       "rgbaSha256": "b4aedaf5923955d4d501969493c4e37e2276a61fc1628470da4ad5c9567ae611",
       "source": "common-photo",
-      "wallMilliseconds": 368.521,
+      "wallMilliseconds": 394.333,
       "width": 576
     },
     {
@@ -1784,7 +1781,7 @@
       "outcome": "decoded",
       "rgbaSha256": "53715ce13a4132f81882a873895d6e92b11f8c5a450a05c80cf66b34e6e63a78",
       "source": "common-photo",
-      "wallMilliseconds": 588.535,
+      "wallMilliseconds": 647.208,
       "width": 576
     },
     {
@@ -1795,7 +1792,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2b1d52df310370053da87620c227da255a915537232315fb90064b64ae32c80d",
       "source": "common-photo",
-      "wallMilliseconds": 273.468,
+      "wallMilliseconds": 272.823,
       "width": 576
     },
     {
@@ -1806,7 +1803,7 @@
       "outcome": "decoded",
       "rgbaSha256": "d73bef81550a6298f5ddd10252d8bd35fd6ab48b4919d9d472b645eca7d69a74",
       "source": "common-photo",
-      "wallMilliseconds": 259.233,
+      "wallMilliseconds": 268.926,
       "width": 576
     },
     {
@@ -1817,7 +1814,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2658d3e90f570dbc365808ca2be63119154d2297b3f8791b4faf9d161084bc4b",
       "source": "common-photo",
-      "wallMilliseconds": 396.974,
+      "wallMilliseconds": 419.461,
       "width": 576
     },
     {
@@ -1828,7 +1825,7 @@
       "outcome": "decoded",
       "rgbaSha256": "6ff063943ba6a05f1eb14d1b4875fccf0cbc2c94807148b92aa9d30c631a8bbf",
       "source": "common-photo",
-      "wallMilliseconds": 553.6,
+      "wallMilliseconds": 559.791,
       "width": 576
     },
     {
@@ -1839,7 +1836,7 @@
       "outcome": "decoded",
       "rgbaSha256": "7c41210866665dae78b23aeebc22ac783309a643f73e8266bc067a6ee5838cb3",
       "source": "common-photo",
-      "wallMilliseconds": 353.796,
+      "wallMilliseconds": 349.718,
       "width": 576
     },
     {
@@ -1850,7 +1847,7 @@
       "outcome": "decoded",
       "rgbaSha256": "92b01db76510760a864e9df5a2d47a2a49b8330f570acd144715aff3fa9c1375",
       "source": "common-photo",
-      "wallMilliseconds": 386.881,
+      "wallMilliseconds": 468.18,
       "width": 576
     },
     {
@@ -1861,7 +1858,7 @@
       "outcome": "decoded",
       "rgbaSha256": "917b6c4c42d7d9ad570135188d896dbe5cb253acb9821484f9f4f192cd61ed15",
       "source": "common-photo",
-      "wallMilliseconds": 374.787,
+      "wallMilliseconds": 402.775,
       "width": 576
     },
     {
@@ -1872,7 +1869,7 @@
       "outcome": "decoded",
       "rgbaSha256": "4dc462f5ec23f74dbf8ac8ed2bca3a267da4dfd0afe15b8a22598ef15a542575",
       "source": "common-photo",
-      "wallMilliseconds": 515.467,
+      "wallMilliseconds": 573.361,
       "width": 576
     },
     {
@@ -1883,7 +1880,7 @@
       "outcome": "decoded",
       "rgbaSha256": "69fbb6254c3b2c663e8fea9d95950a6d1496036ae0816e123f2dd3934b85f185",
       "source": "common-photo",
-      "wallMilliseconds": 293.6,
+      "wallMilliseconds": 293.278,
       "width": 576
     },
     {
@@ -1894,7 +1891,7 @@
       "outcome": "decoded",
       "rgbaSha256": "d62ecd70d58a8d300ced27cc0fae5cace11209ef170160b647e765aea37358b9",
       "source": "common-photo",
-      "wallMilliseconds": 254.039,
+      "wallMilliseconds": 270.146,
       "width": 576
     },
     {
@@ -1905,7 +1902,7 @@
       "outcome": "decoded",
       "rgbaSha256": "a0a57c76a9aa314466c06c391766a0c4a0b205ae8d905b54ebc92049245f26de",
       "source": "common-photo",
-      "wallMilliseconds": 309.463,
+      "wallMilliseconds": 333.929,
       "width": 576
     },
     {
@@ -1916,7 +1913,7 @@
       "outcome": "decoded",
       "rgbaSha256": "b1b359ee5588b547db2116441c2eb4d4e01999f5193c1aa33f3f36f9517e5695",
       "source": "common-photo",
-      "wallMilliseconds": 470.275,
+      "wallMilliseconds": 486.205,
       "width": 576
     },
     {
@@ -1927,7 +1924,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2b489d70e8a0854179d987678f1a0e759b5cf5ff9cf96de0ee5f6872107aae7a",
       "source": "common-photo",
-      "wallMilliseconds": 270.527,
+      "wallMilliseconds": 272.585,
       "width": 576
     },
     {
@@ -1938,7 +1935,7 @@
       "outcome": "decoded",
       "rgbaSha256": "596fc135d053bff22c4bb06168b5566e7b3578edf2704586aa1ad19c6e318825",
       "source": "common-photo",
-      "wallMilliseconds": 282.395,
+      "wallMilliseconds": 293.647,
       "width": 576
     },
     {
@@ -1949,7 +1946,7 @@
       "outcome": "decoded",
       "rgbaSha256": "39bbd38d9d834f8ed30285ff487496b8a79009cddb0a43c01fd96a0326a36b08",
       "source": "common-photo",
-      "wallMilliseconds": 568.126,
+      "wallMilliseconds": 586.188,
       "width": 576
     },
     {
@@ -1960,7 +1957,7 @@
       "outcome": "decoded",
       "rgbaSha256": "f2b937a01c5cc4ba556475f488a0bee29cf0184efa25c0889544398adcce902a",
       "source": "common-photo",
-      "wallMilliseconds": 795.953,
+      "wallMilliseconds": 837.775,
       "width": 576
     },
     {
@@ -1971,7 +1968,7 @@
       "outcome": "decoded",
       "rgbaSha256": "05f4ab9857496a38d029c5dbb8208cbc0e49b18f614b645d44c8ea0c59ac2ae2",
       "source": "common-photo",
-      "wallMilliseconds": 289.525,
+      "wallMilliseconds": 299.598,
       "width": 576
     },
     {
@@ -1982,7 +1979,7 @@
       "outcome": "decoded",
       "rgbaSha256": "494b3f39a9e9dd018b40dc3389da64ad48c8b52570b005d00a350cf16d0d8731",
       "source": "common-photo",
-      "wallMilliseconds": 279.982,
+      "wallMilliseconds": 298.497,
       "width": 576
     },
     {
@@ -1993,7 +1990,7 @@
       "outcome": "decoded",
       "rgbaSha256": "aa080ef375a5aab78e71db7b8fb7e4b8338b5fa27bc06bf973bd8e43400460c9",
       "source": "common-photo",
-      "wallMilliseconds": 359.112,
+      "wallMilliseconds": 383.393,
       "width": 576
     },
     {
@@ -2004,7 +2001,7 @@
       "outcome": "decoded",
       "rgbaSha256": "cbfbefb184b016b6ee5039ef9487123f4af354120e476292cabe8d110e360a8d",
       "source": "common-photo",
-      "wallMilliseconds": 593.838,
+      "wallMilliseconds": 634.673,
       "width": 576
     },
     {
@@ -2015,7 +2012,7 @@
       "outcome": "decoded",
       "rgbaSha256": "5d3a5327c574cba766fe6c5d1d496307ec770f6f9f00de55e74c368cf0c34e6e",
       "source": "common-photo",
-      "wallMilliseconds": 306.617,
+      "wallMilliseconds": 324.081,
       "width": 576
     },
     {
@@ -2026,7 +2023,7 @@
       "outcome": "decoded",
       "rgbaSha256": "d4cc913b38985250ff9dd74b32ad6e0f69b4648e8e1bffc463d03c1f34c120fb",
       "source": "common-photo",
-      "wallMilliseconds": 334.459,
+      "wallMilliseconds": 389.944,
       "width": 576
     },
     {
@@ -2037,7 +2034,7 @@
       "outcome": "decoded",
       "rgbaSha256": "dc808ac74c247019b8186874a1a2de0b323b0260de93a00f783bed289e09b77a",
       "source": "common-photo",
-      "wallMilliseconds": 304.369,
+      "wallMilliseconds": 339.67,
       "width": 576
     },
     {
@@ -2048,7 +2045,7 @@
       "outcome": "decoded",
       "rgbaSha256": "3c2f29b2a32f9a33725b969cb6720ce644de1b32dcf3bb022372ba9d064967a8",
       "source": "common-photo",
-      "wallMilliseconds": 484.202,
+      "wallMilliseconds": 521.939,
       "width": 576
     },
     {
@@ -2059,7 +2056,7 @@
       "outcome": "decoded",
       "rgbaSha256": "7cd35506a2837ae19e791f64da1b212f912aae845790c52c3c3227002a6a6eaf",
       "source": "common-photo",
-      "wallMilliseconds": 281.916,
+      "wallMilliseconds": 291.381,
       "width": 576
     },
     {
@@ -2070,7 +2067,7 @@
       "outcome": "decoded",
       "rgbaSha256": "3a27313a56d9d3c4c6dac2b2627c6e9e436a1a2dea0f6476622a92c3f99384b5",
       "source": "common-photo",
-      "wallMilliseconds": 308.518,
+      "wallMilliseconds": 350.54,
       "width": 576
     },
     {
@@ -2081,7 +2078,7 @@
       "outcome": "decoded",
       "rgbaSha256": "81c24dbde853f7307bd0bc23429033e86e3c85bdee90f68d5f27dd1b48ddb9eb",
       "source": "common-photo",
-      "wallMilliseconds": 294.426,
+      "wallMilliseconds": 304.464,
       "width": 576
     },
     {
@@ -2092,7 +2089,7 @@
       "outcome": "decoded",
       "rgbaSha256": "32679b5c88defb99ee516f1347f7c4f00d5b24c2e17108aae577529045f721b9",
       "source": "common-photo",
-      "wallMilliseconds": 362.291,
+      "wallMilliseconds": 384.997,
       "width": 576
     },
     {
@@ -2103,7 +2100,7 @@
       "outcome": "decoded",
       "rgbaSha256": "cfac5f91515b6bdea3a784881a9918584f8058996192cb9616cca33a52cbf78b",
       "source": "common-photo",
-      "wallMilliseconds": 247.03,
+      "wallMilliseconds": 265.364,
       "width": 576
     },
     {
@@ -2114,7 +2111,7 @@
       "outcome": "decoded",
       "rgbaSha256": "ccbb6f39e9318e4cdcec16ba5165e5c1dab49da08e90f1ee1e2279f3f3868255",
       "source": "common-photo",
-      "wallMilliseconds": 250.176,
+      "wallMilliseconds": 268.31,
       "width": 576
     },
     {
@@ -2125,7 +2122,7 @@
       "outcome": "decoded",
       "rgbaSha256": "72374fa2e7fd7505e089f8569b4f279e71554e4b2b5d37ebd32b6fb903798008",
       "source": "common-photo",
-      "wallMilliseconds": 476.796,
+      "wallMilliseconds": 496.022,
       "width": 576
     },
     {
@@ -2136,7 +2133,7 @@
       "outcome": "decoded",
       "rgbaSha256": "16b0ac90fcb666585e010deb0094e221fc83c56eeb2258bfbcea725c2673445a",
       "source": "common-photo",
-      "wallMilliseconds": 629.144,
+      "wallMilliseconds": 686.418,
       "width": 576
     },
     {
@@ -2147,7 +2144,7 @@
       "outcome": "decoded",
       "rgbaSha256": "d1c8b87f02a0f4e1d7502ff5003f119728940dcf4a9ef9b2bdbdf7cc8befc800",
       "source": "common-photo",
-      "wallMilliseconds": 372.533,
+      "wallMilliseconds": 368.137,
       "width": 576
     },
     {
@@ -2158,7 +2155,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2c20a2b8650fb7044aaead0cc4f15d7cb43a7b33d9fbb11591eb1b7e127efe64",
       "source": "common-photo",
-      "wallMilliseconds": 435.071,
+      "wallMilliseconds": 446.33,
       "width": 576
     },
     {
@@ -2169,7 +2166,7 @@
       "outcome": "decoded",
       "rgbaSha256": "8384f9b3e814d9b766f08b63b5793ed19e024fb7d4079bb2bb372983ebb2a286",
       "source": "common-photo",
-      "wallMilliseconds": 301.185,
+      "wallMilliseconds": 320.588,
       "width": 576
     },
     {
@@ -2180,7 +2177,7 @@
       "outcome": "decoded",
       "rgbaSha256": "8f2b8b4fb61e50e60aa6792ba3ea461a65c1500df9d2faf13c3c1ab150f64cdc",
       "source": "common-photo",
-      "wallMilliseconds": 351.739,
+      "wallMilliseconds": 397.427,
       "width": 576
     },
     {
@@ -2191,7 +2188,7 @@
       "outcome": "decoded",
       "rgbaSha256": "d41b0418e8b0d3d64348171f23ea3048a1ce455bf3dc4dca2a7988536f02e2ac",
       "source": "common-photo",
-      "wallMilliseconds": 268.904,
+      "wallMilliseconds": 288.111,
       "width": 576
     },
     {
@@ -2202,7 +2199,7 @@
       "outcome": "decoded",
       "rgbaSha256": "5b02fc1babbc66d157ce4e768fdf397fd76d22d07c46e1e699ea3089d47989cd",
       "source": "common-photo",
-      "wallMilliseconds": 214.424,
+      "wallMilliseconds": 234.965,
       "width": 576
     },
     {
@@ -2213,7 +2210,7 @@
       "outcome": "decoded",
       "rgbaSha256": "24774e15cff4d903c16b974fe99ebee5eed72128f3901f68e37f32d2225be953",
       "source": "common-photo",
-      "wallMilliseconds": 385.359,
+      "wallMilliseconds": 375.2,
       "width": 576
     },
     {
@@ -2224,7 +2221,7 @@
       "outcome": "decoded",
       "rgbaSha256": "17fcf8adfdba1add9cbb71c3f2419f75bfe304379a5c3a7825470ea4e498bb46",
       "source": "common-photo",
-      "wallMilliseconds": 497.515,
+      "wallMilliseconds": 515.187,
       "width": 576
     },
     {
@@ -2235,7 +2232,7 @@
       "outcome": "decoded",
       "rgbaSha256": "a2d1a1a4d965097a90cccddae8dec968ac93464eb05c007eb970391ab1cd7432",
       "source": "common-photo",
-      "wallMilliseconds": 291.645,
+      "wallMilliseconds": 297.042,
       "width": 576
     },
     {
@@ -2246,7 +2243,7 @@
       "outcome": "decoded",
       "rgbaSha256": "ae422a7de086859a035c3a8ee3983b939072c1c058299d4beeed664aff1d1797",
       "source": "common-photo",
-      "wallMilliseconds": 325.869,
+      "wallMilliseconds": 336.984,
       "width": 576
     },
     {
@@ -2257,7 +2254,7 @@
       "outcome": "decoded",
       "rgbaSha256": "579175be2aea91a8e128fa67923fe39df83c080ded2b8aeadc93e77586debc03",
       "source": "common-photo",
-      "wallMilliseconds": 349.954,
+      "wallMilliseconds": 346.39,
       "width": 576
     },
     {
@@ -2268,7 +2265,7 @@
       "outcome": "decoded",
       "rgbaSha256": "08891bdfabe3c65727bc06182c44610695b9bebc2eecd3563fc47fec4bcb4016",
       "source": "common-photo",
-      "wallMilliseconds": 476.299,
+      "wallMilliseconds": 483.213,
       "width": 576
     },
     {
@@ -2279,7 +2276,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e4261abf2bb1b9f0431d15e6650e07d6b61810f8d3c917541c528660c7ae975d",
       "source": "common-photo",
-      "wallMilliseconds": 309.758,
+      "wallMilliseconds": 308.194,
       "width": 576
     },
     {
@@ -2290,7 +2287,7 @@
       "outcome": "decoded",
       "rgbaSha256": "19fde4baa1dea775e00f5a69004e9396cee57037e9c23909fae279fef8a5eaa3",
       "source": "common-photo",
-      "wallMilliseconds": 335.035,
+      "wallMilliseconds": 341.033,
       "width": 576
     },
     {
@@ -2301,7 +2298,7 @@
       "outcome": "decoded",
       "rgbaSha256": "c1c79d1637d314af3240779d2af40582a6726a3851957a781ca29eef5d350c48",
       "source": "common-photo",
-      "wallMilliseconds": 360.672,
+      "wallMilliseconds": 384.435,
       "width": 576
     },
     {
@@ -2312,7 +2309,7 @@
       "outcome": "decoded",
       "rgbaSha256": "257536153ef2d91e8a94f4827f95dc9860be815d57273939148b801ea7093a16",
       "source": "common-photo",
-      "wallMilliseconds": 559.41,
+      "wallMilliseconds": 574.2,
       "width": 576
     },
     {
@@ -2323,7 +2320,7 @@
       "outcome": "decoded",
       "rgbaSha256": "dba5b204f0c5f97b1f0b65c60218e8231c9e92477021609d4a91ac495fc44ef7",
       "source": "common-photo",
-      "wallMilliseconds": 280.185,
+      "wallMilliseconds": 275.56,
       "width": 576
     },
     {
@@ -2334,7 +2331,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e95b4bb4539dc7b9cb0e4bb79079520a700dc06227a018541c5eea4879e901c2",
       "source": "common-photo",
-      "wallMilliseconds": 265.702,
+      "wallMilliseconds": 278.514,
       "width": 576
     },
     {
@@ -2345,7 +2342,7 @@
       "outcome": "decoded",
       "rgbaSha256": "40d4bdbb591f6b7d44e0380f5963c0907eeda9cf4c9f042b395263851505f873",
       "source": "common-photo",
-      "wallMilliseconds": 332.968,
+      "wallMilliseconds": 334.786,
       "width": 576
     },
     {
@@ -2356,7 +2353,7 @@
       "outcome": "decoded",
       "rgbaSha256": "92efe606499018cdc07fa2c17598d10f0e0badde6fb4b90f457bdbcf3dad1e8d",
       "source": "common-photo",
-      "wallMilliseconds": 544.485,
+      "wallMilliseconds": 573.224,
       "width": 576
     },
     {
@@ -2367,7 +2364,7 @@
       "outcome": "decoded",
       "rgbaSha256": "ffcb8131cf29163279eb7dec8722228feb152bed199efdafbd8f9766652a3b4b",
       "source": "common-photo",
-      "wallMilliseconds": 268.619,
+      "wallMilliseconds": 263.947,
       "width": 576
     },
     {
@@ -2378,7 +2375,7 @@
       "outcome": "decoded",
       "rgbaSha256": "80d58c40408eb2c1acac237d05593c91f6ce00218f3ba4fe091a808c6887b716",
       "source": "common-photo",
-      "wallMilliseconds": 309.898,
+      "wallMilliseconds": 321.822,
       "width": 576
     },
     {
@@ -2389,7 +2386,7 @@
       "outcome": "decoded",
       "rgbaSha256": "c701f0e8bbad02d797f4e0e92f7d3a58ce61adfafb3de3f696b5c1979320d98f",
       "source": "common-photo",
-      "wallMilliseconds": 304.825,
+      "wallMilliseconds": 315.221,
       "width": 576
     },
     {
@@ -2400,7 +2397,7 @@
       "outcome": "decoded",
       "rgbaSha256": "4316c38cb88b503f6d0e691dd24d7ee62f979648e32a032b58e27592fa369d51",
       "source": "common-photo",
-      "wallMilliseconds": 491.286,
+      "wallMilliseconds": 503.323,
       "width": 576
     },
     {
@@ -2411,7 +2408,7 @@
       "outcome": "decoded",
       "rgbaSha256": "387250f2ed2a03560770627953089aabd2c9ab3731ad1be1ef97edee4f656714",
       "source": "common-photo",
-      "wallMilliseconds": 254.569,
+      "wallMilliseconds": 255.761,
       "width": 576
     },
     {
@@ -2422,7 +2419,7 @@
       "outcome": "decoded",
       "rgbaSha256": "4778f6f1841de58a826ea688bdd70139c2656f2add313feb2f7d33aa6076bca0",
       "source": "common-photo",
-      "wallMilliseconds": 236.083,
+      "wallMilliseconds": 250.287,
       "width": 576
     },
     {
@@ -2433,7 +2430,7 @@
       "outcome": "decoded",
       "rgbaSha256": "eefe9df99d97073b2d22c9525cb90c26deb92b42b105ba8a77c057d56726bb8c",
       "source": "common-photo",
-      "wallMilliseconds": 381.213,
+      "wallMilliseconds": 407.017,
       "width": 576
     },
     {
@@ -2444,7 +2441,7 @@
       "outcome": "decoded",
       "rgbaSha256": "ea56e063280fb7762d21a8361e73de5e2588d5a1741e3bbedb05f154e099d42b",
       "source": "common-photo",
-      "wallMilliseconds": 589.697,
+      "wallMilliseconds": 631.045,
       "width": 576
     },
     {
@@ -2455,7 +2452,7 @@
       "outcome": "decoded",
       "rgbaSha256": "d3c6455251ad1c6ad0a55e0feb90303afb69036106a46fa2fe8fe08f0b977068",
       "source": "common-photo",
-      "wallMilliseconds": 317.24,
+      "wallMilliseconds": 320.981,
       "width": 576
     },
     {
@@ -2466,7 +2463,7 @@
       "outcome": "decoded",
       "rgbaSha256": "a4b3783b90018d20f339cf4810fbe56483fc41e895fc362f2e004644fa276551",
       "source": "common-photo",
-      "wallMilliseconds": 336.949,
+      "wallMilliseconds": 364.961,
       "width": 576
     },
     {
@@ -2477,7 +2474,7 @@
       "outcome": "decoded",
       "rgbaSha256": "90d66ee4d6fb960b5853f8251abd4f15d3b5ea08e6d5f645e2c015850248bae3",
       "source": "common-photo",
-      "wallMilliseconds": 453.32,
+      "wallMilliseconds": 491.518,
       "width": 576
     },
     {
@@ -2488,7 +2485,7 @@
       "outcome": "decoded",
       "rgbaSha256": "67242177d6267a41b22cd931a88eafbf7eb57228ee9e62977b350ae85efdea82",
       "source": "common-photo",
-      "wallMilliseconds": 609.24,
+      "wallMilliseconds": 686.897,
       "width": 576
     },
     {
@@ -2499,7 +2496,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e6252ebc4eec64462bbcc4c0569aa8dd447e863d4bee56eda146f641cc46658e",
       "source": "common-photo",
-      "wallMilliseconds": 371.621,
+      "wallMilliseconds": 372.624,
       "width": 576
     },
     {
@@ -2510,7 +2507,7 @@
       "outcome": "decoded",
       "rgbaSha256": "4e7348b16d817a2466a952648614541c6c3f47faa8acf1d4144b4ef0f3031d5c",
       "source": "common-photo",
-      "wallMilliseconds": 474.061,
+      "wallMilliseconds": 475.293,
       "width": 576
     },
     {
@@ -2521,7 +2518,7 @@
       "outcome": "decoded",
       "rgbaSha256": "200883d6f9dab4f268d21cabb79955040fd0ab2341aed9ce69e70bee59a1955b",
       "source": "common-photo",
-      "wallMilliseconds": 403.243,
+      "wallMilliseconds": 434.854,
       "width": 576
     },
     {
@@ -2532,7 +2529,7 @@
       "outcome": "decoded",
       "rgbaSha256": "57f289946e0830e87662ce59a6881cf596b203756f319c26dfb514ea6d4f53b7",
       "source": "common-photo",
-      "wallMilliseconds": 656.86,
+      "wallMilliseconds": 708.943,
       "width": 576
     },
     {
@@ -2543,7 +2540,7 @@
       "outcome": "decoded",
       "rgbaSha256": "134390f04e8b299c97d4990c5172fae384c454340847f33048e62bf26e680a52",
       "source": "common-photo",
-      "wallMilliseconds": 341.997,
+      "wallMilliseconds": 334.85,
       "width": 576
     },
     {
@@ -2554,7 +2551,7 @@
       "outcome": "decoded",
       "rgbaSha256": "9725f11568f293b768bd565daa765335c3618fd8abd7a59150d6205b10525315",
       "source": "common-photo",
-      "wallMilliseconds": 360.801,
+      "wallMilliseconds": 368.981,
       "width": 576
     },
     {
@@ -2565,7 +2562,7 @@
       "outcome": "decoded",
       "rgbaSha256": "9302762f6c2abc425737d9ac6c2ede9ff8fa39d2a91a19db9ac094127092a95d",
       "source": "common-photo",
-      "wallMilliseconds": 291.596,
+      "wallMilliseconds": 298.872,
       "width": 576
     },
     {
@@ -2576,7 +2573,7 @@
       "outcome": "decoded",
       "rgbaSha256": "355c7a958fa7e682c5544630a4cc0e9a6735d95876ce3669d64dcd0c21b7ccfa",
       "source": "common-photo",
-      "wallMilliseconds": 494.379,
+      "wallMilliseconds": 536.055,
       "width": 576
     },
     {
@@ -2587,7 +2584,7 @@
       "outcome": "decoded",
       "rgbaSha256": "b024d13c8040a8f258652dcf5318de3c4361fd0654b9d5280ba7976a33b97280",
       "source": "common-photo",
-      "wallMilliseconds": 264.504,
+      "wallMilliseconds": 275.735,
       "width": 576
     },
     {
@@ -2598,7 +2595,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2156b7d257db25c7f6a787acd22f8b004df864f2a52f48f31023a31f3d4d3daa",
       "source": "common-photo",
-      "wallMilliseconds": 278.272,
+      "wallMilliseconds": 288.718,
       "width": 576
     },
     {
@@ -2609,7 +2606,7 @@
       "outcome": "decoded",
       "rgbaSha256": "ce2793f85efda499e5710593dc7f44c0f7317f15a02d312482c11d0a26491085",
       "source": "common-photo",
-      "wallMilliseconds": 402.071,
+      "wallMilliseconds": 445.775,
       "width": 576
     },
     {
@@ -2620,7 +2617,7 @@
       "outcome": "decoded",
       "rgbaSha256": "16636b06f17a7004d2fa8bf23535b1e787181465efca3674e037d2cfaeca1f9f",
       "source": "common-photo",
-      "wallMilliseconds": 569.895,
+      "wallMilliseconds": 572.249,
       "width": 576
     },
     {
@@ -2631,7 +2628,7 @@
       "outcome": "decoded",
       "rgbaSha256": "b3e202610edd482b7ac46e59c7d31d28538ddbdef1278bb8c67e1caad1ed6456",
       "source": "common-photo",
-      "wallMilliseconds": 328.704,
+      "wallMilliseconds": 327.657,
       "width": 576
     },
     {
@@ -2642,7 +2639,7 @@
       "outcome": "decoded",
       "rgbaSha256": "f11971d3070572f29979548b18562f6e93b4a01c32406b1a134d94f04c177bbc",
       "source": "common-photo",
-      "wallMilliseconds": 337.548,
+      "wallMilliseconds": 374.598,
       "width": 576
     }
   ]

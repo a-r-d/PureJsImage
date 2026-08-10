@@ -52,6 +52,10 @@ import {
 } from '../benchmark/avif/row-alpha-fixture.ts'
 import { avifBoundedRowFixture, avifBoundedRowFixturePath } from '../benchmark/avif/row-fixture.ts'
 import {
+  avifStillPictureEntropyFixturePath,
+  avifStillPictureEntropyFixtures,
+} from '../benchmark/avif/still-picture-entropy-fixtures.ts'
+import {
   avifBoundedSuperresFixture,
   avifBoundedSuperresFixturePath,
   avifFilteredSuperresFixture,
@@ -68,7 +72,7 @@ import {
 } from '../benchmark/avif/tiled-lossless-fixture.ts'
 import { av1ObuType } from '../src/codecs/av1.ts'
 import { parseAv1Frame, parseAv1FrameObus } from '../src/codecs/av1-frame.ts'
-import { decodeRestrictedAv1Intra } from '../src/codecs/av1-intra.ts'
+import { type Av1DecodedFrame, decodeRestrictedAv1Intra } from '../src/codecs/av1-intra.ts'
 import {
   avifCodec,
   inspectAvifBitstreams,
@@ -79,6 +83,21 @@ import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource } from '../src/source.ts'
 import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
+
+const visibleYuvSha256 = (frame: Av1DecodedFrame): string => {
+  const hash = createHash('sha256')
+  for (let row = 0; row < frame.height; row += 1) {
+    hash.update(frame.y.subarray(row * frame.yStride, row * frame.yStride + frame.width))
+  }
+  for (const plane of [frame.u, frame.v]) {
+    for (let row = 0; row < frame.chromaHeight; row += 1) {
+      hash.update(
+        plane.subarray(row * frame.chromaStride, row * frame.chromaStride + frame.chromaWidth),
+      )
+    }
+  }
+  return hash.digest('hex')
+}
 
 const bytes32 = (value: number): readonly number[] => [
   (value >>> 24) & 0xff,
@@ -546,6 +565,27 @@ describe('AVIF restricted pixel decode', () => {
     },
     20_000,
   )
+  it.each(avifStillPictureEntropyFixtures)(
+    'decodes $file through AV1 still-picture entropy termination',
+    async (fixture) => {
+      const input = new Uint8Array(await readFile(avifStillPictureEntropyFixturePath(fixture)))
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+      const coded = inspection.codedImages.find((image) => image.role === 'color')
+      const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+      if (!coded || !frameObu) throw new Error(`${fixture.file} has no color frame OBU`)
+      const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+      const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
+      const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+      expect(frame.header.allowIntrabc).toBe(true)
+      expect([decoded.width, decoded.height]).toEqual([fixture.width, fixture.height])
+      expect(visibleYuvSha256(decoded)).toBe(fixture.nativeYuvSha256)
+      expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
+    },
+    20_000,
+  )
 
   it('keeps AVIF animation outside the pixel-decode boundary', async () => {
     const input = await readFile(
@@ -766,7 +806,7 @@ describe('AVIF restricted pixel decode', () => {
     for (const mutation of [
       {
         bit: 6,
-        byte: 431,
+        byte: 436,
         message: 'AV1 intra-block-copy motion vector escapes its plane',
       },
       {

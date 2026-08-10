@@ -37,6 +37,18 @@ Their encoded and agreeing dav1d/libaom native-YUV checksums are pinned in
 `npm run fixtures:avif:common-photo-syntax` to require byte-identical visible
 YUV from PureJsImage and both independent decoders.
 
+The four `ms-*-picture*.avif`, `ms-Tomsk-with-thumbnails.avif`, and
+`ms-bbb-4k.avif` fixtures are byte-identical Microsoft cases from the same
+pinned Imazen AVIF Conformance corpus revision. They cover 1280x720 reduced and
+full still-picture headers plus a 3840x2160 full-header frame. Before this
+increment, their valid AV1 streams surfaced as a symbol overread, missing
+trailing-one bit, or nonzero trailing padding because intra-block-copy
+transform contexts and reference motion diverged before tile termination.
+Encoded and agreeing dav1d/libaom native-YUV checksums are pinned in
+`benchmark/avif/still-picture-entropy-fixtures.ts`. Run
+`npm run fixtures:avif:still-picture-entropy` to require byte-identical visible
+YUV from PureJsImage and both independent decoders.
+
 `draw_points_idat.avif` comes from the same pinned libavif revision. It is
 committed for exact luma/chroma palette-mode and non-symmetric color-index
 regression coverage; its SHA-256 checksum is pinned in

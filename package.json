@@ -168,6 +168,7 @@
     "fixtures:avif:intrabc": "node benchmark/avif/verify-intrabc-fixture.ts",
     "fixtures:avif:common-photo-syntax": "node benchmark/avif/verify-common-photo-syntax-fixtures.ts",
     "fixtures:avif:nonstill-sequence": "node benchmark/avif/verify-nonstill-sequence-fixture.ts",
+    "fixtures:avif:still-picture-entropy": "node benchmark/avif/verify-still-picture-entropy-fixtures.ts",
     "fixtures:avif:layered": "node benchmark/avif/verify-layered-fixture.ts",
     "fixtures:avif:post-filters": "node benchmark/avif/verify-post-filters.ts",
     "fixtures:avif:qmatrix": "node benchmark/avif/verify-qmatrix-fixtures.ts",

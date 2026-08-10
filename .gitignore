@@ -188,6 +188,10 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/libavif-color-irot-alpha-*.avif
 !benchmark/corpus/files/avif/ms-thumbnail-roles.avif
 !benchmark/corpus/files/avif/ms-monochrome-residual-intrabc.avif
+!benchmark/corpus/files/avif/ms-Tomsk-with-thumbnails.avif
+!benchmark/corpus/files/avif/ms-reduced-still-picture-header.avif
+!benchmark/corpus/files/avif/ms-still-picture.avif
+!benchmark/corpus/files/avif/ms-bbb-4k.avif
 !benchmark/corpus/files/avif/ibc-deltaq-512x128.avif
 !benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif
 !benchmark/corpus/files/avif/libaom-superres-denom12-96x64.avif

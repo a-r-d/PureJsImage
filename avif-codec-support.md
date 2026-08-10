@@ -159,6 +159,9 @@ coverage.
 - [x] Residual intra-block-copy transform partitions, transform types,
   coefficients, inverse transforms, and reconstruction used by the pinned
   monochrome fixture
+- [x] Full-block transform-size contexts, nearest reference-motion candidate
+  stacks, and subsampled bilinear chroma prediction used by four pinned
+  Microsoft still-picture intra-block-copy frames
 - [ ] Other intra-block-copy and screen-content tools outside pinned syntax
 - [x] Clear palette contexts after intra-block-copy blocks and honor block
   delta-Q state in the restricted one-tile path
@@ -329,11 +332,11 @@ byte. The full-size tolerance remains zero.
 - [x] Reject malformed OBU sizes, duplicate sequence headers, truncated frame
   headers, tile overruns, invalid arithmetic symbols, impossible partitions,
   coefficient scans, and transform bounds explicitly
-- [x] Inspect all 35 checksum-pinned permanent corpus files and 45 unique coded
+- [x] Inspect all 39 checksum-pinned permanent corpus files and 49 unique coded
   items across `mdat`, `idat`, multiple extents, grids, alpha, 8/10/12-bit,
   4:0:0/4:2:0/4:2:2/4:4:4, progressive storage, HDR signaling, layered frame
-  units, and a non-still sequence header
-- [x] Pass metadata expectations for all 35 permanent corpus files
+  units, reduced and full still-picture headers, and a non-still sequence header
+- [x] Pass metadata expectations for all 39 permanent corpus files
 - [x] Decode exact independent reference pixels for the embedded 2x2 lossless
   fixture and the 4x4 lossy fixture
 - [x] Decode and pin RGBA regression hashes for Kodak 768x512 color; Fox
@@ -414,6 +417,11 @@ byte. The full-size tolerance remains zero.
   1280x720 monochrome residual intra-block-copy fixture
 - [x] Match agreeing libaom and dav1d native YUV exactly for the checksum-pinned
   512x128 YUV 4:4:4 skipped intra-block-copy plus block delta-Q fixture
+- [x] Match agreeing libaom and dav1d native YUV exactly for four pinned
+  1280x720 and 3840x2160 Microsoft YUV 4:2:0 frames that exercise reduced and
+  full still-picture headers plus non-skipped intra-block copy
+- [x] Exercise the pinned 1280x720 reduced-header still-picture fixture through
+  the portable codec entry in Chromium and pin its RGBA output
 - [x] Reject checksum-pinned entropy mutations whose intra-block-copy motion
   vectors overlap the current superblock or escape the decoded plane
 - [x] Apply the checksum-pinned 8x6 integer clean aperture to its 16x12 coded
@@ -441,8 +449,7 @@ byte. The full-size tolerance remains zero.
   dav1d and libaom native YUV output
 - [x] Survey 237 AVIF files spanning 137 conformance/edge/invalid cases and a
   100-file GB82 matrix encoded by Sharp/libvips and FFmpeg/libaom; complete
-  all 100 common-photo inputs and 62 conformance inputs while preserving all
-  116 previously completed RGBA checksums
+  all 100 common-photo inputs and 73 conformance inputs
 - [ ] Expand the compatibility corpus with rav1e, SVT-AV1, browser encoders,
   ImageMagick, cameras, and real web uploads
 - [ ] Add malformed ISOBMFF, OBU, entropy, partition, coefficient, restoration,
