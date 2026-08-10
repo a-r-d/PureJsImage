@@ -216,6 +216,9 @@ export const engine: Engine = {
       return 'Jimp 1.6.0 has no HEIC decoder'
     }
     if (input.includes('ico')) return 'Jimp 1.6.0 has no ICO decoder'
+    if (workflow.operations?.some((operation) => operation.type === 'raw')) {
+      return 'Jimp has no streaming raw-decode benchmark path'
+    }
     if (
       workflow.operations?.some(
         (operation) => operation.type === 'encode' && operation.format === 'webp',

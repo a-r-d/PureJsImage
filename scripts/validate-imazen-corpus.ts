@@ -1133,10 +1133,12 @@ export const writeImazenReports = async (
 }
 
 const gitRevision = async (directory: string): Promise<string> => {
-  const result = await execFileAsync('git', ['-C', directory, 'rev-parse', 'HEAD'], {
-    encoding: 'utf8',
-  })
-  return result.stdout.trim()
+  const [revision, status] = await Promise.all([
+    execFileAsync('git', ['-C', directory, 'rev-parse', 'HEAD'], { encoding: 'utf8' }),
+    execFileAsync('git', ['-C', directory, 'status', '--porcelain'], { encoding: 'utf8' }),
+  ])
+  const commit = revision.stdout.trim()
+  return status.stdout.trim().length === 0 ? commit : `${commit}-dirty`
 }
 
 const packageVersion = async (): Promise<string> => {

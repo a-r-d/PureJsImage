@@ -86,8 +86,14 @@
         "tests/imazen-corpus-harness.test.ts"
       ],
       "lossyPixelValidation": {
-        "status": "not-applicable",
-        "rationale": "The implemented TIFF compression paths are lossless"
+        "status": "independent-oracle",
+        "oracle": "ImageMagick 7.1.2 with LibTIFF 4.7 and libwebp",
+        "tolerance": "Packed, CMYK-alpha, and lossless WebP paths are exact; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
+        "evidence": [
+          "tests/tiff.test.ts",
+          "tests/lossy-codec-quality.test.ts",
+          "benchmark/results/imazen-tiff-conformance.md"
+        ]
       }
     },
     {

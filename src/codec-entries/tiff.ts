@@ -1,1 +1,1 @@
-export { tiffCodec } from '../codecs/tiff.ts'
+export { createTiffCodec, tiffCodec, type TiffCodecOptions } from '../codecs/tiff.ts'

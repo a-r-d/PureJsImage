@@ -3,6 +3,19 @@
 All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
+### Added
+
+- Expanded TIFF decoding with unsigned 6-, 10-, 12-, and 14-bit grayscale, 2-, 4-, 10-, 12-,
+  and 14-bit chunky or planar RGB, native packed horizontal prediction, direct 16-bit output,
+  and five-sample CMYK plus associated or unassociated alpha while retaining bounded segment
+  memory.
+- Added explicit WebP-in-TIFF composition through
+  `createTiffCodec({ embeddedCodecs: [webpCodec] })`; the default TIFF codec and root package do
+  not import or activate WebP automatically.
+- Added a complete development-only TIFF dependency matrix plus isolated raw full-image and region
+  benchmark operations with source-read, maximum decoded-block, external-memory, and ArrayBuffer
+  measurements.
+
 
 ## [0.8.0] - 2026-08-09
 

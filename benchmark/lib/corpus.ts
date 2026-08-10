@@ -13,7 +13,7 @@ import type {
   GeneratedFixture,
   SourceFixture,
 } from '../types.ts'
-import { identifyClassicTiff } from './tiff.ts'
+import { identifyTiff } from './tiff.ts'
 
 const benchmarkDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
 
@@ -71,6 +71,10 @@ const fixtureGenerators: ReadonlySet<unknown> = new Set([
   'static-transparent-gif',
   'streaming-stress-gradient',
   'tiff-gradient',
+  'tiff-bigtiff-rgb16',
+  'tiff-cmyk8-planar',
+  'tiff-packed12-strip',
+  'tiff-packed12-tile',
   'tiny-transparent',
   'transparent-logo',
   'webp-gradient-lossless',
@@ -175,7 +179,7 @@ export const inspectFixture = async (fixture: Fixture): Promise<FixtureInspectio
       bmpDimensions = { type: 'bmp', width, height: Math.abs(storedHeight) }
     }
   }
-  const dimensions = detected ?? bmpDimensions ?? identifyClassicTiff(bytes) ?? identifyIco(bytes)
+  const dimensions = detected ?? bmpDimensions ?? identifyTiff(bytes) ?? identifyIco(bytes)
 
   if (!dimensions) {
     throw new Error(`Could not identify ${fixture.file}`)

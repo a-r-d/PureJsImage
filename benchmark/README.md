@@ -56,11 +56,17 @@ bitfields, and explicit alpha. A deterministic 4000x3000 24-bit BMP provides
 the large Lambda memory workload. Reference-image pixels are pinned for codec
 correctness.
 
-The TIFF corpus pins seven fixtures from LibTIFF 4.7.1 and adds a deterministic
-4000x3000 stripped RGB image. It covers both byte orders, RGB, grayscale,
-bi-level, palette, planar alpha, uncompressed, PackBits, Deflate, and LZW data.
-The large RGB and 7795x3122 single-strip LZW cases establish the decode and
-Lambda-memory baselines.
+The TIFF corpus pins seven fixtures from LibTIFF 4.7.1 and adds deterministic
+4000x3000 8-bit RGB, planar 8-bit CMYK, stripped 16-bit RGB BigTIFF, and
+stripped plus padded-edge tiled packed 12-bit RGB images. It covers both byte
+orders, chunky and planar layouts, RGB, grayscale, bi-level, palette, alpha,
+CMYK, 8-/12-/16-bit samples, BigTIFF, uncompressed, PackBits, Deflate, and LZW
+data. Isolated metadata, full raw decode, region raw decode, resize, PNG encode,
+and TIFF encode workflows record median and p95 wall time, absolute and delta
+RSS, external and ArrayBuffer memory, source bytes read, and maximum decoded
+block size. The large RGB, packed 12-bit, 16-bit BigTIFF, planar CMYK, and
+7795x3122 single-strip LZW cases establish the decode and Lambda-memory
+baselines.
 
 The HEIF corpus pins three original 4032x3024 iPhone 12 Pro HEIC camera files.
 All three are 48-tile HEVC Main Still Picture grids with 8-bit YUV 4:2:0,

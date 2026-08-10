@@ -2,6 +2,11 @@ import { deflateSync } from 'node:zlib'
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
+import type { ImageCodec } from '../src/codec.ts'
+import { createTiffCodec, tiffCodec } from '../src/codecs/tiff.ts'
+import { webpCodec } from '../src/codecs/webp.ts'
+import { defaultImageLimits } from '../src/limits.ts'
+import { MemorySource } from '../src/source.ts'
 
 import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
@@ -244,6 +249,57 @@ const packedFaxBits = (bits: string): Uint8Array => {
   }
   return output
 }
+const packSampleRows = (rows: readonly (readonly number[])[], bitDepth: number): Uint8Array => {
+  const rowBytes = Math.ceil(((rows[0]?.length ?? 0) * bitDepth) / 8)
+  const output = new Uint8Array(rowBytes * rows.length)
+  for (let row = 0; row < rows.length; row += 1) {
+    const values = rows[row] ?? []
+    for (let sample = 0; sample < values.length; sample += 1) {
+      const value = values[sample] ?? 0
+      for (let bit = 0; bit < bitDepth; bit += 1) {
+        if (((value >>> (bitDepth - bit - 1)) & 1) === 0) continue
+        const outputBit = row * rowBytes * 8 + sample * bitDepth + bit
+        output[outputBit >>> 3] = (output[outputBit >>> 3] ?? 0) | (1 << (7 - (outputBit & 7)))
+      }
+    }
+  }
+  return output
+}
+
+const predictorDifferences = (
+  values: readonly number[],
+  stride: number,
+  bitDepth: number,
+): readonly number[] => {
+  const maximum = 2 ** bitDepth
+  return values.map((value, index) =>
+    index < stride ? value : (value - (values[index - stride] ?? 0) + maximum) % maximum,
+  )
+}
+
+const decodeDirect = async (
+  input: Uint8Array,
+  codec: ImageCodec = tiffCodec,
+): Promise<{ readonly format: string; readonly data: Uint8Array }> => {
+  if (!codec.createDecoder) throw new Error('TIFF decoder is unavailable')
+  const decoder = await codec.createDecoder(new MemorySource(input), defaultImageLimits)
+  const blocks: Uint8Array[] = []
+  for await (const block of decoder.decode()) blocks.push(Uint8Array.from(block.data))
+  const bytes = blocks.reduce((total, block) => total + block.byteLength, 0)
+  const data = new Uint8Array(bytes)
+  let offset = 0
+  for (const block of blocks) {
+    data.set(block, offset)
+    offset += block.byteLength
+  }
+  return { format: decoder.pixelFormat, data }
+}
+
+const uint16BigEndian = (data: Uint8Array, offset: number): number =>
+  ((data[offset] ?? 0) << 8) | (data[offset + 1] ?? 0)
+
+const scaleTo16 = (value: number, bitDepth: number): number =>
+  Math.round((value * 65_535) / (2 ** bitDepth - 1))
 
 const splitJpegTables = (
   input: Uint8Array,
@@ -660,6 +716,57 @@ describe('TIFF codec', () => {
     const paddedPixels = await decodedPng(deflateLastStripPadding)
     expect(pixel(paddedPixels, 0, 2)).toEqual([3, 3, 3, 255])
   })
+  it('composes WebP-in-TIFF explicitly without changing the default TIFF codec', async () => {
+    const source = new PNG({ width: 3, height: 2 })
+    source.data.set([
+      255, 0, 0, 255, 0, 255, 0, 128, 0, 0, 255, 0, 12, 34, 56, 78, 90, 123, 210, 255, 255, 255,
+      255, 64,
+    ])
+    const sourcePng = PNG.sync.write(source)
+    const lossless = await (await Image.open(sourcePng)).webp({ lossless: true }).toBuffer()
+    const input = tiffFixture({
+      width: 3,
+      height: 2,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 50001,
+      photometric: 2,
+      extraSamples: [2],
+      strips: [lossless],
+    })
+
+    await expect(decodeDirect(input)).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+    const composed = createTiffCodec({ embeddedCodecs: [webpCodec] })
+    const decoded = await decodeDirect(input, composed)
+    expect(decoded.format).toBe('rgba8')
+    expect(Array.from(decoded.data)).toEqual(Array.from(source.data))
+
+    const lossy = await (await Image.open(sourcePng)).webp({ quality: 80 }).toBuffer()
+    const lossyTiff = tiffFixture({
+      width: 3,
+      height: 2,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 50001,
+      photometric: 2,
+      extraSamples: [2],
+      strips: [lossy],
+    })
+    const standaloneLossy = await decodeDirect(lossy, webpCodec)
+    const composedLossy = await decodeDirect(lossyTiff, composed)
+    expect(composedLossy.data).toEqual(standaloneLossy.data)
+
+    const mismatched = tiffFixture({
+      width: 4,
+      height: 2,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 50001,
+      photometric: 2,
+      extraSamples: [2],
+      strips: [lossless],
+    })
+    await expect(decodeDirect(mismatched, composed)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
+  })
 
   it('decodes padded tiles and crops edge tiles to the image dimensions', async () => {
     const input = tiffFixture({
@@ -726,6 +833,184 @@ describe('TIFF codec', () => {
     expect(pixel(bigTiff, 0, 0)).toEqual([10, 20, 30, 255])
     expect(pixel(bigTiff, 1, 0)).toEqual([200, 150, 100, 255])
   })
+  it('preserves packed 10/12/14-bit grayscale and RGB samples in bounded 16-bit blocks', async () => {
+    const grayscale = [4_095, 0, 2_048] as const
+    for (const littleEndian of [true, false]) {
+      const predicted = predictorDifferences(grayscale, 1, 12)
+      const input = tiffFixture({
+        width: grayscale.length,
+        height: 1,
+        littleEndian,
+        bitsPerSample: [12],
+        compression: 1,
+        photometric: 1,
+        predictor: 2,
+        strips: [packSampleRows([predicted], 12)],
+      })
+      const direct = await decodeDirect(input)
+      expect(direct.format).toBe('gray16')
+      expect(grayscale.map((_, index) => uint16BigEndian(direct.data, index * 2))).toEqual(
+        grayscale.map((value) => scaleTo16(value, 12)),
+      )
+      const png = await decodedPng(input)
+      expect(pixel(png, 0, 0)).toEqual([255, 255, 255, 255])
+      expect(pixel(png, 1, 0)).toEqual([0, 0, 0, 255])
+      expect(pixel(png, 2, 0)).toEqual([128, 128, 128, 255])
+    }
+
+    for (const bitDepth of [10, 12, 14]) {
+      const maximum = 2 ** bitDepth - 1
+      const midpoint = Math.ceil(maximum / 2)
+      const channels = [
+        [0, maximum, 1],
+        [midpoint, midpoint, midpoint],
+        [maximum, 0, maximum - 1],
+      ] as const
+      for (const planarConfiguration of [1, 2] as const) {
+        const strips =
+          planarConfiguration === 1
+            ? [packSampleRows([[...channels[0], ...channels[1], ...channels[2]]], bitDepth)]
+            : [
+                packSampleRows([[channels[0][0], channels[1][0], channels[2][0]]], bitDepth),
+                packSampleRows([[channels[0][1], channels[1][1], channels[2][1]]], bitDepth),
+                packSampleRows([[channels[0][2], channels[1][2], channels[2][2]]], bitDepth),
+              ]
+        const input = tiffFixture({
+          width: 3,
+          height: 1,
+          littleEndian: bitDepth !== 12,
+          bitsPerSample: [bitDepth, bitDepth, bitDepth],
+          compression: 1,
+          photometric: 2,
+          planarConfiguration,
+          strips,
+        })
+        const direct = await decodeDirect(input)
+        expect(direct.format).toBe('rgb16')
+        const expected = channels.flatMap((channel) =>
+          channel.map((value) => scaleTo16(value, bitDepth)),
+        )
+        expect(expected.map((_, index) => uint16BigEndian(direct.data, index * 2))).toEqual(
+          expected,
+        )
+      }
+    }
+
+    const tiled = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [14],
+      compression: 1,
+      photometric: 1,
+      tileWidth: 3,
+      tileHeight: 1,
+      strips: [packSampleRows([[0, 16_383, 7_777]], 14)],
+    })
+    const tilePixels = await decodedPng(tiled)
+    expect(pixel(tilePixels, 0, 0)).toEqual([0, 0, 0, 255])
+    expect(pixel(tilePixels, 1, 0)).toEqual([255, 255, 255, 255])
+  })
+
+  it('decodes low packed RGB and grayscale without temporary sample planes', async () => {
+    for (const bitDepth of [2, 4]) {
+      const maximum = 2 ** bitDepth - 1
+      const input = tiffFixture({
+        width: 2,
+        height: 1,
+        bitsPerSample: [bitDepth, bitDepth, bitDepth],
+        compression: 1,
+        photometric: 2,
+        strips: [packSampleRows([[0, maximum, 0, maximum, 0, maximum]], bitDepth)],
+      })
+      const decoded = await decodedPng(input)
+      expect(pixel(decoded, 0, 0)).toEqual([0, 255, 0, 255])
+      expect(pixel(decoded, 1, 0)).toEqual([255, 0, 255, 255])
+    }
+    const gray6 = tiffFixture({
+      width: 3,
+      height: 1,
+      bitsPerSample: [6],
+      compression: 1,
+      photometric: 1,
+      strips: [packSampleRows([[0, 32, 63]], 6)],
+    })
+    const decoded = await decodedPng(gray6)
+    expect(pixel(decoded, 0, 0)).toEqual([0, 0, 0, 255])
+    expect(pixel(decoded, 1, 0)).toEqual([129, 129, 129, 255])
+    expect(pixel(decoded, 2, 0)).toEqual([255, 255, 255, 255])
+  })
+
+  it('decodes CMYK alpha but keeps generic five-band data unsupported', async () => {
+    for (const extraSample of [1, 2]) {
+      const input = tiffFixture({
+        width: 1,
+        height: 1,
+        bitsPerSample: [8, 8, 8, 8, 8],
+        compression: 1,
+        photometric: 5,
+        extraSamples: [extraSample],
+        strips: [
+          extraSample === 1
+            ? Uint8Array.of(127, 255, 255, 0, 128)
+            : Uint8Array.of(0, 255, 255, 0, 128),
+        ],
+      })
+      const decoded = await decodedPng(input)
+      expect(pixel(decoded, 0, 0)).toEqual([255, 0, 0, 128])
+    }
+    const planarPredicted = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8, 8],
+      compression: 1,
+      photometric: 5,
+      planarConfiguration: 2,
+      predictor: 2,
+      tileWidth: 2,
+      tileHeight: 1,
+      extraSamples: [2],
+      strips: [
+        Uint8Array.of(0, 255),
+        Uint8Array.of(255, 1),
+        Uint8Array.of(255, 1),
+        Uint8Array.of(0, 0),
+        Uint8Array.of(128, 127),
+      ],
+    })
+    const planarPixels = await decodedPng(planarPredicted)
+    expect(pixel(planarPixels, 0, 0)).toEqual([255, 0, 0, 128])
+    expect(pixel(planarPixels, 1, 0)).toEqual([0, 255, 255, 255])
+
+    const generic = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8, 8],
+      compression: 1,
+      photometric: 1,
+      extraSamples: [0, 0, 0, 0],
+      strips: [Uint8Array.of(1, 2, 3, 4, 5)],
+    })
+    await expect(Image.open(generic).then((image) => image.png().toBuffer())).rejects.toMatchObject(
+      {
+        code: 'UNSUPPORTED_OPERATION',
+      },
+    )
+  })
+
+  it('rejects truncated packed rows before pixel emission', async () => {
+    const input = tiffFixture({
+      width: 3,
+      height: 1,
+      bitsPerSample: [12],
+      compression: 1,
+      photometric: 1,
+      strips: [Uint8Array.of(0, 0, 0, 0)],
+    })
+    await expect(Image.open(input).then((image) => image.png().toBuffer())).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
+  })
+
   it('decodes legacy LSB-packed TIFF LZW through its late code-width transition', async () => {
     const values = Uint8Array.from({ length: 300 }, (_, index) => index & 0xff)
     const input = tiffFixture({

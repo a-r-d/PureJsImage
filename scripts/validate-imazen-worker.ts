@@ -4,7 +4,7 @@ import { bmpCodec } from '../src/codecs/bmp.ts'
 import { gifCodec } from '../src/codecs/gif.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { pngCodec } from '../src/codecs/png.ts'
-import { tiffCodec } from '../src/codecs/tiff.ts'
+import { createTiffCodec } from '../src/codecs/tiff.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import { ImageError } from '../src/errors.ts'
 import { createNodeImageLibrary } from '../src/node-image.ts'
@@ -39,6 +39,8 @@ interface WorkerOptions {
   readonly file: string
   readonly format: ImazenFormat
 }
+
+const tiffCodec = createTiffCodec({ embeddedCodecs: [webpCodec] })
 
 const imageLibrary = createNodeImageLibrary([
   jpegCodec,

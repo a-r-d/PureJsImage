@@ -22,14 +22,15 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 
 ### Pixel formats
 
-- [x] 1-, 2-, 4-, and 8-bit grayscale (`WhiteIsZero` and `BlackIsZero`)
+- [x] 1-, 2-, 4-, 6-, 8-, 10-, 12-, 14-, and 16-bit grayscale (`WhiteIsZero` and `BlackIsZero`)
 - [x] 1-, 2-, 4-, and 8-bit indexed color with a TIFF color map
-- [x] 8-bit RGB
+- [x] 2-, 4-, 8-, 10-, 12-, 14-, and 16-bit RGB
 - [x] 8-bit grayscale plus alpha
 - [x] 8-bit RGBA
 - [x] Associated and unassociated alpha samples
-- [x] 16-bit grayscale, grayscale-alpha, RGB, and RGBA
+- [x] 16-bit grayscale-alpha and RGBA
 - [x] Four-component CMYK / `Separated`, including `DotRange`
+- [x] Five-sample CMYK plus associated or unassociated alpha
 - [x] Chunky subsampled YCbCr and planar 1x1 YCbCr
 - [x] RGB, indexed, and JPEG-backed ICC-profile color conversion
 - [ ] CIELab and CMYK ICC-profile color conversion
@@ -43,31 +44,32 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Deflate / Adobe Deflate
 - [x] CCITT Group 4 (`T6`) bilevel fax, including multi-strip and `FillOrder=2` input
 - [x] CCITT Modified Huffman and Group 3 (`T4`) fax, including mixed 1D/2D rows and legacy 1D rows without EOL markers
-- [x] Horizontal differencing predictor for uniform 8-bit and 16-bit samples
+- [x] Horizontal differencing predictor for uniform 2-, 4-, 6-, 8-, 10-, 12-, 14-, and 16-bit unsigned samples
 - [x] JPEG-in-TIFF (`Compression=7`) complete and abbreviated streams with `JPEGTables`
 - [x] Old-style JPEG (`Compression=6`) complete interchange streams, multi-strip scans, omitted `RowsPerStrip`, and baseline Q/DC/AC table reconstruction
-- [ ] Zstandard, WebP, LERC, and other extension compressions
+- [x] WebP-in-TIFF (`Compression=50001`) through explicit `createTiffCodec({ embeddedCodecs: [webpCodec] })` composition
+- [ ] Zstandard, LERC, ThunderScan, and other extension compressions
 - [ ] Reversed bit fill order (`FillOrder=2`) outside CCITT fax compression
 
 ## Decode roadmap
 
-The 154-file Imazen baseline currently has no decode failures: 87 inputs pass, 63 reach structured `UNSUPPORTED_OPERATION` boundaries, and 4 robustness inputs are rejected safely. Unsupported totals record only the first boundary reached, so one input may still depend on another unsupported sample format, predictor, photometric interpretation, or compression.
+The 154-file Imazen baseline currently has no decode failures: 106 inputs pass, 44 reach structured `UNSUPPORTED_OPERATION` boundaries, and 4 robustness inputs are rejected safely. The TIFF conformance worker explicitly composes WebP; the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.
 
 ### Next recommended capability
 
-- [ ] Decode unsigned 10-, 12-, and 14-bit grayscale and RGB into existing `gray16` and `rgb16` pixel blocks
-- [ ] Preserve the declared sample range without silently downconverting through an 8-bit intermediate
-- [ ] Validate all 11 affected Imazen inputs against an independent decoder, including packed rows, planar data, strip/tile edges, and hostile size arithmetic
+- [ ] Define raw preservation and deterministic display conversion semantics for signed integer and floating-point samples
+- [ ] Add pixel formats or explicit normalization APIs before accepting scientific values
+- [ ] Keep predictor reversal bounded to strip or tile buffers
 
-This is the highest-value bounded follow-up: it unlocks 11 corpus inputs without adding signed, floating-point, or generic multi-band pixel formats.
+This design checkpoint precedes signed or floating-point decoder work because the contract affects transforms, browser behavior, metadata, and memory accounting.
 
 ### Follow-on priorities
 
-1. Decode four-component CMYK plus unassociated alpha into RGBA; keep arbitrary five-band imagery unsupported until the public API has explicit band-selection semantics.
-2. Add packed 2- and 4-bit RGB plus 6-bit grayscale decode.
-3. Consider WebP-in-TIFF only with explicit codec composition or registration so importing TIFF does not silently pull the WebP implementation into the bundle.
-4. Treat signed integer and floating-point TIFF as a separate pipeline capability. Define preservation or normalization semantics and add corresponding pixel formats before accepting those samples.
-5. Keep generic five-band data, LogLuv/SGILog, Zstandard, and ThunderScan unsupported until a demonstrated workload justifies their API, implementation, and security cost.
+1. Add wide unsigned 24-, 32-, and 64-bit samples only after the raw/display pixel contract is defined.
+2. Add SubIFD traversal, explicit frame selection, and reduced-resolution pyramid selection with cycle detection.
+3. Keep generic five-band data unsupported until the public API has explicit band-selection semantics.
+4. Treat LogLuv/SGILog and Zstandard as separate scientific and compression projects.
+5. Keep ThunderScan unsupported: the only current corpus fixture is truncated by three rows and LibTIFF independently rejects it.
 
 ## Encode
 
@@ -100,8 +102,10 @@ This is the highest-value bounded follow-up: it unlocks 11 corpus inputs without
 - [x] Bound decompression output to the declared strip or tile geometry
 - [x] Reject unsupported photometric interpretations, sample formats, and compressions explicitly
 - [x] Verify decoded pixels against pinned LibTIFF fixtures
+- [x] Verify packed 10-, 12-, and 14-bit output exactly at native 16-bit depth against ImageMagick/LibTIFF
+- [x] Verify low packed depths, CMYK-alpha, and lossless WebP-in-TIFF output exactly against ImageMagick/LibTIFF
+- [x] Verify explicitly composed lossy WebP-in-TIFF against the independently validated WebP decoder contract
 - [x] Verify CCITT Group 4 output against independently encoded ImageMagick/LibTIFF fixtures
 - [x] Verify tiled LZW and BigTIFF output against independently encoded ImageMagick/LibTIFF fixtures
-- [x] Benchmark absolute peak RSS in isolated cold and warm processes
 - [x] Complete the 154-file Imazen TIFF corpus decode-to-PNG baseline with every
   supported valid file decoded and all remaining inputs classified at structured boundaries

@@ -259,6 +259,274 @@ const writeTiffGradient = async (fixture: GeneratedCorpusFixture): Promise<void>
   }
 }
 
+const writePacked12Tiff = async (
+  fixture: GeneratedCorpusFixture,
+  tiled: boolean,
+): Promise<void> => {
+  const { width, height } = fixture.expected
+  const segmentWidth = tiled ? 256 : width
+  const segmentHeight = tiled ? 256 : 32
+  const segmentsAcross = tiled ? Math.ceil(width / segmentWidth) : 1
+  const segmentsDown = Math.ceil(height / segmentHeight)
+  const segmentCount = segmentsAcross * segmentsDown
+  const entryCount = tiled ? 11 : 10
+  const ifdOffset = 8
+  const ifdBytes = 2 + entryCount * 12 + 4
+  const bitsOffset = ifdOffset + ifdBytes
+  const segmentOffsetsOffset = bitsOffset + 6
+  const segmentByteCountsOffset = segmentOffsetsOffset + segmentCount * 4
+  const pixelsOffset = segmentByteCountsOffset + segmentCount * 4
+  const header = Buffer.alloc(pixelsOffset)
+  const view = new DataView(header.buffer, header.byteOffset, header.byteLength)
+  header.set([0x49, 0x49])
+  view.setUint16(2, 42, true)
+  view.setUint32(4, ifdOffset, true)
+  view.setUint16(ifdOffset, entryCount, true)
+
+  let entryOffset = ifdOffset + 2
+  const writeEntry = (tag: number, fieldType: number, count: number, value: number): void => {
+    view.setUint16(entryOffset, tag, true)
+    view.setUint16(entryOffset + 2, fieldType, true)
+    view.setUint32(entryOffset + 4, count, true)
+    if (fieldType === 3 && count === 1) view.setUint16(entryOffset + 8, value, true)
+    else view.setUint32(entryOffset + 8, value, true)
+    entryOffset += 12
+  }
+
+  writeEntry(256, 4, 1, width)
+  writeEntry(257, 4, 1, height)
+  writeEntry(258, 3, 3, bitsOffset)
+  writeEntry(259, 3, 1, 1)
+  writeEntry(262, 3, 1, 2)
+  if (!tiled) writeEntry(273, 4, segmentCount, segmentOffsetsOffset)
+  writeEntry(277, 3, 1, 3)
+  if (!tiled) {
+    writeEntry(278, 4, 1, segmentHeight)
+    writeEntry(279, 4, segmentCount, segmentByteCountsOffset)
+  }
+  writeEntry(284, 3, 1, 1)
+  if (tiled) {
+    writeEntry(322, 4, 1, segmentWidth)
+    writeEntry(323, 4, 1, segmentHeight)
+    writeEntry(324, 4, segmentCount, segmentOffsetsOffset)
+    writeEntry(325, 4, segmentCount, segmentByteCountsOffset)
+  }
+  view.setUint32(entryOffset, 0, true)
+  view.setUint16(bitsOffset, 12, true)
+  view.setUint16(bitsOffset + 2, 12, true)
+  view.setUint16(bitsOffset + 4, 12, true)
+
+  let pixelOffset = pixelsOffset
+  for (let segment = 0; segment < segmentCount; segment += 1) {
+    const segmentRow = Math.floor(segment / segmentsAcross)
+    const rows = tiled
+      ? segmentHeight
+      : Math.min(segmentHeight, height - segmentRow * segmentHeight)
+    const byteCount = (segmentWidth * rows * 36) >>> 3
+    view.setUint32(segmentOffsetsOffset + segment * 4, pixelOffset, true)
+    view.setUint32(segmentByteCountsOffset + segment * 4, byteCount, true)
+    pixelOffset += byteCount
+  }
+
+  const file = await open(fixturePath(fixture), 'w')
+  try {
+    await file.write(header)
+    const row = Buffer.allocUnsafe((segmentWidth * 36) >>> 3)
+    for (let segment = 0; segment < segmentCount; segment += 1) {
+      const segmentX = (segment % segmentsAcross) * segmentWidth
+      const segmentY = Math.floor(segment / segmentsAcross) * segmentHeight
+      const rows = tiled ? segmentHeight : Math.min(segmentHeight, height - segmentY)
+      for (let localY = 0; localY < rows; localY += 1) {
+        const y = segmentY + localY
+        const green = y < height ? Math.round((y / (height - 1)) * 4_095) : 0
+        for (let localX = 0; localX < segmentWidth; localX += 2) {
+          const x0 = segmentX + localX
+          const x1 = x0 + 1
+          const valid0 = x0 < width && y < height
+          const valid1 = x1 < width && y < height
+          const red0 = valid0 ? Math.round((x0 / (width - 1)) * 4_095) : 0
+          const blue0 = valid0 ? (x0 + y) & 4_095 : 0
+          const red1 = valid1 ? Math.round((x1 / (width - 1)) * 4_095) : 0
+          const blue1 = valid1 ? (x1 + y) & 4_095 : 0
+          const green0 = valid0 ? green : 0
+          const green1 = valid1 ? green : 0
+          const target = (localX >>> 1) * 9
+          row[target] = red0 >>> 4
+          row[target + 1] = ((red0 & 15) << 4) | (green0 >>> 8)
+          row[target + 2] = green0
+          row[target + 3] = blue0 >>> 4
+          row[target + 4] = ((blue0 & 15) << 4) | (red1 >>> 8)
+          row[target + 5] = red1
+          row[target + 6] = green1 >>> 4
+          row[target + 7] = ((green1 & 15) << 4) | (blue1 >>> 8)
+          row[target + 8] = blue1
+        }
+        await file.write(row)
+      }
+    }
+  } finally {
+    await file.close()
+  }
+}
+const align8 = (value: number): number => (value + 7) & ~7
+
+const writeBigTiffRgb16 = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+  const { width, height } = fixture.expected
+  const rowsPerStrip = 32
+  const stripCount = Math.ceil(height / rowsPerStrip)
+  const entryCount = 10
+  const ifdOffset = 16
+  const ifdBytes = 8 + entryCount * 20 + 8
+  const bitsOffset = ifdOffset + ifdBytes
+  const stripOffsetsOffset = align8(bitsOffset + 6)
+  const stripByteCountsOffset = stripOffsetsOffset + stripCount * 8
+  const pixelsOffset = align8(stripByteCountsOffset + stripCount * 8)
+  const header = Buffer.alloc(pixelsOffset)
+  const view = new DataView(header.buffer, header.byteOffset, header.byteLength)
+
+  header.set([0x49, 0x49])
+  view.setUint16(2, 43, true)
+  view.setUint16(4, 8, true)
+  view.setUint16(6, 0, true)
+  view.setBigUint64(8, BigInt(ifdOffset), true)
+  view.setBigUint64(ifdOffset, BigInt(entryCount), true)
+
+  let entryOffset = ifdOffset + 8
+  const writeEntry = (tag: number, fieldType: number, count: number, value: number): void => {
+    view.setUint16(entryOffset, tag, true)
+    view.setUint16(entryOffset + 2, fieldType, true)
+    view.setBigUint64(entryOffset + 4, BigInt(count), true)
+    if (fieldType === 3 && count === 1) view.setUint16(entryOffset + 12, value, true)
+    else if (fieldType === 4 && count === 1) view.setUint32(entryOffset + 12, value, true)
+    else view.setBigUint64(entryOffset + 12, BigInt(value), true)
+    entryOffset += 20
+  }
+
+  writeEntry(256, 4, 1, width)
+  writeEntry(257, 4, 1, height)
+  const bitsEntryValueOffset = entryOffset + 12
+  writeEntry(258, 3, 3, 0)
+  writeEntry(259, 3, 1, 1)
+  writeEntry(262, 3, 1, 2)
+  writeEntry(273, 16, stripCount, stripOffsetsOffset)
+  writeEntry(277, 3, 1, 3)
+  writeEntry(278, 4, 1, rowsPerStrip)
+  writeEntry(279, 16, stripCount, stripByteCountsOffset)
+  writeEntry(284, 3, 1, 1)
+  view.setBigUint64(entryOffset, 0n, true)
+  view.setUint16(bitsEntryValueOffset, 16, true)
+  view.setUint16(bitsEntryValueOffset + 2, 16, true)
+  view.setUint16(bitsEntryValueOffset + 4, 16, true)
+
+  let stripOffset = pixelsOffset
+  for (let strip = 0; strip < stripCount; strip += 1) {
+    const rows = Math.min(rowsPerStrip, height - strip * rowsPerStrip)
+    const byteCount = rows * width * 6
+    view.setBigUint64(stripOffsetsOffset + strip * 8, BigInt(stripOffset), true)
+    view.setBigUint64(stripByteCountsOffset + strip * 8, BigInt(byteCount), true)
+    stripOffset += byteCount
+  }
+
+  const file = await open(fixturePath(fixture), 'w')
+  try {
+    await file.write(header)
+    const row = Buffer.allocUnsafe(width * 6)
+    const rowView = new DataView(row.buffer, row.byteOffset, row.byteLength)
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const offset = x * 6
+        rowView.setUint16(offset, Math.round((x / (width - 1)) * 65_535), true)
+        rowView.setUint16(offset + 2, Math.round((y / (height - 1)) * 65_535), true)
+        rowView.setUint16(offset + 4, (x * 31 + y * 17) & 0xffff, true)
+      }
+      await file.write(row)
+    }
+  } finally {
+    await file.close()
+  }
+}
+
+const writePlanarCmyk8Tiff = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+  const { width, height } = fixture.expected
+  const rowsPerStrip = 32
+  const stripsPerPlane = Math.ceil(height / rowsPerStrip)
+  const stripCount = stripsPerPlane * 4
+  const entryCount = 10
+  const ifdOffset = 8
+  const ifdBytes = 2 + entryCount * 12 + 4
+  const bitsOffset = ifdOffset + ifdBytes
+  const stripOffsetsOffset = bitsOffset + 8
+  const stripByteCountsOffset = stripOffsetsOffset + stripCount * 4
+  const pixelsOffset = stripByteCountsOffset + stripCount * 4
+  const header = Buffer.alloc(pixelsOffset)
+  const view = new DataView(header.buffer, header.byteOffset, header.byteLength)
+
+  header.set([0x49, 0x49])
+  view.setUint16(2, 42, true)
+  view.setUint32(4, ifdOffset, true)
+  view.setUint16(ifdOffset, entryCount, true)
+
+  let entryOffset = ifdOffset + 2
+  const writeEntry = (tag: number, fieldType: number, count: number, value: number): void => {
+    view.setUint16(entryOffset, tag, true)
+    view.setUint16(entryOffset + 2, fieldType, true)
+    view.setUint32(entryOffset + 4, count, true)
+    if (fieldType === 3 && count === 1) view.setUint16(entryOffset + 8, value, true)
+    else view.setUint32(entryOffset + 8, value, true)
+    entryOffset += 12
+  }
+
+  writeEntry(256, 4, 1, width)
+  writeEntry(257, 4, 1, height)
+  writeEntry(258, 3, 4, bitsOffset)
+  writeEntry(259, 3, 1, 1)
+  writeEntry(262, 3, 1, 5)
+  writeEntry(273, 4, stripCount, stripOffsetsOffset)
+  writeEntry(277, 3, 1, 4)
+  writeEntry(278, 4, 1, rowsPerStrip)
+  writeEntry(279, 4, stripCount, stripByteCountsOffset)
+  writeEntry(284, 3, 1, 2)
+  view.setUint32(entryOffset, 0, true)
+  for (let sample = 0; sample < 4; sample += 1) {
+    view.setUint16(bitsOffset + sample * 2, 8, true)
+  }
+
+  let stripOffset = pixelsOffset
+  for (let sample = 0; sample < 4; sample += 1) {
+    for (let strip = 0; strip < stripsPerPlane; strip += 1) {
+      const index = sample * stripsPerPlane + strip
+      const rows = Math.min(rowsPerStrip, height - strip * rowsPerStrip)
+      const byteCount = rows * width
+      view.setUint32(stripOffsetsOffset + index * 4, stripOffset, true)
+      view.setUint32(stripByteCountsOffset + index * 4, byteCount, true)
+      stripOffset += byteCount
+    }
+  }
+
+  const file = await open(fixturePath(fixture), 'w')
+  try {
+    await file.write(header)
+    const row = Buffer.allocUnsafe(width)
+    for (let sample = 0; sample < 4; sample += 1) {
+      for (let y = 0; y < height; y += 1) {
+        for (let x = 0; x < width; x += 1) {
+          row[x] =
+            sample === 0
+              ? Math.round((x / (width - 1)) * 255)
+              : sample === 1
+                ? Math.round((y / (height - 1)) * 255)
+                : sample === 2
+                  ? (x + y) & 0xff
+                  : (x ^ y) & 0x7f
+        }
+        await file.write(row)
+      }
+    }
+  } finally {
+    await file.close()
+  }
+}
+
 const writeWebpGradient = async (
   fixture: GeneratedCorpusFixture,
   lossless: boolean,
@@ -499,6 +767,14 @@ const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
       return writeStreamingStressPng(fixture)
     case 'tiff-gradient':
       return writeTiffGradient(fixture)
+    case 'tiff-bigtiff-rgb16':
+      return writeBigTiffRgb16(fixture)
+    case 'tiff-cmyk8-planar':
+      return writePlanarCmyk8Tiff(fixture)
+    case 'tiff-packed12-strip':
+      return writePacked12Tiff(fixture, false)
+    case 'tiff-packed12-tile':
+      return writePacked12Tiff(fixture, true)
     case 'webp-gradient-lossless':
       return writeWebpGradient(fixture, true)
     case 'webp-gradient-lossy':

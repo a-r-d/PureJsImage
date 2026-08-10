@@ -10,7 +10,7 @@ import {
   normalizedRotation,
   type PipelineOperation,
 } from './pipeline.ts'
-import type { PixelBlock } from './pixel.ts'
+import { normalizePixelBlocks, normalizedPixelFormat, type PixelBlock } from './pixel.ts'
 import type { ImageRuntime } from './runtime.ts'
 import { createResizeTransform } from './resize.ts'
 import { createRotationTransform } from './rotate.ts'
@@ -226,7 +226,7 @@ export const executePipeline = async (
     )
     let width = Math.ceil(output.decoderRegion.width / scaleDenominator)
     let height = Math.ceil(output.decoderRegion.height / scaleDenominator)
-    let pixelFormat = decoder.pixelFormat
+    let pixelFormat = normalizedPixelFormat(decoder.pixelFormat)
     let blocks: AsyncIterable<PixelBlock> = decoder.decode(
       scaleDenominator === 1
         ? output.decoderRegion
@@ -238,6 +238,7 @@ export const executePipeline = async (
             scaleDenominator,
           },
     )
+    blocks = normalizePixelBlocks(blocks, decoder.pixelFormat)
     for (const operation of output.stages) {
       if (operation.type === 'encode') continue
       if (operation.type === 'crop') {

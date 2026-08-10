@@ -1,6 +1,14 @@
 import { invalidInput } from './errors.ts'
 
-export type PixelFormat = 'gray8' | 'rgb8' | 'rgba8' | 'rgb16' | 'rgba16' | 'yuv420p8' | 'yuv420p10'
+export type PixelFormat =
+  | 'gray8'
+  | 'gray16'
+  | 'rgb8'
+  | 'rgba8'
+  | 'rgb16'
+  | 'rgba16'
+  | 'yuv420p8'
+  | 'yuv420p10'
 
 export interface PixelBlock {
   readonly x: number
@@ -33,6 +41,59 @@ export const resumePixelBlocks = async function* (
       continue
     }
     yield block
+  }
+}
+export const normalizedPixelFormat = (format: PixelFormat): PixelFormat => {
+  if (format === 'gray16') return 'gray8'
+  if (format === 'rgb16') return 'rgb8'
+  if (format === 'rgba16') return 'rgba8'
+  return format
+}
+
+export const normalizePixelBlocks = async function* (
+  blocks: AsyncIterable<PixelBlock>,
+  format: PixelFormat,
+): AsyncGenerator<PixelBlock> {
+  const normalized = normalizedPixelFormat(format)
+  if (normalized === format) {
+    yield* blocks
+    return
+  }
+  const channels = format === 'gray16' ? 1 : format === 'rgb16' ? 3 : 4
+  for await (const block of blocks) {
+    const sourceRowBytes = block.width * channels * 2
+    if (
+      block.format !== format ||
+      block.height < 1 ||
+      block.stride < sourceRowBytes ||
+      block.data.byteLength < block.stride * (block.height - 1) + sourceRowBytes
+    ) {
+      block.release?.()
+      throw invalidInput('16-bit normalization received an invalid pixel block')
+    }
+    const outputStride = block.width * channels
+    const output = new Uint8Array(outputStride * block.height)
+    for (let row = 0; row < block.height; row += 1) {
+      let source = row * block.stride
+      let target = row * outputStride
+      const end = source + sourceRowBytes
+      while (source < end) {
+        const value = ((block.data[source] ?? 0) << 8) | (block.data[source + 1] ?? 0)
+        output[target] = Math.round((value * 255) / 65_535)
+        source += 2
+        target += 1
+      }
+    }
+    block.release?.()
+    yield {
+      x: block.x,
+      y: block.y,
+      width: block.width,
+      height: block.height,
+      stride: outputStride,
+      format: normalized,
+      data: output,
+    }
   }
 }
 

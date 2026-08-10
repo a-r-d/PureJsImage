@@ -490,14 +490,16 @@ const markdown = [
   '',
   '## Performance on workflows supported by every selected engine',
   '',
-  '| Engine | Workflow | Median wall | p95 wall | Median CPU | Peak RSS | Peak RSS delta | Quality | Output |',
-  '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
+  '| Engine | Workflow | Median wall | p95 wall | Median CPU | Peak RSS | Peak RSS delta | External | ArrayBuffer | Source read | Max decoded block | Quality | Output |',
+  '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
   ...(comparableResults.length > 0
     ? comparableResults.map(
         ({ engine, workflow, summary }) =>
-          `| ${engine} | ${workflow} | ${formatMilliseconds(summary.wallMilliseconds?.median)} ms | ${formatMilliseconds(summary.wallMilliseconds?.p95)} ms | ${formatMilliseconds(summary.cpuMilliseconds?.median)} ms | ${formatMegabytes(summary.peakRssBytes?.median)} MiB | ${formatMegabytes(summary.peakRssDeltaBytes?.median)} MiB | ${formatQuality(summary.qualityPsnrDb)} | ${formatMegabytes(summary.outputBytes?.median)} MiB |`,
+          `| ${engine} | ${workflow} | ${formatMilliseconds(summary.wallMilliseconds?.median)} ms | ${formatMilliseconds(summary.wallMilliseconds?.p95)} ms | ${formatMilliseconds(summary.cpuMilliseconds?.median)} ms | ${formatMegabytes(summary.peakRssBytes?.median)} MiB | ${formatMegabytes(summary.peakRssDeltaBytes?.median)} MiB | ${formatMegabytes(summary.finalExternalBytes?.median)} MiB | ${formatMegabytes(summary.finalArrayBuffersBytes?.median)} MiB | ${formatMegabytes(summary.sourceBytesRead?.median)} MiB | ${formatMegabytes(summary.maximumDecodedBlockBytes?.median)} MiB | ${formatQuality(summary.qualityPsnrDb)} | ${formatMegabytes(summary.outputBytes?.median)} MiB |`,
       )
-    : ['| - | No workflow passed for every selected engine | - | - | - | - | - | - | - |']),
+    : [
+        '| - | No workflow passed for every selected engine | - | - | - | - | - | - | - | - | - | - | - |',
+      ]),
   '',
   '## Startup and installed package footprint',
   '',

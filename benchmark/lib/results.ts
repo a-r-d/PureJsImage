@@ -34,6 +34,14 @@ export const summarizeSamples = (samples: readonly BenchmarkSample[]): Benchmark
   const peakAbsolute = successful.map((sample) => sample.peakRssBytes)
   const peakDelta = successful.map((sample) => sample.peakRssDeltaBytes)
   const outputBytes = successful.map((sample) => sample.outputBytes)
+  const finalExternal = successful.map((sample) => sample.finalMemory.external)
+  const finalArrayBuffers = successful.map((sample) => sample.finalMemory.arrayBuffers)
+  const sourceBytesRead = successful.flatMap((sample) =>
+    sample.sourceBytesRead === undefined ? [] : [sample.sourceBytesRead],
+  )
+  const maximumDecodedBlockBytes = successful.flatMap((sample) =>
+    sample.maximumDecodedBlockBytes === undefined ? [] : [sample.maximumDecodedBlockBytes],
+  )
   const output = successful[0]?.output
   const qualityPsnrDb = successful.find(
     (sample) => sample.qualityPsnrDb !== undefined,
@@ -58,6 +66,19 @@ export const summarizeSamples = (samples: readonly BenchmarkSample[]): Benchmark
       maximum: Math.max(...peakDelta),
     },
     outputBytes: { median: percentile(outputBytes, 0.5) },
+    finalExternalBytes: { median: percentile(finalExternal, 0.5) },
+    finalArrayBuffersBytes: { median: percentile(finalArrayBuffers, 0.5) },
+    ...(sourceBytesRead.length === 0
+      ? {}
+      : { sourceBytesRead: { median: percentile(sourceBytesRead, 0.5) } }),
+    ...(maximumDecodedBlockBytes.length === 0
+      ? {}
+      : {
+          maximumDecodedBlockBytes: {
+            median: percentile(maximumDecodedBlockBytes, 0.5),
+            maximum: Math.max(...maximumDecodedBlockBytes),
+          },
+        }),
     ...(output ? { output } : {}),
     ...(qualityPsnrDb !== undefined ? { qualityPsnrDb } : {}),
     errors: [],

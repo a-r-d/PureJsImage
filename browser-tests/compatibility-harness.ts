@@ -6,7 +6,7 @@ import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/pn
 import { bmpCodec } from '../src/codec-entries/bmp.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
 import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
-import { tiffCodec } from '../src/codec-entries/tiff.ts'
+import { createTiffCodec, tiffCodec } from '../src/codec-entries/tiff.ts'
 import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
@@ -26,6 +26,11 @@ const images = createImageLibrary([
   avifCodec,
   experimentalHeifCodec,
 ])
+const composedTiffImages = createImageLibrary([
+  pngCodec,
+  createTiffCodec({ embeddedCodecs: [webpCodec] }),
+])
+
 const wasmImages = createImageLibrary({
   codecs: [jpegCodec, pngCodec],
   accelerators: [createWasmJpegAccelerator({ minimumEncodePixels: 1, minimumPixels: 1 })],
@@ -834,6 +839,58 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
     throw new Error('Bounded TIFF YCbCr LZW strip padding changed decoded pixels')
   }
 
+  const packed12 = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [3] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [12] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [1] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [5] },
+      { tag: 284, type: 3, values: [1] },
+    ],
+    [Uint8Array.of(0, 8, 0, 0xff, 0xf0)],
+  )
+  const packedOutput = await (await images.open(packed12)).png().toUint8Array()
+  const packedPixels = await browserPixels(packedOutput, 'image/png')
+  if (packedPixels[0] !== 0 || packedPixels[4] !== 128 || packedPixels[8] !== 255) {
+    throw new Error('Packed 12-bit TIFF samples did not preserve their full range')
+  }
+
+  const embeddedWebp = await (await images.open(legacyOutput))
+    .webp({ lossless: true })
+    .toUint8Array()
+  const webpTiff = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [300] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [8, 8, 8] },
+      { tag: 259, type: 3, values: [50001] },
+      { tag: 262, type: 3, values: [2] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [3] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [embeddedWebp.byteLength] },
+      { tag: 284, type: 3, values: [1] },
+    ],
+    [embeddedWebp],
+  )
+  const webpTiffOutput = await (await composedTiffImages.open(webpTiff)).png().toUint8Array()
+  const webpTiffPixels = await browserPixels(webpTiffOutput, 'image/png')
+  for (const x of [0, 255, 299]) {
+    const offset = x * 4
+    if (
+      webpTiffPixels[offset] !== legacyPixels[offset] ||
+      webpTiffPixels[offset + 1] !== legacyPixels[offset + 1] ||
+      webpTiffPixels[offset + 2] !== legacyPixels[offset + 2]
+    ) {
+      throw new Error(`Explicit WebP-in-TIFF composition changed browser pixel ${x}`)
+    }
+  }
+
   const bmp = new Uint8Array(76)
   const bmpView = new DataView(bmp.buffer)
   bmp.set([0x42, 0x4d])
@@ -867,9 +924,11 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
 
   return {
     detail:
-      'legacy TIFF LZW, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
+      'legacy TIFF LZW, packed 12-bit TIFF, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
     outputBytes:
       legacyOutput.byteLength +
+      packedOutput.byteLength +
+      webpTiffOutput.byteLength +
       bigOutput.byteLength +
       tileOutput.byteLength +
       faxOutput.byteLength +
