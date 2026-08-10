@@ -2940,6 +2940,140 @@ tr:last-child td {
   padding: 42px;
 }
 
+.comparison-section {
+  overflow: hidden;
+}
+
+.comparison-intro {
+  max-width: 880px;
+  color: var(--text-soft);
+}
+
+.comparison-table-wrap {
+  margin: 24px 0;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.comparison-table {
+  min-width: 1180px;
+}
+
+.comparison-table.compact {
+  min-width: 1060px;
+}
+
+.comparison-table.conformance-table {
+  min-width: 1480px;
+}
+
+.comparison-table th,
+.comparison-table td {
+  min-width: 130px;
+  padding: 13px 14px;
+}
+
+.comparison-table th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: 180px;
+  background: var(--surface-soft);
+}
+
+.comparison-table tbody th:first-child {
+  background: var(--surface);
+}
+
+.comparison-table th small,
+.comparison-table td small {
+  display: block;
+  margin-top: 5px;
+  color: var(--text-faint);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.45;
+  text-transform: none;
+}
+
+.comparison-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 760;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.comparison-status.status-yes {
+  border-color: color-mix(in srgb, var(--lime-strong) 35%, var(--line));
+  background: color-mix(in srgb, var(--lime) 18%, transparent);
+  color: var(--lime-strong);
+}
+
+.comparison-status.status-partial {
+  border-color: color-mix(in srgb, var(--amber) 48%, var(--line));
+  background: color-mix(in srgb, var(--amber) 16%, transparent);
+  color: var(--text);
+}
+
+.comparison-status.status-no {
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--line));
+  background: color-mix(in srgb, var(--danger) 9%, transparent);
+  color: var(--danger);
+}
+
+.comparison-status.status-unknown {
+  color: var(--text-faint);
+}
+
+.comparison-group {
+  margin-top: 44px;
+}
+
+.comparison-group h3 {
+  margin-bottom: -8px;
+  font-size: 1.35rem;
+}
+
+.comparison-hero {
+  padding-bottom: 42px;
+}
+
+.comparison-hero h1 {
+  max-width: 880px;
+  margin: 14px 0 18px;
+  font-size: clamp(2.6rem, 6vw, 5.5rem);
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.comparison-hero .lede {
+  max-width: 760px;
+  color: var(--text-soft);
+  font-size: 1.15rem;
+}
+
+.comparison-evidence {
+  padding-left: 22px;
+}
+
+.comparison-evidence li {
+  margin-bottom: 12px;
+}
+
+.comparison-evidence li:target {
+  border-radius: 8px;
+  background: var(--brand-soft);
+}
+
 @media (max-width: 980px) {
   .home-hero-grid,
   .architecture-grid {

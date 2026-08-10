@@ -15,6 +15,10 @@ All notable changes to PureJsImage are documented in this file.
 - Added a complete development-only TIFF dependency matrix plus isolated raw full-image and region
   benchmark operations with source-read, maximum decoded-block, external-memory, and ArrayBuffer
   measurements.
+- Added a generated evidence-backed TIFF library comparison across the README and documentation,
+  backed by pinned versions and a 154-file isolated-process conformance run that reports exact
+  pixels, mismatches, unsupported cases, errors, timeouts, crashes, native scientific rasters, and
+  malformed-input behavior separately.
 - Added TIFF signed 8-/16-bit and IEEE float16/float32/float64 grayscale and RGB decoding with
   native-precision raw pixel blocks, deterministic display ranges, bounded Predictor 2 and
   floating Predictor 3 reversal, and browser-compatible display conversion.

@@ -3,12 +3,11 @@ import { dirname, relative, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { avifCorpusRevision, avifFixtures } from '../benchmark/avif/corpus.ts'
 import corpusManifest from '../benchmark/corpus/manifest.json' with { type: 'json' }
-import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
 import { readCompatibilityManifest } from '../benchmark/heif/compatibility/corpus.ts'
+import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
 import { jpegCompatibilityFixtureIds } from '../benchmark/jpeg/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
 import packageJson from '../package.json' with { type: 'json' }
-import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
 import { commonCompetitorCodecs, competitorBundleTargets } from '../scripts/bundle-size-config.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
 import {
@@ -16,6 +15,7 @@ import {
   experimentalHeifCodec,
 } from '../src/codec-entries/experimental/heic.ts'
 import * as publicApi from '../src/index.ts'
+import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
 
 describe('package contract', () => {
   it('does not publish unusable source maps without source files', () => {
@@ -120,6 +120,29 @@ describe('package contract', () => {
       expect(docsPerformance).toContain(`src="${chart}"`)
       expect(readFileSync(`docs/${chart}`).byteLength).toBeGreaterThan(0)
     }
+  })
+
+  it('publishes one generated TIFF library comparison across documentation surfaces', () => {
+    const readme = readFileSync('README.md', 'utf8')
+    const docsHome = readFileSync('docs/index.html', 'utf8')
+    const tiffGuide = readFileSync('docs/tiff.html', 'utf8')
+    const comparison = readFileSync('docs/tiff-comparison.html', 'utf8')
+    const sitemap = readFileSync('docs/sitemap.xml', 'utf8')
+
+    expect(packageJson.scripts['comparison:generate']).toBe(
+      'node scripts/render-library-comparison.ts',
+    )
+    expect(packageJson.scripts['comparison:check']).toBe(
+      'node scripts/render-library-comparison.ts --check',
+    )
+    expect(packageJson.scripts.check).toContain('npm run comparison:check')
+    expect(readme).toContain('https://a-r-d.github.io/PureJsImage/tiff-comparison.html')
+    expect(docsHome).toContain('href="tiff-comparison.html"')
+    expect(tiffGuide).toContain('href="tiff-comparison.html"')
+    expect(comparison).toContain('Grouped by TIFF workflow')
+    expect(comparison).toContain('Not verified')
+    expect(comparison).toContain('Versioned evidence')
+    expect(sitemap).toContain('https://a-r-d.github.io/PureJsImage/tiff-comparison.html')
   })
 
   it('publishes a self-contained browser conversion demo with a separate README link', () => {

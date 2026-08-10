@@ -7,14 +7,23 @@ import { decode as decodeImageJs } from 'image-js'
 import { Jimp } from 'jimp'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
-import UTIF from 'utif'
+import { decode as decodeTiff } from 'tiff'
+import UTIF from 'utif2'
+import { pngCodec } from '../src/codecs/png.ts'
 import { createTiffCodec } from '../src/codecs/tiff.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import { ImageError } from '../src/errors.ts'
 import { createNodeImageLibrary } from '../src/node-image.ts'
-import { pngCodec } from '../src/codecs/png.ts'
-
-export const tiffCompetitorEngines = ['purejsimage', 'geotiff', 'utif', 'image-js', 'jimp'] as const
+import { MemorySource } from '../src/source.ts'
+import { openTiffDocument } from '../src/tiff/index.ts'
+export const tiffCompetitorEngines = [
+  'purejsimage',
+  'geotiff',
+  'utif2',
+  'tiff',
+  'image-js',
+  'jimp',
+] as const
 export type TiffCompetitorEngine = (typeof tiffCompetitorEngines)[number]
 
 interface DecodedRgba {
@@ -23,9 +32,12 @@ interface DecodedRgba {
   readonly data: Uint8Array
 }
 
+export type TiffComparisonMode = 'exact-rgba' | 'converted-rgba' | 'native-raster' | 'robustness'
+
 export interface TiffCompetitorWorkerSuccess {
   readonly status: 'success'
   readonly width: number
+  readonly comparisonMode: Exclude<TiffComparisonMode, 'native-raster' | 'robustness'>
   readonly height: number
   readonly exact: boolean
   readonly mismatchedPixels: number
@@ -36,17 +48,56 @@ export interface TiffCompetitorWorkerSuccess {
 
 export interface TiffCompetitorWorkerFailure {
   readonly status: 'unsupported' | 'error' | 'oracle-failure'
+  readonly comparisonMode: Exclude<TiffComparisonMode, 'native-raster' | 'robustness'>
   readonly errorCode: string | null
   readonly errorMessage: string
 }
 
-export type TiffCompetitorWorkerResult = TiffCompetitorWorkerSuccess | TiffCompetitorWorkerFailure
+export interface TiffCompetitorWorkerNotComparable {
+  readonly status: 'not-comparable'
+  readonly comparisonMode: 'native-raster'
+  readonly reason: string
+}
+
+export type TiffCompetitorWorkerResult =
+  | TiffCompetitorWorkerSuccess
+  | TiffCompetitorWorkerFailure
+  | TiffCompetitorWorkerNotComparable
+  | TiffCompetitorWorkerRobustness
+
+export interface TiffCompetitorWorkerRobustness {
+  readonly status: 'malformed-accepted' | 'malformed-rejected'
+  readonly comparisonMode: 'robustness'
+  readonly errorMessage: string | null
+}
 
 const imageLibrary = createNodeImageLibrary([
   pngCodec,
   createTiffCodec({ embeddedCodecs: [webpCodec] }),
   webpCodec,
 ])
+
+export const classifyTiffComparison = async (
+  input: Uint8Array,
+): Promise<Exclude<TiffComparisonMode, 'robustness'>> => {
+  const document = await openTiffDocument(new MemorySource(input))
+  const directory = document.topLevelDirectories[0]
+  if (!directory) throw new Error('TIFF has no top-level image')
+  if (
+    directory.sampleFormats.some((format) => format === 2 || format === 3) ||
+    directory.bitsPerSample.some((bits) => bits > 16) ||
+    directory.samplesPerPixel > 4
+  ) {
+    return 'native-raster'
+  }
+  if (
+    [5, 6, 8, 32844, 32845].includes(directory.photometric) ||
+    [6, 7, 33003, 33005, 50001].includes(directory.compression)
+  ) {
+    return 'converted-rgba'
+  }
+  return 'exact-rgba'
+}
 
 const checkedRgba = (
   width: number,
@@ -126,6 +177,52 @@ const decodeImageJsRgba = (input: Uint8Array): DecodedRgba => {
   return checkedRgba(raw.width, raw.height, rgba, 'image-js')
 }
 
+const decodeTiffRgba = (input: Uint8Array): DecodedRgba => {
+  const ifd = decodeTiff(input, { pages: [0] })[0]
+  if (!ifd) throw new Error('tiff found no image directory')
+  if (ifd.data instanceof Float32Array || ifd.data instanceof Float64Array) {
+    throw new Error('Float TIFF data is not supported')
+  }
+  const pixels = ifd.width * ifd.height
+  const rgba = new Uint8Array(pixels * 4)
+  if (ifd.type === 3) {
+    const palette = ifd.palette
+    if (!palette) throw new Error('Palette TIFF omitted its ColorMap')
+    for (let pixel = 0; pixel < pixels; pixel += 1) {
+      const color = palette[ifd.data[pixel * ifd.samplesPerPixel] ?? -1]
+      if (!color) throw new Error('Palette TIFF contains an out-of-range color index')
+      const target = pixel * 4
+      rgba[target] = Math.round(color[0] / 257)
+      rgba[target + 1] = Math.round(color[1] / 257)
+      rgba[target + 2] = Math.round(color[2] / 257)
+      rgba[target + 3] = 255
+    }
+  } else {
+    const maximum = 2 ** ifd.bitsPerSample - 1
+    const scale = (value: number): number => Math.round((value * 255) / maximum)
+    const channels = ifd.samplesPerPixel
+    for (let pixel = 0; pixel < pixels; pixel += 1) {
+      const source = pixel * channels
+      const target = pixel * 4
+      if (ifd.type === 0 || ifd.type === 1) {
+        const gray = scale(ifd.data[source] ?? 0)
+        rgba[target] = gray
+        rgba[target + 1] = gray
+        rgba[target + 2] = gray
+        rgba[target + 3] = channels === 2 ? scale(ifd.data[source + 1] ?? maximum) : 255
+      } else if (ifd.type === 2) {
+        rgba[target] = scale(ifd.data[source] ?? 0)
+        rgba[target + 1] = scale(ifd.data[source + 1] ?? 0)
+        rgba[target + 2] = scale(ifd.data[source + 2] ?? 0)
+        rgba[target + 3] = channels === 4 ? scale(ifd.data[source + 3] ?? maximum) : 255
+      } else {
+        throw new Error(`Unsupported image type: ${ifd.type}`)
+      }
+    }
+  }
+  return checkedRgba(ifd.width, ifd.height, rgba, 'tiff')
+}
+
 const decodeJimp = async (input: Uint8Array): Promise<DecodedRgba> => {
   const image = await Jimp.read(Buffer.from(input))
   return checkedRgba(
@@ -142,7 +239,8 @@ const decodeEngine = async (
 ): Promise<DecodedRgba> => {
   if (engine === 'purejsimage') return decodePureJsImage(input)
   if (engine === 'geotiff') return decodeGeoTiff(input)
-  if (engine === 'utif') return decodeUtif(input)
+  if (engine === 'utif2') return decodeUtif(input)
+  if (engine === 'tiff') return decodeTiffRgba(input)
   if (engine === 'image-js') return decodeImageJsRgba(input)
   return decodeJimp(input)
 }
@@ -218,18 +316,61 @@ const decodeOracle = async (input: Uint8Array, file: string): Promise<DecodedRgb
 }
 
 const errorMessage = (error: unknown): string =>
-  (error instanceof Error ? error.message : String(error)).replace(/[\r\n\t]+/gu, ' ').slice(0, 500)
+  (error instanceof Error ? error.message : String(error))
+    .replace(/[\r\n\t]+/gu, ' ')
+    .trim()
+    .slice(0, 500)
 
 export const compareTiffFile = async (
   engine: TiffCompetitorEngine,
   file: string,
 ): Promise<TiffCompetitorWorkerResult> => {
   const input = new Uint8Array(await readFile(file))
+  if (/(?:^|[/\\])robustness[/\\]/u.test(file)) {
+    try {
+      await decodeEngine(engine, input)
+      return {
+        status: 'malformed-accepted',
+        comparisonMode: 'robustness',
+        errorMessage: null,
+      }
+    } catch (error) {
+      return {
+        status: 'malformed-rejected',
+        comparisonMode: 'robustness',
+        errorMessage: errorMessage(error),
+      }
+    }
+  }
+  let comparisonMode: Exclude<TiffComparisonMode, 'robustness'>
+  try {
+    comparisonMode = await classifyTiffComparison(input)
+  } catch (error) {
+    return {
+      status: 'error',
+      comparisonMode: 'exact-rgba',
+      errorCode: error instanceof ImageError ? error.code : null,
+      errorMessage: errorMessage(error),
+    }
+  }
+  if (comparisonMode === 'native-raster') {
+    return {
+      status: 'not-comparable',
+      comparisonMode,
+      reason:
+        'Signed, floating-point, wider-than-16-bit, or arbitrary-channel raster is excluded from forced RGBA comparison',
+    }
+  }
   let oracle: DecodedRgba
   try {
     oracle = await decodeOracle(input, file)
   } catch (error) {
-    return { status: 'oracle-failure', errorCode: null, errorMessage: errorMessage(error) }
+    return {
+      status: 'oracle-failure',
+      comparisonMode,
+      errorCode: null,
+      errorMessage: errorMessage(error),
+    }
   }
 
   try {
@@ -239,6 +380,7 @@ export const compareTiffFile = async (
     if (decoded.width !== oracle.width || decoded.height !== oracle.height) {
       return {
         status: 'error',
+        comparisonMode,
         errorCode: null,
         errorMessage: `dimension mismatch: ${decoded.width}x${decoded.height} versus oracle ${oracle.width}x${oracle.height}`,
       }
@@ -259,6 +401,7 @@ export const compareTiffFile = async (
     }
     return {
       status: 'success',
+      comparisonMode,
       width: oracle.width,
       height: oracle.height,
       exact: mismatchedPixels === 0,
@@ -268,13 +411,16 @@ export const compareTiffFile = async (
       decodeMilliseconds,
     }
   } catch (error) {
+    const message = errorMessage(error)
+    const explicitlyUnsupported =
+      error instanceof ImageError
+        ? error.code === 'UNSUPPORTED_OPERATION'
+        : /(?:unsupported|not supported|unknown compression)/iu.test(message)
     return {
-      status:
-        error instanceof ImageError && error.code === 'UNSUPPORTED_OPERATION'
-          ? 'unsupported'
-          : 'error',
+      status: explicitlyUnsupported ? 'unsupported' : 'error',
+      comparisonMode,
       errorCode: error instanceof ImageError ? error.code : null,
-      errorMessage: errorMessage(error),
+      errorMessage: message,
     }
   }
 }
