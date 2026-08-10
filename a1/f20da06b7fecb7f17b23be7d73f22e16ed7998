@@ -1,0 +1,26 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 6-8,48,72,589-590
+README.md
+  h_9f4a25732fa0c1 82-83,95
+docs/data/library-comparison.ts
+  h_9f4a25732fa0c1 235
+docs/demo.html
+  h_9f4a25732fa0c1 458,460
+docs/performance.html
+  h_9f4a25732fa0c1 200-201
+package-lock.json
+  h_9f4a25732fa0c1 3,9
+package.json
+  h_9f4a25732fa0c1 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "a1f20da06b7fecb7f17b23be7d73f22e16ed7998",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
