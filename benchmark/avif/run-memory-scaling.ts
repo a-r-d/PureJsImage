@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 interface ScalingRun {
   readonly dimensions: string
+  readonly baselineMaximumRssBytes: number
   readonly inputBytes: number
   readonly maximumRssBytes: number
   readonly mode: 'bounded' | 'bounded-scaled' | 'full' | 'full-scaled'
@@ -34,6 +35,9 @@ const isScalingRun = (value: unknown): value is ScalingRun => {
   if (!('inputBytes' in value) || typeof value.inputBytes !== 'number') return false
   if (!('outputSha256' in value) || typeof value.outputSha256 !== 'string') return false
   if (!('wallMilliseconds' in value) || typeof value.wallMilliseconds !== 'number') return false
+  if (!('baselineMaximumRssBytes' in value) || typeof value.baselineMaximumRssBytes !== 'number') {
+    return false
+  }
   if (!('maximumRssBytes' in value) || typeof value.maximumRssBytes !== 'number') return false
   if (!('peakRssDeltaBytes' in value) || typeof value.peakRssDeltaBytes !== 'number') return false
   if (!('peakExternalDeltaBytes' in value) || typeof value.peakExternalDeltaBytes !== 'number') {
@@ -179,6 +183,7 @@ try {
         inputBytes: selected[0]?.inputBytes ?? 0,
         outputSha256: selected[0]?.outputSha256 ?? '',
         medianMaximumRssBytes: median(selected.map((run) => run.maximumRssBytes)),
+        medianBaselineMaximumRssBytes: median(selected.map((run) => run.baselineMaximumRssBytes)),
         medianPeakRssDeltaBytes: median(selected.map((run) => run.peakRssDeltaBytes)),
         medianPeakExternalDeltaBytes: median(selected.map((run) => run.peakExternalDeltaBytes)),
         medianPeakArrayBuffersDeltaBytes: median(
@@ -196,7 +201,8 @@ try {
     notes: {
       comparison:
         'Full padded reconstruction and bounded public decode use the same checksum-pinned filter-free AV1 payload; scaled modes emit the same 4x box-filtered RGBA output.',
-      baseline: 'Captured with the compressed input retained after explicit GC settling.',
+      baseline:
+        'Captured with the compressed input retained after explicit GC settling; inherited high-water marks are rejected.',
       correctness:
         'Every full and bounded pair must reproduce the same lossless full-size or scaled RGBA SHA-256.',
     },

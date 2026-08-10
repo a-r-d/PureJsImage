@@ -50,6 +50,10 @@ import {
   avifBoundedAlphaRowFixture,
   avifBoundedAlphaRowFixturePath,
 } from '../benchmark/avif/row-alpha-fixture.ts'
+import {
+  avifNonstillSequenceFixture,
+  avifNonstillSequenceFixturePath,
+} from '../benchmark/avif/nonstill-sequence-fixture.ts'
 import { av1ObuType } from '../src/codecs/av1.ts'
 import { parseAv1Frame, parseAv1FrameObus } from '../src/codecs/av1-frame.ts'
 import { decodeRestrictedAv1Intra } from '../src/codecs/av1-intra.ts'
@@ -485,6 +489,40 @@ describe('AVIF restricted pixel decode', () => {
       await (await Image.open(input)).crop({ x: 1, y: 1, width: 1, height: 1 }).png().toBuffer(),
     )
     expect([cropped.width, cropped.height, ...cropped.data]).toEqual([1, 1, 130, 130, 130, 255])
+  })
+  it('decodes a non-still sequence header containing one shown key frame', async () => {
+    const fixture = avifNonstillSequenceFixture
+    const input = await readFile(avifNonstillSequenceFixturePath)
+    const metadata = await (await Image.open(input)).metadata()
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    if (!coded) throw new Error('Non-still sequence fixture has no color item')
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(coded.sequence).toMatchObject({
+      stillPicture: false,
+      reducedStillPictureHeader: false,
+    })
+    expect(metadata).toMatchObject({
+      bitDepth: 8,
+      chromaSubsampling: '420',
+      frames: 1,
+      height: fixture.height,
+      width: fixture.width,
+    })
+    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+  }, 20_000)
+
+  it('keeps AVIF animation outside the pixel-decode boundary', async () => {
+    const input = await readFile(
+      join(avifCorpusDirectory, 'colors-animated-8bpc-alpha-exif-xmp.avif'),
+    )
+
+    await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+    })
   })
 
   it('applies an AVIF prof transform in the bounded block decoder', async () => {

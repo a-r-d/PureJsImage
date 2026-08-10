@@ -90,6 +90,12 @@ const images = createImageLibrary([avifCodec, pngCodec])
 
 await settle()
 const baseline = memorySnapshot()
+const baselineMaximumRssBytes = process.resourceUsage().maxRSS * 1_024
+if (baselineMaximumRssBytes > baseline.rssBytes + 64 * 1_024 ** 2) {
+  throw new Error(
+    'AVIF memory worker inherited a stale maximum RSS; launch it through run-memory.ts',
+  )
+}
 let peakSampled = baseline
 const recordMemory = (): void => {
   peakSampled = maximumSnapshot(peakSampled, memorySnapshot())
@@ -169,7 +175,8 @@ console.log(
     peakSampled,
     final,
     maximumRssBytes,
-    peakRssDeltaBytes: Math.max(0, maximumRssBytes - baseline.rssBytes),
+    baselineMaximumRssBytes,
+    peakRssDeltaBytes: Math.max(0, maximumRssBytes - baselineMaximumRssBytes),
     peakExternalDeltaBytes: Math.max(0, peakSampled.externalBytes - baseline.externalBytes),
     peakArrayBuffersDeltaBytes: Math.max(
       0,

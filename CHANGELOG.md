@@ -125,8 +125,21 @@ All notable changes to PureJsImage are documented in this file.
 - Bounded compatible filter-free AV1 super-resolution decode to reusable
   upscaled luma and chroma bands instead of full upscaled planes; a pinned
   multi-band YUV 4:2:0 fixture preserves the reconstruction-ring chroma halo in
-  Node.js and Chromium, and the 2048x1536 probe cuts median peak external and
-  ArrayBuffer deltas by 49.3% while total RSS remains entropy-context dominated.
+  Node.js and Chromium. Corrected inherited maximum-RSS high-water accounting:
+  the 2048x1536 probe reduces median absolute maximum RSS from 139.2 MB to
+  118.1 MB and median peak RSS growth from 40.4 MB to 18.4 MB.
+  Peak external and ArrayBuffer growth fall by 49.6% and 50.5%, respectively.
+  Memory workers now reject stale inherited high-water marks.
+- Added compatible `still_picture=0` AV1 sequence headers for static AVIF items
+  containing one shown key frame at maximum dimensions. The pinned 1920x1080
+  fixture matches agreeing dav1d and libaom native YUV byte for byte and its
+  portable RGBA output is pinned in Chromium.
+- Animated `avis` pixel decode now fails with `UNSUPPORTED_OPERATION` instead
+  of silently presenting the primary item as a supported one-frame image.
+- Added a checksum-recorded 237-file compatibility survey: 137
+  conformance/invalid/edge inputs plus a 100-file GB82 matrix encoded through
+  Sharp/libvips and FFmpeg/libaom. The report records 116 completed decodes and
+  classifies every explicit failure without extending the published subset.
 
 - Animated GIF pixel decode now fails with `UNSUPPORTED_OPERATION` instead of silently discarding
   animation; callers can explicitly request the supported first image with `open(input, { frame: 0 })`.

@@ -56,6 +56,12 @@ for (let pass = 0; pass < 5; pass += 1) {
 }
 let peak = snapshot()
 const baseline = peak
+const baselineMaximumRssBytes = process.resourceUsage().maxRSS * 1_024
+if (baselineMaximumRssBytes > baseline.rssBytes + 64 * 1_024 ** 2) {
+  throw new Error(
+    'AVIF memory worker inherited a stale maximum RSS; launch it through run-memory-scaling.ts',
+  )
+}
 const record = (): void => {
   peak = maximum(peak, snapshot())
 }
@@ -116,7 +122,8 @@ console.log(
     outputSha256: actualSha256,
     wallMilliseconds: Number((performance.now() - startedAt).toFixed(3)),
     maximumRssBytes,
-    peakRssDeltaBytes: Math.max(0, maximumRssBytes - baseline.rssBytes),
+    baselineMaximumRssBytes,
+    peakRssDeltaBytes: Math.max(0, maximumRssBytes - baselineMaximumRssBytes),
     peakExternalDeltaBytes: Math.max(0, peak.externalBytes - baseline.externalBytes),
     peakArrayBuffersDeltaBytes: Math.max(0, peak.arrayBuffersBytes - baseline.arrayBuffersBytes),
   }),

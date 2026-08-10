@@ -695,6 +695,14 @@ const avifLossyMultitile = async (): Promise<BrowserWorkflowResult> => {
     outputBytes: results.reduce((total, result) => total + result.outputBytes, 0),
   }
 }
+const avifNonstillSequence = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'ms-mexico-nonstill-sequence.avif',
+    1920,
+    1080,
+    '99f28f0e2fdc30dab25ad903ce043e7af30b7097d1f3402e692b3f8629bff6c1',
+    'Non-still AV1 sequence header with one shown key frame',
+  )
 
 const avifSuperres = async (): Promise<BrowserWorkflowResult> => {
   const results = await Promise.all([
@@ -933,6 +941,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifExpandedHighBit,
   avifFilteredSuperres,
   avifLossyMultitile,
+  avifNonstillSequence,
   avifSuperres,
   avifIntrabc,
   avifQuantizationMatrix,

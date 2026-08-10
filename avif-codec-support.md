@@ -93,7 +93,10 @@ coverage.
   superblocks, filter-intra, intra-edge filtering, CDEF, restoration, and
   super-resolution signaling
 - [x] Preservation of bounded OBU payload ranges for later frame parsing
-- [ ] Non-reduced sequence headers
+- [x] Compatible non-reduced sequence headers with one operating point,
+  `still_picture=0`, and one shown key frame at maximum dimensions
+- [ ] General non-reduced sequence headers with decoder timing, multiple
+  operating points, frame IDs, or frame-dimension overrides
 - [ ] Multiple operating-point selection
 - [ ] Annex B AV1 byte streams
 - [ ] Inter-frame or general video decoding
@@ -220,6 +223,8 @@ byte. The full-size tolerance remains zero.
 
 - [x] Detect the `avis` sequence brand and avoid reporting a false one-frame
   metadata count
+- [x] Reject `avis` pixel decode explicitly instead of presenting its primary
+  item as a supported one-frame image
 - [ ] Parse AVIF tracks and sample tables
 - [ ] Decode multiple AV1 frames
 - [ ] Frame timing, repetition, blending, disposal, and canvas composition
@@ -299,8 +304,8 @@ byte. The full-size tolerance remains zero.
 - [x] Benchmark isolated cold-process peak RSS across 512x384, 1024x768, and
   2048x1536 source dimensions with full-size and 4x downscaled output
 - [x] Benchmark a 2048x1536 filter-free denominator-12 super-resolution
-  decode: bounded bands cut median peak external and ArrayBuffer deltas by
-  49.3%, while total RSS remains dominated by entropy-context heap residency
+  decode: bounded bands cut median absolute maximum RSS by 15.2%, peak RSS
+  growth by 54.4%, external growth by 49.6%, and ArrayBuffer growth by 50.5%
 - [ ] Demonstrate the project's 80% memory-reduction target against equivalent
   Jimp-compatible workflows where a comparison is possible
 
@@ -311,10 +316,10 @@ byte. The full-size tolerance remains zero.
 - [x] Reject malformed OBU sizes, duplicate sequence headers, truncated frame
   headers, tile overruns, invalid arithmetic symbols, impossible partitions,
   coefficient scans, and transform bounds explicitly
-- [x] Inspect all 25 checksum-pinned permanent corpus files and 35 unique coded
+- [x] Inspect all 26 checksum-pinned permanent corpus files and 36 unique coded
   items across `mdat`, `idat`, multiple extents, grids, alpha, 8/10/12-bit,
-  4:0:0/4:2:0/4:2:2/4:4:4, and progressive storage
-- [x] Pass metadata expectations for all 25 permanent corpus files
+  4:0:0/4:2:0/4:2:2/4:4:4, progressive storage, and a non-still sequence header
+- [x] Pass metadata expectations for all 26 permanent corpus files
 - [x] Decode exact independent reference pixels for the embedded 2x2 lossless
   fixture and the 4x4 lossy fixture
 - [x] Decode and pin RGBA regression hashes for Kodak 768x512 color; Fox
@@ -350,6 +355,9 @@ byte. The full-size tolerance remains zero.
 - [x] Match a checksum-pinned non-reduced 8-bit YUV 4:2:0 frame split across
   four tile-group OBUs byte for byte against agreeing dav1d and libaom native
   YUV, and exercise its pinned RGBA output in Chromium
+- [x] Match a checksum-pinned `still_picture=0` static AVIF's 1920x1080
+  native YUV byte for byte against agreeing dav1d and libaom output, and pin
+  its portable RGBA output in Chromium
 - [x] Exercise single-band and multi-band filter-free AV1 super-resolution
   through the portable TypeScript codec in Chromium and pin their RGBA output
 - [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
@@ -401,8 +409,10 @@ byte. The full-size tolerance remains zero.
   premultiplied-alpha, restoration-unit, and cropped-grid AVIF syntax classes
 - [x] Match full-size Kodak and Fox post-filter pixels exactly against agreeing
   dav1d and libaom native YUV output
-- [ ] Expand to a 200-500 image corpus from libaom, rav1e, SVT-AV1, browsers,
-  ImageMagick, Sharp/libvips, cameras, and real web uploads
+- [x] Survey 237 AVIF files spanning 137 conformance/edge/invalid cases and a
+  100-file GB82 matrix encoded by Sharp/libvips and FFmpeg/libaom
+- [ ] Expand the compatibility corpus with rav1e, SVT-AV1, browser encoders,
+  ImageMagick, cameras, and real web uploads
 - [ ] Add malformed ISOBMFF, OBU, entropy, partition, coefficient, restoration,
   allocation, and decompression-bomb fuzzing
 - [ ] Add a conformance corpus for every checked AV1 syntax combination rather
@@ -419,3 +429,4 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-qmatrix-sharp-2026-08-08.md`](benchmark/results/avif-qmatrix-sharp-2026-08-08.md)
 - [`benchmark/results/avif-bounded-row-output-2026-08-09.md`](benchmark/results/avif-bounded-row-output-2026-08-09.md)
 - [`benchmark/results/avif-memory-bounded-superres-2026-08-09.json`](benchmark/results/avif-memory-bounded-superres-2026-08-09.json)
+- [`benchmark/results/avif-compatibility-survey-2026-08-09.md`](benchmark/results/avif-compatibility-survey-2026-08-09.md)

@@ -139,7 +139,8 @@
           "benchmark/avif/verify-tiled-lossless-fixture.ts",
           "benchmark/avif/verify-lossy-multitile-fixture.ts",
           "benchmark/avif/verify-high-bit-expanded-fixtures.ts",
-          "benchmark/avif/verify-superres-fixture.ts"
+          "benchmark/avif/verify-superres-fixture.ts",
+          "benchmark/avif/verify-nonstill-sequence-fixture.ts"
         ]
       }
     },

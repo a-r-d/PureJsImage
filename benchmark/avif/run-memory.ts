@@ -20,6 +20,7 @@ interface MemorySnapshot {
 interface WorkerResult {
   readonly action: 'decode' | 'downscale'
   readonly baseline: MemorySnapshot
+  readonly baselineMaximumRssBytes: number
   readonly dimensions: string
   readonly final: MemorySnapshot
   readonly inputBytes: number
@@ -72,6 +73,8 @@ const parseWorkerResult = (value: unknown): WorkerResult => {
     typeof value.outputSha256 !== 'string' ||
     !('baseline' in value) ||
     !isSnapshot(value.baseline) ||
+    !('baselineMaximumRssBytes' in value) ||
+    !isNumber(value.baselineMaximumRssBytes) ||
     !('peakSampled' in value) ||
     !isSnapshot(value.peakSampled) ||
     !('final' in value) ||
@@ -105,6 +108,7 @@ const parseWorkerResult = (value: unknown): WorkerResult => {
     sourceRgbaReferenceBytes: value.sourceRgbaReferenceBytes,
     wallMilliseconds: value.wallMilliseconds,
     baseline: value.baseline,
+    baselineMaximumRssBytes: value.baselineMaximumRssBytes,
     peakSampled: value.peakSampled,
     final: value.final,
     maximumRssBytes: value.maximumRssBytes,
@@ -161,6 +165,7 @@ try {
       outputSha256: fixture.expectedOutputSha256,
       sourceRgbaReferenceBytes: matching[0]?.sourceRgbaReferenceBytes ?? 0,
       medianMaximumRssBytes: median(matching.map((run) => run.maximumRssBytes)),
+      medianBaselineMaximumRssBytes: median(matching.map((run) => run.baselineMaximumRssBytes)),
       medianPeakRssDeltaBytes: median(matching.map((run) => run.peakRssDeltaBytes)),
       medianPeakExternalDeltaBytes: median(matching.map((run) => run.peakExternalDeltaBytes)),
       medianPeakArrayBuffersDeltaBytes: median(
@@ -181,7 +186,8 @@ try {
       purpose: 'Evidence for the bounded-memory refactor; not a performance claim.',
       maximumRss: 'Absolute process high-water mark from process.resourceUsage().',
       externalAndArrayBuffers: 'Sampled after decoder creation and every public output block.',
-      baseline: 'Captured after five explicit GC and event-loop turns with input retained.',
+      baseline:
+        'Captured after five explicit GC and event-loop turns with input retained; inherited high-water marks are rejected.',
       correctness: 'Every run must match a checksum-pinned encoded or RGBA output.',
     },
     summaries,

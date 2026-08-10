@@ -149,6 +149,12 @@ test('decodes lossy AVIF tile and tile-group layouts', async ({ page }) => {
   expect(result.detail).toContain('pinned portable RGBA output')
   expect(result.detail).toContain('four tile-group OBUs')
 })
+test('decodes a static AVIF with a non-still AV1 sequence header', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifNonstillSequence())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
 
 test('decodes filter-free AV1 super-resolution', async ({ page }) => {
   await harness(page)

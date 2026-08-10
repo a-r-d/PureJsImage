@@ -1275,6 +1275,9 @@ const createAvifDecoder = async (
   limits: ImageLimits,
 ): Promise<ImageDecoder> => {
   const metadata = await inspectAvif(source, limits)
+  if (metadata.frames !== 1) {
+    throw unsupportedOperation('Animated AVIF pixel decode is not supported')
+  }
   const inspection = await inspectAvifBitstreams(source)
   let decoder: ImageDecoder
   if (inspection.primaryItemType === 'grid') {

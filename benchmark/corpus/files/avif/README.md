@@ -13,6 +13,14 @@ They come from the libavif repository at revision
 `25a6d23f872f37c91a3df15b75e1a97f590d7c46` under its BSD-2-Clause license.
 Their source paths and SHA-256 checksums are pinned in `benchmark/avif/corpus.ts`.
 
+`ms-mexico-nonstill-sequence.avif` comes from the Imazen AVIF Conformance corpus
+at revision `28205bbc5cf40364d012c462240ba28143373d67`, where it is sourced from
+`AOMediaCodec/av1-avif`'s Microsoft fixtures. The corpus documents the repository
+under BSD-2-Clause and the contained Blender material under CC-BY 3.0. It is
+committed to cover an AV1 sequence header with `still_picture=0` whose AVIF item
+still contains one shown key frame. Run `npm run fixtures:avif:nonstill-sequence`
+to require byte-identical native YUV from PureJsImage, dav1d, and libaom.
+
 `draw_points_idat.avif` comes from the same pinned libavif revision. It is
 committed for exact luma/chroma palette-mode and non-symmetric color-index
 regression coverage; its SHA-256 checksum is pinned in

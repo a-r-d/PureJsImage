@@ -396,9 +396,6 @@ export const parseAv1Frame = (
   data: Uint8Array,
   tileGroups?: readonly Uint8Array[],
 ): Av1Frame => {
-  if (!sequence.stillPicture) {
-    throw unsupportedOperation('AV1 video frame headers are not supported')
-  }
   if (sequence.filmGrainParamsPresent) {
     throw unsupportedOperation('AV1 film grain is not supported')
   }
@@ -408,7 +405,7 @@ export const parseAv1Frame = (
       throw unsupportedOperation('AV1 show-existing-frame headers are not supported')
     }
     if (reader.readBits(2) !== 0 || reader.readBit() !== 1) {
-      throw unsupportedOperation('Non-reduced AV1 still images must use a shown key frame')
+      throw unsupportedOperation('Non-reduced AV1 images must use a shown key frame')
     }
     if (sequence.decoderModelInfoPresent) {
       throw unsupportedOperation('AV1 decoder-model frame timing is not supported')
@@ -425,7 +422,7 @@ export const parseAv1Frame = (
   }
   if (!sequence.reducedStillPictureHeader) {
     if (reader.readBit() === 1) {
-      throw unsupportedOperation('Non-reduced AV1 still images must use maximum frame dimensions')
+      throw unsupportedOperation('Non-reduced AV1 images must use maximum frame dimensions')
     }
     if (sequence.orderHintBits > 0) reader.readBits(sequence.orderHintBits)
   }

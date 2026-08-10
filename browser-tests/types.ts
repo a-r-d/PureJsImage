@@ -21,6 +21,7 @@ export interface BrowserCompatibilityHarness {
   avifIntrabc(): Promise<BrowserWorkflowResult>
   avifMonochrome(): Promise<BrowserWorkflowResult>
   avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
+  avifNonstillSequence(): Promise<BrowserWorkflowResult>
   avifPalette(): Promise<BrowserWorkflowResult>
   avifSuperres(): Promise<BrowserWorkflowResult>
   avifQ0Lossless(): Promise<BrowserWorkflowResult>

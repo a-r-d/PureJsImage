@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-08-10T09:16:21-04:00",
+  "generatedAt": "2026-08-10T10:13:07-04:00",
   "node": "v24.16.0",
   "platform": "linux/x64",
-  "runsPerConfiguration": 3,
+  "runsPerConfiguration": 5,
   "input": {
     "dimensions": "2048x1536",
     "chromaSubsampling": "420",
@@ -14,76 +14,40 @@
   },
   "notes": {
     "comparison": "Full padded reconstruction and bounded public decode use the same checksum-pinned filter-free denominator-12 AV1 payload.",
-    "baseline": "Captured with the compressed input retained after explicit GC settling.",
+    "baseline": "Each worker was spawned as a fresh child process. Its maximum-RSS high-water mark was captured after explicit GC settling; workers now reject inherited stale high-water marks.",
     "correctness": "Every run reproduced RGBA SHA-256 9b93390340ce3ceb919ae57b40e8bab4f443b3bc08dddbc1b24713897007c4aa.",
-    "interpretation": "Bounded decoding cuts median peak external and ArrayBuffer deltas by 49.3%. Peak RSS remains about 3.14 GB in both modes because entropy and coefficient context allocations dominate V8 heap residency."
+    "interpretation": "The prior 3.14 GB result was an inherited process.resourceUsage().maxRSS high-water mark, not decoder residency. With isolated accounting, bounded decoding reduces median absolute maximum RSS from 139173888 to 118067200 bytes (15.2%), median peak RSS growth from 40419328 to 18411520 bytes (54.4%), median peak external growth by 49.6%, and median peak ArrayBuffer growth by 50.5%."
   },
   "summaries": [
     {
       "mode": "full",
-      "medianMaximumRssBytes": 3142541312,
-      "medianPeakRssDeltaBytes": 3044974592,
-      "medianPeakExternalDeltaBytes": 17748136,
-      "medianPeakArrayBuffersDeltaBytes": 17425446,
-      "medianWallMilliseconds": 1867.135
+      "medianMaximumRssBytes": 139173888,
+      "medianBaselineMaximumRssBytes": 98934784,
+      "medianPeakRssDeltaBytes": 40419328,
+      "medianPeakExternalDeltaBytes": 17839488,
+      "medianPeakArrayBuffersDeltaBytes": 17516798,
+      "medianWallMilliseconds": 1814.26
     },
     {
       "mode": "bounded",
-      "medianMaximumRssBytes": 3143651328,
-      "medianPeakRssDeltaBytes": 3045027840,
+      "medianMaximumRssBytes": 118067200,
+      "medianBaselineMaximumRssBytes": 98734080,
+      "medianPeakRssDeltaBytes": 18411520,
       "medianPeakExternalDeltaBytes": 8992507,
       "medianPeakArrayBuffersDeltaBytes": 8669817,
-      "medianWallMilliseconds": 1841.56
+      "medianWallMilliseconds": 2025.072
     }
   ],
   "runs": [
-    {
-      "mode": "full",
-      "wallMilliseconds": 1907.025,
-      "maximumRssBytes": 3148660736,
-      "peakRssDeltaBytes": 3049009152,
-      "peakExternalDeltaBytes": 17746088,
-      "peakArrayBuffersDeltaBytes": 17423398
-    },
-    {
-      "mode": "full",
-      "wallMilliseconds": 1867.135,
-      "maximumRssBytes": 3142328320,
-      "peakRssDeltaBytes": 3044974592,
-      "peakExternalDeltaBytes": 17748136,
-      "peakArrayBuffersDeltaBytes": 17425446
-    },
-    {
-      "mode": "full",
-      "wallMilliseconds": 1830.819,
-      "maximumRssBytes": 3142541312,
-      "peakRssDeltaBytes": 3044040704,
-      "peakExternalDeltaBytes": 17898056,
-      "peakArrayBuffersDeltaBytes": 17575366
-    },
-    {
-      "mode": "bounded",
-      "wallMilliseconds": 1866.061,
-      "maximumRssBytes": 3143139328,
-      "peakRssDeltaBytes": 3043659776,
-      "peakExternalDeltaBytes": 8992507,
-      "peakArrayBuffersDeltaBytes": 8669817
-    },
-    {
-      "mode": "bounded",
-      "wallMilliseconds": 1841.56,
-      "maximumRssBytes": 3143651328,
-      "peakRssDeltaBytes": 3045027840,
-      "peakExternalDeltaBytes": 8992507,
-      "peakArrayBuffersDeltaBytes": 8669817
-    },
-    {
-      "mode": "bounded",
-      "wallMilliseconds": 1834.922,
-      "maximumRssBytes": 3144122368,
-      "peakRssDeltaBytes": 3045580800,
-      "peakExternalDeltaBytes": 8992507,
-      "peakArrayBuffersDeltaBytes": 8669817
-    }
+    { "mode": "full", "wallMilliseconds": 1862.825, "maximumRssBytes": 141762560, "baselineMaximumRssBytes": 98709504, "peakRssDeltaBytes": 43053056, "peakExternalDeltaBytes": 17839488, "peakArrayBuffersDeltaBytes": 17516798 },
+    { "mode": "full", "wallMilliseconds": 1814.26, "maximumRssBytes": 139173888, "baselineMaximumRssBytes": 98754560, "peakRssDeltaBytes": 40419328, "peakExternalDeltaBytes": 17863392, "peakArrayBuffersDeltaBytes": 17540702 },
+    { "mode": "full", "wallMilliseconds": 1801.817, "maximumRssBytes": 138178560, "baselineMaximumRssBytes": 99581952, "peakRssDeltaBytes": 38596608, "peakExternalDeltaBytes": 17812214, "peakArrayBuffersDeltaBytes": 17489524 },
+    { "mode": "full", "wallMilliseconds": 1806.773, "maximumRssBytes": 140656640, "baselineMaximumRssBytes": 99217408, "peakRssDeltaBytes": 41439232, "peakExternalDeltaBytes": 17854464, "peakArrayBuffersDeltaBytes": 17531774 },
+    { "mode": "full", "wallMilliseconds": 1833.583, "maximumRssBytes": 136876032, "baselineMaximumRssBytes": 98934784, "peakRssDeltaBytes": 37941248, "peakExternalDeltaBytes": 17778418, "peakArrayBuffersDeltaBytes": 17455728 },
+    { "mode": "bounded", "wallMilliseconds": 1869.788, "maximumRssBytes": 116469760, "baselineMaximumRssBytes": 98975744, "peakRssDeltaBytes": 17494016, "peakExternalDeltaBytes": 8992507, "peakArrayBuffersDeltaBytes": 8669817 },
+    { "mode": "bounded", "wallMilliseconds": 1977.512, "maximumRssBytes": 116535296, "baselineMaximumRssBytes": 98516992, "peakRssDeltaBytes": 18018304, "peakExternalDeltaBytes": 8992507, "peakArrayBuffersDeltaBytes": 8669817 },
+    { "mode": "bounded", "wallMilliseconds": 2025.072, "maximumRssBytes": 118067200, "baselineMaximumRssBytes": 99655680, "peakRssDeltaBytes": 18411520, "peakExternalDeltaBytes": 8992507, "peakArrayBuffersDeltaBytes": 8669817 },
+    { "mode": "bounded", "wallMilliseconds": 2069.46, "maximumRssBytes": 120160256, "baselineMaximumRssBytes": 98734080, "peakRssDeltaBytes": 21426176, "peakExternalDeltaBytes": 8992507, "peakArrayBuffersDeltaBytes": 8669817 },
+    { "mode": "bounded", "wallMilliseconds": 2155.077, "maximumRssBytes": 118218752, "baselineMaximumRssBytes": 98365440, "peakRssDeltaBytes": 19853312, "peakExternalDeltaBytes": 8992507, "peakArrayBuffersDeltaBytes": 8669817 }
   ]
 }

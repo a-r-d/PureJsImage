@@ -356,6 +356,10 @@ await copyFile(
   resolve(fixtureDirectory, 'libaom-full-header-tile-groups-yuv420-256x256.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/ms-mexico-nonstill-sequence.avif',
+  resolve(fixtureDirectory, 'ms-mexico-nonstill-sequence.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/libaom-superres-denom12-96x64.avif',
   resolve(fixtureDirectory, 'libaom-superres-denom12-96x64.avif'),
 )
