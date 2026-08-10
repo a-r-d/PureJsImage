@@ -1,0 +1,790 @@
+{
+  "label": "bounded-context-rings",
+  "generatedAt": "2026-08-10T02:19:15.789Z",
+  "isolatedColdProcessPerRun": true,
+  "runsPerScenario": 3,
+  "node": "v24.16.0",
+  "platform": "linux/x64",
+  "avifenc": "Version: 1.3.0 (dav1d [dec]:1.5.1, libgav1 [dec]:0.19.0, aom [enc/dec]:v3.12.1, rav1e [enc]:0.7.1 (UNKNOWN), svt [enc]:v2.3.0)\nlibyuv : available (1904)",
+  "notes": {
+    "purpose": "Evidence for the bounded-memory refactor; not a performance claim.",
+    "maximumRss": "Absolute process high-water mark from process.resourceUsage().",
+    "externalAndArrayBuffers": "Sampled after decoder creation and every public output block.",
+    "baseline": "Captured after five explicit GC and event-loop turns with input retained.",
+    "correctness": "Every run must match a checksum-pinned encoded or RGBA output."
+  },
+  "summaries": [
+    {
+      "scenario": "no-filters",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1201444,
+      "outputBytes": 3145728,
+      "outputSha256": "e158dc7c6e2db7e951e0f9de989c9c16dbc852393c5a60068e508476972d2f42",
+      "sourceRgbaReferenceBytes": 3145728,
+      "medianMaximumRssBytes": 114597888,
+      "medianPeakRssDeltaBytes": 14286848,
+      "medianPeakExternalDeltaBytes": 6476954,
+      "medianPeakArrayBuffersDeltaBytes": 6416408,
+      "medianWallMilliseconds": 2647.632
+    },
+    {
+      "scenario": "deblock",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 572237,
+      "outputBytes": 3145728,
+      "outputSha256": "1836b434ab554a121af3a3604c01d44184bd8a564fe0e43305bfb5f986cc3a9e",
+      "sourceRgbaReferenceBytes": 3145728,
+      "medianMaximumRssBytes": 117014528,
+      "medianPeakRssDeltaBytes": 16646144,
+      "medianPeakExternalDeltaBytes": 9057082,
+      "medianPeakArrayBuffersDeltaBytes": 8996536,
+      "medianWallMilliseconds": 1418.657
+    },
+    {
+      "scenario": "cdef",
+      "action": "decode",
+      "dimensions": "768x512",
+      "inputBytes": 25430,
+      "outputBytes": 1572864,
+      "outputSha256": "b10ee50244d047f22a35e99fb288882ac1a223605c2b62be393a484a06eb0ba0",
+      "sourceRgbaReferenceBytes": 1572864,
+      "medianMaximumRssBytes": 116322304,
+      "medianPeakRssDeltaBytes": 16384000,
+      "medianPeakExternalDeltaBytes": 4061762,
+      "medianPeakArrayBuffersDeltaBytes": 4001216,
+      "medianWallMilliseconds": 425.198
+    },
+    {
+      "scenario": "restoration",
+      "action": "decode",
+      "dimensions": "1204x800",
+      "inputBytes": 63479,
+      "outputBytes": 3852800,
+      "outputSha256": "cd94cd9d459af6338f77cf401749656b647f88b9e357c737a0a88c34584a46ec",
+      "sourceRgbaReferenceBytes": 3852800,
+      "medianMaximumRssBytes": 117272576,
+      "medianPeakRssDeltaBytes": 17096704,
+      "medianPeakExternalDeltaBytes": 6689630,
+      "medianPeakArrayBuffersDeltaBytes": 6474972,
+      "medianWallMilliseconds": 1282.827
+    },
+    {
+      "scenario": "alpha",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1462510,
+      "outputBytes": 3145728,
+      "outputSha256": "07c6b21f6098eb19a7bb5cb4be6e42b23e7ea40019912e70f3ff194be23c5420",
+      "sourceRgbaReferenceBytes": 3145728,
+      "medianMaximumRssBytes": 116125696,
+      "medianPeakRssDeltaBytes": 15204352,
+      "medianPeakExternalDeltaBytes": 11889122,
+      "medianPeakArrayBuffersDeltaBytes": 11697504,
+      "medianWallMilliseconds": 3081.224
+    },
+    {
+      "scenario": "grid",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1213966,
+      "outputBytes": 3145728,
+      "outputSha256": "e158dc7c6e2db7e951e0f9de989c9c16dbc852393c5a60068e508476972d2f42",
+      "sourceRgbaReferenceBytes": 3145728,
+      "medianMaximumRssBytes": 116830208,
+      "medianPeakRssDeltaBytes": 16515072,
+      "medianPeakExternalDeltaBytes": 9385282,
+      "medianPeakArrayBuffersDeltaBytes": 9324736,
+      "medianWallMilliseconds": 2680.966
+    },
+    {
+      "scenario": "downscale",
+      "action": "downscale",
+      "dimensions": "256x170",
+      "inputBytes": 63479,
+      "outputBytes": 94003,
+      "outputSha256": "ebf839411a85f21681ae0337788ac597b9ddb19ed799792b689c717c5f0c9ae2",
+      "sourceRgbaReferenceBytes": 3852800,
+      "medianMaximumRssBytes": 123965440,
+      "medianPeakRssDeltaBytes": 23257088,
+      "medianPeakExternalDeltaBytes": 6608398,
+      "medianPeakArrayBuffersDeltaBytes": 6547852,
+      "medianWallMilliseconds": 1348.036
+    }
+  ],
+  "runs": [
+    {
+      "scenario": "no-filters",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1201444,
+      "outputBytes": 3145728,
+      "outputSha256": "e158dc7c6e2db7e951e0f9de989c9c16dbc852393c5a60068e508476972d2f42",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 2637.1,
+      "baseline": {
+        "rssBytes": 101863424,
+        "heapUsedBytes": 10885104,
+        "externalBytes": 12187807,
+        "arrayBuffersBytes": 1283010
+      },
+      "peakSampled": {
+        "rssBytes": 116150272,
+        "heapUsedBytes": 16527376,
+        "externalBytes": 18665529,
+        "arrayBuffersBytes": 7700186
+      },
+      "final": {
+        "rssBytes": 116150272,
+        "heapUsedBytes": 16527376,
+        "externalBytes": 18665529,
+        "arrayBuffersBytes": 7700186
+      },
+      "maximumRssBytes": 116150272,
+      "peakRssDeltaBytes": 14286848,
+      "peakExternalDeltaBytes": 6477722,
+      "peakArrayBuffersDeltaBytes": 6417176
+    },
+    {
+      "scenario": "no-filters",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1201444,
+      "outputBytes": 3145728,
+      "outputSha256": "e158dc7c6e2db7e951e0f9de989c9c16dbc852393c5a60068e508476972d2f42",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 2647.632,
+      "baseline": {
+        "rssBytes": 100769792,
+        "heapUsedBytes": 10884832,
+        "externalBytes": 12187807,
+        "arrayBuffersBytes": 1283010
+      },
+      "peakSampled": {
+        "rssBytes": 113221632,
+        "heapUsedBytes": 16771936,
+        "externalBytes": 18664761,
+        "arrayBuffersBytes": 7699418
+      },
+      "final": {
+        "rssBytes": 113221632,
+        "heapUsedBytes": 16289576,
+        "externalBytes": 18664761,
+        "arrayBuffersBytes": 7699418
+      },
+      "maximumRssBytes": 113221632,
+      "peakRssDeltaBytes": 12451840,
+      "peakExternalDeltaBytes": 6476954,
+      "peakArrayBuffersDeltaBytes": 6416408
+    },
+    {
+      "scenario": "no-filters",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1201444,
+      "outputBytes": 3145728,
+      "outputSha256": "e158dc7c6e2db7e951e0f9de989c9c16dbc852393c5a60068e508476972d2f42",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 2707.482,
+      "baseline": {
+        "rssBytes": 99786752,
+        "heapUsedBytes": 10884832,
+        "externalBytes": 12187807,
+        "arrayBuffersBytes": 1283010
+      },
+      "peakSampled": {
+        "rssBytes": 114597888,
+        "heapUsedBytes": 16139672,
+        "externalBytes": 18663097,
+        "arrayBuffersBytes": 7697754
+      },
+      "final": {
+        "rssBytes": 114597888,
+        "heapUsedBytes": 15618968,
+        "externalBytes": 18663097,
+        "arrayBuffersBytes": 7697754
+      },
+      "maximumRssBytes": 114597888,
+      "peakRssDeltaBytes": 14811136,
+      "peakExternalDeltaBytes": 6475290,
+      "peakArrayBuffersDeltaBytes": 6414744
+    },
+    {
+      "scenario": "deblock",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 572237,
+      "outputBytes": 3145728,
+      "outputSha256": "1836b434ab554a121af3a3604c01d44184bd8a564fe0e43305bfb5f986cc3a9e",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 1410.235,
+      "baseline": {
+        "rssBytes": 100089856,
+        "heapUsedBytes": 10884784,
+        "externalBytes": 11558600,
+        "arrayBuffersBytes": 653803
+      },
+      "peakSampled": {
+        "rssBytes": 115949568,
+        "heapUsedBytes": 15401368,
+        "externalBytes": 20615682,
+        "arrayBuffersBytes": 9650339
+      },
+      "final": {
+        "rssBytes": 115949568,
+        "heapUsedBytes": 15401368,
+        "externalBytes": 20615682,
+        "arrayBuffersBytes": 9650339
+      },
+      "maximumRssBytes": 115949568,
+      "peakRssDeltaBytes": 15859712,
+      "peakExternalDeltaBytes": 9057082,
+      "peakArrayBuffersDeltaBytes": 8996536
+    },
+    {
+      "scenario": "deblock",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 572237,
+      "outputBytes": 3145728,
+      "outputSha256": "1836b434ab554a121af3a3604c01d44184bd8a564fe0e43305bfb5f986cc3a9e",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 1429.453,
+      "baseline": {
+        "rssBytes": 100368384,
+        "heapUsedBytes": 10884784,
+        "externalBytes": 11558600,
+        "arrayBuffersBytes": 653803
+      },
+      "peakSampled": {
+        "rssBytes": 117014528,
+        "heapUsedBytes": 16703488,
+        "externalBytes": 20615682,
+        "arrayBuffersBytes": 9650339
+      },
+      "final": {
+        "rssBytes": 117014528,
+        "heapUsedBytes": 16703488,
+        "externalBytes": 20615682,
+        "arrayBuffersBytes": 9650339
+      },
+      "maximumRssBytes": 117014528,
+      "peakRssDeltaBytes": 16646144,
+      "peakExternalDeltaBytes": 9057082,
+      "peakArrayBuffersDeltaBytes": 8996536
+    },
+    {
+      "scenario": "deblock",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 572237,
+      "outputBytes": 3145728,
+      "outputSha256": "1836b434ab554a121af3a3604c01d44184bd8a564fe0e43305bfb5f986cc3a9e",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 1418.657,
+      "baseline": {
+        "rssBytes": 99409920,
+        "heapUsedBytes": 10885056,
+        "externalBytes": 11558600,
+        "arrayBuffersBytes": 653803
+      },
+      "peakSampled": {
+        "rssBytes": 117628928,
+        "heapUsedBytes": 16756256,
+        "externalBytes": 20615682,
+        "arrayBuffersBytes": 9650339
+      },
+      "final": {
+        "rssBytes": 117628928,
+        "heapUsedBytes": 13916016,
+        "externalBytes": 20615682,
+        "arrayBuffersBytes": 9650339
+      },
+      "maximumRssBytes": 117628928,
+      "peakRssDeltaBytes": 18219008,
+      "peakExternalDeltaBytes": 9057082,
+      "peakArrayBuffersDeltaBytes": 8996536
+    },
+    {
+      "scenario": "cdef",
+      "action": "decode",
+      "dimensions": "768x512",
+      "inputBytes": 25430,
+      "outputBytes": 1572864,
+      "outputSha256": "b10ee50244d047f22a35e99fb288882ac1a223605c2b62be393a484a06eb0ba0",
+      "sourceRgbaReferenceBytes": 1572864,
+      "wallMilliseconds": 425.198,
+      "baseline": {
+        "rssBytes": 99938304,
+        "heapUsedBytes": 10885176,
+        "externalBytes": 11011793,
+        "arrayBuffersBytes": 106996
+      },
+      "peakSampled": {
+        "rssBytes": 116322304,
+        "heapUsedBytes": 18269280,
+        "externalBytes": 15171859,
+        "arrayBuffersBytes": 4206516
+      },
+      "final": {
+        "rssBytes": 116322304,
+        "heapUsedBytes": 17419008,
+        "externalBytes": 15171859,
+        "arrayBuffersBytes": 4206516
+      },
+      "maximumRssBytes": 116322304,
+      "peakRssDeltaBytes": 16384000,
+      "peakExternalDeltaBytes": 4160066,
+      "peakArrayBuffersDeltaBytes": 4099520
+    },
+    {
+      "scenario": "cdef",
+      "action": "decode",
+      "dimensions": "768x512",
+      "inputBytes": 25430,
+      "outputBytes": 1572864,
+      "outputSha256": "b10ee50244d047f22a35e99fb288882ac1a223605c2b62be393a484a06eb0ba0",
+      "sourceRgbaReferenceBytes": 1572864,
+      "wallMilliseconds": 426.583,
+      "baseline": {
+        "rssBytes": 101466112,
+        "heapUsedBytes": 10884904,
+        "externalBytes": 11011793,
+        "arrayBuffersBytes": 106996
+      },
+      "peakSampled": {
+        "rssBytes": 115683328,
+        "heapUsedBytes": 18245848,
+        "externalBytes": 14975251,
+        "arrayBuffersBytes": 4009908
+      },
+      "final": {
+        "rssBytes": 115683328,
+        "heapUsedBytes": 16823712,
+        "externalBytes": 14975251,
+        "arrayBuffersBytes": 4009908
+      },
+      "maximumRssBytes": 115683328,
+      "peakRssDeltaBytes": 14217216,
+      "peakExternalDeltaBytes": 3963458,
+      "peakArrayBuffersDeltaBytes": 3902912
+    },
+    {
+      "scenario": "cdef",
+      "action": "decode",
+      "dimensions": "768x512",
+      "inputBytes": 25430,
+      "outputBytes": 1572864,
+      "outputSha256": "b10ee50244d047f22a35e99fb288882ac1a223605c2b62be393a484a06eb0ba0",
+      "sourceRgbaReferenceBytes": 1572864,
+      "wallMilliseconds": 422.509,
+      "baseline": {
+        "rssBytes": 98684928,
+        "heapUsedBytes": 10885176,
+        "externalBytes": 11011793,
+        "arrayBuffersBytes": 106996
+      },
+      "peakSampled": {
+        "rssBytes": 116772864,
+        "heapUsedBytes": 18150016,
+        "externalBytes": 15073555,
+        "arrayBuffersBytes": 4108212
+      },
+      "final": {
+        "rssBytes": 116772864,
+        "heapUsedBytes": 17123792,
+        "externalBytes": 15073555,
+        "arrayBuffersBytes": 4108212
+      },
+      "maximumRssBytes": 116772864,
+      "peakRssDeltaBytes": 18087936,
+      "peakExternalDeltaBytes": 4061762,
+      "peakArrayBuffersDeltaBytes": 4001216
+    },
+    {
+      "scenario": "restoration",
+      "action": "decode",
+      "dimensions": "1204x800",
+      "inputBytes": 63479,
+      "outputBytes": 3852800,
+      "outputSha256": "cd94cd9d459af6338f77cf401749656b647f88b9e357c737a0a88c34584a46ec",
+      "sourceRgbaReferenceBytes": 3852800,
+      "wallMilliseconds": 1288.107,
+      "baseline": {
+        "rssBytes": 100175872,
+        "heapUsedBytes": 10884960,
+        "externalBytes": 11049842,
+        "arrayBuffersBytes": 145045
+      },
+      "peakSampled": {
+        "rssBytes": 117272576,
+        "heapUsedBytes": 18710688,
+        "externalBytes": 17739472,
+        "arrayBuffersBytes": 6620017
+      },
+      "final": {
+        "rssBytes": 117272576,
+        "heapUsedBytes": 15060744,
+        "externalBytes": 17585360,
+        "arrayBuffersBytes": 5849457
+      },
+      "maximumRssBytes": 117272576,
+      "peakRssDeltaBytes": 17096704,
+      "peakExternalDeltaBytes": 6689630,
+      "peakArrayBuffersDeltaBytes": 6474972
+    },
+    {
+      "scenario": "restoration",
+      "action": "decode",
+      "dimensions": "1204x800",
+      "inputBytes": 63479,
+      "outputBytes": 3852800,
+      "outputSha256": "cd94cd9d459af6338f77cf401749656b647f88b9e357c737a0a88c34584a46ec",
+      "sourceRgbaReferenceBytes": 3852800,
+      "wallMilliseconds": 1262.643,
+      "baseline": {
+        "rssBytes": 100487168,
+        "heapUsedBytes": 10884960,
+        "externalBytes": 11049842,
+        "arrayBuffersBytes": 145045
+      },
+      "peakSampled": {
+        "rssBytes": 115036160,
+        "heapUsedBytes": 18684280,
+        "externalBytes": 17739472,
+        "arrayBuffersBytes": 6620017
+      },
+      "final": {
+        "rssBytes": 115036160,
+        "heapUsedBytes": 15036536,
+        "externalBytes": 17585360,
+        "arrayBuffersBytes": 5849457
+      },
+      "maximumRssBytes": 115036160,
+      "peakRssDeltaBytes": 14548992,
+      "peakExternalDeltaBytes": 6689630,
+      "peakArrayBuffersDeltaBytes": 6474972
+    },
+    {
+      "scenario": "restoration",
+      "action": "decode",
+      "dimensions": "1204x800",
+      "inputBytes": 63479,
+      "outputBytes": 3852800,
+      "outputSha256": "cd94cd9d459af6338f77cf401749656b647f88b9e357c737a0a88c34584a46ec",
+      "sourceRgbaReferenceBytes": 3852800,
+      "wallMilliseconds": 1282.827,
+      "baseline": {
+        "rssBytes": 101265408,
+        "heapUsedBytes": 10884960,
+        "externalBytes": 11049842,
+        "arrayBuffersBytes": 145045
+      },
+      "peakSampled": {
+        "rssBytes": 119934976,
+        "heapUsedBytes": 18972576,
+        "externalBytes": 17739472,
+        "arrayBuffersBytes": 6620017
+      },
+      "final": {
+        "rssBytes": 119934976,
+        "heapUsedBytes": 15323736,
+        "externalBytes": 17585360,
+        "arrayBuffersBytes": 5849457
+      },
+      "maximumRssBytes": 119934976,
+      "peakRssDeltaBytes": 18669568,
+      "peakExternalDeltaBytes": 6689630,
+      "peakArrayBuffersDeltaBytes": 6474972
+    },
+    {
+      "scenario": "alpha",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1462510,
+      "outputBytes": 3145728,
+      "outputSha256": "07c6b21f6098eb19a7bb5cb4be6e42b23e7ea40019912e70f3ff194be23c5420",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 3117.637,
+      "baseline": {
+        "rssBytes": 100659200,
+        "heapUsedBytes": 10884784,
+        "externalBytes": 12448873,
+        "arrayBuffersBytes": 1544076
+      },
+      "peakSampled": {
+        "rssBytes": 116125696,
+        "heapUsedBytes": 15739584,
+        "externalBytes": 22238507,
+        "arrayBuffersBytes": 11142092
+      },
+      "final": {
+        "rssBytes": 116125696,
+        "heapUsedBytes": 12254464,
+        "externalBytes": 18800875,
+        "arrayBuffersBytes": 7835532
+      },
+      "maximumRssBytes": 116125696,
+      "peakRssDeltaBytes": 15466496,
+      "peakExternalDeltaBytes": 9789634,
+      "peakArrayBuffersDeltaBytes": 9598016
+    },
+    {
+      "scenario": "alpha",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1462510,
+      "outputBytes": 3145728,
+      "outputSha256": "07c6b21f6098eb19a7bb5cb4be6e42b23e7ea40019912e70f3ff194be23c5420",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 3025.289,
+      "baseline": {
+        "rssBytes": 100184064,
+        "heapUsedBytes": 10884784,
+        "externalBytes": 12448873,
+        "arrayBuffersBytes": 1544076
+      },
+      "peakSampled": {
+        "rssBytes": 115388416,
+        "heapUsedBytes": 16634856,
+        "externalBytes": 25254123,
+        "arrayBuffersBytes": 14288780
+      },
+      "final": {
+        "rssBytes": 115388416,
+        "heapUsedBytes": 16634856,
+        "externalBytes": 25254123,
+        "arrayBuffersBytes": 14288780
+      },
+      "maximumRssBytes": 115388416,
+      "peakRssDeltaBytes": 15204352,
+      "peakExternalDeltaBytes": 12805250,
+      "peakArrayBuffersDeltaBytes": 12744704
+    },
+    {
+      "scenario": "alpha",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1462510,
+      "outputBytes": 3145728,
+      "outputSha256": "07c6b21f6098eb19a7bb5cb4be6e42b23e7ea40019912e70f3ff194be23c5420",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 3081.224,
+      "baseline": {
+        "rssBytes": 101445632,
+        "heapUsedBytes": 10884784,
+        "externalBytes": 12448873,
+        "arrayBuffersBytes": 1544076
+      },
+      "peakSampled": {
+        "rssBytes": 116318208,
+        "heapUsedBytes": 17127032,
+        "externalBytes": 24337995,
+        "arrayBuffersBytes": 13241580
+      },
+      "final": {
+        "rssBytes": 116318208,
+        "heapUsedBytes": 12523808,
+        "externalBytes": 18800875,
+        "arrayBuffersBytes": 7835532
+      },
+      "maximumRssBytes": 116318208,
+      "peakRssDeltaBytes": 14872576,
+      "peakExternalDeltaBytes": 11889122,
+      "peakArrayBuffersDeltaBytes": 11697504
+    },
+    {
+      "scenario": "grid",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1213966,
+      "outputBytes": 3145728,
+      "outputSha256": "e158dc7c6e2db7e951e0f9de989c9c16dbc852393c5a60068e508476972d2f42",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 2697.971,
+      "baseline": {
+        "rssBytes": 100761600,
+        "heapUsedBytes": 10884776,
+        "externalBytes": 12200329,
+        "arrayBuffersBytes": 1295532
+      },
+      "peakSampled": {
+        "rssBytes": 117276672,
+        "heapUsedBytes": 17321088,
+        "externalBytes": 21586059,
+        "arrayBuffersBytes": 10620716
+      },
+      "final": {
+        "rssBytes": 117276672,
+        "heapUsedBytes": 14676960,
+        "externalBytes": 21586059,
+        "arrayBuffersBytes": 10620716
+      },
+      "maximumRssBytes": 117276672,
+      "peakRssDeltaBytes": 16515072,
+      "peakExternalDeltaBytes": 9385730,
+      "peakArrayBuffersDeltaBytes": 9325184
+    },
+    {
+      "scenario": "grid",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1213966,
+      "outputBytes": 3145728,
+      "outputSha256": "e158dc7c6e2db7e951e0f9de989c9c16dbc852393c5a60068e508476972d2f42",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 2680.966,
+      "baseline": {
+        "rssBytes": 101625856,
+        "heapUsedBytes": 10884776,
+        "externalBytes": 12200329,
+        "arrayBuffersBytes": 1295532
+      },
+      "peakSampled": {
+        "rssBytes": 116830208,
+        "heapUsedBytes": 16025848,
+        "externalBytes": 21584523,
+        "arrayBuffersBytes": 10619180
+      },
+      "final": {
+        "rssBytes": 116830208,
+        "heapUsedBytes": 14034696,
+        "externalBytes": 21584523,
+        "arrayBuffersBytes": 10619180
+      },
+      "maximumRssBytes": 116830208,
+      "peakRssDeltaBytes": 15204352,
+      "peakExternalDeltaBytes": 9384194,
+      "peakArrayBuffersDeltaBytes": 9323648
+    },
+    {
+      "scenario": "grid",
+      "action": "decode",
+      "dimensions": "1024x768",
+      "inputBytes": 1213966,
+      "outputBytes": 3145728,
+      "outputSha256": "e158dc7c6e2db7e951e0f9de989c9c16dbc852393c5a60068e508476972d2f42",
+      "sourceRgbaReferenceBytes": 3145728,
+      "wallMilliseconds": 2652.435,
+      "baseline": {
+        "rssBytes": 98893824,
+        "heapUsedBytes": 10884776,
+        "externalBytes": 12200329,
+        "arrayBuffersBytes": 1295532
+      },
+      "peakSampled": {
+        "rssBytes": 116719616,
+        "heapUsedBytes": 16706272,
+        "externalBytes": 21585611,
+        "arrayBuffersBytes": 10620268
+      },
+      "final": {
+        "rssBytes": 116719616,
+        "heapUsedBytes": 14488000,
+        "externalBytes": 21585611,
+        "arrayBuffersBytes": 10620268
+      },
+      "maximumRssBytes": 116719616,
+      "peakRssDeltaBytes": 17825792,
+      "peakExternalDeltaBytes": 9385282,
+      "peakArrayBuffersDeltaBytes": 9324736
+    },
+    {
+      "scenario": "downscale",
+      "action": "downscale",
+      "dimensions": "256x170",
+      "inputBytes": 63479,
+      "outputBytes": 94003,
+      "outputSha256": "ebf839411a85f21681ae0337788ac597b9ddb19ed799792b689c717c5f0c9ae2",
+      "sourceRgbaReferenceBytes": 3852800,
+      "wallMilliseconds": 1350.217,
+      "baseline": {
+        "rssBytes": 100708352,
+        "heapUsedBytes": 10885200,
+        "externalBytes": 11049842,
+        "arrayBuffersBytes": 145045
+      },
+      "peakSampled": {
+        "rssBytes": 123965440,
+        "heapUsedBytes": 18807024,
+        "externalBytes": 17658240,
+        "arrayBuffersBytes": 6692897
+      },
+      "final": {
+        "rssBytes": 123965440,
+        "heapUsedBytes": 16790776,
+        "externalBytes": 15350391,
+        "arrayBuffersBytes": 4385048
+      },
+      "maximumRssBytes": 123965440,
+      "peakRssDeltaBytes": 23257088,
+      "peakExternalDeltaBytes": 6608398,
+      "peakArrayBuffersDeltaBytes": 6547852
+    },
+    {
+      "scenario": "downscale",
+      "action": "downscale",
+      "dimensions": "256x170",
+      "inputBytes": 63479,
+      "outputBytes": 94003,
+      "outputSha256": "ebf839411a85f21681ae0337788ac597b9ddb19ed799792b689c717c5f0c9ae2",
+      "sourceRgbaReferenceBytes": 3852800,
+      "wallMilliseconds": 1348.036,
+      "baseline": {
+        "rssBytes": 101507072,
+        "heapUsedBytes": 10885272,
+        "externalBytes": 11049842,
+        "arrayBuffersBytes": 145045
+      },
+      "peakSampled": {
+        "rssBytes": 128438272,
+        "heapUsedBytes": 18905264,
+        "externalBytes": 17660402,
+        "arrayBuffersBytes": 6695059
+      },
+      "final": {
+        "rssBytes": 128438272,
+        "heapUsedBytes": 16858616,
+        "externalBytes": 15350391,
+        "arrayBuffersBytes": 4385048
+      },
+      "maximumRssBytes": 128438272,
+      "peakRssDeltaBytes": 26931200,
+      "peakExternalDeltaBytes": 6610560,
+      "peakArrayBuffersDeltaBytes": 6550014
+    },
+    {
+      "scenario": "downscale",
+      "action": "downscale",
+      "dimensions": "256x170",
+      "inputBytes": 63479,
+      "outputBytes": 94003,
+      "outputSha256": "ebf839411a85f21681ae0337788ac597b9ddb19ed799792b689c717c5f0c9ae2",
+      "sourceRgbaReferenceBytes": 3852800,
+      "wallMilliseconds": 1347.446,
+      "baseline": {
+        "rssBytes": 100679680,
+        "heapUsedBytes": 10884928,
+        "externalBytes": 11049842,
+        "arrayBuffersBytes": 145045
+      },
+      "peakSampled": {
+        "rssBytes": 122961920,
+        "heapUsedBytes": 18768632,
+        "externalBytes": 17658240,
+        "arrayBuffersBytes": 6692897
+      },
+      "final": {
+        "rssBytes": 122961920,
+        "heapUsedBytes": 15481536,
+        "externalBytes": 15350391,
+        "arrayBuffersBytes": 4385048
+      },
+      "maximumRssBytes": 122961920,
+      "peakRssDeltaBytes": 22282240,
+      "peakExternalDeltaBytes": 6608398,
+      "peakArrayBuffersDeltaBytes": 6547852
+    }
+  ]
+}

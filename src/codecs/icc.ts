@@ -644,16 +644,33 @@ export const createPngGrayTransform = (gamma: number): Uint8Array => {
   })
 }
 
-let cachedDisplayP3Transform: RgbIccTransform | undefined
-
-export const createDisplayP3Transform = (): RgbIccTransform => {
-  if (cachedDisplayP3Transform) return cachedDisplayP3Transform
-  const curve = Float32Array.from({ length: 256 }, (_, value) => {
-    const encoded = value / 255
-    return encoded <= 0.04045 ? encoded / 12.92 : ((encoded + 0.055) / 1.055) ** 2.4
-  })
-  cachedDisplayP3Transform = transformFromMatrixAndCurves(
-    chromaticityMatrix({
+const nclxChromaticities = (primaries: number): RgbChromaticities => {
+  if (primaries === 1) {
+    return {
+      whiteX: 0.3127,
+      whiteY: 0.329,
+      redX: 0.64,
+      redY: 0.33,
+      greenX: 0.3,
+      greenY: 0.6,
+      blueX: 0.15,
+      blueY: 0.06,
+    }
+  }
+  if (primaries === 9) {
+    return {
+      whiteX: 0.3127,
+      whiteY: 0.329,
+      redX: 0.708,
+      redY: 0.292,
+      greenX: 0.17,
+      greenY: 0.797,
+      blueX: 0.131,
+      blueY: 0.046,
+    }
+  }
+  if (primaries === 12) {
+    return {
       whiteX: 0.3127,
       whiteY: 0.329,
       redX: 0.68,
@@ -662,13 +679,71 @@ export const createDisplayP3Transform = (): RgbIccTransform => {
       greenY: 0.69,
       blueX: 0.15,
       blueY: 0.06,
-    }),
+    }
+  }
+  throw unsupportedOperation(`NCLX color primaries ${primaries} are not supported`)
+}
+
+export const nclxToLinear = (transferCharacteristics: number, encoded: number): number => {
+  if (transferCharacteristics === 8) return encoded
+  if (transferCharacteristics === 13) {
+    return encoded <= 0.04045 ? encoded / 12.92 : ((encoded + 0.055) / 1.055) ** 2.4
+  }
+  if (transferCharacteristics === 1 || transferCharacteristics === 6) {
+    return encoded < 0.081 ? encoded / 4.5 : ((encoded + 0.099) / 1.099) ** (1 / 0.45)
+  }
+  if (transferCharacteristics === 14 || transferCharacteristics === 15) {
+    return encoded < 0.081_45 ? encoded / 4.5 : ((encoded + 0.099_3) / 1.099_3) ** (1 / 0.45)
+  }
+  if (transferCharacteristics === 16) {
+    const m1 = 2610 / 16_384
+    const m2 = 2523 / 32
+    const c1 = 3424 / 4096
+    const c2 = 2413 / 128
+    const c3 = 2392 / 128
+    const signal = Math.max(encoded, 0) ** (1 / m2)
+    const numerator = Math.max(signal - c1, 0)
+    const denominator = c2 - c3 * signal
+    return denominator <= 0 ? 10_000 / 203 : ((numerator / denominator) ** (1 / m1) * 10_000) / 203
+  }
+  if (transferCharacteristics === 18) {
+    const sceneLinear =
+      encoded <= 0.5
+        ? (encoded * encoded) / 3
+        : (Math.exp((encoded - 0.559_910_73) / 0.178_832_77) + 0.284_668_92) / 12
+    return (sceneLinear ** 1.2 * 1000) / 203
+  }
+  throw unsupportedOperation(
+    `NCLX transfer characteristics ${transferCharacteristics} are not supported`,
+  )
+}
+
+export const linearToSrgb = (linear: number): number =>
+  linear <= 0.003_130_8 ? linear * 12.92 : 1.055 * linear ** (1 / 2.4) - 0.055
+
+const cachedNclxTransforms = new Map<string, RgbIccTransform>()
+
+export const createNclxSrgbTransform = (
+  primaries: number,
+  transferCharacteristics: number,
+): RgbIccTransform => {
+  const key = `${primaries}:${transferCharacteristics}`
+  const cached = cachedNclxTransforms.get(key)
+  if (cached) return cached
+  const curve = Float32Array.from({ length: 256 }, (_, value) =>
+    nclxToLinear(transferCharacteristics, value / 255),
+  )
+  const transform = transformFromMatrixAndCurves(
+    chromaticityMatrix(nclxChromaticities(primaries)),
     curve,
     curve,
     curve,
   )
-  return cachedDisplayP3Transform
+  cachedNclxTransforms.set(key, transform)
+  return transform
 }
+
+export const createDisplayP3Transform = (): RgbIccTransform => createNclxSrgbTransform(12, 13)
 
 const sampledTable = (
   profile: Uint8Array,

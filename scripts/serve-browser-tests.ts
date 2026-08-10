@@ -1,13 +1,13 @@
-import { createServer } from 'node:http'
 import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { createServer } from 'node:http'
 import { extname, relative, resolve } from 'node:path'
 import { build } from 'esbuild'
 import { GifWriter } from 'omggif'
 import { PNG } from 'pngjs'
-import { createImageLibrary } from '../src/index.ts'
+import { main10PqFixture } from '../benchmark/heif/compatibility/generated-fixtures.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
-import { main10PqFixture } from '../benchmark/heif/compatibility/generated-fixtures.ts'
+import { createImageLibrary } from '../src/index.ts'
 
 const outputDirectory = resolve('benchmark/.tmp/browser-tests')
 const fixtureDirectory = resolve(outputDirectory, 'fixtures')
@@ -298,6 +298,190 @@ await copyFile(
 await copyFile(
   'benchmark/corpus/files/avif/sharp-qmatrix-q30-256x192.avif',
   resolve(fixtureDirectory, 'sharp-qmatrix-q30-256x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/fox.profile0.8bpc.yuv420.monochrome.avif',
+  resolve(fixtureDirectory, 'fox.profile0.8bpc.yuv420.monochrome.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/fox.profile2.8bpc.yuv422.avif',
+  resolve(fixtureDirectory, 'fox.profile2.8bpc.yuv422.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/fox.profile1.8bpc.yuv444.avif',
+  resolve(fixtureDirectory, 'fox.profile1.8bpc.yuv444.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/alpha-straight-64x48.avif',
+  resolve(fixtureDirectory, 'alpha-straight-64x48.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/alpha-premultiplied-64x48.avif',
+  resolve(fixtureDirectory, 'alpha-premultiplied-64x48.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/lossless-q0-64x48.avif',
+  resolve(fixtureDirectory, 'lossless-q0-64x48.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/draw_points_idat.avif',
+  resolve(fixtureDirectory, 'draw_points_idat.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/lossless-identity-16x12-10bpc.avif',
+  resolve(fixtureDirectory, 'lossless-identity-16x12-10bpc.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/lossless-identity-16x12-12bpc.avif',
+  resolve(fixtureDirectory, 'lossless-identity-16x12-12bpc.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/coded-lossless-10bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'coded-lossless-10bpc-yuv420-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-10bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-10bpc-yuv420-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/coded-lossless-12bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'coded-lossless-12bpc-yuv420-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/unsupported-hdr-pq-10bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'unsupported-hdr-pq-10bpc-yuv420-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/unsupported-hdr-hlg-10bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'unsupported-hdr-hlg-10bpc-yuv420-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-12bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-12bpc-yuv420-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-10bpc-yuv422-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-10bpc-yuv422-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-12bpc-yuv422-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-12bpc-yuv422-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-12bpc-yuv444-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-12bpc-yuv444-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-10bpc-yuv444-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-10bpc-yuv444-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filtered-lossy-10bpc-yuv444-96x64.avif',
+  resolve(fixtureDirectory, 'filtered-lossy-10bpc-yuv444-96x64.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/xiph-alpha-limited-8bpc-2048x2048.avif',
+  resolve(fixtureDirectory, 'xiph-alpha-limited-8bpc-2048x2048.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/alpha-full-10bpc-64x48.avif',
+  resolve(fixtureDirectory, 'alpha-full-10bpc-64x48.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/alpha-full-12bpc-64x48.avif',
+  resolve(fixtureDirectory, 'alpha-full-12bpc-64x48.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-color-grid-alpha-items-80x80.avif',
+  resolve(fixtureDirectory, 'libavif-color-grid-alpha-items-80x80.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-color-irot-alpha-noirot-512x256.avif',
+  resolve(fixtureDirectory, 'libavif-color-irot-alpha-noirot-512x256.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/xiph-tiger-3layer-lsel0-1216x832.avif',
+  resolve(fixtureDirectory, 'xiph-tiger-3layer-lsel0-1216x832.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif',
+  resolve(fixtureDirectory, 'tiled-lossless-10bpc-yuv444-2x2-256x256.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libaom-lossy-multitile-yuv420-256x256.avif',
+  resolve(fixtureDirectory, 'libaom-lossy-multitile-yuv420-256x256.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libaom-full-header-tile-groups-yuv420-256x256.avif',
+  resolve(fixtureDirectory, 'libaom-full-header-tile-groups-yuv420-256x256.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/ms-mexico-nonstill-sequence.avif',
+  resolve(fixtureDirectory, 'ms-mexico-nonstill-sequence.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/diagnostic-baby-ffmpeg-crf30-yuv420.avif',
+  resolve(fixtureDirectory, 'diagnostic-baby-ffmpeg-crf30-yuv420.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/diagnostic-baby-ffmpeg-crf45-yuv444.avif',
+  resolve(fixtureDirectory, 'diagnostic-baby-ffmpeg-crf45-yuv444.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/diagnostic-mc3-sharp-q50-yuv420.avif',
+  resolve(fixtureDirectory, 'diagnostic-mc3-sharp-q50-yuv420.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libaom-superres-denom12-96x64.avif',
+  resolve(fixtureDirectory, 'libaom-superres-denom12-96x64.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libaom-superres-denom12-yuv420-320x192.avif',
+  resolve(fixtureDirectory, 'libaom-superres-denom12-yuv420-320x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libaom-filtered-superres-denom12-yuv420-320x192.avif',
+  resolve(fixtureDirectory, 'libaom-filtered-superres-denom12-yuv420-320x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/blue-and-magenta-crop.avif',
+  resolve(fixtureDirectory, 'blue-and-magenta-crop.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/ms-monochrome-residual-intrabc.avif',
+  resolve(fixtureDirectory, 'ms-monochrome-residual-intrabc.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/ms-Tomsk-with-thumbnails.avif',
+  resolve(fixtureDirectory, 'ms-Tomsk-with-thumbnails.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/clean-aperture-lossless-16x12.avif',
+  resolve(fixtureDirectory, 'clean-aperture-lossless-16x12.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/bounded-row-lossless-64x192.avif',
+  resolve(fixtureDirectory, 'bounded-row-lossless-64x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/bounded-row-alpha-lossless-64x192.avif',
+  resolve(fixtureDirectory, 'bounded-row-alpha-lossless-64x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/sofa_grid1x5_420.avif',
+  resolve(fixtureDirectory, 'sofa_grid1x5_420.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-colors-text-wcg-sdr-rec2020.avif',
+  resolve(fixtureDirectory, 'libavif-colors-text-wcg-sdr-rec2020.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-seine-hdr-gainmap-srgb.avif',
+  resolve(fixtureDirectory, 'libavif-seine-hdr-gainmap-srgb.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-paris-icc-exif-xmp.avif',
+  resolve(fixtureDirectory, 'libavif-paris-icc-exif-xmp.avif'),
 )
 await writeFile(
   resolve(outputDirectory, 'index.html'),

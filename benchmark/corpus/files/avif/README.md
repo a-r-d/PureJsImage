@@ -1,14 +1,82 @@
 # Committed AVIF fixtures
 
-The two common-photo files are committed because the AVIF unit tests require
+The five common-photo files are committed because the AVIF unit tests require
 them:
 
 - `fox.profile0.8bpc.yuv420.avif`
+- `fox.profile0.8bpc.yuv420.monochrome.avif`
+- `fox.profile1.8bpc.yuv444.avif`
+- `fox.profile2.8bpc.yuv422.avif`
 - `kodim03_yuv420_8bpc.avif`
 
 They come from the libavif repository at revision
 `25a6d23f872f37c91a3df15b75e1a97f590d7c46` under its BSD-2-Clause license.
 Their source paths and SHA-256 checksums are pinned in `benchmark/avif/corpus.ts`.
+
+`ms-mexico-nonstill-sequence.avif` comes from the Imazen AVIF Conformance corpus
+at revision `28205bbc5cf40364d012c462240ba28143373d67`, where it is sourced from
+`AOMediaCodec/av1-avif`'s Microsoft fixtures. The corpus documents the repository
+under BSD-2-Clause and the contained Blender material under CC-BY 3.0. It is
+committed to cover an AV1 sequence header with `still_picture=0` whose AVIF item
+still contains one shown key frame. Run `npm run fixtures:avif:nonstill-sequence`
+to require byte-identical native YUV from PureJsImage, dav1d, and libaom.
+The three `diagnostic-*.avif` files come from CC0 GB82 PNG inputs in the Imazen
+codec corpus at revision `28205bbc5cf40364d012c462240ba28143373d67`. They pin
+the common-photo survey's two terminal entropy-divergence classes without
+weakening strict tile termination:
+
+- `diagnostic-baby-ffmpeg-crf30-yuv420.avif` was encoded with FFmpeg/libaom,
+  CRF 30, YUV 4:2:0, still-picture mode, and one thread;
+- `diagnostic-baby-ffmpeg-crf45-yuv444.avif` used the same encoder with CRF 45
+  and YUV 4:4:4; and
+- `diagnostic-mc3-sharp-q50-yuv420.avif` was encoded with Sharp 0.35.3,
+  libvips 8.18.3, libaom 3.14.1, quality 50, effort 4, and YUV 4:2:0.
+
+Their encoded and agreeing dav1d/libaom native-YUV checksums are pinned in
+`benchmark/avif/common-photo-syntax-fixtures.ts`. Run
+`npm run fixtures:avif:common-photo-syntax` to require byte-identical visible
+YUV from PureJsImage and both independent decoders.
+
+The four `ms-*-picture*.avif`, `ms-Tomsk-with-thumbnails.avif`, and
+`ms-bbb-4k.avif` fixtures are byte-identical Microsoft cases from the same
+pinned Imazen AVIF Conformance corpus revision. They cover 1280x720 reduced and
+full still-picture headers plus a 3840x2160 full-header frame. Before this
+increment, their valid AV1 streams surfaced as a symbol overread, missing
+trailing-one bit, or nonzero trailing padding because intra-block-copy
+transform contexts and reference motion diverged before tile termination.
+Encoded and agreeing dav1d/libaom native-YUV checksums are pinned in
+`benchmark/avif/still-picture-entropy-fixtures.ts`. Run
+`npm run fixtures:avif:still-picture-entropy` to require byte-identical visible
+YUV from PureJsImage and both independent decoders.
+
+`draw_points_idat.avif` comes from the same pinned libavif revision. It is
+committed for exact luma/chroma palette-mode and non-symmetric color-index
+regression coverage; its SHA-256 checksum is pinned in
+`benchmark/avif/corpus.ts`.
+
+`colors-animated-8bpc-alpha-exif-xmp.avif` is the byte-identical libavif
+animation case from that revision. It is committed to pin the structured
+unsupported boundary for animated pixel decode; its SHA-256 checksum is pinned
+in `benchmark/avif/corpus.ts`.
+
+`blue-and-magenta-crop.avif` also comes from that pinned revision. Its color
+item exercises skipped intra-block copy with adaptive motion-vector coding,
+and its `clap` property crops the 320x280 coded image to a 180x100 display image.
+Its checksum and coded dimensions are pinned in `benchmark/avif/corpus.ts`.
+
+`ms-monochrome-residual-intrabc.avif` is the byte-identical `valid/ms_Monochrome.avif`
+fixture from the same pinned Imazen AVIF Conformance corpus revision and Microsoft
+fixture source described above. It is covered by the same BSD-2-Clause and CC-BY
+3.0 provenance. Its 1280x720 AV1 frame exercises non-skipped intra-block copy with
+transform partitions, transform-type signaling, coefficients, and residual
+reconstruction.
+
+`ibc-deltaq-512x128.avif` is a deterministic opaque 8-bit YUV 4:4:4 fixture
+encoded with libaom 3.12.1 from a repeated mixed-complexity screen-content
+source. It combines skipped intra-block copy with block delta-Q changes across
+superblocks. Run `npm run fixtures:avif:intrabc` to require byte-identical
+native YUV from PureJsImage, dav1d, and libaom for all three committed
+intra-block-copy fixtures.
 
 The five `post-filter-*.avif` files are deterministic, opaque 8-bit YUV 4:2:0
 fixtures encoded with libavif 1.3.0 and libaom 3.12.1. They isolate disabled
@@ -31,6 +99,152 @@ signals quantization matrices and block delta-Q. Run
 compare PureJsImage's visible YUV planes with a maximum sample error of 3 and
 PSNR of at least 55 dB. `npm run fixtures:avif:qmatrix:prepare` regenerates the
 encoded fixtures and rejects byte-level drift from the pinned checksums.
+
+The `alpha-*.avif` files are deterministic 64x48 YUV 4:4:4 color plus
+full-range monochrome alpha fixtures encoded with libavif 1.3.0 and libaom
+3.12.1. They cover straight-alpha and premultiplied-alpha item relationships.
+Run `npm run fixtures:avif:alpha:prepare` to regenerate them from the
+deterministic RGBA source with one encoder worker and reject byte-level drift.
+The encoded and decoded RGBA checksums are pinned in
+`benchmark/avif/alpha-fixtures.ts`.
+The `lossy-q0-64x48.avif` and `lossless-q0-64x48.avif` fixtures are deterministic
+full-range YUV 4:4:4 images encoded with libavif 1.3.0 and libaom 3.12.1. They
+cover base-quantizer context 0, lossless 4x4 Walsh-Hadamard transforms,
+partition-edge chroma prediction, and container-signaled matrix conversion,
+including the identity transform. Run `npm run fixtures:avif:q0:prepare` to
+regenerate them from the deterministic RGB source and reject byte-level drift.
+The encoded and decoded RGBA checksums are pinned in
+`benchmark/avif/q0-fixtures.ts`; lossless decoded RGB must match the source
+exactly.
+
+`bounded-row-lossless-64x192.avif` is a deterministic full-range YUV 4:4:4
+fixture spanning three 64-row superblock bands. It pins byte-exact output from
+the filter-free two-superblock reconstruction and context rings. Run
+`npm run fixtures:avif:rows:prepare` to regenerate it with libavif 1.3.0 and
+libaom 3.12.1 from the checksum-pinned RGB source; encoded, source PNG, and
+decoded RGBA checksums are recorded in `benchmark/avif/row-fixture.ts`.
+
+`bounded-row-alpha-lossless-64x192.avif` is the aligned-alpha counterpart. Its
+filter-free color and monochrome alpha items span the same three superblock
+bands so the decoder can synchronize two bounded row rings without retaining
+either full plane set. Run `npm run fixtures:avif:rows:alpha:prepare` to
+regenerate it; encoded, source PNG, and Sharp/PureJsImage RGBA checksums are
+pinned in `benchmark/avif/row-alpha-fixture.ts`.
+
+The `lossless-identity-16x12-10bpc.avif` and
+`lossless-identity-16x12-12bpc.avif` fixtures are deterministic full-range YUV
+4:4:4 images encoded with libavif 1.3.0 and libaom 3.12.1. They cover native
+high-bit-depth prediction and coded-lossless coefficient reconstruction before
+conversion to the library's 8-bit RGBA output contract. Run
+`npm run fixtures:avif:high-bit:prepare` to regenerate them from checksum-pinned
+Y4M sources with one encoder worker. Encoded, source, Sharp RGB, and decoded
+RGBA checksums are pinned in `benchmark/avif/high-bit-lossless-fixtures.ts`.
+
+The `high-bit-expanded-fixtures.ts` set covers coded-lossless 10-bit and 12-bit
+YUV 4:2:0; filter-free lossy 10-bit YUV 4:2:2 and 4:4:4; filter-free lossy
+12-bit YUV 4:2:0, 4:2:2, and 4:4:4; and a lossy 10-bit YUV 4:4:4 frame with
+deblocking, CDEF, and Wiener restoration active on all three planes. These
+fixtures exercise the normative depth-specific dequantization tables and retain
+native high-depth samples through reconstruction and filtering.
+`npm run fixtures:avif:high-bit:prepare` regenerates them with libaom 3.12.1 and
+FFmpeg 7.1.1 from checksum-pinned Y4M sources.
+`npm run fixtures:avif:high-bit` requires PureJsImage, dav1d, and libaom to
+produce byte-identical native YUV. Encoded, source, native-YUV, and portable
+RGBA checksums are pinned in `benchmark/avif/high-bit-expanded-fixtures.ts`.
+
+`unsupported-hdr-pq-10bpc-yuv420-32x24.avif` and
+`unsupported-hdr-hlg-10bpc-yuv420-32x24.avif` use the same checksum-pinned
+10-bit YUV 4:2:0 source with BT.2020 primaries and matrix coefficients, plus
+SMPTE ST 2084 or HLG transfer signaling. They verify that metadata inspection
+remains available while SDR pixel decode rejects unsupported HDR interpretation.
+Their file SHA-256 checksums are
+`8d6eff82bf015ef2fea2cf18db5acb1717404a8669e9bdfdb7f858ba5182c824` and
+`339d0d3b28c7c8bc4a6bcb3f88a718faaffb42bd6f04ba34faf6405a6fe60f69`.
+
+`xiph-tiger-3layer-lsel0-1216x832.avif` is a restricted-layer derivative of
+Xiph's `tiger_3layer_1res.avif` from the AOMedia AVIF conformance suite
+(original SHA-256
+`46cb55301f5d4a36a72c8c00f1d7e10c6c9ae0297811dc0f38a26a0285daa316`).
+The fixture changes `lsel` from `0xFFFF` to spatial layer 0 and records the
+first two `a1lx` entries as the individual 8,299-byte and 13,754-byte layer
+sizes required by AVIF 1.2. It retains all three AV1 frame OBUs. The Xiph
+source is CC-BY-SA 3.0 / CC-BY 3.0, as documented by the suite; this derivative
+remains under the applicable source license rather than the repository's MIT
+license. `npm run fixtures:avif:layered` requires PureJsImage, dav1d, and
+libaom to agree byte for byte on the selected layer's native YUV.
+
+`tiled-lossless-10bpc-yuv444-2x2-256x256.avif` is a deterministic full-range
+10-bit YUV 4:4:4 image split into four AV1 tiles. It covers independent entropy
+and context initialization plus prediction boundaries at both tile columns and
+rows. Run `npm run fixtures:avif:tiles:prepare` to regenerate it from the
+checksum-pinned Y4M source. Run `npm run fixtures:avif:tiles` to require
+PureJsImage, dav1d, and libaom to reconstruct identical native YUV samples.
+Checksums are pinned in `benchmark/avif/tiled-lossless-fixture.ts`.
+
+`libaom-lossy-multitile-yuv420-256x256.avif` is a deterministic limited-range
+8-bit YUV 4:2:0 image split into a 2x2 AV1 tile layout. It exercises independent
+tile entropy and prediction state followed by one full-frame deblocking, CDEF,
+and loop-restoration pipeline. `npm run fixtures:avif:tiles:prepare` regenerates
+it with libaom 3.12.1 and FFmpeg 7.1.1 from its checksum-pinned Y4M source.
+`npm run fixtures:avif:tiles` requires PureJsImage, dav1d, and libaom to produce
+byte-identical native YUV. Checksums are pinned in
+`benchmark/avif/lossy-multitile-fixture.ts`.
+
+`libaom-full-header-tile-groups-yuv420-256x256.avif` uses the same pinned source
+with a non-reduced shown key-frame header and four separate tile-group OBUs.
+Deblocking remains enabled while CDEF and restoration are disabled so the
+fixture isolates frame-header and tile-group assembly. The same
+`fixtures:avif:tiles:prepare` and `fixtures:avif:tiles` commands regenerate it
+and require byte-identical PureJsImage, dav1d, and libaom native YUV. Checksums
+are pinned in `benchmark/avif/lossy-multitile-fixture.ts`.
+
+`libaom-superres-denom12-96x64.avif`,
+`libaom-superres-denom12-yuv420-96x64.avif`, and
+`libaom-superres-denom12-yuv420-320x192.avif` are deterministic full-range
+8-bit YUV 4:4:4 and YUV 4:2:0 frames whose AV1 payloads reconstruct at a
+denominator-12 coded width before normative super-resolution expands luma and
+chroma to their displayed widths. The 320x192 fixture crosses a 128-row
+reconstruction-band boundary and pins the retained 4:2:0 chroma halo. Their AV1
+headers explicitly disable deblocking deltas; CDEF and restoration are also
+disabled so the fixtures isolate the eight-tap horizontal upscaler.
+`libaom-filtered-superres-denom12-yuv420-320x192.avif` reconstructs at 213x192,
+then exercises CDEF, denominator-12 super-resolution, and Wiener restoration in
+their normative order. Run `npm run fixtures:avif:superres:prepare` to regenerate
+all four fixtures with libaom 3.12.1, then `npm run fixtures:avif:superres` to
+require PureJsImage, dav1d, and libaom to produce byte-identical native YUV.
+Checksums are pinned in `benchmark/avif/superres-fixture.ts`.
+
+`clean-aperture-lossless-16x12.avif` is a deterministic full-range,
+identity-color YUV 4:4:4 fixture encoded with libavif 1.3.0 and libaom 3.12.1.
+Its integer `clap` property crops the 16x12 coded image to the 8x6 rectangle at
+`x=3, y=2`. Run `npm run fixtures:avif:clean-aperture:prepare` to regenerate it
+from the checksum-pinned PNG source with one encoder worker and require Sharp
+to produce the pinned cropped RGBA output. Encoded, source, Sharp, and decoded
+checksums are pinned in `benchmark/avif/clean-aperture-fixture.ts`.
+
+`sofa_grid1x5_420.avif` comes from the pinned libavif corpus revision documented
+in `benchmark/avif/corpus.ts`. It covers a 1x5 image grid whose final tile and
+display height exercise cropped edge-tile composition.
+
+`npm run bench:avif:memory` generates deterministic 1024x768 no-filter,
+deblock, alpha, and 2x2-grid cases in a temporary directory and combines them
+with the permanent Kodak and Fox fixtures for CDEF, restoration, and downscale
+measurements. It runs each case in three isolated cold Node.js processes and
+rejects any encoded-input or decoded-output checksum drift. The command
+requires `avifenc` 1.3.0 with libaom 3.12.1 to reproduce the recorded
+`benchmark/results/avif-bounded-row-output-2026-08-09.md` evidence.
+
+The five `libavif-*-color*`, `libavif-paris-*`, and `libavif-seine-*` color
+fixtures are byte-identical files from the Imazen AVIF Conformance corpus at
+revision `28205bbc5cf40364d012c462240ba28143373d67`, sourced from libavif's
+BSD-2-Clause test corpus. They cover linear BT.2020 NCLX conversion, compatible
+RGB matrix/TRC ICC conversion, ISO 21496-1 HDR gain-map application to an sRGB
+SDR alternate, and the `altr` preference rule that makes a swapped-order `tmap`
+inactive. Run `npm run fixtures:avif:color` to check encoded and decoded
+checksums, exact ICC agreement with Sharp/libvips, BT.2020 agreement with
+FFmpeg/zimg (maximum channel error 13, mean error at most 0.5), SDR gain-map
+agreement with libavif 1.3.0 (maximum channel error 4, mean error at most 1),
+and rejection of the non-preferred gain map.
 
 The remaining benchmark corpus is intentionally ignored and can be prepared with
 `npm run fixtures:avif`.

@@ -123,8 +123,107 @@ All notable changes to PureJsImage are documented in this file.
 - Added a fully client-side browser conversion demo with content-based format detection, optional
   transforms, honest timing and memory reporting, and an artifact-only GitHub Pages deployment
   that keeps its generated all-codec bundle out of repository history.
+- Added restricted opaque 8-bit monochrome AVIF decode with luma-only entropy
+  reconstruction, exact Sharp/libaom and FFmpeg luma validation, and real-Chromium
+  displayed-RGB coverage above 60 dB PSNR.
+- Added opaque 8-bit YUV 4:4:4 AVIF decode with full-resolution chroma prediction,
+  transforms, post-filters, and direct RGB conversion; the pinned Fox fixture matches
+  dav1d/libaom YUV exactly and exceeds 50 dB displayed-RGB PSNR against Sharp and Chromium.
+- Added opaque 8-bit YUV 4:2:2 AVIF decode with axis-specific chroma prediction,
+  transforms, restoration, and horizontal RGB upsampling; the pinned Fox fixture
+  matches dav1d/libaom YUV exactly and exceeds 50 dB displayed-RGB PSNR against Sharp.
+- Added compatible AVIF alpha auxiliary-item decoding for straight and premultiplied
+  full-range 8-bit monochrome alpha, plus opaque image-grid composition with cropped
+  edge tiles; deterministic libavif fixtures match Sharp exactly for alpha and exceed
+  54 dB RGBA PSNR for the pinned 1x5 grid.
+- Added AVIF quantizer-context-0 coefficient decoding, coded-lossless 4x4
+  Walsh-Hadamard reconstruction, and container-signaled NCLX conversion including
+  full-range identity color; deterministic lossy and lossless libavif fixtures
+  match Sharp/libavif RGB exactly.
+- Added AV1 luma and chroma palette reconstruction for compatible AVIF screen content,
+  including cache reuse, non-symmetric index coding, and diagonal color-map contexts;
+  the checksum-pinned draw-points fixture matches Sharp/libavif RGBA exactly.
+- Added constrained coded-lossless 10-bit and 12-bit AVIF YUV 4:4:4 decode with
+  native high-depth prediction and coefficient reconstruction before explicit
+  conversion to the 8-bit RGBA contract; pinned fixtures reconstruct source
+  planes exactly and differ from Sharp/libavif displayed RGB by at most one.
+- Added compatible lossy 10-bit YUV 4:4:4 AVIF decode with native high-depth
+  deblocking, CDEF, and Wiener restoration. High-depth CDEF now adjusts its
+  scaled primary strength before filtering, and Wiener convolution preserves
+  the center sample through its biased intermediate. The pinned full-filter
+  fixture matches agreeing dav1d and libaom native YUV byte for byte in Node.js
+  and Chromium.
+- Expanded filter-free lossy high-depth AVIF decode across 10-bit and 12-bit YUV
+  4:2:0, 4:2:2, and 4:4:4 while retaining native `Uint16Array` samples through
+  reconstruction. Six checksum-pinned fixtures match agreeing dav1d and libaom
+  native YUV byte for byte and pin portable RGBA output in Node.js and Chromium.
+  PQ and HLG transfer signaling now remains inspectable as metadata but fails
+  explicitly before the SDR pixel-conversion path.
+- Added `a1lx`, `a1op`, and `lsel` AVIF property parsing and complete frame-unit
+  selection for multi-frame items. A pinned three-frame fixture explicitly selects
+  an independently decodable shown-key spatial layer and matches agreeing dav1d and
+  libaom native YUV byte for byte in Node.js and Chromium. Dependent enhancement
+  layers, frame-dimension overrides, and rendering every intermediate layer remain
+  explicitly unsupported; `lsel=0xFFFF` selects the highest eligible output layer.
+- Added complete coded-lossless multi-tile AV1 frame reconstruction with
+  independent entropy, context, partition, and prediction boundaries. The
+  checksum-pinned 10-bit 2x2 YUV 4:4:4 fixture matches its source and agreeing
+  dav1d/libaom native YUV byte for byte; compatible lossy multi-tile frames and
+  contiguous multi-OBU tile groups are also supported, while multi-tile
+  intra-block-copy remains explicitly unsupported.
+- Added normative eight-tap AV1 super-resolution for one-tile 8-bit AVIF
+  frames, including CDEF-before-upscale and loop-restoration-after-upscale
+  ordering. The filter-free denominator-12 YUV 4:2:0 and YUV 4:4:4 fixtures
+  and the CDEF-plus-Wiener YUV 4:2:0 fixture match agreeing dav1d/libaom
+  native YUV byte for byte. Multi-tile super-resolution remains explicitly
+  unsupported, and the supported path retains full coded and upscaled YUV planes.
+- Expanded deterministic AVIF corruption fuzzing across checksum-pinned
+  super-resolution, high-bit tile, premultiplied-alpha, restoration-unit, and
+  cropped-grid inputs; malformed variants must fail only through `ImageError`.
+- Added constrained skipped intra-block-copy reconstruction for compatible AVIF
+  screen content, including adaptive integer motion vectors and allocation-free
+  in-place plane copies; the pinned 320x280 fixture matches agreeing libaom and
+  dav1d native YUV exactly.
+- Added residual intra-block-copy reconstruction for compatible one-tile AVIF
+  frames, including transform partitions, full-block transform contexts and types,
+  coefficients, inverse transforms, weighted reference-motion candidate stacks,
+  and bilinear chroma prediction for subsampled motion. The pinned monochrome and
+  four Microsoft YUV 4:2:0 still-picture fixtures match agreeing libaom and dav1d
+  native YUV byte for byte, and checksum-pinned entropy mutations verify that
+  superblock-overlapping and plane-escaping motion vectors fail explicitly.
+- Added block delta-Q integration coverage for skipped intra-block copy. The
+  pinned 512x128 YUV 4:4:4 fixture matches agreeing libaom and dav1d native YUV
+  byte for byte; segmentation maps and delta loop-filter combinations remain
+  explicitly unsupported.
+- Added validated AVIF clean-aperture cropping for integer `clap` rectangles
+  without allocating a second full-frame buffer; malformed, out-of-bounds, and
+  fractional apertures fail explicitly, and the pinned fixture matches
+  Sharp/libavif RGBA exactly in Node.js and Chromium.
+- Added AVIF SDR color management for linear and extended-sRGB and linear BT.2020
+  NCLX signaling, compatible RGB matrix/TRC ICC profiles, and ISO 21496-1 gain
+  maps with `altr` preferred-alternative selection and bounded row composition.
+  Pinned outputs match Sharp/libvips exactly for ICC, stay within maximum channel
+  error 13 and mean error 0.5 against FFmpeg/zimg for BT.2020, and stay within
+  maximum channel error 4 and mean error 1 against libavif for HDR-to-SDR gain
+  maps in Node.js and Chromium. PQ/HLG without a compatible SDR alternate,
+  broader ICC/NCLX conversion, gain-map grids, resampling, and alpha remain
+  explicit errors.
 
 ### Changed
+
+- Changed AVIF RGBA conversion, alpha application, clean-aperture output, and
+  opaque-grid composition to ordered row blocks instead of retaining a
+  source-sized RGBA bitmap. Loop restoration now retains only deblocked stripe
+  boundaries and delayed output bands, while CDEF uses reusable source windows
+  and delayed 8-row output bands instead of another padded YUV frame.
+- Changed compatible opaque filter-free AVIF decode to reuse two-superblock YUV,
+  prediction, palette, and coefficient-context rings, copy finalized bands
+  before reuse, and box-filter compatible full-aperture 2x, 4x, and 8x resize
+  input directly from bounded YUV rows before RGBA conversion. Compatible
+  aligned filter-free alpha auxiliaries use a synchronized second reconstruction
+  ring. Every AVIF decoder path now rejects coded payload plus conservatively
+  estimated working state above 64 MiB; post-filtered, rotated-alpha, and grid
+  paths retain their documented full-frame YUV reconstruction fallback.
 
 - Moved HEIF/HEIC decode to the explicit
   `purejsimage/codecs/experimental/heic` entry, removed it from `allCodecs` and
@@ -135,6 +234,46 @@ All notable changes to PureJsImage are documented in this file.
   warm operation from 10.6 seconds to 2.5 seconds while peak use remained about 120 MiB.
 
 ### Fixed
+
+- Corrected AV1 CDEF primary-direction selection for Kodak's remaining luma
+  sample; both full-size Kodak and Fox post-filter fixtures now match agreeing
+  dav1d and libaom native YUV byte for byte.
+- Added lossy 8-bit AVIF multi-tile reconstruction with independent tile
+  contexts and one full-frame deblocking, CDEF, and restoration pass; the pinned
+  2x2 YUV 4:2:0 fixture matches agreeing dav1d and libaom native YUV byte for
+  byte in Node.js and Chromium.
+- Added coded-lossless 10-bit and 12-bit AVIF YUV 4:2:0 decode and filter-free
+  lossy 10-bit YUV 4:4:4 decode using the normative depth-specific AV1
+  dequantization tables; three pinned fixtures match agreeing dav1d and libaom
+  native YUV byte for byte in Node.js and Chromium.
+- Added compatible non-reduced AV1 shown key-frame headers and complete
+  contiguous tile-group OBU assembly for AVIF decode; a pinned 2x2 YUV 4:2:0
+  frame split across four groups matches agreeing dav1d and libaom native YUV
+  byte for byte in Node.js and Chromium.
+- Bounded compatible filter-free AV1 super-resolution decode to reusable
+  upscaled luma and chroma bands instead of full upscaled planes; a pinned
+  multi-band YUV 4:2:0 fixture preserves the reconstruction-ring chroma halo in
+  Node.js and Chromium. Corrected inherited maximum-RSS high-water accounting:
+  the 2048x1536 probe reduces median absolute maximum RSS from 139.2 MB to
+  118.1 MB and median peak RSS growth from 40.4 MB to 18.4 MB.
+  Peak external and ArrayBuffer growth fall by 49.6% and 50.5%, respectively.
+  Memory workers now reject stale inherited high-water marks.
+- Added compatible `still_picture=0` AV1 sequence headers for static AVIF items
+  containing one shown key frame at maximum dimensions. The pinned 1920x1080
+  fixture matches agreeing dav1d and libaom native YUV byte for byte and its
+  portable RGBA output is pinned in Chromium.
+- Animated `avis` pixel decode now fails with `UNSUPPORTED_OPERATION` instead
+  of silently presenting the primary item as a supported one-frame image.
+- Corrected AV1 coefficient all-zero contexts to use full coded block dimensions
+  across bounded reconstruction chunks and retained palette-mode above context
+  across 64-pixel row boundaries. Three pinned FFmpeg/libaom and Sharp/libaom
+  fixtures now match agreeing dav1d and libaom native YUV byte for byte in
+  Node.js, with their portable RGBA output pinned in Chromium.
+- Expanded the checksum-recorded 237-file AVIF compatibility survey to 162
+  completed decodes: all 100 GB82 common-photo encodings and 62 of 137
+  conformance/invalid/edge inputs. All 116 previously completed RGBA checksums
+  remain unchanged, and the sole remaining entropy/reconstruction error is an
+  intentionally corrupted conformance input.
 
 - Kept the nested packed-declaration smoke test operational during `npm pack --dry-run`, so the
   documented release gate validates package contents instead of inheriting npm's outer dry-run mode.

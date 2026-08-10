@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
 
 import { parseAv1Frame } from '../../src/codecs/av1-frame.ts'
-import { decodeRestrictedAv1Intra, type Av1Yuv420Frame } from '../../src/codecs/av1-intra.ts'
+import { decodeRestrictedAv1Intra, type Av1DecodedFrame } from '../../src/codecs/av1-intra.ts'
 import { av1ObuType } from '../../src/codecs/av1.ts'
 import { inspectAvifBitstreams } from '../../src/codecs/avif.ts'
 import { MemorySource } from '../../src/source.ts'
@@ -22,7 +22,7 @@ interface PlaneComparison {
   readonly width: number
 }
 
-const packVisibleYuv = (frame: Av1Yuv420Frame): Uint8Array => {
+const packVisibleYuv = (frame: Av1DecodedFrame): Uint8Array => {
   const output = new Uint8Array(
     frame.width * frame.height + 2 * frame.chromaWidth * frame.chromaHeight,
   )

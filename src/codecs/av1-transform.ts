@@ -1,37 +1,7 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { Av1FrameHeader } from './av1-frame.ts'
 import { av1InverseQuantizationMatrix } from './av1-qmatrix.ts'
-
-const dcQuant8 = new Uint16Array([
-  4, 8, 8, 9, 10, 11, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 23, 24, 25, 26, 26, 27,
-  28, 29, 30, 31, 32, 32, 33, 34, 35, 36, 37, 38, 38, 39, 40, 41, 42, 43, 43, 44, 45, 46, 47, 48,
-  48, 49, 50, 51, 52, 53, 53, 54, 55, 56, 57, 57, 58, 59, 60, 61, 62, 62, 63, 64, 65, 66, 66, 67,
-  68, 69, 70, 70, 71, 72, 73, 74, 74, 75, 76, 77, 78, 78, 79, 80, 81, 81, 82, 83, 84, 85, 85, 87,
-  88, 90, 92, 93, 95, 96, 98, 99, 101, 102, 104, 105, 107, 108, 110, 111, 113, 114, 116, 117, 118,
-  120, 121, 123, 125, 127, 129, 131, 134, 136, 138, 140, 142, 144, 146, 148, 150, 152, 154, 156,
-  158, 161, 164, 166, 169, 172, 174, 177, 180, 182, 185, 187, 190, 192, 195, 199, 202, 205, 208,
-  211, 214, 217, 220, 223, 226, 230, 233, 237, 240, 243, 247, 250, 253, 257, 261, 265, 269, 272,
-  276, 280, 284, 288, 292, 296, 300, 304, 309, 313, 317, 322, 326, 330, 335, 340, 344, 349, 354,
-  359, 364, 369, 374, 379, 384, 389, 395, 400, 406, 411, 417, 423, 429, 435, 441, 447, 454, 461,
-  467, 475, 482, 489, 497, 505, 513, 522, 530, 539, 549, 559, 569, 579, 590, 602, 614, 626, 640,
-  654, 668, 684, 700, 717, 736, 755, 775, 796, 819, 843, 869, 896, 925, 955, 988, 1022, 1058, 1098,
-  1139, 1184, 1232, 1282, 1336,
-])
-const acQuant8 = new Uint16Array([
-  4, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-  32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55,
-  56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
-  80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102,
-  104, 106, 108, 110, 112, 114, 116, 118, 120, 122, 124, 126, 128, 130, 132, 134, 136, 138, 140,
-  142, 144, 146, 148, 150, 152, 155, 158, 161, 164, 167, 170, 173, 176, 179, 182, 185, 188, 191,
-  194, 197, 200, 203, 207, 211, 215, 219, 223, 227, 231, 235, 239, 243, 247, 251, 255, 260, 265,
-  270, 275, 280, 285, 290, 295, 300, 305, 311, 317, 323, 329, 335, 341, 347, 353, 359, 366, 373,
-  380, 387, 394, 401, 408, 416, 424, 432, 440, 448, 456, 465, 474, 483, 492, 501, 510, 520, 530,
-  540, 550, 560, 571, 582, 593, 604, 615, 627, 639, 651, 663, 676, 689, 702, 715, 729, 743, 757,
-  771, 786, 801, 816, 832, 848, 864, 881, 898, 915, 933, 951, 969, 988, 1007, 1026, 1046, 1066,
-  1087, 1108, 1129, 1151, 1173, 1196, 1219, 1243, 1267, 1292, 1317, 1343, 1369, 1396, 1423, 1451,
-  1479, 1508, 1537, 1567, 1597, 1628, 1660, 1692, 1725, 1759, 1793, 1828,
-])
+import { av1AcQuantizers, av1DcQuantizers } from './av1-quant.ts'
 
 const roundedShift = (value: number, bits: number): number =>
   bits === 0 ? value : Math.floor((value + 2 ** (bits - 1)) / 2 ** bits)
@@ -42,7 +12,10 @@ const cosineTable = Int16Array.from({ length: 256 }, (_, angle) =>
 const cosine = (angle: number): number => cosineTable[angle & 255] ?? 0
 const sine = (angle: number): number => cosine(angle - 64)
 
-const clampTransform = (value: number): number => Math.max(-32768, Math.min(32767, value))
+let transformClampMinimum = -32768
+let transformClampMaximum = 32767
+const clampTransform = (value: number): number =>
+  Math.max(transformClampMinimum, Math.min(transformClampMaximum, value))
 
 const butterfly = (
   values: Int32Array,
@@ -360,6 +333,20 @@ const inverseIdentity = (input: ArrayLike<number>): Int32Array => {
   }
   return output
 }
+const inverseWht4 = (input: ArrayLike<number>, shift: number): Int32Array => {
+  let a = (input[0] ?? 0) >> shift
+  let c = (input[1] ?? 0) >> shift
+  let d = (input[2] ?? 0) >> shift
+  let b = (input[3] ?? 0) >> shift
+  a += c
+  d -= b
+  const e = (a - d) >> 1
+  b = e - b
+  c = e - c
+  a -= b
+  d += c
+  return Int32Array.of(a, b, c, d)
+}
 
 const rowDctMask = (1 << 0) | (1 << 1) | (1 << 4) | (1 << 11)
 const rowAdstMask =
@@ -378,11 +365,13 @@ const dequantizeAv1Coefficients = (
   plane: 0 | 1 | 2,
   header: Av1FrameHeader,
   quantizer: number,
+  bitDepth: 8 | 10 | 12,
 ): Int32Array => {
   const dcDelta = plane === 0 ? header.deltaYDc : plane === 1 ? header.deltaUDc : header.deltaVDc
   const acDelta = plane === 0 ? 0 : plane === 1 ? header.deltaUAc : header.deltaVAc
-  const dc = dcQuant8[Math.max(0, Math.min(255, quantizer + dcDelta))]
-  const ac = acQuant8[Math.max(0, Math.min(255, quantizer + acDelta))]
+  const depthIndex = (bitDepth - 8) >> 1
+  const dc = av1DcQuantizers[depthIndex]?.[Math.max(0, Math.min(255, quantizer + dcDelta))]
+  const ac = av1AcQuantizers[depthIndex]?.[Math.max(0, Math.min(255, quantizer + acDelta))]
   if (dc === undefined || ac === undefined) throw invalidInput('AV1 quantizer index is invalid')
   const matrixLevel = plane === 0 ? header.qmY : plane === 1 ? header.qmU : header.qmV
   const matrix =
@@ -407,9 +396,13 @@ const dequantizeAv1Coefficients = (
         : 32
     const weighted = matrix ? roundedShift(quantization * matrixWeight, 5) : quantization
     const scaled = (quantized[index] ?? 0) * weighted
+    const coefficientLimit = 2 ** (bitDepth + 7)
     const value = Math.max(
-      -32768,
-      Math.min(32767, Math.sign(scaled) * Math.floor(Math.abs(scaled) / dequantizerDivisor)),
+      -coefficientLimit,
+      Math.min(
+        coefficientLimit - 1,
+        Math.sign(scaled) * Math.floor(Math.abs(scaled) / dequantizerDivisor),
+      ),
     )
     dequantized[index] = rectangularScale ? roundedShift(value * 181, 8) : value
   }
@@ -424,6 +417,7 @@ export const inverseTransform = (
   plane: 0 | 1 | 2,
   header: Av1FrameHeader,
   quantizer = header.baseQuantizer,
+  bitDepth: 8 | 10 | 12 = 8,
 ): Int32Array => {
   if (transformType < 0 || transformType > 15) {
     throw unsupportedOperation(`Unsupported AV1 transform type ${transformType}`)
@@ -436,7 +430,34 @@ export const inverseTransform = (
     plane,
     header,
     quantizer,
+    bitDepth,
   )
+  if (header.codedLossless) {
+    if (width !== 4 || height !== 4) {
+      throw invalidInput(
+        `Lossless AV1 transform dimensions must be 4x4, received ${width}x${height}`,
+      )
+    }
+    const intermediate = new Int32Array(16)
+    for (let row = 0; row < 4; row += 1) {
+      const transformed = inverseWht4(dequantized.subarray(row * 4, row * 4 + 4), 2)
+      for (let column = 0; column < 4; column += 1) {
+        intermediate[row * 4 + column] = transformed[column] ?? 0
+      }
+    }
+    const residual = new Int32Array(16)
+    const columnInput = new Int32Array(4)
+    for (let column = 0; column < 4; column += 1) {
+      for (let row = 0; row < 4; row += 1) {
+        columnInput[row] = intermediate[row * 4 + column] ?? 0
+      }
+      const transformed = inverseWht4(columnInput, 0)
+      for (let row = 0; row < 4; row += 1) {
+        residual[row * 4 + column] = transformed[row] ?? 0
+      }
+    }
+    return residual
+  }
   const intermediate = new Int32Array(width * height)
   const rowUsesDct = ((rowDctMask >>> transformType) & 1) !== 0
   const rowUsesAdst = ((rowAdstMask >>> transformType) & 1) !== 0
@@ -456,16 +477,25 @@ export const inverseTransform = (
         : Math.min(width, height) >= 8
           ? 1
           : 0
+  const rowClampMinimum = bitDepth === 8 ? -32768 : -(2 ** (bitDepth + 7))
+  const rowClampMaximum = -rowClampMinimum - 1
+  const columnClampMinimum = bitDepth === 8 ? -32768 : -(2 ** (bitDepth + 5))
+  const columnClampMaximum = -columnClampMinimum - 1
+  transformClampMinimum = rowClampMinimum
+  transformClampMaximum = rowClampMaximum
   for (let row = 0; row < height; row += 1) {
     const input = dequantized.subarray(row * width, row * width + width)
     const transformed =
       rowUsesDct || rowUsesAdst ? oneDimensional(input, rowUsesAdst) : inverseIdentity(input)
     for (let column = 0; column < width; column += 1) {
-      intermediate[row * width + column] = clampTransform(
-        roundedShift(transformed[column] ?? 0, rowShift),
+      intermediate[row * width + column] = Math.max(
+        columnClampMinimum,
+        Math.min(columnClampMaximum, roundedShift(transformed[column] ?? 0, rowShift)),
       )
     }
   }
+  transformClampMinimum = columnClampMinimum
+  transformClampMaximum = columnClampMaximum
   const residual = new Int32Array(width * height)
   const columnInput = new Int32Array(height)
   for (let column = 0; column < width; column += 1) {

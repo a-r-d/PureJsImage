@@ -40,6 +40,8 @@ export interface Av1SequenceHeader {
   readonly stillPicture: boolean
   readonly reducedStillPictureHeader: boolean
   readonly operatingPoints: readonly Av1OperatingPoint[]
+  readonly decoderModelInfoPresent: boolean
+  readonly frameIdNumbersPresent: boolean
   readonly maxFrameWidth: number
   readonly maxFrameHeight: number
   readonly use128x128Superblock: boolean
@@ -287,9 +289,13 @@ export const parseAv1SequenceHeader = (data: Uint8Array): Av1SequenceHeader => {
   const frameHeightBits = reader.readBits(4) + 1
   const maxFrameWidth = reader.readBits(frameWidthBits) + 1
   const maxFrameHeight = reader.readBits(frameHeightBits) + 1
-  if (!reducedStillPictureHeader && reader.readBit() === 1) {
-    reader.readBits(4)
-    reader.readBits(3)
+  let frameIdNumbersPresent = false
+  if (!reducedStillPictureHeader) {
+    frameIdNumbersPresent = reader.readBit() === 1
+    if (frameIdNumbersPresent) {
+      reader.readBits(4)
+      reader.readBits(3)
+    }
   }
 
   const use128x128Superblock = reader.readBit() === 1
@@ -384,6 +390,8 @@ export const parseAv1SequenceHeader = (data: Uint8Array): Av1SequenceHeader => {
     stillPicture,
     reducedStillPictureHeader,
     operatingPoints,
+    decoderModelInfoPresent,
+    frameIdNumbersPresent,
     maxFrameWidth,
     maxFrameHeight,
     use128x128Superblock,

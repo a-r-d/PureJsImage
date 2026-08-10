@@ -64,4 +64,22 @@ export const avifPostFilterFixtures: readonly AvifPostFilterFixture[] = [
     fileSha256: '402c303b0c11bfa807296899542e63f38a583fc2f6cdc5d71994da6354bed194',
     yuvSha256: '76dafc8db06b678046b403d02e250b17f6c6701196b10f944b75ecf757e033e8',
   },
+  {
+    id: 'kodak-full-frame',
+    file: 'kodim03_yuv420_8bpc.avif',
+    width: 768,
+    height: 512,
+    filters: ['deblock', 'cdef'],
+    fileSha256: 'e69c973a3ddf635412c9a0c6cda66798102d0030303614873b337f658983ef5d',
+    yuvSha256: 'da7b61978064138c9ced65763ea1071f77a2c598651add62ab6bc984c9265bb6',
+  },
+  {
+    id: 'fox-full-frame',
+    file: 'fox.profile0.8bpc.yuv420.avif',
+    width: 1204,
+    height: 800,
+    filters: ['deblock', 'cdef', 'wiener', 'self-guided'],
+    fileSha256: 'a0ae1ad1aea81291730f42259593b297a8444699f4553de8dc25da2db56a40d9',
+    yuvSha256: 'a9f523bde5a466a809c019a31731e902b6039e94310ae7f5128b78416892c02d',
+  },
 ]
