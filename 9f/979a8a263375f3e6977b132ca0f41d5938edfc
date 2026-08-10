@@ -1,0 +1,22 @@
+src/codecs/icc.ts
+  h_9f4a25732fa0c1 779-786
+src/codecs/tiff.ts
+  h_9f4a25732fa0c1 26,30,33,411,1579,1588-1595,1741,3575-3592
+tests/icc-fixtures.ts
+  h_9f4a25732fa0c1 161-207
+tests/jpeg.test.ts
+  h_9f4a25732fa0c1 14-18
+tests/tiff.test.ts
+  h_9f4a25732fa0c1 11,2113-2210
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "9f979a8a263375f3e6977b132ca0f41d5938edfc",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
