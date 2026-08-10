@@ -1,0 +1,56 @@
+.gitignore
+  h_9f4a25732fa0c1 167,177
+CHANGELOG.md
+  h_9f4a25732fa0c1 54-60
+avif-codec-support.md
+  h_9f4a25732fa0c1 99,105-106,148-149,197-200,333-339
+benchmark/avif/high-bit-lossless-fixtures.ts
+  h_9f4a25732fa0c1 1-44
+benchmark/avif/prepare-high-bit-lossless-fixtures.ts
+  h_9f4a25732fa0c1 1-64
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 16-20,60-67
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 554-579,776-777,780
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 110-130
+browser-tests/types.ts
+  h_9f4a25732fa0c1 11-12,15
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1648-1649,1655,1657,1768,1774-1775,1817-1818,1866-1869,2002-2008
+docs/capabilities.json
+  h_9f4a25732fa0c1 3148-3149,3162,3164,3415-3418,3528-3529,3616-3617,3621-3625,3907-3918
+docs/codecs.html
+  h_9f4a25732fa0c1 40,60
+package.json
+  h_9f4a25732fa0c1 157
+scripts/generate-av1-palette-cdfs.ts
+  h_9f4a25732fa0c1 1-87
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 322-333
+src/codecs/av1-intra.ts
+  h_9f4a25732fa0c1 5-10,328,336,351,354-359,364,372,489-490,496-497,499,504,509-516,674-675,681-682,695-698,745-746,753-762,1127-1161,1163-1169,1230-1281,1313,1342,1369,1378-1386,1419-1623,1728,1746-1748,1754-1759,1761-1772,1901,1917,1986-1988,1997-1998,2001,2003,2005-2006,2014,2016,2018-2019,2024,2026,2028-2029,2031,2034-2035,2063,2066,2069,2075,2081,2104-2106,2110,2112,2121-2124,2130-2131,2137-2138,2176-2177,2221-2224,2241-2243,2246,2248,2250-2251,2253-2258,2261,2264,2267,2274,2276,2281,2284,2288,2297,2304,2318-2329,2331,2354-2355,2357,2363,2369,2376-2379,2396,2404,2414-2417,2433-2438,2443-2447,2466-2468,2483-2497,2502-2506,2516-2517,2527-2528,2538-2540
+src/codecs/av1-palette-cdfs.ts
+  h_9f4a25732fa0c1 1-170
+src/codecs/av1-post-filter.ts
+  h_9f4a25732fa0c1 4
+src/codecs/av1-symbol.ts
+  h_9f4a25732fa0c1 43-52
+src/codecs/av1-transform.ts
+  h_9f4a25732fa0c1 395,425,427-431,446,459,471
+tests/avif.test.ts
+  h_9f4a25732fa0c1 5,14-17,19-21,395-462
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 131,133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "dbb18643579efd055ad2779732150cebef6dcff4",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
