@@ -178,7 +178,10 @@ const writeBmpGradient = async (fixture: GeneratedCorpusFixture): Promise<void> 
   }
 }
 
-const writeTiffGradient = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+const writeTiffGradient = async (
+  fixture: GeneratedCorpusFixture,
+  photometric: 2 | 8 = 2,
+): Promise<void> => {
   const { width, height } = fixture.expected
   const rowsPerStrip = 32
   const stripCount = Math.ceil(height / rowsPerStrip)
@@ -213,7 +216,7 @@ const writeTiffGradient = async (fixture: GeneratedCorpusFixture): Promise<void>
   writeEntry(257, 4, 1, height)
   writeEntry(258, 3, 3, bitsOffset)
   writeEntry(259, 3, 1, 1)
-  writeEntry(262, 3, 1, 2)
+  writeEntry(262, 3, 1, photometric)
   writeEntry(273, 4, stripCount, stripOffsetsOffset)
   writeEntry(277, 3, 1, 3)
   writeEntry(278, 4, 1, rowsPerStrip)
@@ -249,8 +252,101 @@ const writeTiffGradient = async (fixture: GeneratedCorpusFixture): Promise<void>
       for (let x = 0; x < width; x += 1) {
         const offset = x * 3
         row[offset] = Math.round((x / (width - 1)) * 255)
-        row[offset + 1] = Math.round((y / (height - 1)) * 255)
-        row[offset + 2] = (x + y) & 0xff
+        row[offset + 1] =
+          photometric === 8
+            ? (Math.round((y / (height - 1)) * 160 - 80) + 256) & 0xff
+            : Math.round((y / (height - 1)) * 255)
+        row[offset + 2] =
+          photometric === 8 ? (((x * 13 + y * 7) % 161) - 80 + 256) & 0xff : (x + y) & 0xff
+      }
+      await file.write(row)
+    }
+  } finally {
+    await file.close()
+  }
+}
+
+const writePacked6FillOrderTiff = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+  const { width, height } = fixture.expected
+  const rowsPerStrip = 32
+  const stripCount = Math.ceil(height / rowsPerStrip)
+  const rowBytes = Math.ceil((width * 6) / 8)
+  const entryCount = 12
+  const ifdOffset = 8
+  const ifdBytes = 2 + entryCount * 12 + 4
+  const stripOffsetsOffset = ifdOffset + ifdBytes
+  const stripByteCountsOffset = stripOffsetsOffset + stripCount * 4
+  const pixelsOffset = stripByteCountsOffset + stripCount * 4
+  const header = Buffer.alloc(pixelsOffset)
+  const view = new DataView(header.buffer, header.byteOffset, header.byteLength)
+  header.set([0x49, 0x49])
+  view.setUint16(2, 42, true)
+  view.setUint32(4, ifdOffset, true)
+  view.setUint16(ifdOffset, entryCount, true)
+
+  let entryOffset = ifdOffset + 2
+  const writeEntry = (tag: number, fieldType: number, count: number, value: number): void => {
+    view.setUint16(entryOffset, tag, true)
+    view.setUint16(entryOffset + 2, fieldType, true)
+    view.setUint32(entryOffset + 4, count, true)
+    if (fieldType === 3 && count === 1) view.setUint16(entryOffset + 8, value, true)
+    else view.setUint32(entryOffset + 8, value, true)
+    entryOffset += 12
+  }
+  writeEntry(256, 4, 1, width)
+  writeEntry(257, 4, 1, height)
+  writeEntry(258, 3, 1, 6)
+  writeEntry(259, 3, 1, 1)
+  writeEntry(262, 3, 1, 1)
+  writeEntry(266, 3, 1, 2)
+  writeEntry(273, 4, stripCount, stripOffsetsOffset)
+  writeEntry(277, 3, 1, 1)
+  writeEntry(278, 4, 1, rowsPerStrip)
+  writeEntry(279, 4, stripCount, stripByteCountsOffset)
+  writeEntry(284, 3, 1, 1)
+  writeEntry(339, 3, 1, 1)
+  view.setUint32(entryOffset, 0, true)
+
+  let stripOffset = pixelsOffset
+  for (let strip = 0; strip < stripCount; strip += 1) {
+    const rows = Math.min(rowsPerStrip, height - strip * rowsPerStrip)
+    const byteCount = rows * rowBytes
+    view.setUint32(stripOffsetsOffset + strip * 4, stripOffset, true)
+    view.setUint32(stripByteCountsOffset + strip * 4, byteCount, true)
+    stripOffset += byteCount
+  }
+
+  const reversed = new Uint8Array(256)
+  for (let value = 0; value < 256; value += 1) {
+    let source = value
+    let target = 0
+    for (let bit = 0; bit < 8; bit += 1) {
+      target = (target << 1) | (source & 1)
+      source >>>= 1
+    }
+    reversed[value] = target
+  }
+  const file = await open(fixturePath(fixture), 'w')
+  try {
+    await file.write(header)
+    const row = Buffer.allocUnsafe(rowBytes)
+    for (let y = 0; y < height; y += 1) {
+      let accumulator = 0
+      let bufferedBits = 0
+      let outputOffset = 0
+      for (let x = 0; x < width; x += 1) {
+        const sample = (x * 17 + y * 29) & 63
+        accumulator = (accumulator << 6) | sample
+        bufferedBits += 6
+        if (bufferedBits >= 8) {
+          bufferedBits -= 8
+          row[outputOffset] = reversed[(accumulator >>> bufferedBits) & 0xff] ?? 0
+          outputOffset += 1
+          accumulator &= (1 << bufferedBits) - 1
+        }
+      }
+      if (bufferedBits > 0) {
+        row[outputOffset] = reversed[(accumulator << (8 - bufferedBits)) & 0xff] ?? 0
       }
       await file.write(row)
     }
@@ -767,6 +863,10 @@ const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
       return writeStreamingStressPng(fixture)
     case 'tiff-gradient':
       return writeTiffGradient(fixture)
+    case 'tiff-cielab8-strip':
+      return writeTiffGradient(fixture, 8)
+    case 'tiff-fillorder6-strip':
+      return writePacked6FillOrderTiff(fixture)
     case 'tiff-bigtiff-rgb16':
       return writeBigTiffRgb16(fixture)
     case 'tiff-cmyk8-planar':

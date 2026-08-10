@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-10T12:36:37.133Z",
+  "generatedAt": "2026-08-10T13:31:16.587Z",
   "pureJsImageVersion": "0.8.0",
-  "pureJsImageGitCommit": "16e662c03a6a2de62ddfa721145e240aaadf3b80-dirty",
+  "pureJsImageGitCommit": "bbeb1a1079f602cdd2299aa62c98c8ee5fb34d31-dirty",
   "codecCorpusGitCommit": "28205bbc5cf40364d012c462240ba28143373d67",
   "nodeVersion": "v24.16.0",
   "platform": "linux-x64",
@@ -414,7 +414,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
       "sanitizedErrorMessage": "TIFF supports at most one alpha sample",
-      "elapsedMs": 206,
+      "elapsedMs": 170,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -432,7 +432,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 220,
+      "elapsedMs": 180,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -450,7 +450,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 199,
+      "elapsedMs": 192,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -468,7 +468,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 245,
+      "elapsedMs": 208,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -486,7 +486,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 922,
+      "elapsedMs": 842,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -504,7 +504,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "TRUNCATED_INPUT",
       "sanitizedErrorMessage": "TIFF segment 0 exceeds the input",
-      "elapsedMs": 192,
+      "elapsedMs": 182,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -522,7 +522,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "INVALID_INPUT",
       "sanitizedErrorMessage": "TIFF top-level IFD chain contains a loop",
-      "elapsedMs": 182,
+      "elapsedMs": 180,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -540,7 +540,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "INVALID_INPUT",
       "sanitizedErrorMessage": "TIFF top-level IFD chain contains a loop",
-      "elapsedMs": 169,
+      "elapsedMs": 185,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -558,7 +558,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "INVALID_INPUT",
       "sanitizedErrorMessage": "TIFF top-level IFD chain contains a loop",
-      "elapsedMs": 176,
+      "elapsedMs": 164,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -576,7 +576,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 197,
+      "elapsedMs": 182,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -594,7 +594,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 216,
+      "elapsedMs": 194,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -612,7 +612,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 213,
+      "elapsedMs": 185,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -630,7 +630,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 194,
+      "elapsedMs": 185,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -648,7 +648,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 320,
+      "elapsedMs": 275,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -666,7 +666,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 197,
+      "elapsedMs": 181,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -684,7 +684,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 185,
+      "elapsedMs": 181,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -702,7 +702,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 184,
+      "elapsedMs": 176,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -720,7 +720,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 296,
+      "elapsedMs": 266,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -738,7 +738,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 237,
+      "elapsedMs": 249,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -756,7 +756,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 198,
+      "elapsedMs": 190,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -774,7 +774,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 239,
+      "elapsedMs": 210,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -792,7 +792,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 263,
+      "elapsedMs": 241,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -810,7 +810,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 292,
+      "elapsedMs": 246,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -828,7 +828,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 261,
+      "elapsedMs": 267,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -846,7 +846,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 180,
+      "elapsedMs": 192,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -864,7 +864,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 224,
+      "elapsedMs": 235,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -882,7 +882,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 303,
+      "elapsedMs": 298,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -900,7 +900,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 178,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -918,7 +918,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 186,
+      "elapsedMs": 180,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -936,7 +936,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 363,
+      "elapsedMs": 342,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -954,7 +954,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 304,
+      "elapsedMs": 266,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -972,7 +972,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 217,
+      "elapsedMs": 186,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -990,7 +990,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 201,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1008,7 +1008,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 193,
+      "elapsedMs": 185,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1026,7 +1026,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 201,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1044,7 +1044,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 194,
+      "elapsedMs": 193,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1062,7 +1062,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 188,
+      "elapsedMs": 199,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1080,7 +1080,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 186,
+      "elapsedMs": 207,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1098,7 +1098,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 197,
+      "elapsedMs": 191,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1116,7 +1116,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 193,
+      "elapsedMs": 241,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1134,7 +1134,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 190,
+      "elapsedMs": 228,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1152,7 +1152,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 197,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1170,7 +1170,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 233,
+      "elapsedMs": 221,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1188,7 +1188,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 221,
+      "elapsedMs": 230,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1206,7 +1206,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 266,
+      "elapsedMs": 260,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1224,7 +1224,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 206,
+      "elapsedMs": 195,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1242,7 +1242,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 218,
+      "elapsedMs": 208,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1260,7 +1260,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 216,
+      "elapsedMs": 203,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1278,7 +1278,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 224,
+      "elapsedMs": 210,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1296,7 +1296,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 194,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1314,7 +1314,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 203,
+      "elapsedMs": 210,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1332,7 +1332,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 228,
+      "elapsedMs": 192,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1350,7 +1350,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 203,
+      "elapsedMs": 191,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1368,7 +1368,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 228,
+      "elapsedMs": 186,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1386,7 +1386,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 210,
+      "elapsedMs": 198,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1404,7 +1404,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 187,
+      "elapsedMs": 182,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1422,7 +1422,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 191,
+      "elapsedMs": 186,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1440,7 +1440,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 204,
+      "elapsedMs": 194,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1458,7 +1458,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 192,
+      "elapsedMs": 189,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1476,7 +1476,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 183,
+      "elapsedMs": 210,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1494,7 +1494,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 188,
+      "elapsedMs": 192,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1512,7 +1512,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 182,
+      "elapsedMs": 190,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1530,7 +1530,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 208,
+      "elapsedMs": 191,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1548,7 +1548,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 190,
+      "elapsedMs": 196,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1566,7 +1566,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 197,
+      "elapsedMs": 190,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1584,7 +1584,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 196,
+      "elapsedMs": 234,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1602,7 +1602,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 207,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1620,7 +1620,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 344,
+      "elapsedMs": 345,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1638,7 +1638,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 184,
+      "elapsedMs": 194,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1656,7 +1656,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 190,
+      "elapsedMs": 181,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1674,7 +1674,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 185,
+      "elapsedMs": 183,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1692,7 +1692,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 202,
+      "elapsedMs": 181,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1710,7 +1710,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 203,
+      "elapsedMs": 189,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1728,7 +1728,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 195,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1764,7 +1764,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 203,
+      "elapsedMs": 204,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1782,7 +1782,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 195,
+      "elapsedMs": 191,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1800,7 +1800,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 211,
+      "elapsedMs": 191,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1818,7 +1818,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 220,
+      "elapsedMs": 201,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1836,7 +1836,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 208,
+      "elapsedMs": 191,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1854,7 +1854,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
       "sanitizedErrorMessage": "TIFF compression 50000 is unsupported",
-      "elapsedMs": 173,
+      "elapsedMs": 164,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1872,7 +1872,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 202,
+      "elapsedMs": 206,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1890,7 +1890,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 204,
+      "elapsedMs": 215,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1908,7 +1908,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 217,
+      "elapsedMs": 209,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1926,7 +1926,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 196,
+      "elapsedMs": 183,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1944,7 +1944,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 193,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1962,7 +1962,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 210,
+      "elapsedMs": 195,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1980,7 +1980,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 249,
+      "elapsedMs": 243,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -1998,7 +1998,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 203,
+      "elapsedMs": 210,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2016,7 +2016,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 223,
+      "elapsedMs": 211,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2034,7 +2034,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 264,
+      "elapsedMs": 216,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2052,7 +2052,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 339,
+      "elapsedMs": 332,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2070,7 +2070,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 356,
+      "elapsedMs": 319,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2088,7 +2088,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 216,
+      "elapsedMs": 212,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2106,7 +2106,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 212,
+      "elapsedMs": 195,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2124,7 +2124,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 242,
+      "elapsedMs": 211,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2142,7 +2142,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 215,
+      "elapsedMs": 183,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2160,7 +2160,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 1706,
+      "elapsedMs": 1594,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2178,7 +2178,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 291,
+      "elapsedMs": 269,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2196,7 +2196,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 219,
+      "elapsedMs": 206,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2214,7 +2214,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 197,
+      "elapsedMs": 181,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2232,7 +2232,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 226,
+      "elapsedMs": 253,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2250,7 +2250,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 202,
+      "elapsedMs": 193,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2268,7 +2268,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 219,
+      "elapsedMs": 178,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2286,7 +2286,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 203,
+      "elapsedMs": 190,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2304,7 +2304,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 254,
+      "elapsedMs": 274,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2322,7 +2322,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 216,
+      "elapsedMs": 203,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2340,7 +2340,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 219,
+      "elapsedMs": 223,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2358,7 +2358,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 240,
+      "elapsedMs": 226,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2376,7 +2376,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 298,
+      "elapsedMs": 278,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2394,7 +2394,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 214,
+      "elapsedMs": 228,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2412,7 +2412,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 230,
+      "elapsedMs": 239,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2430,7 +2430,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 229,
+      "elapsedMs": 234,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2448,7 +2448,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 199,
+      "elapsedMs": 214,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2466,7 +2466,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 200,
+      "elapsedMs": 203,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2484,7 +2484,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 192,
+      "elapsedMs": 204,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2502,7 +2502,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 272,
+      "elapsedMs": 276,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2520,7 +2520,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 264,
+      "elapsedMs": 270,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2538,7 +2538,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 234,
+      "elapsedMs": 239,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2556,7 +2556,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 407,
+      "elapsedMs": 276,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2574,7 +2574,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 266,
+      "elapsedMs": 267,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2592,7 +2592,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 241,
+      "elapsedMs": 246,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2610,7 +2610,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 243,
+      "elapsedMs": 263,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2628,7 +2628,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 266,
+      "elapsedMs": 278,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2646,7 +2646,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 232,
+      "elapsedMs": 253,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2664,7 +2664,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 180,
+      "elapsedMs": 203,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2682,7 +2682,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 195,
+      "elapsedMs": 181,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2700,7 +2700,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 185,
+      "elapsedMs": 182,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2718,7 +2718,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 221,
+      "elapsedMs": 219,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2736,7 +2736,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 204,
+      "elapsedMs": 201,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2754,7 +2754,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 211,
+      "elapsedMs": 198,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2772,7 +2772,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 194,
+      "elapsedMs": 190,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2790,7 +2790,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 227,
+      "elapsedMs": 231,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2808,7 +2808,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 210,
+      "elapsedMs": 217,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2826,7 +2826,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 238,
+      "elapsedMs": 233,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2844,7 +2844,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 190,
+      "elapsedMs": 207,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2862,7 +2862,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 191,
+      "elapsedMs": 203,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2880,7 +2880,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 194,
+      "elapsedMs": 189,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2898,7 +2898,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 514,
+      "elapsedMs": 440,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2916,7 +2916,7 @@
       "lastCompletedStage": "open",
       "structuredErrorCode": "UNSUPPORTED_OPERATION",
       "sanitizedErrorMessage": "TIFF compression 32809 is unsupported",
-      "elapsedMs": 201,
+      "elapsedMs": 164,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2934,7 +2934,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 332,
+      "elapsedMs": 333,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2952,7 +2952,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 194,
+      "elapsedMs": 187,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2970,7 +2970,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 352,
+      "elapsedMs": 291,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -2988,7 +2988,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 272,
+      "elapsedMs": 269,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3006,7 +3006,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 254,
+      "elapsedMs": 230,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3024,7 +3024,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 248,
+      "elapsedMs": 256,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3042,7 +3042,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 266,
+      "elapsedMs": 275,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3060,7 +3060,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 237,
+      "elapsedMs": 230,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3078,7 +3078,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 200,
+      "elapsedMs": 215,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3096,7 +3096,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 244,
+      "elapsedMs": 262,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3114,7 +3114,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 266,
+      "elapsedMs": 270,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3132,7 +3132,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 244,
+      "elapsedMs": 249,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3150,7 +3150,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 247,
+      "elapsedMs": 230,
       "childExitCode": 0,
       "childSignal": null
     },
@@ -3168,7 +3168,7 @@
       "lastCompletedStage": "verify-output",
       "structuredErrorCode": null,
       "sanitizedErrorMessage": null,
-      "elapsedMs": 232,
+      "elapsedMs": 238,
       "childExitCode": 0,
       "childSignal": null
     }

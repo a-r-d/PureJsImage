@@ -93,7 +93,9 @@ test('decodes legacy TIFF and odd-width BMP compatibility cases', async ({ page 
   expect(result.detail).toContain('legacy TIFF LZW')
   expect(result.detail).toContain('odd-width BMP RLE4')
   expect(result.detail).toContain('wide unsigned, and SGILog TIFF')
-  expect(result.detail).toContain('numeric CMYK, 16-bit palette')
+  expect(result.detail).toContain('numeric and ICC-managed CMYK')
+  expect(result.detail).toContain('CIELab')
+  expect(result.detail).toContain('FillOrder 2')
   expect(result.detail).toContain('TIFF SubIFD pyramids')
 })
 

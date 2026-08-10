@@ -63,6 +63,7 @@ const photometricLogL = 32844
 const photometricLogLuv = 32845
 const faxLookupBits = 13
 const faxLookupSize = 1 << faxLookupBits
+const reversedNibbles = Uint8Array.of(0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15)
 
 interface FaxCode {
   readonly run: number
@@ -1230,7 +1231,7 @@ const describeTiff = async (
     compression === compressionCcittModifiedHuffman ||
     compression === compressionCcittGroup3 ||
     compression === compressionCcittGroup4
-  if (fillOrder !== 1 && !(fillOrder === 2 && faxCompression)) {
+  if (fillOrder !== 1 && !(fillOrder === 2 && (faxCompression || byteRasterCompression))) {
     throw unsupportedOperation(`TIFF FillOrder ${fillOrder} is unsupported`)
   }
   const planarConfiguration = await singleValue(source, ifd, littleEndian, 284, 1)
@@ -2497,6 +2498,13 @@ const reverseFloatingPredictor = (
   }
 }
 
+const reverseFillOrder = (data: Uint8Array): void => {
+  for (let offset = 0; offset < data.byteLength; offset += 1) {
+    const value = data[offset] ?? 0
+    data[offset] = ((reversedNibbles[value & 0x0f] ?? 0) << 4) | (reversedNibbles[value >>> 4] ?? 0)
+  }
+}
+
 const decodeSegment = async (
   source: ImageSource,
   description: TiffDescription,
@@ -2529,7 +2537,7 @@ const decodeSegment = async (
         `TIFF uncompressed strip has ${encoded.byteLength}, expected ${expectedBytes} bytes`,
       )
     }
-    decoded = encoded.slice()
+    decoded = Uint8Array.from(encoded)
   } else if (description.compression === compressionPackBits) {
     decoded = decodePackBits(encoded, expectedBytes)
   } else if (description.compression === compressionLzw) {
@@ -2567,6 +2575,14 @@ const decodeSegment = async (
       ? rowBytes * Math.ceil(description.segmentHeight / description.ycbcr.verticalSubsampling)
       : rowBytes * description.segmentHeight
     decoded = await decodeDeflate(encoded, expectedBytes, maximumBytes)
+  }
+  if (
+    description.fillOrder === 2 &&
+    description.compression !== compressionCcittModifiedHuffman &&
+    description.compression !== compressionCcittGroup3 &&
+    description.compression !== compressionCcittGroup4
+  ) {
+    reverseFillOrder(decoded)
   }
   if (description.predictor === 2) {
     const bitDepth =

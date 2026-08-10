@@ -610,7 +610,7 @@ const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8Clam
 
 interface BrowserTiffEntry {
   readonly tag: number
-  readonly type: 3 | 4
+  readonly type: 3 | 4 | 7
   readonly values: readonly number[]
 }
 
@@ -620,7 +620,7 @@ const browserTiffFixture = (
 ): Uint8Array => {
   const placeholder = entriesFor(strips.map(() => 0)).sort((left, right) => left.tag - right.tag)
   const entryBytes = (entry: BrowserTiffEntry): number =>
-    entry.values.length * (entry.type === 3 ? 2 : 4)
+    entry.values.length * (entry.type === 3 ? 2 : entry.type === 4 ? 4 : 1)
   const ifdBytes = 2 + placeholder.length * 12 + 4
   const externalBytes = placeholder.reduce((total, entry) => {
     const bytes = entryBytes(entry)
@@ -654,16 +654,66 @@ const browserTiffFixture = (
       externalOffset += valueBytes
     }
     for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
-      const offset = valuesOffset + valueIndex * (entry.type === 3 ? 2 : 4)
+      const elementBytes = entry.type === 3 ? 2 : entry.type === 4 ? 4 : 1
+      const offset = valuesOffset + valueIndex * elementBytes
       const value = entry.values[valueIndex] ?? 0
       if (entry.type === 3) view.setUint16(offset, value, true)
-      else view.setUint32(offset, value, true)
+      else if (entry.type === 4) view.setUint32(offset, value, true)
+      else output[offset] = value
     }
   }
   for (let index = 0; index < strips.length; index += 1) {
     output.set(strips[index] ?? new Uint8Array(), stripOffsets[index] ?? 0)
   }
   return output
+}
+
+const browserConstantGrayCmykProfile = (): Uint8Array => {
+  const tagOffset = 144
+  const tagBytes = 176
+  const profile = new Uint8Array(tagOffset + tagBytes)
+  const view = new DataView(profile.buffer)
+  const signature = (offset: number, value: string): void => {
+    for (let index = 0; index < value.length; index += 1) {
+      profile[offset + index] = value.charCodeAt(index)
+    }
+  }
+  view.setUint32(0, profile.byteLength, false)
+  signature(12, 'mntr')
+  signature(16, 'CMYK')
+  signature(20, 'XYZ ')
+  signature(36, 'acsp')
+  view.setUint32(128, 1, false)
+  signature(132, 'A2B0')
+  view.setUint32(136, tagOffset, false)
+  view.setUint32(140, tagBytes, false)
+  signature(tagOffset, 'mft2')
+  profile[tagOffset + 8] = 4
+  profile[tagOffset + 9] = 3
+  profile[tagOffset + 10] = 2
+  view.setInt32(tagOffset + 12, 65_536, false)
+  view.setInt32(tagOffset + 28, 65_536, false)
+  view.setInt32(tagOffset + 44, 65_536, false)
+  view.setUint16(tagOffset + 48, 2, false)
+  view.setUint16(tagOffset + 50, 2, false)
+  let offset = tagOffset + 52
+  for (let channel = 0; channel < 4; channel += 1) {
+    view.setUint16(offset, 0, false)
+    view.setUint16(offset + 2, 65_535, false)
+    offset += 4
+  }
+  for (let point = 0; point < 16; point += 1) {
+    for (const xyz of [15_797, 16_384, 13_515]) {
+      view.setUint16(offset, xyz, false)
+      offset += 2
+    }
+  }
+  for (let channel = 0; channel < 3; channel += 1) {
+    view.setUint16(offset, 0, false)
+    view.setUint16(offset + 2, 65_535, false)
+    offset += 4
+  }
+  return profile
 }
 
 const browserPyramidTiffFixture = (): Uint8Array => {
@@ -1069,6 +1119,84 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
     throw new Error('Float32 CMYK TIFF display conversion changed in the browser')
   }
 
+  const cieLab = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [3] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [8, 8, 8] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [8] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [3] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [9] },
+      { tag: 284, type: 3, values: [1] },
+    ],
+    [Uint8Array.of(0, 0, 0, 138, 81, 70, 75, 68, 144)],
+  )
+  const cieLabOutput = await (await images.open(cieLab)).png().toUint8Array()
+  const cieLabPixels = await browserPixels(cieLabOutput, 'image/png')
+  if (
+    cieLabPixels[0] !== 0 ||
+    cieLabPixels[1] !== 0 ||
+    cieLabPixels[2] !== 0 ||
+    cieLabPixels[4] !== 255 ||
+    cieLabPixels[5] !== 1 ||
+    cieLabPixels[6] !== 0 ||
+    cieLabPixels[8] !== 0 ||
+    cieLabPixels[9] !== 34 ||
+    cieLabPixels[10] !== 254
+  ) {
+    throw new Error('CIELab TIFF color conversion changed in the browser')
+  }
+
+  const cmykIccProfile = browserConstantGrayCmykProfile()
+  const cmykIcc = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [1] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [8, 8, 8, 8] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [5] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [4] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [4] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 34675, type: 7, values: Array.from(cmykIccProfile) },
+    ],
+    [Uint8Array.of(255, 0, 0, 0)],
+  )
+  const cmykIccOutput = await (await images.open(cmykIcc)).png().toUint8Array()
+  const cmykIccPixels = await browserPixels(cmykIccOutput, 'image/png')
+  if (cmykIccPixels[0] !== 188 || cmykIccPixels[1] !== 188 || cmykIccPixels[2] !== 187) {
+    throw new Error(
+      `CMYK ICC TIFF color conversion changed in the browser: ${cmykIccPixels[0]},${cmykIccPixels[1]},${cmykIccPixels[2]}`,
+    )
+  }
+
+  const fillOrder = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [3] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [6] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [1] },
+      { tag: 266, type: 3, values: [2] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [3] },
+      { tag: 284, type: 3, values: [1] },
+    ],
+    [Uint8Array.of(0x40, 0xf0, 0x03)],
+  )
+  const fillOrderOutput = await (await images.open(fillOrder)).png().toUint8Array()
+  const fillOrderPixels = await browserPixels(fillOrderOutput, 'image/png')
+  if (fillOrderPixels[0] !== 0 || fillOrderPixels[4] !== 129 || fillOrderPixels[8] !== 255) {
+    throw new Error('FillOrder 2 packed TIFF decoding changed in the browser')
+  }
+
   const paletteColors = 65_536
   const colorMap = new Array<number>(paletteColors * 3).fill(0)
   colorMap[paletteColors] = 65_535
@@ -1272,7 +1400,7 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
 
   return {
     detail:
-      'legacy TIFF LZW, packed 12-bit TIFF, signed, float, numeric CMYK, 16-bit palette, wide unsigned, and SGILog TIFF, TIFF SubIFD pyramids, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
+      'legacy TIFF LZW, packed 12-bit and FillOrder 2 TIFF, signed, float, numeric and ICC-managed CMYK, CIELab, 16-bit palette, wide unsigned, and SGILog TIFF, TIFF SubIFD pyramids, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
     outputBytes:
       legacyOutput.byteLength +
       wide64Output.byteLength +
@@ -1282,6 +1410,9 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
       floatOutput.byteLength +
       signedCmykOutput.byteLength +
       floatCmykOutput.byteLength +
+      cieLabOutput.byteLength +
+      cmykIccOutput.byteLength +
+      fillOrderOutput.byteLength +
       palette16Output.byteLength +
       logLOutput.byteLength +
       pyramidOutput.byteLength +

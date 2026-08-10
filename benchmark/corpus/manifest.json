@@ -668,6 +668,28 @@
       }
     },
     {
+      "id": "tiff-cielab8-strip-2048x1536",
+      "file": "tiff-cielab8-strip-2048x1536.tiff",
+      "generator": "tiff-cielab8-strip",
+      "expected": {
+        "format": "tiff",
+        "width": 2048,
+        "height": 1536,
+        "sha256": "c0bed5de1c77b12f0181045c809a6bc41f76c24034a12635edf4758df31b7a8c"
+      }
+    },
+    {
+      "id": "tiff-fillorder6-strip-2049x1537",
+      "file": "tiff-fillorder6-strip-2049x1537.tiff",
+      "generator": "tiff-fillorder6-strip",
+      "expected": {
+        "format": "tiff",
+        "width": 2049,
+        "height": 1537,
+        "sha256": "4b58018f36acb257ac1f0163a6da95d207b305b03eb5618e18b6f3a07771c432"
+      }
+    },
+    {
       "id": "tiff-bigtiff-rgb16-1024x768",
       "file": "tiff-bigtiff-rgb16-1024x768.tiff",
       "generator": "tiff-bigtiff-rgb16",

@@ -47,6 +47,8 @@ export type FixtureGenerator =
   | 'static-transparent-gif'
   | 'streaming-stress-gradient'
   | 'tiff-gradient'
+  | 'tiff-cielab8-strip'
+  | 'tiff-fillorder6-strip'
   | 'tiff-bigtiff-rgb16'
   | 'tiff-cmyk8-planar'
   | 'tiff-packed12-strip'

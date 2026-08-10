@@ -61,7 +61,7 @@ None.
 
 ## Reproduction
 
-- PureJsImage commit: `16e662c03a6a2de62ddfa721145e240aaadf3b80-dirty`
+- PureJsImage commit: `bbeb1a1079f602cdd2299aa62c98c8ee5fb34d31-dirty`
 - codec-corpus commit: `28205bbc5cf40364d012c462240ba28143373d67`
 - Node/platform: `v24.16.0` on `linux-x64`
 - Command: `npm run corpus:imazen -- --corpus ../codec-corpus --format tiff --output benchmark/results --timeout-ms 30000 --memory-mb 512 --concurrency 2`

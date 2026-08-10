@@ -1414,6 +1414,91 @@ describe('TIFF codec', () => {
     expect(pixel(decoded, 2, 0)).toEqual([255, 255, 255, 255])
   })
 
+  it('honors FillOrder 2 for odd packed strips, row padding, and edge tiles', async () => {
+    // Independently written in Python and decoded by ImageMagick 7.1.2/LibTIFF 4.7.1.
+    const grayscale = Buffer.from(
+      'SUkqAAgAAAAMAAABBAABAAAABQAAAAEBBAABAAAAAgAAAAIBAwABAAAABgAAAAMBAwABAAAAAQAAAAYBAwABAAAAAQAAAAoBAwABAAAAAgAAABEBBAACAAAAngAAABUBAwABAAAAAQAAABYBBAABAAAAAQAAABcBBAACAAAApgAAABwBAwABAAAAAQAAAFMBAwABAAAAAQAAAAAAAACuAAAAsgAAAAQAAAAEAAAAACgGP38gggA=',
+      'base64',
+    )
+    const grayscalePixels = await decodeDirect(grayscale)
+    expect(grayscalePixels.data).toEqual(Uint8Array.of(0, 4, 68, 129, 255, 255, 129, 68, 4, 0))
+
+    // Big-endian padded edge tile from the same independent fixture generator and oracle.
+    const tiledRgb = Buffer.from(
+      'TU0AKgAAAAgADAEAAAQAAAABAAAAAwEBAAQAAAABAAAAAgECAAMAAAADAAAAngEDAAMAAAABAAEAAAEGAAMAAAABAAIAAAEKAAMAAAABAAIAAAEVAAMAAAABAAMAAAEcAAMAAAABAAEAAAFCAAQAAAABAAAABAFDAAQAAAABAAAAAgFEAAQAAAABAAAApAFFAAQAAAABAAAABgAAAAAAAgACAALMbAN/AgA=',
+      'base64',
+    )
+    const tiledPixels = await decodedPng(tiledRgb)
+    expect(pixel(tiledPixels, 0, 0)).toEqual([0, 255, 0, 255])
+    expect(pixel(tiledPixels, 1, 0)).toEqual([255, 0, 255, 255])
+    expect(pixel(tiledPixels, 2, 0)).toEqual([85, 170, 255, 255])
+    expect(pixel(tiledPixels, 0, 1)).toEqual([255, 255, 255, 255])
+    expect(pixel(tiledPixels, 2, 1)).toEqual([0, 0, 0, 255])
+  })
+
+  it('reverses FillOrder 2 before predictors in both byte orders and rejects truncation', async () => {
+    const values = [0, 15, 0, 5, 10, 15, 15, 5, 10]
+    const differences = predictorDifferences(values, 3, 4)
+    for (const littleEndian of [true, false]) {
+      const predicted = reverseByteBits(packSampleRows([differences], 4))
+      const input = tiffFixture({
+        width: 3,
+        height: 1,
+        littleEndian,
+        bitsPerSample: [4, 4, 4],
+        compression: 8,
+        photometric: 2,
+        fillOrder: 2,
+        predictor: 2,
+        strips: [deflateSync(predicted)],
+      })
+      expect(await decodeDirect(input)).toMatchObject({
+        format: 'rgb8',
+        data: Uint8Array.from(values, (value) => value * 17),
+      })
+    }
+
+    const sharedInput = Buffer.from(
+      tiffFixture({
+        width: 3,
+        height: 1,
+        bitsPerSample: [6],
+        compression: 1,
+        photometric: 1,
+        fillOrder: 2,
+        strips: [reverseByteBits(packSampleRows([[0, 32, 63]], 6))],
+      }),
+    )
+    const originalInput = Buffer.from(sharedInput)
+    const sharedSource = {
+      size: sharedInput.byteLength,
+      read: async (offset: number, length: number): Promise<Uint8Array> =>
+        sharedInput.subarray(offset, offset + length),
+    }
+    if (!tiffCodec.createDecoder) throw new Error('TIFF decoder is unavailable')
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const decoder = await tiffCodec.createDecoder(sharedSource, defaultImageLimits)
+      for await (const block of decoder.decode()) {
+        expect(block.data).toEqual(Uint8Array.of(0, 129, 255))
+      }
+    }
+    expect(sharedInput).toEqual(originalInput)
+
+    const truncated = tiffFixture({
+      width: 5,
+      height: 1,
+      bitsPerSample: [6],
+      compression: 1,
+      photometric: 1,
+      fillOrder: 2,
+      strips: [Uint8Array.of(0, 0, 0)],
+    })
+    await expect(decodeDirect(truncated)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'TIFF uncompressed strip has 3, expected 4 bytes',
+    })
+  })
+
   it('decodes 16-bit palette indices directly to RGB rows', async () => {
     const colors = 65_536
     const colorMap = new Array<number>(colors * 3).fill(0)

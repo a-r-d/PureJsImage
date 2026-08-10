@@ -41,7 +41,8 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Deterministic display conversion using `SMinSampleValue` / `SMaxSampleValue` or documented full-type defaults without an 8-/16-bit raw intermediate
 - [x] SGILog luminance reconstructed in native `yf32` CIE Y blocks with deterministic gamma-2 display conversion
 - [x] SGILog24 and SGILog32 color reconstructed in native `xyzf32` CIE XYZ blocks with CCIR 709 display conversion
-- [ ] CIELab and CMYK ICC-profile conversion
+- [x] TIFF 6 8-bit CIELab L* and L*a*b* display conversion from D65 to sRGB with unassociated alpha
+- [x] Embedded CMYK lut16 A2B0 ICC-profile conversion with profile precedence over numeric CMYK display
 
 ### Compression and prediction
 
@@ -58,7 +59,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] WebP-in-TIFF (`Compression=50001`) through explicit `createTiffCodec({ embeddedCodecs: [webpCodec] })` composition
 - [x] SGILog (`Compression=34676`) and SGILog24 (`Compression=34677`) with bounded row RLE and exact segment sizing
 - [ ] Zstandard, LERC, ThunderScan, and other extension compressions
-- [ ] Reversed bit fill order (`FillOrder=2`) outside CCITT fax compression
+- [x] Reversed bit fill order (`FillOrder=2`) normalized per strip or tile before prediction
 
 ## Decode roadmap
 
@@ -66,14 +67,13 @@ The 154-file Imazen baseline currently has no decode failures: 147 inputs pass, 
 
 ### Next recommended capability
 
-- [ ] Add CIELab display conversion with an explicit output color contract
 - [ ] Expand TIFF encoding beyond uncompressed strips
 
-LogL and LogLuv now reconstruct native CIE Y or XYZ float32 blocks. SGILog RLE scratch remains one row; decoded segment state is bounded to the current strip or tile. Display conversion uses the LogLuv CCIR 709 equal-energy-white matrix, gamma 2, and explicit clipping.
+TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples directly to sRGB with explicit clipping and round-to-nearest output. CMYK lut16 A2B0 ICC profiles transform bounded rows and take precedence over numeric CMYK conversion. LogL and LogLuv reconstruct native CIE Y or XYZ float32 blocks. SGILog RLE scratch remains one row; decoded segment state is bounded to the current strip or tile.
 
 ### Follow-on priorities
 
-1. Add CIELab display conversion with an explicit output color contract.
+1. Expand TIFF encoding with configurable strips and PackBits/Deflate.
 2. Treat Zstandard as a separate first-party compression project.
 3. Keep generic five-band data unsupported until its public pixel semantics are defined.
 4. Keep ThunderScan unsupported: the current corpus fixture is truncated by three rows and LibTIFF independently rejects it.
@@ -117,6 +117,8 @@ LogL and LogLuv now reconstruct native CIE Y or XYZ float32 blocks. SGILog RLE s
 - [x] Verify signed integer and IEEE floating-point raw values at native precision in both byte orders
 - [x] Verify unsigned 24-/32-bit display output exactly against ImageMagick/LibTIFF and unsigned 64-bit raw values exactly above JavaScript's safe-integer range
 - [x] Verify CCITT Group 4 output against independently encoded ImageMagick/LibTIFF fixtures
+- [x] Verify TIFF 6 CIELab samples exactly against an independent colour-science oracle and CMYK lut16 ICC output within one 8-bit code value of ImageMagick/LittleCMS
+- [x] Verify FillOrder 2 packed strip and padded edge-tile output against independently written fixtures decoded by ImageMagick/LibTIFF
 - [x] Verify tiled LZW and BigTIFF output against independently encoded ImageMagick/LibTIFF fixtures
 - [x] Verify selected classic TIFF and BigTIFF pyramid levels independently and decode no unselected pixel segments
 - [x] Verify 16-bit ColorMap scaling, floating-point CMYK display, and signed CMYK sample reconstruction exactly against independent ImageMagick and tifffile oracles
