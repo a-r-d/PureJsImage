@@ -29,6 +29,7 @@ import {
   type RgbIccTransform,
 } from './icc.ts'
 import { jpegCodec } from './jpeg.ts'
+import { decodeLogLuvSegment, type LogLuvEncoding } from './tiff-logluv.ts'
 
 const blockRows = 32
 const compressionNone = 1
@@ -42,6 +43,8 @@ const compressionDeflate = 8
 const compressionAdobeDeflate = 32946
 const compressionPackBits = 32773
 const compressionWebp = 50001
+const compressionSgiLog = 34676
+const compressionSgiLog24 = 34677
 const sampleFormatUnsigned = 1
 const sampleFormatSigned = 2
 const sampleFormatFloat = 3
@@ -51,6 +54,8 @@ const photometricRgb = 2
 const photometricPalette = 3
 const photometricSeparated = 5
 const photometricYCbCr = 6
+const photometricLogL = 32844
+const photometricLogLuv = 32845
 const faxLookupBits = 13
 const faxLookupSize = 1 << faxLookupBits
 
@@ -367,10 +372,12 @@ interface TiffDescription {
   readonly palette: Uint8Array | undefined
   readonly cmykDotRange: Uint32Array | undefined
   readonly ycbcr: YCbCrDescription | undefined
+  readonly logLuvEncoding: LogLuvEncoding | undefined
   readonly alphaSample: number | undefined
   readonly associatedAlpha: boolean
   readonly orientation: number
   readonly frames: number
+  readonly resolutionLevels: number
   readonly pixelFormat:
     | 'gray8'
     | 'gray16'
@@ -380,6 +387,7 @@ interface TiffDescription {
     | 'grayi16'
     | 'grayf16'
     | 'grayf32'
+    | 'yf32'
     | 'grayf64'
     | 'rgb8'
     | 'rgba8'
@@ -392,6 +400,7 @@ interface TiffDescription {
     | 'rgbf16'
     | 'rgbf32'
     | 'rgbf64'
+    | 'xyzf32'
   readonly displayRanges: readonly PixelSampleDisplayRange[] | undefined
   readonly colorTransform: RgbIccTransform | undefined
   readonly iccProfile: Uint8Array | undefined
@@ -532,9 +541,8 @@ const externalValueOffset = (entry: IfdEntry, littleEndian: boolean, tag: number
 const fieldBytes = (fieldType: number): number => {
   if (fieldType === 1) return 1
   if (fieldType === 3) return 2
-  if (fieldType === 4) return 4
-  if (fieldType === 5) return 8
-  if (fieldType === 16 || fieldType === 18) return 8
+  if (fieldType === 4 || fieldType === 13) return 4
+  if (fieldType === 5 || fieldType === 16 || fieldType === 18) return 8
   throw invalidInput(`TIFF field type ${fieldType} is unsupported for this tag`)
 }
 
@@ -571,7 +579,7 @@ const entryValues = async (
         ? (bytes[valueOffset] ?? 0)
         : entry.fieldType === 3
           ? uint16(bytes, valueOffset, littleEndian)
-          : entry.fieldType === 4
+          : entry.fieldType === 4 || entry.fieldType === 13
             ? uint32(bytes, valueOffset, littleEndian)
             : uint64(bytes, valueOffset, littleEndian, `tag ${tag} value`)
   }
@@ -725,26 +733,158 @@ const singleValue = async (
   return value
 }
 
-const countFrames = async (
+interface TiffIfdGraph {
+  readonly littleEndian: boolean
+  readonly layout: TiffLayout
+  readonly topLevel: readonly TiffIfd[]
+  readonly descendants: ReadonlyMap<number, readonly TiffIfd[]>
+}
+
+interface SelectedTiffIfd {
+  readonly ifd: TiffIfd
+  readonly frames: number
+  readonly resolutionLevels: number
+}
+
+const subIfdOffsets = async (
   source: ImageSource,
-  first: TiffIfd,
+  ifd: TiffIfd,
   littleEndian: boolean,
-  layout: TiffLayout,
-  limits: ImageLimits,
-): Promise<number> => {
-  let frames = 1
-  let nextOffset = first.nextOffset
-  const seen = new Set([first.offset])
-  while (nextOffset !== 0) {
-    if (seen.has(nextOffset)) throw invalidInput('TIFF top-level IFD chain contains a loop')
-    seen.add(nextOffset)
-    frames += 1
-    if (frames > limits.maxFrames) {
-      throw limitExceeded(`TIFF frame count exceeds maxFrames ${limits.maxFrames}`)
-    }
-    nextOffset = (await readIfd(source, nextOffset, littleEndian, layout)).nextOffset
+  maximumCount: number,
+): Promise<Float64Array> => {
+  const entry = ifd.entries.get(330)
+  if (!entry) return new Float64Array()
+  if (
+    entry.fieldType !== 4 &&
+    entry.fieldType !== 13 &&
+    entry.fieldType !== 16 &&
+    entry.fieldType !== 18
+  ) {
+    throw invalidInput('TIFF SubIFDs must contain IFD offsets')
   }
-  return frames
+  return entryValues(source, entry, littleEndian, 330, maximumCount)
+}
+
+const readTiffIfdGraph = async (
+  source: ImageSource,
+  limits: ImageLimits,
+): Promise<TiffIfdGraph> => {
+  if (source.size < 8) throw truncatedInput('TIFF header is truncated')
+  const header = await readExactly(source, 0, Math.min(source.size, 16))
+  if (!isTiff(header)) throw invalidInput('TIFF byte order or version is invalid')
+  const littleEndian = header[0] === 0x49
+  const version = uint16(header, 2, littleEndian)
+  const layout = version === 43 ? bigTiffLayout : classicTiffLayout
+  if (layout.bigTiff) {
+    if (header.byteLength < 16) throw truncatedInput('BigTIFF header is truncated')
+    if (uint16(header, 4, littleEndian) !== 8 || uint16(header, 6, littleEndian) !== 0) {
+      throw invalidInput('BigTIFF offset size or reserved field is invalid')
+    }
+  }
+  const minimumIfdOffset = layout.bigTiff ? 16 : 8
+  const firstIfdOffset = layout.bigTiff
+    ? uint64(header, 8, littleEndian, 'first IFD offset')
+    : uint32(header, 4, littleEndian)
+  if (firstIfdOffset < minimumIfdOffset) throw invalidInput('TIFF first IFD offset is invalid')
+
+  const topLevel: TiffIfd[] = []
+  const directories = new Map<number, TiffIfd>()
+  const topLevelOffsets = new Set<number>()
+  let nextOffset = firstIfdOffset
+  while (nextOffset !== 0) {
+    if (nextOffset < minimumIfdOffset) throw invalidInput('TIFF IFD offset is invalid')
+    if (topLevelOffsets.has(nextOffset)) {
+      throw invalidInput('TIFF top-level IFD chain contains a loop')
+    }
+    if (directories.size >= limits.maxFrames) {
+      throw limitExceeded(`TIFF image directory count exceeds maxFrames ${limits.maxFrames}`)
+    }
+    const ifd = await readIfd(source, nextOffset, littleEndian, layout)
+    directories.set(nextOffset, ifd)
+    topLevelOffsets.add(nextOffset)
+    topLevel.push(ifd)
+    nextOffset = ifd.nextOffset
+  }
+
+  const descendants = new Map<number, readonly TiffIfd[]>()
+  for (const root of topLevel) {
+    const levels: TiffIfd[] = []
+    const active = new Set<number>([root.offset])
+    const reachable = new Set<number>()
+    const visit = async (offset: number): Promise<void> => {
+      if (offset < minimumIfdOffset) throw invalidInput('TIFF SubIFD offset is invalid')
+      if (active.has(offset)) throw invalidInput('TIFF SubIFD graph contains a loop')
+      if (reachable.has(offset)) return
+      let ifd = directories.get(offset)
+      if (!ifd) {
+        if (directories.size >= limits.maxFrames) {
+          throw limitExceeded(`TIFF image directory count exceeds maxFrames ${limits.maxFrames}`)
+        }
+        ifd = await readIfd(source, offset, littleEndian, layout)
+        directories.set(offset, ifd)
+      }
+      active.add(offset)
+      reachable.add(offset)
+      levels.push(ifd)
+      const childOffsets = await subIfdOffsets(source, ifd, littleEndian, limits.maxFrames)
+      for (const childOffset of childOffsets) await visit(childOffset)
+      if (ifd.nextOffset !== 0) await visit(ifd.nextOffset)
+      active.delete(offset)
+    }
+    const offsets = await subIfdOffsets(source, root, littleEndian, limits.maxFrames)
+    for (const offset of offsets) await visit(offset)
+    descendants.set(root.offset, levels)
+  }
+  return { littleEndian, layout, topLevel, descendants }
+}
+
+const selectTiffIfd = async (
+  source: ImageSource,
+  graph: TiffIfdGraph,
+  options: Readonly<DecoderOptions>,
+): Promise<SelectedTiffIfd> => {
+  const frame = options.frame ?? 0
+  const resolutionLevel = options.resolutionLevel ?? 0
+  if (!Number.isSafeInteger(frame) || frame < 0) {
+    throw invalidInput('TIFF frame must be a non-negative safe integer')
+  }
+  if (!Number.isSafeInteger(resolutionLevel) || resolutionLevel < 0) {
+    throw invalidInput('TIFF resolutionLevel must be a non-negative safe integer')
+  }
+  const root = graph.topLevel[frame]
+  if (!root) {
+    throw invalidInput(`TIFF frame ${frame} is outside the ${graph.topLevel.length}-frame image`)
+  }
+  const rootWidth = await singleValue(source, root, graph.littleEndian, 256)
+  const rootHeight = await singleValue(source, root, graph.littleEndian, 257)
+  const reduced: { readonly ifd: TiffIfd; readonly pixels: bigint }[] = []
+  for (const candidate of graph.descendants.get(root.offset) ?? []) {
+    const width = await singleValue(source, candidate, graph.littleEndian, 256)
+    const height = await singleValue(source, candidate, graph.littleEndian, 257)
+    const newSubfileType = await singleValue(source, candidate, graph.littleEndian, 254, 0)
+    const isMask = (newSubfileType & 4) !== 0
+    const isReduced =
+      (newSubfileType & 1) !== 0 ||
+      (width <= rootWidth && height <= rootHeight && (width < rootWidth || height < rootHeight))
+    if (!isMask && isReduced) {
+      reduced.push({ ifd: candidate, pixels: BigInt(width) * BigInt(height) })
+    }
+  }
+  reduced.sort((left, right) =>
+    left.pixels === right.pixels ? 0 : left.pixels > right.pixels ? -1 : 1,
+  )
+  const levels = [root, ...reduced.map((level) => level.ifd)]
+  const ifd = levels[resolutionLevel]
+  if (!ifd) {
+    throw invalidInput(
+      `TIFF resolutionLevel ${resolutionLevel} is outside the ${levels.length}-level frame ${frame}`,
+    )
+  }
+  return {
+    ifd,
+    frames: graph.topLevel.length,
+    resolutionLevels: levels.length,
+  }
 }
 
 const paletteFor = async (
@@ -855,30 +995,18 @@ const describeOldJpeg = async (
   }
 }
 
-const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<TiffDescription> => {
-  if (source.size < 8) throw truncatedInput('TIFF header is truncated')
-  const header = await readExactly(source, 0, Math.min(source.size, 16))
-  if (!isTiff(header)) throw invalidInput('TIFF byte order or version is invalid')
-  const littleEndian = header[0] === 0x49
-  const version = uint16(header, 2, littleEndian)
-  const layout = version === 43 ? bigTiffLayout : classicTiffLayout
-  if (layout.bigTiff) {
-    if (header.byteLength < 16) throw truncatedInput('BigTIFF header is truncated')
-    if (uint16(header, 4, littleEndian) !== 8 || uint16(header, 6, littleEndian) !== 0) {
-      throw invalidInput('BigTIFF offset size or reserved field is invalid')
-    }
-  }
-  const firstIfdOffset = layout.bigTiff
-    ? uint64(header, 8, littleEndian, 'first IFD offset')
-    : uint32(header, 4, littleEndian)
-  if (firstIfdOffset < (layout.bigTiff ? 16 : 8)) {
-    throw invalidInput('TIFF first IFD offset is invalid')
-  }
-  const ifd = await readIfd(source, firstIfdOffset, littleEndian, layout)
+const describeTiff = async (
+  source: ImageSource,
+  limits: ImageLimits,
+  options: Readonly<DecoderOptions> = {},
+): Promise<TiffDescription> => {
+  const graph = await readTiffIfdGraph(source, limits)
+  const selected = await selectTiffIfd(source, graph, options)
+  const { ifd, frames, resolutionLevels } = selected
+  const { littleEndian } = graph
   const width = await singleValue(source, ifd, littleEndian, 256)
   const height = await singleValue(source, ifd, littleEndian, 257)
-  const frames = await countFrames(source, ifd, littleEndian, layout, limits)
-  validateImageDimensions(width, height, frames, limits)
+  validateImageDimensions(width, height, 1, limits)
 
   const samplesPerPixel = await singleValue(source, ifd, littleEndian, 277, 1)
   if (!Number.isSafeInteger(samplesPerPixel) || samplesPerPixel < 1 || samplesPerPixel > 5) {
@@ -935,6 +1063,8 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     compression !== compressionDeflate &&
     compression !== compressionAdobeDeflate &&
     compression !== compressionPackBits &&
+    compression !== compressionSgiLog &&
+    compression !== compressionSgiLog24 &&
     compression !== compressionWebp
   ) {
     throw unsupportedOperation(`TIFF compression ${compression} is unsupported`)
@@ -946,12 +1076,16 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     photometric !== photometricRgb &&
     photometric !== photometricPalette &&
     photometric !== photometricSeparated &&
-    photometric !== photometricYCbCr
+    photometric !== photometricYCbCr &&
+    photometric !== photometricLogL &&
+    photometric !== photometricLogLuv
   ) {
     throw unsupportedOperation(`TIFF photometric interpretation ${photometric} is unsupported`)
   }
   const baseSamples =
-    photometric === photometricRgb || photometric === photometricYCbCr
+    photometric === photometricRgb ||
+    photometric === photometricYCbCr ||
+    photometric === photometricLogLuv
       ? 3
       : photometric === photometricSeparated
         ? 4
@@ -975,14 +1109,16 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   if (baseSampleFormat !== sampleFormatUnsigned && alphaSample !== undefined) {
     throw unsupportedOperation('TIFF signed or floating-point alpha samples are unsupported')
   }
+  const logLuvPhotometric = photometric === photometricLogL || photometric === photometricLogLuv
   if (
     baseSampleFormat !== sampleFormatUnsigned &&
+    !logLuvPhotometric &&
     photometric !== photometricWhiteIsZero &&
     photometric !== photometricBlackIsZero &&
     photometric !== photometricRgb
   ) {
     throw unsupportedOperation(
-      'TIFF signed or floating-point decoding supports only grayscale and RGB photometrics',
+      'TIFF signed or floating-point decoding supports only grayscale, RGB, and LogLuv photometrics',
     )
   }
 
@@ -991,7 +1127,35 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   if (!uniformBitDepth) {
     throw unsupportedOperation('TIFF decoding requires uniform sample depths')
   }
-  if (baseSampleFormat === sampleFormatUnsigned) {
+  const logLuvEncoding: LogLuvEncoding | undefined =
+    photometric === photometricLogL
+      ? 'logl16'
+      : photometric === photometricLogLuv
+        ? compression === compressionSgiLog24
+          ? 'logluv24'
+          : 'logluv32'
+        : undefined
+  if (logLuvEncoding) {
+    const validCompression =
+      compression === compressionSgiLog ||
+      (compression === compressionSgiLog24 && photometric === photometricLogLuv)
+    if (
+      !validCompression ||
+      baseSampleFormat !== sampleFormatSigned ||
+      baseBitDepth !== 16 ||
+      samplesPerPixel !== baseSamples ||
+      alphaSample !== undefined
+    ) {
+      throw unsupportedOperation(
+        'TIFF LogLuv decoding requires signed 16-bit LogL or chunky three-sample LogLuv data with SGILog compression',
+      )
+    }
+  } else if (compression === compressionSgiLog || compression === compressionSgiLog24) {
+    throw unsupportedOperation('TIFF SGILog compression requires LogL or LogLuv photometric data')
+  }
+  if (logLuvEncoding) {
+    // SGILog defines its own signed logarithmic sample representation.
+  } else if (baseSampleFormat === sampleFormatUnsigned) {
     if (photometric === photometricRgb || photometric === photometricSeparated) {
       const supportedColorDepth =
         photometric === photometricRgb
@@ -1042,12 +1206,18 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   if (planarConfiguration !== 1 && planarConfiguration !== 2) {
     throw unsupportedOperation(`TIFF PlanarConfiguration ${planarConfiguration} is unsupported`)
   }
+  if (logLuvEncoding && planarConfiguration !== 1) {
+    throw unsupportedOperation('TIFF LogLuv decoding requires chunky planar configuration')
+  }
   if (planarConfiguration === 1 && alphaSample !== undefined && baseBitDepth < 8) {
     throw unsupportedOperation('TIFF packed grayscale or palette alpha requires planar storage')
   }
   const predictor = await singleValue(source, ifd, littleEndian, 317, 1)
   if (predictor !== 1 && predictor !== 2 && predictor !== 3) {
     throw unsupportedOperation(`TIFF Predictor ${predictor} is unsupported`)
+  }
+  if (logLuvEncoding && predictor !== 1) {
+    throw unsupportedOperation('TIFF LogLuv decoding does not use TIFF predictors')
   }
   const supportedHorizontalDepth =
     baseSampleFormat === sampleFormatUnsigned
@@ -1070,11 +1240,11 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   const wideUnsigned =
     baseSampleFormat === sampleFormatUnsigned && (baseBitDepth === 24 || baseBitDepth > 16)
   const rawMinimums =
-    baseSampleFormat === sampleFormatUnsigned && !wideUnsigned
+    logLuvEncoding || (baseSampleFormat === sampleFormatUnsigned && !wideUnsigned)
       ? undefined
       : await numericOptionalValues(source, ifd, littleEndian, 340, samplesPerPixel)
   const rawMaximums =
-    baseSampleFormat === sampleFormatUnsigned && !wideUnsigned
+    logLuvEncoding || (baseSampleFormat === sampleFormatUnsigned && !wideUnsigned)
       ? undefined
       : await numericOptionalValues(source, ifd, littleEndian, 341, samplesPerPixel)
   if (
@@ -1088,7 +1258,7 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     throw invalidInput('TIFF SMinSampleValue and SMaxSampleValue counts are invalid')
   }
   let displayRanges: readonly PixelSampleDisplayRange[] | undefined
-  if (baseSampleFormat !== sampleFormatUnsigned || wideUnsigned) {
+  if (!logLuvEncoding && (baseSampleFormat !== sampleFormatUnsigned || wideUnsigned)) {
     const defaultMinimum =
       baseSampleFormat === sampleFormatFloat
         ? 0
@@ -1412,7 +1582,11 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     if (bytes > 0xffff_ffffn) throw limitExceeded('TIFF segment row is too large')
     return Number(bytes)
   }
-  if (planarConfiguration === 1) {
+  if (logLuvEncoding) {
+    rowBytes[0] = checkedRowBytes(
+      BigInt(segmentWidth) * BigInt(logLuvEncoding === 'logl16' ? 32 : 96),
+    )
+  } else if (planarConfiguration === 1) {
     rowBytes[0] = ycbcr
       ? checkedRowBytes(
           BigInt(Math.ceil(segmentWidth / ycbcr.horizontalSubsampling)) *
@@ -1446,7 +1620,9 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
       photometric === photometricBlackIsZero ||
       photometric === photometricRgb)
   let pixelFormat: TiffDescription['pixelFormat']
-  if (wideUnsigned) {
+  if (logLuvEncoding) {
+    pixelFormat = logLuvEncoding === 'logl16' ? 'yf32' : 'xyzf32'
+  } else if (wideUnsigned) {
     if (baseSamples === 1) pixelFormat = baseBitDepth <= 32 ? 'gray32' : 'gray64'
     else pixelFormat = baseBitDepth <= 32 ? 'rgb32' : 'rgb64'
   } else if (baseSampleFormat === sampleFormatSigned) {
@@ -1500,10 +1676,12 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     palette,
     cmykDotRange,
     ycbcr,
+    logLuvEncoding,
     alphaSample,
     associatedAlpha: extraSamples[0] === 1,
     orientation,
     frames,
+    resolutionLevels,
     pixelFormat,
     displayRanges,
     colorTransform,
@@ -2278,7 +2456,19 @@ const decodeSegment = async (
   if (offset === undefined || byteCount === undefined) throw invalidInput('TIFF segment is missing')
   const encoded = await readExactly(source, offset, byteCount)
   let decoded: Uint8Array
-  if (description.compression === compressionNone) {
+  if (description.logLuvEncoding) {
+    decoded = decodeLogLuvSegment(
+      encoded,
+      description.segmentWidth,
+      rows,
+      description.logLuvEncoding,
+    )
+    if (decoded.byteLength !== expectedBytes) {
+      throw invalidInput(
+        `TIFF SGILog decoder produced ${decoded.byteLength}, expected ${expectedBytes} bytes`,
+      )
+    }
+  } else if (description.compression === compressionNone) {
     if (encoded.byteLength !== expectedBytes) {
       throw invalidInput(
         `TIFF uncompressed strip has ${encoded.byteLength}, expected ${expectedBytes} bytes`,
@@ -2901,24 +3091,32 @@ class TiffDecoder implements ImageDecoder {
     const region = regionFor(this.#description, request)
     const sourceBitDepth = this.#description.bitsPerSample[0] ?? 8
     const rawNumeric =
-      this.#description.sampleFormats[0] !== sampleFormatUnsigned || sourceBitDepth > 16
+      this.#description.logLuvEncoding !== undefined ||
+      this.#description.sampleFormats[0] !== sampleFormatUnsigned ||
+      sourceBitDepth > 16
     const output16 =
       this.pixelFormat === 'gray16' || this.pixelFormat === 'rgb16' || this.pixelFormat === 'rgba16'
     const outputMaximum = output16 ? 65_535 : 255
-    const outputChannels = rawNumeric
-      ? this.#description.samplesPerPixel
-      : this.pixelFormat === 'gray8' || this.pixelFormat === 'gray16'
+    const outputChannels = this.#description.logLuvEncoding
+      ? this.#description.logLuvEncoding === 'logl16'
         ? 1
-        : this.pixelFormat === 'rgb8' || this.pixelFormat === 'rgb16'
-          ? 3
-          : 4
-    const outputBytesPerSample: 1 | 2 | 4 | 8 = rawNumeric
-      ? sourceBitDepth === 24
-        ? 4
-        : ((sourceBitDepth >>> 3) as 1 | 2 | 4 | 8)
-      : output16
-        ? 2
-        : 1
+        : 3
+      : rawNumeric
+        ? this.#description.samplesPerPixel
+        : this.pixelFormat === 'gray8' || this.pixelFormat === 'gray16'
+          ? 1
+          : this.pixelFormat === 'rgb8' || this.pixelFormat === 'rgb16'
+            ? 3
+            : 4
+    const outputBytesPerSample: 1 | 2 | 4 | 8 = this.#description.logLuvEncoding
+      ? 4
+      : rawNumeric
+        ? sourceBitDepth === 24
+          ? 4
+          : ((sourceBitDepth >>> 3) as 1 | 2 | 4 | 8)
+        : output16
+          ? 2
+          : 1
     const outputBytesPerPixel = outputChannels * outputBytesPerSample
     const directChunkyChannels =
       this.#description.compression === compressionOldJpeg ||
@@ -2933,6 +3131,11 @@ class TiffDecoder implements ImageDecoder {
               ? 1
               : 0
           : 0
+    const directLogLuvBytesPerPixel = this.#description.logLuvEncoding
+      ? this.#description.logLuvEncoding === 'logl16'
+        ? 4
+        : 12
+      : 0
     const directPackedRgb16Bits =
       this.pixelFormat === 'rgb16' &&
       this.#description.planarConfiguration === 1 &&
@@ -3059,6 +3262,21 @@ class TiffDecoder implements ImageDecoder {
           const copyWidth = copyEnd - copyStart
           const localStartX = copyStart - segmentX
           const outputStartX = copyStart - region.x
+          if (directLogLuvBytesPerPixel > 0) {
+            const plane = planes[0]
+            if (!plane) throw truncatedInput('TIFF LogLuv segment is missing')
+            const sourceRowBytes = this.#description.segmentWidth * directLogLuvBytesPerPixel
+            const copyBytes = copyWidth * directLogLuvBytesPerPixel
+            for (let localY = 0; localY < rows; localY += 1) {
+              const rowWithinSegment = imageY + localY - segmentY
+              const sourceStart =
+                rowWithinSegment * sourceRowBytes + localStartX * directLogLuvBytesPerPixel
+              const targetStart =
+                localY * region.width * outputBytesPerPixel + outputStartX * outputBytesPerPixel
+              output.set(plane.subarray(sourceStart, sourceStart + copyBytes), targetStart)
+            }
+            continue
+          }
           if (directChunkyChannels > 0) {
             const plane = planes[0]
             if (!plane) throw truncatedInput('TIFF chunky segment is missing')
@@ -3435,21 +3653,25 @@ const metadata = (description: TiffDescription): ImageMetadata => ({
       ? description.sampleFormats[0] === sampleFormatUnsigned
         ? 'srgb'
         : 'rgb'
-      : description.photometric === photometricSeparated
-        ? 'cmyk'
-        : description.photometric === photometricYCbCr
-          ? 'ycbcr'
-          : description.photometric === photometricPalette
-            ? 'indexed'
-            : 'gray',
-  bitDepth: Math.max(...description.bitsPerSample),
-  sampleFormat:
-    description.sampleFormats[0] === sampleFormatSigned
+      : description.photometric === photometricLogLuv
+        ? 'cie-xyz'
+        : description.photometric === photometricSeparated
+          ? 'cmyk'
+          : description.photometric === photometricYCbCr
+            ? 'ycbcr'
+            : description.photometric === photometricPalette
+              ? 'indexed'
+              : 'gray',
+  bitDepth: description.logLuvEncoding ? 32 : Math.max(...description.bitsPerSample),
+  sampleFormat: description.logLuvEncoding
+    ? 'floating-point'
+    : description.sampleFormats[0] === sampleFormatSigned
       ? 'signed-integer'
       : description.sampleFormats[0] === sampleFormatFloat
         ? 'floating-point'
         : 'unsigned-integer',
   frames: description.frames,
+  resolutionLevels: description.resolutionLevels,
 })
 
 export interface TiffCodecOptions {
@@ -3462,16 +3684,18 @@ export const createTiffCodec = (options: Readonly<TiffCodecOptions> = {}): Image
     format: 'tiff',
     mimeTypes: ['image/tiff', 'image/x-tiff'],
     minimumBytes: 4,
+    selection: { frames: true, resolutionLevels: true },
     detect: isTiff,
-    metadata: async (source, limits) => metadata(await describeTiff(source, limits)),
+    metadata: async (source, limits, decoderOptions) =>
+      metadata(await describeTiff(source, limits, decoderOptions)),
     preservedMetadata: async (source, limits, preserveOptions): Promise<PreservedMetadata> => {
       if (preserveOptions?.exif)
         throw unsupportedOperation('Preserving EXIF from TIFF input is not implemented')
-      const description = await describeTiff(source, limits)
+      const description = await describeTiff(source, limits, preserveOptions)
       return description.iccProfile ? { icc: Uint8Array.from(description.iccProfile) } : {}
     },
     createDecoder: async (source, limits, decoderOptions: Readonly<DecoderOptions> = {}) => {
-      const description = await describeTiff(source, limits)
+      const description = await describeTiff(source, limits, decoderOptions)
       const applyColorTransform = description.colorTransform && decoderOptions.preserveIcc !== true
       const decoderDescription: TiffDescription =
         applyColorTransform && description.pixelFormat === 'rgb16'

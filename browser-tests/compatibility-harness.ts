@@ -666,6 +666,71 @@ const browserTiffFixture = (
   return output
 }
 
+const browserPyramidTiffFixture = (): Uint8Array => {
+  const rootIfdOffset = 8
+  const entriesPerIfd = 11
+  const ifdBytes = 2 + entriesPerIfd * 12 + 4
+  const levelIfdOffset = rootIfdOffset + ifdBytes
+  const rootPixelOffset = levelIfdOffset + ifdBytes
+  const levelPixelOffset = rootPixelOffset + 4
+  const output = new Uint8Array(levelPixelOffset + 1)
+  const view = new DataView(output.buffer)
+  output.set([0x49, 0x49, 0x2a, 0])
+  view.setUint32(4, rootIfdOffset, true)
+  const writeIfd = (
+    offset: number,
+    entries: readonly {
+      readonly tag: number
+      readonly type: 3 | 4
+      readonly value: number
+    }[],
+  ): void => {
+    view.setUint16(offset, entries.length, true)
+    const sorted = [...entries].sort((left, right) => left.tag - right.tag)
+    for (let index = 0; index < sorted.length; index += 1) {
+      const entry = sorted[index]
+      if (!entry) continue
+      const entryOffset = offset + 2 + index * 12
+      view.setUint16(entryOffset, entry.tag, true)
+      view.setUint16(entryOffset + 2, entry.type, true)
+      view.setUint32(entryOffset + 4, 1, true)
+      if (entry.type === 3) view.setUint16(entryOffset + 8, entry.value, true)
+      else view.setUint32(entryOffset + 8, entry.value, true)
+    }
+  }
+  const imageEntries = (
+    width: number,
+    height: number,
+    pixelOffset: number,
+  ): {
+    readonly tag: number
+    readonly type: 3 | 4
+    readonly value: number
+  }[] => [
+    { tag: 256, type: 4, value: width },
+    { tag: 257, type: 4, value: height },
+    { tag: 258, type: 3, value: 8 },
+    { tag: 259, type: 3, value: 1 },
+    { tag: 262, type: 3, value: 1 },
+    { tag: 273, type: 4, value: pixelOffset },
+    { tag: 277, type: 3, value: 1 },
+    { tag: 278, type: 4, value: height },
+    { tag: 279, type: 4, value: width * height },
+    { tag: 284, type: 3, value: 1 },
+  ]
+  writeIfd(rootIfdOffset, [
+    ...imageEntries(2, 2, rootPixelOffset),
+    { tag: 330, type: 4, value: levelIfdOffset },
+  ])
+  writeIfd(levelIfdOffset, [
+    { tag: 254, type: 4, value: 1 },
+    ...imageEntries(1, 1, levelPixelOffset),
+  ])
+  output.set([1, 2, 3, 4], rootPixelOffset)
+  output[levelPixelOffset] = 222
+  return output
+}
+
 const packBrowserTiffLzw = (values: Uint8Array): Uint8Array => {
   const codes = [256, ...values, 257]
   const output = new Uint8Array(Math.ceil((codes.length * 9) / 8))
@@ -962,6 +1027,36 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
     )
   }
 
+  const logLStrip = Uint8Array.of(4, 0, 0x3f, 0xbf, 0x40, 130, 0)
+  const logL = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [4] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [16] },
+      { tag: 259, type: 3, values: [34676] },
+      { tag: 262, type: 3, values: [32844] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [logLStrip.byteLength] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 339, type: 3, values: [2] },
+    ],
+    [logLStrip],
+  )
+  const logLOutput = await (await images.open(logL)).png().toUint8Array()
+  const logLPixels = await browserPixels(logLOutput, 'image/png')
+  if (
+    logLPixels[0] !== 0 ||
+    logLPixels[4] !== 181 ||
+    logLPixels[8] !== 0 ||
+    logLPixels[12] !== 255
+  ) {
+    throw new Error(
+      `SGILog TIFF display conversion changed in the browser: ${logLPixels[0]},${logLPixels[4]},${logLPixels[8]},${logLPixels[12]}`,
+    )
+  }
+
   const embeddedWebp = await (await images.open(legacyOutput))
     .webp({ lossless: true })
     .toUint8Array()
@@ -991,6 +1086,27 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
     ) {
       throw new Error(`Explicit WebP-in-TIFF composition changed browser pixel ${x}`)
     }
+  }
+
+  const pyramid = browserPyramidTiffFixture()
+  const pyramidImage = await images.open(pyramid, { resolutionLevel: 1 })
+  const pyramidMetadata = await pyramidImage.metadata()
+  if (
+    pyramidMetadata.width !== 1 ||
+    pyramidMetadata.height !== 1 ||
+    pyramidMetadata.resolutionLevels !== 2
+  ) {
+    throw new Error('TIFF SubIFD metadata did not report the selected pyramid level')
+  }
+  const pyramidOutput = await pyramidImage.png().toUint8Array()
+  const pyramidPixels = await browserPixels(pyramidOutput, 'image/png')
+  if (
+    pyramidPixels[0] !== 222 ||
+    pyramidPixels[1] !== 222 ||
+    pyramidPixels[2] !== 222 ||
+    pyramidPixels[3] !== 255
+  ) {
+    throw new Error('TIFF SubIFD selection changed browser pixels')
   }
 
   const bmp = new Uint8Array(76)
@@ -1026,7 +1142,7 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
 
   return {
     detail:
-      'legacy TIFF LZW, packed 12-bit TIFF, signed, float, and wide unsigned TIFF, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
+      'legacy TIFF LZW, packed 12-bit TIFF, signed, float, wide unsigned, and SGILog TIFF, TIFF SubIFD pyramids, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
     outputBytes:
       legacyOutput.byteLength +
       wide64Output.byteLength +
@@ -1034,6 +1150,8 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
       webpTiffOutput.byteLength +
       signedOutput.byteLength +
       floatOutput.byteLength +
+      logLOutput.byteLength +
+      pyramidOutput.byteLength +
       bigOutput.byteLength +
       tileOutput.byteLength +
       faxOutput.byteLength +

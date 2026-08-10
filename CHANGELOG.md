@@ -22,6 +22,13 @@ All notable changes to PureJsImage are documented in this file.
   `rgb32`, `gray64`, and `rgb64` raw blocks, exact values above JavaScript's safe-integer range,
   bounded wide Predictor 2 reversal, and deterministic display conversion without an 8-/16-bit
   raw intermediate or per-pixel BigInt arithmetic.
+- Added bounded TIFF SGILog and SGILog24 decompression with native CIE Y/XYZ float32 pixel
+  blocks, logarithmic luminance and chroma reconstruction, deterministic CCIR 709 gamma-2
+  display conversion, exact segment validation, and browser-compatible strip and tile decoding.
+- Added explicit TIFF top-level frame and reduced-resolution SubIFD selection for Classic TIFF
+  and BigTIFF, with selected-level metadata, bounded IFD graph traversal, cycle rejection,
+  alias-safe shared-directory reuse, global directory limits, and no reads from unselected pixel
+  segments.
 
 ## [0.8.0] - 2026-08-09
 

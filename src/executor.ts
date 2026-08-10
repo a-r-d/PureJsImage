@@ -22,6 +22,7 @@ interface ExecutionContext {
   readonly codec: ImageCodec
   readonly registry: CodecRegistry
   readonly frame: number | undefined
+  readonly resolutionLevel: number | undefined
   readonly tolerantDecoding: boolean
   readonly limits: ImageLimits
   readonly runtime: ImageRuntime
@@ -186,6 +187,10 @@ export const executePipeline = async (
         ? await context.codec.preservedMetadata(context.source, context.limits, {
             exif: keepExif,
             icc: keepIcc,
+            ...(context.frame === undefined ? {} : { frame: context.frame }),
+            ...(context.resolutionLevel === undefined
+              ? {}
+              : { resolutionLevel: context.resolutionLevel }),
           })
         : {}
     const reoriented = operations.some(
@@ -203,12 +208,24 @@ export const executePipeline = async (
         : undefined
     const icc = keepIcc ? sourcePreservedMetadata.icc : undefined
     const sourceOrientation = needsOrientation
-      ? orientationValue((await context.codec.metadata(context.source, context.limits)).orientation)
+      ? orientationValue(
+          (
+            await context.codec.metadata(context.source, context.limits, {
+              ...(context.frame === undefined ? {} : { frame: context.frame }),
+              ...(context.resolutionLevel === undefined
+                ? {}
+                : { resolutionLevel: context.resolutionLevel }),
+            })
+          ).orientation,
+        )
       : 1
     const decoder = await context.codec.createDecoder(context.source, context.limits, {
       preserveIcc: icc !== undefined,
       tolerantDecoding: context.tolerantDecoding,
       ...(context.frame === undefined ? {} : { frame: context.frame }),
+      ...(context.resolutionLevel === undefined
+        ? {}
+        : { resolutionLevel: context.resolutionLevel }),
     })
     const output = planOutput(
       decoder.width,

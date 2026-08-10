@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-10T11:32:51.333Z",
+  "generatedAt": "2026-08-10T12:13:32.282Z",
   "sourceReport": "imazen-tiff-conformance.json",
-  "unsupportedFiles": 10,
+  "unsupportedFiles": 6,
   "dependencyCounts": [
     {
       "dependency": "color-depth:32,32,32,32",
@@ -13,20 +13,12 @@
       "count": 1
     },
     {
-      "dependency": "compression:34676",
-      "count": 3
-    },
-    {
-      "dependency": "compression:34677",
-      "count": 1
-    },
-    {
       "dependency": "compression:50000",
       "count": 1
     },
     {
       "dependency": "display-range-unspecified",
-      "count": 7
+      "count": 3
     },
     {
       "dependency": "extra-samples:0,0,0,0",
@@ -37,20 +29,8 @@
       "count": 1
     },
     {
-      "dependency": "photometric:32844",
-      "count": 1
-    },
-    {
-      "dependency": "photometric:32845",
-      "count": 3
-    },
-    {
       "dependency": "sample-format:2",
-      "count": 2
-    },
-    {
-      "dependency": "sample-format:2,2,2",
-      "count": 3
+      "count": 1
     },
     {
       "dependency": "sample-format:2,2,2,2",
@@ -69,8 +49,8 @@
       "count": 1
     }
   ],
-  "currentPass": 140,
-  "projectedPass": 140,
+  "currentPass": 144,
+  "projectedPass": 144,
   "implementationWaves": [
     {
       "id": "A",
@@ -85,7 +65,7 @@
       ],
       "visibleFiles": 0,
       "files": [],
-      "projectedPassAfterWave": 140
+      "projectedPassAfterWave": 144
     },
     {
       "id": "B",
@@ -97,7 +77,7 @@
       ],
       "visibleFiles": 0,
       "files": [],
-      "projectedPassAfterWave": 140
+      "projectedPassAfterWave": 144
     },
     {
       "id": "C",
@@ -107,7 +87,7 @@
       ],
       "visibleFiles": 0,
       "files": [],
-      "projectedPassAfterWave": 140
+      "projectedPassAfterWave": 144
     },
     {
       "id": "D",
@@ -117,7 +97,7 @@
       ],
       "visibleFiles": 0,
       "files": [],
-      "projectedPassAfterWave": 140
+      "projectedPassAfterWave": 144
     }
   ],
   "files": [
@@ -347,222 +327,6 @@
         "compression:50000",
         "display-range-unspecified",
         "sample-format:2"
-      ]
-    },
-    {
-      "file": "tiff-conformance/valid/logluv-3c-16b.tiff",
-      "byteOrder": "II",
-      "bigTiff": false,
-      "width": [
-        1
-      ],
-      "height": [
-        1
-      ],
-      "bitsPerSample": [
-        16,
-        16,
-        16
-      ],
-      "sampleFormat": [
-        2,
-        2,
-        2
-      ],
-      "samplesPerPixel": [
-        3
-      ],
-      "extraSamples": [],
-      "photometric": [
-        32845
-      ],
-      "compression": [
-        34676
-      ],
-      "predictor": [],
-      "planarConfiguration": [
-        1
-      ],
-      "fillOrder": [],
-      "rowsPerStrip": [
-        682
-      ],
-      "stripOffsets": 1,
-      "tileWidth": [],
-      "tileLength": [],
-      "tileOffsets": 0,
-      "subIfds": 0,
-      "hasIccProfile": false,
-      "iccProfileBytes": 0,
-      "sMinSampleValue": [],
-      "sMaxSampleValue": [],
-      "jpegTablesBytes": 0,
-      "dependencies": [
-        "compression:34676",
-        "display-range-unspecified",
-        "photometric:32845",
-        "sample-format:2,2,2"
-      ]
-    },
-    {
-      "file": "tiff-conformance/valid/off_l16.tif",
-      "byteOrder": "MM",
-      "bigTiff": false,
-      "width": [
-        333
-      ],
-      "height": [
-        225
-      ],
-      "bitsPerSample": [
-        16
-      ],
-      "sampleFormat": [
-        2
-      ],
-      "samplesPerPixel": [
-        1
-      ],
-      "extraSamples": [],
-      "photometric": [
-        32844
-      ],
-      "compression": [
-        34676
-      ],
-      "predictor": [],
-      "planarConfiguration": [
-        1
-      ],
-      "fillOrder": [],
-      "rowsPerStrip": [
-        8
-      ],
-      "stripOffsets": 29,
-      "tileWidth": [],
-      "tileLength": [],
-      "tileOffsets": 0,
-      "subIfds": 0,
-      "hasIccProfile": false,
-      "iccProfileBytes": 0,
-      "sMinSampleValue": [],
-      "sMaxSampleValue": [],
-      "jpegTablesBytes": 0,
-      "dependencies": [
-        "compression:34676",
-        "display-range-unspecified",
-        "photometric:32844",
-        "sample-format:2"
-      ]
-    },
-    {
-      "file": "tiff-conformance/valid/off_luv24.tif",
-      "byteOrder": "MM",
-      "bigTiff": false,
-      "width": [
-        333
-      ],
-      "height": [
-        225
-      ],
-      "bitsPerSample": [
-        16,
-        16,
-        16
-      ],
-      "sampleFormat": [
-        2,
-        2,
-        2
-      ],
-      "samplesPerPixel": [
-        3
-      ],
-      "extraSamples": [],
-      "photometric": [
-        32845
-      ],
-      "compression": [
-        34677
-      ],
-      "predictor": [],
-      "planarConfiguration": [
-        1
-      ],
-      "fillOrder": [],
-      "rowsPerStrip": [
-        8
-      ],
-      "stripOffsets": 29,
-      "tileWidth": [],
-      "tileLength": [],
-      "tileOffsets": 0,
-      "subIfds": 0,
-      "hasIccProfile": false,
-      "iccProfileBytes": 0,
-      "sMinSampleValue": [],
-      "sMaxSampleValue": [],
-      "jpegTablesBytes": 0,
-      "dependencies": [
-        "compression:34677",
-        "display-range-unspecified",
-        "photometric:32845",
-        "sample-format:2,2,2"
-      ]
-    },
-    {
-      "file": "tiff-conformance/valid/off_luv32.tif",
-      "byteOrder": "MM",
-      "bigTiff": false,
-      "width": [
-        333
-      ],
-      "height": [
-        225
-      ],
-      "bitsPerSample": [
-        16,
-        16,
-        16
-      ],
-      "sampleFormat": [
-        2,
-        2,
-        2
-      ],
-      "samplesPerPixel": [
-        3
-      ],
-      "extraSamples": [],
-      "photometric": [
-        32845
-      ],
-      "compression": [
-        34676
-      ],
-      "predictor": [],
-      "planarConfiguration": [
-        1
-      ],
-      "fillOrder": [],
-      "rowsPerStrip": [
-        8
-      ],
-      "stripOffsets": 29,
-      "tileWidth": [],
-      "tileLength": [],
-      "tileOffsets": 0,
-      "subIfds": 0,
-      "hasIccProfile": false,
-      "iccProfileBytes": 0,
-      "sMinSampleValue": [],
-      "sMaxSampleValue": [],
-      "jpegTablesBytes": 0,
-      "dependencies": [
-        "compression:34676",
-        "display-range-unspecified",
-        "photometric:32845",
-        "sample-format:2,2,2"
       ]
     },
     {

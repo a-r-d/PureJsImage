@@ -2,7 +2,7 @@ import { deflateSync } from 'node:zlib'
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
-import type { ImageCodec } from '../src/codec.ts'
+import type { DecoderOptions, ImageCodec } from '../src/codec.ts'
 import { createTiffCodec, tiffCodec } from '../src/codecs/tiff.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import { defaultImageLimits } from '../src/limits.ts'
@@ -214,6 +214,130 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
   if (options.jpegInterchange) output.set(options.jpegInterchange, jpegInterchangeOffset)
   return output
 }
+interface TiffGraphFixtureNode {
+  readonly width: number
+  readonly height: number
+  readonly pixels: Uint8Array
+  readonly subIfds?: readonly number[]
+  readonly next?: number
+  readonly newSubfileType?: number
+  readonly invalidStripOffset?: boolean
+}
+
+const tiffGraphFixture = (
+  nodes: readonly TiffGraphFixtureNode[],
+  bigTiff = false,
+): Uint8Array<ArrayBuffer> => {
+  const headerBytes = bigTiff ? 16 : 8
+  const countBytes = bigTiff ? 8 : 2
+  const entryBytes = bigTiff ? 20 : 12
+  const inlineBytes = bigTiff ? 8 : 4
+  const nextBytes = bigTiff ? 8 : 4
+  const offsetBytes = bigTiff ? 8 : 4
+  const entryCounts = nodes.map(
+    (node) => 10 + (node.newSubfileType === undefined ? 0 : 1) + (node.subIfds ? 1 : 0),
+  )
+  const ifdOffsets: number[] = []
+  let cursor = headerBytes
+  for (const count of entryCounts) {
+    ifdOffsets.push(cursor)
+    cursor += countBytes + count * entryBytes + nextBytes
+  }
+  const subIfdDataOffsets = new Map<number, number>()
+  for (let index = 0; index < nodes.length; index += 1) {
+    const subIfds = nodes[index]?.subIfds
+    if (subIfds && subIfds.length * offsetBytes > inlineBytes) {
+      subIfdDataOffsets.set(index, cursor)
+      cursor += subIfds.length * offsetBytes
+    }
+  }
+  const pixelOffsets: number[] = []
+  for (const node of nodes) {
+    pixelOffsets.push(cursor)
+    cursor += node.pixels.byteLength
+  }
+
+  const output = new Uint8Array(cursor)
+  const view = new DataView(output.buffer)
+  const setOffset = (offset: number, value: number): void => {
+    if (bigTiff) view.setBigUint64(offset, BigInt(value), true)
+    else view.setUint32(offset, value, true)
+  }
+  if (bigTiff) {
+    output.set([0x49, 0x49, 0x2b, 0])
+    view.setUint16(4, 8, true)
+    view.setBigUint64(8, BigInt(ifdOffsets[0] ?? 0), true)
+  } else {
+    output.set([0x49, 0x49, 0x2a, 0])
+    view.setUint32(4, ifdOffsets[0] ?? 0, true)
+  }
+
+  for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex += 1) {
+    const node = nodes[nodeIndex]
+    if (!node) continue
+    const ifdOffset = ifdOffsets[nodeIndex] ?? 0
+    const stripOffset = node.invalidStripOffset
+      ? output.byteLength + 1
+      : (pixelOffsets[nodeIndex] ?? 0)
+    const entries: {
+      readonly tag: number
+      readonly type: 3 | 4 | 16 | 18
+      readonly values: readonly number[]
+    }[] = [
+      ...(node.newSubfileType === undefined
+        ? []
+        : [{ tag: 254, type: 4 as const, values: [node.newSubfileType] }]),
+      { tag: 256, type: 4, values: [node.width] },
+      { tag: 257, type: 4, values: [node.height] },
+      { tag: 258, type: 3, values: [8] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [1] },
+      { tag: 273, type: bigTiff ? 16 : 4, values: [stripOffset] },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 278, type: 4, values: [node.height] },
+      { tag: 279, type: bigTiff ? 16 : 4, values: [node.pixels.byteLength] },
+      { tag: 284, type: 3, values: [1] },
+      ...(node.subIfds
+        ? [
+            {
+              tag: 330,
+              type: bigTiff ? (18 as const) : (4 as const),
+              values: node.subIfds.map((index) => ifdOffsets[index] ?? 0),
+            },
+          ]
+        : []),
+    ]
+    entries.sort((left, right) => left.tag - right.tag)
+    if (bigTiff) view.setBigUint64(ifdOffset, BigInt(entries.length), true)
+    else view.setUint16(ifdOffset, entries.length, true)
+    for (let entryIndex = 0; entryIndex < entries.length; entryIndex += 1) {
+      const entry = entries[entryIndex]
+      if (!entry) continue
+      const offset = ifdOffset + countBytes + entryIndex * entryBytes
+      view.setUint16(offset, entry.tag, true)
+      view.setUint16(offset + 2, entry.type, true)
+      if (bigTiff) view.setBigUint64(offset + 4, BigInt(entry.values.length), true)
+      else view.setUint32(offset + 4, entry.values.length, true)
+      const bytesPerValue = entry.type === 3 ? 2 : entry.type === 4 ? 4 : 8
+      const valueBytes = bytesPerValue * entry.values.length
+      const inlineOffset = offset + (bigTiff ? 12 : 8)
+      const valueOffset =
+        valueBytes <= inlineBytes ? inlineOffset : (subIfdDataOffsets.get(nodeIndex) ?? 0)
+      if (valueBytes > inlineBytes) setOffset(inlineOffset, valueOffset)
+      for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
+        const target = valueOffset + valueIndex * bytesPerValue
+        const value = entry.values[valueIndex] ?? 0
+        if (bytesPerValue === 2) view.setUint16(target, value, true)
+        else if (bytesPerValue === 4) view.setUint32(target, value, true)
+        else view.setBigUint64(target, BigInt(value), true)
+      }
+    }
+    const nextOffset = ifdOffset + countBytes + entries.length * entryBytes
+    setOffset(nextOffset, node.next === undefined ? 0 : (ifdOffsets[node.next] ?? 0))
+    output.set(node.pixels, pixelOffsets[nodeIndex] ?? 0)
+  }
+  return output
+}
 
 const bigTiffRgbFixture = (): Uint8Array<ArrayBuffer> => {
   const entries = [
@@ -377,17 +501,56 @@ const horizontal64Differences = (source: Uint8Array, littleEndian: boolean): Uin
   }
   return output
 }
+const sgiLogRleRows = (rows: readonly (readonly number[])[], bytePlanes: 2 | 4): Uint8Array => {
+  const encoded: number[] = []
+  for (const row of rows) {
+    for (let plane = 0; plane < bytePlanes; plane += 1) {
+      const shift = (bytePlanes - plane - 1) * 8
+      const first = ((row[0] ?? 0) >>> shift) & 0xff
+      const run = row.length >= 2 && row.every((value) => ((value >>> shift) & 0xff) === first)
+      if (run) {
+        encoded.push(126 + row.length, first)
+      } else {
+        encoded.push(row.length)
+        for (const value of row) encoded.push((value >>> shift) & 0xff)
+      }
+    }
+  }
+  return Uint8Array.from(encoded)
+}
+
+const sgiLog24Rows = (rows: readonly (readonly number[])[]): Uint8Array => {
+  const output = new Uint8Array(rows.reduce((total, row) => total + row.length * 3, 0))
+  let offset = 0
+  for (const row of rows) {
+    for (const value of row) {
+      output[offset] = value >>> 16
+      output[offset + 1] = value >>> 8
+      output[offset + 2] = value
+      offset += 3
+    }
+  }
+  return output
+}
+
+const logL16Value = (bits: number): number => {
+  const logarithmic = bits & 0x7fff
+  if (logarithmic === 0) return 0
+  const magnitude = 2 ** ((logarithmic + 0.5) / 256 - 64)
+  return (bits & 0x8000) === 0 ? magnitude : -magnitude
+}
 
 const decodeDirect = async (
   input: Uint8Array,
   codec: ImageCodec = tiffCodec,
+  options: Readonly<DecoderOptions> = {},
 ): Promise<{
   readonly format: string
   readonly data: Uint8Array
   readonly displayRanges: readonly { readonly black: number; readonly white: number }[] | undefined
 }> => {
   if (!codec.createDecoder) throw new Error('TIFF decoder is unavailable')
-  const decoder = await codec.createDecoder(new MemorySource(input), defaultImageLimits)
+  const decoder = await codec.createDecoder(new MemorySource(input), defaultImageLimits, options)
   let displayRanges: readonly { readonly black: number; readonly white: number }[] | undefined
   const blocks: Uint8Array[] = []
   for await (const block of decoder.decode()) {
@@ -735,6 +898,208 @@ describe('TIFF codec', () => {
     )
     expect(pixel(cropped, 0, 0)).toEqual([0, 255, 0, 255])
     expect(pixel(cropped, 0, 1)).toEqual([255, 255, 255, 255])
+  })
+
+  it('selects top-level TIFF frames and reduced-resolution SubIFDs', async () => {
+    const input = tiffGraphFixture([
+      {
+        width: 4,
+        height: 2,
+        pixels: Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8),
+        subIfds: [1],
+        next: 2,
+      },
+      {
+        width: 2,
+        height: 1,
+        pixels: Uint8Array.of(101, 102),
+        newSubfileType: 1,
+      },
+      {
+        width: 3,
+        height: 1,
+        pixels: Uint8Array.of(201, 202, 203),
+        subIfds: [3],
+      },
+      { width: 1, height: 1, pixels: Uint8Array.of(250) },
+    ])
+
+    await expect((await Image.open(input)).metadata()).resolves.toMatchObject({
+      width: 4,
+      height: 2,
+      frames: 2,
+      resolutionLevels: 2,
+    })
+    await expect((await Image.open(input, { frame: 1 })).metadata()).resolves.toMatchObject({
+      width: 3,
+      height: 1,
+      frames: 2,
+      resolutionLevels: 2,
+    })
+    await expect(
+      (await Image.open(input, { frame: 1, resolutionLevel: 1 })).metadata(),
+    ).resolves.toMatchObject({
+      width: 1,
+      height: 1,
+      frames: 2,
+      resolutionLevels: 2,
+    })
+
+    await expect(decodeDirect(input, tiffCodec, { resolutionLevel: 1 })).resolves.toMatchObject({
+      format: 'gray8',
+      data: Uint8Array.of(101, 102),
+    })
+    await expect(decodeDirect(input, tiffCodec, { frame: 1 })).resolves.toMatchObject({
+      format: 'gray8',
+      data: Uint8Array.of(201, 202, 203),
+    })
+    await expect(
+      decodeDirect(input, tiffCodec, { frame: 1, resolutionLevel: 1 }),
+    ).resolves.toMatchObject({
+      format: 'gray8',
+      data: Uint8Array.of(250),
+    })
+  })
+
+  it('orders reduced-resolution levels from largest to smallest', async () => {
+    const input = tiffGraphFixture([
+      {
+        width: 4,
+        height: 4,
+        pixels: new Uint8Array(16),
+        subIfds: [1, 2],
+      },
+      { width: 1, height: 1, pixels: Uint8Array.of(11), newSubfileType: 1 },
+      {
+        width: 2,
+        height: 2,
+        pixels: Uint8Array.of(21, 22, 23, 24),
+        newSubfileType: 1,
+      },
+    ])
+
+    await expect((await Image.open(input)).metadata()).resolves.toMatchObject({
+      resolutionLevels: 3,
+    })
+    await expect(decodeDirect(input, tiffCodec, { resolutionLevel: 1 })).resolves.toMatchObject({
+      data: Uint8Array.of(21, 22, 23, 24),
+    })
+    await expect(decodeDirect(input, tiffCodec, { resolutionLevel: 2 })).resolves.toMatchObject({
+      data: Uint8Array.of(11),
+    })
+  })
+
+  it('selects BigTIFF SubIFDs using IFD8 offsets', async () => {
+    const input = tiffGraphFixture(
+      [
+        {
+          width: 3,
+          height: 2,
+          pixels: Uint8Array.of(1, 2, 3, 4, 5, 6),
+          subIfds: [1],
+        },
+        {
+          width: 1,
+          height: 1,
+          pixels: Uint8Array.of(222),
+          newSubfileType: 1,
+        },
+      ],
+      true,
+    )
+
+    await expect((await Image.open(input)).metadata()).resolves.toMatchObject({
+      width: 3,
+      height: 2,
+      frames: 1,
+      resolutionLevels: 2,
+    })
+    await expect(decodeDirect(input, tiffCodec, { resolutionLevel: 1 })).resolves.toMatchObject({
+      format: 'gray8',
+      data: Uint8Array.of(222),
+    })
+  })
+
+  it('rejects invalid TIFF frame and resolution-level selections', async () => {
+    const input = tiffGraphFixture([
+      { width: 2, height: 1, pixels: Uint8Array.of(1, 2), subIfds: [1] },
+      { width: 1, height: 1, pixels: Uint8Array.of(3), newSubfileType: 1 },
+    ])
+
+    await expect((await Image.open(input, { frame: 1 })).metadata()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'TIFF frame 1 is outside the 1-frame image',
+    })
+    await expect(
+      (await Image.open(input, { resolutionLevel: 2 })).metadata(),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'TIFF resolutionLevel 2 is outside the 2-level frame 0',
+    })
+  })
+
+  it('rejects TIFF SubIFD graph cycles, malformed offsets, and excess directories', async () => {
+    const cycle = tiffGraphFixture([
+      { width: 2, height: 2, pixels: Uint8Array.of(1, 2, 3, 4), subIfds: [1] },
+      { width: 1, height: 1, pixels: Uint8Array.of(5), subIfds: [1] },
+    ])
+    const alias = tiffGraphFixture([
+      { width: 2, height: 2, pixels: Uint8Array.of(1, 2, 3, 4), subIfds: [1, 1] },
+      { width: 1, height: 1, pixels: Uint8Array.of(5) },
+    ])
+    const malformed = tiffGraphFixture([
+      { width: 2, height: 2, pixels: Uint8Array.of(1, 2, 3, 4), subIfds: [99] },
+    ])
+    const limited = tiffGraphFixture([
+      { width: 2, height: 2, pixels: Uint8Array.of(1, 2, 3, 4), subIfds: [1] },
+      { width: 1, height: 1, pixels: Uint8Array.of(5) },
+    ])
+
+    await expect((await Image.open(cycle)).metadata()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'TIFF SubIFD graph contains a loop',
+    })
+    await expect((await Image.open(alias)).metadata()).resolves.toMatchObject({
+      resolutionLevels: 2,
+    })
+    await expect(decodeDirect(alias, tiffCodec, { resolutionLevel: 1 })).resolves.toMatchObject({
+      data: Uint8Array.of(5),
+    })
+    await expect((await Image.open(malformed)).metadata()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'TIFF SubIFD offset is invalid',
+    })
+    await expect(
+      tiffCodec.metadata(new MemorySource(limited), { ...defaultImageLimits, maxFrames: 1 }),
+    ).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+      message: 'TIFF image directory count exceeds maxFrames 1',
+    })
+  })
+
+  it('does not read pixel segments from unselected TIFF frames', async () => {
+    const input = tiffGraphFixture([
+      {
+        width: 2,
+        height: 1,
+        pixels: Uint8Array.of(11, 22),
+        next: 1,
+      },
+      {
+        width: 1,
+        height: 1,
+        pixels: Uint8Array.of(33),
+        invalidStripOffset: true,
+      },
+    ])
+
+    await expect(decodeDirect(input)).resolves.toMatchObject({
+      format: 'gray8',
+      data: Uint8Array.of(11, 22),
+    })
+    await expect(decodeDirect(input, tiffCodec, { frame: 1 })).rejects.toMatchObject({
+      code: 'TRUNCATED_INPUT',
+    })
   })
 
   it('decodes packed grayscale and palette sample depths', async () => {
@@ -1172,6 +1537,153 @@ describe('TIFF codec', () => {
     await expect(Image.open(input).then((image) => image.png().toBuffer())).rejects.toMatchObject({
       code: 'INVALID_INPUT',
     })
+  })
+
+  it('decodes SGILog luminance to native CIE Y with bounded row RLE', async () => {
+    const values = [0, 0x3f00, 0xbf00, 0x4000]
+    for (const littleEndian of [true, false]) {
+      const input = tiffFixture({
+        width: values.length,
+        height: 1,
+        littleEndian,
+        bitsPerSample: [16],
+        compression: 34676,
+        photometric: 32844,
+        strips: [sgiLogRleRows([values], 2)],
+        extraEntries: [{ tag: 339, type: 3, values: [2] }],
+      })
+      const raw = await decodeDirect(input)
+      expect(raw.format).toBe('yf32')
+      const view = new DataView(raw.data.buffer, raw.data.byteOffset, raw.data.byteLength)
+      for (let index = 0; index < values.length; index += 1) {
+        expect(view.getFloat32(index * 4, false)).toBe(Math.fround(logL16Value(values[index] ?? 0)))
+      }
+      const pixels = await decodedPng(input)
+      expect(pixel(pixels, 0, 0)).toEqual([0, 0, 0, 255])
+      expect(pixel(pixels, 1, 0)).toEqual([181, 181, 181, 255])
+      expect(pixel(pixels, 2, 0)).toEqual([0, 0, 0, 255])
+      expect(pixel(pixels, 3, 0)).toEqual([255, 255, 255, 255])
+      const metadata = await (await Image.open(input)).metadata()
+      expect(metadata).toMatchObject({
+        colorSpace: 'gray',
+        bitDepth: 32,
+        sampleFormat: 'floating-point',
+      })
+    }
+  })
+
+  it('decodes SGILog32 byte-plane runs and literals to native CIE XYZ', async () => {
+    const logL = 0x3f00
+    const codes = [
+      ((logL << 16) | (86 << 8) | 194) >>> 0,
+      ((logL << 16) | (110 << 8) | 160) >>> 0,
+      ((logL << 16) | (86 << 8) | 194) >>> 0,
+      ((logL << 16) | (86 << 8) | 194) >>> 0,
+    ]
+    const input = tiffFixture({
+      width: codes.length,
+      height: 1,
+      bitsPerSample: [16, 16, 16],
+      compression: 34676,
+      photometric: 32845,
+      strips: [sgiLogRleRows([codes], 4)],
+      extraEntries: [{ tag: 339, type: 3, values: [2, 2, 2] }],
+    })
+    const raw = await decodeDirect(input)
+    expect(raw.format).toBe('xyzf32')
+    expect(raw.displayRanges).toBeUndefined()
+    const luminance = logL16Value(logL)
+    const u = 86.5 / 410
+    const v = 194.5 / 410
+    const scale = 1 / (6 * u - 16 * v + 12)
+    const x = 9 * u * scale
+    const y = 4 * v * scale
+    const view = new DataView(raw.data.buffer, raw.data.byteOffset, raw.data.byteLength)
+    expect(view.getFloat32(0, false)).toBe(Math.fround((x / y) * luminance))
+    expect(view.getFloat32(4, false)).toBe(Math.fround(luminance))
+    expect(view.getFloat32(8, false)).toBe(Math.fround(((1 - x - y) / y) * luminance))
+    const metadata = await (await Image.open(input)).metadata()
+    expect(metadata).toMatchObject({
+      colorSpace: 'cie-xyz',
+      bitDepth: 32,
+      sampleFormat: 'floating-point',
+    })
+  })
+
+  it('decodes SGILog24 codebook chroma and padded tile edges', async () => {
+    const values = [(0x300 << 14) | 0, (0x300 << 14) | 0x3fff]
+    const strip = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [16, 16, 16],
+      compression: 34677,
+      photometric: 32845,
+      strips: [sgiLog24Rows([values])],
+      extraEntries: [{ tag: 339, type: 3, values: [2, 2, 2] }],
+    })
+    const raw = await decodeDirect(strip)
+    expect(raw.format).toBe('xyzf32')
+    expect(raw.data.byteLength).toBe(24)
+    const view = new DataView(raw.data.buffer, raw.data.byteOffset, raw.data.byteLength)
+    for (let offset = 0; offset < raw.data.byteLength; offset += 4) {
+      expect(Number.isFinite(view.getFloat32(offset, false))).toBe(true)
+    }
+
+    const paddedValues = [values[0] ?? 0, values[1] ?? 0, values[0] ?? 0, values[1] ?? 0]
+    const tiled = tiffFixture({
+      width: 3,
+      height: 1,
+      littleEndian: false,
+      bitsPerSample: [16, 16, 16],
+      compression: 34677,
+      photometric: 32845,
+      tileWidth: 4,
+      tileHeight: 1,
+      strips: [sgiLog24Rows([paddedValues])],
+      extraEntries: [{ tag: 339, type: 3, values: [2, 2, 2] }],
+    })
+    const tiledRaw = await decodeDirect(tiled)
+    expect(tiledRaw.format).toBe('xyzf32')
+    expect(tiledRaw.data.byteLength).toBe(36)
+    expect(tiledRaw.data).toEqual(
+      Uint8Array.from([
+        ...raw.data.slice(0, 12),
+        ...raw.data.slice(12, 24),
+        ...raw.data.slice(0, 12),
+      ]),
+    )
+  })
+
+  it('rejects malformed SGILog packets and inexact SGILog24 segments', async () => {
+    const fixture = (compression: number, photometric: number, strip: Uint8Array): Uint8Array =>
+      tiffFixture({
+        width: 4,
+        height: 1,
+        bitsPerSample: photometric === 32844 ? [16] : [16, 16, 16],
+        compression,
+        photometric,
+        strips: [strip],
+        extraEntries: [
+          {
+            tag: 339,
+            type: 3,
+            values: photometric === 32844 ? [2] : [2, 2, 2],
+          },
+        ],
+      })
+    for (const input of [
+      fixture(34676, 32844, Uint8Array.of(130)),
+      fixture(34676, 32844, Uint8Array.of(131, 0)),
+      fixture(34676, 32844, Uint8Array.of(4, 0, 1)),
+      fixture(34676, 32844, Uint8Array.of(130, 0, 130, 0, 99)),
+      fixture(34677, 32845, new Uint8Array(11)),
+    ]) {
+      await expect(Image.open(input).then((image) => image.png().toBuffer())).rejects.toMatchObject(
+        {
+          code: 'INVALID_INPUT',
+        },
+      )
+    }
   })
 
   it('preserves signed integer samples and converts declared display ranges', async () => {

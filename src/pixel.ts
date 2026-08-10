@@ -10,6 +10,8 @@ export type PixelFormat =
   | 'grayf16'
   | 'grayf32'
   | 'grayf64'
+  | 'yf32'
+  | 'xyzf32'
   | 'rgb8'
   | 'rgba8'
   | 'rgb16'
@@ -88,6 +90,8 @@ const normalizedFormat = (format: PixelFormat): PixelFormat => {
   ) {
     return 'rgb8'
   }
+  if (format === 'yf32') return 'gray8'
+  if (format === 'xyzf32') return 'rgb8'
   if (format === 'rgba16') return 'rgba8'
   return format
 }
@@ -212,6 +216,101 @@ const displayByte = (
   return Math.floor(Math.round(scaled * 65_535) / 257)
 }
 
+const xyzDisplayByte = (value: number): number => {
+  if (!Number.isFinite(value) || value <= 0) return 0
+  if (value >= 1) return 255
+  return Math.floor(256 * Math.sqrt(value))
+}
+
+const normalizeYF32Blocks = async function* (
+  blocks: AsyncIterable<PixelBlock>,
+): AsyncGenerator<PixelBlock> {
+  const bytesPerPixel = 4
+  for await (const block of blocks) {
+    const rowBytes = block.width * bytesPerPixel
+    if (
+      block.format !== 'yf32' ||
+      block.height < 1 ||
+      block.stride < rowBytes ||
+      block.data.byteLength < block.stride * (block.height - 1) + rowBytes ||
+      block.displayRanges !== undefined
+    ) {
+      block.release?.()
+      throw invalidInput('CIE Y normalization received an invalid pixel block')
+    }
+    const outputStride = block.width
+    const output = new Uint8Array(outputStride * block.height)
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    for (let row = 0; row < block.height; row += 1) {
+      let source = row * block.stride
+      let target = row * outputStride
+      const end = source + rowBytes
+      while (source < end) {
+        output[target] = xyzDisplayByte(view.getFloat32(source, false))
+        source += bytesPerPixel
+        target += 1
+      }
+    }
+    block.release?.()
+    yield {
+      x: block.x,
+      y: block.y,
+      width: block.width,
+      height: block.height,
+      stride: outputStride,
+      format: 'gray8',
+      data: output,
+    }
+  }
+}
+
+const normalizeXyzF32Blocks = async function* (
+  blocks: AsyncIterable<PixelBlock>,
+): AsyncGenerator<PixelBlock> {
+  const bytesPerPixel = 12
+  for await (const block of blocks) {
+    const rowBytes = block.width * bytesPerPixel
+    if (
+      block.format !== 'xyzf32' ||
+      block.height < 1 ||
+      block.stride < rowBytes ||
+      block.data.byteLength < block.stride * (block.height - 1) + rowBytes ||
+      block.displayRanges !== undefined
+    ) {
+      block.release?.()
+      throw invalidInput('XYZ normalization received an invalid pixel block')
+    }
+    const outputStride = block.width * 3
+    const output = new Uint8Array(outputStride * block.height)
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    for (let row = 0; row < block.height; row += 1) {
+      let source = row * block.stride
+      let target = row * outputStride
+      const end = source + rowBytes
+      while (source < end) {
+        const x = view.getFloat32(source, false)
+        const y = view.getFloat32(source + 4, false)
+        const z = view.getFloat32(source + 8, false)
+        output[target] = xyzDisplayByte(2.69 * x - 1.276 * y - 0.414 * z)
+        output[target + 1] = xyzDisplayByte(-1.022 * x + 1.978 * y + 0.044 * z)
+        output[target + 2] = xyzDisplayByte(0.061 * x - 0.224 * y + 1.163 * z)
+        source += bytesPerPixel
+        target += 3
+      }
+    }
+    block.release?.()
+    yield {
+      x: block.x,
+      y: block.y,
+      width: block.width,
+      height: block.height,
+      stride: outputStride,
+      format: 'rgb8',
+      data: output,
+    }
+  }
+}
+
 export const normalizePixelBlocks = async function* (
   blocks: AsyncIterable<PixelBlock>,
   format: PixelFormat,
@@ -219,6 +318,14 @@ export const normalizePixelBlocks = async function* (
   const normalized = normalizedFormat(format)
   if (normalized === format) {
     yield* blocks
+    return
+  }
+  if (format === 'yf32') {
+    yield* normalizeYF32Blocks(blocks)
+    return
+  }
+  if (format === 'xyzf32') {
+    yield* normalizeXyzF32Blocks(blocks)
     return
   }
   const numeric = numericFormat(format)
