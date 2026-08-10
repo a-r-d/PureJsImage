@@ -62,9 +62,10 @@ npm run capabilities:generate
 npm run capabilities:check
 ```
 
-Do not edit generated README support tables, codec support pages, `docs/capabilities.json`, website
-capability tables, or generated test expectations directly. `npm run check` fails when these outputs
-are stale or when published decoder/encoder support disagrees with the registered codec objects.
+Do not edit generated README support tables, codec support pages, `docs/capabilities.json`, the
+capability map inside `docs/llms.txt`, website capability tables, or generated test expectations
+directly. `npm run check` fails when these outputs are stale or when published decoder/encoder
+support disagrees with the registered codec objects.
 
 The TIFF library comparison has one typed capability source,
 `docs/data/library-comparison.ts`, and one checked conformance result,

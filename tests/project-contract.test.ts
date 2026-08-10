@@ -145,6 +145,49 @@ describe('package contract', () => {
     expect(sitemap).toContain('https://a-r-d.github.io/PureJsImage/tiff-comparison.html')
   })
 
+  it('publishes a capability-backed LLM guide and footer discovery links', () => {
+    const llms = readFileSync('docs/llms.txt', 'utf8')
+    const sitemap = readFileSync('docs/sitemap.xml', 'utf8')
+    for (const section of [
+      '## Image transform quick API',
+      '## Encoder quick API',
+      '## Codec capability map',
+      '## Replace Jimp',
+      '## Replace Sharp',
+      '## Replace image-js',
+      '## Replace @jsquash packages',
+      '## Replace GeoTIFF.js or UTIF.js/utif2',
+    ]) {
+      expect(llms).toContain(section)
+    }
+    for (const codec of [
+      '### JPEG',
+      '### PNG',
+      '### WebP',
+      '### BMP',
+      '### TIFF',
+      '### GIF',
+      '### ICO',
+      '### JPEG 2000 / JP2',
+      '### AVIF',
+      '### HEIF / HEIC (experimental)',
+    ]) {
+      expect(llms).toContain(codec)
+    }
+    expect(llms).toContain('<!-- capabilities:llms:start -->')
+    expect(llms).toContain('<!-- capabilities:llms:end -->')
+    expect(sitemap).toContain('https://a-r-d.github.io/PureJsImage/llms.txt')
+
+    const websitePages = globSync('docs/*.html')
+      .map((path) => ({ path, html: readFileSync(path, 'utf8') }))
+      .filter(({ html }) => html.includes('class="site-footer"'))
+    expect(websitePages.length).toBeGreaterThan(0)
+    for (const { path, html } of websitePages) {
+      expect(html, path).toContain('href="llms.txt">LLM guide</a>')
+      expect(html, path).toContain('href="sitemap.xml">Sitemap</a>')
+    }
+  })
+
   it('publishes a self-contained browser conversion demo with a separate README link', () => {
     const readme = readFileSync('README.md', 'utf8')
     const demo = readFileSync('docs/demo.html', 'utf8')
