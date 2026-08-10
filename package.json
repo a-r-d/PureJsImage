@@ -154,6 +154,7 @@
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
     "fixtures:avif:alpha:prepare": "node benchmark/avif/prepare-alpha-fixtures.ts",
     "fixtures:avif:q0:prepare": "node benchmark/avif/prepare-q0-fixtures.ts",
+    "fixtures:avif:high-bit:prepare": "node benchmark/avif/prepare-high-bit-lossless-fixtures.ts",
     "fixtures:avif:post-filters": "node benchmark/avif/verify-post-filters.ts",
     "fixtures:avif:qmatrix": "node benchmark/avif/verify-qmatrix-fixtures.ts",
     "fixtures:avif:qmatrix:prepare": "node benchmark/avif/prepare-qmatrix-fixtures.ts",

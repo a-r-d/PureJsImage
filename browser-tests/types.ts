@@ -8,8 +8,11 @@ export interface BrowserCompatibilityHarness {
   avifAlphaPremultiplied(): Promise<BrowserWorkflowResult>
   avifAlphaStraight(): Promise<BrowserWorkflowResult>
   avifGrid(): Promise<BrowserWorkflowResult>
+  avifHighBit10(): Promise<BrowserWorkflowResult>
+  avifHighBit12(): Promise<BrowserWorkflowResult>
   avifMonochrome(): Promise<BrowserWorkflowResult>
   avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
+  avifPalette(): Promise<BrowserWorkflowResult>
   avifQ0Lossless(): Promise<BrowserWorkflowResult>
   avifYuv422(): Promise<BrowserWorkflowResult>
   avifYuv444(): Promise<BrowserWorkflowResult>

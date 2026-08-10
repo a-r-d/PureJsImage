@@ -51,6 +51,13 @@ All notable changes to PureJsImage are documented in this file.
   Walsh-Hadamard reconstruction, and container-signaled NCLX conversion including
   full-range identity color; deterministic lossy and lossless libavif fixtures
   match Sharp/libavif RGB exactly.
+- Added AV1 luma and chroma palette reconstruction for compatible AVIF screen content,
+  including cache reuse, non-symmetric index coding, and diagonal color-map contexts;
+  the checksum-pinned draw-points fixture matches Sharp/libavif RGBA exactly.
+- Added constrained coded-lossless 10-bit and 12-bit AVIF YUV 4:4:4 decode with
+  native high-depth prediction and coefficient reconstruction before explicit
+  conversion to the 8-bit RGBA contract; pinned fixtures reconstruct source
+  planes exactly and differ from Sharp/libavif displayed RGB by at most one.
 
 ### Changed
 

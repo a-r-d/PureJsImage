@@ -1,7 +1,7 @@
 import type { Av1FrameHeader } from './av1-frame.ts'
 
 export interface Av1FilterPlane {
-  readonly data: Uint8Array
+  readonly data: Uint8Array | Uint16Array
   readonly height: number
   readonly stride: number
   readonly width: number

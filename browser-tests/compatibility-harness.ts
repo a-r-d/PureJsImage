@@ -551,6 +551,32 @@ const avifQ0Lossless = (): Promise<BrowserWorkflowResult> =>
     'd49269082c04c18e7c81ef36bed98bbcd34dd0217e7d4042dad22801fbbbd7bf',
     'Lossless quantizer-context-0 identity-color AVIF',
   )
+const avifPalette = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'draw_points_idat.avif',
+    33,
+    11,
+    '2aa96c2acef4969d3e034ccc38d4cbcd80caa3cc1b14dd976fc3a4bcbeb0b07f',
+    'Palette-coded screen-content AVIF',
+  )
+
+const avifHighBit10 = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'lossless-identity-16x12-10bpc.avif',
+    16,
+    12,
+    '54ce76855c1541d9a61bf24e543cac163c038f47e1e441450ba359c6ceb36a1c',
+    'Coded-lossless 10-bit AVIF',
+  )
+
+const avifHighBit12 = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'lossless-identity-16x12-12bpc.avif',
+    16,
+    12,
+    '54ce76855c1541d9a61bf24e543cac163c038f47e1e441450ba359c6ceb36a1c',
+    'Coded-lossless 12-bit AVIF',
+  )
 
 const avifGrid = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
@@ -747,8 +773,11 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifAlphaPremultiplied,
   avifAlphaStraight,
   avifGrid,
+  avifHighBit10,
+  avifHighBit12,
   avifQuantizationMatrix,
   avifQ0Lossless,
+  avifPalette,
   avifMonochrome,
   avifYuv422,
   avifYuv444,

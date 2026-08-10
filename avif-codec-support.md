@@ -96,13 +96,14 @@ coverage.
 - [ ] Multiple operating-point selection
 - [ ] Annex B AV1 byte streams
 - [ ] Inter-frame or general video decoding
-
-### Implemented 8-bit monochrome, 4:2:0, 4:2:2, and 4:4:4 still path
+### Implemented restricted still-image path
 
 - [x] One complete AV1 frame OBU per coded image item
 - [x] Reduced still-picture, intra-only AV1
 - [x] AV1 Main, High, and Professional Profiles with 8-bit monochrome, YUV
   4:2:0, YUV 4:2:2, and YUV 4:4:4 output
+- [x] Coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color output with
+  native high-depth planes and explicit conversion to the 8-bit RGBA contract
 - [x] Lossless and lossy quantization paths used by the permanent fixtures
 - [x] 64x64 and 128x128 superblocks
 - [x] One complete AV1 tile
@@ -144,7 +145,8 @@ coverage.
 - [ ] Tile-list or partial tile-group OBUs
 - [ ] Alpha-bearing image grids
 - [ ] Intra block copy and other screen-content tools
-- [ ] Palette mode
+- [x] Luma and chroma palette mode, including cached and new palette entries,
+  non-symmetric first-index coding, and diagonal color-map reconstruction
 - [ ] Complete segmentation-map and delta-loop-filter reconstruction, plus
   delta-Q combinations outside the restricted one-tile intra-only path
 - [ ] Every legal transform-size, transform-type, coefficient-context, and
@@ -192,8 +194,10 @@ so Kodak is not classified as an exact post-filter fixture.
 - [x] 8-bit YUV 4:2:2
 - [ ] 10/12-bit YUV 4:2:2
 - [x] 8-bit YUV 4:4:4
-- [ ] 10/12-bit YUV 4:4:4
-- [ ] Full-range high-bit-depth output without premature 8-bit truncation
+- [x] Coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode
+- [ ] Lossy 10-bit and 12-bit YUV 4:4:4 decode
+- [x] Full-range high-bit-depth reconstruction without premature truncation
+  before explicit conversion to the library's 8-bit RGBA output contract
 - [ ] Opaque alpha-plane defaults and decoded auxiliary alpha
 - [ ] Premultiplied-alpha signaling and correct unpremultiplication behavior
 - [ ] Multi-tile grids and tile-edge composition
@@ -326,6 +330,13 @@ so Kodak is not classified as an exact post-filter fixture.
   least 55 dB PSNR, plus displayed RGB PSNR above 39 dB against Sharp/libaom
 - [x] Match Sharp/libavif RGB exactly for checksum-pinned lossy and lossless
   quantizer-context-0 YUV 4:4:4 fixtures, including lossless identity color
+- [x] Match Sharp/libavif RGBA exactly for the checksum-pinned 33x11
+  draw-points screen-content fixture using luma and chroma palettes
+- [x] Reconstruct native 10-bit and 12-bit planes exactly for two
+  checksum-pinned coded-lossless YUV 4:4:4 fixtures and hold displayed RGB
+  maximum error to 1 against Sharp/libavif
+- [x] Exercise palette-coded 8-bit and coded-lossless 10-bit and 12-bit
+  decoding through the portable codec entry in Chromium
 - [x] Keep delta loop-filter syntax explicitly unsupported in the restricted
   quantization-matrix path
 - [ ] Resolve Kodak's documented one-sample CDEF discrepancy before requiring

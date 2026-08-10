@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { PNG } from 'pngjs'
+import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
 import { avifAlphaFixtures } from '../benchmark/avif/alpha-fixtures.ts'
@@ -10,7 +11,14 @@ import {
   avifQ0LosslessFixture,
   avifQ0LossyFixture,
 } from '../benchmark/avif/q0-fixtures.ts'
+import {
+  avifHighBitLosslessFixtureDirectory,
+  avifHighBitLosslessFixtures,
+} from '../benchmark/avif/high-bit-lossless-fixtures.ts'
 import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
+import { av1ObuType } from '../src/codecs/av1.ts'
+import { parseAv1Frame } from '../src/codecs/av1-frame.ts'
+import { decodeRestrictedAv1Intra } from '../src/codecs/av1-intra.ts'
 import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
 import { MemorySource } from '../src/source.ts'
 import { channelSwappingRgbProfile } from './icc-fixtures.ts'
@@ -383,6 +391,74 @@ describe('AVIF restricted pixel decode', () => {
     expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
   })
+
+  it('decodes the pinned draw-points screen-content palette fixture exactly', async () => {
+    const input = await readFile(join(avifCorpusDirectory, 'draw_points_idat.avif'))
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(
+      'ce2fd627efae49391ea82584e9beae05959b867ba429e688a2b95a015b38d3db',
+    )
+    expect([output.width, output.height]).toEqual([33, 11])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      'f803b121d2471ac44b32170380ab02f8174ddf1079f9425de921dde00ac91fc7',
+    )
+  })
+
+  it.each(avifHighBitLosslessFixtures)(
+    'decodes the pinned coded-lossless $bitDepth-bit identity-color fixture',
+    async (fixture) => {
+      const input = await readFile(join(avifHighBitLosslessFixtureDirectory, fixture.file))
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+      const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+      const oracle = await sharp(input).removeAlpha().raw().toBuffer()
+
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+      expect(inspection.codedImages[0]?.sequence).toMatchObject({
+        bitDepth: fixture.bitDepth,
+        chromaSubsampling: '444',
+        fullRange: true,
+      })
+      expect(inspection.nclx).toMatchObject({ fullRange: true, matrixCoefficients: 0 })
+      const coded = inspection.codedImages[0]
+      const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+      if (!coded || !frameObu) throw new Error('High-bit-depth fixture has no AV1 frame OBU')
+      const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+      expect(frame.header.codedLossless).toBe(true)
+      const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
+      const maximum = 2 ** fixture.bitDepth - 1
+      let maximumPlaneDifference = 0
+      for (let y = 0; y < fixture.height; y += 1) {
+        for (let x = 0; x < fixture.width; x += 1) {
+          const expected = [
+            Math.round((x * maximum) / (fixture.width - 1)),
+            Math.round((y * maximum) / (fixture.height - 1)),
+            Math.round((((x ^ y) & 15) * maximum) / 15),
+          ] as const
+          maximumPlaneDifference = Math.max(
+            maximumPlaneDifference,
+            Math.abs((decoded.y[y * decoded.yStride + x] ?? 0) - expected[0]),
+            Math.abs((decoded.u[y * decoded.chromaStride + x] ?? 0) - expected[1]),
+            Math.abs((decoded.v[y * decoded.chromaStride + x] ?? 0) - expected[2]),
+          )
+        }
+      }
+      expect(maximumPlaneDifference).toBe(0)
+      expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+      expect(createHash('sha256').update(oracle).digest('hex')).toBe(fixture.sharpRgbSha256)
+      let maximumDifference = 0
+      for (let pixel = 0; pixel < fixture.width * fixture.height; pixel += 1) {
+        for (let channel = 0; channel < 3; channel += 1) {
+          maximumDifference = Math.max(
+            maximumDifference,
+            Math.abs((output.data[pixel * 4 + channel] ?? 0) - (oracle[pixel * 3 + channel] ?? 0)),
+          )
+        }
+      }
+      expect(maximumDifference).toBeLessThanOrEqual(1)
+    },
+  )
 
   it.each([
     {

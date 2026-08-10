@@ -40,6 +40,16 @@ export class Av1SymbolDecoder {
     for (let index = 0; index < bits; index += 1) value = value * 2 + this.readBoolean()
     return value
   }
+  readNonSymmetric(symbols: number): number {
+    if (!Number.isInteger(symbols) || symbols < 1 || symbols > 256) {
+      throw invalidInput(`Invalid AV1 non-symmetric symbol count: ${symbols}`)
+    }
+    if (symbols === 1) return 0
+    const bits = floorLog2(symbols) + 1
+    const cutoff = 2 ** bits - symbols
+    const value = this.readLiteral(bits - 1)
+    return value < cutoff ? value : value * 2 - cutoff + this.readBoolean()
+  }
 
   readSymbol(cdf: Uint16Array): number {
     const symbols = cdf.length - 1

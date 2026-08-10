@@ -392,6 +392,7 @@ const dequantizeAv1Coefficients = (
   plane: 0 | 1 | 2,
   header: Av1FrameHeader,
   quantizer: number,
+  bitDepth: 8 | 10 | 12,
 ): Int32Array => {
   const dcDelta = plane === 0 ? header.deltaYDc : plane === 1 ? header.deltaUDc : header.deltaVDc
   const acDelta = plane === 0 ? 0 : plane === 1 ? header.deltaUAc : header.deltaVAc
@@ -421,9 +422,13 @@ const dequantizeAv1Coefficients = (
         : 32
     const weighted = matrix ? roundedShift(quantization * matrixWeight, 5) : quantization
     const scaled = (quantized[index] ?? 0) * weighted
+    const coefficientLimit = 2 ** (bitDepth + 7)
     const value = Math.max(
-      -32768,
-      Math.min(32767, Math.sign(scaled) * Math.floor(Math.abs(scaled) / dequantizerDivisor)),
+      -coefficientLimit,
+      Math.min(
+        coefficientLimit - 1,
+        Math.sign(scaled) * Math.floor(Math.abs(scaled) / dequantizerDivisor),
+      ),
     )
     dequantized[index] = rectangularScale ? roundedShift(value * 181, 8) : value
   }
@@ -438,6 +443,7 @@ export const inverseTransform = (
   plane: 0 | 1 | 2,
   header: Av1FrameHeader,
   quantizer = header.baseQuantizer,
+  bitDepth: 8 | 10 | 12 = 8,
 ): Int32Array => {
   if (transformType < 0 || transformType > 15) {
     throw unsupportedOperation(`Unsupported AV1 transform type ${transformType}`)
@@ -450,6 +456,7 @@ export const inverseTransform = (
     plane,
     header,
     quantizer,
+    bitDepth,
   )
   if (header.codedLossless) {
     if (width !== 4 || height !== 4) {
@@ -461,7 +468,7 @@ export const inverseTransform = (
     for (let row = 0; row < 4; row += 1) {
       const transformed = inverseWht4(dequantized.subarray(row * 4, row * 4 + 4), 2)
       for (let column = 0; column < 4; column += 1) {
-        intermediate[row * 4 + column] = clampTransform(transformed[column] ?? 0)
+        intermediate[row * 4 + column] = transformed[column] ?? 0
       }
     }
     const residual = new Int32Array(16)

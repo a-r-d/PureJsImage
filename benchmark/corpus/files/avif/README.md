@@ -13,6 +13,11 @@ They come from the libavif repository at revision
 `25a6d23f872f37c91a3df15b75e1a97f590d7c46` under its BSD-2-Clause license.
 Their source paths and SHA-256 checksums are pinned in `benchmark/avif/corpus.ts`.
 
+`draw_points_idat.avif` comes from the same pinned libavif revision. It is
+committed for exact luma/chroma palette-mode and non-symmetric color-index
+regression coverage; its SHA-256 checksum is pinned in
+`benchmark/avif/corpus.ts`.
+
 The five `post-filter-*.avif` files are deterministic, opaque 8-bit YUV 4:2:0
 fixtures encoded with libavif 1.3.0 and libaom 3.12.1. They isolate disabled
 filters, deblocking, luma/chroma CDEF, Wiener plus self-guided restoration, odd
@@ -52,6 +57,14 @@ The encoded and decoded RGBA checksums are pinned in
 `benchmark/avif/q0-fixtures.ts`; lossless decoded RGB must match the source
 exactly.
 
+The `lossless-identity-16x12-10bpc.avif` and
+`lossless-identity-16x12-12bpc.avif` fixtures are deterministic full-range YUV
+4:4:4 images encoded with libavif 1.3.0 and libaom 3.12.1. They cover native
+high-bit-depth prediction and coded-lossless coefficient reconstruction before
+conversion to the library's 8-bit RGBA output contract. Run
+`npm run fixtures:avif:high-bit:prepare` to regenerate them from checksum-pinned
+Y4M sources with one encoder worker. Encoded, source, Sharp RGB, and decoded
+RGBA checksums are pinned in `benchmark/avif/high-bit-lossless-fixtures.ts`.
 
 `sofa_grid1x5_420.avif` comes from the pinned libavif corpus revision documented
 in `benchmark/avif/corpus.ts`. It covers a 1x5 image grid whose final tile and

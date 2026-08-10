@@ -320,6 +320,18 @@ await copyFile(
   resolve(fixtureDirectory, 'lossless-q0-64x48.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/draw_points_idat.avif',
+  resolve(fixtureDirectory, 'draw_points_idat.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/lossless-identity-16x12-10bpc.avif',
+  resolve(fixtureDirectory, 'lossless-identity-16x12-10bpc.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/lossless-identity-16x12-12bpc.avif',
+  resolve(fixtureDirectory, 'lossless-identity-16x12-12bpc.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/sofa_grid1x5_420.avif',
   resolve(fixtureDirectory, 'sofa_grid1x5_420.avif'),
 )

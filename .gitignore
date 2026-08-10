@@ -164,6 +164,7 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/fox.profile2.8bpc.yuv422.avif
 !benchmark/corpus/files/avif/fox.profile1.8bpc.yuv444.avif
 !benchmark/corpus/files/avif/kodim03_yuv420_8bpc.avif
+!benchmark/corpus/files/avif/draw_points_idat.avif
 !benchmark/corpus/files/avif/post-filter-cdef-66x70.avif
 !benchmark/corpus/files/avif/post-filter-deblock-96x74.avif
 !benchmark/corpus/files/avif/post-filter-disabled-66x70.avif
@@ -173,6 +174,7 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/alpha-*.avif
 !benchmark/corpus/files/avif/lossless-q0-64x48.avif
 !benchmark/corpus/files/avif/lossy-q0-64x48.avif
+!benchmark/corpus/files/avif/lossless-identity-*-*bpc.avif
 !benchmark/corpus/files/avif/sofa_grid1x5_420.avif
 !benchmark/corpus/files/jp2/
 benchmark/corpus/files/jp2/*

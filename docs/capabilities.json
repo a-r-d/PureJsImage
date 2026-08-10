@@ -3145,8 +3145,8 @@
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode, including compatible alpha auxiliaries and opaque grids",
-      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images, including compatible full-range monochrome alpha auxiliaries, opaque image grids, quantizer contexts 0-3 used by the pinned fixtures, compatible coded-lossless 4x4 transforms, container-signaled NCLX conversion including identity color, the documented in-loop filters, and the restricted Sharp/libaom quantization-matrix path. Grid alpha, high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
+      "boundary": "Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode, plus coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode, compatible alpha auxiliaries, and opaque grids",
+      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images, plus coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color images with native high-depth reconstruction before explicit RGBA conversion. The supported path includes compatible full-range monochrome alpha auxiliaries, opaque image grids, palette-coded screen content, quantizer contexts 0-3 used by the pinned fixtures, coded-lossless 4x4 transforms, container-signaled NCLX conversion including identity color, the documented 8-bit in-loop filters, and the restricted Sharp/libaom quantization-matrix path. Grid alpha, lossy high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
       "memory": "Metadata reads are bounded; the restricted decoder uses compact luma or YUV state plus the requested RGBA output and, for grids, one decoded tile",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
       "evidence": [
@@ -3159,8 +3159,9 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Sharp 0.35.3/libaom, FFmpeg with libaom 3.12.1 and dav1d 1.5.1, and Chromium",
-        "tolerance": "Quantizer-context-0 YUV 4:4:4 fixtures match Sharp/libavif exactly, including lossless identity-color output; 8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; 8-bit YUV 4:2:2 and 4:4:4 planes are exact and displayed RGB exceeds 50 dB against Sharp; YUV 4:4:4 displayed RGB also exceeds 50 dB against Chromium; YUV 4:2:0 maximum error is at most 3 with PSNR at least 55 dB and displayed RGB above 39 dB; straight and premultiplied alpha RGBA is exact against Sharp/libavif after semantic unpremultiplication; the 1x5 grid exceeds 54 dB RGBA PSNR against Sharp/libavif",
+        "tolerance": "Quantizer-context-0 8-bit YUV 4:4:4 fixtures match Sharp/libavif exactly, including lossless identity-color and palette-coded screen-content output; coded-lossless 10-bit and 12-bit YUV 4:4:4 native planes are exact against their deterministic Y4M sources and displayed RGB differs from Sharp/libavif by at most 1; 8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; 8-bit YUV 4:2:2 and 4:4:4 planes are exact and displayed RGB exceeds 50 dB against Sharp; YUV 4:4:4 displayed RGB also exceeds 50 dB against Chromium; YUV 4:2:0 maximum error is at most 3 with PSNR at least 55 dB and displayed RGB above 39 dB; straight and premultiplied alpha RGBA is exact against Sharp/libavif after semantic unpremultiplication; the 1x5 grid exceeds 54 dB RGBA PSNR against Sharp/libavif",
         "evidence": [
+          "tests/avif.test.ts",
           "tests/lossy-codec-quality.test.ts",
           "tests/av1-post-filter.test.ts",
           "benchmark/avif/verify-qmatrix-fixtures.ts"
@@ -3413,6 +3414,10 @@
         },
         {
           "status": "supported",
+          "text": "Coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color output with native high-depth planes and explicit conversion to the 8-bit RGBA contract"
+        },
+        {
+          "status": "supported",
           "text": "Lossless and lossy quantization paths used by the permanent fixtures"
         },
         {
@@ -3520,8 +3525,8 @@
           "text": "Intra block copy and other screen-content tools"
         },
         {
-          "status": "planned",
-          "text": "Palette mode"
+          "status": "supported",
+          "text": "Luma and chroma palette mode, including cached and new palette entries, non-symmetric first-index coding, and diagonal color-map reconstruction"
         },
         {
           "status": "planned",
@@ -3608,12 +3613,16 @@
           "text": "8-bit YUV 4:4:4"
         },
         {
-          "status": "planned",
-          "text": "10/12-bit YUV 4:4:4"
+          "status": "supported",
+          "text": "Coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode"
         },
         {
           "status": "planned",
-          "text": "Full-range high-bit-depth output without premature 8-bit truncation"
+          "text": "Lossy 10-bit and 12-bit YUV 4:4:4 decode"
+        },
+        {
+          "status": "supported",
+          "text": "Full-range high-bit-depth reconstruction without premature truncation before explicit conversion to the library's 8-bit RGBA output contract"
         },
         {
           "status": "planned",
@@ -3894,6 +3903,18 @@
         {
           "status": "supported",
           "text": "Match Sharp/libavif RGB exactly for checksum-pinned lossy and lossless quantizer-context-0 YUV 4:4:4 fixtures, including lossless identity color"
+        },
+        {
+          "status": "supported",
+          "text": "Match Sharp/libavif RGBA exactly for the checksum-pinned 33x11 draw-points screen-content fixture using luma and chroma palettes"
+        },
+        {
+          "status": "supported",
+          "text": "Reconstruct native 10-bit and 12-bit planes exactly for two checksum-pinned coded-lossless YUV 4:4:4 fixtures and hold displayed RGB maximum error to 1 against Sharp/libavif"
+        },
+        {
+          "status": "supported",
+          "text": "Exercise palette-coded 8-bit and coded-lossless 10-bit and 12-bit decoding through the portable codec entry in Chromium"
         },
         {
           "status": "supported",
