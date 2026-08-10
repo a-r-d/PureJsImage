@@ -54,6 +54,11 @@ committed for exact luma/chroma palette-mode and non-symmetric color-index
 regression coverage; its SHA-256 checksum is pinned in
 `benchmark/avif/corpus.ts`.
 
+`colors-animated-8bpc-alpha-exif-xmp.avif` is the byte-identical libavif
+animation case from that revision. It is committed to pin the structured
+unsupported boundary for animated pixel decode; its SHA-256 checksum is pinned
+in `benchmark/avif/corpus.ts`.
+
 `blue-and-magenta-crop.avif` also comes from that pinned revision. Its color
 item exercises skipped intra-block copy with adaptive motion-vector coding,
 and its `clap` property crops the 320x280 coded image to a 180x100 display image.

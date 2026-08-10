@@ -13,6 +13,7 @@ import { pngCodec } from '../src/codec-entries/png.ts'
 import { createTiffCodec, tiffCodec } from '../src/codec-entries/tiff.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
+import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import { rasterToPixels } from '../src/raster.ts'
 import { omeTiffProfile } from '../src/scientific/ome-tiff.ts'
@@ -716,6 +717,49 @@ const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8Clam
   context.drawImage(bitmap, 0, 0)
   bitmap.close()
   return context.getImageData(0, 0, canvas.width, canvas.height).data
+}
+
+const portablePngPixels = async (bytes: Uint8Array): Promise<Uint8Array> => {
+  const createDecoder = pngCodec.createDecoder
+  if (!createDecoder) throw new Error('First-party PNG decoding is unavailable')
+  const decoder = await createDecoder(new MemorySource(bytes), defaultImageLimits)
+  if (decoder.pixelFormat !== 'rgb8' && decoder.pixelFormat !== 'rgba8') {
+    throw new Error(`Expected RGB8 or RGBA8 PNG output, got ${decoder.pixelFormat}`)
+  }
+  const output = new Uint8Array(decoder.width * decoder.height * 4)
+  const channels = decoder.pixelFormat === 'rgb8' ? 3 : 4
+  let nextRow = 0
+  for await (const block of decoder.decode()) {
+    try {
+      if (
+        block.format !== decoder.pixelFormat ||
+        block.x !== 0 ||
+        block.y !== nextRow ||
+        block.width !== decoder.width
+      ) {
+        throw new Error('First-party PNG decoder emitted non-contiguous pixel blocks')
+      }
+      for (let row = 0; row < block.height; row += 1) {
+        let sourceOffset = row * block.stride
+        let outputOffset = (block.y + row) * decoder.width * 4
+        for (let x = 0; x < block.width; x += 1) {
+          output[outputOffset] = block.data[sourceOffset] ?? 0
+          output[outputOffset + 1] = block.data[sourceOffset + 1] ?? 0
+          output[outputOffset + 2] = block.data[sourceOffset + 2] ?? 0
+          output[outputOffset + 3] = channels === 4 ? (block.data[sourceOffset + 3] ?? 0) : 255
+          sourceOffset += channels
+          outputOffset += 4
+        }
+      }
+      nextRow += block.height
+    } finally {
+      block.release?.()
+    }
+  }
+  if (nextRow !== decoder.height) {
+    throw new Error(`First-party PNG decoder emitted ${nextRow} of ${decoder.height} rows`)
+  }
+  return output
 }
 
 const sha256 = async (bytes: Uint8Array): Promise<string> => {
@@ -1773,10 +1817,10 @@ const avifPinnedPng = async (
   if (metadata.format !== 'png' || metadata.width !== width || metadata.height !== height) {
     throw new Error(`${detail} output was ${metadata.format} ${metadata.width}x${metadata.height}`)
   }
-  const outputPixels = await browserPixels(output, 'image/png')
-  const outputSha256 = await sha256(Uint8Array.from(outputPixels))
+  const outputPixels = await portablePngPixels(output)
+  const outputSha256 = await sha256(outputPixels)
   if (outputSha256 !== expectedSha256) {
-    throw new Error(`${detail} browser RGBA hash was ${outputSha256}`)
+    throw new Error(`${detail} portable RGBA hash was ${outputSha256}`)
   }
   return {
     detail: `${detail} matched the pinned portable RGBA output`,
@@ -1789,7 +1833,7 @@ const avifAlphaStraight = (): Promise<BrowserWorkflowResult> =>
     'alpha-straight-64x48.avif',
     64,
     48,
-    '1f71b6185c44986fa75681b492345cb5562903e85291a1d3d28b32a1e871b456',
+    '54633c27b86e4034c8c1916134b5bfdd3209e43344bdfbaaaa53abde94b33d02',
     'Straight-alpha AVIF',
   )
 
@@ -1798,7 +1842,7 @@ const avifAlphaPremultiplied = (): Promise<BrowserWorkflowResult> =>
     'alpha-premultiplied-64x48.avif',
     64,
     48,
-    '23e32ff582d47da3001ceb4058021e61a7683a8bb0e77abaf03b56ec0426e031',
+    '797e6c9b789c30cdedb63c7f92adc127378f21cfae36809b7eb3499456ab3457',
     'Premultiplied-alpha AVIF',
   )
 const avifBoundedAlphaRows = (): Promise<BrowserWorkflowResult> =>
@@ -1806,7 +1850,7 @@ const avifBoundedAlphaRows = (): Promise<BrowserWorkflowResult> =>
     'bounded-row-alpha-lossless-64x192.avif',
     64,
     192,
-    'efaa398f2e06433b8640411836cde40b0cd8322f0405153436ab6cfbd8eed2af',
+    'a56c5a9dfcf52461d2e0000933d1215e011f2d3b82c533b2a0b8eaec8f1f1ec2',
     'Synchronized color-and-alpha-ring AVIF',
   )
 const avifBoundedRows = (): Promise<BrowserWorkflowResult> =>
@@ -1853,7 +1897,7 @@ const avifPalette = (): Promise<BrowserWorkflowResult> =>
     'draw_points_idat.avif',
     33,
     11,
-    '2aa96c2acef4969d3e034ccc38d4cbcd80caa3cc1b14dd976fc3a4bcbeb0b07f',
+    'f803b121d2471ac44b32170380ab02f8174ddf1079f9425de921dde00ac91fc7',
     'Palette-coded screen-content AVIF',
   )
 const avifIntrabc = (): Promise<BrowserWorkflowResult> =>
@@ -2021,35 +2065,35 @@ const avifExpandedAlpha = async (): Promise<BrowserWorkflowResult> => {
       'xiph-alpha-limited-8bpc-2048x2048.avif',
       2048,
       2048,
-      '6d0b3dd392d23bbd23a119bc95e2bc4b8dca3ddbdc3c743ebcb7e7e5bb8212ca',
+      '8264cd14f144270bc3594da6f02ef3c6b22658e93a0844f660ac8648871e8d1a',
       'Limited-range 8-bit alpha AVIF',
     ),
     avifPinnedPng(
       'alpha-full-10bpc-64x48.avif',
       64,
       48,
-      'a0794774660f6c7ae19571393b29496a9bc91e22bb7a0ab23b4db6e6ef8a1ec0',
+      'dfc169edd84afdb59f30abcbfd09ddb277783e82ffda2489b60e9429d9f3d5f4',
       'Full-range 10-bit alpha AVIF',
     ),
     avifPinnedPng(
       'alpha-full-12bpc-64x48.avif',
       64,
       48,
-      'a0794774660f6c7ae19571393b29496a9bc91e22bb7a0ab23b4db6e6ef8a1ec0',
+      'dfc169edd84afdb59f30abcbfd09ddb277783e82ffda2489b60e9429d9f3d5f4',
       'Full-range 12-bit alpha AVIF',
     ),
     avifPinnedPng(
       'libavif-color-grid-alpha-items-80x80.avif',
       80,
       80,
-      '785846bd9e721b8d31c8e1faf66cdbd6289369701d9a84cbd96039f3bdcf671d',
+      'bfc6eb86c18a9be89e5b52ff7dfc2faba3e84d4c1368bf18b478ec4f4947ff49',
       'Color grid with per-tile alpha auxiliaries',
     ),
     avifPinnedPng(
       'libavif-color-irot-alpha-noirot-512x256.avif',
       512,
       256,
-      'e0995edecd5f3d913aa5f1efcd23ef65de196c03dabf44d813857a1dc14eb0d1',
+      '5102863ca73f618c60944e490aa3982e7a1afd6975f4d0edf12b40ac85c88f82',
       'Primary irot with independently signaled alpha transform',
     ),
   ])
