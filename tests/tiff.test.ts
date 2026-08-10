@@ -214,6 +214,23 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
   if (options.jpegInterchange) output.set(options.jpegInterchange, jpegInterchangeOffset)
   return output
 }
+const zstdRawFrame = (data: readonly number[]): Uint8Array<ArrayBuffer> => {
+  if (data.length > 255) throw new Error('Test Zstandard frame is too large')
+  const blockHeader = data.length * 8 + 1
+  return Uint8Array.of(
+    0x28,
+    0xb5,
+    0x2f,
+    0xfd,
+    0x20,
+    data.length,
+    blockHeader & 255,
+    (blockHeader >>> 8) & 255,
+    (blockHeader >>> 16) & 255,
+    ...data,
+  )
+}
+
 interface TiffGraphFixtureNode {
   readonly width: number
   readonly height: number
@@ -1189,6 +1206,45 @@ describe('TIFF codec', () => {
     expect(pixel(deflatePixels, 2, 0)).toEqual([35, 35, 35, 255])
     const paddedPixels = await decodedPng(deflateLastStripPadding)
     expect(pixel(paddedPixels, 0, 2)).toEqual([3, 3, 3, 255])
+  })
+  it('decodes bounded Zstandard strips before predictor reversal', async () => {
+    const predicted = [10, 10, 15, 40, 10, 10]
+    const input = tiffFixture({
+      width: 3,
+      height: 2,
+      bitsPerSample: [8],
+      compression: 50000,
+      photometric: 1,
+      predictor: 2,
+      strips: [zstdRawFrame(predicted)],
+    })
+    const decoded = await decodedPng(input)
+    expect(pixel(decoded, 0, 0)).toEqual([10, 10, 10, 255])
+    expect(pixel(decoded, 2, 0)).toEqual([35, 35, 35, 255])
+    expect(pixel(decoded, 0, 1)).toEqual([40, 40, 40, 255])
+    expect(pixel(decoded, 2, 1)).toEqual([60, 60, 60, 255])
+
+    const truncatedFrame = zstdRawFrame(predicted).subarray(0, -1)
+    const truncated = tiffFixture({
+      width: 3,
+      height: 2,
+      bitsPerSample: [8],
+      compression: 50000,
+      photometric: 1,
+      strips: [truncatedFrame],
+    })
+    await expect(decodedPng(truncated)).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
+
+    const oversizedFrame = Uint8Array.of(0x28, 0xb5, 0x2f, 0xfd, 0x20, 7, 0x3b, 0, 0, 99)
+    const oversized = tiffFixture({
+      width: 3,
+      height: 2,
+      bitsPerSample: [8],
+      compression: 50000,
+      photometric: 1,
+      strips: [oversizedFrame],
+    })
+    await expect(decodedPng(oversized)).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
   })
   it('composes WebP-in-TIFF explicitly without changing the default TIFF codec', async () => {
     const source = new PNG({ width: 3, height: 2 })

@@ -22,6 +22,7 @@ import type { PixelBlock, PixelFormat, PixelSampleDisplayRange } from '../pixel.
 import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
 import { MemorySource, readExactly } from '../source.ts'
+import { decodeZstd } from '../compression/zstd/index.ts'
 import {
   type CmykIccTransform,
   ColorManagedDecoder,
@@ -46,6 +47,7 @@ const compressionJpeg = 7
 const compressionDeflate = 8
 const compressionAdobeDeflate = 32946
 const compressionPackBits = 32773
+const compressionZstandard = 50000
 const compressionWebp = 50001
 const compressionSgiLog = 34676
 const compressionSgiLog24 = 34677
@@ -1073,6 +1075,7 @@ const describeTiff = async (
     compression !== compressionPackBits &&
     compression !== compressionSgiLog &&
     compression !== compressionSgiLog24 &&
+    compression !== compressionZstandard &&
     compression !== compressionWebp
   ) {
     throw unsupportedOperation(`TIFF compression ${compression} is unsupported`)
@@ -1082,6 +1085,7 @@ const describeTiff = async (
     compression === compressionLzw ||
     compression === compressionDeflate ||
     compression === compressionAdobeDeflate ||
+    compression === compressionZstandard ||
     compression === compressionPackBits
   const photometric = await singleValue(source, ifd, littleEndian, 262)
   if (
@@ -2545,6 +2549,11 @@ const decodeSegment = async (
       ? rowBytes * Math.ceil(description.segmentHeight / description.ycbcr.verticalSubsampling)
       : expectedBytes
     decoded = decodeLzw(encoded, expectedBytes, maximumBytes)
+  } else if (description.compression === compressionZstandard) {
+    decoded = decodeZstd(encoded, {
+      expectedOutputBytes: expectedBytes,
+      maxOutputBytes: expectedBytes,
+    })
   } else if (description.compression === compressionCcittModifiedHuffman) {
     decoded = decodeCcittModifiedHuffman(
       encoded,

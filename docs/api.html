@@ -73,7 +73,7 @@
         </section>
         <section id="zstandard" data-search-item>
           <h2>Zstandard decompression</h2>
-          <p>The portable <code>purejsimage/compression/zstd</code> subpath exports a reusable first-party decoder with no format-specific parameters. It does not load native code, WebAssembly, or a runtime dependency.</p>
+          <p>The portable <code>purejsimage/compression/zstd</code> subpath exports the reusable first-party decoder used by TIFF <code>Compression=50000</code>. It has no format-specific parameters and does not load native code, WebAssembly, or a runtime dependency.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">import</span> { decodeZstd } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/compression/zstd'</span>
 
 <span class="tok-key">const</span> output = decodeZstd(compressed, {

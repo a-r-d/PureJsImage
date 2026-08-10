@@ -39,6 +39,8 @@ All notable changes to PureJsImage are documented in this file.
 - Added a reusable first-party Zstandard decompressor at `purejsimage/compression/zstd` with
   explicit output and window bounds, raw/RLE/compressed blocks, Huffman and FSE entropy decoding,
   repeated tables and offsets, frame checksums, and structured malformed-input failures.
+- Added bounded TIFF `Compression=50000` strip and tile decoding through the reusable Zstandard
+  backend, preserving existing predictor, sample, and pixel processing.
 
 ## [0.8.0] - 2026-08-09
 

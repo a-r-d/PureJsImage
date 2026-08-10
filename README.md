@@ -133,8 +133,8 @@ const output = decodeZstd(compressed, {
 
 Output and window limits are enforced while decoding. Dictionary-dependent frames
 are rejected explicitly; no native library, WebAssembly module, or runtime
-dependency is loaded.
-
+dependency is loaded. TIFF `Compression=50000` uses the same decoder with an
+exact per-segment output bound.
 
 ### Optional WASM acceleration
 

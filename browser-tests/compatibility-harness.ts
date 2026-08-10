@@ -807,6 +807,18 @@ const packBrowserFaxBits = (bits: string): Uint8Array => {
   }
   return output
 }
+const browserZstdRawFrame = (data: Uint8Array): Uint8Array => {
+  if (data.byteLength > 255) throw new Error('Browser Zstandard fixture is too large')
+  const output = new Uint8Array(data.byteLength + 9)
+  output.set([0x28, 0xb5, 0x2f, 0xfd, 0x20, data.byteLength])
+  const blockHeader = (data.byteLength << 3) | 1
+  output[6] = blockHeader & 0xff
+  output[7] = (blockHeader >>> 8) & 0xff
+  output[8] = blockHeader >>> 16
+  output.set(data, 9)
+  return output
+}
+
 const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
   const encoded = atob(
     'SUkqAAgAAAAKAAABBAABAAAALAEAAAEBBAABAAAAAQAAAAIBAwABAAAACAAAAAMBAwABAAAABQAAAAYBAwABAAAAAQAAABEBBAABAAAAhgAAABUBAwABAAAAAQAAABYBBAABAAAAAQAAABcBBAABAAAAWgEAABwBAwABAAAAAQAAAAAAAAAAAQQQMIBAAQMHECRQsIBBAwcPIESQMIFCBQsXMGTQsIFDBw8fQIQQMYJECRMnUKRQsYJFCxcvYMSQMYNGDRs3cOTQsYNHDx8/gAQRMoRIESNHkCRRsoRJEydPoESRMoVKFStXsGTRsoVLFy9fwIQRM4ZMGTNn0KRRs4ZNGzdv4MSRM4dOHTt38OTRs4dPHz9/AAUSNIhQIUOHECVStIhRI0ePIEWSNIlSJUuXMGXStIlTJ0+fQIUSNYpUKVOnUKVStYpVK1evYMWSNYtWLVu3cOXStYtXL1+/gAUTNoxYMWPHkCVTtoxZM2fPoEWTNo1aNWvXsGXTto1bN2/fwIUTN45cOXPn0KVTt45dO3fv4MWTN49ePXv38OXTt49fP3//ABCAAAMQUIABByCQgAILMNCAAw9AEIEEE1BQgQUXYJCBBhtw0IEHH4AQgggjkFCCCSegkIIKKwQE',
@@ -826,6 +838,30 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
       legacyPixels[offset + 2] !== expected
     ) {
       throw new Error(`Legacy TIFF LZW pixel ${x} did not decode to ${expected}`)
+    }
+  }
+  const zstdPixels = Uint8Array.of(0, 20, 80, 140, 220, 255)
+  const zstdStrip = browserZstdRawFrame(zstdPixels)
+  const zstdTiff = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [3] },
+      { tag: 257, type: 4, values: [2] },
+      { tag: 258, type: 3, values: [8] },
+      { tag: 259, type: 3, values: [50_000] },
+      { tag: 262, type: 3, values: [1] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 278, type: 4, values: [2] },
+      { tag: 279, type: 4, values: [zstdStrip.byteLength] },
+      { tag: 284, type: 3, values: [1] },
+    ],
+    [zstdStrip],
+  )
+  const zstdOutput = await (await images.open(zstdTiff)).png().toUint8Array()
+  const decodedZstdPixels = await browserPixels(zstdOutput, 'image/png')
+  for (let index = 0; index < zstdPixels.byteLength; index += 1) {
+    if (decodedZstdPixels[index * 4] !== zstdPixels[index]) {
+      throw new Error(`Zstandard TIFF pixel ${index} changed in the browser`)
     }
   }
 
@@ -1400,9 +1436,10 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
 
   return {
     detail:
-      'legacy TIFF LZW, packed 12-bit and FillOrder 2 TIFF, signed, float, numeric and ICC-managed CMYK, CIELab, 16-bit palette, wide unsigned, and SGILog TIFF, TIFF SubIFD pyramids, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
+      'legacy TIFF LZW, first-party Zstandard, packed 12-bit and FillOrder 2 TIFF, signed, float, numeric and ICC-managed CMYK, CIELab, 16-bit palette, wide unsigned, and SGILog TIFF, TIFF SubIFD pyramids, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
     outputBytes:
       legacyOutput.byteLength +
+      zstdOutput.byteLength +
       wide64Output.byteLength +
       packedOutput.byteLength +
       webpTiffOutput.byteLength +

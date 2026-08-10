@@ -91,6 +91,7 @@ test('decodes legacy TIFF and odd-width BMP compatibility cases', async ({ page 
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.legacyTiffAndBmp())
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('legacy TIFF LZW')
+  expect(result.detail).toContain('first-party Zstandard')
   expect(result.detail).toContain('odd-width BMP RLE4')
   expect(result.detail).toContain('wide unsigned, and SGILog TIFF')
   expect(result.detail).toContain('numeric and ICC-managed CMYK')

@@ -58,12 +58,13 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Old-style JPEG (`Compression=6`) complete interchange streams, multi-strip scans, omitted `RowsPerStrip`, and baseline Q/DC/AC table reconstruction
 - [x] WebP-in-TIFF (`Compression=50001`) through explicit `createTiffCodec({ embeddedCodecs: [webpCodec] })` composition
 - [x] SGILog (`Compression=34676`) and SGILog24 (`Compression=34677`) with bounded row RLE and exact segment sizing
-- [ ] Zstandard, LERC, ThunderScan, and other extension compressions
+- [x] Zstandard (`Compression=50000`) through the reusable first-party bounded decompressor
+- [ ] LERC, ThunderScan, and other extension compressions
 - [x] Reversed bit fill order (`FillOrder=2`) normalized per strip or tile before prediction
 
 ## Decode roadmap
 
-The 154-file Imazen baseline currently has no decode failures: 147 inputs pass, 3 reach structured `UNSUPPORTED_OPERATION` boundaries, and 4 robustness inputs are rejected safely. The TIFF conformance worker explicitly composes WebP; the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.
+The 154-file Imazen baseline currently has no decode failures: 148 inputs pass, 2 reach structured `UNSUPPORTED_OPERATION` boundaries, and 4 robustness inputs are rejected safely. The TIFF conformance worker explicitly composes WebP; the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.
 
 ### Next recommended capability
 
@@ -74,9 +75,8 @@ TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples direct
 ### Follow-on priorities
 
 1. Expand TIFF encoding with configurable strips and PackBits/Deflate.
-2. Treat Zstandard as a separate first-party compression project.
-3. Keep generic five-band data unsupported until its public pixel semantics are defined.
-4. Keep ThunderScan unsupported: the current corpus fixture is truncated by three rows and LibTIFF independently rejects it.
+2. Keep generic five-band data unsupported until its public pixel semantics are defined.
+3. Keep ThunderScan unsupported: the current corpus fixture is truncated by three rows and LibTIFF independently rejects it.
 
 ## Encode
 
@@ -120,6 +120,7 @@ TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples direct
 - [x] Verify TIFF 6 CIELab samples exactly against an independent colour-science oracle and CMYK lut16 ICC output within one 8-bit code value of ImageMagick/LittleCMS
 - [x] Verify FillOrder 2 packed strip and padded edge-tile output against independently written fixtures decoded by ImageMagick/LibTIFF
 - [x] Verify tiled LZW and BigTIFF output against independently encoded ImageMagick/LibTIFF fixtures
+- [x] Verify standalone Zstandard raw, RLE, compressed, multi-block, checksum, repeated-table, repeated-offset, and hostile-input behavior against independently generated reference frames
 - [x] Verify selected classic TIFF and BigTIFF pyramid levels independently and decode no unselected pixel segments
 - [x] Verify 16-bit ColorMap scaling, floating-point CMYK display, and signed CMYK sample reconstruction exactly against independent ImageMagick and tifffile oracles
 - [x] Complete the 154-file Imazen TIFF corpus decode-to-PNG baseline with every

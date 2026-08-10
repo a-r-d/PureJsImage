@@ -81,6 +81,7 @@
       "encoder": true,
       "evidence": [
         "tests/tiff.test.ts",
+        "tests/zstd.test.ts",
         "browser-tests/compatibility.pw.ts",
         "tests/metadata-preservation.test.ts",
         "tests/imazen-corpus-harness.test.ts"
@@ -88,7 +89,7 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "ImageMagick 7.1.2 with LibTIFF 4.7, tifffile with imagecodecs, and libwebp",
-        "tolerance": "16-bit indexed color, packed, FillOrder 2, unsigned 24-/32-bit display, floating-point display, numeric CMYK display, CMYK-alpha, CIELab, SGILog24/32 color, and lossless WebP paths are exact against independent oracles; the CMYK lut16 ICC path differs by at most one 8-bit code value from ImageMagick/LittleCMS for its pinned fixture; LogL CIE Y reconstruction and unsigned 64-bit and signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
+        "tolerance": "16-bit indexed color, packed, FillOrder 2, unsigned 24-/32-bit display, floating-point display, numeric CMYK display, CMYK-alpha, CIELab, SGILog24/32 color, Zstandard-compressed samples, and lossless WebP paths are exact against independent oracles; the CMYK lut16 ICC path differs by at most one 8-bit code value from ImageMagick/LittleCMS for its pinned fixture; LogL CIE Y reconstruction and unsigned 64-bit and signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
         "evidence": [
           "tests/tiff.test.ts",
           "tests/lossy-codec-quality.test.ts",

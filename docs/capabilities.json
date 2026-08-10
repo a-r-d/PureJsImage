@@ -1606,12 +1606,13 @@
         "status": "limited",
         "label": "Limited"
       },
-      "boundary": "Broad validated IFD-graph and strip/tile decode including explicit frame and reduced-resolution SubIFD selection, 16-bit indexed color, packed and wide unsigned, signed integer, IEEE floating-point, CIELab, numeric and lut16 ICC-managed CMYK, LogLuv, and FillOrder 2 samples plus explicitly composed WebP segments; no scientific multiband, general CMYK ICC profile classes, or compressed TIFF encoding",
-      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common grayscale, indexed, RGB, CMYK, YCbCr, CIELab, alpha, packed unsigned, wide unsigned, signed integer, IEEE floating-point, LogL, and LogLuv layouts with common compressions. IFD graphs are traversed with global directory limits, cycle rejection, and alias-safe shared-directory reuse; only the selected frame and resolution level's strips or tiles are decoded. Indexed samples through 16 bits use exact TIFF ColorMap scaling. TIFF 6 8-bit CIELab L* and L*a*b* samples convert directly from the format's D65 reference white to bounded sRGB rows; associated alpha and CIELab ICC transforms remain explicit unsupported boundaries. Signed 8-/16-bit and float16/float32/float64 CMYK use deterministic display normalization through SMinSampleValue/SMaxSampleValue or full-type defaults before bounded CMYK-to-RGB conversion. Embedded CMYK lut16 A2B0 ICC profiles take precedence over numeric conversion and transform bounded rows; raw numeric CMYK preservation and other CMYK ICC profile classes are not exposed. LogL and LogLuv samples are reconstructed as native CIE Y or XYZ float32 pixel blocks with deterministic display conversion. Unsigned 24-, 32-, and 64-bit samples are preserved in canonical 32- or 64-bit numeric pixel blocks. FillOrder 2 is normalized in each decoded strip or tile before predictor reversal. WebP-in-TIFF is available only through explicit codec composition. Encodes uncompressed grayscale, RGB, or RGBA output and can retain a compatible ICC profile.",
-      "memory": "Selected-frame strip or tile region decode; IFD traversal does not read unselected pixel segments, and bit-order normalization, palette lookup, CIELab conversion, numeric or ICC-managed CMYK conversion, SGILog row scratch, wide numeric predictor reversal, output, and embedded WebP pixels are bounded to the current metadata table or segment and emitted in bounded rows",
-      "recommendation": "Broad display-image input compatibility with explicit frame/pyramid selection, deterministic CIELab and numeric or ICC-managed CMYK display conversion, raw wide/signed/float and scientific CIE sample preservation, and simple uncompressed TIFF output.",
+      "boundary": "Broad validated IFD-graph and strip/tile decode including explicit frame and reduced-resolution SubIFD selection, 16-bit indexed color, packed and wide unsigned, signed integer, IEEE floating-point, CIELab, numeric and lut16 ICC-managed CMYK, LogLuv, FillOrder 2 samples, first-party Zstandard, and explicitly composed WebP segments; no scientific multiband, general CMYK ICC profile classes, or compressed TIFF encoding",
+      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common grayscale, indexed, RGB, CMYK, YCbCr, CIELab, alpha, packed unsigned, wide unsigned, signed integer, IEEE floating-point, LogL, and LogLuv layouts with common compressions including first-party Zstandard. IFD graphs are traversed with global directory limits, cycle rejection, and alias-safe shared-directory reuse; only the selected frame and resolution level's strips or tiles are decoded. Indexed samples through 16 bits use exact TIFF ColorMap scaling. TIFF 6 8-bit CIELab L* and L*a*b* samples convert directly from the format's D65 reference white to bounded sRGB rows; associated alpha and CIELab ICC transforms remain explicit unsupported boundaries. Signed 8-/16-bit and float16/float32/float64 CMYK use deterministic display normalization through SMinSampleValue/SMaxSampleValue or full-type defaults before bounded CMYK-to-RGB conversion. Embedded CMYK lut16 A2B0 ICC profiles take precedence over numeric conversion and transform bounded rows; raw numeric CMYK preservation and other CMYK ICC profile classes are not exposed. LogL and LogLuv samples are reconstructed as native CIE Y or XYZ float32 pixel blocks with deterministic display conversion. Unsigned 24-, 32-, and 64-bit samples are preserved in canonical 32- or 64-bit numeric pixel blocks. FillOrder 2 is normalized in each decoded strip or tile before predictor reversal. WebP-in-TIFF is available only through explicit codec composition. Encodes uncompressed grayscale, RGB, or RGBA output and can retain a compatible ICC profile.",
+      "memory": "Selected-frame strip or tile region decode; IFD traversal does not read unselected pixel segments, and Zstandard decompression, bit-order normalization, palette lookup, CIELab conversion, numeric or ICC-managed CMYK conversion, SGILog row scratch, wide numeric predictor reversal, output, and embedded WebP pixels are bounded to the current metadata table or segment and emitted in bounded rows",
+      "recommendation": "Broad display-image input compatibility with explicit frame/pyramid selection, first-party bounded Zstandard decompression, deterministic CIELab and numeric or ICC-managed CMYK display conversion, raw wide/signed/float and scientific CIE sample preservation, and simple uncompressed TIFF output.",
       "evidence": [
         "tests/tiff.test.ts",
+        "tests/zstd.test.ts",
         "browser-tests/compatibility.pw.ts",
         "tests/metadata-preservation.test.ts",
         "tests/imazen-corpus-harness.test.ts"
@@ -1619,7 +1620,7 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "ImageMagick 7.1.2 with LibTIFF 4.7, tifffile with imagecodecs, and libwebp",
-        "tolerance": "16-bit indexed color, packed, FillOrder 2, unsigned 24-/32-bit display, floating-point display, numeric CMYK display, CMYK-alpha, CIELab, SGILog24/32 color, and lossless WebP paths are exact against independent oracles; the CMYK lut16 ICC path differs by at most one 8-bit code value from ImageMagick/LittleCMS for its pinned fixture; LogL CIE Y reconstruction and unsigned 64-bit and signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
+        "tolerance": "16-bit indexed color, packed, FillOrder 2, unsigned 24-/32-bit display, floating-point display, numeric CMYK display, CMYK-alpha, CIELab, SGILog24/32 color, Zstandard-compressed samples, and lossless WebP paths are exact against independent oracles; the CMYK lut16 ICC path differs by at most one 8-bit code value from ImageMagick/LittleCMS for its pinned fixture; LogL CIE Y reconstruction and unsigned 64-bit and signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
         "evidence": [
           "tests/tiff.test.ts",
           "tests/lossy-codec-quality.test.ts",
@@ -1808,8 +1809,12 @@
           "text": "SGILog (`Compression=34676`) and SGILog24 (`Compression=34677`) with bounded row RLE and exact segment sizing"
         },
         {
+          "status": "supported",
+          "text": "Zstandard (`Compression=50000`) through the reusable first-party bounded decompressor"
+        },
+        {
           "status": "planned",
-          "text": "Zstandard, LERC, ThunderScan, and other extension compressions"
+          "text": "LERC, ThunderScan, and other extension compressions"
         },
         {
           "status": "supported",
@@ -1946,6 +1951,10 @@
         {
           "status": "supported",
           "text": "Verify tiled LZW and BigTIFF output against independently encoded ImageMagick/LibTIFF fixtures"
+        },
+        {
+          "status": "supported",
+          "text": "Verify standalone Zstandard raw, RLE, compressed, multi-block, checksum, repeated-table, repeated-offset, and hostile-input behavior against independently generated reference frames"
         },
         {
           "status": "supported",

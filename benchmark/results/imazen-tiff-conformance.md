@@ -6,8 +6,8 @@ This baseline validates complete decode, in-memory PNG encode, PNG reopen, dimen
 
 | Outcome | Count |
 | --- | ---: |
-| pass | 147 |
-| unsupported | 3 |
+| pass | 148 |
+| unsupported | 2 |
 | decode-failure | 0 |
 | invalid-output | 0 |
 | rejected-safely | 4 |
@@ -34,7 +34,7 @@ This baseline validates complete decode, in-memory PNG encode, PNG reopen, dimen
 | valid/compression-old-jpeg | 3 | pass: 3 |
 | valid/compression-packbits | 2 | pass: 2 |
 | valid/compression-webp | 1 | pass: 1 |
-| valid/compression-zstd | 1 | unsupported: 1 |
+| valid/compression-zstd | 1 | pass: 1 |
 | valid/floating-point | 9 | pass: 9 |
 | valid/general | 63 | pass: 62, unsupported: 1 |
 | valid/photometric-cmyk | 8 | pass: 8 |
@@ -53,7 +53,7 @@ None.
 
 | Error code | Count | Files |
 | --- | ---: | --- |
-| UNSUPPORTED_OPERATION | 3 | `tiff-conformance/edge-cases/geo-5b.tif`<br>`tiff-conformance/valid/int16_zstd.tif`<br>`tiff-conformance/valid/text.tif` |
+| UNSUPPORTED_OPERATION | 2 | `tiff-conformance/edge-cases/geo-5b.tif`<br>`tiff-conformance/valid/text.tif` |
 
 ## Decode failures by likely root cause
 
@@ -61,11 +61,11 @@ None.
 
 ## Reproduction
 
-- PureJsImage commit: `bbeb1a1079f602cdd2299aa62c98c8ee5fb34d31-dirty`
+- PureJsImage commit: `a53c1cff922a0bfc687abd0cfc3a0c53c64b462c-dirty`
 - codec-corpus commit: `28205bbc5cf40364d012c462240ba28143373d67`
 - Node/platform: `v24.16.0` on `linux-x64`
 - Command: `npm run corpus:imazen -- --corpus ../codec-corpus --format tiff --output benchmark/results --timeout-ms 30000 --memory-mb 512 --concurrency 2`
 
 ## Prioritized punch list
 
-1. Confirm the public unsupported boundary for 3 valid input(s) before considering feature work.
+1. Confirm the public unsupported boundary for 2 valid input(s) before considering feature work.
