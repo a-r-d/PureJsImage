@@ -1,0 +1,68 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 44-47
+README.md
+  h_9f4a25732fa0c1 120-141,178
+benchmark/README.md
+  h_9f4a25732fa0c1 73-78
+benchmark/results/tiff-encode-compatibility.json
+  h_9f4a25732fa0c1 1-38
+benchmark/results/tiff-encode-compatibility.md
+  h_9f4a25732fa0c1 1-8
+benchmark/results/tiff-encode-deflate.json
+  h_9f4a25732fa0c1 1-451
+benchmark/results/tiff-encode-deflate.md
+  h_9f4a25732fa0c1 1-39
+benchmark/scripts/verify-tiff-encode.ts
+  h_9f4a25732fa0c1 1-191
+benchmark/workflows.ts
+  h_9f4a25732fa0c1 1060
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 600-633,1692
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 110-117
+browser-tests/types.ts
+  h_9f4a25732fa0c1 23
+capabilities/manifest.json
+  h_9f4a25732fa0c1 814-815,817-820,824-825,904,910,919-924,928-930,959
+docs/api.html
+  h_9f4a25732fa0c1 144,202-207
+docs/capabilities.json
+  h_9f4a25732fa0c1 1606-1607,1609-1612,1623-1624,1820-1821,1829,1833,1837,1841,1845,1849,1853,1857,1861,1963-1966
+docs/codecs.html
+  h_9f4a25732fa0c1 36,56,75,93
+docs/demo.ts
+  h_9f4a25732fa0c1 480-481
+package.json
+  h_9f4a25732fa0c1 169
+src/browser-runtime.ts
+  h_9f4a25732fa0c1 361
+src/codecs/tiff-encode.ts
+  h_9f4a25732fa0c1 1-354
+src/codecs/tiff.ts
+  h_9f4a25732fa0c1 34
+src/image-core.ts
+  h_9f4a25732fa0c1 228-236
+src/pipeline.ts
+  h_9f4a25732fa0c1 55-58,241-256
+tests/browser-runtime.test.ts
+  h_9f4a25732fa0c1 77,82
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 92-93
+tests/tiff.test.ts
+  h_9f4a25732fa0c1 9,11,13,589-613,2909,2916-2922,2929-2931,2933-2940,2943-2999,3008-3010,3012-3036
+tests/zstd.test.ts
+  h_9f4a25732fa0c1 117-119
+tiff-codec-support.md
+  h_9f4a25732fa0c1 71,77,86-91,95-97,126
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "98f2db367534ce38f9eb55d2687e928684cf8690",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
