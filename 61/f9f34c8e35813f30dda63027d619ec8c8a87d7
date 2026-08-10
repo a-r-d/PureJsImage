@@ -1,0 +1,20 @@
+capabilities/manifest.json
+  h_9f4a25732fa0c1 882-901
+docs/capabilities.json
+  h_9f4a25732fa0c1 1764-1775
+tests/imazen-corpus-harness.test.ts
+  h_9f4a25732fa0c1 184
+tiff-codec-support.md
+  h_9f4a25732fa0c1 52-71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "61f9f34c8e35813f30dda63027d619ec8c8a87d7",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
