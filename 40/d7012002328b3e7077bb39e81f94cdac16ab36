@@ -1,0 +1,20 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 22-24
+browser-tests/demo.pw.ts
+  h_9f4a25732fa0c1 111-113,117-129,131
+docs/demo.html
+  h_9f4a25732fa0c1 53-54,58,114-274,277
+docs/demo.ts
+  h_9f4a25732fa0c1 1116,1123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "40d7012002328b3e7077bb39e81f94cdac16ab36",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
