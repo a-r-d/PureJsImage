@@ -104,6 +104,10 @@ const avifHardeningSeeds = [
     path: 'benchmark/corpus/files/avif/libaom-superres-denom12-yuv420-96x64.avif',
   },
   {
+    id: 'superres-yuv420-multi-band',
+    path: 'benchmark/corpus/files/avif/libaom-superres-denom12-yuv420-320x192.avif',
+  },
+  {
     id: 'tiled-high-bit',
     path: 'benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif',
   },

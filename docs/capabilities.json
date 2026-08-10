@@ -4028,7 +4028,7 @@
         },
         {
           "status": "supported",
-          "text": "Normalize deterministic bit-flip corruption as `ImageError` across checksum-pinned super-resolution, high-bit tile, premultiplied-alpha, restoration-unit, and cropped-grid AVIF syntax classes"
+          "text": "Normalize deterministic bit-flip corruption as `ImageError` across checksum-pinned single-band and multi-band super-resolution, high-bit tile, premultiplied-alpha, restoration-unit, and cropped-grid AVIF syntax classes"
         },
         {
           "status": "supported",
