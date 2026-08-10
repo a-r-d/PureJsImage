@@ -781,6 +781,25 @@ const encodeLinear = (value: number, table: Uint8Array): number => {
   return table[index] ?? 0
 }
 
+export const tiffCieLabToSrgb = (lightness: number, a: number, b: number): number => {
+  const fy = (lightness + 16) / 116
+  const fx = fy + a / 500
+  const fz = fy - b / 200
+  const epsilon = 216 / 24_389
+  const inverseScale = 27 / 24_389
+  const fx3 = fx * fx * fx
+  const fy3 = fy * fy * fy
+  const fz3 = fz * fz * fz
+  const x = 0.95047 * (fx3 > epsilon ? fx3 : (116 * fx - 16) * inverseScale)
+  const y = fy3 > epsilon ? fy3 : (116 * fy - 16) * inverseScale
+  const z = 1.08883 * (fz3 > epsilon ? fz3 : (116 * fz - 16) * inverseScale)
+  const encode = srgbEncodeLut()
+  const red = encodeLinear(3.2404542 * x - 1.5371385 * y - 0.4985314 * z, encode)
+  const green = encodeLinear(-0.969266 * x + 1.8760108 * y + 0.041556 * z, encode)
+  const blue = encodeLinear(0.0556434 * x - 0.2040259 * y + 1.0572252 * z, encode)
+  return (red << 16) | (green << 8) | blue
+}
+
 const sampleCurveLut = (curve: Float32Array, input: number): number => {
   const position = Math.max(0, Math.min(1, input)) * (curve.length - 1)
   const low = Math.floor(position)

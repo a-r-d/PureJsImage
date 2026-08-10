@@ -24,6 +24,7 @@ import type { ImageSource } from '../source.ts'
 import { MemorySource, readExactly } from '../source.ts'
 import {
   ColorManagedDecoder,
+  tiffCieLabToSrgb,
   MAX_ICC_PROFILE_BYTES,
   parseRgbIccTransform,
   type RgbIccTransform,
@@ -54,6 +55,7 @@ const photometricRgb = 2
 const photometricPalette = 3
 const photometricSeparated = 5
 const photometricYCbCr = 6
+const photometricCieLab = 8
 const photometricLogL = 32844
 const photometricLogLuv = 32845
 const faxLookupBits = 13
@@ -403,6 +405,7 @@ interface TiffDescription {
     | 'xyzf32'
   readonly displayRanges: readonly PixelSampleDisplayRange[] | undefined
   readonly colorTransform: RgbIccTransform | undefined
+  readonly cieLabSamples: 1 | 3 | undefined
   readonly iccProfile: Uint8Array | undefined
   readonly jpegTables: Uint8Array | undefined
   readonly jpegInterchange: Uint8Array | undefined
@@ -1069,6 +1072,12 @@ const describeTiff = async (
   ) {
     throw unsupportedOperation(`TIFF compression ${compression} is unsupported`)
   }
+  const byteRasterCompression =
+    compression === compressionNone ||
+    compression === compressionLzw ||
+    compression === compressionDeflate ||
+    compression === compressionAdobeDeflate ||
+    compression === compressionPackBits
   const photometric = await singleValue(source, ifd, littleEndian, 262)
   if (
     photometric !== photometricWhiteIsZero &&
@@ -1077,19 +1086,24 @@ const describeTiff = async (
     photometric !== photometricPalette &&
     photometric !== photometricSeparated &&
     photometric !== photometricYCbCr &&
+    photometric !== photometricCieLab &&
     photometric !== photometricLogL &&
     photometric !== photometricLogLuv
   ) {
     throw unsupportedOperation(`TIFF photometric interpretation ${photometric} is unsupported`)
   }
   const baseSamples =
-    photometric === photometricRgb ||
-    photometric === photometricYCbCr ||
-    photometric === photometricLogLuv
-      ? 3
-      : photometric === photometricSeparated
-        ? 4
-        : 1
+    photometric === photometricCieLab
+      ? samplesPerPixel <= 2
+        ? 1
+        : 3
+      : photometric === photometricRgb ||
+          photometric === photometricYCbCr ||
+          photometric === photometricLogLuv
+        ? 3
+        : photometric === photometricSeparated
+          ? 4
+          : 1
   if (samplesPerPixel < baseSamples || samplesPerPixel > baseSamples + 1) {
     throw unsupportedOperation('TIFF supports at most one alpha sample')
   }
@@ -1108,6 +1122,14 @@ const describeTiff = async (
   }
   if (baseSampleFormat !== sampleFormatUnsigned && alphaSample !== undefined) {
     throw unsupportedOperation('TIFF signed or floating-point alpha samples are unsupported')
+  }
+  if (photometric === photometricCieLab && extraSamples[0] === 1) {
+    throw unsupportedOperation('TIFF CIELab associated alpha is unsupported')
+  }
+  if (photometric === photometricCieLab && !byteRasterCompression) {
+    throw unsupportedOperation(
+      'TIFF CIELab decoding supports uncompressed, PackBits, LZW, and Deflate segments',
+    )
   }
   const logLuvPhotometric = photometric === photometricLogL || photometric === photometricLogLuv
   if (
@@ -1168,6 +1190,10 @@ const describeTiff = async (
     } else if (photometric === photometricYCbCr) {
       if (baseBitDepth !== 8) {
         throw unsupportedOperation('TIFF YCbCr decoding requires 8-bit samples')
+      }
+    } else if (photometric === photometricCieLab) {
+      if (baseBitDepth !== 8) {
+        throw unsupportedOperation('TIFF CIELab decoding requires unsigned 8-bit samples')
       }
     } else if (photometric === photometricPalette) {
       if (![1, 2, 4, 8, 16].includes(baseBitDepth)) {
@@ -1553,13 +1579,20 @@ const describeTiff = async (
         'TIFF ICC color management is not implemented for signed, floating-point, or wide unsigned samples',
       )
     }
-    if (photometric !== photometricRgb && photometric !== photometricPalette && !jpegCompression) {
+    iccProfile = Uint8Array.from(await undefinedEntryBytes(source, iccEntry, littleEndian, 34675))
+    if (
+      photometric === photometricRgb ||
+      photometric === photometricPalette ||
+      jpegCompression
+    ) {
+      colorTransform = parseRgbIccTransform(iccProfile)
+    } else if (photometric === photometricCieLab) {
+      throw unsupportedOperation('TIFF CIELab ICC transforms are not implemented')
+    } else {
       throw unsupportedOperation(
         'TIFF ICC color management is not implemented for this color space',
       )
     }
-    iccProfile = Uint8Array.from(await undefinedEntryBytes(source, iccEntry, littleEndian, 34675))
-    colorTransform = parseRgbIccTransform(iccProfile)
   }
   const jpegTablesEntry = ifd.entries.get(347)
   const jpegTables = jpegTablesEntry
@@ -1693,6 +1726,7 @@ const describeTiff = async (
     pixelFormat,
     displayRanges,
     colorTransform,
+    cieLabSamples: photometric === photometricCieLab ? (baseSamples === 1 ? 1 : 3) : undefined,
     iccProfile,
     jpegTables,
     jpegInterchange,
@@ -3528,6 +3562,24 @@ class TiffDecoder implements ImageDecoder {
                 red = Math.round(((255 - cyan) * (255 - black)) / 255)
                 green = Math.round(((255 - magenta) * (255 - black)) / 255)
                 blue = Math.round(((255 - yellow) * (255 - black)) / 255)
+              } else if (this.#description.photometric === photometricCieLab) {
+                const lightness =
+                  (sampleAt(planes, this.#description, rowWithinSegment, sourceX, 0) * 100) / 255
+                let a = 0
+                let b = 0
+                if (this.#description.cieLabSamples === 3) {
+                  const encodedA = sampleAt(planes, this.#description, rowWithinSegment, sourceX, 1)
+                  const encodedB = sampleAt(planes, this.#description, rowWithinSegment, sourceX, 2)
+                  a = encodedA < 128 ? encodedA : encodedA - 256
+                  b = encodedB < 128 ? encodedB : encodedB - 256
+                  if (a === -128 || b === -128) {
+                    throw invalidInput('TIFF CIELab a* and b* samples must be within -127 to 127')
+                  }
+                }
+                const rgb = tiffCieLabToSrgb(lightness, a, b)
+                red = rgb >>> 16
+                green = (rgb >>> 8) & 0xff
+                blue = rgb & 0xff
               } else if (this.#description.photometric === photometricRgb) {
                 red = scaleSample(
                   sampleAt(planes, this.#description, rowWithinSegment, sourceX, 0),
@@ -3765,13 +3817,15 @@ const metadata = (description: TiffDescription): ImageMetadata => ({
         : 'rgb'
       : description.photometric === photometricLogLuv
         ? 'cie-xyz'
-        : description.photometric === photometricSeparated
-          ? 'cmyk'
-          : description.photometric === photometricYCbCr
-            ? 'ycbcr'
-            : description.photometric === photometricPalette
-              ? 'indexed'
-              : 'gray',
+        : description.photometric === photometricCieLab
+          ? 'cie-lab'
+          : description.photometric === photometricSeparated
+            ? 'cmyk'
+            : description.photometric === photometricYCbCr
+              ? 'ycbcr'
+              : description.photometric === photometricPalette
+                ? 'indexed'
+                : 'gray',
   bitDepth: description.logLuvEncoding ? 32 : Math.max(...description.bitsPerSample),
   sampleFormat: description.logLuvEncoding
     ? 'floating-point'

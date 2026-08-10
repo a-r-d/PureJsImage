@@ -1991,6 +1991,125 @@ describe('TIFF codec', () => {
     expect(pixel(tilePixels, 4, 2)).toEqual([238, 202, 66, 255])
   })
 
+  it('converts TIFF 6 CIELab samples to D65 sRGB in chunky and planar layouts', async () => {
+    // tifffile 2026.3.3 encoded this chunky TIFF independently.
+    const chunky = Buffer.from(
+      'SUkqAAgAAAAOAAABBAABAAAABgAAAAEBBAABAAAAAQAAAAIBAwADAAAAtgAAAAMBAwABAAAAAQAAAAYBAwABAAAACAAAABEBBAABAAAA4AAAABUBAwABAAAAAwAAABYBBAABAAAAAQAAABcBBAABAAAAEgAAABoBBQABAAAAvAAAABsBBQABAAAAxAAAABwBAwABAAAAAQAAACgBAwABAAAAAQAAADEBAgAMAAAAzAAAAAAAAAAIAAgACAABAAAAAQAAAAEAAAABAAAAdGlmZmZpbGUucHkAAAAAAAAAAAAAAAD/AACKUUbgsVFLRJCAKNg=',
+      'base64',
+    )
+    const planar = tiffFixture({
+      width: 6,
+      height: 1,
+      littleEndian: false,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 8,
+      planarConfiguration: 2,
+      strips: [
+        Uint8Array.of(0, 255, 138, 224, 75, 128),
+        Uint8Array.of(0, 0, 81, 177, 68, 40),
+        Uint8Array.of(0, 0, 70, 81, 144, 216),
+      ],
+    })
+    // colour-science 0.4.7 independently converted the TIFF 6 D65 Lab values to sRGB.
+    const expected = Uint8Array.of(
+      0,
+      0,
+      0,
+      255,
+      255,
+      255,
+      255,
+      1,
+      0,
+      73,
+      253,
+      26,
+      0,
+      34,
+      254,
+      152,
+      95,
+      188,
+    )
+    expect(await decodeDirect(chunky)).toMatchObject({ format: 'rgb8', data: expected })
+    expect(await decodeDirect(planar)).toMatchObject({ format: 'rgb8', data: expected })
+    if (!tiffCodec.metadata) throw new Error('TIFF metadata inspector is unavailable')
+    await expect(
+      tiffCodec.metadata(new MemorySource(chunky), defaultImageLimits),
+    ).resolves.toMatchObject({
+      colorSpace: 'cie-lab',
+      bitDepth: 8,
+    })
+  })
+
+  it('supports L-only CIELab and unassociated alpha with explicit boundaries', async () => {
+    const lightness = tiffFixture({
+      width: 3,
+      height: 1,
+      bitsPerSample: [8],
+      compression: 1,
+      photometric: 8,
+      strips: [Uint8Array.of(0, 128, 255)],
+    })
+    const alpha = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 1,
+      photometric: 8,
+      extraSamples: [2],
+      strips: [Uint8Array.of(138, 81, 70, 127)],
+    })
+    expect(await decodeDirect(lightness)).toMatchObject({
+      format: 'rgb8',
+      data: Uint8Array.of(0, 0, 0, 119, 119, 119, 255, 255, 255),
+    })
+    expect(await decodeDirect(alpha)).toMatchObject({
+      format: 'rgba8',
+      data: Uint8Array.of(255, 1, 0, 127),
+    })
+
+    const associated = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 1,
+      photometric: 8,
+      extraSamples: [1],
+      strips: [Uint8Array.of(138, 81, 70, 127)],
+    })
+    const invalidChroma = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 8,
+      strips: [Uint8Array.of(128, 128, 0)],
+    })
+    const profiled = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 8,
+      iccProfile: channelSwappingRgbProfile(),
+      strips: [Uint8Array.of(128, 0, 0)],
+    })
+    await expect(decodeDirect(associated)).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'TIFF CIELab associated alpha is unsupported',
+    })
+    await expect(decodeDirect(invalidChroma)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'TIFF CIELab a* and b* samples must be within -127 to 127',
+    })
+    await expect(decodeDirect(profiled)).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'TIFF CIELab ICC transforms are not implemented',
+    })
+  })
+
   it('converts CMYK and subsampled YCbCr samples to RGB', async () => {
     const cmyk = tiffFixture({
       width: 4,
