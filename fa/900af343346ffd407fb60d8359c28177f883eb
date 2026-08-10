@@ -1,0 +1,44 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 39-41
+README.md
+  h_9f4a25732fa0c1 120-137
+benchmark/README.md
+  h_9f4a25732fa0c1 73-79
+benchmark/results/zstd-standalone.json
+  h_9f4a25732fa0c1 1-46
+benchmark/results/zstd-standalone.md
+  h_9f4a25732fa0c1 1-7
+benchmark/scripts/run-zstd.ts
+  h_9f4a25732fa0c1 1-162
+docs/api.html
+  h_9f4a25732fa0c1 74-86
+package.json
+  h_9f4a25732fa0c1 55-59,186
+src/compression/zstd/bitstream.ts
+  h_9f4a25732fa0c1 1-125
+src/compression/zstd/decode.ts
+  h_9f4a25732fa0c1 1-740
+src/compression/zstd/fse.ts
+  h_9f4a25732fa0c1 1-245
+src/compression/zstd/huffman.ts
+  h_9f4a25732fa0c1 1-134
+src/compression/zstd/index.ts
+  h_9f4a25732fa0c1 1
+src/compression/zstd/xxhash64.ts
+  h_9f4a25732fa0c1 1-90
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 212
+tests/zstd.test.ts
+  h_9f4a25732fa0c1 1-158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "fa900af343346ffd407fb60d8359c28177f883eb",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
