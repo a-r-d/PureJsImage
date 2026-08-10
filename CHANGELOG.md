@@ -41,6 +41,10 @@ All notable changes to PureJsImage are documented in this file.
   repeated tables and offsets, frame checksums, and structured malformed-input failures.
 - Added bounded TIFF `Compression=50000` strip and tile decoding through the reusable Zstandard
   backend, preserving existing predictor, sample, and pixel processing.
+- Replaced simple uncompressed TIFF output with a canonical Classic little-endian 8-bit RGB/RGBA
+  encoder using independently Deflate-compressed, horizontally predicted strips, automatic
+  roughly 128 KiB strip planning, strict extensible strategy options, bounded raw strip scratch,
+  compatible RGB ICC preservation, and exact ImageMagick/LibTIFF interoperability validation.
 
 ## [0.8.0] - 2026-08-09
 

@@ -1,10 +1,8 @@
 import type {
   DecoderOptions,
   DecodeRequest,
-  EncodeRequest,
   ImageCodec,
   ImageDecoder,
-  ImageEncoder,
   ImageMetadata,
   PreservedMetadata,
 } from '../codec.ts'
@@ -17,9 +15,7 @@ import {
 } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
-import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat, PixelSampleDisplayRange } from '../pixel.ts'
-import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
 import { MemorySource, readExactly } from '../source.ts'
 import { decodeZstd } from '../compression/zstd/index.ts'
@@ -35,6 +31,7 @@ import {
 } from './icc.ts'
 import { jpegCodec } from './jpeg.ts'
 import { decodeLogLuvSegment, type LogLuvEncoding } from './tiff-logluv.ts'
+import { TiffEncoder } from './tiff-encode.ts'
 
 const blockRows = 32
 const compressionNone = 1
@@ -3707,151 +3704,6 @@ class TiffDecoder implements ImageDecoder {
             : {}),
         }
       }
-    }
-  }
-}
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null
-
-const validateEncoderOptions = (options: unknown): void => {
-  if (!isRecord(options)) throw invalidInput('TIFF encoder options must be an object')
-  const compression = options.compression
-  if (compression !== undefined && compression !== 'none') {
-    throw unsupportedOperation('TIFF encoding currently supports only compression: none')
-  }
-}
-
-const writeIfdEntry = (
-  view: DataView,
-  offset: number,
-  tag: number,
-  fieldType: number,
-  count: number,
-  value: number,
-): void => {
-  view.setUint16(offset, tag, true)
-  view.setUint16(offset + 2, fieldType, true)
-  view.setUint32(offset + 4, count, true)
-  if (fieldType === 3 && count === 1) view.setUint16(offset + 8, value, true)
-  else view.setUint32(offset + 8, value, true)
-}
-
-const tiffHeader = (
-  width: number,
-  height: number,
-  format: PixelFormat,
-  icc: Uint8Array | undefined,
-): Uint8Array => {
-  const samples = format === 'gray8' ? 1 : format === 'rgb8' ? 3 : 4
-  const entryCount = (format === 'rgba8' ? 12 : 11) + (icc ? 1 : 0)
-  const ifdOffset = 8
-  const ifdBytes = 2 + entryCount * 12 + 4
-  const bitsBytes = samples === 1 ? 0 : samples * 2
-  const iccOffset = ifdOffset + ifdBytes + bitsBytes
-  const pixelOffset = iccOffset + (icc?.byteLength ?? 0)
-  const output = new Uint8Array(pixelOffset)
-  const view = new DataView(output.buffer)
-  output.set([0x49, 0x49, 0x2a, 0])
-  view.setUint32(4, ifdOffset, true)
-  view.setUint16(ifdOffset, entryCount, true)
-  let entryOffset = ifdOffset + 2
-  const entry = (tag: number, fieldType: number, count: number, value: number): void => {
-    writeIfdEntry(view, entryOffset, tag, fieldType, count, value)
-    entryOffset += 12
-  }
-  entry(256, 4, 1, width)
-  entry(257, 4, 1, height)
-  entry(258, 3, samples, samples === 1 ? 8 : ifdOffset + ifdBytes)
-  entry(259, 3, 1, compressionNone)
-  entry(262, 3, 1, format === 'gray8' ? photometricBlackIsZero : photometricRgb)
-  entry(273, 4, 1, pixelOffset)
-  entry(274, 3, 1, 1)
-  entry(277, 3, 1, samples)
-  entry(278, 4, 1, height)
-  entry(279, 4, 1, width * height * samples)
-  entry(284, 3, 1, 1)
-  if (format === 'rgba8') entry(338, 3, 1, 2)
-  if (icc) entry(34675, 7, icc.byteLength, iccOffset)
-  view.setUint32(entryOffset, 0, true)
-  if (samples > 1) {
-    for (let sample = 0; sample < samples; sample += 1) {
-      view.setUint16(ifdOffset + ifdBytes + sample * 2, 8, true)
-    }
-  }
-  if (icc) output.set(icc, iccOffset)
-  return output
-}
-
-class TiffEncoder implements ImageEncoder {
-  readonly #sink: ImageSink
-  readonly #width: number
-  readonly #height: number
-  readonly #format: 'gray8' | 'rgb8' | 'rgba8'
-  #y = 0
-
-  private constructor(
-    sink: ImageSink,
-    width: number,
-    height: number,
-    format: 'gray8' | 'rgb8' | 'rgba8',
-  ) {
-    this.#sink = sink
-    this.#width = width
-    this.#height = height
-    this.#format = format
-  }
-
-  static async create(sink: ImageSink, request: EncodeRequest): Promise<TiffEncoder> {
-    validateEncoderOptions(request.options)
-    if (
-      request.pixelFormat !== 'gray8' &&
-      request.pixelFormat !== 'rgb8' &&
-      request.pixelFormat !== 'rgba8'
-    ) {
-      throw unsupportedOperation(`TIFF encoding does not support ${request.pixelFormat} pixels`)
-    }
-    if (request.metadata?.exif)
-      throw unsupportedOperation('Preserving EXIF into TIFF output is not implemented')
-    const icc = request.metadata?.icc
-    if (icc) {
-      const colorSpace = iccColorSpace(icc)
-      if (
-        colorSpace === 'other' ||
-        (request.pixelFormat === 'gray8' && colorSpace !== 'gray') ||
-        (request.pixelFormat !== 'gray8' && colorSpace !== 'rgb')
-      ) {
-        throw invalidInput('Preserved ICC profile does not match TIFF output pixels')
-      }
-    }
-    await sink.write(tiffHeader(request.width, request.height, request.pixelFormat, icc))
-    return new TiffEncoder(sink, request.width, request.height, request.pixelFormat)
-  }
-
-  async write(block: PixelBlock): Promise<void> {
-    const channels = this.#format === 'gray8' ? 1 : this.#format === 'rgb8' ? 3 : 4
-    if (
-      block.x !== 0 ||
-      block.y !== this.#y ||
-      block.width !== this.#width ||
-      block.height < 1 ||
-      block.format !== this.#format ||
-      block.stride < this.#width * channels ||
-      block.data.byteLength < block.stride * block.height ||
-      this.#y + block.height > this.#height
-    ) {
-      throw invalidInput('TIFF encoder received a non-sequential or malformed pixel block')
-    }
-    const rowBytes = this.#width * channels
-    for (let row = 0; row < block.height; row += 1) {
-      await this.#sink.write(block.data.subarray(row * block.stride, row * block.stride + rowBytes))
-      this.#y += 1
-    }
-  }
-
-  async finish(): Promise<void> {
-    if (this.#y !== this.#height) {
-      throw truncatedInput(`TIFF encoder received ${this.#y} of ${this.#height} rows`)
     }
   }
 }

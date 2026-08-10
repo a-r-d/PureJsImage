@@ -70,6 +70,12 @@ block size. The large RGB, packed 12-bit, 16-bit BigTIFF, planar CMYK,
 CIELab, packed `FillOrder=2`, and 7795x3122 single-strip LZW cases establish
 the decode and Lambda-memory baselines.
 
+`npm run fixtures:tiff:encode` generates RGB and RGBA output through the
+canonical TIFF encoder, then uses ImageMagick/LibTIFF to reopen both files and
+compare exact raw pixels. The report also checks Classic TIFF byte order,
+Deflate compression, horizontal prediction, sample counts, and multi-strip
+geometry in `benchmark/results/tiff-encode-compatibility.{json,md}`.
+
 `npm run bench:zstd -- --runs 9 --warmups 2` measures the standalone
 first-party Zstandard decoder against a committed independently generated
 multi-block compressed fixture. It validates the exact decoded SHA-256 and

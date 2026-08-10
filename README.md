@@ -117,6 +117,28 @@ await image
 
 In a browser, import from `purejsimage/browser` and use `toBlob()` or
 `toUint8Array()` for output.
+
+### TIFF output
+
+TIFF encoding uses one deliberate interoperability profile: Classic
+little-endian TIFF, chunky 8-bit RGB or RGBA, Deflate-compressed strips, and
+horizontal prediction. RGB inputs remain RGB; RGBA inputs retain unassociated
+alpha.
+
+```ts
+await image
+  .tiff({
+    compression: 'deflate',
+    predictor: 'horizontal',
+    layout: 'strips',
+    compressionLevel: 6,
+  })
+  .toFile('output.tiff')
+```
+
+Strategies outside this profile are rejected until their complete writer and
+compatibility contracts are implemented.
+
 ### Zstandard decompression
 
 The reusable first-party Zstandard decoder is a separate portable subpath:
@@ -153,7 +175,7 @@ use the default TypeScript codecs.
 | PNG | Yes | Yes |
 | WebP | Yes | Yes |
 | BMP | Yes | Yes |
-| TIFF | Yes | Limited |
+| TIFF | Yes | Yes |
 | GIF | Static / explicit frame 0 | No |
 | ICO | Yes | No |
 | JPEG 2000 / JP2 | Limited | No |

@@ -358,7 +358,7 @@ class BrowserDeflateEncoder implements DeflateEncoder {
 const validateBrowserDeflateOptions = (options: DeflateOptions): void => {
   if (options.level !== 6) {
     throw unsupportedOperation(
-      'Browser PNG compression supports the default compressionLevel (6) only',
+      'Browser Deflate compression supports the default compressionLevel (6) only',
     )
   }
 }

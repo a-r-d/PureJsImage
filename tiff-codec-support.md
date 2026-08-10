@@ -68,13 +68,13 @@ The 154-file Imazen baseline currently has no decode failures: 148 inputs pass, 
 
 ### Next recommended capability
 
-- [ ] Expand TIFF encoding beyond uncompressed strips
+- [x] Establish a canonical Deflate-predicted RGB/RGBA multi-strip encoding profile
 
 TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples directly to sRGB with explicit clipping and round-to-nearest output. CMYK lut16 A2B0 ICC profiles transform bounded rows and take precedence over numeric CMYK conversion. LogL and LogLuv reconstruct native CIE Y or XYZ float32 blocks. SGILog RLE scratch remains one row; decoded segment state is bounded to the current strip or tile.
 
 ### Follow-on priorities
 
-1. Expand TIFF encoding with configurable strips and PackBits/Deflate.
+1. Add alternate TIFF encoder profiles only when their complete contracts exist, prioritizing PackBits/LZW or tiles from demonstrated demand.
 2. Keep generic five-band data unsupported until its public pixel semantics are defined.
 3. Keep ThunderScan unsupported: the current corpus fixture is truncated by three rows and LibTIFF independently rejects it.
 
@@ -83,18 +83,18 @@ TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples direct
 ### Implemented target
 
 - [x] Classic little-endian TIFF with 32-bit offsets
-- [x] Streaming, top-to-bottom output without a full-frame staging buffer
-- [x] Uncompressed 8-bit grayscale
-- [x] Uncompressed 8-bit RGB
-- [x] Uncompressed 8-bit RGBA with unassociated alpha metadata
-- [x] Compatible ICC profile writing when explicitly preserved
-- [x] Public `image.tiff()` and `image.encode('tiff')` APIs
+- [x] Chunky 8-bit RGB and RGBA with unassociated alpha metadata
+- [x] Independently Deflate-compressed strips with horizontal differencing (`Predictor=2`)
+- [x] Automatic rows-per-strip planning targeting roughly 128 KiB of uncompressed pixels
+- [x] Bounded current-strip pixel and predictor scratch without a full uncompressed frame
+- [x] Compatible RGB ICC profile writing when explicitly preserved
+- [x] Strict `compression`, `predictor`, `layout`, and `compressionLevel` options on public `image.tiff()` and `image.encode('tiff')` APIs
 
 ### Planned
 
-- [ ] Configurable rows per strip
-- [ ] PackBits, LZW, and Deflate compression
-- [ ] Palette encoding
+- [ ] Explicit rows-per-strip configuration
+- [ ] Uncompressed, PackBits, LZW, JPEG, and other compression profiles
+- [ ] Grayscale and palette encoding
 - [ ] 16-bit channel encoding
 - [ ] Associated-alpha encoding
 - [ ] Tiled and pyramidal TIFF output
@@ -123,5 +123,6 @@ TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples direct
 - [x] Verify standalone Zstandard raw, RLE, compressed, multi-block, checksum, repeated-table, repeated-offset, and hostile-input behavior against independently generated reference frames
 - [x] Verify selected classic TIFF and BigTIFF pyramid levels independently and decode no unselected pixel segments
 - [x] Verify 16-bit ColorMap scaling, floating-point CMYK display, and signed CMYK sample reconstruction exactly against independent ImageMagick and tifffile oracles
+- [x] Verify canonical Deflate-predicted RGB and RGBA output exactly after ImageMagick/LibTIFF reopen
 - [x] Complete the 154-file Imazen TIFF corpus decode-to-PNG baseline with every
   supported valid file decoded and all remaining inputs classified at structured boundaries

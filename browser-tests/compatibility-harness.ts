@@ -597,6 +597,40 @@ const pngAlphaPipeline = async (): Promise<BrowserWorkflowResult> => {
     outputBytes: output.byteLength,
   }
 }
+const tiffEncodePipeline = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/benchmark-input.png')
+  const encoded = await (await images.open(input))
+    .tiff({
+      compression: 'deflate',
+      predictor: 'horizontal',
+      layout: 'strips',
+      compressionLevel: 6,
+    })
+    .toUint8Array()
+  const metadata = await (await images.open(encoded)).metadata()
+  if (metadata.format !== 'tiff' || metadata.width !== 640 || metadata.height !== 480) {
+    throw new Error(
+      `Browser TIFF encode produced ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  const reopened = await (await images.open(encoded)).png().toUint8Array()
+  const [expectedPixels, actualPixels] = await Promise.all([
+    browserPixels(input, 'image/png'),
+    browserPixels(reopened, 'image/png'),
+  ])
+  if (actualPixels.byteLength !== expectedPixels.byteLength) {
+    throw new Error('Browser TIFF round-trip pixel size changed')
+  }
+  for (let offset = 0; offset < expectedPixels.byteLength; offset += 1) {
+    if (actualPixels[offset] !== expectedPixels[offset]) {
+      throw new Error(`Browser TIFF round-trip pixel ${offset} changed`)
+    }
+  }
+  return {
+    detail: 'Deflate-predicted multi-strip TIFF encoding round-tripped exact browser pixels',
+    outputBytes: encoded.byteLength,
+  }
+}
 
 const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8ClampedArray> => {
   const bitmap = await createImageBitmap(new Blob([Uint8Array.from(bytes)], { type }))
@@ -1655,6 +1689,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   pngAlphaPipeline,
   progressiveJpeg,
   resizeDefaultKernel,
+  tiffEncodePipeline,
   wasmJpeg,
   wasmJpegEncode,
   wasmPng,

@@ -114,8 +114,9 @@ describe('standalone Zstandard decoder', () => {
     ).toBe(expected.byteLength)
 
     const corruptChecksum = Uint8Array.from(entropyFixture)
-    corruptChecksum[corruptChecksum.byteLength - 1] =
-      corruptChecksum[corruptChecksum.byteLength - 1]! ^ 1
+    const checksumByte = corruptChecksum.at(-1)
+    if (checksumByte === undefined) throw new Error('Fixture checksum is missing')
+    corruptChecksum[corruptChecksum.byteLength - 1] = checksumByte ^ 1
     expectImageError(() => decodeZstd(corruptChecksum), 'INVALID_INPUT')
     expectImageError(() => decodeZstd(rawFrame([1, 2, 3]), { maxOutputBytes: 2 }), 'LIMIT_EXCEEDED')
     expectImageError(

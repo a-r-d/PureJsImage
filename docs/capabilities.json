@@ -1603,13 +1603,13 @@
         "label": "Yes"
       },
       "write": {
-        "status": "limited",
-        "label": "Limited"
+        "status": "supported",
+        "label": "Yes"
       },
-      "boundary": "Broad validated IFD-graph and strip/tile decode including explicit frame and reduced-resolution SubIFD selection, 16-bit indexed color, packed and wide unsigned, signed integer, IEEE floating-point, CIELab, numeric and lut16 ICC-managed CMYK, LogLuv, FillOrder 2 samples, first-party Zstandard, and explicitly composed WebP segments; no scientific multiband, general CMYK ICC profile classes, or compressed TIFF encoding",
-      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common grayscale, indexed, RGB, CMYK, YCbCr, CIELab, alpha, packed unsigned, wide unsigned, signed integer, IEEE floating-point, LogL, and LogLuv layouts with common compressions including first-party Zstandard. IFD graphs are traversed with global directory limits, cycle rejection, and alias-safe shared-directory reuse; only the selected frame and resolution level's strips or tiles are decoded. Indexed samples through 16 bits use exact TIFF ColorMap scaling. TIFF 6 8-bit CIELab L* and L*a*b* samples convert directly from the format's D65 reference white to bounded sRGB rows; associated alpha and CIELab ICC transforms remain explicit unsupported boundaries. Signed 8-/16-bit and float16/float32/float64 CMYK use deterministic display normalization through SMinSampleValue/SMaxSampleValue or full-type defaults before bounded CMYK-to-RGB conversion. Embedded CMYK lut16 A2B0 ICC profiles take precedence over numeric conversion and transform bounded rows; raw numeric CMYK preservation and other CMYK ICC profile classes are not exposed. LogL and LogLuv samples are reconstructed as native CIE Y or XYZ float32 pixel blocks with deterministic display conversion. Unsigned 24-, 32-, and 64-bit samples are preserved in canonical 32- or 64-bit numeric pixel blocks. FillOrder 2 is normalized in each decoded strip or tile before predictor reversal. WebP-in-TIFF is available only through explicit codec composition. Encodes uncompressed grayscale, RGB, or RGBA output and can retain a compatible ICC profile.",
-      "memory": "Selected-frame strip or tile region decode; IFD traversal does not read unselected pixel segments, and Zstandard decompression, bit-order normalization, palette lookup, CIELab conversion, numeric or ICC-managed CMYK conversion, SGILog row scratch, wide numeric predictor reversal, output, and embedded WebP pixels are bounded to the current metadata table or segment and emitted in bounded rows",
-      "recommendation": "Broad display-image input compatibility with explicit frame/pyramid selection, first-party bounded Zstandard decompression, deterministic CIELab and numeric or ICC-managed CMYK display conversion, raw wide/signed/float and scientific CIE sample preservation, and simple uncompressed TIFF output.",
+      "boundary": "Broad validated IFD-graph and strip/tile decode including explicit frame and reduced-resolution SubIFD selection, 16-bit indexed color, packed and wide unsigned, signed integer, IEEE floating-point, CIELab, numeric and lut16 ICC-managed CMYK, LogLuv, FillOrder 2 samples, first-party Zstandard, and explicitly composed WebP segments; canonical Deflate-predicted strip RGB/RGBA encoding; no scientific multiband, general CMYK ICC profile classes, or alternate TIFF encode profiles",
+      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common grayscale, indexed, RGB, CMYK, YCbCr, CIELab, alpha, packed unsigned, wide unsigned, signed integer, IEEE floating-point, LogL, and LogLuv layouts with common compressions including first-party Zstandard. IFD graphs are traversed with global directory limits, cycle rejection, and alias-safe shared-directory reuse; only the selected frame and resolution level's strips or tiles are decoded. Indexed samples through 16 bits use exact TIFF ColorMap scaling. TIFF 6 8-bit CIELab L* and L*a*b* samples convert directly from the format's D65 reference white to bounded sRGB rows; associated alpha and CIELab ICC transforms remain explicit unsupported boundaries. Signed 8-/16-bit and float16/float32/float64 CMYK use deterministic display normalization through SMinSampleValue/SMaxSampleValue or full-type defaults before bounded CMYK-to-RGB conversion. Embedded CMYK lut16 A2B0 ICC profiles take precedence over numeric conversion and transform bounded rows; raw numeric CMYK preservation and other CMYK ICC profile classes are not exposed. LogL and LogLuv samples are reconstructed as native CIE Y or XYZ float32 pixel blocks with deterministic display conversion. Unsigned 24-, 32-, and 64-bit samples are preserved in canonical 32- or 64-bit numeric pixel blocks. FillOrder 2 is normalized in each decoded strip or tile before predictor reversal. WebP-in-TIFF is available only through explicit codec composition. Encodes a canonical Classic little-endian, chunky 8-bit RGB or RGBA, Deflate-compressed, horizontally predicted, multi-strip profile and can retain a compatible RGB ICC profile.",
+      "memory": "Selected-frame strip or tile region decode; IFD traversal does not read unselected pixel segments, and Zstandard decompression, bit-order normalization, palette lookup, CIELab conversion, numeric or ICC-managed CMYK conversion, SGILog row scratch, wide numeric predictor reversal, output, and embedded WebP pixels are bounded to the current metadata table or segment and emitted in bounded rows. Encoding uses one roughly 128 KiB uncompressed strip buffer and retains compressed strips until their Classic TIFF offsets are known; it never stages a full uncompressed frame.",
+      "recommendation": "Broad display-image input compatibility with explicit frame/pyramid selection, first-party bounded Zstandard decompression, deterministic CIELab and numeric or ICC-managed CMYK display conversion, raw wide/signed/float and scientific CIE sample preservation, and canonical Deflate-predicted RGB/RGBA strip output.",
       "evidence": [
         "tests/tiff.test.ts",
         "tests/zstd.test.ts",
@@ -1620,12 +1620,8 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "ImageMagick 7.1.2 with LibTIFF 4.7, tifffile with imagecodecs, and libwebp",
-        "tolerance": "16-bit indexed color, packed, FillOrder 2, unsigned 24-/32-bit display, floating-point display, numeric CMYK display, CMYK-alpha, CIELab, SGILog24/32 color, Zstandard-compressed samples, and lossless WebP paths are exact against independent oracles; the CMYK lut16 ICC path differs by at most one 8-bit code value from ImageMagick/LittleCMS for its pinned fixture; LogL CIE Y reconstruction and unsigned 64-bit and signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
-        "evidence": [
-          "tests/tiff.test.ts",
-          "tests/lossy-codec-quality.test.ts",
-          "benchmark/results/imazen-tiff-conformance.md"
-        ]
+        "tolerance": "16-bit indexed color, packed, FillOrder 2, unsigned 24-/32-bit display, floating-point display, numeric CMYK display, CMYK-alpha, CIELab, SGILog24/32 color, Zstandard-compressed samples, lossless WebP paths, and canonical TIFF-encoded RGB/RGBA reopened through ImageMagick/LibTIFF are exact against independent oracles; the CMYK lut16 ICC path differs by at most one 8-bit code value from ImageMagick/LittleCMS for its pinned fixture; LogL CIE Y reconstruction and unsigned 64-bit and signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
+        "evidence": ["tests/tiff.test.ts", "tests/lossy-codec-quality.test.ts"]
       },
       "claims": [
         {
@@ -1821,8 +1817,8 @@
           "text": "Reversed bit fill order (`FillOrder=2`) normalized per strip or tile before prediction"
         },
         {
-          "status": "planned",
-          "text": "Expand TIFF encoding beyond uncompressed strips"
+          "status": "supported",
+          "text": "Establish a canonical Deflate-predicted RGB/RGBA multi-strip encoding profile"
         },
         {
           "status": "supported",
@@ -1830,39 +1826,39 @@
         },
         {
           "status": "supported",
-          "text": "Streaming, top-to-bottom output without a full-frame staging buffer"
+          "text": "Chunky 8-bit RGB and RGBA with unassociated alpha metadata"
         },
         {
           "status": "supported",
-          "text": "Uncompressed 8-bit grayscale"
+          "text": "Independently Deflate-compressed strips with horizontal differencing (`Predictor=2`)"
         },
         {
           "status": "supported",
-          "text": "Uncompressed 8-bit RGB"
+          "text": "Automatic rows-per-strip planning targeting roughly 128 KiB of uncompressed pixels"
         },
         {
           "status": "supported",
-          "text": "Uncompressed 8-bit RGBA with unassociated alpha metadata"
+          "text": "Bounded current-strip pixel and predictor scratch without a full uncompressed frame"
         },
         {
           "status": "supported",
-          "text": "Compatible ICC profile writing when explicitly preserved"
+          "text": "Compatible RGB ICC profile writing when explicitly preserved"
         },
         {
           "status": "supported",
-          "text": "Public `image.tiff()` and `image.encode('tiff')` APIs"
+          "text": "Strict `compression`, `predictor`, `layout`, and `compressionLevel` options on public `image.tiff()` and `image.encode('tiff')` APIs"
         },
         {
           "status": "planned",
-          "text": "Configurable rows per strip"
+          "text": "Explicit rows-per-strip configuration"
         },
         {
           "status": "planned",
-          "text": "PackBits, LZW, and Deflate compression"
+          "text": "Uncompressed, PackBits, LZW, JPEG, and other compression profiles"
         },
         {
           "status": "planned",
-          "text": "Palette encoding"
+          "text": "Grayscale and palette encoding"
         },
         {
           "status": "planned",
@@ -1963,6 +1959,10 @@
         {
           "status": "supported",
           "text": "Verify 16-bit ColorMap scaling, floating-point CMYK display, and signed CMYK sample reconstruction exactly against independent ImageMagick and tifffile oracles"
+        },
+        {
+          "status": "supported",
+          "text": "Verify canonical Deflate-predicted RGB and RGBA output exactly after ImageMagick/LibTIFF reopen"
         },
         {
           "status": "supported",

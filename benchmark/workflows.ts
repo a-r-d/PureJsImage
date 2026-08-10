@@ -1057,7 +1057,7 @@ export const workflows: readonly Workflow[] = [
   },
   {
     id: 'png-to-tiff',
-    title: 'Transparent 1200x480 PNG to uncompressed RGBA TIFF',
+    title: 'Transparent 1200x480 PNG to Deflate-predicted strip RGBA TIFF',
     tier: 'tiff',
     input: 'transparent-logo-1200x480',
     operations: [tiff()],

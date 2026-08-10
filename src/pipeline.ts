@@ -52,7 +52,10 @@ export interface BmpEncodeOptions {
 }
 
 export interface TiffEncodeOptions {
-  compression?: 'none'
+  compression?: 'deflate'
+  predictor?: 'horizontal'
+  layout?: 'strips'
+  compressionLevel?: number
 }
 
 export type PipelineOperation =
@@ -235,8 +238,22 @@ export const createBmpEncodeOperation = (options: BmpEncodeOptions): PipelineOpe
 }
 
 export const createTiffEncodeOperation = (options: TiffEncodeOptions): PipelineOperation => {
-  if (options.compression !== undefined && options.compression !== 'none') {
-    throw invalidInput('TIFF compression must be none')
+  if (options.compression !== undefined && options.compression !== 'deflate') {
+    throw invalidInput('TIFF compression must be deflate')
+  }
+  if (options.predictor !== undefined && options.predictor !== 'horizontal') {
+    throw invalidInput('TIFF predictor must be horizontal')
+  }
+  if (options.layout !== undefined && options.layout !== 'strips') {
+    throw invalidInput('TIFF layout must be strips')
+  }
+  if (
+    options.compressionLevel !== undefined &&
+    (!Number.isInteger(options.compressionLevel) ||
+      options.compressionLevel < 0 ||
+      options.compressionLevel > 9)
+  ) {
+    throw invalidInput('TIFF compressionLevel must be an integer from 0 to 9')
   }
   return Object.freeze({ type: 'encode', format: 'tiff', options: Object.freeze({ ...options }) })
 }

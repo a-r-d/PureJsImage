@@ -477,8 +477,8 @@ const plannedPipeline = (
     image = image.bmp({ alpha: selectedMetadata.hasAlpha })
     steps.push(selectedMetadata.hasAlpha ? '32-bit BMP' : '24-bit BMP')
   } else {
-    image = image.tiff({ compression: 'none' })
-    steps.push('uncompressed TIFF')
+    image = image.tiff({ compression: 'deflate', predictor: 'horizontal', layout: 'strips' })
+    steps.push('Deflate TIFF')
   }
   return Object.freeze({ image, steps: Object.freeze(steps) })
 }

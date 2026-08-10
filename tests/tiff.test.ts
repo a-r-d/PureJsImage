@@ -6,8 +6,11 @@ import type { DecoderOptions, ImageCodec } from '../src/codec.ts'
 import { createTiffCodec, tiffCodec } from '../src/codecs/tiff.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import { nodeRuntime } from '../src/node-runtime.ts'
 import { MemorySource } from '../src/source.ts'
+import { Uint8ArraySink } from '../src/sink.ts'
 
+import { createTiffEncodeOperation } from '../src/pipeline.ts'
 import { channelSwappingRgbProfile, constantGrayCmykProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
@@ -582,6 +585,31 @@ const decodeDirect = async (
     offset += block.byteLength
   }
   return { format: decoder.pixelFormat, data, displayRanges }
+}
+const classicTiffValues = (input: Uint8Array, targetTag: number): readonly number[] => {
+  const view = new DataView(input.buffer, input.byteOffset, input.byteLength)
+  if (input[0] !== 0x49 || input[1] !== 0x49 || view.getUint16(2, true) !== 42) {
+    throw new Error('Expected a little-endian Classic TIFF')
+  }
+  const ifdOffset = view.getUint32(4, true)
+  const entryCount = view.getUint16(ifdOffset, true)
+  for (let index = 0; index < entryCount; index += 1) {
+    const entryOffset = ifdOffset + 2 + index * 12
+    if (view.getUint16(entryOffset, true) !== targetTag) continue
+    const type = view.getUint16(entryOffset + 2, true)
+    const count = view.getUint32(entryOffset + 4, true)
+    const bytesPerValue = type === 3 ? 2 : type === 4 ? 4 : 0
+    if (bytesPerValue === 0) throw new Error(`Unsupported test TIFF field type ${type}`)
+    const valueBytes = count * bytesPerValue
+    const valuesOffset = valueBytes <= 4 ? entryOffset + 8 : view.getUint32(entryOffset + 8, true)
+    const values: number[] = []
+    for (let value = 0; value < count; value += 1) {
+      const offset = valuesOffset + value * bytesPerValue
+      values.push(type === 3 ? view.getUint16(offset, true) : view.getUint32(offset, true))
+    }
+    return values
+  }
+  throw new Error(`TIFF tag ${targetTag} is missing`)
 }
 
 const uint16BigEndian = (data: Uint8Array, offset: number): number =>
@@ -2878,26 +2906,97 @@ describe('TIFF codec', () => {
     })
   })
 
-  it('encodes streaming grayscale, RGB, and RGBA TIFF output', async () => {
+  it('encodes canonical Deflate-predicted RGB and RGBA strip TIFF output', async () => {
     const source = new PNG({ width: 2, height: 1 })
     source.data.set([10, 20, 30, 255, 70, 80, 90, 0])
     const png = PNG.sync.write(source)
 
     const rgba = await (await Image.open(png)).tiff().toBuffer()
     expect(rgba.subarray(0, 4)).toEqual(Buffer.from([0x49, 0x49, 0x2a, 0]))
+    expect(classicTiffValues(rgba, 258)).toEqual([8, 8, 8, 8])
+    expect(classicTiffValues(rgba, 259)).toEqual([8])
+    expect(classicTiffValues(rgba, 262)).toEqual([2])
+    expect(classicTiffValues(rgba, 277)).toEqual([4])
+    expect(classicTiffValues(rgba, 284)).toEqual([1])
+    expect(classicTiffValues(rgba, 317)).toEqual([2])
+    expect(classicTiffValues(rgba, 338)).toEqual([2])
     await expect((await Image.open(rgba)).metadata()).resolves.toMatchObject({
       format: 'tiff',
       width: 2,
       height: 1,
       hasAlpha: true,
     })
-    const roundTrip = await decodedPng(rgba)
-    expect(pixel(roundTrip, 0, 0)).toEqual([10, 20, 30, 255])
-    expect(pixel(roundTrip, 1, 0)).toEqual([70, 80, 90, 0])
+    const rgbaRoundTrip = await decodeDirect(rgba)
+    expect(rgbaRoundTrip.format).toBe('rgba8')
+    expect(Array.from(rgbaRoundTrip.data)).toEqual(Array.from(source.data))
 
-    const viaEncode = await (await Image.open(png)).encode('tiff').toBuffer()
+    const viaEncode = await (await Image.open(png))
+      .encode('tiff', {
+        compression: 'deflate',
+        predictor: 'horizontal',
+        layout: 'strips',
+        compressionLevel: 6,
+      })
+      .toBuffer()
     expect(viaEncode).toEqual(rgba)
 
+    const rgbPixels = Uint8Array.from([12, 34, 56, 210, 45, 90])
+    const rgbSource = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 2,
+      strips: [rgbPixels],
+    })
+    const rgb = await (await Image.open(rgbSource)).tiff({ compressionLevel: 9 }).toBuffer()
+    expect(classicTiffValues(rgb, 258)).toEqual([8, 8, 8])
+    expect(classicTiffValues(rgb, 277)).toEqual([3])
+    await expect((await Image.open(rgb)).metadata()).resolves.toMatchObject({ hasAlpha: false })
+    const rgbRoundTrip = await decodeDirect(rgb)
+    expect(rgbRoundTrip.format).toBe('rgb8')
+    expect(rgbRoundTrip.data).toEqual(rgbPixels)
+  })
+
+  it('encodes bounded independently compressed strips without full-frame raw staging', async () => {
+    const width = 1024
+    const height = 100
+    const rowBytes = width * 3
+    const pixels = new Uint8Array(rowBytes * height)
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const offset = y * rowBytes + x * 3
+        pixels[offset] = x & 0xff
+        pixels[offset + 1] = y & 0xff
+        pixels[offset + 2] = (x + y) & 0xff
+      }
+    }
+    const source = tiffFixture({
+      width,
+      height,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 2,
+      rowsPerStrip: height,
+      strips: [pixels],
+    })
+    const output = await (await Image.open(source)).tiff().toBuffer()
+    const rowsPerStrip = classicTiffValues(output, 278)[0]
+    const stripOffsets = classicTiffValues(output, 273)
+    const stripByteCounts = classicTiffValues(output, 279)
+    expect(rowsPerStrip).toBe(42)
+    expect((rowsPerStrip ?? 0) * rowBytes).toBeGreaterThanOrEqual(64 * 1024)
+    expect((rowsPerStrip ?? 0) * rowBytes).toBeLessThanOrEqual(256 * 1024)
+    expect(stripOffsets).toHaveLength(3)
+    expect(stripByteCounts).toHaveLength(3)
+    expect(stripByteCounts.every((bytes) => bytes > 0)).toBe(true)
+    expect(output.byteLength).toBeLessThan(source.byteLength)
+    const decoded = await decodeDirect(output)
+    expect(decoded.format).toBe('rgb8')
+    expect(decoded.data).toEqual(pixels)
+  })
+
+  it('rejects pixels and TIFF strategies outside the canonical encoding profile', async () => {
     const graySource = tiffFixture({
       width: 2,
       height: 1,
@@ -2906,20 +3005,35 @@ describe('TIFF codec', () => {
       photometric: 1,
       strips: [Uint8Array.from([25, 200])],
     })
-    const grayRoundTrip = await decodedPng(await (await Image.open(graySource)).tiff().toBuffer())
-    expect(pixel(grayRoundTrip, 0, 0)).toEqual([25, 25, 25, 255])
-    expect(pixel(grayRoundTrip, 1, 0)).toEqual([200, 200, 200, 255])
-
-    const rgbSource = tiffFixture({
-      width: 1,
-      height: 1,
-      bitsPerSample: [8, 8, 8],
-      compression: 1,
-      photometric: 2,
-      strips: [Uint8Array.from([12, 34, 56])],
+    await expect((await Image.open(graySource)).tiff().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'TIFF encoding supports only 8-bit RGB or RGBA pixels, not gray8',
     })
-    const rgbRoundTrip = await decodedPng(await (await Image.open(rgbSource)).tiff().toBuffer())
-    expect(pixel(rgbRoundTrip, 0, 0)).toEqual([12, 34, 56, 255])
+
+    const createEncoder = tiffCodec.createEncoder
+    if (!createEncoder) throw new Error('TIFF encoder is unavailable')
+    for (const options of [
+      { compression: 'lzw' },
+      { predictor: 'none' },
+      { layout: 'tiles' },
+      { layout: 'planar' },
+    ]) {
+      await expect(
+        createEncoder(new Uint8ArraySink(), {
+          width: 1,
+          height: 1,
+          pixelFormat: 'rgb8',
+          options,
+          runtime: nodeRuntime,
+        }),
+      ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+    }
+    expect(() => createTiffEncodeOperation({ compressionLevel: -1 })).toThrow(
+      'TIFF compressionLevel must be an integer from 0 to 9',
+    )
+    expect(() => createTiffEncodeOperation({ compressionLevel: 10 })).toThrow(
+      'TIFF compressionLevel must be an integer from 0 to 9',
+    )
   })
 
   it('rejects invalid IFDs, truncated strips, unsupported compression, and expansion overruns', async () => {

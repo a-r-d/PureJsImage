@@ -107,6 +107,14 @@ test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   expect(result.detail).toContain('preserved alpha')
 })
 
+test('encodes canonical multi-strip TIFF in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.tiffEncodePipeline())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('Deflate-predicted multi-strip TIFF')
+  expect(result.detail).toContain('exact browser pixels')
+})
+
 test('losslessly encodes WebP with exact browser pixels', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.webpLossless())
