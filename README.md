@@ -79,8 +79,8 @@ esbuild, gzip, and Brotli settings:
 
 | Import | Version | Codecs included | Minified JS | gzip | Brotli |
 | --- | --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | **0.8.0** | JPEG, PNG | 145.4 KiB | 47.2 KiB | 39.6 KiB |
-| PureJsImage all codecs | 0.8.0 | 9 codecs | 668.9 KiB | 240.7 KiB | 201.6 KiB |
+| **PureJsImage matched** | **0.9.0** | JPEG, PNG | 145.4 KiB | 47.2 KiB | 39.6 KiB |
+| PureJsImage all codecs | 0.9.0 | 9 codecs | 668.9 KiB | 240.7 KiB | 201.6 KiB |
 | Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
 | image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
 | jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
@@ -92,7 +92,7 @@ complete installed deployment tells the other half of the story:
 
 | Package | Version | Installed footprint | Production packages |
 | --- | --- | ---: | ---: |
-| **PureJsImage** | **0.8.0** | **2.3 MiB** | **1** |
+| **PureJsImage** | **0.9.0** | **2.3 MiB** | **1** |
 | Jimp | 1.6.0 | 29.3 MiB | 70 |
 | image-js | 1.7.0 | 17.0 MiB | 46 |
 | jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |
@@ -190,7 +190,7 @@ A capability is **Yes** only when upstream documentation or source supports it; 
 
 | Library | Runtime model | Browser | BigTIFF | Tiles | Region decode | Native scientific raster | OME / whole-slide semantics | Decode coverage |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PureJsImage main snapshot · unreleased · 3868385 | Pure JavaScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>2 oracle failures |
+| PureJsImage main snapshot · unreleased · a1f20da | Pure JavaScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>2 oracle failures |
 | GeoTIFF.js 3.0.5 | Pure JavaScript | Yes | Partial | Yes | Yes | Yes | No | 84/106 decoded<br>32 exact<br>11 unsupported · 7 errors · 2 oracle failures · 2 crashes |
 | UTIF.js (utif2) 4.1.0 | Pure JavaScript | Yes | No | Yes | No | Partial | No | 74/106 decoded<br>49 exact<br>28 errors · 2 oracle failures · 2 timeouts · 3 crashes |
 | image-js/tiff 7.1.3 | Pure JavaScript | Yes | No | Yes | No | Yes | No | 41/106 decoded<br>27 exact<br>51 unsupported · 12 errors · 2 oracle failures |

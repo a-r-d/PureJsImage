@@ -3,6 +3,9 @@
 All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
+
+## [0.9.0] - 2026-08-09
+
 ### Added
 
 - Expanded TIFF decoding with unsigned 6-, 10-, 12-, and 14-bit grayscale, 2-, 4-, 10-, 12-,
@@ -42,7 +45,7 @@ All notable changes to PureJsImage are documented in this file.
 - Added 16-bit TIFF palette decode with exact full-range ColorMap scaling, plus signed 8-/16-bit
   and float16/float32/float64 CMYK display conversion using declared sample ranges or deterministic
   full-type defaults, bounded segment output, and independent pixel validation.
-- Added TIFF 6 8-bit CIELab conversion from D65-referenced L*a*b* to sRGB, bounded CMYK
+- Added 8-bit TIFF CIELab conversion from D65-referenced L*a*b* to sRGB, bounded CMYK
   `lut16` A2B0 ICC-profile conversion with profile precedence over numeric display, and
   `FillOrder=2` normalization for non-fax strips and tiles before predictor reversal without
   mutating aliased source buffers.
@@ -66,7 +69,7 @@ All notable changes to PureJsImage are documented in this file.
 - Added a dedicated TIFF documentation page covering the complete decode matrix, scientific and
   whole-slide APIs, third-party profiles, canonical output, memory model, and unsupported
   boundaries; reduced the README TIFF and Zstandard sections to direct documentation links and
-  refreshed its measured 0.8.0 bundle and installed-size tables.
+  refreshed the measured bundle and installed-size tables.
 - Added a reusable first-party Zstandard decompressor at `purejsimage/compression/zstd` with
   explicit output and window bounds, raw/RLE/compressed blocks, Huffman and FSE entropy decoding,
   repeated tables and offsets, frame checksums, and structured malformed-input failures.
@@ -583,4 +586,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.6.0]: https://github.com/a-r-d/PureJsImage/compare/v0.5.0...v0.6.0
 [0.7.0]: https://github.com/a-r-d/PureJsImage/compare/v0.6.0...v0.7.0
 [0.8.0]: https://github.com/a-r-d/PureJsImage/compare/v0.7.0...v0.8.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.8.0...HEAD
+[0.9.0]: https://github.com/a-r-d/PureJsImage/compare/v0.8.0...v0.9.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.9.0...HEAD
