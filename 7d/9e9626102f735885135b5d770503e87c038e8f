@@ -1,0 +1,18 @@
+src/codecs/icc.ts
+  h_9f4a25732fa0c1 784-802
+src/codecs/tiff.ts
+  h_9f4a25732fa0c1 27,58,408,1075-1080,1089,1096-1106,1126-1133,1194-1197,1582-1591,1729,3565-3582,3820-3828
+tests/tiff.test.ts
+  h_9f4a25732fa0c1 1994-2112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "7d9e9626102f735885135b5d770503e87c038e8f",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
