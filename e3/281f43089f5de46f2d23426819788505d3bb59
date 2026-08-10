@@ -1,0 +1,354 @@
+.gitignore
+  h_9f4a25732fa0c1 146-148
+AGENTS.md
+  h_9f4a25732fa0c1 275-281
+CHANGELOG.md
+  h_9f4a25732fa0c1 6-91,95-97,278-293,296-302,572-573
+CONTRIBUTING.md
+  h_9f4a25732fa0c1 65-83
+README.md
+  h_9f4a25732fa0c1 79-80,92,121-133,151,182-200,257
+benchmark/README.md
+  h_9f4a25732fa0c1 59-84,105-133
+benchmark/corpus/manifest.json
+  h_9f4a25732fa0c1 670-735
+benchmark/engines/jimp.ts
+  h_9f4a25732fa0c1 219-221
+benchmark/engines/purejsimage-shared.ts
+  h_9f4a25732fa0c1 1,12-13,41,74-208,296-305
+benchmark/lib/corpus.ts
+  h_9f4a25732fa0c1 16,74-79,184
+benchmark/lib/results.ts
+  h_9f4a25732fa0c1 37-44,69-81
+benchmark/lib/tiff.ts
+  h_9f4a25732fa0c1 7,9,12-14,17,26-36,38-45,47-56,61,63-79
+benchmark/lib/validate-output.ts
+  h_9f4a25732fa0c1 9,132,151-197
+benchmark/results/2026-08-10T03-36-33-678Z-purejsimage-tiff.json
+  h_9f4a25732fa0c1 1-4288
+benchmark/results/2026-08-10T03-36-33-678Z-purejsimage-tiff.md
+  h_9f4a25732fa0c1 1-57
+benchmark/results/2026-08-10T03-37-38-256Z-jimp-tiff.json
+  h_9f4a25732fa0c1 1-3469
+benchmark/results/2026-08-10T03-37-38-256Z-jimp-tiff.md
+  h_9f4a25732fa0c1 1-55
+benchmark/results/2026-08-10T03-38-30-429Z-purejsimage-tiff.json
+  h_9f4a25732fa0c1 1-960
+benchmark/results/2026-08-10T03-38-30-429Z-purejsimage-tiff.md
+  h_9f4a25732fa0c1 1-57
+benchmark/results/2026-08-10T12-48-30-489Z-purejsimage-tiff.json
+  h_9f4a25732fa0c1 1-6868
+benchmark/results/2026-08-10T12-48-30-489Z-purejsimage-tiff.md
+  h_9f4a25732fa0c1 1-69
+benchmark/results/imazen-bmp-conformance.json
+  h_9f4a25732fa0c1 1-2606
+benchmark/results/imazen-bmp-conformance.md
+  h_9f4a25732fa0c1 1-69
+benchmark/results/imazen-gif-conformance.json
+  h_9f4a25732fa0c1 1-946
+benchmark/results/imazen-gif-conformance.md
+  h_9f4a25732fa0c1 1-59
+benchmark/results/imazen-jpeg-conformance.json
+  h_9f4a25732fa0c1 1-4276
+benchmark/results/imazen-jpeg-conformance.md
+  h_9f4a25732fa0c1 1-60
+benchmark/results/imazen-png-conformance.json
+  h_9f4a25732fa0c1 1-3884
+benchmark/results/imazen-png-conformance.md
+  h_9f4a25732fa0c1 1-67
+benchmark/results/imazen-tiff-conformance.json
+  h_9f4a25732fa0c1 1-3176
+benchmark/results/imazen-tiff-conformance.md
+  h_9f4a25732fa0c1 1-71
+benchmark/results/imazen-tiff-dependencies.json
+  h_9f4a25732fa0c1 1-198
+benchmark/results/imazen-tiff-dependencies.md
+  h_9f4a25732fa0c1 1-35
+benchmark/results/imazen-webp-conformance.json
+  h_9f4a25732fa0c1 1-4246
+benchmark/results/imazen-webp-conformance.md
+  h_9f4a25732fa0c1 1-58
+benchmark/results/tiff-color-fillorder-cielab.json
+  h_9f4a25732fa0c1 1-486
+benchmark/results/tiff-color-fillorder-cielab.md
+  h_9f4a25732fa0c1 1-39
+benchmark/results/tiff-color-fillorder-fillorder.json
+  h_9f4a25732fa0c1 1-486
+benchmark/results/tiff-color-fillorder-fillorder.md
+  h_9f4a25732fa0c1 1-39
+benchmark/results/tiff-competitor-conformance.json
+  h_9f4a25732fa0c1 1-14010
+benchmark/results/tiff-competitor-conformance.md
+  h_9f4a25732fa0c1 1-429
+benchmark/results/tiff-encode-compatibility.json
+  h_9f4a25732fa0c1 1-38
+benchmark/results/tiff-encode-compatibility.md
+  h_9f4a25732fa0c1 1-8
+benchmark/results/tiff-encode-deflate.json
+  h_9f4a25732fa0c1 1-451
+benchmark/results/tiff-encode-deflate.md
+  h_9f4a25732fa0c1 1-39
+benchmark/results/tiff-expanded-baseline-2026-08-09.json
+  h_9f4a25732fa0c1 1-5180
+benchmark/results/tiff-expanded-baseline-2026-08-09.md
+  h_9f4a25732fa0c1 1-61
+benchmark/results/tiff-expanded-cold-baseline-2026-08-09.json
+  h_9f4a25732fa0c1 1-2204
+benchmark/results/tiff-expanded-cold-baseline-2026-08-09.md
+  h_9f4a25732fa0c1 1-61
+benchmark/results/tiff-expanded-final-2026-08-10.json
+  h_9f4a25732fa0c1 1-6848
+benchmark/results/tiff-expanded-final-2026-08-10.md
+  h_9f4a25732fa0c1 1-69
+benchmark/results/zstd-standalone.json
+  h_9f4a25732fa0c1 1-46
+benchmark/results/zstd-standalone.md
+  h_9f4a25732fa0c1 1-7
+benchmark/run.ts
+  h_9f4a25732fa0c1 493-494,498,500-502
+benchmark/scripts/prepare-corpus.ts
+  h_9f4a25732fa0c1 181-184,219,255-536,545-625,866-877
+benchmark/scripts/run-zstd.ts
+  h_9f4a25732fa0c1 1-162
+benchmark/scripts/verify-tiff-encode.ts
+  h_9f4a25732fa0c1 1-191
+benchmark/types.ts
+  h_9f4a25732fa0c1 50-55,88-94,140-142,178-186,193-195,237,268,275-276,310-314
+benchmark/worker.ts
+  h_9f4a25732fa0c1 162-163,170-175
+benchmark/workflows.ts
+  h_9f4a25732fa0c1 807-926,1008,1060
+bmp-codec-support.md
+  h_9f4a25732fa0c1 149-150
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 6,8,13,15-18,20,22-27,35-36,40-44,144-270,423-429,434,449,471-472,485-486,490-491,493,495,514-543,545-546,611-709,726-1694,2419,2421-2422,2424,2428
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 29-48,89-113,121-129
+browser-tests/demo.pw.ts
+  h_9f4a25732fa0c1 11-12,24-25,54-144,150,185,188,197-204,206,213,243
+browser-tests/types.ts
+  h_9f4a25732fa0c1 43-45,53-54
+capabilities/manifest.json
+  h_9f4a25732fa0c1 18-19,37,59,66-68,70-72,74-75,83-86,97-100,217-218,246-247,306,389-393,425-426,618-619,644-648,797-798,814-815,817-820,822-829,831-841,853,860,862-880,884-886,890-892,894-903,909,912-914,916-939,945-952,956-957,965-966,971-976,978-979,981-990,1015-1019,1167-1168
+docs/api.html
+  h_9f4a25732fa0c1 41-42,47,74-137,195,253-258,363
+docs/capabilities.json
+  h_9f4a25732fa0c1 16-17,29,59-62,83-86,91-94,99-102,127-130,133,161,165,385,408-409,544-547,742-746,773-774,1202-1205,1225-1229,1587-1590,1606-1607,1609-1623,1625-1632,1645,1673,1679-1738,1741,1745,1749,1753,1769-1773,1777,1785,1788-1789,1792-1821,1833,1845-1849,1853,1861,1864-1865,1868-1869,1873,1877,1881-1885,1889,1893,1897,1901,1904-1905,1908-1909,1912-1913,1916-1921,1925,1929,1933,1937,1947-1954,1971-1994,1999-2006,2013-2045,2065-2069,2398-2401
+docs/codecs.html
+  h_9f4a25732fa0c1 32,36,52,56,64,76,94,110
+docs/contributing.html
+  h_9f4a25732fa0c1 93
+docs/data/library-comparison.ts
+  h_9f4a25732fa0c1 1-766
+docs/demo.html
+  h_9f4a25732fa0c1 6,8-9,19,29-30,32-34,36,40-43,45,47-48,51-114,116-118,120-130,133-136,138-142,144-151,153-165,167-179,182-237,239-244,246-263,265-266,270,274-275,279,297,299,309
+docs/demo.ts
+  h_9f4a25732fa0c1 1-9,12-16,21-59,85-88,134-167,169-174,176,192-201,209-224,445-964,975,986-1003,1012-1017,1032,1039-1045,1047,1051-1058,1060-1064,1067-1125,1211-1212,1263-1266,1351-1354,1374-1440,1479,1485-1486,1490
+docs/guides.html
+  h_9f4a25732fa0c1 233
+docs/index.html
+  h_9f4a25732fa0c1 237,242-258,276
+docs/llms.txt
+  h_9f4a25732fa0c1 1-664
+docs/performance.html
+  h_9f4a25732fa0c1 258
+docs/sitemap.xml
+  h_9f4a25732fa0c1 8-10
+docs/styles.css
+  h_9f4a25732fa0c1 2943-3076,3276-3277,3280-3283,3286-3287,3289-3290,3293-3294,3297-3307,3310,3312-3317,3320-3321,3324-3327,3330-3331,3335,3989-3994,3998,4066-4977
+docs/tiff-comparison.html
+  h_9f4a25732fa0c1 1-108
+docs/tiff.html
+  h_9f4a25732fa0c1 1-208
+examples/tiff-profile-leica/index.ts
+  h_9f4a25732fa0c1 1-284
+examples/tiff-profile-leica/tsconfig.json
+  h_9f4a25732fa0c1 1-8
+gif-codec-support.md
+  h_9f4a25732fa0c1 148-149
+jpeg-codec-support.md
+  h_9f4a25732fa0c1 20,27-29,31-33,35-36,44-47,58-61,178-179
+package-lock.json
+  h_9f4a25732fa0c1 3,9,32,37,41,43,2140-2146,3886-3929,4195-4201,4784-4790,4958-4970,5666-5672,5697-5703,5752-5758
+package.json
+  h_9f4a25732fa0c1 3,55-74,152,156,167-168,206,208-211,225,279,284,288,290
+png-codec-support.md
+  h_9f4a25732fa0c1 58,141-145
+scripts/analyze-tiff-dependencies.ts
+  h_9f4a25732fa0c1 1-508
+scripts/check-external-tiff-profile.ts
+  h_9f4a25732fa0c1 1-18
+scripts/check-package-types.ts
+  h_9f4a25732fa0c1 14
+scripts/compare-tiff-competitors.ts
+  h_9f4a25732fa0c1 1-539
+scripts/compare-tiff-worker.ts
+  h_9f4a25732fa0c1 1-444
+scripts/exercise-corpus.ts
+  h_9f4a25732fa0c1 1-589
+scripts/render-capabilities.ts
+  h_9f4a25732fa0c1 130-179,217-219
+scripts/render-library-comparison.ts
+  h_9f4a25732fa0c1 1-480
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 294-297
+scripts/validate-imazen-corpus.ts
+  h_9f4a25732fa0c1 1-1217
+scripts/validate-imazen-worker.ts
+  h_9f4a25732fa0c1 1-191
+src/accelerators/wasm/jpeg.ts
+  h_9f4a25732fa0c1 13,361
+src/browser-runtime.ts
+  h_9f4a25732fa0c1 361
+src/browser.ts
+  h_9f4a25732fa0c1 53,55-89,93-98
+src/codec-entries/jpeg2000.ts
+  h_9f4a25732fa0c1 1-6
+src/codec-entries/tiff.ts
+  h_9f4a25732fa0c1 1-19
+src/codec.ts
+  h_9f4a25732fa0c1 84,132,134,140-141,158-161,163-167
+src/codecs/bmp.ts
+  h_9f4a25732fa0c1 385-393
+src/codecs/icc.ts
+  h_9f4a25732fa0c1 14,16,29-43,260-314,399,413-482,486,488-496,841,854-861,867-1028,1030-1033,1064-1067
+src/codecs/jpeg-baseline.ts
+  h_9f4a25732fa0c1 1-7,18-33,215-228,257-265,322-324,470,486,492-493,523,527,534-554,578,580-588,617,627,633-634,667,671,678-685,687-698,729,732,735,738-741,753-755,776,778-805,808,820,1624,1655,1664,1671,1693,1703-1705,1707-1715,1717-1747,1750-1760,2209-2210,2283-2287,2295-2296,2298,2318-2339,2341,2346-2354,2360,2452,2471,2475,2491-2504,2527-2528,2600-2623
+src/codecs/jpeg-encode.ts
+  h_9f4a25732fa0c1 208-211,375-378
+src/codecs/jpeg-source.ts
+  h_9f4a25732fa0c1 18-38,46-47,52,55,61-62,72-74,107-115,136,138-164,167,180,212,238
+src/codecs/jpeg.ts
+  h_9f4a25732fa0c1 15,240,242-246,251,259-291,294,328,363,372
+src/codecs/jpeg2000.ts
+  h_9f4a25732fa0c1 3-4,1724-1741,1756-1757,1845-1856,2023-2064
+src/codecs/png.ts
+  h_9f4a25732fa0c1 21,32,310-342,397,448,531-534,954-993,996-999
+src/codecs/tiff-encode.ts
+  h_9f4a25732fa0c1 1-731
+src/codecs/tiff-lerc.ts
+  h_9f4a25732fa0c1 1-982
+src/codecs/tiff-logluv.ts
+  h_9f4a25732fa0c1 1-483
+src/codecs/tiff.ts
+  h_9f4a25732fa0c1 9-15,17-25,28-37,39,41,43,46,49-57,66,71-79,86-88,91,384,389,407,412-414,416-417,525,530-533,535,537,548-551,556-557,575-585,594,624-679,694-704,718,726-732,748-762,764,766-782,784-806,808-883,886-900,916-918,1011-1022,1025,1028-1033,1038,1049-1062,1064-1068,1070-1074,1076-1100,1111-1118,1122-1134,1137,1143-1146,1151-1164,1167-1168,1170-1173,1175-1177,1181,1184-1208,1211-1228,1230-1234,1236-1279,1281-1285,1287-1290,1293,1306,1313-1315,1320,1323-1339,1341-1342,1345,1348-1427,1430-1461,1469-1470,1505-1512,1516-1523,1549-1550,1598,1601-1604,1610-1624,1630,1688,1691,1693,1696-1717,1723,1725,1728,1750-1754,1781-1820,1826,1848,1853-1856,1858-1859,1867-1876,2205,2212,2222,2246-2267,2270,2273,2275,2284-2286,2293-2297,2303-2307,2337-2338,2346,2367-2368,2380-2381,2386-2387,2395,2397,2400,2414,2421,2425-2438,2441-2578,2584,2589-2661,2677-2720,2723-2733,2738-2744,2759-2771,2777,2781-2791,2823-2830,2837-2860,2868-2912,3032-3042,3079-3193,3237-3243,3260-3266,3277-3283,3286-3292,3295-3296,3298,3302-3309,3311-3321,3323-3435,3466-3662,3672,3674-3682,3686,3700-3732,3735-3737,3748-3771,3794-3818,3874,3892-3906,3917,3922-3983,3989-4004,4007,4017,4029-4037,4042-4050,4055-4063,4068-4076,4080-4115,4120,4125,4130,4143,4145-4147,4153-4155,4159-4167,4182,4185-4187,4194-4227,4229-4241,4243,4246-4248,4251-4272,4275-4288,4290-4294,4296-4316,4318-4319,4322-4358,4360-4454,4456-4457,4459,4461-4469,4471-4487,4490-4491,4494-4496,4498-4534,4537-4546,4548-4678
+src/compression/zstd/bitstream.ts
+  h_9f4a25732fa0c1 1-125
+src/compression/zstd/decode.ts
+  h_9f4a25732fa0c1 1-740
+src/compression/zstd/fse.ts
+  h_9f4a25732fa0c1 1-245
+src/compression/zstd/huffman.ts
+  h_9f4a25732fa0c1 1-134
+src/compression/zstd/index.ts
+  h_9f4a25732fa0c1 1
+src/compression/zstd/xxhash64.ts
+  h_9f4a25732fa0c1 1-90
+src/executor.ts
+  h_9f4a25732fa0c1 13,25-26,190-193,211-220,224,226-228,246,258
+src/geotiff.ts
+  h_9f4a25732fa0c1 1-411
+src/image-core.ts
+  h_9f4a25732fa0c1 36-37,58-59,89-96,101-112,117-118,129-134,228-248
+src/image.ts
+  h_9f4a25732fa0c1 2
+src/index.ts
+  h_9f4a25732fa0c1 43,45-79,86-91
+src/pathology/aperio-svs.ts
+  h_9f4a25732fa0c1 1-204
+src/pathology/index.ts
+  h_9f4a25732fa0c1 1-8
+src/pathology/whole-slide.ts
+  h_9f4a25732fa0c1 1-46
+src/pipeline.ts
+  h_9f4a25732fa0c1 55-62,245-287
+src/pixel.ts
+  h_9f4a25732fa0c1 3-32,42,45-388
+src/raster.ts
+  h_9f4a25732fa0c1 1-205
+src/scientific/dataset.ts
+  h_9f4a25732fa0c1 1-39
+src/scientific/index.ts
+  h_9f4a25732fa0c1 1-7
+src/scientific/ome-tiff.ts
+  h_9f4a25732fa0c1 1-519
+src/source.ts
+  h_9f4a25732fa0c1 110-389
+src/tiff/index.ts
+  h_9f4a25732fa0c1 1-35
+src/tiff/profiles.ts
+  h_9f4a25732fa0c1 1-129
+src/tiff/types.ts
+  h_9f4a25732fa0c1 1-71
+src/xml.ts
+  h_9f4a25732fa0c1 1-197
+tests/benchmark-tiff.test.ts
+  h_9f4a25732fa0c1 2-4,6,31-78,81-82,87,92-96,100-101,105-149
+tests/bmp.test.ts
+  h_9f4a25732fa0c1 141-148,160-163
+tests/browser-runtime.test.ts
+  h_9f4a25732fa0c1 77,82
+tests/exercise-corpus.test.ts
+  h_9f4a25732fa0c1 1-128
+tests/external-tiff-profile.test.ts
+  h_9f4a25732fa0c1 1-174
+tests/fixtures/aperio-33003-first-tile.json
+  h_9f4a25732fa0c1 1-28
+tests/fixtures/imazen-worker-control.ts
+  h_9f4a25732fa0c1 1-53
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 18,36-37,52-53,67-71,82-92,94-101,109-113
+tests/icc-fixtures.ts
+  h_9f4a25732fa0c1 81-83,85-92,98,103-104,106-205
+tests/imazen-corpus-harness.test.ts
+  h_9f4a25732fa0c1 1-325
+tests/jpeg-hardening.test.ts
+  h_9f4a25732fa0c1 23-25,72,118-230
+tests/jpeg.test.ts
+  h_9f4a25732fa0c1 6,14-18,72,180,189-192,194,584,586-587,589-601,603-607,945-994
+tests/jpeg2000.test.ts
+  h_9f4a25732fa0c1 7,125-145
+tests/png-compatibility.test.ts
+  h_9f4a25732fa0c1 431,449-455
+tests/png.test.ts
+  h_9f4a25732fa0c1 121,125,128-130,136-138,140
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 7,18,81-83,125-190,280-283,417
+tests/raster.test.ts
+  h_9f4a25732fa0c1 1-122
+tests/source-contract.test.ts
+  h_9f4a25732fa0c1 4-8,108-319
+tests/tiff-competitor-harness.test.ts
+  h_9f4a25732fa0c1 1-60
+tests/tiff-lerc.test.ts
+  h_9f4a25732fa0c1 1-78
+tests/tiff.test.ts
+  h_9f4a25732fa0c1 1,3,6-7,9-30,34,55,70-75,216-219,236-424,469-683,716,729,781,786,801,825-852,872-884,897-924,1025-1226,1315-1338,1340-1355,1358-1369,1371-1390,1392-1396,1398-1402,1405-1568,1572-2320,2341-2557,2571-2706,2708,2710-2713,2716-2718,2802-2962,3070-3084,3167,3174-3180,3187-3198,3201-3202,3205,3207-3208,3210-3217,3219-3359,3363-3393,3395-3414,3460-3989
+tests/wasm-jpeg.test.ts
+  h_9f4a25732fa0c1 5,7,16,69,71,227-325
+tests/wasm-png.test.ts
+  h_9f4a25732fa0c1 18,25-26,61-110,412-431,437,441-442,510-557,832-863
+tests/zstd.test.ts
+  h_9f4a25732fa0c1 1-159
+tiff-codec-support.md
+  h_9f4a25732fa0c1 12,19,21-39,43-45,49-51,53-62,68,71-73,75-98,104-111,115-116,124-125,130-135,137-138,140-149
+tsconfig.json
+  h_9f4a25732fa0c1 15-20,31-32
+types/utif.d.ts
+  h_9f4a25732fa0c1 1-16
+wasm/jpeg-decoder/src/lib.rs
+  h_9f4a25732fa0c1 6,25,107,110-112,150,153-155,372-375,493,495-506,508-518,520-525,528-535,538,750-759,762-764,766-776,778-804,806-814,1419,1483,1636,1639-1641
+webp-codec-support.md
+  h_9f4a25732fa0c1 191-192
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "e3281f43089f5de46f2d23426819788505d3bb59",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
