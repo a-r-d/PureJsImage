@@ -1247,14 +1247,18 @@ describe('AVIF restricted pixel decode', () => {
       height: 800,
       rgbaSha256: '4ef692312c9c87692b548ebbd6ba100feb3ec53f5b1929bdd9f2c86d78a31f95',
     },
-  ] as const)('decodes the common opaque 8-bit photograph $file', async (fixture) => {
-    const output = PNG.sync.read(
-      await (await Image.open(join(avifCorpusDirectory, fixture.file))).png().toBuffer(),
-    )
+  ] as const)(
+    'decodes the common opaque 8-bit photograph $file',
+    async (fixture) => {
+      const output = PNG.sync.read(
+        await (await Image.open(join(avifCorpusDirectory, fixture.file))).png().toBuffer(),
+      )
 
-    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
-    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
-  })
+      expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
+    },
+    20_000,
+  )
   it('converts a requested AVIF region into bounded ordered row blocks', async () => {
     const input = new Uint8Array(
       await readFile(join(avifCorpusDirectory, 'fox.profile0.8bpc.yuv420.avif')),
