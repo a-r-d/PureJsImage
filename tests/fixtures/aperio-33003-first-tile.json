@@ -1,0 +1,28 @@
+{
+  "source": {
+    "url": "https://openslide.cs.cmu.edu/download/openslide-testdata/Aperio/JP2K-33003-1.svs",
+    "index": "https://openslide.cs.cmu.edu/download/openslide-testdata/Aperio/",
+    "license": "Free to use and distribute, with or without modification"
+  },
+  "extraction": {
+    "byteOffset": 16,
+    "byteLength": 10965,
+    "sha256": "5e5f27d12cdc19a54d56a49321a292ec7c08645ae840b963d6de1bed0a14cd6d"
+  },
+  "tile": {
+    "compression": 33003,
+    "photometric": 2,
+    "bitsPerSample": [8, 8, 8],
+    "samplesPerPixel": 3,
+    "width": 256,
+    "height": 256
+  },
+  "oracle": {
+    "implementation": "OpenSlide",
+    "version": "3.4.1",
+    "command": "openslide-write-png <single-tile TIFF> 0 0 0 256 256 <output.png>",
+    "sha256": "f03b5e6a44ed0a2b8bbf43017cb4694c040a2aa2a92d3fc5c66c54dece40fc1a",
+    "maximumChannelDifference": 2,
+    "differingChannels": 54
+  }
+}

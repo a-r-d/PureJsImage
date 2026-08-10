@@ -78,7 +78,9 @@ describe('package contract', () => {
       expect(readme).toContain(label)
       expect(performancePage).toContain(label)
     }
-    for (const version of ['0.7.0', '1.6.0', '1.7.0', '0.35.3']) {
+    expect(readme).toContain(packageJson.version)
+    expect(performancePage).toContain('0.7.0')
+    for (const version of ['1.6.0', '1.7.0', '0.35.3']) {
       expect(readme).toContain(version)
       expect(performancePage).toContain(version)
     }
@@ -209,6 +211,9 @@ describe('package contract', () => {
     expect(Object.keys(packageJson.exports)).toEqual([
       '.',
       './browser',
+      './tiff',
+      './scientific',
+      './pathology',
       './compression/zstd',
       './accelerators/wasm/jpeg',
       './accelerators/wasm/png',

@@ -76,8 +76,8 @@ and Sharp imports include the additional codecs shown.
 
 | Import | Version | Codecs included | Minified JS | gzip | Brotli |
 | --- | --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | **0.7.0** | JPEG, PNG | 129.3 KiB | 42.2 KiB | 35.5 KiB |
-| PureJsImage all codecs | 0.7.0 | 9 codecs | 501.7 KiB | 190.2 KiB | 159.9 KiB |
+| **PureJsImage matched** | **0.8.0** | JPEG, PNG | 161.3 KiB | 52.4 KiB | 43.9 KiB |
+| PureJsImage all codecs | 0.8.0 | 9 codecs | 578.5 KiB | 214.4 KiB | 179.4 KiB |
 | Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
 | image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
 | jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
@@ -89,7 +89,7 @@ complete installed deployment tells the other half of the story:
 
 | Package | Version | Installed footprint | Production packages |
 | --- | --- | ---: | ---: |
-| **PureJsImage** | **0.7.0** | **1.7 MiB** | **1** |
+| **PureJsImage** | **0.8.0** | **2.0 MiB** | **1** |
 | Jimp | 1.6.0 | 29.3 MiB | 70 |
 | image-js | 1.7.0 | 17.0 MiB | 46 |
 | jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |
@@ -118,45 +118,18 @@ await image
 In a browser, import from `purejsimage/browser` and use `toBlob()` or
 `toUint8Array()` for output.
 
-### TIFF output
+### TIFF
 
-TIFF encoding uses one deliberate interoperability profile: Classic
-little-endian TIFF, chunky 8-bit RGB or RGBA, Deflate-compressed strips, and
-horizontal prediction. RGB inputs remain RGB; RGBA inputs retain unassociated
-alpha.
+TIFF support now spans display images, native scientific rasters, OME-TIFF,
+whole-slide pyramids, extensible vendor profiles, and canonical RGB/RGBA output.
+The complete support list, memory model, examples, and remaining boundaries live
+on the dedicated TIFF page:
 
-```ts
-await image
-  .tiff({
-    compression: 'deflate',
-    predictor: 'horizontal',
-    layout: 'strips',
-    compressionLevel: 6,
-  })
-  .toFile('output.tiff')
-```
-
-Strategies outside this profile are rejected until their complete writer and
-compatibility contracts are implemented.
-
-### Zstandard decompression
-
-The reusable first-party Zstandard decoder is a separate portable subpath:
-
-```ts
-import { decodeZstd } from 'purejsimage/compression/zstd'
-
-const output = decodeZstd(compressed, {
-  expectedOutputBytes: 8192,
-  maxOutputBytes: 8192,
-  maxWindowBytes: 64 * 1024 * 1024,
-})
-```
-
-Output and window limits are enforced while decoding. Dictionary-dependent frames
-are rejected explicitly; no native library, WebAssembly module, or runtime
-dependency is loaded. TIFF `Compression=50000` uses the same decoder with an
-exact per-segment output bound.
+- [Complete TIFF support →](https://a-r-d.github.io/PureJsImage/tiff.html)
+- [TIFF output options →](https://a-r-d.github.io/PureJsImage/tiff.html#encode)
+- [Scientific TIFF and OME-TIFF →](https://a-r-d.github.io/PureJsImage/tiff.html#scientific)
+  · [Third-party TIFF profiles →](https://a-r-d.github.io/PureJsImage/tiff.html#profiles)
+- [Zstandard decompression API →](https://a-r-d.github.io/PureJsImage/api.html#zstandard)
 
 ### Optional WASM acceleration
 
@@ -262,7 +235,7 @@ If you can deploy native libvips and throughput or latency is the main constrain
 across the five commonly supported benchmark workflows. PureJsImage is the better fit when the same
 code must run in Node.js and browsers or edge workers, native addons or WASM are prohibited, or a
 zero-dependency deployment materially simplifies an air-gapped or supply-chain-restricted build.
-The measured installed footprint was 1.7 MiB and one package for PureJsImage versus 18.9 MiB and six
+The measured installed footprint was 2.0 MiB and one package for PureJsImage versus 18.9 MiB and six
 production packages for Sharp.
 
 [Read the practical guides →](https://a-r-d.github.io/PureJsImage/guides.html)

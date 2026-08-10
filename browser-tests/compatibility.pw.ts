@@ -100,6 +100,14 @@ test('decodes legacy TIFF and odd-width BMP compatibility cases', async ({ page 
   expect(result.detail).toContain('TIFF SubIFD pyramids')
 })
 
+test('uses public scientific TIFF APIs in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificTiffDocument())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('native OME-TIFF raster')
+  expect(result.detail).toContain('explicit display conversion')
+})
+
 test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.pngAlphaPipeline())

@@ -4,7 +4,7 @@ import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
 import { jpegCodec } from '../src/codecs/jpeg.ts'
-import { jpeg2000Codec } from '../src/codecs/jpeg2000.ts'
+import { createJpeg2000CodestreamDecoder, jpeg2000Codec } from '../src/codecs/jpeg2000.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { createNodeImageLibrary } from '../src/node-image.ts'
 
@@ -120,6 +120,27 @@ describe('JPEG 2000 codec', () => {
     expect(createHash('sha256').update(decoded.data).digest('hex')).toBe(
       '2e2ffdb4441ece4c1704efed99a0a44a54162314215ef09c216a435019f1cde9',
     )
+  })
+
+  it('decodes a raw codestream through the reusable composition API', async () => {
+    const input = await fixture('openjpeg-lossless-rgb16.jp2')
+    const codestreamType = asciiOffset(input, 'jp2c')
+    if (codestreamType < 0) throw new Error('JP2 codestream box is missing')
+    const decoder = createJpeg2000CodestreamDecoder(input.subarray(codestreamType + 4), {
+      colorSpace: 'rgb',
+    })
+    expect({ width: decoder.width, height: decoder.height, format: decoder.pixelFormat }).toEqual({
+      width: 17,
+      height: 13,
+      format: 'rgb8',
+    })
+    const output = new Uint8Array(decoder.width * decoder.height * 3)
+    for await (const block of decoder.decode()) output.set(block.data, block.y * block.stride)
+    expect(Array.from(output.subarray(0, 3))).toEqual([255, 0, 0])
+    expect(Array.from(output.subarray((6 * 17 + 8) * 3, (6 * 17 + 8) * 3 + 3))).toEqual([
+      128, 0, 128,
+    ])
+    expect(Array.from(output.subarray(-3))).toEqual([0, 0, 255])
   })
 
   it('rejects raw codestreams, non-JP2 brands, invalid box extents, and contradictory dimensions', async () => {

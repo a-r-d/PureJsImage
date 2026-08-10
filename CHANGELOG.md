@@ -36,6 +36,25 @@ All notable changes to PureJsImage are documented in this file.
   `lut16` A2B0 ICC-profile conversion with profile precedence over numeric display, and
   `FillOrder=2` normalization for non-fax strips and tiles before predictor reversal without
   mutating aliased source buffers.
+- Added a public TIFF document layer at `purejsimage/tiff` with bounded typed tag reads, stable
+  top-level/SubIFD graphs, per-directory display and native raster decoders, and deterministic
+  third-party profile registration with isolated detector failures and ambiguity rejection.
+- Added native-precision planar or interleaved N-channel `RasterBlock` output plus explicit
+  `rasterToPixels()` range mapping, so scientific samples no longer require an implicit RGB
+  interpretation.
+- Added `purejsimage/scientific` OME-TIFF datasets with validated Z/C/T dimensions, channel and
+  physical-pixel metadata, explicit or implicit `TiffData` plane mappings, separate-channel
+  assembly, and reduced-resolution SubIFD selection.
+- Added a generic `WholeSlideImage` contract and first-party Aperio SVS profile with bounded
+  pyramid/associated-image region reads, MPP and objective metadata, reusable JPEG 2000 codestream
+  composition, and TIFF compression tags 33003/33005. The pinned irreversible Aperio tile is
+  independently validated against OpenSlide within two 8-bit code values.
+- Added a separately compiled Leica SCN single-area profile example that imports only published
+  package entries, with an automated boundary check suitable for independent vendor packages.
+- Added a dedicated TIFF documentation page covering the complete decode matrix, scientific and
+  whole-slide APIs, third-party profiles, canonical output, memory model, and unsupported
+  boundaries; reduced the README TIFF and Zstandard sections to direct documentation links and
+  refreshed its measured 0.8.0 bundle and installed-size tables.
 - Added a reusable first-party Zstandard decompressor at `purejsimage/compression/zstd` with
   explicit output and window bounds, raw/RLE/compressed blocks, Huffman and FSE entropy decoding,
   repeated tables and offsets, frame checksums, and structured malformed-input failures.

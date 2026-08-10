@@ -52,6 +52,31 @@ export type {
 } from './pipeline.ts'
 export type { PixelBlock, PixelFormat, PixelSampleDisplayRange } from './pixel.ts'
 export { BufferPool } from './pixel.ts'
+export { aperioSvsProfile, isAperioSvs, openAperioSvs } from './pathology/aperio-svs.ts'
+export type {
+  WholeSlideAssociatedImage,
+  WholeSlideAssociatedImageRequest,
+  WholeSlideImage,
+  WholeSlideLevel,
+  WholeSlideRegionRequest,
+} from './pathology/whole-slide.ts'
+export type {
+  RasterBlock,
+  RasterDecoder,
+  RasterDecodeRequest,
+  RasterDisplayOptions,
+  RasterDisplayRange,
+  RasterFormat,
+  RasterSampleType,
+} from './raster.ts'
+export { rasterSampleBytes, rasterToPixels } from './raster.ts'
+export type {
+  MultidimensionalRasterDataset,
+  PhysicalPixelSize,
+  RasterChannelInfo,
+  RasterPlaneRequest,
+} from './scientific/dataset.ts'
+export { isOmeTiff, omeTiffProfile, openOmeTiff } from './scientific/ome-tiff.ts'
 export type { ImageSink } from './sink.ts'
 export { Uint8ArraySink } from './sink.ts'
 export type { ImageInput, ImageSource } from './source.ts'

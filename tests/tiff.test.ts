@@ -1,13 +1,21 @@
+import { createHash } from 'node:crypto'
 import { deflateSync } from 'node:zlib'
+import { readFile } from 'node:fs/promises'
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
+import aperioFixture from './fixtures/aperio-33003-first-tile.json' with { type: 'json' }
 import type { DecoderOptions, ImageCodec } from '../src/codec.ts'
-import { createTiffCodec, tiffCodec } from '../src/codecs/tiff.ts'
+import { createTiffCodec, openTiffDocument, tiffCodec } from '../src/codecs/tiff.ts'
+import { isAperioSvs, openAperioSvs } from '../src/pathology/aperio-svs.ts'
+import { isOmeTiff, omeTiffProfile, openOmeTiff } from '../src/scientific/ome-tiff.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import type { PixelBlock } from '../src/pixel.ts'
+import type { RasterBlock } from '../src/raster.ts'
+import { createTiffProfileRegistry } from '../src/tiff/profiles.ts'
 import { nodeRuntime } from '../src/node-runtime.ts'
-import { MemorySource } from '../src/source.ts'
+import { MemorySource, type ImageSource } from '../src/source.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 
 import { createTiffEncodeOperation } from '../src/pipeline.ts'
@@ -15,7 +23,7 @@ import { channelSwappingRgbProfile, constantGrayCmykProfile } from './icc-fixtur
 import { Image } from './image-library.ts'
 
 type Rgba = readonly [red: number, green: number, blue: number, alpha: number]
-type TiffFieldType = 3 | 4 | 6 | 7 | 8 | 11 | 12
+type TiffFieldType = 2 | 3 | 4 | 6 | 7 | 8 | 11 | 12
 
 interface TiffEntryFixture {
   readonly tag: number
@@ -238,6 +246,8 @@ interface TiffGraphFixtureNode {
   readonly width: number
   readonly height: number
   readonly pixels: Uint8Array
+  readonly imageDescription?: string
+  readonly tiled?: boolean
   readonly subIfds?: readonly number[]
   readonly next?: number
   readonly newSubfileType?: number
@@ -255,7 +265,12 @@ const tiffGraphFixture = (
   const nextBytes = bigTiff ? 8 : 4
   const offsetBytes = bigTiff ? 8 : 4
   const entryCounts = nodes.map(
-    (node) => 10 + (node.newSubfileType === undefined ? 0 : 1) + (node.subIfds ? 1 : 0),
+    (node) =>
+      10 +
+      (node.tiled ? 1 : 0) +
+      (node.newSubfileType === undefined ? 0 : 1) +
+      (node.imageDescription === undefined ? 0 : 1) +
+      (node.subIfds ? 1 : 0),
   )
   const ifdOffsets: number[] = []
   let cursor = headerBytes
@@ -270,6 +285,16 @@ const tiffGraphFixture = (
       subIfdDataOffsets.set(index, cursor)
       cursor += subIfds.length * offsetBytes
     }
+  }
+  const descriptionBytes = new Map<number, Uint8Array>()
+  const descriptionOffsets = new Map<number, number>()
+  for (let index = 0; index < nodes.length; index += 1) {
+    const description = nodes[index]?.imageDescription
+    if (description === undefined) continue
+    const encoded = Uint8Array.from([...new TextEncoder().encode(description), 0])
+    descriptionBytes.set(index, encoded)
+    descriptionOffsets.set(index, cursor)
+    cursor += encoded.byteLength
   }
   const pixelOffsets: number[] = []
   for (const node of nodes) {
@@ -301,21 +326,47 @@ const tiffGraphFixture = (
       : (pixelOffsets[nodeIndex] ?? 0)
     const entries: {
       readonly tag: number
-      readonly type: 3 | 4 | 16 | 18
+      readonly type: 2 | 3 | 4 | 16 | 18
       readonly values: readonly number[]
     }[] = [
       ...(node.newSubfileType === undefined
         ? []
         : [{ tag: 254, type: 4 as const, values: [node.newSubfileType] }]),
+      ...(node.imageDescription === undefined
+        ? []
+        : [
+            {
+              tag: 270,
+              type: 2 as const,
+              values: Array.from(descriptionBytes.get(nodeIndex) ?? []),
+            },
+          ]),
       { tag: 256, type: 4, values: [node.width] },
       { tag: 257, type: 4, values: [node.height] },
       { tag: 258, type: 3, values: [8] },
       { tag: 259, type: 3, values: [1] },
       { tag: 262, type: 3, values: [1] },
-      { tag: 273, type: bigTiff ? 16 : 4, values: [stripOffset] },
+      ...(node.tiled
+        ? [
+            { tag: 322, type: 4 as const, values: [node.width] },
+            { tag: 323, type: 4 as const, values: [node.height] },
+            { tag: 324, type: bigTiff ? (16 as const) : (4 as const), values: [stripOffset] },
+            {
+              tag: 325,
+              type: bigTiff ? (16 as const) : (4 as const),
+              values: [node.pixels.byteLength],
+            },
+          ]
+        : [
+            { tag: 273, type: bigTiff ? (16 as const) : (4 as const), values: [stripOffset] },
+            { tag: 278, type: 4 as const, values: [node.height] },
+            {
+              tag: 279,
+              type: bigTiff ? (16 as const) : (4 as const),
+              values: [node.pixels.byteLength],
+            },
+          ]),
       { tag: 277, type: 3, values: [1] },
-      { tag: 278, type: 4, values: [node.height] },
-      { tag: 279, type: bigTiff ? 16 : 4, values: [node.pixels.byteLength] },
       { tag: 284, type: 3, values: [1] },
       ...(node.subIfds
         ? [
@@ -338,16 +389,21 @@ const tiffGraphFixture = (
       view.setUint16(offset + 2, entry.type, true)
       if (bigTiff) view.setBigUint64(offset + 4, BigInt(entry.values.length), true)
       else view.setUint32(offset + 4, entry.values.length, true)
-      const bytesPerValue = entry.type === 3 ? 2 : entry.type === 4 ? 4 : 8
+      const bytesPerValue = entry.type === 2 ? 1 : entry.type === 3 ? 2 : entry.type === 4 ? 4 : 8
       const valueBytes = bytesPerValue * entry.values.length
       const inlineOffset = offset + (bigTiff ? 12 : 8)
       const valueOffset =
-        valueBytes <= inlineBytes ? inlineOffset : (subIfdDataOffsets.get(nodeIndex) ?? 0)
+        valueBytes <= inlineBytes
+          ? inlineOffset
+          : entry.tag === 270
+            ? (descriptionOffsets.get(nodeIndex) ?? 0)
+            : (subIfdDataOffsets.get(nodeIndex) ?? 0)
       if (valueBytes > inlineBytes) setOffset(inlineOffset, valueOffset)
       for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
         const target = valueOffset + valueIndex * bytesPerValue
         const value = entry.values[valueIndex] ?? 0
-        if (bytesPerValue === 2) view.setUint16(target, value, true)
+        if (bytesPerValue === 1) output[target] = value
+        else if (bytesPerValue === 2) view.setUint16(target, value, true)
         else if (bytesPerValue === 4) view.setUint32(target, value, true)
         else view.setBigUint64(target, BigInt(value), true)
       }
@@ -804,6 +860,19 @@ const reverseByteBits = (input: Uint8Array): Uint8Array => {
     output[index] = reversed
   }
   return output
+}
+const byteSequenceOffset = (data: Uint8Array, sequence: readonly number[]): number => {
+  for (let offset = 0; offset + sequence.length <= data.byteLength; offset += 1) {
+    if (sequence.every((value, index) => data[offset + index] === value)) return offset
+  }
+  return -1
+}
+
+const jp2CodestreamFixture = async (): Promise<Uint8Array> => {
+  const jp2 = await readFile('benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2')
+  const boxType = byteSequenceOffset(jp2, [0x6a, 0x70, 0x32, 0x63])
+  if (boxType < 0) throw new Error('JP2 codestream box is missing')
+  return Uint8Array.from(jp2.subarray(boxType + 4))
 }
 
 const appendEmptyIfd = (input: Uint8Array, littleEndian: boolean): Uint8Array => {
@@ -2621,6 +2690,86 @@ describe('TIFF codec', () => {
     expect(pixel(newPixels, 2, 0)[1]).toBeGreaterThan(190)
   })
 
+  it('decodes Aperio JPEG2000 MCT and YCbCr TIFF tiles', async () => {
+    const codestream = await readFile('tests/fixtures/aperio-33003-first-tile.j2k')
+    expect(createHash('sha256').update(codestream).digest('hex')).toBe(
+      aperioFixture.extraction.sha256,
+    )
+    const mct = tiffFixture({
+      width: 17,
+      height: 13,
+      bitsPerSample: [8, 8, 8],
+      compression: 33005,
+      photometric: 2,
+      tileWidth: 17,
+      tileHeight: 13,
+      strips: [await jp2CodestreamFixture()],
+    })
+    const ycbcr = tiffFixture({
+      width: 256,
+      height: 256,
+      bitsPerSample: [8, 8, 8],
+      compression: 33003,
+      photometric: 2,
+      tileWidth: 256,
+      tileHeight: 256,
+      extraEntries: [
+        {
+          tag: 270,
+          type: 2,
+          values: [
+            ...new TextEncoder().encode('Aperio Image Library v12.4.0|AppMag = 20|MPP = 0.5'),
+            0,
+          ],
+        },
+      ],
+      strips: [codestream],
+    })
+    const mctOutput = await decodeDirect(mct)
+    const ycbcrOutput = await decodeDirect(ycbcr)
+    expect(mctOutput.format).toBe('rgb8')
+    expect(Array.from(mctOutput.data.subarray(0, 3))).toEqual([255, 0, 0])
+    expect(Array.from(mctOutput.data.subarray(-3))).toEqual([0, 0, 255])
+    expect(Array.from(ycbcrOutput.data.subarray(0, 3))).toEqual([255, 253, 255])
+    const oracleBytes = await readFile('tests/fixtures/aperio-33003-first-tile-openslide.png')
+    expect(createHash('sha256').update(oracleBytes).digest('hex')).toBe(aperioFixture.oracle.sha256)
+    const oracle = PNG.sync.read(oracleBytes)
+    let differingChannels = 0
+    let maximumDifference = 0
+    for (let pixelIndex = 0; pixelIndex < 256 * 256; pixelIndex += 1) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        const difference = Math.abs(
+          (ycbcrOutput.data[pixelIndex * 3 + channel] ?? 0) -
+            (oracle.data[pixelIndex * 4 + channel] ?? 0),
+        )
+        if (difference !== 0) differingChannels += 1
+        maximumDifference = Math.max(maximumDifference, difference)
+      }
+    }
+    expect({ maximumDifference, differingChannels }).toEqual({
+      maximumDifference: aperioFixture.oracle.maximumChannelDifference,
+      differingChannels: aperioFixture.oracle.differingChannels,
+    })
+    const slide = await openAperioSvs(await openTiffDocument(new MemorySource(ycbcr)))
+    const slideBlocks: PixelBlock[] = []
+    for await (const block of slide.readRegion({
+      level: 0,
+      x: 0,
+      y: 0,
+      width: 2,
+      height: 1,
+    })) {
+      slideBlocks.push(block)
+    }
+    expect(Array.from(slideBlocks[0]?.data ?? [])).toEqual(
+      Array.from(ycbcrOutput.data.subarray(0, 6)),
+    )
+    const midpoint = (6 * 17 + 8) * 3
+    expect(Math.abs((mctOutput.data[midpoint] ?? 0) - 128)).toBeLessThanOrEqual(1)
+    expect(mctOutput.data[midpoint + 1]).toBe(0)
+    expect(Math.abs((mctOutput.data[midpoint + 2] ?? 0) - 128)).toBeLessThanOrEqual(1)
+  })
+
   it('reconstructs legacy old-style JPEG strip boundaries and padded IFDs', async () => {
     const solidRgba = (red: number, green: number, blue: number): Uint8Array => {
       const output = new Uint8Array(4 * 2 * 4)
@@ -3077,5 +3226,342 @@ describe('TIFF codec', () => {
     await expect((await Image.open(truncated)).png().toBuffer()).rejects.toMatchObject({
       code: 'TRUNCATED_INPUT',
     })
+  })
+})
+
+describe('TIFF document and scientific raster API', () => {
+  it('inspects bounded public tags and decodes chunky five-channel uint16 samples', async () => {
+    const samples = [0, 1, 255, 256, 65_535, 500, 600, 700, 800, 900]
+    const strip = new Uint8Array(samples.length * 2)
+    const stripView = new DataView(strip.buffer)
+    for (let index = 0; index < samples.length; index += 1) {
+      stripView.setUint16(index * 2, samples[index] ?? 0, true)
+    }
+    const description = new TextEncoder().encode('<science channels="5"/>')
+    const fixture = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [16, 16, 16, 16, 16],
+      compression: 1,
+      photometric: 1,
+      strips: [strip],
+      extraEntries: [
+        { tag: 270, type: 2, values: [...description, 0] },
+        { tag: 339, type: 3, values: [1, 1, 1, 1, 1] },
+      ],
+    })
+    const document = await openTiffDocument(new MemorySource(fixture))
+    const directory = document.getDirectory(0)
+    expect(document).toMatchObject({ littleEndian: true, bigTiff: false })
+    expect(directory).toMatchObject({
+      width: 2,
+      height: 1,
+      compression: 1,
+      photometric: 1,
+      samplesPerPixel: 5,
+      bitsPerSample: [16, 16, 16, 16, 16],
+      sampleFormats: [1, 1, 1, 1, 1],
+      planar: false,
+    })
+    await expect(directory?.getTag(270)).resolves.toEqual({
+      kind: 'ascii',
+      value: '<science channels="5"/>',
+    })
+    const decoder = await directory?.createRasterDecoder()
+    const blocks = []
+    if (!decoder) throw new Error('Raster decoder is missing')
+    for await (const block of decoder.decode()) blocks.push(block)
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0]?.format).toEqual({ sampleType: 'uint16', channels: 5, planar: false })
+    const output = blocks[0]?.data
+    if (!output) throw new Error('Raster output is missing')
+    const outputView = new DataView(output.buffer, output.byteOffset, output.byteLength)
+    expect(samples.map((_, index) => outputView.getUint16(index * 2, false))).toEqual(samples)
+  })
+
+  it('preserves planar float32 channels and validates tag read bounds', async () => {
+    const planes = [
+      new Float32Array([0.25, 0.5]),
+      new Float32Array([0.75, 1]),
+      new Float32Array([-1, 2]),
+    ].map((values) => {
+      const bytes = new Uint8Array(values.length * 4)
+      const view = new DataView(bytes.buffer)
+      for (let index = 0; index < values.length; index += 1) {
+        view.setFloat32(index * 4, values[index] ?? 0, true)
+      }
+      return bytes
+    })
+    const fixture = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [32, 32, 32],
+      compression: 1,
+      photometric: 1,
+      planarConfiguration: 2,
+      strips: planes,
+      extraEntries: [
+        { tag: 270, type: 2, values: [...new TextEncoder().encode('bounded tag'), 0] },
+        { tag: 339, type: 3, values: [3, 3, 3] },
+      ],
+    })
+    const document = await openTiffDocument(new MemorySource(fixture))
+    const directory = document.getDirectory(0)
+    await expect(directory?.getTag(270, { maxBytes: 4 })).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+    })
+    const decoder = await directory?.createRasterDecoder()
+    if (!decoder) throw new Error('Raster decoder is missing')
+    const blocks = []
+    for await (const block of decoder.decode({ x: 1, y: 0, width: 1, height: 1 })) {
+      blocks.push(block)
+    }
+    expect(blocks[0]?.format).toEqual({ sampleType: 'float32', channels: 3, planar: true })
+    expect(blocks[0]?.planeStride).toBe(4)
+    const output = blocks[0]?.data
+    if (!output) throw new Error('Raster output is missing')
+    const outputView = new DataView(output.buffer, output.byteOffset, output.byteLength)
+    expect([0, 4, 8].map((offset) => outputView.getFloat32(offset, false))).toEqual([0.5, 1, 2])
+  })
+
+  it('keeps public directory region decode bounded to intersecting strips', async () => {
+    const fixture = tiffFixture({
+      width: 2,
+      height: 2,
+      bitsPerSample: [8],
+      compression: 1,
+      photometric: 1,
+      rowsPerStrip: 1,
+      strips: [Uint8Array.of(1, 2), Uint8Array.of(3, 4)],
+    })
+    const pixelOffset = fixture.byteLength - 4
+    const touchedStrips = new Set<number>()
+    const source: ImageSource = {
+      size: fixture.byteLength,
+      async read(offset, length) {
+        const end = Math.min(offset + length, fixture.byteLength)
+        if (offset < pixelOffset + 2 && end > pixelOffset) touchedStrips.add(0)
+        if (offset < pixelOffset + 4 && end > pixelOffset + 2) touchedStrips.add(1)
+        return fixture.subarray(offset, end)
+      },
+    }
+    const document = await openTiffDocument(source)
+    const decoder = await document.getDirectory(0)?.createRasterDecoder()
+    if (!decoder) throw new Error('Raster decoder is missing')
+    const blocks = []
+    for await (const block of decoder.decode({ y: 1, height: 1 })) blocks.push(block)
+    expect(touchedStrips).toEqual(new Set([1]))
+    expect(Array.from(blocks[0]?.data ?? [])).toEqual([3, 4])
+  })
+})
+
+describe('OME-TIFF scientific semantics', () => {
+  const omeFixture = (xml: string): Uint8Array =>
+    tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [8, 8, 8],
+      compression: 1,
+      photometric: 2,
+      strips: [Uint8Array.of(10, 20, 30, 40, 50, 60)],
+      extraEntries: [{ tag: 270, type: 2, values: [...new TextEncoder().encode(xml), 0] }],
+    })
+
+  it('maps an interleaved XYC OME plane to selected planar raster channels', async () => {
+    const input = omeFixture(`<?xml version="1.0"?>
+<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2016-06">
+  <Image ID="Image:0">
+    <Pixels ID="Pixels:0" DimensionOrder="XYCZT" Type="uint8"
+      SizeX="2" SizeY="1" SizeZ="1" SizeC="3" SizeT="1"
+      PhysicalSizeX="0.25" PhysicalSizeXUnit="µm">
+      <Channel ID="Channel:0" Name="RGB" SamplesPerPixel="3"/>
+      <TiffData IFD="0" PlaneCount="1"/>
+    </Pixels>
+  </Image>
+</OME>`)
+    const document = await openTiffDocument(new MemorySource(input))
+    expect(await isOmeTiff(document)).toBe(true)
+    const dataset = await openOmeTiff(document)
+    expect({
+      dimensions: [dataset.sizeX, dataset.sizeY, dataset.sizeZ, dataset.sizeC, dataset.sizeT],
+      type: dataset.sampleType,
+      order: dataset.dimensionOrder,
+      physicalX: dataset.physicalSizeX,
+      channel: dataset.channels[0],
+    }).toEqual({
+      dimensions: [2, 1, 1, 3, 1],
+      type: 'uint8',
+      order: 'XYCZT',
+      physicalX: { value: 0.25, unit: 'µm' },
+      channel: { id: 'Channel:0', name: 'RGB', samplesPerPixel: 3 },
+    })
+    const blocks: RasterBlock[] = []
+    for await (const block of dataset.readPlane({ z: 0, c: [2, 0], t: 0 })) blocks.push(block)
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0]?.format).toEqual({ sampleType: 'uint8', channels: 2, planar: true })
+    expect(Array.from(blocks[0]?.data ?? [])).toEqual([30, 60, 10, 40])
+  })
+
+  it('maps multidimensional TiffData planes and reduced-resolution SubIFDs', async () => {
+    const xml = `<OME><Image><Pixels DimensionOrder="XYZCT" Type="uint8"
+      SizeX="1" SizeY="1" SizeZ="2" SizeC="2" SizeT="1">
+      <Channel ID="Channel:0" SamplesPerPixel="1"/>
+      <Channel ID="Channel:1" SamplesPerPixel="1"/>
+      <TiffData IFD="0" FirstZ="0" FirstC="0" FirstT="0" PlaneCount="4"/>
+    </Pixels></Image></OME>`
+    const input = tiffGraphFixture([
+      {
+        width: 1,
+        height: 1,
+        pixels: Uint8Array.of(10),
+        imageDescription: xml,
+        subIfds: [4],
+        next: 1,
+      },
+      { width: 1, height: 1, pixels: Uint8Array.of(20), next: 2 },
+      { width: 1, height: 1, pixels: Uint8Array.of(30), next: 3 },
+      { width: 1, height: 1, pixels: Uint8Array.of(40) },
+      { width: 1, height: 1, pixels: Uint8Array.of(99), newSubfileType: 1 },
+    ])
+    const document = await openTiffDocument(new MemorySource(input))
+    expect(document.topLevelDirectories).toHaveLength(4)
+    expect(document.directories).toHaveLength(5)
+    const dataset = await openOmeTiff(document)
+    const selected: RasterBlock[] = []
+    for await (const block of dataset.readPlane({ z: 1, c: [1, 0], t: 0 })) {
+      selected.push(block)
+    }
+    expect(Array.from(selected[0]?.data ?? [])).toEqual([40, 20])
+
+    const reduced: RasterBlock[] = []
+    for await (const block of dataset.readPlane({
+      z: 0,
+      c: 0,
+      t: 0,
+      resolutionLevel: 1,
+    })) {
+      reduced.push(block)
+    }
+    expect(Array.from(reduced[0]?.data ?? [])).toEqual([99])
+  })
+  it('rejects unsafe XML and incomplete OME plane mappings', async () => {
+    const unsafe = omeFixture(
+      '<!DOCTYPE OME [<!ENTITY x SYSTEM "file:///etc/passwd">]><OME>&x;</OME>',
+    )
+    const unsafeDocument = await openTiffDocument(new MemorySource(unsafe))
+    await expect(openOmeTiff(unsafeDocument)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
+
+    const incomplete = omeFixture(`<OME>
+      <Image><Pixels DimensionOrder="XYZCT" Type="uint8"
+        SizeX="2" SizeY="1" SizeZ="2" SizeC="1" SizeT="1">
+        <Channel SamplesPerPixel="1"/>
+        <TiffData IFD="0" FirstZ="0" PlaneCount="1"/>
+      </Pixels></Image>
+    </OME>`)
+    const incompleteDocument = await openTiffDocument(new MemorySource(incomplete))
+    await expect(openOmeTiff(incompleteDocument)).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
+  })
+
+  it('isolates detector failures and rejects equal-priority profile conflicts', async () => {
+    const input = omeFixture(`<OME><Image><Pixels DimensionOrder="XYCZT" Type="uint8"
+      SizeX="2" SizeY="1" SizeZ="1" SizeC="3" SizeT="1">
+      <Channel SamplesPerPixel="3"/><TiffData/>
+    </Pixels></Image></OME>`)
+    const document = await openTiffDocument(new MemorySource(input))
+    const broken = {
+      id: 'broken-vendor',
+      priority: 200,
+      detect: (): boolean => {
+        throw new Error('malformed private metadata')
+      },
+      open: (): never => {
+        throw new Error('unreachable')
+      },
+    } as const
+    const registry = createTiffProfileRegistry([broken, omeTiffProfile])
+    const result = await registry.open(document)
+    expect(result?.profileId).toBe('ome-tiff')
+    expect(result?.detectionFailures.map((failure) => failure.id)).toEqual(['broken-vendor'])
+
+    const conflict = createTiffProfileRegistry([
+      omeTiffProfile,
+      {
+        id: 'other-ome',
+        priority: 100,
+        detect: (): boolean => true,
+        open: (): string => 'other',
+      },
+    ])
+    await expect(conflict.open(document)).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+})
+
+describe('Aperio whole-slide profile', () => {
+  it('discovers pyramid levels, properties, associated images, and bounded regions', async () => {
+    const mainPixels = new Uint8Array(64)
+    mainPixels.fill(11)
+    const levelPixels = new Uint8Array(16)
+    levelPixels.fill(22)
+    const input = tiffGraphFixture([
+      {
+        width: 8,
+        height: 8,
+        pixels: mainPixels,
+        tiled: true,
+        imageDescription: 'Aperio Image Library v12.4.0|AppMag = 40|MPP = 0.25',
+        next: 1,
+      },
+      {
+        width: 4,
+        height: 4,
+        pixels: levelPixels,
+        tiled: true,
+        newSubfileType: 1,
+        next: 2,
+      },
+      {
+        width: 2,
+        height: 1,
+        pixels: Uint8Array.of(7, 8),
+        imageDescription: 'Aperio label image',
+      },
+    ])
+    const document = await openTiffDocument(new MemorySource(input))
+    expect(await isAperioSvs(document)).toBe(true)
+    const slide = await openAperioSvs(document)
+    expect({
+      size: [slide.width, slide.height],
+      levels: slide.levels,
+      associated: slide.associatedImages.map((image) => image.id),
+      mpp: slide.micronsPerPixel,
+      power: slide.objectivePower,
+    }).toEqual({
+      size: [8, 8],
+      levels: [
+        { index: 0, width: 8, height: 8, downsample: 1, tileWidth: 8, tileHeight: 8 },
+        { index: 1, width: 4, height: 4, downsample: 2, tileWidth: 4, tileHeight: 4 },
+      ],
+      associated: ['label'],
+      mpp: 0.25,
+      power: 40,
+    })
+    const region: PixelBlock[] = []
+    for await (const block of slide.readRegion({
+      level: 1,
+      x: 1,
+      y: 1,
+      width: 2,
+      height: 2,
+    })) {
+      region.push(block)
+    }
+    expect(region.map((block) => Array.from(block.data))).toEqual([[22, 22, 22, 22]])
+    const label: PixelBlock[] = []
+    for await (const block of slide.associatedImages[0]?.read() ?? []) label.push(block)
+    expect(Array.from(label[0]?.data ?? [])).toEqual([7, 8])
   })
 })

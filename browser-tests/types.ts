@@ -20,6 +20,7 @@ export interface BrowserCompatibilityHarness {
   orientation(): Promise<BrowserWorkflowResult>
   pngAlphaPipeline(): Promise<BrowserWorkflowResult>
   resizeDefaultKernel(): Promise<BrowserWorkflowResult>
+  scientificTiffDocument(): Promise<BrowserWorkflowResult>
   tiffEncodePipeline(): Promise<BrowserWorkflowResult>
   webpLossless(): Promise<BrowserWorkflowResult>
   webpLossyDecode(): Promise<BrowserWorkflowResult>

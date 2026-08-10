@@ -21,6 +21,21 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Classic TIFF and BigTIFF SubIFD traversal with cycle, offset, and global directory-count validation plus alias-safe shared-directory reuse
 - [x] Reduced-resolution pyramid selection through `resolutionLevel`, including nested and chained SubIFDs
 
+### Document, raster, and profile APIs
+
+- [x] Public `openTiffDocument()` entry with stable top-level and SubIFD directory objects
+- [x] Bounded typed `getTag()` reads plus per-directory display and native raster decoders
+- [x] Native-precision planar or interleaved N-channel `RasterBlock` output without implicit RGB conversion
+- [x] Explicit `rasterToPixels()` display conversion with declared per-channel ranges
+- [x] OME-TIFF Z/C/T datasets with validated dimension orders, channel metadata, physical pixel sizes, and explicit or implicit `TiffData` mappings
+- [x] OME reduced-resolution SubIFD plane selection and separate-channel plane assembly
+- [x] Deterministic TIFF profile registry with detector-failure isolation and equal-priority ambiguity rejection
+- [x] Generic bounded `WholeSlideImage` levels, region reads, associated images, and physical metadata
+- [x] First-party Aperio SVS pyramid, associated-image, MPP, objective, and JPEG 2000 tile integration
+- [x] Separately compiled Leica SCN single-area example using only published package imports
+- [ ] Automatic display semantics for arbitrary scientific multiband data
+- [ ] Multi-area Leica scene composition and additional vendor-specific whole-slide profiles
+
 ### Pixel formats
 
 - [x] 1-, 2-, 4-, 6-, 8-, 10-, 12-, 14-, 16-, 24-, 32-, and 64-bit grayscale (`WhiteIsZero` and `BlackIsZero`)
@@ -56,6 +71,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Floating-point predictor 3 byte unshuffle and accumulation for float16, float32, and float64 samples
 - [x] JPEG-in-TIFF (`Compression=7`) complete and abbreviated streams with `JPEGTables`
 - [x] Old-style JPEG (`Compression=6`) complete interchange streams, multi-strip scans, omitted `RowsPerStrip`, and baseline Q/DC/AC table reconstruction
+- [x] Aperio JPEG 2000 (`Compression=33003` YCbCr and `33005` MCT) tiles through the reusable codestream decoder
 - [x] WebP-in-TIFF (`Compression=50001`) through explicit `createTiffCodec({ embeddedCodecs: [webpCodec] })` composition
 - [x] SGILog (`Compression=34676`) and SGILog24 (`Compression=34677`) with bounded row RLE and exact segment sizing
 - [x] Zstandard (`Compression=50000`) through the reusable first-party bounded decompressor
@@ -75,7 +91,7 @@ TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples direct
 ### Follow-on priorities
 
 1. Add alternate TIFF encoder profiles only when their complete contracts exist, prioritizing PackBits/LZW or tiles from demonstrated demand.
-2. Keep generic five-band data unsupported until its public pixel semantics are defined.
+2. Keep implicit display conversion for generic multiband data unsupported; use native `RasterBlock` output or require an explicit channel/range mapping.
 3. Keep ThunderScan unsupported: the current corpus fixture is truncated by three rows and LibTIFF independently rejects it.
 
 ## Encode

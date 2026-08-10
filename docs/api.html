@@ -71,6 +71,41 @@
 })</code></pre></div>
           <div class="callout warning"><strong>Experimental and opt-in.</strong> HEIC commonly contains HEVC/H.265 image data that may be subject to third-party patent rights. PureJsImage's MIT license covers this implementation's copyright and grants no third-party patent rights. Users and distributors are responsible for determining whether their use requires additional licenses, particularly for commercial products, services, or high-volume distribution. The codec is shipped in the package but is never loaded by the root entry, <code>allCodecs</code>, or the default browser demo. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md" target="_blank" rel="noreferrer">experimental HEIF/HEIC contract</a>.</div>
         </section>
+        <section id="tiff-documents" data-search-item>
+          <h2>TIFF documents, rasters, and profiles</h2>
+          <p><code>purejsimage/tiff</code> exposes the validated TIFF IFD graph independently of the display-image pipeline. <code>openTiffDocument(source, options?)</code> returns a <code>TiffDocument</code> with stable top-level and SubIFD directory objects. A directory reads bounded public tag values and creates either an <code>ImageDecoder</code> for display pixels or a <code>RasterDecoder</code> for native-precision, arbitrary-channel samples.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">Scientific OME-TIFF</span></div><pre><code><span class="tok-key">import</span> { MemorySource } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
+<span class="tok-key">import</span> { openOmeTiff } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
+<span class="tok-key">import</span> { openTiffDocument } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
+
+<span class="tok-key">const</span> document = <span class="tok-key">await</span> openTiffDocument(<span class="tok-key">new</span> MemorySource(bytes))
+<span class="tok-key">const</span> dataset = <span class="tok-key">await</span> openOmeTiff(document)
+<span class="tok-key">for await</span> (<span class="tok-key">const</span> block <span class="tok-key">of</span> dataset.readPlane({
+  z: 0, c: [0, 1, 2], t: 0, resolutionLevel: 0,
+  x: 0, y: 0, width: 512, height: 512,
+})) {
+  consume(block)
+}</code></pre></div>
+          <p><code>openOmeTiff()</code> validates OME dimensions, sample type, channel metadata, physical pixel size, dimension order, and explicit or implicit <code>TiffData</code> mappings before exposing a <code>MultidimensionalRasterDataset</code>. <code>readPlane()</code> preserves native sample types and can combine separately stored channel planes without materializing a source-sized display bitmap.</p>
+          <p><code>purejsimage/pathology</code> exports <code>openAperioSvs()</code>, <code>aperioSvsProfile</code>, and the generic <code>WholeSlideImage</code> contract. Aperio levels and label, macro, or thumbnail images decode by requested region. TIFF compression tags 33003 and 33005 use the reusable <code>createJpeg2000CodestreamDecoder()</code>; JPEG 2000 reconstruction remains bounded to the current TIFF tile or strip, though the current codestream decoder retains that segment's complete component state.</p>
+          <h3 id="tiff-profile-authoring">Third-party TIFF profile authoring</h3>
+          <p>A separately shipped integration implements <code>TiffProfile&lt;T&gt;</code> using only package exports. Register profiles with <code>createTiffProfileRegistry()</code>. Detection runs every profile in isolation, orders matches by descending integer priority then id, reports detector failures, and rejects equal-priority matches as ambiguous.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">Vendor profile</span></div><pre><code><span class="tok-key">import type</span> { TiffProfile } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
+
+<span class="tok-key">export const</span> vendorProfile: TiffProfile&lt;VendorDataset&gt; = {
+  id: <span class="tok-string">'vendor-format'</span>,
+  priority: 50,
+  <span class="tok-key">async</span> detect({ document }) {
+    <span class="tok-key">const</span> tag = <span class="tok-key">await</span> document.topLevelDirectories[0]?.getTag(270)
+    <span class="tok-key">return</span> tag?.kind === <span class="tok-string">'ascii'</span> &amp;&amp; tag.value.startsWith(<span class="tok-string">'Vendor'</span>)
+  },
+  <span class="tok-key">async</span> open({ document }) {
+    <span class="tok-key">return</span> openVendorDataset(document)
+  },
+}</code></pre></div>
+          <div class="callout"><strong>Public boundary.</strong> Profile code should bound every metadata read with <code>getTag(tag, { maxBytes })</code>, validate metadata-to-IFD mappings before decoding, and retain structured unsupported errors for ambiguous vendor semantics. The checked <code>examples/tiff-profile-leica</code> driver compiles as an external package and imports only <code>purejsimage</code>, <code>purejsimage/tiff</code>, and <code>purejsimage/pathology</code>.</div>
+          <p><a href="tiff.html">See the dedicated TIFF guide for the complete supported-format list, scientific and whole-slide workflows, output profile, memory model, and current limitations →</a></p>
+        </section>
         <section id="zstandard" data-search-item>
           <h2>Zstandard decompression</h2>
           <p>The portable <code>purejsimage/compression/zstd</code> subpath exports the reusable first-party decoder used by TIFF <code>Compression=50000</code>. It has no format-specific parameters and does not load native code, WebAssembly, or a runtime dependency.</p>

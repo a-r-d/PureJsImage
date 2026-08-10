@@ -12,6 +12,10 @@ import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
+import { openOmeTiff } from '../src/scientific/ome-tiff.ts'
+import { rasterToPixels } from '../src/raster.ts'
+import { MemorySource } from '../src/source.ts'
+import { openTiffDocument } from '../src/tiff/index.ts'
 import type { ImageInput } from '../src/source.ts'
 import type { ImageSink } from '../src/sink.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
@@ -644,7 +648,7 @@ const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8Clam
 
 interface BrowserTiffEntry {
   readonly tag: number
-  readonly type: 3 | 4 | 7
+  readonly type: 2 | 3 | 4 | 7
   readonly values: readonly number[]
 }
 
@@ -700,6 +704,73 @@ const browserTiffFixture = (
     output.set(strips[index] ?? new Uint8Array(), stripOffsets[index] ?? 0)
   }
   return output
+}
+
+const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
+  const xml = new TextEncoder().encode(
+    '<?xml version="1.0"?><OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2016-06"><Image ID="Image:0"><Pixels ID="Pixels:0" DimensionOrder="XYZCT" Type="uint16" SizeX="2" SizeY="1" SizeZ="1" SizeC="3" SizeT="1" PhysicalSizeX="0.5" PhysicalSizeXUnit="µm"><Channel ID="Channel:0" Name="RGB" SamplesPerPixel="3"/><TiffData IFD="0" PlaneCount="1"/></Pixels></Image></OME>',
+  )
+  const description = Uint8Array.from([...xml, 0])
+  const strip = Uint8Array.of(0, 0, 0, 128, 255, 255, 255, 255, 0, 128, 0, 0)
+  const input = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [2] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [16, 16, 16] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [2] },
+      { tag: 270, type: 2, values: [...description] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [3] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [strip.byteLength] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 339, type: 3, values: [1, 1, 1] },
+    ],
+    [strip],
+  )
+  const document = await openTiffDocument(new MemorySource(input))
+  const tag = await document.topLevelDirectories[0]?.getTag(270, { maxBytes: 4096 })
+  if (tag?.kind !== 'ascii' || !tag.value.includes('<OME')) {
+    throw new Error('Browser TIFF document did not expose bounded OME metadata')
+  }
+  const dataset = await openOmeTiff(document)
+  if (
+    dataset.sizeX !== 2 ||
+    dataset.sizeY !== 1 ||
+    dataset.sizeC !== 3 ||
+    dataset.sampleType !== 'uint16' ||
+    dataset.physicalSizeX?.value !== 0.5
+  ) {
+    throw new Error('Browser OME-TIFF dataset metadata is incorrect')
+  }
+  const rasterBlocks = dataset.readPlane({
+    z: 0,
+    c: [0, 1, 2],
+    t: 0,
+    x: 0,
+    y: 0,
+    width: 2,
+    height: 1,
+  })
+  const pixels: number[] = []
+  for await (const block of rasterToPixels(rasterBlocks, {
+    channels: [0, 1, 2],
+    ranges: [
+      { black: 0, white: 65_535 },
+      { black: 0, white: 65_535 },
+      { black: 0, white: 65_535 },
+    ],
+  })) {
+    pixels.push(...block.data)
+  }
+  if (pixels.join(',') !== '0,128,255,255,128,0') {
+    throw new Error(`Browser OME-TIFF display conversion produced ${pixels.join(',')}`)
+  }
+  return {
+    detail: 'public TIFF document, native OME-TIFF raster, and explicit display conversion passed',
+    outputBytes: input.byteLength,
+  }
 }
 
 const browserConstantGrayCmykProfile = (): Uint8Array => {
@@ -1686,6 +1757,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   unsupportedJpegBoundaries,
   tolerantJpegRestartRecovery,
   orientation,
+  scientificTiffDocument,
   pngAlphaPipeline,
   progressiveJpeg,
   resizeDefaultKernel,
