@@ -15,7 +15,7 @@ const temporaryDirectory = await mkdtemp(join(tmpdir(), 'purejsimage-avif-expand
 try {
   for (const fixture of avifHighBitExpandedFixtures) {
     const chromaWidth = fixture.chromaSubsampling === '444' ? fixture.width : fixture.width >> 1
-    const chromaHeight = fixture.chromaSubsampling === '444' ? fixture.height : fixture.height >> 1
+    const chromaHeight = fixture.chromaSubsampling === '420' ? fixture.height >> 1 : fixture.height
     const header = Buffer.from(
       `YUV4MPEG2 W${fixture.width} H${fixture.height} F1:1 Ip A1:1 C${fixture.chromaSubsampling}p${fixture.bitDepth} XYSCSS=${fixture.chromaSubsampling}P${fixture.bitDepth} XCOLORRANGE=FULL\nFRAME\n`,
     )
@@ -48,15 +48,15 @@ try {
         '--obu',
         '--allintra',
         '--passes=1',
-        '--cpu-used=6',
+        `--cpu-used=${fixture.postFilters ? 4 : 6}`,
         ...(fixture.codedLossless
           ? ['--lossless=1']
           : [
               '--end-usage=q',
               `--cq-level=${fixture.quantizer}`,
-              '--loopfilter-control=0',
-              '--enable-cdef=0',
-              '--enable-restoration=0',
+              ...(fixture.postFilters
+                ? ['--enable-cdef=1', '--enable-restoration=1']
+                : ['--loopfilter-control=0', '--enable-cdef=0', '--enable-restoration=0']),
             ]),
         '--limit=1',
         `--i${fixture.chromaSubsampling}`,

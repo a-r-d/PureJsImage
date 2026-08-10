@@ -21,6 +21,7 @@ export interface Av1RestorationPlaneState {
 }
 
 export interface Av1PostFilterState {
+  readonly bitDepth: 8 | 10 | 12
   readonly cdefColumns: number
   readonly chromaShiftX: number
   readonly chromaShiftY: number
@@ -97,7 +98,8 @@ const transformAt = (
   return transforms[plane]?.[contextRow * planeContextWidth(state, plane) + contextColumn] ?? 0
 }
 
-const filter4Clamp = (value: number): number => clip(-128, 127, value)
+const filter4Clamp = (value: number, depthShift: number): number =>
+  clip(-128 << depthShift, (128 << depthShift) - 1, value)
 
 const narrowFilter = (
   plane: Av1FilterPlane,
@@ -106,25 +108,27 @@ const narrowFilter = (
   dx: number,
   dy: number,
   highEdgeVariance: boolean,
+  depthShift: number,
 ): void => {
   const q0Index = y * plane.stride + x
   const q1Index = (y + dy) * plane.stride + x + dx
   const p0Index = (y - dy) * plane.stride + x - dx
   const p1Index = (y - 2 * dy) * plane.stride + x - 2 * dx
-  const q0 = (plane.data[q0Index] ?? 0) - 128
-  const q1 = (plane.data[q1Index] ?? 0) - 128
-  const p0 = (plane.data[p0Index] ?? 0) - 128
-  const p1 = (plane.data[p1Index] ?? 0) - 128
-  let filter = highEdgeVariance ? filter4Clamp(p1 - q1) : 0
-  filter = filter4Clamp(filter + 3 * (q0 - p0))
-  const filter1 = filter4Clamp(filter + 4) >> 3
-  const filter2 = filter4Clamp(filter + 3) >> 3
-  plane.data[q0Index] = filter4Clamp(q0 - filter1) + 128
-  plane.data[p0Index] = filter4Clamp(p0 + filter2) + 128
+  const q0 = plane.data[q0Index] ?? 0
+  const q1 = plane.data[q1Index] ?? 0
+  const p0 = plane.data[p0Index] ?? 0
+  const p1 = plane.data[p1Index] ?? 0
+  const sampleMaximum = (256 << depthShift) - 1
+  let filter = highEdgeVariance ? filter4Clamp(p1 - q1, depthShift) : 0
+  filter = filter4Clamp(filter + 3 * (q0 - p0), depthShift)
+  const filter1 = Math.min(filter + 4, (128 << depthShift) - 1) >> 3
+  const filter2 = Math.min(filter + 3, (128 << depthShift) - 1) >> 3
+  plane.data[q0Index] = clip(0, sampleMaximum, q0 - filter1)
+  plane.data[p0Index] = clip(0, sampleMaximum, p0 + filter2)
   if (!highEdgeVariance) {
-    const outerFilter = round2(filter1, 1)
-    plane.data[q1Index] = filter4Clamp(q1 - outerFilter) + 128
-    plane.data[p1Index] = filter4Clamp(p1 + outerFilter) + 128
+    const outerFilter = (filter1 + 1) >> 1
+    plane.data[q1Index] = clip(0, sampleMaximum, q1 - outerFilter)
+    plane.data[p1Index] = clip(0, sampleMaximum, p1 + outerFilter)
   }
 }
 
@@ -166,6 +170,7 @@ const filterSample = (
   threshold: number,
   isLuma: boolean,
   wideScratch: Int16Array,
+  depthShift: number,
 ): void => {
   const sample = (offset: number): number =>
     plane.data[(y + offset * dy) * plane.stride + x + offset * dx] ?? 0
@@ -186,27 +191,29 @@ const filterSample = (
     masked ||= Math.abs(sample(-4) - sample(-3)) > limit || Math.abs(sample(3) - sample(2)) > limit
   }
   if (masked) return
+  const flatThreshold = 1 << depthShift
   let flat = false
-  if (filterSize >= 8) {
+  if (filterLength >= 6) {
     flat =
-      Math.abs(p1 - p0) <= 1 &&
-      Math.abs(q1 - q0) <= 1 &&
-      Math.abs(sample(-3) - p0) <= 1 &&
-      Math.abs(sample(2) - q0) <= 1 &&
-      (filterLength < 8 || (Math.abs(sample(-4) - p0) <= 1 && Math.abs(sample(3) - q0) <= 1))
+      Math.abs(p1 - p0) <= flatThreshold &&
+      Math.abs(q1 - q0) <= flatThreshold &&
+      Math.abs(sample(-3) - p0) <= flatThreshold &&
+      Math.abs(sample(2) - q0) <= flatThreshold &&
+      (filterLength < 8 ||
+        (Math.abs(sample(-4) - p0) <= flatThreshold && Math.abs(sample(3) - q0) <= flatThreshold))
   }
   if (filterSize === 4 || !flat) {
-    narrowFilter(plane, x, y, dx, dy, highEdgeVariance)
+    narrowFilter(plane, x, y, dx, dy, highEdgeVariance, depthShift)
     return
   }
   const flat2 =
-    filterSize >= 16 &&
-    Math.abs(sample(-7) - p0) <= 1 &&
-    Math.abs(sample(6) - q0) <= 1 &&
-    Math.abs(sample(-6) - p0) <= 1 &&
-    Math.abs(sample(5) - q0) <= 1 &&
-    Math.abs(sample(-5) - p0) <= 1 &&
-    Math.abs(sample(4) - q0) <= 1
+    filterLength >= 16 &&
+    Math.abs(sample(-7) - p0) <= flatThreshold &&
+    Math.abs(sample(6) - q0) <= flatThreshold &&
+    Math.abs(sample(-6) - p0) <= flatThreshold &&
+    Math.abs(sample(5) - q0) <= flatThreshold &&
+    Math.abs(sample(-5) - p0) <= flatThreshold &&
+    Math.abs(sample(4) - q0) <= flatThreshold
   wideFilter(plane, x, y, dx, dy, flat2 ? 4 : 3, isLuma, wideScratch)
 }
 
@@ -215,6 +222,7 @@ export const applyAv1LoopFilter = (
   header: Av1FrameHeader,
   state: Av1PostFilterState,
 ): void => {
+  const depthShift = state.bitDepth - 8
   const wideScratch = new Int16Array(12)
   for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
     if (planeIndex > 0 && (header.loopFilterLevels[planeIndex + 1] ?? 0) === 0) continue
@@ -297,11 +305,12 @@ export const applyAv1LoopFilter = (
               dx,
               dy,
               filterSize,
-              limit,
-              blockLimit,
-              threshold,
+              limit << depthShift,
+              blockLimit << depthShift,
+              threshold << depthShift,
               planeIndex === 0,
               wideScratch,
+              depthShift,
             )
           }
         }
@@ -316,13 +325,15 @@ const cdefDirection = (
   y: number,
   partial: Int32Array,
   costs: Float64Array,
+  depthShift: number,
 ): readonly [number, number] => {
   partial.fill(0)
   costs.fill(0)
   const sourceY = y - (plane.yOrigin ?? 0)
   for (let row = 0; row < 8; row += 1) {
     for (let column = 0; column < 8; column += 1) {
-      const value = (plane.data[(sourceY + row) * plane.stride + x + column] ?? 0) - 128
+      const value =
+        ((plane.data[(sourceY + row) * plane.stride + x + column] ?? 0) >> depthShift) - 128
       partial[row + column] = (partial[row + column] ?? 0) + value
       partial[15 + row + (column >> 1)] = (partial[15 + row + (column >> 1)] ?? 0) + value
       partial[30 + row] = (partial[30 + row] ?? 0) + value
@@ -406,7 +417,7 @@ const filterCdefBlock = (
   const y0 = (row * 4) >> shiftY
   const width = 8 >> shiftX
   const height = 8 >> shiftY
-  const tapSet = primaryStrength & 1
+  const tapSet = (primaryStrength >> (state.bitDepth - 8)) & 1
   const sourceOriginY = source.yOrigin ?? 0
   const targetOriginY = target.yOrigin ?? 0
   for (let localY = 0; localY < height; localY += 1) {
@@ -522,6 +533,7 @@ export const applyAv1Cdef = (
   }
   const partial = new Int32Array(120)
   const costs = new Float64Array(8)
+  const depthShift = state.bitDepth - 8
   for (let lumaY = 0; lumaY < header.frameHeight; lumaY += 8) {
     for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
       const plane = planes[planeIndex]
@@ -566,12 +578,14 @@ export const applyAv1Cdef = (
         row * 4,
         partial,
         costs,
+        depthShift,
       )
       const lumaPrimaryBase = header.cdefYPrimaryStrengths[index] ?? 0
-      const lumaSecondary = header.cdefYSecondaryStrengths[index] ?? 0
+      const lumaSecondary = (header.cdefYSecondaryStrengths[index] ?? 0) << depthShift
       const scaledVariance = Math.floor(variance / 64)
       const varianceStrength = scaledVariance > 0 ? Math.min(floorLog2(scaledVariance), 12) : 0
-      const lumaPrimary = variance ? (lumaPrimaryBase * (4 + varianceStrength) + 8) >> 4 : 0
+      const lumaPrimary =
+        variance > 0 ? ((lumaPrimaryBase << depthShift) * (4 + varianceStrength) + 8) >> 4 : 0
       filterCdefBlock(
         sourceWindows[0],
         current[0],
@@ -581,11 +595,11 @@ export const applyAv1Cdef = (
         column,
         lumaPrimary,
         lumaSecondary,
-        header.cdefDamping,
+        header.cdefDamping + depthShift,
         lumaPrimaryBase === 0 ? 0 : lumaDirection,
       )
-      const chromaPrimary = header.cdefUvPrimaryStrengths[index] ?? 0
-      const chromaSecondary = header.cdefUvSecondaryStrengths[index] ?? 0
+      const chromaPrimary = (header.cdefUvPrimaryStrengths[index] ?? 0) << depthShift
+      const chromaSecondary = (header.cdefUvSecondaryStrengths[index] ?? 0) << depthShift
       const chromaDirection =
         chromaPrimary === 0 ? 0 : (cdefUvDirections420[lumaDirection] ?? lumaDirection)
       for (let planeIndex = 1; planeIndex < 3; planeIndex += 1) {
@@ -603,7 +617,7 @@ export const applyAv1Cdef = (
           column,
           chromaPrimary,
           chromaSecondary,
-          header.cdefDamping - 1,
+          header.cdefDamping + depthShift - 1,
           chromaDirection,
         )
       }
@@ -693,8 +707,13 @@ const sourceSample = (
   return cdef.data[y * cdef.stride + x] ?? 0
 }
 
-const wienerCoefficients = (source: Int8Array, offset: number, output: Int16Array): void => {
-  output[3] = 128
+const wienerCoefficients = (
+  source: Int8Array,
+  offset: number,
+  output: Int16Array,
+  center: number,
+): void => {
+  output[3] = center
   for (let index = 0; index < 3; index += 1) {
     const value = source[offset + index] ?? 0
     output[index] = value
@@ -720,10 +739,18 @@ const restoreWienerBlock = (
   verticalFilter: Int16Array,
   horizontalFilter: Int16Array,
   intermediate: Int32Array,
+  bitDepth: 8 | 10 | 12,
 ): void => {
   const coefficientOffset = unitIndex * 6
-  wienerCoefficients(unit.wiener, coefficientOffset, verticalFilter)
-  wienerCoefficients(unit.wiener, coefficientOffset + 3, horizontalFilter)
+  const highBitDepth = bitDepth > 8
+  wienerCoefficients(unit.wiener, coefficientOffset, verticalFilter, 128)
+  wienerCoefficients(unit.wiener, coefficientOffset + 3, horizontalFilter, 128)
+  const horizontalBits = 3 + Number(bitDepth === 12) * 2
+  const verticalBits = 11 - Number(bitDepth === 12) * 2
+  const horizontalOffset = 2 ** (bitDepth + 6)
+  const horizontalMaximum = 2 ** (bitDepth + 8 - horizontalBits) - 1
+  const verticalOffset = 2 ** (bitDepth + verticalBits - 1)
+  const sampleMaximum = 2 ** bitDepth - 1
   for (let row = 0; row < height + 6; row += 1) {
     for (let column = 0; column < width; column += 1) {
       let sum = 0
@@ -741,7 +768,9 @@ const restoreWienerBlock = (
             stripeEndY,
           )
       }
-      intermediate[row * width + column] = clip(-2048, 6143, round2(sum, 3))
+      intermediate[row * width + column] = highBitDepth
+        ? clip(0, horizontalMaximum, round2(sum + horizontalOffset, horizontalBits))
+        : clip(-2048, 6143, round2(sum, 3))
     }
   }
   for (let row = 0; row < height; row += 1) {
@@ -750,7 +779,11 @@ const restoreWienerBlock = (
       for (let tap = 0; tap < 7; tap += 1) {
         sum += (verticalFilter[tap] ?? 0) * (intermediate[(row + tap) * width + column] ?? 0)
       }
-      output.data[row * output.stride + x + column] = clip(0, 255, round2(sum, 11))
+      output.data[row * output.stride + x + column] = clip(
+        0,
+        sampleMaximum,
+        round2(sum - (highBitDepth ? verticalOffset : 0), verticalBits),
+      )
     }
   }
 }
@@ -771,6 +804,7 @@ const boxFilter = (
   aValues: Int32Array,
   bValues: Int32Array,
   filtered: Int32Array,
+  bitDepth: 8 | 10 | 12,
 ): void => {
   const radius = sgrParameters[set * 4 + pass * 2] ?? 0
   if (radius === 0) return
@@ -778,6 +812,7 @@ const boxFilter = (
   const boxWidth = width + 2
   const n = (2 * radius + 1) ** 2
   const nSquaredEpsilon = n * n * epsilon
+  const depthShift = bitDepth - 8
   const scale = Math.floor((2 ** 20 + Math.floor(nSquaredEpsilon / 2)) / nSquaredEpsilon)
   const oneOverN = Math.floor((2 ** 12 + Math.floor(n / 2)) / n)
   for (let inputRow = -1; inputRow <= height; inputRow += 1) {
@@ -800,7 +835,9 @@ const boxFilter = (
           sum += sample
         }
       }
-      const variance = Math.max(0, squares * n - sum * sum)
+      const normalizedSquares = round2(squares, depthShift * 2)
+      const normalizedSum = round2(sum, depthShift)
+      const variance = Math.max(0, normalizedSquares * n - normalizedSum * normalizedSum)
       const z = round2(variance * scale, 20)
       const a = z >= 255 ? 256 : z === 0 ? 1 : Math.floor((z * 256 + Math.floor(z / 2)) / (z + 1))
       const b = round2((256 - a) * sum * oneOverN, 12)
@@ -855,6 +892,7 @@ const restoreSelfGuidedBlock = (
   bValues: Int32Array,
   filtered0: Int32Array,
   filtered1: Int32Array,
+  bitDepth: 8 | 10 | 12,
 ): void => {
   const set = unit.sgrSets[unitIndex] ?? 0
   boxFilter(
@@ -873,6 +911,7 @@ const restoreSelfGuidedBlock = (
     aValues,
     bValues,
     filtered0,
+    bitDepth,
   )
   boxFilter(
     deblocked,
@@ -890,6 +929,7 @@ const restoreSelfGuidedBlock = (
     aValues,
     bValues,
     filtered1,
+    bitDepth,
   )
   const weight0 = unit.sgrXqd[unitIndex * 2] ?? 0
   const weight1 = unit.sgrXqd[unitIndex * 2 + 1] ?? 0
@@ -906,7 +946,7 @@ const restoreSelfGuidedBlock = (
         weight1 * scaledSource +
         weight0 * (radius0 ? (filtered0[sample] ?? 0) : scaledSource) +
         weight2 * (radius1 ? (filtered1[sample] ?? 0) : scaledSource)
-      output.data[target] = clip(0, 255, round2(projected, 11))
+      output.data[target] = clip(0, 2 ** bitDepth - 1, round2(projected, 11))
     }
   }
 }
@@ -919,7 +959,7 @@ export const applyAv1LoopRestoration = (
 ): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
   const createBand = (plane: Av1FilterPlane, rows: number): Av1FilterPlane => ({
     ...plane,
-    data: new Uint8Array(plane.stride * rows),
+    data: sampleBuffer(plane.data, plane.stride * rows),
     height: rows,
   })
   const createBands = (): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => [
@@ -1013,6 +1053,7 @@ export const applyAv1LoopRestoration = (
             verticalFilter,
             horizontalFilter,
             intermediate,
+            state.bitDepth,
           )
         } else if (type === 2) {
           restoreSelfGuidedBlock(
@@ -1033,6 +1074,7 @@ export const applyAv1LoopRestoration = (
             bValues,
             filtered0,
             filtered1,
+            state.bitDepth,
           )
         }
       }

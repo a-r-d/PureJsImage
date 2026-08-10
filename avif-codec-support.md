@@ -134,8 +134,8 @@ coverage.
   needed by the permanent common-photo corpus
 - [x] Lossless 4x4 Walsh-Hadamard inverse transforms
 - [x] Nonzero coefficient reconstruction in quantizer contexts 0, 1, 2, and 3
-- [x] 8-bit and filter-free 10-bit dequantization and inverse transforms using
-  the normative depth-specific AV1 lookup tables
+- [x] 8-bit, 10-bit, and 12-bit dequantization and inverse transforms using the
+  normative depth-specific AV1 lookup tables
 - [x] Quantization-matrix reconstruction for every supported two-dimensional
   transform size, including flat level 15 matrices
 - [x] Matrix lookup in the inverse-transform kernels' coefficient-axis order,
@@ -156,7 +156,14 @@ coverage.
 - [ ] Tile-list OBUs or partial, overlapping, reordered, or missing tile groups
 - [ ] Alpha-bearing image grids
 - [x] Skipped intra block copy with adaptive integer motion-vector coding
-- [ ] Intra-block-copy residual transforms and other screen-content tools
+- [x] Residual intra-block-copy transform partitions, transform types,
+  coefficients, inverse transforms, and reconstruction used by the pinned
+  monochrome fixture
+- [ ] Other intra-block-copy and screen-content tools outside pinned syntax
+- [x] Clear palette contexts after intra-block-copy blocks and honor block
+  delta-Q state in the restricted one-tile path
+- [x] Keep segmentation maps and delta loop-filter combinations explicitly
+  rejected before intra-block-copy reconstruction
 - [x] Luma and chroma palette mode, including cached and new palette entries,
   non-symmetric first-index coding, and diagonal color-map reconstruction
 - [ ] Complete segmentation-map and delta-loop-filter reconstruction, plus
@@ -200,14 +207,16 @@ byte. The full-size tolerance remains zero.
 ### Additional still-image compatibility
 
 - [x] 8-bit monochrome
-- [x] Coded-lossless 10-bit and 12-bit YUV 4:2:0
+- [x] Coded-lossless and filter-free lossy 10-bit and 12-bit YUV 4:2:0
 - [x] 8-bit YUV 4:2:2
-- [ ] 10/12-bit YUV 4:2:2
+- [x] Filter-free lossy 10-bit and 12-bit YUV 4:2:2
 - [x] 8-bit YUV 4:4:4
-- [x] Coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode,
-  including complete compatible multi-tile frames
-- [x] Filter-free lossy 10-bit YUV 4:4:4 decode
-- [ ] Filtered lossy 10-bit and any lossy 12-bit YUV 4:4:4 decode
+- [x] Coded-lossless and filter-free lossy 10-bit and 12-bit YUV 4:4:4
+  identity-color decode, including compatible coded-lossless multi-tile frames
+- [x] Lossy 10-bit YUV 4:4:4 decode with filter-free output and compatible
+  deblocking, CDEF, and Wiener restoration
+- [ ] Filtered lossy 10-bit YUV 4:2:0 and 4:2:2, self-guided-restored lossy
+  10-bit YUV 4:4:4, and filtered lossy 12-bit decode
 - [x] Full-range high-bit-depth reconstruction without premature truncation
   before explicit conversion to the library's 8-bit RGBA output contract
 - [x] Compatible full-range 8-bit monochrome alpha auxiliaries
@@ -217,9 +226,10 @@ byte. The full-size tolerance remains zero.
   frame IDs, or frame-dimension overrides
 - [x] One still frame stored as a frame-header OBU followed by multiple complete
   contiguous tile-group OBUs
-- [ ] Multiple AV1 frame units in one coded image item
-- [ ] Progressive layered AVIF items
-- [ ] HDR PQ and HLG inputs with a documented SDR or HDR output policy
+- [x] Explicit lsel spatial-layer selection from a1lx-indexed multi-frame items
+  when the selected output is an independently decodable shown key frame
+- [ ] Dependent enhancement layers, frame-dimension overrides, and rendering all intermediate layers
+- [x] Reject PQ and HLG transfer signaling before the SDR pixel-conversion path
 - [ ] Wide-gamut NCLX and ICC-managed conversion
 
 ### Animation
@@ -319,10 +329,11 @@ byte. The full-size tolerance remains zero.
 - [x] Reject malformed OBU sizes, duplicate sequence headers, truncated frame
   headers, tile overruns, invalid arithmetic symbols, impossible partitions,
   coefficient scans, and transform bounds explicitly
-- [x] Inspect all 26 checksum-pinned permanent corpus files and 36 unique coded
+- [x] Inspect all 35 checksum-pinned permanent corpus files and 45 unique coded
   items across `mdat`, `idat`, multiple extents, grids, alpha, 8/10/12-bit,
-  4:0:0/4:2:0/4:2:2/4:4:4, progressive storage, and a non-still sequence header
-- [x] Pass metadata expectations for all 26 permanent corpus files
+  4:0:0/4:2:0/4:2:2/4:4:4, progressive storage, HDR signaling, layered frame
+  units, and a non-still sequence header
+- [x] Pass metadata expectations for all 35 permanent corpus files
 - [x] Decode exact independent reference pixels for the embedded 2x2 lossless
   fixture and the 4x4 lossy fixture
 - [x] Decode and pin RGBA regression hashes for Kodak 768x512 color; Fox
@@ -347,6 +358,13 @@ byte. The full-size tolerance remains zero.
   Professional Profile source and is not used as its browser oracle
 - [x] Reconstruct the deterministic coded-lossless 10-bit 2x2 AV1 tile
   fixture exactly against its source and agreeing dav1d/libaom native YUV
+- [x] Match agreeing dav1d and libaom native YUV byte for byte for a pinned
+  lossy 10-bit YUV 4:4:4 frame with deblocking, CDEF, and Wiener restoration
+  active on all three planes
+- [x] Match agreeing dav1d and libaom native YUV byte for byte for pinned
+  filter-free lossy 10-bit and 12-bit YUV 4:2:0, 4:2:2, and 4:4:4 frames
+- [x] Select an independently decodable shown-key spatial layer from a pinned
+  three-frame a1lx/lsel item and match agreeing dav1d/libaom native YUV exactly
 - [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
   for three checksum-pinned filter-free denominator-12 YUV 4:2:0 and 4:4:4
   super-resolution fixtures, including a multi-band 4:2:0 chroma boundary
@@ -392,6 +410,12 @@ byte. The full-size tolerance remains zero.
   draw-points screen-content fixture using luma and chroma palettes
 - [x] Match agreeing libaom and dav1d native YUV exactly for the checksum-pinned
   320x280 skipped intra-block-copy fixture
+- [x] Match agreeing libaom and dav1d native YUV exactly for the checksum-pinned
+  1280x720 monochrome residual intra-block-copy fixture
+- [x] Match agreeing libaom and dav1d native YUV exactly for the checksum-pinned
+  512x128 YUV 4:4:4 skipped intra-block-copy plus block delta-Q fixture
+- [x] Reject checksum-pinned entropy mutations whose intra-block-copy motion
+  vectors overlap the current superblock or escape the decoded plane
 - [x] Apply the checksum-pinned 8x6 integer clean aperture to its 16x12 coded
   image and match Sharp/libavif RGBA exactly
 - [x] Exercise clean-aperture cropping through the portable codec entry in
@@ -436,5 +460,7 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-post-filters-2026-08-08.md`](benchmark/results/avif-post-filters-2026-08-08.md)
 - [`benchmark/results/avif-qmatrix-sharp-2026-08-08.md`](benchmark/results/avif-qmatrix-sharp-2026-08-08.md)
 - [`benchmark/results/avif-bounded-row-output-2026-08-09.md`](benchmark/results/avif-bounded-row-output-2026-08-09.md)
+- [`benchmark/results/avif-high-bit-lossy-2026-08-09.md`](benchmark/results/avif-high-bit-lossy-2026-08-09.md)
+- [`benchmark/results/avif-layered-selection-2026-08-09.md`](benchmark/results/avif-layered-selection-2026-08-09.md)
 - [`benchmark/results/avif-memory-bounded-superres-2026-08-09.json`](benchmark/results/avif-memory-bounded-superres-2026-08-09.json)
 - [`benchmark/results/avif-compatibility-survey-2026-08-10.md`](benchmark/results/avif-compatibility-survey-2026-08-10.md)

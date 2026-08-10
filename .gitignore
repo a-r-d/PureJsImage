@@ -179,6 +179,16 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/bounded-row-lossless-64x192.avif
 !benchmark/corpus/files/avif/bounded-row-alpha-lossless-64x192.avif
 !benchmark/corpus/files/avif/lossless-identity-*-*bpc.avif
+!benchmark/corpus/files/avif/filter*-lossy-*.avif
+!benchmark/corpus/files/avif/unsupported-hdr-*.avif
+!benchmark/corpus/files/avif/xiph-tiger-*.avif
+!benchmark/corpus/files/avif/xiph-alpha-*.avif
+!benchmark/corpus/files/avif/libavif-*-role*.avif
+!benchmark/corpus/files/avif/libavif-color-grid-alpha-*.avif
+!benchmark/corpus/files/avif/libavif-color-irot-alpha-*.avif
+!benchmark/corpus/files/avif/ms-thumbnail-roles.avif
+!benchmark/corpus/files/avif/ms-monochrome-residual-intrabc.avif
+!benchmark/corpus/files/avif/ibc-deltaq-512x128.avif
 !benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif
 !benchmark/corpus/files/avif/libaom-superres-denom12-96x64.avif
 !benchmark/corpus/files/avif/libaom-superres-denom12-yuv420-96x64.avif

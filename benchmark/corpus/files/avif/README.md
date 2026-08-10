@@ -47,6 +47,20 @@ item exercises skipped intra-block copy with adaptive motion-vector coding,
 and its `clap` property crops the 320x280 coded image to a 180x100 display image.
 Its checksum and coded dimensions are pinned in `benchmark/avif/corpus.ts`.
 
+`ms-monochrome-residual-intrabc.avif` is the byte-identical `valid/ms_Monochrome.avif`
+fixture from the same pinned Imazen AVIF Conformance corpus revision and Microsoft
+fixture source described above. It is covered by the same BSD-2-Clause and CC-BY
+3.0 provenance. Its 1280x720 AV1 frame exercises non-skipped intra-block copy with
+transform partitions, transform-type signaling, coefficients, and residual
+reconstruction.
+
+`ibc-deltaq-512x128.avif` is a deterministic opaque 8-bit YUV 4:4:4 fixture
+encoded with libaom 3.12.1 from a repeated mixed-complexity screen-content
+source. It combines skipped intra-block copy with block delta-Q changes across
+superblocks. Run `npm run fixtures:avif:intrabc` to require byte-identical
+native YUV from PureJsImage, dav1d, and libaom for all three committed
+intra-block-copy fixtures.
+
 The five `post-filter-*.avif` files are deterministic, opaque 8-bit YUV 4:2:0
 fixtures encoded with libavif 1.3.0 and libaom 3.12.1. They isolate disabled
 filters, deblocking, luma/chroma CDEF, Wiener plus self-guided restoration, odd
@@ -109,15 +123,38 @@ conversion to the library's 8-bit RGBA output contract. Run
 Y4M sources with one encoder worker. Encoded, source, Sharp RGB, and decoded
 RGBA checksums are pinned in `benchmark/avif/high-bit-lossless-fixtures.ts`.
 
-`coded-lossless-10bpc-yuv420-32x24.avif`,
-`coded-lossless-12bpc-yuv420-32x24.avif`, and
-`filter-free-lossy-10bpc-yuv444-32x24.avif` extend the native high-depth corpus
-to subsampled coded-lossless frames and the normative 10-bit dequantization
-tables. `npm run fixtures:avif:high-bit:prepare` regenerates them with libaom
-3.12.1 and FFmpeg 7.1.1 from checksum-pinned Y4M sources.
+The `high-bit-expanded-fixtures.ts` set covers coded-lossless 10-bit and 12-bit
+YUV 4:2:0; filter-free lossy 10-bit YUV 4:2:2 and 4:4:4; filter-free lossy
+12-bit YUV 4:2:0, 4:2:2, and 4:4:4; and a lossy 10-bit YUV 4:4:4 frame with
+deblocking, CDEF, and Wiener restoration active on all three planes. These
+fixtures exercise the normative depth-specific dequantization tables and retain
+native high-depth samples through reconstruction and filtering.
+`npm run fixtures:avif:high-bit:prepare` regenerates them with libaom 3.12.1 and
+FFmpeg 7.1.1 from checksum-pinned Y4M sources.
 `npm run fixtures:avif:high-bit` requires PureJsImage, dav1d, and libaom to
-produce byte-identical native YUV. Checksums are pinned in
-`benchmark/avif/high-bit-expanded-fixtures.ts`.
+produce byte-identical native YUV. Encoded, source, native-YUV, and portable
+RGBA checksums are pinned in `benchmark/avif/high-bit-expanded-fixtures.ts`.
+
+`unsupported-hdr-pq-10bpc-yuv420-32x24.avif` and
+`unsupported-hdr-hlg-10bpc-yuv420-32x24.avif` use the same checksum-pinned
+10-bit YUV 4:2:0 source with BT.2020 primaries and matrix coefficients, plus
+SMPTE ST 2084 or HLG transfer signaling. They verify that metadata inspection
+remains available while SDR pixel decode rejects unsupported HDR interpretation.
+Their file SHA-256 checksums are
+`8d6eff82bf015ef2fea2cf18db5acb1717404a8669e9bdfdb7f858ba5182c824` and
+`339d0d3b28c7c8bc4a6bcb3f88a718faaffb42bd6f04ba34faf6405a6fe60f69`.
+
+`xiph-tiger-3layer-lsel0-1216x832.avif` is a restricted-layer derivative of
+Xiph's `tiger_3layer_1res.avif` from the AOMedia AVIF conformance suite
+(original SHA-256
+`46cb55301f5d4a36a72c8c00f1d7e10c6c9ae0297811dc0f38a26a0285daa316`).
+The fixture changes `lsel` from `0xFFFF` to spatial layer 0 and records the
+first two `a1lx` entries as the individual 8,299-byte and 13,754-byte layer
+sizes required by AVIF 1.2. It retains all three AV1 frame OBUs. The Xiph
+source is CC-BY-SA 3.0 / CC-BY 3.0, as documented by the suite; this derivative
+remains under the applicable source license rather than the repository's MIT
+license. `npm run fixtures:avif:layered` requires PureJsImage, dav1d, and
+libaom to agree byte for byte on the selected layer's native YUV.
 
 `tiled-lossless-10bpc-yuv444-2x2-256x256.avif` is a deterministic full-range
 10-bit YUV 4:4:4 image split into four AV1 tiles. It covers independent entropy

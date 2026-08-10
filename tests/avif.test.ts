@@ -4,36 +4,53 @@ import { join } from 'node:path'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
-
+import { avifAlphaFixtures } from '../benchmark/avif/alpha-fixtures.ts'
+import {
+  avifAlphaGridFixture,
+  avifAlphaTransformDecodedRgbaSha256,
+  avifAlphaTransformFixtures,
+  avifAuxiliaryFixtureDirectory,
+  avifAuxiliaryRoleFixtures,
+  avifExpandedAlphaFixtures,
+} from '../benchmark/avif/auxiliary-fixtures.ts'
 import {
   avifCleanApertureFixture,
   avifCleanApertureFixtureDirectory,
 } from '../benchmark/avif/clean-aperture-fixture.ts'
-import { avifAlphaFixtures } from '../benchmark/avif/alpha-fixtures.ts'
 import {
-  avifQ0FixtureDirectory,
-  avifQ0LosslessFixture,
-  avifQ0LossyFixture,
-} from '../benchmark/avif/q0-fixtures.ts'
-import {
-  avifHighBitLosslessFixtureDirectory,
-  avifHighBitLosslessFixtures,
-} from '../benchmark/avif/high-bit-lossless-fixtures.ts'
+  avifCommonPhotoSyntaxFixturePath,
+  avifCommonPhotoSyntaxFixtures,
+} from '../benchmark/avif/common-photo-syntax-fixtures.ts'
+import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
 import {
   avifHighBitExpandedFixturePath,
   avifHighBitExpandedFixtures,
 } from '../benchmark/avif/high-bit-expanded-fixtures.ts'
 import {
-  avifTiledLosslessFixture,
-  avifTiledLosslessFixturePath,
-  tiledLosslessSample,
-} from '../benchmark/avif/tiled-lossless-fixture.ts'
+  avifHighBitLosslessFixtureDirectory,
+  avifHighBitLosslessFixtures,
+} from '../benchmark/avif/high-bit-lossless-fixtures.ts'
+import { avifLayeredFixture, avifLayeredFixturePath } from '../benchmark/avif/layered-fixture.ts'
 import {
   avifFullHeaderTileGroupsFixture,
   avifFullHeaderTileGroupsFixturePath,
   avifLossyMultitileFixture,
   avifLossyMultitileFixturePath,
 } from '../benchmark/avif/lossy-multitile-fixture.ts'
+import {
+  avifNonstillSequenceFixture,
+  avifNonstillSequenceFixturePath,
+} from '../benchmark/avif/nonstill-sequence-fixture.ts'
+import {
+  avifQ0FixtureDirectory,
+  avifQ0LosslessFixture,
+  avifQ0LossyFixture,
+} from '../benchmark/avif/q0-fixtures.ts'
+import {
+  avifBoundedAlphaRowFixture,
+  avifBoundedAlphaRowFixturePath,
+} from '../benchmark/avif/row-alpha-fixture.ts'
+import { avifBoundedRowFixture, avifBoundedRowFixturePath } from '../benchmark/avif/row-fixture.ts'
 import {
   avifBoundedSuperresFixture,
   avifBoundedSuperresFixturePath,
@@ -44,20 +61,11 @@ import {
   avifSuperresFixture,
   avifSuperresFixturePath,
 } from '../benchmark/avif/superres-fixture.ts'
-import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
-import { avifBoundedRowFixture, avifBoundedRowFixturePath } from '../benchmark/avif/row-fixture.ts'
 import {
-  avifBoundedAlphaRowFixture,
-  avifBoundedAlphaRowFixturePath,
-} from '../benchmark/avif/row-alpha-fixture.ts'
-import {
-  avifNonstillSequenceFixture,
-  avifNonstillSequenceFixturePath,
-} from '../benchmark/avif/nonstill-sequence-fixture.ts'
-import {
-  avifCommonPhotoSyntaxFixturePath,
-  avifCommonPhotoSyntaxFixtures,
-} from '../benchmark/avif/common-photo-syntax-fixtures.ts'
+  avifTiledLosslessFixture,
+  avifTiledLosslessFixturePath,
+  tiledLosslessSample,
+} from '../benchmark/avif/tiled-lossless-fixture.ts'
 import { av1ObuType } from '../src/codecs/av1.ts'
 import { parseAv1Frame, parseAv1FrameObus } from '../src/codecs/av1-frame.ts'
 import { decodeRestrictedAv1Intra } from '../src/codecs/av1-intra.ts'
@@ -660,6 +668,130 @@ describe('AVIF restricted pixel decode', () => {
     )
   })
 
+  it('decodes the pinned residual intra-block-copy fixture exactly', async () => {
+    const input = await readFile(join(avifCorpusDirectory, 'ms-monochrome-residual-intrabc.avif'))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('Residual IBC fixture has no color frame OBU')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+    const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
+    const nativeY = new Uint8Array(decoded.width * decoded.height)
+    for (let row = 0; row < decoded.height; row += 1) {
+      nativeY.set(
+        decoded.y.subarray(row * decoded.yStride, row * decoded.yStride + decoded.width),
+        row * decoded.width,
+      )
+    }
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(
+      'deeb37c2cf321d3ccacff085a6fed50cc774dd38d7ed271c15517ccd01bd7a4f',
+    )
+    expect(coded.sequence.monochrome).toBe(true)
+    expect(frame.header).toMatchObject({ allowIntrabc: true, baseQuantizer: 217 })
+    expect(createHash('sha256').update(nativeY).digest('hex')).toBe(
+      '2877cdd0e57286fe12f679ba5488e6c384b16cb02b13275fab65f24d003d9bd4',
+    )
+    expect([output.width, output.height]).toEqual([1280, 720])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      '6e036207ef682d41edad54421d20bb36ec7f03e34113e2f6fa4ab954779d71c0',
+    )
+  })
+
+  it('decodes the pinned intra-block-copy delta-Q fixture exactly', async () => {
+    const input = await readFile(join(avifCorpusDirectory, 'ibc-deltaq-512x128.avif'))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('IBC delta-Q fixture has no color frame OBU')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+    const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
+    const nativeYuv = new Uint8Array(
+      decoded.width * decoded.height + 2 * decoded.chromaWidth * decoded.chromaHeight,
+    )
+    let offset = 0
+    for (const [plane, stride, width, height] of [
+      [decoded.y, decoded.yStride, decoded.width, decoded.height],
+      [decoded.u, decoded.chromaStride, decoded.chromaWidth, decoded.chromaHeight],
+      [decoded.v, decoded.chromaStride, decoded.chromaWidth, decoded.chromaHeight],
+    ] as const) {
+      for (let row = 0; row < height; row += 1) {
+        nativeYuv.set(plane.subarray(row * stride, row * stride + width), offset)
+        offset += width
+      }
+    }
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(
+      'bef07c9ff64c26c45585afc8dd38a1cb982528cc70ffc6dbfb9891e6b2f8f9b6',
+    )
+    expect(frame.header).toMatchObject({
+      allowIntrabc: true,
+      baseQuantizer: 120,
+      deltaQPresent: true,
+      deltaQResolution: 2,
+    })
+    expect(() =>
+      decodeRestrictedAv1Intra(coded.sequence, {
+        ...frame,
+        header: { ...frame.header, segmentationEnabled: true },
+      }),
+    ).toThrow('does not support AV1 segmentation maps')
+    expect(() =>
+      decodeRestrictedAv1Intra(coded.sequence, {
+        ...frame,
+        header: { ...frame.header, deltaLfPresent: true },
+      }),
+    ).toThrow('does not support AV1 loop-filter deltas')
+    expect(createHash('sha256').update(nativeYuv).digest('hex')).toBe(
+      'f9f741e25afb9a67529b6dbdaba6d84d6d2b9c9303434ea4ff07e219c752e4af',
+    )
+    expect([output.width, output.height]).toEqual([512, 128])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      '875c709bfc54e90fc6fbadfba907da524185b6d26491857555611904a6829e40',
+    )
+  })
+
+  it('rejects malformed intra-block-copy source vectors', async () => {
+    const input = await readFile(join(avifCorpusDirectory, 'ms-monochrome-residual-intrabc.avif'))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('Residual IBC fixture has no color frame OBU')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+    const tile = frame.tiles[0]
+    if (!tile) throw new Error('Residual IBC fixture has no tile')
+
+    for (const mutation of [
+      {
+        bit: 6,
+        byte: 431,
+        message: 'AV1 intra-block-copy motion vector escapes its plane',
+      },
+      {
+        bit: 0,
+        byte: 0,
+        message: 'AV1 intra-block-copy motion vector overlaps its superblock',
+      },
+    ] as const) {
+      const data = tile.data.slice()
+      data[mutation.byte] = (data[mutation.byte] ?? 0) ^ (1 << mutation.bit)
+      let failure: unknown
+      try {
+        decodeRestrictedAv1Intra(coded.sequence, {
+          ...frame,
+          tiles: [{ ...tile, data }],
+        })
+      } catch (error) {
+        failure = error
+      }
+      expect(failure).toMatchObject({ code: 'INVALID_INPUT' })
+      if (!(failure instanceof Error)) throw new Error('Malformed IBC mutation was not rejected')
+      expect(failure.message).toBe(mutation.message)
+    }
+  })
+
   it.each(avifHighBitLosslessFixtures)(
     'decodes the pinned coded-lossless $bitDepth-bit identity-color fixture',
     async (fixture) => {
@@ -734,12 +866,16 @@ describe('AVIF restricted pixel decode', () => {
         fullRange: true,
       })
       expect(frame.header.codedLossless).toBe(fixture.codedLossless)
-      if (!fixture.codedLossless) {
+      if (!fixture.codedLossless && !fixture.postFilters) {
         expect(frame.header).toMatchObject({
           loopFilterLevels: [0, 0, 0, 0],
           restorationTypes: [0, 0, 0],
         })
         expect(frame.header.cdefYPrimaryStrengths.every((strength) => strength === 0)).toBe(true)
+      } else if (fixture.postFilters) {
+        expect(frame.header.loopFilterLevels).toEqual([20, 20, 42, 39])
+        expect(Array.from(frame.header.cdefYPrimaryStrengths)).toEqual([8])
+        expect(frame.header.restorationTypes).toEqual([1, 1, 1])
       }
       const nativeYuv = Buffer.alloc(
         (decoded.width * decoded.height + 2 * decoded.chromaWidth * decoded.chromaHeight) * 2,
@@ -1227,6 +1363,165 @@ describe('AVIF restricted pixel decode', () => {
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
   })
 
+  it.each(avifExpandedAlphaFixtures)(
+    'decodes $alphaBitDepth-bit $alphaFullRange alpha from $file',
+    async (fixture) => {
+      const input = await readFile(join(avifAuxiliaryFixtureDirectory, fixture.file))
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+      const alpha = inspection.codedImages.find((image) => image.role === 'alpha')
+      const image = await Image.open(input)
+      const metadata = await image.metadata()
+      const output = PNG.sync.read(await image.png().toBuffer())
+
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+      expect(alpha?.sequence).toMatchObject({
+        bitDepth: fixture.alphaBitDepth,
+        fullRange: fixture.alphaFullRange,
+        monochrome: true,
+      })
+      expect(metadata.hasAlpha).toBe(true)
+      expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+      if (fixture.decodedAlphaSha256) {
+        const alphaSamples = new Uint8Array(output.width * output.height)
+        for (let index = 0, offset = 3; index < alphaSamples.length; index += 1, offset += 4) {
+          alphaSamples[index] = output.data[offset] ?? 0
+        }
+        expect(createHash('sha256').update(alphaSamples).digest('hex')).toBe(
+          fixture.decodedAlphaSha256,
+        )
+      }
+    },
+  )
+
+  it('composes a color grid whose AV1 tiles have matching alpha auxiliaries', async () => {
+    const input = await readFile(join(avifAuxiliaryFixtureDirectory, avifAlphaGridFixture.file))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const image = await Image.open(input)
+    const metadata = await image.metadata()
+    const output = PNG.sync.read(await image.png().toBuffer())
+    const alphaSamples = new Uint8Array(output.width * output.height)
+    for (let index = 0, offset = 3; index < alphaSamples.length; index += 1, offset += 4) {
+      alphaSamples[index] = output.data[offset] ?? 0
+    }
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(avifAlphaGridFixture.fileSha256)
+    expect(inspection.primaryItemType).toBe('grid')
+    expect(inspection.alphaAssociations).toHaveLength(inspection.colorItemIds.length)
+    expect(metadata.hasAlpha).toBe(true)
+    expect([output.width, output.height]).toEqual([
+      avifAlphaGridFixture.width,
+      avifAlphaGridFixture.height,
+    ])
+    expect(createHash('sha256').update(alphaSamples).digest('hex')).toBe(
+      avifAlphaGridFixture.decodedAlphaSha256,
+    )
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      avifAlphaGridFixture.decodedRgbaSha256,
+    )
+  })
+
+  it.each(avifAlphaTransformFixtures)(
+    'applies the primary transform after composing $file alpha',
+    async (fixture) => {
+      const input = await readFile(join(avifAuxiliaryFixtureDirectory, fixture.file))
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+      const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+      expect(inspection.alphaAssociations).toHaveLength(1)
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+        avifAlphaTransformDecodedRgbaSha256,
+      )
+    },
+  )
+
+  it.each(avifAuxiliaryRoleFixtures)(
+    'keeps gain-map, depth, and thumbnail items outside color and alpha roles in $file',
+    async (fixture) => {
+      const input = await readFile(join(avifAuxiliaryFixtureDirectory, fixture.file))
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+      expect(inspection.codedImages.filter((image) => image.role === 'color')).toHaveLength(
+        fixture.colorItems,
+      )
+      expect(inspection.codedImages.filter((image) => image.role === 'alpha')).toHaveLength(
+        fixture.alphaItems,
+      )
+    },
+  )
+
+  it('rejects incomplete alpha coverage across a color grid', async () => {
+    const input = Buffer.from(
+      await readFile(join(avifAuxiliaryFixtureDirectory, avifAlphaGridFixture.file)),
+    )
+    const firstReference = input.indexOf('auxl')
+    const secondReference = input.indexOf('auxl', firstReference + 4)
+    expect(firstReference).toBeGreaterThanOrEqual(0)
+    expect(secondReference).toBeGreaterThan(firstReference)
+    input.write('free', secondReference, 'ascii')
+
+    await expect(inspectAvifBitstreams(new MemorySource(input))).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'AVIF grid has incomplete alpha auxiliary coverage',
+    })
+  })
+
+  it('selects a complete spatial layer from a multi-frame AVIF item', async () => {
+    const input = await readFile(avifLayeredFixturePath)
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(avifLayeredFixture.fileSha256)
+    expect(coded).toMatchObject({
+      layerSelector: avifLayeredFixture.selectedSpatialId,
+      layerSizes: avifLayeredFixture.layerSizes,
+    })
+    expect(
+      coded?.obus.filter((obu) => obu.type === av1ObuType.frame).map((obu) => obu.spatialId),
+    ).toEqual(avifLayeredFixture.spatialIds)
+    expect([output.width, output.height]).toEqual([
+      avifLayeredFixture.width,
+      avifLayeredFixture.height,
+    ])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      avifLayeredFixture.decodedRgbaSha256,
+    )
+  })
+
+  it('rejects a layered AVIF whose selected output layer is absent', async () => {
+    const input = Buffer.from(await readFile(avifLayeredFixturePath))
+    const selector = input.indexOf('lsel')
+    expect(selector).toBeGreaterThanOrEqual(0)
+    input.writeUInt16BE(3, selector + 4)
+
+    await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'AVIF item 1 has no output frame for selected spatial layer 3',
+    })
+  })
+
+  it('rejects malformed layered indexing sizes and frame boundaries', async () => {
+    const overflow = Buffer.from(await readFile(avifLayeredFixturePath))
+    const indexing = overflow.indexOf('a1lx')
+    expect(indexing).toBeGreaterThanOrEqual(0)
+    overflow.writeUInt16BE(0xffff, indexing + 5)
+    await expect(inspectAvifBitstreams(new MemorySource(overflow))).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'AVIF item 1 a1lx layer sizes exceed its payload',
+    })
+
+    const misaligned = Buffer.from(await readFile(avifLayeredFixturePath))
+    misaligned.writeUInt16BE((avifLayeredFixture.layerSizes[0] ?? 0) + 1, indexing + 5)
+    misaligned.writeUInt16BE((avifLayeredFixture.layerSizes[1] ?? 0) - 1, indexing + 7)
+    await expect((await Image.open(misaligned)).png().toBuffer()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'AVIF item 1 a1lx range does not contain one complete frame',
+    })
+  })
+
   it('decodes and composes a cropped-edge 1x5 AVIF image grid', async () => {
     const input = await readFile(join(avifCorpusDirectory, 'sofa_grid1x5_420.avif'))
     const inspection = await inspectAvifBitstreams(new MemorySource(input))
@@ -1257,6 +1552,26 @@ describe('AVIF restricted pixel decode', () => {
       code: 'INVALID_INPUT',
     })
   })
+
+  it.each([
+    ['PQ', 'unsupported-hdr-pq-10bpc-yuv420-32x24.avif', 16],
+    ['HLG', 'unsupported-hdr-hlg-10bpc-yuv420-32x24.avif', 18],
+  ] as const)(
+    'rejects %s HDR transfer signaling instead of applying SDR conversion',
+    async (_name, file, transferCharacteristics) => {
+      const input = await readFile(join(avifCorpusDirectory, file))
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+      const color = inspection.codedImages.find((image) => image.role === 'color')
+      const image = await Image.open(input)
+
+      expect(color?.sequence.transferCharacteristics).toBe(transferCharacteristics)
+      expect((await image.metadata()).bitDepth).toBe(10)
+      await expect(image.png().toBuffer()).rejects.toMatchObject({
+        code: 'UNSUPPORTED_OPERATION',
+        message: 'HDR AVIF transfer characteristics are not supported by SDR decode',
+      })
+    },
+  )
 
   it('rejects a sequence-only AVIF instead of fabricating pixels', async () => {
     await expect((await Image.open(avifBitstreamFixture())).png().toBuffer()).rejects.toMatchObject(

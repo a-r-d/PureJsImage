@@ -12,7 +12,10 @@ const cosineTable = Int16Array.from({ length: 256 }, (_, angle) =>
 const cosine = (angle: number): number => cosineTable[angle & 255] ?? 0
 const sine = (angle: number): number => cosine(angle - 64)
 
-const clampTransform = (value: number): number => Math.max(-32768, Math.min(32767, value))
+let transformClampMinimum = -32768
+let transformClampMaximum = 32767
+const clampTransform = (value: number): number =>
+  Math.max(transformClampMinimum, Math.min(transformClampMaximum, value))
 
 const butterfly = (
   values: Int32Array,
@@ -474,16 +477,25 @@ export const inverseTransform = (
         : Math.min(width, height) >= 8
           ? 1
           : 0
+  const rowClampMinimum = bitDepth === 8 ? -32768 : -(2 ** (bitDepth + 7))
+  const rowClampMaximum = -rowClampMinimum - 1
+  const columnClampMinimum = bitDepth === 8 ? -32768 : -(2 ** (bitDepth + 5))
+  const columnClampMaximum = -columnClampMinimum - 1
+  transformClampMinimum = rowClampMinimum
+  transformClampMaximum = rowClampMaximum
   for (let row = 0; row < height; row += 1) {
     const input = dequantized.subarray(row * width, row * width + width)
     const transformed =
       rowUsesDct || rowUsesAdst ? oneDimensional(input, rowUsesAdst) : inverseIdentity(input)
     for (let column = 0; column < width; column += 1) {
-      intermediate[row * width + column] = clampTransform(
-        roundedShift(transformed[column] ?? 0, rowShift),
+      intermediate[row * width + column] = Math.max(
+        columnClampMinimum,
+        Math.min(columnClampMaximum, roundedShift(transformed[column] ?? 0, rowShift)),
       )
     }
   }
+  transformClampMinimum = columnClampMinimum
+  transformClampMaximum = columnClampMaximum
   const residual = new Int32Array(width * height)
   const columnInput = new Int32Array(height)
   for (let column = 0; column < width; column += 1) {

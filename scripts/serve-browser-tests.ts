@@ -1,13 +1,13 @@
-import { createServer } from 'node:http'
 import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { createServer } from 'node:http'
 import { extname, relative, resolve } from 'node:path'
 import { build } from 'esbuild'
 import { GifWriter } from 'omggif'
 import { PNG } from 'pngjs'
-import { createImageLibrary } from '../src/index.ts'
+import { main10PqFixture } from '../benchmark/heif/compatibility/generated-fixtures.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
-import { main10PqFixture } from '../benchmark/heif/compatibility/generated-fixtures.ts'
+import { createImageLibrary } from '../src/index.ts'
 
 const outputDirectory = resolve('benchmark/.tmp/browser-tests')
 const fixtureDirectory = resolve(outputDirectory, 'fixtures')
@@ -336,12 +336,68 @@ await copyFile(
   resolve(fixtureDirectory, 'coded-lossless-10bpc-yuv420-32x24.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-10bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-10bpc-yuv420-32x24.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/coded-lossless-12bpc-yuv420-32x24.avif',
   resolve(fixtureDirectory, 'coded-lossless-12bpc-yuv420-32x24.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/unsupported-hdr-pq-10bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'unsupported-hdr-pq-10bpc-yuv420-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/unsupported-hdr-hlg-10bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'unsupported-hdr-hlg-10bpc-yuv420-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-12bpc-yuv420-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-12bpc-yuv420-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-10bpc-yuv422-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-10bpc-yuv422-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-12bpc-yuv422-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-12bpc-yuv422-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filter-free-lossy-12bpc-yuv444-32x24.avif',
+  resolve(fixtureDirectory, 'filter-free-lossy-12bpc-yuv444-32x24.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/filter-free-lossy-10bpc-yuv444-32x24.avif',
   resolve(fixtureDirectory, 'filter-free-lossy-10bpc-yuv444-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/filtered-lossy-10bpc-yuv444-96x64.avif',
+  resolve(fixtureDirectory, 'filtered-lossy-10bpc-yuv444-96x64.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/xiph-alpha-limited-8bpc-2048x2048.avif',
+  resolve(fixtureDirectory, 'xiph-alpha-limited-8bpc-2048x2048.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/alpha-full-10bpc-64x48.avif',
+  resolve(fixtureDirectory, 'alpha-full-10bpc-64x48.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/alpha-full-12bpc-64x48.avif',
+  resolve(fixtureDirectory, 'alpha-full-12bpc-64x48.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-color-grid-alpha-items-80x80.avif',
+  resolve(fixtureDirectory, 'libavif-color-grid-alpha-items-80x80.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-color-irot-alpha-noirot-512x256.avif',
+  resolve(fixtureDirectory, 'libavif-color-irot-alpha-noirot-512x256.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/xiph-tiger-3layer-lsel0-1216x832.avif',
+  resolve(fixtureDirectory, 'xiph-tiger-3layer-lsel0-1216x832.avif'),
 )
 await copyFile(
   'benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif',
@@ -386,6 +442,10 @@ await copyFile(
 await copyFile(
   'benchmark/corpus/files/avif/blue-and-magenta-crop.avif',
   resolve(fixtureDirectory, 'blue-and-magenta-crop.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/ms-monochrome-residual-intrabc.avif',
+  resolve(fixtureDirectory, 'ms-monochrome-residual-intrabc.avif'),
 )
 await copyFile(
   'benchmark/corpus/files/avif/clean-aperture-lossless-16x12.avif',

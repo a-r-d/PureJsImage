@@ -1,16 +1,16 @@
-import { createImageLibrary, ImageError } from '../src/browser.ts'
 import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
 import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
 import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
+import { createImageLibrary, ImageError } from '../src/browser.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
 import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
 import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
-import type { ImageInput } from '../src/source.ts'
 import type { ImageSink } from '../src/sink.ts'
+import type { ImageInput } from '../src/source.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
 
 const images = createImageLibrary([
@@ -606,6 +606,14 @@ const avifIntrabc = (): Promise<BrowserWorkflowResult> =>
     'dfd67e0ae631102f05399763ccae1f0b0e639c38b38f21d000927741c089cc00',
     'Clean-aperture cropped skipped intra-block-copy AVIF',
   )
+const avifResidualIntrabc = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'ms-monochrome-residual-intrabc.avif',
+    1280,
+    720,
+    '6e036207ef682d41edad54421d20bb36ec7f03e34113e2f6fa4ab954779d71c0',
+    'Residual intra-block-copy AVIF',
+  )
 
 const avifCleanAperture = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
@@ -653,11 +661,46 @@ const avifExpandedHighBit = async (): Promise<BrowserWorkflowResult> => {
       'Coded-lossless 10-bit YUV 4:2:0 AVIF',
     ),
     avifPinnedPng(
+      'filter-free-lossy-10bpc-yuv420-32x24.avif',
+      32,
+      24,
+      '49fa5a03211fed7d1d0a1f7d47fd1cf3f017b2931423ed9e63597d611035087e',
+      'Filter-free lossy 10-bit YUV 4:2:0 AVIF',
+    ),
+    avifPinnedPng(
       'coded-lossless-12bpc-yuv420-32x24.avif',
       32,
       24,
       'dcbcade0a186058362a48c34b1401d8059ac793d4cd8072eb91ff9d3d8423fba',
       'Coded-lossless 12-bit YUV 4:2:0 AVIF',
+    ),
+    avifPinnedPng(
+      'filter-free-lossy-12bpc-yuv420-32x24.avif',
+      32,
+      24,
+      '07682df7721f5e784519a6a2195f224c61fc256f9aa4f23dcf9068da115fb368',
+      'Filter-free lossy 12-bit YUV 4:2:0 AVIF',
+    ),
+    avifPinnedPng(
+      'filter-free-lossy-10bpc-yuv422-32x24.avif',
+      32,
+      24,
+      'b2925f663a008378105940675c9fe1f250c25f7e07d2455ef6c3dd80d6459294',
+      'Filter-free lossy 10-bit YUV 4:2:2 AVIF',
+    ),
+    avifPinnedPng(
+      'filter-free-lossy-12bpc-yuv422-32x24.avif',
+      32,
+      24,
+      '6ca5d5de7728ec1be99c4fe5bfa9a9e7458ad15f27c6d8fc4c5fcb21eb6e0baf',
+      'Filter-free lossy 12-bit YUV 4:2:2 AVIF',
+    ),
+    avifPinnedPng(
+      'filter-free-lossy-12bpc-yuv444-32x24.avif',
+      32,
+      24,
+      '7b137477c628a55948b560e2af5a95c53803a8eafaccf42c64509e57251efafc',
+      'Filter-free lossy 12-bit YUV 4:4:4 AVIF',
     ),
     avifPinnedPng(
       'filter-free-lossy-10bpc-yuv444-32x24.avif',
@@ -666,10 +709,91 @@ const avifExpandedHighBit = async (): Promise<BrowserWorkflowResult> => {
       '432698d3b277e8f80d0c3e1d518bd432a64aed3ff6b1ee78dbf658863fc0a818',
       'Filter-free lossy 10-bit YUV 4:4:4 AVIF',
     ),
+    avifPinnedPng(
+      'filtered-lossy-10bpc-yuv444-96x64.avif',
+      96,
+      64,
+      'e9e2f8be7c4a179341c0ac312482e5a5d96b209698df253d73fcc642d65e8096',
+      'Lossy 10-bit YUV 4:4:4 AVIF with deblocking, CDEF, and Wiener restoration',
+    ),
   ])
   return {
     detail: results.map((result) => result.detail).join('; '),
     outputBytes: results.reduce((total, result) => total + result.outputBytes, 0),
+  }
+}
+const avifExpandedAlpha = async (): Promise<BrowserWorkflowResult> => {
+  const results = await Promise.all([
+    avifPinnedPng(
+      'xiph-alpha-limited-8bpc-2048x2048.avif',
+      2048,
+      2048,
+      '6d0b3dd392d23bbd23a119bc95e2bc4b8dca3ddbdc3c743ebcb7e7e5bb8212ca',
+      'Limited-range 8-bit alpha AVIF',
+    ),
+    avifPinnedPng(
+      'alpha-full-10bpc-64x48.avif',
+      64,
+      48,
+      'a0794774660f6c7ae19571393b29496a9bc91e22bb7a0ab23b4db6e6ef8a1ec0',
+      'Full-range 10-bit alpha AVIF',
+    ),
+    avifPinnedPng(
+      'alpha-full-12bpc-64x48.avif',
+      64,
+      48,
+      'a0794774660f6c7ae19571393b29496a9bc91e22bb7a0ab23b4db6e6ef8a1ec0',
+      'Full-range 12-bit alpha AVIF',
+    ),
+    avifPinnedPng(
+      'libavif-color-grid-alpha-items-80x80.avif',
+      80,
+      80,
+      '785846bd9e721b8d31c8e1faf66cdbd6289369701d9a84cbd96039f3bdcf671d',
+      'Color grid with per-tile alpha auxiliaries',
+    ),
+    avifPinnedPng(
+      'libavif-color-irot-alpha-noirot-512x256.avif',
+      512,
+      256,
+      'e0995edecd5f3d913aa5f1efcd23ef65de196c03dabf44d813857a1dc14eb0d1',
+      'Primary irot with independently signaled alpha transform',
+    ),
+  ])
+  return {
+    detail: results.map((result) => result.detail).join('; '),
+    outputBytes: results.reduce((total, result) => total + result.outputBytes, 0),
+  }
+}
+const avifHdrRejected = async (): Promise<BrowserWorkflowResult> => {
+  let inputBytes = 0
+  for (const file of [
+    'unsupported-hdr-pq-10bpc-yuv420-32x24.avif',
+    'unsupported-hdr-hlg-10bpc-yuv420-32x24.avif',
+  ]) {
+    const bytes = await fetchBytes(`/fixtures/${file}`)
+    inputBytes += bytes.byteLength
+    const image = await images.open(bytes)
+    const metadata = await image.metadata()
+    if (metadata.format !== 'avif' || metadata.bitDepth !== 10) {
+      throw new Error(`${file} metadata inspection failed`)
+    }
+    try {
+      await image.png().toUint8Array()
+      throw new Error(`${file} HDR pixel decode unexpectedly succeeded`)
+    } catch (error: unknown) {
+      if (
+        !(error instanceof ImageError) ||
+        error.code !== 'UNSUPPORTED_OPERATION' ||
+        error.message !== 'HDR AVIF transfer characteristics are not supported by SDR decode'
+      ) {
+        throw error
+      }
+    }
+  }
+  return {
+    detail: 'PQ and HLG AVIF metadata remained inspectable and SDR pixel decode rejected both',
+    outputBytes: inputBytes,
   }
 }
 
@@ -702,6 +826,14 @@ const avifNonstillSequence = (): Promise<BrowserWorkflowResult> =>
     1080,
     '99f28f0e2fdc30dab25ad903ce043e7af30b7097d1f3402e692b3f8629bff6c1',
     'Non-still AV1 sequence header with one shown key frame',
+  )
+const avifLayeredSelection = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'xiph-tiger-3layer-lsel0-1216x832.avif',
+    1216,
+    832,
+    'd04f5c88fa8e105b354967755d1261ade0e214f85bb8707b97fcd0568098b68e',
+    'Three-frame AVIF item with lsel spatial layer 0',
   )
 const avifCommonPhotoSyntax = async (): Promise<BrowserWorkflowResult> => {
   const results = await Promise.all([
@@ -969,11 +1101,15 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifHighBit12,
   avifHighBitTiles,
   avifExpandedHighBit,
+  avifExpandedAlpha,
+  avifHdrRejected,
   avifFilteredSuperres,
   avifLossyMultitile,
   avifNonstillSequence,
+  avifLayeredSelection,
   avifSuperres,
   avifIntrabc,
+  avifResidualIntrabc,
   avifQuantizationMatrix,
   avifQ0Lossless,
   avifPalette,

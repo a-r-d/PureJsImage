@@ -58,11 +58,30 @@ All notable changes to PureJsImage are documented in this file.
   native high-depth prediction and coefficient reconstruction before explicit
   conversion to the 8-bit RGBA contract; pinned fixtures reconstruct source
   planes exactly and differ from Sharp/libavif displayed RGB by at most one.
+- Added compatible lossy 10-bit YUV 4:4:4 AVIF decode with native high-depth
+  deblocking, CDEF, and Wiener restoration. High-depth CDEF now adjusts its
+  scaled primary strength before filtering, and Wiener convolution preserves
+  the center sample through its biased intermediate. The pinned full-filter
+  fixture matches agreeing dav1d and libaom native YUV byte for byte in Node.js
+  and Chromium.
+- Expanded filter-free lossy high-depth AVIF decode across 10-bit and 12-bit YUV
+  4:2:0, 4:2:2, and 4:4:4 while retaining native `Uint16Array` samples through
+  reconstruction. Six checksum-pinned fixtures match agreeing dav1d and libaom
+  native YUV byte for byte and pin portable RGBA output in Node.js and Chromium.
+  PQ and HLG transfer signaling now remains inspectable as metadata but fails
+  explicitly before the SDR pixel-conversion path.
+- Added `a1lx`, `a1op`, and `lsel` AVIF property parsing and complete frame-unit
+  selection for multi-frame items. A pinned three-frame fixture explicitly selects
+  an independently decodable shown-key spatial layer and matches agreeing dav1d and
+  libaom native YUV byte for byte in Node.js and Chromium. Dependent enhancement
+  layers, frame-dimension overrides, and rendering every intermediate layer remain
+  explicitly unsupported; `lsel=0xFFFF` selects the highest eligible output layer.
 - Added complete coded-lossless multi-tile AV1 frame reconstruction with
   independent entropy, context, partition, and prediction boundaries. The
   checksum-pinned 10-bit 2x2 YUV 4:4:4 fixture matches its source and agreeing
-  dav1d/libaom native YUV byte for byte; lossy, intra-block-copy, and
-  multi-OBU tile-group paths remain explicitly unsupported.
+  dav1d/libaom native YUV byte for byte; compatible lossy multi-tile frames and
+  contiguous multi-OBU tile groups are also supported, while multi-tile
+  intra-block-copy remains explicitly unsupported.
 - Added normative eight-tap AV1 super-resolution for one-tile 8-bit AVIF
   frames, including CDEF-before-upscale and loop-restoration-after-upscale
   ordering. The filter-free denominator-12 YUV 4:2:0 and YUV 4:4:4 fixtures
@@ -76,6 +95,16 @@ All notable changes to PureJsImage are documented in this file.
   screen content, including adaptive integer motion vectors and allocation-free
   in-place plane copies; the pinned 320x280 fixture matches agreeing libaom and
   dav1d native YUV exactly.
+- Added residual intra-block-copy reconstruction for compatible one-tile AVIF
+  frames, including transform partitions, inter transform contexts and types,
+  coefficients, inverse transforms, and adaptive top-right motion references.
+  The pinned 1280x720 monochrome fixture matches agreeing libaom and dav1d
+  native YUV byte for byte, and checksum-pinned entropy mutations verify that
+  superblock-overlapping and plane-escaping motion vectors fail explicitly.
+- Added block delta-Q integration coverage for skipped intra-block copy. The
+  pinned 512x128 YUV 4:4:4 fixture matches agreeing libaom and dav1d native YUV
+  byte for byte; segmentation maps and delta loop-filter combinations remain
+  explicitly unsupported.
 - Added validated AVIF clean-aperture cropping for integer `clap` rectangles
   without allocating a second full-frame buffer; malformed, out-of-bounds, and
   fractional apertures fail explicitly, and the pinned fixture matches

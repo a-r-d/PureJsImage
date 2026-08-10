@@ -18,8 +18,12 @@ export interface BrowserCompatibilityHarness {
   avifHighBit12(): Promise<BrowserWorkflowResult>
   avifHighBitTiles(): Promise<BrowserWorkflowResult>
   avifExpandedHighBit(): Promise<BrowserWorkflowResult>
+  avifExpandedAlpha(): Promise<BrowserWorkflowResult>
+  avifHdrRejected(): Promise<BrowserWorkflowResult>
   avifLossyMultitile(): Promise<BrowserWorkflowResult>
+  avifLayeredSelection(): Promise<BrowserWorkflowResult>
   avifIntrabc(): Promise<BrowserWorkflowResult>
+  avifResidualIntrabc(): Promise<BrowserWorkflowResult>
   avifMonochrome(): Promise<BrowserWorkflowResult>
   avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
   avifNonstillSequence(): Promise<BrowserWorkflowResult>

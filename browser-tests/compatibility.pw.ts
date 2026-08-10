@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
 
 const harness = async (page: Page): Promise<void> => {
   await page.goto('/')
@@ -133,6 +133,29 @@ test('decodes expanded high-bit AVIF subsets', async ({ page }) => {
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifExpandedHighBit())
   expect(result.outputBytes).toBeGreaterThan(300)
   expect(result.detail).toContain('pinned portable RGBA output')
+  expect(result.detail).toContain('Wiener restoration')
+  expect(result.detail).toContain('lossy 10-bit YUV 4:2:0')
+  expect(result.detail).toContain('lossy 12-bit YUV 4:2:0')
+  expect(result.detail).toContain('lossy 12-bit YUV 4:2:2')
+  expect(result.detail).toContain('lossy 12-bit YUV 4:4:4')
+})
+test('decodes expanded AVIF alpha and grid subsets', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifExpandedAlpha())
+  expect(result.outputBytes).toBeGreaterThan(300)
+  expect(result.detail).toContain('Limited-range 8-bit alpha')
+  expect(result.detail).toContain('Full-range 10-bit alpha')
+  expect(result.detail).toContain('Full-range 12-bit alpha')
+  expect(result.detail).toContain('per-tile alpha auxiliaries')
+  expect(result.detail).toContain('independently signaled alpha transform')
+})
+
+test('rejects HDR AVIF transfer signaling before SDR pixel conversion', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifHdrRejected())
+  expect(result.outputBytes).toBeGreaterThan(300)
+  expect(result.detail).toContain('PQ and HLG')
+  expect(result.detail).toContain('SDR pixel decode rejected both')
 })
 
 test('decodes coded-lossless 10-bit AVIF tiles', async ({ page }) => {
@@ -155,6 +178,14 @@ test('decodes a static AVIF with a non-still AV1 sequence header', async ({ page
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('pinned portable RGBA output')
 })
+test('selects a complete layer from a multi-frame AVIF item', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifLayeredSelection())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('lsel spatial layer 0')
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
 test('decodes common-photo AV1 coefficient and palette contexts', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifCommonPhotoSyntax())
@@ -207,6 +238,13 @@ test('applies an AVIF clean aperture', async ({ page }) => {
 test('decodes and crops skipped intra-block-copy AVIF content', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifIntrabc())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
+test('decodes residual intra-block-copy AVIF content', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifResidualIntrabc())
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('pinned portable RGBA output')
 })

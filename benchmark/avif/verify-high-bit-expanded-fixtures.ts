@@ -3,10 +3,9 @@ import { createHash } from 'node:crypto'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-
+import { av1ObuType } from '../../src/codecs/av1.ts'
 import { parseAv1Frame } from '../../src/codecs/av1-frame.ts'
 import { decodeRestrictedAv1Intra } from '../../src/codecs/av1-intra.ts'
-import { av1ObuType } from '../../src/codecs/av1.ts'
 import { inspectAvifBitstreams } from '../../src/codecs/avif.ts'
 import { MemorySource } from '../../src/source.ts'
 import {
@@ -20,6 +19,7 @@ const results: Array<{
   readonly chromaSubsampling: string
   readonly codedLossless: boolean
   readonly file: string
+  readonly postFilters: boolean
   readonly nativeYuvSha256: string
 }> = []
 const temporaryDirectory = await mkdtemp(join(tmpdir(), 'purejsimage-avif-high-bit-oracles-'))
@@ -33,14 +33,17 @@ try {
     const obu = coded?.obus.find((candidate) => candidate.type === av1ObuType.frame)
     if (!coded || !obu) throw new Error(`${fixture.file} has no color frame OBU`)
     const frame = parseAv1Frame(coded.sequence, obu.payload)
+    const hasDeblock = frame.header.loopFilterLevels.some((level) => level !== 0)
+    const hasCdef = frame.header.cdefYPrimaryStrengths.some((strength) => strength !== 0)
+    const hasRestoration = frame.header.restorationTypes.some((type) => type !== 0)
     if (
       coded.sequence.bitDepth !== fixture.bitDepth ||
       coded.sequence.chromaSubsampling !== fixture.chromaSubsampling ||
       frame.header.codedLossless !== fixture.codedLossless ||
       (!fixture.codedLossless &&
-        (frame.header.loopFilterLevels.some((level) => level !== 0) ||
-          frame.header.cdefYPrimaryStrengths.some((strength) => strength !== 0) ||
-          frame.header.restorationTypes.some((type) => type !== 0)))
+        (fixture.postFilters
+          ? !hasDeblock || !hasCdef || !hasRestoration
+          : hasDeblock || hasCdef || hasRestoration))
     ) {
       throw new Error(`${fixture.file} high-bit frame configuration changed`)
     }
@@ -86,6 +89,7 @@ try {
       chromaSubsampling: fixture.chromaSubsampling,
       codedLossless: fixture.codedLossless,
       file: fixture.file,
+      postFilters: fixture.postFilters,
       nativeYuvSha256: fixture.nativeYuvSha256,
     })
   }
