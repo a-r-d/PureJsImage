@@ -177,7 +177,7 @@
           <h2>Memory and safety</h2>
           <ul>
             <li>Display, native raster, GeoTIFF, OME plane, and whole-slide reads are bounded to selected strips or tiles.</li>
-            <li><code>HttpRangeSource</code> deduplicates bounded requests, enforces a byte-capped LRU cache, and rejects ETag or Last-Modified changes while reading remote COG-style TIFFs.</li>
+            <li><code>HttpRangeSource</code>, imported from <code>purejsimage/sources/http-range</code>, deduplicates bounded requests, enforces a byte-capped LRU cache, and rejects ETag or Last-Modified changes while reading remote COG-style TIFFs.</li>
             <li>IFD traversal and profile detection do not read unselected pixel segments.</li>
             <li>Tag payloads, IFD counts, offsets, dimensions, segment geometry, decompression output, predictors, and nested graph traversal are validated before allocation or indexing.</li>
             <li>LERC, Zstandard, FillOrder normalization, palette lookup, color conversion, predictors, SGILog scratch, and output blocks stay bounded to the current metadata table or segment.</li>

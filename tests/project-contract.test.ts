@@ -8,12 +8,21 @@ import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
 import { jpegCompatibilityFixtureIds } from '../benchmark/jpeg/corpus.ts'
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
 import packageJson from '../package.json' with { type: 'json' }
-import { commonCompetitorCodecs, competitorBundleTargets } from '../scripts/bundle-size-config.ts'
+import {
+  commonCompetitorCodecs,
+  competitorBundleTargets,
+  pureJsImageEntryTargets,
+} from '../scripts/bundle-size-config.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
 import {
   experimentalHeicCodec,
   experimentalHeifCodec,
 } from '../src/codec-entries/experimental/heic.ts'
+import * as browserPublicApi from '../src/browser.ts'
+import * as pathologyApi from '../src/pathology/index.ts'
+import * as scientificApi from '../src/scientific/index.ts'
+import * as httpRangeApi from '../src/sources/http-range.ts'
+import * as tiffApi from '../src/tiff/index.ts'
 import * as publicApi from '../src/index.ts'
 import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
 
@@ -32,6 +41,9 @@ describe('package contract', () => {
   it('keeps bundle and deployment size reporting in the full check gate', () => {
     expect(packageJson.scripts.check).toContain('npm run size')
     expect(packageJson.scripts.size).toContain('npm run build')
+    expect(pureJsImageEntryTargets.find(({ id }) => id === 'core')?.maxMinifiedBytes).toBe(
+      53 * 1024,
+    )
   })
 
   it('checks packed declarations without Node ambient types', () => {
@@ -280,6 +292,7 @@ describe('package contract', () => {
       './tiff',
       './scientific',
       './pathology',
+      './sources/http-range',
       './compression/zstd',
       './accelerators/wasm/jpeg',
       './accelerators/wasm/png',
@@ -313,6 +326,26 @@ describe('package contract', () => {
     ]) {
       expect(name in publicApi).toBe(false)
     }
+    for (const name of [
+      'aperioSvsProfile',
+      'geoTiffProfile',
+      'HttpRangeSource',
+      'isAperioSvs',
+      'isOmeTiff',
+      'omeTiffProfile',
+      'openAperioSvs',
+      'openOmeTiff',
+      'rasterSampleBytes',
+      'rasterToPixels',
+    ]) {
+      expect(name in publicApi).toBe(false)
+      expect(name in browserPublicApi).toBe(false)
+    }
+    expect(typeof pathologyApi.openAperioSvs).toBe('function')
+    expect(typeof scientificApi.openOmeTiff).toBe('function')
+    expect(typeof scientificApi.rasterToPixels).toBe('function')
+    expect(typeof httpRangeApi.HttpRangeSource.open).toBe('function')
+    expect(tiffApi.geoTiffProfile.id).toBe('geotiff')
   })
 
   it('keeps experimental HEIC out of the default codec set', () => {

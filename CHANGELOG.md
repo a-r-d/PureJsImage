@@ -88,6 +88,13 @@ All notable changes to PureJsImage are documented in this file.
   image-js, and Jimp against independent sharp/ImageMagick RGBA output with isolated memory,
   timeout, crash, exact-pixel, and error reporting.
 
+### Changed
+
+- Moved OME-TIFF and raster helpers, Aperio SVS, and GeoTIFF profiles out of the root and browser
+  entries into `purejsimage/scientific`, `purejsimage/pathology`, and `purejsimage/tiff`; moved
+  `HttpRangeSource` into `purejsimage/sources/http-range` so the core bundle does not retain
+  specialized TIFF workflows or the optional HTTP adapter.
+
 ## [0.8.0] - 2026-08-09
 
 ### Added

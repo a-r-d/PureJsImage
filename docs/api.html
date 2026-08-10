@@ -313,6 +313,7 @@
             <article class="api-item" data-search-item><h3>MemorySource</h3><p>Zero-copy reads over an ArrayBuffer or Uint8Array.</p></article>
             <article class="api-item" data-search-item><h3>BlobSource</h3><p>Range reads through <code>Blob.slice()</code>.</p></article>
             <article class="api-item" data-search-item><h3>FileSource</h3><p>Node-only. Use <code>await FileSource.open(path)</code> to build a file-backed source explicitly.</p></article>
+            <article class="api-item" data-search-item><h3>HttpRangeSource</h3><p>Optional bounded HTTP range reads with request and byte statistics. Import from <code>purejsimage/sources/http-range</code>.</p></article>
           </div>
           <p>For an in-range read, custom <code>read()</code> implementations must return exactly <code>min(length, size - offset)</code> bytes as a <code>Uint8Array</code>, or reject when the backing read fails. Returned bytes may be reused or invalidated when the next read begins. Short, oversized, detached, and rejected reads surface as <code>ImageError</code> results.</p>
         </section>

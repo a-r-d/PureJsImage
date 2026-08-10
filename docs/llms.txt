@@ -283,7 +283,7 @@ Available source adapters:
 - `MemorySource`: zero-copy reads over `ArrayBuffer` or `Uint8Array`.
 - `BlobSource`: browser range reads using `Blob.slice()`.
 - `FileSource`: Node-only; use `await FileSource.open(path)`.
-- `HttpRangeSource`: bounded HTTP range-backed reads with request and byte statistics.
+- `HttpRangeSource`: bounded HTTP range-backed reads with request and byte statistics; import it from `purejsimage/sources/http-range`.
 
 A custom source must return exactly the requested in-range byte count or reject. Short, oversized, detached, and rejected reads become structured `ImageError` results.
 

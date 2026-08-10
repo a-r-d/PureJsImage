@@ -14,6 +14,8 @@ export interface BundleTarget {
   readonly contents: string
   readonly id: string
   readonly name: string
+  /** Fails the size gate when the minified entry exceeds this byte count. */
+  readonly maxMinifiedBytes?: number
 }
 
 export interface CompetitorBundleTarget extends BundleTarget {
@@ -29,7 +31,12 @@ const exportsFrom = (entries: readonly string[]): string =>
 export const commonCompetitorCodecs = ['JPEG', 'PNG'] as const satisfies readonly BundleCodec[]
 
 export const pureJsImageEntryTargets: readonly BundleTarget[] = [
-  { id: 'core', name: 'Core API', contents: exportsFrom(['./src/index.ts']) },
+  {
+    id: 'core',
+    name: 'Core API',
+    contents: exportsFrom(['./src/index.ts']),
+    maxMinifiedBytes: 53 * 1024,
+  },
   {
     id: 'png',
     name: 'Core + PNG',

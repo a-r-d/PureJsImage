@@ -11,6 +11,13 @@ test('uses File, Blob, ArrayBuffer, Uint8Array, toBlob, and toUint8Array', async
   expect(results).toHaveLength(5)
   expect(results.every(({ outputBytes }) => outputBytes > 0)).toBe(true)
 })
+test('keeps optional TIFF workflows and HTTP sources behind explicit browser entries', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.optionalApiEntries())
+  expect(result.detail).toContain('entries are explicit')
+})
 test('uses Lanczos3 as the default resize kernel in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.resizeDefaultKernel())

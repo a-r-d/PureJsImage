@@ -1,7 +1,8 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { defaultImageLimits, ImageError, type ImageSource } from '../src/index.ts'
-import { createImageSource, HttpRangeSource, SourceReader } from '../src/source.ts'
+import { createImageSource, SourceReader } from '../src/source.ts'
+import { HttpRangeSource } from '../src/sources/http-range.ts'
 import { encodeTiffDocument, openTiffDocument } from '../src/codecs/tiff.ts'
 import { nodeRuntime } from '../src/node-runtime.ts'
 import type { PixelBlock } from '../src/pixel.ts'

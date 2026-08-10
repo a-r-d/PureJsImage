@@ -2,6 +2,7 @@ import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-
 import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
 import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
+import * as browserPublicApi from '../src/browser.ts'
 import { createImageLibrary, ImageError } from '../src/browser.ts'
 import { browserRuntime } from '../src/browser-runtime.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
@@ -15,15 +16,17 @@ import { webpCodec } from '../src/codec-entries/webp.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelBlock } from '../src/pixel.ts'
-import { rasterToPixels } from '../src/raster.ts'
-import { omeTiffProfile } from '../src/scientific/ome-tiff.ts'
+import { openAperioSvs } from '../src/pathology/index.ts'
+import { omeTiffProfile, openOmeTiff, rasterToPixels } from '../src/scientific/index.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
 import { MemorySource } from '../src/source.ts'
+import { HttpRangeSource } from '../src/sources/http-range.ts'
 import {
   createTiffProfileRegistry,
   encodeTiffDocument,
+  geoTiffProfile,
   openTiffDocument,
 } from '../src/tiff/index.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
@@ -62,6 +65,37 @@ const instantiateWasm = async (path: string): Promise<WebAssembly.Instance> => {
 
 const outputMetadata = async (bytes: Uint8Array) => (await images.open(bytes)).metadata()
 
+const optionalApiEntries = async (): Promise<BrowserWorkflowResult> => {
+  const specializedNames = [
+    'aperioSvsProfile',
+    'geoTiffProfile',
+    'HttpRangeSource',
+    'isAperioSvs',
+    'isOmeTiff',
+    'omeTiffProfile',
+    'openAperioSvs',
+    'openOmeTiff',
+    'rasterSampleBytes',
+    'rasterToPixels',
+  ] as const
+  const retained = specializedNames.filter((name) => name in browserPublicApi)
+  if (retained.length > 0) {
+    throw new Error(`Browser root retained optional exports: ${retained.join(', ')}`)
+  }
+  if (
+    typeof openAperioSvs !== 'function' ||
+    typeof openOmeTiff !== 'function' ||
+    typeof rasterToPixels !== 'function' ||
+    typeof HttpRangeSource.open !== 'function' ||
+    geoTiffProfile.id !== 'geotiff'
+  ) {
+    throw new Error('An explicit optional browser entry is unavailable')
+  }
+  return {
+    outputBytes: 0,
+    detail: 'optional scientific, pathology, TIFF, and HTTP entries are explicit',
+  }
+}
 const inputTypes = async (): Promise<readonly BrowserWorkflowResult[]> => {
   const bytes = await fetchBytes('/fixtures/benchmark-input.png')
   const inputs: readonly (readonly [string, ImageInput])[] = [
@@ -2460,6 +2494,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   failureCleanup,
   heifPqDisplay,
   inputTypes,
+  optionalApiEntries,
   legacyTiffAndBmp,
   jpegPipeline,
   unsupportedJpegBoundaries,
