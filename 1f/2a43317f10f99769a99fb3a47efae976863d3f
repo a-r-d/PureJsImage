@@ -1,0 +1,70 @@
+.gitignore
+  h_9f4a25732fa0c1 182-184
+CHANGELOG.md
+  h_9f4a25732fa0c1 61-74,88-90,93-98
+avif-codec-support.md
+  h_9f4a25732fa0c1 110-111,157-158,178-179,201-202,206-208,273-274,280-281,284-285,289-293,330-336,371-373
+benchmark/avif/memory-scaling-worker.ts
+  h_9f4a25732fa0c1 38-39,43,47-49,64-69,73-77,91-92,94-100
+benchmark/avif/prepare-superres-fixture.ts
+  h_9f4a25732fa0c1 1-88
+benchmark/avif/prepare-tiled-lossless-fixture.ts
+  h_9f4a25732fa0c1 1-68
+benchmark/avif/run-memory-scaling.ts
+  h_9f4a25732fa0c1 12,23-31,84-109,141-142,146-154,171,198,200-201
+benchmark/avif/superres-fixture.ts
+  h_9f4a25732fa0c1 1-64
+benchmark/avif/tiled-lossless-fixture.ts
+  h_9f4a25732fa0c1 1-25
+benchmark/avif/verify-superres-fixture.ts
+  h_9f4a25732fa0c1 1-128
+benchmark/avif/verify-tiled-lossless-fixture.ts
+  h_9f4a25732fa0c1 1-92
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 88-106
+benchmark/results/avif-bounded-row-output-2026-08-09.md
+  h_9f4a25732fa0c1 13-17,46-47,93-107,113,117-134,138,140-141,147-154
+benchmark/results/avif-memory-bounded-cdef-bands-2026-08-09.json
+  h_9f4a25732fa0c1 1-790
+benchmark/results/avif-memory-scaling-yuv-resize-2026-08-09.json
+  h_9f4a25732fa0c1 1-591
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 562-583,637-654,851,856-857
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 131-144,152-158
+browser-tests/types.ts
+  h_9f4a25732fa0c1 12,17,22
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1648-1650,1655,1661-1663,1668,1783-1784,1830-1831,1851-1852,1874-1875,1879-1881,1946-1947,1953-1954,1957-1958,1962-1966,2003-2009,2044-2046
+docs/capabilities.json
+  h_9f4a25732fa0c1 3148-3150,3154,3163,3169-3171,3433,3548-3549,3597,3625,3636-3637,3640-3641,3644-3645,3809,3821,3832-3833,3844-3845,3848-3849,3903-3914,3980-3983
+docs/codecs.html
+  h_9f4a25732fa0c1 40,60,79
+package.json
+  h_9f4a25732fa0c1 161-164
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 334-341
+src/codecs/av1-intra.ts
+  h_9f4a25732fa0c1 2,520-583,768,852,854-856,861-862,1041,1043-1047,1193-1194,1196-1197,1296-1301,1311-1316,1367,1371,1390,1394-1396,1691,1694,1964,1967-1969,2221-2223,2225-2227,2526-2533,2538-2549,2554-2557,2569-2570,2801-2804,2830,2833,2887-2898,2916-2925,3026-3027,3055,3078-3129,3149-3150,3158,3171,3177,3185-3189,3191-3196,3198-3232,3234,3238,3242-3246,3283-3336,3354,3365-3366,3381,3383-3396,3416,3418-3431,3434-3466,3498,3500,3503-3538,3548,3550,3552-3615
+src/codecs/av1-post-filter.ts
+  h_9f4a25732fa0c1 6-7,10,62-79,322,325,410-411,414-416,444,454-458,468-522,525-548,564,576-577,592-593,611-614,616-670,687,691,1060-1061,1069
+src/codecs/avif.ts
+  h_9f4a25732fa0c1 20,49-55,725-743,825,852,864-874,884-892,894-896,899,907-912,914,978,982-984,986,988,1002-1022,1032,1050-1060,1073-1081,1087-1092,1097-1098,1105-1110,1112,1116,1120,1124,1187-1201,1319,1333-1339
+tests/avif.test.ts
+  h_9f4a25732fa0c1 22-32,46,288-297,642-765,851-894,905,933-944
+tests/corruption-fuzz.test.ts
+  h_9f4a25732fa0c1 101-123,203-210,229,236,249-262
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 123,132,138-140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "1f2a43317f10f99769a99fb3a47efae976863d3f",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
