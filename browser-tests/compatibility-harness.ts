@@ -696,14 +696,28 @@ const avifLossyMultitile = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
-const avifSuperres = (): Promise<BrowserWorkflowResult> =>
-  avifPinnedPng(
-    'libaom-superres-denom12-96x64.avif',
-    96,
-    64,
-    'bb31c24e26095af2032ca9f0d039e4061fae90a426cb3b446cb2199191f96e8b',
-    'Filter-free AV1 super-resolution AVIF',
-  )
+const avifSuperres = async (): Promise<BrowserWorkflowResult> => {
+  const results = await Promise.all([
+    avifPinnedPng(
+      'libaom-superres-denom12-96x64.avif',
+      96,
+      64,
+      'bb31c24e26095af2032ca9f0d039e4061fae90a426cb3b446cb2199191f96e8b',
+      'Filter-free single-band AV1 super-resolution AVIF',
+    ),
+    avifPinnedPng(
+      'libaom-superres-denom12-yuv420-320x192.avif',
+      320,
+      192,
+      '9bc16a4112c7b0b41b2fc587802b50e321c3bf669a4e66f6404887532384af5d',
+      'Filter-free multi-band AV1 super-resolution AVIF',
+    ),
+  ])
+  return {
+    detail: results.map((result) => result.detail).join('; '),
+    outputBytes: results.reduce((total, result) => total + result.outputBytes, 0),
+  }
+}
 
 const avifFilteredSuperres = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(

@@ -3147,7 +3147,7 @@
       },
       "boundary": "Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode with compatible integer clean-aperture cropping, skipped intra-block copy, compatible lossy multi-tile frames with full post-filtering, compatible non-reduced shown key-frame headers with contiguous tile-group OBUs, and single-tile AV1 super-resolution including filtered frames; coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 decode including compatible YUV 4:4:4 multi-tile frames; filter-free lossy 10-bit YUV 4:4:4 decode; compatible alpha auxiliaries; and opaque grids",
       "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images; coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 images with native high-depth reconstruction before explicit RGBA conversion; and filter-free lossy 10-bit YUV 4:4:4 images using the normative high-bit-depth dequantization tables. The supported path includes complete compatible lossy 8-bit and coded-lossless high-depth multi-tile frames in one frame OBU with independent entropy, context, and prediction boundaries; compatible non-reduced shown 8-bit key-frame headers followed by complete contiguous tile-group OBUs; compatible full-range monochrome alpha auxiliaries; opaque image grids; validated integer clean-aperture cropping; palette-coded screen content; skipped intra-block copy with adaptive integer motion vectors; one-tile 8-bit frames with normative eight-tap horizontal super-resolution, including CDEF-before-upscale and loop-restoration-after-upscale ordering; quantizer contexts 0-3 used by the pinned fixtures; coded-lossless 4x4 transforms; container-signaled NCLX conversion including identity color; the documented 8-bit in-loop filters; and the restricted Sharp/libaom quantization-matrix path. Fractional clean apertures, multi-tile super-resolution, multi-tile intra-block-copy frames, partial or noncontiguous tile groups, multiple AV1 frame units, non-reduced headers with decoder timing, frame IDs, or dimension overrides, grid alpha, filtered lossy 10-bit frames, lossy 10-bit YUV 4:2:0 or 4:2:2, any lossy 12-bit frame, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
-      "memory": "Metadata reads are bounded and all decoded RGBA is emitted in ordered 32-row blocks without a source-sized RGBA bitmap. Every decoder path enforces a 64 MiB aggregate coded-payload and conservatively estimated working-state limit. Compatible opaque, single-item, filter-free AV1 frames reconstruct through two-superblock YUV, prediction, palette, and coefficient-context rings, with finalized bands copied before reuse. Compatible filter-free alpha auxiliaries with aligned orientation reconstruct through a synchronized second row ring. Compatible full-aperture 2x, 4x, and 8x resize input is box-filtered directly from bounded YUV rows before RGBA conversion. Integer clean-aperture regions convert only contributing samples, opaque grids retain one contributing tile row, CDEF uses delayed 8-row bands, and restoration retains deblocked stripe-boundary rows plus delayed 4-row output bands. Post-filtered, super-resolution, rotated-alpha, grid, and multi-tile paths retain padded full-frame YUV reconstruction state; super-resolution additionally retains the upscaled YUV planes, and multi-tile working-set estimates account for one entropy and context allocation per tile.",
+      "memory": "Metadata reads are bounded and all decoded RGBA is emitted in ordered 32-row blocks without a source-sized RGBA bitmap. Every decoder path enforces a 64 MiB aggregate coded-payload and conservatively estimated working-state limit. Compatible opaque, single-item, filter-free AV1 frames reconstruct through two-superblock YUV, prediction, palette, and coefficient-context rings, with finalized bands copied before reuse. Compatible filter-free alpha auxiliaries with aligned orientation reconstruct through a synchronized second row ring. Compatible full-aperture 2x, 4x, and 8x resize input is box-filtered directly from bounded YUV rows before RGBA conversion. Integer clean-aperture regions convert only contributing samples, opaque grids retain one contributing tile row, CDEF uses delayed 8-row bands, and restoration retains deblocked stripe-boundary rows plus delayed 4-row output bands. Compatible filter-free single-tile super-resolution reuses bounded upscaled luma and chroma band buffers while retaining the source chroma halo across ring reuse. Filtered super-resolution, rotated-alpha, grid, and multi-tile paths retain padded full-frame YUV reconstruction state; filtered super-resolution additionally retains the upscaled YUV planes, and multi-tile working-set estimates account for one entropy and context allocation per tile.",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
       "evidence": [
         "tests/avif.test.ts",
@@ -3828,6 +3828,10 @@
         },
         {
           "status": "supported",
+          "text": "Compatible filter-free single-tile super-resolution reuses bounded upscaled luma and chroma band buffers and retains the source chroma halo across reconstruction-ring reuse"
+        },
+        {
+          "status": "supported",
           "text": "Compatible aligned filter-free alpha auxiliaries reconstruct through a synchronized second row ring before per-block alpha composition"
         },
         {
@@ -3861,6 +3865,10 @@
         {
           "status": "supported",
           "text": "Benchmark isolated cold-process peak RSS across 512x384, 1024x768, and 2048x1536 source dimensions with full-size and 4x downscaled output"
+        },
+        {
+          "status": "supported",
+          "text": "Benchmark a 2048x1536 filter-free denominator-12 super-resolution decode: bounded bands cut median peak external and ArrayBuffer deltas by 49.3%, while total RSS remains dominated by entropy-context heap residency"
         },
         {
           "status": "planned",
@@ -3920,7 +3928,7 @@
         },
         {
           "status": "supported",
-          "text": "Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte for checksum-pinned filter-free denominator-12 YUV 4:2:0 and 4:4:4 super-resolution fixtures"
+          "text": "Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte for three checksum-pinned filter-free denominator-12 YUV 4:2:0 and 4:4:4 super-resolution fixtures, including a multi-band 4:2:0 chroma boundary"
         },
         {
           "status": "supported",
@@ -3936,7 +3944,7 @@
         },
         {
           "status": "supported",
-          "text": "Exercise filter-free AV1 super-resolution through the portable TypeScript codec in Chromium and pin its RGBA output"
+          "text": "Exercise single-band and multi-band filter-free AV1 super-resolution through the portable TypeScript codec in Chromium and pin their RGBA output"
         },
         {
           "status": "supported",

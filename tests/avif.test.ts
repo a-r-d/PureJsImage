@@ -35,6 +35,8 @@ import {
   avifLossyMultitileFixturePath,
 } from '../benchmark/avif/lossy-multitile-fixture.ts'
 import {
+  avifBoundedSuperresFixture,
+  avifBoundedSuperresFixturePath,
   avifFilteredSuperresFixture,
   avifFilteredSuperresFixturePath,
   avifSuperres420Fixture,
@@ -836,6 +838,15 @@ describe('AVIF restricted pixel decode', () => {
     if (!coded || !frameObu) throw new Error('Super-resolution AVIF fixture has no color frame OBU')
     const frame = parseAv1Frame(coded.sequence, frameObu.payload)
     const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+    const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('AVIF decoder is unavailable')
+    const boundedHash = createHash('sha256')
+    let boundedRows = 0
+    for await (const block of decoder.decode()) {
+      expect(block.height).toBeLessThanOrEqual(32)
+      boundedRows += block.height
+      boundedHash.update(block.data.subarray(0, block.stride * block.height))
+    }
     const oracle = await sharp(input).removeAlpha().raw().toBuffer()
 
     expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
@@ -849,9 +860,13 @@ describe('AVIF restricted pixel decode', () => {
       frameHeight: fixture.height,
       upscaledWidth: fixture.width,
       loopFilterLevels: [0, 0, 0, 0],
+      loopFilterDeltaEnabled: false,
       restorationTypes: [0, 0, 0],
     })
     expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(decoder.capabilities.scaledDecode).toBe(true)
+    expect(boundedRows).toBe(fixture.height)
+    expect(boundedHash.digest('hex')).toBe(fixture.decodedRgbaSha256)
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
     expect(createHash('sha256').update(oracle).digest('hex')).toBe(fixture.sharpRgbSha256)
     let maximumDifference = 0
@@ -906,31 +921,55 @@ describe('AVIF restricted pixel decode', () => {
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
   })
 
-  it('upscales subsampled AV1 chroma planes at their normative widths', async () => {
-    const fixture = avifSuperres420Fixture
-    const input = await readFile(avifSuperres420FixturePath)
-    const inspection = await inspectAvifBitstreams(new MemorySource(input))
-    const coded = inspection.codedImages.find((image) => image.role === 'color')
-    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
-    if (!coded || !frameObu) throw new Error('YUV 4:2:0 super-resolution fixture has no frame OBU')
-    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
-    const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
-    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+  it.each([
+    {
+      name: 'single-band',
+      fixture: avifSuperres420Fixture,
+      path: avifSuperres420FixturePath,
+    },
+    {
+      name: 'multi-band',
+      fixture: avifBoundedSuperresFixture,
+      path: avifBoundedSuperresFixturePath,
+    },
+  ])(
+    'upscales subsampled AV1 chroma planes at their normative widths ($name)',
+    async ({ fixture, path }) => {
+      const input = await readFile(path)
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+      const coded = inspection.codedImages.find((image) => image.role === 'color')
+      const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+      if (!coded || !frameObu)
+        throw new Error('YUV 4:2:0 super-resolution fixture has no frame OBU')
+      const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+      const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
+      const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+      const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+      if (!decoder) throw new Error('AVIF decoder is unavailable')
+      const boundedHash = createHash('sha256')
+      for await (const block of decoder.decode()) {
+        expect(block.height).toBeLessThanOrEqual(32)
+        boundedHash.update(block.data.subarray(0, block.stride * block.height))
+      }
 
-    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
-    expect(coded.sequence.chromaSubsampling).toBe(fixture.chromaSubsampling)
-    expect(frame.header).toMatchObject({
-      frameWidth: fixture.codedWidth,
-      upscaledWidth: fixture.width,
-    })
-    expect(decoded).toMatchObject({
-      width: fixture.width,
-      height: fixture.height,
-      chromaWidth: fixture.width / 2,
-      chromaHeight: fixture.height / 2,
-    })
-    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
-  })
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+      expect(coded.sequence.chromaSubsampling).toBe(fixture.chromaSubsampling)
+      expect(frame.header).toMatchObject({
+        frameWidth: fixture.codedWidth,
+        upscaledWidth: fixture.width,
+        loopFilterDeltaEnabled: false,
+      })
+      expect(decoded).toMatchObject({
+        width: fixture.width,
+        height: fixture.height,
+        chromaWidth: fixture.width / 2,
+        chromaHeight: fixture.height / 2,
+      })
+      expect(decoder.capabilities.scaledDecode).toBe(true)
+      expect(boundedHash.digest('hex')).toBe(fixture.decodedRgbaSha256)
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+    },
+  )
 
   it.each([
     {

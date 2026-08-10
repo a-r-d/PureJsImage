@@ -546,6 +546,9 @@ const av1SuperresFilter = Int16Array.from([
   127, -4, 1, 0, 0, 1, -2, 4, 127, -3, 1, 0, 0, 0, -1, 2, 128, -1, 0, 0,
 ])
 
+const allocateSampleBuffer = (source: Av1SampleArray, length: number): Av1SampleArray =>
+  source instanceof Uint8Array ? new Uint8Array(length) : new Uint16Array(length)
+
 const upscaleAv1Rows = (
   data: Av1SampleArray,
   sourceStride: number,
@@ -553,11 +556,21 @@ const upscaleAv1Rows = (
   targetWidth: number,
   rows: number,
   sampleMaximum: number,
+  sourceStartY = 0,
+  sourceStorageRows = rows,
+  reusableOutput?: Av1SampleArray,
 ): Av1SampleArray => {
+  const outputLength = targetWidth * rows
+  if (
+    reusableOutput &&
+    (reusableOutput.length < outputLength ||
+      data instanceof Uint8Array !== reusableOutput instanceof Uint8Array)
+  ) {
+    throw invalidInput('AV1 super-resolution scratch plane is invalid')
+  }
   const output =
-    data instanceof Uint8Array
-      ? new Uint8Array(targetWidth * rows)
-      : new Uint16Array(targetWidth * rows)
+    reusableOutput ??
+    (data instanceof Uint8Array ? new Uint8Array(outputLength) : new Uint16Array(outputLength))
   const step = Math.floor((sourceWidth * 16_384 + Math.floor(targetWidth / 2)) / targetWidth)
   const error = targetWidth * step - sourceWidth * 16_384
   const initial =
@@ -570,7 +583,7 @@ const upscaleAv1Rows = (
   const maximumSourceX = sourceStride - 1
   for (let y = 0; y < rows; y += 1) {
     let position = initial
-    const sourceRow = y * sourceStride
+    const sourceRow = ((sourceStartY + y) % sourceStorageRows) * sourceStride
     const targetRow = y * targetWidth
     for (let x = 0; x < targetWidth; x += 1) {
       const sourceStart = Math.floor(position / 16_384) - 4
@@ -584,7 +597,7 @@ const upscaleAv1Rows = (
       position += step
     }
   }
-  return output
+  return output.subarray(0, outputLength)
 }
 
 const upscaleAv1Plane = (
@@ -3242,7 +3255,6 @@ export const supportsRestrictedAv1IntraRows = (frame: Av1Frame): boolean => {
     return Math.max(0, Math.min(63, baseLevel + referenceDelta)) === 0
   })
   return (
-    frame.header.frameWidth === frame.header.upscaledWidth &&
     frame.tiles.length === 1 &&
     !frame.header.allowIntrabc &&
     noLoopFilter &&
@@ -3267,7 +3279,7 @@ export const estimateRestrictedAv1RowWorkingBytes = (
   const chromaStride = sequence.monochrome ? 0 : yStride >> chromaShiftX
   const chromaHeight = sequence.monochrome ? 0 : yHeight >> chromaShiftY
   const superblockRows = sequence.use128x128Superblock ? 128 : 64
-  const ringRows = Math.min(yHeight, superblockRows * 2)
+  const ringRows = Math.min(yHeight, superblockRows * 2 + 8)
   const chromaRingRows = sequence.monochrome ? 0 : Math.min(chromaHeight, ringRows >> chromaShiftY)
   const sampleBytes = sequence.bitDepth === 8 ? 1 : 2
   const reconstructionBytes = (yStride * ringRows + 2 * chromaStride * chromaRingRows) * sampleBytes
@@ -3275,13 +3287,21 @@ export const estimateRestrictedAv1RowWorkingBytes = (
   const bandChromaRows = sequence.monochrome
     ? 0
     : Math.min(chromaHeight, Math.ceil(bandRows / 2 ** chromaShiftY) + chromaShiftY)
-  const finalizedBandBytes = (yStride * bandRows + 2 * chromaStride * bandChromaRows) * sampleBytes
+  const targetYStride =
+    frame.header.frameWidth === frame.header.upscaledWidth ? yStride : frame.header.upscaledWidth
+  const targetChromaStride = sequence.monochrome
+    ? 0
+    : frame.header.frameWidth === frame.header.upscaledWidth
+      ? chromaStride
+      : Math.ceil(frame.header.upscaledWidth / 2 ** chromaShiftX)
+  const finalizedBandBytes =
+    (targetYStride * bandRows + 2 * targetChromaStride * bandChromaRows) * sampleBytes
   const lumaContextLength = miColumns * (ringRows >> 2)
   const chromaContextLength = (chromaStride >> 2) * (chromaRingRows >> 2)
   const modePaletteContextBytes = lumaContextLength * 55 + chromaContextLength
   const coefficientContextBytes = 5 * (lumaContextLength + 2 * chromaContextLength)
   const sourceScaledAuxiliaryBytes = miColumns * miRows
-  const rgbaBlockBytes = frame.header.frameWidth * Math.min(32, frame.header.frameHeight) * 4
+  const rgbaBlockBytes = frame.header.upscaledWidth * Math.min(32, frame.header.frameHeight) * 4
   const fixedEntropyAndCoefficientScratchBytes = 2 * 1_024 * 1_024
   return (
     reconstructionBytes +
@@ -3357,14 +3377,67 @@ export function* decodeRestrictedAv1IntraRows(
     )
   }
   const superblockRows = sequence.use128x128Superblock ? 128 : 64
-  const reconstruction = createReconstructionPlanes(sequence, frame, superblockRows * 2)
+  const reconstruction = createReconstructionPlanes(sequence, frame, superblockRows * 2 + 8)
   const decoder = new RestrictedIntraTileDecoder(sequence, frame, reconstruction.planes)
-  const chromaWidth = sequence.monochrome
+  const superres = frame.header.frameWidth !== frame.header.upscaledWidth
+  const sampleMaximum = 2 ** sequence.bitDepth - 1
+  const codedChromaWidth = sequence.monochrome
     ? 0
     : Math.ceil(frame.header.frameWidth / 2 ** reconstruction.chromaShiftX)
+  const outputChromaWidth = sequence.monochrome
+    ? 0
+    : Math.ceil(frame.header.upscaledWidth / 2 ** reconstruction.chromaShiftX)
   const visibleChromaHeight = sequence.monochrome
     ? 0
     : Math.ceil(frame.header.frameHeight / 2 ** reconstruction.chromaShiftY)
+  const maximumBandRows = Math.min(frame.header.frameHeight, superblockRows + 7)
+  const maximumChromaBandRows = sequence.monochrome
+    ? 0
+    : Math.min(
+        visibleChromaHeight,
+        Math.ceil(maximumBandRows / 2 ** reconstruction.chromaShiftY) + reconstruction.chromaShiftY,
+      )
+  const upscaledY = superres
+    ? allocateSampleBuffer(
+        reconstruction.planes[0].data,
+        frame.header.upscaledWidth * maximumBandRows,
+      )
+    : undefined
+  const upscaledU =
+    superres && !sequence.monochrome
+      ? allocateSampleBuffer(
+          reconstruction.planes[1].data,
+          outputChromaWidth * maximumChromaBandRows,
+        )
+      : undefined
+  const upscaledV =
+    superres && !sequence.monochrome
+      ? allocateSampleBuffer(
+          reconstruction.planes[2].data,
+          outputChromaWidth * maximumChromaBandRows,
+        )
+      : undefined
+  const copyOrUpscale = (
+    plane: Plane,
+    startY: number,
+    rows: number,
+    sourceWidth: number,
+    targetWidth: number,
+    reusableOutput?: Av1SampleArray,
+  ): Av1SampleArray =>
+    superres
+      ? upscaleAv1Rows(
+          plane.data,
+          plane.stride,
+          sourceWidth,
+          targetWidth,
+          rows,
+          sampleMaximum,
+          startY,
+          plane.storageHeight ?? plane.height,
+          reusableOutput,
+        )
+      : copyPlaneRows(plane, startY, rows)
   const copyBand = (range: { readonly height: number; readonly y: number }): Av1DecodedRowBand => {
     const rangeEnd = Math.min(frame.header.frameHeight, range.y + range.height + 7)
     const chromaStart =
@@ -3379,17 +3452,42 @@ export function* decodeRestrictedAv1IntraRows(
       height: range.height,
       frameY: range.y,
       frame: {
-        width: frame.header.frameWidth,
+        width: frame.header.upscaledWidth,
         height: frame.header.frameHeight,
-        chromaWidth,
+        chromaWidth: outputChromaWidth,
         chromaHeight: visibleChromaHeight,
         chromaYOrigin: chromaStart,
         yOrigin: range.y,
-        yStride: reconstruction.yStride,
-        chromaStride: reconstruction.chromaStride,
-        y: copyPlaneRows(reconstruction.planes[0], range.y, rangeEnd - range.y),
-        u: copyPlaneRows(reconstruction.planes[1], chromaStart, chromaRows),
-        v: copyPlaneRows(reconstruction.planes[2], chromaStart, chromaRows),
+        yStride: superres ? frame.header.upscaledWidth : reconstruction.yStride,
+        chromaStride: superres ? outputChromaWidth : reconstruction.chromaStride,
+        y: copyOrUpscale(
+          reconstruction.planes[0],
+          range.y,
+          rangeEnd - range.y,
+          frame.header.frameWidth,
+          frame.header.upscaledWidth,
+          upscaledY,
+        ),
+        u: sequence.monochrome
+          ? copyPlaneRows(reconstruction.planes[1], 0, 0)
+          : copyOrUpscale(
+              reconstruction.planes[1],
+              chromaStart,
+              chromaRows,
+              codedChromaWidth,
+              outputChromaWidth,
+              upscaledU,
+            ),
+        v: sequence.monochrome
+          ? copyPlaneRows(reconstruction.planes[2], 0, 0)
+          : copyOrUpscale(
+              reconstruction.planes[2],
+              chromaStart,
+              chromaRows,
+              codedChromaWidth,
+              outputChromaWidth,
+              upscaledV,
+            ),
       },
     }
   }

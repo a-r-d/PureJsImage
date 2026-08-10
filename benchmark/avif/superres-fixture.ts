@@ -36,7 +36,7 @@ export const avifSuperresFixture: AvifSuperresFixture = {
   decodedRgbaSha256: 'bb31c24e26095af2032ca9f0d039e4061fae90a426cb3b446cb2199191f96e8b',
   decodedYuvSha256: 'a61a848ee5f0bf9d044594a449c80ecbabe1686224244b7844c7f0f3b05cb185',
   file: 'libaom-superres-denom12-96x64.avif',
-  fileSha256: 'f0c8f841fe09fb9c4a733f272396aa05f1ba1f2ecb1128491142dac0bfccfb09',
+  fileSha256: '53df77806277516519a84c743cda8a11e4945dccb96b4e4a71c21045366cb156',
   filters: [],
   height: 64,
   sharpRgbSha256: 'c8d9b8616123a0de628925ab8e5646e4d11096f4de6c443c11b625446316e818',
@@ -55,13 +55,31 @@ export const avifSuperres420Fixture: AvifSuperresFixture = {
   decodedRgbaSha256: '52910f1cee64437ba4b5c0c7146624d9a253e2ee8ac39c155210a30a3dabf66f',
   decodedYuvSha256: '277ba85fd6b4cb72fb9fa22ff349b1674dc4fcd012873faeaa487fbd29633822',
   file: 'libaom-superres-denom12-yuv420-96x64.avif',
-  fileSha256: '7526d643470ccfa2bb3bcfc31d2aaf6dd4dda5ac71697674e3b0cb21f9d5fae7',
+  fileSha256: '4f5ebc562bde4225fb20aa681aa6b50a5841da5b70ba1b46d6087a219ad82c5d',
   filters: [],
   height: 64,
   sourcePattern: 'ramp',
   sourceY4mSha256: '1318d800f0b25a8ac3820a6d6642c96147d72986960c0f064344f60ab74c6351',
   superresDenominator: 12,
   width: 96,
+}
+
+export const avifBoundedSuperresFixture: AvifSuperresFixture = {
+  bitDepth: 8,
+  chromaSubsampling: '420',
+  codedWidth: 213,
+  cpuUsed: 6,
+  cqLevel: 32,
+  decodedRgbaSha256: '9bc16a4112c7b0b41b2fc587802b50e321c3bf669a4e66f6404887532384af5d',
+  decodedYuvSha256: '6be8e557e2f7f0df55ceccab65acfb678e840b4e7d1f0ec8c9c00b8987e4c163',
+  file: 'libaom-superres-denom12-yuv420-320x192.avif',
+  fileSha256: 'cf0b53b82fb2b7c8dd09c06289f3f24034910e746c8efcdcef9475ed9905269f',
+  filters: [],
+  height: 192,
+  sourcePattern: 'detail',
+  sourceY4mSha256: '8005d6385f2c8a4f61c4d195ae1c615af0000488d4e3598317ff6ea22e172b83',
+  superresDenominator: 12,
+  width: 320,
 }
 
 export const avifFilteredSuperresFixture: AvifSuperresFixture = {
@@ -83,6 +101,7 @@ export const avifFilteredSuperresFixture: AvifSuperresFixture = {
 }
 
 export const avifSuperresFixtures: readonly AvifSuperresFixture[] = [
+  avifBoundedSuperresFixture,
   avifFilteredSuperresFixture,
   avifSuperres420Fixture,
   avifSuperresFixture,
@@ -92,6 +111,10 @@ export const avifSuperresFixturePath = join(avifSuperresFixtureDirectory, avifSu
 export const avifSuperres420FixturePath = join(
   avifSuperresFixtureDirectory,
   avifSuperres420Fixture.file,
+)
+export const avifBoundedSuperresFixturePath = join(
+  avifSuperresFixtureDirectory,
+  avifBoundedSuperresFixture.file,
 )
 export const avifFilteredSuperresFixturePath = join(
   avifSuperresFixtureDirectory,

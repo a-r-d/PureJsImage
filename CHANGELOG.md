@@ -122,6 +122,11 @@ All notable changes to PureJsImage are documented in this file.
   contiguous tile-group OBU assembly for AVIF decode; a pinned 2x2 YUV 4:2:0
   frame split across four groups matches agreeing dav1d and libaom native YUV
   byte for byte in Node.js and Chromium.
+- Bounded compatible filter-free AV1 super-resolution decode to reusable
+  upscaled luma and chroma bands instead of full upscaled planes; a pinned
+  multi-band YUV 4:2:0 fixture preserves the reconstruction-ring chroma halo in
+  Node.js and Chromium, and the 2048x1536 probe cuts median peak external and
+  ArrayBuffer deltas by 49.3% while total RSS remains entropy-context dominated.
 
 - Animated GIF pixel decode now fails with `UNSUPPORTED_OPERATION` instead of silently discarding
   animation; callers can explicitly request the supported first image with `open(input, { frame: 0 })`.

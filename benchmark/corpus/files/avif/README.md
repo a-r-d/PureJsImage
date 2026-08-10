@@ -120,16 +120,19 @@ fixture isolates frame-header and tile-group assembly. The same
 and require byte-identical PureJsImage, dav1d, and libaom native YUV. Checksums
 are pinned in `benchmark/avif/lossy-multitile-fixture.ts`.
 
-`libaom-superres-denom12-96x64.avif` and
-`libaom-superres-denom12-yuv420-96x64.avif` are deterministic full-range
-8-bit YUV 4:4:4 and YUV 4:2:0 frames whose AV1 payloads reconstruct at 64x64
-before normative super-resolution expands luma to 96x64 and chroma to its
-subsampling-specific width. Deblocking, CDEF, and restoration are disabled so
-the fixtures isolate the eight-tap horizontal upscaler.
+`libaom-superres-denom12-96x64.avif`,
+`libaom-superres-denom12-yuv420-96x64.avif`, and
+`libaom-superres-denom12-yuv420-320x192.avif` are deterministic full-range
+8-bit YUV 4:4:4 and YUV 4:2:0 frames whose AV1 payloads reconstruct at a
+denominator-12 coded width before normative super-resolution expands luma and
+chroma to their displayed widths. The 320x192 fixture crosses a 128-row
+reconstruction-band boundary and pins the retained 4:2:0 chroma halo. Their AV1
+headers explicitly disable deblocking deltas; CDEF and restoration are also
+disabled so the fixtures isolate the eight-tap horizontal upscaler.
 `libaom-filtered-superres-denom12-yuv420-320x192.avif` reconstructs at 213x192,
 then exercises CDEF, denominator-12 super-resolution, and Wiener restoration in
 their normative order. Run `npm run fixtures:avif:superres:prepare` to regenerate
-all three fixtures with libaom 3.12.1, then `npm run fixtures:avif:superres` to
+all four fixtures with libaom 3.12.1, then `npm run fixtures:avif:superres` to
 require PureJsImage, dav1d, and libaom to produce byte-identical native YUV.
 Checksums are pinned in `benchmark/avif/superres-fixture.ts`.
 

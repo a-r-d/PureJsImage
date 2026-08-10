@@ -860,7 +860,7 @@ class AvifRowDecoder implements ImageDecoder {
     const scaledDecode =
       displayRegion.x === 0 &&
       displayRegion.y === 0 &&
-      displayRegion.width === frame.header.frameWidth &&
+      displayRegion.width === frame.header.upscaledWidth &&
       displayRegion.height === frame.header.frameHeight
     this.capabilities = Object.freeze({
       sequential: true,

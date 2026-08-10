@@ -279,6 +279,9 @@ byte. The full-size tolerance remains zero.
 - [x] Compatible opaque filter-free single-item frames reconstruct through
   reusable two-superblock YUV, prediction, palette, and coefficient-context
   rings, copying finalized bands before their storage is reused
+- [x] Compatible filter-free single-tile super-resolution reuses bounded
+  upscaled luma and chroma band buffers and retains the source chroma halo
+  across reconstruction-ring reuse
 - [x] Compatible aligned filter-free alpha auxiliaries reconstruct through a
   synchronized second row ring before per-block alpha composition
 - [x] Every decoder path rejects coded payload plus conservatively estimated
@@ -295,6 +298,9 @@ byte. The full-size tolerance remains zero.
   RGBA conversion state
 - [x] Benchmark isolated cold-process peak RSS across 512x384, 1024x768, and
   2048x1536 source dimensions with full-size and 4x downscaled output
+- [x] Benchmark a 2048x1536 filter-free denominator-12 super-resolution
+  decode: bounded bands cut median peak external and ArrayBuffer deltas by
+  49.3%, while total RSS remains dominated by entropy-context heap residency
 - [ ] Demonstrate the project's 80% memory-reduction target against equivalent
   Jimp-compatible workflows where a comparison is possible
 
@@ -334,8 +340,8 @@ byte. The full-size tolerance remains zero.
 - [x] Reconstruct the deterministic coded-lossless 10-bit 2x2 AV1 tile
   fixture exactly against its source and agreeing dav1d/libaom native YUV
 - [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
-  for checksum-pinned filter-free denominator-12 YUV 4:2:0 and 4:4:4
-  super-resolution fixtures
+  for three checksum-pinned filter-free denominator-12 YUV 4:2:0 and 4:4:4
+  super-resolution fixtures, including a multi-band 4:2:0 chroma boundary
 - [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
   for a checksum-pinned lossy 8-bit YUV 4:2:0 2x2 tile frame exercising
   deblocking, CDEF, and restoration
@@ -344,8 +350,8 @@ byte. The full-size tolerance remains zero.
 - [x] Match a checksum-pinned non-reduced 8-bit YUV 4:2:0 frame split across
   four tile-group OBUs byte for byte against agreeing dav1d and libaom native
   YUV, and exercise its pinned RGBA output in Chromium
-- [x] Exercise filter-free AV1 super-resolution through the portable TypeScript
-  codec in Chromium and pin its RGBA output
+- [x] Exercise single-band and multi-band filter-free AV1 super-resolution
+  through the portable TypeScript codec in Chromium and pin their RGBA output
 - [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
   for a checksum-pinned CDEF-plus-Wiener denominator-12 YUV 4:2:0
   super-resolution fixture with a non-block-aligned coded width
@@ -412,3 +418,4 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-post-filters-2026-08-08.md`](benchmark/results/avif-post-filters-2026-08-08.md)
 - [`benchmark/results/avif-qmatrix-sharp-2026-08-08.md`](benchmark/results/avif-qmatrix-sharp-2026-08-08.md)
 - [`benchmark/results/avif-bounded-row-output-2026-08-09.md`](benchmark/results/avif-bounded-row-output-2026-08-09.md)
+- [`benchmark/results/avif-memory-bounded-superres-2026-08-09.json`](benchmark/results/avif-memory-bounded-superres-2026-08-09.json)
