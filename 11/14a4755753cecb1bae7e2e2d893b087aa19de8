@@ -1,0 +1,20 @@
+avif-codec-support.md
+  h_9f4a25732fa0c1 400-401
+capabilities/manifest.json
+  h_9f4a25732fa0c1 2075-2076
+docs/capabilities.json
+  h_9f4a25732fa0c1 4031
+tests/corruption-fuzz.test.ts
+  h_9f4a25732fa0c1 106-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "1114a4755753cecb1bae7e2e2d893b087aa19de8",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
