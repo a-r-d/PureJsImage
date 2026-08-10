@@ -19,6 +19,9 @@ All notable changes to PureJsImage are documented in this file.
   backed by pinned versions and a 154-file isolated-process conformance run that reports exact
   pixels, mismatches, unsupported cases, errors, timeouts, crashes, native scientific rasters, and
   malformed-input behavior separately.
+- Expanded the browser demo from 8 to 38 public examples spanning ECCI scanning electron
+  microscopy, OME-TIFF microscopy dimensions, FLIM, SPIM, high-content screening, pathology,
+  scientific JPEG 2000, high-bit-depth AVIF, and additional unusual codec layouts.
 - Added a published `llms.txt` with a capability-manifest-generated codec map, complete quick API
   reference, runtime and safety boundaries, and migration guidance for Jimp, Sharp, image-js,
   jSquash, GeoTIFF.js, and UTIF.js; every website footer now links the guide and sitemap.

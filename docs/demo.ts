@@ -1113,14 +1113,14 @@ const filterSamples = (): void => {
   const query = sampleSearch.value.trim().toLowerCase()
   let visible = 0
   for (const card of sampleCards) {
-    const searchable = (card.dataset.sampleSearch ?? card.textContent ?? '').toLowerCase()
+    const searchable = `${card.dataset.sampleSearch ?? ''} ${card.textContent ?? ''}`.toLowerCase()
     card.hidden = query !== '' && !searchable.includes(query)
     if (!card.hidden) visible += 1
   }
   sampleEmpty.hidden = visible !== 0
   exampleStatus.textContent =
     query === ''
-      ? `${sampleCards.length} verified sample files. Download any file, then open it above.`
+      ? `${sampleCards.length} public sample files. Open direct files here, or download larger datasets and drop them above.`
       : `${visible} sample${visible === 1 ? '' : 's'} match “${sampleSearch.value.trim()}”.`
 }
 

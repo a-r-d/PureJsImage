@@ -108,19 +108,32 @@ test('views, pans, zooms, and clips a TIFF without leaving the browser', async (
   ).toBe(true)
 })
 
-test('searches direct samples and keeps JPEG 2000 in the selected mode', async ({ page }) => {
+test('searches the expanded scientific sample library and keeps JPEG 2000 in the selected mode', async ({
+  page,
+}) => {
   await page.goto('/demo.html')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
 
-  await page.locator('#demo-sample-search').fill('microscopy')
-  await expect(page.locator('[data-demo-sample-card]:visible')).toHaveCount(1)
+  await expect(page.locator('[data-demo-sample-card]')).toHaveCount(38)
+  await page.locator('#demo-sample-search').fill('electron microscopy')
+  await expect(page.locator('[data-demo-sample-card]:visible')).toHaveCount(7)
+  await expect(
+    page.locator('[data-demo-sample-card]:visible').filter({ hasText: 'Nickel dislocations' }),
+  ).toContainText('Open here')
+  await expect(
+    page
+      .locator('[data-demo-sample-card]:visible')
+      .filter({ hasText: 'Electron microscopy volume' }),
+  ).toContainText('EMPIAR')
+
+  await page.locator('#demo-sample-search').fill('single-channel')
   const microscopy = page.locator('[data-demo-sample-card]:visible')
+  await expect(microscopy).toHaveCount(1)
   await expect(microscopy).toContainText('Single-channel microscopy')
   await expect(microscopy.locator('a')).toHaveAttribute(
     'href',
     'https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/single-channel.ome.tif',
   )
-
   const input = await readFile('benchmark/corpus/files/jp2/loc-court-day-openjpeg-lossless.jp2')
   await page.locator('#demo-file').setInputFiles({
     buffer: input,
