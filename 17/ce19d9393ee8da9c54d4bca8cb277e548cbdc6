@@ -1,0 +1,44 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 121-124
+avif-codec-support.md
+  h_9f4a25732fa0c1 102-104,112-113,150,210-214,344-346
+benchmark/avif/lossy-multitile-fixture.ts
+  h_9f4a25732fa0c1 5-25,32,38,41,43,50-85
+benchmark/avif/prepare-lossy-multitile-fixture.ts
+  h_9f4a25732fa0c1 8-10,42-47,55,57,60-64,97,103-119
+benchmark/avif/verify-lossy-multitile-fixture.ts
+  h_9f4a25732fa0c1 5,10,32,40,63-93,95-132,134
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 115-122
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 676-697
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 145,150
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1648-1649,1777-1779,1787-1788,1825,1885-1889,2019-2021
+docs/capabilities.json
+  h_9f4a25732fa0c1 3148-3149,3411,3415,3435,3523,3658-3663,3667,3933-3936
+docs/codecs.html
+  h_9f4a25732fa0c1 40,60
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 354-357
+src/codecs/av1-frame.ts
+  h_9f4a25732fa0c1 2-3,394-400,403,406-416,423-431,448,492-493,496-497,501-510,512-547,549-550,552,604-633
+src/codecs/av1.ts
+  h_9f4a25732fa0c1 43-44,292-298,393-394
+src/codecs/avif.ts
+  h_9f4a25732fa0c1 14,16,836
+tests/avif.test.ts
+  h_9f4a25732fa0c1 32-33,52,797-829
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "17ce19d9393ee8da9c54d4bca8cb277e548cbdc6",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
