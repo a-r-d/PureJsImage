@@ -47,6 +47,20 @@ describe('TIFF competitor conformance harness', () => {
     }
   })
 
+  it('records the exact PureJsImage workspace provenance', async () => {
+    const report: unknown = JSON.parse(
+      await readFile('benchmark/results/tiff-competitor-conformance.json', 'utf8'),
+    )
+    expect(report).toMatchObject({
+      schemaVersion: 3,
+      purejsimage: {
+        packageVersion: '0.8.0',
+        gitCommit: '3868385d7811f6ff9aa42671e5ca9deab47315b0',
+        dirty: false,
+      },
+    })
+  })
+
   it('keeps every generated failure detail inside its Markdown table row', async () => {
     const report = await readFile('benchmark/results/tiff-competitor-conformance.md', 'utf8')
     const details = report.split('## Non-exact, failed, and malformed-accepted cases')[1]

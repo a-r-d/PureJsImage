@@ -94,6 +94,9 @@ All notable changes to PureJsImage are documented in this file.
   entries into `purejsimage/scientific`, `purejsimage/pathology`, and `purejsimage/tiff`; moved
   `HttpRangeSource` into `purejsimage/sources/http-range` so the core bundle does not retain
   specialized TIFF workflows or the optional HTTP adapter.
+- Relabeled TIFF conformance as an unreleased commit-pinned workspace snapshot and made decoded
+  coverage the compact comparison headline, with exact pixels and failure counts reported
+  separately.
 
 ## [0.8.0] - 2026-08-09
 

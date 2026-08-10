@@ -29,6 +29,11 @@ interface ReportTotal {
   readonly malformedCrash: number
   readonly malformedAccepted: number
 }
+interface PureJsImageSnapshot {
+  readonly packageVersion: string
+  readonly gitCommit: string
+  readonly dirty: boolean
+}
 
 interface ConformanceReport {
   readonly generatedAt: string
@@ -39,6 +44,7 @@ interface ConformanceReport {
   readonly timeoutMs: number
   readonly memoryMb: number
   readonly directories: readonly string[]
+  readonly purejsimage: PureJsImageSnapshot
   readonly versions: Readonly<Record<string, string>>
   readonly totals: ReadonlyMap<string, ReportTotal>
 }
@@ -68,6 +74,10 @@ const stringOf = (value: unknown, label: string): string => {
   if (typeof value !== 'string') throw new Error(`${label} must be a string`)
   return value
 }
+const booleanOf = (value: unknown, label: string): boolean => {
+  if (typeof value !== 'boolean') throw new Error(`${label} must be a boolean`)
+  return value
+}
 
 const numberOf = (value: unknown, label: string): number => {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
@@ -83,11 +93,20 @@ const stringArrayOf = (value: unknown, label: string): readonly string[] => {
 
 const loadReport = async (): Promise<ConformanceReport> => {
   const root = recordOf(JSON.parse(await readFile(reportPath, 'utf8')), 'conformance report')
-  if (numberOf(root.schemaVersion, 'schemaVersion') !== 2) {
+  if (numberOf(root.schemaVersion, 'schemaVersion') !== 3) {
     throw new Error('Unsupported TIFF competitor report schema')
   }
   const corpus = recordOf(root.corpus, 'corpus')
   const settings = recordOf(root.settings, 'settings')
+  const pureJsImageSource = recordOf(root.purejsimage, 'purejsimage')
+  const purejsimage: PureJsImageSnapshot = {
+    packageVersion: stringOf(pureJsImageSource.packageVersion, 'purejsimage.packageVersion'),
+    gitCommit: stringOf(pureJsImageSource.gitCommit, 'purejsimage.gitCommit'),
+    dirty: booleanOf(pureJsImageSource.dirty, 'purejsimage.dirty'),
+  }
+  if (!/^[a-f0-9]{40}$/u.test(purejsimage.gitCommit)) {
+    throw new Error('purejsimage.gitCommit must be a full Git commit')
+  }
   const versionsSource = recordOf(root.versions, 'versions')
   const versions: Record<string, string> = {}
   for (const [engine, version] of Object.entries(versionsSource)) {
@@ -130,6 +149,7 @@ const loadReport = async (): Promise<ConformanceReport> => {
     timeoutMs: numberOf(settings.timeoutMs, 'settings.timeoutMs'),
     memoryMb: numberOf(settings.memoryMb, 'settings.memoryMb'),
     directories: stringArrayOf(corpus.directories, 'corpus.directories'),
+    purejsimage,
     versions,
     totals,
   }
@@ -146,16 +166,19 @@ const packageVersion = (
 const capability = (library: LibraryComparison, key: TiffCapabilityKey): ComparisonValue =>
   library.tiff[key] ?? { status: 'unknown' }
 
-const versionLabel = (library: LibraryComparison): string =>
-  library.id === 'purejsimage' ? `${library.version} workspace` : library.version
+const versionLabel = (library: LibraryComparison, report: ConformanceReport): string => {
+  if (library.id !== 'purejsimage') return library.version
+  const dirty = report.purejsimage.dirty ? ' · dirty' : ''
+  return `main snapshot · unreleased · ${report.purejsimage.gitCommit.slice(0, 7)}${dirty}`
+}
 
-const comparisonMethodology = [
+const comparisonMethodology = (report: ConformanceReport): readonly string[] => [
   'Capability claims come from versioned upstream documentation or inspected source. Unknown means not verified, not unsupported.',
   'The conformance harness uses pinned corpus files, isolated child processes, a fixed heap limit, a fixed timeout, and independent RGBA output.',
-  'The PureJsImage row is the current workspace at its package version; other JavaScript rows are the exact installed dev-dependency versions.',
+  `The PureJsImage row is an unreleased ${report.purejsimage.dirty ? 'dirty' : 'clean'} main snapshot at commit ${report.purejsimage.gitCommit}; ${report.purejsimage.packageVersion} is package metadata, not a release claim. Other JavaScript rows are exact installed dev-dependency versions.`,
   'Signed, floating-point, wider-than-16-bit, and arbitrary-channel native rasters are not forced through an RGBA oracle.',
   'Color-converted and lossy mismatches remain visible; exact equality is not used to claim one valid converter is universally better.',
-] as const
+]
 
 const validateData = async (report: ConformanceReport): Promise<void> => {
   const libraryIds = new Set<string>()
@@ -189,7 +212,10 @@ const validateData = async (report: ConformanceReport): Promise<void> => {
     if (library.conformanceEngine === undefined) continue
     const total = report.totals.get(library.conformanceEngine)
     if (total === undefined) throw new Error(`Missing report engine ${library.conformanceEngine}`)
-    const reportVersion = report.versions[library.conformanceEngine]
+    const reportVersion =
+      library.id === 'purejsimage'
+        ? report.purejsimage.packageVersion
+        : report.versions[library.conformanceEngine]
     if (reportVersion !== library.version) {
       throw new Error(
         `${library.id} version drift: data has ${library.version}, report has ${reportVersion ?? 'none'}`,
@@ -277,6 +303,22 @@ const combinedSemantics = (library: LibraryComparison): ComparisonValue => {
   return { status: 'partial', ...(evidence === undefined ? {} : { evidence }) }
 }
 
+const countLabel = (count: number, singular: string, plural = `${singular}s`): string =>
+  `${count} ${count === 1 ? singular : plural}`
+
+const conformanceFailures = (total: ReportTotal): string =>
+  [
+    total.unsupported === 0
+      ? undefined
+      : countLabel(total.unsupported, 'unsupported', 'unsupported'),
+    total.error === 0 ? undefined : countLabel(total.error, 'error'),
+    total.oracleFailure === 0 ? undefined : countLabel(total.oracleFailure, 'oracle failure'),
+    total.timeout === 0 ? undefined : countLabel(total.timeout, 'timeout'),
+    total.processCrash === 0 ? undefined : countLabel(total.processCrash, 'crash', 'crashes'),
+  ]
+    .filter((value): value is string => value !== undefined)
+    .join(' · ')
+
 const conformanceCell = (
   library: LibraryComparison,
   report: ConformanceReport,
@@ -285,24 +327,27 @@ const conformanceCell = (
   if (library.conformanceEngine === undefined) return 'Not run'
   const total = report.totals.get(library.conformanceEngine)
   if (total === undefined) throw new Error(`Missing conformance total for ${library.id}`)
-  const text = `${total.exact}/${total.rgbaCompared} exact; malformed ${total.malformedRejected} rejected, ${total.malformedAccepted} accepted, ${total.malformedTimeout} timeout, ${total.malformedCrash} crash`
-  return html ? htmlEscape(text) : text
+  const coverage = `${total.decoded}/${total.rgbaCompared} decoded`
+  const exact = `${total.exact} exact`
+  const failures = conformanceFailures(total)
+  if (!html) return [coverage, exact, failures].filter(Boolean).join('<br>')
+  return `<strong>${coverage}</strong><small>${exact}</small>${failures.length === 0 ? '' : `<small>${htmlEscape(failures)}</small>`}`
 }
 
 const compactMarkdown = (report: ConformanceReport): string => {
   const rows = libraryComparisons
     .map(
       (library) =>
-        `| ${library.name} ${versionLabel(library)} | ${library.implementation === 'pure-javascript' ? 'Pure JavaScript' : 'Native wrapper'} | ${markdownValue(library.runtime.browser)} | ${markdownValue(capability(library, 'bigTiff'))} | ${markdownValue(capability(library, 'tiles'))} | ${markdownValue(capability(library, 'regionDecode'))} | ${markdownValue(capability(library, 'nativeRasterOutput'))} | ${markdownValue(combinedSemantics(library))} | ${conformanceCell(library, report, false)} |`,
+        `| ${library.name} ${versionLabel(library, report)} | ${library.implementation === 'pure-javascript' ? 'Pure JavaScript' : 'Native wrapper'} | ${markdownValue(library.runtime.browser)} | ${markdownValue(capability(library, 'bigTiff'))} | ${markdownValue(capability(library, 'tiles'))} | ${markdownValue(capability(library, 'regionDecode'))} | ${markdownValue(capability(library, 'nativeRasterOutput'))} | ${markdownValue(combinedSemantics(library))} | ${conformanceCell(library, report, false)} |`,
     )
     .join('\n')
   return `${readmeStart}
 <!-- Generated by scripts/render-library-comparison.ts. Do not edit this block. -->
 ### TIFF library comparison
 
-A capability is **Yes** only when upstream documentation or source supports it; the conformance column is measured separately against independent RGBA output. “Not verified” is not treated as unsupported.
+A capability is **Yes** only when upstream documentation or source supports it; measured decode coverage is reported separately against independent RGBA output. “Not verified” is not treated as unsupported.
 
-| Library | Runtime model | Browser | BigTIFF | Tiles | Region decode | Native scientific raster | OME / whole-slide semantics | Exact conformance |
+| Library | Runtime model | Browser | BigTIFF | Tiles | Region decode | Native scientific raster | OME / whole-slide semantics | Decode coverage |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows}
 
@@ -314,20 +359,20 @@ const compactHtml = (report: ConformanceReport): string => {
   const rows = libraryComparisons
     .map(
       (library) =>
-        `<tr><th scope="row"><a href="${htmlEscape(library.url)}" target="_blank" rel="noreferrer">${htmlEscape(library.name)}</a><small>${htmlEscape(versionLabel(library))} · ${library.implementation === 'pure-javascript' ? 'Pure JavaScript' : 'Native wrapper'}</small></th><td>${htmlValue(library.runtime.browser, false)}</td><td>${htmlValue(capability(library, 'bigTiff'), false)}</td><td>${htmlValue(capability(library, 'tiles'), false)}</td><td>${htmlValue(capability(library, 'regionDecode'), false)}</td><td>${htmlValue(capability(library, 'nativeRasterOutput'), false)}</td><td>${htmlValue(combinedSemantics(library), false)}</td><td>${conformanceCell(library, report, true)}</td></tr>`,
+        `<tr><th scope="row"><a href="${htmlEscape(library.url)}" target="_blank" rel="noreferrer">${htmlEscape(library.name)}</a><small>${htmlEscape(versionLabel(library, report))} · ${library.implementation === 'pure-javascript' ? 'Pure JavaScript' : 'Native wrapper'}</small></th><td>${htmlValue(library.runtime.browser, false)}</td><td>${htmlValue(capability(library, 'bigTiff'), false)}</td><td>${htmlValue(capability(library, 'tiles'), false)}</td><td>${htmlValue(capability(library, 'regionDecode'), false)}</td><td>${htmlValue(capability(library, 'nativeRasterOutput'), false)}</td><td>${htmlValue(combinedSemantics(library), false)}</td><td>${conformanceCell(library, report, true)}</td></tr>`,
     )
     .join('\n')
   return `<section class="section tint comparison-section" id="tiff-library-comparison">
       <div class="container">
         <div class="section-heading"><div><p class="section-label">Measured compatibility</p><h2>TIFF support, without collapsing every claim to yes or no.</h2></div><a class="text-link" href="tiff-comparison.html">Full comparison →</a></div>
-        <p class="comparison-intro">Capability cells follow upstream documentation or source. Exact conformance is a separate 106-fixture RGBA comparison; scientific rasters and malformed inputs are reported separately.</p>
-        <div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Browser</th><th>BigTIFF</th><th>Tiles</th><th>Region</th><th>Scientific raster</th><th>OME / WSI</th><th>Exact / malformed</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <p class="comparison-intro">Capability cells follow upstream documentation or source. Decode coverage is a separate 106-fixture RGBA comparison; exact output, scientific rasters, and malformed inputs are reported separately.</p>
+        <div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Browser</th><th>BigTIFF</th><th>Tiles</th><th>Region</th><th>Scientific raster</th><th>OME / WSI</th><th>Decode coverage</th></tr></thead><tbody>${rows}</tbody></table></div>
         <p class="section-note">Measured ${htmlEscape(report.generatedAt.slice(0, 10))} with ${htmlEscape(report.nodeVersion)} on ${htmlEscape(report.platform)}/${htmlEscape(report.architecture)}. <a href="tiff-comparison.html#methodology">Methodology, caveats, versions, and evidence.</a></p>
       </div>
     </section>`
 }
 
-const detailedMatrix = (): string =>
+const detailedMatrix = (report: ConformanceReport): string =>
   tiffCapabilityGroups
     .map((group) => {
       const rows = group.features
@@ -341,7 +386,7 @@ const detailedMatrix = (): string =>
       const headers = libraryComparisons
         .map(
           (library) =>
-            `<th>${htmlEscape(library.name)}<small>${htmlEscape(versionLabel(library))}</small></th>`,
+            `<th>${htmlEscape(library.name)}<small>${htmlEscape(versionLabel(library, report))}</small></th>`,
         )
         .join('')
       return `<section class="comparison-group"><h3>${htmlEscape(group.name)}</h3><div class="comparison-table-wrap"><table class="comparison-table"><thead><tr><th>Capability</th>${headers}</tr></thead><tbody>${rows}</tbody></table></div></section>`
@@ -354,7 +399,7 @@ const conformanceTable = (report: ConformanceReport): string => {
     .map((library) => {
       const total = report.totals.get(library.conformanceEngine ?? '')
       if (total === undefined) throw new Error(`Missing conformance total for ${library.id}`)
-      return `<tr><th scope="row">${htmlEscape(library.name)}<small>${htmlEscape(versionLabel(library))}</small></th><td>${total.attempted}</td><td>${total.rgbaCompared}</td><td>${total.decoded}</td><td>${total.exact}</td><td>${total.mismatch}</td><td>${total.unsupported}</td><td>${total.error}</td><td>${total.oracleFailure}</td><td>${total.timeout}</td><td>${total.processCrash}</td><td>${total.notComparable}</td><td>${total.malformedRejected}</td><td>${total.malformedAccepted}</td><td>${total.malformedTimeout}</td><td>${total.malformedCrash}</td></tr>`
+      return `<tr><th scope="row">${htmlEscape(library.name)}<small>${htmlEscape(versionLabel(library, report))}</small></th><td>${total.attempted}</td><td>${total.rgbaCompared}</td><td>${total.decoded}</td><td>${total.exact}</td><td>${total.mismatch}</td><td>${total.unsupported}</td><td>${total.error}</td><td>${total.oracleFailure}</td><td>${total.timeout}</td><td>${total.processCrash}</td><td>${total.notComparable}</td><td>${total.malformedRejected}</td><td>${total.malformedAccepted}</td><td>${total.malformedTimeout}</td><td>${total.malformedCrash}</td></tr>`
     })
     .join('\n')
   return `<div class="comparison-table-wrap"><table class="comparison-table conformance-table"><thead><tr><th>Library</th><th>Attempted</th><th>RGBA compared</th><th>Decoded</th><th>Exact</th><th>Mismatch</th><th>Unsupported</th><th>Error</th><th>Oracle failure</th><th>Timeout</th><th>Crash</th><th>Native raster</th><th>Malformed rejected</th><th>Malformed accepted</th><th>Malformed timeout</th><th>Malformed crash</th></tr></thead><tbody>${rows}</tbody></table></div>`
@@ -366,35 +411,42 @@ const conformanceSummaryTable = (report: ConformanceReport): string => {
     .map((library) => {
       const total = report.totals.get(library.conformanceEngine ?? '')
       if (total === undefined) throw new Error(`Missing conformance total for ${library.id}`)
-      return `<tr><th scope="row">${htmlEscape(library.name)}<small>${htmlEscape(versionLabel(library))}</small></th><td>${total.exact} / ${total.rgbaCompared}</td><td>${total.mismatch}</td><td>${total.unsupported} / ${total.error} / ${total.timeout} / ${total.processCrash}</td><td>${total.malformedRejected} rejected · ${total.malformedAccepted} accepted · ${total.malformedTimeout} timeout · ${total.malformedCrash} crash</td></tr>`
+      return `<tr><th scope="row">${htmlEscape(library.name)}<small>${htmlEscape(versionLabel(library, report))}</small></th><td>${total.decoded} / ${total.rgbaCompared}</td><td>${total.exact}</td><td>${total.mismatch}</td><td>${total.unsupported} / ${total.error} / ${total.oracleFailure} / ${total.timeout} / ${total.processCrash}</td><td>${total.malformedRejected} rejected · ${total.malformedAccepted} accepted · ${total.malformedTimeout} timeout · ${total.malformedCrash} crash</td></tr>`
     })
     .join('\n')
-  return `<div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Exact / compared</th><th>Pixel mismatch</th><th>Unsupported / error / timeout / crash</th><th>Malformed inputs</th></tr></thead><tbody>${rows}</tbody></table></div>`
+  return `<div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Decoded / comparable</th><th>Exact</th><th>Pixel mismatch</th><th>Unsupported / error / oracle / timeout / crash</th><th>Malformed inputs</th></tr></thead><tbody>${rows}</tbody></table></div>`
 }
 
-const evidenceList = (): string =>
-  comparisonEvidence
-    .map(
+const evidenceList = (report: ConformanceReport): string =>
+  [
+    `<li><strong>PureJsImage conformance snapshot.</strong> <a href="https://github.com/a-r-d/PureJsImage/tree/${htmlEscape(report.purejsimage.gitCommit)}" target="_blank" rel="noreferrer">Main snapshot ${htmlEscape(report.purejsimage.gitCommit.slice(0, 7))}</a>; ${report.purejsimage.dirty ? 'dirty working tree' : 'clean working tree'}; unreleased; package metadata ${htmlEscape(report.purejsimage.packageVersion)}.</li>`,
+    ...comparisonEvidence.map(
       (evidence) =>
         `<li id="evidence-${htmlEscape(evidence.id)}"><strong>${htmlEscape(evidence.label)}.</strong> <a href="${htmlEscape(evidence.url)}" target="_blank" rel="noreferrer">Source</a></li>`,
-    )
-    .join('\n')
+    ),
+  ].join('\n')
 
 const fullComparisonBody = (
   report: ConformanceReport,
 ): string => `<section class="section comparison-hero"><div class="container"><p class="eyebrow">Evidence-backed TIFF comparison</p><h1>JavaScript TIFF libraries compared by capability and measured output.</h1><p class="lede">Documentation claims and pixel conformance are separate signals. “Not verified” means exactly that—not “unsupported.”</p></div></section>
 ${compactHtml(report)}
-<section class="section"><div class="container"><div class="section-heading"><div><p class="section-label">Capability matrix</p><h2>Grouped by TIFF workflow.</h2></div></div>${detailedMatrix()}</div></section>
-<section class="section tint" id="conformance"><div class="container"><div class="section-heading"><div><p class="section-label">Reproducible corpus run</p><h2>Exact pixels, failures, and malformed-input behavior.</h2></div><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/tiff-competitor-conformance.md" target="_blank" rel="noreferrer">Per-file report →</a></div><p class="comparison-intro">All six JavaScript engines were attempted in isolated child processes on 154 pinned files. The 106 display-image cases use ${htmlEscape(report.oracle)} as the independent raw-RGBA8 oracle; exact means every compared channel matched. Forty-four native scientific rasters are not forced through RGBA. Four malformed files test bounded rejection separately.</p>${conformanceTable(report)}</div></section>
-<section class="section" id="methodology"><div class="container prose"><p class="section-label">Methodology</p><h2>What these numbers do—and do not—mean.</h2><ul>${comparisonMethodology.map((item) => `<li>${htmlEscape(item)}</li>`).join('')}<li>Run limits: ${report.timeoutMs / 1000} seconds and ${report.memoryMb} MiB per child process, concurrency 2.</li><li>Environment: ${htmlEscape(report.nodeVersion)}, ${htmlEscape(report.platform)}/${htmlEscape(report.architecture)}; report generated ${htmlEscape(report.generatedAt)}.</li><li>Corpus directories: ${report.directories.map(htmlEscape).join(', ')}.</li></ul><p>A mismatch in a color-converted or lossy case is visible but is not automatically a decoder defect: compliant converters can differ in rounding, chroma reconstruction, ICC handling, or JPEG output. The raw report preserves those files and deltas rather than hiding them.</p></div></section>
-<section class="section tint"><div class="container prose"><p class="section-label">Sources</p><h2>Versioned evidence</h2><ol class="comparison-evidence">${evidenceList()}</ol><h3>Excluded or historical libraries</h3><ul>${excludedTiffLibraries.map((library) => `<li><a href="${htmlEscape(library.url)}" target="_blank" rel="noreferrer"><strong>${htmlEscape(library.name)}</strong></a>: ${htmlEscape(library.reason)}</li>`).join('')}</ul></div></section>`
+<section class="section"><div class="container"><div class="section-heading"><div><p class="section-label">Capability matrix</p><h2>Grouped by TIFF workflow.</h2></div></div>${detailedMatrix(report)}</div></section>
+<section class="section tint" id="conformance"><div class="container"><div class="section-heading"><div><p class="section-label">Reproducible corpus run</p><h2>Decode coverage, exact pixels, and failures.</h2></div><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/tiff-competitor-conformance.md" target="_blank" rel="noreferrer">Per-file report →</a></div><p class="comparison-intro">All six JavaScript engines were attempted in isolated child processes on 154 pinned files. The 106 display-image cases use ${htmlEscape(report.oracle)} as the independent raw-RGBA8 oracle; decoded coverage is primary, while exact means every compared channel matched. Forty-four native scientific rasters are not forced through RGBA. Four malformed files test bounded rejection separately.</p>${conformanceTable(report)}</div></section>
+<section class="section" id="methodology"><div class="container prose"><p class="section-label">Methodology</p><h2>What these numbers do—and do not—mean.</h2><ul>${comparisonMethodology(
+  report,
+)
+  .map((item) => `<li>${htmlEscape(item)}</li>`)
+  .join(
+    '',
+  )}<li>Run limits: ${report.timeoutMs / 1000} seconds and ${report.memoryMb} MiB per child process, concurrency 2.</li><li>Environment: ${htmlEscape(report.nodeVersion)}, ${htmlEscape(report.platform)}/${htmlEscape(report.architecture)}; report generated ${htmlEscape(report.generatedAt)}.</li><li>Corpus directories: ${report.directories.map(htmlEscape).join(', ')}.</li></ul><p>A mismatch in a color-converted or lossy case is visible but is not automatically a decoder defect: compliant converters can differ in rounding, chroma reconstruction, ICC handling, and codec output. Native scientific rasters are reported by type rather than normalized into misleading RGBA. Malformed-input results are separated from valid-file support.</p></div></section>
+<section class="section tint"><div class="container prose"><p class="section-label">Sources</p><h2>Versioned evidence</h2><ol class="comparison-evidence">${evidenceList(report)}</ol><h3>Excluded or historical libraries</h3><ul>${excludedTiffLibraries.map((library) => `<li><a href="${htmlEscape(library.url)}" target="_blank" rel="noreferrer"><strong>${htmlEscape(library.name)}</strong></a>: ${htmlEscape(library.reason)}</li>`).join('')}</ul></div></section>`
 
 const page = (report: ConformanceReport): string => `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Evidence-backed JavaScript TIFF library capability and exact-pixel conformance comparison.">
+  <meta name="description" content="Evidence-backed JavaScript TIFF library capability, decode-coverage, and exact-pixel comparison.">
   <meta name="theme-color" content="#f6f7f2">
   <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/tiff-comparison.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -468,7 +520,7 @@ const main = async (): Promise<void> => {
     ),
     check,
   )
-  const tiffSection = `${tiffStart}\n        <section id="library-comparison" data-search-item><h2>JavaScript TIFF library comparison</h2><p>The compact matrix distinguishes documented capability from independently measured exact-pixel conformance. “Not verified” is not treated as unsupported.</p>${conformanceSummaryTable(report)}<p><a href="tiff-comparison.html">Open the full grouped capability matrix, methodology, versions, and sources →</a></p></section>\n        ${tiffEnd}`
+  const tiffSection = `${tiffStart}\n        <section id="library-comparison" data-search-item><h2>JavaScript TIFF library comparison</h2><p>The compact matrix distinguishes documented capability from independently measured decode coverage and exact pixels. “Not verified” is not treated as unsupported.</p>${conformanceSummaryTable(report)}<p><a href="tiff-comparison.html">Open the full grouped capability matrix, methodology, versions, and sources →</a></p></section>\n        ${tiffEnd}`
   await updateFile(
     tiffPath,
     replaceGenerated(tiff, tiffStart, tiffEnd, tiffSection, tiffPath),

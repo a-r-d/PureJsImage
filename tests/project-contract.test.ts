@@ -154,6 +154,13 @@ describe('package contract', () => {
     expect(comparison).toContain('Grouped by TIFF workflow')
     expect(comparison).toContain('Not verified')
     expect(comparison).toContain('Versioned evidence')
+    expect(readme).toContain('PureJsImage main snapshot · unreleased · 3868385')
+    expect(readme).toContain('104/106 decoded<br>57 exact<br>2 oracle failures')
+    expect(readme).not.toContain('0.8.0 workspace')
+    expect(docsHome).toContain('<strong>104/106 decoded</strong><small>57 exact</small>')
+    expect(tiffGuide).toContain('Decoded / comparable')
+    expect(comparison).toContain('unreleased · 3868385')
+    expect(comparison).toContain('Decode coverage, exact pixels, and failures')
     expect(sitemap).toContain('https://a-r-d.github.io/PureJsImage/tiff-comparison.html')
   })
 

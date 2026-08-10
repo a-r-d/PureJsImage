@@ -1,6 +1,11 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "generatedAt": "2026-08-10T20:34:17.956Z",
+  "purejsimage": {
+    "packageVersion": "0.8.0",
+    "gitCommit": "3868385d7811f6ff9aa42671e5ca9deab47315b0",
+    "dirty": false
+  },
   "nodeVersion": "v24.16.0",
   "platform": "linux",
   "architecture": "x64",
@@ -15,7 +20,6 @@
     ]
   },
   "versions": {
-    "purejsimage": "0.8.0",
     "geotiff": "3.0.5",
     "utif2": "4.1.0",
     "tiff": "7.1.3",
