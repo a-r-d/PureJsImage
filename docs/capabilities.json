@@ -1762,6 +1762,18 @@
           "text": "Reversed bit fill order (`FillOrder=2`) outside CCITT fax compression"
         },
         {
+          "status": "planned",
+          "text": "Decode unsigned 10-, 12-, and 14-bit grayscale and RGB into existing `gray16` and `rgb16` pixel blocks"
+        },
+        {
+          "status": "planned",
+          "text": "Preserve the declared sample range without silently downconverting through an 8-bit intermediate"
+        },
+        {
+          "status": "planned",
+          "text": "Validate all 11 affected Imazen inputs against an independent decoder, including packed rows, planar data, strip/tile edges, and hostile size arithmetic"
+        },
+        {
           "status": "supported",
           "text": "Classic little-endian TIFF with 32-bit offsets"
         },

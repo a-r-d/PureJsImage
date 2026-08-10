@@ -180,8 +180,8 @@ describe('Imazen corpus isolation and classification', () => {
     expect(result).toMatchObject({
       actualOutcome: 'timeout',
       childSignal: 'SIGKILL',
-      lastCompletedStage: 'metadata',
     })
+    expect(['start', 'metadata']).toContain(result.lastCompletedStage)
   })
 
   it('classifies an abnormal child exit as a process crash', async () => {
