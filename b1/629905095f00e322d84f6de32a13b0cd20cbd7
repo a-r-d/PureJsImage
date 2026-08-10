@@ -1,0 +1,44 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 22-24
+CONTRIBUTING.md
+  h_9f4a25732fa0c1 65-68
+docs/api.html
+  h_9f4a25732fa0c1 363
+docs/codecs.html
+  h_9f4a25732fa0c1 110
+docs/contributing.html
+  h_9f4a25732fa0c1 93
+docs/demo.html
+  h_9f4a25732fa0c1 309
+docs/guides.html
+  h_9f4a25732fa0c1 233
+docs/index.html
+  h_9f4a25732fa0c1 276
+docs/llms.txt
+  h_9f4a25732fa0c1 1-664
+docs/performance.html
+  h_9f4a25732fa0c1 258
+docs/sitemap.xml
+  h_9f4a25732fa0c1 10
+docs/tiff-comparison.html
+  h_9f4a25732fa0c1 105
+docs/tiff.html
+  h_9f4a25732fa0c1 205
+scripts/render-capabilities.ts
+  h_9f4a25732fa0c1 130-179,217-219
+scripts/render-library-comparison.ts
+  h_9f4a25732fa0c1 413
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 148-190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "b1629905095f00e322d84f6de32a13b0cd20cbd7",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
