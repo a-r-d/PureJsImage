@@ -559,6 +559,28 @@ const avifBoundedRows = (): Promise<BrowserWorkflowResult> =>
     '7e977b27d1c17fcac0d6092bca89bc47b4ad289dbff356e38302cc9fce300287',
     'Two-superblock-ring AVIF',
   )
+const avifBoundedResize = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/bounded-row-lossless-64x192.avif')
+  const output = await (await images.open(input))
+    .resize({ width: 16, height: 48, fit: 'fill' })
+    .png()
+    .toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.format !== 'png' || metadata.width !== 16 || metadata.height !== 48) {
+    throw new Error(
+      `Bounded-YUV AVIF resize output was ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  const outputPixels = await browserPixels(output, 'image/png')
+  const outputSha256 = await sha256(Uint8Array.from(outputPixels))
+  if (outputSha256 !== '518122334ebc8a3ca083eb18eb8eb95c8de499076a30dc38a5a16d88cbd70c2b') {
+    throw new Error(`Bounded-YUV AVIF resize browser RGBA hash was ${outputSha256}`)
+  }
+  return {
+    detail: 'bounded-YUV AVIF resize matched the pinned portable RGBA output',
+    outputBytes: output.byteLength,
+  }
+}
 
 const avifQ0Lossless = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
@@ -610,6 +632,24 @@ const avifHighBit12 = (): Promise<BrowserWorkflowResult> =>
     12,
     '54ce76855c1541d9a61bf24e543cac163c038f47e1e441450ba359c6ceb36a1c',
     'Coded-lossless 12-bit AVIF',
+  )
+
+const avifHighBitTiles = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'tiled-lossless-10bpc-yuv444-2x2-256x256.avif',
+    256,
+    256,
+    '50ce8c229e978291fd1ac9397ed3c7becb270c4e81eb5661759ac25b943adff5',
+    'Coded-lossless 10-bit 2x2-tile AVIF',
+  )
+
+const avifSuperres = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'libaom-superres-denom12-96x64.avif',
+    96,
+    64,
+    'bb31c24e26095af2032ca9f0d039e4061fae90a426cb3b446cb2199191f96e8b',
+    'Filter-free AV1 super-resolution AVIF',
   )
 
 const avifGrid = (): Promise<BrowserWorkflowResult> =>
@@ -808,10 +848,13 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifAlphaStraight,
   avifBoundedAlphaRows,
   avifBoundedRows,
+  avifBoundedResize,
   avifCleanAperture,
   avifGrid,
   avifHighBit10,
   avifHighBit12,
+  avifHighBitTiles,
+  avifSuperres,
   avifIntrabc,
   avifQuantizationMatrix,
   avifQ0Lossless,

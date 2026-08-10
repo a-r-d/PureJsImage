@@ -332,6 +332,14 @@ await copyFile(
   resolve(fixtureDirectory, 'lossless-identity-16x12-12bpc.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif',
+  resolve(fixtureDirectory, 'tiled-lossless-10bpc-yuv444-2x2-256x256.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libaom-superres-denom12-96x64.avif',
+  resolve(fixtureDirectory, 'libaom-superres-denom12-96x64.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/blue-and-magenta-crop.avif',
   resolve(fixtureDirectory, 'blue-and-magenta-crop.avif'),
 )

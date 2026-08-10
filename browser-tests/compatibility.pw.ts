@@ -128,9 +128,30 @@ test('decodes coded-lossless 12-bit AVIF', async ({ page }) => {
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 
+test('decodes coded-lossless 10-bit AVIF tiles', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifHighBitTiles())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
+test('decodes filter-free AV1 super-resolution', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifSuperres())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
 test('decodes AVIF through bounded reconstruction rings', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifBoundedRows())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
+test('resizes AVIF directly from bounded YUV rows', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifBoundedResize())
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('pinned portable RGBA output')
 })

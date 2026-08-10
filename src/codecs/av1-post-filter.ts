@@ -3,8 +3,11 @@ import type { Av1FrameHeader } from './av1-frame.ts'
 export interface Av1FilterPlane {
   readonly data: Uint8Array | Uint16Array
   readonly height: number
+  readonly rowOffsets?: Int32Array
+  readonly storageHeight?: number
   readonly stride: number
   readonly width: number
+  readonly yOrigin?: number
 }
 
 export interface Av1RestorationPlaneState {
@@ -56,13 +59,24 @@ const round2 = (value: number, bits: number): number =>
 
 const floorLog2 = (value: number): number => Math.floor(Math.log2(value))
 
-const clonePlanes = (
-  planes: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
-): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => [
-  { ...planes[0], data: planes[0].data.slice() },
-  { ...planes[1], data: planes[1].data.slice() },
-  { ...planes[2], data: planes[2].data.slice() },
-]
+const planeSample = (plane: Av1FilterPlane, x: number, y: number): number => {
+  if (x < 0 || x >= plane.width || y < 0 || y >= plane.height) return 0
+  const mappedRow = plane.rowOffsets?.[y]
+  if (plane.rowOffsets) {
+    return mappedRow === undefined || mappedRow < 0
+      ? 0
+      : (plane.data[mappedRow * plane.stride + x] ?? 0)
+  }
+  const localY = y - (plane.yOrigin ?? 0)
+  const storageHeight = plane.storageHeight ?? plane.height
+  return localY < 0 || localY >= storageHeight ? 0 : (plane.data[localY * plane.stride + x] ?? 0)
+}
+
+const sampleBuffer = (
+  source: Uint8Array | Uint16Array,
+  length: number,
+): Uint8Array | Uint16Array =>
+  source instanceof Uint8Array ? new Uint8Array(length) : new Uint16Array(length)
 
 const planeContextWidth = (state: Av1PostFilterState, plane: number): number => {
   const shiftX = plane === 0 ? 0 : state.chromaShiftX
@@ -305,9 +319,10 @@ const cdefDirection = (
 ): readonly [number, number] => {
   partial.fill(0)
   costs.fill(0)
+  const sourceY = y - (plane.yOrigin ?? 0)
   for (let row = 0; row < 8; row += 1) {
     for (let column = 0; column < 8; column += 1) {
-      const value = (plane.data[(y + row) * plane.stride + x + column] ?? 0) - 128
+      const value = (plane.data[(sourceY + row) * plane.stride + x + column] ?? 0) - 128
       partial[row + column] = (partial[row + column] ?? 0) + value
       partial[15 + row + (column >> 1)] = (partial[15 + row + (column >> 1)] ?? 0) + value
       partial[30 + row] = (partial[30 + row] ?? 0) + value
@@ -392,10 +407,13 @@ const filterCdefBlock = (
   const width = 8 >> shiftX
   const height = 8 >> shiftY
   const tapSet = primaryStrength & 1
+  const sourceOriginY = source.yOrigin ?? 0
+  const targetOriginY = target.yOrigin ?? 0
   for (let localY = 0; localY < height; localY += 1) {
     for (let localX = 0; localX < width; localX += 1) {
-      const sourceIndex = (y0 + localY) * source.stride + x0 + localX
-      const center = source.data[sourceIndex] ?? 0
+      const sampleX0 = x0 + localX
+      const sampleY0 = y0 + localY
+      const center = source.data[(sampleY0 - sourceOriginY) * source.stride + sampleX0] ?? 0
       let minimum = center
       let maximum = center
       let sum = 0
@@ -423,7 +441,7 @@ const filterCdefBlock = (
             ) {
               continue
             }
-            const sample = source.data[sampleY * source.stride + sampleX] ?? 0
+            const sample = source.data[(sampleY - sourceOriginY) * source.stride + sampleX] ?? 0
             const primary = directionOffsetIndex === 0
             const strength = primary ? primaryStrength : secondaryStrength
             const taps = primary ? cdefPrimaryTaps : cdefSecondaryTaps
@@ -433,7 +451,11 @@ const filterCdefBlock = (
           }
         }
       }
-      target.data[sourceIndex] = clip(minimum, maximum, center + ((8 + sum - Number(sum < 0)) >> 4))
+      target.data[(sampleY0 - targetOriginY) * target.stride + sampleX0] = clip(
+        minimum,
+        maximum,
+        center + ((8 + sum - Number(sum < 0)) >> 4),
+      )
     }
   }
 }
@@ -443,10 +465,87 @@ export const applyAv1Cdef = (
   header: Av1FrameHeader,
   state: Av1PostFilterState,
 ): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
-  const output = clonePlanes(planes)
+  interface MutableBand extends Av1FilterPlane {
+    storageHeight: number
+    yOrigin: number
+  }
+  const createBand = (plane: Av1FilterPlane, rows: number): MutableBand => ({
+    data: sampleBuffer(plane.data, plane.stride * rows),
+    height: plane.height,
+    storageHeight: 0,
+    stride: plane.stride,
+    width: plane.width,
+    yOrigin: 0,
+  })
+  const createBands = (haloRows: number): [MutableBand, MutableBand, MutableBand] => [
+    createBand(planes[0], Math.min(planes[0].height, 8 + haloRows)),
+    createBand(planes[1], Math.min(planes[1].height, (8 >> state.chromaShiftY) + haloRows)),
+    createBand(planes[2], Math.min(planes[2].height, (8 >> state.chromaShiftY) + haloRows)),
+  ]
+  const sourceWindows = createBands(4)
+  let pending = createBands(0)
+  let current = createBands(0)
+  let hasPending = false
+  const copyRows = (
+    target: MutableBand,
+    source: Av1FilterPlane,
+    startY: number,
+    rows: number,
+  ): void => {
+    const length = rows * source.stride
+    target.data.fill(0)
+    target.data.set(source.data.subarray(startY * source.stride, startY * source.stride + length))
+    target.yOrigin = startY
+    target.storageHeight = rows
+  }
+  const copyBandFromWindow = (
+    target: MutableBand,
+    source: MutableBand,
+    startY: number,
+    rows: number,
+  ): void => {
+    const sourceOffset = (startY - source.yOrigin) * source.stride
+    const length = rows * source.stride
+    target.data.fill(0)
+    target.data.set(source.data.subarray(sourceOffset, sourceOffset + length))
+    target.yOrigin = startY
+    target.storageHeight = rows
+  }
+  const commitBands = (bands: readonly [MutableBand, MutableBand, MutableBand]): void => {
+    for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
+      const plane = planes[planeIndex]
+      const band = bands[planeIndex]
+      if (!plane || !band || band.storageHeight === 0) continue
+      const length = band.storageHeight * plane.stride
+      plane.data.set(band.data.subarray(0, length), band.yOrigin * plane.stride)
+    }
+  }
   const partial = new Int32Array(120)
   const costs = new Float64Array(8)
-  for (let row = 0; row < state.miRows; row += 2) {
+  for (let lumaY = 0; lumaY < header.frameHeight; lumaY += 8) {
+    for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
+      const plane = planes[planeIndex]
+      const window = sourceWindows[planeIndex]
+      if (!plane || !window) continue
+      const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
+      const bandStart = lumaY >> shiftY
+      const bandEnd = Math.min(plane.height, (lumaY + 8) >> shiftY)
+      const sourceStart = Math.max(0, bandStart - 2)
+      const sourceEnd = Math.min(plane.height, bandEnd + 2)
+      copyRows(window, plane, sourceStart, sourceEnd - sourceStart)
+    }
+    if (hasPending) commitBands(pending)
+    for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
+      const plane = planes[planeIndex]
+      const window = sourceWindows[planeIndex]
+      const band = current[planeIndex]
+      if (!plane || !window || !band) continue
+      const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
+      const startY = lumaY >> shiftY
+      const rows = Math.min(plane.height - startY, 8 >> shiftY)
+      copyBandFromWindow(band, window, startY, rows)
+    }
+    const row = lumaY >> 2
     for (let column = 0; column < state.miColumns; column += 2) {
       const baseRow = row & ~15
       const baseColumn = column & ~15
@@ -462,7 +561,7 @@ export const applyAv1Cdef = (
         (state.skips[first + state.miColumns + 1] ?? 0) === 1
       if (skip) continue
       const [lumaDirection, variance] = cdefDirection(
-        planes[0],
+        sourceWindows[0],
         column * 4,
         row * 4,
         partial,
@@ -474,8 +573,8 @@ export const applyAv1Cdef = (
       const varianceStrength = scaledVariance > 0 ? Math.min(floorLog2(scaledVariance), 12) : 0
       const lumaPrimary = variance ? (lumaPrimaryBase * (4 + varianceStrength) + 8) >> 4 : 0
       filterCdefBlock(
-        planes[0],
-        output[0],
+        sourceWindows[0],
+        current[0],
         0,
         state,
         row,
@@ -490,8 +589,8 @@ export const applyAv1Cdef = (
       const chromaDirection =
         chromaPrimary === 0 ? 0 : (cdefUvDirections420[lumaDirection] ?? lumaDirection)
       for (let planeIndex = 1; planeIndex < 3; planeIndex += 1) {
-        const sourcePlane = planes[planeIndex]
-        const outputPlane = output[planeIndex]
+        const sourcePlane = sourceWindows[planeIndex]
+        const outputPlane = current[planeIndex]
         if (!sourcePlane || !outputPlane || sourcePlane.width === 0 || sourcePlane.height === 0) {
           continue
         }
@@ -509,8 +608,66 @@ export const applyAv1Cdef = (
         )
       }
     }
+    const reusable = pending
+    pending = current
+    current = reusable
+    hasPending = true
   }
-  return output
+  if (hasPending) commitBands(pending)
+  return [planes[0], planes[1], planes[2]]
+}
+
+const snapshotRestorationBoundaries = (
+  planes: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
+  header: Av1FrameHeader,
+  state: Av1PostFilterState,
+): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
+  const snapshotPlane = (plane: Av1FilterPlane, shiftY: number): Av1FilterPlane => {
+    const rowOffsets = new Int32Array(plane.height)
+    rowOffsets.fill(-1)
+    let rows = 0
+    const stripeHeight = 64 >> shiftY
+    const stripeCount = Math.ceil((header.frameHeight + 8) / 64)
+    for (let stripe = 0; stripe < stripeCount; stripe += 1) {
+      const stripeStart = (-8 + stripe * 64) >> shiftY
+      const stripeEnd = stripeStart + stripeHeight - 1
+      for (let boundary = 0; boundary < 4; boundary += 1) {
+        const row =
+          boundary === 0
+            ? stripeStart - 2
+            : boundary === 1
+              ? stripeStart - 1
+              : boundary === 2
+                ? stripeEnd + 1
+                : stripeEnd + 2
+        if (row >= 0 && row < plane.height && (rowOffsets[row] ?? -1) < 0) {
+          rowOffsets[row] = rows
+          rows += 1
+        }
+      }
+    }
+    const data = sampleBuffer(plane.data, rows * plane.stride)
+    for (let row = 0; row < plane.height; row += 1) {
+      const targetRow = rowOffsets[row] ?? -1
+      if (targetRow < 0) continue
+      data.set(
+        plane.data.subarray(row * plane.stride, (row + 1) * plane.stride),
+        targetRow * plane.stride,
+      )
+    }
+    return {
+      data,
+      height: plane.height,
+      rowOffsets,
+      stride: plane.stride,
+      width: plane.width,
+    }
+  }
+  return [
+    snapshotPlane(planes[0], 0),
+    snapshotPlane(planes[1], state.chromaShiftY),
+    snapshotPlane(planes[2], state.chromaShiftY),
+  ]
 }
 
 const sourceSample = (
@@ -527,11 +684,11 @@ const sourceSample = (
   let y = clip(0, planeEndY, inputY)
   if (y < stripeStartY) {
     y = Math.max(stripeStartY - 2, y)
-    return deblocked.data[y * deblocked.stride + x] ?? 0
+    return planeSample(deblocked, x, y)
   }
   if (y > stripeEndY) {
     y = Math.min(stripeEndY + 2, y)
-    return deblocked.data[y * deblocked.stride + x] ?? 0
+    return planeSample(deblocked, x, y)
   }
   return cdef.data[y * cdef.stride + x] ?? 0
 }
@@ -900,6 +1057,8 @@ export const applyAv1PostFilters = (
   state: Av1PostFilterState,
 ): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
   applyAv1LoopFilter(planes, header, state)
+  const hasRestoration = state.restoration.some((plane) => plane.types.some((value) => value !== 0))
+  const deblocked = hasRestoration ? snapshotRestorationBoundaries(planes, header, state) : planes
   const hasCdef =
     state.cdefIndices.some((value) => value !== 0) &&
     (header.cdefYPrimaryStrengths.some((value) => value !== 0) ||
@@ -907,6 +1066,5 @@ export const applyAv1PostFilters = (
       header.cdefUvPrimaryStrengths.some((value) => value !== 0) ||
       header.cdefUvSecondaryStrengths.some((value) => value !== 0))
   const cdef = hasCdef ? applyAv1Cdef(planes, header, state) : planes
-  const hasRestoration = state.restoration.some((plane) => plane.types.some((value) => value !== 0))
-  return hasRestoration ? applyAv1LoopRestoration(planes, cdef, header, state) : cdef
+  return hasRestoration ? applyAv1LoopRestoration(deblocked, cdef, header, state) : cdef
 }

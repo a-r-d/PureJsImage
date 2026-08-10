@@ -19,6 +19,17 @@ import {
   avifHighBitLosslessFixtureDirectory,
   avifHighBitLosslessFixtures,
 } from '../benchmark/avif/high-bit-lossless-fixtures.ts'
+import {
+  avifTiledLosslessFixture,
+  avifTiledLosslessFixturePath,
+  tiledLosslessSample,
+} from '../benchmark/avif/tiled-lossless-fixture.ts'
+import {
+  avifSuperres420Fixture,
+  avifSuperres420FixturePath,
+  avifSuperresFixture,
+  avifSuperresFixturePath,
+} from '../benchmark/avif/superres-fixture.ts'
 import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
 import { avifBoundedRowFixture, avifBoundedRowFixturePath } from '../benchmark/avif/row-fixture.ts'
 import {
@@ -32,6 +43,7 @@ import {
   avifCodec,
   inspectAvifBitstreams,
   validateAvifFrameDimensions,
+  validateAvifWorkingBytes,
 } from '../src/codecs/avif.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource } from '../src/source.ts'
@@ -271,6 +283,16 @@ describe('AVIF metadata', () => {
   it('applies image dimension limits before decoding', async () => {
     const image = await Image.open(avifFixture({ width: 101 }), { limits: { maxWidth: 100 } })
     await expect(image.metadata()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+  })
+
+  it('rejects aggregate decoder working sets above 64 MiB', () => {
+    expect(() => validateAvifWorkingBytes(64 * 1_024 * 1_024)).not.toThrow()
+    expect(() => validateAvifWorkingBytes(64 * 1_024 * 1_024 + 1)).toThrow(
+      expect.objectContaining({ code: 'LIMIT_EXCEEDED' }),
+    )
+    expect(() => validateAvifWorkingBytes(Number.MAX_SAFE_INTEGER + 1)).toThrow(
+      expect.objectContaining({ code: 'LIMIT_EXCEEDED' }),
+    )
   })
 
   it('rejects boxes that extend beyond their parent', async () => {
@@ -617,6 +639,130 @@ describe('AVIF restricted pixel decode', () => {
     },
   )
 
+  it('decodes a coded-lossless 10-bit 2x2 AV1 tile layout exactly', async () => {
+    const fixture = avifTiledLosslessFixture
+    const input = await readFile(avifTiledLosslessFixturePath)
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('Tiled AVIF fixture has no color frame OBU')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+    const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(coded.sequence).toMatchObject({
+      bitDepth: fixture.bitDepth,
+      chromaSubsampling: '444',
+      fullRange: true,
+    })
+    expect(frame.header).toMatchObject({
+      allLossless: true,
+      tileColumns: fixture.columns,
+      tileRows: fixture.rows,
+    })
+    expect(
+      frame.tiles.map((tile) => [
+        tile.miColumnStart,
+        tile.miRowStart,
+        tile.miColumnEnd,
+        tile.miRowEnd,
+      ]),
+    ).toEqual([
+      [0, 0, 32, 32],
+      [32, 0, 64, 32],
+      [0, 32, 32, 64],
+      [32, 32, 64, 64],
+    ])
+    const planes = [decoded.y, decoded.u, decoded.v] as const
+    let maximumPlaneDifference = 0
+    for (const plane of [0, 1, 2] as const) {
+      const samples = planes[plane]
+      const stride = plane === 0 ? decoded.yStride : decoded.chromaStride
+      for (let y = 0; y < fixture.height; y += 1) {
+        for (let x = 0; x < fixture.width; x += 1) {
+          maximumPlaneDifference = Math.max(
+            maximumPlaneDifference,
+            Math.abs((samples[y * stride + x] ?? 0) - tiledLosslessSample(plane, x, y)),
+          )
+        }
+      }
+    }
+    expect(maximumPlaneDifference).toBe(0)
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+  })
+
+  it('applies normative AV1 super-resolution to a filter-free 8-bit frame', async () => {
+    const fixture = avifSuperresFixture
+    const input = await readFile(avifSuperresFixturePath)
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('Super-resolution AVIF fixture has no color frame OBU')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+    const oracle = await sharp(input).removeAlpha().raw().toBuffer()
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(coded.sequence).toMatchObject({
+      bitDepth: fixture.bitDepth,
+      chromaSubsampling: fixture.chromaSubsampling,
+      fullRange: true,
+    })
+    expect(frame.header).toMatchObject({
+      frameWidth: fixture.codedWidth,
+      frameHeight: fixture.height,
+      upscaledWidth: fixture.width,
+      loopFilterLevels: [0, 0, 0, 0],
+      restorationTypes: [0, 0, 0],
+    })
+    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+    expect(createHash('sha256').update(oracle).digest('hex')).toBe(fixture.sharpRgbSha256)
+    let maximumDifference = 0
+    for (let pixel = 0; pixel < fixture.width * fixture.height; pixel += 1) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        maximumDifference = Math.max(
+          maximumDifference,
+          Math.abs((output.data[pixel * 4 + channel] ?? 0) - (oracle[pixel * 3 + channel] ?? 0)),
+        )
+      }
+    }
+    expect(maximumDifference).toBe(0)
+    expect(() =>
+      decodeRestrictedAv1Intra(coded.sequence, {
+        ...frame,
+        header: { ...frame.header, loopFilterLevels: [1, 0, 0, 0] },
+      }),
+    ).toThrow(expect.objectContaining({ code: 'UNSUPPORTED_OPERATION' }))
+  })
+
+  it('upscales subsampled AV1 chroma planes at their normative widths', async () => {
+    const fixture = avifSuperres420Fixture
+    const input = await readFile(avifSuperres420FixturePath)
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('YUV 4:2:0 super-resolution fixture has no frame OBU')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+    const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(coded.sequence.chromaSubsampling).toBe(fixture.chromaSubsampling)
+    expect(frame.header).toMatchObject({
+      frameWidth: fixture.codedWidth,
+      upscaledWidth: fixture.width,
+    })
+    expect(decoded).toMatchObject({
+      width: fixture.width,
+      height: fixture.height,
+      chromaWidth: fixture.width / 2,
+      chromaHeight: fixture.height / 2,
+    })
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+  })
+
   it.each([
     {
       file: 'kodim03_yuv420_8bpc.avif',
@@ -702,7 +848,50 @@ describe('AVIF restricted pixel decode', () => {
     expect(hash.digest('hex')).toBe(avifBoundedRowFixture.decodedRgbaSha256)
   })
 
-  it('rejects coded frame dimensions that differ from the AVIF item', async () => {
+  it('decimates bounded YUV rows before RGBA resize input', async () => {
+    const input = new Uint8Array(await readFile(avifBoundedRowFixturePath))
+    const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('AVIF decoder is unavailable')
+    expect(decoder.capabilities.scaledDecode).toBe(true)
+    const blocks: ReadonlyArray<number>[] = []
+    const hash = createHash('sha256')
+    for await (const block of decoder.decode({
+      width: 16,
+      height: 48,
+      scaleDenominator: 4,
+    })) {
+      blocks.push([block.x, block.y, block.width, block.height, block.stride])
+      hash.update(block.data)
+    }
+    expect(blocks).toEqual([
+      [0, 0, 16, 16, 64],
+      [0, 16, 16, 16, 64],
+      [0, 32, 16, 16, 64],
+    ])
+    expect(hash.digest('hex')).toBe(
+      '518122334ebc8a3ca083eb18eb8eb95c8de499076a30dc38a5a16d88cbd70c2b',
+    )
+
+    const fullPng = await (await Image.open(input)).png().toBuffer()
+    const reference = PNG.sync.read(
+      await (await Image.open(fullPng))
+        .resize({ width: 16, height: 48, fit: 'fill' })
+        .png()
+        .toBuffer(),
+    )
+    const resized = PNG.sync.read(
+      await (await Image.open(input))
+        .resize({ width: 16, height: 48, fit: 'fill' })
+        .png()
+        .toBuffer(),
+    )
+    expect(resized.data).toEqual(reference.data)
+    expect(createHash('sha256').update(resized.data).digest('hex')).toBe(
+      '518122334ebc8a3ca083eb18eb8eb95c8de499076a30dc38a5a16d88cbd70c2b',
+    )
+  })
+
+  it('rejects AV1 output dimensions that differ from the AVIF item', async () => {
     const input = new Uint8Array(await readFile(avifBoundedRowFixturePath))
     const inspection = await inspectAvifBitstreams(new MemorySource(input))
     const coded = inspection.codedImages.find((image) => image.role === 'color')
@@ -713,7 +902,7 @@ describe('AVIF restricted pixel decode', () => {
     expect(() =>
       validateAvifFrameDimensions(coded, {
         ...frame,
-        header: { ...frame.header, frameWidth: frame.header.frameWidth - 1 },
+        header: { ...frame.header, upscaledWidth: frame.header.upscaledWidth - 1 },
       }),
     ).toThrow(expect.objectContaining({ code: 'INVALID_INPUT' }))
   })
@@ -741,6 +930,18 @@ describe('AVIF restricted pixel decode', () => {
       [0, 160, 64, 32, 256],
     ])
     expect(hash.digest('hex')).toBe(avifBoundedAlphaRowFixture.decodedRgbaSha256)
+
+    const scaledHash = createHash('sha256')
+    for await (const block of decoder.decode({
+      width: 16,
+      height: 48,
+      scaleDenominator: 4,
+    })) {
+      scaledHash.update(block.data)
+    }
+    expect(scaledHash.digest('hex')).toBe(
+      '2bb33916480cc892ff7c41bd0ffd0ab08dff5bc5141777c918167f46439e6575',
+    )
   })
 
   it.each(avifAlphaFixtures)('decodes $file and composes its alpha item', async (fixture) => {

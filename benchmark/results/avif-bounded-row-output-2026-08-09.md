@@ -10,8 +10,11 @@ The change:
 - applies straight or premultiplied alpha while producing each block;
 - synchronizes compatible aligned filter-free alpha through a second bounded reconstruction ring before block composition;
 - composes opaque grids one contributing tile row at a time;
-- writes loop-restoration results through three delayed 4-row luma bands instead of a second full padded YUV output; and
-- keeps the existing full padded reconstruction planes and one full CDEF source/output pair when CDEF is active.
+- writes loop-restoration results through three delayed 4-row luma bands while
+  retaining only deblocked stripe-boundary rows;
+- applies CDEF in place through reusable source windows and delayed 8-row output bands;
+- applies the 64 MiB aggregate working-set limit to bounded and full-frame fallback paths; and
+- box-filters compatible full-aperture resize input directly from bounded YUV rows.
 
 ## Method
 
@@ -40,6 +43,8 @@ Raw runs:
 - `benchmark/results/avif-memory-bounded-context-rings-2026-08-09.json`
 - `benchmark/results/avif-memory-bounded-alpha-rings-2026-08-09.json`
 - `benchmark/results/avif-memory-scaling-2026-08-09.json`
+- `benchmark/results/avif-memory-bounded-cdef-bands-2026-08-09.json`
+- `benchmark/results/avif-memory-scaling-yuv-resize-2026-08-09.json`
 
 ## Median results
 
@@ -85,50 +90,65 @@ to 3519.075 ms (+15.1%). All three runs reproduced
 Rotated alpha and post-filtered color or alpha items retain the full-frame
 compatibility fallback.
 
-## Source-dimension scaling
+## Bounded CDEF and aggregate limits
+
+CDEF now snapshots at most a 12-row luma source window and delays one 8-row
+output band instead of cloning every padded YUV plane. Loop restoration retains
+only the deblocked rows needed at 64-row stripe boundaries while continuing to
+write through delayed 4-row bands. Against the `bounded-context-rings` capture,
+the CDEF fixture's median sampled ArrayBuffer delta fell from 3.82 MiB to
+3.25 MiB (-14.7%); median wall time moved from 425.198 ms to 445.918 ms
+(+4.9%). All three runs reproduced
+`b10ee50244d047f22a35e99fb288882ac1a223605c2b62be393a484a06eb0ba0`.
+The full-frame compatibility paths and grid tile rows now receive the same
+conservative 64 MiB coded-payload plus estimated-working-state check as bounded
+single-item decode.
+
+## Source-dimension and direct-YUV resize scaling
 
 Run:
 
 ```sh
 npm run bench:avif:memory:scaling -- \
-  --output benchmark/results/avif-memory-scaling-2026-08-09.json
+  --output benchmark/results/avif-memory-scaling-yuv-resize-2026-08-09.json
 ```
 
 The scaling probe generates one-tile, lossless, full-range YUV 4:4:4 inputs at
-512x384, 1024x768, and 2048x1536. It compares the same filter-free AV1 payload
-through full padded reconstruction and the bounded public decoder, with three
-isolated cold processes per mode and dimension. Both modes must reproduce the
-same lossless RGBA SHA-256.
+512x384, 1024x768, and 2048x1536. It compares full padded reconstruction and
+bounded row reconstruction for both full-size output and 4x box-filtered
+downscale. Three isolated cold processes run per mode and dimension. Each full
+and bounded pair must reproduce the same independently calculated RGBA SHA-256.
 
-| Dimensions | Pixels | Full ArrayBuffer delta | Bounded ArrayBuffer delta | Full RSS delta | Bounded RSS delta |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| 512x384 | 0.20 M | 2.08 MiB | 1.78 MiB | 7.93 MiB | 7.06 MiB |
-| 1024x768 | 0.79 M | 8.59 MiB | 6.12 MiB | 15.68 MiB | 15.31 MiB |
-| 2048x1536 | 3.15 M | 34.35 MiB | 14.73 MiB | 50.31 MiB | 20.68 MiB |
+| Source | Full-frame scaled ArrayBuffer delta | Bounded-row scaled ArrayBuffer delta | Full-frame scaled RSS delta | Bounded-row scaled RSS delta |
+| --- | ---: | ---: | ---: | ---: |
+| 512x384 | 1.45 MiB | 1.13 MiB | 8.18 MiB | 8.18 MiB |
+| 1024x768 | 5.78 MiB | 4.41 MiB | 12.18 MiB | 12.18 MiB |
+| 2048x1536 | 23.07 MiB | 9.67 MiB | 36.56 MiB | 17.56 MiB |
 
-From 1024x768 to 2048x1536, pixel count quadrupled. The full path's median
-sampled ArrayBuffer delta grew 4.00x and median RSS delta grew 3.21x. The
-bounded path grew 2.41x and 1.35x respectively. At 2048x1536, bounded decode
-reduced the sampled ArrayBuffer delta by 57.1%, the RSS delta by 58.9%, and
-absolute peak RSS by 29.64 MiB relative to full reconstruction; median wall
-time was 1.3% higher. The bounded path still scales with compressed payload
-copies, width-dependent rings, and remaining decoder state, so this is evidence
-of improved—not constant—memory scaling.
+At 2048x1536, direct bounded-YUV downscale reduced the sampled ArrayBuffer
+delta by 58.1%, the RSS delta by 52.0%, and absolute peak RSS by 19.38 MiB
+relative to full reconstruction of the same scaled output. Median wall time was
+2.7% higher. The full-size 2048x1536 bounded path used a 16.06 MiB median
+ArrayBuffer delta versus 34.32 MiB for full reconstruction. The path remains
+width-, compressed-payload-, and decoder-state-dependent, and the 80% Lambda
+memory-reduction target is not met.
 
 ## Correctness gates
 
-- `npx vitest run tests/av1.test.ts tests/av1-post-filter.test.ts tests/avif.test.ts tests/lossy-codec-quality.test.ts`: 81/81 passed.
+- `npx vitest run tests/av1.test.ts tests/av1-post-filter.test.ts tests/avif.test.ts tests/lossy-codec-quality.test.ts`: focused AVIF/AV1 suite passed.
 - `npm run fixtures:avif:post-filters`: all five fixtures matched agreeing dav1d/libaom native YUV byte-for-byte.
-- All 84 isolated scenario runs across the four staged memory captures matched their pinned encoded or RGBA checksum.
-- All 18 isolated scaling runs matched the lossless RGBA checksum shared by their full-reconstruction and bounded counterparts.
+- Every isolated staged memory run matched its pinned encoded or RGBA checksum.
+- All 36 isolated source-scaling runs matched the full-size or independently calculated 4x-scaled RGBA checksum shared by their full-reconstruction and bounded counterparts.
 - The bounded alpha fixture matched Sharp/libavif RGBA exactly in Node.js and its pinned portable output in Chromium.
 
 ## Remaining memory boundary
 
 Compatible opaque filter-free single-item decode and aligned filter-free alpha
-decode are reconstruction- and context-ring-bounded. Post-filtered images,
-rotated-alpha images, and grids retain their documented full-frame YUV fallback;
-CDEF retains an additional padded YUV source/output frame. Coded item payloads
-are still materialized contiguously. Resize still consumes RGBA blocks rather than YUV
-rows. The isolated-process RSS signal remains much noisier than the deterministic
-ArrayBuffer accounting, and the 80% Lambda memory-reduction target is not met.
+decode are reconstruction- and context-ring-bounded. Their full-aperture 2x,
+4x, and 8x downscale paths box-filter YUV before emitting reduced RGBA blocks.
+Post-filtered images, rotated-alpha images, and grids retain their documented
+full-frame YUV compatibility paths, although CDEF and restoration no longer add
+a second full padded YUV frame. Coded item payloads are still materialized
+contiguously. The isolated-process RSS signal remains much noisier than
+deterministic ArrayBuffer accounting, and the 80% Lambda memory-reduction
+target is not met.

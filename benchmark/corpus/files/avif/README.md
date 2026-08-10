@@ -85,6 +85,25 @@ conversion to the library's 8-bit RGBA output contract. Run
 Y4M sources with one encoder worker. Encoded, source, Sharp RGB, and decoded
 RGBA checksums are pinned in `benchmark/avif/high-bit-lossless-fixtures.ts`.
 
+`tiled-lossless-10bpc-yuv444-2x2-256x256.avif` is a deterministic full-range
+10-bit YUV 4:4:4 image split into four AV1 tiles. It covers independent entropy
+and context initialization plus prediction boundaries at both tile columns and
+rows. Run `npm run fixtures:avif:tiles:prepare` to regenerate it from the
+checksum-pinned Y4M source. Run `npm run fixtures:avif:tiles` to require
+PureJsImage, dav1d, and libaom to reconstruct identical native YUV samples.
+Checksums are pinned in `benchmark/avif/tiled-lossless-fixture.ts`.
+
+`libaom-superres-denom12-96x64.avif` and
+`libaom-superres-denom12-yuv420-96x64.avif` are deterministic full-range
+8-bit YUV 4:4:4 and YUV 4:2:0 frames whose AV1 payloads reconstruct at 64x64
+before normative super-resolution expands luma to 96x64 and chroma to its
+subsampling-specific width. Deblocking, CDEF, and restoration are disabled so
+the fixtures isolate the eight-tap horizontal upscaler. Run
+`npm run fixtures:avif:superres:prepare` to regenerate them with libaom 3.12.1,
+then `npm run fixtures:avif:superres` to require PureJsImage, dav1d, and libaom
+to produce byte-identical native YUV. Checksums are pinned in
+`benchmark/avif/superres-fixture.ts`.
+
 `clean-aperture-lossless-16x12.avif` is a deterministic full-range,
 identity-color YUV 4:4:4 fixture encoded with libavif 1.3.0 and libaom 3.12.1.
 Its integer `clap` property crops the 16x12 coded image to the 8x6 rectangle at

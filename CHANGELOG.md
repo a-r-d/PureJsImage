@@ -58,6 +58,20 @@ All notable changes to PureJsImage are documented in this file.
   native high-depth prediction and coefficient reconstruction before explicit
   conversion to the 8-bit RGBA contract; pinned fixtures reconstruct source
   planes exactly and differ from Sharp/libavif displayed RGB by at most one.
+- Added complete coded-lossless multi-tile AV1 frame reconstruction with
+  independent entropy, context, partition, and prediction boundaries. The
+  checksum-pinned 10-bit 2x2 YUV 4:4:4 fixture matches its source and agreeing
+  dav1d/libaom native YUV byte for byte; lossy, intra-block-copy, and
+  multi-OBU tile-group paths remain explicitly unsupported.
+- Added normative eight-tap AV1 super-resolution for filter-free one-tile
+  8-bit AVIF frames. The denominator-12 YUV 4:2:0 and YUV 4:4:4 fixtures match
+  agreeing dav1d/libaom native YUV byte for byte, while the 4:4:4 fixture
+  matches Sharp/libavif displayed RGB exactly. Filtered and multi-tile
+  super-resolution remain explicitly unsupported, and the supported path
+  retains full coded and upscaled YUV planes.
+- Expanded deterministic AVIF corruption fuzzing across checksum-pinned
+  super-resolution, high-bit tile, premultiplied-alpha, restoration-unit, and
+  cropped-grid inputs; malformed variants must fail only through `ImageError`.
 - Added constrained skipped intra-block-copy reconstruction for compatible AVIF
   screen content, including adaptive integer motion vectors and allocation-free
   in-place plane copies; the pinned 320x280 fixture matches agreeing libaom and
@@ -71,14 +85,17 @@ All notable changes to PureJsImage are documented in this file.
 
 - Changed AVIF RGBA conversion, alpha application, clean-aperture output, and
   opaque-grid composition to ordered row blocks instead of retaining a
-  source-sized RGBA bitmap; loop restoration now writes through delayed row
-  bands instead of allocating a second full padded YUV output.
+  source-sized RGBA bitmap. Loop restoration now retains only deblocked stripe
+  boundaries and delayed output bands, while CDEF uses reusable source windows
+  and delayed 8-row output bands instead of another padded YUV frame.
 - Changed compatible opaque filter-free AVIF decode to reuse two-superblock YUV,
   prediction, palette, and coefficient-context rings, copy finalized bands
-  before reuse, and reject coded payload plus estimated working state above
-  64 MiB. Compatible aligned filter-free alpha auxiliaries now use a synchronized
-  second reconstruction ring; post-filtered, rotated-alpha, and grid paths retain
-  their documented full-frame YUV fallback.
+  before reuse, and box-filter compatible full-aperture 2x, 4x, and 8x resize
+  input directly from bounded YUV rows before RGBA conversion. Compatible
+  aligned filter-free alpha auxiliaries use a synchronized second reconstruction
+  ring. Every AVIF decoder path now rejects coded payload plus conservatively
+  estimated working state above 64 MiB; post-filtered, rotated-alpha, and grid
+  paths retain their documented full-frame YUV reconstruction fallback.
 
 - Moved HEIF/HEIC decode to the explicit
   `purejsimage/codecs/experimental/heic` entry, removed it from `allCodecs` and

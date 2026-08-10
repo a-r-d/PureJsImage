@@ -9,7 +9,7 @@ interface ScalingRun {
   readonly dimensions: string
   readonly inputBytes: number
   readonly maximumRssBytes: number
-  readonly mode: 'bounded' | 'full'
+  readonly mode: 'bounded' | 'bounded-scaled' | 'full' | 'full-scaled'
   readonly outputSha256: string
   readonly peakArrayBuffersDeltaBytes: number
   readonly peakExternalDeltaBytes: number
@@ -20,7 +20,15 @@ interface ScalingRun {
 
 const isScalingRun = (value: unknown): value is ScalingRun => {
   if (typeof value !== 'object' || value === null) return false
-  if (!('mode' in value) || (value.mode !== 'bounded' && value.mode !== 'full')) return false
+  if (
+    !('mode' in value) ||
+    (value.mode !== 'bounded' &&
+      value.mode !== 'bounded-scaled' &&
+      value.mode !== 'full' &&
+      value.mode !== 'full-scaled')
+  ) {
+    return false
+  }
   if (!('dimensions' in value) || typeof value.dimensions !== 'string') return false
   if (!('pixels' in value) || typeof value.pixels !== 'number') return false
   if (!('inputBytes' in value) || typeof value.inputBytes !== 'number') return false
@@ -73,6 +81,32 @@ try {
       }
       expected.update(rgbaRow)
     }
+    const scaledExpected = createHash('sha256')
+    const scaledWidth = width >> 2
+    const scaledHeight = height >> 2
+    const scaledRgbaRow = new Uint8Array(scaledWidth * 4)
+    for (let outputY = 0; outputY < scaledHeight; outputY += 1) {
+      for (let outputX = 0; outputX < scaledWidth; outputX += 1) {
+        let first = 0
+        let second = 0
+        let third = 0
+        for (let deltaY = 0; deltaY < 4; deltaY += 1) {
+          const sourceRow = (outputY * 4 + deltaY) * width
+          for (let deltaX = 0; deltaX < 4; deltaX += 1) {
+            const source = sourceRow + outputX * 4 + deltaX
+            first += planes[source] ?? 0
+            second += planes[pixels + source] ?? 0
+            third += planes[2 * pixels + source] ?? 0
+          }
+        }
+        const target = outputX * 4
+        scaledRgbaRow[target] = Math.round(third / 16)
+        scaledRgbaRow[target + 1] = Math.round(first / 16)
+        scaledRgbaRow[target + 2] = Math.round(second / 16)
+        scaledRgbaRow[target + 3] = 255
+      }
+      scaledExpected.update(scaledRgbaRow)
+    }
     const y4mPath = join(temporaryDirectory, `${width}x${height}.y4m`)
     const avifPath = join(temporaryDirectory, `${width}x${height}.avif`)
     const header = new TextEncoder().encode(
@@ -104,11 +138,20 @@ try {
     if (encoded.error) throw encoded.error
     if (encoded.status !== 0) throw new Error(`avifenc failed: ${encoded.stderr.trim()}`)
     const expectedSha256 = expected.digest('hex')
-    for (const mode of ['full', 'bounded'] as const) {
+    const expectedScaledSha256 = scaledExpected.digest('hex')
+    for (const mode of ['full', 'bounded', 'full-scaled', 'bounded-scaled'] as const) {
       for (let run = 0; run < 3; run += 1) {
         const child = spawnSync(
           process.execPath,
-          ['--expose-gc', worker, avifPath, `${width}`, `${height}`, expectedSha256, mode],
+          [
+            '--expose-gc',
+            worker,
+            avifPath,
+            `${width}`,
+            `${height}`,
+            mode.endsWith('-scaled') ? expectedScaledSha256 : expectedSha256,
+            mode,
+          ],
           { encoding: 'utf8', maxBuffer: 4 * 1_024 * 1_024 },
         )
         if (child.error) throw child.error
@@ -125,7 +168,7 @@ try {
   }
 
   const summaries = dimensions.flatMap(([width, height]) =>
-    (['full', 'bounded'] as const).map((mode) => {
+    (['full', 'bounded', 'full-scaled', 'bounded-scaled'] as const).map((mode) => {
       const selected = runs.filter(
         (run) => run.dimensions === `${width}x${height}` && run.mode === mode,
       )
@@ -152,9 +195,10 @@ try {
     runsPerConfiguration: 3,
     notes: {
       comparison:
-        'Full padded reconstruction and bounded public decode use the same checksum-pinned filter-free AV1 payload.',
+        'Full padded reconstruction and bounded public decode use the same checksum-pinned filter-free AV1 payload; scaled modes emit the same 4x box-filtered RGBA output.',
       baseline: 'Captured with the compressed input retained after explicit GC settling.',
-      correctness: 'Every full and bounded run must reproduce the same lossless RGBA SHA-256.',
+      correctness:
+        'Every full and bounded pair must reproduce the same lossless full-size or scaled RGBA SHA-256.',
     },
     summaries,
     runs,

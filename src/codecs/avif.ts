@@ -17,6 +17,7 @@ import { parseAv1Frame, type Av1Frame } from './av1-frame.ts'
 import {
   av1ToRgbaRegion,
   estimateRestrictedAv1RowWorkingBytes,
+  estimateRestrictedAv1WorkingBytes,
   decodeRestrictedAv1Intra,
   decodeRestrictedAv1IntraRows,
   supportsRestrictedAv1IntraRows,
@@ -45,6 +46,13 @@ const ALPHA_AUXILIARY_TYPES = new Set([
   'urn:mpeg:mpegB:cicp:systems:auxiliary:alpha',
   'urn:mpeg:hevc:2015:auxid:1',
 ])
+export const validateAvifWorkingBytes = (workingBytes: number): void => {
+  if (!Number.isSafeInteger(workingBytes) || workingBytes > MAX_BOUNDED_AVIF_WORKING_BYTES) {
+    throw limitExceeded(
+      `AVIF decoder working set ${workingBytes} exceeds ${MAX_BOUNDED_AVIF_WORKING_BYTES} bytes`,
+    )
+  }
+}
 const MAX_METADATA_BOX_BYTES = 16 * 1024 * 1024
 
 interface Av1Configuration {
@@ -714,6 +722,25 @@ const decodeRegion = (
   return { x, y, width: outputWidth, height: outputHeight }
 }
 
+const decodeScaleDenominator = (request: DecodeRequest): 1 | 2 | 4 | 8 => {
+  const scale = request.scaleDenominator ?? 1
+  if (scale !== 1 && scale !== 2 && scale !== 4 && scale !== 8) {
+    throw invalidInput('AVIF decode scale denominator must be 1, 2, 4, or 8')
+  }
+  return scale
+}
+
+const scaledBandRange = (
+  sourceY: number,
+  outputHeight: number,
+  scale: number,
+  bandY: number,
+  bandHeight: number,
+): { readonly start: number; readonly end: number } => ({
+  start: Math.max(0, Math.ceil((bandY - sourceY) / scale)),
+  end: Math.min(outputHeight, Math.ceil((bandY + bandHeight - sourceY) / scale)),
+})
+
 interface AvifAlphaFrame {
   readonly coded: AvifCodedImageInspection
   readonly frame: Av1DecodedFrame
@@ -795,7 +822,7 @@ export const validateAvifFrameDimensions = (
   frame: Av1Frame,
 ): void => {
   if (
-    frame.header.frameWidth !== coded.width ||
+    frame.header.upscaledWidth !== coded.width ||
     frame.header.frameHeight !== coded.height ||
     frame.header.renderWidth !== coded.width ||
     frame.header.renderHeight !== coded.height
@@ -822,12 +849,7 @@ class AvifRowDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat = 'rgba8' as const
-  readonly capabilities = Object.freeze({
-    sequential: true,
-    regionDecode: false,
-    scaledDecode: false,
-    progressive: false,
-  })
+  readonly capabilities: ImageDecoder['capabilities']
   readonly #coded: AvifCodedImageInspection
   readonly #color: NclxColor | undefined
   readonly #displayRegion: PixelRegion
@@ -839,6 +861,17 @@ class AvifRowDecoder implements ImageDecoder {
     displayRegion: PixelRegion,
     color: NclxColor | undefined,
   ) {
+    const scaledDecode =
+      displayRegion.x === 0 &&
+      displayRegion.y === 0 &&
+      displayRegion.width === frame.header.frameWidth &&
+      displayRegion.height === frame.header.frameHeight
+    this.capabilities = Object.freeze({
+      sequential: true,
+      regionDecode: false,
+      scaledDecode,
+      progressive: false,
+    })
     this.width = displayRegion.width
     this.height = displayRegion.height
     this.#coded = coded
@@ -848,18 +881,22 @@ class AvifRowDecoder implements ImageDecoder {
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
-    const region = decodeRegion(this.width, this.height, request)
-    const sourceX = this.#displayRegion.x + region.x
-    const sourceY = this.#displayRegion.y + region.y
-    const sourceEndY = sourceY + region.height
+    const scale = decodeScaleDenominator(request)
+    if (scale !== 1 && !this.capabilities.scaledDecode) {
+      throw unsupportedOperation('Scaled AVIF decode requires a full coded image aperture')
+    }
+    const scaledWidth = Math.ceil(this.width / scale)
+    const scaledHeight = Math.ceil(this.height / scale)
+    const region = decodeRegion(scaledWidth, scaledHeight, request)
+    const sourceX = this.#displayRegion.x + region.x * scale
+    const sourceY = this.#displayRegion.y + region.y * scale
     for (const band of decodeRestrictedAv1IntraRows(this.#coded.sequence, this.#frame)) {
-      const bandStartY = Math.max(sourceY, band.y)
-      const bandEndY = Math.min(sourceEndY, band.y + band.height)
-      for (let blockY = bandStartY; blockY < bandEndY; blockY += 32) {
-        const blockHeight = Math.min(32, bandEndY - blockY)
+      const range = scaledBandRange(sourceY, region.height, scale, band.y, band.height)
+      for (let outputY = range.start; outputY < range.end; outputY += 32) {
+        const blockHeight = Math.min(32, range.end - outputY)
         yield {
           x: 0,
-          y: blockY - sourceY,
+          y: outputY,
           width: region.width,
           height: blockHeight,
           stride: region.width * 4,
@@ -867,8 +904,14 @@ class AvifRowDecoder implements ImageDecoder {
           data: av1ToRgbaRegion(
             this.#coded.sequence,
             band.frame,
-            { x: sourceX, y: blockY, width: region.width, height: blockHeight },
+            {
+              x: sourceX,
+              y: sourceY + outputY * scale,
+              width: region.width,
+              height: blockHeight,
+            },
             this.#color,
+            scale,
           ),
         }
       }
@@ -932,13 +975,17 @@ const applyAlphaRegion = (
   colorRotation: number,
   alpha: AvifAlphaFrame,
   premultiplied: boolean,
+  scaleDenominator: 1 | 2 | 4 | 8 = 1,
 ): void => {
   const rotation = (alpha.coded.rotation - colorRotation + 4) & 3
   const storageHeight = Math.floor(alpha.frame.y.length / alpha.frame.yStride)
+  if (scaleDenominator !== 1 && rotation !== 0) {
+    throw unsupportedOperation('Scaled AVIF alpha decode requires aligned alpha orientation')
+  }
   for (let localY = 0; localY < region.height; localY += 1) {
-    const y = region.y + localY
+    const y = region.y + localY * scaleDenominator
     for (let localX = 0; localX < region.width; localX += 1) {
-      const x = region.x + localX
+      const x = region.x + localX * scaleDenominator
       let sourceX = x
       let sourceY = y
       if (rotation === 1) {
@@ -952,10 +999,27 @@ const applyAlphaRegion = (
         sourceY = alpha.frame.height - 1 - x
       }
       const storageY = sourceY - (alpha.frame.yOrigin ?? 0)
-      pixels[(localY * region.width + localX) * 4 + 3] =
-        storageY < 0 || storageY >= storageHeight
-          ? 0
-          : (alpha.frame.y[storageY * alpha.frame.yStride + sourceX] ?? 0)
+      let sample = 0
+      if (scaleDenominator === 1) {
+        sample =
+          storageY < 0 || storageY >= storageHeight
+            ? 0
+            : (alpha.frame.y[storageY * alpha.frame.yStride + sourceX] ?? 0)
+      } else {
+        for (let deltaY = 0; deltaY < scaleDenominator; deltaY += 1) {
+          const sampleY =
+            Math.min(alpha.frame.height - 1, sourceY + deltaY) - (alpha.frame.yOrigin ?? 0)
+          for (let deltaX = 0; deltaX < scaleDenominator; deltaX += 1) {
+            const sampleX = Math.min(alpha.frame.width - 1, sourceX + deltaX)
+            sample +=
+              sampleY < 0 || sampleY >= storageHeight
+                ? 0
+                : (alpha.frame.y[sampleY * alpha.frame.yStride + sampleX] ?? 0)
+          }
+        }
+        sample = Math.round(sample / (scaleDenominator * scaleDenominator))
+      }
+      pixels[(localY * region.width + localX) * 4 + 3] = sample
     }
   }
   if (premultiplied) unpremultiplyRgba(pixels)
@@ -965,12 +1029,7 @@ class AvifAlphaRowDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat = 'rgba8' as const
-  readonly capabilities = Object.freeze({
-    sequential: true,
-    regionDecode: false,
-    scaledDecode: false,
-    progressive: false,
-  })
+  readonly capabilities: ImageDecoder['capabilities']
   readonly #alphaCoded: AvifCodedImageInspection
   readonly #alphaFrame: Av1Frame
   readonly #coded: AvifCodedImageInspection
@@ -988,6 +1047,17 @@ class AvifAlphaRowDecoder implements ImageDecoder {
     alphaFrame: Av1Frame,
     premultipliedAlpha: boolean,
   ) {
+    const scaledDecode =
+      displayRegion.x === 0 &&
+      displayRegion.y === 0 &&
+      displayRegion.width === frame.header.frameWidth &&
+      displayRegion.height === frame.header.frameHeight
+    this.capabilities = Object.freeze({
+      sequential: true,
+      regionDecode: false,
+      scaledDecode,
+      progressive: false,
+    })
     this.width = displayRegion.width
     this.height = displayRegion.height
     this.#coded = coded
@@ -1000,45 +1070,58 @@ class AvifAlphaRowDecoder implements ImageDecoder {
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
-    const region = decodeRegion(this.width, this.height, request)
-    const sourceX = this.#displayRegion.x + region.x
-    const sourceY = this.#displayRegion.y + region.y
-    const sourceEndY = sourceY + region.height
+    const scale = decodeScaleDenominator(request)
+    const scaledWidth = Math.ceil(this.width / scale)
+    const scaledHeight = Math.ceil(this.height / scale)
+    if (scale !== 1 && !this.capabilities.scaledDecode) {
+      throw unsupportedOperation('Scaled AVIF decode requires a full coded image aperture')
+    }
+    const region = decodeRegion(scaledWidth, scaledHeight, request)
+    const sourceX = this.#displayRegion.x + region.x * scale
+    const sourceY = this.#displayRegion.y + region.y * scale
     const alphaBands = decodeRestrictedAv1IntraRows(this.#alphaCoded.sequence, this.#alphaFrame)[
       Symbol.iterator
     ]()
     let alphaBand = alphaBands.next()
     for (const colorBand of decodeRestrictedAv1IntraRows(this.#coded.sequence, this.#frame)) {
-      const bandStartY = Math.max(sourceY, colorBand.y)
-      const bandEndY = Math.min(sourceEndY, colorBand.y + colorBand.height)
-      for (let blockY = bandStartY; blockY < bandEndY; blockY += 32) {
-        const blockHeight = Math.min(32, bandEndY - blockY)
-        while (!alphaBand.done && blockY >= alphaBand.value.y + alphaBand.value.height) {
+      const range = scaledBandRange(sourceY, region.height, scale, colorBand.y, colorBand.height)
+      for (let outputY = range.start; outputY < range.end; outputY += 32) {
+        const blockHeight = Math.min(32, range.end - outputY)
+        const blockSourceY = sourceY + outputY * scale
+        const blockSourceEndY = blockSourceY + (blockHeight - 1) * scale
+        while (!alphaBand.done && blockSourceY >= alphaBand.value.y + alphaBand.value.height) {
           alphaBand = alphaBands.next()
         }
         if (
           alphaBand.done ||
-          blockY < alphaBand.value.y ||
-          blockY + blockHeight > alphaBand.value.y + alphaBand.value.height
+          blockSourceY < alphaBand.value.y ||
+          blockSourceEndY >= alphaBand.value.y + alphaBand.value.height
         ) {
           throw invalidInput('AVIF alpha row bands do not align with the color item')
         }
         const data = av1ToRgbaRegion(
           this.#coded.sequence,
           colorBand.frame,
-          { x: sourceX, y: blockY, width: region.width, height: blockHeight },
+          {
+            x: sourceX,
+            y: blockSourceY,
+            width: region.width,
+            height: blockHeight,
+          },
           this.#color,
+          scale,
         )
         applyAlphaRegion(
           data,
-          { x: sourceX, y: blockY, width: region.width, height: blockHeight },
+          { x: sourceX, y: blockSourceY, width: region.width, height: blockHeight },
           this.#coded.rotation,
           { coded: this.#alphaCoded, frame: alphaBand.value.frame },
           this.#premultipliedAlpha,
+          scale,
         )
         yield {
           x: 0,
-          y: blockY - sourceY,
+          y: outputY,
           width: region.width,
           height: blockHeight,
           stride: region.width * 4,
@@ -1049,7 +1132,6 @@ class AvifAlphaRowDecoder implements ImageDecoder {
     }
   }
 }
-
 class AvifGridDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
@@ -1102,6 +1184,21 @@ class AvifGridDecoder implements ImageDecoder {
     ) {
       throw invalidInput('AVIF grid output dimensions do not match its tile geometry')
     }
+    let payloadBytes = 0
+    for (const tile of tiles) payloadBytes += tile.payloadBytes
+    let maximumWorkingBytes = 0
+    for (let row = 0; row < grid.rows; row += 1) {
+      let workingBytes =
+        payloadBytes + inspection.displayRegion.width * Math.min(32, grid.height) * 4
+      for (let column = 0; column < grid.columns; column += 1) {
+        const tile = tiles[row * grid.columns + column]
+        if (!tile) throw invalidInput('AVIF grid tile layout is incomplete')
+        const frame = parseCodedImageFrame(tile, limits)
+        workingBytes += estimateRestrictedAv1WorkingBytes(tile.sequence, frame)
+      }
+      maximumWorkingBytes = Math.max(maximumWorkingBytes, workingBytes)
+    }
+    validateAvifWorkingBytes(maximumWorkingBytes)
     this.width = inspection.displayRegion.width
     this.height = inspection.displayRegion.height
     this.#color = inspection.nclx
@@ -1219,11 +1316,7 @@ const createAvifDecoder = async (
           alpha.payloadBytes +
           estimateRestrictedAv1RowWorkingBytes(alpha.sequence, parsedAlphaFrame)
       }
-      if (!Number.isSafeInteger(workingBytes) || workingBytes > MAX_BOUNDED_AVIF_WORKING_BYTES) {
-        throw limitExceeded(
-          `AVIF bounded decoder working set ${workingBytes} exceeds ${MAX_BOUNDED_AVIF_WORKING_BYTES} bytes`,
-        )
-      }
+      validateAvifWorkingBytes(workingBytes)
       decoder =
         alpha && parsedAlphaFrame
           ? new AvifAlphaRowDecoder(
@@ -1237,6 +1330,13 @@ const createAvifDecoder = async (
             )
           : new AvifRowDecoder(coded, parsedFrame, inspection.displayRegion, inspection.nclx)
     } else {
+      let workingBytes =
+        coded.payloadBytes + estimateRestrictedAv1WorkingBytes(coded.sequence, parsedFrame)
+      if (alpha && parsedAlphaFrame) {
+        workingBytes +=
+          alpha.payloadBytes + estimateRestrictedAv1WorkingBytes(alpha.sequence, parsedAlphaFrame)
+      }
+      validateAvifWorkingBytes(workingBytes)
       const frame = decodeRestrictedAv1Intra(coded.sequence, parsedFrame)
       if (frame.width !== coded.width || frame.height !== coded.height) {
         throw invalidInput('AVIF display dimensions do not match its AV1 frame')

@@ -107,7 +107,8 @@ coverage.
   native high-depth planes and explicit conversion to the 8-bit RGBA contract
 - [x] Lossless and lossy quantization paths used by the permanent fixtures
 - [x] 64x64 and 128x128 superblocks
-- [x] One complete AV1 tile
+- [x] One complete AV1 tile for supported lossy frames, plus complete
+  coded-lossless multi-tile frames contained in one frame OBU
 - [x] Range-coded symbol decoding with adaptive CDF updates and final-state
   validation
 - [x] Skip signaling, keyframe intra modes, angle deltas, transform selection,
@@ -153,7 +154,8 @@ coverage.
   delta-Q combinations outside the restricted one-tile intra-only path
 - [ ] Every legal transform-size, transform-type, coefficient-context, and
   quantizer-context combination
-- [ ] Super-resolution reconstruction
+- [x] Normative eight-tap horizontal super-resolution for filter-free one-tile
+  8-bit frames
 - [ ] Film grain synthesis
 
 ### In-loop filtering and restoration
@@ -173,8 +175,8 @@ coverage.
 - [x] Apply self-guided loop restoration with stripe-aware source selection
 - [x] Apply filters in deblock, CDEF, then loop-restoration order when
   super-resolution is not signaled
-- [ ] Apply super-resolution in the correct position relative to CDEF and loop
-  restoration
+- [ ] Apply super-resolution between CDEF and loop restoration for filtered
+  frames
 - [x] Match dav1d and libaom post-filter YUV pixels exactly for deterministic
   disabled, deblock, luma/chroma CDEF, Wiener, self-guided, odd-dimension,
   frame-edge, and multiple-restoration-unit fixtures; the numeric tolerance is
@@ -196,13 +198,14 @@ so Kodak is not classified as an exact post-filter fixture.
 - [x] 8-bit YUV 4:2:2
 - [ ] 10/12-bit YUV 4:2:2
 - [x] 8-bit YUV 4:4:4
-- [x] Coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode
+- [x] Coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode,
+  including complete compatible multi-tile frames
 - [ ] Lossy 10-bit and 12-bit YUV 4:4:4 decode
 - [x] Full-range high-bit-depth reconstruction without premature truncation
   before explicit conversion to the library's 8-bit RGBA output contract
-- [ ] Opaque alpha-plane defaults and decoded auxiliary alpha
-- [ ] Premultiplied-alpha signaling and correct unpremultiplication behavior
-- [ ] Multi-tile grids and tile-edge composition
+- [x] Compatible full-range 8-bit monochrome alpha auxiliaries
+- [x] Premultiplied-alpha signaling and normalization to straight RGBA
+- [x] Multi-item opaque grids with cropped right and bottom edge composition
 - [ ] Non-reduced still-picture headers
 - [ ] Still images stored across multiple frame or tile-group OBUs
 - [ ] Progressive layered AVIF items
@@ -267,26 +270,27 @@ so Kodak is not classified as an exact post-filter fixture.
   composing ordered output bands
 - [x] Loop restoration writes through three delayed 4-row luma bands rather
   than allocating another padded full-frame YUV output
-- [x] CDEF's immutable-neighborhood requirement remains represented by one
-  additional padded YUV frame and is measured separately
+- [x] CDEF snapshots bounded source windows and delays one 8-row luma output
+  band instead of retaining an additional padded YUV frame
 - [x] Compatible opaque filter-free single-item frames reconstruct through
   reusable two-superblock YUV, prediction, palette, and coefficient-context
   rings, copying finalized bands before their storage is reused
 - [x] Compatible aligned filter-free alpha auxiliaries reconstruct through a
   synchronized second row ring before per-block alpha composition
-- [x] The bounded filter-free path rejects coded payload plus estimated working
-  state above its 64 MiB codec limit
+- [x] Every decoder path rejects coded payload plus conservatively estimated
+  live working state above the 64 MiB codec limit
 - [ ] Decode one tile or bounded superblock working set at a time
 - [x] Avoid retaining a full source-resolution RGBA bitmap
-- [ ] Feed resize directly from bounded YUV rows, blocks, or planes
+- [x] Feed compatible full-aperture 2x, 4x, and 8x resize directly from
+  bounded box-filtered YUV rows before RGBA conversion
 - [ ] Avoid RGB entirely for compatible AVIF-to-resize-to-AVIF workflows
 - [ ] Release coefficient, prediction, filter, and restoration state as soon as
   its output halo is complete
-- [ ] Apply a codec-specific working-memory limit covering compressed item
-  bytes, tile state, coefficient contexts, YUV planes, filter halos, RGBA
-  conversion, resize state, and encoded output
-- [ ] Benchmark isolated cold-process peak RSS across source dimensions and
-  downscale ratios relevant to AWS Lambda
+- [x] Apply a codec-specific working-memory limit covering compressed item
+  bytes, tile state, coefficient contexts, YUV planes, filter halos, and
+  RGBA conversion state
+- [x] Benchmark isolated cold-process peak RSS across 512x384, 1024x768, and
+  2048x1536 source dimensions with full-size and 4x downscaled output
 - [ ] Demonstrate the project's 80% memory-reduction target against equivalent
   Jimp-compatible workflows where a comparison is possible
 
@@ -323,6 +327,13 @@ so Kodak is not classified as an exact post-filter fixture.
 - [x] Exercise YUV 4:2:2 decode in Chromium through the portable TypeScript
   codec and pin its RGBA output; Chromium's native AVIF decoder rejects this
   Professional Profile source and is not used as its browser oracle
+- [x] Reconstruct the deterministic coded-lossless 10-bit 2x2 AV1 tile
+  fixture exactly against its source and agreeing dav1d/libaom native YUV
+- [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
+  for checksum-pinned filter-free denominator-12 YUV 4:2:0 and 4:4:4
+  super-resolution fixtures
+- [x] Exercise filter-free AV1 super-resolution through the portable TypeScript
+  codec in Chromium and pin its RGBA output
 - [x] Match Sharp/libavif RGBA exactly for checksum-pinned straight and
   premultiplied alpha fixtures after normalizing premultiplied color to the
   library's straight-RGBA pixel contract
@@ -357,6 +368,9 @@ so Kodak is not classified as an exact post-filter fixture.
   entry in Chromium
 - [x] Keep delta loop-filter syntax explicitly unsupported in the restricted
   quantization-matrix path
+- [x] Normalize deterministic bit-flip corruption as `ImageError` across
+  checksum-pinned super-resolution, high-bit tile, premultiplied-alpha,
+  restoration-unit, and cropped-grid AVIF syntax classes
 - [ ] Resolve Kodak's documented one-sample CDEF discrepancy before requiring
   exact full-size Kodak and Fox post-filter pixels
 - [ ] Expand to a 200-500 image corpus from libaom, rav1e, SVT-AV1, browsers,

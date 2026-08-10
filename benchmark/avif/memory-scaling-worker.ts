@@ -35,14 +35,18 @@ const maximum = (left: MemorySnapshot, right: MemorySnapshot): MemorySnapshot =>
 const [path, widthText, heightText, expectedSha256, mode] = process.argv.slice(2)
 const width = Number(widthText)
 const height = Number(heightText)
+const validMode =
+  mode === 'bounded' || mode === 'full' || mode === 'bounded-scaled' || mode === 'full-scaled'
 if (
   !path ||
   !expectedSha256 ||
-  (mode !== 'bounded' && mode !== 'full') ||
+  !validMode ||
   !Number.isSafeInteger(width) ||
   !Number.isSafeInteger(height)
 ) {
-  throw new Error('Usage: memory-scaling-worker.ts <path> <width> <height> <sha256> <bounded|full>')
+  throw new Error(
+    'Usage: memory-scaling-worker.ts <path> <width> <height> <sha256> <bounded|full|bounded-scaled|full-scaled>',
+  )
 }
 
 const input = new Uint8Array(await readFile(path))
@@ -57,11 +61,20 @@ const record = (): void => {
 }
 const hash = createHash('sha256')
 const startedAt = performance.now()
-if (mode === 'bounded') {
+const scaled = mode === 'bounded-scaled' || mode === 'full-scaled'
+const bounded = mode === 'bounded' || mode === 'bounded-scaled'
+const scaleDenominator = scaled ? 4 : 1
+const outputWidth = Math.ceil(width / scaleDenominator)
+const outputHeight = Math.ceil(height / scaleDenominator)
+if (bounded) {
   const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
   if (!decoder) throw new Error('AVIF decoder is unavailable')
   record()
-  for await (const block of decoder.decode()) {
+  for await (const block of decoder.decode(
+    scaled
+      ? { width: outputWidth, height: outputHeight, scaleDenominator: 4 }
+      : { width: outputWidth, height: outputHeight },
+  )) {
     hash.update(block.data.subarray(0, block.stride * block.height))
     record()
   }
@@ -75,10 +88,16 @@ if (mode === 'bounded') {
     parseAv1Frame(coded.sequence, frameObu.payload),
   )
   record()
-  for (let y = 0; y < height; y += 32) {
-    const rows = Math.min(32, height - y)
+  for (let y = 0; y < outputHeight; y += 32) {
+    const rows = Math.min(32, outputHeight - y)
     hash.update(
-      av1ToRgbaRegion(coded.sequence, frame, { x: 0, y, width, height: rows }, inspection.nclx),
+      av1ToRgbaRegion(
+        coded.sequence,
+        frame,
+        { x: 0, y: y * scaleDenominator, width: outputWidth, height: rows },
+        inspection.nclx,
+        scaleDenominator === 4 ? 4 : 1,
+      ),
     )
     record()
   }

@@ -98,6 +98,29 @@ const benchmarkSeeds = [
   readonly path: string
 }[]
 
+const avifHardeningSeeds = [
+  {
+    id: 'superres-yuv420',
+    path: 'benchmark/corpus/files/avif/libaom-superres-denom12-yuv420-96x64.avif',
+  },
+  {
+    id: 'tiled-high-bit',
+    path: 'benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif',
+  },
+  {
+    id: 'premultiplied-alpha',
+    path: 'benchmark/corpus/files/avif/alpha-premultiplied-64x48.avif',
+  },
+  {
+    id: 'restoration-units',
+    path: 'benchmark/corpus/files/avif/post-filter-restoration-units-300x130.avif',
+  },
+  {
+    id: 'cropped-grid',
+    path: 'benchmark/corpus/files/avif/sofa_grid1x5_420.avif',
+  },
+] as const
+
 const persistRawCrash = async (
   input: Uint8Array,
   label: string,
@@ -177,6 +200,14 @@ const loadBenchmarkSeeds = async (): Promise<readonly FuzzFixture[]> =>
     })),
   )
 
+const loadAvifHardeningSeeds = async (): Promise<readonly FuzzFixture[]> =>
+  Promise.all(
+    avifHardeningSeeds.map(async ({ id, path }) => ({
+      id: `avif-${id}`,
+      input: await readFile(path),
+    })),
+  )
+
 const loadRegressionFixtures = async (): Promise<readonly FuzzFixture[]> => {
   const directory = 'tests/fuzz-regressions'
   const entries = await readdir(directory, { withFileTypes: true })
@@ -195,12 +226,14 @@ describe('deterministic corruption fuzz', () => {
   let fixtures: readonly FuzzFixture[] = []
   let campaignFixtures: readonly FuzzFixture[] = []
   let regressionFixtures: readonly FuzzFixture[] = []
+  let avifHardeningFixtures: readonly FuzzFixture[] = []
 
   beforeAll(async () => {
     fixtures = (await createCodecFixtures()).map((fixture) => ({
       ...fixture,
       id: `generated-${fixture.format}`,
     }))
+    avifHardeningFixtures = await loadAvifHardeningSeeds()
     campaignFixtures = releaseCampaign ? await loadBenchmarkSeeds() : fixtures
     regressionFixtures = await loadRegressionFixtures()
   })
@@ -212,6 +245,20 @@ describe('deterministic corruption fuzz', () => {
     )
     await Promise.all(benchmarkSeeds.map(({ path }) => access(path)))
   })
+
+  it(
+    'normalizes deterministic corruption across diverse AVIF syntax classes',
+    async () => {
+      await Promise.all(avifHardeningSeeds.map(({ path }) => access(path)))
+      for (const fixture of avifHardeningFixtures) {
+        for (const corruption of bitFlips(fixture)) {
+          const label = `${fixture.id}-seed-${campaignSeed}-case-${corruption.index}-offset-${corruption.byteOffset}-bit-${corruption.bit}`
+          await exercise(corruption.input, label, false)
+        }
+      }
+    },
+    campaignTimeout,
+  )
 
   it('turns every 1 KiB and final-byte truncation into an ImageError', async () => {
     for (const fixture of fixtures) {

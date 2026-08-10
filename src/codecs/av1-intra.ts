@@ -1,5 +1,5 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
-import type { Av1Frame } from './av1-frame.ts'
+import type { Av1Frame, Av1Tile } from './av1-frame.ts'
 import type { Av1SequenceHeader } from './av1.ts'
 import { Av1CoefficientDecoder } from './av1-coeff.ts'
 import {
@@ -517,6 +517,70 @@ interface Plane {
   readonly stride: number
   readonly width: number
 }
+// Normative AV1 super-resolution filter from the AOMedia AV1 specification,
+// indexed by the six-bit subpixel phase. Every row sums to 128.
+const av1SuperresFilter = Int16Array.from([
+  0, 0, 0, 128, 0, 0, 0, 0, 0, 0, -1, 128, 2, -1, 0, 0, 0, 1, -3, 127, 4, -2, 1, 0, 0, 1, -4, 127,
+  6, -3, 1, 0, 0, 2, -6, 126, 8, -3, 1, 0, 0, 2, -7, 125, 11, -4, 1, 0, -1, 2, -8, 125, 13, -5, 2,
+  0, -1, 3, -9, 124, 15, -6, 2, 0, -1, 3, -10, 123, 18, -6, 2, -1, -1, 3, -11, 122, 20, -7, 3, -1,
+  -1, 4, -12, 121, 22, -8, 3, -1, -1, 4, -13, 120, 25, -9, 3, -1, -1, 4, -14, 118, 28, -9, 3, -1,
+  -1, 4, -15, 117, 30, -10, 4, -1, -1, 5, -16, 116, 32, -11, 4, -1, -1, 5, -16, 114, 35, -12, 4, -1,
+  -1, 5, -17, 112, 38, -12, 4, -1, -1, 5, -18, 111, 40, -13, 5, -1, -1, 5, -18, 109, 43, -14, 5, -1,
+  -1, 6, -19, 107, 45, -14, 5, -1, -1, 6, -19, 105, 48, -15, 5, -1, -1, 6, -19, 103, 51, -16, 5, -1,
+  -1, 6, -20, 101, 53, -16, 6, -1, -1, 6, -20, 99, 56, -17, 6, -1, -1, 6, -20, 97, 58, -17, 6, -1,
+  -1, 6, -20, 95, 61, -18, 6, -1, -2, 7, -20, 93, 64, -18, 6, -2, -2, 7, -20, 91, 66, -19, 6, -1,
+  -2, 7, -20, 88, 69, -19, 6, -1, -2, 7, -20, 86, 71, -19, 6, -1, -2, 7, -20, 84, 74, -20, 7, -2,
+  -2, 7, -20, 81, 76, -20, 7, -1, -2, 7, -20, 79, 79, -20, 7, -2, -1, 7, -20, 76, 81, -20, 7, -2,
+  -2, 7, -20, 74, 84, -20, 7, -2, -1, 6, -19, 71, 86, -20, 7, -2, -1, 6, -19, 69, 88, -20, 7, -2,
+  -1, 6, -19, 66, 91, -20, 7, -2, -2, 6, -18, 64, 93, -20, 7, -2, -1, 6, -18, 61, 95, -20, 6, -1,
+  -1, 6, -17, 58, 97, -20, 6, -1, -1, 6, -17, 56, 99, -20, 6, -1, -1, 6, -16, 53, 101, -20, 6, -1,
+  -1, 5, -16, 51, 103, -19, 6, -1, -1, 5, -15, 48, 105, -19, 6, -1, -1, 5, -14, 45, 107, -19, 6, -1,
+  -1, 5, -14, 43, 109, -18, 5, -1, -1, 5, -13, 40, 111, -18, 5, -1, -1, 4, -12, 38, 112, -17, 5, -1,
+  -1, 4, -12, 35, 114, -16, 5, -1, -1, 4, -11, 32, 116, -16, 5, -1, -1, 4, -10, 30, 117, -15, 4, -1,
+  -1, 3, -9, 28, 118, -14, 4, -1, -1, 3, -9, 25, 120, -13, 4, -1, -1, 3, -8, 22, 121, -12, 4, -1,
+  -1, 3, -7, 20, 122, -11, 3, -1, -1, 2, -6, 18, 123, -10, 3, -1, 0, 2, -6, 15, 124, -9, 3, -1, 0,
+  2, -5, 13, 125, -8, 2, -1, 0, 1, -4, 11, 125, -7, 2, 0, 0, 1, -3, 8, 126, -6, 2, 0, 0, 1, -3, 6,
+  127, -4, 1, 0, 0, 1, -2, 4, 127, -3, 1, 0, 0, 0, -1, 2, 128, -1, 0, 0,
+])
+
+const upscaleAv1Plane = (
+  plane: Plane,
+  sourceWidth: number,
+  targetWidth: number,
+  height: number,
+  sampleMaximum: number,
+): Plane => {
+  const output =
+    plane.data instanceof Uint8Array
+      ? new Uint8Array(targetWidth * height)
+      : new Uint16Array(targetWidth * height)
+  const step = Math.floor((sourceWidth * 16_384 + Math.floor(targetWidth / 2)) / targetWidth)
+  const error = targetWidth * step - sourceWidth * 16_384
+  const initial =
+    (Math.trunc(
+      (-(targetWidth - sourceWidth) * 8_192 + Math.floor(targetWidth / 2)) / targetWidth,
+    ) +
+      128 -
+      Math.trunc(error / 2)) &
+    16_383
+  for (let y = 0; y < height; y += 1) {
+    let position = initial
+    const sourceRow = y * plane.stride
+    const targetRow = y * targetWidth
+    for (let x = 0; x < targetWidth; x += 1) {
+      const sourceStart = Math.floor(position / 16_384) - 4
+      const filterOffset = ((position & 16_383) >> 8) * 8
+      let sum = 0
+      for (let tap = 0; tap < 8; tap += 1) {
+        const sourceX = Math.max(0, Math.min(sourceWidth - 1, sourceStart + tap))
+        sum += (plane.data[sourceRow + sourceX] ?? 0) * (av1SuperresFilter[filterOffset + tap] ?? 0)
+      }
+      output[targetRow + x] = Math.max(0, Math.min(sampleMaximum, (sum + 64) >> 7))
+      position += step
+    }
+  }
+  return { data: output, width: targetWidth, height, stride: targetWidth }
+}
 
 const planeStorageOffset = (plane: Plane, logicalOffset: number): number => {
   if (plane.storageHeight === undefined) return logicalOffset
@@ -701,6 +765,7 @@ class RestrictedIntraTileDecoder {
   readonly #coefficients: Av1CoefficientDecoder
   readonly #miColumns: number
   readonly #miRows: number
+  readonly #tile: Av1Tile
   readonly #chromaMiColumns: number
   readonly #contextMiRows: number
   readonly #chromaContextMiRows: number
@@ -784,17 +849,17 @@ class RestrictedIntraTileDecoder {
     sequence: Av1SequenceHeader,
     frame: Av1Frame,
     planes: readonly [Plane, Plane, Plane],
+    tileIndex = 0,
   ) {
-    const tile = frame.tiles[0]
-    if (!tile || frame.tiles.length !== 1) {
-      throw unsupportedOperation('Phase B2 restricted reconstruction supports one AV1 tile')
-    }
+    const tile = frame.tiles[tileIndex]
+    if (!tile) throw invalidInput('AV1 tile payload is missing')
+    this.#tile = tile
     this.#sequence = sequence
     this.#frame = frame
     this.#currentQuantizer = frame.header.baseQuantizer
     this.#symbols = new Av1SymbolDecoder(tile.data, !frame.header.disableCdfUpdate)
-    this.#miColumns = 2 * ((frame.header.frameWidth + 7) >> 3)
-    this.#miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
+    this.#miColumns = tile.miColumnEnd
+    this.#miRows = tile.miRowEnd
     this.#chromaShiftX = sequence.chromaSubsampling === '444' ? 0 : 1
     this.#chromaShiftY = sequence.chromaSubsampling === '420' ? 1 : 0
     this.#chromaTopRightEdge = 1 << (this.#chromaShiftX + this.#chromaShiftY)
@@ -973,9 +1038,13 @@ class RestrictedIntraTileDecoder {
     const superblockPixels = this.#sequence.use128x128Superblock ? 128 : 64
     const superblockMi = superblockPixels >> 2
     let previousY: number | undefined
-    for (let row = 0; row < this.#miRows; row += superblockMi) {
+    for (let row = this.#tile.miRowStart; row < this.#tile.miRowEnd; row += superblockMi) {
       this.#clearContextRows(row, superblockMi)
-      for (let column = 0; column < this.#miColumns; column += superblockMi) {
+      for (
+        let column = this.#tile.miColumnStart;
+        column < this.#tile.miColumnEnd;
+        column += superblockMi
+      ) {
         const edgeRoot = intraEdgeRoots.get(superblockPixels)
         if (!edgeRoot) throw invalidInput('AV1 intra edge root is missing')
         this.#readRestorationForSuperblock(row, column)
@@ -1121,9 +1190,11 @@ class RestrictedIntraTileDecoder {
     let partition = 0
     if (size >= 8) {
       const above =
-        row > 0 && (this.#blockWidths[this.#lumaContextIndex(row - 1, column)] ?? 0) < size
+        row > this.#tile.miRowStart &&
+        (this.#blockWidths[this.#lumaContextIndex(row - 1, column)] ?? 0) < size
       const left =
-        column > 0 && (this.#blockHeights[this.#lumaContextIndex(row, column - 1)] ?? 0) < size
+        column > this.#tile.miColumnStart &&
+        (this.#blockHeights[this.#lumaContextIndex(row, column - 1)] ?? 0) < size
       const context = Number(left) * 2 + Number(above)
       const key = `${size}:${context}`
       let partitionCdf = this.#partitionCdfs.get(key)
@@ -1222,8 +1293,12 @@ class RestrictedIntraTileDecoder {
     if (row >= this.#miRows || column >= this.#miColumns) return
     const blockColumns = width >> 2
     const blockRows = height >> 2
-    const aboveSkip = row > 0 ? (this.#skips[this.#lumaContextIndex(row - 1, column)] ?? 0) : 0
-    const leftSkip = column > 0 ? (this.#skips[this.#lumaContextIndex(row, column - 1)] ?? 0) : 0
+    const aboveSkip =
+      row > this.#tile.miRowStart ? (this.#skips[this.#lumaContextIndex(row - 1, column)] ?? 0) : 0
+    const leftSkip =
+      column > this.#tile.miColumnStart
+        ? (this.#skips[this.#lumaContextIndex(row, column - 1)] ?? 0)
+        : 0
     const skipCdf = this.#skipCdfs[aboveSkip + leftSkip]
     if (!skipCdf) throw invalidInput('AV1 skip context is invalid')
     const skip = this.#symbols.readSymbol(skipCdf)
@@ -1233,8 +1308,12 @@ class RestrictedIntraTileDecoder {
       this.#decodeIntrabcBlock(row, column, width, height, skip)
       return
     }
-    const aboveMode = row > 0 ? (this.#yModes[this.#lumaContextIndex(row - 1, column)] ?? 0) : 0
-    const leftMode = column > 0 ? (this.#yModes[this.#lumaContextIndex(row, column - 1)] ?? 0) : 0
+    const aboveMode =
+      row > this.#tile.miRowStart ? (this.#yModes[this.#lumaContextIndex(row - 1, column)] ?? 0) : 0
+    const leftMode =
+      column > this.#tile.miColumnStart
+        ? (this.#yModes[this.#lumaContextIndex(row, column - 1)] ?? 0)
+        : 0
     const aboveContext = intraModeContexts[aboveMode]
     const leftContext = intraModeContexts[leftMode]
     if (aboveContext === undefined || leftContext === undefined) {
@@ -1285,11 +1364,11 @@ class RestrictedIntraTileDecoder {
     const chromaRow = row >> this.#chromaShiftY
     const chromaColumn = column >> this.#chromaShiftX
     const aboveUvMode =
-      chromaRow > 0
+      chromaRow > this.#tile.miRowStart >> this.#chromaShiftY
         ? (this.#uvModes[this.#chromaContextIndex(chromaRow - 1, chromaColumn)] ?? 0)
         : 0
     const leftUvMode =
-      chromaColumn > 0
+      chromaColumn > this.#tile.miColumnStart >> this.#chromaShiftX
         ? (this.#uvModes[this.#chromaContextIndex(chromaRow, chromaColumn - 1)] ?? 0)
         : 0
     const uvEdgeSmooth =
@@ -1308,11 +1387,13 @@ class RestrictedIntraTileDecoder {
       }
       if (yMode === 0) {
         const aboveSize =
-          row > 0 && ((row * 4) & 63) !== 0
+          row > this.#tile.miRowStart && ((row * 4) & 63) !== 0
             ? (this.#paletteSizes[0][this.#lumaContextIndex(row - 1, column)] ?? 0)
             : 0
         const leftSize =
-          column > 0 ? (this.#paletteSizes[0][this.#lumaContextIndex(row, column - 1)] ?? 0) : 0
+          column > this.#tile.miColumnStart
+            ? (this.#paletteSizes[0][this.#lumaContextIndex(row, column - 1)] ?? 0)
+            : 0
         const paletteCdf =
           this.#paletteYModeCdfs[sizeContext]?.[Number(aboveSize > 0) + Number(leftSize > 0)]
         if (!paletteCdf) throw invalidInput('AV1 luma palette context is invalid')
@@ -1607,10 +1688,10 @@ class RestrictedIntraTileDecoder {
     let motionY: number
     const left = this.#lumaContextIndex(row, column - 1)
     const above = this.#lumaContextIndex(row - 1, column)
-    if (column > 0 && this.#intraFlags[left] === 0) {
+    if (column > this.#tile.miColumnStart && this.#intraFlags[left] === 0) {
       motionX = this.#motionX[left] ?? 0
       motionY = this.#motionY[left] ?? 0
-    } else if (row > 0 && this.#intraFlags[above] === 0) {
+    } else if (row > this.#tile.miRowStart && this.#intraFlags[above] === 0) {
       motionX = this.#motionX[above] ?? 0
       motionY = this.#motionY[above] ?? 0
     } else {
@@ -1880,10 +1961,12 @@ class RestrictedIntraTileDecoder {
       cached.set(source, cachedLength)
       cachedLength += source.length
     }
-    if (row > 0 && ((row * 4) & 63) !== 0) {
+    if (row > this.#tile.miRowStart && ((row * 4) & 63) !== 0) {
       appendCached(this.#lumaContextIndex(row - 1, column))
     }
-    if (column > 0) appendCached(this.#lumaContextIndex(row, column - 1))
+    if (column > this.#tile.miColumnStart) {
+      appendCached(this.#lumaContextIndex(row, column - 1))
+    }
     cached.subarray(0, cachedLength).sort()
 
     const colors = new Uint16Array(8)
@@ -2135,9 +2218,13 @@ class RestrictedIntraTileDecoder {
     if (this.#frame.header.transformMode !== 'select' || skip) return { width, height }
     const category = Math.max(width, height) as 8 | 16 | 32 | 64
     const above =
-      row > 0 ? (this.#transformWidths[0][this.#lumaContextIndex(row - 1, column)] ?? 0) : 0
+      row > this.#tile.miRowStart
+        ? (this.#transformWidths[0][this.#lumaContextIndex(row - 1, column)] ?? 0)
+        : 0
     const left =
-      column > 0 ? (this.#transformHeights[0][this.#lumaContextIndex(row, column - 1)] ?? 0) : 0
+      column > this.#tile.miColumnStart
+        ? (this.#transformHeights[0][this.#lumaContextIndex(row, column - 1)] ?? 0)
+        : 0
     const context = Number(above >= width) + Number(left >= height)
     const key = `${category}:${context}`
     let transformDepthCdf = this.#transformDepthCdfs.get(key)
@@ -2436,19 +2523,38 @@ class RestrictedIntraTileDecoder {
         (reconstructed[this.#planeContextIndex(planeIndex, sampleY >> 2, sampleX >> 2)] ?? 0) !== 0
       )
     }
-    const haveAbove = y > 0
-    const haveLeft = x > 0
+    const planeShiftX = planeIndex === 0 ? 0 : this.#chromaShiftX
+    const planeShiftY = planeIndex === 0 ? 0 : this.#chromaShiftY
+    const tileLeft = (this.#tile.miColumnStart * 4) >> planeShiftX
+    const tileTop = (this.#tile.miRowStart * 4) >> planeShiftY
+    const tileRight = Math.min(plane.width, (this.#tile.miColumnEnd * 4) >> planeShiftX)
+    const tileBottom = Math.min(plane.height, (this.#tile.miRowEnd * 4) >> planeShiftY)
+    const haveAbove = y > tileTop
+    const haveLeft = x > tileLeft
     const midpoint = this.#sampleMidpoint
     const lowerEdge = midpoint - 1
     const upperEdge = midpoint + 1
     if (filterMode !== undefined) {
-      this.#predictFiltered(plane, x, y, width, height, filterMode)
+      this.#predictFiltered(
+        plane,
+        x,
+        y,
+        width,
+        height,
+        filterMode,
+        haveAbove,
+        haveLeft,
+        tileRight,
+        tileBottom,
+      )
       return
     }
     const edgeLength = width + height
     const extraEdgeLength = Math.min(width, height)
-    const aboveAvailableLength = width + (topRightAvailable ? extraEdgeLength : 0)
-    const leftAvailableLength = height + (bottomLeftAvailable ? extraEdgeLength : 0)
+    const effectiveTopRight = topRightAvailable && x + width < tileRight
+    const effectiveBottomLeft = bottomLeftAvailable && y + height < tileBottom
+    const aboveAvailableLength = width + (effectiveTopRight ? extraEdgeLength : 0)
+    const leftAvailableLength = height + (effectiveBottomLeft ? extraEdgeLength : 0)
     const above = new Uint16Array(edgeLength)
     const left = new Uint16Array(edgeLength)
     let topLeft =
@@ -2460,8 +2566,8 @@ class RestrictedIntraTileDecoder {
             ? planeRead(plane, y * plane.stride + x - 1, midpoint)
             : midpoint
     for (let index = 0; index < edgeLength; index += 1) {
-      const aboveX = Math.min(x + index, plane.width - 1)
-      const leftY = Math.min(y + index, plane.height - 1)
+      const aboveX = Math.min(x + index, tileRight - 1)
+      const leftY = Math.min(y + index, tileBottom - 1)
       above[index] =
         haveAbove &&
         (index < width ||
@@ -2692,11 +2798,13 @@ class RestrictedIntraTileDecoder {
     width: number,
     height: number,
     filterMode: number,
+    haveAbove: boolean,
+    haveLeft: boolean,
+    tileRight: number,
+    tileBottom: number,
   ): void {
     const taps = filterIntraTaps[filterMode]
     if (!taps) throw unsupportedOperation(`Unsupported AV1 filter-intra mode ${filterMode}`)
-    const haveAbove = y > 0
-    const haveLeft = x > 0
     const midpoint = this.#sampleMidpoint
     const lowerEdge = midpoint - 1
     const upperEdge = midpoint + 1
@@ -2719,10 +2827,10 @@ class RestrictedIntraTileDecoder {
       : upperEdge
     for (let index = 0; index < edgeLength; index += 1) {
       above[index] = haveAbove
-        ? planeRead(plane, (y - 1) * plane.stride + Math.min(x + index, plane.width - 1), lowerEdge)
+        ? planeRead(plane, (y - 1) * plane.stride + Math.min(x + index, tileRight - 1), lowerEdge)
         : defaultAbove
       left[index] = haveLeft
-        ? planeRead(plane, Math.min(y + index, plane.height - 1) * plane.stride + x - 1, upperEdge)
+        ? planeRead(plane, Math.min(y + index, tileBottom - 1) * plane.stride + x - 1, upperEdge)
         : defaultLeft
     }
     const neighbors = new Uint16Array(7)
@@ -2776,6 +2884,18 @@ class RestrictedIntraTileDecoder {
   }
 }
 
+const hasNoAv1PostFilters = (frame: Av1Frame): boolean => {
+  const noLoopFilter = frame.header.loopFilterLevels.every((baseLevel) => baseLevel === 0)
+  return (
+    noLoopFilter &&
+    frame.header.cdefYPrimaryStrengths.every((value) => value === 0) &&
+    frame.header.cdefYSecondaryStrengths.every((value) => value === 0) &&
+    frame.header.cdefUvPrimaryStrengths.every((value) => value === 0) &&
+    frame.header.cdefUvSecondaryStrengths.every((value) => value === 0) &&
+    frame.header.restorationTypes.every((value) => value === 0)
+  )
+}
+
 const validateRestrictedAv1Intra = (sequence: Av1SequenceHeader, frame: Av1Frame): void => {
   const supportedChroma = sequence.monochrome
     ? sequence.chromaSubsampling === '400' &&
@@ -2793,8 +2913,16 @@ const validateRestrictedAv1Intra = (sequence: Av1SequenceHeader, frame: Av1Frame
       'The restricted high-bit-depth AV1 path supports coded-lossless frames only',
     )
   }
-  if (frame.header.frameWidth !== frame.header.upscaledWidth) {
-    throw unsupportedOperation('Phase B2 reconstruction does not support AV1 super-resolution')
+  if (
+    frame.header.frameWidth !== frame.header.upscaledWidth &&
+    (sequence.bitDepth !== 8 ||
+      frame.tiles.length !== 1 ||
+      frame.header.allowIntrabc ||
+      !hasNoAv1PostFilters(frame))
+  ) {
+    throw unsupportedOperation(
+      'Restricted AV1 super-resolution supports one filter-free 8-bit intra tile',
+    )
   }
   if (frame.header.segmentationEnabled) {
     throw unsupportedOperation('Phase B2 reconstruction does not support AV1 segmentation maps')
@@ -2895,6 +3023,8 @@ export const supportsRestrictedAv1IntraRows = (frame: Av1Frame): boolean => {
     return Math.max(0, Math.min(63, baseLevel + referenceDelta)) === 0
   })
   return (
+    frame.header.frameWidth === frame.header.upscaledWidth &&
+    frame.tiles.length === 1 &&
     !frame.header.allowIntrabc &&
     noLoopFilter &&
     frame.header.cdefYPrimaryStrengths.every((value) => value === 0) &&
@@ -2922,7 +3052,7 @@ export const estimateRestrictedAv1RowWorkingBytes = (
   const chromaRingRows = sequence.monochrome ? 0 : Math.min(chromaHeight, ringRows >> chromaShiftY)
   const sampleBytes = sequence.bitDepth === 8 ? 1 : 2
   const reconstructionBytes = (yStride * ringRows + 2 * chromaStride * chromaRingRows) * sampleBytes
-  const bandRows = Math.min(superblockRows, frame.header.frameHeight)
+  const bandRows = Math.min(superblockRows + 7, frame.header.frameHeight)
   const bandChromaRows = sequence.monochrome
     ? 0
     : Math.min(chromaHeight, Math.ceil(bandRows / 2 ** chromaShiftY) + chromaShiftY)
@@ -2945,6 +3075,58 @@ export const estimateRestrictedAv1RowWorkingBytes = (
   )
 }
 
+export const estimateRestrictedAv1WorkingBytes = (
+  sequence: Av1SequenceHeader,
+  frame: Av1Frame,
+): number => {
+  const miColumns = 2 * ((frame.header.frameWidth + 7) >> 3)
+  const miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
+  const yStride = miColumns * 4
+  const yHeight = miRows * 4
+  const chromaShiftX = sequence.chromaSubsampling === '444' ? 0 : 1
+  const chromaShiftY = sequence.chromaSubsampling === '420' ? 1 : 0
+  const chromaStride = sequence.monochrome ? 0 : yStride >> chromaShiftX
+  const chromaHeight = sequence.monochrome ? 0 : yHeight >> chromaShiftY
+  const sampleBytes = sequence.bitDepth === 8 ? 1 : 2
+  const reconstructionBytes = (yStride * yHeight + 2 * chromaStride * chromaHeight) * sampleBytes
+  const lumaContextLength = miColumns * miRows
+  const chromaContextLength = (chromaStride >> 2) * (chromaHeight >> 2)
+  const modePaletteContextBytes = lumaContextLength * 55 + chromaContextLength
+  const coefficientContextBytes = 5 * (lumaContextLength + 2 * chromaContextLength)
+  const sourceScaledAuxiliaryBytes = miColumns * miRows
+  const cdefBandBytes = (yStride * 12 + 2 * chromaStride * ((8 >> chromaShiftY) + 4)) * sampleBytes
+  const lumaBoundaryRows = Math.min(yHeight, Math.ceil(yHeight / 16) + 4)
+  const chromaBoundaryRows = Math.min(chromaHeight, Math.ceil(chromaHeight / 16) + 4)
+  const restorationBoundaryBytes =
+    (yStride * lumaBoundaryRows + 2 * chromaStride * chromaBoundaryRows) * sampleBytes
+  const upscaledPlaneBytes =
+    frame.header.frameWidth === frame.header.upscaledWidth
+      ? 0
+      : (frame.header.upscaledWidth * frame.header.frameHeight +
+          (sequence.monochrome
+            ? 0
+            : 2 *
+              Math.ceil(frame.header.upscaledWidth / 2 ** chromaShiftX) *
+              Math.ceil(frame.header.frameHeight / 2 ** chromaShiftY))) *
+        sampleBytes
+  const rgbaBlockBytes = frame.header.upscaledWidth * Math.min(32, frame.header.frameHeight) * 4
+  const fixedEntropyAndCoefficientScratchBytes = 2 * 1_024 * 1_024
+  const tileDecoderBytes =
+    (modePaletteContextBytes +
+      coefficientContextBytes +
+      sourceScaledAuxiliaryBytes +
+      fixedEntropyAndCoefficientScratchBytes) *
+    frame.tiles.length
+  return (
+    reconstructionBytes +
+    upscaledPlaneBytes +
+    tileDecoderBytes +
+    cdefBandBytes +
+    restorationBoundaryBytes +
+    rgbaBlockBytes
+  )
+}
+
 export function* decodeRestrictedAv1IntraRows(
   sequence: Av1SequenceHeader,
   frame: Av1Frame,
@@ -2964,16 +3146,16 @@ export function* decodeRestrictedAv1IntraRows(
   const visibleChromaHeight = sequence.monochrome
     ? 0
     : Math.ceil(frame.header.frameHeight / 2 ** reconstruction.chromaShiftY)
-  for (const range of decoder.decodeRows()) {
+  const copyBand = (range: { readonly height: number; readonly y: number }): Av1DecodedRowBand => {
+    const rangeEnd = Math.min(frame.header.frameHeight, range.y + range.height + 7)
     const chromaStart =
       reconstruction.chromaShiftY === 0 ? range.y : Math.max(0, (range.y - 1) >> 1)
-    const rangeEnd = range.y + range.height
     const chromaEnd =
       reconstruction.chromaShiftY === 0
         ? rangeEnd
         : Math.min(visibleChromaHeight, ((rangeEnd - 2) >> 1) + 2)
     const chromaRows = Math.max(0, chromaEnd - chromaStart)
-    yield {
+    return {
       y: range.y,
       height: range.height,
       frameY: range.y,
@@ -2986,12 +3168,13 @@ export function* decodeRestrictedAv1IntraRows(
         yOrigin: range.y,
         yStride: reconstruction.yStride,
         chromaStride: reconstruction.chromaStride,
-        y: copyPlaneRows(reconstruction.planes[0], range.y, range.height),
+        y: copyPlaneRows(reconstruction.planes[0], range.y, rangeEnd - range.y),
         u: copyPlaneRows(reconstruction.planes[1], chromaStart, chromaRows),
         v: copyPlaneRows(reconstruction.planes[2], chromaStart, chromaRows),
       },
     }
   }
+  for (const range of decoder.decodeRows()) yield copyBand(range)
 }
 
 export const decodeRestrictedAv1Intra = (
@@ -2999,27 +3182,68 @@ export const decodeRestrictedAv1Intra = (
   frame: Av1Frame,
 ): Av1DecodedFrame => {
   validateRestrictedAv1Intra(sequence, frame)
+  if (frame.tiles.length > 1 && (!frame.header.allLossless || frame.header.allowIntrabc)) {
+    throw unsupportedOperation(
+      'Restricted multi-tile AV1 reconstruction requires lossless intra-only tile payloads',
+    )
+  }
   const reconstruction = createReconstructionPlanes(sequence, frame)
-  const decoder = new RestrictedIntraTileDecoder(sequence, frame, reconstruction.planes)
-  decoder.decode()
+  let decoder: RestrictedIntraTileDecoder | undefined
+  for (let tileIndex = 0; tileIndex < frame.tiles.length; tileIndex += 1) {
+    decoder = new RestrictedIntraTileDecoder(sequence, frame, reconstruction.planes, tileIndex)
+    decoder.decode()
+  }
+  if (!decoder) throw invalidInput('AV1 frame has no tiles')
   const filtered =
-    sequence.bitDepth === 8
-      ? applyAv1PostFilters(reconstruction.planes, frame.header, decoder.postFilterState())
-      : reconstruction.planes
+    frame.header.frameWidth !== frame.header.upscaledWidth
+      ? reconstruction.planes
+      : sequence.bitDepth === 8 && !frame.header.allLossless
+        ? applyAv1PostFilters(reconstruction.planes, frame.header, decoder.postFilterState())
+        : reconstruction.planes
+  const decodedPlanes: [Plane, Plane, Plane] =
+    frame.header.frameWidth === frame.header.upscaledWidth
+      ? filtered
+      : [
+          upscaleAv1Plane(
+            filtered[0],
+            frame.header.frameWidth,
+            frame.header.upscaledWidth,
+            frame.header.frameHeight,
+            2 ** sequence.bitDepth - 1,
+          ),
+          sequence.monochrome
+            ? filtered[1]
+            : upscaleAv1Plane(
+                filtered[1],
+                Math.ceil(frame.header.frameWidth / 2 ** reconstruction.chromaShiftX),
+                Math.ceil(frame.header.upscaledWidth / 2 ** reconstruction.chromaShiftX),
+                Math.ceil(frame.header.frameHeight / 2 ** reconstruction.chromaShiftY),
+                2 ** sequence.bitDepth - 1,
+              ),
+          sequence.monochrome
+            ? filtered[2]
+            : upscaleAv1Plane(
+                filtered[2],
+                Math.ceil(frame.header.frameWidth / 2 ** reconstruction.chromaShiftX),
+                Math.ceil(frame.header.upscaledWidth / 2 ** reconstruction.chromaShiftX),
+                Math.ceil(frame.header.frameHeight / 2 ** reconstruction.chromaShiftY),
+                2 ** sequence.bitDepth - 1,
+              ),
+        ]
   return {
-    width: frame.header.frameWidth,
+    width: frame.header.upscaledWidth,
     height: frame.header.frameHeight,
     chromaWidth: sequence.monochrome
       ? 0
-      : Math.ceil(frame.header.frameWidth / 2 ** reconstruction.chromaShiftX),
+      : Math.ceil(frame.header.upscaledWidth / 2 ** reconstruction.chromaShiftX),
     chromaHeight: sequence.monochrome
       ? 0
       : Math.ceil(frame.header.frameHeight / 2 ** reconstruction.chromaShiftY),
-    yStride: reconstruction.yStride,
-    chromaStride: reconstruction.chromaStride,
-    y: filtered[0].data,
-    u: filtered[1].data,
-    v: filtered[2].data,
+    yStride: decodedPlanes[0].stride,
+    chromaStride: sequence.monochrome ? 0 : decodedPlanes[1].stride,
+    y: decodedPlanes[0].data,
+    u: decodedPlanes[1].data,
+    v: decodedPlanes[2].data,
   }
 }
 
@@ -3056,6 +3280,60 @@ const sampleChroma = (
   const bottomSample = bottomLeft * (4 - rightWeight) + bottomRight * rightWeight
   return (topSample * (4 - bottomWeight) + bottomSample * bottomWeight) / 16
 }
+const averagePlaneSample = (
+  plane: Av1SampleArray,
+  stride: number,
+  width: number,
+  height: number,
+  yOrigin: number,
+  x: number,
+  y: number,
+  scale: number,
+): number => {
+  let sum = 0
+  for (let deltaY = 0; deltaY < scale; deltaY += 1) {
+    const sampleY = Math.min(height - 1, y + deltaY) - yOrigin
+    for (let deltaX = 0; deltaX < scale; deltaX += 1) {
+      const sampleX = Math.min(width - 1, x + deltaX)
+      sum += plane[sampleY * stride + sampleX] ?? 0
+    }
+  }
+  return sum / (scale * scale)
+}
+
+const averageChromaSample = (
+  plane: Av1SampleArray,
+  stride: number,
+  width: number,
+  height: number,
+  yOrigin: number,
+  x: number,
+  y: number,
+  shiftX: number,
+  shiftY: number,
+  midpoint: number,
+  scale: number,
+): number => {
+  let sum = 0
+  for (let deltaY = 0; deltaY < scale; deltaY += 1) {
+    for (let deltaX = 0; deltaX < scale; deltaX += 1) {
+      sum += sampleChroma(
+        plane,
+        stride,
+        width,
+        height,
+        yOrigin,
+        x + deltaX,
+        y + deltaY,
+        shiftX,
+        shiftY,
+        midpoint,
+      )
+    }
+  }
+  return sum / (scale * scale)
+}
+
 interface Av1ColorConversion {
   readonly fullRange: boolean
   readonly matrixCoefficients: number
@@ -3073,6 +3351,7 @@ export const av1ToRgbaRegion = (
   frame: Av1DecodedFrame,
   region: Av1PixelRegion,
   color: Av1ColorConversion = sequence,
+  scaleDenominator: 1 | 2 | 4 | 8 = 1,
 ): Uint8Array => {
   if (
     !Number.isSafeInteger(region.x) ||
@@ -3083,8 +3362,8 @@ export const av1ToRgbaRegion = (
     region.y < 0 ||
     region.width < 1 ||
     region.height < 1 ||
-    region.x + region.width > frame.width ||
-    region.y + region.height > frame.height
+    region.x + (region.width - 1) * scaleDenominator >= frame.width ||
+    region.y + (region.height - 1) * scaleDenominator >= frame.height
   ) {
     throw invalidInput('AV1 RGBA output region is invalid')
   }
@@ -3099,10 +3378,22 @@ export const av1ToRgbaRegion = (
   const chromaYOrigin = frame.chromaYOrigin ?? 0
   if (sequence.monochrome) {
     for (let localY = 0; localY < region.height; localY += 1) {
-      const sourceY = region.y + localY
+      const sourceY = region.y + localY * scaleDenominator
       for (let localX = 0; localX < region.width; localX += 1) {
-        const sourceX = region.x + localX
-        const luma = frame.y[(sourceY - yOrigin) * frame.yStride + sourceX] ?? 0
+        const sourceX = region.x + localX * scaleDenominator
+        const luma =
+          scaleDenominator === 1
+            ? (frame.y[(sourceY - yOrigin) * frame.yStride + sourceX] ?? 0)
+            : averagePlaneSample(
+                frame.y,
+                frame.yStride,
+                frame.width,
+                frame.height,
+                yOrigin,
+                sourceX,
+                sourceY,
+                scaleDenominator,
+              )
         const sample = clampByte(
           color.fullRange
             ? (luma * 255) / sampleMaximum
@@ -3122,15 +3413,57 @@ export const av1ToRgbaRegion = (
       throw invalidInput('AV1 identity color transform requires full-range YUV 4:4:4')
     }
     for (let localY = 0; localY < region.height; localY += 1) {
-      const sourceY = region.y + localY
+      const sourceY = region.y + localY * scaleDenominator
       for (let localX = 0; localX < region.width; localX += 1) {
-        const sourceX = region.x + localX
-        const lumaOffset = (sourceY - yOrigin) * frame.yStride + sourceX
+        const sourceX = region.x + localX * scaleDenominator
+        const luma =
+          scaleDenominator === 1
+            ? (frame.y[(sourceY - yOrigin) * frame.yStride + sourceX] ?? 0)
+            : averagePlaneSample(
+                frame.y,
+                frame.yStride,
+                frame.width,
+                frame.height,
+                yOrigin,
+                sourceX,
+                sourceY,
+                scaleDenominator,
+              )
         const chromaOffset = (sourceY - chromaYOrigin) * frame.chromaStride + sourceX
         const target = (localY * region.width + localX) * 4
-        output[target] = clampByte(((frame.v[chromaOffset] ?? 0) * 255) / sampleMaximum)
-        output[target + 1] = clampByte(((frame.y[lumaOffset] ?? 0) * 255) / sampleMaximum)
-        output[target + 2] = clampByte(((frame.u[chromaOffset] ?? 0) * 255) / sampleMaximum)
+        output[target] = clampByte(
+          ((scaleDenominator === 1
+            ? (frame.v[chromaOffset] ?? 0)
+            : averagePlaneSample(
+                frame.v,
+                frame.chromaStride,
+                frame.chromaWidth,
+                frame.chromaHeight,
+                chromaYOrigin,
+                sourceX,
+                sourceY,
+                scaleDenominator,
+              )) *
+            255) /
+            sampleMaximum,
+        )
+        output[target + 1] = clampByte((luma * 255) / sampleMaximum)
+        output[target + 2] = clampByte(
+          ((scaleDenominator === 1
+            ? (frame.u[chromaOffset] ?? 0)
+            : averagePlaneSample(
+                frame.u,
+                frame.chromaStride,
+                frame.chromaWidth,
+                frame.chromaHeight,
+                chromaYOrigin,
+                sourceX,
+                sourceY,
+                scaleDenominator,
+              )) *
+            255) /
+            sampleMaximum,
+        )
         output[target + 3] = 255
       }
     }
@@ -3162,14 +3495,47 @@ export const av1ToRgbaRegion = (
   }
   if (sequence.chromaSubsampling === '444') {
     for (let localY = 0; localY < region.height; localY += 1) {
-      const sourceY = region.y + localY
+      const sourceY = region.y + localY * scaleDenominator
       for (let localX = 0; localX < region.width; localX += 1) {
-        const sourceX = region.x + localX
+        const sourceX = region.x + localX * scaleDenominator
         const chromaOffset = (sourceY - chromaYOrigin) * frame.chromaStride + sourceX
         convert(
-          frame.y[(sourceY - yOrigin) * frame.yStride + sourceX] ?? 0,
-          frame.u[chromaOffset] ?? sampleMidpoint,
-          frame.v[chromaOffset] ?? sampleMidpoint,
+          scaleDenominator === 1
+            ? (frame.y[(sourceY - yOrigin) * frame.yStride + sourceX] ?? 0)
+            : averagePlaneSample(
+                frame.y,
+                frame.yStride,
+                frame.width,
+                frame.height,
+                yOrigin,
+                sourceX,
+                sourceY,
+                scaleDenominator,
+              ),
+          scaleDenominator === 1
+            ? (frame.u[chromaOffset] ?? sampleMidpoint)
+            : averagePlaneSample(
+                frame.u,
+                frame.chromaStride,
+                frame.chromaWidth,
+                frame.chromaHeight,
+                chromaYOrigin,
+                sourceX,
+                sourceY,
+                scaleDenominator,
+              ),
+          scaleDenominator === 1
+            ? (frame.v[chromaOffset] ?? sampleMidpoint)
+            : averagePlaneSample(
+                frame.v,
+                frame.chromaStride,
+                frame.chromaWidth,
+                frame.chromaHeight,
+                chromaYOrigin,
+                sourceX,
+                sourceY,
+                scaleDenominator,
+              ),
           (localY * region.width + localX) * 4,
         )
       }
@@ -3179,35 +3545,74 @@ export const av1ToRgbaRegion = (
   const chromaShiftX = 1
   const chromaShiftY = sequence.chromaSubsampling === '420' ? 1 : 0
   for (let localY = 0; localY < region.height; localY += 1) {
-    const sourceY = region.y + localY
+    const sourceY = region.y + localY * scaleDenominator
     for (let localX = 0; localX < region.width; localX += 1) {
-      const sourceX = region.x + localX
+      const sourceX = region.x + localX * scaleDenominator
       convert(
-        frame.y[(sourceY - yOrigin) * frame.yStride + sourceX] ?? 0,
-        sampleChroma(
-          frame.u,
-          frame.chromaStride,
-          frame.chromaWidth,
-          frame.chromaHeight,
-          chromaYOrigin,
-          sourceX,
-          sourceY,
-          chromaShiftX,
-          chromaShiftY,
-          sampleMidpoint,
-        ),
-        sampleChroma(
-          frame.v,
-          frame.chromaStride,
-          frame.chromaWidth,
-          frame.chromaHeight,
-          chromaYOrigin,
-          sourceX,
-          sourceY,
-          chromaShiftX,
-          chromaShiftY,
-          sampleMidpoint,
-        ),
+        scaleDenominator === 1
+          ? (frame.y[(sourceY - yOrigin) * frame.yStride + sourceX] ?? 0)
+          : averagePlaneSample(
+              frame.y,
+              frame.yStride,
+              frame.width,
+              frame.height,
+              yOrigin,
+              sourceX,
+              sourceY,
+              scaleDenominator,
+            ),
+        scaleDenominator === 1
+          ? sampleChroma(
+              frame.u,
+              frame.chromaStride,
+              frame.chromaWidth,
+              frame.chromaHeight,
+              chromaYOrigin,
+              sourceX,
+              sourceY,
+              chromaShiftX,
+              chromaShiftY,
+              sampleMidpoint,
+            )
+          : averageChromaSample(
+              frame.u,
+              frame.chromaStride,
+              frame.chromaWidth,
+              frame.chromaHeight,
+              chromaYOrigin,
+              sourceX,
+              sourceY,
+              chromaShiftX,
+              chromaShiftY,
+              sampleMidpoint,
+              scaleDenominator,
+            ),
+        scaleDenominator === 1
+          ? sampleChroma(
+              frame.v,
+              frame.chromaStride,
+              frame.chromaWidth,
+              frame.chromaHeight,
+              chromaYOrigin,
+              sourceX,
+              sourceY,
+              chromaShiftX,
+              chromaShiftY,
+              sampleMidpoint,
+            )
+          : averageChromaSample(
+              frame.v,
+              frame.chromaStride,
+              frame.chromaWidth,
+              frame.chromaHeight,
+              chromaYOrigin,
+              sourceX,
+              sourceY,
+              chromaShiftX,
+              chromaShiftY,
+              sampleMidpoint,
+              scaleDenominator,
+            ),
         (localY * region.width + localX) * 4,
       )
     }

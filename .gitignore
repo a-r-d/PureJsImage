@@ -179,6 +179,9 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/bounded-row-lossless-64x192.avif
 !benchmark/corpus/files/avif/bounded-row-alpha-lossless-64x192.avif
 !benchmark/corpus/files/avif/lossless-identity-*-*bpc.avif
+!benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif
+!benchmark/corpus/files/avif/libaom-superres-denom12-96x64.avif
+!benchmark/corpus/files/avif/libaom-superres-denom12-yuv420-96x64.avif
 !benchmark/corpus/files/avif/sofa_grid1x5_420.avif
 !benchmark/corpus/files/jp2/
 benchmark/corpus/files/jp2/*
