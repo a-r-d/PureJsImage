@@ -593,7 +593,7 @@ const restoreWienerBlock = (
       for (let tap = 0; tap < 7; tap += 1) {
         sum += (verticalFilter[tap] ?? 0) * (intermediate[(row + tap) * width + column] ?? 0)
       }
-      output.data[(y + row) * output.stride + x + column] = clip(0, 255, round2(sum, 11))
+      output.data[row * output.stride + x + column] = clip(0, 255, round2(sum, 11))
     }
   }
 }
@@ -741,8 +741,8 @@ const restoreSelfGuidedBlock = (
   const radius1 = sgrParameters[set * 4 + 2] ?? 0
   for (let row = 0; row < height; row += 1) {
     for (let column = 0; column < width; column += 1) {
-      const target = (y + row) * output.stride + x + column
-      const source = cdef.data[target] ?? 0
+      const target = row * output.stride + x + column
+      const source = cdef.data[(y + row) * cdef.stride + x + column] ?? 0
       const scaledSource = source << 4
       const sample = row * width + column
       const projected =
@@ -760,7 +760,45 @@ export const applyAv1LoopRestoration = (
   header: Av1FrameHeader,
   state: Av1PostFilterState,
 ): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
-  const output = clonePlanes(cdef)
+  const createBand = (plane: Av1FilterPlane, rows: number): Av1FilterPlane => ({
+    ...plane,
+    data: new Uint8Array(plane.stride * rows),
+    height: rows,
+  })
+  const createBands = (): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => [
+    createBand(cdef[0], 4),
+    createBand(cdef[1], 4 >> state.chromaShiftY),
+    createBand(cdef[2], 4 >> state.chromaShiftY),
+  ]
+  let pendingOldest = createBands()
+  let pendingNewest = createBands()
+  let current = createBands()
+  let pendingOldestLumaY = 0
+  let pendingNewestLumaY = 0
+  let pendingCount = 0
+  const copyFromSource = (target: Av1FilterPlane, source: Av1FilterPlane, startY: number): void => {
+    const rows = Math.min(target.height, source.height - startY)
+    const length = rows * source.stride
+    target.data.fill(0)
+    target.data.set(source.data.subarray(startY * source.stride, startY * source.stride + length))
+  }
+  const commit = (target: Av1FilterPlane, source: Av1FilterPlane, startY: number): void => {
+    const rows = Math.min(source.height, target.height - startY)
+    const length = rows * target.stride
+    target.data.set(source.data.subarray(0, length), startY * target.stride)
+  }
+  const commitBands = (
+    bands: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
+    lumaY: number,
+  ): void => {
+    for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
+      const plane = cdef[planeIndex]
+      const band = bands[planeIndex]
+      if (!plane || !band) continue
+      const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
+      commit(plane, band, lumaY >> shiftY)
+    }
+  }
   const verticalFilter = new Int16Array(7)
   const horizontalFilter = new Int16Array(7)
   const intermediate = new Int32Array(40)
@@ -769,12 +807,19 @@ export const applyAv1LoopRestoration = (
   const filtered0 = new Int32Array(16)
   const filtered1 = new Int32Array(16)
   for (let lumaY = 0; lumaY < header.frameHeight; lumaY += 4) {
+    for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
+      const plane = cdef[planeIndex]
+      const band = current[planeIndex]
+      if (!plane || !band) continue
+      const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
+      copyFromSource(band, plane, lumaY >> shiftY)
+    }
     const stripeNumber = Math.floor((lumaY + 8) / 64)
     for (let lumaX = 0; lumaX < header.upscaledWidth; lumaX += 4) {
       for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
         const unit = state.restoration[planeIndex]
         const deblockedPlane = deblocked[planeIndex]
-        const outputPlane = output[planeIndex]
+        const outputPlane = current[planeIndex]
         if (!unit || !deblockedPlane || !outputPlane || unit.types.length === 0) continue
         const shiftX = planeIndex === 0 ? 0 : state.chromaShiftX
         const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
@@ -835,8 +880,18 @@ export const applyAv1LoopRestoration = (
         }
       }
     }
+    if (pendingCount === 2) commitBands(pendingOldest, pendingOldestLumaY)
+    const reusable = pendingOldest
+    pendingOldest = pendingNewest
+    pendingOldestLumaY = pendingNewestLumaY
+    pendingNewest = current
+    pendingNewestLumaY = lumaY
+    current = reusable
+    pendingCount = Math.min(2, pendingCount + 1)
   }
-  return output
+  if (pendingCount === 2) commitBands(pendingOldest, pendingOldestLumaY)
+  if (pendingCount > 0) commitBands(pendingNewest, pendingNewestLumaY)
+  return [cdef[0], cdef[1], cdef[2]]
 }
 
 export const applyAv1PostFilters = (

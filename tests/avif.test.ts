@@ -20,10 +20,20 @@ import {
   avifHighBitLosslessFixtures,
 } from '../benchmark/avif/high-bit-lossless-fixtures.ts'
 import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
+import { avifBoundedRowFixture, avifBoundedRowFixturePath } from '../benchmark/avif/row-fixture.ts'
+import {
+  avifBoundedAlphaRowFixture,
+  avifBoundedAlphaRowFixturePath,
+} from '../benchmark/avif/row-alpha-fixture.ts'
 import { av1ObuType } from '../src/codecs/av1.ts'
 import { parseAv1Frame } from '../src/codecs/av1-frame.ts'
 import { decodeRestrictedAv1Intra } from '../src/codecs/av1-intra.ts'
-import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
+import {
+  avifCodec,
+  inspectAvifBitstreams,
+  validateAvifFrameDimensions,
+} from '../src/codecs/avif.ts'
+import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource } from '../src/source.ts'
 import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
@@ -646,6 +656,92 @@ describe('AVIF restricted pixel decode', () => {
     expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
   })
+  it('converts a requested AVIF region into bounded ordered row blocks', async () => {
+    const input = new Uint8Array(
+      await readFile(join(avifCorpusDirectory, 'fox.profile0.8bpc.yuv420.avif')),
+    )
+    const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('AVIF decoder is unavailable')
+    const blocks: ReadonlyArray<number>[] = []
+    const hash = createHash('sha256')
+    for await (const block of decoder.decode({ x: 37, y: 41, width: 73, height: 70 })) {
+      blocks.push([block.x, block.y, block.width, block.height, block.stride])
+      hash.update(block.data)
+    }
+
+    expect(blocks).toEqual([
+      [0, 0, 73, 32, 292],
+      [0, 32, 73, 32, 292],
+      [0, 64, 73, 6, 292],
+    ])
+    expect(hash.digest('hex')).toBe(
+      '78f5c448c85d19567bf74ac4d62a7f1835082d11d08fde361150d4bfdc1bffc9',
+    )
+  })
+
+  it('reconstructs a filter-free AVIF through a two-superblock row ring', async () => {
+    const input = new Uint8Array(await readFile(avifBoundedRowFixturePath))
+    expect(createHash('sha256').update(input).digest('hex')).toBe(avifBoundedRowFixture.fileSha256)
+    const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('AVIF decoder is unavailable')
+    const blocks: ReadonlyArray<number>[] = []
+    const hash = createHash('sha256')
+    for await (const block of decoder.decode()) {
+      blocks.push([block.x, block.y, block.width, block.height, block.stride])
+      hash.update(block.data)
+    }
+
+    expect(blocks).toEqual([
+      [0, 0, 64, 32, 256],
+      [0, 32, 64, 32, 256],
+      [0, 64, 64, 32, 256],
+      [0, 96, 64, 32, 256],
+      [0, 128, 64, 32, 256],
+      [0, 160, 64, 32, 256],
+    ])
+    expect(hash.digest('hex')).toBe(avifBoundedRowFixture.decodedRgbaSha256)
+  })
+
+  it('rejects coded frame dimensions that differ from the AVIF item', async () => {
+    const input = new Uint8Array(await readFile(avifBoundedRowFixturePath))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('Bounded AVIF fixture has no coded frame')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+
+    expect(() =>
+      validateAvifFrameDimensions(coded, {
+        ...frame,
+        header: { ...frame.header, frameWidth: frame.header.frameWidth - 1 },
+      }),
+    ).toThrow(expect.objectContaining({ code: 'INVALID_INPUT' }))
+  })
+
+  it('decodes aligned alpha through synchronized bounded row rings', async () => {
+    const input = new Uint8Array(await readFile(avifBoundedAlphaRowFixturePath))
+    expect(createHash('sha256').update(input).digest('hex')).toBe(
+      avifBoundedAlphaRowFixture.fileSha256,
+    )
+    const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('AVIF decoder is unavailable')
+    const blocks: ReadonlyArray<number>[] = []
+    const hash = createHash('sha256')
+    for await (const block of decoder.decode()) {
+      blocks.push([block.x, block.y, block.width, block.height, block.stride])
+      hash.update(block.data)
+    }
+
+    expect(blocks).toEqual([
+      [0, 0, 64, 32, 256],
+      [0, 32, 64, 32, 256],
+      [0, 64, 64, 32, 256],
+      [0, 96, 64, 32, 256],
+      [0, 128, 64, 32, 256],
+      [0, 160, 64, 32, 256],
+    ])
+    expect(hash.digest('hex')).toBe(avifBoundedAlphaRowFixture.decodedRgbaSha256)
+  })
 
   it.each(avifAlphaFixtures)('decodes $file and composes its alpha item', async (fixture) => {
     const input = await readFile(join(avifCorpusDirectory, fixture.file))
@@ -663,13 +759,20 @@ describe('AVIF restricted pixel decode', () => {
   it('decodes and composes a cropped-edge 1x5 AVIF image grid', async () => {
     const input = await readFile(join(avifCorpusDirectory, 'sofa_grid1x5_420.avif'))
     const inspection = await inspectAvifBitstreams(new MemorySource(input))
-    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+    const image = await Image.open(input)
+    const output = PNG.sync.read(await image.png().toBuffer())
+    const cropped = PNG.sync.read(
+      await image.crop({ x: 91, y: 120, width: 173, height: 200 }).png().toBuffer(),
+    )
 
     expect(inspection.primaryItemType).toBe('grid')
     expect(inspection.grid).toEqual({ rows: 5, columns: 1, width: 1024, height: 770 })
     expect([output.width, output.height]).toEqual([1024, 770])
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(
       '7d3fb76660d21f8ffc24a440dc62f3e0ff90dcd933d5b3ee045b93b013dfd962',
+    )
+    expect(createHash('sha256').update(cropped.data).digest('hex')).toBe(
+      '1a630160b490c1ab5879a03c4c4daefc308e8ea90c101ce5a06315be8c2e03d8',
     )
   })
 

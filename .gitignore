@@ -176,6 +176,8 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/alpha-*.avif
 !benchmark/corpus/files/avif/lossless-q0-64x48.avif
 !benchmark/corpus/files/avif/lossy-q0-64x48.avif
+!benchmark/corpus/files/avif/bounded-row-lossless-64x192.avif
+!benchmark/corpus/files/avif/bounded-row-alpha-lossless-64x192.avif
 !benchmark/corpus/files/avif/lossless-identity-*-*bpc.avif
 !benchmark/corpus/files/avif/sofa_grid1x5_420.avif
 !benchmark/corpus/files/jp2/

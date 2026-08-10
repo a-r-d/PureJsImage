@@ -543,6 +543,23 @@ const avifAlphaPremultiplied = (): Promise<BrowserWorkflowResult> =>
     '23e32ff582d47da3001ceb4058021e61a7683a8bb0e77abaf03b56ec0426e031',
     'Premultiplied-alpha AVIF',
   )
+const avifBoundedAlphaRows = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'bounded-row-alpha-lossless-64x192.avif',
+    64,
+    192,
+    'efaa398f2e06433b8640411836cde40b0cd8322f0405153436ab6cfbd8eed2af',
+    'Synchronized color-and-alpha-ring AVIF',
+  )
+const avifBoundedRows = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'bounded-row-lossless-64x192.avif',
+    64,
+    192,
+    '7e977b27d1c17fcac0d6092bca89bc47b4ad289dbff356e38302cc9fce300287',
+    'Two-superblock-ring AVIF',
+  )
+
 const avifQ0Lossless = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
     'lossless-q0-64x48.avif',
@@ -789,6 +806,8 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   animatedGifFrameSelection,
   avifAlphaPremultiplied,
   avifAlphaStraight,
+  avifBoundedAlphaRows,
+  avifBoundedRows,
   avifCleanAperture,
   avifGrid,
   avifHighBit10,

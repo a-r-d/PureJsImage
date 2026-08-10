@@ -62,6 +62,20 @@ The encoded and decoded RGBA checksums are pinned in
 `benchmark/avif/q0-fixtures.ts`; lossless decoded RGB must match the source
 exactly.
 
+`bounded-row-lossless-64x192.avif` is a deterministic full-range YUV 4:4:4
+fixture spanning three 64-row superblock bands. It pins byte-exact output from
+the filter-free two-superblock reconstruction and context rings. Run
+`npm run fixtures:avif:rows:prepare` to regenerate it with libavif 1.3.0 and
+libaom 3.12.1 from the checksum-pinned RGB source; encoded, source PNG, and
+decoded RGBA checksums are recorded in `benchmark/avif/row-fixture.ts`.
+
+`bounded-row-alpha-lossless-64x192.avif` is the aligned-alpha counterpart. Its
+filter-free color and monochrome alpha items span the same three superblock
+bands so the decoder can synchronize two bounded row rings without retaining
+either full plane set. Run `npm run fixtures:avif:rows:alpha:prepare` to
+regenerate it; encoded, source PNG, and Sharp/PureJsImage RGBA checksums are
+pinned in `benchmark/avif/row-alpha-fixture.ts`.
+
 The `lossless-identity-16x12-10bpc.avif` and
 `lossless-identity-16x12-12bpc.avif` fixtures are deterministic full-range YUV
 4:4:4 images encoded with libavif 1.3.0 and libaom 3.12.1. They cover native
@@ -82,6 +96,14 @@ checksums are pinned in `benchmark/avif/clean-aperture-fixture.ts`.
 `sofa_grid1x5_420.avif` comes from the pinned libavif corpus revision documented
 in `benchmark/avif/corpus.ts`. It covers a 1x5 image grid whose final tile and
 display height exercise cropped edge-tile composition.
+
+`npm run bench:avif:memory` generates deterministic 1024x768 no-filter,
+deblock, alpha, and 2x2-grid cases in a temporary directory and combines them
+with the permanent Kodak and Fox fixtures for CDEF, restoration, and downscale
+measurements. It runs each case in three isolated cold Node.js processes and
+rejects any encoded-input or decoded-output checksum drift. The command
+requires `avifenc` 1.3.0 with libaom 3.12.1 to reproduce the recorded
+`benchmark/results/avif-bounded-row-output-2026-08-09.md` evidence.
 
 The remaining benchmark corpus is intentionally ignored and can be prepared with
 `npm run fixtures:avif`.

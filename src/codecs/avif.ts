@@ -5,7 +5,7 @@ import type {
   ImageDecoder,
   ImageMetadata,
 } from '../codec.ts'
-import { invalidInput, unsupportedOperation } from '../errors.ts'
+import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
@@ -13,8 +13,15 @@ import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
 import { av1ObuType, inspectAv1Bitstream } from './av1.ts'
 import type { Av1Obu, Av1SequenceHeader } from './av1.ts'
-import { parseAv1Frame } from './av1-frame.ts'
-import { av1ToRgba, decodeRestrictedAv1Intra, type Av1DecodedFrame } from './av1-intra.ts'
+import { parseAv1Frame, type Av1Frame } from './av1-frame.ts'
+import {
+  av1ToRgbaRegion,
+  estimateRestrictedAv1RowWorkingBytes,
+  decodeRestrictedAv1Intra,
+  decodeRestrictedAv1IntraRows,
+  supportsRestrictedAv1IntraRows,
+  type Av1DecodedFrame,
+} from './av1-intra.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import {
   ColorManagedDecoder,
@@ -32,6 +39,7 @@ import {
   parseIsobmffMeta,
 } from './isobmff.ts'
 import type { IsobmffBox as Box, IsobmffMeta, IsobmffReader } from './isobmff.ts'
+const MAX_BOUNDED_AVIF_WORKING_BYTES = 64 * 1_024 * 1_024
 
 const ALPHA_AUXILIARY_TYPES = new Set([
   'urn:mpeg:mpegB:cicp:systems:auxiliary:alpha',
@@ -706,7 +714,12 @@ const decodeRegion = (
   return { x, y, width: outputWidth, height: outputHeight }
 }
 
-class AvifPixelDecoder implements ImageDecoder {
+interface AvifAlphaFrame {
+  readonly coded: AvifCodedImageInspection
+  readonly frame: Av1DecodedFrame
+}
+
+class AvifFrameDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat = 'rgba8' as const
@@ -716,41 +729,60 @@ class AvifPixelDecoder implements ImageDecoder {
     scaledDecode: false,
     progressive: false,
   })
-  readonly #pixels: Uint8Array
-  readonly #sourceWidth: number
-  readonly #sourceX: number
-  readonly #sourceY: number
+  readonly #alpha: AvifAlphaFrame | undefined
+  readonly #coded: AvifCodedImageInspection
+  readonly #color: NclxColor | undefined
+  readonly #displayRegion: PixelRegion
+  readonly #frame: Av1DecodedFrame
+  readonly #premultipliedAlpha: boolean
 
-  constructor(sourceWidth: number, displayRegion: PixelRegion, pixels: Uint8Array) {
+  constructor(
+    coded: AvifCodedImageInspection,
+    frame: Av1DecodedFrame,
+    displayRegion: PixelRegion,
+    color: NclxColor | undefined,
+    alpha: AvifAlphaFrame | undefined,
+    premultipliedAlpha: boolean,
+  ) {
     this.width = displayRegion.width
     this.height = displayRegion.height
-    this.#sourceWidth = sourceWidth
-    this.#sourceX = displayRegion.x
-    this.#sourceY = displayRegion.y
-    this.#pixels = pixels
+    this.#coded = coded
+    this.#frame = frame
+    this.#displayRegion = displayRegion
+    this.#color = color
+    this.#alpha = alpha
+    this.#premultipliedAlpha = premultipliedAlpha
+    if (alpha) validateAlphaFrame(frame.width, frame.height, coded.rotation, alpha)
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const region = decodeRegion(this.width, this.height, request)
+    const sourceX = this.#displayRegion.x + region.x
     const rowsPerBlock = 32
     for (let rowStart = 0; rowStart < region.height; rowStart += rowsPerBlock) {
       const blockHeight = Math.min(rowsPerBlock, region.height - rowStart)
-      const stride = region.width * 4
-      const data = new Uint8Array(stride * blockHeight)
-      for (let row = 0; row < blockHeight; row += 1) {
-        const sourceOffset =
-          ((this.#sourceY + region.y + rowStart + row) * this.#sourceWidth +
-            this.#sourceX +
-            region.x) *
-          4
-        data.set(this.#pixels.subarray(sourceOffset, sourceOffset + stride), row * stride)
+      const sourceY = this.#displayRegion.y + region.y + rowStart
+      const data = av1ToRgbaRegion(
+        this.#coded.sequence,
+        this.#frame,
+        { x: sourceX, y: sourceY, width: region.width, height: blockHeight },
+        this.#color,
+      )
+      if (this.#alpha) {
+        applyAlphaRegion(
+          data,
+          { x: sourceX, y: sourceY, width: region.width, height: blockHeight },
+          this.#coded.rotation,
+          this.#alpha,
+          this.#premultipliedAlpha,
+        )
       }
       yield {
         x: 0,
         y: rowStart,
         width: region.width,
         height: blockHeight,
-        stride,
+        stride: region.width * 4,
         format: this.pixelFormat,
         data,
       }
@@ -758,20 +790,90 @@ class AvifPixelDecoder implements ImageDecoder {
   }
 }
 
-const decodeCodedImage = (
-  coded: AvifCodedImageInspection,
-  limits: ImageLimits,
-): Av1DecodedFrame => {
+export const validateAvifFrameDimensions = (
+  coded: Pick<AvifCodedImageInspection, 'height' | 'itemId' | 'width'>,
+  frame: Av1Frame,
+): void => {
+  if (
+    frame.header.frameWidth !== coded.width ||
+    frame.header.frameHeight !== coded.height ||
+    frame.header.renderWidth !== coded.width ||
+    frame.header.renderHeight !== coded.height
+  ) {
+    throw invalidInput(`AVIF item ${coded.itemId} dimensions do not match its AV1 frame`)
+  }
+}
+
+const parseCodedImageFrame = (coded: AvifCodedImageInspection, limits: ImageLimits): Av1Frame => {
   validateImageDimensions(coded.width, coded.height, 1, limits)
   const frames = coded.obus.filter((obu) => obu.type === av1ObuType.frame)
   if (frames.length !== 1) {
     throw unsupportedOperation('Phase B2 requires one complete AV1 frame OBU per coded AVIF item')
   }
   const frame = parseAv1Frame(coded.sequence, frames[0]?.payload ?? new Uint8Array())
-  if (frame.header.renderWidth !== coded.width || frame.header.renderHeight !== coded.height) {
-    throw invalidInput(`AVIF item ${coded.itemId} dimensions do not match its AV1 frame`)
+  validateAvifFrameDimensions(coded, frame)
+  return frame
+}
+
+const decodeCodedImage = (coded: AvifCodedImageInspection, limits: ImageLimits): Av1DecodedFrame =>
+  decodeRestrictedAv1Intra(coded.sequence, parseCodedImageFrame(coded, limits))
+
+class AvifRowDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat = 'rgba8' as const
+  readonly capabilities = Object.freeze({
+    sequential: true,
+    regionDecode: false,
+    scaledDecode: false,
+    progressive: false,
+  })
+  readonly #coded: AvifCodedImageInspection
+  readonly #color: NclxColor | undefined
+  readonly #displayRegion: PixelRegion
+  readonly #frame: Av1Frame
+
+  constructor(
+    coded: AvifCodedImageInspection,
+    frame: Av1Frame,
+    displayRegion: PixelRegion,
+    color: NclxColor | undefined,
+  ) {
+    this.width = displayRegion.width
+    this.height = displayRegion.height
+    this.#coded = coded
+    this.#frame = frame
+    this.#displayRegion = displayRegion
+    this.#color = color
   }
-  return decodeRestrictedAv1Intra(coded.sequence, frame)
+
+  async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    const region = decodeRegion(this.width, this.height, request)
+    const sourceX = this.#displayRegion.x + region.x
+    const sourceY = this.#displayRegion.y + region.y
+    const sourceEndY = sourceY + region.height
+    for (const band of decodeRestrictedAv1IntraRows(this.#coded.sequence, this.#frame)) {
+      const bandStartY = Math.max(sourceY, band.y)
+      const bandEndY = Math.min(sourceEndY, band.y + band.height)
+      for (let blockY = bandStartY; blockY < bandEndY; blockY += 32) {
+        const blockHeight = Math.min(32, bandEndY - blockY)
+        yield {
+          x: 0,
+          y: blockY - sourceY,
+          width: region.width,
+          height: blockHeight,
+          stride: region.width * 4,
+          format: this.pixelFormat,
+          data: av1ToRgbaRegion(
+            this.#coded.sequence,
+            band.frame,
+            { x: sourceX, y: blockY, width: region.width, height: blockHeight },
+            this.#color,
+          ),
+        }
+      }
+    }
+  }
 }
 
 const unpremultiplyRgba = (pixels: Uint8Array): void => {
@@ -790,14 +892,11 @@ const unpremultiplyRgba = (pixels: Uint8Array): void => {
   }
 }
 
-const applyAlpha = (
-  pixels: Uint8Array,
+const validateAlphaCoding = (
   width: number,
   height: number,
   colorRotation: number,
   alpha: AvifCodedImageInspection,
-  alphaFrame: Av1DecodedFrame,
-  premultiplied: boolean,
 ): void => {
   if (
     !alpha.sequence.monochrome ||
@@ -808,90 +907,274 @@ const applyAlpha = (
     throw unsupportedOperation('Phase B2 supports full-range 8-bit monochrome AVIF alpha only')
   }
   const rotation = (alpha.rotation - colorRotation + 4) & 3
-  const rotatedWidth = (rotation & 1) === 0 ? alphaFrame.width : alphaFrame.height
-  const rotatedHeight = (rotation & 1) === 0 ? alphaFrame.height : alphaFrame.width
+  const rotatedWidth = (rotation & 1) === 0 ? alpha.width : alpha.height
+  const rotatedHeight = (rotation & 1) === 0 ? alpha.height : alpha.width
   if (rotatedWidth !== width || rotatedHeight !== height) {
     throw invalidInput('AVIF alpha dimensions do not align with the color item')
   }
-  if (rotation === 0) {
-    for (let y = 0; y < height; y += 1) {
-      for (let x = 0; x < width; x += 1) {
-        pixels[(y * width + x) * 4 + 3] = alphaFrame.y[y * alphaFrame.yStride + x] ?? 0
+}
+
+const validateAlphaFrame = (
+  width: number,
+  height: number,
+  colorRotation: number,
+  alpha: AvifAlphaFrame,
+): void => {
+  validateAlphaCoding(width, height, colorRotation, alpha.coded)
+  if (alpha.frame.width !== alpha.coded.width || alpha.frame.height !== alpha.coded.height) {
+    throw invalidInput('AVIF alpha frame dimensions do not match its coded item')
+  }
+}
+
+const applyAlphaRegion = (
+  pixels: Uint8Array,
+  region: PixelRegion,
+  colorRotation: number,
+  alpha: AvifAlphaFrame,
+  premultiplied: boolean,
+): void => {
+  const rotation = (alpha.coded.rotation - colorRotation + 4) & 3
+  const storageHeight = Math.floor(alpha.frame.y.length / alpha.frame.yStride)
+  for (let localY = 0; localY < region.height; localY += 1) {
+    const y = region.y + localY
+    for (let localX = 0; localX < region.width; localX += 1) {
+      const x = region.x + localX
+      let sourceX = x
+      let sourceY = y
+      if (rotation === 1) {
+        sourceX = alpha.frame.width - 1 - y
+        sourceY = x
+      } else if (rotation === 2) {
+        sourceX = alpha.frame.width - 1 - x
+        sourceY = alpha.frame.height - 1 - y
+      } else if (rotation === 3) {
+        sourceX = y
+        sourceY = alpha.frame.height - 1 - x
       }
-    }
-  } else if (rotation === 1) {
-    for (let y = 0; y < height; y += 1) {
-      for (let x = 0; x < width; x += 1) {
-        const sourceX = alphaFrame.width - 1 - y
-        const sourceY = x
-        pixels[(y * width + x) * 4 + 3] = alphaFrame.y[sourceY * alphaFrame.yStride + sourceX] ?? 0
-      }
-    }
-  } else if (rotation === 2) {
-    for (let y = 0; y < height; y += 1) {
-      for (let x = 0; x < width; x += 1) {
-        const sourceX = alphaFrame.width - 1 - x
-        const sourceY = alphaFrame.height - 1 - y
-        pixels[(y * width + x) * 4 + 3] = alphaFrame.y[sourceY * alphaFrame.yStride + sourceX] ?? 0
-      }
-    }
-  } else {
-    for (let y = 0; y < height; y += 1) {
-      for (let x = 0; x < width; x += 1) {
-        const sourceX = y
-        const sourceY = alphaFrame.height - 1 - x
-        pixels[(y * width + x) * 4 + 3] = alphaFrame.y[sourceY * alphaFrame.yStride + sourceX] ?? 0
-      }
+      const storageY = sourceY - (alpha.frame.yOrigin ?? 0)
+      pixels[(localY * region.width + localX) * 4 + 3] =
+        storageY < 0 || storageY >= storageHeight
+          ? 0
+          : (alpha.frame.y[storageY * alpha.frame.yStride + sourceX] ?? 0)
     }
   }
   if (premultiplied) unpremultiplyRgba(pixels)
 }
 
-const decodeGrid = (inspection: AvifBitstreamInspection, limits: ImageLimits): Uint8Array => {
-  const grid = inspection.grid
-  if (!grid) throw invalidInput('AVIF grid description is missing')
-  if (inspection.alphaItemId !== undefined) {
-    throw unsupportedOperation('Phase B2 does not yet decode AVIF grids with alpha')
+class AvifAlphaRowDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat = 'rgba8' as const
+  readonly capabilities = Object.freeze({
+    sequential: true,
+    regionDecode: false,
+    scaledDecode: false,
+    progressive: false,
+  })
+  readonly #alphaCoded: AvifCodedImageInspection
+  readonly #alphaFrame: Av1Frame
+  readonly #coded: AvifCodedImageInspection
+  readonly #color: NclxColor | undefined
+  readonly #displayRegion: PixelRegion
+  readonly #frame: Av1Frame
+  readonly #premultipliedAlpha: boolean
+
+  constructor(
+    coded: AvifCodedImageInspection,
+    frame: Av1Frame,
+    displayRegion: PixelRegion,
+    color: NclxColor | undefined,
+    alphaCoded: AvifCodedImageInspection,
+    alphaFrame: Av1Frame,
+    premultipliedAlpha: boolean,
+  ) {
+    this.width = displayRegion.width
+    this.height = displayRegion.height
+    this.#coded = coded
+    this.#frame = frame
+    this.#displayRegion = displayRegion
+    this.#color = color
+    this.#alphaCoded = alphaCoded
+    this.#alphaFrame = alphaFrame
+    this.#premultipliedAlpha = premultipliedAlpha
   }
-  const output = new Uint8Array(grid.width * grid.height * 4)
-  let tileWidth = 0
-  let tileHeight = 0
-  for (let index = 0; index < inspection.colorItemIds.length; index += 1) {
-    const itemId = inspection.colorItemIds[index]
-    const coded = inspection.codedImages.find((image) => image.itemId === itemId)
-    if (!coded) throw invalidInput(`AVIF grid tile ${itemId ?? 'missing'} is not coded`)
-    if (coded.rotation !== 0) {
-      throw unsupportedOperation('Phase B2 does not support independently rotated AVIF grid tiles')
-    }
-    const frame = decodeCodedImage(coded, limits)
-    if (index === 0) {
-      tileWidth = frame.width
-      tileHeight = frame.height
-      if (
-        grid.width <= (grid.columns - 1) * tileWidth ||
-        grid.width > grid.columns * tileWidth ||
-        grid.height <= (grid.rows - 1) * tileHeight ||
-        grid.height > grid.rows * tileHeight
-      ) {
-        throw invalidInput('AVIF grid output dimensions do not match its tile geometry')
+
+  async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    const region = decodeRegion(this.width, this.height, request)
+    const sourceX = this.#displayRegion.x + region.x
+    const sourceY = this.#displayRegion.y + region.y
+    const sourceEndY = sourceY + region.height
+    const alphaBands = decodeRestrictedAv1IntraRows(this.#alphaCoded.sequence, this.#alphaFrame)[
+      Symbol.iterator
+    ]()
+    let alphaBand = alphaBands.next()
+    for (const colorBand of decodeRestrictedAv1IntraRows(this.#coded.sequence, this.#frame)) {
+      const bandStartY = Math.max(sourceY, colorBand.y)
+      const bandEndY = Math.min(sourceEndY, colorBand.y + colorBand.height)
+      for (let blockY = bandStartY; blockY < bandEndY; blockY += 32) {
+        const blockHeight = Math.min(32, bandEndY - blockY)
+        while (!alphaBand.done && blockY >= alphaBand.value.y + alphaBand.value.height) {
+          alphaBand = alphaBands.next()
+        }
+        if (
+          alphaBand.done ||
+          blockY < alphaBand.value.y ||
+          blockY + blockHeight > alphaBand.value.y + alphaBand.value.height
+        ) {
+          throw invalidInput('AVIF alpha row bands do not align with the color item')
+        }
+        const data = av1ToRgbaRegion(
+          this.#coded.sequence,
+          colorBand.frame,
+          { x: sourceX, y: blockY, width: region.width, height: blockHeight },
+          this.#color,
+        )
+        applyAlphaRegion(
+          data,
+          { x: sourceX, y: blockY, width: region.width, height: blockHeight },
+          this.#coded.rotation,
+          { coded: this.#alphaCoded, frame: alphaBand.value.frame },
+          this.#premultipliedAlpha,
+        )
+        yield {
+          x: 0,
+          y: blockY - sourceY,
+          width: region.width,
+          height: blockHeight,
+          stride: region.width * 4,
+          format: this.pixelFormat,
+          data,
+        }
       }
-    } else if (frame.width !== tileWidth || frame.height !== tileHeight) {
-      throw invalidInput('AVIF grid tiles have inconsistent dimensions')
-    }
-    const tile = av1ToRgba(coded.sequence, frame, inspection.nclx)
-    const column = index % grid.columns
-    const row = Math.floor(index / grid.columns)
-    const outputX = column * tileWidth
-    const outputY = row * tileHeight
-    const copyWidth = Math.min(tileWidth, grid.width - outputX)
-    const copyHeight = Math.min(tileHeight, grid.height - outputY)
-    for (let y = 0; y < copyHeight; y += 1) {
-      const sourceOffset = y * tileWidth * 4
-      const targetOffset = ((outputY + y) * grid.width + outputX) * 4
-      output.set(tile.subarray(sourceOffset, sourceOffset + copyWidth * 4), targetOffset)
     }
   }
-  return output
+}
+
+class AvifGridDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat = 'rgba8' as const
+  readonly capabilities = Object.freeze({
+    sequential: true,
+    regionDecode: false,
+    scaledDecode: false,
+    progressive: false,
+  })
+  readonly #color: NclxColor | undefined
+  readonly #displayRegion: PixelRegion
+  readonly #grid: NonNullable<AvifBitstreamInspection['grid']>
+  readonly #limits: ImageLimits
+  readonly #tileHeight: number
+  readonly #tiles: readonly AvifCodedImageInspection[]
+  readonly #tileWidth: number
+
+  constructor(inspection: AvifBitstreamInspection, limits: ImageLimits) {
+    const grid = inspection.grid
+    if (!grid) throw invalidInput('AVIF grid description is missing')
+    if (inspection.alphaItemId !== undefined) {
+      throw unsupportedOperation('Phase B2 does not yet decode AVIF grids with alpha')
+    }
+    if (inspection.colorItemIds.length !== grid.rows * grid.columns) {
+      throw invalidInput('AVIF grid item count does not match its dimensions')
+    }
+    const tiles = inspection.colorItemIds.map((itemId) => {
+      const coded = inspection.codedImages.find((image) => image.itemId === itemId)
+      if (!coded) throw invalidInput(`AVIF grid tile ${itemId} is not coded`)
+      if (coded.rotation !== 0) {
+        throw unsupportedOperation(
+          'Phase B2 does not support independently rotated AVIF grid tiles',
+        )
+      }
+      return coded
+    })
+    const first = tiles[0]
+    if (!first) throw invalidInput('AVIF grid has no coded tiles')
+    for (const tile of tiles) {
+      if (tile.width !== first.width || tile.height !== first.height) {
+        throw invalidInput('AVIF grid tiles have inconsistent dimensions')
+      }
+    }
+    if (
+      grid.width <= (grid.columns - 1) * first.width ||
+      grid.width > grid.columns * first.width ||
+      grid.height <= (grid.rows - 1) * first.height ||
+      grid.height > grid.rows * first.height
+    ) {
+      throw invalidInput('AVIF grid output dimensions do not match its tile geometry')
+    }
+    this.width = inspection.displayRegion.width
+    this.height = inspection.displayRegion.height
+    this.#color = inspection.nclx
+    this.#displayRegion = inspection.displayRegion
+    this.#grid = grid
+    this.#limits = limits
+    this.#tileHeight = first.height
+    this.#tiles = tiles
+    this.#tileWidth = first.width
+  }
+
+  async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    const region = decodeRegion(this.width, this.height, request)
+    const sourceX = this.#displayRegion.x + region.x
+    const sourceY = this.#displayRegion.y + region.y
+    const sourceRight = sourceX + region.width
+    const sourceBottom = sourceY + region.height
+    const firstColumn = Math.floor(sourceX / this.#tileWidth)
+    const lastColumn = Math.floor((sourceRight - 1) / this.#tileWidth)
+    const firstRow = Math.floor(sourceY / this.#tileHeight)
+    const lastRow = Math.floor((sourceBottom - 1) / this.#tileHeight)
+    const rowsPerBlock = 32
+    for (let tileRow = firstRow; tileRow <= lastRow; tileRow += 1) {
+      const decodedTiles: Av1DecodedFrame[] = []
+      for (let column = firstColumn; column <= lastColumn; column += 1) {
+        const coded = this.#tiles[tileRow * this.#grid.columns + column]
+        if (!coded) throw invalidInput('AVIF grid tile layout is incomplete')
+        decodedTiles.push(decodeCodedImage(coded, this.#limits))
+      }
+      const rowStart = Math.max(sourceY, tileRow * this.#tileHeight)
+      const rowEnd = Math.min(sourceBottom, (tileRow + 1) * this.#tileHeight)
+      for (let blockY = rowStart; blockY < rowEnd; blockY += rowsPerBlock) {
+        const blockHeight = Math.min(rowsPerBlock, rowEnd - blockY)
+        const stride = region.width * 4
+        const data = new Uint8Array(stride * blockHeight)
+        for (let column = firstColumn; column <= lastColumn; column += 1) {
+          const coded = this.#tiles[tileRow * this.#grid.columns + column]
+          const frame = decodedTiles[column - firstColumn]
+          if (!coded || !frame) throw invalidInput('AVIF grid tile layout is incomplete')
+          const tileStart = column * this.#tileWidth
+          const copyStart = Math.max(sourceX, tileStart)
+          const copyEnd = Math.min(sourceRight, tileStart + this.#tileWidth)
+          const copyWidth = copyEnd - copyStart
+          const tile = av1ToRgbaRegion(
+            coded.sequence,
+            frame,
+            {
+              x: copyStart - tileStart,
+              y: blockY - tileRow * this.#tileHeight,
+              width: copyWidth,
+              height: blockHeight,
+            },
+            this.#color,
+          )
+          const outputX = copyStart - sourceX
+          for (let localY = 0; localY < blockHeight; localY += 1) {
+            const sourceOffset = localY * copyWidth * 4
+            const targetOffset = localY * stride + outputX * 4
+            data.set(tile.subarray(sourceOffset, sourceOffset + copyWidth * 4), targetOffset)
+          }
+        }
+        yield {
+          x: 0,
+          y: blockY - sourceY,
+          width: region.width,
+          height: blockHeight,
+          stride,
+          format: this.pixelFormat,
+          data,
+        }
+      }
+    }
+  }
 }
 
 const createAvifDecoder = async (
@@ -900,12 +1183,9 @@ const createAvifDecoder = async (
 ): Promise<ImageDecoder> => {
   const metadata = await inspectAvif(source, limits)
   const inspection = await inspectAvifBitstreams(source)
-  let pixels: Uint8Array
-  let sourceWidth: number
+  let decoder: ImageDecoder
   if (inspection.primaryItemType === 'grid') {
-    if (!inspection.grid) throw invalidInput('AVIF grid description is missing')
-    pixels = decodeGrid(inspection, limits)
-    sourceWidth = inspection.grid.width
+    decoder = new AvifGridDecoder(inspection, limits)
   } else {
     if (inspection.colorItemIds.length !== 1) {
       throw invalidInput('Single-image AVIF has an invalid color item count')
@@ -914,24 +1194,63 @@ const createAvifDecoder = async (
       (image) => image.itemId === inspection.primaryItemId && image.role === 'color',
     )
     if (!coded) throw invalidInput('AVIF has no coded primary color item')
-    const frame = decodeCodedImage(coded, limits)
-    if (frame.width !== coded.width || frame.height !== coded.height) {
-      throw invalidInput('AVIF display dimensions do not match its AV1 frame')
-    }
-    sourceWidth = frame.width
-    pixels = av1ToRgba(coded.sequence, frame, inspection.nclx)
+    const parsedFrame = parseCodedImageFrame(coded, limits)
+    let alpha: AvifCodedImageInspection | undefined
+    let parsedAlphaFrame: Av1Frame | undefined
     if (inspection.alphaItemId !== undefined) {
-      const alpha = inspection.codedImages.find(
+      alpha = inspection.codedImages.find(
         (image) => image.itemId === inspection.alphaItemId && image.role === 'alpha',
       )
       if (!alpha) throw invalidInput('AVIF alpha auxiliary item is not coded')
-      applyAlpha(
-        pixels,
-        frame.width,
-        frame.height,
-        coded.rotation,
-        alpha,
-        decodeCodedImage(alpha, limits),
+      parsedAlphaFrame = parseCodedImageFrame(alpha, limits)
+      validateAlphaCoding(coded.width, coded.height, coded.rotation, alpha)
+    }
+    const colorRowsSupported = supportsRestrictedAv1IntraRows(parsedFrame)
+    const alphaRowsSupported =
+      !alpha ||
+      (!!parsedAlphaFrame &&
+        alpha.rotation === coded.rotation &&
+        supportsRestrictedAv1IntraRows(parsedAlphaFrame))
+    if (colorRowsSupported && alphaRowsSupported) {
+      let workingBytes =
+        coded.payloadBytes + estimateRestrictedAv1RowWorkingBytes(coded.sequence, parsedFrame)
+      if (alpha && parsedAlphaFrame) {
+        workingBytes +=
+          alpha.payloadBytes +
+          estimateRestrictedAv1RowWorkingBytes(alpha.sequence, parsedAlphaFrame)
+      }
+      if (!Number.isSafeInteger(workingBytes) || workingBytes > MAX_BOUNDED_AVIF_WORKING_BYTES) {
+        throw limitExceeded(
+          `AVIF bounded decoder working set ${workingBytes} exceeds ${MAX_BOUNDED_AVIF_WORKING_BYTES} bytes`,
+        )
+      }
+      decoder =
+        alpha && parsedAlphaFrame
+          ? new AvifAlphaRowDecoder(
+              coded,
+              parsedFrame,
+              inspection.displayRegion,
+              inspection.nclx,
+              alpha,
+              parsedAlphaFrame,
+              inspection.premultipliedAlpha,
+            )
+          : new AvifRowDecoder(coded, parsedFrame, inspection.displayRegion, inspection.nclx)
+    } else {
+      const frame = decodeRestrictedAv1Intra(coded.sequence, parsedFrame)
+      if (frame.width !== coded.width || frame.height !== coded.height) {
+        throw invalidInput('AVIF display dimensions do not match its AV1 frame')
+      }
+      const alphaFrame =
+        alpha && parsedAlphaFrame
+          ? { coded: alpha, frame: decodeRestrictedAv1Intra(alpha.sequence, parsedAlphaFrame) }
+          : undefined
+      decoder = new AvifFrameDecoder(
+        coded,
+        frame,
+        inspection.displayRegion,
+        inspection.nclx,
+        alphaFrame,
         inspection.premultipliedAlpha,
       )
     }
@@ -942,7 +1261,6 @@ const createAvifDecoder = async (
   ) {
     throw invalidInput('AVIF clean-aperture metadata is inconsistent')
   }
-  const decoder = new AvifPixelDecoder(sourceWidth, inspection.displayRegion, pixels)
   return inspection.colorTransform
     ? new ColorManagedDecoder(decoder, inspection.colorTransform)
     : decoder

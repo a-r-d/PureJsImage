@@ -69,6 +69,17 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Changed AVIF RGBA conversion, alpha application, clean-aperture output, and
+  opaque-grid composition to ordered row blocks instead of retaining a
+  source-sized RGBA bitmap; loop restoration now writes through delayed row
+  bands instead of allocating a second full padded YUV output.
+- Changed compatible opaque filter-free AVIF decode to reuse two-superblock YUV,
+  prediction, palette, and coefficient-context rings, copy finalized bands
+  before reuse, and reject coded payload plus estimated working state above
+  64 MiB. Compatible aligned filter-free alpha auxiliaries now use a synchronized
+  second reconstruction ring; post-filtered, rotated-alpha, and grid paths retain
+  their documented full-frame YUV fallback.
+
 - Moved HEIF/HEIC decode to the explicit
   `purejsimage/codecs/experimental/heic` entry, removed it from `allCodecs` and
   the default browser demo, and documented that MIT grants no third-party HEVC

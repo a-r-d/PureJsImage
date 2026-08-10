@@ -3147,7 +3147,7 @@
       },
       "boundary": "Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode with compatible integer clean-aperture cropping and skipped intra-block copy, plus coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode, compatible alpha auxiliaries, and opaque grids",
       "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images, plus coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color images with native high-depth reconstruction before explicit RGBA conversion. The supported path includes compatible full-range monochrome alpha auxiliaries, opaque image grids, validated integer clean-aperture cropping, palette-coded screen content, skipped intra-block copy with adaptive integer motion vectors, quantizer contexts 0-3 used by the pinned fixtures, coded-lossless 4x4 transforms, container-signaled NCLX conversion including identity color, the documented 8-bit in-loop filters, and the restricted Sharp/libaom quantization-matrix path. Fractional clean apertures, intra-block-copy residual transforms, grid alpha, lossy high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
-      "memory": "Metadata reads are bounded; the restricted decoder uses compact luma or YUV state plus one full coded or composed RGBA output. Clean-aperture cropping selects rows from that output without allocating a second full-frame crop; grids additionally retain one decoded tile.",
+      "memory": "Metadata reads are bounded and all decoded RGBA is emitted in ordered 32-row blocks without a source-sized RGBA bitmap. Compatible opaque, single-item, filter-free AV1 frames reconstruct through two-superblock YUV, prediction, palette, and coefficient-context rings, with finalized bands copied before reuse and a 64 MiB aggregate coded-payload and estimated-working-state limit. Compatible filter-free alpha auxiliaries with aligned orientation reconstruct through a synchronized second row ring under the same aggregate limit. Integer clean-aperture regions convert only contributing samples, opaque grids retain one contributing tile row, and restoration output uses delayed 4-row luma bands. Post-filtered, rotated-alpha, and grid paths still retain padded full-frame YUV state; CDEF retains one additional padded YUV frame.",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
       "evidence": [
         "tests/avif.test.ts",
@@ -3787,22 +3787,42 @@
         },
         {
           "status": "supported",
-          "text": "The current decoder's padded full-frame Y, U, V, and RGBA allocations are documented as a temporary fallback rather than the Lambda northstar"
+          "text": "Post-filtered, rotated-alpha, and grid paths' padded full-frame YUV allocations are documented as temporary fallbacks rather than the Lambda northstar"
         },
         {
           "status": "supported",
-          "text": "CDEF uses one additional padded YUV frame, and loop restoration uses a second additional padded YUV frame only when those stages are active; this temporary correctness-first cost is measured separately from the bounded long-term architecture"
+          "text": "RGBA conversion emits requested regions in ordered 32-row blocks without retaining a source-sized RGBA bitmap"
         },
         {
           "status": "supported",
-          "text": "Review the post-filter source-sized buffers before optimization; CDEF still needs an immutable neighborhood source, and restoration needs both the deblocked stripe-border source and CDEF interior source, so no buffer was removed without a bounded halo design and equivalent pixel proof"
+          "text": "Opaque grids decode and retain only one contributing tile row while composing ordered output bands"
+        },
+        {
+          "status": "supported",
+          "text": "Loop restoration writes through three delayed 4-row luma bands rather than allocating another padded full-frame YUV output"
+        },
+        {
+          "status": "supported",
+          "text": "CDEF's immutable-neighborhood requirement remains represented by one additional padded YUV frame and is measured separately"
+        },
+        {
+          "status": "supported",
+          "text": "Compatible opaque filter-free single-item frames reconstruct through reusable two-superblock YUV, prediction, palette, and coefficient-context rings, copying finalized bands before their storage is reused"
+        },
+        {
+          "status": "supported",
+          "text": "Compatible aligned filter-free alpha auxiliaries reconstruct through a synchronized second row ring before per-block alpha composition"
+        },
+        {
+          "status": "supported",
+          "text": "The bounded filter-free path rejects coded payload plus estimated working state above its 64 MiB codec limit"
         },
         {
           "status": "planned",
           "text": "Decode one tile or bounded superblock working set at a time"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Avoid retaining a full source-resolution RGBA bitmap"
         },
         {

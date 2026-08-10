@@ -258,18 +258,26 @@ so Kodak is not classified as an exact post-filter fixture.
 - [x] Public decoded output is emitted as ordered 32-row `rgba8` pixel blocks
 - [x] Configurable input-size, dimension, pixel-count, frame-count, and decoded
   byte limits are applied before public pixel decode
-- [x] The current decoder's padded full-frame Y, U, V, and RGBA allocations are
-  documented as a temporary fallback rather than the Lambda northstar
-- [x] CDEF uses one additional padded YUV frame, and loop restoration uses a
-  second additional padded YUV frame only when those stages are active; this
-  temporary correctness-first cost is measured separately from the bounded
-  long-term architecture
-- [x] Review the post-filter source-sized buffers before optimization; CDEF
-  still needs an immutable neighborhood source, and restoration needs both the
-  deblocked stripe-border source and CDEF interior source, so no buffer was
-  removed without a bounded halo design and equivalent pixel proof
+- [x] Post-filtered, rotated-alpha, and grid paths' padded full-frame YUV
+  allocations are documented as temporary fallbacks rather than the Lambda
+  northstar
+- [x] RGBA conversion emits requested regions in ordered 32-row blocks without
+  retaining a source-sized RGBA bitmap
+- [x] Opaque grids decode and retain only one contributing tile row while
+  composing ordered output bands
+- [x] Loop restoration writes through three delayed 4-row luma bands rather
+  than allocating another padded full-frame YUV output
+- [x] CDEF's immutable-neighborhood requirement remains represented by one
+  additional padded YUV frame and is measured separately
+- [x] Compatible opaque filter-free single-item frames reconstruct through
+  reusable two-superblock YUV, prediction, palette, and coefficient-context
+  rings, copying finalized bands before their storage is reused
+- [x] Compatible aligned filter-free alpha auxiliaries reconstruct through a
+  synchronized second row ring before per-block alpha composition
+- [x] The bounded filter-free path rejects coded payload plus estimated working
+  state above its 64 MiB codec limit
 - [ ] Decode one tile or bounded superblock working set at a time
-- [ ] Avoid retaining a full source-resolution RGBA bitmap
+- [x] Avoid retaining a full source-resolution RGBA bitmap
 - [ ] Feed resize directly from bounded YUV rows, blocks, or planes
 - [ ] Avoid RGB entirely for compatible AVIF-to-resize-to-AVIF workflows
 - [ ] Release coefficient, prediction, filter, and restoration state as soon as
@@ -367,3 +375,4 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-common-opaque-420-2026-08-07.md`](benchmark/results/avif-common-opaque-420-2026-08-07.md)
 - [`benchmark/results/avif-post-filters-2026-08-08.md`](benchmark/results/avif-post-filters-2026-08-08.md)
 - [`benchmark/results/avif-qmatrix-sharp-2026-08-08.md`](benchmark/results/avif-qmatrix-sharp-2026-08-08.md)
+- [`benchmark/results/avif-bounded-row-output-2026-08-09.md`](benchmark/results/avif-bounded-row-output-2026-08-09.md)

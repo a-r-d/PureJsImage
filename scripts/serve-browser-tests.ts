@@ -340,6 +340,14 @@ await copyFile(
   resolve(fixtureDirectory, 'clean-aperture-lossless-16x12.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/bounded-row-lossless-64x192.avif',
+  resolve(fixtureDirectory, 'bounded-row-lossless-64x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/bounded-row-alpha-lossless-64x192.avif',
+  resolve(fixtureDirectory, 'bounded-row-alpha-lossless-64x192.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/sofa_grid1x5_420.avif',
   resolve(fixtureDirectory, 'sofa_grid1x5_420.avif'),
 )
