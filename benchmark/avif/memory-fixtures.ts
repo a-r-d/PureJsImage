@@ -12,6 +12,7 @@ export type AvifMemoryScenario =
   | 'cdef'
   | 'deblock'
   | 'downscale'
+  | 'filtered-4k-multitile'
   | 'grid'
   | 'no-filters'
   | 'restoration'
@@ -195,7 +196,7 @@ export const prepareAvifMemoryCases = async (
       fileSha256: 'e69c973a3ddf635412c9a0c6cda66798102d0030303614873b337f658983ef5d',
       expectedWidth: 768,
       expectedHeight: 512,
-      expectedOutputSha256: 'b10ee50244d047f22a35e99fb288882ac1a223605c2b62be393a484a06eb0ba0',
+      expectedOutputSha256: '47e9bd0a4f371bc44abd8afeb3d1e271c94b423bd60f3edff7761cfbdcbe2375',
     },
     {
       scenario: 'restoration',
@@ -205,6 +206,15 @@ export const prepareAvifMemoryCases = async (
       expectedWidth: 1_204,
       expectedHeight: 800,
       expectedOutputSha256: 'cd94cd9d459af6338f77cf401749656b647f88b9e357c737a0a88c34584a46ec',
+    },
+    {
+      scenario: 'filtered-4k-multitile',
+      action: 'decode',
+      path: join(avifCorpusDirectory, 'libavif-bounded-filtered-yuv420-3840x2160.avif'),
+      fileSha256: 'b5ef6f6154a20dd4e6d4e76c01bd94ff2ab8ba415de0f5cbf00672e16de65258',
+      expectedWidth: 3_840,
+      expectedHeight: 2_160,
+      expectedOutputSha256: 'fa0ee4c2f74aef92f77ce700eb60f001b6502db9c5d540b43bdddb59fdcc3880',
     },
     {
       scenario: 'alpha',

@@ -416,6 +416,10 @@ await copyFile(
   resolve(fixtureDirectory, 'libaom-full-header-tile-groups-yuv420-256x256.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/libavif-bounded-filtered-yuv420-3840x2160.avif',
+  resolve(fixtureDirectory, 'libavif-bounded-filtered-yuv420-3840x2160.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/ms-mexico-nonstill-sequence.avif',
   resolve(fixtureDirectory, 'ms-mexico-nonstill-sequence.avif'),
 )

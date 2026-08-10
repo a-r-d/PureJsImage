@@ -316,6 +316,13 @@ byte. The full-size tolerance remains zero.
   row decoders without retaining a source-sized RGBA frame
 - [x] Every decoder path rejects coded payload plus conservatively estimated
   live working state above the 64 MiB codec limit
+- [x] Sequential multi-tile decode retains only one tile rectangle of entropy,
+  transform, palette, CDEF, and skip contexts while merging compact frame-wide
+  post-filter metadata; padded full-frame YUV remains an explicit fallback
+- [x] Measure the checksum-pinned 3840x2160 8x2-tile deblock-plus-CDEF fixture
+  in three isolated cold processes: median absolute peak RSS 165,031,936 bytes,
+  RSS growth 61,734,912 bytes, external growth 33,290,386 bytes, and
+  ArrayBuffer growth 32,738,320 bytes
 - [ ] Decode one tile or bounded superblock working set at a time
 - [x] Avoid retaining a full source-resolution RGBA bitmap
 - [x] Feed compatible full-aperture 2x, 4x, and 8x resize directly from
@@ -341,12 +348,12 @@ byte. The full-size tolerance remains zero.
 - [x] Reject malformed OBU sizes, duplicate sequence headers, truncated frame
   headers, tile overruns, invalid arithmetic symbols, impossible partitions,
   coefficient scans, and transform bounds explicitly
-- [x] Inspect all 44 checksum-pinned permanent corpus files and 56 unique coded
+- [x] Inspect all 45 checksum-pinned permanent corpus files and 57 unique coded
   items across `mdat`, `idat`, multiple extents, grids, alpha, gain maps,
   8/10/12-bit, 4:0:0/4:2:0/4:2:2/4:4:4, progressive storage, HDR signaling,
   layered frame units, reduced and full still-picture headers, and a non-still
   sequence header
-- [x] Pass metadata expectations for all 44 permanent corpus files
+- [x] Pass metadata expectations for all 45 permanent corpus files
 - [x] Decode exact independent reference pixels for the embedded 2x2 lossless
   fixture and the 4x4 lossy fixture
 - [x] Decode and pin RGBA regression hashes for Kodak 768x512 color; Fox
@@ -386,6 +393,9 @@ byte. The full-size tolerance remains zero.
   deblocking, CDEF, and restoration
 - [x] Exercise lossy multi-tile AVIF decode through the portable TypeScript
   codec in Chromium and pin its RGBA output
+- [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
+  for a checksum-pinned 3840x2160 YUV 4:2:0 8x2 tile frame with deblocking
+  and CDEF, and exercise its ordered 32-row RGBA output in Node.js and Chromium
 - [x] Match a checksum-pinned non-reduced 8-bit YUV 4:2:0 frame split across
   four tile-group OBUs byte for byte against agreeing dav1d and libaom native
   YUV, and exercise its pinned RGBA output in Chromium
@@ -467,7 +477,7 @@ byte. The full-size tolerance remains zero.
   dav1d and libaom native YUV output
 - [x] Survey 237 AVIF files spanning 137 conformance/edge/invalid cases and a
   100-file GB82 matrix encoded by Sharp/libvips and FFmpeg/libaom; complete
-  all 100 common-photo inputs and 73 conformance inputs
+  all 100 common-photo inputs and 75 conformance inputs
 - [ ] Expand the compatibility corpus with rav1e, SVT-AV1, browser encoders,
   ImageMagick, cameras, and real web uploads
 - [ ] Add malformed ISOBMFF, OBU, entropy, partition, coefficient, restoration,
@@ -489,3 +499,4 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-layered-selection-2026-08-09.md`](benchmark/results/avif-layered-selection-2026-08-09.md)
 - [`benchmark/results/avif-memory-bounded-superres-2026-08-09.json`](benchmark/results/avif-memory-bounded-superres-2026-08-09.json)
 - [`benchmark/results/avif-compatibility-survey-2026-08-10.md`](benchmark/results/avif-compatibility-survey-2026-08-10.md)
+- [`benchmark/results/avif-memory-bounded-filtered-2026-08-10.json`](benchmark/results/avif-memory-bounded-filtered-2026-08-10.json)

@@ -2150,6 +2150,13 @@ const avifLossyMultitile = async (): Promise<BrowserWorkflowResult> => {
       '05ab2273ba3952c41d53daf0b45afd709e5025f709ea8c87fef4a0dbacb0a966',
       'Non-reduced AV1 frame header with four tile-group OBUs',
     ),
+    avifPinnedPng(
+      'libavif-bounded-filtered-yuv420-3840x2160.avif',
+      3840,
+      2160,
+      'fa0ee4c2f74aef92f77ce700eb60f001b6502db9c5d540b43bdddb59fdcc3880',
+      'Filtered 8-bit 8x2-tile 4K AVIF within the bounded codec working-set limit',
+    ),
   ])
   return {
     detail: results.map((result) => result.detail).join('; '),

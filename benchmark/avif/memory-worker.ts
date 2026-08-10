@@ -44,6 +44,7 @@ const isScenario = (value: unknown): value is AvifMemoryCase['scenario'] =>
   value === 'alpha' ||
   value === 'cdef' ||
   value === 'deblock' ||
+  value === 'filtered-4k-multitile' ||
   value === 'downscale' ||
   value === 'grid' ||
   value === 'no-filters' ||

@@ -1,40 +1,1140 @@
 {
-  "generatedAt": "2026-08-10T20:32:08.062Z",
+  "generatedAt": "2026-08-10T21:56:02.272Z",
   "node": "v24.16.0",
   "platform": "linux/x64",
   "sources": [
     {
-      "label": "conformance",
-      "path": "/tmp/purejsimage-codec-corpus/avif-conformance"
-    },
-    {
       "label": "common-photo",
       "path": "/tmp/purejsimage-common-avif"
+    },
+    {
+      "label": "conformance",
+      "path": "/tmp/purejsimage-codec-corpus/avif-conformance"
     }
   ],
   "summary": {
     "files": 237,
-    "decoded": 173,
-    "errors": 64,
-    "decodedPercent": 73,
+    "decoded": 175,
+    "errors": 62,
+    "decodedPercent": 73.8,
     "bySourceAndOutcome": {
       "common-photo:decoded": 100,
-      "conformance:decoded": 73,
-      "conformance:error": 64
+      "conformance:decoded": 75,
+      "conformance:error": 62
     },
     "errorTaxonomy": {
       "alpha-auxiliary": 2,
       "animation": 8,
-      "decoded": 173,
+      "decoded": 175,
       "entropy-or-reconstruction-syntax": 1,
       "film-grain": 2,
       "malformed-or-unsupported-container": 11,
       "presentation-transform": 1,
       "unsupported-av1-or-container-feature": 35,
-      "working-set-limit": 4
+      "working-set-limit": 2
     }
   },
   "outcomes": [
+    {
+      "category": "generated",
+      "file": "baby-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "065c50f5efb649b2c504cd4aa3e5a3bbd21cbf1b7e50bd6ead745e7299861889",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "819d046be8dfc6b72fb722488216cdb4dfcb8e6eb2953a53932a7a2f03baeccb",
+      "source": "common-photo",
+      "wallMilliseconds": 435.395,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "baby-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "5b1a3aa5932a1d912d23e793315b3804bec32f4abff64786476dc291b542cc92",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "030e44892698be8cb28a3d2fd75bfc65b0fc656f2e03314c89dadd1e8f99f89f",
+      "source": "common-photo",
+      "wallMilliseconds": 539.453,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "baby-lossless-sharp-q50-420.avif",
+      "fileSha256": "7e22baa2b8bd38f2c2e3683e4362e151a2affbb2c4de8c5e4206272aada49212",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "5ce757f0fc6e4c53e1496cf69cb8de6027a1c8788af49176f7b020f28f4f327b",
+      "source": "common-photo",
+      "wallMilliseconds": 301.252,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "baby-lossless-sharp-q80-444.avif",
+      "fileSha256": "9c0d507c95b1682b9e9f2d66eb14a63dbdc12b9ecbc2ead39dfa26d794174e22",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "be3405e3a8d8f0b561e01b93be0a1f3fb25972ce7075c21fe069b112bef406bc",
+      "source": "common-photo",
+      "wallMilliseconds": 418.188,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "bulb-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "94a95ec5e4c402b6ea20e1ee26143318eacc84b60588c8e89a96c777a05e0abf",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "1142e6efaa9b68bcb9fef086cc94ad14cadcfb63608535e1b488641ab7e74df8",
+      "source": "common-photo",
+      "wallMilliseconds": 342.48,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "bulb-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "8cc8b73f4351347d71cf352dabd325f0262958b3bd23b2c80b06dc6895ce81c7",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "2eea8631b4ed31cc295046e49d9834d4939f223f7481f4b6b1a126cbaab5737e",
+      "source": "common-photo",
+      "wallMilliseconds": 565.554,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "bulb-lossless-sharp-q50-420.avif",
+      "fileSha256": "9192e82fd3740586ae34dc531efd32865c62cf171e858cf87d3f3f7f7b3f21fc",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "5c4e4b27f79312ec35a0031dadc745cee3ff4eb4c5c3645395cc058a83886250",
+      "source": "common-photo",
+      "wallMilliseconds": 265.587,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "bulb-lossless-sharp-q80-444.avif",
+      "fileSha256": "54bd009bc631d754a4c002afe959aaf40957cbbec8ce905ca00993a2f89f6561",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "d7f5f66573ff3876fb40c8b151567d72858999847c1afda112a87f5d97310c36",
+      "source": "common-photo",
+      "wallMilliseconds": 246.777,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "city-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "bd2109cc2b8c19571193d345d6d53d55f73e2578487913b2b4e20d936ab8424d",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "cf28d8de9868cc595f486b1a24a14438425404a09b30fc28424e6aeca7642d01",
+      "source": "common-photo",
+      "wallMilliseconds": 426.624,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "city-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "04d35958621d30ad493bf4c5afe1ca602fdeacc187ee6e267f0d70186d7dcc2b",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "2006e87758260bf38a75aeefa0702aa99216694b968db8f36790eeb9d925410d",
+      "source": "common-photo",
+      "wallMilliseconds": 599.708,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "city-lossless-sharp-q50-420.avif",
+      "fileSha256": "0150df1048f40df24cc76bc57571541c0eb489bcdb038c6dfbb10ea2d71af989",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "491cfa8704a0142dca3fde419975acceec02711cbfa4504019413f9ffb0f480b",
+      "source": "common-photo",
+      "wallMilliseconds": 324.65,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "city-lossless-sharp-q80-444.avif",
+      "fileSha256": "319886b130154fe595a610ce8d2d275a7cf06b68a5552c83f3885ad89c79a951",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "d671eb43149f4e13fb33d050d41f0c1a55a2dd735095e7bc504c87bebeffbd16",
+      "source": "common-photo",
+      "wallMilliseconds": 344.425,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "dog-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "9c29bf7392037ec0c8d170a54c1584aed1cb6b262ac920ade5ca979209090f4f",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "e824a7ff6c8c99a37e96fa3599c17150faa31e62ccdbb0a386e5ebb7cca1b856",
+      "source": "common-photo",
+      "wallMilliseconds": 342.364,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "dog-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "775491254b26336e0aa076eacec2b9574838b4755b173c026eac7968769fd9ff",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "52d18fa66b46a2206557df09baebc068ab7be02ffcd5cca8c04d9360314c8a0f",
+      "source": "common-photo",
+      "wallMilliseconds": 591.827,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "dog-lossless-sharp-q50-420.avif",
+      "fileSha256": "fc57119e12580e47448c2a1e987be6b5afc10f717e68f712d04845a1e1d8494b",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "11d7feb59ec5e82f4e59a3d07653db7904ae192e49529a263474d87f760f789a",
+      "source": "common-photo",
+      "wallMilliseconds": 303.195,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "dog-lossless-sharp-q80-444.avif",
+      "fileSha256": "0810c69e04770b3ceb9a8964b751010b3349bd1ec9a0d25367f2d9674c2f4bce",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "95fe7c2cb40e34c3c2e92ff2b58b4a38a5073e312f4fc1867c6c10f5d4fb4f4e",
+      "source": "common-photo",
+      "wallMilliseconds": 345.052,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "flowers-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "6888e872407ec55a4df406d7b650fdb2ec5d7135aa32cab8b16fa6e0dcf4dd6a",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "36372105b4ccedf63720799f03ed247c7e18b7e4dc978f6b0213f66bebc6061a",
+      "source": "common-photo",
+      "wallMilliseconds": 472.12,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "flowers-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "9a950847e072587c5d54a0b9122527267530f8ae8659a1b7d140c69007f03642",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "f4b474118fd15e8be3b4bf3ff731914ff256433dd7529343053ffc7441b34d4a",
+      "source": "common-photo",
+      "wallMilliseconds": 698.863,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "flowers-lossless-sharp-q50-420.avif",
+      "fileSha256": "d0ace4d87490f369e8194b302bb0ce431312cf51c3ad492bd3b9471e84402416",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "d82c5f7d7ed6105ec89af8f8e022a2bffad5b69284e11a6e658fec2d4b61ea35",
+      "source": "common-photo",
+      "wallMilliseconds": 355.115,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "flowers-lossless-sharp-q80-444.avif",
+      "fileSha256": "9bff9418dda632df7d25e3b54978d8add92122865a874f0b58b4cea73a25c029",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "de9188b996010d2390670eaadaf69a7182ad960fc36e70618c255b5f612b57b1",
+      "source": "common-photo",
+      "wallMilliseconds": 417.182,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "girl-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "e9f4f35860fb3a73181bfb3a487353f206c9db7e57467f94090f5598b183f49d",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "b4aedaf5923955d4d501969493c4e37e2276a61fc1628470da4ad5c9567ae611",
+      "source": "common-photo",
+      "wallMilliseconds": 381.778,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "girl-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "1f6d7edc9e38734d0fdb816ad5d901f18dcfdd85bc6bff6722deaa0b091de26f",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "53715ce13a4132f81882a873895d6e92b11f8c5a450a05c80cf66b34e6e63a78",
+      "source": "common-photo",
+      "wallMilliseconds": 605.836,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "girl-lossless-sharp-q50-420.avif",
+      "fileSha256": "be39d65939cfb4020ddb5c98338a6050493d65ee427ab83e995dfee7be3f0592",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "2b1d52df310370053da87620c227da255a915537232315fb90064b64ae32c80d",
+      "source": "common-photo",
+      "wallMilliseconds": 262.59,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "girl-lossless-sharp-q80-444.avif",
+      "fileSha256": "8290c51bd63ec4ebe9d95f497e3d5b90eb792121b9fdcfd3bcd925f689cfd671",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "d73bef81550a6298f5ddd10252d8bd35fd6ab48b4919d9d472b645eca7d69a74",
+      "source": "common-photo",
+      "wallMilliseconds": 290.577,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "grass-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "993c61ef137a4f4ba1bc15b425ad0d615452e4257522186a2cf2fe322d5e8eb4",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "2658d3e90f570dbc365808ca2be63119154d2297b3f8791b4faf9d161084bc4b",
+      "source": "common-photo",
+      "wallMilliseconds": 492.127,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "grass-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "c6c905aa7b2244107ec6bee047dd130337f0f3407f52e98e860fcedc11284d21",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "6ff063943ba6a05f1eb14d1b4875fccf0cbc2c94807148b92aa9d30c631a8bbf",
+      "source": "common-photo",
+      "wallMilliseconds": 575.781,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "grass-lossless-sharp-q50-420.avif",
+      "fileSha256": "add028a29a9f49ccd3ba8fe9ef602534d5fa4da9b4fe13a1d52f2b867570eac9",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "7c41210866665dae78b23aeebc22ac783309a643f73e8266bc067a6ee5838cb3",
+      "source": "common-photo",
+      "wallMilliseconds": 355.564,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "grass-lossless-sharp-q80-444.avif",
+      "fileSha256": "14e619851280a3d3ca6ccb27446e1548f51ea1dd30a2fbbfac6bdca434e4fb7a",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "92b01db76510760a864e9df5a2d47a2a49b8330f570acd144715aff3fa9c1375",
+      "source": "common-photo",
+      "wallMilliseconds": 416.519,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "guitar-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "7f6c52ef206deb9df7688bd66fbd449f70e88a59439574f2a7c0a63a9c9c210f",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "917b6c4c42d7d9ad570135188d896dbe5cb253acb9821484f9f4f192cd61ed15",
+      "source": "common-photo",
+      "wallMilliseconds": 423.959,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "guitar-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "4b9abf227e48c9182ea01a0a300680a55cd422f7a8e7113029fc874efba72b49",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "4dc462f5ec23f74dbf8ac8ed2bca3a267da4dfd0afe15b8a22598ef15a542575",
+      "source": "common-photo",
+      "wallMilliseconds": 553.01,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "guitar-lossless-sharp-q50-420.avif",
+      "fileSha256": "8de1b0e37f7221540e27356c7e026af194a77524bb4da8dd954f3bd4e2bca6d7",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "69fbb6254c3b2c663e8fea9d95950a6d1496036ae0816e123f2dd3934b85f185",
+      "source": "common-photo",
+      "wallMilliseconds": 298.88,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "guitar-lossless-sharp-q80-444.avif",
+      "fileSha256": "a21177d80c4f722b4330ab4f171a07ddf7dbddf73381842396c08de177e63fb1",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "d62ecd70d58a8d300ced27cc0fae5cace11209ef170160b647e765aea37358b9",
+      "source": "common-photo",
+      "wallMilliseconds": 273.559,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "haze-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "6b38c36e1d196774c49be94d01c749d6251918ebfb3a72ae0750db24dccadba9",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "a0a57c76a9aa314466c06c391766a0c4a0b205ae8d905b54ebc92049245f26de",
+      "source": "common-photo",
+      "wallMilliseconds": 349.646,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "haze-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "e323b737a53b0c957db46f7d17c42dfe3ddde092783197e74b9abc79c7f82b0f",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "b1b359ee5588b547db2116441c2eb4d4e01999f5193c1aa33f3f36f9517e5695",
+      "source": "common-photo",
+      "wallMilliseconds": 471.159,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "haze-lossless-sharp-q50-420.avif",
+      "fileSha256": "17c73f22af114730a29fbbe448a8fafbd9ff7fa6b92e2e5d249872b86a311860",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "2b489d70e8a0854179d987678f1a0e759b5cf5ff9cf96de0ee5f6872107aae7a",
+      "source": "common-photo",
+      "wallMilliseconds": 268.266,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "haze-lossless-sharp-q80-444.avif",
+      "fileSha256": "24e772d10035a892493b0604ffdd07f7011490f69b164c228586a244875f01e9",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "596fc135d053bff22c4bb06168b5566e7b3578edf2704586aa1ad19c6e318825",
+      "source": "common-photo",
+      "wallMilliseconds": 275.091,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "house-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "868b4c32c8de005ee5569e11b84e0f37a2eab10fadd341c6f7ad1a23c294a72a",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "39bbd38d9d834f8ed30285ff487496b8a79009cddb0a43c01fd96a0326a36b08",
+      "source": "common-photo",
+      "wallMilliseconds": 564.68,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "house-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "b3e5c2bc56ab41a93910e254ab99dea9291f37eb2b68b65e4f76104add688dd5",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "f2b937a01c5cc4ba556475f488a0bee29cf0184efa25c0889544398adcce902a",
+      "source": "common-photo",
+      "wallMilliseconds": 794.505,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "house-lossless-sharp-q50-420.avif",
+      "fileSha256": "e98cbb0cf70952f06d368964cc2bd4833ef43987a22e758d69d001215bc1df48",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "05f4ab9857496a38d029c5dbb8208cbc0e49b18f614b645d44c8ea0c59ac2ae2",
+      "source": "common-photo",
+      "wallMilliseconds": 295.288,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "house-lossless-sharp-q80-444.avif",
+      "fileSha256": "0dd60521bf115868fbab54a63939ac97ae6529de898fae107a9118f23ed57107",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "494b3f39a9e9dd018b40dc3389da64ad48c8b52570b005d00a350cf16d0d8731",
+      "source": "common-photo",
+      "wallMilliseconds": 292.375,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc1-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "c3bacef9689f2353ebc2ff86d79b04cbaa12eab9078469bf2bc146aefec0bb19",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "aa080ef375a5aab78e71db7b8fb7e4b8338b5fa27bc06bf973bd8e43400460c9",
+      "source": "common-photo",
+      "wallMilliseconds": 367.512,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc1-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "c07126d51841316449972dc6e16e410ef7f46eb36e73d830e8c9cb742e538785",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "cbfbefb184b016b6ee5039ef9487123f4af354120e476292cabe8d110e360a8d",
+      "source": "common-photo",
+      "wallMilliseconds": 603.7,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc1-lossless-sharp-q50-420.avif",
+      "fileSha256": "df8227a98f097bec63e556a7da77e32bbc2fe6e3462ecffc8a29c9528712a893",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "5d3a5327c574cba766fe6c5d1d496307ec770f6f9f00de55e74c368cf0c34e6e",
+      "source": "common-photo",
+      "wallMilliseconds": 299.256,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc1-lossless-sharp-q80-444.avif",
+      "fileSha256": "b86fda65b296fc79a581a974a28266843d075ecae2ce785b94512142e7393b2a",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "d4cc913b38985250ff9dd74b32ad6e0f69b4648e8e1bffc463d03c1f34c120fb",
+      "source": "common-photo",
+      "wallMilliseconds": 329.647,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc2-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "147fd1b20fe1b626fec59478b74f7cea8a5787d6b6301ba3a20c0ad6f7c11196",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "dc808ac74c247019b8186874a1a2de0b323b0260de93a00f783bed289e09b77a",
+      "source": "common-photo",
+      "wallMilliseconds": 306.677,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc2-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "12b455ea07c9da85948640fac7e42340ab98859230e5a7e5570810c5ceb3282c",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "3c2f29b2a32f9a33725b969cb6720ce644de1b32dcf3bb022372ba9d064967a8",
+      "source": "common-photo",
+      "wallMilliseconds": 473.48,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc2-lossless-sharp-q50-420.avif",
+      "fileSha256": "5b40e81d3249fc8ddaf45ae0375adcf730b2ce77127f636894bb44325e70b59d",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "7cd35506a2837ae19e791f64da1b212f912aae845790c52c3c3227002a6a6eaf",
+      "source": "common-photo",
+      "wallMilliseconds": 260.826,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc2-lossless-sharp-q80-444.avif",
+      "fileSha256": "3bf855f6244511aaa5bba3db9d2ab6711b5e7d25a94ecf7c46827fbfb5e0dc48",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "3a27313a56d9d3c4c6dac2b2627c6e9e436a1a2dea0f6476622a92c3f99384b5",
+      "source": "common-photo",
+      "wallMilliseconds": 288.085,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc3-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "dd38d10c6dd5f8bb6c0d7efb0e557b1754831c16bbb35c8fdebc1d35b631b1d1",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "81c24dbde853f7307bd0bc23429033e86e3c85bdee90f68d5f27dd1b48ddb9eb",
+      "source": "common-photo",
+      "wallMilliseconds": 280.582,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc3-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "4abb4b3f493468e8c2d688f9835001d9a98683f4a7725b55a655f4c02f1ddd47",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "32679b5c88defb99ee516f1347f7c4f00d5b24c2e17108aae577529045f721b9",
+      "source": "common-photo",
+      "wallMilliseconds": 362.625,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc3-lossless-sharp-q50-420.avif",
+      "fileSha256": "0cf166bfa6105dc9e32023d0c5d23362ebb2f541e9d51ed09b9a32f4cf53ffce",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "cfac5f91515b6bdea3a784881a9918584f8058996192cb9616cca33a52cbf78b",
+      "source": "common-photo",
+      "wallMilliseconds": 258.571,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mc3-lossless-sharp-q80-444.avif",
+      "fileSha256": "e5e894a7a9720ef40a7a83c021278673cdf7bb74d8b91bdf1648d218db9e5f99",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "ccbb6f39e9318e4cdcec16ba5165e5c1dab49da08e90f1ee1e2279f3f3868255",
+      "source": "common-photo",
+      "wallMilliseconds": 245.712,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mies-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "b579d4fca10f4ffcbe22da43a7bbe8fc9f64ff1d03c0760b4a77a64048a348cb",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "72374fa2e7fd7505e089f8569b4f279e71554e4b2b5d37ebd32b6fb903798008",
+      "source": "common-photo",
+      "wallMilliseconds": 461.739,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mies-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "deae2408b532de2626983654af9235610913706dba7d80162b024dded83849dc",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "16b0ac90fcb666585e010deb0094e221fc83c56eeb2258bfbcea725c2673445a",
+      "source": "common-photo",
+      "wallMilliseconds": 649.946,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mies-lossless-sharp-q50-420.avif",
+      "fileSha256": "37a2666c982b1b8e08e53a4a82d79fee6755304d02152ce0905df6a2f22bfeae",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "d1c8b87f02a0f4e1d7502ff5003f119728940dcf4a9ef9b2bdbdf7cc8befc800",
+      "source": "common-photo",
+      "wallMilliseconds": 369.783,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "mies-lossless-sharp-q80-444.avif",
+      "fileSha256": "adab6f6613b756cf6199204cadda1ee679785db60e5618a10029da17e11b573d",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "2c20a2b8650fb7044aaead0cc4f15d7cb43a7b33d9fbb11591eb1b7e127efe64",
+      "source": "common-photo",
+      "wallMilliseconds": 420.1,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "night-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "cb23d3c75e05d7e57c1563f5abd23995ba61432d6c762a508b5a77b8045c5c83",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "8384f9b3e814d9b766f08b63b5793ed19e024fb7d4079bb2bb372983ebb2a286",
+      "source": "common-photo",
+      "wallMilliseconds": 302.54,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "night-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "c86e02d6d156ebd080dacdf85cbb3b76f00990e2bc094ef28b3c9c22840afc67",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "8f2b8b4fb61e50e60aa6792ba3ea461a65c1500df9d2faf13c3c1ab150f64cdc",
+      "source": "common-photo",
+      "wallMilliseconds": 333.524,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "night-lossless-sharp-q50-420.avif",
+      "fileSha256": "852a014e08c7c946df4a7e1d76f8f981a39af744bff7b4f4b81bb4de7b290081",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "d41b0418e8b0d3d64348171f23ea3048a1ce455bf3dc4dca2a7988536f02e2ac",
+      "source": "common-photo",
+      "wallMilliseconds": 255.804,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "night-lossless-sharp-q80-444.avif",
+      "fileSha256": "37154502500b2ec4f26ea6bb9a040fedfc85be02b407c5c15bc2b2311ab7b179",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "5b02fc1babbc66d157ce4e768fdf397fd76d22d07c46e1e699ea3089d47989cd",
+      "source": "common-photo",
+      "wallMilliseconds": 208.357,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "nyc-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "0a21d9ae2b9e277b538f5ee6432e76a242a607d6d4ba7743f1f77741802cde39",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "24774e15cff4d903c16b974fe99ebee5eed72128f3901f68e37f32d2225be953",
+      "source": "common-photo",
+      "wallMilliseconds": 366.046,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "nyc-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "ef6b710e64b404f025f8616a2036107beee5562493d034cad9927c0fc874dff9",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "17fcf8adfdba1add9cbb71c3f2419f75bfe304379a5c3a7825470ea4e498bb46",
+      "source": "common-photo",
+      "wallMilliseconds": 495.232,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "nyc-lossless-sharp-q50-420.avif",
+      "fileSha256": "398d8f3ba36c37d3cc5a080daf297e8d78b82ab7f67a4e6bfbbabdf43e3309c8",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "a2d1a1a4d965097a90cccddae8dec968ac93464eb05c007eb970391ab1cd7432",
+      "source": "common-photo",
+      "wallMilliseconds": 280.409,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "nyc-lossless-sharp-q80-444.avif",
+      "fileSha256": "a2c26663a90238e5c5a0d7e0f915c877cdd84ac3d00a0997342980e09007209c",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "ae422a7de086859a035c3a8ee3983b939072c1c058299d4beeed664aff1d1797",
+      "source": "common-photo",
+      "wallMilliseconds": 319.1,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "path-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "583ca860da5e8545cdf065e32560107d08e207223e46ea221025963f6d29ecea",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "579175be2aea91a8e128fa67923fe39df83c080ded2b8aeadc93e77586debc03",
+      "source": "common-photo",
+      "wallMilliseconds": 352.631,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "path-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "5617bca442c45a0afa2aecc813bbbbeed2f97d2c11c11cc286b6c1735d4ddfba",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "08891bdfabe3c65727bc06182c44610695b9bebc2eecd3563fc47fec4bcb4016",
+      "source": "common-photo",
+      "wallMilliseconds": 476.009,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "path-lossless-sharp-q50-420.avif",
+      "fileSha256": "8fc30aac603ae88f6009ab81cba426634d494bbe4522eccc815a4dce0168ccc1",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "e4261abf2bb1b9f0431d15e6650e07d6b61810f8d3c917541c528660c7ae975d",
+      "source": "common-photo",
+      "wallMilliseconds": 306.267,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "path-lossless-sharp-q80-444.avif",
+      "fileSha256": "26cd0090749489d386353d20c8abe9726b05bcbbb5c1768d8f126cbc76446ae2",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "19fde4baa1dea775e00f5a69004e9396cee57037e9c23909fae279fef8a5eaa3",
+      "source": "common-photo",
+      "wallMilliseconds": 345.06,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "pixel-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "a3dc5494ad23052911dd81f9129193cea1a9b3995aed190a5675444d9466a3a6",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "c1c79d1637d314af3240779d2af40582a6726a3851957a781ca29eef5d350c48",
+      "source": "common-photo",
+      "wallMilliseconds": 385.862,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "pixel-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "30ef68593176d72a843ec203f2d7a6232343f48397efd4f39de005e6470718fd",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "257536153ef2d91e8a94f4827f95dc9860be815d57273939148b801ea7093a16",
+      "source": "common-photo",
+      "wallMilliseconds": 565.094,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "pixel-lossless-sharp-q50-420.avif",
+      "fileSha256": "6cbc4f0e8a33a1c4b75322fd89e4f0b2da1b65eede40dd2bdec6d31cec54b2ef",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "dba5b204f0c5f97b1f0b65c60218e8231c9e92477021609d4a91ac495fc44ef7",
+      "source": "common-photo",
+      "wallMilliseconds": 275.374,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "pixel-lossless-sharp-q80-444.avif",
+      "fileSha256": "ce701d1b9e74ba5d1ed685dba73a3b5be677dbd399a477de8db9566fe851d426",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "e95b4bb4539dc7b9cb0e4bb79079520a700dc06227a018541c5eea4879e901c2",
+      "source": "common-photo",
+      "wallMilliseconds": 278.58,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "prudential-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "e5896d3891286f4ea974af95a90883c99f0d47eb681df1da2c2033af37537d92",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "40d4bdbb591f6b7d44e0380f5963c0907eeda9cf4c9f042b395263851505f873",
+      "source": "common-photo",
+      "wallMilliseconds": 325.366,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "prudential-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "023503885bde394a398af043f2e7ea4f90dec0abdb3a0fdf35173f5d7d5b2cfc",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "92efe606499018cdc07fa2c17598d10f0e0badde6fb4b90f457bdbcf3dad1e8d",
+      "source": "common-photo",
+      "wallMilliseconds": 570.207,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "prudential-lossless-sharp-q50-420.avif",
+      "fileSha256": "2debe17eaee1fb7027c418ca9c3287a5673f3dcbb9c5a22aecec14f0afc659ae",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "ffcb8131cf29163279eb7dec8722228feb152bed199efdafbd8f9766652a3b4b",
+      "source": "common-photo",
+      "wallMilliseconds": 262.166,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "prudential-lossless-sharp-q80-444.avif",
+      "fileSha256": "c037909b614785df8b686aa278e2dae9906528acd2e85fa280ef8014637d1695",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "80d58c40408eb2c1acac237d05593c91f6ce00218f3ba4fe091a808c6887b716",
+      "source": "common-photo",
+      "wallMilliseconds": 311.895,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "rain-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "d7dcba7c3787cd92af13947bf8130df08eeb8fd257517527e71f0585cca06f66",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "c701f0e8bbad02d797f4e0e92f7d3a58ce61adfafb3de3f696b5c1979320d98f",
+      "source": "common-photo",
+      "wallMilliseconds": 322.994,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "rain-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "2a2bd181edd3ef054b54df9a758d84ed0d39a8124567da2db5e616c49cd304b5",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "4316c38cb88b503f6d0e691dd24d7ee62f979648e32a032b58e27592fa369d51",
+      "source": "common-photo",
+      "wallMilliseconds": 498.312,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "rain-lossless-sharp-q50-420.avif",
+      "fileSha256": "4a52fecdcb1e4c8b04c428420b33c91b2fb8b5c7862143faada844a806cbc11d",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "387250f2ed2a03560770627953089aabd2c9ab3731ad1be1ef97edee4f656714",
+      "source": "common-photo",
+      "wallMilliseconds": 248.357,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "rain-lossless-sharp-q80-444.avif",
+      "fileSha256": "d63fa4c97c5764d6738b3508cd41267356a8449a3f0768beb425c4faf7395619",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "4778f6f1841de58a826ea688bdd70139c2656f2add313feb2f7d33aa6076bca0",
+      "source": "common-photo",
+      "wallMilliseconds": 232.454,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "reflect-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "65580bb5882599001a16db98a6bea9effc78730c34b0b16658a35d637ca4c072",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "eefe9df99d97073b2d22c9525cb90c26deb92b42b105ba8a77c057d56726bb8c",
+      "source": "common-photo",
+      "wallMilliseconds": 386.64,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "reflect-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "f60a0e752761b333e402b0c638752a09435139e94c59038146dbae40f4ee7123",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "ea56e063280fb7762d21a8361e73de5e2588d5a1741e3bbedb05f154e099d42b",
+      "source": "common-photo",
+      "wallMilliseconds": 609.197,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "reflect-lossless-sharp-q50-420.avif",
+      "fileSha256": "7e2cd1987efc01a80884b91269c7d0ba7fe67284a5cf4414bd33d9e3342257e5",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "d3c6455251ad1c6ad0a55e0feb90303afb69036106a46fa2fe8fe08f0b977068",
+      "source": "common-photo",
+      "wallMilliseconds": 308.281,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "reflect-lossless-sharp-q80-444.avif",
+      "fileSha256": "8ba3505520c357b35c20e34270f551a07dc7683494d943ce003a8f001753eabb",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "a4b3783b90018d20f339cf4810fbe56483fc41e895fc362f2e004644fa276551",
+      "source": "common-photo",
+      "wallMilliseconds": 336.787,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sand-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "0d63ca1a03c787a07e0530a5ecfd4272627bf0adb51a23afa7960e77b76f20f6",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "90d66ee4d6fb960b5853f8251abd4f15d3b5ea08e6d5f645e2c015850248bae3",
+      "source": "common-photo",
+      "wallMilliseconds": 466.859,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sand-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "f6d4b6cd72cf90ba1448909000e8b13d88b3db3e04fa901f31172d9c268a0b40",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "67242177d6267a41b22cd931a88eafbf7eb57228ee9e62977b350ae85efdea82",
+      "source": "common-photo",
+      "wallMilliseconds": 666.806,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sand-lossless-sharp-q50-420.avif",
+      "fileSha256": "8de5fe035e0a0cf8449f213cdfd578c4dbca8696609e13ed0532e96a816d8303",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "e6252ebc4eec64462bbcc4c0569aa8dd447e863d4bee56eda146f641cc46658e",
+      "source": "common-photo",
+      "wallMilliseconds": 395.456,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sand-lossless-sharp-q80-444.avif",
+      "fileSha256": "af8ba5cb14bd0947975e20fb7b57a1192ac868bc76b6e5ee3863f57993042314",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "4e7348b16d817a2466a952648614541c6c3f47faa8acf1d4144b4ef0f3031d5c",
+      "source": "common-photo",
+      "wallMilliseconds": 510.513,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sumac-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "993d9668e3f58a55c7380ab2e51cafff960b5290b1564e6544d4584afd85acb7",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "200883d6f9dab4f268d21cabb79955040fd0ab2341aed9ce69e70bee59a1955b",
+      "source": "common-photo",
+      "wallMilliseconds": 438.032,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sumac-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "5386909b9a82a31c67256110b822b4966edb48af9360f580178c6186ebd2ebb6",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "57f289946e0830e87662ce59a6881cf596b203756f319c26dfb514ea6d4f53b7",
+      "source": "common-photo",
+      "wallMilliseconds": 685.485,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sumac-lossless-sharp-q50-420.avif",
+      "fileSha256": "6e01c7069c507785e8574f32139b480e39fd543aca5e10661e33597b6beab82e",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "134390f04e8b299c97d4990c5172fae384c454340847f33048e62bf26e680a52",
+      "source": "common-photo",
+      "wallMilliseconds": 332.166,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sumac-lossless-sharp-q80-444.avif",
+      "fileSha256": "1c733b1b5389c3eb1ed71c52d4fbc5e8f52a4bae67cc0667ec293ef002c27e1e",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "9725f11568f293b768bd565daa765335c3618fd8abd7a59150d6205b10525315",
+      "source": "common-photo",
+      "wallMilliseconds": 364.063,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sunset-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "ca669ac6a3f7b60aa9098d3f77dd31871a8617ffcf8d09bba1871e25bb8a9ed8",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "9302762f6c2abc425737d9ac6c2ede9ff8fa39d2a91a19db9ac094127092a95d",
+      "source": "common-photo",
+      "wallMilliseconds": 292.864,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sunset-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "a474e974af7b00e359826c9f463a4547a6521e71cd27fad596a1043871c00fef",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "355c7a958fa7e682c5544630a4cc0e9a6735d95876ce3669d64dcd0c21b7ccfa",
+      "source": "common-photo",
+      "wallMilliseconds": 536.346,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sunset-lossless-sharp-q50-420.avif",
+      "fileSha256": "a00c9956673450a49bb7158fec33ecddb5bc9e0b962b3ce741a18863ea22f50b",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "b024d13c8040a8f258652dcf5318de3c4361fd0654b9d5280ba7976a33b97280",
+      "source": "common-photo",
+      "wallMilliseconds": 266.837,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "sunset-lossless-sharp-q80-444.avif",
+      "fileSha256": "3c2285482031f3fb5cf709d793ead139f6a0e94bdce9ea4d61b18db7d4e7662e",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "2156b7d257db25c7f6a787acd22f8b004df864f2a52f48f31023a31f3d4d3daa",
+      "source": "common-photo",
+      "wallMilliseconds": 283.458,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "waves-lossless-ffmpeg-crf30-420.avif",
+      "fileSha256": "ab254be4ed7acf4a883fd2dd98d59fdb37d9e4c3b65794782d21e677754f0834",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "ce2793f85efda499e5710593dc7f44c0f7317f15a02d312482c11d0a26491085",
+      "source": "common-photo",
+      "wallMilliseconds": 420.451,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "waves-lossless-ffmpeg-crf45-444.avif",
+      "fileSha256": "0d9a892a14e0755a260af6a98008697300deeb35878c3fc5dd0e4d8ac8efb4f8",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "16636b06f17a7004d2fa8bf23535b1e787181465efca3674e037d2cfaeca1f9f",
+      "source": "common-photo",
+      "wallMilliseconds": 561.867,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "waves-lossless-sharp-q50-420.avif",
+      "fileSha256": "e5683267150aa5fc20ac3bdee0272ab9104c39d5c6e5690471b02877f09b0351",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "b3e202610edd482b7ac46e59c7d31d28538ddbdef1278bb8c67e1caad1ed6456",
+      "source": "common-photo",
+      "wallMilliseconds": 318.055,
+      "width": 576
+    },
+    {
+      "category": "generated",
+      "file": "waves-lossless-sharp-q80-444.avif",
+      "fileSha256": "7e5b876669b1d99ccc9f30dc658586cf6f368eaeaadf3e051e25058f3b1a552c",
+      "height": 576,
+      "outcome": "decoded",
+      "rgbaSha256": "f11971d3070572f29979548b18562f6e93b4a01c32406b1a134d94f04c177bbc",
+      "source": "common-photo",
+      "wallMilliseconds": 334.87,
+      "width": 576
+    },
     {
       "category": "edge-cases",
       "file": "edge-cases/apple_free_property.avif",
@@ -43,7 +1143,7 @@
       "outcome": "decoded",
       "rgbaSha256": "faefee7339b7e5b966e962ad9cb117b6d45bab921ddce2a30d0a23ffe8dac612",
       "source": "conformance",
-      "wallMilliseconds": 6487.326,
+      "wallMilliseconds": 5076.033,
       "width": 2048
     },
     {
@@ -54,7 +1154,7 @@
       "outcome": "decoded",
       "rgbaSha256": "faefee7339b7e5b966e962ad9cb117b6d45bab921ddce2a30d0a23ffe8dac612",
       "source": "conformance",
-      "wallMilliseconds": 6355.751,
+      "wallMilliseconds": 4996.253,
       "width": 2048
     },
     {
@@ -66,7 +1166,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.93
+      "wallMilliseconds": 0.702
     },
     {
       "category": "edge-cases",
@@ -76,7 +1176,7 @@
       "outcome": "decoded",
       "rgbaSha256": "5f8d1153b0251d1a19306fe5f54a8dac482bf5f07c59c57e6e4a893f000aeabe",
       "source": "conformance",
-      "wallMilliseconds": 9.534,
+      "wallMilliseconds": 6.51,
       "width": 64
     },
     {
@@ -87,7 +1187,7 @@
       "outcome": "decoded",
       "rgbaSha256": "dc9634d740e6ada143e8c451cfe25a9d492788c8a431095aabc4810e08d3c9f8",
       "source": "conformance",
-      "wallMilliseconds": 9.79,
+      "wallMilliseconds": 5.46,
       "width": 100
     },
     {
@@ -98,7 +1198,7 @@
       "outcome": "decoded",
       "rgbaSha256": "75bd30ada66f702e044648022b72590e75cbc244815c4a1c9b6f007f0b145ae2",
       "source": "conformance",
-      "wallMilliseconds": 4.26,
+      "wallMilliseconds": 3.239,
       "width": 8
     },
     {
@@ -109,7 +1209,7 @@
       "outcome": "decoded",
       "rgbaSha256": "c5d33b2a815c42e2cb5235fadc0aa8b27481f4d7fe358b283c2028385c707095",
       "source": "conformance",
-      "wallMilliseconds": 3.189,
+      "wallMilliseconds": 2.037,
       "width": 12
     },
     {
@@ -121,7 +1221,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.626
+      "wallMilliseconds": 0.414
     },
     {
       "category": "edge-cases",
@@ -131,7 +1231,7 @@
       "outcome": "decoded",
       "rgbaSha256": "f803b121d2471ac44b32170380ab02f8174ddf1079f9425de921dde00ac91fc7",
       "source": "conformance",
-      "wallMilliseconds": 2.896,
+      "wallMilliseconds": 2.15,
       "width": 33
     },
     {
@@ -142,7 +1242,7 @@
       "outcome": "decoded",
       "rgbaSha256": "f803b121d2471ac44b32170380ab02f8174ddf1079f9425de921dde00ac91fc7",
       "source": "conformance",
-      "wallMilliseconds": 1.923,
+      "wallMilliseconds": 1.298,
       "width": 33
     },
     {
@@ -154,7 +1254,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.455
+      "wallMilliseconds": 0.286
     },
     {
       "category": "edge-cases",
@@ -165,7 +1265,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.231
+      "wallMilliseconds": 0.182
     },
     {
       "category": "edge-cases",
@@ -175,7 +1275,7 @@
       "outcome": "decoded",
       "rgbaSha256": "48fcfccfce1a2219ef9cbd4197862df1b5c5e751b38e384a082ba980dd589971",
       "source": "conformance",
-      "wallMilliseconds": 0.614,
+      "wallMilliseconds": 0.408,
       "width": 4
     },
     {
@@ -187,7 +1287,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.602
+      "wallMilliseconds": 0.567
     },
     {
       "category": "edge-cases",
@@ -198,7 +1298,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.653
+      "wallMilliseconds": 0.633
     },
     {
       "category": "edge-cases",
@@ -208,7 +1308,7 @@
       "outcome": "decoded",
       "rgbaSha256": "dfcafa1a6dbaecb920c91cdd35ab82647c50121be5a4fbd491d53112101c71ad",
       "source": "conformance",
-      "wallMilliseconds": 183.005,
+      "wallMilliseconds": 143.874,
       "width": 400
     },
     {
@@ -219,7 +1319,7 @@
       "outcome": "decoded",
       "rgbaSha256": "9c7c6b07287ca09612ba2e9016817df11b289b6ae6d56c8cae5774205c5d38ce",
       "source": "conformance",
-      "wallMilliseconds": 456.161,
+      "wallMilliseconds": 382.658,
       "width": 1024
     },
     {
@@ -230,7 +1330,7 @@
       "outcome": "decoded",
       "rgbaSha256": "f50be4adf61e1be72dc8f4bca8cd73c5a0abd7496b0d38ffebfc2de1acb208e7",
       "source": "conformance",
-      "wallMilliseconds": 487.102,
+      "wallMilliseconds": 375.905,
       "width": 1024
     },
     {
@@ -242,7 +1342,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.548
+      "wallMilliseconds": 0.41
     },
     {
       "category": "invalid",
@@ -253,7 +1353,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 4.151
+      "wallMilliseconds": 3.679
     },
     {
       "category": "invalid",
@@ -264,7 +1364,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.225
+      "wallMilliseconds": 0.279
     },
     {
       "category": "invalid",
@@ -275,7 +1375,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "entropy-or-reconstruction-syntax",
-      "wallMilliseconds": 471.017
+      "wallMilliseconds": 364.07
     },
     {
       "category": "invalid",
@@ -286,7 +1386,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.051
+      "wallMilliseconds": 0.046
     },
     {
       "category": "invalid",
@@ -297,7 +1397,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.246
+      "wallMilliseconds": 0.264
     },
     {
       "category": "invalid",
@@ -308,7 +1408,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.199
+      "wallMilliseconds": 0.181
     },
     {
       "category": "invalid",
@@ -319,7 +1419,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "alpha-auxiliary",
-      "wallMilliseconds": 0.331
+      "wallMilliseconds": 0.337
     },
     {
       "category": "invalid",
@@ -330,7 +1430,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.062
+      "wallMilliseconds": 0.049
     },
     {
       "category": "invalid",
@@ -341,7 +1441,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.129
+      "wallMilliseconds": 0.102
     },
     {
       "category": "invalid",
@@ -352,7 +1452,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.035
+      "wallMilliseconds": 0.029
     },
     {
       "category": "invalid",
@@ -362,7 +1462,7 @@
       "outcome": "decoded",
       "rgbaSha256": "5e76e644437818edbdc977ebd1558d3c106da3929789a87b3cc039cd58eda519",
       "source": "conformance",
-      "wallMilliseconds": 692.74,
+      "wallMilliseconds": 581.737,
       "width": 1204
     },
     {
@@ -374,7 +1474,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.473
+      "wallMilliseconds": 0.266
     },
     {
       "category": "valid",
@@ -385,7 +1485,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.664
+      "wallMilliseconds": 0.486
     },
     {
       "category": "valid",
@@ -396,7 +1496,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 4.268
+      "wallMilliseconds": 3.731
     },
     {
       "category": "valid",
@@ -407,7 +1507,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 6.663
+      "wallMilliseconds": 4.128
     },
     {
       "category": "valid",
@@ -418,7 +1518,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 7.391
+      "wallMilliseconds": 4.187
     },
     {
       "category": "valid",
@@ -429,7 +1529,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 7.74
+      "wallMilliseconds": 4.571
     },
     {
       "category": "valid",
@@ -440,7 +1540,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 7.639
+      "wallMilliseconds": 4.416
     },
     {
       "category": "valid",
@@ -451,7 +1551,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 7.001
+      "wallMilliseconds": 3.691
     },
     {
       "category": "valid",
@@ -461,7 +1561,7 @@
       "outcome": "decoded",
       "rgbaSha256": "faefee7339b7e5b966e962ad9cb117b6d45bab921ddce2a30d0a23ffe8dac612",
       "source": "conformance",
-      "wallMilliseconds": 6320.988,
+      "wallMilliseconds": 5253.724,
       "width": 2048
     },
     {
@@ -472,7 +1572,7 @@
       "outcome": "decoded",
       "rgbaSha256": "5102863ca73f618c60944e490aa3982e7a1afd6975f4d0edf12b40ac85c88f82",
       "source": "conformance",
-      "wallMilliseconds": 65.461,
+      "wallMilliseconds": 69.133,
       "width": 512
     },
     {
@@ -483,7 +1583,7 @@
       "outcome": "decoded",
       "rgbaSha256": "5102863ca73f618c60944e490aa3982e7a1afd6975f4d0edf12b40ac85c88f82",
       "source": "conformance",
-      "wallMilliseconds": 58.262,
+      "wallMilliseconds": 47.104,
       "width": 512
     },
     {
@@ -495,7 +1595,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.795
+      "wallMilliseconds": 0.643
     },
     {
       "category": "valid",
@@ -505,7 +1605,7 @@
       "outcome": "decoded",
       "rgbaSha256": "bfc6eb86c18a9be89e5b52ff7dfc2faba3e84d4c1368bf18b478ec4f4947ff49",
       "source": "conformance",
-      "wallMilliseconds": 10.565,
+      "wallMilliseconds": 8.467,
       "width": 80
     },
     {
@@ -517,7 +1617,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 1.072
+      "wallMilliseconds": 0.599
     },
     {
       "category": "valid",
@@ -528,7 +1628,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.35
+      "wallMilliseconds": 0.29
     },
     {
       "category": "valid",
@@ -539,7 +1639,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.11
+      "wallMilliseconds": 0.088
     },
     {
       "category": "valid",
@@ -550,7 +1650,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.152
+      "wallMilliseconds": 0.105
     },
     {
       "category": "valid",
@@ -561,7 +1661,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.077
+      "wallMilliseconds": 0.064
     },
     {
       "category": "valid",
@@ -572,7 +1672,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.105
+      "wallMilliseconds": 0.086
     },
     {
       "category": "valid",
@@ -583,7 +1683,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.07
+      "wallMilliseconds": 0.056
     },
     {
       "category": "valid",
@@ -594,7 +1694,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.296
+      "wallMilliseconds": 0.21
     },
     {
       "category": "valid",
@@ -605,7 +1705,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.243
+      "wallMilliseconds": 0.19
     },
     {
       "category": "valid",
@@ -616,7 +1716,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.243
+      "wallMilliseconds": 0.2
     },
     {
       "category": "valid",
@@ -626,7 +1726,7 @@
       "outcome": "decoded",
       "rgbaSha256": "ccc18c043a72b2138799f63307a40fbe201bd632102557b02d9f510ba8b98ccd",
       "source": "conformance",
-      "wallMilliseconds": 54.06,
+      "wallMilliseconds": 43.501,
       "width": 200
     },
     {
@@ -638,7 +1738,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.309
+      "wallMilliseconds": 0.275
     },
     {
       "category": "valid",
@@ -649,7 +1749,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.259
+      "wallMilliseconds": 0.205
     },
     {
       "category": "valid",
@@ -660,7 +1760,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.263
+      "wallMilliseconds": 0.21
     },
     {
       "category": "valid",
@@ -670,7 +1770,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e6ce979088085a270ffee30983afeec3c6e69b82d465499698102b7ba56681fb",
       "source": "conformance",
-      "wallMilliseconds": 75.819,
+      "wallMilliseconds": 49.075,
       "width": 200
     },
     {
@@ -682,7 +1782,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.557
+      "wallMilliseconds": 0.289
     },
     {
       "category": "valid",
@@ -692,7 +1792,7 @@
       "outcome": "decoded",
       "rgbaSha256": "087173f8afaaf7c42640d07ef6f0ab873abb494dd3a89d920b11e13b2ad66717",
       "source": "conformance",
-      "wallMilliseconds": 69.802,
+      "wallMilliseconds": 53.309,
       "width": 200
     },
     {
@@ -704,7 +1804,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.24
+      "wallMilliseconds": 0.212
     },
     {
       "category": "valid",
@@ -715,7 +1815,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.241
+      "wallMilliseconds": 0.166
     },
     {
       "category": "valid",
@@ -725,7 +1825,7 @@
       "outcome": "decoded",
       "rgbaSha256": "47e9bd0a4f371bc44abd8afeb3d1e271c94b423bd60f3edff7761cfbdcbe2375",
       "source": "conformance",
-      "wallMilliseconds": 448.981,
+      "wallMilliseconds": 369.361,
       "width": 768
     },
     {
@@ -736,7 +1836,7 @@
       "outcome": "decoded",
       "rgbaSha256": "4700b0eacf73f69d11850b46f2ca0c00afb03b3261c9539b1f5fab1d445461c4",
       "source": "conformance",
-      "wallMilliseconds": 541.744,
+      "wallMilliseconds": 369.161,
       "width": 768
     },
     {
@@ -747,7 +1847,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2a283d662a75d7b522146ee8e559153b00fe16523e2958a17f988e34929e0b33",
       "source": "conformance",
-      "wallMilliseconds": 148.017,
+      "wallMilliseconds": 119.963,
       "width": 403
     },
     {
@@ -759,7 +1859,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.639
+      "wallMilliseconds": 0.57
     },
     {
       "category": "valid",
@@ -769,7 +1869,7 @@
       "outcome": "decoded",
       "rgbaSha256": "352475a2b3f3c60de9b6feee3f756a00cfcaa3b4ad19594ea72260064f84bc57",
       "source": "conformance",
-      "wallMilliseconds": 289.148,
+      "wallMilliseconds": 256.118,
       "width": 400
     },
     {
@@ -781,7 +1881,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.456
+      "wallMilliseconds": 0.326
     },
     {
       "category": "valid",
@@ -792,7 +1892,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.55
+      "wallMilliseconds": 0.44
     },
     {
       "category": "valid",
@@ -802,7 +1902,7 @@
       "outcome": "decoded",
       "rgbaSha256": "7e3a2627fd6cb752c512f248a1c80151b18167730f6b88d7394532eed25cd1a8",
       "source": "conformance",
-      "wallMilliseconds": 152.103,
+      "wallMilliseconds": 131.93,
       "width": 400
     },
     {
@@ -813,7 +1913,7 @@
       "outcome": "decoded",
       "rgbaSha256": "dfcafa1a6dbaecb920c91cdd35ab82647c50121be5a4fbd491d53112101c71ad",
       "source": "conformance",
-      "wallMilliseconds": 150.65,
+      "wallMilliseconds": 125.102,
       "width": 400
     },
     {
@@ -824,7 +1924,7 @@
       "outcome": "decoded",
       "rgbaSha256": "9c5e940c2b043aeccd6516fe440cdd3e86a53244781b1422d20ffb3a909303a2",
       "source": "conformance",
-      "wallMilliseconds": 191.338,
+      "wallMilliseconds": 137.67,
       "width": 400
     },
     {
@@ -835,7 +1935,7 @@
       "outcome": "decoded",
       "rgbaSha256": "7d3fb76660d21f8ffc24a440dc62f3e0ff90dcd933d5b3ee045b93b013dfd962",
       "source": "conformance",
-      "wallMilliseconds": 453.242,
+      "wallMilliseconds": 375.626,
       "width": 1024
     },
     {
@@ -846,7 +1946,7 @@
       "outcome": "decoded",
       "rgbaSha256": "1793915b04d79c29638fa3a6db031edf2d4a40b83f57baea2f950cc5200f6630",
       "source": "conformance",
-      "wallMilliseconds": 321.577,
+      "wallMilliseconds": 265.138,
       "width": 1024
     },
     {
@@ -857,7 +1957,7 @@
       "outcome": "decoded",
       "rgbaSha256": "340dab2cf54d9052ea365d06f26673e3440bf8d9c3ad63b3c3867a9a72c3e078",
       "source": "conformance",
-      "wallMilliseconds": 0.425,
+      "wallMilliseconds": 0.448,
       "width": 1
     },
     {
@@ -868,7 +1968,7 @@
       "outcome": "decoded",
       "rgbaSha256": "9a378256bf921eb1f166ddd8c06850437fd7cc836cdee892e1dd08e6d37ddb24",
       "source": "conformance",
-      "wallMilliseconds": 644.611,
+      "wallMilliseconds": 543.326,
       "width": 1203
     },
     {
@@ -879,7 +1979,7 @@
       "outcome": "decoded",
       "rgbaSha256": "8e276a4765a756d73e38a7046eecc54c6f2669e18456be77356c92ccbc7e6e72",
       "source": "conformance",
-      "wallMilliseconds": 794.268,
+      "wallMilliseconds": 549.788,
       "width": 1204
     },
     {
@@ -890,7 +1990,7 @@
       "outcome": "decoded",
       "rgbaSha256": "cd227d633ff396468cd3074f3afcb4bb5610234045578fb1027c49e96088a8b2",
       "source": "conformance",
-      "wallMilliseconds": 681.714,
+      "wallMilliseconds": 546.313,
       "width": 1203
     },
     {
@@ -901,7 +2001,7 @@
       "outcome": "decoded",
       "rgbaSha256": "d7e0c6596f54923f47d8386e829527af0d2105d78693197b83c189b5089b486a",
       "source": "conformance",
-      "wallMilliseconds": 479.302,
+      "wallMilliseconds": 386.57,
       "width": 1204
     },
     {
@@ -912,7 +2012,7 @@
       "outcome": "decoded",
       "rgbaSha256": "f19da7cab695742ef085ff5b132aebc24f0aa3d0fc8a42d4102a89fb2f5d0979",
       "source": "conformance",
-      "wallMilliseconds": 697.558,
+      "wallMilliseconds": 575.701,
       "width": 1204
     },
     {
@@ -923,7 +2023,7 @@
       "outcome": "decoded",
       "rgbaSha256": "5e76e644437818edbdc977ebd1558d3c106da3929789a87b3cc039cd58eda519",
       "source": "conformance",
-      "wallMilliseconds": 696.162,
+      "wallMilliseconds": 556.055,
       "width": 1204
     },
     {
@@ -934,7 +2034,7 @@
       "outcome": "decoded",
       "rgbaSha256": "9f487a6d7a7e9eac004f5796cfe58e5aa4d7e34f0242aa1ce54d3966d6b15e53",
       "source": "conformance",
-      "wallMilliseconds": 1228.093,
+      "wallMilliseconds": 866.319,
       "width": 1204
     },
     {
@@ -945,7 +2045,7 @@
       "outcome": "decoded",
       "rgbaSha256": "37260354562716ec41e6e33e6597e3c617b8795daecbc5d409ff8c34b208b93a",
       "source": "conformance",
-      "wallMilliseconds": 1102.551,
+      "wallMilliseconds": 837.378,
       "width": 1204
     },
     {
@@ -956,7 +2056,7 @@
       "outcome": "decoded",
       "rgbaSha256": "0fb7568ed4c1fe7872d9a15cda04e9430702f24a8a0d5e8b41662088ea53634f",
       "source": "conformance",
-      "wallMilliseconds": 928.615,
+      "wallMilliseconds": 684.332,
       "width": 1204
     },
     {
@@ -967,7 +2067,7 @@
       "outcome": "decoded",
       "rgbaSha256": "f4d9a0c7e2fcdcf009f4812d0d362fac8f74db7bcc6f1b6718c380eccc95aa69",
       "source": "conformance",
-      "wallMilliseconds": 884.269,
+      "wallMilliseconds": 683.541,
       "width": 1204
     },
     {
@@ -978,7 +2078,7 @@
       "outcome": "decoded",
       "rgbaSha256": "017ff3eea9b53b521fda13797a7d555c5f528cda0ca652d42b8a2f791cdeeff7",
       "source": "conformance",
-      "wallMilliseconds": 1199.292,
+      "wallMilliseconds": 874.535,
       "width": 1204
     },
     {
@@ -989,7 +2089,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2dff2742439182f932b3504019884a59cae8a6881626860b6db9f4b1b5784f91",
       "source": "conformance",
-      "wallMilliseconds": 879,
+      "wallMilliseconds": 671.59,
       "width": 1204
     },
     {
@@ -1000,7 +2100,7 @@
       "outcome": "decoded",
       "rgbaSha256": "79724244c30d14532ca5c9b9108de7cc533343a8bacd674dee7b420f42082a8d",
       "source": "conformance",
-      "wallMilliseconds": 4224.058,
+      "wallMilliseconds": 3257.524,
       "width": 3082
     },
     {
@@ -1011,7 +2111,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2544fade96d93bd2e2f91a1fc67009f15d92f8cc1ab5676109af9e9a2a2a0c90",
       "source": "conformance",
-      "wallMilliseconds": 2853.745,
+      "wallMilliseconds": 2194.93,
       "width": 3078
     },
     {
@@ -1022,7 +2122,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e88286bfba8dd18f88c967268a703c9ba20008c2d0d44dddadf36fa586e159d4",
       "source": "conformance",
-      "wallMilliseconds": 5478.043,
+      "wallMilliseconds": 4358.817,
       "width": 3078
     },
     {
@@ -1033,7 +2133,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e2eef16ad3336e7693338d3bef3b907693ff221f408bd7fa7d1b24945b3cce7d",
       "source": "conformance",
-      "wallMilliseconds": 595.402,
+      "wallMilliseconds": 426.364,
       "width": 800
     },
     {
@@ -1044,7 +2144,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e770094922e0085f2d0c0a68534a5f91217fdd5db4b450664bce33283475c2ef",
       "source": "conformance",
-      "wallMilliseconds": 716.17,
+      "wallMilliseconds": 566.016,
       "width": 800
     },
     {
@@ -1055,7 +2155,7 @@
       "outcome": "decoded",
       "rgbaSha256": "cba1be44060a55f61629284661ce0c0b25b9ac1ccedc1718a2548cddc230604c",
       "source": "conformance",
-      "wallMilliseconds": 383.7,
+      "wallMilliseconds": 307.13,
       "width": 800
     },
     {
@@ -1066,7 +2166,7 @@
       "outcome": "decoded",
       "rgbaSha256": "6aceee91d46469dd350717904e65b9cc6b2de6fe6134c3eb31e0bbf6377424d0",
       "source": "conformance",
-      "wallMilliseconds": 590.765,
+      "wallMilliseconds": 469.196,
       "width": 722
     },
     {
@@ -1078,7 +2178,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "presentation-transform",
-      "wallMilliseconds": 0.541
+      "wallMilliseconds": 0.341
     },
     {
       "category": "valid",
@@ -1088,7 +2188,7 @@
       "outcome": "decoded",
       "rgbaSha256": "6ce72c04f0697425172ee7dfc12a5e6cdf91087f5adbcca326501ebe9bdc8d4d",
       "source": "conformance",
-      "wallMilliseconds": 569.632,
+      "wallMilliseconds": 460.011,
       "width": 722
     },
     {
@@ -1099,7 +2199,7 @@
       "outcome": "decoded",
       "rgbaSha256": "3de718c92926397c6ac7709e80d698e4ae3645e82f89bc2fbcd39c0a80fd79d7",
       "source": "conformance",
-      "wallMilliseconds": 558.264,
+      "wallMilliseconds": 465.856,
       "width": 722
     },
     {
@@ -1110,7 +2210,7 @@
       "outcome": "decoded",
       "rgbaSha256": "fa70559089b3cbd2377918aba187a00367e25c33bd171c65a238d0d5b6eef37d",
       "source": "conformance",
-      "wallMilliseconds": 554.141,
+      "wallMilliseconds": 464.431,
       "width": 1024
     },
     {
@@ -1121,7 +2221,7 @@
       "outcome": "decoded",
       "rgbaSha256": "e7f54279df31f626f56f514ae33a4290cce2d0e2d07fcbe8c3cce2955b41b358",
       "source": "conformance",
-      "wallMilliseconds": 550.181,
+      "wallMilliseconds": 462.374,
       "width": 1024
     },
     {
@@ -1132,7 +2232,7 @@
       "outcome": "decoded",
       "rgbaSha256": "b423f3365f789e9288fe3617696fa9c84928d54daf98179849291116064fc741",
       "source": "conformance",
-      "wallMilliseconds": 579.025,
+      "wallMilliseconds": 459.563,
       "width": 1024
     },
     {
@@ -1143,7 +2243,7 @@
       "outcome": "decoded",
       "rgbaSha256": "329ca4150fe4c81ea1288afcff01e724016373c62bebedbd14244f0ab2fba09c",
       "source": "conformance",
-      "wallMilliseconds": 1340.651,
+      "wallMilliseconds": 1066.85,
       "width": 2048
     },
     {
@@ -1154,7 +2254,7 @@
       "outcome": "decoded",
       "rgbaSha256": "46808513940abeabd129f72fd59fe61bcf3e9c9ab6243f71da8af956a98923cc",
       "source": "conformance",
-      "wallMilliseconds": 1166.804,
+      "wallMilliseconds": 998.704,
       "width": 2048
     },
     {
@@ -1165,7 +2265,7 @@
       "outcome": "decoded",
       "rgbaSha256": "8264cd14f144270bc3594da6f02ef3c6b22658e93a0844f660ac8648871e8d1a",
       "source": "conformance",
-      "wallMilliseconds": 1325.47,
+      "wallMilliseconds": 1026.853,
       "width": 2048
     },
     {
@@ -1176,7 +2276,7 @@
       "outcome": "decoded",
       "rgbaSha256": "d3717b242b5792b0e0207ed07c82caddbd60a27b69f970bc2d3772e882a3ada6",
       "source": "conformance",
-      "wallMilliseconds": 852.936,
+      "wallMilliseconds": 695.702,
       "width": 2048
     },
     {
@@ -1184,11 +2284,11 @@
       "code": "LIMIT_EXCEEDED",
       "file": "valid/linku_plum_p1_10bpc_alpha_full.avif",
       "fileSha256": "0a615cfb673ab45e37da3582c17dd36f86d5da3d81246a32951d1db4ed90149d",
-      "message": "AVIF decoder working set 75548251 exceeds 67108864 bytes",
+      "message": "AVIF decoder working set 78169691 exceeds 67108864 bytes",
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "working-set-limit",
-      "wallMilliseconds": 0.671
+      "wallMilliseconds": 0.503
     },
     {
       "category": "valid",
@@ -1199,7 +2299,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "film-grain",
-      "wallMilliseconds": 0.571
+      "wallMilliseconds": 0.375
     },
     {
       "category": "valid",
@@ -1210,7 +2310,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.533
+      "wallMilliseconds": 0.394
     },
     {
       "category": "valid",
@@ -1220,7 +2320,7 @@
       "outcome": "decoded",
       "rgbaSha256": "17ba4c90c746c5dd97f593c6c1917519611d7a63a7c232f76f07a184bb2e0798",
       "source": "conformance",
-      "wallMilliseconds": 197.234,
+      "wallMilliseconds": 169.031,
       "width": 480
     },
     {
@@ -1231,7 +2331,7 @@
       "outcome": "decoded",
       "rgbaSha256": "fe10aea77e33f9cc2ad24be487066d25ca32f6cb9d882d73319d01a08bf814d9",
       "source": "conformance",
-      "wallMilliseconds": 357.439,
+      "wallMilliseconds": 316.121,
       "width": 480
     },
     {
@@ -1242,7 +2342,7 @@
       "outcome": "decoded",
       "rgbaSha256": "99f28f0e2fdc30dab25ad903ce043e7af30b7097d1f3402e692b3f8629bff6c1",
       "source": "conformance",
-      "wallMilliseconds": 3035.928,
+      "wallMilliseconds": 2656.948,
       "width": 1920
     },
     {
@@ -1253,7 +2353,7 @@
       "outcome": "decoded",
       "rgbaSha256": "878fca61fd82d25c03898ce02ed39a5523ade6b2c9da1fed29ac549320c24006",
       "source": "conformance",
-      "wallMilliseconds": 1400.415,
+      "wallMilliseconds": 1143.828,
       "width": 960
     },
     {
@@ -1264,7 +2364,7 @@
       "outcome": "decoded",
       "rgbaSha256": "6e036207ef682d41edad54421d20bb36ec7f03e34113e2f6fa4ab954779d71c0",
       "source": "conformance",
-      "wallMilliseconds": 224.507,
+      "wallMilliseconds": 170.375,
       "width": 1280
     },
     {
@@ -1275,30 +2375,30 @@
       "outcome": "decoded",
       "rgbaSha256": "e995ffa2cb5c88ceda26891151ba8148e00c280cb61ec558d5e0a40a46c009e7",
       "source": "conformance",
-      "wallMilliseconds": 1125.9,
+      "wallMilliseconds": 878.809,
       "width": 1920
     },
     {
       "category": "valid",
-      "code": "LIMIT_EXCEEDED",
       "file": "valid/ms_Summer_Nature_4k.avif",
       "fileSha256": "bae6a3b420018fc725e862593d1c78c8261c9f734f4ce41a69c1a9906296e302",
-      "message": "AVIF decoder working set 295261295 exceeds 67108864 bytes",
-      "outcome": "error",
+      "height": 2160,
+      "outcome": "decoded",
+      "rgbaSha256": "922562ef3044291a15ff655b413f00ee85a58eb4a72716dd22df8ff351d51359",
       "source": "conformance",
-      "taxonomy": "working-set-limit",
-      "wallMilliseconds": 1.368
+      "wallMilliseconds": 9465.283,
+      "width": 3840
     },
     {
       "category": "valid",
-      "code": "LIMIT_EXCEEDED",
       "file": "valid/ms_Summer_in_Tomsk_720p_5x4_grid.avif",
       "fileSha256": "c9148149b108f5fbce7300903bd59937bfc4c677f2ce359668ad664adb18ec2f",
-      "message": "AVIF decoder working set 155356966 exceeds 67108864 bytes",
-      "outcome": "error",
+      "height": 2880,
+      "outcome": "decoded",
+      "rgbaSha256": "f4b090c00a54ee5b9c59d4c3eba7ada3f7d4679bc34d04c26d06e98522a72620",
       "source": "conformance",
-      "taxonomy": "working-set-limit",
-      "wallMilliseconds": 5.618
+      "wallMilliseconds": 21908.688,
+      "width": 6400
     },
     {
       "category": "valid",
@@ -1308,7 +2408,7 @@
       "outcome": "decoded",
       "rgbaSha256": "3277bbd3ada1d7dc560080465c9957bf9595ff6eaf2b023c62aca4e7a3679c3b",
       "source": "conformance",
-      "wallMilliseconds": 348.058,
+      "wallMilliseconds": 249.168,
       "width": 1280
     },
     {
@@ -1319,7 +2419,7 @@
       "outcome": "decoded",
       "rgbaSha256": "2ad091efd1d893980a05d5793150cccd53719c5393df0bc5f0f78c84bcae253d",
       "source": "conformance",
-      "wallMilliseconds": 3322.264,
+      "wallMilliseconds": 2706.913,
       "width": 3840
     },
     {
@@ -1327,11 +2427,11 @@
       "code": "LIMIT_EXCEEDED",
       "file": "valid/ms_bbb_alpha_inverted.avif",
       "fileSha256": "83d68084a93f043a89d10373f0ca26dafc988eec811b8076cabb2ff1580c1817",
-      "message": "AVIF decoder working set 92058334 exceeds 67108864 bytes",
+      "message": "AVIF decoder working set 95687134 exceeds 67108864 bytes",
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "working-set-limit",
-      "wallMilliseconds": 0.36
+      "wallMilliseconds": 0.401
     },
     {
       "category": "valid",
@@ -1341,7 +2441,7 @@
       "outcome": "decoded",
       "rgbaSha256": "68d17f89e963029243ca02097a549d4da19922f08bdb4d72e2c104d8d64f2063",
       "source": "conformance",
-      "wallMilliseconds": 1379.081,
+      "wallMilliseconds": 1124.264,
       "width": 1280
     },
     {
@@ -1352,7 +2452,7 @@
       "outcome": "decoded",
       "rgbaSha256": "3277bbd3ada1d7dc560080465c9957bf9595ff6eaf2b023c62aca4e7a3679c3b",
       "source": "conformance",
-      "wallMilliseconds": 327.917,
+      "wallMilliseconds": 248.814,
       "width": 1280
     },
     {
@@ -1363,7 +2463,7 @@
       "outcome": "decoded",
       "rgbaSha256": "3277bbd3ada1d7dc560080465c9957bf9595ff6eaf2b023c62aca4e7a3679c3b",
       "source": "conformance",
-      "wallMilliseconds": 318.973,
+      "wallMilliseconds": 251.437,
       "width": 1280
     },
     {
@@ -1375,7 +2475,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.341
+      "wallMilliseconds": 0.226
     },
     {
       "category": "valid",
@@ -1386,7 +2486,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "animation",
-      "wallMilliseconds": 0.695
+      "wallMilliseconds": 0.409
     },
     {
       "category": "valid",
@@ -1397,7 +2497,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 4.687
+      "wallMilliseconds": 3.593
     },
     {
       "category": "valid",
@@ -1408,7 +2508,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.399
+      "wallMilliseconds": 0.289
     },
     {
       "category": "valid",
@@ -1419,7 +2519,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.188
+      "wallMilliseconds": 0.126
     },
     {
       "category": "valid",
@@ -1430,7 +2530,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.363
+      "wallMilliseconds": 0.315
     },
     {
       "category": "valid",
@@ -1441,7 +2541,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.134
+      "wallMilliseconds": 0.116
     },
     {
       "category": "valid",
@@ -1451,7 +2551,7 @@
       "outcome": "decoded",
       "rgbaSha256": "b1a672bc3a2f91726c2e87d41b1418374b93b24f94a17ffbdf6f2cf19aed0948",
       "source": "conformance",
-      "wallMilliseconds": 3324.748,
+      "wallMilliseconds": 2634.826,
       "width": 2048
     },
     {
@@ -1462,7 +2562,7 @@
       "outcome": "decoded",
       "rgbaSha256": "0fc1f6c09f43ab3dc04499ea49e0f59e133faf90a211a9b94b956f9cf07650ef",
       "source": "conformance",
-      "wallMilliseconds": 2856.076,
+      "wallMilliseconds": 2415.635,
       "width": 2048
     },
     {
@@ -1473,7 +2573,7 @@
       "outcome": "decoded",
       "rgbaSha256": "8d114c799533b85c988f8af249f977ff2173354b5f3160172cdedf1547c670ab",
       "source": "conformance",
-      "wallMilliseconds": 2829.993,
+      "wallMilliseconds": 2384.546,
       "width": 2048
     },
     {
@@ -1484,7 +2584,7 @@
       "outcome": "decoded",
       "rgbaSha256": "4522d5204d29c391025df87b52c40fdad9ac75916ffad650c9374ea31d05db36",
       "source": "conformance",
-      "wallMilliseconds": 5000.84,
+      "wallMilliseconds": 4265.422,
       "width": 2048
     },
     {
@@ -1496,7 +2596,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "film-grain",
-      "wallMilliseconds": 0.599
+      "wallMilliseconds": 0.519
     },
     {
       "category": "valid",
@@ -1507,7 +2607,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.438
+      "wallMilliseconds": 0.251
     },
     {
       "category": "valid",
@@ -1518,7 +2618,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "unsupported-av1-or-container-feature",
-      "wallMilliseconds": 0.388
+      "wallMilliseconds": 0.339
     },
     {
       "category": "valid",
@@ -1529,7 +2629,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.384
+      "wallMilliseconds": 0.35
     },
     {
       "category": "valid",
@@ -1540,1107 +2640,7 @@
       "outcome": "error",
       "source": "conformance",
       "taxonomy": "malformed-or-unsupported-container",
-      "wallMilliseconds": 0.257
-    },
-    {
-      "category": "generated",
-      "file": "baby-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "065c50f5efb649b2c504cd4aa3e5a3bbd21cbf1b7e50bd6ead745e7299861889",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "819d046be8dfc6b72fb722488216cdb4dfcb8e6eb2953a53932a7a2f03baeccb",
-      "source": "common-photo",
-      "wallMilliseconds": 375.464,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "baby-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "5b1a3aa5932a1d912d23e793315b3804bec32f4abff64786476dc291b542cc92",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "030e44892698be8cb28a3d2fd75bfc65b0fc656f2e03314c89dadd1e8f99f89f",
-      "source": "common-photo",
-      "wallMilliseconds": 575.592,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "baby-lossless-sharp-q50-420.avif",
-      "fileSha256": "7e22baa2b8bd38f2c2e3683e4362e151a2affbb2c4de8c5e4206272aada49212",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "5ce757f0fc6e4c53e1496cf69cb8de6027a1c8788af49176f7b020f28f4f327b",
-      "source": "common-photo",
-      "wallMilliseconds": 340.552,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "baby-lossless-sharp-q80-444.avif",
-      "fileSha256": "9c0d507c95b1682b9e9f2d66eb14a63dbdc12b9ecbc2ead39dfa26d794174e22",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "be3405e3a8d8f0b561e01b93be0a1f3fb25972ce7075c21fe069b112bef406bc",
-      "source": "common-photo",
-      "wallMilliseconds": 488.318,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "bulb-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "94a95ec5e4c402b6ea20e1ee26143318eacc84b60588c8e89a96c777a05e0abf",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "1142e6efaa9b68bcb9fef086cc94ad14cadcfb63608535e1b488641ab7e74df8",
-      "source": "common-photo",
-      "wallMilliseconds": 420.329,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "bulb-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "8cc8b73f4351347d71cf352dabd325f0262958b3bd23b2c80b06dc6895ce81c7",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "2eea8631b4ed31cc295046e49d9834d4939f223f7481f4b6b1a126cbaab5737e",
-      "source": "common-photo",
-      "wallMilliseconds": 717.824,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "bulb-lossless-sharp-q50-420.avif",
-      "fileSha256": "9192e82fd3740586ae34dc531efd32865c62cf171e858cf87d3f3f7f7b3f21fc",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "5c4e4b27f79312ec35a0031dadc745cee3ff4eb4c5c3645395cc058a83886250",
-      "source": "common-photo",
-      "wallMilliseconds": 380.571,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "bulb-lossless-sharp-q80-444.avif",
-      "fileSha256": "54bd009bc631d754a4c002afe959aaf40957cbbec8ce905ca00993a2f89f6561",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "d7f5f66573ff3876fb40c8b151567d72858999847c1afda112a87f5d97310c36",
-      "source": "common-photo",
-      "wallMilliseconds": 298.055,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "city-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "bd2109cc2b8c19571193d345d6d53d55f73e2578487913b2b4e20d936ab8424d",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "cf28d8de9868cc595f486b1a24a14438425404a09b30fc28424e6aeca7642d01",
-      "source": "common-photo",
-      "wallMilliseconds": 529.103,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "city-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "04d35958621d30ad493bf4c5afe1ca602fdeacc187ee6e267f0d70186d7dcc2b",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "2006e87758260bf38a75aeefa0702aa99216694b968db8f36790eeb9d925410d",
-      "source": "common-photo",
-      "wallMilliseconds": 681.204,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "city-lossless-sharp-q50-420.avif",
-      "fileSha256": "0150df1048f40df24cc76bc57571541c0eb489bcdb038c6dfbb10ea2d71af989",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "491cfa8704a0142dca3fde419975acceec02711cbfa4504019413f9ffb0f480b",
-      "source": "common-photo",
-      "wallMilliseconds": 402.297,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "city-lossless-sharp-q80-444.avif",
-      "fileSha256": "319886b130154fe595a610ce8d2d275a7cf06b68a5552c83f3885ad89c79a951",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "d671eb43149f4e13fb33d050d41f0c1a55a2dd735095e7bc504c87bebeffbd16",
-      "source": "common-photo",
-      "wallMilliseconds": 465.43,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "dog-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "9c29bf7392037ec0c8d170a54c1584aed1cb6b262ac920ade5ca979209090f4f",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "e824a7ff6c8c99a37e96fa3599c17150faa31e62ccdbb0a386e5ebb7cca1b856",
-      "source": "common-photo",
-      "wallMilliseconds": 443.579,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "dog-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "775491254b26336e0aa076eacec2b9574838b4755b173c026eac7968769fd9ff",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "52d18fa66b46a2206557df09baebc068ab7be02ffcd5cca8c04d9360314c8a0f",
-      "source": "common-photo",
-      "wallMilliseconds": 752.331,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "dog-lossless-sharp-q50-420.avif",
-      "fileSha256": "fc57119e12580e47448c2a1e987be6b5afc10f717e68f712d04845a1e1d8494b",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "11d7feb59ec5e82f4e59a3d07653db7904ae192e49529a263474d87f760f789a",
-      "source": "common-photo",
-      "wallMilliseconds": 389.308,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "dog-lossless-sharp-q80-444.avif",
-      "fileSha256": "0810c69e04770b3ceb9a8964b751010b3349bd1ec9a0d25367f2d9674c2f4bce",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "95fe7c2cb40e34c3c2e92ff2b58b4a38a5073e312f4fc1867c6c10f5d4fb4f4e",
-      "source": "common-photo",
-      "wallMilliseconds": 466.52,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "flowers-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "6888e872407ec55a4df406d7b650fdb2ec5d7135aa32cab8b16fa6e0dcf4dd6a",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "36372105b4ccedf63720799f03ed247c7e18b7e4dc978f6b0213f66bebc6061a",
-      "source": "common-photo",
-      "wallMilliseconds": 646.802,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "flowers-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "9a950847e072587c5d54a0b9122527267530f8ae8659a1b7d140c69007f03642",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "f4b474118fd15e8be3b4bf3ff731914ff256433dd7529343053ffc7441b34d4a",
-      "source": "common-photo",
-      "wallMilliseconds": 882.442,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "flowers-lossless-sharp-q50-420.avif",
-      "fileSha256": "d0ace4d87490f369e8194b302bb0ce431312cf51c3ad492bd3b9471e84402416",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "d82c5f7d7ed6105ec89af8f8e022a2bffad5b69284e11a6e658fec2d4b61ea35",
-      "source": "common-photo",
-      "wallMilliseconds": 452.405,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "flowers-lossless-sharp-q80-444.avif",
-      "fileSha256": "9bff9418dda632df7d25e3b54978d8add92122865a874f0b58b4cea73a25c029",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "de9188b996010d2390670eaadaf69a7182ad960fc36e70618c255b5f612b57b1",
-      "source": "common-photo",
-      "wallMilliseconds": 517.425,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "girl-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "e9f4f35860fb3a73181bfb3a487353f206c9db7e57467f94090f5598b183f49d",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "b4aedaf5923955d4d501969493c4e37e2276a61fc1628470da4ad5c9567ae611",
-      "source": "common-photo",
-      "wallMilliseconds": 484.267,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "girl-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "1f6d7edc9e38734d0fdb816ad5d901f18dcfdd85bc6bff6722deaa0b091de26f",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "53715ce13a4132f81882a873895d6e92b11f8c5a450a05c80cf66b34e6e63a78",
-      "source": "common-photo",
-      "wallMilliseconds": 821.667,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "girl-lossless-sharp-q50-420.avif",
-      "fileSha256": "be39d65939cfb4020ddb5c98338a6050493d65ee427ab83e995dfee7be3f0592",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "2b1d52df310370053da87620c227da255a915537232315fb90064b64ae32c80d",
-      "source": "common-photo",
-      "wallMilliseconds": 328.189,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "girl-lossless-sharp-q80-444.avif",
-      "fileSha256": "8290c51bd63ec4ebe9d95f497e3d5b90eb792121b9fdcfd3bcd925f689cfd671",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "d73bef81550a6298f5ddd10252d8bd35fd6ab48b4919d9d472b645eca7d69a74",
-      "source": "common-photo",
-      "wallMilliseconds": 335.523,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "grass-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "993c61ef137a4f4ba1bc15b425ad0d615452e4257522186a2cf2fe322d5e8eb4",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "2658d3e90f570dbc365808ca2be63119154d2297b3f8791b4faf9d161084bc4b",
-      "source": "common-photo",
-      "wallMilliseconds": 508.816,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "grass-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "c6c905aa7b2244107ec6bee047dd130337f0f3407f52e98e860fcedc11284d21",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "6ff063943ba6a05f1eb14d1b4875fccf0cbc2c94807148b92aa9d30c631a8bbf",
-      "source": "common-photo",
-      "wallMilliseconds": 689.73,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "grass-lossless-sharp-q50-420.avif",
-      "fileSha256": "add028a29a9f49ccd3ba8fe9ef602534d5fa4da9b4fe13a1d52f2b867570eac9",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "7c41210866665dae78b23aeebc22ac783309a643f73e8266bc067a6ee5838cb3",
-      "source": "common-photo",
-      "wallMilliseconds": 483.534,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "grass-lossless-sharp-q80-444.avif",
-      "fileSha256": "14e619851280a3d3ca6ccb27446e1548f51ea1dd30a2fbbfac6bdca434e4fb7a",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "92b01db76510760a864e9df5a2d47a2a49b8330f570acd144715aff3fa9c1375",
-      "source": "common-photo",
-      "wallMilliseconds": 585.446,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "guitar-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "7f6c52ef206deb9df7688bd66fbd449f70e88a59439574f2a7c0a63a9c9c210f",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "917b6c4c42d7d9ad570135188d896dbe5cb253acb9821484f9f4f192cd61ed15",
-      "source": "common-photo",
-      "wallMilliseconds": 415.901,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "guitar-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "4b9abf227e48c9182ea01a0a300680a55cd422f7a8e7113029fc874efba72b49",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "4dc462f5ec23f74dbf8ac8ed2bca3a267da4dfd0afe15b8a22598ef15a542575",
-      "source": "common-photo",
-      "wallMilliseconds": 591.496,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "guitar-lossless-sharp-q50-420.avif",
-      "fileSha256": "8de1b0e37f7221540e27356c7e026af194a77524bb4da8dd954f3bd4e2bca6d7",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "69fbb6254c3b2c663e8fea9d95950a6d1496036ae0816e123f2dd3934b85f185",
-      "source": "common-photo",
-      "wallMilliseconds": 315.599,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "guitar-lossless-sharp-q80-444.avif",
-      "fileSha256": "a21177d80c4f722b4330ab4f171a07ddf7dbddf73381842396c08de177e63fb1",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "d62ecd70d58a8d300ced27cc0fae5cace11209ef170160b647e765aea37358b9",
-      "source": "common-photo",
-      "wallMilliseconds": 300.261,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "haze-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "6b38c36e1d196774c49be94d01c749d6251918ebfb3a72ae0750db24dccadba9",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "a0a57c76a9aa314466c06c391766a0c4a0b205ae8d905b54ebc92049245f26de",
-      "source": "common-photo",
-      "wallMilliseconds": 377.64,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "haze-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "e323b737a53b0c957db46f7d17c42dfe3ddde092783197e74b9abc79c7f82b0f",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "b1b359ee5588b547db2116441c2eb4d4e01999f5193c1aa33f3f36f9517e5695",
-      "source": "common-photo",
-      "wallMilliseconds": 545.539,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "haze-lossless-sharp-q50-420.avif",
-      "fileSha256": "17c73f22af114730a29fbbe448a8fafbd9ff7fa6b92e2e5d249872b86a311860",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "2b489d70e8a0854179d987678f1a0e759b5cf5ff9cf96de0ee5f6872107aae7a",
-      "source": "common-photo",
-      "wallMilliseconds": 340.2,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "haze-lossless-sharp-q80-444.avif",
-      "fileSha256": "24e772d10035a892493b0604ffdd07f7011490f69b164c228586a244875f01e9",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "596fc135d053bff22c4bb06168b5566e7b3578edf2704586aa1ad19c6e318825",
-      "source": "common-photo",
-      "wallMilliseconds": 341.767,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "house-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "868b4c32c8de005ee5569e11b84e0f37a2eab10fadd341c6f7ad1a23c294a72a",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "39bbd38d9d834f8ed30285ff487496b8a79009cddb0a43c01fd96a0326a36b08",
-      "source": "common-photo",
-      "wallMilliseconds": 614.787,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "house-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "b3e5c2bc56ab41a93910e254ab99dea9291f37eb2b68b65e4f76104add688dd5",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "f2b937a01c5cc4ba556475f488a0bee29cf0184efa25c0889544398adcce902a",
-      "source": "common-photo",
-      "wallMilliseconds": 915.873,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "house-lossless-sharp-q50-420.avif",
-      "fileSha256": "e98cbb0cf70952f06d368964cc2bd4833ef43987a22e758d69d001215bc1df48",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "05f4ab9857496a38d029c5dbb8208cbc0e49b18f614b645d44c8ea0c59ac2ae2",
-      "source": "common-photo",
-      "wallMilliseconds": 327.17,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "house-lossless-sharp-q80-444.avif",
-      "fileSha256": "0dd60521bf115868fbab54a63939ac97ae6529de898fae107a9118f23ed57107",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "494b3f39a9e9dd018b40dc3389da64ad48c8b52570b005d00a350cf16d0d8731",
-      "source": "common-photo",
-      "wallMilliseconds": 393.578,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc1-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "c3bacef9689f2353ebc2ff86d79b04cbaa12eab9078469bf2bc146aefec0bb19",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "aa080ef375a5aab78e71db7b8fb7e4b8338b5fa27bc06bf973bd8e43400460c9",
-      "source": "common-photo",
-      "wallMilliseconds": 440.945,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc1-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "c07126d51841316449972dc6e16e410ef7f46eb36e73d830e8c9cb742e538785",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "cbfbefb184b016b6ee5039ef9487123f4af354120e476292cabe8d110e360a8d",
-      "source": "common-photo",
-      "wallMilliseconds": 755.429,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc1-lossless-sharp-q50-420.avif",
-      "fileSha256": "df8227a98f097bec63e556a7da77e32bbc2fe6e3462ecffc8a29c9528712a893",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "5d3a5327c574cba766fe6c5d1d496307ec770f6f9f00de55e74c368cf0c34e6e",
-      "source": "common-photo",
-      "wallMilliseconds": 352.394,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc1-lossless-sharp-q80-444.avif",
-      "fileSha256": "b86fda65b296fc79a581a974a28266843d075ecae2ce785b94512142e7393b2a",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "d4cc913b38985250ff9dd74b32ad6e0f69b4648e8e1bffc463d03c1f34c120fb",
-      "source": "common-photo",
-      "wallMilliseconds": 413.908,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc2-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "147fd1b20fe1b626fec59478b74f7cea8a5787d6b6301ba3a20c0ad6f7c11196",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "dc808ac74c247019b8186874a1a2de0b323b0260de93a00f783bed289e09b77a",
-      "source": "common-photo",
-      "wallMilliseconds": 375.287,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc2-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "12b455ea07c9da85948640fac7e42340ab98859230e5a7e5570810c5ceb3282c",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "3c2f29b2a32f9a33725b969cb6720ce644de1b32dcf3bb022372ba9d064967a8",
-      "source": "common-photo",
-      "wallMilliseconds": 550.414,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc2-lossless-sharp-q50-420.avif",
-      "fileSha256": "5b40e81d3249fc8ddaf45ae0375adcf730b2ce77127f636894bb44325e70b59d",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "7cd35506a2837ae19e791f64da1b212f912aae845790c52c3c3227002a6a6eaf",
-      "source": "common-photo",
-      "wallMilliseconds": 309.799,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc2-lossless-sharp-q80-444.avif",
-      "fileSha256": "3bf855f6244511aaa5bba3db9d2ab6711b5e7d25a94ecf7c46827fbfb5e0dc48",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "3a27313a56d9d3c4c6dac2b2627c6e9e436a1a2dea0f6476622a92c3f99384b5",
-      "source": "common-photo",
-      "wallMilliseconds": 341.909,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc3-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "dd38d10c6dd5f8bb6c0d7efb0e557b1754831c16bbb35c8fdebc1d35b631b1d1",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "81c24dbde853f7307bd0bc23429033e86e3c85bdee90f68d5f27dd1b48ddb9eb",
-      "source": "common-photo",
-      "wallMilliseconds": 344.625,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc3-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "4abb4b3f493468e8c2d688f9835001d9a98683f4a7725b55a655f4c02f1ddd47",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "32679b5c88defb99ee516f1347f7c4f00d5b24c2e17108aae577529045f721b9",
-      "source": "common-photo",
-      "wallMilliseconds": 443.668,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc3-lossless-sharp-q50-420.avif",
-      "fileSha256": "0cf166bfa6105dc9e32023d0c5d23362ebb2f541e9d51ed09b9a32f4cf53ffce",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "cfac5f91515b6bdea3a784881a9918584f8058996192cb9616cca33a52cbf78b",
-      "source": "common-photo",
-      "wallMilliseconds": 304.713,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mc3-lossless-sharp-q80-444.avif",
-      "fileSha256": "e5e894a7a9720ef40a7a83c021278673cdf7bb74d8b91bdf1648d218db9e5f99",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "ccbb6f39e9318e4cdcec16ba5165e5c1dab49da08e90f1ee1e2279f3f3868255",
-      "source": "common-photo",
-      "wallMilliseconds": 317.505,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mies-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "b579d4fca10f4ffcbe22da43a7bbe8fc9f64ff1d03c0760b4a77a64048a348cb",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "72374fa2e7fd7505e089f8569b4f279e71554e4b2b5d37ebd32b6fb903798008",
-      "source": "common-photo",
-      "wallMilliseconds": 607.484,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mies-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "deae2408b532de2626983654af9235610913706dba7d80162b024dded83849dc",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "16b0ac90fcb666585e010deb0094e221fc83c56eeb2258bfbcea725c2673445a",
-      "source": "common-photo",
-      "wallMilliseconds": 880.604,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mies-lossless-sharp-q50-420.avif",
-      "fileSha256": "37a2666c982b1b8e08e53a4a82d79fee6755304d02152ce0905df6a2f22bfeae",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "d1c8b87f02a0f4e1d7502ff5003f119728940dcf4a9ef9b2bdbdf7cc8befc800",
-      "source": "common-photo",
-      "wallMilliseconds": 475.343,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "mies-lossless-sharp-q80-444.avif",
-      "fileSha256": "adab6f6613b756cf6199204cadda1ee679785db60e5618a10029da17e11b573d",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "2c20a2b8650fb7044aaead0cc4f15d7cb43a7b33d9fbb11591eb1b7e127efe64",
-      "source": "common-photo",
-      "wallMilliseconds": 517.067,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "night-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "cb23d3c75e05d7e57c1563f5abd23995ba61432d6c762a508b5a77b8045c5c83",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "8384f9b3e814d9b766f08b63b5793ed19e024fb7d4079bb2bb372983ebb2a286",
-      "source": "common-photo",
-      "wallMilliseconds": 366.306,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "night-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "c86e02d6d156ebd080dacdf85cbb3b76f00990e2bc094ef28b3c9c22840afc67",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "8f2b8b4fb61e50e60aa6792ba3ea461a65c1500df9d2faf13c3c1ab150f64cdc",
-      "source": "common-photo",
-      "wallMilliseconds": 427.922,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "night-lossless-sharp-q50-420.avif",
-      "fileSha256": "852a014e08c7c946df4a7e1d76f8f981a39af744bff7b4f4b81bb4de7b290081",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "d41b0418e8b0d3d64348171f23ea3048a1ce455bf3dc4dca2a7988536f02e2ac",
-      "source": "common-photo",
-      "wallMilliseconds": 371.171,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "night-lossless-sharp-q80-444.avif",
-      "fileSha256": "37154502500b2ec4f26ea6bb9a040fedfc85be02b407c5c15bc2b2311ab7b179",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "5b02fc1babbc66d157ce4e768fdf397fd76d22d07c46e1e699ea3089d47989cd",
-      "source": "common-photo",
-      "wallMilliseconds": 331.353,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "nyc-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "0a21d9ae2b9e277b538f5ee6432e76a242a607d6d4ba7743f1f77741802cde39",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "24774e15cff4d903c16b974fe99ebee5eed72128f3901f68e37f32d2225be953",
-      "source": "common-photo",
-      "wallMilliseconds": 444.86,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "nyc-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "ef6b710e64b404f025f8616a2036107beee5562493d034cad9927c0fc874dff9",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "17fcf8adfdba1add9cbb71c3f2419f75bfe304379a5c3a7825470ea4e498bb46",
-      "source": "common-photo",
-      "wallMilliseconds": 586.262,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "nyc-lossless-sharp-q50-420.avif",
-      "fileSha256": "398d8f3ba36c37d3cc5a080daf297e8d78b82ab7f67a4e6bfbbabdf43e3309c8",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "a2d1a1a4d965097a90cccddae8dec968ac93464eb05c007eb970391ab1cd7432",
-      "source": "common-photo",
-      "wallMilliseconds": 323.446,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "nyc-lossless-sharp-q80-444.avif",
-      "fileSha256": "a2c26663a90238e5c5a0d7e0f915c877cdd84ac3d00a0997342980e09007209c",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "ae422a7de086859a035c3a8ee3983b939072c1c058299d4beeed664aff1d1797",
-      "source": "common-photo",
-      "wallMilliseconds": 411.044,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "path-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "583ca860da5e8545cdf065e32560107d08e207223e46ea221025963f6d29ecea",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "579175be2aea91a8e128fa67923fe39df83c080ded2b8aeadc93e77586debc03",
-      "source": "common-photo",
-      "wallMilliseconds": 405.938,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "path-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "5617bca442c45a0afa2aecc813bbbbeed2f97d2c11c11cc286b6c1735d4ddfba",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "08891bdfabe3c65727bc06182c44610695b9bebc2eecd3563fc47fec4bcb4016",
-      "source": "common-photo",
-      "wallMilliseconds": 618.217,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "path-lossless-sharp-q50-420.avif",
-      "fileSha256": "8fc30aac603ae88f6009ab81cba426634d494bbe4522eccc815a4dce0168ccc1",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "e4261abf2bb1b9f0431d15e6650e07d6b61810f8d3c917541c528660c7ae975d",
-      "source": "common-photo",
-      "wallMilliseconds": 411.963,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "path-lossless-sharp-q80-444.avif",
-      "fileSha256": "26cd0090749489d386353d20c8abe9726b05bcbbb5c1768d8f126cbc76446ae2",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "19fde4baa1dea775e00f5a69004e9396cee57037e9c23909fae279fef8a5eaa3",
-      "source": "common-photo",
-      "wallMilliseconds": 425.183,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "pixel-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "a3dc5494ad23052911dd81f9129193cea1a9b3995aed190a5675444d9466a3a6",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "c1c79d1637d314af3240779d2af40582a6726a3851957a781ca29eef5d350c48",
-      "source": "common-photo",
-      "wallMilliseconds": 472.722,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "pixel-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "30ef68593176d72a843ec203f2d7a6232343f48397efd4f39de005e6470718fd",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "257536153ef2d91e8a94f4827f95dc9860be815d57273939148b801ea7093a16",
-      "source": "common-photo",
-      "wallMilliseconds": 696.809,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "pixel-lossless-sharp-q50-420.avif",
-      "fileSha256": "6cbc4f0e8a33a1c4b75322fd89e4f0b2da1b65eede40dd2bdec6d31cec54b2ef",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "dba5b204f0c5f97b1f0b65c60218e8231c9e92477021609d4a91ac495fc44ef7",
-      "source": "common-photo",
-      "wallMilliseconds": 362.858,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "pixel-lossless-sharp-q80-444.avif",
-      "fileSha256": "ce701d1b9e74ba5d1ed685dba73a3b5be677dbd399a477de8db9566fe851d426",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "e95b4bb4539dc7b9cb0e4bb79079520a700dc06227a018541c5eea4879e901c2",
-      "source": "common-photo",
-      "wallMilliseconds": 382.509,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "prudential-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "e5896d3891286f4ea974af95a90883c99f0d47eb681df1da2c2033af37537d92",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "40d4bdbb591f6b7d44e0380f5963c0907eeda9cf4c9f042b395263851505f873",
-      "source": "common-photo",
-      "wallMilliseconds": 421.787,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "prudential-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "023503885bde394a398af043f2e7ea4f90dec0abdb3a0fdf35173f5d7d5b2cfc",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "92efe606499018cdc07fa2c17598d10f0e0badde6fb4b90f457bdbcf3dad1e8d",
-      "source": "common-photo",
-      "wallMilliseconds": 720.636,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "prudential-lossless-sharp-q50-420.avif",
-      "fileSha256": "2debe17eaee1fb7027c418ca9c3287a5673f3dcbb9c5a22aecec14f0afc659ae",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "ffcb8131cf29163279eb7dec8722228feb152bed199efdafbd8f9766652a3b4b",
-      "source": "common-photo",
-      "wallMilliseconds": 304.267,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "prudential-lossless-sharp-q80-444.avif",
-      "fileSha256": "c037909b614785df8b686aa278e2dae9906528acd2e85fa280ef8014637d1695",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "80d58c40408eb2c1acac237d05593c91f6ce00218f3ba4fe091a808c6887b716",
-      "source": "common-photo",
-      "wallMilliseconds": 409.49,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "rain-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "d7dcba7c3787cd92af13947bf8130df08eeb8fd257517527e71f0585cca06f66",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "c701f0e8bbad02d797f4e0e92f7d3a58ce61adfafb3de3f696b5c1979320d98f",
-      "source": "common-photo",
-      "wallMilliseconds": 390.455,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "rain-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "2a2bd181edd3ef054b54df9a758d84ed0d39a8124567da2db5e616c49cd304b5",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "4316c38cb88b503f6d0e691dd24d7ee62f979648e32a032b58e27592fa369d51",
-      "source": "common-photo",
-      "wallMilliseconds": 625.214,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "rain-lossless-sharp-q50-420.avif",
-      "fileSha256": "4a52fecdcb1e4c8b04c428420b33c91b2fb8b5c7862143faada844a806cbc11d",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "387250f2ed2a03560770627953089aabd2c9ab3731ad1be1ef97edee4f656714",
-      "source": "common-photo",
-      "wallMilliseconds": 317.145,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "rain-lossless-sharp-q80-444.avif",
-      "fileSha256": "d63fa4c97c5764d6738b3508cd41267356a8449a3f0768beb425c4faf7395619",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "4778f6f1841de58a826ea688bdd70139c2656f2add313feb2f7d33aa6076bca0",
-      "source": "common-photo",
-      "wallMilliseconds": 291.678,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "reflect-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "65580bb5882599001a16db98a6bea9effc78730c34b0b16658a35d637ca4c072",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "eefe9df99d97073b2d22c9525cb90c26deb92b42b105ba8a77c057d56726bb8c",
-      "source": "common-photo",
-      "wallMilliseconds": 468.175,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "reflect-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "f60a0e752761b333e402b0c638752a09435139e94c59038146dbae40f4ee7123",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "ea56e063280fb7762d21a8361e73de5e2588d5a1741e3bbedb05f154e099d42b",
-      "source": "common-photo",
-      "wallMilliseconds": 733.952,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "reflect-lossless-sharp-q50-420.avif",
-      "fileSha256": "7e2cd1987efc01a80884b91269c7d0ba7fe67284a5cf4414bd33d9e3342257e5",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "d3c6455251ad1c6ad0a55e0feb90303afb69036106a46fa2fe8fe08f0b977068",
-      "source": "common-photo",
-      "wallMilliseconds": 377.027,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "reflect-lossless-sharp-q80-444.avif",
-      "fileSha256": "8ba3505520c357b35c20e34270f551a07dc7683494d943ce003a8f001753eabb",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "a4b3783b90018d20f339cf4810fbe56483fc41e895fc362f2e004644fa276551",
-      "source": "common-photo",
-      "wallMilliseconds": 467.804,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sand-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "0d63ca1a03c787a07e0530a5ecfd4272627bf0adb51a23afa7960e77b76f20f6",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "90d66ee4d6fb960b5853f8251abd4f15d3b5ea08e6d5f645e2c015850248bae3",
-      "source": "common-photo",
-      "wallMilliseconds": 588.582,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sand-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "f6d4b6cd72cf90ba1448909000e8b13d88b3db3e04fa901f31172d9c268a0b40",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "67242177d6267a41b22cd931a88eafbf7eb57228ee9e62977b350ae85efdea82",
-      "source": "common-photo",
-      "wallMilliseconds": 800.045,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sand-lossless-sharp-q50-420.avif",
-      "fileSha256": "8de5fe035e0a0cf8449f213cdfd578c4dbca8696609e13ed0532e96a816d8303",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "e6252ebc4eec64462bbcc4c0569aa8dd447e863d4bee56eda146f641cc46658e",
-      "source": "common-photo",
-      "wallMilliseconds": 471.94,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sand-lossless-sharp-q80-444.avif",
-      "fileSha256": "af8ba5cb14bd0947975e20fb7b57a1192ac868bc76b6e5ee3863f57993042314",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "4e7348b16d817a2466a952648614541c6c3f47faa8acf1d4144b4ef0f3031d5c",
-      "source": "common-photo",
-      "wallMilliseconds": 622.895,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sumac-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "993d9668e3f58a55c7380ab2e51cafff960b5290b1564e6544d4584afd85acb7",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "200883d6f9dab4f268d21cabb79955040fd0ab2341aed9ce69e70bee59a1955b",
-      "source": "common-photo",
-      "wallMilliseconds": 494.796,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sumac-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "5386909b9a82a31c67256110b822b4966edb48af9360f580178c6186ebd2ebb6",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "57f289946e0830e87662ce59a6881cf596b203756f319c26dfb514ea6d4f53b7",
-      "source": "common-photo",
-      "wallMilliseconds": 910.862,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sumac-lossless-sharp-q50-420.avif",
-      "fileSha256": "6e01c7069c507785e8574f32139b480e39fd543aca5e10661e33597b6beab82e",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "134390f04e8b299c97d4990c5172fae384c454340847f33048e62bf26e680a52",
-      "source": "common-photo",
-      "wallMilliseconds": 407.422,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sumac-lossless-sharp-q80-444.avif",
-      "fileSha256": "1c733b1b5389c3eb1ed71c52d4fbc5e8f52a4bae67cc0667ec293ef002c27e1e",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "9725f11568f293b768bd565daa765335c3618fd8abd7a59150d6205b10525315",
-      "source": "common-photo",
-      "wallMilliseconds": 528.095,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sunset-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "ca669ac6a3f7b60aa9098d3f77dd31871a8617ffcf8d09bba1871e25bb8a9ed8",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "9302762f6c2abc425737d9ac6c2ede9ff8fa39d2a91a19db9ac094127092a95d",
-      "source": "common-photo",
-      "wallMilliseconds": 406.225,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sunset-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "a474e974af7b00e359826c9f463a4547a6521e71cd27fad596a1043871c00fef",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "355c7a958fa7e682c5544630a4cc0e9a6735d95876ce3669d64dcd0c21b7ccfa",
-      "source": "common-photo",
-      "wallMilliseconds": 639.187,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sunset-lossless-sharp-q50-420.avif",
-      "fileSha256": "a00c9956673450a49bb7158fec33ecddb5bc9e0b962b3ce741a18863ea22f50b",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "b024d13c8040a8f258652dcf5318de3c4361fd0654b9d5280ba7976a33b97280",
-      "source": "common-photo",
-      "wallMilliseconds": 342.249,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "sunset-lossless-sharp-q80-444.avif",
-      "fileSha256": "3c2285482031f3fb5cf709d793ead139f6a0e94bdce9ea4d61b18db7d4e7662e",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "2156b7d257db25c7f6a787acd22f8b004df864f2a52f48f31023a31f3d4d3daa",
-      "source": "common-photo",
-      "wallMilliseconds": 324.115,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "waves-lossless-ffmpeg-crf30-420.avif",
-      "fileSha256": "ab254be4ed7acf4a883fd2dd98d59fdb37d9e4c3b65794782d21e677754f0834",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "ce2793f85efda499e5710593dc7f44c0f7317f15a02d312482c11d0a26491085",
-      "source": "common-photo",
-      "wallMilliseconds": 531.212,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "waves-lossless-ffmpeg-crf45-444.avif",
-      "fileSha256": "0d9a892a14e0755a260af6a98008697300deeb35878c3fc5dd0e4d8ac8efb4f8",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "16636b06f17a7004d2fa8bf23535b1e787181465efca3674e037d2cfaeca1f9f",
-      "source": "common-photo",
-      "wallMilliseconds": 713.41,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "waves-lossless-sharp-q50-420.avif",
-      "fileSha256": "e5683267150aa5fc20ac3bdee0272ab9104c39d5c6e5690471b02877f09b0351",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "b3e202610edd482b7ac46e59c7d31d28538ddbdef1278bb8c67e1caad1ed6456",
-      "source": "common-photo",
-      "wallMilliseconds": 397.796,
-      "width": 576
-    },
-    {
-      "category": "generated",
-      "file": "waves-lossless-sharp-q80-444.avif",
-      "fileSha256": "7e5b876669b1d99ccc9f30dc658586cf6f368eaeaadf3e051e25058f3b1a552c",
-      "height": 576,
-      "outcome": "decoded",
-      "rgbaSha256": "f11971d3070572f29979548b18562f6e93b4a01c32406b1a134d94f04c177bbc",
-      "source": "common-photo",
-      "wallMilliseconds": 433.97,
-      "width": 576
+      "wallMilliseconds": 0.284
     }
   ]
 }

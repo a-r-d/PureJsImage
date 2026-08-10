@@ -39,6 +39,8 @@ import {
 } from '../benchmark/avif/high-bit-lossless-fixtures.ts'
 import { avifLayeredFixture, avifLayeredFixturePath } from '../benchmark/avif/layered-fixture.ts'
 import {
+  avifBoundedFilteredFixture,
+  avifBoundedFilteredFixturePath,
   avifFullHeaderTileGroupsFixture,
   avifFullHeaderTileGroupsFixturePath,
   avifLossyMultitileFixture,
@@ -79,7 +81,11 @@ import {
 } from '../benchmark/avif/tiled-lossless-fixture.ts'
 import { av1ObuType } from '../src/codecs/av1.ts'
 import { parseAv1Frame, parseAv1FrameObus } from '../src/codecs/av1-frame.ts'
-import { type Av1DecodedFrame, decodeRestrictedAv1Intra } from '../src/codecs/av1-intra.ts'
+import {
+  type Av1DecodedFrame,
+  decodeRestrictedAv1Intra,
+  estimateRestrictedAv1WorkingBytes,
+} from '../src/codecs/av1-intra.ts'
 import {
   avifCodec,
   inspectAvifBitstreams,
@@ -1040,6 +1046,46 @@ describe('AVIF restricted pixel decode', () => {
     expect(createHash('sha256').update(nativeYuv).digest('hex')).toBe(fixture.pureYuvSha256)
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
   })
+
+  it('decodes a filtered 4K 8x2 AV1 tile layout within the default memory limit', async () => {
+    const fixture = avifBoundedFilteredFixture
+    const input = await readFile(avifBoundedFilteredFixturePath)
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    if (!coded) throw new Error('Bounded filtered AVIF fixture has no color coded image')
+    const frame = parseAv1FrameObus(coded.sequence, coded.obus)
+    const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('AVIF decoder is unavailable')
+    const hash = createHash('sha256')
+    let outputY = 0
+    for await (const block of decoder.decode()) {
+      expect(block).toMatchObject({
+        x: 0,
+        y: outputY,
+        width: fixture.width,
+        stride: fixture.width * 4,
+      })
+      expect(block.height).toBeLessThanOrEqual(32)
+      hash.update(block.data.subarray(0, block.stride * block.height))
+      outputY += block.height
+    }
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(frame.header).toMatchObject({
+      allLossless: false,
+      tileColumns: fixture.columns,
+      tileRows: fixture.rows,
+      restorationTypes: [0, 0, 0],
+    })
+    expect(frame.header.loopFilterLevels.some((level) => level !== 0)).toBe(true)
+    expect(frame.header.cdefYPrimaryStrengths.some((strength) => strength !== 0)).toBe(true)
+    expect(frame.tiles).toHaveLength(fixture.columns * fixture.rows)
+    expect(() =>
+      validateAvifWorkingBytes(estimateRestrictedAv1WorkingBytes(coded.sequence, frame)),
+    ).not.toThrow()
+    expect(outputY).toBe(fixture.height)
+    expect(hash.digest('hex')).toBe(fixture.decodedRgbaSha256)
+  }, 30_000)
 
   it('decodes non-reduced AV1 frame headers split across tile-group OBUs', async () => {
     const fixture = avifFullHeaderTileGroupsFixture

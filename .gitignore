@@ -201,6 +201,7 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/ms-bbb-4k.avif
 !benchmark/corpus/files/avif/ibc-deltaq-512x128.avif
 !benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif
+!benchmark/corpus/files/avif/libavif-bounded-filtered-yuv420-3840x2160.avif
 !benchmark/corpus/files/avif/libaom-superres-denom12-96x64.avif
 !benchmark/corpus/files/avif/libaom-superres-denom12-yuv420-96x64.avif
 !benchmark/corpus/files/avif/libaom-filtered-superres-denom12-yuv420-320x192.avif

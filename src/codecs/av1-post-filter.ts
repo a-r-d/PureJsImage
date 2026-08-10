@@ -23,11 +23,15 @@ export interface Av1RestorationPlaneState {
 export interface Av1PostFilterState {
   readonly bitDepth: 8 | 10 | 12
   readonly cdefColumns: number
+  readonly contextMiColumns: number
+  readonly contextMiRows: number
   readonly chromaShiftX: number
   readonly chromaShiftY: number
   readonly cdefIndices: Uint16Array
   readonly miColumns: number
+  readonly miColumnStart: number
   readonly miRows: number
+  readonly miRowStart: number
   readonly restoration: readonly [
     Av1RestorationPlaneState,
     Av1RestorationPlaneState,
@@ -81,7 +85,7 @@ const sampleBuffer = (
 
 const planeContextWidth = (state: Av1PostFilterState, plane: number): number => {
   const shiftX = plane === 0 ? 0 : state.chromaShiftX
-  return (state.miColumns + (1 << shiftX) - 1) >> shiftX
+  return (state.contextMiColumns + (1 << shiftX) - 1) >> shiftX
 }
 
 const transformAt = (
@@ -93,9 +97,31 @@ const transformAt = (
 ): number => {
   const shiftX = plane === 0 ? 0 : state.chromaShiftX
   const shiftY = plane === 0 ? 0 : state.chromaShiftY
-  const contextColumn = column >> shiftX
-  const contextRow = row >> shiftY
+  const contextColumn = (column - state.miColumnStart) >> shiftX
+  const contextRow = (row - state.miRowStart) >> shiftY
+  if (
+    contextColumn < 0 ||
+    contextColumn >= planeContextWidth(state, plane) ||
+    contextRow < 0 ||
+    contextRow >= state.contextMiRows >> shiftY
+  ) {
+    return 0
+  }
   return transforms[plane]?.[contextRow * planeContextWidth(state, plane) + contextColumn] ?? 0
+}
+
+const skipAt = (state: Av1PostFilterState, row: number, column: number): number => {
+  const contextRow = row - state.miRowStart
+  const contextColumn = column - state.miColumnStart
+  if (
+    contextRow < 0 ||
+    contextRow >= state.contextMiRows ||
+    contextColumn < 0 ||
+    contextColumn >= state.contextMiColumns
+  ) {
+    return 0
+  }
+  return state.skips[contextRow * state.contextMiColumns + contextColumn] ?? 0
 }
 
 const filter4Clamp = (value: number, depthShift: number): number =>
@@ -565,12 +591,11 @@ export const applyAv1Cdef = (
         state.cdefIndices[(baseRow >> 4) * state.cdefColumns + (baseColumn >> 4)] ?? 0
       if (storedIndex === 0) continue
       const index = storedIndex - 1
-      const first = row * state.miColumns + column
       const skip =
-        (state.skips[first] ?? 0) === 1 &&
-        (state.skips[first + 1] ?? 0) === 1 &&
-        (state.skips[first + state.miColumns] ?? 0) === 1 &&
-        (state.skips[first + state.miColumns + 1] ?? 0) === 1
+        skipAt(state, row, column) === 1 &&
+        skipAt(state, row, column + 1) === 1 &&
+        skipAt(state, row + 1, column) === 1 &&
+        skipAt(state, row + 1, column + 1) === 1
       if (skip) continue
       const [lumaDirection, variance] = cdefDirection(
         sourceWindows[0],

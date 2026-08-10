@@ -198,6 +198,17 @@ fixture isolates frame-header and tile-group assembly. The same
 and require byte-identical PureJsImage, dav1d, and libaom native YUV. Checksums
 are pinned in `benchmark/avif/lossy-multitile-fixture.ts`.
 
+`libavif-bounded-filtered-yuv420-3840x2160.avif` is a deterministic
+limited-range 8-bit YUV 4:2:0 image split into an 8x2 AV1 tile layout with
+deblocking and CDEF enabled. It pins the large filtered fallback while ensuring
+each sequential tile decoder retains only its tile-local entropy and context
+state. `npm run fixtures:avif:tiles:prepare` regenerates it with libavif 1.3.0
+and libaom 3.12.1 from a checksum-pinned gradient Y4M source.
+`npm run fixtures:avif:tiles` requires PureJsImage, dav1d, and libaom to produce
+byte-identical native YUV, and its ordered RGBA output is pinned in Node.js and
+Chromium. `benchmark/results/avif-memory-bounded-filtered-2026-08-10.json`
+records three isolated cold-process memory runs.
+
 `libaom-superres-denom12-96x64.avif`,
 `libaom-superres-denom12-yuv420-96x64.avif`, and
 `libaom-superres-denom12-yuv420-320x192.avif` are deterministic full-range
@@ -228,11 +239,11 @@ display height exercise cropped edge-tile composition.
 
 `npm run bench:avif:memory` generates deterministic 1024x768 no-filter,
 deblock, alpha, and 2x2-grid cases in a temporary directory and combines them
-with the permanent Kodak and Fox fixtures for CDEF, restoration, and downscale
-measurements. It runs each case in three isolated cold Node.js processes and
-rejects any encoded-input or decoded-output checksum drift. The command
-requires `avifenc` 1.3.0 with libaom 3.12.1 to reproduce the recorded
-`benchmark/results/avif-bounded-row-output-2026-08-09.md` evidence.
+with the permanent Kodak, Fox, and 3840x2160 8x2-tile fixtures for CDEF,
+restoration, bounded filtered multi-tile decode, and downscale measurements. It
+runs each case in three isolated cold Node.js processes and rejects any
+encoded-input or decoded-output checksum drift. The command requires `avifenc`
+1.3.0 with libaom 3.12.1 to reproduce the recorded memory evidence.
 
 The five `libavif-*-color*`, `libavif-paris-*`, and `libavif-seine-*` color
 fixtures are byte-identical files from the Imazen AVIF Conformance corpus at

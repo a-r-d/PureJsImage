@@ -224,6 +224,12 @@ All notable changes to PureJsImage are documented in this file.
   ring. Every AVIF decoder path now rejects coded payload plus conservatively
   estimated working state above 64 MiB; post-filtered, rotated-alpha, and grid
   paths retain their documented full-frame YUV reconstruction fallback.
+- Changed compatible multi-tile AVIF decode to allocate entropy, transform, palette,
+  CDEF, and skip contexts for one tile rectangle at a time, then merge compact
+  frame-wide post-filter metadata. A pinned 3840x2160 8x2-tile deblock-plus-CDEF
+  fixture now decodes within the 64 MiB codec working-set limit, matches
+  dav1d/libaom native YUV byte for byte, and retains ordered 32-row output in
+  Node.js and Chromium; padded full-frame YUV remains the documented fallback.
 
 - Moved HEIF/HEIC decode to the explicit
   `purejsimage/codecs/experimental/heic` entry, removed it from `allCodecs` and

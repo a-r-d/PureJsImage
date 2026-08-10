@@ -240,11 +240,13 @@ test('decodes coded-lossless 10-bit AVIF tiles', async ({ page }) => {
 })
 
 test('decodes lossy AVIF tile and tile-group layouts', async ({ page }) => {
+  test.setTimeout(60_000)
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifLossyMultitile())
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('pinned portable RGBA output')
   expect(result.detail).toContain('four tile-group OBUs')
+  expect(result.detail).toContain('8x2-tile 4K AVIF')
 })
 test('decodes a static AVIF with a non-still AV1 sequence header', async ({ page }) => {
   await harness(page)
