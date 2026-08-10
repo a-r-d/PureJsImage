@@ -1,0 +1,18 @@
+.gitignore
+  h_9f4a25732fa0c1 171
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 57-61
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 16,722-764,1820-1821,1823,1836,1845,1853,1900,2068,2075,2082,2089,2096
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "a8aa7927551da5aede1a2f87eedeacc1b7f3d1a0",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
