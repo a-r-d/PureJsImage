@@ -29,6 +29,9 @@ All notable changes to PureJsImage are documented in this file.
   and BigTIFF, with selected-level metadata, bounded IFD graph traversal, cycle rejection,
   alias-safe shared-directory reuse, global directory limits, and no reads from unselected pixel
   segments.
+- Added 16-bit TIFF palette decode with exact full-range ColorMap scaling, plus signed 8-/16-bit
+  and float16/float32/float64 CMYK display conversion using declared sample ranges or deterministic
+  full-type defaults, bounded segment output, and independent pixel validation.
 
 ## [0.8.0] - 2026-08-09
 

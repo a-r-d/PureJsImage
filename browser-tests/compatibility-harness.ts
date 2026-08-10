@@ -978,6 +978,136 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
     )
   }
 
+  const signedCmyk = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [4] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [8, 8, 8, 8] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [5] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [4] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [16] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 339, type: 3, values: [2, 2, 2, 2] },
+    ],
+    [
+      Uint8Array.of(
+        0x80,
+        0x80,
+        0x80,
+        0x80,
+        0x7f,
+        0x80,
+        0x80,
+        0x80,
+        0x80,
+        0x80,
+        0x80,
+        0x7f,
+        0,
+        0xc0,
+        0x80,
+        0,
+      ),
+    ],
+  )
+  const signedCmykOutput = await (await images.open(signedCmyk)).png().toUint8Array()
+  const signedCmykPixels = await browserPixels(signedCmykOutput, 'image/png')
+  if (
+    signedCmykPixels[0] !== 255 ||
+    signedCmykPixels[4] !== 0 ||
+    signedCmykPixels[5] !== 255 ||
+    signedCmykPixels[6] !== 255 ||
+    signedCmykPixels[8] !== 0 ||
+    signedCmykPixels[9] !== 0 ||
+    signedCmykPixels[10] !== 0 ||
+    signedCmykPixels[12] !== 63 ||
+    signedCmykPixels[13] !== 95 ||
+    signedCmykPixels[14] !== 127
+  ) {
+    throw new Error('Signed CMYK TIFF display conversion changed in the browser')
+  }
+
+  const floatCmykSamples = new Uint8Array(64)
+  const floatCmykView = new DataView(floatCmykSamples.buffer)
+  const floatCmykValues = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0.5, 0.25, 0, 0.5]
+  for (let index = 0; index < floatCmykValues.length; index += 1) {
+    floatCmykView.setFloat32(index * 4, floatCmykValues[index] ?? 0, true)
+  }
+  const floatCmyk = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [4] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [32, 32, 32, 32] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [5] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [4] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [floatCmykSamples.byteLength] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 339, type: 3, values: [3, 3, 3, 3] },
+    ],
+    [floatCmykSamples],
+  )
+  const floatCmykOutput = await (await images.open(floatCmyk)).png().toUint8Array()
+  const floatCmykPixels = await browserPixels(floatCmykOutput, 'image/png')
+  if (
+    floatCmykPixels[0] !== 255 ||
+    floatCmykPixels[4] !== 0 ||
+    floatCmykPixels[5] !== 255 ||
+    floatCmykPixels[6] !== 255 ||
+    floatCmykPixels[8] !== 0 ||
+    floatCmykPixels[9] !== 0 ||
+    floatCmykPixels[10] !== 0 ||
+    floatCmykPixels[12] !== 64 ||
+    floatCmykPixels[13] !== 96 ||
+    floatCmykPixels[14] !== 128
+  ) {
+    throw new Error('Float32 CMYK TIFF display conversion changed in the browser')
+  }
+
+  const paletteColors = 65_536
+  const colorMap = new Array<number>(paletteColors * 3).fill(0)
+  colorMap[paletteColors] = 65_535
+  colorMap[0x1234] = 0xab00
+  colorMap[paletteColors + 0x1234] = 0xcd00
+  colorMap[paletteColors * 2 + 0x1234] = 0xef00
+  colorMap[0xffff] = 65_535
+  const palette16 = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [3] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [16] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [3] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [6] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 320, type: 3, values: colorMap },
+    ],
+    [Uint8Array.of(0, 0, 0x34, 0x12, 0xff, 0xff)],
+  )
+  const palette16Output = await (await images.open(palette16)).png().toUint8Array()
+  const palette16Pixels = await browserPixels(palette16Output, 'image/png')
+  if (
+    palette16Pixels[0] !== 0 ||
+    palette16Pixels[1] !== 255 ||
+    palette16Pixels[2] !== 0 ||
+    palette16Pixels[4] !== 170 ||
+    palette16Pixels[5] !== 204 ||
+    palette16Pixels[6] !== 238 ||
+    palette16Pixels[8] !== 255 ||
+    palette16Pixels[9] !== 0 ||
+    palette16Pixels[10] !== 0
+  ) {
+    throw new Error('16-bit palette TIFF display conversion changed in the browser')
+  }
+
   const wide64Samples = Uint8Array.of(
     0,
     0,
@@ -1142,7 +1272,7 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
 
   return {
     detail:
-      'legacy TIFF LZW, packed 12-bit TIFF, signed, float, wide unsigned, and SGILog TIFF, TIFF SubIFD pyramids, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
+      'legacy TIFF LZW, packed 12-bit TIFF, signed, float, numeric CMYK, 16-bit palette, wide unsigned, and SGILog TIFF, TIFF SubIFD pyramids, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
     outputBytes:
       legacyOutput.byteLength +
       wide64Output.byteLength +
@@ -1150,6 +1280,9 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
       webpTiffOutput.byteLength +
       signedOutput.byteLength +
       floatOutput.byteLength +
+      signedCmykOutput.byteLength +
+      floatCmykOutput.byteLength +
+      palette16Output.byteLength +
       logLOutput.byteLength +
       pyramidOutput.byteLength +
       bigOutput.byteLength +

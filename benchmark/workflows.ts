@@ -975,7 +975,7 @@ export const workflows: readonly Workflow[] = [
       pixelSamples: [
         { x: 0, y: 0, red: 170, green: 53, blue: 40, alpha: 255 },
         { x: 78, y: 75, red: 76, green: 19, blue: 14, alpha: 255 },
-        { x: 156, y: 150, red: 171, green: 208, blue: 169, alpha: 255 },
+        { x: 156, y: 150, red: 170, green: 207, blue: 169, alpha: 255 },
       ],
     },
   },

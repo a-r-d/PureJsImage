@@ -1414,6 +1414,34 @@ describe('TIFF codec', () => {
     expect(pixel(decoded, 2, 0)).toEqual([255, 255, 255, 255])
   })
 
+  it('decodes 16-bit palette indices directly to RGB rows', async () => {
+    const colors = 65_536
+    const colorMap = new Array<number>(colors * 3).fill(0)
+    colorMap[0] = 0
+    colorMap[colors] = 65_535
+    colorMap[colors * 2] = 0
+    colorMap[0x1234] = 0xab00
+    colorMap[colors + 0x1234] = 0xcd00
+    colorMap[colors * 2 + 0x1234] = 0xef00
+    colorMap[0xffff] = 65_535
+    colorMap[colors + 0xffff] = 0
+    colorMap[colors * 2 + 0xffff] = 0
+    const input = tiffFixture({
+      width: 3,
+      height: 1,
+      littleEndian: false,
+      bitsPerSample: [16],
+      compression: 1,
+      photometric: 3,
+      colorMap,
+      strips: [Uint8Array.of(0, 0, 0x12, 0x34, 0xff, 0xff)],
+    })
+
+    const decoded = await decodeDirect(input)
+    expect(decoded.format).toBe('rgb8')
+    expect(decoded.data).toEqual(Uint8Array.of(0, 255, 0, 170, 204, 238, 255, 0, 0))
+  })
+
   it('preserves unsigned 24-bit and 32-bit RGB with native Predictor 2 reversal', async () => {
     for (const bitDepth of [24, 32] as const) {
       const maximum = (1n << BigInt(bitDepth)) - 1n
@@ -1837,20 +1865,7 @@ describe('TIFF codec', () => {
     }
   })
 
-  it('keeps signed and floating CMYK and invalid display ranges unsupported or invalid', async () => {
-    const floatCmyk = tiffFixture({
-      width: 1,
-      height: 1,
-      bitsPerSample: [32, 32, 32, 32],
-      compression: 1,
-      photometric: 5,
-      strips: [floatPayload([0, 0, 0, 1], 32, true)],
-      extraEntries: [{ tag: 339, type: 3, values: [3, 3, 3, 3] }],
-    })
-    await expect(
-      Image.open(floatCmyk).then((image) => image.png().toBuffer()),
-    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
-
+  it('rejects invalid numeric display ranges', async () => {
     const invalidRange = tiffFixture({
       width: 1,
       height: 1,
@@ -2004,6 +2019,117 @@ describe('TIFF codec', () => {
     expect(pixel(ycbcrPixels, 0, 0)).toEqual([254, 0, 0, 255])
     expect(pixel(ycbcrPixels, 1, 0)).toEqual([254, 0, 0, 255])
     expect(pixel(ycbcrPixels, 2, 0)).toEqual([0, 0, 254, 255])
+  })
+
+  it('converts signed and floating-point CMYK through declared display ranges', async () => {
+    const signed = tiffFixture({
+      width: 4,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 1,
+      photometric: 5,
+      extraEntries: [{ tag: 339, type: 3, values: [2, 2, 2, 2] }],
+      strips: [
+        signedPayload(
+          [-128, -128, -128, -128, 127, -128, -128, -128, -128, -128, -128, 127, 0, -64, -128, 0],
+          8,
+          true,
+        ),
+      ],
+    })
+    const floating = tiffFixture({
+      width: 4,
+      height: 1,
+      bitsPerSample: [32, 32, 32, 32],
+      compression: 1,
+      photometric: 5,
+      extraEntries: [
+        { tag: 339, type: 3, values: [3, 3, 3, 3] },
+        { tag: 340, type: 11, values: [0, 0, 0, 0] },
+        { tag: 341, type: 11, values: [1, 1, 1, 1] },
+      ],
+      strips: [floatPayload([0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0.5, 0.25, 0, 0.5], 32, true)],
+    })
+
+    const signedPixels = await decodedPng(signed)
+    const floatPixels = await decodedPng(floating)
+    expect(pixel(signedPixels, 0, 0)).toEqual([255, 255, 255, 255])
+    expect(pixel(signedPixels, 1, 0)).toEqual([0, 255, 255, 255])
+    expect(pixel(signedPixels, 2, 0)).toEqual([0, 0, 0, 255])
+    expect(pixel(signedPixels, 3, 0)).toEqual([63, 95, 127, 255])
+    expect(pixel(floatPixels, 0, 0)).toEqual([255, 255, 255, 255])
+    expect(pixel(floatPixels, 1, 0)).toEqual([0, 255, 255, 255])
+    expect(pixel(floatPixels, 2, 0)).toEqual([0, 0, 0, 255])
+    expect(pixel(floatPixels, 3, 0)).toEqual([64, 96, 128, 255])
+  })
+
+  it('covers signed16, float16, and float64 CMYK sample depths', async () => {
+    const signed16Values = [-32_768, -32_768, -32_768, -32_768, 32_767, -32_768, -32_768, -32_768]
+    const signed16 = tiffFixture({
+      width: 2,
+      height: 1,
+      littleEndian: false,
+      bitsPerSample: [16, 16, 16, 16],
+      compression: 1,
+      photometric: 5,
+      strips: [signedPayload(signed16Values, 16, false)],
+      extraEntries: [{ tag: 339, type: 3, values: [2, 2, 2, 2] }],
+    })
+
+    const halfBits = [0, 0, 0, 0, 0x3c00, 0, 0, 0, 0, 0, 0, 0x3c00, 0x3800, 0x3400, 0, 0x3800]
+    const halfSamples = new Uint8Array(halfBits.length * 2)
+    const halfView = new DataView(halfSamples.buffer)
+    for (let index = 0; index < halfBits.length; index += 1) {
+      halfView.setUint16(index * 2, halfBits[index] ?? 0, true)
+    }
+    const float16 = tiffFixture({
+      width: 4,
+      height: 1,
+      bitsPerSample: [16, 16, 16, 16],
+      compression: 1,
+      photometric: 5,
+      strips: [halfSamples],
+      extraEntries: [{ tag: 339, type: 3, values: [3, 3, 3, 3] }],
+    })
+
+    const float64Values = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0.5, 0.25, 0, 0.5]
+    const float64 = tiffFixture({
+      width: 4,
+      height: 1,
+      littleEndian: false,
+      bitsPerSample: [64, 64, 64, 64],
+      compression: 1,
+      photometric: 5,
+      strips: [floatPayload(float64Values, 64, false)],
+      extraEntries: [{ tag: 339, type: 3, values: [3, 3, 3, 3] }],
+    })
+
+    const signed16Pixels = await decodeDirect(signed16)
+    const float16Pixels = await decodeDirect(float16)
+    const float64Pixels = await decodeDirect(float64)
+    expect(signed16Pixels.data).toEqual(Uint8Array.of(255, 255, 255, 0, 255, 255))
+    const expectedFloat = Uint8Array.of(255, 255, 255, 0, 255, 255, 0, 0, 0, 64, 96, 128)
+    expect(float16Pixels.data).toEqual(expectedFloat)
+    expect(float64Pixels.data).toEqual(expectedFloat)
+  })
+
+  it('rejects DotRange for numeric CMYK samples', async () => {
+    const input = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8, 8, 8, 8],
+      compression: 1,
+      photometric: 5,
+      extraEntries: [
+        { tag: 336, type: 3, values: [0, 255] },
+        { tag: 339, type: 3, values: [2, 2, 2, 2] },
+      ],
+      strips: [signedPayload([0, 0, 0, 0], 8, true)],
+    })
+
+    await expect(decodeDirect(input)).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+    })
   })
 
   it('accepts bounded LZW padding in the final subsampled YCbCr strip', async () => {

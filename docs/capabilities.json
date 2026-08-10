@@ -1606,10 +1606,10 @@
         "status": "limited",
         "label": "Limited"
       },
-      "boundary": "Broad validated IFD-graph and strip/tile decode including explicit top-level frame and reduced-resolution SubIFD selection, packed and wide unsigned, signed integer, IEEE floating-point, and LogLuv samples plus explicitly composed WebP segments; no scientific multiband, signed/float CMYK, or compressed TIFF encoding",
-      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common grayscale, indexed, RGB, CMYK, YCbCr, alpha, packed unsigned, wide unsigned, signed integer, IEEE floating-point, LogL, and LogLuv layouts with common compressions. IFD graphs are traversed with global directory limits, cycle rejection, and alias-safe shared-directory reuse; only the selected frame and resolution level's strips or tiles are decoded. LogL and LogLuv samples are reconstructed as native CIE Y or XYZ float32 pixel blocks with deterministic display conversion. Unsigned 24-, 32-, and 64-bit samples are preserved in canonical 32- or 64-bit numeric pixel blocks. WebP-in-TIFF is available only through explicit codec composition. Encodes uncompressed grayscale, RGB, or RGBA output and can retain a compatible ICC profile.",
-      "memory": "Selected-frame strip or tile region decode; IFD traversal does not read unselected pixel segments, and SGILog row scratch, wide numeric predictor reversal, output, and embedded WebP pixels are bounded to the current segment and emitted in bounded rows",
-      "recommendation": "Broad display-image input compatibility with explicit frame/pyramid selection, raw wide/signed/float and scientific CIE sample preservation, and simple uncompressed TIFF output.",
+      "boundary": "Broad validated IFD-graph and strip/tile decode including explicit top-level frame and reduced-resolution SubIFD selection, 16-bit indexed color, packed and wide unsigned, signed integer, IEEE floating-point, numeric CMYK, and LogLuv samples plus explicitly composed WebP segments; no scientific multiband, CMYK ICC conversion, or compressed TIFF encoding",
+      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common grayscale, indexed, RGB, CMYK, YCbCr, alpha, packed unsigned, wide unsigned, signed integer, IEEE floating-point, LogL, and LogLuv layouts with common compressions. IFD graphs are traversed with global directory limits, cycle rejection, and alias-safe shared-directory reuse; only the selected frame and resolution level's strips or tiles are decoded. Indexed samples through 16 bits use exact TIFF ColorMap scaling. Signed 8-/16-bit and float16/float32/float64 CMYK use deterministic display normalization through SMinSampleValue/SMaxSampleValue or full-type defaults before bounded CMYK-to-RGB conversion; raw numeric CMYK preservation and CMYK ICC conversion are not exposed. LogL and LogLuv samples are reconstructed as native CIE Y or XYZ float32 pixel blocks with deterministic display conversion. Unsigned 24-, 32-, and 64-bit samples are preserved in canonical 32- or 64-bit numeric pixel blocks. WebP-in-TIFF is available only through explicit codec composition. Encodes uncompressed grayscale, RGB, or RGBA output and can retain a compatible ICC profile.",
+      "memory": "Selected-frame strip or tile region decode; IFD traversal does not read unselected pixel segments, and palette lookup, numeric CMYK conversion, SGILog row scratch, wide numeric predictor reversal, output, and embedded WebP pixels are bounded to the current metadata table or segment and emitted in bounded rows",
+      "recommendation": "Broad display-image input compatibility with explicit frame/pyramid selection, deterministic numeric CMYK display conversion, raw wide/signed/float and scientific CIE sample preservation, and simple uncompressed TIFF output.",
       "evidence": [
         "tests/tiff.test.ts",
         "browser-tests/compatibility.pw.ts",
@@ -1618,8 +1618,8 @@
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
-        "oracle": "ImageMagick 7.1.2 with LibTIFF 4.7 and libwebp",
-        "tolerance": "Packed, unsigned 24-/32-bit display, floating-point display, CMYK-alpha, SGILog24/32 color, and lossless WebP paths are exact against the independent oracle; LogL CIE Y reconstruction and unsigned 64-bit and signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
+        "oracle": "ImageMagick 7.1.2 with LibTIFF 4.7, tifffile with imagecodecs, and libwebp",
+        "tolerance": "16-bit indexed color, packed, unsigned 24-/32-bit display, floating-point display, numeric CMYK display, CMYK-alpha, SGILog24/32 color, and lossless WebP paths are exact against independent oracles; LogL CIE Y reconstruction and unsigned 64-bit and signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
         "evidence": [
           "tests/tiff.test.ts",
           "tests/lossy-codec-quality.test.ts",
@@ -1685,7 +1685,7 @@
         },
         {
           "status": "supported",
-          "text": "1-, 2-, 4-, and 8-bit indexed color with a TIFF color map"
+          "text": "1-, 2-, 4-, 8-, and 16-bit indexed color with a TIFF color map"
         },
         {
           "status": "supported",
@@ -1709,11 +1709,11 @@
         },
         {
           "status": "supported",
-          "text": "Four-component CMYK / `Separated`, including `DotRange`"
+          "text": "Unsigned four-component CMYK / `Separated`, including `DotRange`"
         },
         {
           "status": "supported",
-          "text": "Five-sample CMYK plus associated or unassociated alpha"
+          "text": "Five-sample unsigned CMYK plus associated or unassociated alpha"
         },
         {
           "status": "supported",
@@ -1733,6 +1733,10 @@
         },
         {
           "status": "supported",
+          "text": "Signed 8-/16-bit and float16/float32/float64 CMYK with deterministic display-range normalization and direct RGB output"
+        },
+        {
+          "status": "supported",
           "text": "Unsigned 24-/32-bit samples preserved in `gray32` / `rgb32` blocks and unsigned 64-bit samples preserved in `gray64` / `rgb64` blocks"
         },
         {
@@ -1749,7 +1753,7 @@
         },
         {
           "status": "planned",
-          "text": "CIELab, CMYK ICC-profile conversion, and signed/floating-point CMYK"
+          "text": "CIELab and CMYK ICC-profile conversion"
         },
         {
           "status": "supported",
@@ -1806,10 +1810,6 @@
         {
           "status": "planned",
           "text": "Reversed bit fill order (`FillOrder=2`) outside CCITT fax compression"
-        },
-        {
-          "status": "planned",
-          "text": "Add 16-bit palette decode with exact ColorMap validation"
         },
         {
           "status": "planned",
@@ -1942,6 +1942,10 @@
         {
           "status": "supported",
           "text": "Verify selected classic TIFF and BigTIFF pyramid levels independently and decode no unselected pixel segments"
+        },
+        {
+          "status": "supported",
+          "text": "Verify 16-bit ColorMap scaling, floating-point CMYK display, and signed CMYK sample reconstruction exactly against independent ImageMagick and tifffile oracles"
         },
         {
           "status": "supported",

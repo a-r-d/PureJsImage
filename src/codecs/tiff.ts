@@ -900,9 +900,9 @@ const paletteFor = async (
   }
   const palette = new Uint8Array(colors * 3)
   for (let index = 0; index < colors; index += 1) {
-    palette[index * 3] = (values[index] ?? 0) >>> 8
-    palette[index * 3 + 1] = (values[colors + index] ?? 0) >>> 8
-    palette[index * 3 + 2] = (values[colors * 2 + index] ?? 0) >>> 8
+    palette[index * 3] = Math.floor(((values[index] ?? 0) * 255) / 65_535)
+    palette[index * 3 + 1] = Math.floor(((values[colors + index] ?? 0) * 255) / 65_535)
+    palette[index * 3 + 2] = Math.floor(((values[colors * 2 + index] ?? 0) * 255) / 65_535)
   }
   return palette
 }
@@ -1115,10 +1115,11 @@ const describeTiff = async (
     !logLuvPhotometric &&
     photometric !== photometricWhiteIsZero &&
     photometric !== photometricBlackIsZero &&
-    photometric !== photometricRgb
+    photometric !== photometricRgb &&
+    photometric !== photometricSeparated
   ) {
     throw unsupportedOperation(
-      'TIFF signed or floating-point decoding supports only grayscale, RGB, and LogLuv photometrics',
+      'TIFF signed or floating-point decoding supports only grayscale, RGB, CMYK, and LogLuv photometrics',
     )
   }
 
@@ -1169,7 +1170,7 @@ const describeTiff = async (
         throw unsupportedOperation('TIFF YCbCr decoding requires 8-bit samples')
       }
     } else if (photometric === photometricPalette) {
-      if (![1, 2, 4, 8].includes(baseBitDepth)) {
+      if (![1, 2, 4, 8, 16].includes(baseBitDepth)) {
         throw unsupportedOperation(`TIFF ${baseBitDepth}-bit palette data is unsupported`)
       }
     } else if (![1, 2, 4, 6, 8, 10, 12, 14, 16, 24, 32, 64].includes(baseBitDepth)) {
@@ -1458,21 +1459,26 @@ const describeTiff = async (
         'TIFF separated decoding currently supports four-component CMYK with optional alpha',
       )
     }
-    const maximum = (1 << baseBitDepth) - 1
     const rawDotRange = await optionalValues(source, ifd, littleEndian, 336, 8)
     if (rawDotRange && rawDotRange.length !== 2 && rawDotRange.length !== 8) {
       throw invalidInput('TIFF CMYK DotRange must contain 2 or 8 values')
     }
-    cmykDotRange = new Uint32Array(8)
-    for (let sample = 0; sample < 4; sample += 1) {
-      const pair = rawDotRange?.length === 8 ? sample * 2 : 0
-      const low = rawDotRange?.[pair] ?? 0
-      const high = rawDotRange?.[pair + 1] ?? maximum
-      if (low < 0 || high > maximum || low >= high) {
-        throw invalidInput('TIFF CMYK DotRange is invalid')
+    if (baseSampleFormat !== sampleFormatUnsigned && rawDotRange) {
+      throw unsupportedOperation('TIFF DotRange is supported only for unsigned CMYK samples')
+    }
+    if (baseSampleFormat === sampleFormatUnsigned) {
+      const maximum = 2 ** baseBitDepth - 1
+      cmykDotRange = new Uint32Array(8)
+      for (let sample = 0; sample < 4; sample += 1) {
+        const pair = rawDotRange?.length === 8 ? sample * 2 : 0
+        const low = rawDotRange?.[pair] ?? 0
+        const high = rawDotRange?.[pair + 1] ?? maximum
+        if (low < 0 || high > maximum || low >= high) {
+          throw invalidInput('TIFF CMYK DotRange is invalid')
+        }
+        cmykDotRange[sample * 2] = low
+        cmykDotRange[sample * 2 + 1] = high
       }
-      cmykDotRange[sample * 2] = low
-      cmykDotRange[sample * 2 + 1] = high
     }
   }
 
@@ -1622,6 +1628,8 @@ const describeTiff = async (
   let pixelFormat: TiffDescription['pixelFormat']
   if (logLuvEncoding) {
     pixelFormat = logLuvEncoding === 'logl16' ? 'yf32' : 'xyzf32'
+  } else if (photometric === photometricSeparated && baseSampleFormat !== sampleFormatUnsigned) {
+    pixelFormat = 'rgb8'
   } else if (wideUnsigned) {
     if (baseSamples === 1) pixelFormat = baseBitDepth <= 32 ? 'gray32' : 'gray64'
     else pixelFormat = baseBitDepth <= 32 ? 'rgb32' : 'rgb64'
@@ -2927,6 +2935,60 @@ const sampleAt = (
   return packedSample(plane, bitOffset, bitDepth, description.littleEndian)
 }
 
+const halfFloatValue = (bits: number): number => {
+  const sign = (bits & 0x8000) === 0 ? 1 : -1
+  const exponent = (bits >>> 10) & 0x1f
+  const fraction = bits & 0x03ff
+  if (exponent === 0) return sign * 2 ** -14 * (fraction / 1024)
+  if (exponent === 0x1f) return fraction === 0 ? sign * Number.POSITIVE_INFINITY : Number.NaN
+  return sign * 2 ** (exponent - 15) * (1 + fraction / 1024)
+}
+
+const numericSampleAt = (
+  views: readonly DataView[],
+  description: TiffDescription,
+  rowWithinSegment: number,
+  x: number,
+  sample: number,
+): number => {
+  const bitDepth = description.bitsPerSample[sample]
+  if (bitDepth === undefined || (bitDepth & 7) !== 0) {
+    throw invalidInput('TIFF numeric CMYK sample layout is invalid')
+  }
+  const bytesPerSample = bitDepth >>> 3
+  const planeIndex = description.planarConfiguration === 2 ? sample : 0
+  const view = views[planeIndex]
+  let source: number
+  if (description.planarConfiguration === 2) {
+    const rowBytes = description.rowBytes[sample]
+    if (rowBytes === undefined) throw invalidInput('TIFF numeric CMYK row size is missing')
+    source = rowWithinSegment * rowBytes + x * bytesPerSample
+  } else {
+    const rowBytes = description.rowBytes[0]
+    const sampleBitOffset = description.sampleBitOffsets[sample]
+    if (rowBytes === undefined || sampleBitOffset === undefined || (sampleBitOffset & 7) !== 0) {
+      throw invalidInput('TIFF numeric CMYK chunky layout is invalid')
+    }
+    source =
+      rowWithinSegment * rowBytes + x * (description.bitsPerPixel >>> 3) + (sampleBitOffset >>> 3)
+  }
+  if (!view || source < 0 || source + bytesPerSample > view.byteLength) {
+    throw truncatedInput('TIFF numeric CMYK sample is truncated')
+  }
+  const sampleFormat = description.sampleFormats[sample]
+  if (sampleFormat === sampleFormatSigned) {
+    if (bitDepth === 8) return view.getInt8(source)
+    if (bitDepth === 16) return view.getInt16(source, description.littleEndian)
+  } else if (sampleFormat === sampleFormatFloat) {
+    if (bitDepth === 16) {
+      return halfFloatValue(view.getUint16(source, description.littleEndian))
+    }
+    if (bitDepth === 32) return view.getFloat32(source, description.littleEndian)
+    if (bitDepth === 64) return view.getFloat64(source, description.littleEndian)
+  }
+  throw invalidInput('TIFF numeric CMYK sample format is invalid')
+}
+
 const writeRawSample = (
   output: Uint8Array,
   target: number,
@@ -2984,9 +3046,18 @@ const scaleSample = (value: number, bits: number, maximum: 255 | 65_535): number
 const clampByte = (value: number): number => Math.max(0, Math.min(255, Math.round(value)))
 
 const cmykCoverage = (value: number, sample: number, description: TiffDescription): number => {
-  const low = description.cmykDotRange?.[sample * 2] ?? 0
-  const high = description.cmykDotRange?.[sample * 2 + 1] ?? 255
-  return clampByte(((value - low) * 255) / (high - low))
+  if (description.sampleFormats[sample] === sampleFormatUnsigned) {
+    const low = description.cmykDotRange?.[sample * 2] ?? 0
+    const high = description.cmykDotRange?.[sample * 2 + 1] ?? 255
+    return clampByte(((value - low) * 255) / (high - low))
+  }
+  const range = description.displayRanges?.[sample]
+  if (!range) throw invalidInput('TIFF numeric CMYK display range is missing')
+  if (Number.isNaN(value) || value <= range.black) return 0
+  if (value >= range.white) return 255
+  return Math.floor(
+    Math.round(((value - range.black) * 65_535) / (range.white - range.black)) / 257,
+  )
 }
 
 const ycbcrSampleAt = (
@@ -3090,10 +3161,14 @@ class TiffDecoder implements ImageDecoder {
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const region = regionFor(this.#description, request)
     const sourceBitDepth = this.#description.bitsPerSample[0] ?? 8
+    const numericCmyk =
+      this.#description.photometric === photometricSeparated &&
+      this.#description.sampleFormats[0] !== sampleFormatUnsigned
     const rawNumeric =
-      this.#description.logLuvEncoding !== undefined ||
-      this.#description.sampleFormats[0] !== sampleFormatUnsigned ||
-      sourceBitDepth > 16
+      !numericCmyk &&
+      (this.#description.logLuvEncoding !== undefined ||
+        this.#description.sampleFormats[0] !== sampleFormatUnsigned ||
+        sourceBitDepth > 16)
     const output16 =
       this.pixelFormat === 'gray16' || this.pixelFormat === 'rgb16' || this.pixelFormat === 'rgba16'
     const outputMaximum = output16 ? 65_535 : 255
@@ -3351,6 +3426,9 @@ class TiffDecoder implements ImageDecoder {
             }
             continue
           }
+          const numericCmykViews = numericCmyk
+            ? planes.map((plane) => new DataView(plane.buffer, plane.byteOffset, plane.byteLength))
+            : undefined
           for (let localY = 0; localY < rows; localY += 1) {
             const rowWithinSegment = imageY + localY - segmentY
             for (let localX = 0; localX < copyWidth; localX += 1) {
@@ -3396,22 +3474,54 @@ class TiffDecoder implements ImageDecoder {
                 blue = rgb & 0xff
               } else if (this.#description.photometric === photometricSeparated) {
                 const cyan = cmykCoverage(
-                  sampleAt(planes, this.#description, rowWithinSegment, sourceX, 0),
+                  numericCmykViews
+                    ? numericSampleAt(
+                        numericCmykViews,
+                        this.#description,
+                        rowWithinSegment,
+                        sourceX,
+                        0,
+                      )
+                    : sampleAt(planes, this.#description, rowWithinSegment, sourceX, 0),
                   0,
                   this.#description,
                 )
                 const magenta = cmykCoverage(
-                  sampleAt(planes, this.#description, rowWithinSegment, sourceX, 1),
+                  numericCmykViews
+                    ? numericSampleAt(
+                        numericCmykViews,
+                        this.#description,
+                        rowWithinSegment,
+                        sourceX,
+                        1,
+                      )
+                    : sampleAt(planes, this.#description, rowWithinSegment, sourceX, 1),
                   1,
                   this.#description,
                 )
                 const yellow = cmykCoverage(
-                  sampleAt(planes, this.#description, rowWithinSegment, sourceX, 2),
+                  numericCmykViews
+                    ? numericSampleAt(
+                        numericCmykViews,
+                        this.#description,
+                        rowWithinSegment,
+                        sourceX,
+                        2,
+                      )
+                    : sampleAt(planes, this.#description, rowWithinSegment, sourceX, 2),
                   2,
                   this.#description,
                 )
                 const black = cmykCoverage(
-                  sampleAt(planes, this.#description, rowWithinSegment, sourceX, 3),
+                  numericCmykViews
+                    ? numericSampleAt(
+                        numericCmykViews,
+                        this.#description,
+                        rowWithinSegment,
+                        sourceX,
+                        3,
+                      )
+                    : sampleAt(planes, this.#description, rowWithinSegment, sourceX, 3),
                   3,
                   this.#description,
                 )

@@ -1,13 +1,9 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-10T12:13:32.282Z",
+  "generatedAt": "2026-08-10T12:36:37.345Z",
   "sourceReport": "imazen-tiff-conformance.json",
-  "unsupportedFiles": 6,
+  "unsupportedFiles": 3,
   "dependencyCounts": [
-    {
-      "dependency": "color-depth:32,32,32,32",
-      "count": 1
-    },
     {
       "dependency": "compression:32809",
       "count": 1
@@ -18,7 +14,7 @@
     },
     {
       "dependency": "display-range-unspecified",
-      "count": 3
+      "count": 2
     },
     {
       "dependency": "extra-samples:0,0,0,0",
@@ -33,15 +29,7 @@
       "count": 1
     },
     {
-      "dependency": "sample-format:2,2,2,2",
-      "count": 1
-    },
-    {
       "dependency": "sample-format:2,2,2,2,2",
-      "count": 1
-    },
-    {
-      "dependency": "sample-format:3,3,3,3",
       "count": 1
     },
     {
@@ -49,8 +37,8 @@
       "count": 1
     }
   ],
-  "currentPass": 144,
-  "projectedPass": 144,
+  "currentPass": 147,
+  "projectedPass": 147,
   "implementationWaves": [
     {
       "id": "A",
@@ -65,7 +53,7 @@
       ],
       "visibleFiles": 0,
       "files": [],
-      "projectedPassAfterWave": 144
+      "projectedPassAfterWave": 147
     },
     {
       "id": "B",
@@ -77,7 +65,7 @@
       ],
       "visibleFiles": 0,
       "files": [],
-      "projectedPassAfterWave": 144
+      "projectedPassAfterWave": 147
     },
     {
       "id": "C",
@@ -87,7 +75,7 @@
       ],
       "visibleFiles": 0,
       "files": [],
-      "projectedPassAfterWave": 144
+      "projectedPassAfterWave": 147
     },
     {
       "id": "D",
@@ -97,7 +85,7 @@
       ],
       "visibleFiles": 0,
       "files": [],
-      "projectedPassAfterWave": 144
+      "projectedPassAfterWave": 147
     }
   ],
   "files": [
@@ -165,117 +153,6 @@
         "sample-format:2,2,2,2,2",
         "samples-per-pixel:5"
       ]
-    },
-    {
-      "file": "tiff-conformance/valid/cmyk-3c-32b-float.tiff",
-      "byteOrder": "II",
-      "bigTiff": false,
-      "width": [
-        20
-      ],
-      "height": [
-        20
-      ],
-      "bitsPerSample": [
-        32,
-        32,
-        32,
-        32
-      ],
-      "sampleFormat": [
-        3,
-        3,
-        3,
-        3
-      ],
-      "samplesPerPixel": [
-        4
-      ],
-      "extraSamples": [],
-      "photometric": [
-        5
-      ],
-      "compression": [
-        1
-      ],
-      "predictor": [],
-      "planarConfiguration": [
-        1
-      ],
-      "fillOrder": [
-        1
-      ],
-      "rowsPerStrip": [
-        20
-      ],
-      "stripOffsets": 1,
-      "tileWidth": [],
-      "tileLength": [],
-      "tileOffsets": 0,
-      "subIfds": 0,
-      "hasIccProfile": false,
-      "iccProfileBytes": 0,
-      "sMinSampleValue": [
-        0,
-        0,
-        0,
-        0
-      ],
-      "sMaxSampleValue": [
-        1,
-        1,
-        1,
-        1
-      ],
-      "jpegTablesBytes": 0,
-      "dependencies": [
-        "color-depth:32,32,32,32",
-        "sample-format:3,3,3,3"
-      ]
-    },
-    {
-      "file": "tiff-conformance/valid/flower-palette-16.tif",
-      "byteOrder": "MM",
-      "bigTiff": false,
-      "width": [
-        73
-      ],
-      "height": [
-        43
-      ],
-      "bitsPerSample": [
-        16
-      ],
-      "sampleFormat": [],
-      "samplesPerPixel": [
-        1
-      ],
-      "extraSamples": [],
-      "photometric": [
-        3
-      ],
-      "compression": [
-        1
-      ],
-      "predictor": [],
-      "planarConfiguration": [
-        1
-      ],
-      "fillOrder": [],
-      "rowsPerStrip": [
-        56
-      ],
-      "stripOffsets": 1,
-      "tileWidth": [],
-      "tileLength": [],
-      "tileOffsets": 0,
-      "subIfds": 0,
-      "hasIccProfile": false,
-      "iccProfileBytes": 0,
-      "sMinSampleValue": [],
-      "sMaxSampleValue": [],
-      "jpegTablesBytes": 0,
-      "dependencies": []
     },
     {
       "file": "tiff-conformance/valid/int16_zstd.tif",
@@ -375,67 +252,6 @@
       "jpegTablesBytes": 0,
       "dependencies": [
         "compression:32809"
-      ]
-    },
-    {
-      "file": "tiff-conformance/valid/tiled-cmyk-i8.tif",
-      "byteOrder": "II",
-      "bigTiff": false,
-      "width": [
-        490
-      ],
-      "height": [
-        367
-      ],
-      "bitsPerSample": [
-        8,
-        8,
-        8,
-        8
-      ],
-      "sampleFormat": [
-        2,
-        2,
-        2,
-        2
-      ],
-      "samplesPerPixel": [
-        4
-      ],
-      "extraSamples": [],
-      "photometric": [
-        5
-      ],
-      "compression": [
-        5
-      ],
-      "predictor": [
-        2
-      ],
-      "planarConfiguration": [
-        1
-      ],
-      "fillOrder": [
-        1
-      ],
-      "rowsPerStrip": [],
-      "stripOffsets": 0,
-      "tileWidth": [
-        32
-      ],
-      "tileLength": [
-        32
-      ],
-      "tileOffsets": 192,
-      "subIfds": 0,
-      "hasIccProfile": false,
-      "iccProfileBytes": 0,
-      "sMinSampleValue": [],
-      "sMaxSampleValue": [],
-      "jpegTablesBytes": 0,
-      "dependencies": [
-        "display-range-unspecified",
-        "sample-format:2,2,2,2"
       ]
     }
   ]
