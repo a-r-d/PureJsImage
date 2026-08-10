@@ -301,6 +301,35 @@ const signedPayload = (
   return output
 }
 
+const unsignedPayload = (
+  values: readonly bigint[],
+  bitDepth: 24 | 32 | 64,
+  littleEndian: boolean,
+): Uint8Array => {
+  const bytesPerSample = bitDepth >>> 3
+  const output = new Uint8Array(values.length * bytesPerSample)
+  for (let index = 0; index < values.length; index += 1) {
+    const value = values[index] ?? 0n
+    const offset = index * bytesPerSample
+    for (let byte = 0; byte < bytesPerSample; byte += 1) {
+      const shift = BigInt(littleEndian ? byte : bytesPerSample - byte - 1) * 8n
+      output[offset + byte] = Number((value >> shift) & 0xffn)
+    }
+  }
+  return output
+}
+
+const widePredictorDifferences = (
+  values: readonly bigint[],
+  stride: number,
+  bitDepth: 24 | 32 | 64,
+): readonly bigint[] => {
+  const mask = (1n << BigInt(bitDepth)) - 1n
+  return values.map((value, index) =>
+    index < stride ? value : (value - (values[index - stride] ?? 0n)) & mask,
+  )
+}
+
 const floatPayload = (
   values: readonly number[],
   bitDepth: 32 | 64,
@@ -1018,6 +1047,131 @@ describe('TIFF codec', () => {
     expect(pixel(decoded, 0, 0)).toEqual([0, 0, 0, 255])
     expect(pixel(decoded, 1, 0)).toEqual([129, 129, 129, 255])
     expect(pixel(decoded, 2, 0)).toEqual([255, 255, 255, 255])
+  })
+
+  it('preserves unsigned 24-bit and 32-bit RGB with native Predictor 2 reversal', async () => {
+    for (const bitDepth of [24, 32] as const) {
+      const maximum = (1n << BigInt(bitDepth)) - 1n
+      const values = [0n, maximum >> 1n, maximum, maximum, 0n, maximum >> 2n] as const
+      const differences = widePredictorDifferences(values, 3, bitDepth)
+      for (const littleEndian of [true, false]) {
+        const input = tiffFixture({
+          width: 2,
+          height: 1,
+          littleEndian,
+          bitsPerSample: [bitDepth, bitDepth, bitDepth],
+          compression: 1,
+          photometric: 2,
+          predictor: 2,
+          strips: [unsignedPayload(differences, bitDepth, littleEndian)],
+        })
+        const raw = await decodeDirect(input)
+        expect(raw.format).toBe('rgb32')
+        expect(raw.data).toEqual(unsignedPayload(values, 32, false))
+        expect(raw.displayRanges).toEqual([
+          { black: 0, white: Number(maximum) },
+          { black: 0, white: Number(maximum) },
+          { black: 0, white: Number(maximum) },
+        ])
+        const pixels = await decodedPng(input)
+        expect(pixel(pixels, 0, 0)).toEqual([0, 127, 255, 255])
+        expect(pixel(pixels, 1, 0)).toEqual([255, 0, 63, 255])
+      }
+    }
+  })
+
+  it('preserves planar 32-bit RGB and padded-edge tiled 24-bit grayscale', async () => {
+    const maximum32 = 0xffff_ffffn
+    const planes = [
+      [0n, maximum32],
+      [maximum32 >> 1n, maximum32 >> 2n],
+      [maximum32, 0n],
+    ] as const
+    const planar = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [32, 32, 32],
+      compression: 1,
+      photometric: 2,
+      planarConfiguration: 2,
+      predictor: 2,
+      strips: planes.map((values) =>
+        unsignedPayload(widePredictorDifferences(values, 1, 32), 32, true),
+      ),
+    })
+    const planarRaw = await decodeDirect(planar)
+    expect(planarRaw.format).toBe('rgb32')
+    expect(planarRaw.data).toEqual(
+      unsignedPayload(
+        [planes[0][0], planes[1][0], planes[2][0], planes[0][1], planes[1][1], planes[2][1]],
+        32,
+        false,
+      ),
+    )
+
+    const maximum24 = 0xff_ffffn
+    const tiled = tiffFixture({
+      width: 2,
+      height: 1,
+      littleEndian: false,
+      bitsPerSample: [24],
+      compression: 1,
+      photometric: 0,
+      tileWidth: 3,
+      tileHeight: 1,
+      strips: [unsignedPayload([0n, maximum24, 123n], 24, false)],
+    })
+    const tileRaw = await decodeDirect(tiled)
+    expect(tileRaw.format).toBe('gray32')
+    expect(tileRaw.data).toEqual(unsignedPayload([0n, maximum24], 32, false))
+    const tilePixels = await decodedPng(tiled)
+    expect(pixel(tilePixels, 0, 0)).toEqual([255, 255, 255, 255])
+    expect(pixel(tilePixels, 1, 0)).toEqual([0, 0, 0, 255])
+  })
+
+  it('preserves exact unsigned 64-bit RGB values without BigInt pixel arithmetic', async () => {
+    const maximum = 0xffff_ffff_ffff_ffffn
+    const values = [
+      0n,
+      0x8000_0000_0000_0000n,
+      maximum,
+      maximum,
+      0x0020_0000_0000_0001n,
+      0x4000_0000_0000_0000n,
+    ] as const
+    const differences = widePredictorDifferences(values, 3, 64)
+    for (const littleEndian of [true, false]) {
+      const input = tiffFixture({
+        width: 2,
+        height: 1,
+        littleEndian,
+        bitsPerSample: [64, 64, 64],
+        compression: 1,
+        photometric: 2,
+        predictor: 2,
+        strips: [unsignedPayload(differences, 64, littleEndian)],
+      })
+      const raw = await decodeDirect(input)
+      expect(raw.format).toBe('rgb64')
+      expect(raw.data).toEqual(unsignedPayload(values, 64, false))
+      const pixels = await decodedPng(input)
+      expect(pixel(pixels, 0, 0)).toEqual([0, 127, 255, 255])
+      expect(pixel(pixels, 1, 0)).toEqual([255, 0, 63, 255])
+    }
+  })
+
+  it('rejects truncated wide unsigned rows before pixel emission', async () => {
+    const input = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [64],
+      compression: 1,
+      photometric: 1,
+      strips: [new Uint8Array(15)],
+    })
+    await expect(Image.open(input).then((image) => image.png().toBuffer())).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
   })
 
   it('preserves signed integer samples and converts declared display ranges', async () => {

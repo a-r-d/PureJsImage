@@ -3,6 +3,8 @@ import { invalidInput } from './errors.ts'
 export type PixelFormat =
   | 'gray8'
   | 'gray16'
+  | 'gray32'
+  | 'gray64'
   | 'grayi8'
   | 'grayi16'
   | 'grayf16'
@@ -12,6 +14,8 @@ export type PixelFormat =
   | 'rgba8'
   | 'rgb16'
   | 'rgba16'
+  | 'rgb32'
+  | 'rgb64'
   | 'rgbi8'
   | 'rgbi16'
   | 'rgbf16'
@@ -62,6 +66,8 @@ export const resumePixelBlocks = async function* (
 const normalizedFormat = (format: PixelFormat): PixelFormat => {
   if (
     format === 'gray16' ||
+    format === 'gray32' ||
+    format === 'gray64' ||
     format === 'grayi8' ||
     format === 'grayi16' ||
     format === 'grayf16' ||
@@ -72,6 +78,8 @@ const normalizedFormat = (format: PixelFormat): PixelFormat => {
   }
   if (
     format === 'rgb16' ||
+    format === 'rgb32' ||
+    format === 'rgb64' ||
     format === 'rgbi8' ||
     format === 'rgbi16' ||
     format === 'rgbf16' ||
@@ -107,6 +115,21 @@ const numericFormat = (format: PixelFormat): NumericFormat | undefined => {
       channels: format === 'gray16' ? 1 : format === 'rgb16' ? 3 : 4,
       bytesPerSample: 2,
       read: (data, _view, offset) => ((data[offset] ?? 0) << 8) | (data[offset + 1] ?? 0),
+    }
+  }
+  if (format === 'gray32' || format === 'rgb32') {
+    return {
+      channels: format === 'gray32' ? 1 : 3,
+      bytesPerSample: 4,
+      read: (_data, view, offset) => view.getUint32(offset, false),
+    }
+  }
+  if (format === 'gray64' || format === 'rgb64') {
+    return {
+      channels: format === 'gray64' ? 1 : 3,
+      bytesPerSample: 8,
+      read: (_data, view, offset) =>
+        view.getUint32(offset, false) * 4_294_967_296 + view.getUint32(offset + 4, false),
     }
   }
   const channels = format.startsWith('gray') ? 1 : format.startsWith('rgb') ? 3 : undefined
@@ -152,6 +175,12 @@ const numericFormat = (format: PixelFormat): NumericFormat | undefined => {
 }
 
 const defaultDisplayRange = (format: PixelFormat): PixelSampleDisplayRange => {
+  if (format === 'gray32' || format === 'rgb32') {
+    return { black: 0, white: 4_294_967_295 }
+  }
+  if (format === 'gray64' || format === 'rgb64') {
+    return { black: 0, white: 2 ** 64 }
+  }
   if (format === 'grayi8' || format === 'rgbi8') return { black: -128, white: 127 }
   if (format === 'grayi16' || format === 'rgbi16') return { black: -32_768, white: 32_767 }
   if (
@@ -167,12 +196,20 @@ const defaultDisplayRange = (format: PixelFormat): PixelSampleDisplayRange => {
   return { black: 0, white: 65_535 }
 }
 
-const displayByte = (value: number, range: PixelSampleDisplayRange, nearest: boolean): number => {
+type DisplayRounding = 'nearest' | 'quantum' | 'floor'
+
+const displayByte = (
+  value: number,
+  range: PixelSampleDisplayRange,
+  rounding: DisplayRounding,
+): number => {
   if (Number.isNaN(value)) return 0
   const scaled = (value - range.black) / (range.white - range.black)
   if (scaled <= 0) return 0
   if (scaled >= 1) return 255
-  return nearest ? Math.round(scaled * 255) : Math.floor(Math.round(scaled * 65_535) / 257)
+  if (rounding === 'nearest') return Math.round(scaled * 255)
+  if (rounding === 'floor') return Math.floor(scaled * 255)
+  return Math.floor(Math.round(scaled * 65_535) / 257)
 }
 
 export const normalizePixelBlocks = async function* (
@@ -189,7 +226,12 @@ export const normalizePixelBlocks = async function* (
   const sourceRowBytes = (width: number): number =>
     width * numeric.channels * numeric.bytesPerSample
   const fallbackRange = defaultDisplayRange(format)
-  const nearest = format === 'gray16' || format === 'rgb16' || format === 'rgba16'
+  const rounding: DisplayRounding =
+    format === 'gray16' || format === 'rgb16' || format === 'rgba16'
+      ? 'nearest'
+      : format === 'gray32' || format === 'gray64' || format === 'rgb32' || format === 'rgb64'
+        ? 'floor'
+        : 'quantum'
   for await (const block of blocks) {
     const rowBytes = sourceRowBytes(block.width)
     if (
@@ -219,7 +261,7 @@ export const normalizePixelBlocks = async function* (
       let channel = 0
       while (source < end) {
         const range = block.displayRanges?.[channel] ?? fallbackRange
-        output[target] = displayByte(numeric.read(block.data, sourceView, source), range, nearest)
+        output[target] = displayByte(numeric.read(block.data, sourceView, source), range, rounding)
         source += numeric.bytesPerSample
         target += 1
         channel = (channel + 1) % numeric.channels

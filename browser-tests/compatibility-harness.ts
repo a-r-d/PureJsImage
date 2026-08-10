@@ -913,6 +913,55 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
     )
   }
 
+  const wide64Samples = Uint8Array.of(
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0x80,
+    0xff,
+    0xff,
+    0xff,
+    0xff,
+    0xff,
+    0xff,
+    0xff,
+    0xff,
+  )
+  const wide64 = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [3] },
+      { tag: 257, type: 4, values: [1] },
+      { tag: 258, type: 3, values: [64] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [1] },
+      { tag: 273, type: 4, values: offsets },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 278, type: 4, values: [1] },
+      { tag: 279, type: 4, values: [wide64Samples.byteLength] },
+      { tag: 284, type: 3, values: [1] },
+    ],
+    [wide64Samples],
+  )
+  const wide64Output = await (await images.open(wide64)).png().toUint8Array()
+  const wide64Pixels = await browserPixels(wide64Output, 'image/png')
+  if (wide64Pixels[0] !== 0 || wide64Pixels[4] !== 127 || wide64Pixels[8] !== 255) {
+    throw new Error(
+      `Unsigned 64-bit TIFF display conversion changed in the browser: ${wide64Pixels[0]},${wide64Pixels[4]},${wide64Pixels[8]}`,
+    )
+  }
+
   const embeddedWebp = await (await images.open(legacyOutput))
     .webp({ lossless: true })
     .toUint8Array()
@@ -977,9 +1026,10 @@ const legacyTiffAndBmp = async (): Promise<BrowserWorkflowResult> => {
 
   return {
     detail:
-      'legacy TIFF LZW, packed 12-bit TIFF, signed and float TIFF, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
+      'legacy TIFF LZW, packed 12-bit TIFF, signed, float, and wide unsigned TIFF, explicit WebP-in-TIFF, tile aliases, no-EOL Group 3, padded YCbCr LZW, BigTIFF inline values, and odd-width BMP RLE4 decoded exactly',
     outputBytes:
       legacyOutput.byteLength +
+      wide64Output.byteLength +
       packedOutput.byteLength +
       webpTiffOutput.byteLength +
       signedOutput.byteLength +

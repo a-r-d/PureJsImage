@@ -88,7 +88,7 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "ImageMagick 7.1.2 with LibTIFF 4.7 and libwebp",
-        "tolerance": "Packed, floating-point display, CMYK-alpha, and lossless WebP paths are exact against the independent oracle; signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
+        "tolerance": "Packed, unsigned 24-/32-bit display, floating-point display, CMYK-alpha, and lossless WebP paths are exact against the independent oracle; unsigned 64-bit and signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
         "evidence": [
           "tests/tiff.test.ts",
           "tests/lossy-codec-quality.test.ts",

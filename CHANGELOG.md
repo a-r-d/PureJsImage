@@ -18,6 +18,10 @@ All notable changes to PureJsImage are documented in this file.
 - Added TIFF signed 8-/16-bit and IEEE float16/float32/float64 grayscale and RGB decoding with
   native-precision raw pixel blocks, deterministic display ranges, bounded Predictor 2 and
   floating Predictor 3 reversal, and browser-compatible display conversion.
+- Added unsigned 24-/32-/64-bit TIFF grayscale and RGB decoding with canonical `gray32`,
+  `rgb32`, `gray64`, and `rgb64` raw blocks, exact values above JavaScript's safe-integer range,
+  bounded wide Predictor 2 reversal, and deterministic display conversion without an 8-/16-bit
+  raw intermediate or per-pixel BigInt arithmetic.
 
 ## [0.8.0] - 2026-08-09
 

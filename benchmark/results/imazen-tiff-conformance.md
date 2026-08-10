@@ -6,8 +6,8 @@ This baseline validates complete decode, in-memory PNG encode, PNG reopen, dimen
 
 | Outcome | Count |
 | --- | ---: |
-| pass | 130 |
-| unsupported | 20 |
+| pass | 140 |
+| unsupported | 10 |
 | decode-failure | 0 |
 | invalid-output | 0 |
 | rejected-safely | 4 |
@@ -36,12 +36,12 @@ This baseline validates complete decode, in-memory PNG encode, PNG reopen, dimen
 | valid/compression-webp | 1 | pass: 1 |
 | valid/compression-zstd | 1 | unsupported: 1 |
 | valid/floating-point | 9 | pass: 8, unsupported: 1 |
-| valid/general | 63 | pass: 53, unsupported: 10 |
+| valid/general | 63 | pass: 61, unsupported: 2 |
 | valid/photometric-cmyk | 8 | pass: 7, unsupported: 1 |
 | valid/photometric-logluv | 3 | unsupported: 3 |
 | valid/photometric-palette | 7 | pass: 6, unsupported: 1 |
 | valid/photometric-ycbcr | 1 | pass: 1 |
-| valid/planar | 10 | pass: 8, unsupported: 2 |
+| valid/planar | 10 | pass: 10 |
 | valid/predictor | 6 | pass: 6 |
 | valid/tiled | 6 | pass: 6 |
 
@@ -53,7 +53,7 @@ None.
 
 | Error code | Count | Files |
 | --- | ---: | --- |
-| UNSUPPORTED_OPERATION | 20 | `tiff-conformance/edge-cases/geo-5b.tif`<br>`tiff-conformance/valid/cmyk-3c-32b-float.tiff`<br>`tiff-conformance/valid/flower-minisblack-24.tif`<br>`tiff-conformance/valid/flower-minisblack-32.tif`<br>`tiff-conformance/valid/flower-palette-16.tif`<br>`tiff-conformance/valid/flower-rgb-contig-24.tif`<br>`tiff-conformance/valid/flower-rgb-contig-32.tif`<br>`tiff-conformance/valid/flower-rgb-planar-24.tif`<br>`tiff-conformance/valid/flower-rgb-planar-32.tif`<br>`tiff-conformance/valid/gradient-1c-32b.tiff`<br>`tiff-conformance/valid/gradient-1c-64b.tiff`<br>`tiff-conformance/valid/gradient-3c-32b.tiff`<br>`tiff-conformance/valid/gradient-3c-64b.tiff`<br>`tiff-conformance/valid/int16_zstd.tif`<br>`tiff-conformance/valid/logluv-3c-16b.tiff`<br>`tiff-conformance/valid/off_l16.tif`<br>`tiff-conformance/valid/off_luv24.tif`<br>`tiff-conformance/valid/off_luv32.tif`<br>`tiff-conformance/valid/text.tif`<br>`tiff-conformance/valid/tiled-cmyk-i8.tif` |
+| UNSUPPORTED_OPERATION | 10 | `tiff-conformance/edge-cases/geo-5b.tif`<br>`tiff-conformance/valid/cmyk-3c-32b-float.tiff`<br>`tiff-conformance/valid/flower-palette-16.tif`<br>`tiff-conformance/valid/int16_zstd.tif`<br>`tiff-conformance/valid/logluv-3c-16b.tiff`<br>`tiff-conformance/valid/off_l16.tif`<br>`tiff-conformance/valid/off_luv24.tif`<br>`tiff-conformance/valid/off_luv32.tif`<br>`tiff-conformance/valid/text.tif`<br>`tiff-conformance/valid/tiled-cmyk-i8.tif` |
 
 ## Decode failures by likely root cause
 
@@ -61,11 +61,11 @@ None.
 
 ## Reproduction
 
-- PureJsImage commit: `06a4a26f20bb72551881fe81b083c452d8123912-dirty`
+- PureJsImage commit: `c6c957c6045da954c3a74d63c6f1736b8188b184-dirty`
 - codec-corpus commit: `28205bbc5cf40364d012c462240ba28143373d67`
 - Node/platform: `v24.16.0` on `linux-x64`
 - Command: `npm run corpus:imazen -- --corpus ../codec-corpus --format tiff --output benchmark/results --timeout-ms 30000 --memory-mb 512 --concurrency 2`
 
 ## Prioritized punch list
 
-1. Confirm the public unsupported boundary for 20 valid input(s) before considering feature work.
+1. Confirm the public unsupported boundary for 10 valid input(s) before considering feature work.

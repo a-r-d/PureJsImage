@@ -22,9 +22,9 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 
 ### Pixel formats
 
-- [x] 1-, 2-, 4-, 6-, 8-, 10-, 12-, 14-, and 16-bit grayscale (`WhiteIsZero` and `BlackIsZero`)
+- [x] 1-, 2-, 4-, 6-, 8-, 10-, 12-, 14-, 16-, 24-, 32-, and 64-bit grayscale (`WhiteIsZero` and `BlackIsZero`)
 - [x] 1-, 2-, 4-, and 8-bit indexed color with a TIFF color map
-- [x] 2-, 4-, 8-, 10-, 12-, 14-, and 16-bit RGB
+- [x] 2-, 4-, 8-, 10-, 12-, 14-, 16-, 24-, 32-, and 64-bit RGB
 - [x] 8-bit grayscale plus alpha
 - [x] 8-bit RGBA
 - [x] Associated and unassociated alpha samples
@@ -32,10 +32,11 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Four-component CMYK / `Separated`, including `DotRange`
 - [x] Five-sample CMYK plus associated or unassociated alpha
 - [x] Chunky subsampled YCbCr and planar 1x1 YCbCr
-- [x] RGB, indexed, and JPEG-backed ICC-profile color conversion
+- [x] 8-/16-bit RGB, indexed, and JPEG-backed ICC-profile color conversion
 - [x] Signed 8- and 16-bit grayscale and RGB with raw numeric preservation
 - [x] IEEE float16, float32, and float64 grayscale and RGB with raw numeric preservation
-- [x] Deterministic display conversion using `SMinSampleValue` / `SMaxSampleValue` or documented full-type defaults
+- [x] Unsigned 24-/32-bit samples preserved in `gray32` / `rgb32` blocks and unsigned 64-bit samples preserved in `gray64` / `rgb64` blocks
+- [x] Deterministic display conversion using `SMinSampleValue` / `SMaxSampleValue` or documented full-type defaults without an 8-/16-bit raw intermediate
 - [ ] CIELab, CMYK ICC-profile conversion, and signed/floating-point CMYK
 
 ### Compression and prediction
@@ -46,7 +47,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Deflate / Adobe Deflate
 - [x] CCITT Group 4 (`T6`) bilevel fax, including multi-strip and `FillOrder=2` input
 - [x] CCITT Modified Huffman and Group 3 (`T4`) fax, including mixed 1D/2D rows and legacy 1D rows without EOL markers
-- [x] Horizontal differencing predictor for uniform 2-, 4-, 6-, 8-, 10-, 12-, 14-, 16-, 32-, and 64-bit integer or floating-point samples
+- [x] Horizontal differencing predictor for uniform 2-, 4-, 6-, 8-, 10-, 12-, 14-, 16-, 24-, 32-, and 64-bit integer or floating-point samples
 - [x] Floating-point predictor 3 byte unshuffle and accumulation for float16, float32, and float64 samples
 - [x] JPEG-in-TIFF (`Compression=7`) complete and abbreviated streams with `JPEGTables`
 - [x] Old-style JPEG (`Compression=6`) complete interchange streams, multi-strip scans, omitted `RowsPerStrip`, and baseline Q/DC/AC table reconstruction
@@ -56,23 +57,24 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 
 ## Decode roadmap
 
-The 154-file Imazen baseline currently has no decode failures: 130 inputs pass, 20 reach structured `UNSUPPORTED_OPERATION` boundaries, and 4 robustness inputs are rejected safely. The TIFF conformance worker explicitly composes WebP; the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.
+The 154-file Imazen baseline currently has no decode failures: 140 inputs pass, 10 reach structured `UNSUPPORTED_OPERATION` boundaries, and 4 robustness inputs are rejected safely. The TIFF conformance worker explicitly composes WebP; the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.
 
 ### Next recommended capability
 
-- [ ] Define raw preservation or explicit display conversion semantics for unsigned 24-, 32-, and 64-bit samples
-- [ ] Add wide unsigned pixel formats without routing values through 16-bit intermediates
-- [ ] Keep wide predictor reversal bounded to strip or tile buffers
+- [ ] Define the output color space, clipping, and raw preservation contract for LogLuv / SGILog samples
+- [ ] Implement SGILog and SGILog24 decompression with bounded segment output
+- [ ] Reconstruct logarithmic luminance and signed chroma with independent colorimetric validation
 
-Signed integer and IEEE floating-point samples now use explicit raw numeric pixel formats with per-channel display ranges. Generic scientific bands and signed/floating-point CMYK remain structured unsupported until their public color semantics are defined.
+Unsigned 24-, 32-, and 64-bit samples now use explicit canonical raw numeric pixel formats. Values above JavaScript's exact integer range remain exact in `gray64` / `rgb64` block bytes; display conversion uses high/low 32-bit arithmetic and never performs per-pixel BigInt operations.
 
 ### Follow-on priorities
 
-1. Add wide unsigned 24-, 32-, and 64-bit samples only after their raw/display pixel contract is defined.
+1. Treat LogLuv/SGILog as a separate scientific color project with explicit XYZ/Luv semantics.
 2. Add SubIFD traversal, explicit frame selection, and reduced-resolution pyramid selection with cycle detection.
-3. Keep generic five-band data unsupported until the public API has explicit band-selection semantics.
-4. Treat LogLuv/SGILog and Zstandard as separate scientific and compression projects.
-5. Keep ThunderScan unsupported: the only current corpus fixture is truncated by three rows and LibTIFF independently rejects it.
+3. Add 16-bit palette decode with exact ColorMap validation.
+4. Keep generic five-band and signed/floating-point CMYK data unsupported until their public color semantics are defined.
+5. Treat Zstandard as a separate first-party compression project.
+6. Keep ThunderScan unsupported: the current corpus fixture is truncated by three rows and LibTIFF independently rejects it.
 
 ## Encode
 
@@ -110,6 +112,7 @@ Signed integer and IEEE floating-point samples now use explicit raw numeric pixe
 - [x] Verify explicitly composed lossy WebP-in-TIFF against the independently validated WebP decoder contract
 - [x] Verify float16, float32, float64, and floating Predictor 3 display output exactly against ImageMagick/LibTIFF
 - [x] Verify signed integer and IEEE floating-point raw values at native precision in both byte orders
+- [x] Verify unsigned 24-/32-bit display output exactly against ImageMagick/LibTIFF and unsigned 64-bit raw values exactly above JavaScript's safe-integer range
 - [x] Verify CCITT Group 4 output against independently encoded ImageMagick/LibTIFF fixtures
 - [x] Verify tiled LZW and BigTIFF output against independently encoded ImageMagick/LibTIFF fixtures
 - [x] Complete the 154-file Imazen TIFF corpus decode-to-PNG baseline with every

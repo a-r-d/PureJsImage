@@ -1606,10 +1606,10 @@
         "status": "limited",
         "label": "Limited"
       },
-      "boundary": "Broad strip/tile decode including packed unsigned, signed integer, and IEEE floating-point samples plus explicitly composed WebP segments; no wide unsigned, scientific multiband, signed/float CMYK, or compressed TIFF encoding",
-      "description": "Decodes Classic TIFF and BigTIFF strips or tiles across common grayscale, indexed, RGB, CMYK, YCbCr, alpha, packed unsigned, signed integer, and IEEE floating-point layouts with common compressions. Signed and floating-point samples are preserved in typed numeric pixel blocks and normalized deterministically for display conversion. WebP-in-TIFF is available only through explicit codec composition. Encodes uncompressed grayscale, RGB, or RGBA output and can retain a compatible ICC profile.",
-      "memory": "Strip or tile region decode; numeric predictor reversal, output, and embedded WebP pixels are bounded to the current segment and emitted in bounded rows",
-      "recommendation": "Broad display-image input compatibility, raw signed/float sample preservation, and simple uncompressed TIFF output.",
+      "boundary": "Broad strip/tile decode including packed and wide unsigned, signed integer, and IEEE floating-point samples plus explicitly composed WebP segments; no scientific multiband, signed/float CMYK, LogLuv, or compressed TIFF encoding",
+      "description": "Decodes Classic TIFF and BigTIFF strips or tiles across common grayscale, indexed, RGB, CMYK, YCbCr, alpha, packed unsigned, wide unsigned, signed integer, and IEEE floating-point layouts with common compressions. Unsigned 24-, 32-, and 64-bit samples are preserved in canonical 32- or 64-bit numeric pixel blocks and normalized deterministically without a 16-bit intermediate. WebP-in-TIFF is available only through explicit codec composition. Encodes uncompressed grayscale, RGB, or RGBA output and can retain a compatible ICC profile.",
+      "memory": "Strip or tile region decode; wide numeric predictor reversal, output, and embedded WebP pixels are bounded to the current segment and emitted in bounded rows",
+      "recommendation": "Broad display-image input compatibility, raw wide/signed/float sample preservation, and simple uncompressed TIFF output.",
       "evidence": [
         "tests/tiff.test.ts",
         "browser-tests/compatibility.pw.ts",
@@ -1619,7 +1619,7 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "ImageMagick 7.1.2 with LibTIFF 4.7 and libwebp",
-        "tolerance": "Packed, floating-point display, CMYK-alpha, and lossless WebP paths are exact against the independent oracle; signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
+        "tolerance": "Packed, unsigned 24-/32-bit display, floating-point display, CMYK-alpha, and lossless WebP paths are exact against the independent oracle; unsigned 64-bit and signed samples are exact at native precision in pinned fixtures; explicitly composed lossy WebP inherits the WebP codec's independently validated PSNR threshold",
         "evidence": [
           "tests/tiff.test.ts",
           "tests/lossy-codec-quality.test.ts",
@@ -1677,7 +1677,7 @@
         },
         {
           "status": "supported",
-          "text": "1-, 2-, 4-, 6-, 8-, 10-, 12-, 14-, and 16-bit grayscale (`WhiteIsZero` and `BlackIsZero`)"
+          "text": "1-, 2-, 4-, 6-, 8-, 10-, 12-, 14-, 16-, 24-, 32-, and 64-bit grayscale (`WhiteIsZero` and `BlackIsZero`)"
         },
         {
           "status": "supported",
@@ -1685,7 +1685,7 @@
         },
         {
           "status": "supported",
-          "text": "2-, 4-, 8-, 10-, 12-, 14-, and 16-bit RGB"
+          "text": "2-, 4-, 8-, 10-, 12-, 14-, 16-, 24-, 32-, and 64-bit RGB"
         },
         {
           "status": "supported",
@@ -1717,7 +1717,7 @@
         },
         {
           "status": "supported",
-          "text": "RGB, indexed, and JPEG-backed ICC-profile color conversion"
+          "text": "8-/16-bit RGB, indexed, and JPEG-backed ICC-profile color conversion"
         },
         {
           "status": "supported",
@@ -1729,7 +1729,11 @@
         },
         {
           "status": "supported",
-          "text": "Deterministic display conversion using `SMinSampleValue` / `SMaxSampleValue` or documented full-type defaults"
+          "text": "Unsigned 24-/32-bit samples preserved in `gray32` / `rgb32` blocks and unsigned 64-bit samples preserved in `gray64` / `rgb64` blocks"
+        },
+        {
+          "status": "supported",
+          "text": "Deterministic display conversion using `SMinSampleValue` / `SMaxSampleValue` or documented full-type defaults without an 8-/16-bit raw intermediate"
         },
         {
           "status": "planned",
@@ -1761,7 +1765,7 @@
         },
         {
           "status": "supported",
-          "text": "Horizontal differencing predictor for uniform 2-, 4-, 6-, 8-, 10-, 12-, 14-, 16-, 32-, and 64-bit integer or floating-point samples"
+          "text": "Horizontal differencing predictor for uniform 2-, 4-, 6-, 8-, 10-, 12-, 14-, 16-, 24-, 32-, and 64-bit integer or floating-point samples"
         },
         {
           "status": "supported",
@@ -1789,15 +1793,15 @@
         },
         {
           "status": "planned",
-          "text": "Define raw preservation or explicit display conversion semantics for unsigned 24-, 32-, and 64-bit samples"
+          "text": "Define the output color space, clipping, and raw preservation contract for LogLuv / SGILog samples"
         },
         {
           "status": "planned",
-          "text": "Add wide unsigned pixel formats without routing values through 16-bit intermediates"
+          "text": "Implement SGILog and SGILog24 decompression with bounded segment output"
         },
         {
           "status": "planned",
-          "text": "Keep wide predictor reversal bounded to strip or tile buffers"
+          "text": "Reconstruct logarithmic luminance and signed chroma with independent colorimetric validation"
         },
         {
           "status": "supported",
@@ -1902,6 +1906,10 @@
         {
           "status": "supported",
           "text": "Verify signed integer and IEEE floating-point raw values at native precision in both byte orders"
+        },
+        {
+          "status": "supported",
+          "text": "Verify unsigned 24-/32-bit display output exactly against ImageMagick/LibTIFF and unsigned 64-bit raw values exactly above JavaScript's safe-integer range"
         },
         {
           "status": "supported",

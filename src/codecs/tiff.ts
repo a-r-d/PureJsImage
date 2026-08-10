@@ -374,6 +374,8 @@ interface TiffDescription {
   readonly pixelFormat:
     | 'gray8'
     | 'gray16'
+    | 'gray32'
+    | 'gray64'
     | 'grayi8'
     | 'grayi16'
     | 'grayf16'
@@ -384,6 +386,8 @@ interface TiffDescription {
     | 'rgb16'
     | 'rgba16'
     | 'rgbi8'
+    | 'rgb32'
+    | 'rgb64'
     | 'rgbi16'
     | 'rgbf16'
     | 'rgbf32'
@@ -601,7 +605,7 @@ const numericFieldBytes = (fieldType: number, tag: number): 1 | 2 | 4 | 8 => {
   if (fieldType === 1 || fieldType === 6) return 1
   if (fieldType === 3 || fieldType === 8) return 2
   if (fieldType === 4 || fieldType === 9 || fieldType === 11) return 4
-  if (fieldType === 12) return 8
+  if (fieldType === 12 || fieldType === 16) return 8
   throw invalidInput(`TIFF tag ${tag} has unsupported numeric field type ${fieldType}`)
 }
 
@@ -641,7 +645,14 @@ const numericOptionalValues = async (
     else if (entry.fieldType === 8) values[index] = view.getInt16(offset, littleEndian)
     else if (entry.fieldType === 9) values[index] = view.getInt32(offset, littleEndian)
     else if (entry.fieldType === 11) values[index] = view.getFloat32(offset, littleEndian)
-    else values[index] = view.getFloat64(offset, littleEndian)
+    else if (entry.fieldType === 12) values[index] = view.getFloat64(offset, littleEndian)
+    else {
+      const lowOffset = littleEndian ? offset : offset + 4
+      const highOffset = littleEndian ? offset + 4 : offset
+      values[index] =
+        view.getUint32(highOffset, littleEndian) * 4_294_967_296 +
+        view.getUint32(lowOffset, littleEndian)
+    }
   }
   return values
 }
@@ -984,7 +995,7 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     if (photometric === photometricRgb || photometric === photometricSeparated) {
       const supportedColorDepth =
         photometric === photometricRgb
-          ? [2, 4, 8, 10, 12, 14, 16].includes(baseBitDepth)
+          ? [2, 4, 8, 10, 12, 14, 16, 24, 32, 64].includes(baseBitDepth)
           : baseBitDepth === 8 || baseBitDepth === 16
       if (!supportedColorDepth) {
         throw unsupportedOperation('TIFF color decoding requires supported unsigned sample depths')
@@ -997,7 +1008,7 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
       if (![1, 2, 4, 8].includes(baseBitDepth)) {
         throw unsupportedOperation(`TIFF ${baseBitDepth}-bit palette data is unsupported`)
       }
-    } else if (![1, 2, 4, 6, 8, 10, 12, 14, 16].includes(baseBitDepth)) {
+    } else if (![1, 2, 4, 6, 8, 10, 12, 14, 16, 24, 32, 64].includes(baseBitDepth)) {
       throw unsupportedOperation(`TIFF ${baseBitDepth}-bit grayscale data is unsupported`)
     }
   } else if (baseSampleFormat === sampleFormatSigned) {
@@ -1040,7 +1051,7 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   }
   const supportedHorizontalDepth =
     baseSampleFormat === sampleFormatUnsigned
-      ? [2, 4, 6, 8, 10, 12, 14, 16].includes(baseBitDepth)
+      ? [2, 4, 6, 8, 10, 12, 14, 16, 24, 32, 64].includes(baseBitDepth)
       : baseSampleFormat === sampleFormatSigned
         ? baseBitDepth === 8 || baseBitDepth === 16
         : baseBitDepth === 16 || baseBitDepth === 32 || baseBitDepth === 64
@@ -1056,12 +1067,14 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     )
   }
 
+  const wideUnsigned =
+    baseSampleFormat === sampleFormatUnsigned && (baseBitDepth === 24 || baseBitDepth > 16)
   const rawMinimums =
-    baseSampleFormat === sampleFormatUnsigned
+    baseSampleFormat === sampleFormatUnsigned && !wideUnsigned
       ? undefined
       : await numericOptionalValues(source, ifd, littleEndian, 340, samplesPerPixel)
   const rawMaximums =
-    baseSampleFormat === sampleFormatUnsigned
+    baseSampleFormat === sampleFormatUnsigned && !wideUnsigned
       ? undefined
       : await numericOptionalValues(source, ifd, littleEndian, 341, samplesPerPixel)
   if (
@@ -1075,11 +1088,23 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
     throw invalidInput('TIFF SMinSampleValue and SMaxSampleValue counts are invalid')
   }
   let displayRanges: readonly PixelSampleDisplayRange[] | undefined
-  if (baseSampleFormat !== sampleFormatUnsigned) {
+  if (baseSampleFormat !== sampleFormatUnsigned || wideUnsigned) {
     const defaultMinimum =
-      baseSampleFormat === sampleFormatFloat ? 0 : baseBitDepth === 8 ? -128 : -32_768
+      baseSampleFormat === sampleFormatFloat
+        ? 0
+        : baseSampleFormat === sampleFormatUnsigned
+          ? 0
+          : baseBitDepth === 8
+            ? -128
+            : -32_768
     const defaultMaximum =
-      baseSampleFormat === sampleFormatFloat ? 1 : baseBitDepth === 8 ? 127 : 32_767
+      baseSampleFormat === sampleFormatFloat
+        ? 1
+        : baseSampleFormat === sampleFormatUnsigned
+          ? 2 ** baseBitDepth - 1
+          : baseBitDepth === 8
+            ? 127
+            : 32_767
     const ranges: PixelSampleDisplayRange[] = []
     for (let sample = 0; sample < baseSamples; sample += 1) {
       const minimum = rawMinimums?.[rawMinimums.length === 1 ? 0 : sample] ?? defaultMinimum
@@ -1347,9 +1372,9 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
   let colorTransform: RgbIccTransform | undefined
   let iccProfile: Uint8Array | undefined
   if (iccEntry) {
-    if (baseSampleFormat !== sampleFormatUnsigned) {
+    if (baseSampleFormat !== sampleFormatUnsigned || baseBitDepth > 16) {
       throw unsupportedOperation(
-        'TIFF ICC color management is not implemented for signed or floating-point samples',
+        'TIFF ICC color management is not implemented for signed, floating-point, or wide unsigned samples',
       )
     }
     if (photometric !== photometricRgb && photometric !== photometricPalette && !jpegCompression) {
@@ -1421,7 +1446,10 @@ const describeTiff = async (source: ImageSource, limits: ImageLimits): Promise<T
       photometric === photometricBlackIsZero ||
       photometric === photometricRgb)
   let pixelFormat: TiffDescription['pixelFormat']
-  if (baseSampleFormat === sampleFormatSigned) {
+  if (wideUnsigned) {
+    if (baseSamples === 1) pixelFormat = baseBitDepth <= 32 ? 'gray32' : 'gray64'
+    else pixelFormat = baseBitDepth <= 32 ? 'rgb32' : 'rgb64'
+  } else if (baseSampleFormat === sampleFormatSigned) {
     if (baseSamples === 1) pixelFormat = baseBitDepth === 8 ? 'grayi8' : 'grayi16'
     else pixelFormat = baseBitDepth === 8 ? 'rgbi8' : 'rgbi16'
   } else if (baseSampleFormat === sampleFormatFloat) {
@@ -2087,6 +2115,36 @@ const reversePredictor = (
   bitDepth: number,
   littleEndian: boolean,
 ): void => {
+  if (bitDepth === 24) {
+    for (let row = 0; row < rows; row += 1) {
+      const rowSample = row * samplesPerRow
+      for (let sample = stride; sample < samplesPerRow; sample += 1) {
+        const offset = (rowSample + sample) * 3
+        const previousOffset = (rowSample + sample - stride) * 3
+        const value = littleEndian
+          ? (data[offset] ?? 0) | ((data[offset + 1] ?? 0) << 8) | ((data[offset + 2] ?? 0) << 16)
+          : ((data[offset] ?? 0) << 16) | ((data[offset + 1] ?? 0) << 8) | (data[offset + 2] ?? 0)
+        const previous = littleEndian
+          ? (data[previousOffset] ?? 0) |
+            ((data[previousOffset + 1] ?? 0) << 8) |
+            ((data[previousOffset + 2] ?? 0) << 16)
+          : ((data[previousOffset] ?? 0) << 16) |
+            ((data[previousOffset + 1] ?? 0) << 8) |
+            (data[previousOffset + 2] ?? 0)
+        const sum = (value + previous) & 0xff_ffff
+        if (littleEndian) {
+          data[offset] = sum
+          data[offset + 1] = sum >>> 8
+          data[offset + 2] = sum >>> 16
+        } else {
+          data[offset] = sum >>> 16
+          data[offset + 1] = sum >>> 8
+          data[offset + 2] = sum
+        }
+      }
+    }
+    return
+  }
   if (bitDepth === 64) {
     const view = new DataView(data.buffer, data.byteOffset, data.byteLength)
     for (let row = 0; row < rows; row += 1) {
@@ -2687,6 +2745,7 @@ const writeRawSample = (
   rowWithinSegment: number,
   x: number,
   sample: number,
+  outputBytesPerSample: 1 | 2 | 4 | 8,
 ): void => {
   const bitDepth = description.bitsPerSample[sample]
   if (bitDepth === undefined || (bitDepth & 7) !== 0) {
@@ -2713,12 +2772,15 @@ const writeRawSample = (
   if (!plane || source < 0 || source + bytesPerSample > plane.byteLength) {
     throw truncatedInput('TIFF numeric sample is truncated')
   }
+  const padding = outputBytesPerSample - bytesPerSample
+  output.fill(0, target, target + padding)
+  const outputStart = target + padding
   if (bytesPerSample === 1 || !description.littleEndian) {
-    output.set(plane.subarray(source, source + bytesPerSample), target)
+    output.set(plane.subarray(source, source + bytesPerSample), outputStart)
     return
   }
   for (let byte = 0; byte < bytesPerSample; byte += 1) {
-    output[target + byte] = plane[source + bytesPerSample - byte - 1] ?? 0
+    output[outputStart + byte] = plane[source + bytesPerSample - byte - 1] ?? 0
   }
 }
 
@@ -2837,7 +2899,9 @@ class TiffDecoder implements ImageDecoder {
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const region = regionFor(this.#description, request)
-    const rawNumeric = this.#description.sampleFormats[0] !== sampleFormatUnsigned
+    const sourceBitDepth = this.#description.bitsPerSample[0] ?? 8
+    const rawNumeric =
+      this.#description.sampleFormats[0] !== sampleFormatUnsigned || sourceBitDepth > 16
     const output16 =
       this.pixelFormat === 'gray16' || this.pixelFormat === 'rgb16' || this.pixelFormat === 'rgba16'
     const outputMaximum = output16 ? 65_535 : 255
@@ -2848,8 +2912,10 @@ class TiffDecoder implements ImageDecoder {
         : this.pixelFormat === 'rgb8' || this.pixelFormat === 'rgb16'
           ? 3
           : 4
-    const outputBytesPerSample = rawNumeric
-      ? (this.#description.bitsPerSample[0] ?? 8) >>> 3
+    const outputBytesPerSample: 1 | 2 | 4 | 8 = rawNumeric
+      ? sourceBitDepth === 24
+        ? 4
+        : ((sourceBitDepth >>> 3) as 1 | 2 | 4 | 8)
       : output16
         ? 2
         : 1
@@ -3083,6 +3149,7 @@ class TiffDecoder implements ImageDecoder {
                     rowWithinSegment,
                     sourceX,
                     sample,
+                    outputBytesPerSample,
                   )
                 }
                 continue
