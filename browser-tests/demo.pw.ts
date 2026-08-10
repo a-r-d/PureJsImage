@@ -47,6 +47,56 @@ test('detects, transforms, converts, measures, and downloads from the docs demo'
   ).toBe(true)
 })
 
+test('views, pans, zooms, and clips a TIFF without leaving the browser', async ({ page }) => {
+  const requestedUrls: string[] = []
+  page.on('request', (request) => requestedUrls.push(request.url()))
+  await page.goto('/demo.html')
+  await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+
+  const input = await readFile('benchmark/corpus/files/libtiff-rgb-3c-8b.tiff')
+  await page.locator('#demo-file').setInputFiles({
+    buffer: input,
+    mimeType: 'image/tiff',
+    name: 'bounded-view.tiff',
+  })
+
+  await expect(page.locator('#demo-mode-view')).toHaveAttribute('aria-selected', 'true')
+  await expect(page.locator('#demo-viewer')).toBeVisible()
+  await expect(page.locator('#demo-viewer-dimensions')).toHaveText('157 × 151')
+  await expect(page.locator('#demo-viewer-directory')).toHaveValue('0')
+  await expect(page.locator('#demo-viewer-canvas')).toHaveAttribute('data-rendered', 'true')
+  await expect(page.locator('#demo-viewer-empty')).toBeHidden()
+  await expect(page.locator('#demo-log-list')).toContainText(
+    'TIFF document opened for bounded client-side viewport decoding',
+  )
+
+  const initialZoom = await page.locator('#demo-zoom-value').textContent()
+  await page.locator('#demo-zoom-in').click()
+  await expect(page.locator('#demo-zoom-value')).not.toHaveText(initialZoom ?? '')
+
+  await expect(page.locator('#demo-viewer-loading')).toBeHidden()
+  const initialRegion = await page.locator('#demo-viewer-region').textContent()
+  await page.locator('#demo-pan-down').click()
+  await expect(page.locator('#demo-viewer-region')).not.toHaveText(initialRegion ?? '')
+
+  const downloadPromise = page.waitForEvent('download')
+  await page.locator('#demo-save-clip').click()
+  const download = await downloadPromise
+  expect(download.suggestedFilename()).toMatch(/^bounded-view-\d+-\d+-\d+x\d+\.png$/)
+  await expect(page.locator('#demo-viewer-status')).toContainText('Saved ')
+  await expect(page.locator('#demo-log-list')).toContainText('PNG clip encoded and downloaded')
+
+  await page.locator('#demo-mode-convert').click()
+  await expect(page.locator('#demo-mode-convert')).toHaveAttribute('aria-selected', 'true')
+  await expect(page.locator('#demo-convert-panel')).toBeVisible()
+
+  const networkRequests = requestedUrls.filter((url) => /^https?:/.test(url))
+  expect(
+    networkRequests.every((url) => url.startsWith('http://127.0.0.1:')),
+    `Unexpected external request: ${networkRequests.find((url) => !url.startsWith('http://127.0.0.1:')) ?? 'unknown'}`,
+  ).toBe(true)
+})
+
 test('toggles JPEG WASM acceleration and compares the same complete pipeline', async ({ page }) => {
   const requestedUrls: string[] = []
   page.on('request', (request) => requestedUrls.push(request.url()))
