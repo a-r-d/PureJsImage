@@ -136,10 +136,16 @@ All notable changes to PureJsImage are documented in this file.
   portable RGBA output is pinned in Chromium.
 - Animated `avis` pixel decode now fails with `UNSUPPORTED_OPERATION` instead
   of silently presenting the primary item as a supported one-frame image.
-- Added a checksum-recorded 237-file compatibility survey: 137
-  conformance/invalid/edge inputs plus a 100-file GB82 matrix encoded through
-  Sharp/libvips and FFmpeg/libaom. The report records 116 completed decodes and
-  classifies every explicit failure without extending the published subset.
+- Corrected AV1 coefficient all-zero contexts to use full coded block dimensions
+  across bounded reconstruction chunks and retained palette-mode above context
+  across 64-pixel row boundaries. Three pinned FFmpeg/libaom and Sharp/libaom
+  fixtures now match agreeing dav1d and libaom native YUV byte for byte in
+  Node.js, with their portable RGBA output pinned in Chromium.
+- Expanded the checksum-recorded 237-file AVIF compatibility survey to 162
+  completed decodes: all 100 GB82 common-photo encodings and 62 of 137
+  conformance/invalid/edge inputs. All 116 previously completed RGBA checksums
+  remain unchanged, and the sole remaining entropy/reconstruction error is an
+  intentionally corrupted conformance input.
 
 - Animated GIF pixel decode now fails with `UNSUPPORTED_OPERATION` instead of silently discarding
   animation; callers can explicitly request the supported first image with `open(input, { frame: 0 })`.

@@ -1397,10 +1397,12 @@ class RestrictedIntraTileDecoder {
     let cflAlphaU = 0
     let cflAlphaV = 0
     if (hasChroma) {
+      const maximumBlockDimension = Math.max(width, height)
       const cflAllowed = this.#frame.header.codedLossless
         ? Math.max(4, width >> this.#chromaShiftX) === 4 &&
           Math.max(4, height >> this.#chromaShiftY) === 4
-        : Math.max(width, height) <= 32
+        : maximumBlockDimension <= 32 &&
+          (maximumBlockDimension < 32 || Math.min(width, height) >= 8)
       const uvModeKey = `${Number(cflAllowed)}:${yMode}`
       let uvModeCdf = this.#uvModeCdfs.get(uvModeKey)
       if (!uvModeCdf) {
@@ -1444,7 +1446,7 @@ class RestrictedIntraTileDecoder {
       }
       if (yMode === 0) {
         const aboveSize =
-          row > this.#tile.miRowStart && ((row * 4) & 63) !== 0
+          row > this.#tile.miRowStart
             ? (this.#paletteSizes[0][this.#lumaContextIndex(row - 1, column)] ?? 0)
             : 0
         const leftSize =
@@ -1562,6 +1564,8 @@ class RestrictedIntraTileDecoder {
         }
       : undefined
     const lumaTransform = this.#transformShape(row, column, width, height, skip === 1)
+    const lumaResidualLargerThanTransform =
+      width > lumaTransform.width || height > lumaTransform.height
     if (yPalette) {
       this.#paintPalette(0, column * 4, row * 4, width, height, yPalette.colors, yPalette.indices)
     }
@@ -1593,6 +1597,8 @@ class RestrictedIntraTileDecoder {
           width: Math.min(chromaWidth, 32) as TransformDimension,
           height: Math.min(chromaHeight, 32) as TransformDimension,
         }
+    const chromaResidualLargerThanTransform =
+      chromaWidth > chromaTransform.width || chromaHeight > chromaTransform.height
     for (let chunkY = 0; chunkY < codedHeight; chunkY += 64) {
       for (let chunkX = 0; chunkX < codedWidth; chunkX += 64) {
         const chunkWidth = Math.min(64, codedWidth - chunkX)
@@ -1603,6 +1609,7 @@ class RestrictedIntraTileDecoder {
           column * 4 + chunkX,
           chunkWidth,
           chunkHeight,
+          lumaResidualLargerThanTransform,
           lumaTransform,
           skip === 1,
           yMode,
@@ -1632,6 +1639,7 @@ class RestrictedIntraTileDecoder {
             (column >> this.#chromaShiftX) * 4 + chromaChunkX,
             chromaChunkWidth,
             chromaChunkHeight,
+            chromaResidualLargerThanTransform,
             chromaTransform,
             skip === 1,
             uvMode,
@@ -1659,6 +1667,7 @@ class RestrictedIntraTileDecoder {
             (column >> this.#chromaShiftX) * 4 + chromaChunkX,
             chromaChunkWidth,
             chromaChunkHeight,
+            chromaResidualLargerThanTransform,
             chromaTransform,
             skip === 1,
             uvMode,
@@ -2308,6 +2317,7 @@ class RestrictedIntraTileDecoder {
     startX: number,
     width: number,
     height: number,
+    residualLargerThanTransform: boolean,
     transform: TransformShape,
     skip: boolean,
     mode: number,
@@ -2395,7 +2405,6 @@ class RestrictedIntraTileDecoder {
             dcSign += dc === 1 ? -1 : dc === 2 ? 1 : 0
           }
         }
-        const residualLargerThanTransform = width > transform.width || height > transform.height
         let zeroContext: number
         if (planeIndex === 0) {
           if (!residualLargerThanTransform) zeroContext = 0

@@ -164,6 +164,7 @@
     "fixtures:avif:superres": "node benchmark/avif/verify-superres-fixture.ts",
     "fixtures:avif:superres:prepare": "node benchmark/avif/prepare-superres-fixture.ts",
     "fixtures:avif:intrabc": "node benchmark/avif/verify-intrabc-fixture.ts",
+    "fixtures:avif:common-photo-syntax": "node benchmark/avif/verify-common-photo-syntax-fixtures.ts",
     "fixtures:avif:nonstill-sequence": "node benchmark/avif/verify-nonstill-sequence-fixture.ts",
     "fixtures:avif:post-filters": "node benchmark/avif/verify-post-filters.ts",
     "fixtures:avif:qmatrix": "node benchmark/avif/verify-qmatrix-fixtures.ts",

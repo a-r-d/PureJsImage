@@ -54,6 +54,10 @@ import {
   avifNonstillSequenceFixture,
   avifNonstillSequenceFixturePath,
 } from '../benchmark/avif/nonstill-sequence-fixture.ts'
+import {
+  avifCommonPhotoSyntaxFixturePath,
+  avifCommonPhotoSyntaxFixtures,
+} from '../benchmark/avif/common-photo-syntax-fixtures.ts'
 import { av1ObuType } from '../src/codecs/av1.ts'
 import { parseAv1Frame, parseAv1FrameObus } from '../src/codecs/av1-frame.ts'
 import { decodeRestrictedAv1Intra } from '../src/codecs/av1-intra.ts'
@@ -514,6 +518,26 @@ describe('AVIF restricted pixel decode', () => {
     expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
   }, 20_000)
+  it.each(avifCommonPhotoSyntaxFixtures)(
+    'decodes $file with portable common-photo syntax contexts',
+    async (fixture) => {
+      const input = await readFile(avifCommonPhotoSyntaxFixturePath(fixture))
+      const image = await Image.open(input)
+      const metadata = await image.metadata()
+      const output = PNG.sync.read(await image.png().toBuffer())
+
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+      expect(metadata).toMatchObject({
+        bitDepth: 8,
+        chromaSubsampling: fixture.chromaSubsampling,
+        height: fixture.height,
+        width: fixture.width,
+      })
+      expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
+    },
+    20_000,
+  )
 
   it('keeps AVIF animation outside the pixel-decode boundary', async () => {
     const input = await readFile(

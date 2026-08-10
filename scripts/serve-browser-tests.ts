@@ -360,6 +360,18 @@ await copyFile(
   resolve(fixtureDirectory, 'ms-mexico-nonstill-sequence.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/diagnostic-baby-ffmpeg-crf30-yuv420.avif',
+  resolve(fixtureDirectory, 'diagnostic-baby-ffmpeg-crf30-yuv420.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/diagnostic-baby-ffmpeg-crf45-yuv444.avif',
+  resolve(fixtureDirectory, 'diagnostic-baby-ffmpeg-crf45-yuv444.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/diagnostic-mc3-sharp-q50-yuv420.avif',
+  resolve(fixtureDirectory, 'diagnostic-mc3-sharp-q50-yuv420.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/libaom-superres-denom12-96x64.avif',
   resolve(fixtureDirectory, 'libaom-superres-denom12-96x64.avif'),
 )

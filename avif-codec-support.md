@@ -118,6 +118,9 @@ coverage.
   validation
 - [x] Skip signaling, keyframe intra modes, angle deltas, transform selection,
   and coefficient contexts
+- [x] Coefficient all-zero contexts use full coded block dimensions across
+  bounded reconstruction chunks, and palette-mode signaling retains its
+  above-size context across 64-pixel row boundaries
 - [x] `NONE`, `SPLIT`, horizontal, vertical, horizontal-4, vertical-4, and
   tip-split intra partition traversal
 - [x] Exact structural top-right and bottom-left edge availability across the
@@ -358,6 +361,9 @@ byte. The full-size tolerance remains zero.
 - [x] Match a checksum-pinned `still_picture=0` static AVIF's 1920x1080
   native YUV byte for byte against agreeing dav1d and libaom output, and pin
   its portable RGBA output in Chromium
+- [x] Match three checksum-pinned FFmpeg/libaom and Sharp/libaom common-photo
+  AVIF fixtures byte for byte against agreeing dav1d and libaom native YUV,
+  and pin their portable RGBA outputs in Chromium
 - [x] Exercise single-band and multi-band filter-free AV1 super-resolution
   through the portable TypeScript codec in Chromium and pin their RGBA output
 - [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
@@ -410,7 +416,9 @@ byte. The full-size tolerance remains zero.
 - [x] Match full-size Kodak and Fox post-filter pixels exactly against agreeing
   dav1d and libaom native YUV output
 - [x] Survey 237 AVIF files spanning 137 conformance/edge/invalid cases and a
-  100-file GB82 matrix encoded by Sharp/libvips and FFmpeg/libaom
+  100-file GB82 matrix encoded by Sharp/libvips and FFmpeg/libaom; complete
+  all 100 common-photo inputs and 62 conformance inputs while preserving all
+  116 previously completed RGBA checksums
 - [ ] Expand the compatibility corpus with rav1e, SVT-AV1, browser encoders,
   ImageMagick, cameras, and real web uploads
 - [ ] Add malformed ISOBMFF, OBU, entropy, partition, coefficient, restoration,
@@ -429,4 +437,4 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-qmatrix-sharp-2026-08-08.md`](benchmark/results/avif-qmatrix-sharp-2026-08-08.md)
 - [`benchmark/results/avif-bounded-row-output-2026-08-09.md`](benchmark/results/avif-bounded-row-output-2026-08-09.md)
 - [`benchmark/results/avif-memory-bounded-superres-2026-08-09.json`](benchmark/results/avif-memory-bounded-superres-2026-08-09.json)
-- [`benchmark/results/avif-compatibility-survey-2026-08-09.md`](benchmark/results/avif-compatibility-survey-2026-08-09.md)
+- [`benchmark/results/avif-compatibility-survey-2026-08-10.md`](benchmark/results/avif-compatibility-survey-2026-08-10.md)

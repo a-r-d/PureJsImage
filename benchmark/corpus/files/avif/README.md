@@ -20,6 +20,22 @@ under BSD-2-Clause and the contained Blender material under CC-BY 3.0. It is
 committed to cover an AV1 sequence header with `still_picture=0` whose AVIF item
 still contains one shown key frame. Run `npm run fixtures:avif:nonstill-sequence`
 to require byte-identical native YUV from PureJsImage, dav1d, and libaom.
+The three `diagnostic-*.avif` files come from CC0 GB82 PNG inputs in the Imazen
+codec corpus at revision `28205bbc5cf40364d012c462240ba28143373d67`. They pin
+the common-photo survey's two terminal entropy-divergence classes without
+weakening strict tile termination:
+
+- `diagnostic-baby-ffmpeg-crf30-yuv420.avif` was encoded with FFmpeg/libaom,
+  CRF 30, YUV 4:2:0, still-picture mode, and one thread;
+- `diagnostic-baby-ffmpeg-crf45-yuv444.avif` used the same encoder with CRF 45
+  and YUV 4:4:4; and
+- `diagnostic-mc3-sharp-q50-yuv420.avif` was encoded with Sharp 0.35.3,
+  libvips 8.18.3, libaom 3.14.1, quality 50, effort 4, and YUV 4:2:0.
+
+Their encoded and agreeing dav1d/libaom native-YUV checksums are pinned in
+`benchmark/avif/common-photo-syntax-fixtures.ts`. Run
+`npm run fixtures:avif:common-photo-syntax` to require byte-identical visible
+YUV from PureJsImage and both independent decoders.
 
 `draw_points_idat.avif` comes from the same pinned libavif revision. It is
 committed for exact luma/chroma palette-mode and non-symmetric color-index

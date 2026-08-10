@@ -1,4 +1,4 @@
-# AVIF compatibility survey — 2026-08-09
+# AVIF compatibility survey — 2026-08-10
 
 ## Scope
 
@@ -13,7 +13,7 @@ This survey exercises 237 AVIF files against the first-party TypeScript decoder:
 `benchmark/avif/prepare-compatibility-survey.ts` generates the common-photo matrix.
 `benchmark/avif/run-compatibility-survey.ts` records every input checksum, result, normalized error
 class, output dimensions, RGBA checksum for successful decodes, and wall time. The full results are
-in [`avif-compatibility-survey-2026-08-09.json`](avif-compatibility-survey-2026-08-09.json).
+in [`avif-compatibility-survey-2026-08-10.json`](avif-compatibility-survey-2026-08-10.json).
 
 A completed decode in this survey means that the decoder emitted all rows without an exception. It
 is compatibility evidence, not an independent pixel oracle. Pixel correctness remains gated by the
@@ -23,17 +23,17 @@ checksum-pinned dav1d, libaom, FFmpeg, Sharp, and Chromium fixtures in the AVIF 
 
 | Source | Files | Completed decode | Explicit error |
 |---|---:|---:|---:|
-| Imazen AVIF Conformance | 137 | 47 | 90 |
-| GB82 common-photo matrix | 100 | 69 | 31 |
-| **Total** | **237** | **116 (48.9%)** | **121** |
+| Imazen AVIF Conformance | 137 | 62 | 75 |
+| GB82 common-photo matrix | 100 | 100 | 0 |
+| **Total** | **237** | **162 (68.4%)** | **75** |
 
 Conformance categories:
 
 | Declared category | Files | Completed decode | Explicit error |
 |---|---:|---:|---:|
-| Valid | 106 | 37 | 69 |
+| Valid | 106 | 50 | 56 |
 | Invalid | 12 | 1 | 11 |
-| Edge cases | 19 | 9 | 10 |
+| Edge cases | 19 | 11 | 8 |
 
 The one decoded file in the corpus's `invalid` directory is a gain-map-version case. PureJsImage
 currently ignores gain-map semantics rather than claiming gain-map support; it is not counted as
@@ -43,30 +43,28 @@ Common-photo encoders:
 
 | Encoder/muxer | Files | Completed decode | Explicit error |
 |---|---:|---:|---:|
-| Sharp/libvips/libaom | 50 | 46 | 4 |
-| FFmpeg/libaom | 50 | 23 | 27 |
+| Sharp/libvips/libaom | 50 | 50 | 0 |
+| FFmpeg/libaom | 50 | 50 | 0 |
 
 ## Failure taxonomy
 
 | Boundary | Conformance | Common photo | Total |
 |---|---:|---:|---:|
-| Entropy or reconstruction-syntax divergence | 17 | 31 | 48 |
 | High-bit-depth subset | 19 | 0 | 19 |
 | Alpha auxiliary subset | 15 | 0 | 15 |
 | Multiple-frame or tile-group layout | 13 | 0 | 13 |
 | Animation | 8 | 0 | 8 |
 | Malformed or unsupported container | 7 | 0 | 7 |
-| Intra-block-copy residuals | 5 | 0 | 5 |
+| Intra-block-copy residuals | 6 | 0 | 6 |
 | Film grain | 2 | 0 | 2 |
 | 64 MiB working-set limit | 2 | 0 | 2 |
-| Presentation transform | 1 | 0 | 1 |
 | Other unsupported AV1/container feature | 1 | 0 | 1 |
+| Entropy or reconstruction syntax | 1 | 0 | 1 |
+| Presentation transform | 1 | 0 | 1 |
 
-The 48 entropy/reconstruction failures are the next common-photo priority. Their terminal errors
-(`symbol decoder over-read`, missing trailing one bit, or nonzero trailing padding) show arithmetic
-state divergence, not three independent trailing-bit features. They must be reduced to the first
-incorrect partition, mode, transform, coefficient context, or CDF update before changing the strict
-tile-termination checks.
+The sole remaining entropy/reconstruction error is the conformance corpus's intentionally invalid
+`corrupted_mdat.avif`. No common-photo input terminates in an arithmetic-symbol or tile-padding
+error. Strict tile-termination validation remains enabled.
 
 ## Implemented blocker: non-still sequence headers
 
@@ -86,6 +84,19 @@ the new sequence-header support from silently presenting a primary item as if an
 supported one-frame format. Metadata inspection still detects the sequence brand without claiming a
 false frame count.
 
+## Implemented blockers: coefficient-skip and palette contexts
+
+Coefficient all-zero signaling now derives its context from the full coded luma or chroma block
+rather than the bounded 64x64 luma or 32x32 chroma reconstruction chunk. Palette-mode signaling now
+retains the above palette-size context across a 64-pixel row boundary; the separate superblock-local
+palette-cache rule remains unchanged.
+
+These two state corrections newly complete 46 survey inputs: all 31 previous common-photo failures
+and 15 conformance inputs. All 116 previously completed RGBA checksums are unchanged. The three
+permanent `diagnostic-*.avif` fixtures cover FFmpeg/libaom YUV 4:2:0 and 4:4:4 plus
+Sharp/libvips/libaom YUV 4:2:0. PureJsImage, dav1d, and libaom agree byte for byte over each
+fixture's visible native YUV, and their public RGBA checksums are pinned in Node.js and Chromium.
+
 ## Reproduction
 
 ```sh
@@ -97,7 +108,8 @@ npm run bench:avif:compatibility:prepare -- \
 npm run bench:avif:compatibility -- \
   --source conformance=/tmp/purejsimage-codec-corpus/avif-conformance \
   --source common-photo=/tmp/purejsimage-common-avif \
-  --output benchmark/results/avif-compatibility-survey-2026-08-09.json
+  --output benchmark/results/avif-compatibility-survey-2026-08-10.json
+npm run fixtures:avif:common-photo-syntax
 npm run fixtures:avif:nonstill-sequence
 ```
 

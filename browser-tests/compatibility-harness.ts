@@ -703,6 +703,35 @@ const avifNonstillSequence = (): Promise<BrowserWorkflowResult> =>
     '99f28f0e2fdc30dab25ad903ce043e7af30b7097d1f3402e692b3f8629bff6c1',
     'Non-still AV1 sequence header with one shown key frame',
   )
+const avifCommonPhotoSyntax = async (): Promise<BrowserWorkflowResult> => {
+  const results = await Promise.all([
+    avifPinnedPng(
+      'diagnostic-baby-ffmpeg-crf30-yuv420.avif',
+      576,
+      576,
+      '819d046be8dfc6b72fb722488216cdb4dfcb8e6eb2953a53932a7a2f03baeccb',
+      'FFmpeg 4:2:0 coefficient-context AVIF',
+    ),
+    avifPinnedPng(
+      'diagnostic-baby-ffmpeg-crf45-yuv444.avif',
+      576,
+      576,
+      '030e44892698be8cb28a3d2fd75bfc65b0fc656f2e03314c89dadd1e8f99f89f',
+      'FFmpeg 4:4:4 coefficient-context AVIF',
+    ),
+    avifPinnedPng(
+      'diagnostic-mc3-sharp-q50-yuv420.avif',
+      576,
+      576,
+      'cfac5f91515b6bdea3a784881a9918584f8058996192cb9616cca33a52cbf78b',
+      'Sharp palette-context AVIF',
+    ),
+  ])
+  return {
+    detail: results.map((result) => result.detail).join('; '),
+    outputBytes: results.reduce((total, result) => total + result.outputBytes, 0),
+  }
+}
 
 const avifSuperres = async (): Promise<BrowserWorkflowResult> => {
   const results = await Promise.all([
@@ -934,6 +963,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifBoundedRows,
   avifBoundedResize,
   avifCleanAperture,
+  avifCommonPhotoSyntax,
   avifGrid,
   avifHighBit10,
   avifHighBit12,
