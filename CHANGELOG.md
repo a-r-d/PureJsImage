@@ -4,6 +4,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-08-09
+
 ### Added
 
 - Extended the isolated Imazen codec-corpus harness and independent baselines across JPEG, PNG,
@@ -50,6 +52,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Fixed
 
+- Kept the nested packed-declaration smoke test operational during `npm pack --dry-run`, so the
+  documented release gate validates package contents instead of inheriting npm's outer dry-run mode.
 - JPEG decoding now treats sampling factors as one for single-component non-interleaved scans,
   tolerantly preserves completed progressive coefficients when a partial scan reaches a DHT, SOS,
   or EOI boundary, and decodes AVI1/MJPEG baseline frames that omit standard Huffman tables. Strict
@@ -342,4 +346,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.5.0]: https://github.com/a-r-d/PureJsImage/compare/v0.4.0...v0.5.0
 [0.6.0]: https://github.com/a-r-d/PureJsImage/compare/v0.5.0...v0.6.0
 [0.7.0]: https://github.com/a-r-d/PureJsImage/compare/v0.6.0...v0.7.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.7.0...HEAD
+[0.8.0]: https://github.com/a-r-d/PureJsImage/compare/v0.7.0...v0.8.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.8.0...HEAD
