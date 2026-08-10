@@ -71,7 +71,8 @@ coverage.
   authoritative AV1 sequence header during bitstream inspection
 - [x] Pixel decoding and composition of compatible opaque grid items
 - [x] Pixel decoding and composition of compatible alpha auxiliary items
-- [ ] Clean-aperture cropping through `clap`
+- [x] Validated integer clean-aperture cropping through `clap`; fractional
+  dimensions and origins remain explicitly unsupported
 - [ ] Mirroring through `imir`
 - [ ] Pixel-aspect-ratio and other transformative item properties
 - [ ] Gain maps, depth maps, thumbnails, overlays, derived images other than
@@ -144,7 +145,8 @@ coverage.
 - [ ] Multiple independently decoded AV1 tiles
 - [ ] Tile-list or partial tile-group OBUs
 - [ ] Alpha-bearing image grids
-- [ ] Intra block copy and other screen-content tools
+- [x] Skipped intra block copy with adaptive integer motion-vector coding
+- [ ] Intra-block-copy residual transforms and other screen-content tools
 - [x] Luma and chroma palette mode, including cached and new palette entries,
   non-symmetric first-index coding, and diagonal color-map reconstruction
 - [ ] Complete segmentation-map and delta-loop-filter reconstruction, plus
@@ -332,11 +334,19 @@ so Kodak is not classified as an exact post-filter fixture.
   quantizer-context-0 YUV 4:4:4 fixtures, including lossless identity color
 - [x] Match Sharp/libavif RGBA exactly for the checksum-pinned 33x11
   draw-points screen-content fixture using luma and chroma palettes
+- [x] Match agreeing libaom and dav1d native YUV exactly for the checksum-pinned
+  320x280 skipped intra-block-copy fixture
+- [x] Apply the checksum-pinned 8x6 integer clean aperture to its 16x12 coded
+  image and match Sharp/libavif RGBA exactly
+- [x] Exercise clean-aperture cropping through the portable codec entry in
+  Chromium and pin its RGBA output
 - [x] Reconstruct native 10-bit and 12-bit planes exactly for two
   checksum-pinned coded-lossless YUV 4:4:4 fixtures and hold displayed RGB
   maximum error to 1 against Sharp/libavif
 - [x] Exercise palette-coded 8-bit and coded-lossless 10-bit and 12-bit
   decoding through the portable codec entry in Chromium
+- [x] Exercise skipped intra-block-copy decoding through the portable codec
+  entry in Chromium
 - [x] Keep delta loop-filter syntax explicitly unsupported in the restricted
   quantization-matrix path
 - [ ] Resolve Kodak's documented one-sample CDEF discrepancy before requiring

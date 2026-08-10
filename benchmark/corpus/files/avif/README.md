@@ -18,6 +18,11 @@ committed for exact luma/chroma palette-mode and non-symmetric color-index
 regression coverage; its SHA-256 checksum is pinned in
 `benchmark/avif/corpus.ts`.
 
+`blue-and-magenta-crop.avif` also comes from that pinned revision. Its color
+item exercises skipped intra-block copy with adaptive motion-vector coding,
+and its `clap` property crops the 320x280 coded image to a 180x100 display image.
+Its checksum and coded dimensions are pinned in `benchmark/avif/corpus.ts`.
+
 The five `post-filter-*.avif` files are deterministic, opaque 8-bit YUV 4:2:0
 fixtures encoded with libavif 1.3.0 and libaom 3.12.1. They isolate disabled
 filters, deblocking, luma/chroma CDEF, Wiener plus self-guided restoration, odd
@@ -65,6 +70,14 @@ conversion to the library's 8-bit RGBA output contract. Run
 `npm run fixtures:avif:high-bit:prepare` to regenerate them from checksum-pinned
 Y4M sources with one encoder worker. Encoded, source, Sharp RGB, and decoded
 RGBA checksums are pinned in `benchmark/avif/high-bit-lossless-fixtures.ts`.
+
+`clean-aperture-lossless-16x12.avif` is a deterministic full-range,
+identity-color YUV 4:4:4 fixture encoded with libavif 1.3.0 and libaom 3.12.1.
+Its integer `clap` property crops the 16x12 coded image to the 8x6 rectangle at
+`x=3, y=2`. Run `npm run fixtures:avif:clean-aperture:prepare` to regenerate it
+from the checksum-pinned PNG source with one encoder worker and require Sharp
+to produce the pinned cropped RGBA output. Encoded, source, Sharp, and decoded
+checksums are pinned in `benchmark/avif/clean-aperture-fixture.ts`.
 
 `sofa_grid1x5_420.avif` comes from the pinned libavif corpus revision documented
 in `benchmark/avif/corpus.ts`. It covers a 1x5 image grid whose final tile and

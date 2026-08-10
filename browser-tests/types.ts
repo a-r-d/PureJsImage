@@ -7,9 +7,11 @@ export interface BrowserCompatibilityHarness {
   animatedGifFrameSelection(): Promise<BrowserWorkflowResult>
   avifAlphaPremultiplied(): Promise<BrowserWorkflowResult>
   avifAlphaStraight(): Promise<BrowserWorkflowResult>
+  avifCleanAperture(): Promise<BrowserWorkflowResult>
   avifGrid(): Promise<BrowserWorkflowResult>
   avifHighBit10(): Promise<BrowserWorkflowResult>
   avifHighBit12(): Promise<BrowserWorkflowResult>
+  avifIntrabc(): Promise<BrowserWorkflowResult>
   avifMonochrome(): Promise<BrowserWorkflowResult>
   avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
   avifPalette(): Promise<BrowserWorkflowResult>

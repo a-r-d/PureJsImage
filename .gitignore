@@ -165,6 +165,8 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/fox.profile1.8bpc.yuv444.avif
 !benchmark/corpus/files/avif/kodim03_yuv420_8bpc.avif
 !benchmark/corpus/files/avif/draw_points_idat.avif
+!benchmark/corpus/files/avif/blue-and-magenta-crop.avif
+!benchmark/corpus/files/avif/clean-aperture-lossless-16x12.avif
 !benchmark/corpus/files/avif/post-filter-cdef-66x70.avif
 !benchmark/corpus/files/avif/post-filter-deblock-96x74.avif
 !benchmark/corpus/files/avif/post-filter-disabled-66x70.avif

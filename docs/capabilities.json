@@ -3145,9 +3145,9 @@
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode, plus coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode, compatible alpha auxiliaries, and opaque grids",
-      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images, plus coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color images with native high-depth reconstruction before explicit RGBA conversion. The supported path includes compatible full-range monochrome alpha auxiliaries, opaque image grids, palette-coded screen content, quantizer contexts 0-3 used by the pinned fixtures, coded-lossless 4x4 transforms, container-signaled NCLX conversion including identity color, the documented 8-bit in-loop filters, and the restricted Sharp/libaom quantization-matrix path. Grid alpha, lossy high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
-      "memory": "Metadata reads are bounded; the restricted decoder uses compact luma or YUV state plus the requested RGBA output and, for grids, one decoded tile",
+      "boundary": "Restricted 8-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still-image decode with compatible integer clean-aperture cropping and skipped intra-block copy, plus coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color decode, compatible alpha auxiliaries, and opaque grids",
+      "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode currently targets 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 still images, plus coded-lossless 10-bit and 12-bit YUV 4:4:4 identity-color images with native high-depth reconstruction before explicit RGBA conversion. The supported path includes compatible full-range monochrome alpha auxiliaries, opaque image grids, validated integer clean-aperture cropping, palette-coded screen content, skipped intra-block copy with adaptive integer motion vectors, quantizer contexts 0-3 used by the pinned fixtures, coded-lossless 4x4 transforms, container-signaled NCLX conversion including identity color, the documented 8-bit in-loop filters, and the restricted Sharp/libaom quantization-matrix path. Fractional clean apertures, intra-block-copy residual transforms, grid alpha, lossy high bit depth, broader AV1 syntax, and encoding remain unfinished and fail explicitly.",
+      "memory": "Metadata reads are bounded; the restricted decoder uses compact luma or YUV state plus one full coded or composed RGBA output. Clean-aperture cropping selects rows from that output without allocating a second full-frame crop; grids additionally retain one decoded tile.",
       "recommendation": "Only pinned, compatible still-image subsets; inspect explicit limitations first.",
       "evidence": [
         "tests/avif.test.ts",
@@ -3158,13 +3158,14 @@
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
-        "oracle": "Sharp 0.35.3/libaom, FFmpeg with libaom 3.12.1 and dav1d 1.5.1, and Chromium",
-        "tolerance": "Quantizer-context-0 8-bit YUV 4:4:4 fixtures match Sharp/libavif exactly, including lossless identity-color and palette-coded screen-content output; coded-lossless 10-bit and 12-bit YUV 4:4:4 native planes are exact against their deterministic Y4M sources and displayed RGB differs from Sharp/libavif by at most 1; 8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; 8-bit YUV 4:2:2 and 4:4:4 planes are exact and displayed RGB exceeds 50 dB against Sharp; YUV 4:4:4 displayed RGB also exceeds 50 dB against Chromium; YUV 4:2:0 maximum error is at most 3 with PSNR at least 55 dB and displayed RGB above 39 dB; straight and premultiplied alpha RGBA is exact against Sharp/libavif after semantic unpremultiplication; the 1x5 grid exceeds 54 dB RGBA PSNR against Sharp/libavif",
+        "oracle": "Sharp 0.35.3/libaom, avifdec 1.3.0 with libaom 3.12.1 and dav1d 1.5.1, FFmpeg with libaom and dav1d, and Chromium",
+        "tolerance": "Quantizer-context-0 8-bit YUV 4:4:4 fixtures match Sharp/libavif exactly, including lossless identity-color and palette-coded screen-content output; the skipped intra-block-copy fixture matches agreeing libaom and dav1d native YUV exactly and displayed RGB differs by at most 1; coded-lossless 10-bit and 12-bit YUV 4:4:4 native planes are exact against their deterministic Y4M sources and displayed RGB differs from Sharp/libavif by at most 1; 8-bit monochrome luma is exact and displayed RGB exceeds 60 dB against Chromium; 8-bit YUV 4:2:2 and 4:4:4 planes are exact and displayed RGB exceeds 50 dB against Sharp; YUV 4:4:4 displayed RGB also exceeds 50 dB against Chromium; YUV 4:2:0 maximum error is at most 3 with PSNR at least 55 dB and displayed RGB above 39 dB; straight and premultiplied alpha RGBA is exact against Sharp/libavif after semantic unpremultiplication; the 1x5 grid exceeds 54 dB RGBA PSNR against Sharp/libavif",
         "evidence": [
           "tests/avif.test.ts",
           "tests/lossy-codec-quality.test.ts",
           "tests/av1-post-filter.test.ts",
-          "benchmark/avif/verify-qmatrix-fixtures.ts"
+          "benchmark/avif/verify-qmatrix-fixtures.ts",
+          "benchmark/avif/verify-intrabc-fixture.ts"
         ]
       },
       "claims": [
@@ -3329,8 +3330,8 @@
           "text": "Pixel decoding and composition of compatible alpha auxiliary items"
         },
         {
-          "status": "planned",
-          "text": "Clean-aperture cropping through `clap`"
+          "status": "supported",
+          "text": "Validated integer clean-aperture cropping through `clap`; fractional dimensions and origins remain explicitly unsupported"
         },
         {
           "status": "planned",
@@ -3521,8 +3522,12 @@
           "text": "Alpha-bearing image grids"
         },
         {
+          "status": "supported",
+          "text": "Skipped intra block copy with adaptive integer motion-vector coding"
+        },
+        {
           "status": "planned",
-          "text": "Intra block copy and other screen-content tools"
+          "text": "Intra-block-copy residual transforms and other screen-content tools"
         },
         {
           "status": "supported",
@@ -3910,11 +3915,27 @@
         },
         {
           "status": "supported",
+          "text": "Match agreeing libaom and dav1d native YUV exactly for the checksum-pinned 320x280 skipped intra-block-copy fixture"
+        },
+        {
+          "status": "supported",
+          "text": "Apply the checksum-pinned 8x6 integer clean aperture to its 16x12 coded image and match Sharp/libavif RGBA exactly"
+        },
+        {
+          "status": "supported",
+          "text": "Exercise clean-aperture cropping through the portable codec entry in Chromium and pin its RGBA output"
+        },
+        {
+          "status": "supported",
           "text": "Reconstruct native 10-bit and 12-bit planes exactly for two checksum-pinned coded-lossless YUV 4:4:4 fixtures and hold displayed RGB maximum error to 1 against Sharp/libavif"
         },
         {
           "status": "supported",
           "text": "Exercise palette-coded 8-bit and coded-lossless 10-bit and 12-bit decoding through the portable codec entry in Chromium"
+        },
+        {
+          "status": "supported",
+          "text": "Exercise skipped intra-block-copy decoding through the portable codec entry in Chromium"
         },
         {
           "status": "supported",

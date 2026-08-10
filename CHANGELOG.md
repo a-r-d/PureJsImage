@@ -58,6 +58,14 @@ All notable changes to PureJsImage are documented in this file.
   native high-depth prediction and coefficient reconstruction before explicit
   conversion to the 8-bit RGBA contract; pinned fixtures reconstruct source
   planes exactly and differ from Sharp/libavif displayed RGB by at most one.
+- Added constrained skipped intra-block-copy reconstruction for compatible AVIF
+  screen content, including adaptive integer motion vectors and allocation-free
+  in-place plane copies; the pinned 320x280 fixture matches agreeing libaom and
+  dav1d native YUV exactly.
+- Added validated AVIF clean-aperture cropping for integer `clap` rectangles
+  without allocating a second full-frame buffer; malformed, out-of-bounds, and
+  fractional apertures fail explicitly, and the pinned fixture matches
+  Sharp/libavif RGBA exactly in Node.js and Chromium.
 
 ### Changed
 

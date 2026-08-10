@@ -559,6 +559,23 @@ const avifPalette = (): Promise<BrowserWorkflowResult> =>
     '2aa96c2acef4969d3e034ccc38d4cbcd80caa3cc1b14dd976fc3a4bcbeb0b07f',
     'Palette-coded screen-content AVIF',
   )
+const avifIntrabc = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'blue-and-magenta-crop.avif',
+    180,
+    100,
+    'dfd67e0ae631102f05399763ccae1f0b0e639c38b38f21d000927741c089cc00',
+    'Clean-aperture cropped skipped intra-block-copy AVIF',
+  )
+
+const avifCleanAperture = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'clean-aperture-lossless-16x12.avif',
+    8,
+    6,
+    'b4f3dd1a9180c53513814f078199ea69d943409cafcd1befdd90595bd66c04dc',
+    'Clean-aperture AVIF',
+  )
 
 const avifHighBit10 = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
@@ -772,9 +789,11 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   animatedGifFrameSelection,
   avifAlphaPremultiplied,
   avifAlphaStraight,
+  avifCleanAperture,
   avifGrid,
   avifHighBit10,
   avifHighBit12,
+  avifIntrabc,
   avifQuantizationMatrix,
   avifQ0Lossless,
   avifPalette,

@@ -5,6 +5,10 @@ import { PNG } from 'pngjs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
+import {
+  avifCleanApertureFixture,
+  avifCleanApertureFixtureDirectory,
+} from '../benchmark/avif/clean-aperture-fixture.ts'
 import { avifAlphaFixtures } from '../benchmark/avif/alpha-fixtures.ts'
 import {
   avifQ0FixtureDirectory,
@@ -54,6 +58,17 @@ const lossyIntraAvif = Buffer.from(
   'AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADxbWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAOcGl0bQAAAAAAAQAAAB5pbG9jAAAAAEQAAAEAAQAAAAEAAAEZAAAAMQAAAChpaW5mAAAAAAABAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAABwaXBycAAAAFFpcGNvAAAAFGlzcGUAAAAAAAAABAAAAAQAAAAWcGl4aQAAAAEDCAgIAgACIAIgAAAADGF2MUOBAA0AAAAAE2NvbHJuY2x4AAIAAgACgAAAABdpcG1hAAAAAAAAAAEAAQQBAoMEAAAAOW1kYXQSAAoFGAR9gUgyJhfACSSSRABOQpsmXwal4c1e451a75FxWtQXOrIX0TGFWyby7pvW',
   'base64',
 )
+
+type CleanApertureValues = readonly [
+  widthNumerator: number,
+  widthDenominator: number,
+  heightNumerator: number,
+  heightDenominator: number,
+  horizontalOffsetNumerator: number,
+  horizontalOffsetDenominator: number,
+  verticalOffsetNumerator: number,
+  verticalOffsetDenominator: number,
+]
 
 const avifBitstreamFixture = ({
   codedPayload = av1SequenceObu,
@@ -129,6 +144,8 @@ const avifFixture = ({
   alpha = false,
   bitDepth = 10,
   chroma = '420',
+  cleanApertureAfterRotation = false,
+  cleanApertures = [],
   compatibleMajorBrand = false,
   height = 480,
   profile = 0,
@@ -138,6 +155,8 @@ const avifFixture = ({
   alpha?: boolean
   bitDepth?: 8 | 10 | 12
   chroma?: '400' | '420' | '422' | '444'
+  cleanApertureAfterRotation?: boolean
+  cleanApertures?: readonly CleanApertureValues[]
   compatibleMajorBrand?: boolean
   height?: number
   profile?: number
@@ -149,6 +168,13 @@ const avifFixture = ({
   const monochrome = chroma === '400' ? 0x10 : 0
   const subsamplingX = chroma === '420' || chroma === '422' ? 0x08 : 0
   const subsamplingY = chroma === '420' ? 0x04 : 0
+  const cleanApertureProperties = cleanApertures.map((values) =>
+    box(
+      'clap',
+      values.flatMap((value) => bytes32(value)),
+    ),
+  )
+  const rotationProperties = rotation === undefined ? [] : [box('irot', [rotation])]
   const properties = [
     fullBox('ispe', [...bytes32(width), ...bytes32(height)]),
     fullBox('pixi', [3, bitDepth, bitDepth, bitDepth]),
@@ -159,7 +185,9 @@ const avifFixture = ({
       0,
     ]),
     box('colr', [...ascii('nclx'), 0, 1, 0, 13, 0, 6, 0x80]),
-    ...(rotation === undefined ? [] : [box('irot', [rotation])]),
+    ...(!cleanApertureAfterRotation ? cleanApertureProperties : []),
+    ...rotationProperties,
+    ...(cleanApertureAfterRotation ? cleanApertureProperties : []),
     ...(alpha
       ? [fullBox('auxC', [...ascii('urn:mpeg:mpegB:cicp:systems:auxiliary:alpha'), 0])]
       : []),
@@ -255,6 +283,74 @@ describe('AVIF metadata', () => {
     await expect((await Image.open(input)).metadata()).rejects.toMatchObject({
       code: 'INVALID_INPUT',
     })
+  })
+
+  it('reports validated integer clean-aperture dimensions', async () => {
+    const metadata = await (
+      await Image.open(
+        avifFixture({
+          bitDepth: 8,
+          chroma: '444',
+          width: 16,
+          height: 12,
+          cleanApertures: [[8, 1, 6, 1, -1, 1, -1, 1]],
+        }),
+      )
+    ).metadata()
+
+    expect(metadata).toMatchObject({ width: 8, height: 6 })
+  })
+
+  it.each([
+    {
+      label: 'zero denominator',
+      cleanApertures: [[8, 0, 6, 1, -1, 1, -1, 1]],
+      code: 'INVALID_INPUT',
+    },
+    {
+      label: 'zero width',
+      cleanApertures: [[0, 1, 6, 1, -1, 1, -1, 1]],
+      code: 'INVALID_INPUT',
+    },
+    {
+      label: 'out-of-bounds rectangle',
+      cleanApertures: [[18, 1, 6, 1, 0, 1, 0, 1]],
+      code: 'INVALID_INPUT',
+    },
+    {
+      label: 'fractional dimensions',
+      cleanApertures: [[15, 2, 6, 1, 0, 1, 0, 1]],
+      code: 'UNSUPPORTED_OPERATION',
+    },
+    {
+      label: 'fractional origin',
+      cleanApertures: [[7, 1, 6, 1, 0, 1, 0, 1]],
+      code: 'UNSUPPORTED_OPERATION',
+    },
+    {
+      label: 'duplicate properties',
+      cleanApertures: [
+        [8, 1, 6, 1, -1, 1, -1, 1],
+        [8, 1, 6, 1, -1, 1, -1, 1],
+      ],
+      code: 'INVALID_INPUT',
+    },
+  ] as const)('rejects $label in clean-aperture metadata', async ({ cleanApertures, code }) => {
+    const image = await Image.open(avifFixture({ width: 16, height: 12, cleanApertures }))
+    await expect(image.metadata()).rejects.toMatchObject({ code })
+  })
+
+  it('rejects clean aperture associated after rotation', async () => {
+    const image = await Image.open(
+      avifFixture({
+        width: 16,
+        height: 12,
+        rotation: 1,
+        cleanApertureAfterRotation: true,
+        cleanApertures: [[8, 1, 6, 1, -1, 1, -1, 1]],
+      }),
+    )
+    await expect(image.metadata()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
   })
 })
 
@@ -402,6 +498,57 @@ describe('AVIF restricted pixel decode', () => {
     expect([output.width, output.height]).toEqual([33, 11])
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(
       'f803b121d2471ac44b32170380ab02f8174ddf1079f9425de921dde00ac91fc7',
+    )
+  })
+
+  it('applies a clean aperture exactly against the pinned Sharp oracle', async () => {
+    const fixture = avifCleanApertureFixture
+    const input = await readFile(join(avifCleanApertureFixtureDirectory, fixture.file))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const image = await Image.open(input)
+    const metadata = await image.metadata()
+    const output = PNG.sync.read(await image.png().toBuffer())
+    const oracle = await sharp(input).ensureAlpha().raw().toBuffer()
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(inspection.displayRegion).toEqual(fixture.crop)
+    expect(metadata).toMatchObject({ width: fixture.crop.width, height: fixture.crop.height })
+    expect([output.width, output.height]).toEqual([fixture.crop.width, fixture.crop.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+    expect(createHash('sha256').update(oracle).digest('hex')).toBe(fixture.sharpRgbaSha256)
+    expect(output.data).toEqual(oracle)
+  })
+  it('decodes the pinned skipped intra-block-copy fixture exactly in native YUV', async () => {
+    const input = await readFile(join(avifCorpusDirectory, 'blue-and-magenta-crop.avif'))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('Intra-block-copy fixture has no color frame OBU')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+    const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
+    const nativeYuv = new Uint8Array(320 * 280 * 3)
+    for (let plane = 0; plane < 3; plane += 1) {
+      const samples = plane === 0 ? decoded.y : plane === 1 ? decoded.u : decoded.v
+      const stride = plane === 0 ? decoded.yStride : decoded.chromaStride
+      for (let row = 0; row < 280; row += 1) {
+        nativeYuv.set(
+          samples.subarray(row * stride, row * stride + 320),
+          plane * 320 * 280 + row * 320,
+        )
+      }
+    }
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(
+      'fa8fafe0aeddf18586a987ffb3ae26d3548b174ddcfd569c4ba16d4d804c8137',
+    )
+    expect(frame.header.allowIntrabc).toBe(true)
+    expect(createHash('sha256').update(nativeYuv).digest('hex')).toBe(
+      'c50dbaedfe2846c692753d1b4b6a760de1d09b4f065403400458e5006ad9d170',
+    )
+    expect([output.width, output.height]).toEqual([180, 100])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      'dfd67e0ae631102f05399763ccae1f0b0e639c38b38f21d000927741c089cc00',
     )
   })
 

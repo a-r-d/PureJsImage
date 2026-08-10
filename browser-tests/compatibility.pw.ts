@@ -128,6 +128,20 @@ test('decodes coded-lossless 12-bit AVIF', async ({ page }) => {
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 
+test('applies an AVIF clean aperture', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifCleanAperture())
+  expect(result.outputBytes).toBeGreaterThan(50)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
+test('decodes and crops skipped intra-block-copy AVIF content', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifIntrabc())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
 test('decodes and composes a cropped-edge AVIF image grid', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifGrid())

@@ -53,7 +53,27 @@ interface NclxColor {
   readonly transferCharacteristics: number
 }
 
+interface Rational {
+  readonly numerator: number
+  readonly denominator: number
+}
+
+interface CleanAperture {
+  readonly width: Rational
+  readonly height: Rational
+  readonly horizontalOffset: Rational
+  readonly verticalOffset: Rational
+}
+
+interface PixelRegion {
+  readonly height: number
+  readonly width: number
+  readonly x: number
+  readonly y: number
+}
+
 type Property =
+  | { readonly type: 'clap'; readonly aperture: CleanAperture }
   | { readonly type: 'av1C'; readonly configuration: Av1Configuration }
   | { readonly type: 'auxC'; readonly auxiliaryType: string }
   | {
@@ -134,6 +154,11 @@ const colorSpaceName = (
   if (primaries === 12 && transfer === 13) return 'display-p3'
   if (primaries === 9) return 'rec2020'
   return `nclx:${primaries}/${transfer}/${matrix}/${fullRange ? 'full' : 'limited'}`
+}
+
+const int32BigEndian = (data: Uint8Array, offset: number): number => {
+  const value = uint32BigEndian(data, offset)
+  return value > 0x7fff_ffff ? value - 0x1_0000_0000 : value
 }
 
 const parseProperty = async (source: ImageSource, box: Box): Promise<Property> => {
@@ -242,6 +267,29 @@ const parseProperty = async (source: ImageSource, box: Box): Promise<Property> =
     }
     return { type: 'irot', angle: (data[0] ?? 0) & 3 }
   }
+  if (box.type === 'clap') {
+    const data = await payload(source, box, 32)
+    if (data.byteLength !== 32) throw invalidInput('AVIF clap property is invalid')
+    const aperture: CleanAperture = {
+      width: { numerator: uint32BigEndian(data, 0), denominator: uint32BigEndian(data, 4) },
+      height: { numerator: uint32BigEndian(data, 8), denominator: uint32BigEndian(data, 12) },
+      horizontalOffset: {
+        numerator: int32BigEndian(data, 16),
+        denominator: uint32BigEndian(data, 20),
+      },
+      verticalOffset: {
+        numerator: int32BigEndian(data, 24),
+        denominator: uint32BigEndian(data, 28),
+      },
+    }
+    for (const value of Object.values(aperture)) {
+      if (value.denominator === 0) throw invalidInput('AVIF clap denominator must not be zero')
+    }
+    if (aperture.width.numerator === 0 || aperture.height.numerator === 0) {
+      throw invalidInput('AVIF clap dimensions must be positive')
+    }
+    return { type: 'clap', aperture }
+  }
   return { type: 'unknown' }
 }
 
@@ -277,6 +325,53 @@ const firstProperty = <Type extends Property['type']>(
   return properties.find(
     (property): property is Extract<Property, { type: Type }> => property.type === type,
   )
+}
+
+const oneProperty = <Type extends Property['type']>(
+  properties: readonly Property[],
+  type: Type,
+): Extract<Property, { type: Type }> | undefined => {
+  const matches = properties.filter(
+    (property): property is Extract<Property, { type: Type }> => property.type === type,
+  )
+  if (matches.length > 1) throw invalidInput(`AVIF item has conflicting ${type} properties`)
+  return matches[0]
+}
+
+const cleanApertureRegion = (
+  source: { readonly width: number; readonly height: number },
+  aperture: CleanAperture | undefined,
+): PixelRegion => {
+  if (!aperture) return { x: 0, y: 0, ...source }
+  const width = aperture.width.numerator / aperture.width.denominator
+  const height = aperture.height.numerator / aperture.height.denominator
+  if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height)) {
+    throw unsupportedOperation('Fractional AVIF clean-aperture dimensions are unsupported')
+  }
+  const horizontalOffset =
+    aperture.horizontalOffset.numerator / aperture.horizontalOffset.denominator
+  const verticalOffset = aperture.verticalOffset.numerator / aperture.verticalOffset.denominator
+  const x = (source.width - width) / 2 + horizontalOffset
+  const y = (source.height - height) / 2 + verticalOffset
+  if (x < 0 || y < 0 || x + width > source.width || y + height > source.height) {
+    throw invalidInput('AVIF clean aperture exceeds its source image')
+  }
+  if (!Number.isSafeInteger(x) || !Number.isSafeInteger(y)) {
+    throw unsupportedOperation('Fractional AVIF clean-aperture origins are unsupported')
+  }
+  return { x, y, width, height }
+}
+
+const validateTransformProperties = (properties: readonly Property[]): void => {
+  let seenRotation = false
+  for (const property of properties) {
+    if (property.type === 'irot') seenRotation = true
+    else if (property.type === 'clap' && seenRotation) {
+      throw invalidInput('AVIF transformative properties are associated in an invalid order')
+    }
+  }
+  oneProperty(properties, 'clap')
+  oneProperty(properties, 'irot')
 }
 
 const MAX_ITEM_PAYLOAD_BYTES = 128 * 1024 * 1024
@@ -376,6 +471,7 @@ export interface AvifBitstreamInspection {
   readonly alphaItemId?: number
   readonly codedImages: readonly AvifCodedImageInspection[]
   readonly colorItemIds: readonly number[]
+  readonly displayRegion: PixelRegion
   readonly colorTransform?: RgbIccTransform
   readonly nclx?: NclxColor
   readonly grid?: AvifGridDescription
@@ -412,7 +508,15 @@ export const inspectAvifBitstreams = async (
   if (primaryType !== 'av01' && primaryType !== 'grid') {
     throw invalidInput(`Unsupported AVIF primary item type: ${primaryType ?? 'missing'}`)
   }
-  const colorProperty = firstProperty(propertiesFor(meta, primaryItemId), 'colr')
+  const primaryProperties = propertiesFor(meta, primaryItemId)
+  validateTransformProperties(primaryProperties)
+  const primaryDimensions = firstProperty(primaryProperties, 'ispe')
+  if (!primaryDimensions) throw invalidInput('AVIF primary item has no spatial extents')
+  const displayRegion = cleanApertureRegion(
+    primaryDimensions,
+    oneProperty(primaryProperties, 'clap')?.aperture,
+  )
+  const colorProperty = firstProperty(primaryProperties, 'colr')
   const colorTransform = colorProperty?.colorTransform
   const nclx = colorProperty?.nclx
 
@@ -421,8 +525,7 @@ export const inspectAvifBitstreams = async (
   if (primaryType === 'av01') colorItemIds = [primaryItemId]
   else {
     grid = parseGrid(await readItemPayload(source, meta, primaryItemId))
-    const dimensions = firstProperty(propertiesFor(meta, primaryItemId), 'ispe')
-    if (!dimensions || dimensions.width !== grid.width || dimensions.height !== grid.height) {
+    if (primaryDimensions.width !== grid.width || primaryDimensions.height !== grid.height) {
       throw invalidInput('AVIF grid dimensions do not match its spatial extents')
     }
     const references = meta.references
@@ -479,7 +582,7 @@ export const inspectAvifBitstreams = async (
       role,
       width: dimensions.width,
       height: dimensions.height,
-      rotation: firstProperty(itemProperties, 'irot')?.angle ?? 0,
+      rotation: oneProperty(itemProperties, 'irot')?.angle ?? 0,
       configurationMatchesSequence: av1ConfigurationMatches(configuration, stream.sequence),
       payloadBytes: data.byteLength,
       obus: stream.obus,
@@ -492,6 +595,7 @@ export const inspectAvifBitstreams = async (
     primaryItemType: primaryType,
     colorItemIds,
     premultipliedAlpha,
+    displayRegion,
     ...(colorTransform ? { colorTransform } : {}),
     ...(grid ? { grid } : {}),
     ...(alphaItemId !== undefined ? { alphaItemId } : {}),
@@ -515,9 +619,14 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
   if (meta.primaryItemId === undefined) throw invalidInput('AVIF has no primary item')
   const primaryItemId = meta.primaryItemId
   const primaryProperties = propertiesFor(meta, primaryItemId)
+  validateTransformProperties(primaryProperties)
   const dimensions = firstProperty(primaryProperties, 'ispe')
   if (!dimensions) throw invalidInput('AVIF primary item has no spatial extents')
   validateImageDimensions(dimensions.width, dimensions.height, 1, limits)
+  const displayRegion = cleanApertureRegion(
+    dimensions,
+    oneProperty(primaryProperties, 'clap')?.aperture,
+  )
 
   const relatedItemIds = meta.references
     .filter((reference) => reference.fromItemId === primaryItemId && reference.type === 'dimg')
@@ -532,7 +641,7 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
     throw invalidInput('AVIF pixi and av1C bit depths do not match')
   }
   const color = firstProperty(primaryProperties, 'colr')
-  const rotation = firstProperty(primaryProperties, 'irot')
+  const rotation = oneProperty(primaryProperties, 'irot')
   const hasAlpha = meta.references.some(
     (reference) =>
       reference.type === 'auxl' &&
@@ -548,8 +657,8 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
   return {
     format: 'avif',
     mimeType: 'image/avif',
-    width: dimensions.width,
-    height: dimensions.height,
+    width: displayRegion.width,
+    height: displayRegion.height,
     hasAlpha,
     ...(!sequenceBrand ? { frames: 1 } : {}),
     ...(bitDepth !== undefined ? { bitDepth } : {}),
@@ -608,10 +717,16 @@ class AvifPixelDecoder implements ImageDecoder {
     progressive: false,
   })
   readonly #pixels: Uint8Array
+  readonly #sourceWidth: number
+  readonly #sourceX: number
+  readonly #sourceY: number
 
-  constructor(width: number, height: number, pixels: Uint8Array) {
-    this.width = width
-    this.height = height
+  constructor(sourceWidth: number, displayRegion: PixelRegion, pixels: Uint8Array) {
+    this.width = displayRegion.width
+    this.height = displayRegion.height
+    this.#sourceWidth = sourceWidth
+    this.#sourceX = displayRegion.x
+    this.#sourceY = displayRegion.y
     this.#pixels = pixels
   }
 
@@ -623,7 +738,11 @@ class AvifPixelDecoder implements ImageDecoder {
       const stride = region.width * 4
       const data = new Uint8Array(stride * blockHeight)
       for (let row = 0; row < blockHeight; row += 1) {
-        const sourceOffset = ((region.y + rowStart + row) * this.width + region.x) * 4
+        const sourceOffset =
+          ((this.#sourceY + region.y + rowStart + row) * this.#sourceWidth +
+            this.#sourceX +
+            region.x) *
+          4
         data.set(this.#pixels.subarray(sourceOffset, sourceOffset + stride), row * stride)
       }
       yield {
@@ -782,8 +901,11 @@ const createAvifDecoder = async (
   const metadata = await inspectAvif(source, limits)
   const inspection = await inspectAvifBitstreams(source)
   let pixels: Uint8Array
+  let sourceWidth: number
   if (inspection.primaryItemType === 'grid') {
+    if (!inspection.grid) throw invalidInput('AVIF grid description is missing')
     pixels = decodeGrid(inspection, limits)
+    sourceWidth = inspection.grid.width
   } else {
     if (inspection.colorItemIds.length !== 1) {
       throw invalidInput('Single-image AVIF has an invalid color item count')
@@ -793,9 +915,10 @@ const createAvifDecoder = async (
     )
     if (!coded) throw invalidInput('AVIF has no coded primary color item')
     const frame = decodeCodedImage(coded, limits)
-    if (frame.width !== metadata.width || frame.height !== metadata.height) {
+    if (frame.width !== coded.width || frame.height !== coded.height) {
       throw invalidInput('AVIF display dimensions do not match its AV1 frame')
     }
+    sourceWidth = frame.width
     pixels = av1ToRgba(coded.sequence, frame, inspection.nclx)
     if (inspection.alphaItemId !== undefined) {
       const alpha = inspection.codedImages.find(
@@ -804,8 +927,8 @@ const createAvifDecoder = async (
       if (!alpha) throw invalidInput('AVIF alpha auxiliary item is not coded')
       applyAlpha(
         pixels,
-        metadata.width,
-        metadata.height,
+        frame.width,
+        frame.height,
         coded.rotation,
         alpha,
         decodeCodedImage(alpha, limits),
@@ -813,7 +936,13 @@ const createAvifDecoder = async (
       )
     }
   }
-  const decoder = new AvifPixelDecoder(metadata.width, metadata.height, pixels)
+  if (
+    metadata.width !== inspection.displayRegion.width ||
+    metadata.height !== inspection.displayRegion.height
+  ) {
+    throw invalidInput('AVIF clean-aperture metadata is inconsistent')
+  }
+  const decoder = new AvifPixelDecoder(sourceWidth, inspection.displayRegion, pixels)
   return inspection.colorTransform
     ? new ColorManagedDecoder(decoder, inspection.colorTransform)
     : decoder
