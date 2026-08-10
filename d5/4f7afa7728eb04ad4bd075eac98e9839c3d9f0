@@ -1,0 +1,64 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 9-11,60-66
+benchmark/results/imazen-bmp-conformance.json
+  h_9f4a25732fa0c1 1-2606
+benchmark/results/imazen-bmp-conformance.md
+  h_9f4a25732fa0c1 1-69
+benchmark/results/imazen-gif-conformance.json
+  h_9f4a25732fa0c1 1-946
+benchmark/results/imazen-gif-conformance.md
+  h_9f4a25732fa0c1 1-59
+benchmark/results/imazen-tiff-conformance.json
+  h_9f4a25732fa0c1 1-3176
+benchmark/results/imazen-tiff-conformance.md
+  h_9f4a25732fa0c1 1-71
+benchmark/results/imazen-webp-conformance.json
+  h_9f4a25732fa0c1 1-4246
+benchmark/results/imazen-webp-conformance.md
+  h_9f4a25732fa0c1 1-58
+bmp-codec-support.md
+  h_9f4a25732fa0c1 149-150
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 6,9,24-25,606-880,1067
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 89-96
+browser-tests/types.ts
+  h_9f4a25732fa0c1 13
+capabilities/manifest.json
+  h_9f4a25732fa0c1 425-426,618-619,644-648,797-798,825-830,849,872,875,878,916-917,942-946,1094-1095
+docs/capabilities.json
+  h_9f4a25732fa0c1 773-774,1202-1205,1225-1229,1587-1590,1613-1618,1662,1730,1742,1754,1859-1862,1882-1886,2215-2218
+gif-codec-support.md
+  h_9f4a25732fa0c1 148-149
+scripts/validate-imazen-corpus.ts
+  h_9f4a25732fa0c1 9-10,12-13,171-172,201,377-484,509-540,1015,1164,1193
+scripts/validate-imazen-worker.ts
+  h_9f4a25732fa0c1 3-4,7-8,11,40,43-50,61,69-71,111-114
+src/codecs/bmp.ts
+  h_9f4a25732fa0c1 385-393
+src/codecs/tiff.ts
+  h_9f4a25732fa0c1 11-17,478,483-486,488,490,501-504,529-539,592-602,616,624-630,807,969-976,980-987,1013-1014,1157,1162,1587,1594,1604,1628-1649,1652,1655,1657,1666-1668,1675-1679,1685-1689,1719-1720,1728,1749-1750,1762-1763,1768-1769,1777,1871-1874,1920-1964,2084-2094
+tests/bmp.test.ts
+  h_9f4a25732fa0c1 141-148,160-163
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 52-53,67-71,82-87,98-102
+tests/imazen-corpus-harness.test.ts
+  h_9f4a25732fa0c1 9,12,21-22,43-44,78-81,204,207-212,218-221,230-239,254-259,266-269,274-277,280,282-284,286,289-292,297-300,302-306
+tests/tiff.test.ts
+  h_9f4a25732fa0c1 279,292,344,349,364,388-415,447-474,689-708,720-722,729-744,795-816,898-978,1086-1100
+tiff-codec-support.md
+  h_9f4a25732fa0c1 19,42,45,48,86-87
+webp-codec-support.md
+  h_9f4a25732fa0c1 191-192
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "d54f7afa7728eb04ad4bd075eac98e9839c3d9f0",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
