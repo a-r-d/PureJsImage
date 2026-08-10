@@ -1,0 +1,60 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 35-38
+benchmark/README.md
+  h_9f4a25732fa0c1 60-66,69-71
+benchmark/corpus/manifest.json
+  h_9f4a25732fa0c1 670-691
+benchmark/lib/corpus.ts
+  h_9f4a25732fa0c1 74-75
+benchmark/results/imazen-tiff-conformance.json
+  h_9f4a25732fa0c1 3,5,417,435,453,471,489,507,525,543,561,579,597,615,633,651,669,687,705,723,741,759,777,795,813,831,849,867,885,903,921,939,957,975,993,1011,1029,1047,1065,1083,1101,1119,1137,1155,1173,1191,1209,1227,1245,1263,1281,1299,1317,1335,1353,1371,1389,1407,1425,1443,1461,1479,1497,1515,1533,1551,1569,1587,1605,1623,1641,1659,1677,1695,1713,1731,1767,1785,1803,1821,1839,1857,1875,1893,1911,1929,1947,1965,1983,2001,2019,2037,2055,2073,2091,2109,2127,2145,2163,2181,2199,2217,2235,2253,2271,2289,2307,2325,2343,2361,2379,2397,2415,2433,2451,2469,2487,2505,2523,2541,2559,2577,2595,2613,2631,2649,2667,2685,2703,2721,2739,2757,2775,2793,2811,2829,2847,2865,2883,2901,2919,2937,2955,2973,2991,3009,3027,3045,3063,3081,3099,3117,3135,3153,3171
+benchmark/results/imazen-tiff-conformance.md
+  h_9f4a25732fa0c1 64
+benchmark/results/imazen-tiff-dependencies.json
+  h_9f4a25732fa0c1 3
+benchmark/results/tiff-color-fillorder-cielab.json
+  h_9f4a25732fa0c1 1-486
+benchmark/results/tiff-color-fillorder-cielab.md
+  h_9f4a25732fa0c1 1-39
+benchmark/results/tiff-color-fillorder-fillorder.json
+  h_9f4a25732fa0c1 1-486
+benchmark/results/tiff-color-fillorder-fillorder.md
+  h_9f4a25732fa0c1 1-39
+benchmark/scripts/prepare-corpus.ts
+  h_9f4a25732fa0c1 181-184,219,255-349,866-869
+benchmark/types.ts
+  h_9f4a25732fa0c1 50-51
+benchmark/workflows.ts
+  h_9f4a25732fa0c1 897-926
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 613,623,657-658,661-662,671-718,1122-1199,1403,1413-1415
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 96-98
+capabilities/manifest.json
+  h_9f4a25732fa0c1 817-820,824,880-881,898,908,912,956-957
+docs/capabilities.json
+  h_9f4a25732fa0c1 1609-1612,1622,1755-1760,1815-1816,1940-1947
+docs/codecs.html
+  h_9f4a25732fa0c1 36,56,75,93
+src/codecs/tiff.ts
+  h_9f4a25732fa0c1 66,1234,2501-2507,2540,2579-2586
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 91
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 345
+tests/tiff.test.ts
+  h_9f4a25732fa0c1 1417-1501
+tiff-codec-support.md
+  h_9f4a25732fa0c1 44-45,62,72,76,120-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "a53c1cff922a0bfc687abd0cfc3a0c53c64b462c",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
