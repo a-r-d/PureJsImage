@@ -1,0 +1,22 @@
+avif-codec-support.md
+  h_9f4a25732fa0c1 283-284
+capabilities/manifest.json
+  h_9f4a25732fa0c1 2086-2087
+docs-astro/public/capabilities.json
+  h_9f4a25732fa0c1 4059-4062
+src/codecs/avif-encode.ts
+  h_9f4a25732fa0c1 13,599-603
+tests/avif.test.ts
+  h_9f4a25732fa0c1 2197-2213
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "6613aa9d6f68a2b223d615e00906845c29e9b360",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
