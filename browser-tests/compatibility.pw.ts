@@ -138,7 +138,7 @@ test('losslessly encodes WebP with exact browser pixels', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.webpLossless())
   expect(result.outputBytes).toBeGreaterThan(20)
-  expect(result.detail).toContain('matched browser RGBA pixels')
+  expect(result.detail).toContain('effort and near-lossless controls passed')
 })
 
 test('decodes lossy WebP macroblock rows in a real browser', async ({ page }) => {

@@ -94,4 +94,17 @@ describe('generated codec capability contract', () => {
       expect(implemented).toContain('preserv')
     }
   })
+
+  it('documents the implemented lossless WebP size controls', async () => {
+    const manifest = await readCapabilityManifest()
+    const webp = manifest.codecs.find(({ id }) => id === 'webp')
+    if (!webp) throw new Error('Missing WebP capability manifest')
+    expect(webp.boundary).not.toContain('not yet size-competitive')
+    expect(webp.recommendation).toContain('effort 6')
+    expect(webp.document).toContain('- [x] Spatially varying Huffman entropy groups')
+    expect(webp.document).toContain(
+      '- [x] Cross-color and packed color-indexing transform selection',
+    )
+    expect(webp.document).toContain('- [x] Near-lossless preprocessing')
+  })
 })

@@ -18,6 +18,11 @@ All notable changes to PureJsImage are documented in this file.
   documents and profiles, whole-slide operations, source reads, normalization, and numeric raster
   conversion. HTTP range reads combine source-lifetime and per-read signals so an obsolete viewer
   request cancels its in-flight fetch, and output sinks abort cleanly on cancellation.
+- Expanded the first-party lossless WebP encoder with packed palette and cross-color transforms,
+  spatial entropy groups, adaptive color-cache and LZ77 search, `effort` controls, and
+  `nearLossless` quality. The pinned 1200x480 production-style logo now encodes to 2,188 bytes
+  versus 6,850 bytes from PureJsImage PNG and 1,584 bytes from Sharp/libwebp, with exact
+  independent pixel reconstruction.
 
 
 ## [0.9.0] - 2026-08-09

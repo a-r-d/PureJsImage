@@ -22,7 +22,7 @@ const codeLengthOrder = Uint8Array.of(
   15,
 )
 
-const distanceMap = Int8Array.of(
+export const vp8lDistanceMap = Int8Array.of(
   0,
   1,
   1,
@@ -467,8 +467,8 @@ const prefixValue = (reader: BitReader, prefix: number): number => {
 const distanceValue = (code: number, width: number): number => {
   if (code > 120) return code - 120
   const offset = (code - 1) * 2
-  const x = distanceMap[offset]
-  const y = distanceMap[offset + 1]
+  const x = vp8lDistanceMap[offset]
+  const y = vp8lDistanceMap[offset + 1]
   if (x === undefined || y === undefined) throw invalidInput('WebP distance code is invalid')
   return Math.max(1, x + y * width)
 }

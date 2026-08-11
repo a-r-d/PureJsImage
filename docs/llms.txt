@@ -273,7 +273,7 @@ Important boundaries:
 
 - JPEG output supports baseline and optional refinement-based progressive output.
 - PNG output is 8-bit. Node compression levels are 0 through 9; browser `CompressionStream` currently supports level 6.
-- WebP output is static lossy or lossless.
+- WebP output is static lossy or lossless. For lossless output prefer `png()`; WebP lossless is not yet size-competitive.
 - BMP output is 24-bit RGB or 32-bit RGBA.
 - TIFF output is canonical Classic TIFF: little-endian, chunky 8-bit RGB/RGBA, Deflate strips, and horizontal prediction.
 - GIF, ICO, JPEG 2000, AVIF, and experimental HEIF/HEIC currently have no public pipeline encoder.
@@ -430,10 +430,10 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 - Import: `import { webpCodec } from 'purejsimage/codecs/webp'`
 - Decode: Yes (`supported`)
 - Encode: Yes (`supported`)
-- Implemented scope: Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy or lossless WebP with opt-in EXIF and compatible ICC preservation. Animation is detected and rejected for pixel decode.
+- Implemented scope: Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy, exact lossless, or near-lossless WebP with effort-based size optimization plus opt-in EXIF and compatible ICC preservation. Animation is detected and rejected for pixel decode.
 - Primary boundary: Static images only; compressed RIFF input and compact VP8L transform maps remain source-sized
-- Memory model: VP8 uses two macroblock rows; VP8L uses a fixed maximum 4 MiB entropy history plus scanline transform buffers. Decode still retains compressed input and compact transform maps. Lossless encode retains a 32-bit transformed frame, fixed 4 MiB match table, and encoded payload.
-- Recommended output use: Static web delivery with lossy or exact lossless modes; use the 12-megapixel VP8 and VP8L pressure fixtures when changing decode memory.
+- Memory model: VP8 uses two macroblock rows; VP8L uses a fixed maximum 4 MiB entropy history plus scanline transform buffers. Decode still retains compressed input and compact transform maps. Lossless encode retains one 32-bit transformed frame, a fixed maximum 4 MiB match table, and one encoded payload.
+- Recommended output use: Use effort 0 for faster lossless encoding or effort 6 for the smallest output. The first-party lossless encoder selects predictor, subtract-green, cross-color, palette, color-cache, LZ77, and spatial entropy coding without native dependencies.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/webp-codec-support.md
 
 ### BMP

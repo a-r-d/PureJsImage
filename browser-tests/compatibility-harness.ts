@@ -1790,7 +1790,7 @@ const rgbPsnr = (expected: Uint8ClampedArray, actual: Uint8ClampedArray): number
 
 const webpLossless = async (): Promise<BrowserWorkflowResult> => {
   const input = await fetchBytes('/fixtures/webp-graphic.png')
-  const output = await (await images.open(input)).webp({ lossless: true }).toUint8Array()
+  const output = await (await images.open(input)).webp({ lossless: true, effort: 6 }).toUint8Array()
   const metadata = await outputMetadata(output)
   if (metadata.format !== 'webp' || metadata.width !== 192 || metadata.height !== 128) {
     throw new Error(
@@ -1807,9 +1807,26 @@ const webpLossless = async (): Promise<BrowserWorkflowResult> => {
       throw new Error(`Lossless WebP changed browser pixel ${offset}`)
     }
   }
+  const nearOutput = await (await images.open(input))
+    .webp({ lossless: true, effort: 3, nearLossless: 80 })
+    .toUint8Array()
+  const nearMetadata = await outputMetadata(nearOutput)
+  if (nearMetadata.format !== 'webp' || nearMetadata.width !== 192 || nearMetadata.height !== 128) {
+    throw new Error(
+      `Near-lossless WebP output was ${nearMetadata.format} ${nearMetadata.width}x${nearMetadata.height}`,
+    )
+  }
+  const nearDecoded = await (await images.open(nearOutput)).png().toUint8Array()
+  const nearPixels = await browserPixels(nearDecoded, 'image/png')
+  for (let offset = 0; offset < sourcePixels.length; offset += 1) {
+    if (Math.abs((sourcePixels[offset] ?? 0) - (nearPixels[offset] ?? 0)) > 1) {
+      throw new Error(`Near-lossless WebP exceeded one-value error at browser pixel ${offset}`)
+    }
+  }
   return {
-    detail: 'first-party lossless WebP matched browser RGBA pixels',
-    outputBytes: output.byteLength,
+    detail:
+      'first-party lossless WebP matched browser RGBA pixels; effort and near-lossless controls passed',
+    outputBytes: output.byteLength + nearOutput.byteLength,
   }
 }
 

@@ -764,9 +764,9 @@
         "label": "Yes"
       },
       "boundary": "Static images only; compressed RIFF input and compact VP8L transform maps remain source-sized",
-      "description": "Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy or lossless WebP with opt-in EXIF and compatible ICC preservation. Animation is detected and rejected for pixel decode.",
-      "memory": "VP8 uses two macroblock rows; VP8L uses a fixed maximum 4 MiB entropy history plus scanline transform buffers. Decode still retains compressed input and compact transform maps. Lossless encode retains a 32-bit transformed frame, fixed 4 MiB match table, and encoded payload.",
-      "recommendation": "Static web delivery with lossy or exact lossless modes; use the 12-megapixel VP8 and VP8L pressure fixtures when changing decode memory.",
+      "description": "Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy, exact lossless, or near-lossless WebP with effort-based size optimization plus opt-in EXIF and compatible ICC preservation. Animation is detected and rejected for pixel decode.",
+      "memory": "VP8 uses two macroblock rows; VP8L uses a fixed maximum 4 MiB entropy history plus scanline transform buffers. Decode still retains compressed input and compact transform maps. Lossless encode retains one 32-bit transformed frame, a fixed maximum 4 MiB match table, and one encoded payload.",
+      "recommendation": "Use effort 0 for faster lossless encoding or effort 6 for the smallest output. The first-party lossless encoder selects predictor, subtract-green, cross-color, palette, color-cache, LZ77, and spatial entropy coding without native dependencies.",
       "evidence": [
         "tests/webp.test.ts",
         "tests/metadata-preservation.test.ts",
@@ -1026,23 +1026,27 @@
         },
         {
           "status": "supported",
-          "text": "Public `image.webp({ lossless: true })` and `image.encode('webp', { lossless: true })` APIs"
-        },
-        {
-          "status": "planned",
           "text": "Spatially varying Huffman entropy groups"
         },
         {
-          "status": "planned",
-          "text": "Cross-color and color-indexing transform selection"
+          "status": "supported",
+          "text": "Cross-color and packed color-indexing transform selection"
         },
         {
-          "status": "planned",
-          "text": "Compression-effort controls and better output-size optimization"
+          "status": "supported",
+          "text": "Compression `effort` control from 0 through 6"
         },
         {
-          "status": "planned",
-          "text": "Near-lossless WebP encoding"
+          "status": "supported",
+          "text": "Near-lossless preprocessing through `nearLossless` quality from 0 through 100"
+        },
+        {
+          "status": "supported",
+          "text": "Output below PureJsImage PNG across the pinned deterministic graphic, JPEG-decoded, and production-style transparent logo fixtures"
+        },
+        {
+          "status": "supported",
+          "text": "Public `image.webp({ lossless: true })` and `image.encode('webp', { lossless: true })` APIs"
         },
         {
           "status": "supported",
@@ -1174,7 +1178,7 @@
         },
         {
           "status": "supported",
-          "text": "Require deterministic PNG and JPEG-decoded graphics' lossless WebP output to remain smaller than PureJsImage PNG, and record the pinned production-style logo result alongside libwebp in an isolated size and peak-RSS benchmark"
+          "text": "Require pinned deterministic PNG and JPEG-decoded benchmark fixtures to remain smaller as lossless WebP than as PureJsImage PNG, and record the pinned production-style logo result alongside libwebp in an isolated size and peak-RSS"
         },
         {
           "status": "supported",

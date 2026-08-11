@@ -50,7 +50,12 @@ export interface PngEncodeOptions {
 }
 
 export interface WebpEncodeOptions {
+  /** Lossless VP8L output. Required when nearLossless is set. */
   lossless?: boolean
+  /** Encoder search effort from 0 (fastest) through 6 (smallest). */
+  effort?: number
+  /** VP8L near-lossless preprocessing quality from 0 (strongest) through 100 (off). */
+  nearLossless?: number
   quality?: number
 }
 
@@ -265,6 +270,23 @@ export const createWebpEncodeOperation = (options: WebpEncodeOptions): PipelineO
   }
   if (options.lossless !== undefined && typeof options.lossless !== 'boolean') {
     throw invalidInput('WebP lossless must be a boolean')
+  }
+  if (
+    options.effort !== undefined &&
+    (!Number.isInteger(options.effort) || options.effort < 0 || options.effort > 6)
+  ) {
+    throw invalidInput('WebP effort must be an integer from 0 to 6')
+  }
+  if (
+    options.nearLossless !== undefined &&
+    (!Number.isInteger(options.nearLossless) ||
+      options.nearLossless < 0 ||
+      options.nearLossless > 100)
+  ) {
+    throw invalidInput('WebP nearLossless must be an integer from 0 to 100')
+  }
+  if (options.nearLossless !== undefined && options.lossless !== true) {
+    throw invalidInput('WebP nearLossless requires lossless: true')
   }
   return Object.freeze({ type: 'encode', format: 'webp', options: Object.freeze({ ...options }) })
 }
