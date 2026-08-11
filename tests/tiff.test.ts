@@ -16,6 +16,7 @@ import {
 } from '../src/codecs/tiff.ts'
 import { isAperioSvs, openAperioSvs } from '../src/pathology/aperio-svs.ts'
 import { isOmeTiff, omeTiffProfile, openOmeTiff } from '../src/scientific/ome-tiff.ts'
+import { renderScientificPlane } from '../src/scientific/render.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { geoTiffProfile } from '../src/geotiff.ts'
@@ -3820,6 +3821,15 @@ describe('OME-TIFF scientific semantics', () => {
     expect(blocks).toHaveLength(1)
     expect(blocks[0]?.format).toEqual({ sampleType: 'uint8', channels: 2, planar: true })
     expect(Array.from(blocks[0]?.data ?? [])).toEqual([30, 60, 10, 40])
+
+    const rendered = await renderScientificPlane(dataset, {
+      plane: { z: 0, c: 2, t: 0 },
+      range: { mode: 'explicit', min: 0, max: 60 },
+      palette: 'grayscale',
+    })
+    const display: number[] = []
+    for await (const block of rendered.pixels) display.push(...block.data)
+    expect(display).toEqual([128, 128, 128, 255, 255, 255])
   })
 
   it('maps multidimensional TiffData planes and reduced-resolution SubIFDs', async () => {

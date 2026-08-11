@@ -1,0 +1,18 @@
+ENVI
+description = {
+  Deterministic specification-derived PureJsImage hyperspectral demonstration }
+samples = 96
+lines = 64
+bands = 16
+header offset = 0
+file type = ENVI Standard
+data type = 12
+interleave = bil
+sensor type = Synthetic Pushbroom
+byte order = 0
+wavelength units = Nanometers
+wavelength = { 450, 480, 510, 540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840, 870, 900 }
+fwhm = { 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18 }
+band names = { 450 nm, 480 nm, 510 nm, 540 nm, 570 nm, 600 nm, 630 nm, 660 nm, 690 nm, 720 nm, 750 nm, 780 nm, 810 nm, 840 nm, 870 nm, 900 nm }
+default bands = { 8, 5, 2 }
+data ignore value = 0

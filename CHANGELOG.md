@@ -6,6 +6,23 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added first-party Gwyddion Simple Field scientific raster reading and writing with strict
+  float32 payload validation, physical metadata preservation, bounded region reads, and portable
+  Node/browser inputs.
+- Added paired-file ENVI Standard reading for BSQ, BIL, and BIP rasters; seven native integer and
+  floating-point sample types; both byte orders; spectral metadata; bounded band/ROI reads; and a
+  Node `.hdr` path convenience entry. Omitted header offsets default to zero for compatible
+  institutional rasters. Complex and 64-bit integer samples remain explicit unsupported boundaries.
+- Added generic bounded scientific display mapping for GSF, ENVI, and OME-TIFF datasets with
+  explicit, dataset, or bounded-sample percentile ranges; linear, log, square-root, and asinh
+  scales; grayscale and four first-party perceptual palettes; scalar-surface relief; wavelength
+  selection; false-color composites; spectral integration; and band ratios.
+- Added the entirely client-side Scientific Raster Explorer with Web Worker rendering, local GSF
+  and paired ENVI file opening, deterministic synthetic fixtures, reproducible provenance and
+  hashes, honest read/timing metrics, AFM controls, and hyperspectral wavelength controls.
+- Documented the Bruker Nanoscope `.spm` capability investigation and stopped before implementing
+  a parser because the shared extension, acquisition variants, scaling references, and independent
+  native-sample corpus require a narrower validated contract.
 - Added immutable numeric `window()` and color `lut()` pipeline operations for browser viewers,
   including per-channel display ranges, grayscale-to-RGB/RGBA lookup tables, direct RGBA tables,
   bounded row output, and explicit output pixel formats.

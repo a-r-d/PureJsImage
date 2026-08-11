@@ -2,7 +2,7 @@ import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { RasterPlaneRequest } from './dataset.ts'
 import type { MultidimensionalRasterDataset } from './dataset.ts'
-import { scientificPaletteColor, type ScientificPalette } from './palettes.ts'
+import { scientificPaletteTable, type ScientificPalette } from './palettes.ts'
 import { rasterSampleOffset, readRasterSample, validateRasterBlock } from './samples.ts'
 
 export type ScientificDisplayScale = 'linear' | 'log' | 'sqrt' | 'asinh'
@@ -186,7 +186,8 @@ const scanRange = async (
   const totalPixels = (request.width ?? dataset.sizeX) * (request.height ?? dataset.sizeY)
   const sampleStride =
     range.mode === 'percentile' ? Math.max(1, Math.ceil(totalPixels / maxSamples)) : 1
-  const samples: number[] = []
+  const samples = new Float64Array(maxSamples)
+  let sampledValues = 0
   let minimum = Number.POSITIVE_INFINITY
   let maximum = Number.NEGATIVE_INFINITY
   let finiteSamples = 0
@@ -197,17 +198,25 @@ const scanRange = async (
         finiteSamples += 1
         minimum = Math.min(minimum, value)
         maximum = Math.max(maximum, value)
-        if (range.mode === 'percentile' && ordinal % sampleStride === 0) samples.push(value)
+        if (
+          range.mode === 'percentile' &&
+          ordinal % sampleStride === 0 &&
+          sampledValues < samples.length
+        ) {
+          samples[sampledValues] = value
+          sampledValues += 1
+        }
       }
       ordinal += 1
     }
   }
   if (finiteSamples === 0) throw invalidInput('Scientific plane contains no finite display samples')
   if (range.mode === 'percentile') {
-    if (samples.length === 0) throw invalidInput('Scientific percentile sample is empty')
-    samples.sort((left, right) => left - right)
-    minimum = samples[percentileIndex(samples.length, low)] ?? minimum
-    maximum = samples[percentileIndex(samples.length, high)] ?? maximum
+    if (sampledValues === 0) throw invalidInput('Scientific percentile sample is empty')
+    const sorted = samples.subarray(0, sampledValues)
+    sorted.sort()
+    minimum = sorted[percentileIndex(sampledValues, low)] ?? minimum
+    maximum = sorted[percentileIndex(sampledValues, high)] ?? maximum
   }
   if (minimum === maximum) {
     const delta = minimum === 0 ? 1 : Math.abs(minimum) * 0.5
@@ -217,7 +226,7 @@ const scanRange = async (
   return {
     range: { min: minimum, max: maximum },
     finiteSamples,
-    sampledValues: samples.length,
+    sampledValues,
   }
 }
 
@@ -283,7 +292,14 @@ const reliefFactor = (
   const right = current[Math.min(current.length - 1, x + 1)] ?? current[x] ?? range.min
   const above = previous[x] ?? current[x] ?? range.min
   const below = next[x] ?? current[x] ?? range.min
-  if (![left, right, above, below].every(Number.isFinite)) return 1
+  if (
+    !Number.isFinite(left) ||
+    !Number.isFinite(right) ||
+    !Number.isFinite(above) ||
+    !Number.isFinite(below)
+  ) {
+    return 1
+  }
   const span = range.max - range.min
   const dx = ((right - left) / span) * 2
   const dy = ((below - above) / span) * 2
@@ -300,12 +316,12 @@ const renderRows = async function* (
   dataset: MultidimensionalRasterDataset,
   request: Readonly<RasterPlaneRequest>,
   range: ScientificRenderRange,
-  palette: ScientificPalette,
+  palette: Uint8Array,
   scale: ScientificDisplayScale,
   relief: ResolvedRelief | undefined,
 ): AsyncGenerator<PixelBlock> {
   const iterator = scalarRows(dataset, request)[Symbol.asyncIterator]()
-  let currentResult = await iterator.next()
+  const currentResult = await iterator.next()
   if (currentResult.done) return
   let previous = currentResult.value.values
   let current = currentResult.value
@@ -322,12 +338,12 @@ const renderRows = async function* (
         output[outputOffset + 2] = 0
         continue
       }
-      const color = scientificPaletteColor(palette, scaledValue(value, range, scale))
+      const paletteOffset = Math.round(scaledValue(value, range, scale) * 255) * 3
       const factor =
         relief === undefined ? 1 : reliefFactor(previous, current.values, next, x, range, relief)
-      output[outputOffset] = Math.round(color[0] * factor)
-      output[outputOffset + 1] = Math.round(color[1] * factor)
-      output[outputOffset + 2] = Math.round(color[2] * factor)
+      output[outputOffset] = Math.round((palette[paletteOffset] ?? 0) * factor)
+      output[outputOffset + 1] = Math.round((palette[paletteOffset + 1] ?? 0) * factor)
+      output[outputOffset + 2] = Math.round((palette[paletteOffset + 2] ?? 0) * factor)
     }
     yield {
       x: request.x ?? 0,
@@ -353,7 +369,7 @@ export const renderScientificPlane = async (
   const request = planeRequest(options, region)
   const rangeMode = options.range ?? { mode: 'percentile', low: 1, high: 99 }
   const scan = await scanRange(dataset, request, rangeMode)
-  const palette = options.palette ?? 'grayscale'
+  const palette = scientificPaletteTable(options.palette ?? 'grayscale')
   const scale = options.scale ?? 'linear'
   if (scale !== 'linear' && scale !== 'log' && scale !== 'sqrt' && scale !== 'asinh') {
     throw invalidInput(`Unknown scientific display scale ${scale}`)

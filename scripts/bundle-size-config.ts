@@ -38,6 +38,11 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     maxMinifiedBytes: 55 * 1024,
   },
   {
+    id: 'scientific',
+    name: 'Core + scientific rasters',
+    contents: exportsFrom(['./src/index.ts', './src/scientific/index.ts']),
+  },
+  {
     id: 'png',
     name: 'Core + PNG',
     contents: exportsFrom(['./src/index.ts', './src/codec-entries/png.ts']),

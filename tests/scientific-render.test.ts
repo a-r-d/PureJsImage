@@ -86,6 +86,48 @@ class SyntheticDataset implements MultidimensionalRasterDataset {
   }
 }
 
+class ExclusiveReadDataset implements MultidimensionalRasterDataset {
+  readonly sizeX: number
+  readonly sizeY: number
+  readonly sizeZ: number
+  readonly sizeC: number
+  readonly sizeT: number
+  readonly sampleType: MultidimensionalRasterDataset['sampleType']
+  readonly dimensionOrder: string
+  readonly channels: readonly RasterChannelInfo[]
+  #reading = false
+  readonly #source: MultidimensionalRasterDataset
+
+  constructor(source: MultidimensionalRasterDataset) {
+    this.#source = source
+    this.sizeX = source.sizeX
+    this.sizeY = source.sizeY
+    this.sizeZ = source.sizeZ
+    this.sizeC = source.sizeC
+    this.sizeT = source.sizeT
+    this.sampleType = source.sampleType
+    this.dimensionOrder = source.dimensionOrder
+    this.channels = source.channels
+  }
+
+  async *readPlane(request: Readonly<RasterPlaneRequest>): AsyncGenerator<RasterBlock> {
+    const iterator = this.#source.readPlane(request)[Symbol.asyncIterator]()
+    while (true) {
+      if (this.#reading) throw new Error('Concurrent source read')
+      this.#reading = true
+      let result: IteratorResult<RasterBlock>
+      try {
+        await new Promise<void>((resolve) => setTimeout(resolve, 0))
+        result = await iterator.next()
+      } finally {
+        this.#reading = false
+      }
+      if (result.done) return
+      yield result.value
+    }
+  }
+}
+
 const scalarDataset = (width: number, height: number, values: readonly number[], noData?: number) =>
   new SyntheticDataset(
     width,
@@ -224,6 +266,16 @@ describe('hyperspectral helpers', () => {
     expect(pixels.slice(-3)).toEqual([255, 255, 255])
   })
 
+  it('serializes composite reads for single-reader raster sources', async () => {
+    const composite = await renderSpectralComposite(new ExclusiveReadDataset(spectralDataset()), {
+      red: 650,
+      green: 550,
+      blue: 450,
+      range: { mode: 'dataset' },
+    })
+    expect(await collectPixels(composite.pixels)).toHaveLength(18)
+  })
+
   it('integrates spectral ranges and computes ratios as native float64 rasters', async () => {
     const dataset = spectralDataset()
     const integrated = integrateSpectralRange(dataset, { from: 440, to: 660 })
@@ -234,5 +286,25 @@ describe('hyperspectral helpers', () => {
     expect(Number.isNaN(ratioValues[0])).toBe(true)
     expect(ratioValues[1]).toBe(201)
     expect(ratioValues[2]).toBe(101)
+  })
+
+  it('propagates source no-data samples through spectral math', async () => {
+    const channels: RasterChannelInfo[] = [500, 600].map((center) => ({
+      samplesPerPixel: 1,
+      spectral: { center, unit: 'nm' },
+    }))
+    const dataset = new SyntheticDataset(
+      2,
+      1,
+      channels,
+      Float32Array.from([1, -9_999, 2, 4]),
+      -9_999,
+    )
+    const integrated = await collectFloat64(integrateSpectralRange(dataset, { from: 500, to: 600 }))
+    const ratio = await collectFloat64(bandRatio(dataset, { numerator: 600, denominator: 500 }))
+    expect(integrated[0]).toBe(150)
+    expect(integrated[1]).toBeNaN()
+    expect(ratio[0]).toBe(2)
+    expect(ratio[1]).toBeNaN()
   })
 })

@@ -26,6 +26,10 @@
     "heic",
     "geotiff",
     "ome-tiff",
+    "gsf",
+    "envi",
+    "hyperspectral",
+    "afm",
     "scientific-imaging",
     "whole-slide-image"
   ],
@@ -188,6 +192,7 @@
     "docs:dev": "astro dev --root docs-astro",
     "docs:build": "node scripts/build-docs-site.ts",
     "docs:preview": "astro preview --root docs-astro",
+    "demo:scientific:generate": "node scripts/generate-scientific-demo-data.ts",
     "size": "npm run build && node scripts/measure-bundle-size.ts",
     "test": "vitest run",
     "test:hostile-source": "PUREJSIMAGE_HOSTILE_SOURCE=1 vitest run",

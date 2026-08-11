@@ -30,6 +30,7 @@
   <a href="https://purejsimage.com/">Documentation</a> ·
   <a href="https://purejsimage.com/demo/"><strong>Live browser demo</strong></a> ·
   <a href="https://purejsimage.com/wsi/"><strong>Whole-slide demo</strong></a> ·
+  <a href="https://purejsimage.com/scientific/"><strong>Scientific explorer</strong></a> ·
   <a href="#install">Install</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#supported-codecs">Codecs</a> ·
@@ -48,8 +49,8 @@ workload families:
 
 - **Application images:** inspect, orient, crop, resize, and transcode common
   formats.
-- **Large and native rasters:** TIFF, OME-TIFF, GeoTIFF/COG, whole-slide images,
-  remote regions, and N-channel numeric data.
+- **Large and native rasters:** GSF surfaces, ENVI hyperspectral cubes, TIFF,
+  OME-TIFF, GeoTIFF/COG, whole-slide images, remote regions, and N-channel numeric data.
 
 The same source, codec, and pipeline architecture targets Node.js, modern
 browsers, serverless, edge, and restricted deployments. It is not a canvas,
@@ -127,9 +128,20 @@ const profiles = createTiffProfileRegistry([omeTiffProfile])
 const dataset = await profiles.openWith(document, omeTiffProfile)
 ```
 
+### Scientific rasters and explicit display mapping
+
+GSF, ENVI, and OME-TIFF expose native numeric samples through `purejsimage/scientific`.
+Range, scale, palette, relief, and spectral rendering remain explicit display operations that do
+not mutate the quantitative source data.
+
+[Read the scientific raster API documentation →](https://purejsimage.com/api/#scientific) ·
+[Try the client-side Scientific Raster Explorer demo →](https://purejsimage.com/scientific/)
+
 ## Live browser demo
 
 [Open the client-side image converter →](https://purejsimage.com/demo/)
+
+[Open the client-side Scientific Raster Explorer →](https://purejsimage.com/scientific/)
 
 Upload an image, let PureJsImage detect its actual format, apply optional
 orientation, resize, rotation, and flip transforms, then download JPEG, PNG,
@@ -202,13 +214,18 @@ maturity.
 The raster APIs preserve native numeric data instead of forcing every source
 through RGB:
 
-- **Scientific:** N-channel rasters and OME-TIFF.
+- **Scientific:** GSF surfaces, ENVI hyperspectral cubes, N-channel rasters, and OME-TIFF.
 - **Geospatial:** GeoTIFF and remote COG region reads.
 - **Pathology:** whole-slide pyramids, Aperio SVS, and vendor profiles.
 
 The `Image` pipeline uses display-ready `PixelBlock`s for ordinary transformations
 and encoding. Scientific TIFF workflows expose native numeric, N-channel
-`RasterBlock`s and map them to an `Image` only when requested.
+`RasterBlock`s and map them to display pixels only when requested.
+
+The same explicit scientific renderer handles GSF, ENVI, and OME-TIFF planes with declared,
+dataset, or bounded-sample percentile ranges; linear, logarithmic, square-root, or asinh scaling;
+five first-party palettes; and optional three-row scalar relief. Quantitative inputs are never
+mutated by display mapping.
 
 ### TIFF
 

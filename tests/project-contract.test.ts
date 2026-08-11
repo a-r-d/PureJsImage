@@ -87,6 +87,10 @@ describe('package contract', () => {
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'core')?.maxMinifiedBytes).toBe(
       55 * 1024,
     )
+    expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
+      name: 'Core + scientific rasters',
+      contents: expect.stringContaining('./src/scientific/index.ts'),
+    })
   })
 
   it('checks packed declarations without Node ambient types', () => {
@@ -308,6 +312,44 @@ describe('package contract', () => {
     expect(sitemap).toContain('https://purejsimage.com/demo/')
   })
 
+  it('publishes a local-only scientific raster explorer and public dataset APIs', () => {
+    const readme = readFileSync('README.md', 'utf8')
+    const page = readFileSync('docs-astro/src/pages/scientific.astro', 'utf8')
+    const worker = readFileSync('docs-astro/src/scripts/scientific-worker.ts', 'utf8')
+    const sources = readFileSync('docs-astro/public/demo-data/scientific/SOURCES.md', 'utf8')
+    const sitemap = readFileSync('docs-astro/public/sitemap.xml', 'utf8')
+
+    expect(readme).toContain('https://purejsimage.com/api/#scientific')
+    expect(readme).toContain('https://purejsimage.com/scientific/')
+    expect(page).toContain('GSF and paired ENVI files stay in this browser tab')
+    expect(page).toContain(
+      "import { startScientificExplorer } from '../scripts/scientific-explorer.ts'",
+    )
+    expect(page).not.toMatch(/<script[^>]+src=["']https?:/)
+    expect(page).toContain('https://dirsapps.cis.rit.edu/share2012/SPECTIR_HSI/')
+    expect(page).toContain('https://aviris.jpl.nasa.gov/data/free_data.html')
+    expect(page).toContain('https://daac.ornl.gov/AVIRIS/')
+    expect(page).toContain('https://daac.ornl.gov/HYTES/')
+    expect(page).toContain('M3G20081129T171431_V03_RDN.HDR')
+    expect(page).toContain('M3G20081129T171431_V03_RDN.IMG')
+    expect(page).toContain('0920-1701_pol_ref_geo.hdr')
+    expect(page).toContain('0920-1701_pol_ref_geo.img')
+    expect(page).toContain('afghan_thematicmap_1micron.zip')
+    expect(worker).toContain('renderSpectralComposite')
+    expect(worker).toContain("active.format === 'envi' ? 'Binary bytes read' : 'Input size'")
+    expect(sources.replaceAll(/\s+/g, ' ')).toContain(
+      'do not contain or derive from third-party measurements',
+    )
+    expect(sources).toContain('npm run demo:scientific:generate')
+    expect(sitemap).toContain('https://purejsimage.com/scientific/')
+    expect(packageJson.exports).toHaveProperty('./scientific/node')
+    expect(scientificApi).toHaveProperty('openGsf')
+    expect(scientificApi).toHaveProperty('encodeGsf')
+    expect(scientificApi).toHaveProperty('openEnvi')
+    expect(scientificApi).toHaveProperty('renderScientificPlane')
+    expect(scientificApi).toHaveProperty('renderSpectralComposite')
+  })
+
   it('publishes clean docs routes at the canonical custom domain', () => {
     const header = readFileSync('docs-astro/src/components/SiteHeader.astro', 'utf8')
     const layout = readFileSync('docs-astro/src/layouts/SiteLayout.astro', 'utf8')
@@ -391,6 +433,7 @@ describe('package contract', () => {
       './browser',
       './tiff',
       './scientific',
+      './scientific/node',
       './pathology',
       './sources/http-range',
       './compression/zstd',

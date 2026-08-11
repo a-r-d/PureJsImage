@@ -127,7 +127,8 @@ const compositePixels = async function* (
 ): AsyncGenerator<PixelBlock> {
   const iterators = [red, green, blue].map((blocks) => blocks[Symbol.asyncIterator]())
   while (true) {
-    const results = await Promise.all(iterators.map((iterator) => iterator.next()))
+    const results: IteratorResult<PixelBlock>[] = []
+    for (const iterator of iterators) results.push(await iterator.next())
     if (results.every((result) => result.done)) return
     if (results.some((result) => result.done))
       throw invalidInput('Spectral composite channels emitted inconsistent blocks')
@@ -178,23 +179,21 @@ export const renderSpectralComposite = async (
   const green = nearestSpectralChannel(dataset, options.green)
   const blue = nearestSpectralChannel(dataset, options.blue)
   const { red: _red, green: _green, blue: _blue, z = 0, t = 0, ...renderOptions } = options
-  const [redImage, greenImage, blueImage] = await Promise.all([
-    renderScientificPlane(dataset, {
-      ...renderOptions,
-      palette: 'grayscale',
-      plane: { z, c: red.channel, t },
-    }),
-    renderScientificPlane(dataset, {
-      ...renderOptions,
-      palette: 'grayscale',
-      plane: { z, c: green.channel, t },
-    }),
-    renderScientificPlane(dataset, {
-      ...renderOptions,
-      palette: 'grayscale',
-      plane: { z, c: blue.channel, t },
-    }),
-  ])
+  const redImage = await renderScientificPlane(dataset, {
+    ...renderOptions,
+    palette: 'grayscale',
+    plane: { z, c: red.channel, t },
+  })
+  const greenImage = await renderScientificPlane(dataset, {
+    ...renderOptions,
+    palette: 'grayscale',
+    plane: { z, c: green.channel, t },
+  })
+  const blueImage = await renderScientificPlane(dataset, {
+    ...renderOptions,
+    palette: 'grayscale',
+    plane: { z, c: blue.channel, t },
+  })
   return Object.freeze({
     red,
     green,
@@ -237,8 +236,10 @@ const validateDerivedRequest = (request: Readonly<RasterPlaneRequest>): void => 
   }
 }
 
-const derivedValue = (operation: DerivedOperation, values: readonly number[]): number => {
-  if (values.some((value) => !Number.isFinite(value))) return Number.NaN
+const derivedValue = (operation: DerivedOperation, values: Float64Array): number => {
+  for (let index = 0; index < values.length; index += 1) {
+    if (!Number.isFinite(values[index])) return Number.NaN
+  }
   if (operation.kind === 'ratio') {
     const denominator = values[1]
     return denominator === undefined || denominator === 0
@@ -271,6 +272,7 @@ class DerivedSpectralDataset implements SpectralDerivedDataset {
   readonly originX?: PhysicalPixelSize
   readonly originY?: PhysicalPixelSize
   readonly metadata?: Readonly<Record<string, string>>
+  readonly noDataValue = Number.NaN
   readonly sourceChannels: readonly number[]
   readonly #source: MultidimensionalRasterDataset
   readonly #operation: DerivedOperation
@@ -315,16 +317,20 @@ class DerivedSpectralDataset implements SpectralDerivedDataset {
         )
         const output = new Uint8Array(block.width * block.height * 8)
         const outputView = new DataView(output.buffer)
-        const values = new Array<number>(this.sourceChannels.length)
+        const values = new Float64Array(this.sourceChannels.length)
         for (let y = 0; y < block.height; y += 1) {
           for (let x = 0; x < block.width; x += 1) {
             for (let channel = 0; channel < this.sourceChannels.length; channel += 1) {
-              values[channel] = readRasterSample(
+              const value = readRasterSample(
                 block.data,
                 inputView,
                 rasterSampleOffset(block, layout, x, y, channel),
                 block.format.sampleType,
               )
+              values[channel] =
+                this.#source.noDataValue !== undefined && value === this.#source.noDataValue
+                  ? Number.NaN
+                  : value
             }
             outputView.setFloat64(
               (y * block.width + x) * 8,

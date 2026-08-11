@@ -63,7 +63,6 @@ const requiredHeaderFields = [
   'samples',
   'lines',
   'bands',
-  'header offset',
   'file type',
   'data type',
   'interleave',
@@ -244,7 +243,7 @@ const parseEnviHeader = (text: string): ParsedEnviHeader => {
   const samples = integerField(fields, 'samples', 1)
   const lines = integerField(fields, 'lines', 1)
   const bands = integerField(fields, 'bands', 1)
-  const headerOffset = integerField(fields, 'header offset', 0)
+  const headerOffset = fields.has('header offset') ? integerField(fields, 'header offset', 0) : 0
   const fileTypeRaw = requiredValue(fields, 'file type')
   if (fileTypeRaw.toLowerCase() !== 'envi standard') {
     throw unsupportedOperation(`ENVI file type ${fileTypeRaw} is unsupported`)

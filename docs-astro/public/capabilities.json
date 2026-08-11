@@ -1610,8 +1610,8 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "Broad validated IFD-graph and strip/tile decode plus public TIFF document, native scientific-raster, GeoTIFF, OME-TIFF, deterministic profile, whole-slide, and bounded HTTP-range access APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles",
-      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. Supported compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes. Public APIs expose bounded tag reads, native-precision N-channel rasters, GeoTIFF georeferencing and GDAL metadata, OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, and validator-protected HTTP range reads. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.",
+      "boundary": "Broad validated IFD-graph and strip/tile decode plus public TIFF document, native scientific-raster, GeoTIFF, OME-TIFF, deterministic profile, whole-slide, bounded HTTP-range access, and explicit scientific display-mapping APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles",
+      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. Supported compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes. Public APIs expose bounded tag reads, native-precision N-channel rasters, GeoTIFF georeferencing and GDAL metadata, OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, validator-protected HTTP range reads, and explicit range/scale/palette mapping of scientific planes to display pixels. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.",
       "memory": "Selected-frame, GeoTIFF, OME plane, and whole-slide region decode remain strip- or tile-bounded; IFD traversal and profile detection do not read unselected pixel segments. HTTP range reads use a bounded deduplicating LRU cache and reject resource changes. LERC, Zstandard, bit-order normalization, color conversion, prediction, raster/display output, and embedded codec pixels are bounded to the current metadata table or segment and emitted in bounded rows. JPEG 2000 reconstructs complete component state only for the current TIFF segment, not the source slide. Encoding retains compressed segment payloads until their offsets are known but never stages a full uncompressed frame.",
       "recommendation": "Broad display-image input compatibility, native scientific and GeoTIFF raster access, validated OME and whole-slide pyramids, selective remote COG-style reads, explicit frame/pyramid selection, and structured Deflate RGB/RGBA strip, tile, BigTIFF, multi-page, and SubIFD-pyramid output.",
       "evidence": [
@@ -1623,7 +1623,8 @@
         "browser-tests/compatibility.pw.ts",
         "tests/metadata-preservation.test.ts",
         "tests/imazen-corpus-harness.test.ts",
-        "tests/tiff-competitor-harness.test.ts"
+        "tests/tiff-competitor-harness.test.ts",
+        "tests/scientific-render.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -1719,6 +1720,10 @@
         {
           "status": "supported",
           "text": "OME reduced-resolution SubIFD plane selection and separate-channel plane assembly"
+        },
+        {
+          "status": "supported",
+          "text": "Explicit bounded scientific plane display mapping with declared or sampled ranges, scales, palettes, and optional scalar-surface relief"
         },
         {
           "status": "supported",
@@ -5009,6 +5014,251 @@
         {
           "status": "supported",
           "text": "`npm run check` and the isolated HEIC fixture/benchmark verification pass"
+        }
+      ]
+    },
+    {
+      "id": "gsf",
+      "name": "Gwyddion Simple Field",
+      "read": {
+        "status": "supported",
+        "label": "Yes"
+      },
+      "write": {
+        "status": "supported",
+        "label": "Yes"
+      },
+      "boundary": "Single-channel Gwyddion Simple Field 1.0 numeric rasters with exact little-endian float32 payloads; exposed as a scientific dataset rather than an ordinary photographic codec",
+      "description": "Reads and writes Gwyddion Simple Field 1.0 surfaces while preserving physical extents, offsets, value units, titles, and unknown header metadata. Native float32 samples remain unchanged until an explicit scientific display mapping is requested.",
+      "memory": "Header parsing is bounded; region reads fetch requested row ranges and emit bounded RasterBlocks; writing allocates the encoded single-file result required by the byte-returning API.",
+      "recommendation": "Portable AFM, profilometry, and scalar-surface interchange when a simple float32 field plus physical metadata is sufficient.",
+      "evidence": [
+        "tests/gsf.test.ts",
+        "tests/scientific-render.test.ts",
+        "browser-tests/scientific.pw.ts"
+      ],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "GSF stores exact IEEE float32 samples; roundtrip tests compare native bit patterns and metadata without lossy display conversion."
+      },
+      "claims": [
+        {
+          "status": "supported",
+          "text": "Exact `Gwyddion Simple Field 1.0\\n` magic line"
+        },
+        {
+          "status": "supported",
+          "text": "Strict UTF-8 `key = value` header parsing with one to four NUL alignment bytes"
+        },
+        {
+          "status": "supported",
+          "text": "Required positive `XRes` and `YRes` dimensions with checked allocation arithmetic"
+        },
+        {
+          "status": "supported",
+          "text": "Exact little-endian IEEE float32 payload with top-to-bottom rows and no trailing bytes"
+        },
+        {
+          "status": "supported",
+          "text": "Single scalar `MultidimensionalRasterDataset` channel with native float32 samples"
+        },
+        {
+          "status": "supported",
+          "text": "`XReal`, `YReal`, `XOffset`, `YOffset`, `XYUnits`, `ZUnits`, and `Title` mapping"
+        },
+        {
+          "status": "supported",
+          "text": "Unknown header-field preservation as generic metadata"
+        },
+        {
+          "status": "supported",
+          "text": "Bounded rectangular row-range reads through portable `ImageSource` inputs"
+        },
+        {
+          "status": "supported",
+          "text": "Node and browser operation without Canvas or runtime dependencies in the reader"
+        },
+        {
+          "status": "supported",
+          "text": "Deterministic GSF 1.0 header, alignment, and little-endian float32 payload output"
+        },
+        {
+          "status": "supported",
+          "text": "Physical metadata, title, and application metadata writing"
+        },
+        {
+          "status": "supported",
+          "text": "Exact finite, NaN, and infinity float32 roundtrips"
+        },
+        {
+          "status": "supported",
+          "text": "Reject missing or malformed required fields, invalid UTF-8, invalid padding, impossible extents, truncation, trailing data, and configured limit violations"
+        },
+        {
+          "status": "supported",
+          "text": "Keep display palettes, range mapping, and relief separate from quantitative source samples"
+        },
+        {
+          "status": "planned",
+          "text": "Multi-channel, compressed, or alternate-sample GSF extensions; these are not part of GSF 1.0"
+        }
+      ]
+    },
+    {
+      "id": "envi",
+      "name": "ENVI Standard",
+      "read": {
+        "status": "supported",
+        "label": "Yes"
+      },
+      "write": {
+        "status": "unsupported",
+        "label": "No"
+      },
+      "boundary": "Paired ENVI Standard header and flat-binary rasters using BSQ, BIL, or BIP and data types 1, 2, 3, 4, 5, 12, or 13; complex and 64-bit integer samples and ENVI writing are explicitly unsupported",
+      "description": "Reads paired ENVI headers and binary rasters as native numeric scientific datasets. It preserves spectral wavelengths, units, FWHM, band names, nodata, default bands, sensor metadata, descriptions, and unknown fields while supporting calculated region and band reads.",
+      "memory": "Header parsing and output blocks are bounded. BSQ and BIL spatial/band requests read only calculable row ranges; BIP avoids materializing the cube but necessarily reads interleaved samples spanning all bands for each requested spatial row.",
+      "recommendation": "Hyperspectral and other multiband flat-binary rasters that need native numeric values, wavelength-aware channel selection, and local or range-backed ROI access.",
+      "evidence": [
+        "tests/envi.test.ts",
+        "tests/scientific-render.test.ts",
+        "browser-tests/scientific.pw.ts"
+      ],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "Supported ENVI integer and floating-point types are reconstructed exactly at their native sample type before any optional display conversion."
+      },
+      "claims": [
+        {
+          "status": "supported",
+          "text": "Paired portable header and binary `ImageSource` inputs"
+        },
+        {
+          "status": "supported",
+          "text": "Node `.hdr` path convenience with associated binary resolution or an explicit data path"
+        },
+        {
+          "status": "supported",
+          "text": "BSQ, BIL, and BIP interleave"
+        },
+        {
+          "status": "supported",
+          "text": "Data types 1 uint8, 2 int16, 3 int32, 4 float32, 5 float64, 12 uint16, and 13 uint32"
+        },
+        {
+          "status": "supported",
+          "text": "Little-endian and big-endian sample reconstruction"
+        },
+        {
+          "status": "supported",
+          "text": "Explicit header offsets, omitted-offset default of zero, and exact binary payload sizing"
+        },
+        {
+          "status": "supported",
+          "text": "Multiline brace arrays and descriptions"
+        },
+        {
+          "status": "supported",
+          "text": "Band names, wavelengths, wavelength units, FWHM, nodata, default bands, sensor type, and unknown metadata"
+        },
+        {
+          "status": "supported",
+          "text": "Spectral metadata on generic raster channels with nearest-wavelength selection"
+        },
+        {
+          "status": "supported",
+          "text": "Multi-band native RasterBlock output"
+        },
+        {
+          "status": "supported",
+          "text": "Calculated spatial and band ROI reads without full-cube materialization"
+        },
+        {
+          "status": "supported",
+          "text": "Browser File, Blob, ArrayBuffer, Uint8Array, and explicit ImageSource compatibility"
+        },
+        {
+          "status": "planned",
+          "text": "Complex data types 6 and 9"
+        },
+        {
+          "status": "planned",
+          "text": "Signed and unsigned 64-bit integer data types 14 and 15; the current raster sample model cannot preserve them losslessly"
+        },
+        {
+          "status": "planned",
+          "text": "ENVI header and binary writing"
+        },
+        {
+          "status": "planned",
+          "text": "Compression or nonstandard ENVI container extensions"
+        },
+        {
+          "status": "supported",
+          "text": "Reject malformed or missing dimensions, fields, interleave, endian flags, arrays, offsets, truncation, trailing data, overflow, and configured limit violations"
+        },
+        {
+          "status": "supported",
+          "text": "Keep display range, scale, palette, and false-color composition separate from quantitative source samples"
+        }
+      ]
+    },
+    {
+      "id": "nanoscope-spm",
+      "name": "Bruker Nanoscope SPM investigation",
+      "read": {
+        "status": "planned",
+        "label": "Investigation only"
+      },
+      "write": {
+        "status": "unsupported",
+        "label": "No"
+      },
+      "boundary": "No parser or content detector is implemented; the .spm extension is shared by unrelated formats, and Nanoscope image, spectroscopy, force-volume, and version-specific scaling variants require independent fixtures and a narrower validated contract",
+      "description": "The available Nanoscope documentation and CC0 University of Minnesota corpus establish a viable future read-only investigation, but not a sufficiently narrow implementation contract. PureJsImage deliberately stops before guessing at header variants, channel scaling, force curves, or volume layouts.",
+      "memory": "No parser is implemented. A future reader must validate the declared header length, Ctrl-Z boundary, data offsets, dimensions, channel counts, sample storage, scale references, and allocation graph before reading raster payloads.",
+      "recommendation": "Convert required files with trusted instrument software or export GSF/TIFF until a checked Nanoscope subset is implemented.",
+      "evidence": [],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "No Nanoscope pixel decoder or display path is implemented."
+      },
+      "claims": [
+        {
+          "status": "planned",
+          "text": "Pin a small CC0 corpus inventory with file hashes, acquisition mode, NanoScope version, expected channels, dimensions, units, and independently exported numeric samples"
+        },
+        {
+          "status": "planned",
+          "text": "Define content signatures that distinguish Nanoscope III-or-newer files from ISO 28600, FemtoScan, Nanoeducator, NanoSystem, Nanotop, and other `.spm` formats"
+        },
+        {
+          "status": "planned",
+          "text": "Specify the accepted header-list grammar, text encoding, Ctrl-Z/data-length rules, duplicate parameters, and maximum header size"
+        },
+        {
+          "status": "planned",
+          "text": "Define a read-only image subset before spectroscopy, force-volume, curve-map, or volume support"
+        },
+        {
+          "status": "planned",
+          "text": "Resolve image dimensions, data offsets and lengths, bytes per sample, byte order, scan direction, physical extent, units, and channel scaling without heuristics"
+        },
+        {
+          "status": "planned",
+          "text": "Cross-check every accepted file against trusted NanoScope export and an independent reader without copying GPL or third-party parser code"
+        },
+        {
+          "status": "planned",
+          "text": "Add truncated header/data, overlapping offsets, duplicate channel, impossible scale-reference, oversized dimension, and allocation-overflow regressions"
+        },
+        {
+          "status": "planned",
+          "text": "Demonstrate bounded selected-channel and spatial-region reads through `ImageSource`"
+        },
+        {
+          "status": "planned",
+          "text": "Keep the API explicitly experimental and read-only until multiple acquisition/version families pass exact native-sample validation"
         }
       ]
     },

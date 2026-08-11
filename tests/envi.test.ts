@@ -1,3 +1,6 @@
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   openEnvi,
@@ -6,6 +9,7 @@ import {
 } from '../src/scientific/formats/envi.ts'
 import { rasterSampleBytes, type RasterSampleType } from '../src/raster.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
+import { openEnviPath } from '../src/scientific/node.ts'
 
 interface EnviFixtureOptions {
   readonly samples: number
@@ -209,6 +213,47 @@ custom laboratory field = retained
         },
       ],
     })
+  })
+
+  it('defaults an omitted header offset to zero for compatible institutional rasters', async () => {
+    const input = fixture({
+      samples: 3,
+      lines: 2,
+      bands: 2,
+      dataType: 4,
+      interleave: 'bil',
+      byteOrder: 0,
+    })
+    const header = new TextEncoder().encode(
+      new TextDecoder().decode(input.header).replace('header offset = 0\n', ''),
+    )
+    const opened = await openEnvi({ header, data: input.data })
+
+    expect(opened.headerOffset).toBe(0)
+    expect(await readValues(opened, [1, 0])).toEqual([101, 102, 111, 112, 1, 2, 11, 12])
+  })
+
+  it('opens an associated ENVI header and binary pair by Node path', async () => {
+    const input = fixture({
+      samples: 3,
+      lines: 2,
+      bands: 2,
+      dataType: 12,
+      interleave: 'bil',
+      byteOrder: 0,
+    })
+    const directory = await mkdtemp(join(tmpdir(), 'purejsimage-envi-'))
+    const headerPath = join(directory, 'cube.hdr')
+    try {
+      await Promise.all([
+        writeFile(headerPath, input.header),
+        writeFile(join(directory, 'cube'), input.data),
+      ])
+      const opened = await openEnviPath(headerPath)
+      expect(await readValues(opened, [1, 0])).toEqual([101, 102, 111, 112, 1, 2, 11, 12])
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
   })
 
   it.each([

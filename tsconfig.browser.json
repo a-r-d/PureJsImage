@@ -21,6 +21,8 @@
     "src/accelerator-entries/wasm-jpeg-browser.ts",
     "docs-astro/src/scripts/demo.ts",
     "docs-astro/src/scripts/wsi-viewer.ts",
-    "docs-astro/src/scripts/wsi-worker.ts"
+    "docs-astro/src/scripts/wsi-worker.ts",
+    "docs-astro/src/scripts/scientific-explorer.ts",
+    "docs-astro/src/scripts/scientific-worker.ts"
   ]
 }

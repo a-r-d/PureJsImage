@@ -2444,6 +2444,27 @@ animated AVIF
 
 Frames introduce another execution dimension and should be designed deliberately.
 
+### Scientific raster formats and display mapping
+
+Scientific formats should reuse the native `RasterBlock` and `ImageSource` contracts instead of
+being forced through the photographic `ImageCodec` abstraction. Gwyddion Simple Field surfaces,
+paired ENVI Standard rasters, and OME-TIFF planes remain quantitative datasets until an explicit
+display operation chooses a plane, numeric range, transfer scale, and palette.
+
+The portable scientific path should preserve physical units, offsets, no-data values, channel
+names, and spectral wavelengths; calculate source byte ranges for requested bands and regions;
+emit bounded blocks; and behave the same in Node.js and modern browsers. Scalar relief may retain
+only neighboring scanlines. Percentile display mapping may use a bounded representative sample
+rather than duplicating a large raster.
+
+Spectral helpers are intentionally raster-focused: nearest wavelength, single-band rendering,
+false-color composition, range integration, and ratios. Plotting, chemometrics, unmixing, machine
+learning, chromatograms, and generic charting remain outside PureJsImage.
+
+Experimental vendor formats such as Bruker/Nanoscope `.spm` require a stable public contract and
+independent fixtures. If the format cannot be implemented without guessing, document the gap and
+stop rather than publishing a tolerant parser.
+
 ---
 
 # 44. Potential V3 Architecture Evolution

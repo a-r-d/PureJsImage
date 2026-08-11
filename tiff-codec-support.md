@@ -31,6 +31,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] First-party GeoTIFF model, coordinate conversion, bounding-box, GeoKey, GDAL metadata, and nodata helpers
 - [x] OME-TIFF Z/C/T datasets with validated dimension orders, channel metadata, physical pixel sizes, and explicit or implicit `TiffData` mappings
 - [x] OME reduced-resolution SubIFD plane selection and separate-channel plane assembly
+- [x] Explicit bounded scientific plane display mapping with declared or sampled ranges, scales, palettes, and optional scalar-surface relief
 - [x] Deterministic TIFF profile registry with detector-failure isolation and equal-priority ambiguity rejection
 - [x] Generic bounded `WholeSlideImage` levels, region reads, associated images, and physical metadata
 - [x] First-party Aperio SVS pyramid, associated-image, MPP, objective, and JPEG 2000 tile integration

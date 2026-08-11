@@ -1,0 +1,181 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
+
+<SiteLayout
+  title="Scientific Raster Explorer | PureJsImage"
+  description="Open native GSF surfaces and ENVI hyperspectral cubes locally in a browser, preserve quantitative samples, and explicitly map them to display images."
+  canonical="https://purejsimage.com/scientific/"
+  bodyClass="scientific-page"
+  current="scientific/"
+  skipLabel="Skip to Scientific Raster Explorer"
+>
+  <main id="main">
+    <section class="scientific-hero">
+      <div class="container scientific-hero-grid">
+        <div>
+          <p class="eyebrow">Native numeric rasters · entirely client-side</p>
+          <h1>Scientific values in. Explicit display mapping out.</h1>
+          <p class="scientific-lede">The same bounded <code>RasterBlock</code> architecture opens AFM height maps and hyperspectral cubes without pretending their source samples are RGB pixels.</p>
+        </div>
+        <div class="scientific-local-card"><strong>No upload</strong><span>GSF and paired ENVI files stay in this browser tab. Canvas is only the final display surface.</span></div>
+      </div>
+    </section>
+
+    <section class="scientific-workspace" aria-labelledby="scientific-workspace-title">
+      <div class="container">
+        <div class="scientific-mode-tabs" role="tablist" aria-label="Scientific raster mode">
+          <button id="scientific-mode-surface" type="button" role="tab" aria-selected="true">AFM / surface</button>
+          <button id="scientific-mode-hyperspectral" type="button" role="tab" aria-selected="false">Hyperspectral</button>
+        </div>
+
+        <div class="scientific-grid">
+          <aside class="scientific-sidebar">
+            <section class="scientific-panel" aria-labelledby="scientific-open-title">
+              <header><span>01</span><div><p>Source</p><h2 id="scientific-open-title">Open native data</h2></div></header>
+              <div id="scientific-surface-source">
+                <button class="button small" id="scientific-sample-surface" type="button">Load synthetic GSF</button>
+                <label class="scientific-file-label">Your .gsf file<input id="scientific-gsf-file" type="file" accept=".gsf"></label>
+              </div>
+              <div id="scientific-envi-source" hidden>
+                <button class="button small" id="scientific-sample-envi" type="button">Load synthetic ENVI cube</button>
+                <label class="scientific-file-label">ENVI header (.hdr or .hdr.txt)<input id="scientific-envi-header" type="file" accept=".hdr,.txt,text/plain"></label>
+                <label class="scientific-file-label">Associated binary<input id="scientific-envi-data" type="file" accept=".bin,.dat,.img,.raw,application/octet-stream"></label>
+                <button class="button secondary small" id="scientific-open-envi" type="button" disabled>Open paired files</button>
+              </div>
+              <div id="scientific-drop-zone" class="scientific-drop-zone">Drop one GSF or an ENVI header + binary pair</div>
+            </section>
+
+            <section class="scientific-panel" aria-labelledby="scientific-display-title">
+              <header><span>02</span><div><p>Mapping</p><h2 id="scientific-display-title">Display controls</h2></div></header>
+              <label id="scientific-display-mode-field" hidden>Hyperspectral view<select id="scientific-display-mode"><option value="band">Single band</option><option value="composite">False-color RGB</option></select></label>
+              <label>Palette<select id="scientific-palette"><option>viridis</option><option>grayscale</option><option>magma</option><option>inferno</option><option>plasma</option></select></label>
+              <label>Range<select id="scientific-range-mode"><option value="percentile">Percentile</option><option value="dataset">Dataset min/max</option><option value="explicit">Explicit min/max</option></select></label>
+              <div id="scientific-percentiles" class="scientific-inline-fields"><label>Low %<input id="scientific-percentile-low" type="number" value="1" min="0" max="99" step="0.1"></label><label>High %<input id="scientific-percentile-high" type="number" value="99" min="1" max="100" step="0.1"></label></div>
+              <div id="scientific-explicit-range" class="scientific-inline-fields" hidden><label>Minimum<input id="scientific-range-min" type="number" value="0" step="any"></label><label>Maximum<input id="scientific-range-max" type="number" value="1" step="any"></label></div>
+              <label>Scale<select id="scientific-scale"><option>linear</option><option>log</option><option>sqrt</option><option>asinh</option></select></label>
+
+              <div id="scientific-band-controls" hidden>
+                <label>Requested wavelength <output id="scientific-wavelength-value">650</output><input id="scientific-wavelength" type="range" min="450" max="900" value="650"></label>
+              </div>
+              <div id="scientific-composite-controls" hidden>
+                <label>Red <output id="scientific-red-value">650</output><input id="scientific-red" type="range" min="450" max="900" value="650"></label>
+                <label>Green <output id="scientific-green-value">550</output><input id="scientific-green" type="range" min="450" max="900" value="550"></label>
+                <label>Blue <output id="scientific-blue-value">450</output><input id="scientific-blue" type="range" min="450" max="900" value="450"></label>
+              </div>
+
+              <div id="scientific-relief-controls">
+                <label class="scientific-check"><input id="scientific-relief" type="checkbox" checked> Relief shading</label>
+                <label>Azimuth <output id="scientific-azimuth-value">315°</output><input id="scientific-azimuth" type="range" min="0" max="360" value="315"></label>
+                <label>Elevation <output id="scientific-elevation-value">45°</output><input id="scientific-elevation" type="range" min="0" max="90" value="45"></label>
+                <label>Strength <output id="scientific-strength-value">0.5</output><input id="scientific-strength" type="range" min="0" max="1" step="0.05" value="0.5"></label>
+              </div>
+            </section>
+          </aside>
+
+          <div class="scientific-main-panel">
+            <div class="scientific-canvas-stage">
+              <canvas id="scientific-canvas" width="128" height="96" aria-label="Rendered scientific raster"></canvas>
+              <div id="scientific-empty">Choose a sample or open local scientific data.</div>
+              <div id="scientific-loading" hidden>Working in a Web Worker…</div>
+            </div>
+            <p id="scientific-status" class="scientific-status" aria-live="polite">Ready.</p>
+            <p id="scientific-selection" class="scientific-selection" hidden></p>
+            <dl class="scientific-metrics">
+              <div><dt>Source</dt><dd id="scientific-metric-name">—</dd></div>
+              <div><dt>Dimensions</dt><dd id="scientific-metric-dimensions">—</dd></div>
+              <div><dt>Native samples</dt><dd id="scientific-metric-samples">—</dd></div>
+              <div><dt>Physical extent</dt><dd id="scientific-metric-physical">—</dd></div>
+              <div><dt>Pixel size / bands</dt><dd id="scientific-metric-detail">—</dd></div>
+              <div><dt>Native min/max</dt><dd id="scientific-metric-native-range">—</dd></div>
+              <div><dt>Display range</dt><dd id="scientific-metric-range">—</dd></div>
+              <div><dt id="scientific-metric-bytes-label">Input size</dt><dd id="scientific-metric-bytes">—</dd></div>
+              <div><dt>Render time</dt><dd id="scientific-metric-time">—</dd></div>
+            </dl>
+            <p class="scientific-quant-note"><strong>Quantitative source values remain unchanged.</strong> Palette, stretch, scale, and relief affect only the streamed display pixels shown above.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scientific-sources" aria-labelledby="scientific-sources-title">
+      <div class="container">
+        <div class="scientific-sources-heading">
+          <div><p class="eyebrow">Real public data</p><h2 id="scientific-sources-title">Download a compatible hyperspectral cube</h2></div>
+          <p>These university and U.S. government collections publish ENVI header + binary pairs. The source files can be large, so download them first and open both files above.</p>
+        </div>
+        <div class="scientific-source-grid">
+          <article>
+            <span>RIT · .EDU</span>
+            <h3>SHARE 2012 SpecTIR imagery</h3>
+            <p>Direct directory of ENVI <code>.hdr</code> + <code>.img</code> reflectance cubes. Individual images range from about 951 MiB to 13 GiB.</p>
+            <a href="https://dirsapps.cis.rit.edu/share2012/SPECTIR_HSI/" target="_blank" rel="noreferrer">Browse RIT files ↗</a>
+          </article>
+          <article>
+            <span>NASA JPL · .GOV</span>
+            <h3>Free AVIRIS flight lines</h3>
+            <p>Five complete imaging-spectrometer products covering vegetation, cities, geology, calibration, and high-resolution data.</p>
+            <a href="https://aviris.jpl.nasa.gov/data/free_data.html" target="_blank" rel="noreferrer">Browse free AVIRIS data ↗</a>
+          </article>
+          <article>
+            <span>NASA ORNL DAAC · .GOV</span>
+            <h3>AVIRIS-Classic reflectance</h3>
+            <p>Cataloged ENVI <code>.hdr</code> + <code>.bin</code> products with 224 bands from roughly 400–2500 nm. Earthdata sign-in may be required.</p>
+            <a href="https://daac.ornl.gov/AVIRIS/guides/AVIRIS-Classic_L2_Reflectance.html" target="_blank" rel="noreferrer">Open AVIRIS-Classic catalog ↗</a>
+          </article>
+          <article>
+            <span>NASA ORNL DAAC · .GOV</span>
+            <h3>HyTES thermal radiance</h3>
+            <p>ENVI <code>.hdr</code> + <code>.dat</code> flight scenes with 256 thermal-infrared bands from 7.5–12 µm.</p>
+            <a href="https://daac.ornl.gov/HYTES/guides/HyTES_L1_Radiance_2013_2016.html" target="_blank" rel="noreferrer">Open HyTES catalog ↗</a>
+          </article>
+        </div>
+        <div class="scientific-direct-files" aria-labelledby="scientific-direct-files-title">
+          <div class="scientific-direct-files-heading">
+            <div><p class="eyebrow">Skip the catalog</p><h3 id="scientific-direct-files-title">Specific files ready to download</h3></div>
+            <p>Start with the 24.7 MiB NASA cube. For a paired example, download both numbered files and select them together above.</p>
+          </div>
+          <div class="scientific-direct-file-grid">
+            <article>
+              <span>Best first real cube · NASA .GOV</span>
+              <h4>Moon Mineralogy Mapper radiance</h4>
+              <p><code>304 × 251 × 85</code> · float32 · BIL · 24.7 MiB binary</p>
+              <div class="scientific-direct-actions">
+                <a href="https://planetarydata.jpl.nasa.gov/img/data/m3/CH1M3_0003/DATA/20081118_20090214/200811/L1B/M3G20081129T171431_V03_RDN.HDR" target="_blank" rel="noreferrer">1. Header · 35 KiB ↗</a>
+                <a href="https://planetarydata.jpl.nasa.gov/img/data/m3/CH1M3_0003/DATA/20081118_20090214/200811/L1B/M3G20081129T171431_V03_RDN.IMG" target="_blank" rel="noreferrer">2. Binary · 24.7 MiB ↗</a>
+              </div>
+            </article>
+            <article>
+              <span>Large reflectance cube · RIT .EDU</span>
+              <h4>Avon AM SpecTIR reflectance</h4>
+              <p><code>0920-1701_pol_ref_geo</code> · ENVI image · 951 MiB binary</p>
+              <div class="scientific-direct-actions">
+                <a href="https://dirsapps.cis.rit.edu/share2012/SPECTIR_HSI/SpecTIR_Reflectance_Georeferenced/AVON_AM/0920-1701_pol_ref_geo.hdr" target="_blank" rel="noreferrer">1. Header · 28 KiB ↗</a>
+                <a href="https://dirsapps.cis.rit.edu/share2012/SPECTIR_HSI/SpecTIR_Reflectance_Georeferenced/AVON_AM/0920-1701_pol_ref_geo.img" target="_blank" rel="noreferrer">2. Binary · 951 MiB ↗</a>
+              </div>
+            </article>
+            <article>
+              <span>Packaged ENVI map · USGS .GOV</span>
+              <h4>Afghanistan 1 µm mineral map</h4>
+              <p>132 MiB ZIP containing the matching ENVI header and binary map files.</p>
+              <div class="scientific-direct-actions">
+                <a href="https://pubs.usgs.gov/ds/787/downloads/afghan_thematicmap_1micron.zip" target="_blank" rel="noreferrer">Download specific archive ↗</a>
+              </div>
+            </article>
+          </div>
+        </div>
+        <p class="scientific-source-help"><strong>Open an ENVI download:</strong> unpack the archive, choose its <code>.hdr</code> file under <em>ENVI header</em>, choose the matching <code>.img</code>, <code>.bin</code>, or <code>.dat</code> file under <em>Associated binary</em>, then click <em>Open paired files</em>. A browser may save a header as <code>.hdr.txt</code>; the explorer accepts that filename too. GSF is commonly exported from AFM/SPM software rather than distributed by institutional archives.</p>
+      </div>
+    </section>
+
+    <section class="scientific-explain">
+      <div class="container scientific-explain-grid"><div><p class="eyebrow">One raster architecture</p><h2>Not a charting library. A numeric-raster path.</h2></div><p>GSF and ENVI remain scientific datasets, not ordinary photographic codecs. Their native scalar samples flow through the same API used by OME-TIFF planes. Explicit display mapping is a separate, bounded operation.</p></div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="container"><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span><a href="../demo/">Browser converter</a> · <a href="https://github.com/a-r-d/PureJsImage">Source</a> · <a href="../llms.txt">LLM guide</a> · <a href="../sitemap.xml">Sitemap</a></span></div></div></footer>
+  <script>
+    import { startScientificExplorer } from '../scripts/scientific-explorer.ts'
+
+    startScientificExplorer()
+  </script>
+</SiteLayout>

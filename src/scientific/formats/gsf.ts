@@ -150,7 +150,7 @@ const parseGsfHeader = async (
     if (source.size > amount) throw limitExceeded(`GSF header exceeds ${maxHeaderBytes} bytes`)
     throw truncatedInput('GSF header terminator is missing')
   }
-  const dataOffset = (nul + 4) & ~3
+  const dataOffset = Math.ceil((nul + 1) / 4) * 4
   const padding = dataOffset - nul
   if (padding < 1 || padding > 4 || dataOffset > source.size) {
     throw invalidInput('GSF header/data offset is impossible')

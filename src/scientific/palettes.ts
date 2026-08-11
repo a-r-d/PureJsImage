@@ -62,24 +62,47 @@ const stops: Readonly<Record<Exclude<ScientificPalette, 'grayscale'>, readonly P
 const interpolate = (from: number, to: number, amount: number): number =>
   Math.round(from + (to - from) * amount)
 
+const paletteTable = (paletteStops?: readonly PaletteStop[]): Uint8Array => {
+  const table = new Uint8Array(256 * 3)
+  for (let sample = 0; sample < 256; sample += 1) {
+    const normalized = sample / 255
+    const offset = sample * 3
+    if (paletteStops === undefined) {
+      table[offset] = sample
+      table[offset + 1] = sample
+      table[offset + 2] = sample
+      continue
+    }
+    for (let index = 1; index < paletteStops.length; index += 1) {
+      const upper = paletteStops[index]
+      const lower = paletteStops[index - 1]
+      if (!upper || !lower || normalized > upper.at) continue
+      const amount = (normalized - lower.at) / (upper.at - lower.at)
+      table[offset] = interpolate(lower.color[0], upper.color[0], amount)
+      table[offset + 1] = interpolate(lower.color[1], upper.color[1], amount)
+      table[offset + 2] = interpolate(lower.color[2], upper.color[2], amount)
+      break
+    }
+  }
+  return table
+}
+
+const tables: Readonly<Record<ScientificPalette, Uint8Array>> = Object.freeze({
+  grayscale: paletteTable(),
+  viridis: paletteTable(stops.viridis),
+  magma: paletteTable(stops.magma),
+  inferno: paletteTable(stops.inferno),
+  plasma: paletteTable(stops.plasma),
+})
+
+export const scientificPaletteTable = (palette: ScientificPalette): Uint8Array => {
+  const table = tables[palette]
+  if (!table) throw invalidInput(`Unknown scientific palette ${palette}`)
+  return table
+}
+
 export const scientificPaletteColor = (palette: ScientificPalette, value: number): Rgb => {
-  const normalized = Math.max(0, Math.min(1, value))
-  if (palette === 'grayscale') {
-    const gray = Math.round(normalized * 255)
-    return [gray, gray, gray]
-  }
-  const paletteStops = stops[palette]
-  if (!paletteStops) throw invalidInput(`Unknown scientific palette ${palette}`)
-  for (let index = 1; index < paletteStops.length; index += 1) {
-    const upper = paletteStops[index]
-    const lower = paletteStops[index - 1]
-    if (!upper || !lower || normalized > upper.at) continue
-    const amount = (normalized - lower.at) / (upper.at - lower.at)
-    return [
-      interpolate(lower.color[0], upper.color[0], amount),
-      interpolate(lower.color[1], upper.color[1], amount),
-      interpolate(lower.color[2], upper.color[2], amount),
-    ]
-  }
-  return paletteStops.at(-1)?.color ?? [0, 0, 0]
+  const table = scientificPaletteTable(palette)
+  const offset = Math.round(Math.max(0, Math.min(1, value)) * 255) * 3
+  return [table[offset] ?? 0, table[offset + 1] ?? 0, table[offset + 2] ?? 0]
 }
