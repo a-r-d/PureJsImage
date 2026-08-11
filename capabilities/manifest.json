@@ -2083,6 +2083,8 @@
         "- [ ] Quality control from the public 1-100 scale to AV1 quantization",
         "- [x] Deterministic full-superblock 4x4 partitioning with DC prediction and",
         "  lossless 4x4 transforms",
+        "- [x] Reject widths above 4,096 pixels, heights above 65,536 pixels, and",
+        "  padded single-tile areas above 4,096 by 2,304 pixels",
         "- [x] Deterministic valid output accepted by independent AVIF decoders",
         "- [ ] Output-size and perceptual-quality benchmarks against libaom, rav1e, and",
         "  SVT-AV1",

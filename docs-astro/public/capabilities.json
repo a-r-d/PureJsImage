@@ -4058,6 +4058,10 @@
         },
         {
           "status": "supported",
+          "text": "Reject widths above 4,096 pixels, heights above 65,536 pixels, and padded single-tile areas above 4,096 by 2,304 pixels"
+        },
+        {
+          "status": "supported",
           "text": "Deterministic valid output accepted by independent AVIF decoders"
         },
         {

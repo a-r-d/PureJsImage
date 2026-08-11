@@ -2194,6 +2194,23 @@ describe('AVIF constrained encode', () => {
     })
   })
 
+  it('rejects heights that do not fit the AV1 sequence header', async () => {
+    const createEncoder = avifCodec.createEncoder
+    if (!createEncoder) throw new Error('AVIF encoder is missing')
+    await expect(
+      createEncoder(new Uint8ArraySink(), {
+        width: 1,
+        height: 65_537,
+        pixelFormat: 'rgba8',
+        options: {},
+        limits: defaultImageLimits,
+      }),
+    ).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'Constrained AVIF encoding supports frames up to 65536px high',
+    })
+  })
+
   it('rejects transparent background requests for the opaque encoder subset', async () => {
     const input = rgbaPng(1, 1, Uint8Array.of(0, 0, 0, 0))
     await expect(

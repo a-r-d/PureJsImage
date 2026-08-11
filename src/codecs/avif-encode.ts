@@ -10,6 +10,7 @@ import { Av1SymbolEncoder } from './av1-symbol-encode.ts'
 const probabilityTop = 1 << 15
 const maximumTileWidth = 4096
 const maximumTileArea = 4096 * 2304
+const maximumFrameHeight = 1 << 16
 const yModeDcDefaults = [
   15588, 17027, 19338, 20218, 20682, 21110, 21825, 23244, 24189, 28165, 29093, 30466, 32768, 0,
 ] as const
@@ -595,6 +596,11 @@ class AvifEncoder implements ImageEncoder {
     this.#channels = channelsFor(request.pixelFormat)
     this.#background = parseBackground(options.background)
     this.#signal = request.signal
+    if (request.height > maximumFrameHeight) {
+      throw unsupportedOperation(
+        `Constrained AVIF encoding supports frames up to ${maximumFrameHeight}px high`,
+      )
+    }
     const paddedTileArea = Math.ceil(request.width / 64) * Math.ceil(request.height / 64) * 64 * 64
     if (request.width > maximumTileWidth || paddedTileArea > maximumTileArea) {
       throw unsupportedOperation(
