@@ -1,0 +1,30 @@
+avif-codec-support.md
+  h_9f4a25732fa0c1 242-248
+benchmark/avif/high-bit-expanded-fixtures.ts
+  h_9f4a25732fa0c1 4,20,25-28,352-435
+benchmark/avif/verify-high-bit-expanded-fixtures.ts
+  h_9f4a25732fa0c1 44-77,89-91,113-119,127-141,219-223
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 178-186
+benchmark/results/avif-high-bit-post-filters-2026-08-09.md
+  h_9f4a25732fa0c1 5-6,15-20,26,28,43-45,64-66,85-87,106-107,114
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 2408-2440
+capabilities/manifest.json
+  h_9f4a25732fa0c1 2049-2055
+docs-astro/public/capabilities.json
+  h_9f4a25732fa0c1 3963-3970,3973
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 473-484
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "dfb9f57a9e85919ee29920818233d5541c9f9872",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
