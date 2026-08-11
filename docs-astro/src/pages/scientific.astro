@@ -4,7 +4,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 
 <SiteLayout
   title="Scientific raster viewer for ENVI, GSF and FITS | PureJsImage"
-  description="Open ENVI hyperspectral cubes, GSF AFM surfaces, and FITS image arrays locally in JavaScript, then map numeric samples to display pixels."
+  description="Open ENVI hyperspectral cubes and classification maps, GSF AFM surfaces, and FITS image arrays locally in JavaScript."
   canonical="https://purejsimage.com/scientific/"
   bodyClass="scientific-page"
   current="scientific/"
@@ -22,7 +22,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
       <div class="container scientific-hero-grid">
         <div>
           <p class="eyebrow">Local scientific raster viewer</p>
-          <h1>Open ENVI hyperspectral, GSF AFM, and FITS data in the browser.</h1>
+          <h1>Open ENVI rasters, GSF AFM, and FITS data in the browser.</h1>
           <p class="scientific-lede">PureJsImage keeps numeric samples separate from the RGB pixels used for display. Range selection, palettes, display transfers, and relief are explicit operations.</p>
         </div>
         <div class="scientific-local-card"><strong>Local files stay local</strong><span>GSF, ENVI, and FITS files stay in this browser tab. Large ENVI and FITS files use bounded Blob reads.</span></div>
@@ -33,7 +33,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
       <div class="container">
         <div class="scientific-mode-tabs" role="tablist" aria-label="Scientific raster mode">
           <button id="scientific-mode-surface" type="button" role="tab" aria-selected="true">AFM / surface</button>
-          <button id="scientific-mode-hyperspectral" type="button" role="tab" aria-selected="false">Hyperspectral</button>
+          <button id="scientific-mode-hyperspectral" type="button" role="tab" aria-selected="false">ENVI raster</button>
           <button id="scientific-mode-fits" type="button" role="tab" aria-selected="false">FITS image arrays</button>
         </div>
 
@@ -47,6 +47,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
               </div>
               <div id="scientific-envi-source" hidden>
                 <button class="button small" id="scientific-sample-envi" type="button">Load synthetic ENVI cube</button>
+                <button class="button secondary small" id="scientific-sample-classification" type="button">Load synthetic classification map</button>
                 <label class="scientific-file-label">ENVI header (.hdr or .hdr.txt)<input id="scientific-envi-header" type="file" accept=".hdr,.txt,text/plain"></label>
                 <label class="scientific-file-label">Associated binary<input id="scientific-envi-data" type="file" accept=".bin,.dat,.img,.raw,application/octet-stream"></label>
                 <button class="button secondary small" id="scientific-open-envi" type="button" disabled>Open paired files</button>
@@ -178,9 +179,9 @@ import SiteLayout from '../layouts/SiteLayout.astro'
               </div>
             </article>
             <article>
-              <div class="scientific-direct-card-meta"><span class="scientific-file-type">ENVI · ZIP</span><span class="scientific-file-source">Packaged map · USGS .GOV</span></div>
+              <div class="scientific-direct-card-meta"><span class="scientific-file-type">ENVI CLASSIFICATION · ZIP</span><span class="scientific-file-source">Packaged map · USGS .GOV</span></div>
               <h4>Afghanistan 1 µm mineral map</h4>
-              <p>132 MiB ZIP containing the matching ENVI header and binary map files.</p>
+              <p><code>37,679 × 39,594</code> · 29-class thematic map · 132 MiB ZIP / 1.49 GB extracted binary · bounded color preview.</p>
               <div class="scientific-direct-actions">
                 <a href="https://pubs.usgs.gov/ds/787/downloads/afghan_thematicmap_1micron.zip" target="_blank" rel="noreferrer">Download specific archive ↗</a>
               </div>

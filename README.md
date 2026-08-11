@@ -49,7 +49,7 @@ workload families:
 
 - **Application images:** inspect, orient, crop, resize, and transcode common
   formats.
-- **Large and native rasters:** GSF surfaces, ENVI hyperspectral cubes, TIFF,
+- **Large and native rasters:** GSF surfaces, ENVI hyperspectral cubes and classification maps, TIFF,
   OME-TIFF, GeoTIFF/COG, whole-slide images, remote regions, and N-channel numeric data.
 
 The same source, codec, and pipeline architecture targets Node.js, modern
@@ -229,7 +229,8 @@ maturity.
 The raster APIs preserve native numeric data instead of forcing every source
 through RGB:
 
-- **Scientific:** GSF surfaces, ENVI hyperspectral cubes, FITS image arrays, N-channel rasters, and OME-TIFF.
+- **Scientific:** GSF surfaces, ENVI hyperspectral cubes and classification maps, FITS image arrays,
+  N-channel rasters, and OME-TIFF.
 - **Geospatial:** GeoTIFF and remote COG region reads.
 - **Pathology:** whole-slide pyramids, Aperio SVS, and vendor profiles.
 

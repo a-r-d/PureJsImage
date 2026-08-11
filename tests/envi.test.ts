@@ -7,6 +7,7 @@ import {
   type EnviInterleave,
   type SupportedEnviDataType,
 } from '../src/scientific/formats/envi.ts'
+import { renderEnviClassification } from '../src/scientific/classification.ts'
 import { rasterSampleBytes, type RasterSampleType } from '../src/raster.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
 import { openEnviPath } from '../src/scientific/node.ts'
@@ -20,6 +21,7 @@ interface EnviFixtureOptions {
   readonly byteOrder: 0 | 1
   readonly headerOffset?: number
   readonly extraHeader?: string
+  readonly fileType?: 'ENVI Standard' | 'ENVI Classification'
   readonly value?: (x: number, y: number, band: number) => number
 }
 
@@ -85,7 +87,7 @@ samples = ${options.samples}
 lines = ${options.lines}
 bands = ${options.bands}
 header offset = ${headerOffset}
-file type = ENVI Standard
+file type = ${options.fileType ?? 'ENVI Standard'}
 data type = ${options.dataType}
 interleave = ${options.interleave}
 byte order = ${options.byteOrder}
@@ -285,6 +287,111 @@ custom laboratory field = retained
 
     expect(opened.headerOffset).toBe(0)
     expect(await readValues(opened, [1, 0])).toEqual([101, 102, 111, 112, 1, 2, 11, 12])
+  })
+
+  it('opens and color-renders ENVI Classification rasters with categorical sampling', async () => {
+    const input = fixture({
+      samples: 6,
+      lines: 4,
+      bands: 1,
+      dataType: 1,
+      interleave: 'bsq',
+      byteOrder: 0,
+      fileType: 'ENVI Classification',
+      extraHeader: `classes = 3
+class names = { Unclassified, Clay, Carbonate }
+class lookup = { 0, 0, 0, 240, 80, 20, 30, 160, 220 }
+`,
+      value: (x, y) => (x + y) % 3,
+    })
+    const opened = await openEnvi(input)
+    expect(opened.fileType).toBe('ENVI Classification')
+    expect(opened.classes).toEqual([
+      { value: 0, name: 'Unclassified', color: { red: 0, green: 0, blue: 0 } },
+      { value: 1, name: 'Clay', color: { red: 240, green: 80, blue: 20 } },
+      { value: 2, name: 'Carbonate', color: { red: 30, green: 160, blue: 220 } },
+    ])
+    const rendered = renderEnviClassification(opened, { maxWidth: 3, maxHeight: 2 })
+    const pixels: number[] = []
+    for await (const block of rendered.pixels) pixels.push(...block.data)
+    expect({ width: rendered.width, height: rendered.height }).toEqual({ width: 3, height: 2 })
+    expect(pixels).toEqual([30, 160, 220, 240, 80, 20, 0, 0, 0, 240, 80, 20, 0, 0, 0, 30, 160, 220])
+    expect(opened.sourceBytesRead).toBe(12)
+  })
+
+  it('keeps the official Afghanistan map dimensions lazy despite full-frame image limits', async () => {
+    const width = 37_679
+    const height = 39_594
+    const bytes = width * height
+    class VirtualClassificationBlob extends Blob {
+      override get size(): number {
+        return bytes
+      }
+
+      override slice(start = 0, end = this.size, contentType?: string): Blob {
+        const row = new Uint8Array(end - start)
+        row.fill(1)
+        return contentType === undefined ? new Blob([row]) : new Blob([row], { type: contentType })
+      }
+    }
+    const header = new TextEncoder().encode(`ENVI
+samples = ${width}
+lines = ${height}
+bands = 1
+file type = ENVI Classification
+data type = 1
+interleave = bsq
+byte order = 0
+classes = 2
+class names = { Unclassified, Mineral }
+class lookup = { 0, 0, 0, 180, 90, 30 }
+`)
+    const opened = await openEnvi({
+      header,
+      data: new VirtualClassificationBlob(),
+      maxInputBytes: bytes,
+      maxPixels: 1,
+      maxDecodedBytes: 1_048_576,
+    })
+    const rendered = renderEnviClassification(opened, { maxWidth: 4, maxHeight: 4 })
+    let outputBytes = 0
+    for await (const block of rendered.pixels) outputBytes += block.data.byteLength
+    expect({ width: rendered.width, height: rendered.height, outputBytes }).toEqual({
+      width: 3,
+      height: 4,
+      outputBytes: 36,
+    })
+    expect(opened.sourceBytesRead).toBe(width * 4)
+  })
+
+  it('rejects malformed ENVI Classification metadata and undeclared class samples', async () => {
+    const input = fixture({
+      samples: 2,
+      lines: 1,
+      bands: 1,
+      dataType: 1,
+      interleave: 'bsq',
+      byteOrder: 0,
+      fileType: 'ENVI Classification',
+      extraHeader: `classes = 2
+class names = { Unclassified, Mineral }
+class lookup = { 0, 0, 0, 255, 100, 50 }
+`,
+      value: (x) => x * 2,
+    })
+    const malformedHeader = new TextEncoder().encode(
+      new TextDecoder().decode(input.header).replace('255, 100, 50', '255, 100'),
+    )
+    await expect(openEnvi({ header: malformedHeader, data: input.data })).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
+    const opened = await openEnvi(input)
+    const rendered = renderEnviClassification(opened, { maxWidth: 2, maxHeight: 1 })
+    await expect(async () => {
+      for await (const _block of rendered.pixels) {
+        // Exhaust the categorical renderer.
+      }
+    }).rejects.toMatchObject({ code: 'INVALID_INPUT' })
   })
 
   it('opens an associated ENVI header and binary pair by Node path', async () => {

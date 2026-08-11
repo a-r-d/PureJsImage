@@ -82,6 +82,37 @@ await Promise.all([
   writeFile(resolve(outputDirectory, 'synthetic-hyperspectral.bin'), cube),
 ])
 
+const classificationWidth = 160
+const classificationHeight = 120
+const classification = new Uint8Array(classificationWidth * classificationHeight)
+for (let y = 0; y < classificationHeight; y += 1) {
+  for (let x = 0; x < classificationWidth; x += 1) {
+    const basin = Math.hypot(x - 82, y - 62)
+    const ridge = Math.abs(y - (28 + Math.sin(x * 0.09) * 12))
+    classification[y * classificationWidth + x] =
+      basin < 24 ? 3 : ridge < 7 ? 2 : (Math.floor(x / 20) + Math.floor(y / 15)) % 3 === 0 ? 1 : 0
+  }
+}
+const classificationHeader = `ENVI
+description = {
+  Deterministic specification-derived PureJsImage classification demonstration }
+samples = ${classificationWidth}
+lines = ${classificationHeight}
+bands = 1
+header offset = 0
+file type = ENVI Classification
+data type = 1
+interleave = bsq
+byte order = 0
+classes = 4
+class names = { Unclassified, Clay-bearing, Carbonate-bearing, Mixed mineral }
+class lookup = { 18, 24, 31, 214, 123, 57, 52, 157, 213, 224, 202, 85 }
+`
+await Promise.all([
+  writeFile(resolve(outputDirectory, 'synthetic-classification.hdr'), classificationHeader),
+  writeFile(resolve(outputDirectory, 'synthetic-classification.dat'), classification),
+])
+
 const fitsCard = (keyword: string, value?: string | number | boolean, comment?: string): string => {
   const prefix = keyword.padEnd(8, ' ')
   if (value === undefined) return `${prefix}${comment ?? ''}`.padEnd(80, ' ')
@@ -136,5 +167,5 @@ for (let z = 0; z < fitsDepth; z += 1) {
 await writeFile(resolve(outputDirectory, 'synthetic-cube.fits'), fits)
 
 console.log(
-  `Generated ${gsf.byteLength} byte GSF, ${cube.byteLength} byte ENVI cube, and ${fits.byteLength} byte FITS cube.`,
+  `Generated ${gsf.byteLength} byte GSF, ${cube.byteLength} byte ENVI cube, ${classification.byteLength} byte ENVI classification, and ${fits.byteLength} byte FITS cube.`,
 )

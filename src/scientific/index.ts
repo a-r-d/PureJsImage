@@ -15,11 +15,17 @@ export type {
 } from './formats/fits.ts'
 export type {
   EnviByteOrder,
+  EnviClassInfo,
   EnviDataset,
+  EnviFileType,
   EnviInterleave,
   EnviOpenOptions,
   SupportedEnviDataType,
 } from './formats/envi.ts'
+export type {
+  EnviClassificationRenderedImage,
+  EnviClassificationRenderOptions,
+} from './classification.ts'
 export type { ScientificPalette } from './palettes.ts'
 export type {
   ScientificDisplayScale,
@@ -52,6 +58,7 @@ export type {
 } from '../raster.ts'
 export { rasterSampleBytes, rasterToPixels } from '../raster.ts'
 export { openEnvi } from './formats/envi.ts'
+export { renderEnviClassification } from './classification.ts'
 export { openFits } from './formats/fits.ts'
 export { encodeGsf, openGsf } from './formats/gsf.ts'
 export { isOmeTiff, omeTiffProfile, openOmeTiff } from './ome-tiff.ts'

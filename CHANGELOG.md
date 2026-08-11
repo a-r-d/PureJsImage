@@ -13,6 +13,9 @@ All notable changes to PureJsImage are documented in this file.
   floating-point sample types; both byte orders; spectral metadata; bounded band/ROI reads; and a
   Node `.hdr` path convenience entry. Omitted header offsets default to zero for compatible
   institutional rasters. Complex and 64-bit integer samples remain explicit unsupported boundaries.
+- Added ENVI Classification reading with validated class names and RGB lookup colors plus a
+  categorical nearest-neighbor renderer that produces bounded previews without allocating a
+  source-sized bitmap, including billion-pixel class maps such as the linked USGS Afghanistan map.
 - Added first-party FITS document and image-HDU reading with preserved header cards, 1D through 3D
   axis mapping, big-endian integer and floating-point samples, BSCALE/BZERO and unsigned-integer
   conventions, BLANK handling, multiple-HDU traversal, and bounded plane/ROI reads. Random groups,
