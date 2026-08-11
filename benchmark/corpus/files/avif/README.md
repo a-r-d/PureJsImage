@@ -120,6 +120,13 @@ RGBA checksums are pinned in `benchmark/avif/segmentation-fixture.ts`. Run
 `npm run fixtures:avif:segmentation` to require byte-identical visible YUV from
 PureJsImage, dav1d, and libaom.
 
+`svt-skipped-intra-tx-size-512x512.avif` uses the same normalized Imazen source
+`9701`, encoded by libavif 1.3.0 with SVT-AV1 2.3.0 at q60, speed 8, one worker,
+and 8-bit YUV 4:2:0. Its first skipped 64x64 intra block exercises the required
+transform-depth symbol when transform-size selection is enabled. It is included
+in `npm run fixtures:avif:still-picture-entropy`, which requires byte-identical visible
+YUV from PureJsImage, dav1d, and libaom.
+
 The `alpha-*.avif` files are deterministic 64x48 YUV 4:4:4 color plus
 full-range monochrome alpha fixtures encoded with libavif 1.3.0 and libaom
 3.12.1. They cover straight-alpha and premultiplied-alpha item relationships.

@@ -1845,7 +1845,7 @@ class RestrictedIntraTileDecoder {
           ),
         }
       : undefined
-    const lumaTransform = this.#transformShape(row, column, width, height, skip === 1)
+    const lumaTransform = this.#transformShape(row, column, width, height)
     const lumaResidualLargerThanTransform =
       width > lumaTransform.width || height > lumaTransform.height
     if (yPalette) {
@@ -3039,14 +3039,13 @@ class RestrictedIntraTileDecoder {
     column: number,
     blockWidth: number,
     blockHeight: number,
-    skip: boolean,
   ): TransformShape {
     if (Math.max(blockWidth, blockHeight) <= 4 || this.#frame.header.transformMode === '4x4') {
       return { width: 4, height: 4 }
     }
     let width = Math.min(blockWidth, 64) as TransformDimension
     let height = Math.min(blockHeight, 64) as TransformDimension
-    if (this.#frame.header.transformMode !== 'select' || skip) return { width, height }
+    if (this.#frame.header.transformMode !== 'select') return { width, height }
     const category = Math.max(width, height) as 8 | 16 | 32 | 64
     const aboveIndex =
       row > this.#tile.miRowStart ? this.#lumaContextIndex(row - 1, column) : undefined

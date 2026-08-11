@@ -2144,6 +2144,14 @@ const avifStillPictureEntropy = (): Promise<BrowserWorkflowResult> =>
     '3277bbd3ada1d7dc560080465c9957bf9595ff6eaf2b023c62aca4e7a3679c3b',
     'Still-picture intra-block-copy AVIF',
   )
+const avifSvtSkippedTransform = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'svt-skipped-intra-tx-size-512x512.avif',
+    512,
+    512,
+    'f181140e5c9a4702d4c0b931ac638c83d5c7a1b5a08f85e5dd53e3e258c5e275',
+    'SVT-AV1 skipped intra transform-selection AVIF',
+  )
 
 const avifRec2020 = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
@@ -2996,6 +3004,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifIntrabc,
   avifResidualIntrabc,
   avifStillPictureEntropy,
+  avifSvtSkippedTransform,
   avifQuantizationMatrix,
   avifRec2020,
   avifQ0Lossless,

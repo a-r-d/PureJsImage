@@ -3825,6 +3825,10 @@
           "text": "Full-block transform-size contexts, nearest reference-motion candidate stacks, and subsampled bilinear chroma prediction used by four pinned Microsoft still-picture intra-block-copy frames"
         },
         {
+          "status": "supported",
+          "text": "Decode transform-depth symbols for skipped intra blocks when transform-size selection is enabled"
+        },
+        {
           "status": "planned",
           "text": "Other intra-block-copy and screen-content tools outside pinned syntax"
         },
@@ -4431,6 +4435,14 @@
         {
           "status": "supported",
           "text": "Exercise the rav1e spatial-segmentation fixture through the portable codec entry in Chromium and pin its RGBA output"
+        },
+        {
+          "status": "supported",
+          "text": "Match agreeing libaom and dav1d native YUV exactly for the checksum-pinned SVT-AV1 512x512 frame with a skipped 64x64 intra transform-selection block"
+        },
+        {
+          "status": "supported",
+          "text": "Exercise the SVT-AV1 skipped-transform fixture through the portable codec entry in Chromium and pin its RGBA output"
         },
         {
           "status": "supported",

@@ -319,6 +319,10 @@ await copyFile(
   resolve(fixtureDirectory, 'rav1e-segmentation-q60-512x512.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/svt-skipped-intra-tx-size-512x512.avif',
+  resolve(fixtureDirectory, 'svt-skipped-intra-tx-size-512x512.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/fox.profile0.8bpc.yuv420.monochrome.avif',
   resolve(fixtureDirectory, 'fox.profile0.8bpc.yuv420.monochrome.avif'),
 )

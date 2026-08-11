@@ -33,6 +33,7 @@ export interface BrowserCompatibilityHarness {
   avifIntrabc(): Promise<BrowserWorkflowResult>
   avifResidualIntrabc(): Promise<BrowserWorkflowResult>
   avifStillPictureEntropy(): Promise<BrowserWorkflowResult>
+  avifSvtSkippedTransform(): Promise<BrowserWorkflowResult>
   avifMonochrome(): Promise<BrowserWorkflowResult>
   avifQuantizationMatrix(): Promise<BrowserWorkflowResult>
   avifRec2020(): Promise<BrowserWorkflowResult>

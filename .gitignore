@@ -181,6 +181,7 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/post-filter-wiener-sgr-66x70.avif
 !benchmark/corpus/files/avif/sharp-qmatrix-*.avif
 !benchmark/corpus/files/avif/rav1e-segmentation-q60-512x512.avif
+!benchmark/corpus/files/avif/svt-skipped-intra-tx-size-512x512.avif
 !benchmark/corpus/files/avif/alpha-*.avif
 !benchmark/corpus/files/avif/lossless-q0-64x48.avif
 !benchmark/corpus/files/avif/lossy-q0-64x48.avif

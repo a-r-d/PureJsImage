@@ -344,6 +344,13 @@ test('decodes still-picture intra-block-copy AVIF state', async ({ page }) => {
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 
+test('decodes skipped intra transform selection from SVT-AV1', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifSvtSkippedTransform())
+  expect(result.outputBytes).toBeGreaterThan(1_000)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
 test('decodes filter-free AV1 super-resolution', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifSuperres())
