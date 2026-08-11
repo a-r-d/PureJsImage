@@ -1,0 +1,302 @@
+import { describe, expect, it } from 'vitest'
+import {
+  openEnvi,
+  type EnviInterleave,
+  type SupportedEnviDataType,
+} from '../src/scientific/formats/envi.ts'
+import { rasterSampleBytes, type RasterSampleType } from '../src/raster.ts'
+import { readRasterSample } from '../src/scientific/samples.ts'
+
+interface EnviFixtureOptions {
+  readonly samples: number
+  readonly lines: number
+  readonly bands: number
+  readonly dataType: SupportedEnviDataType
+  readonly interleave: EnviInterleave
+  readonly byteOrder: 0 | 1
+  readonly headerOffset?: number
+  readonly extraHeader?: string
+  readonly value?: (x: number, y: number, band: number) => number
+}
+
+const sampleTypeForDataType = (type: SupportedEnviDataType): RasterSampleType => {
+  if (type === 1) return 'uint8'
+  if (type === 2) return 'int16'
+  if (type === 3) return 'int32'
+  if (type === 4) return 'float32'
+  if (type === 5) return 'float64'
+  if (type === 12) return 'uint16'
+  return 'uint32'
+}
+
+const writeSample = (
+  view: DataView,
+  offset: number,
+  type: SupportedEnviDataType,
+  value: number,
+  littleEndian: boolean,
+): void => {
+  if (type === 1) view.setUint8(offset, value)
+  else if (type === 2) view.setInt16(offset, value, littleEndian)
+  else if (type === 3) view.setInt32(offset, value, littleEndian)
+  else if (type === 4) view.setFloat32(offset, value, littleEndian)
+  else if (type === 5) view.setFloat64(offset, value, littleEndian)
+  else if (type === 12) view.setUint16(offset, value, littleEndian)
+  else view.setUint32(offset, value, littleEndian)
+}
+
+const fixture = (
+  options: EnviFixtureOptions,
+): { readonly header: Uint8Array; readonly data: Uint8Array } => {
+  const headerOffset = options.headerOffset ?? 0
+  const sampleType = sampleTypeForDataType(options.dataType)
+  const bytesPerSample = rasterSampleBytes(sampleType)
+  const data = new Uint8Array(
+    headerOffset + options.samples * options.lines * options.bands * bytesPerSample,
+  )
+  data.fill(0xa5, 0, headerOffset)
+  const view = new DataView(data.buffer)
+  const value = options.value ?? ((x, y, band) => band * 100 + y * 10 + x)
+  for (let y = 0; y < options.lines; y += 1) {
+    for (let x = 0; x < options.samples; x += 1) {
+      for (let band = 0; band < options.bands; band += 1) {
+        const index =
+          options.interleave === 'bsq'
+            ? (band * options.lines + y) * options.samples + x
+            : options.interleave === 'bil'
+              ? (y * options.bands + band) * options.samples + x
+              : (y * options.samples + x) * options.bands + band
+        writeSample(
+          view,
+          headerOffset + index * bytesPerSample,
+          options.dataType,
+          value(x, y, band),
+          options.byteOrder === 0,
+        )
+      }
+    }
+  }
+  const header = new TextEncoder().encode(`ENVI
+samples = ${options.samples}
+lines = ${options.lines}
+bands = ${options.bands}
+header offset = ${headerOffset}
+file type = ENVI Standard
+data type = ${options.dataType}
+interleave = ${options.interleave}
+byte order = ${options.byteOrder}
+${options.extraHeader ?? ''}`)
+  return { header, data }
+}
+
+const readValues = async (
+  opened: Awaited<ReturnType<typeof openEnvi>>,
+  channels: readonly number[],
+): Promise<number[]> => {
+  const values: number[] = []
+  for await (const block of opened.readPlane({
+    z: 0,
+    c: channels,
+    t: 0,
+    x: 1,
+    y: 0,
+    width: 2,
+    height: 2,
+  })) {
+    const bytesPerSample = rasterSampleBytes(block.format.sampleType)
+    const planeStride = block.planeStride ?? block.stride * block.height
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    for (let channel = 0; channel < channels.length; channel += 1) {
+      for (let y = 0; y < block.height; y += 1) {
+        for (let x = 0; x < block.width; x += 1) {
+          values.push(
+            readRasterSample(
+              block.data,
+              view,
+              channel * planeStride + y * block.stride + x * bytesPerSample,
+              block.format.sampleType,
+            ),
+          )
+        }
+      }
+    }
+  }
+  return values
+}
+
+describe('ENVI Standard scientific rasters', () => {
+  it.each([
+    ['bsq', 1, 0],
+    ['bil', 12, 0],
+    ['bip', 2, 1],
+    ['bsq', 3, 1],
+    ['bil', 4, 0],
+    ['bip', 5, 1],
+    ['bsq', 13, 0],
+  ] as const)(
+    'decodes %s data type %i with byte order %i into canonical native samples',
+    async (interleave, dataType, byteOrder) => {
+      const input = fixture({ samples: 3, lines: 2, bands: 2, interleave, dataType, byteOrder })
+      const opened = await openEnvi(input)
+      expect(opened.sampleType).toBe(sampleTypeForDataType(dataType))
+      expect(await readValues(opened, [1, 0])).toEqual([101, 102, 111, 112, 1, 2, 11, 12])
+    },
+  )
+
+  it('parses multiline spectral metadata, header offsets, nodata, and unknown fields', async () => {
+    const input = fixture({
+      samples: 2,
+      lines: 1,
+      bands: 3,
+      dataType: 4,
+      interleave: 'bip',
+      byteOrder: 0,
+      headerOffset: 16,
+      extraHeader: `description = {
+  Synthetic hyperspectral cube
+  generated for tests }
+band names = {
+  Blue,
+  Green,
+  Red }
+wavelength = {
+  450.5, 550.25,
+  650.75 }
+wavelength units = Nanometers
+fwhm = { 10, 11, 12 }
+data ignore value = -9999
+default bands = { 3, 2, 1 }
+sensor type = Synthetic Pushbroom
+custom laboratory field = retained
+`,
+    })
+    const opened = await openEnvi(input)
+    expect({
+      dimensions: [opened.sizeX, opened.sizeY, opened.sizeC],
+      headerOffset: opened.headerOffset,
+      description: opened.description,
+      noData: opened.noDataValue,
+      defaultBands: opened.defaultBands,
+      sensor: opened.sensorType,
+      custom: opened.metadata['custom laboratory field'],
+      channels: opened.channels,
+    }).toEqual({
+      dimensions: [2, 1, 3],
+      headerOffset: 16,
+      description: 'Synthetic hyperspectral cube\n  generated for tests',
+      noData: -9_999,
+      defaultBands: [2, 1, 0],
+      sensor: 'Synthetic Pushbroom',
+      custom: 'retained',
+      channels: [
+        {
+          id: 'Band:1',
+          name: 'Blue',
+          samplesPerPixel: 1,
+          spectral: { center: 450.5, unit: 'Nanometers', fwhm: 10 },
+        },
+        {
+          id: 'Band:2',
+          name: 'Green',
+          samplesPerPixel: 1,
+          spectral: { center: 550.25, unit: 'Nanometers', fwhm: 11 },
+        },
+        {
+          id: 'Band:3',
+          name: 'Red',
+          samplesPerPixel: 1,
+          spectral: { center: 650.75, unit: 'Nanometers', fwhm: 12 },
+        },
+      ],
+    })
+  })
+
+  it.each([
+    ['bsq', 20],
+    ['bil', 20],
+    ['bip', 200],
+  ] as const)(
+    'keeps %s ROI reads bounded to calculable row ranges',
+    async (interleave, expectedBytes) => {
+      const input = fixture({
+        samples: 100,
+        lines: 20,
+        bands: 10,
+        dataType: 12,
+        interleave,
+        byteOrder: 0,
+      })
+      const opened = await openEnvi({ ...input, rowsPerBlock: 1 })
+      for await (const _block of opened.readPlane({
+        z: 0,
+        c: 4,
+        t: 0,
+        x: 10,
+        y: 3,
+        width: 5,
+        height: 2,
+      })) {
+        // Exhaust the bounded reads.
+      }
+      expect(opened.sourceBytesRead).toBe(expectedBytes)
+    },
+  )
+
+  it('rejects malformed dimensions, truncation, trailing data, and unsupported scalar classes', async () => {
+    const valid = fixture({
+      samples: 2,
+      lines: 2,
+      bands: 1,
+      dataType: 1,
+      interleave: 'bsq',
+      byteOrder: 0,
+    })
+    await expect(
+      openEnvi({ header: valid.header, data: valid.data.subarray(0, 3) }),
+    ).rejects.toMatchObject({
+      code: 'TRUNCATED_INPUT',
+    })
+    const trailing = new Uint8Array(valid.data.byteLength + 1)
+    trailing.set(valid.data)
+    await expect(openEnvi({ header: valid.header, data: trailing })).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
+    const text = new TextDecoder().decode(valid.header)
+    await expect(
+      openEnvi({
+        header: new TextEncoder().encode(text.replace('samples = 2', 'samples = 0')),
+        data: valid.data,
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    for (const unsupported of [6, 9, 14, 15]) {
+      await expect(
+        openEnvi({
+          header: new TextEncoder().encode(
+            text.replace('data type = 1', `data type = ${unsupported}`),
+          ),
+          data: valid.data,
+        }),
+      ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+    }
+    await expect(openEnvi({ ...valid, maxFrames: 0 })).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
+  })
+
+  it('rejects band/allocation attacks before raster reads', async () => {
+    const input = fixture({
+      samples: 4,
+      lines: 4,
+      bands: 3,
+      dataType: 5,
+      interleave: 'bil',
+      byteOrder: 1,
+    })
+    await expect(openEnvi({ ...input, maxPixels: 8 })).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+    })
+    await expect(openEnvi({ ...input, maxFrames: 2 })).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+    })
+  })
+})

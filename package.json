@@ -71,6 +71,11 @@
       "import": "./dist/scientific/index.js",
       "default": "./dist/scientific/index.js"
     },
+    "./scientific/node": {
+      "types": "./dist/scientific/node.d.ts",
+      "import": "./dist/scientific/node.js",
+      "default": "./dist/scientific/node.js"
+    },
     "./pathology": {
       "types": "./dist/pathology/index.d.ts",
       "import": "./dist/pathology/index.js",
