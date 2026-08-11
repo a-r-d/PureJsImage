@@ -1,0 +1,52 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 14-18
+README.md
+  h_9f4a25732fa0c1 160
+avif-codec-support.md
+  h_9f4a25732fa0c1 24,272-279,281-283,334-338,531-532
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 1871-1916,2853
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 151-157
+browser-tests/types.ts
+  h_9f4a25732fa0c1 10
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1758-1759,1761-1764,1827,2075-2082,2084-2086,2137-2141,2334-2335
+docs-astro/public/capabilities.json
+  h_9f4a25732fa0c1 3392-3393,3395-3398,3468,4024,4028,4032,4036-4037,4040,4044-4045,4048,4056-4057,4060,4167-4174,4487-4490
+docs-astro/public/llms.txt
+  h_9f4a25732fa0c1 498-502
+docs-astro/src/pages/codecs.astro
+  h_9f4a25732fa0c1 24,44,64,79
+src/browser.ts
+  h_9f4a25732fa0c1 41
+src/codecs/av1-coeff-encode.ts
+  h_9f4a25732fa0c1 1-235
+src/codecs/av1-symbol-encode.ts
+  h_9f4a25732fa0c1 1-157
+src/codecs/avif-encode.ts
+  h_9f4a25732fa0c1 1-763
+src/codecs/avif.ts
+  h_9f4a25732fa0c1 25,2623
+src/image-core.ts
+  h_9f4a25732fa0c1 10,24,204,211,213,220-226,306-309
+src/index.ts
+  h_9f4a25732fa0c1 31
+src/pipeline.ts
+  h_9f4a25732fa0c1 40-43,92-96,234-238,516-528
+tests/avif.test.ts
+  h_9f4a25732fa0c1 111,2069-2206
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 147
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "5a63afa34eb8d7bc8d12a0a9d87e249b9af8df9e",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
