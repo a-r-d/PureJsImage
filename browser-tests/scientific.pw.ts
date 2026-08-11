@@ -39,7 +39,7 @@ test('opens, maps, and locally reloads GSF, ENVI, and FITS scientific rasters', 
     page.getByRole('heading', { name: 'Specific files ready to download' }),
   ).toBeVisible()
   const fileTypeBadges = page.locator('.scientific-direct-file-grid .scientific-file-type')
-  await expect(fileTypeBadges).toHaveCount(6)
+  await expect(fileTypeBadges).toHaveCount(8)
   await expect(fileTypeBadges).toHaveText([
     'ENVI',
     'ENVI',
@@ -47,6 +47,8 @@ test('opens, maps, and locally reloads GSF, ENVI, and FITS scientific rasters', 
     'FITS',
     'FITS',
     'FITS',
+    'MRC',
+    'CBF',
   ])
   const fitsDownloads = page.locator('.scientific-direct-actions a[download$=".fits"]')
   await expect(fitsDownloads).toHaveCount(3)
@@ -130,9 +132,9 @@ test('opens, maps, and locally reloads GSF, ENVI, and FITS scientific rasters', 
   await expect(page.locator('#scientific-metric-name')).toHaveText('synthetic-cube.fits')
   await expect(page.locator('#scientific-metric-dimensions')).toHaveText('128 × 96 × 3')
   await expect(page.locator('#scientific-metric-bytes-label')).toHaveText('FITS bytes read')
-  await expect(page.locator('#scientific-selection')).toHaveText('HDU 0, Z plane 1 of 3')
-  await page.locator('#scientific-fits-plane').fill('2')
-  await expect(page.locator('#scientific-selection')).toHaveText('HDU 0, Z plane 3 of 3')
+  await expect(page.locator('#scientific-selection')).toHaveText('HDU 0, XY slice 1')
+  await page.locator('#scientific-slice-index').fill('2')
+  await expect(page.locator('#scientific-selection')).toHaveText('HDU 0, XY slice 3')
   const downloadPromise = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Download PNG' }).click()
   const download = await downloadPromise

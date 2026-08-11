@@ -2,8 +2,11 @@ import { access, mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { allCodecs } from '../src/codec-entries/all.ts'
+import { inspectJpegXlStructure } from '../src/codecs/jpegxl.ts'
 import { ImageError } from '../src/index.ts'
 import { createCodecFixtures, type CodecFixture } from './codec-fixtures.ts'
+import { jpegXlContainerFixture } from './fixtures.ts'
 import { Image } from './image-library.ts'
 
 const truncationStep = 1_024
@@ -51,6 +54,11 @@ const benchmarkSeeds = [
     format: 'jpeg',
     id: 'wpt-webcodecs-mozjpeg-rgb',
     path: 'benchmark/corpus/files/wpt-webcodecs-mozjpeg-rgb.jpg',
+  },
+  {
+    format: 'jpegxl',
+    id: 'conformance-alpha-nonpremultiplied',
+    path: 'benchmark/fixtures/jpegxl/conformance-alpha-nonpremultiplied.jxl',
   },
   {
     format: 'jp2',
@@ -242,12 +250,39 @@ describe('deterministic corruption fuzz', () => {
     regressionFixtures = await loadRegressionFixtures()
   })
 
-  it('pins one committed release-campaign seed for every registered codec', async () => {
-    expect(benchmarkSeeds.map(({ format }) => format)).toEqual(Image.formats())
-    expect(benchmarkSeeds.every(({ path }) => path.startsWith('benchmark/corpus/files/'))).toBe(
-      true,
+  it('pins one committed release-campaign seed for every registered pixel decoder', async () => {
+    expect(benchmarkSeeds.map(({ format }) => format)).toEqual(
+      allCodecs
+        .filter(({ createDecoder }) => createDecoder !== undefined)
+        .map(({ format }) => format),
     )
+    expect(
+      benchmarkSeeds.every(
+        ({ path }) =>
+          path.startsWith('benchmark/corpus/files/') ||
+          path.startsWith('benchmark/fixtures/jpegxl/'),
+      ),
+    ).toBe(true)
     await Promise.all(benchmarkSeeds.map(({ path }) => access(path)))
+  })
+
+  it('normalizes deterministic JPEG XL structure corruption as ImageErrors', async () => {
+    const fixture = { id: 'jpegxl-structure', input: jpegXlContainerFixture() }
+    for (const corruption of bitFlips(fixture)) {
+      try {
+        await inspectJpegXlStructure(corruption.input)
+      } catch (error) {
+        expect(error, `JPEG XL corruption at byte ${corruption.byteOffset}`).toBeInstanceOf(
+          ImageError,
+        )
+      }
+    }
+
+    for (let length = 0; length < fixture.input.byteLength; length += 1) {
+      await expect(
+        inspectJpegXlStructure(fixture.input.subarray(0, length)),
+      ).rejects.toBeInstanceOf(ImageError)
+    }
   })
 
   it(

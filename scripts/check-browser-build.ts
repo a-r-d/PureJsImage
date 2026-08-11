@@ -72,5 +72,5 @@ for (const [input, metadata] of Object.entries(acceleratorResult.metafile.inputs
 }
 
 console.log(
-  `Browser bundle OK (${output.length.toLocaleString()} bytes, 9 default codecs; optional JPEG/PNG WASM and experimental HEIF/HEIC entries isolated)`,
+  `Browser bundle OK (${output.length.toLocaleString()} bytes, 10 default codecs; optional JPEG/PNG WASM and experimental HEIF/HEIC entries isolated)`,
 )

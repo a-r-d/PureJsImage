@@ -5,6 +5,7 @@ import { gifCodec } from '../codecs/gif.ts'
 import { icoCodec } from '../codecs/ico.ts'
 import { jpegCodec } from '../codecs/jpeg.ts'
 import { jpeg2000Codec } from '../codecs/jpeg2000.ts'
+import { jpegxlCodec } from '../codecs/jpegxl.ts'
 import { pngCodec } from '../codecs/png.ts'
 import { tiffCodec } from '../codecs/tiff.ts'
 import { webpCodec } from '../codecs/webp.ts'
@@ -15,6 +16,7 @@ import { webpCodec } from '../codecs/webp.ts'
  */
 export const allCodecs: readonly ImageCodec[] = Object.freeze([
   jpegCodec,
+  jpegxlCodec,
   jpeg2000Codec,
   pngCodec,
   gifCodec,

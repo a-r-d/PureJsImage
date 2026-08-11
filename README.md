@@ -49,8 +49,9 @@ workload families:
 
 - **Application images:** inspect, orient, crop, resize, and transcode common
   formats.
-- **Large and native rasters:** GSF surfaces, ENVI hyperspectral cubes and classification maps, TIFF,
-  OME-TIFF, GeoTIFF/COG, whole-slide images, remote regions, and N-channel numeric data.
+- **Large and native rasters:** GSF surfaces, ENVI hyperspectral cubes and classification maps, FITS
+  and MRC volumes, CBF detector frames, TIFF, OME-TIFF, GeoTIFF/COG, whole-slide images, remote
+  regions, and N-channel numeric data.
 
 The same source, codec, and pipeline architecture targets Node.js, modern
 browsers, serverless, edge, and restricted deployments. It is not a canvas,
@@ -146,9 +147,23 @@ const display = await renderScientificPlane(dataset, {
 })
 ```
 
+MRC and FITS volumes share lazy cross-section and projection operations:
+
+```ts
+import { FileSource } from 'purejsimage'
+import { openMrc, projectScientificVolume, sliceScientificVolume } from 'purejsimage/scientific'
+
+const volume = await openMrc(await FileSource.open('reconstruction.mrc'))
+const xz = sliceScientificVolume(volume, { axis: 'xz', index: 128 })
+const maximum = projectScientificVolume(volume, { axis: 'z', mode: 'max' })
+```
+
 [ENVI](https://purejsimage.com/scientific/envi/) ·
 [GSF](https://purejsimage.com/scientific/gsf/) ·
 [FITS](https://purejsimage.com/scientific/fits/) ·
+[MRC2014 / CCP4](https://purejsimage.com/scientific/mrc/) ·
+[CBF / imgCIF](https://purejsimage.com/scientific/cbf/) ·
+[Volume operations](https://purejsimage.com/scientific/volumes/) ·
 [Scientific API](https://purejsimage.com/api/#scientific) ·
 [Client-side explorer](https://purejsimage.com/scientific/)
 
@@ -193,6 +208,7 @@ use the default TypeScript codecs.
 | JPEG 2000 / JP2 | Limited | No |
 | AVIF | Limited | Limited |
 | HEIF / HEIC (experimental) | Experimental | No |
+| JPEG XL | Limited | No |
 
 “Limited” means PureJsImage supports a useful subset and clearly rejects files
 outside it.
@@ -211,7 +227,8 @@ Detailed codec compatibility roadmaps:
 [ICO](https://github.com/a-r-d/PureJsImage/blob/main/ico-codec-support.md),
 [JPEG 2000 / JP2](https://github.com/a-r-d/PureJsImage/blob/main/jpeg2000-codec-support.md),
 [AVIF](https://github.com/a-r-d/PureJsImage/blob/main/avif-codec-support.md),
-and [HEIF / HEIC (experimental)](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md).
+[HEIF / HEIC (experimental)](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md),
+and [JPEG XL](https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md).
 <!-- capabilities:readme:end -->
 
 HEIF/HEIC is experimental, excluded from `allCodecs`, and available only through
@@ -229,8 +246,8 @@ maturity.
 The raster APIs preserve native numeric data instead of forcing every source
 through RGB:
 
-- **Scientific:** GSF surfaces, ENVI hyperspectral cubes and classification maps, FITS image arrays,
-  N-channel rasters, and OME-TIFF.
+- **Scientific:** GSF surfaces, ENVI hyperspectral cubes and classification maps, FITS and MRC
+  volumes, CBF detector frames, N-channel rasters, and OME-TIFF.
 - **Geospatial:** GeoTIFF and remote COG region reads.
 - **Pathology:** whole-slide pyramids, Aperio SVS, and vendor profiles.
 
@@ -238,7 +255,7 @@ The `Image` pipeline uses display-ready `PixelBlock`s for ordinary transformatio
 and encoding. Scientific TIFF workflows expose native numeric, N-channel
 `RasterBlock`s and map them to display pixels only when requested.
 
-The same explicit scientific renderer handles GSF, ENVI, and OME-TIFF planes with declared,
+The same explicit scientific renderer handles GSF, ENVI, FITS, MRC, CBF, and OME-TIFF planes with declared,
 dataset, or bounded-sample percentile ranges; linear, logarithmic, square-root, or asinh scaling;
 five first-party palettes; and optional three-row scalar relief. Quantitative inputs are never
 mutated by display mapping.

@@ -58,6 +58,11 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     contents: exportsFrom(['./src/index.ts', './src/codec-entries/jpeg2000.ts']),
   },
   {
+    id: 'jpegxl',
+    name: 'Core + JPEG XL limited decoder',
+    contents: exportsFrom(['./src/index.ts', './src/codec-entries/jpegxl.ts']),
+  },
+  {
     id: 'webp',
     name: 'Core + WebP',
     contents: exportsFrom(['./src/index.ts', './src/codec-entries/webp.ts']),

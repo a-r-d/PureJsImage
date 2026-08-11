@@ -209,12 +209,18 @@ const publicJson = (manifestCodecs: readonly CodecCapability[]): string => {
 
 const manifest = await readCapabilityManifest()
 const codecs = publicCodecs(manifest.codecs)
+const jpegxl = codecs.find(({ id }) => id === 'jpegxl')
+if (!jpegxl) throw new Error('Capability manifest is missing JPEG XL')
 const outputs = new Map<string, string>()
 
 const readme = await readFile('README.md', 'utf8')
 outputs.set('README.md', replaceRegion(readme, 'readme', readmeBlock(codecs)))
 
-const llmsGuide = await readFile('docs-astro/public/llms.txt', 'utf8')
+let llmsGuide = await readFile('docs-astro/public/llms.txt', 'utf8')
+llmsGuide = llmsGuide.replace(
+  /`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and .*?\n\n## Mental model/s,
+  '`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL decoder. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented lossless Modular subset fail explicitly.\n\n## Mental model',
+)
 outputs.set('docs-astro/public/llms.txt', replaceRegion(llmsGuide, 'llms', llmsBlock(codecs)))
 
 let codecPage = await readFile('docs-astro/src/pages/codecs.astro', 'utf8')
@@ -222,6 +228,14 @@ codecPage = replaceRegion(codecPage, 'matrix', matrixBlock(codecs))
 codecPage = replaceRegion(codecPage, 'cards', cardsBlock(codecs))
 codecPage = replaceRegion(codecPage, 'memory', memoryBlock(codecs))
 codecPage = replaceRegion(codecPage, 'outputs', outputsBlock(codecs))
+codecPage = codecPage.replace(
+  /The registered JPEG XL entry validates structure, but metadata and pixel decoding remain explicitly unsupported\./,
+  `JPEG XL is registered for limited decode: ${jpegxl.boundary}.`,
+)
+codecPage = codecPage.replace(
+  /CUR is not a current codec entry point\. JPEG XL now has .*? The linked scope documents describe possible implementation subsets; unchecked items are not current capability claims or release commitments\./,
+  'CUR is not a current codec entry point. JPEG XL has a limited lossless Modular decoder; broader syntax remains planned. The linked scope documents define the exact implemented and unsupported boundaries.',
+)
 outputs.set('docs-astro/src/pages/codecs.astro', codecPage)
 
 for (const codec of manifest.codecs) {

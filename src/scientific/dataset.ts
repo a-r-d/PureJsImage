@@ -50,8 +50,10 @@ export interface MultidimensionalRasterDataset {
   readonly channels: readonly RasterChannelInfo[]
   readonly physicalSizeX?: PhysicalPixelSize
   readonly physicalSizeY?: PhysicalPixelSize
+  readonly physicalSizeZ?: PhysicalPixelSize
   readonly originX?: PhysicalPixelSize
   readonly originY?: PhysicalPixelSize
+  readonly originZ?: PhysicalPixelSize
   readonly noDataValue?: number
   readonly metadata?: Readonly<Record<string, string>>
 

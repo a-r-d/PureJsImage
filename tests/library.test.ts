@@ -5,6 +5,7 @@ import { allCodecs } from '../src/codec-entries/all.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
 import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
+import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import {
   CodecRegistry,
@@ -84,16 +85,22 @@ describe('configured image library', () => {
       ascii('<?xml version="1.0"?>\n<!-- exported -->\n<svg xmlns="http://www.w3.org/2000/svg">'),
     ],
     ['PDF', ascii('%PDF-1.7\n')],
-    ['JPEG XL codestream', Uint8Array.of(0xff, 0x0a, 0, 0)],
-    [
-      'JPEG XL container',
-      Uint8Array.of(0, 0, 0, 12, 0x4a, 0x58, 0x4c, 0x20, 0x0d, 0x0a, 0x87, 0x0a),
-    ],
   ] as const)('names recognized but unimplemented %s input', async (name, input) => {
     await expect(createImageLibrary(allCodecs).open(input)).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
       message: `${name} input was recognized, but decoding is not implemented`,
     })
+  })
+
+  it('registers JPEG XL decode and rejects codestream features outside its subset', async () => {
+    const input = Uint8Array.of(0xff, 0x0a, 1, 2)
+    const images = createImageLibrary(allCodecs)
+    const image = await images.open(input)
+
+    expect(images.formats()).toContain('jpegxl')
+    expect(jpegxlCodec.detect(input)).toBe(true)
+    await expect(image.metadata()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    await expect(image.png().toBuffer()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
   })
 
   it.each([
@@ -135,7 +142,18 @@ describe('configured image library', () => {
   it('provides one opt-in helper containing every default codec exactly once', () => {
     const formats = createImageLibrary(allCodecs).formats()
 
-    expect(formats).toEqual(['jpeg', 'jp2', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico', 'tiff'])
+    expect(formats).toEqual([
+      'jpeg',
+      'jpegxl',
+      'jp2',
+      'png',
+      'gif',
+      'webp',
+      'avif',
+      'bmp',
+      'ico',
+      'tiff',
+    ])
     expect(new Set(formats).size).toBe(formats.length)
   })
 

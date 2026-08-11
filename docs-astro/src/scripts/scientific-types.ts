@@ -1,6 +1,6 @@
 import type { ScientificDisplayScale, ScientificPalette } from '../../../src/scientific/index.ts'
 
-export type ScientificDemoMode = 'surface' | 'hyperspectral' | 'fits'
+export type ScientificDemoMode = 'surface' | 'hyperspectral' | 'fits' | 'mrc' | 'cbf'
 export type ScientificDemoRangeMode = 'dataset' | 'percentile' | 'explicit'
 export type ScientificDemoDisplayMode = 'band' | 'composite'
 
@@ -22,6 +22,9 @@ export interface ScientificDemoRenderSettings {
   readonly green: number
   readonly blue: number
   readonly z: number
+  readonly sliceAxis: 'xy' | 'xz' | 'yz'
+  readonly projection: 'none' | 'max' | 'min' | 'mean'
+  readonly sliceIndex: number
 }
 
 export interface ScientificFitsHduOption {
@@ -40,6 +43,8 @@ export type ScientificWorkerRequest =
       readonly data: ArrayBuffer | File
     }
   | { readonly type: 'open-fits'; readonly name: string; readonly data: ArrayBuffer | File }
+  | { readonly type: 'open-mrc'; readonly name: string; readonly data: ArrayBuffer | File }
+  | { readonly type: 'open-cbf'; readonly name: string; readonly data: ArrayBuffer | File }
   | { readonly type: 'select-fits-hdu'; readonly index: number }
   | { readonly type: 'download-png' }
   | {
@@ -80,6 +85,11 @@ export interface ScientificOpenedMetadata {
   readonly bzero?: number
   readonly blank?: number
   readonly storedSampleType?: string
+  readonly byteOrder?: string
+  readonly mrcMode?: number
+  readonly detectorName?: string
+  readonly exposureTimeSeconds?: number
+  readonly wavelengthAngstroms?: number
 }
 
 export type ScientificWorkerResponse =

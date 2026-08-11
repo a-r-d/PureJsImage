@@ -1,5 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { allCodecs } from '../src/codec-entries/all.ts'
+import { inspectJpegXlStructure } from '../src/codecs/jpegxl.ts'
 import { defaultImageLimits, ImageError, type ImageSource } from '../src/index.ts'
 import { createImageSource, SourceReader } from '../src/source.ts'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
@@ -8,6 +10,7 @@ import { nodeRuntime } from '../src/node-runtime.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { createCodecFixtures, type CodecFixture } from './codec-fixtures.ts'
+import { jpegXlContainerFixture } from './fixtures.ts'
 import { HostileSource } from './hostile-source.ts'
 import { Image } from './image-library.ts'
 
@@ -27,8 +30,12 @@ describe('ImageSource buffer lifetime contract', () => {
     expect([...retained]).toEqual([0, 0])
   })
 
-  it('keeps every registered codec correct when source buffers expire between reads', async () => {
-    expect(fixtures.map((fixture) => fixture.format)).toEqual(Image.formats())
+  it('keeps every registered pixel decoder correct when source buffers expire between reads', async () => {
+    expect(fixtures.map((fixture) => fixture.format)).toEqual(
+      allCodecs
+        .filter(({ createDecoder }) => createDecoder !== undefined)
+        .map(({ format }) => format),
+    )
 
     for (const fixture of fixtures) {
       const reference = await Image.open(fixture.input)
@@ -48,6 +55,14 @@ describe('ImageSource buffer lifetime contract', () => {
       expect(actual, fixture.format).toEqual(expected)
     }
   }, 20_000)
+
+  it('keeps registered JPEG XL structure inspection correct when source buffers expire', async () => {
+    const input = jpegXlContainerFixture()
+
+    await expect(inspectJpegXlStructure(new HostileSource(input))).resolves.toEqual(
+      await inspectJpegXlStructure(input),
+    )
+  })
 })
 
 describe('ImageSource return-value contract', () => {

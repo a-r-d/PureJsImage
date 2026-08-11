@@ -1,0 +1,34 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro'
+---
+
+<SiteLayout title="Read MRC and CCP4 cryo-EM volumes in JavaScript | PureJsImage" description="Read MRC2014 and CCP4 electron microscopy images, density maps, and 3D volumes with native scalar samples and bounded regions in JavaScript and TypeScript." canonical="https://purejsimage.com/scientific/mrc/" current="scientific/">
+<main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific volume format</p><h1>Read MRC and CCP4 cryo-EM volumes in JavaScript</h1><p class="page-lede">MRC stores 2D electron microscopy images, cryo-EM density maps, and 3D voxel volumes. The related CCP4 map format uses the same main layout. PureJsImage reads the MRC2014 scalar modes into a lazy numeric dataset.</p></div></header><div class="container docs-layout"><article class="content">
+<h2>Import</h2><pre><code>import &#123; openMrc, renderScientificPlane &#125; from 'purejsimage/scientific'</code></pre>
+<h2>Node.js example</h2><pre><code>import &#123; FileSource &#125; from 'purejsimage'
+import &#123; openMrc, sliceScientificVolume &#125; from 'purejsimage/scientific'
+
+const volume = await openMrc(await FileSource.open('map.mrc'))
+const xz = sliceScientificVolume(volume, &#123; axis: 'xz', index: 64 &#125;)
+for await (const block of xz.readPlane(&#123; z: 0, c: 0, t: 0 &#125;)) &#123;
+  console.log(block.width, block.height, block.data)
+&#125;</code></pre>
+<h2>Browser example</h2><pre><code>const file = document.querySelector&lt;HTMLInputElement&gt;('#mrc')?.files?.[0]
+if (!file) throw new Error('Choose an MRC file')
+const volume = await openMrc(file, &#123; maxInputBytes: file.size &#125;)
+const display = await renderScientificPlane(volume, &#123;
+  plane: &#123; z: 0, c: 0, t: 0 &#125;,
+  range: &#123; mode: 'percentile', low: 1, high: 99 &#125;,
+&#125;)</code></pre>
+<h2>Supported MODE values</h2><table><thead><tr><th>MODE</th><th>Native sample type</th></tr></thead><tbody><tr><td>0</td><td>signed 8-bit integer</td></tr><tr><td>1</td><td>signed 16-bit integer</td></tr><tr><td>2</td><td>32-bit floating point</td></tr><tr><td>6</td><td>unsigned 16-bit integer</td></tr><tr><td>12</td><td>IEEE 754 binary16 floating point</td></tr></tbody></table>
+<h2>Header and byte order</h2><p><code>openMrc()</code> reads the 1024-byte main header and retains dimensions, starts, unit-cell sampling, cell dimensions and angles, density statistics, space group, extended-header length, origin, version, machine stamp, RMS, and ordered labels. The MAP signature and machine stamp are required. Little-endian stamps <code>44 44 00 00</code> and <code>44 41 00 00</code>, plus big-endian <code>11 11 00 00</code>, are supported.</p>
+<h2>Axis mapping</h2><p><code>MAPC</code>, <code>MAPR</code>, and <code>MAPS</code> map stored columns, rows, and sections to logical X, Y, and Z. The public dataset dimensions always use logical coordinates. Default 1, 2, 3 layouts read contiguous X ranges. Other permutations remain bounded but may use strided sample reads.</p>
+<h2>Voxel spacing and origin</h2><p>Positive cell dimensions divided by positive MX, MY, and MZ sampling counts become <code>physicalSizeX</code>, <code>physicalSizeY</code>, and <code>physicalSizeZ</code> in ångströms. Finite ORIGIN components become <code>originX</code>, <code>originY</code>, and <code>originZ</code>.</p>
+<h2>Bounded reads</h2><p>The extended header is skipped by its validated <code>NSYMBT</code> byte count. Its unknown contents are not decoded. A selected logical Z plane and spatial region calculate source offsets directly. The complete volume is not materialized.</p>
+<h2>Slice and projection</h2><pre><code>const yz = sliceScientificVolume(volume, &#123; axis: 'yz', index: 120 &#125;)
+const maximum = projectScientificVolume(volume, &#123; axis: 'z', mode: 'max' &#125;)
+const mean = projectScientificVolume(volume, &#123; axis: 'z', mode: 'mean' &#125;)</code></pre>
+<h2>Unsupported features</h2><p>Complex MODE 3 and 4, packed MODE 101, MRC writing, extended-header interpretation, volume-stack splitting, crystallographic symmetry operations, and handedness inference are not implemented. The MRC2014 header does not define data handedness consistently, so the reader does not guess it.</p>
+<h2>Official specification</h2><p><a href="https://www.ccpem.ac.uk/mrc-format/mrc2014/">CCP-EM MRC2014 format specification</a> · <a href="https://www.ccpem.ac.uk/mrc-format/">CCP-EM MRC format overview</a></p>
+<p><a href="../">Scientific Raster Explorer</a> · <a href="../volumes/">Volume slicing and projection</a> · <a href="../cbf/">CBF guide</a> · <a href="../../api/#scientific">API</a></p>
+</article></div></main></SiteLayout>

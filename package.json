@@ -14,6 +14,8 @@
     "serverless",
     "aws-lambda",
     "jpeg",
+    "jpeg-xl",
+    "jpegxl",
     "jpeg2000",
     "jp2",
     "png",
@@ -29,6 +31,12 @@
     "gsf",
     "envi",
     "fits",
+    "mrc",
+    "ccp4",
+    "cbf",
+    "imgcif",
+    "cryo-em",
+    "x-ray-diffraction",
     "hyperspectral",
     "afm",
     "scientific-imaging",
@@ -150,6 +158,11 @@
       "import": "./dist/codec-entries/jpeg2000.js",
       "default": "./dist/codec-entries/jpeg2000.js"
     },
+    "./codecs/jpegxl": {
+      "types": "./dist/codec-entries/jpegxl.d.ts",
+      "import": "./dist/codec-entries/jpegxl.js",
+      "default": "./dist/codec-entries/jpegxl.js"
+    },
     "./codecs/png": {
       "types": "./dist/codec-entries/png.d.ts",
       "import": "./dist/codec-entries/png.js",
@@ -236,6 +249,9 @@
     "fixtures:jpeg": "node benchmark/jpeg/verify-corpus.ts && vitest run tests/jpeg-reference-fixtures.test.ts tests/jpeg-reference-parity.test.ts",
     "fixtures:jpeg:prepare": "node benchmark/jpeg/prepare-reference-fixtures.ts",
     "fixtures:jpeg2000": "node benchmark/jpeg2000/verify-corpus.ts",
+    "fixtures:jpegxl:prepare": "node benchmark/jpegxl/prepare-corpus.ts",
+    "fixtures:mrc:prepare": "node benchmark/mrc/prepare-official-sample.ts",
+    "fixtures:cbf:prepare": "node benchmark/cbf/prepare-compatibility-sample.ts",
     "fixtures:tiff:encode": "npm run build && node benchmark/scripts/verify-tiff-encode.ts",
     "fuzz:release": "PUREJSIMAGE_FUZZ_RELEASE=1 PUREJSIMAGE_FUZZ_CASES=512 PUREJSIMAGE_FUZZ_SEED=1592598566 PUREJSIMAGE_FUZZ_CRASH_DIR=artifacts/fuzz-crashes vitest run tests/corruption-fuzz.test.ts",
     "corpus:exercise": "node scripts/exercise-corpus.ts",

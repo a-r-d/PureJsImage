@@ -3,15 +3,21 @@ import { pngCodec } from '../../../src/codecs/png.ts'
 import type { PixelBlock } from '../../../src/pixel.ts'
 import {
   measureScientificPlane,
+  openCbf,
   openEnvi,
   openFits,
   openGsf,
+  openMrc,
+  projectScientificVolume,
   renderEnviClassification,
   renderScientificPlane,
+  sliceScientificVolume,
+  type CbfDataset,
   type EnviDataset,
   type FitsDataset,
   type FitsDocument,
   type GsfDataset,
+  type MrcDataset,
   type MultidimensionalRasterDataset,
   type ScientificPlaneMeasurement,
   type ScientificRange,
@@ -29,7 +35,7 @@ interface WorkerScope {
   postMessage(message: ScientificWorkerResponse, transfer?: readonly Transferable[]): void
 }
 
-type DemoDataset = GsfDataset | EnviDataset | FitsDataset
+type DemoDataset = GsfDataset | EnviDataset | FitsDataset | MrcDataset | CbfDataset
 
 const scope = globalThis as unknown as WorkerScope
 let dataset: DemoDataset | undefined
@@ -139,6 +145,50 @@ const fitsMetadata = (
   ),
 })
 
+const mrcMetadata = (
+  opened: MrcDataset,
+  name: string,
+  bytes: number,
+): ScientificOpenedMetadata => ({
+  mode: 'mrc',
+  name,
+  width: opened.sizeX,
+  height: opened.sizeY,
+  bands: 1,
+  sizeZ: opened.sizeZ,
+  sampleType: opened.sampleType,
+  sourceBytes: bytes,
+  byteOrder: opened.byteOrder,
+  mrcMode: opened.mode,
+  ...(opened.physicalSizeX === undefined ? {} : { pixelSizeX: opened.physicalSizeX.value }),
+  ...(opened.physicalSizeY === undefined ? {} : { pixelSizeY: opened.physicalSizeY.value }),
+  ...(opened.physicalSizeX?.unit === undefined ? {} : { physicalUnit: opened.physicalSizeX.unit }),
+})
+
+const cbfMetadata = (
+  opened: CbfDataset,
+  name: string,
+  bytes: number,
+): ScientificOpenedMetadata => ({
+  mode: 'cbf',
+  name,
+  width: opened.sizeX,
+  height: opened.sizeY,
+  bands: 1,
+  sampleType: opened.sampleType,
+  valueUnit: 'counts',
+  sourceBytes: bytes,
+  ...(opened.detector.detectorName === undefined
+    ? {}
+    : { detectorName: opened.detector.detectorName }),
+  ...(opened.detector.exposureTimeSeconds === undefined
+    ? {}
+    : { exposureTimeSeconds: opened.detector.exposureTimeSeconds }),
+  ...(opened.detector.wavelengthAngstroms === undefined
+    ? {}
+    : { wavelengthAngstroms: opened.detector.wavelengthAngstroms }),
+})
+
 const openGsfFile = async (name: string, data: ArrayBuffer | File): Promise<void> => {
   post({ type: 'opening', message: 'Reading GSF metadata…' })
   const bytes = inputSize(data)
@@ -191,6 +241,24 @@ const openFitsFile = async (name: string, data: ArrayBuffer | File): Promise<voi
   await selectFitsHdu(first.index)
 }
 
+const openMrcFile = async (name: string, data: ArrayBuffer | File): Promise<void> => {
+  post({ type: 'opening', message: 'Parsing the MRC2014 header and validating the volume…' })
+  const bytes = inputSize(data)
+  const opened = await openMrc(data, { maxInputBytes: Math.max(bytes, 1), maxFrames: 100_000 })
+  fitsDocument = undefined
+  beginDataset(opened, bytes)
+  post({ type: 'opened', metadata: mrcMetadata(opened, name, bytes) })
+}
+
+const openCbfFile = async (name: string, data: ArrayBuffer | File): Promise<void> => {
+  post({ type: 'opening', message: 'Parsing CBF metadata and validating detector counts…' })
+  const bytes = inputSize(data)
+  const opened = await openCbf(data, { maxInputBytes: Math.max(bytes, 1) })
+  fitsDocument = undefined
+  beginDataset(opened, bytes)
+  post({ type: 'opened', metadata: cbfMetadata(opened, name, bytes) })
+}
+
 const rangeOptions = (settings: ScientificDemoRenderSettings): ScientificRange => {
   if (settings.rangeMode === 'explicit') {
     return { mode: 'explicit', min: settings.rangeMin, max: settings.rangeMax }
@@ -204,9 +272,10 @@ const measuredRange = async (
   z: number,
   channel: number,
   settings: ScientificDemoRenderSettings,
+  viewKey = '',
 ): Promise<ScientificPlaneMeasurement> => {
   const range = rangeOptions(settings)
-  const key = `${generation}:${z}:${channel}:${range.mode}:${range.mode === 'percentile' ? `${range.low}:${range.high}` : range.mode === 'explicit' ? `${range.min}:${range.max}` : ''}`
+  const key = `${generation}:${viewKey}:${z}:${channel}:${range.mode}:${range.mode === 'percentile' ? `${range.low}:${range.high}` : range.mode === 'explicit' ? `${range.min}:${range.max}` : ''}`
   const cached = rangeCache.get(key)
   if (cached) return cached
   const measured = await measureScientificPlane(active, { plane: { z, c: channel, t: 0 }, range })
@@ -242,23 +311,25 @@ const rgbaPixels = async (
 }
 
 const renderChannel = async (
-  active: DemoDataset,
+  active: MultidimensionalRasterDataset,
   z: number,
   channel: number,
   settings: ScientificDemoRenderSettings,
   palette = settings.palette,
+  reliefEnabled = false,
+  viewKey = '',
 ): Promise<{
   readonly pixels: Uint8ClampedArray<ArrayBuffer>
   readonly measurement: ScientificPlaneMeasurement
 }> => {
-  const measurement = await measuredRange(active, z, channel, settings)
+  const measurement = await measuredRange(active, z, channel, settings, viewKey)
   const image = await renderScientificPlane(active, {
     plane: { z, c: channel, t: 0 },
     range: { mode: 'explicit', min: measurement.range.min, max: measurement.range.max },
     scale: settings.scale,
     palette,
     relief:
-      active.format === 'gsf' && settings.relief
+      reliefEnabled && settings.relief
         ? {
             azimuth: settings.reliefAzimuth,
             elevation: settings.reliefElevation,
@@ -274,13 +345,22 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
   if (!active) throw new Error('Open a scientific raster before rendering')
   latestSequence = Math.max(latestSequence, sequence)
   const started = performance.now()
-  const z = active.format === 'fits' ? settings.z : 0
+  const volume = active.format === 'fits' || active.format === 'mrc'
+  const viewKey = volume
+    ? `${settings.projection}:${settings.sliceAxis}:${settings.sliceIndex}`
+    : ''
+  const displayed = volume
+    ? settings.projection === 'none'
+      ? sliceScientificVolume(active, { axis: settings.sliceAxis, index: settings.sliceIndex })
+      : projectScientificVolume(active, { axis: 'z', mode: settings.projection })
+    : active
+  const z = 0
   let pixels: Uint8ClampedArray<ArrayBuffer>
   let rangeLabel: string
   let selectionLabel: string | undefined
   let nativeRangeLabel: string | undefined
-  let displayWidth = active.sizeX
-  let displayHeight = active.sizeY
+  let displayWidth = displayed.sizeX
+  let displayHeight = displayed.sizeY
   if (active.format === 'envi' && active.fileType === 'ENVI Classification') {
     const image = renderEnviClassification(active, { maxWidth: 1_280, maxHeight: 1_280 })
     displayWidth = image.width
@@ -316,7 +396,15 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
     selectionLabel = labels.join('; ')
   } else {
     const channel = active.format === 'envi' ? settings.channel : 0
-    const rendered = await renderChannel(active, z, channel, settings)
+    const rendered = await renderChannel(
+      displayed,
+      z,
+      channel,
+      settings,
+      settings.palette,
+      active.format === 'gsf',
+      viewKey,
+    )
     pixels = rendered.pixels
     rangeLabel = `${rendered.measurement.range.min.toPrecision(6)}–${rendered.measurement.range.max.toPrecision(6)}`
     if (settings.rangeMode === 'dataset') nativeRangeLabel = rangeLabel
@@ -324,8 +412,12 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
       const spectral = active.channels[channel]?.spectral
       selectionLabel =
         `Band ${channel + 1} of ${active.sizeC}${spectral === undefined ? '' : `, ${spectral.center} ${spectral.unit ?? ''}`}`.trim()
-    } else if (active.format === 'fits') {
-      selectionLabel = `HDU ${active.hdu.index}, Z plane ${z + 1} of ${active.sizeZ}`
+    } else if (active.format === 'fits' || active.format === 'mrc') {
+      const sourceLabel = active.format === 'fits' ? `HDU ${active.hdu.index}, ` : ''
+      selectionLabel =
+        settings.projection === 'none'
+          ? `${sourceLabel}${settings.sliceAxis.toUpperCase()} slice ${settings.sliceIndex + 1}`
+          : `${sourceLabel}${settings.projection} projection through Z`
     }
   }
   if (sequence < latestSequence) return
@@ -335,7 +427,12 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
     pixels: Uint8ClampedArray.from(pixels),
   }
   const sourceBytesRead =
-    active.format === 'envi' || active.format === 'fits' ? active.sourceBytesRead : sourceBytes
+    active.format === 'envi' ||
+    active.format === 'fits' ||
+    active.format === 'mrc' ||
+    active.format === 'cbf'
+      ? active.sourceBytesRead
+      : sourceBytes
   post(
     {
       type: 'rendered',
@@ -348,8 +445,8 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
       sourceBytesLabel:
         active.format === 'envi'
           ? 'Binary bytes read'
-          : active.format === 'fits'
-            ? 'FITS bytes read'
+          : active.format === 'fits' || active.format === 'mrc' || active.format === 'cbf'
+            ? `${active.format.toUpperCase()} bytes read`
             : 'Input size',
       rangeLabel,
       ...(selectionLabel === undefined ? {} : { selectionLabel }),
@@ -397,6 +494,8 @@ scope.onmessage = (event): void => {
   else if (request.type === 'open-envi')
     operation = openEnviFiles(request.headerName, request.dataName, request.header, request.data)
   else if (request.type === 'open-fits') operation = openFitsFile(request.name, request.data)
+  else if (request.type === 'open-mrc') operation = openMrcFile(request.name, request.data)
+  else if (request.type === 'open-cbf') operation = openCbfFile(request.name, request.data)
   else if (request.type === 'select-fits-hdu') operation = selectFitsHdu(request.index)
   else if (request.type === 'download-png') operation = downloadPng()
   else operation = render(request.sequence, request.settings)

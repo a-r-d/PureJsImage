@@ -51,7 +51,7 @@ const nonNegativeIntegerAttribute = (
 
 const physicalSize = (
   pixels: XmlElement,
-  name: 'PhysicalSizeX' | 'PhysicalSizeY',
+  name: 'PhysicalSizeX' | 'PhysicalSizeY' | 'PhysicalSizeZ',
 ): PhysicalPixelSize | undefined => {
   const raw = pixels.attributes[name]
   if (raw === undefined) return undefined
@@ -264,6 +264,7 @@ class OmeTiffDataset implements MultidimensionalRasterDataset {
   readonly channels: readonly RasterChannelInfo[]
   readonly physicalSizeX?: PhysicalPixelSize
   readonly physicalSizeY?: PhysicalPixelSize
+  readonly physicalSizeZ?: PhysicalPixelSize
   readonly #planes: ReadonlyMap<string, TiffDirectory>
 
   constructor(options: {
@@ -277,6 +278,7 @@ class OmeTiffDataset implements MultidimensionalRasterDataset {
     readonly channels: readonly RasterChannelInfo[]
     readonly physicalSizeX?: PhysicalPixelSize
     readonly physicalSizeY?: PhysicalPixelSize
+    readonly physicalSizeZ?: PhysicalPixelSize
     readonly planes: ReadonlyMap<string, TiffDirectory>
   }) {
     this.sizeX = options.sizeX
@@ -289,6 +291,7 @@ class OmeTiffDataset implements MultidimensionalRasterDataset {
     this.channels = Object.freeze([...options.channels])
     if (options.physicalSizeX !== undefined) this.physicalSizeX = options.physicalSizeX
     if (options.physicalSizeY !== undefined) this.physicalSizeY = options.physicalSizeY
+    if (options.physicalSizeZ !== undefined) this.physicalSizeZ = options.physicalSizeZ
     this.#planes = options.planes
   }
 
@@ -496,6 +499,7 @@ export const openOmeTiff = async (
   }
   const physicalSizeX = physicalSize(pixels, 'PhysicalSizeX')
   const physicalSizeY = physicalSize(pixels, 'PhysicalSizeY')
+  const physicalSizeZ = physicalSize(pixels, 'PhysicalSizeZ')
   return new OmeTiffDataset({
     sizeX,
     sizeY,
@@ -507,6 +511,7 @@ export const openOmeTiff = async (
     channels,
     ...(physicalSizeX === undefined ? {} : { physicalSizeX }),
     ...(physicalSizeY === undefined ? {} : { physicalSizeY }),
+    ...(physicalSizeZ === undefined ? {} : { physicalSizeZ }),
     planes,
   })
 }

@@ -8,6 +8,7 @@ import { heifCodec } from '../src/codecs/heif.ts'
 import { icoCodec } from '../src/codecs/ico.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { jpeg2000Codec } from '../src/codecs/jpeg2000.ts'
+import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { tiffCodec } from '../src/codecs/tiff.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
@@ -18,6 +19,7 @@ import codecCapabilityExpectations from './generated/capability-expectations.jso
 
 const runtimeCodecs: readonly ImageCodec[] = [
   jpegCodec,
+  jpegxlCodec,
   pngCodec,
   webpCodec,
   bmpCodec,
@@ -78,6 +80,25 @@ describe('generated codec capability contract', () => {
         ).toBeGreaterThan(0)
       }
     }
+  })
+
+  it('lists the registered limited JPEG XL pixel decoder without claiming broader support', async () => {
+    const manifest = await readCapabilityManifest()
+    const jpegxl = manifest.codecs.find(({ id }) => id === 'jpegxl')
+    if (!jpegxl) throw new Error('Missing JPEG XL capability manifest')
+
+    expect(jpegxl.packageFormat).toBe('jpegxl')
+    expect(readFileSync('README.md', 'utf8')).toContain('| JPEG XL | Limited | No |')
+    expect(readFileSync('docs-astro/src/pages/codecs.astro', 'utf8')).toContain(
+      '<strong>JPEG XL</strong>',
+    )
+
+    const llmsGuide = readFileSync('docs-astro/public/llms.txt', 'utf8')
+    expect(llmsGuide).toContain('### JPEG XL')
+    expect(llmsGuide).toContain("from 'purejsimage/codecs/jpegxl'")
+    expect(codecCapabilityExpectations.codecs).toContainEqual(
+      expect.objectContaining({ id: 'jpegxl', format: 'jpegxl', decoder: true, encoder: false }),
+    )
   })
 
   it('keeps corrected PNG and WebP metadata claims in the authoritative manifest', async () => {

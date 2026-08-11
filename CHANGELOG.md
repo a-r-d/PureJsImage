@@ -6,6 +6,21 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added first-party MRC2014/CCP4 volume reading for modes 0, 1, 2, 6, and 12 with validated
+  endianness, logical axis mapping, physical spacing and origin metadata, extended-header skipping,
+  and bounded plane and region access.
+- Added first-party CBF/imgCIF detector-image reading for common `x-CBF_BYTE_OFFSET` signed and
+  unsigned integer arrays with validated MIME and binary framing,
+  cumulative-overflow checks, native count preservation, and bounded output memory.
+- Added lazy XY, XZ, and YZ volume slices; bounded Z minimum, maximum, and mean projections; and
+  reusable scientific statistics with Welford mean and population standard deviation, finite and
+  invalid counts, sampled percentiles, and histograms.
+- Added a registered first-party JPEG XL codec that validates raw codestream and container
+  structure and decodes a bounded lossless Modular RGBA subset. The initial pixel path parses
+  codestream and frame headers, prefix and ANS entropy foundations, a bounded meta-adaptive tree,
+  Zero/Left/Top prediction, reversible color transforms, and 12-bit alpha before emitting cropped
+  `rgba8` rows. Added a pinned, checksum-verified official conformance corpus and exact independent
+  oracle validation; broader Modular and VarDCT syntax fails explicitly.
 - Added first-party Gwyddion Simple Field scientific raster reading and writing with strict
   float32 payload validation, physical metadata preservation, bounded region reads, and portable
   Node/browser inputs.

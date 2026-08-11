@@ -1,0 +1,31 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro'
+---
+
+<SiteLayout title="Read CBF X-ray diffraction images in JavaScript | PureJsImage" description="Read common CBF area-detector images with byte-offset compression as native integer photon counts in JavaScript, TypeScript, Node.js, and browsers." canonical="https://purejsimage.com/scientific/cbf/" current="scientific/">
+<main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific detector format</p><h1>Read CBF X-ray diffraction images in JavaScript</h1><p class="page-lede">CBF is the binary form of imgCIF used for X-ray diffraction area-detector frames. PureJsImage reads one common binary subset and preserves detector counts as a quantitative 2D raster.</p></div></header><div class="container docs-layout"><article class="content">
+<h2>Import</h2><pre><code>import &#123; openCbf, renderScientificPlane &#125; from 'purejsimage/scientific'</code></pre>
+<h2>Node.js example</h2><pre><code>import &#123; FileSource &#125; from 'purejsimage'
+import &#123; openCbf, renderScientificPlane &#125; from 'purejsimage/scientific'
+
+const frame = await openCbf(await FileSource.open('diffraction.cbf'))
+const display = await renderScientificPlane(frame, &#123;
+  plane: &#123; z: 0, c: 0, t: 0 &#125;,
+  range: &#123; mode: 'percentile', low: 1, high: 99.9 &#125;,
+  scale: 'log',
+  palette: 'inferno',
+&#125;)</code></pre>
+<h2>Browser example</h2><pre><code>const file = document.querySelector&lt;HTMLInputElement&gt;('#cbf')?.files?.[0]
+if (!file) throw new Error('Choose a CBF file')
+const frame = await openCbf(file, &#123; maxInputBytes: file.size &#125;)
+console.log(frame.detector, frame.sizeX, frame.sizeY)</code></pre>
+<h2>Supported subset</h2><table><thead><tr><th>Feature</th><th>Support</th></tr></thead><tbody><tr><td>Transfer encoding</td><td><code>BINARY</code></td></tr><tr><td>Compression</td><td><code>x-CBF_BYTE_OFFSET</code></td></tr><tr><td>Element byte order</td><td><code>LITTLE_ENDIAN</code></td></tr><tr><td>Element types</td><td>signed and unsigned 8-bit, 16-bit, and 32-bit integers</td></tr><tr><td>Data shape</td><td>one 2D detector frame</td></tr></tbody></table>
+<h2>Binary section validation</h2><p>The reader uses a bounded header scan to locate the CBF binary marker. It validates MIME headers, declared binary bytes, element count, two-dimensional shape, padding, and the closing binary boundary before exposing the dataset. Offset and size arithmetic uses checked values.</p>
+<h2>Byte-offset compression</h2><p>Byte-offset data stores differences from a running base value. One-byte deltas are read directly. The reserved value <code>-128</code> selects a 16-bit delta, <code>-32768</code> selects a 32-bit delta, and <code>-2147483648</code> selects a 64-bit delta. Escape values use little-endian order. Decoding writes directly into native integer output blocks without retaining a separate delta list.</p>
+<h2>Native detector counts</h2><p>The dataset has Z, C, and T sizes of 1. No RGB conversion occurs until <code>renderScientificPlane()</code> is called. Detector name, exposure time, and wavelength are exposed only when their standard imgCIF fields are present. Other simple single-line CIF fields remain in <code>metadata</code>.</p>
+<h2>Display transfer</h2><p>Diffraction frames often have a wide numeric range. A log display transfer can make low detector counts visible after percentile or explicit range mapping. It changes display pixels only. It does not change detector counts or apply crystallographic analysis.</p>
+<h2>Memory and source reads</h2><p>Byte-offset compression is sequential. A region request must decode preceding deltas, but it retains only one bounded compressed input buffer and the selected output rows. Browser <code>File</code> inputs remain Blob-backed.</p>
+<h2>Unsupported features</h2><p><code>x-CBF_PACKED</code>, <code>x-CBF_PACKED_V2</code>, <code>x-CBF_CANONICAL</code>, predictor compression, non-binary imgCIF transfer encodings, big-endian byte-offset data, multiple arrays, and 3D arrays reject explicitly. Peak finding, ring integration, indexing, background subtraction, and beam-center estimation are outside this reader.</p>
+<h2>Official references</h2><p><a href="https://www.iucr.org/__data/iucr/cif/software/cbflib/CBFlib_0.7.9/doc/CBFlib.html">IUCr CBFlib manual and binary section definition</a> · <a href="https://www.iucr.org/resources/cif/dictionaries/cif_img">IUCr imgCIF dictionary</a></p>
+<p><a href="../">Scientific Raster Explorer</a> · <a href="../mrc/">MRC guide</a> · <a href="../../api/#scientific">API</a></p>
+</article></div></main></SiteLayout>
