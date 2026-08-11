@@ -40,7 +40,14 @@ test('opens, maps, and locally reloads GSF, ENVI, and FITS scientific rasters', 
   ).toBeVisible()
   const fileTypeBadges = page.locator('.scientific-direct-file-grid .scientific-file-type')
   await expect(fileTypeBadges).toHaveCount(6)
-  await expect(fileTypeBadges).toHaveText(['ENVI', 'ENVI', 'ENVI · ZIP', 'FITS', 'FITS', 'FITS'])
+  await expect(fileTypeBadges).toHaveText([
+    'ENVI',
+    'ENVI',
+    'ENVI CLASSIFICATION · ZIP',
+    'FITS',
+    'FITS',
+    'FITS',
+  ])
   const fitsDownloads = page.locator('.scientific-direct-actions a[download$=".fits"]')
   await expect(fitsDownloads).toHaveCount(3)
   await expect(fitsDownloads.first()).toHaveAttribute(
@@ -73,7 +80,7 @@ test('opens, maps, and locally reloads GSF, ENVI, and FITS scientific rasters', 
   await expect(page.locator('#scientific-metric-name')).toContainText('local-surface.gsf')
   await expect(page.locator('#scientific-metric-bytes-label')).toHaveText('Input size')
 
-  await page.getByRole('tab', { name: 'Hyperspectral' }).click()
+  await page.getByRole('tab', { name: 'ENVI raster' }).click()
   await page.getByRole('button', { name: 'Load synthetic ENVI cube' }).click()
   await expect(page.locator('#scientific-metric-dimensions')).toHaveText('96 × 64 × 16')
   await expect(page.locator('#scientific-metric-detail')).toHaveText('16 spectral bands')
@@ -86,6 +93,12 @@ test('opens, maps, and locally reloads GSF, ENVI, and FITS scientific rasters', 
     'R band 11 (809 Nanometers); G band 7 (641 Nanometers); B band 3 (501 Nanometers)',
   )
   await expect(page.locator('#scientific-relief-controls')).toBeHidden()
+
+  await page.getByRole('button', { name: 'Load synthetic classification map' }).click()
+  await expect(page.locator('#scientific-metric-dimensions')).toHaveText('160 × 120')
+  await expect(page.locator('#scientific-metric-detail')).toHaveText('4 declared classes')
+  await expect(page.locator('#scientific-selection')).toHaveText('ENVI Classification · 4 classes')
+  await expect(page.locator('#scientific-display-mode-field')).toBeHidden()
 
   const [header, data] = await Promise.all([
     readFile('docs-astro/public/demo-data/scientific/synthetic-hyperspectral.hdr'),
