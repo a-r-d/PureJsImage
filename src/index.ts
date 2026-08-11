@@ -1,3 +1,4 @@
+export type { AbortOptions } from './abort.ts'
 export type {
   ImageAcceleratorKind,
   ImageCodecAccelerator,
@@ -31,6 +32,8 @@ export type {
   BmpEncodeOptions,
   CropOptions,
   JpegEncodeOptions,
+  LutOptions,
+  LutPixelFormat,
   PngEncodeOptions,
   ResizeFit,
   ResizeKernel,
@@ -39,53 +42,14 @@ export type {
   RotateOptions,
   TiffEncodeOptions,
   WebpEncodeOptions,
+  WindowOptions,
 } from './pipeline.ts'
 export type { PixelBlock, PixelFormat, PixelSampleDisplayRange } from './pixel.ts'
 export { BufferPool } from './pixel.ts'
-export { aperioSvsProfile, isAperioSvs, openAperioSvs } from './pathology/aperio-svs.ts'
-export type {
-  WholeSlideAssociatedImage,
-  WholeSlideAssociatedImageRequest,
-  WholeSlideImage,
-  WholeSlideLevel,
-  WholeSlideRegionRequest,
-} from './pathology/whole-slide.ts'
-export type {
-  RasterBlock,
-  RasterDecoder,
-  RasterDecodeRequest,
-  RasterDisplayOptions,
-  RasterDisplayRange,
-  RasterFormat,
-  RasterSampleType,
-} from './raster.ts'
-export { rasterSampleBytes, rasterToPixels } from './raster.ts'
-export type {
-  MultidimensionalRasterDataset,
-  PhysicalPixelSize,
-  RasterChannelInfo,
-  RasterPlaneRequest,
-} from './scientific/dataset.ts'
-export { isOmeTiff, omeTiffProfile, openOmeTiff } from './scientific/ome-tiff.ts'
-export { geoTiffProfile } from './geotiff.ts'
-export type {
-  GeoTiffBoundingBox,
-  GeoTiffGdalMetadataItem,
-  GeoTiffKey,
-  GeoTiffModel,
-  GeoTiffPoint,
-  GeoTiffProfile,
-  GeoTiffRasterType,
-} from './geotiff.ts'
 export type { ImageSink } from './sink.ts'
 export { Uint8ArraySink } from './sink.ts'
 export { BufferSink, FileSink } from './node-sink.ts'
 export type { ImageInput } from './node-source.ts'
 export { FileSource } from './node-source.ts'
-export type { ImageSource } from './source.ts'
-export {
-  BlobSource,
-  HttpRangeSource,
-  MemorySource,
-} from './source.ts'
-export type { HttpRangeSourceOptions, HttpRangeSourceStats } from './source.ts'
+export type { ImageSource, ImageSourceReadOptions } from './source.ts'
+export { BlobSource, MemorySource } from './source.ts'

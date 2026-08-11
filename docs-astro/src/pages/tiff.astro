@@ -1,0 +1,189 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
+
+<SiteLayout title="TIFF support — PureJsImage" description="PureJsImage TIFF decode, encode, scientific raster, OME-TIFF, whole-slide, compression, memory, and extension-profile support." canonical="https://purejsimage.com/tiff/" current="codecs/">
+<main id="main">
+    <header class="page-hero"><div class="container"><p class="eyebrow">TIFF reference</p><h1>TIFF is a full document, raster, and image codec.</h1><p class="page-lede">PureJsImage supports broad Classic TIFF and BigTIFF display decoding, native scientific and GeoTIFF rasters, OME-TIFF datasets, Aperio whole-slide pyramids, bounded remote region reads, and structured RGB/RGBA output.</p><div class="page-meta"><span class="pill">Classic TIFF + BigTIFF</span><span class="pill">Strip/tile bounded</span><span class="pill">Node + browser</span></div></div></header>
+    <div class="container docs-layout">
+      <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="../guides/">Getting started</a><a href="../guides/#recipes">Recipes</a></div><div class="nav-group"><strong>Reference</strong><a href="../api/">API reference</a><a href="../codecs/">Codec support</a><a href="../tiff/" aria-current="page">TIFF</a><a href="../performance/">Performance</a></div></aside>
+      <article class="content">
+        <section id="overview" data-search-item>
+          <h2>Entry points</h2>
+          <div class="table-wrap"><table><thead><tr><th>Import</th><th>Purpose</th></tr></thead><tbody>
+            <tr><td><code>purejsimage/codecs/tiff</code></td><td>Default display-image TIFF codec and <code>createTiffCodec()</code> composition.</td></tr>
+            <tr><td><code>purejsimage/tiff</code></td><td>Validated IFD document graph, bounded tag access, raster decoders, and profile registry.</td></tr>
+            <tr><td><code>purejsimage/scientific</code></td><td>OME-TIFF multidimensional datasets and native plane reads.</td></tr>
+            <tr><td><code>purejsimage/pathology</code></td><td>Generic whole-slide API and the first-party Aperio SVS profile.</td></tr>
+            <tr><td><code>purejsimage/compression/zstd</code></td><td>Reusable first-party Zstandard decoder also used by TIFF Compression 50000.</td></tr>
+          </tbody></table></div>
+          <p>All paths are first-party TypeScript with no runtime dependency, native library, external process, or automatically loaded WebAssembly module. WebP-in-TIFF is available only when the caller explicitly composes the WebP codec.</p>
+        </section>
+
+        <section id="decode" data-search-item>
+          <h2>Decode support</h2>
+          <h3>Container and image layout</h3>
+          <ul>
+            <li>Classic TIFF 6.0 and BigTIFF, little-endian and big-endian.</li>
+            <li>Top-level frame selection and frame counting.</li>
+            <li>Nested and chained reduced-resolution SubIFDs with cycle, alias, offset, and global directory-count validation.</li>
+            <li>Strips and tiles, including padded tile edges and legacy tile tables stored in strip tags.</li>
+            <li>Chunky and planar samples, orientation values 1–8, and requested-region decode.</li>
+            <li>Only the selected frame, resolution level, strips, and tiles are decoded.</li>
+          </ul>
+
+          <h3>Samples and pixel models</h3>
+          <ul>
+            <li>Grayscale at 1, 2, 4, 6, 8, 10, 12, 14, 16, 24, 32, and 64 bits, with WhiteIsZero or BlackIsZero.</li>
+            <li>Indexed color at 1, 2, 4, 8, and 16 bits with exact TIFF ColorMap scaling.</li>
+            <li>RGB at 2, 4, 8, 10, 12, 14, 16, 24, 32, and 64 bits.</li>
+            <li>8- and 16-bit grayscale-alpha and RGBA, with associated or unassociated alpha.</li>
+            <li>Signed 8-/16-bit and IEEE float16/float32/float64 grayscale and RGB with native numeric preservation.</li>
+            <li>Unsigned 24-/32-/64-bit grayscale and RGB with canonical wide numeric raster output.</li>
+            <li>Unsigned CMYK, DotRange, CMYK plus alpha, deterministic signed/float CMYK display conversion, and bounded CMYK <code>lut16 A2B0</code> ICC conversion.</li>
+            <li>Chunky subsampled YCbCr, planar 1×1 YCbCr, TIFF 6 CIELab, SGILog luminance, and SGILog24/32 LogLuv color.</li>
+            <li>Explicit numeric display ranges from <code>SMinSampleValue</code>/<code>SMaxSampleValue</code> or documented full-type defaults.</li>
+          </ul>
+
+          <h3>Compression and prediction</h3>
+          <ul>
+            <li>Uncompressed, PackBits, LZW, Deflate, and Adobe Deflate.</li>
+            <li>CCITT Modified Huffman, Group 3, and Group 4 bilevel fax.</li>
+            <li>JPEG-in-TIFF Compression 7 complete or abbreviated streams with <code>JPEGTables</code>.</li>
+            <li>Old-style JPEG Compression 6 complete interchange streams, multi-strip scans, and baseline table reconstruction.</li>
+            <li>Aperio JPEG 2000 Compression 33003 YCbCr and 33005 MCT tiles.</li>
+            <li>SGILog Compression 34676 and SGILog24 Compression 34677.</li>
+            <li>Zstandard Compression 50000 through the bounded first-party decoder.</li>
+            <li>LERC and LERC-plus-Deflate Compression 34887 through the bounded first-party LERC2 decoder.</li>
+            <li>WebP Compression 50001 through explicit <code>createTiffCodec(&#123; embeddedCodecs: [webpCodec] &#125;)</code> composition.</li>
+            <li>Horizontal Predictor 2 for supported 2- through 64-bit samples and floating Predictor 3 for float16/32/64.</li>
+            <li>FillOrder 2 normalization before predictor reversal.</li>
+          </ul>
+          <div class="callout"><strong>Full contract.</strong> The generated <a href="https://github.com/a-r-d/PureJsImage/blob/main/tiff-codec-support.md" target="_blank" rel="noreferrer">TIFF capability checklist</a> is generated from the authoritative manifest and records every implemented and planned boundary.</div>
+        </section>
+
+        <section id="conformance" data-search-item>
+          <h2>Imazen conformance baseline</h2>
+          <p>The 2026-08-10 154-file TIFF corpus run records 148 passes, 2 structured <code>UNSUPPORTED_OPERATION</code> results, and 4 safely rejected robustness inputs. It records zero decode failures, invalid outputs, raw exceptions, timeouts, crashes, or out-of-memory results.</p>
+          <p>Every file runs in an isolated worker with a 30-second timeout and 512 MiB heap limit. A pass means metadata inspection, TIFF-to-PNG decode, PNG reopen, and output-dimension validation all completed. This corpus result demonstrates safe end-to-end handling; it is not by itself an exact-pixel comparison.</p>
+          <p>Exact pixels are tested separately with pinned fixtures and independent ImageMagick/LibTIFF, tifffile/imagecodecs, Esri LERC, libwebp, GeoTIFF.js, and OpenSlide oracles. The corpus worker explicitly composes WebP-in-TIFF while the default TIFF codec remains independent. Unsupported totals record only the first boundary reached.</p>
+          <p><a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/imazen-tiff-conformance.md" target="_blank" rel="noreferrer">Read the complete Imazen TIFF report →</a></p>
+        </section>
+    <!-- library-comparison:tiff:start -->
+        <section id="library-comparison" data-search-item><h2>JavaScript TIFF library comparison</h2><p>The compact matrix distinguishes documented capability from independently measured decode coverage and exact pixels. “Not verified” is not treated as unsupported.</p><div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Decoded / comparable</th><th>Exact</th><th>Pixel mismatch</th><th>Unsupported / error / oracle / timeout / crash</th><th>Malformed inputs</th></tr></thead><tbody><tr><th scope="row">PureJsImage<small>benchmark snapshot · a1f20da</small></th><td>104 / 106</td><td>57</td><td>47</td><td>0 / 0 / 2 / 0 / 0</td><td>4 rejected · 0 accepted · 0 timeout · 0 crash</td></tr>
+<tr><th scope="row">GeoTIFF.js<small>3.0.5</small></th><td>84 / 106</td><td>32</td><td>52</td><td>11 / 7 / 2 / 0 / 2</td><td>1 rejected · 3 accepted · 0 timeout · 0 crash</td></tr>
+<tr><th scope="row">UTIF.js (utif2)<small>4.1.0</small></th><td>74 / 106</td><td>49</td><td>25</td><td>0 / 28 / 2 / 2 / 3</td><td>0 rejected · 1 accepted · 0 timeout · 3 crash</td></tr>
+<tr><th scope="row">image-js/tiff<small>7.1.3</small></th><td>41 / 106</td><td>27</td><td>14</td><td>51 / 12 / 2 / 0 / 0</td><td>1 rejected · 3 accepted · 0 timeout · 0 crash</td></tr>
+<tr><th scope="row">image-js<small>1.7.0</small></th><td>39 / 106</td><td>33</td><td>6</td><td>51 / 14 / 2 / 0 / 0</td><td>1 rejected · 3 accepted · 0 timeout · 0 crash</td></tr>
+<tr><th scope="row">Jimp<small>1.6.0</small></th><td>74 / 106</td><td>49</td><td>25</td><td>0 / 28 / 2 / 2 / 3</td><td>0 rejected · 1 accepted · 0 timeout · 3 crash</td></tr></tbody></table></div><p><a href="../tiff-comparison/">Open the full grouped capability matrix, methodology, versions, and sources →</a></p></section>
+        <!-- library-comparison:tiff:end -->
+
+
+        <section id="scientific" data-search-item>
+          <h2>Scientific TIFF and OME-TIFF</h2>
+          <p><code>openTiffDocument()</code> exposes stable top-level and SubIFD directories without forcing samples into a display format. Every directory exposes its absolute source <code>offset</code>; <code>getDirectoryByOffset()</code> resolves metadata pointers across the parsed graph. Each directory supports bounded, cached typed <code>getTag()</code> reads plus a normal <code>ImageDecoder</code> or native-precision <code>RasterDecoder</code>. <code>RasterBlock</code> supports planar or interleaved N-channel data; <code>rasterToPixels()</code> requires an explicit one- or three-channel selection and display range.</p>
+          <p><code>openOmeTiff()</code> validates OME XML, dimensions, sample type, channel metadata, physical pixel size, all valid Z/C/T dimension orders, explicit or implicit <code>TiffData</code> IFD mappings, interleaved or separately stored channels, and reduced-resolution SubIFDs.</p>
+          <p><code>geoTiffProfile.open()</code> exposes validated GeoKeys, GDAL metadata and nodata, pixel-to-model and model-to-pixel conversion, origin, resolution, and bounding-box helpers for tiepoint/scale or affine transformation models.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">OME-TIFF plane</span></div><pre><code><span class="tok-key">import</span> &#123; MemorySource &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
+<span class="tok-key">import</span> &#123; openOmeTiff &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
+<span class="tok-key">import</span> &#123; openTiffDocument &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
+
+<span class="tok-key">const</span> document = <span class="tok-key">await</span> openTiffDocument(<span class="tok-key">new</span> MemorySource(tiffBytes))
+<span class="tok-key">const</span> dataset = <span class="tok-key">await</span> openOmeTiff(document)
+
+<span class="tok-key">for await</span> (<span class="tok-key">const</span> block <span class="tok-key">of</span> dataset.readPlane(&#123;
+  z: 0, c: [0, 1, 2], t: 0, resolutionLevel: 0,
+  x: 0, y: 0, width: 512, height: 512,
+&#125;)) &#123;
+  consume(block)
+&#125;</code></pre></div>
+        </section>
+
+        <section id="whole-slide" data-search-item>
+          <h2>Whole-slide images</h2>
+          <p>The generic <code>WholeSlideImage</code> contract exposes level dimensions and downsample factors, requested-region reads, associated images, vendor properties, microns per pixel, and objective power where present. Each level also exposes <code>tile(column, row, options?)</code> using native tile coordinates; edge tiles return only the valid image region. Region, tile, associated-image, profile, and TIFF document operations accept an optional <code>AbortSignal</code>.</p>
+          <p>The first-party Aperio SVS profile classifies pyramid levels and label, macro, or thumbnail images; parses MPP and objective metadata; and decodes TIFF JPEG 2000 tags 33003/33005. The pinned irreversible Aperio tile differs from the OpenSlide 3.4.1 oracle by at most two 8-bit code values across 54 of 196,608 channels.</p>
+          <div class="callout warning"><strong>JPEG 2000 memory class.</strong> TIFF region selection remains tile-bounded. The current JPEG 2000 decoder reconstructs complete component state for the current TIFF tile or strip, not for the source slide.</div>
+        </section>
+
+        <section id="profiles" data-search-item>
+          <h2>Third-party TIFF profiles</h2>
+          <p>Vendor packages implement <code>TiffProfile&lt;T&gt;</code> through published APIs and register them with <code>createTiffProfileRegistry()</code>. Detection runs profiles independently, orders matches by descending priority then id, reports detector failures without suppressing unrelated matches, and rejects equal-priority ambiguity. <code>registry.openWith(document, profile)</code> is the typed explicit path and returns <code>Promise&lt;T&gt;</code>.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">Vendor profile</span></div><pre><code><span class="tok-key">import</span> &#123; createTiffProfileRegistry &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
+<span class="tok-key">import type</span> &#123; TiffProfile &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
+
+<span class="tok-key">export const</span> vendorProfile: TiffProfile&lt;VendorDataset&gt; = &#123;
+  id: <span class="tok-string">'vendor-format'</span>,
+  priority: 50,
+  <span class="tok-key">async</span> detect(&#123; document &#125;) &#123;
+    <span class="tok-key">const</span> tag = <span class="tok-key">await</span> document.topLevelDirectories[0]?.getTag(270, &#123;
+      maxBytes: 1024 * 1024,
+    &#125;)
+    <span class="tok-key">return</span> tag?.kind === <span class="tok-string">'ascii'</span> &amp;&amp; tag.value.startsWith(<span class="tok-string">'Vendor'</span>)
+  &#125;,
+  <span class="tok-key">async</span> open(&#123; document &#125;) &#123;
+    <span class="tok-key">const</span> pointer = <span class="tok-key">await</span> document.topLevelDirectories[0]?.getTag(65000, &#123;
+      maxBytes: 24,
+    &#125;)
+    <span class="tok-key">if</span> (pointer?.kind !== <span class="tok-string">'numbers'</span>) <span class="tok-key">throw new</span> Error(<span class="tok-string">'Vendor pointer is missing'</span>)
+    <span class="tok-key">const</span> directory = document.getDirectoryByOffset(pointer.values[0] ?? -1)
+    <span class="tok-key">if</span> (!directory) <span class="tok-key">throw new</span> Error(<span class="tok-string">'Vendor IFD is missing'</span>)
+    <span class="tok-key">const</span> length = pointer.values[2] ?? -1
+    <span class="tok-key">const</span> metadata = <span class="tok-key">await</span> document.readBytes(
+      pointer.values[1] ?? -1, length, &#123; maxBytes: 1024 * 1024 &#125;,
+    )
+    <span class="tok-key">return</span> openVendorDataset(directory, metadata)
+  &#125;,
+&#125;
+
+<span class="tok-key">const</span> registry = createTiffProfileRegistry([vendorProfile])
+<span class="tok-key">const</span> dataset = <span class="tok-key">await</span> registry.openWith(document, vendorProfile)</code></pre></div>
+          <p><code>readBytes(offset, length, &#123; maxBytes &#125;)</code> provides exact defensive-copy reads for private metadata without exposing the source object. It rejects invalid, out-of-source, or over-budget ranges. Parsed tag values are cached per directory; every call still enforces its own <code>maxBytes</code>, and byte-valued tags return defensive copies. The checked <code>examples/tiff-profile-leica</code> single-area Leica SCN driver compiles as an external package and imports only <code>purejsimage</code>, <code>purejsimage/tiff</code>, and <code>purejsimage/pathology</code>. Multi-area Leica composition remains explicitly unsupported instead of being flattened into a misleading image.</p>
+          <p><a href="../api/#tiff-profile-authoring">Read the profile API reference →</a></p>
+        </section>
+
+        <section id="encode" data-search-item>
+          <h2>TIFF output</h2>
+          <p>The writer emits chunky 8-bit RGB or RGBA with horizontal prediction and independently Deflate-compressed strips or tiles. It supports automatic roughly 128 KiB strip planning, explicit rows per strip, validated tile dimensions, Classic TIFF, automatic or explicit BigTIFF, multi-page top-level IFD chains, and reduced-resolution SubIFD pyramids. Compatible RGB ICC profiles can be retained explicitly.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TIFF output</span></div><pre><code><span class="tok-key">await</span> image.tiff(&#123;
+  compression: <span class="tok-string">'deflate'</span>,
+  predictor: <span class="tok-string">'horizontal'</span>,
+  layout: <span class="tok-string">'tiles'</span>,
+  tileWidth: 256,
+  tileHeight: 256,
+  format: <span class="tok-string">'auto'</span>,
+  compressionLevel: 6,
+&#125;).toFile(<span class="tok-string">'output.tiff'</span>)</code></pre></div>
+          <p><code>encodeTiffDocument()</code> writes multiple top-level pages and nested reduced-resolution images. Alternate compression profiles, grayscale or palette output, 16-bit channels, associated alpha, and broader metadata writing remain unsupported.</p>
+        </section>
+
+        <section id="memory" data-search-item>
+          <h2>Memory and safety</h2>
+          <ul>
+            <li>Display, native raster, GeoTIFF, OME plane, and whole-slide reads are bounded to selected strips or tiles.</li>
+            <li><code>HttpRangeSource</code>, imported from <code>purejsimage/sources/http-range</code>, deduplicates bounded requests, enforces a byte-capped LRU cache, and rejects ETag or Last-Modified changes while reading remote COG-style TIFFs.</li>
+            <li>IFD traversal and profile detection do not read unselected pixel segments.</li>
+            <li>Tag payloads, IFD counts, offsets, dimensions, segment geometry, decompression output, predictors, and nested graph traversal are validated before allocation or indexing.</li>
+            <li>LERC, Zstandard, FillOrder normalization, palette lookup, color conversion, predictors, SGILog scratch, and output blocks stay bounded to the current metadata table or segment.</li>
+            <li>The encoder bounds raw pixel and predictor scratch to the current strip or tile and retains compressed segments until final offsets are known; it does not stage a full uncompressed frame.</li>
+          </ul>
+        </section>
+
+        <section id="limits" data-search-item>
+          <h2>Explicit remaining boundaries</h2>
+          <ul>
+            <li>No automatic display mapping for arbitrary scientific multiband data. Use native raster blocks or provide an explicit channel/range mapping.</li>
+            <li>No raw numeric CMYK preservation or general CMYK ICC profile classes beyond the supported bounded <code>lut16 A2B0</code> path.</li>
+            <li>No ThunderScan or unspecified extension compression.</li>
+            <li>No automatic WebP composition in the default TIFF codec.</li>
+            <li>No multi-area Leica scene composition in the external example.</li>
+            <li>No alternate TIFF compression or pixel profiles beyond Deflate-predicted RGB/RGBA strips and tiles.</li>
+          </ul>
+          <p>Recognized but unsupported combinations fail with a structured <code>ImageError</code>; they are not silently approximated.</p>
+        </section>
+      </article>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#overview">Entry points</a><a href="#decode">Decode</a><a href="#conformance">Conformance</a><a href="#library-comparison">Library comparison</a><a href="#scientific">Scientific + OME</a><a href="#whole-slide">Whole-slide</a><a href="#profiles">Profiles</a><a href="#encode">Output</a><a href="#memory">Memory</a><a href="#limits">Boundaries</a></aside>
+    </div>
+  </main>
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>Broad TIFF support with explicit memory and semantic boundaries.</p></div><div class="footer-column"><strong>Docs</strong><a href="../guides/">Guides</a><a href="../api/">API</a><a href="../codecs/">Codecs</a><a href="../tiff/">TIFF</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Capability snapshot: current main</span></div></div></footer>
+</SiteLayout>

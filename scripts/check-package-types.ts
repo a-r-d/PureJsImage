@@ -56,6 +56,10 @@ try {
     `import { BufferSink, createImageLibrary } from 'purejsimage'
 import { createImageLibrary as createBrowserImageLibrary } from 'purejsimage/browser'
 import { pngCodec } from 'purejsimage/codecs/png'
+export { geoTiffProfile } from 'purejsimage/tiff'
+export { openOmeTiff, rasterToPixels } from 'purejsimage/scientific'
+export { openAperioSvs } from 'purejsimage/pathology'
+export { HttpRangeSource } from 'purejsimage/sources/http-range'
 
 const nodeImages = createImageLibrary([pngCodec])
 const browserImages = createBrowserImageLibrary([pngCodec])

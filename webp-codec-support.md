@@ -106,15 +106,14 @@ coverage.
   hash-bucket match candidates plus two-dimensional VP8L distance coding
 - [x] Adaptive 8-to-10-bit color-cache emission for repeated transformed colors
 - [x] Per-image adaptive canonical Huffman trees with a complete-tree fallback
+- [x] Spatially varying Huffman entropy groups
+- [x] Cross-color and packed color-indexing transform selection
+- [x] Compression `effort` control from 0 through 6
+- [x] Near-lossless preprocessing through `nearLossless` quality from 0 through 100
+- [x] Output below PureJsImage PNG across the pinned deterministic graphic,
+  JPEG-decoded, and production-style transparent logo fixtures
 - [x] Public `image.webp({ lossless: true })` and
   `image.encode('webp', { lossless: true })` APIs
-
-### Lossless planned
-
-- [ ] Spatially varying Huffman entropy groups
-- [ ] Cross-color and color-indexing transform selection
-- [ ] Compression-effort controls and better output-size optimization
-- [ ] Near-lossless WebP encoding
 
 ### Lossy implemented target
 
@@ -173,9 +172,9 @@ coverage.
   and require pinned pixels before accepting a timing
 - [x] Decode lossless encoder output through pinned Sharp/libwebp and require
   exact RGBA pixels, including deterministic high-entropy and graphic fixtures
-- [x] Require deterministic PNG and JPEG-decoded graphics' lossless WebP output
-  to remain smaller than PureJsImage PNG, and record the pinned production-style logo result
-  alongside libwebp in an isolated size and peak-RSS benchmark
+- [x] Require pinned deterministic PNG and JPEG-decoded benchmark fixtures to
+  remain smaller as lossless WebP than as PureJsImage PNG, and record the pinned
+  production-style logo result alongside libwebp in an isolated size and peak-RSS
 - [x] Document and benchmark the lossless encoder's source-sized 32-bit
   transformed frame and potentially source-sized buffered payload
 - [ ] Account for cumulative VP8/VP8L planes, transforms, alpha, and output in a

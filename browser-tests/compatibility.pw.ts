@@ -11,6 +11,13 @@ test('uses File, Blob, ArrayBuffer, Uint8Array, toBlob, and toUint8Array', async
   expect(results).toHaveLength(5)
   expect(results.every(({ outputBytes }) => outputBytes > 0)).toBe(true)
 })
+test('keeps optional TIFF workflows and HTTP sources behind explicit browser entries', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.optionalApiEntries())
+  expect(result.detail).toContain('entries are explicit')
+})
 test('uses Lanczos3 as the default resize kernel in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.resizeDefaultKernel())
@@ -131,7 +138,7 @@ test('losslessly encodes WebP with exact browser pixels', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.webpLossless())
   expect(result.outputBytes).toBeGreaterThan(20)
-  expect(result.detail).toContain('matched browser RGBA pixels')
+  expect(result.detail).toContain('effort and near-lossless controls passed')
 })
 
 test('decodes lossy WebP macroblock rows in a real browser', async ({ page }) => {
@@ -413,6 +420,12 @@ test('applies JPEG EXIF orientation in the browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.orientation())
   expect(result.detail).toContain('orientation 6')
+})
+
+test('cancels an in-flight HTTP range read', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.httpRangeCancellation())
+  expect(result.detail).toContain('cancelled an in-flight browser HTTP range read')
 })
 
 test('aborts failed output and permits a clean subsequent operation', async ({ page }) => {

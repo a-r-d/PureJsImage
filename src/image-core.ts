@@ -1,3 +1,5 @@
+import type { AbortOptions } from './abort.ts'
+import { throwIfAborted } from './abort.ts'
 import { type ImageLibraryRegistration, resolveCodecRegistration } from './accelerator.ts'
 import { CodecRegistry, type ImageCodec, type ImageMetadata } from './codec.ts'
 import { invalidInput, unsupportedOperation } from './errors.ts'
@@ -8,38 +10,46 @@ import type {
   BmpEncodeOptions,
   CropOptions,
   JpegEncodeOptions,
+  LutOptions,
   PipelineOperation,
   PngEncodeOptions,
   ResizeOptions,
   RotateOptions,
   TiffEncodeOptions,
   WebpEncodeOptions,
+  WindowOptions,
 } from './pipeline.ts'
 import {
   createBmpEncodeOperation,
-  createCropOperation,
   createJpegEncodeOperation,
+  createCropOperation,
+  createLutOperation,
   createPngEncodeOperation,
   createResizeOperation,
   createRotateOperation,
   createTiffEncodeOperation,
   createWebpEncodeOperation,
+  createWindowOperation,
   planMetadata,
 } from './pipeline.ts'
 import type { CollectedOutput, ImageRuntime } from './runtime.ts'
 import type { ImageSink } from './sink.ts'
-import { type ImageSource, withSourceSession } from './source.ts'
+import { bindImageSourceSignal, type ImageSource, withSourceSession } from './source.ts'
 
-export interface ImageOpenOptions {
-  limits?: ImageLimitOptions
-  frame?: number
-  resolutionLevel?: number
-  tolerantDecoding?: boolean
+export interface ImageOpenOptions extends AbortOptions {
+  readonly limits?: ImageLimitOptions
+  readonly frame?: number
+  readonly resolutionLevel?: number
+  readonly tolerantDecoding?: boolean
 }
 
 export interface ImagePlatform<Input, Output extends Uint8Array> {
   readonly runtime: ImageRuntime
-  createImageSource(input: Input, limits: ImageLimits): Promise<ImageSource>
+  createImageSource(
+    input: Input,
+    limits: ImageLimits,
+    options?: Readonly<AbortOptions>,
+  ): Promise<ImageSource>
   createCollectedOutput(): CollectedOutput<Output>
   createFileSink?(path: string): ImageSink
 }
@@ -96,8 +106,9 @@ export class Image<Input, Output extends Uint8Array> {
       throw invalidInput('tolerantDecoding must be a boolean')
     }
     const limits = resolveLimits(options.limits)
-    const source = await platform.createImageSource(input, limits)
-    const codec = await withSourceSession(source, () => registry.detect(source))
+    throwIfAborted(options.signal)
+    const source = await platform.createImageSource(input, limits, options)
+    const codec = await withSourceSession(source, () => registry.detect(source, options))
     if (options.frame !== undefined && options.frame !== 0 && codec.selection?.frames !== true) {
       throw unsupportedOperation(
         'Only frame 0 can be selected; later frame selection is unsupported',
@@ -124,16 +135,29 @@ export class Image<Input, Output extends Uint8Array> {
     })
   }
 
-  async metadata(): Promise<ImageMetadata> {
-    this.#context.metadataPromise ??= withSourceSession(this.#context.source, () =>
-      this.#context.codec.metadata(this.#context.source, this.#context.limits, {
-        ...(this.#context.frame === undefined ? {} : { frame: this.#context.frame }),
-        ...(this.#context.resolutionLevel === undefined
-          ? {}
-          : { resolutionLevel: this.#context.resolutionLevel }),
-      }),
-    )
-    return planMetadata(await this.#context.metadataPromise, this.#operations, this.#context.limits)
+  async metadata(options: Readonly<AbortOptions> = {}): Promise<ImageMetadata> {
+    const load = (): Promise<ImageMetadata> => {
+      const source = bindImageSourceSignal(this.#context.source, options.signal)
+      return withSourceSession(source, () =>
+        this.#context.codec.metadata(source, this.#context.limits, {
+          ...(options.signal === undefined ? {} : { signal: options.signal }),
+          ...(this.#context.frame === undefined ? {} : { frame: this.#context.frame }),
+          ...(this.#context.resolutionLevel === undefined
+            ? {}
+            : { resolutionLevel: this.#context.resolutionLevel }),
+        }),
+      )
+    }
+    let metadataPromise: Promise<ImageMetadata>
+    if (options.signal === undefined) {
+      metadataPromise = this.#context.metadataPromise ?? load()
+      this.#context.metadataPromise = metadataPromise
+    } else {
+      metadataPromise = load()
+    }
+    const sourceMetadata = await metadataPromise
+    throwIfAborted(options.signal)
+    return planMetadata(sourceMetadata, this.#operations, this.#context.limits)
   }
 
   autoOrient(): Image<Input, Output> {
@@ -154,6 +178,13 @@ export class Image<Input, Output extends Uint8Array> {
 
   resize(options: ResizeOptions): Image<Input, Output> {
     return this.#append(createResizeOperation(options))
+  }
+  window(options: WindowOptions): Image<Input, Output> {
+    return this.#append(createWindowOperation(options))
+  }
+
+  lut(options: LutOptions): Image<Input, Output> {
+    return this.#append(createLutOperation(options))
   }
 
   rotate(degrees: number, options: RotateOptions = {}): Image<Input, Output> {
@@ -281,36 +312,40 @@ export class Image<Input, Output extends Uint8Array> {
     return this.#append(createTiffEncodeOperation(options))
   }
 
-  async toBuffer(): Promise<Output> {
+  async toBuffer(options: Readonly<AbortOptions> = {}): Promise<Output> {
     const output = this.#context.platform.createCollectedOutput()
-    await this.toSink(output.sink)
+    await this.toSink(output.sink, options)
+    throwIfAborted(options.signal)
     return output.result()
   }
 
-  async toUint8Array(): Promise<Uint8Array> {
-    return this.toBuffer()
+  async toUint8Array(options: Readonly<AbortOptions> = {}): Promise<Uint8Array> {
+    return this.toBuffer(options)
   }
 
-  async toBlob(): Promise<Blob> {
-    const metadata = await this.metadata()
+  async toBlob(options: Readonly<AbortOptions> = {}): Promise<Blob> {
+    const metadata = await this.metadata(options)
     const mimeType = this.#context.registry.get(metadata.format)?.mimeTypes[0]
-    return new Blob([Uint8Array.from(await this.toBuffer())], {
+    const output = await this.toBuffer(options)
+    throwIfAborted(options.signal)
+    return new Blob([Uint8Array.from(output)], {
       type: mimeType ?? 'application/octet-stream',
     })
   }
 
-  async toSink(sink: ImageSink): Promise<void> {
-    await withSourceSession(this.#context.source, () =>
-      executePipeline(this.#context, this.#operations, sink),
+  async toSink(sink: ImageSink, options: Readonly<AbortOptions> = {}): Promise<void> {
+    const source = bindImageSourceSignal(this.#context.source, options.signal)
+    await withSourceSession(source, () =>
+      executePipeline({ ...this.#context, source }, this.#operations, sink, options),
     )
   }
 
-  async toFile(path: string): Promise<void> {
+  async toFile(path: string, options: Readonly<AbortOptions> = {}): Promise<void> {
     const createFileSink = this.#context.platform.createFileSink
     if (!createFileSink) {
       throw unsupportedOperation('File path output is not available in this runtime')
     }
-    await this.toSink(createFileSink(path))
+    await this.toSink(createFileSink(path), options)
   }
 
   #append(operation: PipelineOperation): Image<Input, Output> {

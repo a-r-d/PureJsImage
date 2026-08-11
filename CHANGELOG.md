@@ -3,6 +3,33 @@
 All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
+
+### Added
+
+- Added immutable numeric `window()` and color `lut()` pipeline operations for browser viewers,
+  including per-channel display ranges, grayscale-to-RGB/RGBA lookup tables, direct RGBA tables,
+  bounded row output, and explicit output pixel formats.
+- Added tile-native `WholeSlideLevel.tile(column, row, options?)` reads with validated tile
+  coordinates and bounded edge-tile regions.
+
+### Changed
+
+- Migrated the documentation website from hand-authored static HTML to Astro with shared layouts,
+  React island support, the same `.html` routes and public assets, and the existing GitHub Pages
+  artifact and browser-demo validation flow.
+- Threaded `AbortSignal` through image opening, metadata, terminal output, decoder requests, TIFF
+  documents and profiles, whole-slide operations, source reads, normalization, and numeric raster
+  conversion. HTTP range reads combine source-lifetime and per-read signals so an obsolete viewer
+  request cancels its in-flight fetch, and output sinks abort cleanly on cancellation.
+- Expanded the first-party lossless WebP encoder with packed palette and cross-color transforms,
+  spatial entropy groups, adaptive color-cache and LZ77 search, `effort` controls, and
+  `nearLossless` quality. The pinned 1200x480 production-style logo now encodes to 2,188 bytes
+  versus 6,850 bytes from PureJsImage PNG and 1,584 bytes from Sharp/libwebp, with exact
+  independent pixel reconstruction.
+
+
+## [0.9.0] - 2026-08-09
+
 ### Added
 
 - Expanded TIFF decoding with unsigned 6-, 10-, 12-, and 14-bit grayscale, 2-, 4-, 10-, 12-,
@@ -19,6 +46,9 @@ All notable changes to PureJsImage are documented in this file.
   backed by pinned versions and a 154-file isolated-process conformance run that reports exact
   pixels, mismatches, unsupported cases, errors, timeouts, crashes, native scientific rasters, and
   malformed-input behavior separately.
+- Expanded the browser demo from 8 to 38 public examples spanning ECCI scanning electron
+  microscopy, OME-TIFF microscopy dimensions, FLIM, SPIM, high-content screening, pathology,
+  scientific JPEG 2000, high-bit-depth AVIF, and additional unusual codec layouts.
 - Added a published `llms.txt` with a capability-manifest-generated codec map, complete quick API
   reference, runtime and safety boundaries, and migration guidance for Jimp, Sharp, image-js,
   jSquash, GeoTIFF.js, and UTIF.js; every website footer now links the guide and sitemap.
@@ -39,7 +69,7 @@ All notable changes to PureJsImage are documented in this file.
 - Added 16-bit TIFF palette decode with exact full-range ColorMap scaling, plus signed 8-/16-bit
   and float16/float32/float64 CMYK display conversion using declared sample ranges or deterministic
   full-type defaults, bounded segment output, and independent pixel validation.
-- Added TIFF 6 8-bit CIELab conversion from D65-referenced L*a*b* to sRGB, bounded CMYK
+- Added 8-bit TIFF CIELab conversion from D65-referenced L*a*b* to sRGB, bounded CMYK
   `lut16` A2B0 ICC-profile conversion with profile precedence over numeric display, and
   `FillOrder=2` normalization for non-fax strips and tiles before predictor reversal without
   mutating aliased source buffers.
@@ -63,7 +93,7 @@ All notable changes to PureJsImage are documented in this file.
 - Added a dedicated TIFF documentation page covering the complete decode matrix, scientific and
   whole-slide APIs, third-party profiles, canonical output, memory model, and unsupported
   boundaries; reduced the README TIFF and Zstandard sections to direct documentation links and
-  refreshed its measured 0.8.0 bundle and installed-size tables.
+  refreshed the measured bundle and installed-size tables.
 - Added a reusable first-party Zstandard decompressor at `purejsimage/compression/zstd` with
   explicit output and window bounds, raw/RLE/compressed blocks, Huffman and FSE entropy decoding,
   repeated tables and offsets, frame checksums, and structured malformed-input failures.
@@ -87,6 +117,16 @@ All notable changes to PureJsImage are documented in this file.
 - Added a development-only TIFF conformance harness that scores PureJsImage, GeoTIFF.js, UTIF.js,
   image-js, and Jimp against independent sharp/ImageMagick RGBA output with isolated memory,
   timeout, crash, exact-pixel, and error reporting.
+
+### Changed
+
+- Moved OME-TIFF and raster helpers, Aperio SVS, and GeoTIFF profiles out of the root and browser
+  entries into `purejsimage/scientific`, `purejsimage/pathology`, and `purejsimage/tiff`; moved
+  `HttpRangeSource` into `purejsimage/sources/http-range` so the core bundle does not retain
+  specialized TIFF workflows or the optional HTTP adapter.
+- Relabeled TIFF conformance as an unreleased commit-pinned workspace snapshot and made decoded
+  coverage the compact comparison headline, with exact pixels and failure counts reported
+  separately.
 
 ## [0.8.0] - 2026-08-09
 
@@ -576,4 +616,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.6.0]: https://github.com/a-r-d/PureJsImage/compare/v0.5.0...v0.6.0
 [0.7.0]: https://github.com/a-r-d/PureJsImage/compare/v0.6.0...v0.7.0
 [0.8.0]: https://github.com/a-r-d/PureJsImage/compare/v0.7.0...v0.8.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.8.0...HEAD
+[0.9.0]: https://github.com/a-r-d/PureJsImage/compare/v0.8.0...v0.9.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.9.0...HEAD

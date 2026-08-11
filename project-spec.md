@@ -4,24 +4,40 @@
 
 **Working description**
 
-> PureJsImage is a small, fast, low-memory image processing library written in pure JavaScript. It is intended as a modern alternative to Jimp for the most common server and browser image-processing workloads, with an architecture designed around lazy execution, bounded memory use, minimal copying, and modular image codecs.
+> PureJsImage is building a broad suite of first-party image codecs in strict
+> TypeScript, designed for low memory use, portable deployment, strong
+> conformance, hostile-input safety, and competitive performance.
 
-The primary use case is not advanced image editing. It is the boring 90% of image processing that applications actually need:
+Production codec implementations live in this repository. A shared lazy image
+and raster pipeline provides metadata inspection, region decode, transforms,
+resizing, conversion, and encoding across Node.js, modern browsers, serverless
+deployments, and specialized raster workloads.
 
-* Decode an image
-* Determine its format and metadata
-* Convert it to another format
-* Resize it
-* Crop it
-* Control output quality and file size
-* Write the result to a file, buffer, or stream
+The original motivating workload is the common application path that Jimp makes
+easy—decode, orient, crop, resize, and encode—without Jimp's source-sized mutable
+RGBA boundary. That workload remains important evidence for the architecture,
+but it does not define the project's eventual codec or raster scope.
 
-PureJsImage should do these operations substantially faster and with substantially less memory pressure than Jimp while retaining the core reason people choose Jimp in the first place: it is JavaScript, portable, easy to install, and does not require a native image-processing stack. PureJsImage sets a stricter packaging goal: the published package must have zero runtime npm dependencies.
+PureJsImage is not an advanced image editor, drawing API, or canvas library. Its
+pipeline exists to make the codec suite useful for ordinary application images
+and for native numeric, scientific, geospatial, and whole-slide rasters.
 
-All source, scripts, benchmarks, and tests must be written in the latest stable
-TypeScript with strict mode enabled. `any` is not permitted. Prefer narrow,
-clearly defined types and discriminated unions, and narrow external `unknown`
-data through runtime validation.
+The top-level engineering constraints are:
+
+1. production codecs implemented first-party in this repository;
+2. a permanent strict TypeScript reference engine;
+3. zero production runtime dependencies;
+4. portable Node.js and modern-browser behavior;
+5. codec-native bounded execution where the format permits it;
+6. competitive performance measured on complete workflows;
+7. explicit unsupported boundaries instead of plausible corruption;
+8. hostile-input and allocation safety;
+9. independent conformance and pixel validation; and
+10. modular codec loading with optional, explicit first-party acceleration.
+
+All source, scripts, benchmarks, and tests must use the latest stable TypeScript
+with strict mode enabled. `any` is not permitted. External `unknown` data must
+be narrowed through runtime validation.
 
 ---
 
@@ -91,10 +107,11 @@ problem.
 
 # 2. Project Goals
 
-PureJsImage has five top-level goals. Runtime portability is a release
-requirement alongside size, speed, memory behavior, and codec compatibility;
-an implementation is not complete if the same public pipeline can only run in
-one JavaScript host.
+The project goals below operationalize the codec-suite mission and engineering
+constraints above. Runtime portability is a release requirement alongside
+package size, speed, memory behavior, safety, and codec compatibility; an
+implementation is not complete if the same public contract works in only one
+JavaScript host.
 
 ## 2.1 Small
 
@@ -141,19 +158,25 @@ and should be verified against the packed npm artifact.
 
 ## 2.2 Fast
 
-PureJsImage should be substantially faster than Jimp on common real-world pipelines.
+PureJsImage should be competitive on complete real-world codec and raster
+pipelines.
 
 The target is not:
 
 > Beat Sharp at everything.
 
 Sharp is backed by libvips and highly optimized native image-processing code.
+Use it when native deployment is acceptable and maximum throughput is the
+primary requirement.
 
 The target is:
 
-> Be the fastest practical pure-JavaScript alternative to Jimp.
+> Make the portable strict TypeScript reference engine fast enough for
+> production, then add explicit first-party acceleration where measurement
+> justifies it.
 
-Performance work should focus on complete workloads rather than synthetic single-pixel operations.
+Jimp remains a useful comparison for the original application-image workload,
+not the boundary of the project.
 
 Important benchmark:
 
@@ -239,13 +262,14 @@ run representative decode, transform, and encode pipelines in a real browser.
 
 ---
 
-## 2.5 Broad modern format compatibility
+## 2.5 Broad first-party codec coverage
 
-The architecture should not hard-code knowledge of five image formats into the processing engine.
+The architecture must not hard-code a fixed format list into the processing
+engine. Formats are independently registered codecs implementing a common
+contract, with capability depth and unsupported boundaries documented per
+codec.
 
-Formats should be codecs implementing a common interface.
-
-The engine should therefore be able to gain:
+Current or tracked formats include:
 
 * JPEG
 * PNG
@@ -254,10 +278,13 @@ The engine should therefore be able to gain:
 * TIFF
 * WebP
 * AVIF
+* JPEG 2000
+* HEIF/HEIC
 * JPEG XL
-* future formats
+* future formats chosen through the roadmap
 
-without architectural changes.
+Adding or deepening a codec must not require architectural changes to the shared
+pipeline.
 
 Official production codecs must be implemented in this repository. External
 libraries may be used as development-only conformance and benchmark oracles,
@@ -266,63 +293,51 @@ by the published runtime.
 
 ---
 
-# 3. What "Pure JS" Means
+# 3. Reference Engine and Accelerators
 
-This needs an explicit definition because otherwise the project will eventually become confused about its identity.
+The project needs explicit terms so optional acceleration cannot blur its
+identity.
 
-The **PureJsImage core** should:
+The **reference engine** is the first-party strict TypeScript implementation. It
+must:
 
-* contain no native Node addons
-* require no system libraries
-* spawn no external binaries
-* compile without node-gyp
-* work using normal JavaScript/TypeScript APIs
-* work across Node, Bun, Deno, and browsers wherever the required runtime primitives exist
+* contain no native Node addons;
+* require no system libraries;
+* spawn no external binaries;
+* compile without `node-gyp`;
+* use portable JavaScript and TypeScript runtime APIs;
+* run across Node.js and modern browsers wherever required primitives exist; and
+* remain the default, supported path after accelerators exist.
 
-Official pure-JS codecs should follow the same constraints.
+An **accelerator** is an optional first-party WASM or future compute
+implementation that preserves the reference contract. It must use a separate
+explicit import and registration, may decline unsupported work, and must fall
+back cleanly to the reference engine. Importing the root package or a normal
+codec entry must never load, download, or silently select an accelerator.
 
-Codec architecture may allow additional optional providers, but official AVIF
-support is now a first-party pure-TypeScript goal.
+The package must therefore remain useful with zero runtime dependencies and no
+required WASM or native code. Development-only libraries, native tools, browser
+codecs, and system codecs may serve as independent oracles; they must not become
+production implementations.
 
-For example:
+AVIF illustrates the policy. Its container and implemented AV1 pixel decoder
+are first-party strict TypeScript, while libavif, libaom, dav1d, browsers, and
+other implementations are development oracles. The checked capability contract
+defines the currently supported still-image subset and explicit rejection
+boundaries.
 
-```text
-@purejsimage/avif
-```
+A planned initial AVIF encoder is deliberately constrained: opaque 8-bit input,
+AV1 Main Profile, YUV 4:2:0, one tile, and one intra-only still picture.
+Correctness, portability, and bounded memory come before compression efficiency.
+Alpha, lossless, 4:2:2, 4:4:4, higher bit depths, grids, and animation expand
+only after the baseline is implemented, independently validated, and measured.
 
-could expose multiple implementations:
+Decoder compatibility remains the higher priority because PureJsImage must
+consume files produced elsewhere. AV1 still-picture and
+reduced-still-picture-header modes keep general video encoding outside this
+project; the target is a practical image codec integrated with the shared
+pipeline, not a general-purpose AV1 video implementation.
 
-```text
-first-party pure JS implementation
-WebCodecs/runtime implementation
-optional WASM implementation
-```
-
-The important distinction is that **PureJsImage must never require WASM or native code to function.**
-
-An optional WASM codec does not change the architecture or contaminate the pure-JS processing engine.
-
-This is particularly important for AVIF.
-
-Current practical AVIF JavaScript packages such as `@jsquash/avif` use WebAssembly and libavif rather than implementing AV1 encoding entirely in JavaScript.
-
-Likewise, widely used portable WebP encoders generally use libwebp through WASM.
-
-The initial encoder is intentionally constrained rather than competitive with
-libaom: opaque 8-bit input, AV1 Main Profile, YUV 4:2:0, one tile, and one
-intra-only still picture. Correctness, portability, and bounded memory come
-before compression efficiency. Alpha, lossless, 4:2:2, 4:4:4, higher bit
-depths, grids, and animation expand only after the baseline is measured.
-
-Decoder compatibility is broader and higher priority because PureJsImage must
-consume files produced elsewhere. The decoder progression is 8-bit 4:2:0
-stills, 10-bit 4:2:0, 4:4:4/4:2:2/monochrome, alpha auxiliary items, 12-bit,
-grids, and then animation. AVIF decode is a V1 stretch goal; the constrained
-encoder is a V1.1 goal.
-
-AV1 still-picture and reduced-still-picture-header modes keep general video
-encoding outside this project. The target is a practical image codec integrated
-with the processing pipeline, not a general-purpose AV1 video implementation.
 
 ---
 
@@ -2013,10 +2028,10 @@ purejsimage/
 │   ├── codecs/
 │   └── integration/
 │
-├── docs/
-│   ├── architecture.md
-│   ├── codecs.md
-│   └── performance.md
+├── docs-astro/
+│   ├── src/pages/
+│   ├── src/components/
+│   └── public/
 │
 └── package.json
 ```
@@ -2628,41 +2643,34 @@ The project's architectural progress should be visible in this benchmark.
 
 # 49. Success Definition
 
-PureJsImage does not need to become another Photoshop implemented in JavaScript.
+PureJsImage succeeds when it is a broad, production-quality suite of first-party
+image codecs with a shared raster pipeline—not when it reproduces a drawing or
+full-bitmap manipulation API.
 
-The project is successful if a developer who currently writes:
-
-```ts
-await Jimp.read(...)
-```
-
-can instead choose PureJsImage because they need:
-
-```text
-format conversion
-resize
-crop
-compression
-```
-
-and get:
+A developer handling ordinary application images should be able to replace a
+Jimp-style decode, orient, crop, resize, and encode workflow with:
 
 ```text
 smaller dependency surface
-faster execution
 lower peak memory
-modern codec extensibility
-cleaner architecture
+competitive measured performance
+portable Node.js and browser behavior
+explicit codec capability boundaries
 ```
 
-without installing native system dependencies.
+A developer handling TIFF, OME-TIFF, GeoTIFF/COG, whole-slide, or N-channel
+numeric data should be able to use the same source and codec architecture
+through the raster API without forcing native samples through an RGBA bitmap.
+
+Each mature codec should accumulate a checked capability contract, permanent
+conformance corpus, hostile-input coverage, bounded execution where its format
+permits it, practical encode and decode depth, and optional first-party
+acceleration when benchmarks justify the added implementation.
 
 The long-term positioning is:
 
-> **PureJsImage is the small, fast, low-memory image conversion and resizing library for JavaScript.**
+> **PureJsImage is a first-party image codec suite and low-memory raster engine
+> in strict TypeScript.**
 
-Not:
-
-> Jimp with more methods.
-
-That distinction should drive every V1 decision.
+Jimp remains the original motivating comparison. It does not define the
+project's eventual scope.

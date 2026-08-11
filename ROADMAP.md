@@ -1,21 +1,26 @@
 # PureJsImage roadmap
 
-PureJsImage is building three complementary implementation layers around one
-public image-processing model:
+PureJsImage is building a broad suite of first-party image codecs around one
+portable image and raster-processing model. The implementation has three
+complementary layers:
 
-1. a portable, first-party reference engine written in strict TypeScript; and
+1. a permanent, first-party reference engine written in strict TypeScript;
 2. optional per-codec accelerators written in Rust and compiled to WebAssembly;
    and
-3. an optional WebGPU compute backend for sufficiently large, parallel pixel
-   workloads.
+3. an optional future WebGPU compute backend for sufficiently large, parallel
+   pixel workloads.
 
-The TypeScript engine comes first. It defines behavior, safety limits,
-correctness fixtures, memory expectations, and the fallback available in every
-supported runtime. Rust/WASM implementations follow that reference instead of
-becoming a separate product or a requirement for basic functionality.
-WebGPU will follow the same rule: it will accelerate selected operations without
-replacing the reference engine, changing output semantics, or entering the
-default dependency path.
+The TypeScript reference comes first and remains supported permanently. It
+defines format behavior, safety limits, capability boundaries, conformance
+fixtures, memory expectations, and the fallback available in every supported
+runtime. Rust/WASM and future compute implementations accelerate that contract;
+they do not become separate products or requirements for basic functionality.
+
+Every codec follows the same durable lifecycle: implement a coherent first-party
+subset, publish its checked capability contract, validate it against permanent
+conformance and hostile-input corpora, make execution bounded where the format
+permits it, add practical encode or broader decode depth, and introduce optional
+acceleration only when measurements justify the added implementation.
 
 ## North star
 
@@ -33,9 +38,10 @@ For common image workflows, PureJsImage should be:
   cost, rather than assuming that the most specialized available backend is
   always fastest.
 
-## Phase 1: pure TypeScript reference engine
+## Permanent foundation: strict TypeScript reference engine
 
-This is the current phase.
+This is the project's permanent implementation layer, not a phase that ends
+when accelerators arrive.
 
 ### 1. Harden the shared pipeline
 
@@ -100,12 +106,12 @@ work, copies, or peak memory.
 - Gate releases on a browser bundle with no Node built-ins plus real-browser
   decode, transform, and encode coverage.
 
-### Phase 1 exit signal
+### Reference-engine maturity signal
 
-Phase 1 is mature when the common subset of each tracked codec has pinned
-conformance coverage, useful basic transforms, explicit unsupported boundaries,
-and a measured low-memory path. Reference implementations will continue to
-improve after optional accelerators begin.
+A reference codec is mature when its common subset has pinned conformance
+coverage, useful pipeline integration, explicit unsupported boundaries, hostile-
+input coverage, and a measured memory class. Reference implementations continue
+to deepen after optional accelerators begin.
 
 ## Phase 2: optional Rust/WASM codec acceleration
 
@@ -124,20 +130,21 @@ Each accelerator must:
 - remain optional, with no implicit network fetch or runtime download; and
 - fall back cleanly to the TypeScript implementation when it is not loaded.
 
-The default `purejsimage` package will retain a zero-runtime-dependency pure-JS
-core. Packaging and provider names will be chosen when the first accelerator
-contract is implemented rather than being guessed in advance.
+The default `purejsimage` package retains a zero-runtime-dependency strict
+TypeScript reference engine. The explicitly imported JPEG and PNG accelerators
+now establish the provider boundary, lifecycle, fallback behavior, and
+differential conformance pattern for later codecs.
 
-### Delivery order
+### Ongoing delivery order
 
-1. Define the provider boundary, lifecycle, memory ownership, and differential
-   conformance harness.
-2. Accelerate the highest-volume mature codecs first, expected to begin with
-   JPEG, PNG, and WebP.
+1. Keep the shipped JPEG and PNG accelerators aligned with their reference
+   codecs, permanent fixtures, browser behavior, and memory contracts.
+2. Extend acceleration to another mature codec only after a representative
+   workload demonstrates a meaningful practical gain.
 3. Apply the model to computationally heavy AVIF and HEIF/HEIC paths as their
-   reference subsets mature.
-4. Give every mature reference codec an optional Rust/WASM path, prioritized by
-   measured workload impact rather than specification size.
+   first-party reference subsets mature.
+4. Give mature reference codecs optional Rust/WASM paths in order of measured
+   workload impact rather than specification size.
 5. Consider WASM SIMD and threads only after the single-threaded provider and
    memory model are stable.
 
@@ -354,16 +361,21 @@ They must be rechecked when implementation begins.
 
 ## Near-term priorities
 
+- Deepen real-world decode compatibility at every checked codec boundary,
+  especially the active AVIF, JPEG 2000, TIFF, WebP, and experimental HEIF
+  subsets.
+- Finish practical missing encode subsets after their decoder and pixel
+  contracts are stable; AVIF's constrained first-party encoder remains a major
+  planned milestone.
 - Continue lowering peak memory in common JPEG, PNG, WebP, AVIF, and HEIF
-  resize pipelines.
-- Expand real-world compatibility at each documented codec boundary.
-- Finish practical missing encode/decode subsets before widening APIs.
-- Keep bundle-size, correctness, and isolated-process memory measurements
-  reproducible in the repository.
-- Expand the current Chromium portability coverage to other modern browser
-  engines as their CI harnesses are added.
-- Design the shared optional provider interface only after the corresponding
-  TypeScript codec or transform behavior is stable enough to serve as its
-  oracle.
+  resize pipelines without hiding source-sized fallbacks.
+- Expand TIFF, OME-TIFF, GeoTIFF/COG, whole-slide, and N-channel raster depth
+  through the shared source, profile, and raster APIs.
+- Keep bundle-size, correctness, independent conformance, and isolated-process
+  memory measurements reproducible in the repository.
+- Preserve real Chromium, Firefox, and WebKit coverage for shared browser
+  behavior.
+- Extend the optional accelerator suite beyond JPEG and PNG only when a stable
+  TypeScript reference and measured workload justify it.
 - Preserve backend-neutral operation plans so later WASM and WebGPU providers
   can decline, accept, or fuse work without changing public pipeline semantics.

@@ -274,6 +274,138 @@ describe('WebP codec', () => {
     expect(jpegOracle).toEqual(jpegPixels)
   })
 
+  it('stays below PureJsImage PNG for a deterministic production-style logo', async () => {
+    const source = new PNG({ width: 1200, height: 480 })
+    for (let y = 0; y < source.height; y += 1) {
+      for (let x = 0; x < source.width; x += 1) {
+        const offset = (y * source.width + x) * 4
+        const dx = x - source.width / 2
+        const dy = y - source.height / 2
+        const inside =
+          (dx * dx) / (source.width * source.width * 0.2) +
+            (dy * dy) / (source.height * source.height * 0.12) <
+          1
+        source.data[offset] = inside ? 20 : 0
+        source.data[offset + 1] = inside ? 110 + ((x >>> 3) & 63) : 0
+        source.data[offset + 2] = inside ? 210 : 0
+        source.data[offset + 3] = inside ? 220 : 0
+      }
+    }
+    const image = await Image.open(PNG.sync.write(source))
+    const encoded = await image.webp({ lossless: true, effort: 4 }).toBuffer()
+    const png = await image.png().toBuffer()
+    expect(encoded.length).toBeLessThanOrEqual(png.length)
+    await expect(sharp(encoded).ensureAlpha().raw().toBuffer()).resolves.toEqual(source.data)
+  }, 15_000)
+
+  it('uses palette, cross-color, and spatial entropy decisions at higher effort', async () => {
+    const paletteSource = new PNG({ width: 128, height: 96 })
+    for (let y = 0; y < paletteSource.height; y += 1) {
+      for (let x = 0; x < paletteSource.width; x += 1) {
+        const offset = (y * paletteSource.width + x) * 4
+        const index = (Math.imul(x + 1, 13) ^ Math.imul(y + 7, 29) ^ Math.imul(x * y, 7)) & 15
+        paletteSource.data[offset] = (index * 47) & 255
+        paletteSource.data[offset + 1] = (index * 83) & 255
+        paletteSource.data[offset + 2] = (index * 131) & 255
+        paletteSource.data[offset + 3] = index === 0 ? 0 : 255
+      }
+    }
+    const paletteInput = PNG.sync.write(paletteSource)
+    const paletteImage = await Image.open(paletteInput)
+    const paletteFast = await paletteImage.webp({ lossless: true, effort: 0 }).toBuffer()
+    const paletteSmall = await paletteImage.webp({ lossless: true, effort: 6 }).toBuffer()
+    expect(paletteSmall.length).toBeLessThan(paletteFast.length)
+    await expect(sharp(paletteSmall).ensureAlpha().raw().toBuffer()).resolves.toEqual(
+      paletteSource.data,
+    )
+
+    const correlated = new PNG({ width: 192, height: 128 })
+    let correlatedRandom = 0x31415926
+    for (let y = 0; y < correlated.height; y += 1) {
+      for (let x = 0; x < correlated.width; x += 1) {
+        const offset = (y * correlated.width + x) * 4
+        correlatedRandom ^= correlatedRandom << 13
+        correlatedRandom ^= correlatedRandom >>> 17
+        correlatedRandom ^= correlatedRandom << 5
+        const green = correlatedRandom & 255
+        const red = (green * 2) & 255
+        correlated.data[offset] = red
+        correlated.data[offset + 1] = green
+        correlated.data[offset + 2] = red
+        correlated.data[offset + 3] = (x + y) & 255
+      }
+    }
+    const correlatedImage = await Image.open(PNG.sync.write(correlated))
+    const withoutColor = await correlatedImage.webp({ lossless: true, effort: 2 }).toBuffer()
+    const withColor = await correlatedImage.webp({ lossless: true, effort: 3 }).toBuffer()
+    expect(withColor.length).toBeLessThan(withoutColor.length)
+    await expect(sharp(withColor).ensureAlpha().raw().toBuffer()).resolves.toEqual(correlated.data)
+
+    const heterogeneous = new PNG({ width: 256, height: 192 })
+    let random = 0x6d2b79f5
+    for (let y = 0; y < heterogeneous.height; y += 1) {
+      for (let x = 0; x < heterogeneous.width; x += 1) {
+        const offset = (y * heterogeneous.width + x) * 4
+        if (x < 128 && y < 96) {
+          heterogeneous.data.set([24, 48, 72, 255], offset)
+        } else if (x >= 128 && y < 96) {
+          heterogeneous.data.set([x & 255, y & 255, (x + y) & 255, 255], offset)
+        } else if (x < 128) {
+          const value = ((x >>> 2) & 1) === 0 ? 32 : 224
+          heterogeneous.data.set([value, 255 - value, value, 255], offset)
+        } else {
+          random ^= random << 13
+          random ^= random >>> 17
+          random ^= random << 5
+          heterogeneous.data.set(
+            [random & 255, (random >>> 8) & 255, (random >>> 16) & 255, 255],
+            offset,
+          )
+        }
+      }
+    }
+    const heterogeneousImage = await Image.open(PNG.sync.write(heterogeneous))
+    const globalEntropy = await heterogeneousImage.webp({ lossless: true, effort: 3 }).toBuffer()
+    const spatialEntropy = await heterogeneousImage.webp({ lossless: true, effort: 4 }).toBuffer()
+    expect(spatialEntropy.length).toBeLessThan(globalEntropy.length)
+    await expect(sharp(spatialEntropy).ensureAlpha().raw().toBuffer()).resolves.toEqual(
+      heterogeneous.data,
+    )
+  })
+
+  it('supports bounded near-lossless preprocessing and validates encoder controls', async () => {
+    const source = new PNG({ width: 128, height: 96 })
+    let random = 0x1234abcd
+    for (let y = 0; y < source.height; y += 1) {
+      for (let x = 0; x < source.width; x += 1) {
+        const offset = (y * source.width + x) * 4
+        random = Math.imul(random ^ (random >>> 15), 0x2c1b3c6d)
+        source.data[offset] = (x * 2 + (random & 7)) & 255
+        source.data[offset + 1] = (y * 2 + ((random >>> 3) & 7)) & 255
+        source.data[offset + 2] = (x + y + ((random >>> 6) & 7)) & 255
+        source.data[offset + 3] = (x * 5 + y * 3) & 255
+      }
+    }
+    const image = await Image.open(PNG.sync.write(source))
+    const exact = await image.webp({ lossless: true, effort: 4 }).toBuffer()
+    const near = await image.webp({ lossless: true, effort: 4, nearLossless: 40 }).toBuffer()
+    expect(near.length).toBeLessThan(exact.length)
+    const decoded = await sharp(near).ensureAlpha().raw().toBuffer()
+    for (let offset = 0; offset < decoded.length; offset += 4) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        expect(
+          Math.abs((decoded[offset + channel] ?? 0) - (source.data[offset + channel] ?? 0)),
+        ).toBeLessThanOrEqual(4)
+      }
+      expect(decoded[offset + 3]).toBe(source.data[offset + 3])
+    }
+
+    expect(() => image.webp({ lossless: true, effort: -1 })).toThrow('WebP effort')
+    expect(() => image.webp({ lossless: true, effort: 7 })).toThrow('WebP effort')
+    expect(() => image.webp({ lossless: true, nearLossless: 101 })).toThrow('nearLossless')
+    expect(() => image.webp({ nearLossless: 80 })).toThrow('requires lossless')
+  })
+
   it('lossily encodes WebP with effective quality control', async () => {
     const image = await Image.open(lossy)
     expect(() => image.webp({ quality: 0 })).toThrow('WebP quality')

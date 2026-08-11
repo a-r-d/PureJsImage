@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://a-r-d.github.io/PureJsImage/sitemap.xml

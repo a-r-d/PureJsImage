@@ -3,8 +3,25 @@ import { invalidInput } from '../errors.ts'
 import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
+import { vp8lDistanceMap } from './webp-lossless.ts'
 
-class BitWriter {
+interface BitOutput {
+  writeBits(value: number, length: number): void
+}
+
+class BitCounter implements BitOutput {
+  #bits = 0
+
+  get bits(): number {
+    return this.#bits
+  }
+
+  writeBits(_value: number, length: number): void {
+    this.#bits += length
+  }
+}
+
+class BitWriter implements BitOutput {
   #bytes = new Uint8Array(4096)
   #length = 0
   #current = 0
@@ -77,7 +94,7 @@ const fixedHuffmanLengths = (alphabetSize: number): Uint8Array => {
   return lengths
 }
 
-const buildHuffmanLengths = (frequencies: Uint32Array): Uint8Array => {
+const buildHuffmanLengths = (frequencies: Uint32Array, maximumBits = 15): Uint8Array => {
   const active: HuffmanNode[] = []
   for (let symbol = 0; symbol < frequencies.length; symbol += 1) {
     const weight = frequencies[symbol] ?? 0
@@ -126,15 +143,15 @@ const buildHuffmanLengths = (frequencies: Uint32Array): Uint8Array => {
     if (entry.node.right) stack.push({ node: entry.node.right, depth: entry.depth + 1 })
     if (entry.node.left) stack.push({ node: entry.node.left, depth: entry.depth + 1 })
   }
-  if (maximumLength <= 15) return lengths
+  if (maximumLength <= maximumBits) return lengths
 
-  // Extremely skewed histograms can exceed VP8L's 15-bit limit. The fixed
+  // Extremely skewed histograms can exceed VP8L's bit limit. The fixed
   // complete tree is a rare, bounded fallback and still enables LZ77.
   return fixedHuffmanLengths(frequencies.length)
 }
 
-const buildHuffmanTable = (frequencies: Uint32Array): HuffmanTable => {
-  const lengths = buildHuffmanLengths(frequencies)
+const buildHuffmanTable = (frequencies: Uint32Array, maximumBits = 15): HuffmanTable => {
+  const lengths = buildHuffmanLengths(frequencies, maximumBits)
   const counts = new Uint16Array(16)
   for (const length of lengths) {
     if (length > 15) throw invalidInput('WebP Huffman code length exceeds 15 bits')
@@ -188,7 +205,56 @@ const codeLengthOrder = Uint8Array.of(
   15,
 )
 
-const writeHuffmanTree = (writer: BitWriter, table: HuffmanTable): void => {
+interface CodeLengthToken {
+  readonly symbol: number
+  readonly extra: number
+  readonly extraBits: number
+}
+
+const codeLengthTokens = (lengths: Uint8Array): readonly CodeLengthToken[] => {
+  const tokens: CodeLengthToken[] = []
+  let index = 0
+  let previous = 8
+  while (index < lengths.length) {
+    const length = lengths[index] ?? 0
+    let run = 1
+    while (index + run < lengths.length && (lengths[index + run] ?? 0) === length) run += 1
+    index += run
+    if (length === 0) {
+      while (run >= 11) {
+        const count = Math.min(run, 138)
+        tokens.push({ symbol: 18, extra: count - 11, extraBits: 7 })
+        run -= count
+      }
+      if (run >= 3) {
+        const count = Math.min(run, 10)
+        tokens.push({ symbol: 17, extra: count - 3, extraBits: 3 })
+        run -= count
+      }
+      while (run > 0) {
+        tokens.push({ symbol: 0, extra: 0, extraBits: 0 })
+        run -= 1
+      }
+      continue
+    }
+
+    tokens.push({ symbol: length, extra: 0, extraBits: 0 })
+    previous = length
+    run -= 1
+    while (run >= 3) {
+      const count = Math.min(run, 6)
+      tokens.push({ symbol: 16, extra: count - 3, extraBits: 2 })
+      run -= count
+    }
+    while (run > 0) {
+      tokens.push({ symbol: previous, extra: 0, extraBits: 0 })
+      run -= 1
+    }
+  }
+  return tokens
+}
+
+const writeHuffmanTree = (writer: BitOutput, table: HuffmanTable): void => {
   let symbolCount = 0
   let singleSymbol = 0
   for (let symbol = 0; symbol < table.lengths.length; symbol += 1) {
@@ -205,14 +271,33 @@ const writeHuffmanTree = (writer: BitWriter, table: HuffmanTable): void => {
     return
   }
 
+  const tokens = codeLengthTokens(table.lengths)
+  const frequencies = new Uint32Array(19)
+  for (const token of tokens) {
+    frequencies[token.symbol] = (frequencies[token.symbol] ?? 0) + 1
+  }
+  const codeLengthTable = buildHuffmanTable(frequencies, 7)
+  let codeLengthCount = 4
+  for (let index = codeLengthOrder.length - 1; index >= 4; index -= 1) {
+    if ((codeLengthTable.lengths[codeLengthOrder[index] ?? 0] ?? 0) !== 0) {
+      codeLengthCount = index + 1
+      break
+    }
+  }
+
   writer.writeBits(0, 1)
-  writer.writeBits(15, 4)
-  for (const symbol of codeLengthOrder) writer.writeBits(symbol <= 15 ? 4 : 0, 3)
+  writer.writeBits(codeLengthCount - 4, 4)
+  for (let index = 0; index < codeLengthCount; index += 1) {
+    writer.writeBits(codeLengthTable.lengths[codeLengthOrder[index] ?? 0] ?? 0, 3)
+  }
   writer.writeBits(0, 1)
-  for (const length of table.lengths) writer.writeBits(reverseBits(length, 4), 4)
+  for (const token of tokens) {
+    writeHuffmanSymbol(writer, codeLengthTable, token.symbol)
+    writer.writeBits(token.extra, token.extraBits)
+  }
 }
 
-const writeHuffmanSymbol = (writer: BitWriter, table: HuffmanTable, symbol: number): void => {
+const writeHuffmanSymbol = (writer: BitOutput, table: HuffmanTable, symbol: number): void => {
   if (table.singleSymbol !== undefined) {
     if (symbol !== table.singleSymbol) throw invalidInput(`WebP Huffman symbol ${symbol} is absent`)
     return
@@ -466,6 +551,78 @@ interface PrefixTables {
   readonly green: HuffmanTable
   readonly red: HuffmanTable
 }
+interface EntropyMap {
+  readonly bits: number
+  readonly groups: Uint8Array
+  readonly image: Uint32Array
+  readonly count: number
+  readonly width: number
+}
+
+const createPrefixHistograms = (cacheSize: number): PrefixHistograms => ({
+  green: new Uint32Array(280 + cacheSize),
+  red: new Uint32Array(256),
+  blue: new Uint32Array(256),
+  alpha: new Uint32Array(256),
+  distance: new Uint32Array(40),
+})
+
+const createEntropyMap = (
+  pixels: Uint32Array,
+  width: number,
+  height: number,
+  bits: number,
+): EntropyMap | undefined => {
+  const blockSize = 1 << bits
+  const mapWidth = Math.ceil(width / blockSize)
+  const mapHeight = Math.ceil(height / blockSize)
+  if (mapWidth * mapHeight < 4) return undefined
+  const energies = new Float64Array(mapWidth * mapHeight)
+  for (let blockY = 0; blockY < mapHeight; blockY += 1) {
+    const startY = blockY * blockSize
+    const endY = Math.min(height, startY + blockSize)
+    for (let blockX = 0; blockX < mapWidth; blockX += 1) {
+      const startX = blockX * blockSize
+      const endX = Math.min(width, startX + blockSize)
+      let energy = 0
+      for (let y = startY; y < endY; y += 1) {
+        for (let x = startX; x < endX; x += 1) {
+          energy += residualCost(pixels[y * width + x] ?? 0)
+        }
+      }
+      energies[blockY * mapWidth + blockX] = energy / ((endY - startY) * (endX - startX))
+    }
+  }
+  const sorted = Array.from(energies).sort((left, right) => left - right)
+  const first = sorted[Math.floor(sorted.length / 4)] ?? 0
+  const second = sorted[Math.floor(sorted.length / 2)] ?? first
+  const third = sorted[Math.floor((sorted.length * 3) / 4)] ?? second
+  const labels = new Uint8Array(energies.length)
+  const remap = new Int8Array(4)
+  remap.fill(-1)
+  let count = 0
+  for (let index = 0; index < energies.length; index += 1) {
+    const energy = energies[index] ?? 0
+    const label = energy <= first ? 0 : energy <= second ? 1 : energy <= third ? 2 : 3
+    if ((remap[label] ?? -1) < 0) {
+      remap[label] = count
+      count += 1
+    }
+    labels[index] = remap[label] ?? 0
+  }
+  if (count < 2) return undefined
+  const image = new Uint32Array(labels.length)
+  for (let index = 0; index < labels.length; index += 1) {
+    image[index] = pack(255, 0, labels[index] ?? 0, 0)
+  }
+  return { bits, groups: labels, image, count, width: mapWidth }
+}
+
+const entropyGroup = (map: EntropyMap, position: number, imageWidth: number): number => {
+  const x = position % imageWidth
+  const y = Math.floor(position / imageWidth)
+  return map.groups[(y >>> map.bits) * map.width + (x >>> map.bits)] ?? 0
+}
 
 const matchLength = (pixels: Uint32Array, position: number, distance: number): number => {
   if (position < distance) return 0
@@ -546,11 +703,20 @@ const bestMatch = (
   return { length, distance }
 }
 
-const distanceCode = (distance: number, width: number): PrefixCode => {
-  if (distance === width) return prefixCode(1, 39)
-  if (distance === 1) return prefixCode(2, 39)
-  return prefixCode(distance + 120, 39)
+const createDistanceCodeMap = (width: number): ReadonlyMap<number, number> => {
+  const codes = new Map<number, number>()
+  for (let code = 1; code <= 120; code += 1) {
+    const offset = (code - 1) * 2
+    const x = vp8lDistanceMap[offset] ?? 0
+    const y = vp8lDistanceMap[offset + 1] ?? 0
+    const distance = Math.max(1, x + y * width)
+    if (!codes.has(distance)) codes.set(distance, code)
+  }
+  return codes
 }
+
+const distanceCode = (distance: number, codes: ReadonlyMap<number, number>): PrefixCode =>
+  prefixCode(codes.get(distance) ?? distance + 120, 39)
 
 const updateMatches = (
   matches: Int32Array,
@@ -576,15 +742,10 @@ const collectHistograms = (
   matches: Int32Array,
 ): PrefixHistograms => {
   const cacheSize = cacheBits === 0 ? 0 : 1 << cacheBits
-  const histograms: PrefixHistograms = {
-    green: new Uint32Array(280 + cacheSize),
-    red: new Uint32Array(256),
-    blue: new Uint32Array(256),
-    alpha: new Uint32Array(256),
-    distance: new Uint32Array(40),
-  }
+  const histograms = createPrefixHistograms(cacheSize)
   matches.fill(-1)
   const cache = cacheBits === 0 ? undefined : new Uint32Array(cacheSize)
+  const distanceCodes = createDistanceCodeMap(width)
   let position = 0
   while (position < pixels.length) {
     const match = bestMatch(pixels, position, width, matches)
@@ -592,7 +753,7 @@ const collectHistograms = (
       const lengthCode = prefixCode(match.length, 23)
       histograms.green[256 + lengthCode.prefix] =
         (histograms.green[256 + lengthCode.prefix] ?? 0) + 1
-      const distance = distanceCode(match.distance, width)
+      const distance = distanceCode(match.distance, distanceCodes)
       histograms.distance[distance.prefix] = (histograms.distance[distance.prefix] ?? 0) + 1
       updateMatches(matches, pixels, position, match.length)
       updateColorCache(cache, cacheBits, pixels, position, match.length)
@@ -622,6 +783,57 @@ const collectHistograms = (
   }
   return histograms
 }
+const collectSpatialHistograms = (
+  pixels: Uint32Array,
+  width: number,
+  cacheBits: number,
+  matches: Int32Array,
+  map: EntropyMap,
+): readonly PrefixHistograms[] => {
+  const cacheSize = cacheBits === 0 ? 0 : 1 << cacheBits
+  const groups = Array.from({ length: map.count }, () => createPrefixHistograms(cacheSize))
+  matches.fill(-1)
+  const cache = cacheBits === 0 ? undefined : new Uint32Array(cacheSize)
+  const distanceCodes = createDistanceCodeMap(width)
+  let position = 0
+  while (position < pixels.length) {
+    const histograms = groups[entropyGroup(map, position, width)]
+    if (!histograms) throw invalidInput('WebP entropy group is missing')
+    const match = bestMatch(pixels, position, width, matches)
+    if (match.length >= 2) {
+      const lengthCode = prefixCode(match.length, 23)
+      histograms.green[256 + lengthCode.prefix] =
+        (histograms.green[256 + lengthCode.prefix] ?? 0) + 1
+      const distance = distanceCode(match.distance, distanceCodes)
+      histograms.distance[distance.prefix] = (histograms.distance[distance.prefix] ?? 0) + 1
+      updateMatches(matches, pixels, position, match.length)
+      updateColorCache(cache, cacheBits, pixels, position, match.length)
+      position += match.length
+      continue
+    }
+    const color = pixels[position] ?? 0
+    const cacheEntry = cache ? colorCacheIndex(color, cacheBits) : -1
+    if (cache && (cache[cacheEntry] ?? 0) === color) {
+      histograms.green[280 + cacheEntry] = (histograms.green[280 + cacheEntry] ?? 0) + 1
+      updateMatches(matches, pixels, position, 1)
+      updateColorCache(cache, cacheBits, pixels, position, 1)
+      position += 1
+      continue
+    }
+    const green = channel(color, 8)
+    const red = channel(color, 16)
+    const blue = channel(color, 0)
+    const alpha = channel(color, 24)
+    histograms.green[green] = (histograms.green[green] ?? 0) + 1
+    histograms.red[red] = (histograms.red[red] ?? 0) + 1
+    histograms.blue[blue] = (histograms.blue[blue] ?? 0) + 1
+    histograms.alpha[alpha] = (histograms.alpha[alpha] ?? 0) + 1
+    updateMatches(matches, pixels, position, 1)
+    updateColorCache(cache, cacheBits, pixels, position, 1)
+    position += 1
+  }
+  return groups
+}
 
 const buildPrefixTables = (histograms: PrefixHistograms): PrefixTables => ({
   green: buildHuffmanTable(histograms.green),
@@ -631,8 +843,33 @@ const buildPrefixTables = (histograms: PrefixHistograms): PrefixTables => ({
   distance: buildHuffmanTable(histograms.distance),
 })
 
+const huffmanDataBits = (frequencies: Uint32Array, table: HuffmanTable): number => {
+  if (table.singleSymbol !== undefined) return 0
+  let bits = 0
+  for (let symbol = 0; symbol < frequencies.length; symbol += 1) {
+    bits += (frequencies[symbol] ?? 0) * (table.lengths[symbol] ?? 0)
+  }
+  return bits
+}
+
+const prefixGroupBits = (histograms: PrefixHistograms, tables: PrefixTables): number => {
+  const counter = new BitCounter()
+  writeHuffmanTree(counter, tables.green)
+  writeHuffmanTree(counter, tables.red)
+  writeHuffmanTree(counter, tables.blue)
+  writeHuffmanTree(counter, tables.alpha)
+  writeHuffmanTree(counter, tables.distance)
+  return (
+    counter.bits +
+    huffmanDataBits(histograms.green, tables.green) +
+    huffmanDataBits(histograms.red, tables.red) +
+    huffmanDataBits(histograms.blue, tables.blue) +
+    huffmanDataBits(histograms.alpha, tables.alpha) +
+    huffmanDataBits(histograms.distance, tables.distance)
+  )
+}
 const writeImageTokens = (
-  writer: BitWriter,
+  writer: BitOutput,
   pixels: Uint32Array,
   width: number,
   cacheBits: number,
@@ -641,6 +878,7 @@ const writeImageTokens = (
 ): void => {
   matches.fill(-1)
   const cache = cacheBits === 0 ? undefined : new Uint32Array(1 << cacheBits)
+  const distanceCodes = createDistanceCodeMap(width)
   let position = 0
   while (position < pixels.length) {
     const match = bestMatch(pixels, position, width, matches)
@@ -648,7 +886,7 @@ const writeImageTokens = (
       const lengthCode = prefixCode(match.length, 23)
       writeHuffmanSymbol(writer, tables.green, 256 + lengthCode.prefix)
       writer.writeBits(lengthCode.extra, lengthCode.extraBits)
-      const distance = distanceCode(match.distance, width)
+      const distance = distanceCode(match.distance, distanceCodes)
       writeHuffmanSymbol(writer, tables.distance, distance.prefix)
       writer.writeBits(distance.extra, distance.extraBits)
       updateMatches(matches, pixels, position, match.length)
@@ -674,6 +912,53 @@ const writeImageTokens = (
     position += 1
   }
 }
+const writeSpatialImageTokens = (
+  writer: BitOutput,
+  pixels: Uint32Array,
+  width: number,
+  cacheBits: number,
+  tables: readonly PrefixTables[],
+  matches: Int32Array,
+  map: EntropyMap,
+): void => {
+  matches.fill(-1)
+  const cache = cacheBits === 0 ? undefined : new Uint32Array(1 << cacheBits)
+  const distanceCodes = createDistanceCodeMap(width)
+  let position = 0
+  while (position < pixels.length) {
+    const group = tables[entropyGroup(map, position, width)]
+    if (!group) throw invalidInput('WebP entropy group is missing')
+    const match = bestMatch(pixels, position, width, matches)
+    if (match.length >= 2) {
+      const lengthCode = prefixCode(match.length, 23)
+      writeHuffmanSymbol(writer, group.green, 256 + lengthCode.prefix)
+      writer.writeBits(lengthCode.extra, lengthCode.extraBits)
+      const distance = distanceCode(match.distance, distanceCodes)
+      writeHuffmanSymbol(writer, group.distance, distance.prefix)
+      writer.writeBits(distance.extra, distance.extraBits)
+      updateMatches(matches, pixels, position, match.length)
+      updateColorCache(cache, cacheBits, pixels, position, match.length)
+      position += match.length
+      continue
+    }
+    const color = pixels[position] ?? 0
+    const cacheEntry = cache ? colorCacheIndex(color, cacheBits) : -1
+    if (cache && (cache[cacheEntry] ?? 0) === color) {
+      writeHuffmanSymbol(writer, group.green, 280 + cacheEntry)
+      updateMatches(matches, pixels, position, 1)
+      updateColorCache(cache, cacheBits, pixels, position, 1)
+      position += 1
+      continue
+    }
+    writeHuffmanSymbol(writer, group.green, channel(color, 8))
+    writeHuffmanSymbol(writer, group.red, channel(color, 16))
+    writeHuffmanSymbol(writer, group.blue, channel(color, 0))
+    writeHuffmanSymbol(writer, group.alpha, channel(color, 24))
+    updateMatches(matches, pixels, position, 1)
+    updateColorCache(cache, cacheBits, pixels, position, 1)
+    position += 1
+  }
+}
 
 const singleSymbolTable = (alphabetSize: number, symbol: number): HuffmanTable => {
   const frequencies = new Uint32Array(alphabetSize)
@@ -681,7 +966,7 @@ const singleSymbolTable = (alphabetSize: number, symbol: number): HuffmanTable =
   return buildHuffmanTable(frequencies)
 }
 
-const writePredictorImage = (writer: BitWriter, modes: Uint32Array, modeWidth: number): void => {
+const writePredictorImage = (writer: BitOutput, modes: Uint32Array, modeWidth: number): void => {
   writer.writeBits(0, 1)
   let singleMode = channel(modes[0] ?? 0, 8)
   for (let index = 1; index < modes.length; index += 1) {
@@ -707,10 +992,230 @@ const writePredictorImage = (writer: BitWriter, modes: Uint32Array, modeWidth: n
   writeHuffmanTree(writer, tables.distance)
   writeImageTokens(writer, modes, modeWidth, 0, tables, matches)
 }
+const writeAuxiliaryImage = (writer: BitOutput, pixels: Uint32Array, width: number): void => {
+  writer.writeBits(0, 1)
+  const matches = createMatchTable(pixels.length, false)
+  const tables = buildPrefixTables(collectHistograms(pixels, width, 0, matches))
+  writeHuffmanTree(writer, tables.green)
+  writeHuffmanTree(writer, tables.red)
+  writeHuffmanTree(writer, tables.blue)
+  writeHuffmanTree(writer, tables.alpha)
+  writeHuffmanTree(writer, tables.distance)
+  writeImageTokens(writer, pixels, width, 0, tables, matches)
+}
+
+interface PaletteEncoding {
+  readonly deltas: Uint32Array
+  readonly height: number
+  readonly palette: Uint32Array
+  readonly pixels: Uint32Array
+  readonly size: number
+  readonly sourceWidth: number
+  readonly width: number
+  readonly widthBits: number
+}
+
+const createPaletteEncoding = (
+  pixels: Uint32Array,
+  width: number,
+  height: number,
+): PaletteEncoding | undefined => {
+  const indices = new Map<number, number>()
+  const palette: number[] = []
+  for (const color of pixels) {
+    if (indices.has(color)) continue
+    if (palette.length === 256) return undefined
+    indices.set(color, palette.length)
+    palette.push(color)
+  }
+  if (palette.length < 2) return undefined
+
+  const widthBits = palette.length <= 2 ? 3 : palette.length <= 4 ? 2 : palette.length <= 16 ? 1 : 0
+  const packedWidth = Math.ceil(width / 2 ** widthBits)
+  for (let y = 0; y < height; y += 1) {
+    const inputStart = y * width
+    const outputStart = y * packedWidth
+    for (let packedX = 0; packedX < packedWidth; packedX += 1) {
+      let packedIndex = 0
+      const count = 1 << widthBits
+      const indexBits = 8 >> widthBits
+      for (let index = 0; index < count; index += 1) {
+        const x = packedX * count + index
+        if (x >= width) break
+        const color = pixels[inputStart + x] ?? 0
+        packedIndex |= (indices.get(color) ?? 0) << (index * indexBits)
+      }
+      pixels[outputStart + packedX] = pack(255, 0, packedIndex, 0)
+    }
+  }
+
+  const deltas = new Uint32Array(palette.length)
+  let previous = 0
+  for (let index = 0; index < palette.length; index += 1) {
+    const color = palette[index] ?? 0
+    deltas[index] = pixelResidual(color, previous)
+    previous = color
+  }
+  return {
+    deltas,
+    height,
+    palette: Uint32Array.from(palette),
+    pixels: pixels.subarray(0, packedWidth * height),
+    size: palette.length,
+    sourceWidth: width,
+    width: packedWidth,
+    widthBits,
+  }
+}
+
+const restorePaletteEncoding = (pixels: Uint32Array, encoding: PaletteEncoding): void => {
+  const indexBits = 8 >>> encoding.widthBits
+  const mask = (1 << indexBits) - 1
+  for (let y = encoding.height - 1; y >= 0; y -= 1) {
+    for (let x = encoding.sourceWidth - 1; x >= 0; x -= 1) {
+      const packed = encoding.pixels[y * encoding.width + (x >>> encoding.widthBits)] ?? 0
+      const index =
+        (channel(packed, 8) >>> ((x & ((1 << encoding.widthBits) - 1)) * indexBits)) & mask
+      pixels[y * encoding.sourceWidth + x] = encoding.palette[index] ?? 0
+    }
+  }
+}
 
 const applySubtractGreen = (pixels: Uint32Array): void => {
   for (let index = 0; index < pixels.length; index += 1) {
     pixels[index] = subtractGreen(pixels[index] ?? 0)
+  }
+}
+
+const signedByte = (value: number): number => (value < 128 ? value : value - 256)
+const colorDelta = (transform: number, color: number): number =>
+  (signedByte(transform) * signedByte(color)) >> 5
+
+interface ColorTransformPlan {
+  readonly elements: Uint32Array
+  readonly width: number
+}
+
+const colorTransformSizeBits = 4
+const colorTransformBlockSize = 1 << colorTransformSizeBits
+
+const transformedColor = (color: number, element: number): number => {
+  const green = channel(color, 8)
+  const red = channel(color, 16)
+  return pack(
+    channel(color, 24),
+    red - colorDelta(channel(element, 0), green),
+    green,
+    channel(color, 0) -
+      colorDelta(channel(element, 8), green) -
+      colorDelta(channel(element, 16), red),
+  )
+}
+
+const selectColorTransform = (
+  pixels: Uint32Array,
+  width: number,
+  height: number,
+): ColorTransformPlan | undefined => {
+  const transformWidth = Math.ceil(width / colorTransformBlockSize)
+  const transformHeight = Math.ceil(height / colorTransformBlockSize)
+  const elements = new Uint32Array(transformWidth * transformHeight)
+  let transformedCost = 0
+  let subtractGreenCost = 0
+  for (let blockY = 0; blockY < transformHeight; blockY += 1) {
+    const startY = blockY * colorTransformBlockSize
+    const endY = Math.min(height, startY + colorTransformBlockSize)
+    for (let blockX = 0; blockX < transformWidth; blockX += 1) {
+      const startX = blockX * colorTransformBlockSize
+      const endX = Math.min(width, startX + colorTransformBlockSize)
+      let greenGreen = 0
+      let redRed = 0
+      let greenRed = 0
+      let greenBlue = 0
+      let redBlue = 0
+      for (let y = startY; y < endY; y += 1) {
+        for (let x = startX; x < endX; x += 1) {
+          const color = pixels[y * width + x] ?? 0
+          const green = signedByte(channel(color, 8))
+          const red = signedByte(channel(color, 16))
+          const blue = signedByte(channel(color, 0))
+          greenGreen += green * green
+          redRed += red * red
+          greenRed += green * red
+          greenBlue += green * blue
+          redBlue += red * blue
+          subtractGreenCost += residualCost(subtractGreen(color))
+        }
+      }
+      const greenToRed =
+        greenGreen === 0
+          ? 0
+          : Math.max(-128, Math.min(127, Math.round((32 * greenRed) / greenGreen)))
+      const determinant = greenGreen * redRed - greenRed * greenRed
+      const greenToBlue =
+        determinant === 0
+          ? greenGreen === 0
+            ? 0
+            : Math.max(-128, Math.min(127, Math.round((32 * greenBlue) / greenGreen)))
+          : Math.max(
+              -128,
+              Math.min(
+                127,
+                Math.round((32 * (greenBlue * redRed - redBlue * greenRed)) / determinant),
+              ),
+            )
+      const redToBlue =
+        determinant === 0
+          ? 0
+          : Math.max(
+              -128,
+              Math.min(
+                127,
+                Math.round((32 * (redBlue * greenGreen - greenBlue * greenRed)) / determinant),
+              ),
+            )
+      const element = pack(255, redToBlue, greenToBlue, greenToRed)
+      elements[blockY * transformWidth + blockX] = element
+      for (let y = startY; y < endY; y += 1) {
+        for (let x = startX; x < endX; x += 1) {
+          transformedCost += residualCost(transformedColor(pixels[y * width + x] ?? 0, element))
+        }
+      }
+    }
+  }
+  return transformedCost * 5 + elements.length * 60 < subtractGreenCost * 4
+    ? { elements, width: transformWidth }
+    : undefined
+}
+
+const applyColorTransform = (
+  pixels: Uint32Array,
+  width: number,
+  plan: ColorTransformPlan,
+): void => {
+  for (let position = 0; position < pixels.length; position += 1) {
+    const x = position % width
+    const y = Math.floor(position / width)
+    const element =
+      plan.elements[(y >>> colorTransformSizeBits) * plan.width + (x >>> colorTransformSizeBits)] ??
+      0
+    pixels[position] = transformedColor(pixels[position] ?? 0, element)
+  }
+}
+const applyNearLossless = (pixels: Uint32Array, quality: number): void => {
+  if (quality >= 100) return
+  const shift = Math.min(5, Math.max(1, Math.ceil((100 - quality) / 20)))
+  const step = 1 << shift
+  const half = step >> 1
+  const quantize = (value: number): number => Math.min(255, ((value + half) >>> shift) << shift)
+  for (let index = 0; index < pixels.length; index += 1) {
+    const color = pixels[index] ?? 0
+    pixels[index] = pack(
+      channel(color, 24),
+      quantize(channel(color, 16)),
+      quantize(channel(color, 8)),
+      quantize(channel(color, 0)),
+    )
   }
 }
 
@@ -737,34 +1242,116 @@ const chooseColorCacheBits = (pixels: Uint32Array): number => {
   return bestBits
 }
 
-const encodeImageBits = (
-  pixels: Uint32Array,
-  width: number,
-  modes: Uint32Array,
-  modeWidth: number,
-  deepSearch: boolean,
-): Uint8Array => {
-  const writer = new BitWriter()
-  writer.writeBits(1, 1)
-  writer.writeBits(0, 2)
-  writer.writeBits(predictorSizeBits - 2, 3)
-  writePredictorImage(writer, modes, modeWidth)
-  writer.writeBits(1, 1)
-  writer.writeBits(2, 2)
-  writer.writeBits(0, 1)
-  const cacheBits = deepSearch ? chooseColorCacheBits(pixels) : 0
-  writer.writeBits(cacheBits === 0 ? 0 : 1, 1)
-  if (cacheBits !== 0) writer.writeBits(cacheBits, 4)
-  writer.writeBits(0, 1)
-
-  const matches = createMatchTable(pixels.length, deepSearch)
-  const tables = buildPrefixTables(collectHistograms(pixels, width, cacheBits, matches))
+const writePrefixTrees = (writer: BitOutput, tables: PrefixTables): void => {
   writeHuffmanTree(writer, tables.green)
   writeHuffmanTree(writer, tables.red)
   writeHuffmanTree(writer, tables.blue)
   writeHuffmanTree(writer, tables.alpha)
   writeHuffmanTree(writer, tables.distance)
-  writeImageTokens(writer, pixels, width, cacheBits, tables, matches)
+}
+
+const writeMainImage = (
+  writer: BitOutput,
+  pixels: Uint32Array,
+  width: number,
+  deepSearch: boolean,
+  spatialBits: number | undefined,
+): void => {
+  const cacheBits = deepSearch ? chooseColorCacheBits(pixels) : 0
+  writer.writeBits(cacheBits === 0 ? 0 : 1, 1)
+  if (cacheBits !== 0) writer.writeBits(cacheBits, 4)
+  const matches = createMatchTable(pixels.length, deepSearch)
+  const histograms = collectHistograms(pixels, width, cacheBits, matches)
+  const tables = buildPrefixTables(histograms)
+  const map =
+    spatialBits === undefined
+      ? undefined
+      : createEntropyMap(pixels, width, pixels.length / width, spatialBits)
+  const spatialHistograms = map
+    ? collectSpatialHistograms(pixels, width, cacheBits, matches, map)
+    : undefined
+  const spatialTables = spatialHistograms?.map(buildPrefixTables)
+  let useSpatial = false
+  if (map && spatialHistograms && spatialTables) {
+    const metadataBits = new BitCounter()
+    metadataBits.writeBits(map.bits - 2, 3)
+    writeAuxiliaryImage(metadataBits, map.image, map.width)
+    let groupedBits = metadataBits.bits
+    for (let index = 0; index < spatialTables.length; index += 1) {
+      const groupHistograms = spatialHistograms[index]
+      const groupTables = spatialTables[index]
+      if (groupHistograms && groupTables) {
+        groupedBits += prefixGroupBits(groupHistograms, groupTables)
+      }
+    }
+    useSpatial = groupedBits < prefixGroupBits(histograms, tables)
+  }
+
+  writer.writeBits(useSpatial ? 1 : 0, 1)
+  if (useSpatial && map && spatialTables) {
+    writer.writeBits(map.bits - 2, 3)
+    writeAuxiliaryImage(writer, map.image, map.width)
+    for (const groupTables of spatialTables) writePrefixTrees(writer, groupTables)
+    writeSpatialImageTokens(writer, pixels, width, cacheBits, spatialTables, matches, map)
+  } else {
+    writePrefixTrees(writer, tables)
+    writeImageTokens(writer, pixels, width, cacheBits, tables, matches)
+  }
+}
+
+const writeImageBits = (
+  writer: BitOutput,
+  pixels: Uint32Array,
+  width: number,
+  modes: Uint32Array,
+  modeWidth: number,
+  colorTransform: ColorTransformPlan | undefined,
+  deepSearch: boolean,
+  spatialBits: number | undefined,
+): void => {
+  writer.writeBits(1, 1)
+  writer.writeBits(0, 2)
+  writer.writeBits(predictorSizeBits - 2, 3)
+  writePredictorImage(writer, modes, modeWidth)
+  if (colorTransform) {
+    writer.writeBits(1, 1)
+    writer.writeBits(1, 2)
+    writer.writeBits(colorTransformSizeBits - 2, 3)
+    writeAuxiliaryImage(writer, colorTransform.elements, colorTransform.width)
+  } else {
+    writer.writeBits(1, 1)
+    writer.writeBits(2, 2)
+  }
+  writer.writeBits(0, 1)
+  writeMainImage(writer, pixels, width, deepSearch, spatialBits)
+}
+
+const encodeImageBits = (
+  pixels: Uint32Array,
+  width: number,
+  modes: Uint32Array,
+  modeWidth: number,
+  colorTransform: ColorTransformPlan | undefined,
+  deepSearch: boolean,
+  spatialBits: number | undefined,
+): Uint8Array => {
+  const writer = new BitWriter()
+  writeImageBits(writer, pixels, width, modes, modeWidth, colorTransform, deepSearch, spatialBits)
+  return writer.finish()
+}
+
+const encodePaletteImageBits = (
+  encoding: PaletteEncoding,
+  deepSearch: boolean,
+  spatialBits: number | undefined,
+): Uint8Array => {
+  const writer = new BitWriter()
+  writer.writeBits(1, 1)
+  writer.writeBits(3, 2)
+  writer.writeBits(encoding.size - 1, 8)
+  writeAuxiliaryImage(writer, encoding.deltas, encoding.size)
+  writer.writeBits(0, 1)
+  writeMainImage(writer, encoding.pixels, encoding.width, deepSearch, spatialBits)
   return writer.finish()
 }
 
@@ -802,13 +1389,15 @@ class LosslessWebpEncoder implements ImageEncoder {
   readonly #channels: number
   readonly #icc: Uint8Array | undefined
   readonly #exif: Uint8Array | undefined
+  readonly #effort: number
+  readonly #nearLossless: number
   #pixels: Uint32Array | undefined
   #previousRow: Uint32Array
   #currentRow: Uint32Array
   #expectedY = 0
   #finished = false
 
-  constructor(sink: ImageSink, request: EncodeRequest) {
+  constructor(sink: ImageSink, request: EncodeRequest, effort: number, nearLossless: number) {
     this.#sink = sink
     this.#width = request.width
     this.#height = request.height
@@ -816,6 +1405,8 @@ class LosslessWebpEncoder implements ImageEncoder {
     this.#channels = channels(request.pixelFormat)
     this.#icc = request.metadata?.icc
     this.#exif = request.metadata?.exif
+    this.#effort = effort
+    this.#nearLossless = nearLossless
     this.#pixels = new Uint32Array(request.width * request.height)
     this.#previousRow = new Uint32Array(request.width)
     this.#currentRow = new Uint32Array(request.width)
@@ -862,7 +1453,17 @@ class LosslessWebpEncoder implements ImageEncoder {
     }
     const pixels = this.#pixels
     if (!pixels) throw new Error('WebP encoder pixel storage was released')
-    const simpleEncoding = prefersSimpleEncoding(pixels, this.#width)
+    applyNearLossless(pixels, this.#nearLossless)
+    const spatialBits = this.#effort >= 4 ? (this.#effort === 6 ? 4 : 5) : undefined
+    const palette =
+      this.#effort >= 1 ? createPaletteEncoding(pixels, this.#width, this.#height) : undefined
+    const paletteBits = palette
+      ? encodePaletteImageBits(palette, this.#effort >= 3, spatialBits)
+      : undefined
+    if (palette) restorePaletteEncoding(pixels, palette)
+
+    const simpleEncoding =
+      this.#effort < 2 || (this.#nearLossless === 100 && prefersSimpleEncoding(pixels, this.#width))
     const predictor = simpleEncoding
       ? leftPredictorModes(this.#width, this.#height)
       : selectPredictorModes(pixels, this.#width, this.#height)
@@ -874,14 +1475,24 @@ class LosslessWebpEncoder implements ImageEncoder {
       this.#previousRow,
       this.#currentRow,
     )
-    applySubtractGreen(pixels)
-    const bits = encodeImageBits(
+    const colorTransform =
+      this.#effort >= 3 ? selectColorTransform(pixels, this.#width, this.#height) : undefined
+    const deepSearch = this.#effort >= 2 && !simpleEncoding
+    if (colorTransform) applyColorTransform(pixels, this.#width, colorTransform)
+    else applySubtractGreen(pixels)
+    const predictiveBits = encodeImageBits(
       pixels,
       this.#width,
       predictor.modes,
       predictor.width,
-      !simpleEncoding,
+      colorTransform,
+      deepSearch,
+      spatialBits,
     )
+    const bits =
+      paletteBits && paletteBits.byteLength < predictiveBits.byteLength
+        ? paletteBits
+        : predictiveBits
     this.#pixels = undefined
     this.#previousRow = new Uint32Array(0)
     this.#currentRow = new Uint32Array(0)
@@ -953,10 +1564,23 @@ export const createLosslessWebpEncoder = async (
   if (!isRecord(request.options) || request.options.lossless !== true) {
     throw invalidInput('Lossless WebP encoding requires lossless: true')
   }
+  const effort = request.options.effort ?? 4
+  if (typeof effort !== 'number' || !Number.isInteger(effort) || effort < 0 || effort > 6) {
+    throw invalidInput('WebP effort must be an integer from 0 to 6')
+  }
+  const nearLossless = request.options.nearLossless ?? 100
+  if (
+    typeof nearLossless !== 'number' ||
+    !Number.isInteger(nearLossless) ||
+    nearLossless < 0 ||
+    nearLossless > 100
+  ) {
+    throw invalidInput('WebP nearLossless must be an integer from 0 to 100')
+  }
   channels(request.pixelFormat)
   const icc = request.metadata?.icc
   if (icc && iccColorSpace(icc) !== 'rgb') {
     throw invalidInput('Preserved ICC profile does not match WebP RGB output pixels')
   }
-  return new LosslessWebpEncoder(sink, request)
+  return new LosslessWebpEncoder(sink, request, effort, nearLossless)
 }

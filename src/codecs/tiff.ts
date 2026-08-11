@@ -1,3 +1,5 @@
+import type { AbortOptions } from '../abort.ts'
+import { throwIfAborted } from '../abort.ts'
 import type {
   DecoderOptions,
   DecodeRequest,
@@ -24,7 +26,7 @@ import type {
   RasterSampleType,
 } from '../raster.ts'
 import type { ImageSource } from '../source.ts'
-import { MemorySource, readExactly } from '../source.ts'
+import { bindImageSourceSignal, MemorySource, readExactly } from '../source.ts'
 import type {
   TiffDirectory,
   TiffDocument,
@@ -3560,6 +3562,7 @@ class TiffRasterDecoder implements RasterDecoder {
   }
 
   async *decode(request: RasterDecodeRequest = {}): AsyncGenerator<RasterBlock> {
+    throwIfAborted(request.signal)
     const region = regionFor(this.#description, request)
     const firstSegmentRow = Math.floor(region.y / this.#description.segmentHeight)
     const lastSegmentRow = Math.floor(
@@ -3574,6 +3577,7 @@ class TiffRasterDecoder implements RasterDecoder {
     if (!Number.isSafeInteger(rowBytes)) throw limitExceeded('TIFF raster row is too large')
 
     for (let segmentRow = firstSegmentRow; segmentRow <= lastSegmentRow; segmentRow += 1) {
+      throwIfAborted(request.signal)
       const segmentY = segmentRow * this.#description.segmentHeight
       const segmentRows = this.#description.tiled
         ? this.#description.segmentHeight
@@ -3596,6 +3600,7 @@ class TiffRasterDecoder implements RasterDecoder {
         this.height,
       )
       for (let imageY = intersectionStart; imageY < intersectionEnd; imageY += blockRows) {
+        throwIfAborted(request.signal)
         const rows = Math.min(blockRows, intersectionEnd - imageY)
         const planeStride = rowBytes * rows
         const outputBytes = planeStride * (this.format.planar ? this.format.channels : 1)
@@ -3646,6 +3651,7 @@ class TiffRasterDecoder implements RasterDecoder {
             }
           }
         }
+        throwIfAborted(request.signal)
         yield {
           x: 0,
           y: imageY - region.y,
@@ -3696,6 +3702,7 @@ class TiffDecoder implements ImageDecoder {
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    throwIfAborted(request.signal)
     const region = regionFor(this.#description, request)
     const sourceBitDepth = this.#description.bitsPerSample[0] ?? 8
     const numericCmyk =
@@ -3779,6 +3786,7 @@ class TiffDecoder implements ImageDecoder {
     )
 
     for (let segmentRow = firstSegmentRow; segmentRow <= lastSegmentRow; segmentRow += 1) {
+      throwIfAborted(request.signal)
       const segmentY = segmentRow * this.#description.segmentHeight
       const segmentRows = this.#description.tiled
         ? this.#description.segmentHeight
@@ -4174,6 +4182,7 @@ class TiffDecoder implements ImageDecoder {
             }
           }
         }
+        throwIfAborted(request.signal)
         yield {
           x: 0,
           y: imageY - region.y,
@@ -4501,9 +4510,17 @@ class PublicTiffDirectory implements TiffDirectory {
   ): Promise<TiffTagValue | undefined> {
     const request = publicTagReadRequest(this.#ifd, tag, options)
     if (!request) return undefined
+    const source = bindImageSourceSignal(this.#source, options.signal)
+    if (options.signal !== undefined) {
+      return publicTagResult(
+        await readPublicTag(source, this.#ifd, this.#graph.littleEndian, tag, {
+          maxBytes: request.maximumBytes,
+        }),
+      )
+    }
     let pending = this.#tagCache.get(tag)
     if (!pending) {
-      pending = readPublicTag(this.#source, this.#ifd, this.#graph.littleEndian, tag, {
+      pending = readPublicTag(source, this.#ifd, this.#graph.littleEndian, tag, {
         maxBytes: request.maximumBytes,
       }).then(cachedPublicTag)
       this.#tagCache.set(tag, pending)
@@ -4514,10 +4531,11 @@ class PublicTiffDirectory implements TiffDirectory {
     return publicTagResult(await pending)
   }
 
-  async createImageDecoder(): Promise<ImageDecoder> {
+  async createImageDecoder(options: Readonly<AbortOptions> = {}): Promise<ImageDecoder> {
+    const source = bindImageSourceSignal(this.#source, options.signal)
     const selected = { ifd: this.#ifd, frames: 1, resolutionLevels: this.#subIfds.length + 1 }
     const description = await describeTiffIfd(
-      this.#source,
+      source,
       this.#limits,
       this.#graph,
       selected,
@@ -4530,17 +4548,18 @@ class PublicTiffDirectory implements TiffDirectory {
       applyColorTransform && description.pixelFormat === 'rgb16'
         ? { ...description, pixelFormat: 'rgb8' }
         : description
-    const decoder = new TiffDecoder(this.#source, decoderDescription, this.#limits, webpCodec)
+    const decoder = new TiffDecoder(source, decoderDescription, this.#limits, webpCodec)
     return applyColorTransform
       ? new ColorManagedDecoder(decoder, description.colorTransform)
       : decoder
   }
 
-  async createRasterDecoder(): Promise<RasterDecoder> {
+  async createRasterDecoder(options: Readonly<AbortOptions> = {}): Promise<RasterDecoder> {
+    const source = bindImageSourceSignal(this.#source, options.signal)
     const selected = { ifd: this.#ifd, frames: 1, resolutionLevels: this.#subIfds.length + 1 }
     return new TiffRasterDecoder(
-      this.#source,
-      await describeTiffIfd(this.#source, this.#limits, this.#graph, selected, {}, 'raster'),
+      source,
+      await describeTiffIfd(source, this.#limits, this.#graph, selected, {}, 'raster'),
       this.#limits,
     )
   }
@@ -4593,7 +4612,7 @@ class PublicTiffDocument implements TiffDocument {
       throw limitExceeded(`TIFF byte read needs ${length} bytes; maxBytes is ${maximumBytes}`)
     }
     checkedEnd(offset, length, this.#source.size, 'profile byte read')
-    return Uint8Array.from(await readExactly(this.#source, offset, length))
+    return Uint8Array.from(await readExactly(this.#source, offset, length, options))
   }
 }
 
@@ -4601,15 +4620,17 @@ export const openTiffDocument = async (
   source: ImageSource,
   options: Readonly<TiffDocumentOptions> = {},
 ): Promise<TiffDocument> => {
+  throwIfAborted(options.signal)
+  const documentSource = bindImageSourceSignal(source, options.signal)
   const limits = resolveLimits(options)
-  validateInputSize(source.size, limits)
-  const graph = await readTiffIfdGraph(source, limits)
+  validateInputSize(documentSource.size, limits)
+  const graph = await readTiffIfdGraph(documentSource, limits)
   const ifds = [...graph.directories.values()]
   const directories = await Promise.all(
     ifds.map((ifd, index) =>
       PublicTiffDirectory.create({
         index,
-        source,
+        source: documentSource,
         limits,
         graph,
         ifd,
@@ -4619,15 +4640,17 @@ export const openTiffDocument = async (
   )
   const byOffset = new Map<number, PublicTiffDirectory>()
   for (let index = 0; index < ifds.length; index += 1) {
+    throwIfAborted(options.signal)
     const ifd = ifds[index]
     const directory = directories[index]
     if (ifd && directory) byOffset.set(ifd.offset, directory)
   }
   for (let index = 0; index < ifds.length; index += 1) {
+    throwIfAborted(options.signal)
     const ifd = ifds[index]
     const directory = directories[index]
     if (!ifd || !directory) continue
-    const offsets = await subIfdOffsets(source, ifd, graph.littleEndian, limits.maxFrames)
+    const offsets = await subIfdOffsets(documentSource, ifd, graph.littleEndian, limits.maxFrames)
     const children = Array.from(offsets, (offset) => byOffset.get(offset)).filter(
       (child): child is PublicTiffDirectory => child !== undefined,
     )
@@ -4636,7 +4659,8 @@ export const openTiffDocument = async (
   const topLevelDirectories = graph.topLevel
     .map((ifd) => byOffset.get(ifd.offset))
     .filter((directory): directory is PublicTiffDirectory => directory !== undefined)
-  return new PublicTiffDocument(source, graph, directories, topLevelDirectories, byOffset)
+  throwIfAborted(options.signal)
+  return new PublicTiffDocument(documentSource, graph, directories, topLevelDirectories, byOffset)
 }
 
 export interface TiffCodecOptions {
@@ -4651,22 +4675,26 @@ export const createTiffCodec = (options: Readonly<TiffCodecOptions> = {}): Image
     minimumBytes: 4,
     selection: { frames: true, resolutionLevels: true },
     detect: isTiff,
-    metadata: async (source, limits, decoderOptions) =>
-      metadata(await describeTiff(source, limits, decoderOptions)),
+    metadata: async (source, limits, decoderOptions = {}) => {
+      const boundSource = bindImageSourceSignal(source, decoderOptions.signal)
+      return metadata(await describeTiff(boundSource, limits, decoderOptions))
+    },
     preservedMetadata: async (source, limits, preserveOptions): Promise<PreservedMetadata> => {
       if (preserveOptions?.exif)
         throw unsupportedOperation('Preserving EXIF from TIFF input is not implemented')
-      const description = await describeTiff(source, limits, preserveOptions)
+      const boundSource = bindImageSourceSignal(source, preserveOptions?.signal)
+      const description = await describeTiff(boundSource, limits, preserveOptions)
       return description.iccProfile ? { icc: Uint8Array.from(description.iccProfile) } : {}
     },
     createDecoder: async (source, limits, decoderOptions: Readonly<DecoderOptions> = {}) => {
-      const description = await describeTiff(source, limits, decoderOptions)
+      const boundSource = bindImageSourceSignal(source, decoderOptions.signal)
+      const description = await describeTiff(boundSource, limits, decoderOptions)
       const applyColorTransform = description.colorTransform && decoderOptions.preserveIcc !== true
       const decoderDescription: TiffDescription =
         applyColorTransform && description.pixelFormat === 'rgb16'
           ? { ...description, pixelFormat: 'rgb8' }
           : description
-      const decoder = new TiffDecoder(source, decoderDescription, limits, webpCodec)
+      const decoder = new TiffDecoder(boundSource, decoderDescription, limits, webpCodec)
       return applyColorTransform
         ? new ColorManagedDecoder(decoder, description.colorTransform)
         : decoder

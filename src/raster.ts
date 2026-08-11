@@ -1,3 +1,5 @@
+import type { AbortOptions } from './abort.ts'
+import { throwIfAborted } from './abort.ts'
 import { invalidInput } from './errors.ts'
 import type { PixelBlock } from './pixel.ts'
 
@@ -42,7 +44,7 @@ export interface RasterDecoder {
   decode(request?: RasterDecodeRequest): AsyncIterable<RasterBlock>
 }
 
-export interface RasterDecodeRequest {
+export interface RasterDecodeRequest extends AbortOptions {
   readonly x?: number
   readonly y?: number
   readonly width?: number
@@ -145,6 +147,7 @@ const validateBlock = (block: RasterBlock, bytesPerSample: number): number => {
 export const rasterToPixels = async function* (
   blocks: AsyncIterable<RasterBlock>,
   options: Readonly<RasterDisplayOptions>,
+  abort: Readonly<AbortOptions> = {},
 ): AsyncGenerator<PixelBlock> {
   if (options.ranges.length !== options.channels.length) {
     throw invalidInput('Raster display ranges must match the selected channels')
@@ -162,6 +165,7 @@ export const rasterToPixels = async function* (
   }
   for await (const block of blocks) {
     try {
+      throwIfAborted(abort.signal)
       const bytesPerSample = rasterSampleBytes(block.format.sampleType)
       const planeStride = validateBlock(block, bytesPerSample)
       if (options.channels.some((channel) => channel >= block.format.channels)) {
@@ -172,6 +176,7 @@ export const rasterToPixels = async function* (
       const output = new Uint8Array(outputStride * block.height)
       const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
       for (let row = 0; row < block.height; row += 1) {
+        throwIfAborted(abort.signal)
         for (let x = 0; x < block.width; x += 1) {
           for (let selected = 0; selected < outputChannels; selected += 1) {
             const channel = options.channels[selected]

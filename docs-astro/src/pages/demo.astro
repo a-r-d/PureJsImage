@@ -1,0 +1,406 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
+
+<SiteLayout title="Browser demo — PureJsImage" description="Open TIFF, BigTIFF, GeoTIFF, OME-TIFF, and whole-slide images locally in your browser. Drop a file or load a public example to inspect, pan, and zoom." canonical="https://purejsimage.com/demo/" bodyClass="demo-page" current="demo/" skipLabel="Skip to image workspace" openGraph={{"title":"PureJsImage browser TIFF viewer","description":"Drop a TIFF into a local browser viewer, or open a public GeoTIFF example and inspect it without an upload.","url":"https://purejsimage.com/demo/"}}>
+<main id="main">
+    <section class="demo-intro">
+      <div class="container demo-intro-row">
+        <div>
+          <p class="eyebrow">Browser image viewer + converter</p>
+          <h1 id="workspace-title">Open an image. Choose what to do.</h1>
+          <p>View any supported image with pan and zoom, or switch to Convert and create JPEG, PNG, WebP, BMP, or TIFF output. The selected mode never changes when you choose a file.</p>
+        </div>
+        <p class="demo-local-summary"><strong>No server upload</strong><span>Your files stay in this tab. Public samples load from their named source only when you click Open here.</span></p>
+      </div>
+    </section>
+
+    <section class="demo-workspace" aria-labelledby="workspace-title">
+      <div class="container demo-tool-container">
+        <div class="demo-app-layout">
+          <aside class="demo-sidebar" aria-label="Open an image">
+            <label class="demo-drop-zone" id="demo-drop-zone" for="demo-file">
+              <input class="demo-file-input" id="demo-file" type="file" accept="image/*,.avif,.btf,.ico,.jp2,.j2c,.j2k,.svs,.tf2,.tf8,.tif,.tiff">
+              <span class="demo-drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg></span>
+              <span><strong>Open or drop a weird image</strong><small>TIFF, BigTIFF, OME-TIFF, SVS, or another supported image</small></span>
+              <span class="button small" aria-hidden="true">Choose file</span>
+            </label>
+
+            <section class="demo-example-panel" aria-labelledby="demo-example-title">
+              <header>
+                <div><p class="demo-card-kicker">Curated public files</p><h2 id="demo-example-title">Sample library</h2></div>
+                <span>26 files</span>
+              </header>
+              <label class="demo-sample-search">
+                <span>Search samples</span>
+                <input id="demo-sample-search" type="search" placeholder="electron microscopy, OME, GeoTIFF, 12-bit…" autocomplete="off">
+              </label>
+              <div class="demo-example-list" aria-live="polite">
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="real biological microscopy c elegans embryo tubulin histone gfp time series ome tiff channel 1">
+                  <div class="demo-sample-summary"><span aria-hidden="true">CELL</span><span><strong>C. elegans embryo time series · channel 1</strong><small>Actual biological sample · 20 timepoints · 5.09 MiB · multiphoton OME-TIFF</small></span></div>
+                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/tubhiswt-3D/tubhiswt_C0.ome.tif" target="_blank" rel="noreferrer" download="tubhiswt_C0.ome.tif">Download, then drop ↗</a><a href="https://docs.openmicroscopy.org/ome-model/6.3.1/ome-tiff/data.html#biological-datasets" target="_blank" rel="noreferrer">OME Consortium · CC BY 4.0 ↗</a></div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="real biological microscopy c elegans embryo tubulin histone gfp time series ome tiff channel 2">
+                  <div class="demo-sample-summary"><span aria-hidden="true">CELL</span><span><strong>C. elegans embryo time series · channel 2</strong><small>Actual biological sample · 20 timepoints · 5.09 MiB · multiphoton OME-TIFF</small></span></div>
+                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/tubhiswt-3D/tubhiswt_C1.ome.tif" target="_blank" rel="noreferrer" download="tubhiswt_C1.ome.tif">Download, then drop ↗</a><a href="https://docs.openmicroscopy.org/ome-model/6.3.1/ome-tiff/data.html#biological-datasets" target="_blank" rel="noreferrer">OME Consortium · CC BY 4.0 ↗</a></div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="jpeg 2000 jp2 photograph lossless">
+                  <div class="demo-sample-summary"><span aria-hidden="true">JP2</span><span><strong>JPEG 2000 photograph</strong><small>Lossless JP2 · 277.4 KiB · project fixture</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="loc-court-day-openjpeg-lossless.jp2" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/loc-court-day-openjpeg-lossless.jp2">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/loc-court-day-openjpeg-lossless.jp2" target="_blank" rel="noreferrer" download="loc-court-day-openjpeg-lossless.jp2">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="webp lossless transparency tux">
+                  <div class="demo-sample-summary"><span aria-hidden="true">WEBP</span><span><strong>Lossless WebP with alpha</strong><small>386 × 395 · project fixture</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="webp-lossless-tux-386x395.webp" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/webp-lossless-tux-386x395.webp">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/webp-lossless-tux-386x395.webp" target="_blank" rel="noreferrer" download="webp-lossless-tux-386x395.webp">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff fire danger float32 noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F32</span><span><strong>Fire danger</strong><small>Float32 GeoTIFF · 47.5 KiB · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="noaa-fd.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-fd.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-fd.tif" target="_blank" rel="noreferrer" download="noaa-fd.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff drought index spei float32 noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F32</span><span><strong>Drought index</strong><small>Float32 GeoTIFF · about 100 KiB · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="csic-spei-1d-01m.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/csic-spei-1d-01m.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/csic-spei-1d-01m.tif" target="_blank" rel="noreferrer" download="csic-spei-1d-01m.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff precipitation forecast float64 multi image noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F64</span><span><strong>Precipitation forecast</strong><small>Float64 GeoTIFF · 3 images · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="noaa-qpf-5km-2d.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-qpf-5km-2d.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-qpf-5km-2d.tif" target="_blank" rel="noreferrer" download="noaa-qpf-5km-2d.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="cloud optimized cog smoke concentration geotiff noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">COG</span><span><strong>Smoke concentration</strong><small>Cloud-optimized TIFF · 3 images · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="smokec_cog.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/smokec_cog.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/smokec_cog.tif" target="_blank" rel="noreferrer" download="smokec_cog.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="geotiff outlook boundary float32 noaa">
+                  <div class="demo-sample-summary"><span aria-hidden="true">F32</span><span><strong>Outlook boundary</strong><small>Float32 GeoTIFF · 13.6 KiB · NOAA</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="noaa-ob.tif" data-sample-source="NOAA" data-sample-url="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-ob.tif">Open here</button>
+                    <a href="https://www.ncei.noaa.gov/pub/data/nidis/geotiff/noaa-ob.tif" target="_blank" rel="noreferrer" download="noaa-ob.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="electron microscopy scanning sem ecci nickel dislocation tomography materials science tiff">
+                  <div class="demo-sample-summary"><span aria-hidden="true">SEM</span><span><strong>Nickel dislocations · 20k</strong><small>ECCI scanning electron micrograph · TIFF · Recherche Data Gouv</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="g_11-3_1.tif" data-sample-source="Recherche Data Gouv" data-sample-url="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713513">Open here</button>
+                    <a href="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713513" target="_blank" rel="noreferrer" download="g_11-3_1.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="electron microscopy scanning sem ecci nickel crystal dislocation diffraction tiff">
+                  <div class="demo-sample-summary"><span aria-hidden="true">SEM</span><span><strong>Nickel diffraction contrast</strong><small>ECCI scanning electron micrograph · TIFF · Recherche Data Gouv</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="g_-311_1.tif" data-sample-source="Recherche Data Gouv" data-sample-url="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713516">Open here</button>
+                    <a href="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713516" target="_blank" rel="noreferrer" download="g_-311_1.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="electron microscopy scanning sem ecci nanoindentation nickel materials science tiff">
+                  <div class="demo-sample-summary"><span aria-hidden="true">SEM</span><span><strong>Nanoindentation field</strong><small>ECCI scanning electron micrograph · TIFF · Recherche Data Gouv</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="nanoindent1.tif" data-sample-source="Recherche Data Gouv" data-sample-url="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713521">Open here</button>
+                    <a href="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713521" target="_blank" rel="noreferrer" download="nanoindent1.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="electron microscopy scanning sem ecci stereoscopy nickel one degree tomography tiff">
+                  <div class="demo-sample-summary"><span aria-hidden="true">SEM</span><span><strong>Nickel stereo view · 1°</strong><small>ECCI stereoscopy micrograph · TIFF · Recherche Data Gouv</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="Ni_01.tif" data-sample-source="Recherche Data Gouv" data-sample-url="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713495">Open here</button>
+                    <a href="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713495" target="_blank" rel="noreferrer" download="Ni_01.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="electron microscopy scanning sem ecci stereoscopy nickel twenty degree tomography tiff">
+                  <div class="demo-sample-summary"><span aria-hidden="true">SEM</span><span><strong>Nickel stereo view · 20°</strong><small>ECCI stereoscopy micrograph · TIFF · Recherche Data Gouv</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="Ni_20.tif" data-sample-source="Recherche Data Gouv" data-sample-url="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713498">Open here</button>
+                    <a href="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713498" target="_blank" rel="noreferrer" download="Ni_20.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="electron microscopy scanning sem ecci orientation optimized contrast nickel tiff">
+                  <div class="demo-sample-summary"><span aria-hidden="true">SEM</span><span><strong>Crystal orientation contrast</strong><small>Optimized ECCI micrograph · TIFF · Recherche Data Gouv</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="orientation73.tif" data-sample-source="Recherche Data Gouv" data-sample-url="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713555">Open here</button>
+                    <a href="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713555" target="_blank" rel="noreferrer" download="orientation73.tif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical cell division mitosis time lapse microscopy mitocheck ome tiff">
+                  <div class="demo-sample-summary"><span aria-hidden="true">CELL</span><span><strong>Cell-division time lapse</strong><small>93-frame OME-TIFF · 126.1 MiB · MitoCheck · public domain</small></span></div>
+                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/MitoCheck/00001_01.ome.tiff" target="_blank" rel="noreferrer">Large file ↗</a></div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical retina microscopy z stack pyramid ome tiff fluorescence scientific">
+                  <div class="demo-sample-summary"><span aria-hidden="true">RET</span><span><strong>Retina Z-stack</strong><small>64-plane, 2-channel OME-TIFF · 214.8 MiB · CC BY 4.0</small></span></div>
+                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/sub-resolutions/Z-stack/retina_large.ome.tiff" target="_blank" rel="noreferrer">Large file ↗</a></div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical pathology histology whole slide aperio svs pyramid tiff">
+                  <div class="demo-sample-summary"><span aria-hidden="true">SVS</span><span><strong>Pathology whole-slide region</strong><small>Aperio SVS pyramid · OpenSlide test data</small></span></div>
+                  <div class="demo-sample-actions"><a href="https://openslide.cs.cmu.edu/download/openslide-testdata/Aperio/CMU-1-Small-Region.svs" target="_blank" rel="noreferrer" download="CMU-1-Small-Region.svs">Download file ↗</a></div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical pathology histology aperio svs tile jpeg 2000 j2k">
+                  <div class="demo-sample-summary"><span aria-hidden="true">J2K</span><span><strong>Pathology slide tile</strong><small>Raw JPEG 2000 tile extracted from Aperio SVS</small></span></div>
+                  <div class="demo-sample-actions">
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/tests/fixtures/aperio-33003-first-tile.j2k" target="_blank" rel="noreferrer" download="aperio-33003-first-tile.j2k">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="scientific earth nasa blue marble satellite jpeg 2000 jp2 lossless">
+                  <div class="demo-sample-summary"><span aria-hidden="true">EARTH</span><span><strong>Blue Marble Earth</strong><small>Lossless JPEG 2000 · scientific visualization</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="wikimedia-blue-marble-openjpeg-lossless.jp2" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/wikimedia-blue-marble-openjpeg-lossless.jp2">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/wikimedia-blue-marble-openjpeg-lossless.jp2" target="_blank" rel="noreferrer" download="wikimedia-blue-marble-openjpeg-lossless.jp2">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="scientific grayscale 16 bit high depth jpeg 2000 jp2 lossless">
+                  <div class="demo-sample-summary"><span aria-hidden="true">G16</span><span><strong>16-bit scientific grayscale</strong><small>Lossless JPEG 2000 · exact high-depth samples</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="openjpeg-lossless-gray16.jp2" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/openjpeg-lossless-gray16.jp2">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/openjpeg-lossless-gray16.jp2" target="_blank" rel="noreferrer" download="openjpeg-lossless-gray16.jp2">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="scientific rgb 16 bit high depth jpeg 2000 jp2 lossless">
+                  <div class="demo-sample-summary"><span aria-hidden="true">RGB16</span><span><strong>16-bit scientific RGB</strong><small>Lossless JPEG 2000 · exact high-depth samples</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="openjpeg-lossless-rgb16.jp2" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2" target="_blank" rel="noreferrer" download="openjpeg-lossless-rgb16.jp2">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="weird avif 12 bit 12-bit high depth lossless identity scientific">
+                  <div class="demo-sample-summary"><span aria-hidden="true">12B</span><span><strong>12-bit lossless AVIF</strong><small>High-bit-depth identity-color AVIF fixture</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="lossless-identity-16x12-12bpc.avif" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/avif/lossless-identity-16x12-12bpc.avif">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/avif/lossless-identity-16x12-12bpc.avif" target="_blank" rel="noreferrer" download="lossless-identity-16x12-12bpc.avif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="weird avif tiled grid lossless 10 bit yuv444 scientific">
+                  <div class="demo-sample-summary"><span aria-hidden="true">GRID</span><span><strong>Tiled 10-bit AVIF</strong><small>2 × 2 image grid · lossless YUV444</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="tiled-lossless-10bpc-yuv444-2x2-256x256.avif" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif" target="_blank" rel="noreferrer" download="tiled-lossless-10bpc-yuv444-2x2-256x256.avif">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="weird icon ico multi image embedded png dib 16 32 256">
+                  <div class="demo-sample-summary"><span aria-hidden="true">ICO</span><span><strong>Mixed multi-size icon</strong><small>16/32/256px ICO · DIB + embedded PNG</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="ico-mixed-16-32-256.ico" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/ico-mixed-16-32-256.ico">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/ico-mixed-16-32-256.ico" target="_blank" rel="noreferrer" download="ico-mixed-16-32-256.ico">Download ↗</a>
+                  </div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="weird jpeg progressive zrl entropy restart scan codec edge case">
+                  <div class="demo-sample-summary"><span aria-hidden="true">JPEG</span><span><strong>Progressive JPEG edge case</strong><small>AC zero-run and multi-scan conformance fixture</small></span></div>
+                  <div class="demo-sample-actions">
+                    <button type="button" data-demo-sample data-sample-name="generated-progressive-zrl.jpg" data-sample-source="PureJsImage fixtures" data-sample-url="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jpeg-reference/generated-progressive-zrl.jpg">Open here</button>
+                    <a href="https://raw.githubusercontent.com/a-r-d/PureJsImage/main/benchmark/corpus/files/jpeg-reference/generated-progressive-zrl.jpg" target="_blank" rel="noreferrer" download="generated-progressive-zrl.jpg">Download ↗</a>
+                  </div>
+                </article>
+                <p class="demo-sample-empty" id="demo-sample-empty" hidden>No sample names match that search.</p>
+              </div>
+              <p class="demo-example-status" id="demo-example-status" role="status" aria-live="polite">26 public sample files. Open verified CORS-enabled files here, or download source-hosted datasets and drop them above.</p>
+            </section>
+          </aside>
+
+          <div class="demo-workbench">
+            <div class="demo-workbench-header">
+              <div class="demo-mode-switch" role="tablist" aria-label="Demo mode">
+                <button id="demo-mode-view" class="demo-mode-button active" type="button" role="tab" aria-selected="true" aria-controls="demo-view-panel">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                  <span><strong>View image</strong><small>Zoom, pan, inspect, and clip</small></span>
+                </button>
+                <button id="demo-mode-convert" class="demo-mode-button" type="button" role="tab" aria-selected="false" aria-controls="demo-convert-panel">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg>
+                  <span><strong>Convert</strong><small>Transform and encode an output</small></span>
+                </button>
+              </div>
+
+              <article class="demo-source-card" id="demo-source" hidden>
+                <div class="demo-preview-frame">
+                  <img id="demo-source-preview" alt="">
+                  <div class="demo-preview-fallback" id="demo-source-fallback" hidden>Waiting for the client-side viewer.</div>
+                </div>
+                <div class="demo-source-copy">
+                  <p class="demo-card-kicker">Open now</p>
+                  <h3 id="demo-source-name">Selected image</h3>
+                  <p id="demo-source-details"></p>
+                  <div class="demo-badges" id="demo-source-badges"></div>
+                </div>
+              </article>
+            </div>
+        <section class="demo-mode-panel" id="demo-view-panel" role="tabpanel" aria-labelledby="demo-mode-view">
+          <div class="demo-viewer" id="demo-viewer">
+            <header class="demo-viewer-toolbar">
+              <div class="demo-viewer-title">
+                <span class="demo-live-dot" aria-hidden="true"></span>
+                <div><strong id="demo-viewer-name">Image viewport</strong><small id="demo-viewer-subtitle">Drop a file or open a sample</small></div>
+              </div>
+              <fieldset class="demo-viewer-actions" aria-label="Viewer controls">
+                <button id="demo-zoom-out" type="button" disabled aria-label="Zoom out" title="Zoom out">−</button>
+                <output id="demo-zoom-value" aria-live="polite">—</output>
+                <button id="demo-zoom-in" type="button" disabled aria-label="Zoom in" title="Zoom in">+</button>
+                <button id="demo-zoom-fit" type="button" disabled>Fit</button>
+                <button id="demo-zoom-actual" type="button" disabled>1:1</button>
+                <button id="demo-pan-left" type="button" disabled aria-label="Pan left" title="Pan left">←</button>
+                <button id="demo-pan-up" type="button" disabled aria-label="Pan up" title="Pan up">↑</button>
+                <button id="demo-pan-down" type="button" disabled aria-label="Pan down" title="Pan down">↓</button>
+                <button id="demo-pan-right" type="button" disabled aria-label="Pan right" title="Pan right">→</button>
+                <button class="demo-save-clip" id="demo-save-clip" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg>Save visible clip</button>
+              </fieldset>
+            </header>
+
+            <div class="demo-viewer-body">
+              <div class="demo-canvas-stage" id="demo-viewer-stage" role="img" aria-label="Image viewer. Drag to pan, or use the mouse wheel and viewer controls to navigate.">
+                <canvas id="demo-viewer-canvas" hidden></canvas>
+                <div class="demo-viewer-empty" id="demo-viewer-empty">
+                  <span aria-hidden="true"><svg viewBox="0 0 48 48"><title>Image placeholder</title><path d="M9 8h30v32H9zM9 31l8-8 7 7 5-5 10 10M31 18h.1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/></svg></span>
+                  <h3>Drop a file or open an example</h3>
+                  <p>The viewer decodes the visible region locally for any supported image. Drag to pan, scroll to zoom, or choose a TIFF page or pyramid level.</p>
+                </div>
+                <div class="demo-viewer-loading" id="demo-viewer-loading" role="status" aria-live="polite" hidden>
+                  <span class="demo-spinner" aria-hidden="true"></span>
+                  <strong id="demo-viewer-loading-label">Reading image structure…</strong>
+                  <small>Large images can take a moment. No upload is occurring.</small>
+                </div>
+              </div>
+
+              <aside class="demo-viewer-inspector" aria-label="Image details">
+                <div class="demo-inspector-heading"><span>Source image</span><small>Page or pyramid level when available</small></div>
+                <label class="demo-field"><span>Visible image</span><select id="demo-viewer-directory" disabled><option>Choose an image first</option></select></label>
+                <div class="demo-frame-controls" role="group" aria-label="Time series playback">
+                  <button id="demo-viewer-previous" type="button" disabled aria-label="Previous image">Previous</button>
+                  <button id="demo-viewer-play" type="button" disabled aria-label="Play image series" aria-pressed="false">Play</button>
+                  <button id="demo-viewer-next" type="button" disabled aria-label="Next image">Next</button>
+                </div>
+                <dl class="demo-viewer-facts">
+                  <div><dt>Dimensions</dt><dd id="demo-viewer-dimensions">—</dd></div>
+                  <div><dt>Format</dt><dd id="demo-viewer-compression">—</dd></div>
+                  <div><dt>Pixels</dt><dd id="demo-viewer-samples">—</dd></div>
+                  <div><dt>Layout</dt><dd id="demo-viewer-storage">—</dd></div>
+                </dl>
+                <div class="demo-viewer-help">
+                  <strong>Navigate the source</strong>
+                  <p>Use Previous, Play, or Next for a multi-image time series. Drag to pan. Scroll, pinch, or use +/− to zoom around the pointer. <b>Fit</b> frames the image; <b>1:1</b> maps one source pixel to one CSS pixel.</p>
+                  <p>“Save visible clip” runs the current source region through the PureJsImage PNG encoder. Clips above 16 megapixels require zooming in first.</p>
+                </div>
+              </aside>
+            </div>
+            <footer class="demo-viewer-status"><span id="demo-viewer-status" role="status" aria-live="polite">Waiting for a local image.</span><span id="demo-viewer-region">No region selected</span></footer>
+          </div>
+        </section>
+
+        <section class="demo-mode-panel" id="demo-convert-panel" role="tabpanel" aria-labelledby="demo-mode-convert" hidden>
+          <div class="demo-convert-layout">
+            <form class="demo-controls-card" id="demo-form" aria-label="Conversion options">
+              <fieldset id="demo-controls" disabled>
+                <legend>Conversion options</legend>
+                <div class="demo-control-section">
+                  <div class="demo-control-heading"><span>Output</span><small>First-party encoder</small></div>
+                  <label class="demo-field"><span>Convert to</span><select id="demo-output-format"><option value="jpeg">JPEG</option><option value="png">PNG</option><option value="webp">WebP</option><option value="bmp">BMP</option><option value="tiff">TIFF (Deflate)</option></select></label>
+                  <label class="demo-field" id="demo-quality-group"><span>Quality <output id="demo-quality-value" for="demo-quality">82</output></span><input id="demo-quality" type="range" min="1" max="100" value="82"></label>
+                  <label class="demo-check" id="demo-webp-lossless-group" hidden><input id="demo-webp-lossless" type="checkbox"><span><strong>Lossless WebP</strong><small>Ignore quality and preserve exact pixels.</small></span></label>
+                  <label class="demo-check" id="demo-jpeg-progressive-group"><input id="demo-jpeg-progressive" type="checkbox"><span><strong>Progressive JPEG</strong><small>Write a six-scan progressive file.</small></span></label>
+                </div>
+                <div class="demo-control-section">
+                  <div class="demo-control-heading"><span>Transforms</span><small>Applied in order</small></div>
+                  <label class="demo-check"><input id="demo-auto-orient" type="checkbox" checked><span><strong>Auto-orient</strong><small>Apply EXIF orientation before transforms.</small></span></label>
+                  <label class="demo-check"><input id="demo-resize-enabled" type="checkbox"><span><strong>Resize</strong><small>Fit inside dimensions without enlarging.</small></span></label>
+                  <div class="demo-dimension-fields" id="demo-resize-fields" hidden>
+                    <label class="demo-field"><span>Maximum width</span><input id="demo-resize-width" type="number" min="1" inputmode="numeric"></label>
+                    <span aria-hidden="true">×</span>
+                    <label class="demo-field"><span>Maximum height</span><input id="demo-resize-height" type="number" min="1" inputmode="numeric"></label>
+                  </div>
+                  <label class="demo-field"><span>Rotate</span><select id="demo-rotation"><option value="0">Do not rotate</option><option value="90">90° clockwise</option><option value="180">180°</option><option value="270">270° clockwise</option></select></label>
+                  <div class="demo-check-grid">
+                    <label class="demo-check compact"><input id="demo-flop" type="checkbox"><span><strong>Flip horizontal</strong></span></label>
+                    <label class="demo-check compact"><input id="demo-flip" type="checkbox"><span><strong>Flip vertical</strong></span></label>
+                  </div>
+                </div>
+                <div class="demo-control-section">
+                  <div class="demo-control-heading"><span>Acceleration</span><small>Explicit opt-in</small></div>
+                  <label class="demo-check"><input id="demo-wasm-enabled" type="checkbox"><span><strong>Rust/WASM JPEG decoder</strong><small>Eligible baseline JPEG input can use the optional accelerator. Other work remains TypeScript.</small></span></label>
+                  <p class="demo-accelerator-status" id="demo-accelerator-status">TypeScript reference selected.</p>
+                </div>
+                <button class="button demo-convert-button" id="demo-convert" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg><span id="demo-convert-label">Convert with TypeScript</span></button>
+              </fieldset>
+              <p class="demo-operation-status" id="demo-operation-status" role="status" aria-live="polite">Choose a file to begin.</p>
+            </form>
+
+            <div class="demo-convert-note">
+              <p class="demo-card-kicker">Complete pipeline</p>
+              <h3>Decode, transform, encode, validate.</h3>
+              <p>The converter reopens its own output and verifies its dimensions before offering the download. Whole-slide inputs should use a visible clip rather than converting the complete base level.</p>
+              <div><span>INPUT</span><i></i><span>PIXELS</span><i></i><span>OUTPUT</span></div>
+            </div>
+          </div>
+
+          <section class="demo-result" id="demo-result" aria-labelledby="result-title" hidden>
+            <div class="demo-result-preview-wrap">
+              <p class="demo-card-kicker">Validated output</p>
+              <h2 id="result-title">Your converted image is ready.</h2>
+              <p id="demo-result-summary"></p>
+              <div class="demo-result-preview-frame"><img id="demo-result-preview" alt=""><div class="demo-preview-fallback" id="demo-result-fallback" hidden></div></div>
+              <a class="button" id="demo-download" href="#demo-result" download>Download converted file</a>
+            </div>
+            <dl class="demo-metrics" aria-label="Conversion measurements">
+              <div><dt>Conversion time</dt><dd id="demo-metric-elapsed">—</dd><small>Decode, transform, and encode</small></div>
+              <div><dt>Decode mode</dt><dd id="demo-metric-provider">—</dd><small>Enabled mode; selectors may fall back</small></div>
+              <div><dt>WASM vs TypeScript</dt><dd id="demo-metric-comparison">—</dd><small>Same file and settings in this tab</small></div>
+              <div><dt>Max observed JS heap</dt><dd id="demo-metric-memory">—</dd><small>Browser estimate at checkpoints</small></div>
+              <div><dt>Known file bytes</dt><dd id="demo-metric-known-bytes">—</dd><small>Input + output, not scratch memory</small></div>
+              <div><dt>Output size</dt><dd id="demo-metric-output">—</dd><small>Validated encoded Blob</small></div>
+            </dl>
+          </section>
+        </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="demo-log-section" aria-labelledby="log-title">
+      <div class="container">
+        <div class="demo-section-heading">
+          <div><h2 id="log-title">Operation log</h2></div>
+          <p>Detection, directory selection, viewport reads, exports, validation, errors, timings, and available memory observations appear here.</p>
+        </div>
+        <div class="demo-log-window">
+          <div class="demo-log-toolbar"><div><i></i><i></i><i></i><strong>purejsimage://browser-operation</strong></div><div><button id="demo-clear-log" type="button">Clear</button><button id="demo-copy-log" type="button">Copy log</button></div></div>
+          <ol id="demo-log-list" aria-live="polite" aria-label="Image operation log"></ol>
+        </div>
+        <div class="callout warning demo-memory-note"><strong>What “max memory” means here.</strong> Chromium exposes an estimated current JavaScript heap size, so this demo records the maximum observed value at operation checkpoints. It is not process RSS and can miss short-lived allocations while JavaScript is running. Firefox and Safari do not expose a comparable value, so the UI says “Not exposed” instead of inventing one. Input and output file bytes are reported separately and exactly.</div>
+      </div>
+    </section>
+
+    <section class="section demo-loading" aria-labelledby="loading-title">
+      <div class="container demo-loading-grid">
+        <div>
+          <p class="eyebrow">Use it in a site</p>
+          <h2 id="loading-title">How this demo loads PureJsImage</h2>
+          <p>This page serves a deterministic ESM bundle generated from <code>src/browser.ts</code>, the explicit all-codec entry, and the optional JPEG WASM entry on the same repository commit. The TypeScript path remains the default; the WASM module is fetched from this site only after you enable it and submit eligible work.</p>
+          <p>For an application, install from npm and let your bundler resolve the browser export. For a quick no-build experiment, the pinned npm package is also available from jsDelivr. Raw GitHub file URLs are not used because they are not a dependable JavaScript package CDN.</p>
+        </div>
+        <div class="code-window">
+          <div class="window-bar"><span class="window-dot"></span><span class="window-dot"></span><span class="window-dot"></span><span class="window-title">npm CDN · pinned release</span></div>
+          <button class="code-copy" type="button" data-copy="demo-cdn-code">Copy</button>
+          <pre><code id="demo-cdn-code">import &#123; createImageLibrary &#125; from
+  'https://cdn.jsdelivr.net/npm/purejsimage@0.9.0/dist/browser.js'
+import &#123; allCodecs &#125; from
+  'https://cdn.jsdelivr.net/npm/purejsimage@0.9.0/dist/codec-entries/all.js'
+
+const images = createImageLibrary(allCodecs)
+const image = await images.open(file)
+const output = await image.webp(&#123; quality: 82 &#125;).toBlob()</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>First-party browser image conversion with explicit measurements and honest capability boundaries.</p></div><div class="footer-column"><strong>Try</strong><a href="../demo/">Browser demo</a><a href="../guides/">Guides</a><a href="../api/">API</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Files stay on your device</span></div></div></footer>
+<script is:inline src="../assets/demo-app.js" type="module"></script>
+</SiteLayout>

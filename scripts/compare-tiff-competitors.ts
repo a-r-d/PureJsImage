@@ -11,6 +11,7 @@ import {
 } from './compare-tiff-worker.ts'
 
 type RecordedStatus = TiffCompetitorWorkerResult['status'] | 'timeout' | 'process-crash'
+type VersionedTiffCompetitorEngine = Exclude<TiffCompetitorEngine, 'purejsimage'>
 
 export const defaultTiffCompetitorCorpora = [
   '../codec-corpus/tiff-conformance/valid',
@@ -68,9 +69,14 @@ interface EngineTotals {
   readonly malformedTimeout: number
   readonly malformedCrash: number
 }
+interface PureJsImageSnapshot {
+  readonly packageVersion: string
+  readonly gitCommit: string
+  readonly dirty: boolean
+}
 
 interface TiffCompetitorReport {
-  readonly schemaVersion: 2
+  readonly schemaVersion: 3
   readonly generatedAt: string
   readonly nodeVersion: string
   readonly platform: string
@@ -81,7 +87,8 @@ interface TiffCompetitorReport {
     readonly source: string
     readonly directories: readonly string[]
   }
-  readonly versions: Readonly<Record<TiffCompetitorEngine, string>>
+  readonly purejsimage: PureJsImageSnapshot
+  readonly versions: Readonly<Record<VersionedTiffCompetitorEngine, string>>
   readonly settings: Omit<Settings, 'corpusDirectories' | 'outputDirectory'>
   readonly totals: readonly EngineTotals[]
   readonly records: readonly RecordResult[]
@@ -404,12 +411,18 @@ const markdown = (report: TiffCompetitorReport): string => {
     '',
     'Signed, floating-point, wider-than-16-bit, and arbitrary-channel rasters are classified as native scientific data and are not forced through RGBA.',
     '',
+    `PureJsImage: package metadata ${report.purejsimage.packageVersion}; main snapshot ${report.purejsimage.gitCommit}; working tree ${report.purejsimage.dirty ? 'dirty' : 'clean'}.`,
+    '',
     '| Engine | Version | Files attempted | RGBA-compared | Decoded | Exact | Pixel mismatch | Unsupported | Error | Oracle failure | Timeout | Crash | Native raster, not compared | Malformed rejected | Malformed accepted | Malformed timeout | Malformed crash |',
     '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
   ]
   for (const total of report.totals) {
+    const version =
+      total.engine === 'purejsimage'
+        ? `main snapshot (unreleased · ${report.purejsimage.gitCommit.slice(0, 7)}${report.purejsimage.dirty ? ' · dirty' : ''})`
+        : report.versions[total.engine]
     lines.push(
-      `| ${total.engine} | ${report.versions[total.engine]} | ${total.attempted} | ${total.rgbaCompared} | ${total.decoded} | ${total.exact} | ${total.mismatch} | ${total.unsupported} | ${total.error} | ${total.oracleFailure} | ${total.timeout} | ${total.processCrash} | ${total.notComparable} | ${total.malformedRejected} | ${total.malformedAccepted} | ${total.malformedTimeout} | ${total.malformedCrash} |`,
+      `| ${total.engine} | ${version} | ${total.attempted} | ${total.rgbaCompared} | ${total.decoded} | ${total.exact} | ${total.mismatch} | ${total.unsupported} | ${total.error} | ${total.oracleFailure} | ${total.timeout} | ${total.processCrash} | ${total.notComparable} | ${total.malformedRejected} | ${total.malformedAccepted} | ${total.malformedTimeout} | ${total.malformedCrash} |`,
     )
   }
   lines.push(
@@ -489,10 +502,46 @@ export const readTiffCompetitorVersions = async (): Promise<
     jimp: versionFor('jimp'),
   })
 }
+const gitOutput = (arguments_: readonly string[]): Promise<string> =>
+  new Promise((resolveOutput, reject) => {
+    const child = spawn('git', arguments_, {
+      cwd: process.cwd(),
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    let stdout = ''
+    let stderr = ''
+    child.stdout.setEncoding('utf8')
+    child.stderr.setEncoding('utf8')
+    child.stdout.on('data', (chunk: string) => {
+      stdout += chunk
+    })
+    child.stderr.on('data', (chunk: string) => {
+      stderr += chunk
+    })
+    child.once('error', reject)
+    child.once('close', (code) => {
+      if (code === 0) {
+        resolveOutput(stdout.trim())
+        return
+      }
+      reject(new Error(`git ${arguments_.join(' ')} exited with ${code ?? 'unknown'}: ${stderr}`))
+    })
+  })
+
+const readPureJsImageSnapshot = async (packageVersion: string): Promise<PureJsImageSnapshot> => {
+  const [gitCommit, status] = await Promise.all([
+    gitOutput(['rev-parse', 'HEAD']),
+    gitOutput(['status', '--porcelain']),
+  ])
+  if (!/^[a-f0-9]{40}$/u.test(gitCommit)) throw new Error('Git returned an invalid commit')
+  return Object.freeze({ packageVersion, gitCommit, dirty: status.length > 0 })
+}
 
 export const runTiffCompetitorComparison = async (
   settings: Settings,
 ): Promise<TiffCompetitorReport> => {
+  const allVersions = await readTiffCompetitorVersions()
+  const purejsimage = await readPureJsImageSnapshot(allVersions.purejsimage)
   const files = await collectTiffs(settings)
   if (files.length === 0) throw new Error('No TIFF files matched the selected corpus')
   const jobs = files.flatMap((file) => tiffCompetitorEngines.map((engine) => ({ engine, file })))
@@ -500,7 +549,7 @@ export const runTiffCompetitorComparison = async (
     runWorker(engine, file, settings),
   )
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     generatedAt: new Date().toISOString(),
     nodeVersion: process.version,
     platform: process.platform,
@@ -511,7 +560,14 @@ export const runTiffCompetitorComparison = async (
       source: 'https://github.com/a-r-d/codec-corpus/tree/main/tiff-conformance',
       directories: settings.corpusDirectories.map(portable),
     },
-    versions: await readTiffCompetitorVersions(),
+    purejsimage,
+    versions: {
+      geotiff: allVersions.geotiff,
+      utif2: allVersions.utif2,
+      tiff: allVersions.tiff,
+      'image-js': allVersions['image-js'],
+      jimp: allVersions.jimp,
+    },
     settings: {
       timeoutMs: settings.timeoutMs,
       memoryMb: settings.memoryMb,

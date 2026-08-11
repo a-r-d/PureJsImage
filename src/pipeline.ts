@@ -2,6 +2,7 @@ import type { ImageMetadata } from './codec.ts'
 import { invalidInput } from './errors.ts'
 import type { ImageLimits } from './limits.ts'
 import { validateImageDimensions } from './limits.ts'
+import type { LutOptions, LutPixelFormat } from './lut.ts'
 
 export type ResizeFit = 'contain' | 'cover' | 'fill' | 'inside' | 'outside'
 export type ResizePosition = 'center'
@@ -25,6 +26,12 @@ export interface CropOptions {
   width: number
   height: number
 }
+export interface WindowOptions {
+  readonly center: number
+  readonly width: number
+}
+
+export type { LutOptions, LutPixelFormat } from './lut.ts'
 
 export interface RotateOptions {
   background?: Background
@@ -43,7 +50,12 @@ export interface PngEncodeOptions {
 }
 
 export interface WebpEncodeOptions {
+  /** Lossless VP8L output. Required when nearLossless is set. */
   lossless?: boolean
+  /** Encoder search effort from 0 (fastest) through 6 (smallest). */
+  effort?: number
+  /** VP8L near-lossless preprocessing quality from 0 (strongest) through 100 (off). */
+  nearLossless?: number
   quality?: number
 }
 
@@ -71,6 +83,8 @@ export type PipelineOperation =
   | { readonly type: 'rotate'; readonly degrees: number; readonly options: Readonly<RotateOptions> }
   | ({ readonly type: 'crop' } & Readonly<CropOptions>)
   | ({ readonly type: 'resize' } & Readonly<ResizeOptions>)
+  | { readonly type: 'window'; readonly options: Readonly<WindowOptions> }
+  | { readonly type: 'lut'; readonly options: Readonly<LutOptions> }
   | {
       readonly type: 'encode'
       readonly format: 'bmp'
@@ -133,6 +147,32 @@ export const createRotateOperation = (
 }
 
 export const normalizedRotation = (degrees: number): number => ((degrees % 360) + 360) % 360
+export const createWindowOperation = (options: WindowOptions): PipelineOperation => {
+  if (!Number.isFinite(options.center)) throw invalidInput('Window center must be finite')
+  if (!Number.isFinite(options.width) || options.width <= 0) {
+    throw invalidInput('Window width must be finite and greater than zero')
+  }
+  return Object.freeze({ type: 'window', options: Object.freeze({ ...options }) })
+}
+
+export const createLutOperation = (options: LutOptions): PipelineOperation => {
+  const channels: Readonly<Record<LutPixelFormat, number>> = {
+    gray8: 1,
+    rgb8: 3,
+    rgba8: 4,
+  }
+  if (!(options.table instanceof Uint8Array)) {
+    throw invalidInput('LUT table must be a Uint8Array')
+  }
+  const expectedBytes = 256 * channels[options.format]
+  if (!Number.isSafeInteger(expectedBytes) || options.table.byteLength !== expectedBytes) {
+    throw invalidInput(`LUT ${String(options.format)} table must contain ${expectedBytes} bytes`)
+  }
+  return Object.freeze({
+    type: 'lut',
+    options: Object.freeze({ format: options.format, table: options.table.slice() }),
+  })
+}
 
 export const rotationDimensions = (
   width: number,
@@ -230,6 +270,23 @@ export const createWebpEncodeOperation = (options: WebpEncodeOptions): PipelineO
   }
   if (options.lossless !== undefined && typeof options.lossless !== 'boolean') {
     throw invalidInput('WebP lossless must be a boolean')
+  }
+  if (
+    options.effort !== undefined &&
+    (!Number.isInteger(options.effort) || options.effort < 0 || options.effort > 6)
+  ) {
+    throw invalidInput('WebP effort must be an integer from 0 to 6')
+  }
+  if (
+    options.nearLossless !== undefined &&
+    (!Number.isInteger(options.nearLossless) ||
+      options.nearLossless < 0 ||
+      options.nearLossless > 100)
+  ) {
+    throw invalidInput('WebP nearLossless must be an integer from 0 to 100')
+  }
+  if (options.nearLossless !== undefined && options.lossless !== true) {
+    throw invalidInput('WebP nearLossless requires lossless: true')
   }
   return Object.freeze({ type: 'encode', format: 'webp', options: Object.freeze({ ...options }) })
 }
@@ -335,6 +392,26 @@ export const planMetadata = (
 
   for (const operation of operations) {
     if (operation.type === 'keepExif' || operation.type === 'keepIcc') continue
+    if (operation.type === 'window') {
+      metadata = {
+        ...metadata,
+        bitDepth: 8,
+        sampleFormat: 'unsigned-integer',
+      }
+      continue
+    }
+    if (operation.type === 'lut') {
+      metadata = {
+        ...metadata,
+        bitDepth: 8,
+        sampleFormat: 'unsigned-integer',
+        channels:
+          operation.options.format === 'gray8' ? 1 : operation.options.format === 'rgb8' ? 3 : 4,
+        hasAlpha: operation.options.format === 'rgba8',
+        colorSpace: operation.options.format === 'gray8' ? 'gray' : 'sRGB',
+      }
+      continue
+    }
     if (operation.type === 'autoOrient') {
       if (
         metadata.orientation !== undefined &&

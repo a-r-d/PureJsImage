@@ -1,0 +1,77 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
+
+<SiteLayout title="Contributing — PureJsImage" description="How to contribute bug fixes, performance improvements, modular features, tests, benchmarks, and documentation to PureJsImage." canonical="https://purejsimage.com/contributing/" current="contributing/">
+<main id="main">
+    <header class="page-hero"><div class="container"><p class="eyebrow">Contributing</p><h1>Contribution requirements.</h1><p class="page-lede">Changes must follow the repository’s TypeScript, dependency, testing, benchmark, documentation, and changelog requirements.</p><div class="page-meta"><span class="pill">Pull requests to main</span><span class="pill">Tests required</span><span class="pill">MIT licensed</span></div></div></header>
+    <div class="container docs-layout">
+      <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="../guides/">Getting started</a><a href="../contributing/" aria-current="page">Contributing</a></div><div class="nav-group"><strong>Reference</strong><a href="../api/">API reference</a><a href="../codecs/">Codec support</a><a href="../performance/">Performance</a></div></aside>
+      <article class="content">
+        <section id="welcome">
+          <h2>Scope and requirements</h2>
+          <p>Focused bug fixes and performance improvements are welcome when they include tests, leave the complete suite passing, and follow the performance and code-style rules in <code>AGENTS.md</code>.</p>
+          <ul>
+            <li>Add a focused regression test for every behavior change.</li>
+            <li>Include reproducible before-and-after measurements for performance claims.</li>
+            <li>Validate output correctness before counting benchmark timing.</li>
+            <li>Prefer direct fixes that reduce work, memory traffic, or allocation pressure.</li>
+          </ul>
+        </section>
+
+        <section id="features">
+          <h2>Adding functionality</h2>
+          <p>Explain why the feature belongs in PureJsImage and compare its technical value with its bundle-size, memory, maintenance, and API cost.</p>
+          <p>For a substantial addition to the core or a default entry point, you may open an issue or discussion first. This is encouraged when the design or bundle impact is uncertain, but it is not required.</p>
+          <div class="callout"><strong>Module boundaries.</strong> A transform, codec, provider, or other feature that can use a separate explicit import should remain outside the default bundle. A focused pull request does not require a prior issue.</div>
+          <p>The optimized TypeScript engine remains the default reference and fallback. Optional WASM and future WebGPU providers require explicit imports and registration and must never load or bundle themselves by default. An accelerator must preserve exact pipeline semantics and decline work it cannot express equivalently.</p>
+        </section>
+
+        <section id="validation">
+          <h2>Tests and benchmarks</h2>
+          <p>Install the locked dependencies and run the full repository gate:</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">Terminal</span></div><button class="code-copy" type="button" data-copy="check-code">Copy</button><pre><code id="check-code">npm ci
+npm run check</code></pre></div>
+          <p>Also run the narrowest relevant fixture verifier or benchmark. Performance pull requests should report representative wall time and peak RSS, plus throughput, allocations, output size, or lossy quality when those measurements matter.</p>
+          <div class="callout warning"><strong>Benchmark validity.</strong> Unsupported, corrupt, or invalid output is a failed benchmark regardless of speed.</div>
+        </section>
+
+        <section id="documentation">
+          <h2>APIs, docs, and changelog</h2>
+          <p>Any change that adds or extends a public API must update the root README and the applicable public documentation pages. Keep capability claims exact and document unsupported boundaries.</p>
+          <p>Every pull request must add a concise entry to the appropriate heading under <code>[Unreleased]</code> in <code>CHANGELOG.md</code>. Do not change the package version or prepare a release. Release manager Aaron Decker (<code>a-r-d</code>) moves those entries into releases.</p>
+        </section>
+
+        <section id="tooling">
+          <h2>Code, AI, and tooling</h2>
+          <ul>
+            <li>Follow all strict TypeScript, dependency, memory, hot-path, test, and benchmark requirements in <code>AGENTS.md</code>.</li>
+            <li>If you use an AI coding tool, tell it to read and follow <code>AGENTS.md</code> before it changes the repository. You remain responsible for reviewing its output.</li>
+            <li>Do not change formatter or linter settings without discussing the proposal with the maintainer first.</li>
+            <li>Keep the published package free of runtime dependencies and do not disguise third-party production codec implementations as local code.</li>
+          </ul>
+        </section>
+
+        <section id="pull-request">
+          <h2>Open the pull request</h2>
+          <ol>
+            <li>Target the <code>main</code> branch directly.</li>
+            <li>Update your branch from the latest <code>main</code> and resolve every conflict locally.</li>
+            <li>Run <code>npm run check</code> and the relevant fixtures or benchmarks.</li>
+            <li>Include the documentation and <code>[Unreleased]</code> changelog updates.</li>
+            <li>Describe the problem, approach, evidence, and any bundle-size, compatibility, or memory tradeoffs.</li>
+          </ol>
+          <p>Keep the pull request conflict-free and limited to one coherent change. An issue is optional; a clear pull request with evidence is enough for a modular, self-contained addition.</p>
+        </section>
+
+        <section id="license">
+          <h2>License and contact</h2>
+          <p>All contributions are submitted under the repository’s MIT License. By opening a pull request, you agree that your contribution may be distributed under that license.</p>
+          <p>Questions can be directed to Aaron Decker through <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a>.</p>
+        </section>
+      </article>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#welcome">Scope &amp; requirements</a><a href="#features">New functionality</a><a href="#validation">Tests &amp; benchmarks</a><a href="#documentation">Docs &amp; changelog</a><a href="#tooling">Code &amp; AI</a><a href="#pull-request">Pull requests</a><a href="#license">License</a></aside>
+    </div>
+  </main>
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>Contribution requirements, validation commands, and repository policies.</p></div><div class="footer-column"><strong>Docs</strong><a href="../guides/">Guides</a><a href="../api/">API</a><a href="../codecs/">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CONTRIBUTING.md">Contributing</a><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Contributions licensed under MIT</span></div></div></footer>
+</SiteLayout>

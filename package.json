@@ -1,10 +1,18 @@
 {
   "name": "purejsimage",
-  "version": "0.8.0",
-  "description": "Low-memory, dependency-free image processing for Node.js and modern browsers",
+  "version": "0.9.0",
+  "description": "First-party image codecs and low-memory raster processing in strict TypeScript",
   "keywords": [
     "image",
+    "image-codecs",
     "image-processing",
+    "typescript",
+    "low-memory",
+    "zero-dependency",
+    "nodejs",
+    "browser",
+    "serverless",
+    "aws-lambda",
     "jpeg",
     "jpeg2000",
     "jp2",
@@ -16,9 +24,10 @@
     "gif",
     "heif",
     "heic",
-    "browser",
-    "serverless",
-    "lambda"
+    "geotiff",
+    "ome-tiff",
+    "scientific-imaging",
+    "whole-slide-image"
   ],
   "license": "MIT",
   "author": "Aaron Decker",
@@ -29,7 +38,7 @@
   "bugs": {
     "url": "https://github.com/a-r-d/PureJsImage/issues"
   },
-  "homepage": "https://github.com/a-r-d/PureJsImage#readme",
+  "homepage": "https://purejsimage.com/",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -66,6 +75,11 @@
       "types": "./dist/pathology/index.d.ts",
       "import": "./dist/pathology/index.js",
       "default": "./dist/pathology/index.js"
+    },
+    "./sources/http-range": {
+      "types": "./dist/sources/http-range.d.ts",
+      "import": "./dist/sources/http-range.js",
+      "default": "./dist/sources/http-range.js"
     },
     "./compression/zstd": {
       "types": "./dist/compression/zstd/index.d.ts",
@@ -162,11 +176,13 @@
     "lint": "biome lint .",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "capabilities:generate": "node scripts/render-capabilities.ts && biome format --write docs/capabilities.json tests/generated/capability-expectations.json",
+    "capabilities:generate": "node scripts/render-capabilities.ts && biome format --write docs-astro/public/capabilities.json tests/generated/capability-expectations.json",
     "capabilities:check": "node scripts/render-capabilities.ts --check",
     "comparison:generate": "node scripts/render-library-comparison.ts",
     "comparison:check": "node scripts/render-library-comparison.ts --check",
+    "docs:dev": "astro dev --root docs-astro",
     "docs:build": "node scripts/build-docs-site.ts",
+    "docs:preview": "astro preview --root docs-astro",
     "size": "npm run build && node scripts/measure-bundle-size.ts",
     "test": "vitest run",
     "test:hostile-source": "PUREJSIMAGE_HOSTILE_SOURCE=1 vitest run",
@@ -262,6 +278,7 @@
     }
   },
   "devDependencies": {
+    "@astrojs/react": "^6.0.2",
     "@aws-sdk/client-lambda": "3.1106.0",
     "@aws-sdk/client-s3": "3.1106.0",
     "@biomejs/biome": "2.5.7",
@@ -275,7 +292,10 @@
     "@types/node": "26.1.2",
     "@types/omggif": "1.0.5",
     "@types/pngjs": "6.0.5",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "archiver": "8.0.0",
+    "astro": "^7.2.0",
     "aws-cdk": "2.1135.1",
     "aws-cdk-lib": "2.263.0",
     "bmp-ts": "^1.0.9",
@@ -290,6 +310,8 @@
     "lerc": "^4.2.0",
     "omggif": "1.0.10",
     "pngjs": "7.0.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "sharp": "0.35.3",
     "tiff": "7.1.3",
     "typescript": "7.0.2",

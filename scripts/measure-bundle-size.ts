@@ -157,3 +157,17 @@ for (const measurement of entryMeasurements) {
     `| ${measurement.target.name} | ${kibibytes(measurement.minifiedBytes)} | ${kibibytes(measurement.gzipBytes)} | ${kibibytes(measurement.brotliBytes)} |`,
   )
 }
+const oversizedEntries = entryMeasurements.filter(
+  ({ minifiedBytes, target }) =>
+    target.maxMinifiedBytes !== undefined && minifiedBytes > target.maxMinifiedBytes,
+)
+if (oversizedEntries.length > 0) {
+  throw new Error(
+    oversizedEntries
+      .map(
+        ({ minifiedBytes, target }) =>
+          `${target.name} is ${minifiedBytes} minified bytes; limit is ${target.maxMinifiedBytes}`,
+      )
+      .join('\n'),
+  )
+}

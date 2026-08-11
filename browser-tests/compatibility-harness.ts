@@ -2,6 +2,7 @@ import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-
 import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
 import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
+import * as browserPublicApi from '../src/browser.ts'
 import { createImageLibrary, ImageError } from '../src/browser.ts'
 import { browserRuntime } from '../src/browser-runtime.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
@@ -15,15 +16,17 @@ import { webpCodec } from '../src/codec-entries/webp.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelBlock } from '../src/pixel.ts'
-import { rasterToPixels } from '../src/raster.ts'
-import { omeTiffProfile } from '../src/scientific/ome-tiff.ts'
+import { openAperioSvs } from '../src/pathology/index.ts'
+import { omeTiffProfile, openOmeTiff, rasterToPixels } from '../src/scientific/index.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
 import { MemorySource } from '../src/source.ts'
+import { HttpRangeSource } from '../src/sources/http-range.ts'
 import {
   createTiffProfileRegistry,
   encodeTiffDocument,
+  geoTiffProfile,
   openTiffDocument,
 } from '../src/tiff/index.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
@@ -62,6 +65,37 @@ const instantiateWasm = async (path: string): Promise<WebAssembly.Instance> => {
 
 const outputMetadata = async (bytes: Uint8Array) => (await images.open(bytes)).metadata()
 
+const optionalApiEntries = async (): Promise<BrowserWorkflowResult> => {
+  const specializedNames = [
+    'aperioSvsProfile',
+    'geoTiffProfile',
+    'HttpRangeSource',
+    'isAperioSvs',
+    'isOmeTiff',
+    'omeTiffProfile',
+    'openAperioSvs',
+    'openOmeTiff',
+    'rasterSampleBytes',
+    'rasterToPixels',
+  ] as const
+  const retained = specializedNames.filter((name) => name in browserPublicApi)
+  if (retained.length > 0) {
+    throw new Error(`Browser root retained optional exports: ${retained.join(', ')}`)
+  }
+  if (
+    typeof openAperioSvs !== 'function' ||
+    typeof openOmeTiff !== 'function' ||
+    typeof rasterToPixels !== 'function' ||
+    typeof HttpRangeSource.open !== 'function' ||
+    geoTiffProfile.id !== 'geotiff'
+  ) {
+    throw new Error('An explicit optional browser entry is unavailable')
+  }
+  return {
+    outputBytes: 0,
+    detail: 'optional scientific, pathology, TIFF, and HTTP entries are explicit',
+  }
+}
 const inputTypes = async (): Promise<readonly BrowserWorkflowResult[]> => {
   const bytes = await fetchBytes('/fixtures/benchmark-input.png')
   const inputs: readonly (readonly [string, ImageInput])[] = [
@@ -1769,7 +1803,7 @@ const rgbPsnr = (expected: Uint8ClampedArray, actual: Uint8ClampedArray): number
 
 const webpLossless = async (): Promise<BrowserWorkflowResult> => {
   const input = await fetchBytes('/fixtures/webp-graphic.png')
-  const output = await (await images.open(input)).webp({ lossless: true }).toUint8Array()
+  const output = await (await images.open(input)).webp({ lossless: true, effort: 6 }).toUint8Array()
   const metadata = await outputMetadata(output)
   if (metadata.format !== 'webp' || metadata.width !== 192 || metadata.height !== 128) {
     throw new Error(
@@ -1786,9 +1820,26 @@ const webpLossless = async (): Promise<BrowserWorkflowResult> => {
       throw new Error(`Lossless WebP changed browser pixel ${offset}`)
     }
   }
+  const nearOutput = await (await images.open(input))
+    .webp({ lossless: true, effort: 3, nearLossless: 80 })
+    .toUint8Array()
+  const nearMetadata = await outputMetadata(nearOutput)
+  if (nearMetadata.format !== 'webp' || nearMetadata.width !== 192 || nearMetadata.height !== 128) {
+    throw new Error(
+      `Near-lossless WebP output was ${nearMetadata.format} ${nearMetadata.width}x${nearMetadata.height}`,
+    )
+  }
+  const nearDecoded = await (await images.open(nearOutput)).png().toUint8Array()
+  const nearPixels = await browserPixels(nearDecoded, 'image/png')
+  for (let offset = 0; offset < sourcePixels.length; offset += 1) {
+    if (Math.abs((sourcePixels[offset] ?? 0) - (nearPixels[offset] ?? 0)) > 1) {
+      throw new Error(`Near-lossless WebP exceeded one-value error at browser pixel ${offset}`)
+    }
+  }
   return {
-    detail: 'first-party lossless WebP matched browser RGBA pixels',
-    outputBytes: output.byteLength,
+    detail:
+      'first-party lossless WebP matched browser RGBA pixels; effort and near-lossless controls passed',
+    outputBytes: output.byteLength + nearOutput.byteLength,
   }
 }
 
@@ -2644,6 +2695,57 @@ const orientation = async (): Promise<BrowserWorkflowResult> => {
   return { detail: 'EXIF orientation 6 normalized to 480x640 PNG', outputBytes: output.size }
 }
 
+const httpRangeCancellation = async (): Promise<BrowserWorkflowResult> => {
+  let markStarted: (() => void) | undefined
+  const started = new Promise<void>((resolve) => {
+    markStarted = resolve
+  })
+  const fetcher: typeof fetch = async (_input, init) => {
+    const range = new Headers(init?.headers).get('range')
+    if (range === 'bytes=0-0') {
+      return new Response(Uint8Array.of(0), {
+        status: 206,
+        headers: {
+          'content-range': 'bytes 0-0/1024',
+          etag: '"browser-cancellation"',
+        },
+      })
+    }
+    return new Promise<Response>((_resolve, reject) => {
+      const signal = init?.signal
+      if (!signal) {
+        reject(new Error('Range fetch did not receive an AbortSignal'))
+        return
+      }
+      if (signal.aborted) {
+        reject(signal.reason)
+        return
+      }
+      markStarted?.()
+      signal.addEventListener('abort', () => reject(signal.reason), { once: true })
+    })
+  }
+  const source = await HttpRangeSource.open('https://example.invalid/slide.tiff', {
+    blockBytes: 64,
+    fetch: fetcher,
+  })
+  const controller = new AbortController()
+  const read = source.read(0, 32, { signal: controller.signal })
+  await started
+  controller.abort()
+  let aborted = false
+  try {
+    await read
+  } catch (error: unknown) {
+    aborted = error instanceof DOMException && error.name === 'AbortError'
+  }
+  if (!aborted) throw new Error('In-flight browser range read did not abort')
+  return {
+    detail: 'AbortSignal cancelled an in-flight browser HTTP range read',
+    outputBytes: 0,
+  }
+}
+
 class FailingSink implements ImageSink {
   aborted = false
   #writes = 0
@@ -2737,7 +2839,9 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifYuv444,
   failureCleanup,
   heifPqDisplay,
+  httpRangeCancellation,
   inputTypes,
+  optionalApiEntries,
   legacyTiffAndBmp,
   jpegPipeline,
   unsupportedJpegBoundaries,

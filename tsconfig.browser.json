@@ -19,6 +19,6 @@
     "src/browser.ts",
     "src/codec-entries/all.ts",
     "src/accelerator-entries/wasm-jpeg-browser.ts",
-    "docs/demo.ts"
+    "docs-astro/src/scripts/demo.ts"
   ]
 }

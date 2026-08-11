@@ -1,3 +1,5 @@
+import type { AbortOptions } from '../abort.ts'
+import { throwIfAborted } from '../abort.ts'
 import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { TiffProfile, TiffProfileContext } from '../tiff/profiles.ts'
@@ -12,8 +14,14 @@ import type {
 
 const imageDescriptionTag = 270
 
-const directoryDescription = async (directory: TiffDirectory): Promise<string> => {
-  const value = await directory.getTag(imageDescriptionTag, { maxBytes: 1_048_576 })
+const directoryDescription = async (
+  directory: TiffDirectory,
+  options: Readonly<AbortOptions> = {},
+): Promise<string> => {
+  const value = await directory.getTag(imageDescriptionTag, {
+    maxBytes: 1_048_576,
+    ...(options.signal === undefined ? {} : { signal: options.signal }),
+  })
   return value?.kind === 'ascii' ? value.value : ''
 }
 
@@ -76,12 +84,67 @@ class AperioAssociatedImage implements WholeSlideAssociatedImage {
   async *read(
     options: Readonly<WholeSlideAssociatedImageRequest> = {},
   ): AsyncGenerator<PixelBlock> {
-    const decoder = await this.#directory.createImageDecoder()
+    const decoder = await this.#directory.createImageDecoder(options)
     yield* decoder.decode({
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
       ...(options.x === undefined ? {} : { x: options.x }),
       ...(options.y === undefined ? {} : { y: options.y }),
       ...(options.width === undefined ? {} : { width: options.width }),
       ...(options.height === undefined ? {} : { height: options.height }),
+    })
+  }
+}
+class AperioWholeSlideLevel implements WholeSlideLevel {
+  readonly index: number
+  readonly width: number
+  readonly height: number
+  readonly downsample: number
+  readonly tileWidth?: number
+  readonly tileHeight?: number
+  readonly #directory: TiffDirectory
+
+  constructor(index: number, baseWidth: number, directory: TiffDirectory) {
+    this.index = index
+    this.width = directory.width
+    this.height = directory.height
+    this.downsample = baseWidth / directory.width
+    this.#directory = directory
+    if (directory.tileWidth !== undefined) this.tileWidth = directory.tileWidth
+    if (directory.tileHeight !== undefined) this.tileHeight = directory.tileHeight
+  }
+
+  async *tile(
+    column: number,
+    row: number,
+    options: Readonly<AbortOptions> = {},
+  ): AsyncGenerator<PixelBlock> {
+    throwIfAborted(options.signal)
+    if (!Number.isSafeInteger(column) || column < 0) {
+      throw invalidInput('Whole-slide tile column must be a non-negative safe integer')
+    }
+    if (!Number.isSafeInteger(row) || row < 0) {
+      throw invalidInput('Whole-slide tile row must be a non-negative safe integer')
+    }
+    if (this.tileWidth === undefined || this.tileHeight === undefined) {
+      throw invalidInput(`Whole-slide level ${this.index} does not have native tiles`)
+    }
+    const x = column * this.tileWidth
+    const y = row * this.tileHeight
+    if (
+      !Number.isSafeInteger(x) ||
+      !Number.isSafeInteger(y) ||
+      x >= this.width ||
+      y >= this.height
+    ) {
+      throw invalidInput(`Whole-slide tile ${column},${row} is outside level ${this.index}`)
+    }
+    const decoder = await this.#directory.createImageDecoder(options)
+    yield* decoder.decode({
+      x,
+      y,
+      width: Math.min(this.tileWidth, this.width - x),
+      height: Math.min(this.tileHeight, this.height - y),
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
     })
   }
 }
@@ -107,15 +170,8 @@ class AperioWholeSlideImage implements WholeSlideImage {
     this.height = first.height
     this.#levelDirectories = Object.freeze([...options.levelDirectories])
     this.levels = Object.freeze(
-      options.levelDirectories.map((directory, index) =>
-        Object.freeze({
-          index,
-          width: directory.width,
-          height: directory.height,
-          downsample: this.width / directory.width,
-          ...(directory.tileWidth === undefined ? {} : { tileWidth: directory.tileWidth }),
-          ...(directory.tileHeight === undefined ? {} : { tileHeight: directory.tileHeight }),
-        }),
+      options.levelDirectories.map(
+        (directory, index) => new AperioWholeSlideLevel(index, this.width, directory),
       ),
     )
     this.associatedImages = Object.freeze([...options.associatedImages])
@@ -132,26 +188,35 @@ class AperioWholeSlideImage implements WholeSlideImage {
     }
     const directory = this.#levelDirectories[options.level]
     if (!directory) throw invalidInput(`Whole-slide level ${options.level} is unavailable`)
-    const decoder = await directory.createImageDecoder()
+    const decoder = await directory.createImageDecoder(options)
     yield* decoder.decode({
       x: options.x,
       y: options.y,
       width: options.width,
       height: options.height,
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
     })
   }
 }
 
-export const isAperioSvs = async (document: TiffDocument): Promise<boolean> => {
+export const isAperioSvs = async (
+  document: TiffDocument,
+  options: Readonly<AbortOptions> = {},
+): Promise<boolean> => {
+  throwIfAborted(options.signal)
   const first = document.topLevelDirectories[0]
   if (!first) return false
-  return /^Aperio\b/i.test((await directoryDescription(first)).trimStart())
+  return /^Aperio\b/i.test((await directoryDescription(first, options)).trimStart())
 }
 
-export const openAperioSvs = async (document: TiffDocument): Promise<WholeSlideImage> => {
+export const openAperioSvs = async (
+  document: TiffDocument,
+  options: Readonly<AbortOptions> = {},
+): Promise<WholeSlideImage> => {
+  throwIfAborted(options.signal)
   const main = document.topLevelDirectories[0]
   if (!main) throw invalidInput('Aperio SVS has no TIFF directories')
-  const mainDescription = await directoryDescription(main)
+  const mainDescription = await directoryDescription(main, options)
   if (!/^Aperio\b/i.test(mainDescription.trimStart())) {
     throw invalidInput('TIFF ImageDescription is not an Aperio SVS header')
   }
@@ -161,7 +226,8 @@ export const openAperioSvs = async (document: TiffDocument): Promise<WholeSlideI
     readonly label: string
   }[] = []
   for (const directory of document.topLevelDirectories.slice(1)) {
-    const description = await directoryDescription(directory)
+    throwIfAborted(options.signal)
+    const description = await directoryDescription(directory, options)
     const label = associatedLabel(description, directory.tiled)
     if (label !== undefined || !compatibleAspectRatio(main, directory)) {
       associatedCandidates.push({ directory, label: label ?? 'associated' })
