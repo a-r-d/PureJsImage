@@ -1,0 +1,18 @@
+README.md
+  h_9f4a25732fa0c1 315-316,328,358
+browser-tests/wsi.pw.ts
+  h_9f4a25732fa0c1 33-47,49-59
+docs-astro/src/pages/performance.astro
+  h_9f4a25732fa0c1 184-185,197-208
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "fa584dec0ae8a9b0cf3d7cf74644e99cd7d4aa8d",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
