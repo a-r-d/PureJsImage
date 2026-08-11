@@ -1,0 +1,16 @@
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 1923-1934,1939-1941
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 261-264,269
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "af61cfceab89c485481472d4bd4550941b75f9d4",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
