@@ -139,6 +139,9 @@ const viewerEmpty = requiredElement('demo-viewer-empty', HTMLElement)
 const viewerLoading = requiredElement('demo-viewer-loading', HTMLElement)
 const viewerLoadingLabel = requiredElement('demo-viewer-loading-label', HTMLElement)
 const viewerDirectory = requiredElement('demo-viewer-directory', HTMLSelectElement)
+const viewerPreviousButton = requiredElement('demo-viewer-previous', HTMLButtonElement)
+const viewerPlayButton = requiredElement('demo-viewer-play', HTMLButtonElement)
+const viewerNextButton = requiredElement('demo-viewer-next', HTMLButtonElement)
 const viewerDimensions = requiredElement('demo-viewer-dimensions', HTMLElement)
 const viewerCompression = requiredElement('demo-viewer-compression', HTMLElement)
 const viewerSamples = requiredElement('demo-viewer-samples', HTMLElement)
@@ -199,6 +202,7 @@ const viewerLimits = Object.freeze({
 })
 const maximumClipPixels = 16_777_216
 const maximumExampleBytes = 8_388_608
+const viewerPlaybackDelay = 750
 
 let selectedFile: File | undefined
 let selectedImage: Image | undefined
@@ -214,6 +218,9 @@ let viewerRenderSequence = 0
 let viewerRenderFrame: number | undefined
 let viewerRenderController: AbortController | undefined
 let viewerClipUrl: string | undefined
+let viewerPlaybackTimer: number | undefined
+let viewerPlaybackSequence = 0
+let viewerPlaying = false
 let pointerDrag:
   | {
       readonly id: number
@@ -462,6 +469,42 @@ const setViewerLoading = (visible: boolean, label = 'Rendering visible image reg
   viewerLoadingLabel.textContent = label
 }
 
+const topLevelChoiceIndices = (selection: TiffViewerSelection): readonly number[] =>
+  selection.choices.flatMap((choice, index) =>
+    choice.resolutionLevel === undefined ? [index] : [],
+  )
+
+const updateViewerPlaybackControls = (): void => {
+  const selection = viewerSelection
+  if (selection?.kind !== 'tiff') {
+    viewerPreviousButton.disabled = true
+    viewerPlayButton.disabled = true
+    viewerNextButton.disabled = true
+  } else {
+    const indices = topLevelChoiceIndices(selection)
+    const currentIndex = Number(viewerDirectory.value)
+    const position = indices.indexOf(currentIndex)
+    const playable = indices.length > 1
+    viewerPreviousButton.disabled = !playable || position <= 0
+    viewerPlayButton.disabled = !playable
+    viewerNextButton.disabled = !playable || position < 0 || position >= indices.length - 1
+  }
+  viewerPlayButton.textContent = viewerPlaying ? 'Pause' : 'Play'
+  viewerPlayButton.setAttribute(
+    'aria-label',
+    viewerPlaying ? 'Pause image series' : 'Play image series',
+  )
+  viewerPlayButton.setAttribute('aria-pressed', String(viewerPlaying))
+}
+
+const stopViewerPlayback = (): void => {
+  viewerPlaybackSequence += 1
+  if (viewerPlaybackTimer !== undefined) window.clearTimeout(viewerPlaybackTimer)
+  viewerPlaybackTimer = undefined
+  viewerPlaying = false
+  updateViewerPlaybackControls()
+}
+
 const setViewerControls = (enabled: boolean, directoryEnabled = enabled): void => {
   viewerDirectory.disabled = !directoryEnabled
   zoomOutButton.disabled = !enabled
@@ -473,9 +516,11 @@ const setViewerControls = (enabled: boolean, directoryEnabled = enabled): void =
   panDownButton.disabled = !enabled
   panRightButton.disabled = !enabled
   saveClipButton.disabled = !enabled
+  updateViewerPlaybackControls()
 }
 
 const resetViewer = (): void => {
+  stopViewerPlayback()
   viewerRenderSequence += 1
   viewerRenderController?.abort()
   viewerRenderController = undefined
@@ -662,6 +707,7 @@ const normalizedBlockImageData = (block: PixelBlock): ImageData => {
 }
 
 const scratchCanvas = document.createElement('canvas')
+const presentationCanvas = document.createElement('canvas')
 
 const renderViewer = async (): Promise<void> => {
   const selection = viewerSelection
@@ -674,14 +720,18 @@ const renderViewer = async (): Promise<void> => {
   const region = currentViewerRegion()
   if (!region) return
   const { dpr } = canvasMetrics()
-  const context = viewerCanvas.getContext('2d', { alpha: false })
+  if (presentationCanvas.width !== viewerCanvas.width) presentationCanvas.width = viewerCanvas.width
+  if (presentationCanvas.height !== viewerCanvas.height)
+    presentationCanvas.height = viewerCanvas.height
+  const context = presentationCanvas.getContext('2d', { alpha: false })
   if (!context) throw new Error('Canvas 2D rendering is unavailable')
 
   viewerStatus.textContent = 'Decoding the visible region…'
   viewerRegion.textContent = `${region.x.toLocaleString()}, ${region.y.toLocaleString()} · ${region.width.toLocaleString()} × ${region.height.toLocaleString()} px`
   zoomValue.value = `${Math.round(viewerZoom * 100)}%`
   const loadingTimer = window.setTimeout(() => {
-    if (sequence === viewerRenderSequence) setViewerLoading(true)
+    if (sequence === viewerRenderSequence && viewerCanvas.dataset.rendered !== 'true')
+      setViewerLoading(true)
   }, 120)
   const startedAt = performance.now()
 
@@ -752,6 +802,9 @@ const renderViewer = async (): Promise<void> => {
       }
     }
     if (sequence !== viewerRenderSequence) return
+    const visibleContext = viewerCanvas.getContext('2d', { alpha: false })
+    if (!visibleContext) throw new Error('Canvas 2D presentation is unavailable')
+    visibleContext.drawImage(presentationCanvas, 0, 0)
     const elapsed = performance.now() - startedAt
     viewerCanvas.hidden = false
     viewerCanvas.dataset.rendered = 'true'
@@ -844,6 +897,7 @@ const selectViewerChoice = async (index: number, renderImmediately: boolean): Pr
   viewerSelection = selection
   viewerDirectory.value = String(index)
   updateViewerFacts(selection)
+  updateViewerPlaybackControls()
   fitViewer()
   setViewerLoading(false)
   addLog(
@@ -852,6 +906,68 @@ const selectViewerChoice = async (index: number, renderImmediately: boolean): Pr
   )
   if (renderImmediately) await renderViewer()
   else scheduleViewerRender()
+}
+
+const selectAdjacentTopLevelImage = async (offset: -1 | 1): Promise<void> => {
+  const selection = viewerSelection
+  if (selection?.kind !== 'tiff') return
+  const indices = topLevelChoiceIndices(selection)
+  const currentIndex = Number(viewerDirectory.value)
+  const currentPosition = indices.indexOf(currentIndex)
+  const nextPosition = currentPosition + offset
+  const nextIndex = indices[nextPosition]
+  if (nextIndex === undefined) return
+  await selectViewerChoice(nextIndex, true)
+}
+
+const scheduleViewerPlaybackStep = (sequence: number): void => {
+  viewerPlaybackTimer = window.setTimeout(() => {
+    void stepViewerPlayback(sequence)
+  }, viewerPlaybackDelay)
+}
+
+const stepViewerPlayback = async (sequence: number): Promise<void> => {
+  if (!viewerPlaying || sequence !== viewerPlaybackSequence) return
+  const selection = viewerSelection
+  if (selection?.kind !== 'tiff') {
+    stopViewerPlayback()
+    return
+  }
+  const indices = topLevelChoiceIndices(selection)
+  const currentPosition = indices.indexOf(Number(viewerDirectory.value))
+  const nextIndex = indices[currentPosition + 1]
+  if (nextIndex === undefined) {
+    stopViewerPlayback()
+    return
+  }
+  try {
+    await selectViewerChoice(nextIndex, true)
+    if (!viewerPlaying || sequence !== viewerPlaybackSequence) return
+    if (nextIndex === indices.at(-1)) stopViewerPlayback()
+    else scheduleViewerPlaybackStep(sequence)
+  } catch (error: unknown) {
+    stopViewerPlayback()
+    viewerStatus.textContent = errorMessage(error)
+    addLog('error', `TIFF playback: ${errorMessage(error)}`)
+    setViewerLoading(false)
+  }
+}
+
+const startViewerPlayback = async (): Promise<void> => {
+  const selection = viewerSelection
+  if (selection?.kind !== 'tiff') return
+  const indices = topLevelChoiceIndices(selection)
+  if (indices.length < 2) return
+  if (Number(viewerDirectory.value) === indices.at(-1)) {
+    const firstIndex = indices[0]
+    if (firstIndex === undefined) return
+    await selectViewerChoice(firstIndex, true)
+  }
+  viewerPlaybackSequence += 1
+  const sequence = viewerPlaybackSequence
+  viewerPlaying = true
+  updateViewerPlaybackControls()
+  scheduleViewerPlaybackStep(sequence)
 }
 
 const prepareTiffViewer = async (file: File): Promise<void> => {
@@ -1131,7 +1247,7 @@ const filterSamples = (): void => {
   sampleEmpty.hidden = visible !== 0
   exampleStatus.textContent =
     query === ''
-      ? `${sampleCards.length} public sample files. Open direct files here, or download larger datasets and drop them above.`
+      ? `${sampleCards.length} public sample files. Open verified CORS-enabled files here, or download source-hosted datasets and drop them above.`
       : `${visible} sample${visible === 1 ? '' : 's'} match “${sampleSearch.value.trim()}”.`
 }
 
@@ -1385,11 +1501,40 @@ dropZone.addEventListener('drop', (event) => {
 viewModeButton.addEventListener('click', () => setMode('view'))
 convertModeButton.addEventListener('click', () => setMode('convert'))
 viewerDirectory.addEventListener('change', () => {
+  stopViewerPlayback()
   const index = Number(viewerDirectory.value)
   if (!Number.isSafeInteger(index) || index < 0) return
   void selectViewerChoice(index, false).catch((error: unknown) => {
     viewerStatus.textContent = errorMessage(error)
     addLog('error', `TIFF image selection: ${errorMessage(error)}`)
+    setViewerLoading(false)
+  })
+})
+viewerPreviousButton.addEventListener('click', () => {
+  stopViewerPlayback()
+  void selectAdjacentTopLevelImage(-1).catch((error: unknown) => {
+    viewerStatus.textContent = errorMessage(error)
+    addLog('error', `Previous TIFF image: ${errorMessage(error)}`)
+    setViewerLoading(false)
+  })
+})
+viewerPlayButton.addEventListener('click', () => {
+  if (viewerPlaying) {
+    stopViewerPlayback()
+    return
+  }
+  void startViewerPlayback().catch((error: unknown) => {
+    stopViewerPlayback()
+    viewerStatus.textContent = errorMessage(error)
+    addLog('error', `TIFF playback: ${errorMessage(error)}`)
+    setViewerLoading(false)
+  })
+})
+viewerNextButton.addEventListener('click', () => {
+  stopViewerPlayback()
+  void selectAdjacentTopLevelImage(1).catch((error: unknown) => {
+    viewerStatus.textContent = errorMessage(error)
+    addLog('error', `Next TIFF image: ${errorMessage(error)}`)
     setViewerLoading(false)
   })
 })
@@ -1485,6 +1630,7 @@ copyLogButton.addEventListener('click', async () => {
 })
 
 window.addEventListener('beforeunload', () => {
+  stopViewerPlayback()
   revokeUrl(sourceObjectUrl)
   revokeUrl(resultObjectUrl)
   revokeUrl(viewerClipUrl)

@@ -29,16 +29,20 @@ import SiteLayout from '../layouts/SiteLayout.astro'
             <section class="demo-example-panel" aria-labelledby="demo-example-title">
               <header>
                 <div><p class="demo-card-kicker">Curated public files</p><h2 id="demo-example-title">Sample library</h2></div>
-                <span>38 files</span>
+                <span>26 files</span>
               </header>
               <label class="demo-sample-search">
                 <span>Search samples</span>
                 <input id="demo-sample-search" type="search" placeholder="electron microscopy, OME, GeoTIFF, 12-bit…" autocomplete="off">
               </label>
               <div class="demo-example-list" aria-live="polite">
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="microscopy ome tiff single channel scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">OME</span><span><strong>Single-channel microscopy</strong><small>OME-TIFF · 74.3 KiB · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/single-channel.ome.tif" target="_blank" rel="noreferrer" download="single-channel.ome.tif">Download file ↗</a></div>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="real biological microscopy c elegans embryo tubulin histone gfp time series ome tiff channel 1">
+                  <div class="demo-sample-summary"><span aria-hidden="true">CELL</span><span><strong>C. elegans embryo time series · channel 1</strong><small>Actual biological sample · 20 timepoints · 5.09 MiB · multiphoton OME-TIFF</small></span></div>
+                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/tubhiswt-3D/tubhiswt_C0.ome.tif" target="_blank" rel="noreferrer" download="tubhiswt_C0.ome.tif">Download, then drop ↗</a><a href="https://docs.openmicroscopy.org/ome-model/6.3.1/ome-tiff/data.html#biological-datasets" target="_blank" rel="noreferrer">OME Consortium · CC BY 4.0 ↗</a></div>
+                </article>
+                <article class="demo-sample-card" data-demo-sample-card data-sample-search="real biological microscopy c elegans embryo tubulin histone gfp time series ome tiff channel 2">
+                  <div class="demo-sample-summary"><span aria-hidden="true">CELL</span><span><strong>C. elegans embryo time series · channel 2</strong><small>Actual biological sample · 20 timepoints · 5.09 MiB · multiphoton OME-TIFF</small></span></div>
+                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/tubhiswt-3D/tubhiswt_C1.ome.tif" target="_blank" rel="noreferrer" download="tubhiswt_C1.ome.tif">Download, then drop ↗</a><a href="https://docs.openmicroscopy.org/ome-model/6.3.1/ome-tiff/data.html#biological-datasets" target="_blank" rel="noreferrer">OME Consortium · CC BY 4.0 ↗</a></div>
                 </article>
                 <article class="demo-sample-card" data-demo-sample-card data-sample-search="jpeg 2000 jp2 photograph lossless">
                   <div class="demo-sample-summary"><span aria-hidden="true">JP2</span><span><strong>JPEG 2000 photograph</strong><small>Lossless JP2 · 277.4 KiB · project fixture</small></span></div>
@@ -131,64 +135,12 @@ import SiteLayout from '../layouts/SiteLayout.astro'
                     <a href="https://entrepot.recherche.data.gouv.fr/api/access/datafile/713555" target="_blank" rel="noreferrer" download="orientation73.tif">Download ↗</a>
                   </div>
                 </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical microscopy ome tiff multi channel fluorescence three channel scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">OME</span><span><strong>Three-channel microscopy</strong><small>OME-TIFF · 221.2 KiB · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/multi-channel.ome.tif" target="_blank" rel="noreferrer" download="multi-channel.ome.tif">Download file ↗</a></div>
-                </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical microscopy ome tiff z stack depth series scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">Z</span><span><strong>Microscopy Z-stack</strong><small>5-plane OME-TIFF · 367.7 KiB · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/z-series.ome.tif" target="_blank" rel="noreferrer" download="z-series.ome.tif">Download file ↗</a></div>
-                </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical microscopy ome tiff time lapse time series scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">TIME</span><span><strong>Microscopy time series</strong><small>7-timepoint OME-TIFF · 514.4 KiB · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/time-series.ome.tif" target="_blank" rel="noreferrer" download="time-series.ome.tif">Download file ↗</a></div>
-                </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical microscopy ome tiff multi channel z stack fluorescence scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">XYZC</span><span><strong>Multi-channel Z-stack</strong><small>15-plane OME-TIFF · 1.08 MiB · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/multi-channel-z-series.ome.tif" target="_blank" rel="noreferrer" download="multi-channel-z-series.ome.tif">Download file ↗</a></div>
-                </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical microscopy ome tiff multi channel time lapse fluorescence scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">XYCT</span><span><strong>Multi-channel time lapse</strong><small>21-plane OME-TIFF · 1.51 MiB · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/multi-channel-time-series.ome.tif" target="_blank" rel="noreferrer" download="multi-channel-time-series.ome.tif">Download file ↗</a></div>
-                </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical microscopy ome tiff 4d z stack time series scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">4D</span><span><strong>4D microscopy series</strong><small>Z + time OME-TIFF · 2.51 MiB · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/4D-series.ome.tif" target="_blank" rel="noreferrer" download="4D-series.ome.tif">Download file ↗</a></div>
-                </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical microscopy ome tiff 5d multi channel z stack time series scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">5D</span><span><strong>Five-dimensional microscopy</strong><small>XYZCT OME-TIFF · 7.52 MiB · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/multi-channel-4D-series.ome.tif" target="_blank" rel="noreferrer" download="multi-channel-4D-series.ome.tif">Download file ↗</a></div>
-                </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical microscopy spim ome tiff modulo angle light sheet scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">SPIM</span><span><strong>SPIM angle series</strong><small>8D modulo OME-TIFF · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/modulo/SPIM-ModuloAlongZ.ome.tiff" target="_blank" rel="noreferrer" download="SPIM-ModuloAlongZ.ome.tiff">Download file ↗</a></div>
-                </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical microscopy spectral lambda wavelength ome tiff modulo scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">λ</span><span><strong>Spectral wavelength scan</strong><small>Excitation/emission OME-TIFF · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/modulo/LAMBDA-ModuloAlongZ-ModuloAlongT.ome.tiff" target="_blank" rel="noreferrer" download="LAMBDA-ModuloAlongZ-ModuloAlongT.ome.tiff">Download file ↗</a></div>
-                </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical microscopy flim fluorescence lifetime photon counting time ome tiff scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">FLIM</span><span><strong>FLIM photon timing</strong><small>Time-correlated OME-TIFF · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/modulo/FLIM-ModuloAlongT-TSCPC.ome.tiff" target="_blank" rel="noreferrer" download="FLIM-ModuloAlongT-TSCPC.ome.tiff">Download file ↗</a></div>
-                </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical microscopy flim fluorescence lifetime histogram channel ome tiff scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">FLIM</span><span><strong>FLIM histogram channels</strong><small>16-channel OME-TIFF · Open Microscopy</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/modulo/FLIM-ModuloAlongC.ome.tiff" target="_blank" rel="noreferrer" download="FLIM-ModuloAlongC.ome.tiff">Download file ↗</a></div>
-                </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical high content screening cells microscopy bbbc plate three channel ome tiff">
-                  <div class="demo-sample-summary"><span aria-hidden="true">HCS</span><span><strong>High-content cell screen</strong><small>3-channel plate OME-TIFF · BBBC017</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/BBBC/NIRHTa-001.ome.tiff" target="_blank" rel="noreferrer" download="NIRHTa-001.ome.tiff">Download file ↗</a></div>
-                </article>
                 <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical cell division mitosis time lapse microscopy mitocheck ome tiff">
-                  <div class="demo-sample-summary"><span aria-hidden="true">CELL</span><span><strong>Cell-division time lapse</strong><small>93-frame OME-TIFF · MitoCheck · large file</small></span></div>
+                  <div class="demo-sample-summary"><span aria-hidden="true">CELL</span><span><strong>Cell-division time lapse</strong><small>93-frame OME-TIFF · 126.1 MiB · MitoCheck · public domain</small></span></div>
                   <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/MitoCheck/00001_01.ome.tiff" target="_blank" rel="noreferrer">Large file ↗</a></div>
                 </article>
-                <article class="demo-sample-card" data-demo-sample-card data-sample-search="electron microscopy em empiar floating point pyramid ome tiff volume scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">EM</span><span><strong>Electron microscopy volume</strong><small>38-plane float OME-TIFF · EMPIAR · large file</small></span></div>
-                  <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/sub-resolutions/EM/BGal_000438_frames.ome.tiff" target="_blank" rel="noreferrer">Large file ↗</a></div>
-                </article>
                 <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical retina microscopy z stack pyramid ome tiff fluorescence scientific">
-                  <div class="demo-sample-summary"><span aria-hidden="true">RET</span><span><strong>Retina Z-stack</strong><small>64-plane, 2-channel OME-TIFF · large file</small></span></div>
+                  <div class="demo-sample-summary"><span aria-hidden="true">RET</span><span><strong>Retina Z-stack</strong><small>64-plane, 2-channel OME-TIFF · 214.8 MiB · CC BY 4.0</small></span></div>
                   <div class="demo-sample-actions"><a href="https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/sub-resolutions/Z-stack/retina_large.ome.tiff" target="_blank" rel="noreferrer">Large file ↗</a></div>
                 </article>
                 <article class="demo-sample-card" data-demo-sample-card data-sample-search="medical pathology histology whole slide aperio svs pyramid tiff">
@@ -252,7 +204,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
                 </article>
                 <p class="demo-sample-empty" id="demo-sample-empty" hidden>No sample names match that search.</p>
               </div>
-              <p class="demo-example-status" id="demo-example-status" role="status" aria-live="polite">38 public sample files. Open verified direct files here, or download larger datasets and drop them above.</p>
+              <p class="demo-example-status" id="demo-example-status" role="status" aria-live="polite">26 public sample files. Open verified CORS-enabled files here, or download source-hosted datasets and drop them above.</p>
             </section>
           </aside>
 
@@ -321,6 +273,11 @@ import SiteLayout from '../layouts/SiteLayout.astro'
               <aside class="demo-viewer-inspector" aria-label="Image details">
                 <div class="demo-inspector-heading"><span>Source image</span><small>Page or pyramid level when available</small></div>
                 <label class="demo-field"><span>Visible image</span><select id="demo-viewer-directory" disabled><option>Choose an image first</option></select></label>
+                <div class="demo-frame-controls" role="group" aria-label="Time series playback">
+                  <button id="demo-viewer-previous" type="button" disabled aria-label="Previous image">Previous</button>
+                  <button id="demo-viewer-play" type="button" disabled aria-label="Play image series" aria-pressed="false">Play</button>
+                  <button id="demo-viewer-next" type="button" disabled aria-label="Next image">Next</button>
+                </div>
                 <dl class="demo-viewer-facts">
                   <div><dt>Dimensions</dt><dd id="demo-viewer-dimensions">—</dd></div>
                   <div><dt>Format</dt><dd id="demo-viewer-compression">—</dd></div>
@@ -329,7 +286,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
                 </dl>
                 <div class="demo-viewer-help">
                   <strong>Navigate the source</strong>
-                  <p>Drag to pan. Scroll, pinch, or use +/− to zoom around the pointer. <b>Fit</b> frames the image; <b>1:1</b> maps one source pixel to one CSS pixel.</p>
+                  <p>Use Previous, Play, or Next for a multi-image time series. Drag to pan. Scroll, pinch, or use +/− to zoom around the pointer. <b>Fit</b> frames the image; <b>1:1</b> maps one source pixel to one CSS pixel.</p>
                   <p>“Save visible clip” runs the current source region through the PureJsImage PNG encoder. Clips above 16 megapixels require zooming in first.</p>
                 </div>
               </aside>

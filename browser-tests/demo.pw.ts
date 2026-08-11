@@ -1,5 +1,36 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
+import { nodeRuntime } from '../src/node-runtime.ts'
+import type { PixelBlock } from '../src/pixel.ts'
+import { Uint8ArraySink } from '../src/sink.ts'
+import { encodeTiffDocument, type TiffPageEncodeRequest } from '../src/tiff/index.ts'
+
+const playbackTiff = async (): Promise<Buffer> => {
+  const blocks = (width: number, height: number, data: Uint8Array): AsyncIterable<PixelBlock> => ({
+    async *[Symbol.asyncIterator]() {
+      yield { x: 0, y: 0, width, height, stride: width * 3, format: 'rgb8', data }
+    },
+  })
+  const width = 512
+  const height = 512
+  const pages: TiffPageEncodeRequest[] = Array.from({ length: 4 }, (_, frame) => {
+    const pixels = new Uint8Array(width * height * 3)
+    for (let pixel = 0; pixel < width * height; pixel += 1) {
+      const offset = pixel * 3
+      pixels[offset] = frame * 70
+      pixels[offset + 1] = (pixel + frame * 40) & 0xff
+      pixels[offset + 2] = 255 - frame * 60
+    }
+    return { width, height, pixelFormat: 'rgb8', blocks: blocks(width, height, pixels) }
+  })
+  const sink = new Uint8ArraySink()
+  await encodeTiffDocument(sink, {
+    runtime: nodeRuntime,
+    options: { format: 'classic', rowsPerStrip: height },
+    pages,
+  })
+  return Buffer.from(sink.toUint8Array())
+}
 
 test('detects, transforms, converts, measures, and downloads from the docs demo', async ({
   page,
@@ -108,31 +139,93 @@ test('views, pans, zooms, and clips a TIFF without leaving the browser', async (
   ).toBe(true)
 })
 
+test('plays and manually navigates a multi-image TIFF time series', async ({ page }) => {
+  await page.goto('/demo/')
+  await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+  const input = await playbackTiff()
+  await page.locator('#demo-file').setInputFiles({
+    buffer: input,
+    mimeType: 'image/tiff',
+    name: 'four-frame-time-series.tiff',
+  })
+
+  await expect(page.locator('#demo-source-details')).toContainText('4 viewable images')
+  await expect(page.locator('#demo-viewer-directory')).toHaveValue('0')
+  await expect(page.locator('#demo-viewer-previous')).toBeDisabled()
+  await expect(page.locator('#demo-viewer-play')).toBeEnabled()
+  await expect(page.locator('#demo-viewer-next')).toBeEnabled()
+
+  const heldFrame = await page.evaluate(async () => {
+    const canvas = document.querySelector<HTMLCanvasElement>('#demo-viewer-canvas')
+    const next = document.querySelector<HTMLButtonElement>('#demo-viewer-next')
+    const directory = document.querySelector<HTMLSelectElement>('#demo-viewer-directory')
+    const context = canvas?.getContext('2d')
+    if (!canvas || !next || !directory || !context) throw new Error('Viewer controls are missing')
+    const pixel = (): readonly number[] =>
+      Array.from(context.getImageData(canvas.width / 2, canvas.height / 2, 1, 1).data)
+    const before = pixel()
+    const arrayBuffer = Blob.prototype.arrayBuffer
+    Blob.prototype.arrayBuffer = async function (): Promise<ArrayBuffer> {
+      await new Promise<void>((resolve) => window.setTimeout(resolve, 100))
+      return arrayBuffer.call(this)
+    }
+    try {
+      next.click()
+      while (directory.value !== '1') {
+        await new Promise<void>((resolve) => window.setTimeout(resolve, 0))
+      }
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+      return { before, during: pixel() }
+    } finally {
+      Blob.prototype.arrayBuffer = arrayBuffer
+    }
+  })
+  expect(heldFrame.during).toEqual(heldFrame.before)
+  await expect(page.locator('#demo-viewer-directory')).toHaveValue('1')
+  await expect(page.locator('#demo-viewer-status')).toContainText('rendered in')
+  await page.locator('#demo-viewer-previous').click()
+  await expect(page.locator('#demo-viewer-directory')).toHaveValue('0')
+
+  await page.locator('#demo-viewer-play').click()
+  await expect(page.locator('#demo-viewer-play')).toHaveText('Pause')
+  await expect(page.locator('#demo-viewer-directory')).toHaveValue('1', { timeout: 3_000 })
+  await page.locator('#demo-viewer-play').click()
+  await expect(page.locator('#demo-viewer-play')).toHaveText('Play')
+  const pausedImage = await page.locator('#demo-viewer-directory').inputValue()
+  await page.waitForTimeout(1_000)
+  await expect(page.locator('#demo-viewer-directory')).toHaveValue(pausedImage)
+
+  await page.locator('#demo-viewer-directory').selectOption('2')
+  await expect(page.locator('#demo-viewer-loading')).toBeHidden()
+  await page.locator('#demo-viewer-play').click()
+  await expect(page.locator('#demo-viewer-directory')).toHaveValue('3', { timeout: 3_000 })
+  await expect(page.locator('#demo-viewer-play')).toHaveText('Play')
+  await expect(page.locator('#demo-viewer-next')).toBeDisabled()
+})
+
 test('searches the expanded scientific sample library and keeps JPEG 2000 in the selected mode', async ({
   page,
 }) => {
   await page.goto('/demo/')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
 
-  await expect(page.locator('[data-demo-sample-card]')).toHaveCount(38)
+  await expect(page.locator('[data-demo-sample-card]')).toHaveCount(26)
+  await expect(page.locator('a[href*="bioformats-artificial"]')).toHaveCount(0)
   await page.locator('#demo-sample-search').fill('electron microscopy')
-  await expect(page.locator('[data-demo-sample-card]:visible')).toHaveCount(7)
+  await expect(page.locator('[data-demo-sample-card]:visible')).toHaveCount(6)
   await expect(
     page.locator('[data-demo-sample-card]:visible').filter({ hasText: 'Nickel dislocations' }),
   ).toContainText('Open here')
-  await expect(
-    page
-      .locator('[data-demo-sample-card]:visible')
-      .filter({ hasText: 'Electron microscopy volume' }),
-  ).toContainText('EMPIAR')
 
-  await page.locator('#demo-sample-search').fill('single-channel')
+  await page.locator('#demo-sample-search').fill('C. elegans')
   const microscopy = page.locator('[data-demo-sample-card]:visible')
-  await expect(microscopy).toHaveCount(1)
-  await expect(microscopy).toContainText('Single-channel microscopy')
-  await expect(microscopy.locator('a')).toHaveAttribute(
+  await expect(microscopy).toHaveCount(2)
+  await expect(microscopy.first()).toContainText('Actual biological sample')
+  await expect(microscopy.first()).toContainText('20 timepoints')
+  await expect(microscopy.first()).toContainText('multiphoton OME-TIFF')
+  await expect(microscopy.first().locator('a').first()).toHaveAttribute(
     'href',
-    'https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/bioformats-artificial/single-channel.ome.tif',
+    'https://downloads.openmicroscopy.org/images/OME-TIFF/2016-06/tubhiswt-3D/tubhiswt_C0.ome.tif',
   )
   const input = await readFile('benchmark/corpus/files/jp2/loc-court-day-openjpeg-lossless.jp2')
   await page.locator('#demo-file').setInputFiles({

@@ -4681,6 +4681,39 @@ tr:last-child td {
   font-size: 8px;
 }
 
+.demo-frame-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.demo-frame-controls button {
+  min-width: 0;
+  height: 34px;
+  padding: 0 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text-soft);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 740;
+  cursor: pointer;
+}
+
+.demo-frame-controls button:hover:not(:disabled),
+.demo-frame-controls button[aria-pressed="true"] {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+}
+
+.demo-frame-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
 .demo-viewer-facts {
   display: grid;
   margin: 19px 0;
