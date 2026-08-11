@@ -1,0 +1,14 @@
+browser-tests/demo.pw.ts
+  h_9f4a25732fa0c1 167-169,171-181,184,187,189
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "4c6cc70fad9c2df3f938a6b683d34233d42f7525",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
