@@ -312,8 +312,8 @@ esbuild, gzip, and Brotli settings:
 
 | Import | Version | Codecs included | Minified JS | gzip | Brotli |
 | --- | --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | **0.9.0** | JPEG, PNG | 145.4 KiB | 47.2 KiB | 39.6 KiB |
-| PureJsImage all codecs | 0.9.0 | 9 codecs | 668.9 KiB | 240.7 KiB | 201.6 KiB |
+| **PureJsImage matched** | **0.9.0** | JPEG, PNG | 150.6 KiB | 48.5 KiB | 40.7 KiB |
+| PureJsImage all codecs | 0.9.0 | 9 codecs | 724.6 KiB | 260.0 KiB | 217.0 KiB |
 | Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
 | image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
 | jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
@@ -325,7 +325,7 @@ complete installed deployment tells the other half of the story:
 
 | Package | Version | Installed footprint | Production packages |
 | --- | --- | ---: | ---: |
-| **PureJsImage** | **0.9.0** | **2.3 MiB** | **1** |
+| **PureJsImage** | **0.9.0** | **2.5 MiB** | **1** |
 | Jimp | 1.6.0 | 29.3 MiB | 70 |
 | image-js | 1.7.0 | 17.0 MiB | 46 |
 | jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |
@@ -355,7 +355,7 @@ If you can deploy native libvips and throughput or latency is the main constrain
 across the five commonly supported benchmark workflows. PureJsImage is the better fit when the same
 code must run in Node.js and browsers or edge workers, native addons or WASM are prohibited, or a
 zero-dependency deployment materially simplifies an air-gapped or supply-chain-restricted build.
-The measured installed footprint was 2.3 MiB and one package for PureJsImage versus 18.9 MiB and six
+The measured installed footprint was 2.5 MiB and one package for PureJsImage versus 18.9 MiB and six
 production packages for Sharp.
 
 [Read the practical guides →](https://purejsimage.com/guides/)

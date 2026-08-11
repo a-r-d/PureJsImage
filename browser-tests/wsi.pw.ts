@@ -30,21 +30,33 @@ test('streams, draws, measures, caches, cancels, and resets native SVS tiles', a
   }).toPass({ timeout: 20_000 })
   await expect(page.locator('#wsi-stat-bytes')).not.toHaveText('0 B')
 
-  const renderedColors = await page.locator('#wsi-canvas').evaluate((canvas) => {
-    if (!(canvas instanceof HTMLCanvasElement)) throw new Error('WSI canvas is not a canvas')
-    const context = canvas.getContext('2d')
-    if (!context) throw new Error('Missing WSI canvas context')
-    const samples: Uint8ClampedArray[] = []
-    for (let row = 2; row <= 8; row += 1) {
-      for (let column = 2; column <= 8; column += 1) {
-        samples.push(
-          context.getImageData((canvas.width * column) / 10, (canvas.height * row) / 10, 1, 1).data,
-        )
+  const renderedColorCount = async (): Promise<number> =>
+    page.locator('#wsi-canvas').evaluate((canvas) => {
+      if (!(canvas instanceof HTMLCanvasElement)) throw new Error('WSI canvas is not a canvas')
+      const context = canvas.getContext('2d')
+      if (!context) throw new Error('Missing WSI canvas context')
+      const colors = new Set<string>()
+      for (let row = 2; row <= 8; row += 1) {
+        for (let column = 2; column <= 8; column += 1) {
+          colors.add(
+            Array.from(
+              context.getImageData((canvas.width * column) / 10, (canvas.height * row) / 10, 1, 1)
+                .data,
+            ).join(','),
+          )
+        }
       }
-    }
-    return samples.map((sample) => Array.from(sample))
-  })
-  expect(new Set(renderedColors.map((sample) => sample.join(','))).size).toBeGreaterThan(2)
+      return colors.size
+    })
+  await expect(async () => {
+    expect(await renderedColorCount()).toBeGreaterThan(2)
+  }).toPass({ timeout: 20_000 })
+  await expect(page.locator('.wsi-request-state.pending')).toHaveCount(0, { timeout: 20_000 })
+  await expect(async () => {
+    const before = await page.locator('#wsi-stat-decoded').textContent()
+    await page.waitForTimeout(500)
+    expect(await page.locator('#wsi-stat-decoded').textContent()).toBe(before)
+  }).toPass({ timeout: 20_000 })
 
   await page.locator('#wsi-reset').click()
   await expect(page.locator('#wsi-stat-requests')).toHaveText('0')
