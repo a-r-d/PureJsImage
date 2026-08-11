@@ -231,13 +231,15 @@ A capability is **Yes** only when upstream documentation or source supports it; 
 
 | Library | Runtime model | Browser | BigTIFF | Tiles | Region decode | Native scientific raster | OME / whole-slide semantics | Decode coverage |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PureJsImage benchmark snapshot · a1f20da | Strict TypeScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>2 oracle failures |
-| GeoTIFF.js 3.0.5 | Pure JavaScript | Yes | Partial | Yes | Yes | Yes | No | 84/106 decoded<br>32 exact<br>11 unsupported · 7 errors · 2 oracle failures · 2 crashes |
-| UTIF.js (utif2) 4.1.0 | Pure JavaScript | Yes | No | Yes | No | Partial | No | 74/106 decoded<br>49 exact<br>28 errors · 2 oracle failures · 2 timeouts · 3 crashes |
-| image-js/tiff 7.1.3 | Pure JavaScript | Yes | No | Yes | No | Yes | No | 41/106 decoded<br>27 exact<br>51 unsupported · 12 errors · 2 oracle failures |
-| image-js 1.7.0 | Pure JavaScript | Yes | No | Yes | No | Partial | No | 39/106 decoded<br>33 exact<br>51 unsupported · 14 errors · 2 oracle failures |
-| Jimp 1.6.0 | Pure JavaScript | Yes | No | Yes | No | No | No | 74/106 decoded<br>49 exact<br>28 errors · 2 oracle failures · 2 timeouts · 3 crashes |
+| PureJsImage benchmark snapshot · a1f20da | Strict TypeScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>47 pixel mismatches<br>2 oracle-unavailable cases |
+| GeoTIFF.js 3.0.5 | Pure JavaScript | Yes | Partial | Yes | Yes | Yes | No | 84/106 decoded<br>32 exact<br>52 pixel mismatches<br>11 unsupported · 7 errors · 2 oracle-unavailable cases · 2 crashes |
+| UTIF.js (utif2) 4.1.0 | Pure JavaScript | Yes | No | Yes | No | Partial | No | 74/106 decoded<br>49 exact<br>25 pixel mismatches<br>28 errors · 2 oracle-unavailable cases · 2 timeouts · 3 crashes |
+| image-js/tiff 7.1.3 | Pure JavaScript | Yes | No | Yes | No | Yes | No | 41/106 decoded<br>27 exact<br>14 pixel mismatches<br>51 unsupported · 12 errors · 2 oracle-unavailable cases |
+| image-js 1.7.0 | Pure JavaScript | Yes | No | Yes | No | Partial | No | 39/106 decoded<br>33 exact<br>6 pixel mismatches<br>51 unsupported · 14 errors · 2 oracle-unavailable cases |
+| Jimp 1.6.0 | Pure JavaScript | Yes | No | Yes | No | No | No | 74/106 decoded<br>49 exact<br>25 pixel mismatches<br>28 errors · 2 oracle-unavailable cases · 2 timeouts · 3 crashes |
 | Sharp / libvips 0.35.3 | Native wrapper | No | Partial | Yes | Partial | Partial | No | Not run |
+
+“Oracle unavailable” means the independent Sharp/ImageMagick ground-truth path could not decode the fixture, not that the listed JavaScript engine failed. Every measured engine has the same two unavailable cases. PureJsImage's 47 non-exact decodes comprise 38 at or above 40 dB PSNR, 6 from 20 to below 30 dB, and 3 below 10 dB, derived from recorded RMSE. Jimp uses utif2 for TIFF internally, so its matching aggregate outcomes are expected.
 
 [Full grouped capability matrix, methods, sources, and per-library results](https://purejsimage.com/tiff-comparison/)
 <!-- library-comparison:readme:end -->

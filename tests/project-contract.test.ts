@@ -53,7 +53,8 @@ describe('package contract', () => {
     expect(readme).toContain(
       'The strict TypeScript reference engine is the permanent portable path',
     )
-    expect(docsHome).toContain('First-party codec suite · zero runtime dependencies')
+    expect(docsHome).toContain('Only compared JavaScript library with OME / WSI: Yes')
+    expect(docsHome).toContain('Whole-slide and scientific TIFF')
     expect(docsHome).toContain('Reference-engine evidence · baseline JPEG')
     expect(specification).toContain('The top-level engineering constraints are:')
     expect(specification).toContain(
@@ -185,12 +186,22 @@ describe('package contract', () => {
     expect(comparison).toContain('Not verified')
     expect(comparison).toContain('Versioned evidence')
     expect(readme).toContain('PureJsImage benchmark snapshot · a1f20da')
-    expect(readme).toContain('104/106 decoded<br>57 exact<br>2 oracle failures')
+    expect(readme).toContain(
+      '104/106 decoded<br>57 exact<br>47 pixel mismatches<br>2 oracle-unavailable cases',
+    )
     expect(readme).not.toContain('0.8.0 workspace')
-    expect(docsHome).toContain('<strong>104/106 decoded</strong><small>57 exact</small>')
+    expect(docsHome).toContain(
+      '<strong>104/106 decoded</strong><small>57 exact · 47 pixel mismatches</small>',
+    )
+    expect(docsHome.indexOf('id="tiff-library-comparison"')).toBeLessThan(
+      docsHome.indexOf('id="benchmark"'),
+    )
+    expect(docsHome).toContain('38 at or above 40 dB PSNR')
+    expect(docsHome).toContain('Jimp uses utif2 for TIFF internally')
     expect(tiffGuide).toContain('Decoded / comparable')
     expect(comparison).toContain('benchmark snapshot at commit a1f20da')
-    expect(comparison).toContain('Decode coverage, exact pixels, and failures')
+    expect(comparison).toContain('Decode coverage, exact pixels, and reported outcomes')
+    expect(comparison).toContain('Oracle unavailable')
     expect(sitemap).toContain('https://purejsimage.com/tiff-comparison/')
   })
 

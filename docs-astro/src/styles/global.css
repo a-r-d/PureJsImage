@@ -5122,6 +5122,13 @@ tr:last-child td {
   color: var(--text-faint);
 }
 
+.wsi-claim-card .wsi-metadata-summary {
+  display: block;
+  margin-top: 7px;
+  color: var(--text-soft);
+  font-family: var(--font-mono);
+}
+
 .wsi-demo {
   padding: 34px 0 74px;
 }

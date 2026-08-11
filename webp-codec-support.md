@@ -91,6 +91,13 @@ coverage.
 
 ## Encode
 
+### Choosing lossless output
+
+Lossless WebP is intended for graphics, interface captures, screenshots, and other
+repeated structure. For photographs, prefer lossy WebP, or PNG when exact lossless
+photographic preservation is required. Compare both lossless encodings for the actual
+source because lossless WebP can be larger than PNG on photographic content.
+
 ### Lossless implemented target
 
 - [x] First-party static VP8L encoding

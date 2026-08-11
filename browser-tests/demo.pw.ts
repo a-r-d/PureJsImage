@@ -172,41 +172,46 @@ test('plays and manually navigates a multi-image TIFF time series', async ({ pag
   await expect(page.locator('#demo-viewer-play')).toBeEnabled()
   await expect(page.locator('#demo-viewer-next')).toBeEnabled()
 
-  const heldFrame = await page.evaluate(async () => {
+  const transition = await page.evaluate(async () => {
     const canvas = document.querySelector<HTMLCanvasElement>('#demo-viewer-canvas')
     const next = document.querySelector<HTMLButtonElement>('#demo-viewer-next')
     const directory = document.querySelector<HTMLSelectElement>('#demo-viewer-directory')
+    const status = document.querySelector<HTMLElement>('#demo-viewer-status')
     const context = canvas?.getContext('2d')
-    if (!canvas || !next || !directory || !context) throw new Error('Viewer controls are missing')
+    if (!canvas || !next || !directory || !status || !context) {
+      throw new Error('Viewer controls are missing')
+    }
     const pixel = (): readonly number[] =>
       Array.from(context.getImageData(canvas.width / 2, canvas.height / 2, 1, 1).data)
     const before = pixel()
-    const valueDescriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')
-    if (!valueDescriptor?.get || !valueDescriptor.set) {
-      throw new Error('Select value accessors are unavailable')
+    const samples: (readonly number[])[] = [before]
+    let sampling = true
+    const sampleFrame = (): void => {
+      samples.push(pixel())
+      if (sampling) requestAnimationFrame(sampleFrame)
     }
-    const getValue = valueDescriptor.get.bind(directory)
-    const setValue = valueDescriptor.set.bind(directory)
-    let during: readonly number[] | undefined
-    Object.defineProperty(directory, 'value', {
-      configurable: true,
-      get: getValue,
-      set(value: string) {
-        setValue(value)
-        if (value === '1') during = pixel()
-      },
-    })
-    try {
-      next.click()
-      while (during === undefined) {
-        await new Promise<void>((resolve) => window.setTimeout(resolve, 0))
-      }
-      return { before, during }
-    } finally {
-      Reflect.deleteProperty(directory, 'value')
+    requestAnimationFrame(sampleFrame)
+    next.click()
+    while (
+      directory.value !== '1' ||
+      JSON.stringify(pixel()) === JSON.stringify(before) ||
+      !status.textContent?.includes('rendered in')
+    ) {
+      await new Promise<void>((resolve) => window.setTimeout(resolve, 5))
     }
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    sampling = false
+    return { before, after: pixel(), samples }
   })
-  expect(heldFrame.during).toEqual(heldFrame.before)
+  expect(transition.after).not.toEqual(transition.before)
+  expect(
+    transition.samples.every(
+      (sample) =>
+        JSON.stringify(sample) === JSON.stringify(transition.before) ||
+        JSON.stringify(sample) === JSON.stringify(transition.after),
+    ),
+    `Viewer exposed a partial or blank frame: ${JSON.stringify(transition.samples)}`,
+  ).toBe(true)
   await expect(page.locator('#demo-viewer-directory')).toHaveValue('1')
   await expect(page.locator('#demo-viewer-status')).toContainText('rendered in')
   await page.locator('#demo-viewer-previous').click()

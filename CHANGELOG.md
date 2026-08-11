@@ -19,6 +19,13 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Reframed the documentation homepage around native scientific TIFF and whole-slide imaging,
+  clarified that shared TIFF oracle gaps are not decoder failures, published mismatch and PSNR
+  quality bands, documented Jimp's utif2-backed TIFF totals, and made the live whole-slide opening
+  state informative before its first tile.
+- Documented lossless WebP as a graphics and screenshot format, with lossy WebP or a measured PNG
+  comparison recommended for photographic input, and gave its production-style size regression
+  enough time to complete under parallel test load.
 - Migrated the documentation website from hand-authored static HTML to Astro with shared layouts,
   React island support, the same `.html` routes and public assets, and the existing GitHub Pages
   artifact and browser-demo validation flow.

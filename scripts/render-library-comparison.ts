@@ -35,6 +35,13 @@ interface PureJsImageSnapshot {
   readonly dirty: boolean
 }
 
+interface ReportRecord {
+  readonly engine: string
+  readonly status: string
+  readonly exact: boolean | null
+  readonly rootMeanSquareError: number | null
+}
+
 interface ConformanceReport {
   readonly generatedAt: string
   readonly nodeVersion: string
@@ -47,6 +54,7 @@ interface ConformanceReport {
   readonly purejsimage: PureJsImageSnapshot
   readonly versions: Readonly<Record<string, string>>
   readonly totals: ReadonlyMap<string, ReportTotal>
+  readonly records: readonly ReportRecord[]
 }
 
 const reportPath = 'benchmark/results/tiff-competitor-conformance.json'
@@ -85,6 +93,12 @@ const numberOf = (value: unknown, label: string): number => {
   }
   return value
 }
+
+const nullableBooleanOf = (value: unknown, label: string): boolean | null =>
+  value === null ? null : booleanOf(value, label)
+
+const nullableNumberOf = (value: unknown, label: string): number | null =>
+  value === null ? null : numberOf(value, label)
 
 const stringArrayOf = (value: unknown, label: string): readonly string[] => {
   if (!Array.isArray(value)) throw new Error(`${label} must be an array`)
@@ -140,6 +154,19 @@ const loadReport = async (): Promise<ConformanceReport> => {
     }
     totals.set(parsed.engine, parsed)
   }
+  if (!Array.isArray(root.records)) throw new Error('records must be an array')
+  const records = root.records.map((entry, index): ReportRecord => {
+    const record = recordOf(entry, `records[${index}]`)
+    return {
+      engine: stringOf(record.engine, `records[${index}].engine`),
+      status: stringOf(record.status, `records[${index}].status`),
+      exact: nullableBooleanOf(record.exact, `records[${index}].exact`),
+      rootMeanSquareError: nullableNumberOf(
+        record.rootMeanSquareError,
+        `records[${index}].rootMeanSquareError`,
+      ),
+    }
+  })
   return {
     generatedAt: stringOf(root.generatedAt, 'generatedAt'),
     nodeVersion: stringOf(root.nodeVersion, 'nodeVersion'),
@@ -152,6 +179,7 @@ const loadReport = async (): Promise<ConformanceReport> => {
     purejsimage,
     versions,
     totals,
+    records,
   }
 }
 
@@ -177,7 +205,9 @@ const comparisonMethodology = (report: ConformanceReport): readonly string[] => 
   'The conformance harness uses pinned corpus files, isolated child processes, a fixed heap limit, a fixed timeout, and independent RGBA output.',
   `The PureJsImage row is a ${report.purejsimage.dirty ? 'dirty' : 'clean'} benchmark snapshot at commit ${report.purejsimage.gitCommit}; ${report.purejsimage.packageVersion} is package metadata, not a release claim. Other JavaScript rows are exact installed dev-dependency versions.`,
   'Signed, floating-point, wider-than-16-bit, and arbitrary-channel native rasters are not forced through an RGBA oracle.',
+  'Oracle unavailable means the independent Sharp/ImageMagick ground-truth path could not decode that fixture. It is not a failure by the JavaScript engine, which is why every measured engine has the same two unavailable cases.',
   'Color-converted and lossy mismatches remain visible; exact equality is not used to claim one valid converter is universally better.',
+  'Jimp uses utif2 for TIFF internally, so its matching aggregate TIFF outcomes are expected rather than duplicated measurements.',
 ]
 
 const validateData = async (report: ConformanceReport): Promise<void> => {
@@ -312,7 +342,9 @@ const conformanceFailures = (total: ReportTotal): string =>
       ? undefined
       : countLabel(total.unsupported, 'unsupported', 'unsupported'),
     total.error === 0 ? undefined : countLabel(total.error, 'error'),
-    total.oracleFailure === 0 ? undefined : countLabel(total.oracleFailure, 'oracle failure'),
+    total.oracleFailure === 0
+      ? undefined
+      : countLabel(total.oracleFailure, 'oracle-unavailable case', 'oracle-unavailable cases'),
     total.timeout === 0 ? undefined : countLabel(total.timeout, 'timeout'),
     total.processCrash === 0 ? undefined : countLabel(total.processCrash, 'crash', 'crashes'),
   ]
@@ -329,9 +361,35 @@ const conformanceCell = (
   if (total === undefined) throw new Error(`Missing conformance total for ${library.id}`)
   const coverage = `${total.decoded}/${total.rgbaCompared} decoded`
   const exact = `${total.exact} exact`
+  const mismatch = countLabel(total.mismatch, 'pixel mismatch', 'pixel mismatches')
   const failures = conformanceFailures(total)
-  if (!html) return [coverage, exact, failures].filter(Boolean).join('<br>')
-  return `<strong>${coverage}</strong><small>${exact}</small>${failures.length === 0 ? '' : `<small>${htmlEscape(failures)}</small>`}`
+  if (!html) return [coverage, exact, mismatch, failures].filter(Boolean).join('<br>')
+  return `<strong>${coverage}</strong><small>${exact} · ${mismatch}</small>${failures.length === 0 ? '' : `<small>${htmlEscape(failures)}</small>`}`
+}
+
+const pureJsImagePsnrSummary = (report: ConformanceReport): string => {
+  const mismatches = report.records.filter(
+    (record) =>
+      record.engine === 'purejsimage' &&
+      record.status === 'success' &&
+      record.exact === false &&
+      record.rootMeanSquareError !== null &&
+      record.rootMeanSquareError > 0,
+  )
+  const total = report.totals.get('purejsimage')
+  if (total === undefined || mismatches.length !== total.mismatch) {
+    throw new Error('PureJsImage mismatch records do not match the report total')
+  }
+  const psnr = mismatches.map(
+    (record) => 20 * Math.log10(255 / (record.rootMeanSquareError ?? Number.NaN)),
+  )
+  const aboveForty = psnr.filter((value) => value >= 40).length
+  const twentyToThirty = psnr.filter((value) => value >= 20 && value < 30).length
+  const belowTen = psnr.filter((value) => value < 10).length
+  if (aboveForty + twentyToThirty + belowTen !== psnr.length) {
+    throw new Error('PureJsImage PSNR summary needs another displayed quality band')
+  }
+  return `${aboveForty} at or above 40 dB PSNR, ${twentyToThirty} from 20 to below 30 dB, and ${belowTen} below 10 dB`
 }
 
 const implementationLabel = (library: (typeof libraryComparisons)[number]): string =>
@@ -358,6 +416,8 @@ A capability is **Yes** only when upstream documentation or source supports it; 
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows}
 
+“Oracle unavailable” means the independent Sharp/ImageMagick ground-truth path could not decode the fixture, not that the listed JavaScript engine failed. Every measured engine has the same two unavailable cases. PureJsImage's ${report.totals.get('purejsimage')?.mismatch ?? 0} non-exact decodes comprise ${pureJsImagePsnrSummary(report)}, derived from recorded RMSE. Jimp uses utif2 for TIFF internally, so its matching aggregate outcomes are expected.
+
 [Full grouped capability matrix, methods, sources, and per-library results](https://purejsimage.com/tiff-comparison/)
 ${readmeEnd}`
 }
@@ -372,8 +432,9 @@ const compactHtml = (report: ConformanceReport, comparisonHref = 'tiff-compariso
   return `<section class="section tint comparison-section" id="tiff-library-comparison">
       <div class="container">
         <div class="section-heading"><div><p class="section-label">Shared raster engine · measured TIFF depth</p><h2>From display TIFFs to native scientific and whole-slide rasters.</h2></div><a class="text-link" href="${comparisonHref}">Full comparison →</a></div>
-        <p class="comparison-intro">TIFF demonstrates how the same codec architecture serves ordinary conversion and specialized raster workloads. Capability cells follow upstream documentation or source; a separate 106-fixture RGBA comparison reports decode coverage, exact output, scientific rasters, and malformed inputs.</p>
+        <p class="comparison-intro">TIFF demonstrates how the same codec architecture serves ordinary conversion and specialized raster workloads. Capability cells follow upstream documentation or source; a separate 106-fixture RGBA comparison reports decode coverage, exact output, pixel mismatches, scientific rasters, and malformed inputs.</p>
         <div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Browser</th><th>BigTIFF</th><th>Tiles</th><th>Region</th><th>Scientific raster</th><th>OME / WSI</th><th>Decode coverage</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <p class="section-note"><strong>Oracle unavailable is not an engine failure:</strong> the independent Sharp/ImageMagick ground-truth path could not decode the same two fixtures for every measured engine. PureJsImage's ${report.totals.get('purejsimage')?.mismatch ?? 0} non-exact decodes comprise ${pureJsImagePsnrSummary(report)}, derived from recorded RMSE. Jimp uses utif2 for TIFF internally, so its matching aggregate outcomes are expected.</p>
         <p class="section-note">Measured ${htmlEscape(report.generatedAt.slice(0, 10))} with ${htmlEscape(report.nodeVersion)} on ${htmlEscape(report.platform)}/${htmlEscape(report.architecture)}. <a href="${comparisonHref}#methodology">Methodology, caveats, versions, and evidence.</a></p>
       </div>
     </section>`
@@ -409,7 +470,7 @@ const conformanceTable = (report: ConformanceReport): string => {
       return `<tr><th scope="row">${htmlEscape(library.name)}<small>${htmlEscape(versionLabel(library, report))}</small></th><td>${total.attempted}</td><td>${total.rgbaCompared}</td><td>${total.decoded}</td><td>${total.exact}</td><td>${total.mismatch}</td><td>${total.unsupported}</td><td>${total.error}</td><td>${total.oracleFailure}</td><td>${total.timeout}</td><td>${total.processCrash}</td><td>${total.notComparable}</td><td>${total.malformedRejected}</td><td>${total.malformedAccepted}</td><td>${total.malformedTimeout}</td><td>${total.malformedCrash}</td></tr>`
     })
     .join('\n')
-  return `<div class="comparison-table-wrap"><table class="comparison-table conformance-table"><thead><tr><th>Library</th><th>Attempted</th><th>RGBA compared</th><th>Decoded</th><th>Exact</th><th>Mismatch</th><th>Unsupported</th><th>Error</th><th>Oracle failure</th><th>Timeout</th><th>Crash</th><th>Native raster</th><th>Malformed rejected</th><th>Malformed accepted</th><th>Malformed timeout</th><th>Malformed crash</th></tr></thead><tbody>${rows}</tbody></table></div>`
+  return `<div class="comparison-table-wrap"><table class="comparison-table conformance-table"><thead><tr><th>Library</th><th>Attempted</th><th>RGBA compared</th><th>Decoded</th><th>Exact</th><th>Mismatch</th><th>Unsupported</th><th>Error</th><th>Oracle unavailable</th><th>Timeout</th><th>Crash</th><th>Native raster</th><th>Malformed rejected</th><th>Malformed accepted</th><th>Malformed timeout</th><th>Malformed crash</th></tr></thead><tbody>${rows}</tbody></table></div>`
 }
 
 const conformanceSummaryTable = (report: ConformanceReport): string => {
@@ -421,7 +482,7 @@ const conformanceSummaryTable = (report: ConformanceReport): string => {
       return `<tr><th scope="row">${htmlEscape(library.name)}<small>${htmlEscape(versionLabel(library, report))}</small></th><td>${total.decoded} / ${total.rgbaCompared}</td><td>${total.exact}</td><td>${total.mismatch}</td><td>${total.unsupported} / ${total.error} / ${total.oracleFailure} / ${total.timeout} / ${total.processCrash}</td><td>${total.malformedRejected} rejected · ${total.malformedAccepted} accepted · ${total.malformedTimeout} timeout · ${total.malformedCrash} crash</td></tr>`
     })
     .join('\n')
-  return `<div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Decoded / comparable</th><th>Exact</th><th>Pixel mismatch</th><th>Unsupported / error / oracle / timeout / crash</th><th>Malformed inputs</th></tr></thead><tbody>${rows}</tbody></table></div>`
+  return `<div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Decoded / comparable</th><th>Exact</th><th>Pixel mismatch</th><th>Unsupported / error / oracle unavailable / timeout / crash</th><th>Malformed inputs</th></tr></thead><tbody>${rows}</tbody></table></div>`
 }
 
 const evidenceList = (report: ConformanceReport): string =>
@@ -438,7 +499,7 @@ const fullComparisonBody = (
 ): string => `<section class="section comparison-hero"><div class="container"><p class="eyebrow">Evidence-backed TIFF comparison</p><h1>JavaScript TIFF libraries compared by capability and measured output.</h1><p class="lede">Documentation claims and pixel conformance are separate signals. “Not verified” means exactly that; it does not mean “unsupported.”</p></div></section>
 ${compactHtml(report, './')}
 <section class="section"><div class="container"><div class="section-heading"><div><p class="section-label">Capability matrix</p><h2>Grouped by TIFF workflow.</h2></div></div>${detailedMatrix(report)}</div></section>
-<section class="section tint" id="conformance"><div class="container"><div class="section-heading"><div><p class="section-label">Reproducible corpus run</p><h2>Decode coverage, exact pixels, and failures.</h2></div><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/tiff-competitor-conformance.md" target="_blank" rel="noreferrer">Per-file report →</a></div><p class="comparison-intro">All six JavaScript engines were attempted in isolated child processes on 154 pinned files. The 106 display-image cases use ${htmlEscape(report.oracle)} as the independent raw-RGBA8 oracle; decoded coverage is primary, while exact means every compared channel matched. Forty-four native scientific rasters are not forced through RGBA. Four malformed files test bounded rejection separately.</p>${conformanceTable(report)}</div></section>
+<section class="section tint" id="conformance"><div class="container"><div class="section-heading"><div><p class="section-label">Reproducible corpus run</p><h2>Decode coverage, exact pixels, and reported outcomes.</h2></div><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/tiff-competitor-conformance.md" target="_blank" rel="noreferrer">Per-file report →</a></div><p class="comparison-intro">All six JavaScript engines were attempted in isolated child processes on 154 pinned files. The 106 display-image cases use ${htmlEscape(report.oracle)} as the independent raw-RGBA8 oracle; decoded coverage is primary, while exact means every compared channel matched. Oracle unavailable means that independent ground truth could not be produced, not that the engine failed. Forty-four native scientific rasters are not forced through RGBA. Four malformed files test bounded rejection separately.</p>${conformanceTable(report)}</div></section>
 <section class="section" id="methodology"><div class="container prose"><p class="section-label">Methodology</p><h2>What these numbers do and do not mean.</h2><ul>${comparisonMethodology(
   report,
 )

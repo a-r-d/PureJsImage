@@ -81,6 +81,7 @@ const cacheHitsElement = requiredElement('wsi-stat-cache-hits', HTMLElement)
 const cacheResidentElement = requiredElement('wsi-stat-cache-resident', HTMLElement)
 const measuredBytesElement = requiredElement('wsi-measured-bytes', HTMLElement)
 const measuredFractionElement = requiredElement('wsi-measured-fraction', HTMLElement)
+const metadataSummaryElement = requiredElement('wsi-metadata-summary', HTMLElement)
 const sampleButtons = Array.from(
   document.querySelectorAll<HTMLButtonElement>('[data-wsi-sample-url]'),
 )
@@ -127,10 +128,10 @@ const formatBytes = (bytes: number): string => {
   return `${value.toFixed(value >= 100 ? 0 : value >= 10 ? 1 : 2)} ${units[index]}`
 }
 
-const fractionText = (): string => {
-  const size = metadata?.size ?? 0
-  return size === 0 ? '0.000%' : `${((stats.bytesFetched / size) * 100).toFixed(3)}%`
-}
+const fractionForBytes = (bytes: number, size: number): string =>
+  size === 0 ? '0.000%' : `${((bytes / size) * 100).toFixed(3)}%`
+
+const fractionText = (): string => fractionForBytes(stats.bytesFetched, metadata?.size ?? 0)
 
 const renderStats = (): void => {
   requestsElement.textContent = stats.requests.toLocaleString()
@@ -507,6 +508,9 @@ const openUrl = (): void => {
     openButton.disabled = true
     resetButton.disabled = true
     statusElement.textContent = 'Opening the original SVS with HTTP byte ranges…'
+    measuredFractionElement.textContent = 'Opening…'
+    measuredBytesElement.textContent = 'Reading metadata'
+    metadataSummaryElement.textContent = 'Metadata ranges pending'
     updateRequestStrip()
     draw()
     send({ type: 'open', url: parsed.href })
@@ -560,6 +564,7 @@ worker.onmessage = (event: MessageEvent<WsiWorkerResponse>): void => {
   if (message.type === 'opened') {
     stats = message.stats
     setMetadata(message.metadata)
+    metadataSummaryElement.textContent = `${fractionForBytes(message.stats.bytesFetched, message.metadata.size)} · ${formatBytes(message.stats.bytesFetched)} metadata only`
     renderStats()
     return
   }

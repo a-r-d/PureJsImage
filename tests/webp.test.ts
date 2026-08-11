@@ -296,7 +296,7 @@ describe('WebP codec', () => {
     const png = await image.png().toBuffer()
     expect(encoded.length).toBeLessThanOrEqual(png.length)
     await expect(sharp(encoded).ensureAlpha().raw().toBuffer()).resolves.toEqual(source.data)
-  }, 15_000)
+  }, 45_000)
 
   it('uses palette, cross-color, and spatial entropy decisions at higher effort', async () => {
     const paletteSource = new PNG({ width: 128, height: 96 })

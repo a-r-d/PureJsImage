@@ -19,6 +19,10 @@ test('streams, draws, measures, caches, cancels, and resets native SVS tiles', a
   await expect(page.locator('#wsi-stat-dimensions')).toContainText('2,220 × 2,967')
   await expect(page.locator('#wsi-stat-levels')).toHaveText('1 (1×)')
   await expect(page.locator('#wsi-stat-tile-size')).toHaveText('240 × 240')
+  await expect(page.locator('#wsi-measured-fraction')).not.toHaveText('Opening…')
+  await expect(page.locator('#wsi-measured-bytes')).not.toHaveText('Reading metadata')
+  await expect(page.locator('#wsi-metadata-summary')).toContainText('metadata only')
+  await expect(page.locator('#wsi-metadata-summary')).not.toContainText('0 B')
   await expect(page.locator('.wsi-request-state.pending').first()).toBeVisible({ timeout: 10_000 })
   await page.locator('#wsi-zoom-in').click()
   await expect(page.locator('.wsi-request-state.cancelled').first()).toBeVisible({

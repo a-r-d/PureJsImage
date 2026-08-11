@@ -101,6 +101,8 @@ describe('generated codec capability contract', () => {
     if (!webp) throw new Error('Missing WebP capability manifest')
     expect(webp.boundary).not.toContain('not yet size-competitive')
     expect(webp.recommendation).toContain('effort 6')
+    expect(webp.recommendation).toContain('lossless WebP can be larger than PNG')
+    expect(webp.document).toContain('For photographs, prefer lossy WebP')
     expect(webp.document).toContain('- [x] Spatially varying Huffman entropy groups')
     expect(webp.document).toContain(
       '- [x] Cross-color and packed color-indexing transform selection',
