@@ -1,0 +1,74 @@
+.gitignore
+  h_9f4a25732fa0c1 205-213
+avif-codec-support.md
+  h_9f4a25732fa0c1 99,101,161,163,184,234-235,239-243,354,359,418-422,434-439,513
+benchmark/avif/alpha-fixtures.ts
+  h_9f4a25732fa0c1 13-40,66-151
+benchmark/avif/dependent-layer-fixture.ts
+  h_9f4a25732fa0c1 1-38
+benchmark/avif/film-grain-fixture.ts
+  h_9f4a25732fa0c1 1-17
+benchmark/avif/memory-fixtures.ts
+  h_9f4a25732fa0c1 16-17,221-238
+benchmark/avif/memory-worker.ts
+  h_9f4a25732fa0c1 48-49
+benchmark/avif/prepare-dependent-layer-fixture.ts
+  h_9f4a25732fa0c1 1-70
+benchmark/avif/prepare-film-grain-fixture.ts
+  h_9f4a25732fa0c1 1-65
+benchmark/avif/run-memory.ts
+  h_9f4a25732fa0c1 58-59
+benchmark/avif/verify-auxiliary-fixtures.ts
+  h_9f4a25732fa0c1 7,14-18,53-61,76-128,288-374,379-385
+benchmark/avif/verify-film-grain-fixture.ts
+  h_9f4a25732fa0c1 1-107
+benchmark/avif/verify-layered-fixture.ts
+  h_9f4a25732fa0c1 12-15,38-43,77-78,95-138
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 228-249,264-265,282-289
+benchmark/results/avif-memory-auxiliary-film-grain-2026-08-10.json
+  h_9f4a25732fa0c1 1-1160
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 2166-2210,2227-2234,2507-2508,2511
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 251-265,279-287
+browser-tests/types.ts
+  h_9f4a25732fa0c1 16-17,29
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1762-1764,1769,1783,1789-1790,1899,1901,1961,1963,1984,2034-2035,2039-2043,2154,2159,2218-2222,2234-2239,2313
+docs/capabilities.json
+  h_9f4a25732fa0c1 3391-3393,3406,3420,3426-3427,3653,3657,3792,3800,3844,3949,3957-3961,3965,4197,4201,4291-4298,4321,4325
+docs/codecs.html
+  h_9f4a25732fa0c1 40,60,80
+docs/llms.txt
+  h_9f4a25732fa0c1 471-473
+package.json
+  h_9f4a25732fa0c1 178,193-194,200
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 406-409,426-445
+src/codecs/av1-film-grain.ts
+  h_9f4a25732fa0c1 1-461
+src/codecs/av1-frame.ts
+  h_9f4a25732fa0c1 24-58,81,420-505,516-529,556,558,562-567,625,731
+src/codecs/av1-intra.ts
+  h_9f4a25732fa0c1 4,3658,3960,4075-4078,4092,4292,4307-4308
+src/codecs/av1.ts
+  h_9f4a25732fa0c1 45-46,396-397
+src/codecs/avif.ts
+  h_9f4a25732fa0c1 15,629-634,639,680-704,710,918-921,924,1228,1338-1355,1633-1642,1653,1664-1666,1669-1670,1679-1680,1684,1716,1731,1733-1736,1739,1827-2037,2060-2063,2065,2075,2077,2101-2110,2157-2367,2370-2430,2432,2445,2447-2460,2462-2470,2472-2473,2478-2482,2485-2492,2494-2505
+tests/avif.test.ts
+  h_9f4a25732fa0c1 7-11,24-27,39-44,97,1477-1588,1717-1765,1778-1802
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 159,173,179-180
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "95da546717b9c6821c302a2ab0a5fa20cb557524",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
