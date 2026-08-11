@@ -8,6 +8,11 @@ benchmark/aws-lambda/cdk.json
   "git_ai_version": "1.6.21",
   "base_commit_sha": "0cdd971ef9e650d3eb3b78286da5042480e304ae",
   "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  },
   "sessions": {
     "s_4a8abb1f2ae0c6": {
       "agent_id": {

@@ -22,6 +22,8 @@ docs/performance.html
   h_9f4a25732fa0c1 67,69-71,73-78,80-91,93-96,98,227
 package.json
   h_9f4a25732fa0c1 187
+src/accelerators/wasm/jpeg.ts
+  h_9f4a25732fa0c1 402
 ---
 {
   "schema_version": "authorship/3.0.0",
