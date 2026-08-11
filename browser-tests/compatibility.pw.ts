@@ -175,6 +175,13 @@ test('decodes lossless quantizer-context-0 identity-color AVIF', async ({ page }
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 
+test('decodes rav1e spatial-segmentation AVIF', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifSegmentation())
+  expect(result.outputBytes).toBeGreaterThan(1_000)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
 test('decodes palette-coded AVIF screen content', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifPalette())

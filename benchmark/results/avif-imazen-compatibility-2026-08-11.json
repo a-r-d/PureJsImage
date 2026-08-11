@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-11T15:59:52.420Z",
+  "generatedAt": "2026-08-11T17:07:50.181Z",
   "node": "v24.16.0",
   "platform": "linux/x64",
   "sourceCorpus": "Imazen imazen-26 representative K300 subset",
@@ -13,12 +13,12 @@
   "summary": {
     "sources": 12,
     "files": 36,
-    "decoded": 14,
-    "errors": 22,
+    "decoded": 26,
+    "errors": 10,
     "byEncoder": {
       "rav1e": {
         "files": 12,
-        "decoded": 0
+        "decoded": 12
       },
       "SVT-AV1": {
         "files": 12,
@@ -32,7 +32,7 @@
   },
   "outcomes": [
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/1039-rav1e-q60-420.avif",
       "fileSha256": "fd4cd8c41ec43622ff11b0e7bfa6d83df12723f04653e2b85c1e9f8398a221d4",
       "sourceId": "1039",
@@ -41,8 +41,6 @@
       "sourceRawSha256": "40be02822f8212242b8d4af1dba9577f67c93be72eba9efb927cb3d799bc4f47",
       "sourceNormalizedSha256": "46ec3d91418d795e59a5aac1475e65e79d01f2a58bc438a13bf66ef417cdd8aa",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -62,23 +60,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "eb1d26d022c88ad5501c15502bd8bffa0f65078e9633df2185fda89d59b4500c",
+      "dav1dRgbaSha256": "21fd0f425149a21e339e617bdafb6b16e35d80b86a851591c20090ea4842027f",
+      "aomRgbaSha256": "21fd0f425149a21e339e617bdafb6b16e35d80b86a851591c20090ea4842027f",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.16363398234049478,
+        "p95": 1,
+        "rootMeanSquare": 0.40458612338255495,
+        "psnr": 55.990583946149115
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 445.653,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 120161,
           "externalBytes": 12631603,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101539840
+          "heapUsedBytes": 10844696,
+          "rssBytes": 102719488
         },
         "peakSampled": {
-          "arrayBuffersBytes": 120161,
-          "externalBytes": 12692109,
-          "heapUsedBytes": 11502336,
-          "rssBytes": 102064128
+          "arrayBuffersBytes": 2219425,
+          "externalBytes": 14791373,
+          "heapUsedBytes": 18347496,
+          "rssBytes": 115363840
         },
-        "peakRssBytes": 102064128,
-        "peakRssDeltaBytes": 524288,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 115363840,
+        "peakRssDeltaBytes": 12644352,
+        "peakExternalDeltaBytes": 2159770,
+        "peakArrayBuffersDeltaBytes": 2099264
       }
     },
     {
@@ -116,19 +142,19 @@
         "baseline": {
           "arrayBuffersBytes": 124313,
           "externalBytes": 12635755,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101453824
+          "heapUsedBytes": 10844696,
+          "rssBytes": 100864000
         },
         "peakSampled": {
-          "arrayBuffersBytes": 1638645,
-          "externalBytes": 14210593,
-          "heapUsedBytes": 14904280,
-          "rssBytes": 117182464
+          "arrayBuffersBytes": 1624653,
+          "externalBytes": 14196601,
+          "heapUsedBytes": 14609416,
+          "rssBytes": 118296576
         },
-        "peakRssBytes": 117182464,
-        "peakRssDeltaBytes": 15728640,
-        "peakExternalDeltaBytes": 1574838,
-        "peakArrayBuffersDeltaBytes": 1514332
+        "peakRssBytes": 118296576,
+        "peakRssDeltaBytes": 17432576,
+        "peakExternalDeltaBytes": 1560846,
+        "peakArrayBuffersDeltaBytes": 1500340
       }
     },
     {
@@ -179,28 +205,28 @@
         "psnr": 56.48293016004004
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 254.815,
+      "wallMilliseconds": 246.294,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 115368,
           "externalBytes": 12626810,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101388288
+          "heapUsedBytes": 10844696,
+          "rssBytes": 102580224
         },
         "peakSampled": {
-          "arrayBuffersBytes": 2197096,
-          "externalBytes": 14769044,
-          "heapUsedBytes": 17372504,
-          "rssBytes": 114364416
+          "arrayBuffersBytes": 2193352,
+          "externalBytes": 14765300,
+          "heapUsedBytes": 17622832,
+          "rssBytes": 116080640
         },
-        "peakRssBytes": 114364416,
-        "peakRssDeltaBytes": 12976128,
-        "peakExternalDeltaBytes": 2142234,
-        "peakArrayBuffersDeltaBytes": 2081728
+        "peakRssBytes": 116080640,
+        "peakRssDeltaBytes": 13500416,
+        "peakExternalDeltaBytes": 2138490,
+        "peakArrayBuffersDeltaBytes": 2077984
       }
     },
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/1205-rav1e-q60-420.avif",
       "fileSha256": "da3fe9192b8a979854e28fc39680a097534421da319f0cf3ed999a2a5ec9e59b",
       "sourceId": "1205",
@@ -209,8 +235,6 @@
       "sourceRawSha256": "4858b70930bb7f66b94a9642b7cf0237ecb6fb56adffa782ad8d75399362d9ea",
       "sourceNormalizedSha256": "ea205a0663026228f4fada7a9f86281eb464f2e4b7de900fe7b5cffb65468935",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -230,23 +254,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "031a2a4e6b152cd5d8f795da47cde01bfc1be1d1086462f2e961d35defe4d6b6",
+      "dav1dRgbaSha256": "50dc974ef70db47450179efaa1be07e8b185529c9c3abc0668f99dc9f4015e95",
+      "aomRgbaSha256": "50dc974ef70db47450179efaa1be07e8b185529c9c3abc0668f99dc9f4015e95",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.14790980021158853,
+        "p95": 1,
+        "rootMeanSquare": 0.38487136343195755,
+        "psnr": 56.42449164119881
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 457.392,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 130981,
           "externalBytes": 12642423,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 100347904
+          "heapUsedBytes": 10844696,
+          "rssBytes": 102326272
         },
         "peakSampled": {
-          "arrayBuffersBytes": 130981,
-          "externalBytes": 12702929,
-          "heapUsedBytes": 11502336,
-          "rssBytes": 101134336
+          "arrayBuffersBytes": 2302373,
+          "externalBytes": 14874321,
+          "heapUsedBytes": 17678520,
+          "rssBytes": 115363840
         },
-        "peakRssBytes": 101134336,
-        "peakRssDeltaBytes": 786432,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 115363840,
+        "peakRssDeltaBytes": 13037568,
+        "peakExternalDeltaBytes": 2231898,
+        "peakArrayBuffersDeltaBytes": 2171392
       }
     },
     {
@@ -284,19 +336,19 @@
         "baseline": {
           "arrayBuffersBytes": 135003,
           "externalBytes": 12646445,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101658624
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101015552
         },
         "peakSampled": {
-          "arrayBuffersBytes": 1584315,
-          "externalBytes": 14156263,
-          "heapUsedBytes": 13441192,
-          "rssBytes": 114765824
+          "arrayBuffersBytes": 1890105,
+          "externalBytes": 14462053,
+          "heapUsedBytes": 17617792,
+          "rssBytes": 114515968
         },
-        "peakRssBytes": 114765824,
-        "peakRssDeltaBytes": 13107200,
-        "peakExternalDeltaBytes": 1509818,
-        "peakArrayBuffersDeltaBytes": 1449312
+        "peakRssBytes": 114515968,
+        "peakRssDeltaBytes": 13500416,
+        "peakExternalDeltaBytes": 1815608,
+        "peakArrayBuffersDeltaBytes": 1755102
       }
     },
     {
@@ -347,28 +399,28 @@
         "psnr": 56.39569426129589
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 231.901,
+      "wallMilliseconds": 223.118,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 125078,
           "externalBytes": 12636520,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101277696
+          "heapUsedBytes": 10844696,
+          "rssBytes": 100491264
         },
         "peakSampled": {
           "arrayBuffersBytes": 2351174,
           "externalBytes": 14923122,
-          "heapUsedBytes": 17505920,
-          "rssBytes": 117137408
+          "heapUsedBytes": 17556896,
+          "rssBytes": 114909184
         },
-        "peakRssBytes": 117137408,
-        "peakRssDeltaBytes": 15859712,
+        "peakRssBytes": 114909184,
+        "peakRssDeltaBytes": 14417920,
         "peakExternalDeltaBytes": 2286602,
         "peakArrayBuffersDeltaBytes": 2226096
       }
     },
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/1404-rav1e-q60-420.avif",
       "fileSha256": "cf4cc1b41b61497f161ed18acd7b0d347a1ae87d2933fedcae098ded3486833e",
       "sourceId": "1404",
@@ -377,8 +429,6 @@
       "sourceRawSha256": "9dbdfdf7ad58b38ef0a3f5d962e3e974dc0c4151033c5da11d9bcf056afbc7cf",
       "sourceNormalizedSha256": "6964db3b6e818dad305817ee7ce92184f596ef853349c3a4ba3e79bc7ac3284a",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -398,23 +448,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "c61a27009c6b412fbffab25c73a8936ca2dc989a7ad7f3a81dd654693bcef525",
+      "dav1dRgbaSha256": "696a6019f96e3258e69486acbec8e70df519eea91cb43d1acdcc233c9ca06c9f",
+      "aomRgbaSha256": "696a6019f96e3258e69486acbec8e70df519eea91cb43d1acdcc233c9ca06c9f",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.17325464884440103,
+        "p95": 1,
+        "rootMeanSquare": 0.41625396634981526,
+        "psnr": 55.74363591295585
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 479.998,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 117062,
           "externalBytes": 12628504,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 99913728
+          "heapUsedBytes": 10844696,
+          "rssBytes": 100945920
         },
         "peakSampled": {
-          "arrayBuffersBytes": 117062,
-          "externalBytes": 12689010,
-          "heapUsedBytes": 11502336,
-          "rssBytes": 100569088
+          "arrayBuffersBytes": 2215144,
+          "externalBytes": 14787092,
+          "heapUsedBytes": 18172448,
+          "rssBytes": 112611328
         },
-        "peakRssBytes": 100569088,
-        "peakRssDeltaBytes": 655360,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 112611328,
+        "peakRssDeltaBytes": 11665408,
+        "peakExternalDeltaBytes": 2158588,
+        "peakArrayBuffersDeltaBytes": 2098082
       }
     },
     {
@@ -452,19 +530,19 @@
         "baseline": {
           "arrayBuffersBytes": 118301,
           "externalBytes": 12629743,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 100978688
+          "heapUsedBytes": 10844696,
+          "rssBytes": 100724736
         },
         "peakSampled": {
-          "arrayBuffersBytes": 1770099,
-          "externalBytes": 14342047,
-          "heapUsedBytes": 17816464,
-          "rssBytes": 113692672
+          "arrayBuffersBytes": 1589117,
+          "externalBytes": 14161065,
+          "heapUsedBytes": 14262880,
+          "rssBytes": 116453376
         },
-        "peakRssBytes": 113692672,
-        "peakRssDeltaBytes": 12713984,
-        "peakExternalDeltaBytes": 1712304,
-        "peakArrayBuffersDeltaBytes": 1651798
+        "peakRssBytes": 116453376,
+        "peakRssDeltaBytes": 15728640,
+        "peakExternalDeltaBytes": 1531322,
+        "peakArrayBuffersDeltaBytes": 1470816
       }
     },
     {
@@ -515,28 +593,28 @@
         "psnr": 55.66267598721069
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 231.628,
+      "wallMilliseconds": 233.826,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 110614,
           "externalBytes": 12622056,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 100409344
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101740544
         },
         "peakSampled": {
           "arrayBuffersBytes": 2192854,
           "externalBytes": 14764802,
-          "heapUsedBytes": 17145016,
-          "rssBytes": 113840128
+          "heapUsedBytes": 17207144,
+          "rssBytes": 113799168
         },
-        "peakRssBytes": 113840128,
-        "peakRssDeltaBytes": 13430784,
+        "peakRssBytes": 113799168,
+        "peakRssDeltaBytes": 12058624,
         "peakExternalDeltaBytes": 2142746,
         "peakArrayBuffersDeltaBytes": 2082240
       }
     },
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/1614-rav1e-q60-420.avif",
       "fileSha256": "0cd6dfd0a5cefb1706b6e5e7e245e7a79a66c486ddb552686d83719714a8ec14",
       "sourceId": "1614",
@@ -545,8 +623,6 @@
       "sourceRawSha256": "bfa126ec9c5162fd85dd25e91a3c4cb46d034915b626dc110031459d09ddd912",
       "sourceNormalizedSha256": "1b8960e2b5e4ac9a6aa3df3281e949bf05b7bc5dd104111a2be86d0bcef572a0",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -566,23 +642,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "44510faa2ba1cd3a466025eb253a68782760bfcdbede540c2540db2bb5c0be68",
+      "dav1dRgbaSha256": "26225e0af7f0198569d367827558c373c94b6ed2bc99317aa332148db126123c",
+      "aomRgbaSha256": "26225e0af7f0198569d367827558c373c94b6ed2bc99317aa332148db126123c",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.1549250284830729,
+        "p95": 1,
+        "rootMeanSquare": 0.3936665441484339,
+        "psnr": 56.22823345405357
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 444.405,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 114409,
           "externalBytes": 12625851,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 100470784
+          "heapUsedBytes": 10844696,
+          "rssBytes": 102174720
         },
         "peakSampled": {
-          "arrayBuffersBytes": 114409,
-          "externalBytes": 12686357,
-          "heapUsedBytes": 11502336,
-          "rssBytes": 101126144
+          "arrayBuffersBytes": 2213609,
+          "externalBytes": 14785557,
+          "heapUsedBytes": 18112056,
+          "rssBytes": 112267264
         },
-        "peakRssBytes": 101126144,
-        "peakRssDeltaBytes": 655360,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 112267264,
+        "peakRssDeltaBytes": 10092544,
+        "peakExternalDeltaBytes": 2159706,
+        "peakArrayBuffersDeltaBytes": 2099200
       }
     },
     {
@@ -620,19 +724,19 @@
         "baseline": {
           "arrayBuffersBytes": 116943,
           "externalBytes": 12628385,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 100806656
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101113856
         },
         "peakSampled": {
-          "arrayBuffersBytes": 1881237,
-          "externalBytes": 14453185,
-          "heapUsedBytes": 16753920,
-          "rssBytes": 113127424
+          "arrayBuffersBytes": 1580567,
+          "externalBytes": 14152515,
+          "heapUsedBytes": 14188072,
+          "rssBytes": 112910336
         },
-        "peakRssBytes": 113127424,
-        "peakRssDeltaBytes": 12320768,
-        "peakExternalDeltaBytes": 1824800,
-        "peakArrayBuffersDeltaBytes": 1764294
+        "peakRssBytes": 112910336,
+        "peakRssDeltaBytes": 11796480,
+        "peakExternalDeltaBytes": 1524130,
+        "peakArrayBuffersDeltaBytes": 1463624
       }
     },
     {
@@ -683,28 +787,28 @@
         "psnr": 56.48334583059213
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 247.962,
+      "wallMilliseconds": 213.068,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 109722,
           "externalBytes": 12621164,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101539840
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101552128
         },
         "peakSampled": {
           "arrayBuffersBytes": 2263674,
-          "externalBytes": 14907814,
-          "heapUsedBytes": 16835168,
-          "rssBytes": 111501312
+          "externalBytes": 14835622,
+          "heapUsedBytes": 17286016,
+          "rssBytes": 112955392
         },
-        "peakRssBytes": 111501312,
-        "peakRssDeltaBytes": 9961472,
-        "peakExternalDeltaBytes": 2286650,
+        "peakRssBytes": 112955392,
+        "peakRssDeltaBytes": 11403264,
+        "peakExternalDeltaBytes": 2214458,
         "peakArrayBuffersDeltaBytes": 2153952
       }
     },
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/2001-rav1e-q60-420.avif",
       "fileSha256": "2530b0297cb6f4768e42c4f75562a5d0b2f98c0570aa8783f1712a4abb3190fd",
       "sourceId": "2001",
@@ -713,8 +817,6 @@
       "sourceRawSha256": "b6b94239da0eba36166e04bd313c86e08e7e1e8b5d03783809cb555de89d5cc6",
       "sourceNormalizedSha256": "77e6e31c257b11108de798b8634da0e436cc700f7d6ed7fa58c21928287f846d",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -734,23 +836,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "7b743dc69f0e46a36df1cc7c9b69fd53e8c4e8fbe9383c7346e205fa2737d8dc",
+      "dav1dRgbaSha256": "afdddfbb8cbff79edd2ae412c52ccf4ac64169b1b7a8ccd266c54bd1c7735d9b",
+      "aomRgbaSha256": "afdddfbb8cbff79edd2ae412c52ccf4ac64169b1b7a8ccd266c54bd1c7735d9b",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.20032755533854166,
+        "p95": 1,
+        "rootMeanSquare": 0.44807088400145323,
+        "psnr": 55.10386912802295
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 418.014,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 104883,
           "externalBytes": 12616325,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101867520
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101842944
         },
         "peakSampled": {
-          "arrayBuffersBytes": 104883,
-          "externalBytes": 12676831,
-          "heapUsedBytes": 11502336,
-          "rssBytes": 102391808
+          "arrayBuffersBytes": 2276547,
+          "externalBytes": 14848495,
+          "heapUsedBytes": 17971744,
+          "rssBytes": 113115136
         },
-        "peakRssBytes": 102391808,
-        "peakRssDeltaBytes": 524288,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 113115136,
+        "peakRssDeltaBytes": 11272192,
+        "peakExternalDeltaBytes": 2232170,
+        "peakArrayBuffersDeltaBytes": 2171664
       }
     },
     {
@@ -788,19 +918,19 @@
         "baseline": {
           "arrayBuffersBytes": 105624,
           "externalBytes": 12617066,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 100024320
+          "heapUsedBytes": 10844696,
+          "rssBytes": 100843520
         },
         "peakSampled": {
-          "arrayBuffersBytes": 1598272,
-          "externalBytes": 14170220,
-          "heapUsedBytes": 14433848,
-          "rssBytes": 114180096
+          "arrayBuffersBytes": 1581792,
+          "externalBytes": 14153740,
+          "heapUsedBytes": 14310968,
+          "rssBytes": 124043264
         },
-        "peakRssBytes": 114180096,
-        "peakRssDeltaBytes": 14155776,
-        "peakExternalDeltaBytes": 1553154,
-        "peakArrayBuffersDeltaBytes": 1492648
+        "peakRssBytes": 124043264,
+        "peakRssDeltaBytes": 23199744,
+        "peakExternalDeltaBytes": 1536674,
+        "peakArrayBuffersDeltaBytes": 1476168
       }
     },
     {
@@ -851,28 +981,28 @@
         "psnr": 55.15155051017635
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 252.611,
+      "wallMilliseconds": 200.283,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 100021,
           "externalBytes": 12611463,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101998592
+          "heapUsedBytes": 10844696,
+          "rssBytes": 102109184
         },
         "peakSampled": {
-          "arrayBuffersBytes": 2254085,
-          "externalBytes": 14826033,
-          "heapUsedBytes": 17067128,
-          "rssBytes": 116285440
+          "arrayBuffersBytes": 2181893,
+          "externalBytes": 14753841,
+          "heapUsedBytes": 16818600,
+          "rssBytes": 112263168
         },
-        "peakRssBytes": 116285440,
-        "peakRssDeltaBytes": 14286848,
-        "peakExternalDeltaBytes": 2214570,
-        "peakArrayBuffersDeltaBytes": 2154064
+        "peakRssBytes": 112263168,
+        "peakRssDeltaBytes": 10153984,
+        "peakExternalDeltaBytes": 2142378,
+        "peakArrayBuffersDeltaBytes": 2081872
       }
     },
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/2404-rav1e-q60-420.avif",
       "fileSha256": "b9cdc13e3bd0968c3f7a93b987c19db1dca1aaa93837e7d552e197b149d7bd78",
       "sourceId": "2404",
@@ -881,8 +1011,6 @@
       "sourceRawSha256": "d15d17d088206a6e4b5cc88b6ce6040a232b14274368f0939db429b4df618df3",
       "sourceNormalizedSha256": "9a5aa92174881b79faab4e81aa3e8471aafe617a0fb6824bf26165f98da5dca4",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -902,23 +1030,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "598a8f9f8d8036b65fe60d54516a1b03a9c3952971754a4b874f849ff04da94f",
+      "dav1dRgbaSha256": "3ec0dfcc429bea11ef9f49d330f0d37c520c06b9a5173ad26d94671d1908b56d",
+      "aomRgbaSha256": "3ec0dfcc429bea11ef9f49d330f0d37c520c06b9a5173ad26d94671d1908b56d",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.3838755289713542,
+        "p95": 1,
+        "rootMeanSquare": 0.6252481603685618,
+        "psnr": 52.20975515658057
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 519.003,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 169669,
           "externalBytes": 12681111,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101412864
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101691392
         },
         "peakSampled": {
-          "arrayBuffersBytes": 169669,
-          "externalBytes": 12741617,
-          "heapUsedBytes": 11502568,
-          "rssBytes": 102068224
+          "arrayBuffersBytes": 2123653,
+          "externalBytes": 14695601,
+          "heapUsedBytes": 17444544,
+          "rssBytes": 114012160
         },
-        "peakRssBytes": 102068224,
-        "peakRssDeltaBytes": 655360,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 114012160,
+        "peakRssDeltaBytes": 12320768,
+        "peakExternalDeltaBytes": 2014490,
+        "peakArrayBuffersDeltaBytes": 1953984
       }
     },
     {
@@ -977,22 +1133,22 @@
         "psnr": 52.23197555179389
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 411.424,
+      "wallMilliseconds": 448.44,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 184129,
           "externalBytes": 12695571,
-          "heapUsedBytes": 10831424,
-          "rssBytes": 102535168
+          "heapUsedBytes": 10844696,
+          "rssBytes": 102043648
         },
         "peakSampled": {
           "arrayBuffersBytes": 2121987,
           "externalBytes": 14693935,
-          "heapUsedBytes": 17349696,
-          "rssBytes": 114724864
+          "heapUsedBytes": 17668552,
+          "rssBytes": 115019776
         },
-        "peakRssBytes": 114724864,
-        "peakRssDeltaBytes": 12189696,
+        "peakRssBytes": 115019776,
+        "peakRssDeltaBytes": 12976128,
         "peakExternalDeltaBytes": 1998364,
         "peakArrayBuffersDeltaBytes": 1937858
       }
@@ -1045,28 +1201,28 @@
         "psnr": 52.2274627964245
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 330.026,
+      "wallMilliseconds": 333.166,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 164575,
           "externalBytes": 12676017,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 102449152
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101048320
         },
         "peakSampled": {
           "arrayBuffersBytes": 2101793,
           "externalBytes": 14673741,
-          "heapUsedBytes": 17172440,
-          "rssBytes": 112803840
+          "heapUsedBytes": 16999616,
+          "rssBytes": 110354432
         },
-        "peakRssBytes": 112803840,
-        "peakRssDeltaBytes": 10354688,
+        "peakRssBytes": 110354432,
+        "peakRssDeltaBytes": 9306112,
         "peakExternalDeltaBytes": 1997724,
         "peakArrayBuffersDeltaBytes": 1937218
       }
     },
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/3001-rav1e-q60-420.avif",
       "fileSha256": "28c860dc7f657f954324f5fac624d7d203cf949118c66bd69a358fc0f529c8b6",
       "sourceId": "3001",
@@ -1075,8 +1231,6 @@
       "sourceRawSha256": "8e5451b2e1d746e6e19a2e86c511074f86dcb1f9a1cb4a33ca8cddd46582ef9a",
       "sourceNormalizedSha256": "22004289b136dc781e92dda008144066d0dc04f068bc743ee9ee85bfa2253036",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -1096,23 +1250,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "9ba36014740a827636bd819c325d153bb189471335e332b72775f43ca7a8ffee",
+      "dav1dRgbaSha256": "3812c16cc8b43c1dc0d725d78bb7fe67a4f034d39bb74ed5102cfc32ac3432dc",
+      "aomRgbaSha256": "3812c16cc8b43c1dc0d725d78bb7fe67a4f034d39bb74ed5102cfc32ac3432dc",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 1,
+        "mean": 0.13431803385416666,
+        "p95": 1,
+        "rootMeanSquare": 0.366494248050589,
+        "psnr": 56.84946034889017
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 391.511,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 92382,
           "externalBytes": 12603824,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 100081664
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101265408
         },
         "peakSampled": {
-          "arrayBuffersBytes": 92382,
-          "externalBytes": 12664330,
-          "heapUsedBytes": 11504680,
-          "rssBytes": 100605952
+          "arrayBuffersBytes": 2408798,
+          "externalBytes": 14980746,
+          "heapUsedBytes": 18066776,
+          "rssBytes": 115814400
         },
-        "peakRssBytes": 100605952,
-        "peakRssDeltaBytes": 524288,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 115814400,
+        "peakRssDeltaBytes": 14548992,
+        "peakExternalDeltaBytes": 2376922,
+        "peakArrayBuffersDeltaBytes": 2316416
       }
     },
     {
@@ -1150,19 +1332,19 @@
         "baseline": {
           "arrayBuffersBytes": 91109,
           "externalBytes": 12602551,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101580800
+          "heapUsedBytes": 10844696,
+          "rssBytes": 102375424
         },
         "peakSampled": {
-          "arrayBuffersBytes": 2610917,
-          "externalBytes": 17905091,
-          "heapUsedBytes": 14156288,
-          "rssBytes": 126746624
+          "arrayBuffersBytes": 5308987,
+          "externalBytes": 17880935,
+          "heapUsedBytes": 17415160,
+          "rssBytes": 119021568
         },
-        "peakRssBytes": 126746624,
-        "peakRssDeltaBytes": 25165824,
-        "peakExternalDeltaBytes": 5302540,
-        "peakArrayBuffersDeltaBytes": 2519808
+        "peakRssBytes": 119021568,
+        "peakRssDeltaBytes": 16646144,
+        "peakExternalDeltaBytes": 5278384,
+        "peakArrayBuffersDeltaBytes": 5217878
       }
     },
     {
@@ -1213,28 +1395,28 @@
         "psnr": 56.85962737676199
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 208.428,
+      "wallMilliseconds": 188.543,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 89547,
           "externalBytes": 12600989,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101265408
+          "heapUsedBytes": 10844696,
+          "rssBytes": 100794368
         },
         "peakSampled": {
-          "arrayBuffersBytes": 2170667,
-          "externalBytes": 14747931,
-          "heapUsedBytes": 17289056,
-          "rssBytes": 112336896
+          "arrayBuffersBytes": 2309227,
+          "externalBytes": 14881175,
+          "heapUsedBytes": 17408800,
+          "rssBytes": 112783360
         },
-        "peakRssBytes": 112336896,
-        "peakRssDeltaBytes": 11071488,
-        "peakExternalDeltaBytes": 2146942,
-        "peakArrayBuffersDeltaBytes": 2081120
+        "peakRssBytes": 112783360,
+        "peakRssDeltaBytes": 11988992,
+        "peakExternalDeltaBytes": 2280186,
+        "peakArrayBuffersDeltaBytes": 2219680
       }
     },
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/5004-rav1e-q60-420.avif",
       "fileSha256": "5766d2e310043597f9b9e19591d0cf61c229384d2b0055d5fdd2054603310b47",
       "sourceId": "5004",
@@ -1243,8 +1425,6 @@
       "sourceRawSha256": "e8427e95e15b0718aa722fccba2ddf6f8003b0f10864eda8ebbfafb608a8be1a",
       "sourceNormalizedSha256": "1001eb55085b884ef59d7f3a82d7cbc14804f1218987e72fecb43258d1e3ef92",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -1264,23 +1444,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "cb11b76dba8e3995856fa0c059b59b77f752514ba30e3615454c3a5ce471bd12",
+      "dav1dRgbaSha256": "7e6004d91e91e089c2ff3303b37c0ccdf52536113be29b33fc326f5b653ee4c8",
+      "aomRgbaSha256": "7e6004d91e91e089c2ff3303b37c0ccdf52536113be29b33fc326f5b653ee4c8",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.11099878946940105,
+        "p95": 1,
+        "rootMeanSquare": 0.3333517705268887,
+        "psnr": 57.672748286073166
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 463.228,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 121878,
           "externalBytes": 12633320,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 99680256
+          "heapUsedBytes": 10844696,
+          "rssBytes": 99938304
         },
         "peakSampled": {
-          "arrayBuffersBytes": 121878,
-          "externalBytes": 12693826,
-          "heapUsedBytes": 11502336,
-          "rssBytes": 100466688
+          "arrayBuffersBytes": 2503528,
+          "externalBytes": 15075476,
+          "heapUsedBytes": 17568208,
+          "rssBytes": 114487296
         },
-        "peakRssBytes": 100466688,
-        "peakRssDeltaBytes": 786432,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 114487296,
+        "peakRssDeltaBytes": 14548992,
+        "peakExternalDeltaBytes": 2442156,
+        "peakArrayBuffersDeltaBytes": 2381650
       }
     },
     {
@@ -1318,19 +1526,19 @@
         "baseline": {
           "arrayBuffersBytes": 123751,
           "externalBytes": 12635193,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 99827712
+          "heapUsedBytes": 10844696,
+          "rssBytes": 102449152
         },
         "peakSampled": {
-          "arrayBuffersBytes": 1834381,
-          "externalBytes": 14406329,
-          "heapUsedBytes": 16688488,
-          "rssBytes": 113590272
+          "arrayBuffersBytes": 1803813,
+          "externalBytes": 14375761,
+          "heapUsedBytes": 16468400,
+          "rssBytes": 112672768
         },
-        "peakRssBytes": 113590272,
-        "peakRssDeltaBytes": 13762560,
-        "peakExternalDeltaBytes": 1771136,
-        "peakArrayBuffersDeltaBytes": 1710630
+        "peakRssBytes": 112672768,
+        "peakRssDeltaBytes": 10223616,
+        "peakExternalDeltaBytes": 1740568,
+        "peakArrayBuffersDeltaBytes": 1680062
       }
     },
     {
@@ -1381,28 +1589,28 @@
         "psnr": 57.71213615742049
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 208.077,
+      "wallMilliseconds": 202.147,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 115347,
           "externalBytes": 12626789,
-          "heapUsedBytes": 10831424,
-          "rssBytes": 102051840
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101076992
         },
         "peakSampled": {
-          "arrayBuffersBytes": 2413843,
-          "externalBytes": 14985791,
-          "heapUsedBytes": 17041720,
-          "rssBytes": 114503680
+          "arrayBuffersBytes": 2414035,
+          "externalBytes": 14985983,
+          "heapUsedBytes": 16947776,
+          "rssBytes": 120799232
         },
-        "peakRssBytes": 114503680,
-        "peakRssDeltaBytes": 12451840,
-        "peakExternalDeltaBytes": 2359002,
-        "peakArrayBuffersDeltaBytes": 2298496
+        "peakRssBytes": 120799232,
+        "peakRssDeltaBytes": 19722240,
+        "peakExternalDeltaBytes": 2359194,
+        "peakArrayBuffersDeltaBytes": 2298688
       }
     },
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/6833-rav1e-q60-420.avif",
       "fileSha256": "62f124066d4e8de1a839438e8c50e9b119656ef3e57a522a6a70db08e84108ca",
       "sourceId": "6833",
@@ -1411,8 +1619,6 @@
       "sourceRawSha256": "c93fb26da4d6cd4830239a8cd8466e15ee535b9b750c4b517bccf2897b4c1807",
       "sourceNormalizedSha256": "739651f1574bd521a5ac194107e7234c1826c20ef48119600769a3121127dbbc",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -1432,23 +1638,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "dc41e69ecddcc685e670dc74e9d0403d0a7359d053d2e73cc2588e7b77797a26",
+      "dav1dRgbaSha256": "4b32b89d6f823a303db8ebadd40299ad4c3e24a26db1572526e752549f5c3f85",
+      "aomRgbaSha256": "4b32b89d6f823a303db8ebadd40299ad4c3e24a26db1572526e752549f5c3f85",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 1,
+        "mean": 0.04000727335611979,
+        "p95": 0,
+        "rootMeanSquare": 0.2000181825637854,
+        "psnr": 62.10941407258047
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 312.053,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 100930,
           "externalBytes": 12612372,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101388288
+          "heapUsedBytes": 10844696,
+          "rssBytes": 100483072
         },
         "peakSampled": {
-          "arrayBuffersBytes": 100930,
-          "externalBytes": 12672878,
-          "heapUsedBytes": 11502240,
-          "rssBytes": 102174720
+          "arrayBuffersBytes": 2344514,
+          "externalBytes": 14916462,
+          "heapUsedBytes": 17714032,
+          "rssBytes": 113520640
         },
-        "peakRssBytes": 102174720,
-        "peakRssDeltaBytes": 786432,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 113520640,
+        "peakRssDeltaBytes": 13037568,
+        "peakExternalDeltaBytes": 2304090,
+        "peakArrayBuffersDeltaBytes": 2243584
       }
     },
     {
@@ -1486,19 +1720,19 @@
         "baseline": {
           "arrayBuffersBytes": 99931,
           "externalBytes": 12611373,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 102084608
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101265408
         },
         "peakSampled": {
-          "arrayBuffersBytes": 1702185,
-          "externalBytes": 14274133,
-          "heapUsedBytes": 14929576,
-          "rssBytes": 112701440
+          "arrayBuffersBytes": 1710941,
+          "externalBytes": 14282889,
+          "heapUsedBytes": 14953192,
+          "rssBytes": 111620096
         },
-        "peakRssBytes": 112701440,
-        "peakRssDeltaBytes": 10616832,
-        "peakExternalDeltaBytes": 1662760,
-        "peakArrayBuffersDeltaBytes": 1602254
+        "peakRssBytes": 111620096,
+        "peakRssDeltaBytes": 10354688,
+        "peakExternalDeltaBytes": 1671516,
+        "peakArrayBuffersDeltaBytes": 1611010
       }
     },
     {
@@ -1549,28 +1783,28 @@
         "psnr": 61.59627875695396
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 181.592,
+      "wallMilliseconds": 163.24,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 97100,
           "externalBytes": 12608542,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 100851712
+          "heapUsedBytes": 10844696,
+          "rssBytes": 100720640
         },
         "peakSampled": {
           "arrayBuffersBytes": 2684620,
           "externalBytes": 15256568,
-          "heapUsedBytes": 16132184,
-          "rssBytes": 113565696
+          "heapUsedBytes": 15708320,
+          "rssBytes": 114151424
         },
-        "peakRssBytes": 113565696,
-        "peakRssDeltaBytes": 12713984,
+        "peakRssBytes": 114151424,
+        "peakRssDeltaBytes": 13430784,
         "peakExternalDeltaBytes": 2648026,
         "peakArrayBuffersDeltaBytes": 2587520
       }
     },
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/7052-rav1e-q60-420.avif",
       "fileSha256": "00fbf656dfe0124761310e8866937eef2fe75d2d28b69884d1f1ca72126f1deb",
       "sourceId": "7052",
@@ -1579,8 +1813,6 @@
       "sourceRawSha256": "fb96fda9482e93b1bb19e10b1972a7720bf3986aef75ec7ff5fc2e501beb1279",
       "sourceNormalizedSha256": "2b22a0a44f0d95fb85fd58f47bf97f26109c03d2c98078be8d7c566a9e2564a3",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -1600,23 +1832,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "3180062e0b4f52c469f4436c0ab7068c59abe74f331ffcd3319a51baa809710d",
+      "dav1dRgbaSha256": "f330f1c47bee66a4ba2609a6ad8dd99ef43b6bd93430c20c759244456540e4d4",
+      "aomRgbaSha256": "f330f1c47bee66a4ba2609a6ad8dd99ef43b6bd93430c20c759244456540e4d4",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.0104217529296875,
+        "p95": 0,
+        "rootMeanSquare": 0.10216169398923454,
+        "psnr": 67.94504189771493
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 295.113,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 108608,
           "externalBytes": 12620050,
-          "heapUsedBytes": 10831400,
-          "rssBytes": 102125568
+          "heapUsedBytes": 10844696,
+          "rssBytes": 99770368
         },
         "peakSampled": {
-          "arrayBuffersBytes": 108608,
-          "externalBytes": 12680556,
-          "heapUsedBytes": 11502384,
-          "rssBytes": 102780928
+          "arrayBuffersBytes": 2500848,
+          "externalBytes": 15072796,
+          "heapUsedBytes": 17377008,
+          "rssBytes": 112746496
         },
-        "peakRssBytes": 102780928,
-        "peakRssDeltaBytes": 655360,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 112746496,
+        "peakRssDeltaBytes": 12976128,
+        "peakExternalDeltaBytes": 2452746,
+        "peakArrayBuffersDeltaBytes": 2392240
       }
     },
     {
@@ -1675,22 +1935,22 @@
         "psnr": 65.35876007622248
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 390.124,
+      "wallMilliseconds": 375.072,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 148300,
           "externalBytes": 12659742,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101834752
+          "heapUsedBytes": 10844768,
+          "rssBytes": 99745792
         },
         "peakSampled": {
           "arrayBuffersBytes": 2621372,
           "externalBytes": 15193320,
-          "heapUsedBytes": 17323952,
-          "rssBytes": 113238016
+          "heapUsedBytes": 17406192,
+          "rssBytes": 111935488
         },
-        "peakRssBytes": 113238016,
-        "peakRssDeltaBytes": 11403264,
+        "peakRssBytes": 111935488,
+        "peakRssDeltaBytes": 12189696,
         "peakExternalDeltaBytes": 2533578,
         "peakArrayBuffersDeltaBytes": 2473072
       }
@@ -1743,28 +2003,28 @@
         "psnr": 60.59377467176225
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 227.312,
+      "wallMilliseconds": 219.826,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 112156,
           "externalBytes": 12623598,
-          "heapUsedBytes": 10831424,
-          "rssBytes": 101634048
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101130240
         },
         "peakSampled": {
-          "arrayBuffersBytes": 2698604,
-          "externalBytes": 15270552,
-          "heapUsedBytes": 16045440,
-          "rssBytes": 110940160
+          "arrayBuffersBytes": 2344092,
+          "externalBytes": 14916040,
+          "heapUsedBytes": 16377648,
+          "rssBytes": 111808512
         },
-        "peakRssBytes": 110940160,
-        "peakRssDeltaBytes": 9306112,
-        "peakExternalDeltaBytes": 2646954,
-        "peakArrayBuffersDeltaBytes": 2586448
+        "peakRssBytes": 111808512,
+        "peakRssDeltaBytes": 10678272,
+        "peakExternalDeltaBytes": 2292442,
+        "peakArrayBuffersDeltaBytes": 2231936
       }
     },
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/8237-rav1e-q60-420.avif",
       "fileSha256": "d6b81cebc62f6794c2b6233eb8647502f6a86e6d9cc5414aa0855b2c05db5856",
       "sourceId": "8237",
@@ -1773,8 +2033,6 @@
       "sourceRawSha256": "ef10bec732d7e88dfa95d5c38fa0b5cd3aa67a0a94949c1e96079d45f1807536",
       "sourceNormalizedSha256": "e5cbbd4ee0fc2f9470e5aa3aff2a896377b0ebb64f5b40ada0b22dcf2f917665",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -1794,23 +2052,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "9d295ea11266ebeca8182208bb8916b2043816ef78fe06fdd816a4e26e6f4ad7",
+      "dav1dRgbaSha256": "1ea6cd52fe79627d4e4c168e7c8e1f333990ca345b003b85a5769be394b84204",
+      "aomRgbaSha256": "1ea6cd52fe79627d4e4c168e7c8e1f333990ca345b003b85a5769be394b84204",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.08069229125976562,
+        "p95": 1,
+        "rootMeanSquare": 0.2840952185101653,
+        "psnr": 59.061525121628016
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 405.102,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 113029,
           "externalBytes": 12624471,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101191680
+          "heapUsedBytes": 10844696,
+          "rssBytes": 102223872
         },
         "peakSampled": {
-          "arrayBuffersBytes": 113029,
-          "externalBytes": 12684977,
-          "heapUsedBytes": 11504616,
-          "rssBytes": 101715968
+          "arrayBuffersBytes": 2429191,
+          "externalBytes": 15001139,
+          "heapUsedBytes": 17736488,
+          "rssBytes": 115462144
         },
-        "peakRssBytes": 101715968,
-        "peakRssDeltaBytes": 524288,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 115462144,
+        "peakRssDeltaBytes": 13238272,
+        "peakExternalDeltaBytes": 2376668,
+        "peakArrayBuffersDeltaBytes": 2316162
       }
     },
     {
@@ -1848,19 +2134,19 @@
         "baseline": {
           "arrayBuffersBytes": 113143,
           "externalBytes": 12624585,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 101789696
+          "heapUsedBytes": 10844696,
+          "rssBytes": 100614144
         },
         "peakSampled": {
-          "arrayBuffersBytes": 1822041,
-          "externalBytes": 14393989,
-          "heapUsedBytes": 18230912,
-          "rssBytes": 115159040
+          "arrayBuffersBytes": 1857817,
+          "externalBytes": 14429765,
+          "heapUsedBytes": 18302968,
+          "rssBytes": 114114560
         },
-        "peakRssBytes": 115159040,
-        "peakRssDeltaBytes": 13369344,
-        "peakExternalDeltaBytes": 1769404,
-        "peakArrayBuffersDeltaBytes": 1708898
+        "peakRssBytes": 114114560,
+        "peakRssDeltaBytes": 13500416,
+        "peakExternalDeltaBytes": 1805180,
+        "peakArrayBuffersDeltaBytes": 1744674
       }
     },
     {
@@ -1911,28 +2197,28 @@
         "psnr": 59.489075597843055
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 183.775,
+      "wallMilliseconds": 187.139,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 106989,
           "externalBytes": 12618431,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 100069376
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101117952
         },
         "peakSampled": {
-          "arrayBuffersBytes": 2549933,
-          "externalBytes": 15194073,
-          "heapUsedBytes": 16862872,
-          "rssBytes": 112914432
+          "arrayBuffersBytes": 2183981,
+          "externalBytes": 14755929,
+          "heapUsedBytes": 16701992,
+          "rssBytes": 111665152
         },
-        "peakRssBytes": 112914432,
-        "peakRssDeltaBytes": 12845056,
-        "peakExternalDeltaBytes": 2575642,
-        "peakArrayBuffersDeltaBytes": 2442944
+        "peakRssBytes": 111665152,
+        "peakRssDeltaBytes": 10547200,
+        "peakExternalDeltaBytes": 2137498,
+        "peakArrayBuffersDeltaBytes": 2076992
       }
     },
     {
-      "outcome": "error",
+      "outcome": "decoded",
       "file": "encoded/9701-rav1e-q60-420.avif",
       "fileSha256": "217d591b2850fcb83a309e3701c8ab1745a33185f5212adced5326d890fd0e73",
       "sourceId": "9701",
@@ -1941,8 +2227,6 @@
       "sourceRawSha256": "9572f678d9442bf654a01ef155bb493a65298b1af01febb723b10a04207c9c59",
       "sourceNormalizedSha256": "236e0ebaee857eda451c01311c430287d59b924c9d935992e8f82a2cff131ce6",
       "encoder": "rav1e",
-      "code": "UNSUPPORTED_OPERATION",
-      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
       "metadata": {
         "format": "avif",
         "mimeType": "image/avif",
@@ -1962,23 +2246,51 @@
           "fullRange": true
         }
       },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "91010159de46936ec760a1b60f7f2cc62a59674a101755e308aa0c3b8bdad5ad",
+      "dav1dRgbaSha256": "5c1f4e097d2e4940f6e7a7fbc4eebc2abef683338f08a3d45e7e4268861a6e4f",
+      "aomRgbaSha256": "5c1f4e097d2e4940f6e7a7fbc4eebc2abef683338f08a3d45e7e4268861a6e4f",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.007425944010416667,
+        "p95": 0,
+        "rootMeanSquare": 0.08618867177261222,
+        "psnr": 69.42179984901703
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 264.186,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 90405,
           "externalBytes": 12601847,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 99405824
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101609472
         },
         "peakSampled": {
-          "arrayBuffersBytes": 90405,
-          "externalBytes": 12662353,
-          "heapUsedBytes": 11504488,
-          "rssBytes": 100061184
+          "arrayBuffersBytes": 2315317,
+          "externalBytes": 14887265,
+          "heapUsedBytes": 17695328,
+          "rssBytes": 113205248
         },
-        "peakRssBytes": 100061184,
-        "peakRssDeltaBytes": 655360,
-        "peakExternalDeltaBytes": 60506,
-        "peakArrayBuffersDeltaBytes": 0
+        "peakRssBytes": 113205248,
+        "peakRssDeltaBytes": 11595776,
+        "peakExternalDeltaBytes": 2285418,
+        "peakArrayBuffersDeltaBytes": 2224912
       }
     },
     {
@@ -2016,19 +2328,19 @@
         "baseline": {
           "arrayBuffersBytes": 90060,
           "externalBytes": 12601502,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 100007936
+          "heapUsedBytes": 10844768,
+          "rssBytes": 102191104
         },
         "peakSampled": {
-          "arrayBuffersBytes": 4146190,
-          "externalBytes": 16718138,
-          "heapUsedBytes": 15590096,
-          "rssBytes": 112066560
+          "arrayBuffersBytes": 4153440,
+          "externalBytes": 16725388,
+          "heapUsedBytes": 15862408,
+          "rssBytes": 115691520
         },
-        "peakRssBytes": 112066560,
-        "peakRssDeltaBytes": 12058624,
-        "peakExternalDeltaBytes": 4116636,
-        "peakArrayBuffersDeltaBytes": 4056130
+        "peakRssBytes": 115691520,
+        "peakRssDeltaBytes": 13500416,
+        "peakExternalDeltaBytes": 4123886,
+        "peakArrayBuffersDeltaBytes": 4063380
       }
     },
     {
@@ -2079,24 +2391,24 @@
         "psnr": 67.92550877558696
       },
       "outputBytes": 1048576,
-      "wallMilliseconds": 170.537,
+      "wallMilliseconds": 141.305,
       "memory": {
         "baseline": {
           "arrayBuffersBytes": 88722,
           "externalBytes": 12600164,
-          "heapUsedBytes": 10831352,
-          "rssBytes": 100659200
+          "heapUsedBytes": 10844696,
+          "rssBytes": 101216256
         },
         "peakSampled": {
-          "arrayBuffersBytes": 2675986,
-          "externalBytes": 15247934,
-          "heapUsedBytes": 16369552,
-          "rssBytes": 118616064
+          "arrayBuffersBytes": 2676324,
+          "externalBytes": 15248272,
+          "heapUsedBytes": 16638072,
+          "rssBytes": 117399552
         },
-        "peakRssBytes": 118616064,
-        "peakRssDeltaBytes": 17956864,
-        "peakExternalDeltaBytes": 2647770,
-        "peakArrayBuffersDeltaBytes": 2587264
+        "peakRssBytes": 117399552,
+        "peakRssDeltaBytes": 16183296,
+        "peakExternalDeltaBytes": 2648108,
+        "peakArrayBuffersDeltaBytes": 2587602
       }
     }
   ]

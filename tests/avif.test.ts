@@ -80,6 +80,10 @@ import {
   avifNonstillSequenceFixturePath,
 } from '../benchmark/avif/nonstill-sequence-fixture.ts'
 import {
+  avifSegmentationFixture,
+  avifSegmentationFixturePath,
+} from '../benchmark/avif/segmentation-fixture.ts'
+import {
   avifQ0FixtureDirectory,
   avifQ0LosslessFixture,
   avifQ0LossyFixture,
@@ -1347,12 +1351,27 @@ describe('AVIF restricted pixel decode', () => {
       deltaQPresent: true,
       deltaQResolution: 2,
     })
+    const unsupportedSegmentFeatures = Array.from({ length: 8 }, () =>
+      Array.from({ length: 8 }, () => false),
+    )
+    const firstSegmentFeatures = unsupportedSegmentFeatures[0]
+    if (!firstSegmentFeatures) throw new Error('Segment feature state is missing')
+    firstSegmentFeatures[6] = true
     expect(() =>
       decodeRestrictedAv1Intra(coded.sequence, {
         ...frame,
-        header: { ...frame.header, segmentationEnabled: true },
+        header: {
+          ...frame.header,
+          segmentation: {
+            ...frame.header.segmentation,
+            enabled: true,
+            featureEnabled: unsupportedSegmentFeatures,
+            lastActiveId: 0,
+            preSkip: true,
+          },
+        },
       }),
-    ).toThrow('does not support AV1 segmentation maps')
+    ).toThrow('does not support skip features')
     expect(() =>
       decodeRestrictedAv1Intra(coded.sequence, {
         ...frame,
@@ -1365,6 +1384,39 @@ describe('AVIF restricted pixel decode', () => {
     expect([output.width, output.height]).toEqual([512, 128])
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(
       '875c709bfc54e90fc6fbadfba907da524185b6d26491857555611904a6829e40',
+    )
+  })
+
+  it('decodes a rav1e keyframe with spatial segmentation maps exactly', async () => {
+    const input = new Uint8Array(await readFile(avifSegmentationFixturePath))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('Segmentation fixture has no color frame OBU')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(
+      avifSegmentationFixture.fileSha256,
+    )
+    expect(frame.header).toMatchObject({
+      baseQuantizer: 72,
+      reducedTransformSet: true,
+      segmentation: {
+        enabled: true,
+        lastActiveId: 3,
+        preSkip: false,
+      },
+    })
+    expect(
+      frame.header.segmentation.featureData.slice(0, 4).map((features) => features[0]),
+    ).toEqual(avifSegmentationFixture.segmentQuantizerDeltas)
+    expect([output.width, output.height]).toEqual([
+      avifSegmentationFixture.width,
+      avifSegmentationFixture.height,
+    ])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      avifSegmentationFixture.decodedRgbaSha256,
     )
   })
 

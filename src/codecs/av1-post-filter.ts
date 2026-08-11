@@ -39,6 +39,7 @@ export interface Av1PostFilterState {
     Av1RestorationPlaneState,
   ]
   readonly skips: Uint8Array
+  readonly segmentIds: Uint8Array
   readonly transformHeights: readonly [Uint8Array, Uint8Array, Uint8Array]
   readonly transformWidths: readonly [Uint8Array, Uint8Array, Uint8Array]
 }
@@ -109,6 +110,48 @@ const transformAt = (
     return 0
   }
   return transforms[plane]?.[contextRow * planeContextWidth(state, plane) + contextColumn] ?? 0
+}
+const segmentAt = (state: Av1PostFilterState, row: number, column: number): number => {
+  if (state.segmentIds.length === 0) return 0
+  const contextRow = row - state.miRowStart
+  const contextColumn = column - state.miColumnStart
+  if (
+    contextRow < 0 ||
+    contextRow >= state.contextMiRows ||
+    contextColumn < 0 ||
+    contextColumn >= state.contextMiColumns
+  ) {
+    return 0
+  }
+  return state.segmentIds[contextRow * state.contextMiColumns + contextColumn] ?? 0
+}
+
+const segmentLoopFilterLevels = (
+  header: Av1FrameHeader,
+): readonly [Uint8Array, Uint8Array, Uint8Array, Uint8Array] => {
+  const levels: [Uint8Array, Uint8Array, Uint8Array, Uint8Array] = [
+    new Uint8Array(8),
+    new Uint8Array(8),
+    new Uint8Array(8),
+    new Uint8Array(8),
+  ]
+  for (let levelIndex = 0; levelIndex < levels.length; levelIndex += 1) {
+    const baseLevel = header.loopFilterLevels[levelIndex] ?? 0
+    const segmentLevels = levels[levelIndex]
+    if (!segmentLevels) continue
+    for (let segment = 0; segment < segmentLevels.length; segment += 1) {
+      const segmentDelta =
+        header.segmentation.featureEnabled[segment]?.[levelIndex + 1] === true
+          ? (header.segmentation.featureData[segment]?.[levelIndex + 1] ?? 0)
+          : 0
+      let level = clip(0, 63, baseLevel + segmentDelta)
+      if (header.loopFilterDeltaEnabled) {
+        level = clip(0, 63, level + ((header.loopFilterRefDeltas[0] ?? 0) << (level >> 5)))
+      }
+      segmentLevels[segment] = level
+    }
+  }
+  return levels
 }
 
 const skipAt = (state: Av1PostFilterState, row: number, column: number): number => {
@@ -251,6 +294,7 @@ export const applyAv1LoopFilter = (
 ): void => {
   const depthShift = state.bitDepth - 8
   const wideScratch = new Int16Array(12)
+  const filterLevels = segmentLoopFilterLevels(header)
   for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
     if (planeIndex > 0 && (header.loopFilterLevels[planeIndex + 1] ?? 0) === 0) continue
     const plane = planes[planeIndex]
@@ -304,12 +348,8 @@ export const applyAv1LoopFilter = (
           if (transformWidth === 0 || transformHeight === 0) continue
           const transformEdge = pass === 0 ? x % transformWidth === 0 : y % transformHeight === 0
           if (!transformEdge) continue
-          const baseLevel = header.loopFilterLevels[planeIndex === 0 ? pass : planeIndex + 1] ?? 0
-          const shift = baseLevel >> 5
-          const referenceDelta = header.loopFilterDeltaEnabled
-            ? (header.loopFilterRefDeltas[0] ?? 0) << shift
-            : 0
-          const level = clip(0, 63, baseLevel + referenceDelta)
+          const levelIndex = planeIndex === 0 ? pass : planeIndex + 1
+          const level = filterLevels[levelIndex]?.[segmentAt(state, row, column)] ?? 0
           if (level === 0) continue
           const sharpnessShift =
             header.loopFilterSharpness > 4 ? 2 : header.loopFilterSharpness > 0 ? 1 : 0

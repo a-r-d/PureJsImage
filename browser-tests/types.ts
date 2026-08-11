@@ -39,6 +39,7 @@ export interface BrowserCompatibilityHarness {
   avifNonstillSequence(): Promise<BrowserWorkflowResult>
   avifPalette(): Promise<BrowserWorkflowResult>
   avifSuperres(): Promise<BrowserWorkflowResult>
+  avifSegmentation(): Promise<BrowserWorkflowResult>
   avifQ0Lossless(): Promise<BrowserWorkflowResult>
   avifYuv422(): Promise<BrowserWorkflowResult>
   avifYuv444(): Promise<BrowserWorkflowResult>

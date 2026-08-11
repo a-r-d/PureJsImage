@@ -30,6 +30,41 @@ import {
 } from './icc.ts'
 
 const cdf = (values: readonly number[]): Uint16Array => new Uint16Array(values)
+const segmentIdDefaults = [
+  [5622, 7893, 16093, 18233, 27809, 28373, 32533, 32768, 0],
+  [14274, 18230, 22557, 24935, 29980, 30851, 32344, 32768, 0],
+  [27527, 28487, 28723, 28890, 32397, 32647, 32679, 32768, 0],
+] as const
+
+const segmentFeatureNames = [
+  'alternate quantizer',
+  'vertical luma loop filter',
+  'horizontal luma loop filter',
+  'U loop filter',
+  'V loop filter',
+  'reference frame',
+  'skip',
+  'global motion',
+] as const
+
+const negDeinterleave = (difference: number, reference: number, maximum: number): number => {
+  if (reference === 0) return difference
+  if (reference >= maximum - 1) return maximum - difference - 1
+  if (2 * reference < maximum) {
+    if (difference <= 2 * reference) {
+      return (difference & 1) === 1
+        ? reference + ((difference + 1) >> 1)
+        : reference - (difference >> 1)
+    }
+    return difference
+  }
+  if (difference <= 2 * (maximum - reference - 1)) {
+    return (difference & 1) === 1
+      ? reference + ((difference + 1) >> 1)
+      : reference - (difference >> 1)
+  }
+  return maximum - difference - 1
+}
 
 const edgePartitionCdf = (
   partitionCdf: Uint16Array,
@@ -253,6 +288,7 @@ const intraTxType16x16Defaults = [
   [83, 5615, 12001, 17228, 32768, 0],
   [1968, 5556, 12023, 18547, 32768, 0],
 ] as const
+const reducedIntraTxTypeDefault = [6554, 13107, 19661, 26214, 32768, 0] as const
 const intraTxTypes = [9, 0, 10, 11, 3, 1, 2] as const
 const intraTxTypes16x16 = [9, 0, 3, 1, 2] as const
 const interTxTypes = [9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 4, 5, 3, 6, 7, 8] as const
@@ -928,6 +964,7 @@ class RestrictedIntraTileDecoder {
   readonly #blockWidths: Uint8Array
   readonly #blockHeights: Uint8Array
   readonly #skips: Uint8Array
+  readonly #segmentIds: Uint8Array
   readonly #yModes: Uint8Array
   readonly #uvModes: Uint8Array
   readonly #intraFlags: Uint8Array
@@ -952,6 +989,7 @@ class RestrictedIntraTileDecoder {
   readonly #reconstructedContexts: readonly [Uint8Array, Uint8Array, Uint8Array]
   readonly #partitionCdfs = new Map<string, Uint16Array>()
   readonly #skipCdfs = skipDefaults.map(cdf)
+  readonly #segmentIdCdfs: readonly Uint16Array[]
   readonly #yModeCdfs = new Map<string, Uint16Array>()
   readonly #uvModeCdfs = new Map<string, Uint16Array>()
   readonly #paletteYModeCdfs = paletteYModeDefaults.map((contexts) => contexts.map(cdf))
@@ -1005,6 +1043,8 @@ class RestrictedIntraTileDecoder {
   readonly #allZero32x32Cdfs: readonly Uint16Array[]
   readonly #allZero64x64Cdfs: readonly Uint16Array[]
   #currentQuantizer: number
+  readonly #segmentQuantizerDeltas: Int16Array
+  #blockQuantizer: number
   constructor(
     sequence: Av1SequenceHeader,
     frame: Av1Frame,
@@ -1017,6 +1057,7 @@ class RestrictedIntraTileDecoder {
     this.#sequence = sequence
     this.#frame = frame
     this.#currentQuantizer = frame.header.baseQuantizer
+    this.#blockQuantizer = frame.header.baseQuantizer
     this.#symbols = new Av1SymbolDecoder(tile.data, !frame.header.disableCdfUpdate)
     this.#miColumns = 2 * ((frame.header.frameWidth + 7) >> 3)
     this.#miRows = 2 * ((frame.header.frameHeight + 7) >> 3)
@@ -1072,6 +1113,17 @@ class RestrictedIntraTileDecoder {
     this.#blockWidths = new Uint8Array(lumaContextLength)
     this.#blockHeights = new Uint8Array(lumaContextLength)
     this.#skips = new Uint8Array(lumaContextLength)
+    this.#segmentIds = new Uint8Array(frame.header.segmentation.enabled ? lumaContextLength : 0)
+    this.#segmentIdCdfs = frame.header.segmentation.enabled ? segmentIdDefaults.map(cdf) : []
+    this.#segmentQuantizerDeltas = new Int16Array(8)
+    if (frame.header.segmentation.enabled) {
+      for (let segment = 0; segment < this.#segmentQuantizerDeltas.length; segment += 1) {
+        this.#segmentQuantizerDeltas[segment] =
+          frame.header.segmentation.featureEnabled[segment]?.[0] === true
+            ? (frame.header.segmentation.featureData[segment]?.[0] ?? 0)
+            : 0
+      }
+    }
     this.#yModes = new Uint8Array(lumaContextLength)
     this.#uvModes = new Uint8Array(chromaContextLength)
     this.#intraFlags = new Uint8Array(lumaContextLength)
@@ -1188,6 +1240,7 @@ class RestrictedIntraTileDecoder {
       this.#skips,
       this.#yModes,
       this.#intraFlags,
+      this.#segmentIds,
       this.#motionX,
       this.#motionY,
       this.#paletteSizes[0],
@@ -1295,6 +1348,7 @@ class RestrictedIntraTileDecoder {
       chromaShiftX: this.#chromaShiftX,
       chromaShiftY: this.#chromaShiftY,
       skips: this.#skips,
+      segmentIds: this.#segmentIds,
       transformWidths: this.#transformWidths,
       transformHeights: this.#transformHeights,
       cdefColumns: this.#cdefColumns,
@@ -1510,6 +1564,56 @@ class RestrictedIntraTileDecoder {
     } else throw invalidInput(`Invalid AV1 partition ${partition}`)
   }
 
+  #readSegmentId(row: number, column: number, skip: boolean): number {
+    const segmentation = this.#frame.header.segmentation
+    if (!segmentation.enabled || segmentation.lastActiveId === 0) return 0
+    const aboveAvailable = row > this.#tile.miRowStart
+    const leftAvailable = column > this.#tile.miColumnStart
+    let predictor = 0
+    let context = 0
+    if (aboveAvailable && leftAvailable) {
+      const above = this.#segmentIds[this.#lumaContextIndex(row - 1, column)] ?? 0
+      const left = this.#segmentIds[this.#lumaContextIndex(row, column - 1)] ?? 0
+      const aboveLeft = this.#segmentIds[this.#lumaContextIndex(row - 1, column - 1)] ?? 0
+      context =
+        above === left && left === aboveLeft
+          ? 2
+          : above === left || left === aboveLeft || above === aboveLeft
+            ? 1
+            : 0
+      predictor = above === aboveLeft ? above : left
+    } else if (aboveAvailable) {
+      predictor = this.#segmentIds[this.#lumaContextIndex(row - 1, column)] ?? 0
+    } else if (leftAvailable) {
+      predictor = this.#segmentIds[this.#lumaContextIndex(row, column - 1)] ?? 0
+    }
+    if (skip) return predictor
+    const segmentIdCdf = this.#segmentIdCdfs[context]
+    if (!segmentIdCdf) throw invalidInput('AV1 segment ID context is invalid')
+    const difference = this.#symbols.readSymbol(segmentIdCdf)
+    const segmentId = negDeinterleave(difference, predictor, segmentation.lastActiveId + 1)
+    if (segmentId < 0 || segmentId > segmentation.lastActiveId) {
+      throw invalidInput(`Invalid AV1 segment ID ${segmentId} at block ${column},${row}`)
+    }
+    return segmentId
+  }
+
+  #storeSegmentId(
+    row: number,
+    column: number,
+    blockRows: number,
+    blockColumns: number,
+    segmentId: number,
+  ): void {
+    if (this.#segmentIds.length === 0) return
+    const rowEnd = Math.min(row + blockRows, this.#tile.miRowEnd, this.#miRows)
+    const columnEnd = Math.min(column + blockColumns, this.#tile.miColumnEnd, this.#miColumns)
+    for (let contextRow = row; contextRow < rowEnd; contextRow += 1) {
+      const start = this.#lumaContextIndex(contextRow, column)
+      this.#segmentIds.fill(segmentId, start, start + columnEnd - column)
+    }
+  }
+
   #decodeBlock(
     row: number,
     column: number,
@@ -1529,8 +1633,14 @@ class RestrictedIntraTileDecoder {
     const skipCdf = this.#skipCdfs[aboveSkip + leftSkip]
     if (!skipCdf) throw invalidInput('AV1 skip context is invalid')
     const skip = this.#symbols.readSymbol(skipCdf)
+    const segmentId = this.#readSegmentId(row, column, skip === 1)
+    this.#storeSegmentId(row, column, blockRows, blockColumns, segmentId)
     this.#readCdefIndex(row, column, width, height, skip === 1)
     this.#readDeltaQuantizer(row, column, width, height, skip === 1)
+    this.#blockQuantizer = Math.max(
+      0,
+      Math.min(255, this.#currentQuantizer + (this.#segmentQuantizerDeltas[segmentId] ?? 0)),
+    )
     const useIntrabc =
       this.#frame.header.allowIntrabc && this.#symbols.readSymbol(this.#intrabcCdf) === 1
     if (useIntrabc) {
@@ -3166,20 +3276,23 @@ class RestrictedIntraTileDecoder {
             if (planeIndex === 0) {
               if (transformMaximum >= 32) txType = 0
               else {
-                const txTypeKey = `${transformCategory}:${intraDirection}`
+                const reducedTransformSet =
+                  this.#frame.header.reducedTransformSet || transformCategory === 16
+                const txTypeKey = `${Number(reducedTransformSet)}:${transformCategory}:${intraDirection}`
                 let txTypeCdf = this.#intraTxTypeCdfs.get(txTypeKey)
                 if (!txTypeCdf) {
-                  const defaults =
-                    transformCategory === 4
+                  const defaults = reducedTransformSet
+                    ? transformCategory === 16
+                      ? intraTxType16x16Defaults[intraDirection]
+                      : reducedIntraTxTypeDefault
+                    : transformCategory === 4
                       ? intraTxTypeDefaults[intraDirection]
-                      : transformCategory === 8
-                        ? intraTxType8x8Defaults[intraDirection]
-                        : intraTxType16x16Defaults[intraDirection]
+                      : intraTxType8x8Defaults[intraDirection]
                   if (!defaults) throw invalidInput('AV1 intra transform CDF is missing')
                   txTypeCdf = cdf(defaults)
                   this.#intraTxTypeCdfs.set(txTypeKey, txTypeCdf)
                 }
-                txType = (transformCategory === 16 ? intraTxTypes16x16 : intraTxTypes)[
+                txType = (reducedTransformSet ? intraTxTypes16x16 : intraTxTypes)[
                   this.#symbols.readSymbol(txTypeCdf)
                 ]
               }
@@ -3202,7 +3315,7 @@ class RestrictedIntraTileDecoder {
             txType,
             planeIndex,
             this.#frame.header,
-            this.#currentQuantizer,
+            this.#blockQuantizer,
             this.#sequence.bitDepth,
           )
           for (
@@ -3692,8 +3805,38 @@ const validateRestrictedAv1Intra = (sequence: Av1SequenceHeader, frame: Av1Frame
       'Restricted AV1 super-resolution supports one 8-bit intra tile without intra block copy',
     )
   }
-  if (frame.header.segmentationEnabled) {
-    throw unsupportedOperation('Phase B2 reconstruction does not support AV1 segmentation maps')
+  const segmentation = frame.header.segmentation
+  if (segmentation.enabled) {
+    for (let segment = 0; segment <= segmentation.lastActiveId; segment += 1) {
+      for (let feature = 5; feature < segmentFeatureNames.length; feature += 1) {
+        if (segmentation.featureEnabled[segment]?.[feature] !== true) continue
+        throw unsupportedOperation(
+          `Restricted intra-only AV1 segmentation does not support ${segmentFeatureNames[feature]} features`,
+        )
+      }
+      const quantizer = Math.max(
+        0,
+        Math.min(
+          255,
+          frame.header.baseQuantizer +
+            (segmentation.featureEnabled[segment]?.[0] === true
+              ? (segmentation.featureData[segment]?.[0] ?? 0)
+              : 0),
+        ),
+      )
+      const segmentLossless =
+        quantizer === 0 &&
+        frame.header.deltaYDc === 0 &&
+        frame.header.deltaUDc === 0 &&
+        frame.header.deltaUAc === 0 &&
+        frame.header.deltaVDc === 0 &&
+        frame.header.deltaVAc === 0
+      if (segmentLossless !== frame.header.codedLossless) {
+        throw unsupportedOperation(
+          'Restricted intra-only AV1 segmentation does not support mixed lossless and lossy segments',
+        )
+      }
+    }
   }
   if (frame.header.deltaLfPresent) {
     throw unsupportedOperation('Phase B2 reconstruction does not support AV1 loop-filter deltas')
@@ -3785,6 +3928,7 @@ const createFramePostFilterState = (
     chromaShiftX: reconstruction.chromaShiftX,
     chromaShiftY: reconstruction.chromaShiftY,
     skips: new Uint8Array(miColumns * miRows),
+    segmentIds: new Uint8Array(frame.header.segmentation.enabled ? miColumns * miRows : 0),
     transformWidths: [
       new Uint8Array(transformContextLength(reconstruction.planes[0], 0)),
       new Uint8Array(transformContextLength(reconstruction.planes[1], reconstruction.chromaShiftY)),
@@ -3836,6 +3980,12 @@ const mergeTilePostFilterState = (
       source.skips.subarray(sourceStart, sourceStart + source.contextMiColumns),
       targetStart,
     )
+    if (target.segmentIds.length > 0) {
+      target.segmentIds.set(
+        source.segmentIds.subarray(sourceStart, sourceStart + source.contextMiColumns),
+        targetStart,
+      )
+    }
   }
   for (let plane = 0; plane < 3; plane += 1) {
     const shiftX = plane === 0 ? 0 : target.chromaShiftX
@@ -4020,7 +4170,8 @@ export const estimateRestrictedAv1RowWorkingBytes = (
     (targetYStride * bandRows + 2 * targetChromaStride * bandChromaRows) * sampleBytes
   const lumaContextLength = miColumns * (ringRows >> 2)
   const chromaContextLength = (chromaStride >> 2) * (chromaRingRows >> 2)
-  const modePaletteContextBytes = lumaContextLength * 55 + chromaContextLength
+  const modePaletteContextBytes =
+    lumaContextLength * (frame.header.segmentation.enabled ? 56 : 55) + chromaContextLength
   const coefficientContextBytes = 5 * (lumaContextLength + 2 * chromaContextLength)
   const sourceScaledAuxiliaryBytes = miColumns * miRows
   const rgbaBlockBytes = frame.header.upscaledWidth * Math.min(32, frame.header.frameHeight) * 4
@@ -4066,7 +4217,8 @@ export const estimateRestrictedAv1WorkingBytes = (
     const tileChromaContextLength = tileChromaColumns * tileChromaRows
     maximumModePaletteContextBytes = Math.max(
       maximumModePaletteContextBytes,
-      tileLumaContextLength * 55 + tileChromaContextLength,
+      tileLumaContextLength * (frame.header.segmentation.enabled ? 56 : 55) +
+        tileChromaContextLength,
     )
     maximumCoefficientContextBytes = Math.max(
       maximumCoefficientContextBytes,
@@ -4075,7 +4227,9 @@ export const estimateRestrictedAv1WorkingBytes = (
     maximumTileAuxiliaryBytes = Math.max(maximumTileAuxiliaryBytes, tileLumaContextLength)
   }
   const framePostFilterContextBytes =
-    miColumns * miRows + 2 * (miColumns * miRows + 2 * (chromaStride >> 2) * (chromaHeight >> 2))
+    miColumns * miRows +
+    (frame.header.segmentation.enabled ? miColumns * miRows : 0) +
+    2 * (miColumns * miRows + 2 * (chromaStride >> 2) * (chromaHeight >> 2))
   const cdefBandBytes = (yStride * 12 + 2 * chromaStride * ((8 >> chromaShiftY) + 4)) * sampleBytes
   const lumaBoundaryRows = Math.min(yHeight, Math.ceil(yHeight / 16) + 4)
   const chromaBoundaryRows = Math.min(chromaHeight, Math.ceil(chromaHeight / 16) + 4)

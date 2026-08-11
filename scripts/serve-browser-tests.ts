@@ -315,6 +315,10 @@ await copyFile(
   resolve(fixtureDirectory, 'sharp-qmatrix-q30-256x192.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/rav1e-segmentation-q60-512x512.avif',
+  resolve(fixtureDirectory, 'rav1e-segmentation-q60-512x512.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/fox.profile0.8bpc.yuv420.monochrome.avif',
   resolve(fixtureDirectory, 'fox.profile0.8bpc.yuv420.monochrome.avif'),
 )

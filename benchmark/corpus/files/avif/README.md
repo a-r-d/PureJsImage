@@ -111,6 +111,15 @@ compare PureJsImage's visible YUV planes with a maximum sample error of 3 and
 PSNR of at least 55 dB. `npm run fixtures:avif:qmatrix:prepare` regenerates the
 encoded fixtures and rejects byte-level drift from the pinned checksums.
 
+`rav1e-segmentation-q60-512x512.avif` is the 512x512 normalized synthetic-product
+source `9701` from the Imazen `imazen-26` K300 subset, encoded by libavif 1.3.0
+with rav1e 0.7.1 at q60, speed 6, one worker, 8-bit YUV 4:2:0. It exercises four
+spatial segment IDs carrying alternate-quantizer deltas and the reduced
+transform set. The source URL plus raw, normalized, encoded, native-YUV, and
+RGBA checksums are pinned in `benchmark/avif/segmentation-fixture.ts`. Run
+`npm run fixtures:avif:segmentation` to require byte-identical visible YUV from
+PureJsImage, dav1d, and libaom.
+
 The `alpha-*.avif` files are deterministic 64x48 YUV 4:4:4 color plus
 full-range monochrome alpha fixtures encoded with libavif 1.3.0 and libaom
 3.12.1. They cover straight-alpha and premultiplied-alpha item relationships.

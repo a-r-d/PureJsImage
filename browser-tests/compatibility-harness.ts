@@ -2104,6 +2104,14 @@ const avifQ0Lossless = (): Promise<BrowserWorkflowResult> =>
     'd49269082c04c18e7c81ef36bed98bbcd34dd0217e7d4042dad22801fbbbd7bf',
     'Lossless quantizer-context-0 identity-color AVIF',
   )
+const avifSegmentation = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'rav1e-segmentation-q60-512x512.avif',
+    512,
+    512,
+    '91010159de46936ec760a1b60f7f2cc62a59674a101755e308aa0c3b8bdad5ad',
+    'rav1e spatial-segmentation AVIF',
+  )
 const avifPalette = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
     'draw_points_idat.avif',
@@ -2991,6 +2999,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifQuantizationMatrix,
   avifRec2020,
   avifQ0Lossless,
+  avifSegmentation,
   avifPalette,
   avifMonochrome,
   avifYuv422,

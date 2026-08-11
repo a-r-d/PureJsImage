@@ -172,12 +172,14 @@ coverage.
 - [ ] Other intra-block-copy and screen-content tools outside pinned syntax
 - [x] Clear palette contexts after intra-block-copy blocks and honor block
   delta-Q state in the restricted one-tile path
-- [x] Keep segmentation maps and delta loop-filter combinations explicitly
-  rejected before intra-block-copy reconstruction
-- [x] Luma and chroma palette mode, including cached and new palette entries,
-  non-symmetric first-index coding, and diagonal color-map reconstruction
-- [ ] Complete segmentation-map and delta-loop-filter reconstruction, plus
-  delta-Q combinations outside the restricted one-tile intra-only path
+- [x] Spatial segment-ID decoding for frame-independent intra-only maps using
+  the adaptive AV1 segment CDF and neighboring segment predictor
+- [x] Segment-specific alternate quantizers, reduced transform-set CDFs, and
+  luma/chroma loop-filter adjustments
+- [x] Reject pre-skip reference-frame, skip, and global-motion segment features
+  plus mixed lossless/lossy segment combinations before reconstruction
+- [ ] Temporal segmentation updates, delta loop filters, and segmentation plus
+  block delta-Q combinations outside the pinned intra-only subset
 - [ ] Every legal transform-size, transform-type, coefficient-context, and
   quantizer-context combination
 - [x] Normative eight-tap horizontal super-resolution for filter-free one-tile
@@ -490,6 +492,10 @@ byte. The full-size tolerance remains zero.
   1280x720 monochrome residual intra-block-copy fixture
 - [x] Match agreeing libaom and dav1d native YUV exactly for the checksum-pinned
   512x128 YUV 4:4:4 skipped intra-block-copy plus block delta-Q fixture
+- [x] Match agreeing libaom and dav1d native YUV exactly for a checksum-pinned
+  rav1e 512x512 YUV 4:2:0 keyframe with four spatial alternate-quantizer segments
+- [x] Exercise the rav1e spatial-segmentation fixture through the portable codec
+  entry in Chromium and pin its RGBA output
 - [x] Match agreeing libaom and dav1d native YUV exactly for four pinned
   1280x720 and 3840x2160 Microsoft YUV 4:2:0 frames that exercise reduced and
   full still-picture headers plus non-skipped intra-block copy

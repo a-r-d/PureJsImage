@@ -3392,7 +3392,7 @@
         "status": "limited",
         "label": "Limited"
       },
-      "boundary": "Restricted compatible decode subsets plus constrained opaque 8-bit YUV 4:2:0 AVIF encoding. Decode supports the documented compatible 8/10/12-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 syntax; alpha auxiliaries; grids; orientation; exact integer and half-integer clean apertures; independently decodable selected spatial layers and animation key samples; gain maps; SDR and HDR-to-SDR NCLX color conversion; compatible ICC conversion; super-resolution; film grain; and post-filters. Encode accepts gray8, rgb8, and rgba8 input, composites alpha against white or an explicit solid background, writes one single-tile reduced-still-picture `av01` primary item, and uses deterministic 4x4 DC-predicted transform blocks without encoder search.",
+      "boundary": "Restricted compatible decode subsets plus constrained opaque 8-bit YUV 4:2:0 AVIF encoding. Decode supports the documented compatible 8/10/12-bit monochrome, YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 syntax; alpha auxiliaries; grids; orientation; exact integer and half-integer clean apertures; independently decodable selected spatial layers and animation key samples; spatial segmentation maps with alternate quantizer and loop-filter features; gain maps; SDR and HDR-to-SDR NCLX color conversion; compatible ICC conversion; super-resolution; film grain; and post-filters. Encode accepts gray8, rgb8, and rgba8 input, composites alpha against white or an explicit solid background, writes one single-tile reduced-still-picture `av01` primary item, and uses deterministic 4x4 DC-predicted transform blocks without encoder search.",
       "description": "Metadata inspection covers a broad ISOBMFF and AVIF corpus. Pixel decode targets compatible static 8-bit monochrome and YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 images; coded-lossless 10-bit and 12-bit YUV 4:2:0 and YUV 4:4:4 images; filter-free lossy 10-bit and 12-bit YUV 4:2:0, YUV 4:2:2, and YUV 4:4:4 images; and the documented compatible high-depth post-filter combinations. Every supported high-depth path retains native samples through reconstruction and filtering before explicit RGBA conversion. The supported decode path includes compatible non-reduced sequences, complete multi-tile frames, contiguous tile-group OBUs, explicit independently decodable spatial-layer and animated sync-sample selection, full-range monochrome alpha auxiliaries, opaque and alpha-bearing grids, exact integer and half-integer clean apertures, ordered orientation, palette screen content, intra-block copy, single-tile super-resolution, 8-bit film grain, compatible SDR NCLX and ICC conversion, PQ and HLG tone mapping including Rec.2020/PQ matrix 10 constant-luminance conversion to the library's SDR RGBA output, ISO gain-map HDR-to-SDR composition, documented in-loop filters, and the restricted Sharp/libaom quantization-matrix path. Encoding accepts gray8, rgb8, and rgba8 pixels and produces deterministic opaque 8-bit Main Profile YUV 4:2:0 still images with one reduced still-picture key frame, one tile, full-superblock 4x4 partitioning, DC prediction, lossless 4x4 transforms, and context-0 coefficient coding. Quantization is fixed at context 0; public quality control is not implemented. Alpha is composited against white by default or an explicit solid background; transparent output is rejected. Dependent inter frames and enhancement layers, show-existing frames, animation iteration and timing exposure, lsel=0xFFFF progressive output, decoder timing, frame IDs, dependent inter-frame dimension overrides, non-half-integer clean apertures, multi-tile super-resolution, multi-tile intra-block copy, partial or noncontiguous tile groups, gain maps with alpha, broader ICC conversion, unvalidated high-depth post-filter combinations, HDR pixel output, broader AV1 syntax, and broader AVIF encoding remain unsupported and fail explicitly.",
       "memory": "Metadata reads are bounded and all decoded RGBA is emitted in ordered 32-row blocks without a source-sized RGBA bitmap. AVIF track sample counts are checked against maxFrames before sample-table allocation. Every decoder path enforces a 64 MiB aggregate coded-payload and conservatively estimated working-state limit. Compatible opaque, single-item, filter-free AV1 frames reconstruct through two-superblock YUV, prediction, palette, and coefficient-context rings, with finalized bands copied before reuse. Layered items and animation tracks retain unselected OBUs or samples only as bounded source views; only the selected complete frame enters reconstruction, without OBU concatenation or copies. Compatible filter-free alpha auxiliaries with aligned orientation reconstruct through a synchronized second row ring. Compatible full-aperture 2x, 4x, and 8x resize input is box-filtered directly from bounded YUV rows before RGBA conversion. Supported clean-aperture regions convert only contributing samples; mirroring and rotation remain ordered block transforms backed by the runtime temporary store when reverse row access is required; opaque grids retain one contributing tile row, CDEF uses delayed 8-row bands, and restoration retains deblocked stripe-boundary rows plus delayed 4-row output bands. Compatible filter-free single-tile super-resolution reuses bounded upscaled luma and chroma band buffers while retaining the source chroma halo across ring reuse. Gain-map resampling retains two decoded gain rows and one aligned base block; gain-map grids inherit bounded contributing tile-row retention. Film-grain frames retain padded full-frame YUV plus bounded template and two-stripe noise buffers. Filtered super-resolution, rotated-alpha, grid, and multi-tile paths retain padded full-frame YUV reconstruction state; filtered super-resolution additionally retains the upscaled YUV planes. Sequential multi-tile decoders allocate entropy, transform, palette, CDEF, and skip contexts for one tile rectangle at a time and merge compact frame-wide post-filter metadata. Filtered 10-bit and 12-bit paths also retain padded full-frame native-depth YUV through post-filtering. The constrained encoder retains padded full-frame target and reconstructed 8-bit YUV planes plus frame-wide coefficient contexts and one encoded tile payload; it never retains a source-sized RGBA copy. Encoder dimensions, pixels, estimated working bytes, and the 4096-wide single-tile boundary are checked before allocation.",
       "recommendation": "Only pinned, compatible decode subsets and the explicitly constrained opaque encoder; inspect explicit limitations first.",
@@ -3407,13 +3407,14 @@
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Sharp 0.35.3/libaom, avifdec and avifgainmaputil 1.3.0 with libaom 3.12.1 and dav1d 1.5.1, FFmpeg/zimg with libaom and dav1d, Colour's BT.2020 constant-luminance equations, and Chromium",
-        "tolerance": "Pinned native YUV fixtures for the documented entropy, transform, high-bit-depth, tile, super-resolution, film-grain, intra-block-copy, and post-filter paths match agreeing libaom and dav1d output byte for byte where exact reconstruction is expected. Quantization-matrix YUV error is at most 3 with PSNR at least 55 dB; supported displayed RGB paths meet their fixture-specific exact-hash, maximum-error, mean-error, or PSNR contracts. Straight and premultiplied alpha output matches Sharp/libavif exactly after semantic unpremultiplication; grid, orientation, gain-map, ICC, and clean-aperture results use pinned Sharp, libavif, Chromium, deterministic-source, or FFmpeg/zimg oracles. Explicitly selected animated color and alpha sync samples match pinned FFmpeg/dav1d PNGs within channel-specific maximum errors. Three PQ SDR tone-map fixtures use checksum-pinned FFmpeg/zimg Reinhard evidence: P3/PQ maximum error 2 and PSNR above 50 dB, identity Rec.2020/PQ maximum error 1 and PSNR above 54 dB, and chroma-derived P3/PQ maximum error 1 and PSNR above 53 dB. HLG uses independently calculated neutral and saturated BT.2100 shared-luminance OOTF vectors plus a pinned end-to-end AVIF RGBA hash in Node.js, Chromium, and Firefox; FFmpeg/zimg's componentwise HLG transfer is explicitly not used as its numeric oracle. All supported browser workflows pin portable TypeScript RGBA output independently.",
+        "tolerance": "Pinned native YUV fixtures for the documented entropy, transform, high-bit-depth, tile, super-resolution, film-grain, segmentation-map, intra-block-copy, and post-filter paths match agreeing libaom and dav1d output byte for byte where exact reconstruction is expected. Quantization-matrix YUV error is at most 3 with PSNR at least 55 dB; supported displayed RGB paths meet their fixture-specific exact-hash, maximum-error, mean-error, or PSNR contracts. Straight and premultiplied alpha output matches Sharp/libavif exactly after semantic unpremultiplication; grid, orientation, gain-map, ICC, and clean-aperture results use pinned Sharp, libavif, Chromium, deterministic-source, or FFmpeg/zimg oracles. Explicitly selected animated color and alpha sync samples match pinned FFmpeg/dav1d PNGs within channel-specific maximum errors. Three PQ SDR tone-map fixtures use checksum-pinned FFmpeg/zimg Reinhard evidence: P3/PQ maximum error 2 and PSNR above 50 dB, identity Rec.2020/PQ maximum error 1 and PSNR above 54 dB, and chroma-derived P3/PQ maximum error 1 and PSNR above 53 dB. HLG uses independently calculated neutral and saturated BT.2100 shared-luminance OOTF vectors plus a pinned end-to-end AVIF RGBA hash in Node.js, Chromium, and Firefox; FFmpeg/zimg's componentwise HLG transfer is explicitly not used as its numeric oracle. All supported browser workflows pin portable TypeScript RGBA output independently.",
         "evidence": [
           "tests/avif.test.ts",
           "tests/lossy-codec-quality.test.ts",
           "tests/av1-post-filter.test.ts",
           "benchmark/avif/verify-qmatrix-fixtures.ts",
           "benchmark/avif/verify-intrabc-fixture.ts",
+          "benchmark/avif/verify-segmentation-fixture.ts",
           "benchmark/avif/verify-tiled-lossless-fixture.ts",
           "benchmark/avif/verify-lossy-multitile-fixture.ts",
           "benchmark/avif/verify-high-bit-expanded-fixtures.ts",
@@ -3833,15 +3834,19 @@
         },
         {
           "status": "supported",
-          "text": "Keep segmentation maps and delta loop-filter combinations explicitly rejected before intra-block-copy reconstruction"
+          "text": "Spatial segment-ID decoding for frame-independent intra-only maps using the adaptive AV1 segment CDF and neighboring segment predictor"
         },
         {
           "status": "supported",
-          "text": "Luma and chroma palette mode, including cached and new palette entries, non-symmetric first-index coding, and diagonal color-map reconstruction"
+          "text": "Segment-specific alternate quantizers, reduced transform-set CDFs, and luma/chroma loop-filter adjustments"
+        },
+        {
+          "status": "supported",
+          "text": "Reject pre-skip reference-frame, skip, and global-motion segment features plus mixed lossless/lossy segment combinations before reconstruction"
         },
         {
           "status": "planned",
-          "text": "Complete segmentation-map and delta-loop-filter reconstruction, plus delta-Q combinations outside the restricted one-tile intra-only path"
+          "text": "Temporal segmentation updates, delta loop filters, and segmentation plus block delta-Q combinations outside the pinned intra-only subset"
         },
         {
           "status": "planned",
@@ -4418,6 +4423,14 @@
         {
           "status": "supported",
           "text": "Match agreeing libaom and dav1d native YUV exactly for the checksum-pinned 512x128 YUV 4:4:4 skipped intra-block-copy plus block delta-Q fixture"
+        },
+        {
+          "status": "supported",
+          "text": "Match agreeing libaom and dav1d native YUV exactly for a checksum-pinned rav1e 512x512 YUV 4:2:0 keyframe with four spatial alternate-quantizer segments"
+        },
+        {
+          "status": "supported",
+          "text": "Exercise the rav1e spatial-segmentation fixture through the portable codec entry in Chromium and pin its RGBA output"
         },
         {
           "status": "supported",
