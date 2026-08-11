@@ -1934,6 +1934,10 @@ tr:last-child td {
   margin-bottom: 28px;
 }
 
+.performance-showcase .proof-heading {
+  align-items: start;
+}
+
 .section-label {
   margin: 0 0 12px;
   color: var(--text-faint);

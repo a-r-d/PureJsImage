@@ -32,6 +32,23 @@ const playbackTiff = async (): Promise<Buffer> => {
   return Buffer.from(sink.toUint8Array())
 }
 
+test('aligns the performance section heading with its methodology copy', async ({ page }) => {
+  await page.goto('/performance/')
+
+  const alignment = await page
+    .locator('.performance-showcase .proof-heading')
+    .evaluate((heading) => {
+      const title = heading.querySelector('h2')
+      const copy = heading.querySelector(':scope > p')
+      if (!(title instanceof HTMLElement) || !(copy instanceof HTMLElement)) {
+        throw new Error('Performance proof heading is incomplete')
+      }
+      return Math.abs(title.getBoundingClientRect().top - copy.getBoundingClientRect().top)
+    })
+
+  expect(alignment).toBeLessThan(80)
+})
+
 test('detects, transforms, converts, measures, and downloads from the docs demo', async ({
   page,
 }) => {
