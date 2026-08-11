@@ -471,6 +471,18 @@ await copyFile(
   resolve(fixtureDirectory, 'restoration-12bpc-yuv444-320x192.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/restoration-matrix-wiener-12bpc-yuv422-642x386.avif',
+  resolve(fixtureDirectory, 'restoration-matrix-wiener-12bpc-yuv422-642x386.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/restoration-matrix-sgr-12bpc-yuv422-642x386.avif',
+  resolve(fixtureDirectory, 'restoration-matrix-sgr-12bpc-yuv422-642x386.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/restoration-matrix-switchable-12bpc-yuv444-642x386.avif',
+  resolve(fixtureDirectory, 'restoration-matrix-switchable-12bpc-yuv444-642x386.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/self-guided-10bpc-yuv444-320x192.avif',
   resolve(fixtureDirectory, 'self-guided-10bpc-yuv444-320x192.avif'),
 )

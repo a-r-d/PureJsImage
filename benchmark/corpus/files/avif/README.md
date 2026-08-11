@@ -175,11 +175,15 @@ YUV 4:4:4 with deblocking, CDEF, and Wiener restoration; lossy 10-bit YUV 4:4:4
 with deblocking and self-guided restoration; lossy 12-bit YUV 4:2:0 with
 deblocking, CDEF, and Wiener or self-guided restoration; lossy 12-bit YUV
 4:2:2 with deblocking plus mixed self-guided luma and Wiener chroma restoration;
-lossy 12-bit YUV 4:4:4 with deblocking and self-guided luma restoration; and
-lossy 12-bit YUV 4:2:0, 4:2:2, and 4:4:4 with deblocking and CDEF. These
-fixtures exercise normative depth-specific dequantization and post-filter
-arithmetic while retaining native high-depth samples through reconstruction
-and filtering.
+lossy 12-bit YUV 4:4:4 with deblocking and self-guided luma restoration; lossy
+12-bit YUV 4:2:0, 4:2:2, and 4:4:4 with deblocking and CDEF; and three 642x386
+restoration-matrix fixtures. The matrix fixtures combine deblocking and CDEF
+with all-plane Wiener or self-guided YUV 4:2:2 restoration and mixed
+self-guided, Wiener, and switchable YUV 4:4:4 restoration. Their 256-sample
+restoration units span multiple columns and rows with partial right and bottom
+frame-edge units. These fixtures exercise normative depth-specific
+dequantization and post-filter arithmetic while retaining native high-depth
+samples through reconstruction and filtering.
 `npm run fixtures:avif:high-bit:prepare` regenerates them with libavif 1.3.0,
 libaom 3.12.1, and FFmpeg 7.1.1 from checksum-pinned Y4M sources.
 `npm run fixtures:avif:high-bit` requires PureJsImage, dav1d, and libaom to

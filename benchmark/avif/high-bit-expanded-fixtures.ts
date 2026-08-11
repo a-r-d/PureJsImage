@@ -1,7 +1,7 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export type AvifHighBitFilter = 'cdef' | 'deblock' | 'self-guided' | 'wiener'
+export type AvifHighBitFilter = 'cdef' | 'deblock' | 'self-guided' | 'switchable' | 'wiener'
 
 export interface AvifHighBitExpandedFixture {
   readonly bitDepth: 10 | 12
@@ -17,11 +17,15 @@ export interface AvifHighBitExpandedFixture {
   readonly fileSha256: string
   readonly filters: readonly AvifHighBitFilter[]
   readonly fullRange?: false
+  readonly hasPartialRestorationUnits?: true
   readonly height: number
   readonly maximumChromiumRgbDifference?: number
   readonly maximumSharpRgbDifference?: number
   readonly nativeYuvSha256: string
-  readonly quantizer: 0 | 20 | 30 | 40 | 45
+  readonly quantizer: 0 | 20 | 24 | 30 | 40 | 42 | 45
+  readonly restorationTypes?: readonly [0 | 1 | 2 | 3, 0 | 1 | 2 | 3, 0 | 1 | 2 | 3]
+  readonly restorationUnitCounts?: readonly [number, number, number]
+  readonly restorationUnitSizes?: readonly [64 | 128 | 256, 64 | 128 | 256, 64 | 128 | 256]
   readonly sharpRgbSha256?: string
   readonly sourcePattern?: 'filtered-detail' | 'fox-crop'
   readonly sourceY4mSha256: string
@@ -344,6 +348,90 @@ export const avifHighBitExpandedFixtures: readonly AvifHighBitExpandedFixture[] 
     sourcePattern: 'fox-crop',
     sourceY4mSha256: '36053b3b0fd1b12e7f87c13d431b395418c9550d54ba096b7b0ad2a1727e14f1',
     width: 320,
+  },
+  {
+    bitDepth: 12,
+    chromaSubsampling: '422',
+    chromiumRgbaSha256: '001678cb08643031d2d9f8c01ecb8101a1172c0a36b032013f170bf77b61b604',
+    codedLossless: false,
+    decodedRgbaSha256: '4765e211c8862752d3781a55685148d39dcd17e758e3df6f8a0ab04704279716',
+    encoder: 'ffmpeg',
+    encoderSpeed: 0,
+    encoderTune: 0,
+    encoderUsage: 2,
+    file: 'restoration-matrix-wiener-12bpc-yuv422-642x386.avif',
+    fileSha256: 'b2d8e327525e345efca44d5dbfe985f1d736cd36c592cfc34216977542dbb89f',
+    filters: ['deblock', 'cdef', 'wiener'],
+    fullRange: false,
+    hasPartialRestorationUnits: true,
+    height: 386,
+    maximumChromiumRgbDifference: 16,
+    maximumSharpRgbDifference: 122,
+    nativeYuvSha256: 'f2f3d181edc97425ca36ca4db77ce97dddc2effb0bdcaf276bb375cad2e650ce',
+    quantizer: 42,
+    restorationTypes: [1, 1, 1],
+    restorationUnitCounts: [6, 2, 2],
+    restorationUnitSizes: [256, 256, 256],
+    sharpRgbSha256: '82d4f6b269d8337cfbc78d48916f48c67cc3a7dbc9b5e04ab1316ada3bec58c1',
+    sourcePattern: 'filtered-detail',
+    sourceY4mSha256: '4e312cc9b453b3b6bad81f274b9f7d02a04705eff44db7e01da48ae978b49323',
+    width: 642,
+  },
+  {
+    bitDepth: 12,
+    chromaSubsampling: '422',
+    chromiumRgbaSha256: '6214b8c8aa0a5f906b305bb447ddb52227b662aeffd573943e28d90569497437',
+    codedLossless: false,
+    decodedRgbaSha256: 'f88ccd5a55623378062eee8eac32a945ad936a2d51fb59f2a923a1d5515e04b7',
+    encoder: 'ffmpeg',
+    encoderSpeed: 0,
+    encoderTune: 0,
+    encoderUsage: 2,
+    file: 'restoration-matrix-sgr-12bpc-yuv422-642x386.avif',
+    fileSha256: '4b068000c439b076f78ec2b33022318fe4d8daedcaec4c12e984ea6a22b0282b',
+    filters: ['deblock', 'cdef', 'self-guided'],
+    fullRange: false,
+    hasPartialRestorationUnits: true,
+    height: 386,
+    maximumChromiumRgbDifference: 15,
+    maximumSharpRgbDifference: 119,
+    nativeYuvSha256: 'cf064fb3bd5923d5e94e30eb065816ab075a0123b41a79a33b904f30e6c44ca3',
+    quantizer: 24,
+    restorationTypes: [2, 2, 2],
+    restorationUnitCounts: [6, 2, 2],
+    restorationUnitSizes: [256, 256, 256],
+    sharpRgbSha256: '4dae9e2d9136599ed46c4bf7d9861113078803bab412a44ba7b276cde535e895',
+    sourcePattern: 'filtered-detail',
+    sourceY4mSha256: '4e312cc9b453b3b6bad81f274b9f7d02a04705eff44db7e01da48ae978b49323',
+    width: 642,
+  },
+  {
+    bitDepth: 12,
+    chromaSubsampling: '444',
+    chromiumRgbaSha256: 'b92c4e9e5fe345deb9b863fc3cb0febae420e364bd47d82881dd7c330946e34e',
+    codedLossless: false,
+    decodedRgbaSha256: '6670c75a5b75294ce983a46ddc9e1ad64f56577d3dfab2a66098923adbf2fc09',
+    encoder: 'ffmpeg',
+    encoderSpeed: 0,
+    encoderTune: 0,
+    encoderUsage: 2,
+    file: 'restoration-matrix-switchable-12bpc-yuv444-642x386.avif',
+    fileSha256: '2b99e0d7edaf36878a26cc59506fcdde82cf302b02200028be52a8d022e7eb7f',
+    filters: ['deblock', 'cdef', 'self-guided', 'wiener', 'switchable'],
+    fullRange: false,
+    hasPartialRestorationUnits: true,
+    height: 386,
+    maximumChromiumRgbDifference: 16,
+    maximumSharpRgbDifference: 1,
+    nativeYuvSha256: 'd7c9ed7b5fafed0c801604cb23da8d2b0acb52d6b3b02b7b08f35d32cca56846',
+    quantizer: 24,
+    restorationTypes: [2, 1, 3],
+    restorationUnitCounts: [6, 6, 6],
+    restorationUnitSizes: [256, 256, 256],
+    sharpRgbSha256: '4e248587ed1e50fa8a7a685d967271ba0c9b1563babe08a245ff07de5ce2ed93',
+    sourcePattern: 'filtered-detail',
+    sourceY4mSha256: '2ba9875e1c8ae47a27b8d666aa278bfcc5ea9b82be9d101ee5d0cda4aa458462',
+    width: 642,
   },
   {
     bitDepth: 12,

@@ -2406,6 +2406,39 @@ const avifExpandedHighBit = async (): Promise<BrowserWorkflowResult> => {
       },
     ),
     avifPinnedPng(
+      'restoration-matrix-wiener-12bpc-yuv422-642x386.avif',
+      642,
+      386,
+      '4765e211c8862752d3781a55685148d39dcd17e758e3df6f8a0ab04704279716',
+      'Lossy 12-bit YUV 4:2:2 AVIF with all-plane Wiener restoration',
+      {
+        maximumRgbDifference: 16,
+        rgbaSha256: '001678cb08643031d2d9f8c01ecb8101a1172c0a36b032013f170bf77b61b604',
+      },
+    ),
+    avifPinnedPng(
+      'restoration-matrix-sgr-12bpc-yuv422-642x386.avif',
+      642,
+      386,
+      'f88ccd5a55623378062eee8eac32a945ad936a2d51fb59f2a923a1d5515e04b7',
+      'Lossy 12-bit YUV 4:2:2 AVIF with all-plane self-guided restoration',
+      {
+        maximumRgbDifference: 15,
+        rgbaSha256: '6214b8c8aa0a5f906b305bb447ddb52227b662aeffd573943e28d90569497437',
+      },
+    ),
+    avifPinnedPng(
+      'restoration-matrix-switchable-12bpc-yuv444-642x386.avif',
+      642,
+      386,
+      '6670c75a5b75294ce983a46ddc9e1ad64f56577d3dfab2a66098923adbf2fc09',
+      'Lossy 12-bit YUV 4:4:4 AVIF with mixed-plane switchable restoration',
+      {
+        maximumRgbDifference: 16,
+        rgbaSha256: 'b92c4e9e5fe345deb9b863fc3cb0febae420e364bd47d82881dd7c330946e34e',
+      },
+    ),
+    avifPinnedPng(
       'self-guided-10bpc-yuv444-320x192.avif',
       320,
       192,

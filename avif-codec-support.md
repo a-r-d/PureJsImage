@@ -239,7 +239,13 @@ byte. The full-size tolerance remains zero.
 - [x] Filtered lossy 12-bit YUV 4:2:2 with deblocking plus mixed self-guided
   luma and Wiener chroma restoration, and YUV 4:4:4 with deblocking plus
   self-guided luma restoration
-- [ ] Other high-depth post-filter combinations outside the pinned fixtures
+- [x] Filtered lossy 12-bit 642x386 YUV 4:2:2 with all-plane Wiener or
+  self-guided restoration and YUV 4:4:4 with mixed self-guided, Wiener, and
+  switchable plane restoration
+- [x] Apply deblocking, CDEF, and restoration in normative order across
+  multiple 256-sample restoration units and partial right/bottom frame edges
+- [ ] Other high-depth post-filter combinations outside the pinned YUV 4:2:0
+  and 642x386 YUV 4:2:2/4:4:4 restoration matrix
 - [x] Full-range high-bit-depth reconstruction without premature truncation
   before explicit conversion to the library's 8-bit RGBA output contract
 - [x] Compatible full-range 8-bit monochrome alpha auxiliaries

@@ -41,6 +41,40 @@ const rgbDifference = (rgba: Uint8Array, rgb: Uint8Array): RgbDifference => {
   }
   return { maximum, mean: total / rgb.byteLength }
 }
+const arraysEqual = (left: readonly number[], right: readonly number[]): boolean =>
+  left.length === right.length && left.every((value, index) => value === right[index])
+
+const restorationUnitCounts = (
+  width: number,
+  height: number,
+  chromaSubsampling: string,
+  unitSizes: readonly number[],
+): readonly number[] => {
+  const chromaWidth = Math.ceil(width / (chromaSubsampling === '444' ? 1 : 2))
+  const chromaHeight = Math.ceil(height / (chromaSubsampling === '420' ? 2 : 1))
+  return unitSizes.map((unitSize, plane) => {
+    const planeWidth = plane === 0 ? width : chromaWidth
+    const planeHeight = plane === 0 ? height : chromaHeight
+    const columns = Math.max(Math.floor((planeWidth + (unitSize >> 1)) / unitSize), 1)
+    const rows = Math.max(Math.floor((planeHeight + (unitSize >> 1)) / unitSize), 1)
+    return columns * rows
+  })
+}
+
+const hasPartialRestorationUnits = (
+  width: number,
+  height: number,
+  chromaSubsampling: string,
+  unitSizes: readonly number[],
+): boolean => {
+  const chromaWidth = Math.ceil(width / (chromaSubsampling === '444' ? 1 : 2))
+  const chromaHeight = Math.ceil(height / (chromaSubsampling === '420' ? 2 : 1))
+  return unitSizes.some((unitSize, plane) => {
+    const planeWidth = plane === 0 ? width : chromaWidth
+    const planeHeight = plane === 0 ? height : chromaHeight
+    return planeWidth % unitSize !== 0 || planeHeight % unitSize !== 0
+  })
+}
 
 const results: Array<{
   readonly bitDepth: number
@@ -52,6 +86,9 @@ const results: Array<{
   readonly maximumSharpRgbDifference: number | undefined
   readonly meanSharpRgbDifference: number | undefined
   readonly nativeYuvSha256: string
+  readonly restorationTypes: readonly number[] | undefined
+  readonly restorationUnitCounts: readonly number[] | undefined
+  readonly restorationUnitSizes: readonly number[] | undefined
 }> = []
 const temporaryDirectory = await mkdtemp(join(tmpdir(), 'purejsimage-avif-high-bit-oracles-'))
 try {
@@ -73,6 +110,13 @@ try {
     ].some((strength) => strength !== 0)
     const hasSelfGuided = frame.header.restorationTypes.some((type) => type === 2)
     const hasWiener = frame.header.restorationTypes.some((type) => type === 1)
+    const hasSwitchable = frame.header.restorationTypes.some((type) => type === 3)
+    const unitCounts = restorationUnitCounts(
+      frame.header.upscaledWidth,
+      frame.header.frameHeight,
+      coded.sequence.chromaSubsampling,
+      frame.header.restorationUnitSizes,
+    )
     if (
       coded.sequence.bitDepth !== fixture.bitDepth ||
       coded.sequence.chromaSubsampling !== fixture.chromaSubsampling ||
@@ -80,7 +124,21 @@ try {
       hasDeblock !== fixture.filters.includes('deblock') ||
       hasCdef !== fixture.filters.includes('cdef') ||
       hasSelfGuided !== fixture.filters.includes('self-guided') ||
-      hasWiener !== fixture.filters.includes('wiener')
+      hasWiener !== fixture.filters.includes('wiener') ||
+      hasSwitchable !== fixture.filters.includes('switchable') ||
+      (fixture.restorationTypes !== undefined &&
+        !arraysEqual(frame.header.restorationTypes, fixture.restorationTypes)) ||
+      (fixture.restorationUnitSizes !== undefined &&
+        !arraysEqual(frame.header.restorationUnitSizes, fixture.restorationUnitSizes)) ||
+      (fixture.restorationUnitCounts !== undefined &&
+        !arraysEqual(unitCounts, fixture.restorationUnitCounts)) ||
+      (fixture.hasPartialRestorationUnits === true &&
+        !hasPartialRestorationUnits(
+          frame.header.upscaledWidth,
+          frame.header.frameHeight,
+          coded.sequence.chromaSubsampling,
+          frame.header.restorationUnitSizes,
+        ))
     ) {
       throw new Error(`${fixture.file} high-bit frame configuration changed`)
     }
@@ -158,6 +216,11 @@ try {
       maximumSharpRgbDifference: sharpDifference?.maximum,
       meanSharpRgbDifference: sharpDifference?.mean,
       nativeYuvSha256: fixture.nativeYuvSha256,
+      restorationTypes:
+        fixture.restorationTypes === undefined ? undefined : frame.header.restorationTypes,
+      restorationUnitCounts: fixture.restorationUnitCounts === undefined ? undefined : unitCounts,
+      restorationUnitSizes:
+        fixture.restorationUnitSizes === undefined ? undefined : frame.header.restorationUnitSizes,
     })
   }
 } finally {
