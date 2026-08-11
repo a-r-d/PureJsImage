@@ -1,0 +1,64 @@
+.gitignore
+  h_9f4a25732fa0c1 233
+CHANGELOG.md
+  h_9f4a25732fa0c1 21-27
+avif-codec-support.md
+  h_9f4a25732fa0c1 254-255,515-519,573-574
+benchmark/avif/color-fixtures.ts
+  h_9f4a25732fa0c1 50-53,131-157
+benchmark/avif/imazen-compatibility-sources.ts
+  h_9f4a25732fa0c1 1-81
+benchmark/avif/imazen-compatibility-worker.ts
+  h_9f4a25732fa0c1 1-127
+benchmark/avif/matrix10-reference.ts
+  h_9f4a25732fa0c1 1-141
+benchmark/avif/prepare-imazen-compatibility-survey.ts
+  h_9f4a25732fa0c1 1-182
+benchmark/avif/run-imazen-compatibility-survey.ts
+  h_9f4a25732fa0c1 1-401
+benchmark/avif/verify-color-fixtures.ts
+  h_9f4a25732fa0c1 16,24,188-224,265,270,277
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 192-204
+benchmark/results/avif-imazen-compatibility-2026-08-11.json
+  h_9f4a25732fa0c1 1-2103
+benchmark/results/avif-imazen-compatibility-2026-08-11.md
+  h_9f4a25732fa0c1 1-84
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 2460-2466
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 232
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1762,1767,1790,1792-1793,2060-2061,2321-2325,2379-2380
+docs-astro/public/capabilities.json
+  h_9f4a25732fa0c1 3396,3409,3432,3434-3435,3994-3997,4000,4464-4468
+docs-astro/public/llms.txt
+  h_9f4a25732fa0c1 500
+docs-astro/src/pages/codecs.astro
+  h_9f4a25732fa0c1 44
+package.json
+  h_9f4a25732fa0c1 254-255
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 389-392
+src/codecs/av1-intra.ts
+  h_9f4a25732fa0c1 22-30,4423,4575-4578,4587-4610
+src/codecs/avif.ts
+  h_9f4a25732fa0c1 1783,1788-1790,1835-1840
+src/codecs/icc.ts
+  h_9f4a25732fa0c1 740-754,800-801,803,806-808,811-813,847-864
+tests/avif.test.ts
+  h_9f4a25732fa0c1 45,2525,2534,2709-2732,2745,2747
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 158,181,183-184
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3e49f1ebfcb41744f55e1148988692a4006279c2",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
