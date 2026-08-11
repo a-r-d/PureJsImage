@@ -13,6 +13,14 @@ All notable changes to PureJsImage are documented in this file.
   floating-point sample types; both byte orders; spectral metadata; bounded band/ROI reads; and a
   Node `.hdr` path convenience entry. Omitted header offsets default to zero for compatible
   institutional rasters. Complex and 64-bit integer samples remain explicit unsupported boundaries.
+- Added first-party FITS document and image-HDU reading with preserved header cards, 1D through 3D
+  axis mapping, big-endian integer and floating-point samples, BSCALE/BZERO and unsigned-integer
+  conventions, BLANK handling, multiple-HDU traversal, and bounded plane/ROI reads. Random groups,
+  table rasterization, BITPIX 64, and images with more than three axes remain explicit unsupported
+  boundaries.
+- Added reusable `measureScientificPlane()` range and percentile measurement so callers can cache a
+  scientific display measurement and pass its explicit range into later render operations without
+  repeating the measurement scan.
 - Added generic bounded scientific display mapping for GSF, ENVI, and OME-TIFF datasets with
   explicit, dataset, or bounded-sample percentile ranges; linear, log, square-root, and asinh
   scales; grayscale and four first-party perceptual palettes; scalar-surface relief; wavelength
@@ -20,6 +28,9 @@ All notable changes to PureJsImage are documented in this file.
 - Added the entirely client-side Scientific Raster Explorer with Web Worker rendering, local GSF
   and paired ENVI file opening, deterministic synthetic fixtures, reproducible provenance and
   hashes, honest read/timing metrics, AFM controls, and hyperspectral wavelength controls.
+- Added dedicated ENVI, GSF, and FITS documentation pages, a deterministic FITS explorer fixture,
+  and an opt-in script for downloading and checksum-verifying an official NASA FITS compatibility
+  sample outside the normal test suite.
 - Documented the Bruker Nanoscope `.spm` capability investigation and stopped before implementing
   a parser because the shared extension, acquisition variants, scaling references, and independent
   native-sample corpus require a narrower validated contract.
@@ -36,6 +47,14 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Expanded the Scientific Raster Explorer with direct Blob-backed local-file range reads, actual
+  ENVI band indices and nonuniform wavelength labels, cached display measurements, FITS HDU and
+  plane selection, and first-party PNG export of the current rendering. Large local ENVI binaries
+  are no longer eagerly copied into a full ArrayBuffer before opening.
+- Made the scientific-raster documentation independently discoverable through the sitemap, page
+  metadata, an indexable explorer screenshot, Open Graph imagery, homepage WebSite structured data,
+  direct verified NASA FITS downloads, and explicit file-type badges while keeping scientific
+  formats separate from the normal image-codec registry.
 - Aligned the documentation homepage with the project's primary focus on a broad suite of portable,
   first-party strict TypeScript codecs and low-memory raster processing, while keeping scientific
   and instrument imagery as an extensible secondary capability area, including a visual card for

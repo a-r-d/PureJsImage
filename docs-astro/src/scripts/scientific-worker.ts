@@ -1,15 +1,21 @@
+import { browserRuntime } from '../../../src/browser-runtime.ts'
+import { pngCodec } from '../../../src/codecs/png.ts'
 import type { PixelBlock } from '../../../src/pixel.ts'
 import {
+  measureScientificPlane,
   openEnvi,
+  openFits,
   openGsf,
   renderScientificPlane,
-  renderSpectralBand,
-  renderSpectralComposite,
   type EnviDataset,
+  type FitsDataset,
+  type FitsDocument,
   type GsfDataset,
   type MultidimensionalRasterDataset,
+  type ScientificPlaneMeasurement,
   type ScientificRange,
 } from '../../../src/scientific/index.ts'
+import { Uint8ArraySink } from '../../../src/sink.ts'
 import type {
   ScientificDemoRenderSettings,
   ScientificOpenedMetadata,
@@ -22,10 +28,19 @@ interface WorkerScope {
   postMessage(message: ScientificWorkerResponse, transfer?: readonly Transferable[]): void
 }
 
+type DemoDataset = GsfDataset | EnviDataset | FitsDataset
+
 const scope = globalThis as unknown as WorkerScope
-let dataset: GsfDataset | EnviDataset | undefined
+let dataset: DemoDataset | undefined
+let fitsDocument: FitsDocument | undefined
+let fitsName = ''
 let sourceBytes = 0
 let latestSequence = 0
+let generation = 0
+let latestDisplay:
+  | { readonly width: number; readonly height: number; readonly pixels: Uint8ClampedArray }
+  | undefined
+const rangeCache = new Map<string, ScientificPlaneMeasurement>()
 
 const post = (message: ScientificWorkerResponse, transfer: readonly Transferable[] = []): void => {
   scope.postMessage(message, transfer)
@@ -34,23 +49,18 @@ const post = (message: ScientificWorkerResponse, transfer: readonly Transferable
 const errorMessage = (cause: unknown): string =>
   cause instanceof Error ? cause.message : 'Unknown scientific raster explorer error'
 
-const dataRange = async (
-  opened: MultidimensionalRasterDataset,
-  channel: number,
-): Promise<{ readonly min: number; readonly max: number }> => {
-  const scanned = await renderScientificPlane(opened, {
-    plane: { z: 0, c: channel, t: 0 },
-    range: { mode: 'dataset' },
-  })
-  return scanned.range
+const inputSize = (input: ArrayBuffer | File): number =>
+  input instanceof ArrayBuffer ? input.byteLength : input.size
+
+const beginDataset = (opened: DemoDataset, bytes: number): void => {
+  dataset = opened
+  sourceBytes = bytes
+  generation += 1
+  rangeCache.clear()
+  latestDisplay = undefined
 }
 
-const gsfMetadata = async (
-  opened: GsfDataset,
-  name: string,
-  bytes: number,
-): Promise<ScientificOpenedMetadata> => {
-  const range = await dataRange(opened, 0)
+const gsfMetadata = (opened: GsfDataset, name: string, bytes: number): ScientificOpenedMetadata => {
   const pixelX = opened.physicalSizeX
   const pixelY = opened.physicalSizeY
   return {
@@ -60,8 +70,6 @@ const gsfMetadata = async (
     height: opened.sizeY,
     bands: 1,
     sampleType: opened.sampleType,
-    dataMin: range.min,
-    dataMax: range.max,
     sourceBytes: bytes,
     ...(opened.channels[0]?.name === undefined ? {} : { title: opened.channels[0].name }),
     ...(opened.channels[0]?.unit === undefined ? {} : { valueUnit: opened.channels[0].unit }),
@@ -73,16 +81,15 @@ const gsfMetadata = async (
   }
 }
 
-const enviMetadata = async (
+const enviMetadata = (
   opened: EnviDataset,
   name: string,
   bytes: number,
-): Promise<ScientificOpenedMetadata> => {
-  const spectral = opened.channels.flatMap((channel) =>
-    channel.spectral === undefined ? [] : [channel.spectral],
-  )
-  const initialChannel = Math.floor(opened.sizeC / 2)
-  const range = await dataRange(opened, initialChannel)
+): ScientificOpenedMetadata => {
+  const centers = opened.channels.map((channel) => channel.spectral?.center ?? null)
+  const actual = centers.filter((center): center is number => center !== null)
+  const unit = opened.channels.find((channel) => channel.spectral?.unit !== undefined)?.spectral
+    ?.unit
   return {
     mode: 'hyperspectral',
     name,
@@ -90,48 +97,95 @@ const enviMetadata = async (
     height: opened.sizeY,
     bands: opened.sizeC,
     sampleType: opened.sampleType,
-    dataMin: range.min,
-    dataMax: range.max,
     sourceBytes: bytes,
-    ...(spectral[0] === undefined
+    channelCenters: Object.freeze(centers),
+    ...(actual.length === 0
       ? {}
-      : {
-          wavelengthMin: Math.min(...spectral.map(({ center }) => center)),
-          wavelengthMax: Math.max(...spectral.map(({ center }) => center)),
-        }),
-    ...(spectral[0]?.unit === undefined ? {} : { wavelengthUnit: spectral[0].unit }),
+      : { wavelengthMin: Math.min(...actual), wavelengthMax: Math.max(...actual) }),
+    ...(unit === undefined ? {} : { wavelengthUnit: unit }),
   }
 }
 
-const openGsfFile = async (name: string, data: ArrayBuffer): Promise<void> => {
-  post({ type: 'opening', message: 'Reading native float32 GSF metadata and samples…' })
-  const opened = await openGsf(data, { maxInputBytes: Math.max(data.byteLength, 1) })
-  dataset = opened
-  sourceBytes = data.byteLength
-  post({ type: 'opened', metadata: await gsfMetadata(opened, name, data.byteLength) })
+const fitsMetadata = (
+  opened: FitsDataset,
+  document: FitsDocument,
+  name: string,
+  bytes: number,
+): ScientificOpenedMetadata => ({
+  mode: 'fits',
+  name,
+  width: opened.sizeX,
+  height: opened.sizeY,
+  bands: 1,
+  sizeZ: opened.sizeZ,
+  sampleType: opened.sampleType,
+  sourceBytes: bytes,
+  fitsHdu: opened.hdu.index,
+  fitsPrimary: opened.hdu.primary,
+  bitpix: opened.bitpix,
+  bscale: opened.bscale,
+  bzero: opened.bzero,
+  storedSampleType: opened.storedSampleType,
+  ...(opened.blank === undefined ? {} : { blank: opened.blank }),
+  fitsHdus: Object.freeze(
+    document.hdus.map((hdu) => ({
+      index: hdu.index,
+      canOpenRaster: hdu.canOpenRaster,
+      label: `HDU ${hdu.index}: ${hdu.primary ? 'Primary' : (hdu.extensionType ?? 'Extension')} ${hdu.dimensions.length === 0 ? '(empty)' : hdu.dimensions.join(' × ')}`,
+    })),
+  ),
+})
+
+const openGsfFile = async (name: string, data: ArrayBuffer | File): Promise<void> => {
+  post({ type: 'opening', message: 'Reading GSF metadata…' })
+  const bytes = inputSize(data)
+  const opened = await openGsf(data, { maxInputBytes: Math.max(bytes, 1) })
+  fitsDocument = undefined
+  beginDataset(opened, bytes)
+  post({ type: 'opened', metadata: gsfMetadata(opened, name, bytes) })
 }
 
 const openEnviFiles = async (
   headerName: string,
   dataName: string,
-  header: ArrayBuffer,
-  data: ArrayBuffer,
+  header: ArrayBuffer | File,
+  data: ArrayBuffer | File,
 ): Promise<void> => {
-  post({
-    type: 'opening',
-    message: 'Parsing the ENVI header and validating the paired binary raster…',
-  })
+  post({ type: 'opening', message: 'Parsing the ENVI header and validating the binary raster…' })
+  const headerBytes = inputSize(header)
+  const dataBytes = inputSize(data)
   const opened = await openEnvi({
     header,
     data,
-    maxInputBytes: Math.max(header.byteLength, data.byteLength, 1),
+    maxInputBytes: Math.max(headerBytes, dataBytes, 1),
+    maxFrames: 100_000,
   })
-  dataset = opened
-  sourceBytes = header.byteLength + data.byteLength
+  fitsDocument = undefined
+  beginDataset(opened, headerBytes + dataBytes)
   post({
     type: 'opened',
-    metadata: await enviMetadata(opened, `${headerName} + ${dataName}`, sourceBytes),
+    metadata: enviMetadata(opened, `${headerName} + ${dataName}`, sourceBytes),
   })
+}
+
+const selectFitsHdu = async (index: number): Promise<void> => {
+  const document = fitsDocument
+  if (!document) throw new Error('Open a FITS document before selecting an HDU')
+  const opened = await document.openImage(index)
+  beginDataset(opened, sourceBytes)
+  post({ type: 'opened', metadata: fitsMetadata(opened, document, fitsName, sourceBytes) })
+}
+
+const openFitsFile = async (name: string, data: ArrayBuffer | File): Promise<void> => {
+  post({ type: 'opening', message: 'Parsing FITS Header/Data Units…' })
+  const bytes = inputSize(data)
+  const document = await openFits(data, { maxInputBytes: Math.max(bytes, 1), maxFrames: 100_000 })
+  fitsDocument = document
+  fitsName = name
+  sourceBytes = bytes
+  const first = document.hdus.find((hdu) => hdu.canOpenRaster)
+  if (!first) throw new Error('This FITS file contains no supported image array')
+  await selectFitsHdu(first.index)
 }
 
 const rangeOptions = (settings: ScientificDemoRenderSettings): ScientificRange => {
@@ -139,11 +193,22 @@ const rangeOptions = (settings: ScientificDemoRenderSettings): ScientificRange =
     return { mode: 'explicit', min: settings.rangeMin, max: settings.rangeMax }
   }
   if (settings.rangeMode === 'dataset') return { mode: 'dataset' }
-  return {
-    mode: 'percentile',
-    low: settings.percentileLow,
-    high: settings.percentileHigh,
-  }
+  return { mode: 'percentile', low: settings.percentileLow, high: settings.percentileHigh }
+}
+
+const measuredRange = async (
+  active: MultidimensionalRasterDataset,
+  z: number,
+  channel: number,
+  settings: ScientificDemoRenderSettings,
+): Promise<ScientificPlaneMeasurement> => {
+  const range = rangeOptions(settings)
+  const key = `${generation}:${z}:${channel}:${range.mode}:${range.mode === 'percentile' ? `${range.low}:${range.high}` : range.mode === 'explicit' ? `${range.min}:${range.max}` : ''}`
+  const cached = rangeCache.get(key)
+  if (cached) return cached
+  const measured = await measureScientificPlane(active, { plane: { z, c: channel, t: 0 }, range })
+  rangeCache.set(key, measured)
+  return measured
 }
 
 const rgbaPixels = async (
@@ -173,60 +238,89 @@ const rgbaPixels = async (
   return output
 }
 
-const render = async (sequence: number, settings: ScientificDemoRenderSettings): Promise<void> => {
-  const active = dataset
-  if (!active) throw new Error('Open a scientific raster before rendering')
-  latestSequence = Math.max(latestSequence, sequence)
-  const started = performance.now()
-  const range = rangeOptions(settings)
-  let blocks: AsyncIterable<PixelBlock>
-  let rangeLabel: string
-  let selectionLabel: string | undefined
-  if (active.format === 'envi' && settings.displayMode === 'composite') {
-    const composite = await renderSpectralComposite(active, {
-      red: settings.red,
-      green: settings.green,
-      blue: settings.blue,
-      range,
-      scale: settings.scale,
-    })
-    blocks = composite.pixels
-    rangeLabel = composite.ranges
-      .map(({ min, max }) => `${min.toPrecision(4)}–${max.toPrecision(4)}`)
-      .join(' / ')
-    selectionLabel =
-      `R ${composite.red.requested} → ${composite.red.selected}; G ${composite.green.requested} → ${composite.green.selected}; B ${composite.blue.requested} → ${composite.blue.selected} ${composite.red.unit ?? ''}`.trim()
-  } else if (active.format === 'envi') {
-    const band = await renderSpectralBand(active, {
-      wavelength: settings.wavelength,
-      range,
-      scale: settings.scale,
-      palette: settings.palette,
-    })
-    blocks = band.image.pixels
-    rangeLabel = `${band.image.range.min.toPrecision(6)}–${band.image.range.max.toPrecision(6)}`
-    selectionLabel =
-      `Requested ${band.selection.requested} ${band.selection.unit ?? ''} → channel ${band.selection.channel + 1} at ${band.selection.selected} ${band.selection.unit ?? ''}`.trim()
-  } else {
-    const image = await renderScientificPlane(active, {
-      plane: { z: 0, c: 0, t: 0 },
-      range,
-      scale: settings.scale,
-      palette: settings.palette,
-      relief: settings.relief
+const renderChannel = async (
+  active: DemoDataset,
+  z: number,
+  channel: number,
+  settings: ScientificDemoRenderSettings,
+  palette = settings.palette,
+): Promise<{
+  readonly pixels: Uint8ClampedArray<ArrayBuffer>
+  readonly measurement: ScientificPlaneMeasurement
+}> => {
+  const measurement = await measuredRange(active, z, channel, settings)
+  const image = await renderScientificPlane(active, {
+    plane: { z, c: channel, t: 0 },
+    range: { mode: 'explicit', min: measurement.range.min, max: measurement.range.max },
+    scale: settings.scale,
+    palette,
+    relief:
+      active.format === 'gsf' && settings.relief
         ? {
             azimuth: settings.reliefAzimuth,
             elevation: settings.reliefElevation,
             strength: settings.reliefStrength,
           }
         : false,
+  })
+  return { pixels: await rgbaPixels(active.sizeX, active.sizeY, image.pixels), measurement }
+}
+
+const render = async (sequence: number, settings: ScientificDemoRenderSettings): Promise<void> => {
+  const active = dataset
+  if (!active) throw new Error('Open a scientific raster before rendering')
+  latestSequence = Math.max(latestSequence, sequence)
+  const started = performance.now()
+  const z = active.format === 'fits' ? settings.z : 0
+  let pixels: Uint8ClampedArray<ArrayBuffer>
+  let rangeLabel: string
+  let selectionLabel: string | undefined
+  let nativeRangeLabel: string | undefined
+  if (active.format === 'envi' && settings.displayMode === 'composite') {
+    const channels = [settings.red, settings.green, settings.blue]
+    const rendered = []
+    for (const channel of channels)
+      rendered.push(await renderChannel(active, 0, channel, settings, 'grayscale'))
+    pixels = new Uint8ClampedArray(active.sizeX * active.sizeY * 4)
+    for (let index = 0; index < active.sizeX * active.sizeY; index += 1) {
+      pixels[index * 4] = rendered[0]?.pixels[index * 4] ?? 0
+      pixels[index * 4 + 1] = rendered[1]?.pixels[index * 4] ?? 0
+      pixels[index * 4 + 2] = rendered[2]?.pixels[index * 4] ?? 0
+      pixels[index * 4 + 3] = 255
+    }
+    rangeLabel = rendered
+      .map(
+        ({ measurement }) =>
+          `${measurement.range.min.toPrecision(4)}–${measurement.range.max.toPrecision(4)}`,
+      )
+      .join(' / ')
+    const labels = channels.map((channel, index) => {
+      const center = active.channels[channel]?.spectral?.center
+      return `${'RGB'[index]} band ${channel + 1}${center === undefined ? '' : ` (${center} ${active.channels[channel]?.spectral?.unit ?? ''})`}`
     })
-    blocks = image.pixels
-    rangeLabel = `${image.range.min.toExponential(5)}–${image.range.max.toExponential(5)}`
+    selectionLabel = labels.join('; ')
+  } else {
+    const channel = active.format === 'envi' ? settings.channel : 0
+    const rendered = await renderChannel(active, z, channel, settings)
+    pixels = rendered.pixels
+    rangeLabel = `${rendered.measurement.range.min.toPrecision(6)}–${rendered.measurement.range.max.toPrecision(6)}`
+    if (settings.rangeMode === 'dataset') nativeRangeLabel = rangeLabel
+    if (active.format === 'envi') {
+      const spectral = active.channels[channel]?.spectral
+      selectionLabel =
+        `Band ${channel + 1} of ${active.sizeC}${spectral === undefined ? '' : `, ${spectral.center} ${spectral.unit ?? ''}`}`.trim()
+    } else if (active.format === 'fits') {
+      selectionLabel = `HDU ${active.hdu.index}, Z plane ${z + 1} of ${active.sizeZ}`
+    }
   }
-  const pixels = await rgbaPixels(active.sizeX, active.sizeY, blocks)
   if (sequence < latestSequence) return
-  const sourceBytesRead = active.format === 'envi' ? active.sourceBytesRead : sourceBytes
+  latestDisplay = {
+    width: active.sizeX,
+    height: active.sizeY,
+    pixels: Uint8ClampedArray.from(pixels),
+  }
+  const sourceBytesRead =
+    active.format === 'envi' || active.format === 'fits' ? active.sourceBytesRead : sourceBytes
   post(
     {
       type: 'rendered',
@@ -236,21 +330,60 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
       pixels,
       renderMilliseconds: performance.now() - started,
       sourceBytesRead,
-      sourceBytesLabel: active.format === 'envi' ? 'Binary bytes read' : 'Input size',
+      sourceBytesLabel:
+        active.format === 'envi'
+          ? 'Binary bytes read'
+          : active.format === 'fits'
+            ? 'FITS bytes read'
+            : 'Input size',
       rangeLabel,
       ...(selectionLabel === undefined ? {} : { selectionLabel }),
+      ...(nativeRangeLabel === undefined ? {} : { nativeRangeLabel }),
     },
     [pixels.buffer],
   )
 }
 
+const downloadPng = async (): Promise<void> => {
+  const display = latestDisplay
+  if (!display) throw new Error('Render a scientific display before downloading it')
+  const sink = new Uint8ArraySink()
+  const createEncoder = pngCodec.createEncoder
+  if (!createEncoder) throw new Error('PureJsImage PNG encoder is unavailable')
+  const encoder = await createEncoder(sink, {
+    width: display.width,
+    height: display.height,
+    pixelFormat: 'rgba8',
+    options: {},
+    runtime: browserRuntime,
+  })
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width: display.width,
+    height: display.height,
+    stride: display.width * 4,
+    format: 'rgba8',
+    data: new Uint8Array(
+      display.pixels.buffer,
+      display.pixels.byteOffset,
+      display.pixels.byteLength,
+    ),
+  })
+  await encoder.finish()
+  const data = Uint8Array.from(sink.toUint8Array())
+  post({ type: 'png', data }, [data.buffer])
+}
+
 scope.onmessage = (event): void => {
   const request = event.data
-  const operation =
-    request.type === 'open-gsf'
-      ? openGsfFile(request.name, request.data)
-      : request.type === 'open-envi'
-        ? openEnviFiles(request.headerName, request.dataName, request.header, request.data)
-        : render(request.sequence, request.settings)
+  let operation: Promise<void>
+  if (request.type === 'open-gsf') operation = openGsfFile(request.name, request.data)
+  else if (request.type === 'open-envi')
+    operation = openEnviFiles(request.headerName, request.dataName, request.header, request.data)
+  else if (request.type === 'open-fits') operation = openFitsFile(request.name, request.data)
+  else if (request.type === 'select-fits-hdu') operation = selectFitsHdu(request.index)
+  else if (request.type === 'download-png') operation = downloadPng()
+  else operation = render(request.sequence, request.settings)
   void operation.catch((cause: unknown) => post({ type: 'error', message: errorMessage(cause) }))
 }

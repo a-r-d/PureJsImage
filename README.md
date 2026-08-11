@@ -130,12 +130,27 @@ const dataset = await profiles.openWith(document, omeTiffProfile)
 
 ### Scientific rasters and explicit display mapping
 
-GSF, ENVI, and OME-TIFF expose native numeric samples through `purejsimage/scientific`.
-Range, scale, palette, relief, and spectral rendering remain explicit display operations that do
-not mutate the quantitative source data.
+Scientific readers are separate from photographic codecs. The dataset remains numeric until an
+application requests display pixels:
 
-[Read the scientific raster API documentation →](https://purejsimage.com/api/#scientific) ·
-[Try the client-side Scientific Raster Explorer demo →](https://purejsimage.com/scientific/)
+```ts
+import { FileSource } from 'purejsimage'
+import { openFits, renderScientificPlane } from 'purejsimage/scientific'
+
+const fits = await openFits(await FileSource.open('observation.fits'))
+const dataset = await fits.openImage(0)
+const display = await renderScientificPlane(dataset, {
+  plane: { z: 0, c: 0, t: 0 },
+  range: { mode: 'percentile', low: 1, high: 99 },
+  palette: 'viridis',
+})
+```
+
+[ENVI](https://purejsimage.com/scientific/envi/) ·
+[GSF](https://purejsimage.com/scientific/gsf/) ·
+[FITS](https://purejsimage.com/scientific/fits/) ·
+[Scientific API](https://purejsimage.com/api/#scientific) ·
+[Client-side explorer](https://purejsimage.com/scientific/)
 
 ## Live browser demo
 
@@ -214,7 +229,7 @@ maturity.
 The raster APIs preserve native numeric data instead of forcing every source
 through RGB:
 
-- **Scientific:** GSF surfaces, ENVI hyperspectral cubes, N-channel rasters, and OME-TIFF.
+- **Scientific:** GSF surfaces, ENVI hyperspectral cubes, FITS image arrays, N-channel rasters, and OME-TIFF.
 - **Geospatial:** GeoTIFF and remote COG region reads.
 - **Pathology:** whole-slide pyramids, Aperio SVS, and vendor profiles.
 

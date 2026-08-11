@@ -129,6 +129,60 @@ const readValues = async (
 }
 
 describe('ENVI Standard scientific rasters', () => {
+  it('keeps a large Blob-backed binary lazy and reads only bounded slices', async () => {
+    const requestedSlices: { readonly start: number; readonly end: number }[] = []
+    class VirtualRasterBlob extends Blob {
+      override get size(): number {
+        return 1_073_741_824
+      }
+
+      override slice(start = 0, end = this.size, contentType?: string): Blob {
+        requestedSlices.push({ start, end })
+        return contentType === undefined
+          ? new Blob([new Uint8Array(end - start)])
+          : new Blob([new Uint8Array(end - start)], { type: contentType })
+      }
+    }
+    const header = new TextEncoder().encode(`ENVI
+samples = 1024
+lines = 1024
+bands = 1024
+file type = ENVI Standard
+data type = 1
+interleave = bsq
+byte order = 0
+`)
+    const opened = await openEnvi({
+      header: new Blob([header]),
+      data: new VirtualRasterBlob(),
+      maxInputBytes: 1_073_741_824,
+      maxFrames: 1024,
+      rowsPerBlock: 1,
+    })
+    expect(requestedSlices).toEqual([])
+    for await (const _block of opened.readPlane({
+      z: 0,
+      c: 512,
+      t: 0,
+      x: 20,
+      y: 30,
+      width: 5,
+      height: 2,
+    })) {
+      // Exhaust the two selected rows.
+    }
+    expect(opened.sourceBytesRead).toBe(10)
+    expect(requestedSlices.length).toBeGreaterThan(0)
+    expect(
+      requestedSlices.every(
+        ({ start, end }) => end - start < opened.sizeX * opened.sizeY * opened.sizeC,
+      ),
+    ).toBe(true)
+    expect(Math.max(...requestedSlices.map(({ end }) => end))).toBeLessThan(
+      opened.sizeX * opened.sizeY * opened.sizeC,
+    )
+  })
+
   it.each([
     ['bsq', 1, 0],
     ['bil', 12, 0],

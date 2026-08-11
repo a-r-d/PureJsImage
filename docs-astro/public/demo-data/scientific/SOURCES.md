@@ -1,6 +1,6 @@
 # Scientific Raster Explorer demo data
 
-The committed GSF and ENVI files in this directory are deterministic synthetic fixtures. They do
+The committed GSF, ENVI, and FITS files in this directory are deterministic synthetic fixtures. They do
 not contain or derive from third-party measurements.
 
 ## `synthetic-afm.gsf`
@@ -17,11 +17,19 @@ not contain or derive from third-party measurements.
   and [ENVI Header Files](https://www.nv5geospatialsoftware.com/docs/enviheaderfiles.html)
 - Geometry: 96 × 64 × 16 bands
 - Storage: little-endian uint16, band-interleaved-by-line (BIL)
-- Spectral axis: 450–900 nm in 30 nm steps with deterministic material-like absorption curves
-- Header SHA-256: `2148c87e43f7f12c0e9acf9cac650dea692a40b157782480a811bd9f4aa2ea71`
-- Binary SHA-256: `b5d23e4dff7f1f29f333e9ace224defe3cee2512027a1c0842e36c1cb57e4392`
+- Spectral axis: 16 nonuniform channel centers from 450 to 910 nm with deterministic material-like absorption curves
+- Header SHA-256: `7df267bb54ee07e4b85e86af876bab5b391651c911e21432ae79d2cd1304c6f2`
+- Binary SHA-256: `7247ddce5508856f417ca46333ab5f13ed4eaee5ccda52de83490db46c2e5881`
 
-Regenerate both fixtures from the repository root:
+## `synthetic-cube.fits`
+
+- Format source: [NASA/GSFC FITS Standard](https://fits.gsfc.nasa.gov/fits_standard.html)
+- Geometry: 128 × 96 × 3 signed int16 stored samples
+- Physical scaling: `BSCALE = 0.25`, `BZERO = 100`
+- Storage: primary image array with big-endian samples and 2880-byte header/data alignment
+- SHA-256: `796a0ae06ee02463bee6fecab8ea0a51be32df5001f0d3ddc077c497b2a03993`
+
+Regenerate all fixtures from the repository root:
 
 ```sh
 npm run demo:scientific:generate

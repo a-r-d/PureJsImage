@@ -1,6 +1,6 @@
 import type { ScientificDisplayScale, ScientificPalette } from '../../../src/scientific/index.ts'
 
-export type ScientificDemoMode = 'surface' | 'hyperspectral'
+export type ScientificDemoMode = 'surface' | 'hyperspectral' | 'fits'
 export type ScientificDemoRangeMode = 'dataset' | 'percentile' | 'explicit'
 export type ScientificDemoDisplayMode = 'band' | 'composite'
 
@@ -17,21 +17,31 @@ export interface ScientificDemoRenderSettings {
   readonly reliefAzimuth: number
   readonly reliefElevation: number
   readonly reliefStrength: number
-  readonly wavelength: number
+  readonly channel: number
   readonly red: number
   readonly green: number
   readonly blue: number
+  readonly z: number
+}
+
+export interface ScientificFitsHduOption {
+  readonly index: number
+  readonly label: string
+  readonly canOpenRaster: boolean
 }
 
 export type ScientificWorkerRequest =
-  | { readonly type: 'open-gsf'; readonly name: string; readonly data: ArrayBuffer }
+  | { readonly type: 'open-gsf'; readonly name: string; readonly data: ArrayBuffer | File }
   | {
       readonly type: 'open-envi'
       readonly headerName: string
       readonly dataName: string
-      readonly header: ArrayBuffer
-      readonly data: ArrayBuffer
+      readonly header: ArrayBuffer | File
+      readonly data: ArrayBuffer | File
     }
+  | { readonly type: 'open-fits'; readonly name: string; readonly data: ArrayBuffer | File }
+  | { readonly type: 'select-fits-hdu'; readonly index: number }
+  | { readonly type: 'download-png' }
   | {
       readonly type: 'render'
       readonly sequence: number
@@ -55,9 +65,19 @@ export interface ScientificOpenedMetadata {
   readonly wavelengthMin?: number
   readonly wavelengthMax?: number
   readonly wavelengthUnit?: string
-  readonly dataMin: number
-  readonly dataMax: number
+  readonly channelCenters?: readonly (number | null)[]
+  readonly dataMin?: number
+  readonly dataMax?: number
   readonly sourceBytes: number
+  readonly sizeZ?: number
+  readonly fitsHdus?: readonly ScientificFitsHduOption[]
+  readonly fitsHdu?: number
+  readonly fitsPrimary?: boolean
+  readonly bitpix?: number
+  readonly bscale?: number
+  readonly bzero?: number
+  readonly blank?: number
+  readonly storedSampleType?: string
 }
 
 export type ScientificWorkerResponse =
@@ -74,5 +94,7 @@ export type ScientificWorkerResponse =
       readonly sourceBytesLabel: string
       readonly rangeLabel: string
       readonly selectionLabel?: string
+      readonly nativeRangeLabel?: string
     }
+  | { readonly type: 'png'; readonly data: Uint8Array<ArrayBuffer> }
   | { readonly type: 'error'; readonly message: string }

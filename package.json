@@ -28,6 +28,7 @@
     "ome-tiff",
     "gsf",
     "envi",
+    "fits",
     "hyperspectral",
     "afm",
     "scientific-imaging",
