@@ -9,9 +9,9 @@
                          I M A G E
 </pre>
 
-<h3>Low-memory image codecs and raster processing in TypeScript</h3>
+<h3>First-party image codecs and low-memory raster processing in strict TypeScript</h3>
 
-<p>Pure TypeScript by default · optional first-party WASM · zero runtime dependencies</p>
+<p>Portable reference engine · optional first-party acceleration · zero runtime dependencies</p>
 
 <p>
   <a href="https://www.npmjs.com/package/purejsimage"><img alt="npm version" src="https://img.shields.io/npm/v/purejsimage?style=for-the-badge&amp;logo=npm&amp;logoColor=white&amp;color=cb3837"></a>
@@ -23,7 +23,7 @@
 <p>
   <a href="https://github.com/a-r-d/PureJsImage/blob/main/package.json"><img alt="Zero runtime dependencies" src="https://img.shields.io/badge/runtime_dependencies-0-2ea44f?style=for-the-badge"></a>
   <a href="https://github.com/a-r-d/PureJsImage/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/npm/l/purejsimage?style=for-the-badge&amp;color=blue"></a>
-  <a href="https://github.com/a-r-d/PureJsImage"><img alt="Pure TypeScript core" src="https://img.shields.io/badge/core-pure_TypeScript-3178c6?style=for-the-badge&amp;logo=typescript&amp;logoColor=white"></a>
+  <a href="https://github.com/a-r-d/PureJsImage"><img alt="Strict TypeScript reference engine" src="https://img.shields.io/badge/reference-strict_TypeScript-3178c6?style=for-the-badge&amp;logo=typescript&amp;logoColor=white"></a>
 </p>
 
 <p>
@@ -37,23 +37,28 @@
 </p>
 </div>
 
-PureJsImage is a zero-runtime-dependency codec and raster-processing library for
-Node.js and modern browsers. One bounded source and codec architecture serves two
-use cases:
+PureJsImage is building a broad suite of first-party image codecs in strict
+TypeScript. Each codec grows from a checked capability contract and conformance
+corpus toward broader decode coverage, practical encoding, bounded-memory
+execution, and optional first-party acceleration.
 
-- **Application images:** inspect, orient, crop, resize, and transcode common formats.
+A shared lazy image and raster pipeline makes those codecs useful across two
+workload families:
+
+- **Application images:** inspect, orient, crop, resize, and transcode common
+  formats.
 - **Large and native rasters:** TIFF, OME-TIFF, GeoTIFF/COG, whole-slide images,
   remote regions, and N-channel numeric data.
 
-It targets serverless, browser, edge, and restricted deployments where native
-addons or source-sized bitmap pipelines are a poor fit.
+The same source, codec, and pipeline architecture targets Node.js, modern
+browsers, serverless, edge, and restricted deployments. It is not a canvas,
+drawing, or graphics-effects toolkit.
 
-It processes existing images; it is not a canvas or graphics toolkit for drawing,
-text, or Photoshop-style effects. Pure TypeScript codecs are the default, with
-optional first-party JPEG and PNG WASM accelerators.
-
-Memory behavior is codec- and operation-specific. PureJsImage uses bounded rows or
-tiles where implemented and documents full-frame or larger-state fallbacks.
+The strict TypeScript reference engine is the permanent portable path. Optional
+first-party JPEG and PNG WASM accelerators preserve its public behavior and are
+explicitly registered; they do not replace it. Memory behavior remains codec-
+and operation-specific: bounded rows or tiles are used where implemented, and
+full-frame or larger-state fallbacks are documented.
 
 ## Install
 
@@ -179,6 +184,12 @@ HEIF/HEIC is experimental, excluded from `allCodecs`, and available only through
 `purejsimage/codecs/experimental/heic`. Its [support contract](heif-codec-support.md)
 includes the HEVC patent notice for users and distributors.
 
+AVIF is an active first-party codec project, not a wrapper around libavif or a
+third-party runtime. The checked capability contract defines the currently
+validated still-image decode subset; broader decode coverage is expanding, and
+a constrained encoder is planned after the decoder reaches its intended
+maturity.
+
 ## Beyond ordinary image conversion
 
 The raster APIs preserve native numeric data instead of forcing every source
@@ -213,7 +224,7 @@ A capability is **Yes** only when upstream documentation or source supports it; 
 
 | Library | Runtime model | Browser | BigTIFF | Tiles | Region decode | Native scientific raster | OME / whole-slide semantics | Decode coverage |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PureJsImage benchmark snapshot · a1f20da | Pure JavaScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>2 oracle failures |
+| PureJsImage benchmark snapshot · a1f20da | Strict TypeScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>2 oracle failures |
 | GeoTIFF.js 3.0.5 | Pure JavaScript | Yes | Partial | Yes | Yes | Yes | No | 84/106 decoded<br>32 exact<br>11 unsupported · 7 errors · 2 oracle failures · 2 crashes |
 | UTIF.js (utif2) 4.1.0 | Pure JavaScript | Yes | No | Yes | No | Partial | No | 74/106 decoded<br>49 exact<br>28 errors · 2 oracle failures · 2 timeouts · 3 crashes |
 | image-js/tiff 7.1.3 | Pure JavaScript | Yes | No | Yes | No | Yes | No | 41/106 decoded<br>27 exact<br>51 unsupported · 12 errors · 2 oracle failures |
@@ -317,11 +328,18 @@ complete installed deployment tells the other half of the story:
 
 ## Why PureJsImage?
 
-- Lower peak memory for common server and Lambda image workflows.
-- No runtime dependencies, required WebAssembly, native addons, or external image programs.
-- The same processing API in Node.js and modern browsers.
-- Unsupported files and operations return clear errors instead of broken
-  output.
+- First-party codecs implemented in this repository, with strict TypeScript as
+  the permanent portable reference engine.
+- Zero runtime dependencies and no required native image stack, WebAssembly, or
+  external binaries.
+- Codec-native bounded execution where the format permits it, with explicit
+  memory classes and documented full-frame fallbacks.
+- The same reference behavior across Node.js and modern browsers.
+- Explicit unsupported boundaries instead of plausible corruption.
+- Permanent conformance corpora, hostile-input tests, and reproducible
+  performance and memory measurements.
+- Optional first-party acceleration that preserves the reference contract
+  rather than replacing it.
 
 ### When to use Sharp instead
 

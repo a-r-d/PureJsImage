@@ -334,11 +334,18 @@ const conformanceCell = (
   return `<strong>${coverage}</strong><small>${exact}</small>${failures.length === 0 ? '' : `<small>${htmlEscape(failures)}</small>`}`
 }
 
+const implementationLabel = (library: (typeof libraryComparisons)[number]): string =>
+  library.id === 'purejsimage'
+    ? 'Strict TypeScript'
+    : library.implementation === 'pure-javascript'
+      ? 'Pure JavaScript'
+      : 'Native wrapper'
+
 const compactMarkdown = (report: ConformanceReport): string => {
   const rows = libraryComparisons
     .map(
       (library) =>
-        `| ${library.name} ${versionLabel(library, report)} | ${library.implementation === 'pure-javascript' ? 'Pure JavaScript' : 'Native wrapper'} | ${markdownValue(library.runtime.browser)} | ${markdownValue(capability(library, 'bigTiff'))} | ${markdownValue(capability(library, 'tiles'))} | ${markdownValue(capability(library, 'regionDecode'))} | ${markdownValue(capability(library, 'nativeRasterOutput'))} | ${markdownValue(combinedSemantics(library))} | ${conformanceCell(library, report, false)} |`,
+        `| ${library.name} ${versionLabel(library, report)} | ${implementationLabel(library)} | ${markdownValue(library.runtime.browser)} | ${markdownValue(capability(library, 'bigTiff'))} | ${markdownValue(capability(library, 'tiles'))} | ${markdownValue(capability(library, 'regionDecode'))} | ${markdownValue(capability(library, 'nativeRasterOutput'))} | ${markdownValue(combinedSemantics(library))} | ${conformanceCell(library, report, false)} |`,
     )
     .join('\n')
   return `${readmeStart}
@@ -359,13 +366,13 @@ const compactHtml = (report: ConformanceReport): string => {
   const rows = libraryComparisons
     .map(
       (library) =>
-        `<tr><th scope="row"><a href="${htmlEscape(library.url)}" target="_blank" rel="noreferrer">${htmlEscape(library.name)}</a><small>${htmlEscape(versionLabel(library, report))} · ${library.implementation === 'pure-javascript' ? 'Pure JavaScript' : 'Native wrapper'}</small></th><td>${htmlValue(library.runtime.browser, false)}</td><td>${htmlValue(capability(library, 'bigTiff'), false)}</td><td>${htmlValue(capability(library, 'tiles'), false)}</td><td>${htmlValue(capability(library, 'regionDecode'), false)}</td><td>${htmlValue(capability(library, 'nativeRasterOutput'), false)}</td><td>${htmlValue(combinedSemantics(library), false)}</td><td>${conformanceCell(library, report, true)}</td></tr>`,
+        `<tr><th scope="row"><a href="${htmlEscape(library.url)}" target="_blank" rel="noreferrer">${htmlEscape(library.name)}</a><small>${htmlEscape(versionLabel(library, report))} · ${implementationLabel(library)}</small></th><td>${htmlValue(library.runtime.browser, false)}</td><td>${htmlValue(capability(library, 'bigTiff'), false)}</td><td>${htmlValue(capability(library, 'tiles'), false)}</td><td>${htmlValue(capability(library, 'regionDecode'), false)}</td><td>${htmlValue(capability(library, 'nativeRasterOutput'), false)}</td><td>${htmlValue(combinedSemantics(library), false)}</td><td>${conformanceCell(library, report, true)}</td></tr>`,
     )
     .join('\n')
   return `<section class="section tint comparison-section" id="tiff-library-comparison">
       <div class="container">
-        <div class="section-heading"><div><p class="section-label">Measured compatibility</p><h2>TIFF support, without collapsing every claim to yes or no.</h2></div><a class="text-link" href="tiff-comparison.html">Full comparison →</a></div>
-        <p class="comparison-intro">Capability cells follow upstream documentation or source. Decode coverage is a separate 106-fixture RGBA comparison; exact output, scientific rasters, and malformed inputs are reported separately.</p>
+        <div class="section-heading"><div><p class="section-label">Shared raster engine · measured TIFF depth</p><h2>From display TIFFs to native scientific and whole-slide rasters.</h2></div><a class="text-link" href="tiff-comparison.html">Full comparison →</a></div>
+        <p class="comparison-intro">TIFF demonstrates how the same codec architecture serves ordinary conversion and specialized raster workloads. Capability cells follow upstream documentation or source; a separate 106-fixture RGBA comparison reports decode coverage, exact output, scientific rasters, and malformed inputs.</p>
         <div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Browser</th><th>BigTIFF</th><th>Tiles</th><th>Region</th><th>Scientific raster</th><th>OME / WSI</th><th>Decode coverage</th></tr></thead><tbody>${rows}</tbody></table></div>
         <p class="section-note">Measured ${htmlEscape(report.generatedAt.slice(0, 10))} with ${htmlEscape(report.nodeVersion)} on ${htmlEscape(report.platform)}/${htmlEscape(report.architecture)}. <a href="tiff-comparison.html#methodology">Methodology, caveats, versions, and evidence.</a></p>
       </div>
