@@ -1,18 +1,23 @@
-import { createHash } from 'node:crypto'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
+import { downloadPinnedFile } from '../lib/pinned-download.ts'
 import { openCbf } from '../../src/scientific/formats/cbf.ts'
 
 const commit = '88f4f5b6fdcee5577d1f96c46c27a653c6622e20'
 const url = `https://raw.githubusercontent.com/paulscherrerinstitute/cbf/${commit}/examples/in16c_010001.cbf`
 const expectedSha256 = '6d338b78101bcaecfe7322942d067f4ca40f403491773026f23f24004feaf516'
-const response = await fetch(url)
-if (!response.ok) throw new Error(`PSI CBF sample returned HTTP ${response.status}`)
-const bytes = new Uint8Array(await response.arrayBuffer())
-const sha256 = createHash('sha256').update(bytes).digest('hex')
-if (sha256 !== expectedSha256) {
-  throw new Error(`CBF sample checksum changed: expected ${expectedSha256}, received ${sha256}`)
-}
+const outputDirectory = resolve('benchmark/corpus/cbf/compatibility')
+const destination = resolve(outputDirectory, 'in16c_010001.cbf')
+await mkdir(outputDirectory, { recursive: true })
+await downloadPinnedFile({
+  allowedDirectory: outputDirectory,
+  allowedHosts: new Set(['raw.githubusercontent.com']),
+  destination,
+  expectedSha256,
+  maximumBytes: 307_605,
+  url,
+})
+const bytes = await readFile(destination)
 const dataset = await openCbf(bytes, { maxInputBytes: bytes.byteLength })
 if (
   dataset.sizeX !== 487 ||
@@ -25,7 +30,4 @@ if (
 ) {
   throw new Error('PSI CBF sample metadata changed')
 }
-const outputDirectory = resolve('benchmark/corpus/cbf/compatibility')
-await mkdir(outputDirectory, { recursive: true })
-await writeFile(resolve(outputDirectory, 'in16c_010001.cbf'), bytes)
-console.log(`Prepared ${bytes.byteLength} byte CBF sample with SHA-256 ${sha256}`)
+console.log(`Prepared ${bytes.byteLength} byte CBF sample with SHA-256 ${expectedSha256}`)
