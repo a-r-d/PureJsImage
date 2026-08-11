@@ -38,6 +38,7 @@ export interface BrowserCompatibilityHarness {
   avifYuv444(): Promise<BrowserWorkflowResult>
   failureCleanup(): Promise<BrowserWorkflowResult>
   heifPqDisplay(): Promise<BrowserWorkflowResult>
+  httpRangeCancellation(): Promise<BrowserWorkflowResult>
   inputTypes(): Promise<readonly BrowserWorkflowResult[]>
   optionalApiEntries(): Promise<BrowserWorkflowResult>
   jpegPipeline(): Promise<BrowserWorkflowResult>

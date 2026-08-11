@@ -1,6 +1,10 @@
+import type { AbortOptions } from './abort.ts'
+import { combineAbortSignals, throwIfAborted } from './abort.ts'
 import { ImageError, invalidInput, truncatedInput } from './errors.ts'
 import type { ImageLimits } from './limits.ts'
 import { validateInputSize } from './limits.ts'
+
+export interface ImageSourceReadOptions extends AbortOptions {}
 
 export interface ImageSource {
   readonly size: number
@@ -10,7 +14,11 @@ export interface ImageSource {
    * retain bytes across reads must copy them first. Reject the promise when the
    * backing read fails.
    */
-  read(offset: number, length: number): Promise<Uint8Array>
+  read(
+    offset: number,
+    length: number,
+    options?: Readonly<ImageSourceReadOptions>,
+  ): Promise<Uint8Array>
 }
 
 export const sourceSessionStart = Symbol('purejsimage.sourceSessionStart')
@@ -19,7 +27,11 @@ export const stableSourceBuffers = Symbol('purejsimage.stableSourceBuffers')
 
 interface StableBufferSource extends ImageSource {
   readonly [stableSourceBuffers]: true
-  read(offset: number, length: number): Promise<Uint8Array<ArrayBuffer>>
+  read(
+    offset: number,
+    length: number,
+    options?: Readonly<ImageSourceReadOptions>,
+  ): Promise<Uint8Array<ArrayBuffer>>
 }
 
 interface SessionManagedSource extends ImageSource {
@@ -85,7 +97,12 @@ export class MemorySource implements ImageSource {
     this.size = this.#data.byteLength
   }
 
-  async read(offset: number, length: number): Promise<Uint8Array> {
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    throwIfAborted(options.signal)
     const available = readLength(this.size, offset, length)
     return this.#data.subarray(offset, offset + available)
   }
@@ -101,9 +118,16 @@ export class BlobSource implements ImageSource {
     this.size = blob.size
   }
 
-  async read(offset: number, length: number): Promise<Uint8Array<ArrayBuffer>> {
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array<ArrayBuffer>> {
+    throwIfAborted(options.signal)
     const available = readLength(this.size, offset, length)
-    return new Uint8Array(await this.#blob.slice(offset, offset + available).arrayBuffer())
+    const data = new Uint8Array(await this.#blob.slice(offset, offset + available).arrayBuffer())
+    throwIfAborted(options.signal)
+    return data
   }
 }
 
@@ -124,14 +148,20 @@ class ValidatedSource implements ImageSource {
     if (isSessionManagedSource(this.#source)) await this.#source[sourceSessionEnd]()
   }
 
-  async read(offset: number, length: number): Promise<Uint8Array> {
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    throwIfAborted(options.signal)
     const expected = readLength(this.size, offset, length)
     if (expected === 0) return new Uint8Array()
 
     let data: unknown
     try {
-      data = await this.#source.read(offset, length)
+      data = await this.#source.read(offset, length, options)
     } catch (cause) {
+      throwIfAborted(options.signal)
       if (cause instanceof ImageError) throw cause
       throw new ImageError(
         'INVALID_INPUT',
@@ -140,6 +170,7 @@ class ValidatedSource implements ImageSource {
       )
     }
 
+    throwIfAborted(options.signal)
     if (!(data instanceof Uint8Array)) {
       throw invalidInput(`ImageSource read at offset ${offset} did not return a Uint8Array`)
     }
@@ -155,6 +186,67 @@ class ValidatedSource implements ImageSource {
     }
     return data
   }
+}
+class SignalBoundSource implements ImageSource {
+  readonly size: number
+  protected readonly source: ImageSource
+  readonly #signal: AbortSignal
+
+  constructor(source: ImageSource, signal: AbortSignal) {
+    this.source = source
+    this.size = source.size
+    this.#signal = signal
+  }
+
+  [sourceSessionStart](): void {
+    if (isSessionManagedSource(this.source)) this.source[sourceSessionStart]()
+  }
+
+  async [sourceSessionEnd](): Promise<void> {
+    if (isSessionManagedSource(this.source)) await this.source[sourceSessionEnd]()
+  }
+
+  read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    const signal = combineAbortSignals(this.#signal, options.signal)
+    throwIfAborted(signal)
+    return this.source.read(offset, length, { signal })
+  }
+}
+
+class StableSignalBoundSource extends SignalBoundSource implements StableBufferSource {
+  readonly [stableSourceBuffers] = true
+  readonly #stableSource: StableBufferSource
+  readonly #signal: AbortSignal
+
+  constructor(source: StableBufferSource, signal: AbortSignal) {
+    super(source, signal)
+    this.#stableSource = source
+    this.#signal = signal
+  }
+
+  override read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array<ArrayBuffer>> {
+    const signal = combineAbortSignals(this.#signal, options.signal)
+    throwIfAborted(signal)
+    return this.#stableSource.read(offset, length, { signal })
+  }
+}
+
+export const bindImageSourceSignal = (
+  source: ImageSource,
+  signal: AbortSignal | undefined,
+): ImageSource => {
+  if (signal === undefined) return source
+  return hasStableSourceBuffers(source)
+    ? new StableSignalBoundSource(source, signal)
+    : new SignalBoundSource(source, signal)
 }
 
 export class BufferedSource implements ImageSource {
@@ -235,7 +327,12 @@ export class BufferedSource implements ImageSource {
     this.#buffers[oldest] = buffer
   }
 
-  async read(offset: number, length: number): Promise<Uint8Array> {
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    throwIfAborted(options.signal)
     const available = readLength(this.size, offset, length)
     if (available === 0) return new Uint8Array()
 
@@ -248,7 +345,7 @@ export class BufferedSource implements ImageSource {
     }
     const cached = this.#readCached(offset, available)
     if (cached) return cached
-    if (available >= this.#bufferBytes) return this.#source.read(offset, available)
+    if (available >= this.#bufferBytes) return this.#source.read(offset, available, options)
 
     const firstRegion = Math.floor(offset / this.#bufferBytes) * this.#bufferBytes
     const lastRegion = Math.floor((offset + available - 1) / this.#bufferBytes) * this.#bufferBytes
@@ -257,22 +354,26 @@ export class BufferedSource implements ImageSource {
       regionStart <= lastRegion;
       regionStart += this.#bufferBytes
     ) {
+      throwIfAborted(options.signal)
       if (!this.#buffers.some((buffer) => buffer.start === regionStart)) {
         const amount = Math.min(this.size - regionStart, this.#bufferBytes)
         const data = hasStableSourceBuffers(this.#source)
-          ? await this.#source.read(regionStart, amount)
-          : Uint8Array.from(await this.#source.read(regionStart, amount))
+          ? await this.#source.read(regionStart, amount, options)
+          : Uint8Array.from(await this.#source.read(regionStart, amount, options))
         this.#storeBuffer({ data, lastUsed: ++this.#accessCounter, start: regionStart })
       }
     }
-    return this.#readCached(offset, available) ?? this.#source.read(offset, available)
+    throwIfAborted(options.signal)
+    return this.#readCached(offset, available) ?? this.#source.read(offset, available, options)
   }
 }
 
 export const createImageSource = async (
   input: ImageInput,
   limits: ImageLimits,
+  options: Readonly<AbortOptions> = {},
 ): Promise<ImageSource> => {
+  throwIfAborted(options.signal)
   let source: ImageSource
   if (input instanceof Blob) source = new BlobSource(input)
   else if (input instanceof Uint8Array || input instanceof ArrayBuffer)
@@ -289,6 +390,7 @@ export const createImageSource = async (
   else throw invalidInput('Unsupported image input')
 
   validateInputSize(source.size, limits)
+  throwIfAborted(options.signal)
   return source instanceof MemorySource || source instanceof BufferedSource
     ? source
     : new BufferedSource(source)
@@ -298,8 +400,9 @@ export const readExactly = async (
   source: ImageSource,
   offset: number,
   length: number,
+  options: Readonly<ImageSourceReadOptions> = {},
 ): Promise<Uint8Array> => {
-  const data = await source.read(offset, length)
+  const data = await source.read(offset, length, options)
   if (data.byteLength !== length) {
     throw truncatedInput(
       `Expected ${length} bytes at offset ${offset}, received ${data.byteLength}`,

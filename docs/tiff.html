@@ -117,7 +117,7 @@
 
         <section id="whole-slide" data-search-item>
           <h2>Whole-slide images</h2>
-          <p>The generic <code>WholeSlideImage</code> contract exposes level dimensions and downsample factors, requested-region reads, associated images, vendor properties, microns per pixel, and objective power where present.</p>
+          <p>The generic <code>WholeSlideImage</code> contract exposes level dimensions and downsample factors, requested-region reads, associated images, vendor properties, microns per pixel, and objective power where present. Each level also exposes <code>tile(column, row, options?)</code> using native tile coordinates; edge tiles return only the valid image region. Region, tile, associated-image, profile, and TIFF document operations accept an optional <code>AbortSignal</code>.</p>
           <p>The first-party Aperio SVS profile classifies pyramid levels and label, macro, or thumbnail images; parses MPP and objective metadata; and decodes TIFF JPEG 2000 tags 33003/33005. The pinned irreversible Aperio tile differs from the OpenSlide 3.4.1 oracle by at most two 8-bit code values across 54 of 196,608 channels.</p>
           <div class="callout warning"><strong>JPEG 2000 memory class.</strong> TIFF region selection remains tile-bounded. The current JPEG 2000 decoder reconstructs complete component state for the current TIFF tile or strip, not for the source slide.</div>
         </section>

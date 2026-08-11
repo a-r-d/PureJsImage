@@ -1,3 +1,4 @@
+import type { AbortOptions } from './abort.ts'
 import { invalidInput, unsupportedFormat, unsupportedOperation } from './errors.ts'
 import { recognizeInputFormat } from './input-format.ts'
 import type { ImageLimits } from './limits.ts'
@@ -100,12 +101,12 @@ export interface DecoderCapabilities {
   progressive: boolean
 }
 
-export interface DecodeRequest {
-  x?: number
-  y?: number
-  width?: number
-  height?: number
-  scaleDenominator?: 1 | 2 | 4 | 8
+export interface DecodeRequest extends AbortOptions {
+  readonly x?: number
+  readonly y?: number
+  readonly width?: number
+  readonly height?: number
+  readonly scaleDenominator?: 1 | 2 | 4 | 8
 }
 
 export interface ImageDecoder {
@@ -127,21 +128,21 @@ export interface PreservedMetadata {
   readonly icc?: Uint8Array
 }
 
-export interface DecoderOptions {
+export interface DecoderOptions extends AbortOptions {
   readonly frame?: number
   readonly resolutionLevel?: number
   readonly preserveIcc?: boolean
   readonly tolerantDecoding?: boolean
 }
 
-export interface MetadataPreservationOptions {
+export interface MetadataPreservationOptions extends AbortOptions {
   readonly exif: boolean
   readonly icc: boolean
   readonly frame?: number
   readonly resolutionLevel?: number
 }
 
-export interface EncodeRequest {
+export interface EncodeRequest extends AbortOptions {
   readonly width: number
   readonly height: number
   readonly pixelFormat: PixelFormat
@@ -201,7 +202,7 @@ export class CodecRegistry {
     return this.#codecs.map((codec) => codec.format)
   }
 
-  async detect(source: ImageSource): Promise<ImageCodec> {
+  async detect(source: ImageSource, options: Readonly<AbortOptions> = {}): Promise<ImageCodec> {
     const initialProbeLength = Math.min(
       source.size,
       this.#codecs.reduce(
@@ -209,10 +210,10 @@ export class CodecRegistry {
         baseProbeBytes,
       ),
     )
-    let header = await source.read(0, initialProbeLength)
+    let header = await source.read(0, initialProbeLength, options)
     const expandedProbeLength = ftypProbeLength(header, source.size)
     if (expandedProbeLength > header.byteLength) {
-      header = await source.read(0, expandedProbeLength)
+      header = await source.read(0, expandedProbeLength, options)
     }
     const codec = this.#codecs.find(
       (candidate) => header.byteLength >= candidate.minimumBytes && candidate.detect(header),
@@ -220,7 +221,9 @@ export class CodecRegistry {
     if (!codec) {
       const diagnosticLength = Math.min(source.size, diagnosticProbeBytes)
       const diagnostic =
-        header.byteLength >= diagnosticLength ? header : await source.read(0, diagnosticLength)
+        header.byteLength >= diagnosticLength
+          ? header
+          : await source.read(0, diagnosticLength, options)
       const recognized = recognizeInputFormat(diagnostic)
       if (!recognized) throw unsupportedFormat('Input format is not recognized')
       if (recognized.malformedMessage) throw invalidInput(recognized.malformedMessage)

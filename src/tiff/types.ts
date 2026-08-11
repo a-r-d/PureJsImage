@@ -1,3 +1,4 @@
+import type { AbortOptions } from '../abort.ts'
 import type { ImageCodec, ImageDecoder } from '../codec.ts'
 import type { ImageLimitOptions } from '../limits.ts'
 import type { RasterDecoder } from '../raster.ts'
@@ -9,12 +10,12 @@ export type TiffTagValue =
   | { readonly kind: 'bigints'; readonly values: readonly bigint[] }
   | { readonly kind: 'bytes'; readonly value: Uint8Array }
 
-export interface TiffTagReadOptions {
+export interface TiffTagReadOptions extends AbortOptions {
   /** Maximum tag payload read for this call. Defaults to 1 MiB. */
   readonly maxBytes?: number
 }
 
-export interface TiffByteReadOptions {
+export interface TiffByteReadOptions extends AbortOptions {
   /** Maximum bytes read for this call. Required so profile readers cannot issue unbounded reads. */
   readonly maxBytes: number
 }
@@ -37,8 +38,8 @@ export interface TiffDirectory {
   readonly subIfds: readonly TiffDirectory[]
 
   getTag(tag: number, options?: Readonly<TiffTagReadOptions>): Promise<TiffTagValue | undefined>
-  createImageDecoder(): Promise<ImageDecoder>
-  createRasterDecoder(): Promise<RasterDecoder>
+  createImageDecoder(options?: Readonly<AbortOptions>): Promise<ImageDecoder>
+  createRasterDecoder(options?: Readonly<AbortOptions>): Promise<RasterDecoder>
 }
 
 export interface TiffDocument {
@@ -61,7 +62,7 @@ export interface TiffDocument {
   ): Promise<Uint8Array>
 }
 
-export interface TiffDocumentOptions extends ImageLimitOptions {
+export interface TiffDocumentOptions extends ImageLimitOptions, AbortOptions {
   readonly embeddedCodecs?: readonly ImageCodec[]
 }
 

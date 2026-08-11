@@ -1,3 +1,5 @@
+import type { AbortOptions } from './abort.ts'
+import { throwIfAborted } from './abort.ts'
 import { invalidInput } from './errors.ts'
 
 export type PixelFormat =
@@ -114,6 +116,13 @@ const halfFloat = (bits: number): number => {
 }
 
 const numericFormat = (format: PixelFormat): NumericFormat | undefined => {
+  if (format === 'gray8') {
+    return {
+      channels: 1,
+      bytesPerSample: 1,
+      read: (data, _view, offset) => data[offset] ?? 0,
+    }
+  }
   if (format === 'gray16' || format === 'rgb16' || format === 'rgba16') {
     return {
       channels: format === 'gray16' ? 1 : format === 'rgb16' ? 3 : 4,
@@ -179,6 +188,7 @@ const numericFormat = (format: PixelFormat): NumericFormat | undefined => {
 }
 
 const defaultDisplayRange = (format: PixelFormat): PixelSampleDisplayRange => {
+  if (format === 'gray8') return { black: 0, white: 255 }
   if (format === 'gray32' || format === 'rgb32') {
     return { black: 0, white: 4_294_967_295 }
   }
@@ -224,9 +234,11 @@ const xyzDisplayByte = (value: number): number => {
 
 const normalizeYF32Blocks = async function* (
   blocks: AsyncIterable<PixelBlock>,
+  options: Readonly<AbortOptions>,
 ): AsyncGenerator<PixelBlock> {
   const bytesPerPixel = 4
   for await (const block of blocks) {
+    throwIfAborted(options.signal)
     const rowBytes = block.width * bytesPerPixel
     if (
       block.format !== 'yf32' ||
@@ -242,6 +254,7 @@ const normalizeYF32Blocks = async function* (
     const output = new Uint8Array(outputStride * block.height)
     const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
     for (let row = 0; row < block.height; row += 1) {
+      throwIfAborted(options.signal)
       let source = row * block.stride
       let target = row * outputStride
       const end = source + rowBytes
@@ -266,9 +279,11 @@ const normalizeYF32Blocks = async function* (
 
 const normalizeXyzF32Blocks = async function* (
   blocks: AsyncIterable<PixelBlock>,
+  options: Readonly<AbortOptions>,
 ): AsyncGenerator<PixelBlock> {
   const bytesPerPixel = 12
   for await (const block of blocks) {
+    throwIfAborted(options.signal)
     const rowBytes = block.width * bytesPerPixel
     if (
       block.format !== 'xyzf32' ||
@@ -284,6 +299,7 @@ const normalizeXyzF32Blocks = async function* (
     const output = new Uint8Array(outputStride * block.height)
     const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
     for (let row = 0; row < block.height; row += 1) {
+      throwIfAborted(options.signal)
       let source = row * block.stride
       let target = row * outputStride
       const end = source + rowBytes
@@ -311,25 +327,42 @@ const normalizeXyzF32Blocks = async function* (
   }
 }
 
+export interface NormalizePixelOptions extends AbortOptions {
+  readonly displayRanges?: readonly PixelSampleDisplayRange[]
+}
+
 export const normalizePixelBlocks = async function* (
   blocks: AsyncIterable<PixelBlock>,
   format: PixelFormat,
+  options: Readonly<NormalizePixelOptions> = {},
 ): AsyncGenerator<PixelBlock> {
   const normalized = normalizedFormat(format)
-  if (normalized === format) {
+  if (normalized === format && options.displayRanges === undefined) {
     yield* blocks
     return
   }
   if (format === 'yf32') {
-    yield* normalizeYF32Blocks(blocks)
+    yield* normalizeYF32Blocks(blocks, options)
     return
   }
   if (format === 'xyzf32') {
-    yield* normalizeXyzF32Blocks(blocks)
+    yield* normalizeXyzF32Blocks(blocks, options)
     return
   }
   const numeric = numericFormat(format)
   if (!numeric) throw invalidInput(`Normalization does not support ${format} pixels`)
+  if (
+    options.displayRanges !== undefined &&
+    (options.displayRanges.length !== numeric.channels ||
+      options.displayRanges.some(
+        (range) =>
+          !Number.isFinite(range.black) ||
+          !Number.isFinite(range.white) ||
+          range.black === range.white,
+      ))
+  ) {
+    throw invalidInput('Numeric normalization display ranges are invalid')
+  }
   const sourceRowBytes = (width: number): number =>
     width * numeric.channels * numeric.bytesPerSample
   const fallbackRange = defaultDisplayRange(format)
@@ -340,6 +373,7 @@ export const normalizePixelBlocks = async function* (
         ? 'floor'
         : 'quantum'
   for await (const block of blocks) {
+    throwIfAborted(options.signal)
     const rowBytes = sourceRowBytes(block.width)
     if (
       block.format !== format ||
@@ -362,12 +396,14 @@ export const normalizePixelBlocks = async function* (
     const output = new Uint8Array(outputStride * block.height)
     const sourceView = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
     for (let row = 0; row < block.height; row += 1) {
+      throwIfAborted(options.signal)
       let source = row * block.stride
       let target = row * outputStride
       const end = source + rowBytes
       let channel = 0
       while (source < end) {
-        const range = block.displayRanges?.[channel] ?? fallbackRange
+        const range =
+          options.displayRanges?.[channel] ?? block.displayRanges?.[channel] ?? fallbackRange
         output[target] = displayByte(numeric.read(block.data, sourceView, source), range, rounding)
         source += numeric.bytesPerSample
         target += 1

@@ -2404,6 +2404,57 @@ const orientation = async (): Promise<BrowserWorkflowResult> => {
   return { detail: 'EXIF orientation 6 normalized to 480x640 PNG', outputBytes: output.size }
 }
 
+const httpRangeCancellation = async (): Promise<BrowserWorkflowResult> => {
+  let markStarted: (() => void) | undefined
+  const started = new Promise<void>((resolve) => {
+    markStarted = resolve
+  })
+  const fetcher: typeof fetch = async (_input, init) => {
+    const range = new Headers(init?.headers).get('range')
+    if (range === 'bytes=0-0') {
+      return new Response(Uint8Array.of(0), {
+        status: 206,
+        headers: {
+          'content-range': 'bytes 0-0/1024',
+          etag: '"browser-cancellation"',
+        },
+      })
+    }
+    return new Promise<Response>((_resolve, reject) => {
+      const signal = init?.signal
+      if (!signal) {
+        reject(new Error('Range fetch did not receive an AbortSignal'))
+        return
+      }
+      if (signal.aborted) {
+        reject(signal.reason)
+        return
+      }
+      markStarted?.()
+      signal.addEventListener('abort', () => reject(signal.reason), { once: true })
+    })
+  }
+  const source = await HttpRangeSource.open('https://example.invalid/slide.tiff', {
+    blockBytes: 64,
+    fetch: fetcher,
+  })
+  const controller = new AbortController()
+  const read = source.read(0, 32, { signal: controller.signal })
+  await started
+  controller.abort()
+  let aborted = false
+  try {
+    await read
+  } catch (error: unknown) {
+    aborted = error instanceof DOMException && error.name === 'AbortError'
+  }
+  if (!aborted) throw new Error('In-flight browser range read did not abort')
+  return {
+    detail: 'AbortSignal cancelled an in-flight browser HTTP range read',
+    outputBytes: 0,
+  }
+}
+
 class FailingSink implements ImageSink {
   aborted = false
   #writes = 0
@@ -2493,6 +2544,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifYuv444,
   failureCleanup,
   heifPqDisplay,
+  httpRangeCancellation,
   inputTypes,
   optionalApiEntries,
   legacyTiffAndBmp,

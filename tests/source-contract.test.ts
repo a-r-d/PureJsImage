@@ -159,6 +159,42 @@ describe('HttpRangeSource', () => {
     expect(source.stats).toEqual({ requests: 5, bytesFetched: 65, cacheBytes: 32 })
   })
 
+  it('cancels an in-flight range fetch with a per-read signal', async () => {
+    let markStarted: (() => void) | undefined
+    const started = new Promise<void>((resolve) => {
+      markStarted = resolve
+    })
+    const cancellableFetch: typeof fetch = async (_input, init) => {
+      const range = new Headers(init?.headers).get('range')
+      if (range === 'bytes=0-0') {
+        return new Response(Uint8Array.of(0), {
+          status: 206,
+          headers: { 'content-range': 'bytes 0-0/100' },
+        })
+      }
+      markStarted?.()
+      return new Promise<Response>((_resolve, reject) => {
+        const signal = init?.signal
+        if (!signal) {
+          reject(new Error('Expected a fetch AbortSignal'))
+          return
+        }
+        signal.addEventListener('abort', () => reject(signal.reason), { once: true })
+      })
+    }
+    const source = await HttpRangeSource.open('https://example.test/cancel.tif', {
+      blockBytes: 16,
+      fetch: cancellableFetch,
+    })
+    const controller = new AbortController()
+    const read = source.read(16, 1, { signal: controller.signal })
+    await started
+    controller.abort()
+
+    await expect(read).rejects.toMatchObject({ name: 'AbortError' })
+    expect(source.stats.requests).toBe(2)
+  })
+
   it('rejects servers that ignore ranges or return mismatched extents', async () => {
     const ignored: typeof fetch = async () => new Response(bytes, { status: 200 })
     await expect(

@@ -212,6 +212,7 @@ let viewerCenterX = 0
 let viewerCenterY = 0
 let viewerRenderSequence = 0
 let viewerRenderFrame: number | undefined
+let viewerRenderController: AbortController | undefined
 let viewerClipUrl: string | undefined
 let pointerDrag:
   | {
@@ -476,6 +477,8 @@ const setViewerControls = (enabled: boolean, directoryEnabled = enabled): void =
 
 const resetViewer = (): void => {
   viewerRenderSequence += 1
+  viewerRenderController?.abort()
+  viewerRenderController = undefined
   if (viewerRenderFrame !== undefined) cancelAnimationFrame(viewerRenderFrame)
   viewerRenderFrame = undefined
   viewerSelection = undefined
@@ -664,6 +667,9 @@ const renderViewer = async (): Promise<void> => {
   const selection = viewerSelection
   if (!selection || viewPanel.hidden) return
   const sequence = ++viewerRenderSequence
+  viewerRenderController?.abort()
+  const controller = new AbortController()
+  viewerRenderController = controller
   clampViewerCenter()
   const region = currentViewerRegion()
   if (!region) return
@@ -691,8 +697,10 @@ const renderViewer = async (): Promise<void> => {
           y: region.y,
           width: region.width,
           height: region.height,
+          signal: controller.signal,
         }),
         selection.decoder.pixelFormat,
+        { signal: controller.signal },
       )
       for await (const block of blocks) {
         if (sequence !== viewerRenderSequence) {
@@ -728,7 +736,7 @@ const renderViewer = async (): Promise<void> => {
         .crop({ x: region.x, y: region.y, width: region.width, height: region.height })
         .resize({ width: targetWidth, height: targetHeight, fit: 'fill' })
         .png()
-        .toBlob()
+        .toBlob({ signal: controller.signal })
       const bitmap = await createImageBitmap(blob)
       try {
         if (sequence !== viewerRenderSequence) return
@@ -754,16 +762,19 @@ const renderViewer = async (): Promise<void> => {
       `${selection.kind === 'tiff' ? 'TIFF' : selection.metadata.format.toUpperCase()} viewport ${region.x},${region.y} ${region.width}×${region.height} rendered in ${formatDuration(elapsed)}.`,
     )
   } catch (error: unknown) {
-    if (sequence !== viewerRenderSequence) return
+    if (controller.signal.aborted || sequence !== viewerRenderSequence) return
     viewerStatus.textContent = errorMessage(error)
     addLog('error', `Viewer: ${errorMessage(error)}`)
   } finally {
     window.clearTimeout(loadingTimer)
+    if (viewerRenderController === controller) viewerRenderController = undefined
     if (sequence === viewerRenderSequence) setViewerLoading(false)
   }
 }
 
 const scheduleViewerRender = (): void => {
+  viewerRenderController?.abort()
+  viewerRenderController = undefined
   if (viewerRenderFrame !== undefined) cancelAnimationFrame(viewerRenderFrame)
   viewerRenderFrame = requestAnimationFrame(() => {
     viewerRenderFrame = undefined

@@ -1,3 +1,4 @@
+import type { AbortOptions } from './abort.ts'
 import type { ImagePlatform } from './image-core.ts'
 import type { ImageLimits } from './limits.ts'
 import { browserRuntime } from './browser-runtime.ts'
@@ -7,8 +8,12 @@ import { createImageSource, type ImageInput, type ImageSource } from './source.t
 
 export const browserPlatform: ImagePlatform<ImageInput, Uint8Array> = Object.freeze({
   runtime: browserRuntime,
-  createImageSource(input: ImageInput, limits: ImageLimits): Promise<ImageSource> {
-    return createImageSource(input, limits)
+  createImageSource(
+    input: ImageInput,
+    limits: ImageLimits,
+    options?: Readonly<AbortOptions>,
+  ): Promise<ImageSource> {
+    return createImageSource(input, limits, options)
   },
   createCollectedOutput(): CollectedOutput<Uint8Array> {
     const sink = new Uint8ArraySink()

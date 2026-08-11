@@ -161,7 +161,11 @@ interface ImageLibrary {
   open(input: ImageInput, options?: ImageOpenOptions): Promise<Image>
 }
 
-interface ImageOpenOptions {
+interface AbortOptions {
+  signal?: AbortSignal
+}
+
+interface ImageOpenOptions extends AbortOptions {
   frame?: number
   resolutionLevel?: number
   tolerantDecoding?: boolean
@@ -179,12 +183,14 @@ interface ImageOpenOptions {
 
 All transform methods return a new `Image`.
 
-- `metadata()` returns `Promise<ImageMetadata>` without decoding pixels.
+- `metadata(options?)` returns `Promise<ImageMetadata>` without decoding pixels. Pass `{ signal }` to cancel metadata reads.
 - `autoOrient()` applies EXIF orientations 1 through 8.
 - `keepExif()` opts into compatible EXIF preservation. EXIF is stripped by default.
 - `keepIcc()` opts into compatible ICC preservation. ICC is stripped or converted by default.
 - `crop({ x, y, width, height })` uses integer coordinates in the current pipeline state. The rectangle must be in bounds.
 - `resize(options)` supports one or two dimensions.
+- `window({ center, width })` maps numeric grayscale samples directly to `gray8` using the explicit display window.
+- `lut({ table, format })` maps `gray8` to `gray8`, `rgb8`, or `rgba8`, or applies independent channel tables to `rgba8`.
 - `rotate(degrees, options?)` rotates clockwise. Quarter turns are exact; arbitrary angles use bilinear sampling and expand the canvas.
 - `flip()` mirrors top to bottom.
 - `flop()` mirrors left to right.
@@ -220,6 +226,22 @@ At least one dimension is required.
 - `lanczos3` is the default. Use `bilinear` for a faster lower-quality path or `nearest` for hard pixel edges.
 - `withoutEnlargement: true` prevents permitted fits from scaling above 1.
 - Background colors are `transparent`, `#RRGGBB`, or `#RRGGBBAA`.
+
+### Window and LUT options
+
+```ts
+interface WindowOptions {
+  center: number
+  width: number
+}
+
+interface LutOptions {
+  table: Uint8Array
+  format: 'gray8' | 'rgb8' | 'rgba8'
+}
+```
+
+Windowing must precede resize, rotation, flip, flop, and LUT stages. It overrides the source display range without creating an 8-/16-bit full-frame intermediate. A grayscale LUT contains 256 interleaved output entries, so its byte length is 256, 768, or 1024. An RGBA-to-RGBA LUT contains 1024 interleaved bytes and maps each input channel through its corresponding channel table. Both operations retain bounded row/block output.
 
 ## Encoder quick API
 
@@ -258,11 +280,13 @@ Important boundaries:
 
 ## Terminal output methods
 
-- `toFile(path)`: Node-only; removes a partial file if encoding fails.
-- `toBuffer()`: Node execution returning a runtime `Buffer` through the portable `Uint8Array` public type.
-- `toUint8Array()`: portable encoded bytes in Node or browsers.
-- `toBlob()`: browser-oriented `Blob` with the registered output MIME type.
-- `toSink(sink)`: streams encoded chunks to a custom `ImageSink`.
+- `toFile(path, options?)`: Node-only; removes a partial file if encoding fails or is cancelled.
+- `toBuffer(options?)`: Node execution returning a runtime `Buffer` through the portable `Uint8Array` public type.
+- `toUint8Array(options?)`: portable encoded bytes in Node or browsers.
+- `toBlob(options?)`: browser-oriented `Blob` with the registered output MIME type.
+- `toSink(sink, options?)`: streams encoded chunks to a custom `ImageSink`.
+
+Every terminal output method accepts `{ signal?: AbortSignal }`. Cancellation reaches source reads, decode, transforms, and encoding; the active sink is aborted and the operation rejects with `AbortError`.
 
 Node exports `FileSink` and `BufferSink`. Both runtimes export `Uint8ArraySink` and the `ImageSink` contract.
 
@@ -274,7 +298,11 @@ type NodeImageInput = BrowserImageInput | string
 
 interface ImageSource {
   readonly size: number
-  read(offset: number, length: number): Promise<Uint8Array>
+  read(
+    offset: number,
+    length: number,
+    options?: { signal?: AbortSignal },
+  ): Promise<Uint8Array>
 }
 ```
 
@@ -283,9 +311,9 @@ Available source adapters:
 - `MemorySource`: zero-copy reads over `ArrayBuffer` or `Uint8Array`.
 - `BlobSource`: browser range reads using `Blob.slice()`.
 - `FileSource`: Node-only; use `await FileSource.open(path)`.
-- `HttpRangeSource`: bounded HTTP range-backed reads with request and byte statistics; import it from `purejsimage/sources/http-range`.
+- `HttpRangeSource`: bounded HTTP range-backed reads with request and byte statistics; import it from `purejsimage/sources/http-range`. Each per-read signal is combined with the source-lifetime signal and cancels an active fetch.
 
-A custom source must return exactly the requested in-range byte count or reject. Short, oversized, detached, and rejected reads become structured `ImageError` results.
+A custom source must return exactly the requested in-range byte count or reject. Short, oversized, detached, and rejected reads become structured `ImageError` results. Public image opening, metadata, terminal output, decoder, TIFF document/profile, raster, whole-slide, and source-read options accept `AbortSignal`.
 
 ## Metadata
 
@@ -521,7 +549,7 @@ for await (const block of dataset.readPlane({
 }
 ```
 
-Use `purejsimage/pathology` for `openAperioSvs()` and the generic `WholeSlideImage` contract. TIFF profile code must bound all private metadata reads and validate metadata-to-IFD mappings before decoding.
+Use `purejsimage/pathology` for `openAperioSvs()` and the generic `WholeSlideImage` contract. `slide.readRegion({ level, x, y, width, height, signal })` reads an arbitrary rectangle. `slide.levels[level].tile(column, row, { signal })` reads one native tile by zero-based tile coordinates; padded edge tiles return only their valid image region. Associated-image reads and profile opening also accept `{ signal }`. TIFF profile code must bound all private metadata reads and validate metadata-to-IFD mappings before decoding.
 
 ## Optional JPEG and PNG WASM
 

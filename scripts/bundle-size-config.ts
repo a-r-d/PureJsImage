@@ -35,7 +35,7 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     id: 'core',
     name: 'Core API',
     contents: exportsFrom(['./src/index.ts']),
-    maxMinifiedBytes: 53 * 1024,
+    maxMinifiedBytes: 55 * 1024,
   },
   {
     id: 'png',

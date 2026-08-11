@@ -1,4 +1,4 @@
-import { ImageError, type PixelBlock } from 'purejsimage'
+import { type AbortOptions, ImageError, type PixelBlock } from 'purejsimage'
 import type {
   WholeSlideAssociatedImage,
   WholeSlideAssociatedImageRequest,
@@ -165,12 +165,63 @@ class LeicaAssociatedImage implements WholeSlideAssociatedImage {
   async *read(
     options: Readonly<WholeSlideAssociatedImageRequest> = {},
   ): AsyncGenerator<PixelBlock> {
-    const decoder = await this.#directory.createImageDecoder()
+    const decoder = await this.#directory.createImageDecoder(options)
     yield* decoder.decode({
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
       ...(options.x === undefined ? {} : { x: options.x }),
       ...(options.y === undefined ? {} : { y: options.y }),
       ...(options.width === undefined ? {} : { width: options.width }),
       ...(options.height === undefined ? {} : { height: options.height }),
+    })
+  }
+}
+class LeicaWholeSlideLevel implements WholeSlideLevel {
+  readonly index: number
+  readonly width: number
+  readonly height: number
+  readonly downsample: number
+  readonly tileWidth?: number
+  readonly tileHeight?: number
+  readonly #directory: TiffDirectory
+
+  constructor(index: number, baseWidth: number, directory: TiffDirectory) {
+    this.index = index
+    this.width = directory.width
+    this.height = directory.height
+    this.downsample = baseWidth / directory.width
+    this.#directory = directory
+    if (directory.tileWidth !== undefined) this.tileWidth = directory.tileWidth
+    if (directory.tileHeight !== undefined) this.tileHeight = directory.tileHeight
+  }
+
+  async *tile(
+    column: number,
+    row: number,
+    options: Readonly<AbortOptions> = {},
+  ): AsyncGenerator<PixelBlock> {
+    if (!Number.isSafeInteger(column) || column < 0 || !Number.isSafeInteger(row) || row < 0) {
+      throw invalid('Leica tile coordinates must be non-negative safe integers')
+    }
+    if (this.tileWidth === undefined || this.tileHeight === undefined) {
+      throw unsupported(`Leica pyramid level ${this.index} is not tiled`)
+    }
+    const x = column * this.tileWidth
+    const y = row * this.tileHeight
+    if (
+      !Number.isSafeInteger(x) ||
+      !Number.isSafeInteger(y) ||
+      x >= this.width ||
+      y >= this.height
+    ) {
+      throw invalid(`Leica tile ${column},${row} is outside pyramid level ${this.index}`)
+    }
+    const decoder = await this.#directory.createImageDecoder(options)
+    yield* decoder.decode({
+      x,
+      y,
+      width: Math.min(this.tileWidth, this.width - x),
+      height: Math.min(this.tileHeight, this.height - y),
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
     })
   }
 }
@@ -196,16 +247,7 @@ class LeicaWholeSlideImage implements WholeSlideImage {
     this.height = first.height
     this.#directories = Object.freeze([...directories])
     this.levels = Object.freeze(
-      directories.map((directory, index) =>
-        Object.freeze({
-          index,
-          width: directory.width,
-          height: directory.height,
-          downsample: this.width / directory.width,
-          ...(directory.tileWidth === undefined ? {} : { tileWidth: directory.tileWidth }),
-          ...(directory.tileHeight === undefined ? {} : { tileHeight: directory.tileHeight }),
-        }),
-      ),
+      directories.map((directory, index) => new LeicaWholeSlideLevel(index, this.width, directory)),
     )
     this.associatedImages = Object.freeze([...associatedImages])
     this.properties = Object.freeze({ 'leica.xmlNamespace': namespace })
@@ -218,12 +260,13 @@ class LeicaWholeSlideImage implements WholeSlideImage {
   async *readRegion(options: Readonly<WholeSlideRegionRequest>): AsyncGenerator<PixelBlock> {
     const directory = this.#directories[options.level]
     if (!directory) throw invalid(`Leica pyramid level ${options.level} is unavailable`)
-    const decoder = await directory.createImageDecoder()
+    const decoder = await directory.createImageDecoder(options)
     yield* decoder.decode({
       x: options.x,
       y: options.y,
       width: options.width,
       height: options.height,
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
     })
   }
 }

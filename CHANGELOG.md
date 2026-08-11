@@ -4,6 +4,22 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added immutable numeric `window()` and color `lut()` pipeline operations for browser viewers,
+  including per-channel display ranges, grayscale-to-RGB/RGBA lookup tables, direct RGBA tables,
+  bounded row output, and explicit output pixel formats.
+- Added tile-native `WholeSlideLevel.tile(column, row, options?)` reads with validated tile
+  coordinates and bounded edge-tile regions.
+
+### Changed
+
+- Threaded `AbortSignal` through image opening, metadata, terminal output, decoder requests, TIFF
+  documents and profiles, whole-slide operations, source reads, normalization, and numeric raster
+  conversion. HTTP range reads combine source-lifetime and per-read signals so an obsolete viewer
+  request cancels its in-flight fetch, and output sinks abort cleanly on cancellation.
+
+
 ## [0.9.0] - 2026-08-09
 
 ### Added

@@ -1,5 +1,6 @@
+import { combineAbortSignals, throwIfAborted } from '../abort.ts'
 import { ImageError, invalidInput, truncatedInput } from '../errors.ts'
-import { stableSourceBuffers, type ImageSource } from '../source.ts'
+import { stableSourceBuffers, type ImageSource, type ImageSourceReadOptions } from '../source.ts'
 
 const defaultBufferBytes = 262_144
 const defaultBufferSlots = 4
@@ -78,10 +79,14 @@ const cancelResponse = async (response: Response): Promise<void> => {
 const responseBytes = async (
   response: Response,
   label: string,
+  signal: AbortSignal | undefined,
 ): Promise<Uint8Array<ArrayBuffer>> => {
   try {
-    return new Uint8Array(await response.arrayBuffer())
+    const data = new Uint8Array(await response.arrayBuffer())
+    throwIfAborted(signal)
+    return data
   } catch (cause) {
+    throwIfAborted(signal)
     throw new ImageError('INVALID_INPUT', `${label} body could not be read`, { cause })
   }
 }
@@ -138,6 +143,7 @@ export class HttpRangeSource implements ImageSource {
     const href = String(url)
     let response: Response
     try {
+      throwIfAborted(options.signal)
       const headers = new Headers(options.headers)
       headers.set('range', 'bytes=0-0')
       response = await fetcher(href, {
@@ -146,6 +152,7 @@ export class HttpRangeSource implements ImageSource {
         ...(options.signal === undefined ? {} : { signal: options.signal }),
       })
     } catch (cause) {
+      throwIfAborted(options.signal)
       throw new ImageError('INVALID_INPUT', `HTTP range probe failed for ${href}`, { cause })
     }
     if (response.status !== 206) {
@@ -160,7 +167,7 @@ export class HttpRangeSource implements ImageSource {
       throw invalidInput('HTTP range source does not support content-encoded responses')
     }
     const size = parseContentRange(response, 0, 0)
-    const probe = await responseBytes(response, 'HTTP range probe')
+    const probe = await responseBytes(response, 'HTTP range probe', options.signal)
     if (probe.byteLength !== 1)
       throw truncatedInput('HTTP range probe did not return exactly one byte')
     const etag = response.headers.get('etag')
@@ -200,16 +207,22 @@ export class HttpRangeSource implements ImageSource {
     }
   }
 
-  async #load(start: number): Promise<HttpRangeBlock> {
+  async #load(start: number, signal: AbortSignal | undefined): Promise<HttpRangeBlock> {
+    throwIfAborted(signal)
     const cached = this.#cache.get(start)
     if (cached) {
       this.#cache.delete(start)
       this.#cache.set(start, cached)
       return cached
     }
+    if (signal !== undefined) {
+      const block = await this.#fetchBlock(start, signal)
+      this.#store(block)
+      return block
+    }
     const active = this.#pending.get(start)
     if (active) return active
-    const promise = this.#fetchBlock(start)
+    const promise = this.#fetchBlock(start, undefined)
     this.#pending.set(start, promise)
     try {
       const block = await promise
@@ -220,7 +233,12 @@ export class HttpRangeSource implements ImageSource {
     }
   }
 
-  async #fetchBlock(start: number): Promise<HttpRangeBlock> {
+  async #fetchBlock(
+    start: number,
+    requestSignal: AbortSignal | undefined,
+  ): Promise<HttpRangeBlock> {
+    const signal = combineAbortSignals(this.#signal, requestSignal)
+    throwIfAborted(signal)
     const end = Math.min(this.size, start + this.#blockBytes) - 1
     const headers = new Headers(this.#headers)
     headers.set('range', `bytes=${start}-${end}`)
@@ -231,9 +249,10 @@ export class HttpRangeSource implements ImageSource {
       response = await this.#fetch(this.#url, {
         headers,
         method: 'GET',
-        ...(this.#signal === undefined ? {} : { signal: this.#signal }),
+        ...(signal === undefined ? {} : { signal }),
       })
     } catch (cause) {
+      throwIfAborted(signal)
       throw new ImageError('INVALID_INPUT', `HTTP range request failed for bytes ${start}-${end}`, {
         cause,
       })
@@ -256,7 +275,7 @@ export class HttpRangeSource implements ImageSource {
       await cancelResponse(response)
       throw invalidInput(`HTTP range source ${this.#validator.header} changed during reading`)
     }
-    const data = await responseBytes(response, 'HTTP range response')
+    const data = await responseBytes(response, 'HTTP range response', signal)
     const expected = end - start + 1
     if (data.byteLength !== expected) {
       throw truncatedInput(`HTTP range returned ${data.byteLength} of ${expected} requested bytes`)
@@ -265,26 +284,37 @@ export class HttpRangeSource implements ImageSource {
     return Object.freeze({ start, data })
   }
 
-  async read(offset: number, length: number): Promise<Uint8Array<ArrayBuffer>> {
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array<ArrayBuffer>> {
+    const signal = combineAbortSignals(this.#signal, options.signal)
+    throwIfAborted(signal)
     const available = readLength(this.size, offset, length)
     if (available === 0) return new Uint8Array()
     const firstBlock = Math.floor(offset / this.#blockBytes) * this.#blockBytes
     const lastBlock = Math.floor((offset + available - 1) / this.#blockBytes) * this.#blockBytes
     if (firstBlock === lastBlock) {
-      const block = await this.#load(firstBlock)
+      const block = await this.#load(firstBlock, signal)
       const blockOffset = offset - firstBlock
       return block.data.subarray(blockOffset, blockOffset + available)
     }
     const output = new Uint8Array(available)
     let outputOffset = 0
     for (let start = firstBlock; start <= lastBlock; start += this.#blockBytes) {
-      const block = await this.#load(start)
+      throwIfAborted(signal)
+      const block = await this.#load(start, signal)
       const sourceStart = Math.max(offset, start)
       const sourceEnd = Math.min(offset + available, start + block.data.byteLength)
       const amount = sourceEnd - sourceStart
-      output.set(block.data.subarray(sourceStart - start, sourceEnd - start), outputOffset)
+      output.set(
+        block.data.subarray(sourceStart - start, sourceStart - start + amount),
+        outputOffset,
+      )
       outputOffset += amount
     }
+    throwIfAborted(signal)
     return output
   }
 }

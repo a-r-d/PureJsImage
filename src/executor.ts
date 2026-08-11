@@ -1,3 +1,5 @@
+import type { AbortOptions } from './abort.ts'
+import { throwIfAborted } from './abort.ts'
 import type { CodecRegistry, ImageCodec, ImageEncoder } from './codec.ts'
 import { cropPixelBlocks } from './crop.ts'
 import { invalidInput, unsupportedOperation } from './errors.ts'
@@ -5,6 +7,7 @@ import type { ImageLimits } from './limits.ts'
 import { validateImageDimensions } from './limits.ts'
 import { normalizeExifOrientation } from './metadata.ts'
 import { createOrientationTransform, type ExifOrientation } from './orient.ts'
+import { applyLutPixelBlocks } from './lut.ts'
 import {
   calculateResizeDimensions,
   normalizedRotation,
@@ -40,6 +43,7 @@ interface OutputPlan {
   readonly options: unknown
   readonly decoderRegion: Region
   readonly stages: readonly PipelineOperation[]
+  readonly window?: Extract<PipelineOperation, { type: 'window' }>
 }
 
 type DecodeScaleDenominator = 1 | 2 | 4 | 8
@@ -107,6 +111,7 @@ const planOutput = (
   let format = inputFormat
   let options: unknown = {}
   let autoOrientSeen = false
+  let window: Extract<PipelineOperation, { type: 'window' }> | undefined
   let canPushCrop = sourceOrientation === 1
   const stages: PipelineOperation[] = []
 
@@ -117,7 +122,15 @@ const planOutput = (
       options = operation.options
       continue
     }
-    if (operation.type === 'autoOrient') {
+    if (operation.type === 'window') {
+      if (window) throw unsupportedOperation('Multiple window stages are not supported')
+      if (stages.length > 0) {
+        throw unsupportedOperation(
+          'Window must precede resize, rotation, flip, flop, and LUT stages',
+        )
+      }
+      window = operation
+    } else if (operation.type === 'autoOrient') {
       if (autoOrientSeen)
         throw unsupportedOperation('Multiple auto-orient stages are not supported')
       autoOrientSeen = true
@@ -151,7 +164,7 @@ const planOutput = (
     }
   }
 
-  return { format, options, decoderRegion, stages }
+  return { format, options, decoderRegion, stages, ...(window === undefined ? {} : { window }) }
 }
 
 const validateCrop = (
@@ -170,9 +183,11 @@ export const executePipeline = async (
   context: ExecutionContext,
   operations: readonly PipelineOperation[],
   sink: ImageSink,
+  options: Readonly<AbortOptions> = {},
 ): Promise<void> => {
   let encoder: ImageEncoder | undefined
   try {
+    throwIfAborted(options.signal)
     if (!context.codec.createDecoder) {
       throw unsupportedOperation(`${context.codec.format} decoding is not implemented`)
     }
@@ -187,6 +202,7 @@ export const executePipeline = async (
         ? await context.codec.preservedMetadata(context.source, context.limits, {
             exif: keepExif,
             icc: keepIcc,
+            ...(options.signal === undefined ? {} : { signal: options.signal }),
             ...(context.frame === undefined ? {} : { frame: context.frame }),
             ...(context.resolutionLevel === undefined
               ? {}
@@ -211,6 +227,7 @@ export const executePipeline = async (
       ? orientationValue(
           (
             await context.codec.metadata(context.source, context.limits, {
+              ...(options.signal === undefined ? {} : { signal: options.signal }),
               ...(context.frame === undefined ? {} : { frame: context.frame }),
               ...(context.resolutionLevel === undefined
                 ? {}
@@ -222,6 +239,7 @@ export const executePipeline = async (
     const decoder = await context.codec.createDecoder(context.source, context.limits, {
       preserveIcc: icc !== undefined,
       tolerantDecoding: context.tolerantDecoding,
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
       ...(context.frame === undefined ? {} : { frame: context.frame }),
       ...(context.resolutionLevel === undefined
         ? {}
@@ -243,22 +261,45 @@ export const executePipeline = async (
     )
     let width = Math.ceil(output.decoderRegion.width / scaleDenominator)
     let height = Math.ceil(output.decoderRegion.height / scaleDenominator)
-    let pixelFormat = normalizedPixelFormat(decoder.pixelFormat)
+    const sourcePixelFormat = decoder.pixelFormat
+    if (output.window && !sourcePixelFormat.startsWith('gray')) {
+      throw unsupportedOperation(`Window input must be grayscale, received ${sourcePixelFormat}`)
+    }
+    let pixelFormat = normalizedPixelFormat(sourcePixelFormat)
     let blocks: AsyncIterable<PixelBlock> = decoder.decode(
       scaleDenominator === 1
-        ? output.decoderRegion
+        ? {
+            ...output.decoderRegion,
+            ...(options.signal === undefined ? {} : { signal: options.signal }),
+          }
         : {
             x: Math.floor(output.decoderRegion.x / scaleDenominator),
             y: Math.floor(output.decoderRegion.y / scaleDenominator),
             width,
             height,
             scaleDenominator,
+            ...(options.signal === undefined ? {} : { signal: options.signal }),
           },
     )
-    blocks = normalizePixelBlocks(blocks, decoder.pixelFormat)
+    blocks = normalizePixelBlocks(blocks, sourcePixelFormat, {
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
+      ...(output.window === undefined
+        ? {}
+        : {
+            displayRanges: [
+              {
+                black: output.window.options.center - output.window.options.width / 2,
+                white: output.window.options.center + output.window.options.width / 2,
+              },
+            ],
+          }),
+    })
     for (const operation of output.stages) {
-      if (operation.type === 'encode') continue
-      if (operation.type === 'crop') {
+      if (operation.type === 'encode' || operation.type === 'window') continue
+      if (operation.type === 'lut') {
+        blocks = applyLutPixelBlocks(blocks, pixelFormat, operation.options, options)
+        pixelFormat = operation.options.format
+      } else if (operation.type === 'crop') {
         validateCrop(width, height, operation)
         blocks = cropPixelBlocks(blocks, width, height, pixelFormat, operation)
         width = operation.width
@@ -318,6 +359,7 @@ export const executePipeline = async (
           blocks = rotation.apply(blocks)
         }
       }
+      throwIfAborted(options.signal)
       validateImageDimensions(width, height, 1, context.limits)
     }
     validateImageDimensions(width, height, 1, context.limits)
@@ -332,6 +374,7 @@ export const executePipeline = async (
       options: output.options,
       runtime: context.runtime,
       limits: context.limits,
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
       ...(!exif && !icc
         ? {}
         : {
@@ -341,8 +384,13 @@ export const executePipeline = async (
             },
           }),
     })
-    for await (const block of blocks) await encoder.write(block)
+    for await (const block of blocks) {
+      throwIfAborted(options.signal)
+      await encoder.write(block)
+      throwIfAborted(options.signal)
+    }
     await encoder.finish()
+    throwIfAborted(options.signal)
     await sink.close()
   } catch (error) {
     try {

@@ -1,3 +1,4 @@
+import type { AbortOptions } from '../abort.ts'
 import type { PixelBlock } from '../pixel.ts'
 
 export interface WholeSlideLevel {
@@ -7,9 +8,11 @@ export interface WholeSlideLevel {
   readonly downsample: number
   readonly tileWidth?: number
   readonly tileHeight?: number
+
+  tile(column: number, row: number, options?: Readonly<AbortOptions>): AsyncIterable<PixelBlock>
 }
 
-export interface WholeSlideRegionRequest {
+export interface WholeSlideRegionRequest extends AbortOptions {
   readonly level: number
   readonly x: number
   readonly y: number
@@ -17,7 +20,7 @@ export interface WholeSlideRegionRequest {
   readonly height: number
 }
 
-export interface WholeSlideAssociatedImageRequest {
+export interface WholeSlideAssociatedImageRequest extends AbortOptions {
   readonly x?: number
   readonly y?: number
   readonly width?: number

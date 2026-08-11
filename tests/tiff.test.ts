@@ -3982,6 +3982,27 @@ describe('Aperio whole-slide profile', () => {
       region.push(block)
     }
     expect(region.map((block) => Array.from(block.data))).toEqual([[22, 22, 22, 22]])
+    const level = slide.levels[1]
+    if (!level) throw new Error('Expected Aperio pyramid level 1')
+    const tile: PixelBlock[] = []
+    for await (const block of level.tile(0, 0)) tile.push(block)
+    expect(tile.map((block) => Array.from(block.data))).toEqual([
+      [22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22],
+    ])
+    const collectOutsideTile = async (): Promise<void> => {
+      for await (const _block of level.tile(1, 0)) {
+        // The invalid tile must fail before decoding any block.
+      }
+    }
+    await expect(collectOutsideTile()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+    const controller = new AbortController()
+    controller.abort()
+    const collectAbortedTile = async (): Promise<void> => {
+      for await (const _block of level.tile(0, 0, { signal: controller.signal })) {
+        // A pre-aborted tile request must not decode any block.
+      }
+    }
+    await expect(collectAbortedTile()).rejects.toMatchObject({ name: 'AbortError' })
     const label: PixelBlock[] = []
     for await (const block of slide.associatedImages[0]?.read() ?? []) label.push(block)
     expect(Array.from(label[0]?.data ?? [])).toEqual([7, 8])

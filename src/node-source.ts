@@ -1,3 +1,5 @@
+import type { AbortOptions } from './abort.ts'
+import { throwIfAborted } from './abort.ts'
 import { invalidInput } from './errors.ts'
 import type { ImageLimits } from './limits.ts'
 import { validateInputSize } from './limits.ts'
@@ -6,6 +8,7 @@ import {
   createImageSource as createPortableImageSource,
   type ImageInput as PortableImageInput,
   type ImageSource,
+  type ImageSourceReadOptions,
   sourceSessionEnd,
   sourceSessionStart,
   stableSourceBuffers,
@@ -33,26 +36,37 @@ export class FileSource implements ImageSource {
     this.size = size
   }
 
-  static async open(path: string): Promise<FileSource> {
+  static async open(path: string, options: Readonly<AbortOptions> = {}): Promise<FileSource> {
+    throwIfAborted(options.signal)
     const { stat } = await import('node:fs/promises')
     const file = await stat(path)
+    throwIfAborted(options.signal)
     if (!file.isFile()) throw invalidInput(`Image path is not a file: ${path}`)
     return new FileSource(path, file.size)
   }
 
-  async read(offset: number, length: number): Promise<Uint8Array<ArrayBuffer>> {
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array<ArrayBuffer>> {
+    throwIfAborted(options.signal)
     const available = availableLength(this.size, offset, length)
     if (available === 0) return new Uint8Array()
     if (this.#sessions === 0) {
       const { open } = await import('node:fs/promises')
       const file = await open(this.path, 'r')
       try {
-        return await this.#read(file, offset, available)
+        const data = await this.#read(file, offset, available)
+        throwIfAborted(options.signal)
+        return data
       } finally {
         await file.close()
       }
     }
-    return this.#read(await this.#sharedHandle(), offset, available)
+    const data = await this.#read(await this.#sharedHandle(), offset, available)
+    throwIfAborted(options.signal)
+    return data
   }
 
   [sourceSessionStart](): void {
@@ -95,9 +109,12 @@ export class FileSource implements ImageSource {
 export const createImageSource = async (
   input: ImageInput,
   limits: ImageLimits,
+  options: Readonly<AbortOptions> = {},
 ): Promise<ImageSource> => {
-  if (typeof input !== 'string') return createPortableImageSource(input, limits)
-  const source = await FileSource.open(input)
+  throwIfAborted(options.signal)
+  if (typeof input !== 'string') return createPortableImageSource(input, limits, options)
+  const source = await FileSource.open(input, options)
   validateInputSize(source.size, limits)
+  throwIfAborted(options.signal)
   return new BufferedSource(source)
 }

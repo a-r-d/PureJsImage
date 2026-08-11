@@ -42,7 +42,7 @@ describe('package contract', () => {
     expect(packageJson.scripts.check).toContain('npm run size')
     expect(packageJson.scripts.size).toContain('npm run build')
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'core')?.maxMinifiedBytes).toBe(
-      53 * 1024,
+      55 * 1024,
     )
   })
 
@@ -196,6 +196,14 @@ describe('package contract', () => {
     expect(llms).toContain('<!-- capabilities:llms:start -->')
     expect(llms).toContain('<!-- capabilities:llms:end -->')
     expect(sitemap).toContain('https://a-r-d.github.io/PureJsImage/llms.txt')
+    for (const api of [
+      'window({ center, width })',
+      'lut({ table, format })',
+      'options?: { signal?: AbortSignal }',
+      'tile(column, row, { signal })',
+    ]) {
+      expect(llms).toContain(api)
+    }
 
     const websitePages = globSync('docs/*.html')
       .map((path) => ({ path, html: readFileSync(path, 'utf8') }))

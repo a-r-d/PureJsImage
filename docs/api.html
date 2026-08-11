@@ -185,6 +185,8 @@
             <article class="api-item" data-search-item><h3>keepIcc()</h3><p>Opts into retaining a compatible source ICC profile instead of converting tagged samples and stripping the profile.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>crop(options)</h3><p>Crops to an integer rectangle. <code>x</code> and <code>y</code> may be zero; width and height must be positive. Out-of-bounds crops fail.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>resize(options)</h3><p>Resizes by one dimension or two. Supports contain, cover, fill, inside, and outside fits. Lanczos 3 is the default; nearest and bilinear sampling are available for explicit lower-cost resizing.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>window(options)</h3><p>Maps numeric grayscale samples to <code>gray8</code> through an explicit center and width, overriding the source's normal display range for this pipeline.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>lut(options)</h3><p>Applies a 256-entry lookup table. <code>gray8</code> input may produce <code>gray8</code>, <code>rgb8</code>, or <code>rgba8</code>; <code>rgba8</code> input uses independent interleaved channel tables and remains <code>rgba8</code>.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>rotate(degrees, options?)</h3><p>Rotates clockwise by any finite number of degrees. Quarter turns are exact; other angles use bilinear sampling and expand the canvas.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>flip()</h3><p>Mirrors pixels vertically, from top to bottom.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>flop()</h3><p>Mirrors pixels horizontally, from left to right.</p><span class="returns">returns Image</span></article>
@@ -194,11 +196,11 @@
             <article class="api-item" data-search-item><h3>bmp(options?)</h3><p>Appends BMP output. The alpha option selects 32-bit RGBA or 24-bit RGB output.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>tiff(options?)</h3><p>Appends canonical Classic TIFF output: little-endian, chunky 8-bit RGB or RGBA, independently Deflate-compressed strips, and horizontal prediction. Node supports compression levels 0–9; browser CompressionStream output supports level 6.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>encode(format, options?)</h3><p>Generic equivalent to the format-specific encoder methods for <code>jpeg</code>, <code>png</code>, <code>webp</code>, <code>bmp</code>, and <code>tiff</code>.</p><span class="returns">returns Image</span></article>
-            <article class="api-item" data-search-item><h3>toBuffer()</h3><p>Executes the pipeline and collects encoded chunks into Node.js bytes. The runtime value remains a <code>Buffer</code>, exposed through the portable <code>Uint8Array</code> public type so consumers do not need Node ambient declarations.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
-            <article class="api-item" data-search-item><h3>toUint8Array()</h3><p>Executes and returns portable encoded bytes. Available in Node and browsers.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
-            <article class="api-item" data-search-item><h3>toBlob()</h3><p>Executes and returns a Blob with the registered output codec MIME type. Intended for browser previews, uploads, and downloads.</p><span class="returns">returns Promise&lt;Blob&gt;</span></article>
-            <article class="api-item" data-search-item><h3>toSink(sink)</h3><p>Executes into a custom <code>ImageSink</code> for streaming or application-owned output.</p><span class="returns">returns Promise&lt;void&gt;</span></article>
-            <article class="api-item" data-search-item><h3>toFile(path)</h3><p>Node-only file output. If encoding fails, the partial output file is removed.</p><span class="returns">returns Promise&lt;void&gt;</span></article>
+            <article class="api-item" data-search-item><h3>toBuffer(options?)</h3><p>Executes the pipeline and collects encoded chunks into Node.js bytes. The runtime value remains a <code>Buffer</code>, exposed through the portable <code>Uint8Array</code> public type so consumers do not need Node ambient declarations.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
+            <article class="api-item" data-search-item><h3>toUint8Array(options?)</h3><p>Executes and returns portable encoded bytes. Available in Node and browsers.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
+            <article class="api-item" data-search-item><h3>toBlob(options?)</h3><p>Executes and returns a Blob with the registered output codec MIME type. Intended for browser previews, uploads, and downloads.</p><span class="returns">returns Promise&lt;Blob&gt;</span></article>
+            <article class="api-item" data-search-item><h3>toSink(sink, options?)</h3><p>Executes into a custom <code>ImageSink</code> for streaming or application-owned output.</p><span class="returns">returns Promise&lt;void&gt;</span></article>
+            <article class="api-item" data-search-item><h3>toFile(path, options?)</h3><p>Node-only file output. If encoding fails or is cancelled, the partial output file is removed.</p><span class="returns">returns Promise&lt;void&gt;</span></article>
           </div>
           <div class="callout"><strong>Progressive output.</strong> Set <code>progressive: true</code> to emit a refinement-based progressive JPEG. This retains compact quantized coefficient planes until all scans are written; baseline output remains the bounded-row default.</div>
         </section>
@@ -233,6 +235,17 @@
             <tr><td><code>kernel</code></td><td><code>lanczos3</code></td><td>Lanczos 3 minimizes downscale aliasing. Bilinear is faster but lower quality; nearest preserves hard pixel edges.</td></tr>
             <tr><td><code>withoutEnlargement</code></td><td><code>false</code></td><td>Caps the scale at 1 where the fit permits it.</td></tr>
           </tbody></table></div>
+          <h3>WindowOptions and LutOptions</h3>
+          <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">interface</span> WindowOptions {
+  center: number
+  width: number
+}
+
+<span class="tok-key">interface</span> LutOptions {
+  table: Uint8Array <span class="tok-comment">// 256 × output channel count, interleaved</span>
+  format: <span class="tok-string">'gray8'</span> | <span class="tok-string">'rgb8'</span> | <span class="tok-string">'rgba8'</span>
+}</code></pre></div>
+          <p>Windowing precedes geometric transforms and converts native numeric grayscale blocks directly to <code>gray8</code>. A grayscale LUT treats each table entry as an output color. An RGBA LUT maps each input channel through the corresponding interleaved channel table.</p>
           <h3>RotateOptions</h3>
           <div class="code-window"><div class="window-bar"><span class="window-title">TypeScript</span></div><pre><code><span class="tok-key">interface</span> RotateOptions {
   background?: Background <span class="tok-comment">// transparent by default</span>
@@ -307,15 +320,15 @@
 
 <span class="tok-key">interface</span> ImageSource {
   readonly size: number
-  <span class="tok-method">read</span>(offset: number, length: number): Promise&lt;Uint8Array&gt;
+  <span class="tok-method">read</span>(offset: number, length: number, options?: { signal?: AbortSignal }): Promise&lt;Uint8Array&gt;
 }</code></pre></div>
           <div class="api-list">
             <article class="api-item" data-search-item><h3>MemorySource</h3><p>Zero-copy reads over an ArrayBuffer or Uint8Array.</p></article>
             <article class="api-item" data-search-item><h3>BlobSource</h3><p>Range reads through <code>Blob.slice()</code>.</p></article>
             <article class="api-item" data-search-item><h3>FileSource</h3><p>Node-only. Use <code>await FileSource.open(path)</code> to build a file-backed source explicitly.</p></article>
-            <article class="api-item" data-search-item><h3>HttpRangeSource</h3><p>Optional bounded HTTP range reads with request and byte statistics. Import from <code>purejsimage/sources/http-range</code>.</p></article>
+            <article class="api-item" data-search-item><h3>HttpRangeSource</h3><p>Optional bounded HTTP range reads with request and byte statistics. Import from <code>purejsimage/sources/http-range</code>. A per-read signal is combined with the source-lifetime signal and cancels an in-flight fetch.</p></article>
           </div>
-          <p>For an in-range read, custom <code>read()</code> implementations must return exactly <code>min(length, size - offset)</code> bytes as a <code>Uint8Array</code>, or reject when the backing read fails. Returned bytes may be reused or invalidated when the next read begins. Short, oversized, detached, and rejected reads surface as <code>ImageError</code> results.</p>
+          <p>For an in-range read, custom <code>read()</code> implementations must return exactly <code>min(length, size - offset)</code> bytes as a <code>Uint8Array</code>, or reject when the backing read fails. Returned bytes may be reused or invalidated when the next read begins. Short, oversized, detached, and rejected reads surface as <code>ImageError</code> results. Public open, metadata, decode, raster, whole-slide, source-read, and terminal output options accept an optional <code>AbortSignal</code>; cancellation aborts the active sink and is rethrown as <code>AbortError</code>.</p>
         </section>
 
         <section id="limits" data-search-item>

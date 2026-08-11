@@ -384,6 +384,12 @@ test('applies JPEG EXIF orientation in the browser', async ({ page }) => {
   expect(result.detail).toContain('orientation 6')
 })
 
+test('cancels an in-flight HTTP range read', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.httpRangeCancellation())
+  expect(result.detail).toContain('cancelled an in-flight browser HTTP range read')
+})
+
 test('aborts failed output and permits a clean subsequent operation', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.failureCleanup())

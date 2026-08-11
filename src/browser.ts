@@ -1,3 +1,4 @@
+export type { AbortOptions } from './abort.ts'
 import type { ImageLibraryRegistration } from './accelerator.ts'
 import {
   createImageLibraryForPlatform,
@@ -41,6 +42,8 @@ export type {
   BmpEncodeOptions,
   CropOptions,
   JpegEncodeOptions,
+  LutOptions,
+  LutPixelFormat,
   PngEncodeOptions,
   ResizeFit,
   ResizeKernel,
@@ -49,12 +52,13 @@ export type {
   RotateOptions,
   TiffEncodeOptions,
   WebpEncodeOptions,
+  WindowOptions,
 } from './pipeline.ts'
 export type { PixelBlock, PixelFormat, PixelSampleDisplayRange } from './pixel.ts'
 export { BufferPool } from './pixel.ts'
 export type { ImageSink } from './sink.ts'
 export { Uint8ArraySink } from './sink.ts'
-export type { ImageInput, ImageSource } from './source.ts'
+export type { ImageInput, ImageSource, ImageSourceReadOptions } from './source.ts'
 export { BlobSource, MemorySource } from './source.ts'
 
 export const createImageLibrary = (registration: ImageLibraryRegistration): ImageLibrary =>

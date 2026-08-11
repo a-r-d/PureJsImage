@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
 import { selectDecodeScaleDenominator } from '../src/executor.ts'
-import { createImageLibrary, type ImageCodec } from '../src/index.ts'
+import {
+  createImageLibrary,
+  type DecodeRequest,
+  type ImageCodec,
+  type PixelBlock,
+  type PixelFormat,
+} from '../src/index.ts'
 import { jpegFixture, pngFixture } from './fixtures.ts'
 import { Image } from './image-library.ts'
 
@@ -132,5 +138,201 @@ describe('immutable image pipelines', () => {
     await expect(image.resize({ width: 5 }).png().toBuffer()).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
     })
+  })
+  it('applies an explicit grayscale window before a color LUT', async () => {
+    const captured: PixelBlock[] = []
+    const codec: ImageCodec = {
+      format: 'window-fixture',
+      mimeTypes: ['image/x-window-fixture'],
+      minimumBytes: 1,
+      detect: (header) => header[0] === 0x57,
+      metadata: async () => ({
+        width: 3,
+        height: 1,
+        format: 'window-fixture',
+        mimeType: 'image/x-window-fixture',
+        hasAlpha: false,
+        bitDepth: 16,
+        sampleFormat: 'unsigned-integer',
+      }),
+      createDecoder: async () => ({
+        width: 3,
+        height: 1,
+        pixelFormat: 'gray16',
+        capabilities: {
+          sequential: true,
+          regionDecode: true,
+          scaledDecode: false,
+          progressive: false,
+        },
+        async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+          request.signal?.throwIfAborted()
+          yield {
+            x: 0,
+            y: 0,
+            width: 3,
+            height: 1,
+            stride: 6,
+            format: 'gray16',
+            data: Uint8Array.of(0, 0, 8, 0, 15, 255),
+          }
+        },
+      }),
+      createEncoder: async (_sink, request) => ({
+        async write(block): Promise<void> {
+          captured.push({ ...block, data: block.data.slice() })
+        },
+        async finish(): Promise<void> {
+          expect(request.pixelFormat).toBe('rgb8')
+        },
+      }),
+    }
+    const table = new Uint8Array(256 * 3)
+    for (let value = 0; value < 256; value += 1) {
+      table[value * 3] = value
+      table[value * 3 + 1] = 255 - value
+      table[value * 3 + 2] = value >>> 1
+    }
+    const image = await createImageLibrary([codec]).open(Uint8Array.of(0x57))
+
+    await image.window({ center: 2047.5, width: 4095 }).lut({ table, format: 'rgb8' }).toBuffer()
+
+    expect(captured).toHaveLength(1)
+    expect(captured[0]?.format).toBe('rgb8')
+    expect(Array.from(captured[0]?.data ?? [])).toEqual([0, 255, 0, 128, 127, 64, 255, 0, 127])
+    await expect(
+      image.window({ center: 2047.5, width: 4095 }).lut({ table, format: 'rgb8' }).metadata(),
+    ).resolves.toMatchObject({
+      bitDepth: 8,
+      sampleFormat: 'unsigned-integer',
+      channels: 3,
+      hasAlpha: false,
+      colorSpace: 'sRGB',
+    })
+  })
+
+  it('applies independent channel lookup tables to RGBA pixels', async () => {
+    const captured: PixelBlock[] = []
+    const codec: ImageCodec = {
+      format: 'rgba-lut-fixture',
+      mimeTypes: ['image/x-rgba-lut-fixture'],
+      minimumBytes: 1,
+      detect: (header) => header[0] === 0x52,
+      metadata: async () => ({
+        width: 2,
+        height: 1,
+        format: 'rgba-lut-fixture',
+        mimeType: 'image/x-rgba-lut-fixture',
+        hasAlpha: true,
+        bitDepth: 8,
+      }),
+      createDecoder: async () => ({
+        width: 2,
+        height: 1,
+        pixelFormat: 'rgba8',
+        capabilities: {
+          sequential: true,
+          regionDecode: true,
+          scaledDecode: false,
+          progressive: false,
+        },
+        async *decode(): AsyncGenerator<PixelBlock> {
+          yield {
+            x: 0,
+            y: 0,
+            width: 2,
+            height: 1,
+            stride: 8,
+            format: 'rgba8',
+            data: Uint8Array.of(10, 20, 30, 40, 255, 128, 0, 64),
+          }
+        },
+      }),
+      createEncoder: async () => ({
+        async write(block): Promise<void> {
+          captured.push({ ...block, data: block.data.slice() })
+        },
+        async finish(): Promise<void> {},
+      }),
+    }
+    const table = new Uint8Array(256 * 4)
+    for (let value = 0; value < 256; value += 1) {
+      table[value * 4] = 255 - value
+      table[value * 4 + 1] = value >>> 1
+      table[value * 4 + 2] = value
+      table[value * 4 + 3] = 255 - value
+    }
+
+    await (await createImageLibrary([codec]).open(Uint8Array.of(0x52)))
+      .lut({ table, format: 'rgba8' })
+      .toBuffer()
+
+    expect(captured).toHaveLength(1)
+    expect(captured[0]?.format).toBe('rgba8')
+    expect(Array.from(captured[0]?.data ?? [])).toEqual([245, 10, 30, 215, 0, 64, 0, 191])
+  })
+
+  it('stops a pipeline between decoded blocks when its signal aborts', async () => {
+    const controller = new AbortController()
+    let decoderSignal: AbortSignal | undefined
+    let writes = 0
+    let encoderAborted = false
+    const pixel = (value: number): PixelBlock => ({
+      x: 0,
+      y: 0,
+      width: 1,
+      height: 1,
+      stride: 1,
+      format: 'gray8' satisfies PixelFormat,
+      data: Uint8Array.of(value),
+    })
+    const codec: ImageCodec = {
+      format: 'abort-fixture',
+      mimeTypes: ['image/x-abort-fixture'],
+      minimumBytes: 1,
+      detect: (header) => header[0] === 0x41,
+      metadata: async () => ({
+        width: 1,
+        height: 2,
+        format: 'abort-fixture',
+        mimeType: 'image/x-abort-fixture',
+        hasAlpha: false,
+      }),
+      createDecoder: async () => ({
+        width: 1,
+        height: 2,
+        pixelFormat: 'gray8',
+        capabilities: {
+          sequential: true,
+          regionDecode: true,
+          scaledDecode: false,
+          progressive: false,
+        },
+        async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+          decoderSignal = request.signal
+          yield pixel(1)
+          request.signal?.throwIfAborted()
+          yield pixel(2)
+        },
+      }),
+      createEncoder: async () => ({
+        async write(): Promise<void> {
+          writes += 1
+          controller.abort()
+        },
+        async finish(): Promise<void> {},
+        async abort(): Promise<void> {
+          encoderAborted = true
+        },
+      }),
+    }
+    const image = await createImageLibrary([codec]).open(Uint8Array.of(0x41))
+
+    await expect(image.toBuffer({ signal: controller.signal })).rejects.toMatchObject({
+      name: 'AbortError',
+    })
+    expect(decoderSignal).toBe(controller.signal)
+    expect(writes).toBe(1)
+    expect(encoderAborted).toBe(true)
   })
 })
