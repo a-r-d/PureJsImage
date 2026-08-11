@@ -387,6 +387,10 @@ await copyFile(
   resolve(fixtureDirectory, 'libavif-cosmos1650-yuv444-10bpc-p3pq.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/ms-chimera-hdr-matrix10-1920x1008.avif',
+  resolve(fixtureDirectory, 'ms-chimera-hdr-matrix10-1920x1008.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/colors-animated-12bpc-keyframes-0-2-3.avif',
   resolve(fixtureDirectory, 'colors-animated-12bpc-keyframes-0-2-3.avif'),
 )

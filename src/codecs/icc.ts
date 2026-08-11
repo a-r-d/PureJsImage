@@ -737,6 +737,21 @@ export const nclxToLinear = (transferCharacteristics: number, encoded: number): 
     `NCLX transfer characteristics ${transferCharacteristics} are not supported`,
   )
 }
+export const nclxFromLinear = (transferCharacteristics: number, linear: number): number => {
+  if (transferCharacteristics === 8) return linear
+  if (transferCharacteristics === 13) {
+    return linear <= 0.003_130_8 ? linear * 12.92 : 1.055 * linear ** (1 / 2.4) - 0.055
+  }
+  if (transferCharacteristics === 1 || transferCharacteristics === 6) {
+    return linear < 0.018 ? linear * 4.5 : 1.099 * linear ** 0.45 - 0.099
+  }
+  if (transferCharacteristics === 14 || transferCharacteristics === 15) {
+    return linear < 0.018_1 ? linear * 4.5 : 1.099_3 * linear ** 0.45 - 0.099_3
+  }
+  throw unsupportedOperation(
+    `NCLX transfer characteristics ${transferCharacteristics} cannot encode linear RGB`,
+  )
+}
 
 const NCLX_HDR_CURVE_STEPS = 4096
 
@@ -782,18 +797,20 @@ const sampleNclxHdrCurve = (curve: Float32Array, encoded: number): number => {
   const fraction = position - low
   return (curve[low] ?? 0) * (1 - fraction) + (curve[high] ?? 0) * fraction
 }
+export const nclxHdrToLinear = (toneMap: NclxHdrToneMap, encoded: number): number =>
+  sampleNclxHdrCurve(toneMap.encodedToLinear, encoded)
 
-export const writeNclxHdrToneMappedRgba = (
+export const writeNclxHdrLinearToneMappedRgba = (
   data: Uint8Array,
   offset: number,
-  encodedRed: number,
-  encodedGreen: number,
-  encodedBlue: number,
+  linearRed: number,
+  linearGreen: number,
+  linearBlue: number,
   toneMap: NclxHdrToneMap,
 ): void => {
-  let sourceRed = sampleNclxHdrCurve(toneMap.encodedToLinear, encodedRed)
-  let sourceGreen = sampleNclxHdrCurve(toneMap.encodedToLinear, encodedGreen)
-  let sourceBlue = sampleNclxHdrCurve(toneMap.encodedToLinear, encodedBlue)
+  let sourceRed = linearRed
+  let sourceGreen = linearGreen
+  let sourceBlue = linearBlue
   const hlgLuma = toneMap.hlgLumaCoefficients
   if (hlgLuma) {
     const sceneLuminance = Math.max(
@@ -825,6 +842,24 @@ export const writeNclxHdrToneMappedRgba = (
   data[offset + 1] = encodeLinear(green * scale, toneMap.linearToSrgb)
   data[offset + 2] = encodeLinear(blue * scale, toneMap.linearToSrgb)
   data[offset + 3] = 255
+}
+
+export const writeNclxHdrToneMappedRgba = (
+  data: Uint8Array,
+  offset: number,
+  encodedRed: number,
+  encodedGreen: number,
+  encodedBlue: number,
+  toneMap: NclxHdrToneMap,
+): void => {
+  writeNclxHdrLinearToneMappedRgba(
+    data,
+    offset,
+    sampleNclxHdrCurve(toneMap.encodedToLinear, encodedRed),
+    sampleNclxHdrCurve(toneMap.encodedToLinear, encodedGreen),
+    sampleNclxHdrCurve(toneMap.encodedToLinear, encodedBlue),
+    toneMap,
+  )
 }
 
 export const linearToSrgb = (linear: number): number =>

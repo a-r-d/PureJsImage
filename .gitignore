@@ -230,6 +230,7 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/libavif-cosmos1650-yuv444-10bpc-p3pq.avif
 !benchmark/corpus/files/avif/identity-pq-10bpc-yuv444-16x12.avif
 !benchmark/corpus/files/avif/hdr-hlg-10bpc-yuv444-32x24.avif
+!benchmark/corpus/files/avif/ms-chimera-hdr-matrix10-1920x1008.avif
 !benchmark/corpus/files/avif/oracle-*-ffmpeg-reinhard.png
 !benchmark/corpus/files/jp2/
 benchmark/corpus/files/jp2/*

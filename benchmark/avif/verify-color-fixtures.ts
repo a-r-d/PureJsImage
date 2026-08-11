@@ -13,6 +13,7 @@ import {
   avifColorFixtureDirectory,
   avifColorFixturePath,
   avifHdrChromaDerivedFixture,
+  avifHdrConstantLuminanceFixture,
   avifHdrToneMapFixtures,
   avifHdrGainMapFixture,
   avifIccFixtures,
@@ -20,6 +21,7 @@ import {
   avifWrongAlternativeGainMapFixture,
   type AvifColorFixture,
 } from './color-fixtures.ts'
+import { matrix10PqReferenceSamples } from './matrix10-reference.ts'
 
 const Image = createNodeImageLibrary(allCodecs)
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
@@ -183,6 +185,43 @@ try {
         JSON.stringify(chromaDerivedDifference),
     )
   }
+  const matrix10 = await decodePure(avifHdrConstantLuminanceFixture)
+  const matrix10Y4mPath = join(temporaryDirectory, 'matrix10.y4m')
+  run('avifdec', [avifColorFixturePath(avifHdrConstantLuminanceFixture), matrix10Y4mPath])
+  const matrix10References = matrix10PqReferenceSamples(
+    new Uint8Array(await readFile(matrix10Y4mPath)),
+    avifHdrConstantLuminanceFixture.width,
+    avifHdrConstantLuminanceFixture.sourceHeight,
+    avifHdrConstantLuminanceFixture.cropY,
+    avifHdrConstantLuminanceFixture.height,
+    avifHdrConstantLuminanceFixture.oracleSamples.map((sample) => sample.pixel),
+  )
+  let matrix10MaximumAbsoluteError = 0
+  for (let index = 0; index < matrix10References.length; index += 1) {
+    const reference = matrix10References[index]
+    const stored = avifHdrConstantLuminanceFixture.oracleSamples[index]
+    if (!reference || !stored || reference.pixel !== stored.pixel) {
+      throw new Error('Matrix 10 oracle sample ordering changed')
+    }
+    const outputOffset = reference.pixel * 4
+    for (let channel = 0; channel < 3; channel += 1) {
+      const storedError = Math.abs((reference.rgb[channel] ?? 0) - (stored.rgb[channel] ?? 0))
+      const decodeError = Math.abs(
+        (reference.rgb[channel] ?? 0) - (matrix10[outputOffset + channel] ?? 0),
+      )
+      matrix10MaximumAbsoluteError = Math.max(
+        matrix10MaximumAbsoluteError,
+        storedError,
+        decodeError,
+      )
+    }
+  }
+  if (matrix10MaximumAbsoluteError > avifHdrConstantLuminanceFixture.maximumAbsoluteError) {
+    throw new Error(
+      `Matrix 10 HDR output differs from the libavif/dav1d native-YUV oracle: ` +
+        matrix10MaximumAbsoluteError,
+    )
+  }
 
   const hdrGainMap = await decodePure(avifHdrGainMapFixture)
   const gainMapOraclePath = join(temporaryDirectory, 'gain-map.png')
@@ -223,17 +262,19 @@ try {
 
   console.log(
     JSON.stringify({
-      fixtures: 6 + avifHdrToneMapFixtures.length,
+      fixtures: 7 + avifHdrToneMapFixtures.length,
       oracles: [
         'FFmpeg/zimg',
         'libavif plus FFmpeg/zimg',
         'libavif avifgainmaputil',
+        'libavif/dav1d native YUV plus independent BT.2020 constant-luminance equations',
         'Sharp/libvips',
       ],
       rec2020: rec2020Difference,
       hdr: hdrResults,
       hlgRegression,
       chromaDerived: chromaDerivedDifference,
+      matrix10MaximumAbsoluteError,
       gainMap: gainMapDifference,
       iccTolerance: 0,
     }),

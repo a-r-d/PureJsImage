@@ -229,6 +229,7 @@ test('tone-maps HDR AVIF NCLX pixels to SDR', async ({ page }) => {
   expect(result.detail).toContain('Rec.2020 HLG')
   expect(result.detail).toContain('Rec.2020 identity PQ')
   expect(result.detail).toContain('Chroma-derived Display-P3 PQ')
+  expect(result.detail).toContain('constant-luminance matrix 10')
 })
 
 test('selects independently decodable animated AVIF key samples', async ({ page }) => {

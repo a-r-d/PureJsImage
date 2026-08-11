@@ -1780,10 +1780,13 @@ const gainMapWeight = (metadata: AvifGainMapMetadata, hdrHeadroom = 0): number =
 }
 
 const validateHdrNclxMatrix = (color: NclxColor): void => {
-  if (![0, 1, 5, 6, 9, 12].includes(color.matrixCoefficients)) {
+  if (![0, 1, 5, 6, 9, 10, 12].includes(color.matrixCoefficients)) {
     throw unsupportedOperation(
       `HDR AVIF NCLX matrix coefficients ${color.matrixCoefficients} are not supported`,
     )
+  }
+  if (color.matrixCoefficients === 10 && color.primaries !== 9) {
+    throw unsupportedOperation('HDR AVIF NCLX matrix coefficients 10 require color primaries 9')
   }
 }
 
@@ -1829,10 +1832,13 @@ const validateSdrPixelDecode = (inspection: AvifBitstreamInspection): void => {
   const color = inspection.nclx
   const containerHdr = isHdrTransfer(color?.transferCharacteristics ?? 0)
   const hdr = containerHdr || hdrImages.length !== 0
+  if (color?.matrixCoefficients === 10 && color.transferCharacteristics !== 16) {
+    throw unsupportedOperation(
+      'AVIF NCLX matrix coefficients 10 are supported only with PQ transfer characteristics 16',
+    )
+  }
+  if (containerHdr && color && color.matrixCoefficients !== 2) validateHdrNclxMatrix(color)
   if (hdr && color) {
-    if (containerHdr && color.matrixCoefficients === 10) {
-      throw unsupportedOperation('HDR AVIF NCLX matrix coefficients 10 are not supported')
-    }
     validateHdrCicpConsistency(colorImages, color)
   }
   const gainMapApplies =

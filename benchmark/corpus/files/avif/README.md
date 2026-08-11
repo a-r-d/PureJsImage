@@ -189,6 +189,19 @@ input is first converted losslessly with libavif; the three
 linear RGB at 203-nit reference white, Reinhard tone mapping with desaturation
 disabled, and full-range sRGB output.
 
+`ms-chimera-hdr-matrix10-1920x1008.avif` is the byte-identical
+`ms_Chimera_10bit_cropped_to_1920x1008_with_HDR_metadata.avif` file from the
+pinned Imazen AVIF Conformance corpus revision (SHA-256
+`b52996d7dc8bde2145770fc1977ccd45e7faf78c561599f325b48669d5ff6aee`).
+It covers full-range 10-bit YUV 4:2:0 with Rec.2020 primaries, PQ transfer,
+constant-luminance matrix coefficients 10, and a clean-aperture crop from
+1920x1080 to 1920x1008. The color verifier extracts native YUV with
+libavif 1.3.0/dav1d 1.5.1 and independently applies the Rec.2020
+constant-luminance equations documented by Colour's `YcCbcCrc_to_RGB`
+implementation. Twelve spatially distributed RGB samples agree within one
+8-bit code value, and the full displayed RGBA output is checksum-pinned.
+
+
 `hdr-hlg-10bpc-yuv444-32x24.avif` is a deterministic full-range 10-bit YUV
 4:4:4 Rec.2020 HLG fixture encoded with libavif 1.3.0. FFmpeg/zimg's HLG
 transfer path applies a componentwise display exponent rather than BT.2100's

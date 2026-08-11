@@ -47,6 +47,10 @@ export interface AvifHdrSampleFixture extends AvifColorFixture {
   readonly primaries: number
   readonly transferCharacteristics: 16 | 18
 }
+interface AvifHdrConstantLuminanceFixture extends AvifHdrSampleFixture {
+  readonly cropY: number
+  readonly sourceHeight: number
+}
 
 export const avifColorFixtureDirectory = avifCorpusDirectory
 
@@ -122,6 +126,33 @@ export const avifHdrChromaDerivedFixture: AvifHdrSampleFixture = {
     { pixel: 219_135, rgb: [90, 84, 0] },
     { pixel: 328_703, rgb: [144, 91, 29] },
     { pixel: 437_247, rgb: [136, 138, 0] },
+  ],
+}
+export const avifHdrConstantLuminanceFixture: AvifHdrConstantLuminanceFixture = {
+  file: 'ms-chimera-hdr-matrix10-1920x1008.avif',
+  fileSha256: 'b52996d7dc8bde2145770fc1977ccd45e7faf78c561599f325b48669d5ff6aee',
+  width: 1920,
+  sourceHeight: 1080,
+  cropY: 36,
+  height: 1008,
+  rgbaSha256: '25578215c89bf9600eb54fc66dc6e3a9ad9d1e379c7d5a739a75ca3aebfa5c05',
+  primaries: 9,
+  transferCharacteristics: 16,
+  matrixCoefficients: 10,
+  maximumAbsoluteError: 1,
+  oracleSamples: [
+    { pixel: 0, rgb: [0, 112, 249] },
+    { pixel: 1921, rgb: [0, 112, 251] },
+    { pixel: 192_100, rgb: [0, 115, 254] },
+    { pixel: 345_920, rgb: [0, 123, 255] },
+    { pixel: 385_200, rgb: [0, 116, 255] },
+    { pixel: 960_500, rgb: [0, 138, 255] },
+    { pixel: 961_000, rgb: [0, 1, 10] },
+    { pixel: 968_640, rgb: [0, 1, 7] },
+    { pixel: 1_345_500, rgb: [15, 48, 33] },
+    { pixel: 1_728_400, rgb: [41, 114, 58] },
+    { pixel: 1_729_800, rgb: [46, 42, 12] },
+    { pixel: 1_935_359, rgb: [170, 119, 82] },
   ],
 }
 

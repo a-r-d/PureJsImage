@@ -251,7 +251,8 @@ byte. The full-size tolerance remains zero.
 - [ ] Dependent enhancement layers and rendering all intermediate layers
 - [x] Convert compatible PQ and HLG NCLX signaling directly to tone-mapped SDR
   RGBA unless a compatible SDR gain-map alternate is selected
-- [ ] NCLX matrix 10 constant-luminance conversion and broader ICC-managed conversion
+- [x] Rec.2020/PQ NCLX matrix 10 constant-luminance conversion
+- [ ] Broader ICC-managed conversion
 
 ### Animation
 
@@ -511,7 +512,11 @@ byte. The full-size tolerance remains zero.
 - [x] Validate HLG shared-luminance OOTF math against independently calculated
   neutral and saturated BT.2100 vectors and pin the end-to-end AVIF RGBA hash
 - [x] Exercise PQ and HLG direct tone mapping through the portable codec in
-  Chromium and Firefox and pin all four RGBA outputs
+  Chromium and Firefox and pin all five RGBA outputs
+- [x] Decode a checksum-pinned Rec.2020/PQ matrix 10 constant-luminance fixture
+  with clean-aperture cropping; match twelve libavif/dav1d native-YUV plus
+  independent BT.2020 equation samples within one code value and pin full RGBA
+  output in Node.js, Chromium, and Firefox
 - [x] Reconstruct native 10-bit and 12-bit planes exactly for two
   checksum-pinned coded-lossless YUV 4:4:4 fixtures and hold displayed RGB
   maximum error to 1 against Sharp/libavif
@@ -565,6 +570,8 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-layered-selection-2026-08-09.md`](benchmark/results/avif-layered-selection-2026-08-09.md)
 - [`benchmark/results/avif-memory-bounded-superres-2026-08-09.json`](benchmark/results/avif-memory-bounded-superres-2026-08-09.json)
 - [`benchmark/results/avif-compatibility-survey-2026-08-10.md`](benchmark/results/avif-compatibility-survey-2026-08-10.md)
+- [`benchmark/results/avif-imazen-compatibility-2026-08-11.md`](benchmark/results/avif-imazen-compatibility-2026-08-11.md)
+- [`benchmark/results/avif-imazen-compatibility-2026-08-11.json`](benchmark/results/avif-imazen-compatibility-2026-08-11.json)
 - [`benchmark/results/avif-memory-bounded-filtered-2026-08-10.json`](benchmark/results/avif-memory-bounded-filtered-2026-08-10.json)
 - [`benchmark/results/avif-memory-auxiliary-film-grain-2026-08-10.json`](benchmark/results/avif-memory-auxiliary-film-grain-2026-08-10.json)
 - [`benchmark/results/avif-memory-high-depth-2026-08-09.json`](benchmark/results/avif-memory-high-depth-2026-08-09.json)

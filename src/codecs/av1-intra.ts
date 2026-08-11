@@ -19,7 +19,15 @@ import {
 } from './av1-post-filter.ts'
 import { Av1SymbolDecoder } from './av1-symbol.ts'
 import { inverseTransform } from './av1-transform.ts'
-import { type NclxHdrToneMap, nclxLumaCoefficients, writeNclxHdrToneMappedRgba } from './icc.ts'
+import {
+  type NclxHdrToneMap,
+  nclxFromLinear,
+  nclxHdrToLinear,
+  nclxLumaCoefficients,
+  nclxToLinear,
+  writeNclxHdrLinearToneMappedRgba,
+  writeNclxHdrToneMappedRgba,
+} from './icc.ts'
 
 const cdf = (values: readonly number[]): Uint16Array => new Uint16Array(values)
 
@@ -4412,6 +4420,7 @@ interface Av1ColorConversion {
   readonly matrixCoefficients: number
   readonly colorPrimaries?: number
   readonly primaries?: number
+  readonly transferCharacteristics?: number
 }
 
 export interface Av1PixelRegion {
@@ -4563,6 +4572,10 @@ export const av1ToRgbaRegion = (
   const blueChroma = 2 * (1 - blueWeight)
   const redGreenChroma = (2 * redWeight * (1 - redWeight)) / greenWeight
   const blueGreenChroma = (2 * blueWeight * (1 - blueWeight)) / greenWeight
+  const transferCharacteristics = color.transferCharacteristics ?? sequence.transferCharacteristics
+  const toLinear = toneMap
+    ? (encoded: number): number => nclxHdrToLinear(toneMap, encoded)
+    : (encoded: number): number => nclxToLinear(transferCharacteristics, encoded)
   const convert = (luma: number, cb: number, cr: number, target: number): void => {
     const adjustedLuma = color.fullRange
       ? luma / sampleMaximum
@@ -4571,6 +4584,30 @@ export const av1ToRgbaRegion = (
       (cb - sampleMidpoint) / (color.fullRange ? sampleMaximum : limitedChromaRange)
     const adjustedCr =
       (cr - sampleMidpoint) / (color.fullRange ? sampleMaximum : limitedChromaRange)
+    if (color.matrixCoefficients === 10) {
+      const encodedRed = adjustedLuma + adjustedCr * (adjustedCr <= 0 ? 1.7184 : 0.9936)
+      const encodedBlue = adjustedLuma + adjustedCb * (adjustedCb <= 0 ? 1.9404 : 1.5816)
+      const linearRed = toLinear(encodedRed)
+      const linearBlue = toLinear(encodedBlue)
+      const linearGreen =
+        (toLinear(adjustedLuma) - 0.2627 * linearRed - 0.0593 * linearBlue) / 0.678
+      if (toneMap) {
+        writeNclxHdrLinearToneMappedRgba(
+          output,
+          target,
+          linearRed,
+          linearGreen,
+          linearBlue,
+          toneMap,
+        )
+      } else {
+        output[target] = clampByte(nclxFromLinear(transferCharacteristics, linearRed) * 255)
+        output[target + 1] = clampByte(nclxFromLinear(transferCharacteristics, linearGreen) * 255)
+        output[target + 2] = clampByte(nclxFromLinear(transferCharacteristics, linearBlue) * 255)
+        output[target + 3] = 255
+      }
+      return
+    }
     const red = adjustedLuma + redChroma * adjustedCr
     const green = adjustedLuma - redGreenChroma * adjustedCr - blueGreenChroma * adjustedCb
     const blue = adjustedLuma + blueChroma * adjustedCb

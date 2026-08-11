@@ -2457,6 +2457,13 @@ const avifHdrToneMap = async (): Promise<BrowserWorkflowResult> => {
       rgbaSha256: 'b39faa860e8fd51bfc22173d5c376f5b837a1eca2776e6bd3bbbcbbbfeb630bb',
       detail: 'Chroma-derived Display-P3 PQ AVIF tone map',
     },
+    {
+      file: 'ms-chimera-hdr-matrix10-1920x1008.avif',
+      width: 1920,
+      height: 1008,
+      rgbaSha256: '25578215c89bf9600eb54fc66dc6e3a9ad9d1e379c7d5a739a75ca3aebfa5c05',
+      detail: 'Rec.2020 constant-luminance matrix 10 PQ AVIF tone map',
+    },
   ] as const
   const results: BrowserWorkflowResult[] = []
   for (const fixture of fixtures) {

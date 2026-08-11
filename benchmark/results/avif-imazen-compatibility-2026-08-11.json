@@ -1,0 +1,2103 @@
+{
+  "generatedAt": "2026-08-11T15:59:52.420Z",
+  "node": "v24.16.0",
+  "platform": "linux/x64",
+  "sourceCorpus": "Imazen imazen-26 representative K300 subset",
+  "normalization": "sRGB PNG, metadata removed, fit within a white 512x512 canvas",
+  "encoders": {
+    "avifenc": "Version: 1.3.0 (dav1d [dec]:1.5.1, libgav1 [dec]:0.19.0, aom [enc/dec]:v3.12.1, rav1e [enc]:0.7.1 (UNKNOWN), svt [enc]:v2.3.0)\nlibyuv : available (1904)",
+    "imageMagick": "Version: ImageMagick 7.1.2-3 Q16 x86_64 23340 https://imagemagick.org"
+  },
+  "oracle": "libavif 1.3.0 with dav1d 1.5.1 and libaom 3.12.1 RGB output",
+  "memoryMethod": "One cold process per file; baseline after input load and five GC/event-loop turns; RSS, external, and ArrayBuffer samples after metadata, decoder creation, and every output block. Sampled RSS avoids inherited process.resourceUsage().maxRSS high-water marks.",
+  "summary": {
+    "sources": 12,
+    "files": 36,
+    "decoded": 14,
+    "errors": 22,
+    "byEncoder": {
+      "rav1e": {
+        "files": 12,
+        "decoded": 0
+      },
+      "SVT-AV1": {
+        "files": 12,
+        "decoded": 2
+      },
+      "ImageMagick": {
+        "files": 12,
+        "decoded": 12
+      }
+    }
+  },
+  "outcomes": [
+    {
+      "outcome": "error",
+      "file": "encoded/1039-rav1e-q60-420.avif",
+      "fileSha256": "fd4cd8c41ec43622ff11b0e7bfa6d83df12723f04653e2b85c1e9f8398a221d4",
+      "sourceId": "1039",
+      "contentClass": "1000-lilith-photos-general",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1000-lilith-photos-general/1039_general_sun-over-forest_ek-balam_s23u_iso50-f2p2_20230918-160739_4000x3000.sdr.png",
+      "sourceRawSha256": "40be02822f8212242b8d4af1dba9577f67c93be72eba9efb927cb3d799bc4f47",
+      "sourceNormalizedSha256": "46ec3d91418d795e59a5aac1475e65e79d01f2a58bc438a13bf66ef417cdd8aa",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 120161,
+          "externalBytes": 12631603,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101539840
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 120161,
+          "externalBytes": 12692109,
+          "heapUsedBytes": 11502336,
+          "rssBytes": 102064128
+        },
+        "peakRssBytes": 102064128,
+        "peakRssDeltaBytes": 524288,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/1039-svt-q60-420.avif",
+      "fileSha256": "8c20b89aea61a3adfa735b4e9d95596b8309642aa266cc7abd0235c8668aac37",
+      "sourceId": "1039",
+      "contentClass": "1000-lilith-photos-general",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1000-lilith-photos-general/1039_general_sun-over-forest_ek-balam_s23u_iso50-f2p2_20230918-160739_4000x3000.sdr.png",
+      "sourceRawSha256": "40be02822f8212242b8d4af1dba9577f67c93be72eba9efb927cb3d799bc4f47",
+      "sourceNormalizedSha256": "46ec3d91418d795e59a5aac1475e65e79d01f2a58bc438a13bf66ef417cdd8aa",
+      "encoder": "SVT-AV1",
+      "code": "INVALID_INPUT",
+      "message": "AV1 tile trailing padding is nonzero at bit 73022 after decoding 73034 of 306472 bits",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 124313,
+          "externalBytes": 12635755,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101453824
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 1638645,
+          "externalBytes": 14210593,
+          "heapUsedBytes": 14904280,
+          "rssBytes": 117182464
+        },
+        "peakRssBytes": 117182464,
+        "peakRssDeltaBytes": 15728640,
+        "peakExternalDeltaBytes": 1574838,
+        "peakArrayBuffersDeltaBytes": 1514332
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/1039-imagemagick-q60.avif",
+      "fileSha256": "09a75d80f122269febc89186b329eb378686a6bbf20fbe05cd042094e23abcbf",
+      "sourceId": "1039",
+      "contentClass": "1000-lilith-photos-general",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1000-lilith-photos-general/1039_general_sun-over-forest_ek-balam_s23u_iso50-f2p2_20230918-160739_4000x3000.sdr.png",
+      "sourceRawSha256": "40be02822f8212242b8d4af1dba9577f67c93be72eba9efb927cb3d799bc4f47",
+      "sourceNormalizedSha256": "46ec3d91418d795e59a5aac1475e65e79d01f2a58bc438a13bf66ef417cdd8aa",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "5d1410bf99e70e23c2642f9a7aef46afa789d20083cdd7ca6cfdf97095308aa7",
+      "dav1dRgbaSha256": "2c8559efe49a06897243163cd461b31d61928f0d02286a7f2f02a836d039ba77",
+      "aomRgbaSha256": "2c8559efe49a06897243163cd461b31d61928f0d02286a7f2f02a836d039ba77",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.1461156209309896,
+        "p95": 1,
+        "rootMeanSquare": 0.38229064664089624,
+        "psnr": 56.48293016004004
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 254.815,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 115368,
+          "externalBytes": 12626810,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101388288
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2197096,
+          "externalBytes": 14769044,
+          "heapUsedBytes": 17372504,
+          "rssBytes": 114364416
+        },
+        "peakRssBytes": 114364416,
+        "peakRssDeltaBytes": 12976128,
+        "peakExternalDeltaBytes": 2142234,
+        "peakArrayBuffersDeltaBytes": 2081728
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/1205-rav1e-q60-420.avif",
+      "fileSha256": "da3fe9192b8a979854e28fc39680a097534421da319f0cf3ed999a2a5ec9e59b",
+      "sourceId": "1205",
+      "contentClass": "1200-lilith-interiors",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1200-lilith-interiors/1205_interiors_modern-living-room_tulum-mexico_s23u_iso160-f1p7_20230917-114545_3000x4000.sdr.png",
+      "sourceRawSha256": "4858b70930bb7f66b94a9642b7cf0237ecb6fb56adffa782ad8d75399362d9ea",
+      "sourceNormalizedSha256": "ea205a0663026228f4fada7a9f86281eb464f2e4b7de900fe7b5cffb65468935",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 130981,
+          "externalBytes": 12642423,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 100347904
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 130981,
+          "externalBytes": 12702929,
+          "heapUsedBytes": 11502336,
+          "rssBytes": 101134336
+        },
+        "peakRssBytes": 101134336,
+        "peakRssDeltaBytes": 786432,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/1205-svt-q60-420.avif",
+      "fileSha256": "79f74c0f5c2d45c3c51ce9a4c04a00a460dbbc3b5e2f7221578c9bd0dde5808f",
+      "sourceId": "1205",
+      "contentClass": "1200-lilith-interiors",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1200-lilith-interiors/1205_interiors_modern-living-room_tulum-mexico_s23u_iso160-f1p7_20230917-114545_3000x4000.sdr.png",
+      "sourceRawSha256": "4858b70930bb7f66b94a9642b7cf0237ecb6fb56adffa782ad8d75399362d9ea",
+      "sourceNormalizedSha256": "ea205a0663026228f4fada7a9f86281eb464f2e4b7de900fe7b5cffb65468935",
+      "encoder": "SVT-AV1",
+      "code": "INVALID_INPUT",
+      "message": "AV1 tile trailing one bit is missing at bit 151246 after decoding 151261 of 391992 bits",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 135003,
+          "externalBytes": 12646445,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101658624
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 1584315,
+          "externalBytes": 14156263,
+          "heapUsedBytes": 13441192,
+          "rssBytes": 114765824
+        },
+        "peakRssBytes": 114765824,
+        "peakRssDeltaBytes": 13107200,
+        "peakExternalDeltaBytes": 1509818,
+        "peakArrayBuffersDeltaBytes": 1449312
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/1205-imagemagick-q60.avif",
+      "fileSha256": "a6639f3425aa8c9413eb93bf53efde3ecaf4061340625a3fd048c8a7fd44c56b",
+      "sourceId": "1205",
+      "contentClass": "1200-lilith-interiors",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1200-lilith-interiors/1205_interiors_modern-living-room_tulum-mexico_s23u_iso160-f1p7_20230917-114545_3000x4000.sdr.png",
+      "sourceRawSha256": "4858b70930bb7f66b94a9642b7cf0237ecb6fb56adffa782ad8d75399362d9ea",
+      "sourceNormalizedSha256": "ea205a0663026228f4fada7a9f86281eb464f2e4b7de900fe7b5cffb65468935",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "0d41cf31d9fed4478358bc6bbc7f29e7a1b1710f1a97c1a2e3b0147a2835e75f",
+      "dav1dRgbaSha256": "9da72507a4d885b3135736af02374f8ab0e4fa03ee885c31f1404e4bfb15a2d6",
+      "aomRgbaSha256": "9da72507a4d885b3135736af02374f8ab0e4fa03ee885c31f1404e4bfb15a2d6",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.1489715576171875,
+        "p95": 1,
+        "rootMeanSquare": 0.38614949158358397,
+        "psnr": 56.39569426129589
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 231.901,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 125078,
+          "externalBytes": 12636520,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101277696
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2351174,
+          "externalBytes": 14923122,
+          "heapUsedBytes": 17505920,
+          "rssBytes": 117137408
+        },
+        "peakRssBytes": 117137408,
+        "peakRssDeltaBytes": 15859712,
+        "peakExternalDeltaBytes": 2286602,
+        "peakArrayBuffersDeltaBytes": 2226096
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/1404-rav1e-q60-420.avif",
+      "fileSha256": "cf4cc1b41b61497f161ed18acd7b0d347a1ae87d2933fedcae098ded3486833e",
+      "sourceId": "1404",
+      "contentClass": "1400-lilith-nature",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1400-lilith-nature/1404_nature_palm-trees-sunset_ka-anapali-beach-kaanapali_s21u_iso16-f1p8_20210607-180007_4000x3000.sdr.png",
+      "sourceRawSha256": "9dbdfdf7ad58b38ef0a3f5d962e3e974dc0c4151033c5da11d9bcf056afbc7cf",
+      "sourceNormalizedSha256": "6964db3b6e818dad305817ee7ce92184f596ef853349c3a4ba3e79bc7ac3284a",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 117062,
+          "externalBytes": 12628504,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 99913728
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 117062,
+          "externalBytes": 12689010,
+          "heapUsedBytes": 11502336,
+          "rssBytes": 100569088
+        },
+        "peakRssBytes": 100569088,
+        "peakRssDeltaBytes": 655360,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/1404-svt-q60-420.avif",
+      "fileSha256": "390078e1393b1491b5ced17a65d213e4bffca20a3ee53966b681bf7d85457440",
+      "sourceId": "1404",
+      "contentClass": "1400-lilith-nature",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1400-lilith-nature/1404_nature_palm-trees-sunset_ka-anapali-beach-kaanapali_s21u_iso16-f1p8_20210607-180007_4000x3000.sdr.png",
+      "sourceRawSha256": "9dbdfdf7ad58b38ef0a3f5d962e3e974dc0c4151033c5da11d9bcf056afbc7cf",
+      "sourceNormalizedSha256": "6964db3b6e818dad305817ee7ce92184f596ef853349c3a4ba3e79bc7ac3284a",
+      "encoder": "SVT-AV1",
+      "code": "INVALID_INPUT",
+      "message": "AV1 tile trailing padding is nonzero at bit 66785 after decoding 66797 of 258376 bits",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 118301,
+          "externalBytes": 12629743,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 100978688
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 1770099,
+          "externalBytes": 14342047,
+          "heapUsedBytes": 17816464,
+          "rssBytes": 113692672
+        },
+        "peakRssBytes": 113692672,
+        "peakRssDeltaBytes": 12713984,
+        "peakExternalDeltaBytes": 1712304,
+        "peakArrayBuffersDeltaBytes": 1651798
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/1404-imagemagick-q60.avif",
+      "fileSha256": "214c8618b69d99957d98dec78fbbb77241568216657576aae49d36ccaa59a299",
+      "sourceId": "1404",
+      "contentClass": "1400-lilith-nature",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1400-lilith-nature/1404_nature_palm-trees-sunset_ka-anapali-beach-kaanapali_s21u_iso16-f1p8_20210607-180007_4000x3000.sdr.png",
+      "sourceRawSha256": "9dbdfdf7ad58b38ef0a3f5d962e3e974dc0c4151033c5da11d9bcf056afbc7cf",
+      "sourceNormalizedSha256": "6964db3b6e818dad305817ee7ce92184f596ef853349c3a4ba3e79bc7ac3284a",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "e283151a0668a80eaf5a38ec7aecaaec08f4cf2f50548809c132050a7bf53365",
+      "dav1dRgbaSha256": "eaf49b892c926565aaa53f04bcf096ccba900ec58e1c965a388dcecd34600758",
+      "aomRgbaSha256": "eaf49b892c926565aaa53f04bcf096ccba900ec58e1c965a388dcecd34600758",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.17650985717773438,
+        "p95": 1,
+        "rootMeanSquare": 0.4201519476312198,
+        "psnr": 55.66267598721069
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 231.628,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 110614,
+          "externalBytes": 12622056,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 100409344
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2192854,
+          "externalBytes": 14764802,
+          "heapUsedBytes": 17145016,
+          "rssBytes": 113840128
+        },
+        "peakRssBytes": 113840128,
+        "peakRssDeltaBytes": 13430784,
+        "peakExternalDeltaBytes": 2142746,
+        "peakArrayBuffersDeltaBytes": 2082240
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/1614-rav1e-q60-420.avif",
+      "fileSha256": "0cd6dfd0a5cefb1706b6e5e7e245e7a79a66c486ddb552686d83719714a8ec14",
+      "sourceId": "1614",
+      "contentClass": "1600-lilith-food",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1600-lilith-food/1614_food_dessert-plate-upside-down_valladolid-mexico_s23u_iso640-f1p7_20230917-213342_4000x3000.sdr.png",
+      "sourceRawSha256": "bfa126ec9c5162fd85dd25e91a3c4cb46d034915b626dc110031459d09ddd912",
+      "sourceNormalizedSha256": "1b8960e2b5e4ac9a6aa3df3281e949bf05b7bc5dd104111a2be86d0bcef572a0",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 114409,
+          "externalBytes": 12625851,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 100470784
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 114409,
+          "externalBytes": 12686357,
+          "heapUsedBytes": 11502336,
+          "rssBytes": 101126144
+        },
+        "peakRssBytes": 101126144,
+        "peakRssDeltaBytes": 655360,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/1614-svt-q60-420.avif",
+      "fileSha256": "82504ff12309977bae20a3ba18464529e8558be28f4f2d7e223dbb3ac2f0ae3e",
+      "sourceId": "1614",
+      "contentClass": "1600-lilith-food",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1600-lilith-food/1614_food_dessert-plate-upside-down_valladolid-mexico_s23u_iso640-f1p7_20230917-213342_4000x3000.sdr.png",
+      "sourceRawSha256": "bfa126ec9c5162fd85dd25e91a3c4cb46d034915b626dc110031459d09ddd912",
+      "sourceNormalizedSha256": "1b8960e2b5e4ac9a6aa3df3281e949bf05b7bc5dd104111a2be86d0bcef572a0",
+      "encoder": "SVT-AV1",
+      "code": "INVALID_INPUT",
+      "message": "AV1 tile trailing padding is nonzero at bit 80543 after decoding 80557 of 247512 bits",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 116943,
+          "externalBytes": 12628385,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 100806656
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 1881237,
+          "externalBytes": 14453185,
+          "heapUsedBytes": 16753920,
+          "rssBytes": 113127424
+        },
+        "peakRssBytes": 113127424,
+        "peakRssDeltaBytes": 12320768,
+        "peakExternalDeltaBytes": 1824800,
+        "peakArrayBuffersDeltaBytes": 1764294
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/1614-imagemagick-q60.avif",
+      "fileSha256": "c112d279b6b68d41c10403f983d92b228156c948519e1764c96546813e285a57",
+      "sourceId": "1614",
+      "contentClass": "1600-lilith-food",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/1600-lilith-food/1614_food_dessert-plate-upside-down_valladolid-mexico_s23u_iso640-f1p7_20230917-213342_4000x3000.sdr.png",
+      "sourceRawSha256": "bfa126ec9c5162fd85dd25e91a3c4cb46d034915b626dc110031459d09ddd912",
+      "sourceNormalizedSha256": "1b8960e2b5e4ac9a6aa3df3281e949bf05b7bc5dd104111a2be86d0bcef572a0",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "71ebfc430fc618ee2654098f7980b3de942a23a8221cc8bf30e9bfa5b8239429",
+      "dav1dRgbaSha256": "25c0e11147685c210452cd756e2a15219084bc2547d634884136c240742e8b64",
+      "aomRgbaSha256": "25c0e11147685c210452cd756e2a15219084bc2547d634884136c240742e8b64",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.14607620239257812,
+        "p95": 1,
+        "rootMeanSquare": 0.38227235223830575,
+        "psnr": 56.48334583059213
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 247.962,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 109722,
+          "externalBytes": 12621164,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101539840
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2263674,
+          "externalBytes": 14907814,
+          "heapUsedBytes": 16835168,
+          "rssBytes": 111501312
+        },
+        "peakRssBytes": 111501312,
+        "peakRssDeltaBytes": 9961472,
+        "peakExternalDeltaBytes": 2286650,
+        "peakArrayBuffersDeltaBytes": 2153952
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/2001-rav1e-q60-420.avif",
+      "fileSha256": "2530b0297cb6f4768e42c4f75562a5d0b2f98c0570aa8783f1712a4abb3190fd",
+      "sourceId": "2001",
+      "contentClass": "2000-unsplash-people",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/2000-unsplash-people/2001_people_by-anastasia-pivnenko-prng6r1nspq-unsplash_2272x3072.sdr.png",
+      "sourceRawSha256": "b6b94239da0eba36166e04bd313c86e08e7e1e8b5d03783809cb555de89d5cc6",
+      "sourceNormalizedSha256": "77e6e31c257b11108de798b8634da0e436cc700f7d6ed7fa58c21928287f846d",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 104883,
+          "externalBytes": 12616325,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101867520
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 104883,
+          "externalBytes": 12676831,
+          "heapUsedBytes": 11502336,
+          "rssBytes": 102391808
+        },
+        "peakRssBytes": 102391808,
+        "peakRssDeltaBytes": 524288,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/2001-svt-q60-420.avif",
+      "fileSha256": "04dc6761837610b838eb710e77652ccd97472464ed212b4a77342cef028b181c",
+      "sourceId": "2001",
+      "contentClass": "2000-unsplash-people",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/2000-unsplash-people/2001_people_by-anastasia-pivnenko-prng6r1nspq-unsplash_2272x3072.sdr.png",
+      "sourceRawSha256": "b6b94239da0eba36166e04bd313c86e08e7e1e8b5d03783809cb555de89d5cc6",
+      "sourceNormalizedSha256": "77e6e31c257b11108de798b8634da0e436cc700f7d6ed7fa58c21928287f846d",
+      "encoder": "SVT-AV1",
+      "code": "INVALID_INPUT",
+      "message": "AV1 tile trailing padding is nonzero at bit 70693 after decoding 70705 of 156912 bits",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 105624,
+          "externalBytes": 12617066,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 100024320
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 1598272,
+          "externalBytes": 14170220,
+          "heapUsedBytes": 14433848,
+          "rssBytes": 114180096
+        },
+        "peakRssBytes": 114180096,
+        "peakRssDeltaBytes": 14155776,
+        "peakExternalDeltaBytes": 1553154,
+        "peakArrayBuffersDeltaBytes": 1492648
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/2001-imagemagick-q60.avif",
+      "fileSha256": "7a1cf00aaa8ff935a05752299e85f740a4301751d500a3b92e6a6d03f78c3293",
+      "sourceId": "2001",
+      "contentClass": "2000-unsplash-people",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/2000-unsplash-people/2001_people_by-anastasia-pivnenko-prng6r1nspq-unsplash_2272x3072.sdr.png",
+      "sourceRawSha256": "b6b94239da0eba36166e04bd313c86e08e7e1e8b5d03783809cb555de89d5cc6",
+      "sourceNormalizedSha256": "77e6e31c257b11108de798b8634da0e436cc700f7d6ed7fa58c21928287f846d",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "285af55b120695a2991b76f4de4208600b3ab4f61e32542bc9c2b5a3f6886be6",
+      "dav1dRgbaSha256": "3d926017c5a7c023a9dff5518d0b5be36cafe1f634b58bdb10a528f7fb72365a",
+      "aomRgbaSha256": "3d926017c5a7c023a9dff5518d0b5be36cafe1f634b58bdb10a528f7fb72365a",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.1981938680013021,
+        "p95": 1,
+        "rootMeanSquare": 0.44561792796953825,
+        "psnr": 55.15155051017635
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 252.611,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 100021,
+          "externalBytes": 12611463,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101998592
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2254085,
+          "externalBytes": 14826033,
+          "heapUsedBytes": 17067128,
+          "rssBytes": 116285440
+        },
+        "peakRssBytes": 116285440,
+        "peakRssDeltaBytes": 14286848,
+        "peakExternalDeltaBytes": 2214570,
+        "peakArrayBuffersDeltaBytes": 2154064
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/2404-rav1e-q60-420.avif",
+      "fileSha256": "b9cdc13e3bd0968c3f7a93b987c19db1dca1aaa93837e7d552e197b149d7bd78",
+      "sourceId": "2404",
+      "contentClass": "2400-unsplash-textures",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/2400-unsplash-textures/2404_textures_tree-bark-texture_by-hwang-sanguk-k0tljwrabxg-unsplash_3024x3024.sdr.png",
+      "sourceRawSha256": "d15d17d088206a6e4b5cc88b6ce6040a232b14274368f0939db429b4df618df3",
+      "sourceNormalizedSha256": "9a5aa92174881b79faab4e81aa3e8471aafe617a0fb6824bf26165f98da5dca4",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 169669,
+          "externalBytes": 12681111,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101412864
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 169669,
+          "externalBytes": 12741617,
+          "heapUsedBytes": 11502568,
+          "rssBytes": 102068224
+        },
+        "peakRssBytes": 102068224,
+        "peakRssDeltaBytes": 655360,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/2404-svt-q60-420.avif",
+      "fileSha256": "f994988783d395beca57ece116d6d8782e0588aee92f27ac6565df7f3dc44174",
+      "sourceId": "2404",
+      "contentClass": "2400-unsplash-textures",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/2400-unsplash-textures/2404_textures_tree-bark-texture_by-hwang-sanguk-k0tljwrabxg-unsplash_3024x3024.sdr.png",
+      "sourceRawSha256": "d15d17d088206a6e4b5cc88b6ce6040a232b14274368f0939db429b4df618df3",
+      "sourceNormalizedSha256": "9a5aa92174881b79faab4e81aa3e8471aafe617a0fb6824bf26165f98da5dca4",
+      "encoder": "SVT-AV1",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "2c8d914082fe76c3adaf1d8d874b84ee242d9581b5e3016ed166c843a5fb7a48",
+      "dav1dRgbaSha256": "076ecdbd3c6ee57f17fa2307f21bdf7dd9dcd267963efc14e10346ce52faf699",
+      "aomRgbaSha256": "076ecdbd3c6ee57f17fa2307f21bdf7dd9dcd267963efc14e10346ce52faf699",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.3819897969563802,
+        "p95": 1,
+        "rootMeanSquare": 0.6236506837760614,
+        "psnr": 52.23197555179389
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 411.424,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 184129,
+          "externalBytes": 12695571,
+          "heapUsedBytes": 10831424,
+          "rssBytes": 102535168
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2121987,
+          "externalBytes": 14693935,
+          "heapUsedBytes": 17349696,
+          "rssBytes": 114724864
+        },
+        "peakRssBytes": 114724864,
+        "peakRssDeltaBytes": 12189696,
+        "peakExternalDeltaBytes": 1998364,
+        "peakArrayBuffersDeltaBytes": 1937858
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/2404-imagemagick-q60.avif",
+      "fileSha256": "4e75ec86be58f3e0249bdaa8c80dd21083a6d48da0b86ed9396bde7a652a2abd",
+      "sourceId": "2404",
+      "contentClass": "2400-unsplash-textures",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/2400-unsplash-textures/2404_textures_tree-bark-texture_by-hwang-sanguk-k0tljwrabxg-unsplash_3024x3024.sdr.png",
+      "sourceRawSha256": "d15d17d088206a6e4b5cc88b6ce6040a232b14274368f0939db429b4df618df3",
+      "sourceNormalizedSha256": "9a5aa92174881b79faab4e81aa3e8471aafe617a0fb6824bf26165f98da5dca4",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "5b8d24d14aefafc9d5fd2902d7869619fa18391ad4390ccb1b10f5ea03231b9f",
+      "dav1dRgbaSha256": "d7ba583f2865b2f201bc94f061ef8f5f82acaeed6b0c9c2dac91c77b32e9ee0d",
+      "aomRgbaSha256": "d7ba583f2865b2f201bc94f061ef8f5f82acaeed6b0c9c2dac91c77b32e9ee0d",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.3823280334472656,
+        "p95": 1,
+        "rootMeanSquare": 0.6239747857762404,
+        "psnr": 52.2274627964245
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 330.026,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 164575,
+          "externalBytes": 12676017,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 102449152
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2101793,
+          "externalBytes": 14673741,
+          "heapUsedBytes": 17172440,
+          "rssBytes": 112803840
+        },
+        "peakRssBytes": 112803840,
+        "peakRssDeltaBytes": 10354688,
+        "peakExternalDeltaBytes": 1997724,
+        "peakArrayBuffersDeltaBytes": 1937218
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/3001-rav1e-q60-420.avif",
+      "fileSha256": "28c860dc7f657f954324f5fac624d7d203cf949118c66bd69a358fc0f529c8b6",
+      "sourceId": "3001",
+      "contentClass": "3000-art-institute-of-chicago-photos",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/3000-art-institute-of-chicago-photos/3001_aic_self-portrait_11_4000x5226.sdr.png",
+      "sourceRawSha256": "8e5451b2e1d746e6e19a2e86c511074f86dcb1f9a1cb4a33ca8cddd46582ef9a",
+      "sourceNormalizedSha256": "22004289b136dc781e92dda008144066d0dc04f068bc743ee9ee85bfa2253036",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 92382,
+          "externalBytes": 12603824,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 100081664
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 92382,
+          "externalBytes": 12664330,
+          "heapUsedBytes": 11504680,
+          "rssBytes": 100605952
+        },
+        "peakRssBytes": 100605952,
+        "peakRssDeltaBytes": 524288,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/3001-svt-q60-420.avif",
+      "fileSha256": "582a5a71c328471379cc7b41e4d9ead9782960091eb821efc9f3b91cc87d56d0",
+      "sourceId": "3001",
+      "contentClass": "3000-art-institute-of-chicago-photos",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/3000-art-institute-of-chicago-photos/3001_aic_self-portrait_11_4000x5226.sdr.png",
+      "sourceRawSha256": "8e5451b2e1d746e6e19a2e86c511074f86dcb1f9a1cb4a33ca8cddd46582ef9a",
+      "sourceNormalizedSha256": "22004289b136dc781e92dda008144066d0dc04f068bc743ee9ee85bfa2253036",
+      "encoder": "SVT-AV1",
+      "code": "INVALID_INPUT",
+      "message": "AV1 symbol decoder over-read its tile",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 91109,
+          "externalBytes": 12602551,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101580800
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2610917,
+          "externalBytes": 17905091,
+          "heapUsedBytes": 14156288,
+          "rssBytes": 126746624
+        },
+        "peakRssBytes": 126746624,
+        "peakRssDeltaBytes": 25165824,
+        "peakExternalDeltaBytes": 5302540,
+        "peakArrayBuffersDeltaBytes": 2519808
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/3001-imagemagick-q60.avif",
+      "fileSha256": "038209f934a98d2f61fc0b45cc634cb12408e64d3cafc0bf8f22b1331960e498",
+      "sourceId": "3001",
+      "contentClass": "3000-art-institute-of-chicago-photos",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/3000-art-institute-of-chicago-photos/3001_aic_self-portrait_11_4000x5226.sdr.png",
+      "sourceRawSha256": "8e5451b2e1d746e6e19a2e86c511074f86dcb1f9a1cb4a33ca8cddd46582ef9a",
+      "sourceNormalizedSha256": "22004289b136dc781e92dda008144066d0dc04f068bc743ee9ee85bfa2253036",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "43b49474052d5bf84efbd6bf29e7e359915ebdad0d6f7861c9709f04cc8371af",
+      "dav1dRgbaSha256": "c927d9c6f700f14fc36a22473f29afea5c87960b944dde3be0b887346cf9e652",
+      "aomRgbaSha256": "c927d9c6f700f14fc36a22473f29afea5c87960b944dde3be0b887346cf9e652",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 1,
+        "mean": 0.13400395711263022,
+        "p95": 1,
+        "rootMeanSquare": 0.3660655093185238,
+        "psnr": 56.85962737676199
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 208.428,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 89547,
+          "externalBytes": 12600989,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101265408
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2170667,
+          "externalBytes": 14747931,
+          "heapUsedBytes": 17289056,
+          "rssBytes": 112336896
+        },
+        "peakRssBytes": 112336896,
+        "peakRssDeltaBytes": 11071488,
+        "peakExternalDeltaBytes": 2146942,
+        "peakArrayBuffersDeltaBytes": 2081120
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/5004-rav1e-q60-420.avif",
+      "fileSha256": "5766d2e310043597f9b9e19591d0cf61c229384d2b0055d5fdd2054603310b47",
+      "sourceId": "5004",
+      "contentClass": "5000-national-park-service-brochures",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/5000-national-park-service-brochures/color/5004_nps_blca-black-canyon-2023_color_p02_7016x4961.sdr.png",
+      "sourceRawSha256": "e8427e95e15b0718aa722fccba2ddf6f8003b0f10864eda8ebbfafb608a8be1a",
+      "sourceNormalizedSha256": "1001eb55085b884ef59d7f3a82d7cbc14804f1218987e72fecb43258d1e3ef92",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 121878,
+          "externalBytes": 12633320,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 99680256
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 121878,
+          "externalBytes": 12693826,
+          "heapUsedBytes": 11502336,
+          "rssBytes": 100466688
+        },
+        "peakRssBytes": 100466688,
+        "peakRssDeltaBytes": 786432,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/5004-svt-q60-420.avif",
+      "fileSha256": "47e2bc523a85276d64bd95ebd14f716e76642e1376f83593f4c576df6963639f",
+      "sourceId": "5004",
+      "contentClass": "5000-national-park-service-brochures",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/5000-national-park-service-brochures/color/5004_nps_blca-black-canyon-2023_color_p02_7016x4961.sdr.png",
+      "sourceRawSha256": "e8427e95e15b0718aa722fccba2ddf6f8003b0f10864eda8ebbfafb608a8be1a",
+      "sourceNormalizedSha256": "1001eb55085b884ef59d7f3a82d7cbc14804f1218987e72fecb43258d1e3ef92",
+      "encoder": "SVT-AV1",
+      "code": "INVALID_INPUT",
+      "message": "AV1 tile trailing padding is nonzero at bit 72954 after decoding 72967 of 301976 bits",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 123751,
+          "externalBytes": 12635193,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 99827712
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 1834381,
+          "externalBytes": 14406329,
+          "heapUsedBytes": 16688488,
+          "rssBytes": 113590272
+        },
+        "peakRssBytes": 113590272,
+        "peakRssDeltaBytes": 13762560,
+        "peakExternalDeltaBytes": 1771136,
+        "peakArrayBuffersDeltaBytes": 1710630
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/5004-imagemagick-q60.avif",
+      "fileSha256": "a562d0b9fee354cad6f314ba780c86af6913dcc1bd6d66fa24a1823bde0beda0",
+      "sourceId": "5004",
+      "contentClass": "5000-national-park-service-brochures",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/5000-national-park-service-brochures/color/5004_nps_blca-black-canyon-2023_color_p02_7016x4961.sdr.png",
+      "sourceRawSha256": "e8427e95e15b0718aa722fccba2ddf6f8003b0f10864eda8ebbfafb608a8be1a",
+      "sourceNormalizedSha256": "1001eb55085b884ef59d7f3a82d7cbc14804f1218987e72fecb43258d1e3ef92",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "7b088f6e6b10f5274d71d1df7609b6e438544de28415220de8e5d2c9e2972032",
+      "dav1dRgbaSha256": "f5271e9b2f35ca3068872ff7aa78e78966d02c5b57fd9ed6334ab3026bd08743",
+      "aomRgbaSha256": "f5271e9b2f35ca3068872ff7aa78e78966d02c5b57fd9ed6334ab3026bd08743",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.11001078287760417,
+        "p95": 1,
+        "rootMeanSquare": 0.33184354375601777,
+        "psnr": 57.71213615742049
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 208.077,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 115347,
+          "externalBytes": 12626789,
+          "heapUsedBytes": 10831424,
+          "rssBytes": 102051840
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2413843,
+          "externalBytes": 14985791,
+          "heapUsedBytes": 17041720,
+          "rssBytes": 114503680
+        },
+        "peakRssBytes": 114503680,
+        "peakRssDeltaBytes": 12451840,
+        "peakExternalDeltaBytes": 2359002,
+        "peakArrayBuffersDeltaBytes": 2298496
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/6833-rav1e-q60-420.avif",
+      "fileSha256": "62f124066d4e8de1a839438e8c50e9b119656ef3e57a522a6a70db08e84108ca",
+      "sourceId": "6833",
+      "contentClass": "6800-ia-scans-manuscript-text",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/6800-ia-scans-manuscript-text/6833_scans-text_redoute-fr-description_p0146_2415x3528.sdr.png",
+      "sourceRawSha256": "c93fb26da4d6cd4830239a8cd8466e15ee535b9b750c4b517bccf2897b4c1807",
+      "sourceNormalizedSha256": "739651f1574bd521a5ac194107e7234c1826c20ef48119600769a3121127dbbc",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 100930,
+          "externalBytes": 12612372,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101388288
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 100930,
+          "externalBytes": 12672878,
+          "heapUsedBytes": 11502240,
+          "rssBytes": 102174720
+        },
+        "peakRssBytes": 102174720,
+        "peakRssDeltaBytes": 786432,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/6833-svt-q60-420.avif",
+      "fileSha256": "abf026470342f51268013b08ed24d641fbff53b13e381966f674b0af78fd1d52",
+      "sourceId": "6833",
+      "contentClass": "6800-ia-scans-manuscript-text",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/6800-ia-scans-manuscript-text/6833_scans-text_redoute-fr-description_p0146_2415x3528.sdr.png",
+      "sourceRawSha256": "c93fb26da4d6cd4830239a8cd8466e15ee535b9b750c4b517bccf2897b4c1807",
+      "sourceNormalizedSha256": "739651f1574bd521a5ac194107e7234c1826c20ef48119600769a3121127dbbc",
+      "encoder": "SVT-AV1",
+      "code": "INVALID_INPUT",
+      "message": "AV1 tile trailing padding is nonzero at bit 81963 after decoding 81976 of 111424 bits",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 99931,
+          "externalBytes": 12611373,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 102084608
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 1702185,
+          "externalBytes": 14274133,
+          "heapUsedBytes": 14929576,
+          "rssBytes": 112701440
+        },
+        "peakRssBytes": 112701440,
+        "peakRssDeltaBytes": 10616832,
+        "peakExternalDeltaBytes": 1662760,
+        "peakArrayBuffersDeltaBytes": 1602254
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/6833-imagemagick-q60.avif",
+      "fileSha256": "b52c2f9fce1f4737aaa163ced2024d0bf8abeb51d6fc6cb3245f9d702e046282",
+      "sourceId": "6833",
+      "contentClass": "6800-ia-scans-manuscript-text",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/6800-ia-scans-manuscript-text/6833_scans-text_redoute-fr-description_p0146_2415x3528.sdr.png",
+      "sourceRawSha256": "c93fb26da4d6cd4830239a8cd8466e15ee535b9b750c4b517bccf2897b4c1807",
+      "sourceNormalizedSha256": "739651f1574bd521a5ac194107e7234c1826c20ef48119600769a3121127dbbc",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "81f2848c0b81553022a3c0a45e04128652cad023d3b6b3b678047b7167f5b8d0",
+      "dav1dRgbaSha256": "07a5b562e8dd8e6273c85f9618f9db070cd53674147473d4c64914f48ed0d6c9",
+      "aomRgbaSha256": "07a5b562e8dd8e6273c85f9618f9db070cd53674147473d4c64914f48ed0d6c9",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 1,
+        "mean": 0.045024871826171875,
+        "p95": 0,
+        "rootMeanSquare": 0.21219064971428847,
+        "psnr": 61.59627875695396
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 181.592,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 97100,
+          "externalBytes": 12608542,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 100851712
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2684620,
+          "externalBytes": 15256568,
+          "heapUsedBytes": 16132184,
+          "rssBytes": 113565696
+        },
+        "peakRssBytes": 113565696,
+        "peakRssDeltaBytes": 12713984,
+        "peakExternalDeltaBytes": 2648026,
+        "peakArrayBuffersDeltaBytes": 2587520
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/7052-rav1e-q60-420.avif",
+      "fileSha256": "00fbf656dfe0124761310e8866937eef2fe75d2d28b69884d1f1ca72126f1deb",
+      "sourceId": "7052",
+      "contentClass": "7000-lilith-plots",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/7000-lilith-plots/grids/7052_plots_line-00222-s2f495179_1024x1024.sdr.png",
+      "sourceRawSha256": "fb96fda9482e93b1bb19e10b1972a7720bf3986aef75ec7ff5fc2e501beb1279",
+      "sourceNormalizedSha256": "2b22a0a44f0d95fb85fd58f47bf97f26109c03d2c98078be8d7c566a9e2564a3",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 108608,
+          "externalBytes": 12620050,
+          "heapUsedBytes": 10831400,
+          "rssBytes": 102125568
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 108608,
+          "externalBytes": 12680556,
+          "heapUsedBytes": 11502384,
+          "rssBytes": 102780928
+        },
+        "peakRssBytes": 102780928,
+        "peakRssDeltaBytes": 655360,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/7052-svt-q60-420.avif",
+      "fileSha256": "2faf17514cf459bf318c2786b30cbc540e1ff7be83b70a7e02698d718898299b",
+      "sourceId": "7052",
+      "contentClass": "7000-lilith-plots",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/7000-lilith-plots/grids/7052_plots_line-00222-s2f495179_1024x1024.sdr.png",
+      "sourceRawSha256": "fb96fda9482e93b1bb19e10b1972a7720bf3986aef75ec7ff5fc2e501beb1279",
+      "sourceNormalizedSha256": "2b22a0a44f0d95fb85fd58f47bf97f26109c03d2c98078be8d7c566a9e2564a3",
+      "encoder": "SVT-AV1",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "4436ea86642b7e97d1c64eb05e2ce03d0303df2bc114b7c92df5ee07ade039f7",
+      "dav1dRgbaSha256": "6d36e3b4ec76a22776055a7ef12e833b3435bdfaf1f1790f7cf75f610731e1c4",
+      "aomRgbaSha256": "6d36e3b4ec76a22776055a7ef12e833b3435bdfaf1f1790f7cf75f610731e1c4",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.018914540608723957,
+        "p95": 0,
+        "rootMeanSquare": 0.13759484921063314,
+        "psnr": 65.35876007622248
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 390.124,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 148300,
+          "externalBytes": 12659742,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101834752
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2621372,
+          "externalBytes": 15193320,
+          "heapUsedBytes": 17323952,
+          "rssBytes": 113238016
+        },
+        "peakRssBytes": 113238016,
+        "peakRssDeltaBytes": 11403264,
+        "peakExternalDeltaBytes": 2533578,
+        "peakArrayBuffersDeltaBytes": 2473072
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/7052-imagemagick-q60.avif",
+      "fileSha256": "1a86dece4d454098a5b303257eb87b081db10926dc628340d21ea7a8e6d2077e",
+      "sourceId": "7052",
+      "contentClass": "7000-lilith-plots",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/7000-lilith-plots/grids/7052_plots_line-00222-s2f495179_1024x1024.sdr.png",
+      "sourceRawSha256": "fb96fda9482e93b1bb19e10b1972a7720bf3986aef75ec7ff5fc2e501beb1279",
+      "sourceNormalizedSha256": "2b22a0a44f0d95fb85fd58f47bf97f26109c03d2c98078be8d7c566a9e2564a3",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "c33303589da709973ae48b1673a08892f98c85d098074695c384a96177575023",
+      "dav1dRgbaSha256": "b35375fdb0ae6f17346fc5489e0136ad6fb244c0dd3298c4b368766283413b9d",
+      "aomRgbaSha256": "b35375fdb0ae6f17346fc5489e0136ad6fb244c0dd3298c4b368766283413b9d",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.05670038859049479,
+        "p95": 1,
+        "rootMeanSquare": 0.23815047213801044,
+        "psnr": 60.59377467176225
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 227.312,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 112156,
+          "externalBytes": 12623598,
+          "heapUsedBytes": 10831424,
+          "rssBytes": 101634048
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2698604,
+          "externalBytes": 15270552,
+          "heapUsedBytes": 16045440,
+          "rssBytes": 110940160
+        },
+        "peakRssBytes": 110940160,
+        "peakRssDeltaBytes": 9306112,
+        "peakExternalDeltaBytes": 2646954,
+        "peakArrayBuffersDeltaBytes": 2586448
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/8237-rav1e-q60-420.avif",
+      "fileSha256": "d6b81cebc62f6794c2b6233eb8647502f6a86e6d9cc5414aa0855b2c05db5856",
+      "sourceId": "8237",
+      "contentClass": "8100-lilith-web-screenshots",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/8100-lilith-web-screenshots/2880x1800/8237_web-screenshots_nasa-artemis_dpr2_page2_2880x1800.sdr.png",
+      "sourceRawSha256": "ef10bec732d7e88dfa95d5c38fa0b5cd3aa67a0a94949c1e96079d45f1807536",
+      "sourceNormalizedSha256": "e5cbbd4ee0fc2f9470e5aa3aff2a896377b0ebb64f5b40ada0b22dcf2f917665",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 113029,
+          "externalBytes": 12624471,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101191680
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 113029,
+          "externalBytes": 12684977,
+          "heapUsedBytes": 11504616,
+          "rssBytes": 101715968
+        },
+        "peakRssBytes": 101715968,
+        "peakRssDeltaBytes": 524288,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/8237-svt-q60-420.avif",
+      "fileSha256": "2b1305ce1f57bd0e7242281ce9213146414d495cc242d0ab8e18dccd87919d99",
+      "sourceId": "8237",
+      "contentClass": "8100-lilith-web-screenshots",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/8100-lilith-web-screenshots/2880x1800/8237_web-screenshots_nasa-artemis_dpr2_page2_2880x1800.sdr.png",
+      "sourceRawSha256": "ef10bec732d7e88dfa95d5c38fa0b5cd3aa67a0a94949c1e96079d45f1807536",
+      "sourceNormalizedSha256": "e5cbbd4ee0fc2f9470e5aa3aff2a896377b0ebb64f5b40ada0b22dcf2f917665",
+      "encoder": "SVT-AV1",
+      "code": "INVALID_INPUT",
+      "message": "AV1 tile trailing padding is nonzero at bit 137433 after decoding 137447 of 217112 bits",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 113143,
+          "externalBytes": 12624585,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 101789696
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 1822041,
+          "externalBytes": 14393989,
+          "heapUsedBytes": 18230912,
+          "rssBytes": 115159040
+        },
+        "peakRssBytes": 115159040,
+        "peakRssDeltaBytes": 13369344,
+        "peakExternalDeltaBytes": 1769404,
+        "peakArrayBuffersDeltaBytes": 1708898
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/8237-imagemagick-q60.avif",
+      "fileSha256": "7725a8787ad4afb556dabac9f35781eca9536522b0da7a3e0fe03ab9f287b1d7",
+      "sourceId": "8237",
+      "contentClass": "8100-lilith-web-screenshots",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/8100-lilith-web-screenshots/2880x1800/8237_web-screenshots_nasa-artemis_dpr2_page2_2880x1800.sdr.png",
+      "sourceRawSha256": "ef10bec732d7e88dfa95d5c38fa0b5cd3aa67a0a94949c1e96079d45f1807536",
+      "sourceNormalizedSha256": "e5cbbd4ee0fc2f9470e5aa3aff2a896377b0ebb64f5b40ada0b22dcf2f917665",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "9d93aed1e075ce849f16f4b359098853fef274d5b6b70fa17c89f2503e1509a0",
+      "dav1dRgbaSha256": "4b6146af5bf683a06455880f492f8b924a6bb1e563faedbc8c437ebfdf27aa88",
+      "aomRgbaSha256": "4b6146af5bf683a06455880f492f8b924a6bb1e563faedbc8c437ebfdf27aa88",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 2,
+        "mean": 0.07313028971354167,
+        "p95": 1,
+        "rootMeanSquare": 0.27044963555363455,
+        "psnr": 59.489075597843055
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 183.775,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 106989,
+          "externalBytes": 12618431,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 100069376
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2549933,
+          "externalBytes": 15194073,
+          "heapUsedBytes": 16862872,
+          "rssBytes": 112914432
+        },
+        "peakRssBytes": 112914432,
+        "peakRssDeltaBytes": 12845056,
+        "peakExternalDeltaBytes": 2575642,
+        "peakArrayBuffersDeltaBytes": 2442944
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/9701-rav1e-q60-420.avif",
+      "fileSha256": "217d591b2850fcb83a309e3701c8ab1745a33185f5212adced5326d890fd0e73",
+      "sourceId": "9701",
+      "contentClass": "9226-lilith-ai-products",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/9226-lilith-ai-products/grocery/whitelabel/9701_gen_products-grocery-whitelabel_coffee-bag-whole-bean_p0462_1024x1536.sdr.png",
+      "sourceRawSha256": "9572f678d9442bf654a01ef155bb493a65298b1af01febb723b10a04207c9c59",
+      "sourceNormalizedSha256": "236e0ebaee857eda451c01311c430287d59b924c9d935992e8f82a2cff131ce6",
+      "encoder": "rav1e",
+      "code": "UNSUPPORTED_OPERATION",
+      "message": "Phase B2 reconstruction does not support AV1 segmentation maps",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 90405,
+          "externalBytes": 12601847,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 99405824
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 90405,
+          "externalBytes": 12662353,
+          "heapUsedBytes": 11504488,
+          "rssBytes": 100061184
+        },
+        "peakRssBytes": 100061184,
+        "peakRssDeltaBytes": 655360,
+        "peakExternalDeltaBytes": 60506,
+        "peakArrayBuffersDeltaBytes": 0
+      }
+    },
+    {
+      "outcome": "error",
+      "file": "encoded/9701-svt-q60-420.avif",
+      "fileSha256": "cb83f407f0c38253d98441d8c41781c0d91d02d9c8cda45e2d73efd5000f3df6",
+      "sourceId": "9701",
+      "contentClass": "9226-lilith-ai-products",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/9226-lilith-ai-products/grocery/whitelabel/9701_gen_products-grocery-whitelabel_coffee-bag-whole-bean_p0462_1024x1536.sdr.png",
+      "sourceRawSha256": "9572f678d9442bf654a01ef155bb493a65298b1af01febb723b10a04207c9c59",
+      "sourceNormalizedSha256": "236e0ebaee857eda451c01311c430287d59b924c9d935992e8f82a2cff131ce6",
+      "encoder": "SVT-AV1",
+      "code": "INVALID_INPUT",
+      "message": "AV1 symbol decoder over-read its tile",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0,
+        "colorSpace": "srgb",
+        "colorProfile": {
+          "kind": "nclx",
+          "primaries": 1,
+          "transferCharacteristics": 13,
+          "matrixCoefficients": 6,
+          "fullRange": true
+        }
+      },
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 90060,
+          "externalBytes": 12601502,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 100007936
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 4146190,
+          "externalBytes": 16718138,
+          "heapUsedBytes": 15590096,
+          "rssBytes": 112066560
+        },
+        "peakRssBytes": 112066560,
+        "peakRssDeltaBytes": 12058624,
+        "peakExternalDeltaBytes": 4116636,
+        "peakArrayBuffersDeltaBytes": 4056130
+      }
+    },
+    {
+      "outcome": "decoded",
+      "file": "encoded/9701-imagemagick-q60.avif",
+      "fileSha256": "d346c8f0396da1cc270c0d6a848795c62d80f3fefaa1fc83fdbe7265cb32f5c6",
+      "sourceId": "9701",
+      "contentClass": "9226-lilith-ai-products",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-png-v3/9226-lilith-ai-products/grocery/whitelabel/9701_gen_products-grocery-whitelabel_coffee-bag-whole-bean_p0462_1024x1536.sdr.png",
+      "sourceRawSha256": "9572f678d9442bf654a01ef155bb493a65298b1af01febb723b10a04207c9c59",
+      "sourceNormalizedSha256": "236e0ebaee857eda451c01311c430287d59b924c9d935992e8f82a2cff131ce6",
+      "encoder": "ImageMagick",
+      "metadata": {
+        "format": "avif",
+        "mimeType": "image/avif",
+        "width": 512,
+        "height": 512,
+        "hasAlpha": false,
+        "frames": 1,
+        "bitDepth": 8,
+        "chromaSubsampling": "420",
+        "codecProfile": 0
+      },
+      "referenceMetadata": {
+        "width": 512,
+        "height": 512,
+        "format": "heif",
+        "space": "srgb",
+        "channels": 3,
+        "depth": "uchar",
+        "hasAlpha": false
+      },
+      "rgbaSha256": "085f4721af1f60a15f1abc64e31bc130f90e6c7f65705b43d839c401507f701a",
+      "dav1dRgbaSha256": "f691e6f0a0e19612f16e50491f5d9e67fa70d4e6530c1d44af77c079207b8e34",
+      "aomRgbaSha256": "f691e6f0a0e19612f16e50491f5d9e67fa70d4e6530c1d44af77c079207b8e34",
+      "dav1dAomDifference": {
+        "maximum": 0,
+        "mean": 0,
+        "p95": 0,
+        "rootMeanSquare": 0,
+        "psnr": "infinite"
+      },
+      "portableDifference": {
+        "maximum": 1,
+        "mean": 0.010484059651692709,
+        "p95": 0,
+        "rootMeanSquare": 0.10239169718142535,
+        "psnr": 67.92550877558696
+      },
+      "outputBytes": 1048576,
+      "wallMilliseconds": 170.537,
+      "memory": {
+        "baseline": {
+          "arrayBuffersBytes": 88722,
+          "externalBytes": 12600164,
+          "heapUsedBytes": 10831352,
+          "rssBytes": 100659200
+        },
+        "peakSampled": {
+          "arrayBuffersBytes": 2675986,
+          "externalBytes": 15247934,
+          "heapUsedBytes": 16369552,
+          "rssBytes": 118616064
+        },
+        "peakRssBytes": 118616064,
+        "peakRssDeltaBytes": 17956864,
+        "peakExternalDeltaBytes": 2647770,
+        "peakArrayBuffersDeltaBytes": 2587264
+      }
+    }
+  ]
+}

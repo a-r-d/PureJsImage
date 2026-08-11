@@ -42,6 +42,7 @@ import {
 import {
   avifColorFixturePath,
   avifHdrChromaDerivedFixture,
+  avifHdrConstantLuminanceFixture,
   avifHdrToneMapFixtures,
   avifHdrToneMapOracle,
   avifHdrGainMapFixture,
@@ -2521,7 +2522,7 @@ describe('AVIF restricted pixel decode', () => {
     expect(output).toEqual(Uint8Array.of(234, 101, 40, 255, 134, 134, 134, 255))
   })
 
-  it('rejects matrix coefficients 10 before applying an HDR gain map', async () => {
+  it('rejects matrix coefficients 10 with non-BT.2020 primaries before an HDR gain map', async () => {
     const input = Buffer.from(await readFile(avifColorFixturePath(avifHdrGainMapFixture)))
     const nclx = input.indexOf('nclx')
     expect(nclx).toBeGreaterThanOrEqual(0)
@@ -2530,7 +2531,7 @@ describe('AVIF restricted pixel decode', () => {
 
     await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
-      message: 'HDR AVIF NCLX matrix coefficients 10 are not supported',
+      message: 'HDR AVIF NCLX matrix coefficients 10 require color primaries 9',
     })
   })
 
@@ -2705,6 +2706,30 @@ describe('AVIF restricted pixel decode', () => {
       }
     }
   })
+  it('tone-maps BT.2020 constant-luminance matrix 10 pixels', async () => {
+    const fixture = avifHdrConstantLuminanceFixture
+    const input = await readFile(avifColorFixturePath(fixture))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(inspection.gainMap).toBeUndefined()
+    expect(inspection.nclx).toMatchObject({
+      primaries: fixture.primaries,
+      transferCharacteristics: fixture.transferCharacteristics,
+      matrixCoefficients: fixture.matrixCoefficients,
+      fullRange: true,
+    })
+    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
+    for (const sample of fixture.oracleSamples) {
+      const offset = sample.pixel * 4
+      for (let channel = 0; channel < 3; channel += 1) {
+        const error = Math.abs((output.data[offset + channel] ?? 0) - (sample.rgb[channel] ?? 0))
+        expect(error, avifHdrToneMapOracle).toBeLessThanOrEqual(fixture.maximumAbsoluteError)
+      }
+    }
+  })
 
   it.each([
     [
@@ -2717,9 +2742,9 @@ describe('AVIF restricted pixel decode', () => {
     [
       'matrix coefficients',
       8,
-      10,
+      11,
       'UNSUPPORTED_OPERATION',
-      'HDR AVIF NCLX matrix coefficients 10 are not supported',
+      'HDR AVIF NCLX matrix coefficients 11 are not supported',
     ],
   ] as const)(
     'rejects invalid or unsupported HDR NCLX %s explicitly',
