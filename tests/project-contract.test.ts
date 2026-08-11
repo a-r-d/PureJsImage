@@ -38,6 +38,36 @@ describe('package contract', () => {
     expect('optionalDependencies' in packageJson).toBe(false)
   })
 
+  it('centers public positioning on the first-party codec suite', () => {
+    const readme = readFileSync('README.md', 'utf8')
+    const docsHome = readFileSync('docs-astro/src/pages/index.astro', 'utf8')
+    const specification = readFileSync('project-spec.md', 'utf8')
+    const roadmap = readFileSync('ROADMAP.md', 'utf8')
+
+    expect(packageJson.description).toBe(
+      'First-party image codecs and low-memory raster processing in strict TypeScript',
+    )
+    expect(readme).toContain(
+      'PureJsImage is building a broad suite of first-party image codecs in strict',
+    )
+    expect(readme).toContain(
+      'The strict TypeScript reference engine is the permanent portable path',
+    )
+    expect(docsHome).toContain('First-party codec suite · zero runtime dependencies')
+    expect(docsHome).toContain('Reference-engine evidence · baseline JPEG')
+    expect(specification).toContain('The top-level engineering constraints are:')
+    expect(specification).toContain(
+      'PureJsImage is a first-party image codec suite and low-memory raster engine',
+    )
+    expect(roadmap).toContain('Every codec follows the same durable lifecycle')
+    expect(roadmap).toContain('The explicitly imported JPEG and PNG accelerators')
+    for (const document of [readme, docsHome, specification, roadmap]) {
+      expect(document).not.toContain('modern alternative to Jimp')
+      expect(document).not.toContain('Jimp alternative')
+      expect(document).not.toContain('pure JavaScript image processing library')
+    }
+  })
+
   it('keeps bundle and deployment size reporting in the full check gate', () => {
     expect(packageJson.scripts.check).toContain('npm run size')
     expect(packageJson.scripts.size).toContain('npm run build')
@@ -154,12 +184,12 @@ describe('package contract', () => {
     expect(comparison).toContain('Grouped by TIFF workflow')
     expect(comparison).toContain('Not verified')
     expect(comparison).toContain('Versioned evidence')
-    expect(readme).toContain('PureJsImage main snapshot · unreleased · a1f20da')
+    expect(readme).toContain('PureJsImage benchmark snapshot · a1f20da')
     expect(readme).toContain('104/106 decoded<br>57 exact<br>2 oracle failures')
     expect(readme).not.toContain('0.8.0 workspace')
     expect(docsHome).toContain('<strong>104/106 decoded</strong><small>57 exact</small>')
     expect(tiffGuide).toContain('Decoded / comparable')
-    expect(comparison).toContain('unreleased · a1f20da')
+    expect(comparison).toContain('benchmark snapshot at commit a1f20da')
     expect(comparison).toContain('Decode coverage, exact pixels, and failures')
     expect(sitemap).toContain('https://purejsimage.com/tiff-comparison/')
   })

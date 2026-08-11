@@ -1,10 +1,18 @@
 {
   "name": "purejsimage",
   "version": "0.9.0",
-  "description": "Low-memory, dependency-free image processing for Node.js and modern browsers",
+  "description": "First-party image codecs and low-memory raster processing in strict TypeScript",
   "keywords": [
     "image",
+    "image-codecs",
     "image-processing",
+    "typescript",
+    "low-memory",
+    "zero-dependency",
+    "nodejs",
+    "browser",
+    "serverless",
+    "aws-lambda",
     "jpeg",
     "jpeg2000",
     "jp2",
@@ -16,9 +24,10 @@
     "gif",
     "heif",
     "heic",
-    "browser",
-    "serverless",
-    "lambda"
+    "geotiff",
+    "ome-tiff",
+    "scientific-imaging",
+    "whole-slide-image"
   ],
   "license": "MIT",
   "author": "Aaron Decker",
