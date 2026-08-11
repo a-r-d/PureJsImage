@@ -775,7 +775,7 @@ const portablePngPixels = async (bytes: Uint8Array): Promise<Uint8Array> => {
   return output
 }
 
-const sha256 = async (bytes: Uint8Array): Promise<string> => {
+const sha256 = async (bytes: Uint8Array | Uint8ClampedArray): Promise<string> => {
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', Uint8Array.from(bytes)))
   return Array.from(digest, (value) => value.toString(16).padStart(2, '0')).join('')
 }
@@ -1823,6 +1823,10 @@ const avifPinnedPng = async (
   height: number,
   expectedSha256: string,
   detail: string,
+  chromium?: {
+    readonly maximumRgbDifference: number
+    readonly rgbaSha256: string
+  },
 ): Promise<BrowserWorkflowResult> => {
   const input = await fetchBytes(`/fixtures/${file}`)
   const output = await (await images.open(input)).png().toUint8Array()
@@ -1835,8 +1839,34 @@ const avifPinnedPng = async (
   if (outputSha256 !== expectedSha256) {
     throw new Error(`${detail} portable RGBA hash was ${outputSha256}`)
   }
+  let chromiumDetail = ''
+  if (chromium !== undefined && navigator.userAgent.includes('Chrome/')) {
+    const chromiumPixels = await browserPixels(input, 'image/avif')
+    if (chromiumPixels.byteLength !== outputPixels.byteLength) {
+      throw new Error(`${detail} Chromium RGBA dimensions changed`)
+    }
+    const chromiumSha256 = await sha256(chromiumPixels)
+    if (chromiumSha256 !== chromium.rgbaSha256) {
+      throw new Error(`${detail} Chromium RGBA hash was ${chromiumSha256}`)
+    }
+    let maximumRgbDifference = 0
+    for (let pixel = 0; pixel < width * height; pixel += 1) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        maximumRgbDifference = Math.max(
+          maximumRgbDifference,
+          Math.abs(
+            (outputPixels[pixel * 4 + channel] ?? 0) - (chromiumPixels[pixel * 4 + channel] ?? 0),
+          ),
+        )
+      }
+    }
+    if (maximumRgbDifference !== chromium.maximumRgbDifference) {
+      throw new Error(`${detail} maximum Chromium RGB difference was ${maximumRgbDifference}`)
+    }
+    chromiumDetail = ` and pinned Chromium RGBA output (maximum RGB difference ${maximumRgbDifference})`
+  }
   return {
-    detail: `${detail} matched the pinned portable RGBA output`,
+    detail: `${detail} matched the pinned portable RGBA output${chromiumDetail}`,
     outputBytes: output.byteLength,
   }
 }
@@ -2134,6 +2164,72 @@ const avifExpandedHighBit = async (): Promise<BrowserWorkflowResult> => {
       64,
       'e9e2f8be7c4a179341c0ac312482e5a5d96b209698df253d73fcc642d65e8096',
       'Lossy 10-bit YUV 4:4:4 AVIF with deblocking, CDEF, and Wiener restoration',
+    ),
+    avifPinnedPng(
+      'filtered-lossy-10bpc-yuv420-192x128.avif',
+      192,
+      128,
+      '026ecbc3e3256500066f44b6bdca81dcad6ec99e674e5550cda43291a73594d1',
+      'Lossy 10-bit YUV 4:2:0 AVIF with deblocking, CDEF, and Wiener restoration',
+      {
+        maximumRgbDifference: 3,
+        rgbaSha256: '7443afcbe7796fcada187a67a6ab357241cfd0f9e7dca30aa0cb84c1af95c76d',
+      },
+    ),
+    avifPinnedPng(
+      'filtered-lossy-10bpc-yuv422-64x64.avif',
+      64,
+      64,
+      '32e1e6c6c8f80c33c099d3cd58351a75fa63fa352177713d67b93fd7ed19d50e',
+      'Lossy 10-bit YUV 4:2:2 AVIF with CDEF and Wiener restoration',
+      {
+        maximumRgbDifference: 3,
+        rgbaSha256: 'baca323bd5540446c8e07f66aa037024dcae16e7da0a3b412eb661f25c1eaf1a',
+      },
+    ),
+    avifPinnedPng(
+      'self-guided-10bpc-yuv420-320x192.avif',
+      320,
+      192,
+      'e382b8f0373e80e4c9abe67e9c30666db7a39b2d850b3b86af8aa5baea466f5c',
+      'Lossy 10-bit YUV 4:2:0 AVIF with self-guided restoration',
+      {
+        maximumRgbDifference: 6,
+        rgbaSha256: 'db0ce9ffa65137d06ebbc394b35f66fb3ae074b4ff9d606ed55aff50e5c62cb0',
+      },
+    ),
+    avifPinnedPng(
+      'filtered-lossy-12bpc-yuv420-64x64.avif',
+      64,
+      64,
+      'e44124196c3e453abf158e571592c14b8388ca71875cff1be6f856916c7755f9',
+      'Lossy 12-bit YUV 4:2:0 AVIF with deblocking and CDEF',
+      {
+        maximumRgbDifference: 158,
+        rgbaSha256: '45ae308afcdea548bae4ced23d52feab9c00308d1c649986e9265acd77e7fc17',
+      },
+    ),
+    avifPinnedPng(
+      'filtered-lossy-12bpc-yuv422-64x64.avif',
+      64,
+      64,
+      'f9b58fa7193daa31e3d4ef22349aeb67a5b1c3f802103c7c7c3fe93f889d8e87',
+      'Lossy 12-bit YUV 4:2:2 AVIF with deblocking and CDEF',
+      {
+        maximumRgbDifference: 3,
+        rgbaSha256: 'f116a8766e3887a5c9f9a965951b4edcf88d352e46db3ee3c9cce130ccb96da7',
+      },
+    ),
+    avifPinnedPng(
+      'filtered-lossy-12bpc-yuv444-64x64.avif',
+      64,
+      64,
+      '28b88bd4ba31908bab42a410a959bb7d2831ce60572be8dbd4e4685cf3e126f3',
+      'Lossy 12-bit YUV 4:4:4 AVIF with deblocking and CDEF',
+      {
+        maximumRgbDifference: 0,
+        rgbaSha256: '28b88bd4ba31908bab42a410a959bb7d2831ce60572be8dbd4e4685cf3e126f3',
+      },
     ),
   ])
   return {

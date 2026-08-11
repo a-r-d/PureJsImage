@@ -1004,20 +1004,26 @@ describe('AVIF restricted pixel decode', () => {
       expect(coded.sequence).toMatchObject({
         bitDepth: fixture.bitDepth,
         chromaSubsampling: fixture.chromaSubsampling,
-        fullRange: true,
+        fullRange: fixture.fullRange ?? true,
       })
       expect(frame.header.codedLossless).toBe(fixture.codedLossless)
-      if (!fixture.codedLossless && !fixture.postFilters) {
-        expect(frame.header).toMatchObject({
-          loopFilterLevels: [0, 0, 0, 0],
-          restorationTypes: [0, 0, 0],
-        })
-        expect(frame.header.cdefYPrimaryStrengths.every((strength) => strength === 0)).toBe(true)
-      } else if (fixture.postFilters) {
-        expect(frame.header.loopFilterLevels).toEqual([20, 20, 42, 39])
-        expect(Array.from(frame.header.cdefYPrimaryStrengths)).toEqual([8])
-        expect(frame.header.restorationTypes).toEqual([1, 1, 1])
-      }
+      expect(frame.header.loopFilterLevels.some((level) => level !== 0)).toBe(
+        fixture.filters.includes('deblock'),
+      )
+      expect(
+        [
+          ...frame.header.cdefYPrimaryStrengths,
+          ...frame.header.cdefYSecondaryStrengths,
+          ...frame.header.cdefUvPrimaryStrengths,
+          ...frame.header.cdefUvSecondaryStrengths,
+        ].some((strength) => strength !== 0),
+      ).toBe(fixture.filters.includes('cdef'))
+      expect(frame.header.restorationTypes.some((type) => type === 1)).toBe(
+        fixture.filters.includes('wiener'),
+      )
+      expect(frame.header.restorationTypes.some((type) => type === 2)).toBe(
+        fixture.filters.includes('self-guided'),
+      )
       const nativeYuv = Buffer.alloc(
         (decoded.width * decoded.height + 2 * decoded.chromaWidth * decoded.chromaHeight) * 2,
       )
@@ -1036,6 +1042,26 @@ describe('AVIF restricted pixel decode', () => {
       }
       expect(createHash('sha256').update(nativeYuv).digest('hex')).toBe(fixture.nativeYuvSha256)
       expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+      if (fixture.sharpRgbSha256 !== undefined && fixture.maximumSharpRgbDifference !== undefined) {
+        const { data: oracle, info } = await sharp(input)
+          .removeAlpha()
+          .raw()
+          .toBuffer({ resolveWithObject: true })
+        expect([info.width, info.height, info.channels]).toEqual([fixture.width, fixture.height, 3])
+        expect(createHash('sha256').update(oracle).digest('hex')).toBe(fixture.sharpRgbSha256)
+        let maximumDifference = 0
+        for (let pixel = 0; pixel < fixture.width * fixture.height; pixel += 1) {
+          for (let channel = 0; channel < 3; channel += 1) {
+            maximumDifference = Math.max(
+              maximumDifference,
+              Math.abs(
+                (output.data[pixel * 4 + channel] ?? 0) - (oracle[pixel * 3 + channel] ?? 0),
+              ),
+            )
+          }
+        }
+        expect(maximumDifference).toBe(fixture.maximumSharpRgbDifference)
+      }
     },
   )
 

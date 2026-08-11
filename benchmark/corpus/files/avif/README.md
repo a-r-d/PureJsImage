@@ -141,16 +141,21 @@ Y4M sources with one encoder worker. Encoded, source, Sharp RGB, and decoded
 RGBA checksums are pinned in `benchmark/avif/high-bit-lossless-fixtures.ts`.
 
 The `high-bit-expanded-fixtures.ts` set covers coded-lossless 10-bit and 12-bit
-YUV 4:2:0; filter-free lossy 10-bit YUV 4:2:2 and 4:4:4; filter-free lossy
-12-bit YUV 4:2:0, 4:2:2, and 4:4:4; and a lossy 10-bit YUV 4:4:4 frame with
-deblocking, CDEF, and Wiener restoration active on all three planes. These
-fixtures exercise the normative depth-specific dequantization tables and retain
-native high-depth samples through reconstruction and filtering.
-`npm run fixtures:avif:high-bit:prepare` regenerates them with libaom 3.12.1 and
-FFmpeg 7.1.1 from checksum-pinned Y4M sources.
+YUV 4:2:0; filter-free lossy 10-bit and 12-bit YUV 4:2:0, 4:2:2, and 4:4:4;
+lossy 10-bit YUV 4:2:0 and 4:2:2 with deblocking, CDEF, and Wiener restoration;
+limited-range lossy 10-bit YUV 4:2:0 with self-guided restoration; lossy 10-bit
+YUV 4:4:4 with deblocking, CDEF, and Wiener restoration; and lossy 12-bit YUV
+4:2:0, 4:2:2, and 4:4:4 with deblocking and CDEF. These fixtures exercise
+normative depth-specific dequantization and post-filter arithmetic while
+retaining native high-depth samples through reconstruction and filtering.
+`npm run fixtures:avif:high-bit:prepare` regenerates them with libavif 1.3.0,
+libaom 3.12.1, and FFmpeg 7.1.1 from checksum-pinned Y4M sources.
 `npm run fixtures:avif:high-bit` requires PureJsImage, dav1d, and libaom to
-produce byte-identical native YUV. Encoded, source, native-YUV, and portable
-RGBA checksums are pinned in `benchmark/avif/high-bit-expanded-fixtures.ts`.
+produce byte-identical native YUV, then pins Sharp and portable RGBA output for
+the expanded filtered cases. Encoded, source, native-YUV, and RGBA checksums are
+pinned in `benchmark/avif/high-bit-expanded-fixtures.ts`; detailed oracle
+results are recorded in
+`benchmark/results/avif-high-bit-post-filters-2026-08-09.md`.
 
 `unsupported-hdr-pq-10bpc-yuv420-32x24.avif` and
 `unsupported-hdr-hlg-10bpc-yuv420-32x24.avif` use the same checksum-pinned

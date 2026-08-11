@@ -182,12 +182,14 @@ test('decodes coded-lossless 12-bit AVIF', async ({ page }) => {
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 
-test('decodes expanded high-bit AVIF subsets', async ({ page }) => {
+test('decodes expanded high-bit AVIF subsets', async ({ browserName, page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifExpandedHighBit())
   expect(result.outputBytes).toBeGreaterThan(300)
   expect(result.detail).toContain('pinned portable RGBA output')
   expect(result.detail).toContain('Wiener restoration')
+  if (browserName === 'chromium') expect(result.detail).toContain('pinned Chromium RGBA output')
+  expect(result.detail).toContain('self-guided restoration')
   expect(result.detail).toContain('lossy 10-bit YUV 4:2:0')
   expect(result.detail).toContain('lossy 12-bit YUV 4:2:0')
   expect(result.detail).toContain('lossy 12-bit YUV 4:2:2')

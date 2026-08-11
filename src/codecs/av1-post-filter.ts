@@ -46,7 +46,7 @@ const cdefDirections = Int8Array.from([
   -1, 1, -2, 2, 0, 1, -1, 2, 0, 1, 0, 2, 0, 1, 1, 2, 1, 1, 2, 2, 1, 0, 2, 1, 1, 0, 2, 0, 1, 0, 2,
   -1,
 ])
-const cdefUvDirections420 = Uint8Array.from([0, 1, 2, 3, 4, 5, 6, 7])
+const cdefUvDirections422 = Uint8Array.from([7, 0, 2, 4, 5, 6, 6, 6])
 const cdefPrimaryTaps = Uint8Array.from([4, 2, 3, 3])
 const cdefSecondaryTaps = Uint8Array.from([2, 1, 2, 1])
 const cdefDivisionTable = Uint16Array.from([0, 840, 420, 280, 210, 168, 140, 120, 105])
@@ -626,7 +626,11 @@ export const applyAv1Cdef = (
       const chromaPrimary = (header.cdefUvPrimaryStrengths[index] ?? 0) << depthShift
       const chromaSecondary = (header.cdefUvSecondaryStrengths[index] ?? 0) << depthShift
       const chromaDirection =
-        chromaPrimary === 0 ? 0 : (cdefUvDirections420[lumaDirection] ?? lumaDirection)
+        chromaPrimary === 0
+          ? 0
+          : state.chromaShiftX === 1 && state.chromaShiftY === 0
+            ? (cdefUvDirections422[lumaDirection] ?? lumaDirection)
+            : lumaDirection
       for (let planeIndex = 1; planeIndex < 3; planeIndex += 1) {
         const sourcePlane = sourceWindows[planeIndex]
         const outputPlane = current[planeIndex]

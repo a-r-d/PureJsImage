@@ -3,23 +3,54 @@ import { createHash } from 'node:crypto'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { PNG } from 'pngjs'
+import sharp from 'sharp'
 import { av1ObuType } from '../../src/codecs/av1.ts'
 import { parseAv1Frame } from '../../src/codecs/av1-frame.ts'
 import { decodeRestrictedAv1Intra } from '../../src/codecs/av1-intra.ts'
 import { inspectAvifBitstreams } from '../../src/codecs/avif.ts'
+import { allCodecs } from '../../src/codec-entries/all.ts'
+import { createNodeImageLibrary } from '../../src/node-image.ts'
 import { MemorySource } from '../../src/source.ts'
 import {
   avifHighBitExpandedFixturePath,
   avifHighBitExpandedFixtures,
 } from './high-bit-expanded-fixtures.ts'
 
+const Image = createNodeImageLibrary(allCodecs)
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
+interface RgbDifference {
+  readonly maximum: number
+  readonly mean: number
+}
+
+const rgbDifference = (rgba: Uint8Array, rgb: Uint8Array): RgbDifference => {
+  if (rgba.byteLength / 4 !== rgb.byteLength / 3) {
+    throw new Error('High-bit RGBA and RGB oracle dimensions differ')
+  }
+  let maximum = 0
+  let total = 0
+  for (let pixel = 0; pixel < rgba.byteLength / 4; pixel += 1) {
+    for (let channel = 0; channel < 3; channel += 1) {
+      const difference = Math.abs(
+        (rgba[pixel * 4 + channel] ?? 0) - (rgb[pixel * 3 + channel] ?? 0),
+      )
+      maximum = Math.max(maximum, difference)
+      total += difference
+    }
+  }
+  return { maximum, mean: total / rgb.byteLength }
+}
+
 const results: Array<{
   readonly bitDepth: number
   readonly chromaSubsampling: string
   readonly codedLossless: boolean
+  readonly decodedRgbaSha256: string
   readonly file: string
-  readonly postFilters: boolean
+  readonly filters: readonly string[]
+  readonly maximumSharpRgbDifference: number | undefined
+  readonly meanSharpRgbDifference: number | undefined
   readonly nativeYuvSha256: string
 }> = []
 const temporaryDirectory = await mkdtemp(join(tmpdir(), 'purejsimage-avif-high-bit-oracles-'))
@@ -34,16 +65,22 @@ try {
     if (!coded || !obu) throw new Error(`${fixture.file} has no color frame OBU`)
     const frame = parseAv1Frame(coded.sequence, obu.payload)
     const hasDeblock = frame.header.loopFilterLevels.some((level) => level !== 0)
-    const hasCdef = frame.header.cdefYPrimaryStrengths.some((strength) => strength !== 0)
-    const hasRestoration = frame.header.restorationTypes.some((type) => type !== 0)
+    const hasCdef = [
+      ...frame.header.cdefYPrimaryStrengths,
+      ...frame.header.cdefYSecondaryStrengths,
+      ...frame.header.cdefUvPrimaryStrengths,
+      ...frame.header.cdefUvSecondaryStrengths,
+    ].some((strength) => strength !== 0)
+    const hasSelfGuided = frame.header.restorationTypes.some((type) => type === 2)
+    const hasWiener = frame.header.restorationTypes.some((type) => type === 1)
     if (
       coded.sequence.bitDepth !== fixture.bitDepth ||
       coded.sequence.chromaSubsampling !== fixture.chromaSubsampling ||
       frame.header.codedLossless !== fixture.codedLossless ||
-      (!fixture.codedLossless &&
-        (fixture.postFilters
-          ? !hasDeblock || !hasCdef || !hasRestoration
-          : hasDeblock || hasCdef || hasRestoration))
+      hasDeblock !== fixture.filters.includes('deblock') ||
+      hasCdef !== fixture.filters.includes('cdef') ||
+      hasSelfGuided !== fixture.filters.includes('self-guided') ||
+      hasWiener !== fixture.filters.includes('wiener')
     ) {
       throw new Error(`${fixture.file} high-bit frame configuration changed`)
     }
@@ -67,6 +104,33 @@ try {
     if (sha256(nativeYuv) !== fixture.nativeYuvSha256) {
       throw new Error(`PureJsImage ${fixture.file} native YUV checksum changed`)
     }
+    const portable = new Uint8Array(
+      PNG.sync.read(await (await Image.open(input)).png().toBuffer()).data,
+    )
+    if (sha256(portable) !== fixture.decodedRgbaSha256) {
+      throw new Error(`PureJsImage ${fixture.file} RGBA checksum changed`)
+    }
+    let sharpDifference: RgbDifference | undefined
+    if (fixture.sharpRgbSha256 !== undefined) {
+      const { data: sharpRgb, info } = await sharp(input)
+        .removeAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true })
+      if (
+        info.width !== fixture.width ||
+        info.height !== fixture.height ||
+        info.channels !== 3 ||
+        sha256(sharpRgb) !== fixture.sharpRgbSha256
+      ) {
+        throw new Error(`Sharp ${fixture.file} RGB output changed`)
+      }
+      sharpDifference = rgbDifference(portable, sharpRgb)
+      if (sharpDifference.maximum !== fixture.maximumSharpRgbDifference) {
+        throw new Error(
+          `PureJsImage ${fixture.file} maximum Sharp RGB difference was ${sharpDifference.maximum}`,
+        )
+      }
+    }
     for (const decoder of ['dav1d', 'aom'] as const) {
       const outputPath = join(temporaryDirectory, `${fixture.file}-${decoder}.y4m`)
       const result = spawnSync(
@@ -88,8 +152,11 @@ try {
       bitDepth: fixture.bitDepth,
       chromaSubsampling: fixture.chromaSubsampling,
       codedLossless: fixture.codedLossless,
+      decodedRgbaSha256: fixture.decodedRgbaSha256,
       file: fixture.file,
-      postFilters: fixture.postFilters,
+      filters: fixture.filters,
+      maximumSharpRgbDifference: sharpDifference?.maximum,
+      meanSharpRgbDifference: sharpDifference?.mean,
       nativeYuvSha256: fixture.nativeYuvSha256,
     })
   }

@@ -225,8 +225,12 @@ byte. The full-size tolerance remains zero.
   identity-color decode, including compatible coded-lossless multi-tile frames
 - [x] Lossy 10-bit YUV 4:4:4 decode with filter-free output and compatible
   deblocking, CDEF, and Wiener restoration
-- [ ] Filtered lossy 10-bit YUV 4:2:0 and 4:2:2, self-guided-restored lossy
-  10-bit YUV 4:4:4, and filtered lossy 12-bit decode
+- [x] Filtered lossy 10-bit YUV 4:2:0 and 4:2:2 with compatible deblocking,
+  CDEF, and Wiener restoration, plus self-guided-restored lossy 10-bit YUV 4:2:0
+- [x] Filtered lossy 12-bit YUV 4:2:0, 4:2:2, and 4:4:4 with compatible
+  deblocking and CDEF
+- [ ] Other high-depth post-filter combinations, including self-guided-restored
+  10-bit YUV 4:4:4 and 12-bit Wiener or self-guided restoration
 - [x] Full-range high-bit-depth reconstruction without premature truncation
   before explicit conversion to the library's 8-bit RGBA output contract
 - [x] Compatible full-range 8-bit monochrome alpha auxiliaries
@@ -391,6 +395,14 @@ byte. The full-size tolerance remains zero.
   active on all three planes
 - [x] Match agreeing dav1d and libaom native YUV byte for byte for pinned
   filter-free lossy 10-bit and 12-bit YUV 4:2:0, 4:2:2, and 4:4:4 frames
+- [x] Match agreeing dav1d and libaom native YUV byte for byte for six pinned
+  filtered lossy high-depth frames: 10-bit YUV 4:2:0 with deblocking, CDEF, and
+  Wiener; 10-bit YUV 4:2:2 with CDEF and Wiener; 10-bit YUV 4:2:0 with
+  self-guided restoration; and 12-bit YUV 4:2:0, 4:2:2, and 4:4:4 with
+  deblocking and CDEF
+- [x] Exercise all six pinned filtered high-depth fixtures through the portable
+  codec entry in Chromium and pin independent portable and native Chromium RGBA
+  hashes and maximum RGB differences
 - [x] Select an independently decodable shown-key spatial layer from a pinned
   three-frame a1lx/lsel item and match agreeing dav1d/libaom native YUV exactly
 - [x] Match agreeing FFmpeg/dav1d and FFmpeg/libaom native YUV byte for byte
@@ -511,6 +523,7 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-qmatrix-sharp-2026-08-08.md`](benchmark/results/avif-qmatrix-sharp-2026-08-08.md)
 - [`benchmark/results/avif-bounded-row-output-2026-08-09.md`](benchmark/results/avif-bounded-row-output-2026-08-09.md)
 - [`benchmark/results/avif-high-bit-lossy-2026-08-09.md`](benchmark/results/avif-high-bit-lossy-2026-08-09.md)
+- [`benchmark/results/avif-high-bit-post-filters-2026-08-09.md`](benchmark/results/avif-high-bit-post-filters-2026-08-09.md)
 - [`benchmark/results/avif-layered-selection-2026-08-09.md`](benchmark/results/avif-layered-selection-2026-08-09.md)
 - [`benchmark/results/avif-memory-bounded-superres-2026-08-09.json`](benchmark/results/avif-memory-bounded-superres-2026-08-09.json)
 - [`benchmark/results/avif-compatibility-survey-2026-08-10.md`](benchmark/results/avif-compatibility-survey-2026-08-10.md)
