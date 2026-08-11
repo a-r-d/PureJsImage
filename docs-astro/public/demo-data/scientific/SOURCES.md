@@ -21,6 +21,14 @@ not contain or derive from third-party measurements.
 - Header SHA-256: `7df267bb54ee07e4b85e86af876bab5b391651c911e21432ae79d2cd1304c6f2`
 - Binary SHA-256: `7247ddce5508856f417ca46333ab5f13ed4eaee5ccda52de83490db46c2e5881`
 
+## `synthetic-classification.hdr` + `synthetic-classification.dat`
+
+- Format source: [ENVI Classification Files](https://www.nv5geospatialsoftware.com/docs/enviclassificationfiles.html)
+- Geometry: 160 × 120, one uint8 class band in BSQ order
+- Classes: four deterministic categories with declared names and exact RGB lookup colors
+- Header SHA-256: `9e91490f92eca3207aa52b10e0725293b7465efdba544ebffca7aab8799b02cc`
+- Binary SHA-256: `f3fc0c4dd143a6aca90ccdfcf1a633a8e4489e84a78317056ba47521c2087539`
+
 ## `synthetic-cube.fits`
 
 - Format source: [NASA/GSFC FITS Standard](https://fits.gsfc.nasa.gov/fits_standard.html)

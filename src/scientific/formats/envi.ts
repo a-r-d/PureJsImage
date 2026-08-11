@@ -12,6 +12,17 @@ import type {
 export type EnviInterleave = 'bsq' | 'bil' | 'bip'
 export type EnviByteOrder = 0 | 1
 export type SupportedEnviDataType = 1 | 2 | 3 | 4 | 5 | 12 | 13
+export type EnviFileType = 'ENVI Standard' | 'ENVI Classification'
+
+export interface EnviClassInfo {
+  readonly value: number
+  readonly name: string
+  readonly color: {
+    readonly red: number
+    readonly green: number
+    readonly blue: number
+  }
+}
 
 /** Paired ENVI header and binary sources plus bounded-read limits. */
 export interface EnviOpenOptions extends ImageLimitOptions {
@@ -22,7 +33,7 @@ export interface EnviOpenOptions extends ImageLimitOptions {
 }
 
 /**
- * Lazy ENVI Standard hyperspectral dataset. Native numeric samples, wavelength
+ * Lazy ENVI Standard or Classification dataset. Native numeric samples,
  * metadata, interleave, and byte order are preserved. Plane and ROI reads use
  * calculated ranges and do not materialize the complete binary source.
  */
@@ -32,7 +43,8 @@ export interface EnviDataset extends MultidimensionalRasterDataset {
   readonly interleave: EnviInterleave
   readonly byteOrder: EnviByteOrder
   readonly headerOffset: number
-  readonly fileType: 'ENVI Standard'
+  readonly fileType: EnviFileType
+  readonly classes?: readonly EnviClassInfo[]
   readonly description?: string
   readonly sensorType?: string
   readonly defaultBands?: readonly number[]
@@ -47,7 +59,8 @@ interface ParsedEnviHeader {
   readonly dataType: SupportedEnviDataType
   readonly defaultBands?: readonly number[]
   readonly description?: string
-  readonly fileType: 'ENVI Standard'
+  readonly fileType: EnviFileType
+  readonly classes?: readonly EnviClassInfo[]
   readonly fwhm?: readonly number[]
   readonly headerOffset: number
   readonly interleave: EnviInterleave
@@ -211,6 +224,54 @@ const exactBandList = <Value>(
   return values
 }
 
+const classificationClasses = (
+  fields: ReadonlyMap<string, string>,
+  fileType: EnviFileType,
+  bands: number,
+): readonly EnviClassInfo[] | undefined => {
+  if (fileType !== 'ENVI Classification') return undefined
+  if (bands !== 1) throw invalidInput('ENVI Classification requires exactly one band')
+  const count = integerField(fields, 'classes', 1)
+  const names = stringList(fields, 'class names')
+  const lookup = numericList(fields, 'class lookup')
+  if (names === undefined) throw invalidInput('ENVI Classification requires class names')
+  if (lookup === undefined) throw invalidInput('ENVI Classification requires class lookup')
+  if (names.length !== count) {
+    throw invalidInput(`ENVI class names must contain exactly ${count} values`)
+  }
+  if (lookup.length !== count * 3) {
+    throw invalidInput(`ENVI class lookup must contain exactly ${count * 3} RGB values`)
+  }
+  return Object.freeze(
+    Array.from({ length: count }, (_, value) => {
+      const red = lookup[value * 3]
+      const green = lookup[value * 3 + 1]
+      const blue = lookup[value * 3 + 2]
+      if (
+        red === undefined ||
+        green === undefined ||
+        blue === undefined ||
+        !Number.isSafeInteger(red) ||
+        !Number.isSafeInteger(green) ||
+        !Number.isSafeInteger(blue) ||
+        red < 0 ||
+        red > 255 ||
+        green < 0 ||
+        green > 255 ||
+        blue < 0 ||
+        blue > 255
+      ) {
+        throw invalidInput('ENVI class lookup values must be integers from 0 through 255')
+      }
+      return Object.freeze({
+        value,
+        name: names[value] ?? '',
+        color: Object.freeze({ red, green, blue }),
+      })
+    }),
+  )
+}
+
 const dataType = (value: number): SupportedEnviDataType => {
   if (
     value === 1 ||
@@ -251,9 +312,12 @@ const parseEnviHeader = (text: string): ParsedEnviHeader => {
   const bands = integerField(fields, 'bands', 1)
   const headerOffset = fields.has('header offset') ? integerField(fields, 'header offset', 0) : 0
   const fileTypeRaw = requiredValue(fields, 'file type')
-  if (fileTypeRaw.toLowerCase() !== 'envi standard') {
+  const normalizedFileType = fileTypeRaw.toLowerCase()
+  if (normalizedFileType !== 'envi standard' && normalizedFileType !== 'envi classification') {
     throw unsupportedOperation(`ENVI file type ${fileTypeRaw} is unsupported`)
   }
+  const fileType: EnviFileType =
+    normalizedFileType === 'envi classification' ? 'ENVI Classification' : 'ENVI Standard'
   const parsedDataType = dataType(integerField(fields, 'data type', 1))
   const interleaveRaw = requiredValue(fields, 'interleave').toLowerCase()
   if (interleaveRaw !== 'bsq' && interleaveRaw !== 'bil' && interleaveRaw !== 'bip') {
@@ -278,12 +342,13 @@ const parseEnviHeader = (text: string): ParsedEnviHeader => {
   const description = fields.get('description')?.trim()
   const sensorType = fields.get('sensor type')?.trim()
   const wavelengthUnit = fields.get('wavelength units')?.trim()
+  const classes = classificationClasses(fields, fileType, bands)
   return {
     samples,
     lines,
     bands,
     headerOffset,
-    fileType: 'ENVI Standard',
+    fileType,
     dataType: parsedDataType,
     interleave: interleaveRaw,
     byteOrder: byteOrderRaw,
@@ -298,6 +363,7 @@ const parseEnviHeader = (text: string): ParsedEnviHeader => {
     ...(description === undefined || description.length === 0 ? {} : { description }),
     ...(sensorType === undefined || sensorType.length === 0 ? {} : { sensorType }),
     ...(wavelengthUnit === undefined || wavelengthUnit.length === 0 ? {} : { wavelengthUnit }),
+    ...(classes === undefined ? {} : { classes }),
   }
 }
 
@@ -401,7 +467,8 @@ class EnviRasterDataset implements EnviDataset {
   readonly interleave: EnviInterleave
   readonly byteOrder: EnviByteOrder
   readonly headerOffset: number
-  readonly fileType = 'ENVI Standard' as const
+  readonly fileType: EnviFileType
+  readonly classes?: readonly EnviClassInfo[]
   readonly description?: string
   readonly sensorType?: string
   readonly defaultBands?: readonly number[]
@@ -427,7 +494,9 @@ class EnviRasterDataset implements EnviDataset {
     this.interleave = header.interleave
     this.byteOrder = header.byteOrder
     this.headerOffset = header.headerOffset
+    this.fileType = header.fileType
     this.metadata = header.metadata
+    if (header.classes !== undefined) this.classes = header.classes
     if (header.noDataValue !== undefined) this.noDataValue = header.noDataValue
     if (header.description !== undefined) this.description = header.description
     if (header.sensorType !== undefined) this.sensorType = header.sensorType
@@ -546,9 +615,11 @@ class EnviRasterDataset implements EnviDataset {
 }
 
 /**
- * Opens paired ENVI Standard inputs in BSQ, BIL, or BIP layout. Header bytes are
- * read eagerly, while binary samples remain lazy. Complex values, 64-bit integer
- * values, unsupported file types, and malformed or mismatched inputs reject.
+ * Opens paired ENVI Standard or Classification inputs in BSQ, BIL, or BIP
+ * layout. Header bytes are read eagerly, while binary samples remain lazy.
+ * Classification names and RGB lookup colors are preserved. Complex values,
+ * 64-bit integer values, unsupported file types, and malformed or mismatched
+ * inputs reject.
  */
 export const openEnvi = async (options: Readonly<EnviOpenOptions>): Promise<EnviDataset> => {
   const limits = resolveLimits(options)
@@ -562,7 +633,16 @@ export const openEnvi = async (options: Readonly<EnviOpenOptions>): Promise<Envi
     maxInputBytes: Math.min(limits.maxInputBytes, maxHeaderBytes),
   })
   const header = await readHeader(headerSource, maxHeaderBytes)
-  validateImageDimensions(header.samples, header.lines, 1, limits)
+  if (header.fileType === 'ENVI Standard') {
+    validateImageDimensions(header.samples, header.lines, 1, limits)
+  } else {
+    if (header.samples > limits.maxWidth) {
+      throw limitExceeded(`ENVI width ${header.samples} exceeds maxWidth ${limits.maxWidth}`)
+    }
+    if (header.lines > limits.maxHeight) {
+      throw limitExceeded(`ENVI height ${header.lines} exceeds maxHeight ${limits.maxHeight}`)
+    }
+  }
   if (header.bands > limits.maxFrames) {
     throw limitExceeded(`ENVI band count ${header.bands} exceeds maxFrames ${limits.maxFrames}`)
   }

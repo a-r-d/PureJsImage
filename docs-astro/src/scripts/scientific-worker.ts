@@ -6,6 +6,7 @@ import {
   openEnvi,
   openFits,
   openGsf,
+  renderEnviClassification,
   renderScientificPlane,
   type EnviDataset,
   type FitsDataset,
@@ -99,6 +100,8 @@ const enviMetadata = (
     sampleType: opened.sampleType,
     sourceBytes: bytes,
     channelCenters: Object.freeze(centers),
+    enviFileType: opened.fileType,
+    ...(opened.classes === undefined ? {} : { classificationClasses: opened.classes.length }),
     ...(actual.length === 0
       ? {}
       : { wavelengthMin: Math.min(...actual), wavelengthMax: Math.max(...actual) }),
@@ -276,7 +279,19 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
   let rangeLabel: string
   let selectionLabel: string | undefined
   let nativeRangeLabel: string | undefined
-  if (active.format === 'envi' && settings.displayMode === 'composite') {
+  let displayWidth = active.sizeX
+  let displayHeight = active.sizeY
+  if (active.format === 'envi' && active.fileType === 'ENVI Classification') {
+    const image = renderEnviClassification(active, { maxWidth: 1_280, maxHeight: 1_280 })
+    displayWidth = image.width
+    displayHeight = image.height
+    pixels = await rgbaPixels(displayWidth, displayHeight, image.pixels)
+    rangeLabel = `${active.classes?.length ?? 0} declared class colors`
+    selectionLabel =
+      displayWidth === active.sizeX && displayHeight === active.sizeY
+        ? `ENVI Classification · ${active.classes?.length ?? 0} classes`
+        : `ENVI Classification · ${active.classes?.length ?? 0} classes · nearest-neighbor preview ${displayWidth} × ${displayHeight} from ${active.sizeX} × ${active.sizeY}`
+  } else if (active.format === 'envi' && settings.displayMode === 'composite') {
     const channels = [settings.red, settings.green, settings.blue]
     const rendered = []
     for (const channel of channels)
@@ -315,8 +330,8 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
   }
   if (sequence < latestSequence) return
   latestDisplay = {
-    width: active.sizeX,
-    height: active.sizeY,
+    width: displayWidth,
+    height: displayHeight,
     pixels: Uint8ClampedArray.from(pixels),
   }
   const sourceBytesRead =
@@ -325,8 +340,8 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
     {
       type: 'rendered',
       sequence,
-      width: active.sizeX,
-      height: active.sizeY,
+      width: displayWidth,
+      height: displayHeight,
       pixels,
       renderMilliseconds: performance.now() - started,
       sourceBytesRead,

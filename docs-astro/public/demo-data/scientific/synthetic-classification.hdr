@@ -1,0 +1,14 @@
+ENVI
+description = {
+  Deterministic specification-derived PureJsImage classification demonstration }
+samples = 160
+lines = 120
+bands = 1
+header offset = 0
+file type = ENVI Classification
+data type = 1
+interleave = bsq
+byte order = 0
+classes = 4
+class names = { Unclassified, Clay-bearing, Carbonate-bearing, Mixed mineral }
+class lookup = { 18, 24, 31, 214, 123, 57, 52, 157, 213, 224, 202, 85 }

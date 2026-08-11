@@ -66,6 +66,8 @@ export interface ScientificOpenedMetadata {
   readonly wavelengthMax?: number
   readonly wavelengthUnit?: string
   readonly channelCenters?: readonly (number | null)[]
+  readonly enviFileType?: 'ENVI Standard' | 'ENVI Classification'
+  readonly classificationClasses?: number
   readonly dataMin?: number
   readonly dataMax?: number
   readonly sourceBytes: number

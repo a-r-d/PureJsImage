@@ -26,6 +26,10 @@ export const startScientificExplorer = (): void => {
   const fitsSource = requiredElement('scientific-fits-source', HTMLElement)
   const surfaceSample = requiredElement('scientific-sample-surface', HTMLButtonElement)
   const enviSample = requiredElement('scientific-sample-envi', HTMLButtonElement)
+  const classificationSample = requiredElement(
+    'scientific-sample-classification',
+    HTMLButtonElement,
+  )
   const fitsSample = requiredElement('scientific-sample-fits', HTMLButtonElement)
   const gsfFile = requiredElement('scientific-gsf-file', HTMLInputElement)
   const enviHeader = requiredElement('scientific-envi-header', HTMLInputElement)
@@ -159,17 +163,20 @@ export const startScientificExplorer = (): void => {
 
   const updateControlVisibility = (): void => {
     const hyperspectral = mode === 'hyperspectral'
+    const classification = openedMetadata?.enviFileType === 'ENVI Classification'
     const fits = mode === 'fits'
-    const composite = hyperspectral && displayMode.value === 'composite'
-    displayModeField.hidden = !hyperspectral
-    bandControls.hidden = !hyperspectral || composite
+    const composite = hyperspectral && !classification && displayMode.value === 'composite'
+    displayModeField.hidden = !hyperspectral || classification
+    bandControls.hidden = !hyperspectral || classification || composite
     compositeControls.hidden = !composite
-    palette.closest('label')?.toggleAttribute('hidden', composite)
+    palette.closest('label')?.toggleAttribute('hidden', composite || classification)
+    rangeMode.closest('label')?.toggleAttribute('hidden', classification)
+    scale.closest('label')?.toggleAttribute('hidden', classification)
     reliefControls.hidden = mode !== 'surface'
     fitsHduField.hidden = !fits
     fitsPlaneField.hidden = !fits
-    percentileFields.hidden = rangeMode.value !== 'percentile'
-    explicitRange.hidden = rangeMode.value !== 'explicit'
+    percentileFields.hidden = classification || rangeMode.value !== 'percentile'
+    explicitRange.hidden = classification || rangeMode.value !== 'explicit'
   }
 
   const setMode = (next: ScientificDemoMode): void => {
@@ -228,6 +235,24 @@ export const startScientificExplorer = (): void => {
     loading.hidden = false
     const data = await fetchBytes('../demo-data/scientific/synthetic-cube.fits')
     worker.postMessage({ type: 'open-fits', name: 'synthetic-cube.fits', data }, [data])
+  }
+
+  const loadClassificationSample = async (): Promise<void> => {
+    loading.hidden = false
+    const [header, data] = await Promise.all([
+      fetchBytes('../demo-data/scientific/synthetic-classification.hdr'),
+      fetchBytes('../demo-data/scientific/synthetic-classification.dat'),
+    ])
+    worker.postMessage(
+      {
+        type: 'open-envi',
+        headerName: 'synthetic-classification.hdr',
+        dataName: 'synthetic-classification.dat',
+        header,
+        data,
+      },
+      [header, data],
+    )
   }
 
   const openLocalGsf = (file: File): void => {
@@ -298,12 +323,17 @@ export const startScientificExplorer = (): void => {
           ? 'Not declared'
           : `${physicalValue(metadata.pixelSizeX, metadata.physicalUnit)} × ${physicalValue(metadata.pixelSizeY, metadata.physicalUnit)} / pixel`
     } else if (metadata.mode === 'hyperspectral') {
-      metricPhysical.textContent =
-        metadata.wavelengthMin === undefined || metadata.wavelengthMax === undefined
-          ? 'No spectral axis'
-          : `${metadata.wavelengthMin}–${metadata.wavelengthMax} ${metadata.wavelengthUnit ?? ''}`.trim()
-      metricDetail.textContent = `${metadata.bands} spectral bands`
-      setSpectralSliders(metadata)
+      if (metadata.enviFileType === 'ENVI Classification') {
+        metricPhysical.textContent = 'Categorical class map'
+        metricDetail.textContent = `${metadata.classificationClasses ?? 0} declared classes`
+      } else {
+        metricPhysical.textContent =
+          metadata.wavelengthMin === undefined || metadata.wavelengthMax === undefined
+            ? 'No spectral axis'
+            : `${metadata.wavelengthMin}–${metadata.wavelengthMax} ${metadata.wavelengthUnit ?? ''}`.trim()
+        metricDetail.textContent = `${metadata.bands} spectral bands`
+        setSpectralSliders(metadata)
+      }
     } else {
       metricPhysical.textContent = `HDU ${metadata.fitsHdu ?? 0} · ${metadata.fitsPrimary ? 'Primary' : 'IMAGE extension'}`
       metricDetail.textContent = `BITPIX ${metadata.bitpix} · stored ${metadata.storedSampleType} · BSCALE ${metadata.bscale} · BZERO ${metadata.bzero}${metadata.blank === undefined ? '' : ` · BLANK ${metadata.blank}`}`
@@ -389,6 +419,14 @@ export const startScientificExplorer = (): void => {
     () =>
       void loadEnviSample().catch((cause: unknown) => {
         status.textContent = cause instanceof Error ? cause.message : 'Could not load ENVI sample'
+      }),
+  )
+  classificationSample.addEventListener(
+    'click',
+    () =>
+      void loadClassificationSample().catch((cause: unknown) => {
+        status.textContent =
+          cause instanceof Error ? cause.message : 'Could not load ENVI classification sample'
       }),
   )
   fitsSample.addEventListener(
