@@ -1,5 +1,3 @@
-import { readFile } from 'node:fs/promises'
-
 import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
@@ -276,10 +274,24 @@ describe('WebP codec', () => {
     expect(jpegOracle).toEqual(jpegPixels)
   })
 
-  it('stays below PureJsImage PNG for the pinned production-style logo', async () => {
-    const input = await readFile('benchmark/corpus/files/transparent-logo-1200x480.png')
-    const source = PNG.sync.read(input)
-    const image = await Image.open(input)
+  it('stays below PureJsImage PNG for a deterministic production-style logo', async () => {
+    const source = new PNG({ width: 1200, height: 480 })
+    for (let y = 0; y < source.height; y += 1) {
+      for (let x = 0; x < source.width; x += 1) {
+        const offset = (y * source.width + x) * 4
+        const dx = x - source.width / 2
+        const dy = y - source.height / 2
+        const inside =
+          (dx * dx) / (source.width * source.width * 0.2) +
+            (dy * dy) / (source.height * source.height * 0.12) <
+          1
+        source.data[offset] = inside ? 20 : 0
+        source.data[offset + 1] = inside ? 110 + ((x >>> 3) & 63) : 0
+        source.data[offset + 2] = inside ? 210 : 0
+        source.data[offset + 3] = inside ? 220 : 0
+      }
+    }
+    const image = await Image.open(PNG.sync.write(source))
     const encoded = await image.webp({ lossless: true, effort: 4 }).toBuffer()
     const png = await image.png().toBuffer()
     expect(encoded.length).toBeLessThanOrEqual(png.length)

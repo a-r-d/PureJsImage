@@ -169,13 +169,13 @@ const capability = (library: LibraryComparison, key: TiffCapabilityKey): Compari
 const versionLabel = (library: LibraryComparison, report: ConformanceReport): string => {
   if (library.id !== 'purejsimage') return library.version
   const dirty = report.purejsimage.dirty ? ' · dirty' : ''
-  return `main snapshot · unreleased · ${report.purejsimage.gitCommit.slice(0, 7)}${dirty}`
+  return `benchmark snapshot · ${report.purejsimage.gitCommit.slice(0, 7)}${dirty}`
 }
 
 const comparisonMethodology = (report: ConformanceReport): readonly string[] => [
   'Capability claims come from versioned upstream documentation or inspected source. Unknown means not verified, not unsupported.',
   'The conformance harness uses pinned corpus files, isolated child processes, a fixed heap limit, a fixed timeout, and independent RGBA output.',
-  `The PureJsImage row is an unreleased ${report.purejsimage.dirty ? 'dirty' : 'clean'} main snapshot at commit ${report.purejsimage.gitCommit}; ${report.purejsimage.packageVersion} is package metadata, not a release claim. Other JavaScript rows are exact installed dev-dependency versions.`,
+  `The PureJsImage row is a ${report.purejsimage.dirty ? 'dirty' : 'clean'} benchmark snapshot at commit ${report.purejsimage.gitCommit}; ${report.purejsimage.packageVersion} is package metadata, not a release claim. Other JavaScript rows are exact installed dev-dependency versions.`,
   'Signed, floating-point, wider-than-16-bit, and arbitrary-channel native rasters are not forced through an RGBA oracle.',
   'Color-converted and lossy mismatches remain visible; exact equality is not used to claim one valid converter is universally better.',
 ]

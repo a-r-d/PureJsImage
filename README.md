@@ -9,9 +9,9 @@
                          I M A G E
 </pre>
 
-<h3>Fast, low-memory image processing in pure TypeScript</h3>
+<h3>Low-memory image codecs and raster processing in TypeScript</h3>
 
-<p>First-party codecs · zero runtime dependencies · built for Lambda and portable runtimes</p>
+<p>Pure TypeScript by default · optional first-party WASM · zero runtime dependencies</p>
 
 <p>
   <a href="https://www.npmjs.com/package/purejsimage"><img alt="npm version" src="https://img.shields.io/npm/v/purejsimage?style=for-the-badge&amp;logo=npm&amp;logoColor=white&amp;color=cb3837"></a>
@@ -23,26 +23,103 @@
 <p>
   <a href="https://github.com/a-r-d/PureJsImage/blob/main/package.json"><img alt="Zero runtime dependencies" src="https://img.shields.io/badge/runtime_dependencies-0-2ea44f?style=for-the-badge"></a>
   <a href="https://github.com/a-r-d/PureJsImage/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/npm/l/purejsimage?style=for-the-badge&amp;color=blue"></a>
-  <a href="https://github.com/a-r-d/PureJsImage"><img alt="Pure JavaScript core" src="https://img.shields.io/badge/core-pure_JS-f7df1e?style=for-the-badge&amp;logo=javascript&amp;logoColor=black"></a>
+  <a href="https://github.com/a-r-d/PureJsImage"><img alt="Pure TypeScript core" src="https://img.shields.io/badge/core-pure_TypeScript-3178c6?style=for-the-badge&amp;logo=typescript&amp;logoColor=white"></a>
 </p>
 
 <p>
   <a href="https://a-r-d.github.io/PureJsImage/">Documentation</a> ·
   <a href="https://a-r-d.github.io/PureJsImage/demo.html"><strong>Live browser demo</strong></a> ·
   <a href="#install">Install</a> ·
-  <a href="#usage">Usage</a> ·
+  <a href="#quick-start">Quick start</a> ·
   <a href="#supported-codecs">Codecs</a> ·
   <a href="ROADMAP.md">Roadmap</a> ·
   <a href="#benchmarks">Benchmarks</a>
 </p>
 </div>
 
-PureJsImage is a dependency-free image processing library written in strict
-TypeScript. It runs in Node.js and modern browsers and is designed to use much
-less memory than image libraries that keep an entire source image in memory.
+PureJsImage is a zero-runtime-dependency codec and raster-processing library for
+Node.js and modern browsers. One bounded source and codec architecture serves two
+use cases:
 
-It includes first-party image codecs, has no runtime dependencies, and fails
-clearly when a file or operation is not supported.
+- **Application images:** inspect, orient, crop, resize, and transcode common formats.
+- **Large and native rasters:** TIFF, OME-TIFF, GeoTIFF/COG, whole-slide images,
+  remote regions, and N-channel numeric data.
+
+It targets serverless, browser, edge, and restricted deployments where native
+addons or source-sized bitmap pipelines are a poor fit.
+
+It processes existing images; it is not a canvas or graphics toolkit for drawing,
+text, or Photoshop-style effects. Pure TypeScript codecs are the default, with
+optional first-party JPEG and PNG WASM accelerators.
+
+Memory behavior is codec- and operation-specific. PureJsImage uses bounded rows or
+tiles where implemented and documents full-frame or larger-state fallbacks.
+
+## Install
+
+```sh
+npm install purejsimage
+```
+
+PureJsImage requires Node.js 22 or newer. Browser applications use the
+`purejsimage/browser` entry. Installing it adds no runtime dependencies, native
+addons, or external programs. Optional first-party JPEG and PNG WASM accelerators
+use separate explicit entries.
+
+**Pre-1.0:** Codec behavior is heavily tested, but public APIs may receive breaking
+refinements before 1.0.
+
+[Read the installation and browser guide →](https://a-r-d.github.io/PureJsImage/guides.html)
+
+## Quick start
+
+### Common image pipeline
+
+Register only the codecs the application needs, then build a processing pipeline:
+
+```ts
+import { createImageLibrary } from 'purejsimage'
+import { jpegCodec } from 'purejsimage/codecs/jpeg'
+import { pngCodec } from 'purejsimage/codecs/png'
+
+// Optional first-party WASM accelerators:
+import { wasmJpegAccelerator } from 'purejsimage/accelerators/wasm/jpeg'
+import { wasmPngAccelerator } from 'purejsimage/accelerators/wasm/png'
+
+const images = createImageLibrary({
+  codecs: [jpegCodec, pngCodec],
+  accelerators: [wasmJpegAccelerator, wasmPngAccelerator], // Optional
+})
+const image = await images.open('input.jpg')
+
+await image
+  .autoOrient()
+  .resize({ width: 1200, withoutEnlargement: true })
+  .jpeg({ quality: 80, background: '#ffffff' })
+  .toFile('output.jpg')
+```
+
+In a browser, import from `purejsimage/browser` and use `toBlob()` or
+`toUint8Array()` for output. Tools that need every default codec can register
+`allCodecs` from `purejsimage/codecs/all`.
+
+### TIFF with a scientific profile
+
+Register the TIFF codec alone, then opt into the OME-TIFF profile:
+
+```ts
+import { createImageLibrary, FileSource } from 'purejsimage'
+import { tiffCodec } from 'purejsimage/codecs/tiff'
+import { omeTiffProfile } from 'purejsimage/scientific'
+import { createTiffProfileRegistry, openTiffDocument } from 'purejsimage/tiff'
+
+const images = createImageLibrary([tiffCodec])
+
+const source = await FileSource.open('input.ome.tif')
+const document = await openTiffDocument(source)
+const profiles = createTiffProfileRegistry([omeTiffProfile])
+const dataset = await profiles.openWith(document, omeTiffProfile)
+```
 
 ## Live browser demo
 
@@ -54,87 +131,7 @@ WebP, BMP, or TIFF output. The demo runs entirely in the browser, makes no
 image-upload request, and reports conversion time plus the browser memory
 measurements it can honestly observe.
 
-## Install
-
-```sh
-npm install purejsimage
-```
-
-PureJsImage requires Node.js 22 or newer. Browser applications use the
-`purejsimage/browser` entry. Installing it adds no runtime dependencies, native
-addons, or external programs. The optional first-party JPEG and PNG accelerators
-are separate WebAssembly entries and are never loaded by the root, browser, or
-codec imports.
-
-[Read the installation and browser guide →](https://a-r-d.github.io/PureJsImage/guides.html)
-
-### Bundle size
-
-JPEG and PNG form the matched set because all five libraries support them.
-PureJsImage and jSquash can assemble only that set; the normal Jimp, image-js,
-and Sharp imports include the additional codecs shown.
-
-Measured on Linux x64 with Node.js 24.16.0 using the repository's reproducible
-esbuild, gzip, and Brotli settings:
-
-| Import | Version | Codecs included | Minified JS | gzip | Brotli |
-| --- | --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | **0.9.0** | JPEG, PNG | 145.4 KiB | 47.2 KiB | 39.6 KiB |
-| PureJsImage all codecs | 0.9.0 | 9 codecs | 668.9 KiB | 240.7 KiB | 201.6 KiB |
-| Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
-| image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
-| jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
-| Sharp JS wrapper | 0.35.3 | JPEG, PNG, TIFF, WebP, GIF, AVIF | 128.4 KiB | 38.3 KiB | 33.5 KiB |
-
-Sharp's JavaScript bundle is only a wrapper around native code, while jSquash's
-JavaScript bundle is glue around its WebAssembly codecs and resizer. The
-complete installed deployment tells the other half of the story:
-
-| Package | Version | Installed footprint | Production packages |
-| --- | --- | ---: | ---: |
-| **PureJsImage** | **0.9.0** | **2.3 MiB** | **1** |
-| Jimp | 1.6.0 | 29.3 MiB | 70 |
-| image-js | 1.7.0 | 17.0 MiB | 46 |
-| jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |
-| Sharp, including native libvips | 0.35.3 | 18.9 MiB | 6 |
-
-[See bundle details and reproduction commands →](https://a-r-d.github.io/PureJsImage/performance.html#bundle)
-
-## Usage
-
-Register all supported formats, then build a processing pipeline:
-
-```ts
-import { createImageLibrary } from 'purejsimage'
-import { allCodecs } from 'purejsimage/codecs/all'
-
-const images = createImageLibrary(allCodecs)
-const image = await images.open('input.jpg')
-
-await image
-  .autoOrient()
-  .resize({ width: 1200, withoutEnlargement: true })
-  .jpeg({ quality: 80, background: '#ffffff' })
-  .toFile('output.jpg')
-```
-
-In a browser, import from `purejsimage/browser` and use `toBlob()` or
-`toUint8Array()` for output.
-
-### TIFF
-
-TIFF support now spans display images, native scientific rasters, OME-TIFF,
-whole-slide pyramids, extensible vendor profiles, and canonical RGB/RGBA output.
-The complete support list, memory model, examples, and remaining boundaries live
-on the dedicated TIFF page:
-
-- [Complete TIFF support →](https://a-r-d.github.io/PureJsImage/tiff.html)
-- [TIFF output options →](https://a-r-d.github.io/PureJsImage/tiff.html#encode)
-- [Scientific TIFF and OME-TIFF →](https://a-r-d.github.io/PureJsImage/tiff.html#scientific)
-  · [Third-party TIFF profiles →](https://a-r-d.github.io/PureJsImage/tiff.html#profiles)
-- [Zstandard decompression API →](https://a-r-d.github.io/PureJsImage/api.html#zstandard)
-
-### Optional WASM acceleration
+## Optional WASM acceleration
 
 JPEG and PNG have optional first-party WebAssembly accelerators. They are never
 loaded unless you explicitly register them, and unsupported work continues to
@@ -182,6 +179,32 @@ HEIF/HEIC is experimental, excluded from `allCodecs`, and available only through
 `purejsimage/codecs/experimental/heic`. Its [support contract](heif-codec-support.md)
 includes the HEVC patent notice for users and distributors.
 
+## Beyond ordinary image conversion
+
+The raster APIs preserve native numeric data instead of forcing every source
+through RGB:
+
+- **Scientific:** N-channel rasters and OME-TIFF.
+- **Geospatial:** GeoTIFF and remote COG region reads.
+- **Pathology:** whole-slide pyramids, Aperio SVS, and vendor profiles.
+
+The `Image` pipeline uses display-ready `PixelBlock`s for ordinary transformations
+and encoding. Scientific TIFF workflows expose native numeric, N-channel
+`RasterBlock`s and map them to an `Image` only when requested.
+
+### TIFF
+
+TIFF support spans display images, native scientific rasters, OME-TIFF,
+whole-slide pyramids, extensible vendor profiles, and canonical RGB/RGBA output.
+The complete support list, memory model, examples, and remaining boundaries live
+on the dedicated TIFF page:
+
+- [Complete TIFF support →](https://a-r-d.github.io/PureJsImage/tiff.html)
+- [TIFF output options →](https://a-r-d.github.io/PureJsImage/tiff.html#encode)
+- [Scientific TIFF and OME-TIFF →](https://a-r-d.github.io/PureJsImage/tiff.html#scientific)
+  · [Third-party TIFF profiles →](https://a-r-d.github.io/PureJsImage/tiff.html#profiles)
+- [Zstandard decompression API →](https://a-r-d.github.io/PureJsImage/api.html#zstandard)
+
 <!-- library-comparison:readme:start -->
 <!-- Generated by scripts/render-library-comparison.ts. Do not edit this block. -->
 ### TIFF library comparison
@@ -190,7 +213,7 @@ A capability is **Yes** only when upstream documentation or source supports it; 
 
 | Library | Runtime model | Browser | BigTIFF | Tiles | Region decode | Native scientific raster | OME / whole-slide semantics | Decode coverage |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PureJsImage main snapshot · unreleased · a1f20da | Pure JavaScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>2 oracle failures |
+| PureJsImage benchmark snapshot · a1f20da | Pure JavaScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>2 oracle failures |
 | GeoTIFF.js 3.0.5 | Pure JavaScript | Yes | Partial | Yes | Yes | Yes | No | 84/106 decoded<br>32 exact<br>11 unsupported · 7 errors · 2 oracle failures · 2 crashes |
 | UTIF.js (utif2) 4.1.0 | Pure JavaScript | Yes | No | Yes | No | Partial | No | 74/106 decoded<br>49 exact<br>28 errors · 2 oracle failures · 2 timeouts · 3 crashes |
 | image-js/tiff 7.1.3 | Pure JavaScript | Yes | No | Yes | No | Yes | No | 41/106 decoded<br>27 exact<br>51 unsupported · 12 errors · 2 oracle failures |
@@ -223,12 +246,13 @@ and alpha channel matched. This exposes quality differences, but cross-kernel
 timings remain default-experience measurements rather than matched-quality
 comparisons.
 
-The August 10 profile used PureJsImage 0.8.0 on Node.js 24.16.0. Against the default TypeScript path,
-the opt-in WASM variant reduced median wall time by 53.0% for JPEG-to-PNG, 38.9% for the
-100-megapixel PNG downscale, and 11.6% for the large PNG resize while returning the same measured
-output quality. On the 24-megapixel photo workflow, default PureJsImage used 86.7% less peak memory
-than Jimp and 87.6% less than image-js. Timing, memory, and quality vary by image, operation,
-machine, and library version.
+**Benchmark snapshot:** PureJsImage 0.8.0, August 10, 2026, Node.js 24.16.0.
+Against the default TypeScript path, the opt-in WASM variant reduced median wall
+time by 53.0% for JPEG-to-PNG, 38.9% for the 100-megapixel PNG downscale, and
+11.6% for the large PNG resize while returning the same measured output quality.
+On the 24-megapixel photo workflow, default PureJsImage used 86.7% less peak
+memory than Jimp and 87.6% less than image-js. Timing, memory, and quality vary by
+image, operation, machine, and library version.
 
 The focused nine-run TIFF profile recorded:
 
@@ -258,6 +282,38 @@ and 2,533 ms at 1024 MiB, while peak use stayed at 120–122 MiB. For latency-se
 start at 1024 MiB even when the process only consumes about 150 MiB; use 256 MiB when its lower CPU
 allocation and roughly 10-second latency are acceptable. Re-measure with your own images and
 concurrency.
+
+### Bundle size
+
+JPEG and PNG form the matched set because all five libraries support them.
+PureJsImage and jSquash can assemble only that set; the normal Jimp, image-js,
+and Sharp imports include the additional codecs shown.
+
+Measured on Linux x64 with Node.js 24.16.0 using the repository's reproducible
+esbuild, gzip, and Brotli settings:
+
+| Import | Version | Codecs included | Minified JS | gzip | Brotli |
+| --- | --- | --- | ---: | ---: | ---: |
+| **PureJsImage matched** | **0.9.0** | JPEG, PNG | 145.4 KiB | 47.2 KiB | 39.6 KiB |
+| PureJsImage all codecs | 0.9.0 | 9 codecs | 668.9 KiB | 240.7 KiB | 201.6 KiB |
+| Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
+| image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
+| jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
+| Sharp JS wrapper | 0.35.3 | JPEG, PNG, TIFF, WebP, GIF, AVIF | 128.4 KiB | 38.3 KiB | 33.5 KiB |
+
+Sharp's JavaScript bundle is only a wrapper around native code, while jSquash's
+JavaScript bundle is glue around its WebAssembly codecs and resizer. The
+complete installed deployment tells the other half of the story:
+
+| Package | Version | Installed footprint | Production packages |
+| --- | --- | ---: | ---: |
+| **PureJsImage** | **0.9.0** | **2.3 MiB** | **1** |
+| Jimp | 1.6.0 | 29.3 MiB | 70 |
+| image-js | 1.7.0 | 17.0 MiB | 46 |
+| jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |
+| Sharp, including native libvips | 0.35.3 | 18.9 MiB | 6 |
+
+[See bundle details and reproduction commands →](https://a-r-d.github.io/PureJsImage/performance.html#bundle)
 
 ## Why PureJsImage?
 
