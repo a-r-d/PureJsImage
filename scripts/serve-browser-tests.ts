@@ -463,6 +463,14 @@ await copyFile(
   resolve(fixtureDirectory, 'self-guided-12bpc-yuv420-320x192.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/restoration-12bpc-yuv422-320x192.avif',
+  resolve(fixtureDirectory, 'restoration-12bpc-yuv422-320x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/restoration-12bpc-yuv444-320x192.avif',
+  resolve(fixtureDirectory, 'restoration-12bpc-yuv444-320x192.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/self-guided-10bpc-yuv444-320x192.avif',
   resolve(fixtureDirectory, 'self-guided-10bpc-yuv444-320x192.avif'),
 )

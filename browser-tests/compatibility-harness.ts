@@ -2384,6 +2384,28 @@ const avifExpandedHighBit = async (): Promise<BrowserWorkflowResult> => {
       },
     ),
     avifPinnedPng(
+      'restoration-12bpc-yuv422-320x192.avif',
+      320,
+      192,
+      '04ea989226d955c84a78ff1a90c19c0e26abde741ddb9a1fb89f669a5de6818e',
+      'Lossy 12-bit YUV 4:2:2 AVIF with mixed self-guided and Wiener restoration',
+      {
+        maximumRgbDifference: 6,
+        rgbaSha256: 'e3c8bc10763f70b0ede67de210abc844f34459f6d4a988ac68528e0a60f1f3ba',
+      },
+    ),
+    avifPinnedPng(
+      'restoration-12bpc-yuv444-320x192.avif',
+      320,
+      192,
+      '5a0e8988799830bb3ace1b186757b9e2fdbf6d51aaffea30a9570c5573976d87',
+      'Lossy 12-bit YUV 4:4:4 AVIF with self-guided restoration',
+      {
+        maximumRgbDifference: 6,
+        rgbaSha256: 'eccdabe069e925d59e4c3e1e0135f82d3b5c6d3eda13355572a36a5529de8b14',
+      },
+    ),
+    avifPinnedPng(
       'self-guided-10bpc-yuv444-320x192.avif',
       320,
       192,
