@@ -1,0 +1,80 @@
+README.md
+  h_9f4a25732fa0c1 32,140-145
+browser-tests/demo.pw.ts
+  h_9f4a25732fa0c1 35-51,87-88
+browser-tests/wsi.pw.ts
+  h_9f4a25732fa0c1 1-90
+docs-astro/public/llms.txt
+  h_9f4a25732fa0c1 13
+docs-astro/public/png-wasm-acceleration.md
+  h_9f4a25732fa0c1 24
+docs-astro/public/sitemap.xml
+  h_9f4a25732fa0c1 5
+docs-astro/src/components/SiteHeader.astro
+  h_9f4a25732fa0c1 13
+docs-astro/src/pages/404.astro
+  h_9f4a25732fa0c1 8,13
+docs-astro/src/pages/api.astro
+  h_9f4a25732fa0c1 5
+docs-astro/src/pages/codecs.astro
+  h_9f4a25732fa0c1 5,21-23,25
+docs-astro/src/pages/contributing.astro
+  h_9f4a25732fa0c1 5
+docs-astro/src/pages/demo.astro
+  h_9f4a25732fa0c1 5,246,282-285,352-357
+docs-astro/src/pages/guides.astro
+  h_9f4a25732fa0c1 5,123-201,260,292
+docs-astro/src/pages/index.astro
+  h_9f4a25732fa0c1 5
+docs-astro/src/pages/performance.astro
+  h_9f4a25732fa0c1 5,163
+docs-astro/src/pages/tiff-comparison.astro
+  h_9f4a25732fa0c1 5-6,76
+docs-astro/src/pages/tiff.astro
+  h_9f4a25732fa0c1 5
+docs-astro/src/pages/wsi.astro
+  h_9f4a25732fa0c1 1-181
+docs-astro/src/scripts/demo.ts
+  h_9f4a25732fa0c1 353-358,539-542,545
+docs-astro/src/scripts/wsi-types.ts
+  h_9f4a25732fa0c1 1-77
+docs-astro/src/scripts/wsi-viewer.ts
+  h_9f4a25732fa0c1 1-638
+docs-astro/src/scripts/wsi-worker.ts
+  h_9f4a25732fa0c1 1-303
+docs-astro/src/styles/global.css
+  h_9f4a25732fa0c1 364-365,370,374,671,853,991,1058,1064,1650,1768-1769,1937-1940,1957,2392,3057-3059,3110,3302,3964,4810-4811,5015-5714
+examples/wsi-viewer/README.md
+  h_9f4a25732fa0c1 1-47
+scripts/build-docs-site.ts
+  h_9f4a25732fa0c1 9-10,38-58,80-84,103
+scripts/render-capabilities.ts
+  h_9f4a25732fa0c1 70
+scripts/render-library-comparison.ts
+  h_9f4a25732fa0c1 438,442,455
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 220-237,577-580,601-602,611-642,644
+src/codecs/tiff.ts
+  h_9f4a25732fa0c1 2932-3001,3122-3125
+src/sources/http-range.ts
+  h_9f4a25732fa0c1 141-146
+tests/fixtures/aperio-cmu-1-small-region.md
+  h_9f4a25732fa0c1 1-9
+tests/source-contract.test.ts
+  h_9f4a25732fa0c1 140-163,247
+tests/wsi-viewer.test.ts
+  h_9f4a25732fa0c1 1-93
+tsconfig.browser.json
+  h_9f4a25732fa0c1 22-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "753f406581b94f4c21fb7c4f00b28301a8ea5c05",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
