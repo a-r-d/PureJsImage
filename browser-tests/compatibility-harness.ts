@@ -1920,22 +1920,25 @@ const avifImir = async (): Promise<BrowserWorkflowResult> => {
       throw new Error(`${fixture.file} portable imir RGBA hash was ${portableHash}`)
     }
 
-    const chromium = await browserImagePixels(input, 'image/avif')
-    const chromiumHash = await sha256(Uint8Array.from(chromium.pixels))
-    if (
-      chromium.width !== fixture.chromiumWidth ||
-      chromium.height !== fixture.chromiumHeight ||
-      chromiumHash !== fixture.chromiumSha256
-    ) {
-      throw new Error(
-        `${fixture.file} Chromium AVIF output was ${chromium.width}x${chromium.height} ${chromiumHash}`,
-      )
+    if (navigator.userAgent.includes('Chrome/')) {
+      const chromium = await browserImagePixels(input, 'image/avif')
+      const chromiumHash = await sha256(Uint8Array.from(chromium.pixels))
+      if (
+        chromium.width !== fixture.chromiumWidth ||
+        chromium.height !== fixture.chromiumHeight ||
+        chromiumHash !== fixture.chromiumSha256
+      ) {
+        throw new Error(
+          `${fixture.file} Chromium AVIF output was ${chromium.width}x${chromium.height} ${chromiumHash}`,
+        )
+      }
     }
     outputBytes += output.byteLength
   }
   return {
-    detail:
-      'AVIF imir axes and clap+irot grid alpha composition matched pinned portable output; Chromium native outputs were pinned independently',
+    detail: navigator.userAgent.includes('Chrome/')
+      ? 'AVIF imir axes and clap+irot grid alpha composition matched pinned portable output; Chromium native outputs were pinned independently'
+      : 'AVIF imir axes and clap+irot grid alpha composition matched pinned portable output',
     outputBytes,
   }
 }
