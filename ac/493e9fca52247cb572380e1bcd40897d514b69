@@ -1,0 +1,40 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 21-25
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 1793,1810-1825,1827-1829
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 141
+capabilities/manifest.json
+  h_9f4a25732fa0c1 413-415,536-541,602-604
+docs/api.html
+  h_9f4a25732fa0c1 195
+docs/capabilities.json
+  h_9f4a25732fa0c1 767-769,1029,1032-1033,1036-1037,1040-1041,1044-1049,1181
+docs/codecs.html
+  h_9f4a25732fa0c1 54,74,92
+docs/llms.txt
+  h_9f4a25732fa0c1 276,433,435-436
+src/codecs/webp-lossless-encode.ts
+  h_9f4a25732fa0c1 6,8-24,97,146,148,153-154,208-257,274-287,289-292,294-297,300,554-625,706-715,718-720,745,748,756,786-836,846-870,872,881,889,915-961,969,995-1082,1090-1221,1245-1303,1308,1310-1311,1316-1324,1326-1327,1329-1354,1392-1393,1400,1408-1409,1456-1466,1478-1483,1488-1490,1492-1495,1567-1579,1585
+src/codecs/webp-lossless.ts
+  h_9f4a25732fa0c1 25,470-471
+src/pipeline.ts
+  h_9f4a25732fa0c1 53,55-58,274-290
+tests/capability-manifest.test.ts
+  h_9f4a25732fa0c1 97-109
+tests/webp.test.ts
+  h_9f4a25732fa0c1 1-2,279-396
+webp-codec-support.md
+  h_9f4a25732fa0c1 109-114,175-177
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "ac493e9fca52247cb572380e1bcd40897d514b69",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
