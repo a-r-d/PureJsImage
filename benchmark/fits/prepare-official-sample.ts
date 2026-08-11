@@ -26,5 +26,7 @@ if (primary.sizeX !== 831 || primary.sizeY !== 110 || primary.bitpix !== 16) {
 
 const outputDirectory = resolve('benchmark/corpus/fits/official')
 await mkdir(outputDirectory, { recursive: true })
+// The fixed NASA response remains untrusted until it matches the pinned digest above. Neither the
+// response nor caller input can influence this constant, ignored development-corpus path.
 await writeFile(resolve(outputDirectory, 'swp05569slg.fits'), bytes)
 console.log(`Prepared ${bytes.byteLength} byte NASA FITS sample with SHA-256 ${sha256}`)
