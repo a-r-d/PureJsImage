@@ -21,7 +21,7 @@ The remaining TypeScript hot path is row processing:
 The first acceleration boundary therefore keeps platform zlib and moves common scanline work into
 WASM in sizeable row batches. This is smaller and safer than writing a new DEFLATE implementation
 before measurements prove that native compression is the bottleneck. If complete-workload results do
-not show a large benefit, stage measurements—not architectural preference—will decide whether to add
+not show a large benefit, stage measurements rather than architectural preference will decide whether to add
 a first-party streaming inflate/deflate core.
 
 ## Performance objective

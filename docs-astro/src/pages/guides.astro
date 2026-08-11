@@ -2,7 +2,7 @@
 import SiteLayout from '../layouts/SiteLayout.astro'
 ---
 
-<SiteLayout title="Usage guide — PureJsImage" description="Install PureJsImage, register codecs, open images, compose immutable transforms, configure limits, and run the library in Node.js, browsers, or AWS Lambda." canonical="https://purejsimage.com/guides/" current="guides/">
+<SiteLayout title="Usage guide | PureJsImage" description="Install PureJsImage, register codecs, open images, compose immutable transforms, configure limits, and run the library in Node.js, browsers, or AWS Lambda." canonical="https://purejsimage.com/guides/" current="guides/">
 <main id="main">
     <header class="page-hero"><div class="container"><p class="eyebrow">Usage guide</p><h1>Install, register codecs, and execute an image pipeline.</h1><p class="page-lede">This guide covers Node.js and browser entry points, accepted inputs, transform ordering, output methods, limits, and Lambda-specific storage behavior.</p><div class="page-meta"><span class="pill">Node.js 22+</span><span class="pill">Modern browsers</span><span class="pill">Strict TypeScript</span></div></div></header>
     <div class="container docs-layout">
@@ -120,6 +120,85 @@ console.<span class="tok-method">log</span>(&#123;
 
         <section id="recipes">
           <h2>Recipes</h2>
+          <h3 id="whole-slide-recipe">Build a whole-slide viewer from remote SVS tiles</h3>
+          <p>An Aperio SVS file is a tiled, multi-resolution TIFF. A viewer does not need to download or decode the complete slide. Open the remote file through <code>HttpRangeSource</code>, inspect its pyramid with <code>openAperioSvs()</code>, and decode only the tiles that intersect the canvas viewport.</p>
+          <p>Keep file access and tile decoding in a Web Worker. The main thread chooses a pyramid level, requests visible tile coordinates, and draws transferred <code>ImageBitmap</code> objects. The following worker-side core opens a slide and converts one native RGB tile into a canvas-ready bitmap.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">slide-worker.ts</span></div><button class="code-copy" type="button" data-copy="wsi-worker-code">Copy</button><pre><code id="wsi-worker-code"><span class="tok-key">import type</span> &#123; PixelBlock &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
+<span class="tok-key">import</span> &#123; openAperioSvs &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/pathology'</span>
+<span class="tok-key">import type</span> &#123; WholeSlideLevel &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/pathology'</span>
+<span class="tok-key">import</span> &#123; HttpRangeSource &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/sources/http-range'</span>
+<span class="tok-key">import</span> &#123; openTiffDocument &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/tiff'</span>
+
+<span class="tok-key">const</span> source = <span class="tok-key">await</span> HttpRangeSource.<span class="tok-method">open</span>(slideUrl, &#123;
+  blockBytes: <span class="tok-number">65_536</span>,
+  maxCacheBytes: <span class="tok-number">1_048_576</span>,
+&#125;)
+
+<span class="tok-key">const</span> document = <span class="tok-key">await</span> <span class="tok-method">openTiffDocument</span>(source, &#123;
+  maxInputBytes: <span class="tok-number">6_000_000_000</span>,
+  maxWidth: <span class="tok-number">250_000</span>,
+  maxHeight: <span class="tok-number">250_000</span>,
+  maxPixels: <span class="tok-number">20_000_000_000</span>,
+  maxDecodedBytes: Number.MAX_SAFE_INTEGER,
+&#125;)
+
+<span class="tok-key">const</span> slide = <span class="tok-key">await</span> <span class="tok-method">openAperioSvs</span>(document)
+
+<span class="tok-key">const</span> copyRgbBlock = (
+  target: Uint8ClampedArray,
+  targetWidth: number,
+  targetHeight: number,
+  block: PixelBlock,
+): <span class="tok-key">void</span> => &#123;
+  <span class="tok-key">if</span> (block.format !== <span class="tok-string">'rgb8'</span>) <span class="tok-key">throw new</span> Error(<span class="tok-string">`Expected RGB8, received $&#123;block.format&#125;`</span>)
+  <span class="tok-key">if</span> (block.x &lt; <span class="tok-number">0</span> || block.y &lt; <span class="tok-number">0</span> || block.x + block.width &gt; targetWidth || block.y + block.height &gt; targetHeight) &#123;
+    <span class="tok-key">throw new</span> Error(<span class="tok-string">'Decoded pixels lie outside the requested tile'</span>)
+  &#125;
+  <span class="tok-key">for</span> (<span class="tok-key">let</span> row = <span class="tok-number">0</span>; row &lt; block.height; row += <span class="tok-number">1</span>) &#123;
+    <span class="tok-key">let</span> input = row * block.stride
+    <span class="tok-key">let</span> output = ((block.y + row) * targetWidth + block.x) * <span class="tok-number">4</span>
+    <span class="tok-key">for</span> (<span class="tok-key">let</span> column = <span class="tok-number">0</span>; column &lt; block.width; column += <span class="tok-number">1</span>) &#123;
+      target[output] = block.data[input] ?? <span class="tok-number">0</span>
+      target[output + <span class="tok-number">1</span>] = block.data[input + <span class="tok-number">1</span>] ?? <span class="tok-number">0</span>
+      target[output + <span class="tok-number">2</span>] = block.data[input + <span class="tok-number">2</span>] ?? <span class="tok-number">0</span>
+      target[output + <span class="tok-number">3</span>] = <span class="tok-number">255</span>
+      input += <span class="tok-number">3</span>
+      output += <span class="tok-number">4</span>
+    &#125;
+  &#125;
+&#125;
+
+<span class="tok-key">const</span> tileToBitmap = <span class="tok-key">async</span> (
+  level: WholeSlideLevel,
+  column: number,
+  row: number,
+  signal: AbortSignal,
+): Promise&lt;ImageBitmap&gt; => &#123;
+  <span class="tok-key">if</span> (level.tileWidth === undefined || level.tileHeight === undefined) &#123;
+    <span class="tok-key">throw new</span> Error(<span class="tok-string">'The selected pyramid level is not tiled'</span>)
+  &#125;
+  <span class="tok-key">const</span> width = Math.<span class="tok-method">min</span>(level.tileWidth, level.width - column * level.tileWidth)
+  <span class="tok-key">const</span> height = Math.<span class="tok-method">min</span>(level.tileHeight, level.height - row * level.tileHeight)
+  <span class="tok-key">const</span> rgba = <span class="tok-key">new</span> Uint8ClampedArray(width * height * <span class="tok-number">4</span>)
+
+  <span class="tok-key">for await</span> (<span class="tok-key">const</span> block <span class="tok-key">of</span> level.<span class="tok-method">tile</span>(column, row, &#123; signal &#125;)) &#123;
+    <span class="tok-key">try</span> &#123;
+      <span class="tok-method">copyRgbBlock</span>(rgba, width, height, block)
+    &#125; <span class="tok-key">finally</span> &#123;
+      block.release?.()
+    &#125;
+  &#125;
+  <span class="tok-key">return</span> <span class="tok-method">createImageBitmap</span>(<span class="tok-key">new</span> ImageData(rgba, width, height))
+&#125;</code></pre></div>
+          <p>The canvas side needs four policies to remain responsive:</p>
+          <ol>
+            <li>Choose the finest level whose <code>downsample</code> is no greater than <code>1 / zoom</code>.</li>
+            <li>Convert the viewport bounds to level coordinates, divide by <code>tileWidth</code> and <code>tileHeight</code>, and request only the intersecting rows and columns.</li>
+            <li>Create one <code>AbortController</code> per tile. Abort work as soon as its key leaves the visible set.</li>
+            <li>Keep a bounded LRU of transferred bitmaps. Draw cached coarse-level tiles first so the previous view remains visible while sharper tiles arrive, and call <code>bitmap.close()</code> on eviction.</li>
+          </ol>
+          <div class="callout"><strong>Range and CORS requirements.</strong> The slide server must answer byte requests with <code>206 Partial Content</code> and an accurate <code>Content-Range</code>. Cross-origin browser use must allow your origin and expose <code>Content-Range</code>. If the storage service cannot provide those headers, place a range-preserving endpoint on your own origin.</div>
+          <p>The <a href="../wsi/">live whole-slide demo</a> adds a four-request decode queue, stale-request cancellation, a 192-tile LRU, lower-resolution placeholders, pan and zoom math, and live transfer statistics. Read the complete <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs-astro/src/scripts/wsi-worker.ts">worker implementation</a> and <a href="https://github.com/a-r-d/PureJsImage/blob/main/docs-astro/src/scripts/wsi-viewer.ts">canvas implementation</a> for production-ready bounds checks and message handling.</p>
           <h3>Normalize an upload to JPEG</h3>
           <div class="code-window"><div class="window-bar"><span class="window-title">normalize.ts</span></div><button class="code-copy" type="button" data-copy="normalize-code">Copy</button><pre><code id="normalize-code"><span class="tok-key">const</span> output = <span class="tok-key">await</span> (<span class="tok-key">await</span> images.<span class="tok-method">open</span>(upload))
   .<span class="tok-method">autoOrient</span>()
@@ -178,7 +257,7 @@ console.<span class="tok-method">log</span>(&#123;
             <li>Register only the codecs your endpoint accepts and produces.</li>
             <li>Set input limits to the smallest values the application accepts.</li>
             <li>Prefer downscaling and decoder-aware crops before expensive format conversion.</li>
-            <li>Measure absolute peak RSS under realistic concurrent workloads—not only allocation deltas.</li>
+            <li>Measure absolute peak RSS under realistic concurrent workloads, not only allocation deltas.</li>
           </ol>
           <div class="callout"><strong>Size for CPU as well as memory.</strong> A 256 MiB Lambda completed all four measured 4000 × 3000 resize/conversion workflows with 121–156 MiB maximum use. But JPEG → WebP warm operation time fell from 10,601 ms at 256 MiB to 5,261 ms at 512 MiB and 2,533 ms at 1024 MiB while maximum use stayed at 120–122 MiB. For latency-sensitive endpoints, start at 1024 MiB even if the process consumes only about 150 MiB; choose 256 MiB only when its lower CPU allocation and roughly 10-second latency are acceptable. Re-measure with your images and concurrency. <a href="../performance/#aws-lambda">See the Lambda results.</a></div>
           <div class="code-window"><div class="window-bar"><span class="window-title">handler.ts</span></div><button class="code-copy" type="button" data-copy="lambda-code">Copy</button><pre><code id="lambda-code"><span class="tok-key">const</span> image = <span class="tok-key">await</span> images.<span class="tok-method">open</span>(body, &#123;
@@ -210,7 +289,7 @@ console.<span class="tok-method">log</span>(&#123;
           <p>See the <a href="../api/#errors">error reference</a> for the meaning of each category.</p>
         </section>
       </article>
-      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#install">Install</a><a href="#library">Create a library</a><a href="#browser">Browser</a><a href="#open">Open an image</a><a href="#pipeline">Build a pipeline</a><a href="#recipes">Recipes</a><a href="#lambda">Deploy on Lambda</a><a href="#errors">Handle failures</a></aside>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#install">Install</a><a href="#library">Create a library</a><a href="#browser">Browser</a><a href="#open">Open an image</a><a href="#pipeline">Build a pipeline</a><a href="#recipes">Recipes</a><a href="#whole-slide-recipe">Whole-slide viewer</a><a href="#lambda">Deploy on Lambda</a><a href="#errors">Handle failures</a></aside>
     </div>
   </main>
 <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div><div class="footer-column"><strong>Docs</strong><a href="../guides/">Guides</a><a href="../api/">API</a><a href="../codecs/">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>MIT licensed</span></div></div></footer>

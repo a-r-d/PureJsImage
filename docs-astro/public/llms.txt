@@ -10,6 +10,7 @@ This file is the compact implementation guide for coding agents and other LLM cl
 - Source: https://github.com/a-r-d/PureJsImage
 - Getting started: https://purejsimage.com/guides/
 - API reference: https://purejsimage.com/api/
+- Whole-slide measurement demo: https://purejsimage.com/wsi/
 - Codec matrix: https://purejsimage.com/codecs/
 - Machine-readable codec capabilities: https://purejsimage.com/capabilities.json
 - TIFF guide: https://purejsimage.com/tiff/

@@ -67,7 +67,7 @@ const readmeBlock = (codecs: readonly CodecCapability[]): string => {
 const statusHtml = (level: CapabilityLevel): string => {
   if (level.status === 'supported') return `<span class="yes">● ${html(level.label)}</span>`
   if (level.status === 'limited') return `<span class="partial">● ${html(level.label)}</span>`
-  return `<span class="no">— ${html(level.label)}</span>`
+  return `<span class="no">${html(level.label)}</span>`
 }
 
 const matrixBlock = (codecs: readonly CodecCapability[]): string => {

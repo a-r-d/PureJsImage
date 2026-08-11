@@ -138,8 +138,12 @@ export class HttpRangeSource implements ImageSource {
         'HTTP range cache size must be a safe integer at least as large as one block',
       )
     }
-    const fetcher = options.fetch ?? globalThis.fetch
-    if (typeof fetcher !== 'function') throw unsupportedFetch()
+    const configuredFetch = options.fetch ?? globalThis.fetch
+    if (typeof configuredFetch !== 'function') throw unsupportedFetch()
+    // Calling a native browser fetch after storing it as an object field gives it the object as
+    // its receiver, which Chromium rejects as an illegal invocation. Keep the actual function in
+    // this closure so both the probe and later range reads call it as a plain function.
+    const fetcher: typeof fetch = (input, init) => configuredFetch(input, init)
     const href = String(url)
     let response: Response
     try {
@@ -242,7 +246,6 @@ export class HttpRangeSource implements ImageSource {
     const end = Math.min(this.size, start + this.#blockBytes) - 1
     const headers = new Headers(this.#headers)
     headers.set('range', `bytes=${start}-${end}`)
-    if (this.#validator) headers.set('if-range', this.#validator.value)
     let response: Response
     try {
       this.#requests += 1

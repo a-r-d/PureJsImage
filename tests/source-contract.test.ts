@@ -137,6 +137,30 @@ describe('HttpRangeSource', () => {
     expect(source.stats).toEqual({ requests: 3, bytesFetched: 33, cacheBytes: 32 })
   })
 
+  it('invokes the configured fetch without binding it to the range source', async () => {
+    const receiverSensitive: typeof fetch = async function (
+      this: unknown,
+      _input,
+      init,
+    ): Promise<Response> {
+      if (this !== undefined) throw new TypeError('Illegal invocation')
+      const raw = new Headers(init?.headers).get('range') ?? ''
+      const match = raw.match(/^bytes=(\d+)-(\d+)$/)
+      if (!match) return new Response(null, { status: 416 })
+      const start = Number(match[1])
+      const end = Math.min(Number(match[2]), bytes.byteLength - 1)
+      return new Response(bytes.slice(start, end + 1), {
+        status: 206,
+        headers: { 'content-range': `bytes ${start}-${end}/${bytes.byteLength}` },
+      })
+    }
+    const source = await HttpRangeSource.open('https://example.test/receiver.tif', {
+      blockBytes: 16,
+      fetch: receiverSensitive,
+    })
+    await expect(source.read(16, 1)).resolves.toEqual(Uint8Array.of(16))
+  })
+
   it('deduplicates concurrent blocks and evicts least-recently-used data', async () => {
     requests.length = 0
     const source = await HttpRangeSource.open('https://example.test/cache.tif', {
@@ -220,7 +244,7 @@ describe('HttpRangeSource', () => {
       const start = Number(match[1])
       const end = Number(match[2])
       request += 1
-      if (request > 1) expect(new Headers(init?.headers).get('if-range')).toBe('"version-1"')
+      if (request > 1) expect(new Headers(init?.headers).get('if-range')).toBeNull()
       return new Response(bytes.slice(start, end + 1), {
         status: 206,
         headers: {

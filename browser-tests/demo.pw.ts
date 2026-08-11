@@ -67,8 +67,8 @@ test('detects, transforms, converts, measures, and downloads from the docs demo'
     'download',
     'misleading-extension-converted.jpg',
   )
-  await expect(page.locator('#demo-metric-elapsed')).not.toHaveText('—')
-  await expect(page.locator('#demo-metric-output')).not.toHaveText('—')
+  await expect(page.locator('#demo-metric-elapsed')).not.toHaveText('Not available')
+  await expect(page.locator('#demo-metric-output')).not.toHaveText('Not available')
   await expect(page.locator('#demo-log-list')).toContainText('PNG detected from content')
   await expect(page.locator('#demo-log-list')).toContainText('Conversion time:')
   await expect(page.locator('#demo-log-list')).toContainText('Maximum observed JS heap:')

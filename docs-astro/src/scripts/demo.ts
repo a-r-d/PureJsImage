@@ -350,12 +350,12 @@ const resetResult = (): void => {
   resultPreview.removeAttribute('src')
   resultPanel.hidden = true
   downloadLink.removeAttribute('href')
-  elapsedMetric.textContent = '—'
-  providerMetric.textContent = '—'
-  comparisonMetric.textContent = '—'
-  memoryMetric.textContent = '—'
-  knownBytesMetric.textContent = '—'
-  outputBytesMetric.textContent = '—'
+  elapsedMetric.textContent = 'Not available'
+  providerMetric.textContent = 'Not available'
+  comparisonMetric.textContent = 'Not available'
+  memoryMetric.textContent = 'Not available'
+  knownBytesMetric.textContent = 'Not available'
+  outputBytesMetric.textContent = 'Not available'
 }
 
 const outputFormatValue = (): OutputFormat => {
@@ -536,13 +536,13 @@ const resetViewer = (): void => {
   viewerDirectory.replaceChildren(new Option('Choose an image first', ''))
   viewerName.textContent = 'Image viewport'
   viewerSubtitle.textContent = 'Choose any supported image'
-  viewerDimensions.textContent = '—'
-  viewerCompression.textContent = '—'
-  viewerSamples.textContent = '—'
-  viewerStorage.textContent = '—'
+  viewerDimensions.textContent = 'Not available'
+  viewerCompression.textContent = 'Not available'
+  viewerSamples.textContent = 'Not available'
+  viewerStorage.textContent = 'Not available'
   viewerStatus.textContent = 'Waiting for a local image.'
   viewerRegion.textContent = 'No region selected'
-  zoomValue.value = '—'
+  zoomValue.value = 'Not available'
 }
 
 const tiffHeader = async (file: File): Promise<boolean> => {

@@ -1,0 +1,181 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+
+const sampleSlides = [
+  {
+    label: 'Quick preview',
+    detail: '87.9 MB · 37,848 × 16,480 · 3 levels',
+    url: 'https://storage.googleapis.com/imagebox_test/Slide-0027830_Y561170_1002408.svs',
+  },
+  {
+    label: 'Wide section',
+    detail: '463 MB · 117,527 × 26,234 · 4 levels',
+    url: 'https://storage.googleapis.com/imagebox_test/Slide-0027815_Y339170_1002393.svs',
+  },
+  {
+    label: 'Default section',
+    detail: '2.12 GB · 131,472 × 51,113 · 4 levels',
+    url: 'https://storage.googleapis.com/imagebox_test/Slide-0027809_Y163170_1002387.svs',
+  },
+  {
+    label: 'Very large section',
+    detail: '4.96 GB · 163,343 × 83,242 · 4 levels',
+    url: 'https://storage.googleapis.com/imagebox_test/Slide-0027807_Y105170_1002385.svs',
+  },
+] as const
+
+const defaultSlide = sampleSlides[2].url
+---
+
+<SiteLayout
+  title="No Conversion Needed | PureJsImage whole-slide demo"
+  description="Pan and zoom a 2.12 GB Aperio SVS directly from static object storage while measuring the byte ranges actually fetched."
+  canonical="https://purejsimage.com/wsi/"
+  bodyClass="wsi-page"
+  current="wsi/"
+  skipLabel="Skip to whole-slide viewer"
+  openGraph={{
+    title: 'No Conversion Needed | a zero-dependency whole-slide viewer',
+    description: 'Browse a 2.12 GB Aperio SVS from static object storage and measure the fraction actually fetched.',
+    url: 'https://purejsimage.com/wsi/',
+  }}
+>
+  <main id="main">
+    <section class="wsi-hero">
+      <div class="container wsi-hero-grid">
+        <div>
+          <p class="eyebrow">Whole-slide image · measured in your browser</p>
+          <h1>No conversion needed.</h1>
+          <p class="wsi-lede">Pan and zoom a <strong>2.12 GB original Aperio SVS</strong>. PureJsImage reads its existing JPEG tiles with HTTP Range. No tile server, converted copy, or sidecar index is involved.</p>
+          <div class="wsi-proof-pills" aria-label="Demo constraints">
+            <span>Original SVS</span><span>Static object storage</span><span>0 runtime dependencies</span><span>Worker decode</span>
+          </div>
+        </div>
+        <aside class="wsi-claim-card">
+          <span>MEASURED LIVE</span>
+          <strong id="wsi-measured-fraction">0.000%</strong>
+          <p>of the full slide fetched in this measurement</p>
+          <small><span id="wsi-measured-bytes">0 B</span> transferred after metadata and viewed tiles</small>
+        </aside>
+      </div>
+    </section>
+
+    <section class="wsi-demo" aria-labelledby="wsi-viewer-title">
+      <div class="container">
+        <div class="wsi-source-bar">
+          <div>
+            <label for="wsi-url">Aperio SVS URL</label>
+            <input id="wsi-url" type="url" value={defaultSlide} spellcheck="false" autocomplete="off" />
+          </div>
+          <button class="button" id="wsi-open" type="button">Open original SVS</button>
+        </div>
+        <div class="wsi-sample-picker" aria-labelledby="wsi-sample-picker-label">
+          <span id="wsi-sample-picker-label">Verified sample slides</span>
+          <div>
+            {sampleSlides.map((sample) => (
+              <button
+                type="button"
+                data-wsi-sample-url={sample.url}
+                aria-pressed={sample.url === defaultSlide ? 'true' : 'false'}
+              >
+                <strong>{sample.label}</strong>
+                <small>{sample.detail}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+        <p class="wsi-source-note">These are unmodified public Aperio slides from the <a href="https://github.com/episphere/imagebox3" target="_blank" rel="noreferrer">ImageBox3</a> Google Cloud test bucket. Each URL was verified for byte ranges, wildcard CORS, exposed <code>Content-Range</code>, Aperio metadata, and native tile decode. No PureJsImage proxy is involved.</p>
+
+        <div class="wsi-workspace">
+          <section class="wsi-canvas-panel" aria-labelledby="wsi-viewer-title">
+            <header class="wsi-canvas-toolbar">
+              <div><p class="demo-card-kicker">Original pyramid tiles</p><h2 id="wsi-viewer-title">Whole-slide viewport</h2></div>
+              <div class="wsi-view-controls">
+                <button id="wsi-zoom-out" type="button" aria-label="Zoom out">−</button>
+                <button id="wsi-fit" type="button">Fit</button>
+                <button id="wsi-zoom-in" type="button" aria-label="Zoom in">+</button>
+              </div>
+            </header>
+            <div class="wsi-canvas-wrap">
+              <canvas id="wsi-canvas" aria-label="Pannable and zoomable Aperio whole-slide image"></canvas>
+              <div class="wsi-canvas-help">Drag to pan · wheel or pinch to zoom</div>
+              <div class="wsi-level-live" id="wsi-level-live">Waiting for slide metadata…</div>
+            </div>
+            <p class="wsi-status" id="wsi-status" role="status" aria-live="polite">Starting the worker…</p>
+            <section class="wsi-activity" aria-labelledby="wsi-activity-title">
+              <div><strong id="wsi-activity-title">Tile requests</strong><span><i class="pending"></i>Pending <i class="decoded"></i>Decoded <i class="cancelled"></i>Cancelled</span></div>
+              <div class="wsi-request-strip" id="wsi-request-strip" aria-live="polite"></div>
+              <p>Drag quickly: offscreen work turns red as its <code>AbortController</code> is cancelled instead of piling up.</p>
+            </section>
+          </section>
+
+          <aside class="wsi-instrument" aria-labelledby="wsi-instrument-title">
+            <header><div><p class="demo-card-kicker">Measurement instrument</p><h2 id="wsi-instrument-title">What this tab actually used</h2></div><span>MEASURED</span></header>
+            <dl>
+              <div><dt>Slide</dt><dd id="wsi-stat-slide">Not available</dd></div>
+              <div><dt>Full file size</dt><dd id="wsi-stat-size">Not available</dd></div>
+              <div><dt>Dimensions</dt><dd id="wsi-stat-dimensions">Not available</dd></div>
+              <div><dt>Levels</dt><dd id="wsi-stat-levels">Not available</dd></div>
+              <div><dt>Tile size</dt><dd id="wsi-stat-tile-size">Not available</dd></div>
+            </dl>
+            <div class="wsi-stat-divider"></div>
+            <dl>
+              <div><dt>Range requests</dt><dd id="wsi-stat-requests">0</dd></div>
+              <div><dt>Bytes fetched</dt><dd id="wsi-stat-bytes">0 B</dd></div>
+              <div class="wsi-fraction-row"><dt>Fraction of file</dt><dd id="wsi-stat-fraction">0.000%</dd></div>
+              <div><dt>Tiles decoded</dt><dd id="wsi-stat-decoded">0</dd></div>
+              <div><dt>Tiles cancelled</dt><dd id="wsi-stat-cancelled">0</dd></div>
+              <div><dt>Tiles from cache</dt><dd id="wsi-stat-cache-hits">0</dd></div>
+              <div><dt>Cache resident</dt><dd id="wsi-stat-cache-resident">0 tiles / 0 B source cache</dd></div>
+            </dl>
+            <button class="button secondary" id="wsi-reset" type="button" disabled>Reset counters</button>
+            <p class="wsi-instrument-note">Reset establishes a new baseline against the worker’s real <code>HttpRangeSource.stats</code>. Cached source bytes may satisfy later tiles without a new transfer.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wsi-how" aria-labelledby="wsi-how-title">
+      <div class="container">
+        <div class="demo-section-heading">
+          <div><p class="eyebrow">The access pattern</p><h2 id="wsi-how-title">The browser asks for TIFF tiles, not another format.</h2></div>
+          <p>The worker owns the range source, TIFF directory, JPEG decode, tile cancellation, and source-byte counters. The main thread owns only interaction, a bounded 192-tile bitmap LRU, and canvas drawing.</p>
+        </div>
+        <div class="wsi-flow" aria-label="Whole-slide data flow">
+          <div><span>1</span><strong>HTTP Range</strong><small>Read TIFF metadata and only requested byte spans</small></div>
+          <i aria-hidden="true">→</i>
+          <div><span>2</span><strong>Worker decode</strong><small>Composite released <code>PixelBlock</code>s into one native tile</small></div>
+          <i aria-hidden="true">→</i>
+          <div><span>3</span><strong>Canvas + LRU</strong><small>Draw cached coarser tiles beneath incoming detail</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wsi-comparison" aria-labelledby="wsi-comparison-title">
+      <div class="container">
+        <div class="demo-section-heading">
+          <div><p class="eyebrow">Measured vs cited</p><h2 id="wsi-comparison-title">What “no conversion” changes</h2></div>
+          <p>No synthetic timings and no claim that PureJsImage is faster than Viv, OpenSlide, or libvips. This comparison is only about the path from an existing slide in object storage to a browser viewport.</p>
+        </div>
+        <div class="wsi-table-wrap">
+          <table>
+            <thead><tr><th scope="col">Question</th><th scope="col">This demo</th><th scope="col">Convert-to-OME-Zarr path</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Source file</th><td>Original SVS, unmodified <span class="wsi-measure-label">Measured</span></td><td>A converted copy is required</td></tr>
+              <tr><th scope="row">Storage for serving</th><td>2.12 GB as-is <span class="wsi-measure-label">Measured</span></td><td>About an order of magnitude larger for lossy-JPEG WSI <a class="wsi-cited-label" href="https://ngff.openmicroscopy.org/" target="_blank" rel="noreferrer">Cited · OME NGFF ↗</a></td></tr>
+              <tr><th scope="row">Preprocessing</th><td>None <span class="wsi-measure-label">Measured</span></td><td><code>bioformats2raw</code> + <code>raw2ometiff</code> per slide; timing not measured here</td></tr>
+              <tr><th scope="row">Serving</th><td>Static object storage + HTTP Range <span class="wsi-measure-label">Measured</span></td><td>Static serving is possible after conversion; conversion infrastructure is still required</td></tr>
+              <tr><th scope="row">Sidecar index</th><td>None <span class="wsi-measure-label">Measured</span></td><td>Not required by Zarr; some OME-TIFF random-access workflows generate an IFD index</td></tr>
+              <tr><th scope="row">Bytes to browse</th><td>See the live counter above <span class="wsi-measure-label">Measured</span></td><td>Not measured here</td></tr>
+              <tr><th scope="row">Demo runtime dependencies</th><td>0 <span class="wsi-measure-label">Measured</span></td><td>Varies</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="wsi-tradeoff"><strong>OME-Zarr is often the right call.</strong><p>It is an open, actively developed format with broad tool support, standardized metadata, and independently accessible chunks. This demo is for a different moment: an Aperio slide is already sitting in a bucket and you want to inspect it before building a conversion pipeline.</p></div>
+        <p class="wsi-clinical-note">Technical demonstration only. This viewer is not a diagnostic tool and has not been validated for clinical use.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="container"><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span><a href="../demo/">Browser converter</a> · <a href="https://github.com/a-r-d/PureJsImage">Source</a> · <a href="../llms.txt">LLM guide</a> · <a href="../sitemap.xml">Sitemap</a></span></div></div></footer>
+  <script is:inline src="../assets/wsi-viewer.js" type="module"></script>
+</SiteLayout>

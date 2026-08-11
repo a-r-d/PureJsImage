@@ -2929,6 +2929,76 @@ const jpegWithTables = (tables: Uint8Array, segment: Uint8Array): Uint8Array => 
   return output
 }
 
+const jpegWithAdobeRgbTransform = (input: Uint8Array): Uint8Array => {
+  if (!hasJpegBoundary(input, 0xff, 0xd8)) {
+    throw invalidInput('TIFF JPEG segment is missing its SOI marker')
+  }
+
+  let offset = 2
+  let adobeTransformOffset: number | undefined
+  while (offset < input.byteLength) {
+    while (input[offset] === 0xff) offset += 1
+    const marker = input[offset]
+    if (marker === undefined || marker === 0xda || marker === 0xd9) break
+    offset += 1
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd8)) continue
+    const high = input[offset]
+    const low = input[offset + 1]
+    if (high === undefined || low === undefined) {
+      throw truncatedInput('TIFF JPEG marker is truncated')
+    }
+    const length = (high << 8) | low
+    const start = offset + 2
+    const end = offset + length
+    if (length < 2 || end > input.byteLength) {
+      throw truncatedInput('TIFF JPEG marker is truncated')
+    }
+    if (
+      marker === 0xee &&
+      end - start >= 12 &&
+      input[start] === 0x41 &&
+      input[start + 1] === 0x64 &&
+      input[start + 2] === 0x6f &&
+      input[start + 3] === 0x62 &&
+      input[start + 4] === 0x65 &&
+      input[start + 5] === 0
+    ) {
+      adobeTransformOffset = start + 11
+    }
+    offset = end
+  }
+
+  if (adobeTransformOffset !== undefined) {
+    const output = Uint8Array.from(input)
+    output[adobeTransformOffset] = 0
+    return output
+  }
+
+  const marker = Uint8Array.of(
+    0xff,
+    0xee,
+    0,
+    14,
+    0x41,
+    0x64,
+    0x6f,
+    0x62,
+    0x65,
+    0,
+    0,
+    100,
+    0,
+    0,
+    0,
+    0,
+  )
+  const output = new Uint8Array(input.byteLength + marker.byteLength)
+  output.set(input.subarray(0, 2))
+  output.set(marker, 2)
+  output.set(input.subarray(2), 2 + marker.byteLength)
+  return output
+}
+
 const pushJpegMarker = (output: number[], marker: number, payload: Uint8Array): void => {
   const length = payload.byteLength + 2
   output.push(0xff, marker, length >>> 8, length & 0xff)
@@ -3048,6 +3118,10 @@ const decodeJpegSegment = async (
     encoded = jpegWithTables(description.jpegTables, encoded)
   } else if (!hasJpegBoundary(encoded, 0xff, 0xd8)) {
     throw invalidInput('TIFF JPEG segment is missing its SOI marker')
+  }
+  if (description.photometric === photometricRgb) {
+    // TIFF's PhotometricInterpretation is authoritative for JPEG component semantics.
+    encoded = jpegWithAdobeRgbTransform(encoded)
   }
   const createDecoder = jpegCodec.createDecoder
   if (!createDecoder) throw unsupportedOperation('JPEG decoder is unavailable')
