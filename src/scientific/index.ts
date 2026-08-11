@@ -4,6 +4,7 @@ export type {
   RasterChannelInfo,
   RasterPlaneRequest,
 } from './dataset.ts'
+export type { GsfDataset, GsfOpenOptions, GsfWriteOptions } from './formats/gsf.ts'
 export type {
   RasterBlock,
   RasterDecoder,
@@ -14,4 +15,5 @@ export type {
   RasterSampleType,
 } from '../raster.ts'
 export { rasterSampleBytes, rasterToPixels } from '../raster.ts'
+export { encodeGsf, openGsf } from './formats/gsf.ts'
 export { isOmeTiff, omeTiffProfile, openOmeTiff } from './ome-tiff.ts'

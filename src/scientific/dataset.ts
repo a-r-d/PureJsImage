@@ -5,6 +5,12 @@ export interface RasterChannelInfo {
   readonly name?: string
   readonly color?: number
   readonly samplesPerPixel: number
+  readonly unit?: string
+  readonly spectral?: {
+    readonly center: number
+    readonly unit?: string
+    readonly fwhm?: number
+  }
 }
 
 export interface PhysicalPixelSize {
@@ -34,6 +40,10 @@ export interface MultidimensionalRasterDataset {
   readonly channels: readonly RasterChannelInfo[]
   readonly physicalSizeX?: PhysicalPixelSize
   readonly physicalSizeY?: PhysicalPixelSize
+  readonly originX?: PhysicalPixelSize
+  readonly originY?: PhysicalPixelSize
+  readonly noDataValue?: number
+  readonly metadata?: Readonly<Record<string, string>>
 
   readPlane(options: Readonly<RasterPlaneRequest>): AsyncIterable<RasterBlock>
 }
