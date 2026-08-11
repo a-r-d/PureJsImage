@@ -45,6 +45,10 @@ const isScenario = (value: unknown): value is AvifMemoryCase['scenario'] =>
   value === 'cdef' ||
   value === 'deblock' ||
   value === 'filtered-4k-multitile' ||
+  value === 'filtered-10bit' ||
+  value === 'filtered-10bit-downscale' ||
+  value === 'filtered-12bit' ||
+  value === 'filtered-12bit-downscale' ||
   value === 'film-grain' ||
   value === 'gain-map-grid' ||
   value === 'downscale' ||
@@ -170,7 +174,7 @@ console.log(
     outputBytes,
     outputSha256,
     sourceRgbaReferenceBytes:
-      fixture.scenario === 'downscale'
+      fixture.action === 'downscale'
         ? 1_204 * 800 * 4
         : fixture.expectedWidth * fixture.expectedHeight * 4,
     wallMilliseconds: Number(wallMilliseconds.toFixed(3)),

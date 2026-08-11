@@ -2234,6 +2234,39 @@ const avifExpandedHighBit = async (): Promise<BrowserWorkflowResult> => {
         rgbaSha256: '28b88bd4ba31908bab42a410a959bb7d2831ce60572be8dbd4e4685cf3e126f3',
       },
     ),
+    avifPinnedPng(
+      'wiener-12bpc-yuv420-320x192.avif',
+      320,
+      192,
+      '79acf6df2ce865f8ed52b187f4ce446bc5738c50c26d467293f3d2fdd0cbbed1',
+      'Lossy 12-bit YUV 4:2:0 AVIF with Wiener restoration',
+      {
+        maximumRgbDifference: 12,
+        rgbaSha256: 'c995dc8727fdb5fc7efa6a54f731c995880d0bded435dce37cf9cea0051140af',
+      },
+    ),
+    avifPinnedPng(
+      'self-guided-12bpc-yuv420-320x192.avif',
+      320,
+      192,
+      'f124a01d322a1e0019630803aa12268333635d4e63b25b08e4f19515dfed817a',
+      'Lossy 12-bit YUV 4:2:0 AVIF with self-guided restoration',
+      {
+        maximumRgbDifference: 13,
+        rgbaSha256: '163c615b5e0a2b7e740fd29dbb98334026c9db179b16d61dedbf7ff9312d4b2f',
+      },
+    ),
+    avifPinnedPng(
+      'self-guided-10bpc-yuv444-320x192.avif',
+      320,
+      192,
+      '4e2f4a1eca619ae7d00d8e9cae8956570579e909ba48796236537c235937ce6b',
+      'Lossy 10-bit YUV 4:4:4 AVIF with self-guided restoration',
+      {
+        maximumRgbDifference: 5,
+        rgbaSha256: '78f84b0dc636c9e4fa37a654a63690054075b1053de035ce5492002ae0a9a174',
+      },
+    ),
   ])
   return {
     detail: results.map((result) => result.detail).join('; '),

@@ -227,10 +227,13 @@ byte. The full-size tolerance remains zero.
   deblocking, CDEF, and Wiener restoration
 - [x] Filtered lossy 10-bit YUV 4:2:0 and 4:2:2 with compatible deblocking,
   CDEF, and Wiener restoration, plus self-guided-restored lossy 10-bit YUV 4:2:0
-- [x] Filtered lossy 12-bit YUV 4:2:0, 4:2:2, and 4:4:4 with compatible
-  deblocking and CDEF
-- [ ] Other high-depth post-filter combinations, including self-guided-restored
-  10-bit YUV 4:4:4 and 12-bit Wiener or self-guided restoration
+  and YUV 4:4:4
+- [x] Filtered lossy 12-bit YUV 4:2:0 with compatible deblocking, CDEF, and
+  Wiener or self-guided restoration
+- [x] Filtered lossy 12-bit YUV 4:2:2 and YUV 4:4:4 with compatible deblocking
+  and CDEF
+- [ ] Other high-depth post-filter combinations, including loop restoration
+  on 10-bit or 12-bit YUV 4:2:2 and 12-bit YUV 4:4:4
 - [x] Full-range high-bit-depth reconstruction without premature truncation
   before explicit conversion to the library's 8-bit RGBA output contract
 - [x] Compatible full-range 8-bit monochrome alpha auxiliaries
@@ -395,12 +398,13 @@ byte. The full-size tolerance remains zero.
   active on all three planes
 - [x] Match agreeing dav1d and libaom native YUV byte for byte for pinned
   filter-free lossy 10-bit and 12-bit YUV 4:2:0, 4:2:2, and 4:4:4 frames
-- [x] Match agreeing dav1d and libaom native YUV byte for byte for six pinned
+- [x] Match agreeing libaom and dav1d native YUV byte for byte for nine pinned
   filtered lossy high-depth frames: 10-bit YUV 4:2:0 with deblocking, CDEF, and
   Wiener; 10-bit YUV 4:2:2 with CDEF and Wiener; 10-bit YUV 4:2:0 with
-  self-guided restoration; and 12-bit YUV 4:2:0, 4:2:2, and 4:4:4 with
-  deblocking and CDEF
-- [x] Exercise all six pinned filtered high-depth fixtures through the portable
+  self-guided restoration; 10-bit YUV 4:4:4 with self-guided restoration;
+  12-bit YUV 4:2:0 with deblocking, CDEF, and Wiener or self-guided restoration;
+  and 12-bit YUV 4:2:0, 4:2:2, and 4:4:4 with deblocking and CDEF
+- [x] Exercise all nine pinned filtered high-depth fixtures through the portable
   codec entry in Chromium and pin independent portable and native Chromium RGBA
   hashes and maximum RGB differences
 - [x] Select an independently decodable shown-key spatial layer from a pinned
@@ -500,8 +504,15 @@ byte. The full-size tolerance remains zero.
 - [x] Normalize deterministic bit-flip corruption as `ImageError` across
   checksum-pinned single-band and multi-band super-resolution, high-bit tile,
   premultiplied-alpha, restoration-unit, and cropped-grid AVIF syntax classes
+- [x] Reject truncated restoration-unit symbols, invalid Wiener and self-guided
+  parameters, edge-unit grids, odd frame dimensions, and over-limit restoration
+  state before unsafe reads or allocations
 - [x] Match full-size Kodak and Fox post-filter pixels exactly against agreeing
   dav1d and libaom native YUV output
+- [x] Measure checksum-pinned filtered 10-bit and 12-bit YUV 4:2:0 full-size
+  decode and downscale workflows in isolated cold processes
+- [ ] Move filtered high-depth reconstruction and post-filtering from the explicit
+  padded full-frame native-YUV fallback to the bounded-row architecture
 - [x] Survey 237 AVIF files spanning 137 conformance/edge/invalid cases and a
   100-file GB82 matrix encoded by Sharp/libvips and FFmpeg/libaom; complete
   all 100 common-photo inputs and 75 conformance inputs
@@ -529,4 +540,5 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-compatibility-survey-2026-08-10.md`](benchmark/results/avif-compatibility-survey-2026-08-10.md)
 - [`benchmark/results/avif-memory-bounded-filtered-2026-08-10.json`](benchmark/results/avif-memory-bounded-filtered-2026-08-10.json)
 - [`benchmark/results/avif-memory-auxiliary-film-grain-2026-08-10.json`](benchmark/results/avif-memory-auxiliary-film-grain-2026-08-10.json)
+- [`benchmark/results/avif-memory-high-depth-2026-08-09.json`](benchmark/results/avif-memory-high-depth-2026-08-09.json)
 - [`benchmark/results/avif-imir-2026-08-09.md`](benchmark/results/avif-imir-2026-08-09.md)

@@ -9,8 +9,10 @@ export interface AvifHighBitExpandedFixture {
   readonly chromiumRgbaSha256?: string
   readonly codedLossless: boolean
   readonly decodedRgbaSha256: string
-  readonly encoder?: 'avifenc'
+  readonly encoder?: 'avifenc' | 'ffmpeg'
   readonly encoderSpeed?: 0 | 4
+  readonly encoderTune?: 0 | 1
+  readonly encoderUsage?: 0 | 2
   readonly file: string
   readonly fileSha256: string
   readonly filters: readonly AvifHighBitFilter[]
@@ -19,7 +21,7 @@ export interface AvifHighBitExpandedFixture {
   readonly maximumChromiumRgbDifference?: number
   readonly maximumSharpRgbDifference?: number
   readonly nativeYuvSha256: string
-  readonly quantizer: 0 | 20 | 30 | 45
+  readonly quantizer: 0 | 20 | 30 | 40 | 45
   readonly sharpRgbSha256?: string
   readonly sourcePattern?: 'filtered-detail' | 'fox-crop'
   readonly sourceY4mSha256: string
@@ -223,6 +225,76 @@ export const avifHighBitExpandedFixtures: readonly AvifHighBitExpandedFixture[] 
     sharpRgbSha256: '514afb7fe41de4ce3f148138087dce8a27fb55ff019ec7a5be22a1de8a94a85c',
     sourcePattern: 'fox-crop',
     sourceY4mSha256: 'ff8bb0c76d43d8c5a455de74144012f065c06c17c6885f73d4a0f351ca4e6fd9',
+    width: 320,
+  },
+  {
+    bitDepth: 10,
+    chromaSubsampling: '444',
+    chromiumRgbaSha256: '78f84b0dc636c9e4fa37a654a63690054075b1053de035ce5492002ae0a9a174',
+    codedLossless: false,
+    decodedRgbaSha256: '4e2f4a1eca619ae7d00d8e9cae8956570579e909ba48796236537c235937ce6b',
+    encoder: 'ffmpeg',
+    encoderSpeed: 0,
+    encoderTune: 1,
+    encoderUsage: 2,
+    file: 'self-guided-10bpc-yuv444-320x192.avif',
+    fileSha256: 'e55eef1358404dff9031c59f929927c0ca51e779589f731c60cf8503b3989cd5',
+    filters: ['deblock', 'self-guided'],
+    fullRange: false,
+    height: 192,
+    maximumChromiumRgbDifference: 5,
+    maximumSharpRgbDifference: 1,
+    nativeYuvSha256: 'e3966271bbacd02bc95b6d37b6c0083549e66abb72683f1998464613ef3cea85',
+    quantizer: 30,
+    sharpRgbSha256: '7a4b10405b784de5ba9fa5f1a0c52a175de48cdcdf0f4de9101622c54e955052',
+    sourcePattern: 'fox-crop',
+    sourceY4mSha256: 'c8508aee088325805ab99741cd9bcef95acebce92211abbdf71a7a0c21493f59',
+    width: 320,
+  },
+  {
+    bitDepth: 12,
+    chromaSubsampling: '420',
+    chromiumRgbaSha256: 'c995dc8727fdb5fc7efa6a54f731c995880d0bded435dce37cf9cea0051140af',
+    codedLossless: false,
+    decodedRgbaSha256: '79acf6df2ce865f8ed52b187f4ce446bc5738c50c26d467293f3d2fdd0cbbed1',
+    encoder: 'ffmpeg',
+    encoderSpeed: 0,
+    encoderTune: 0,
+    file: 'wiener-12bpc-yuv420-320x192.avif',
+    fileSha256: '9270d5bb2ff4c7f3d22ea8ae02dac68ef085ada5456b26498fbfb41d30548a35',
+    filters: ['deblock', 'cdef', 'wiener'],
+    fullRange: false,
+    height: 192,
+    maximumChromiumRgbDifference: 12,
+    maximumSharpRgbDifference: 10,
+    nativeYuvSha256: '7df216113d8ab1409d2088be1332cd84e25dd2f3a025ea7720ea8e7b83e800fb',
+    quantizer: 30,
+    sharpRgbSha256: '69fc7efab755818556c6d80fdc8dae03e87c9dbfdf6d8907b297f21052ae78eb',
+    sourcePattern: 'fox-crop',
+    sourceY4mSha256: '4a877fee167f0ddf2882d42b1ff6a7e1ef363f5bd4b24a73d51574fc573d1460',
+    width: 320,
+  },
+  {
+    bitDepth: 12,
+    chromaSubsampling: '420',
+    chromiumRgbaSha256: '163c615b5e0a2b7e740fd29dbb98334026c9db179b16d61dedbf7ff9312d4b2f',
+    codedLossless: false,
+    decodedRgbaSha256: 'f124a01d322a1e0019630803aa12268333635d4e63b25b08e4f19515dfed817a',
+    encoder: 'ffmpeg',
+    encoderSpeed: 0,
+    encoderTune: 1,
+    file: 'self-guided-12bpc-yuv420-320x192.avif',
+    fileSha256: '3fa959e4ddb0ac2ce0f4e4b575d18319214f09b2b174bc5a4afdfcacbf4e4cca',
+    filters: ['deblock', 'cdef', 'self-guided'],
+    fullRange: false,
+    height: 192,
+    maximumChromiumRgbDifference: 13,
+    maximumSharpRgbDifference: 11,
+    nativeYuvSha256: '5864d4d9c17f3dcdd40f90d23bd101397436edd83ecc1bd29466f04e827cd615',
+    quantizer: 40,
+    sharpRgbSha256: '1245c54dc1d9cad1fd31653342662cf8e6fc63d251992c993b4d1fbc470df506',
+    sourcePattern: 'fox-crop',
+    sourceY4mSha256: '4a877fee167f0ddf2882d42b1ff6a7e1ef363f5bd4b24a73d51574fc573d1460',
     width: 320,
   },
   {

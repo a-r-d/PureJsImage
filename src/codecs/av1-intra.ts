@@ -856,12 +856,23 @@ const createRestorationPlaneState = (
   const shiftX = plane === 0 ? 0 : chromaShiftX
   const shiftY = plane === 0 ? 0 : chromaShiftY
   const unitSize = frame.header.restorationUnitSizes[plane] ?? 256
+  if (
+    !Number.isSafeInteger(unitSize) ||
+    unitSize < 32 ||
+    unitSize > 256 ||
+    (unitSize & (unitSize - 1)) !== 0
+  ) {
+    throw invalidInput('AV1 restoration unit size is invalid')
+  }
   const rows = countRestorationUnits(unitSize, Math.ceil(frame.header.frameHeight / 2 ** shiftY))
   const columns = countRestorationUnits(
     unitSize,
     Math.ceil(frame.header.upscaledWidth / 2 ** shiftX),
   )
   const units = rows * columns
+  if (!Number.isSafeInteger(units)) {
+    throw invalidInput('AV1 restoration unit grid is invalid')
+  }
   return {
     unitSize,
     rows,

@@ -186,6 +186,7 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/filter*-lossy-*.avif
 !benchmark/corpus/files/avif/unsupported-hdr-*.avif
 !benchmark/corpus/files/avif/self-guided-*.avif
+!benchmark/corpus/files/avif/wiener-*.avif
 !benchmark/corpus/files/avif/xiph-tiger-*.avif
 !benchmark/corpus/files/avif/xiph-alpha-*.avif
 !benchmark/corpus/files/avif/libavif-*-role*.avif

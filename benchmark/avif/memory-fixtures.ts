@@ -13,6 +13,10 @@ export type AvifMemoryScenario =
   | 'deblock'
   | 'downscale'
   | 'filtered-4k-multitile'
+  | 'filtered-10bit'
+  | 'filtered-10bit-downscale'
+  | 'filtered-12bit'
+  | 'filtered-12bit-downscale'
   | 'film-grain'
   | 'gain-map-grid'
   | 'grid'
@@ -87,6 +91,15 @@ const encode = (args: readonly string[]): void => {
     )
   }
 }
+const encodeWithFfmpeg = (args: readonly string[]): void => {
+  const result = spawnSync('ffmpeg', args, { encoding: 'utf8', maxBuffer: 4 * 1_024 * 1_024 })
+  if (result.error) throw result.error
+  if (result.status !== 0) {
+    throw new Error(
+      `ffmpeg failed with status ${result.status ?? 'unknown'}: ${result.stderr.trim()}`,
+    )
+  }
+}
 
 const verifyFile = async (path: string, expectedSha256: string): Promise<void> => {
   const actual = sha256(await readFile(path))
@@ -102,6 +115,8 @@ export const prepareAvifMemoryCases = async (
   const alphaAvifPath = join(directory, 'alpha.avif')
   const gridPath = join(directory, 'grid.avif')
 
+  const filtered10BitPath = join(directory, 'filtered-10bit.avif')
+  const filtered12BitPath = join(directory, 'filtered-12bit.avif')
   encode([
     '-j',
     '1',
@@ -171,6 +186,45 @@ export const prepareAvifMemoryCases = async (
     y4mPath,
     gridPath,
   ])
+  const foxPath = join(avifCorpusDirectory, 'fox.profile0.8bpc.yuv420.avif')
+  for (const [bitDepth, quantizer, tune, outputPath] of [
+    [10, 30, 0, filtered10BitPath],
+    [12, 40, 1, filtered12BitPath],
+  ] as const) {
+    encodeWithFfmpeg([
+      '-hide_banner',
+      '-loglevel',
+      'error',
+      '-y',
+      '-i',
+      foxPath,
+      '-pix_fmt',
+      `yuv420p${bitDepth}le`,
+      '-c:v',
+      'libaom-av1',
+      '-still-picture',
+      '1',
+      '-usage',
+      '0',
+      '-tune',
+      `${tune}`,
+      '-cpu-used',
+      '0',
+      '-crf',
+      `${quantizer}`,
+      '-b:v',
+      '0',
+      '-color_primaries',
+      'bt709',
+      '-color_trc',
+      'iec61966-2-1',
+      '-colorspace',
+      'bt709',
+      '-frames:v',
+      '1',
+      outputPath,
+    ])
+  }
 
   const cases = [
     {
@@ -255,6 +309,42 @@ export const prepareAvifMemoryCases = async (
       expectedOutputSha256: 'e158dc7c6e2db7e951e0f9de989c9c16dbc852393c5a60068e508476972d2f42',
     },
     {
+      scenario: 'filtered-10bit',
+      action: 'decode',
+      path: filtered10BitPath,
+      fileSha256: '65ee551beb70d52e08ca785e664e459bf96750173bf027df54d60b242fb25371',
+      expectedWidth: 1_204,
+      expectedHeight: 800,
+      expectedOutputSha256: '3bbcbbc9ba2fb8de9b2c7d7a68ad8da8b4e044bd97170dd4fee5d5167ce747a0',
+    },
+    {
+      scenario: 'filtered-10bit-downscale',
+      action: 'downscale',
+      path: filtered10BitPath,
+      fileSha256: '65ee551beb70d52e08ca785e664e459bf96750173bf027df54d60b242fb25371',
+      expectedWidth: 301,
+      expectedHeight: 200,
+      expectedOutputSha256: '5ca7ca9c254d6ae6f35456ded28434e077325acfd6356bb8e606e76fec116cdf',
+    },
+    {
+      scenario: 'filtered-12bit',
+      action: 'decode',
+      path: filtered12BitPath,
+      fileSha256: '01030070dd09c56787ffd20465e2677601716c9e94ff41b464ce07d0e0f821c7',
+      expectedWidth: 1_204,
+      expectedHeight: 800,
+      expectedOutputSha256: '00753c1aeebfa86d5fea07031ad2b7635fac4fa36c0078655831dcb6e75791be',
+    },
+    {
+      scenario: 'filtered-12bit-downscale',
+      action: 'downscale',
+      path: filtered12BitPath,
+      fileSha256: '01030070dd09c56787ffd20465e2677601716c9e94ff41b464ce07d0e0f821c7',
+      expectedWidth: 301,
+      expectedHeight: 200,
+      expectedOutputSha256: '49f822385bf70259a2d29dd9965f40413112e3531bd47e6302a6ecefdc67d516',
+    },
+    {
       scenario: 'downscale',
       action: 'downscale',
       path: join(avifCorpusDirectory, 'fox.profile0.8bpc.yuv420.avif'),
@@ -274,4 +364,11 @@ export const avifMemoryEncoderVersion = (): string => {
   if (result.error) throw result.error
   if (result.status !== 0) throw new Error('avifenc --version failed')
   return result.stdout.trim()
+}
+
+export const avifMemoryFfmpegVersion = (): string => {
+  const result = spawnSync('ffmpeg', ['-version'], { encoding: 'utf8' })
+  if (result.error) throw result.error
+  if (result.status !== 0) throw new Error('ffmpeg -version failed')
+  return result.stdout.split('\n')[0]?.trim() ?? 'unknown'
 }

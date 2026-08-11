@@ -29,7 +29,7 @@ try {
           '-vf',
           `crop=${fixture.width}:${fixture.height}:100:100`,
           '-pix_fmt',
-          'yuv420p10le',
+          `yuv${fixture.chromaSubsampling}p${fixture.bitDepth}le`,
           '-strict',
           '-1',
           sourcePath,
@@ -69,7 +69,45 @@ try {
     }
 
     const fixturePath = avifHighBitExpandedFixturePath(fixture)
-    if (fixture.encoder === 'avifenc') {
+    if (fixture.encoder === 'ffmpeg') {
+      const encoded = spawnSync(
+        'ffmpeg',
+        [
+          '-hide_banner',
+          '-loglevel',
+          'error',
+          '-y',
+          '-i',
+          sourcePath,
+          '-c:v',
+          'libaom-av1',
+          '-still-picture',
+          '1',
+          '-usage',
+          `${fixture.encoderUsage ?? 0}`,
+          '-tune',
+          `${fixture.encoderTune ?? 0}`,
+          '-cpu-used',
+          `${fixture.encoderSpeed ?? 4}`,
+          '-crf',
+          `${fixture.quantizer}`,
+          '-b:v',
+          '0',
+          '-color_primaries',
+          'bt709',
+          '-color_trc',
+          'iec61966-2-1',
+          '-colorspace',
+          'bt709',
+          '-frames:v',
+          '1',
+          fixturePath,
+        ],
+        { encoding: 'utf8' },
+      )
+      if (encoded.error) throw encoded.error
+      if (encoded.status !== 0) throw new Error(`ffmpeg failed: ${encoded.stderr.trim()}`)
+    } else if (fixture.encoder === 'avifenc') {
       const encoded = spawnSync(
         'avifenc',
         [

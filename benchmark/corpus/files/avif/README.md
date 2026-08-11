@@ -144,7 +144,9 @@ The `high-bit-expanded-fixtures.ts` set covers coded-lossless 10-bit and 12-bit
 YUV 4:2:0; filter-free lossy 10-bit and 12-bit YUV 4:2:0, 4:2:2, and 4:4:4;
 lossy 10-bit YUV 4:2:0 and 4:2:2 with deblocking, CDEF, and Wiener restoration;
 limited-range lossy 10-bit YUV 4:2:0 with self-guided restoration; lossy 10-bit
-YUV 4:4:4 with deblocking, CDEF, and Wiener restoration; and lossy 12-bit YUV
+YUV 4:4:4 with deblocking, CDEF, and Wiener restoration; lossy 10-bit YUV 4:4:4
+with deblocking and self-guided restoration; lossy 12-bit YUV 4:2:0 with
+deblocking, CDEF, and Wiener or self-guided restoration; and lossy 12-bit YUV
 4:2:0, 4:2:2, and 4:4:4 with deblocking and CDEF. These fixtures exercise
 normative depth-specific dequantization and post-filter arithmetic while
 retaining native high-depth samples through reconstruction and filtering.

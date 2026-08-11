@@ -404,6 +404,18 @@ await copyFile(
   resolve(fixtureDirectory, 'filtered-lossy-12bpc-yuv444-64x64.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/wiener-12bpc-yuv420-320x192.avif',
+  resolve(fixtureDirectory, 'wiener-12bpc-yuv420-320x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/self-guided-12bpc-yuv420-320x192.avif',
+  resolve(fixtureDirectory, 'self-guided-12bpc-yuv420-320x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/self-guided-10bpc-yuv444-320x192.avif',
+  resolve(fixtureDirectory, 'self-guided-10bpc-yuv444-320x192.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/xiph-alpha-limited-8bpc-2048x2048.avif',
   resolve(fixtureDirectory, 'xiph-alpha-limited-8bpc-2048x2048.avif'),
 )

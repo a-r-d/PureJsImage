@@ -1,4 +1,5 @@
 import type { Av1FrameHeader } from './av1-frame.ts'
+import { invalidInput } from '../errors.ts'
 
 export interface Av1FilterPlane {
   readonly data: Uint8Array | Uint16Array
@@ -980,12 +981,98 @@ const restoreSelfGuidedBlock = (
   }
 }
 
+const countRestorationUnits = (unitSize: number, planeSize: number): number =>
+  Math.max(Math.floor((planeSize + (unitSize >> 1)) / unitSize), 1)
+
+const validateRestorationPlaneState = (
+  header: Av1FrameHeader,
+  state: Av1PostFilterState,
+  planeIndex: number,
+): void => {
+  const plane = state.restoration[planeIndex]
+  if (!plane) throw invalidInput('AV1 restoration plane state is missing')
+  const unitSize = plane.unitSize
+  if (
+    !Number.isSafeInteger(unitSize) ||
+    unitSize < 32 ||
+    unitSize > 256 ||
+    (unitSize & (unitSize - 1)) !== 0
+  ) {
+    throw invalidInput('AV1 restoration unit size is invalid')
+  }
+  const shiftX = planeIndex === 0 ? 0 : state.chromaShiftX
+  const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
+  const planeWidth = Math.ceil(header.upscaledWidth / 2 ** shiftX)
+  const planeHeight = Math.ceil(header.frameHeight / 2 ** shiftY)
+  const columns = countRestorationUnits(unitSize, planeWidth)
+  const rows = countRestorationUnits(unitSize, planeHeight)
+  const units = columns * rows
+  if (!Number.isSafeInteger(units) || plane.columns !== columns || plane.rows !== rows) {
+    throw invalidInput('AV1 restoration unit grid is invalid')
+  }
+  if (
+    plane.types.length !== units ||
+    plane.wiener.length !== units * 6 ||
+    plane.sgrSets.length !== units ||
+    plane.sgrXqd.length !== units * 2
+  ) {
+    throw invalidInput('AV1 restoration unit state is truncated')
+  }
+  const frameType = header.restorationTypes[planeIndex] ?? 0
+  if (!Number.isSafeInteger(frameType) || frameType < 0 || frameType > 3) {
+    throw invalidInput('AV1 restoration frame type is invalid')
+  }
+  for (let unit = 0; unit < units; unit += 1) {
+    const type = plane.types[unit] ?? 0
+    if (type > 2 || (type !== 0 && frameType !== 3 && type !== frameType)) {
+      throw invalidInput('AV1 restoration unit type is invalid')
+    }
+    if (type === 1) {
+      const offset = unit * 6
+      for (const passOffset of [offset, offset + 3]) {
+        const first = plane.wiener[passOffset] ?? 0
+        const second = plane.wiener[passOffset + 1] ?? 0
+        const third = plane.wiener[passOffset + 2] ?? 0
+        if (
+          (planeIndex === 0 ? first < -5 || first > 10 : first !== 0) ||
+          second < -23 ||
+          second > 8 ||
+          third < -17 ||
+          third > 46
+        ) {
+          throw invalidInput('AV1 Wiener restoration coefficients are invalid')
+        }
+      }
+    } else if (type === 2) {
+      const set = plane.sgrSets[unit] ?? 0
+      const first = plane.sgrXqd[unit * 2] ?? 0
+      const second = plane.sgrXqd[unit * 2 + 1] ?? 0
+      const firstRadius = set < 10 || set >= 14
+      const secondRadius = set < 14
+      if (
+        set > 15 ||
+        (firstRadius ? first < -96 || first > 31 : first !== 0) ||
+        (secondRadius ? second < -32 || second > 95 : second !== 95)
+      ) {
+        throw invalidInput('AV1 self-guided restoration parameters are invalid')
+      }
+    }
+  }
+}
+
+const validateRestorationState = (header: Av1FrameHeader, state: Av1PostFilterState): void => {
+  for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
+    validateRestorationPlaneState(header, state, planeIndex)
+  }
+}
+
 export const applyAv1LoopRestoration = (
   deblocked: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
   cdef: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
   header: Av1FrameHeader,
   state: Av1PostFilterState,
 ): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
+  validateRestorationState(header, state)
   const createBand = (plane: Av1FilterPlane, rows: number): Av1FilterPlane => ({
     ...plane,
     data: sampleBuffer(plane.data, plane.stride * rows),
