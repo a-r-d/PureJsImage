@@ -1,0 +1,26 @@
+README.md
+  h_9f4a25732fa0c1 12,14,26,33,40-42,44-46,48-49,51-53,55-56,66-67,69-70,72,74,76,78,82-83,85-92,103-104,106,108,110-122,124-134,182-207,216,249-255,286-317
+docs/index.html
+  h_9f4a25732fa0c1 247
+docs/tiff-comparison.html
+  h_9f4a25732fa0c1 26,36,46,54,62,74,83,85,91
+docs/tiff.html
+  h_9f4a25732fa0c1 89
+scripts/render-library-comparison.ts
+  h_9f4a25732fa0c1 172,178
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 157,162
+tests/webp.test.ts
+  h_9f4a25732fa0c1 277-294
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "1f7e72590c96b69a2e88a43fb639fec18a5fe6d9",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
