@@ -21,7 +21,7 @@ coverage.
   pixel path rather than fabricating a normal-looking image
 - [x] Treat bounded-memory AVIF-to-resize and AVIF-to-AVIF workflows as the
   long-term AWS Lambda architecture target
-- [ ] Implement the initial constrained AVIF encoder
+- [x] Implement the initial constrained AVIF encoder
 
 ## Decode
 
@@ -269,17 +269,18 @@ byte. The full-size tolerance remains zero.
 
 ### Initial constrained encoder target
 
-- [ ] Public `image.avif()` and `image.encode('avif')` APIs
-- [ ] AVIF `ftyp`, `meta`, item properties, item locations, and `mdat` writer
-- [ ] One opaque `av01` primary item
-- [ ] Reduced still-picture AV1 sequence and one intra-only frame
-- [ ] 8-bit Main Profile YUV 4:2:0
-- [ ] RGB and RGBA pipeline input, with an explicit alpha-discard or background
-  policy for the opaque milestone
-- [ ] BT.709 RGB-to-YUV conversion and deterministic 4:2:0 subsampling
+- [x] Public `image.avif()` and `image.encode('avif')` APIs
+- [x] AVIF `ftyp`, `meta`, item properties, item locations, and `mdat` writer
+- [x] One opaque `av01` primary item
+- [x] Reduced still-picture AV1 sequence and one shown key frame
+- [x] 8-bit Main Profile YUV 4:2:0
+- [x] Gray, RGB, and RGBA pipeline input, with RGBA composited against white
+  by default or an explicit solid background
+- [x] BT.709 RGB-to-YUV conversion and deterministic 4:2:0 subsampling
 - [ ] Quality control from the public 1-100 scale to AV1 quantization
-- [ ] A small, explicitly constrained prediction-mode and partition search
-- [ ] Deterministic valid output accepted by independent AVIF decoders
+- [x] Deterministic full-superblock 4x4 partitioning with DC prediction and
+  lossless 4x4 transforms
+- [x] Deterministic valid output accepted by independent AVIF decoders
 - [ ] Output-size and perceptual-quality benchmarks against libaom, rav1e, and
   SVT-AV1
 
@@ -330,6 +331,11 @@ byte. The full-size tolerance remains zero.
 - [x] Sequential multi-tile decode retains only one tile rectangle of entropy,
   transform, palette, CDEF, and skip contexts while merging compact frame-wide
   post-filter metadata; padded full-frame YUV remains an explicit fallback
+- [x] Constrained encode checks dimensions, pixel count, estimated padded YUV
+  working state, AV1 single-tile width, and padded superblock area before allocation
+- [x] Constrained encode retains padded target and reconstructed YUV 4:2:0
+  planes, frame-wide coefficient contexts, and one tile payload without a
+  source-sized RGBA copy
 - [x] Measure the checksum-pinned 3840x2160 8x2-tile deblock-plus-CDEF fixture
   in three isolated cold processes: median absolute peak RSS 165,031,936 bytes,
   RSS growth 61,734,912 bytes, external growth 33,290,386 bytes, and
@@ -522,6 +528,8 @@ byte. The full-size tolerance remains zero.
   allocation, and decompression-bomb fuzzing
 - [ ] Add a conformance corpus for every checked AV1 syntax combination rather
   than relying on shared photographic fixtures
+- [x] Validate deterministic constrained-encoder samples with Sharp/libavif
+  and FFmpeg/libaom, including odd dimensions across 64x64 superblocks
 - [ ] Validate every encoded output with at least two independent decoders
 
 Current measurements and compatibility details are recorded in:

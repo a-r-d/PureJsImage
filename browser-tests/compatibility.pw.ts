@@ -148,6 +148,13 @@ test('decodes lossy WebP macroblock rows in a real browser', async ({ page }) =>
   expect(result.detail).toContain('macroblock rows decoded')
 })
 
+test('encodes constrained AVIF output in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifEncode())
+  expect(result.outputBytes).toBeGreaterThan(300)
+  expect(result.detail).toContain('portable and browser-native decoders')
+})
+
 test('decodes and composes straight-alpha AVIF items', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifAlphaStraight())

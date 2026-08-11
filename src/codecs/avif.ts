@@ -22,6 +22,7 @@ import {
   estimateRestrictedAv1WorkingBytes,
   supportsRestrictedAv1IntraRows,
 } from './av1-intra.ts'
+import { createAvifEncoder } from './avif-encode.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import {
   ColorManagedDecoder,
@@ -2619,5 +2620,6 @@ export const avifCodec: ImageCodec = {
     return detectIsobmffBrands(header).some((brand) => brand === 'avif' || brand === 'avis')
   },
   metadata: inspectAvif,
+  createEncoder: createAvifEncoder,
   createDecoder: createAvifDecoder,
 }

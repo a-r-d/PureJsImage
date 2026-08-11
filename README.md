@@ -157,7 +157,7 @@ use the default TypeScript codecs.
 | GIF | Static / explicit frame 0 | No |
 | ICO | Yes | No |
 | JPEG 2000 / JP2 | Limited | No |
-| AVIF | Limited | No |
+| AVIF | Limited | Limited |
 | HEIF / HEIC (experimental) | Experimental | No |
 
 “Limited” means PureJsImage supports a useful subset and clearly rejects files

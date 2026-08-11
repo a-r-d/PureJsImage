@@ -7,6 +7,7 @@ export interface BrowserCompatibilityHarness {
   animatedGifFrameSelection(): Promise<BrowserWorkflowResult>
   avifAlphaPremultiplied(): Promise<BrowserWorkflowResult>
   avifAlphaStraight(): Promise<BrowserWorkflowResult>
+  avifEncode(): Promise<BrowserWorkflowResult>
   avifBoundedAlphaRows(): Promise<BrowserWorkflowResult>
   avifBoundedRows(): Promise<BrowserWorkflowResult>
   avifBoundedResize(): Promise<BrowserWorkflowResult>

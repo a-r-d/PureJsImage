@@ -1868,6 +1868,52 @@ const webpLossyDecode = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const avifEncode = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/alpha.png')
+  const encoded = await (await images.open(input)).avif({ background: '#204060' }).toUint8Array()
+  const metadata = await (await images.open(encoded)).metadata()
+  if (
+    metadata.format !== 'avif' ||
+    metadata.width !== 4 ||
+    metadata.height !== 3 ||
+    metadata.hasAlpha
+  ) {
+    throw new Error(
+      `Browser AVIF encode produced ${metadata.format} ${metadata.width}x${metadata.height} alpha=${metadata.hasAlpha}`,
+    )
+  }
+  const encodedHash = await sha256(encoded)
+  if (encodedHash !== '5e81045f4d8806506a65991a413169fd0488a0ab8e8b1e15c4f5b0081cba742e') {
+    throw new Error(`Browser AVIF encoded hash was ${encodedHash}`)
+  }
+  const portablePng = await (await images.open(encoded)).png().toUint8Array()
+  const portablePixels = await portablePngPixels(portablePng)
+  const portableHash = await sha256(portablePixels)
+  if (portableHash !== '1dfeb910ff1550707761d89117b07207aff069940c60665c61667b5aaac2f9c5') {
+    throw new Error(`Browser AVIF portable RGBA hash was ${portableHash}`)
+  }
+  const nativePixels = await browserPixels(encoded, 'image/avif')
+  if (nativePixels.byteLength !== portablePixels.byteLength) {
+    throw new Error('Browser-native AVIF decode dimensions changed')
+  }
+  let maximumRgbDifference = 0
+  for (let offset = 0; offset < nativePixels.byteLength; offset += 4) {
+    for (let channel = 0; channel < 3; channel += 1) {
+      maximumRgbDifference = Math.max(
+        maximumRgbDifference,
+        Math.abs((nativePixels[offset + channel] ?? 0) - (portablePixels[offset + channel] ?? 0)),
+      )
+    }
+  }
+  if (maximumRgbDifference > 48) {
+    throw new Error(`Browser-native AVIF maximum RGB difference was ${maximumRgbDifference}`)
+  }
+  return {
+    detail: `first-party AVIF encode round-tripped through portable and browser-native decoders (maximum RGB difference ${maximumRgbDifference})`,
+    outputBytes: encoded.byteLength,
+  }
+}
+
 const avifPinnedPng = async (
   file: string,
   width: number,
@@ -2804,6 +2850,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   animatedGifFrameSelection,
   avifAlphaPremultiplied,
   avifAlphaStraight,
+  avifEncode,
   avifBoundedAlphaRows,
   avifBoundedRows,
   avifBoundedResize,

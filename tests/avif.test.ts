@@ -108,6 +108,7 @@ import {
   validateAvifWorkingBytes,
 } from '../src/codecs/avif.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
 import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
@@ -2063,5 +2064,143 @@ describe('AVIF restricted pixel decode', () => {
         code: 'UNSUPPORTED_OPERATION',
       },
     )
+  })
+})
+
+describe('AVIF constrained encode', () => {
+  const rgbaPng = (width: number, height: number, data: Uint8Array): Buffer => {
+    const image = new PNG({ width, height })
+    image.data.set(data)
+    return PNG.sync.write(image)
+  }
+
+  it('encodes deterministic single-tile YUV 4:2:0 output accepted by independent decoders', async () => {
+    const width = 9
+    const height = 7
+    const data = new Uint8Array(width * height * 4)
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const pixel = (y * width + x) * 4
+        data[pixel] = (x * 29 + y * 7) & 255
+        data[pixel + 1] = (x * 3 + y * 37) & 255
+        data[pixel + 2] = (x * 19 + y * 11) & 255
+        data[pixel + 3] = (x * 23 + y * 31) & 255
+      }
+    }
+    const input = rgbaPng(width, height, data)
+    const output = await (await Image.open(input)).avif({ background: '#204060' }).toBuffer()
+    const encoded = await (await Image.open(input))
+      .encode('avif', { background: '#204060' })
+      .toBuffer()
+    const metadata = await (await Image.open(output)).metadata()
+    const portable = PNG.sync.read(await (await Image.open(output)).png().toBuffer())
+    const native = await sharp(output).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
+
+    expect(encoded).toEqual(output)
+    expect(createHash('sha256').update(output).digest('hex')).toBe(
+      'f02109c6def843efdd1c8a7966a4b39eaa65875f9fbeda472b067d58896473bd',
+    )
+    expect(metadata).toMatchObject({
+      format: 'avif',
+      width,
+      height,
+      hasAlpha: false,
+      bitDepth: 8,
+      chromaSubsampling: '420',
+      codecProfile: 0,
+      colorProfile: {
+        kind: 'nclx',
+        primaries: 1,
+        transferCharacteristics: 13,
+        matrixCoefficients: 1,
+        fullRange: true,
+      },
+    })
+    expect([native.info.width, native.info.height, native.info.channels]).toEqual([
+      width,
+      height,
+      4,
+    ])
+    expect(createHash('sha256').update(portable.data).digest('hex')).toBe(
+      '8d83d999672fc2dd74b06ddc4328e434386fbd4cb53598705db3ada798e27ead',
+    )
+    expect(createHash('sha256').update(native.data).digest('hex')).toBe(
+      '71262093f6dc24f3de35b97cec1e1de76a646cb71a664c129ab5c3eb5f83e1ba',
+    )
+  })
+
+  it('encodes odd dimensions across 64x64 superblock boundaries', async () => {
+    const width = 65
+    const height = 67
+    const data = new Uint8Array(width * height * 4)
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const pixel = (y * width + x) * 4
+        data[pixel] = (x * 7 + y * 3) & 255
+        data[pixel + 1] = (x * 2 + y * 5) & 255
+        data[pixel + 2] = (x * 11 + y * 13) & 255
+        data[pixel + 3] = (x + y) & 255
+      }
+    }
+    const output = await (await Image.open(rgbaPng(width, height, data)))
+      .avif({ background: '#204060' })
+      .toBuffer()
+    const decoded = await sharp(output).metadata()
+
+    expect([decoded.width, decoded.height]).toEqual([width, height])
+    expect(createHash('sha256').update(output).digest('hex')).toBe(
+      '23b5377a891a8f5a7f3237492c03d97ad0690b37d82bb5af46dc5763dd69b6fd',
+    )
+  })
+
+  it('composites alpha against white by default or an explicit solid background', async () => {
+    const input = rgbaPng(
+      2,
+      2,
+      Uint8Array.from([255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0]),
+    )
+    const white = await sharp(await (await Image.open(input)).avif().toBuffer())
+      .ensureAlpha()
+      .raw()
+      .toBuffer()
+    const black = await sharp(
+      await (await Image.open(input)).avif({ background: '#000000' }).toBuffer(),
+    )
+      .ensureAlpha()
+      .raw()
+      .toBuffer()
+
+    expect([...white]).toEqual([
+      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    ])
+    expect([...black]).toEqual([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255])
+  })
+
+  it('rejects dimensions whose padded superblocks exceed one AV1 tile', async () => {
+    const createEncoder = avifCodec.createEncoder
+    if (!createEncoder) throw new Error('AVIF encoder is missing')
+    await expect(
+      createEncoder(new Uint8ArraySink(), {
+        width: 4033,
+        height: 2339,
+        pixelFormat: 'rgba8',
+        options: {},
+        limits: defaultImageLimits,
+      }),
+    ).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message:
+        'Constrained AVIF encoding supports one tile up to 4096px wide and 9437184 padded pixels',
+    })
+  })
+
+  it('rejects transparent background requests for the opaque encoder subset', async () => {
+    const input = rgbaPng(1, 1, Uint8Array.of(0, 0, 0, 0))
+    await expect(
+      (await Image.open(input)).avif({ background: 'transparent' }).toBuffer(),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'AVIF opaque output requires a solid #RRGGBB or #RRGGBBAA background',
+    })
   })
 })

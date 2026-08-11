@@ -11,6 +11,11 @@ All notable changes to PureJsImage are documented in this file.
   bounded row output, and explicit output pixel formats.
 - Added tile-native `WholeSlideLevel.tile(column, row, options?)` reads with validated tile
   coordinates and bounded edge-tile regions.
+- Added a constrained first-party AVIF encoder with public `image.avif()` and
+  `image.encode('avif')` APIs. It accepts 8-bit grayscale, RGB, and RGBA input,
+  composites alpha against white or an explicit solid background, and writes deterministic
+  single-tile Main Profile YUV 4:2:0 still images accepted by libavif and libaom. Quantization
+  remains fixed while adaptive quality, alpha items, metadata, grids, and animation are unfinished.
 
 ### Changed
 

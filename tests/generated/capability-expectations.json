@@ -144,7 +144,7 @@
       "id": "avif",
       "format": "avif",
       "decoder": true,
-      "encoder": false,
+      "encoder": true,
       "evidence": [
         "tests/avif.test.ts",
         "tests/corruption-fuzz.test.ts",
