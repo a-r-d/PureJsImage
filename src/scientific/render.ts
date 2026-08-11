@@ -51,6 +51,20 @@ export interface ScientificPlaneMeasureOptions {
   readonly width?: number
   readonly height?: number
   readonly range?: ScientificRange
+  readonly statistics?: ScientificStatisticsRequest
+}
+
+export interface ScientificStatisticsRequest {
+  readonly mean?: boolean
+  /** Population standard deviation computed with Welford's running algorithm. */
+  readonly standardDeviation?: boolean
+  readonly invalidSamples?: boolean
+  readonly percentiles?: readonly number[]
+  readonly percentileMaxSamples?: number
+  readonly histogram?: {
+    readonly bins: number
+    readonly range?: ScientificRenderRange
+  }
 }
 
 export interface ScientificRenderRange {
@@ -86,6 +100,23 @@ export interface ScientificPlaneMeasurement {
     readonly height: number
   }
   readonly channel: number
+  readonly mean?: number
+  readonly standardDeviation?: number
+  readonly invalidSamples?: number
+  readonly percentiles?: readonly ScientificPercentile[]
+  readonly histogram?: ScientificHistogram
+}
+
+export interface ScientificPercentile {
+  readonly percentile: number
+  readonly value: number
+}
+
+export interface ScientificHistogram {
+  readonly range: ScientificRenderRange
+  readonly counts: Float64Array
+  readonly underflow: number
+  readonly overflow: number
 }
 
 interface ScalarRow {
@@ -192,6 +223,14 @@ interface RangeScan {
   readonly sampledValues: number
 }
 
+interface StatisticsScan {
+  readonly finiteSamples: number
+  readonly invalidSamples: number
+  readonly mean: number
+  readonly standardDeviation: number
+  readonly percentiles?: readonly ScientificPercentile[]
+}
+
 const percentileIndex = (length: number, percentile: number): number =>
   Math.max(0, Math.min(length - 1, Math.round((percentile / 100) * (length - 1))))
 
@@ -260,6 +299,148 @@ const scanRange = async (
     finiteSamples,
     sampledValues,
   }
+}
+
+const validatedStatistics = (
+  request: Readonly<ScientificStatisticsRequest>,
+): {
+  readonly percentiles: readonly number[]
+  readonly percentileMaxSamples: number
+  readonly histogram?: { readonly bins: number; readonly range?: ScientificRenderRange }
+} => {
+  const percentiles = request.percentiles ?? []
+  if (
+    percentiles.some(
+      (percentile) => !Number.isFinite(percentile) || percentile < 0 || percentile > 100,
+    )
+  ) {
+    throw invalidInput('Scientific percentiles must be finite values from 0 through 100')
+  }
+  const percentileMaxSamples = request.percentileMaxSamples ?? 65_536
+  if (!Number.isSafeInteger(percentileMaxSamples) || percentileMaxSamples < 2) {
+    throw invalidInput('Scientific percentileMaxSamples must be a safe integer of at least 2')
+  }
+  const histogram = request.histogram
+  if (histogram !== undefined) {
+    if (!Number.isSafeInteger(histogram.bins) || histogram.bins < 1 || histogram.bins > 65_536) {
+      throw invalidInput('Scientific histogram bins must be a safe integer from 1 through 65536')
+    }
+    if (
+      histogram.range !== undefined &&
+      (!Number.isFinite(histogram.range.min) ||
+        !Number.isFinite(histogram.range.max) ||
+        histogram.range.min >= histogram.range.max)
+    ) {
+      throw invalidInput('Scientific histogram range must contain finite min < max')
+    }
+  }
+  return {
+    percentiles: Object.freeze([...percentiles]),
+    percentileMaxSamples,
+    ...(histogram === undefined ? {} : { histogram }),
+  }
+}
+
+const scanStatistics = async (
+  dataset: MultidimensionalRasterDataset,
+  request: Readonly<RasterPlaneRequest>,
+  options: Readonly<ScientificStatisticsRequest>,
+): Promise<StatisticsScan> => {
+  const validated = validatedStatistics(options)
+  const totalPixels = (request.width ?? dataset.sizeX) * (request.height ?? dataset.sizeY)
+  const sampleStride = Math.max(1, Math.ceil(totalPixels / validated.percentileMaxSamples))
+  const samples =
+    validated.percentiles.length === 0
+      ? undefined
+      : new Float64Array(validated.percentileMaxSamples)
+  let sampledValues = 0
+  let finiteSamples = 0
+  let invalidSamples = 0
+  let mean = 0
+  let sumSquaredDifferences = 0
+  let ordinal = 0
+  for await (const row of scalarRows(dataset, request)) {
+    for (const value of row.values) {
+      if (!usableValue(value, dataset.noDataValue)) {
+        invalidSamples += 1
+        ordinal += 1
+        continue
+      }
+      finiteSamples += 1
+      const delta = value - mean
+      mean += delta / finiteSamples
+      sumSquaredDifferences += delta * (value - mean)
+      if (samples !== undefined && ordinal % sampleStride === 0 && sampledValues < samples.length) {
+        samples[sampledValues] = value
+        sampledValues += 1
+      }
+      ordinal += 1
+    }
+  }
+  if (finiteSamples === 0) {
+    return {
+      finiteSamples: 0,
+      invalidSamples,
+      mean: Number.NaN,
+      standardDeviation: Number.NaN,
+      ...(validated.percentiles.length === 0
+        ? {}
+        : {
+            percentiles: Object.freeze(
+              validated.percentiles.map((percentile) =>
+                Object.freeze({ percentile, value: Number.NaN }),
+              ),
+            ),
+          }),
+    }
+  }
+  let percentiles: readonly ScientificPercentile[] | undefined
+  if (samples !== undefined) {
+    const sorted = samples.subarray(0, sampledValues)
+    sorted.sort()
+    percentiles = Object.freeze(
+      validated.percentiles.map((percentile) =>
+        Object.freeze({
+          percentile,
+          value: sorted[percentileIndex(sampledValues, percentile)] ?? Number.NaN,
+        }),
+      ),
+    )
+  }
+  return {
+    finiteSamples,
+    invalidSamples,
+    mean,
+    standardDeviation: Math.sqrt(sumSquaredDifferences / finiteSamples),
+    ...(percentiles === undefined ? {} : { percentiles }),
+  }
+}
+
+const scanHistogram = async (
+  dataset: MultidimensionalRasterDataset,
+  request: Readonly<RasterPlaneRequest>,
+  bins: number,
+  range: ScientificRenderRange,
+): Promise<ScientificHistogram> => {
+  const counts = new Float64Array(bins)
+  let underflow = 0
+  let overflow = 0
+  const span = range.max - range.min
+  for await (const row of scalarRows(dataset, request)) {
+    for (const value of row.values) {
+      if (!usableValue(value, dataset.noDataValue)) continue
+      if (value < range.min) {
+        underflow += 1
+      } else if (value > range.max) {
+        overflow += 1
+      } else {
+        const index =
+          value === range.max ? bins - 1 : Math.floor(((value - range.min) / span) * bins)
+        counts[index] = (counts[index] ?? 0) + 1
+      }
+    }
+  }
+  return Object.freeze({ range: Object.freeze({ ...range }), counts, underflow, overflow })
 }
 
 const scaledValue = (
@@ -407,12 +588,36 @@ export const measureScientificPlane = async (
   const request = planeRequest(options, roi)
   const rangeMode = options.range ?? { mode: 'percentile', low: 1, high: 99 }
   const scan = await scanRange(dataset, request, rangeMode)
+  const requestedStatistics = options.statistics
+  const statistics =
+    requestedStatistics === undefined
+      ? undefined
+      : await scanStatistics(dataset, request, requestedStatistics)
+  const histogramRequest = requestedStatistics?.histogram
+  const histogram =
+    histogramRequest === undefined
+      ? undefined
+      : await scanHistogram(
+          dataset,
+          request,
+          histogramRequest.bins,
+          histogramRequest.range ?? scan.range,
+        )
   return Object.freeze({
     range: Object.freeze(scan.range),
-    finiteSamples: scan.finiteSamples,
+    finiteSamples: statistics?.finiteSamples ?? scan.finiteSamples,
     sampledValues: scan.sampledValues,
     roi: Object.freeze(roi),
     channel: options.plane.c,
+    ...(requestedStatistics?.mean ? { mean: statistics?.mean ?? Number.NaN } : {}),
+    ...(requestedStatistics?.standardDeviation
+      ? { standardDeviation: statistics?.standardDeviation ?? Number.NaN }
+      : {}),
+    ...(requestedStatistics?.invalidSamples
+      ? { invalidSamples: statistics?.invalidSamples ?? 0 }
+      : {}),
+    ...(statistics?.percentiles === undefined ? {} : { percentiles: statistics.percentiles }),
+    ...(histogram === undefined ? {} : { histogram }),
   })
 }
 

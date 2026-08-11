@@ -52,6 +52,7 @@ export type BuiltInFormat =
   | 'heif'
   | 'ico'
   | 'jpeg'
+  | 'jpegxl'
   | 'jp2'
   | 'png'
   | 'tiff'

@@ -5265,22 +5265,23 @@
     {
       "id": "jpegxl",
       "name": "JPEG XL",
+      "packageFormat": "jpegxl",
       "read": {
-        "status": "planned",
-        "label": "Planned"
+        "status": "limited",
+        "label": "Limited"
       },
       "write": {
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Recognized input only; pixel decode is not implemented",
-      "description": "JPEG XL is recognized so callers receive an explicit unsupported error. The decode-only roadmap covers bare codestreams and the standard container; encoding is not planned.",
-      "memory": "No pixel decoder is implemented",
-      "recommendation": "Not currently available for image processing.",
-      "evidence": [],
+      "boundary": "Decodes a first-party, independently verified lossless Modular RGBA subset; VarDCT, nonzero residual streams, broader predictors and transforms, multiple groups or frames, and fragmented jxlp pixel decode remain unsupported",
+      "description": "Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes the pinned 12-bit lossless Modular RGBA conformance path through bounded header, entropy, predictor, RCT, crop, and rgba8 output code. Unsupported JPEG XL syntax fails explicitly.",
+      "memory": "The implemented Modular path retains compressed input, bounded entropy tables, the small adaptive tree, and two rows per channel; peak decoded working memory scales with image width rather than source pixel count",
+      "recommendation": "Use for the documented lossless Modular RGBA subset and retain an explicit unsupported-operation path for broader JPEG XL files.",
+      "evidence": ["tests/jpegxl.test.ts", "tests/library.test.ts"],
       "lossyPixelValidation": {
         "status": "not-applicable",
-        "rationale": "JPEG XL pixel decode is planned and has no implemented lossy path"
+        "rationale": "The implemented JPEG XL pixel subset is lossless Modular only; lossy VarDCT remains unsupported"
       },
       "claims": [
         {
@@ -5289,14 +5290,14 @@
         },
         {
           "status": "supported",
-          "text": "Decode both bare JPEG XL codestreams and the standard box-based JPEG XL container"
+          "text": "Decode bare JPEG XL codestreams and single-`jxlc` box-based containers for the implemented Modular subset"
         },
         {
-          "status": "supported",
+          "status": "planned",
           "text": "Implement both Modular and VarDCT decoding; neither mode alone covers the common lossless and lossy image set"
         },
         {
-          "status": "supported",
+          "status": "planned",
           "text": "Decode JPEG-lossless-transcode codestreams to pixels without requiring bit-exact reconstruction of the original `.jpg` file"
         },
         {
@@ -5304,7 +5305,7 @@
           "text": "Make one full-canvas still image the first public milestone"
         },
         {
-          "status": "supported",
+          "status": "planned",
           "text": "Apply orientation and color conversion during the pipeline rather than returning incorrectly oriented or raw XYB samples"
         },
         {
@@ -5320,27 +5321,27 @@
           "text": "Do not implement JPEG XL encoding, container writing, or a public `.jxl()` output API"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Recognize the two-byte bare-codestream signature"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Recognize the 12-byte JPEG XL container signature box and fixed signature payload"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Use content detection for codec selection; `.jxl` and `image/jxl` are hints rather than proof of valid input"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Distinguish a bare codestream from a container before parsing any image dimensions or allocating decode state"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Reject truncated signatures and lookalike box files explicitly"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Parse big-endian box headers with 32-bit lengths, extended 64-bit lengths, and boxes extending to end-of-file"
         },
         {
@@ -5348,11 +5349,11 @@
           "text": "Validate every box length, nesting level, order, and end offset before reading or allocating"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Parse the signature and file type (`ftyp`) boxes and validate the JPEG XL brand and supported file-format version"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Read one complete codestream from a `jxlc` box without copying it"
         },
         {
@@ -5360,7 +5361,7 @@
           "text": "Reassemble normally ordered `jxlp` partial-codestream boxes through a bounded segmented reader rather than concatenating them"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Validate `jxlp` indexes, final-fragment signaling, uniqueness, ordering, and total compressed-byte limits"
         },
         {
@@ -5368,23 +5369,23 @@
           "text": "Parse JPEG XL level (`jxll`) and frame-index (`jxli`) boxes sufficiently to validate and skip them safely"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Skip unknown non-essential boxes by validated extent"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Reject conflicting `jxlc`/`jxlp` representations, missing codestream data, duplicate required boxes, and malformed box ordering"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Locate bounded EXIF (`Exif`), XML (`xml `), JUMBF (`jumb`), and JPEG reconstruction (`jbrd`) boxes without parsing them during pixel decode"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Recognize Brotli-compressed metadata (`brob`) and skip it safely until a bounded first-party Brotli decoder is available"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Expose metadata presence and byte sizes without returning unchecked box contents by default"
         },
         {
@@ -5396,43 +5397,43 @@
           "text": "Keep JPEG bitstream reconstruction data independent from image pixel decode"
         },
         {
-          "status": "planned",
-          "text": "Parse basic image information without entropy-decoding image groups"
+          "status": "supported",
+          "text": "Parse basic image information without entropy-decoding image groups for the implemented subset"
         },
         {
           "status": "planned",
           "text": "Report width, height, orientation, bit depth, exponent bits, color channel count, extra channels, alpha, animation, preview, intrinsic dimensions, color description, frame count, and codec level"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Apply configurable input, dimension, pixel, channel, frame, and metadata limits before starting full decode"
         },
         {
-          "status": "planned",
-          "text": "Register `.jxl` and `image/jxl` on the public codec surface"
+          "status": "supported",
+          "text": "Register `jpegxlCodec` with format `jpegxl` and MIME type `image/jxl` on the public codec surface"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Implement a bounded least-significant-bit-first bit reader with exact end-of-section checks"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Decode JPEG XL fixed-width fields, compact integers, U32 distributions, signed values, and bounded enumerations"
         },
         {
-          "status": "planned",
-          "text": "Parse codestream headers, extensions, image metadata, preview signaling, frame headers, group dimensions, and section sizes"
+          "status": "supported",
+          "text": "Parse the codestream and frame-header fields, group dimensions, and section sizes required by the implemented lossless Modular subset"
         },
         {
-          "status": "planned",
-          "text": "Implement entropy distributions, histograms, context maps, clustering, prefix codes, ANS states, symbol decoding, and final-state validation"
+          "status": "supported",
+          "text": "Implement the bounded prefix and ANS entropy structures exercised by the pinned conformance fixture, including context maps and final-state validation"
         },
         {
           "status": "planned",
           "text": "Implement bounded LZ77 distances, lengths, repeat offsets, and copies across entropy-coded streams"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Reject invalid distributions, impossible symbols, non-final ANS states, LZ77 underflow/overflow, and reads past a declared section"
         },
         {
@@ -5448,7 +5449,7 @@
           "text": "Parse Modular global and group headers, channel dimensions, shifts, origins, and dependency order"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Decode meta-adaptive trees with bounded depth, node count, property ranges, and context count"
         },
         {
@@ -5464,8 +5465,8 @@
           "text": "Implement palette transforms, including delta palettes and palette-index prediction"
         },
         {
-          "status": "planned",
-          "text": "Implement reversible color transforms and their permutations"
+          "status": "supported",
+          "text": "Implement and independently verify the pinned fixture's reversible color transform"
         },
         {
           "status": "planned",
@@ -5488,8 +5489,8 @@
           "text": "Support Modular sub-images used by VarDCT for low-frequency and control data"
         },
         {
-          "status": "planned",
-          "text": "Verify mathematically lossless Modular fixtures with exact samples"
+          "status": "supported",
+          "text": "Verify the implemented mathematically lossless Modular fixture with exact samples"
         },
         {
           "status": "planned",
@@ -5544,7 +5545,7 @@
           "text": "Compare lossy output with conformance references using documented numeric tolerances"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Decode one visible full-canvas frame with the default replace behavior"
         },
         {
@@ -5564,8 +5565,8 @@
           "text": "Return display dimensions after orientation"
         },
         {
-          "status": "planned",
-          "text": "Emit bounded, ordered `gray8`, `rgb8`, or `rgba8` pixel blocks"
+          "status": "supported",
+          "text": "Emit bounded, ordered `rgba8` pixel blocks for the implemented subset"
         },
         {
           "status": "planned",
@@ -5752,8 +5753,8 @@
           "text": "Release entropy tables, coefficients, Modular channels, features, and restoration buffers as soon as later groups cannot reference them"
         },
         {
-          "status": "planned",
-          "text": "Use bounded group-row or group-tile output rather than a source-sized RGBA decoder boundary"
+          "status": "supported",
+          "text": "Use two sample rows per channel and one bounded output row rather than a source-sized RGBA decoder boundary for the implemented Modular subset"
         },
         {
           "status": "planned",

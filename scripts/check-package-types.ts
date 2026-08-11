@@ -55,14 +55,15 @@ try {
     join(consumerDirectory, 'index.ts'),
     `import { BufferSink, createImageLibrary } from 'purejsimage'
 import { createImageLibrary as createBrowserImageLibrary } from 'purejsimage/browser'
+import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
 import { pngCodec } from 'purejsimage/codecs/png'
 export { geoTiffProfile } from 'purejsimage/tiff'
 export { openOmeTiff, rasterToPixels } from 'purejsimage/scientific'
 export { openAperioSvs } from 'purejsimage/pathology'
 export { HttpRangeSource } from 'purejsimage/sources/http-range'
 
-const nodeImages = createImageLibrary([pngCodec])
-const browserImages = createBrowserImageLibrary([pngCodec])
+const nodeImages = createImageLibrary([pngCodec, jpegxlCodec])
+const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])
 
 export const encodeNode = async (input: Uint8Array): Promise<Uint8Array> =>
   (await nodeImages.open(input)).png().toBuffer()

@@ -237,6 +237,32 @@ describe('scientific display mapping', () => {
     expect(await collectPixels(rendered.pixels)).toHaveLength(12)
   })
 
+  it('computes requested bounded statistics without collecting the complete value set', async () => {
+    const dataset = scalarDataset(6, 1, [1, 2, 3, 4, Number.NaN, -9_999], -9_999)
+    const measured = await measureScientificPlane(dataset, {
+      plane: { z: 0, c: 0, t: 0 },
+      range: { mode: 'dataset' },
+      statistics: {
+        mean: true,
+        standardDeviation: true,
+        invalidSamples: true,
+        percentiles: [0, 50, 100],
+        percentileMaxSamples: 8,
+        histogram: { bins: 2, range: { min: 1, max: 5 } },
+      },
+    })
+    expect(measured.mean).toBe(2.5)
+    expect(measured.standardDeviation).toBeCloseTo(Math.sqrt(1.25))
+    expect(measured.invalidSamples).toBe(2)
+    expect(measured.percentiles).toEqual([
+      { percentile: 0, value: 1 },
+      { percentile: 50, value: 3 },
+      { percentile: 100, value: 4 },
+    ])
+    expect([...(measured.histogram?.counts ?? new Uint32Array())]).toEqual([2, 2])
+    expect(measured.histogram).toMatchObject({ underflow: 0, overflow: 0 })
+  })
+
   it('renders deterministic row-bounded relief while retaining false color', async () => {
     const dataset = scalarDataset(3, 3, [0, 1, 2, 1, 2, 3, 2, 3, 4])
     const flat = await renderScientificPlane(dataset, {

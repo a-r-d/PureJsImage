@@ -21,9 +21,13 @@ export const startScientificExplorer = (): void => {
   const modeSurface = requiredElement('scientific-mode-surface', HTMLButtonElement)
   const modeHyperspectral = requiredElement('scientific-mode-hyperspectral', HTMLButtonElement)
   const modeFits = requiredElement('scientific-mode-fits', HTMLButtonElement)
+  const modeMrc = requiredElement('scientific-mode-mrc', HTMLButtonElement)
+  const modeCbf = requiredElement('scientific-mode-cbf', HTMLButtonElement)
   const surfaceSource = requiredElement('scientific-surface-source', HTMLElement)
   const enviSource = requiredElement('scientific-envi-source', HTMLElement)
   const fitsSource = requiredElement('scientific-fits-source', HTMLElement)
+  const mrcSource = requiredElement('scientific-mrc-source', HTMLElement)
+  const cbfSource = requiredElement('scientific-cbf-source', HTMLElement)
   const surfaceSample = requiredElement('scientific-sample-surface', HTMLButtonElement)
   const enviSample = requiredElement('scientific-sample-envi', HTMLButtonElement)
   const classificationSample = requiredElement(
@@ -36,11 +40,16 @@ export const startScientificExplorer = (): void => {
   const enviData = requiredElement('scientific-envi-data', HTMLInputElement)
   const openEnviButton = requiredElement('scientific-open-envi', HTMLButtonElement)
   const fitsFile = requiredElement('scientific-fits-file', HTMLInputElement)
+  const mrcFile = requiredElement('scientific-mrc-file', HTMLInputElement)
+  const cbfFile = requiredElement('scientific-cbf-file', HTMLInputElement)
   const fitsHduField = requiredElement('scientific-fits-hdu-field', HTMLElement)
   const fitsHdu = requiredElement('scientific-fits-hdu', HTMLSelectElement)
-  const fitsPlaneField = requiredElement('scientific-fits-plane-field', HTMLElement)
-  const fitsPlane = requiredElement('scientific-fits-plane', HTMLInputElement)
-  const fitsPlaneValue = requiredElement('scientific-fits-plane-value', HTMLOutputElement)
+  const volumeControls = requiredElement('scientific-volume-controls', HTMLElement)
+  const sliceAxis = requiredElement('scientific-slice-axis', HTMLSelectElement)
+  const projection = requiredElement('scientific-projection', HTMLSelectElement)
+  const sliceIndexField = requiredElement('scientific-slice-index-field', HTMLElement)
+  const sliceIndex = requiredElement('scientific-slice-index', HTMLInputElement)
+  const sliceIndexValue = requiredElement('scientific-slice-index-value', HTMLOutputElement)
   const dropZone = requiredElement('scientific-drop-zone', HTMLElement)
   const displayModeField = requiredElement('scientific-display-mode-field', HTMLElement)
   const displayMode = requiredElement('scientific-display-mode', HTMLSelectElement)
@@ -145,8 +154,28 @@ export const startScientificExplorer = (): void => {
     red: numeric(red),
     green: numeric(green),
     blue: numeric(blue),
-    z: numeric(fitsPlane),
+    z: 0,
+    sliceAxis: sliceAxis.value === 'xz' || sliceAxis.value === 'yz' ? sliceAxis.value : 'xy',
+    projection:
+      projection.value === 'max' || projection.value === 'min' || projection.value === 'mean'
+        ? projection.value
+        : 'none',
+    sliceIndex: numeric(sliceIndex),
   })
+
+  const updateSliceControl = (): void => {
+    const metadata = openedMetadata
+    const count =
+      sliceAxis.value === 'xz'
+        ? (metadata?.height ?? 1)
+        : sliceAxis.value === 'yz'
+          ? (metadata?.width ?? 1)
+          : (metadata?.sizeZ ?? 1)
+    sliceIndex.max = String(Math.max(0, count - 1))
+    sliceIndex.value = String(Math.min(numeric(sliceIndex), Math.max(0, count - 1)))
+    sliceIndexValue.value = `${numeric(sliceIndex) + 1} of ${count}`
+    sliceIndexField.hidden = projection.value !== 'none'
+  }
 
   const render = (): void => {
     if (!opened) return
@@ -165,6 +194,7 @@ export const startScientificExplorer = (): void => {
     const hyperspectral = mode === 'hyperspectral'
     const classification = openedMetadata?.enviFileType === 'ENVI Classification'
     const fits = mode === 'fits'
+    const volume = fits || mode === 'mrc'
     const composite = hyperspectral && !classification && displayMode.value === 'composite'
     displayModeField.hidden = !hyperspectral || classification
     bandControls.hidden = !hyperspectral || classification || composite
@@ -174,7 +204,8 @@ export const startScientificExplorer = (): void => {
     scale.closest('label')?.toggleAttribute('hidden', classification)
     reliefControls.hidden = mode !== 'surface'
     fitsHduField.hidden = !fits
-    fitsPlaneField.hidden = !fits
+    volumeControls.hidden = !volume
+    updateSliceControl()
     percentileFields.hidden = classification || rangeMode.value !== 'percentile'
     explicitRange.hidden = classification || rangeMode.value !== 'explicit'
   }
@@ -186,9 +217,13 @@ export const startScientificExplorer = (): void => {
     modeSurface.setAttribute('aria-selected', String(next === 'surface'))
     modeHyperspectral.setAttribute('aria-selected', String(next === 'hyperspectral'))
     modeFits.setAttribute('aria-selected', String(next === 'fits'))
+    modeMrc.setAttribute('aria-selected', String(next === 'mrc'))
+    modeCbf.setAttribute('aria-selected', String(next === 'cbf'))
     surfaceSource.hidden = next !== 'surface'
     enviSource.hidden = next !== 'hyperspectral'
     fitsSource.hidden = next !== 'fits'
+    mrcSource.hidden = next !== 'mrc'
+    cbfSource.hidden = next !== 'cbf'
     empty.hidden = false
     canvas.hidden = true
     selection.hidden = true
@@ -198,7 +233,11 @@ export const startScientificExplorer = (): void => {
         ? 'Load a GSF surface.'
         : next === 'hyperspectral'
           ? 'Load a paired ENVI header and binary raster.'
-          : 'Load a FITS image array.'
+          : next === 'fits'
+            ? 'Load a FITS image array.'
+            : next === 'mrc'
+              ? 'Load an MRC2014 or CCP4 volume.'
+              : 'Load a CBF or imgCIF detector frame.'
   }
 
   const fetchBytes = async (url: string): Promise<ArrayBuffer> => {
@@ -273,6 +312,14 @@ export const startScientificExplorer = (): void => {
     worker.postMessage({ type: 'open-fits', name: file.name, data: file })
   }
 
+  const openLocalMrc = (file: File): void => {
+    worker.postMessage({ type: 'open-mrc', name: file.name, data: file })
+  }
+
+  const openLocalCbf = (file: File): void => {
+    worker.postMessage({ type: 'open-cbf', name: file.name, data: file })
+  }
+
   const spectralOutput = (channel: number): string => {
     const center = openedMetadata?.channelCenters?.[channel]
     return `Band ${channel + 1} of ${openedMetadata?.bands ?? 1}${center == null ? '' : ` · ${center} ${openedMetadata?.wavelengthUnit ?? ''}`}`.trim()
@@ -304,7 +351,7 @@ export const startScientificExplorer = (): void => {
     openedMetadata = metadata
     updateControlVisibility()
     metricName.textContent = metadata.title ? `${metadata.title} · ${metadata.name}` : metadata.name
-    metricDimensions.textContent = `${metadata.width} × ${metadata.height}${metadata.mode === 'fits' && (metadata.sizeZ ?? 1) > 1 ? ` × ${metadata.sizeZ}` : metadata.bands > 1 ? ` × ${metadata.bands}` : ''}`
+    metricDimensions.textContent = `${metadata.width} × ${metadata.height}${(metadata.mode === 'fits' || metadata.mode === 'mrc') && (metadata.sizeZ ?? 1) > 1 ? ` × ${metadata.sizeZ}` : metadata.bands > 1 ? ` × ${metadata.bands}` : ''}`
     metricSamples.textContent = `${metadata.sampleType}${metadata.valueUnit ? ` · ${metadata.valueUnit}` : ''}`
     metricNativeRange.textContent =
       metadata.dataMin === undefined || metadata.dataMax === undefined
@@ -334,7 +381,7 @@ export const startScientificExplorer = (): void => {
         metricDetail.textContent = `${metadata.bands} spectral bands`
         setSpectralSliders(metadata)
       }
-    } else {
+    } else if (metadata.mode === 'fits') {
       metricPhysical.textContent = `HDU ${metadata.fitsHdu ?? 0} · ${metadata.fitsPrimary ? 'Primary' : 'IMAGE extension'}`
       metricDetail.textContent = `BITPIX ${metadata.bitpix} · stored ${metadata.storedSampleType} · BSCALE ${metadata.bscale} · BZERO ${metadata.bzero}${metadata.blank === undefined ? '' : ` · BLANK ${metadata.blank}`}`
       fitsHdu.replaceChildren(
@@ -347,10 +394,29 @@ export const startScientificExplorer = (): void => {
           return option
         }),
       )
-      fitsPlane.min = '0'
-      fitsPlane.max = String(Math.max(0, (metadata.sizeZ ?? 1) - 1))
-      fitsPlane.value = '0'
-      fitsPlaneValue.value = `Plane 1 of ${metadata.sizeZ ?? 1}`
+      sliceIndex.value = '0'
+      updateSliceControl()
+    } else if (metadata.mode === 'mrc') {
+      metricPhysical.textContent =
+        metadata.pixelSizeX === undefined || metadata.pixelSizeY === undefined
+          ? 'Voxel spacing not declared'
+          : `${physicalValue(metadata.pixelSizeX, metadata.physicalUnit)} × ${physicalValue(metadata.pixelSizeY, metadata.physicalUnit)}`
+      metricDetail.textContent = `MRC MODE ${metadata.mrcMode} · ${metadata.byteOrder}`
+      sliceIndex.value = '0'
+      updateSliceControl()
+    } else {
+      metricPhysical.textContent = metadata.detectorName ?? 'Detector not declared'
+      metricDetail.textContent =
+        [
+          metadata.exposureTimeSeconds === undefined
+            ? undefined
+            : `${formatNumber(metadata.exposureTimeSeconds)} s exposure`,
+          metadata.wavelengthAngstroms === undefined
+            ? undefined
+            : `${formatNumber(metadata.wavelengthAngstroms)} Å wavelength`,
+        ]
+          .filter((value): value is string => value !== undefined)
+          .join(' · ') || 'Native detector counts'
     }
     status.textContent = 'Metadata parsed. Rendering display pixels…'
     render()
@@ -407,6 +473,8 @@ export const startScientificExplorer = (): void => {
   modeSurface.addEventListener('click', () => setMode('surface'))
   modeHyperspectral.addEventListener('click', () => setMode('hyperspectral'))
   modeFits.addEventListener('click', () => setMode('fits'))
+  modeMrc.addEventListener('click', () => setMode('mrc'))
+  modeCbf.addEventListener('click', () => setMode('cbf'))
   surfaceSample.addEventListener(
     'click',
     () =>
@@ -454,6 +522,14 @@ export const startScientificExplorer = (): void => {
     const file = fitsFile.files?.[0]
     if (file) openLocalFits(file)
   })
+  mrcFile.addEventListener('change', () => {
+    const file = mrcFile.files?.[0]
+    if (file) openLocalMrc(file)
+  })
+  cbfFile.addEventListener('change', () => {
+    const file = cbfFile.files?.[0]
+    if (file) openLocalCbf(file)
+  })
   fitsHdu.addEventListener('change', () => {
     worker.postMessage({ type: 'select-fits-hdu', index: Number(fitsHdu.value) })
   })
@@ -476,11 +552,13 @@ export const startScientificExplorer = (): void => {
     red,
     green,
     blue,
-    fitsPlane,
+    sliceAxis,
+    projection,
+    sliceIndex,
   ]) {
     control.addEventListener('input', () => {
       updateSpectralOutputs()
-      fitsPlaneValue.value = `Plane ${numeric(fitsPlane) + 1} of ${openedMetadata?.sizeZ ?? 1}`
+      updateSliceControl()
       azimuthValue.value = `${azimuth.value}°`
       elevationValue.value = `${elevation.value}°`
       strengthValue.value = strength.value
@@ -501,6 +579,8 @@ export const startScientificExplorer = (): void => {
     const header = files.find((file) => /\.hdr(?:\.txt)?$/i.test(file.name))
     const gsf = files.find((file) => file.name.toLowerCase().endsWith('.gsf'))
     const fits = files.find((file) => /\.(?:fits?|fts)$/i.test(file.name))
+    const mrc = files.find((file) => /\.(?:mrc|map|ccp4)$/i.test(file.name))
+    const cbf = files.find((file) => /\.(?:cbf|img)$/i.test(file.name))
     if (gsf) {
       setMode('surface')
       openLocalGsf(gsf)
@@ -511,13 +591,24 @@ export const startScientificExplorer = (): void => {
       openLocalFits(fits)
       return
     }
+    if (mrc) {
+      setMode('mrc')
+      openLocalMrc(mrc)
+      return
+    }
+    if (cbf) {
+      setMode('cbf')
+      openLocalCbf(cbf)
+      return
+    }
     const data = files.find((file) => file !== header)
     if (header && data) {
       setMode('hyperspectral')
       openLocalEnvi(header, data)
       return
     }
-    status.textContent = 'Drop one .gsf or FITS file, or an ENVI header with its binary raster.'
+    status.textContent =
+      'Drop one GSF, FITS, MRC, or CBF file, or an ENVI header with its binary raster.'
   })
 
   setMode('surface')

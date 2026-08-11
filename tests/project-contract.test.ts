@@ -321,7 +321,7 @@ describe('package contract', () => {
 
     expect(readme).toContain('https://purejsimage.com/api/#scientific')
     expect(readme).toContain('https://purejsimage.com/scientific/')
-    expect(page).toContain('GSF, ENVI, and FITS files stay in this browser tab')
+    expect(page).toContain('GSF, ENVI, FITS, MRC, and CBF files stay in this browser tab')
     expect(page).toContain(
       "import { startScientificExplorer } from '../scripts/scientific-explorer.ts'",
     )
@@ -338,11 +338,11 @@ describe('package contract', () => {
     expect(page).toContain('WFPC2ASSNu5780205bx.fits')
     expect(page).toContain('UITfuv2582gc.fits')
     expect(page).toContain('swp05569slg.fits')
-    expect(page.match(/class="scientific-file-type"/g)).toHaveLength(6)
+    expect(page.match(/class="scientific-file-type"/g)).toHaveLength(8)
     expect(worker).toContain('rangeCache')
     expect(worker).toContain('settings.channel')
     expect(worker).toContain("active.format === 'fits'")
-    expect(worker).toContain("'FITS bytes read'")
+    expect(worker).toContain('active.format.toUpperCase()')
     expect(sources.replaceAll(/\s+/g, ' ')).toContain(
       'do not contain or derive from third-party measurements',
     )
@@ -455,6 +455,7 @@ describe('package contract', () => {
       './codecs/ico',
       './codecs/jpeg',
       './codecs/jpeg2000',
+      './codecs/jpegxl',
       './codecs/png',
       './codecs/tiff',
       './codecs/webp',
@@ -471,6 +472,7 @@ describe('package contract', () => {
       'icoCodec',
       'jpegCodec',
       'jpeg2000Codec',
+      'jpegxlCodec',
       'pngCodec',
       'tiffCodec',
       'webpCodec',

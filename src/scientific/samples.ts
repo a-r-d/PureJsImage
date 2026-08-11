@@ -10,6 +10,32 @@ const halfFloat = (bits: number): number => {
   return sign * 2 ** (exponent - 15) * (1 + fraction / 1024)
 }
 
+const floatToHalf = (value: number): number => {
+  const float = new Float32Array(1)
+  const bits = new Uint32Array(float.buffer)
+  float[0] = value
+  const word = bits[0] ?? 0
+  const sign = (word >>> 16) & 0x8000
+  const exponent = (word >>> 23) & 0xff
+  const fraction = word & 0x7fffff
+  if (exponent === 0xff) return sign | (fraction === 0 ? 0x7c00 : 0x7e00)
+  const halfExponent = exponent - 127 + 15
+  if (halfExponent >= 0x1f) return sign | 0x7c00
+  if (halfExponent <= 0) {
+    if (halfExponent < -10) return sign
+    const significand = fraction | 0x800000
+    const shift = 14 - halfExponent
+    const rounded = (significand + (1 << (shift - 1)) - 1 + ((significand >>> shift) & 1)) >>> shift
+    return sign | rounded
+  }
+  const rounded = fraction + 0x0fff + ((fraction >>> 13) & 1)
+  if ((rounded & 0x800000) !== 0) {
+    const nextExponent = halfExponent + 1
+    return nextExponent >= 0x1f ? sign | 0x7c00 : sign | (nextExponent << 10)
+  }
+  return sign | (halfExponent << 10) | (rounded >>> 13)
+}
+
 export const readRasterSample = (
   data: Uint8Array,
   view: DataView,
@@ -29,6 +55,25 @@ export const readRasterSample = (
   if (sampleType === 'float32') return view.getFloat32(offset, false)
   if (sampleType === 'float64') return view.getFloat64(offset, false)
   return data[offset] ?? 0
+}
+
+/** Writes one numeric sample using the raster model's canonical big-endian byte order. */
+export const writeRasterSample = (
+  view: DataView,
+  offset: number,
+  sampleType: RasterSampleType,
+  value: number,
+): void => {
+  if (sampleType === 'uint8') view.setUint8(offset, value)
+  else if (sampleType === 'uint16') view.setUint16(offset, value, false)
+  else if (sampleType === 'uint32') view.setUint32(offset, value, false)
+  else if (sampleType === 'uint64') view.setBigUint64(offset, BigInt(value), false)
+  else if (sampleType === 'int8') view.setInt8(offset, value)
+  else if (sampleType === 'int16') view.setInt16(offset, value, false)
+  else if (sampleType === 'int32') view.setInt32(offset, value, false)
+  else if (sampleType === 'float16') view.setUint16(offset, floatToHalf(value), false)
+  else if (sampleType === 'float32') view.setFloat32(offset, value, false)
+  else view.setFloat64(offset, value, false)
 }
 
 export interface ValidatedRasterBlockLayout {

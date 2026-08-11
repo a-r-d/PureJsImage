@@ -198,6 +198,17 @@
         "tolerance": "Normalized displayed sRGB RMSE at most 0.035 for compatible corpus entries",
         "evidence": ["tests/heif.test.ts", "benchmark/heif/compatibility/run.ts"]
       }
+    },
+    {
+      "id": "jpegxl",
+      "format": "jpegxl",
+      "decoder": true,
+      "encoder": false,
+      "evidence": ["tests/jpegxl.test.ts", "tests/library.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "The implemented JPEG XL pixel subset is lossless Modular only; lossy VarDCT remains unsupported"
+      }
     }
   ]
 }

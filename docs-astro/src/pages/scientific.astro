@@ -4,7 +4,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 
 <SiteLayout
   title="Scientific raster viewer for ENVI, GSF and FITS | PureJsImage"
-  description="Open ENVI hyperspectral cubes and classification maps, GSF AFM surfaces, and FITS image arrays locally in JavaScript."
+  description="Open ENVI hyperspectral cubes, GSF AFM surfaces, FITS and MRC volumes, and CBF detector frames locally in JavaScript."
   canonical="https://purejsimage.com/scientific/"
   bodyClass="scientific-page"
   current="scientific/"
@@ -22,10 +22,10 @@ import SiteLayout from '../layouts/SiteLayout.astro'
       <div class="container scientific-hero-grid">
         <div>
           <p class="eyebrow">Local scientific raster viewer</p>
-          <h1>Open ENVI rasters, GSF AFM, and FITS data in the browser.</h1>
+          <h1>Open scientific rasters, detector frames, and 3D volumes in the browser.</h1>
           <p class="scientific-lede">PureJsImage keeps numeric samples separate from the RGB pixels used for display. Range selection, palettes, display transfers, and relief are explicit operations.</p>
         </div>
-        <div class="scientific-local-card"><strong>Local files stay local</strong><span>GSF, ENVI, and FITS files stay in this browser tab. Large ENVI and FITS files use bounded Blob reads.</span></div>
+        <div class="scientific-local-card"><strong>Local files stay local</strong><span>GSF, ENVI, FITS, MRC, and CBF files stay in this browser tab. Large inputs use bounded Blob reads.</span></div>
       </div>
     </section>
 
@@ -35,6 +35,8 @@ import SiteLayout from '../layouts/SiteLayout.astro'
           <button id="scientific-mode-surface" type="button" role="tab" aria-selected="true">AFM / surface</button>
           <button id="scientific-mode-hyperspectral" type="button" role="tab" aria-selected="false">ENVI raster</button>
           <button id="scientific-mode-fits" type="button" role="tab" aria-selected="false">FITS image arrays</button>
+          <button id="scientific-mode-mrc" type="button" role="tab" aria-selected="false">MRC volumes</button>
+          <button id="scientific-mode-cbf" type="button" role="tab" aria-selected="false">CBF detector</button>
         </div>
 
         <div class="scientific-grid">
@@ -56,7 +58,13 @@ import SiteLayout from '../layouts/SiteLayout.astro'
                 <button class="button small" id="scientific-sample-fits" type="button">Load synthetic FITS cube</button>
                 <label class="scientific-file-label">FITS file<input id="scientific-fits-file" type="file" accept=".fits,.fit,.fts,application/fits"></label>
               </div>
-              <div id="scientific-drop-zone" class="scientific-drop-zone">Drop one GSF or FITS file, or an ENVI header and binary pair</div>
+              <div id="scientific-mrc-source" hidden>
+                <label class="scientific-file-label">MRC or CCP4 file<input id="scientific-mrc-file" type="file" accept=".mrc,.map,.ccp4,application/octet-stream"></label>
+              </div>
+              <div id="scientific-cbf-source" hidden>
+                <label class="scientific-file-label">CBF or imgCIF file<input id="scientific-cbf-file" type="file" accept=".cbf,.img,application/octet-stream"></label>
+              </div>
+              <div id="scientific-drop-zone" class="scientific-drop-zone">Drop GSF, FITS, MRC, or CBF, or an ENVI header and binary pair</div>
             </section>
 
             <section class="scientific-panel" aria-labelledby="scientific-display-title">
@@ -69,7 +77,11 @@ import SiteLayout from '../layouts/SiteLayout.astro'
               <label>Scale<select id="scientific-scale"><option>linear</option><option>log</option><option>sqrt</option><option>asinh</option></select></label>
 
               <label id="scientific-fits-hdu-field" hidden>Image HDU<select id="scientific-fits-hdu"></select></label>
-              <label id="scientific-fits-plane-field" hidden>Z plane <output id="scientific-fits-plane-value">Plane 1 of 1</output><input id="scientific-fits-plane" type="range" min="0" max="0" value="0" step="1"></label>
+              <div id="scientific-volume-controls" hidden>
+                <label>Slice direction<select id="scientific-slice-axis"><option value="xy">XY</option><option value="xz">XZ</option><option value="yz">YZ</option></select></label>
+                <label>Projection<select id="scientific-projection"><option value="none">None</option><option value="max">Maximum through Z</option><option value="mean">Mean through Z</option><option value="min">Minimum through Z</option></select></label>
+                <label id="scientific-slice-index-field">Slice number <output id="scientific-slice-index-value">1 of 1</output><input id="scientific-slice-index" type="range" min="0" max="0" value="0" step="1"></label>
+              </div>
 
               <div id="scientific-band-controls" hidden>
                 <label>Spectral band <output id="scientific-wavelength-value">Band 1 of 1</output><input id="scientific-wavelength" type="range" min="0" max="0" value="0" step="1"></label>
@@ -120,7 +132,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
       <div class="container">
         <div class="scientific-sources-heading">
           <div><p class="eyebrow">Real public data</p><h2 id="scientific-sources-title">Download compatible scientific raster files</h2></div>
-          <p>These university and U.S. government collections publish ENVI header + binary pairs and FITS image arrays. Large files should be downloaded before opening them above.</p>
+          <p>These research, university, and government collections publish ENVI, FITS, MRC, and CBF files. Large files should be downloaded before opening them above.</p>
         </div>
         <div class="scientific-source-grid">
           <article>
@@ -134,6 +146,18 @@ import SiteLayout from '../layouts/SiteLayout.astro'
             <h3>Official FITS sample files</h3>
             <p>The FITS Support Office publishes image, table, and conformance samples for testing FITS readers.</p>
             <a href="https://fits.gsfc.nasa.gov/fits_samples.html" target="_blank" rel="noreferrer">Browse NASA FITS samples ↗</a>
+          </article>
+          <article>
+            <span>CCP-EM · GitHub</span>
+            <h3>MRC compatibility maps</h3>
+            <p>The CCP-EM mrcfile project maintains real MRC and CCP4 maps used to test MRC2014 readers.</p>
+            <a href="https://github.com/ccpem/mrcfile/tree/master/tests/test_data" target="_blank" rel="noreferrer">Browse CCP-EM maps ↗</a>
+          </article>
+          <article>
+            <span>Paul Scherrer Institute · GitHub</span>
+            <h3>CBF detector examples</h3>
+            <p>Real PILATUS detector frames with x-CBF_BYTE_OFFSET compression for CBF compatibility testing.</p>
+            <a href="https://github.com/paulscherrerinstitute/cbf/tree/master/examples" target="_blank" rel="noreferrer">Browse PSI CBF files ↗</a>
           </article>
           <article>
             <span>NASA JPL · .GOV</span>
@@ -157,7 +181,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
         <div class="scientific-direct-files" aria-labelledby="scientific-direct-files-title">
           <div class="scientific-direct-files-heading">
             <div><p class="eyebrow">Skip the catalog</p><h3 id="scientific-direct-files-title">Specific files ready to download</h3></div>
-            <p>FITS examples are single-file downloads. For a paired ENVI example, download both numbered files and select them together above.</p>
+            <p>FITS, MRC, and CBF examples are single-file downloads. For a paired ENVI example, download both numbered files and select them together above.</p>
           </div>
           <div class="scientific-direct-file-grid">
             <article>
@@ -210,15 +234,31 @@ import SiteLayout from '../layouts/SiteLayout.astro'
                 <a href="https://fits.gsfc.nasa.gov/nrao_data/samples/image/swp05569slg.fits" target="_blank" rel="noreferrer" download="swp05569slg.fits">Download FITS · 379.7 KiB ↗</a>
               </div>
             </article>
+            <article>
+              <div class="scientific-direct-card-meta"><span class="scientific-file-type">MRC</span><span class="scientific-file-source">Compatibility map · CCP-EM</span></div>
+              <h4>EMD-3197 test volume</h4>
+              <p><code>20 × 20 × 20</code> · float32 · little-endian · 32.3 KiB</p>
+              <div class="scientific-direct-actions">
+                <a href="https://raw.githubusercontent.com/ccpem/mrcfile/a2a8c6b569a57b7f18b023b5056fa7a14f2f99c2/tests/test_data/EMD-3197.map" target="_blank" rel="noreferrer" download="EMD-3197.map">Download MRC · 32.3 KiB ↗</a>
+              </div>
+            </article>
+            <article>
+              <div class="scientific-direct-card-meta"><span class="scientific-file-type">CBF</span><span class="scientific-file-source">PILATUS 300K · PSI</span></div>
+              <h4>in16c detector frame</h4>
+              <p><code>487 × 619</code> · signed int32 counts · byte-offset compression · 300.4 KiB</p>
+              <div class="scientific-direct-actions">
+                <a href="https://raw.githubusercontent.com/paulscherrerinstitute/cbf/88f4f5b6fdcee5577d1f96c46c27a653c6622e20/examples/in16c_010001.cbf" target="_blank" rel="noreferrer" download="in16c_010001.cbf">Download CBF · 300.4 KiB ↗</a>
+              </div>
+            </article>
           </div>
         </div>
-        <p class="scientific-source-help"><strong>Open a FITS download:</strong> choose <em>FITS image arrays</em>, then select the downloaded file under <em>FITS file</em>. <strong>Open an ENVI download:</strong> unpack the archive, choose its <code>.hdr</code> file under <em>ENVI header</em>, choose the matching <code>.img</code>, <code>.bin</code>, or <code>.dat</code> file under <em>Associated binary</em>, then click <em>Open paired files</em>. A browser may save a header as <code>.hdr.txt</code>; the explorer accepts that filename too. GSF is commonly exported from AFM/SPM software rather than distributed by institutional archives.</p>
+        <p class="scientific-source-help"><strong>Open a single-file download:</strong> choose its FITS, MRC, or CBF tab, then select the downloaded file. <strong>Open an ENVI download:</strong> unpack the archive, choose its <code>.hdr</code> file under <em>ENVI header</em>, choose the matching <code>.img</code>, <code>.bin</code>, or <code>.dat</code> file under <em>Associated binary</em>, then click <em>Open paired files</em>. A browser may save a header as <code>.hdr.txt</code>; the explorer accepts that filename too. GSF is commonly exported from AFM/SPM software rather than distributed by institutional archives.</p>
       </div>
     </section>
 
     <section class="scientific-explain">
-       <div class="container scientific-explain-grid"><div><p class="eyebrow">Scientific raster formats</p><h2>Numeric data and display pixels use separate steps</h2></div><div><p>GSF, ENVI, and FITS remain scientific datasets rather than photographic codecs. Their numeric samples use the same dataset API as OME-TIFF planes.</p><img src="../assets/scientific-hyperspectral-envi-viewer.png" width="1280" height="720" loading="lazy" alt="ENVI hyperspectral cube displayed in PureJsImage with band and percentile controls"></div></div>
-      <div class="container"><p><a href="./envi/">ENVI guide</a> · <a href="./gsf/">GSF guide</a> · <a href="./fits/">FITS guide</a> · <a href="../api/#scientific">Scientific API</a> · <a href="../tiff/#scientific">OME-TIFF</a> · <a href="../wsi/">Whole-slide viewer</a></p></div>
+       <div class="container scientific-explain-grid"><div><p class="eyebrow">Scientific raster formats</p><h2>Numeric data and display pixels use separate steps</h2></div><div><p>GSF, ENVI, FITS, MRC, and CBF remain scientific datasets rather than photographic codecs. Their numeric samples use the same dataset API as OME-TIFF planes. FITS and MRC volumes share lazy cross-sections and bounded Z projections.</p><img src="../assets/scientific-hyperspectral-envi-viewer.png" width="1280" height="720" loading="lazy" alt="ENVI hyperspectral cube displayed in PureJsImage with band and percentile controls"></div></div>
+      <div class="container"><p><a href="./envi/">ENVI guide</a> · <a href="./gsf/">GSF guide</a> · <a href="./fits/">FITS guide</a> · <a href="./mrc/">MRC guide</a> · <a href="./cbf/">CBF guide</a> · <a href="./volumes/">Volume operations</a> · <a href="../api/#scientific">Scientific API</a> · <a href="../tiff/#scientific">OME-TIFF</a> · <a href="../wsi/">Whole-slide viewer</a></p></div>
     </section>
   </main>
   <footer class="site-footer"><div class="container"><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span><a href="../demo/">Browser converter</a> · <a href="https://github.com/a-r-d/PureJsImage">Source</a> · <a href="../llms.txt">LLM guide</a> · <a href="../sitemap.xml">Sitemap</a></span></div></div></footer>

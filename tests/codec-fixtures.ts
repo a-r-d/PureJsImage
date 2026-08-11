@@ -58,6 +58,10 @@ export const createCodecFixtures = async (): Promise<readonly CodecFixture[]> =>
   return [
     { format: 'jpeg', input: await (await Image.open(png)).jpeg({ quality: 90 }).toBuffer() },
     {
+      format: 'jpegxl',
+      input: await readFile('benchmark/fixtures/jpegxl/conformance-alpha-nonpremultiplied.jxl'),
+    },
+    {
       format: 'jp2',
       input: await readFile('benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2'),
     },

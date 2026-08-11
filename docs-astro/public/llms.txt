@@ -82,7 +82,7 @@ import { allCodecs } from 'purejsimage/codecs/all'
 const images = createImageLibrary(allCodecs)
 ```
 
-`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, and AVIF. It intentionally excludes experimental HEIF/HEIC.
+`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL decoder. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented lossless Modular subset fail explicitly.
 
 ## Mental model
 
@@ -514,6 +514,17 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 - Memory model: Explicitly registered grid workflows decode requested tile rows; large compatible inputs remain explicitly measured
 - Recommended output use: Evaluate compatibility and applicable HEVC patent licensing obligations before opting in, especially for commercial distribution or services.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md
+
+### JPEG XL
+
+- Import: `import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'`
+- Decode: Limited (`limited`)
+- Encode: No (`unsupported`)
+- Implemented scope: Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes the pinned 12-bit lossless Modular RGBA conformance path through bounded header, entropy, predictor, RCT, crop, and rgba8 output code. Unsupported JPEG XL syntax fails explicitly.
+- Primary boundary: Decodes a first-party, independently verified lossless Modular RGBA subset; VarDCT, nonzero residual streams, broader predictors and transforms, multiple groups or frames, and fragmented jxlp pixel decode remain unsupported
+- Memory model: The implemented Modular path retains compressed input, bounded entropy tables, the small adaptive tree, and two rows per channel; peak decoded working memory scales with image width rather than source pixel count
+- Recommended output use: Use for the documented lossless Modular RGBA subset and retain an explicit unsupported-operation path for broader JPEG XL files.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md
 <!-- capabilities:llms:end -->
 
 ## TIFF, scientific rasters, and whole-slide images
@@ -551,14 +562,18 @@ for await (const block of dataset.readPlane({
 }
 ```
 
-The same entry exposes `openGsf()`, `encodeGsf()`, paired-source `openEnvi()`,
+The same entry exposes `openGsf()`, `encodeGsf()`, paired-source `openEnvi()`, `openFits()`,
+`openMrc()`, `openCbf()`, lazy `sliceScientificVolume()` cross-sections, bounded
+`projectScientificVolume()` Z projections, optional statistics from `measureScientificPlane()`,
 `renderScientificPlane()`, wavelength-aware band and false-color rendering, spectral integration,
 and ratios. These APIs preserve native numeric samples and apply display ranges, scales, palettes,
 and relief only to emitted `PixelBlock`s. Node applications may import `openEnviPath()` from
 `purejsimage/scientific/node`; browser applications pass a GSF File/Blob or separate ENVI header
 and binary File/Blob objects. Complex ENVI types, 64-bit ENVI integers, and ENVI writing are
 explicitly unsupported. See the checked GSF and ENVI contracts and the entirely local browser
-explorer before relying on uncommon metadata.
+explorer before relying on uncommon metadata. MRC supports modes 0, 1, 2, 6, and 12 with logical
+axis mapping. CBF supports common two-dimensional x-CBF_BYTE_OFFSET integer
+detector arrays. Neither format is registered as a photographic image codec.
 
 Use `purejsimage/pathology` for `openAperioSvs()` and the generic `WholeSlideImage` contract. `slide.readRegion({ level, x, y, width, height, signal })` reads an arbitrary rectangle. `slide.levels[level].tile(column, row, { signal })` reads one native tile by zero-based tile coordinates; padded edge tiles return only their valid image region. Associated-image reads and profile opening also accept `{ signal }`. TIFF profile code must bound all private metadata reads and validate metadata-to-IFD mappings before decoding.
 

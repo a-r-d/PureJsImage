@@ -23,12 +23,22 @@ export type {
   SupportedEnviDataType,
 } from './formats/envi.ts'
 export type {
+  CbfDataset,
+  CbfDetectorMetadata,
+  CbfElementType,
+  CbfEncoding,
+  CbfOpenOptions,
+} from './formats/cbf.ts'
+export type { MrcByteOrder, MrcDataset, MrcHeader, MrcMode, MrcOpenOptions } from './formats/mrc.ts'
+export type {
   EnviClassificationRenderedImage,
   EnviClassificationRenderOptions,
 } from './classification.ts'
 export type { ScientificPalette } from './palettes.ts'
 export type {
   ScientificDisplayScale,
+  ScientificHistogram,
+  ScientificPercentile,
   ScientificPlaneMeasurement,
   ScientificPlaneMeasureOptions,
   ScientificPlaneRenderOptions,
@@ -36,6 +46,7 @@ export type {
   ScientificReliefOptions,
   ScientificRenderedPlane,
   ScientificRenderRange,
+  ScientificStatisticsRequest,
 } from './render.ts'
 export type {
   BandRatioOptions,
@@ -48,6 +59,12 @@ export type {
   SpectralRangeOptions,
 } from './spectral.ts'
 export type {
+  ScientificProjectionMode,
+  ScientificSliceAxis,
+  ScientificVolumeProjectionOptions,
+  ScientificVolumeSliceOptions,
+} from './volume.ts'
+export type {
   RasterBlock,
   RasterDecoder,
   RasterDecodeRequest,
@@ -58,12 +75,15 @@ export type {
 } from '../raster.ts'
 export { rasterSampleBytes, rasterToPixels } from '../raster.ts'
 export { openEnvi } from './formats/envi.ts'
+export { openCbf } from './formats/cbf.ts'
 export { renderEnviClassification } from './classification.ts'
 export { openFits } from './formats/fits.ts'
+export { openMrc } from './formats/mrc.ts'
 export { encodeGsf, openGsf } from './formats/gsf.ts'
 export { isOmeTiff, omeTiffProfile, openOmeTiff } from './ome-tiff.ts'
 export { scientificPaletteColor } from './palettes.ts'
 export { measureScientificPlane, renderScientificPlane } from './render.ts'
+export { projectScientificVolume, sliceScientificVolume } from './volume.ts'
 export {
   bandRatio,
   integrateSpectralRange,
