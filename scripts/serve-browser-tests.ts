@@ -217,6 +217,24 @@ await build({
   sourcemap: false,
   target: ['es2022'],
 })
+await build({
+  absWorkingDir: process.cwd(),
+  bundle: true,
+  charset: 'utf8',
+  entryPoints: {
+    'wsi-viewer': 'docs-astro/src/scripts/wsi-viewer.ts',
+    'wsi-worker': 'docs-astro/src/scripts/wsi-worker.ts',
+  },
+  entryNames: '[name]',
+  format: 'esm',
+  legalComments: 'none',
+  logLevel: 'silent',
+  minify: true,
+  outdir: resolve(outputDirectory, 'assets'),
+  platform: 'browser',
+  sourcemap: false,
+  target: ['es2022'],
+})
 
 await mkdir(resolve(outputDirectory, 'assets'), { recursive: true })
 await build({
@@ -556,6 +574,10 @@ await copyFile(
   'benchmark/corpus/files/avif/libavif-paris-icc-exif-xmp.avif',
   resolve(fixtureDirectory, 'libavif-paris-icc-exif-xmp.avif'),
 )
+await copyFile(
+  'tests/fixtures/aperio-cmu-1-small-region.svs',
+  resolve(fixtureDirectory, 'aperio-cmu-1-small-region.svs'),
+)
 await writeFile(
   resolve(outputDirectory, 'index.html'),
   '<!doctype html><meta charset="utf-8"><title>PureJsImage browser validation</title><script type="module" src="/compatibility.js"></script><script type="module" src="/benchmark.js"></script>',
@@ -576,7 +598,8 @@ const contentTypes: Readonly<Record<string, string>> = {
 
 const server = createServer(async (request, response) => {
   try {
-    const pathname = new URL(request.url ?? '/', `http://127.0.0.1:${port}`).pathname
+    const requestUrl = new URL(request.url ?? '/', `http://127.0.0.1:${port}`)
+    const pathname = requestUrl.pathname
     const requested = pathname.endsWith('/') ? `${pathname}index.html` : pathname
     const path = resolve(outputDirectory, `.${decodeURIComponent(requested)}`)
     const escaped = relative(outputDirectory, path)
@@ -585,7 +608,40 @@ const server = createServer(async (request, response) => {
       return
     }
     const data = await readFile(path)
+    const range = request.headers.range?.match(/^bytes=(\d+)-(\d+)$/)
+    if (range) {
+      const rangeDelay = Number(requestUrl.searchParams.get('rangeDelay') ?? '0')
+      if (Number.isFinite(rangeDelay) && rangeDelay > 0 && rangeDelay <= 1_000) {
+        await new Promise<void>((resolveDelay) => setTimeout(resolveDelay, rangeDelay))
+      }
+      const start = Number(range[1])
+      const requestedEnd = Number(range[2])
+      if (
+        !Number.isSafeInteger(start) ||
+        !Number.isSafeInteger(requestedEnd) ||
+        start < 0 ||
+        requestedEnd < start ||
+        start >= data.byteLength
+      ) {
+        response.writeHead(416, { 'content-range': `bytes */${data.byteLength}` }).end()
+        return
+      }
+      const end = Math.min(requestedEnd, data.byteLength - 1)
+      const body = data.subarray(start, end + 1)
+      response.writeHead(206, {
+        'accept-ranges': 'bytes',
+        'access-control-allow-origin': '*',
+        'access-control-expose-headers': 'Content-Range',
+        'cache-control': 'no-store',
+        'content-length': body.byteLength,
+        'content-range': `bytes ${start}-${end}/${data.byteLength}`,
+        'content-type': contentTypes[extname(path)] ?? 'application/octet-stream',
+      })
+      response.end(body)
+      return
+    }
     response.writeHead(200, {
+      'accept-ranges': 'bytes',
       'cache-control': 'no-store',
       'content-length': data.byteLength,
       'content-type': contentTypes[extname(path)] ?? 'application/octet-stream',

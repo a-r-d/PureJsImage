@@ -435,11 +435,11 @@ const evidenceList = (report: ConformanceReport): string =>
 
 const fullComparisonBody = (
   report: ConformanceReport,
-): string => `<section class="section comparison-hero"><div class="container"><p class="eyebrow">Evidence-backed TIFF comparison</p><h1>JavaScript TIFF libraries compared by capability and measured output.</h1><p class="lede">Documentation claims and pixel conformance are separate signals. “Not verified” means exactly that—not “unsupported.”</p></div></section>
+): string => `<section class="section comparison-hero"><div class="container"><p class="eyebrow">Evidence-backed TIFF comparison</p><h1>JavaScript TIFF libraries compared by capability and measured output.</h1><p class="lede">Documentation claims and pixel conformance are separate signals. “Not verified” means exactly that; it does not mean “unsupported.”</p></div></section>
 ${compactHtml(report, './')}
 <section class="section"><div class="container"><div class="section-heading"><div><p class="section-label">Capability matrix</p><h2>Grouped by TIFF workflow.</h2></div></div>${detailedMatrix(report)}</div></section>
 <section class="section tint" id="conformance"><div class="container"><div class="section-heading"><div><p class="section-label">Reproducible corpus run</p><h2>Decode coverage, exact pixels, and failures.</h2></div><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/tiff-competitor-conformance.md" target="_blank" rel="noreferrer">Per-file report →</a></div><p class="comparison-intro">All six JavaScript engines were attempted in isolated child processes on 154 pinned files. The 106 display-image cases use ${htmlEscape(report.oracle)} as the independent raw-RGBA8 oracle; decoded coverage is primary, while exact means every compared channel matched. Forty-four native scientific rasters are not forced through RGBA. Four malformed files test bounded rejection separately.</p>${conformanceTable(report)}</div></section>
-<section class="section" id="methodology"><div class="container prose"><p class="section-label">Methodology</p><h2>What these numbers do—and do not—mean.</h2><ul>${comparisonMethodology(
+<section class="section" id="methodology"><div class="container prose"><p class="section-label">Methodology</p><h2>What these numbers do and do not mean.</h2><ul>${comparisonMethodology(
   report,
 )
   .map((item) => `<li>${htmlEscape(item)}</li>`)
@@ -452,7 +452,7 @@ const page = (report: ConformanceReport): string => `---
 import SiteLayout from '../layouts/SiteLayout.astro'
 ---
 
-<SiteLayout title="TIFF library comparison — PureJsImage" description="Evidence-backed JavaScript TIFF library capability, decode-coverage, and exact-pixel comparison." canonical="https://purejsimage.com/tiff-comparison/" current="codecs/">
+<SiteLayout title="TIFF library comparison | PureJsImage" description="Evidence-backed JavaScript TIFF library capability, decode-coverage, and exact-pixel comparison." canonical="https://purejsimage.com/tiff-comparison/" current="codecs/">
 <main id="main">${fullComparisonBody(report)}</main>
   <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div><div class="footer-column"><strong>Documentation</strong><a href="../guides/">Getting started</a><a href="../api/">API reference</a><a href="../codecs/">Codec support</a><a href="../tiff/">TIFF guide</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.npmjs.com/package/purejsimage" target="_blank" rel="noreferrer">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span>Default reference engine · pure TypeScript · zero runtime dependencies</span></div></div></footer>
 </SiteLayout>

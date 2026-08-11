@@ -29,6 +29,7 @@
 <p>
   <a href="https://purejsimage.com/">Documentation</a> ·
   <a href="https://purejsimage.com/demo/"><strong>Live browser demo</strong></a> ·
+  <a href="https://purejsimage.com/wsi/"><strong>Whole-slide demo</strong></a> ·
   <a href="#install">Install</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#supported-codecs">Codecs</a> ·
@@ -135,6 +136,12 @@ orientation, resize, rotation, and flip transforms, then download JPEG, PNG,
 WebP, BMP, or TIFF output. The demo runs entirely in the browser, makes no
 image-upload request, and reports conversion time plus the browser memory
 measurements it can honestly observe.
+
+[Browse a 2.12 GB pathology slide after fetching a fraction of a percent →](https://purejsimage.com/wsi/)
+
+The zero-dependency whole-slide demo reads native Aperio SVS pyramid tiles directly from static
+object storage with HTTP Range. It measures real requests and transferred bytes, cancels offscreen
+tile work in a Web Worker, and requires no conversion, tile server, or sidecar index.
 
 ## Optional WASM acceleration
 

@@ -2,7 +2,7 @@
 import SiteLayout from '../layouts/SiteLayout.astro'
 ---
 
-<SiteLayout title="Browser demo — PureJsImage" description="Open TIFF, BigTIFF, GeoTIFF, OME-TIFF, and whole-slide images locally in your browser. Drop a file or load a public example to inspect, pan, and zoom." canonical="https://purejsimage.com/demo/" bodyClass="demo-page" current="demo/" skipLabel="Skip to image workspace" openGraph={{"title":"PureJsImage browser TIFF viewer","description":"Drop a TIFF into a local browser viewer, or open a public GeoTIFF example and inspect it without an upload.","url":"https://purejsimage.com/demo/"}}>
+<SiteLayout title="Browser demo | PureJsImage" description="Open TIFF, BigTIFF, GeoTIFF, OME-TIFF, and whole-slide images locally in your browser. Drop a file or load a public example to inspect, pan, and zoom." canonical="https://purejsimage.com/demo/" bodyClass="demo-page" current="demo/" skipLabel="Skip to image workspace" openGraph={{"title":"PureJsImage browser TIFF viewer","description":"Drop a TIFF into a local browser viewer, or open a public GeoTIFF example and inspect it without an upload.","url":"https://purejsimage.com/demo/"}}>
 <main id="main">
     <section class="demo-intro">
       <div class="container demo-intro-row">
@@ -243,7 +243,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
               </div>
               <fieldset class="demo-viewer-actions" aria-label="Viewer controls">
                 <button id="demo-zoom-out" type="button" disabled aria-label="Zoom out" title="Zoom out">−</button>
-                <output id="demo-zoom-value" aria-live="polite">—</output>
+                <output id="demo-zoom-value" aria-live="polite">Not available</output>
                 <button id="demo-zoom-in" type="button" disabled aria-label="Zoom in" title="Zoom in">+</button>
                 <button id="demo-zoom-fit" type="button" disabled>Fit</button>
                 <button id="demo-zoom-actual" type="button" disabled>1:1</button>
@@ -279,10 +279,10 @@ import SiteLayout from '../layouts/SiteLayout.astro'
                   <button id="demo-viewer-next" type="button" disabled aria-label="Next image">Next</button>
                 </div>
                 <dl class="demo-viewer-facts">
-                  <div><dt>Dimensions</dt><dd id="demo-viewer-dimensions">—</dd></div>
-                  <div><dt>Format</dt><dd id="demo-viewer-compression">—</dd></div>
-                  <div><dt>Pixels</dt><dd id="demo-viewer-samples">—</dd></div>
-                  <div><dt>Layout</dt><dd id="demo-viewer-storage">—</dd></div>
+                  <div><dt>Dimensions</dt><dd id="demo-viewer-dimensions">Not available</dd></div>
+                  <div><dt>Format</dt><dd id="demo-viewer-compression">Not available</dd></div>
+                  <div><dt>Pixels</dt><dd id="demo-viewer-samples">Not available</dd></div>
+                  <div><dt>Layout</dt><dd id="demo-viewer-storage">Not available</dd></div>
                 </dl>
                 <div class="demo-viewer-help">
                   <strong>Navigate the source</strong>
@@ -349,12 +349,12 @@ import SiteLayout from '../layouts/SiteLayout.astro'
               <a class="button" id="demo-download" href="#demo-result" download>Download converted file</a>
             </div>
             <dl class="demo-metrics" aria-label="Conversion measurements">
-              <div><dt>Conversion time</dt><dd id="demo-metric-elapsed">—</dd><small>Decode, transform, and encode</small></div>
-              <div><dt>Decode mode</dt><dd id="demo-metric-provider">—</dd><small>Enabled mode; selectors may fall back</small></div>
-              <div><dt>WASM vs TypeScript</dt><dd id="demo-metric-comparison">—</dd><small>Same file and settings in this tab</small></div>
-              <div><dt>Max observed JS heap</dt><dd id="demo-metric-memory">—</dd><small>Browser estimate at checkpoints</small></div>
-              <div><dt>Known file bytes</dt><dd id="demo-metric-known-bytes">—</dd><small>Input + output, not scratch memory</small></div>
-              <div><dt>Output size</dt><dd id="demo-metric-output">—</dd><small>Validated encoded Blob</small></div>
+              <div><dt>Conversion time</dt><dd id="demo-metric-elapsed">Not available</dd><small>Decode, transform, and encode</small></div>
+              <div><dt>Decode mode</dt><dd id="demo-metric-provider">Not available</dd><small>Enabled mode; selectors may fall back</small></div>
+              <div><dt>WASM vs TypeScript</dt><dd id="demo-metric-comparison">Not available</dd><small>Same file and settings in this tab</small></div>
+              <div><dt>Max observed JS heap</dt><dd id="demo-metric-memory">Not available</dd><small>Browser estimate at checkpoints</small></div>
+              <div><dt>Known file bytes</dt><dd id="demo-metric-known-bytes">Not available</dd><small>Input + output, not scratch memory</small></div>
+              <div><dt>Output size</dt><dd id="demo-metric-output">Not available</dd><small>Validated encoded Blob</small></div>
             </dl>
           </section>
         </section>

@@ -2,7 +2,7 @@
 import SiteLayout from '../layouts/SiteLayout.astro'
 ---
 
-<SiteLayout title="Performance — PureJsImage" description="Reproducible PureJsImage benchmarks from real AWS Lambda and isolated local processes: cold starts, memory use, validated wall time, package footprint, and competitor comparisons." canonical="https://purejsimage.com/performance/" current="performance/">
+<SiteLayout title="Performance | PureJsImage" description="Reproducible PureJsImage benchmarks from real AWS Lambda and isolated local processes: cold starts, memory use, validated wall time, package footprint, and competitor comparisons." canonical="https://purejsimage.com/performance/" current="performance/">
 <main id="main">
     <header class="page-hero"><div class="container"><p class="eyebrow">Performance</p><h1>Benchmark methodology and recorded results.</h1><p class="page-lede">Complete decode–transform–encode workflows measured on real AWS Lambda and in isolated local processes, with pinned inputs, absolute memory, and independently validated output.</p><div class="page-meta"><span class="pill">Real AWS Lambda</span><span class="pill">Seven-engine competitor profile</span><span class="pill">Recorded August 2026</span><span class="pill">Linux x64</span></div></div></header>
     <section class="proof-section performance-showcase" id="competitor-charts" aria-labelledby="competitor-charts-title">
@@ -160,7 +160,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
           </tbody></table></div>
           <p>The LZW workflow is the measured speed exception: PureJsImage was slower, while using 53.3% less peak RSS. <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/tiff-profile-2026-08-10.md" target="_blank" rel="noreferrer">PureJsImage report</a> · <a href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/jimp-tiff-profile-2026-08-10.md" target="_blank" rel="noreferrer">Jimp report</a>.</p>
           <h3>WebP</h3>
-          <p>Jimp 1.6 exposes no WebP codec, so these are absolute baselines—not synthetic comparisons.</p>
+          <p>Jimp 1.6 exposes no WebP codec, so these are absolute baselines, not synthetic comparisons.</p>
           <div class="table-wrap"><table><thead><tr><th>Workflow</th><th>Median wall</th><th>Peak RSS</th></tr></thead><tbody>
             <tr><td>1600×2000 WebP resize to JPEG</td><td>519 ms</td><td>167 MiB</td></tr>
             <tr><td>Lossy WebP to PNG</td><td>216 ms</td><td>140 MiB</td></tr>
