@@ -16,6 +16,12 @@ All notable changes to PureJsImage are documented in this file.
   composites alpha against white or an explicit solid background, and writes deterministic
   single-tile Main Profile YUV 4:2:0 still images accepted by libavif and libaom. Quantization
   remains fixed while adaptive quality, alpha items, metadata, grids, and animation are unfinished.
+- Expanded first-party AVIF decode with exact integer and half-integer item-property clean-aperture
+  origins, bounded ISO sample-table parsing, exact cross-timescale color/alpha synchronization, and
+  explicit independently decodable animation key-sample selection, plus portable PQ/HLG NCLX tone
+  mapping to SDR RGBA. Dependent animation frames, nonidentity animation edit lists, track-level
+  clean apertures, non-half-integer item aperture coordinates, HDR pixel output, and matrix-10
+  constant-luminance conversion remain explicitly unsupported.
 
 ### Changed
 

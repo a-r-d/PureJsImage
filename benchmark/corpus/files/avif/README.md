@@ -55,14 +55,25 @@ regression coverage; its SHA-256 checksum is pinned in
 `benchmark/avif/corpus.ts`.
 
 `colors-animated-8bpc-alpha-exif-xmp.avif` is the byte-identical libavif
-animation case from that revision. It is committed to pin the structured
-unsupported boundary for animated pixel decode; its SHA-256 checksum is pinned
-in `benchmark/avif/corpus.ts`.
+animation case from that revision. `colors-animated-12bpc-keyframes-0-2-3.avif`
+is the byte-identical valid fixture from the pinned Imazen AVIF Conformance
+corpus revision. The files cover explicit selection of independently decodable
+color/alpha sync samples while dependent AV1 frames remain unsupported. The
+`colors-animated-*-frame*-dav1d.png` oracles were decoded with FFmpeg 7.1.1 and
+dav1d 1.5.1; encoded and decoded checksums are pinned in
+`benchmark/avif/animation-fixture.ts`.
 
 `blue-and-magenta-crop.avif` also comes from that pinned revision. Its color
 item exercises skipped intra-block copy with adaptive motion-vector coding,
 and its `clap` property crops the 320x280 coded image to a 180x100 display image.
 Its checksum and coded dimensions are pinned in `benchmark/avif/corpus.ts`.
+
+`linku-kimono-crop.avif` is the byte-identical `valid/linku_kimono_crop.avif`
+fixture from the pinned Imazen AVIF Conformance corpus revision, sourced from
+link-u's CC-BY-SA-4.0 sample set. Its clean aperture has half-integer sample
+coordinates and resolves to a 385x330 display region at source sample
+coordinate (272, 39). Encoded, PureJsImage, and Sharp/libvips checksums are
+pinned in `benchmark/avif/clean-aperture-fixture.ts`.
 
 `ms-monochrome-residual-intrabc.avif` is the byte-identical `valid/ms_Monochrome.avif`
 fixture from the same pinned Imazen AVIF Conformance corpus revision and Microsoft
@@ -160,13 +171,32 @@ results are recorded in
 `benchmark/results/avif-high-bit-post-filters-2026-08-09.md`.
 
 `unsupported-hdr-pq-10bpc-yuv420-32x24.avif` and
-`unsupported-hdr-hlg-10bpc-yuv420-32x24.avif` use the same checksum-pinned
-10-bit YUV 4:2:0 source with BT.2020 primaries and matrix coefficients, plus
-SMPTE ST 2084 or HLG transfer signaling. They verify that metadata inspection
-remains available while SDR pixel decode rejects unsupported HDR interpretation.
-Their file SHA-256 checksums are
-`8d6eff82bf015ef2fea2cf18db5acb1717404a8669e9bdfdb7f858ba5182c824` and
-`339d0d3b28c7c8bc4a6bcb3f88a718faaffb42bd6f04ba34faf6405a6fe60f69`.
+`unsupported-hdr-hlg-10bpc-yuv420-32x24.avif` retain their historical fixture
+names. They use the same checksum-pinned 10-bit YUV 4:2:0 source with BT.2020
+primaries and matrix coefficients plus SMPTE ST 2084 or HLG transfer signaling.
+They now exercise direct HDR-to-SDR decode, but are not numeric tone-map
+oracles because decoder and zimg chroma reconstruction differ at their
+artificial saturated boundaries.
+
+`libavif-colors-hdr-p3.avif` and
+`libavif-cosmos1650-yuv444-10bpc-p3pq.avif` are byte-identical valid files from
+the pinned Imazen AVIF Conformance corpus revision. They cover Display-P3 PQ
+with conventional and chroma-derived non-constant-luminance matrices.
+`identity-pq-10bpc-yuv444-16x12.avif` is a deterministic full-range 10-bit YUV
+4:4:4 fixture encoded with libavif 1.3.0 for Rec.2020 PQ identity color. Its
+input is first converted losslessly with libavif; the three
+`oracle-*-ffmpeg-reinhard.png` PQ oracles use FFmpeg 7.1.1/zimg conversion to
+linear RGB at 203-nit reference white, Reinhard tone mapping with desaturation
+disabled, and full-range sRGB output.
+
+`hdr-hlg-10bpc-yuv444-32x24.avif` is a deterministic full-range 10-bit YUV
+4:4:4 Rec.2020 HLG fixture encoded with libavif 1.3.0. FFmpeg/zimg's HLG
+transfer path applies a componentwise display exponent rather than BT.2100's
+shared scene-luminance OOTF, so it is not used as a numeric oracle. The test
+suite checks independent analytic neutral and saturated BT.2100 vectors and
+pins the fixture's end-to-end RGBA hash in Node.js, Chromium, and Firefox.
+Checksums and the exact evidence boundaries are recorded in
+`benchmark/avif/color-fixtures.ts` and `tests/avif.test.ts`.
 
 `xiph-tiger-3layer-lsel0-1216x832.avif` is a restricted-layer derivative of
 Xiph's `tiger_3layer_1res.avif` from the AOMedia AVIF conformance suite

@@ -6,6 +6,7 @@ export interface BrowserWorkflowResult {
 export interface BrowserCompatibilityHarness {
   animatedGifFrameSelection(): Promise<BrowserWorkflowResult>
   avifAlphaPremultiplied(): Promise<BrowserWorkflowResult>
+  avifAnimationKeySamples(): Promise<BrowserWorkflowResult>
   avifAlphaStraight(): Promise<BrowserWorkflowResult>
   avifEncode(): Promise<BrowserWorkflowResult>
   avifBoundedAlphaRows(): Promise<BrowserWorkflowResult>
@@ -22,7 +23,7 @@ export interface BrowserCompatibilityHarness {
   avifHighBitTiles(): Promise<BrowserWorkflowResult>
   avifExpandedHighBit(): Promise<BrowserWorkflowResult>
   avifExpandedAlpha(): Promise<BrowserWorkflowResult>
-  avifHdrRejected(): Promise<BrowserWorkflowResult>
+  avifHdrToneMap(): Promise<BrowserWorkflowResult>
   avifHdrGainMap(): Promise<BrowserWorkflowResult>
   avifIcc(): Promise<BrowserWorkflowResult>
   avifImir(): Promise<BrowserWorkflowResult>

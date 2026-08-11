@@ -71,8 +71,8 @@ coverage.
   authoritative AV1 sequence header during bitstream inspection
 - [x] Pixel decoding and composition of compatible opaque grid items
 - [x] Pixel decoding and composition of compatible alpha auxiliary items
-- [x] Validated integer clean-aperture cropping through `clap`; fractional
-  dimensions and origins remain explicitly unsupported
+- [x] Validated integer-dimension clean-aperture cropping through `clap` with
+  exact integer or half-integer sample origins; other fractions remain unsupported
 - [x] Mirroring through `imir`, ordered `clap`/`irot`/`imir` validation, and
   composition into pipeline orientation metadata
 - [ ] Pixel-aspect-ratio and other transformative item properties
@@ -249,19 +249,22 @@ byte. The full-size tolerance remains zero.
 - [x] Classify shown key, inter, intra-only, switch, and show-existing frame
   headers before reconstruction and explicitly reject dependent enhancement layers
 - [ ] Dependent enhancement layers and rendering all intermediate layers
-- [x] Reject PQ and HLG transfer signaling before SDR pixel conversion unless
-  a compatible SDR gain-map alternate is selected
-- [ ] Broader wide-gamut NCLX and ICC-managed conversion
+- [x] Convert compatible PQ and HLG NCLX signaling directly to tone-mapped SDR
+  RGBA unless a compatible SDR gain-map alternate is selected
+- [ ] NCLX matrix 10 constant-luminance conversion and broader ICC-managed conversion
 
 ### Animation
 
 - [x] Detect the `avis` sequence brand and avoid reporting a false one-frame
-  metadata count
-- [x] Reject `avis` pixel decode explicitly instead of presenting its primary
-  item as a supported one-frame image
-- [ ] Parse AVIF tracks and sample tables
-- [ ] Decode multiple AV1 frames
-- [ ] Frame timing, repetition, blending, disposal, and canvas composition
+  metadata count or silently decoding its primary still item
+- [x] Parse AVIF tracks and sample tables with bounded counts, exact cross-timescale
+  timing alignment, sample extents, sync-sample indices, and color/alpha relationships
+- [x] Decode an explicitly selected independently decodable color and alpha key
+  sample and reject dependent, inter, show-existing, and out-of-range selections
+- [x] Accept only single full-duration identity edit lists and explicitly reject
+  trimmed animation edits and track-level clean apertures
+- [ ] Dependent animated AV1 frame reconstruction, timing exposure, repetition,
+  blending, disposal, and canvas composition
 - [ ] Animated AVIF frame iteration
 - [ ] Animated AVIF encoding
 
@@ -330,6 +333,8 @@ byte. The full-size tolerance remains zero.
   row decoders without retaining a source-sized RGBA frame
 - [x] Every decoder path rejects coded payload plus conservatively estimated
   live working state above the 64 MiB codec limit
+- [x] AVIF track sample counts are rejected against maxFrames before allocating
+  duration, offset, size, description-index, or sync-sample arrays
 - [x] Sequential multi-tile decode retains only one tile rectangle of entropy,
   transform, palette, CDEF, and skip contexts while merging compact frame-wide
   post-filter metadata; padded full-frame YUV remains an explicit fallback
@@ -367,12 +372,12 @@ byte. The full-size tolerance remains zero.
 - [x] Reject malformed OBU sizes, duplicate sequence headers, truncated frame
   headers, tile overruns, invalid arithmetic symbols, impossible partitions,
   coefficient scans, and transform bounds explicitly
-- [x] Inspect all 49 checksum-pinned permanent corpus files and 67 unique coded
-  items across `mdat`, `idat`, multiple extents, grids, alpha, gain maps, mirroring,
-  8/10/12-bit, 4:0:0/4:2:0/4:2:2/4:4:4, progressive storage, HDR signaling,
-  layered frame units, reduced and full still-picture headers, and a non-still
-  sequence header
-- [x] Pass metadata expectations for all 49 permanent corpus files
+- [x] Inspect all 55 checksum-pinned permanent corpus AVIF files and their coded
+  items across `mdat`, `idat`, multiple extents, tracks, grids, alpha, gain maps,
+  mirroring, clean apertures, 8/10/12-bit, 4:0:0/4:2:0/4:2:2/4:4:4, progressive
+  storage, SDR/HDR signaling, layered frame units, reduced and full still-picture
+  headers, and non-still sequence headers
+- [x] Pass metadata expectations for all 55 permanent corpus AVIF files
 - [x] Decode exact independent reference pixels for the embedded 2x2 lossless
   fixture and the 4x4 lossy fixture
 - [x] Decode and pin RGBA regression hashes for Kodak 768x512 color; Fox
@@ -493,8 +498,20 @@ byte. The full-size tolerance remains zero.
   vectors overlap the current superblock or escape the decoded plane
 - [x] Apply the checksum-pinned 8x6 integer clean aperture to its 16x12 coded
   image and match Sharp/libavif RGBA exactly
-- [x] Exercise clean-aperture cropping through the portable codec entry in
-  Chromium and pin its RGBA output
+- [x] Exercise integer- and half-integer-origin clean-aperture cropping through
+  the portable codec in Chromium and Firefox and pin both RGBA outputs
+- [x] Apply a checksum-pinned half-integer-origin clean aperture to a 722x1024
+  coded image and match Sharp/libvips within 0.01 normalized RGBA RMSE
+- [x] Parse bounded AVIF animation track/sample metadata and match five explicitly
+  selected independent color/alpha key samples to pinned FFmpeg/dav1d PNG oracles
+- [x] Exercise independent animated color/alpha key-sample selection and
+  dependent-frame rejection through the portable codec in Chromium and Firefox
+- [x] Tone-map three checksum-pinned PQ YUV 4:4:4 fixtures to SDR against
+  FFmpeg/zimg Reinhard evidence with maximum channel error at most 2 and PSNR above 50 dB
+- [x] Validate HLG shared-luminance OOTF math against independently calculated
+  neutral and saturated BT.2100 vectors and pin the end-to-end AVIF RGBA hash
+- [x] Exercise PQ and HLG direct tone mapping through the portable codec in
+  Chromium and Firefox and pin all four RGBA outputs
 - [x] Reconstruct native 10-bit and 12-bit planes exactly for two
   checksum-pinned coded-lossless YUV 4:4:4 fixtures and hold displayed RGB
   maximum error to 1 against Sharp/libavif
@@ -523,7 +540,7 @@ byte. The full-size tolerance remains zero.
   padded full-frame native-YUV fallback to the bounded-row architecture
 - [x] Survey 237 AVIF files spanning 137 conformance/edge/invalid cases and a
   100-file GB82 matrix encoded by Sharp/libvips and FFmpeg/libaom; complete
-  all 100 common-photo inputs and 75 conformance inputs
+  all 100 common-photo inputs and 103 conformance inputs
 - [ ] Expand the compatibility corpus with rav1e, SVT-AV1, browser encoders,
   ImageMagick, cameras, and real web uploads
 - [ ] Add malformed ISOBMFF, OBU, entropy, partition, coefficient, restoration,

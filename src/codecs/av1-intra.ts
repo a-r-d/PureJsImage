@@ -19,6 +19,7 @@ import {
 } from './av1-post-filter.ts'
 import { Av1SymbolDecoder } from './av1-symbol.ts'
 import { inverseTransform } from './av1-transform.ts'
+import { type NclxHdrToneMap, nclxLumaCoefficients, writeNclxHdrToneMappedRgba } from './icc.ts'
 
 const cdf = (values: readonly number[]): Uint16Array => new Uint16Array(values)
 
@@ -4409,6 +4410,8 @@ const averageChromaSample = (
 interface Av1ColorConversion {
   readonly fullRange: boolean
   readonly matrixCoefficients: number
+  readonly colorPrimaries?: number
+  readonly primaries?: number
 }
 
 export interface Av1PixelRegion {
@@ -4424,6 +4427,7 @@ export const av1ToRgbaRegion = (
   region: Av1PixelRegion,
   color: Av1ColorConversion = sequence,
   scaleDenominator: 1 | 2 | 4 | 8 = 1,
+  toneMap?: NclxHdrToneMap,
 ): Uint8Array => {
   if (
     !Number.isSafeInteger(region.x) ||
@@ -4466,16 +4470,18 @@ export const av1ToRgbaRegion = (
                 sourceY,
                 scaleDenominator,
               )
-        const sample = clampByte(
-          color.fullRange
-            ? (luma * 255) / sampleMaximum
-            : ((luma - limitedLumaMinimum) * 255) / limitedLumaRange,
-        )
+        const encoded = color.fullRange
+          ? luma / sampleMaximum
+          : (luma - limitedLumaMinimum) / limitedLumaRange
         const target = (localY * region.width + localX) * 4
-        output[target] = sample
-        output[target + 1] = sample
-        output[target + 2] = sample
-        output[target + 3] = 255
+        if (toneMap) writeNclxHdrToneMappedRgba(output, target, encoded, encoded, encoded, toneMap)
+        else {
+          const sample = clampByte(encoded * 255)
+          output[target] = sample
+          output[target + 1] = sample
+          output[target + 2] = sample
+          output[target + 3] = 255
+        }
       }
     }
     return output
@@ -4503,8 +4509,8 @@ export const av1ToRgbaRegion = (
               )
         const chromaOffset = (sourceY - chromaYOrigin) * frame.chromaStride + sourceX
         const target = (localY * region.width + localX) * 4
-        output[target] = clampByte(
-          ((scaleDenominator === 1
+        const encodedRed =
+          (scaleDenominator === 1
             ? (frame.v[chromaOffset] ?? 0)
             : averagePlaneSample(
                 frame.v,
@@ -4515,13 +4521,10 @@ export const av1ToRgbaRegion = (
                 sourceX,
                 sourceY,
                 scaleDenominator,
-              )) *
-            255) /
-            sampleMaximum,
-        )
-        output[target + 1] = clampByte((luma * 255) / sampleMaximum)
-        output[target + 2] = clampByte(
-          ((scaleDenominator === 1
+              )) / sampleMaximum
+        const encodedGreen = luma / sampleMaximum
+        const encodedBlue =
+          (scaleDenominator === 1
             ? (frame.u[chromaOffset] ?? 0)
             : averagePlaneSample(
                 frame.u,
@@ -4532,19 +4535,29 @@ export const av1ToRgbaRegion = (
                 sourceX,
                 sourceY,
                 scaleDenominator,
-              )) *
-            255) /
-            sampleMaximum,
-        )
-        output[target + 3] = 255
+              )) / sampleMaximum
+        if (toneMap) {
+          writeNclxHdrToneMappedRgba(output, target, encodedRed, encodedGreen, encodedBlue, toneMap)
+        } else {
+          output[target] = clampByte(encodedRed * 255)
+          output[target + 1] = clampByte(encodedGreen * 255)
+          output[target + 2] = clampByte(encodedBlue * 255)
+          output[target + 3] = 255
+        }
       }
     }
     return output
   }
+  const derivedWeights =
+    color.matrixCoefficients === 12
+      ? nclxLumaCoefficients(color.primaries ?? color.colorPrimaries ?? 2)
+      : undefined
   const redWeight =
-    color.matrixCoefficients === 1 ? 0.2126 : color.matrixCoefficients === 9 ? 0.2627 : 0.299
+    derivedWeights?.[0] ??
+    (color.matrixCoefficients === 1 ? 0.2126 : color.matrixCoefficients === 9 ? 0.2627 : 0.299)
   const blueWeight =
-    color.matrixCoefficients === 1 ? 0.0722 : color.matrixCoefficients === 9 ? 0.0593 : 0.114
+    derivedWeights?.[2] ??
+    (color.matrixCoefficients === 1 ? 0.0722 : color.matrixCoefficients === 9 ? 0.0593 : 0.114)
   const greenWeight = 1 - redWeight - blueWeight
   const redChroma = 2 * (1 - redWeight)
   const blueChroma = 2 * (1 - blueWeight)
@@ -4558,12 +4571,16 @@ export const av1ToRgbaRegion = (
       (cb - sampleMidpoint) / (color.fullRange ? sampleMaximum : limitedChromaRange)
     const adjustedCr =
       (cr - sampleMidpoint) / (color.fullRange ? sampleMaximum : limitedChromaRange)
-    output[target] = clampByte((adjustedLuma + redChroma * adjustedCr) * 255)
-    output[target + 1] = clampByte(
-      (adjustedLuma - redGreenChroma * adjustedCr - blueGreenChroma * adjustedCb) * 255,
-    )
-    output[target + 2] = clampByte((adjustedLuma + blueChroma * adjustedCb) * 255)
-    output[target + 3] = 255
+    const red = adjustedLuma + redChroma * adjustedCr
+    const green = adjustedLuma - redGreenChroma * adjustedCr - blueGreenChroma * adjustedCb
+    const blue = adjustedLuma + blueChroma * adjustedCb
+    if (toneMap) writeNclxHdrToneMappedRgba(output, target, red, green, blue, toneMap)
+    else {
+      output[target] = clampByte(red * 255)
+      output[target + 1] = clampByte(green * 255)
+      output[target + 2] = clampByte(blue * 255)
+      output[target + 3] = 255
+    }
   }
   if (sequence.chromaSubsampling === '444') {
     for (let localY = 0; localY < region.height; localY += 1) {

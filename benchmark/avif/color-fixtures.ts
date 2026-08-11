@@ -12,7 +12,118 @@ export interface AvifColorFixture extends AvifEncodedFixture {
   readonly width: number
 }
 
+interface AvifHdrToneMapFixtureBase extends AvifColorFixture {
+  readonly matrixCoefficients: number
+  readonly primaries: number
+  readonly sequenceColorSignaling?: 'unspecified'
+  readonly transferCharacteristics: 16 | 18
+}
+
+export interface AvifPqToneMapFixture extends AvifHdrToneMapFixtureBase {
+  readonly maximumAbsoluteError: number
+  readonly maximumMeanAbsoluteError: number
+  readonly maximumP95AbsoluteError: number
+  readonly minimumPsnr: number
+  readonly oracleFile: string
+  readonly oracleSha256: string
+  readonly transferCharacteristics: 16
+}
+
+export interface AvifHlgToneMapFixture extends AvifHdrToneMapFixtureBase {
+  readonly transferCharacteristics: 18
+}
+
+export type AvifHdrToneMapFixture = AvifPqToneMapFixture | AvifHlgToneMapFixture
+
+interface AvifHdrOracleSample {
+  readonly pixel: number
+  readonly rgb: readonly [number, number, number]
+}
+
+export interface AvifHdrSampleFixture extends AvifColorFixture {
+  readonly matrixCoefficients: number
+  readonly maximumAbsoluteError: number
+  readonly oracleSamples: readonly AvifHdrOracleSample[]
+  readonly primaries: number
+  readonly transferCharacteristics: 16 | 18
+}
+
 export const avifColorFixtureDirectory = avifCorpusDirectory
+
+export const avifHdrToneMapOracle =
+  'FFmpeg 7.1.1 zscale to linear RGB at 203-nit reference white, ' +
+  'Reinhard tone map with desaturation disabled and the PQ 10000-nit nominal peak, ' +
+  'then zscale to full-range IEC 61966-2-1 / BT.709 RGBA; identity-coded RGB is first ' +
+  'converted losslessly with libavif 1.3.0'
+
+export const avifHdrToneMapFixtures: readonly AvifHdrToneMapFixture[] = [
+  {
+    file: 'libavif-colors-hdr-p3.avif',
+    fileSha256: 'ec4b67fa129360f4b44768bdd1027fb32834d1a1f7e49ae53bed44c819def9c4',
+    width: 200,
+    height: 200,
+    rgbaSha256: 'ef957216a73d4aac1ddf6a0ccfe2159a1d3f361bea95d93bb2fbe009c06a9848',
+    primaries: 12,
+    transferCharacteristics: 16,
+    matrixCoefficients: 6,
+    oracleFile: 'oracle-libavif-colors-hdr-p3-ffmpeg-reinhard.png',
+    oracleSha256: 'fecc645c9e30cb36cc6998f5059aa3924d4984643db69ddcd387cd179e1120ff',
+    maximumAbsoluteError: 2,
+    maximumMeanAbsoluteError: 1,
+    maximumP95AbsoluteError: 1,
+    minimumPsnr: 50,
+  },
+  {
+    file: 'hdr-hlg-10bpc-yuv444-32x24.avif',
+    fileSha256: 'dbf91c2a6ec6b060b6f5502487bb5d437430dbf05b7233f58b186aed759fe1fa',
+    width: 32,
+    height: 24,
+    rgbaSha256: '51dd3264ec19aa0af645a145c84159581ebd121a2296c071c58e5dda04c9cec4',
+    primaries: 9,
+    transferCharacteristics: 18,
+    matrixCoefficients: 9,
+    sequenceColorSignaling: 'unspecified',
+  },
+  {
+    file: 'identity-pq-10bpc-yuv444-16x12.avif',
+    fileSha256: 'e55aa2515a20c5d1e84eef395ec925805a2568b1a2ab9cbe5b27b2ea14218ee0',
+    width: 16,
+    height: 12,
+    rgbaSha256: 'faf9e43856c554015a4940a2647a6d053fafb42cf22ebbb2600d4d61d4c018d9',
+    primaries: 9,
+    transferCharacteristics: 16,
+    matrixCoefficients: 0,
+    sequenceColorSignaling: 'unspecified',
+    oracleFile: 'oracle-identity-pq-rec2020-ffmpeg-reinhard.png',
+    oracleSha256: '86f0cedffb1fe542dcf92130cd59c2695164de56f022b66a7c414f9ca7acc82b',
+    maximumAbsoluteError: 1,
+    maximumMeanAbsoluteError: 1,
+    maximumP95AbsoluteError: 1,
+    minimumPsnr: 54,
+  },
+]
+
+export const avifHdrChromaDerivedFixture: AvifHdrSampleFixture = {
+  file: 'libavif-cosmos1650-yuv444-10bpc-p3pq.avif',
+  fileSha256: '1c3db1867051ae23ba61ed217f6b7372a4248e6322d76a239feab14bc4c55ab5',
+  width: 1024,
+  height: 428,
+  rgbaSha256: 'b39faa860e8fd51bfc22173d5c376f5b837a1eca2776e6bd3bbbcbbbfeb630bb',
+  primaries: 12,
+  transferCharacteristics: 16,
+  matrixCoefficients: 12,
+  maximumAbsoluteError: 1,
+  oracleSamples: [
+    { pixel: 0, rgb: [66, 95, 130] },
+    { pixel: 1023, rgb: [174, 150, 132] },
+    { pixel: 1024, rgb: [66, 95, 130] },
+    { pixel: 65_535, rgb: [205, 173, 136] },
+    { pixel: 109_567, rgb: [172, 127, 25] },
+    { pixel: 219_135, rgb: [90, 84, 0] },
+    { pixel: 328_703, rgb: [144, 91, 29] },
+    { pixel: 437_247, rgb: [136, 138, 0] },
+  ],
+}
 
 export const avifRec2020Fixture: AvifColorFixture = {
   file: 'libavif-colors-text-wcg-sdr-rec2020.avif',

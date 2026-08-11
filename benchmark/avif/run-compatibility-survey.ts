@@ -67,6 +67,7 @@ const classify = (message: string, code: string | undefined): string => {
     return 'high-bit-depth'
   }
   if (message.includes('filter-free frames')) return 'high-bit-post-filters'
+  if (message.includes('HDR AVIF NCLX')) return 'unsupported-av1-or-container-feature'
   if (
     message.includes('symbol decoder') ||
     message.includes('tile trailing') ||
