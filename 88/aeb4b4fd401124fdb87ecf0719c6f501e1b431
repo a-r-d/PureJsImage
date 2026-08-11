@@ -1,0 +1,52 @@
+.gitignore
+  h_9f4a25732fa0c1 189
+avif-codec-support.md
+  h_9f4a25732fa0c1 230-236,401,404-407,507-509,512-515,543
+benchmark/avif/high-bit-expanded-fixtures.ts
+  h_9f4a25732fa0c1 12,14-15,24,230-299
+benchmark/avif/memory-fixtures.ts
+  h_9f4a25732fa0c1 16-19,94-102,118-119,189-227,311-346,368-374
+benchmark/avif/memory-worker.ts
+  h_9f4a25732fa0c1 48-51,177
+benchmark/avif/prepare-high-bit-expanded-fixtures.ts
+  h_9f4a25732fa0c1 32,72-110
+benchmark/avif/run-memory.ts
+  h_9f4a25732fa0c1 9,59-62,193,195-198
+benchmark/corpus/files/avif/README.md
+  h_9f4a25732fa0c1 147-149
+benchmark/results/avif-high-bit-post-filters-2026-08-09.md
+  h_9f4a25732fa0c1 5,10-12,19,21,31-33,47-49,63-65,69-81,88,92
+benchmark/results/avif-memory-high-depth-2026-08-09.json
+  h_9f4a25732fa0c1 1-1618
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 2237-2269
+capabilities/manifest.json
+  h_9f4a25732fa0c1 1762-1764,1769,1793-1794,2034-2040,2205,2208-2211,2311-2313,2316-2319,2347
+docs/capabilities.json
+  h_9f4a25732fa0c1 3391-3393,3406,3430-3431,3933,3937-3941,3945,4273,4277,4443-4446,4451-4458
+docs/codecs.html
+  h_9f4a25732fa0c1 40,60,80
+docs/llms.txt
+  h_9f4a25732fa0c1 471-473
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 406-417
+src/codecs/av1-intra.ts
+  h_9f4a25732fa0c1 859-866,873-875
+src/codecs/av1-post-filter.ts
+  h_9f4a25732fa0c1 2,984-1068,1075
+tests/av1-post-filter.test.ts
+  h_9f4a25732fa0c1 17-22,44-141,234-372
+tests/generated/capability-expectations.json
+  h_9f4a25732fa0c1 159,183-184
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "88aeb4b4fd401124fdb87ecf0719c6f501e1b431",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
