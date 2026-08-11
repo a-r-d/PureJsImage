@@ -13,6 +13,8 @@ export type AvifMemoryScenario =
   | 'deblock'
   | 'downscale'
   | 'filtered-4k-multitile'
+  | 'film-grain'
+  | 'gain-map-grid'
   | 'grid'
   | 'no-filters'
   | 'restoration'
@@ -215,6 +217,24 @@ export const prepareAvifMemoryCases = async (
       expectedWidth: 3_840,
       expectedHeight: 2_160,
       expectedOutputSha256: 'fa0ee4c2f74aef92f77ce700eb60f001b6502db9c5d540b43bdddb59fdcc3880',
+    },
+    {
+      scenario: 'film-grain',
+      action: 'decode',
+      path: join(avifCorpusDirectory, 'film-grain-test1-yuv420-64x48.avif'),
+      fileSha256: 'd6c1d64166964bf1d2de06c779235e17d4b641d8679eb9d5481708a4e8c5ad1c',
+      expectedWidth: 64,
+      expectedHeight: 48,
+      expectedOutputSha256: 'ceff8604f5dc42f3a16a67dc2b8afc56d3fe8674567353b82c2e8384f10835dd',
+    },
+    {
+      scenario: 'gain-map-grid',
+      action: 'decode',
+      path: join(avifCorpusDirectory, 'libavif_color_grid_gainmap_different_grid.avif'),
+      fileSha256: '73a68c3d6daad7b8298db975a00f02bca46b6c3f292eac09d3c1443d2006fab2',
+      expectedWidth: 512,
+      expectedHeight: 600,
+      expectedOutputSha256: '4091bcc2b181c37e1b03bb6ec2b086b77516318b58cef4c75e8a8b5b0989f81e',
     },
     {
       scenario: 'alpha',

@@ -404,6 +404,10 @@ await copyFile(
   resolve(fixtureDirectory, 'xiph-tiger-3layer-lsel0-1216x832.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/tiger-3layer-3res-lsel0.avif',
+  resolve(fixtureDirectory, 'tiger-3layer-3res-lsel0.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif',
   resolve(fixtureDirectory, 'tiled-lossless-10bpc-yuv444-2x2-256x256.avif'),
 )
@@ -418,6 +422,26 @@ await copyFile(
 await copyFile(
   'benchmark/corpus/files/avif/libavif-bounded-filtered-yuv420-3840x2160.avif',
   resolve(fixtureDirectory, 'libavif-bounded-filtered-yuv420-3840x2160.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif_color_grid_alpha_grid_gainmap_nogrid.avif',
+  resolve(fixtureDirectory, 'libavif_color_grid_alpha_grid_gainmap_nogrid.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif_color_grid_gainmap_different_grid.avif',
+  resolve(fixtureDirectory, 'libavif_color_grid_gainmap_different_grid.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif_color_nogrid_alpha_nogrid_gainmap_grid.avif',
+  resolve(fixtureDirectory, 'libavif_color_nogrid_alpha_nogrid_gainmap_grid.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif_seine_hdr_gainmap_small_srgb.avif',
+  resolve(fixtureDirectory, 'libavif_seine_hdr_gainmap_small_srgb.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/film-grain-test1-yuv420-64x48.avif',
+  resolve(fixtureDirectory, 'film-grain-test1-yuv420-64x48.avif'),
 )
 await copyFile(
   'benchmark/corpus/files/avif/ms-mexico-nonstill-sequence.avif',

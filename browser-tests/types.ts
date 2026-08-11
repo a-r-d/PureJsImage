@@ -13,6 +13,8 @@ export interface BrowserCompatibilityHarness {
   avifCleanAperture(): Promise<BrowserWorkflowResult>
   avifCommonPhotoSyntax(): Promise<BrowserWorkflowResult>
   avifFilteredSuperres(): Promise<BrowserWorkflowResult>
+  avifFilmGrain(): Promise<BrowserWorkflowResult>
+  avifGainMapGrid(): Promise<BrowserWorkflowResult>
   avifGrid(): Promise<BrowserWorkflowResult>
   avifHighBit10(): Promise<BrowserWorkflowResult>
   avifHighBit12(): Promise<BrowserWorkflowResult>
@@ -24,6 +26,7 @@ export interface BrowserCompatibilityHarness {
   avifIcc(): Promise<BrowserWorkflowResult>
   avifLossyMultitile(): Promise<BrowserWorkflowResult>
   avifLayeredSelection(): Promise<BrowserWorkflowResult>
+  avifSelectedBaseLayer(): Promise<BrowserWorkflowResult>
   avifIntrabc(): Promise<BrowserWorkflowResult>
   avifResidualIntrabc(): Promise<BrowserWorkflowResult>
   avifStillPictureEntropy(): Promise<BrowserWorkflowResult>

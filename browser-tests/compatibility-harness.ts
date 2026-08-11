@@ -2163,6 +2163,51 @@ const avifLossyMultitile = async (): Promise<BrowserWorkflowResult> => {
     outputBytes: results.reduce((total, result) => total + result.outputBytes, 0),
   }
 }
+const avifGainMapGrid = async (): Promise<BrowserWorkflowResult> => {
+  const results = await Promise.all([
+    avifPinnedPng(
+      'libavif_color_grid_alpha_grid_gainmap_nogrid.avif',
+      512,
+      600,
+      'ea8a15d99b5f28a7858b097b8b82056ce65898f51bb2ff0d2c5715bdcfeff2fd',
+      'Resampled AVIF gain map over aligned color and alpha grids',
+    ),
+    avifPinnedPng(
+      'libavif_color_grid_gainmap_different_grid.avif',
+      512,
+      600,
+      '4091bcc2b181c37e1b03bb6ec2b086b77516318b58cef4c75e8a8b5b0989f81e',
+      'Independently tiled and resampled AVIF gain-map grid',
+    ),
+    avifPinnedPng(
+      'libavif_color_nogrid_alpha_nogrid_gainmap_grid.avif',
+      128,
+      200,
+      'b6ab4171d2d9030704c753aff99765c47b0829f537b2e92138eb90e64f3e0441',
+      'AVIF gain-map grid over single color and alpha items',
+    ),
+    avifPinnedPng(
+      'libavif_seine_hdr_gainmap_small_srgb.avif',
+      400,
+      300,
+      'a3a2ea2482c9d96b7b98b47dc1d874229a079d0860ccac0ed8ee77e19b3580b1',
+      'Resampled single-item AVIF gain map',
+    ),
+  ])
+  return {
+    detail: results.map((result) => result.detail).join('; '),
+    outputBytes: results.reduce((total, result) => total + result.outputBytes, 0),
+  }
+}
+const avifFilmGrain = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'film-grain-test1-yuv420-64x48.avif',
+    64,
+    48,
+    'ceff8604f5dc42f3a16a67dc2b8afc56d3fe8674567353b82c2e8384f10835dd',
+    'Normative AV1 film-grain synthesis',
+  )
+
 const avifNonstillSequence = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
     'ms-mexico-nonstill-sequence.avif',
@@ -2178,6 +2223,14 @@ const avifLayeredSelection = (): Promise<BrowserWorkflowResult> =>
     832,
     'd04f5c88fa8e105b354967755d1261ade0e214f85bb8707b97fcd0568098b68e',
     'Three-frame AVIF item with lsel spatial layer 0',
+  )
+const avifSelectedBaseLayer = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'tiger-3layer-3res-lsel0.avif',
+    304,
+    208,
+    'd9f8a13bbe9f0e86540c431cf3cfdcd1ffd00b345526cefcd7faa1904ab6ba3a',
+    'Selected 304x208 AVIF base layer with a frame-dimension override',
   )
 const avifCommonPhotoSyntax = async (): Promise<BrowserWorkflowResult> => {
   const results = await Promise.all([
@@ -2451,8 +2504,11 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifIcc,
   avifFilteredSuperres,
   avifLossyMultitile,
+  avifGainMapGrid,
+  avifFilmGrain,
   avifNonstillSequence,
   avifLayeredSelection,
+  avifSelectedBaseLayer,
   avifSuperres,
   avifIntrabc,
   avifResidualIntrabc,

@@ -1,6 +1,7 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { Av1SequenceHeader } from './av1.ts'
 import { Av1CoefficientDecoder } from './av1-coeff.ts'
+import { applyAv1FilmGrain, estimateAv1FilmGrainWorkingBytes } from './av1-film-grain.ts'
 import type { Av1Frame, Av1Tile } from './av1-frame.ts'
 import {
   colorMapDefaults,
@@ -3654,8 +3655,7 @@ class RestrictedIntraTileDecoder {
 
 const validateRestrictedAv1Intra = (sequence: Av1SequenceHeader, frame: Av1Frame): void => {
   const supportedChroma = sequence.monochrome
-    ? sequence.chromaSubsampling === '400' &&
-      (sequence.profile === 0 || (sequence.bitDepth === 12 && sequence.profile === 2))
+    ? sequence.chromaSubsampling === '400' && (sequence.profile === 0 || sequence.profile === 2)
     : (sequence.chromaSubsampling === '420' &&
         (sequence.profile === 0 || (sequence.bitDepth === 12 && sequence.profile === 2))) ||
       (sequence.chromaSubsampling === '444' &&
@@ -3957,6 +3957,7 @@ export const supportsRestrictedAv1IntraRows = (frame: Av1Frame): boolean => {
   })
   return (
     frame.tiles.length === 1 &&
+    frame.header.filmGrain === undefined &&
     !frame.header.allowIntrabc &&
     noLoopFilter &&
     frame.header.cdefYPrimaryStrengths.every((value) => value === 0) &&
@@ -4071,6 +4072,10 @@ export const estimateRestrictedAv1WorkingBytes = (
               Math.ceil(frame.header.frameHeight / 2 ** chromaShiftY))) *
         sampleBytes
   const rgbaBlockBytes = frame.header.upscaledWidth * Math.min(32, frame.header.frameHeight) * 4
+  const filmGrainBytes =
+    frame.header.filmGrain === undefined
+      ? 0
+      : estimateAv1FilmGrainWorkingBytes(frame.header.upscaledWidth, sequence)
   const fixedEntropyAndCoefficientScratchBytes = 2 * 1_024 * 1_024
   const tileDecoderBytes =
     maximumModePaletteContextBytes +
@@ -4084,6 +4089,7 @@ export const estimateRestrictedAv1WorkingBytes = (
     framePostFilterContextBytes +
     cdefBandBytes +
     restorationBoundaryBytes +
+    filmGrainBytes +
     rgbaBlockBytes
   )
 }
@@ -4283,7 +4289,7 @@ export const decodeRestrictedAv1Intra = (
       ? applyAv1PostFilters(reconstruction.planes, frame.header, postFilterState)
       : reconstruction.planes
   }
-  return {
+  const decoded: Av1DecodedFrame = {
     width: frame.header.upscaledWidth,
     height: frame.header.frameHeight,
     chromaWidth: sequence.monochrome
@@ -4298,6 +4304,8 @@ export const decodeRestrictedAv1Intra = (
     u: decodedPlanes[1].data,
     v: decodedPlanes[2].data,
   }
+  if (frame.header.filmGrain) applyAv1FilmGrain(sequence, decoded, frame.header.filmGrain)
+  return decoded
 }
 
 const clampByte = (value: number): number => Math.max(0, Math.min(255, Math.round(value)))

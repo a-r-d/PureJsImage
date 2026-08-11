@@ -96,9 +96,9 @@ coverage.
   super-resolution signaling
 - [x] Preservation of bounded OBU payload ranges for later frame parsing
 - [x] Compatible non-reduced sequence headers with one operating point,
-  `still_picture=0`, and one shown key frame at maximum dimensions
+  `still_picture=0`, and one shown key frame at maximum or explicitly overridden dimensions
 - [ ] General non-reduced sequence headers with decoder timing, multiple
-  operating points, frame IDs, or frame-dimension overrides
+  operating points, frame IDs, or inter-frame dimension overrides
 - [ ] Multiple operating-point selection
 - [ ] Annex B AV1 byte streams
 - [ ] Inter-frame or general video decoding
@@ -158,9 +158,9 @@ coverage.
   and cropped right or bottom edge tiles
 - [x] Public crop, resize, AVIF-to-PNG, AVIF-to-JPEG, AVIF-to-WebP, and
   AVIF-to-other-implemented-codec pipelines after frame reconstruction
-- [ ] Multiple independently decoded AV1 tiles
+- [x] Multiple independently decoded AV1 tiles
 - [ ] Tile-list OBUs or partial, overlapping, reordered, or missing tile groups
-- [ ] Alpha-bearing image grids
+- [x] Alpha-bearing image grids
 - [x] Skipped intra block copy with adaptive integer motion-vector coding
 - [x] Residual intra-block-copy transform partitions, transform types,
   coefficients, inverse transforms, and reconstruction used by the pinned
@@ -181,7 +181,7 @@ coverage.
   quantizer-context combination
 - [x] Normative eight-tap horizontal super-resolution for filter-free one-tile
   8-bit frames
-- [ ] Film grain synthesis
+- [x] Film grain synthesis
 
 ### In-loop filtering and restoration
 
@@ -231,13 +231,16 @@ byte. The full-size tolerance remains zero.
 - [x] Compatible full-range 8-bit monochrome alpha auxiliaries
 - [x] Premultiplied-alpha signaling and normalization to straight RGBA
 - [x] Multi-item opaque grids with cropped right and bottom edge composition
-- [x] Compatible non-reduced shown key-frame headers without decoder timing,
-  frame IDs, or frame-dimension overrides
+- [x] Compatible non-reduced shown key-frame headers without decoder timing or
+  frame IDs, including selected key-frame dimension overrides below the sequence maximum
 - [x] One still frame stored as a frame-header OBU followed by multiple complete
   contiguous tile-group OBUs
 - [x] Explicit lsel spatial-layer selection from a1lx-indexed multi-frame items
-  when the selected output is an independently decodable shown key frame
-- [ ] Dependent enhancement layers, frame-dimension overrides, and rendering all intermediate layers
+  when the selected output is an independently decodable shown key frame, including
+  a lower-resolution base layer with a frame-dimension override
+- [x] Classify shown key, inter, intra-only, switch, and show-existing frame
+  headers before reconstruction and explicitly reject dependent enhancement layers
+- [ ] Dependent enhancement layers and rendering all intermediate layers
 - [x] Reject PQ and HLG transfer signaling before SDR pixel conversion unless
   a compatible SDR gain-map alternate is selected
 - [ ] Broader wide-gamut NCLX and ICC-managed conversion
@@ -348,12 +351,12 @@ byte. The full-size tolerance remains zero.
 - [x] Reject malformed OBU sizes, duplicate sequence headers, truncated frame
   headers, tile overruns, invalid arithmetic symbols, impossible partitions,
   coefficient scans, and transform bounds explicitly
-- [x] Inspect all 45 checksum-pinned permanent corpus files and 57 unique coded
+- [x] Inspect all 46 checksum-pinned permanent corpus files and 57 unique coded
   items across `mdat`, `idat`, multiple extents, grids, alpha, gain maps,
   8/10/12-bit, 4:0:0/4:2:0/4:2:2/4:4:4, progressive storage, HDR signaling,
   layered frame units, reduced and full still-picture headers, and a non-still
   sequence header
-- [x] Pass metadata expectations for all 45 permanent corpus files
+- [x] Pass metadata expectations for all 46 permanent corpus files
 - [x] Decode exact independent reference pixels for the embedded 2x2 lossless
   fixture and the 4x4 lossy fixture
 - [x] Decode and pin RGBA regression hashes for Kodak 768x512 color; Fox
@@ -412,6 +415,11 @@ byte. The full-size tolerance remains zero.
   super-resolution fixture with a non-block-aligned coded width
 - [x] Exercise filtered AV1 super-resolution through the portable TypeScript
   codec in Chromium and pin its RGBA output
+- [x] Match agreeing dav1d and libaom native YUV byte for byte for a
+  checksum-pinned AV1 film-grain test vector and hold displayed RGBA to
+  maximum channel error 2 against both native decoders
+- [x] Exercise AV1 film-grain synthesis through the portable TypeScript
+  codec in Chromium and pin its RGBA output
 - [x] Match Sharp/libavif RGBA exactly for checksum-pinned straight and
   premultiplied alpha fixtures after normalizing premultiplied color to the
   library's straight-RGBA pixel contract
@@ -423,10 +431,12 @@ byte. The full-size tolerance remains zero.
   for two checksum-pinned fixtures
 - [x] Hold linear BT.2020 conversion to maximum channel error 13 and mean error
   at most 0.5 against an FFmpeg/zimg staged-sRGB oracle
-- [x] Hold checksum-pinned ISO gain-map output to maximum channel error 4 and
-  mean error at most 1 against libavif 1.3.0, and reject a non-preferred `tmap`
-- [x] Exercise Rec.2020, RGB ICC, and gain-map SDR output through the portable
-  TypeScript codec in Chromium and pin each RGBA output
+- [x] Hold four checksum-pinned single-image, grid, and resampled ISO
+  gain-map outputs to mean channel error at most 1.35 and RGB PSNR at
+  least 39 dB against libavif 1.3.0, and reject a non-preferred tmap
+- [x] Exercise Rec.2020, RGB ICC, and single-image, grid, and resampled
+  gain-map SDR output through the portable TypeScript codec in Chromium
+  and pin each RGBA output
 - [x] Keep `@stacksjs/ts-avif` development-only; the published package is not a
   production dependency
 - [x] Add exact post-filter comparisons against both dav1d and libaom for five
@@ -500,3 +510,4 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-memory-bounded-superres-2026-08-09.json`](benchmark/results/avif-memory-bounded-superres-2026-08-09.json)
 - [`benchmark/results/avif-compatibility-survey-2026-08-10.md`](benchmark/results/avif-compatibility-survey-2026-08-10.md)
 - [`benchmark/results/avif-memory-bounded-filtered-2026-08-10.json`](benchmark/results/avif-memory-bounded-filtered-2026-08-10.json)
+- [`benchmark/results/avif-memory-auxiliary-film-grain-2026-08-10.json`](benchmark/results/avif-memory-auxiliary-film-grain-2026-08-10.json)

@@ -202,6 +202,15 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/ibc-deltaq-512x128.avif
 !benchmark/corpus/files/avif/tiled-lossless-10bpc-yuv444-2x2-256x256.avif
 !benchmark/corpus/files/avif/libavif-bounded-filtered-yuv420-3840x2160.avif
+!benchmark/corpus/files/avif/linku-plum-10bpc-alpha-full.avif
+!benchmark/corpus/files/avif/ms-bbb-alpha-inverted.avif
+!benchmark/corpus/files/avif/libavif_color_grid_alpha_grid_gainmap_nogrid.avif
+!benchmark/corpus/files/avif/libavif_color_grid_gainmap_different_grid.avif
+!benchmark/corpus/files/avif/libavif_color_nogrid_alpha_nogrid_gainmap_grid.avif
+!benchmark/corpus/files/avif/libavif_seine_hdr_gainmap_small_srgb.avif
+!benchmark/corpus/files/avif/film-grain-test1-yuv420-64x48.avif
+!benchmark/corpus/files/avif/tiger-3layer-3res.avif
+!benchmark/corpus/files/avif/tiger-3layer-3res-lsel0.avif
 !benchmark/corpus/files/avif/libaom-superres-denom12-96x64.avif
 !benchmark/corpus/files/avif/libaom-superres-denom12-yuv420-96x64.avif
 !benchmark/corpus/files/avif/libaom-filtered-superres-denom12-yuv420-320x192.avif

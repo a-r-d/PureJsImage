@@ -9,6 +9,10 @@ import { parseAv1Frame } from '../../src/codecs/av1-frame.ts'
 import { type Av1DecodedFrame, decodeRestrictedAv1Intra } from '../../src/codecs/av1-intra.ts'
 import { inspectAvifBitstreams } from '../../src/codecs/avif.ts'
 import { MemorySource } from '../../src/source.ts'
+import {
+  avifSelectedBaseLayerFixture as baseFixture,
+  avifSelectedBaseLayerFixturePath as basePath,
+} from './dependent-layer-fixture.ts'
 import { avifLayeredFixture as fixture, avifLayeredFixturePath as path } from './layered-fixture.ts'
 
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
@@ -31,8 +35,12 @@ const packVisibleYuv = (frame: Av1DecodedFrame): Uint8Array => {
   return output
 }
 
-const decodeOracle = async (decoder: 'aom' | 'dav1d', outputPath: string): Promise<Uint8Array> => {
-  const result = spawnSync('avifdec', ['--codec', decoder, '--jobs', '1', path, outputPath], {
+const decodeOracle = async (
+  decoder: 'aom' | 'dav1d',
+  inputPath: string,
+  outputPath: string,
+): Promise<Uint8Array> => {
+  const result = spawnSync('avifdec', ['--codec', decoder, '--jobs', '1', inputPath, outputPath], {
     encoding: 'utf8',
   })
   if (result.error) throw result.error
@@ -66,8 +74,8 @@ const pure = packVisibleYuv(
 const temporaryDirectory = await mkdtemp(join(tmpdir(), 'purejsimage-avif-layered-oracles-'))
 try {
   const [dav1d, libaom] = await Promise.all([
-    decodeOracle('dav1d', join(temporaryDirectory, 'dav1d.y4m')),
-    decodeOracle('aom', join(temporaryDirectory, 'libaom.y4m')),
+    decodeOracle('dav1d', path, join(temporaryDirectory, 'dav1d.y4m')),
+    decodeOracle('aom', path, join(temporaryDirectory, 'libaom.y4m')),
   ])
   if (!Buffer.from(pure).equals(dav1d) || !Buffer.from(dav1d).equals(libaom)) {
     throw new Error(`${fixture.file} native YUV differs across decoders`)
@@ -82,6 +90,50 @@ try {
       spatialIds: fixture.spatialIds,
       tolerance: 0,
       yuvSha256: fixture.decodedYuvSha256,
+    }),
+  )
+
+  const baseInput = new Uint8Array(await readFile(basePath))
+  if (sha256(baseInput) !== baseFixture.fileSha256) {
+    throw new Error(`${baseFixture.file} checksum changed`)
+  }
+  const baseInspection = await inspectAvifBitstreams(new MemorySource(baseInput))
+  const baseCoded = baseInspection.codedImages.find((image) => image.role === 'color')
+  if (!baseCoded) throw new Error(`${baseFixture.file} has no color item`)
+  const baseFrameObus = baseCoded.obus.filter((obu) => obu.type === av1ObuType.frame)
+  const baseSelected = baseFrameObus.find((obu) => obu.spatialId === baseFixture.selectedSpatialId)
+  if (
+    !baseSelected ||
+    baseCoded.layerSelector !== baseFixture.selectedSpatialId ||
+    baseCoded.width !== baseFixture.width ||
+    baseCoded.height !== baseFixture.height
+  ) {
+    throw new Error(`${baseFixture.file} selected base-layer structure changed`)
+  }
+  const basePure = packVisibleYuv(
+    decodeRestrictedAv1Intra(
+      baseCoded.sequence,
+      parseAv1Frame(baseCoded.sequence, baseSelected.payload),
+    ),
+  )
+  const [baseDav1d, baseLibaom] = await Promise.all([
+    decodeOracle('dav1d', basePath, join(temporaryDirectory, 'base-dav1d.y4m')),
+    decodeOracle('aom', basePath, join(temporaryDirectory, 'base-libaom.y4m')),
+  ])
+  if (!Buffer.from(basePure).equals(baseDav1d) || !Buffer.from(baseDav1d).equals(baseLibaom)) {
+    throw new Error(`${baseFixture.file} native YUV differs across decoders`)
+  }
+  if (sha256(basePure) !== baseFixture.decodedYuvSha256) {
+    throw new Error(`${baseFixture.file} decoded YUV checksum changed`)
+  }
+  console.log(
+    JSON.stringify({
+      decoders: ['PureJsImage', 'dav1d', 'libaom'],
+      dimensions: [baseFixture.width, baseFixture.height],
+      file: baseFixture.file,
+      selectedSpatialId: baseFixture.selectedSpatialId,
+      tolerance: 0,
+      yuvSha256: baseFixture.decodedYuvSha256,
     }),
   )
 } finally {

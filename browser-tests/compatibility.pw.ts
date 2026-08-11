@@ -248,6 +248,21 @@ test('decodes lossy AVIF tile and tile-group layouts', async ({ page }) => {
   expect(result.detail).toContain('four tile-group OBUs')
   expect(result.detail).toContain('8x2-tile 4K AVIF')
 })
+test('applies resampled single and grid AVIF gain maps', async ({ page }) => {
+  test.setTimeout(60_000)
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifGainMapGrid())
+  expect(result.outputBytes).toBeGreaterThan(1_000)
+  expect(result.detail).toContain('Independently tiled and resampled AVIF gain-map grid')
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+test('synthesizes AV1 film grain', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifFilmGrain())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('Normative AV1 film-grain synthesis')
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
 test('decodes a static AVIF with a non-still AV1 sequence header', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifNonstillSequence())
@@ -259,6 +274,15 @@ test('selects a complete layer from a multi-frame AVIF item', async ({ page }) =
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifLayeredSelection())
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('lsel spatial layer 0')
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+test('decodes a selected AVIF base layer below the sequence maximum dimensions', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifSelectedBaseLayer())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('304x208 AVIF base layer')
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 

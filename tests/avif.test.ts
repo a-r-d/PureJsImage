@@ -4,7 +4,11 @@ import { join } from 'node:path'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
-import { avifAlphaFixtures } from '../benchmark/avif/alpha-fixtures.ts'
+import {
+  avifAlphaFixtures,
+  avifGainMapFixtures,
+  avifStagedAlphaFixtures,
+} from '../benchmark/avif/alpha-fixtures.ts'
 import {
   avifAlphaGridFixture,
   avifAlphaTransformDecodedRgbaSha256,
@@ -18,6 +22,10 @@ import {
   avifCleanApertureFixtureDirectory,
 } from '../benchmark/avif/clean-aperture-fixture.ts'
 import {
+  avifFilmGrainFixture,
+  avifFilmGrainFixturePath,
+} from '../benchmark/avif/film-grain-fixture.ts'
+import {
   avifCommonPhotoSyntaxFixturePath,
   avifCommonPhotoSyntaxFixtures,
 } from '../benchmark/avif/common-photo-syntax-fixtures.ts'
@@ -28,6 +36,12 @@ import {
   avifRec2020Fixture,
   avifWrongAlternativeGainMapFixture,
 } from '../benchmark/avif/color-fixtures.ts'
+import {
+  avifDependentLayerFixture,
+  avifDependentLayerFixturePath,
+  avifSelectedBaseLayerFixture,
+  avifSelectedBaseLayerFixturePath,
+} from '../benchmark/avif/dependent-layer-fixture.ts'
 import { avifCorpusDirectory } from '../benchmark/avif/corpus.ts'
 import {
   avifHighBitExpandedFixturePath,
@@ -80,7 +94,7 @@ import {
   tiledLosslessSample,
 } from '../benchmark/avif/tiled-lossless-fixture.ts'
 import { av1ObuType } from '../src/codecs/av1.ts'
-import { parseAv1Frame, parseAv1FrameObus } from '../src/codecs/av1-frame.ts'
+import { inspectAv1FrameHeader, parseAv1Frame, parseAv1FrameObus } from '../src/codecs/av1-frame.ts'
 import {
   type Av1DecodedFrame,
   decodeRestrictedAv1Intra,
@@ -1460,6 +1474,118 @@ describe('AVIF restricted pixel decode', () => {
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
   })
 
+  it.each(avifStagedAlphaFixtures)(
+    'decodes staged full-frame color and alpha from $file below the codec limit',
+    async (fixture) => {
+      const input = new Uint8Array(await readFile(join(avifCorpusDirectory, fixture.file)))
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+      const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+      if (!decoder) throw new Error('AVIF decoder is unavailable')
+      const color = inspection.codedImages.find((image) => image.role === 'color')
+      const alpha = inspection.codedImages.find((image) => image.role === 'alpha')
+      const hash = createHash('sha256')
+      let nextY = 0
+      for await (const block of decoder.decode()) {
+        expect(block).toMatchObject({
+          x: 0,
+          y: nextY,
+          width: fixture.width,
+          stride: fixture.width * 4,
+          format: 'rgba8',
+        })
+        expect(block.height).toBeLessThanOrEqual(32)
+        nextY += block.height
+        hash.update(block.data)
+      }
+
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+      expect([decoder.width, decoder.height, nextY]).toEqual([
+        fixture.width,
+        fixture.height,
+        fixture.height,
+      ])
+      expect(color).toBeDefined()
+      expect(alpha?.sequence).toMatchObject({ chromaSubsampling: '400', monochrome: true })
+      expect(fixture.retainedAlphaBytes).toBeLessThan(fixture.colorPhaseWorkingBytes)
+      expect(() => validateAvifWorkingBytes(fixture.colorPhaseWorkingBytes)).not.toThrow()
+      expect(hash.digest('hex')).toBe(fixture.decodedRgbaSha256)
+    },
+    60_000,
+  )
+
+  it.each(avifGainMapFixtures)(
+    'decodes and applies the resampled gain map from $file',
+    async (fixture) => {
+      const input = new Uint8Array(await readFile(join(avifCorpusDirectory, fixture.file)))
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+      const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+      if (!decoder) throw new Error('AVIF decoder is unavailable')
+      const hash = createHash('sha256')
+      let nextY = 0
+      for await (const block of decoder.decode()) {
+        expect(block).toMatchObject({
+          x: 0,
+          y: nextY,
+          width: fixture.width,
+          stride: fixture.width * 4,
+          format: 'rgba8',
+        })
+        expect(block.height).toBeLessThanOrEqual(32)
+        nextY += block.height
+        hash.update(block.data)
+      }
+
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+      expect([decoder.width, decoder.height, nextY]).toEqual([
+        fixture.width,
+        fixture.height,
+        fixture.height,
+      ])
+      expect(inspection.primaryItemType === 'grid').toBe(fixture.baseGrid)
+      expect(inspection.gainMap?.gainMapItemType === 'grid').toBe(fixture.gainMapGrid)
+      expect(
+        inspection.alphaItemId !== undefined || inspection.alphaAssociations.length !== 0,
+      ).toBe(fixture.hasAlpha)
+      expect(hash.digest('hex')).toBe(fixture.decodedRgbaSha256)
+    },
+    30_000,
+  )
+
+  it('synthesizes checksum-pinned AV1 film grain after reconstruction filters', async () => {
+    const input = new Uint8Array(await readFile(avifFilmGrainFixturePath))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    if (!coded) throw new Error('AVIF film-grain fixture has no color item')
+    const frame = parseAv1FrameObus(coded.sequence, coded.obus)
+    const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('AVIF decoder is unavailable')
+    const hash = createHash('sha256')
+    let nextY = 0
+    for await (const block of decoder.decode()) {
+      expect(block.y).toBe(nextY)
+      expect(block.height).toBeLessThanOrEqual(32)
+      nextY += block.height
+      hash.update(block.data)
+    }
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(avifFilmGrainFixture.fileSha256)
+    expect(frame.header.filmGrain).toMatchObject({
+      seed: 45_231,
+      grainScaling: 11,
+      arCoeffLag: 2,
+      arCoeffShift: 8,
+      overlap: false,
+      clipToRestrictedRange: false,
+    })
+    expect(frame.header.filmGrain?.yPoints.length).toBeGreaterThan(0)
+    expect([decoder.width, decoder.height, nextY]).toEqual([
+      avifFilmGrainFixture.width,
+      avifFilmGrainFixture.height,
+      avifFilmGrainFixture.height,
+    ])
+    expect(hash.digest('hex')).toBe(avifFilmGrainFixture.decodedRgbaSha256)
+  })
+
   it.each(avifExpandedAlphaFixtures)(
     'decodes $alphaBitDepth-bit $alphaFullRange alpha from $file',
     async (fixture) => {
@@ -1588,6 +1714,55 @@ describe('AVIF restricted pixel decode', () => {
     )
   })
 
+  it('decodes a selected base layer whose frame dimensions override the sequence maximum', async () => {
+    const input = await readFile(avifSelectedBaseLayerFixturePath)
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    if (!coded) throw new Error('Selected base-layer AVIF fixture has no color item')
+    const selected = coded.obus.find(
+      (obu) =>
+        obu.type === av1ObuType.frame &&
+        obu.spatialId === avifSelectedBaseLayerFixture.selectedSpatialId,
+    )
+    if (!selected) throw new Error('Selected base-layer AVIF fixture has no selected frame')
+    const frame = parseAv1Frame(coded.sequence, selected.payload)
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(
+      avifSelectedBaseLayerFixture.fileSha256,
+    )
+    expect(coded).toMatchObject({
+      width: avifSelectedBaseLayerFixture.width,
+      height: avifSelectedBaseLayerFixture.height,
+      layerSelector: avifSelectedBaseLayerFixture.selectedSpatialId,
+    })
+    expect(frame.header).toMatchObject({
+      upscaledWidth: avifSelectedBaseLayerFixture.width,
+      frameHeight: avifSelectedBaseLayerFixture.height,
+      renderWidth: avifDependentLayerFixture.width,
+      renderHeight: avifDependentLayerFixture.height,
+    })
+    expect([output.width, output.height]).toEqual([
+      avifSelectedBaseLayerFixture.width,
+      avifSelectedBaseLayerFixture.height,
+    ])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      avifSelectedBaseLayerFixture.decodedRgbaSha256,
+    )
+  })
+
+  it('rejects a selected base layer whose AVIF extents do not match its output frame', async () => {
+    const input = Buffer.from(await readFile(avifSelectedBaseLayerFixturePath))
+    const spatialExtents = input.indexOf('ispe')
+    expect(spatialExtents).toBeGreaterThanOrEqual(0)
+    input.writeUInt32BE(avifSelectedBaseLayerFixture.width + 1, spatialExtents + 8)
+
+    await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'AVIF item 1 dimensions do not match its AV1 frame',
+    })
+  })
+
   it('rejects a layered AVIF whose selected output layer is absent', async () => {
     const input = Buffer.from(await readFile(avifLayeredFixturePath))
     const selector = input.indexOf('lsel')
@@ -1597,6 +1772,31 @@ describe('AVIF restricted pixel decode', () => {
     await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
       code: 'INVALID_INPUT',
       message: 'AVIF item 1 has no output frame for selected spatial layer 3',
+    })
+  })
+
+  it('classifies dependent progressive layers before rejecting inter-frame decode', async () => {
+    const input = new Uint8Array(await readFile(avifDependentLayerFixturePath))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    if (!coded) throw new Error('Dependent-layer AVIF fixture has no color item')
+    const frameObus = coded.obus.filter((obu) => obu.type === av1ObuType.frame)
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(
+      avifDependentLayerFixture.fileSha256,
+    )
+    expect([coded.width, coded.height]).toEqual([
+      avifDependentLayerFixture.width,
+      avifDependentLayerFixture.height,
+    ])
+    expect(coded.layerSizes).toEqual(avifDependentLayerFixture.layerSizes)
+    expect(frameObus.map((obu) => obu.spatialId)).toEqual(avifDependentLayerFixture.spatialIds)
+    expect(frameObus.map((obu) => inspectAv1FrameHeader(coded.sequence, obu.payload).kind)).toEqual(
+      avifDependentLayerFixture.frameKinds,
+    )
+    await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'AVIF dependent AV1 spatial enhancement layer 2 decode is not supported',
     })
   })
 
