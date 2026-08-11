@@ -12,7 +12,7 @@ import type { PixelBlock } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
 import { type Av1Obu, type Av1SequenceHeader, av1ObuType, inspectAv1Bitstream } from './av1.ts'
-import { type Av1Frame, parseAv1FrameObus } from './av1-frame.ts'
+import { type Av1Frame, inspectAv1FrameHeader, parseAv1FrameObus } from './av1-frame.ts'
 import {
   type Av1DecodedFrame,
   av1ToRgbaRegion,
@@ -22,6 +22,7 @@ import {
   estimateRestrictedAv1WorkingBytes,
   supportsRestrictedAv1IntraRows,
 } from './av1-intra.ts'
+import { createAvifEncoder } from './avif-encode.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import {
   ColorManagedDecoder,
@@ -113,6 +114,7 @@ type Property =
       readonly iccDescription?: string
       readonly nclx?: NclxColor
     }
+  | { readonly type: 'imir'; readonly axis: 0 | 1 }
   | { readonly type: 'irot'; readonly angle: number }
   | { readonly type: 'ispe'; readonly width: number; readonly height: number }
   | { readonly type: 'lsel'; readonly layerId: number }
@@ -333,6 +335,13 @@ const parseProperty = async (source: ImageSource, box: Box): Promise<Property> =
     }
     return { type: 'irot', angle: (data[0] ?? 0) & 3 }
   }
+  if (box.type === 'imir') {
+    const data = await payload(source, box, 1)
+    if (data.byteLength !== 1 || ((data[0] ?? 0) & 0xfe) !== 0) {
+      throw invalidInput('AVIF imir property is invalid')
+    }
+    return { type: 'imir', axis: (data[0] ?? 0) === 0 ? 0 : 1 }
+  }
   if (box.type === 'clap') {
     const data = await payload(source, box, 32)
     if (data.byteLength !== 32) throw invalidInput('AVIF clap property is invalid')
@@ -428,16 +437,95 @@ const cleanApertureRegion = (
   return { x, y, width, height }
 }
 
+interface OrientationMatrix {
+  readonly xx: -1 | 0 | 1
+  readonly xy: -1 | 0 | 1
+  readonly yx: -1 | 0 | 1
+  readonly yy: -1 | 0 | 1
+}
+
+const orientationMatrices: Readonly<Record<number, OrientationMatrix>> = Object.freeze({
+  1: { xx: 1, xy: 0, yx: 0, yy: 1 },
+  2: { xx: -1, xy: 0, yx: 0, yy: 1 },
+  3: { xx: -1, xy: 0, yx: 0, yy: -1 },
+  4: { xx: 1, xy: 0, yx: 0, yy: -1 },
+  5: { xx: 0, xy: 1, yx: 1, yy: 0 },
+  6: { xx: 0, xy: -1, yx: 1, yy: 0 },
+  7: { xx: 0, xy: -1, yx: -1, yy: 0 },
+  8: { xx: 0, xy: 1, yx: -1, yy: 0 },
+})
+
+const orientationComponent = (value: number): -1 | 0 | 1 => {
+  if (value === -1 || value === 0 || value === 1) return value
+  throw invalidInput('AVIF orientation matrix is invalid')
+}
+
+const multiplyOrientation = (
+  next: OrientationMatrix,
+  current: OrientationMatrix,
+): OrientationMatrix => ({
+  xx: orientationComponent(next.xx * current.xx + next.xy * current.yx),
+  xy: orientationComponent(next.xx * current.xy + next.xy * current.yy),
+  yx: orientationComponent(next.yx * current.xx + next.yy * current.yx),
+  yy: orientationComponent(next.yx * current.xy + next.yy * current.yy),
+})
+
+const orientationFor = (properties: readonly Property[]): number | undefined => {
+  const transforms = properties.filter(
+    (property): property is Extract<Property, { type: 'imir' | 'irot' }> =>
+      property.type === 'imir' || property.type === 'irot',
+  )
+  if (transforms.length === 0) return undefined
+  let matrix = orientationMatrices[1]
+  if (!matrix) throw invalidInput('AVIF identity orientation is unavailable')
+  for (const transform of transforms) {
+    const orientation =
+      transform.type === 'irot'
+        ? transform.angle === 0
+          ? 1
+          : transform.angle === 1
+            ? 8
+            : transform.angle === 2
+              ? 3
+              : 6
+        : transform.axis === 0
+          ? 4
+          : 2
+    const next = orientationMatrices[orientation]
+    if (!next) throw invalidInput('AVIF transform orientation is invalid')
+    matrix = multiplyOrientation(next, matrix)
+  }
+  for (const [orientation, candidate] of Object.entries(orientationMatrices)) {
+    if (
+      candidate.xx === matrix.xx &&
+      candidate.xy === matrix.xy &&
+      candidate.yx === matrix.yx &&
+      candidate.yy === matrix.yy
+    ) {
+      return Number(orientation)
+    }
+  }
+  throw invalidInput('AVIF transforms do not map to an EXIF orientation')
+}
+
 const validateTransformProperties = (properties: readonly Property[]): void => {
-  let seenRotation = false
+  const ranks: Readonly<Record<'clap' | 'imir' | 'irot', number>> = {
+    clap: 0,
+    irot: 1,
+    imir: 2,
+  }
+  let previousRank = -1
   for (const property of properties) {
-    if (property.type === 'irot') seenRotation = true
-    else if (property.type === 'clap' && seenRotation) {
+    if (property.type !== 'clap' && property.type !== 'irot' && property.type !== 'imir') continue
+    const rank = ranks[property.type]
+    if (rank < previousRank) {
       throw invalidInput('AVIF transformative properties are associated in an invalid order')
     }
+    previousRank = rank
   }
   oneProperty(properties, 'clap')
   oneProperty(properties, 'irot')
+  oneProperty(properties, 'imir')
 }
 
 const MAX_ITEM_PAYLOAD_BYTES = 128 * 1024 * 1024
@@ -626,10 +714,17 @@ const parseGainMapMetadata = (data: Uint8Array): AvifGainMapMetadata => {
   }
 }
 
+export interface AvifGainMapGridInspection {
+  readonly description: AvifGridDescription
+  readonly itemIds: readonly number[]
+  readonly nclx?: NclxColor
+}
+
 export interface AvifGainMapInspection {
   readonly alternateColor: NclxColor
   readonly gainMapItemId: number
   readonly gainMapItemType: 'av01' | 'grid'
+  readonly grid?: AvifGainMapGridInspection
   readonly metadata: AvifGainMapMetadata
   readonly toneMapItemId: number
 }
@@ -670,11 +765,37 @@ const inspectGainMap = async (
     }
     const alternateColor = alternateColors[0]
     if (!alternateColor) throw invalidInput('AVIF gain-map alternate color is missing')
+    let grid: AvifGainMapGridInspection | undefined
+    if (gainMapItemType === 'grid') {
+      const gridProperties = propertiesFor(meta, gainMapItemId)
+      const dimensions = firstProperty(gridProperties, 'ispe')
+      if (!dimensions) throw invalidInput('AVIF gain-map grid has no spatial extents')
+      const description = parseGrid(await readItemPayload(source, meta, gainMapItemId))
+      if (dimensions.width !== description.width || dimensions.height !== description.height) {
+        throw invalidInput('AVIF gain-map grid dimensions do not match its spatial extents')
+      }
+      const itemIds = meta.references
+        .filter((reference) => reference.type === 'dimg' && reference.fromItemId === gainMapItemId)
+        .flatMap((reference) => reference.toItemIds)
+      if (
+        itemIds.length !== description.rows * description.columns ||
+        itemIds.some((itemId) => meta.items.get(itemId)?.type !== 'av01')
+      ) {
+        throw invalidInput('AVIF gain-map grid tile layout is invalid')
+      }
+      const gridNclx = firstProperty(gridProperties, 'colr')?.nclx
+      grid = {
+        description,
+        itemIds,
+        ...(gridNclx ? { nclx: gridNclx } : {}),
+      }
+    }
     candidates.push({
       toneMapItemId,
       gainMapItemId,
       gainMapItemType,
       alternateColor,
+      ...(grid ? { grid } : {}),
       metadata: parseGainMapMetadata(await readItemPayload(source, meta, toneMapItemId)),
     })
   }
@@ -712,6 +833,7 @@ export interface AvifCodedImageInspection {
   readonly operatingPointIndex?: number
   readonly payloadBytes: number
   readonly role: 'alpha' | 'color' | 'gain-map'
+  readonly mirroring: number
   readonly rotation: number
   readonly sequence: Av1SequenceHeader
   readonly width: number
@@ -731,8 +853,10 @@ export interface AvifBitstreamInspection {
   readonly displayRegion: PixelRegion
   readonly colorTransform?: RgbIccTransform
   readonly nclx?: NclxColor
+  readonly mirroring: number
   readonly grid?: AvifGridDescription
   readonly premultipliedAlpha: boolean
+  readonly rotation: number
   readonly primaryItemId: number
   readonly primaryItemType: 'av01' | 'grid'
 }
@@ -882,15 +1006,18 @@ export const inspectAvifBitstreams = async (
   const roles = new Map<number, 'alpha' | 'color' | 'gain-map'>()
   for (const itemId of colorItemIds) roles.set(itemId, 'color')
   for (const itemId of associatedAlphaItemIds) roles.set(itemId, 'alpha')
-  if (gainMap?.gainMapItemType === 'av01') {
-    if (roles.has(gainMap.gainMapItemId)) {
+  const gainMapItemIds =
+    gainMap?.gainMapItemType === 'av01' ? [gainMap.gainMapItemId] : (gainMap?.grid?.itemIds ?? [])
+  for (const itemId of gainMapItemIds) {
+    if (roles.has(itemId)) {
       throw invalidInput('AVIF gain-map item is also referenced as color or alpha')
     }
-    roles.set(gainMap.gainMapItemId, 'gain-map')
+    roles.set(itemId, 'gain-map')
   }
   const codedImages: AvifCodedImageInspection[] = []
   for (const [itemId, role] of roles) {
     const itemProperties = propertiesFor(meta, itemId)
+    validateTransformProperties(itemProperties)
     const operatingPointIndex = oneProperty(itemProperties, 'a1op')?.operatingPointIndex
     const layerSelector = oneProperty(itemProperties, 'lsel')?.layerId
     const layerSizes = oneProperty(itemProperties, 'a1lx')?.layerSizes
@@ -925,6 +1052,7 @@ export const inspectAvifBitstreams = async (
       role,
       width: dimensions.width,
       height: dimensions.height,
+      mirroring: oneProperty(itemProperties, 'imir')?.axis ?? -1,
       rotation: oneProperty(itemProperties, 'irot')?.angle ?? 0,
       configurationMatchesSequence: av1ConfigurationMatches(configuration, stream.sequence),
       payloadBytes: data.byteLength,
@@ -942,8 +1070,10 @@ export const inspectAvifBitstreams = async (
     alphaAssociations,
     primaryItemType: primaryType,
     colorItemIds,
+    mirroring: oneProperty(primaryProperties, 'imir')?.axis ?? -1,
     premultipliedAlpha,
     displayRegion,
+    rotation: oneProperty(primaryProperties, 'irot')?.angle ?? 0,
     ...(colorTransform ? { colorTransform } : {}),
     ...(grid ? { grid } : {}),
     ...(alphaItemId !== undefined ? { alphaItemId } : {}),
@@ -990,7 +1120,7 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
     throw invalidInput('AVIF pixi and av1C bit depths do not match')
   }
   const color = firstProperty(primaryProperties, 'colr')
-  const rotation = oneProperty(primaryProperties, 'irot')
+  const orientation = orientationFor(primaryProperties)
   const alphaTargets = new Set([primaryItemId, ...relatedItemIds])
   const hasAlpha = meta.references.some(
     (reference) =>
@@ -1002,8 +1132,6 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
   )
   const bitDepth = pixelInformation?.bitDepth ?? configuration?.bitDepth
 
-  const orientation =
-    rotation?.angle === 1 ? 8 : rotation?.angle === 2 ? 3 : rotation?.angle === 3 ? 6 : undefined
   return {
     format: 'avif',
     mimeType: 'image/avif',
@@ -1190,12 +1318,7 @@ export const validateAvifFrameDimensions = (
   coded: Pick<AvifCodedImageInspection, 'height' | 'itemId' | 'width'>,
   frame: Av1Frame,
 ): void => {
-  if (
-    frame.header.upscaledWidth !== coded.width ||
-    frame.header.frameHeight !== coded.height ||
-    frame.header.renderWidth !== coded.width ||
-    frame.header.renderHeight !== coded.height
-  ) {
+  if (frame.header.upscaledWidth !== coded.width || frame.header.frameHeight !== coded.height) {
     throw invalidInput(`AVIF item ${coded.itemId} dimensions do not match its AV1 frame`)
   }
 }
@@ -1303,6 +1426,24 @@ const selectCodedImageFrameObus = (coded: AvifCodedImageInspection): readonly Av
   if (!selected) {
     throw invalidInput(
       `AVIF item ${coded.itemId} has no output frame for selected spatial layer ${selectedSpatialId}`,
+    )
+  }
+  const frameHeaderObu = selected.obus.find(
+    (obu) => obu.type === av1ObuType.frame || obu.type === av1ObuType.frameHeader,
+  )
+  if (!frameHeaderObu) {
+    throw invalidInput(`AVIF item ${coded.itemId} selected frame has no frame header`)
+  }
+  const frameHeader = inspectAv1FrameHeader(coded.sequence, frameHeaderObu.payload)
+  if (frameHeader.kind === 'show-existing') {
+    throw unsupportedOperation('AV1 show-existing-frame decode is not supported')
+  }
+  if (frameHeader.kind === 'inter' || frameHeader.kind === 'switch') {
+    const dependsOnLowerSpatialLayer = eligible.some((unit) => unit.spatialId < selectedSpatialId)
+    throw unsupportedOperation(
+      dependsOnLowerSpatialLayer
+        ? `AVIF dependent AV1 spatial enhancement layer ${selectedSpatialId} decode is not supported`
+        : `AV1 ${frameHeader.kind} frame decode is not supported`,
     )
   }
   return selected.obus
@@ -1582,6 +1723,18 @@ class AvifAlphaRowDecoder implements ImageDecoder {
     }
   }
 }
+interface AvifGridDecoderSource {
+  readonly alphaAssociations: readonly AvifAlphaAssociation[]
+  readonly codedImages: readonly AvifCodedImageInspection[]
+  readonly color: NclxColor | undefined
+  readonly mirroring: number
+  readonly displayRegion: PixelRegion
+  readonly grid: AvifGridDescription
+  readonly itemIds: readonly number[]
+  readonly rotation: number
+  readonly premultipliedAlpha: boolean
+}
+
 class AvifGridDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
@@ -1592,6 +1745,7 @@ class AvifGridDecoder implements ImageDecoder {
     scaledDecode: false,
     progressive: false,
   })
+  readonly estimatedWorkingBytes: number
   readonly #alphaTiles: readonly (AvifCodedImageInspection | undefined)[]
   readonly #color: NclxColor | undefined
   readonly #displayRegion: PixelRegion
@@ -1602,28 +1756,27 @@ class AvifGridDecoder implements ImageDecoder {
   readonly #tiles: readonly AvifCodedImageInspection[]
   readonly #tileWidth: number
 
-  constructor(inspection: AvifBitstreamInspection, limits: ImageLimits) {
-    const grid = inspection.grid
-    if (!grid) throw invalidInput('AVIF grid description is missing')
-    if (inspection.colorItemIds.length !== grid.rows * grid.columns) {
+  constructor(source: AvifGridDecoderSource, limits: ImageLimits) {
+    const grid = source.grid
+    if (source.itemIds.length !== grid.rows * grid.columns) {
       throw invalidInput('AVIF grid item count does not match its dimensions')
     }
-    const tiles = inspection.colorItemIds.map((itemId) => {
-      const coded = inspection.codedImages.find((image) => image.itemId === itemId)
+    const tiles = source.itemIds.map((itemId) => {
+      const coded = source.codedImages.find((image) => image.itemId === itemId)
       if (!coded) throw invalidInput(`AVIF grid tile ${itemId} is not coded`)
-      if (coded.rotation !== 0) {
+      if (coded.rotation !== source.rotation || coded.mirroring !== source.mirroring) {
         throw unsupportedOperation(
-          'Phase B2 does not support independently rotated AVIF grid tiles',
+          'Phase B2 does not support independently transformed AVIF grid tiles',
         )
       }
       return coded
     })
-    const alphaTiles = inspection.colorItemIds.map((colorItemId) => {
-      const association = inspection.alphaAssociations.find(
+    const alphaTiles = source.itemIds.map((colorItemId) => {
+      const association = source.alphaAssociations.find(
         (candidate) => candidate.colorItemId === colorItemId,
       )
       if (!association) return undefined
-      const alpha = inspection.codedImages.find(
+      const alpha = source.codedImages.find(
         (image) => image.itemId === association.alphaItemId && image.role === 'alpha',
       )
       if (!alpha) throw invalidInput(`AVIF grid alpha tile ${association.alphaItemId} is not coded`)
@@ -1655,8 +1808,7 @@ class AvifGridDecoder implements ImageDecoder {
     }
     let maximumWorkingBytes = 0
     for (let row = 0; row < grid.rows; row += 1) {
-      let workingBytes =
-        payloadBytes + inspection.displayRegion.width * Math.min(32, grid.height) * 4
+      let workingBytes = payloadBytes + source.displayRegion.width * Math.min(32, grid.height) * 4
       for (let column = 0; column < grid.columns; column += 1) {
         const tile = tiles[row * grid.columns + column]
         if (!tile) throw invalidInput('AVIF grid tile layout is incomplete')
@@ -1671,14 +1823,15 @@ class AvifGridDecoder implements ImageDecoder {
       maximumWorkingBytes = Math.max(maximumWorkingBytes, workingBytes)
     }
     validateAvifWorkingBytes(maximumWorkingBytes)
+    this.estimatedWorkingBytes = maximumWorkingBytes
     this.#alphaTiles = alphaTiles
-    this.width = inspection.displayRegion.width
-    this.height = inspection.displayRegion.height
-    this.#color = inspection.nclx
-    this.#displayRegion = inspection.displayRegion
+    this.width = source.displayRegion.width
+    this.height = source.displayRegion.height
+    this.#color = source.color
+    this.#displayRegion = source.displayRegion
     this.#grid = grid
-    this.#premultipliedAlpha = inspection.premultipliedAlpha
     this.#limits = limits
+    this.#premultipliedAlpha = source.premultipliedAlpha
     this.#tileHeight = first.height
     this.#tiles = tiles
     this.#tileWidth = first.width
@@ -1766,6 +1919,217 @@ class AvifGridDecoder implements ImageDecoder {
   }
 }
 
+const bilinearSourceCoordinate = (target: number, sourceSize: number, targetSize: number): number =>
+  Math.max(0, Math.min(sourceSize - 1, ((target + 0.5) * sourceSize) / targetSize - 0.5))
+
+class AvifGainMapScaleDecoder implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat = 'rgba8' as const
+  readonly capabilities = Object.freeze({
+    sequential: true,
+    regionDecode: false,
+    scaledDecode: false,
+    progressive: false,
+  })
+  readonly #source: ImageDecoder
+
+  constructor(source: ImageDecoder, width: number, height: number) {
+    if (source.width > width || source.height > height) {
+      throw unsupportedOperation('AVIF gain-map downsampling is not supported')
+    }
+    this.#source = source
+    this.width = width
+    this.height = height
+  }
+
+  async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
+    if (decodeScaleDenominator(request) !== 1) {
+      throw unsupportedOperation('Scaled AVIF gain-map decode is not supported')
+    }
+    const region = decodeRegion(this.width, this.height, request)
+    const x0 = new Int32Array(region.width)
+    const x1 = new Int32Array(region.width)
+    const xWeight = new Uint16Array(region.width)
+    let sourceLeft = this.#source.width
+    let sourceRight = 0
+    for (let x = 0; x < region.width; x += 1) {
+      const coordinate = bilinearSourceCoordinate(region.x + x, this.#source.width, this.width)
+      const first = Math.floor(coordinate)
+      const second = Math.min(this.#source.width - 1, first + 1)
+      x0[x] = first
+      x1[x] = second
+      xWeight[x] = Math.round((coordinate - first) * 256)
+      sourceLeft = Math.min(sourceLeft, first)
+      sourceRight = Math.max(sourceRight, second + 1)
+    }
+    const firstY = Math.floor(bilinearSourceCoordinate(region.y, this.#source.height, this.height))
+    const lastY = Math.min(
+      this.#source.height - 1,
+      Math.floor(
+        bilinearSourceCoordinate(region.y + region.height - 1, this.#source.height, this.height),
+      ) + 1,
+    )
+    const sourceWidth = sourceRight - sourceLeft
+    const sourceRows = [new Uint8Array(sourceWidth * 4), new Uint8Array(sourceWidth * 4)] as const
+    const sourceRowY = new Int32Array([-1, -1])
+    let nextSourceSlot: 0 | 1 = 0
+    let outputY = 0
+    let blockY = 0
+    let blockRows = 0
+    let output = new Uint8Array(region.width * Math.min(32, region.height) * 4)
+    const source = this.#source.decode({
+      x: sourceLeft,
+      y: firstY,
+      width: sourceWidth,
+      height: lastY - firstY + 1,
+    })
+    for await (const block of source) {
+      if (
+        block.x !== 0 ||
+        block.width !== sourceWidth ||
+        block.stride < sourceWidth * 4 ||
+        block.format !== 'rgba8'
+      ) {
+        throw invalidInput('AVIF gain-map resampling source rows are invalid')
+      }
+      for (let localY = 0; localY < block.height; localY += 1) {
+        const sourceY = firstY + block.y + localY
+        const slot = nextSourceSlot
+        sourceRows[slot].set(
+          block.data.subarray(localY * block.stride, localY * block.stride + sourceWidth * 4),
+        )
+        sourceRowY[slot] = sourceY
+        nextSourceSlot = nextSourceSlot === 0 ? 1 : 0
+        while (outputY < region.height) {
+          const coordinate = bilinearSourceCoordinate(
+            region.y + outputY,
+            this.#source.height,
+            this.height,
+          )
+          const y0 = Math.floor(coordinate)
+          const y1 = Math.min(this.#source.height - 1, y0 + 1)
+          if (y1 > sourceY) break
+          const firstSlot: 0 | 1 | undefined =
+            sourceRowY[0] === y0 ? 0 : sourceRowY[1] === y0 ? 1 : undefined
+          const secondSlot: 0 | 1 | undefined =
+            sourceRowY[0] === y1 ? 0 : sourceRowY[1] === y1 ? 1 : undefined
+          if (firstSlot === undefined || secondSlot === undefined) {
+            throw invalidInput('AVIF gain-map resampling rows are not contiguous')
+          }
+          const yWeight = Math.round((coordinate - y0) * 256)
+          const firstRow = sourceRows[firstSlot]
+          const secondRow = sourceRows[secondSlot]
+          const targetRow = blockRows * region.width * 4
+          for (let x = 0; x < region.width; x += 1) {
+            const firstX = ((x0[x] ?? 0) - sourceLeft) * 4
+            const secondX = ((x1[x] ?? 0) - sourceLeft) * 4
+            const horizontalWeight = xWeight[x] ?? 0
+            const target = targetRow + x * 4
+            for (let channel = 0; channel < 4; channel += 1) {
+              const top =
+                ((firstRow[firstX + channel] ?? 0) * (256 - horizontalWeight) +
+                  (firstRow[secondX + channel] ?? 0) * horizontalWeight +
+                  128) >>
+                8
+              const bottom =
+                ((secondRow[firstX + channel] ?? 0) * (256 - horizontalWeight) +
+                  (secondRow[secondX + channel] ?? 0) * horizontalWeight +
+                  128) >>
+                8
+              output[target + channel] = (top * (256 - yWeight) + bottom * yWeight + 128) >> 8
+            }
+          }
+          outputY += 1
+          blockRows += 1
+          if (blockRows === 32) {
+            yield {
+              x: 0,
+              y: blockY,
+              width: region.width,
+              height: blockRows,
+              stride: region.width * 4,
+              format: this.pixelFormat,
+              data: output,
+            }
+            blockY += blockRows
+            blockRows = 0
+            output = new Uint8Array(region.width * Math.min(32, region.height - outputY) * 4)
+          }
+        }
+      }
+    }
+    if (outputY !== region.height) {
+      throw invalidInput('AVIF gain-map resampling source ended before its output')
+    }
+    if (blockRows > 0) {
+      yield {
+        x: 0,
+        y: blockY,
+        width: region.width,
+        height: blockRows,
+        stride: region.width * 4,
+        format: this.pixelFormat,
+        data: output,
+      }
+    }
+  }
+}
+
+const alignedRgbaBlocks = async function* (
+  blocks: AsyncIterable<PixelBlock>,
+  width: number,
+): AsyncGenerator<PixelBlock> {
+  let expectedY = 0
+  let blockY = 0
+  let rows = 0
+  let output = new Uint8Array(width * 32 * 4)
+  for await (const block of blocks) {
+    if (
+      block.x !== 0 ||
+      block.y !== expectedY ||
+      block.width !== width ||
+      block.stride < width * 4 ||
+      block.format !== 'rgba8'
+    ) {
+      throw invalidInput('AVIF gain-map rows are not contiguous')
+    }
+    for (let sourceY = 0; sourceY < block.height; sourceY += 1) {
+      output.set(
+        block.data.subarray(sourceY * block.stride, sourceY * block.stride + width * 4),
+        rows * width * 4,
+      )
+      rows += 1
+      expectedY += 1
+      if (rows === 32) {
+        yield {
+          x: 0,
+          y: blockY,
+          width,
+          height: rows,
+          stride: width * 4,
+          format: 'rgba8',
+          data: output,
+        }
+        blockY += rows
+        rows = 0
+        output = new Uint8Array(width * 32 * 4)
+      }
+    }
+  }
+  if (rows > 0) {
+    yield {
+      x: 0,
+      y: blockY,
+      width,
+      height: rows,
+      stride: width * 4,
+      format: 'rgba8',
+      data: output.subarray(0, rows * width * 4),
+    }
+  }
+}
+
 const GAIN_MAP_SRGB_LUT_STEPS = 4095
 
 class AvifGainMapDecoder implements ImageDecoder {
@@ -1788,11 +2152,12 @@ class AvifGainMapDecoder implements ImageDecoder {
     alternateColor: NclxColor,
     metadata: AvifGainMapMetadata,
   ) {
-    if (base.width !== gainMap.width || base.height !== gainMap.height) {
-      throw unsupportedOperation('AVIF gain-map dimensions must match the base image')
-    }
+    const scaledGainMap =
+      base.width === gainMap.width && base.height === gainMap.height
+        ? gainMap
+        : new AvifGainMapScaleDecoder(gainMap, base.width, base.height)
     if (
-      baseColor.primaries !== 1 ||
+      (baseColor.primaries !== 1 && baseColor.primaries !== 2) ||
       alternateColor.primaries !== 1 ||
       alternateColor.transferCharacteristics !== 13
     ) {
@@ -1802,9 +2167,9 @@ class AvifGainMapDecoder implements ImageDecoder {
     }
     this.width = base.width
     this.height = base.height
-    this.capabilities = base.capabilities
+    this.capabilities = Object.freeze({ ...base.capabilities, scaledDecode: false })
     this.#base = base
-    this.#gainMap = gainMap
+    this.#gainMap = scaledGainMap
     this.#baseLinear = Float64Array.from({ length: 256 }, (_, value) =>
       nclxToLinear(baseColor.transferCharacteristics, value / 255),
     )
@@ -1828,8 +2193,16 @@ class AvifGainMapDecoder implements ImageDecoder {
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
-    const baseIterator = this.#base.decode(request)[Symbol.asyncIterator]()
-    const gainMapIterator = this.#gainMap.decode(request)[Symbol.asyncIterator]()
+    if (decodeScaleDenominator(request) !== 1) {
+      throw unsupportedOperation('Scaled AVIF gain-map decode is not supported')
+    }
+    const region = decodeRegion(this.width, this.height, request)
+    const baseIterator = alignedRgbaBlocks(this.#base.decode(request), region.width)[
+      Symbol.asyncIterator
+    ]()
+    const gainMapIterator = alignedRgbaBlocks(this.#gainMap.decode(request), region.width)[
+      Symbol.asyncIterator
+    ]()
     try {
       while (true) {
         const [baseResult, gainMapResult] = await Promise.all([
@@ -1876,11 +2249,282 @@ class AvifGainMapDecoder implements ImageDecoder {
         yield baseBlock
       }
     } finally {
-      await baseIterator.return?.()
-      await gainMapIterator.return?.()
+      await baseIterator.return?.(undefined)
+      await gainMapIterator.return?.(undefined)
     }
   }
 }
+interface AvifDecoderWorkingSet {
+  readonly decoder: ImageDecoder
+  readonly workingBytes: number
+}
+
+const decodedFrameBytes = (frame: Av1DecodedFrame): number =>
+  frame.y.byteLength + frame.u.byteLength + frame.v.byteLength
+
+const createCodedAvifDecoder = (
+  coded: AvifCodedImageInspection,
+  displayRegion: PixelRegion,
+  color: NclxColor | undefined,
+  limits: ImageLimits,
+): AvifDecoderWorkingSet => {
+  const frame = parseCodedImageFrame(coded, limits)
+  if (supportsRestrictedAv1IntraRows(frame)) {
+    const workingBytes =
+      coded.payloadBytes + estimateRestrictedAv1RowWorkingBytes(coded.sequence, frame)
+    validateAvifWorkingBytes(workingBytes)
+    return {
+      decoder: new AvifRowDecoder(coded, frame, displayRegion, color),
+      workingBytes,
+    }
+  }
+  validateAvifWorkingBytes(
+    coded.payloadBytes + estimateRestrictedAv1WorkingBytes(coded.sequence, frame),
+  )
+  const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
+  return {
+    decoder: new AvifFrameDecoder(coded, decoded, displayRegion, color, undefined, false),
+    workingBytes:
+      coded.payloadBytes +
+      decodedFrameBytes(decoded) +
+      displayRegion.width * Math.min(32, displayRegion.height) * 4,
+  }
+}
+
+const createSingleAvifDecoder = (
+  inspection: AvifBitstreamInspection,
+  limits: ImageLimits,
+): AvifDecoderWorkingSet => {
+  if (inspection.colorItemIds.length !== 1) {
+    throw invalidInput('Single-image AVIF has an invalid color item count')
+  }
+  const coded = inspection.codedImages.find(
+    (image) => image.itemId === inspection.primaryItemId && image.role === 'color',
+  )
+  if (!coded) throw invalidInput('AVIF has no coded primary color item')
+  const parsedFrame = parseCodedImageFrame(coded, limits)
+  let alpha: AvifCodedImageInspection | undefined
+  let parsedAlphaFrame: Av1Frame | undefined
+  if (inspection.alphaItemId !== undefined) {
+    alpha = inspection.codedImages.find(
+      (image) => image.itemId === inspection.alphaItemId && image.role === 'alpha',
+    )
+    if (!alpha) throw invalidInput('AVIF alpha auxiliary item is not coded')
+    parsedAlphaFrame = parseCodedImageFrame(alpha, limits)
+    validateAlphaCoding(coded.width, coded.height, alpha)
+  }
+  const colorRowsSupported = supportsRestrictedAv1IntraRows(parsedFrame)
+  const alphaRowsSupported =
+    !alpha || (!!parsedAlphaFrame && supportsRestrictedAv1IntraRows(parsedAlphaFrame))
+  if (colorRowsSupported && alphaRowsSupported) {
+    let workingBytes =
+      coded.payloadBytes + estimateRestrictedAv1RowWorkingBytes(coded.sequence, parsedFrame)
+    if (alpha && parsedAlphaFrame) {
+      workingBytes +=
+        alpha.payloadBytes + estimateRestrictedAv1RowWorkingBytes(alpha.sequence, parsedAlphaFrame)
+    }
+    validateAvifWorkingBytes(workingBytes)
+    return {
+      decoder:
+        alpha && parsedAlphaFrame
+          ? new AvifAlphaRowDecoder(
+              coded,
+              parsedFrame,
+              inspection.displayRegion,
+              inspection.nclx,
+              alpha,
+              parsedAlphaFrame,
+              inspection.premultipliedAlpha,
+            )
+          : new AvifRowDecoder(coded, parsedFrame, inspection.displayRegion, inspection.nclx),
+      workingBytes,
+    }
+  }
+  if (alpha && parsedAlphaFrame) {
+    const payloadBytes = coded.payloadBytes + alpha.payloadBytes
+    validateAvifWorkingBytes(
+      payloadBytes + estimateRestrictedAv1WorkingBytes(alpha.sequence, parsedAlphaFrame),
+    )
+    const alphaDecoded = decodeRestrictedAv1Intra(alpha.sequence, parsedAlphaFrame)
+    const retainedAlphaBytes = decodedFrameBytes(alphaDecoded)
+    validateAvifWorkingBytes(
+      payloadBytes +
+        retainedAlphaBytes +
+        estimateRestrictedAv1WorkingBytes(coded.sequence, parsedFrame),
+    )
+    const frame = decodeRestrictedAv1Intra(coded.sequence, parsedFrame)
+    if (frame.width !== coded.width || frame.height !== coded.height) {
+      throw invalidInput('AVIF display dimensions do not match its AV1 frame')
+    }
+    return {
+      decoder: new AvifFrameDecoder(
+        coded,
+        frame,
+        inspection.displayRegion,
+        inspection.nclx,
+        { coded: alpha, frame: alphaDecoded },
+        inspection.premultipliedAlpha,
+      ),
+      workingBytes:
+        payloadBytes +
+        retainedAlphaBytes +
+        decodedFrameBytes(frame) +
+        inspection.displayRegion.width * Math.min(32, inspection.displayRegion.height) * 4,
+    }
+  }
+  return createCodedAvifDecoder(coded, inspection.displayRegion, inspection.nclx, limits)
+}
+
+const createGridAvifDecoder = (
+  source: AvifGridDecoderSource,
+  limits: ImageLimits,
+): AvifDecoderWorkingSet => {
+  const decoder = new AvifGridDecoder(source, limits)
+  return { decoder, workingBytes: decoder.estimatedWorkingBytes }
+}
+
+const createGainMapGridAvifDecoder = (
+  grid: NonNullable<AvifGainMapInspection['grid']>,
+  codedImages: readonly AvifCodedImageInspection[],
+  color: NclxColor | undefined,
+  limits: ImageLimits,
+): AvifDecoderWorkingSet => {
+  const tiles = grid.itemIds.map((itemId) => {
+    const coded = codedImages.find((image) => image.itemId === itemId && image.role === 'gain-map')
+    if (!coded) throw invalidInput(`AVIF gain-map grid tile ${itemId} is not coded`)
+    return { coded, parsed: parseCodedImageFrame(coded, limits) }
+  })
+  const first = tiles[0]
+  if (!first) throw invalidInput('AVIF gain-map grid has no coded tiles')
+  if (tiles.length !== grid.description.rows * grid.description.columns) {
+    throw invalidInput('AVIF gain-map grid item count does not match its dimensions')
+  }
+  for (const tile of tiles) {
+    if (
+      tile.coded.width !== first.coded.width ||
+      tile.coded.height !== first.coded.height ||
+      tile.coded.sequence.bitDepth !== first.coded.sequence.bitDepth ||
+      tile.coded.sequence.chromaSubsampling !== first.coded.sequence.chromaSubsampling ||
+      tile.coded.sequence.fullRange !== first.coded.sequence.fullRange
+    ) {
+      throw unsupportedOperation('AVIF gain-map grid tiles must use matching pixel formats')
+    }
+  }
+  const sequence = first.coded.sequence
+  const chromaShiftX = sequence.monochrome || sequence.chromaSubsampling === '444' ? 0 : 1
+  const chromaShiftY = sequence.chromaSubsampling === '420' ? 1 : 0
+  const chromaWidth = sequence.monochrome
+    ? 0
+    : Math.ceil(grid.description.width / 2 ** chromaShiftX)
+  const chromaHeight = sequence.monochrome
+    ? 0
+    : Math.ceil(grid.description.height / 2 ** chromaShiftY)
+  const sampleBytes = sequence.bitDepth > 8 ? 2 : 1
+  const stitchedBytes =
+    (grid.description.width * grid.description.height + 2 * chromaWidth * chromaHeight) *
+    sampleBytes
+  const payloadBytes = tiles.reduce((total, tile) => total + tile.coded.payloadBytes, 0)
+  const maximumTileWorkingBytes = Math.max(
+    ...tiles.map((tile) => estimateRestrictedAv1WorkingBytes(tile.coded.sequence, tile.parsed)),
+  )
+  const outputBytes = grid.description.width * Math.min(32, grid.description.height) * 4
+  const workingBytes = payloadBytes + stitchedBytes + maximumTileWorkingBytes + outputBytes
+  validateAvifWorkingBytes(workingBytes)
+
+  const y =
+    sequence.bitDepth > 8
+      ? new Uint16Array(grid.description.width * grid.description.height)
+      : new Uint8Array(grid.description.width * grid.description.height)
+  const u =
+    sequence.bitDepth > 8
+      ? new Uint16Array(chromaWidth * chromaHeight)
+      : new Uint8Array(chromaWidth * chromaHeight)
+  const v =
+    sequence.bitDepth > 8
+      ? new Uint16Array(chromaWidth * chromaHeight)
+      : new Uint8Array(chromaWidth * chromaHeight)
+  const copyPlane = (
+    source: Uint8Array | Uint16Array,
+    sourceStride: number,
+    sourceWidth: number,
+    sourceHeight: number,
+    target: Uint8Array | Uint16Array,
+    targetStride: number,
+    targetX: number,
+    targetY: number,
+  ): void => {
+    const width = Math.min(sourceWidth, targetStride - targetX)
+    const height = Math.min(sourceHeight, Math.floor(target.length / targetStride) - targetY)
+    for (let row = 0; row < height; row += 1) {
+      target.set(
+        source.subarray(row * sourceStride, row * sourceStride + width),
+        (targetY + row) * targetStride + targetX,
+      )
+    }
+  }
+  for (let index = 0; index < tiles.length; index += 1) {
+    const tile = tiles[index]
+    if (!tile) continue
+    const frame = decodeRestrictedAv1Intra(tile.coded.sequence, tile.parsed)
+    const row = Math.floor(index / grid.description.columns)
+    const column = index % grid.description.columns
+    copyPlane(
+      frame.y,
+      frame.yStride,
+      frame.width,
+      frame.height,
+      y,
+      grid.description.width,
+      column * frame.width,
+      row * frame.height,
+    )
+    if (!sequence.monochrome) {
+      copyPlane(
+        frame.u,
+        frame.chromaStride,
+        frame.chromaWidth,
+        frame.chromaHeight,
+        u,
+        chromaWidth,
+        column * frame.chromaWidth,
+        row * frame.chromaHeight,
+      )
+      copyPlane(
+        frame.v,
+        frame.chromaStride,
+        frame.chromaWidth,
+        frame.chromaHeight,
+        v,
+        chromaWidth,
+        column * frame.chromaWidth,
+        row * frame.chromaHeight,
+      )
+    }
+  }
+  const frame: Av1DecodedFrame = {
+    width: grid.description.width,
+    height: grid.description.height,
+    y,
+    yStride: grid.description.width,
+    u,
+    v,
+    chromaWidth,
+    chromaHeight,
+    chromaStride: chromaWidth,
+  }
+  return {
+    decoder: new AvifFrameDecoder(
+      first.coded,
+      frame,
+      { x: 0, y: 0, width: frame.width, height: frame.height },
+      color,
+      undefined,
+      false,
+    ),
+    workingBytes,
+  }
+}
+
 const createAvifDecoder = async (
   source: ImageSource,
   limits: ImageLimits,
@@ -1893,156 +2537,69 @@ const createAvifDecoder = async (
   validateSdrPixelDecode(inspection)
   const gainMapApplies =
     inspection.gainMap !== undefined && gainMapWeight(inspection.gainMap.metadata) !== 0
-  if (gainMapApplies && inspection.primaryItemType === 'grid') {
-    throw unsupportedOperation('AVIF grid gain-map composition is not supported')
-  }
-  let decoder: ImageDecoder
+  let base: AvifDecoderWorkingSet
   if (inspection.primaryItemType === 'grid') {
-    decoder = new AvifGridDecoder(inspection, limits)
-  } else {
-    if (inspection.colorItemIds.length !== 1) {
-      throw invalidInput('Single-image AVIF has an invalid color item count')
-    }
-    const coded = inspection.codedImages.find(
-      (image) => image.itemId === inspection.primaryItemId && image.role === 'color',
+    const grid = inspection.grid
+    if (!grid) throw invalidInput('AVIF grid description is missing')
+    base = createGridAvifDecoder(
+      {
+        grid,
+        itemIds: inspection.colorItemIds,
+        codedImages: inspection.codedImages,
+        alphaAssociations: inspection.alphaAssociations,
+        displayRegion: inspection.displayRegion,
+        mirroring: inspection.mirroring,
+        color: inspection.nclx,
+        premultipliedAlpha: inspection.premultipliedAlpha,
+        rotation: inspection.rotation,
+      },
+      limits,
     )
-    if (!coded) throw invalidInput('AVIF has no coded primary color item')
-    const parsedFrame = parseCodedImageFrame(coded, limits)
-    if (gainMapApplies) {
-      const gainMap = inspection.gainMap
-      if (gainMap?.gainMapItemType !== 'av01') {
-        throw unsupportedOperation('AVIF gain-map image type is not supported')
-      }
-      if (inspection.alphaItemId !== undefined) {
-        throw unsupportedOperation('AVIF HDR gain-map decode with alpha is not supported')
-      }
-      if (!inspection.nclx) {
-        throw unsupportedOperation('AVIF gain-map base color signaling is required')
-      }
+  } else {
+    base = createSingleAvifDecoder(inspection, limits)
+  }
+
+  let decoder = base.decoder
+  if (gainMapApplies) {
+    const gainMap = inspection.gainMap
+    if (!gainMap) throw invalidInput('AVIF gain-map metadata is missing')
+    if (!inspection.nclx) {
+      throw unsupportedOperation('AVIF gain-map base color signaling is required')
+    }
+    let gain: AvifDecoderWorkingSet
+    if (gainMap.gainMapItemType === 'av01') {
       const gainMapCoded = inspection.codedImages.find(
         (image) => image.itemId === gainMap.gainMapItemId && image.role === 'gain-map',
       )
       if (!gainMapCoded) throw invalidInput('AVIF gain-map image is not coded')
-      if (gainMapCoded.width !== coded.width || gainMapCoded.height !== coded.height) {
-        throw unsupportedOperation('AVIF gain-map resampling is not supported')
-      }
-      const parsedGainMapFrame = parseCodedImageFrame(gainMapCoded, limits)
-      const rowsSupported =
-        supportsRestrictedAv1IntraRows(parsedFrame) &&
-        supportsRestrictedAv1IntraRows(parsedGainMapFrame)
-      let baseDecoder: ImageDecoder
-      let gainMapDecoder: ImageDecoder
-      let workingBytes: number
-      if (rowsSupported) {
-        workingBytes =
-          coded.payloadBytes +
-          estimateRestrictedAv1RowWorkingBytes(coded.sequence, parsedFrame) +
-          gainMapCoded.payloadBytes +
-          estimateRestrictedAv1RowWorkingBytes(gainMapCoded.sequence, parsedGainMapFrame)
-        baseDecoder = new AvifRowDecoder(
-          coded,
-          parsedFrame,
-          inspection.displayRegion,
-          inspection.nclx,
-        )
-        gainMapDecoder = new AvifRowDecoder(
-          gainMapCoded,
-          parsedGainMapFrame,
-          inspection.displayRegion,
-          gainMapCoded.nclx,
-        )
-      } else {
-        workingBytes =
-          coded.payloadBytes +
-          estimateRestrictedAv1WorkingBytes(coded.sequence, parsedFrame) +
-          gainMapCoded.payloadBytes +
-          estimateRestrictedAv1WorkingBytes(gainMapCoded.sequence, parsedGainMapFrame)
-        baseDecoder = new AvifFrameDecoder(
-          coded,
-          decodeRestrictedAv1Intra(coded.sequence, parsedFrame),
-          inspection.displayRegion,
-          inspection.nclx,
-          undefined,
-          false,
-        )
-        gainMapDecoder = new AvifFrameDecoder(
-          gainMapCoded,
-          decodeRestrictedAv1Intra(gainMapCoded.sequence, parsedGainMapFrame),
-          inspection.displayRegion,
-          gainMapCoded.nclx,
-          undefined,
-          false,
-        )
-      }
-      validateAvifWorkingBytes(workingBytes)
-      decoder = new AvifGainMapDecoder(
-        baseDecoder,
-        gainMapDecoder,
-        inspection.nclx,
-        gainMap.alternateColor,
-        gainMap.metadata,
+      gain = createCodedAvifDecoder(
+        gainMapCoded,
+        { x: 0, y: 0, width: gainMapCoded.width, height: gainMapCoded.height },
+        gainMapCoded.nclx,
+        limits,
       )
     } else {
-      let alpha: AvifCodedImageInspection | undefined
-      let parsedAlphaFrame: Av1Frame | undefined
-      if (inspection.alphaItemId !== undefined) {
-        alpha = inspection.codedImages.find(
-          (image) => image.itemId === inspection.alphaItemId && image.role === 'alpha',
-        )
-        if (!alpha) throw invalidInput('AVIF alpha auxiliary item is not coded')
-        parsedAlphaFrame = parseCodedImageFrame(alpha, limits)
-        validateAlphaCoding(coded.width, coded.height, alpha)
-      }
-      const colorRowsSupported = supportsRestrictedAv1IntraRows(parsedFrame)
-      const alphaRowsSupported =
-        !alpha || (!!parsedAlphaFrame && supportsRestrictedAv1IntraRows(parsedAlphaFrame))
-      if (colorRowsSupported && alphaRowsSupported) {
-        let workingBytes =
-          coded.payloadBytes + estimateRestrictedAv1RowWorkingBytes(coded.sequence, parsedFrame)
-        if (alpha && parsedAlphaFrame) {
-          workingBytes +=
-            alpha.payloadBytes +
-            estimateRestrictedAv1RowWorkingBytes(alpha.sequence, parsedAlphaFrame)
-        }
-        validateAvifWorkingBytes(workingBytes)
-        decoder =
-          alpha && parsedAlphaFrame
-            ? new AvifAlphaRowDecoder(
-                coded,
-                parsedFrame,
-                inspection.displayRegion,
-                inspection.nclx,
-                alpha,
-                parsedAlphaFrame,
-                inspection.premultipliedAlpha,
-              )
-            : new AvifRowDecoder(coded, parsedFrame, inspection.displayRegion, inspection.nclx)
-      } else {
-        let workingBytes =
-          coded.payloadBytes + estimateRestrictedAv1WorkingBytes(coded.sequence, parsedFrame)
-        if (alpha && parsedAlphaFrame) {
-          workingBytes +=
-            alpha.payloadBytes + estimateRestrictedAv1WorkingBytes(alpha.sequence, parsedAlphaFrame)
-        }
-        validateAvifWorkingBytes(workingBytes)
-        const frame = decodeRestrictedAv1Intra(coded.sequence, parsedFrame)
-        if (frame.width !== coded.width || frame.height !== coded.height) {
-          throw invalidInput('AVIF display dimensions do not match its AV1 frame')
-        }
-        const alphaFrame =
-          alpha && parsedAlphaFrame
-            ? { coded: alpha, frame: decodeRestrictedAv1Intra(alpha.sequence, parsedAlphaFrame) }
-            : undefined
-        decoder = new AvifFrameDecoder(
-          coded,
-          frame,
-          inspection.displayRegion,
-          inspection.nclx,
-          alphaFrame,
-          inspection.premultipliedAlpha,
-        )
-      }
+      const grid = gainMap.grid
+      if (!grid) throw invalidInput('AVIF gain-map grid description is missing')
+      const color =
+        grid.nclx ??
+        inspection.codedImages.find(
+          (image) => image.itemId === grid.itemIds[0] && image.role === 'gain-map',
+        )?.nclx
+      gain = createGainMapGridAvifDecoder(grid, inspection.codedImages, color, limits)
     }
+    const resamplingBytes =
+      base.decoder.width === gain.decoder.width && base.decoder.height === gain.decoder.height
+        ? 0
+        : base.decoder.width * 32 * 8 + gain.decoder.width * 8 + base.decoder.width * 10
+    validateAvifWorkingBytes(base.workingBytes + gain.workingBytes + resamplingBytes)
+    decoder = new AvifGainMapDecoder(
+      base.decoder,
+      gain.decoder,
+      inspection.nclx,
+      gainMap.alternateColor,
+      gainMap.metadata,
+    )
   }
   if (
     metadata.width !== inspection.displayRegion.width ||
@@ -2063,5 +2620,6 @@ export const avifCodec: ImageCodec = {
     return detectIsobmffBrands(header).some((brand) => brand === 'avif' || brand === 'avis')
   },
   metadata: inspectAvif,
+  createEncoder: createAvifEncoder,
   createDecoder: createAvifDecoder,
 }

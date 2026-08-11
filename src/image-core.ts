@@ -7,6 +7,7 @@ import { executePipeline } from './executor.ts'
 import type { ImageLimitOptions, ImageLimits } from './limits.ts'
 import { resolveLimits } from './limits.ts'
 import type {
+  AvifEncodeOptions,
   BmpEncodeOptions,
   CropOptions,
   JpegEncodeOptions,
@@ -20,6 +21,7 @@ import type {
   WindowOptions,
 } from './pipeline.ts'
 import {
+  createAvifEncodeOperation,
   createBmpEncodeOperation,
   createJpegEncodeOperation,
   createCropOperation,
@@ -199,20 +201,29 @@ export class Image<Input, Output extends Uint8Array> {
     return this.#append(Object.freeze({ type: 'flop' }))
   }
 
+  encode(format: 'avif', options?: AvifEncodeOptions): Image<Input, Output>
   encode(format: 'jpeg', options?: JpegEncodeOptions): Image<Input, Output>
   encode(format: 'png', options?: PngEncodeOptions): Image<Input, Output>
   encode(format: 'webp', options?: WebpEncodeOptions): Image<Input, Output>
   encode(format: 'bmp', options?: BmpEncodeOptions): Image<Input, Output>
   encode(format: 'tiff', options?: TiffEncodeOptions): Image<Input, Output>
   encode(
-    format: 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp',
+    format: 'avif' | 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp',
     options:
+      | AvifEncodeOptions
       | BmpEncodeOptions
       | JpegEncodeOptions
       | PngEncodeOptions
       | TiffEncodeOptions
       | WebpEncodeOptions = {},
   ): Image<Input, Output> {
+    if (format === 'avif') {
+      return this.#append(
+        createAvifEncodeOperation(
+          'background' in options ? { background: options.background } : {},
+        ),
+      )
+    }
     if (format === 'jpeg') {
       return this.#append(
         createJpegEncodeOperation({
@@ -290,6 +301,10 @@ export class Image<Input, Output extends Uint8Array> {
           : {}),
       }),
     )
+  }
+
+  avif(options: AvifEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createAvifEncodeOperation(options))
   }
 
   jpeg(options: JpegEncodeOptions = {}): Image<Input, Output> {

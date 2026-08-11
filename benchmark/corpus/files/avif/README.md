@@ -141,16 +141,23 @@ Y4M sources with one encoder worker. Encoded, source, Sharp RGB, and decoded
 RGBA checksums are pinned in `benchmark/avif/high-bit-lossless-fixtures.ts`.
 
 The `high-bit-expanded-fixtures.ts` set covers coded-lossless 10-bit and 12-bit
-YUV 4:2:0; filter-free lossy 10-bit YUV 4:2:2 and 4:4:4; filter-free lossy
-12-bit YUV 4:2:0, 4:2:2, and 4:4:4; and a lossy 10-bit YUV 4:4:4 frame with
-deblocking, CDEF, and Wiener restoration active on all three planes. These
-fixtures exercise the normative depth-specific dequantization tables and retain
-native high-depth samples through reconstruction and filtering.
-`npm run fixtures:avif:high-bit:prepare` regenerates them with libaom 3.12.1 and
-FFmpeg 7.1.1 from checksum-pinned Y4M sources.
+YUV 4:2:0; filter-free lossy 10-bit and 12-bit YUV 4:2:0, 4:2:2, and 4:4:4;
+lossy 10-bit YUV 4:2:0 and 4:2:2 with deblocking, CDEF, and Wiener restoration;
+limited-range lossy 10-bit YUV 4:2:0 with self-guided restoration; lossy 10-bit
+YUV 4:4:4 with deblocking, CDEF, and Wiener restoration; lossy 10-bit YUV 4:4:4
+with deblocking and self-guided restoration; lossy 12-bit YUV 4:2:0 with
+deblocking, CDEF, and Wiener or self-guided restoration; and lossy 12-bit YUV
+4:2:0, 4:2:2, and 4:4:4 with deblocking and CDEF. These fixtures exercise
+normative depth-specific dequantization and post-filter arithmetic while
+retaining native high-depth samples through reconstruction and filtering.
+`npm run fixtures:avif:high-bit:prepare` regenerates them with libavif 1.3.0,
+libaom 3.12.1, and FFmpeg 7.1.1 from checksum-pinned Y4M sources.
 `npm run fixtures:avif:high-bit` requires PureJsImage, dav1d, and libaom to
-produce byte-identical native YUV. Encoded, source, native-YUV, and portable
-RGBA checksums are pinned in `benchmark/avif/high-bit-expanded-fixtures.ts`.
+produce byte-identical native YUV, then pins Sharp and portable RGBA output for
+the expanded filtered cases. Encoded, source, native-YUV, and RGBA checksums are
+pinned in `benchmark/avif/high-bit-expanded-fixtures.ts`; detailed oracle
+results are recorded in
+`benchmark/results/avif-high-bit-post-filters-2026-08-09.md`.
 
 `unsupported-hdr-pq-10bpc-yuv420-32x24.avif` and
 `unsupported-hdr-hlg-10bpc-yuv420-32x24.avif` use the same checksum-pinned
@@ -198,6 +205,17 @@ fixture isolates frame-header and tile-group assembly. The same
 and require byte-identical PureJsImage, dav1d, and libaom native YUV. Checksums
 are pinned in `benchmark/avif/lossy-multitile-fixture.ts`.
 
+`libavif-bounded-filtered-yuv420-3840x2160.avif` is a deterministic
+limited-range 8-bit YUV 4:2:0 image split into an 8x2 AV1 tile layout with
+deblocking and CDEF enabled. It pins the large filtered fallback while ensuring
+each sequential tile decoder retains only its tile-local entropy and context
+state. `npm run fixtures:avif:tiles:prepare` regenerates it with libavif 1.3.0
+and libaom 3.12.1 from a checksum-pinned gradient Y4M source.
+`npm run fixtures:avif:tiles` requires PureJsImage, dav1d, and libaom to produce
+byte-identical native YUV, and its ordered RGBA output is pinned in Node.js and
+Chromium. `benchmark/results/avif-memory-bounded-filtered-2026-08-10.json`
+records three isolated cold-process memory runs.
+
 `libaom-superres-denom12-96x64.avif`,
 `libaom-superres-denom12-yuv420-96x64.avif`, and
 `libaom-superres-denom12-yuv420-320x192.avif` are deterministic full-range
@@ -214,6 +232,28 @@ all four fixtures with libaom 3.12.1, then `npm run fixtures:avif:superres` to
 require PureJsImage, dav1d, and libaom to produce byte-identical native YUV.
 Checksums are pinned in `benchmark/avif/superres-fixture.ts`.
 
+`film-grain-test1-yuv420-64x48.avif` is a deterministic full-range 8-bit YUV
+4:2:0 key frame encoded with libaom's film-grain test vector 1. Run
+`npm run fixtures:avif:film-grain:prepare` to regenerate it from the
+checksum-pinned gradient PNG. `npm run fixtures:avif:film-grain` requires
+PureJsImage, dav1d, and libaom to synthesize byte-identical native YUV; portable
+RGBA remains within 2 channel values of both native decoders.
+
+`tiger-3layer-3res.avif` is Chromium's checksum-pinned 1216x832 static
+progressive AVIF fixture. Its three spatial layers are a shown key frame
+followed by two dependent shown inter frames. PureJsImage validates its
+`a1lx` layer boundaries and classifies the dependency before explicitly
+rejecting the still-unsupported inter-frame reconstruction path. The source
+URL and revision are pinned in `benchmark/avif/dependent-layer-fixture.ts`.
+
+`tiger-3layer-3res-lsel0.avif` derives from that pinned source by adding an
+essential `lsel=0` property and matching 304x208 `ispe` dimensions. Its shown
+key frame overrides the 1216x832 sequence maximum and carries 1216x832 AV1
+render dimensions, which AVIF does not expose. Run
+`npm run fixtures:avif:layered:prepare` to regenerate the container and
+`npm run fixtures:avif:layered` to require byte-identical native YUV from
+PureJsImage, dav1d, and libaom.
+
 `clean-aperture-lossless-16x12.avif` is a deterministic full-range,
 identity-color YUV 4:4:4 fixture encoded with libavif 1.3.0 and libaom 3.12.1.
 Its integer `clap` property crops the 16x12 coded image to the 8x6 rectangle at
@@ -222,17 +262,29 @@ from the checksum-pinned PNG source with one encoder worker and require Sharp
 to produce the pinned cropped RGBA output. Encoded, source, Sharp, and decoded
 checksums are pinned in `benchmark/avif/clean-aperture-fixture.ts`.
 
+`libavif-imir-axis0-160x160.avif`, `libavif-imir-axis1-160x160.avif`, and
+`libavif-imir-clap-irot-grid-alpha-160x160.avif` are deterministic full-range,
+identity-color YUV 4:4:4 fixtures encoded with libavif 1.3.0 and libaom 3.12.1.
+The first two isolate top-to-bottom and left-to-right `imir` axes. The third
+combines a 2x2 color grid, alpha auxiliary grid, integer `clap`, `irot=1`, and
+`imir=1`. Run `npm run fixtures:avif:imir:prepare` to regenerate them from
+checksum-pinned PNG sources and `npm run fixtures:avif:imir` to compare
+PureJsImage with dav1d, libaom, and Sharp. The focused Chromium workflow pins
+both portable and native-browser results. Checksums and observed oracle behavior
+are recorded in `benchmark/avif/mirror-fixtures.ts` and
+`benchmark/results/avif-imir-2026-08-09.md`.
+
 `sofa_grid1x5_420.avif` comes from the pinned libavif corpus revision documented
 in `benchmark/avif/corpus.ts`. It covers a 1x5 image grid whose final tile and
 display height exercise cropped edge-tile composition.
 
 `npm run bench:avif:memory` generates deterministic 1024x768 no-filter,
 deblock, alpha, and 2x2-grid cases in a temporary directory and combines them
-with the permanent Kodak and Fox fixtures for CDEF, restoration, and downscale
-measurements. It runs each case in three isolated cold Node.js processes and
-rejects any encoded-input or decoded-output checksum drift. The command
-requires `avifenc` 1.3.0 with libaom 3.12.1 to reproduce the recorded
-`benchmark/results/avif-bounded-row-output-2026-08-09.md` evidence.
+with the permanent Kodak, Fox, 3840x2160 8x2-tile, and resampled gain-map-grid fixtures for CDEF,
+restoration, bounded filtered multi-tile decode, gain-map composition, and downscale measurements. It
+runs each case in three isolated cold Node.js processes and rejects any
+encoded-input or decoded-output checksum drift. The command requires `avifenc`
+1.3.0 with libaom 3.12.1 to reproduce the recorded memory evidence.
 
 The five `libavif-*-color*`, `libavif-paris-*`, and `libavif-seine-*` color
 fixtures are byte-identical files from the Imazen AVIF Conformance corpus at
@@ -245,6 +297,14 @@ checksums, exact ICC agreement with Sharp/libvips, BT.2020 agreement with
 FFmpeg/zimg (maximum channel error 13, mean error at most 0.5), SDR gain-map
 agreement with libavif 1.3.0 (maximum channel error 4, mean error at most 1),
 and rejection of the non-preferred gain map.
+
+The four `libavif_*gainmap*.avif` fixtures are byte-identical files from the same
+Imazen/libavif corpus revision. They independently vary color grids, alpha grids,
+gain-map grids, and gain-map dimensions. `npm run fixtures:avif:alpha` pins the
+portable RGBA output and compares SDR tone mapping with libavif 1.3.0. The
+single-image paths stay within 5 channel values of libavif; grid seams can have
+larger isolated errors, so those cases additionally require mean channel error
+at most 1.35 and RGB PSNR of at least 39 dB.
 
 The remaining benchmark corpus is intentionally ignored and can be prepared with
 `npm run fixtures:avif`.

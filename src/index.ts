@@ -28,6 +28,7 @@ export { createImageLibrary } from './image.ts'
 export type { ImageLimitOptions, ImageLimits } from './limits.ts'
 export { defaultImageLimits } from './limits.ts'
 export type {
+  AvifEncodeOptions,
   Background,
   BmpEncodeOptions,
   CropOptions,

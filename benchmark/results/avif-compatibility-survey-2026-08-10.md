@@ -23,15 +23,15 @@ checksum-pinned dav1d, libaom, FFmpeg, Sharp, and Chromium fixtures in the AVIF 
 
 | Source | Files | Completed decode | Explicit error |
 |---|---:|---:|---:|
-| Imazen AVIF Conformance | 137 | 73 | 64 |
+| Imazen AVIF Conformance | 137 | 75 | 62 |
 | GB82 common-photo matrix | 100 | 100 | 0 |
-| **Total** | **237** | **173 (73.0%)** | **64** |
+| **Total** | **237** | **175 (73.8%)** | **62** |
 
 Conformance categories:
 
 | Declared category | Files | Completed decode | Explicit error |
 |---|---:|---:|---:|
-| Valid | 106 | 60 | 46 |
+| Valid | 106 | 62 | 44 |
 | Invalid | 12 | 1 | 11 |
 | Edge cases | 19 | 12 | 7 |
 
@@ -53,7 +53,7 @@ Common-photo encoders:
 | Unsupported AV1 or container feature | 35 | 0 | 35 |
 | Malformed or unsupported container | 11 | 0 | 11 |
 | Animation | 8 | 0 | 8 |
-| 64 MiB working-set limit | 4 | 0 | 4 |
+| 64 MiB working-set limit | 2 | 0 | 2 |
 | Film grain | 2 | 0 | 2 |
 | Alpha auxiliary subset | 2 | 0 | 2 |
 | Entropy or reconstruction syntax | 1 | 0 | 1 |
@@ -121,6 +121,24 @@ error 4 and mean channel error 1. The swapped-order `altr` edge case is rejected
 an inactive `tmap`. Gain-map grids, resampling, alpha, and color conversion outside the supported
 NCLX subset remain explicit errors.
 
+## Implemented blocker: bounded filtered multi-tile state
+
+Tile decoders now allocate entropy, transform, palette, CDEF, and skip contexts for their own tile
+rectangle instead of allocating frame-wide context arrays for every sequential tile. The compact
+frame-wide YUV reconstruction and merged post-filter state remain available for deblocking, CDEF,
+restoration, and ordered 32-row public RGBA output.
+
+This change newly completes `ms_Summer_Nature_4k.avif` at 3840x2160 and the
+`ms_Summer_in_Tomsk_720p_5x4_grid.avif` 6400x2880 grid. The pinned 3840x2160 YUV 4:2:0 fixture uses
+an 8x2 AV1 tile layout with deblocking and CDEF. PureJsImage, dav1d, and libaom agree byte for byte
+over all 12,441,600 visible native-YUV bytes; the estimated decoder working set is 20,340,992 bytes.
+
+Three isolated cold-process runs pin the 33,177,600-byte RGBA output and record a median absolute
+peak RSS of 165,031,936 bytes, a 61,734,912-byte RSS increase from the settled input-retaining
+baseline, a 33,290,386-byte external-memory increase, and a 32,738,320-byte ArrayBuffer increase.
+These are absolute process measurements for this implementation, not a cross-library performance
+claim.
+
 ## Reproduction
 
 ```sh
@@ -137,6 +155,10 @@ npm run fixtures:avif:common-photo-syntax
 npm run fixtures:avif:nonstill-sequence
 npm run fixtures:avif:still-picture-entropy
 npm run fixtures:avif:color
+npm run fixtures:avif:tiles
+npm run bench:avif:memory -- \
+  --label "Bounded filtered AVIF decode" \
+  --output benchmark/results/avif-memory-bounded-filtered-2026-08-10.json
 ```
 
 The survey is intentionally broader than the published decoder claim. PQ/HLG without a compatible

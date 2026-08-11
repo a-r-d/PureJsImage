@@ -181,20 +181,29 @@ test('plays and manually navigates a multi-image TIFF time series', async ({ pag
     const pixel = (): readonly number[] =>
       Array.from(context.getImageData(canvas.width / 2, canvas.height / 2, 1, 1).data)
     const before = pixel()
-    const arrayBuffer = Blob.prototype.arrayBuffer
-    Blob.prototype.arrayBuffer = async function (): Promise<ArrayBuffer> {
-      await new Promise<void>((resolve) => window.setTimeout(resolve, 100))
-      return arrayBuffer.call(this)
+    const valueDescriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')
+    if (!valueDescriptor?.get || !valueDescriptor.set) {
+      throw new Error('Select value accessors are unavailable')
     }
+    const getValue = valueDescriptor.get.bind(directory)
+    const setValue = valueDescriptor.set.bind(directory)
+    let during: readonly number[] | undefined
+    Object.defineProperty(directory, 'value', {
+      configurable: true,
+      get: getValue,
+      set(value: string) {
+        setValue(value)
+        if (value === '1') during = pixel()
+      },
+    })
     try {
       next.click()
-      while (directory.value !== '1') {
+      while (during === undefined) {
         await new Promise<void>((resolve) => window.setTimeout(resolve, 0))
       }
-      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
-      return { before, during: pixel() }
+      return { before, during }
     } finally {
-      Blob.prototype.arrayBuffer = arrayBuffer
+      Reflect.deleteProperty(directory, 'value')
     }
   })
   expect(heldFrame.during).toEqual(heldFrame.before)

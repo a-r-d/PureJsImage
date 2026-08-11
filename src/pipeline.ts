@@ -37,6 +37,10 @@ export interface RotateOptions {
   background?: Background
 }
 
+export interface AvifEncodeOptions {
+  background?: Background
+}
+
 export interface JpegEncodeOptions {
   quality?: number
   progressive?: boolean
@@ -85,6 +89,11 @@ export type PipelineOperation =
   | ({ readonly type: 'resize' } & Readonly<ResizeOptions>)
   | { readonly type: 'window'; readonly options: Readonly<WindowOptions> }
   | { readonly type: 'lut'; readonly options: Readonly<LutOptions> }
+  | {
+      readonly type: 'encode'
+      readonly format: 'avif'
+      readonly options: Readonly<AvifEncodeOptions>
+    }
   | {
       readonly type: 'encode'
       readonly format: 'bmp'
@@ -220,6 +229,11 @@ export const createResizeOperation = (options: ResizeOptions): PipelineOperation
   }
   validBackground(options.background)
   return Object.freeze({ type: 'resize', ...options })
+}
+
+export const createAvifEncodeOperation = (options: AvifEncodeOptions): PipelineOperation => {
+  validBackground(options.background)
+  return Object.freeze({ type: 'encode', format: 'avif', options: Object.freeze({ ...options }) })
 }
 
 export const createJpegEncodeOperation = (options: JpegEncodeOptions): PipelineOperation => {
@@ -495,6 +509,19 @@ export const planMetadata = (
         format: 'tiff',
         mimeType: 'image/tiff',
         bitDepth: 8,
+      }
+      continue
+    }
+
+    if (operation.format === 'avif') {
+      metadata = {
+        ...metadata,
+        format: 'avif',
+        mimeType: 'image/avif',
+        hasAlpha: false,
+        bitDepth: 8,
+        chromaSubsampling: '420',
+        codecProfile: 0,
       }
       continue
     }

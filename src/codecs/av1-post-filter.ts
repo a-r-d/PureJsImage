@@ -1,4 +1,5 @@
 import type { Av1FrameHeader } from './av1-frame.ts'
+import { invalidInput } from '../errors.ts'
 
 export interface Av1FilterPlane {
   readonly data: Uint8Array | Uint16Array
@@ -23,11 +24,15 @@ export interface Av1RestorationPlaneState {
 export interface Av1PostFilterState {
   readonly bitDepth: 8 | 10 | 12
   readonly cdefColumns: number
+  readonly contextMiColumns: number
+  readonly contextMiRows: number
   readonly chromaShiftX: number
   readonly chromaShiftY: number
   readonly cdefIndices: Uint16Array
   readonly miColumns: number
+  readonly miColumnStart: number
   readonly miRows: number
+  readonly miRowStart: number
   readonly restoration: readonly [
     Av1RestorationPlaneState,
     Av1RestorationPlaneState,
@@ -42,7 +47,7 @@ const cdefDirections = Int8Array.from([
   -1, 1, -2, 2, 0, 1, -1, 2, 0, 1, 0, 2, 0, 1, 1, 2, 1, 1, 2, 2, 1, 0, 2, 1, 1, 0, 2, 0, 1, 0, 2,
   -1,
 ])
-const cdefUvDirections420 = Uint8Array.from([0, 1, 2, 3, 4, 5, 6, 7])
+const cdefUvDirections422 = Uint8Array.from([7, 0, 2, 4, 5, 6, 6, 6])
 const cdefPrimaryTaps = Uint8Array.from([4, 2, 3, 3])
 const cdefSecondaryTaps = Uint8Array.from([2, 1, 2, 1])
 const cdefDivisionTable = Uint16Array.from([0, 840, 420, 280, 210, 168, 140, 120, 105])
@@ -81,7 +86,7 @@ const sampleBuffer = (
 
 const planeContextWidth = (state: Av1PostFilterState, plane: number): number => {
   const shiftX = plane === 0 ? 0 : state.chromaShiftX
-  return (state.miColumns + (1 << shiftX) - 1) >> shiftX
+  return (state.contextMiColumns + (1 << shiftX) - 1) >> shiftX
 }
 
 const transformAt = (
@@ -93,9 +98,31 @@ const transformAt = (
 ): number => {
   const shiftX = plane === 0 ? 0 : state.chromaShiftX
   const shiftY = plane === 0 ? 0 : state.chromaShiftY
-  const contextColumn = column >> shiftX
-  const contextRow = row >> shiftY
+  const contextColumn = (column - state.miColumnStart) >> shiftX
+  const contextRow = (row - state.miRowStart) >> shiftY
+  if (
+    contextColumn < 0 ||
+    contextColumn >= planeContextWidth(state, plane) ||
+    contextRow < 0 ||
+    contextRow >= state.contextMiRows >> shiftY
+  ) {
+    return 0
+  }
   return transforms[plane]?.[contextRow * planeContextWidth(state, plane) + contextColumn] ?? 0
+}
+
+const skipAt = (state: Av1PostFilterState, row: number, column: number): number => {
+  const contextRow = row - state.miRowStart
+  const contextColumn = column - state.miColumnStart
+  if (
+    contextRow < 0 ||
+    contextRow >= state.contextMiRows ||
+    contextColumn < 0 ||
+    contextColumn >= state.contextMiColumns
+  ) {
+    return 0
+  }
+  return state.skips[contextRow * state.contextMiColumns + contextColumn] ?? 0
 }
 
 const filter4Clamp = (value: number, depthShift: number): number =>
@@ -565,12 +592,11 @@ export const applyAv1Cdef = (
         state.cdefIndices[(baseRow >> 4) * state.cdefColumns + (baseColumn >> 4)] ?? 0
       if (storedIndex === 0) continue
       const index = storedIndex - 1
-      const first = row * state.miColumns + column
       const skip =
-        (state.skips[first] ?? 0) === 1 &&
-        (state.skips[first + 1] ?? 0) === 1 &&
-        (state.skips[first + state.miColumns] ?? 0) === 1 &&
-        (state.skips[first + state.miColumns + 1] ?? 0) === 1
+        skipAt(state, row, column) === 1 &&
+        skipAt(state, row, column + 1) === 1 &&
+        skipAt(state, row + 1, column) === 1 &&
+        skipAt(state, row + 1, column + 1) === 1
       if (skip) continue
       const [lumaDirection, variance] = cdefDirection(
         sourceWindows[0],
@@ -601,7 +627,11 @@ export const applyAv1Cdef = (
       const chromaPrimary = (header.cdefUvPrimaryStrengths[index] ?? 0) << depthShift
       const chromaSecondary = (header.cdefUvSecondaryStrengths[index] ?? 0) << depthShift
       const chromaDirection =
-        chromaPrimary === 0 ? 0 : (cdefUvDirections420[lumaDirection] ?? lumaDirection)
+        chromaPrimary === 0
+          ? 0
+          : state.chromaShiftX === 1 && state.chromaShiftY === 0
+            ? (cdefUvDirections422[lumaDirection] ?? lumaDirection)
+            : lumaDirection
       for (let planeIndex = 1; planeIndex < 3; planeIndex += 1) {
         const sourcePlane = sourceWindows[planeIndex]
         const outputPlane = current[planeIndex]
@@ -951,12 +981,98 @@ const restoreSelfGuidedBlock = (
   }
 }
 
+const countRestorationUnits = (unitSize: number, planeSize: number): number =>
+  Math.max(Math.floor((planeSize + (unitSize >> 1)) / unitSize), 1)
+
+const validateRestorationPlaneState = (
+  header: Av1FrameHeader,
+  state: Av1PostFilterState,
+  planeIndex: number,
+): void => {
+  const plane = state.restoration[planeIndex]
+  if (!plane) throw invalidInput('AV1 restoration plane state is missing')
+  const unitSize = plane.unitSize
+  if (
+    !Number.isSafeInteger(unitSize) ||
+    unitSize < 32 ||
+    unitSize > 256 ||
+    (unitSize & (unitSize - 1)) !== 0
+  ) {
+    throw invalidInput('AV1 restoration unit size is invalid')
+  }
+  const shiftX = planeIndex === 0 ? 0 : state.chromaShiftX
+  const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
+  const planeWidth = Math.ceil(header.upscaledWidth / 2 ** shiftX)
+  const planeHeight = Math.ceil(header.frameHeight / 2 ** shiftY)
+  const columns = countRestorationUnits(unitSize, planeWidth)
+  const rows = countRestorationUnits(unitSize, planeHeight)
+  const units = columns * rows
+  if (!Number.isSafeInteger(units) || plane.columns !== columns || plane.rows !== rows) {
+    throw invalidInput('AV1 restoration unit grid is invalid')
+  }
+  if (
+    plane.types.length !== units ||
+    plane.wiener.length !== units * 6 ||
+    plane.sgrSets.length !== units ||
+    plane.sgrXqd.length !== units * 2
+  ) {
+    throw invalidInput('AV1 restoration unit state is truncated')
+  }
+  const frameType = header.restorationTypes[planeIndex] ?? 0
+  if (!Number.isSafeInteger(frameType) || frameType < 0 || frameType > 3) {
+    throw invalidInput('AV1 restoration frame type is invalid')
+  }
+  for (let unit = 0; unit < units; unit += 1) {
+    const type = plane.types[unit] ?? 0
+    if (type > 2 || (type !== 0 && frameType !== 3 && type !== frameType)) {
+      throw invalidInput('AV1 restoration unit type is invalid')
+    }
+    if (type === 1) {
+      const offset = unit * 6
+      for (const passOffset of [offset, offset + 3]) {
+        const first = plane.wiener[passOffset] ?? 0
+        const second = plane.wiener[passOffset + 1] ?? 0
+        const third = plane.wiener[passOffset + 2] ?? 0
+        if (
+          (planeIndex === 0 ? first < -5 || first > 10 : first !== 0) ||
+          second < -23 ||
+          second > 8 ||
+          third < -17 ||
+          third > 46
+        ) {
+          throw invalidInput('AV1 Wiener restoration coefficients are invalid')
+        }
+      }
+    } else if (type === 2) {
+      const set = plane.sgrSets[unit] ?? 0
+      const first = plane.sgrXqd[unit * 2] ?? 0
+      const second = plane.sgrXqd[unit * 2 + 1] ?? 0
+      const firstRadius = set < 10 || set >= 14
+      const secondRadius = set < 14
+      if (
+        set > 15 ||
+        (firstRadius ? first < -96 || first > 31 : first !== 0) ||
+        (secondRadius ? second < -32 || second > 95 : second !== 95)
+      ) {
+        throw invalidInput('AV1 self-guided restoration parameters are invalid')
+      }
+    }
+  }
+}
+
+const validateRestorationState = (header: Av1FrameHeader, state: Av1PostFilterState): void => {
+  for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
+    validateRestorationPlaneState(header, state, planeIndex)
+  }
+}
+
 export const applyAv1LoopRestoration = (
   deblocked: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
   cdef: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
   header: Av1FrameHeader,
   state: Av1PostFilterState,
 ): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
+  validateRestorationState(header, state)
   const createBand = (plane: Av1FilterPlane, rows: number): Av1FilterPlane => ({
     ...plane,
     data: sampleBuffer(plane.data, plane.stride * rows),

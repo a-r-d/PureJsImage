@@ -9,7 +9,7 @@ export interface AvifLossyMultitileFixture {
   readonly decodedRgbaSha256: string
   readonly file: string
   readonly fileSha256: string
-  readonly fullPostFilters: boolean
+  readonly filters: 'deblock-cdef' | 'disabled' | 'full'
   readonly height: number
   readonly maximumNativeYuvDifference: number
   readonly nativeYuvDifferenceCount: number
@@ -18,6 +18,7 @@ export interface AvifLossyMultitileFixture {
   readonly reducedStillPictureHeader: boolean
   readonly rows: number
   readonly sourceY4mSha256: string
+  readonly sourcePattern: 'bounded-gradient' | 'detail'
   readonly tileGroups: number
   readonly width: number
 }
@@ -29,7 +30,7 @@ export const avifLossyMultitileFixture: AvifLossyMultitileFixture = {
   decodedRgbaSha256: '64d50b1df2d192b1dcac24d4bd0e0df6996c00a1a3ecbd97bd9a888edf3dd737',
   file: 'libaom-lossy-multitile-yuv420-256x256.avif',
   fileSha256: 'e16b36ae63d8b6b045fa5488440f07f305c0d8eeb95fb6eee6276074600dd238',
-  fullPostFilters: true,
+  filters: 'full',
   height: 256,
   maximumNativeYuvDifference: 0,
   nativeYuvDifferenceCount: 0,
@@ -38,6 +39,7 @@ export const avifLossyMultitileFixture: AvifLossyMultitileFixture = {
   reducedStillPictureHeader: true,
   rows: 2,
   sourceY4mSha256: '71177816bfa2ce08b33454429bbe00d0530c839c85b2450da1ddd1ed1ade47a3',
+  sourcePattern: 'detail',
   tileGroups: 0,
   width: 256,
 }
@@ -54,7 +56,7 @@ export const avifFullHeaderTileGroupsFixture: AvifLossyMultitileFixture = {
   decodedRgbaSha256: '05ab2273ba3952c41d53daf0b45afd709e5025f709ea8c87fef4a0dbacb0a966',
   file: 'libaom-full-header-tile-groups-yuv420-256x256.avif',
   fileSha256: '7efc8dea7d5d70c1946b287780c5cc368f59d98a05c4cec115fe21c8b5e83914',
-  fullPostFilters: false,
+  filters: 'disabled',
   height: 256,
   maximumNativeYuvDifference: 0,
   nativeYuvDifferenceCount: 0,
@@ -63,6 +65,7 @@ export const avifFullHeaderTileGroupsFixture: AvifLossyMultitileFixture = {
   reducedStillPictureHeader: false,
   rows: 2,
   sourceY4mSha256: '71177816bfa2ce08b33454429bbe00d0530c839c85b2450da1ddd1ed1ade47a3',
+  sourcePattern: 'detail',
   tileGroups: 4,
   width: 256,
 }
@@ -70,6 +73,32 @@ export const avifFullHeaderTileGroupsFixture: AvifLossyMultitileFixture = {
 export const avifFullHeaderTileGroupsFixturePath = join(
   avifCorpusDirectory,
   avifFullHeaderTileGroupsFixture.file,
+)
+
+export const avifBoundedFilteredFixture: AvifLossyMultitileFixture = {
+  bitDepth: 8,
+  chromaSubsampling: '420',
+  columns: 8,
+  decodedRgbaSha256: 'fa0ee4c2f74aef92f77ce700eb60f001b6502db9c5d540b43bdddb59fdcc3880',
+  file: 'libavif-bounded-filtered-yuv420-3840x2160.avif',
+  fileSha256: 'b5ef6f6154a20dd4e6d4e76c01bd94ff2ab8ba415de0f5cbf00672e16de65258',
+  filters: 'deblock-cdef',
+  height: 2160,
+  maximumNativeYuvDifference: 0,
+  nativeYuvDifferenceCount: 0,
+  oracleYuvSha256: 'a6499994da217de6744dabf969f60b1a5c928a249943cdd7765b92de326f953f',
+  pureYuvSha256: 'a6499994da217de6744dabf969f60b1a5c928a249943cdd7765b92de326f953f',
+  reducedStillPictureHeader: true,
+  rows: 2,
+  sourcePattern: 'bounded-gradient',
+  sourceY4mSha256: 'aaa41796e6650568f3f95aad3a3d79dd79375961010d79df46acab19a295eb25',
+  tileGroups: 0,
+  width: 3840,
+}
+
+export const avifBoundedFilteredFixturePath = join(
+  avifCorpusDirectory,
+  avifBoundedFilteredFixture.file,
 )
 
 export const avifLossyMultitileFixtures = [
@@ -80,6 +109,10 @@ export const avifLossyMultitileFixtures = [
   {
     fixture: avifFullHeaderTileGroupsFixture,
     path: avifFullHeaderTileGroupsFixturePath,
+  },
+  {
+    fixture: avifBoundedFilteredFixture,
+    path: avifBoundedFilteredFixturePath,
   },
 ] as const
 

@@ -21,6 +21,41 @@ export interface Av1Tile {
   readonly row: number
 }
 
+export interface Av1FilmGrainPoint {
+  readonly scaling: number
+  readonly value: number
+}
+
+export interface Av1FilmGrainParams {
+  readonly arCoeffLag: number
+  readonly arCoeffShift: number
+  readonly arCoefficientsCb: readonly number[]
+  readonly arCoefficientsCr: readonly number[]
+  readonly arCoefficientsY: readonly number[]
+  readonly cbLumaMult: number
+  readonly cbMult: number
+  readonly cbOffset: number
+  readonly cbPoints: readonly Av1FilmGrainPoint[]
+  readonly chromaScalingFromLuma: boolean
+  readonly clipToRestrictedRange: boolean
+  readonly crLumaMult: number
+  readonly crMult: number
+  readonly crOffset: number
+  readonly crPoints: readonly Av1FilmGrainPoint[]
+  readonly grainScaleShift: number
+  readonly grainScaling: number
+  readonly overlap: boolean
+  readonly seed: number
+  readonly yPoints: readonly Av1FilmGrainPoint[]
+}
+
+export type Av1FrameKind = 'key' | 'inter' | 'intra-only' | 'switch' | 'show-existing'
+
+export interface Av1FrameHeaderSummary {
+  readonly kind: Av1FrameKind
+  readonly showFrame: boolean
+}
+
 export interface Av1FrameHeader {
   readonly allowIntrabc: boolean
   readonly allowScreenContentTools: boolean
@@ -43,6 +78,7 @@ export interface Av1FrameHeader {
   readonly deltaYDc: number
   readonly disableCdfUpdate: boolean
   readonly frameHeight: number
+  readonly filmGrain: Av1FilmGrainParams | undefined
   readonly frameWidth: number
   readonly headerBytes: number
   readonly loopFilterDeltaEnabled: boolean
@@ -381,6 +417,92 @@ const parseRestoration = (
   }
 }
 
+const parseFilmGrainPoints = (
+  reader: Av1BitReader,
+  count: number,
+  maximum: number,
+  plane: string,
+): readonly Av1FilmGrainPoint[] => {
+  if (count > maximum) throw invalidInput(`AV1 film-grain ${plane} point count is invalid`)
+  const points: Av1FilmGrainPoint[] = []
+  for (let index = 0; index < count; index += 1) {
+    const value = reader.readBits(8)
+    const scaling = reader.readBits(8)
+    if (index > 0 && value <= (points[index - 1]?.value ?? -1)) {
+      throw invalidInput(`AV1 film-grain ${plane} points are not strictly increasing`)
+    }
+    points.push({ value, scaling })
+  }
+  return points
+}
+
+const parseFilmGrain = (
+  reader: Av1BitReader,
+  sequence: Av1SequenceHeader,
+): Av1FilmGrainParams | undefined => {
+  if (!sequence.filmGrainParamsPresent || reader.readBit() === 0) return undefined
+  const seed = reader.readBits(16)
+  const yPoints = parseFilmGrainPoints(reader, reader.readBits(4), 14, 'luma')
+  const chromaScalingFromLuma = !sequence.monochrome && reader.readBit() === 1
+  let cbPoints: readonly Av1FilmGrainPoint[] = []
+  let crPoints: readonly Av1FilmGrainPoint[] = []
+  if (
+    !sequence.monochrome &&
+    !chromaScalingFromLuma &&
+    !(sequence.chromaSubsampling === '420' && yPoints.length === 0)
+  ) {
+    cbPoints = parseFilmGrainPoints(reader, reader.readBits(4), 10, 'Cb')
+    crPoints = parseFilmGrainPoints(reader, reader.readBits(4), 10, 'Cr')
+  }
+  const grainScaling = reader.readBits(2) + 8
+  const arCoeffLag = reader.readBits(2)
+  const lumaCoefficientCount = 2 * arCoeffLag * (arCoeffLag + 1)
+  const chromaCoefficientCount = lumaCoefficientCount + (yPoints.length > 0 ? 1 : 0)
+  const readCoefficients = (count: number, present: boolean): readonly number[] => {
+    if (!present) return []
+    return Array.from({ length: count }, () => reader.readBits(8) - 128)
+  }
+  const arCoefficientsY = readCoefficients(lumaCoefficientCount, yPoints.length > 0)
+  const arCoefficientsCb = readCoefficients(
+    chromaCoefficientCount,
+    chromaScalingFromLuma || cbPoints.length > 0,
+  )
+  const arCoefficientsCr = readCoefficients(
+    chromaCoefficientCount,
+    chromaScalingFromLuma || crPoints.length > 0,
+  )
+  const arCoeffShift = reader.readBits(2) + 6
+  const grainScaleShift = reader.readBits(2)
+  const cbMult = cbPoints.length > 0 ? reader.readBits(8) : 128
+  const cbLumaMult = cbPoints.length > 0 ? reader.readBits(8) : 128
+  const cbOffset = cbPoints.length > 0 ? reader.readBits(9) : 256
+  const crMult = crPoints.length > 0 ? reader.readBits(8) : 128
+  const crLumaMult = crPoints.length > 0 ? reader.readBits(8) : 128
+  const crOffset = crPoints.length > 0 ? reader.readBits(9) : 256
+  return {
+    seed,
+    yPoints,
+    cbPoints,
+    crPoints,
+    chromaScalingFromLuma,
+    grainScaling,
+    arCoeffLag,
+    arCoefficientsY,
+    arCoefficientsCb,
+    arCoefficientsCr,
+    arCoeffShift,
+    grainScaleShift,
+    cbMult,
+    cbLumaMult,
+    cbOffset,
+    crMult,
+    crLumaMult,
+    crOffset,
+    overlap: reader.readBit() === 1,
+    clipToRestrictedRange: reader.readBit() === 1,
+  }
+}
+
 const littleEndian = (data: Uint8Array, offset: number, bytes: number): number => {
   let value = 0
   for (let index = 0; index < bytes; index += 1) {
@@ -391,14 +513,25 @@ const littleEndian = (data: Uint8Array, offset: number, bytes: number): number =
   return value
 }
 
+export const inspectAv1FrameHeader = (
+  sequence: Av1SequenceHeader,
+  data: Uint8Array,
+): Av1FrameHeaderSummary => {
+  if (sequence.reducedStillPictureHeader) return { kind: 'key', showFrame: true }
+  const reader = new Av1BitReader(data)
+  if (reader.readBit() === 1) return { kind: 'show-existing', showFrame: true }
+  const frameType = reader.readBits(2)
+  const kinds: readonly Av1FrameKind[] = ['key', 'inter', 'intra-only', 'switch']
+  const kind = kinds[frameType]
+  if (!kind) throw invalidInput(`Invalid AV1 frame type ${frameType}`)
+  return { kind, showFrame: reader.readBit() === 1 }
+}
+
 export const parseAv1Frame = (
   sequence: Av1SequenceHeader,
   data: Uint8Array,
   tileGroups?: readonly Uint8Array[],
 ): Av1Frame => {
-  if (sequence.filmGrainParamsPresent) {
-    throw unsupportedOperation('AV1 film grain is not supported')
-  }
   const reader = new Av1BitReader(data)
   if (!sequence.reducedStillPictureHeader) {
     if (reader.readBit() === 1) {
@@ -420,15 +553,18 @@ export const parseAv1Frame = (
   if (sequence.frameIdNumbersPresent) {
     throw unsupportedOperation('AV1 frame ID numbers are not supported')
   }
+  let frameSizeOverride = false
   if (!sequence.reducedStillPictureHeader) {
-    if (reader.readBit() === 1) {
-      throw unsupportedOperation('Non-reduced AV1 images must use maximum frame dimensions')
-    }
+    frameSizeOverride = reader.readBit() === 1
     if (sequence.orderHintBits > 0) reader.readBits(sequence.orderHintBits)
   }
 
-  let frameWidth = sequence.maxFrameWidth
-  const frameHeight = sequence.maxFrameHeight
+  let frameWidth = frameSizeOverride
+    ? reader.readBits(sequence.frameWidthBits) + 1
+    : sequence.maxFrameWidth
+  const frameHeight = frameSizeOverride
+    ? reader.readBits(sequence.frameHeightBits) + 1
+    : sequence.maxFrameHeight
   const upscaledWidth = frameWidth
   let superresDenominator = 8
   if (sequence.enableSuperres && reader.readBit() === 1) {
@@ -486,6 +622,7 @@ export const parseAv1Frame = (
   const restoration = parseRestoration(reader, sequence, planes, allLossless, allowIntrabc)
   const transformMode = codedLossless ? '4x4' : reader.readBit() === 1 ? 'select' : 'largest'
   const reducedTransformSet = reader.readBit() === 1
+  const filmGrain = parseFilmGrain(reader, sequence)
   if (tileGroups === undefined) reader.alignToByte()
   else reader.readTrailingBits()
   const headerBytes = reader.bytePosition
@@ -591,6 +728,7 @@ export const parseAv1Frame = (
       restorationUnitSizes: restoration.unitSizes,
       transformMode,
       reducedTransformSet,
+      filmGrain,
       tileColumns: layout.columns,
       tileRows: layout.rows,
       tileSizeBytes: layout.tileSizeBytes,

@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 import {
   avifMemoryEncoderVersion,
+  avifMemoryFfmpegVersion,
   prepareAvifMemoryCases,
   type AvifMemoryScenario,
 } from './memory-fixtures.ts'
@@ -54,6 +55,13 @@ const isScenario = (value: unknown): value is AvifMemoryScenario =>
   value === 'alpha' ||
   value === 'cdef' ||
   value === 'deblock' ||
+  value === 'filtered-4k-multitile' ||
+  value === 'filtered-10bit' ||
+  value === 'filtered-10bit-downscale' ||
+  value === 'filtered-12bit' ||
+  value === 'filtered-12bit-downscale' ||
+  value === 'film-grain' ||
+  value === 'gain-map-grid' ||
   value === 'downscale' ||
   value === 'grid' ||
   value === 'no-filters' ||
@@ -182,8 +190,12 @@ try {
     node: process.version,
     platform: `${process.platform}/${process.arch}`,
     avifenc: avifMemoryEncoderVersion(),
+    ffmpeg: avifMemoryFfmpegVersion(),
     notes: {
-      purpose: 'Evidence for the bounded-memory refactor; not a performance claim.',
+      purpose:
+        'Evidence for bounded output and explicit full-frame filtered fallbacks; not a performance claim.',
+      filteredHighDepth:
+        'Filtered 10-bit and 12-bit decode reconstructs padded full-frame native-depth YUV before bounded RGBA row emission; downscale does not reduce that reconstruction working set.',
       maximumRss: 'Absolute process high-water mark from process.resourceUsage().',
       externalAndArrayBuffers: 'Sampled after decoder creation and every public output block.',
       baseline:

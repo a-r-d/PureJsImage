@@ -7,12 +7,15 @@ export interface BrowserCompatibilityHarness {
   animatedGifFrameSelection(): Promise<BrowserWorkflowResult>
   avifAlphaPremultiplied(): Promise<BrowserWorkflowResult>
   avifAlphaStraight(): Promise<BrowserWorkflowResult>
+  avifEncode(): Promise<BrowserWorkflowResult>
   avifBoundedAlphaRows(): Promise<BrowserWorkflowResult>
   avifBoundedRows(): Promise<BrowserWorkflowResult>
   avifBoundedResize(): Promise<BrowserWorkflowResult>
   avifCleanAperture(): Promise<BrowserWorkflowResult>
   avifCommonPhotoSyntax(): Promise<BrowserWorkflowResult>
   avifFilteredSuperres(): Promise<BrowserWorkflowResult>
+  avifFilmGrain(): Promise<BrowserWorkflowResult>
+  avifGainMapGrid(): Promise<BrowserWorkflowResult>
   avifGrid(): Promise<BrowserWorkflowResult>
   avifHighBit10(): Promise<BrowserWorkflowResult>
   avifHighBit12(): Promise<BrowserWorkflowResult>
@@ -22,8 +25,10 @@ export interface BrowserCompatibilityHarness {
   avifHdrRejected(): Promise<BrowserWorkflowResult>
   avifHdrGainMap(): Promise<BrowserWorkflowResult>
   avifIcc(): Promise<BrowserWorkflowResult>
+  avifImir(): Promise<BrowserWorkflowResult>
   avifLossyMultitile(): Promise<BrowserWorkflowResult>
   avifLayeredSelection(): Promise<BrowserWorkflowResult>
+  avifSelectedBaseLayer(): Promise<BrowserWorkflowResult>
   avifIntrabc(): Promise<BrowserWorkflowResult>
   avifResidualIntrabc(): Promise<BrowserWorkflowResult>
   avifStillPictureEntropy(): Promise<BrowserWorkflowResult>

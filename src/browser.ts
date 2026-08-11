@@ -38,6 +38,7 @@ export type ImageLibrary = RuntimeImageLibrary<ImageInput, Uint8Array>
 export type { ImageLimitOptions, ImageLimits } from './limits.ts'
 export { defaultImageLimits } from './limits.ts'
 export type {
+  AvifEncodeOptions,
   Background,
   BmpEncodeOptions,
   CropOptions,

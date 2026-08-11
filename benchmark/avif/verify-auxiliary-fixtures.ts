@@ -4,12 +4,18 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { PNG } from 'pngjs'
+import sharp from 'sharp'
 import { allCodecs } from '../../src/codec-entries/all.ts'
 import { parseAv1FrameObus } from '../../src/codecs/av1-frame.ts'
 import { decodeRestrictedAv1Intra } from '../../src/codecs/av1-intra.ts'
 import { type AvifCodedImageInspection, inspectAvifBitstreams } from '../../src/codecs/avif.ts'
 import { createNodeImageLibrary } from '../../src/node-image.ts'
 import { MemorySource } from '../../src/source.ts'
+import {
+  avifAlphaFixtureDirectory,
+  avifGainMapFixtures,
+  avifStagedAlphaFixtures,
+} from './alpha-fixtures.ts'
 import {
   avifAlphaGridFixture,
   avifAlphaTransformDecodedRgbaSha256,
@@ -44,6 +50,15 @@ const decodeAvifdecRgba = async (
   if (result.status !== 0) throw new Error(`avifdec ${decoder} failed: ${result.stderr}`)
   return new Uint8Array(PNG.sync.read(await readFile(outputPath)).data)
 }
+const decodeGainMapRgba = async (path: string, outputPath: string): Promise<Uint8Array> => {
+  const result = spawnSync('avifgainmaputil', ['tonemap', path, outputPath, '--headroom', '0'], {
+    encoding: 'utf8',
+  })
+  if (result.error) throw result.error
+  if (result.status !== 0) throw new Error(`avifgainmaputil failed: ${result.stderr}`)
+  return new Uint8Array(PNG.sync.read(await readFile(outputPath)).data)
+}
+
 const nativeAlphaPlane = (coded: AvifCodedImageInspection): Uint8Array => {
   const frame = decodeRestrictedAv1Intra(
     coded.sequence,
@@ -57,6 +72,59 @@ const nativeAlphaPlane = (coded: AvifCodedImageInspection): Uint8Array => {
     )
   }
   return output
+}
+const maximumChannelDifferences = (
+  actual: Uint8Array,
+  expected: Uint8Array,
+): readonly [number, number, number, number] => {
+  if (actual.byteLength !== expected.byteLength) throw new Error('RGBA oracle dimensions differ')
+  const maximums: [number, number, number, number] = [0, 0, 0, 0]
+  for (let offset = 0; offset < actual.byteLength; offset += 4) {
+    for (let channel = 0; channel < 4; channel += 1) {
+      maximums[channel] = Math.max(
+        maximums[channel] ?? 0,
+        Math.abs((actual[offset + channel] ?? 0) - (expected[offset + channel] ?? 0)),
+      )
+    }
+  }
+  return maximums
+}
+const channelDifferenceMetrics = (
+  actual: Uint8Array,
+  expected: Uint8Array,
+): {
+  readonly maximums: readonly [number, number, number, number]
+  readonly means: readonly [number, number, number, number]
+  readonly rgbPsnr: number
+} => {
+  const maximums = maximumChannelDifferences(actual, expected)
+  const sums: [number, number, number, number] = [0, 0, 0, 0]
+  let rgbSquaredError = 0
+  for (let offset = 0; offset < actual.byteLength; offset += 4) {
+    for (let channel = 0; channel < 4; channel += 1) {
+      const difference = Math.abs(
+        (actual[offset + channel] ?? 0) - (expected[offset + channel] ?? 0),
+      )
+      sums[channel] = (sums[channel] ?? 0) + difference
+      if (channel < 3) rgbSquaredError += difference * difference
+    }
+  }
+  const pixels = actual.byteLength / 4
+  const means: [number, number, number, number] = [
+    sums[0] / pixels,
+    sums[1] / pixels,
+    sums[2] / pixels,
+    sums[3] / pixels,
+  ]
+  const meanSquaredError = rgbSquaredError / (pixels * 3)
+  return {
+    maximums,
+    means,
+    rgbPsnr:
+      meanSquaredError === 0
+        ? Number.POSITIVE_INFINITY
+        : 10 * Math.log10(65_025 / meanSquaredError),
+  }
 }
 
 const results: Array<Record<string, unknown>> = []
@@ -217,8 +285,101 @@ try {
     }
     results.push({ file: fixture.file, colorItems, alphaItems })
   }
+
+  for (const fixture of avifStagedAlphaFixtures) {
+    const path = join(avifAlphaFixtureDirectory, fixture.file)
+    const input = new Uint8Array(await readFile(path))
+    if (sha256(input) !== fixture.fileSha256) throw new Error(`${fixture.file} checksum changed`)
+    const pure = await decodePureRgba(path)
+    if (sha256(pure) !== fixture.decodedRgbaSha256) {
+      throw new Error(`${fixture.file} portable RGBA checksum changed`)
+    }
+    const oracles =
+      fixture.oracle === 'sharp'
+        ? [new Uint8Array(await sharp(path).ensureAlpha().raw().toBuffer())]
+        : await Promise.all(
+            (['dav1d', 'aom'] as const).map((decoder) =>
+              decodeAvifdecRgba(
+                path,
+                decoder,
+                join(temporaryDirectory, `${fixture.file}-${decoder}.png`),
+              ),
+            ),
+          )
+    for (const oracle of oracles) {
+      if (sha256(oracle) !== fixture.oracleRgbaSha256) {
+        throw new Error(`${fixture.file} ${fixture.oracle} RGBA checksum changed`)
+      }
+      const maximums = maximumChannelDifferences(pure, oracle)
+      if (
+        maximums.some(
+          (maximum, channel) => maximum > (fixture.maximumOracleDifferences[channel] ?? 0),
+        )
+      ) {
+        throw new Error(`${fixture.file} portable RGBA drifted from ${fixture.oracle}`)
+      }
+    }
+    results.push({
+      file: fixture.file,
+      oracle: fixture.oracle,
+      maximumChannelDifferences: fixture.maximumOracleDifferences,
+      colorPhaseWorkingBytes: fixture.colorPhaseWorkingBytes,
+    })
+  }
+
+  for (const fixture of avifGainMapFixtures) {
+    const path = join(avifAlphaFixtureDirectory, fixture.file)
+    const input = new Uint8Array(await readFile(path))
+    if (sha256(input) !== fixture.fileSha256) throw new Error(`${fixture.file} checksum changed`)
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const hasAlpha =
+      inspection.alphaItemId !== undefined || inspection.alphaAssociations.length !== 0
+    if (
+      (inspection.primaryItemType === 'grid') !== fixture.baseGrid ||
+      (inspection.gainMap?.gainMapItemType === 'grid') !== fixture.gainMapGrid ||
+      hasAlpha !== fixture.hasAlpha
+    ) {
+      throw new Error(`${fixture.file} gain-map structure changed`)
+    }
+    const pure = await decodePureRgba(path)
+    if (sha256(pure) !== fixture.decodedRgbaSha256) {
+      throw new Error(`${fixture.file} portable gain-map RGBA checksum changed`)
+    }
+    const oracle = await decodeGainMapRgba(
+      path,
+      join(temporaryDirectory, `${fixture.file}-gain-map.png`),
+    )
+    if (sha256(oracle) !== fixture.oracleRgbaSha256) {
+      throw new Error(`${fixture.file} libavif gain-map RGBA checksum changed`)
+    }
+    const metrics = channelDifferenceMetrics(pure, oracle)
+    if (
+      metrics.maximums.some(
+        (maximum, channel) => maximum > (fixture.maximumOracleDifferences[channel] ?? 0),
+      ) ||
+      metrics.means.some(
+        (mean, channel) => mean > (fixture.maximumMeanOracleDifferences[channel] ?? 0),
+      ) ||
+      metrics.rgbPsnr < fixture.minimumRgbPsnr
+    ) {
+      throw new Error(`${fixture.file} portable gain-map RGBA drifted from libavif`)
+    }
+    results.push({
+      file: fixture.file,
+      gainMapGrid: fixture.gainMapGrid,
+      maximumChannelDifferences: metrics.maximums,
+      meanChannelDifferences: metrics.means,
+      rgbPsnr: metrics.rgbPsnr,
+    })
+  }
 } finally {
   await rm(temporaryDirectory, { recursive: true, force: true })
 }
 
-console.log(JSON.stringify({ decoders: ['PureJsImage', 'dav1d', 'libaom'], results }, null, 2))
+console.log(
+  JSON.stringify(
+    { decoders: ['PureJsImage', 'dav1d', 'libaom', 'Sharp/libvips'], results },
+    null,
+    2,
+  ),
+)

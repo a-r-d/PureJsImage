@@ -14,6 +14,12 @@ import { av1ObuType, type Av1SequenceHeader } from '../src/codecs/av1.ts'
 import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
 import { av1InverseQuantizationMatrix } from '../src/codecs/av1-qmatrix.ts'
 import { MemorySource } from '../src/source.ts'
+import {
+  applyAv1LoopRestoration,
+  type Av1FilterPlane,
+  type Av1PostFilterState,
+  type Av1RestorationPlaneState,
+} from '../src/codecs/av1-post-filter.ts'
 
 const packVisibleYuv = (frame: Av1DecodedFrame): Uint8Array => {
   const output = new Uint8Array(
@@ -35,6 +41,104 @@ const packVisibleYuv = (frame: Av1DecodedFrame): Uint8Array => {
   }
   return output
 }
+const restorationUnitCount = (unitSize: number, size: number): number =>
+  Math.max(Math.floor((size + (unitSize >> 1)) / unitSize), 1)
+
+const createRestorationPlaneState = (
+  width: number,
+  height: number,
+  unitSize: number,
+  type: 0 | 1 | 2,
+): Av1RestorationPlaneState => {
+  const columns = restorationUnitCount(unitSize, width)
+  const rows = restorationUnitCount(unitSize, height)
+  const units = columns * rows
+  const types = new Uint8Array(units)
+  types.fill(type)
+  return {
+    columns,
+    rows,
+    sgrSets: new Uint8Array(units),
+    sgrXqd: new Int16Array(units * 2),
+    types,
+    unitSize,
+    wiener: new Int8Array(units * 6),
+  }
+}
+
+const createPostFilterState = (
+  width: number,
+  height: number,
+  unitSize: number,
+  type: 0 | 1 | 2,
+): Av1PostFilterState => {
+  const empty = new Uint8Array(0)
+  return {
+    bitDepth: 10,
+    cdefColumns: 0,
+    cdefIndices: new Uint16Array(0),
+    chromaShiftX: 1,
+    chromaShiftY: 1,
+    contextMiColumns: 0,
+    contextMiRows: 0,
+    miColumns: 0,
+    miColumnStart: 0,
+    miRows: 0,
+    miRowStart: 0,
+    restoration: [
+      createRestorationPlaneState(width, height, unitSize, type),
+      createRestorationPlaneState(Math.ceil(width / 2), Math.ceil(height / 2), unitSize, type),
+      createRestorationPlaneState(Math.ceil(width / 2), Math.ceil(height / 2), unitSize, type),
+    ],
+    skips: empty,
+    transformHeights: [empty, empty, empty],
+    transformWidths: [empty, empty, empty],
+  }
+}
+
+const createFilterPlanes = (
+  width: number,
+  height: number,
+): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
+  const plane = (planeWidth: number, planeHeight: number, seed: number): Av1FilterPlane => {
+    const data = new Uint16Array(planeWidth * planeHeight)
+    for (let index = 0; index < data.length; index += 1) {
+      data[index] = (index * 17 + seed) & 1_023
+    }
+    return { data, height: planeHeight, stride: planeWidth, width: planeWidth }
+  }
+  const chromaWidth = Math.ceil(width / 2)
+  const chromaHeight = Math.ceil(height / 2)
+  return [
+    plane(width, height, 3),
+    plane(chromaWidth, chromaHeight, 7),
+    plane(chromaWidth, chromaHeight, 11),
+  ]
+}
+
+const restorationHeader = (
+  header: Av1FrameHeader,
+  width: number,
+  height: number,
+  unitSize: number,
+  type: 0 | 1 | 2,
+): Av1FrameHeader => ({
+  ...header,
+  frameHeight: height,
+  frameWidth: width,
+  renderHeight: height,
+  renderWidth: width,
+  restorationTypes: [type, type, type],
+  restorationUnitSizes: [unitSize, unitSize, unitSize],
+  upscaledWidth: width,
+})
+const replaceFirstRestorationPlane = (
+  state: Av1PostFilterState,
+  plane: Av1RestorationPlaneState,
+): Av1PostFilterState => ({
+  ...state,
+  restoration: [plane, state.restoration[1], state.restoration[2]],
+})
 
 const decodeFixture = async (
   file: string,
@@ -125,6 +229,145 @@ describe('AV1 post-reconstruction filters', () => {
     )
     expect(createHash('sha256').update(blocks128.yuv).digest('hex')).toBe(
       'a9f523bde5a466a809c019a31731e902b6039e94310ae7f5128b78416892c02d',
+    )
+  })
+  it('rejects a truncated restoration-unit payload', async () => {
+    const { frame, sequence } = await decodeFixture('post-filter-restoration-units-300x130.avif')
+    const lastTile = frame.tiles.at(-1)
+    if (!lastTile) throw new Error('Restoration fixture has no AV1 tile')
+    const tiles = frame.tiles.map((tile, index) =>
+      index === frame.tiles.length - 1
+        ? { ...tile, data: tile.data.subarray(0, tile.data.length - 1) }
+        : tile,
+    )
+
+    expect(() => decodeRestrictedAv1Intra(sequence, { ...frame, tiles })).toThrow(
+      expect.objectContaining({
+        code: 'INVALID_INPUT',
+        message: 'AV1 symbol decoder over-read its tile',
+      }),
+    )
+  })
+
+  it('rejects invalid Wiener coefficients before filtering', async () => {
+    const { header: sourceHeader } = await decodeFixture('post-filter-wiener-sgr-66x70.avif')
+    const width = 99
+    const height = 67
+    const header = restorationHeader(sourceHeader, width, height, 64, 1)
+    const state = createPostFilterState(width, height, 64, 1)
+    state.restoration[0].wiener[0] = 11
+
+    expect(() =>
+      applyAv1LoopRestoration(
+        createFilterPlanes(width, height),
+        createFilterPlanes(width, height),
+        header,
+        state,
+      ),
+    ).toThrow(
+      expect.objectContaining({ message: 'AV1 Wiener restoration coefficients are invalid' }),
+    )
+  })
+
+  it.each([
+    {
+      mutate: (plane: Av1RestorationPlaneState): void => {
+        plane.sgrSets[0] = 16
+      },
+      name: 'set',
+    },
+    {
+      mutate: (plane: Av1RestorationPlaneState): void => {
+        plane.sgrXqd[0] = -97
+      },
+      name: 'projection weight',
+    },
+  ])('rejects an invalid self-guided restoration $name', async ({ mutate }) => {
+    const { header: sourceHeader } = await decodeFixture('post-filter-wiener-sgr-66x70.avif')
+    const width = 99
+    const height = 67
+    const header = restorationHeader(sourceHeader, width, height, 64, 2)
+    const state = createPostFilterState(width, height, 64, 2)
+    mutate(state.restoration[0])
+
+    expect(() =>
+      applyAv1LoopRestoration(
+        createFilterPlanes(width, height),
+        createFilterPlanes(width, height),
+        header,
+        state,
+      ),
+    ).toThrow(
+      expect.objectContaining({ message: 'AV1 self-guided restoration parameters are invalid' }),
+    )
+  })
+
+  it('rejects truncated restoration state before allocating filter bands', async () => {
+    const { header: sourceHeader } = await decodeFixture('post-filter-wiener-sgr-66x70.avif')
+    const width = 99
+    const height = 67
+    const header = restorationHeader(sourceHeader, width, height, 64, 1)
+    const state = createPostFilterState(width, height, 64, 1)
+    const truncated = replaceFirstRestorationPlane(state, {
+      ...state.restoration[0],
+      types: state.restoration[0].types.subarray(0, state.restoration[0].types.length - 1),
+    })
+
+    expect(() =>
+      applyAv1LoopRestoration(
+        createFilterPlanes(width, height),
+        createFilterPlanes(width, height),
+        header,
+        truncated,
+      ),
+    ).toThrow(expect.objectContaining({ message: 'AV1 restoration unit state is truncated' }))
+  })
+
+  it('limits Wiener writes to partial edge restoration units', async () => {
+    const { header: sourceHeader } = await decodeFixture('post-filter-wiener-sgr-66x70.avif')
+    const width = 99
+    const height = 64
+    const header = restorationHeader(sourceHeader, width, height, 64, 1)
+    const state = createPostFilterState(width, height, 64, 1)
+    const cdef = createFilterPlanes(width, height)
+    const expected = cdef.map((plane) => plane.data.slice())
+    const output = applyAv1LoopRestoration(createFilterPlanes(width, height), cdef, header, state)
+
+    expect([state.restoration[0].columns, state.restoration[0].rows]).toEqual([2, 1])
+    expect(output.map((plane) => plane.data)).toEqual(expected)
+  })
+
+  it('bounds self-guided restoration at odd frame and chroma dimensions', async () => {
+    const { header: sourceHeader } = await decodeFixture('post-filter-wiener-sgr-66x70.avif')
+    const width = 99
+    const height = 99
+    const header = restorationHeader(sourceHeader, width, height, 64, 2)
+    const state = createPostFilterState(width, height, 64, 2)
+    const output = applyAv1LoopRestoration(
+      createFilterPlanes(width, height),
+      createFilterPlanes(width, height),
+      header,
+      state,
+    )
+
+    expect([state.restoration[0].columns, state.restoration[0].rows]).toEqual([2, 2])
+    expect(output.map((plane) => [plane.data.length, plane.width, plane.height])).toEqual([
+      [99 * 99, 99, 99],
+      [50 * 50, 50, 50],
+      [50 * 50, 50, 50],
+    ])
+    expect(output.every((plane) => plane.data.every((sample) => sample <= 1_023))).toBe(true)
+  })
+
+  it('rejects invalid restoration unit sizes before restoration-state allocation', async () => {
+    const { frame, sequence } = await decodeFixture('post-filter-wiener-sgr-66x70.avif')
+    const invalidFrame: Av1Frame = {
+      ...frame,
+      header: { ...frame.header, restorationUnitSizes: [16, 256, 256] },
+    }
+
+    expect(() => decodeRestrictedAv1Intra(sequence, invalidFrame)).toThrow(
+      expect.objectContaining({ message: 'AV1 restoration unit size is invalid' }),
     )
   })
 

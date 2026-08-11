@@ -3,7 +3,11 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 
 import { parseAv1FrameObus } from '../../src/codecs/av1-frame.ts'
-import { decodeRestrictedAv1Intra, type Av1DecodedFrame } from '../../src/codecs/av1-intra.ts'
+import {
+  decodeRestrictedAv1Intra,
+  estimateRestrictedAv1WorkingBytes,
+  type Av1DecodedFrame,
+} from '../../src/codecs/av1-intra.ts'
 import { av1ObuType } from '../../src/codecs/av1.ts'
 import { inspectAvifBitstreams } from '../../src/codecs/avif.ts'
 import { MemorySource } from '../../src/source.ts'
@@ -61,6 +65,7 @@ const decodeOracle = (path: string, decoder: 'libaom-av1' | 'libdav1d'): Promise
   })
 
 const results: Array<{
+  readonly estimatedWorkingBytes: number
   readonly differences: number
   readonly file: string
   readonly maximumDifference: number
@@ -77,12 +82,15 @@ for (const { fixture, path } of avifLossyMultitileFixtures) {
   const tileGroups = coded.obus.filter(
     (candidate) => candidate.type === av1ObuType.tileGroup,
   ).length
-  const filtersMatch = fixture.fullPostFilters
-    ? parsed.header.loopFilterLevels.some((level) => level !== 0) &&
-      parsed.header.cdefYPrimaryStrengths.some((strength) => strength !== 0) &&
-      parsed.header.restorationTypes.some((type) => type !== 0)
-    : parsed.header.cdefYPrimaryStrengths.every((strength) => strength === 0) &&
-      parsed.header.restorationTypes.every((type) => type === 0)
+  const hasLoopFilter = parsed.header.loopFilterLevels.some((level) => level !== 0)
+  const hasCdef = parsed.header.cdefYPrimaryStrengths.some((strength) => strength !== 0)
+  const hasRestoration = parsed.header.restorationTypes.some((type) => type !== 0)
+  const filtersMatch =
+    fixture.filters === 'full'
+      ? hasLoopFilter && hasCdef && hasRestoration
+      : fixture.filters === 'deblock-cdef'
+        ? hasLoopFilter && hasCdef && !hasRestoration
+        : !hasCdef && !hasRestoration
   if (
     parsed.tiles.length !== fixture.columns * fixture.rows ||
     parsed.header.allLossless ||
@@ -91,6 +99,10 @@ for (const { fixture, path } of avifLossyMultitileFixtures) {
     !filtersMatch
   ) {
     throw new Error(`${fixture.file} lossy multi-tile syntax changed`)
+  }
+  const estimatedWorkingBytes = estimateRestrictedAv1WorkingBytes(coded.sequence, parsed)
+  if (estimatedWorkingBytes > 64 * 1_024 * 1_024) {
+    throw new Error(`${fixture.file} exceeds the default AVIF working-memory limit`)
   }
   const pure = packVisibleYuv(decodeRestrictedAv1Intra(coded.sequence, parsed))
   if (sha256(pure) !== fixture.pureYuvSha256) {
@@ -126,6 +138,7 @@ for (const { fixture, path } of avifLossyMultitileFixtures) {
   results.push({
     differences,
     file: fixture.file,
+    estimatedWorkingBytes,
     maximumDifference,
     tileGroups,
     tiles: `${fixture.columns}x${fixture.rows}`,

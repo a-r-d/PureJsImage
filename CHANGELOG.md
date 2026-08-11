@@ -11,6 +11,11 @@ All notable changes to PureJsImage are documented in this file.
   bounded row output, and explicit output pixel formats.
 - Added tile-native `WholeSlideLevel.tile(column, row, options?)` reads with validated tile
   coordinates and bounded edge-tile regions.
+- Added a constrained first-party AVIF encoder with public `image.avif()` and
+  `image.encode('avif')` APIs. It accepts 8-bit grayscale, RGB, and RGBA input,
+  composites alpha against white or an explicit solid background, and writes deterministic
+  single-tile Main Profile YUV 4:2:0 still images accepted by libavif and libaom. Quantization
+  remains fixed while adaptive quality, alpha items, metadata, grids, and animation are unfinished.
 
 ### Changed
 
@@ -264,6 +269,12 @@ All notable changes to PureJsImage are documented in this file.
   ring. Every AVIF decoder path now rejects coded payload plus conservatively
   estimated working state above 64 MiB; post-filtered, rotated-alpha, and grid
   paths retain their documented full-frame YUV reconstruction fallback.
+- Changed compatible multi-tile AVIF decode to allocate entropy, transform, palette,
+  CDEF, and skip contexts for one tile rectangle at a time, then merge compact
+  frame-wide post-filter metadata. A pinned 3840x2160 8x2-tile deblock-plus-CDEF
+  fixture now decodes within the 64 MiB codec working-set limit, matches
+  dav1d/libaom native YUV byte for byte, and retains ordered 32-row output in
+  Node.js and Chromium; padded full-frame YUV remains the documented fallback.
 
 - Moved HEIF/HEIC decode to the explicit
   `purejsimage/codecs/experimental/heic` entry, removed it from `allCodecs` and

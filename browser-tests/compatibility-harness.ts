@@ -743,15 +743,28 @@ const tiffEncodePipeline = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
-const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8ClampedArray> => {
+interface BrowserImagePixels {
+  readonly height: number
+  readonly pixels: Uint8ClampedArray
+  readonly width: number
+}
+
+const browserImagePixels = async (bytes: Uint8Array, type: string): Promise<BrowserImagePixels> => {
   const bitmap = await createImageBitmap(new Blob([Uint8Array.from(bytes)], { type }))
   const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
   const context = canvas.getContext('2d')
   if (!context) throw new Error('2D OffscreenCanvas context is unavailable')
   context.drawImage(bitmap, 0, 0)
   bitmap.close()
-  return context.getImageData(0, 0, canvas.width, canvas.height).data
+  return {
+    width: canvas.width,
+    height: canvas.height,
+    pixels: context.getImageData(0, 0, canvas.width, canvas.height).data,
+  }
 }
+
+const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8ClampedArray> =>
+  (await browserImagePixels(bytes, type)).pixels
 
 const portablePngPixels = async (bytes: Uint8Array): Promise<Uint8Array> => {
   const createDecoder = pngCodec.createDecoder
@@ -796,7 +809,7 @@ const portablePngPixels = async (bytes: Uint8Array): Promise<Uint8Array> => {
   return output
 }
 
-const sha256 = async (bytes: Uint8Array): Promise<string> => {
+const sha256 = async (bytes: Uint8Array | Uint8ClampedArray): Promise<string> => {
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', Uint8Array.from(bytes)))
   return Array.from(digest, (value) => value.toString(16).padStart(2, '0')).join('')
 }
@@ -1855,12 +1868,62 @@ const webpLossyDecode = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const avifEncode = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/alpha.png')
+  const encoded = await (await images.open(input)).avif({ background: '#204060' }).toUint8Array()
+  const metadata = await (await images.open(encoded)).metadata()
+  if (
+    metadata.format !== 'avif' ||
+    metadata.width !== 4 ||
+    metadata.height !== 3 ||
+    metadata.hasAlpha
+  ) {
+    throw new Error(
+      `Browser AVIF encode produced ${metadata.format} ${metadata.width}x${metadata.height} alpha=${metadata.hasAlpha}`,
+    )
+  }
+  const encodedHash = await sha256(encoded)
+  if (encodedHash !== '5e81045f4d8806506a65991a413169fd0488a0ab8e8b1e15c4f5b0081cba742e') {
+    throw new Error(`Browser AVIF encoded hash was ${encodedHash}`)
+  }
+  const portablePng = await (await images.open(encoded)).png().toUint8Array()
+  const portablePixels = await portablePngPixels(portablePng)
+  const portableHash = await sha256(portablePixels)
+  if (portableHash !== '1dfeb910ff1550707761d89117b07207aff069940c60665c61667b5aaac2f9c5') {
+    throw new Error(`Browser AVIF portable RGBA hash was ${portableHash}`)
+  }
+  const nativePixels = await browserPixels(encoded, 'image/avif')
+  if (nativePixels.byteLength !== portablePixels.byteLength) {
+    throw new Error('Browser-native AVIF decode dimensions changed')
+  }
+  let maximumRgbDifference = 0
+  for (let offset = 0; offset < nativePixels.byteLength; offset += 4) {
+    for (let channel = 0; channel < 3; channel += 1) {
+      maximumRgbDifference = Math.max(
+        maximumRgbDifference,
+        Math.abs((nativePixels[offset + channel] ?? 0) - (portablePixels[offset + channel] ?? 0)),
+      )
+    }
+  }
+  if (maximumRgbDifference > 48) {
+    throw new Error(`Browser-native AVIF maximum RGB difference was ${maximumRgbDifference}`)
+  }
+  return {
+    detail: `first-party AVIF encode round-tripped through portable and browser-native decoders (maximum RGB difference ${maximumRgbDifference})`,
+    outputBytes: encoded.byteLength,
+  }
+}
+
 const avifPinnedPng = async (
   file: string,
   width: number,
   height: number,
   expectedSha256: string,
   detail: string,
+  chromium?: {
+    readonly maximumRgbDifference: number
+    readonly rgbaSha256: string
+  },
 ): Promise<BrowserWorkflowResult> => {
   const input = await fetchBytes(`/fixtures/${file}`)
   const output = await (await images.open(input)).png().toUint8Array()
@@ -1873,9 +1936,107 @@ const avifPinnedPng = async (
   if (outputSha256 !== expectedSha256) {
     throw new Error(`${detail} portable RGBA hash was ${outputSha256}`)
   }
+  let chromiumDetail = ''
+  if (chromium !== undefined && navigator.userAgent.includes('Chrome/')) {
+    const chromiumPixels = await browserPixels(input, 'image/avif')
+    if (chromiumPixels.byteLength !== outputPixels.byteLength) {
+      throw new Error(`${detail} Chromium RGBA dimensions changed`)
+    }
+    const chromiumSha256 = await sha256(chromiumPixels)
+    if (chromiumSha256 !== chromium.rgbaSha256) {
+      throw new Error(`${detail} Chromium RGBA hash was ${chromiumSha256}`)
+    }
+    let maximumRgbDifference = 0
+    for (let pixel = 0; pixel < width * height; pixel += 1) {
+      for (let channel = 0; channel < 3; channel += 1) {
+        maximumRgbDifference = Math.max(
+          maximumRgbDifference,
+          Math.abs(
+            (outputPixels[pixel * 4 + channel] ?? 0) - (chromiumPixels[pixel * 4 + channel] ?? 0),
+          ),
+        )
+      }
+    }
+    if (maximumRgbDifference !== chromium.maximumRgbDifference) {
+      throw new Error(`${detail} maximum Chromium RGB difference was ${maximumRgbDifference}`)
+    }
+    chromiumDetail = ` and pinned Chromium RGBA output (maximum RGB difference ${maximumRgbDifference})`
+  }
   return {
-    detail: `${detail} matched the pinned portable RGBA output`,
+    detail: `${detail} matched the pinned portable RGBA output${chromiumDetail}`,
     outputBytes: output.byteLength,
+  }
+}
+
+const avifImir = async (): Promise<BrowserWorkflowResult> => {
+  const fixtures = [
+    {
+      file: 'libavif-imir-axis0-160x160.avif',
+      portableWidth: 160,
+      portableHeight: 160,
+      portableSha256: 'ecc5d7baa51289462eb57ed3e9e2202872d4e24438849531f15b04d0d1d8cc8a',
+      chromiumWidth: 160,
+      chromiumHeight: 160,
+      chromiumSha256: 'ecc5d7baa51289462eb57ed3e9e2202872d4e24438849531f15b04d0d1d8cc8a',
+    },
+    {
+      file: 'libavif-imir-axis1-160x160.avif',
+      portableWidth: 160,
+      portableHeight: 160,
+      portableSha256: '150d389f0f9ec73685c3b301933f344e68d045114e96b06d4e09c2ae2d056569',
+      chromiumWidth: 160,
+      chromiumHeight: 160,
+      chromiumSha256: '150d389f0f9ec73685c3b301933f344e68d045114e96b06d4e09c2ae2d056569',
+    },
+    {
+      file: 'libavif-imir-clap-irot-grid-alpha-160x160.avif',
+      portableWidth: 96,
+      portableHeight: 112,
+      portableSha256: 'b3cca86fed0bf074641663fea9611be3ed3a217498b0095864300df265acf533',
+      chromiumWidth: 160,
+      chromiumHeight: 160,
+      chromiumSha256: '5f22a0d268ac2f295e8c8d2fbaa90267a04ea03f5597eb782cf4210738ee9d1f',
+    },
+  ] as const
+  let outputBytes = 0
+  for (const fixture of fixtures) {
+    const input = await fetchBytes(`/fixtures/${fixture.file}`)
+    const output = await (await images.open(input)).autoOrient().png().toUint8Array()
+    const metadata = await outputMetadata(output)
+    if (
+      metadata.format !== 'png' ||
+      metadata.width !== fixture.portableWidth ||
+      metadata.height !== fixture.portableHeight
+    ) {
+      throw new Error(
+        `${fixture.file} auto-oriented output was ${metadata.format} ${metadata.width}x${metadata.height}`,
+      )
+    }
+    const portableHash = await sha256(await portablePngPixels(output))
+    if (portableHash !== fixture.portableSha256) {
+      throw new Error(`${fixture.file} portable imir RGBA hash was ${portableHash}`)
+    }
+
+    if (navigator.userAgent.includes('Chrome/')) {
+      const chromium = await browserImagePixels(input, 'image/avif')
+      const chromiumHash = await sha256(Uint8Array.from(chromium.pixels))
+      if (
+        chromium.width !== fixture.chromiumWidth ||
+        chromium.height !== fixture.chromiumHeight ||
+        chromiumHash !== fixture.chromiumSha256
+      ) {
+        throw new Error(
+          `${fixture.file} Chromium AVIF output was ${chromium.width}x${chromium.height} ${chromiumHash}`,
+        )
+      }
+    }
+    outputBytes += output.byteLength
+  }
+  return {
+    detail: navigator.userAgent.includes('Chrome/')
+      ? 'AVIF imir axes and clap+irot grid alpha composition matched pinned portable output; Chromium native outputs were pinned independently'
+      : 'AVIF imir axes and clap+irot grid alpha composition matched pinned portable output',
+    outputBytes,
   }
 }
 
@@ -2104,6 +2265,105 @@ const avifExpandedHighBit = async (): Promise<BrowserWorkflowResult> => {
       'e9e2f8be7c4a179341c0ac312482e5a5d96b209698df253d73fcc642d65e8096',
       'Lossy 10-bit YUV 4:4:4 AVIF with deblocking, CDEF, and Wiener restoration',
     ),
+    avifPinnedPng(
+      'filtered-lossy-10bpc-yuv420-192x128.avif',
+      192,
+      128,
+      '026ecbc3e3256500066f44b6bdca81dcad6ec99e674e5550cda43291a73594d1',
+      'Lossy 10-bit YUV 4:2:0 AVIF with deblocking, CDEF, and Wiener restoration',
+      {
+        maximumRgbDifference: 3,
+        rgbaSha256: '7443afcbe7796fcada187a67a6ab357241cfd0f9e7dca30aa0cb84c1af95c76d',
+      },
+    ),
+    avifPinnedPng(
+      'filtered-lossy-10bpc-yuv422-64x64.avif',
+      64,
+      64,
+      '32e1e6c6c8f80c33c099d3cd58351a75fa63fa352177713d67b93fd7ed19d50e',
+      'Lossy 10-bit YUV 4:2:2 AVIF with CDEF and Wiener restoration',
+      {
+        maximumRgbDifference: 3,
+        rgbaSha256: 'baca323bd5540446c8e07f66aa037024dcae16e7da0a3b412eb661f25c1eaf1a',
+      },
+    ),
+    avifPinnedPng(
+      'self-guided-10bpc-yuv420-320x192.avif',
+      320,
+      192,
+      'e382b8f0373e80e4c9abe67e9c30666db7a39b2d850b3b86af8aa5baea466f5c',
+      'Lossy 10-bit YUV 4:2:0 AVIF with self-guided restoration',
+      {
+        maximumRgbDifference: 6,
+        rgbaSha256: 'db0ce9ffa65137d06ebbc394b35f66fb3ae074b4ff9d606ed55aff50e5c62cb0',
+      },
+    ),
+    avifPinnedPng(
+      'filtered-lossy-12bpc-yuv420-64x64.avif',
+      64,
+      64,
+      'e44124196c3e453abf158e571592c14b8388ca71875cff1be6f856916c7755f9',
+      'Lossy 12-bit YUV 4:2:0 AVIF with deblocking and CDEF',
+      {
+        maximumRgbDifference: 158,
+        rgbaSha256: '45ae308afcdea548bae4ced23d52feab9c00308d1c649986e9265acd77e7fc17',
+      },
+    ),
+    avifPinnedPng(
+      'filtered-lossy-12bpc-yuv422-64x64.avif',
+      64,
+      64,
+      'f9b58fa7193daa31e3d4ef22349aeb67a5b1c3f802103c7c7c3fe93f889d8e87',
+      'Lossy 12-bit YUV 4:2:2 AVIF with deblocking and CDEF',
+      {
+        maximumRgbDifference: 3,
+        rgbaSha256: 'f116a8766e3887a5c9f9a965951b4edcf88d352e46db3ee3c9cce130ccb96da7',
+      },
+    ),
+    avifPinnedPng(
+      'filtered-lossy-12bpc-yuv444-64x64.avif',
+      64,
+      64,
+      '28b88bd4ba31908bab42a410a959bb7d2831ce60572be8dbd4e4685cf3e126f3',
+      'Lossy 12-bit YUV 4:4:4 AVIF with deblocking and CDEF',
+      {
+        maximumRgbDifference: 0,
+        rgbaSha256: '28b88bd4ba31908bab42a410a959bb7d2831ce60572be8dbd4e4685cf3e126f3',
+      },
+    ),
+    avifPinnedPng(
+      'wiener-12bpc-yuv420-320x192.avif',
+      320,
+      192,
+      '79acf6df2ce865f8ed52b187f4ce446bc5738c50c26d467293f3d2fdd0cbbed1',
+      'Lossy 12-bit YUV 4:2:0 AVIF with Wiener restoration',
+      {
+        maximumRgbDifference: 12,
+        rgbaSha256: 'c995dc8727fdb5fc7efa6a54f731c995880d0bded435dce37cf9cea0051140af',
+      },
+    ),
+    avifPinnedPng(
+      'self-guided-12bpc-yuv420-320x192.avif',
+      320,
+      192,
+      'f124a01d322a1e0019630803aa12268333635d4e63b25b08e4f19515dfed817a',
+      'Lossy 12-bit YUV 4:2:0 AVIF with self-guided restoration',
+      {
+        maximumRgbDifference: 13,
+        rgbaSha256: '163c615b5e0a2b7e740fd29dbb98334026c9db179b16d61dedbf7ff9312d4b2f',
+      },
+    ),
+    avifPinnedPng(
+      'self-guided-10bpc-yuv444-320x192.avif',
+      320,
+      192,
+      '4e2f4a1eca619ae7d00d8e9cae8956570579e909ba48796236537c235937ce6b',
+      'Lossy 10-bit YUV 4:4:4 AVIF with self-guided restoration',
+      {
+        maximumRgbDifference: 5,
+        rgbaSha256: '78f84b0dc636c9e4fa37a654a63690054075b1053de035ce5492002ae0a9a174',
+      },
+    ),
   ])
   return {
     detail: results.map((result) => result.detail).join('; '),
@@ -2201,12 +2461,64 @@ const avifLossyMultitile = async (): Promise<BrowserWorkflowResult> => {
       '05ab2273ba3952c41d53daf0b45afd709e5025f709ea8c87fef4a0dbacb0a966',
       'Non-reduced AV1 frame header with four tile-group OBUs',
     ),
+    avifPinnedPng(
+      'libavif-bounded-filtered-yuv420-3840x2160.avif',
+      3840,
+      2160,
+      'fa0ee4c2f74aef92f77ce700eb60f001b6502db9c5d540b43bdddb59fdcc3880',
+      'Filtered 8-bit 8x2-tile 4K AVIF within the bounded codec working-set limit',
+    ),
   ])
   return {
     detail: results.map((result) => result.detail).join('; '),
     outputBytes: results.reduce((total, result) => total + result.outputBytes, 0),
   }
 }
+const avifGainMapGrid = async (): Promise<BrowserWorkflowResult> => {
+  const results = await Promise.all([
+    avifPinnedPng(
+      'libavif_color_grid_alpha_grid_gainmap_nogrid.avif',
+      512,
+      600,
+      'ea8a15d99b5f28a7858b097b8b82056ce65898f51bb2ff0d2c5715bdcfeff2fd',
+      'Resampled AVIF gain map over aligned color and alpha grids',
+    ),
+    avifPinnedPng(
+      'libavif_color_grid_gainmap_different_grid.avif',
+      512,
+      600,
+      '4091bcc2b181c37e1b03bb6ec2b086b77516318b58cef4c75e8a8b5b0989f81e',
+      'Independently tiled and resampled AVIF gain-map grid',
+    ),
+    avifPinnedPng(
+      'libavif_color_nogrid_alpha_nogrid_gainmap_grid.avif',
+      128,
+      200,
+      'b6ab4171d2d9030704c753aff99765c47b0829f537b2e92138eb90e64f3e0441',
+      'AVIF gain-map grid over single color and alpha items',
+    ),
+    avifPinnedPng(
+      'libavif_seine_hdr_gainmap_small_srgb.avif',
+      400,
+      300,
+      'a3a2ea2482c9d96b7b98b47dc1d874229a079d0860ccac0ed8ee77e19b3580b1',
+      'Resampled single-item AVIF gain map',
+    ),
+  ])
+  return {
+    detail: results.map((result) => result.detail).join('; '),
+    outputBytes: results.reduce((total, result) => total + result.outputBytes, 0),
+  }
+}
+const avifFilmGrain = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'film-grain-test1-yuv420-64x48.avif',
+    64,
+    48,
+    'ceff8604f5dc42f3a16a67dc2b8afc56d3fe8674567353b82c2e8384f10835dd',
+    'Normative AV1 film-grain synthesis',
+  )
+
 const avifNonstillSequence = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
     'ms-mexico-nonstill-sequence.avif',
@@ -2222,6 +2534,14 @@ const avifLayeredSelection = (): Promise<BrowserWorkflowResult> =>
     832,
     'd04f5c88fa8e105b354967755d1261ade0e214f85bb8707b97fcd0568098b68e',
     'Three-frame AVIF item with lsel spatial layer 0',
+  )
+const avifSelectedBaseLayer = (): Promise<BrowserWorkflowResult> =>
+  avifPinnedPng(
+    'tiger-3layer-3res-lsel0.avif',
+    304,
+    208,
+    'd9f8a13bbe9f0e86540c431cf3cfdcd1ffd00b345526cefcd7faa1904ab6ba3a',
+    'Selected 304x208 AVIF base layer with a frame-dimension override',
   )
 const avifCommonPhotoSyntax = async (): Promise<BrowserWorkflowResult> => {
   const results = await Promise.all([
@@ -2530,6 +2850,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   animatedGifFrameSelection,
   avifAlphaPremultiplied,
   avifAlphaStraight,
+  avifEncode,
   avifBoundedAlphaRows,
   avifBoundedRows,
   avifBoundedResize,
@@ -2544,10 +2865,14 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifHdrRejected,
   avifHdrGainMap,
   avifIcc,
+  avifImir,
   avifFilteredSuperres,
   avifLossyMultitile,
+  avifGainMapGrid,
+  avifFilmGrain,
   avifNonstillSequence,
   avifLayeredSelection,
+  avifSelectedBaseLayer,
   avifSuperres,
   avifIntrabc,
   avifResidualIntrabc,
