@@ -1,0 +1,44 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro'
+---
+
+<SiteLayout title="Read ENVI hyperspectral files in JavaScript | PureJsImage" description="Open ENVI Standard .hdr and binary hyperspectral cubes with bounded BSQ, BIL, and BIP reads in JavaScript, TypeScript, Node.js, and browsers." canonical="https://purejsimage.com/scientific/envi/" current="scientific/">
+<main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific raster format</p><h1>Read ENVI hyperspectral files in JavaScript</h1><p class="page-lede">ENVI Standard stores a small text <code>.hdr</code> file beside a binary hyperspectral image or hyperspectral cube. The header declares dimensions, numeric type, byte order, BSQ, BIL, or BIP layout, wavelength bands, and other metadata.</p></div></header><div class="container docs-layout"><article class="content">
+<h2>Import</h2><pre><code>import &#123; openEnvi, renderSpectralBand &#125; from 'purejsimage/scientific'</code></pre>
+<h2>Minimal Node.js example</h2><pre><code>import &#123; FileSource &#125; from 'purejsimage'
+import &#123; openEnvi, renderSpectralBand &#125; from 'purejsimage/scientific'
+
+const dataset = await openEnvi(&#123;
+  header: await FileSource.open('scene.hdr'),
+  data: await FileSource.open('scene.img'),
+  maxInputBytes: 2_000_000_000,
+&#125;)
+const display = await renderSpectralBand(dataset, &#123;
+  wavelength: 1648.7,
+  range: &#123; mode: 'percentile', low: 1, high: 99 &#125;,
+  palette: 'viridis',
+&#125;)
+for await (const pixels of display.image.pixels) console.log(pixels.width, pixels.height)</code></pre>
+<h2>Minimal browser example</h2><pre><code>import &#123; openEnvi &#125; from 'purejsimage/scientific'
+
+const headerInput = document.querySelector&lt;HTMLInputElement&gt;('#header')
+const binaryInput = document.querySelector&lt;HTMLInputElement&gt;('#binary')
+const header = headerInput?.files?.[0]
+const data = binaryInput?.files?.[0]
+if (!header || !data) throw new Error('Choose an ENVI header and binary file')
+const dataset = await openEnvi(&#123;
+  header,
+  data,
+  maxInputBytes: data.size,
+&#125;)
+for await (const block of dataset.readPlane(&#123;
+  z: 0, c: 172, t: 0, x: 0, y: 0, width: 512, height: 512,
+&#125;)) console.log(block.data)</code></pre>
+<h2>Supported features</h2><table><thead><tr><th>Feature</th><th>Support</th></tr></thead><tbody><tr><td>ENVI Standard</td><td>Read</td></tr><tr><td>Interleave</td><td>BSQ, BIL, BIP</td></tr><tr><td>Samples</td><td>uint8, int16, int32, float32, float64, uint16, uint32</td></tr><tr><td>Byte order</td><td>Little-endian and big-endian</td></tr><tr><td>Spectral metadata</td><td>Band names, wavelength centers, units, FWHM, default bands</td></tr></tbody></table>
+<h2>Dataset mapping</h2><p>ENVI samples map to X, lines map to Y, and bands map to C in <code>MultidimensionalRasterDataset</code>. Z and T are 1. Channel metadata retains each actual wavelength center. PureJsImage does not manufacture wavelengths between declared channels.</p>
+<h2>Bounded reads</h2><p>The header is read eagerly because it is small. The binary source stays lazy. A browser <code>File</code> uses <code>BlobSource</code> and <code>Blob.slice()</code>. BSQ and BIL selections read the requested rows and bands. BIP reads the required interleaved row ranges. Opening a large file does not call <code>File.arrayBuffer()</code>.</p>
+<h2>Display rendering</h2><p><code>renderSpectralBand()</code> selects the nearest actual wavelength channel. <code>renderScientificPlane()</code> selects a channel index directly. Display transfers run after the selected quantitative range is normalized: linear uses the normalized value; sqrt uses its square root; log uses <code>log1p(999x) / log(1000)</code>; asinh uses <code>asinh(10x) / asinh(10)</code>. Use <code>measureScientificPlane()</code> once and reuse its explicit range when only palette or transfer changes.</p>
+<h2>Unsupported features</h2><p>Complex samples, 64-bit integer samples, nonstandard file types, malformed headers, and mismatched binary lengths reject. ENVI writing and spectral-coordinate interpolation are not implemented.</p>
+<h2>Official specification</h2><p><a href="https://www.nv5geospatialsoftware.com/docs/ENVIImageFiles.html">ENVI image files</a> · <a href="https://www.nv5geospatialsoftware.com/docs/enviheaderfiles.html">ENVI header files</a></p>
+<p><a href="../">Scientific Raster Explorer</a> · <a href="../gsf/">GSF guide</a> · <a href="../fits/">FITS guide</a> · <a href="../../api/#scientific">API</a> · <a href="../../tiff/#scientific">OME-TIFF</a></p>
+</article></div></main></SiteLayout>

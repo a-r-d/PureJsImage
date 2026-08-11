@@ -16,16 +16,20 @@ const canvasSignature = async (page: Page): Promise<number> =>
     return signature
   })
 
-test('opens, maps, and locally reloads GSF and ENVI scientific rasters', async ({ page }) => {
+test('opens, maps, and locally reloads GSF, ENVI, and FITS scientific rasters', async ({
+  page,
+}) => {
   const externalRequests: string[] = []
   page.on('request', (request) => {
     const url = new URL(request.url())
-    if (url.hostname !== '127.0.0.1') externalRequests.push(request.url())
+    if (url.protocol !== 'blob:' && url.hostname !== '127.0.0.1') {
+      externalRequests.push(request.url())
+    }
   })
 
   await page.goto('/scientific/')
   await expect(
-    page.getByRole('heading', { name: 'Download a compatible hyperspectral cube' }),
+    page.getByRole('heading', { name: 'Download compatible scientific raster files' }),
   ).toBeVisible()
   await expect(page.getByRole('link', { name: 'Browse RIT files ↗' })).toHaveAttribute(
     'href',
@@ -34,6 +38,15 @@ test('opens, maps, and locally reloads GSF and ENVI scientific rasters', async (
   await expect(
     page.getByRole('heading', { name: 'Specific files ready to download' }),
   ).toBeVisible()
+  const fileTypeBadges = page.locator('.scientific-direct-file-grid .scientific-file-type')
+  await expect(fileTypeBadges).toHaveCount(6)
+  await expect(fileTypeBadges).toHaveText(['ENVI', 'ENVI', 'ENVI · ZIP', 'FITS', 'FITS', 'FITS'])
+  const fitsDownloads = page.locator('.scientific-direct-actions a[download$=".fits"]')
+  await expect(fitsDownloads).toHaveCount(3)
+  await expect(fitsDownloads.first()).toHaveAttribute(
+    'href',
+    'https://fits.gsfc.nasa.gov/samples/WFPC2ASSNu5780205bx.fits',
+  )
   await expect(page.getByRole('link', { name: '2. Binary · 24.7 MiB ↗' })).toHaveAttribute(
     'href',
     /M3G20081129T171431_V03_RDN\.IMG$/,
@@ -65,14 +78,12 @@ test('opens, maps, and locally reloads GSF and ENVI scientific rasters', async (
   await expect(page.locator('#scientific-metric-dimensions')).toHaveText('96 × 64 × 16')
   await expect(page.locator('#scientific-metric-detail')).toHaveText('16 spectral bands')
   await expect(page.locator('#scientific-metric-bytes-label')).toHaveText('Binary bytes read')
-  await expect(page.locator('#scientific-selection')).toContainText(/Requested .* → channel .* at/)
-  await page.locator('#scientific-wavelength').fill('810')
-  await expect(page.locator('#scientific-selection')).toContainText(
-    'Requested 810 Nanometers → channel 13 at 810 Nanometers',
-  )
+  await expect(page.locator('#scientific-selection')).toHaveText('Band 9 of 16, 722 Nanometers')
+  await page.locator('#scientific-wavelength').fill('10')
+  await expect(page.locator('#scientific-selection')).toHaveText('Band 11 of 16, 809 Nanometers')
   await page.locator('#scientific-display-mode').selectOption('composite')
-  await expect(page.locator('#scientific-selection')).toContainText(
-    'R 750 → 750; G 630 → 630; B 510 → 510',
+  await expect(page.locator('#scientific-selection')).toHaveText(
+    'R band 11 (809 Nanometers); G band 7 (641 Nanometers); B band 3 (501 Nanometers)',
   )
   await expect(page.locator('#scientific-relief-controls')).toBeHidden()
 
@@ -100,5 +111,18 @@ test('opens, maps, and locally reloads GSF and ENVI scientific rasters', async (
     'M3G20081129T171431_V03_RDN.HDR.txt + local-cube.bin',
   )
   await expect(page.locator('#scientific-metric-dimensions')).toHaveText('96 × 64 × 16')
+
+  await page.getByRole('tab', { name: 'FITS image arrays' }).click()
+  await page.getByRole('button', { name: 'Load synthetic FITS cube' }).click()
+  await expect(page.locator('#scientific-metric-name')).toHaveText('synthetic-cube.fits')
+  await expect(page.locator('#scientific-metric-dimensions')).toHaveText('128 × 96 × 3')
+  await expect(page.locator('#scientific-metric-bytes-label')).toHaveText('FITS bytes read')
+  await expect(page.locator('#scientific-selection')).toHaveText('HDU 0, Z plane 1 of 3')
+  await page.locator('#scientific-fits-plane').fill('2')
+  await expect(page.locator('#scientific-selection')).toHaveText('HDU 0, Z plane 3 of 3')
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Download PNG' }).click()
+  const download = await downloadPromise
+  expect(download.suggestedFilename()).toBe('purejsimage-scientific-display.png')
   expect(externalRequests).toEqual([])
 })

@@ -16,6 +16,7 @@ interface Props {
     readonly title: string
     readonly description: string
     readonly url: string
+    readonly image?: string
   }
   readonly twitterCard?: string
 }
@@ -52,6 +53,8 @@ const assetBase = base.endsWith('/') ? base : `${base}/`
           <meta property="og:description" content={openGraph.description} />
           <meta property="og:type" content="website" />
           <meta property="og:url" content={openGraph.url} />
+          {openGraph.image && <meta property="og:image" content={openGraph.image} />}
+          {openGraph.image && <meta name="twitter:image" content={openGraph.image} />}
         </>
       )
     }

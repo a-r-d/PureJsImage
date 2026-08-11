@@ -6,6 +6,14 @@ export type {
 } from './dataset.ts'
 export type { GsfDataset, GsfOpenOptions, GsfWriteOptions } from './formats/gsf.ts'
 export type {
+  FitsDataset,
+  FitsDocument,
+  FitsHdu,
+  FitsHeaderCard,
+  FitsHeaderValue,
+  FitsOpenOptions,
+} from './formats/fits.ts'
+export type {
   EnviByteOrder,
   EnviDataset,
   EnviInterleave,
@@ -15,6 +23,8 @@ export type {
 export type { ScientificPalette } from './palettes.ts'
 export type {
   ScientificDisplayScale,
+  ScientificPlaneMeasurement,
+  ScientificPlaneMeasureOptions,
   ScientificPlaneRenderOptions,
   ScientificRange,
   ScientificReliefOptions,
@@ -42,10 +52,11 @@ export type {
 } from '../raster.ts'
 export { rasterSampleBytes, rasterToPixels } from '../raster.ts'
 export { openEnvi } from './formats/envi.ts'
+export { openFits } from './formats/fits.ts'
 export { encodeGsf, openGsf } from './formats/gsf.ts'
 export { isOmeTiff, omeTiffProfile, openOmeTiff } from './ome-tiff.ts'
 export { scientificPaletteColor } from './palettes.ts'
-export { renderScientificPlane } from './render.ts'
+export { measureScientificPlane, renderScientificPlane } from './render.ts'
 export {
   bandRatio,
   integrateSpectralRange,

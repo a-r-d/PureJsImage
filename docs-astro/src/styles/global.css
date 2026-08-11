@@ -5641,7 +5641,26 @@ tr:last-child td {
   background: color-mix(in srgb, var(--surface-soft) 90%, var(--brand));
 }
 
-.scientific-direct-file-grid span {
+.scientific-direct-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.scientific-file-type {
+  padding: 4px 7px;
+  border: 1px solid color-mix(in srgb, var(--brand-strong) 76%, #000);
+  border-radius: 999px;
+  background: var(--brand-strong);
+  color: #fff;
+  font: 800 0.61rem var(--font-mono);
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.scientific-file-source {
   color: var(--brand-strong);
   font: 750 0.62rem var(--font-mono);
   letter-spacing: 0.08em;

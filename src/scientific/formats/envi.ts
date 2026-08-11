@@ -13,6 +13,7 @@ export type EnviInterleave = 'bsq' | 'bil' | 'bip'
 export type EnviByteOrder = 0 | 1
 export type SupportedEnviDataType = 1 | 2 | 3 | 4 | 5 | 12 | 13
 
+/** Paired ENVI header and binary sources plus bounded-read limits. */
 export interface EnviOpenOptions extends ImageLimitOptions {
   readonly header: ImageInput
   readonly data: ImageInput
@@ -20,6 +21,11 @@ export interface EnviOpenOptions extends ImageLimitOptions {
   readonly rowsPerBlock?: number
 }
 
+/**
+ * Lazy ENVI Standard hyperspectral dataset. Native numeric samples, wavelength
+ * metadata, interleave, and byte order are preserved. Plane and ROI reads use
+ * calculated ranges and do not materialize the complete binary source.
+ */
 export interface EnviDataset extends MultidimensionalRasterDataset {
   readonly format: 'envi'
   readonly dataType: SupportedEnviDataType
@@ -539,6 +545,11 @@ class EnviRasterDataset implements EnviDataset {
   }
 }
 
+/**
+ * Opens paired ENVI Standard inputs in BSQ, BIL, or BIP layout. Header bytes are
+ * read eagerly, while binary samples remain lazy. Complex values, 64-bit integer
+ * values, unsupported file types, and malformed or mismatched inputs reject.
+ */
 export const openEnvi = async (options: Readonly<EnviOpenOptions>): Promise<EnviDataset> => {
   const limits = resolveLimits(options)
   const maxHeaderBytes = positiveIntegerOption(

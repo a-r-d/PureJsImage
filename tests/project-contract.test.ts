@@ -321,7 +321,7 @@ describe('package contract', () => {
 
     expect(readme).toContain('https://purejsimage.com/api/#scientific')
     expect(readme).toContain('https://purejsimage.com/scientific/')
-    expect(page).toContain('GSF and paired ENVI files stay in this browser tab')
+    expect(page).toContain('GSF, ENVI, and FITS files stay in this browser tab')
     expect(page).toContain(
       "import { startScientificExplorer } from '../scripts/scientific-explorer.ts'",
     )
@@ -335,8 +335,14 @@ describe('package contract', () => {
     expect(page).toContain('0920-1701_pol_ref_geo.hdr')
     expect(page).toContain('0920-1701_pol_ref_geo.img')
     expect(page).toContain('afghan_thematicmap_1micron.zip')
-    expect(worker).toContain('renderSpectralComposite')
-    expect(worker).toContain("active.format === 'envi' ? 'Binary bytes read' : 'Input size'")
+    expect(page).toContain('WFPC2ASSNu5780205bx.fits')
+    expect(page).toContain('UITfuv2582gc.fits')
+    expect(page).toContain('swp05569slg.fits')
+    expect(page.match(/class="scientific-file-type"/g)).toHaveLength(6)
+    expect(worker).toContain('rangeCache')
+    expect(worker).toContain('settings.channel')
+    expect(worker).toContain("active.format === 'fits'")
+    expect(worker).toContain("'FITS bytes read'")
     expect(sources.replaceAll(/\s+/g, ' ')).toContain(
       'do not contain or derive from third-party measurements',
     )
@@ -346,6 +352,8 @@ describe('package contract', () => {
     expect(scientificApi).toHaveProperty('openGsf')
     expect(scientificApi).toHaveProperty('encodeGsf')
     expect(scientificApi).toHaveProperty('openEnvi')
+    expect(scientificApi).toHaveProperty('openFits')
+    expect(scientificApi).toHaveProperty('measureScientificPlane')
     expect(scientificApi).toHaveProperty('renderScientificPlane')
     expect(scientificApi).toHaveProperty('renderSpectralComposite')
   })

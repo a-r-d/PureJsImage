@@ -20,14 +20,23 @@ const requiredElement = <ElementType extends Element>(
 export const startScientificExplorer = (): void => {
   const modeSurface = requiredElement('scientific-mode-surface', HTMLButtonElement)
   const modeHyperspectral = requiredElement('scientific-mode-hyperspectral', HTMLButtonElement)
+  const modeFits = requiredElement('scientific-mode-fits', HTMLButtonElement)
   const surfaceSource = requiredElement('scientific-surface-source', HTMLElement)
   const enviSource = requiredElement('scientific-envi-source', HTMLElement)
+  const fitsSource = requiredElement('scientific-fits-source', HTMLElement)
   const surfaceSample = requiredElement('scientific-sample-surface', HTMLButtonElement)
   const enviSample = requiredElement('scientific-sample-envi', HTMLButtonElement)
+  const fitsSample = requiredElement('scientific-sample-fits', HTMLButtonElement)
   const gsfFile = requiredElement('scientific-gsf-file', HTMLInputElement)
   const enviHeader = requiredElement('scientific-envi-header', HTMLInputElement)
   const enviData = requiredElement('scientific-envi-data', HTMLInputElement)
   const openEnviButton = requiredElement('scientific-open-envi', HTMLButtonElement)
+  const fitsFile = requiredElement('scientific-fits-file', HTMLInputElement)
+  const fitsHduField = requiredElement('scientific-fits-hdu-field', HTMLElement)
+  const fitsHdu = requiredElement('scientific-fits-hdu', HTMLSelectElement)
+  const fitsPlaneField = requiredElement('scientific-fits-plane-field', HTMLElement)
+  const fitsPlane = requiredElement('scientific-fits-plane', HTMLInputElement)
+  const fitsPlaneValue = requiredElement('scientific-fits-plane-value', HTMLOutputElement)
   const dropZone = requiredElement('scientific-drop-zone', HTMLElement)
   const displayModeField = requiredElement('scientific-display-mode-field', HTMLElement)
   const displayMode = requiredElement('scientific-display-mode', HTMLSelectElement)
@@ -73,12 +82,14 @@ export const startScientificExplorer = (): void => {
   const metricBytesLabel = requiredElement('scientific-metric-bytes-label', HTMLElement)
   const metricBytes = requiredElement('scientific-metric-bytes', HTMLElement)
   const metricTime = requiredElement('scientific-metric-time', HTMLElement)
+  const downloadPng = requiredElement('scientific-download-png', HTMLButtonElement)
 
   const worker = new Worker(new URL('./scientific-worker.ts', import.meta.url), { type: 'module' })
   let mode: ScientificDemoMode = 'surface'
   let opened = false
   let renderSequence = 0
   let renderTimer: number | undefined
+  let openedMetadata: ScientificOpenedMetadata | undefined
 
   const formatBytes = (bytes: number): string =>
     bytes < 1_024
@@ -126,10 +137,11 @@ export const startScientificExplorer = (): void => {
     reliefAzimuth: numeric(azimuth),
     reliefElevation: numeric(elevation),
     reliefStrength: numeric(strength),
-    wavelength: numeric(wavelength),
+    channel: numeric(wavelength),
     red: numeric(red),
     green: numeric(green),
     blue: numeric(blue),
+    z: numeric(fitsPlane),
   })
 
   const render = (): void => {
@@ -147,12 +159,15 @@ export const startScientificExplorer = (): void => {
 
   const updateControlVisibility = (): void => {
     const hyperspectral = mode === 'hyperspectral'
+    const fits = mode === 'fits'
     const composite = hyperspectral && displayMode.value === 'composite'
     displayModeField.hidden = !hyperspectral
     bandControls.hidden = !hyperspectral || composite
     compositeControls.hidden = !composite
     palette.closest('label')?.toggleAttribute('hidden', composite)
-    reliefControls.hidden = hyperspectral
+    reliefControls.hidden = mode !== 'surface'
+    fitsHduField.hidden = !fits
+    fitsPlaneField.hidden = !fits
     percentileFields.hidden = rangeMode.value !== 'percentile'
     explicitRange.hidden = rangeMode.value !== 'explicit'
   }
@@ -160,16 +175,23 @@ export const startScientificExplorer = (): void => {
   const setMode = (next: ScientificDemoMode): void => {
     mode = next
     opened = false
+    openedMetadata = undefined
     modeSurface.setAttribute('aria-selected', String(next === 'surface'))
     modeHyperspectral.setAttribute('aria-selected', String(next === 'hyperspectral'))
+    modeFits.setAttribute('aria-selected', String(next === 'fits'))
     surfaceSource.hidden = next !== 'surface'
     enviSource.hidden = next !== 'hyperspectral'
+    fitsSource.hidden = next !== 'fits'
     empty.hidden = false
     canvas.hidden = true
     selection.hidden = true
     updateControlVisibility()
     status.textContent =
-      next === 'surface' ? 'Load a GSF surface.' : 'Load a paired ENVI header and binary raster.'
+      next === 'surface'
+        ? 'Load a GSF surface.'
+        : next === 'hyperspectral'
+          ? 'Load a paired ENVI header and binary raster.'
+          : 'Load a FITS image array.'
   }
 
   const fetchBytes = async (url: string): Promise<ArrayBuffer> => {
@@ -202,51 +224,70 @@ export const startScientificExplorer = (): void => {
     )
   }
 
-  const openLocalGsf = async (file: File): Promise<void> => {
-    const data = await file.arrayBuffer()
-    worker.postMessage({ type: 'open-gsf', name: file.name, data }, [data])
+  const loadFitsSample = async (): Promise<void> => {
+    loading.hidden = false
+    const data = await fetchBytes('../demo-data/scientific/synthetic-cube.fits')
+    worker.postMessage({ type: 'open-fits', name: 'synthetic-cube.fits', data }, [data])
   }
 
-  const openLocalEnvi = async (headerFile: File, dataFile: File): Promise<void> => {
-    const [header, data] = await Promise.all([headerFile.arrayBuffer(), dataFile.arrayBuffer()])
-    worker.postMessage(
-      { type: 'open-envi', headerName: headerFile.name, dataName: dataFile.name, header, data },
-      [header, data],
-    )
+  const openLocalGsf = (file: File): void => {
+    worker.postMessage({ type: 'open-gsf', name: file.name, data: file })
+  }
+
+  const openLocalEnvi = (headerFile: File, dataFile: File): void => {
+    worker.postMessage({
+      type: 'open-envi',
+      headerName: headerFile.name,
+      dataName: dataFile.name,
+      header: headerFile,
+      data: dataFile,
+    })
+  }
+
+  const openLocalFits = (file: File): void => {
+    worker.postMessage({ type: 'open-fits', name: file.name, data: file })
+  }
+
+  const spectralOutput = (channel: number): string => {
+    const center = openedMetadata?.channelCenters?.[channel]
+    return `Band ${channel + 1} of ${openedMetadata?.bands ?? 1}${center == null ? '' : ` · ${center} ${openedMetadata?.wavelengthUnit ?? ''}`}`.trim()
+  }
+
+  const updateSpectralOutputs = (): void => {
+    wavelengthValue.value = spectralOutput(numeric(wavelength))
+    redValue.value = spectralOutput(numeric(red))
+    greenValue.value = spectralOutput(numeric(green))
+    blueValue.value = spectralOutput(numeric(blue))
   }
 
   const setSpectralSliders = (metadata: ScientificOpenedMetadata): void => {
-    if (metadata.wavelengthMin === undefined || metadata.wavelengthMax === undefined) return
-    const minimum = metadata.wavelengthMin
-    const maximum = metadata.wavelengthMax
-    const step = metadata.bands > 1 ? (maximum - minimum) / (metadata.bands - 1) : 1
-    const controls = [wavelength, red, green, blue]
-    for (const control of controls) {
-      control.min = String(minimum)
-      control.max = String(maximum)
-      control.step = String(step)
+    for (const control of [wavelength, red, green, blue]) {
+      control.min = '0'
+      control.max = String(Math.max(0, metadata.bands - 1))
+      control.step = '1'
     }
-    wavelength.value = String(minimum + step * Math.floor(metadata.bands / 2))
-    red.value = String(minimum + step * Math.floor(metadata.bands * 0.65))
-    green.value = String(minimum + step * Math.floor(metadata.bands * 0.4))
-    blue.value = String(minimum + step * Math.floor(metadata.bands * 0.15))
-    wavelengthValue.value = wavelength.value
-    redValue.value = red.value
-    greenValue.value = green.value
-    blueValue.value = blue.value
+    wavelength.value = String(Math.floor(metadata.bands / 2))
+    red.value = String(Math.min(metadata.bands - 1, Math.floor(metadata.bands * 0.65)))
+    green.value = String(Math.min(metadata.bands - 1, Math.floor(metadata.bands * 0.4)))
+    blue.value = String(Math.min(metadata.bands - 1, Math.floor(metadata.bands * 0.15)))
+    updateSpectralOutputs()
   }
 
   const showOpened = (metadata: ScientificOpenedMetadata): void => {
     opened = true
     mode = metadata.mode
+    openedMetadata = metadata
     updateControlVisibility()
     metricName.textContent = metadata.title ? `${metadata.title} · ${metadata.name}` : metadata.name
-    metricDimensions.textContent = `${metadata.width} × ${metadata.height}${metadata.bands > 1 ? ` × ${metadata.bands}` : ''}`
+    metricDimensions.textContent = `${metadata.width} × ${metadata.height}${metadata.mode === 'fits' && (metadata.sizeZ ?? 1) > 1 ? ` × ${metadata.sizeZ}` : metadata.bands > 1 ? ` × ${metadata.bands}` : ''}`
     metricSamples.textContent = `${metadata.sampleType}${metadata.valueUnit ? ` · ${metadata.valueUnit}` : ''}`
-    metricNativeRange.textContent = `${formatNumber(metadata.dataMin)} – ${formatNumber(metadata.dataMax)}`
+    metricNativeRange.textContent =
+      metadata.dataMin === undefined || metadata.dataMax === undefined
+        ? 'Not measured'
+        : `${formatNumber(metadata.dataMin)} – ${formatNumber(metadata.dataMax)}`
     metricBytes.textContent = formatBytes(metadata.sourceBytes)
-    rangeMin.value = String(metadata.dataMin)
-    rangeMax.value = String(metadata.dataMax)
+    rangeMin.value = String(metadata.dataMin ?? 0)
+    rangeMax.value = String(metadata.dataMax ?? 1)
     if (metadata.mode === 'surface') {
       metricPhysical.textContent =
         metadata.physicalWidth === undefined || metadata.physicalHeight === undefined
@@ -256,15 +297,32 @@ export const startScientificExplorer = (): void => {
         metadata.pixelSizeX === undefined || metadata.pixelSizeY === undefined
           ? 'Not declared'
           : `${physicalValue(metadata.pixelSizeX, metadata.physicalUnit)} × ${physicalValue(metadata.pixelSizeY, metadata.physicalUnit)} / pixel`
-    } else {
+    } else if (metadata.mode === 'hyperspectral') {
       metricPhysical.textContent =
         metadata.wavelengthMin === undefined || metadata.wavelengthMax === undefined
           ? 'No spectral axis'
           : `${metadata.wavelengthMin}–${metadata.wavelengthMax} ${metadata.wavelengthUnit ?? ''}`.trim()
       metricDetail.textContent = `${metadata.bands} spectral bands`
       setSpectralSliders(metadata)
+    } else {
+      metricPhysical.textContent = `HDU ${metadata.fitsHdu ?? 0} · ${metadata.fitsPrimary ? 'Primary' : 'IMAGE extension'}`
+      metricDetail.textContent = `BITPIX ${metadata.bitpix} · stored ${metadata.storedSampleType} · BSCALE ${metadata.bscale} · BZERO ${metadata.bzero}${metadata.blank === undefined ? '' : ` · BLANK ${metadata.blank}`}`
+      fitsHdu.replaceChildren(
+        ...(metadata.fitsHdus ?? []).map((hdu) => {
+          const option = document.createElement('option')
+          option.value = String(hdu.index)
+          option.textContent = hdu.label
+          option.disabled = !hdu.canOpenRaster
+          option.selected = hdu.index === metadata.fitsHdu
+          return option
+        }),
+      )
+      fitsPlane.min = '0'
+      fitsPlane.max = String(Math.max(0, (metadata.sizeZ ?? 1) - 1))
+      fitsPlane.value = '0'
+      fitsPlaneValue.value = `Plane 1 of ${metadata.sizeZ ?? 1}`
     }
-    status.textContent = 'Native metadata parsed. Rendering explicit display pixels…'
+    status.textContent = 'Metadata parsed. Rendering display pixels…'
     render()
   }
 
@@ -285,6 +343,16 @@ export const startScientificExplorer = (): void => {
       status.dataset.error = 'true'
       return
     }
+    if (response.type === 'png') {
+      const url = URL.createObjectURL(new Blob([response.data], { type: 'image/png' }))
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'purejsimage-scientific-display.png'
+      link.click()
+      URL.revokeObjectURL(url)
+      status.textContent = 'Downloaded the current display rendering as PNG.'
+      return
+    }
     if (response.sequence !== renderSequence) return
     const context = canvas.getContext('2d')
     if (!context) throw new Error('Scientific explorer canvas context is unavailable')
@@ -297,6 +365,8 @@ export const startScientificExplorer = (): void => {
     status.dataset.error = 'false'
     status.textContent = 'Rendered locally from native numeric samples.'
     metricRange.textContent = response.rangeLabel
+    if (response.nativeRangeLabel !== undefined)
+      metricNativeRange.textContent = response.nativeRangeLabel
     metricBytesLabel.textContent = response.sourceBytesLabel
     metricBytes.textContent = formatBytes(response.sourceBytesRead)
     metricTime.textContent = `${response.renderMilliseconds.toFixed(1)} ms`
@@ -306,6 +376,7 @@ export const startScientificExplorer = (): void => {
 
   modeSurface.addEventListener('click', () => setMode('surface'))
   modeHyperspectral.addEventListener('click', () => setMode('hyperspectral'))
+  modeFits.addEventListener('click', () => setMode('fits'))
   surfaceSample.addEventListener(
     'click',
     () =>
@@ -320,9 +391,16 @@ export const startScientificExplorer = (): void => {
         status.textContent = cause instanceof Error ? cause.message : 'Could not load ENVI sample'
       }),
   )
+  fitsSample.addEventListener(
+    'click',
+    () =>
+      void loadFitsSample().catch((cause: unknown) => {
+        status.textContent = cause instanceof Error ? cause.message : 'Could not load FITS sample'
+      }),
+  )
   gsfFile.addEventListener('change', () => {
     const file = gsfFile.files?.[0]
-    if (file) void openLocalGsf(file)
+    if (file) openLocalGsf(file)
   })
   const updateEnviButton = (): void => {
     openEnviButton.disabled = !enviHeader.files?.[0] || !enviData.files?.[0]
@@ -332,8 +410,16 @@ export const startScientificExplorer = (): void => {
   openEnviButton.addEventListener('click', () => {
     const header = enviHeader.files?.[0]
     const data = enviData.files?.[0]
-    if (header && data) void openLocalEnvi(header, data)
+    if (header && data) openLocalEnvi(header, data)
   })
+  fitsFile.addEventListener('change', () => {
+    const file = fitsFile.files?.[0]
+    if (file) openLocalFits(file)
+  })
+  fitsHdu.addEventListener('change', () => {
+    worker.postMessage({ type: 'select-fits-hdu', index: Number(fitsHdu.value) })
+  })
+  downloadPng.addEventListener('click', () => worker.postMessage({ type: 'download-png' }))
 
   for (const control of [
     displayMode,
@@ -352,12 +438,11 @@ export const startScientificExplorer = (): void => {
     red,
     green,
     blue,
+    fitsPlane,
   ]) {
     control.addEventListener('input', () => {
-      wavelengthValue.value = wavelength.value
-      redValue.value = red.value
-      greenValue.value = green.value
-      blueValue.value = blue.value
+      updateSpectralOutputs()
+      fitsPlaneValue.value = `Plane ${numeric(fitsPlane) + 1} of ${openedMetadata?.sizeZ ?? 1}`
       azimuthValue.value = `${azimuth.value}°`
       elevationValue.value = `${elevation.value}°`
       strengthValue.value = strength.value
@@ -377,19 +462,24 @@ export const startScientificExplorer = (): void => {
     const files = Array.from(event.dataTransfer?.files ?? [])
     const header = files.find((file) => /\.hdr(?:\.txt)?$/i.test(file.name))
     const gsf = files.find((file) => file.name.toLowerCase().endsWith('.gsf'))
+    const fits = files.find((file) => /\.(?:fits?|fts)$/i.test(file.name))
     if (gsf) {
       setMode('surface')
-      void openLocalGsf(gsf)
+      openLocalGsf(gsf)
+      return
+    }
+    if (fits) {
+      setMode('fits')
+      openLocalFits(fits)
       return
     }
     const data = files.find((file) => file !== header)
     if (header && data) {
       setMode('hyperspectral')
-      void openLocalEnvi(header, data)
+      openLocalEnvi(header, data)
       return
     }
-    status.textContent =
-      'Drop one .gsf file or an ENVI .hdr/.hdr.txt file together with its binary raster.'
+    status.textContent = 'Drop one .gsf or FITS file, or an ENVI header with its binary raster.'
   })
 
   setMode('surface')

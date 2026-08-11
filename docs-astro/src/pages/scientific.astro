@@ -3,22 +3,29 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 ---
 
 <SiteLayout
-  title="Scientific Raster Explorer | PureJsImage"
-  description="Open native GSF surfaces and ENVI hyperspectral cubes locally in a browser, preserve quantitative samples, and explicitly map them to display images."
+  title="Scientific raster viewer for ENVI, GSF and FITS | PureJsImage"
+  description="Open ENVI hyperspectral cubes, GSF AFM surfaces, and FITS image arrays locally in JavaScript, then map numeric samples to display pixels."
   canonical="https://purejsimage.com/scientific/"
   bodyClass="scientific-page"
   current="scientific/"
   skipLabel="Skip to Scientific Raster Explorer"
+  openGraph={{
+    title: 'Scientific raster viewer for ENVI, GSF and FITS | PureJsImage',
+    description: 'Open ENVI, GSF, and FITS numeric rasters locally in a browser.',
+    url: 'https://purejsimage.com/scientific/',
+    image: 'https://purejsimage.com/assets/scientific-hyperspectral-envi-viewer.png',
+  }}
+  twitterCard="summary_large_image"
 >
   <main id="main">
     <section class="scientific-hero">
       <div class="container scientific-hero-grid">
         <div>
-          <p class="eyebrow">Native numeric rasters · entirely client-side</p>
-          <h1>Scientific values in. Explicit display mapping out.</h1>
-          <p class="scientific-lede">The same bounded <code>RasterBlock</code> architecture opens AFM height maps and hyperspectral cubes without pretending their source samples are RGB pixels.</p>
+          <p class="eyebrow">Local scientific raster viewer</p>
+          <h1>Open ENVI hyperspectral, GSF AFM, and FITS data in the browser.</h1>
+          <p class="scientific-lede">PureJsImage keeps numeric samples separate from the RGB pixels used for display. Range selection, palettes, display transfers, and relief are explicit operations.</p>
         </div>
-        <div class="scientific-local-card"><strong>No upload</strong><span>GSF and paired ENVI files stay in this browser tab. Canvas is only the final display surface.</span></div>
+        <div class="scientific-local-card"><strong>Local files stay local</strong><span>GSF, ENVI, and FITS files stay in this browser tab. Large ENVI and FITS files use bounded Blob reads.</span></div>
       </div>
     </section>
 
@@ -27,12 +34,13 @@ import SiteLayout from '../layouts/SiteLayout.astro'
         <div class="scientific-mode-tabs" role="tablist" aria-label="Scientific raster mode">
           <button id="scientific-mode-surface" type="button" role="tab" aria-selected="true">AFM / surface</button>
           <button id="scientific-mode-hyperspectral" type="button" role="tab" aria-selected="false">Hyperspectral</button>
+          <button id="scientific-mode-fits" type="button" role="tab" aria-selected="false">FITS image arrays</button>
         </div>
 
         <div class="scientific-grid">
           <aside class="scientific-sidebar">
             <section class="scientific-panel" aria-labelledby="scientific-open-title">
-              <header><span>01</span><div><p>Source</p><h2 id="scientific-open-title">Open native data</h2></div></header>
+              <header><span>01</span><div><p>Source</p><h2 id="scientific-open-title">Open a scientific raster</h2></div></header>
               <div id="scientific-surface-source">
                 <button class="button small" id="scientific-sample-surface" type="button">Load synthetic GSF</button>
                 <label class="scientific-file-label">Your .gsf file<input id="scientific-gsf-file" type="file" accept=".gsf"></label>
@@ -43,11 +51,15 @@ import SiteLayout from '../layouts/SiteLayout.astro'
                 <label class="scientific-file-label">Associated binary<input id="scientific-envi-data" type="file" accept=".bin,.dat,.img,.raw,application/octet-stream"></label>
                 <button class="button secondary small" id="scientific-open-envi" type="button" disabled>Open paired files</button>
               </div>
-              <div id="scientific-drop-zone" class="scientific-drop-zone">Drop one GSF or an ENVI header + binary pair</div>
+              <div id="scientific-fits-source" hidden>
+                <button class="button small" id="scientific-sample-fits" type="button">Load synthetic FITS cube</button>
+                <label class="scientific-file-label">FITS file<input id="scientific-fits-file" type="file" accept=".fits,.fit,.fts,application/fits"></label>
+              </div>
+              <div id="scientific-drop-zone" class="scientific-drop-zone">Drop one GSF or FITS file, or an ENVI header and binary pair</div>
             </section>
 
             <section class="scientific-panel" aria-labelledby="scientific-display-title">
-              <header><span>02</span><div><p>Mapping</p><h2 id="scientific-display-title">Display controls</h2></div></header>
+              <header><span>02</span><div><p>Mapping</p><h2 id="scientific-display-title">Display numeric data</h2></div></header>
               <label id="scientific-display-mode-field" hidden>Hyperspectral view<select id="scientific-display-mode"><option value="band">Single band</option><option value="composite">False-color RGB</option></select></label>
               <label>Palette<select id="scientific-palette"><option>viridis</option><option>grayscale</option><option>magma</option><option>inferno</option><option>plasma</option></select></label>
               <label>Range<select id="scientific-range-mode"><option value="percentile">Percentile</option><option value="dataset">Dataset min/max</option><option value="explicit">Explicit min/max</option></select></label>
@@ -55,13 +67,16 @@ import SiteLayout from '../layouts/SiteLayout.astro'
               <div id="scientific-explicit-range" class="scientific-inline-fields" hidden><label>Minimum<input id="scientific-range-min" type="number" value="0" step="any"></label><label>Maximum<input id="scientific-range-max" type="number" value="1" step="any"></label></div>
               <label>Scale<select id="scientific-scale"><option>linear</option><option>log</option><option>sqrt</option><option>asinh</option></select></label>
 
+              <label id="scientific-fits-hdu-field" hidden>Image HDU<select id="scientific-fits-hdu"></select></label>
+              <label id="scientific-fits-plane-field" hidden>Z plane <output id="scientific-fits-plane-value">Plane 1 of 1</output><input id="scientific-fits-plane" type="range" min="0" max="0" value="0" step="1"></label>
+
               <div id="scientific-band-controls" hidden>
-                <label>Requested wavelength <output id="scientific-wavelength-value">650</output><input id="scientific-wavelength" type="range" min="450" max="900" value="650"></label>
+                <label>Spectral band <output id="scientific-wavelength-value">Band 1 of 1</output><input id="scientific-wavelength" type="range" min="0" max="0" value="0" step="1"></label>
               </div>
               <div id="scientific-composite-controls" hidden>
-                <label>Red <output id="scientific-red-value">650</output><input id="scientific-red" type="range" min="450" max="900" value="650"></label>
-                <label>Green <output id="scientific-green-value">550</output><input id="scientific-green" type="range" min="450" max="900" value="550"></label>
-                <label>Blue <output id="scientific-blue-value">450</output><input id="scientific-blue" type="range" min="450" max="900" value="450"></label>
+                <label>Red <output id="scientific-red-value">Band 1 of 1</output><input id="scientific-red" type="range" min="0" max="0" value="0" step="1"></label>
+                <label>Green <output id="scientific-green-value">Band 1 of 1</output><input id="scientific-green" type="range" min="0" max="0" value="0" step="1"></label>
+                <label>Blue <output id="scientific-blue-value">Band 1 of 1</output><input id="scientific-blue" type="range" min="0" max="0" value="0" step="1"></label>
               </div>
 
               <div id="scientific-relief-controls">
@@ -82,17 +97,19 @@ import SiteLayout from '../layouts/SiteLayout.astro'
             <p id="scientific-status" class="scientific-status" aria-live="polite">Ready.</p>
             <p id="scientific-selection" class="scientific-selection" hidden></p>
             <dl class="scientific-metrics">
-              <div><dt>Source</dt><dd id="scientific-metric-name">—</dd></div>
-              <div><dt>Dimensions</dt><dd id="scientific-metric-dimensions">—</dd></div>
-              <div><dt>Native samples</dt><dd id="scientific-metric-samples">—</dd></div>
-              <div><dt>Physical extent</dt><dd id="scientific-metric-physical">—</dd></div>
-              <div><dt>Pixel size / bands</dt><dd id="scientific-metric-detail">—</dd></div>
-              <div><dt>Native min/max</dt><dd id="scientific-metric-native-range">—</dd></div>
-              <div><dt>Display range</dt><dd id="scientific-metric-range">—</dd></div>
-              <div><dt id="scientific-metric-bytes-label">Input size</dt><dd id="scientific-metric-bytes">—</dd></div>
-              <div><dt>Render time</dt><dd id="scientific-metric-time">—</dd></div>
+              <div><dt>Source</dt><dd id="scientific-metric-name">Not loaded</dd></div>
+              <div><dt>Dimensions</dt><dd id="scientific-metric-dimensions">Not loaded</dd></div>
+              <div><dt>Native samples</dt><dd id="scientific-metric-samples">Not loaded</dd></div>
+              <div><dt>Physical extent</dt><dd id="scientific-metric-physical">Not loaded</dd></div>
+              <div><dt>Pixel size / bands</dt><dd id="scientific-metric-detail">Not loaded</dd></div>
+              <div><dt>Native min/max</dt><dd id="scientific-metric-native-range">Not measured</dd></div>
+              <div><dt>Display range</dt><dd id="scientific-metric-range">Not rendered</dd></div>
+              <div><dt id="scientific-metric-bytes-label">Input size</dt><dd id="scientific-metric-bytes">Not loaded</dd></div>
+              <div><dt>Render time</dt><dd id="scientific-metric-time">Not rendered</dd></div>
             </dl>
             <p class="scientific-quant-note"><strong>Quantitative source values remain unchanged.</strong> Palette, stretch, scale, and relief affect only the streamed display pixels shown above.</p>
+            <button class="button small" id="scientific-download-png" type="button">Download PNG</button>
+            <p class="scientific-quant-note">The PNG is the current display rendering, not a converted scientific dataset.</p>
           </div>
         </div>
       </div>
@@ -101,8 +118,8 @@ import SiteLayout from '../layouts/SiteLayout.astro'
     <section class="scientific-sources" aria-labelledby="scientific-sources-title">
       <div class="container">
         <div class="scientific-sources-heading">
-          <div><p class="eyebrow">Real public data</p><h2 id="scientific-sources-title">Download a compatible hyperspectral cube</h2></div>
-          <p>These university and U.S. government collections publish ENVI header + binary pairs. The source files can be large, so download them first and open both files above.</p>
+          <div><p class="eyebrow">Real public data</p><h2 id="scientific-sources-title">Download compatible scientific raster files</h2></div>
+          <p>These university and U.S. government collections publish ENVI header + binary pairs and FITS image arrays. Large files should be downloaded before opening them above.</p>
         </div>
         <div class="scientific-source-grid">
           <article>
@@ -110,6 +127,12 @@ import SiteLayout from '../layouts/SiteLayout.astro'
             <h3>SHARE 2012 SpecTIR imagery</h3>
             <p>Direct directory of ENVI <code>.hdr</code> + <code>.img</code> reflectance cubes. Individual images range from about 951 MiB to 13 GiB.</p>
             <a href="https://dirsapps.cis.rit.edu/share2012/SPECTIR_HSI/" target="_blank" rel="noreferrer">Browse RIT files ↗</a>
+          </article>
+          <article>
+            <span>NASA GSFC · .GOV</span>
+            <h3>Official FITS sample files</h3>
+            <p>The FITS Support Office publishes image, table, and conformance samples for testing FITS readers.</p>
+            <a href="https://fits.gsfc.nasa.gov/fits_samples.html" target="_blank" rel="noreferrer">Browse NASA FITS samples ↗</a>
           </article>
           <article>
             <span>NASA JPL · .GOV</span>
@@ -133,11 +156,11 @@ import SiteLayout from '../layouts/SiteLayout.astro'
         <div class="scientific-direct-files" aria-labelledby="scientific-direct-files-title">
           <div class="scientific-direct-files-heading">
             <div><p class="eyebrow">Skip the catalog</p><h3 id="scientific-direct-files-title">Specific files ready to download</h3></div>
-            <p>Start with the 24.7 MiB NASA cube. For a paired example, download both numbered files and select them together above.</p>
+            <p>FITS examples are single-file downloads. For a paired ENVI example, download both numbered files and select them together above.</p>
           </div>
           <div class="scientific-direct-file-grid">
             <article>
-              <span>Best first real cube · NASA .GOV</span>
+              <div class="scientific-direct-card-meta"><span class="scientific-file-type">ENVI</span><span class="scientific-file-source">Best first real cube · NASA .GOV</span></div>
               <h4>Moon Mineralogy Mapper radiance</h4>
               <p><code>304 × 251 × 85</code> · float32 · BIL · 24.7 MiB binary</p>
               <div class="scientific-direct-actions">
@@ -146,7 +169,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
               </div>
             </article>
             <article>
-              <span>Large reflectance cube · RIT .EDU</span>
+              <div class="scientific-direct-card-meta"><span class="scientific-file-type">ENVI</span><span class="scientific-file-source">Large reflectance cube · RIT .EDU</span></div>
               <h4>Avon AM SpecTIR reflectance</h4>
               <p><code>0920-1701_pol_ref_geo</code> · ENVI image · 951 MiB binary</p>
               <div class="scientific-direct-actions">
@@ -155,21 +178,46 @@ import SiteLayout from '../layouts/SiteLayout.astro'
               </div>
             </article>
             <article>
-              <span>Packaged ENVI map · USGS .GOV</span>
+              <div class="scientific-direct-card-meta"><span class="scientific-file-type">ENVI · ZIP</span><span class="scientific-file-source">Packaged map · USGS .GOV</span></div>
               <h4>Afghanistan 1 µm mineral map</h4>
               <p>132 MiB ZIP containing the matching ENVI header and binary map files.</p>
               <div class="scientific-direct-actions">
                 <a href="https://pubs.usgs.gov/ds/787/downloads/afghan_thematicmap_1micron.zip" target="_blank" rel="noreferrer">Download specific archive ↗</a>
               </div>
             </article>
+            <article>
+              <div class="scientific-direct-card-meta"><span class="scientific-file-type">FITS</span><span class="scientific-file-source">Hubble · NASA .GOV</span></div>
+              <h4>WFPC II image mosaic</h4>
+              <p><code>100 × 100</code> · float32 · primary image · 61.9 KiB</p>
+              <div class="scientific-direct-actions">
+                <a href="https://fits.gsfc.nasa.gov/samples/WFPC2ASSNu5780205bx.fits" target="_blank" rel="noreferrer" download="WFPC2ASSNu5780205bx.fits">Download FITS · 61.9 KiB ↗</a>
+              </div>
+            </article>
+            <article>
+              <div class="scientific-direct-card-meta"><span class="scientific-file-type">FITS</span><span class="scientific-file-source">Ultraviolet telescope · NASA .GOV</span></div>
+              <h4>NGC 4151 far-ultraviolet image</h4>
+              <p><code>512 × 512</code> · scaled int16 · primary image · 526 KiB</p>
+              <div class="scientific-direct-actions">
+                <a href="https://fits.gsfc.nasa.gov/samples/UITfuv2582gc.fits" target="_blank" rel="noreferrer" download="UITfuv2582gc.fits">Download FITS · 526 KiB ↗</a>
+              </div>
+            </article>
+            <article>
+              <div class="scientific-direct-card-meta"><span class="scientific-file-type">FITS</span><span class="scientific-file-source">IUE spectrum · NASA .GOV</span></div>
+              <h4>SWP 05569 low-dispersion image</h4>
+              <p><code>831 × 110</code> · two scaled int16 image HDUs · 379.7 KiB</p>
+              <div class="scientific-direct-actions">
+                <a href="https://fits.gsfc.nasa.gov/nrao_data/samples/image/swp05569slg.fits" target="_blank" rel="noreferrer" download="swp05569slg.fits">Download FITS · 379.7 KiB ↗</a>
+              </div>
+            </article>
           </div>
         </div>
-        <p class="scientific-source-help"><strong>Open an ENVI download:</strong> unpack the archive, choose its <code>.hdr</code> file under <em>ENVI header</em>, choose the matching <code>.img</code>, <code>.bin</code>, or <code>.dat</code> file under <em>Associated binary</em>, then click <em>Open paired files</em>. A browser may save a header as <code>.hdr.txt</code>; the explorer accepts that filename too. GSF is commonly exported from AFM/SPM software rather than distributed by institutional archives.</p>
+        <p class="scientific-source-help"><strong>Open a FITS download:</strong> choose <em>FITS image arrays</em>, then select the downloaded file under <em>FITS file</em>. <strong>Open an ENVI download:</strong> unpack the archive, choose its <code>.hdr</code> file under <em>ENVI header</em>, choose the matching <code>.img</code>, <code>.bin</code>, or <code>.dat</code> file under <em>Associated binary</em>, then click <em>Open paired files</em>. A browser may save a header as <code>.hdr.txt</code>; the explorer accepts that filename too. GSF is commonly exported from AFM/SPM software rather than distributed by institutional archives.</p>
       </div>
     </section>
 
     <section class="scientific-explain">
-      <div class="container scientific-explain-grid"><div><p class="eyebrow">One raster architecture</p><h2>Not a charting library. A numeric-raster path.</h2></div><p>GSF and ENVI remain scientific datasets, not ordinary photographic codecs. Their native scalar samples flow through the same API used by OME-TIFF planes. Explicit display mapping is a separate, bounded operation.</p></div>
+       <div class="container scientific-explain-grid"><div><p class="eyebrow">Scientific raster formats</p><h2>Numeric data and display pixels use separate steps</h2></div><div><p>GSF, ENVI, and FITS remain scientific datasets rather than photographic codecs. Their numeric samples use the same dataset API as OME-TIFF planes.</p><img src="../assets/scientific-hyperspectral-envi-viewer.png" width="1280" height="720" loading="lazy" alt="ENVI hyperspectral cube displayed in PureJsImage with band and percentile controls"></div></div>
+      <div class="container"><p><a href="./envi/">ENVI guide</a> · <a href="./gsf/">GSF guide</a> · <a href="./fits/">FITS guide</a> · <a href="../api/#scientific">Scientific API</a> · <a href="../tiff/#scientific">OME-TIFF</a> · <a href="../wsi/">Whole-slide viewer</a></p></div>
     </section>
   </main>
   <footer class="site-footer"><div class="container"><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span><a href="../demo/">Browser converter</a> · <a href="https://github.com/a-r-d/PureJsImage">Source</a> · <a href="../llms.txt">LLM guide</a> · <a href="../sitemap.xml">Sitemap</a></span></div></div></footer>

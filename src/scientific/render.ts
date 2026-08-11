@@ -39,6 +39,20 @@ export interface ScientificPlaneRenderOptions {
   readonly relief?: false | ScientificReliefOptions
 }
 
+/** Options for resolving a quantitative display range without producing display pixels. */
+export interface ScientificPlaneMeasureOptions {
+  readonly plane: {
+    readonly z: number
+    readonly c: number
+    readonly t: number
+  }
+  readonly x?: number
+  readonly y?: number
+  readonly width?: number
+  readonly height?: number
+  readonly range?: ScientificRange
+}
+
 export interface ScientificRenderRange {
   readonly min: number
   readonly max: number
@@ -56,6 +70,24 @@ export interface ScientificRenderedPlane {
   readonly pixels: AsyncIterable<PixelBlock>
 }
 
+/**
+ * A reusable range measurement for one dataset channel and spatial region.
+ * Percentile ranges use bounded sampling and are approximate when `sampledValues`
+ * is smaller than `finiteSamples`. Explicit ranges do not read the dataset.
+ */
+export interface ScientificPlaneMeasurement {
+  readonly range: ScientificRenderRange
+  readonly finiteSamples: number
+  readonly sampledValues: number
+  readonly roi: {
+    readonly x: number
+    readonly y: number
+    readonly width: number
+    readonly height: number
+  }
+  readonly channel: number
+}
+
 interface ScalarRow {
   readonly y: number
   readonly values: Float64Array
@@ -63,7 +95,7 @@ interface ScalarRow {
 
 const selectedRegion = (
   dataset: MultidimensionalRasterDataset,
-  options: Readonly<ScientificPlaneRenderOptions>,
+  options: Readonly<ScientificPlaneMeasureOptions>,
 ): { readonly x: number; readonly y: number; readonly width: number; readonly height: number } => {
   if (
     !Number.isSafeInteger(options.plane.c) ||
@@ -94,7 +126,7 @@ const selectedRegion = (
 }
 
 const planeRequest = (
-  options: Readonly<ScientificPlaneRenderOptions>,
+  options: Readonly<ScientificPlaneMeasureOptions>,
   region: {
     readonly x: number
     readonly y: number
@@ -361,14 +393,44 @@ const renderRows = async function* (
   }
 }
 
+/**
+ * Resolves an explicit, dataset, or approximate percentile range for one plane.
+ * Dataset and percentile modes lazily scan the selected ROI once. The returned
+ * range can be passed back as an explicit range to avoid another measurement
+ * when palette, display transfer, or relief settings change.
+ */
+export const measureScientificPlane = async (
+  dataset: MultidimensionalRasterDataset,
+  options: Readonly<ScientificPlaneMeasureOptions>,
+): Promise<ScientificPlaneMeasurement> => {
+  const roi = selectedRegion(dataset, options)
+  const request = planeRequest(options, roi)
+  const rangeMode = options.range ?? { mode: 'percentile', low: 1, high: 99 }
+  const scan = await scanRange(dataset, request, rangeMode)
+  return Object.freeze({
+    range: Object.freeze(scan.range),
+    finiteSamples: scan.finiteSamples,
+    sampledValues: scan.sampledValues,
+    roi: Object.freeze(roi),
+    channel: options.plane.c,
+  })
+}
+
+/**
+ * Maps one native numeric plane to lazy RGB display blocks. Dataset and
+ * percentile ranges measure the selected plane before the returned iterator
+ * reads it again for rendering. Call `measureScientificPlane()` and pass its
+ * result as an explicit range when an application needs to reuse that scan.
+ * Display transfer and relief affect display pixels only; relief is hillshading
+ * in sample coordinates and does not use physical X/Y spacing.
+ */
 export const renderScientificPlane = async (
   dataset: MultidimensionalRasterDataset,
   options: Readonly<ScientificPlaneRenderOptions>,
 ): Promise<ScientificRenderedPlane> => {
-  const region = selectedRegion(dataset, options)
+  const measured = await measureScientificPlane(dataset, options)
+  const region = measured.roi
   const request = planeRequest(options, region)
-  const rangeMode = options.range ?? { mode: 'percentile', low: 1, high: 99 }
-  const scan = await scanRange(dataset, request, rangeMode)
   const palette = scientificPaletteTable(options.palette ?? 'grayscale')
   const scale = options.scale ?? 'linear'
   if (scale !== 'linear' && scale !== 'log' && scale !== 'sqrt' && scale !== 'asinh') {
@@ -378,12 +440,12 @@ export const renderScientificPlane = async (
   return Object.freeze({
     ...region,
     channel: options.plane.c,
-    range: Object.freeze(scan.range),
-    finiteSamples: scan.finiteSamples,
-    sampledValues: scan.sampledValues,
+    range: measured.range,
+    finiteSamples: measured.finiteSamples,
+    sampledValues: measured.sampledValues,
     pixels: {
       [Symbol.asyncIterator]: () =>
-        renderRows(dataset, request, scan.range, palette, scale, relief),
+        renderRows(dataset, request, measured.range, palette, scale, relief),
     },
   })
 }

@@ -2,6 +2,15 @@ import { invalidInput } from '../errors.ts'
 import { FileSource } from '../node-source.ts'
 import type { EnviDataset, EnviOpenOptions } from './formats/envi.ts'
 import { openEnvi } from './formats/envi.ts'
+export type {
+  FitsDataset,
+  FitsDocument,
+  FitsHdu,
+  FitsHeaderCard,
+  FitsHeaderValue,
+  FitsOpenOptions,
+} from './formats/fits.ts'
+export { openFits } from './formats/fits.ts'
 
 export interface EnviPathOpenOptions extends Omit<EnviOpenOptions, 'header' | 'data'> {
   readonly dataPath?: string

@@ -6,7 +6,7 @@ import type {
   RasterChannelInfo,
   RasterPlaneRequest,
 } from '../src/scientific/dataset.ts'
-import { renderScientificPlane } from '../src/scientific/render.ts'
+import { measureScientificPlane, renderScientificPlane } from '../src/scientific/render.ts'
 import {
   bandRatio,
   integrateSpectralRange,
@@ -209,6 +209,32 @@ describe('scientific display mapping', () => {
     expect(percentile.sampledValues).toBeLessThanOrEqual(64)
     expect(percentile.range.min).toBeGreaterThan(0)
     expect(percentile.range.max).toBeLessThan(9_999)
+  })
+
+  it('measures a reusable range without consuming render pixels', async () => {
+    const dataset = scalarDataset(4, 2, [0, 1, 2, 3, 4, 5, 6, 7])
+    const measured = await measureScientificPlane(dataset, {
+      plane: { z: 0, c: 0, t: 0 },
+      x: 1,
+      width: 2,
+      range: { mode: 'dataset' },
+    })
+    expect(measured).toEqual({
+      range: { min: 1, max: 6 },
+      finiteSamples: 4,
+      sampledValues: 0,
+      roi: { x: 1, y: 0, width: 2, height: 2 },
+      channel: 0,
+    })
+    const rendered = await renderScientificPlane(dataset, {
+      plane: { z: 0, c: 0, t: 0 },
+      x: measured.roi.x,
+      width: measured.roi.width,
+      range: { mode: 'explicit', ...measured.range },
+      palette: 'grayscale',
+    })
+    expect(rendered.finiteSamples).toBe(0)
+    expect(await collectPixels(rendered.pixels)).toHaveLength(12)
   })
 
   it('renders deterministic row-bounded relief while retaining false color', async () => {

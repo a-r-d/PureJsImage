@@ -25,11 +25,13 @@ const reservedFields = new Set([
   'Title',
 ])
 
+/** Limits controlling GSF header parsing and bounded row output. */
 export interface GsfOpenOptions extends ImageLimitOptions {
   readonly maxHeaderBytes?: number
   readonly rowsPerBlock?: number
 }
 
+/** Native float32 values and physical metadata for a new GSF file. */
 export interface GsfWriteOptions extends ImageLimitOptions {
   readonly width: number
   readonly height: number
@@ -44,6 +46,11 @@ export interface GsfWriteOptions extends ImageLimitOptions {
   readonly metadata?: Readonly<Record<string, string>>
 }
 
+/**
+ * Lazy Gwyddion Simple Field surface. Float32 height samples, physical spacing,
+ * offsets, units, and header metadata are preserved. Region reads fetch selected
+ * rows without producing display pixels.
+ */
 export interface GsfDataset extends MultidimensionalRasterDataset {
   readonly format: 'gsf'
   readonly dataOffset: number
@@ -288,6 +295,7 @@ class GsfRasterDataset implements GsfDataset {
   }
 }
 
+/** Opens and validates one GSF surface while leaving float32 rows lazy. */
 export const openGsf = async (
   input: ImageInput,
   options: Readonly<GsfOpenOptions> = {},
@@ -328,6 +336,7 @@ const numberText = (name: string, value: number, positive: boolean): string => {
   return String(value)
 }
 
+/** Encodes a complete GSF surface with little-endian float32 samples. */
 export const encodeGsf = (options: Readonly<GsfWriteOptions>): Uint8Array => {
   const limits: Readonly<ImageLimits> = resolveLimits(options)
   validateImageDimensions(options.width, options.height, 1, limits)

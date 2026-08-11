@@ -14,6 +14,7 @@ import {
 } from './render.ts'
 import { rasterSampleOffset, readRasterSample, validateRasterBlock } from './samples.ts'
 
+/** Requested wavelength and the nearest channel center actually selected. */
 export interface SpectralChannelSelection {
   readonly requested: number
   readonly channel: number
@@ -46,6 +47,7 @@ const spectralChannels = (dataset: MultidimensionalRasterDataset): readonly Spec
   return channels
 }
 
+/** Selects the nearest real spectral channel without interpolating metadata. */
 export const nearestSpectralChannel = (
   dataset: MultidimensionalRasterDataset,
   wavelength: number,
@@ -82,6 +84,11 @@ export interface SpectralBandRenderResult {
   readonly image: ScientificRenderedPlane
 }
 
+/**
+ * Selects a real channel by wavelength and explicitly renders it for display.
+ * Dataset or percentile ranges may scan the selected native band before pixels
+ * are consumed; pass an explicit measured range to avoid that scan.
+ */
 export const renderSpectralBand = async (
   dataset: MultidimensionalRasterDataset,
   options: Readonly<SpectralBandRenderOptions>,
@@ -171,6 +178,10 @@ const compositePixels = async function* (
   }
 }
 
+/**
+ * Renders a false-color RGB display from the nearest real red, green, and blue
+ * spectral channels. Native source samples and wavelength metadata are unchanged.
+ */
 export const renderSpectralComposite = async (
   dataset: MultidimensionalRasterDataset,
   options: Readonly<SpectralCompositeRenderOptions>,
