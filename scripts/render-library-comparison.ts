@@ -431,11 +431,11 @@ const compactHtml = (report: ConformanceReport, comparisonHref = 'tiff-compariso
     .join('\n')
   return `<section class="section tint comparison-section" id="tiff-library-comparison">
       <div class="container">
-        <div class="section-heading"><div><p class="section-label">Shared raster engine · measured TIFF depth</p><h2>From display TIFFs to native scientific and whole-slide rasters.</h2></div><a class="text-link" href="${comparisonHref}">Full comparison →</a></div>
-        <p class="comparison-intro">TIFF demonstrates how the same codec architecture serves ordinary conversion and specialized raster workloads. Capability cells follow upstream documentation or source; a separate 106-fixture RGBA comparison reports decode coverage, exact output, pixel mismatches, scientific rasters, and malformed inputs.</p>
+        <div class="section-heading"><div><p class="section-label">Scientific and instrument imagery</p><h2>Native raster workflows beyond ordinary application images.</h2></div><a class="text-link" href="${comparisonHref}">TIFF demo and details →</a></div>
+        <p class="comparison-intro">The codec and raster architecture is designed to grow across scientific instruments and research workflows. TIFF, OME microscopy, whole-slide pathology, and geospatial rasters are current examples. This table separates documented features from a 106-file image test of decode coverage and output.</p>
         <div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Browser</th><th>BigTIFF</th><th>Tiles</th><th>Region</th><th>Scientific raster</th><th>OME / WSI</th><th>Decode coverage</th></tr></thead><tbody>${rows}</tbody></table></div>
         <p class="section-note"><strong>Oracle unavailable is not an engine failure:</strong> the independent Sharp/ImageMagick ground-truth path could not decode the same two fixtures for every measured engine. PureJsImage's ${report.totals.get('purejsimage')?.mismatch ?? 0} non-exact decodes comprise ${pureJsImagePsnrSummary(report)}, derived from recorded RMSE. Jimp uses utif2 for TIFF internally, so its matching aggregate outcomes are expected.</p>
-        <p class="section-note">Measured ${htmlEscape(report.generatedAt.slice(0, 10))} with ${htmlEscape(report.nodeVersion)} on ${htmlEscape(report.platform)}/${htmlEscape(report.architecture)}. <a href="${comparisonHref}#methodology">Methodology, caveats, versions, and evidence.</a></p>
+        <p class="section-note">Measured ${htmlEscape(report.generatedAt.slice(0, 10))} with ${htmlEscape(report.nodeVersion)} on ${htmlEscape(report.platform)}/${htmlEscape(report.architecture)}. <a href="${comparisonHref}#methodology">Methods, caveats, versions, and sources.</a></p>
       </div>
     </section>`
 }

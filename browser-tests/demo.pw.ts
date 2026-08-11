@@ -32,6 +32,64 @@ const playbackTiff = async (): Promise<Buffer> => {
   return Buffer.from(sink.toUint8Array())
 }
 
+test('leads the homepage with portable codecs, memory comparison, and open-source status', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/homepage.html')
+
+  await expect(page.locator('.home-hero .eyebrow')).toHaveText(
+    'Free and open source · zero runtime dependencies',
+  )
+  await expect(page.locator('.home-hero h1')).toContainText(
+    'Image codecs and low-memory raster processing in strict TypeScript.',
+  )
+  await expect(page.locator('.home-hero .hero-lede')).toContainText(
+    'building a broad suite of first-party codecs',
+  )
+  await expect(page.locator('.headline-metrics')).toContainText('86.7%')
+  await expect(page.locator('.headline-metrics')).toContainText('157.8 vs 1,188.3 MiB')
+  await expect(page.locator('.headline-metrics')).toContainText('87.6%')
+  await expect(page.locator('.headline-metrics')).toContainText('157.8 vs 1,276.5 MiB')
+  await expect(page.locator('main')).not.toContainText(/evidence/iu)
+  await expect(page.locator('.metric-info')).toHaveCount(4)
+  await expect(page.locator('.metric-info').nth(2)).toHaveAccessibleName(
+    'About the TIFF corpus result',
+  )
+  await page.locator('.metric-info').nth(2).focus()
+  await expect(page.locator('#metric-tiff-tooltip')).toContainText("Imazen's TIFF corpus")
+  await expect(page.locator('#metric-tiff-tooltip')).toHaveCSS('opacity', '1')
+  const infoButtonBoxes = await page.locator('.metric-info').evaluateAll((buttons) =>
+    buttons.map((button) => {
+      const bounds = button.getBoundingClientRect()
+      return { width: bounds.width, height: bounds.height }
+    }),
+  )
+  expect(infoButtonBoxes).toEqual([
+    { width: 22, height: 22 },
+    { width: 22, height: 22 },
+    { width: 22, height: 22 },
+    { width: 22, height: 22 },
+  ])
+  await expect(page.locator('.home-wsi-showcase')).toContainText('One scientific application')
+  await expect(page.locator('.home-wsi-image img')).toHaveAttribute(
+    'src',
+    'assets/whole-slide-viewer-showcase.jpg',
+  )
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  const metricBoxes = await page.locator('.headline-metrics > div').evaluateAll((metrics) =>
+    metrics.map((metric) => {
+      const bounds = metric.getBoundingClientRect()
+      return { top: bounds.top, bottom: bounds.bottom }
+    }),
+  )
+  expect(metricBoxes).toHaveLength(4)
+  for (let index = 1; index < metricBoxes.length; index += 1) {
+    expect(metricBoxes[index]?.top ?? 0).toBeGreaterThanOrEqual(metricBoxes[index - 1]?.bottom ?? 0)
+  }
+})
+
 test('aligns the performance section heading with its methodology copy', async ({ page }) => {
   await page.goto('/performance/')
 

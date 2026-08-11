@@ -53,9 +53,21 @@ describe('package contract', () => {
     expect(readme).toContain(
       'The strict TypeScript reference engine is the permanent portable path',
     )
-    expect(docsHome).toContain('Only compared JavaScript library with OME / WSI: Yes')
-    expect(docsHome).toContain('Whole-slide and scientific TIFF')
-    expect(docsHome).toContain('Reference-engine evidence · baseline JPEG')
+    expect(docsHome).toContain('Free and open source · zero runtime dependencies')
+    expect(docsHome).toContain('Image codecs and low-memory raster processing in')
+    expect(docsHome).toContain('building a broad suite of first-party codecs')
+    expect(docsHome).toContain('86.7%')
+    expect(docsHome).toContain('157.8 vs 1,188.3 MiB')
+    expect(docsHome).toContain('87.6%')
+    expect(docsHome).toContain('157.8 vs 1,276.5 MiB')
+    expect(docsHome).toContain("The 106 display-image cases come from Imazen's TIFF corpus")
+    expect(docsHome).toContain('6000 × 4000 JPEG workflow')
+    expect(docsHome).toContain('2,122,449,395-byte Aperio SVS pathology slide')
+    expect(docsHome).toContain('Low-memory JPEG demo')
+    expect(docsHome.toLowerCase()).not.toContain('evidence')
+    expect(readme).toContain('## Special thanks')
+    expect(readme).toContain('[Imazen](https://github.com/imazen)')
+    expect(readme).toContain('A native whole-slide browser demo')
     expect(specification).toContain('The top-level engineering constraints are:')
     expect(specification).toContain(
       'PureJsImage is a first-party image codec suite and low-memory raster engine',
@@ -193,9 +205,17 @@ describe('package contract', () => {
     expect(docsHome).toContain(
       '<strong>104/106 decoded</strong><small>57 exact · 47 pixel mismatches</small>',
     )
-    expect(docsHome.indexOf('id="tiff-library-comparison"')).toBeLessThan(
-      docsHome.indexOf('id="benchmark"'),
-    )
+    expect(docsHome).toContain('Scientific and instrument imagery')
+    expect(docsHome).toContain('designed to grow across scientific instruments')
+    expect(docsHome).toContain('One scientific application')
+    expect(docsHome).toContain('assets/whole-slide-viewer-showcase.jpg')
+    const benchmarkPosition = docsHome.indexOf('id="benchmark"')
+    const wholeSlidePosition = docsHome.indexOf('class="section home-wsi-showcase"')
+    const memoryModelPosition = docsHome.indexOf('id="memory-model"')
+    const tiffComparisonPosition = docsHome.indexOf('id="tiff-library-comparison"')
+    expect(benchmarkPosition).toBeLessThan(wholeSlidePosition)
+    expect(wholeSlidePosition).toBeLessThan(memoryModelPosition)
+    expect(memoryModelPosition).toBeLessThan(tiffComparisonPosition)
     expect(docsHome).toContain('38 at or above 40 dB PSNR')
     expect(docsHome).toContain('Jimp uses utif2 for TIFF internally')
     expect(tiffGuide).toContain('Decoded / comparable')

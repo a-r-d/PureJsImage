@@ -344,6 +344,8 @@ complete installed deployment tells the other half of the story:
 - Codec-native bounded execution where the format permits it, with explicit
   memory classes and documented full-frame fallbacks.
 - The same reference behavior across Node.js and modern browsers.
+- A native whole-slide browser demo that opens Aperio SVS tiles through HTTP
+  Range without conversion, a tile server, or a sidecar index.
 - Explicit unsupported boundaries instead of plausible corruption.
 - Permanent conformance corpora, hostile-input tests, and reproducible
   performance and memory measurements.
@@ -379,3 +381,8 @@ principles.
 
 The detailed implementation and acceleration plans remain in the
 [project roadmap](ROADMAP.md).
+
+## Special thanks
+
+Special thanks to [Imazen](https://github.com/imazen) for building the image corpus that made broad,
+real-world codec testing possible.

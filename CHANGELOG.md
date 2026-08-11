@@ -19,7 +19,14 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
-- Reframed the documentation homepage around native scientific TIFF and whole-slide imaging,
+- Aligned the documentation homepage with the project's primary focus on a broad suite of portable,
+  first-party strict TypeScript codecs and low-memory raster processing, while keeping scientific
+  and instrument imagery as an extensible secondary capability area, including a visual card for
+  the whole-slide browser demo, explanatory metric tooltips, and a clearer visual section order.
+- Clarified that PureJsImage is free and open source, restored the homepage's direct peak-memory
+  comparisons with Jimp and image-js, added a concise whole-slide README bullet, simplified
+  technical marketing labels, and thanked Imazen for the image corpus used in codec testing.
+- Expanded the documentation for native scientific TIFF and whole-slide imaging,
   clarified that shared TIFF oracle gaps are not decoder failures, published mismatch and PSNR
   quality bands, documented Jimp's utif2-backed TIFF totals, and made the live whole-slide opening
   state informative before its first tile.
