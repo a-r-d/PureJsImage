@@ -1,0 +1,28 @@
+README.md
+  h_9f4a25732fa0c1 12,14,26,40-43,45-49,53-55,57-61,187-192,227,331-342
+ROADMAP.md
+  h_9f4a25732fa0c1 3-5,7,10-11,13-23,41,43-44,109,111-114,133-136,138,140-143,145-147,364-369,371-379
+docs/index.html
+  h_9f4a25732fa0c1 6,8-9,16,52-54,140,185-187,229,235,245-247,279
+docs/tiff-comparison.html
+  h_9f4a25732fa0c1 24-26
+package.json
+  h_9f4a25732fa0c1 4,7,9-15,27-30
+project-spec.md
+  h_9f4a25732fa0c1 7-40,110-114,161-162,169-170,174-176,178-179,265,267-270,272,281-282,284,286-287,296,298-299,301-302,304-310,312-316,318-321,323-327,329-333,335-339,2646-2648,2650-2651,2656-2658,2661-2663,2665-2668,2670,2672-2673,2675-2676
+scripts/render-library-comparison.ts
+  h_9f4a25732fa0c1 337-343,348,369,374-375
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 41-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "ddb1a5abc0a3c05a93ffe8f4767646b1cd783365",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
