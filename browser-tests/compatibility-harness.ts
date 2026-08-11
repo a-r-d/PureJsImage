@@ -709,15 +709,28 @@ const tiffEncodePipeline = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
-const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8ClampedArray> => {
+interface BrowserImagePixels {
+  readonly height: number
+  readonly pixels: Uint8ClampedArray
+  readonly width: number
+}
+
+const browserImagePixels = async (bytes: Uint8Array, type: string): Promise<BrowserImagePixels> => {
   const bitmap = await createImageBitmap(new Blob([Uint8Array.from(bytes)], { type }))
   const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
   const context = canvas.getContext('2d')
   if (!context) throw new Error('2D OffscreenCanvas context is unavailable')
   context.drawImage(bitmap, 0, 0)
   bitmap.close()
-  return context.getImageData(0, 0, canvas.width, canvas.height).data
+  return {
+    width: canvas.width,
+    height: canvas.height,
+    pixels: context.getImageData(0, 0, canvas.width, canvas.height).data,
+  }
 }
+
+const browserPixels = async (bytes: Uint8Array, type: string): Promise<Uint8ClampedArray> =>
+  (await browserImagePixels(bytes, type)).pixels
 
 const portablePngPixels = async (bytes: Uint8Array): Promise<Uint8Array> => {
   const createDecoder = pngCodec.createDecoder
@@ -1828,6 +1841,75 @@ const avifPinnedPng = async (
   }
 }
 
+const avifImir = async (): Promise<BrowserWorkflowResult> => {
+  const fixtures = [
+    {
+      file: 'libavif-imir-axis0-160x160.avif',
+      portableWidth: 160,
+      portableHeight: 160,
+      portableSha256: 'ecc5d7baa51289462eb57ed3e9e2202872d4e24438849531f15b04d0d1d8cc8a',
+      chromiumWidth: 160,
+      chromiumHeight: 160,
+      chromiumSha256: 'ecc5d7baa51289462eb57ed3e9e2202872d4e24438849531f15b04d0d1d8cc8a',
+    },
+    {
+      file: 'libavif-imir-axis1-160x160.avif',
+      portableWidth: 160,
+      portableHeight: 160,
+      portableSha256: '150d389f0f9ec73685c3b301933f344e68d045114e96b06d4e09c2ae2d056569',
+      chromiumWidth: 160,
+      chromiumHeight: 160,
+      chromiumSha256: '150d389f0f9ec73685c3b301933f344e68d045114e96b06d4e09c2ae2d056569',
+    },
+    {
+      file: 'libavif-imir-clap-irot-grid-alpha-160x160.avif',
+      portableWidth: 96,
+      portableHeight: 112,
+      portableSha256: 'b3cca86fed0bf074641663fea9611be3ed3a217498b0095864300df265acf533',
+      chromiumWidth: 160,
+      chromiumHeight: 160,
+      chromiumSha256: '5f22a0d268ac2f295e8c8d2fbaa90267a04ea03f5597eb782cf4210738ee9d1f',
+    },
+  ] as const
+  let outputBytes = 0
+  for (const fixture of fixtures) {
+    const input = await fetchBytes(`/fixtures/${fixture.file}`)
+    const output = await (await images.open(input)).autoOrient().png().toUint8Array()
+    const metadata = await outputMetadata(output)
+    if (
+      metadata.format !== 'png' ||
+      metadata.width !== fixture.portableWidth ||
+      metadata.height !== fixture.portableHeight
+    ) {
+      throw new Error(
+        `${fixture.file} auto-oriented output was ${metadata.format} ${metadata.width}x${metadata.height}`,
+      )
+    }
+    const portableHash = await sha256(await portablePngPixels(output))
+    if (portableHash !== fixture.portableSha256) {
+      throw new Error(`${fixture.file} portable imir RGBA hash was ${portableHash}`)
+    }
+
+    const chromium = await browserImagePixels(input, 'image/avif')
+    const chromiumHash = await sha256(Uint8Array.from(chromium.pixels))
+    if (
+      chromium.width !== fixture.chromiumWidth ||
+      chromium.height !== fixture.chromiumHeight ||
+      chromiumHash !== fixture.chromiumSha256
+    ) {
+      throw new Error(
+        `${fixture.file} Chromium AVIF output was ${chromium.width}x${chromium.height} ${chromiumHash}`,
+      )
+    }
+    outputBytes += output.byteLength
+  }
+  return {
+    detail:
+      'AVIF imir axes and clap+irot grid alpha composition matched pinned portable output; Chromium native outputs were pinned independently',
+    outputBytes,
+  }
+}
+
 const avifAlphaStraight = (): Promise<BrowserWorkflowResult> =>
   avifPinnedPng(
     'alpha-straight-64x48.avif',
@@ -2502,6 +2584,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifHdrRejected,
   avifHdrGainMap,
   avifIcc,
+  avifImir,
   avifFilteredSuperres,
   avifLossyMultitile,
   avifGainMapGrid,

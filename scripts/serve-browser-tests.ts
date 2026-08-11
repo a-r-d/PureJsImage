@@ -400,6 +400,18 @@ await copyFile(
   resolve(fixtureDirectory, 'libavif-color-irot-alpha-noirot-512x256.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/libavif-imir-axis0-160x160.avif',
+  resolve(fixtureDirectory, 'libavif-imir-axis0-160x160.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-imir-axis1-160x160.avif',
+  resolve(fixtureDirectory, 'libavif-imir-axis1-160x160.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-imir-clap-irot-grid-alpha-160x160.avif',
+  resolve(fixtureDirectory, 'libavif-imir-clap-irot-grid-alpha-160x160.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/xiph-tiger-3layer-lsel0-1216x832.avif',
   resolve(fixtureDirectory, 'xiph-tiger-3layer-lsel0-1216x832.avif'),
 )

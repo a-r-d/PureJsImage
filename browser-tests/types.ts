@@ -24,6 +24,7 @@ export interface BrowserCompatibilityHarness {
   avifHdrRejected(): Promise<BrowserWorkflowResult>
   avifHdrGainMap(): Promise<BrowserWorkflowResult>
   avifIcc(): Promise<BrowserWorkflowResult>
+  avifImir(): Promise<BrowserWorkflowResult>
   avifLossyMultitile(): Promise<BrowserWorkflowResult>
   avifLayeredSelection(): Promise<BrowserWorkflowResult>
   avifSelectedBaseLayer(): Promise<BrowserWorkflowResult>

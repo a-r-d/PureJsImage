@@ -256,6 +256,13 @@ test('applies resampled single and grid AVIF gain maps', async ({ page }) => {
   expect(result.detail).toContain('Independently tiled and resampled AVIF gain-map grid')
   expect(result.detail).toContain('pinned portable RGBA output')
 })
+test('composes AVIF imir transforms with crop, rotation, grids, and alpha', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifImir())
+  expect(result.outputBytes).toBeGreaterThan(1_000)
+  expect(result.detail).toContain('clap+irot grid alpha composition')
+  expect(result.detail).toContain('Chromium native outputs')
+})
 test('synthesizes AV1 film grain', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifFilmGrain())

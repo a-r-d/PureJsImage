@@ -255,6 +255,18 @@ from the checksum-pinned PNG source with one encoder worker and require Sharp
 to produce the pinned cropped RGBA output. Encoded, source, Sharp, and decoded
 checksums are pinned in `benchmark/avif/clean-aperture-fixture.ts`.
 
+`libavif-imir-axis0-160x160.avif`, `libavif-imir-axis1-160x160.avif`, and
+`libavif-imir-clap-irot-grid-alpha-160x160.avif` are deterministic full-range,
+identity-color YUV 4:4:4 fixtures encoded with libavif 1.3.0 and libaom 3.12.1.
+The first two isolate top-to-bottom and left-to-right `imir` axes. The third
+combines a 2x2 color grid, alpha auxiliary grid, integer `clap`, `irot=1`, and
+`imir=1`. Run `npm run fixtures:avif:imir:prepare` to regenerate them from
+checksum-pinned PNG sources and `npm run fixtures:avif:imir` to compare
+PureJsImage with dav1d, libaom, and Sharp. The focused Chromium workflow pins
+both portable and native-browser results. Checksums and observed oracle behavior
+are recorded in `benchmark/avif/mirror-fixtures.ts` and
+`benchmark/results/avif-imir-2026-08-09.md`.
+
 `sofa_grid1x5_420.avif` comes from the pinned libavif corpus revision documented
 in `benchmark/avif/corpus.ts`. It covers a 1x5 image grid whose final tile and
 display height exercise cropped edge-tile composition.

@@ -73,7 +73,8 @@ coverage.
 - [x] Pixel decoding and composition of compatible alpha auxiliary items
 - [x] Validated integer clean-aperture cropping through `clap`; fractional
   dimensions and origins remain explicitly unsupported
-- [ ] Mirroring through `imir`
+- [x] Mirroring through `imir`, ordered `clap`/`irot`/`imir` validation, and
+  composition into pipeline orientation metadata
 - [ ] Pixel-aspect-ratio and other transformative item properties
 - [x] ISO 21496-1 gain-map metadata, `dimg` relationships, and preferred
   alternative selection through `altr` entity groups
@@ -351,18 +352,22 @@ byte. The full-size tolerance remains zero.
 - [x] Reject malformed OBU sizes, duplicate sequence headers, truncated frame
   headers, tile overruns, invalid arithmetic symbols, impossible partitions,
   coefficient scans, and transform bounds explicitly
-- [x] Inspect all 46 checksum-pinned permanent corpus files and 57 unique coded
-  items across `mdat`, `idat`, multiple extents, grids, alpha, gain maps,
+- [x] Inspect all 49 checksum-pinned permanent corpus files and 67 unique coded
+  items across `mdat`, `idat`, multiple extents, grids, alpha, gain maps, mirroring,
   8/10/12-bit, 4:0:0/4:2:0/4:2:2/4:4:4, progressive storage, HDR signaling,
   layered frame units, reduced and full still-picture headers, and a non-still
   sequence header
-- [x] Pass metadata expectations for all 46 permanent corpus files
+- [x] Pass metadata expectations for all 49 permanent corpus files
 - [x] Decode exact independent reference pixels for the embedded 2x2 lossless
   fixture and the 4x4 lossy fixture
 - [x] Decode and pin RGBA regression hashes for Kodak 768x512 color; Fox
   1204x800 YUV 4:2:0, monochrome, YUV 4:2:2, and YUV 4:4:4 photographs;
   deterministic straight and premultiplied alpha fixtures; and a 1024x770
   cropped-edge image grid
+- [x] Decode and auto-orient both `imir` axes exactly; compose the pinned integer-`clap`,
+  `irot`, `imir`, 2x2 color-grid, and alpha-grid fixture exactly against its
+  deterministic source pixels
+- [x] Pin separate Sharp and Chromium behavior for combined grid-item transforms
 - [x] Benchmark both full-size photographs through the public AVIF-to-PNG
   workflow
 - [x] Report the current broad decode corpus as 8 compatible, 17 explicitly
@@ -511,3 +516,4 @@ Current measurements and compatibility details are recorded in:
 - [`benchmark/results/avif-compatibility-survey-2026-08-10.md`](benchmark/results/avif-compatibility-survey-2026-08-10.md)
 - [`benchmark/results/avif-memory-bounded-filtered-2026-08-10.json`](benchmark/results/avif-memory-bounded-filtered-2026-08-10.json)
 - [`benchmark/results/avif-memory-auxiliary-film-grain-2026-08-10.json`](benchmark/results/avif-memory-auxiliary-film-grain-2026-08-10.json)
+- [`benchmark/results/avif-imir-2026-08-09.md`](benchmark/results/avif-imir-2026-08-09.md)

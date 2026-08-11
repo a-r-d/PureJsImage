@@ -52,6 +52,7 @@ import {
   avifHighBitLosslessFixtures,
 } from '../benchmark/avif/high-bit-lossless-fixtures.ts'
 import { avifLayeredFixture, avifLayeredFixturePath } from '../benchmark/avif/layered-fixture.ts'
+import { avifMirrorFixturePath, avifMirrorFixtures } from '../benchmark/avif/mirror-fixtures.ts'
 import {
   avifBoundedFilteredFixture,
   avifBoundedFilteredFixturePath,
@@ -243,6 +244,8 @@ const avifFixture = ({
   bitDepth = 10,
   chroma = '420',
   cleanApertureAfterRotation = false,
+  mirrorBeforeRotation = false,
+  mirrors = [],
   cleanApertures = [],
   compatibleMajorBrand = false,
   height = 480,
@@ -254,6 +257,8 @@ const avifFixture = ({
   bitDepth?: 8 | 10 | 12
   chroma?: '400' | '420' | '422' | '444'
   cleanApertureAfterRotation?: boolean
+  mirrorBeforeRotation?: boolean
+  mirrors?: readonly number[]
   cleanApertures?: readonly CleanApertureValues[]
   compatibleMajorBrand?: boolean
   height?: number
@@ -273,6 +278,7 @@ const avifFixture = ({
     ),
   )
   const rotationProperties = rotation === undefined ? [] : [box('irot', [rotation])]
+  const mirrorProperties = mirrors.map((axis) => box('imir', [axis]))
   const properties = [
     fullBox('ispe', [...bytes32(width), ...bytes32(height)]),
     fullBox('pixi', [3, bitDepth, bitDepth, bitDepth]),
@@ -284,7 +290,9 @@ const avifFixture = ({
     ]),
     box('colr', [...ascii('nclx'), 0, 1, 0, 13, 0, 6, 0x80]),
     ...(!cleanApertureAfterRotation ? cleanApertureProperties : []),
+    ...(mirrorBeforeRotation ? mirrorProperties : []),
     ...rotationProperties,
+    ...(!mirrorBeforeRotation ? mirrorProperties : []),
     ...(cleanApertureAfterRotation ? cleanApertureProperties : []),
     ...(alpha
       ? [fullBox('auxC', [...ascii('urn:mpeg:mpegB:cicp:systems:auxiliary:alpha'), 0])]
@@ -354,6 +362,49 @@ describe('AVIF metadata', () => {
       codecProfile: 2,
       orientation: 6,
     })
+  })
+
+  it.each([
+    { label: 'bottom-to-top', mirrors: [0], orientation: 4 },
+    { label: 'right-to-left', mirrors: [1], orientation: 2 },
+    {
+      label: 'bottom-to-top after counter-clockwise rotation',
+      mirrors: [0],
+      rotation: 1,
+      orientation: 5,
+    },
+    {
+      label: 'right-to-left after counter-clockwise rotation',
+      mirrors: [1],
+      rotation: 1,
+      orientation: 7,
+    },
+  ] as const)(
+    'maps $label transforms to pipeline orientation',
+    async ({ mirrors, rotation, orientation }) => {
+      const metadata = await (
+        await Image.open(avifFixture({ mirrors, ...(rotation === undefined ? {} : { rotation }) }))
+      ).metadata()
+
+      expect(metadata.orientation).toBe(orientation)
+    },
+  )
+
+  it('rejects an imir property with reserved bits set', async () => {
+    const image = await Image.open(avifFixture({ mirrors: [2] }))
+    await expect(image.metadata()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
+  it('rejects duplicate imir properties', async () => {
+    const image = await Image.open(avifFixture({ mirrors: [0, 1] }))
+    await expect(image.metadata()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
+  it('rejects imir associated before irot', async () => {
+    const image = await Image.open(
+      avifFixture({ mirrorBeforeRotation: true, mirrors: [1], rotation: 1 }),
+    )
+    await expect(image.metadata()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
   })
 
   it('applies image dimension limits before decoding', async () => {
@@ -548,6 +599,29 @@ describe('AVIF restricted pixel decode', () => {
     )
     expect([cropped.width, cropped.height, ...cropped.data]).toEqual([1, 1, 130, 130, 130, 255])
   })
+  it.each(avifMirrorFixtures)(
+    'auto-orients $file through imir and associated item transforms',
+    async (fixture) => {
+      const input = new Uint8Array(await readFile(avifMirrorFixturePath(fixture)))
+      const image = await Image.open(input)
+      const metadata = await image.metadata()
+      const inspection = await inspectAvifBitstreams(new MemorySource(input))
+      const output = PNG.sync.read(await image.autoOrient().png().toBuffer())
+
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+      expect(metadata).toMatchObject({
+        hasAlpha: fixture.hasAlpha,
+        orientation: fixture.orientation,
+      })
+      expect(inspection).toMatchObject({
+        mirroring: fixture.mirrorAxis,
+        primaryItemType: fixture.primaryItemType,
+      })
+      expect([output.width, output.height]).toEqual([fixture.decodedWidth, fixture.decodedHeight])
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+    },
+    20_000,
+  )
   it('decodes a non-still sequence header containing one shown key frame', async () => {
     const fixture = avifNonstillSequenceFixture
     const input = await readFile(avifNonstillSequenceFixturePath)

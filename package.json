@@ -193,6 +193,8 @@
     "fixtures:avif:film-grain": "node benchmark/avif/verify-film-grain-fixture.ts",
     "fixtures:avif:film-grain:prepare": "node benchmark/avif/prepare-film-grain-fixture.ts",
     "fixtures:avif:intrabc": "node benchmark/avif/verify-intrabc-fixture.ts",
+    "fixtures:avif:imir": "node benchmark/avif/verify-mirror-fixtures.ts",
+    "fixtures:avif:imir:prepare": "node benchmark/avif/prepare-mirror-fixtures.ts",
     "fixtures:avif:common-photo-syntax": "node benchmark/avif/verify-common-photo-syntax-fixtures.ts",
     "fixtures:avif:nonstill-sequence": "node benchmark/avif/verify-nonstill-sequence-fixture.ts",
     "fixtures:avif:still-picture-entropy": "node benchmark/avif/verify-still-picture-entropy-fixtures.ts",

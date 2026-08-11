@@ -113,6 +113,7 @@ type Property =
       readonly iccDescription?: string
       readonly nclx?: NclxColor
     }
+  | { readonly type: 'imir'; readonly axis: 0 | 1 }
   | { readonly type: 'irot'; readonly angle: number }
   | { readonly type: 'ispe'; readonly width: number; readonly height: number }
   | { readonly type: 'lsel'; readonly layerId: number }
@@ -333,6 +334,13 @@ const parseProperty = async (source: ImageSource, box: Box): Promise<Property> =
     }
     return { type: 'irot', angle: (data[0] ?? 0) & 3 }
   }
+  if (box.type === 'imir') {
+    const data = await payload(source, box, 1)
+    if (data.byteLength !== 1 || ((data[0] ?? 0) & 0xfe) !== 0) {
+      throw invalidInput('AVIF imir property is invalid')
+    }
+    return { type: 'imir', axis: (data[0] ?? 0) === 0 ? 0 : 1 }
+  }
   if (box.type === 'clap') {
     const data = await payload(source, box, 32)
     if (data.byteLength !== 32) throw invalidInput('AVIF clap property is invalid')
@@ -428,16 +436,95 @@ const cleanApertureRegion = (
   return { x, y, width, height }
 }
 
+interface OrientationMatrix {
+  readonly xx: -1 | 0 | 1
+  readonly xy: -1 | 0 | 1
+  readonly yx: -1 | 0 | 1
+  readonly yy: -1 | 0 | 1
+}
+
+const orientationMatrices: Readonly<Record<number, OrientationMatrix>> = Object.freeze({
+  1: { xx: 1, xy: 0, yx: 0, yy: 1 },
+  2: { xx: -1, xy: 0, yx: 0, yy: 1 },
+  3: { xx: -1, xy: 0, yx: 0, yy: -1 },
+  4: { xx: 1, xy: 0, yx: 0, yy: -1 },
+  5: { xx: 0, xy: 1, yx: 1, yy: 0 },
+  6: { xx: 0, xy: -1, yx: 1, yy: 0 },
+  7: { xx: 0, xy: -1, yx: -1, yy: 0 },
+  8: { xx: 0, xy: 1, yx: -1, yy: 0 },
+})
+
+const orientationComponent = (value: number): -1 | 0 | 1 => {
+  if (value === -1 || value === 0 || value === 1) return value
+  throw invalidInput('AVIF orientation matrix is invalid')
+}
+
+const multiplyOrientation = (
+  next: OrientationMatrix,
+  current: OrientationMatrix,
+): OrientationMatrix => ({
+  xx: orientationComponent(next.xx * current.xx + next.xy * current.yx),
+  xy: orientationComponent(next.xx * current.xy + next.xy * current.yy),
+  yx: orientationComponent(next.yx * current.xx + next.yy * current.yx),
+  yy: orientationComponent(next.yx * current.xy + next.yy * current.yy),
+})
+
+const orientationFor = (properties: readonly Property[]): number | undefined => {
+  const transforms = properties.filter(
+    (property): property is Extract<Property, { type: 'imir' | 'irot' }> =>
+      property.type === 'imir' || property.type === 'irot',
+  )
+  if (transforms.length === 0) return undefined
+  let matrix = orientationMatrices[1]
+  if (!matrix) throw invalidInput('AVIF identity orientation is unavailable')
+  for (const transform of transforms) {
+    const orientation =
+      transform.type === 'irot'
+        ? transform.angle === 0
+          ? 1
+          : transform.angle === 1
+            ? 8
+            : transform.angle === 2
+              ? 3
+              : 6
+        : transform.axis === 0
+          ? 4
+          : 2
+    const next = orientationMatrices[orientation]
+    if (!next) throw invalidInput('AVIF transform orientation is invalid')
+    matrix = multiplyOrientation(next, matrix)
+  }
+  for (const [orientation, candidate] of Object.entries(orientationMatrices)) {
+    if (
+      candidate.xx === matrix.xx &&
+      candidate.xy === matrix.xy &&
+      candidate.yx === matrix.yx &&
+      candidate.yy === matrix.yy
+    ) {
+      return Number(orientation)
+    }
+  }
+  throw invalidInput('AVIF transforms do not map to an EXIF orientation')
+}
+
 const validateTransformProperties = (properties: readonly Property[]): void => {
-  let seenRotation = false
+  const ranks: Readonly<Record<'clap' | 'imir' | 'irot', number>> = {
+    clap: 0,
+    irot: 1,
+    imir: 2,
+  }
+  let previousRank = -1
   for (const property of properties) {
-    if (property.type === 'irot') seenRotation = true
-    else if (property.type === 'clap' && seenRotation) {
+    if (property.type !== 'clap' && property.type !== 'irot' && property.type !== 'imir') continue
+    const rank = ranks[property.type]
+    if (rank < previousRank) {
       throw invalidInput('AVIF transformative properties are associated in an invalid order')
     }
+    previousRank = rank
   }
   oneProperty(properties, 'clap')
   oneProperty(properties, 'irot')
+  oneProperty(properties, 'imir')
 }
 
 const MAX_ITEM_PAYLOAD_BYTES = 128 * 1024 * 1024
@@ -745,6 +832,7 @@ export interface AvifCodedImageInspection {
   readonly operatingPointIndex?: number
   readonly payloadBytes: number
   readonly role: 'alpha' | 'color' | 'gain-map'
+  readonly mirroring: number
   readonly rotation: number
   readonly sequence: Av1SequenceHeader
   readonly width: number
@@ -764,8 +852,10 @@ export interface AvifBitstreamInspection {
   readonly displayRegion: PixelRegion
   readonly colorTransform?: RgbIccTransform
   readonly nclx?: NclxColor
+  readonly mirroring: number
   readonly grid?: AvifGridDescription
   readonly premultipliedAlpha: boolean
+  readonly rotation: number
   readonly primaryItemId: number
   readonly primaryItemType: 'av01' | 'grid'
 }
@@ -926,6 +1016,7 @@ export const inspectAvifBitstreams = async (
   const codedImages: AvifCodedImageInspection[] = []
   for (const [itemId, role] of roles) {
     const itemProperties = propertiesFor(meta, itemId)
+    validateTransformProperties(itemProperties)
     const operatingPointIndex = oneProperty(itemProperties, 'a1op')?.operatingPointIndex
     const layerSelector = oneProperty(itemProperties, 'lsel')?.layerId
     const layerSizes = oneProperty(itemProperties, 'a1lx')?.layerSizes
@@ -960,6 +1051,7 @@ export const inspectAvifBitstreams = async (
       role,
       width: dimensions.width,
       height: dimensions.height,
+      mirroring: oneProperty(itemProperties, 'imir')?.axis ?? -1,
       rotation: oneProperty(itemProperties, 'irot')?.angle ?? 0,
       configurationMatchesSequence: av1ConfigurationMatches(configuration, stream.sequence),
       payloadBytes: data.byteLength,
@@ -977,8 +1069,10 @@ export const inspectAvifBitstreams = async (
     alphaAssociations,
     primaryItemType: primaryType,
     colorItemIds,
+    mirroring: oneProperty(primaryProperties, 'imir')?.axis ?? -1,
     premultipliedAlpha,
     displayRegion,
+    rotation: oneProperty(primaryProperties, 'irot')?.angle ?? 0,
     ...(colorTransform ? { colorTransform } : {}),
     ...(grid ? { grid } : {}),
     ...(alphaItemId !== undefined ? { alphaItemId } : {}),
@@ -1025,7 +1119,7 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
     throw invalidInput('AVIF pixi and av1C bit depths do not match')
   }
   const color = firstProperty(primaryProperties, 'colr')
-  const rotation = oneProperty(primaryProperties, 'irot')
+  const orientation = orientationFor(primaryProperties)
   const alphaTargets = new Set([primaryItemId, ...relatedItemIds])
   const hasAlpha = meta.references.some(
     (reference) =>
@@ -1037,8 +1131,6 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
   )
   const bitDepth = pixelInformation?.bitDepth ?? configuration?.bitDepth
 
-  const orientation =
-    rotation?.angle === 1 ? 8 : rotation?.angle === 2 ? 3 : rotation?.angle === 3 ? 6 : undefined
   return {
     format: 'avif',
     mimeType: 'image/avif',
@@ -1634,9 +1726,11 @@ interface AvifGridDecoderSource {
   readonly alphaAssociations: readonly AvifAlphaAssociation[]
   readonly codedImages: readonly AvifCodedImageInspection[]
   readonly color: NclxColor | undefined
+  readonly mirroring: number
   readonly displayRegion: PixelRegion
   readonly grid: AvifGridDescription
   readonly itemIds: readonly number[]
+  readonly rotation: number
   readonly premultipliedAlpha: boolean
 }
 
@@ -1669,9 +1763,9 @@ class AvifGridDecoder implements ImageDecoder {
     const tiles = source.itemIds.map((itemId) => {
       const coded = source.codedImages.find((image) => image.itemId === itemId)
       if (!coded) throw invalidInput(`AVIF grid tile ${itemId} is not coded`)
-      if (coded.rotation !== 0) {
+      if (coded.rotation !== source.rotation || coded.mirroring !== source.mirroring) {
         throw unsupportedOperation(
-          'Phase B2 does not support independently rotated AVIF grid tiles',
+          'Phase B2 does not support independently transformed AVIF grid tiles',
         )
       }
       return coded
@@ -2453,8 +2547,10 @@ const createAvifDecoder = async (
         codedImages: inspection.codedImages,
         alphaAssociations: inspection.alphaAssociations,
         displayRegion: inspection.displayRegion,
+        mirroring: inspection.mirroring,
         color: inspection.nclx,
         premultipliedAlpha: inspection.premultipliedAlpha,
+        rotation: inspection.rotation,
       },
       limits,
     )
