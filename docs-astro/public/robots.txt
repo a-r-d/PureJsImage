@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://purejsimage.com/sitemap.xml

@@ -57,7 +57,7 @@ const readmeBlock = (codecs: readonly CodecCapability[]): string => {
     '“Experimental” means the codec is excluded from `allCodecs` and requires an',
     'explicit direct import and registration.',
     '',
-    '[See the exact codec support matrix →](https://a-r-d.github.io/PureJsImage/codecs.html)',
+    '[See the exact codec support matrix →](https://purejsimage.com/codecs/)',
     '',
     'Detailed codec compatibility roadmaps:',
     linkedRoadmaps,
@@ -214,20 +214,20 @@ const outputs = new Map<string, string>()
 const readme = await readFile('README.md', 'utf8')
 outputs.set('README.md', replaceRegion(readme, 'readme', readmeBlock(codecs)))
 
-const llmsGuide = await readFile('docs/llms.txt', 'utf8')
-outputs.set('docs/llms.txt', replaceRegion(llmsGuide, 'llms', llmsBlock(codecs)))
+const llmsGuide = await readFile('docs-astro/public/llms.txt', 'utf8')
+outputs.set('docs-astro/public/llms.txt', replaceRegion(llmsGuide, 'llms', llmsBlock(codecs)))
 
-let codecPage = await readFile('docs/codecs.html', 'utf8')
+let codecPage = await readFile('docs-astro/src/pages/codecs.astro', 'utf8')
 codecPage = replaceRegion(codecPage, 'matrix', matrixBlock(codecs))
 codecPage = replaceRegion(codecPage, 'cards', cardsBlock(codecs))
 codecPage = replaceRegion(codecPage, 'memory', memoryBlock(codecs))
 codecPage = replaceRegion(codecPage, 'outputs', outputsBlock(codecs))
-outputs.set('docs/codecs.html', codecPage)
+outputs.set('docs-astro/src/pages/codecs.astro', codecPage)
 
 for (const codec of manifest.codecs) {
   outputs.set(codec.supportFile, `${generatedMarkdownNotice}\n${codec.document.trimEnd()}\n`)
 }
-outputs.set('docs/capabilities.json', publicJson(manifest.codecs))
+outputs.set('docs-astro/public/capabilities.json', publicJson(manifest.codecs))
 outputs.set('tests/generated/capability-expectations.json', generatedExpectations(codecs))
 
 const jsonEquivalent = (actual: string, expected: string): boolean => {

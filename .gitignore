@@ -143,6 +143,9 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
+# Astro generated type cache
+**/.astro/
+
 # Repository-local exploratory outputs
 /.tmp/
 
@@ -227,7 +230,6 @@ benchmark/aws-lambda/.asset/
 benchmark/aws-lambda/.asset.zip
 benchmark/aws-lambda/.asset-location.json
 /cdk.out/
-/docs/assets/demo-app.js
 benchmark/results/artifacts/
 artifacts/fuzz-crashes/
 playwright-report/

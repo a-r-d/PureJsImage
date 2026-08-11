@@ -27,8 +27,8 @@
 </p>
 
 <p>
-  <a href="https://a-r-d.github.io/PureJsImage/">Documentation</a> ·
-  <a href="https://a-r-d.github.io/PureJsImage/demo.html"><strong>Live browser demo</strong></a> ·
+  <a href="https://purejsimage.com/">Documentation</a> ·
+  <a href="https://purejsimage.com/demo/"><strong>Live browser demo</strong></a> ·
   <a href="#install">Install</a> ·
   <a href="#usage">Usage</a> ·
   <a href="#supported-codecs">Codecs</a> ·
@@ -46,7 +46,7 @@ clearly when a file or operation is not supported.
 
 ## Live browser demo
 
-[Open the client-side image converter →](https://a-r-d.github.io/PureJsImage/demo.html)
+[Open the client-side image converter →](https://purejsimage.com/demo/)
 
 Upload an image, let PureJsImage detect its actual format, apply optional
 orientation, resize, rotation, and flip transforms, then download JPEG, PNG,
@@ -66,7 +66,7 @@ addons, or external programs. The optional first-party JPEG and PNG accelerators
 are separate WebAssembly entries and are never loaded by the root, browser, or
 codec imports.
 
-[Read the installation and browser guide →](https://a-r-d.github.io/PureJsImage/guides.html)
+[Read the installation and browser guide →](https://purejsimage.com/guides/)
 
 ### Bundle size
 
@@ -98,7 +98,7 @@ complete installed deployment tells the other half of the story:
 | jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |
 | Sharp, including native libvips | 0.35.3 | 18.9 MiB | 6 |
 
-[See bundle details and reproduction commands →](https://a-r-d.github.io/PureJsImage/performance.html#bundle)
+[See bundle details and reproduction commands →](https://purejsimage.com/performance/#bundle)
 
 ## Usage
 
@@ -128,11 +128,11 @@ whole-slide pyramids, extensible vendor profiles, and canonical RGB/RGBA output.
 The complete support list, memory model, examples, and remaining boundaries live
 on the dedicated TIFF page:
 
-- [Complete TIFF support →](https://a-r-d.github.io/PureJsImage/tiff.html)
-- [TIFF output options →](https://a-r-d.github.io/PureJsImage/tiff.html#encode)
-- [Scientific TIFF and OME-TIFF →](https://a-r-d.github.io/PureJsImage/tiff.html#scientific)
-  · [Third-party TIFF profiles →](https://a-r-d.github.io/PureJsImage/tiff.html#profiles)
-- [Zstandard decompression API →](https://a-r-d.github.io/PureJsImage/api.html#zstandard)
+- [Complete TIFF support →](https://purejsimage.com/tiff/)
+- [TIFF output options →](https://purejsimage.com/tiff/#encode)
+- [Scientific TIFF and OME-TIFF →](https://purejsimage.com/tiff/#scientific)
+  · [Third-party TIFF profiles →](https://purejsimage.com/tiff/#profiles)
+- [Zstandard decompression API →](https://purejsimage.com/api/#zstandard)
 
 ### Optional WASM acceleration
 
@@ -140,7 +140,7 @@ JPEG and PNG have optional first-party WebAssembly accelerators. They are never
 loaded unless you explicitly register them, and unsupported work continues to
 use the default TypeScript codecs.
 
-[See WASM setup, options, and supported workflows →](https://a-r-d.github.io/PureJsImage/api.html#wasm-acceleration)
+[See WASM setup, options, and supported workflows →](https://purejsimage.com/api/#wasm-acceleration)
 
 ## Supported codecs
 
@@ -163,7 +163,7 @@ outside it.
 “Experimental” means the codec is excluded from `allCodecs` and requires an
 explicit direct import and registration.
 
-[See the exact codec support matrix →](https://a-r-d.github.io/PureJsImage/codecs.html)
+[See the exact codec support matrix →](https://purejsimage.com/codecs/)
 
 Detailed codec compatibility roadmaps:
 [JPEG](https://github.com/a-r-d/PureJsImage/blob/main/jpeg-codec-support.md),
@@ -198,7 +198,7 @@ A capability is **Yes** only when upstream documentation or source supports it; 
 | Jimp 1.6.0 | Pure JavaScript | Yes | No | Yes | No | No | No | 74/106 decoded<br>49 exact<br>28 errors · 2 oracle failures · 2 timeouts · 3 crashes |
 | Sharp / libvips 0.35.3 | Native wrapper | No | Partial | Yes | Partial | Partial | No | Not run |
 
-[Full grouped capability matrix, methods, sources, and per-library results](https://a-r-d.github.io/PureJsImage/tiff-comparison.html)
+[Full grouped capability matrix, methods, sources, and per-library results](https://purejsimage.com/tiff-comparison/)
 <!-- library-comparison:readme:end -->
 
 ## Benchmarks
@@ -247,7 +247,7 @@ exception to the speed advantage: PureJsImage was slower there but used 53.3% le
 [PureJsImage TIFF report](benchmark/results/tiff-profile-2026-08-10.md) ·
 [Jimp TIFF report](benchmark/results/jimp-tiff-profile-2026-08-10.md)
 
-[See the complete benchmark report and methodology →](https://a-r-d.github.io/PureJsImage/performance.html)
+[See the complete benchmark report and methodology →](https://purejsimage.com/performance/)
 
 ### Lambda memory sizing
 
@@ -277,7 +277,7 @@ zero-dependency deployment materially simplifies an air-gapped or supply-chain-r
 The measured installed footprint was 2.3 MiB and one package for PureJsImage versus 18.9 MiB and six
 production packages for Sharp.
 
-[Read the practical guides →](https://a-r-d.github.io/PureJsImage/guides.html)
+[Read the practical guides →](https://purejsimage.com/guides/)
 
 ## Development
 
@@ -288,7 +288,7 @@ npm install
 npm run check
 ```
 
-[Read the contributor guide →](https://a-r-d.github.io/PureJsImage/contributing.html)
+[Read the contributor guide →](https://purejsimage.com/contributing/)
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the repository checklist and the
 [project specification](project-spec.md) for the architecture and implementation

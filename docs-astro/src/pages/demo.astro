@@ -1,31 +1,9 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Open TIFF, BigTIFF, GeoTIFF, OME-TIFF, and whole-slide images locally in your browser. Drop a file or load a public example to inspect, pan, and zoom.">
-  <meta name="theme-color" content="#f6f7f2">
-  <meta property="og:title" content="PureJsImage browser TIFF viewer">
-  <meta property="og:description" content="Drop a TIFF into a local browser viewer, or open a public GeoTIFF example and inspect it without an upload.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://a-r-d.github.io/PureJsImage/demo.html">
-  <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/demo.html">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
-  <title>Browser demo — PureJsImage</title>
-  <script>document.documentElement.dataset.theme=localStorage.getItem('purejsimage-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
-</head>
-<body class="demo-page">
-  <a class="skip-link" href="#main">Skip to image workspace</a>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="index.html" aria-label="PureJsImage home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a>
-      <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="demo.html" aria-current="page">Demo</a><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a><a href="performance.html">Performance</a><a href="contributing.html">Contribute</a></nav>
-      <div class="header-actions"><button class="icon-button" type="button" data-theme-toggle aria-label="Use dark theme"></button><a class="button secondary small github-header" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><button class="icon-button menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button></div>
-    </div>
-  </header>
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
 
-  <main id="main">
+<SiteLayout title="Browser demo — PureJsImage" description="Open TIFF, BigTIFF, GeoTIFF, OME-TIFF, and whole-slide images locally in your browser. Drop a file or load a public example to inspect, pan, and zoom." canonical="https://purejsimage.com/demo/" bodyClass="demo-page" current="demo/" skipLabel="Skip to image workspace" openGraph={{"title":"PureJsImage browser TIFF viewer","description":"Drop a TIFF into a local browser viewer, or open a public GeoTIFF example and inspect it without an upload.","url":"https://purejsimage.com/demo/"}}>
+<main id="main">
     <section class="demo-intro">
       <div class="container demo-intro-row">
         <div>
@@ -454,21 +432,18 @@
         <div class="code-window">
           <div class="window-bar"><span class="window-dot"></span><span class="window-dot"></span><span class="window-dot"></span><span class="window-title">npm CDN · pinned release</span></div>
           <button class="code-copy" type="button" data-copy="demo-cdn-code">Copy</button>
-          <pre><code id="demo-cdn-code">import { createImageLibrary } from
+          <pre><code id="demo-cdn-code">import &#123; createImageLibrary &#125; from
   'https://cdn.jsdelivr.net/npm/purejsimage@0.9.0/dist/browser.js'
-import { allCodecs } from
+import &#123; allCodecs &#125; from
   'https://cdn.jsdelivr.net/npm/purejsimage@0.9.0/dist/codec-entries/all.js'
 
 const images = createImageLibrary(allCodecs)
 const image = await images.open(file)
-const output = await image.webp({ quality: 82 }).toBlob()</code></pre>
+const output = await image.webp(&#123; quality: 82 &#125;).toBlob()</code></pre>
         </div>
       </div>
     </section>
   </main>
-
-  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>First-party browser image conversion with explicit measurements and honest capability boundaries.</p></div><div class="footer-column"><strong>Try</strong><a href="demo.html">Browser demo</a><a href="guides.html">Guides</a><a href="api.html">API</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a><a href="llms.txt">LLM guide</a><a href="sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Files stay on your device</span></div></div></footer>
-  <script src="site.js" defer></script>
-  <script src="assets/demo-app.js" type="module"></script>
-</body>
-</html>
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>First-party browser image conversion with explicit measurements and honest capability boundaries.</p></div><div class="footer-column"><strong>Try</strong><a href="../demo/">Browser demo</a><a href="../guides/">Guides</a><a href="../api/">API</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Files stay on your device</span></div></div></footer>
+<script is:inline src="../assets/demo-app.js" type="module"></script>
+</SiteLayout>

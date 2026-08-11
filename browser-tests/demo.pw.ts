@@ -6,7 +6,7 @@ test('detects, transforms, converts, measures, and downloads from the docs demo'
 }) => {
   const requestedUrls: string[] = []
   page.on('request', (request) => requestedUrls.push(request.url()))
-  await page.goto('/demo.html')
+  await page.goto('/demo/')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
   await page.locator('#demo-mode-convert').click()
   await expect(page.locator('#demo-mode-convert')).toHaveAttribute('aria-selected', 'true')
@@ -54,7 +54,7 @@ test('detects, transforms, converts, measures, and downloads from the docs demo'
 test('views, pans, zooms, and clips a TIFF without leaving the browser', async ({ page }) => {
   const requestedUrls: string[] = []
   page.on('request', (request) => requestedUrls.push(request.url()))
-  await page.goto('/demo.html')
+  await page.goto('/demo/')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
   await page.locator('#demo-mode-convert').click()
 
@@ -111,7 +111,7 @@ test('views, pans, zooms, and clips a TIFF without leaving the browser', async (
 test('searches the expanded scientific sample library and keeps JPEG 2000 in the selected mode', async ({
   page,
 }) => {
-  await page.goto('/demo.html')
+  await page.goto('/demo/')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
 
   await expect(page.locator('[data-demo-sample-card]')).toHaveCount(38)
@@ -158,7 +158,7 @@ test('searches the expanded scientific sample library and keeps JPEG 2000 in the
 test('toggles JPEG WASM acceleration and compares the same complete pipeline', async ({ page }) => {
   const requestedUrls: string[] = []
   page.on('request', (request) => requestedUrls.push(request.url()))
-  await page.goto('/demo.html')
+  await page.goto('/demo/')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
   await page.locator('#demo-mode-convert').click()
 
@@ -196,7 +196,7 @@ test('toggles JPEG WASM acceleration and compares the same complete pipeline', a
 })
 
 test('views an animated input and explicitly converts its first frame', async ({ page }) => {
-  await page.goto('/demo.html')
+  await page.goto('/demo/')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
   await page.locator('#demo-mode-convert').click()
   const input = await readFile('benchmark/.tmp/browser-tests/fixtures/animated.gif')
@@ -221,7 +221,7 @@ test('views an animated input and explicitly converts its first frame', async ({
 })
 
 test('converts the supported primary image from an MPF JPEG', async ({ page }) => {
-  await page.goto('/demo.html')
+  await page.goto('/demo/')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
   await page.locator('#demo-mode-convert').click()
   const input = await readFile('benchmark/.tmp/browser-tests/fixtures/mpf-primary.jpg')
@@ -251,7 +251,7 @@ test('converts the supported primary image from an MPF JPEG', async ({ page }) =
 })
 
 test('converts a progressive JPEG with AC-refinement ZRLs to WebP', async ({ page }) => {
-  await page.goto('/demo.html')
+  await page.goto('/demo/')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)
   await page.locator('#demo-mode-convert').click()
   const input = await readFile(

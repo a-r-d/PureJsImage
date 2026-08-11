@@ -79,7 +79,7 @@ describe('package contract', () => {
     )
 
     const readme = readFileSync('README.md', 'utf8')
-    const performancePage = readFileSync('docs/performance.html', 'utf8')
+    const performancePage = readFileSync('docs-astro/src/pages/performance.astro', 'utf8')
     for (const label of [
       'PureJsImage matched',
       'Jimp',
@@ -113,8 +113,8 @@ describe('package contract', () => {
 
   it('embeds the checked-in competitor charts in the README and docs homepage', () => {
     const readme = readFileSync('README.md', 'utf8')
-    const docsHome = readFileSync('docs/index.html', 'utf8')
-    const docsPerformance = readFileSync('docs/performance.html', 'utf8')
+    const docsHome = readFileSync('docs-astro/src/pages/index.astro', 'utf8')
+    const docsPerformance = readFileSync('docs-astro/src/pages/performance.astro', 'utf8')
     for (const chart of [
       'benchmark/results/competitors-speed-2026-08-10.png',
       'benchmark/results/competitors-quality-2026-08-10.png',
@@ -129,17 +129,17 @@ describe('package contract', () => {
       'assets/competitors-memory-2026-08-10.png',
     ]) {
       expect(docsHome).toContain(`src="${chart}"`)
-      expect(docsPerformance).toContain(`src="${chart}"`)
-      expect(readFileSync(`docs/${chart}`).byteLength).toBeGreaterThan(0)
+      expect(docsPerformance).toContain(`src="../${chart}"`)
+      expect(readFileSync(`docs-astro/public/${chart}`).byteLength).toBeGreaterThan(0)
     }
   })
 
   it('publishes one generated TIFF library comparison across documentation surfaces', () => {
     const readme = readFileSync('README.md', 'utf8')
-    const docsHome = readFileSync('docs/index.html', 'utf8')
-    const tiffGuide = readFileSync('docs/tiff.html', 'utf8')
-    const comparison = readFileSync('docs/tiff-comparison.html', 'utf8')
-    const sitemap = readFileSync('docs/sitemap.xml', 'utf8')
+    const docsHome = readFileSync('docs-astro/src/pages/index.astro', 'utf8')
+    const tiffGuide = readFileSync('docs-astro/src/pages/tiff.astro', 'utf8')
+    const comparison = readFileSync('docs-astro/src/pages/tiff-comparison.astro', 'utf8')
+    const sitemap = readFileSync('docs-astro/public/sitemap.xml', 'utf8')
 
     expect(packageJson.scripts['comparison:generate']).toBe(
       'node scripts/render-library-comparison.ts',
@@ -148,9 +148,9 @@ describe('package contract', () => {
       'node scripts/render-library-comparison.ts --check',
     )
     expect(packageJson.scripts.check).toContain('npm run comparison:check')
-    expect(readme).toContain('https://a-r-d.github.io/PureJsImage/tiff-comparison.html')
-    expect(docsHome).toContain('href="tiff-comparison.html"')
-    expect(tiffGuide).toContain('href="tiff-comparison.html"')
+    expect(readme).toContain('https://purejsimage.com/tiff-comparison/')
+    expect(docsHome).toContain('href="tiff-comparison/"')
+    expect(tiffGuide).toContain('href="../tiff-comparison/"')
     expect(comparison).toContain('Grouped by TIFF workflow')
     expect(comparison).toContain('Not verified')
     expect(comparison).toContain('Versioned evidence')
@@ -161,12 +161,12 @@ describe('package contract', () => {
     expect(tiffGuide).toContain('Decoded / comparable')
     expect(comparison).toContain('unreleased · a1f20da')
     expect(comparison).toContain('Decode coverage, exact pixels, and failures')
-    expect(sitemap).toContain('https://a-r-d.github.io/PureJsImage/tiff-comparison.html')
+    expect(sitemap).toContain('https://purejsimage.com/tiff-comparison/')
   })
 
   it('publishes a capability-backed LLM guide and footer discovery links', () => {
-    const llms = readFileSync('docs/llms.txt', 'utf8')
-    const sitemap = readFileSync('docs/sitemap.xml', 'utf8')
+    const llms = readFileSync('docs-astro/public/llms.txt', 'utf8')
+    const sitemap = readFileSync('docs-astro/public/sitemap.xml', 'utf8')
     for (const section of [
       '## Image transform quick API',
       '## Encoder quick API',
@@ -195,7 +195,7 @@ describe('package contract', () => {
     }
     expect(llms).toContain('<!-- capabilities:llms:start -->')
     expect(llms).toContain('<!-- capabilities:llms:end -->')
-    expect(sitemap).toContain('https://a-r-d.github.io/PureJsImage/llms.txt')
+    expect(sitemap).toContain('https://purejsimage.com/llms.txt')
     for (const api of [
       'window({ center, width })',
       'lut({ table, format })',
@@ -205,24 +205,23 @@ describe('package contract', () => {
       expect(llms).toContain(api)
     }
 
-    const websitePages = globSync('docs/*.html')
+    const websitePages = globSync('docs-astro/src/pages/*.astro')
       .map((path) => ({ path, html: readFileSync(path, 'utf8') }))
       .filter(({ html }) => html.includes('class="site-footer"'))
     expect(websitePages.length).toBeGreaterThan(0)
     for (const { path, html } of websitePages) {
-      expect(html, path).toContain('href="llms.txt">LLM guide</a>')
-      expect(html, path).toContain('href="sitemap.xml">Sitemap</a>')
+      expect(html, path).toMatch(/href="(?:\.\.\/)?llms\.txt">LLM guide<\/a>/)
+      expect(html, path).toMatch(/href="(?:\.\.\/)?sitemap\.xml">Sitemap<\/a>/)
     }
   })
 
   it('publishes a self-contained browser conversion demo with a separate README link', () => {
     const readme = readFileSync('README.md', 'utf8')
-    const demo = readFileSync('docs/demo.html', 'utf8')
+    const demo = readFileSync('docs-astro/src/pages/demo.astro', 'utf8')
     const docsBuild = readFileSync('scripts/build-docs-site.ts', 'utf8')
-    const gitignore = readFileSync('.gitignore', 'utf8')
     const pagesWorkflow = readFileSync('.github/workflows/pages.yml', 'utf8')
-    const sitemap = readFileSync('docs/sitemap.xml', 'utf8')
-    expect(readme).toContain('https://a-r-d.github.io/PureJsImage/demo.html')
+    const sitemap = readFileSync('docs-astro/public/sitemap.xml', 'utf8')
+    expect(readme).toContain('https://purejsimage.com/demo/')
     expect(demo).toContain('assets/demo-app.js')
     expect(demo).toContain('No server upload')
     expect(demo).toContain('Rust/WASM JPEG decoder')
@@ -233,15 +232,40 @@ describe('package contract', () => {
     expect(demo).not.toMatch(/<script[^>]+src=["']https?:/)
     expect(packageJson.scripts['docs:build']).toBe('node scripts/build-docs-site.ts')
     expect(packageJson.scripts.check).toContain('npm run docs:build')
-    expect(docsBuild).toContain("entryPoints: ['docs/demo.ts']")
+    expect(packageJson.devDependencies.astro).toBeDefined()
+    expect(packageJson.devDependencies['@astrojs/react']).toBeDefined()
+    expect(packageJson.devDependencies.react).toBeDefined()
+    expect(packageJson.devDependencies['react-dom']).toBeDefined()
+    expect(docsBuild).toContain("entryPoints: ['docs-astro/src/scripts/demo.ts']")
     expect(docsBuild).toContain("resolve('src/accelerator-entries/jpeg-decoder.wasm')")
     expect(docsBuild).toContain("join(outputDirectory, 'assets/jpeg-decoder.wasm')")
     expect(docsBuild).toContain("resolve('benchmark/.tmp/docs-site')")
-    expect(gitignore).toContain('/docs/assets/demo-app.js')
+    expect(globSync('docs-astro/public/assets/demo-app.js')).toEqual([])
     expect(pagesWorkflow).toContain('actions/upload-pages-artifact@v5')
     expect(pagesWorkflow).toContain('actions/deploy-pages@v5')
     expect(pagesWorkflow).toContain('path: benchmark/.tmp/docs-site')
-    expect(sitemap).toContain('https://a-r-d.github.io/PureJsImage/demo.html')
+    expect(sitemap).toContain('https://purejsimage.com/demo/')
+  })
+
+  it('publishes clean docs routes at the canonical custom domain', () => {
+    const header = readFileSync('docs-astro/src/components/SiteHeader.astro', 'utf8')
+    const layout = readFileSync('docs-astro/src/layouts/SiteLayout.astro', 'utf8')
+    const notFound = readFileSync('docs-astro/src/pages/404.astro', 'utf8')
+    const astroConfig = readFileSync('docs-astro/astro.config.ts', 'utf8')
+    const cname = readFileSync('docs-astro/public/CNAME', 'utf8')
+
+    expect(header).toContain('const configuredBase = import.meta.env.BASE_URL')
+    expect(header).toMatch(/href=\{`\$\{siteBase\}\$\{href\}`\}/)
+    expect(header).toContain('href={siteBase}')
+    expect(header).not.toContain('.html')
+    expect(layout).not.toContain('<base ')
+    expect(notFound).not.toContain('/PureJsImage')
+    expect(astroConfig).toContain("site: 'https://purejsimage.com'")
+    expect(astroConfig).not.toContain('base:')
+    expect(astroConfig).toContain("trailingSlash: 'always'")
+    expect(astroConfig).toContain("format: 'directory'")
+    expect(cname).toBe('purejsimage.com\n')
+    expect(packageJson.homepage).toBe('https://purejsimage.com/')
   })
 
   it('keeps source, benchmark, scripts, and test code in TypeScript', () => {

@@ -1,30 +1,14 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Install PureJsImage, register codecs, open images, compose immutable transforms, configure limits, and run the library in Node.js, browsers, or AWS Lambda.">
-  <meta name="theme-color" content="#f6f7f2">
-  <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/guides.html">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
-  <title>Usage guide — PureJsImage</title>
-  <script>document.documentElement.dataset.theme=localStorage.getItem('purejsimage-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
-</head>
-<body>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header"><div class="container header-inner">
-    <a class="brand" href="index.html" aria-label="PureJsImage home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a>
-    <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="demo.html">Demo</a><a href="guides.html" aria-current="page">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a><a href="performance.html">Performance</a><a href="contributing.html">Contribute</a></nav>
-    <div class="header-actions"><button class="icon-button" type="button" data-theme-toggle aria-label="Use dark theme"></button><a class="button secondary small github-header" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><button class="icon-button menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button></div>
-  </div></header>
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
 
-  <main id="main">
+<SiteLayout title="Usage guide — PureJsImage" description="Install PureJsImage, register codecs, open images, compose immutable transforms, configure limits, and run the library in Node.js, browsers, or AWS Lambda." canonical="https://purejsimage.com/guides/" current="guides/">
+<main id="main">
     <header class="page-hero"><div class="container"><p class="eyebrow">Usage guide</p><h1>Install, register codecs, and execute an image pipeline.</h1><p class="page-lede">This guide covers Node.js and browser entry points, accepted inputs, transform ordering, output methods, limits, and Lambda-specific storage behavior.</p><div class="page-meta"><span class="pill">Node.js 22+</span><span class="pill">Modern browsers</span><span class="pill">Strict TypeScript</span></div></div></header>
     <div class="container docs-layout">
       <aside class="side-nav" aria-label="Documentation pages">
-        <div class="nav-group"><strong>Learn</strong><a href="guides.html" aria-current="page">Getting started</a><a href="guides.html#recipes">Recipes</a><a href="guides.html#lambda">Lambda guide</a></div>
-        <div class="nav-group"><strong>Reference</strong><a href="api.html">API reference</a><a href="codecs.html">Codec support</a><a href="performance.html">Performance</a></div>
+        <div class="nav-group"><strong>Learn</strong><a href="../guides/" aria-current="page">Getting started</a><a href="../guides/#recipes">Recipes</a><a href="../guides/#lambda">Lambda guide</a></div>
+        <div class="nav-group"><strong>Reference</strong><a href="../api/">API reference</a><a href="../codecs/">Codec support</a><a href="../performance/">Performance</a></div>
       </aside>
       <article class="content">
         <section id="install">
@@ -37,17 +21,17 @@
         <section id="browser">
           <h2>Run in a browser</h2>
           <p>The browser entry uses the same codecs, limits, immutable pipeline, and pixel kernels as Node. Its platform adapter accepts DOM-native files and returns web-native output without Buffer polyfills or Node built-ins.</p>
-          <div class="code-window"><div class="window-bar"><span class="window-title">browser-images.ts</span></div><button class="code-copy" type="button" data-copy="browser-code">Copy</button><pre><code id="browser-code"><span class="tok-key">import</span> { createImageLibrary } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/browser'</span>
-<span class="tok-key">import</span> { jpegCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/jpeg'</span>
-<span class="tok-key">import</span> { pngCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/png'</span>
+          <div class="code-window"><div class="window-bar"><span class="window-title">browser-images.ts</span></div><button class="code-copy" type="button" data-copy="browser-code">Copy</button><pre><code id="browser-code"><span class="tok-key">import</span> &#123; createImageLibrary &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/browser'</span>
+<span class="tok-key">import</span> &#123; jpegCodec &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/jpeg'</span>
+<span class="tok-key">import</span> &#123; pngCodec &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/png'</span>
 
 <span class="tok-key">const</span> images = <span class="tok-method">createImageLibrary</span>([jpegCodec, pngCodec])
 <span class="tok-key">const</span> image = <span class="tok-key">await</span> images.<span class="tok-method">open</span>(file)
 
 <span class="tok-key">const</span> output = <span class="tok-key">await</span> image
   .<span class="tok-method">autoOrient</span>()
-  .<span class="tok-method">resize</span>({ width: <span class="tok-number">1200</span>, withoutEnlargement: <span class="tok-key">true</span> })
-  .<span class="tok-method">jpeg</span>({ quality: <span class="tok-number">80</span> })
+  .<span class="tok-method">resize</span>(&#123; width: <span class="tok-number">1200</span>, withoutEnlargement: <span class="tok-key">true</span> &#125;)
+  .<span class="tok-method">jpeg</span>(&#123; quality: <span class="tok-number">80</span> &#125;)
   .<span class="tok-method">toBlob</span>()
 
 preview.src = URL.<span class="tok-method">createObjectURL</span>(output)</code></pre></div>
@@ -59,10 +43,10 @@ preview.src = URL.<span class="tok-method">createObjectURL</span>(output)</code>
         <section id="library">
           <h2>Create a library</h2>
           <p>A library is an immutable registry of codecs. Create it once at module scope and reuse it across requests and warm Lambda invocations.</p>
-          <div class="code-window"><div class="window-bar"><span class="window-title">images.ts</span></div><button class="code-copy" type="button" data-copy="library-code">Copy</button><pre><code id="library-code"><span class="tok-key">import</span> { createImageLibrary } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
-<span class="tok-key">import</span> { jpegCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/jpeg'</span>
-<span class="tok-key">import</span> { pngCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/png'</span>
-<span class="tok-key">import</span> { webpCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/webp'</span>
+          <div class="code-window"><div class="window-bar"><span class="window-title">images.ts</span></div><button class="code-copy" type="button" data-copy="library-code">Copy</button><pre><code id="library-code"><span class="tok-key">import</span> &#123; createImageLibrary &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
+<span class="tok-key">import</span> &#123; jpegCodec &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/jpeg'</span>
+<span class="tok-key">import</span> &#123; pngCodec &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/png'</span>
+<span class="tok-key">import</span> &#123; webpCodec &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/webp'</span>
 
 <span class="tok-key">export const</span> images = <span class="tok-method">createImageLibrary</span>([
   jpegCodec,
@@ -73,7 +57,7 @@ preview.src = URL.<span class="tok-method">createObjectURL</span>(output)</code>
 console.<span class="tok-method">log</span>(images.<span class="tok-method">formats</span>())
 <span class="tok-comment">// ['jpeg', 'png', 'webp']</span></code></pre></div>
           <div class="callout"><strong>Registration controls capability.</strong> Converting PNG to WebP requires both codecs: a decoder for the input and an encoder for the output. A missing codec fails explicitly; nothing is loaded dynamically.</div>
-          <p>For tools that need every default implementation, import <code>allCodecs</code> from <code>purejsimage/codecs/all</code>. Experimental HEIF/HEIC is deliberately excluded and requires the direct <code>purejsimage/codecs/experimental/heic</code> import described in the <a href="api.html#experimental-heic">API reference</a>.</p>
+          <p>For tools that need every default implementation, import <code>allCodecs</code> from <code>purejsimage/codecs/all</code>. Experimental HEIF/HEIC is deliberately excluded and requires the direct <code>purejsimage/codecs/experimental/heic</code> import described in the <a href="../api/#experimental-heic">API reference</a>.</p>
         </section>
 
         <section id="open">
@@ -82,24 +66,24 @@ console.<span class="tok-method">log</span>(images.<span class="tok-method">form
           <div class="code-window"><div class="window-bar"><span class="window-title">inspect.ts</span></div><button class="code-copy" type="button" data-copy="open-code">Copy</button><pre><code id="open-code"><span class="tok-key">const</span> image = <span class="tok-key">await</span> images.<span class="tok-method">open</span>(<span class="tok-string">'photo.jpg'</span>)
 <span class="tok-key">const</span> metadata = <span class="tok-key">await</span> image.<span class="tok-method">metadata</span>()
 
-console.<span class="tok-method">log</span>({
+console.<span class="tok-method">log</span>(&#123;
   width: metadata.width,
   height: metadata.height,
   format: metadata.format,
   orientation: metadata.orientation,
-})</code></pre></div>
+&#125;)</code></pre></div>
           <p>Metadata inspection is designed to avoid decoding all pixels. When called on a transformed pipeline, it reports the planned output dimensions and format.</p>
           <div class="callout warning"><strong>Borrowed memory.</strong> Buffer, Uint8Array, and ArrayBuffer inputs are not copied. Do not mutate or detach them until every pipeline derived from the image has finished.</div>
           <h3>Remote or custom sources</h3>
           <p>A custom source exposes its byte length and a range-read function. Each in-range read must return exactly <code>min(length, size - offset)</code> bytes as a <code>Uint8Array</code>, or reject if the backing read fails. Returned bytes only need to remain valid until the next read begins.</p>
-          <div class="code-window"><div class="window-bar"><span class="window-title">range-source.ts</span></div><button class="code-copy" type="button" data-copy="source-code">Copy</button><pre><code id="source-code"><span class="tok-key">import type</span> { ImageSource } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
+          <div class="code-window"><div class="window-bar"><span class="window-title">range-source.ts</span></div><button class="code-copy" type="button" data-copy="source-code">Copy</button><pre><code id="source-code"><span class="tok-key">import type</span> &#123; ImageSource &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
 
-<span class="tok-key">const</span> source: ImageSource = {
+<span class="tok-key">const</span> source: ImageSource = &#123;
   size: contentLength,
-  <span class="tok-key">async</span> <span class="tok-method">read</span>(offset, length) {
+  <span class="tok-key">async</span> <span class="tok-method">read</span>(offset, length) &#123;
     <span class="tok-key">return</span> fetchRange(offset, length)
-  },
-}
+  &#125;,
+&#125;
 
 <span class="tok-key">const</span> image = <span class="tok-key">await</span> images.<span class="tok-method">open</span>(source)</code></pre></div>
           <p>File, Blob, and custom sources use up to four aligned 256 KiB cache regions. This bounds the shared cache at 1 MiB while coalescing small reads. Contract violations and rejected custom reads surface as <code>ImageError</code> results.</p>
@@ -111,12 +95,12 @@ console.<span class="tok-method">log</span>({
           <div class="code-window"><div class="window-bar"><span class="window-title">variants.ts</span></div><button class="code-copy" type="button" data-copy="branch-code">Copy</button><pre><code id="branch-code"><span class="tok-key">const</span> source = (<span class="tok-key">await</span> images.<span class="tok-method">open</span>(upload)).<span class="tok-method">autoOrient</span>()
 
 <span class="tok-key">const</span> hero = source
-  .<span class="tok-method">resize</span>({ width: <span class="tok-number">1600</span>, height: <span class="tok-number">900</span>, fit: <span class="tok-string">'cover'</span> })
-  .<span class="tok-method">jpeg</span>({ quality: <span class="tok-number">82</span> })
+  .<span class="tok-method">resize</span>(&#123; width: <span class="tok-number">1600</span>, height: <span class="tok-number">900</span>, fit: <span class="tok-string">'cover'</span> &#125;)
+  .<span class="tok-method">jpeg</span>(&#123; quality: <span class="tok-number">82</span> &#125;)
 
 <span class="tok-key">const</span> thumb = source
-  .<span class="tok-method">resize</span>({ width: <span class="tok-number">320</span>, height: <span class="tok-number">320</span>, fit: <span class="tok-string">'cover'</span> })
-  .<span class="tok-method">webp</span>({ quality: <span class="tok-number">76</span> })
+  .<span class="tok-method">resize</span>(&#123; width: <span class="tok-number">320</span>, height: <span class="tok-number">320</span>, fit: <span class="tok-string">'cover'</span> &#125;)
+  .<span class="tok-method">webp</span>(&#123; quality: <span class="tok-number">76</span> &#125;)
 
 <span class="tok-key">const</span> heroBytes = <span class="tok-key">await</span> hero.<span class="tok-method">toBuffer</span>()
 <span class="tok-key">const</span> thumbBytes = <span class="tok-key">await</span> thumb.<span class="tok-method">toBuffer</span>()</code></pre></div>
@@ -139,8 +123,8 @@ console.<span class="tok-method">log</span>({
           <h3>Normalize an upload to JPEG</h3>
           <div class="code-window"><div class="window-bar"><span class="window-title">normalize.ts</span></div><button class="code-copy" type="button" data-copy="normalize-code">Copy</button><pre><code id="normalize-code"><span class="tok-key">const</span> output = <span class="tok-key">await</span> (<span class="tok-key">await</span> images.<span class="tok-method">open</span>(upload))
   .<span class="tok-method">autoOrient</span>()
-  .<span class="tok-method">resize</span>({ width: <span class="tok-number">2048</span>, fit: <span class="tok-string">'inside'</span>, withoutEnlargement: <span class="tok-key">true</span> })
-  .<span class="tok-method">jpeg</span>({ quality: <span class="tok-number">80</span>, background: <span class="tok-string">'#ffffff'</span> })
+  .<span class="tok-method">resize</span>(&#123; width: <span class="tok-number">2048</span>, fit: <span class="tok-string">'inside'</span>, withoutEnlargement: <span class="tok-key">true</span> &#125;)
+  .<span class="tok-method">jpeg</span>(&#123; quality: <span class="tok-number">80</span>, background: <span class="tok-string">'#ffffff'</span> &#125;)
   .<span class="tok-method">toBuffer</span>()</code></pre></div>
           <h3>Retain EXIF and ICC metadata</h3>
           <p>Metadata is stripped by default. Opt in to EXIF and ICC independently. Reorienting pixels also normalizes the retained EXIF orientation so downstream viewers do not rotate them a second time.</p>
@@ -148,42 +132,42 @@ console.<span class="tok-method">log</span>({
   .<span class="tok-method">keepExif</span>()
   .<span class="tok-method">keepIcc</span>()
   .<span class="tok-method">autoOrient</span>()
-  .<span class="tok-method">resize</span>({ width: <span class="tok-number">1600</span>, withoutEnlargement: <span class="tok-key">true</span> })
-  .<span class="tok-method">jpeg</span>({ quality: <span class="tok-number">82</span> })
+  .<span class="tok-method">resize</span>(&#123; width: <span class="tok-number">1600</span>, withoutEnlargement: <span class="tok-key">true</span> &#125;)
+  .<span class="tok-method">jpeg</span>(&#123; quality: <span class="tok-number">82</span> &#125;)
   .<span class="tok-method">toFile</span>(<span class="tok-string">'camera-web.jpg'</span>)</code></pre></div>
           <p>JPEG, PNG, and WebP support retained EXIF and compatible ICC profiles. TIFF supports compatible ICC profiles but not retained EXIF. Unsupported combinations fail explicitly.</p>
           <h3>Convert a Windows icon to PNG</h3>
           <p>The ICO decoder selects the largest entry, then prefers useful bit depth and alpha. It decodes only that selected PNG- or DIB-backed image.</p>
-          <div class="code-window"><div class="window-bar"><span class="window-title">favicon.ts</span></div><button class="code-copy" type="button" data-copy="ico-code">Copy</button><pre><code id="ico-code"><span class="tok-key">import</span> { createImageLibrary } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
-<span class="tok-key">import</span> { icoCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/ico'</span>
-<span class="tok-key">import</span> { pngCodec } <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/png'</span>
+          <div class="code-window"><div class="window-bar"><span class="window-title">favicon.ts</span></div><button class="code-copy" type="button" data-copy="ico-code">Copy</button><pre><code id="ico-code"><span class="tok-key">import</span> &#123; createImageLibrary &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
+<span class="tok-key">import</span> &#123; icoCodec &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/ico'</span>
+<span class="tok-key">import</span> &#123; pngCodec &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/codecs/png'</span>
 
 <span class="tok-key">const</span> icons = <span class="tok-method">createImageLibrary</span>([icoCodec, pngCodec])
 
 <span class="tok-key">await</span> (<span class="tok-key">await</span> icons.<span class="tok-method">open</span>(<span class="tok-string">'favicon.ico'</span>))
-  .<span class="tok-method">resize</span>({ width: <span class="tok-number">64</span>, height: <span class="tok-number">64</span>, fit: <span class="tok-string">'contain'</span> })
-  .<span class="tok-method">png</span>({ compressionLevel: <span class="tok-number">7</span> })
+  .<span class="tok-method">resize</span>(&#123; width: <span class="tok-number">64</span>, height: <span class="tok-number">64</span>, fit: <span class="tok-string">'contain'</span> &#125;)
+  .<span class="tok-method">png</span>(&#123; compressionLevel: <span class="tok-number">7</span> &#125;)
   .<span class="tok-method">toFile</span>(<span class="tok-string">'favicon.png'</span>)</code></pre></div>
           <h3>Create a transparent contained PNG</h3>
           <div class="code-window"><div class="window-bar"><span class="window-title">contain.ts</span></div><button class="code-copy" type="button" data-copy="contain-code">Copy</button><pre><code id="contain-code"><span class="tok-key">await</span> (<span class="tok-key">await</span> images.<span class="tok-method">open</span>(<span class="tok-string">'logo.webp'</span>))
-  .<span class="tok-method">resize</span>({
+  .<span class="tok-method">resize</span>(&#123;
     width: <span class="tok-number">800</span>,
     height: <span class="tok-number">800</span>,
     fit: <span class="tok-string">'contain'</span>,
     background: <span class="tok-string">'transparent'</span>,
-  })
-  .<span class="tok-method">png</span>({ compressionLevel: <span class="tok-number">7</span> })
+  &#125;)
+  .<span class="tok-method">png</span>(&#123; compressionLevel: <span class="tok-number">7</span> &#125;)
   .<span class="tok-method">toFile</span>(<span class="tok-string">'logo.png'</span>)</code></pre></div>
           <h3>Compose ordered transforms</h3>
           <p>Use coordinates in the image state at that point in the pipeline. Here the crop uses resized coordinates, then the cropped image is resized again and rotated clockwise onto an opaque canvas.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">crop.ts</span></div><button class="code-copy" type="button" data-copy="crop-code">Copy</button><pre><code id="crop-code"><span class="tok-key">await</span> (<span class="tok-key">await</span> images.<span class="tok-method">open</span>(<span class="tok-string">'camera.jpg'</span>))
   .<span class="tok-method">autoOrient</span>()
-  .<span class="tok-method">resize</span>({ width: <span class="tok-number">1600</span> })
-  .<span class="tok-method">crop</span>({ x: <span class="tok-number">200</span>, y: <span class="tok-number">150</span>, width: <span class="tok-number">1200</span>, height: <span class="tok-number">900</span> })
-  .<span class="tok-method">resize</span>({ width: <span class="tok-number">600</span>, kernel: <span class="tok-string">'lanczos3'</span> })
-  .<span class="tok-method">rotate</span>(<span class="tok-number">12</span>, { background: <span class="tok-string">'#ffffffff'</span> })
+  .<span class="tok-method">resize</span>(&#123; width: <span class="tok-number">1600</span> &#125;)
+  .<span class="tok-method">crop</span>(&#123; x: <span class="tok-number">200</span>, y: <span class="tok-number">150</span>, width: <span class="tok-number">1200</span>, height: <span class="tok-number">900</span> &#125;)
+  .<span class="tok-method">resize</span>(&#123; width: <span class="tok-number">600</span>, kernel: <span class="tok-string">'lanczos3'</span> &#125;)
+  .<span class="tok-method">rotate</span>(<span class="tok-number">12</span>, &#123; background: <span class="tok-string">'#ffffffff'</span> &#125;)
   .<span class="tok-method">flop</span>()
-  .<span class="tok-method">jpeg</span>({ quality: <span class="tok-number">80</span> })
+  .<span class="tok-method">jpeg</span>(&#123; quality: <span class="tok-number">80</span> &#125;)
   .<span class="tok-method">toFile</span>(<span class="tok-string">'transformed.jpg'</span>)</code></pre></div>
         </section>
 
@@ -196,16 +180,16 @@ console.<span class="tok-method">log</span>({
             <li>Prefer downscaling and decoder-aware crops before expensive format conversion.</li>
             <li>Measure absolute peak RSS under realistic concurrent workloads—not only allocation deltas.</li>
           </ol>
-          <div class="callout"><strong>Size for CPU as well as memory.</strong> A 256 MiB Lambda completed all four measured 4000 × 3000 resize/conversion workflows with 121–156 MiB maximum use. But JPEG → WebP warm operation time fell from 10,601 ms at 256 MiB to 5,261 ms at 512 MiB and 2,533 ms at 1024 MiB while maximum use stayed at 120–122 MiB. For latency-sensitive endpoints, start at 1024 MiB even if the process consumes only about 150 MiB; choose 256 MiB only when its lower CPU allocation and roughly 10-second latency are acceptable. Re-measure with your images and concurrency. <a href="performance.html#aws-lambda">See the Lambda results.</a></div>
-          <div class="code-window"><div class="window-bar"><span class="window-title">handler.ts</span></div><button class="code-copy" type="button" data-copy="lambda-code">Copy</button><pre><code id="lambda-code"><span class="tok-key">const</span> image = <span class="tok-key">await</span> images.<span class="tok-method">open</span>(body, {
-  limits: {
+          <div class="callout"><strong>Size for CPU as well as memory.</strong> A 256 MiB Lambda completed all four measured 4000 × 3000 resize/conversion workflows with 121–156 MiB maximum use. But JPEG → WebP warm operation time fell from 10,601 ms at 256 MiB to 5,261 ms at 512 MiB and 2,533 ms at 1024 MiB while maximum use stayed at 120–122 MiB. For latency-sensitive endpoints, start at 1024 MiB even if the process consumes only about 150 MiB; choose 256 MiB only when its lower CPU allocation and roughly 10-second latency are acceptable. Re-measure with your images and concurrency. <a href="../performance/#aws-lambda">See the Lambda results.</a></div>
+          <div class="code-window"><div class="window-bar"><span class="window-title">handler.ts</span></div><button class="code-copy" type="button" data-copy="lambda-code">Copy</button><pre><code id="lambda-code"><span class="tok-key">const</span> image = <span class="tok-key">await</span> images.<span class="tok-method">open</span>(body, &#123;
+  limits: &#123;
     maxInputBytes: <span class="tok-number">15</span> * <span class="tok-number">1024</span> * <span class="tok-number">1024</span>,
     maxWidth: <span class="tok-number">12_000</span>,
     maxHeight: <span class="tok-number">12_000</span>,
     maxPixels: <span class="tok-number">60_000_000</span>,
     maxDecodedBytes: <span class="tok-number">240_000_000</span>,
-  },
-})</code></pre></div>
+  &#125;,
+&#125;)</code></pre></div>
           <div class="callout warning"><strong>Orientation, rotation, and temporary storage.</strong> EXIF orientations 3–8 and arbitrary-angle rotations use a bounded-memory 32 × 32 tile spool under <code>os.tmpdir()</code>. Plan for about one decoded frame of temporary disk capacity. A 100-megapixel RGBA image needs roughly 400 MB; on Lambda, that consumes configured <code>/tmp</code> storage.</div>
           <p>The temporary directory is removed on success or failure. Capacity errors such as <code>ENOSPC</code> become <code>ImageError</code> with code <code>LIMIT_EXCEEDED</code>.</p>
         </section>
@@ -213,24 +197,21 @@ console.<span class="tok-method">log</span>({
         <section id="errors">
           <h2>Handle failures</h2>
           <p>PureJsImage uses five stable error categories. Check the code to decide whether to reject an upload, tighten limits, or report a capability boundary.</p>
-          <div class="code-window"><div class="window-bar"><span class="window-title">errors.ts</span></div><button class="code-copy" type="button" data-copy="error-code">Copy</button><pre><code id="error-code"><span class="tok-key">import</span> { ImageError } <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
+          <div class="code-window"><div class="window-bar"><span class="window-title">errors.ts</span></div><button class="code-copy" type="button" data-copy="error-code">Copy</button><pre><code id="error-code"><span class="tok-key">import</span> &#123; ImageError &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
 
-<span class="tok-key">try</span> {
+<span class="tok-key">try</span> &#123;
   <span class="tok-key">return await</span> pipeline.<span class="tok-method">toBuffer</span>()
-} <span class="tok-key">catch</span> (error) {
-  <span class="tok-key">if</span> (error <span class="tok-key">instanceof</span> ImageError) {
+&#125; <span class="tok-key">catch</span> (error) &#123;
+  <span class="tok-key">if</span> (error <span class="tok-key">instanceof</span> ImageError) &#123;
     console.<span class="tok-method">warn</span>(error.code, error.message)
-  }
+  &#125;
   <span class="tok-key">throw</span> error
-}</code></pre></div>
-          <p>See the <a href="api.html#errors">error reference</a> for the meaning of each category.</p>
+&#125;</code></pre></div>
+          <p>See the <a href="../api/#errors">error reference</a> for the meaning of each category.</p>
         </section>
       </article>
       <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#install">Install</a><a href="#library">Create a library</a><a href="#browser">Browser</a><a href="#open">Open an image</a><a href="#pipeline">Build a pipeline</a><a href="#recipes">Recipes</a><a href="#lambda">Deploy on Lambda</a><a href="#errors">Handle failures</a></aside>
     </div>
   </main>
-
-  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div><div class="footer-column"><strong>Docs</strong><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a><a href="llms.txt">LLM guide</a><a href="sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>MIT licensed</span></div></div></footer>
-  <script src="site.js" defer></script>
-</body>
-</html>
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div><div class="footer-column"><strong>Docs</strong><a href="../guides/">Guides</a><a href="../api/">API</a><a href="../codecs/">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>MIT licensed</span></div></div></footer>
+</SiteLayout>

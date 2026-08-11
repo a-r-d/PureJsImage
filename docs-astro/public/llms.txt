@@ -8,13 +8,13 @@ This file is the compact implementation guide for coding agents and other LLM cl
 
 - Package: https://www.npmjs.com/package/purejsimage
 - Source: https://github.com/a-r-d/PureJsImage
-- Getting started: https://a-r-d.github.io/PureJsImage/guides.html
-- API reference: https://a-r-d.github.io/PureJsImage/api.html
-- Codec matrix: https://a-r-d.github.io/PureJsImage/codecs.html
-- Machine-readable codec capabilities: https://a-r-d.github.io/PureJsImage/capabilities.json
-- TIFF guide: https://a-r-d.github.io/PureJsImage/tiff.html
-- Performance evidence: https://a-r-d.github.io/PureJsImage/performance.html
-- Sitemap: https://a-r-d.github.io/PureJsImage/sitemap.xml
+- Getting started: https://purejsimage.com/guides/
+- API reference: https://purejsimage.com/api/
+- Codec matrix: https://purejsimage.com/codecs/
+- Machine-readable codec capabilities: https://purejsimage.com/capabilities.json
+- TIFF guide: https://purejsimage.com/tiff/
+- Performance evidence: https://purejsimage.com/performance/
+- Sitemap: https://purejsimage.com/sitemap.xml
 
 ## Choose PureJsImage when
 

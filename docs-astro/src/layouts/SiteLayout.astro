@@ -1,0 +1,77 @@
+---
+import SiteHeader from '../components/SiteHeader.astro'
+import '../styles/global.css'
+
+interface Props {
+  readonly title: string
+  readonly description?: string
+  readonly canonical?: string
+  readonly bodyClass?: string
+  readonly current?: string
+  readonly home?: boolean
+  readonly hideHeader?: boolean
+  readonly noindex?: boolean
+  readonly skipLabel?: string
+  readonly openGraph?: {
+    readonly title: string
+    readonly description: string
+    readonly url: string
+  }
+  readonly twitterCard?: string
+}
+
+const {
+  title,
+  description,
+  canonical,
+  bodyClass,
+  current,
+  home = false,
+  hideHeader = false,
+  noindex = false,
+  skipLabel,
+  openGraph,
+  twitterCard,
+} = Astro.props
+const base = import.meta.env.BASE_URL
+const assetBase = base.endsWith('/') ? base : `${base}/`
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#f6f7f2" />
+    {
+      openGraph && (
+        <>
+          <meta property="og:title" content={openGraph.title} />
+          <meta property="og:description" content={openGraph.description} />
+          <meta property="og:type" content="website" />
+          <meta property="og:url" content={openGraph.url} />
+        </>
+      )
+    }
+    {twitterCard && <meta name="twitter:card" content={twitterCard} />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="icon" href={`${assetBase}favicon.svg`} type="image/svg+xml" />
+    <title>{title}</title>
+    <script is:inline>
+      document.documentElement.dataset.theme =
+        localStorage.getItem('purejsimage-theme') ||
+        (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light')
+    </script>
+  </head>
+  <body class={bodyClass}>
+    {!hideHeader && <SiteHeader current={current} home={home} skipLabel={skipLabel} />}
+    <slot />
+    <script>
+      import { initializeSite } from '../scripts/site'
+
+      initializeSite()
+    </script>
+  </body>
+</html>

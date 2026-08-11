@@ -2013,10 +2013,10 @@ purejsimage/
 │   ├── codecs/
 │   └── integration/
 │
-├── docs/
-│   ├── architecture.md
-│   ├── codecs.md
-│   └── performance.md
+├── docs-astro/
+│   ├── src/pages/
+│   ├── src/components/
+│   └── public/
 │
 └── package.json
 ```

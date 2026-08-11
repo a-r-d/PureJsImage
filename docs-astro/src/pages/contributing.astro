@@ -1,28 +1,12 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="How to contribute bug fixes, performance improvements, modular features, tests, benchmarks, and documentation to PureJsImage.">
-  <meta name="theme-color" content="#f6f7f2">
-  <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/contributing.html">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
-  <title>Contributing — PureJsImage</title>
-  <script>document.documentElement.dataset.theme=localStorage.getItem('purejsimage-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
-</head>
-<body>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header"><div class="container header-inner">
-    <a class="brand" href="index.html" aria-label="PureJsImage home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a>
-    <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="demo.html">Demo</a><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a><a href="performance.html">Performance</a><a href="contributing.html" aria-current="page">Contribute</a></nav>
-    <div class="header-actions"><button class="icon-button" type="button" data-theme-toggle aria-label="Use dark theme"></button><a class="button secondary small github-header" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><button class="icon-button menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button></div>
-  </div></header>
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
 
-  <main id="main">
+<SiteLayout title="Contributing — PureJsImage" description="How to contribute bug fixes, performance improvements, modular features, tests, benchmarks, and documentation to PureJsImage." canonical="https://purejsimage.com/contributing/" current="contributing/">
+<main id="main">
     <header class="page-hero"><div class="container"><p class="eyebrow">Contributing</p><h1>Contribution requirements.</h1><p class="page-lede">Changes must follow the repository’s TypeScript, dependency, testing, benchmark, documentation, and changelog requirements.</p><div class="page-meta"><span class="pill">Pull requests to main</span><span class="pill">Tests required</span><span class="pill">MIT licensed</span></div></div></header>
     <div class="container docs-layout">
-      <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="guides.html">Getting started</a><a href="contributing.html" aria-current="page">Contributing</a></div><div class="nav-group"><strong>Reference</strong><a href="api.html">API reference</a><a href="codecs.html">Codec support</a><a href="performance.html">Performance</a></div></aside>
+      <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="../guides/">Getting started</a><a href="../contributing/" aria-current="page">Contributing</a></div><div class="nav-group"><strong>Reference</strong><a href="../api/">API reference</a><a href="../codecs/">Codec support</a><a href="../performance/">Performance</a></div></aside>
       <article class="content">
         <section id="welcome">
           <h2>Scope and requirements</h2>
@@ -89,8 +73,5 @@ npm run check</code></pre></div>
       <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#welcome">Scope &amp; requirements</a><a href="#features">New functionality</a><a href="#validation">Tests &amp; benchmarks</a><a href="#documentation">Docs &amp; changelog</a><a href="#tooling">Code &amp; AI</a><a href="#pull-request">Pull requests</a><a href="#license">License</a></aside>
     </div>
   </main>
-
-  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>Contribution requirements, validation commands, and repository policies.</p></div><div class="footer-column"><strong>Docs</strong><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CONTRIBUTING.md">Contributing</a><a href="llms.txt">LLM guide</a><a href="sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Contributions licensed under MIT</span></div></div></footer>
-  <script src="site.js" defer></script>
-</body>
-</html>
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>Contribution requirements, validation commands, and repository policies.</p></div><div class="footer-column"><strong>Docs</strong><a href="../guides/">Guides</a><a href="../api/">API</a><a href="../codecs/">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CONTRIBUTING.md">Contributing</a><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Contributions licensed under MIT</span></div></div></footer>
+</SiteLayout>

@@ -9,7 +9,7 @@ import {
   libraryComparisons,
   type TiffCapabilityKey,
   tiffCapabilityGroups,
-} from '../docs/data/library-comparison.ts'
+} from '../docs-astro/src/data/library-comparison.ts'
 
 interface ReportTotal {
   readonly engine: string
@@ -51,9 +51,9 @@ interface ConformanceReport {
 
 const reportPath = 'benchmark/results/tiff-competitor-conformance.json'
 const readmePath = 'README.md'
-const indexPath = 'docs/index.html'
-const tiffPath = 'docs/tiff.html'
-const comparisonPath = 'docs/tiff-comparison.html'
+const indexPath = 'docs-astro/src/pages/index.astro'
+const tiffPath = 'docs-astro/src/pages/tiff.astro'
+const comparisonPath = 'docs-astro/src/pages/tiff-comparison.astro'
 
 const readmeStart = '<!-- library-comparison:readme:start -->'
 const readmeEnd = '<!-- library-comparison:readme:end -->'
@@ -351,11 +351,11 @@ A capability is **Yes** only when upstream documentation or source supports it; 
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows}
 
-[Full grouped capability matrix, methods, sources, and per-library results](https://a-r-d.github.io/PureJsImage/tiff-comparison.html)
+[Full grouped capability matrix, methods, sources, and per-library results](https://purejsimage.com/tiff-comparison/)
 ${readmeEnd}`
 }
 
-const compactHtml = (report: ConformanceReport): string => {
+const compactHtml = (report: ConformanceReport, comparisonHref = 'tiff-comparison/'): string => {
   const rows = libraryComparisons
     .map(
       (library) =>
@@ -364,10 +364,10 @@ const compactHtml = (report: ConformanceReport): string => {
     .join('\n')
   return `<section class="section tint comparison-section" id="tiff-library-comparison">
       <div class="container">
-        <div class="section-heading"><div><p class="section-label">Measured compatibility</p><h2>TIFF support, without collapsing every claim to yes or no.</h2></div><a class="text-link" href="tiff-comparison.html">Full comparison →</a></div>
+        <div class="section-heading"><div><p class="section-label">Measured compatibility</p><h2>TIFF support, without collapsing every claim to yes or no.</h2></div><a class="text-link" href="${comparisonHref}">Full comparison →</a></div>
         <p class="comparison-intro">Capability cells follow upstream documentation or source. Decode coverage is a separate 106-fixture RGBA comparison; exact output, scientific rasters, and malformed inputs are reported separately.</p>
         <div class="comparison-table-wrap"><table class="comparison-table compact"><thead><tr><th>Library</th><th>Browser</th><th>BigTIFF</th><th>Tiles</th><th>Region</th><th>Scientific raster</th><th>OME / WSI</th><th>Decode coverage</th></tr></thead><tbody>${rows}</tbody></table></div>
-        <p class="section-note">Measured ${htmlEscape(report.generatedAt.slice(0, 10))} with ${htmlEscape(report.nodeVersion)} on ${htmlEscape(report.platform)}/${htmlEscape(report.architecture)}. <a href="tiff-comparison.html#methodology">Methodology, caveats, versions, and evidence.</a></p>
+        <p class="section-note">Measured ${htmlEscape(report.generatedAt.slice(0, 10))} with ${htmlEscape(report.nodeVersion)} on ${htmlEscape(report.platform)}/${htmlEscape(report.architecture)}. <a href="${comparisonHref}#methodology">Methodology, caveats, versions, and evidence.</a></p>
       </div>
     </section>`
 }
@@ -429,7 +429,7 @@ const evidenceList = (report: ConformanceReport): string =>
 const fullComparisonBody = (
   report: ConformanceReport,
 ): string => `<section class="section comparison-hero"><div class="container"><p class="eyebrow">Evidence-backed TIFF comparison</p><h1>JavaScript TIFF libraries compared by capability and measured output.</h1><p class="lede">Documentation claims and pixel conformance are separate signals. “Not verified” means exactly that—not “unsupported.”</p></div></section>
-${compactHtml(report)}
+${compactHtml(report, './')}
 <section class="section"><div class="container"><div class="section-heading"><div><p class="section-label">Capability matrix</p><h2>Grouped by TIFF workflow.</h2></div></div>${detailedMatrix(report)}</div></section>
 <section class="section tint" id="conformance"><div class="container"><div class="section-heading"><div><p class="section-label">Reproducible corpus run</p><h2>Decode coverage, exact pixels, and failures.</h2></div><a class="text-link" href="https://github.com/a-r-d/PureJsImage/blob/main/benchmark/results/tiff-competitor-conformance.md" target="_blank" rel="noreferrer">Per-file report →</a></div><p class="comparison-intro">All six JavaScript engines were attempted in isolated child processes on 154 pinned files. The 106 display-image cases use ${htmlEscape(report.oracle)} as the independent raw-RGBA8 oracle; decoded coverage is primary, while exact means every compared channel matched. Forty-four native scientific rasters are not forced through RGBA. Four malformed files test bounded rejection separately.</p>${conformanceTable(report)}</div></section>
 <section class="section" id="methodology"><div class="container prose"><p class="section-label">Methodology</p><h2>What these numbers do—and do not—mean.</h2><ul>${comparisonMethodology(
@@ -441,31 +441,14 @@ ${compactHtml(report)}
   )}<li>Run limits: ${report.timeoutMs / 1000} seconds and ${report.memoryMb} MiB per child process, concurrency 2.</li><li>Environment: ${htmlEscape(report.nodeVersion)}, ${htmlEscape(report.platform)}/${htmlEscape(report.architecture)}; report generated ${htmlEscape(report.generatedAt)}.</li><li>Corpus directories: ${report.directories.map(htmlEscape).join(', ')}.</li></ul><p>A mismatch in a color-converted or lossy case is visible but is not automatically a decoder defect: compliant converters can differ in rounding, chroma reconstruction, ICC handling, and codec output. Native scientific rasters are reported by type rather than normalized into misleading RGBA. Malformed-input results are separated from valid-file support.</p></div></section>
 <section class="section tint"><div class="container prose"><p class="section-label">Sources</p><h2>Versioned evidence</h2><ol class="comparison-evidence">${evidenceList(report)}</ol><h3>Excluded or historical libraries</h3><ul>${excludedTiffLibraries.map((library) => `<li><a href="${htmlEscape(library.url)}" target="_blank" rel="noreferrer"><strong>${htmlEscape(library.name)}</strong></a>: ${htmlEscape(library.reason)}</li>`).join('')}</ul></div></section>`
 
-const page = (report: ConformanceReport): string => `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Evidence-backed JavaScript TIFF library capability, decode-coverage, and exact-pixel comparison.">
-  <meta name="theme-color" content="#f6f7f2">
-  <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/tiff-comparison.html">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
-  <title>TIFF library comparison — PureJsImage</title>
-  <script>document.documentElement.dataset.theme=localStorage.getItem('purejsimage-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
-</head>
-<body>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header"><div class="container header-inner">
-    <a class="brand" href="index.html" aria-label="PureJsImage home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a>
-    <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="demo.html">Demo</a><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html" aria-current="page">Codecs</a><a href="performance.html">Performance</a><a href="contributing.html">Contribute</a></nav>
-    <div class="header-actions"><button class="icon-button" type="button" data-theme-toggle aria-label="Use dark theme"></button><a class="button secondary small github-header" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><button class="icon-button menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button></div>
-  </div></header>
-  <main id="main">${fullComparisonBody(report)}</main>
-  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div><div class="footer-column"><strong>Documentation</strong><a href="guides.html">Getting started</a><a href="api.html">API reference</a><a href="codecs.html">Codec support</a><a href="tiff.html">TIFF guide</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.npmjs.com/package/purejsimage" target="_blank" rel="noreferrer">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a><a href="llms.txt">LLM guide</a><a href="sitemap.xml">Sitemap</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span>Default reference engine · pure TypeScript · zero runtime dependencies</span></div></div></footer>
-  <script src="site.js" defer></script>
-</body>
-</html>
+const page = (report: ConformanceReport): string => `---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
+
+<SiteLayout title="TIFF library comparison — PureJsImage" description="Evidence-backed JavaScript TIFF library capability, decode-coverage, and exact-pixel comparison." canonical="https://purejsimage.com/tiff-comparison/" current="codecs/">
+<main id="main">${fullComparisonBody(report)}</main>
+  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>MIT-licensed image codecs and processing in strict TypeScript.</p></div><div class="footer-column"><strong>Documentation</strong><a href="../guides/">Getting started</a><a href="../api/">API reference</a><a href="../codecs/">Codec support</a><a href="../tiff/">TIFF guide</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.npmjs.com/package/purejsimage" target="_blank" rel="noreferrer">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span>Default reference engine · pure TypeScript · zero runtime dependencies</span></div></div></footer>
+</SiteLayout>
 `
 
 const replaceGenerated = (
@@ -520,7 +503,7 @@ const main = async (): Promise<void> => {
     ),
     check,
   )
-  const tiffSection = `${tiffStart}\n        <section id="library-comparison" data-search-item><h2>JavaScript TIFF library comparison</h2><p>The compact matrix distinguishes documented capability from independently measured decode coverage and exact pixels. “Not verified” is not treated as unsupported.</p>${conformanceSummaryTable(report)}<p><a href="tiff-comparison.html">Open the full grouped capability matrix, methodology, versions, and sources →</a></p></section>\n        ${tiffEnd}`
+  const tiffSection = `${tiffStart}\n        <section id="library-comparison" data-search-item><h2>JavaScript TIFF library comparison</h2><p>The compact matrix distinguishes documented capability from independently measured decode coverage and exact pixels. “Not verified” is not treated as unsupported.</p>${conformanceSummaryTable(report)}<p><a href="../tiff-comparison/">Open the full grouped capability matrix, methodology, versions, and sources →</a></p></section>\n        ${tiffEnd}`
   await updateFile(
     tiffPath,
     replaceGenerated(tiff, tiffStart, tiffEnd, tiffSection, tiffPath),

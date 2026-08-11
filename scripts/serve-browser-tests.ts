@@ -1,6 +1,7 @@
 import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { extname, relative, resolve } from 'node:path'
+import { build as buildAstro } from 'astro'
 import { build } from 'esbuild'
 import { GifWriter } from 'omggif'
 import { PNG } from 'pngjs'
@@ -197,6 +198,11 @@ const withOrientation = (input: Uint8Array, orientation: number): Uint8Array => 
 }
 
 await rm(outputDirectory, { force: true, recursive: true })
+await buildAstro({
+  root: resolve('docs-astro'),
+  outDir: outputDirectory,
+  base: '/',
+})
 await mkdir(fixtureDirectory, { recursive: true })
 await build({
   absWorkingDir: process.cwd(),
@@ -216,11 +222,11 @@ await mkdir(resolve(outputDirectory, 'assets'), { recursive: true })
 await build({
   absWorkingDir: process.cwd(),
   banner: {
-    js: '/* Generated from docs/demo.ts for browser validation. */',
+    js: '/* Generated from docs-astro/src/scripts/demo.ts for browser validation. */',
   },
   bundle: true,
   charset: 'utf8',
-  entryPoints: ['docs/demo.ts'],
+  entryPoints: ['docs-astro/src/scripts/demo.ts'],
   format: 'esm',
   legalComments: 'none',
   logLevel: 'silent',
@@ -230,15 +236,6 @@ await build({
   sourcemap: false,
   target: ['es2022'],
 })
-const docsDemoFiles = [
-  ['docs/demo.html', 'demo.html'],
-  ['docs/favicon.svg', 'favicon.svg'],
-  ['docs/site.js', 'site.js'],
-  ['docs/styles.css', 'styles.css'],
-] as const
-for (const [source, destination] of docsDemoFiles) {
-  await copyFile(source, resolve(outputDirectory, destination))
-}
 await copyFile(
   'src/accelerator-entries/jpeg-decoder.wasm',
   resolve(outputDirectory, 'assets/jpeg-decoder.wasm'),
@@ -504,7 +501,7 @@ const contentTypes: Readonly<Record<string, string>> = {
 const server = createServer(async (request, response) => {
   try {
     const pathname = new URL(request.url ?? '/', `http://127.0.0.1:${port}`).pathname
-    const requested = pathname === '/' ? '/index.html' : pathname
+    const requested = pathname.endsWith('/') ? `${pathname}index.html` : pathname
     const path = resolve(outputDirectory, `.${decodeURIComponent(requested)}`)
     const escaped = relative(outputDirectory, path)
     if (escaped.startsWith('..') || escaped.includes('/../')) {

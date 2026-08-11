@@ -1,28 +1,12 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="The exact decode, encode, metadata, animation, and memory support boundaries for every PureJsImage codec.">
-  <meta name="theme-color" content="#f6f7f2">
-  <link rel="canonical" href="https://a-r-d.github.io/PureJsImage/codecs.html">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
-  <title>Codec support — PureJsImage</title>
-  <script>document.documentElement.dataset.theme=localStorage.getItem('purejsimage-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
-</head>
-<body>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header"><div class="container header-inner">
-    <a class="brand" href="index.html" aria-label="PureJsImage home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a>
-    <nav class="site-nav" data-nav aria-label="Primary navigation"><a href="demo.html">Demo</a><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html" aria-current="page">Codecs</a><a href="performance.html">Performance</a><a href="contributing.html">Contribute</a></nav>
-    <div class="header-actions"><button class="icon-button" type="button" data-theme-toggle aria-label="Use dark theme"></button><a class="button secondary small github-header" href="https://github.com/a-r-d/PureJsImage" target="_blank" rel="noreferrer">GitHub</a><button class="icon-button menu-button" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button></div>
-  </div></header>
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
 
-  <main id="main">
+<SiteLayout title="Codec support — PureJsImage" description="The exact decode, encode, metadata, animation, and memory support boundaries for every PureJsImage codec." canonical="https://purejsimage.com/codecs/" current="codecs/">
+<main id="main">
     <header class="page-hero"><div class="container"><p class="eyebrow">Codec support</p><h1>Supported codec subsets and current limitations.</h1><p class="page-lede">The matrix distinguishes decode, encode, metadata, animation, and memory support. A recognized format may still contain an unsupported coding mode.</p><div class="page-meta"><span class="pill">10 codecs</span><span class="pill">5 output formats</span><span class="pill">Explicit unsupported errors</span></div></div></header>
     <div class="container docs-layout">
-      <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="guides.html">Getting started</a><a href="guides.html#recipes">Recipes</a></div><div class="nav-group"><strong>Reference</strong><a href="api.html">API reference</a><a href="codecs.html" aria-current="page">Codec support</a><a href="performance.html">Performance</a></div></aside>
+      <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="../guides/">Getting started</a><a href="../guides/#recipes">Recipes</a></div><div class="nav-group"><strong>Reference</strong><a href="../api/">API reference</a><a href="../codecs/" aria-current="page">Codec support</a><a href="../performance/">Performance</a></div></aside>
       <article class="content">
         <section id="matrix">
           <h2>At a glance</h2>
@@ -61,7 +45,7 @@
             <article class="card codec-card" id="heif"><div class="codec-card-head"><h3>HEIF / HEIC (experimental)</h3><span class="status expanding">Experimental decode</span></div><p>Optional experimental decoder available only through the direct purejsimage/codecs/experimental/heic entry. Decodes common opaque Main, Main Still Picture, and selected Main 10 YUV 4:2:0 intra stills, direct images, and grid primaries. It is not registered by the default allCodecs set.</p><a class="card-link" href="https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md" target="_blank" rel="noreferrer">Full HEIF / HEIC (experimental) checklist →</a></article>
           </div>
 <!-- capabilities:cards:end -->
-          <p><a href="tiff.html">Open the dedicated TIFF support guide for the complete decode, scientific, whole-slide, profile, output, and memory contract →</a></p>
+          <p><a href="../tiff/">Open the dedicated TIFF support guide for the complete decode, scientific, whole-slide, profile, output, and memory contract →</a></p>
         </section>
 
         <section id="memory">
@@ -106,8 +90,5 @@
       <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#matrix">At a glance</a><a href="#codec-details">Codec details</a><a href="#memory">Memory classes</a><a href="#choose">Choose an output</a><a href="#planned">Planned formats</a></aside>
     </div>
   </main>
-
-  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>Codec support, unsupported subsets, and current memory classes.</p></div><div class="footer-column"><strong>Docs</strong><a href="guides.html">Guides</a><a href="api.html">API</a><a href="codecs.html">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a><a href="llms.txt">LLM guide</a><a href="sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Capability snapshot: current main</span></div></div></footer>
-  <script src="site.js" defer></script>
-</body>
-</html>
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-intro"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>PureJsImage</span></a><p>Codec support, unsupported subsets, and current memory classes.</p></div><div class="footer-column"><strong>Docs</strong><a href="../guides/">Guides</a><a href="../api/">API</a><a href="../codecs/">Codecs</a></div><div class="footer-column"><strong>Project</strong><a href="https://github.com/a-r-d/PureJsImage">GitHub</a><a href="https://www.npmjs.com/package/purejsimage">npm</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/ROADMAP.md">Roadmap</a><a href="../llms.txt">LLM guide</a><a href="../sitemap.xml">Sitemap</a></div><div class="footer-column"><strong>Help</strong><a href="https://github.com/a-r-d/PureJsImage/issues">Issues</a><a href="https://github.com/a-r-d/PureJsImage/pulls">Pull requests</a></div></div><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors. Contact: <a href="https://www.ard.ninja" target="_blank" rel="noreferrer">www.ard.ninja</a></span><span>Capability snapshot: current main</span></div></div></footer>
+</SiteLayout>

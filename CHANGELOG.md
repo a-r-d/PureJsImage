@@ -14,6 +14,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Migrated the documentation website from hand-authored static HTML to Astro with shared layouts,
+  React island support, the same `.html` routes and public assets, and the existing GitHub Pages
+  artifact and browser-demo validation flow.
 - Threaded `AbortSignal` through image opening, metadata, terminal output, decoder requests, TIFF
   documents and profiles, whole-slide operations, source reads, normalization, and numeric raster
   conversion. HTTP range reads combine source-lifetime and per-read signals so an obsolete viewer

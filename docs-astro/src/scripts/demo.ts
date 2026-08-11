@@ -6,14 +6,14 @@ import {
   type ImageDecoder,
   type ImageMetadata,
   type PixelBlock,
-} from '../src/browser.ts'
-import { wasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
-import { allCodecs } from '../src/codec-entries/all.ts'
-import { webpCodec } from '../src/codec-entries/webp.ts'
-import { createTiffCodec } from '../src/codec-entries/tiff.ts'
-import { normalizePixelBlocks } from '../src/pixel.ts'
-import { openTiffDocument } from '../src/tiff/index.ts'
-import type { TiffDirectory, TiffDocument } from '../src/tiff/types.ts'
+} from '../../../src/browser.ts'
+import { wasmJpegAccelerator } from '../../../src/accelerator-entries/wasm-jpeg-browser.ts'
+import { allCodecs } from '../../../src/codec-entries/all.ts'
+import { webpCodec } from '../../../src/codec-entries/webp.ts'
+import { createTiffCodec } from '../../../src/codec-entries/tiff.ts'
+import { normalizePixelBlocks } from '../../../src/pixel.ts'
+import { openTiffDocument } from '../../../src/tiff/index.ts'
+import type { TiffDirectory, TiffDocument } from '../../../src/tiff/types.ts'
 
 type OutputFormat = 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp'
 type LogLevel = 'detect' | 'error' | 'info' | 'metric' | 'plan' | 'success' | 'warning'
