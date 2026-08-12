@@ -1,0 +1,22 @@
+tests/avif-alpha.test.ts
+  h_9f4a25732fa0c1 1-89
+tests/avif-entropy.test.ts
+  h_9f4a25732fa0c1 1-83
+tests/avif-high-bit.test.ts
+  h_9f4a25732fa0c1 1-173
+tests/avif-photo.test.ts
+  h_9f4a25732fa0c1 1-105
+tests/avif.test.ts
+  h_9f4a25732fa0c1 7,12,27,32,39,47-49,61,73-75,93,107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "f353f82bf579651baa57bb8f62b9cd6effff7ec1",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
