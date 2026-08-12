@@ -229,6 +229,36 @@ const jpegXlLossless = async (): Promise<BrowserWorkflowResult> => {
     outputBytes: output.byteLength,
   }
 }
+const jpegXlHighBit = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = await fetchBytes('/fixtures/jpegxl-alpha-12bit.jxl')
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (!decoder) throw new Error('Browser JPEG XL decoder is unavailable')
+  const cropped: number[] = []
+  let displayWhite = -1
+  for await (const block of decoder.decode({ x: 0, y: 0, width: 2, height: 1 })) {
+    if (block.format !== 'rgba16') {
+      throw new Error(`Browser JPEG XL native output was ${block.format}, not rgba16`)
+    }
+    displayWhite = block.displayRanges?.[0]?.white ?? -1
+    cropped.push(...block.data)
+  }
+  const expected = [0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 4, 0, 4, 0, 0]
+  if (
+    displayWhite !== 4_095 ||
+    cropped.length !== expected.length ||
+    cropped.some((value, index) => value !== expected[index])
+  ) {
+    throw new Error('Browser JPEG XL native 12-bit samples did not match the conformance oracle')
+  }
+  const output = await (await images.open(bytes))
+    .crop({ x: 0, y: 0, width: 2, height: 1 })
+    .png()
+    .toUint8Array()
+  return {
+    detail: 'lossless JPEG XL preserved native 12-bit RGBA samples and normalized through PNG',
+    outputBytes: output.byteLength,
+  }
+}
 const unsupportedJpegBoundaries = async (): Promise<BrowserWorkflowResult> => {
   const source = await fetchBytes('/fixtures/benchmark-input.jpg')
   let frame = -1
@@ -3181,6 +3211,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   jpegPipeline,
   jpeg2000Decode,
   jpegXlLossless,
+  jpegXlHighBit,
   unsupportedJpegBoundaries,
   tolerantJpegRestartRecovery,
   orientation,

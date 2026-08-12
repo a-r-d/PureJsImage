@@ -5371,10 +5371,10 @@
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Decodes independently verified, single-group lossless Modular RGB and RGBA with global or local MA trees, nonzero prefix or ANS residuals, bounded LZ77, Zero/Left/Top/Gradient/TopRight/TopLeft prediction, and zero or one RCT; other predictors, grayscale and custom color encodings, palette and Squeeze transforms, VarDCT, multiple groups or frames, and fragmented jxlp pixel decode remain unsupported",
-      "description": "Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes pinned 8-bit RGB plus 9-bit and 12-bit RGBA lossless Modular paths through bounded headers, entropy, adaptive properties, residual prediction, RCT, crop, and rgba8 output. Unsupported JPEG XL syntax fails explicitly.",
-      "memory": "The implemented single-group Modular path retains compressed input, bounded entropy tables, the adaptive tree, an optional 4 MiB LZ77 ring, and compact signed channel planes. Peak decoded working memory scales with source pixels but does not allocate a second source-sized RGBA bitmap.",
-      "recommendation": "Use for the documented single-group lossless Modular RGB/RGBA subset and retain an explicit unsupported-operation path for broader JPEG XL files.",
+      "boundary": "Decodes independently verified, single-group lossless Modular RGB and RGBA with global or local MA trees, nonzero prefix or ANS residuals, bounded LZ77, Zero/Left/Top/Gradient/TopRight/TopLeft prediction, and zero or one RCT; supported samples retain native 9-bit and 12-bit integer precision in rgba16 output. Other predictors, grayscale and custom color encodings, palette and Squeeze transforms, VarDCT, multiple groups or frames, and fragmented jxlp pixel decode remain unsupported",
+      "description": "Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes pinned 8-bit RGB plus 9-bit and 12-bit RGBA lossless Modular paths through bounded headers, entropy, adaptive properties, residual prediction, RCT, and crop. It emits rgba8 for 8-bit sources and big-endian rgba16 with per-channel native display ranges for high-bit sources; 8-bit-only transforms and encoders normalize those ranges explicitly. Unsupported JPEG XL syntax fails explicitly.",
+      "memory": "The implemented single-group Modular path retains compressed input, bounded entropy tables, the adaptive tree, an optional 4 MiB LZ77 ring, and compact signed channel planes. Peak decoded working memory scales with source pixels and emits one bounded 4- or 8-byte-per-pixel output row without allocating a second source-sized RGBA bitmap.",
+      "recommendation": "Use native rgba16 decoder blocks for scientific workflows that need the documented 9-bit or 12-bit lossless Modular RGB/RGBA samples. Use the normal pipeline for display conversion, and retain an explicit unsupported-operation path for broader JPEG XL files.",
       "evidence": [
         "tests/jpegxl.test.ts",
         "tests/jpegxl-bitstream.test.ts",
@@ -5668,7 +5668,7 @@
         },
         {
           "status": "supported",
-          "text": "Emit bounded, ordered `rgba8` pixel blocks for the implemented subset"
+          "text": "Emit bounded, ordered `rgba8` or big-endian `rgba16` pixel blocks for the implemented subset"
         },
         {
           "status": "planned",
@@ -5704,7 +5704,7 @@
         },
         {
           "status": "supported",
-          "text": "Convert high-bit-depth samples to the 8-bit pipeline with a documented rounding and tone-mapping policy"
+          "text": "Preserve native 9-bit and 12-bit integer samples in `rgba16` with per-channel display ranges, normalizing only when an 8-bit transform or encoder requires it"
         },
         {
           "status": "planned",
@@ -5791,8 +5791,12 @@
           "text": "Decoder-driven downscale that selects only the resolution and passes capable of contributing to the requested output"
         },
         {
+          "status": "supported",
+          "text": "Expose native high-bit integer decoder output through the shared `rgba16` pixel model"
+        },
+        {
           "status": "planned",
-          "text": "Optional 16-bit integer and floating-point pipeline output when the shared pixel model supports it"
+          "text": "Optional floating-point pipeline output"
         },
         {
           "status": "planned",
@@ -5948,7 +5952,7 @@
         },
         {
           "status": "supported",
-          "text": "Verify exact samples for lossless Modular fixtures"
+          "text": "Verify native high-bit samples for lossless Modular fixtures against official conformance outputs"
         },
         {
           "status": "planned",

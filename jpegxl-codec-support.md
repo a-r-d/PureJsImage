@@ -20,11 +20,13 @@ The current pixel milestone decodes pinned 8-bit RGB plus official 9-bit and 12-
 non-premultiplied-alpha lossless Modular fixtures. It parses image and frame headers,
 global or local MA trees, prefix and ANS entropy, bounded LZ77, adaptive properties,
 nonzero residuals, six independently exercised Modular predictors, and one reversible color
-transform, then emits cropped `rgba8` rows. The official RGBA fixtures each match an
-independent `djxl` decode across all 4,194,304 output samples, and the RGB fixture also
-matches exact `djxl` pixels in a real browser. Palette, Squeeze, Weighted prediction,
-custom color descriptions, multiple groups or frames, and all VarDCT syntax remain
-explicit unsupported operations.
+transform. The decoder emits bounded `rgba8` rows for 8-bit input and big-endian `rgba16`
+rows with native per-channel display ranges for 9-bit and 12-bit input. The official 12-bit
+fixture matches the native conformance samples exactly; the 9-bit fixture stays within its
+documented one-sample conformance tolerance. The RGB fixture also matches exact `djxl` pixels
+in a real browser, and a browser regression covers native 12-bit output plus normalized PNG
+conversion. Palette, Squeeze, Weighted prediction, custom color descriptions, multiple
+groups or frames, and all VarDCT syntax remain explicit unsupported operations.
 
 A checked implementation item is already present and tested in the repository.
 An unchecked item is not supported yet. Items in deferred groups do not block
@@ -193,7 +195,7 @@ losslessly transcoded JPEG files.
   frame dependencies, and partial-canvas frame composition until Group 2
 - [ ] Apply all eight orientation values exactly once
 - [ ] Return display dimensions after orientation
-- [x] Emit bounded, ordered `rgba8` pixel blocks for the implemented subset
+- [x] Emit bounded, ordered `rgba8` or big-endian `rgba16` pixel blocks for the implemented subset
 - [ ] Support JXL-to-JPEG, JXL-to-PNG, JXL-to-WebP, crop, resize, and
   resize-plus-encode workflows
 
@@ -209,8 +211,8 @@ losslessly transcoded JPEG files.
 - [ ] Render common sRGB, linear sRGB, Display P3, and gray inputs to the
   pipeline's declared output color space
 - [ ] Handle XYB, RGB, and grayscale codestream color representations
-- [x] Convert high-bit-depth samples to the 8-bit pipeline with a documented
-  rounding and tone-mapping policy
+- [x] Preserve native 9-bit and 12-bit integer samples in `rgba16` with per-channel
+  display ranges, normalizing only when an 8-bit transform or encoder requires it
 - [ ] Reject unsupported color encodings or extra-channel semantics rather than
   treating their samples as sRGB or alpha
 
@@ -248,8 +250,8 @@ decoder can ship before all of them are complete.
 - [ ] Group-aware region decode for crops
 - [ ] Decoder-driven downscale that selects only the resolution and passes
   capable of contributing to the requested output
-- [ ] Optional 16-bit integer and floating-point pipeline output when the shared
-  pixel model supports it
+- [x] Expose native high-bit integer decoder output through the shared `rgba16` pixel model
+- [ ] Optional floating-point pipeline output
 - [ ] Opt-in extraction of depth, thermal, CFA, spot-color, and selection-mask
   extra channels
 - [ ] Non-coalesced frame access for applications that need individual frames
@@ -346,7 +348,7 @@ JPEG XL v1.
 - [ ] Record provenance, license, encoder/version, container form, dimensions,
   orientation, bit depth, channels, extra channels, color encoding, mode,
   frames, groups, passes, level, feature flags, and checksums
-- [x] Verify exact samples for lossless Modular fixtures
+- [x] Verify native high-bit samples for lossless Modular fixtures against official conformance outputs
 - [ ] Use conformance-defined or documented numeric tolerances for VarDCT, XYB,
   ICC, restoration-filter, and HDR output
 - [ ] Verify every benchmark output before recording speed or memory

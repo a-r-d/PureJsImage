@@ -16,11 +16,15 @@ All notable changes to PureJsImage are documented in this file.
   reusable scientific statistics with Welford mean and population standard deviation, finite and
   invalid counts, sampled percentiles, and histograms.
 - Added a registered first-party JPEG XL codec that validates raw codestream and container
-  structure and decodes a bounded lossless Modular RGBA subset. The initial pixel path parses
-  codestream and frame headers, prefix and ANS entropy foundations, a bounded meta-adaptive tree,
-  Zero/Left/Top prediction, reversible color transforms, and 12-bit alpha before emitting cropped
-  `rgba8` rows. Added a pinned, checksum-verified official conformance corpus and exact independent
-  oracle validation; broader Modular and VarDCT syntax fails explicitly.
+  structure and decodes a bounded lossless Modular RGB/RGBA subset. The pixel path covers
+  codestream and frame headers, prefix and ANS entropy, bounded LZ77, global and local
+  meta-adaptive trees, six predictors, reversible color transforms, crop requests, and alpha.
+  It emits `rgba8` for 8-bit input and preserves native 9-bit and 12-bit integer samples as
+  big-endian `rgba16` rows with per-channel display ranges. Pinned official conformance outputs
+  validate exact 12-bit samples and the documented one-sample 9-bit tolerance in Node; native
+  12-bit output is also exercised in a real browser. Broader Modular, grayscale, custom color,
+  multi-group, multi-frame, and VarDCT syntax fails
+  explicitly.
 - Added first-party Radiance HDR, QOI, Netpbm PBM/PGM/PPM/PAM/PFM, and TGA codecs
   with Node and browser registration, bounded row or block processing where the formats permit it,
   explicit compact fallbacks for X-major HDR decode and bottom-up PFM encode, strict hostile-input

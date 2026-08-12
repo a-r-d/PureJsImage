@@ -79,7 +79,7 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       lossless: true,
       channelBitDepths: [12, 12, 12, 12],
     })
-    expect(decoder.pixelFormat).toBe('rgba8')
+    expect(decoder.pixelFormat).toBe('rgba16')
     expect(decoder.capabilities).toEqual({
       sequential: true,
       regionDecode: true,
@@ -90,18 +90,30 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     const digest = createHash('sha256')
     let rows = 0
     for await (const block of decoder.decode()) {
-      expect(block).toMatchObject({ x: 0, y: rows, width: 1_024, height: 1, format: 'rgba8' })
+      expect(block).toMatchObject({
+        x: 0,
+        y: rows,
+        width: 1_024,
+        height: 1,
+        format: 'rgba16',
+        displayRanges: [
+          { black: 0, white: 4_095 },
+          { black: 0, white: 4_095 },
+          { black: 0, white: 4_095 },
+          { black: 0, white: 4_095 },
+        ],
+      })
       digest.update(block.data)
       rows += 1
     }
     expect(rows).toBe(1_024)
-    // djxl-produced 12-bit PAM samples, normalized with round(sample * 255 / 4095).
+    // Official conformance ref.png samples converted back to their native 12-bit range.
     expect(digest.digest('hex')).toBe(
-      'c2d13d30f972b292ea49889bd8bc1315bad8486da6a984b2dea4fe057102a2d4',
+      'dcad2498d282253d5a0cc6228a557663f83e5547e196d4da472c2658a89b26b9',
     )
   })
 
-  it('decodes adaptive 9-bit Modular residuals exactly against djxl', async () => {
+  it('preserves adaptive 9-bit Modular samples within the conformance tolerance', async () => {
     const input = readFileSync('benchmark/fixtures/jpegxl/conformance-alpha-triangles.jxl')
     const source = new MemorySource(input)
     const metadata = await jpegxlCodec.metadata(source, defaultImageLimits)
@@ -118,10 +130,19 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     })
 
     const digest = createHash('sha256')
-    for await (const block of decoder.decode()) digest.update(block.data)
-    // djxl-produced 9-bit PAM samples, normalized with round(sample * 255 / 511).
+    for await (const block of decoder.decode()) {
+      expect(block.format).toBe('rgba16')
+      expect(block.displayRanges).toEqual([
+        { black: 0, white: 511 },
+        { black: 0, white: 511 },
+        { black: 0, white: 511 },
+        { black: 0, white: 511 },
+      ])
+      digest.update(block.data)
+    }
+    // Validated against the official 16-bit ref.png at the fixture's ±1/512 tolerance.
     expect(digest.digest('hex')).toBe(
-      'd5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497',
+      'f9eee8a5b5f1e9209a1a82e590fcab10518ad4feb4cd550d4394dcc53cb35422',
     )
   })
 

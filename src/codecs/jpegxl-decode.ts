@@ -3,7 +3,7 @@ import type { DecodeRequest, ImageDecoder, ImageMetadata } from '../codec.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
-import type { PixelBlock } from '../pixel.ts'
+import type { PixelBlock, PixelSampleDisplayRange } from '../pixel.ts'
 import {
   JpegXlBitReader,
   JpegXlEntropySymbolReader,
@@ -505,10 +505,18 @@ const toByte = (sample: number, bitDepth: number): number => {
   return Math.round((Math.max(0, Math.min(maximum, sample)) * 255) / maximum)
 }
 
+const clampSample = (sample: number, maximum: number): number =>
+  Math.max(0, Math.min(maximum, sample))
+
+const writeUint16BigEndian = (output: Uint8Array, offset: number, sample: number): void => {
+  output[offset] = sample >>> 8
+  output[offset + 1] = sample
+}
+
 class JpegXlModularDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
-  readonly pixelFormat = 'rgba8' as const
+  readonly pixelFormat: 'rgba8' | 'rgba16'
   readonly capabilities = Object.freeze({
     sequential: true,
     regionDecode: true,
@@ -517,12 +525,28 @@ class JpegXlModularDecoder implements ImageDecoder {
   })
   readonly #header: JpegXlHeader
   readonly #program: ModularProgram
+  readonly #displayRanges: readonly PixelSampleDisplayRange[] | undefined
 
   constructor(header: JpegXlHeader, program: ModularProgram) {
     this.width = header.width
     this.height = header.height
+    this.pixelFormat =
+      header.bitDepth > 8 || (header.alphaBitDepth !== undefined && header.alphaBitDepth > 8)
+        ? 'rgba16'
+        : 'rgba8'
     this.#header = header
     this.#program = program
+    if (this.pixelFormat === 'rgba16') {
+      const colorMaximum = 2 ** header.bitDepth - 1
+      const alphaMaximum =
+        header.alphaBitDepth === undefined ? 65_535 : 2 ** header.alphaBitDepth - 1
+      this.#displayRanges = Object.freeze([
+        Object.freeze({ black: 0, white: colorMaximum }),
+        Object.freeze({ black: 0, white: colorMaximum }),
+        Object.freeze({ black: 0, white: colorMaximum }),
+        Object.freeze({ black: 0, white: alphaMaximum }),
+      ])
+    }
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
@@ -619,8 +643,58 @@ class JpegXlModularDecoder implements ImageDecoder {
       throw invalidInput('JPEG XL color channel buffer is missing')
     }
     const transformed = new Int32Array(3)
+    const colorMaximum = 2 ** this.#header.bitDepth - 1
+    const alphaMaximum =
+      this.#header.alphaBitDepth === undefined ? 65_535 : 2 ** this.#header.alphaBitDepth - 1
     for (let y = regionY; y < regionY + regionHeight; y += 1) {
       throwIfAborted(request.signal)
+      if (this.pixelFormat === 'rgba16') {
+        const output = new Uint8Array(regionWidth * 8)
+        for (let localX = 0; localX < regionWidth; localX += 1) {
+          const x = regionX + localX
+          const position = y * this.width + x
+          inverseRct(
+            planes[this.#program.rctBegin]?.[position] ?? 0,
+            planes[this.#program.rctBegin + 1]?.[position] ?? 0,
+            planes[this.#program.rctBegin + 2]?.[position] ?? 0,
+            this.#program.rctType,
+            transformed,
+          )
+          let red = firstPlane[position] ?? 0
+          let green = secondPlane[position] ?? 0
+          let blue = thirdPlane[position] ?? 0
+          let alpha = alphaPlane?.[position] ?? 0
+          if (this.#program.rctBegin === 0) {
+            red = transformed[0] ?? 0
+            green = transformed[1] ?? 0
+            blue = transformed[2] ?? 0
+          } else {
+            green = transformed[0] ?? 0
+            blue = transformed[1] ?? 0
+            alpha = transformed[2] ?? 0
+          }
+          const target = localX * 8
+          writeUint16BigEndian(output, target, clampSample(red, colorMaximum))
+          writeUint16BigEndian(output, target + 2, clampSample(green, colorMaximum))
+          writeUint16BigEndian(output, target + 4, clampSample(blue, colorMaximum))
+          writeUint16BigEndian(
+            output,
+            target + 6,
+            this.#header.alphaBitDepth === undefined ? 65_535 : clampSample(alpha, alphaMaximum),
+          )
+        }
+        yield {
+          x: 0,
+          y: y - regionY,
+          width: regionWidth,
+          height: 1,
+          stride: output.byteLength,
+          format: 'rgba16',
+          data: output,
+          ...(this.#displayRanges === undefined ? {} : { displayRanges: this.#displayRanges }),
+        }
+        continue
+      }
       const output = new Uint8Array(regionWidth * 4)
       for (let localX = 0; localX < regionWidth; localX += 1) {
         const x = regionX + localX
