@@ -2,11 +2,15 @@ type RegisteredFormat =
   | 'avif'
   | 'bmp'
   | 'gif'
+  | 'hdr'
   | 'heif'
   | 'ico'
   | 'jp2'
   | 'jpeg'
+  | 'netpbm'
   | 'png'
+  | 'qoi'
+  | 'tga'
   | 'tiff'
   | 'webp'
 
@@ -32,6 +36,30 @@ const magicFormats: readonly MagicFormat[] = [
     ],
   },
   { name: 'BMP', registeredFormat: 'bmp', signatures: [[66, 77]] },
+  {
+    name: 'Radiance HDR',
+    registeredFormat: 'hdr',
+    signatures: [
+      [0x23, 0x3f, 0x52, 0x41, 0x44, 0x49, 0x41, 0x4e, 0x43, 0x45],
+      [0x23, 0x3f, 0x52, 0x47, 0x42, 0x45],
+    ],
+  },
+  { name: 'QOI', registeredFormat: 'qoi', signatures: [[0x71, 0x6f, 0x69, 0x66]] },
+  {
+    name: 'Netpbm',
+    registeredFormat: 'netpbm',
+    signatures: [
+      [0x50, 0x31],
+      [0x50, 0x32],
+      [0x50, 0x33],
+      [0x50, 0x34],
+      [0x50, 0x35],
+      [0x50, 0x36],
+      [0x50, 0x37],
+      [0x50, 0x46],
+      [0x50, 0x66],
+    ],
+  },
   {
     name: 'TIFF',
     registeredFormat: 'tiff',
@@ -206,11 +234,44 @@ const prefixedJpeg = (data: Uint8Array): RecognizedInputFormat | undefined => {
   return undefined
 }
 
+const tgaFormat = (data: Uint8Array): RecognizedInputFormat | undefined => {
+  if (data.byteLength < 18) return undefined
+  const colorMapType = data[1] ?? 0
+  const imageType = data[2] ?? 0
+  const colorMapDepth = data[7] ?? 0
+  const width = (data[12] ?? 0) | ((data[13] ?? 0) << 8)
+  const height = (data[14] ?? 0) | ((data[15] ?? 0) << 8)
+  const pixelDepth = data[16] ?? 0
+  const knownType =
+    imageType === 1 ||
+    imageType === 2 ||
+    imageType === 3 ||
+    imageType === 9 ||
+    imageType === 10 ||
+    imageType === 11
+  const validDepth =
+    imageType === 1 || imageType === 9
+      ? pixelDepth === 8 || pixelDepth === 16
+      : imageType === 3 || imageType === 11
+        ? pixelDepth === 8 || pixelDepth === 16
+        : pixelDepth === 15 || pixelDepth === 16 || pixelDepth === 24 || pixelDepth === 32
+  const validMap =
+    colorMapType === 0 ||
+    (colorMapType === 1 &&
+      (colorMapDepth === 15 ||
+        colorMapDepth === 16 ||
+        colorMapDepth === 24 ||
+        colorMapDepth === 32))
+  return knownType && validDepth && validMap && width > 0 && height > 0
+    ? { name: 'TGA', registeredFormat: 'tga' }
+    : undefined
+}
+
 export const recognizeInputFormat = (data: Uint8Array): RecognizedInputFormat | undefined => {
   for (const format of magicFormats) {
     if (!format.signatures.some((signature) => startsWith(data, signature))) continue
     if (format.name === 'WebP' && !isWebp(data)) continue
     return format
   }
-  return isobmffFormat(data) ?? prefixedJpeg(data) ?? svgFormat(data)
+  return isobmffFormat(data) ?? prefixedJpeg(data) ?? tgaFormat(data) ?? svgFormat(data)
 }

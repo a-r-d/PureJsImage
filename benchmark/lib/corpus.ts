@@ -9,6 +9,7 @@ import type {
   CorpusManifest,
   Fixture,
   FixtureExpectation,
+  FixtureGenerator,
   FixtureInspection,
   GeneratedFixture,
   SourceFixture,
@@ -60,31 +61,36 @@ const isSourceFixture = (value: unknown): value is SourceFixture => {
   )
 }
 
-const fixtureGenerators: ReadonlySet<unknown> = new Set([
-  'bmp-gradient',
-  'ico-dib24',
-  'ico-dib32',
-  'ico-mixed',
-  'odd-rgba',
-  'rgba-gradient',
-  'seeded-noise',
-  'static-transparent-gif',
-  'streaming-stress-gradient',
-  'tiff-gradient',
-  'tiff-cielab8-strip',
-  'tiff-fillorder6-strip',
-  'tiff-bigtiff-rgb16',
-  'tiff-cmyk8-planar',
-  'tiff-packed12-strip',
-  'tiff-packed12-tile',
-  'tiny-transparent',
-  'transparent-logo',
-  'webp-gradient-lossless',
-  'webp-gradient-lossy',
-])
+const fixtureGenerators: Readonly<Record<FixtureGenerator, true>> = {
+  'bmp-gradient': true,
+  'ico-dib24': true,
+  'ico-dib32': true,
+  'ico-mixed': true,
+  'odd-rgba': true,
+  'rgba-gradient': true,
+  'seeded-noise': true,
+  'small-codec-corpus': true,
+  'static-transparent-gif': true,
+  'streaming-stress-gradient': true,
+  'tiff-gradient': true,
+  'tiff-cielab8-strip': true,
+  'tiff-fillorder6-strip': true,
+  'tiff-bigtiff-rgb16': true,
+  'tiff-cmyk8-planar': true,
+  'tiff-packed12-strip': true,
+  'tiff-packed12-tile': true,
+  'tiny-transparent': true,
+  'transparent-logo': true,
+  'webp-gradient-lossless': true,
+  'webp-gradient-lossy': true,
+}
 
 const isGeneratedFixture = (value: unknown): value is GeneratedFixture => {
-  return isFixtureBase(value) && fixtureGenerators.has(value.generator)
+  return (
+    isFixtureBase(value) &&
+    typeof value.generator === 'string' &&
+    Object.hasOwn(fixtureGenerators, value.generator)
+  )
 }
 
 const isManifest = (value: unknown): value is CorpusManifest => {
@@ -167,6 +173,65 @@ const identifyIco = (
   return { type: 'ico', width, height, frames }
 }
 
+export const identifySmallCodecFixture = (
+  bytes: Uint8Array,
+  expectedFormat: FixtureExpectation['format'],
+): { type: string; width: number; height: number } | undefined => {
+  if (expectedFormat === 'qoi' && bytes.byteLength >= 14) {
+    if (bytes[0] !== 0x71 || bytes[1] !== 0x6f || bytes[2] !== 0x69 || bytes[3] !== 0x66) {
+      return undefined
+    }
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+    const width = view.getUint32(4, false)
+    const height = view.getUint32(8, false)
+    return width > 0 && height > 0 ? { type: 'qoi', width, height } : undefined
+  }
+
+  if (expectedFormat === 'tga' && bytes.byteLength >= 18) {
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+    const imageType = bytes[2] ?? 0
+    const width = view.getUint16(12, true)
+    const height = view.getUint16(14, true)
+    return [1, 2, 3, 9, 10, 11].includes(imageType) && width > 0 && height > 0
+      ? { type: 'tga', width, height }
+      : undefined
+  }
+
+  const text = new TextDecoder().decode(bytes.subarray(0, Math.min(bytes.byteLength, 4096)))
+  if (expectedFormat === 'hdr') {
+    if (!text.startsWith('#?RADIANCE\n') && !text.startsWith('#?RGBE\n')) return undefined
+    const resolution =
+      /(?:^|\n)([+-])([XY])\s+([1-9]\d*)\s+([+-])([XY])\s+([1-9]\d*)(?:\r?\n|$)/.exec(text)
+    if (!resolution || resolution[2] === resolution[5]) return undefined
+    const first = Number(resolution[3])
+    const second = Number(resolution[6])
+    return {
+      type: 'hdr',
+      width: resolution[2] === 'X' ? first : second,
+      height: resolution[2] === 'Y' ? first : second,
+    }
+  }
+
+  if (expectedFormat !== 'netpbm') return undefined
+  if (text.startsWith('P7')) {
+    const width = /(?:^|\n)WIDTH\s+([1-9]\d*)\s*(?:\r?\n|$)/.exec(text)
+    const height = /(?:^|\n)HEIGHT\s+([1-9]\d*)\s*(?:\r?\n|$)/.exec(text)
+    return width && height
+      ? { type: 'netpbm', width: Number(width[1]), height: Number(height[1]) }
+      : undefined
+  }
+  const tokens = text
+    .replace(/#[^\r\n]*/g, ' ')
+    .trim()
+    .split(/\s+/)
+  if (!/^(?:P[1-6]|PF|Pf)$/.test(tokens[0] ?? '')) return undefined
+  const width = Number(tokens[1])
+  const height = Number(tokens[2])
+  return Number.isSafeInteger(width) && width > 0 && Number.isSafeInteger(height) && height > 0
+    ? { type: 'netpbm', width, height }
+    : undefined
+}
+
 export const inspectFixture = async (fixture: Fixture): Promise<FixtureInspection> => {
   const buffer = await readFile(fixturePath(fixture))
   const bytes = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
@@ -181,7 +246,12 @@ export const inspectFixture = async (fixture: Fixture): Promise<FixtureInspectio
       bmpDimensions = { type: 'bmp', width, height: Math.abs(storedHeight) }
     }
   }
-  const dimensions = detected ?? bmpDimensions ?? identifyTiff(bytes) ?? identifyIco(bytes)
+  const dimensions =
+    detected ??
+    bmpDimensions ??
+    identifyTiff(bytes) ??
+    identifyIco(bytes) ??
+    identifySmallCodecFixture(bytes, fixture.expected.format)
 
   if (!dimensions) {
     throw new Error(`Could not identify ${fixture.file}`)

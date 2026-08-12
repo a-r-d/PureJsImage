@@ -91,9 +91,29 @@ const benchmarkSeeds = [
     path: 'benchmark/corpus/files/bmpsuite-rgb24.bmp',
   },
   {
+    format: 'hdr',
+    id: 'polyhaven-potsdamer',
+    path: 'benchmark/corpus/files/small-codec-potsdamer.hdr',
+  },
+  {
     format: 'ico',
     id: 'ico-dib24-mask-96',
     path: 'benchmark/corpus/files/ico-dib24-mask-96.ico',
+  },
+  {
+    format: 'netpbm',
+    id: 'polyhaven-pfm-potsdamer',
+    path: 'benchmark/corpus/files/small-codec-potsdamer.pfm',
+  },
+  {
+    format: 'qoi',
+    id: 'reference-qoi-city',
+    path: 'benchmark/corpus/files/small-codec-city.qoi',
+  },
+  {
+    format: 'tga',
+    id: 'ffmpeg-tga-city',
+    path: 'benchmark/corpus/files/small-codec-city.tga',
   },
   {
     format: 'tiff',

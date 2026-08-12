@@ -151,7 +151,11 @@ describe('configured image library', () => {
       'webp',
       'avif',
       'bmp',
+      'hdr',
       'ico',
+      'netpbm',
+      'qoi',
+      'tga',
       'tiff',
     ])
     expect(new Set(formats).size).toBe(formats.length)

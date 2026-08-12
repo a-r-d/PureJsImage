@@ -49,15 +49,18 @@ export type BuiltInFormat =
   | 'avif'
   | 'bmp'
   | 'gif'
+  | 'hdr'
   | 'heif'
   | 'ico'
   | 'jpeg'
   | 'jpegxl'
   | 'jp2'
+  | 'netpbm'
   | 'png'
+  | 'qoi'
+  | 'tga'
   | 'tiff'
   | 'webp'
-
 export type ChromaSubsampling = '400' | '411' | '420' | '422' | '440' | '444'
 
 export type ColorProfile =
@@ -93,6 +96,18 @@ export interface ImageMetadata {
   lossless?: boolean
   tiles?: number
   resolutionLevels?: number
+  /** Codec-specific storage subtype, such as P6 or PF. */
+  variant?: string
+  /** Header exposure multiplier when the format carries one. */
+  exposure?: number
+  /** Header gamma value when the format carries one. */
+  gamma?: number
+  /** Numeric sample scale carried by the format. */
+  scale?: number
+  /** Storage order or orientation string from the source format. */
+  storageOrientation?: string
+  /** Short textual image identifier carried by the source format. */
+  imageId?: string
 }
 
 export interface DecoderCapabilities {
@@ -157,6 +172,11 @@ export interface ImageCodec {
   readonly format: string
   readonly mimeTypes: readonly string[]
   readonly minimumBytes: number
+  /**
+   * Canonical pixel formats accepted directly by the encoder. Numeric inputs
+   * remain native only when no transform requires display normalization.
+   */
+  readonly encoderPixelFormats?: readonly PixelFormat[]
   readonly selection?: {
     readonly frames: boolean
     readonly resolutionLevels: boolean

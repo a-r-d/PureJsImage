@@ -178,8 +178,12 @@ import SiteLayout from '../layouts/SiteLayout.astro'
             <article class="api-item" data-search-item><h3>png(options?)</h3><p>Appends 8-bit PNG output. Node supports compression levels 0–9; browser CompressionStream output currently supports the default level 6.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>webp(options?)</h3><p>Appends static lossy or lossless WebP output. Lossy quality is 1–100. Lossless WebP suits graphics and screenshots; prefer lossy WebP for photographs, or compare with PNG when exact lossless output is required.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>bmp(options?)</h3><p>Appends BMP output. The alpha option selects 32-bit RGBA or 24-bit RGB output.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>hdr(options?)</h3><p>Appends Radiance RGBE output. Native float RGB remains HDR; display pixels are converted through the normal numeric path. Optional exposure and gamma values are written as header metadata.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>qoi(options?)</h3><p>Appends lossless QOI output with explicit RGB or RGBA channels and sRGB or linear colorspace metadata.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>pbm(), pgm(), ppm(), pam(), pfm()</h3><p>Append a specific Netpbm variant. Integer encoders support documented ASCII, binary, and 8-bit or 16-bit choices. PFM supports native float32 grayscale or RGB with explicit endianness and scale.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>tga(options?)</h3><p>Appends 24-bit RGB or 32-bit RGBA TGA output with optional lossless RLE.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>tiff(options?)</h3><p>Appends canonical Classic TIFF output: little-endian, chunky 8-bit RGB or RGBA, independently Deflate-compressed strips, and horizontal prediction. Node supports compression levels 0–9; browser CompressionStream output supports level 6.</p><span class="returns">returns Image</span></article>
-            <article class="api-item" data-search-item><h3>encode(format, options?)</h3><p>Generic equivalent to the format-specific encoder methods for <code>jpeg</code>, <code>png</code>, <code>webp</code>, <code>bmp</code>, and <code>tiff</code>.</p><span class="returns">returns Image</span></article>
+            <article class="api-item" data-search-item><h3>encode(format, options?)</h3><p>Generic equivalent to the format-specific encoder methods for <code>jpeg</code>, <code>png</code>, <code>webp</code>, <code>bmp</code>, <code>hdr</code>, <code>qoi</code>, <code>netpbm</code>, <code>tga</code>, and <code>tiff</code>. Use the Netpbm <code>format</code> option to select PBM, PGM, PPM, PAM, or PFM.</p><span class="returns">returns Image</span></article>
             <article class="api-item" data-search-item><h3>toBuffer(options?)</h3><p>Executes the pipeline and collects encoded chunks into Node.js bytes. The runtime value remains a <code>Buffer</code>, exposed through the portable <code>Uint8Array</code> public type so consumers do not need Node ambient declarations.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
             <article class="api-item" data-search-item><h3>toUint8Array(options?)</h3><p>Executes and returns portable encoded bytes. Available in Node and browsers.</p><span class="returns">returns Promise&lt;Uint8Array&gt;</span></article>
             <article class="api-item" data-search-item><h3>toBlob(options?)</h3><p>Executes and returns a Blob with the registered output codec MIME type. Intended for browser previews, uploads, and downloads.</p><span class="returns">returns Promise&lt;Blob&gt;</span></article>
@@ -247,6 +251,19 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 <span class="tok-key">interface</span> PngEncodeOptions &#123; compressionLevel?: number &#125; <span class="tok-comment">// 0–9</span>
 <span class="tok-key">interface</span> WebpEncodeOptions &#123; lossless?: boolean; quality?: number &#125;
 <span class="tok-key">interface</span> BmpEncodeOptions &#123; alpha?: boolean &#125;
+<span class="tok-key">interface</span> HdrEncodeOptions &#123; exposure?: number; gamma?: number &#125;
+<span class="tok-key">interface</span> QoiEncodeOptions &#123;
+  channels?: 3 | 4
+  colorspace?: <span class="tok-string">'srgb'</span> | <span class="tok-string">'linear'</span>
+&#125;
+<span class="tok-key">interface</span> NetpbmEncodeOptions &#123;
+  format?: <span class="tok-string">'pbm'</span> | <span class="tok-string">'pgm'</span> | <span class="tok-string">'ppm'</span> | <span class="tok-string">'pam'</span> | <span class="tok-string">'pfm'</span>
+  ascii?: boolean
+  bitDepth?: 8 | 16
+  endian?: <span class="tok-string">'little'</span> | <span class="tok-string">'big'</span>
+  scale?: number
+&#125;
+<span class="tok-key">interface</span> TgaEncodeOptions &#123; alpha?: boolean; rle?: boolean &#125;
 <span class="tok-key">interface</span> TiffEncodeOptions &#123;
   compression?: <span class="tok-string">'deflate'</span>
   predictor?: <span class="tok-string">'horizontal'</span>

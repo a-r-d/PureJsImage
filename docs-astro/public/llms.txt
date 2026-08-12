@@ -525,6 +525,50 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 - Memory model: The implemented single-group Modular path retains compressed input, bounded entropy tables, the adaptive tree, an optional 4 MiB LZ77 ring, and compact signed channel planes. Peak decoded working memory scales with source pixels but does not allocate a second source-sized RGBA bitmap.
 - Recommended output use: Use for the documented single-group lossless Modular RGB/RGBA subset and retain an explicit unsupported-operation path for broader JPEG XL files.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md
+
+### Radiance HDR / RGBE
+
+- Import: `import { hdrCodec } from 'purejsimage/codecs/hdr'`
+- Decode: Yes (`supported`)
+- Encode: Yes (`supported`)
+- Implemented scope: Decodes Radiance RGBE pixels to native float32 RGB rows, including every legal axis direction, standard channel RLE, legacy scanlines, EXPOSURE, and GAMMA. Encodes deterministic RGBE with standard scanline RLE.
+- Primary boundary: Radiance RGBE pictures with standard scanline RLE or legacy scanlines; no XYZE or color-correction pipeline
+- Memory model: Common Y-major decode and all encode paths use bounded scanline storage; uncommon X-major input uses a compact source-sized RGBE transpose buffer, and region access retains one numeric offset per source scanline
+- Recommended output use: Radiance environment maps and other RGBE interchange where native HDR samples must remain floating point.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/hdr-codec-support.md
+
+### QOI
+
+- Import: `import { qoiCodec } from 'purejsimage/codecs/qoi'`
+- Decode: Yes (`supported`)
+- Encode: Yes (`supported`)
+- Implemented scope: Decodes and encodes every QOI chunk operation with strict dimensions, pixel counts, channel fields, colorspace fields, and end markers.
+- Primary boundary: Complete QOI Specification v1 RGB and RGBA still images
+- Memory model: Sequential decode and encode use bounded row blocks plus the fixed 64-entry QOI index
+- Recommended output use: Simple lossless RGB or RGBA interchange.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/qoi-codec-support.md
+
+### Netpbm and PFM
+
+- Import: `import { netpbmCodec } from 'purejsimage/codecs/netpbm'`
+- Decode: Yes (`supported`)
+- Encode: Yes (`supported`)
+- Implemented scope: Decodes and encodes PBM P1/P4, PGM P2/P5, PPM P3/P6, PAM P7 grayscale and RGB tuples with optional alpha, and little- or big-endian float32 PFM.
+- Primary boundary: Single-image PBM, PGM, PPM, standard PAM grayscale/RGB tuples, and Netpbm PFM convention
+- Memory model: Header parsing is capped and integer decode and encode use bounded rows; PFM decode uses bounded rows while PFM encode retains one float frame to reverse top-down input into the required bottom-to-top raster
+- Recommended output use: Portable anymap interchange, simple test fixtures, and native float32 PFM data.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/netpbm-codec-support.md
+
+### TGA / TARGA
+
+- Import: `import { tgaCodec } from 'purejsimage/codecs/tga'`
+- Decode: Yes (`supported`)
+- Encode: Yes (`supported`)
+- Implemented scope: Decodes indexed, grayscale, RGB555/RGB5551, 24-bit BGR, and 32-bit BGRA TGA in all four origin directions. Encodes deterministic 24-bit RGB or 32-bit RGBA with optional TGA RLE.
+- Primary boundary: Uncompressed and RLE color-mapped, truecolor, and grayscale TGA still images; no interleaving or developer-area metadata
+- Memory model: Uncompressed decode and all encode paths use bounded rows; RLE decode retains compact packet state per source row, and palettes are bounded by the declared color-map length
+- Recommended output use: Legacy TGA still-image interchange.
+- Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/tga-codec-support.md
 <!-- capabilities:llms:end -->
 
 ## TIFF, scientific rasters, and whole-slide images

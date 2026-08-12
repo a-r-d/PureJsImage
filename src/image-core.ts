@@ -10,12 +10,21 @@ import type {
   AvifEncodeOptions,
   BmpEncodeOptions,
   CropOptions,
+  HdrEncodeOptions,
   JpegEncodeOptions,
   LutOptions,
+  NetpbmEncodeOptions,
+  PamEncodeOptions,
+  PbmEncodeOptions,
+  PfmEncodeOptions,
+  PgmEncodeOptions,
   PipelineOperation,
   PngEncodeOptions,
+  PpmEncodeOptions,
+  QoiEncodeOptions,
   ResizeOptions,
   RotateOptions,
+  TgaEncodeOptions,
   TiffEncodeOptions,
   WebpEncodeOptions,
   WindowOptions,
@@ -23,12 +32,16 @@ import type {
 import {
   createAvifEncodeOperation,
   createBmpEncodeOperation,
-  createJpegEncodeOperation,
   createCropOperation,
+  createHdrEncodeOperation,
+  createJpegEncodeOperation,
   createLutOperation,
+  createNetpbmEncodeOperation,
   createPngEncodeOperation,
+  createQoiEncodeOperation,
   createResizeOperation,
   createRotateOperation,
+  createTgaEncodeOperation,
   createTiffEncodeOperation,
   createWebpEncodeOperation,
   createWindowOperation,
@@ -202,18 +215,26 @@ export class Image<Input, Output extends Uint8Array> {
   }
 
   encode(format: 'avif', options?: AvifEncodeOptions): Image<Input, Output>
-  encode(format: 'jpeg', options?: JpegEncodeOptions): Image<Input, Output>
-  encode(format: 'png', options?: PngEncodeOptions): Image<Input, Output>
-  encode(format: 'webp', options?: WebpEncodeOptions): Image<Input, Output>
   encode(format: 'bmp', options?: BmpEncodeOptions): Image<Input, Output>
+  encode(format: 'hdr', options?: HdrEncodeOptions): Image<Input, Output>
+  encode(format: 'jpeg', options?: JpegEncodeOptions): Image<Input, Output>
+  encode(format: 'netpbm', options?: NetpbmEncodeOptions): Image<Input, Output>
+  encode(format: 'png', options?: PngEncodeOptions): Image<Input, Output>
+  encode(format: 'qoi', options?: QoiEncodeOptions): Image<Input, Output>
+  encode(format: 'tga', options?: TgaEncodeOptions): Image<Input, Output>
   encode(format: 'tiff', options?: TiffEncodeOptions): Image<Input, Output>
+  encode(format: 'webp', options?: WebpEncodeOptions): Image<Input, Output>
   encode(
-    format: 'avif' | 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp',
+    format: 'avif' | 'bmp' | 'hdr' | 'jpeg' | 'netpbm' | 'png' | 'qoi' | 'tga' | 'tiff' | 'webp',
     options:
       | AvifEncodeOptions
       | BmpEncodeOptions
+      | HdrEncodeOptions
       | JpegEncodeOptions
+      | NetpbmEncodeOptions
       | PngEncodeOptions
+      | QoiEncodeOptions
+      | TgaEncodeOptions
       | TiffEncodeOptions
       | WebpEncodeOptions = {},
   ): Image<Input, Output> {
@@ -222,6 +243,16 @@ export class Image<Input, Output extends Uint8Array> {
         createAvifEncodeOperation(
           'background' in options ? { background: options.background } : {},
         ),
+      )
+    }
+    if (format === 'hdr') {
+      return this.#append(
+        createHdrEncodeOperation({
+          ...('exposure' in options && options.exposure !== undefined
+            ? { exposure: options.exposure }
+            : {}),
+          ...('gamma' in options && options.gamma !== undefined ? { gamma: options.gamma } : {}),
+        }),
       )
     }
     if (format === 'jpeg') {
@@ -261,6 +292,48 @@ export class Image<Input, Output extends Uint8Array> {
         }),
       )
     }
+    if (format === 'netpbm') {
+      return this.#append(
+        createNetpbmEncodeOperation({
+          ...('format' in options &&
+          (options.format === 'pbm' ||
+            options.format === 'pgm' ||
+            options.format === 'ppm' ||
+            options.format === 'pam' ||
+            options.format === 'pfm')
+            ? { format: options.format }
+            : {}),
+          ...('ascii' in options && options.ascii !== undefined ? { ascii: options.ascii } : {}),
+          ...('bitDepth' in options && options.bitDepth !== undefined
+            ? { bitDepth: options.bitDepth }
+            : {}),
+          ...('endian' in options && options.endian !== undefined
+            ? { endian: options.endian }
+            : {}),
+          ...('scale' in options && options.scale !== undefined ? { scale: options.scale } : {}),
+        }),
+      )
+    }
+    if (format === 'qoi') {
+      return this.#append(
+        createQoiEncodeOperation({
+          ...('channels' in options && options.channels !== undefined
+            ? { channels: options.channels }
+            : {}),
+          ...('colorspace' in options && options.colorspace !== undefined
+            ? { colorspace: options.colorspace }
+            : {}),
+        }),
+      )
+    }
+    if (format === 'tga') {
+      return this.#append(
+        createTgaEncodeOperation({
+          ...('alpha' in options && options.alpha !== undefined ? { alpha: options.alpha } : {}),
+          ...('rle' in options && options.rle !== undefined ? { rle: options.rle } : {}),
+        }),
+      )
+    }
     if (format === 'tiff') {
       return this.#append(
         createTiffEncodeOperation({
@@ -285,7 +358,10 @@ export class Image<Input, Output extends Uint8Array> {
           ...('tileHeight' in options && options.tileHeight !== undefined
             ? { tileHeight: options.tileHeight }
             : {}),
-          ...('format' in options && options.format !== undefined
+          ...('format' in options &&
+          (options.format === 'auto' ||
+            options.format === 'classic' ||
+            options.format === 'bigtiff')
             ? { format: options.format }
             : {}),
         }),
@@ -321,6 +397,42 @@ export class Image<Input, Output extends Uint8Array> {
 
   bmp(options: BmpEncodeOptions = {}): Image<Input, Output> {
     return this.#append(createBmpEncodeOperation(options))
+  }
+
+  hdr(options: HdrEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createHdrEncodeOperation(options))
+  }
+
+  qoi(options: QoiEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createQoiEncodeOperation(options))
+  }
+
+  netpbm(options: NetpbmEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createNetpbmEncodeOperation(options))
+  }
+
+  pbm(options: PbmEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createNetpbmEncodeOperation({ ...options, format: 'pbm' }))
+  }
+
+  pgm(options: PgmEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createNetpbmEncodeOperation({ ...options, format: 'pgm' }))
+  }
+
+  ppm(options: PpmEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createNetpbmEncodeOperation({ ...options, format: 'ppm' }))
+  }
+
+  pam(options: PamEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createNetpbmEncodeOperation({ ...options, format: 'pam' }))
+  }
+
+  pfm(options: PfmEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createNetpbmEncodeOperation({ ...options, format: 'pfm' }))
+  }
+
+  tga(options: TgaEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createTgaEncodeOperation(options))
   }
 
   tiff(options: TiffEncodeOptions = {}): Image<Input, Output> {

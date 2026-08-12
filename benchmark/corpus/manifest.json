@@ -823,6 +823,149 @@
       }
     },
     {
+      "id": "small-qoi-city",
+      "file": "small-codec-city.qoi",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "qoi",
+        "width": 576,
+        "height": 576,
+        "sha256": "91b15578c0b03a3b75e30bcc42cdb2df4ebddf43d8ff6eb4d4c2df795cd6aaf5"
+      }
+    },
+    {
+      "id": "small-qoi-haze",
+      "file": "small-codec-haze.qoi",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "qoi",
+        "width": 576,
+        "height": 576,
+        "sha256": "61d28d2c47b5f34bb0637f0d76c9a0769746727602a0756293f3bbd61702c1e7"
+      }
+    },
+    {
+      "id": "small-qoi-grass",
+      "file": "small-codec-grass.qoi",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "qoi",
+        "width": 576,
+        "height": 576,
+        "sha256": "c4afc70617e9e631c93c129c106bf13c1698123e318736edb9b7bbfb423d64cf"
+      }
+    },
+    {
+      "id": "small-ppm-city",
+      "file": "small-codec-city.ppm",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "netpbm",
+        "width": 576,
+        "height": 576,
+        "sha256": "659e8592a4715371efdd32cb2496724fcc4071b909f00fda2d532d18c48870f4"
+      }
+    },
+    {
+      "id": "small-ppm-haze",
+      "file": "small-codec-haze.ppm",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "netpbm",
+        "width": 576,
+        "height": 576,
+        "sha256": "8884f171d3844274f0f4122f20833a5a3e8051abb73888e57f94ad74b9944159"
+      }
+    },
+    {
+      "id": "small-ppm-grass",
+      "file": "small-codec-grass.ppm",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "netpbm",
+        "width": 576,
+        "height": 576,
+        "sha256": "0c801b31b96901bbf507470c29a4c749b36c693d331c3a927522455eef012219"
+      }
+    },
+    {
+      "id": "small-tga-city",
+      "file": "small-codec-city.tga",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "tga",
+        "width": 576,
+        "height": 576,
+        "sha256": "20d8412bdbdc5fc2abcb82dd420d7ae0ebc836ef210062abf6139ce194a0ad2d"
+      }
+    },
+    {
+      "id": "small-tga-haze",
+      "file": "small-codec-haze.tga",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "tga",
+        "width": 576,
+        "height": 576,
+        "sha256": "b0c7cbf872dbdcfca677718f976133a7fadb3a37ac1fc3b8d5ee7494c8d4a905"
+      }
+    },
+    {
+      "id": "small-tga-grass",
+      "file": "small-codec-grass.tga",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "tga",
+        "width": 576,
+        "height": 576,
+        "sha256": "608b31c561b0e5cc6f201101e6f51ca40673439d5862749278e079afbe700284"
+      }
+    },
+    {
+      "id": "small-hdr-potsdamer",
+      "file": "small-codec-potsdamer.hdr",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "hdr",
+        "width": 1024,
+        "height": 512,
+        "sha256": "7afe4c2f9700ee78c7477c53fa355463d7dda1fdede401432d6b5f9ff0a95696"
+      }
+    },
+    {
+      "id": "small-hdr-greenhouse",
+      "file": "small-codec-greenhouse.hdr",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "hdr",
+        "width": 1024,
+        "height": 512,
+        "sha256": "d6c3d214ecbb76a1e132bc9b5afe7d1c98fdb5f106ff598077f23bd3e566b466"
+      }
+    },
+    {
+      "id": "small-pfm-potsdamer",
+      "file": "small-codec-potsdamer.pfm",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "netpbm",
+        "width": 1024,
+        "height": 512,
+        "sha256": "5f7af3f9b2b7e70180d725842b14572e95903f82eb023e14ba74443e694528a5"
+      }
+    },
+    {
+      "id": "small-pfm-greenhouse",
+      "file": "small-codec-greenhouse.pfm",
+      "generator": "small-codec-corpus",
+      "expected": {
+        "format": "netpbm",
+        "width": 1024,
+        "height": 512,
+        "sha256": "b4251b37e333972f0575be001a8458d79efa7511792a788eb101bab89baa5898"
+      }
+    },
+    {
       "id": "stress-gradient-10000x10000",
       "file": "stress-gradient-10000x10000.png",
       "generator": "streaming-stress-gradient",

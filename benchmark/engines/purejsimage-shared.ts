@@ -26,8 +26,10 @@ interface PureImage {
     background?: string
     withoutEnlargement?: boolean
   }): PureImage
+  pfm(): { toBuffer(): Promise<Uint8Array> }
+  ppm(): { toBuffer(): Promise<Uint8Array> }
   encode(
-    format: 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp',
+    format: 'bmp' | 'hdr' | 'jpeg' | 'netpbm' | 'png' | 'qoi' | 'tga' | 'tiff' | 'webp',
     options: {
       quality?: number
       compressionLevel?: number
@@ -113,37 +115,50 @@ const isDirectLimits = (value: unknown): value is Readonly<Record<string, number
   typeof value === 'object' &&
   value !== null &&
   Object.values(value).every((limit) => typeof limit === 'number')
+const directCodecEntries: Readonly<
+  Record<string, { readonly path: string; readonly exportName: string }>
+> = {
+  hdr: { path: './codec-entries/hdr.js', exportName: 'hdrCodec' },
+  netpbm: { path: './codec-entries/netpbm.js', exportName: 'netpbmCodec' },
+  qoi: { path: './codec-entries/qoi.js', exportName: 'qoiCodec' },
+  tga: { path: './codec-entries/tga.js', exportName: 'tgaCodec' },
+  tiff: { path: './codec-entries/tiff.js', exportName: 'tiffCodec' },
+}
 
 const bytesPerPixel = (format: string): number => {
   if (format === 'gray8') return 1
   if (format === 'gray16') return 2
+  if (format === 'grayf32') return 4
   if (format === 'rgb8') return 3
   if (format === 'rgba8') return 4
   if (format === 'rgb16') return 6
   if (format === 'rgba16') return 8
-  throw new Error(`Raw TIFF benchmark does not support ${format} pixels`)
+  if (format === 'rgbf32') return 12
+  throw new Error(`Raw benchmark does not support ${format} pixels`)
 }
 
-const rawTiffDecode = async (
+const rawDecode = async (
   input: Buffer,
   operation: RawOperation,
   format: string,
 ): Promise<EngineExecution> => {
   const entryUrl = pathToFileURL(entry)
+  const codecEntry = directCodecEntries[format]
+  if (!codecEntry) throw new Error(`Raw benchmark does not support ${format} input`)
   const [codecModule, limitsModule]: unknown[] = await Promise.all([
-    import(new URL('./codec-entries/tiff.js', entryUrl).href),
+    import(new URL(codecEntry.path, entryUrl).href),
     import(new URL('./limits.js', entryUrl).href),
   ])
   const codec =
     typeof codecModule === 'object' && codecModule !== null
-      ? Reflect.get(codecModule, 'tiffCodec')
+      ? Reflect.get(codecModule, codecEntry.exportName)
       : undefined
   const limits =
     typeof limitsModule === 'object' && limitsModule !== null
       ? Reflect.get(limitsModule, 'defaultImageLimits')
       : undefined
   if (!isDirectCodec(codec) || !isDirectLimits(limits)) {
-    throw new Error(`${entry} does not expose the direct TIFF decoder`)
+    throw new Error(`${entry} does not expose the direct ${format} decoder`)
   }
 
   let sourceBytesRead = 0
@@ -298,9 +313,9 @@ const applyOperations = async ({
   )
   if (rawOperation) {
     if (workflow.operations.length !== 1) {
-      throw new Error('Raw TIFF benchmark operation must be the only pipeline operation')
+      throw new Error('Raw benchmark operation must be the only pipeline operation')
     }
-    return rawTiffDecode(input, rawOperation, workflow.expected.format)
+    return rawDecode(input, rawOperation, workflow.expected.format)
   }
 
   let image = await Image.open(input)
@@ -347,6 +362,14 @@ const applyOperations = async ({
         })
         break
       case 'encode':
+        if (operation.format === 'pfm') {
+          output = await image.pfm().toBuffer()
+          break
+        }
+        if (operation.format === 'ppm') {
+          output = await image.ppm().toBuffer()
+          break
+        }
         output = await image
           .encode(operation.format, {
             ...(operation.quality ? { quality: operation.quality } : {}),

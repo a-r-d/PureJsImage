@@ -218,6 +218,50 @@
         "status": "not-applicable",
         "rationale": "The implemented JPEG XL pixel subset is lossless Modular only; lossy VarDCT remains unsupported"
       }
+    },
+    {
+      "id": "hdr",
+      "format": "hdr",
+      "decoder": true,
+      "encoder": true,
+      "evidence": ["tests/hdr.test.ts", "tests/small-codec-interoperability.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "RGBE is decoded and encoded with its defined shared-exponent quantization and no additional lossy transform"
+      }
+    },
+    {
+      "id": "qoi",
+      "format": "qoi",
+      "decoder": true,
+      "encoder": true,
+      "evidence": ["tests/qoi.test.ts", "tests/small-codec-interoperability.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "QOI is lossless"
+      }
+    },
+    {
+      "id": "netpbm",
+      "format": "netpbm",
+      "decoder": true,
+      "encoder": true,
+      "evidence": ["tests/netpbm.test.ts", "tests/small-codec-interoperability.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "Supported Netpbm and PFM paths preserve their declared integer or float sample values, except explicit MAXVAL scaling to a canonical integer range"
+      }
+    },
+    {
+      "id": "tga",
+      "format": "tga",
+      "decoder": true,
+      "encoder": true,
+      "evidence": ["tests/tga.test.ts", "tests/small-codec-interoperability.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "Supported TGA paths are uncompressed or losslessly run-length encoded"
+      }
     }
   ]
 }

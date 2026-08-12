@@ -4,13 +4,17 @@ import { capabilityClaims, readCapabilityManifest } from '../scripts/capability-
 import { avifCodec } from '../src/codecs/avif.ts'
 import { bmpCodec } from '../src/codecs/bmp.ts'
 import { gifCodec } from '../src/codecs/gif.ts'
+import { hdrCodec } from '../src/codecs/hdr.ts'
 import { heifCodec } from '../src/codecs/heif.ts'
 import { icoCodec } from '../src/codecs/ico.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { jpeg2000Codec } from '../src/codecs/jpeg2000.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { pngCodec } from '../src/codecs/png.ts'
+import { netpbmCodec } from '../src/codecs/netpbm.ts'
+import { qoiCodec } from '../src/codecs/qoi.ts'
 import { tiffCodec } from '../src/codecs/tiff.ts'
+import { tgaCodec } from '../src/codecs/tga.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import type { ImageCodec } from '../src/codec.ts'
 import codecCapabilityExpectations from './generated/capability-expectations.json' with {
@@ -28,6 +32,10 @@ const runtimeCodecs: readonly ImageCodec[] = [
   icoCodec,
   jpeg2000Codec,
   avifCodec,
+  hdrCodec,
+  netpbmCodec,
+  qoiCodec,
+  tgaCodec,
   heifCodec,
 ]
 

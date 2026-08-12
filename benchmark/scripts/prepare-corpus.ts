@@ -1,6 +1,8 @@
 import { once } from 'node:events'
+import { execFileSync } from 'node:child_process'
 import { mkdir, open, rm, writeFile } from 'node:fs/promises'
 import { basename } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { createDeflate } from 'node:zlib'
 import { GifWriter } from 'omggif'
 import { PNG } from 'pngjs'
@@ -815,6 +817,10 @@ const nextNoiseByte = (): number => {
   return noiseState & 0xff
 }
 
+const smallCodecPreparer = fileURLToPath(
+  new URL('../small-codecs/prepare-benchmark-corpus.ts', import.meta.url),
+)
+
 const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
   switch (fixture.generator) {
     case 'bmp-gradient':
@@ -875,6 +881,11 @@ const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
       return writePacked12Tiff(fixture, false)
     case 'tiff-packed12-tile':
       return writePacked12Tiff(fixture, true)
+    case 'small-codec-corpus':
+      execFileSync(process.execPath, ['--experimental-strip-types', smallCodecPreparer], {
+        stdio: 'inherit',
+      })
+      return
     case 'webp-gradient-lossless':
       return writeWebpGradient(fixture, true)
     case 'webp-gradient-lossy':

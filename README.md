@@ -175,9 +175,9 @@ const maximum = projectScientificVolume(volume, { axis: 'z', mode: 'max' })
 
 Upload an image, let PureJsImage detect its actual format, apply optional
 orientation, resize, rotation, and flip transforms, then download JPEG, PNG,
-WebP, BMP, or TIFF output. The demo runs entirely in the browser, makes no
-image-upload request, and reports conversion time plus the browser memory
-measurements it can honestly observe.
+WebP, BMP, TIFF, Radiance HDR, QOI, PBM, PGM, PPM, PAM, PFM, or TGA output.
+The demo runs entirely in the browser, makes no image-upload request, and reports
+conversion time plus the browser memory measurements it can honestly observe.
 
 [Browse a 2.12 GB pathology slide after fetching a fraction of a percent →](https://purejsimage.com/wsi/)
 
@@ -209,6 +209,10 @@ use the default TypeScript codecs.
 | AVIF | Limited | Limited |
 | HEIF / HEIC (experimental) | Experimental | No |
 | JPEG XL | Limited | No |
+| Radiance HDR / RGBE | Yes | Yes |
+| QOI | Yes | Yes |
+| Netpbm and PFM | Yes | Yes |
+| TGA / TARGA | Yes | Yes |
 
 “Limited” means PureJsImage supports a useful subset and clearly rejects files
 outside it.
@@ -228,7 +232,11 @@ Detailed codec compatibility roadmaps:
 [JPEG 2000 / JP2](https://github.com/a-r-d/PureJsImage/blob/main/jpeg2000-codec-support.md),
 [AVIF](https://github.com/a-r-d/PureJsImage/blob/main/avif-codec-support.md),
 [HEIF / HEIC (experimental)](https://github.com/a-r-d/PureJsImage/blob/main/heif-codec-support.md),
-and [JPEG XL](https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md).
+[JPEG XL](https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md),
+[Radiance HDR / RGBE](https://github.com/a-r-d/PureJsImage/blob/main/hdr-codec-support.md),
+[QOI](https://github.com/a-r-d/PureJsImage/blob/main/qoi-codec-support.md),
+[Netpbm and PFM](https://github.com/a-r-d/PureJsImage/blob/main/netpbm-codec-support.md),
+and [TGA / TARGA](https://github.com/a-r-d/PureJsImage/blob/main/tga-codec-support.md).
 <!-- capabilities:readme:end -->
 
 HEIF/HEIC is experimental, excluded from `allCodecs`, and available only through

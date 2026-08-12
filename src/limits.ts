@@ -56,7 +56,11 @@ export const validateImageDimensions = (
   height: number,
   frames: number,
   limits: ImageLimits,
+  decodedBytesPerPixel = 4,
 ): void => {
+  if (!Number.isSafeInteger(decodedBytesPerPixel) || decodedBytesPerPixel < 1) {
+    throw invalidInput('Decoded bytes per pixel must be a positive safe integer')
+  }
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1) {
     throw invalidInput(`Invalid image dimensions: ${width}x${height}`)
   }
@@ -76,7 +80,7 @@ export const validateImageDimensions = (
     throw limitExceeded(`Image has ${pixels} pixels; maxPixels is ${limits.maxPixels}`)
   }
 
-  const decodedBytes = pixels * 4n
+  const decodedBytes = pixels * BigInt(decodedBytesPerPixel)
   if (decodedBytes > BigInt(limits.maxDecodedBytes)) {
     throw limitExceeded(
       `Worst-case decoded size is ${decodedBytes} bytes; maxDecodedBytes is ${limits.maxDecodedBytes}`,

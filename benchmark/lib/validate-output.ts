@@ -6,6 +6,7 @@ import { imageDimensionsFromData } from 'image-dimensions'
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 import type { EngineExecution, PixelCorner, ValidationResult, Workflow } from '../types.ts'
+import { identifySmallCodecFixture } from './corpus.ts'
 import { identifyTiff } from './tiff.ts'
 
 interface DecodedPixels {
@@ -125,12 +126,15 @@ const pixelAt = (decoded: DecodedPixels, x: number, y: number): PixelCorner | un
 
 const identifyOutput = (
   output: Buffer,
+  expectedFormat: Workflow['expected']['format'],
 ): { type: string; width: number; height: number } | undefined => {
   const bytes = new Uint8Array(output.buffer, output.byteOffset, output.byteLength)
   const detected = imageDimensionsFromData(bytes)
   if (detected) return detected
   const tiff = identifyTiff(bytes)
   if (tiff) return tiff
+  const smallCodec = identifySmallCodecFixture(bytes, expectedFormat)
+  if (smallCodec) return smallCodec
   if (bytes[0] !== 0x42 || bytes[1] !== 0x4d) return undefined
   try {
     const decoded = decodeBmp(output, { toRGBA: true })
@@ -217,7 +221,7 @@ export const validateExecution = async ({
   }
 
   const output = Buffer.from(execution.output)
-  const dimensions = identifyOutput(output)
+  const dimensions = identifyOutput(output, workflow.expected.format)
   if (!dimensions) {
     return {
       valid: false,

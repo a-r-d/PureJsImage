@@ -5986,6 +5986,434 @@
           "text": "`npm run check` and the isolated JPEG XL fixture and benchmark verification pass"
         }
       ]
+    },
+    {
+      "id": "hdr",
+      "name": "Radiance HDR / RGBE",
+      "packageFormat": "hdr",
+      "read": {
+        "status": "supported",
+        "label": "Yes"
+      },
+      "write": {
+        "status": "supported",
+        "label": "Yes"
+      },
+      "boundary": "Radiance RGBE pictures with standard scanline RLE or legacy scanlines; no XYZE or color-correction pipeline",
+      "description": "Decodes Radiance RGBE pixels to native float32 RGB rows, including every legal axis direction, standard channel RLE, legacy scanlines, EXPOSURE, and GAMMA. Encodes deterministic RGBE with standard scanline RLE.",
+      "memory": "Common Y-major decode and all encode paths use bounded scanline storage; uncommon X-major input uses a compact source-sized RGBE transpose buffer, and region access retains one numeric offset per source scanline",
+      "recommendation": "Radiance environment maps and other RGBE interchange where native HDR samples must remain floating point.",
+      "evidence": ["tests/hdr.test.ts", "tests/small-codec-interoperability.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "RGBE is decoded and encoded with its defined shared-exponent quantization and no additional lossy transform"
+      },
+      "claims": [
+        {
+          "status": "supported",
+          "text": "`#?RADIANCE` and `#?RGBE` signatures"
+        },
+        {
+          "status": "supported",
+          "text": "`FORMAT=32-bit_rle_rgbe`"
+        },
+        {
+          "status": "supported",
+          "text": "Standard per-channel scanline RLE, including 128-byte literal packets"
+        },
+        {
+          "status": "supported",
+          "text": "Legacy flat RGBE scanlines and legacy repeat packets"
+        },
+        {
+          "status": "supported",
+          "text": "`+X`, `-X`, `+Y`, and `-Y` resolution orientations"
+        },
+        {
+          "status": "supported",
+          "text": "Native `rgbf32` output without 8-bit clipping"
+        },
+        {
+          "status": "supported",
+          "text": "Region decode with bounded scanline buffers"
+        },
+        {
+          "status": "planned",
+          "text": "XYZE pixel data"
+        },
+        {
+          "status": "planned",
+          "text": "Multiple pictures in one stream"
+        },
+        {
+          "status": "supported",
+          "text": "Width, height, bit depth, floating-point sample format, and orientation text"
+        },
+        {
+          "status": "supported",
+          "text": "Multiplicative `EXPOSURE` fields"
+        },
+        {
+          "status": "supported",
+          "text": "`GAMMA`"
+        },
+        {
+          "status": "planned",
+          "text": "Automatic application of exposure, gamma, primaries, or color-correction fields"
+        },
+        {
+          "status": "supported",
+          "text": "Deterministic RGBE conversion from `rgbf32` and normalized display pixels"
+        },
+        {
+          "status": "supported",
+          "text": "Standard scanline RLE for legal scanline widths"
+        },
+        {
+          "status": "supported",
+          "text": "Legacy flat output for widths outside the standard RLE range"
+        },
+        {
+          "status": "supported",
+          "text": "Optional `EXPOSURE` and `GAMMA` fields"
+        },
+        {
+          "status": "supported",
+          "text": "Header, dimension, allocation, scanline length, packet length, and truncation checks"
+        },
+        {
+          "status": "supported",
+          "text": "Real 1K Poly Haven CC0 HDR benchmark inputs"
+        },
+        {
+          "status": "supported",
+          "text": "Deterministic exponent-extreme and orientation tests"
+        }
+      ]
+    },
+    {
+      "id": "qoi",
+      "name": "QOI",
+      "packageFormat": "qoi",
+      "read": {
+        "status": "supported",
+        "label": "Yes"
+      },
+      "write": {
+        "status": "supported",
+        "label": "Yes"
+      },
+      "boundary": "Complete QOI Specification v1 RGB and RGBA still images",
+      "description": "Decodes and encodes every QOI chunk operation with strict dimensions, pixel counts, channel fields, colorspace fields, and end markers.",
+      "memory": "Sequential decode and encode use bounded row blocks plus the fixed 64-entry QOI index",
+      "recommendation": "Simple lossless RGB or RGBA interchange.",
+      "evidence": ["tests/qoi.test.ts", "tests/small-codec-interoperability.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "QOI is lossless"
+      },
+      "claims": [
+        {
+          "status": "supported",
+          "text": "QOI Specification v1 header and end marker"
+        },
+        {
+          "status": "supported",
+          "text": "Three-channel RGB and four-channel RGBA files"
+        },
+        {
+          "status": "supported",
+          "text": "sRGB with linear alpha and all-channels-linear colorspace fields"
+        },
+        {
+          "status": "supported",
+          "text": "`QOI_OP_INDEX`"
+        },
+        {
+          "status": "supported",
+          "text": "`QOI_OP_DIFF`"
+        },
+        {
+          "status": "supported",
+          "text": "`QOI_OP_LUMA`"
+        },
+        {
+          "status": "supported",
+          "text": "`QOI_OP_RUN`, including the maximum legal run"
+        },
+        {
+          "status": "supported",
+          "text": "`QOI_OP_RGB`"
+        },
+        {
+          "status": "supported",
+          "text": "`QOI_OP_RGBA`"
+        },
+        {
+          "status": "supported",
+          "text": "Sequential bounded-row output"
+        },
+        {
+          "status": "supported",
+          "text": "Deterministic RGB and RGBA output"
+        },
+        {
+          "status": "supported",
+          "text": "Every QOI chunk operation"
+        },
+        {
+          "status": "supported",
+          "text": "Explicit channel and colorspace selection"
+        },
+        {
+          "status": "supported",
+          "text": "Dimension and decoded-byte allocation limits"
+        },
+        {
+          "status": "supported",
+          "text": "Exact pixel-count and end-marker validation"
+        },
+        {
+          "status": "supported",
+          "text": "Truncated header, chunk, and marker rejection"
+        },
+        {
+          "status": "supported",
+          "text": "Official MIT QOI reference encoder interoperability fixture"
+        },
+        {
+          "status": "supported",
+          "text": "Independently encoded CC0 benchmark images"
+        }
+      ]
+    },
+    {
+      "id": "netpbm",
+      "name": "Netpbm and PFM",
+      "packageFormat": "netpbm",
+      "read": {
+        "status": "supported",
+        "label": "Yes"
+      },
+      "write": {
+        "status": "supported",
+        "label": "Yes"
+      },
+      "boundary": "Single-image PBM, PGM, PPM, standard PAM grayscale/RGB tuples, and Netpbm PFM convention",
+      "description": "Decodes and encodes PBM P1/P4, PGM P2/P5, PPM P3/P6, PAM P7 grayscale and RGB tuples with optional alpha, and little- or big-endian float32 PFM.",
+      "memory": "Header parsing is capped and integer decode and encode use bounded rows; PFM decode uses bounded rows while PFM encode retains one float frame to reverse top-down input into the required bottom-to-top raster",
+      "recommendation": "Portable anymap interchange, simple test fixtures, and native float32 PFM data.",
+      "evidence": ["tests/netpbm.test.ts", "tests/small-codec-interoperability.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "Supported Netpbm and PFM paths preserve their declared integer or float sample values, except explicit MAXVAL scaling to a canonical integer range"
+      },
+      "claims": [
+        {
+          "status": "supported",
+          "text": "PBM P1 ASCII and P4 packed binary"
+        },
+        {
+          "status": "supported",
+          "text": "PGM P2 ASCII and P5 binary"
+        },
+        {
+          "status": "supported",
+          "text": "PPM P3 ASCII and P6 binary"
+        },
+        {
+          "status": "supported",
+          "text": "PAM P7 `BLACKANDWHITE`, `BLACKANDWHITE_ALPHA`, `GRAYSCALE`, `GRAYSCALE_ALPHA`, `RGB`, and `RGB_ALPHA` tuples"
+        },
+        {
+          "status": "supported",
+          "text": "Comments and Netpbm whitespace between header tokens"
+        },
+        {
+          "status": "supported",
+          "text": "MAXVAL from 1 through 65535"
+        },
+        {
+          "status": "supported",
+          "text": "Native big-endian `gray16`, `rgb16`, and `rgba16` blocks for 16-bit samples"
+        },
+        {
+          "status": "supported",
+          "text": "Bounded row output"
+        },
+        {
+          "status": "planned",
+          "text": "Multiple concatenated images"
+        },
+        {
+          "status": "planned",
+          "text": "Nonstandard PAM tuple types"
+        },
+        {
+          "status": "supported",
+          "text": "P1 and P4 PBM"
+        },
+        {
+          "status": "supported",
+          "text": "P2 and P5 PGM"
+        },
+        {
+          "status": "supported",
+          "text": "P3 and P6 PPM"
+        },
+        {
+          "status": "supported",
+          "text": "P7 PAM grayscale, grayscale-alpha, RGB, and RGBA"
+        },
+        {
+          "status": "supported",
+          "text": "Deterministic 8-bit and 16-bit output"
+        },
+        {
+          "status": "supported",
+          "text": "`Pf` grayscale and `PF` RGB"
+        },
+        {
+          "status": "supported",
+          "text": "Little-endian and big-endian float32 samples"
+        },
+        {
+          "status": "supported",
+          "text": "Non-unit finite scale magnitudes"
+        },
+        {
+          "status": "supported",
+          "text": "Negative, greater-than-one, NaN, and infinite samples"
+        },
+        {
+          "status": "supported",
+          "text": "Native `grayf32` and `rgbf32` output"
+        },
+        {
+          "status": "supported",
+          "text": "Deterministic little- or big-endian encoding"
+        },
+        {
+          "status": "supported",
+          "text": "Capped token and header parsing"
+        },
+        {
+          "status": "supported",
+          "text": "Dimension, MAXVAL, tuple, sample-range, raster-size, and truncation checks"
+        },
+        {
+          "status": "supported",
+          "text": "CC0 Imazen PNM conformance fixtures"
+        },
+        {
+          "status": "supported",
+          "text": "FFmpeg PFM interoperability fixture derived from a CC0 Poly Haven HDR"
+        }
+      ]
+    },
+    {
+      "id": "tga",
+      "name": "TGA / TARGA",
+      "packageFormat": "tga",
+      "read": {
+        "status": "supported",
+        "label": "Yes"
+      },
+      "write": {
+        "status": "supported",
+        "label": "Yes"
+      },
+      "boundary": "Uncompressed and RLE color-mapped, truecolor, and grayscale TGA still images; no interleaving or developer-area metadata",
+      "description": "Decodes indexed, grayscale, RGB555/RGB5551, 24-bit BGR, and 32-bit BGRA TGA in all four origin directions. Encodes deterministic 24-bit RGB or 32-bit RGBA with optional TGA RLE.",
+      "memory": "Uncompressed decode and all encode paths use bounded rows; RLE decode retains compact packet state per source row, and palettes are bounded by the declared color-map length",
+      "recommendation": "Legacy TGA still-image interchange.",
+      "evidence": ["tests/tga.test.ts", "tests/small-codec-interoperability.test.ts"],
+      "lossyPixelValidation": {
+        "status": "not-applicable",
+        "rationale": "Supported TGA paths are uncompressed or losslessly run-length encoded"
+      },
+      "claims": [
+        {
+          "status": "supported",
+          "text": "Uncompressed and RLE color-mapped images, types 1 and 9"
+        },
+        {
+          "status": "supported",
+          "text": "Uncompressed and RLE truecolor images, types 2 and 10"
+        },
+        {
+          "status": "supported",
+          "text": "Uncompressed and RLE grayscale images, types 3 and 11"
+        },
+        {
+          "status": "supported",
+          "text": "8-bit and 16-bit color-map indices with nonzero color-map origins"
+        },
+        {
+          "status": "supported",
+          "text": "15-bit RGB555 and 16-bit RGB5551"
+        },
+        {
+          "status": "supported",
+          "text": "24-bit BGR and 32-bit BGRA"
+        },
+        {
+          "status": "supported",
+          "text": "8-bit grayscale"
+        },
+        {
+          "status": "supported",
+          "text": "Top-left, top-right, bottom-left, and bottom-right origins"
+        },
+        {
+          "status": "supported",
+          "text": "Image ID metadata"
+        },
+        {
+          "status": "supported",
+          "text": "Region decode with bounded row output"
+        },
+        {
+          "status": "planned",
+          "text": "Interleaved two-way or four-way raster storage"
+        },
+        {
+          "status": "planned",
+          "text": "Extension-area and developer-area metadata"
+        },
+        {
+          "status": "supported",
+          "text": "Deterministic 24-bit RGB and 32-bit RGBA"
+        },
+        {
+          "status": "supported",
+          "text": "Uncompressed output"
+        },
+        {
+          "status": "supported",
+          "text": "Optional raw-packet and run-packet RLE"
+        },
+        {
+          "status": "supported",
+          "text": "TGA 2.0 footer signature"
+        },
+        {
+          "status": "planned",
+          "text": "Indexed output"
+        },
+        {
+          "status": "supported",
+          "text": "Dimension, palette extent, palette index, attribute-bit, packet-length, and truncation checks"
+        },
+        {
+          "status": "supported",
+          "text": "FFmpeg RLE interoperability fixture derived from a CC0 source image"
+        },
+        {
+          "status": "supported",
+          "text": "Checksum-pinned optional historical compatibility downloads kept outside the repository"
+        }
+      ]
     }
   ]
 }

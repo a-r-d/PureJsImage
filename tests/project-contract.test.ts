@@ -85,7 +85,7 @@ describe('package contract', () => {
     expect(packageJson.scripts.check).toContain('npm run size')
     expect(packageJson.scripts.size).toContain('npm run build')
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'core')?.maxMinifiedBytes).toBe(
-      55 * 1024,
+      60 * 1024,
     )
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
       name: 'Core + scientific rasters',
@@ -450,20 +450,25 @@ describe('package contract', () => {
       './codecs/all',
       './codecs/avif',
       './codecs/bmp',
+      './codecs/hdr',
       './codecs/gif',
       './codecs/experimental/heic',
       './codecs/ico',
       './codecs/jpeg',
       './codecs/jpeg2000',
       './codecs/jpegxl',
+      './codecs/netpbm',
       './codecs/png',
+      './codecs/qoi',
       './codecs/tiff',
+      './codecs/tga',
       './codecs/webp',
     ])
     for (const name of [
       'allCodecs',
       'avifCodec',
       'bmpCodec',
+      'hdrCodec',
       'gifCodec',
       'experimentalHeicCodec',
       'experimentalHeifCodec',
@@ -473,8 +478,11 @@ describe('package contract', () => {
       'jpegCodec',
       'jpeg2000Codec',
       'jpegxlCodec',
+      'netpbmCodec',
       'pngCodec',
+      'qoiCodec',
       'tiffCodec',
+      'tgaCodec',
       'webpCodec',
     ]) {
       expect(name in publicApi).toBe(false)
@@ -592,6 +600,7 @@ describe('benchmark contract', () => {
     const ico = workflowsForProfile('ico')
     const tiff = workflowsForProfile('tiff')
     const webp = workflowsForProfile('webp')
+    const smallCodecs = workflowsForProfile('small-codecs')
     const competitors = workflowsForProfile('competitors')
 
     expect(smoke.length).toBeGreaterThan(0)
@@ -602,6 +611,7 @@ describe('benchmark contract', () => {
     expect(ico.length).toBe(6)
     expect(tiff.length).toBe(18)
     expect(webp.length).toBe(11)
+    expect(smallCodecs.length).toBe(18)
     expect(competitors).toHaveLength(14)
     expect(
       competitors
@@ -619,6 +629,7 @@ describe('benchmark contract', () => {
           workflow.tier !== 'heif' &&
           workflow.tier !== 'ico' &&
           workflow.tier !== 'tiff' &&
+          workflow.tier !== 'small-codecs' &&
           workflow.tier !== 'webp',
       ),
     )
@@ -626,6 +637,7 @@ describe('benchmark contract', () => {
     expect(heif).toEqual(workflows.filter((workflow) => workflow.tier === 'heif'))
     expect(ico).toEqual(workflows.filter((workflow) => workflow.tier === 'ico'))
     expect(tiff).toEqual(workflows.filter((workflow) => workflow.tier === 'tiff'))
+    expect(smallCodecs).toEqual(workflows.filter((workflow) => workflow.tier === 'small-codecs'))
     expect(webp).toEqual(workflows.filter((workflow) => workflow.tier === 'webp'))
   })
 

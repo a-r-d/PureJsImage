@@ -245,13 +245,45 @@ export const executePipeline = async (
         ? {}
         : { resolutionLevel: context.resolutionLevel }),
     })
-    const output = planOutput(
+    const plannedOutput = planOutput(
       decoder.width,
       decoder.height,
       context.codec.format,
       operations,
       sourceOrientation,
     )
+    const requestedRegion = plannedOutput.decoderRegion
+    const isFullFrame =
+      requestedRegion.x === 0 &&
+      requestedRegion.y === 0 &&
+      requestedRegion.width === decoder.width &&
+      requestedRegion.height === decoder.height
+    const output: OutputPlan =
+      decoder.capabilities.regionDecode || isFullFrame
+        ? plannedOutput
+        : {
+            ...plannedOutput,
+            decoderRegion: {
+              x: 0,
+              y: 0,
+              width: decoder.width,
+              height: decoder.height,
+            },
+            stages: [
+              {
+                type: 'crop',
+                x: requestedRegion.x,
+                y: requestedRegion.y,
+                width: requestedRegion.width,
+                height: requestedRegion.height,
+              },
+              ...plannedOutput.stages,
+            ],
+          }
+    const outputCodec = context.registry.get(output.format)
+    if (!outputCodec?.createEncoder) {
+      throw unsupportedOperation(`${output.format} encoding is not implemented`)
+    }
     const scaleDenominator = selectDecodeScaleDenominator(
       decoder.width,
       decoder.height,
@@ -265,7 +297,7 @@ export const executePipeline = async (
     if (output.window && !sourcePixelFormat.startsWith('gray')) {
       throw unsupportedOperation(`Window input must be grayscale, received ${sourcePixelFormat}`)
     }
-    let pixelFormat = normalizedPixelFormat(sourcePixelFormat)
+    let pixelFormat = sourcePixelFormat
     let blocks: AsyncIterable<PixelBlock> = decoder.decode(
       scaleDenominator === 1
         ? {
@@ -281,19 +313,26 @@ export const executePipeline = async (
             ...(options.signal === undefined ? {} : { signal: options.signal }),
           },
     )
-    blocks = normalizePixelBlocks(blocks, sourcePixelFormat, {
-      ...(options.signal === undefined ? {} : { signal: options.signal }),
-      ...(output.window === undefined
-        ? {}
-        : {
-            displayRanges: [
-              {
-                black: output.window.options.center - output.window.options.width / 2,
-                white: output.window.options.center + output.window.options.width / 2,
-              },
-            ],
-          }),
-    })
+    const normalizeForTransforms = output.stages.some(
+      (operation) => operation.type !== 'encode' && operation.type !== 'window',
+    )
+    const normalizeForEncoder = !outputCodec.encoderPixelFormats?.includes(sourcePixelFormat)
+    if (normalizeForTransforms || normalizeForEncoder) {
+      blocks = normalizePixelBlocks(blocks, sourcePixelFormat, {
+        ...(options.signal === undefined ? {} : { signal: options.signal }),
+        ...(output.window === undefined
+          ? {}
+          : {
+              displayRanges: [
+                {
+                  black: output.window.options.center - output.window.options.width / 2,
+                  white: output.window.options.center + output.window.options.width / 2,
+                },
+              ],
+            }),
+      })
+      pixelFormat = normalizedPixelFormat(sourcePixelFormat)
+    }
     for (const operation of output.stages) {
       if (operation.type === 'encode' || operation.type === 'window') continue
       if (operation.type === 'lut') {
@@ -363,10 +402,7 @@ export const executePipeline = async (
       validateImageDimensions(width, height, 1, context.limits)
     }
     validateImageDimensions(width, height, 1, context.limits)
-    const outputCodec = context.registry.get(output.format)
-    if (!outputCodec?.createEncoder) {
-      throw unsupportedOperation(`${output.format} encoding is not implemented`)
-    }
+
     encoder = await outputCodec.createEncoder(sink, {
       width,
       height,

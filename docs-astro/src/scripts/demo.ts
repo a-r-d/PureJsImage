@@ -15,7 +15,20 @@ import { normalizePixelBlocks } from '../../../src/pixel.ts'
 import { openTiffDocument } from '../../../src/tiff/index.ts'
 import type { TiffDirectory, TiffDocument } from '../../../src/tiff/types.ts'
 
-type OutputFormat = 'bmp' | 'jpeg' | 'png' | 'tiff' | 'webp'
+type OutputFormat =
+  | 'bmp'
+  | 'hdr'
+  | 'jpeg'
+  | 'pam'
+  | 'pbm'
+  | 'pfm'
+  | 'pgm'
+  | 'png'
+  | 'ppm'
+  | 'qoi'
+  | 'tga'
+  | 'tiff'
+  | 'webp'
 type LogLevel = 'detect' | 'error' | 'info' | 'metric' | 'plan' | 'success' | 'warning'
 type DecodeMode = 'typescript' | 'wasm'
 type DemoMode = 'convert' | 'view'
@@ -238,8 +251,16 @@ const outputTypes: Readonly<
   >
 > = Object.freeze({
   bmp: { extension: 'bmp', label: 'BMP', mime: 'image/bmp' },
+  hdr: { extension: 'hdr', label: 'Radiance HDR', mime: 'image/vnd.radiance' },
   jpeg: { extension: 'jpg', label: 'JPEG', mime: 'image/jpeg' },
+  pam: { extension: 'pam', label: 'PAM', mime: 'image/x-portable-arbitrarymap' },
+  pbm: { extension: 'pbm', label: 'PBM', mime: 'image/x-portable-bitmap' },
+  pfm: { extension: 'pfm', label: 'PFM', mime: 'image/x-portable-floatmap' },
+  pgm: { extension: 'pgm', label: 'PGM', mime: 'image/x-portable-graymap' },
   png: { extension: 'png', label: 'PNG', mime: 'image/png' },
+  ppm: { extension: 'ppm', label: 'PPM', mime: 'image/x-portable-pixmap' },
+  qoi: { extension: 'qoi', label: 'QOI', mime: 'image/qoi' },
+  tga: { extension: 'tga', label: 'TGA', mime: 'image/x-targa' },
   tiff: { extension: 'tiff', label: 'TIFF', mime: 'image/tiff' },
   webp: { extension: 'webp', label: 'WebP', mime: 'image/webp' },
 })
@@ -362,8 +383,16 @@ const outputFormatValue = (): OutputFormat => {
   const value = outputFormat.value
   if (
     value === 'bmp' ||
+    value === 'hdr' ||
     value === 'jpeg' ||
+    value === 'pam' ||
+    value === 'pbm' ||
+    value === 'pfm' ||
+    value === 'pgm' ||
     value === 'png' ||
+    value === 'ppm' ||
+    value === 'qoi' ||
+    value === 'tga' ||
     value === 'tiff' ||
     value === 'webp'
   ) {
@@ -1334,6 +1363,30 @@ const plannedPipeline = (
   } else if (format === 'bmp') {
     image = image.bmp({ alpha: selectedMetadata.hasAlpha })
     steps.push(selectedMetadata.hasAlpha ? '32-bit BMP' : '24-bit BMP')
+  } else if (format === 'hdr') {
+    image = image.hdr()
+    steps.push('Radiance HDR')
+  } else if (format === 'qoi') {
+    image = image.qoi({ channels: selectedMetadata.hasAlpha ? 4 : 3 })
+    steps.push(selectedMetadata.hasAlpha ? 'RGBA QOI' : 'RGB QOI')
+  } else if (format === 'pbm') {
+    image = image.pbm()
+    steps.push('binary PBM')
+  } else if (format === 'pgm') {
+    image = image.pgm()
+    steps.push('binary PGM')
+  } else if (format === 'ppm') {
+    image = image.ppm()
+    steps.push('binary PPM')
+  } else if (format === 'pam') {
+    image = image.pam()
+    steps.push('PAM')
+  } else if (format === 'pfm') {
+    image = image.pfm()
+    steps.push('little-endian PFM')
+  } else if (format === 'tga') {
+    image = image.tga({ alpha: selectedMetadata.hasAlpha })
+    steps.push(selectedMetadata.hasAlpha ? '32-bit TGA' : '24-bit TGA')
   } else {
     image = image.tiff({ compression: 'deflate', predictor: 'horizontal', layout: 'strips' })
     steps.push('Deflate TIFF')

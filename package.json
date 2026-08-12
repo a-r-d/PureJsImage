@@ -24,6 +24,10 @@
     "bmp",
     "tiff",
     "gif",
+    "hdr",
+    "qoi",
+    "netpbm",
+    "tga",
     "heif",
     "heic",
     "geotiff",
@@ -133,6 +137,11 @@
       "import": "./dist/codec-entries/bmp.js",
       "default": "./dist/codec-entries/bmp.js"
     },
+    "./codecs/hdr": {
+      "types": "./dist/codec-entries/hdr.d.ts",
+      "import": "./dist/codec-entries/hdr.js",
+      "default": "./dist/codec-entries/hdr.js"
+    },
     "./codecs/gif": {
       "types": "./dist/codec-entries/gif.d.ts",
       "import": "./dist/codec-entries/gif.js",
@@ -163,15 +172,30 @@
       "import": "./dist/codec-entries/jpegxl.js",
       "default": "./dist/codec-entries/jpegxl.js"
     },
+    "./codecs/netpbm": {
+      "types": "./dist/codec-entries/netpbm.d.ts",
+      "import": "./dist/codec-entries/netpbm.js",
+      "default": "./dist/codec-entries/netpbm.js"
+    },
     "./codecs/png": {
       "types": "./dist/codec-entries/png.d.ts",
       "import": "./dist/codec-entries/png.js",
       "default": "./dist/codec-entries/png.js"
     },
+    "./codecs/qoi": {
+      "types": "./dist/codec-entries/qoi.d.ts",
+      "import": "./dist/codec-entries/qoi.js",
+      "default": "./dist/codec-entries/qoi.js"
+    },
     "./codecs/tiff": {
       "types": "./dist/codec-entries/tiff.d.ts",
       "import": "./dist/codec-entries/tiff.js",
       "default": "./dist/codec-entries/tiff.js"
+    },
+    "./codecs/tga": {
+      "types": "./dist/codec-entries/tga.d.ts",
+      "import": "./dist/codec-entries/tga.js",
+      "default": "./dist/codec-entries/tga.js"
     },
     "./codecs/webp": {
       "types": "./dist/codec-entries/webp.d.ts",
@@ -254,6 +278,8 @@
     "fixtures:mrc:prepare": "node benchmark/mrc/prepare-official-sample.ts",
     "fixtures:cbf:prepare": "node benchmark/cbf/prepare-compatibility-sample.ts",
     "fixtures:tiff:encode": "npm run build && node benchmark/scripts/verify-tiff-encode.ts",
+    "fixtures:small-codecs": "node benchmark/small-codecs/prepare-benchmark-corpus.ts",
+    "fixtures:tga:compatibility": "node benchmark/small-codecs/prepare-tga-compatibility.ts",
     "fuzz:release": "PUREJSIMAGE_FUZZ_RELEASE=1 PUREJSIMAGE_FUZZ_CASES=512 PUREJSIMAGE_FUZZ_SEED=1592598566 PUREJSIMAGE_FUZZ_CRASH_DIR=artifacts/fuzz-crashes vitest run tests/corruption-fuzz.test.ts",
     "corpus:exercise": "node scripts/exercise-corpus.ts",
     "corpus:imazen": "node scripts/validate-imazen-corpus.ts",
@@ -267,6 +293,7 @@
     "bench:smoke": "node benchmark/run.ts --engines jimp --profile smoke --runs 1 --warmups 0",
     "bench:bmp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile bmp",
     "bench:bmp:jimp": "node benchmark/run.ts --engines jimp --profile bmp",
+    "bench:small-codecs": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile small-codecs",
     "bench:tiff": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile tiff",
     "bench:tiff:jimp": "node benchmark/run.ts --engines jimp --profile tiff",
     "bench:transforms": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile transforms",

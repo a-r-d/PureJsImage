@@ -1271,6 +1271,241 @@ export const workflows: readonly Workflow[] = [
     defaultWarmups: 0,
     timeoutMs: 120000,
   },
+  {
+    id: 'qoi-city-decode',
+    title: 'Decode 576x576 photographic QOI to RGB',
+    tier: 'small-codecs',
+    input: 'small-qoi-city',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'qoi',
+      width: 576,
+      height: 576,
+      pixelFormat: 'rgb8',
+      decodedBytes: 995328,
+      rawSha256: '437580f67d55575dfb2344be554f8f007c05042b149a0c784a4effb1e0c694ff',
+    },
+  },
+  {
+    id: 'qoi-haze-decode',
+    title: 'Decode 576x576 gradient-heavy QOI to RGB',
+    tier: 'small-codecs',
+    input: 'small-qoi-haze',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'qoi',
+      width: 576,
+      height: 576,
+      pixelFormat: 'rgb8',
+      decodedBytes: 995328,
+      rawSha256: 'd629e8b1fd67d31b14d9cc61e5e1c6f547ad4559429e80e537f7cb04d1283759',
+    },
+  },
+  {
+    id: 'qoi-grass-decode',
+    title: 'Decode 576x576 high-frequency QOI to RGB',
+    tier: 'small-codecs',
+    input: 'small-qoi-grass',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'qoi',
+      width: 576,
+      height: 576,
+      pixelFormat: 'rgb8',
+      decodedBytes: 995328,
+      rawSha256: '75dfc150cc23d3d558dd7f1e7698886ea3934c5e5971ed4d05bba45dd7eb0516',
+    },
+  },
+  {
+    id: 'ppm-city-decode',
+    title: 'Decode 576x576 binary PPM to RGB',
+    tier: 'small-codecs',
+    input: 'small-ppm-city',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'netpbm',
+      width: 576,
+      height: 576,
+      pixelFormat: 'rgb8',
+      decodedBytes: 995328,
+      rawSha256: '437580f67d55575dfb2344be554f8f007c05042b149a0c784a4effb1e0c694ff',
+    },
+  },
+  {
+    id: 'ppm-haze-decode',
+    title: 'Decode 576x576 gradient-heavy binary PPM to RGB',
+    tier: 'small-codecs',
+    input: 'small-ppm-haze',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'netpbm',
+      width: 576,
+      height: 576,
+      pixelFormat: 'rgb8',
+      decodedBytes: 995328,
+      rawSha256: 'd629e8b1fd67d31b14d9cc61e5e1c6f547ad4559429e80e537f7cb04d1283759',
+    },
+  },
+  {
+    id: 'ppm-grass-decode',
+    title: 'Decode 576x576 high-frequency binary PPM to RGB',
+    tier: 'small-codecs',
+    input: 'small-ppm-grass',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'netpbm',
+      width: 576,
+      height: 576,
+      pixelFormat: 'rgb8',
+      decodedBytes: 995328,
+      rawSha256: '75dfc150cc23d3d558dd7f1e7698886ea3934c5e5971ed4d05bba45dd7eb0516',
+    },
+  },
+  {
+    id: 'tga-city-decode',
+    title: 'Decode 576x576 RLE truecolor TGA to RGB',
+    tier: 'small-codecs',
+    input: 'small-tga-city',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'tga',
+      width: 576,
+      height: 576,
+      pixelFormat: 'rgb8',
+      decodedBytes: 995328,
+      rawSha256: '437580f67d55575dfb2344be554f8f007c05042b149a0c784a4effb1e0c694ff',
+    },
+  },
+  {
+    id: 'tga-haze-decode',
+    title: 'Decode 576x576 gradient-heavy RLE TGA to RGB',
+    tier: 'small-codecs',
+    input: 'small-tga-haze',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'tga',
+      width: 576,
+      height: 576,
+      pixelFormat: 'rgb8',
+      decodedBytes: 995328,
+      rawSha256: 'd629e8b1fd67d31b14d9cc61e5e1c6f547ad4559429e80e537f7cb04d1283759',
+    },
+  },
+  {
+    id: 'tga-grass-decode',
+    title: 'Decode 576x576 high-frequency RLE TGA to RGB',
+    tier: 'small-codecs',
+    input: 'small-tga-grass',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'tga',
+      width: 576,
+      height: 576,
+      pixelFormat: 'rgb8',
+      decodedBytes: 995328,
+      rawSha256: '75dfc150cc23d3d558dd7f1e7698886ea3934c5e5971ed4d05bba45dd7eb0516',
+    },
+  },
+  {
+    id: 'hdr-potsdamer-decode',
+    title: 'Decode 1024x512 low-contrast Radiance HDR to float RGB',
+    tier: 'small-codecs',
+    input: 'small-hdr-potsdamer',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'hdr',
+      width: 1024,
+      height: 512,
+      pixelFormat: 'rgbf32',
+      decodedBytes: 6291456,
+      rawSha256: '7e7597a420a3664bfb4e2d7efab8932fea4eae8c111aadb162ab5ccfa530eef6',
+    },
+  },
+  {
+    id: 'hdr-greenhouse-decode',
+    title: 'Decode 1024x512 indoor Radiance HDR to float RGB',
+    tier: 'small-codecs',
+    input: 'small-hdr-greenhouse',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'hdr',
+      width: 1024,
+      height: 512,
+      pixelFormat: 'rgbf32',
+      decodedBytes: 6291456,
+      rawSha256: '7094d647c2b7ff937403da228b1323fae55b40afefbed61a8668cc144df090ed',
+    },
+  },
+  {
+    id: 'pfm-potsdamer-decode',
+    title: 'Decode 1024x512 little-endian PFM to float RGB',
+    tier: 'small-codecs',
+    input: 'small-pfm-potsdamer',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'netpbm',
+      width: 1024,
+      height: 512,
+      pixelFormat: 'rgbf32',
+      decodedBytes: 6291456,
+      rawSha256: '012e61dbeda3cac04bc9bf727507ff87d4675d607b7dc42420743db332f0dd0b',
+    },
+  },
+  {
+    id: 'pfm-greenhouse-decode',
+    title: 'Decode second 1024x512 little-endian PFM to float RGB',
+    tier: 'small-codecs',
+    input: 'small-pfm-greenhouse',
+    operations: [{ type: 'raw' }],
+    expected: {
+      format: 'netpbm',
+      width: 1024,
+      height: 512,
+      pixelFormat: 'rgbf32',
+      decodedBytes: 6291456,
+      rawSha256: '7e9b11c08ac130ed499421cd34e255de79756e29982f763487a0f86976dbb029',
+    },
+  },
+  {
+    id: 'qoi-city-encode',
+    title: 'Decode and re-encode 576x576 RGB QOI',
+    tier: 'small-codecs',
+    input: 'small-qoi-city',
+    operations: [{ type: 'encode', format: 'qoi' }],
+    expected: { format: 'qoi', width: 576, height: 576 },
+  },
+  {
+    id: 'ppm-city-encode',
+    title: 'Decode and re-encode 576x576 binary PPM',
+    tier: 'small-codecs',
+    input: 'small-ppm-city',
+    operations: [{ type: 'encode', format: 'ppm' }],
+    expected: { format: 'netpbm', width: 576, height: 576 },
+  },
+  {
+    id: 'tga-city-encode',
+    title: 'Decode and re-encode 576x576 truecolor TGA',
+    tier: 'small-codecs',
+    input: 'small-tga-city',
+    operations: [{ type: 'encode', format: 'tga' }],
+    expected: { format: 'tga', width: 576, height: 576 },
+  },
+  {
+    id: 'hdr-potsdamer-encode',
+    title: 'Decode and re-encode 1024x512 Radiance HDR',
+    tier: 'small-codecs',
+    input: 'small-hdr-potsdamer',
+    operations: [{ type: 'encode', format: 'hdr' }],
+    expected: { format: 'hdr', width: 1024, height: 512 },
+  },
+  {
+    id: 'pfm-potsdamer-encode',
+    title: 'Decode and re-encode 1024x512 float RGB PFM',
+    tier: 'small-codecs',
+    input: 'small-pfm-potsdamer',
+    operations: [{ type: 'encode', format: 'pfm' }],
+    expected: { format: 'netpbm', width: 1024, height: 512 },
+  },
 ]
 
 const phase4WorkflowIds = new Set([
@@ -1338,6 +1573,7 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
         workflow.tier !== 'bmp' &&
         workflow.tier !== 'heif' &&
         workflow.tier !== 'ico' &&
+        workflow.tier !== 'small-codecs' &&
         workflow.tier !== 'tiff' &&
         workflow.tier !== 'webp',
     )
@@ -1353,6 +1589,9 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
   }
   if (profile === 'ico') {
     return workflows.filter((workflow) => workflow.tier === 'ico')
+  }
+  if (profile === 'small-codecs') {
+    return workflows.filter((workflow) => workflow.tier === 'small-codecs')
   }
   if (profile === 'tiff') {
     return workflows.filter((workflow) => workflow.tier === 'tiff')

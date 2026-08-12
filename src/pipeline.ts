@@ -67,6 +67,52 @@ export interface BmpEncodeOptions {
   alpha?: boolean
 }
 
+export interface HdrEncodeOptions {
+  exposure?: number
+  gamma?: number
+}
+
+export interface QoiEncodeOptions {
+  channels?: 3 | 4
+  colorspace?: 'srgb' | 'linear'
+}
+
+export interface NetpbmEncodeOptions {
+  format?: 'pbm' | 'pgm' | 'ppm' | 'pam' | 'pfm'
+  ascii?: boolean
+  bitDepth?: 8 | 16
+  endian?: 'little' | 'big'
+  scale?: number
+}
+
+export interface PbmEncodeOptions {
+  ascii?: boolean
+}
+
+export interface PgmEncodeOptions {
+  ascii?: boolean
+  bitDepth?: 8 | 16
+}
+
+export interface PpmEncodeOptions {
+  ascii?: boolean
+  bitDepth?: 8 | 16
+}
+
+export interface PamEncodeOptions {
+  bitDepth?: 8 | 16
+}
+
+export interface PfmEncodeOptions {
+  endian?: 'little' | 'big'
+  scale?: number
+}
+
+export interface TgaEncodeOptions {
+  alpha?: boolean
+  rle?: boolean
+}
+
 export interface TiffEncodeOptions {
   compression?: 'deflate'
   predictor?: 'horizontal'
@@ -101,6 +147,11 @@ export type PipelineOperation =
     }
   | {
       readonly type: 'encode'
+      readonly format: 'hdr'
+      readonly options: Readonly<HdrEncodeOptions>
+    }
+  | {
+      readonly type: 'encode'
       readonly format: 'jpeg'
       readonly options: Readonly<JpegEncodeOptions>
     }
@@ -116,8 +167,23 @@ export type PipelineOperation =
     }
   | {
       readonly type: 'encode'
+      readonly format: 'netpbm'
+      readonly options: Readonly<NetpbmEncodeOptions>
+    }
+  | {
+      readonly type: 'encode'
+      readonly format: 'qoi'
+      readonly options: Readonly<QoiEncodeOptions>
+    }
+  | {
+      readonly type: 'encode'
       readonly format: 'webp'
       readonly options: Readonly<WebpEncodeOptions>
+    }
+  | {
+      readonly type: 'encode'
+      readonly format: 'tga'
+      readonly options: Readonly<TgaEncodeOptions>
     }
 
 const positiveDimension = (name: string, value: number | undefined): void => {
@@ -310,6 +376,78 @@ export const createBmpEncodeOperation = (options: BmpEncodeOptions): PipelineOpe
     throw invalidInput('BMP alpha must be a boolean')
   }
   return Object.freeze({ type: 'encode', format: 'bmp', options: Object.freeze({ ...options }) })
+}
+
+export const createHdrEncodeOperation = (options: HdrEncodeOptions): PipelineOperation => {
+  for (const [label, value] of [
+    ['exposure', options.exposure],
+    ['gamma', options.gamma],
+  ] as const) {
+    if (value !== undefined && (!Number.isFinite(value) || value <= 0)) {
+      throw invalidInput(`Radiance HDR ${label} must be finite and greater than zero`)
+    }
+  }
+  return Object.freeze({ type: 'encode', format: 'hdr', options: Object.freeze({ ...options }) })
+}
+
+export const createQoiEncodeOperation = (options: QoiEncodeOptions): PipelineOperation => {
+  if (options.channels !== undefined && options.channels !== 3 && options.channels !== 4) {
+    throw invalidInput('QOI channels must be 3 or 4')
+  }
+  if (
+    options.colorspace !== undefined &&
+    options.colorspace !== 'srgb' &&
+    options.colorspace !== 'linear'
+  ) {
+    throw invalidInput('QOI colorspace must be srgb or linear')
+  }
+  return Object.freeze({ type: 'encode', format: 'qoi', options: Object.freeze({ ...options }) })
+}
+
+export const createNetpbmEncodeOperation = (options: NetpbmEncodeOptions): PipelineOperation => {
+  if (
+    options.format !== undefined &&
+    options.format !== 'pbm' &&
+    options.format !== 'pgm' &&
+    options.format !== 'ppm' &&
+    options.format !== 'pam' &&
+    options.format !== 'pfm'
+  ) {
+    throw invalidInput('Netpbm format must be pbm, pgm, ppm, pam, or pfm')
+  }
+  if (options.ascii !== undefined && typeof options.ascii !== 'boolean') {
+    throw invalidInput('Netpbm ascii must be a boolean')
+  }
+  if (options.bitDepth !== undefined && options.bitDepth !== 8 && options.bitDepth !== 16) {
+    throw invalidInput('Netpbm bitDepth must be 8 or 16')
+  }
+  if (options.endian !== undefined && options.endian !== 'little' && options.endian !== 'big') {
+    throw invalidInput('PFM endian must be little or big')
+  }
+  if (options.scale !== undefined && (!Number.isFinite(options.scale) || options.scale <= 0)) {
+    throw invalidInput('PFM scale must be finite and greater than zero')
+  }
+  if (options.format === 'pam' && options.ascii === true) {
+    throw invalidInput('PAM does not have an ASCII encoding')
+  }
+  if (options.format === 'pfm' && (options.ascii !== undefined || options.bitDepth !== undefined)) {
+    throw invalidInput('PFM does not use ascii or bitDepth options')
+  }
+  return Object.freeze({
+    type: 'encode',
+    format: 'netpbm',
+    options: Object.freeze({ ...options }),
+  })
+}
+
+export const createTgaEncodeOperation = (options: TgaEncodeOptions): PipelineOperation => {
+  if (options.alpha !== undefined && typeof options.alpha !== 'boolean') {
+    throw invalidInput('TGA alpha must be a boolean')
+  }
+  if (options.rle !== undefined && typeof options.rle !== 'boolean') {
+    throw invalidInput('TGA rle must be a boolean')
+  }
+  return Object.freeze({ type: 'encode', format: 'tga', options: Object.freeze({ ...options }) })
 }
 
 export const createTiffEncodeOperation = (options: TiffEncodeOptions): PipelineOperation => {

@@ -432,6 +432,27 @@ test('converts the supported primary image from an MPF JPEG', async ({ page }) =
   await expect(page.locator('#demo-log-list')).toContainText('BMP output validated as 200×150')
 })
 
+test('decodes QOI and converts it to TGA in the browser demo', async ({ page }) => {
+  await page.goto('/demo/')
+  await page.waitForFunction(() => window.pureJsImageDemoReady === true)
+  await page.locator('#demo-mode-convert').click()
+  const input = await readFile('tests/fixtures/small-codecs/city-16x16-reference.qoi')
+  await page.locator('#demo-file').setInputFiles({
+    buffer: input,
+    mimeType: 'image/qoi',
+    name: 'city.qoi',
+  })
+
+  await expect(page.locator('#demo-source-badges')).toContainText('QOI')
+  await page.locator('#demo-output-format').selectOption('tga')
+  await page.locator('#demo-convert').click()
+
+  await expect(page.locator('#demo-result')).toBeVisible()
+  await expect(page.locator('#demo-result-summary')).toContainText('TGA · 16 × 16')
+  await expect(page.locator('#demo-log-list')).toContainText('TGA output validated as 16×16')
+  await expect(page.locator('#demo-log-list')).not.toContainText('ERROR')
+})
+
 test('converts a progressive JPEG with AC-refinement ZRLs to WebP', async ({ page }) => {
   await page.goto('/demo/')
   await page.waitForFunction(() => window.pureJsImageDemoReady === true)

@@ -21,6 +21,11 @@ All notable changes to PureJsImage are documented in this file.
   Zero/Left/Top prediction, reversible color transforms, and 12-bit alpha before emitting cropped
   `rgba8` rows. Added a pinned, checksum-verified official conformance corpus and exact independent
   oracle validation; broader Modular and VarDCT syntax fails explicitly.
+- Added first-party Radiance HDR, QOI, Netpbm PBM/PGM/PPM/PAM/PFM, and TGA codecs
+  with Node and browser registration, bounded row or block processing where the formats permit it,
+  explicit compact fallbacks for X-major HDR decode and bottom-up PFM encode, strict hostile-input
+  checks, deterministic encoders, licensed interoperability fixtures, and reproducible benchmark
+  corpus preparation.
 - Added first-party Gwyddion Simple Field scientific raster reading and writing with strict
   float32 payload validation, physical metadata preservation, bounded region reads, and portable
   Node/browser inputs.

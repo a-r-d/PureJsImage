@@ -73,7 +73,11 @@ export const createCodecFixtures = async (): Promise<readonly CodecFixture[]> =>
       input: await readFile('benchmark/corpus/files/avif/fox.profile0.8bpc.yuv420.avif'),
     },
     { format: 'bmp', input: await (await Image.open(png)).bmp().toBuffer() },
+    { format: 'hdr', input: await (await Image.open(png)).hdr().toBuffer() },
     { format: 'ico', input: icoFixture(png, 32, 32) },
+    { format: 'netpbm', input: await (await Image.open(png)).pam().toBuffer() },
+    { format: 'qoi', input: await (await Image.open(png)).qoi().toBuffer() },
+    { format: 'tga', input: await (await Image.open(png)).tga().toBuffer() },
     { format: 'tiff', input: await (await Image.open(png)).tiff().toBuffer() },
   ]
 }

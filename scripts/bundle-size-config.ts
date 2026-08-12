@@ -2,13 +2,17 @@ export type BundleCodec =
   | 'AVIF'
   | 'BMP'
   | 'GIF'
+  | 'HDR'
   | 'HEIF / HEIC'
   | 'ICO'
   | 'JPEG'
   | 'JPEG 2000'
   | 'PNG'
+  | 'Netpbm'
   | 'TIFF'
+  | 'QOI'
   | 'WebP'
+  | 'TGA'
 
 export interface BundleTarget {
   readonly contents: string
@@ -35,7 +39,7 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     id: 'core',
     name: 'Core API',
     contents: exportsFrom(['./src/index.ts']),
-    maxMinifiedBytes: 55 * 1024,
+    maxMinifiedBytes: 60 * 1024,
   },
   {
     id: 'scientific',
@@ -66,6 +70,26 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     id: 'webp',
     name: 'Core + WebP',
     contents: exportsFrom(['./src/index.ts', './src/codec-entries/webp.ts']),
+  },
+  {
+    id: 'hdr',
+    name: 'Core + HDR',
+    contents: exportsFrom(['./src/index.ts', './src/codec-entries/hdr.ts']),
+  },
+  {
+    id: 'qoi',
+    name: 'Core + QOI',
+    contents: exportsFrom(['./src/index.ts', './src/codec-entries/qoi.ts']),
+  },
+  {
+    id: 'netpbm',
+    name: 'Core + Netpbm',
+    contents: exportsFrom(['./src/index.ts', './src/codec-entries/netpbm.ts']),
+  },
+  {
+    id: 'tga',
+    name: 'Core + TGA',
+    contents: exportsFrom(['./src/index.ts', './src/codec-entries/tga.ts']),
   },
   {
     id: 'gif',
@@ -122,7 +146,21 @@ export const competitorBundleTargets: readonly CompetitorBundleTarget[] = [
     name: 'PureJsImage (all codecs)',
     packageName: 'purejsimage',
     implementation: 'pure-javascript',
-    codecs: ['JPEG', 'PNG', 'WebP', 'BMP', 'TIFF', 'GIF', 'ICO', 'JPEG 2000', 'AVIF'],
+    codecs: [
+      'JPEG',
+      'PNG',
+      'WebP',
+      'BMP',
+      'TIFF',
+      'GIF',
+      'ICO',
+      'JPEG 2000',
+      'AVIF',
+      'HDR',
+      'QOI',
+      'Netpbm',
+      'TGA',
+    ],
     contents: exportsFrom(['./src/index.ts', './src/codec-entries/all.ts']),
   },
   {
