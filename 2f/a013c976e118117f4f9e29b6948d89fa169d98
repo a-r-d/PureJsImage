@@ -1,0 +1,36 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 19-27
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 232-261,3214
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 42-47
+browser-tests/types.ts
+  h_9f4a25732fa0c1 55
+capabilities/manifest.json
+  h_9f4a25732fa0c1 3002-3005,3038-3044,3213,3229-3230,3268-3269,3366
+docs-astro/public/capabilities.json
+  h_9f4a25732fa0c1 5374-5377,5671,5707,5793-5796,5799,5955
+docs-astro/public/llms.txt
+  h_9f4a25732fa0c1 523-526
+docs-astro/src/pages/codecs.astro
+  h_9f4a25732fa0c1 26,51,87
+jpegxl-codec-support.md
+  h_9f4a25732fa0c1 23-29,198,214-215,253-254,351
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 313-316
+src/codecs/jpegxl-decode.ts
+  h_9f4a25732fa0c1 6,508-515,519,528,533-536,539-549,646-648,651-697
+tests/jpegxl.test.ts
+  h_9f4a25732fa0c1 82,93-105,110,112,116,133-143,145
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2fa013c976e118117f4f9e29b6948d89fa169d98",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
