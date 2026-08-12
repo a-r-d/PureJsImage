@@ -45,6 +45,12 @@ test('preserves native high-bit JPEG XL samples in a real browser', async ({ pag
   expect(result.outputBytes).toBeGreaterThan(50)
   expect(result.detail).toContain('native 12-bit RGBA samples')
 })
+test('decodes multi-group JPEG XL crops in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.jpegXlMultiGroup())
+  expect(result.outputBytes).toBe(4_096)
+  expect(result.detail).toContain('four permuted Modular group boundaries')
+})
 test('decodes lossless JPEG 2000 pixels in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.jpeg2000Decode())

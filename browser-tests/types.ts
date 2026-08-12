@@ -53,6 +53,7 @@ export interface BrowserCompatibilityHarness {
   jpeg2000Decode(): Promise<BrowserWorkflowResult>
   jpegXlLossless(): Promise<BrowserWorkflowResult>
   jpegXlHighBit(): Promise<BrowserWorkflowResult>
+  jpegXlMultiGroup(): Promise<BrowserWorkflowResult>
   legacyTiffAndBmp(): Promise<BrowserWorkflowResult>
   unsupportedJpegBoundaries(): Promise<BrowserWorkflowResult>
   tolerantJpegRestartRecovery(): Promise<BrowserWorkflowResult>

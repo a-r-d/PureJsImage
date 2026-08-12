@@ -259,6 +259,37 @@ const jpegXlHighBit = async (): Promise<BrowserWorkflowResult> => {
     outputBytes: output.byteLength,
   }
 }
+const jpegXlMultiGroup = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = await fetchBytes('/fixtures/jpegxl-permuted-large-gray8.jxl')
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (!decoder) throw new Error('Browser JPEG XL decoder is unavailable')
+  let rows = 0
+  let outputBytes = 0
+  for await (const block of decoder.decode({ x: 2_030, y: 2_040, width: 64, height: 64 })) {
+    if (
+      block.format !== 'gray8' ||
+      block.x !== 0 ||
+      block.y !== rows ||
+      block.width !== 64 ||
+      block.height !== 1
+    ) {
+      throw new Error('Browser JPEG XL multi-group crop geometry is inconsistent')
+    }
+    for (let x = 0; x < block.width; x += 1) {
+      const expected = ((2_030 + x) * 3 + (2_040 + rows) * 5) & 255
+      if (block.data[x] !== expected) {
+        throw new Error(`Browser JPEG XL multi-group sample ${x},${rows} is incorrect`)
+      }
+    }
+    rows += 1
+    outputBytes += block.data.byteLength
+  }
+  if (rows !== 64) throw new Error(`Browser JPEG XL multi-group crop emitted ${rows} rows`)
+  return {
+    detail: 'lossless JPEG XL crop crossed four permuted Modular group boundaries',
+    outputBytes,
+  }
+}
 const unsupportedJpegBoundaries = async (): Promise<BrowserWorkflowResult> => {
   const source = await fetchBytes('/fixtures/benchmark-input.jpg')
   let frame = -1
@@ -3212,6 +3243,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   jpeg2000Decode,
   jpegXlLossless,
   jpegXlHighBit,
+  jpegXlMultiGroup,
   unsupportedJpegBoundaries,
   tolerantJpegRestartRecovery,
   orientation,

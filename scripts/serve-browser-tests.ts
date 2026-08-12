@@ -315,6 +315,10 @@ await copyFile(
   resolve(fixtureDirectory, 'jpegxl-alpha-12bit.jxl'),
 )
 await copyFile(
+  'tests/fixtures/jpegxl/permuted-large-gray8.jxl',
+  resolve(fixtureDirectory, 'jpegxl-permuted-large-gray8.jxl'),
+)
+await copyFile(
   'tests/fixtures/bluemarble_256_256_3_byte.lerc2',
   resolve(fixtureDirectory, 'bluemarble_256_256_3_byte.lerc2'),
 )
