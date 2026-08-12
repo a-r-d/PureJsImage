@@ -315,6 +315,14 @@ await copyFile(
   resolve(fixtureDirectory, 'sharp-qmatrix-q30-256x192.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/rav1e-segmentation-q60-512x512.avif',
+  resolve(fixtureDirectory, 'rav1e-segmentation-q60-512x512.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/svt-skipped-intra-tx-size-512x512.avif',
+  resolve(fixtureDirectory, 'svt-skipped-intra-tx-size-512x512.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/fox.profile0.8bpc.yuv420.monochrome.avif',
   resolve(fixtureDirectory, 'fox.profile0.8bpc.yuv420.monochrome.avif'),
 )
@@ -371,6 +379,34 @@ await copyFile(
   resolve(fixtureDirectory, 'unsupported-hdr-hlg-10bpc-yuv420-32x24.avif'),
 )
 await copyFile(
+  'benchmark/corpus/files/avif/libavif-colors-hdr-p3.avif',
+  resolve(fixtureDirectory, 'libavif-colors-hdr-p3.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/hdr-hlg-10bpc-yuv444-32x24.avif',
+  resolve(fixtureDirectory, 'hdr-hlg-10bpc-yuv444-32x24.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/identity-pq-10bpc-yuv444-16x12.avif',
+  resolve(fixtureDirectory, 'identity-pq-10bpc-yuv444-16x12.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/libavif-cosmos1650-yuv444-10bpc-p3pq.avif',
+  resolve(fixtureDirectory, 'libavif-cosmos1650-yuv444-10bpc-p3pq.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/ms-chimera-hdr-matrix10-1920x1008.avif',
+  resolve(fixtureDirectory, 'ms-chimera-hdr-matrix10-1920x1008.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/colors-animated-12bpc-keyframes-0-2-3.avif',
+  resolve(fixtureDirectory, 'colors-animated-12bpc-keyframes-0-2-3.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/colors-animated-8bpc-alpha-exif-xmp.avif',
+  resolve(fixtureDirectory, 'colors-animated-8bpc-alpha-exif-xmp.avif'),
+)
+await copyFile(
   'benchmark/corpus/files/avif/filter-free-lossy-12bpc-yuv420-32x24.avif',
   resolve(fixtureDirectory, 'filter-free-lossy-12bpc-yuv420-32x24.avif'),
 )
@@ -425,6 +461,26 @@ await copyFile(
 await copyFile(
   'benchmark/corpus/files/avif/self-guided-12bpc-yuv420-320x192.avif',
   resolve(fixtureDirectory, 'self-guided-12bpc-yuv420-320x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/restoration-12bpc-yuv422-320x192.avif',
+  resolve(fixtureDirectory, 'restoration-12bpc-yuv422-320x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/restoration-12bpc-yuv444-320x192.avif',
+  resolve(fixtureDirectory, 'restoration-12bpc-yuv444-320x192.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/restoration-matrix-wiener-12bpc-yuv422-642x386.avif',
+  resolve(fixtureDirectory, 'restoration-matrix-wiener-12bpc-yuv422-642x386.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/restoration-matrix-sgr-12bpc-yuv422-642x386.avif',
+  resolve(fixtureDirectory, 'restoration-matrix-sgr-12bpc-yuv422-642x386.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/restoration-matrix-switchable-12bpc-yuv444-642x386.avif',
+  resolve(fixtureDirectory, 'restoration-matrix-switchable-12bpc-yuv444-642x386.avif'),
 )
 await copyFile(
   'benchmark/corpus/files/avif/self-guided-10bpc-yuv444-320x192.avif',
@@ -549,6 +605,10 @@ await copyFile(
 await copyFile(
   'benchmark/corpus/files/avif/clean-aperture-lossless-16x12.avif',
   resolve(fixtureDirectory, 'clean-aperture-lossless-16x12.avif'),
+)
+await copyFile(
+  'benchmark/corpus/files/avif/linku-kimono-crop.avif',
+  resolve(fixtureDirectory, 'linku-kimono-crop.avif'),
 )
 await copyFile(
   'benchmark/corpus/files/avif/bounded-row-lossless-64x192.avif',

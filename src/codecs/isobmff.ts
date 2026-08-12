@@ -1,4 +1,4 @@
-import { invalidInput } from '../errors.ts'
+import { invalidInput, limitExceeded } from '../errors.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
@@ -6,6 +6,7 @@ import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 const MAX_BOXES = 100_000
 const MAX_METADATA_BOX_BYTES = 16 * 1024 * 1024
 const MAX_ITEM_EXTENTS = 4096
+const MAX_TRACK_SAMPLES = 100_000
 
 export interface IsobmffBox {
   readonly type: string
@@ -19,6 +20,14 @@ export interface IsobmffReader {
   readonly source: ImageSource
   boxes(start: number, end: number): Promise<readonly IsobmffBox[]>
   payload(box: IsobmffBox, maximum?: number): Promise<Uint8Array>
+}
+
+export interface IsobmffSampleTable {
+  readonly durations: Uint32Array
+  readonly offsets: Float64Array
+  readonly sampleDescriptionIndices: Uint32Array
+  readonly sizes: Uint32Array
+  readonly syncSamples: Uint8Array
 }
 
 export interface IsobmffItemInfo {
@@ -75,6 +84,12 @@ export type IsobmffPropertyParser<Property> = (
 
 export const checkedAdd = (left: number, right: number, message: string): number => {
   const result = left + right
+  if (!Number.isSafeInteger(result)) throw invalidInput(message)
+  return result
+}
+
+export const checkedMultiply = (left: number, right: number, message: string): number => {
+  const result = left * right
   if (!Number.isSafeInteger(result)) throw invalidInput(message)
   return result
 }
@@ -175,6 +190,230 @@ export const readSizedInteger = (
     throw invalidInput(`${context} item location exceeds the JavaScript safe integer range`)
   }
   return Number(value)
+}
+
+const singleChildBox = (
+  boxes: readonly IsobmffBox[],
+  type: string,
+  context: string,
+): IsobmffBox => {
+  const matches = boxes.filter((box) => box.type === type)
+  if (matches.length !== 1 || !matches[0]) {
+    throw invalidInput(`${context} requires exactly one ${type} box`)
+  }
+  return matches[0]
+}
+
+const tablePayload = async (
+  reader: IsobmffReader,
+  boxes: readonly IsobmffBox[],
+  type: string,
+): Promise<Uint8Array> => {
+  const data = await reader.payload(
+    singleChildBox(boxes, type, `${reader.context} sample table`),
+    MAX_METADATA_BOX_BYTES,
+  )
+  const full = parseFullBox(data, type, reader.context)
+  if (full.version !== 0 || full.flags !== 0) {
+    throw invalidInput(`${reader.context} ${type} version or flags are unsupported`)
+  }
+  return data
+}
+
+export const parseIsobmffSampleTable = async (
+  reader: IsobmffReader,
+  sampleTable: IsobmffBox,
+  maximumSamples = MAX_TRACK_SAMPLES,
+): Promise<IsobmffSampleTable> => {
+  const boxes = await reader.boxes(sampleTable.contentStart, sampleTable.end)
+  const sizeData = await tablePayload(reader, boxes, 'stsz')
+  if (sizeData.byteLength < 12) throw invalidInput(`${reader.context} stsz box is truncated`)
+  const constantSize = uint32BigEndian(sizeData, 4)
+  const sampleCount = uint32BigEndian(sizeData, 8)
+  if (sampleCount === 0) throw invalidInput(`${reader.context} AV1 track has no samples`)
+  if (sampleCount > MAX_TRACK_SAMPLES) {
+    throw invalidInput(`${reader.context} AV1 track has too many samples`)
+  }
+  if (sampleCount > maximumSamples) {
+    throw limitExceeded(
+      `${reader.context} AV1 track has ${sampleCount} samples; maxFrames is ${maximumSamples}`,
+    )
+  }
+  const documentedSizeBytes = checkedMultiply(
+    sampleCount,
+    constantSize === 0 ? 4 : 0,
+    `${reader.context} stsz entry bytes overflow`,
+  )
+  if (sizeData.byteLength !== 12 + documentedSizeBytes) {
+    throw invalidInput(`${reader.context} stsz sample sizes are malformed`)
+  }
+  const sizes = new Uint32Array(sampleCount)
+  if (constantSize !== 0) sizes.fill(constantSize)
+  else {
+    for (let index = 0; index < sampleCount; index += 1) {
+      const size = uint32BigEndian(sizeData, 12 + index * 4)
+      if (size === 0) throw invalidInput(`${reader.context} AV1 sample has zero size`)
+      sizes[index] = size
+    }
+  }
+
+  const timingData = await tablePayload(reader, boxes, 'stts')
+  if (timingData.byteLength < 8) throw invalidInput(`${reader.context} stts box is truncated`)
+  const timingEntryCount = uint32BigEndian(timingData, 4)
+  const timingBytes = checkedMultiply(
+    timingEntryCount,
+    8,
+    `${reader.context} stts entry bytes overflow`,
+  )
+  if (timingEntryCount > sampleCount || timingData.byteLength !== 8 + timingBytes) {
+    throw invalidInput(`${reader.context} stts entries are malformed`)
+  }
+  const durations = new Uint32Array(sampleCount)
+  let timedSamples = 0
+  let totalDuration = 0
+  for (let entry = 0; entry < timingEntryCount; entry += 1) {
+    const count = uint32BigEndian(timingData, 8 + entry * 8)
+    const duration = uint32BigEndian(timingData, 12 + entry * 8)
+    if (count === 0 || duration === 0 || count > sampleCount - timedSamples) {
+      throw invalidInput(`${reader.context} stts entry has an invalid count or duration`)
+    }
+    durations.fill(duration, timedSamples, timedSamples + count)
+    timedSamples += count
+    totalDuration = checkedAdd(
+      totalDuration,
+      checkedMultiply(count, duration, `${reader.context} track duration overflows`),
+      `${reader.context} track duration overflows`,
+    )
+  }
+  if (timedSamples !== sampleCount || totalDuration === 0) {
+    throw invalidInput(`${reader.context} stts does not describe every sample`)
+  }
+
+  const chunkOffset32 = boxes.filter((box) => box.type === 'stco')
+  const chunkOffset64 = boxes.filter((box) => box.type === 'co64')
+  if (chunkOffset32.length + chunkOffset64.length !== 1) {
+    throw invalidInput(`${reader.context} sample table requires exactly one stco or co64 box`)
+  }
+  const chunkType = chunkOffset32.length === 1 ? 'stco' : 'co64'
+  const chunkData = await tablePayload(reader, boxes, chunkType)
+  if (chunkData.byteLength < 8)
+    throw invalidInput(`${reader.context} ${chunkType} box is truncated`)
+  const chunkCount = uint32BigEndian(chunkData, 4)
+  if (chunkCount === 0 || chunkCount > sampleCount) {
+    throw invalidInput(`${reader.context} ${chunkType} has an invalid chunk count`)
+  }
+  const chunkIntegerSize = chunkType === 'stco' ? 4 : 8
+  const chunkBytes = checkedMultiply(
+    chunkCount,
+    chunkIntegerSize,
+    `${reader.context} chunk offset bytes overflow`,
+  )
+  if (chunkData.byteLength !== 8 + chunkBytes) {
+    throw invalidInput(`${reader.context} ${chunkType} offsets are malformed`)
+  }
+
+  const chunkMapData = await tablePayload(reader, boxes, 'stsc')
+  if (chunkMapData.byteLength < 8) throw invalidInput(`${reader.context} stsc box is truncated`)
+  const chunkMapCount = uint32BigEndian(chunkMapData, 4)
+  const chunkMapBytes = checkedMultiply(
+    chunkMapCount,
+    12,
+    `${reader.context} stsc entry bytes overflow`,
+  )
+  if (
+    chunkMapCount === 0 ||
+    chunkMapCount > chunkCount ||
+    chunkMapData.byteLength !== 8 + chunkMapBytes
+  ) {
+    throw invalidInput(`${reader.context} stsc entries are malformed`)
+  }
+  const firstChunk = new Uint32Array(chunkMapCount)
+  const samplesPerChunk = new Uint32Array(chunkMapCount)
+  const descriptionIndices = new Uint32Array(chunkMapCount)
+  for (let entry = 0; entry < chunkMapCount; entry += 1) {
+    const offset = 8 + entry * 12
+    const first = uint32BigEndian(chunkMapData, offset)
+    const samples = uint32BigEndian(chunkMapData, offset + 4)
+    const description = uint32BigEndian(chunkMapData, offset + 8)
+    if (
+      first === 0 ||
+      samples === 0 ||
+      description === 0 ||
+      first > chunkCount ||
+      (entry === 0 ? first !== 1 : first <= (firstChunk[entry - 1] ?? 0))
+    ) {
+      throw invalidInput(`${reader.context} stsc entry is invalid`)
+    }
+    firstChunk[entry] = first
+    samplesPerChunk[entry] = samples
+    descriptionIndices[entry] = description
+  }
+
+  const offsets = new Float64Array(sampleCount)
+  const sampleDescriptionIndices = new Uint32Array(sampleCount)
+  let sampleIndex = 0
+  let chunkMapIndex = 0
+  for (let chunkIndex = 0; chunkIndex < chunkCount; chunkIndex += 1) {
+    const chunkNumber = chunkIndex + 1
+    if (
+      chunkMapIndex + 1 < chunkMapCount &&
+      chunkNumber >= (firstChunk[chunkMapIndex + 1] ?? Number.MAX_SAFE_INTEGER)
+    ) {
+      chunkMapIndex += 1
+    }
+    const count = samplesPerChunk[chunkMapIndex] ?? 0
+    if (count > sampleCount - sampleIndex) {
+      throw invalidInput(`${reader.context} stsc describes too many samples`)
+    }
+    let sampleOffset = readSizedInteger(
+      chunkData,
+      8 + chunkIndex * chunkIntegerSize,
+      chunkIntegerSize,
+      `${reader.context} ${chunkType}`,
+    )
+    for (let indexInChunk = 0; indexInChunk < count; indexInChunk += 1) {
+      const size = sizes[sampleIndex] ?? 0
+      const sampleEnd = checkedAdd(
+        sampleOffset,
+        size,
+        `${reader.context} AV1 sample extent overflows`,
+      )
+      if (sampleOffset < 0 || sampleEnd > reader.source.size) {
+        throw invalidInput(`${reader.context} AV1 sample extends beyond the source`)
+      }
+      offsets[sampleIndex] = sampleOffset
+      sampleDescriptionIndices[sampleIndex] = descriptionIndices[chunkMapIndex] ?? 0
+      sampleOffset = sampleEnd
+      sampleIndex += 1
+    }
+  }
+  if (sampleIndex !== sampleCount) {
+    throw invalidInput(`${reader.context} stsc does not describe every sample`)
+  }
+
+  const syncSamples = new Uint8Array(sampleCount)
+  const syncBoxes = boxes.filter((box) => box.type === 'stss')
+  if (syncBoxes.length === 0) syncSamples.fill(1)
+  else {
+    const syncData = await tablePayload(reader, boxes, 'stss')
+    if (syncData.byteLength < 8) throw invalidInput(`${reader.context} stss box is truncated`)
+    const syncCount = uint32BigEndian(syncData, 4)
+    const syncBytes = checkedMultiply(syncCount, 4, `${reader.context} stss entry bytes overflow`)
+    if (syncCount > sampleCount || syncData.byteLength !== 8 + syncBytes) {
+      throw invalidInput(`${reader.context} stss entries are malformed`)
+    }
+    let previous = 0
+    for (let entry = 0; entry < syncCount; entry += 1) {
+      const sampleNumber = uint32BigEndian(syncData, 8 + entry * 4)
+      if (sampleNumber === 0 || sampleNumber > sampleCount || sampleNumber <= previous) {
+        throw invalidInput(`${reader.context} stss sample number is invalid`)
+      }
+      syncSamples[sampleNumber - 1] = 1
+      previous = sampleNumber
+    }
+  }
+
+  return { durations, offsets, sampleDescriptionIndices, sizes, syncSamples }
 }
 
 export const parseBrands = (data: Uint8Array, context: string): readonly string[] => {

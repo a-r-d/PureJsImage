@@ -1,6 +1,7 @@
 import type {
   ChromaSubsampling,
   DecodeRequest,
+  DecoderOptions,
   ImageCodec,
   ImageDecoder,
   ImageMetadata,
@@ -11,7 +12,13 @@ import { validateImageDimensions } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
-import { type Av1Obu, type Av1SequenceHeader, av1ObuType, inspectAv1Bitstream } from './av1.ts'
+import {
+  type Av1Obu,
+  type Av1SequenceHeader,
+  av1ObuType,
+  inspectAv1Bitstream,
+  parseAv1Obus,
+} from './av1.ts'
 import { type Av1Frame, inspectAv1FrameHeader, parseAv1FrameObus } from './av1-frame.ts'
 import {
   type Av1DecodedFrame,
@@ -26,14 +33,21 @@ import { createAvifEncoder } from './avif-encode.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import {
   ColorManagedDecoder,
+  createNclxHdrToneMap,
   createNclxSrgbTransform,
   inspectIccProfile,
   linearToSrgb,
   nclxToLinear,
   parseRgbIccTransform,
+  type NclxHdrToneMap,
   type RgbIccTransform,
 } from './icc.ts'
-import type { IsobmffBox as Box, IsobmffMeta, IsobmffReader } from './isobmff.ts'
+import type {
+  IsobmffBox as Box,
+  IsobmffMeta,
+  IsobmffReader,
+  IsobmffSampleTable,
+} from './isobmff.ts'
 import {
   checkedAdd,
   createIsobmffReader,
@@ -41,6 +55,7 @@ import {
   parseBrands,
   parseFullBox,
   parseIsobmffMeta,
+  parseIsobmffSampleTable,
 } from './isobmff.ts'
 
 const MAX_BOUNDED_AVIF_WORKING_BYTES = 64 * 1_024 * 1_024
@@ -57,6 +72,7 @@ export const validateAvifWorkingBytes = (workingBytes: number): void => {
   }
 }
 const MAX_METADATA_BOX_BYTES = 16 * 1024 * 1024
+const MAX_AVIF_TRACKS = 8
 
 interface Av1Configuration {
   readonly bitDepth: number
@@ -122,6 +138,31 @@ type Property =
   | { readonly type: 'unknown' }
 
 type MetaDescription = IsobmffMeta<Property>
+
+interface AvifTrackTiming {
+  readonly duration: number
+  readonly timescale: number
+}
+
+interface AvifTrackDescription {
+  readonly auxiliaryForTrackIds: readonly number[]
+  readonly auxiliaryType: string | undefined
+  readonly color: Extract<Property, { type: 'colr' }> | undefined
+  readonly configuration: Av1Configuration
+  readonly configurationObus: Uint8Array
+  readonly handlerType: string
+  readonly height: number
+  readonly samples: IsobmffSampleTable
+  readonly timescale: number
+  readonly trackId: number
+  readonly width: number
+}
+
+interface AvifTrackInspection {
+  readonly alpha: AvifTrackDescription | undefined
+  readonly color: AvifTrackDescription
+  readonly frames: number
+}
 
 const childBoxes = async (
   source: ImageSource,
@@ -385,6 +426,431 @@ const parseMeta = async (source: ImageSource, box: Box): Promise<MetaDescription
   return meta
 }
 
+const singleAvifBox = (
+  boxes: readonly Box[],
+  type: string,
+  context: string,
+  required = true,
+): Box | undefined => {
+  const matches = boxes.filter((box) => box.type === type)
+  if (matches.length > 1 || (required && matches.length !== 1)) {
+    throw invalidInput(`${context} requires ${required ? 'exactly' : 'at most'} one ${type} box`)
+  }
+  return matches[0]
+}
+
+const parseTrackId = async (reader: IsobmffReader, trackBoxes: readonly Box[]): Promise<number> => {
+  const box = singleAvifBox(trackBoxes, 'tkhd', 'AVIF track')
+  if (!box) throw invalidInput('AVIF track has no header')
+  const data = await reader.payload(box, 128)
+  const { version } = parseFullBox(data, 'tkhd', 'AVIF')
+  const offset = version === 0 ? 12 : version === 1 ? 20 : -1
+  if (offset < 0 || data.byteLength < offset + 4) {
+    throw invalidInput('AVIF track header is truncated or has an unsupported version')
+  }
+  const trackId = uint32BigEndian(data, offset)
+  if (trackId === 0) throw invalidInput('AVIF track ID must not be zero')
+  return trackId
+}
+
+const greatestCommonDivisor = (left: number, right: number): number => {
+  let dividend = left
+  let divisor = right
+  while (divisor !== 0) {
+    const remainder = dividend % divisor
+    dividend = divisor
+    divisor = remainder
+  }
+  return dividend
+}
+
+const reducedRationalTimesEqual = (
+  leftTicks: number,
+  leftTimescale: number,
+  rightTicks: number,
+  rightTimescale: number,
+): boolean => {
+  const leftDivisor = greatestCommonDivisor(leftTicks, leftTimescale)
+  const rightDivisor = greatestCommonDivisor(rightTicks, rightTimescale)
+  return (
+    leftTicks / leftDivisor === rightTicks / rightDivisor &&
+    leftTimescale / leftDivisor === rightTimescale / rightDivisor
+  )
+}
+
+const parseMovieTimescale = async (
+  reader: IsobmffReader,
+  movieBoxes: readonly Box[],
+): Promise<number> => {
+  const box = singleAvifBox(movieBoxes, 'mvhd', 'Animated AVIF movie')
+  if (!box) throw invalidInput('Animated AVIF has no movie header')
+  const data = await reader.payload(box, 128)
+  const { version, flags } = parseFullBox(data, 'mvhd', 'AVIF')
+  if (flags !== 0) throw invalidInput('AVIF mvhd flags are unsupported')
+  const offset =
+    version === 0 && data.byteLength >= 20 ? 12 : version === 1 && data.byteLength >= 32 ? 20 : -1
+  if (offset < 0) {
+    throw invalidInput('AVIF mvhd box is truncated or has an unsupported version')
+  }
+  const timescale = uint32BigEndian(data, offset)
+  if (timescale === 0) throw invalidInput('AVIF movie timescale must be positive')
+  return timescale
+}
+
+const parseTrackTiming = async (
+  reader: IsobmffReader,
+  mediaBoxes: readonly Box[],
+): Promise<AvifTrackTiming> => {
+  const box = singleAvifBox(mediaBoxes, 'mdhd', 'AVIF media')
+  if (!box) throw invalidInput('AVIF track has no media header')
+  const data = await reader.payload(box, 64)
+  const { version, flags } = parseFullBox(data, 'mdhd', 'AVIF')
+  if (flags !== 0) throw invalidInput('AVIF mdhd flags are unsupported')
+  let timescale: number
+  let duration: number
+  if (version === 0 && data.byteLength >= 24) {
+    timescale = uint32BigEndian(data, 12)
+    duration = uint32BigEndian(data, 16)
+  } else if (version === 1 && data.byteLength >= 36) {
+    const durationHigh = uint32BigEndian(data, 24)
+    if (durationHigh !== 0) throw invalidInput('AVIF track duration exceeds the supported range')
+    timescale = uint32BigEndian(data, 20)
+    duration = uint32BigEndian(data, 28)
+  } else {
+    throw invalidInput('AVIF mdhd box is truncated or has an unsupported version')
+  }
+  if (timescale === 0 || duration === 0) {
+    throw invalidInput('AVIF track timescale and duration must be positive')
+  }
+  return { duration, timescale }
+}
+
+const validateTrackSampleDuration = (
+  timing: AvifTrackTiming,
+  samples: IsobmffSampleTable,
+): void => {
+  let sampleDuration = 0
+  for (const value of samples.durations) {
+    sampleDuration = checkedAdd(sampleDuration, value, 'AVIF sample durations overflow')
+  }
+  if (timing.duration !== sampleDuration) {
+    throw invalidInput('AVIF media duration does not match its samples')
+  }
+}
+
+const validateTrackEdits = async (
+  reader: IsobmffReader,
+  trackBoxes: readonly Box[],
+  timing: AvifTrackTiming,
+  movieTimescale: number,
+): Promise<void> => {
+  const editBox = singleAvifBox(trackBoxes, 'edts', 'AVIF track', false)
+  if (!editBox) return
+  const editBoxes = await reader.boxes(editBox.contentStart, editBox.end)
+  const listBox = singleAvifBox(editBoxes, 'elst', 'AVIF edit list')
+  if (!listBox) throw invalidInput('AVIF edit list is missing')
+  if (editBoxes.length !== 1) {
+    throw unsupportedOperation('Animated AVIF track edit lists are not supported')
+  }
+  const data = await reader.payload(listBox, 64)
+  const { version, flags } = parseFullBox(data, 'elst', 'AVIF')
+  if ((flags & ~1) !== 0 || (version !== 0 && version !== 1)) {
+    throw invalidInput('AVIF edit list version or flags are unsupported')
+  }
+  const entryBytes = version === 0 ? 12 : 20
+  if (data.byteLength !== 8 + entryBytes || uint32BigEndian(data, 4) !== 1) {
+    throw unsupportedOperation('Animated AVIF track edit lists are not supported')
+  }
+  let segmentDuration: number
+  let mediaTimeIsZero: boolean
+  let rateOffset: number
+  if (version === 0) {
+    segmentDuration = uint32BigEndian(data, 8)
+    mediaTimeIsZero = int32BigEndian(data, 12) === 0
+    rateOffset = 16
+  } else {
+    if (uint32BigEndian(data, 8) !== 0) {
+      throw unsupportedOperation('Animated AVIF track edit lists are not supported')
+    }
+    segmentDuration = uint32BigEndian(data, 12)
+    mediaTimeIsZero = uint32BigEndian(data, 16) === 0 && uint32BigEndian(data, 20) === 0
+    rateOffset = 24
+  }
+  if (
+    segmentDuration === 0 ||
+    !mediaTimeIsZero ||
+    uint16BigEndian(data, rateOffset) !== 1 ||
+    uint16BigEndian(data, rateOffset + 2) !== 0 ||
+    !reducedRationalTimesEqual(segmentDuration, movieTimescale, timing.duration, timing.timescale)
+  ) {
+    throw unsupportedOperation('Animated AVIF track edit lists are not supported')
+  }
+}
+
+const validateCompositionOffsets = async (
+  reader: IsobmffReader,
+  sampleBoxes: readonly Box[],
+  sampleCount: number,
+): Promise<void> => {
+  const box = singleAvifBox(sampleBoxes, 'ctts', 'AVIF sample table', false)
+  if (!box) return
+  const data = await reader.payload(box, MAX_METADATA_BOX_BYTES)
+  const { version, flags } = parseFullBox(data, 'ctts', 'AVIF')
+  if (flags !== 0 || (version !== 0 && version !== 1) || data.byteLength < 8) {
+    throw invalidInput('AVIF composition offsets are malformed')
+  }
+  const count = uint32BigEndian(data, 4)
+  if (count > sampleCount || data.byteLength !== 8 + count * 8) {
+    throw invalidInput('AVIF composition offsets are malformed')
+  }
+  let described = 0
+  for (let entry = 0; entry < count; entry += 1) {
+    const samples = uint32BigEndian(data, 8 + entry * 8)
+    const compositionOffset =
+      version === 0 ? uint32BigEndian(data, 12 + entry * 8) : int32BigEndian(data, 12 + entry * 8)
+    if (samples === 0 || samples > sampleCount - described) {
+      throw invalidInput('AVIF composition offsets have an invalid sample count')
+    }
+    if (compositionOffset !== 0) {
+      throw unsupportedOperation('AVIF nonzero composition offsets are not supported')
+    }
+    described += samples
+  }
+  if (described !== sampleCount) {
+    throw invalidInput('AVIF composition offsets do not describe every sample')
+  }
+}
+
+const parseTrackReferences = async (
+  reader: IsobmffReader,
+  trackBoxes: readonly Box[],
+): Promise<readonly number[]> => {
+  const referenceBox = singleAvifBox(trackBoxes, 'tref', 'AVIF track', false)
+  if (!referenceBox) return []
+  const references = await reader.boxes(referenceBox.contentStart, referenceBox.end)
+  const auxiliary = singleAvifBox(references, 'auxl', 'AVIF track references', false)
+  if (!auxiliary) return []
+  const data = await reader.payload(auxiliary, 4096)
+  if (data.byteLength === 0 || data.byteLength % 4 !== 0) {
+    throw invalidInput('AVIF auxiliary track references are malformed')
+  }
+  const trackIds: number[] = []
+  for (let offset = 0; offset < data.byteLength; offset += 4) {
+    const trackId = uint32BigEndian(data, offset)
+    if (trackId === 0) throw invalidInput('AVIF auxiliary track references track ID zero')
+    trackIds.push(trackId)
+  }
+  return trackIds
+}
+
+const parseAuxiliaryTrackType = async (
+  reader: IsobmffReader,
+  boxes: readonly Box[],
+): Promise<string | undefined> => {
+  const box = singleAvifBox(boxes, 'auxi', 'AVIF sample entry', false)
+  if (!box) return undefined
+  const data = await reader.payload(box, 1024)
+  const { version, flags } = parseFullBox(data, 'auxi', 'AVIF')
+  if (version !== 0 || flags !== 0) throw invalidInput('AVIF auxi flags are unsupported')
+  const terminator = data.indexOf(0, 4)
+  if (terminator === -1 || terminator !== data.byteLength - 1) {
+    throw invalidInput('AVIF auxi type is malformed')
+  }
+  return ascii(data, 4, terminator - 4)
+}
+
+const parseAvifTrack = async (
+  reader: IsobmffReader,
+  track: Box,
+  maximumFrames: number,
+  movieTimescale: number,
+): Promise<AvifTrackDescription | undefined> => {
+  const trackBoxes = await reader.boxes(track.contentStart, track.end)
+  const trackId = await parseTrackId(reader, trackBoxes)
+  const media = singleAvifBox(trackBoxes, 'mdia', `AVIF track ${trackId}`)
+  if (!media) throw invalidInput(`AVIF track ${trackId} has no media box`)
+  const mediaBoxes = await reader.boxes(media.contentStart, media.end)
+  const timing = await parseTrackTiming(reader, mediaBoxes)
+  await validateTrackEdits(reader, trackBoxes, timing, movieTimescale)
+  const handler = singleAvifBox(mediaBoxes, 'hdlr', `AVIF track ${trackId}`)
+  if (!handler) throw invalidInput(`AVIF track ${trackId} has no handler`)
+  const handlerData = await reader.payload(handler, 4096)
+  const handlerFull = parseFullBox(handlerData, 'hdlr', 'AVIF')
+  if (handlerFull.version !== 0 || handlerFull.flags !== 0 || handlerData.byteLength < 12) {
+    throw invalidInput(`AVIF track ${trackId} handler is malformed`)
+  }
+  const handlerType = ascii(handlerData, 8, 4)
+
+  const mediaInformation = singleAvifBox(mediaBoxes, 'minf', `AVIF track ${trackId}`)
+  if (!mediaInformation) throw invalidInput(`AVIF track ${trackId} has no media information`)
+  const mediaInformationBoxes = await reader.boxes(
+    mediaInformation.contentStart,
+    mediaInformation.end,
+  )
+  const sampleTableBox = singleAvifBox(mediaInformationBoxes, 'stbl', `AVIF track ${trackId}`)
+  if (!sampleTableBox) throw invalidInput(`AVIF track ${trackId} has no sample table`)
+  const sampleBoxes = await reader.boxes(sampleTableBox.contentStart, sampleTableBox.end)
+  const sampleDescription = singleAvifBox(sampleBoxes, 'stsd', `AVIF track ${trackId} sample table`)
+  if (!sampleDescription) throw invalidInput(`AVIF track ${trackId} has no sample descriptions`)
+  const descriptionData = await readExactly(reader.source, sampleDescription.contentStart, 8)
+  const descriptionFull = parseFullBox(descriptionData, 'stsd', 'AVIF')
+  if (descriptionFull.version !== 0 || descriptionFull.flags !== 0) {
+    throw invalidInput(`AVIF track ${trackId} sample descriptions are malformed`)
+  }
+  const descriptionCount = uint32BigEndian(descriptionData, 4)
+  const descriptions = await reader.boxes(sampleDescription.contentStart + 8, sampleDescription.end)
+  if (descriptionCount !== descriptions.length) {
+    throw invalidInput(`AVIF track ${trackId} sample description count is inconsistent`)
+  }
+  const av1Descriptions = descriptions
+    .map((description, index) => ({ description, index: index + 1 }))
+    .filter((entry) => entry.description.type === 'av01')
+  if (av1Descriptions.length === 0) return undefined
+  if (av1Descriptions.length !== 1 || !av1Descriptions[0]) {
+    throw unsupportedOperation(`AVIF track ${trackId} has multiple AV1 sample descriptions`)
+  }
+
+  const entry = av1Descriptions[0].description
+  if (entry.end - entry.contentStart < 78) {
+    throw invalidInput(`AVIF track ${trackId} AV1 sample entry is truncated`)
+  }
+  const visualEntry = await readExactly(reader.source, entry.contentStart, 78)
+  if (uint16BigEndian(visualEntry, 6) !== 1) {
+    throw unsupportedOperation(`AVIF track ${trackId} uses an external data reference`)
+  }
+  const width = uint16BigEndian(visualEntry, 24)
+  const height = uint16BigEndian(visualEntry, 26)
+  if (width === 0 || height === 0) {
+    throw invalidInput(`AVIF track ${trackId} has invalid dimensions`)
+  }
+  const entryBoxes = await reader.boxes(entry.contentStart + 78, entry.end)
+  if (entryBoxes.some((box) => box.type === 'clap')) {
+    throw unsupportedOperation('Animated AVIF track-level clean apertures are not supported')
+  }
+  const configurationBox = singleAvifBox(entryBoxes, 'av1C', `AVIF track ${trackId} sample entry`)
+  if (!configurationBox) throw invalidInput(`AVIF track ${trackId} has no AV1 configuration`)
+  const configurationData = await reader.payload(configurationBox, 4096)
+  const configuration = parseAv1Configuration(configurationData)
+  const colorBox = singleAvifBox(entryBoxes, 'colr', `AVIF track ${trackId} sample entry`, false)
+  const parsedColor = colorBox ? await parseProperty(reader.source, colorBox) : undefined
+  const color = parsedColor?.type === 'colr' ? parsedColor : undefined
+  const auxiliaryType = await parseAuxiliaryTrackType(reader, entryBoxes)
+  const auxiliaryForTrackIds = await parseTrackReferences(reader, trackBoxes)
+
+  const samples = await parseIsobmffSampleTable(reader, sampleTableBox, maximumFrames)
+  if (samples.sampleDescriptionIndices.some((index) => index !== av1Descriptions[0]?.index)) {
+    throw unsupportedOperation(`AVIF track ${trackId} switches AV1 sample descriptions`)
+  }
+  validateTrackSampleDuration(timing, samples)
+  const { timescale } = timing
+  await validateCompositionOffsets(reader, sampleBoxes, samples.sizes.length)
+
+  return {
+    trackId,
+    handlerType,
+    width,
+    height,
+    timescale,
+    configuration,
+    configurationObus: configurationData.slice(4),
+    color,
+    auxiliaryType,
+    auxiliaryForTrackIds,
+    samples,
+  }
+}
+
+const validateAlignedTrackTiming = (
+  color: AvifTrackDescription,
+  alpha: AvifTrackDescription,
+): void => {
+  let colorTimestamp = 0
+  let alphaTimestamp = 0
+  for (let frame = 0; frame < color.samples.durations.length; frame += 1) {
+    const colorDuration = color.samples.durations[frame]
+    const alphaDuration = alpha.samples.durations[frame]
+    if (colorDuration === undefined || alphaDuration === undefined) {
+      throw invalidInput('Animated AVIF sample timing is incomplete')
+    }
+    if (
+      !reducedRationalTimesEqual(colorDuration, color.timescale, alphaDuration, alpha.timescale) ||
+      !reducedRationalTimesEqual(colorTimestamp, color.timescale, alphaTimestamp, alpha.timescale)
+    ) {
+      throw unsupportedOperation('Animated AVIF alpha and color sample timing does not align')
+    }
+    colorTimestamp = checkedAdd(
+      colorTimestamp,
+      colorDuration,
+      'Animated AVIF color sample timestamps overflow',
+    )
+    alphaTimestamp = checkedAdd(
+      alphaTimestamp,
+      alphaDuration,
+      'Animated AVIF alpha sample timestamps overflow',
+    )
+  }
+  if (
+    !reducedRationalTimesEqual(colorTimestamp, color.timescale, alphaTimestamp, alpha.timescale)
+  ) {
+    throw unsupportedOperation('Animated AVIF alpha and color sample timing does not align')
+  }
+}
+
+const inspectAvifTracks = async (
+  source: ImageSource,
+  maximumFrames: number,
+  topLevel?: readonly Box[],
+): Promise<AvifTrackInspection> => {
+  const reader = createIsobmffReader(source, 'AVIF')
+  const boxes = topLevel ?? (await reader.boxes(0, source.size))
+  const movie = singleAvifBox(boxes, 'moov', 'Animated AVIF')
+  if (!movie) throw invalidInput('Animated AVIF has no movie box')
+  const movieBoxes = await reader.boxes(movie.contentStart, movie.end)
+  const movieTimescale = await parseMovieTimescale(reader, movieBoxes)
+  const trackBoxes = movieBoxes.filter((box) => box.type === 'trak')
+  if (trackBoxes.length === 0 || trackBoxes.length > MAX_AVIF_TRACKS) {
+    throw invalidInput('Animated AVIF has an invalid track count')
+  }
+  const tracks: AvifTrackDescription[] = []
+  for (const box of trackBoxes) {
+    const track = await parseAvifTrack(reader, box, maximumFrames, movieTimescale)
+    if (track) tracks.push(track)
+  }
+  if (new Set(tracks.map((track) => track.trackId)).size !== tracks.length) {
+    throw invalidInput('Animated AVIF has duplicate track IDs')
+  }
+  const colorTracks = tracks.filter(
+    (track) => track.handlerType === 'pict' && track.auxiliaryType === undefined,
+  )
+  if (colorTracks.length !== 1 || !colorTracks[0]) {
+    throw unsupportedOperation('Animated AVIF requires exactly one AV1 color track')
+  }
+  const color = colorTracks[0]
+  const alphaTracks = tracks.filter(
+    (track) =>
+      track.handlerType === 'auxv' &&
+      track.auxiliaryType !== undefined &&
+      ALPHA_AUXILIARY_TYPES.has(track.auxiliaryType) &&
+      track.auxiliaryForTrackIds.includes(color.trackId),
+  )
+  if (alphaTracks.length > 1) {
+    throw invalidInput('Animated AVIF color track has multiple alpha tracks')
+  }
+  const alpha = alphaTracks[0]
+  const frames = color.samples.sizes.length
+  if (alpha) {
+    if (
+      alpha.width !== color.width ||
+      alpha.height !== color.height ||
+      alpha.samples.sizes.length !== frames
+    ) {
+      throw invalidInput('Animated AVIF alpha track geometry or sample count does not match color')
+    }
+    validateAlignedTrackTiming(color, alpha)
+  }
+  return { color, alpha, frames }
+}
+
 const propertiesFor = (meta: MetaDescription, itemId: number): readonly Property[] => {
   return (meta.associations.get(itemId) ?? []).map((association) => {
     const property = meta.properties[association.index - 1]
@@ -413,28 +879,50 @@ const oneProperty = <Type extends Property['type']>(
   return matches[0]
 }
 
+const cleanApertureAxis = (
+  sourceSize: number,
+  apertureSize: Rational,
+  apertureOffset: Rational,
+): { readonly origin: number; readonly size: number } => {
+  if (apertureSize.numerator % apertureSize.denominator !== 0) {
+    throw unsupportedOperation('Fractional AVIF clean-aperture dimensions are unsupported')
+  }
+  const size = apertureSize.numerator / apertureSize.denominator
+
+  // ISO/IEC 14496-12 locates the leftmost clean-aperture sample at
+  // offset + (sourceSize - size) / 2. Preserve that sample lattice exactly:
+  // integer coordinates index their sample, while half coordinates index the
+  // next sample. Other fractions would require resampling.
+  const doubledOffsetNumerator = apertureOffset.numerator * 2
+  if (doubledOffsetNumerator % apertureOffset.denominator !== 0) {
+    throw unsupportedOperation(
+      'AVIF clean-aperture origins must resolve to integer or half-integer sample coordinates',
+    )
+  }
+  const doubledOrigin = sourceSize - size + doubledOffsetNumerator / apertureOffset.denominator
+  const doubledEnd = doubledOrigin + size * 2
+  if (!Number.isSafeInteger(doubledOrigin) || !Number.isSafeInteger(doubledEnd)) {
+    throw invalidInput('AVIF clean-aperture arithmetic exceeds the safe integer range')
+  }
+  if (doubledOrigin < 0 || doubledEnd > sourceSize * 2) {
+    throw invalidInput('AVIF clean aperture exceeds its source image')
+  }
+  return { origin: Math.ceil(doubledOrigin / 2), size }
+}
+
 const cleanApertureRegion = (
   source: { readonly width: number; readonly height: number },
   aperture: CleanAperture | undefined,
 ): PixelRegion => {
   if (!aperture) return { x: 0, y: 0, ...source }
-  const width = aperture.width.numerator / aperture.width.denominator
-  const height = aperture.height.numerator / aperture.height.denominator
-  if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height)) {
-    throw unsupportedOperation('Fractional AVIF clean-aperture dimensions are unsupported')
+  const horizontal = cleanApertureAxis(source.width, aperture.width, aperture.horizontalOffset)
+  const vertical = cleanApertureAxis(source.height, aperture.height, aperture.verticalOffset)
+  return {
+    x: horizontal.origin,
+    y: vertical.origin,
+    width: horizontal.size,
+    height: vertical.size,
   }
-  const horizontalOffset =
-    aperture.horizontalOffset.numerator / aperture.horizontalOffset.denominator
-  const verticalOffset = aperture.verticalOffset.numerator / aperture.verticalOffset.denominator
-  const x = (source.width - width) / 2 + horizontalOffset
-  const y = (source.height - height) / 2 + verticalOffset
-  if (x < 0 || y < 0 || x + width > source.width || y + height > source.height) {
-    throw invalidInput('AVIF clean aperture exceeds its source image')
-  }
-  if (!Number.isSafeInteger(x) || !Number.isSafeInteger(y)) {
-    throw unsupportedOperation('Fractional AVIF clean-aperture origins are unsupported')
-  }
-  return { x, y, width, height }
 }
 
 interface OrientationMatrix {
@@ -1083,8 +1571,111 @@ export const inspectAvifBitstreams = async (
   }
 }
 
-const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<ImageMetadata> => {
-  const topLevel = await childBoxes(source, 0, source.size)
+const inspectTrackSample = async (
+  source: ImageSource,
+  track: AvifTrackDescription,
+  frame: number,
+  role: 'alpha' | 'color',
+): Promise<AvifCodedImageInspection> => {
+  const size = track.samples.sizes[frame]
+  const offset = track.samples.offsets[frame]
+  if (size === undefined || offset === undefined || size === 0) {
+    throw invalidInput(`Animated AVIF ${role} sample ${frame} is missing`)
+  }
+  const sample = await readExactly(source, offset, size)
+  const sampleObus = parseAv1Obus(sample)
+  const sequenceCount = sampleObus.filter((obu) => obu.type === av1ObuType.sequenceHeader).length
+  let data = sample
+  if (sequenceCount === 0 && track.configurationObus.byteLength !== 0) {
+    const combinedBytes = checkedAdd(
+      track.configurationObus.byteLength,
+      sample.byteLength,
+      'Animated AVIF sample bytes overflow',
+    )
+    validateAvifWorkingBytes(combinedBytes)
+    data = new Uint8Array(combinedBytes)
+    data.set(track.configurationObus)
+    data.set(sample, track.configurationObus.byteLength)
+  }
+  const stream = inspectAv1Bitstream(data)
+  if (!av1ConfigurationMatches(track.configuration, stream.sequence)) {
+    throw invalidInput(`Animated AVIF ${role} track configuration does not match its sequence`)
+  }
+  return {
+    itemId: track.trackId,
+    role,
+    width: track.width,
+    height: track.height,
+    mirroring: -1,
+    rotation: 0,
+    configurationMatchesSequence: true,
+    payloadBytes: data.byteLength,
+    obus: stream.obus,
+    sequence: stream.sequence,
+    ...(track.color?.nclx ? { nclx: track.color.nclx } : {}),
+  }
+}
+
+const inspectAvifTrackFrame = async (
+  source: ImageSource,
+  tracks: AvifTrackInspection,
+  frame: number,
+): Promise<AvifBitstreamInspection> => {
+  if (!Number.isSafeInteger(frame) || frame < 0 || frame >= tracks.frames) {
+    throw invalidInput(`AVIF frame ${frame} is out of range for ${tracks.frames} frames`)
+  }
+  if (tracks.color.samples.syncSamples[frame] !== 1) {
+    throw unsupportedOperation(
+      `Animated AVIF frame ${frame} is dependent; AV1 inter-frame reconstruction is not supported`,
+    )
+  }
+  if (tracks.alpha && tracks.alpha.samples.syncSamples[frame] !== 1) {
+    throw unsupportedOperation(
+      `Animated AVIF alpha frame ${frame} is dependent; AV1 inter-frame reconstruction is not supported`,
+    )
+  }
+  let selectedPayloadBytes = tracks.color.samples.sizes[frame] ?? 0
+  if (tracks.alpha) {
+    selectedPayloadBytes = checkedAdd(
+      selectedPayloadBytes,
+      tracks.alpha.samples.sizes[frame] ?? 0,
+      'Animated AVIF selected sample bytes overflow',
+    )
+  }
+  validateAvifWorkingBytes(selectedPayloadBytes)
+  const color = await inspectTrackSample(source, tracks.color, frame, 'color')
+  const alpha = tracks.alpha
+    ? await inspectTrackSample(source, tracks.alpha, frame, 'alpha')
+    : undefined
+  const nclx = tracks.color.color?.nclx
+  const colorTransform = tracks.color.color?.colorTransform ?? nclxSrgbTransform(nclx)
+  return {
+    primaryItemId: color.itemId,
+    primaryItemType: 'av01',
+    colorItemIds: [color.itemId],
+    alphaAssociations: alpha ? [{ alphaItemId: alpha.itemId, colorItemId: color.itemId }] : [],
+    codedImages: alpha ? [color, alpha] : [color],
+    displayRegion: { x: 0, y: 0, width: color.width, height: color.height },
+    mirroring: -1,
+    premultipliedAlpha: false,
+    rotation: 0,
+    ...(alpha ? { alphaItemId: alpha.itemId } : {}),
+    ...(nclx ? { nclx } : {}),
+    ...(colorTransform ? { colorTransform } : {}),
+  }
+}
+
+const inspectAvif = async (
+  source: ImageSource,
+  limits: ImageLimits,
+  options: Readonly<DecoderOptions> = {},
+  knownTracks?: AvifTrackInspection,
+  knownTopLevel?: readonly Box[],
+): Promise<ImageMetadata> => {
+  if (options.frame !== undefined && (!Number.isSafeInteger(options.frame) || options.frame < 0)) {
+    throw invalidInput('AVIF frame must be a non-negative safe integer')
+  }
+  const topLevel = knownTopLevel ?? (await childBoxes(source, 0, source.size))
   const fileType = topLevel.find((box) => box.type === 'ftyp')
   const metaBox = topLevel.find((box) => box.type === 'meta')
   if (!fileType || !metaBox) throw invalidInput('AVIF requires ftyp and meta boxes')
@@ -1093,6 +1684,15 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
   const avifBrand = brands.some((brand) => brand === 'avif' || brand === 'avis')
   const sequenceBrand = brands.includes('avis')
   if (!avifBrand) throw invalidInput('File does not declare an AVIF brand')
+  const tracks = sequenceBrand
+    ? (knownTracks ?? (await inspectAvifTracks(source, limits.maxFrames, topLevel)))
+    : undefined
+  if (tracks && options.frame !== undefined && options.frame >= tracks.frames) {
+    throw invalidInput(`AVIF frame ${options.frame} is out of range for ${tracks.frames} frames`)
+  }
+  if (!tracks && options.frame !== undefined && options.frame !== 0) {
+    throw invalidInput('AVIF still image only has frame 0')
+  }
 
   const meta = await parseMeta(source, metaBox)
   if (meta.primaryItemId === undefined) throw invalidInput('AVIF has no primary item')
@@ -1101,7 +1701,12 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
   validateTransformProperties(primaryProperties)
   const dimensions = firstProperty(primaryProperties, 'ispe')
   if (!dimensions) throw invalidInput('AVIF primary item has no spatial extents')
-  validateImageDimensions(dimensions.width, dimensions.height, 1, limits)
+  validateImageDimensions(
+    tracks?.color.width ?? dimensions.width,
+    tracks?.color.height ?? dimensions.height,
+    tracks?.frames ?? 1,
+    limits,
+  )
   const displayRegion = cleanApertureRegion(
     dimensions,
     oneProperty(primaryProperties, 'clap')?.aperture,
@@ -1131,28 +1736,34 @@ const inspectAvif = async (source: ImageSource, limits: ImageLimits): Promise<Im
       ),
   )
   const bitDepth = pixelInformation?.bitDepth ?? configuration?.bitDepth
+  const metadataConfiguration = tracks?.color.configuration ?? configuration
+  const metadataColor = tracks?.color.color ?? color
+  const metadataWidth = tracks?.color.width ?? displayRegion.width
+  const metadataHeight = tracks?.color.height ?? displayRegion.height
+  const metadataHasAlpha = tracks ? tracks.alpha !== undefined : hasAlpha
+  const metadataBitDepth = tracks?.color.configuration.bitDepth ?? bitDepth
 
   return {
     format: 'avif',
     mimeType: 'image/avif',
-    width: displayRegion.width,
-    height: displayRegion.height,
-    hasAlpha,
-    ...(!sequenceBrand ? { frames: 1 } : {}),
-    ...(bitDepth !== undefined ? { bitDepth } : {}),
-    ...(configuration
+    width: metadataWidth,
+    height: metadataHeight,
+    hasAlpha: metadataHasAlpha,
+    frames: tracks?.frames ?? 1,
+    ...(metadataBitDepth !== undefined ? { bitDepth: metadataBitDepth } : {}),
+    ...(metadataConfiguration
       ? {
-          chromaSubsampling: configuration.chromaSubsampling,
-          codecProfile: configuration.profile,
+          chromaSubsampling: metadataConfiguration.chromaSubsampling,
+          codecProfile: metadataConfiguration.profile,
         }
       : {}),
-    ...(color ? { colorSpace: color.colorSpace } : {}),
-    ...(color?.iccDescription !== undefined
-      ? { colorProfile: { kind: 'icc' as const, description: color.iccDescription } }
-      : color?.colorSpace === 'icc'
+    ...(metadataColor ? { colorSpace: metadataColor.colorSpace } : {}),
+    ...(metadataColor?.iccDescription !== undefined
+      ? { colorProfile: { kind: 'icc' as const, description: metadataColor.iccDescription } }
+      : metadataColor?.colorSpace === 'icc'
         ? { colorProfile: { kind: 'icc' as const } }
-        : color?.nclx
-          ? { colorProfile: { kind: 'nclx' as const, ...color.nclx } }
+        : metadataColor?.nclx
+          ? { colorProfile: { kind: 'nclx' as const, ...metadataColor.nclx } }
           : {}),
     ...(orientation !== undefined ? { orientation } : {}),
   }
@@ -1168,27 +1779,92 @@ const gainMapWeight = (metadata: AvifGainMapMetadata, hdrHeadroom = 0): number =
   return alternate < base ? -interpolation : interpolation
 }
 
-const validateSdrPixelDecode = (inspection: AvifBitstreamInspection): void => {
-  const hdr =
-    (inspection.nclx && isHdrTransfer(inspection.nclx.transferCharacteristics)) ||
-    inspection.codedImages.some(
-      (image) => image.role === 'color' && isHdrTransfer(image.sequence.transferCharacteristics),
+const validateHdrNclxMatrix = (color: NclxColor): void => {
+  if (![0, 1, 5, 6, 9, 10, 12].includes(color.matrixCoefficients)) {
+    throw unsupportedOperation(
+      `HDR AVIF NCLX matrix coefficients ${color.matrixCoefficients} are not supported`,
     )
-  if (
-    hdr &&
-    (!inspection.gainMap ||
-      isHdrTransfer(inspection.gainMap.alternateColor.transferCharacteristics) ||
-      gainMapWeight(inspection.gainMap.metadata) === 0)
-  ) {
-    throw unsupportedOperation('HDR AVIF SDR decode requires a compatible gain-map alternate image')
+  }
+  if (color.matrixCoefficients === 10 && color.primaries !== 9) {
+    throw unsupportedOperation('HDR AVIF NCLX matrix coefficients 10 require color primaries 9')
+  }
+}
+
+const nclxHdrToneMap = (color: NclxColor | undefined): NclxHdrToneMap | undefined => {
+  if (!color || !isHdrTransfer(color.transferCharacteristics)) return undefined
+  if (![1, 9, 12].includes(color.primaries)) {
+    throw unsupportedOperation(`HDR AVIF NCLX color primaries ${color.primaries} are not supported`)
+  }
+  validateHdrNclxMatrix(color)
+  const transfer = color.transferCharacteristics
+  if (transfer !== 16 && transfer !== 18) return undefined
+  return createNclxHdrToneMap(color.primaries, transfer)
+}
+
+const av1CicpIsAllUnspecified = (sequence: Av1SequenceHeader): boolean =>
+  sequence.colorPrimaries === 2 &&
+  sequence.transferCharacteristics === 2 &&
+  sequence.matrixCoefficients === 2
+
+const validateHdrCicpConsistency = (
+  images: readonly AvifCodedImageInspection[],
+  color: NclxColor,
+): void => {
+  for (const image of images) {
+    const sequence = image.sequence
+    if (av1CicpIsAllUnspecified(sequence)) continue
+    if (
+      sequence.colorPrimaries !== color.primaries ||
+      sequence.transferCharacteristics !== color.transferCharacteristics ||
+      sequence.matrixCoefficients !== color.matrixCoefficients ||
+      sequence.fullRange !== color.fullRange
+    ) {
+      throw invalidInput('AVIF HDR container and AV1 color signaling do not match')
+    }
+  }
+}
+
+const validateSdrPixelDecode = (inspection: AvifBitstreamInspection): void => {
+  const colorImages = inspection.codedImages.filter((image) => image.role === 'color')
+  const hdrImages = colorImages.filter((image) =>
+    isHdrTransfer(image.sequence.transferCharacteristics),
+  )
+  const color = inspection.nclx
+  const containerHdr = isHdrTransfer(color?.transferCharacteristics ?? 0)
+  const hdr = containerHdr || hdrImages.length !== 0
+  if (color?.matrixCoefficients === 10 && color.transferCharacteristics !== 16) {
+    throw unsupportedOperation(
+      'AVIF NCLX matrix coefficients 10 are supported only with PQ transfer characteristics 16',
+    )
+  }
+  if (containerHdr && color && color.matrixCoefficients !== 2) validateHdrNclxMatrix(color)
+  if (hdr && color) {
+    validateHdrCicpConsistency(colorImages, color)
+  }
+  const gainMapApplies =
+    inspection.gainMap !== undefined && gainMapWeight(inspection.gainMap.metadata) !== 0
+  if (hdr && gainMapApplies) {
+    if (
+      !inspection.gainMap ||
+      isHdrTransfer(inspection.gainMap.alternateColor.transferCharacteristics)
+    ) {
+      throw unsupportedOperation('HDR AVIF gain-map alternate must use an SDR transfer')
+    }
+    return
+  }
+  if (hdr) {
+    if (!color || !containerHdr) {
+      throw unsupportedOperation('HDR AVIF pixel decode requires explicit HDR NCLX color signaling')
+    }
+    nclxHdrToneMap(color)
+    return
   }
   if (
-    inspection.nclx &&
-    !isHdrTransfer(inspection.nclx.transferCharacteristics) &&
-    inspection.nclx.primaries !== 2 &&
-    inspection.nclx.transferCharacteristics !== 2 &&
-    inspection.nclx.primaries !== 1 &&
-    !nclxSrgbTransform(inspection.nclx)
+    color &&
+    color.primaries !== 2 &&
+    color.transferCharacteristics !== 2 &&
+    color.primaries !== 1 &&
+    !nclxSrgbTransform(color)
   ) {
     throw unsupportedOperation('AVIF NCLX color conversion is not supported')
   }
@@ -1260,6 +1936,7 @@ class AvifFrameDecoder implements ImageDecoder {
   readonly #displayRegion: PixelRegion
   readonly #frame: Av1DecodedFrame
   readonly #premultipliedAlpha: boolean
+  readonly #toneMap: NclxHdrToneMap | undefined
 
   constructor(
     coded: AvifCodedImageInspection,
@@ -1268,6 +1945,7 @@ class AvifFrameDecoder implements ImageDecoder {
     color: NclxColor | undefined,
     alpha: AvifAlphaFrame | undefined,
     premultipliedAlpha: boolean,
+    toneMap?: NclxHdrToneMap,
   ) {
     this.width = displayRegion.width
     this.height = displayRegion.height
@@ -1277,6 +1955,7 @@ class AvifFrameDecoder implements ImageDecoder {
     this.#color = color
     this.#alpha = alpha
     this.#premultipliedAlpha = premultipliedAlpha
+    this.#toneMap = toneMap
     if (alpha) validateAlphaFrame(frame.width, frame.height, alpha)
   }
 
@@ -1292,6 +1971,8 @@ class AvifFrameDecoder implements ImageDecoder {
         this.#frame,
         { x: sourceX, y: sourceY, width: region.width, height: blockHeight },
         this.#color,
+        1,
+        this.#toneMap,
       )
       if (this.#alpha) {
         applyAlphaRegion(
@@ -1468,12 +2149,14 @@ class AvifRowDecoder implements ImageDecoder {
   readonly #color: NclxColor | undefined
   readonly #displayRegion: PixelRegion
   readonly #frame: Av1Frame
+  readonly #toneMap: NclxHdrToneMap | undefined
 
   constructor(
     coded: AvifCodedImageInspection,
     frame: Av1Frame,
     displayRegion: PixelRegion,
     color: NclxColor | undefined,
+    toneMap?: NclxHdrToneMap,
   ) {
     const scaledDecode =
       displayRegion.x === 0 &&
@@ -1492,6 +2175,7 @@ class AvifRowDecoder implements ImageDecoder {
     this.#frame = frame
     this.#displayRegion = displayRegion
     this.#color = color
+    this.#toneMap = toneMap
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
@@ -1526,6 +2210,7 @@ class AvifRowDecoder implements ImageDecoder {
             },
             this.#color,
             scale,
+            this.#toneMap,
           ),
         }
       }
@@ -1629,6 +2314,7 @@ class AvifAlphaRowDecoder implements ImageDecoder {
   readonly #displayRegion: PixelRegion
   readonly #frame: Av1Frame
   readonly #premultipliedAlpha: boolean
+  readonly #toneMap: NclxHdrToneMap | undefined
 
   constructor(
     coded: AvifCodedImageInspection,
@@ -1638,6 +2324,7 @@ class AvifAlphaRowDecoder implements ImageDecoder {
     alphaCoded: AvifCodedImageInspection,
     alphaFrame: Av1Frame,
     premultipliedAlpha: boolean,
+    toneMap?: NclxHdrToneMap,
   ) {
     const scaledDecode =
       displayRegion.x === 0 &&
@@ -1659,6 +2346,7 @@ class AvifAlphaRowDecoder implements ImageDecoder {
     this.#alphaCoded = alphaCoded
     this.#alphaFrame = alphaFrame
     this.#premultipliedAlpha = premultipliedAlpha
+    this.#toneMap = toneMap
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
@@ -1702,6 +2390,7 @@ class AvifAlphaRowDecoder implements ImageDecoder {
           },
           this.#color,
           scale,
+          this.#toneMap,
         )
         applyAlphaRegion(
           data,
@@ -1733,6 +2422,7 @@ interface AvifGridDecoderSource {
   readonly itemIds: readonly number[]
   readonly rotation: number
   readonly premultipliedAlpha: boolean
+  readonly toneMap?: NclxHdrToneMap
 }
 
 class AvifGridDecoder implements ImageDecoder {
@@ -1755,6 +2445,7 @@ class AvifGridDecoder implements ImageDecoder {
   readonly #tileHeight: number
   readonly #tiles: readonly AvifCodedImageInspection[]
   readonly #tileWidth: number
+  readonly #toneMap: NclxHdrToneMap | undefined
 
   constructor(source: AvifGridDecoderSource, limits: ImageLimits) {
     const grid = source.grid
@@ -1835,6 +2526,7 @@ class AvifGridDecoder implements ImageDecoder {
     this.#tileHeight = first.height
     this.#tiles = tiles
     this.#tileWidth = first.width
+    this.#toneMap = source.toneMap
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
@@ -1884,6 +2576,8 @@ class AvifGridDecoder implements ImageDecoder {
               height: blockHeight,
             },
             this.#color,
+            1,
+            this.#toneMap,
           )
           if (alphaCoded && alphaFrame) {
             applyAlphaRegion(
@@ -2267,6 +2961,7 @@ const createCodedAvifDecoder = (
   displayRegion: PixelRegion,
   color: NclxColor | undefined,
   limits: ImageLimits,
+  toneMap?: NclxHdrToneMap,
 ): AvifDecoderWorkingSet => {
   const frame = parseCodedImageFrame(coded, limits)
   if (supportsRestrictedAv1IntraRows(frame)) {
@@ -2274,7 +2969,7 @@ const createCodedAvifDecoder = (
       coded.payloadBytes + estimateRestrictedAv1RowWorkingBytes(coded.sequence, frame)
     validateAvifWorkingBytes(workingBytes)
     return {
-      decoder: new AvifRowDecoder(coded, frame, displayRegion, color),
+      decoder: new AvifRowDecoder(coded, frame, displayRegion, color, toneMap),
       workingBytes,
     }
   }
@@ -2283,7 +2978,7 @@ const createCodedAvifDecoder = (
   )
   const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
   return {
-    decoder: new AvifFrameDecoder(coded, decoded, displayRegion, color, undefined, false),
+    decoder: new AvifFrameDecoder(coded, decoded, displayRegion, color, undefined, false, toneMap),
     workingBytes:
       coded.payloadBytes +
       decodedFrameBytes(decoded) +
@@ -2294,6 +2989,7 @@ const createCodedAvifDecoder = (
 const createSingleAvifDecoder = (
   inspection: AvifBitstreamInspection,
   limits: ImageLimits,
+  toneMap?: NclxHdrToneMap,
 ): AvifDecoderWorkingSet => {
   if (inspection.colorItemIds.length !== 1) {
     throw invalidInput('Single-image AVIF has an invalid color item count')
@@ -2335,8 +3031,15 @@ const createSingleAvifDecoder = (
               alpha,
               parsedAlphaFrame,
               inspection.premultipliedAlpha,
+              toneMap,
             )
-          : new AvifRowDecoder(coded, parsedFrame, inspection.displayRegion, inspection.nclx),
+          : new AvifRowDecoder(
+              coded,
+              parsedFrame,
+              inspection.displayRegion,
+              inspection.nclx,
+              toneMap,
+            ),
       workingBytes,
     }
   }
@@ -2364,6 +3067,7 @@ const createSingleAvifDecoder = (
         inspection.nclx,
         { coded: alpha, frame: alphaDecoded },
         inspection.premultipliedAlpha,
+        toneMap,
       ),
       workingBytes:
         payloadBytes +
@@ -2372,7 +3076,7 @@ const createSingleAvifDecoder = (
         inspection.displayRegion.width * Math.min(32, inspection.displayRegion.height) * 4,
     }
   }
-  return createCodedAvifDecoder(coded, inspection.displayRegion, inspection.nclx, limits)
+  return createCodedAvifDecoder(coded, inspection.displayRegion, inspection.nclx, limits, toneMap)
 }
 
 const createGridAvifDecoder = (
@@ -2528,15 +3232,32 @@ const createGainMapGridAvifDecoder = (
 const createAvifDecoder = async (
   source: ImageSource,
   limits: ImageLimits,
+  options: Readonly<DecoderOptions> = {},
 ): Promise<ImageDecoder> => {
-  const metadata = await inspectAvif(source, limits)
-  if (metadata.frames !== 1) {
-    throw unsupportedOperation('Animated AVIF pixel decode is not supported')
+  const topLevel = await childBoxes(source, 0, source.size)
+  const fileType = topLevel.find((box) => box.type === 'ftyp')
+  if (!fileType) throw invalidInput('AVIF requires an ftyp box')
+  const brands = parseBrands(await payload(source, fileType, 4096), 'AVIF')
+  const sequenceBrand = brands.includes('avis')
+  const tracks = sequenceBrand
+    ? await inspectAvifTracks(source, limits.maxFrames, topLevel)
+    : undefined
+  const metadata = await inspectAvif(source, limits, options, tracks, topLevel)
+  let inspection: AvifBitstreamInspection
+  if (tracks) {
+    if (options.frame === undefined) {
+      throw unsupportedOperation(
+        `Animated AVIF has ${tracks.frames} frames; pass { frame } to explicitly select an independently decodable key frame`,
+      )
+    }
+    inspection = await inspectAvifTrackFrame(source, tracks, options.frame)
+  } else {
+    inspection = await inspectAvifBitstreams(source)
   }
-  const inspection = await inspectAvifBitstreams(source)
   validateSdrPixelDecode(inspection)
   const gainMapApplies =
     inspection.gainMap !== undefined && gainMapWeight(inspection.gainMap.metadata) !== 0
+  const toneMap = gainMapApplies ? undefined : nclxHdrToneMap(inspection.nclx)
   let base: AvifDecoderWorkingSet
   if (inspection.primaryItemType === 'grid') {
     const grid = inspection.grid
@@ -2552,11 +3273,20 @@ const createAvifDecoder = async (
         color: inspection.nclx,
         premultipliedAlpha: inspection.premultipliedAlpha,
         rotation: inspection.rotation,
+        ...(toneMap ? { toneMap } : {}),
       },
       limits,
     )
   } else {
-    base = createSingleAvifDecoder(inspection, limits)
+    base = createSingleAvifDecoder(inspection, limits, toneMap)
+  }
+  if (toneMap) {
+    validateAvifWorkingBytes(
+      base.workingBytes +
+        toneMap.encodedToLinear.byteLength +
+        toneMap.linearToSrgb.byteLength +
+        toneMap.sourceToSrgb.byteLength,
+    )
   }
 
   let decoder = base.decoder
@@ -2616,6 +3346,7 @@ export const avifCodec: ImageCodec = {
   format: 'avif',
   mimeTypes: ['image/avif'],
   minimumBytes: 32,
+  selection: { frames: true, resolutionLevels: false },
   detect(header) {
     return detectIsobmffBrands(header).some((brand) => brand === 'avif' || brand === 'avis')
   },

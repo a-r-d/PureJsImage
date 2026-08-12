@@ -180,6 +180,8 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/post-filter-restoration-units-300x130.avif
 !benchmark/corpus/files/avif/post-filter-wiener-sgr-66x70.avif
 !benchmark/corpus/files/avif/sharp-qmatrix-*.avif
+!benchmark/corpus/files/avif/rav1e-segmentation-q60-512x512.avif
+!benchmark/corpus/files/avif/svt-skipped-intra-tx-size-512x512.avif
 !benchmark/corpus/files/avif/alpha-*.avif
 !benchmark/corpus/files/avif/lossless-q0-64x48.avif
 !benchmark/corpus/files/avif/lossy-q0-64x48.avif
@@ -190,6 +192,7 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/unsupported-hdr-*.avif
 !benchmark/corpus/files/avif/self-guided-*.avif
 !benchmark/corpus/files/avif/wiener-*.avif
+!benchmark/corpus/files/avif/restoration-*.avif
 !benchmark/corpus/files/avif/xiph-tiger-*.avif
 !benchmark/corpus/files/avif/xiph-alpha-*.avif
 !benchmark/corpus/files/avif/libavif-*-role*.avif
@@ -223,6 +226,15 @@ benchmark/corpus/files/avif/*
 !benchmark/corpus/files/avif/libavif-imir-axis0-160x160.avif
 !benchmark/corpus/files/avif/libavif-imir-axis1-160x160.avif
 !benchmark/corpus/files/avif/libavif-imir-clap-irot-grid-alpha-160x160.avif
+!benchmark/corpus/files/avif/linku-kimono-crop.avif
+!benchmark/corpus/files/avif/colors-animated-12bpc-keyframes-0-2-3.avif
+!benchmark/corpus/files/avif/colors-animated-*-frame*-dav1d.png
+!benchmark/corpus/files/avif/libavif-colors-hdr-p3.avif
+!benchmark/corpus/files/avif/libavif-cosmos1650-yuv444-10bpc-p3pq.avif
+!benchmark/corpus/files/avif/identity-pq-10bpc-yuv444-16x12.avif
+!benchmark/corpus/files/avif/hdr-hlg-10bpc-yuv444-32x24.avif
+!benchmark/corpus/files/avif/ms-chimera-hdr-matrix10-1920x1008.avif
+!benchmark/corpus/files/avif/oracle-*-ffmpeg-reinhard.png
 !benchmark/corpus/files/jp2/
 benchmark/corpus/files/jp2/*
 !benchmark/corpus/files/jp2/README.md

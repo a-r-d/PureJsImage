@@ -15,6 +15,7 @@ import { inspectAvifBitstreams } from '../src/codecs/avif.ts'
 import { av1InverseQuantizationMatrix } from '../src/codecs/av1-qmatrix.ts'
 import { MemorySource } from '../src/source.ts'
 import {
+  applyAv1LoopFilter,
   applyAv1LoopRestoration,
   type Av1FilterPlane,
   type Av1PostFilterState,
@@ -91,6 +92,7 @@ const createPostFilterState = (
       createRestorationPlaneState(Math.ceil(width / 2), Math.ceil(height / 2), unitSize, type),
     ],
     skips: empty,
+    segmentIds: empty,
     transformHeights: [empty, empty, empty],
     transformWidths: [empty, empty, empty],
   }
@@ -197,6 +199,73 @@ describe('AV1 post-reconstruction filters', () => {
     expect(cdef.header.loopFilterLevels).toEqual([0, 0, 0, 0])
     expect(cdef.header.cdefYPrimaryStrengths).toEqual([11, 0])
     expect(cdef.header.cdefUvPrimaryStrengths).toEqual([11, 11])
+  })
+
+  it('applies segment-specific loop-filter levels at transform edges', async () => {
+    const { header: sourceHeader } = await decodeFixture('post-filter-deblock-96x74.avif')
+    const featureEnabled = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => false))
+    const featureData = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => 0))
+    const segmentOneFeatures = featureEnabled[1]
+    const segmentOneData = featureData[1]
+    if (!segmentOneFeatures || !segmentOneData) throw new Error('Segment state is missing')
+    segmentOneFeatures[1] = true
+    segmentOneData[1] = -20
+    const header: Av1FrameHeader = {
+      ...sourceHeader,
+      frameHeight: 4,
+      frameWidth: 8,
+      loopFilterDeltaEnabled: false,
+      loopFilterLevels: [20, 0, 0, 0],
+      renderHeight: 4,
+      renderWidth: 8,
+      segmentation: {
+        enabled: true,
+        featureData,
+        featureEnabled,
+        lastActiveId: 1,
+        preSkip: true,
+      },
+      upscaledWidth: 8,
+    }
+    const empty = new Uint8Array(0)
+    const state: Av1PostFilterState = {
+      ...createPostFilterState(8, 4, 64, 0),
+      bitDepth: 8,
+      contextMiColumns: 2,
+      contextMiRows: 1,
+      miColumns: 2,
+      miRows: 1,
+      segmentIds: Uint8Array.of(0, 1),
+      skips: Uint8Array.of(0, 0),
+      transformHeights: [Uint8Array.of(4, 4), empty, empty],
+      transformWidths: [Uint8Array.of(4, 4), empty, empty],
+    }
+    const source = Uint16Array.from([
+      96, 96, 96, 96, 104, 104, 104, 104, 96, 96, 96, 96, 104, 104, 104, 104, 96, 96, 96, 96, 104,
+      104, 104, 104, 96, 96, 96, 96, 104, 104, 104, 104,
+    ])
+    const planes = (): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => [
+      { data: Uint16Array.from(source), height: 4, stride: 8, width: 8 },
+      { data: new Uint16Array(8), height: 2, stride: 4, width: 4 },
+      { data: new Uint16Array(8), height: 2, stride: 4, width: 4 },
+    ]
+    const baseFiltered = planes()
+    applyAv1LoopFilter(
+      baseFiltered,
+      {
+        ...header,
+        segmentation: {
+          ...header.segmentation,
+          featureEnabled: Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => false)),
+        },
+      },
+      state,
+    )
+    const segmentFiltered = planes()
+    applyAv1LoopFilter(segmentFiltered, header, state)
+
+    expect(baseFiltered[0].data).not.toEqual(source)
+    expect(segmentFiltered[0].data).toEqual(source)
   })
 
   it('covers Wiener, self-guided, and multiple restoration-unit decisions', async () => {

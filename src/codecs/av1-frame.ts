@@ -94,7 +94,7 @@ export interface Av1FrameHeader {
   readonly renderWidth: number
   readonly restorationTypes: readonly number[]
   readonly restorationUnitSizes: readonly number[]
-  readonly segmentationEnabled: boolean
+  readonly segmentation: Av1Segmentation
   readonly tileColumns: number
   readonly tileRows: number
   readonly tileSizeBytes: number
@@ -132,10 +132,12 @@ interface Quantization {
   readonly usingQMatrix: boolean
 }
 
-interface Segmentation {
+export interface Av1Segmentation {
   readonly enabled: boolean
   readonly featureData: readonly (readonly number[])[]
   readonly featureEnabled: readonly (readonly boolean[])[]
+  readonly lastActiveId: number
+  readonly preSkip: boolean
 }
 
 const tileLog2 = (blockSize: number, target: number): number => {
@@ -178,7 +180,7 @@ const parseQuantization = (reader: Av1BitReader, sequence: Av1SequenceHeader): Q
   return { base, yDc, uDc, uAc, vDc, vAc, usingQMatrix, qmY, qmU, qmV }
 }
 
-const parseSegmentation = (reader: Av1BitReader): Segmentation => {
+const parseSegmentation = (reader: Av1BitReader): Av1Segmentation => {
   const enabled = reader.readBit() === 1
   const featureEnabled: boolean[][] = Array.from({ length: MAX_SEGMENTS }, () =>
     Array.from({ length: SEGMENT_FEATURE_BITS.length }, () => false),
@@ -186,7 +188,9 @@ const parseSegmentation = (reader: Av1BitReader): Segmentation => {
   const featureData: number[][] = Array.from({ length: MAX_SEGMENTS }, () =>
     Array.from({ length: SEGMENT_FEATURE_BITS.length }, () => 0),
   )
-  if (!enabled) return { enabled, featureEnabled, featureData }
+  if (!enabled) {
+    return { enabled, featureEnabled, featureData, lastActiveId: 0, preSkip: false }
+  }
 
   for (let segment = 0; segment < MAX_SEGMENTS; segment += 1) {
     const enabledFeatures = featureEnabled[segment]
@@ -206,7 +210,16 @@ const parseSegmentation = (reader: Av1BitReader): Segmentation => {
       featureValues[feature] = Math.max(-limit, Math.min(limit, value))
     }
   }
-  return { enabled, featureEnabled, featureData }
+  let lastActiveId = 0
+  let preSkip = false
+  for (let segment = 0; segment < MAX_SEGMENTS; segment += 1) {
+    for (let feature = 0; feature < SEGMENT_FEATURE_BITS.length; feature += 1) {
+      if (featureEnabled[segment]?.[feature] !== true) continue
+      lastActiveId = segment
+      if (feature >= 5) preSkip = true
+    }
+  }
+  return { enabled, featureEnabled, featureData, lastActiveId, preSkip }
 }
 
 const parseTileLayout = (
@@ -707,7 +720,7 @@ export const parseAv1Frame = (
       deltaUAc: quantization.uAc,
       deltaVDc: quantization.vDc,
       deltaVAc: quantization.vAc,
-      segmentationEnabled: segmentation.enabled,
+      segmentation,
       deltaQPresent,
       deltaQResolution,
       deltaLfPresent,
