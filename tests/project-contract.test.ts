@@ -437,6 +437,9 @@ describe('package contract', () => {
     expect(runtimeModules.some((path) => path.startsWith(`accelerators/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`accelerator-entries/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`scientific/`))).toBe(false)
+    expect(runtimeModules.some((path) => path.startsWith(`operations/`))).toBe(false)
+    expect(runtimeModules.some((path) => path.startsWith(`extensions/`))).toBe(false)
+    expect(readFileSync(resolve('src/executor.ts'), 'utf8')).not.toMatch(/from ['"].*operations\//)
   })
 
   it('publishes browser and codec capabilities through explicit package subpaths', () => {
@@ -447,6 +450,8 @@ describe('package contract', () => {
       './scientific',
       './scientific/node',
       './scientific/browser',
+      './operations',
+      './extensions',
       './pathology',
       './sources/http-range',
       './compression/zstd',

@@ -1,0 +1,93 @@
+# Operations and trusted extensions
+
+PureJsImage exposes application-platform primitives through two explicit, browser-portable package
+entries:
+
+- `purejsimage/operations` contains JSON-safe value types, ports, parameter schemas, operation
+  descriptors, immutable local registries, provider contracts, conservative selection, and the
+  definitions that lower existing fluent image operations into their current internal pipeline.
+- `purejsimage/extensions` composes trusted scientific readers, value types, operation definitions,
+  and providers into an isolated application-owned host.
+
+Neither entry changes the default `purejsimage` package, installs a registry, probes a backend, or
+registers an extension merely because it was imported.
+
+## Descriptors, definitions, and providers
+
+An `OperationDescriptor` is plain JSON. Applications can serialize its stable ID and semantic
+version, ordered ports, parameter schema, execution characteristic, and reproducibility class.
+`OperationDefinition` keeps semantic normalization, shape inference, and lowering functions outside
+that descriptor. `OperationProvider` is the separately registered executable implementation.
+
+Registries are immutable caller-owned snapshots. Exact `(id, version)` pairs may coexist, while
+duplicates and attempts to replace built-ins reject the whole construction. The capability snapshot
+contains descriptors only, so a UI, script, or future agent can enumerate capabilities without
+receiving function references.
+
+```ts
+import {
+  createBuiltInOperationRegistry,
+  createCoreValueTypeRegistry,
+} from 'purejsimage/operations'
+
+const operations = createBuiltInOperationRegistry()
+const values = createCoreValueTypeRegistry()
+const resize = operations.get('purejsimage.transform.resize', 1)
+const normalized = resize?.normalizeParameters({ width: 800, kernel: 'lanczos3' })
+
+console.log(operations.capabilitySnapshot, values.capabilitySnapshot, normalized)
+```
+
+The current fluent API remains the ordinary-image path. Its validators and `PipelineOperation`
+execution IR remain authoritative; built-in definitions call those existing validated constructors
+when lowering. Registry lookup therefore does not occur in pixel loops, and existing
+`image.resize(...).jpeg(...)` code requires no registry.
+
+## Provider selection and provenance
+
+Provider preparation is asynchronous and explicit. An unavailable optional provider can decline at
+preparation or exact semantic matching. The runtime filters by operation ID/version, reproducibility
+requirements, provider policy, and `supports(request)`. It compares reported setup, transfer,
+compute, readback, retained-memory, and confidence measurements. Stable provider identity breaks
+otherwise equal estimates; there is no WebGPU-over-WASM-over-JavaScript ranking.
+
+Policies support reference-only execution, constrained automatic selection, and an exact provider
+pin. Bit-exact operations admit only implementations marked as differentially conformant.
+Provider-pinned operations fail instead of switching. Every result records provider and
+implementation identity, the build fingerprint, reproducibility declaration, and selected estimate.
+Execution requires an `AbortSignal`, returns owned outputs, and exposes one idempotent `release()`.
+
+## Trusted extension boundary
+
+`createExtensionHost()` accepts extension objects supplied explicitly by the application. Host
+construction validates all readers, value types, operations, provider collisions, registry limits,
+and the extension API version before returning a composed registry. `host.prepare()` is the only
+step that probes providers, and its manifest includes only successfully prepared provider
+descriptors.
+
+```ts
+import { createExtensionHost } from 'purejsimage/extensions'
+import { createValueTypeDefinition } from 'purejsimage/operations'
+
+const host = createExtensionHost({
+  extensions: [{
+    descriptor: { id: 'acme.imaging', version: 1, apiVersion: 1 },
+    valueTypes: [createValueTypeDefinition({
+      descriptor: { id: 'acme.result.score', version: 1, title: 'Score' },
+    })],
+  }],
+})
+
+const prepared = await host.prepare()
+console.log(prepared.manifest)
+```
+
+These are trusted in-process extensions, not a sandbox. Their reader, validator, lowering, provider,
+and release functions execute with the application's authority. PureJsImage does not scan packages
+or directories, dynamically import names from data, auto-install bundles, call `eval`, or construct
+functions from strings.
+
+Untrusted extensions are future work. The same descriptors, validated commands, and structured
+results can later cross a Worker or iframe RPC transport, but that host must add permissions,
+resource limits, cancellation enforcement, serialization rules, and realm isolation. The in-process
+registry makes no security claim on its behalf.

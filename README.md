@@ -253,6 +253,13 @@ values remain `bigint`, while `float16` expands to `Float32Array`. See the
 [numeric tile guide](docs/scientific-numeric-tiles.md) for ownership, checked conversion, and direct
 provider semantics.
 
+Application builders can explicitly import `purejsimage/operations` for JSON-safe operation
+descriptors, immutable local registries, built-in pipeline lowering, and cost-based provider
+selection. `purejsimage/extensions` composes trusted in-process readers, value types, operations,
+and providers without package-global registration or import-time probing. Extensions execute with
+the application's authority; this is not a sandbox. See the
+[operations and trusted extensions guide](docs/operations-and-extensions.md).
+
 MRC and FITS volumes share lazy cross-section and projection operations:
 
 ```ts

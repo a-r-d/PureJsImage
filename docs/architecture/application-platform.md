@@ -1,17 +1,17 @@
 # Application platform architecture
 
 Status: design checkpoint approved on 2026-08-12; implementation is in progress. Dataset V2, the
-explicit scientific reader/document platform, and the native numeric tile layer described by PRs 1
-through 3 now exist, while graph, operation, tile-runtime, extension, workspace, and application
-layers remain future work.
+explicit scientific reader/document platform, native numeric tiles, operation descriptors and
+providers, and trusted local extension composition described by PRs 1 through 4 now exist. Graph,
+tile-runtime, workspace, and application layers remain future work.
 
 This document defines a target architecture for scientific web applications built on
 PureJsImage. It is deliberately additive. The existing image API, codec registry, and streaming
 pixel pipeline remain the ordinary-image path; the application platform grows beside them and
 shares only the portable source and block foundations.
 
-The design is based on the repository at commit
-`75a3e3a29cd829f89419cda837bffe6646090636` (PureJsImage 0.9.0). File names below describe the
+PR 4 began from commit `a5cad144f8cdc3a5a953c4121685c774a5ebbc85` (PureJsImage 0.9.0). File
+names below describe the
 current layout and likely implementation locations, not promises that every proposed file name is
 final.
 
@@ -43,8 +43,9 @@ The useful seams already present in the codebase are:
   contract is intentionally too coarse for operation-level semantic matching, cost comparison, and
   provenance, so analysis providers should follow its explicit-registration principle without
   reusing its interface.
-- The package already isolates `purejsimage/scientific`, `purejsimage/scientific/node`, explicit
-  codecs, and explicit WASM accelerators. `tsconfig.browser.json`,
+- The package isolates `purejsimage/scientific`, `purejsimage/scientific/node`,
+  `purejsimage/operations`, `purejsimage/extensions`, explicit codecs, and explicit WASM
+  accelerators. `tsconfig.browser.json`,
   `scripts/check-browser-build.ts`, package-type checks, project-contract tests, and real browser
   tests enforce important parts of that separation.
 - The scientific explorer already runs parsing and rendering in a browser worker, but its messages
@@ -201,9 +202,9 @@ an explicit subset keeps validation portable and avoids a runtime dependency. Un
 keywords reject during registration instead of being ignored.
 
 Descriptors and providers are registered into caller-owned instances. A registry constructor takes
-an iterable of trusted bundles or receives explicit `register()` calls. Duplicate IDs and
-incompatible versions reject. There is no package-global mutable singleton, side-effect import, or
-hidden auto-registration. Built-in reference operations are ordinary explicitly supplied bundles.
+an iterable of definitions and freezes the completed snapshot. Duplicate IDs and incompatible
+versions reject atomically. There is no package-global mutable singleton, side-effect import, or
+hidden auto-registration. Built-in pipeline definitions are an explicitly supplied list.
 
 A permanent strict TypeScript provider defines the reference semantics and portable fallback for
 every mature operation. Future WASM and WebGPU providers use distinct explicit imports and explicit
@@ -363,15 +364,16 @@ The public module graph should develop as follows:
   contracts/conversion. Its unreleased scientific exports may change during the alpha implementation
   sequence and are finalized at the next versioned release. `purejsimage/scientific/node` remains
   the place for path-based helpers.
-- A future `purejsimage/operations` entry exports JSON-safe descriptors and schemas, provider
-  contracts, caller-owned registries, and the explicit TypeScript reference bundle. It depends only
-  on portable scientific and core types.
+- `purejsimage/operations` exports JSON-safe descriptors and schemas, provider contracts,
+  caller-owned registries, and built-in definitions that lower into existing validated pipeline
+  constructors. PR 4 supplies provider mechanics and mocks, while PR 5 still owns real strict
+  TypeScript scientific operation implementations.
 - A future `purejsimage/analysis` entry exports graph parsing/canonicalization/migration, ROIs,
   results and provenance, planning, tile runtime, immutable workspace snapshots, and commands. It
   depends on `operations` and `scientific`, not on concrete readers or Node adapters.
-- A future `purejsimage/extensions` entry is justified only if trusted bundle composition and the
-  future RPC protocol would otherwise make `operations` or `analysis` depend upward. It contains
-  extension-host conveniences, not a global registry and not an implied sandbox.
+- `purejsimage/extensions` contains trusted bundle composition and keeps those conveniences out of
+  `operations` and future `analysis`. It is not a global registry or an implied sandbox. A future
+  RPC package can be split again if its transport dependencies would enlarge this entry.
 
 Every new entry receives browser typechecking, a browser bundle traversal that rejects `node:*`,
 package export/type checks, and a real browser smoke test. Node-only helpers stay behind explicit
@@ -397,13 +399,13 @@ concrete; names can change during review without changing the layering.
 | 1 | Define `ScientificDataset` V2 labeled-axis descriptors, replace the unreleased fixed-axis public contract, and migrate the first representative readers. | `src/scientific/dataset.ts`, `src/scientific/index.ts`, selected files under `src/scientific/formats/`; optionally a temporary internal migration bridge. | Current demos and tests must migrate with the intentional break; transitional code could outlive its purpose. | Contract tests using FITS, MRC, ENVI, and an irregular synthetic axis; affected scientific format and demo tests. | The new API is smaller than an adapter-based alternative; migrated readers have no legacy wrapper; temporary bridges are explicitly tracked for removal; `npm run browser:check`; `npm run check`. |
 | 2 | Migrate the remaining scientific readers, remove transitional bridges, and require abort- and budget-aware V2 reads. | `src/scientific/formats/{fits,mrc,cbf,gsf,envi}.ts`, `src/scientific/ome-tiff.ts`, `src/scientific/{render,spectral,volume,classification}.ts`, `src/source.ts`, abort/limit helpers. | Partial reads or cancellation could leak blocks; format-specific metadata could be lost during migration. | Focused abort-before-read, abort-during-read, iterator-return, release, metadata, and byte-budget tests for contiguous and strided readers. | All readers use the V2 contract directly; no compatibility bridge remains; no read continues after observed abort; every yielded/rejected block is released; source-byte cap is enforced; `npm run check`. |
 | 3 | Introduce `NumericTile`, validated one-time conversion, explicit caller-owned allocation, and the optional direct native tile-source capability. | `src/scientific/{numeric-tile,render,spectral,volume,classification}.ts`, `src/scientific/index.ts`, focused tests and benchmark. | Endianness, float16 expansion, uint64 precision, planar/interleaved strides, or ownership could change values. | Cross-sample-type golden tests, hostile stride/truncation tests, release-on-error tests, reference-vs-direct-source conformance, existing algorithm result suites. | Canonical block fixtures produce exact native values; no `uint64` number coercion; measured retained-byte bounds; `npm run browser:check`; `npm run check`. |
-| 4 | Define JSON-safe operation descriptors, the supported parameter-schema subset, validation, and caller-owned descriptor registry. | New `src/operations/{descriptor,schema,registry,index}.ts`; later export wiring in `package.json`; `tests/project-contract.test.ts`. | Defaults or unknown-key handling could become persisted semantics; a singleton could create order-dependent behavior. | JSON round-trip, unknown schema keyword, duplicate/version conflict, default application, and registry-isolation tests. | Descriptor corpus contains only JSON values; registry instances are isolated; no side-effect registration; dependency guard passes; `npm run check`. |
-| 5 | Define `OperationProvider` and ship the permanent strict TypeScript reference provider for a deliberately small first operation set. | New `src/operations/{provider,reference}.ts`; reuse sample helpers without importing format readers; new provider tests. | Reference behavior could be underspecified, or provider code could materialize complete planes. | Semantic vectors for NaN/no-data/edges/types, bounded multi-tile execution, cancellation, release, and allocation tests. | Reference results are the conformance oracle; declared memory formula holds; no full-plane helper exists in the generic provider path; `npm run check`. |
+| 4 | Define JSON-safe operation descriptors and local registries; add provider mechanics, current pipeline lowering, trusted extension composition, and explicit public subpaths without implementing new scientific computation. | New `src/operations/{descriptor,registry,provider,builtins,index}.ts`, `src/extensions/index.ts`, `package.json`, browser/package/size scripts, focused tests, and trust-boundary docs. | Defaults or unknown-key handling could become persisted semantics; provider policy could imply a backend rank; extensions could be mistaken for isolation; ordinary pipeline behavior could drift. | JSON/hostile validation, registry isolation, provider cost/pin/release, IR parity, extension atomicity, strict package-consumer, and browser dependency-graph tests. | Descriptors/manifests contain only data; registries remain local; pipeline IR and fluent APIs remain unchanged; no import-time installation; new entries are browser-portable; `npm run check`. |
+| 5 | Ship permanent strict TypeScript reference implementations for a deliberately small first scientific operation set using the PR 4 provider contract. | New `src/operations/reference/` modules; reuse numeric-tile sample helpers without importing format readers; new semantic/provider tests. | Reference behavior could be underspecified, or operation code could materialize complete planes. | Semantic vectors for NaN/no-data/edges/types, bounded multi-tile execution, cancellation, release, and allocation tests. | Reference results are the conformance oracle; declared memory formula holds; no full-plane helper exists in the generic provider path; `npm run check`. |
 | 6 | Add immutable graph JSON, canonicalization, explicit migrations, source identity ladder, and validation issues. | New `src/analysis/{graph,canonical-json,migrations,source-identity,issues}.ts`; `src/scientific/dataset-v2.ts` for source-reference types if needed. | Canonical bytes will become durable at release; weak identities could poison persistent caches. | Provisional canonical fixture corpus, property-order invariance, semantic-order preservation, migration reports, unsupported-version rejection, identity-refinement tests. | Canonical behavior is tested but remains revisable until the release gate; execution rejects unmigrated graphs; weak identity stays session-scoped; `npm run browser:check`; `npm run check`. |
 | 7 | Build the bounded tile runtime and measurable local cache. | New `src/analysis/{tile-runtime,tile-cache,budget,scheduler}.ts`; `src/source.ts` and `src/sources/http-range.ts` only if shared metrics need a portable interface. | Double release, retained buffers, starvation, unbounded concurrency, or cache keys that cross semantic boundaries. | Deterministic fake-source/provider tests for budgets, LRU behavior, concurrency ceilings, cancellation races, iterator cleanup, and metrics. | High-water bytes stay within declared limits; concurrency never exceeds policy; all failure paths release; cold/warm cache measurements are observable; `npm run check`. |
 | 8 | Add exact semantic matching, measured full-cost provider planning, pins, and execution provenance. | New `src/analysis/{planner,cost-model,provenance,executor}.ts`; `src/operations/provider.ts`; do not change `src/accelerator.ts`. | A nominally faster backend could change semantics or hidden fallback could invalidate reproducibility. | Candidate rejection matrix, small-tile TypeScript win, transfer-heavy WebGPU loss, resident-backend win, pin failure, and provenance snapshot tests. | Every selected provider passes exact support; cost components and model version are recorded; no hardcoded backend rank; `npm run check`. |
 | 9 | Add ROIs, immutable results, workspace snapshots, structured commands, and the execution/audit boundary. | New `src/analysis/{roi,result,workspace,commands,audit}.ts`; optional reuse of coordinate metadata from `src/scientific/dataset-v2.ts`. | UI convenience could mutate graphs in place, mix physical and index coordinates, or execute during a command. | Snapshot immutability, issue paths/codes, ROI conversion, command replay, explicit-execution, and cancel/audit tests. | Commands are JSON-safe and deterministic; invalid commands return unchanged snapshots; applying commands performs no source/provider work; `npm run check`. |
-| 10 | Complete release-boundary hardening, add trusted extension-bundle composition, and prove whole-platform ordinary-image/browser compatibility. | `package.json`, `tsconfig.browser.json`, `scripts/check-browser-build.ts`, `scripts/check-package-types.ts`, `tests/project-contract.test.ts`, `src/index.ts`, `src/browser.ts`; optional `src/extensions/`; `browser-tests/scientific.pw.ts`; version/changelog files only during an authorized release. | Incrementally exported subpaths could still pull Node built-ins or optional backends into browsers; root bundle or `resize().jpeg()` behavior could drift; provisional contracts could be published accidentally; “extension” could be mistaken for sandboxing. | Package-type consumers for Node/browser, bundle graph assertions, registry isolation, extension trust-label tests, current pipeline tests, scientific browser smoke test, canonical persisted-contract fixtures. | All transitional code is removed; release contracts and breaks are documented; root/browser exports remain compatible and exclude analysis/backends; new entries contain no Node built-ins; existing `resize().jpeg()` tests and real Chromium scientific workflow pass; `npm run check`. |
+| 10 | Complete release-boundary hardening of the application platform and trusted extension boundary, and prove whole-platform ordinary-image/browser compatibility. | `package.json`, browser/package checks, project-contract tests, `src/index.ts`, `src/browser.ts`, `src/extensions/`, real browser tests, and version/changelog files only during an authorized release. | Provisional subpaths could still pull optional backends into browsers; root bundle or `resize().jpeg()` behavior could drift; contracts could be published prematurely; trust wording could overstate isolation. | Package consumers, bundle graphs, registry isolation, trust-label tests, current pipeline tests, scientific browser smoke, and canonical persisted-contract fixtures. | Transitional code is removed; release contracts and breaks are documented; root/browser exports exclude analysis/backends; existing `resize().jpeg()` and real Chromium scientific workflows pass; `npm run check`. |
 
 New package subpaths and completed capabilities may land incrementally in the PR that makes them
 usable. PR 10 is the release-readiness gate, not the first publication point. Repository exports
@@ -752,10 +754,87 @@ migration path is chosen.
     1,033 passing tests and only the same three unrelated 12-bit AVIF Sharp-oracle hash failures, so
     `npm run check` stops before its repository-wide hostile-source phase.
 
+### PR 4: operation descriptors, providers, and trusted extension bundles
+
+The supplied PR 4 runbook pulls the provider contract forward from the original PR 5 boundary and
+trusted bundle composition forward from PR 10. This does not pull actual scientific operation
+implementations or release hardening forward: PR 5 still owns the permanent strict TypeScript
+reference implementations, and PR 10 still owns final compatibility/security wording and release
+gates.
+
+- [x] Prompt 4.1: define JSON-safe value types, ports, parameter schemas, operation descriptors, and
+      bounded validation.
+  - [x] Re-read instructions, record HEAD/status, and inspect pipeline validation, fluent APIs,
+        executor planning, codec/accelerator boundaries, scientific APIs, errors, exports, and tests.
+  - [x] Define extensible namespaced/versioned value types and ordered operation ports without a
+        closed extension-hostile TypeScript union.
+  - [x] Define compact number, integer, boolean, string, enum, object, and bounded-array schemas with
+        defaults, required/closed objects, finite/range/length limits, and JSON-safe UI metadata.
+  - [x] Define plain-data operation descriptors with stable ID/version, category/tags, ports,
+        parameters, execution characteristics, reproducibility class, defaults, and deprecation.
+  - [x] Return all safely discoverable structured issues under strict nesting/key/array/value limits;
+        reject unknown fields, invalid defaults, duplicate ports, non-JSON values, unsafe versions,
+        and non-namespaced extension IDs.
+  - [x] Add hostile/schema/extension tests, representative resize and histogram JSON, and run focused
+        tests, typecheck, lint, and formatting.
+
+- [x] Prompt 4.2: add immutable caller-owned operation and value-type registries.
+  - [x] Keep descriptors plain while definitions own semantic normalization, shape inference, and
+        lowering hooks; add no executable pixel/tile work to descriptors.
+  - [x] Support exact ID/version lookup, multiple versions, deterministic enumeration, duplicate and
+        built-in collision rejection, frozen snapshots, and independent registries.
+  - [x] Make bundle composition atomic and bounded by caller-supplied operation/version/schema/byte
+        limits; expose JSON-safe descriptor-only capabilities.
+  - [x] Test duplicates, versions, ordering, atomic failure, normalization, serialization, limits,
+        and registry isolation; run focused/type/lint/format gates.
+
+- [x] Prompt 4.3: add the executable provider contract and conservative runtime selector.
+  - [x] Separate provider identity/preparation, exact implementation support, cost estimation,
+        execution, output ownership, and provenance fingerprint from descriptors and definitions.
+  - [x] Implement explicit async preparation and reference-only, conservative automatic,
+        allow-list, and exact-pin policies with deterministic ties and clean unavailable/decline
+        fallback.
+  - [x] Compare setup, transfer, compute, readback, retained-memory, and confidence rather than
+        ranking provider kinds; enforce bit-exact conformance, tolerance recording, and pinned
+        failure semantics.
+  - [x] Test preparation, decline/fallback, pins, costs, ties, cancellation, failure releases, and
+        isolated runtimes; run focused, browser, type, lint, and format gates.
+
+- [x] Prompt 4.4: describe and lower existing fluent operations without rewriting execution.
+  - [x] Define built-in descriptors/definitions for orientation/metadata, crop, resize, window, LUT,
+        rotate, flip/flop, and every currently supported fluent encoder.
+  - [x] Reuse existing validated constructors as the single validation truth and lower definitions to
+        the current efficient `PipelineOperation` IR outside hot loops.
+  - [x] Preserve every fluent method/overload, error contract, immutable chain, crop/scaled-decode
+        pushdown, codec registration, and encoder behavior without requiring a registry.
+  - [x] Add machine-readable built-in capabilities plus valid/invalid IR parity, output parity, and a
+        no-per-pixel-registry guard; run pipeline/executor tests, relevant benchmark/guard, browser,
+        type, lint, and format gates.
+
+- [x] Prompt 4.5: add explicit trusted extension bundles, manifests, public entries, and final gate.
+  - [x] Define versioned explicit bundles containing readers, value types/definitions, operation
+        definitions, providers, and future migration metadata with atomic cross-registry validation.
+  - [x] Reject collisions and API-version mismatch; produce deterministic plain-data manifests for
+        extensions, readers, value types, operations, and prepared providers.
+  - [x] Add no discovery, dynamic import, scanning, eval, `Function`, or auto-install behavior;
+        document trusted in-process execution and future permissioned Worker/iframe RPC honestly.
+  - [x] Add portable `purejsimage/operations` and `purejsimage/extensions` entries, package/browser/
+        size/docs/architecture guards, and an external strict consumer composing a representative
+        reader, custom value type, operation definition, and reference provider.
+  - [x] Run package types, browser check, operation/extension suites, and `npm run check`; report
+        public exports, trust boundary, bundle impact, diff stat, and proof default imports install
+        nothing.
+  - Result: focused operation, extension, pipeline, transform, metadata, and package-contract suites
+        pass. Strict packed-package compilation and browser graph checks pass; the default root graph
+        contains no operation or extension module. Standalone measured entries are 40.0 KiB minified
+        (10.7 KiB gzip) for operations and 40.1 KiB (11.0 KiB gzip) for extensions. The full suite
+        has 1,047 passing tests; `npm run check` is blocked only by the same three unrelated expanded
+        12-bit AVIF Sharp-oracle hash mismatches recorded by PR 3. A root-owned local npm cache also
+        requires the documented isolated-cache environment when running the package-type step on
+        this workstation.
+
 ### Remaining implementation PRs
 
-- [ ] PR 4: add JSON-safe operation descriptors, schemas, validation, and local registries. Detailed
-      prompts not yet supplied.
 - [ ] PR 5: add the strict TypeScript reference `OperationProvider`. Detailed prompts not yet
       supplied.
 - [ ] PR 6: add canonical analysis graphs, migrations, source identity, and validation issues.

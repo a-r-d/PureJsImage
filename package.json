@@ -98,6 +98,16 @@
       "import": "./dist/scientific/browser.js",
       "default": "./dist/scientific/browser.js"
     },
+    "./operations": {
+      "types": "./dist/operations/index.d.ts",
+      "import": "./dist/operations/index.js",
+      "default": "./dist/operations/index.js"
+    },
+    "./extensions": {
+      "types": "./dist/extensions/index.d.ts",
+      "import": "./dist/extensions/index.js",
+      "default": "./dist/extensions/index.js"
+    },
     "./pathology": {
       "types": "./dist/pathology/index.d.ts",
       "import": "./dist/pathology/index.js",

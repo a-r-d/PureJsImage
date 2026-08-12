@@ -59,6 +59,9 @@ import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
 import { pngCodec } from 'purejsimage/codecs/png'
 export { geoTiffProfile } from 'purejsimage/tiff'
 import { createScientificLibrary, encodeGsf, gsfReader, rasterBlockToNumericTile } from 'purejsimage/scientific'
+import type { ScientificReader } from 'purejsimage/scientific'
+import { createExtensionHost } from 'purejsimage/extensions'
+import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
 export { openOmeTiff, rasterToPixels } from 'purejsimage/scientific'
 export { createScientificFileContext } from 'purejsimage/scientific/browser'
 export { createScientificPathContext } from 'purejsimage/scientific/node'
@@ -68,6 +71,43 @@ export { HttpRangeSource } from 'purejsimage/sources/http-range'
 const nodeImages = createImageLibrary([pngCodec, jpegxlCodec])
 const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])
 const science = createScientificLibrary({ readers: [gsfReader] })
+const extensionReader: ScientificReader = {
+  descriptor: {
+    id: 'example/readers/cube',
+    version: '1.0.0',
+    format: 'Example cube',
+    extensions: ['cube'],
+    mediaTypes: ['application/x-example-cube'],
+    capabilities: {},
+  },
+  probe: async () => ({ confidence: 0 }),
+  open: async () => { throw new Error('compile-only reader') },
+}
+const extensionValue = createValueTypeDefinition({
+  descriptor: { id: 'example.data.cube', version: 1, title: 'Example cube' },
+})
+const extensionOperation = createOperationDefinition({
+  descriptor: {
+    id: 'example.analysis.mean', version: 1, title: 'Mean', category: 'analysis', tags: [],
+    inputs: [{ name: 'cube', valueType: { id: 'example.data.cube', version: 1 } }],
+    outputs: [],
+    parameters: { type: 'object', properties: {}, closed: true },
+    execution: 'reduction', reproducibility: { class: 'backend-stable' },
+  },
+})
+const extensionProvider = createOperationProvider({
+  descriptor: {
+    id: 'example.reference', version: 1, kind: 'reference', buildFingerprint: 'example-1',
+  },
+  prepare: async () => [],
+})
+export const extensionCapabilities = createExtensionHost({
+  extensions: [{
+    descriptor: { id: 'example.science', version: 1, apiVersion: 1 },
+    readers: [extensionReader], valueTypes: [extensionValue], operations: [extensionOperation],
+    providers: [extensionProvider],
+  }],
+}).manifest
 
 export const encodeNode = async (input: Uint8Array): Promise<Uint8Array> =>
   (await nodeImages.open(input)).png().toBuffer()

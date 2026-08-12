@@ -47,6 +47,16 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     contents: exportsFrom(['./src/index.ts', './src/scientific/index.ts']),
   },
   {
+    id: 'operations',
+    name: 'Operation descriptors and runtime',
+    contents: exportsFrom(['./src/operations/index.ts']),
+  },
+  {
+    id: 'extensions',
+    name: 'Trusted extension host',
+    contents: exportsFrom(['./src/extensions/index.ts']),
+  },
+  {
     id: 'png',
     name: 'Core + PNG',
     contents: exportsFrom(['./src/index.ts', './src/codec-entries/png.ts']),
