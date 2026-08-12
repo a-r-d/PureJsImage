@@ -275,6 +275,11 @@ The analysis entry also provides calibrated JSON-safe ROI geometry, tile-local m
 line sampling plans, built-in ROI value types, and immutable ROI workspace commands. See the
 [ROI geometry and sampling guide](docs/roi-geometry-and-sampling.md).
 
+Lazy quantitative applications can create a local byte-bounded `TileRuntime` with canonical source
+and derived keys, shared in-flight reads, cancellable priority scheduling, explicit invalidation,
+halo-aware provider execution, and JSON-safe metrics. Imports create no cache or background worker.
+See the [lazy analysis tile runtime guide](docs/analysis-tile-runtime.md).
+
 MRC and FITS volumes share lazy cross-section and projection operations:
 
 ```ts

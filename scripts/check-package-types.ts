@@ -62,8 +62,8 @@ import { createScientificLibrary, encodeGsf, gsfReader, normalizeScientificDatas
 import type { ScientificReader } from 'purejsimage/scientific'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
-import { createAnalysisController, createAnalysisResultValueTypeRegistry, createRoiLineSamplingPlan, createRoiMask, createRoiValueTypeRegistry, getImageSourceIdentity, hashAnalysisGraph, normalizeRoi, summarizeResult, validateScalarResult } from 'purejsimage/analysis'
-import type { AnalysisGraph, Roi } from 'purejsimage/analysis'
+import { canonicalTileKey, createAnalysisController, createAnalysisResultValueTypeRegistry, createRoiLineSamplingPlan, createRoiMask, createRoiValueTypeRegistry, createTileRuntime, getImageSourceIdentity, hashAnalysisGraph, normalizeRoi, summarizeResult, validateScalarResult } from 'purejsimage/analysis'
+import type { AnalysisGraph, Roi, TileRequest, TileSource } from 'purejsimage/analysis'
 export { openOmeTiff, rasterToPixels } from 'purejsimage/scientific'
 export { createScientificFileContext } from 'purejsimage/scientific/browser'
 export { createScientificPathContext } from 'purejsimage/scientific/node'
@@ -125,6 +125,29 @@ export const analysisController = createAnalysisController({
 export const emptyGraphHash = hashAnalysisGraph(emptyGraph)
 export const emptyWorkspace = analysisController.createWorkspace(emptyGraph)
 export const memoryIdentity = getImageSourceIdentity(new MemorySource(Uint8Array.of(1)))
+const tileRequest: TileRequest = {
+  address: {
+    cacheClass: 'source', namespace: 'consumer',
+    dataset: {
+      datasetId: 'consumer', generation: 0, sessionId: 'consumer-session',
+      source: { kind: 'session', strength: 'session', stability: 'instance', id: 'source-1', size: 1 },
+    },
+    displayAxes: ['x', 'y'], fixedIndices: [], resolutionLevel: 0,
+    x: 0, y: 0, width: 1, height: 1,
+  },
+  priority: 'visible', signal: new AbortController().signal,
+}
+const tileSource: TileSource = {
+  tileKey: canonicalTileKey,
+  readTile: async () => ({
+    tile: {
+      x: 0, y: 0, width: 1, height: 1, sampleType: 'uint8', componentCount: 1,
+      layout: 'interleaved', rowStrideElements: 1, data: Uint8Array.of(1), release() {},
+    },
+  }),
+}
+export const tileRuntime = createTileRuntime({ limits: { maxCacheBytes: 1024 } })
+export const tileRead = tileRuntime.request(tileSource, tileRequest)
 const roiDatasetDescriptor = {
   schemaVersion: 2 as const,
   axes: [

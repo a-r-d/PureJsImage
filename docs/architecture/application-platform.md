@@ -2,9 +2,9 @@
 
 Status: design checkpoint approved on 2026-08-12; implementation is in progress. Dataset V2, the
 explicit scientific reader/document platform, native numeric tiles, operation descriptors and
-providers, generic quantitative results, and the graph/planning/command platform described by PRs 1
-through 6 now exist. The bounded tile runtime, ROIs, persistence, and release hardening remain
-future work.
+providers, generic quantitative results, the graph/planning/command platform, and ROI geometry and
+sampling described by PRs 1 through 7 now exist. PR 8's bounded tile runtime is implemented in the
+current working tree. Persistence and release hardening remain future work.
 
 This document defines a target architecture for scientific web applications built on
 PureJsImage. It is deliberately additive. The existing image API, codec registry, and streaming
@@ -33,8 +33,9 @@ The useful seams already present in the codebase are:
   blocks with `maxDecodedBytes`, and propagate read cancellation through both dataset generations.
 - Scientific rendering, measurement, spectral math, volume reduction, and classification now
   convert each canonical block once into a native tile before sample loops. Independent range,
-  statistics, histogram, and render passes can still reread the same region because PR 3 adds no
-  long-lived cache; cache ownership and measurable reuse remain PR 7 work.
+  statistics, histogram, and render passes can share an explicitly created PR 8 `TileRuntime` when
+  the application chooses to retain native tiles; importing scientific or analysis APIs still
+  creates no long-lived cache.
 - `src/image-core.ts`, `src/pipeline.ts`, and `src/executor.ts` implement an immutable linear image
   pipeline. The executor pushes eligible crops and JPEG scale selection toward decoders and streams
   `PixelBlock`s to encoders. This behavior is central to `resize().jpeg()` and must not be absorbed
@@ -268,16 +269,29 @@ change cannot be represented mechanically, migration returns an issue requiring 
 
 ### Tile runtime
 
-The tile runtime owns planning, bounded scheduling, conversion, cache accounting, and release
-propagation. Every read and execution call requires an `AbortSignal`; callers that do not need
-external cancellation may pass a fresh non-aborted signal. Every plan has explicit limits for source
-bytes read, live decoded bytes, live native-tile bytes, provider memory, result bytes, and concurrent
-tasks. Limits are checked before admission and as actual usage is reported.
+The tile runtime owns bounded tile scheduling, cache accounting, in-flight deduplication, and release
+propagation. Planning stays in the analysis planner, and canonical-byte conversion stays in the
+explicit `NumericTileSource` adapter; moving either into the runtime would mix policy or reader
+concerns into a cache primitive. A `DerivedTileSource` consumes an already planned provider fallback
+sequence. Every tile request requires an `AbortSignal`; callers that do not need external
+cancellation may pass a fresh non-aborted signal. Tile size, cache bytes and entries, key bytes,
+queue length, and concurrent executable work have explicit limits. Reader/source-byte limits and
+provider/result budgets remain enforced at their owning boundaries and feed the runtime's accounting
+when known.
 
 Cancellation stops new admissions, propagates to sources and providers, closes iterators, and
 releases cached, in-flight, input, output, and provider resources. Cancellation and failure paths are
 tested as strongly as success paths. Concurrency is an input to the scheduler, never an unbounded
 `Promise.all()` over tiles.
+
+The public lazy boundary is `TileSource`, not another `ScientificDataset` subtype. The existing
+`NumericTileSource` request lacks source runtime identity, cache namespace/generation, priority, and
+target layout, all of which are required before a safe cache key can be formed. An explicit
+`numericTileSourceToTileSource()` adapter preserves the scientific source contract at the bottom,
+while `DerivedTileSource` remains a descriptor-bearing lazy view for application execution. Composite
+sources request dependencies through the runtime: the scheduler suspends their current permit while
+a dependency runs and reacquires one before provider compute, preventing nested deadlock at a
+concurrency limit of one without exposing queue internals.
 
 Cache policy is explicit and local to a runtime instance. Cache keys include source identity
 strength, selection, tile coordinates, operation and semantic version, canonical parameters, and
@@ -404,7 +418,7 @@ concrete; names can change during review without changing the layering.
 | 5 | Define bounded provider-neutral quantitative results, adapt existing scientific measurement without duplicate wrapper scans, and add the explicit analysis entry. | New `src/analysis/{result,scientific,index}.ts`; `src/scientific/render.ts`, scientific exports/tests, package/browser/type/size checks, and result docs. | Typed payload ownership or NaN/unit semantics could be ambiguous; generic adapters could reread planes; large results could be accidentally serialized as JSON. | Synthetic scalar/histogram/profile/table/collection validation, million-row columnar metadata, bounded summaries, legacy/generic differential measurements, cancellation/release, and package-boundary tests. | Result memory is bounded and accounted; legacy and generic outputs share one measurement execution; manifests contain schemas rather than payloads; the analysis entry is browser-portable and explicit; `npm run check`. |
 | 6 | Add immutable graph JSON, canonicalization, source identities, explicit migrations, generic planning/execution/provenance, and revisioned commands. | `src/source-identity-contract.ts` and `src/source-identity.ts` beside the bottom-level source contract; new `src/analysis/{graph,canonical-json,migrations,planner,executor,workspace,controller}.ts`; source wrappers, HTTP/File adapters, extension composition, explicit analysis exports, docs, and package/browser checks. Source identity deliberately does not live under `analysis`, because `ImageSource` must not import upward into application code; normalization and hashing are re-exported from the explicit analysis entry so the root size budget stays intact. | Canonical bytes will become durable at release; weak identities could poison persistent caches; command convenience could execute implicitly; provider failures could leak values. | Property-order/hash invariance, graph limits/types/cycles, identity propagation and bounded hashing, migration paths, no-read dry runs, provider policies, releases/cancellation/concurrency, provenance, stale commands, extension atomicity, strict consumer types, and browser dependency checks. | Canonical behavior remains revisable until the release gate; weak identity stays explicitly weak; commands never execute; prepared DAG execution is bounded/cancellable and releases ownership; `npm run browser:check`; `npm run package:types`; `npm run check`. |
 | 7 | Define calibrated ROI geometry, tile-local masks, deterministic line sampling plans, built-in ROI value types, and immutable workspace ROI commands. | New `src/analysis/{roi,roi-sampling}.ts`; `src/analysis/{workspace,controller,index}.ts`; operation value-type composition; scientific labeled-axis descriptors; package/browser checks, focused tests, and docs. | Pixel-boundary and pixel-center conventions could be mixed; non-monotonic calibration could be treated as invertible; masks could materialize a whole plane; ROI commands could blur graph mutation and execution. | Geometry/limit/canonical tests, ascending and descending coordinate conversion, 4D fixed indices, partition-invariant tile masks, concave polygons, nearest/bilinear line plans, stale commands, value-type registry isolation, and browser/package checks. | Coordinates and units are explicit; physical inversion rejects unsupported axes; masks stay tile-local; sampling plans read no pixels; commands remain immutable and never execute; `npm run browser:check`; `npm run package:types`; `npm run check`. |
-| 8 | Build the bounded tile runtime and measurable local cache, then connect the PR 6 provider planner to real tile operations and refine measured cost selection where evidence requires it. | New `src/analysis/{tile-runtime,tile-cache,budget,scheduler}.ts`, real operation/provider definitions, benchmark fixtures, and `src/operations/provider.ts` only for evidence-backed contract gaps; do not change `src/accelerator.ts`. | Double release, retained buffers, starvation, unbounded concurrency, cache-key leakage, or a nominally faster backend changing semantics. | Deterministic budget/LRU/concurrency/cancellation tests plus candidate rejection and measured TypeScript, transfer-heavy, resident-backend, pin, and provenance cases. | High-water bytes and concurrency stay within policy; failure paths release; cache behavior is measurable; real selections retain exact support and recorded costs with no backend rank; `npm run check`. |
+| 8 | Build a bounded local tile runtime, adapt native scientific sources, and execute already planned providers as immutable halo-aware derived sources. | `src/analysis/{tile-runtime,tile-source,index}.ts`, `tests/analysis-tile-{runtime,source}.test.ts`, `benchmark/scientific/run-tile-runtime.ts`, package/type/browser checks, `docs/analysis-tile-runtime.md`, README, and this checklist. Scheduler and LRU mechanics stay private inside `tile-runtime.ts`; splitting files would expose no cleaner boundary at this size. | Double release, nested-scheduler deadlock, retained buffers, starvation, unbounded queues, weak-identity/key collisions, provider-key drift, or halo seams. | True LRU/budget/release, 1,500-task queue stress, cancellation races, in-flight sharing, priority aging, hostile keys/coordinates/accounting, provider fallback/pin/fingerprint, clipped halo partition invariance, dependency release, and queued invalidation. | Byte and concurrency high-water behavior stays within policy; nested reads work at concurrency one; failures and evictions release once; source/derived behavior and provider timing are measurable; package/browser/focused gates and `npm run check`. |
 | 9 | Add persisted workspace/result references and the remaining audit boundary around PR 5 results, PR 6 revisioned commands, and PR 7 ROI state. | New `src/analysis/{persistence,audit}.ts`; `src/analysis/workspace.ts` only where persisted references require it. | Persisted references could imply ownership, or audit/timing data could enter semantic hashes. | Persistence round trips/migrations, command replay, ROI/result references, explicit execution, and audit/hash exclusion tests. | Persistence is migrated; audit/timing remain outside graph hashes; applying commands performs no source/provider work; `npm run check`. |
 | 10 | Complete release-boundary hardening of the application platform and trusted extension boundary, and prove whole-platform ordinary-image/browser compatibility. | `package.json`, browser/package checks, project-contract tests, `src/index.ts`, `src/browser.ts`, `src/extensions/`, real browser tests, and version/changelog files only during an authorized release. | Provisional subpaths could still pull optional backends into browsers; root bundle or `resize().jpeg()` behavior could drift; contracts could be published prematurely; trust wording could overstate isolation. | Package consumers, bundle graphs, registry isolation, trust-label tests, current pipeline tests, scientific browser smoke, and canonical persisted-contract fixtures. | Transitional code is removed; release contracts and breaks are documented; root/browser exports exclude analysis/backends; existing `resize().jpeg()` and real Chromium scientific workflows pass; `npm run check`. |
 
@@ -415,9 +429,8 @@ whole exported surface passes the final browser, package, compatibility, and per
 checks.
 
 The detailed PR 7 ROI runbook supplied after PR 6 supersedes the earlier coarse allocation of PR 7
-to the tile runtime. That runtime moves to PR 8 unless a later detailed prompt revises the order
-again; PR 9 no longer owns the ROI primitives and instead builds persistence and audit boundaries on
-top of them.
+to the tile runtime. That runtime moved to PR 8; PR 9 no longer owns the ROI primitives and instead
+builds persistence and audit boundaries on top of them.
 
 ## Decisions and rejected shortcuts
 
@@ -1003,8 +1016,67 @@ operation PR after their input and result contracts exist.
         by the same three unrelated expanded 12-bit AVIF Sharp-oracle hash mismatches recorded by
         earlier PRs.
 
-- [ ] PR 8: add the bounded tile runtime/cache, connect real tile operations to PR 6 planning, and
-      refine measured cost policy. Detailed prompts not yet supplied.
+### PR 8: lazy tile runtime, scheduler, and cache
+
+The detailed PR 8 runbook keeps scheduler mechanics behind the public `TileRuntime` and `TileSource`
+boundary. Applications need explicit request policy, invalidation, metrics, and ownership—not queue
+node manipulation—so lower-level scheduling remains private unless implementation experience proves
+an external contract necessary.
+
+- [x] Prompt 8.1: add tile addressing, bounded cache ownership, and shared-request scheduling.
+  - [x] Define canonical bounded tile addresses/requests with source identity, axis/fixed-index
+        selection, level, region, priority, namespace, and optional target native semantics.
+  - [x] Implement a local byte- and entry-bounded true LRU with exact typed-array plus auxiliary
+        accounting, source/derived namespaces, explicit invalidation, and exactly-once release.
+  - [x] Implement bounded deterministic priority scheduling with FIFO ties, starvation prevention,
+        cancellation before/during execution, shared in-flight computation, and per-consumer
+        ownership without double release.
+  - [x] Stress LRU order/accounting/replacement, isolated runtimes, duplicate requests, partial/all
+        cancellation, priorities, starvation, failures, and release behavior.
+
+- [x] Prompt 8.2: add immutable derived tile sources, semantic keys, halos, and generations.
+  - [x] Key derived tiles by source runtime identity, node semantic hash, normalized parameters,
+        plane/level/region, execution fingerprint, and provider identity where numerics can differ;
+        exclude labels and timestamps.
+  - [x] Add a lazy `DerivedTileSource` over selected operation implementations that requests only
+        bounded source regions, keeps source/derived caches distinct, propagates aborts, and releases
+        every input/intermediate/output correctly.
+  - [x] Declare parameter-dependent directional halos and boundary mode, clip expanded reads, retain
+        only requested output pixels, and prove output is invariant across tile partitions.
+  - [x] Add explicit namespace/generation/predicate invalidation for future mutable data without a
+        resident dirty buffer, global observer, or hidden event bus.
+  - [x] Test provider fingerprints, semantic keys, allowed fallback versus pin behavior, halo
+        clipping/seams, cancellation, releases, and generation invalidation.
+
+- [x] Prompt 8.3: add honest runtime metrics, hostile coverage, public APIs, and benchmark evidence.
+  - [x] Expose resettable/optional JSON-safe per-runtime metrics for cache, source/derived bytes,
+        queue/task states, in-flight requests, requested/produced bytes, provider-reported timing,
+        and time to first completed tile, labeling estimates versus measured values.
+  - [x] Reject hostile coordinate/dimension/key/queue inputs and test cancellation races, throwing
+        providers/releases, source identity changes, and invalidation of queued work.
+  - [x] Add a correctness-gated benchmark for uncached first, cached repeat, neighboring, and
+        halo-derived tiles; report timings without claiming process peak memory.
+  - [x] Export only the stable runtime/source/request/metrics/invalidation contracts from
+        `purejsimage/analysis`; update packed types, browser checks, docs, examples, and this log.
+  - [x] Run benchmark, focused graph/provider/tile tests, package/browser gates, and `npm run check`;
+        record default byte/concurrency limits and prove import creates no cache or worker.
+
+  - Result: `purejsimage/analysis` now exports canonical bounded tile requests, an explicit local
+        `TileRuntime`, `TileSource`, a `NumericTileSource` adapter, and immutable halo-aware
+        `DerivedTileSource`s over already planned providers. The 32 MiB/1,024-entry cache and
+        four-task/4,096-queue scheduler create no global state or import-time work; dependency permit
+        suspension prevents nested-source deadlock even at concurrency one. Eighteen focused tile
+        tests cover true LRU ownership, a 1,500-task queue, cancellation races, hostile keys and
+        accounting, semantic/provider/generation keys, fallback/pin behavior, clipped halo
+        partition invariance, provider failures, and invalidation. The focused
+        analysis/operation/source-identity suite, strict packed types, browser checks (1,782,761-byte
+        bundle), docs, formatting, and lint pass. The correctness-gated 1,024 x 1,024 float32 fixture
+        measured 2.023 ms uncached, 0.152 ms cached, 0.333 ms neighboring, and 8.428 ms halo-derived
+        on this run; these are local wall-clock measurements, not process peak memory. The hostile
+        suite excluding AVIF has 967 passing tests. The full suite has 1,126 passing tests;
+        `npm run check` remains blocked only by the same three unrelated expanded 12-bit AVIF
+        Sharp-oracle hash mismatches recorded by earlier PRs.
+
 - [ ] PR 9: add persisted result/workspace references and remaining audit boundaries on top of PR 6
       commands and PR 7 ROI state. Detailed prompts not yet supplied.
 - [ ] PR 10: complete release-boundary hardening, extension composition, and whole-platform

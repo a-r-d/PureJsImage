@@ -204,3 +204,44 @@ export type {
   RoiTileRegion,
 } from './roi-sampling.ts'
 export { createRoiLineSamplingPlan, createRoiMask } from './roi-sampling.ts'
+export type {
+  ResolvedTileRuntimeLimits,
+  TileAddress,
+  TileCacheClass,
+  TileCacheMetrics,
+  TileDatasetIdentity,
+  TileInvalidation,
+  TilePriority,
+  TileProviderTiming,
+  TileProviderTimingMetrics,
+  TileRequest,
+  TileRuntimeLimits,
+  TileRuntimeMetrics,
+  TileRuntimeOptions,
+  TileSource,
+  TileSourceAccounting,
+  TileSourceResult,
+  TileTarget,
+  TileTaskMetrics,
+} from './tile-runtime.ts'
+export {
+  TileRuntime,
+  canonicalTileKey,
+  createTileRuntime,
+  defaultTileRuntimeLimits,
+  normalizeTileAddress,
+  normalizeTileRequest,
+  resolveTileRuntimeLimits,
+  tileRequestKeyData,
+} from './tile-runtime.ts'
+export type {
+  DerivedTileExecutionContext,
+  DerivedTileSourceOptions,
+  TileBoundaryMode,
+  TileHalo,
+} from './tile-source.ts'
+export {
+  DerivedTileSource,
+  createDerivedTileSource,
+  numericTileSourceToTileSource,
+} from './tile-source.ts'
