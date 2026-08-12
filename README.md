@@ -280,6 +280,11 @@ and derived keys, shared in-flight reads, cancellable priority scheduling, expli
 halo-aware provider execution, and JSON-safe metrics. Imports create no cache or background worker.
 See the [lazy analysis tile runtime guide](docs/analysis-tile-runtime.md).
 
+The initial strict TypeScript scientific operations cover lazy crop, resample, arbitrary-axis
+slice, projection, threshold, Gaussian blur, ROI statistics, histogram, and calibrated line
+profiles. They are registered only through an explicit application-owned bundle. See the
+[built-in scientific analysis operations guide](docs/built-in-analysis-operations.md).
+
 MRC and FITS volumes share lazy cross-section and projection operations:
 
 ```ts

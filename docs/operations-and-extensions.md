@@ -101,3 +101,7 @@ registry makes no security claim on its behalf.
 
 Analysis graphs, source identities, migrations, workspace commands, dry runs, and execution
 provenance are documented in [Analysis graphs, planning, and execution](analysis-graphs.md).
+An executable, non-registering pointwise example is available at
+[`examples/analysis-trusted-extension/index.ts`](../examples/analysis-trusted-extension/index.ts).
+It uses the same descriptor/provider split expected of a future explicitly installed WASM or WebGPU
+extension, while remaining an honestly labeled TypeScript reference implementation.

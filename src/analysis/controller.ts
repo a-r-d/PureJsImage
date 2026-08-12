@@ -1,4 +1,8 @@
-import type { OperationJsonObject } from '../operations/descriptor.ts'
+import type {
+  OperationJsonObject,
+  OperationJsonValue,
+  OperationValidationResult,
+} from '../operations/descriptor.ts'
 import { normalizeOperationJsonObject } from '../operations/descriptor.ts'
 import { invalidInput } from '../errors.ts'
 import type { OperationProvider, OperationProviderPolicy } from '../operations/provider.ts'
@@ -187,6 +191,25 @@ export class AnalysisController {
   describeOperation(id: string, version: number): OperationJsonObject | undefined {
     const descriptor = this.#operations.get(id, version)?.descriptor
     return descriptor === undefined ? undefined : descriptorObject(descriptor)
+  }
+
+  normalizeOperationParameters(
+    id: string,
+    version: number,
+    parameters: unknown,
+  ): OperationValidationResult<OperationJsonValue> {
+    const definition = this.#operations.get(id, version)
+    if (definition !== undefined) return definition.normalizeParameters(parameters)
+    return Object.freeze({
+      valid: false,
+      issues: Object.freeze([
+        Object.freeze({
+          code: 'invalid-id' as const,
+          path: '/operation',
+          message: `Unknown operation ${id}@${version}`,
+        }),
+      ]),
+    })
   }
 
   createWorkspace(graph?: AnalysisGraph, roiSet?: RoiSet): AnalysisWorkspaceSnapshot {

@@ -3,8 +3,9 @@
 Status: design checkpoint approved on 2026-08-12; implementation is in progress. Dataset V2, the
 explicit scientific reader/document platform, native numeric tiles, operation descriptors and
 providers, generic quantitative results, the graph/planning/command platform, and ROI geometry and
-sampling described by PRs 1 through 7 now exist. PR 8's bounded tile runtime is implemented in the
-current working tree. Persistence and release hardening remain future work.
+sampling described by PRs 1 through 7 now exist. PR 8's bounded tile runtime and PR 9's initial
+built-in analysis operations are implemented. Persistence, audit storage, and release
+hardening remain future work.
 
 This document defines a target architecture for scientific web applications built on
 PureJsImage. It is deliberately additive. The existing image API, codec registry, and streaming
@@ -419,7 +420,7 @@ concrete; names can change during review without changing the layering.
 | 6 | Add immutable graph JSON, canonicalization, source identities, explicit migrations, generic planning/execution/provenance, and revisioned commands. | `src/source-identity-contract.ts` and `src/source-identity.ts` beside the bottom-level source contract; new `src/analysis/{graph,canonical-json,migrations,planner,executor,workspace,controller}.ts`; source wrappers, HTTP/File adapters, extension composition, explicit analysis exports, docs, and package/browser checks. Source identity deliberately does not live under `analysis`, because `ImageSource` must not import upward into application code; normalization and hashing are re-exported from the explicit analysis entry so the root size budget stays intact. | Canonical bytes will become durable at release; weak identities could poison persistent caches; command convenience could execute implicitly; provider failures could leak values. | Property-order/hash invariance, graph limits/types/cycles, identity propagation and bounded hashing, migration paths, no-read dry runs, provider policies, releases/cancellation/concurrency, provenance, stale commands, extension atomicity, strict consumer types, and browser dependency checks. | Canonical behavior remains revisable until the release gate; weak identity stays explicitly weak; commands never execute; prepared DAG execution is bounded/cancellable and releases ownership; `npm run browser:check`; `npm run package:types`; `npm run check`. |
 | 7 | Define calibrated ROI geometry, tile-local masks, deterministic line sampling plans, built-in ROI value types, and immutable workspace ROI commands. | New `src/analysis/{roi,roi-sampling}.ts`; `src/analysis/{workspace,controller,index}.ts`; operation value-type composition; scientific labeled-axis descriptors; package/browser checks, focused tests, and docs. | Pixel-boundary and pixel-center conventions could be mixed; non-monotonic calibration could be treated as invertible; masks could materialize a whole plane; ROI commands could blur graph mutation and execution. | Geometry/limit/canonical tests, ascending and descending coordinate conversion, 4D fixed indices, partition-invariant tile masks, concave polygons, nearest/bilinear line plans, stale commands, value-type registry isolation, and browser/package checks. | Coordinates and units are explicit; physical inversion rejects unsupported axes; masks stay tile-local; sampling plans read no pixels; commands remain immutable and never execute; `npm run browser:check`; `npm run package:types`; `npm run check`. |
 | 8 | Build a bounded local tile runtime, adapt native scientific sources, and execute already planned providers as immutable halo-aware derived sources. | `src/analysis/{tile-runtime,tile-source,index}.ts`, `tests/analysis-tile-{runtime,source}.test.ts`, `benchmark/scientific/run-tile-runtime.ts`, package/type/browser checks, `docs/analysis-tile-runtime.md`, README, and this checklist. Scheduler and LRU mechanics stay private inside `tile-runtime.ts`; splitting files would expose no cleaner boundary at this size. | Double release, nested-scheduler deadlock, retained buffers, starvation, unbounded queues, weak-identity/key collisions, provider-key drift, or halo seams. | True LRU/budget/release, 1,500-task queue stress, cancellation races, in-flight sharing, priority aging, hostile keys/coordinates/accounting, provider fallback/pin/fingerprint, clipped halo partition invariance, dependency release, and queued invalidation. | Byte and concurrency high-water behavior stays within policy; nested reads work at concurrency one; failures and evictions release once; source/derived behavior and provider timing are measurable; package/browser/focused gates and `npm run check`. |
-| 9 | Add persisted workspace/result references and the remaining audit boundary around PR 5 results, PR 6 revisioned commands, and PR 7 ROI state. | New `src/analysis/{persistence,audit}.ts`; `src/analysis/workspace.ts` only where persisted references require it. | Persisted references could imply ownership, or audit/timing data could enter semantic hashes. | Persistence round trips/migrations, command replay, ROI/result references, explicit execution, and audit/hash exclusion tests. | Persistence is migrated; audit/timing remain outside graph hashes; applying commands performs no source/provider work; `npm run check`. |
+| 9 | Add the first strict TypeScript scientific analysis operations: dataset transforms, ROI-aware reductions, line profiles, threshold, Gaussian blur, capabilities, and data-driven workflows. | New analysis-owned built-in definition/provider modules because these operations depend upward on datasets, tiles, ROIs, results, and graph execution; analysis exports, focused tests, a blur benchmark, docs, and package/browser/size checks. `purejsimage/operations` remains the lower-level descriptor/provider contract and does not import analysis. | Numeric data could be routed through display pixels; transforms could materialize whole datasets; inferred descriptors could read pixels; ROI reductions or halos could vary by tile partition; graph execution could bypass local registries. | Arbitrary-axis/calibration/pushdown, sample-type, integer/no-data, deterministic reduction, ROI partition, line-profile, threshold exactness, blur seam/boundary/tolerance, cancellation/release, graph/provenance, command/capability, extension isolation, and ordinary-pipeline tests. | Every built-in is versioned and explicitly registered with the permanent reference provider; metadata-only inference reads no pixels; execution stays bounded and cancellable through NumericTiles and the tile runtime; the blur benchmark validates output before timing; package/browser/ordinary-image gates and `npm run check`. |
 | 10 | Complete release-boundary hardening of the application platform and trusted extension boundary, and prove whole-platform ordinary-image/browser compatibility. | `package.json`, browser/package checks, project-contract tests, `src/index.ts`, `src/browser.ts`, `src/extensions/`, real browser tests, and version/changelog files only during an authorized release. | Provisional subpaths could still pull optional backends into browsers; root bundle or `resize().jpeg()` behavior could drift; contracts could be published prematurely; trust wording could overstate isolation. | Package consumers, bundle graphs, registry isolation, trust-label tests, current pipeline tests, scientific browser smoke, and canonical persisted-contract fixtures. | Transitional code is removed; release contracts and breaks are documented; root/browser exports exclude analysis/backends; existing `resize().jpeg()` and real Chromium scientific workflows pass; `npm run check`. |
 
 New package subpaths and completed capabilities may land incrementally in the PR that makes them
@@ -430,7 +431,13 @@ checks.
 
 The detailed PR 7 ROI runbook supplied after PR 6 supersedes the earlier coarse allocation of PR 7
 to the tile runtime. That runtime moved to PR 8; PR 9 no longer owns the ROI primitives and instead
-builds persistence and audit boundaries on top of them.
+consumes them through the built-in analysis operations.
+
+The detailed PR 9 built-in-operation runbook supplied after PR 8 supersedes that remaining coarse
+persistence/audit allocation. PR 9 now proves the operation system against real scientific work.
+Persisted workspace/result references and append-only audit storage remain intentionally deferred;
+they must receive a later explicit runbook and are not implied by the in-memory provenance delivered
+here.
 
 ## Decisions and rejected shortcuts
 
@@ -1077,7 +1084,84 @@ an external contract necessary.
         `npm run check` remains blocked only by the same three unrelated expanded 12-bit AVIF
         Sharp-oracle hash mismatches recorded by earlier PRs.
 
-- [ ] PR 9: add persisted result/workspace references and remaining audit boundaries on top of PR 6
-      commands and PR 7 ROI state. Detailed prompts not yet supplied.
+### PR 9: initial built-in analysis operations
+
+The detailed PR 9 runbook replaces the earlier persistence/audit placeholder. Scientific built-ins
+belong in the analysis entry because their implementations depend on `ScientificDataset`,
+`NumericTile`, ROI, result, graph, and tile-runtime contracts. The lower `operations` entry continues
+to own only generic descriptors, definitions, providers, and registries.
+
+- [x] Prompt 9.1: crop, resample, arbitrary-axis slice, and projection.
+  - [x] Add stable versioned descriptors, schemas, metadata-only descriptor inference, and strict
+        reference implementations through explicit registries and providers.
+  - [x] Preserve arbitrary labeled axes, components, sample/no-data semantics, units, calibration,
+        non-selected axes, cropped linear origins, and lookup-coordinate subsets.
+  - [x] Push crop/slice regions into lazy source reads; keep arbitrary-axis and projection work
+        bounded without materializing an N-dimensional dataset.
+  - [x] Define nearest/bilinear and min/max/mean output sample-type rules explicitly; use safe
+        accumulators and deterministic no-data/non-finite behavior.
+  - [x] Prove arbitrary axes, pushdown, calibration, tile partition invariance, integer precision,
+        cancellation/release, graph execution, and inference without pixel reads.
+
+- [x] Prompt 9.2: ROI-aware statistics, histogram, and calibrated line profile.
+  - [x] Add stable descriptors, schemas, value-type ports, inference, and reference provider
+        implementations returning provider-neutral result values.
+  - [x] Stream deterministic tile-local ROI reductions with Welford statistics, explicit empty and
+        invalid/no-data behavior, bounded percentiles, and no full-plane mask.
+  - [x] Produce explicit-edge bounded histograms with underflow/overflow and explicit or validated
+        automatic range; make any required second pass visible and cache-aware.
+  - [x] Use bounded ROI line/polyline plans for nearest/bilinear component profiles in pixel or
+        calibrated physical distance.
+  - [x] Prove brute-force parity, concave and partitioned ROIs, fixed indices, physical coordinates,
+        cancellation/release, summaries, provenance, and future-provider conformance.
+
+- [x] Prompt 9.3: threshold and Gaussian blur as the halo proof.
+  - [x] Add bit-exact uint8 threshold semantics with explicit comparison and no-data/non-finite
+        policies, and a tolerance-declared Float32 Gaussian blur.
+  - [x] Precompute `ceil(3 * sigma)` separable kernels and mappings; support clamp, mirror, and
+        validated constant boundaries without per-pixel allocation or full-frame intermediates.
+  - [x] Integrate halo and scratch-memory estimates with tile execution and retain only requested
+        output pixels.
+  - [x] Prove threshold exactness, blur tile invariance/seams, boundaries, impulse/constant images,
+        sigma limits, cancellation/releases, graph execution, and provider decline/fallback.
+  - [x] Add and run a correctness-gated representative multi-tile blur benchmark, recording honest
+        timing, tile/cache dimensions, retained bytes, and the declared comparison tolerance.
+
+- [x] Prompt 9.4: capabilities, commands, extension example, documentation, and final gate.
+  - [x] Expose an explicit built-in operation/value-type bundle and reference provider with no
+        package-global registration or import-time work.
+  - [x] Exercise public capabilities, schema normalization, immutable commands, validation, dry-run,
+        explicit execution/cancellation, bounded summaries, reference-provider pinning, and
+        provenance without private operation calls or DOM state.
+  - [x] Add a trusted custom pointwise extension example using the same descriptor/provider
+        contract, with no acceleration claim or hidden registration.
+  - [x] Update package types, browser/size guards, API/architecture docs, generated references if
+        appropriate, ordinary image examples, and the deferred list including FFT and
+        materials-specific algorithms.
+  - [x] Run package/browser gates, all affected operation/graph/ROI/tile and ordinary-pipeline tests,
+        relevant benchmarks, and `npm run check`; record diff stat, public versions, command/dry-run/
+        provenance evidence, bundle impact, sample-type rules, reduction order, percentile policy,
+        blur tolerance, and unrelated failures.
+
+  - Result: `purejsimage/analysis` now exposes nine version-1 scientific operations through one
+        explicit built-in registry/value-type/provider bundle: crop, resample, arbitrary-axis slice,
+        projection, threshold, Gaussian blur, ROI statistics, histogram, and calibrated line
+        profile. Descriptor inference is metadata-only; execution stays lazy over NumericTiles and
+        bounded runtime reads. ROI reductions are global-row-major, statistics use Welford
+        accumulation, large percentile requests use a bounded deterministic row-major reservoir,
+        and automatic histograms declare their cache-aware second pass. Gaussian blur uses
+        `ceil(3 * sigma)`, bounded separable Float64 scratch, Float32 output, and absolute/relative
+        tolerances of `1e-5`/`1e-6`. The correctness-gated 1,024 x 1,024 sigma-3 benchmark measured
+        292.581 ms per run locally, zero constant-field error, a 1,494,048-byte planner estimate,
+        and 9,296,672 retained cache bytes; these are tile/cache and wall-clock measurements, not
+        process peak memory. Strict packed types, browser checks, docs, format, lint, 102 focused
+        analysis/operation/extension tests, and 25 ordinary pipeline/browser-runtime tests pass.
+        The root entry remains 59.9 KiB minified; the explicit analysis entry is 229.1 KiB (61.9 KiB
+        gzip, 52.1 KiB Brotli). The full and hostile-source runs each have 1,144 passing tests and
+        remain blocked only by the same three unrelated expanded 12-bit AVIF Sharp-oracle hash
+        mismatches documented by earlier PRs. The first unscoped `npm run check` attempt also
+        encountered the machine's root-owned npm cache; the isolated-cache rerun passed that step
+        and reached only those known AVIF failures.
+
 - [ ] PR 10: complete release-boundary hardening, extension composition, and whole-platform
       compatibility validation. Detailed prompts not yet supplied.

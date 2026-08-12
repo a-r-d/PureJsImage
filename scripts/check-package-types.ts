@@ -62,7 +62,7 @@ import { createScientificLibrary, encodeGsf, gsfReader, normalizeScientificDatas
 import type { ScientificReader } from 'purejsimage/scientific'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
-import { canonicalTileKey, createAnalysisController, createAnalysisResultValueTypeRegistry, createRoiLineSamplingPlan, createRoiMask, createRoiValueTypeRegistry, createTileRuntime, getImageSourceIdentity, hashAnalysisGraph, normalizeRoi, summarizeResult, validateScalarResult } from 'purejsimage/analysis'
+import { analysisGaussianBlurOperationId, canonicalTileKey, createAnalysisController, createBuiltInAnalysisBundle, createAnalysisResultValueTypeRegistry, createRoiLineSamplingPlan, createRoiMask, createRoiValueTypeRegistry, createTileRuntime, getImageSourceIdentity, hashAnalysisGraph, normalizeRoi, summarizeResult, validateScalarResult } from 'purejsimage/analysis'
 import type { AnalysisGraph, Roi, TileRequest, TileSource } from 'purejsimage/analysis'
 export { openOmeTiff, rasterToPixels } from 'purejsimage/scientific'
 export { createScientificFileContext } from 'purejsimage/scientific/browser'
@@ -159,6 +159,10 @@ const roiDatasetDescriptor = {
   capabilities: { regionReads: true, resolutionLevels: false },
 }
 const normalizedRoiDataset = normalizeScientificDatasetDescriptor(roiDatasetDescriptor)
+export const builtInAnalysis = createBuiltInAnalysisBundle({
+  descriptor: normalizedRoiDataset, runtime: tileRuntime, tileWidth: 2, tileHeight: 2,
+})
+export const gaussianDescription = builtInAnalysis.operations.get(analysisGaussianBlurOperationId, 1)?.descriptor
 export const polygonRoi: Roi = normalizeRoi({
   schemaVersion: 1, id: 'selection', axisIds: ['x', 'y'], fixedIndices: [],
   coordinateSpace: 'pixel',

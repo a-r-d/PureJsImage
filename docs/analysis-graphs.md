@@ -191,5 +191,11 @@ command validation, command application, migration APIs, planning, dry runs, exe
 cancellation to UI code, scripts, trusted plugins, and a future agent. Applying a command never
 plans or executes computation.
 
+For schema-driven editors and scripts, `normalizeOperationParameters(id, version, value)` uses the
+same registered definition as graph validation to fill defaults and return structured parameter
+issues. The initial dataset and ROI-aware result operations can be installed with
+`createBuiltInAnalysisBundle()`; their IDs, numeric rules, reduction order, and tolerances are
+listed in the [built-in analysis operation guide](built-in-analysis-operations.md).
+
 The current extension and controller APIs run trusted code in process and are **not a sandbox**.
 Worker or iframe RPC isolation for untrusted extensions remains future work.

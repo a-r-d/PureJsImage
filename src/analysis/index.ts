@@ -245,3 +245,38 @@ export {
   createDerivedTileSource,
   numericTileSourceToTileSource,
 } from './tile-source.ts'
+export {
+  analysisCropOperationId,
+  analysisDatasetOperationDefinitions,
+  analysisGaussianBlurOperationId,
+  analysisProjectionOperationId,
+  analysisResampleOperationId,
+  analysisSliceOperationId,
+  analysisThresholdOperationId,
+  scientificDatasetCharacteristics,
+  scientificDatasetValueTypeId,
+} from './builtin-dataset-operations.ts'
+export {
+  analysisHistogramOperationId,
+  analysisLineProfileOperationId,
+  analysisResultOperationDefinitions,
+  analysisStatisticsOperationId,
+} from './builtin-result-operations.ts'
+export type {
+  BuiltInAnalysisBundle,
+  BuiltInAnalysisBundleOptions,
+  ReferenceAnalysisProviderOptions,
+} from './builtins.ts'
+export {
+  builtInAnalysisOperationDefinitions,
+  builtInAnalysisOperationDescriptors,
+  createBuiltInAnalysisBundle,
+  createBuiltInAnalysisOperationRegistry,
+  createBuiltInAnalysisValueTypeRegistry,
+  createReferenceAnalysisProvider,
+  createScientificDatasetValueTypeRegistry,
+  referenceAnalysisBuildFingerprint,
+  referenceAnalysisProviderId,
+  referenceAnalysisProviderVersion,
+  scientificDatasetValueTypeDefinition,
+} from './builtins.ts'
