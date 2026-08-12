@@ -1,0 +1,33 @@
+avif-codec-support.md
+  s_52a5179db125df::t_a5011f2e15d101 25-26,85-90,320-321,485-486
+capabilities/manifest.json
+  s_52a5179db125df::t_b48ab69d59cea5 1763-1764,1770-1771,1773,1811,1842-1843,1902-1907,2137-2138,2302-2303
+docs-astro/public/capabilities.json
+  s_52a5179db125df::t_2ed48e26be71de 3393-3394,3400-3401,3403,3406,3481-3484,3633-3636,3639,3643,3646-3647,4145-4148,4151,4413-4416
+docs-astro/public/llms.txt
+  s_52a5179db125df::t_2b21dbd9452a0a 272,281,499,501-502,504
+docs-astro/src/pages/codecs.astro
+  s_52a5179db125df::t_eddcab6cb85cad 24,49,105
+src/codecs/avif.ts
+  s_52a5179db125df::t_fc672f4261b6c0 8-9,133,370,1029,1053,1776-1850,3420,3434
+tests/generated/capability-expectations.json
+  s_52a5179db125df::t_c0f1a4f9d47172 151
+tests/metadata-preservation.test.ts
+  s_52a5179db125df::t_0dbbbbb2092ece 5,137-159
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "75a3e3a29cd829f89419cda837bffe6646090636",
+  "prompts": {},
+  "sessions": {
+    "s_52a5179db125df": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ff1f6-7c4d-7783-8a8c-137b1600feff",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
