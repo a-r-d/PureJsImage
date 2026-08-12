@@ -147,6 +147,87 @@ const display = await renderScientificPlane(dataset, {
 })
 ```
 
+Labeled-axis datasets use stable axis IDs, so the same renderer can display an ordinary image, an
+energy plane, or either domain of a 4D-STEM acquisition without relabeling dimensions:
+
+```ts
+import type {
+  NormalizedScientificPlaneReadRequest,
+  RasterBlock,
+  ScientificDataset,
+} from 'purejsimage/scientific'
+import {
+  normalizeScientificDatasetDescriptor,
+  normalizeScientificPlaneReadRequest,
+  renderScientificPlane,
+} from 'purejsimage/scientific'
+
+const readSyntheticRegion = (plane: NormalizedScientificPlaneReadRequest): RasterBlock => {
+  const data = new Uint8Array(plane.width * plane.height * 4)
+  const view = new DataView(data.buffer)
+  for (let index = 0; index < plane.width * plane.height; index += 1) {
+    view.setFloat32(index * 4, index, false)
+  }
+  return {
+    x: plane.x,
+    y: plane.y,
+    width: plane.width,
+    height: plane.height,
+    stride: plane.width * 4,
+    format: { sampleType: 'float32', channels: 1, planar: false },
+    data,
+  }
+}
+
+const synthetic: ScientificDataset = {
+  descriptor: normalizeScientificDatasetDescriptor({
+    schemaVersion: 2,
+    axes: [
+      {
+        id: 'x',
+        kind: 'space',
+        length: 64,
+        unit: 'µm',
+        coordinates: { type: 'linear', origin: 0, step: 0.5 },
+      },
+      {
+        id: 'y',
+        kind: 'space',
+        length: 32,
+        unit: 'µm',
+        coordinates: { type: 'linear', origin: 0, step: 0.5 },
+      },
+      {
+        id: 'energy',
+        kind: 'spectral',
+        length: 3,
+        unit: 'eV',
+        coordinates: { type: 'lookup', values: [10, 12, 18] },
+      },
+    ],
+    sampleType: 'float32',
+    components: [{ id: 'intensity', kind: 'intensity', unit: 'counts' }],
+    capabilities: { regionReads: true, resolutionLevels: false },
+  }),
+  async *readPlane(request): AsyncIterable<RasterBlock> {
+    const plane = normalizeScientificPlaneReadRequest(this.descriptor, request)
+    yield readSyntheticRegion(plane)
+  },
+}
+
+const energyDisplay = await renderScientificPlane(synthetic, {
+  plane: {
+    displayAxes: ['x', 'y'],
+    fixedIndices: [{ axisId: 'energy', index: 1 }],
+  },
+  range: { mode: 'percentile', low: 1, high: 99 },
+  palette: 'viridis',
+})
+```
+
+The synthetic reader allocates only the requested region. Real readers should stream smaller blocks
+when needed and propagate each block's optional `release()` callback.
+
 MRC and FITS volumes share lazy cross-section and projection operations:
 
 ```ts

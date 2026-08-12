@@ -131,6 +131,24 @@ be threaded through `readExactly()` and `ImageSource.read()` as each reader migr
 being simulated by an adapter that can only check between blocks. Tests must prove axis mapping,
 channel selection, coordinate metadata, block shape, cancellation, and release propagation.
 
+The implemented PR 1 boundary keeps a temporary explicit adapter while readers still return the
+fixed-axis type. `ScientificAxisDescriptor.entries` carries per-coordinate channel identity, name,
+unit, color, and spectral center/FWHM without confusing independently selectable channels with
+stored components. Generic measurement and rendering now execute from a resolved two-axis plane and
+therefore support arbitrary stable display-axis IDs. Spectral helpers require the spectral axis ID;
+volume projection requires the reduction axis ID; neither guesses from position. Labeled slice,
+projection, integration, and ratio outputs preserve the surviving axis descriptors and remain lazy
+and region-bounded. The ENVI classification renderer remains intentionally format-specific because
+its class lookup table is an ENVI reader contract, not generic labeled-axis metadata.
+
+The bridge is not the release architecture. `MultidimensionalRasterDataset` is marked deprecated,
+and the explicit adapters isolate migration rather than promise 0.9.x compatibility. Reader
+migration can remove the bridge before the next version increment. V1 does not describe pyramid
+geometry, so callers adapting a V1 pyramid must supply known `ScientificResolutionLevel` entries;
+the adapter refuses to invent them. Reverse adaptation accepts only literal `x`, `y`, optional `z`,
+`channel`, and `time` axes plus one scalar component and flat string metadata. Anything richer is
+rejected instead of silently flattened or discarded.
+
 ## Portable bytes and native numeric tiles
 
 `RasterBlock` remains the canonical portable byte boundary. Its big-endian representation is stable
@@ -435,3 +453,136 @@ The maintainer approved the following decisions on 2026-08-12:
    and
 10. the ten-PR order, incremental landing of completed exports, freedom to revise unreleased alpha
     contracts between PRs, and final hardening only at the next authorized versioned release.
+
+## Application-platform implementation checklist
+
+This is the authoritative progress log for the application-platform program. Update it in the same
+change as the work it tracks. A checked item means its implementation and stated verification are
+complete; merging, committing, publishing, or releasing still requires the authorization applicable
+to that action.
+
+The detailed PR 1 prompts were supplied after the architecture approval. They originally assumed a
+permanent V1/V2 compatibility period. The later approved alpha policy supersedes that assumption:
+the unreleased fixed-axis API may be replaced when that produces cleaner code. Temporary adapters
+remain an implementation option, not a compatibility requirement. Preserve the prompts' substantive
+parity, metadata, laziness, release, cancellation, and bounded-memory acceptance criteria whichever
+migration path is chosen.
+
+### Completed design work
+
+- [x] Prompt 0: inspect the current architecture and write this application-platform checkpoint.
+- [x] Record the ten maintainer decisions, including the revised alpha release and incremental export
+      policy.
+- [x] Add this checklist and the repository-level pointer in `AGENTS.md`.
+
+### PR 1: labeled-axis scientific dataset V2
+
+- [x] Prompt 1.1: add the V2 contracts and validation.
+  - [x] Re-read `AGENTS.md`, record HEAD/status, and inspect the current dataset, raster, scientific
+        algorithm, test, and export surfaces without disturbing user changes.
+  - [x] Define `ScientificAxisDescriptor` with stable IDs; names; semantic kinds; positive lengths;
+        units; and explicit index, linear, finite numeric lookup, or string-label coordinates.
+  - [x] Define `ScientificComponentDescriptor` for samples stored together at one selected
+        coordinate, keeping independently selectable spectral bands as axes.
+  - [x] Define `ScientificResolutionLevel` without assuming that only X and Y change in a pyramid.
+  - [x] Define the JSON-safe `ScientificDatasetDescriptor`, including sample type, components,
+        optional levels/no-data, typed metadata, and explicit read capabilities.
+  - [x] Define `ScientificPlaneReadRequest` with ordered horizontal/vertical axis IDs, explicit fixed
+        selections, optional region/level, and `AbortOptions`-style cancellation.
+  - [x] Define lazy `ScientificDataset` reads that return `AsyncIterable<RasterBlock>` and keep graph
+        and operation types out of the data-plane PR.
+  - [x] Add bounded validators/normalizers for duplicate or empty IDs, hostile lengths, calibration,
+        coordinate lengths, levels, components, axes, fixed indices, singleton normalization, and
+        selected-level regions.
+  - [x] Validate JSON-safe metadata, rejecting unsupported values, cycles, and non-finite numbers
+        without repeatedly copying large coordinate storage or overstating nested immutability.
+  - [x] Add synthetic X/Y, X/Y/Z, X/Y/channel/time, X/Y/energy, 4D-STEM, nonlinear-coordinate, and
+        malformed/request-validation tests.
+  - [x] Export only stable V2 types/utilities; add no dependency, codec, Node-only path, global
+        registry, or full-frame buffering.
+  - [x] Run focused Vitest tests, `npm run typecheck`, `npm run lint`, and `npm run format:check`;
+        review `git diff --stat`.
+  - Result: 28 V2 contract tests and 92 affected scientific tests pass; browser and packed-declaration
+    checks also pass. The fixed-axis API remains untouched pending Prompt 1.2. The full repository
+    check reaches Vitest with 970 passing tests and the same three unrelated AVIF Sharp-oracle hash
+    failures recorded before Prompt 1.1; the hostile-source phase is not reached after that failure.
+
+- [x] Prompt 1.2: resolve the old/new dataset migration boundary.
+  - [x] Re-read repository instructions and inspect all Prompt 1.1 changes and current status.
+  - [x] Choose and document the cleaner migration: temporary lossless adapters or direct replacement
+        of the unreleased fixed-axis contract. Do not add a permanent 0.9.x compatibility layer by
+        default.
+  - [x] If a legacy-to-V2 bridge is useful, preserve X/Y/Z/C/T mapping, calibration, channel and
+        spectral metadata, sample/no-data/source metadata, resolution selection, lazy blocks, exact
+        coordinates/values, release callbacks, and abort propagation.
+  - [x] If a V2-to-legacy bridge is useful, allow only truthful X/Y plus optional Z/C/T mappings and
+        reject arbitrary axes such as scanX/scanY/kx/ky rather than flattening or relabeling them.
+  - [x] Provide one internal normalization path only if it removes real duplication; keep conversion
+        work outside per-sample hot loops.
+  - [x] Add parity tests for uint8, uint16, float32, planar/interleaved layouts, calibration/channel
+        metadata, releases, aborts, and unsafe 4D-STEM reverse mapping where an adapter exists.
+  - [x] Run focused migration and affected scientific tests, `npm run typecheck`, `npm run lint`, and
+        `npm run format:check`; review `git diff --stat` and record any intentional API break.
+  - Result: the temporary bridge uses explicit `toScientificDataset()` and
+    `toMultidimensionalRasterDataset()` adapters plus one internal dataset-form guard shared by
+    algorithm boundaries. V1-to-V2 keeps the original `RasterBlock` object, data, coordinates,
+    layout, and release callback; maps logical channels to typed axis entries; and forwards
+    cancellation through the now abort-aware V1 request. Known pyramid geometry must be supplied
+    explicitly because V1 does not describe level dimensions. V2-to-V1 accepts only literal spatial
+    `x`/`y`, optional spatial `z`, channel or spectral `channel`, optional `time`, one stored
+    component, and metadata representable as a flat string record; richer axes, components, or
+    metadata are rejected rather than discarded. The fixed-axis interface is deprecated as a
+    temporary alpha bridge, not promised through a permanent 0.9.x window. The 40 focused V2/adapter
+    tests and 176 affected scientific/reader tests pass, as do typecheck, lint, and formatting.
+
+- [x] Prompt 1.3: make existing scientific algorithms V2-aware and close PR 1 scope.
+  - [x] Re-read repository instructions and inspect every accumulated PR 1 change before editing.
+  - [x] Use thin normalization at algorithm boundaries; do not fork V1/V2 implementations or make
+        hot sample loops polymorphic.
+  - [x] Resolve stable axis IDs once for rendering, measurement, statistics, histograms, spectral
+        selection/composites/ratios, volume slicing/projection, and classification where applicable.
+  - [x] Require explicit semantic axes and precise errors for operations such as reductions; never
+        guess an arbitrary dimension's meaning.
+  - [x] Preserve physical coordinates and units on derived datasets and preserve bounded streaming
+        behavior without new full-frame materialization.
+  - [x] Prove shared generic measurement/rendering for X/Y, X/Y/Z with an explicit reduction axis,
+        X/Y/energy, and scanX/scanY/kx/ky selections. Prove legacy behavior only if the migration
+        decision retains that API.
+  - [x] Update this architecture document with the implemented boundary and public documentation
+        with a synthetic labeled-axis construction/render example.
+  - [x] Run the full scientific test subset, `npm run browser:check`, `npm run package:types`, and
+        `npm run check`; fix only failures caused by PR 1 and record unrelated failures separately.
+  - [x] Review final `git diff --stat`; document the public V2 API, deferred assumptions, and ordinary
+        image-pipeline regression result.
+  - Result: render and measurement resolve one scalar plane before entering the existing row scans,
+    so legacy and labeled callers share statistics, histograms, range measurement, relief, and pixel
+    mapping without polymorphism in sample loops. Labeled spectral selection, rendering, composites,
+    integration, and ratios require an explicit spectral-axis ID. Labeled slices preserve the two
+    selected axes; projections require an explicit reduction-axis ID and retain only bounded output
+    rows and one contributing plane region at a time. ENVI classification stays format-specific
+    until V2 has a generic categorical metadata contract. The 180-test scientific/reader subset and
+    a 78-test ordinary pipeline/JPEG/PNG subset pass; browser and packed-declaration checks pass. The
+    repository-wide check has 984 passing tests and stops on the same three unrelated 12-bit AVIF
+    Sharp-oracle hash mismatches from the earlier baseline, so the hostile-source phase is not
+    reached.
+
+### Remaining implementation PRs
+
+- [ ] PR 2: migrate remaining scientific readers and enforce abort/budget-aware V2 reads. Detailed
+      prompts not yet supplied.
+- [ ] PR 3: add native `NumericTile` conversion and optional direct native tile sources. Detailed
+      prompts not yet supplied.
+- [ ] PR 4: add JSON-safe operation descriptors, schemas, validation, and local registries. Detailed
+      prompts not yet supplied.
+- [ ] PR 5: add the strict TypeScript reference `OperationProvider`. Detailed prompts not yet
+      supplied.
+- [ ] PR 6: add canonical analysis graphs, migrations, source identity, and validation issues.
+      Detailed prompts not yet supplied.
+- [ ] PR 7: add the bounded tile runtime, cache, budgets, and scheduler. Detailed prompts not yet
+      supplied.
+- [ ] PR 8: add semantic provider matching, measured cost planning, pins, and provenance. Detailed
+      prompts not yet supplied.
+- [ ] PR 9: add ROIs, immutable results/workspaces, structured commands, and audit boundaries.
+      Detailed prompts not yet supplied.
+- [ ] PR 10: complete release-boundary hardening, extension composition, and whole-platform
+      compatibility validation. Detailed prompts not yet supplied.

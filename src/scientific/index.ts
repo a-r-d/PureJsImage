@@ -4,6 +4,35 @@ export type {
   RasterChannelInfo,
   RasterPlaneRequest,
 } from './dataset.ts'
+export type {
+  NormalizedScientificDatasetDescriptor,
+  NormalizedScientificPlaneReadRequest,
+  ScientificAxisCoordinates,
+  ScientificAxisDescriptor,
+  ScientificAxisEntryDescriptor,
+  ScientificAxisIndex,
+  ScientificAxisKind,
+  ScientificComponentDescriptor,
+  ScientificComponentKind,
+  ScientificDataset,
+  ScientificDatasetCapabilities,
+  ScientificDatasetDescriptor,
+  ScientificMetadataObject,
+  ScientificMetadataValue,
+  ScientificPlaneReadRequest,
+  ScientificResolutionAxisLength,
+  ScientificResolutionLevel,
+} from './dataset-v2.ts'
+export type { MultidimensionalRasterAdapterOptions } from './dataset-adapters.ts'
+export {
+  normalizeScientificDatasetDescriptor,
+  normalizeScientificPlaneReadRequest,
+  validateScientificDatasetDescriptor,
+} from './dataset-v2.ts'
+export {
+  toMultidimensionalRasterDataset,
+  toScientificDataset,
+} from './dataset-adapters.ts'
 export type { GsfDataset, GsfOpenOptions, GsfWriteOptions } from './formats/gsf.ts'
 export type {
   FitsDataset,
@@ -36,6 +65,11 @@ export type {
 } from './classification.ts'
 export type { ScientificPalette } from './palettes.ts'
 export type {
+  LabeledScientificPlaneMeasurement,
+  LabeledScientificPlaneMeasureOptions,
+  LabeledScientificPlaneRenderOptions,
+  LabeledScientificPlaneSelection,
+  LabeledScientificRenderedPlane,
   ScientificDisplayScale,
   ScientificHistogram,
   ScientificPercentile,
@@ -50,6 +84,12 @@ export type {
 } from './render.ts'
 export type {
   BandRatioOptions,
+  LabeledBandRatioOptions,
+  LabeledSpectralBandRenderOptions,
+  LabeledSpectralBandRenderResult,
+  LabeledSpectralCompositeRenderOptions,
+  LabeledSpectralDerivedDataset,
+  LabeledSpectralRangeOptions,
   SpectralBandRenderOptions,
   SpectralBandRenderResult,
   SpectralChannelSelection,
@@ -59,6 +99,8 @@ export type {
   SpectralRangeOptions,
 } from './spectral.ts'
 export type {
+  LabeledScientificVolumeProjectionOptions,
+  LabeledScientificVolumeSliceOptions,
   ScientificProjectionMode,
   ScientificSliceAxis,
   ScientificVolumeProjectionOptions,

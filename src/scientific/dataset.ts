@@ -1,3 +1,4 @@
+import type { AbortOptions } from '../abort.ts'
 import type { RasterBlock, RasterSampleType } from '../raster.ts'
 
 /** Metadata for one logical channel of a native numeric raster. */
@@ -23,7 +24,7 @@ export interface PhysicalPixelSize {
  * Selects one Z/C/T plane and an optional spatial region. Coordinates are
  * zero-based. Readers may return the plane as several bounded `RasterBlock`s.
  */
-export interface RasterPlaneRequest {
+export interface RasterPlaneRequest extends AbortOptions {
   readonly z: number
   readonly c?: number | readonly number[]
   readonly t: number
@@ -38,6 +39,9 @@ export interface RasterPlaneRequest {
  * A lazy native-sample raster with explicit X/Y/Z/channel/time dimensions.
  * `readPlane()` preserves the declared sample type and metadata unless a format
  * requires a lossless quantitative conversion, such as FITS BSCALE/BZERO.
+ *
+ * @deprecated Use the labeled-axis `ScientificDataset`. This fixed-axis contract remains only as a
+ * temporary bridge while scientific readers migrate.
  */
 export interface MultidimensionalRasterDataset {
   readonly sizeX: number

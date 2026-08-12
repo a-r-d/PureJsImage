@@ -1,7 +1,15 @@
 import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
-import type { RasterPlaneRequest } from './dataset.ts'
-import type { MultidimensionalRasterDataset } from './dataset.ts'
+import type { RasterBlock } from '../raster.ts'
+import type { MultidimensionalRasterDataset, RasterPlaneRequest } from './dataset.ts'
+import { isLabeledScientificDataset } from './dataset-adapters.ts'
+import type {
+  NormalizedScientificPlaneReadRequest,
+  ScientificAxisIndex,
+  ScientificDataset,
+  ScientificPlaneReadRequest,
+} from './dataset-v2.ts'
+import { normalizeScientificPlaneReadRequest } from './dataset-v2.ts'
 import { scientificPaletteTable, type ScientificPalette } from './palettes.ts'
 import { rasterSampleOffset, readRasterSample, validateRasterBlock } from './samples.ts'
 
@@ -39,6 +47,18 @@ export interface ScientificPlaneRenderOptions {
   readonly relief?: false | ScientificReliefOptions
 }
 
+export interface LabeledScientificPlaneSelection {
+  readonly displayAxes: readonly [horizontal: string, vertical: string]
+  readonly fixedIndices: readonly ScientificAxisIndex[]
+  readonly resolutionLevel?: number
+  readonly signal?: AbortSignal
+}
+
+export interface LabeledScientificPlaneRenderOptions
+  extends Omit<ScientificPlaneRenderOptions, 'plane'> {
+  readonly plane: LabeledScientificPlaneSelection
+}
+
 /** Options for resolving a quantitative display range without producing display pixels. */
 export interface ScientificPlaneMeasureOptions {
   readonly plane: {
@@ -52,6 +72,11 @@ export interface ScientificPlaneMeasureOptions {
   readonly height?: number
   readonly range?: ScientificRange
   readonly statistics?: ScientificStatisticsRequest
+}
+
+export interface LabeledScientificPlaneMeasureOptions
+  extends Omit<ScientificPlaneMeasureOptions, 'plane'> {
+  readonly plane: LabeledScientificPlaneSelection
 }
 
 export interface ScientificStatisticsRequest {
@@ -84,6 +109,10 @@ export interface ScientificRenderedPlane {
   readonly pixels: AsyncIterable<PixelBlock>
 }
 
+export interface LabeledScientificRenderedPlane extends Omit<ScientificRenderedPlane, 'channel'> {
+  readonly selection: NormalizedScientificPlaneReadRequest
+}
+
 /**
  * A reusable range measurement for one dataset channel and spatial region.
  * Percentile ranges use bounded sampling and are approximate when `sampledValues`
@@ -107,6 +136,11 @@ export interface ScientificPlaneMeasurement {
   readonly histogram?: ScientificHistogram
 }
 
+export interface LabeledScientificPlaneMeasurement
+  extends Omit<ScientificPlaneMeasurement, 'channel'> {
+  readonly selection: NormalizedScientificPlaneReadRequest
+}
+
 export interface ScientificPercentile {
   readonly percentile: number
   readonly value: number
@@ -124,10 +158,31 @@ interface ScalarRow {
   readonly values: Float64Array
 }
 
-const selectedRegion = (
+interface ResolvedScalarPlane {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+  readonly noDataValue?: number
+  readonly channel?: number
+  readonly selection?: NormalizedScientificPlaneReadRequest
+  read(): AsyncIterable<RasterBlock>
+}
+
+const isLabeledPlaneOptions = (
+  options:
+    | Readonly<ScientificPlaneMeasureOptions>
+    | Readonly<LabeledScientificPlaneMeasureOptions>
+    | Readonly<ScientificPlaneRenderOptions>
+    | Readonly<LabeledScientificPlaneRenderOptions>,
+): options is
+  | Readonly<LabeledScientificPlaneMeasureOptions>
+  | Readonly<LabeledScientificPlaneRenderOptions> => 'displayAxes' in options.plane
+
+const resolveLegacyPlane = (
   dataset: MultidimensionalRasterDataset,
   options: Readonly<ScientificPlaneMeasureOptions>,
-): { readonly x: number; readonly y: number; readonly width: number; readonly height: number } => {
+): ResolvedScalarPlane => {
   if (
     !Number.isSafeInteger(options.plane.c) ||
     options.plane.c < 0 ||
@@ -153,32 +208,64 @@ const selectedRegion = (
   ) {
     throw invalidInput('Scientific render region is outside the dataset')
   }
-  return { x, y, width, height }
+  const request: RasterPlaneRequest = {
+    z: options.plane.z,
+    c: options.plane.c,
+    t: options.plane.t,
+    x,
+    y,
+    width,
+    height,
+  }
+  return {
+    x,
+    y,
+    width,
+    height,
+    channel: options.plane.c,
+    ...(dataset.noDataValue === undefined ? {} : { noDataValue: dataset.noDataValue }),
+    read: () => dataset.readPlane(request),
+  }
 }
 
-const planeRequest = (
-  options: Readonly<ScientificPlaneMeasureOptions>,
-  region: {
-    readonly x: number
-    readonly y: number
-    readonly width: number
-    readonly height: number
-  },
-): RasterPlaneRequest => ({
-  z: options.plane.z,
-  c: options.plane.c,
-  t: options.plane.t,
-  ...region,
-})
+const resolveLabeledPlane = (
+  dataset: ScientificDataset,
+  options: Readonly<LabeledScientificPlaneMeasureOptions>,
+): ResolvedScalarPlane => {
+  if (dataset.descriptor.components.length !== 1) {
+    throw invalidInput('Scientific scalar rendering requires exactly one stored component')
+  }
+  const request: ScientificPlaneReadRequest = {
+    displayAxes: options.plane.displayAxes,
+    fixedIndices: options.plane.fixedIndices,
+    ...(options.plane.resolutionLevel === undefined
+      ? {}
+      : { resolutionLevel: options.plane.resolutionLevel }),
+    ...(options.plane.signal === undefined ? {} : { signal: options.plane.signal }),
+    ...(options.x === undefined ? {} : { x: options.x }),
+    ...(options.y === undefined ? {} : { y: options.y }),
+    ...(options.width === undefined ? {} : { width: options.width }),
+    ...(options.height === undefined ? {} : { height: options.height }),
+  }
+  const normalized = normalizeScientificPlaneReadRequest(dataset.descriptor, request)
+  return {
+    x: normalized.x,
+    y: normalized.y,
+    width: normalized.width,
+    height: normalized.height,
+    selection: normalized,
+    ...(dataset.descriptor.noDataValue === undefined
+      ? {}
+      : { noDataValue: dataset.descriptor.noDataValue }),
+    read: () => dataset.readPlane(normalized),
+  }
+}
 
-const scalarRows = async function* (
-  dataset: MultidimensionalRasterDataset,
-  request: Readonly<RasterPlaneRequest>,
-): AsyncGenerator<ScalarRow> {
-  const expectedX = request.x ?? 0
-  const expectedWidth = request.width ?? dataset.sizeX
-  let expectedY = request.y ?? 0
-  for await (const block of dataset.readPlane(request)) {
+const scalarRows = async function* (plane: ResolvedScalarPlane): AsyncGenerator<ScalarRow> {
+  const expectedX = plane.x
+  const expectedWidth = plane.width
+  let expectedY = plane.y
+  for await (const block of plane.read()) {
     try {
       if (
         block.x !== expectedX ||
@@ -207,7 +294,7 @@ const scalarRows = async function* (
       block.release?.()
     }
   }
-  const requestedEnd = (request.y ?? 0) + (request.height ?? dataset.sizeY)
+  const requestedEnd = plane.y + plane.height
   if (expectedY !== requestedEnd)
     throw invalidInput('Scientific dataset emitted an incomplete plane')
 }
@@ -235,8 +322,7 @@ const percentileIndex = (length: number, percentile: number): number =>
   Math.max(0, Math.min(length - 1, Math.round((percentile / 100) * (length - 1))))
 
 const scanRange = async (
-  dataset: MultidimensionalRasterDataset,
-  request: Readonly<RasterPlaneRequest>,
+  plane: ResolvedScalarPlane,
   range: ScientificRange,
 ): Promise<RangeScan> => {
   if (range.mode === 'explicit') {
@@ -254,7 +340,7 @@ const scanRange = async (
   if (range.mode === 'percentile' && (!Number.isSafeInteger(maxSamples) || maxSamples < 2)) {
     throw invalidInput('Scientific percentile maxSamples must be a safe integer of at least 2')
   }
-  const totalPixels = (request.width ?? dataset.sizeX) * (request.height ?? dataset.sizeY)
+  const totalPixels = plane.width * plane.height
   const sampleStride =
     range.mode === 'percentile' ? Math.max(1, Math.ceil(totalPixels / maxSamples)) : 1
   const samples = new Float64Array(maxSamples)
@@ -263,9 +349,9 @@ const scanRange = async (
   let maximum = Number.NEGATIVE_INFINITY
   let finiteSamples = 0
   let ordinal = 0
-  for await (const row of scalarRows(dataset, request)) {
+  for await (const row of scalarRows(plane)) {
     for (const value of row.values) {
-      if (usableValue(value, dataset.noDataValue)) {
+      if (usableValue(value, plane.noDataValue)) {
         finiteSamples += 1
         minimum = Math.min(minimum, value)
         maximum = Math.max(maximum, value)
@@ -342,12 +428,11 @@ const validatedStatistics = (
 }
 
 const scanStatistics = async (
-  dataset: MultidimensionalRasterDataset,
-  request: Readonly<RasterPlaneRequest>,
+  plane: ResolvedScalarPlane,
   options: Readonly<ScientificStatisticsRequest>,
 ): Promise<StatisticsScan> => {
   const validated = validatedStatistics(options)
-  const totalPixels = (request.width ?? dataset.sizeX) * (request.height ?? dataset.sizeY)
+  const totalPixels = plane.width * plane.height
   const sampleStride = Math.max(1, Math.ceil(totalPixels / validated.percentileMaxSamples))
   const samples =
     validated.percentiles.length === 0
@@ -359,9 +444,9 @@ const scanStatistics = async (
   let mean = 0
   let sumSquaredDifferences = 0
   let ordinal = 0
-  for await (const row of scalarRows(dataset, request)) {
+  for await (const row of scalarRows(plane)) {
     for (const value of row.values) {
-      if (!usableValue(value, dataset.noDataValue)) {
+      if (!usableValue(value, plane.noDataValue)) {
         invalidSamples += 1
         ordinal += 1
         continue
@@ -417,8 +502,7 @@ const scanStatistics = async (
 }
 
 const scanHistogram = async (
-  dataset: MultidimensionalRasterDataset,
-  request: Readonly<RasterPlaneRequest>,
+  plane: ResolvedScalarPlane,
   bins: number,
   range: ScientificRenderRange,
 ): Promise<ScientificHistogram> => {
@@ -426,9 +510,9 @@ const scanHistogram = async (
   let underflow = 0
   let overflow = 0
   const span = range.max - range.min
-  for await (const row of scalarRows(dataset, request)) {
+  for await (const row of scalarRows(plane)) {
     for (const value of row.values) {
-      if (!usableValue(value, dataset.noDataValue)) continue
+      if (!usableValue(value, plane.noDataValue)) continue
       if (value < range.min) {
         underflow += 1
       } else if (value > range.max) {
@@ -526,14 +610,13 @@ const reliefFactor = (
 }
 
 const renderRows = async function* (
-  dataset: MultidimensionalRasterDataset,
-  request: Readonly<RasterPlaneRequest>,
+  plane: ResolvedScalarPlane,
   range: ScientificRenderRange,
   palette: Uint8Array,
   scale: ScientificDisplayScale,
   relief: ResolvedRelief | undefined,
 ): AsyncGenerator<PixelBlock> {
-  const iterator = scalarRows(dataset, request)[Symbol.asyncIterator]()
+  const iterator = scalarRows(plane)[Symbol.asyncIterator]()
   const currentResult = await iterator.next()
   if (currentResult.done) return
   let previous = currentResult.value.values
@@ -545,7 +628,7 @@ const renderRows = async function* (
     for (let x = 0; x < current.values.length; x += 1) {
       const value = current.values[x] ?? Number.NaN
       const outputOffset = x * 3
-      if (!usableValue(value, dataset.noDataValue)) {
+      if (!usableValue(value, plane.noDataValue)) {
         output[outputOffset] = 0
         output[outputOffset + 1] = 0
         output[outputOffset + 2] = 0
@@ -559,7 +642,7 @@ const renderRows = async function* (
       output[outputOffset + 2] = Math.round((palette[paletteOffset + 2] ?? 0) * factor)
     }
     yield {
-      x: request.x ?? 0,
+      x: plane.x,
       y: current.y,
       width: current.values.length,
       height: 1,
@@ -580,35 +663,28 @@ const renderRows = async function* (
  * range can be passed back as an explicit range to avoid another measurement
  * when palette, display transfer, or relief settings change.
  */
-export const measureScientificPlane = async (
-  dataset: MultidimensionalRasterDataset,
-  options: Readonly<ScientificPlaneMeasureOptions>,
-): Promise<ScientificPlaneMeasurement> => {
-  const roi = selectedRegion(dataset, options)
-  const request = planeRequest(options, roi)
+const measureResolvedPlane = async (
+  plane: ResolvedScalarPlane,
+  options: Readonly<ScientificPlaneMeasureOptions | LabeledScientificPlaneMeasureOptions>,
+): Promise<ScientificPlaneMeasurement | LabeledScientificPlaneMeasurement> => {
   const rangeMode = options.range ?? { mode: 'percentile', low: 1, high: 99 }
-  const scan = await scanRange(dataset, request, rangeMode)
+  const scan = await scanRange(plane, rangeMode)
   const requestedStatistics = options.statistics
   const statistics =
-    requestedStatistics === undefined
-      ? undefined
-      : await scanStatistics(dataset, request, requestedStatistics)
+    requestedStatistics === undefined ? undefined : await scanStatistics(plane, requestedStatistics)
   const histogramRequest = requestedStatistics?.histogram
   const histogram =
     histogramRequest === undefined
       ? undefined
-      : await scanHistogram(
-          dataset,
-          request,
-          histogramRequest.bins,
-          histogramRequest.range ?? scan.range,
-        )
+      : await scanHistogram(plane, histogramRequest.bins, histogramRequest.range ?? scan.range)
   return Object.freeze({
     range: Object.freeze(scan.range),
     finiteSamples: statistics?.finiteSamples ?? scan.finiteSamples,
     sampledValues: scan.sampledValues,
-    roi: Object.freeze(roi),
-    channel: options.plane.c,
+    roi: Object.freeze({ x: plane.x, y: plane.y, width: plane.width, height: plane.height }),
+    ...(plane.selection === undefined
+      ? { channel: plane.channel ?? 0 }
+      : { selection: plane.selection }),
     ...(requestedStatistics?.mean ? { mean: statistics?.mean ?? Number.NaN } : {}),
     ...(requestedStatistics?.standardDeviation
       ? { standardDeviation: statistics?.standardDeviation ?? Number.NaN }
@@ -621,6 +697,30 @@ export const measureScientificPlane = async (
   })
 }
 
+export function measureScientificPlane(
+  dataset: MultidimensionalRasterDataset,
+  options: Readonly<ScientificPlaneMeasureOptions>,
+): Promise<ScientificPlaneMeasurement>
+export function measureScientificPlane(
+  dataset: ScientificDataset,
+  options: Readonly<LabeledScientificPlaneMeasureOptions>,
+): Promise<LabeledScientificPlaneMeasurement>
+export function measureScientificPlane(
+  dataset: MultidimensionalRasterDataset | ScientificDataset,
+  options: Readonly<ScientificPlaneMeasureOptions | LabeledScientificPlaneMeasureOptions>,
+): Promise<ScientificPlaneMeasurement | LabeledScientificPlaneMeasurement> {
+  if (isLabeledScientificDataset(dataset)) {
+    if (!isLabeledPlaneOptions(options)) {
+      throw invalidInput('A labeled-axis dataset requires a labeled plane selection')
+    }
+    return measureResolvedPlane(resolveLabeledPlane(dataset, options), options)
+  }
+  if (isLabeledPlaneOptions(options)) {
+    throw invalidInput('A fixed-axis dataset requires z, c, and t plane coordinates')
+  }
+  return measureResolvedPlane(resolveLegacyPlane(dataset, options), options)
+}
+
 /**
  * Maps one native numeric plane to lazy RGB display blocks. Dataset and
  * percentile ranges measure the selected plane before the returned iterator
@@ -629,13 +729,31 @@ export const measureScientificPlane = async (
  * Display transfer and relief affect display pixels only; relief is hillshading
  * in sample coordinates and does not use physical X/Y spacing.
  */
-export const renderScientificPlane = async (
+export function renderScientificPlane(
   dataset: MultidimensionalRasterDataset,
   options: Readonly<ScientificPlaneRenderOptions>,
-): Promise<ScientificRenderedPlane> => {
-  const measured = await measureScientificPlane(dataset, options)
-  const region = measured.roi
-  const request = planeRequest(options, region)
+): Promise<ScientificRenderedPlane>
+export function renderScientificPlane(
+  dataset: ScientificDataset,
+  options: Readonly<LabeledScientificPlaneRenderOptions>,
+): Promise<LabeledScientificRenderedPlane>
+export async function renderScientificPlane(
+  dataset: MultidimensionalRasterDataset | ScientificDataset,
+  options: Readonly<ScientificPlaneRenderOptions | LabeledScientificPlaneRenderOptions>,
+): Promise<ScientificRenderedPlane | LabeledScientificRenderedPlane> {
+  let plane: ResolvedScalarPlane
+  if (isLabeledScientificDataset(dataset)) {
+    if (!isLabeledPlaneOptions(options)) {
+      throw invalidInput('A labeled-axis dataset requires a labeled plane selection')
+    }
+    plane = resolveLabeledPlane(dataset, options)
+  } else {
+    if (isLabeledPlaneOptions(options)) {
+      throw invalidInput('A fixed-axis dataset requires z, c, and t plane coordinates')
+    }
+    plane = resolveLegacyPlane(dataset, options)
+  }
+  const measured = await measureResolvedPlane(plane, options)
   const palette = scientificPaletteTable(options.palette ?? 'grayscale')
   const scale = options.scale ?? 'linear'
   if (scale !== 'linear' && scale !== 'log' && scale !== 'sqrt' && scale !== 'asinh') {
@@ -643,14 +761,18 @@ export const renderScientificPlane = async (
   }
   const relief = resolveRelief(options.relief)
   return Object.freeze({
-    ...region,
-    channel: options.plane.c,
+    x: plane.x,
+    y: plane.y,
+    width: plane.width,
+    height: plane.height,
+    ...(plane.selection === undefined
+      ? { channel: plane.channel ?? 0 }
+      : { selection: plane.selection }),
     range: measured.range,
     finiteSamples: measured.finiteSamples,
     sampledValues: measured.sampledValues,
     pixels: {
-      [Symbol.asyncIterator]: () =>
-        renderRows(dataset, request, measured.range, palette, scale, relief),
+      [Symbol.asyncIterator]: () => renderRows(plane, measured.range, palette, scale, relief),
     },
   })
 }
