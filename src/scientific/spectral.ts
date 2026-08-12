@@ -17,6 +17,12 @@ import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
 } from './dataset-v2.ts'
+import type { NumericArray, NumericTile, NumericTileSource } from './numeric-tile.ts'
+import {
+  rasterBlockToNumericTile,
+  resolveNumericTileSource,
+  validateNumericTile,
+} from './numeric-tile.ts'
 import {
   type LabeledScientificPlaneRenderOptions,
   type LabeledScientificRenderedPlane,
@@ -24,7 +30,21 @@ import {
   type ScientificPlaneRenderOptions,
   type ScientificRenderedPlane,
 } from './render.ts'
-import { rasterSampleOffset, readRasterSample, validateRasterBlock } from './samples.ts'
+
+type NumberNumericArray = Exclude<NumericArray, BigUint64Array>
+
+const numericSource = (dataset: ScientificDataset): NumericTileSource =>
+  resolveNumericTileSource(dataset, {
+    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+  })
+
+const numberTileData = (tile: NumericTile): NumberNumericArray => {
+  validateNumericTile(tile)
+  if (tile.data instanceof BigUint64Array) {
+    throw invalidInput('Scientific uint64 values must be exactly convertible to float64')
+  }
+  return tile.data
+}
 
 /** Requested wavelength and the nearest channel center actually selected. */
 export interface SpectralChannelSelection {
@@ -490,72 +510,65 @@ class DerivedSpectralDataset implements SpectralDerivedDataset {
       ...request,
       c: this.sourceChannels,
     })) {
+      const tile = rasterBlockToNumericTile(block, {
+        ...(block.format.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+        ...(request.signal === undefined ? {} : { signal: request.signal }),
+      })
       try {
-        if (block.format.channels !== this.sourceChannels.length) {
+        if (tile.componentCount !== this.sourceChannels.length) {
           throw invalidInput('Source dataset returned the wrong spectral channel count')
         }
-        const layout = validateRasterBlock(block)
-        const inputView = new DataView(
-          block.data.buffer,
-          block.data.byteOffset,
-          block.data.byteLength,
-        )
-        const output = new Uint8Array(block.width * block.height * 8)
+        const input = numberTileData(tile)
+        const componentStride = tile.layout === 'planar' ? (tile.planeStrideElements ?? 0) : 1
+        const pixelStride = tile.layout === 'planar' ? 1 : tile.componentCount
+        const output = new Uint8Array(tile.width * tile.height * 8)
         const outputView = new DataView(output.buffer)
         const values = new Float64Array(this.sourceChannels.length)
-        for (let y = 0; y < block.height; y += 1) {
-          for (let x = 0; x < block.width; x += 1) {
+        for (let y = 0; y < tile.height; y += 1) {
+          const rowOffset = y * tile.rowStrideElements
+          for (let x = 0; x < tile.width; x += 1) {
+            const pixelOffset = rowOffset + x * pixelStride
             for (let channel = 0; channel < this.sourceChannels.length; channel += 1) {
-              const value = readRasterSample(
-                block.data,
-                inputView,
-                rasterSampleOffset(block, layout, x, y, channel),
-                block.format.sampleType,
-              )
+              const value = input[pixelOffset + channel * componentStride] ?? Number.NaN
               values[channel] =
                 this.#source.noDataValue !== undefined && value === this.#source.noDataValue
                   ? Number.NaN
                   : value
             }
             outputView.setFloat64(
-              (y * block.width + x) * 8,
+              (y * tile.width + x) * 8,
               derivedValue(this.#operation, values),
               false,
             )
           }
         }
         yield {
-          x: block.x,
-          y: block.y,
-          width: block.width,
-          height: block.height,
-          stride: block.width * 8,
+          x: tile.x,
+          y: tile.y,
+          width: tile.width,
+          height: tile.height,
+          stride: tile.width * 8,
           format: Object.freeze({ sampleType: 'float64', channels: 1, planar: false }),
           data: output,
         }
       } finally {
-        block.release?.()
+        tile.release()
       }
     }
   }
 }
 
-const blockValues = (block: RasterBlock, noDataValue: number | undefined): Float64Array => {
-  if (block.format.channels !== 1) {
+const tileValues = (tile: NumericTile, noDataValue: number | undefined): Float64Array => {
+  if (tile.componentCount !== 1) {
     throw invalidInput('Labeled spectral math requires scalar source blocks')
   }
-  const layout = validateRasterBlock(block)
-  const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
-  const output = new Float64Array(block.width * block.height)
-  for (let y = 0; y < block.height; y += 1) {
-    for (let x = 0; x < block.width; x += 1) {
-      const value = readRasterSample(
-        block.data,
-        view,
-        rasterSampleOffset(block, layout, x, y, 0),
-        block.format.sampleType,
-      )
-      output[y * block.width + x] =
+  const input = numberTileData(tile)
+  const output = new Float64Array(tile.width * tile.height)
+  for (let y = 0; y < tile.height; y += 1) {
+    const sourceRow = y * tile.rowStrideElements
+    for (let x = 0; x < tile.width; x += 1) {
+      const value = input[sourceRow + x] ?? Number.NaN
+      output[y * tile.width + x] =
         noDataValue !== undefined && value === noDataValue ? Number.NaN : value
     }
   }
@@ -567,20 +580,24 @@ const readLabeledSpectralRegion = async (
   request: Readonly<ScientificPlaneReadRequest>,
 ): Promise<Float64Array> => {
   const normalized = normalizeScientificPlaneReadRequest(dataset.descriptor, request)
+  const source = numericSource(dataset)
   const output = new Float64Array(normalized.width * normalized.height)
   let expectedY = normalized.y
-  for await (const block of dataset.readPlane(normalized)) {
+  for await (const tile of source.readNumericTiles({
+    ...normalized,
+    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+  })) {
     try {
-      if (block.x !== normalized.x || block.y !== expectedY || block.width !== normalized.width) {
+      if (tile.x !== normalized.x || tile.y !== expectedY || tile.width !== normalized.width) {
         throw invalidInput('Labeled spectral source emitted incompatible blocks')
       }
       output.set(
-        blockValues(block, dataset.descriptor.noDataValue),
-        (block.y - normalized.y) * normalized.width,
+        tileValues(tile, dataset.descriptor.noDataValue),
+        (tile.y - normalized.y) * normalized.width,
       )
-      expectedY += block.height
+      expectedY += tile.height
     } finally {
-      block.release?.()
+      tile.release()
     }
   }
   if (expectedY !== normalized.y + normalized.height) {
@@ -651,15 +668,17 @@ class DerivedLabeledSpectralDataset implements LabeledSpectralDerivedDataset {
       height: normalized.height,
       ...(normalized.signal === undefined ? {} : { signal: normalized.signal }),
     }
+    const source = numericSource(this.#source)
     let expectedY = normalized.y
-    for await (const block of this.#source.readPlane(firstRequest)) {
+    for await (const tile of source.readNumericTiles({
+      ...firstRequest,
+      ...(this.#source.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+    })) {
       try {
-        if (block.x !== normalized.x || block.y !== expectedY || block.width !== normalized.width) {
+        if (tile.x !== normalized.x || tile.y !== expectedY || tile.width !== normalized.width) {
           throw invalidInput('Labeled spectral source emitted incompatible blocks')
         }
-        const sourceValues: Float64Array[] = [
-          blockValues(block, this.#source.descriptor.noDataValue),
-        ]
+        const sourceValues: Float64Array[] = [tileValues(tile, this.#source.descriptor.noDataValue)]
         for (let index = 1; index < this.sourceIndices.length; index += 1) {
           const sourceIndex = this.sourceIndices[index]
           if (sourceIndex === undefined) continue
@@ -671,15 +690,15 @@ class DerivedLabeledSpectralDataset implements LabeledSpectralDerivedDataset {
                 { axisId: this.spectralAxis, index: sourceIndex },
               ],
               resolutionLevel: normalized.resolutionLevel,
-              x: block.x,
-              y: block.y,
-              width: block.width,
-              height: block.height,
+              x: tile.x,
+              y: tile.y,
+              width: tile.width,
+              height: tile.height,
               ...(normalized.signal === undefined ? {} : { signal: normalized.signal }),
             }),
           )
         }
-        const sampleCount = block.width * block.height
+        const sampleCount = tile.width * tile.height
         const output = new Uint8Array(sampleCount * 8)
         const view = new DataView(output.buffer)
         const values = new Float64Array(sourceValues.length)
@@ -690,17 +709,17 @@ class DerivedLabeledSpectralDataset implements LabeledSpectralDerivedDataset {
           view.setFloat64(sample * 8, derivedValue(this.#operation, values), false)
         }
         yield {
-          x: block.x,
-          y: block.y,
-          width: block.width,
-          height: block.height,
-          stride: block.width * 8,
+          x: tile.x,
+          y: tile.y,
+          width: tile.width,
+          height: tile.height,
+          stride: tile.width * 8,
           format: Object.freeze({ sampleType: 'float64', channels: 1, planar: false }),
           data: output,
         }
-        expectedY += block.height
+        expectedY += tile.height
       } finally {
-        block.release?.()
+        tile.release()
       }
     }
     if (expectedY !== normalized.y + normalized.height) {

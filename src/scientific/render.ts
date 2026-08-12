@@ -1,6 +1,5 @@
 import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
-import type { RasterBlock } from '../raster.ts'
 import type { MultidimensionalRasterDataset, RasterPlaneRequest } from './dataset.ts'
 import { isLabeledScientificDataset } from './dataset-adapters.ts'
 import type {
@@ -10,8 +9,13 @@ import type {
   ScientificPlaneReadRequest,
 } from './dataset-v2.ts'
 import { normalizeScientificPlaneReadRequest } from './dataset-v2.ts'
+import type { NumericArray, NumericTile, NumericTileSource } from './numeric-tile.ts'
+import {
+  rasterBlockToNumericTile,
+  resolveNumericTileSource,
+  validateNumericTile,
+} from './numeric-tile.ts'
 import { scientificPaletteTable, type ScientificPalette } from './palettes.ts'
-import { rasterSampleOffset, readRasterSample, validateRasterBlock } from './samples.ts'
 
 export type ScientificDisplayScale = 'linear' | 'log' | 'sqrt' | 'asinh'
 
@@ -155,7 +159,9 @@ export interface ScientificHistogram {
 
 interface ScalarRow {
   readonly y: number
-  readonly values: Float64Array
+  readonly values: Exclude<NumericArray, BigUint64Array>
+  readonly offset: number
+  readonly width: number
 }
 
 interface ResolvedScalarPlane {
@@ -166,8 +172,13 @@ interface ResolvedScalarPlane {
   readonly noDataValue?: number
   readonly channel?: number
   readonly selection?: NormalizedScientificPlaneReadRequest
-  read(): AsyncIterable<RasterBlock>
+  read(): AsyncIterable<NumericTile>
 }
+
+const numericSource = (dataset: ScientificDataset): NumericTileSource =>
+  resolveNumericTileSource(dataset, {
+    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+  })
 
 const isLabeledPlaneOptions = (
   options:
@@ -224,7 +235,13 @@ const resolveLegacyPlane = (
     height,
     channel: options.plane.c,
     ...(dataset.noDataValue === undefined ? {} : { noDataValue: dataset.noDataValue }),
-    read: () => dataset.readPlane(request),
+    read: async function* () {
+      for await (const block of dataset.readPlane(request)) {
+        yield rasterBlockToNumericTile(block, {
+          ...(block.format.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+        })
+      }
+    },
   }
 }
 
@@ -248,6 +265,7 @@ const resolveLabeledPlane = (
     ...(options.height === undefined ? {} : { height: options.height }),
   }
   const normalized = normalizeScientificPlaneReadRequest(dataset.descriptor, request)
+  const source = numericSource(dataset)
   return {
     x: normalized.x,
     y: normalized.y,
@@ -257,7 +275,11 @@ const resolveLabeledPlane = (
     ...(dataset.descriptor.noDataValue === undefined
       ? {}
       : { noDataValue: dataset.descriptor.noDataValue }),
-    read: () => dataset.readPlane(normalized),
+    read: () =>
+      source.readNumericTiles({
+        ...normalized,
+        ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+      }),
   }
 }
 
@@ -265,33 +287,31 @@ const scalarRows = async function* (plane: ResolvedScalarPlane): AsyncGenerator<
   const expectedX = plane.x
   const expectedWidth = plane.width
   let expectedY = plane.y
-  for await (const block of plane.read()) {
+  for await (const tile of plane.read()) {
     try {
       if (
-        block.x !== expectedX ||
-        block.y !== expectedY ||
-        block.width !== expectedWidth ||
-        block.format.channels !== 1
+        tile.x !== expectedX ||
+        tile.y !== expectedY ||
+        tile.width !== expectedWidth ||
+        tile.componentCount !== 1
       ) {
         throw invalidInput('Scientific dataset emitted non-contiguous plane blocks')
       }
-      const layout = validateRasterBlock(block)
-      const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
-      for (let row = 0; row < block.height; row += 1) {
-        const values = new Float64Array(block.width)
-        for (let x = 0; x < block.width; x += 1) {
-          values[x] = readRasterSample(
-            block.data,
-            view,
-            rasterSampleOffset(block, layout, x, row, 0),
-            block.format.sampleType,
-          )
-        }
-        yield { y: block.y + row, values }
+      validateNumericTile(tile)
+      if (tile.data instanceof BigUint64Array) {
+        throw invalidInput('Scientific uint64 values must be exactly convertible to float64')
       }
-      expectedY += block.height
+      for (let row = 0; row < tile.height; row += 1) {
+        yield {
+          y: tile.y + row,
+          values: tile.data,
+          offset: row * tile.rowStrideElements,
+          width: tile.width,
+        }
+      }
+      expectedY += tile.height
     } finally {
-      block.release?.()
+      tile.release()
     }
   }
   const requestedEnd = plane.y + plane.height
@@ -350,7 +370,9 @@ const scanRange = async (
   let finiteSamples = 0
   let ordinal = 0
   for await (const row of scalarRows(plane)) {
-    for (const value of row.values) {
+    const end = row.offset + row.width
+    for (let index = row.offset; index < end; index += 1) {
+      const value = row.values[index] ?? Number.NaN
       if (usableValue(value, plane.noDataValue)) {
         finiteSamples += 1
         minimum = Math.min(minimum, value)
@@ -445,7 +467,9 @@ const scanStatistics = async (
   let sumSquaredDifferences = 0
   let ordinal = 0
   for await (const row of scalarRows(plane)) {
-    for (const value of row.values) {
+    const end = row.offset + row.width
+    for (let index = row.offset; index < end; index += 1) {
+      const value = row.values[index] ?? Number.NaN
       if (!usableValue(value, plane.noDataValue)) {
         invalidSamples += 1
         ordinal += 1
@@ -511,7 +535,9 @@ const scanHistogram = async (
   let overflow = 0
   const span = range.max - range.min
   for await (const row of scalarRows(plane)) {
-    for (const value of row.values) {
+    const end = row.offset + row.width
+    for (let index = row.offset; index < end; index += 1) {
+      const value = row.values[index] ?? Number.NaN
       if (!usableValue(value, plane.noDataValue)) continue
       if (value < range.min) {
         underflow += 1
@@ -616,17 +642,49 @@ const renderRows = async function* (
   scale: ScientificDisplayScale,
   relief: ResolvedRelief | undefined,
 ): AsyncGenerator<PixelBlock> {
+  if (relief === undefined) {
+    for await (const row of scalarRows(plane)) {
+      const output = new Uint8Array(row.width * 3)
+      for (let x = 0; x < row.width; x += 1) {
+        const value = row.values[row.offset + x] ?? Number.NaN
+        const outputOffset = x * 3
+        if (!usableValue(value, plane.noDataValue)) continue
+        const paletteOffset = Math.round(scaledValue(value, range, scale) * 255) * 3
+        output[outputOffset] = palette[paletteOffset] ?? 0
+        output[outputOffset + 1] = palette[paletteOffset + 1] ?? 0
+        output[outputOffset + 2] = palette[paletteOffset + 2] ?? 0
+      }
+      yield {
+        x: plane.x,
+        y: row.y,
+        width: row.width,
+        height: 1,
+        stride: row.width * 3,
+        format: 'rgb8',
+        data: output,
+      }
+    }
+    return
+  }
+  const materialize = (row: ScalarRow): Float64Array => {
+    const output = new Float64Array(row.width)
+    for (let x = 0; x < row.width; x += 1) {
+      output[x] = row.values[row.offset + x] ?? Number.NaN
+    }
+    return output
+  }
   const iterator = scalarRows(plane)[Symbol.asyncIterator]()
   const currentResult = await iterator.next()
   if (currentResult.done) return
-  let previous = currentResult.value.values
-  let current = currentResult.value
+  let previous = materialize(currentResult.value)
+  let currentY = currentResult.value.y
+  let current = previous
   let nextResult = await iterator.next()
   while (true) {
-    const next = nextResult.done ? current.values : nextResult.value.values
-    const output = new Uint8Array(current.values.length * 3)
-    for (let x = 0; x < current.values.length; x += 1) {
-      const value = current.values[x] ?? Number.NaN
+    const next = nextResult.done ? current : materialize(nextResult.value)
+    const output = new Uint8Array(current.length * 3)
+    for (let x = 0; x < current.length; x += 1) {
+      const value = current[x] ?? Number.NaN
       const outputOffset = x * 3
       if (!usableValue(value, plane.noDataValue)) {
         output[outputOffset] = 0
@@ -635,24 +693,24 @@ const renderRows = async function* (
         continue
       }
       const paletteOffset = Math.round(scaledValue(value, range, scale) * 255) * 3
-      const factor =
-        relief === undefined ? 1 : reliefFactor(previous, current.values, next, x, range, relief)
+      const factor = reliefFactor(previous, current, next, x, range, relief)
       output[outputOffset] = Math.round((palette[paletteOffset] ?? 0) * factor)
       output[outputOffset + 1] = Math.round((palette[paletteOffset + 1] ?? 0) * factor)
       output[outputOffset + 2] = Math.round((palette[paletteOffset + 2] ?? 0) * factor)
     }
     yield {
       x: plane.x,
-      y: current.y,
-      width: current.values.length,
+      y: currentY,
+      width: current.length,
       height: 1,
-      stride: current.values.length * 3,
+      stride: current.length * 3,
       format: 'rgb8',
       data: output,
     }
     if (nextResult.done) return
-    previous = current.values
-    current = nextResult.value
+    previous = current
+    currentY = nextResult.value.y
+    current = next
     nextResult = await iterator.next()
   }
 }

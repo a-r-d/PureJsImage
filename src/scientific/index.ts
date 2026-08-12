@@ -48,6 +48,22 @@ export type {
   ScientificSourceIdentityHint,
   ScientificSourceIdentityStrength,
 } from './reader.ts'
+export type {
+  DirectNumericTileDataset,
+  NumericArray,
+  NumericSampleType,
+  NumericTile,
+  NumericTileAllocationRequest,
+  NumericTileAllocator,
+  NumericTileLayout,
+  NumericTileReadRequest,
+  NumericTileSource,
+  NumericTileSourceSemantics,
+  NumericTileStorage,
+  RasterBlockToNumericTileOptions,
+  ScientificDatasetNumericTileAdapterOptions,
+  ValidatedNumericTileLayout,
+} from './numeric-tile.ts'
 export {
   normalizeScientificDatasetDescriptor,
   normalizeScientificMetadataObject,
@@ -66,6 +82,14 @@ export {
   ScientificReaderRegistry,
 } from './reader.ts'
 export { createScientificLibrary } from './library.ts'
+export {
+  nativeLittleEndian,
+  numericTileSampleOffset,
+  rasterBlockToNumericTile,
+  resolveNumericTileSource,
+  scientificDatasetToNumericTileSource,
+  validateNumericTile,
+} from './numeric-tile.ts'
 export type { GsfDataset, GsfOpenOptions, GsfWriteOptions } from './formats/gsf.ts'
 export type {
   FitsDataset,

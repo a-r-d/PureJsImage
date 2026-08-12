@@ -246,6 +246,13 @@ Registration is caller-owned: no package import installs readers globally. See t
 [scientific reader registry guide](docs/scientific-reader-registry.md) for probe budgets,
 multi-resource resolution, and Node/browser adapters.
 
+Scientific readers expose portable canonical-byte `RasterBlock`s. Repeated scientific computation
+converts each block once to a native-endian typed `NumericTile`; direct native tile sources remain an
+explicit, local optimization and the canonical conversion fallback is permanent. Exact `uint64`
+values remain `bigint`, while `float16` expands to `Float32Array`. See the
+[numeric tile guide](docs/scientific-numeric-tiles.md) for ownership, checked conversion, and direct
+provider semantics.
+
 MRC and FITS volumes share lazy cross-section and projection operations:
 
 ```ts

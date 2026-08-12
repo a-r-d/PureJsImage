@@ -1,8 +1,9 @@
 # Application platform architecture
 
-Status: design checkpoint approved on 2026-08-12; implementation is in progress. Dataset V2 and
-the explicit scientific reader/document platform described by PRs 1 and 2 now exist, while graph,
-operation, tile-runtime, extension, workspace, and application layers remain future work.
+Status: design checkpoint approved on 2026-08-12; implementation is in progress. Dataset V2, the
+explicit scientific reader/document platform, and the native numeric tile layer described by PRs 1
+through 3 now exist, while graph, operation, tile-runtime, extension, workspace, and application
+layers remain future work.
 
 This document defines a target architecture for scientific web applications built on
 PureJsImage. It is deliberately additive. The existing image API, codec registry, and streaming
@@ -27,14 +28,12 @@ The useful seams already present in the codebase are:
 - `src/scientific/dataset.ts` defines `MultidimensionalRasterDataset`, a lazy fixed `X/Y/Z/C/T`
   model whose `readPlane()` method yields bounded `RasterBlock`s. FITS, MRC, CBF, GSF, ENVI, and
   OME-TIFF expose this model through the existing `openX` functions.
-- The format readers validate dimensions and source extents, keep sample data lazy, and generally
-  bound blocks with `maxDecodedBytes`. They do not yet accept an `AbortSignal` in
-  `RasterPlaneRequest`, so cancellation cannot reliably interrupt an in-flight scientific read.
-- Current scientific rendering and measurement consume blocks correctly and propagate
-  `release()` in `finally`, but repeated work converts canonical bytes repeatedly, often through a
-  newly allocated `Float64Array` per row. Range measurement followed by rendering may read the same
-  region more than once. That is a sound display implementation, not yet a reusable compute
-  runtime.
+- The format readers validate dimensions and source extents, keep sample data lazy, generally bound
+  blocks with `maxDecodedBytes`, and propagate read cancellation through both dataset generations.
+- Scientific rendering, measurement, spectral math, volume reduction, and classification now
+  convert each canonical block once into a native tile before sample loops. Independent range,
+  statistics, histogram, and render passes can still reread the same region because PR 3 adds no
+  long-lived cache; cache ownership and measurable reuse remain PR 7 work.
 - `src/image-core.ts`, `src/pipeline.ts`, and `src/executor.ts` implement an immutable linear image
   pipeline. The executor pushes eligible crops and JPEG scale selection toward decoders and streams
   `PixelBlock`s to encoders. This behavior is central to `resize().jpeg()` and must not be absorbed
@@ -171,11 +170,13 @@ contents as read-only, and every consumer must release them exactly once using `
 derived tile either owns a distinct allocation or explicitly retains its input; it may not retain an
 input buffer after releasing it.
 
-The first source of `NumericTile`s is an adapter over V2 `RasterBlock` reads. A later
-`NativeNumericTileSource` capability may let a reader or an explicitly registered WASM backend
-produce a conforming tile directly. That is an optional fast path, not a second dataset model. It
-must preserve the same selection, abort, limits, ownership, sample semantics, and conformance tests
-as conversion from canonical blocks.
+The permanent source of `NumericTile`s is an adapter over V2 `RasterBlock` reads. A dataset may also
+attach an explicit `NumericTileSource` with exact `directSemantics`, allowing a later reader or WASM
+backend to produce conforming native tiles directly. `resolveNumericTileSource()` selects that path
+only when source type, native type, component count, layout, and requested target support match; it
+otherwise returns the adapter. This is an optional fast path, not a second dataset model or a global
+provider table. It must preserve the same selection, abort, limits, ownership, sample semantics,
+and conformance tests as conversion from canonical blocks.
 
 Generic operations are tile-to-tile or tile-to-result computations. They may request halos or a
 bounded reduction state, but they may not call a `readWholePlane()` convenience or concatenate an
@@ -395,7 +396,7 @@ concrete; names can change during review without changing the layering.
 | --- | --- | --- | --- | --- | --- |
 | 1 | Define `ScientificDataset` V2 labeled-axis descriptors, replace the unreleased fixed-axis public contract, and migrate the first representative readers. | `src/scientific/dataset.ts`, `src/scientific/index.ts`, selected files under `src/scientific/formats/`; optionally a temporary internal migration bridge. | Current demos and tests must migrate with the intentional break; transitional code could outlive its purpose. | Contract tests using FITS, MRC, ENVI, and an irregular synthetic axis; affected scientific format and demo tests. | The new API is smaller than an adapter-based alternative; migrated readers have no legacy wrapper; temporary bridges are explicitly tracked for removal; `npm run browser:check`; `npm run check`. |
 | 2 | Migrate the remaining scientific readers, remove transitional bridges, and require abort- and budget-aware V2 reads. | `src/scientific/formats/{fits,mrc,cbf,gsf,envi}.ts`, `src/scientific/ome-tiff.ts`, `src/scientific/{render,spectral,volume,classification}.ts`, `src/source.ts`, abort/limit helpers. | Partial reads or cancellation could leak blocks; format-specific metadata could be lost during migration. | Focused abort-before-read, abort-during-read, iterator-return, release, metadata, and byte-budget tests for contiguous and strided readers. | All readers use the V2 contract directly; no compatibility bridge remains; no read continues after observed abort; every yielded/rejected block is released; source-byte cap is enforced; `npm run check`. |
-| 3 | Introduce `NumericTile`, validated one-time conversion, pooling, and the optional direct native tile-source capability. | `src/raster.ts`, `src/scientific/samples.ts`, `src/scientific/index.ts`; new `src/scientific/numeric-tile.ts`. | Endianness, float16 expansion, uint64 precision, planar/interleaved strides, or ownership could change values. | Cross-sample-type golden tests, hostile stride/truncation tests, release-on-error tests, reference-vs-direct-source conformance. | Canonical block fixtures produce exact native values; no `uint64` number coercion; measured retained-byte bounds; `npm run browser:check`; `npm run check`. |
+| 3 | Introduce `NumericTile`, validated one-time conversion, explicit caller-owned allocation, and the optional direct native tile-source capability. | `src/scientific/{numeric-tile,render,spectral,volume,classification}.ts`, `src/scientific/index.ts`, focused tests and benchmark. | Endianness, float16 expansion, uint64 precision, planar/interleaved strides, or ownership could change values. | Cross-sample-type golden tests, hostile stride/truncation tests, release-on-error tests, reference-vs-direct-source conformance, existing algorithm result suites. | Canonical block fixtures produce exact native values; no `uint64` number coercion; measured retained-byte bounds; `npm run browser:check`; `npm run check`. |
 | 4 | Define JSON-safe operation descriptors, the supported parameter-schema subset, validation, and caller-owned descriptor registry. | New `src/operations/{descriptor,schema,registry,index}.ts`; later export wiring in `package.json`; `tests/project-contract.test.ts`. | Defaults or unknown-key handling could become persisted semantics; a singleton could create order-dependent behavior. | JSON round-trip, unknown schema keyword, duplicate/version conflict, default application, and registry-isolation tests. | Descriptor corpus contains only JSON values; registry instances are isolated; no side-effect registration; dependency guard passes; `npm run check`. |
 | 5 | Define `OperationProvider` and ship the permanent strict TypeScript reference provider for a deliberately small first operation set. | New `src/operations/{provider,reference}.ts`; reuse sample helpers without importing format readers; new provider tests. | Reference behavior could be underspecified, or provider code could materialize complete planes. | Semantic vectors for NaN/no-data/edges/types, bounded multi-tile execution, cancellation, release, and allocation tests. | Reference results are the conformance oracle; declared memory formula holds; no full-plane helper exists in the generic provider path; `npm run check`. |
 | 6 | Add immutable graph JSON, canonicalization, explicit migrations, source identity ladder, and validation issues. | New `src/analysis/{graph,canonical-json,migrations,source-identity,issues}.ts`; `src/scientific/dataset-v2.ts` for source-reference types if needed. | Canonical bytes will become durable at release; weak identities could poison persistent caches. | Provisional canonical fixture corpus, property-order invariance, semantic-order preservation, migration reports, unsupported-version rejection, identity-refinement tests. | Canonical behavior is tested but remains revisable until the release gate; execution rejects unmigrated graphs; weak identity stays session-scoped; `npm run browser:check`; `npm run check`. |
@@ -680,10 +681,79 @@ migration path is chosen.
     12-bit AVIF Sharp-oracle hash failures. A separate hostile-source invocation reached the same
     unrelated failures; `npm run check` itself stops on them before its hostile-source phase.
 
+### PR 3: native numeric tile layer
+
+- [x] Prompt 3.1: implement `NumericTile` and one-time canonical-byte conversion.
+  - [x] Re-read repository instructions, record HEAD/status, and inspect raster validation,
+        scientific sample loops, buffer ownership patterns, representative tests, and benchmark
+        conventions without disturbing user changes.
+  - [x] Define native numeric arrays and tiles with coordinates, dimensions, sample type,
+        components, layout, element strides, data, and exactly-once release semantics.
+  - [x] Preserve exact `uint64` values, promote `float16` to `Float32Array` by default, and support
+        preserve-type or checked explicit target conversion without silent precision loss.
+  - [x] Convert canonical big-endian `RasterBlock`s once, with safe byte-sized zero-copy views,
+        host endianness detected once, one selected monomorphic kernel per block, correct padding and
+        subarray offsets, cancellation, and optional caller-owned reusable storage/allocation.
+  - [x] Add exhaustive sample-type, endian, layout, padding, offset, hostile block, precision,
+        float16, cancellation, allocation, and release tests.
+  - [x] Run focused tests, typecheck, lint, and formatting; record `git diff --stat` and exactly which
+        conversions are zero-copy.
+  - Result: `NumericTile` uses the native typed-array class for every current sample type, with
+    canonical `float16` promoted to `Float32Array` and `uint64` retained in `BigUint64Array`.
+    Preserved `uint8` and `int8` are zero-copy when no destination/allocator is requested. Wider
+    preserved types are zero-copy only on an aligned big-endian host; the normal little-endian path
+    performs one canonical-to-native conversion. Explicit target conversion is checked for range
+    and precision. Row/plane padding, unaligned subarrays, hostile lengths, cancellation, reusable
+    storage, allocator ownership, and exactly-once releases are covered by the focused suite.
+
+- [x] Prompt 3.2: add `NumericTileSource` and the direct-provider escape hatch.
+  - [x] Define a labeled-plane-aligned tile request/source contract and exact declared native tile
+        semantics without format checks or global registration.
+  - [x] Add a permanent lazy, region-bounded `ScientificDataset` conversion adapter and resolver
+        that prefers a semantically exact direct source and otherwise falls back cleanly.
+  - [x] Propagate abort signals, source sessions, and releases; convert each block at most once per
+        consumer pass; expose only stable low-level contracts and cache-lifetime hooks.
+  - [x] Prove direct/fallback metadata and value parity, provider decline/fallback, laziness, and
+        identical browser/Node behavior with synthetic tests.
+  - [x] Run focused tests, typecheck, browser check, lint, and formatting; document how a future WASM
+        reader opts in without application changes.
+  - Result: `scientificDatasetToNumericTileSource()` is the permanent conversion path and
+    `resolveNumericTileSource()` selects a dataset's local direct source only when its declared
+    source/native types, component count, layout, and requested target support match. Unsupported
+    target requests fall back before invoking the direct provider. No format checks, registry, or
+    cache were added. A future WASM reader attaches the same explicit capability to its dataset;
+    application code and selection requests do not change.
+
+- [x] Prompt 3.3: move scientific hot paths to native tiles and benchmark the result.
+  - [x] Migrate rendering, spectral, volume, classification, and shared sample hot paths to consume
+        native tiles while resolving sample/layout/component/strides once per tile.
+  - [x] Preserve public outputs, no-data/non-finite behavior, legacy behavior, bounded cancellation,
+        and release ownership; retain Float64 only for numerically sensitive accumulation.
+  - [x] Add differential statistics, percentile, histogram, rendering, spectral, ratio, slice,
+        projection, tile-shape, and padding tests against canonical behavior.
+  - [x] Add and run a correctness-gated focused benchmark reporting conversion, post-conversion
+        computation, throughput, and honest retained tile storage without claiming unsupported
+        speedups.
+  - [x] Document the byte/tile boundary and direct-provider option, run the scientific suite,
+        relevant benchmark, browser check, package types, and full repository check, and record any
+        justified remaining per-sample `DataView` path.
+  - Result: labeled rendering and reductions consume `NumericTileSource`; fixed-axis compatibility
+    paths convert their selected `RasterBlock` stream once because the old interleaved-component
+    selection cannot be represented as one V2 axis index. Hot loops resolve layout/component
+    strides once per tile and retain Float64 only for statistics, reductions, derived output, or the
+    three-row relief window. Remaining per-sample `DataView` writes serialize derived datasets back
+    to the canonical `RasterBlock` API; `src/raster.ts` retains its ordinary-image portable display
+    conversion to avoid a dependency from the byte layer up into scientific tiles. The 229-test
+    scientific/format suite and 118-test hostile focused suite pass, as do browser, package-type,
+    typecheck, lint, and formatting gates. The correctness-gated 1024x256 uint16 benchmark (30
+    measured iterations) recorded 11.633 ms conversion, 16.932 ms post-conversion computation,
+    28.565 ms total, 275.315 million samples/second, a 524,288-byte peak live tile, and zero
+    allocator-accounted bytes after release; no comparative speedup is claimed. The full suite has
+    1,033 passing tests and only the same three unrelated 12-bit AVIF Sharp-oracle hash failures, so
+    `npm run check` stops before its repository-wide hostile-source phase.
+
 ### Remaining implementation PRs
 
-- [ ] PR 3: add native `NumericTile` conversion and optional direct native tile sources. Detailed
-      prompts not yet supplied.
 - [ ] PR 4: add JSON-safe operation descriptors, schemas, validation, and local registries. Detailed
       prompts not yet supplied.
 - [ ] PR 5: add the strict TypeScript reference `OperationProvider`. Detailed prompts not yet

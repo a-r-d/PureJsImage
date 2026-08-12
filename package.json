@@ -305,6 +305,7 @@
     "bench:transforms:compare": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines jimp,purejsimage --profile transforms-comparable",
     "bench:webp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile webp",
     "bench:zstd": "node --expose-gc benchmark/scripts/run-zstd.ts",
+    "bench:scientific:numeric-tiles": "node benchmark/scientific/run-numeric-tiles.ts",
     "bench:avif:inspect": "node benchmark/avif/inspect-bitstreams.ts",
     "bench:avif:b2": "node --expose-gc benchmark/avif/run-b2.ts",
     "bench:avif:memory": "node benchmark/avif/run-memory.ts",

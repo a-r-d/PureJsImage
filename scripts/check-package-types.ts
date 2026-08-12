@@ -58,7 +58,7 @@ import { createImageLibrary as createBrowserImageLibrary } from 'purejsimage/bro
 import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
 import { pngCodec } from 'purejsimage/codecs/png'
 export { geoTiffProfile } from 'purejsimage/tiff'
-import { createScientificLibrary, encodeGsf, gsfReader } from 'purejsimage/scientific'
+import { createScientificLibrary, encodeGsf, gsfReader, rasterBlockToNumericTile } from 'purejsimage/scientific'
 export { openOmeTiff, rasterToPixels } from 'purejsimage/scientific'
 export { createScientificFileContext } from 'purejsimage/scientific/browser'
 export { createScientificPathContext } from 'purejsimage/scientific/node'
@@ -74,6 +74,15 @@ export const encodeNode = async (input: Uint8Array): Promise<Uint8Array> =>
 export const encodeBrowser = async (input: Uint8Array): Promise<Uint8Array> =>
   (await browserImages.open(input)).png().toUint8Array()
 export const collected: Uint8Array = new BufferSink().toBuffer()
+export const nativeTile = rasterBlockToNumericTile({
+  x: 0,
+  y: 0,
+  width: 1,
+  height: 1,
+  stride: 2,
+  format: { sampleType: 'uint16', channels: 1, planar: false },
+  data: Uint8Array.of(0, 1),
+})
 export const openScientific = async () => {
   const document = await science.open({
     primary: {

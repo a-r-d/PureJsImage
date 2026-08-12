@@ -17,12 +17,28 @@ import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
 } from './dataset-v2.ts'
+import type { NumericArray, NumericTile, NumericTileSource } from './numeric-tile.ts'
 import {
-  rasterSampleOffset,
-  readRasterSample,
-  validateRasterBlock,
-  writeRasterSample,
-} from './samples.ts'
+  rasterBlockToNumericTile,
+  resolveNumericTileSource,
+  validateNumericTile,
+} from './numeric-tile.ts'
+import { writeRasterSample } from './samples.ts'
+
+type NumberNumericArray = Exclude<NumericArray, BigUint64Array>
+
+const numericSource = (dataset: ScientificDataset): NumericTileSource =>
+  resolveNumericTileSource(dataset, {
+    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+  })
+
+const numberTileData = (tile: NumericTile): NumberNumericArray => {
+  validateNumericTile(tile)
+  if (tile.data instanceof BigUint64Array) {
+    throw invalidInput('Scientific uint64 values must be exactly convertible to float64')
+  }
+  return tile.data
+}
 
 export type ScientificSliceAxis = 'xy' | 'xz' | 'yz'
 export type ScientificProjectionMode = 'max' | 'min' | 'mean'
@@ -120,31 +136,30 @@ const readScalarRegion = async (
   const values = new Float64Array(expectedWidth * expectedHeight)
   let expectedY = request.y ?? 0
   for await (const block of dataset.readPlane(request)) {
+    const tile = rasterBlockToNumericTile(block, {
+      ...(block.format.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+      ...(request.signal === undefined ? {} : { signal: request.signal }),
+    })
     try {
       if (
-        block.x !== expectedX ||
-        block.y !== expectedY ||
-        block.width !== expectedWidth ||
-        block.format.channels !== 1
+        tile.x !== expectedX ||
+        tile.y !== expectedY ||
+        tile.width !== expectedWidth ||
+        tile.componentCount !== 1
       ) {
         throw invalidInput('Scientific dataset emitted non-contiguous plane blocks')
       }
-      const layout = validateRasterBlock(block)
-      const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
-      for (let row = 0; row < block.height; row += 1) {
-        for (let x = 0; x < block.width; x += 1) {
-          const target = (block.y - (request.y ?? 0) + row) * expectedWidth + x
-          values[target] = readRasterSample(
-            block.data,
-            view,
-            rasterSampleOffset(block, layout, x, row, 0),
-            block.format.sampleType,
-          )
+      const input = numberTileData(tile)
+      for (let row = 0; row < tile.height; row += 1) {
+        const sourceRow = row * tile.rowStrideElements
+        for (let x = 0; x < tile.width; x += 1) {
+          const target = (tile.y - (request.y ?? 0) + row) * expectedWidth + x
+          values[target] = input[sourceRow + x] ?? Number.NaN
         }
       }
-      expectedY += block.height
+      expectedY += tile.height
     } finally {
-      block.release?.()
+      tile.release()
     }
   }
   if (expectedY !== (request.y ?? 0) + expectedHeight) {
@@ -511,34 +526,33 @@ const readLabeledScalarRegion = async (
   request: Readonly<ScientificPlaneReadRequest>,
 ): Promise<Float64Array> => {
   const normalized = normalizeScientificPlaneReadRequest(dataset.descriptor, request)
+  const source = numericSource(dataset)
   const values = new Float64Array(normalized.width * normalized.height)
   let expectedY = normalized.y
-  for await (const block of dataset.readPlane(normalized)) {
+  for await (const tile of source.readNumericTiles({
+    ...normalized,
+    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+  })) {
     try {
       if (
-        block.x !== normalized.x ||
-        block.y !== expectedY ||
-        block.width !== normalized.width ||
-        block.format.channels !== 1
+        tile.x !== normalized.x ||
+        tile.y !== expectedY ||
+        tile.width !== normalized.width ||
+        tile.componentCount !== 1
       ) {
         throw invalidInput('Scientific dataset emitted non-contiguous scalar plane blocks')
       }
-      const layout = validateRasterBlock(block)
-      const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
-      for (let row = 0; row < block.height; row += 1) {
-        for (let x = 0; x < block.width; x += 1) {
-          const target = (block.y - normalized.y + row) * normalized.width + x
-          values[target] = readRasterSample(
-            block.data,
-            view,
-            rasterSampleOffset(block, layout, x, row, 0),
-            block.format.sampleType,
-          )
+      const input = numberTileData(tile)
+      for (let row = 0; row < tile.height; row += 1) {
+        const sourceRow = row * tile.rowStrideElements
+        for (let x = 0; x < tile.width; x += 1) {
+          const target = (tile.y - normalized.y + row) * normalized.width + x
+          values[target] = input[sourceRow + x] ?? Number.NaN
         }
       }
-      expectedY += block.height
+      expectedY += tile.height
     } finally {
-      block.release?.()
+      tile.release()
     }
   }
   if (expectedY !== normalized.y + normalized.height) {

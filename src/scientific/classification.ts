@@ -1,7 +1,7 @@
 import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { EnviDataset } from './formats/envi.ts'
-import { rasterSampleOffset, readRasterSample, validateRasterBlock } from './samples.ts'
+import { rasterBlockToNumericTile, validateNumericTile } from './numeric-tile.ts'
 
 export interface EnviClassificationRenderOptions {
   readonly maxWidth: number
@@ -113,32 +113,32 @@ const classificationRows = async function* (
       width: render.sourceWidth,
       height: 1,
     })) {
+      const tile = rasterBlockToNumericTile(block, {
+        ...(block.format.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+      })
       try {
         if (
           emitted ||
-          block.x !== render.sourceX ||
-          block.y !== render.sourceY + sourceRow ||
-          block.width !== render.sourceWidth ||
-          block.height !== 1 ||
-          block.format.channels !== 1
+          tile.x !== render.sourceX ||
+          tile.y !== render.sourceY + sourceRow ||
+          tile.width !== render.sourceWidth ||
+          tile.height !== 1 ||
+          tile.componentCount !== 1
         ) {
           throw invalidInput('ENVI classification reader emitted an unexpected source row')
         }
         emitted = true
-        const layout = validateRasterBlock(block)
-        const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+        validateNumericTile(tile)
+        if (tile.data instanceof BigUint64Array) {
+          throw invalidInput('ENVI classification uint64 values must convert exactly to float64')
+        }
         const output = new Uint8Array(render.outputWidth * 3)
         for (let outputX = 0; outputX < render.outputWidth; outputX += 1) {
           const sourceColumn = sourceColumns[outputX]
           if (sourceColumn === undefined) {
             throw invalidInput('ENVI classification column mapping is invalid')
           }
-          const value = readRasterSample(
-            block.data,
-            view,
-            rasterSampleOffset(block, layout, sourceColumn, 0, 0),
-            block.format.sampleType,
-          )
+          const value = tile.data[sourceColumn] ?? Number.NaN
           if (!Number.isSafeInteger(value) || value < 0 || value >= classes.length) {
             throw invalidInput(`ENVI classification sample ${value} has no declared class`)
           }
@@ -160,7 +160,7 @@ const classificationRows = async function* (
           data: output,
         }
       } finally {
-        block.release?.()
+        tile.release()
       }
     }
     if (!emitted) throw invalidInput('ENVI classification reader emitted an incomplete source row')
