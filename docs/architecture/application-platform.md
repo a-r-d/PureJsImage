@@ -1,6 +1,8 @@
 # Application platform architecture
 
-Status: design checkpoint approved on 2026-08-12; no runtime API described here is implemented yet.
+Status: design checkpoint approved on 2026-08-12; implementation is in progress. Dataset V2 and
+the explicit scientific reader/document platform described by PRs 1 and 2 now exist, while graph,
+operation, tile-runtime, extension, workspace, and application layers remain future work.
 
 This document defines a target architecture for scientific web applications built on
 PureJsImage. It is deliberately additive. The existing image API, codec registry, and streaming
@@ -566,10 +568,120 @@ migration path is chosen.
     Sharp-oracle hash mismatches from the earlier baseline, so the hostile-source phase is not
     reached.
 
+### PR 2: scientific reader and document registry
+
+- [x] Prompt 2.1: add portable resource, reader, document, probe-budget, and local registry
+      contracts.
+  - [x] Re-read repository instructions, record HEAD/status, and inspect `ImageSource`, source
+        sessions, HTTP range behavior, scientific Node adapters, OME-TIFF, V2 datasets, existing
+        format opens, exports, and representative tests.
+  - [x] Define runtime-neutral `ScientificResource`, normalized companion requests/resolvers, and
+        `ScientificOpenContext` for single- and multi-resource formats without filesystem or path
+        traversal assumptions in portable code.
+  - [x] Define JSON-safe `ScientificReaderDescriptor` data separately from executable
+        `ScientificReader` implementations, including bounded probes and explicit open calls.
+  - [x] Define `ScientificDocument` with cheap metadata, stable dataset summaries containing
+        labeled-axis descriptors, lazy `openDataset(id)`, and an optional explicit close hook.
+  - [x] Implement a caller-owned `ScientificReaderRegistry` with immutable enumeration, duplicate
+        ID/version rejection, deterministic confidence ordering, explicit-reader selection, and
+        clear no-match/ambiguity errors.
+  - [x] Implement a session-correct, abort-aware probe-limited `ImageSource` wrapper enforcing total
+        bytes and read-count budgets without allowing a probe to consume the full source.
+  - [x] Add mock-reader tests for ordering/confidence, ambiguity, duplicates, explicit selection,
+        byte/read budgets, cancellation, multi-resource contexts, and summary enumeration without
+        pixel reads.
+  - [x] Export only stable portable contracts; add no globals, side-effect registration, Node
+        built-ins, codecs, plugin/graph APIs, runtime dependencies, or full-frame reads.
+  - [x] Run focused tests, typecheck, lint, and formatting; record `git diff --stat` and exact probe
+        budget semantics.
+  - Result: detection probes readers sequentially in registration order against one shared default
+    budget of 32 readers, 32 non-empty reads, 65,536 logical bytes, and 16,384 logical bytes per
+    read. Reservations occur before underlying I/O; overlapping and repeated reads count again,
+    primary and companion resources share the ledger, and zero-length or wholly out-of-range reads
+    do not consume it. Explicit reader selection bypasses probing. The 38 focused registry and V2
+    tests pass with typecheck, lint, and formatting.
+
+- [x] Prompt 2.2: adapt GSF, MRC/CCP4, and CBF/imgCIF.
+  - [x] Re-read instructions/status and inspect accumulated Prompt 2.1 changes plus each existing
+        parser, dataset, fixture, metadata model, and error contract.
+  - [x] Add explicitly registered, stable/versioned first-party readers reusing existing parsers and
+        dataset implementations without duplicate decoding paths.
+  - [x] Use small byte-based probes; treat extensions/media types only as confidence hints that
+        cannot override contradictory bytes.
+  - [x] Expose one stable lazy V2 dataset summary per document, preserving calibration, units,
+        component/channel/no-data, detector, and typed format metadata.
+  - [x] Preserve existing `openGsf`, `openMrc`, and `openCbf` exports and behavior; avoid payload
+        decoding during probe and summary listing; propagate release and cancellation.
+  - [x] Test extension-free detection, misleading extensions, metadata-only summaries, value parity,
+        lazy region reads, malformed/truncated error categories, and one registry containing all
+        three readers.
+  - [x] Run focused format/registry tests, typecheck, lint, and formatting; record each reader's
+        exact maximum probe reads and `git diff --stat`.
+  - Result: `purejsimage/gsf`, `purejsimage/mrc`, and `purejsimage/cbf` reuse the existing open
+    functions and lazy datasets, enrich their V2 descriptors with typed format metadata, and expose
+    one stable dataset each. Extensions and media types only raise an already byte-confirmed match
+    from 0.99 to 1. Each probe performs exactly one logical read: GSF reads 26 bytes, MRC reads 8
+    bytes at offset 208, and CBF reads at most 64 bytes. The 37 focused adapter, registry, and format
+    tests pass with typecheck, lint, and formatting.
+
+- [x] Prompt 2.3: adapt FITS, OME-TIFF, and ENVI without losing rank or companions.
+  - [x] Re-read instructions/status and inspect accumulated reader/document contracts and the three
+        existing format implementations.
+  - [x] Expose every supported FITS image HDU with a stable dataset ID and labeled axes that preserve
+        source rank, axis metadata, units, and deterministic fallback IDs without payload decoding.
+  - [x] Expose every OME image/series with stable IDs while preserving XYZCT labels, channels,
+        calibration, pyramids, and TIFF profile behavior without parsing/decoding every plane.
+  - [x] Pair ENVI headers/data through `ScientificCompanionResolver` for header-primary and
+        data-primary contexts, with explicit missing/ambiguous errors and no portable filesystem
+        assumptions.
+  - [x] Preserve ENVI wavelength/FWHM/names/interleave/classification/map metadata as typed values
+        and keep existing portable and Node conveniences unchanged.
+  - [x] Add browser-neutral in-memory companion tests, Node path tests, multi-HDU/multi-series
+        enumeration, arbitrary-rank FITS, stable-ID, lazy-summary, cancellation, and probe-limit
+        coverage.
+  - [x] Run affected format/registry tests, browser check, typecheck, lint, and formatting; record
+        unmappable metadata rather than guessing and review `git diff --stat`.
+  - Result: FITS exposes stable `hdu-N` datasets and uses a slice primitive to preserve arbitrary
+    NAXIS rank without changing the legacy `openImage()` limit; CTYPE/CUNIT and complete linear WCS
+    triples become labeled coordinates, while all original cards remain typed metadata. OME-TIFF
+    exposes stable `image-N` datasets and carries common declared SubIFD pyramid geometry into V2.
+    ENVI supports header-primary and named data-primary contexts through role-based companion
+    resolution and retains spectral, classification, interleave, and tokenized map-info values.
+    No coordinate transform is inferred from incomplete FITS WCS cards, and free-form ENVI map-info
+    tail fields remain strings when they are not numeric. The 144 affected tests, typecheck, lint,
+    formatting, and browser check pass.
+
+- [x] Prompt 2.4: add the explicit scientific library facade, capability enumeration, adapters,
+      docs, and final gate.
+  - [x] Re-read instructions/status and inspect every accumulated PR 2 change before editing.
+  - [x] Implement `createScientificLibrary({ readers })` with explicit registration, normal or
+        explicitly selected opening, frozen JSON-safe capabilities, and iterable composition for
+        future trusted bundles.
+  - [x] Keep any optional first-party bundle explicit and tree-shakeable; include no experimental
+        reader silently and perform no network work or hidden registration on import.
+  - [x] Add a Node path-to-context helper and a browser `File` companion resolver behind their
+        respective platform boundaries.
+  - [x] Update scientific exports, package/type/browser checks, API docs, a concise registry guide,
+        and this architecture document.
+  - [x] Add an external-style package type test registering a reader subset, opening in-memory
+        bytes, enumerating summaries, and lazily opening a V2 dataset without `src/` imports.
+  - [x] Run package types, browser check, the full scientific subset, and `npm run check`; record
+        unrelated failures separately.
+  - [x] Review final `git diff --stat`, public exports, bundle/tree-shaking implications, and prove
+        root/browser imports do not register scientific readers.
+  - Result: `createScientificLibrary({ readers })` owns one isolated registry and returns frozen
+    JSON-safe reader and resource-pattern capabilities. `createScientificPathContext()` remains in
+    `purejsimage/scientific/node`; `createScientificFileContext()` and the File resolver remain in
+    `purejsimage/scientific/browser`. There is no all-readers singleton or bundle: consumers import
+    named reader objects and bundlers can eliminate unselected modules under `sideEffects: false`.
+    Root and browser imports neither reach scientific modules nor register readers. The 229-test
+    scientific/format subset, packed external declaration consumer, browser check, typecheck, lint,
+    and formatting pass. The normal suite has 1,007 passing tests and only the same three unrelated
+    12-bit AVIF Sharp-oracle hash failures. A separate hostile-source invocation reached the same
+    unrelated failures; `npm run check` itself stops on them before its hostile-source phase.
+
 ### Remaining implementation PRs
 
-- [ ] PR 2: migrate remaining scientific readers and enforce abort/budget-aware V2 reads. Detailed
-      prompts not yet supplied.
 - [ ] PR 3: add native `NumericTile` conversion and optional direct native tile sources. Detailed
       prompts not yet supplied.
 - [ ] PR 4: add JSON-safe operation descriptors, schemas, validation, and local registries. Detailed

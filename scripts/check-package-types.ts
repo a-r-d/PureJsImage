@@ -53,23 +53,38 @@ try {
   )
   await writeFile(
     join(consumerDirectory, 'index.ts'),
-    `import { BufferSink, createImageLibrary } from 'purejsimage'
+    `import { BufferSink, createImageLibrary, MemorySource } from 'purejsimage'
 import { createImageLibrary as createBrowserImageLibrary } from 'purejsimage/browser'
 import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
 import { pngCodec } from 'purejsimage/codecs/png'
 export { geoTiffProfile } from 'purejsimage/tiff'
+import { createScientificLibrary, encodeGsf, gsfReader } from 'purejsimage/scientific'
 export { openOmeTiff, rasterToPixels } from 'purejsimage/scientific'
+export { createScientificFileContext } from 'purejsimage/scientific/browser'
+export { createScientificPathContext } from 'purejsimage/scientific/node'
 export { openAperioSvs } from 'purejsimage/pathology'
 export { HttpRangeSource } from 'purejsimage/sources/http-range'
 
 const nodeImages = createImageLibrary([pngCodec, jpegxlCodec])
 const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])
+const science = createScientificLibrary({ readers: [gsfReader] })
 
 export const encodeNode = async (input: Uint8Array): Promise<Uint8Array> =>
   (await nodeImages.open(input)).png().toBuffer()
 export const encodeBrowser = async (input: Uint8Array): Promise<Uint8Array> =>
   (await browserImages.open(input)).png().toUint8Array()
 export const collected: Uint8Array = new BufferSink().toBuffer()
+export const openScientific = async () => {
+  const document = await science.open({
+    primary: {
+      id: 'surface',
+      source: new MemorySource(encodeGsf({ width: 1, height: 1, values: [1] })),
+    },
+  })
+  const summaries = document.datasets
+  const dataset = await document.openDataset(summaries[0]?.id ?? 'surface')
+  return { summaries, dataset }
+}
 `,
   )
 

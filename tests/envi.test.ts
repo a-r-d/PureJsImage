@@ -8,9 +8,17 @@ import {
   type SupportedEnviDataType,
 } from '../src/scientific/formats/envi.ts'
 import { renderEnviClassification } from '../src/scientific/classification.ts'
+import {
+  createScientificLibrary,
+  encodeGsf,
+  enviReader,
+  gsfReader,
+  ScientificReaderRegistry,
+} from '../src/scientific/index.ts'
 import { rasterSampleBytes, type RasterSampleType } from '../src/raster.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
-import { openEnviPath } from '../src/scientific/node.ts'
+import { createScientificPathContext, openEnviPath } from '../src/scientific/node.ts'
+import { MemorySource } from '../src/source.ts'
 
 interface EnviFixtureOptions {
   readonly samples: number
@@ -271,6 +279,82 @@ custom laboratory field = retained
     })
   })
 
+  it('resolves header-primary and data-primary ENVI pairs without filesystem assumptions', async () => {
+    const input = fixture({
+      samples: 2,
+      lines: 1,
+      bands: 2,
+      dataType: 2,
+      interleave: 'bsq',
+      byteOrder: 0,
+      extraHeader: `band names = { Blue, Red }
+wavelength = { 450, 650 }
+wavelength units = nm
+fwhm = { 10, 20 }
+map info = { Geographic Lat/Lon, 1, 1, -83.7, 42.3, 0.01, 0.01, WGS-84 }
+`,
+    })
+    const registry = new ScientificReaderRegistry([enviReader])
+    const requests: unknown[] = []
+    const headerPrimary = await registry.open({
+      primary: { id: 'header', name: 'scene.hdr', source: new MemorySource(input.header) },
+      companions: {
+        async resolve(request) {
+          requests.push(request)
+          return request.kind === 'role' && request.role === 'data'
+            ? { id: 'data', name: 'scene', source: new MemorySource(input.data) }
+            : undefined
+        },
+      },
+    })
+    expect(requests).toContainEqual({ kind: 'role', role: 'data', relativeName: 'scene' })
+    expect(headerPrimary.datasets).toHaveLength(1)
+    const headerDataset = await headerPrimary.openDataset('raster')
+    expect(headerDataset.descriptor.axes.find(({ id }) => id === 'channel')).toMatchObject({
+      kind: 'spectral',
+      entries: [
+        { name: 'Blue', spectral: { center: 450, unit: 'nm', fwhm: 10 } },
+        { name: 'Red', spectral: { center: 650, unit: 'nm', fwhm: 20 } },
+      ],
+    })
+    expect(headerDataset.descriptor.metadata?.['purejsimage:envi']).toMatchObject({
+      dataType: 2,
+      interleave: 'bsq',
+      mapInfo: ['Geographic Lat/Lon', 1, 1, -83.7, 42.3, 0.01, 0.01, 'WGS-84'],
+    })
+
+    const dataPrimary = await registry.open({
+      primary: { id: 'data', name: 'scene.dat', source: new MemorySource(input.data) },
+      companions: {
+        async resolve(request) {
+          expect(request).toEqual({ kind: 'role', role: 'header', relativeName: 'scene.hdr' })
+          return { id: 'header', name: 'scene.hdr', source: new MemorySource(input.header) }
+        },
+      },
+    })
+    expect(dataPrimary.datasets[0]?.id).toBe('raster')
+
+    await expect(
+      registry.detect({
+        primary: { id: 'orphan', name: 'orphan.hdr', source: new MemorySource(input.header) },
+      }),
+    ).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: expect.stringContaining('binary companion'),
+    })
+
+    await expect(
+      new ScientificReaderRegistry([enviReader, gsfReader]).detect({
+        primary: {
+          id: 'not-envi',
+          name: 'surface.gsf',
+          source: new MemorySource(encodeGsf({ width: 1, height: 1, values: [3] })),
+        },
+        companions: { async resolve() {} },
+      }),
+    ).resolves.toMatchObject({ reader: { id: 'purejsimage/gsf' } })
+  })
+
   it('defaults an omitted header offset to zero for compatible institutional rasters', async () => {
     const input = fixture({
       samples: 3,
@@ -412,6 +496,9 @@ class lookup = { 0, 0, 0, 255, 100, 50 }
       ])
       const opened = await openEnviPath(headerPath)
       expect(await readValues(opened, [1, 0])).toEqual([101, 102, 111, 112, 1, 2, 11, 12])
+      const scientific = createScientificLibrary({ readers: [enviReader] })
+      const document = await scientific.open(await createScientificPathContext(headerPath))
+      expect(document.datasets[0]?.id).toBe('raster')
     } finally {
       await rm(directory, { recursive: true, force: true })
     }

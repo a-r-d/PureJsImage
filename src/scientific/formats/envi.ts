@@ -527,9 +527,15 @@ class EnviRasterDataset implements EnviDataset {
     return this.#sourceBytesRead
   }
 
-  async #read(offset: number, length: number): Promise<Uint8Array> {
+  async #read(
+    offset: number,
+    length: number,
+    signal: AbortSignal | undefined,
+  ): Promise<Uint8Array> {
     this.#sourceBytesRead += length
-    return readExactly(this.#data, offset, length)
+    return readExactly(this.#data, offset, length, {
+      ...(signal === undefined ? {} : { signal }),
+    })
   }
 
   async *readPlane(request: Readonly<RasterPlaneRequest>): AsyncGenerator<RasterBlock> {
@@ -554,7 +560,11 @@ class EnviRasterDataset implements EnviDataset {
         if (this.interleave === 'bip') {
           const inputOffset =
             this.headerOffset + (sourceY * this.sizeX + region.x) * this.sizeC * bytesPerSample
-          const input = await this.#read(inputOffset, region.width * this.sizeC * bytesPerSample)
+          const input = await this.#read(
+            inputOffset,
+            region.width * this.sizeC * bytesPerSample,
+            request.signal,
+          )
           for (let selected = 0; selected < region.channels.length; selected += 1) {
             const channel = region.channels[selected]
             if (channel === undefined) continue
@@ -578,7 +588,11 @@ class EnviRasterDataset implements EnviDataset {
             this.interleave === 'bsq'
               ? (channel * this.sizeY + sourceY) * this.sizeX + region.x
               : (sourceY * this.sizeC + channel) * this.sizeX + region.x
-          const input = await this.#read(this.headerOffset + sampleIndex * bytesPerSample, rowBytes)
+          const input = await this.#read(
+            this.headerOffset + sampleIndex * bytesPerSample,
+            rowBytes,
+            request.signal,
+          )
           const outputRow = selected * planeStride + row * rowBytes
           if (!littleEndian || bytesPerSample === 1) {
             output.set(input, outputRow)

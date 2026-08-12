@@ -2,7 +2,13 @@ import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } fro
 import type { ImageLimitOptions, ImageLimits } from '../../limits.ts'
 import { resolveLimits, validateImageDimensions } from '../../limits.ts'
 import { rasterSampleBytes, type RasterBlock, type RasterSampleType } from '../../raster.ts'
-import { createImageSource, readExactly, type ImageInput, type ImageSource } from '../../source.ts'
+import {
+  createImageSource,
+  readExactly,
+  type ImageInput,
+  type ImageSource,
+  type ImageSourceReadOptions,
+} from '../../source.ts'
 import type {
   MultidimensionalRasterDataset,
   RasterChannelInfo,
@@ -35,6 +41,8 @@ export interface FitsHdu {
   readonly dataByteOffset: number
   readonly dataByteLength: number
   readonly canOpenRaster: boolean
+  /** True when the image can be opened as one or more lazy two-dimensional scientific slices. */
+  readonly canOpenScientificRaster: boolean
   readonly cards: readonly FitsHeaderCard[]
 }
 
@@ -64,6 +72,8 @@ export interface FitsDocument {
   readonly hdus: readonly FitsHdu[]
   readonly sourceBytesRead: number
   openImage(index: number): Promise<FitsDataset>
+  /** Open one XY slice while preserving higher-axis selection in the caller's descriptor. */
+  openImageSlice(index: number, higherAxisIndices: readonly number[]): Promise<FitsDataset>
 }
 
 interface ParsedHdu extends FitsHdu {
@@ -81,8 +91,12 @@ class CountingSource implements ImageSource {
     this.size = source.size
   }
 
-  async read(offset: number, length: number): Promise<Uint8Array> {
-    const data = await this.#source.read(offset, length)
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    const data = await this.#source.read(offset, length, options)
     this.bytesRead += data.byteLength
     return data
   }
@@ -328,6 +342,12 @@ const parseHdu = async (
     dimensions.every((dimension) => dimension > 0) &&
     bitpix !== 64 &&
     (primary || (pcount === 0 && gcount === 1))
+  const canOpenScientificRaster =
+    imageType &&
+    naxis >= 1 &&
+    dimensions.every((dimension) => dimension > 0) &&
+    bitpix !== 64 &&
+    (primary || (pcount === 0 && gcount === 1))
   const hdu = Object.freeze({
     index,
     primary,
@@ -337,6 +357,7 @@ const parseHdu = async (
     dataByteOffset,
     dataByteLength,
     canOpenRaster,
+    canOpenScientificRaster,
     cards: header.cards,
     pcount,
     gcount,
@@ -513,7 +534,9 @@ class FitsRasterDataset implements FitsDataset {
         const sampleIndex =
           request.z * this.sizeX * this.sizeY + (region.y + localY + row) * this.sizeX + region.x
         const inputOffset = this.hdu.dataByteOffset + sampleIndex * inputBytes
-        const input = await readExactly(this.#source, inputOffset, region.width * inputBytes)
+        const input = await readExactly(this.#source, inputOffset, region.width * inputBytes, {
+          ...(request.signal === undefined ? {} : { signal: request.signal }),
+        })
         const targetOffset = row * rowBytes
         if (preserve) {
           output.set(input, targetOffset)
@@ -595,6 +618,55 @@ class ParsedFitsDocument implements FitsDocument {
     const depth = hdu.dimensions[2] ?? 1
     validateImageDimensions(width, height, depth, this.#limits)
     return new FitsRasterDataset(this.#source, hdu, this.#limits, this.#rowsPerBlock)
+  }
+
+  async openImageSlice(index: number, higherAxisIndices: readonly number[]): Promise<FitsDataset> {
+    if (!Number.isSafeInteger(index) || index < 0 || index >= this.hdus.length) {
+      throw invalidInput('FITS HDU index is outside the document')
+    }
+    const hdu = this.hdus[index]
+    if (!hdu) throw invalidInput('FITS HDU index is outside the document')
+    if (!hdu.canOpenScientificRaster) {
+      throw unsupportedOperation('FITS HDU cannot be opened as a scientific raster')
+    }
+    const higherDimensions = hdu.dimensions.slice(2)
+    if (higherAxisIndices.length !== higherDimensions.length) {
+      throw invalidInput('FITS higher-axis selection does not match the image rank')
+    }
+    let plane = 0n
+    let stride = 1n
+    for (let index = 0; index < higherDimensions.length; index += 1) {
+      const length = higherDimensions[index] ?? 0
+      const selected = higherAxisIndices[index]
+      if (
+        !Number.isSafeInteger(selected) ||
+        selected === undefined ||
+        selected < 0 ||
+        selected >= length
+      ) {
+        throw invalidInput(`FITS higher-axis ${index + 3} index is outside the image array`)
+      }
+      plane += BigInt(selected) * stride
+      stride *= BigInt(length)
+    }
+    const width = hdu.dimensions[0] ?? 0
+    const height = hdu.dimensions[1] ?? 1
+    validateImageDimensions(width, height, 1, this.#limits)
+    const inputBytes = BigInt(Math.abs(hdu.bitpix) / 8)
+    const planeBytes = BigInt(width) * BigInt(height) * inputBytes
+    const dataByteOffset = safeNumber(
+      BigInt(hdu.dataByteOffset) + plane * planeBytes,
+      'slice data offset',
+    )
+    const sliceHdu: FitsHdu = Object.freeze({
+      ...hdu,
+      dimensions: Object.freeze([width, height]),
+      dataByteOffset,
+      dataByteLength: safeNumber(planeBytes, 'slice data length'),
+      canOpenRaster: true,
+      canOpenScientificRaster: true,
+    })
+    return new FitsRasterDataset(this.#source, sliceHdu, this.#limits, this.#rowsPerBlock)
   }
 }
 

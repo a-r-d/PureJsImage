@@ -541,6 +541,10 @@ const normalizeMetadata = (value: unknown, mode: ParseMode): ScientificMetadataO
   return normalized
 }
 
+/** Validate and copy a JSON-safe scientific metadata object into immutable plain data. */
+export const normalizeScientificMetadataObject = (value: unknown): ScientificMetadataObject =>
+  normalizeMetadata(value, 'normalize')
+
 const implicitLevelZero = (axes: readonly ScientificAxisDescriptor[]): ScientificResolutionLevel =>
   Object.freeze({
     level: 0,

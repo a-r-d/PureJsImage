@@ -272,7 +272,9 @@ class GsfRasterDataset implements GsfDataset {
       for (let row = 0; row < blockHeight; row += 1) {
         const sourceOffset =
           this.dataOffset + ((region.y + localY + row) * this.sizeX + region.x) * 4
-        const input = await readExactly(this.#source, sourceOffset, rowBytes)
+        const input = await readExactly(this.#source, sourceOffset, rowBytes, {
+          ...(request.signal === undefined ? {} : { signal: request.signal }),
+        })
         const inputView = new DataView(input.buffer, input.byteOffset, input.byteLength)
         for (let column = 0; column < region.width; column += 1) {
           outputView.setFloat32(

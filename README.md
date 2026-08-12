@@ -228,6 +228,24 @@ const energyDisplay = await renderScientificPlane(synthetic, {
 The synthetic reader allocates only the requested region. Real readers should stream smaller blocks
 when needed and propagate each block's optional `release()` callback.
 
+Applications that need format detection can construct an explicit, local scientific library without
+changing the ordinary image codec pipeline:
+
+```ts
+import { FileSource } from 'purejsimage'
+import { createScientificLibrary, fitsReader, gsfReader } from 'purejsimage/scientific'
+
+const science = createScientificLibrary({ readers: [fitsReader, gsfReader] })
+const document = await science.open({
+  primary: { id: 'observation', name: 'observation.fits', source: await FileSource.open(path) },
+})
+const dataset = await document.openDataset(document.datasets[0]!.id)
+```
+
+Registration is caller-owned: no package import installs readers globally. See the
+[scientific reader registry guide](docs/scientific-reader-registry.md) for probe budgets,
+multi-resource resolution, and Node/browser adapters.
+
 MRC and FITS volumes share lazy cross-section and projection operations:
 
 ```ts

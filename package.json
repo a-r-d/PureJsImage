@@ -93,6 +93,11 @@
       "import": "./dist/scientific/node.js",
       "default": "./dist/scientific/node.js"
     },
+    "./scientific/browser": {
+      "types": "./dist/scientific/browser.d.ts",
+      "import": "./dist/scientific/browser.js",
+      "default": "./dist/scientific/browser.js"
+    },
     "./pathology": {
       "types": "./dist/pathology/index.d.ts",
       "import": "./dist/pathology/index.js",

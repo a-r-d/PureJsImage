@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import type { RasterSampleType } from '../src/raster.ts'
 import { openFits } from '../src/scientific/formats/fits.ts'
+import { fitsReader, ScientificReaderRegistry } from '../src/scientific/index.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
-import type { ImageSource } from '../src/source.ts'
+import { MemorySource, type ImageSource } from '../src/source.ts'
 
 type FixtureValue = string | boolean | number
 
@@ -279,6 +280,59 @@ describe('FITS scientific image arrays', () => {
     expect(await readValues(dataset, { z: 2, x: 20, y: 30, width: 5, height: 2 })).toHaveLength(10)
     expect(dataset.sourceBytesRead - before).toBe(20)
     expect(source.reads.every(({ length }) => length < bytes.byteLength)).toBe(true)
+  })
+
+  it('enumerates image HDUs and preserves arbitrary FITS rank in V2', async () => {
+    const values = Array.from({ length: 2 * 2 * 2 * 2 }, (_, index) => index)
+    const bytes = documentBytes({
+      primary: true,
+      bitpix: 16,
+      dimensions: [2, 2, 2, 2],
+      values,
+      extraCards: [
+        card('CTYPE3', 'FREQ'),
+        card('CUNIT3', 'Hz'),
+        card('CRVAL3', 100),
+        card('CRPIX3', 1),
+        card('CDELT3', 5),
+        card('CTYPE4', 'TIME'),
+      ],
+    })
+    const document = await new ScientificReaderRegistry([fitsReader]).open({
+      primary: { id: 'ranked', source: new MemorySource(bytes) },
+    })
+    expect(document.datasets.map(({ id }) => id)).toEqual(['hdu-0'])
+    const dataset = await document.openDataset('hdu-0')
+    expect(dataset.descriptor.axes).toMatchObject([
+      { id: 'x', length: 2 },
+      { id: 'y', length: 2 },
+      {
+        id: 'axis-3',
+        name: 'FREQ',
+        kind: 'spectral',
+        unit: 'Hz',
+        length: 2,
+        coordinates: { type: 'linear', origin: 100, step: 5 },
+      },
+      { id: 'axis-4', name: 'TIME', kind: 'time', length: 2 },
+    ])
+    const blocks = []
+    for await (const block of dataset.readPlane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [
+        { axisId: 'axis-3', index: 1 },
+        { axisId: 'axis-4', index: 1 },
+      ],
+    })) {
+      blocks.push(block)
+    }
+    const block = blocks[0]
+    if (block === undefined) throw new Error('FITS V2 block is missing')
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    expect([0, 2, 4, 6].map((offset) => view.getInt16(offset, false))).toEqual([12, 13, 14, 15])
+
+    const direct = await openFits(bytes)
+    await expect(direct.openImage(0)).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
   })
 
   it('rejects malformed headers, unsafe arrays, unsupported HDUs, and truncated data', async () => {

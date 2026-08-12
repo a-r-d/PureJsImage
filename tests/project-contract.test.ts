@@ -353,6 +353,9 @@ describe('package contract', () => {
     expect(scientificApi).toHaveProperty('encodeGsf')
     expect(scientificApi).toHaveProperty('openEnvi')
     expect(scientificApi).toHaveProperty('openFits')
+    expect(scientificApi).toHaveProperty('createScientificLibrary')
+    expect(scientificApi).toHaveProperty('fitsReader')
+    expect(scientificApi).toHaveProperty('enviReader')
     expect(scientificApi).toHaveProperty('measureScientificPlane')
     expect(scientificApi).toHaveProperty('renderScientificPlane')
     expect(scientificApi).toHaveProperty('renderSpectralComposite')
@@ -433,6 +436,7 @@ describe('package contract', () => {
     expect(runtimeModules.some((path) => path.startsWith(`codec-entries/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`accelerators/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`accelerator-entries/`))).toBe(false)
+    expect(runtimeModules.some((path) => path.startsWith(`scientific/`))).toBe(false)
   })
 
   it('publishes browser and codec capabilities through explicit package subpaths', () => {
@@ -442,6 +446,7 @@ describe('package contract', () => {
       './tiff',
       './scientific',
       './scientific/node',
+      './scientific/browser',
       './pathology',
       './sources/http-range',
       './compression/zstd',

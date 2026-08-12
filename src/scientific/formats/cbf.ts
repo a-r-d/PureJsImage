@@ -2,7 +2,13 @@ import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } fro
 import type { ImageLimitOptions, ImageLimits } from '../../limits.ts'
 import { resolveLimits, validateImageDimensions } from '../../limits.ts'
 import { rasterSampleBytes, type RasterBlock, type RasterSampleType } from '../../raster.ts'
-import { createImageSource, readExactly, type ImageInput, type ImageSource } from '../../source.ts'
+import {
+  createImageSource,
+  readExactly,
+  type ImageInput,
+  type ImageSource,
+  type ImageSourceReadOptions,
+} from '../../source.ts'
 import type {
   MultidimensionalRasterDataset,
   RasterChannelInfo,
@@ -70,8 +76,12 @@ class CountingSource implements ImageSource {
     this.size = source.size
   }
 
-  async read(offset: number, length: number): Promise<Uint8Array> {
-    const data = await this.#source.read(offset, length)
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    const data = await this.#source.read(offset, length, options)
     this.bytesRead += data.byteLength
     return data
   }
@@ -80,14 +90,16 @@ class CountingSource implements ImageSource {
 class BoundedByteReader {
   readonly #source: ImageSource
   readonly #end: number
+  readonly #signal: AbortSignal | undefined
   #buffer: Uint8Array<ArrayBufferLike> = new Uint8Array()
   #bufferStart = 0
   position: number
 
-  constructor(source: ImageSource, start: number, end: number) {
+  constructor(source: ImageSource, start: number, end: number, signal: AbortSignal | undefined) {
     this.#source = source
     this.position = start
     this.#end = end
+    this.#signal = signal
   }
 
   async read(length: number): Promise<Uint8Array> {
@@ -105,7 +117,9 @@ class BoundedByteReader {
     }
     const amount = Math.min(this.#end - this.position, Math.max(length, 65_536))
     this.#bufferStart = this.position
-    this.#buffer = await readExactly(this.#source, this.position, amount)
+    this.#buffer = await readExactly(this.#source, this.position, amount, {
+      ...(this.#signal === undefined ? {} : { signal: this.#signal }),
+    })
     const result = this.#buffer.subarray(0, length)
     this.position += length
     return result
@@ -494,6 +508,7 @@ class CbfRasterDataset implements CbfDataset {
       this.#source,
       this.binarySectionOffset,
       this.#binarySectionEnd,
+      request.signal,
     )
     const [minimum, maximum] = sampleRange(this.sampleType)
     let base = 0n

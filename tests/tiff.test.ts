@@ -16,6 +16,8 @@ import {
 } from '../src/codecs/tiff.ts'
 import { isAperioSvs, openAperioSvs } from '../src/pathology/aperio-svs.ts'
 import { isOmeTiff, omeTiffProfile, openOmeTiff } from '../src/scientific/ome-tiff.ts'
+import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
+import { ScientificReaderRegistry } from '../src/scientific/reader.ts'
 import { renderScientificPlane } from '../src/scientific/render.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import { defaultImageLimits } from '../src/limits.ts'
@@ -3832,6 +3834,46 @@ describe('OME-TIFF scientific semantics', () => {
     expect(display).toEqual([128, 128, 128, 255, 255, 255])
   })
 
+  it('enumerates multiple OME Image elements with stable lazy dataset ids', async () => {
+    const image = (index: number, name: string) => `<Image ID="Image:${index}" Name="${name}">
+      <Pixels ID="Pixels:${index}" DimensionOrder="XYCZT" Type="uint8"
+        SizeX="2" SizeY="1" SizeZ="1" SizeC="3" SizeT="1">
+        <Channel ID="Channel:${index}" SamplesPerPixel="3"/>
+        <TiffData IFD="0" PlaneCount="1"/>
+      </Pixels>
+    </Image>`
+    const input = omeFixture(`<OME>${image(0, 'First')}${image(1, 'Second')}</OME>`)
+    const registry = new ScientificReaderRegistry([omeTiffReader])
+    const first = await registry.open({
+      primary: { id: 'ome', source: new MemorySource(input) },
+    })
+    const second = await registry.open({
+      primary: { id: 'ome', source: new MemorySource(input) },
+    })
+    expect(first.datasets.map(({ id }) => id)).toEqual(['image-0', 'image-1'])
+    expect(second.datasets.map(({ id }) => id)).toEqual(['image-0', 'image-1'])
+    expect(first.datasets[0]?.descriptor.axes.map(({ id }) => id)).toEqual([
+      'x',
+      'y',
+      'z',
+      'channel',
+      'time',
+    ])
+    const dataset = await first.openDataset('image-1')
+    const blocks: RasterBlock[] = []
+    for await (const block of dataset.readPlane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [
+        { axisId: 'z', index: 0 },
+        { axisId: 'channel', index: 0 },
+        { axisId: 'time', index: 0 },
+      ],
+    })) {
+      blocks.push(block)
+    }
+    expect(Array.from(blocks[0]?.data ?? [])).toEqual([10, 20, 30, 40, 50, 60])
+  })
+
   it('maps multidimensional TiffData planes and reduced-resolution SubIFDs', async () => {
     const xml = `<OME><Image><Pixels DimensionOrder="XYZCT" Type="uint8"
       SizeX="1" SizeY="1" SizeZ="2" SizeC="2" SizeT="1">
@@ -3873,6 +3915,12 @@ describe('OME-TIFF scientific semantics', () => {
       reduced.push(block)
     }
     expect(Array.from(reduced[0]?.data ?? [])).toEqual([99])
+
+    const scientificDocument = await new ScientificReaderRegistry([omeTiffReader]).open({
+      primary: { id: 'pyramid', source: new MemorySource(input) },
+    })
+    const scientific = await scientificDocument.openDataset('image-0')
+    expect(scientific.descriptor.levels.map(({ level }) => level)).toEqual([0])
   })
   it('rejects unsafe XML and incomplete OME plane mappings', async () => {
     const unsafe = omeFixture(

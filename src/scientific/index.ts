@@ -24,8 +24,33 @@ export type {
   ScientificResolutionLevel,
 } from './dataset-v2.ts'
 export type { MultidimensionalRasterAdapterOptions } from './dataset-adapters.ts'
+export type {
+  ScientificLibrary,
+  ScientificLibraryCapabilities,
+  ScientificLibraryOptions,
+  ScientificResourcePattern,
+} from './library.ts'
+export type {
+  ScientificCompanionRequest,
+  ScientificCompanionResolver,
+  ScientificDatasetSummary,
+  ScientificDocument,
+  ScientificDocumentReaderInfo,
+  ScientificOpenContext,
+  ScientificProbeLimitOptions,
+  ScientificProbeLimits,
+  ScientificProbeResult,
+  ScientificProbeStats,
+  ScientificReader,
+  ScientificReaderDescriptor,
+  ScientificReaderDetection,
+  ScientificResource,
+  ScientificSourceIdentityHint,
+  ScientificSourceIdentityStrength,
+} from './reader.ts'
 export {
   normalizeScientificDatasetDescriptor,
+  normalizeScientificMetadataObject,
   normalizeScientificPlaneReadRequest,
   validateScientificDatasetDescriptor,
 } from './dataset-v2.ts'
@@ -33,6 +58,14 @@ export {
   toMultidimensionalRasterDataset,
   toScientificDataset,
 } from './dataset-adapters.ts'
+export {
+  defaultScientificProbeLimits,
+  normalizeScientificCompanionRequest,
+  normalizeScientificRelativeName,
+  resolveScientificProbeLimits,
+  ScientificReaderRegistry,
+} from './reader.ts'
+export { createScientificLibrary } from './library.ts'
 export type { GsfDataset, GsfOpenOptions, GsfWriteOptions } from './formats/gsf.ts'
 export type {
   FitsDataset,
@@ -106,6 +139,7 @@ export type {
   ScientificVolumeProjectionOptions,
   ScientificVolumeSliceOptions,
 } from './volume.ts'
+export type { OmeTiffDataset, OmeTiffResolutionLevel } from './ome-tiff.ts'
 export type {
   RasterBlock,
   RasterDecoder,
@@ -122,7 +156,13 @@ export { renderEnviClassification } from './classification.ts'
 export { openFits } from './formats/fits.ts'
 export { openMrc } from './formats/mrc.ts'
 export { encodeGsf, openGsf } from './formats/gsf.ts'
-export { isOmeTiff, omeTiffProfile, openOmeTiff } from './ome-tiff.ts'
+export { gsfReader, gsfReaderDescriptor } from './readers/gsf.ts'
+export { mrcReader, mrcReaderDescriptor } from './readers/mrc.ts'
+export { cbfReader, cbfReaderDescriptor } from './readers/cbf.ts'
+export { isOmeTiff, omeTiffImageCount, omeTiffProfile, openOmeTiff } from './ome-tiff.ts'
+export { fitsReader, fitsReaderDescriptor } from './readers/fits.ts'
+export { omeTiffReader, omeTiffReaderDescriptor } from './readers/ome-tiff.ts'
+export { enviReader, enviReaderDescriptor } from './readers/envi.ts'
 export { scientificPaletteColor } from './palettes.ts'
 export { measureScientificPlane, renderScientificPlane } from './render.ts'
 export { projectScientificVolume, sliceScientificVolume } from './volume.ts'
