@@ -23,21 +23,24 @@ checksum-pinned dav1d, libaom, FFmpeg, Sharp, and Chromium fixtures in the AVIF 
 
 | Source | Files | Completed decode | Explicit error |
 |---|---:|---:|---:|
-| Imazen AVIF Conformance | 137 | 75 | 62 |
+| Imazen AVIF Conformance | 137 | 103 | 34 |
 | GB82 common-photo matrix | 100 | 100 | 0 |
-| **Total** | **237** | **175 (73.8%)** | **62** |
+| **Total** | **237** | **203 (85.7%)** | **34** |
 
 Conformance categories:
 
 | Declared category | Files | Completed decode | Explicit error |
 |---|---:|---:|---:|
-| Valid | 106 | 62 | 44 |
-| Invalid | 12 | 1 | 11 |
-| Edge cases | 19 | 12 | 7 |
+| Valid | 106 | 87 | 19 |
+| Invalid | 12 | 3 | 9 |
+| Edge cases | 19 | 13 | 6 |
 
-The one decoded file in the corpus's `invalid` directory is `wrong_brand.avif`; the byte stream
-contains a decodable AVIF item despite its intentionally wrong file brand. The decoder does not use
-that result as evidence that the declared invalid container is a conforming AVIF file.
+The three completed files in the corpus's `invalid` directory are
+`apple_truncated_elementary_stream.avif`,
+`libavif_unsupported_gainmap_writer_version_with_extra_bytes.avif`, and `wrong_brand.avif`.
+Each contains a selected primary image payload that the pixel decoder can reconstruct. That result
+is recorded for compatibility visibility; it is not evidence that the suite-level container or its
+unselected animation, gain-map, or brand semantics are conforming.
 
 Common-photo encoders:
 
@@ -50,14 +53,11 @@ Common-photo encoders:
 
 | Boundary | Conformance | Common photo | Total |
 |---|---:|---:|---:|
-| Unsupported AV1 or container feature | 35 | 0 | 35 |
+| Unsupported AV1 or container feature | 13 | 0 | 13 |
 | Malformed or unsupported container | 11 | 0 | 11 |
-| Animation | 8 | 0 | 8 |
-| 64 MiB working-set limit | 2 | 0 | 2 |
-| Film grain | 2 | 0 | 2 |
-| Alpha auxiliary subset | 2 | 0 | 2 |
+| Animation requiring default or dependent-frame behavior | 8 | 0 | 8 |
+| Alpha auxiliary subset | 1 | 0 | 1 |
 | Entropy or reconstruction syntax | 1 | 0 | 1 |
-| Presentation transform | 1 | 0 | 1 |
 
 The sole remaining entropy/reconstruction error is the conformance corpus's intentionally invalid
 `corrupted_mdat.avif`. No common-photo input terminates in an arithmetic-symbol or tile-padding
@@ -76,10 +76,11 @@ YUV 4:2:0 and 4:4:4, and Kids files plus Apple single-layer/unknown-property cas
 `da3ba1342d9d5c317b6f1878af2260e74c191f5aee245b988170f7ce59c132a4`; PureJsImage, dav1d,
 and libaom agree byte for byte over all 3,110,400 visible native-YUV bytes.
 
-The `avis` sequence brand is rejected for pixel decode with `UNSUPPORTED_OPERATION`. This prevents
-the new sequence-header support from silently presenting a primary item as if animated AVIF were a
-supported one-frame format. Metadata inspection still detects the sequence brand without claiming a
-false frame count.
+The `avis` sequence brand now drives bounded track and sample-table parsing. Callers must select a
+frame explicitly; independently decodable sync key samples, including synchronized color and alpha
+tracks, enter the existing restricted AV1 reconstruction path. Default animation decode and
+dependent, inter, show-existing, and out-of-range selections remain explicit errors rather than
+silently presenting the primary item or poster frame.
 
 ## Implemented blockers: coefficient-skip and palette contexts
 
@@ -107,19 +108,31 @@ The pinned 1280x720 reduced-header, 1280x720 full-header, and 3840x2160 full-hea
 agreeing dav1d and libaom visible native YUV byte for byte. The decoder still rejects invalid trailing
 bits; it does not relax arithmetic-symbol or tile-padding validation.
 
-## Implemented blockers: SDR color management and HDR gain maps
+## Implemented blockers: SDR color management and HDR-to-SDR conversion
 
-The decoder now converts the independently verifiable color subset to its public sRGB output:
-linear and extended-sRGB NCLX transfer functions, linear BT.2020 NCLX primaries, and compatible
-RGB matrix/TRC ICC profiles. PQ and HLG still fail before SDR pixel conversion when no compatible
-gain-map alternate is selected.
+The decoder converts the independently verifiable color subset to its public sRGB output: linear
+and extended-sRGB NCLX transfer functions, compatible RGB matrix/TRC ICC profiles, and
+standards-defined PQ and HLG transfer functions. Compatible PQ/HLG inputs are converted through
+their signaled primaries and matrix to linear RGB, tone-mapped at a 203-nit SDR reference white, and
+encoded as sRGB. Three YUV 4:4:4 Display-P3 or Rec.2020 PQ fixtures hold maximum channel error to 2
+and PSNR above 50 dB against checksum-pinned FFmpeg/zimg Reinhard evidence. HLG's shared-luminance
+BT.2100 OOTF is checked against independently calculated neutral and saturated vectors, while its
+end-to-end AVIF RGBA output is pinned in Node.js, Chromium, and Firefox. NCLX matrix 10
+constant-luminance reconstruction remains unsupported.
 
-ISO 21496-1 gain-map metadata and `altr` entity groups are parsed from the AVIF container. Compatible
-single-channel, same-size, 8-bit coded gain maps are decoded in bounded rows and composed in linear
-light. The pinned HDR-base/SDR-alternate fixture agrees with libavif 1.3.0 within maximum channel
-error 4 and mean channel error 1. The swapped-order `altr` edge case is rejected instead of applying
-an inactive `tmap`. Gain-map grids, resampling, alpha, and color conversion outside the supported
-NCLX subset remain explicit errors.
+ISO 21496-1 gain-map metadata and `altr` entity groups are parsed from the AVIF container.
+Compatible single-channel, same-size, 8-bit coded gain maps are decoded in bounded rows and composed
+in linear light. The pinned HDR-base/SDR-alternate fixture agrees with libavif 1.3.0 within maximum
+channel error 4 and mean channel error 1. The swapped-order `altr` edge case is rejected instead of
+applying an inactive `tmap`. Compatible gain-map grids and resampling are supported; gain maps with
+alpha and color conversion outside the documented NCLX subset remain explicit errors.
+
+## Implemented blocker: half-integer clean-aperture coordinates
+
+Clean-aperture conversion preserves the ISO sample lattice exactly for integer dimensions with
+integer or half-integer origins. The pinned 722x1024 kimono fixture resolves to a 385x330 crop at
+sample coordinate (272, 39) and remains below 0.01 normalized RGBA RMSE against Sharp/libvips.
+Other origin fractions and fractional aperture dimensions remain explicit unsupported boundaries.
 
 ## Implemented blocker: bounded filtered multi-tile state
 
@@ -161,6 +174,7 @@ npm run bench:avif:memory -- \
   --output benchmark/results/avif-memory-bounded-filtered-2026-08-10.json
 ```
 
-The survey is intentionally broader than the published decoder claim. PQ/HLG without a compatible
-gain-map alternate, broader wide-gamut and ICC color management, animation, encoding, general inter
-frames, and the unsupported syntax classes above remain outside the public capability boundary.
+The survey is intentionally broader than the published decoder claim. Dependent animation frames,
+general video/inter-frame reconstruction, NCLX matrix 10 constant-luminance conversion, HDR pixel
+output, broader ICC conversion, encoding beyond the constrained subset, and the unsupported syntax
+classes above remain outside the public capability boundary.

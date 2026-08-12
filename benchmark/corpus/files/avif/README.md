@@ -55,14 +55,25 @@ regression coverage; its SHA-256 checksum is pinned in
 `benchmark/avif/corpus.ts`.
 
 `colors-animated-8bpc-alpha-exif-xmp.avif` is the byte-identical libavif
-animation case from that revision. It is committed to pin the structured
-unsupported boundary for animated pixel decode; its SHA-256 checksum is pinned
-in `benchmark/avif/corpus.ts`.
+animation case from that revision. `colors-animated-12bpc-keyframes-0-2-3.avif`
+is the byte-identical valid fixture from the pinned Imazen AVIF Conformance
+corpus revision. The files cover explicit selection of independently decodable
+color/alpha sync samples while dependent AV1 frames remain unsupported. The
+`colors-animated-*-frame*-dav1d.png` oracles were decoded with FFmpeg 7.1.1 and
+dav1d 1.5.1; encoded and decoded checksums are pinned in
+`benchmark/avif/animation-fixture.ts`.
 
 `blue-and-magenta-crop.avif` also comes from that pinned revision. Its color
 item exercises skipped intra-block copy with adaptive motion-vector coding,
 and its `clap` property crops the 320x280 coded image to a 180x100 display image.
 Its checksum and coded dimensions are pinned in `benchmark/avif/corpus.ts`.
+
+`linku-kimono-crop.avif` is the byte-identical `valid/linku_kimono_crop.avif`
+fixture from the pinned Imazen AVIF Conformance corpus revision, sourced from
+link-u's CC-BY-SA-4.0 sample set. Its clean aperture has half-integer sample
+coordinates and resolves to a 385x330 display region at source sample
+coordinate (272, 39). Encoded, PureJsImage, and Sharp/libvips checksums are
+pinned in `benchmark/avif/clean-aperture-fixture.ts`.
 
 `ms-monochrome-residual-intrabc.avif` is the byte-identical `valid/ms_Monochrome.avif`
 fixture from the same pinned Imazen AVIF Conformance corpus revision and Microsoft
@@ -99,6 +110,22 @@ signals quantization matrices and block delta-Q. Run
 compare PureJsImage's visible YUV planes with a maximum sample error of 3 and
 PSNR of at least 55 dB. `npm run fixtures:avif:qmatrix:prepare` regenerates the
 encoded fixtures and rejects byte-level drift from the pinned checksums.
+
+`rav1e-segmentation-q60-512x512.avif` is the 512x512 normalized synthetic-product
+source `9701` from the Imazen `imazen-26` K300 subset, encoded by libavif 1.3.0
+with rav1e 0.7.1 at q60, speed 6, one worker, 8-bit YUV 4:2:0. It exercises four
+spatial segment IDs carrying alternate-quantizer deltas and the reduced
+transform set. The source URL plus raw, normalized, encoded, native-YUV, and
+RGBA checksums are pinned in `benchmark/avif/segmentation-fixture.ts`. Run
+`npm run fixtures:avif:segmentation` to require byte-identical visible YUV from
+PureJsImage, dav1d, and libaom.
+
+`svt-skipped-intra-tx-size-512x512.avif` uses the same normalized Imazen source
+`9701`, encoded by libavif 1.3.0 with SVT-AV1 2.3.0 at q60, speed 8, one worker,
+and 8-bit YUV 4:2:0. Its first skipped 64x64 intra block exercises the required
+transform-depth symbol when transform-size selection is enabled. It is included
+in `npm run fixtures:avif:still-picture-entropy`, which requires byte-identical visible
+YUV from PureJsImage, dav1d, and libaom.
 
 The `alpha-*.avif` files are deterministic 64x48 YUV 4:4:4 color plus
 full-range monochrome alpha fixtures encoded with libavif 1.3.0 and libaom
@@ -146,10 +173,17 @@ lossy 10-bit YUV 4:2:0 and 4:2:2 with deblocking, CDEF, and Wiener restoration;
 limited-range lossy 10-bit YUV 4:2:0 with self-guided restoration; lossy 10-bit
 YUV 4:4:4 with deblocking, CDEF, and Wiener restoration; lossy 10-bit YUV 4:4:4
 with deblocking and self-guided restoration; lossy 12-bit YUV 4:2:0 with
-deblocking, CDEF, and Wiener or self-guided restoration; and lossy 12-bit YUV
-4:2:0, 4:2:2, and 4:4:4 with deblocking and CDEF. These fixtures exercise
-normative depth-specific dequantization and post-filter arithmetic while
-retaining native high-depth samples through reconstruction and filtering.
+deblocking, CDEF, and Wiener or self-guided restoration; lossy 12-bit YUV
+4:2:2 with deblocking plus mixed self-guided luma and Wiener chroma restoration;
+lossy 12-bit YUV 4:4:4 with deblocking and self-guided luma restoration; lossy
+12-bit YUV 4:2:0, 4:2:2, and 4:4:4 with deblocking and CDEF; and three 642x386
+restoration-matrix fixtures. The matrix fixtures combine deblocking and CDEF
+with all-plane Wiener or self-guided YUV 4:2:2 restoration and mixed
+self-guided, Wiener, and switchable YUV 4:4:4 restoration. Their 256-sample
+restoration units span multiple columns and rows with partial right and bottom
+frame-edge units. These fixtures exercise normative depth-specific
+dequantization and post-filter arithmetic while retaining native high-depth
+samples through reconstruction and filtering.
 `npm run fixtures:avif:high-bit:prepare` regenerates them with libavif 1.3.0,
 libaom 3.12.1, and FFmpeg 7.1.1 from checksum-pinned Y4M sources.
 `npm run fixtures:avif:high-bit` requires PureJsImage, dav1d, and libaom to
@@ -160,13 +194,45 @@ results are recorded in
 `benchmark/results/avif-high-bit-post-filters-2026-08-09.md`.
 
 `unsupported-hdr-pq-10bpc-yuv420-32x24.avif` and
-`unsupported-hdr-hlg-10bpc-yuv420-32x24.avif` use the same checksum-pinned
-10-bit YUV 4:2:0 source with BT.2020 primaries and matrix coefficients, plus
-SMPTE ST 2084 or HLG transfer signaling. They verify that metadata inspection
-remains available while SDR pixel decode rejects unsupported HDR interpretation.
-Their file SHA-256 checksums are
-`8d6eff82bf015ef2fea2cf18db5acb1717404a8669e9bdfdb7f858ba5182c824` and
-`339d0d3b28c7c8bc4a6bcb3f88a718faaffb42bd6f04ba34faf6405a6fe60f69`.
+`unsupported-hdr-hlg-10bpc-yuv420-32x24.avif` retain their historical fixture
+names. They use the same checksum-pinned 10-bit YUV 4:2:0 source with BT.2020
+primaries and matrix coefficients plus SMPTE ST 2084 or HLG transfer signaling.
+They now exercise direct HDR-to-SDR decode, but are not numeric tone-map
+oracles because decoder and zimg chroma reconstruction differ at their
+artificial saturated boundaries.
+
+`libavif-colors-hdr-p3.avif` and
+`libavif-cosmos1650-yuv444-10bpc-p3pq.avif` are byte-identical valid files from
+the pinned Imazen AVIF Conformance corpus revision. They cover Display-P3 PQ
+with conventional and chroma-derived non-constant-luminance matrices.
+`identity-pq-10bpc-yuv444-16x12.avif` is a deterministic full-range 10-bit YUV
+4:4:4 fixture encoded with libavif 1.3.0 for Rec.2020 PQ identity color. Its
+input is first converted losslessly with libavif; the three
+`oracle-*-ffmpeg-reinhard.png` PQ oracles use FFmpeg 7.1.1/zimg conversion to
+linear RGB at 203-nit reference white, Reinhard tone mapping with desaturation
+disabled, and full-range sRGB output.
+
+`ms-chimera-hdr-matrix10-1920x1008.avif` is the byte-identical
+`ms_Chimera_10bit_cropped_to_1920x1008_with_HDR_metadata.avif` file from the
+pinned Imazen AVIF Conformance corpus revision (SHA-256
+`b52996d7dc8bde2145770fc1977ccd45e7faf78c561599f325b48669d5ff6aee`).
+It covers full-range 10-bit YUV 4:2:0 with Rec.2020 primaries, PQ transfer,
+constant-luminance matrix coefficients 10, and a clean-aperture crop from
+1920x1080 to 1920x1008. The color verifier extracts native YUV with
+libavif 1.3.0/dav1d 1.5.1 and independently applies the Rec.2020
+constant-luminance equations documented by Colour's `YcCbcCrc_to_RGB`
+implementation. Twelve spatially distributed RGB samples agree within one
+8-bit code value, and the full displayed RGBA output is checksum-pinned.
+
+
+`hdr-hlg-10bpc-yuv444-32x24.avif` is a deterministic full-range 10-bit YUV
+4:4:4 Rec.2020 HLG fixture encoded with libavif 1.3.0. FFmpeg/zimg's HLG
+transfer path applies a componentwise display exponent rather than BT.2100's
+shared scene-luminance OOTF, so it is not used as a numeric oracle. The test
+suite checks independent analytic neutral and saturated BT.2100 vectors and
+pins the fixture's end-to-end RGBA hash in Node.js, Chromium, and Firefox.
+Checksums and the exact evidence boundaries are recorded in
+`benchmark/avif/color-fixtures.ts` and `tests/avif.test.ts`.
 
 `xiph-tiger-3layer-lsel0-1216x832.avif` is a restricted-layer derivative of
 Xiph's `tiger_3layer_1res.avif` from the AOMedia AVIF conformance suite

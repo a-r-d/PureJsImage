@@ -10,6 +10,15 @@ import {
   avifStagedAlphaFixtures,
 } from '../benchmark/avif/alpha-fixtures.ts'
 import {
+  avifAnimationFixture,
+  avifAnimationAlphaFixture,
+  avifAnimationAlphaFixturePath,
+  avifAnimationAlphaOraclePath,
+  avifAnimationFixturePath,
+  avifAnimationKeyFrames,
+  avifAnimationOraclePath,
+} from '../benchmark/avif/animation-fixture.ts'
+import {
   avifAlphaGridFixture,
   avifAlphaTransformDecodedRgbaSha256,
   avifAlphaTransformFixtures,
@@ -19,6 +28,7 @@ import {
 } from '../benchmark/avif/auxiliary-fixtures.ts'
 import {
   avifCleanApertureFixture,
+  avifFractionalCleanApertureFixture,
   avifCleanApertureFixtureDirectory,
 } from '../benchmark/avif/clean-aperture-fixture.ts'
 import {
@@ -31,6 +41,10 @@ import {
 } from '../benchmark/avif/common-photo-syntax-fixtures.ts'
 import {
   avifColorFixturePath,
+  avifHdrChromaDerivedFixture,
+  avifHdrConstantLuminanceFixture,
+  avifHdrToneMapFixtures,
+  avifHdrToneMapOracle,
   avifHdrGainMapFixture,
   avifIccFixtures,
   avifRec2020Fixture,
@@ -65,6 +79,10 @@ import {
   avifNonstillSequenceFixture,
   avifNonstillSequenceFixturePath,
 } from '../benchmark/avif/nonstill-sequence-fixture.ts'
+import {
+  avifSegmentationFixture,
+  avifSegmentationFixturePath,
+} from '../benchmark/avif/segmentation-fixture.ts'
 import {
   avifQ0FixtureDirectory,
   avifQ0LosslessFixture,
@@ -107,6 +125,7 @@ import {
   validateAvifFrameDimensions,
   validateAvifWorkingBytes,
 } from '../src/codecs/avif.ts'
+import { createNclxHdrToneMap, writeNclxHdrToneMappedRgba } from '../src/codecs/icc.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
@@ -151,6 +170,218 @@ const fullBox = (
   flags = 0,
 ): readonly number[] =>
   box(type, [version, (flags >>> 16) & 0xff, (flags >>> 8) & 0xff, flags & 0xff, ...payload])
+
+interface AnimationTrackBoxPath {
+  readonly edtsStart: number
+  readonly elstStart: number
+  readonly mdhdStart: number
+  readonly moovStart: number
+  readonly sampleEntryStart: number
+  readonly stblStart: number
+  readonly stsdStart: number
+  readonly sttsStart: number
+  readonly mdiaStart: number
+  readonly minfStart: number
+  readonly trackStart: number
+}
+
+const boxTypeEquals = (input: Uint8Array, offset: number, type: string): boolean => {
+  if (offset < 0 || offset + 4 > input.byteLength || type.length !== 4) return false
+  for (let index = 0; index < 4; index += 1) {
+    if (input[offset + index] !== type.charCodeAt(index)) return false
+  }
+  return true
+}
+
+const fixtureBoxSize = (input: Uint8Array, start: number): number => {
+  if (start < 0 || start + 8 > input.byteLength) throw new Error('Fixture box is truncated')
+  const size = new DataView(input.buffer, input.byteOffset, input.byteLength).getUint32(start)
+  if (size < 8 || size > input.byteLength - start) {
+    throw new Error('Fixture box has an invalid size')
+  }
+  return size
+}
+
+const findFixtureChildBox = (
+  input: Uint8Array,
+  start: number,
+  end: number,
+  type: string,
+  occurrence = 0,
+): number => {
+  if (
+    start < 0 ||
+    end < start ||
+    end > input.byteLength ||
+    !Number.isSafeInteger(occurrence) ||
+    occurrence < 0
+  ) {
+    throw new Error('Fixture child-box bounds are invalid')
+  }
+  let offset = start
+  let matches = 0
+  while (offset < end) {
+    const size = fixtureBoxSize(input, offset)
+    if (size > end - offset) throw new Error('Fixture child box exceeds its parent')
+    if (boxTypeEquals(input, offset + 4, type)) {
+      if (matches === occurrence) return offset
+      matches += 1
+    }
+    offset += size
+  }
+  throw new Error(`Fixture has no ${type} child box ${occurrence}`)
+}
+
+const animationTrackBoxPath = (input: Uint8Array, trackIndex: number): AnimationTrackBoxPath => {
+  const moovStart = findFixtureChildBox(input, 0, input.byteLength, 'moov')
+  const moovEnd = moovStart + fixtureBoxSize(input, moovStart)
+  const trackStart = findFixtureChildBox(input, moovStart + 8, moovEnd, 'trak', trackIndex)
+  const trackEnd = trackStart + fixtureBoxSize(input, trackStart)
+  const edtsStart = findFixtureChildBox(input, trackStart + 8, trackEnd, 'edts')
+  const edtsEnd = edtsStart + fixtureBoxSize(input, edtsStart)
+  const elstStart = findFixtureChildBox(input, edtsStart + 8, edtsEnd, 'elst')
+  const mdiaStart = findFixtureChildBox(input, trackStart + 8, trackEnd, 'mdia')
+  const mdiaEnd = mdiaStart + fixtureBoxSize(input, mdiaStart)
+  const mdhdStart = findFixtureChildBox(input, mdiaStart + 8, mdiaEnd, 'mdhd')
+  const minfStart = findFixtureChildBox(input, mdiaStart + 8, mdiaEnd, 'minf')
+  const minfEnd = minfStart + fixtureBoxSize(input, minfStart)
+  const stblStart = findFixtureChildBox(input, minfStart + 8, minfEnd, 'stbl')
+  const stblEnd = stblStart + fixtureBoxSize(input, stblStart)
+  const stsdStart = findFixtureChildBox(input, stblStart + 8, stblEnd, 'stsd')
+  const sttsStart = findFixtureChildBox(input, stblStart + 8, stblEnd, 'stts')
+  const sampleEntryStart = stsdStart + 16
+  const stsdEnd = stsdStart + fixtureBoxSize(input, stsdStart)
+  if (
+    sampleEntryStart + 8 > stsdEnd ||
+    !boxTypeEquals(input, sampleEntryStart + 4, 'av01') ||
+    sampleEntryStart + fixtureBoxSize(input, sampleEntryStart) !== stsdEnd
+  ) {
+    throw new Error('Fixture AV1 sample entry is not singular or is malformed')
+  }
+  return {
+    edtsStart,
+    elstStart,
+    mdhdStart,
+    moovStart,
+    sampleEntryStart,
+    stblStart,
+    stsdStart,
+    sttsStart,
+    mdiaStart,
+    minfStart,
+    trackStart,
+  }
+}
+
+const scaledUint32 = (value: number, multiplier: number): number => {
+  const scaled = value * multiplier
+  if (!Number.isSafeInteger(scaled) || scaled < 0 || scaled > 0xffff_ffff) {
+    throw new Error('Fixture timing scale exceeds uint32')
+  }
+  return scaled
+}
+
+const addedUint32 = (left: number, right: number): number => {
+  const sum = left + right
+  if (!Number.isSafeInteger(sum) || sum < 0 || sum > 0xffff_ffff) {
+    throw new Error('Fixture box size exceeds uint32')
+  }
+  return sum
+}
+
+const scaleAnimationTrackTiming = (
+  source: Uint8Array,
+  trackIndex: number,
+  timescaleMultiplier: number,
+  tickMultiplier: number,
+): Uint8Array => {
+  const input = Uint8Array.from(source)
+  const path = animationTrackBoxPath(input, trackIndex)
+  const view = new DataView(input.buffer, input.byteOffset, input.byteLength)
+  const mdhdVersion = input[path.mdhdStart + 8]
+  let timescaleOffset: number
+  let durationOffset: number
+  if (mdhdVersion === 0) {
+    timescaleOffset = path.mdhdStart + 20
+    durationOffset = path.mdhdStart + 24
+  } else if (mdhdVersion === 1) {
+    timescaleOffset = path.mdhdStart + 28
+    if (view.getUint32(path.mdhdStart + 32) !== 0) {
+      throw new Error('Fixture mdhd duration exceeds uint32')
+    }
+    durationOffset = path.mdhdStart + 36
+  } else {
+    throw new Error('Fixture mdhd version is unsupported')
+  }
+  view.setUint32(
+    timescaleOffset,
+    scaledUint32(view.getUint32(timescaleOffset), timescaleMultiplier),
+  )
+  view.setUint32(durationOffset, scaledUint32(view.getUint32(durationOffset), tickMultiplier))
+  const entryCount = view.getUint32(path.sttsStart + 12)
+  const sttsSize = fixtureBoxSize(input, path.sttsStart)
+  if (entryCount > (sttsSize - 16) / 8 || sttsSize !== 16 + entryCount * 8) {
+    throw new Error('Fixture stts entries are malformed')
+  }
+  for (let entry = 0; entry < entryCount; entry += 1) {
+    const deltaOffset = path.sttsStart + 20 + entry * 8
+    view.setUint32(deltaOffset, scaledUint32(view.getUint32(deltaOffset), tickMultiplier))
+  }
+  return input
+}
+
+const disableAnimationTrackEdit = (source: Uint8Array, trackIndex: number): Uint8Array => {
+  const input = Uint8Array.from(source)
+  const path = animationTrackBoxPath(input, trackIndex)
+  input.set(ascii('free'), path.edtsStart + 4)
+  return input
+}
+
+const appendAnimationTrackSampleEntryBox = (
+  source: Uint8Array,
+  trackIndex: number,
+  child: readonly number[],
+): Uint8Array => {
+  const path = animationTrackBoxPath(source, trackIndex)
+  const insertionOffset = path.sampleEntryStart + fixtureBoxSize(source, path.sampleEntryStart)
+  const outputLength = source.byteLength + child.length
+  if (!Number.isSafeInteger(outputLength)) throw new Error('Fixture insertion size overflows')
+  const output = new Uint8Array(outputLength)
+  output.set(source.subarray(0, insertionOffset))
+  output.set(child, insertionOffset)
+  output.set(source.subarray(insertionOffset), insertionOffset + child.length)
+  const ancestors = [
+    path.moovStart,
+    path.trackStart,
+    path.mdiaStart,
+    path.minfStart,
+    path.stblStart,
+    path.stsdStart,
+    path.sampleEntryStart,
+  ]
+  const view = new DataView(output.buffer, output.byteOffset, output.byteLength)
+  for (const start of ancestors) {
+    const size = view.getUint32(start)
+    view.setUint32(start, addedUint32(size, child.length))
+  }
+  return output
+}
+
+const trimAnimationTrackEdit = (source: Uint8Array, trackIndex: number): Uint8Array => {
+  const input = Uint8Array.from(source)
+  const path = animationTrackBoxPath(input, trackIndex)
+  const view = new DataView(input.buffer, input.byteOffset, input.byteLength)
+  const version = input[path.elstStart + 8]
+  if (version === 0) {
+    view.setInt32(path.elstStart + 20, 1)
+  } else if (version === 1) {
+    view.setUint32(path.elstStart + 24, 0)
+    view.setUint32(path.elstStart + 28, 1)
+  } else {
+    throw new Error('Fixture elst version is unsupported')
+  }
+  return input
+}
 
 const av1SequenceObu = [10, 6, 24, 12, 253, 219, 16, 128] as const
 const neutralLosslessAv1 = [18, 0, 10, 5, 24, 0, 54, 0, 32, 50, 5, 16, 0, 0, 4, 128] as const
@@ -463,6 +694,26 @@ describe('AVIF metadata', () => {
 
   it.each([
     {
+      label: 'half-integer sample origin',
+      cleanApertures: [[7, 1, 6, 1, 0, 1, 0, 1]],
+    },
+    {
+      label: 'integer dimensions and origin represented as reducible rationals',
+      cleanApertures: [[16, 2, 12, 2, -2, 2, -2, 2]],
+    },
+  ] as const)('accepts $label', async ({ cleanApertures }) => {
+    const metadata = await (
+      await Image.open(avifFixture({ width: 16, height: 12, cleanApertures }))
+    ).metadata()
+
+    expect(metadata).toMatchObject({
+      width: cleanApertures[0][0] / cleanApertures[0][1],
+      height: cleanApertures[0][2] / cleanApertures[0][3],
+    })
+  })
+
+  it.each([
+    {
       label: 'zero denominator',
       cleanApertures: [[8, 0, 6, 1, -1, 1, -1, 1]],
       code: 'INVALID_INPUT',
@@ -483,9 +734,19 @@ describe('AVIF metadata', () => {
       code: 'UNSUPPORTED_OPERATION',
     },
     {
-      label: 'fractional origin',
-      cleanApertures: [[7, 1, 6, 1, 0, 1, 0, 1]],
+      label: 'origin outside the integer and half-integer sample lattice',
+      cleanApertures: [[8, 1, 6, 1, 1, 3, 0, 1]],
       code: 'UNSUPPORTED_OPERATION',
+    },
+    {
+      label: 'half-integer origin outside the source',
+      cleanApertures: [[16, 1, 6, 1, -1, 2, 0, 1]],
+      code: 'INVALID_INPUT',
+    },
+    {
+      label: 'oversized rational arithmetic',
+      cleanApertures: [[0xffffffff, 1, 6, 1, 0, 1, 0, 1]],
+      code: 'INVALID_INPUT',
     },
     {
       label: 'duplicate properties',
@@ -680,7 +941,7 @@ describe('AVIF restricted pixel decode', () => {
       const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
 
       expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
-      expect(frame.header.allowIntrabc).toBe(true)
+      expect(frame.header.allowIntrabc).toBe(fixture.allowIntrabc)
       expect([decoded.width, decoded.height]).toEqual([fixture.width, fixture.height])
       expect(visibleYuvSha256(decoded)).toBe(fixture.nativeYuvSha256)
       expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
@@ -689,13 +950,185 @@ describe('AVIF restricted pixel decode', () => {
     20_000,
   )
 
-  it('keeps AVIF animation outside the pixel-decode boundary', async () => {
-    const input = await readFile(
-      join(avifCorpusDirectory, 'colors-animated-8bpc-alpha-exif-xmp.avif'),
+  it('reports animation frames while requiring explicit pixel frame selection', async () => {
+    const input = await readFile(avifAnimationAlphaFixturePath)
+    const image = await Image.open(input)
+
+    expect(await image.metadata()).toMatchObject({
+      frames: avifAnimationAlphaFixture.frames,
+      hasAlpha: avifAnimationAlphaFixture.hasAlpha,
+      height: avifAnimationAlphaFixture.height,
+      width: avifAnimationAlphaFixture.width,
+    })
+    await expect(image.png().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+    })
+  })
+
+  it('aligns animated AVIF color and alpha timing across different mdhd timescales', async () => {
+    const source = await readFile(avifAnimationAlphaFixturePath)
+    const input = scaleAnimationTrackTiming(source, 1, 2, 2)
+
+    expect(await (await Image.open(input)).metadata()).toMatchObject({
+      frames: avifAnimationAlphaFixture.frames,
+      hasAlpha: true,
+    })
+  })
+
+  it('rejects equal color and alpha ticks that represent different real-time timing', async () => {
+    const source = await readFile(avifAnimationAlphaFixturePath)
+    const input = disableAnimationTrackEdit(scaleAnimationTrackTiming(source, 1, 2, 1), 1)
+
+    await expect((await Image.open(input)).metadata()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'Animated AVIF alpha and color sample timing does not align',
+    })
+  })
+
+  it('rejects animated AVIF tracks with a trimmed edit list', async () => {
+    const source = await readFile(avifAnimationAlphaFixturePath)
+    const input = trimAnimationTrackEdit(source, 0)
+
+    await expect((await Image.open(input)).metadata()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'Animated AVIF track edit lists are not supported',
+    })
+  })
+
+  it('rejects animated AVIF track-level clean apertures', async () => {
+    const source = await readFile(avifAnimationAlphaFixturePath)
+    const cleanAperture = box(
+      'clap',
+      [150, 1, 150, 1, 0, 1, 0, 1].flatMap((value) => bytes32(value)),
+    )
+    const input = appendAnimationTrackSampleEntryBox(source, 0, cleanAperture)
+
+    await expect((await Image.open(input)).metadata()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'Animated AVIF track-level clean apertures are not supported',
+    })
+  })
+
+  it('applies maxFrames before allocating animated AVIF sample tables', async () => {
+    const input = await readFile(avifAnimationAlphaFixturePath)
+
+    await expect(
+      (await Image.open(input, { limits: { maxFrames: 4 } })).metadata(),
+    ).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+      message: 'AVIF AV1 track has 5 samples; maxFrames is 4',
+    })
+  })
+
+  it('decodes explicitly selected animated color and alpha key samples', async () => {
+    const input = await readFile(avifAnimationAlphaFixturePath)
+    const image = await Image.open(input, { frame: 0 })
+    const metadata = await image.metadata()
+    const output = PNG.sync.read(await image.png().toBuffer())
+    const oracleFile = await readFile(avifAnimationAlphaOraclePath)
+    const oracle = PNG.sync.read(oracleFile)
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(
+      avifAnimationAlphaFixture.fileSha256,
+    )
+    expect(metadata).toMatchObject({
+      bitDepth: avifAnimationAlphaFixture.bitDepth,
+      chromaSubsampling: avifAnimationAlphaFixture.chromaSubsampling,
+      codecProfile: avifAnimationAlphaFixture.codecProfile,
+      frames: avifAnimationAlphaFixture.frames,
+      hasAlpha: avifAnimationAlphaFixture.hasAlpha,
+      height: avifAnimationAlphaFixture.height,
+      width: avifAnimationAlphaFixture.width,
+    })
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      avifAnimationAlphaFixture.decodedRgbaSha256,
+    )
+    expect(createHash('sha256').update(oracleFile).digest('hex')).toBe(
+      avifAnimationAlphaFixture.oracleFileSha256,
+    )
+    expect(createHash('sha256').update(oracle.data).digest('hex')).toBe(
+      avifAnimationAlphaFixture.oracleRgbaSha256,
+    )
+    expect(output.data).toEqual(oracle.data)
+  })
+
+  it.each(avifAnimationKeyFrames)(
+    'selects independently decodable animated AVIF key frame $frame',
+
+    async (fixture) => {
+      const input = await readFile(avifAnimationFixturePath)
+      const image = await Image.open(input, { frame: fixture.frame })
+      const metadata = await image.metadata()
+      const output = PNG.sync.read(await image.png().toBuffer())
+      const oracleFile = await readFile(avifAnimationOraclePath(fixture))
+      const oracle = PNG.sync.read(oracleFile)
+
+      expect(createHash('sha256').update(input).digest('hex')).toBe(avifAnimationFixture.fileSha256)
+      expect(metadata).toMatchObject({
+        bitDepth: avifAnimationFixture.bitDepth,
+        chromaSubsampling: avifAnimationFixture.chromaSubsampling,
+        codecProfile: avifAnimationFixture.codecProfile,
+        frames: avifAnimationFixture.frames,
+        hasAlpha: avifAnimationFixture.hasAlpha,
+        height: avifAnimationFixture.height,
+        width: avifAnimationFixture.width,
+      })
+      expect([output.width, output.height]).toEqual([
+        avifAnimationFixture.width,
+        avifAnimationFixture.height,
+      ])
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+      expect(createHash('sha256').update(oracleFile).digest('hex')).toBe(fixture.oracleFileSha256)
+      expect(createHash('sha256').update(oracle.data).digest('hex')).toBe(fixture.oracleRgbaSha256)
+      const maximumDifferences: [number, number, number, number] = [0, 0, 0, 0]
+      for (let offset = 0; offset < output.data.byteLength; offset += 1) {
+        const channel = offset & 3
+        maximumDifferences[channel] = Math.max(
+          maximumDifferences[channel] ?? 0,
+          Math.abs((output.data[offset] ?? 0) - (oracle.data[offset] ?? 0)),
+        )
+      }
+      expect(maximumDifferences).toEqual(fixture.maximumOracleDifferences)
+    },
+    20_000,
+  )
+
+  it('rejects animated AVIF dependent frames instead of substituting its poster', async () => {
+    const input = await readFile(avifAnimationFixturePath)
+
+    await expect((await Image.open(input, { frame: 1 })).png().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('dependent'),
+    })
+    await expect((await Image.open(input, { frame: 5 })).metadata()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
+  })
+
+  it('rejects nonzero frame selection for still AVIF', async () => {
+    await expect((await Image.open(lossyIntraAvif, { frame: 1 })).metadata()).rejects.toMatchObject(
+      {
+        code: 'INVALID_INPUT',
+      },
+    )
+  })
+
+  it.each([
+    { label: 'oversized sample count', boxType: 'stsz', fieldOffset: 12, value: 100_001 },
+    { label: 'zero sample duration', boxType: 'stts', fieldOffset: 16, value: 0 },
+    { label: 'out-of-source sample extent', boxType: 'stco', fieldOffset: 12, value: 0xffff_ffff },
+  ])('rejects animated AVIF $label before sample payload allocation', async (fixture) => {
+    const source = await readFile(avifAnimationFixturePath)
+    const input = new Uint8Array(source)
+    const typeOffset = source.indexOf(fixture.boxType)
+    if (typeOffset < 0) throw new Error(`Animation fixture has no ${fixture.boxType} box`)
+    new DataView(input.buffer, input.byteOffset, input.byteLength).setUint32(
+      typeOffset + fixture.fieldOffset,
+      fixture.value,
     )
 
-    await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
-      code: 'UNSUPPORTED_OPERATION',
+    await expect((await Image.open(input)).metadata()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
     })
   })
 
@@ -775,6 +1208,50 @@ describe('AVIF restricted pixel decode', () => {
     expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
     expect(createHash('sha256').update(oracle).digest('hex')).toBe(fixture.sharpRgbaSha256)
     expect(output.data).toEqual(oracle)
+  })
+
+  it('decodes the half-sample kimono aperture against a pinned Sharp oracle', async () => {
+    const fixture = avifFractionalCleanApertureFixture
+    const input = await readFile(join(avifCleanApertureFixtureDirectory, fixture.file))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const image = await Image.open(input)
+    const metadata = await image.metadata()
+    const output = PNG.sync.read(await image.png().toBuffer())
+
+    const sharpInput = Buffer.from(input)
+    const clapTypeOffset = sharpInput.indexOf('clap')
+    expect(clapTypeOffset).toBeGreaterThan(0)
+    const clapPayloadOffset = clapTypeOffset + 4
+    const fullAperture = [fixture.encodedWidth, 1, fixture.encodedHeight, 1, 0, 1, 0, 1]
+    for (let index = 0; index < fullAperture.length; index += 1) {
+      sharpInput.writeUInt32BE(fullAperture[index] ?? 0, clapPayloadOffset + index * 4)
+    }
+    const sharpOracle = await sharp(sharpInput, { unlimited: true })
+      .extract({
+        left: fixture.crop.x,
+        top: fixture.crop.y,
+        width: fixture.crop.width,
+        height: fixture.crop.height,
+      })
+      .ensureAlpha()
+      .raw()
+      .toBuffer()
+    let squaredError = 0
+    for (let index = 0; index < output.data.length; index += 1) {
+      const difference = (output.data[index] ?? 0) - (sharpOracle[index] ?? 0)
+      squaredError += difference * difference
+    }
+    const normalizedRmse = Math.sqrt(squaredError / output.data.length) / 255
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(inspection.displayRegion).toEqual(fixture.crop)
+    expect(metadata).toMatchObject({ width: fixture.crop.width, height: fixture.crop.height })
+    expect([output.width, output.height]).toEqual([fixture.crop.width, fixture.crop.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.decodedRgbaSha256)
+    expect(createHash('sha256').update(sharpOracle).digest('hex')).toBe(
+      fixture.sharpCroppedRgbaSha256,
+    )
+    expect(normalizedRmse).toBeLessThan(0.01)
   })
   it('decodes the pinned skipped intra-block-copy fixture exactly in native YUV', async () => {
     const input = await readFile(join(avifCorpusDirectory, 'blue-and-magenta-crop.avif'))
@@ -874,12 +1351,27 @@ describe('AVIF restricted pixel decode', () => {
       deltaQPresent: true,
       deltaQResolution: 2,
     })
+    const unsupportedSegmentFeatures = Array.from({ length: 8 }, () =>
+      Array.from({ length: 8 }, () => false),
+    )
+    const firstSegmentFeatures = unsupportedSegmentFeatures[0]
+    if (!firstSegmentFeatures) throw new Error('Segment feature state is missing')
+    firstSegmentFeatures[6] = true
     expect(() =>
       decodeRestrictedAv1Intra(coded.sequence, {
         ...frame,
-        header: { ...frame.header, segmentationEnabled: true },
+        header: {
+          ...frame.header,
+          segmentation: {
+            ...frame.header.segmentation,
+            enabled: true,
+            featureEnabled: unsupportedSegmentFeatures,
+            lastActiveId: 0,
+            preSkip: true,
+          },
+        },
       }),
-    ).toThrow('does not support AV1 segmentation maps')
+    ).toThrow('does not support skip features')
     expect(() =>
       decodeRestrictedAv1Intra(coded.sequence, {
         ...frame,
@@ -895,7 +1387,40 @@ describe('AVIF restricted pixel decode', () => {
     )
   })
 
-  it('rejects malformed intra-block-copy source vectors', async () => {
+  it('decodes a rav1e keyframe with spatial segmentation maps exactly', async () => {
+    const input = new Uint8Array(await readFile(avifSegmentationFixturePath))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const coded = inspection.codedImages.find((image) => image.role === 'color')
+    const frameObu = coded?.obus.find((obu) => obu.type === av1ObuType.frame)
+    if (!coded || !frameObu) throw new Error('Segmentation fixture has no color frame OBU')
+    const frame = parseAv1Frame(coded.sequence, frameObu.payload)
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(
+      avifSegmentationFixture.fileSha256,
+    )
+    expect(frame.header).toMatchObject({
+      baseQuantizer: 72,
+      reducedTransformSet: true,
+      segmentation: {
+        enabled: true,
+        lastActiveId: 3,
+        preSkip: false,
+      },
+    })
+    expect(
+      frame.header.segmentation.featureData.slice(0, 4).map((features) => features[0]),
+    ).toEqual(avifSegmentationFixture.segmentQuantizerDeltas)
+    expect([output.width, output.height]).toEqual([
+      avifSegmentationFixture.width,
+      avifSegmentationFixture.height,
+    ])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      avifSegmentationFixture.decodedRgbaSha256,
+    )
+  })
+
+  it('rejects malformed intra-block-copy superblock overlaps', async () => {
     const input = await readFile(join(avifCorpusDirectory, 'ms-monochrome-residual-intrabc.avif'))
     const inspection = await inspectAvifBitstreams(new MemorySource(input))
     const coded = inspection.codedImages.find((image) => image.role === 'color')
@@ -905,33 +1430,20 @@ describe('AVIF restricted pixel decode', () => {
     const tile = frame.tiles[0]
     if (!tile) throw new Error('Residual IBC fixture has no tile')
 
-    for (const mutation of [
-      {
-        bit: 6,
-        byte: 436,
-        message: 'AV1 intra-block-copy motion vector escapes its plane',
-      },
-      {
-        bit: 0,
-        byte: 0,
-        message: 'AV1 intra-block-copy motion vector overlaps its superblock',
-      },
-    ] as const) {
-      const data = tile.data.slice()
-      data[mutation.byte] = (data[mutation.byte] ?? 0) ^ (1 << mutation.bit)
-      let failure: unknown
-      try {
-        decodeRestrictedAv1Intra(coded.sequence, {
-          ...frame,
-          tiles: [{ ...tile, data }],
-        })
-      } catch (error) {
-        failure = error
-      }
-      expect(failure).toMatchObject({ code: 'INVALID_INPUT' })
-      if (!(failure instanceof Error)) throw new Error('Malformed IBC mutation was not rejected')
-      expect(failure.message).toBe(mutation.message)
+    const data = tile.data.slice()
+    data[0] = (data[0] ?? 0) ^ 1
+    let failure: unknown
+    try {
+      decodeRestrictedAv1Intra(coded.sequence, {
+        ...frame,
+        tiles: [{ ...tile, data }],
+      })
+    } catch (error) {
+      failure = error
     }
+    expect(failure).toMatchObject({ code: 'INVALID_INPUT' })
+    if (!(failure instanceof Error)) throw new Error('Malformed IBC mutation was not rejected')
+    expect(failure.message).toBe('AV1 intra-block-copy motion vector overlaps its superblock')
   })
 
   it.each(avifHighBitLosslessFixtures)(
@@ -2013,16 +2525,16 @@ describe('AVIF restricted pixel decode', () => {
   it('ignores a gain map whose tmap is not the preferred alternative', async () => {
     const input = await readFile(avifColorFixturePath(avifWrongAlternativeGainMapFixture))
     const inspection = await inspectAvifBitstreams(new MemorySource(input))
-
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
     expect(createHash('sha256').update(input).digest('hex')).toBe(
       avifWrongAlternativeGainMapFixture.fileSha256,
     )
     expect(inspection.gainMap).toBeUndefined()
     expect(inspection.codedImages.filter((image) => image.role === 'gain-map')).toHaveLength(0)
-    await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
-      code: 'UNSUPPORTED_OPERATION',
-      message: 'HDR AVIF SDR decode requires a compatible gain-map alternate image',
-    })
+    expect([output.width, output.height]).toEqual([400, 300])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(
+      '6128047c75194f836f7eea8ee0bf3f1473ef2d956a5b02262f46e96d436c672e',
+    )
   })
 
   it('rejects a gain map with a zero HDR-headroom denominator', async () => {
@@ -2038,22 +2550,254 @@ describe('AVIF restricted pixel decode', () => {
     })
   })
 
-  it.each([
-    ['PQ', 'unsupported-hdr-pq-10bpc-yuv420-32x24.avif', 16],
-    ['HLG', 'unsupported-hdr-hlg-10bpc-yuv420-32x24.avif', 18],
-  ] as const)(
-    'rejects %s HDR transfer signaling instead of applying SDR conversion',
-    async (_name, file, transferCharacteristics) => {
-      const input = await readFile(join(avifCorpusDirectory, file))
+  it('applies the BT.2100 HLG system gamma once from shared scene luminance', () => {
+    const toneMap = createNclxHdrToneMap(9, 18)
+    const output = new Uint8Array(8)
+
+    expect(toneMap.encodedToLinear[2048]).toBeCloseTo(1 / 12, 7)
+    writeNclxHdrToneMappedRgba(output, 0, 0.75, 0.5, 0.25, toneMap)
+    writeNclxHdrToneMappedRgba(output, 4, 0.5, 0.5, 0.5, toneMap)
+
+    expect(output).toEqual(Uint8Array.of(234, 101, 40, 255, 134, 134, 134, 255))
+  })
+
+  it('rejects matrix coefficients 10 with non-BT.2020 primaries before an HDR gain map', async () => {
+    const input = Buffer.from(await readFile(avifColorFixturePath(avifHdrGainMapFixture)))
+    const nclx = input.indexOf('nclx')
+    expect(nclx).toBeGreaterThanOrEqual(0)
+    expect(input.readUInt16BE(nclx + 6)).toBe(16)
+    input.writeUInt16BE(10, nclx + 8)
+
+    await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: 'HDR AVIF NCLX matrix coefficients 10 require color primaries 9',
+    })
+  })
+
+  it('rejects explicit SDR AV1 CICP signaling that conflicts with HDR NCLX', async () => {
+    const fixture = avifHdrToneMapFixtures.find(
+      (candidate) => candidate.sequenceColorSignaling !== 'unspecified',
+    )
+    if (!fixture) throw new Error('Explicit-CICP HDR AVIF fixture is missing')
+    const input = Buffer.from(await readFile(avifColorFixturePath(fixture)))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const color = inspection.codedImages.find((image) => image.role === 'color')
+    const sequenceObu = color?.obus.find((obu) => obu.type === av1ObuType.sequenceHeader)
+    if (!color || !sequenceObu) throw new Error('HDR AVIF fixture has no color sequence header')
+    expect(color.sequence).toMatchObject({
+      colorPrimaries: fixture.primaries,
+      transferCharacteristics: fixture.transferCharacteristics,
+      matrixCoefficients: fixture.matrixCoefficients,
+    })
+
+    const payloadOffset = input.indexOf(sequenceObu.payload)
+    expect(payloadOffset).toBeGreaterThanOrEqual(0)
+    const expectedCicp =
+      (fixture.primaries << 16) |
+      (fixture.transferCharacteristics << 8) |
+      fixture.matrixCoefficients
+    const matches: number[] = []
+    for (let bitOffset = 0; bitOffset <= sequenceObu.payload.byteLength * 8 - 24; bitOffset += 1) {
+      let value = 0
+      for (let bit = 0; bit < 24; bit += 1) {
+        const position = bitOffset + bit
+        value =
+          (value << 1) |
+          (((sequenceObu.payload[Math.floor(position / 8)] ?? 0) >>> (7 - (position % 8))) & 1)
+      }
+      if (value === expectedCicp) matches.push(bitOffset)
+    }
+    expect(matches).toHaveLength(1)
+    const cicpBitOffset = matches[0]
+    if (cicpBitOffset === undefined) throw new Error('HDR AV1 CICP bit offset is missing')
+    const transferBitOffset = payloadOffset * 8 + cicpBitOffset + 8
+    const sdrTransfer = 13
+    for (let bit = 0; bit < 8; bit += 1) {
+      const position = transferBitOffset + bit
+      const byteOffset = Math.floor(position / 8)
+      const mask = 1 << (7 - (position % 8))
+      const current = input[byteOffset] ?? 0
+      input[byteOffset] = ((sdrTransfer >>> (7 - bit)) & 1) === 1 ? current | mask : current & ~mask
+    }
+
+    await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'AVIF HDR container and AV1 color signaling do not match',
+    })
+  })
+
+  it('tone-maps HLG AVIF pixels with the shared BT.2100 OOTF', async () => {
+    const fixture = avifHdrToneMapFixtures.find(
+      (candidate) => candidate.transferCharacteristics === 18,
+    )
+    if (!fixture) throw new Error('HLG AVIF fixture is missing')
+    const input = await readFile(avifColorFixturePath(fixture))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const color = inspection.codedImages.find((image) => image.role === 'color')
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(inspection.gainMap).toBeUndefined()
+    expect(inspection.nclx).toMatchObject({
+      primaries: fixture.primaries,
+      transferCharacteristics: 18,
+      matrixCoefficients: fixture.matrixCoefficients,
+    })
+    expect(color?.sequence).toMatchObject({
+      colorPrimaries: 2,
+      transferCharacteristics: 2,
+      matrixCoefficients: 2,
+    })
+    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
+  })
+
+  // zimg's HLG conversion uses a componentwise EOTF, so only PQ is compared to
+  // that oracle; the analytic BT.2100 triplets above cover HLG color semantics.
+  it.each(avifHdrToneMapFixtures.filter((fixture) => fixture.transferCharacteristics === 16))(
+    'tone-maps PQ NCLX pixels in $file within the pinned FFmpeg/zimg oracle tolerance',
+    async (fixture) => {
+      const input = await readFile(avifColorFixturePath(fixture))
+      const oracleInput = await readFile(join(avifCorpusDirectory, fixture.oracleFile))
       const inspection = await inspectAvifBitstreams(new MemorySource(input))
       const color = inspection.codedImages.find((image) => image.role === 'color')
       const image = await Image.open(input)
+      const output = PNG.sync.read(await image.png().toBuffer())
+      const oracle = PNG.sync.read(oracleInput)
 
-      expect(color?.sequence.transferCharacteristics).toBe(transferCharacteristics)
+      expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+      expect(createHash('sha256').update(oracleInput).digest('hex')).toBe(fixture.oracleSha256)
+      expect(inspection.gainMap).toBeUndefined()
+      expect(inspection.nclx).toMatchObject({
+        primaries: fixture.primaries,
+        transferCharacteristics: fixture.transferCharacteristics,
+        matrixCoefficients: fixture.matrixCoefficients,
+      })
+      expect(color?.sequence).toMatchObject(
+        fixture.sequenceColorSignaling === 'unspecified'
+          ? { colorPrimaries: 2, transferCharacteristics: 2, matrixCoefficients: 2 }
+          : {
+              colorPrimaries: fixture.primaries,
+              transferCharacteristics: fixture.transferCharacteristics,
+              matrixCoefficients: fixture.matrixCoefficients,
+            },
+      )
       expect((await image.metadata()).bitDepth).toBe(10)
-      await expect(image.png().toBuffer()).rejects.toMatchObject({
-        code: 'UNSUPPORTED_OPERATION',
-        message: 'HDR AVIF SDR decode requires a compatible gain-map alternate image',
+      expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+      expect([oracle.width, oracle.height]).toEqual([fixture.width, fixture.height])
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
+
+      const errors = new Uint8Array(fixture.width * fixture.height * 3)
+      let errorIndex = 0
+      let errorSum = 0
+      let errorSquareSum = 0
+      let maximumAbsoluteError = 0
+      for (let offset = 0; offset < output.data.byteLength; offset += 4) {
+        for (let channel = 0; channel < 3; channel += 1) {
+          const error = Math.abs(
+            (output.data[offset + channel] ?? 0) - (oracle.data[offset + channel] ?? 0),
+          )
+          errors[errorIndex] = error
+          errorIndex += 1
+          errorSum += error
+          errorSquareSum += error * error
+          maximumAbsoluteError = Math.max(maximumAbsoluteError, error)
+        }
+      }
+      errors.sort()
+      const meanAbsoluteError = errorSum / errors.length
+      const p95AbsoluteError = errors[Math.ceil(errors.length * 0.95) - 1] ?? 255
+      const rootMeanSquareError = Math.sqrt(errorSquareSum / errors.length)
+      const psnr = 20 * Math.log10(255 / rootMeanSquareError)
+      expect(maximumAbsoluteError, avifHdrToneMapOracle).toBeLessThanOrEqual(
+        fixture.maximumAbsoluteError,
+      )
+      expect(meanAbsoluteError, avifHdrToneMapOracle).toBeLessThanOrEqual(
+        fixture.maximumMeanAbsoluteError,
+      )
+      expect(p95AbsoluteError, avifHdrToneMapOracle).toBeLessThanOrEqual(
+        fixture.maximumP95AbsoluteError,
+      )
+      expect(psnr, avifHdrToneMapOracle).toBeGreaterThanOrEqual(fixture.minimumPsnr)
+    },
+  )
+
+  it('tone-maps chroma-derived non-constant-luminance P3/PQ pixels', async () => {
+    const fixture = avifHdrChromaDerivedFixture
+    const input = await readFile(avifColorFixturePath(fixture))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(inspection.gainMap).toBeUndefined()
+    expect(inspection.nclx).toMatchObject({
+      primaries: fixture.primaries,
+      transferCharacteristics: fixture.transferCharacteristics,
+      matrixCoefficients: fixture.matrixCoefficients,
+    })
+    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
+    for (const sample of fixture.oracleSamples) {
+      const offset = sample.pixel * 4
+      for (let channel = 0; channel < 3; channel += 1) {
+        const error = Math.abs((output.data[offset + channel] ?? 0) - (sample.rgb[channel] ?? 0))
+        expect(error, avifHdrToneMapOracle).toBeLessThanOrEqual(fixture.maximumAbsoluteError)
+      }
+    }
+  })
+  it('tone-maps BT.2020 constant-luminance matrix 10 pixels', async () => {
+    const fixture = avifHdrConstantLuminanceFixture
+    const input = await readFile(avifColorFixturePath(fixture))
+    const inspection = await inspectAvifBitstreams(new MemorySource(input))
+    const output = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+
+    expect(createHash('sha256').update(input).digest('hex')).toBe(fixture.fileSha256)
+    expect(inspection.gainMap).toBeUndefined()
+    expect(inspection.nclx).toMatchObject({
+      primaries: fixture.primaries,
+      transferCharacteristics: fixture.transferCharacteristics,
+      matrixCoefficients: fixture.matrixCoefficients,
+      fullRange: true,
+    })
+    expect([output.width, output.height]).toEqual([fixture.width, fixture.height])
+    expect(createHash('sha256').update(output.data).digest('hex')).toBe(fixture.rgbaSha256)
+    for (const sample of fixture.oracleSamples) {
+      const offset = sample.pixel * 4
+      for (let channel = 0; channel < 3; channel += 1) {
+        const error = Math.abs((output.data[offset + channel] ?? 0) - (sample.rgb[channel] ?? 0))
+        expect(error, avifHdrToneMapOracle).toBeLessThanOrEqual(fixture.maximumAbsoluteError)
+      }
+    }
+  }, 20_000)
+
+  it.each([
+    [
+      'color primaries',
+      4,
+      22,
+      'INVALID_INPUT',
+      'AVIF HDR container and AV1 color signaling do not match',
+    ],
+    [
+      'matrix coefficients',
+      8,
+      11,
+      'UNSUPPORTED_OPERATION',
+      'HDR AVIF NCLX matrix coefficients 11 are not supported',
+    ],
+  ] as const)(
+    'rejects invalid or unsupported HDR NCLX %s explicitly',
+    async (_name, offset, value, code, message) => {
+      const fixture = avifHdrToneMapFixtures[0]
+      if (!fixture) throw new Error('HDR AVIF fixture is missing')
+      const input = Buffer.from(await readFile(avifColorFixturePath(fixture)))
+      const nclx = input.indexOf('nclx')
+      expect(nclx).toBeGreaterThanOrEqual(0)
+      input.writeUInt16BE(value, nclx + offset)
+
+      await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
+        code,
+        message,
       })
     },
   )

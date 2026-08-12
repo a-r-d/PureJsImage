@@ -175,6 +175,13 @@ test('decodes lossless quantizer-context-0 identity-color AVIF', async ({ page }
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 
+test('decodes rav1e spatial-segmentation AVIF', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifSegmentation())
+  expect(result.outputBytes).toBeGreaterThan(1_000)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
 test('decodes palette-coded AVIF screen content', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifPalette())
@@ -220,12 +227,24 @@ test('decodes expanded AVIF alpha and grid subsets', async ({ page }) => {
   expect(result.detail).toContain('independently signaled alpha transform')
 })
 
-test('rejects HDR AVIF transfer signaling before SDR pixel conversion', async ({ page }) => {
+test('tone-maps HDR AVIF NCLX pixels to SDR', async ({ page }) => {
+  test.setTimeout(60_000)
   await harness(page)
-  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifHdrRejected())
-  expect(result.outputBytes).toBeGreaterThan(300)
-  expect(result.detail).toContain('PQ and HLG')
-  expect(result.detail).toContain('SDR pixel decode rejected both')
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifHdrToneMap())
+  expect(result.outputBytes).toBeGreaterThan(1_000)
+  expect(result.detail).toContain('Display-P3 PQ')
+  expect(result.detail).toContain('Rec.2020 HLG')
+  expect(result.detail).toContain('Rec.2020 identity PQ')
+  expect(result.detail).toContain('Chroma-derived Display-P3 PQ')
+  expect(result.detail).toContain('constant-luminance matrix 10')
+})
+
+test('selects independently decodable animated AVIF key samples', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifAnimationKeySamples())
+  expect(result.outputBytes).toBeGreaterThan(500)
+  expect(result.detail).toContain('color/alpha key samples')
+  expect(result.detail).toContain('dependent frame remained unsupported')
 })
 test('converts linear BT.2020 AVIF pixels to sRGB', async ({ page }) => {
   await harness(page)
@@ -325,6 +344,13 @@ test('decodes still-picture intra-block-copy AVIF state', async ({ page }) => {
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 
+test('decodes skipped intra transform selection from SVT-AV1', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifSvtSkippedTransform())
+  expect(result.outputBytes).toBeGreaterThan(1_000)
+  expect(result.detail).toContain('pinned portable RGBA output')
+})
+
 test('decodes filter-free AV1 super-resolution', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifSuperres())
@@ -360,10 +386,12 @@ test('decodes AVIF alpha through synchronized bounded rings', async ({ page }) =
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 
-test('applies an AVIF clean aperture', async ({ page }) => {
+test('applies integer and half-integer-origin AVIF clean apertures', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifCleanAperture())
   expect(result.outputBytes).toBeGreaterThan(50)
+  expect(result.detail).toContain('Integer-origin clean-aperture')
+  expect(result.detail).toContain('Half-integer-origin clean-aperture')
   expect(result.detail).toContain('pinned portable RGBA output')
 })
 

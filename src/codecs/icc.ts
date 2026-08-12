@@ -684,6 +684,28 @@ const nclxChromaticities = (primaries: number): RgbChromaticities => {
   throw unsupportedOperation(`NCLX color primaries ${primaries} are not supported`)
 }
 
+const cachedNclxLumaCoefficients = new Map<number, readonly [number, number, number]>()
+
+export const nclxLumaCoefficients = (primaries: number): readonly [number, number, number] => {
+  const cached = cachedNclxLumaCoefficients.get(primaries)
+  if (cached) return cached
+  const sourceToSrgb = chromaticityMatrix(nclxChromaticities(primaries))
+  const srgbY = [0.212_672_9, 0.715_152_2, 0.072_175] as const
+  const coefficients: readonly [number, number, number] = [
+    srgbY[0] * (sourceToSrgb[0] ?? 0) +
+      srgbY[1] * (sourceToSrgb[3] ?? 0) +
+      srgbY[2] * (sourceToSrgb[6] ?? 0),
+    srgbY[0] * (sourceToSrgb[1] ?? 0) +
+      srgbY[1] * (sourceToSrgb[4] ?? 0) +
+      srgbY[2] * (sourceToSrgb[7] ?? 0),
+    srgbY[0] * (sourceToSrgb[2] ?? 0) +
+      srgbY[1] * (sourceToSrgb[5] ?? 0) +
+      srgbY[2] * (sourceToSrgb[8] ?? 0),
+  ]
+  cachedNclxLumaCoefficients.set(primaries, coefficients)
+  return coefficients
+}
+
 export const nclxToLinear = (transferCharacteristics: number, encoded: number): number => {
   if (transferCharacteristics === 8) return encoded
   if (transferCharacteristics === 13) {
@@ -707,14 +729,136 @@ export const nclxToLinear = (transferCharacteristics: number, encoded: number): 
     return denominator <= 0 ? 10_000 / 203 : ((numerator / denominator) ** (1 / m1) * 10_000) / 203
   }
   if (transferCharacteristics === 18) {
-    const sceneLinear =
-      encoded <= 0.5
-        ? (encoded * encoded) / 3
-        : (Math.exp((encoded - 0.559_910_73) / 0.178_832_77) + 0.284_668_92) / 12
-    return (sceneLinear ** 1.2 * 1000) / 203
+    return encoded <= 0.5
+      ? (encoded * encoded) / 3
+      : (Math.exp((encoded - 0.559_910_73) / 0.178_832_77) + 0.284_668_92) / 12
   }
   throw unsupportedOperation(
     `NCLX transfer characteristics ${transferCharacteristics} are not supported`,
+  )
+}
+export const nclxFromLinear = (transferCharacteristics: number, linear: number): number => {
+  if (transferCharacteristics === 8) return linear
+  if (transferCharacteristics === 13) {
+    return linear <= 0.003_130_8 ? linear * 12.92 : 1.055 * linear ** (1 / 2.4) - 0.055
+  }
+  if (transferCharacteristics === 1 || transferCharacteristics === 6) {
+    return linear < 0.018 ? linear * 4.5 : 1.099 * linear ** 0.45 - 0.099
+  }
+  if (transferCharacteristics === 14 || transferCharacteristics === 15) {
+    return linear < 0.018_1 ? linear * 4.5 : 1.099_3 * linear ** 0.45 - 0.099_3
+  }
+  throw unsupportedOperation(
+    `NCLX transfer characteristics ${transferCharacteristics} cannot encode linear RGB`,
+  )
+}
+
+const NCLX_HDR_CURVE_STEPS = 4096
+
+export interface NclxHdrToneMap {
+  readonly encodedToLinear: Float32Array
+  readonly linearToSrgb: Uint8Array
+  readonly sourceToSrgb: Float64Array
+  readonly sourcePeak: number
+  readonly hlgLumaCoefficients?: readonly [number, number, number]
+}
+
+const cachedNclxHdrToneMaps = new Map<string, NclxHdrToneMap>()
+
+export const createNclxHdrToneMap = (
+  primaries: number,
+  transferCharacteristics: 16 | 18,
+): NclxHdrToneMap => {
+  const key = `${primaries}:${transferCharacteristics}`
+  const cached = cachedNclxHdrToneMaps.get(key)
+  if (cached) return cached
+  const encodedToLinear = Float32Array.from({ length: NCLX_HDR_CURVE_STEPS + 1 }, (_, index) =>
+    nclxToLinear(transferCharacteristics, index / NCLX_HDR_CURVE_STEPS),
+  )
+  // BT.2100 defines PQ against 10,000 cd/m² and the reference HLG display at 1,000 cd/m².
+  // Normalize both to BT.2408's 203 cd/m² HDR reference white before the SDR operator.
+  const toneMap = {
+    encodedToLinear,
+    linearToSrgb: srgbEncodeLut(),
+    sourceToSrgb: chromaticityMatrix(nclxChromaticities(primaries)),
+    sourcePeak: (transferCharacteristics === 16 ? 10_000 : 1_000) / 203,
+    ...(transferCharacteristics === 18
+      ? { hlgLumaCoefficients: nclxLumaCoefficients(primaries) }
+      : {}),
+  }
+  cachedNclxHdrToneMaps.set(key, toneMap)
+  return toneMap
+}
+
+const sampleNclxHdrCurve = (curve: Float32Array, encoded: number): number => {
+  const position = Math.max(0, Math.min(1, encoded)) * NCLX_HDR_CURVE_STEPS
+  const low = Math.floor(position)
+  const high = Math.min(NCLX_HDR_CURVE_STEPS, low + 1)
+  const fraction = position - low
+  return (curve[low] ?? 0) * (1 - fraction) + (curve[high] ?? 0) * fraction
+}
+export const nclxHdrToLinear = (toneMap: NclxHdrToneMap, encoded: number): number =>
+  sampleNclxHdrCurve(toneMap.encodedToLinear, encoded)
+
+export const writeNclxHdrLinearToneMappedRgba = (
+  data: Uint8Array,
+  offset: number,
+  linearRed: number,
+  linearGreen: number,
+  linearBlue: number,
+  toneMap: NclxHdrToneMap,
+): void => {
+  let sourceRed = linearRed
+  let sourceGreen = linearGreen
+  let sourceBlue = linearBlue
+  const hlgLuma = toneMap.hlgLumaCoefficients
+  if (hlgLuma) {
+    const sceneLuminance = Math.max(
+      0,
+      hlgLuma[0] * sourceRed + hlgLuma[1] * sourceGreen + hlgLuma[2] * sourceBlue,
+    )
+    // BT.2100's HLG OOTF applies one luminance-derived system-gamma factor to all
+    // three scene-linear channels. A per-channel exponent would distort hue.
+    const ootfScale = sceneLuminance ** (1.2 - 1) * toneMap.sourcePeak
+    sourceRed *= ootfScale
+    sourceGreen *= ootfScale
+    sourceBlue *= ootfScale
+  }
+  const signal = Math.max(sourceRed, sourceGreen, sourceBlue, 1e-6)
+  // Reinhard's global operator, normalized so the transfer's nominal peak maps to SDR white.
+  // Scaling all source-primary channels by the brightest-channel result preserves hue.
+  const mappedSignal = (signal / (signal + 1)) * ((toneMap.sourcePeak + 1) / toneMap.sourcePeak)
+  const scale = mappedSignal / signal
+  const matrix = toneMap.sourceToSrgb
+  const red =
+    (matrix[0] ?? 0) * sourceRed + (matrix[1] ?? 0) * sourceGreen + (matrix[2] ?? 0) * sourceBlue
+  const green =
+    (matrix[3] ?? 0) * sourceRed + (matrix[4] ?? 0) * sourceGreen + (matrix[5] ?? 0) * sourceBlue
+  const blue =
+    (matrix[6] ?? 0) * sourceRed + (matrix[7] ?? 0) * sourceGreen + (matrix[8] ?? 0) * sourceBlue
+  // The linear primary transform follows tone mapping, matching FFmpeg/zimg's source-gamut
+  // Reinhard path and avoiding a destination-gamut clip before highlight compression.
+  data[offset] = encodeLinear(red * scale, toneMap.linearToSrgb)
+  data[offset + 1] = encodeLinear(green * scale, toneMap.linearToSrgb)
+  data[offset + 2] = encodeLinear(blue * scale, toneMap.linearToSrgb)
+  data[offset + 3] = 255
+}
+
+export const writeNclxHdrToneMappedRgba = (
+  data: Uint8Array,
+  offset: number,
+  encodedRed: number,
+  encodedGreen: number,
+  encodedBlue: number,
+  toneMap: NclxHdrToneMap,
+): void => {
+  writeNclxHdrLinearToneMappedRgba(
+    data,
+    offset,
+    sampleNclxHdrCurve(toneMap.encodedToLinear, encodedRed),
+    sampleNclxHdrCurve(toneMap.encodedToLinear, encodedGreen),
+    sampleNclxHdrCurve(toneMap.encodedToLinear, encodedBlue),
+    toneMap,
   )
 }
 
