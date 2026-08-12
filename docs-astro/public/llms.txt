@@ -520,10 +520,10 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 - Import: `import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'`
 - Decode: Limited (`limited`)
 - Encode: No (`unsupported`)
-- Implemented scope: Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes the pinned 12-bit lossless Modular RGBA conformance path through bounded header, entropy, predictor, RCT, crop, and rgba8 output code. Unsupported JPEG XL syntax fails explicitly.
-- Primary boundary: Decodes a first-party, independently verified lossless Modular RGBA subset; VarDCT, nonzero residual streams, broader predictors and transforms, multiple groups or frames, and fragmented jxlp pixel decode remain unsupported
-- Memory model: The implemented Modular path retains compressed input, bounded entropy tables, the small adaptive tree, and two rows per channel; peak decoded working memory scales with image width rather than source pixel count
-- Recommended output use: Use for the documented lossless Modular RGBA subset and retain an explicit unsupported-operation path for broader JPEG XL files.
+- Implemented scope: Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes pinned 8-bit RGB plus 9-bit and 12-bit RGBA lossless Modular paths through bounded headers, entropy, adaptive properties, residual prediction, RCT, crop, and rgba8 output. Unsupported JPEG XL syntax fails explicitly.
+- Primary boundary: Decodes independently verified, single-group lossless Modular RGB and RGBA with global or local MA trees, nonzero prefix or ANS residuals, bounded LZ77, Zero/Left/Top/Gradient/TopRight/TopLeft prediction, and zero or one RCT; other predictors, grayscale and custom color encodings, palette and Squeeze transforms, VarDCT, multiple groups or frames, and fragmented jxlp pixel decode remain unsupported
+- Memory model: The implemented single-group Modular path retains compressed input, bounded entropy tables, the adaptive tree, an optional 4 MiB LZ77 ring, and compact signed channel planes. Peak decoded working memory scales with source pixels but does not allocate a second source-sized RGBA bitmap.
+- Recommended output use: Use for the documented single-group lossless Modular RGB/RGBA subset and retain an explicit unsupported-operation path for broader JPEG XL files.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md
 <!-- capabilities:llms:end -->
 

@@ -8,6 +8,20 @@ import { MemorySource } from '../src/source.ts'
 const ascii = (value: string): Uint8Array =>
   Uint8Array.from(value, (character) => character.charCodeAt(0))
 
+const hexadecimal = (input: string): Uint8Array => {
+  const pairs = input.replaceAll(/\s/g, '').match(/../g)
+  if (!pairs) throw new Error('Hexadecimal fixture is empty')
+  return Uint8Array.from(pairs, (pair) => Number.parseInt(pair, 16))
+}
+
+// cjxl 0.11.0, lossless Modular effort 2, from the documented 8x5 RGB matrix.
+// The expected RGBA digest below was produced independently with djxl 0.11.0.
+const localTreeRgb = hexadecimal(`
+  ff0a205010090804010038018924512a542005921b638c318c3118610c638c8e
+  113118ea82ddb7d06ab724b9774aaa2eb3aaaacaaeaaaa02aaabaa5af4a92ec252c1a1
+  ec2d0bb13477a92f68611ffadbb639a13d214aa900e305
+`)
+
 const concatenate = (...parts: readonly Uint8Array[]): Uint8Array => {
   const output = new Uint8Array(parts.reduce((sum, part) => sum + part.byteLength, 0))
   let offset = 0
@@ -85,6 +99,76 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     expect(digest.digest('hex')).toBe(
       'c2d13d30f972b292ea49889bd8bc1315bad8486da6a984b2dea4fe057102a2d4',
     )
+  })
+
+  it('decodes adaptive 9-bit Modular residuals exactly against djxl', async () => {
+    const input = readFileSync('benchmark/fixtures/jpegxl/conformance-alpha-triangles.jxl')
+    const source = new MemorySource(input)
+    const metadata = await jpegxlCodec.metadata(source, defaultImageLimits)
+    const decoder = await jpegxlCodec.createDecoder?.(source, defaultImageLimits)
+    if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+
+    expect(metadata).toMatchObject({
+      width: 1_024,
+      height: 1_024,
+      bitDepth: 9,
+      hasAlpha: true,
+      lossless: true,
+      channelBitDepths: [9, 9, 9, 9],
+    })
+
+    const digest = createHash('sha256')
+    for await (const block of decoder.decode()) digest.update(block.data)
+    // djxl-produced 9-bit PAM samples, normalized with round(sample * 255 / 511).
+    expect(digest.digest('hex')).toBe(
+      'd5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497',
+    )
+  })
+
+  it('decodes RGB local-tree ANS residuals, crop requests, and aborts', async () => {
+    const source = new MemorySource(localTreeRgb)
+    const metadata = await jpegxlCodec.metadata(source, defaultImageLimits)
+    const decoder = await jpegxlCodec.createDecoder?.(source, defaultImageLimits)
+    if (!decoder) throw new Error('JPEG XL decoder is unavailable')
+
+    expect(metadata).toMatchObject({
+      width: 8,
+      height: 5,
+      bitDepth: 8,
+      hasAlpha: false,
+      components: 3,
+      channels: 3,
+      channelBitDepths: [8, 8, 8],
+    })
+    const digest = createHash('sha256')
+    for await (const block of decoder.decode()) digest.update(block.data)
+    expect(digest.digest('hex')).toBe(
+      '1aa7f08f4eb3fb29bfa6652683093b8f48319084a30959ab59c5434065382e36',
+    )
+
+    const cropped: number[] = []
+    for await (const block of decoder.decode({ x: 2, y: 1, width: 3, height: 2 })) {
+      cropped.push(...block.data)
+    }
+    expect(cropped).toEqual([
+      43, 43, 65, 255, 60, 50, 96, 255, 77, 57, 127, 255, 52, 72, 68, 255, 69, 79, 99, 255, 86, 86,
+      130, 255,
+    ])
+
+    const controller = new AbortController()
+    controller.abort()
+    await expect(
+      decoder.decode({ signal: controller.signal })[Symbol.asyncIterator]().next(),
+    ).rejects.toMatchObject({ name: 'AbortError' })
+  })
+
+  it('accounts for compact Modular working planes before decoding', async () => {
+    await expect(
+      jpegxlCodec.metadata(new MemorySource(localTreeRgb), {
+        ...defaultImageLimits,
+        maxDecodedBytes: 8 * 5 * 3 * 4 - 1,
+      }),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
   })
 
   it('decodes the implemented subset directly from a jxlc container', async () => {

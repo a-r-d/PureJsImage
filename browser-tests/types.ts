@@ -47,6 +47,7 @@ export interface BrowserCompatibilityHarness {
   inputTypes(): Promise<readonly BrowserWorkflowResult[]>
   optionalApiEntries(): Promise<BrowserWorkflowResult>
   jpegPipeline(): Promise<BrowserWorkflowResult>
+  jpegXlLossless(): Promise<BrowserWorkflowResult>
   legacyTiffAndBmp(): Promise<BrowserWorkflowResult>
   unsupportedJpegBoundaries(): Promise<BrowserWorkflowResult>
   tolerantJpegRestartRecovery(): Promise<BrowserWorkflowResult>

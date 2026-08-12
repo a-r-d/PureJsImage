@@ -246,6 +246,7 @@ benchmark/corpus/mrc/official/
 benchmark/corpus/cbf/compatibility/
 benchmark/fixtures/jpegxl/*
 !benchmark/fixtures/jpegxl/conformance-alpha-nonpremultiplied.jxl
+!benchmark/fixtures/jpegxl/conformance-alpha-triangles.jxl
 benchmark/aws-lambda/.asset/
 benchmark/aws-lambda/.asset.zip
 benchmark/aws-lambda/.asset-location.json

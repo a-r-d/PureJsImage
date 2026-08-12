@@ -41,4 +41,22 @@ export const jpegXlCorpus: readonly JpegXlCorpusEntry[] = Object.freeze([
       'unassociated alpha',
     ]),
   }),
+  Object.freeze({
+    id: 'conformance-alpha-triangles',
+    source: `${conformanceRaw}/testcases/alpha_triangles/input.jxl`,
+    license: 'CC0, as recorded by the pinned conformance testcases README',
+    sha256: '19ac7752a23ad2b22814064cb6b62a581b48be18ed73b5ccc2340888c114d2c9',
+    bytes: 61,
+    width: 1_024,
+    height: 1_024,
+    features: Object.freeze([
+      'raw codestream',
+      'still image',
+      'lossless Modular',
+      '9-bit RGB',
+      'unassociated alpha',
+      'adaptive MA tree',
+      'nonzero residuals',
+    ]),
+  }),
 ])

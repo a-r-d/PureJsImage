@@ -10,6 +10,7 @@ import { bmpCodec } from '../src/codec-entries/bmp.ts'
 import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
 import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
+import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createTiffCodec, tiffCodec } from '../src/codec-entries/tiff.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
@@ -34,6 +35,7 @@ import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types
 const images = createImageLibrary([
   gifCodec,
   jpegCodec,
+  jpegxlCodec,
   pngCodec,
   webpCodec,
   bmpCodec,
@@ -56,6 +58,15 @@ const fetchBytes = async (path: string): Promise<Uint8Array<ArrayBuffer>> => {
   if (!response.ok) throw new Error(`Fixture request failed: ${response.status} ${path}`)
   return new Uint8Array(await response.arrayBuffer())
 }
+
+const jpegXlLocalTreeRgb = Uint8Array.from(
+  `ff0a205010090804010038018924512a542005921b638c318c3118610c638c8e
+   113118ea82ddb7d06ab724b9774aaa2eb3aaaacaaeaaaa02aaabaa5af4a92ec252c1a1
+   ec2d0bb13477a92f68611ffadbb639a13d214aa900e305`
+    .replaceAll(/\s/g, '')
+    .match(/../g) ?? [],
+  (pair) => Number.parseInt(pair, 16),
+)
 const instantiateWasm = async (path: string): Promise<WebAssembly.Instance> => {
   const response = await fetch(path)
   if (!response.ok) throw new Error(`WASM request failed: ${response.status} ${path}`)
@@ -174,6 +185,46 @@ const jpegPipeline = async (): Promise<BrowserWorkflowResult> => {
   return {
     detail: 'JPEG crop + resize + rotate + JPEG encode -> 100x120',
     outputBytes: output.size,
+  }
+}
+
+const jpegXlLossless = async (): Promise<BrowserWorkflowResult> => {
+  const input = new Blob([jpegXlLocalTreeRgb], { type: 'image/jxl' })
+  const image = await images.open(input)
+  const metadata = await image.metadata()
+  if (
+    metadata.format !== 'jpegxl' ||
+    metadata.width !== 8 ||
+    metadata.height !== 5 ||
+    metadata.hasAlpha
+  ) {
+    throw new Error('Browser JPEG XL metadata did not match the pinned RGB fixture')
+  }
+
+  const decoder = await jpegxlCodec.createDecoder?.(
+    new MemorySource(jpegXlLocalTreeRgb),
+    defaultImageLimits,
+  )
+  if (!decoder) throw new Error('Browser JPEG XL decoder is unavailable')
+  const cropped: number[] = []
+  for await (const block of decoder.decode({ x: 2, y: 1, width: 3, height: 2 })) {
+    cropped.push(...block.data)
+  }
+  const expected = [
+    43, 43, 65, 255, 60, 50, 96, 255, 77, 57, 127, 255, 52, 72, 68, 255, 69, 79, 99, 255, 86, 86,
+    130, 255,
+  ]
+  if (
+    cropped.length !== expected.length ||
+    cropped.some((value, index) => value !== expected[index])
+  ) {
+    throw new Error('Browser JPEG XL crop did not match the djxl pixel oracle')
+  }
+
+  const output = await image.crop({ x: 2, y: 1, width: 3, height: 2 }).png().toUint8Array()
+  return {
+    detail: 'lossless JPEG XL local-tree ANS decode matched djxl RGB pixels',
+    outputBytes: output.byteLength,
   }
 }
 const unsupportedJpegBoundaries = async (): Promise<BrowserWorkflowResult> => {
@@ -2891,6 +2942,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   optionalApiEntries,
   legacyTiffAndBmp,
   jpegPipeline,
+  jpegXlLossless,
   unsupportedJpegBoundaries,
   tolerantJpegRestartRecovery,
   orientation,

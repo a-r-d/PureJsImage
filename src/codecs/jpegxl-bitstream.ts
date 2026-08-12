@@ -43,7 +43,10 @@ export class JpegXlBitReader {
   }
 
   skipBits(count: number): void {
-    this.readBits(count)
+    if (!Number.isSafeInteger(count) || count < 0 || count > this.remainingBits) {
+      throw invalidInput('JPEG XL bit skip is invalid')
+    }
+    this.#bitPosition += count
   }
 
   alignToByte(): void {
@@ -373,13 +376,13 @@ const readLz77Fields = (
       { value: 224 },
       { value: 512 },
       { value: 4_096 },
-      { offset: 15, bits: 8 },
+      { offset: 8, bits: 15 },
     ]),
     minimumLength: readJpegXlU32(reader, [
       { value: 3 },
       { value: 4 },
-      { offset: 2, bits: 5 },
-      { offset: 8, bits: 9 },
+      { offset: 5, bits: 2 },
+      { offset: 9, bits: 8 },
     ]),
   })
 }
@@ -688,13 +691,22 @@ export const readJpegXlEntropyCode = (
 
 export class JpegXlEntropySymbolReader {
   readonly #code: JpegXlEntropyCode
-  readonly #window: number[] = []
+  readonly #maximumSymbols: number
+  readonly #window: Uint32Array | undefined
+  #symbolsRead = 0
+  #windowLength = 0
+  #writePosition = 0
   #copyPosition = 0
   #remainingCopies = 0
   #ansState: number | undefined
 
-  constructor(code: JpegXlEntropyCode) {
+  constructor(code: JpegXlEntropyCode, maximumSymbols = 67_108_864) {
+    if (!Number.isSafeInteger(maximumSymbols) || maximumSymbols < 1) {
+      throw invalidInput('JPEG XL entropy symbol limit is invalid')
+    }
     this.#code = code
+    this.#maximumSymbols = maximumSymbols
+    this.#window = code.lz77.enabled ? new Uint32Array(1_048_576) : undefined
   }
 
   hasValidFinalState(): boolean {
@@ -702,10 +714,18 @@ export class JpegXlEntropySymbolReader {
   }
 
   readHybridUint(context: number, reader: JpegXlBitReader): number {
+    if (this.#symbolsRead >= this.#maximumSymbols) {
+      throw invalidInput('JPEG XL entropy stream exceeds its symbol limit')
+    }
+    this.#symbolsRead += 1
+    return this.#readHybridUint(context, reader)
+  }
+
+  #readHybridUint(context: number, reader: JpegXlBitReader): number {
     if (this.#remainingCopies > 0) {
-      const copied = this.#window[this.#copyPosition]
+      const copied = this.#window?.[this.#copyPosition]
       if (copied === undefined) throw invalidInput('JPEG XL LZ77 reference is invalid')
-      this.#copyPosition += 1
+      this.#copyPosition = (this.#copyPosition + 1) & 1_048_575
       this.#remainingCopies -= 1
       this.#append(copied)
       return copied
@@ -720,15 +740,18 @@ export class JpegXlEntropySymbolReader {
           this.#code.lz77.lengthConfig,
           token - this.#code.lz77.minimumSymbol,
         ) + this.#code.lz77.minimumLength
+      if (this.#remainingCopies > this.#maximumSymbols - this.#symbolsRead + 1) {
+        throw invalidInput('JPEG XL LZ77 run exceeds the entropy symbol limit')
+      }
       const distanceToken = this.#readToken(this.#code.lz77.distanceContext, reader)
       const distanceConfig = this.#code.uintConfigs[this.#code.lz77.distanceContext]
       if (!distanceConfig) throw invalidInput('JPEG XL LZ77 distance configuration is missing')
       const distance = readJpegXlHybridUint(reader, distanceConfig, distanceToken) + 1
-      if (distance > this.#window.length || distance > 1_048_576) {
+      if (distance > this.#windowLength || distance > 1_048_576) {
         throw invalidInput('JPEG XL LZ77 distance is invalid')
       }
-      this.#copyPosition = this.#window.length - distance
-      return this.readHybridUint(context, reader)
+      this.#copyPosition = (this.#writePosition - distance + 1_048_576) & 1_048_575
+      return this.#readHybridUint(context, reader)
     }
     const config = this.#code.uintConfigs[histogram]
     if (!config) throw invalidInput('JPEG XL hybrid integer configuration is missing')
@@ -760,11 +783,9 @@ export class JpegXlEntropySymbolReader {
   }
 
   #append(value: number): void {
-    this.#window.push(value)
-    if (this.#window.length > 1_048_576) {
-      const removed = this.#window.length - 1_048_576
-      this.#window.splice(0, removed)
-      this.#copyPosition = Math.max(0, this.#copyPosition - removed)
-    }
+    if (!this.#window) throw invalidInput('JPEG XL LZ77 window is missing')
+    this.#window[this.#writePosition] = value
+    this.#writePosition = (this.#writePosition + 1) & 1_048_575
+    this.#windowLength = Math.min(1_048_576, this.#windowLength + 1)
   }
 }

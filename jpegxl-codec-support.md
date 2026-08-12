@@ -16,13 +16,15 @@ first-party codec validates these structures and returns bounded source ranges
 without concatenating compressed data. Raw and single-`jxlc` codestreams can enter
 the implemented pixel subset directly.
 
-The first pixel milestone decodes the pinned official 12-bit non-premultiplied-alpha
-lossless Modular conformance image. It parses image and frame headers, prefix and ANS
-entropy foundations, the bounded meta-adaptive tree, Zero/Left/Top prediction, and a
-reversible color transform, then emits cropped `rgba8` rows. All 4,194,304 output
-samples match an independent `djxl` decode after the same 12-to-8-bit normalization.
-Broader residual streams, predictors, transforms, color descriptions, groups, frames,
-and all VarDCT syntax remain explicit unsupported operations.
+The current pixel milestone decodes pinned 8-bit RGB plus official 9-bit and 12-bit
+non-premultiplied-alpha lossless Modular fixtures. It parses image and frame headers,
+global or local MA trees, prefix and ANS entropy, bounded LZ77, adaptive properties,
+nonzero residuals, six independently exercised Modular predictors, and one reversible color
+transform, then emits cropped `rgba8` rows. The official RGBA fixtures each match an
+independent `djxl` decode across all 4,194,304 output samples, and the RGB fixture also
+matches exact `djxl` pixels in a real browser. Palette, Squeeze, Weighted prediction,
+custom color descriptions, multiple groups or frames, and all VarDCT syntax remain
+explicit unsupported operations.
 
 A checked implementation item is already present and tested in the repository.
 An unchecked item is not supported yet. Items in deferred groups do not block
@@ -126,7 +128,7 @@ losslessly transcoded JPEG files.
   sizes required by the implemented lossless Modular subset
 - [x] Implement the bounded prefix and ANS entropy structures exercised by the
   pinned conformance fixture, including context maps and final-state validation
-- [ ] Implement bounded LZ77 distances, lengths, repeat offsets, and copies
+- [x] Implement bounded LZ77 distances, lengths, repeat offsets, and copies
   across entropy-coded streams
 - [x] Reject invalid distributions, impossible symbols, non-final ANS states,
   LZ77 underflow/overflow, and reads past a declared section
@@ -143,7 +145,7 @@ losslessly transcoded JPEG files.
   ranges, and context count
 - [ ] Implement the required Modular predictors, including weighted prediction
   and its state updates
-- [ ] Decode residuals through the selected predictor and reconstruct signed
+- [x] Decode residuals through the selected predictor and reconstruct signed
   channel samples without overflow
 - [ ] Implement palette transforms, including delta palettes and palette-index
   prediction
@@ -198,7 +200,7 @@ losslessly transcoded JPEG files.
 ### Common samples, alpha, and color
 
 - [ ] Integer grayscale and RGB at 8, 10, 12, and 16 bits per sample
-- [ ] One alpha extra channel with independent precision
+- [x] One alpha extra channel with independent precision
 - [ ] Unassociated and premultiplied alpha with correct unpremultiplication or
   preservation behavior
 - [ ] Parse the encoded color encoding: color space, white point, primaries,
@@ -207,7 +209,7 @@ losslessly transcoded JPEG files.
 - [ ] Render common sRGB, linear sRGB, Display P3, and gray inputs to the
   pipeline's declared output color space
 - [ ] Handle XYB, RGB, and grayscale codestream color representations
-- [ ] Convert high-bit-depth samples to the 8-bit pipeline with a documented
+- [x] Convert high-bit-depth samples to the 8-bit pipeline with a documented
   rounding and tone-mapping policy
 - [ ] Reject unsupported color encodings or extra-channel semantics rather than
   treating their samples as sRGB or alpha
@@ -283,8 +285,8 @@ JPEG XL v1.
   the LF, reference, filter-halo, and output state still required
 - [ ] Release entropy tables, coefficients, Modular channels, features, and
   restoration buffers as soon as later groups cannot reference them
-- [x] Use two sample rows per channel and one bounded output row rather than a
-  source-sized RGBA decoder boundary for the implemented Modular subset
+- [x] Use compact signed channel planes and one bounded output row rather than a
+  second source-sized RGBA decoder boundary for the implemented Modular subset
 - [ ] Push crop, resize, and reduced-resolution requirements into group and pass
   selection wherever the codestream permits
 - [ ] Account for concurrent input, section indexes, entropy state, LF images,
@@ -324,7 +326,7 @@ JPEG XL v1.
 - [ ] Study libjxl's module boundaries, supported features, test taxonomy,
   low-memory behavior, and security history without copying or mechanically
   translating its implementation
-- [ ] Pin the official JPEG XL conformance corpus and reference decoded outputs
+- [x] Pin the official JPEG XL conformance corpus and reference decoded outputs
   at an exact commit
 - [ ] Run every applicable conformance codestream through PureJsImage and record
   unsupported cases separately from incorrect pixels
@@ -344,7 +346,7 @@ JPEG XL v1.
 - [ ] Record provenance, license, encoder/version, container form, dimensions,
   orientation, bit depth, channels, extra channels, color encoding, mode,
   frames, groups, passes, level, feature flags, and checksums
-- [ ] Verify exact samples for lossless Modular fixtures
+- [x] Verify exact samples for lossless Modular fixtures
 - [ ] Use conformance-defined or documented numeric tolerances for VarDCT, XYB,
   ICC, restoration-filter, and HDR output
 - [ ] Verify every benchmark output before recording speed or memory

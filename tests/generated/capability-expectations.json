@@ -204,7 +204,12 @@
       "format": "jpegxl",
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/jpegxl.test.ts", "tests/library.test.ts"],
+      "evidence": [
+        "tests/jpegxl.test.ts",
+        "tests/jpegxl-bitstream.test.ts",
+        "browser-tests/compatibility.pw.ts",
+        "tests/library.test.ts"
+      ],
       "lossyPixelValidation": {
         "status": "not-applicable",
         "rationale": "The implemented JPEG XL pixel subset is lossless Modular only; lossy VarDCT remains unsupported"

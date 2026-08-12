@@ -33,6 +33,12 @@ test('decodes JPEG metadata and runs crop, resize, rotation, and JPEG encoding',
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('100x120')
 })
+test('decodes lossless JPEG XL local-tree ANS pixels in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.jpegXlLossless())
+  expect(result.outputBytes).toBeGreaterThan(50)
+  expect(result.detail).toContain('matched djxl RGB pixels')
+})
 test('handles supported and unsupported JPEG coding boundaries', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() =>
