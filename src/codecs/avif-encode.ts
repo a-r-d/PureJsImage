@@ -1,11 +1,13 @@
 import { throwIfAborted } from '../abort.ts'
-import type { EncodeRequest, ImageEncoder } from '../codec.ts'
+import type { EncodeRequest, ImageEncoder, PreservedMetadata } from '../codec.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import { iccColorSpace } from '../metadata.ts'
 import type { AvifEncodeOptions, Background } from '../pipeline.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import { Av1CoefficientEncoder } from './av1-coeff-encode.ts'
 import { Av1SymbolEncoder } from './av1-symbol-encode.ts'
+import { parseRgbIccTransform } from './icc.ts'
 
 const probabilityTop = 1 << 15
 const maximumTileWidth = 4096
@@ -520,6 +522,7 @@ const avifMetadata = (
   height: number,
   itemOffset: number,
   itemLength: number,
+  metadata: Readonly<PreservedMetadata> | undefined,
 ): Uint8Array => {
   const handler = fullBox(
     'hdlr',
@@ -532,20 +535,42 @@ const avifMetadata = (
     ]),
   )
   const primaryItem = fullBox('pitm', Uint8Array.of(0, 1))
-  const itemInfoEntry = fullBox(
+  const colorItemInfo = fullBox(
     'infe',
     concatenate([Uint8Array.of(0, 1, 0, 0), ascii('av01'), ascii('Color'), Uint8Array.of(0)]),
     2,
   )
-  const itemInfo = fullBox('iinf', concatenate([Uint8Array.of(0, 1), itemInfoEntry]))
+  const exifItemInfo = metadata?.exif
+    ? fullBox(
+        'infe',
+        concatenate([Uint8Array.of(0, 2, 0, 0), ascii('Exif'), ascii('Exif'), Uint8Array.of(0)]),
+        2,
+      )
+    : undefined
+  const itemInfo = fullBox(
+    'iinf',
+    concatenate([
+      Uint8Array.of(0, exifItemInfo ? 2 : 1),
+      colorItemInfo,
+      ...(exifItemInfo ? [exifItemInfo] : []),
+    ]),
+  )
+  const itemLocation = (itemId: number, offset: number, length: number): Uint8Array =>
+    concatenate([Uint8Array.of(0, itemId, 0, 0, 0, 1), bytes32(offset), bytes32(length)])
+  const exifPayloadLength = metadata?.exif ? metadata.exif.byteLength + 4 : 0
   const location = fullBox(
     'iloc',
     concatenate([
-      Uint8Array.of(0x44, 0, 0, 1, 0, 1, 0, 0, 0, 1),
-      bytes32(itemOffset),
-      bytes32(itemLength),
+      Uint8Array.of(0x44, 0, 0, exifPayloadLength === 0 ? 1 : 2),
+      itemLocation(1, itemOffset, itemLength),
+      ...(exifPayloadLength === 0
+        ? []
+        : [itemLocation(2, itemOffset + itemLength, exifPayloadLength)]),
     ]),
   )
+  const colorProperty = metadata?.icc
+    ? box('colr', ascii('prof'), metadata.icc)
+    : box('colr', concatenate([ascii('nclx'), Uint8Array.of(0, 1, 0, 13, 0, 1, 0x80)]))
   const properties = box(
     'iprp',
     box(
@@ -553,11 +578,24 @@ const avifMetadata = (
       fullBox('ispe', concatenate([bytes32(width), bytes32(height)])),
       fullBox('pixi', Uint8Array.of(3, 8, 8, 8)),
       box('av1C', Uint8Array.of(0x81, 0, 0x0c, 0)),
-      box('colr', concatenate([ascii('nclx'), Uint8Array.of(0, 1, 0, 13, 0, 1, 0x80)])),
+      colorProperty,
     ),
     fullBox('ipma', concatenate([bytes32(1), Uint8Array.of(0, 1, 4, 1, 2, 3, 4)])),
   )
-  return fullBox('meta', concatenate([handler, primaryItem, location, itemInfo, properties]))
+  const references = exifItemInfo
+    ? fullBox('iref', box('cdsc', Uint8Array.of(0, 2, 0, 1, 0, 1)))
+    : undefined
+  return fullBox(
+    'meta',
+    concatenate([
+      handler,
+      primaryItem,
+      location,
+      itemInfo,
+      properties,
+      ...(references ? [references] : []),
+    ]),
+  )
 }
 
 const fileType = box(
@@ -583,6 +621,7 @@ class AvifEncoder implements ImageEncoder {
   readonly #planes: Av1Planes
   readonly #chromaSumU: Float64Array
   readonly #chromaSumV: Float64Array
+  readonly #metadata: Readonly<PreservedMetadata> | undefined
   readonly #chromaCounts: Uint8Array
   #receivedRows = 0
   #chromaRows = 0
@@ -596,6 +635,19 @@ class AvifEncoder implements ImageEncoder {
     this.#channels = channelsFor(request.pixelFormat)
     this.#background = parseBackground(options.background)
     this.#signal = request.signal
+    this.#metadata = request.metadata
+    if (request.metadata?.exif && request.metadata.exif.byteLength > 16 * 1024 * 1024) {
+      throw invalidInput('Preserved AVIF EXIF data exceeds 16 MiB')
+    }
+    if (request.metadata?.icc) {
+      if (request.metadata.icc.byteLength > 16 * 1024 * 1024) {
+        throw invalidInput('Preserved AVIF ICC profile exceeds 16 MiB')
+      }
+      if (iccColorSpace(request.metadata.icc) !== 'rgb') {
+        throw invalidInput('Preserved ICC profile does not describe AVIF RGB output')
+      }
+      parseRgbIccTransform(request.metadata.icc)
+    }
     if (request.height > maximumFrameHeight) {
       throw unsupportedOperation(
         `Constrained AVIF encoding supports frames up to ${maximumFrameHeight}px high`,
@@ -667,13 +719,31 @@ class AvifEncoder implements ImageEncoder {
     if ((this.#height & 1) === 1) this.#flushChromaRow()
     this.#padPlanes()
     const av1 = new ConstrainedAv1Encoder(this.#planes).finish(this.#width, this.#height)
-    const provisionalMetadata = avifMetadata(this.#width, this.#height, 0, av1.byteLength)
+    const exifPayload = this.#metadata?.exif
+      ? concatenate([bytes32(0), this.#metadata.exif])
+      : undefined
+    const provisionalMetadata = avifMetadata(
+      this.#width,
+      this.#height,
+      0,
+      av1.byteLength,
+      this.#metadata,
+    )
     const itemOffset = fileType.byteLength + provisionalMetadata.byteLength + 8
-    const metadata = avifMetadata(this.#width, this.#height, itemOffset, av1.byteLength)
+    const metadata = avifMetadata(
+      this.#width,
+      this.#height,
+      itemOffset,
+      av1.byteLength,
+      this.#metadata,
+    )
+    const mediaDataLength = 8 + av1.byteLength + (exifPayload?.byteLength ?? 0)
     await this.#sink.write(fileType)
     await this.#sink.write(metadata)
-    await this.#sink.write(concatenate([bytes32(av1.byteLength + 8), ascii('mdat')]))
+    await this.#sink.write(bytes32(mediaDataLength))
+    await this.#sink.write(ascii('mdat'))
     await this.#sink.write(av1)
+    if (exifPayload) await this.#sink.write(exifPayload)
   }
 
   async abort(): Promise<void> {

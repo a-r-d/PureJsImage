@@ -2222,14 +2222,45 @@ const avifHdrGainMap = (): Promise<BrowserWorkflowResult> =>
     'ISO gain-map HDR-to-SDR AVIF',
   )
 
-const avifIcc = (): Promise<BrowserWorkflowResult> =>
-  avifPinnedPng(
+const avifIcc = async (): Promise<BrowserWorkflowResult> => {
+  const decoded = await avifPinnedPng(
     'libavif-paris-icc-exif-xmp.avif',
     403,
     302,
     '2a283d662a75d7b522146ee8e559153b00fe16523e2958a17f988e34929e0b33',
     'RGB matrix/TRC ICC color-managed AVIF',
   )
+  const input = await fetchBytes('/fixtures/libavif-paris-icc-exif-xmp.avif')
+  const sourceMetadata = await avifCodec.preservedMetadata?.(
+    new MemorySource(input),
+    defaultImageLimits,
+  )
+  if (!sourceMetadata?.exif || !sourceMetadata.icc) {
+    throw new Error('Pinned AVIF source did not expose EXIF and ICC metadata')
+  }
+  const encoded = await (await images.open(input))
+    .keepExif()
+    .keepIcc()
+    .resize({ width: 32 })
+    .avif()
+    .toUint8Array()
+  const encodedMetadata = await avifCodec.preservedMetadata?.(
+    new MemorySource(encoded),
+    defaultImageLimits,
+  )
+  if (
+    !encodedMetadata?.exif ||
+    !encodedMetadata.icc ||
+    (await sha256(encodedMetadata.exif)) !== (await sha256(sourceMetadata.exif)) ||
+    (await sha256(encodedMetadata.icc)) !== (await sha256(sourceMetadata.icc))
+  ) {
+    throw new Error('Browser AVIF re-encode did not preserve EXIF and ICC metadata')
+  }
+  return {
+    detail: `${decoded.detail}; EXIF and ICC preserved through browser re-encode`,
+    outputBytes: decoded.outputBytes + encoded.byteLength,
+  }
+}
 
 const avifCleanAperture = async (): Promise<BrowserWorkflowResult> => {
   const results = await Promise.all([

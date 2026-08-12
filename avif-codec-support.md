@@ -22,6 +22,8 @@ coverage.
 - [x] Treat bounded-memory AVIF-to-resize and AVIF-to-AVIF workflows as the
   long-term AWS Lambda architecture target
 - [x] Implement the initial constrained AVIF encoder
+- [x] Publish AVIF read support as `Yes` for common still-image workflows while
+  keeping uncommon AV1 syntax and dependent animation as explicit unsupported boundaries
 
 ## Decode
 
@@ -80,9 +82,12 @@ coverage.
   alternative selection through `altr` entity groups
 - [ ] Depth maps, thumbnails, overlays, derived images other than grids and
   compatible gain maps, and other auxiliary-image semantics
-- [ ] EXIF and XMP item discovery and metadata exposure
-- [x] Compatible RGB matrix/TRC ICC profile parsing and color-managed conversion
-- [ ] Metadata preservation or explicit stripping controls when re-encoding
+- [x] EXIF item discovery and opt-in preservation through `keepExif()`
+- [ ] XMP item discovery and metadata exposure
+- [x] Compatible RGB matrix/TRC ICC profile parsing, color-managed conversion,
+  and opt-in preservation through `keepIcc()`
+- [x] Metadata stripping by default and explicit EXIF and ICC preservation controls
+  when re-encoding
 
 ### AV1 low-overhead bitstream inspection
 
@@ -312,7 +317,8 @@ byte. The full-size tolerance remains zero.
 - [ ] Adaptive partition, prediction, transform, and quantizer decisions
 - [ ] Loop-filter, CDEF, and restoration decisions
 - [ ] Multi-tile and grid output for large images
-- [ ] Metadata and ICC writing or preservation
+- [x] EXIF item and compatible RGB ICC profile writing when explicitly preserved
+- [ ] XMP and other metadata writing or preservation
 - [ ] Animation
 
 ## Memory and execution contract
@@ -476,6 +482,8 @@ byte. The full-size tolerance remains zero.
   through the portable TypeScript codec in Chromium and pin each PNG output
 - [x] Match compatible RGB matrix/TRC ICC output exactly against Sharp/libvips
   for two checksum-pinned fixtures
+- [x] Preserve checksum-pinned EXIF and compatible RGB ICC bytes through AVIF
+  re-encoding in Node.js and Chromium while stripping both by default
 - [x] Hold linear BT.2020 conversion to maximum channel error 13 and mean error
   at most 0.5 against an FFmpeg/zimg staged-sRGB oracle
 - [x] Hold four checksum-pinned single-image, grid, and resampled ISO

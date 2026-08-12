@@ -271,6 +271,7 @@ test('applies an AVIF RGB ICC profile', async ({ page }) => {
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.avifIcc())
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('pinned portable RGBA output')
+  expect(result.detail).toContain('EXIF and ICC preserved through browser re-encode')
 })
 
 test('decodes coded-lossless 10-bit AVIF tiles', async ({ page }) => {

@@ -5,6 +5,8 @@ import type {
   ImageCodec,
   ImageDecoder,
   ImageMetadata,
+  MetadataPreservationOptions,
+  PreservedMetadata,
 } from '../codec.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
@@ -128,6 +130,7 @@ type Property =
       readonly colorSpace: string
       readonly colorTransform?: RgbIccTransform
       readonly iccDescription?: string
+      readonly icc?: Uint8Array
       readonly nclx?: NclxColor
     }
   | { readonly type: 'imir'; readonly axis: 0 | 1 }
@@ -364,6 +367,7 @@ const parseProperty = async (source: ImageSource, box: Box): Promise<Property> =
       return {
         type: 'colr',
         colorSpace: 'icc',
+        icc,
         ...(description === undefined ? {} : { iccDescription: description }),
         colorTransform: parseRgbIccTransform(icc),
       }
@@ -1022,6 +1026,7 @@ const readItemPayload = async (
   source: ImageSource,
   meta: MetaDescription,
   itemId: number,
+  maximumBytes = MAX_ITEM_PAYLOAD_BYTES,
 ): Promise<Uint8Array> => {
   const location = meta.locations.get(itemId)
   if (!location || location.extents.length === 0) {
@@ -1045,7 +1050,7 @@ const readItemPayload = async (
       throw invalidInput(`AVIF item ${itemId} extent exceeds its data source`)
     }
     total = checkedAdd(total, extent.length, `AVIF item ${itemId} total size overflows`)
-    if (total > MAX_ITEM_PAYLOAD_BYTES) {
+    if (total > maximumBytes) {
       throw invalidInput(`AVIF item ${itemId} payload is unreasonably large`)
     }
     return { start, length: extent.length }
@@ -1766,6 +1771,81 @@ const inspectAvif = async (
           ? { colorProfile: { kind: 'nclx' as const, ...metadataColor.nclx } }
           : {}),
     ...(orientation !== undefined ? { orientation } : {}),
+  }
+}
+
+const MAX_PRESERVED_METADATA_BYTES = 16 * 1024 * 1024
+
+const metadataItem = (
+  meta: MetaDescription,
+  primaryItemId: number,
+  type: string,
+): number | undefined => {
+  const candidates = [...meta.items.values()].filter((item) => item.type === type)
+  const linked = candidates.filter((item) =>
+    meta.references.some(
+      (reference) =>
+        reference.type === 'cdsc' &&
+        reference.fromItemId === item.id &&
+        reference.toItemIds.includes(primaryItemId),
+    ),
+  )
+  const usable = linked.length > 0 ? linked : candidates
+  if (usable.length > 1) throw invalidInput(`AVIF contains multiple ${type} metadata items`)
+  return usable[0]?.id
+}
+
+const preservedAvifExif = async (
+  source: ImageSource,
+  meta: MetaDescription,
+  primaryItemId: number,
+): Promise<Uint8Array | undefined> => {
+  const itemId = metadataItem(meta, primaryItemId, 'Exif')
+  if (itemId === undefined) return undefined
+  const data = await readItemPayload(source, meta, itemId, MAX_PRESERVED_METADATA_BYTES)
+  if (data.byteLength < 12) throw invalidInput('AVIF EXIF item is truncated')
+  const tiffOffset = checkedAdd(4, uint32BigEndian(data, 0), 'AVIF EXIF offset overflows')
+  const littleEndian = data[tiffOffset] === 0x49 && data[tiffOffset + 1] === 0x49
+  const bigEndian = data[tiffOffset] === 0x4d && data[tiffOffset + 1] === 0x4d
+  const magic = littleEndian
+    ? (data[tiffOffset + 2] ?? 0) + (data[tiffOffset + 3] ?? 0) * 256
+    : (data[tiffOffset + 2] ?? 0) * 256 + (data[tiffOffset + 3] ?? 0)
+  if (tiffOffset + 8 > data.byteLength || (!littleEndian && !bigEndian) || magic !== 42) {
+    throw invalidInput('AVIF EXIF item has an invalid TIFF header')
+  }
+  return Uint8Array.from(data.subarray(tiffOffset))
+}
+
+const preservedAvifMetadata = async (
+  source: ImageSource,
+  limits: ImageLimits,
+  options?: Readonly<MetadataPreservationOptions>,
+): Promise<PreservedMetadata> => {
+  const topLevel = await childBoxes(source, 0, source.size)
+  const fileType = topLevel.find((box) => box.type === 'ftyp')
+  const metaBox = topLevel.find((box) => box.type === 'meta')
+  if (!fileType || !metaBox) throw invalidInput('AVIF requires ftyp and meta boxes')
+  const brands = parseBrands(await payload(source, fileType, 4096), 'AVIF')
+  const tracks = brands.includes('avis')
+    ? await inspectAvifTracks(source, limits.maxFrames, topLevel)
+    : undefined
+  await inspectAvif(
+    source,
+    limits,
+    options?.frame === undefined ? {} : { frame: options.frame },
+    tracks,
+    topLevel,
+  )
+  const meta = await parseMeta(source, metaBox)
+  const primaryItemId = meta.primaryItemId
+  if (primaryItemId === undefined) throw invalidInput('AVIF has no primary item')
+  const exif =
+    options?.exif === false ? undefined : await preservedAvifExif(source, meta, primaryItemId)
+  const color = tracks?.color.color ?? firstProperty(propertiesFor(meta, primaryItemId), 'colr')
+  const icc = options?.icc === false ? undefined : color?.icc
+  return {
+    ...(exif === undefined ? {} : { exif }),
+    ...(icc === undefined ? {} : { icc: Uint8Array.from(icc) }),
   }
 }
 const isHdrTransfer = (transferCharacteristics: number): boolean =>
@@ -3337,7 +3417,7 @@ const createAvifDecoder = async (
   ) {
     throw invalidInput('AVIF clean-aperture metadata is inconsistent')
   }
-  return inspection.colorTransform && !gainMapApplies
+  return inspection.colorTransform && !gainMapApplies && options.preserveIcc !== true
     ? new ColorManagedDecoder(decoder, inspection.colorTransform)
     : decoder
 }
@@ -3351,6 +3431,7 @@ export const avifCodec: ImageCodec = {
     return detectIsobmffBrands(header).some((brand) => brand === 'avif' || brand === 'avis')
   },
   metadata: inspectAvif,
+  preservedMetadata: preservedAvifMetadata,
   createEncoder: createAvifEncoder,
   createDecoder: createAvifDecoder,
 }

@@ -2,6 +2,7 @@ import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
+import { avifCodec } from '../src/codecs/avif.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { tiffCodec } from '../src/codecs/tiff.ts'
@@ -131,6 +132,29 @@ describe('metadata preservation', () => {
 
     const managedAfterReopen = PNG.sync.read(await (await Image.open(preserved)).png().toBuffer())
     expect(managedAfterReopen.data).toEqual(directlyManaged.data)
+  })
+
+  it('strips AVIF metadata by default and preserves EXIF and compatible RGB ICC on request', async () => {
+    const input = taggedJpeg()
+    const stripped = await (await Image.open(input.data)).avif().toBuffer()
+    const strippedMetadata = await avifCodec.preservedMetadata?.(
+      new MemorySource(stripped),
+      defaultImageLimits,
+    )
+    expect(strippedMetadata).toEqual({})
+
+    const output = await (await Image.open(input.data)).keepExif().keepIcc().avif().toBuffer()
+    const preservedMetadata = await avifCodec.preservedMetadata?.(
+      new MemorySource(output),
+      defaultImageLimits,
+    )
+    expect(preservedMetadata?.exif).toEqual(input.exif)
+    expect(preservedMetadata?.icc).toEqual(input.icc)
+    await expect((await Image.open(output)).metadata()).resolves.toMatchObject({
+      format: 'avif',
+      colorProfile: { kind: 'icc' },
+    })
+    await expect((await Image.open(output)).png().toBuffer()).resolves.not.toHaveLength(0)
   })
 
   it('normalizes retained EXIF orientation after a pixel reorientation', async () => {

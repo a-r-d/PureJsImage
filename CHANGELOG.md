@@ -65,8 +65,9 @@ All notable changes to PureJsImage are documented in this file.
 - Added a constrained first-party AVIF encoder with public `image.avif()` and
   `image.encode('avif')` APIs. It accepts 8-bit grayscale, RGB, and RGBA input,
   composites alpha against white or an explicit solid background, and writes deterministic
-  single-tile Main Profile YUV 4:2:0 still images accepted by libavif and libaom. Quantization
-  remains fixed while adaptive quality, alpha items, metadata, grids, and animation are unfinished.
+  single-tile Main Profile YUV 4:2:0 still images accepted by libavif and libaom. Requested EXIF
+  and compatible RGB ICC metadata are preserved; adaptive quality, alpha items, grids, and
+  animation remain unfinished.
 - Expanded first-party AVIF decode with exact integer and half-integer item-property clean-aperture
   origins, bounded ISO sample-table parsing, exact cross-timescale color/alpha synchronization, and
   explicit independently decodable animation key-sample selection, portable PQ/HLG NCLX tone
@@ -78,6 +79,12 @@ All notable changes to PureJsImage are documented in this file.
   independent pixel differences, timing, and sampled memory for every file.
 
 ### Changed
+
+- Promoted AVIF read support from “Limited” to “Yes” for common still-image workflows after the
+  existing independently validated broad corpus and cross-encoder survey, while retaining explicit
+  unsupported boundaries for dependent animation and uncommon AV1/ISOBMFF syntax. AVIF re-encoding
+  now strips metadata by default and preserves EXIF and compatible RGB ICC profiles through
+  `keepExif()` and `keepIcc()`.
 
 - Expanded the Scientific Raster Explorer with direct Blob-backed local-file range reads, actual
   ENVI band indices and nonuniform wavelength labels, cached display measurements, FITS HDU and
