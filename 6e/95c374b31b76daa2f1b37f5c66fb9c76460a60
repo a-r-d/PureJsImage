@@ -1,0 +1,46 @@
+CHANGELOG.md
+  h_9f4a25732fa0c1 19-31
+benchmark/jpegxl/memory-worker.ts
+  h_9f4a25732fa0c1 1-83
+benchmark/jpegxl/run-memory.ts
+  h_9f4a25732fa0c1 1-135
+benchmark/results/jpegxl-memory-bounded-groups-2026-08-12.json
+  h_9f4a25732fa0c1 1-38
+browser-tests/compatibility-harness.ts
+  h_9f4a25732fa0c1 262-292,3246
+browser-tests/compatibility.pw.ts
+  h_9f4a25732fa0c1 48-53
+browser-tests/types.ts
+  h_9f4a25732fa0c1 56
+capabilities/manifest.json
+  h_9f4a25732fa0c1 3002-3005,3034-3048,3163-3164,3178-3180,3218,3224-3225,3234-3235,3272,3308-3311,3314-3315,3376-3378
+docs-astro/public/capabilities.json
+  h_9f4a25732fa0c1 5374-5377,5550-5551,5582-5583,5586-5587,5671,5677-5680,5683,5705-5708,5711,5794-5795,5862-5863,5867,5873-5876,5879,5974-5979
+docs-astro/public/llms.txt
+  h_9f4a25732fa0c1 523-526
+docs-astro/src/pages/codecs.astro
+  h_9f4a25732fa0c1 26,51,87
+jpegxl-codec-support.md
+  h_9f4a25732fa0c1 19-33,148-149,163-165,203,209-210,219-220,257,293-296,299-300,361-363
+package.json
+  h_9f4a25732fa0c1 312
+scripts/serve-browser-tests.ts
+  h_9f4a25732fa0c1 317-320
+src/codecs/jpegxl-bitstream.ts
+  h_9f4a25732fa0c1 692-711,716-717,725,729-731,734-737,756,777-785,788,823-824
+src/codecs/jpegxl-decode.ts
+  h_9f4a25732fa0c1 7,27,74-129,160-171,177-179,181-185,202-241,260,262-279,282-283,321-332,334-336,338-343,345-363,370,372,374-378,439,441,461-473,481-485,488-493,510-514,516-563,571-572,575-579,587-591,595-719,741-877,882,885-887,896-901,904-905,910-921,923,930,943,969-1060,1110-1151,1155,1169,1171-1178,1181-1184,1219-1222,1224-1233,1235-1241,1243-1252,1255,1260-1262,1275-1283,1285-1286,1288,1292,1323-1331,1333-1334,1336,1340,1365-1525,1539,1546-1552,1567-1581,1584-1588
+tests/jpegxl.test.ts
+  h_9f4a25732fa0c1 25-81,206-355
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "6e95c374b31b76daa2f1b37f5c66fb9c76460a60",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
