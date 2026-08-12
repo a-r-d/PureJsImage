@@ -62,7 +62,8 @@ import { createScientificLibrary, encodeGsf, gsfReader, rasterBlockToNumericTile
 import type { ScientificReader } from 'purejsimage/scientific'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
-import { createAnalysisResultValueTypeRegistry, summarizeResult, validateScalarResult } from 'purejsimage/analysis'
+import { createAnalysisController, createAnalysisResultValueTypeRegistry, getImageSourceIdentity, hashAnalysisGraph, summarizeResult, validateScalarResult } from 'purejsimage/analysis'
+import type { AnalysisGraph } from 'purejsimage/analysis'
 export { openOmeTiff, rasterToPixels } from 'purejsimage/scientific'
 export { createScientificFileContext } from 'purejsimage/scientific/browser'
 export { createScientificPathContext } from 'purejsimage/scientific/node'
@@ -102,17 +103,28 @@ const extensionProvider = createOperationProvider({
   },
   prepare: async () => [],
 })
-export const extensionCapabilities = createExtensionHost({
+const extensionHost = createExtensionHost({
   extensions: [{
     descriptor: { id: 'example.science', version: 1, apiVersion: 1 },
     readers: [extensionReader], valueTypes: [extensionValue], operations: [extensionOperation],
     providers: [extensionProvider],
   }],
-}).manifest
+})
+export const extensionCapabilities = extensionHost.manifest
 export const analysisValueTypes = createAnalysisResultValueTypeRegistry().capabilitySnapshot.valueTypes
 export const scalarSummary = summarizeResult(validateScalarResult({
   kind: 'scalar', valueType: 'purejsimage.result.scalar', value: 12, nanPolicy: 'forbid', unit: 'K',
 }))
+const emptyGraph: AnalysisGraph = { schemaVersion: 1, inputs: [], nodes: [], outputs: [] }
+export const analysisController = createAnalysisController({
+  operations: extensionHost.operations,
+  valueTypes: extensionHost.valueTypes,
+  providers: [extensionProvider],
+  library: { version: '0.9.0', buildFingerprint: 'consumer-build' },
+})
+export const emptyGraphHash = hashAnalysisGraph(emptyGraph)
+export const emptyWorkspace = analysisController.createWorkspace(emptyGraph)
+export const memoryIdentity = getImageSourceIdentity(new MemorySource(Uint8Array.of(1)))
 
 export const encodeNode = async (input: Uint8Array): Promise<Uint8Array> =>
   (await nodeImages.open(input)).png().toBuffer()

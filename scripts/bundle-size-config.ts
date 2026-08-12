@@ -53,7 +53,7 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
   },
   {
     id: 'analysis',
-    name: 'Quantitative analysis results',
+    name: 'Analysis results and graph runtime',
     contents: exportsFrom(['./src/analysis/index.ts']),
   },
   {

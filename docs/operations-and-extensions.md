@@ -7,7 +7,7 @@ entries:
   descriptors, immutable local registries, provider contracts, conservative selection, and the
   definitions that lower existing fluent image operations into their current internal pipeline.
 - `purejsimage/extensions` composes trusted scientific readers, value types, operation definitions,
-  and providers into an isolated application-owned host.
+  providers, and explicit analysis migrations into an isolated application-owned host.
 
 Neither entry changes the default `purejsimage` package, installs a registry, probes a backend, or
 registers an extension merely because it was imported.
@@ -83,7 +83,7 @@ console.log(prepared.manifest)
 ```
 
 These are trusted in-process extensions, not a sandbox. Their reader, validator, lowering, provider,
-and release functions execute with the application's authority. PureJsImage does not scan packages
+release, and migration functions execute with the application's authority. PureJsImage does not scan packages
 or directories, dynamically import names from data, auto-install bundles, call `eval`, or construct
 functions from strings.
 
@@ -91,3 +91,6 @@ Untrusted extensions are future work. The same descriptors, validated commands, 
 results can later cross a Worker or iframe RPC transport, but that host must add permissions,
 resource limits, cancellation enforcement, serialization rules, and realm isolation. The in-process
 registry makes no security claim on its behalf.
+
+Analysis graphs, source identities, migrations, workspace commands, dry runs, and execution
+provenance are documented in [Analysis graphs, planning, and execution](analysis-graphs.md).

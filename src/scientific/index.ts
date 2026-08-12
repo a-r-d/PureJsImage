@@ -45,8 +45,6 @@ export type {
   ScientificReaderDescriptor,
   ScientificReaderDetection,
   ScientificResource,
-  ScientificSourceIdentityHint,
-  ScientificSourceIdentityStrength,
 } from './reader.ts'
 export type {
   DirectNumericTileDataset,

@@ -16,22 +16,12 @@ import type {
 } from './dataset-v2.ts'
 import { normalizeScientificMetadataObject } from './dataset-v2.ts'
 
-export type ScientificSourceIdentityStrength = 'weak' | 'strong'
-
-/** Caller-supplied evidence about a resource; it is not itself a verified content identity. */
-export interface ScientificSourceIdentityHint {
-  readonly kind: string
-  readonly value: string
-  readonly strength?: ScientificSourceIdentityStrength
-}
-
 /** One named input resource used by a scientific reader. */
 export interface ScientificResource {
   readonly id: string
   readonly source: ImageSource
   readonly name?: string
   readonly mediaType?: string
-  readonly identityHint?: ScientificSourceIdentityHint
 }
 
 export type ScientificCompanionRequest =
@@ -219,22 +209,6 @@ const normalizeReaderDescriptor = (value: ScientificReaderDescriptor): Scientifi
     capabilities: normalizeScientificMetadataObject(value.capabilities),
   })
 
-const normalizeIdentityHint = (
-  value: ScientificSourceIdentityHint | undefined,
-): ScientificSourceIdentityHint | undefined => {
-  if (value === undefined) return undefined
-  const kind = requiredString(value.kind, 'Scientific source identity kind')
-  const identityValue = requiredString(value.value, 'Scientific source identity value')
-  if (value.strength !== undefined && value.strength !== 'weak' && value.strength !== 'strong') {
-    throw invalidInput('Scientific source identity strength must be weak or strong')
-  }
-  return Object.freeze({
-    kind,
-    value: identityValue,
-    ...(value.strength === undefined ? {} : { strength: value.strength }),
-  })
-}
-
 const normalizeResource = (value: ScientificResource, label: string): ScientificResource => {
   const id = requiredString(value.id, `${label}.id`)
   if (
@@ -248,13 +222,11 @@ const normalizeResource = (value: ScientificResource, label: string): Scientific
   }
   const name = optionalString(value.name, `${label}.name`)
   const mediaType = optionalString(value.mediaType, `${label}.mediaType`)
-  const identityHint = normalizeIdentityHint(value.identityHint)
   return Object.freeze({
     id,
     source: value.source,
     ...(name === undefined ? {} : { name }),
     ...(mediaType === undefined ? {} : { mediaType: mediaType.toLowerCase() }),
-    ...(identityHint === undefined ? {} : { identityHint }),
   })
 }
 

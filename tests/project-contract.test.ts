@@ -479,6 +479,9 @@ describe('package contract', () => {
     ])
     expect(analysisApi).toHaveProperty('validateScalarResult')
     expect(analysisApi).toHaveProperty('measureScientificPlaneWithResults')
+    expect(analysisApi).toHaveProperty('createAnalysisController')
+    expect(analysisApi).toHaveProperty('validateGraph')
+    expect(analysisApi).toHaveProperty('hashAnalysisGraph')
     expect(analysisApi).not.toHaveProperty('createImageLibrary')
     for (const name of [
       'allCodecs',

@@ -65,17 +65,11 @@ const nodeResource = async (
   id: string,
   name: string,
 ): Promise<ScientificResource> => {
-  const { stat } = await import('node:fs/promises')
-  const [source, file] = await Promise.all([FileSource.open(path), stat(path)])
+  const source = await FileSource.open(path)
   return Object.freeze({
     id,
     name,
     source,
-    identityHint: Object.freeze({
-      kind: 'node-file-metadata',
-      value: `${file.size}\0${file.mtimeMs}`,
-      strength: 'weak' as const,
-    }),
   })
 }
 

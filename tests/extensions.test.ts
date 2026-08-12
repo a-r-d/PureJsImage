@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { OperationMigration } from '../src/analysis/index.ts'
 import { createExtensionHost } from '../src/extensions/index.ts'
 import {
   createOperationDefinition,
@@ -54,6 +55,16 @@ const provider = createOperationProvider({
   prepare: async () => [],
 })
 
+const migration: OperationMigration = Object.freeze({
+  kind: 'operation',
+  id: 'example.science.mean-v1-v2',
+  version: 1,
+  operationId: 'example.analysis.mean',
+  fromVersion: 1,
+  toVersion: 2,
+  migrate: (node: unknown) => node,
+})
+
 describe('trusted extension bundles', () => {
   it('installs explicitly and builds a JSON-only manifest after provider preparation', async () => {
     const host = createExtensionHost({
@@ -63,18 +74,28 @@ describe('trusted extension bundles', () => {
             id: 'example.science',
             version: 1,
             apiVersion: 1,
-            migrations: { graphSchema: 1 },
           },
           readers: [reader],
           valueTypes: [valueType, resultType],
           operations: [operation],
           providers: [provider],
+          analysisMigrations: [migration],
         },
       ],
     })
     expect(host.manifest.providers).toEqual([])
     const prepared = await host.prepare()
     expect(prepared.manifest.providers.map((entry) => entry.id)).toEqual(['example.reference'])
+    expect(prepared.manifest.analysisMigrations).toEqual([
+      {
+        kind: 'operation',
+        id: 'example.science.mean-v1-v2',
+        version: 1,
+        operationId: 'example.analysis.mean',
+        fromVersion: 1,
+        toVersion: 2,
+      },
+    ])
     const json = JSON.stringify(prepared.manifest)
     expect(json).not.toContain('normalizeParameters')
     expect(json).not.toContain('prepare')
@@ -107,5 +128,22 @@ describe('trusted extension bundles', () => {
       }),
     ).toThrow('incompatible API version')
     expect(original.manifest.extensions.map((entry) => entry.id)).toEqual(['example.one'])
+  })
+
+  it('rejects colliding extension migration contributions atomically', () => {
+    expect(() =>
+      createExtensionHost({
+        extensions: [
+          {
+            descriptor: { id: 'example.first', version: 1, apiVersion: 1 },
+            analysisMigrations: [migration],
+          },
+          {
+            descriptor: { id: 'example.second', version: 1, apiVersion: 1 },
+            analysisMigrations: [{ ...migration, id: 'example.second.same-edge' }],
+          },
+        ],
+      }),
+    ).toThrow('ambiguous')
   })
 })

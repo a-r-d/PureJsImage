@@ -22,11 +22,6 @@ const fileResource = (file: File): ScientificResource => {
     id: name,
     name,
     ...(file.type.length === 0 ? {} : { mediaType: file.type }),
-    identityHint: Object.freeze({
-      kind: 'browser-file-metadata',
-      value: `${file.name}\0${file.size}\0${file.lastModified}`,
-      strength: 'weak' as const,
-    }),
     source: new BlobSource(file),
   })
 }

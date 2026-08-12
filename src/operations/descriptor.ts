@@ -433,6 +433,24 @@ export const validateOperationJsonObject = (
   return finish(context, value)
 }
 
+export const validateOperationJsonValue = (
+  input: unknown,
+  limits: Readonly<OperationValidationLimits> = {},
+): OperationValidationResult<OperationJsonValue> => {
+  const context = new ValidationContext(limits)
+  const value = cloneJson(input, '', context, 0)
+  return finish(context, value)
+}
+
+export const normalizeOperationJsonValue = (
+  input: unknown,
+  limits: Readonly<OperationValidationLimits> = {},
+): OperationJsonValue => {
+  const result = validateOperationJsonValue(input, limits)
+  if (result.value !== undefined) return result.value
+  throw invalidInput(result.issues[0]?.message ?? 'Invalid JSON value')
+}
+
 export const normalizeOperationJsonObject = (
   input: unknown,
   limits: Readonly<OperationValidationLimits> = {},

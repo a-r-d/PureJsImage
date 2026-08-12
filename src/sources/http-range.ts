@@ -1,6 +1,8 @@
 import { combineAbortSignals, throwIfAborted } from '../abort.ts'
 import { ImageError, invalidInput, truncatedInput } from '../errors.ts'
 import { stableSourceBuffers, type ImageSource, type ImageSourceReadOptions } from '../source.ts'
+import type { RemoteSourceIdentity } from '../source-identity.ts'
+import { imageSourceIdentity, normalizeSourceIdentity } from '../source-identity.ts'
 
 const defaultBufferBytes = 262_144
 const defaultBufferSlots = 4
@@ -63,8 +65,8 @@ const parseContentRange = (
   }
   return size
 }
-interface HttpRangeValidator {
-  readonly header: 'etag' | 'last-modified'
+export interface HttpRangeValidator {
+  readonly header: 'etag' | 'last-modified' | 'x-amz-version-id'
   readonly value: string
 }
 
@@ -103,6 +105,7 @@ export class HttpRangeSource implements ImageSource {
   readonly #cache = new Map<number, HttpRangeBlock>()
   readonly #pending = new Map<number, Promise<HttpRangeBlock>>()
   readonly #validator: HttpRangeValidator | undefined
+  readonly #identity: RemoteSourceIdentity
   #cacheBytes = 0
   #requests = 0
   #bytesFetched = 0
@@ -114,7 +117,7 @@ export class HttpRangeSource implements ImageSource {
     fetcher: typeof fetch,
     validator: HttpRangeValidator | undefined,
   ) {
-    this.#url = url
+    this.#url = new URL(url).href
     this.size = size
     this.#fetch = fetcher
     this.#headers = new Headers(options.headers)
@@ -122,6 +125,27 @@ export class HttpRangeSource implements ImageSource {
     this.#blockBytes = options.blockBytes ?? defaultBufferBytes
     this.#maxCacheBytes = options.maxCacheBytes ?? defaultBufferBytes * defaultBufferSlots
     this.#validator = validator
+    const identityValidator =
+      validator === undefined
+        ? undefined
+        : {
+            kind:
+              validator.header === 'x-amz-version-id'
+                ? ('version-id' as const)
+                : validator.header === 'etag'
+                  ? ('etag' as const)
+                  : ('last-modified' as const),
+            value: validator.value,
+          }
+    const strong = identityValidator?.kind === 'version-id' || identityValidator?.kind === 'etag'
+    this.#identity = normalizeSourceIdentity({
+      kind: 'remote',
+      strength: strong ? 'strong' : 'weak',
+      stability: strong ? 'versioned' : 'best-effort',
+      url: this.#url,
+      size,
+      ...(identityValidator === undefined ? {} : { validator: identityValidator }),
+    })
   }
 
   static async open(
@@ -176,12 +200,19 @@ export class HttpRangeSource implements ImageSource {
       throw truncatedInput('HTTP range probe did not return exactly one byte')
     const etag = response.headers.get('etag')
     const lastModified = response.headers.get('last-modified')
+    const rawVersionId = response.headers.get('x-amz-version-id')
+    const versionId =
+      rawVersionId === null || rawVersionId.trim().length === 0 || rawVersionId === 'null'
+        ? null
+        : rawVersionId
     const validator: HttpRangeValidator | undefined =
-      etag !== null && !etag.startsWith('W/')
-        ? Object.freeze({ header: 'etag', value: etag })
-        : lastModified === null
-          ? undefined
-          : Object.freeze({ header: 'last-modified', value: lastModified })
+      versionId !== null
+        ? Object.freeze({ header: 'x-amz-version-id', value: versionId })
+        : etag !== null && !etag.startsWith('W/')
+          ? Object.freeze({ header: 'etag', value: etag })
+          : lastModified === null
+            ? undefined
+            : Object.freeze({ header: 'last-modified', value: lastModified })
     const source = new HttpRangeSource(href, size, options, fetcher, validator)
     source.#requests = 1
     source.#bytesFetched = 1
@@ -194,6 +225,14 @@ export class HttpRangeSource implements ImageSource {
       bytesFetched: this.#bytesFetched,
       cacheBytes: this.#cacheBytes,
     })
+  }
+
+  get validator(): HttpRangeValidator | undefined {
+    return this.#validator === undefined ? undefined : Object.freeze({ ...this.#validator })
+  }
+
+  [imageSourceIdentity](): RemoteSourceIdentity {
+    return this.#identity
   }
 
   #store(block: HttpRangeBlock): void {

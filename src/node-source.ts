@@ -3,6 +3,8 @@ import { throwIfAborted } from './abort.ts'
 import { invalidInput } from './errors.ts'
 import type { ImageLimits } from './limits.ts'
 import { validateInputSize } from './limits.ts'
+import type { LocalFileSourceIdentity } from './source-identity-contract.ts'
+import { imageSourceIdentity } from './source-identity-contract.ts'
 import {
   BufferedSource,
   createImageSource as createPortableImageSource,
@@ -28,12 +30,21 @@ export class FileSource implements ImageSource {
   readonly path: string
   readonly size: number
   readonly [stableSourceBuffers] = true
+  readonly #identity: LocalFileSourceIdentity
   #handle: Promise<import('node:fs/promises').FileHandle> | undefined
   #sessions = 0
 
-  private constructor(path: string, size: number) {
+  private constructor(path: string, size: number, lastModified: number) {
     this.path = path
     this.size = size
+    this.#identity = Object.freeze({
+      kind: 'local-file',
+      strength: 'weak',
+      stability: 'metadata',
+      nameOrPath: path,
+      size,
+      lastModified,
+    })
   }
 
   static async open(path: string, options: Readonly<AbortOptions> = {}): Promise<FileSource> {
@@ -42,7 +53,11 @@ export class FileSource implements ImageSource {
     const file = await stat(path)
     throwIfAborted(options.signal)
     if (!file.isFile()) throw invalidInput(`Image path is not a file: ${path}`)
-    return new FileSource(path, file.size)
+    return new FileSource(path, file.size, file.mtimeMs)
+  }
+
+  [imageSourceIdentity](): LocalFileSourceIdentity {
+    return this.#identity
   }
 
   async read(

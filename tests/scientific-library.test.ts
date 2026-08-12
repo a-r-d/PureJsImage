@@ -11,6 +11,7 @@ import {
   createScientificFileContext,
 } from '../src/scientific/browser.ts'
 import { MemorySource } from '../src/source.ts'
+import { getImageSourceIdentity } from '../src/source-identity.ts'
 
 describe('explicit scientific library facade', () => {
   it('enumerates a frozen JSON-safe subset and opens a dataset lazily', async () => {
@@ -58,7 +59,12 @@ describe('explicit scientific library facade', () => {
       id: 'scene.hdr',
       name: 'scene.hdr',
       mediaType: 'application/x-envi',
-      identityHint: { kind: 'browser-file-metadata', strength: 'weak' },
+    })
+    await expect(getImageSourceIdentity(context.primary.source)).resolves.toMatchObject({
+      kind: 'local-file',
+      strength: 'weak',
+      nameOrPath: 'scene.hdr',
+      lastModified: 10,
     })
     await expect(
       context.companions?.resolve({ kind: 'role', role: 'data', relativeName: 'scene' }),

@@ -2,15 +2,16 @@
 
 Status: design checkpoint approved on 2026-08-12; implementation is in progress. Dataset V2, the
 explicit scientific reader/document platform, native numeric tiles, operation descriptors and
-providers, and trusted local extension composition described by PRs 1 through 4 now exist. Graph,
-tile-runtime, workspace, and application layers remain future work.
+providers, generic quantitative results, and the graph/planning/command platform described by PRs 1
+through 6 now exist. The bounded tile runtime, ROIs, persistence, and release hardening remain
+future work.
 
 This document defines a target architecture for scientific web applications built on
 PureJsImage. It is deliberately additive. The existing image API, codec registry, and streaming
 pixel pipeline remain the ordinary-image path; the application platform grows beside them and
 shares only the portable source and block foundations.
 
-PR 4 began from commit `a5cad144f8cdc3a5a953c4121685c774a5ebbc85` (PureJsImage 0.9.0). File
+PR 6 began from commit `624857e647428378ad1c8ebb2c85db47e476b172` (PureJsImage 0.9.0). File
 names below describe the
 current layout and likely implementation locations, not promises that every proposed file name is
 final.
@@ -401,10 +402,10 @@ concrete; names can change during review without changing the layering.
 | 3 | Introduce `NumericTile`, validated one-time conversion, explicit caller-owned allocation, and the optional direct native tile-source capability. | `src/scientific/{numeric-tile,render,spectral,volume,classification}.ts`, `src/scientific/index.ts`, focused tests and benchmark. | Endianness, float16 expansion, uint64 precision, planar/interleaved strides, or ownership could change values. | Cross-sample-type golden tests, hostile stride/truncation tests, release-on-error tests, reference-vs-direct-source conformance, existing algorithm result suites. | Canonical block fixtures produce exact native values; no `uint64` number coercion; measured retained-byte bounds; `npm run browser:check`; `npm run check`. |
 | 4 | Define JSON-safe operation descriptors and local registries; add provider mechanics, current pipeline lowering, trusted extension composition, and explicit public subpaths without implementing new scientific computation. | New `src/operations/{descriptor,registry,provider,builtins,index}.ts`, `src/extensions/index.ts`, `package.json`, browser/package/size scripts, focused tests, and trust-boundary docs. | Defaults or unknown-key handling could become persisted semantics; provider policy could imply a backend rank; extensions could be mistaken for isolation; ordinary pipeline behavior could drift. | JSON/hostile validation, registry isolation, provider cost/pin/release, IR parity, extension atomicity, strict package-consumer, and browser dependency-graph tests. | Descriptors/manifests contain only data; registries remain local; pipeline IR and fluent APIs remain unchanged; no import-time installation; new entries are browser-portable; `npm run check`. |
 | 5 | Define bounded provider-neutral quantitative results, adapt existing scientific measurement without duplicate wrapper scans, and add the explicit analysis entry. | New `src/analysis/{result,scientific,index}.ts`; `src/scientific/render.ts`, scientific exports/tests, package/browser/type/size checks, and result docs. | Typed payload ownership or NaN/unit semantics could be ambiguous; generic adapters could reread planes; large results could be accidentally serialized as JSON. | Synthetic scalar/histogram/profile/table/collection validation, million-row columnar metadata, bounded summaries, legacy/generic differential measurements, cancellation/release, and package-boundary tests. | Result memory is bounded and accounted; legacy and generic outputs share one measurement execution; manifests contain schemas rather than payloads; the analysis entry is browser-portable and explicit; `npm run check`. |
-| 6 | Add immutable graph JSON, canonicalization, explicit migrations, source identity ladder, and validation issues. | New `src/analysis/{graph,canonical-json,migrations,source-identity,issues}.ts`; `src/scientific/dataset-v2.ts` for source-reference types if needed. | Canonical bytes will become durable at release; weak identities could poison persistent caches. | Provisional canonical fixture corpus, property-order invariance, semantic-order preservation, migration reports, unsupported-version rejection, identity-refinement tests. | Canonical behavior is tested but remains revisable until the release gate; execution rejects unmigrated graphs; weak identity stays session-scoped; `npm run browser:check`; `npm run check`. |
+| 6 | Add immutable graph JSON, canonicalization, source identities, explicit migrations, generic planning/execution/provenance, and revisioned commands. | `src/source-identity-contract.ts` and `src/source-identity.ts` beside the bottom-level source contract; new `src/analysis/{graph,canonical-json,migrations,planner,executor,workspace,controller}.ts`; source wrappers, HTTP/File adapters, extension composition, explicit analysis exports, docs, and package/browser checks. Source identity deliberately does not live under `analysis`, because `ImageSource` must not import upward into application code; normalization and hashing are re-exported from the explicit analysis entry so the root size budget stays intact. | Canonical bytes will become durable at release; weak identities could poison persistent caches; command convenience could execute implicitly; provider failures could leak values. | Property-order/hash invariance, graph limits/types/cycles, identity propagation and bounded hashing, migration paths, no-read dry runs, provider policies, releases/cancellation/concurrency, provenance, stale commands, extension atomicity, strict consumer types, and browser dependency checks. | Canonical behavior remains revisable until the release gate; weak identity stays explicitly weak; commands never execute; prepared DAG execution is bounded/cancellable and releases ownership; `npm run browser:check`; `npm run package:types`; `npm run check`. |
 | 7 | Build the bounded tile runtime and measurable local cache. | New `src/analysis/{tile-runtime,tile-cache,budget,scheduler}.ts`; `src/source.ts` and `src/sources/http-range.ts` only if shared metrics need a portable interface. | Double release, retained buffers, starvation, unbounded concurrency, or cache keys that cross semantic boundaries. | Deterministic fake-source/provider tests for budgets, LRU behavior, concurrency ceilings, cancellation races, iterator cleanup, and metrics. | High-water bytes stay within declared limits; concurrency never exceeds policy; all failure paths release; cold/warm cache measurements are observable; `npm run check`. |
-| 8 | Add exact semantic matching, measured full-cost provider planning, pins, and execution provenance. | New `src/analysis/{planner,cost-model,provenance,executor}.ts`; `src/operations/provider.ts`; do not change `src/accelerator.ts`. | A nominally faster backend could change semantics or hidden fallback could invalidate reproducibility. | Candidate rejection matrix, small-tile TypeScript win, transfer-heavy WebGPU loss, resident-backend win, pin failure, and provenance snapshot tests. | Every selected provider passes exact support; cost components and model version are recorded; no hardcoded backend rank; `npm run check`. |
-| 9 | Add ROIs, immutable workspace snapshots, structured commands, and the execution/audit boundary around the PR 5 result contracts. | New `src/analysis/{roi,workspace,commands,audit}.ts`; optional reuse of coordinate metadata from `src/scientific/dataset-v2.ts`. | UI convenience could mutate graphs in place, mix physical and index coordinates, or execute during a command. | Snapshot immutability, issue paths/codes, ROI conversion, command replay, explicit-execution, and cancel/audit tests. | Commands are JSON-safe and deterministic; invalid commands return unchanged snapshots; applying commands performs no source/provider work; `npm run check`. |
+| 8 | Connect the generic PR 6 provider planner to real tile operations and refine its measured cost model where actual backends require more information. | `src/analysis/{planner,tile-runtime}.ts`, real operation/provider definitions, benchmark fixtures, and `src/operations/provider.ts` only for evidence-backed contract gaps; do not change `src/accelerator.ts`. | A nominally faster backend could change semantics, or synthetic costs could fail to predict transfer-heavy workloads. | Candidate rejection matrix plus measured small-tile TypeScript, transfer-heavy WebGPU, resident-backend, pin, and provenance cases. | Real selections retain exact support and recorded costs with no backend rank; contract changes are justified by measurements; `npm run check`. |
+| 9 | Add ROIs, persisted workspace/result references, and the remaining audit boundary around PR 5 results and PR 6 revisioned commands. | New `src/analysis/{roi,persistence,audit}.ts`; `src/analysis/workspace.ts` only where persisted references require it; coordinate metadata from `src/scientific/dataset-v2.ts`. | Physical/index coordinates could be mixed, persisted references could imply ownership, or audit data could enter semantic hashes. | ROI conversion, persistence round trips/migrations, command replay, result references, explicit execution, and audit/hash exclusion tests. | ROI coordinates are explicit; persistence is migrated; audit/timing remain outside graph hashes; applying commands performs no source/provider work; `npm run check`. |
 | 10 | Complete release-boundary hardening of the application platform and trusted extension boundary, and prove whole-platform ordinary-image/browser compatibility. | `package.json`, browser/package checks, project-contract tests, `src/index.ts`, `src/browser.ts`, `src/extensions/`, real browser tests, and version/changelog files only during an authorized release. | Provisional subpaths could still pull optional backends into browsers; root bundle or `resize().jpeg()` behavior could drift; contracts could be published prematurely; trust wording could overstate isolation. | Package consumers, bundle graphs, registry isolation, trust-label tests, current pipeline tests, scientific browser smoke, and canonical persisted-contract fixtures. | Transitional code is removed; release contracts and breaks are documented; root/browser exports exclude analysis/backends; existing `resize().jpeg()` and real Chromium scientific workflows pass; `npm run check`. |
 
 New package subpaths and completed capabilities may land incrementally in the PR that makes them
@@ -892,13 +893,67 @@ operation PR after their input and result contracts exist.
         by the same three unrelated expanded 12-bit AVIF Sharp-oracle hash mismatches recorded by
         PRs 3 and 4.
 
-- [ ] PR 6: add canonical analysis graphs, migrations, source identity, and validation issues.
-      Detailed prompts not yet supplied.
+### PR 6: analysis graph, source identity, provenance, and command API
+
+- [x] Prompt 6.1: add the versioned semantic graph contract.
+  - [x] Define graph inputs, exact operation references, named edges/outputs, normalized parameters,
+        labels outside semantic hashing, structured issues, and bounded `AnalysisLimits`.
+  - [x] Validate exact operation versions, named ports, value-type compatibility, parameters,
+        cycles, limits, and stable topological order against an explicit registry.
+  - [x] Add canonical JSON and browser-compatible domain-separated SHA-256 hashing; document every
+        hashed and excluded field.
+  - [x] Test ordering, key-order equivalence, cycles, hostile graph bounds, ports, parameters,
+        versions, hashes, types, browser graph, lint, and formatting.
+
+- [x] Prompt 6.2: add a non-blocking source identity ladder.
+  - [x] Define strong content, versioned remote, weak local-file, and per-instance session identities
+        with explicit strength/stability semantics.
+  - [x] Propagate identities through source wrappers; expose immutable HTTP validators; recognize
+        browser `File` metadata safely; reuse file stat metadata and accept explicit memory identity.
+  - [x] Add opt-in bounded, cancellable, progress-reporting SHA-256 source hashing without full-file
+        buffering or a runtime dependency.
+  - [x] Test propagation, validators/change detection, File/Blob/Memory/FileSource behavior,
+        cancellation, bounded reads, source/browser checks, types, lint, and formatting.
+
+- [x] Prompt 6.3: add explicit migrations and non-executing planning/dry-run APIs.
+  - [x] Register exact operation and graph-schema migration steps locally; inspect deterministic
+        plans and apply them explicitly with revalidation and rehashing.
+  - [x] Reject missing, ambiguous, cyclic, and downgrade paths; compose trusted extension migration
+        contributions atomically without silent validation/hash migration.
+  - [x] Validate bound inputs, resolve definitions, infer metadata-only shapes, prepare only allowed
+        providers, and return deterministic JSON-safe plan costs, identities, warnings, and unknowns.
+  - [x] Keep `validateGraph`, `planGraph`, and `dryRun` separate; test provider policies,
+        determinism, unresolved estimates, no pixel reads, migration chains, and rehashing.
+
+- [x] Prompt 6.4: add generic orchestration, provenance, immutable commands, and the facade.
+  - [x] Execute planned DAGs with bounded concurrency, deterministic dependencies, cancellation,
+        contextual failures, no hidden retry, and last-consumer intermediate release.
+  - [x] Record graph/input/operation/parameter/provider/library/reproducibility provenance while
+        keeping timing and warnings outside semantic graph hashing.
+  - [x] Add immutable revisioned workspaces and JSON-safe versioned commands with stale-revision
+        checks; command validation/application remains pure and never executes providers.
+  - [x] Expose capabilities, operation description, commands, validation, planning, dry-run,
+        execution, and cancellation through one runtime-neutral controller; document trusted
+        in-process authority and no AI-only privilege.
+  - [x] Update analysis/extension/package/browser/docs contracts and run focused suites plus
+        `npm run package:types`, `npm run browser:check`, and `npm run check`.
+
+  - Result: `purejsimage/analysis` now exposes bounded canonical graph validation and hashing,
+        source identity and opt-in streaming SHA-256, explicit migration plans, metadata-only
+        planning/dry runs, generic cancellable DAG execution with provenance, immutable revisioned
+        commands, and one controller facade. The unreleased scientific `identityHint` duplicate was
+        removed in favor of the source-owned protocol. A lightweight internal identity contract
+        keeps ordinary root behavior under its unchanged 60 KiB budget (59.9 KiB measured), while
+        normalization, hashing, and the 105.4 KiB analysis graph runtime remain in the explicit
+        analysis entry. Strict package types, browser checks, formatting, lint, 90 focused tests,
+        and 923 hostile-source tests excluding AVIF pass. The full suite has 1,082 passing tests;
+        `npm run check` remains blocked only by the same three unrelated expanded 12-bit AVIF
+        Sharp-oracle hash mismatches recorded by PRs 3 through 5.
 - [ ] PR 7: add the bounded tile runtime, cache, budgets, and scheduler. Detailed prompts not yet
       supplied.
-- [ ] PR 8: add semantic provider matching, measured cost planning, pins, and provenance. Detailed
-      prompts not yet supplied.
-- [ ] PR 9: add ROIs, immutable results/workspaces, structured commands, and audit boundaries.
-      Detailed prompts not yet supplied.
+- [ ] PR 8: connect real tile operations to PR 6 provider planning and refine measured cost policy
+      from benchmark evidence. Detailed prompts not yet supplied.
+- [ ] PR 9: add ROIs, persisted result/workspace references, and remaining audit boundaries on top
+      of PR 6 revisioned commands. Detailed prompts not yet supplied.
 - [ ] PR 10: complete release-boundary hardening, extension composition, and whole-platform
       compatibility validation. Detailed prompts not yet supplied.

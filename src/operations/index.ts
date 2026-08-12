@@ -27,11 +27,13 @@ export {
   defaultOperationValidationLimits,
   isNamespacedOperationId,
   normalizeOperationJsonObject,
+  normalizeOperationJsonValue,
   normalizeOperationDescriptor,
   normalizeValueTypeDescriptor,
   resolveOperationValidationLimits,
   validateOperationDescriptor,
   validateOperationJsonObject,
+  validateOperationJsonValue,
   validateOperationParameters,
   validateValueTypeDescriptor,
 } from './descriptor.ts'

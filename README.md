@@ -265,6 +265,12 @@ It provides bounded scalar, histogram, profile, columnar table, and collection c
 JSON-safe summaries and a one-measurement scientific adapter. Typed payloads are never silently
 serialized. See the [quantitative analysis results guide](docs/analysis-results.md).
 
+The same analysis entry also provides versioned declarative graphs, canonical hashing, source
+identity, explicit migrations, non-executing plans and dry runs, immutable workspace commands,
+cancellable generic orchestration, and provenance. Graph mutation never executes providers, and
+the controller is shared by UI, scripts, trusted plugins, and future agents without a privileged
+AI-only path. See the [analysis graph guide](docs/analysis-graphs.md).
+
 MRC and FITS volumes share lazy cross-section and projection operations:
 
 ```ts

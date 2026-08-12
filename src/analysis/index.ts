@@ -54,3 +54,104 @@ export {
   measureScientificPlaneWithResults,
   scientificPlaneMeasurementToResult,
 } from './scientific.ts'
+export type { CanonicalJsonLimits } from './canonical-json.ts'
+export { canonicalJson, hashCanonicalJson, sha256Text } from './canonical-json.ts'
+export type {
+  AnalysisGraph,
+  AnalysisGraphInput,
+  AnalysisGraphNode,
+  AnalysisGraphOutput,
+  AnalysisGraphValidation,
+  AnalysisIssue,
+  AnalysisIssueCode,
+  AnalysisIssueSeverity,
+  AnalysisLimits,
+  AnalysisNodeInput,
+  AnalysisValueReference,
+  AnalysisValueTypeReference,
+  ResolvedAnalysisLimits,
+  SemanticAnalysisGraph,
+} from './graph.ts'
+export {
+  analysisGraphHashDomain,
+  analysisGraphSchemaVersion,
+  canonicalGraphJson,
+  defaultGraphAnalysisLimits,
+  hashAnalysisGraph,
+  resolveAnalysisLimits,
+  semanticAnalysisGraph,
+  validateGraph,
+} from './graph.ts'
+export type {
+  AnalysisMigrationDefinition,
+  AnalysisMigrationDescriptor,
+  AnalysisMigrationPlan,
+  AnalysisMigrationStep,
+  AppliedMigration,
+  GraphSchemaMigration,
+  InspectMigrationOptions,
+  OperationMigration,
+} from './migrations.ts'
+export {
+  AnalysisMigrationRegistry,
+  applyMigrationPlan,
+  createAnalysisMigrationRegistry,
+  describeAnalysisMigration,
+  inspectMigrationPlan,
+} from './migrations.ts'
+export type {
+  AnalysisDryRun,
+  AnalysisInputBinding,
+  AnalysisPlan,
+  AnalysisPlanCost,
+  AnalysisPlanNode,
+  AnalysisRequiredInputIdentity,
+  AnalysisUnresolvedEstimate,
+  PlanGraphOptions,
+  PreparedAnalysisPlan,
+} from './planner.ts'
+export { dryRun, planGraph } from './planner.ts'
+export type {
+  AnalysisExecutionProvenance,
+  AnalysisExecutionResult,
+  AnalysisExecutionTask,
+  AnalysisLibraryBuild,
+  AnalysisNodeProvenance,
+  ExecuteGraphOptions,
+} from './executor.ts'
+export { AnalysisNodeExecutionError, executeGraph } from './executor.ts'
+export type {
+  AnalysisCommand,
+  AnalysisCommandApplication,
+  AnalysisCommandValidation,
+  AnalysisWorkspaceSnapshot,
+} from './workspace.ts'
+export {
+  applyCommand,
+  createAnalysisWorkspaceSnapshot,
+  validateCommand,
+} from './workspace.ts'
+export type {
+  AnalysisControllerCapabilities,
+  AnalysisControllerOptions,
+  ControllerExecuteOptions,
+  ControllerPlanOptions,
+} from './controller.ts'
+export { AnalysisController, createAnalysisController } from './controller.ts'
+export type {
+  ContentSourceIdentity,
+  HashImageSourceOptions,
+  IdentifiedImageSource,
+  LocalFileSourceIdentity,
+  RemoteSourceIdentity,
+  SessionSourceIdentity,
+  SourceHashProgress,
+  SourceIdentity,
+} from '../source-identity.ts'
+export {
+  createSessionSourceIdentity,
+  getImageSourceIdentity,
+  hashImageSource,
+  imageSourceIdentity,
+  normalizeSourceIdentity,
+} from '../source-identity.ts'

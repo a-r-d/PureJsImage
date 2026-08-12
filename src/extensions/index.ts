@@ -1,4 +1,9 @@
 import { invalidInput } from '../errors.ts'
+import type {
+  AnalysisMigrationDefinition,
+  AnalysisMigrationDescriptor,
+} from '../analysis/migrations.ts'
+import { AnalysisMigrationRegistry, describeAnalysisMigration } from '../analysis/migrations.ts'
 import type { OperationJsonObject } from '../operations/descriptor.ts'
 import { normalizeValueTypeDescriptor } from '../operations/descriptor.ts'
 import type { OperationProvider, OperationProviderDescriptor } from '../operations/provider.ts'
@@ -29,7 +34,6 @@ export interface PureJsImageExtensionDescriptor {
   readonly apiVersion: number
   readonly title?: string
   readonly metadata?: OperationJsonObject
-  readonly migrations?: OperationJsonObject
 }
 
 export interface PureJsImageExtension {
@@ -38,6 +42,7 @@ export interface PureJsImageExtension {
   readonly valueTypes?: readonly ValueTypeDefinition[]
   readonly operations?: readonly OperationDefinition[]
   readonly providers?: readonly OperationProvider[]
+  readonly analysisMigrations?: readonly AnalysisMigrationDefinition[]
 }
 
 export interface ExtensionHostOptions {
@@ -46,6 +51,7 @@ export interface ExtensionHostOptions {
   readonly valueTypes?: Iterable<ValueTypeDefinition>
   readonly operations?: Iterable<OperationDefinition>
   readonly providers?: Iterable<OperationProvider>
+  readonly analysisMigrations?: Iterable<AnalysisMigrationDefinition>
   readonly registryLimits?: Readonly<RegistryLimitPolicy>
 }
 
@@ -56,6 +62,7 @@ export interface ExtensionCapabilityManifest {
   readonly valueTypes: ValueTypeRegistry['capabilitySnapshot']['valueTypes']
   readonly operations: OperationRegistry['capabilitySnapshot']['operations']
   readonly providers: readonly OperationProviderDescriptor[]
+  readonly analysisMigrations: readonly AnalysisMigrationDescriptor[]
 }
 
 export interface PreparedExtensionHost {
@@ -63,6 +70,7 @@ export interface PreparedExtensionHost {
   readonly valueTypes: ValueTypeRegistry
   readonly readers: ScientificReaderRegistry
   readonly runtime: OperationRuntime
+  readonly analysisMigrations: AnalysisMigrationRegistry
   readonly manifest: ExtensionCapabilityManifest
 }
 
@@ -70,6 +78,7 @@ export interface ExtensionHost {
   readonly operations: OperationRegistry
   readonly valueTypes: ValueTypeRegistry
   readonly readers: ScientificReaderRegistry
+  readonly analysisMigrations: AnalysisMigrationRegistry
   readonly manifest: ExtensionCapabilityManifest
   prepare(signal?: AbortSignal): Promise<PreparedExtensionHost>
 }
@@ -108,14 +117,12 @@ const normalizeExtensionDescriptor = (
     throw invalidInput('Extension title must be non-empty when provided')
   }
   const metadata = normalizeExtensionJson(descriptor.metadata, 'metadata')
-  const migrations = normalizeExtensionJson(descriptor.migrations, 'migrations')
   return Object.freeze({
     id: descriptor.id,
     version: descriptor.version,
     apiVersion: pureJsImageExtensionApiVersion,
     ...(descriptor.title === undefined ? {} : { title: descriptor.title }),
     ...(metadata === undefined ? {} : { metadata }),
-    ...(migrations === undefined ? {} : { migrations }),
   })
 }
 
@@ -128,6 +135,7 @@ const createManifest = (options: {
   readonly valueTypes: ValueTypeRegistry
   readonly operations: OperationRegistry
   readonly providers: readonly OperationProviderDescriptor[]
+  readonly analysisMigrations: AnalysisMigrationRegistry
 }): ExtensionCapabilityManifest =>
   Object.freeze({
     extensionApiVersion: pureJsImageExtensionApiVersion,
@@ -136,6 +144,9 @@ const createManifest = (options: {
     valueTypes: options.valueTypes.capabilitySnapshot.valueTypes,
     operations: options.operations.capabilitySnapshot.operations,
     providers: Object.freeze([...options.providers]),
+    analysisMigrations: Object.freeze(
+      options.analysisMigrations.definitions().map(describeAnalysisMigration),
+    ),
   })
 
 /**
@@ -152,6 +163,7 @@ export const createExtensionHost = (options: Readonly<ExtensionHostOptions>): Ex
   const valueTypes = [...(options.valueTypes ?? [])]
   const operations = [...(options.operations ?? [])]
   const providers = [...(options.providers ?? [])]
+  const analysisMigrations = [...(options.analysisMigrations ?? [])]
   for (const extension of extensions) {
     const descriptor = normalizeExtensionDescriptor(extension.descriptor)
     if (extensionIds.has(descriptor.id)) {
@@ -189,6 +201,15 @@ export const createExtensionHost = (options: Readonly<ExtensionHostOptions>): Ex
       }
       providers.push(provider)
     }
+    for (const migration of extension.analysisMigrations ?? []) {
+      if (
+        migration.id.startsWith('purejsimage.') ||
+        (migration.kind === 'operation' && migration.operationId.startsWith('purejsimage.'))
+      ) {
+        throw invalidInput(`Extension ${descriptor.id} cannot register a core analysis migration`)
+      }
+      analysisMigrations.push(migration)
+    }
   }
 
   const providerIds = new Set<string>()
@@ -207,6 +228,7 @@ export const createExtensionHost = (options: Readonly<ExtensionHostOptions>): Ex
   const readerRegistry = new ScientificReaderRegistry(readers)
   const valueTypeRegistry = createValueTypeRegistry(valueTypes, options.registryLimits)
   const operationRegistry = createOperationRegistry(operations, options.registryLimits)
+  const migrationRegistry = new AnalysisMigrationRegistry(analysisMigrations)
   for (const operation of operationRegistry.definitions()) {
     for (const port of [...operation.descriptor.inputs, ...operation.descriptor.outputs]) {
       const found =
@@ -230,12 +252,14 @@ export const createExtensionHost = (options: Readonly<ExtensionHostOptions>): Ex
     valueTypes: valueTypeRegistry,
     operations: operationRegistry,
     providers: [],
+    analysisMigrations: migrationRegistry,
   })
 
   return Object.freeze({
     operations: operationRegistry,
     valueTypes: valueTypeRegistry,
     readers: readerRegistry,
+    analysisMigrations: migrationRegistry,
     manifest,
     async prepare(signal?: AbortSignal): Promise<PreparedExtensionHost> {
       const runtime = await prepareOperationRuntime(providerList, signal)
@@ -245,12 +269,14 @@ export const createExtensionHost = (options: Readonly<ExtensionHostOptions>): Ex
         valueTypes: valueTypeRegistry,
         operations: operationRegistry,
         providers: runtime.capabilitySnapshot.providers,
+        analysisMigrations: migrationRegistry,
       })
       return Object.freeze({
         operations: operationRegistry,
         valueTypes: valueTypeRegistry,
         readers: readerRegistry,
         runtime,
+        analysisMigrations: migrationRegistry,
         manifest: preparedManifest,
       })
     },
