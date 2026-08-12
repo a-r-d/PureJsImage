@@ -92,8 +92,8 @@ const benchmarkSeeds = [
   },
   {
     format: 'hdr',
-    id: 'polyhaven-potsdamer',
-    path: 'benchmark/corpus/files/small-codec-potsdamer.hdr',
+    id: 'radiance-2x2',
+    path: 'tests/fixtures/small-codecs/radiance-2x2.hdr',
   },
   {
     format: 'ico',
@@ -102,18 +102,18 @@ const benchmarkSeeds = [
   },
   {
     format: 'netpbm',
-    id: 'polyhaven-pfm-potsdamer',
-    path: 'benchmark/corpus/files/small-codec-potsdamer.pfm',
+    id: 'ffmpeg-pfm-potsdamer',
+    path: 'tests/fixtures/small-codecs/potsdamer-8x4-ffmpeg.pfm',
   },
   {
     format: 'qoi',
-    id: 'reference-qoi-city',
-    path: 'benchmark/corpus/files/small-codec-city.qoi',
+    id: 'reference-qoi-city-16x16',
+    path: 'tests/fixtures/small-codecs/city-16x16-reference.qoi',
   },
   {
     format: 'tga',
-    id: 'ffmpeg-tga-city',
-    path: 'benchmark/corpus/files/small-codec-city.tga',
+    id: 'ffmpeg-tga-city-16x16',
+    path: 'tests/fixtures/small-codecs/city-16x16-ffmpeg-rle.tga',
   },
   {
     format: 'tiff',
@@ -280,7 +280,8 @@ describe('deterministic corruption fuzz', () => {
       benchmarkSeeds.every(
         ({ path }) =>
           path.startsWith('benchmark/corpus/files/') ||
-          path.startsWith('benchmark/fixtures/jpegxl/'),
+          path.startsWith('benchmark/fixtures/jpegxl/') ||
+          path.startsWith('tests/fixtures/small-codecs/'),
       ),
     ).toBe(true)
     await Promise.all(benchmarkSeeds.map(({ path }) => access(path)))
