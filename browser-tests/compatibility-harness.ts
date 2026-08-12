@@ -11,6 +11,7 @@ import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts
 import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
+import { jpeg2000Codec } from '../src/codec-entries/jpeg2000.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createTiffCodec, tiffCodec } from '../src/codec-entries/tiff.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
@@ -38,6 +39,7 @@ const images = createImageLibrary([
   jpegxlCodec,
   pngCodec,
   webpCodec,
+  jpeg2000Codec,
   bmpCodec,
   tiffCodec,
   avifCodec,
@@ -1894,6 +1896,26 @@ const webpLossless = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const jpeg2000Decode = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/openjpeg-lossless-rgb16.jp2')
+  const output = await (await images.open(input)).png().toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.format !== 'png' || metadata.width !== 17 || metadata.height !== 13) {
+    throw new Error(
+      `Browser JPEG 2000 decode produced ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  const pixels = await portablePngPixels(output)
+  const digest = await sha256(pixels)
+  if (digest !== '4750925af7e10c4b3ec572ee014ddf8a4995d5bea92e06a8d6e7d91ec4568acc') {
+    throw new Error(`Browser JPEG 2000 RGBA hash was ${digest}`)
+  }
+  return {
+    detail: 'first-party JPEG 2000 matched the pinned portable RGBA output',
+    outputBytes: output.byteLength,
+  }
+}
+
 const webpLossyDecode = async (): Promise<BrowserWorkflowResult> => {
   const encoded = atob(
     'UklGRqQAAABXRUJQVlA4IJgAAABwBACdASogABgAPmUmj0WkIiEb/VQAQAZEs4BmwkBKSJFI4AHVyHQgWMclgAD+/qV1+gM5jXoqf8T/xA/L7f0lia3y/8Hn4WHFIQuFlP1xw1tSDx+ucwX+ndmTYQ35mZkrIBYOX9PWp0ByLB1fAb9EWwcebp60J6lOM+Wjvcp762MmOBNj6axIrCC/NsuuSyHsh32LLNAAAA==',
@@ -3157,6 +3179,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   optionalApiEntries,
   legacyTiffAndBmp,
   jpegPipeline,
+  jpeg2000Decode,
   jpegXlLossless,
   unsupportedJpegBoundaries,
   tolerantJpegRestartRecovery,

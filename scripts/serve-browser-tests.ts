@@ -307,6 +307,10 @@ await copyFile(
   resolve(fixtureDirectory, 'benchmark-input.webp'),
 )
 await copyFile(
+  'benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2',
+  resolve(fixtureDirectory, 'openjpeg-lossless-rgb16.jp2'),
+)
+await copyFile(
   'tests/fixtures/bluemarble_256_256_3_byte.lerc2',
   resolve(fixtureDirectory, 'bluemarble_256_256_3_byte.lerc2'),
 )

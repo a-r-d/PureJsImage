@@ -485,12 +485,12 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 ### JPEG 2000 / JP2
 
 - Import: `import { jpeg2000Codec } from 'purejsimage/codecs/jpeg2000'`
-- Decode: Limited (`limited`)
+- Decode: Yes (`supported`)
 - Encode: No (`unsupported`)
-- Implemented scope: Decodes common static Part 1 JP2 grayscale and RGB images at 1-16 bits with reversible 5/3 or irreversible 9/7 wavelets, all five progression orders, multiple tiles, RCT/ICT, and enumerated grayscale, sRGB, or sYCC color.
-- Primary boundary: Static Part 1 JP2 subset; current decoder is a full-frame fallback
-- Memory model: Current implementation retains full-frame component and output state
-- Recommended output use: Common static JP2 uploads that fall within the documented subset.
+- Implemented scope: Decodes common static Part 1 JP2 images with reversible 5/3 or irreversible 9/7 wavelets, all five progression orders, multiple tiles and tile-parts, RCT/ICT, maxshift ROI, restricted RGB matrix/TRC ICC profiles, palettes, channel mapping, and straight or premultiplied alpha.
+- Primary boundary: Static Part 1 JP2 decode for 1-16-bit integer grayscale, RGB, sYCC, palette, and cdef alpha images using the documented MQ-coded wavelet subset; excludes POC, packed packet headers, arithmetic-bypass and pass-termination styles, JPX/JPM, HTJ2K, animation, and encode
+- Memory model: Metadata inspection reads bounded headers only. Decode retains the compressed jp2c plus the selected-resolution component planes for one tile row, emits ordered 32-row pixel blocks, skips unrelated tiles for regions, and selects lower wavelet levels for large resize; full-resolution single-tile decode remains an explicit full-component fallback.
+- Recommended output use: Static image/jp2 uploads within the documented Part 1 subset, including common lossless and lossy grayscale, RGB, and sYCC files.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/jpeg2000-codec-support.md
 
 ### AVIF

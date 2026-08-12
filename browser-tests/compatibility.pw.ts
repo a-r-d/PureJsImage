@@ -39,6 +39,12 @@ test('decodes lossless JPEG XL local-tree ANS pixels in a real browser', async (
   expect(result.outputBytes).toBeGreaterThan(50)
   expect(result.detail).toContain('matched djxl RGB pixels')
 })
+test('decodes lossless JPEG 2000 pixels in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.jpeg2000Decode())
+  expect(result.outputBytes).toBeGreaterThan(50)
+  expect(result.detail).toContain('matched the pinned portable RGBA output')
+})
 test('handles supported and unsupported JPEG coding boundaries', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() =>

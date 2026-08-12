@@ -91,13 +91,13 @@ const result = await execute()
 const wallMilliseconds = performance.now() - start
 const final = memorySnapshot()
 const maximumRssBytes = process.resourceUsage().maxRSS * 1024
-const maximumAllowedRssBytes = (action === 'metadata' ? 128 : 256) * 1024 ** 2
+const maximumAllowedRssBytes = (action === 'metadata' ? 128 : 160) * 1024 ** 2
 if (maximumRssBytes > maximumAllowedRssBytes) {
   throw new Error(`${action}/${mode} peak RSS ${maximumRssBytes} exceeds ${maximumAllowedRssBytes}`)
 }
 if (
   action === 'resize-jpeg' &&
-  result.outputSha256 !== '53e1d505fb26697e9f91135ed973102cd4cb3f474dc9ef75404bd7233c1f3995'
+  result.outputSha256 !== 'ad3d085b73c6e98df0c21cef23be11d54eca8f0f34ad1c247330326491e89964'
 ) {
   throw new Error('Resized JPEG output differs from the pinned benchmark result')
 }

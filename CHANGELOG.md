@@ -86,6 +86,14 @@ All notable changes to PureJsImage are documented in this file.
   now strips metadata by default and preserves EXIF and compatible RGB ICC profiles through
   `keepExif()` and `keepIcc()`.
 
+- Promoted JPEG 2000 / JP2 read support from “Limited” to “Yes” for the documented static Part 1
+  subset. The decoder now covers ordered tile-parts, reset-context and vertical-causal code-block
+  styles, maxshift ROI, restricted RGB matrix/TRC ICC profiles, palette and channel mapping,
+  straight and premultiplied alpha, bounded output rows and tile-region reconstruction, and
+  lower-wavelet-resolution downscales. Packed packet headers, progression changes, arithmetic
+  bypass and pass-termination styles, signed display components, JPX/JPM, HTJ2K, animation, and
+  encode remain explicit unsupported boundaries.
+
 - Expanded the Scientific Raster Explorer with direct Blob-backed local-file range reads, actual
   ENVI band indices and nonuniform wavelength labels, cached display measurements, FITS HDU and
   plane selection, and first-party PNG export of the current rendering. Large local ENVI binaries
