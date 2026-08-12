@@ -14,6 +14,7 @@ import {
   pureJsImageEntryTargets,
 } from '../scripts/bundle-size-config.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
+import * as analysisApi from '../src/analysis/index.ts'
 import {
   experimentalHeicCodec,
   experimentalHeifCodec,
@@ -438,6 +439,7 @@ describe('package contract', () => {
     expect(runtimeModules.some((path) => path.startsWith(`accelerator-entries/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`scientific/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`operations/`))).toBe(false)
+    expect(runtimeModules.some((path) => path.startsWith(`analysis/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`extensions/`))).toBe(false)
     expect(readFileSync(resolve('src/executor.ts'), 'utf8')).not.toMatch(/from ['"].*operations\//)
   })
@@ -451,6 +453,7 @@ describe('package contract', () => {
       './scientific/node',
       './scientific/browser',
       './operations',
+      './analysis',
       './extensions',
       './pathology',
       './sources/http-range',
@@ -474,6 +477,9 @@ describe('package contract', () => {
       './codecs/tga',
       './codecs/webp',
     ])
+    expect(analysisApi).toHaveProperty('validateScalarResult')
+    expect(analysisApi).toHaveProperty('measureScientificPlaneWithResults')
+    expect(analysisApi).not.toHaveProperty('createImageLibrary')
     for (const name of [
       'allCodecs',
       'avifCodec',

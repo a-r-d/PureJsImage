@@ -19,6 +19,7 @@
     "src/browser.ts",
     "src/scientific/browser.ts",
     "src/operations/index.ts",
+    "src/analysis/index.ts",
     "src/extensions/index.ts",
     "src/codec-entries/all.ts",
     "src/accelerator-entries/wasm-jpeg-browser.ts",

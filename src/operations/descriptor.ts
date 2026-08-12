@@ -424,6 +424,24 @@ const optionalJsonObject = (
   return isRecord(cloned) ? cloned : undefined
 }
 
+export const validateOperationJsonObject = (
+  input: unknown,
+  limits: Readonly<OperationValidationLimits> = {},
+): OperationValidationResult<OperationJsonObject> => {
+  const context = new ValidationContext(limits)
+  const value = optionalJsonObject(input, '', context)
+  return finish(context, value)
+}
+
+export const normalizeOperationJsonObject = (
+  input: unknown,
+  limits: Readonly<OperationValidationLimits> = {},
+): OperationJsonObject => {
+  const result = validateOperationJsonObject(input, limits)
+  if (result.value !== undefined) return result.value
+  throw invalidInput(result.issues[0]?.message ?? 'Invalid JSON object')
+}
+
 const parseValueTypeReference = (
   value: unknown,
   path: string,
@@ -1164,6 +1182,5 @@ export const coreValueTypeDescriptors: readonly ValueTypeDescriptor[] = Object.f
     { id: 'purejsimage.encoded-image', version: 1, title: 'Encoded image', builtIn: true },
     { id: 'purejsimage.dataset', version: 1, title: 'Scientific dataset', builtIn: true },
     { id: 'purejsimage.numeric-tile', version: 1, title: 'Numeric tile', builtIn: true },
-    { id: 'purejsimage.result.histogram', version: 1, title: 'Histogram result', builtIn: true },
   ].map((descriptor) => normalizeValueTypeDescriptor(descriptor)),
 )

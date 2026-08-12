@@ -400,11 +400,11 @@ concrete; names can change during review without changing the layering.
 | 2 | Migrate the remaining scientific readers, remove transitional bridges, and require abort- and budget-aware V2 reads. | `src/scientific/formats/{fits,mrc,cbf,gsf,envi}.ts`, `src/scientific/ome-tiff.ts`, `src/scientific/{render,spectral,volume,classification}.ts`, `src/source.ts`, abort/limit helpers. | Partial reads or cancellation could leak blocks; format-specific metadata could be lost during migration. | Focused abort-before-read, abort-during-read, iterator-return, release, metadata, and byte-budget tests for contiguous and strided readers. | All readers use the V2 contract directly; no compatibility bridge remains; no read continues after observed abort; every yielded/rejected block is released; source-byte cap is enforced; `npm run check`. |
 | 3 | Introduce `NumericTile`, validated one-time conversion, explicit caller-owned allocation, and the optional direct native tile-source capability. | `src/scientific/{numeric-tile,render,spectral,volume,classification}.ts`, `src/scientific/index.ts`, focused tests and benchmark. | Endianness, float16 expansion, uint64 precision, planar/interleaved strides, or ownership could change values. | Cross-sample-type golden tests, hostile stride/truncation tests, release-on-error tests, reference-vs-direct-source conformance, existing algorithm result suites. | Canonical block fixtures produce exact native values; no `uint64` number coercion; measured retained-byte bounds; `npm run browser:check`; `npm run check`. |
 | 4 | Define JSON-safe operation descriptors and local registries; add provider mechanics, current pipeline lowering, trusted extension composition, and explicit public subpaths without implementing new scientific computation. | New `src/operations/{descriptor,registry,provider,builtins,index}.ts`, `src/extensions/index.ts`, `package.json`, browser/package/size scripts, focused tests, and trust-boundary docs. | Defaults or unknown-key handling could become persisted semantics; provider policy could imply a backend rank; extensions could be mistaken for isolation; ordinary pipeline behavior could drift. | JSON/hostile validation, registry isolation, provider cost/pin/release, IR parity, extension atomicity, strict package-consumer, and browser dependency-graph tests. | Descriptors/manifests contain only data; registries remain local; pipeline IR and fluent APIs remain unchanged; no import-time installation; new entries are browser-portable; `npm run check`. |
-| 5 | Ship permanent strict TypeScript reference implementations for a deliberately small first scientific operation set using the PR 4 provider contract. | New `src/operations/reference/` modules; reuse numeric-tile sample helpers without importing format readers; new semantic/provider tests. | Reference behavior could be underspecified, or operation code could materialize complete planes. | Semantic vectors for NaN/no-data/edges/types, bounded multi-tile execution, cancellation, release, and allocation tests. | Reference results are the conformance oracle; declared memory formula holds; no full-plane helper exists in the generic provider path; `npm run check`. |
+| 5 | Define bounded provider-neutral quantitative results, adapt existing scientific measurement without duplicate wrapper scans, and add the explicit analysis entry. | New `src/analysis/{result,scientific,index}.ts`; `src/scientific/render.ts`, scientific exports/tests, package/browser/type/size checks, and result docs. | Typed payload ownership or NaN/unit semantics could be ambiguous; generic adapters could reread planes; large results could be accidentally serialized as JSON. | Synthetic scalar/histogram/profile/table/collection validation, million-row columnar metadata, bounded summaries, legacy/generic differential measurements, cancellation/release, and package-boundary tests. | Result memory is bounded and accounted; legacy and generic outputs share one measurement execution; manifests contain schemas rather than payloads; the analysis entry is browser-portable and explicit; `npm run check`. |
 | 6 | Add immutable graph JSON, canonicalization, explicit migrations, source identity ladder, and validation issues. | New `src/analysis/{graph,canonical-json,migrations,source-identity,issues}.ts`; `src/scientific/dataset-v2.ts` for source-reference types if needed. | Canonical bytes will become durable at release; weak identities could poison persistent caches. | Provisional canonical fixture corpus, property-order invariance, semantic-order preservation, migration reports, unsupported-version rejection, identity-refinement tests. | Canonical behavior is tested but remains revisable until the release gate; execution rejects unmigrated graphs; weak identity stays session-scoped; `npm run browser:check`; `npm run check`. |
 | 7 | Build the bounded tile runtime and measurable local cache. | New `src/analysis/{tile-runtime,tile-cache,budget,scheduler}.ts`; `src/source.ts` and `src/sources/http-range.ts` only if shared metrics need a portable interface. | Double release, retained buffers, starvation, unbounded concurrency, or cache keys that cross semantic boundaries. | Deterministic fake-source/provider tests for budgets, LRU behavior, concurrency ceilings, cancellation races, iterator cleanup, and metrics. | High-water bytes stay within declared limits; concurrency never exceeds policy; all failure paths release; cold/warm cache measurements are observable; `npm run check`. |
 | 8 | Add exact semantic matching, measured full-cost provider planning, pins, and execution provenance. | New `src/analysis/{planner,cost-model,provenance,executor}.ts`; `src/operations/provider.ts`; do not change `src/accelerator.ts`. | A nominally faster backend could change semantics or hidden fallback could invalidate reproducibility. | Candidate rejection matrix, small-tile TypeScript win, transfer-heavy WebGPU loss, resident-backend win, pin failure, and provenance snapshot tests. | Every selected provider passes exact support; cost components and model version are recorded; no hardcoded backend rank; `npm run check`. |
-| 9 | Add ROIs, immutable results, workspace snapshots, structured commands, and the execution/audit boundary. | New `src/analysis/{roi,result,workspace,commands,audit}.ts`; optional reuse of coordinate metadata from `src/scientific/dataset-v2.ts`. | UI convenience could mutate graphs in place, mix physical and index coordinates, or execute during a command. | Snapshot immutability, issue paths/codes, ROI conversion, command replay, explicit-execution, and cancel/audit tests. | Commands are JSON-safe and deterministic; invalid commands return unchanged snapshots; applying commands performs no source/provider work; `npm run check`. |
+| 9 | Add ROIs, immutable workspace snapshots, structured commands, and the execution/audit boundary around the PR 5 result contracts. | New `src/analysis/{roi,workspace,commands,audit}.ts`; optional reuse of coordinate metadata from `src/scientific/dataset-v2.ts`. | UI convenience could mutate graphs in place, mix physical and index coordinates, or execute during a command. | Snapshot immutability, issue paths/codes, ROI conversion, command replay, explicit-execution, and cancel/audit tests. | Commands are JSON-safe and deterministic; invalid commands return unchanged snapshots; applying commands performs no source/provider work; `npm run check`. |
 | 10 | Complete release-boundary hardening of the application platform and trusted extension boundary, and prove whole-platform ordinary-image/browser compatibility. | `package.json`, browser/package checks, project-contract tests, `src/index.ts`, `src/browser.ts`, `src/extensions/`, real browser tests, and version/changelog files only during an authorized release. | Provisional subpaths could still pull optional backends into browsers; root bundle or `resize().jpeg()` behavior could drift; contracts could be published prematurely; trust wording could overstate isolation. | Package consumers, bundle graphs, registry isolation, trust-label tests, current pipeline tests, scientific browser smoke, and canonical persisted-contract fixtures. | Transitional code is removed; release contracts and breaks are documented; root/browser exports exclude analysis/backends; existing `resize().jpeg()` and real Chromium scientific workflows pass; `npm run check`. |
 
 New package subpaths and completed capabilities may land incrementally in the PR that makes them
@@ -835,8 +835,63 @@ gates.
 
 ### Remaining implementation PRs
 
-- [ ] PR 5: add the strict TypeScript reference `OperationProvider`. Detailed prompts not yet
-      supplied.
+### PR 5: generic quantitative result types
+
+The supplied PR 5 replaces the earlier placeholder that assigned this number to strict TypeScript
+operation implementations. Defining provider-neutral semantic outputs first is the cleaner
+dependency order. The permanent reference implementations remain required, but move to a later
+operation PR after their input and result contracts exist.
+
+- [x] Prompt 5.1: define bounded, columnar, provider-neutral result models.
+  - [x] Inspect current plane measurements, histograms, percentiles/statistics, spectral and
+        classification outputs, operation value types, package boundaries, and representative tests.
+  - [x] Define scalar, explicit-edge histogram, multi-series profile, columnar table, and small named
+        collection payloads with stable namespaced value type IDs and no provider fields.
+  - [x] Separate JSON-safe descriptors/summaries from typed in-memory payloads; support practical
+        numeric arrays, bit-packed booleans/validity, bounded UTF-8 strings, and categories.
+  - [x] Add strict limits and validation for lengths, rows, monotonic edges, finite/NaN policy,
+        units, metadata, category/string sizes, collection breadth/depth, and total retained bytes.
+  - [x] Add bounded JSON-safe summaries with schema, units, dimensions, finite ranges, capped
+        columnar previews, and explicit memory accounting without base64 or typed-array JSON.
+  - [x] Add hostile synthetic and million-row tests proving columnar validation does not allocate
+        row objects; run focused type/lint/format gates and document memory formulas.
+
+- [x] Prompt 5.2: adapt existing scientific measurements without breaking callers.
+  - [x] Keep `measureScientificPlane()` and `ScientificPlaneMeasurement` source-compatible while
+        adding a generic result path and a combined legacy-plus-generic result.
+  - [x] Reuse one underlying measurement execution for both wrappers; preserve bounded percentile
+        sampling, Welford population deviation, no-data/invalid counts, explicit ranges, and units.
+  - [x] Represent histogram edges explicitly and reuse count storage without an unnecessary copy;
+        retain the NumericTile scan path, cancellation, and release propagation.
+  - [x] Add legacy/generic differential coverage for all statistics, percentiles, histograms,
+        no-data, explicit ranges, tiled reads, cancellation/releases, and bounded retained memory.
+  - [x] Run affected scientific, browser, type, lint, and format gates; record any previously
+        ambiguous legacy field semantics.
+
+- [x] Prompt 5.3: register result value types and finish the public analysis boundary.
+  - [x] Add explicit built-in result value-type definitions/registry construction and ensure
+        capability manifests contain result schemas but never payloads.
+  - [x] Export only results, validators, summaries, memory accounting, and scientific adapters from
+        `purejsimage/analysis`; keep graphs, ROIs, tile runtime, and persistence formats out.
+  - [x] Add a custom namespaced result extension example that cannot replace built-ins, plus docs
+        explaining provider neutrality and why large results are not silently JSON encoded.
+  - [x] Update exports, external package compilation, browser graph checks, size reporting, docs,
+        and the architecture status/table/checklist.
+  - [x] Run package types, browser check, result/scientific suites, and `npm run check`; report public
+        exports, measured size, example bounded summary, diff stat, and unrelated failures.
+
+  - Result: `purejsimage/analysis` now exposes five provider-neutral result kinds, strict bounded
+        validators, aggregate retained-buffer accounting, capped JSON-safe summaries, explicit local
+        value-type registration, and one-execution adapters for legacy and V2 scientific plane
+        measurements. Statistics and histograms share a NumericTile pass; direct-tile regression
+        coverage confirms the dataset-range/statistics/render workflow now performs three reads and
+        releases all nine emitted tiles instead of four reads and twelve releases. The packed strict
+        consumer, browser graph, lint, formatting, 111-test scientific/result subset, and 85-test
+        hostile-source subset pass. The analysis entry measures 52.8 KiB minified (14.4 KiB gzip,
+        13.0 KiB Brotli). The full suite has 1,056 passing tests; `npm run check` remains blocked only
+        by the same three unrelated expanded 12-bit AVIF Sharp-oracle hash mismatches recorded by
+        PRs 3 and 4.
+
 - [ ] PR 6: add canonical analysis graphs, migrations, source identity, and validation issues.
       Detailed prompts not yet supplied.
 - [ ] PR 7: add the bounded tile runtime, cache, budgets, and scheduler. Detailed prompts not yet

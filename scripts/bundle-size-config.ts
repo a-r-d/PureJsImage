@@ -52,6 +52,11 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     contents: exportsFrom(['./src/operations/index.ts']),
   },
   {
+    id: 'analysis',
+    name: 'Quantitative analysis results',
+    contents: exportsFrom(['./src/analysis/index.ts']),
+  },
+  {
     id: 'extensions',
     name: 'Trusted extension host',
     contents: exportsFrom(['./src/extensions/index.ts']),

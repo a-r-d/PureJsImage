@@ -48,10 +48,13 @@ if (
 }
 if (
   Object.keys(result.metafile.inputs).some(
-    (input) => input.includes('/operations/') || input.includes('/extensions/'),
+    (input) =>
+      input.includes('/operations/') ||
+      input.includes('/analysis/') ||
+      input.includes('/extensions/'),
   )
 ) {
-  throw new Error('Default browser bundle installs operation or extension infrastructure')
+  throw new Error('Default browser bundle installs application-platform infrastructure')
 }
 
 const applicationPlatformResult = await build({
@@ -63,6 +66,7 @@ const applicationPlatformResult = await build({
   stdin: {
     contents: `
       export * from './src/operations/index.ts'
+      export * from './src/analysis/index.ts'
       export * from './src/extensions/index.ts'
     `,
     loader: 'ts',

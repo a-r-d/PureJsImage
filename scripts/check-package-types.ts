@@ -62,6 +62,7 @@ import { createScientificLibrary, encodeGsf, gsfReader, rasterBlockToNumericTile
 import type { ScientificReader } from 'purejsimage/scientific'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
+import { createAnalysisResultValueTypeRegistry, summarizeResult, validateScalarResult } from 'purejsimage/analysis'
 export { openOmeTiff, rasterToPixels } from 'purejsimage/scientific'
 export { createScientificFileContext } from 'purejsimage/scientific/browser'
 export { createScientificPathContext } from 'purejsimage/scientific/node'
@@ -108,6 +109,10 @@ export const extensionCapabilities = createExtensionHost({
     providers: [extensionProvider],
   }],
 }).manifest
+export const analysisValueTypes = createAnalysisResultValueTypeRegistry().capabilitySnapshot.valueTypes
+export const scalarSummary = summarizeResult(validateScalarResult({
+  kind: 'scalar', valueType: 'purejsimage.result.scalar', value: 12, nanPolicy: 'forbid', unit: 'K',
+}))
 
 export const encodeNode = async (input: Uint8Array): Promise<Uint8Array> =>
   (await nodeImages.open(input)).png().toBuffer()

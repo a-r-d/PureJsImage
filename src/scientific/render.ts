@@ -1,3 +1,4 @@
+import { combineAbortSignals } from '../abort.ts'
 import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { MultidimensionalRasterDataset, RasterPlaneRequest } from './dataset.ts'
@@ -76,6 +77,7 @@ export interface ScientificPlaneMeasureOptions {
   readonly height?: number
   readonly range?: ScientificRange
   readonly statistics?: ScientificStatisticsRequest
+  readonly signal?: AbortSignal
 }
 
 export interface LabeledScientificPlaneMeasureOptions
@@ -152,6 +154,8 @@ export interface ScientificPercentile {
 
 export interface ScientificHistogram {
   readonly range: ScientificRenderRange
+  /** Explicit `counts.length + 1` lower/upper bin boundaries. */
+  readonly binEdges?: Float64Array
   readonly counts: Float64Array
   readonly underflow: number
   readonly overflow: number
@@ -227,6 +231,7 @@ const resolveLegacyPlane = (
     y,
     width,
     height,
+    ...(options.signal === undefined ? {} : { signal: options.signal }),
   }
   return {
     x,
@@ -252,13 +257,14 @@ const resolveLabeledPlane = (
   if (dataset.descriptor.components.length !== 1) {
     throw invalidInput('Scientific scalar rendering requires exactly one stored component')
   }
+  const signal = combineAbortSignals(options.signal, options.plane.signal)
   const request: ScientificPlaneReadRequest = {
     displayAxes: options.plane.displayAxes,
     fixedIndices: options.plane.fixedIndices,
     ...(options.plane.resolutionLevel === undefined
       ? {}
       : { resolutionLevel: options.plane.resolutionLevel }),
-    ...(options.plane.signal === undefined ? {} : { signal: options.plane.signal }),
+    ...(signal === undefined ? {} : { signal }),
     ...(options.x === undefined ? {} : { x: options.x }),
     ...(options.y === undefined ? {} : { y: options.y }),
     ...(options.width === undefined ? {} : { width: options.width }),
@@ -336,6 +342,7 @@ interface StatisticsScan {
   readonly mean: number
   readonly standardDeviation: number
   readonly percentiles?: readonly ScientificPercentile[]
+  readonly histogram?: ScientificHistogram
 }
 
 const percentileIndex = (length: number, percentile: number): number =>
@@ -452,8 +459,33 @@ const validatedStatistics = (
 const scanStatistics = async (
   plane: ResolvedScalarPlane,
   options: Readonly<ScientificStatisticsRequest>,
+  histogramDefaultRange: ScientificRenderRange,
 ): Promise<StatisticsScan> => {
   const validated = validatedStatistics(options)
+  const histogramRange = validated.histogram?.range ?? histogramDefaultRange
+  const histogramCounts =
+    validated.histogram === undefined ? undefined : new Float64Array(validated.histogram.bins)
+  const histogramEdges =
+    validated.histogram === undefined ? undefined : new Float64Array(validated.histogram.bins + 1)
+  const histogramSpan = histogramRange.max - histogramRange.min
+  if (histogramEdges !== undefined && histogramCounts !== undefined) {
+    if (!Number.isFinite(histogramSpan)) {
+      throw invalidInput('Scientific histogram range span must be finite')
+    }
+    const binWidth = histogramSpan / histogramCounts.length
+    for (let index = 0; index <= histogramCounts.length; index += 1) {
+      const edge =
+        index === histogramCounts.length
+          ? histogramRange.max
+          : histogramRange.min + binWidth * index
+      if (index > 0 && edge <= (histogramEdges[index - 1] ?? Number.NaN)) {
+        throw invalidInput('Scientific histogram range is too narrow for the requested bin count')
+      }
+      histogramEdges[index] = edge
+    }
+  }
+  let histogramUnderflow = 0
+  let histogramOverflow = 0
   const totalPixels = plane.width * plane.height
   const sampleStride = Math.max(1, Math.ceil(totalPixels / validated.percentileMaxSamples))
   const samples =
@@ -476,6 +508,17 @@ const scanStatistics = async (
         continue
       }
       finiteSamples += 1
+      if (histogramCounts !== undefined) {
+        if (value < histogramRange.min) histogramUnderflow += 1
+        else if (value > histogramRange.max) histogramOverflow += 1
+        else {
+          const histogramIndex =
+            value === histogramRange.max
+              ? histogramCounts.length - 1
+              : Math.floor(((value - histogramRange.min) / histogramSpan) * histogramCounts.length)
+          histogramCounts[histogramIndex] = (histogramCounts[histogramIndex] ?? 0) + 1
+        }
+      }
       const delta = value - mean
       mean += delta / finiteSamples
       sumSquaredDifferences += delta * (value - mean)
@@ -501,6 +544,17 @@ const scanStatistics = async (
               ),
             ),
           }),
+      ...(histogramCounts === undefined || histogramEdges === undefined
+        ? {}
+        : {
+            histogram: Object.freeze({
+              range: Object.freeze({ ...histogramRange }),
+              binEdges: histogramEdges,
+              counts: histogramCounts,
+              underflow: histogramUnderflow,
+              overflow: histogramOverflow,
+            }),
+          }),
     }
   }
   let percentiles: readonly ScientificPercentile[] | undefined
@@ -522,35 +576,18 @@ const scanStatistics = async (
     mean,
     standardDeviation: Math.sqrt(sumSquaredDifferences / finiteSamples),
     ...(percentiles === undefined ? {} : { percentiles }),
+    ...(histogramCounts === undefined || histogramEdges === undefined
+      ? {}
+      : {
+          histogram: Object.freeze({
+            range: Object.freeze({ ...histogramRange }),
+            binEdges: histogramEdges,
+            counts: histogramCounts,
+            underflow: histogramUnderflow,
+            overflow: histogramOverflow,
+          }),
+        }),
   }
-}
-
-const scanHistogram = async (
-  plane: ResolvedScalarPlane,
-  bins: number,
-  range: ScientificRenderRange,
-): Promise<ScientificHistogram> => {
-  const counts = new Float64Array(bins)
-  let underflow = 0
-  let overflow = 0
-  const span = range.max - range.min
-  for await (const row of scalarRows(plane)) {
-    const end = row.offset + row.width
-    for (let index = row.offset; index < end; index += 1) {
-      const value = row.values[index] ?? Number.NaN
-      if (!usableValue(value, plane.noDataValue)) continue
-      if (value < range.min) {
-        underflow += 1
-      } else if (value > range.max) {
-        overflow += 1
-      } else {
-        const index =
-          value === range.max ? bins - 1 : Math.floor(((value - range.min) / span) * bins)
-        counts[index] = (counts[index] ?? 0) + 1
-      }
-    }
-  }
-  return Object.freeze({ range: Object.freeze({ ...range }), counts, underflow, overflow })
 }
 
 const scaledValue = (
@@ -729,12 +766,10 @@ const measureResolvedPlane = async (
   const scan = await scanRange(plane, rangeMode)
   const requestedStatistics = options.statistics
   const statistics =
-    requestedStatistics === undefined ? undefined : await scanStatistics(plane, requestedStatistics)
-  const histogramRequest = requestedStatistics?.histogram
-  const histogram =
-    histogramRequest === undefined
+    requestedStatistics === undefined
       ? undefined
-      : await scanHistogram(plane, histogramRequest.bins, histogramRequest.range ?? scan.range)
+      : await scanStatistics(plane, requestedStatistics, scan.range)
+  const histogram = statistics?.histogram
   return Object.freeze({
     range: Object.freeze(scan.range),
     finiteSamples: statistics?.finiteSamples ?? scan.finiteSamples,

@@ -260,6 +260,11 @@ and providers without package-global registration or import-time probing. Extens
 the application's authority; this is not a sandbox. See the
 [operations and trusted extensions guide](docs/operations-and-extensions.md).
 
+Quantitative application results are available through the explicit `purejsimage/analysis` entry.
+It provides bounded scalar, histogram, profile, columnar table, and collection contracts plus
+JSON-safe summaries and a one-measurement scientific adapter. Typed payloads are never silently
+serialized. See the [quantitative analysis results guide](docs/analysis-results.md).
+
 MRC and FITS volumes share lazy cross-section and projection operations:
 
 ```ts
