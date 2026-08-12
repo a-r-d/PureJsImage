@@ -403,9 +403,9 @@ concrete; names can change during review without changing the layering.
 | 4 | Define JSON-safe operation descriptors and local registries; add provider mechanics, current pipeline lowering, trusted extension composition, and explicit public subpaths without implementing new scientific computation. | New `src/operations/{descriptor,registry,provider,builtins,index}.ts`, `src/extensions/index.ts`, `package.json`, browser/package/size scripts, focused tests, and trust-boundary docs. | Defaults or unknown-key handling could become persisted semantics; provider policy could imply a backend rank; extensions could be mistaken for isolation; ordinary pipeline behavior could drift. | JSON/hostile validation, registry isolation, provider cost/pin/release, IR parity, extension atomicity, strict package-consumer, and browser dependency-graph tests. | Descriptors/manifests contain only data; registries remain local; pipeline IR and fluent APIs remain unchanged; no import-time installation; new entries are browser-portable; `npm run check`. |
 | 5 | Define bounded provider-neutral quantitative results, adapt existing scientific measurement without duplicate wrapper scans, and add the explicit analysis entry. | New `src/analysis/{result,scientific,index}.ts`; `src/scientific/render.ts`, scientific exports/tests, package/browser/type/size checks, and result docs. | Typed payload ownership or NaN/unit semantics could be ambiguous; generic adapters could reread planes; large results could be accidentally serialized as JSON. | Synthetic scalar/histogram/profile/table/collection validation, million-row columnar metadata, bounded summaries, legacy/generic differential measurements, cancellation/release, and package-boundary tests. | Result memory is bounded and accounted; legacy and generic outputs share one measurement execution; manifests contain schemas rather than payloads; the analysis entry is browser-portable and explicit; `npm run check`. |
 | 6 | Add immutable graph JSON, canonicalization, source identities, explicit migrations, generic planning/execution/provenance, and revisioned commands. | `src/source-identity-contract.ts` and `src/source-identity.ts` beside the bottom-level source contract; new `src/analysis/{graph,canonical-json,migrations,planner,executor,workspace,controller}.ts`; source wrappers, HTTP/File adapters, extension composition, explicit analysis exports, docs, and package/browser checks. Source identity deliberately does not live under `analysis`, because `ImageSource` must not import upward into application code; normalization and hashing are re-exported from the explicit analysis entry so the root size budget stays intact. | Canonical bytes will become durable at release; weak identities could poison persistent caches; command convenience could execute implicitly; provider failures could leak values. | Property-order/hash invariance, graph limits/types/cycles, identity propagation and bounded hashing, migration paths, no-read dry runs, provider policies, releases/cancellation/concurrency, provenance, stale commands, extension atomicity, strict consumer types, and browser dependency checks. | Canonical behavior remains revisable until the release gate; weak identity stays explicitly weak; commands never execute; prepared DAG execution is bounded/cancellable and releases ownership; `npm run browser:check`; `npm run package:types`; `npm run check`. |
-| 7 | Build the bounded tile runtime and measurable local cache. | New `src/analysis/{tile-runtime,tile-cache,budget,scheduler}.ts`; `src/source.ts` and `src/sources/http-range.ts` only if shared metrics need a portable interface. | Double release, retained buffers, starvation, unbounded concurrency, or cache keys that cross semantic boundaries. | Deterministic fake-source/provider tests for budgets, LRU behavior, concurrency ceilings, cancellation races, iterator cleanup, and metrics. | High-water bytes stay within declared limits; concurrency never exceeds policy; all failure paths release; cold/warm cache measurements are observable; `npm run check`. |
-| 8 | Connect the generic PR 6 provider planner to real tile operations and refine its measured cost model where actual backends require more information. | `src/analysis/{planner,tile-runtime}.ts`, real operation/provider definitions, benchmark fixtures, and `src/operations/provider.ts` only for evidence-backed contract gaps; do not change `src/accelerator.ts`. | A nominally faster backend could change semantics, or synthetic costs could fail to predict transfer-heavy workloads. | Candidate rejection matrix plus measured small-tile TypeScript, transfer-heavy WebGPU, resident-backend, pin, and provenance cases. | Real selections retain exact support and recorded costs with no backend rank; contract changes are justified by measurements; `npm run check`. |
-| 9 | Add ROIs, persisted workspace/result references, and the remaining audit boundary around PR 5 results and PR 6 revisioned commands. | New `src/analysis/{roi,persistence,audit}.ts`; `src/analysis/workspace.ts` only where persisted references require it; coordinate metadata from `src/scientific/dataset-v2.ts`. | Physical/index coordinates could be mixed, persisted references could imply ownership, or audit data could enter semantic hashes. | ROI conversion, persistence round trips/migrations, command replay, result references, explicit execution, and audit/hash exclusion tests. | ROI coordinates are explicit; persistence is migrated; audit/timing remain outside graph hashes; applying commands performs no source/provider work; `npm run check`. |
+| 7 | Define calibrated ROI geometry, tile-local masks, deterministic line sampling plans, built-in ROI value types, and immutable workspace ROI commands. | New `src/analysis/{roi,roi-sampling}.ts`; `src/analysis/{workspace,controller,index}.ts`; operation value-type composition; scientific labeled-axis descriptors; package/browser checks, focused tests, and docs. | Pixel-boundary and pixel-center conventions could be mixed; non-monotonic calibration could be treated as invertible; masks could materialize a whole plane; ROI commands could blur graph mutation and execution. | Geometry/limit/canonical tests, ascending and descending coordinate conversion, 4D fixed indices, partition-invariant tile masks, concave polygons, nearest/bilinear line plans, stale commands, value-type registry isolation, and browser/package checks. | Coordinates and units are explicit; physical inversion rejects unsupported axes; masks stay tile-local; sampling plans read no pixels; commands remain immutable and never execute; `npm run browser:check`; `npm run package:types`; `npm run check`. |
+| 8 | Build the bounded tile runtime and measurable local cache, then connect the PR 6 provider planner to real tile operations and refine measured cost selection where evidence requires it. | New `src/analysis/{tile-runtime,tile-cache,budget,scheduler}.ts`, real operation/provider definitions, benchmark fixtures, and `src/operations/provider.ts` only for evidence-backed contract gaps; do not change `src/accelerator.ts`. | Double release, retained buffers, starvation, unbounded concurrency, cache-key leakage, or a nominally faster backend changing semantics. | Deterministic budget/LRU/concurrency/cancellation tests plus candidate rejection and measured TypeScript, transfer-heavy, resident-backend, pin, and provenance cases. | High-water bytes and concurrency stay within policy; failure paths release; cache behavior is measurable; real selections retain exact support and recorded costs with no backend rank; `npm run check`. |
+| 9 | Add persisted workspace/result references and the remaining audit boundary around PR 5 results, PR 6 revisioned commands, and PR 7 ROI state. | New `src/analysis/{persistence,audit}.ts`; `src/analysis/workspace.ts` only where persisted references require it. | Persisted references could imply ownership, or audit/timing data could enter semantic hashes. | Persistence round trips/migrations, command replay, ROI/result references, explicit execution, and audit/hash exclusion tests. | Persistence is migrated; audit/timing remain outside graph hashes; applying commands performs no source/provider work; `npm run check`. |
 | 10 | Complete release-boundary hardening of the application platform and trusted extension boundary, and prove whole-platform ordinary-image/browser compatibility. | `package.json`, browser/package checks, project-contract tests, `src/index.ts`, `src/browser.ts`, `src/extensions/`, real browser tests, and version/changelog files only during an authorized release. | Provisional subpaths could still pull optional backends into browsers; root bundle or `resize().jpeg()` behavior could drift; contracts could be published prematurely; trust wording could overstate isolation. | Package consumers, bundle graphs, registry isolation, trust-label tests, current pipeline tests, scientific browser smoke, and canonical persisted-contract fixtures. | Transitional code is removed; release contracts and breaks are documented; root/browser exports exclude analysis/backends; existing `resize().jpeg()` and real Chromium scientific workflows pass; `npm run check`. |
 
 New package subpaths and completed capabilities may land incrementally in the PR that makes them
@@ -413,6 +413,11 @@ usable. PR 10 is the release-readiness gate, not the first publication point. Re
 before that gate are provisional alpha contracts; an actual package release must not occur until the
 whole exported surface passes the final browser, package, compatibility, and persisted-contract
 checks.
+
+The detailed PR 7 ROI runbook supplied after PR 6 supersedes the earlier coarse allocation of PR 7
+to the tile runtime. That runtime moves to PR 8 unless a later detailed prompt revises the order
+again; PR 9 no longer owns the ROI primitives and instead builds persistence and audit boundaries on
+top of them.
 
 ## Decisions and rejected shortcuts
 
@@ -949,11 +954,58 @@ operation PR after their input and result contracts exist.
         and 923 hostile-source tests excluding AVIF pass. The full suite has 1,082 passing tests;
         `npm run check` remains blocked only by the same three unrelated expanded 12-bit AVIF
         Sharp-oracle hash mismatches recorded by PRs 3 through 5.
-- [ ] PR 7: add the bounded tile runtime, cache, budgets, and scheduler. Detailed prompts not yet
-      supplied.
-- [ ] PR 8: connect real tile operations to PR 6 provider planning and refine measured cost policy
-      from benchmark evidence. Detailed prompts not yet supplied.
-- [ ] PR 9: add ROIs, persisted result/workspace references, and remaining audit boundaries on top
-      of PR 6 revisioned commands. Detailed prompts not yet supplied.
+
+### PR 7: ROI geometry and sampling
+
+- [x] Prompt 7.1: define versioned ROI geometry and calibrated coordinate conversion.
+  - [x] Define JSON-safe point, line segment, polyline, rectangle, ellipse, polygon, and `RoiSet`
+        contracts with stable IDs, axis IDs, fixed non-plane indices, coordinate space, and optional
+        non-semantic style/label metadata.
+  - [x] Normalize and validate geometry against labeled scientific axes with explicit limits for
+        ROI count, points, magnitude, nesting, metadata bytes, duplicate IDs, and fixed indices.
+  - [x] Implement pixel-center/boundary semantics, exact linear calibration, monotonic ascending or
+        descending lookup inversion, unit checks, bounding boxes, plane clipping, and canonical ROI
+        JSON.
+  - [x] Test every geometry, 4D fixed indices, calibration and unit errors, hostile limits,
+        canonical serialization, and pixel-center semantics.
+
+- [x] Prompt 7.2: add tile-local masks and deterministic line sampling plans.
+  - [x] Generate bounded tile-local rectangle, ellipse, and even-odd polygon masks with explicit
+        origin, dimensions, stride, ownership, clipping, and partition-invariant pixel-center rules.
+  - [x] Reject holes and area-mask requests for point/line/polyline geometry; precompute polygon
+        scanline state per tile with no per-pixel object allocation.
+  - [x] Generate bounded nearest and bilinear line/polyline plans with pixel- or calibrated
+        physical-distance spacing, coordinates and units separate from future sampled values, and
+        no dataset reads.
+  - [x] Test edges on centers, concavity, ellipse boundaries, clipping/off-image cases, tile-size
+        invariance, ascending/descending physical axes, interpolation weights, limits, and aborts.
+
+- [x] Prompt 7.3: integrate ROI value types and immutable workspace commands.
+  - [x] Register stable built-in ROI and ROI-set value-type descriptors through explicit local
+        registry construction and protect core semantics from extension replacement.
+  - [x] Extend immutable workspaces and the controller with versioned add/update/remove/replace ROI
+        commands, expected-revision checks, structured paths, and JSON-only capability schemas.
+  - [x] Test command-only creation/editing, mock operation binding, graph/workspace canonicalization,
+        stale and invalid edits, registry isolation, and the absence of implicit execution.
+  - [x] Update analysis exports, strict package types, browser checks, documentation, examples, and
+        this checklist; explicitly defer brushes, 3D geometry, boolean algebra, collaboration, and
+        visual styling systems.
+
+  - Result: `purejsimage/analysis` now exports immutable ROI/ROI-set contracts, calibrated
+        coordinate conversion, canonical storage and quantitative JSON, tile-local area masks, and
+        deterministic line sampling plans. ROI state is edited through the same revisioned command
+        API as graphs; planning validates bound ROI values through explicitly constructed local
+        value-type registries, while execution remains a separate call. The 69-test focused
+        analysis/operation suite, strict package types, browser checks (1,782,761-byte bundle),
+        documentation build, formatting, and lint pass. The root entry remains 59.9 KiB minified;
+        the explicit analysis entry is 132.1 KiB. The hostile-source suite excluding AVIF has 949
+        passing tests. The full suite has 1,108 passing tests; `npm run check` remains blocked only
+        by the same three unrelated expanded 12-bit AVIF Sharp-oracle hash mismatches recorded by
+        earlier PRs.
+
+- [ ] PR 8: add the bounded tile runtime/cache, connect real tile operations to PR 6 planning, and
+      refine measured cost policy. Detailed prompts not yet supplied.
+- [ ] PR 9: add persisted result/workspace references and remaining audit boundaries on top of PR 6
+      commands and PR 7 ROI state. Detailed prompts not yet supplied.
 - [ ] PR 10: complete release-boundary hardening, extension composition, and whole-platform
       compatibility validation. Detailed prompts not yet supplied.

@@ -38,6 +38,13 @@ const normalized = resize?.normalizeParameters({ width: 800, kernel: 'lanczos3' 
 console.log(operations.capabilitySnapshot, values.capabilitySnapshot, normalized)
 ```
 
+Scientific applications can construct dataset-calibrated definitions for
+`purejsimage.roi@1` and `purejsimage.roi-set@1` with `createRoiValueTypeDefinitions()` or an isolated
+registry with `createRoiValueTypeRegistry()` from `purejsimage/analysis`. These are ordinary value
+types: operation ports reference their exact IDs and versions, and planning validates bound ROI data
+without embedding functions into graph JSON. Extensions must use their own namespaced IDs for
+ROI-like semantics and cannot replace the core definitions.
+
 The current fluent API remains the ordinary-image path. Its validators and `PipelineOperation`
 execution IR remain authoritative; built-in definitions call those existing validated constructors
 when lowering. Registry lookup therefore does not occur in pixel loops, and existing

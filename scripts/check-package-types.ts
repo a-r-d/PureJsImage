@@ -58,12 +58,12 @@ import { createImageLibrary as createBrowserImageLibrary } from 'purejsimage/bro
 import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
 import { pngCodec } from 'purejsimage/codecs/png'
 export { geoTiffProfile } from 'purejsimage/tiff'
-import { createScientificLibrary, encodeGsf, gsfReader, rasterBlockToNumericTile } from 'purejsimage/scientific'
+import { createScientificLibrary, encodeGsf, gsfReader, normalizeScientificDatasetDescriptor, rasterBlockToNumericTile } from 'purejsimage/scientific'
 import type { ScientificReader } from 'purejsimage/scientific'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
-import { createAnalysisController, createAnalysisResultValueTypeRegistry, getImageSourceIdentity, hashAnalysisGraph, summarizeResult, validateScalarResult } from 'purejsimage/analysis'
-import type { AnalysisGraph } from 'purejsimage/analysis'
+import { createAnalysisController, createAnalysisResultValueTypeRegistry, createRoiLineSamplingPlan, createRoiMask, createRoiValueTypeRegistry, getImageSourceIdentity, hashAnalysisGraph, normalizeRoi, summarizeResult, validateScalarResult } from 'purejsimage/analysis'
+import type { AnalysisGraph, Roi } from 'purejsimage/analysis'
 export { openOmeTiff, rasterToPixels } from 'purejsimage/scientific'
 export { createScientificFileContext } from 'purejsimage/scientific/browser'
 export { createScientificPathContext } from 'purejsimage/scientific/node'
@@ -125,6 +125,33 @@ export const analysisController = createAnalysisController({
 export const emptyGraphHash = hashAnalysisGraph(emptyGraph)
 export const emptyWorkspace = analysisController.createWorkspace(emptyGraph)
 export const memoryIdentity = getImageSourceIdentity(new MemorySource(Uint8Array.of(1)))
+const roiDatasetDescriptor = {
+  schemaVersion: 2 as const,
+  axes: [
+    { id: 'x', kind: 'space' as const, length: 4, coordinates: { type: 'index' as const } },
+    { id: 'y', kind: 'space' as const, length: 3, coordinates: { type: 'index' as const } },
+  ],
+  sampleType: 'uint8' as const,
+  components: [{ id: 'value', kind: 'scalar' as const }],
+  capabilities: { regionReads: true, resolutionLevels: false },
+}
+const normalizedRoiDataset = normalizeScientificDatasetDescriptor(roiDatasetDescriptor)
+export const polygonRoi: Roi = normalizeRoi({
+  schemaVersion: 1, id: 'selection', axisIds: ['x', 'y'], fixedIndices: [],
+  coordinateSpace: 'pixel',
+  geometry: { kind: 'polygon', points: [{ x: 0, y: 0 }, { x: 3, y: 0 }, { x: 1, y: 2 }] },
+}, normalizedRoiDataset)
+export const roiValues = createRoiValueTypeRegistry(normalizedRoiDataset).capabilitySnapshot
+export const roiMask = createRoiMask(polygonRoi, normalizedRoiDataset, {
+  plane: { width: 4, height: 3 }, tile: { x: 0, y: 0, width: 2, height: 2 },
+})
+export const roiLine = createRoiLineSamplingPlan(normalizeRoi({
+  ...polygonRoi,
+  id: 'line',
+  geometry: { kind: 'line-segment', start: { x: 0.5, y: 0.5 }, end: { x: 2.5, y: 0.5 } },
+}, normalizedRoiDataset), normalizedRoiDataset, {
+  spacing: 1, spacingSpace: 'pixel', interpolation: 'bilinear',
+})
 
 export const encodeNode = async (input: Uint8Array): Promise<Uint8Array> =>
   (await nodeImages.open(input)).png().toBuffer()

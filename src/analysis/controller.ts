@@ -29,6 +29,7 @@ import { dryRun as inspectDryRun, planGraph as prepareGraphPlan } from './planne
 import type {
   AnalysisCommandApplication,
   AnalysisCommandValidation,
+  AnalysisWorkspaceRoiContext,
   AnalysisWorkspaceSnapshot,
 } from './workspace.ts'
 import {
@@ -36,6 +37,8 @@ import {
   createAnalysisWorkspaceSnapshot,
   validateCommand as validateWorkspaceCommand,
 } from './workspace.ts'
+import type { RoiSet } from './roi.ts'
+import { resolveRoiLimits, roiSchemaVersion, roiSetValueTypeId, roiValueTypeId } from './roi.ts'
 
 export interface AnalysisControllerCapabilities extends OperationJsonObject {
   readonly apiVersion: 1
@@ -45,6 +48,7 @@ export interface AnalysisControllerCapabilities extends OperationJsonObject {
   readonly providerDescriptors: readonly OperationJsonObject[]
   readonly migrationDescriptors: readonly OperationJsonObject[]
   readonly commandKinds: readonly string[]
+  readonly roi: OperationJsonObject | null
   readonly trustBoundary: string
 }
 
@@ -54,6 +58,7 @@ export interface AnalysisControllerOptions {
   readonly providers?: Iterable<OperationProvider>
   readonly migrations?: AnalysisMigrationRegistry
   readonly limits?: Readonly<AnalysisLimits>
+  readonly roi?: Readonly<AnalysisWorkspaceRoiContext>
   readonly library: AnalysisLibraryBuild
 }
 
@@ -77,6 +82,7 @@ export class AnalysisController {
   readonly #providers: readonly OperationProvider[]
   readonly #migrations: AnalysisMigrationRegistry
   readonly #limits: Readonly<AnalysisLimits>
+  readonly #roiContext: Readonly<AnalysisWorkspaceRoiContext> | undefined
   readonly #library: AnalysisLibraryBuild
   readonly #tasks = new Map<string, AnalysisExecutionTask>()
   readonly capabilities: AnalysisControllerCapabilities
@@ -113,6 +119,14 @@ export class AnalysisController {
     }
     this.#migrations = options.migrations ?? new AnalysisMigrationRegistry([])
     this.#limits = resolveAnalysisLimits(options.limits)
+    this.#roiContext = options.roi
+    if (
+      this.#roiContext !== undefined &&
+      (this.#valueTypes.get(roiValueTypeId, 1)?.descriptor.builtIn !== true ||
+        this.#valueTypes.get(roiSetValueTypeId, 1)?.descriptor.builtIn !== true)
+    ) {
+      throw invalidInput('ROI controller context requires the core ROI and ROI-set value types')
+    }
     if (
       typeof options.library.version !== 'string' ||
       options.library.version.trim().length === 0 ||
@@ -147,7 +161,23 @@ export class AnalysisController {
         'unbind-input',
         'set-output',
         'remove-output',
+        ...(this.#roiContext === undefined
+          ? []
+          : ['add-roi', 'update-roi', 'remove-roi', 'replace-roi-set']),
       ]),
+      roi:
+        this.#roiContext === undefined
+          ? null
+          : Object.freeze({
+              schemaVersion: roiSchemaVersion,
+              limits: Object.freeze({ ...resolveRoiLimits(this.#roiContext.limits) }),
+              commandKinds: Object.freeze([
+                'add-roi',
+                'update-roi',
+                'remove-roi',
+                'replace-roi-set',
+              ]),
+            }),
       trustBoundary:
         'Trusted in-process API, not a sandbox; untrusted extensions require a future Worker or iframe RPC host',
     })
@@ -159,16 +189,22 @@ export class AnalysisController {
     return descriptor === undefined ? undefined : descriptorObject(descriptor)
   }
 
-  createWorkspace(graph?: AnalysisGraph): AnalysisWorkspaceSnapshot {
-    return createAnalysisWorkspaceSnapshot(graph)
+  createWorkspace(graph?: AnalysisGraph, roiSet?: RoiSet): AnalysisWorkspaceSnapshot {
+    return createAnalysisWorkspaceSnapshot(graph, 0, roiSet, this.#roiContext)
   }
 
   validateCommand(command: unknown): AnalysisCommandValidation {
-    return validateWorkspaceCommand(command)
+    return validateWorkspaceCommand(command, this.#roiContext)
   }
 
   applyCommand(snapshot: AnalysisWorkspaceSnapshot, command: unknown): AnalysisCommandApplication {
-    return applyWorkspaceCommand(snapshot, command, this.#operations, this.#limits)
+    return applyWorkspaceCommand(
+      snapshot,
+      command,
+      this.#operations,
+      this.#limits,
+      this.#roiContext,
+    )
   }
 
   validateGraph(graph: unknown): AnalysisGraphValidation {
@@ -193,6 +229,7 @@ export class AnalysisController {
     return prepareGraphPlan({
       graph,
       operations: this.#operations,
+      valueTypes: this.#valueTypes,
       providers: this.#providers,
       bindings: options.bindings,
       limits: this.#limits,
@@ -205,6 +242,7 @@ export class AnalysisController {
     return inspectDryRun({
       graph,
       operations: this.#operations,
+      valueTypes: this.#valueTypes,
       providers: this.#providers,
       bindings: options.bindings,
       limits: this.#limits,

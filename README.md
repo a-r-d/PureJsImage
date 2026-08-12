@@ -271,6 +271,10 @@ cancellable generic orchestration, and provenance. Graph mutation never executes
 the controller is shared by UI, scripts, trusted plugins, and future agents without a privileged
 AI-only path. See the [analysis graph guide](docs/analysis-graphs.md).
 
+The analysis entry also provides calibrated JSON-safe ROI geometry, tile-local masks, deterministic
+line sampling plans, built-in ROI value types, and immutable ROI workspace commands. See the
+[ROI geometry and sampling guide](docs/roi-geometry-and-sampling.md).
+
 MRC and FITS volumes share lazy cross-section and projection operations:
 
 ```ts

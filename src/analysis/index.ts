@@ -124,6 +124,7 @@ export type {
   AnalysisCommand,
   AnalysisCommandApplication,
   AnalysisCommandValidation,
+  AnalysisWorkspaceRoiContext,
   AnalysisWorkspaceSnapshot,
 } from './workspace.ts'
 export {
@@ -155,3 +156,51 @@ export {
   imageSourceIdentity,
   normalizeSourceIdentity,
 } from '../source-identity.ts'
+export type {
+  PhysicalRoiPoint,
+  ResolvedRoiLimits,
+  Roi,
+  RoiBoundingBox,
+  RoiGeometry,
+  RoiLimits,
+  RoiPoint,
+  RoiPresentation,
+  RoiSet,
+} from './roi.ts'
+export {
+  canonicalRoiJson,
+  canonicalRoiSemanticsJson,
+  canonicalRoiSetJson,
+  clipRoiBoundingBox,
+  createEmptyRoiSet,
+  createRoiValueTypeDefinitions,
+  createRoiValueTypeRegistry,
+  defaultRoiLimits,
+  normalizeRoi,
+  normalizeRoiSet,
+  physicalToPixelPoint,
+  pixelToPhysicalPoint,
+  resolveRoiLimits,
+  roiAxisPhysicalToPixel,
+  roiAxisPixelToPhysical,
+  roiBoundingBox,
+  roiSchemaVersion,
+  roiSetValueTypeId,
+  roiValueTypeDescriptors,
+  roiValueTypeId,
+  validateRoi,
+  validateRoiSet,
+} from './roi.ts'
+export type {
+  BilinearLineSampling,
+  NearestLineSampling,
+  RoiLineInterpolation,
+  RoiLineSamplingOptions,
+  RoiLineSamplingPlan,
+  RoiLineSpacingSpace,
+  RoiMask,
+  RoiMaskOptions,
+  RoiPlaneShape,
+  RoiTileRegion,
+} from './roi-sampling.ts'
+export { createRoiLineSamplingPlan, createRoiMask } from './roi-sampling.ts'

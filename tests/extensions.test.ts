@@ -146,4 +146,33 @@ describe('trusted extension bundles', () => {
       }),
     ).toThrow('ambiguous')
   })
+
+  it('requires extension ROI-like values to use a distinct namespaced id', () => {
+    const replacement = createValueTypeDefinition({
+      descriptor: { id: 'purejsimage.roi', version: 2, title: 'Replacement ROI' },
+    })
+    expect(() =>
+      createExtensionHost({
+        extensions: [
+          {
+            descriptor: { id: 'example.annotations', version: 1, apiVersion: 1 },
+            valueTypes: [replacement],
+          },
+        ],
+      }),
+    ).toThrow('cannot register a core value type id')
+    const namespaced = createValueTypeDefinition({
+      descriptor: { id: 'example.roi.annotation', version: 1, title: 'Annotation ROI' },
+    })
+    expect(
+      createExtensionHost({
+        extensions: [
+          {
+            descriptor: { id: 'example.annotations', version: 1, apiVersion: 1 },
+            valueTypes: [namespaced],
+          },
+        ],
+      }).valueTypes.get('example.roi.annotation', 1),
+    ).toBeDefined()
+  })
 })

@@ -169,6 +169,13 @@ Validation and application are pure: an invalid command returns the original sna
 issues, while a successful command returns a new snapshot. Commands contain no code strings,
 arbitrary mutation path, DOM access, `eval`, or privileged AI-only fields.
 
+When the controller is configured with a scientific ROI context, the same snapshot also owns an
+immutable `roiSet`, and the same command path supports `add-roi`, `update-roi`, `remove-roi`, and
+`replace-roi-set`. ROI commands validate labeled axes, calibration, fixed indices, geometry, and
+limits before changing the revision. They do not alter graph semantic hashing and do not execute a
+provider; an ROI reaches an operation only through an explicitly typed graph input and a later
+binding passed to planning. See the [ROI guide](roi-geometry-and-sampling.md).
+
 Planning and execution are separate explicit calls. `executeGraph()` accepts an already prepared
 plan, returns a cancellable task, respects bounded parallelism, executes dependencies
 deterministically, and releases intermediate owned outputs after their last consumer. Named outputs

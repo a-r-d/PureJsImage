@@ -8,7 +8,7 @@ import type {
   OperationProviderRequest,
 } from '../operations/provider.ts'
 import { prepareOperationRuntime } from '../operations/provider.ts'
-import type { OperationRegistry } from '../operations/registry.ts'
+import type { OperationRegistry, ValueTypeRegistry } from '../operations/registry.ts'
 import type { ImageSource } from '../source.ts'
 import type { SourceIdentity } from '../source-identity.ts'
 import { getImageSourceIdentity, normalizeSourceIdentity } from '../source-identity.ts'
@@ -84,6 +84,7 @@ export interface PreparedAnalysisPlan {
 export interface PlanGraphOptions {
   readonly graph: unknown
   readonly operations: OperationRegistry
+  readonly valueTypes?: ValueTypeRegistry
   readonly providers: Iterable<OperationProvider>
   readonly bindings: Readonly<Record<string, AnalysisInputBinding>>
   readonly policy?: OperationProviderPolicy
@@ -188,6 +189,7 @@ export const planGraph = async (
   const graph = validation.graph
   const bindingEntries = Object.entries(options.bindings)
   const graphInputNames = new Set(graph.inputs.map((input) => input.name))
+  const bindings = new Map<string, AnalysisInputBinding>()
   for (const input of graph.inputs) {
     const binding = options.bindings[input.name]
     if (binding === undefined) throw invalidInput(`Graph input ${input.name} is not bound`)
@@ -198,11 +200,23 @@ export const planGraph = async (
     ) {
       throw invalidInput(`Graph input ${input.name} binding has an incompatible value type`)
     }
+    const valueType = options.valueTypes?.get(input.valueType.id, input.valueType.version)
+    if (valueType?.validate !== undefined) {
+      const result = valueType.validate(binding.value)
+      if (result.value === undefined) {
+        const issue = result.issues[0]
+        throw invalidInput(
+          `Graph input ${input.name} is invalid at ${issue?.path ?? ''}: ${issue?.message ?? 'value validation failed'}`,
+        )
+      }
+      bindings.set(input.name, Object.freeze({ ...binding, value: result.value }))
+    } else {
+      bindings.set(input.name, binding)
+    }
   }
   for (const [name] of bindingEntries) {
     if (!graphInputNames.has(name)) throw invalidInput(`Unknown graph input binding ${name}`)
   }
-  const bindings = new Map(bindingEntries)
   const requiredInputIdentities: AnalysisRequiredInputIdentity[] = []
   for (const input of graph.inputs) {
     options.signal?.throwIfAborted()

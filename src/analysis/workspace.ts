@@ -1,5 +1,6 @@
 import type { OperationJsonValue } from '../operations/descriptor.ts'
 import { normalizeOperationJsonValue } from '../operations/descriptor.ts'
+import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset-v2.ts'
 import type {
   AnalysisGraph,
   AnalysisGraphInput,
@@ -12,11 +13,19 @@ import type {
 } from './graph.ts'
 import { validateGraph } from './graph.ts'
 import type { OperationRegistry } from '../operations/registry.ts'
+import type { Roi, RoiLimits, RoiSet } from './roi.ts'
+import { createEmptyRoiSet, normalizeRoiSet, validateRoi, validateRoiSet } from './roi.ts'
+
+export interface AnalysisWorkspaceRoiContext {
+  readonly descriptor: NormalizedScientificDatasetDescriptor
+  readonly limits?: Readonly<RoiLimits>
+}
 
 export interface AnalysisWorkspaceSnapshot {
   readonly schemaVersion: 1
   readonly revision: number
   readonly graph: AnalysisGraph
+  readonly roiSet: RoiSet
 }
 
 interface CommandBase {
@@ -44,6 +53,10 @@ export type AnalysisCommand =
   | (CommandBase & { readonly kind: 'unbind-input'; readonly name: string })
   | (CommandBase & { readonly kind: 'set-output'; readonly output: AnalysisGraphOutput })
   | (CommandBase & { readonly kind: 'remove-output'; readonly name: string })
+  | (CommandBase & { readonly kind: 'add-roi'; readonly roi: Roi })
+  | (CommandBase & { readonly kind: 'update-roi'; readonly roiId: string; readonly roi: Roi })
+  | (CommandBase & { readonly kind: 'remove-roi'; readonly roiId: string })
+  | (CommandBase & { readonly kind: 'replace-roi-set'; readonly roiSet: RoiSet })
 
 export interface AnalysisCommandValidation {
   readonly valid: boolean
@@ -178,7 +191,31 @@ const graphNode = (value: unknown): AnalysisGraphNode | undefined => {
   })
 }
 
-export const validateCommand = (input: unknown): AnalysisCommandValidation => {
+const roiValidationFailure = (
+  prefix: string,
+  issues: readonly { readonly code: string; readonly path: string; readonly message: string }[],
+): AnalysisCommandValidation =>
+  Object.freeze({
+    valid: false,
+    issues: Object.freeze(
+      issues.map((entry) =>
+        issue(
+          entry.code === 'limit-exceeded'
+            ? 'limit-exceeded'
+            : entry.code === 'duplicate'
+              ? 'duplicate'
+              : 'invalid-parameter',
+          `${prefix}${entry.path}`,
+          entry.message,
+        ),
+      ),
+    ),
+  })
+
+export const validateCommand = (
+  input: unknown,
+  roiContext?: Readonly<AnalysisWorkspaceRoiContext>,
+): AnalysisCommandValidation => {
   if (!isRecord(input))
     return Object.freeze({
       valid: false,
@@ -221,6 +258,10 @@ export const validateCommand = (input: unknown): AnalysisCommandValidation => {
     'unbind-input': Object.freeze(['name']),
     'set-output': Object.freeze(['output']),
     'remove-output': Object.freeze(['name']),
+    'add-roi': Object.freeze(['roi']),
+    'update-roi': Object.freeze(['roiId', 'roi']),
+    'remove-roi': Object.freeze(['roiId']),
+    'replace-roi-set': Object.freeze(['roiSet']),
   })
   const keys = typeof input.kind === 'string' ? payloadKeys[input.kind] : undefined
   if (
@@ -277,6 +318,55 @@ export const validateCommand = (input: unknown): AnalysisCommandValidation => {
   } else if (input.kind === 'remove-output') {
     const name = string(input.name)
     if (name !== undefined) command = Object.freeze({ ...base, kind: 'remove-output', name })
+  } else if (input.kind === 'add-roi' || input.kind === 'update-roi') {
+    if (roiContext === undefined) {
+      return Object.freeze({
+        valid: false,
+        issues: Object.freeze([
+          issue('invalid-parameter', '/roi', 'ROI commands require a scientific axis context'),
+        ]),
+      })
+    }
+    const result = validateRoi(input.roi, roiContext.descriptor, roiContext.limits)
+    if (result.value === undefined) return roiValidationFailure('/roi', result.issues)
+    if (input.kind === 'add-roi') {
+      command = Object.freeze({ ...base, kind: 'add-roi', roi: result.value })
+    } else {
+      const roiId = string(input.roiId)
+      if (roiId !== undefined && roiId === result.value.id) {
+        command = Object.freeze({ ...base, kind: 'update-roi', roiId, roi: result.value })
+      } else if (roiId !== undefined) {
+        return Object.freeze({
+          valid: false,
+          issues: Object.freeze([
+            issue('invalid-parameter', '/roi/id', 'Updated ROI id must match roiId'),
+          ]),
+        })
+      }
+    }
+  } else if (input.kind === 'remove-roi') {
+    if (roiContext === undefined) {
+      return Object.freeze({
+        valid: false,
+        issues: Object.freeze([
+          issue('invalid-parameter', '/roiId', 'ROI commands require a scientific axis context'),
+        ]),
+      })
+    }
+    const roiId = string(input.roiId)
+    if (roiId !== undefined) command = Object.freeze({ ...base, kind: 'remove-roi', roiId })
+  } else if (input.kind === 'replace-roi-set') {
+    if (roiContext === undefined) {
+      return Object.freeze({
+        valid: false,
+        issues: Object.freeze([
+          issue('invalid-parameter', '/roiSet', 'ROI commands require a scientific axis context'),
+        ]),
+      })
+    }
+    const result = validateRoiSet(input.roiSet, roiContext.descriptor, roiContext.limits)
+    if (result.value === undefined) return roiValidationFailure('/roiSet', result.issues)
+    command = Object.freeze({ ...base, kind: 'replace-roi-set', roiSet: result.value })
   }
   return command === undefined
     ? Object.freeze({
@@ -294,6 +384,8 @@ export const createAnalysisWorkspaceSnapshot = (
     outputs: Object.freeze([]),
   }),
   revision = 0,
+  roiSet: RoiSet = createEmptyRoiSet(),
+  roiContext?: Readonly<AnalysisWorkspaceRoiContext>,
 ): AnalysisWorkspaceSnapshot => {
   if (!Number.isSafeInteger(revision) || revision < 0)
     throw new TypeError('Workspace revision must be non-negative')
@@ -334,7 +426,14 @@ export const createAnalysisWorkspaceSnapshot = (
     ),
     ...(graph.label === undefined ? {} : { label: graph.label }),
   })
-  return Object.freeze({ schemaVersion: 1, revision, graph: copied })
+  if (roiSet.rois.length > 0 && roiContext === undefined) {
+    throw new TypeError('Non-empty ROI state requires a scientific axis context')
+  }
+  const copiedRoiSet =
+    roiContext === undefined
+      ? createEmptyRoiSet()
+      : normalizeRoiSet(roiSet, roiContext.descriptor, roiContext.limits)
+  return Object.freeze({ schemaVersion: 1, revision, graph: copied, roiSet: copiedRoiSet })
 }
 
 const failure = (
@@ -350,8 +449,9 @@ export const applyCommand = (
   input: unknown,
   operations: OperationRegistry,
   limits: Readonly<AnalysisLimits> = {},
+  roiContext?: Readonly<AnalysisWorkspaceRoiContext>,
 ): AnalysisCommandApplication => {
-  const validation = validateCommand(input)
+  const validation = validateCommand(input, roiContext)
   const command = validation.command
   if (command === undefined)
     return Object.freeze({ snapshot, issues: validation.issues, applied: false })
@@ -365,6 +465,7 @@ export const applyCommand = (
   let inputs = [...snapshot.graph.inputs]
   let nodes = [...snapshot.graph.nodes]
   let outputs = [...snapshot.graph.outputs]
+  let roiSet = snapshot.roiSet
   const resolveSourceType = (
     source: AnalysisValueReference,
   ): { readonly id: string; readonly version?: number } | undefined => {
@@ -393,7 +494,30 @@ export const applyCommand = (
     }
     return false
   }
-  if (command.kind === 'add-node') {
+  if (command.kind === 'add-roi') {
+    if (roiSet.rois.some((entry) => entry.id === command.roi.id)) {
+      return failure(snapshot, 'duplicate', '/roi/id', `ROI ${command.roi.id} already exists`)
+    }
+    roiSet = Object.freeze({ ...roiSet, rois: Object.freeze([...roiSet.rois, command.roi]) })
+  } else if (command.kind === 'update-roi') {
+    const index = roiSet.rois.findIndex((entry) => entry.id === command.roiId)
+    if (index < 0) {
+      return failure(snapshot, 'invalid-reference', '/roiId', `ROI ${command.roiId} does not exist`)
+    }
+    const rois = [...roiSet.rois]
+    rois[index] = command.roi
+    roiSet = Object.freeze({ ...roiSet, rois: Object.freeze(rois) })
+  } else if (command.kind === 'remove-roi') {
+    if (!roiSet.rois.some((entry) => entry.id === command.roiId)) {
+      return failure(snapshot, 'invalid-reference', '/roiId', `ROI ${command.roiId} does not exist`)
+    }
+    roiSet = Object.freeze({
+      ...roiSet,
+      rois: Object.freeze(roiSet.rois.filter((entry) => entry.id !== command.roiId)),
+    })
+  } else if (command.kind === 'replace-roi-set') {
+    roiSet = command.roiSet
+  } else if (command.kind === 'add-node') {
     if (nodes.some((node) => node.id === command.node.id))
       return failure(snapshot, 'duplicate', '/node/id', `Node ${command.node.id} already exists`)
     const definition = operations.get(command.node.operation.id, command.node.operation.version)
@@ -595,6 +719,29 @@ export const applyCommand = (
       )
     outputs = outputs.filter((entry) => entry.name !== command.name)
   }
+  if (
+    roiContext !== undefined &&
+    (command.kind === 'add-roi' ||
+      command.kind === 'update-roi' ||
+      command.kind === 'remove-roi' ||
+      command.kind === 'replace-roi-set')
+  ) {
+    const roiValidation = validateRoiSet(roiSet, roiContext.descriptor, roiContext.limits)
+    if (roiValidation.value === undefined) {
+      const roiIssue = roiValidation.issues[0]
+      return failure(
+        snapshot,
+        roiIssue?.code === 'limit-exceeded'
+          ? 'limit-exceeded'
+          : roiIssue?.code === 'duplicate'
+            ? 'duplicate'
+            : 'invalid-parameter',
+        roiIssue?.path ?? '/roiSet',
+        roiIssue?.message ?? 'ROI set is invalid',
+      )
+    }
+    roiSet = roiValidation.value
+  }
   const maxNodes = limits.maxNodes ?? 10_000
   const maxEdges = limits.maxEdges ?? 100_000
   if (
@@ -613,6 +760,11 @@ export const applyCommand = (
   if (limitIssue !== undefined) {
     return failure(snapshot, limitIssue.code, limitIssue.path, limitIssue.message)
   }
-  const next = Object.freeze({ schemaVersion: 1 as const, revision: snapshot.revision + 1, graph })
+  const next = Object.freeze({
+    schemaVersion: 1 as const,
+    revision: snapshot.revision + 1,
+    graph,
+    roiSet,
+  })
   return Object.freeze({ snapshot: next, issues: Object.freeze([]), applied: true })
 }
