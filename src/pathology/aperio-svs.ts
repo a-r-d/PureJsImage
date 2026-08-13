@@ -413,6 +413,41 @@ class AperioWholeSlideImage implements WholeSlideImage {
       'Whole-slide region',
     )
     const decoder = await directory.createImageDecoder(options)
+    if (
+      directory.tiled &&
+      directory.tileWidth !== undefined &&
+      directory.tileHeight !== undefined
+    ) {
+      const firstTileX = Math.floor(options.x / directory.tileWidth)
+      const lastTileX = Math.floor((options.x + options.width - 1) / directory.tileWidth)
+      const firstTileY = Math.floor(options.y / directory.tileHeight)
+      const lastTileY = Math.floor((options.y + options.height - 1) / directory.tileHeight)
+      for (let tileY = firstTileY; tileY <= lastTileY; tileY += 1) {
+        for (let tileX = firstTileX; tileX <= lastTileX; tileX += 1) {
+          throwIfAborted(options.signal)
+          const nativeX = tileX * directory.tileWidth
+          const nativeY = tileY * directory.tileHeight
+          const x = Math.max(options.x, nativeX)
+          const y = Math.max(options.y, nativeY)
+          const right = Math.min(options.x + options.width, nativeX + directory.tileWidth)
+          const bottom = Math.min(options.y + options.height, nativeY + directory.tileHeight)
+          for await (const block of decoder.decode({
+            x,
+            y,
+            width: right - x,
+            height: bottom - y,
+            ...(options.signal === undefined ? {} : { signal: options.signal }),
+          })) {
+            yield {
+              ...block,
+              x: x - options.x + block.x,
+              y: y - options.y + block.y,
+            }
+          }
+        }
+      }
+      return
+    }
     yield* decoder.decode({
       x: options.x,
       y: options.y,

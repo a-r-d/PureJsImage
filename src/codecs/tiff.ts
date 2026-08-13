@@ -3282,6 +3282,58 @@ const chunkySegmentBytes = (
     ? rowBytes * Math.ceil(rows / description.ycbcr.verticalSubsampling)
     : rowBytes * rows
 
+const decodedSegmentStorageBytes = (description: TiffDescription, rows: number): bigint => {
+  if (
+    description.compression === compressionOldJpeg ||
+    description.compression === compressionJpeg ||
+    description.compression === compressionAperioJpeg2000Ycbcr ||
+    description.compression === compressionAperioJpeg2000Mct
+  ) {
+    return BigInt(description.segmentWidth) * BigInt(rows) * 3n
+  }
+  if (description.compression === compressionWebp) {
+    return BigInt(description.segmentWidth) * BigInt(rows) * BigInt(description.samplesPerPixel)
+  }
+  let bytes = 0n
+  for (const rowBytes of description.rowBytes) {
+    const storedRows =
+      description.ycbcr && description.planarConfiguration === 1
+        ? Math.ceil(rows / description.ycbcr.verticalSubsampling)
+        : rows
+    bytes += BigInt(rowBytes) * BigInt(storedRows)
+  }
+  return bytes
+}
+
+const validateDecodedWorkingPeak = (
+  description: TiffDescription,
+  limits: ImageLimits,
+  segmentColumns: number,
+  segmentRows: number,
+  outputBytes: bigint,
+  label: string,
+): void => {
+  if (!Number.isSafeInteger(segmentColumns) || segmentColumns < 1 || outputBytes < 0n) {
+    throw limitExceeded(`${label} working-memory geometry is invalid`)
+  }
+  let conversionScratch = 0n
+  if (description.predictor === 3) {
+    for (const rowBytes of description.rowBytes) {
+      conversionScratch =
+        conversionScratch > BigInt(rowBytes) ? conversionScratch : BigInt(rowBytes)
+    }
+  }
+  const peak =
+    decodedSegmentStorageBytes(description, segmentRows) * BigInt(segmentColumns) +
+    outputBytes +
+    conversionScratch
+  if (peak > BigInt(limits.maxDecodedBytes)) {
+    throw limitExceeded(
+      `${label} needs up to ${peak} decoded working bytes; maxDecodedBytes is ${limits.maxDecodedBytes}`,
+    )
+  }
+}
+
 const regionFor = (description: TiffDescription, request: DecodeRequest): Region => {
   const x = request.x ?? 0
   const y = request.y ?? 0
@@ -3652,6 +3704,7 @@ class TiffRasterDecoder implements RasterDecoder {
     const lastSegmentColumn = Math.floor(
       (region.x + region.width - 1) / this.#description.segmentWidth,
     )
+    const segmentColumns = lastSegmentColumn - firstSegmentColumn + 1
     const rowBytes =
       region.width * this.#bytesPerSample * (this.format.planar ? 1 : this.format.channels)
     if (!Number.isSafeInteger(rowBytes)) throw limitExceeded('TIFF raster row is too large')
@@ -3662,6 +3715,25 @@ class TiffRasterDecoder implements RasterDecoder {
       const segmentRows = this.#description.tiled
         ? this.#description.segmentHeight
         : Math.min(this.#description.segmentHeight, this.height - segmentY)
+      const intersectionStart = Math.max(region.y, segmentY)
+      const intersectionEnd = Math.min(
+        region.y + region.height,
+        segmentY + segmentRows,
+        this.height,
+      )
+      const largestRows = Math.min(blockRows, intersectionEnd - intersectionStart)
+      const largestOutputBytes =
+        BigInt(rowBytes) *
+        BigInt(largestRows) *
+        BigInt(this.format.planar ? this.format.channels : 1)
+      validateDecodedWorkingPeak(
+        this.#description,
+        this.#limits,
+        segmentColumns,
+        segmentRows,
+        largestOutputBytes,
+        'TIFF raster decode',
+      )
       const decodedSegments: (readonly Uint8Array[])[] = []
       for (
         let segmentColumn = firstSegmentColumn;
@@ -3673,12 +3745,6 @@ class TiffRasterDecoder implements RasterDecoder {
           await decodeRasterPlanes(this.#source, this.#description, logicalSegment, segmentRows),
         )
       }
-      const intersectionStart = Math.max(region.y, segmentY)
-      const intersectionEnd = Math.min(
-        region.y + region.height,
-        segmentY + segmentRows,
-        this.height,
-      )
       for (let imageY = intersectionStart; imageY < intersectionEnd; imageY += blockRows) {
         throwIfAborted(request.signal)
         const rows = Math.min(blockRows, intersectionEnd - imageY)
@@ -3864,6 +3930,7 @@ class TiffDecoder implements ImageDecoder {
     const lastSegmentColumn = Math.floor(
       (region.x + region.width - 1) / this.#description.segmentWidth,
     )
+    const segmentColumns = lastSegmentColumn - firstSegmentColumn + 1
 
     for (let segmentRow = firstSegmentRow; segmentRow <= lastSegmentRow; segmentRow += 1) {
       throwIfAborted(request.signal)
@@ -3871,6 +3938,21 @@ class TiffDecoder implements ImageDecoder {
       const segmentRows = this.#description.tiled
         ? this.#description.segmentHeight
         : Math.min(this.#description.segmentHeight, this.height - segmentY)
+      const intersectionStart = Math.max(region.y, segmentY)
+      const intersectionEnd = Math.min(
+        region.y + region.height,
+        segmentY + segmentRows,
+        this.height,
+      )
+      const largestRows = Math.min(blockRows, intersectionEnd - intersectionStart)
+      validateDecodedWorkingPeak(
+        this.#description,
+        this.#limits,
+        segmentColumns,
+        segmentRows,
+        BigInt(region.width) * BigInt(largestRows) * BigInt(outputBytesPerPixel),
+        'TIFF display decode',
+      )
       const decodedSegments: Uint8Array[][] = []
       for (
         let segmentColumn = firstSegmentColumn;
@@ -3951,12 +4033,6 @@ class TiffDecoder implements ImageDecoder {
         decodedSegments.push(planes)
       }
 
-      const intersectionStart = Math.max(region.y, segmentY)
-      const intersectionEnd = Math.min(
-        region.y + region.height,
-        segmentY + segmentRows,
-        this.height,
-      )
       for (let imageY = intersectionStart; imageY < intersectionEnd; imageY += blockRows) {
         const rows = Math.min(blockRows, intersectionEnd - imageY)
         const output = new Uint8Array(region.width * rows * outputBytesPerPixel)

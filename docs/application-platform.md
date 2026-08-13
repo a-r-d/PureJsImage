@@ -317,6 +317,11 @@ same pixel-center conversion as ROIs, including anisotropic and negative axis st
 lazy dataset keeps consumed dataset dependencies and their managed-byte accounting alive until the
 execution result is released.
 
+Materializing a lazy label tile performs a separate bounded reconstruction pass. The runtime admits
+the local labels and union-find parents as operation-working bytes through their last use; source
+and output tiles remain covered by ordinary tile-runtime accounting. Repeated, cancelled, and
+failed label reads leave no working reservation behind.
+
 The extension descriptor owns its namespace. For `acme.materials`, reader IDs begin with
 `acme.materials/`; value-type, operation, provider, and migration IDs begin with
 `acme.materials.`. Operation migrations may only target operations in that same namespace.

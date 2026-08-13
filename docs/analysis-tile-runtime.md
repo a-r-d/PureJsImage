@@ -145,8 +145,10 @@ uses typed union-find and moment arrays charged to the lexical operation-working
 only surviving mappings and result columns into retained accounting, and returns a lazy label
 dataset plus a complete bounded object table. Label reads recompute local labels for requested
 source tiles and apply the retained final mapping; no full source plane, threshold mask, or uint32
-label plane is stored. Capacity exhaustion reports `LIMIT_EXCEEDED`, cancellation is checked
-throughout the scan, and releasing both outputs returns all retained accounting exactly once.
+label plane is stored. Each read admits the complete local-label and union-find backing arrays in a
+separate operation-working scope and holds it until the mapping copy finishes. Capacity exhaustion
+reports `LIMIT_EXCEEDED`, cancellation is checked throughout both passes, and releasing both outputs
+returns all retained accounting exactly once.
 
 The working reservation is the larger of an explicit scan phase and finalization phase. It includes
 all global component arrays, per-tile mapping sentinels and offsets, local labels/parents,

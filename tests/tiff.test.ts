@@ -4167,4 +4167,123 @@ describe('Aperio whole-slide profile', () => {
     for await (const block of slide.associatedImages[0]?.read() ?? []) label.push(block)
     expect(Array.from(label[0]?.data ?? [])).toEqual([7, 8])
   })
+
+  it('streams short wide Aperio regions by native tile and preflights direct TIFF peaks', async () => {
+    const input = tiffFixture({
+      width: 12,
+      height: 4,
+      bitsPerSample: [8],
+      compression: 1,
+      photometric: 1,
+      tileWidth: 4,
+      tileHeight: 4,
+      extraEntries: [
+        {
+          tag: 270,
+          type: 2,
+          values: [
+            ...new TextEncoder().encode('Aperio Image Library v12.4.0|AppMag = 20|MPP = 0.5'),
+            0,
+          ],
+        },
+      ],
+      strips: [
+        new Uint8Array(16).fill(11),
+        new Uint8Array(16).fill(22),
+        new Uint8Array(16).fill(33),
+      ],
+    })
+    const backing = new MemorySource(input)
+    const reads: { readonly offset: number; readonly length: number }[] = []
+    const source: ImageSource = {
+      size: backing.size,
+      async read(offset, length, options) {
+        reads.push({ offset, length })
+        return backing.read(offset, length, options)
+      },
+    }
+    const document = await openTiffDocument(source, {
+      maxWidth: 12,
+      maxHeight: 4,
+      maxPixels: 48,
+      maxInputBytes: input.byteLength,
+      maxDecodedBytes: 50,
+    })
+    const slide = await openAperioSvs(document, {
+      limits: {
+        maxWidth: 12,
+        maxHeight: 4,
+        maxSourceBytes: input.byteLength,
+        maxRegionPixels: 48,
+        maxRegionDecodedBytes: 50,
+      },
+    })
+
+    const decoder = await document.topLevelDirectories[0]?.createImageDecoder()
+    if (decoder === undefined) throw new Error('Expected tiled TIFF decoder')
+    const readsBeforeDirectDecode = reads.length
+    const directBlocks = async (): Promise<void> => {
+      for await (const _block of decoder.decode({ x: 0, y: 1, width: 12, height: 1 })) {
+        // The conservative 60-byte peak must reject before any segment payload is read.
+      }
+    }
+    await expect(directBlocks()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+    expect(reads).toHaveLength(readsBeforeDirectDecode)
+
+    const rasterDecoder = await document.topLevelDirectories[0]?.createRasterDecoder()
+    if (rasterDecoder === undefined) throw new Error('Expected tiled TIFF raster decoder')
+    const readsBeforeRasterDecode = reads.length
+    const directRasterBlocks = async (): Promise<void> => {
+      for await (const _block of rasterDecoder.decode({ x: 0, y: 1, width: 12, height: 1 })) {
+        // Raster callers share the same aggregate decoded-working preflight.
+      }
+    }
+    await expect(directRasterBlocks()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+    expect(reads).toHaveLength(readsBeforeRasterDecode)
+
+    const stripe: PixelBlock[] = []
+    for await (const block of slide.readRegion({
+      level: 0,
+      x: 2,
+      y: 1,
+      width: 8,
+      height: 1,
+    })) {
+      stripe.push(block)
+    }
+    expect(
+      stripe.map(({ x, y, width, height, data }) => ({
+        x,
+        y,
+        width,
+        height,
+        data: Array.from(data),
+      })),
+    ).toEqual([
+      { x: 0, y: 0, width: 2, height: 1, data: [11, 11] },
+      { x: 2, y: 0, width: 4, height: 1, data: [22, 22, 22, 22] },
+      { x: 6, y: 0, width: 2, height: 1, data: [33, 33] },
+    ])
+
+    const normal: PixelBlock[] = []
+    for await (const block of slide.readRegion({
+      level: 0,
+      x: 4,
+      y: 0,
+      width: 4,
+      height: 4,
+    })) {
+      normal.push(block)
+    }
+    expect(normal).toHaveLength(1)
+    expect(Array.from(normal[0]?.data ?? [])).toEqual(Array.from(new Uint8Array(16).fill(22)))
+
+    const controller = new AbortController()
+    const iterator = slide
+      .readRegion({ level: 0, x: 0, y: 0, width: 12, height: 1, signal: controller.signal })
+      [Symbol.asyncIterator]()
+    await expect(iterator.next()).resolves.toMatchObject({ done: false, value: { x: 0 } })
+    controller.abort(new Error('cancel wide Aperio stripe'))
+    await expect(iterator.next()).rejects.toThrow('cancel wide Aperio stripe')
+  })
 })

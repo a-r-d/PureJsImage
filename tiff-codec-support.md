@@ -127,6 +127,7 @@ TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples direct
 - [x] Expose stable IFD offsets and graph lookup, bounded defensive-copy source reads, per-directory immutable tag caching with per-call limits, and typed explicit profile opening through public TIFF APIs
 - [x] Validate strip/tile counts, byte ranges, decoded sizes, and predictor boundaries
 - [x] Bound decompression output to the declared strip or tile geometry
+- [x] Preflight aggregate decoded-segment, output-block, and predictor-scratch peaks before direct TIFF segment reads; stream tiled Aperio regions one native intersection at a time
 - [x] Reject unsupported photometric interpretations, sample formats, and compressions explicitly
 - [x] Verify decoded pixels against pinned LibTIFF fixtures
 - [x] Verify packed 10-, 12-, and 14-bit output exactly at native 16-bit depth against ImageMagick/LibTIFF

@@ -5,7 +5,12 @@ import {
   createReferenceAnalysisProvider,
   scientificDatasetCharacteristics,
 } from '../src/analysis/index.ts'
-import { inspectConnectedComponentsMemoryPlan } from '../src/analysis/connected-components.ts'
+import {
+  inspectConnectedComponentsLabelScratchBytes,
+  inspectConnectedComponentsMemoryPlan,
+  reconstructConnectedComponentsLabelTile,
+} from '../src/analysis/connected-components.ts'
+import { AnalysisDatasetOperationContext } from '../src/analysis/builtin-dataset-operations.ts'
 import { summarizeResult, type TableResult } from '../src/analysis/results.ts'
 import { createTileRuntime } from '../src/analysis/runtime.ts'
 import type {
@@ -520,6 +525,119 @@ describe('global tiled connected components', () => {
         }),
       ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
     }
+  })
+
+  it('accounts lazy-label reconstruction scratch at its exact boundary and releases every scope', async () => {
+    const sourceDescriptor = fixtureDescriptor(2, 2, false)
+    const sourceValues = Uint8Array.of(1, 1, 1, 1)
+    const selection = {
+      displayAxes: ['x', 'y'] as const,
+      fixedIndices: [] as const,
+      component: 0,
+      connectivity: 4 as const,
+    }
+    const prepared = {
+      tileOffsets: Uint32Array.of(0, 2),
+      finalMapping: Uint32Array.of(0, 1),
+      tilesAcross: 1,
+    }
+    const scratchBytes = inspectConnectedComponentsLabelScratchBytes(2, 2)
+    expect(scratchBytes).toBe(36)
+
+    const materialized = await execute(sourceValues, 4, 2, { descriptor: sourceDescriptor })
+    materialized.runtime.clear()
+    materialized.runtime.resetMetrics()
+    const retainedBaseline = materialized.runtime.metrics().memory.totalManagedBytes
+    expect(await labels(materialized.labels)).toEqual([1, 1, 1, 1])
+    expect(materialized.runtime.metrics().memory.highWaterTotalManagedBytes).toBeGreaterThanOrEqual(
+      retainedBaseline + scratchBytes,
+    )
+    expect(materialized.runtime.metrics().memory.operationWorkingBytes).toBe(0)
+    expect(await labels(materialized.labels)).toEqual([1, 1, 1, 1])
+    expect(materialized.runtime.metrics().memory.operationWorkingBytes).toBe(0)
+    await releaseExecution(materialized)
+
+    const below = createTileRuntime({
+      limits: { maxOperationWorkingBytes: scratchBytes - 1, maxTotalManagedBytes: 1_024 },
+    })
+    const belowContext = new AnalysisDatasetOperationContext({
+      runtime: below,
+      tileWidth: 2,
+      tileHeight: 2,
+    })
+    await expect(
+      reconstructConnectedComponentsLabelTile(
+        dataset(sourceValues, sourceDescriptor),
+        selection,
+        prepared,
+        belowContext,
+        { x: 0, y: 0, width: 2, height: 2 },
+      ),
+    ).rejects.toThrow('maxOperationWorkingBytes')
+    expect(below.metrics().memory.operationWorkingBytes).toBe(0)
+    below.clear()
+    await below.dispose()
+
+    const exact = createTileRuntime({
+      limits: { maxOperationWorkingBytes: scratchBytes, maxTotalManagedBytes: 1_024 },
+    })
+    const exactContext = new AnalysisDatasetOperationContext({
+      runtime: exact,
+      tileWidth: 2,
+      tileHeight: 2,
+    })
+    const source = dataset(sourceValues, sourceDescriptor)
+    for (let read = 0; read < 2; read += 1) {
+      const tile = await reconstructConnectedComponentsLabelTile(
+        source,
+        selection,
+        prepared,
+        exactContext,
+        { x: 0, y: 0, width: 2, height: 2 },
+      )
+      const values: number[] = []
+      for (let index = 0; index < tile.data.length; index += 1) {
+        values.push(Number(tile.data[index] ?? 0))
+      }
+      expect(values).toEqual([1, 1, 1, 1])
+      tile.release()
+      expect(exact.metrics().memory.operationWorkingBytes).toBe(0)
+    }
+    expect(exact.metrics().memory.highWaterTotalManagedBytes).toBeGreaterThanOrEqual(scratchBytes)
+
+    await expect(
+      reconstructConnectedComponentsLabelTile(
+        source,
+        selection,
+        { ...prepared, tileOffsets: new Uint32Array(0) },
+        exactContext,
+        { x: 0, y: 0, width: 2, height: 2 },
+      ),
+    ).rejects.toThrow('tile mapping is unavailable')
+    expect(exact.metrics().memory.operationWorkingBytes).toBe(0)
+
+    const controller = new AbortController()
+    const throwIfAborted = controller.signal.throwIfAborted.bind(controller.signal)
+    Object.defineProperty(controller.signal, 'throwIfAborted', {
+      value() {
+        if (exact.metrics().memory.operationWorkingBytes === scratchBytes) {
+          controller.abort(new Error('cancel lazy labels'))
+        }
+        throwIfAborted()
+      },
+    })
+    await expect(
+      reconstructConnectedComponentsLabelTile(
+        dataset(sourceValues, sourceDescriptor),
+        selection,
+        prepared,
+        exactContext,
+        { x: 0, y: 0, width: 2, height: 2, signal: controller.signal },
+      ),
+    ).rejects.toThrow('cancel lazy labels')
+    expect(exact.metrics().memory.operationWorkingBytes).toBe(0)
+    exact.clear()
+    await exact.dispose()
   })
 
   it('keeps physical measurements absent when calibration is unavailable', async () => {

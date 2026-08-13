@@ -716,6 +716,23 @@ const checkedSum = (values: readonly number[], label: string): number => {
   return total
 }
 
+/** Internal inspection seam for exact lazy-label memory regression tests; not a package export. */
+export const inspectConnectedComponentsLabelScratchBytes = (
+  width: number,
+  height: number,
+): number =>
+  checkedSum(
+    [
+      checkedProduct(
+        checkedProduct(width, height, 'Connected-components lazy-label tile'),
+        8,
+        'Connected-components lazy-label arrays',
+      ),
+      4,
+    ],
+    'Connected-components lazy-label scratch',
+  )
+
 export interface ConnectedComponentsMemoryPlan {
   readonly width: number
   readonly height: number
@@ -1042,7 +1059,8 @@ const prepareComponents = async (
   })
 }
 
-const labelTile = async (
+/** Internal execution seam for focused lazy-label lifecycle tests; not a package export. */
+export const reconstructConnectedComponentsLabelTile = async (
   source: ScientificDataset,
   selection: ConnectedComponentsParameters,
   prepared: PreparedLabelMapping,
@@ -1081,31 +1099,41 @@ const labelTile = async (
         signal,
       })
       try {
-        const local = labelLocalTile(
-          tile,
-          selection.component,
-          selection.connectivity,
-          source.descriptor.noDataValue,
-          signal,
+        await context.runtime.withOperationWorkingBytes(
+          inspectConnectedComponentsLabelScratchBytes(width, height),
+          {
+            label: 'purejsimage.analysis.connected-components.label-tile',
+            signal,
+          },
+          () => {
+            const local = labelLocalTile(
+              tile,
+              selection.component,
+              selection.connectivity,
+              source.descriptor.noDataValue,
+              signal,
+            )
+            const tileIndex = tileY * prepared.tilesAcross + tileX
+            const mappingStart = prepared.tileOffsets[tileIndex]
+            const mappingEnd = prepared.tileOffsets[tileIndex + 1]
+            if (mappingStart === undefined || mappingEnd === undefined) {
+              throw invalidInput('Connected-components tile mapping is unavailable')
+            }
+            const mapping = prepared.finalMapping.subarray(mappingStart, mappingEnd)
+            const left = Math.max(request.x, x)
+            const top = Math.max(request.y, y)
+            const right = Math.min(request.x + request.width, x + width)
+            const bottom = Math.min(request.y + request.height, y + height)
+            for (let globalY = top; globalY < bottom; globalY += 1) {
+              signal.throwIfAborted()
+              for (let globalX = left; globalX < right; globalX += 1) {
+                const localLabel = local.labels[(globalY - y) * width + globalX - x] ?? 0
+                output[(globalY - request.y) * request.width + globalX - request.x] =
+                  mapping[localLabel] ?? 0
+              }
+            }
+          },
         )
-        const tileIndex = tileY * prepared.tilesAcross + tileX
-        const mappingStart = prepared.tileOffsets[tileIndex]
-        const mappingEnd = prepared.tileOffsets[tileIndex + 1]
-        if (mappingStart === undefined || mappingEnd === undefined) {
-          throw invalidInput('Connected-components tile mapping is unavailable')
-        }
-        const mapping = prepared.finalMapping.subarray(mappingStart, mappingEnd)
-        const left = Math.max(request.x, x)
-        const top = Math.max(request.y, y)
-        const right = Math.min(request.x + request.width, x + width)
-        const bottom = Math.min(request.y + request.height, y + height)
-        for (let globalY = top; globalY < bottom; globalY += 1) {
-          for (let globalX = left; globalX < right; globalX += 1) {
-            const localLabel = local.labels[(globalY - y) * width + globalX - x] ?? 0
-            output[(globalY - request.y) * request.width + globalX - request.x] =
-              mapping[localLabel] ?? 0
-          }
-        }
       } finally {
         tile.release()
       }
@@ -1242,7 +1270,14 @@ export const createConnectedComponentsOperationImplementation = (
             })
             const labels = context.createDataset(
               prepared.labelsDescriptor,
-              (tileRequest) => labelTile(source, selection, labelMapping, context, tileRequest),
+              (tileRequest) =>
+                reconstructConnectedComponentsLabelTile(
+                  source,
+                  selection,
+                  labelMapping,
+                  context,
+                  tileRequest,
+                ),
               identity,
             )
             const labelOwner = Object.freeze({ kind: 'connected-components-label-state' })

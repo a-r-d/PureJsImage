@@ -1654,3 +1654,20 @@ to own only generic descriptors, definitions, providers, and registries.
     correctness before timing; the adversarial 256x256 checkerboard reports 32,768 exact objects
     and a 13,184,190-byte managed-memory high-water mark. `npm run check` passes both standard and
     hostile-source suites at 103 files and 1,247 tests, with the same three macOS-only AVIF skips.
+
+### Final bounded-memory follow-up
+
+- [x] Admit and release the complete local-label and union-find scratch used by every lazy
+      connected-component label reconstruction through its last mapping access.
+- [x] Stream tiled Aperio regions through sequential native-tile intersections and preflight direct
+      TIFF display/raster aggregate decoded-segment peaks before payload reads.
+- [x] Add exact scratch-boundary, mapping-failure, repeated-read, wide-stripe, coordinate-rebasing,
+      preflight, normal-region, and cancellation regressions.
+- [x] Regenerate TIFF capability surfaces and pass focused, browser, and complete repository gates.
+
+  - Follow-up validation: 93 focused connected-components, TIFF, Aperio-reader, and whole-slide
+    bridge tests pass. The TIFF capability outputs, TypeScript and browser dependency graphs, packed
+    package, compiled application example, documentation, size ceilings, lint, and formatting are
+    current. The focused scientific TIFF workflow passes in real Chromium. Both correctness-first
+    application-platform and connected-components benchmarks pass, and `npm run check` passes the
+    standard and hostile-source suites at 103 files and 1,249 tests with three documented skips.

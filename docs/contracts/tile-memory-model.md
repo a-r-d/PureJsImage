@@ -103,6 +103,12 @@ allocated until the phase plan admits that capacity. Retained bytes equal the co
 allocations of the surviving mappings and actual object table; every size sum and product rejects
 safe-integer overflow.
 
+Lazy connected-component label reconstruction is a separate operation-working phase from global
+preparation. For each intersecting internal tile, the runtime admits `8 * tilePixels + 4` bytes for
+the local uint32 labels and union-find parents before allocation and keeps that scope active through
+the final mapping copy. The source lease and requested output remain charged through their normal
+tile-runtime classes. Failure, cancellation, and repeated reads release the reconstruction scope.
+
 `clear()` aborts queued/in-flight work and drops releasable cache entries but leaves the runtime
 reusable. `dispose()` permanently closes every acquisition and mutation path, cancels active work,
 waits for requests and active `withOperationWorkingBytes()` callbacks, and returns one stable

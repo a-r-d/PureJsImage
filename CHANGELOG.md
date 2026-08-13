@@ -19,7 +19,10 @@ All notable changes to PureJsImage are documented in this file.
   TIFF defaults; and records lightweight ICC presence/size metadata without eager profile reads.
 - Hardened connected-components planning with checked scan/finalization phase bounds, exact retained
   backing accounting, ROI-consistent physical centroids, tolerance-based floating reproducibility,
-  and deferred ownership for upstream lazy scientific datasets captured by downstream results.
+  deferred ownership for upstream lazy scientific datasets captured by downstream results, and
+  scoped accounting for later lazy-label reconstruction scratch.
+- Streamed tiled Aperio region reads through sequential native-tile intersections and added direct
+  TIFF display/raster preflight for aggregate decoded segments, output blocks, and predictor scratch.
 - Added an installed-tarball application contract gate plus correctness-gated application
   benchmarks covering scientific document detection, first numeric/display tile, HTTP range bytes,
   source/derived cache behavior, ROI statistics, line profiles, thresholding, Gaussian blur, and

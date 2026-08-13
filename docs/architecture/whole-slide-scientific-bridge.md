@@ -63,6 +63,13 @@ unbounded numeric limits. Coordinates, extents, pixel products, decoded bytes, s
 directory counts are admitted before allocation. These WSI-specific limits do not alter the
 ordinary TIFF codec's image defaults.
 
+Tiled Aperio region reads decompose the requested rectangle into sequential native-tile
+intersections and rebase each emitted block to request-relative coordinates. This prevents a short,
+wide request from retaining every intersecting decoded tile column at once. The generic TIFF display
+and raster decoders also preflight the conservative aggregate of live decoded segments, the largest
+emitted block, and floating-predictor row scratch before reading segment payloads, so direct callers
+fail at the configured decoded-byte boundary rather than allocating an unbounded segment row.
+
 Focused synthetic bridge tests cover anisotropic level calibration, mixed-format rejection,
 associated-image separation, source/dataset identity, cancellation before a read, bounded region
 forwarding, and exact release forwarding. Deterministic parser tests cover multilevel Aperio TIFF
