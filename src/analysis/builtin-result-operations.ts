@@ -958,78 +958,111 @@ const lineProfileResult = async (
   const width = axisLength(dataset.descriptor, parameters.displayAxes[0])
   const height = axisLength(dataset.descriptor, parameters.displayAxes[1])
   const seriesValues = parameters.components.map(() => new Float64Array(plan.sampleCount))
+  const invalidSamples = parameters.components.map(() => new Uint8Array(plan.sampleCount))
+  interface TileGroup {
+    readonly x: number
+    readonly y: number
+    readonly width: number
+    readonly height: number
+    readonly contributions: number[]
+  }
+  const groups = new Map<string, TileGroup>()
+  const addContribution = (sample: number, x: number, y: number, weight: number): void => {
+    const tileX = Math.floor(x / context.tileWidth) * context.tileWidth
+    const tileY = Math.floor(y / context.tileHeight) * context.tileHeight
+    const key = `${tileX},${tileY}`
+    let group = groups.get(key)
+    if (group === undefined) {
+      group = {
+        x: tileX,
+        y: tileY,
+        width: Math.min(context.tileWidth, width - tileX),
+        height: Math.min(context.tileHeight, height - tileY),
+        contributions: [],
+      }
+      groups.set(key, group)
+    }
+    group.contributions.push(sample, x, y, weight)
+  }
   for (let sample = 0; sample < plan.sampleCount; sample += 1) {
     request.signal.throwIfAborted()
-    let x = 0
-    let y = 0
-    let sampleWidth = 1
-    let sampleHeight = 1
-    if (plan.sampling.interpolation === 'nearest') {
-      x = plan.sampling.indices[sample * 2] ?? 0
-      y = plan.sampling.indices[sample * 2 + 1] ?? 0
-    } else {
-      x = plan.sampling.indices[sample * 4] ?? 0
-      y = plan.sampling.indices[sample * 4 + 1] ?? 0
-      sampleWidth = 2
-      sampleHeight = 2
-    }
-    const outside = x < 0 || y < 0 || x + sampleWidth > width || y + sampleHeight > height
+    const offset = sample * (plan.sampling.interpolation === 'nearest' ? 2 : 4)
+    const x0 = plan.sampling.indices[offset] ?? 0
+    const y0 = plan.sampling.indices[offset + 1] ?? 0
+    const x1 =
+      plan.sampling.interpolation === 'nearest' ? x0 : (plan.sampling.indices[offset + 2] ?? 0)
+    const y1 =
+      plan.sampling.interpolation === 'nearest' ? y0 : (plan.sampling.indices[offset + 3] ?? 0)
+    const outside = x0 < 0 || y0 < 0 || x1 >= width || y1 >= height
     if (outside) {
       if (parameters.outside === 'error')
         throw invalidInput('Line profile sample is outside the plane')
       for (const values of seriesValues) values[sample] = Number.NaN
       continue
     }
+    if (plan.sampling.interpolation === 'nearest') {
+      addContribution(sample, x0, y0, 1)
+    } else {
+      addContribution(sample, x0, y0, plan.sampling.weights[offset] ?? 0)
+      addContribution(sample, x1, y0, plan.sampling.weights[offset + 1] ?? 0)
+      addContribution(sample, x0, y1, plan.sampling.weights[offset + 2] ?? 0)
+      addContribution(sample, x1, y1, plan.sampling.weights[offset + 3] ?? 0)
+    }
+  }
+  for (const group of groups.values()) {
+    request.signal.throwIfAborted()
     const tile = await context.readSourceTile(
       dataset,
       {
         displayAxes: parameters.displayAxes,
         fixedIndices: parameters.fixedIndices,
-        x,
-        y,
-        width: sampleWidth,
-        height: sampleHeight,
+        x: group.x,
+        y: group.y,
+        width: group.width,
+        height: group.height,
         signal: request.signal,
       },
       'float64',
     )
     try {
-      for (let series = 0; series < parameters.components.length; series += 1) {
-        const component = parameters.components[series] ?? 0
-        const first = numberSample(tile, 0, 0, component)
-        let value = first
-        let invalid =
-          !Number.isFinite(first) ||
-          (dataset.descriptor.noDataValue !== undefined && first === dataset.descriptor.noDataValue)
-        if (plan.sampling.interpolation === 'bilinear') {
-          const offset = sample * 4
-          const second = numberSample(tile, 1, 0, component)
-          const third = numberSample(tile, 0, 1, component)
-          const fourth = numberSample(tile, 1, 1, component)
-          const noData = dataset.descriptor.noDataValue
-          invalid =
-            invalid ||
-            !Number.isFinite(second) ||
-            !Number.isFinite(third) ||
-            !Number.isFinite(fourth) ||
-            (noData !== undefined && (second === noData || third === noData || fourth === noData))
-          value =
-            first * (plan.sampling.weights[offset] ?? 0) +
-            second * (plan.sampling.weights[offset + 1] ?? 0) +
-            third * (plan.sampling.weights[offset + 2] ?? 0) +
-            fourth * (plan.sampling.weights[offset + 3] ?? 0)
+      for (let index = 0; index < group.contributions.length; index += 4) {
+        const sample = group.contributions[index] ?? 0
+        const x = group.contributions[index + 1] ?? 0
+        const y = group.contributions[index + 2] ?? 0
+        const weight = group.contributions[index + 3] ?? 0
+        for (let series = 0; series < parameters.components.length; series += 1) {
+          const component = parameters.components[series] ?? 0
+          const value = numberSample(tile, x - group.x, y - group.y, component)
+          const values = seriesValues[series]
+          const invalid = invalidSamples[series]
+          if (values === undefined || invalid === undefined) {
+            throw invalidInput('Line profile series is unavailable')
+          }
+          if (
+            !Number.isFinite(value) ||
+            (dataset.descriptor.noDataValue !== undefined &&
+              value === dataset.descriptor.noDataValue)
+          ) {
+            invalid[sample] = 1
+          } else {
+            values[sample] = (values[sample] ?? 0) + value * weight
+          }
         }
-        if (invalid) {
-          if (parameters.invalidPolicy === 'error')
-            throw invalidInput('Line profile encountered an invalid or no-data sample')
-          value = Number.NaN
-        }
-        const values = seriesValues[series]
-        if (values === undefined) throw invalidInput('Line profile series is unavailable')
-        values[sample] = value
       }
     } finally {
       tile.release()
+    }
+  }
+  for (let series = 0; series < seriesValues.length; series += 1) {
+    const values = seriesValues[series]
+    const invalid = invalidSamples[series]
+    if (values === undefined || invalid === undefined)
+      throw invalidInput('Line profile series is unavailable')
+    for (let sample = 0; sample < plan.sampleCount; sample += 1) {
+      if (invalid[sample] !== 1) continue
+      if (parameters.invalidPolicy === 'error')
+        throw invalidInput('Line profile encountered an invalid or no-data sample')
+      values[sample] = Number.NaN
     }
   }
   return validateProfileResult({
@@ -1089,7 +1122,13 @@ const estimate = (request: Readonly<OperationProviderRequest>): OperationCostEst
       } else if (request.descriptor.id === analysisLineProfileOperationId) {
         const profile = lineProfileParameters(request.parameters)
         outputBytes = profile.maxSamples * (profile.components.length + 1) * 8
-        peakWorkingBytes = outputBytes
+        const samplingBytesPerSample =
+          8 +
+          16 +
+          16 +
+          (profile.interpolation === 'nearest' ? 16 + 32 : 32 + 32 + 128) +
+          profile.components.length
+        peakWorkingBytes = outputBytes + profile.maxSamples * samplingBytesPerSample
       }
       retainedBytes = outputBytes
     }
@@ -1148,7 +1187,7 @@ export const createAnalysisResultOperationImplementations = (
           request.signal.throwIfAborted()
           const estimated = estimate(request)
           const releaseWorking = context.runtime.reserveOperationWorkingBytes(
-            Math.max(0, estimated.peakWorkingBytes - estimated.outputBytes),
+            estimated.peakWorkingBytes,
           )
           try {
             if (definition.descriptor.id === analysisStatisticsOperationId)

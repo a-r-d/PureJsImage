@@ -32,6 +32,7 @@ import type { AnalysisDryRun, AnalysisInputBinding, PreparedAnalysisPlan } from 
 import { dryRun as inspectDryRun, planGraph as prepareGraphPlan } from './planner.ts'
 import type {
   AnalysisCommandApplication,
+  AnalysisCommandDescriptor,
   AnalysisCommandValidation,
   AnalysisWorkspaceRoiContext,
   AnalysisWorkspaceSnapshot,
@@ -39,6 +40,7 @@ import type {
 import {
   applyCommand as applyWorkspaceCommand,
   createAnalysisWorkspaceSnapshot,
+  describeAnalysisCommands,
   validateCommand as validateWorkspaceCommand,
 } from './workspace.ts'
 import type { RoiSet } from './roi.ts'
@@ -51,7 +53,8 @@ export interface AnalysisControllerCapabilities extends OperationJsonObject {
   readonly valueTypeDescriptors: readonly OperationJsonObject[]
   readonly providerDescriptors: readonly OperationJsonObject[]
   readonly migrationDescriptors: readonly OperationJsonObject[]
-  readonly commandKinds: readonly string[]
+  readonly commandDescriptors: readonly AnalysisCommandDescriptor[]
+  readonly commandKinds: readonly AnalysisCommandDescriptor['kind'][]
   readonly roi: OperationJsonObject | null
   readonly trustBoundary: string
 }
@@ -140,6 +143,7 @@ export class AnalysisController {
       throw invalidInput('Analysis library version and build fingerprint must be non-empty')
     }
     this.#library = Object.freeze({ ...options.library })
+    const commandDescriptors = describeAnalysisCommands(this.#roiContext !== undefined)
     this.capabilities = Object.freeze({
       apiVersion: 1,
       graphSchemaVersion: analysisGraphSchemaVersion,
@@ -155,20 +159,8 @@ export class AnalysisController {
       migrationDescriptors: Object.freeze(
         this.#migrations.definitions().map(describeAnalysisMigration),
       ),
-      commandKinds: Object.freeze([
-        'add-node',
-        'remove-node',
-        'connect',
-        'disconnect',
-        'update-parameters',
-        'bind-input',
-        'unbind-input',
-        'set-output',
-        'remove-output',
-        ...(this.#roiContext === undefined
-          ? []
-          : ['add-roi', 'update-roi', 'remove-roi', 'replace-roi-set']),
-      ]),
+      commandDescriptors,
+      commandKinds: Object.freeze(commandDescriptors.map((descriptor) => descriptor.kind)),
       roi:
         this.#roiContext === undefined
           ? null

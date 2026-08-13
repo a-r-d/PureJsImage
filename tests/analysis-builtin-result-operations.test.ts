@@ -110,6 +110,56 @@ const dataset = (tracking: Tracking): DirectNumericTileDataset => {
   })
 }
 
+const uint64Dataset = (value: bigint, tracking: Tracking): DirectNumericTileDataset => {
+  const descriptor = normalizeScientificDatasetDescriptor({
+    schemaVersion: 2,
+    axes: [
+      { id: 'x', kind: 'space', length: 1, coordinates: { type: 'index' } },
+      { id: 'y', kind: 'space', length: 1, coordinates: { type: 'index' } },
+    ],
+    sampleType: 'uint64',
+    components: [{ id: 'signal', kind: 'scalar' }],
+    capabilities: { regionReads: true, resolutionLevels: false },
+  })
+  return Object.freeze({
+    descriptor,
+    numericTileSource: Object.freeze({
+      descriptor,
+      directSemantics: Object.freeze({
+        sourceSampleType: 'uint64' as const,
+        nativeSampleType: 'uint64' as const,
+        componentCount: 1,
+        layout: 'interleaved' as const,
+        supportedTargetSampleTypes: ['uint64'] as const,
+      }),
+      async *readNumericTiles(
+        input: Readonly<NumericTileReadRequest>,
+      ): AsyncGenerator<NumericTile> {
+        const { targetSampleType: _targetSampleType, ...planeRequest } = input
+        const request = normalizeScientificPlaneReadRequest(descriptor, planeRequest)
+        tracking.reads += 1
+        yield Object.freeze({
+          x: request.x,
+          y: request.y,
+          width: request.width,
+          height: request.height,
+          sampleType: 'uint64' as const,
+          componentCount: 1,
+          layout: 'interleaved' as const,
+          rowStrideElements: request.width,
+          data: new BigUint64Array([value]),
+          release() {
+            tracking.releases += 1
+          },
+        })
+      },
+    }),
+    readPlane() {
+      throw new Error('Expected direct numeric reads')
+    },
+  })
+}
+
 const rectangle: Roi = Object.freeze({
   schemaVersion: 1,
   id: 'selection',
@@ -220,6 +270,32 @@ const scalarFrom = (collection: ResultCollection, name: string): number => {
 }
 
 describe('built-in ROI-aware result operations', () => {
+  it('rejects quantitative uint64 analysis above the exact JavaScript number range', async () => {
+    const tracking = { reads: 0, releases: 0 }
+    const source = uint64Dataset(BigInt(Number.MAX_SAFE_INTEGER) + 1n, tracking)
+    const runtime = createTileRuntime()
+    await expect(
+      execute(
+        source,
+        operationGraph(analysisStatisticsOperationId, 'statistics', {
+          displayAxes: ['x', 'y'],
+          fixedIndices: [],
+          component: 0,
+          percentiles: [],
+          percentileMaxSamples: 4,
+          emptyPolicy: 'error',
+        }),
+        runtime,
+      ),
+    ).rejects.toMatchObject({
+      cause: expect.objectContaining({
+        message: 'uint64 sample exceeds exact numerical analysis range',
+      }),
+    })
+    runtime.clear()
+    expect(tracking.releases).toBe(tracking.reads)
+  })
+
   it('computes deterministic Welford statistics and bounded percentiles over tile-local ROI masks', async () => {
     const tracking = { reads: 0, releases: 0 }
     const source = dataset(tracking)
@@ -460,6 +536,7 @@ describe('built-in ROI-aware result operations', () => {
     expect([...executed.result.axis.values]).toEqual([0, 2, 4])
     expect([...(executed.result.series[0]?.values ?? [])]).toEqual([5.5, 6.5, 7.5])
     expect([...(executed.result.series[1]?.values ?? [])]).toEqual([105.5, 106.5, 107.5])
+    expect(tracking.reads).toBe(2)
     await executed.release()
     runtime.clear()
     expect(tracking.releases).toBe(tracking.reads)
@@ -509,6 +586,52 @@ describe('built-in ROI-aware result operations', () => {
     await executed.release()
     runtime.clear()
     expect(tracking.releases).toBe(tracking.reads)
+  })
+
+  it('groups dense line-profile samples by normal source tile', async () => {
+    const tracking = { reads: 0, releases: 0 }
+    const source = dataset(tracking)
+    const runtime = createTileRuntime()
+    const line: Roi = Object.freeze({
+      schemaVersion: 1,
+      id: 'dense-line',
+      axisIds: ['x', 'y'] as const,
+      fixedIndices: Object.freeze([{ axisId: 'z', index: 0 }]),
+      coordinateSpace: 'pixel',
+      geometry: Object.freeze({
+        kind: 'line-segment',
+        start: Object.freeze({ x: 0.5, y: 1.5 }),
+        end: Object.freeze({ x: 4.5, y: 1.5 }),
+      }),
+    })
+    const executed = await execute(
+      source,
+      operationGraph(
+        analysisLineProfileOperationId,
+        'profile',
+        {
+          displayAxes: ['x', 'y'],
+          fixedIndices: [{ axisId: 'z', index: 0 }],
+          component: 0,
+          components: [0],
+          interpolation: 'nearest',
+          spacing: 0.25,
+          spacingSpace: 'pixel',
+          maxSamples: 32,
+          outside: 'error',
+          invalidPolicy: 'nan',
+        },
+        line,
+      ),
+      runtime,
+      line,
+    )
+    if (executed.result.kind !== 'profile') throw new Error('Expected a profile')
+    expect(executed.result.axis.values).toHaveLength(17)
+    expect(tracking.reads).toBe(3)
+    await executed.release()
+    runtime.clear()
+    expect(tracking.releases).toBe(3)
   })
 
   it('cancels explicitly before result execution without reading pixels', async () => {

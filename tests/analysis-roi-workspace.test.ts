@@ -189,6 +189,14 @@ describe('ROI value types and immutable workspace commands', () => {
       schemaVersion: 1,
       limits: { maxRois: 10, maxPointsPerGeometry: 20 },
     })
+    expect(controller.capabilities.commandDescriptors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'update-roi',
+          schema: expect.objectContaining({ type: 'object' }),
+        }),
+      ]),
+    )
     expect(JSON.parse(JSON.stringify(controller.capabilities))).toEqual(controller.capabilities)
     expect(controller.capabilities.valueTypeDescriptors).toEqual(
       expect.arrayContaining([

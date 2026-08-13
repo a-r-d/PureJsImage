@@ -1,4 +1,4 @@
-import type { OperationJsonValue } from '../operations/descriptor.ts'
+import type { OperationJsonObject, OperationJsonValue } from '../operations/descriptor.ts'
 import { normalizeOperationJsonValue } from '../operations/descriptor.ts'
 import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset-v2.ts'
 import type {
@@ -57,6 +57,113 @@ export type AnalysisCommand =
   | (CommandBase & { readonly kind: 'update-roi'; readonly roiId: string; readonly roi: Roi })
   | (CommandBase & { readonly kind: 'remove-roi'; readonly roiId: string })
   | (CommandBase & { readonly kind: 'replace-roi-set'; readonly roiSet: RoiSet })
+
+export type AnalysisCommandKind = AnalysisCommand['kind']
+
+export interface AnalysisCommandDescriptor extends OperationJsonObject {
+  readonly kind: AnalysisCommandKind
+  readonly title: string
+  readonly description: string
+  readonly schema: OperationJsonObject
+  readonly mutatesWorkspace: true
+  readonly requiresExpectedRevision: false
+}
+
+const identifierSchema = Object.freeze({ type: 'string', minLength: 1, maxLength: 4_096 })
+const revisionSchema = Object.freeze({ type: 'integer', minimum: 0 })
+const contractSchema = (id: string): OperationJsonObject =>
+  Object.freeze({ type: 'contract', id, version: 1 })
+
+const commandDescriptor = (
+  kind: AnalysisCommandKind,
+  title: string,
+  description: string,
+  payload: Readonly<Record<string, OperationJsonObject>>,
+): AnalysisCommandDescriptor =>
+  Object.freeze({
+    kind,
+    title,
+    description,
+    schema: Object.freeze({
+      type: 'object',
+      closed: true,
+      required: Object.freeze(['schemaVersion', 'id', 'kind', ...Object.keys(payload)]),
+      properties: Object.freeze({
+        schemaVersion: Object.freeze({ type: 'integer', minimum: 1, maximum: 1, default: 1 }),
+        id: identifierSchema,
+        expectedRevision: revisionSchema,
+        kind: Object.freeze({ type: 'enum', values: Object.freeze([kind]) }),
+        ...payload,
+      }),
+    }),
+    mutatesWorkspace: true,
+    requiresExpectedRevision: false,
+  })
+
+const graphNodeSchema = contractSchema('purejsimage.analysis.graph-node')
+const graphValueReferenceSchema = contractSchema('purejsimage.analysis.value-reference')
+const graphInputSchema = contractSchema('purejsimage.analysis.graph-input')
+const graphOutputSchema = contractSchema('purejsimage.analysis.graph-output')
+const operationParametersSchema = Object.freeze({
+  type: 'json',
+  description: 'JSON parameters validated against the selected operation descriptor',
+})
+
+export const describeAnalysisCommands = (
+  includeRoi = false,
+): readonly AnalysisCommandDescriptor[] =>
+  Object.freeze([
+    commandDescriptor('add-node', 'Add node', 'Add a versioned operation node.', {
+      node: graphNodeSchema,
+    }),
+    commandDescriptor('remove-node', 'Remove node', 'Remove a node and its dependent edges.', {
+      nodeId: identifierSchema,
+    }),
+    commandDescriptor('connect', 'Connect input', 'Connect a node input port to a graph value.', {
+      nodeId: identifierSchema,
+      port: identifierSchema,
+      source: graphValueReferenceSchema,
+    }),
+    commandDescriptor('disconnect', 'Disconnect input', 'Disconnect a node input port.', {
+      nodeId: identifierSchema,
+      port: identifierSchema,
+    }),
+    commandDescriptor(
+      'update-parameters',
+      'Update parameters',
+      'Replace normalized parameters for one operation node.',
+      { nodeId: identifierSchema, parameters: operationParametersSchema },
+    ),
+    commandDescriptor('bind-input', 'Bind graph input', 'Add a typed external graph input.', {
+      input: graphInputSchema,
+    }),
+    commandDescriptor('unbind-input', 'Unbind graph input', 'Remove an external graph input.', {
+      name: identifierSchema,
+    }),
+    commandDescriptor('set-output', 'Set graph output', 'Add or replace a named graph output.', {
+      output: graphOutputSchema,
+    }),
+    commandDescriptor('remove-output', 'Remove graph output', 'Remove a named graph output.', {
+      name: identifierSchema,
+    }),
+    ...(includeRoi
+      ? [
+          commandDescriptor('add-roi', 'Add ROI', 'Add a versioned region of interest.', {
+            roi: contractSchema('purejsimage.roi'),
+          }),
+          commandDescriptor('update-roi', 'Update ROI', 'Replace one region of interest.', {
+            roiId: identifierSchema,
+            roi: contractSchema('purejsimage.roi'),
+          }),
+          commandDescriptor('remove-roi', 'Remove ROI', 'Remove one region of interest.', {
+            roiId: identifierSchema,
+          }),
+          commandDescriptor('replace-roi-set', 'Replace ROI set', 'Replace the complete ROI set.', {
+            roiSet: contractSchema('purejsimage.roi-set'),
+          }),
+        ]
+      : []),
+  ])
 
 export interface AnalysisCommandValidation {
   readonly valid: boolean

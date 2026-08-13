@@ -44,6 +44,11 @@ export interface OperationCostEstimate {
 
 export interface OperationOwnedOutput {
   readonly value: unknown
+  /**
+   * Stable identity for the exclusively owned resource behind value. Providers must reuse the same
+   * object when separate wrappers or views alias one allocation, device buffer, or remote handle.
+   */
+  readonly ownershipIdentity?: object
   release(): void | Promise<void>
 }
 
@@ -309,6 +314,58 @@ const releaseOutputs = async (outputs: readonly OperationOwnedOutput[]): Promise
   if (firstError !== undefined) throw firstError
 }
 
+const storageIdentity = (value: unknown): object | undefined => {
+  if (value === null || typeof value !== 'object') return undefined
+  if (ArrayBuffer.isView(value)) return value.buffer
+  if (value instanceof ArrayBuffer) return value
+  if ('data' in value && ArrayBuffer.isView(value.data)) return value.data.buffer
+  return value
+}
+
+/** Validates the detectable part of the provider's exclusive output-ownership contract. */
+export const validateOperationOwnedOutputs = (
+  outputs: readonly OperationOwnedOutput[],
+  inputs: readonly unknown[] = [],
+  inputOwnershipIdentities: readonly object[] = [],
+): void => {
+  if (new Set(outputs).size !== outputs.length) {
+    throw invalidInput('Provider returned the same owned output for multiple ports')
+  }
+  const inputStorage = new Set<object>(inputOwnershipIdentities)
+  for (const input of inputs) {
+    const identity = storageIdentity(input)
+    if (identity !== undefined) inputStorage.add(identity)
+  }
+  const outputStorage = new Set<object>()
+  const declaredOwnership = new Set<object>()
+  for (const output of outputs) {
+    if (
+      output.ownershipIdentity !== undefined &&
+      (output.ownershipIdentity === null || typeof output.ownershipIdentity !== 'object')
+    ) {
+      throw invalidInput('Provider returned an invalid output ownership identity')
+    }
+    if (output.ownershipIdentity !== undefined) {
+      if (inputStorage.has(output.ownershipIdentity)) {
+        throw invalidInput('Provider output improperly claims ownership of input storage')
+      }
+      if (declaredOwnership.has(output.ownershipIdentity)) {
+        throw invalidInput('Provider returned outputs that alias the same owned resource')
+      }
+      declaredOwnership.add(output.ownershipIdentity)
+    }
+    const identity = storageIdentity(output.value)
+    if (identity === undefined) continue
+    if (inputStorage.has(identity)) {
+      throw invalidInput('Provider output improperly claims ownership of input storage')
+    }
+    if (outputStorage.has(identity)) {
+      throw invalidInput('Provider returned outputs that alias the same storage')
+    }
+    outputStorage.add(identity)
+  }
+}
+
 export interface OperationRuntimeSnapshot {
   readonly providers: readonly OperationProviderDescriptor[]
 }
@@ -419,6 +476,7 @@ export class OperationRuntime {
     const selected = this.select(request, policy)
     const outputs = await selected.implementation.execute(request)
     try {
+      validateOperationOwnedOutputs(outputs, request.inputs)
       request.signal.throwIfAborted()
       const frozenOutputs = Object.freeze([...outputs])
       let released = false

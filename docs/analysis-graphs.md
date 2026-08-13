@@ -169,6 +169,14 @@ Validation and application are pure: an invalid command returns the original sna
 issues, while a successful command returns a new snapshot. Commands contain no code strings,
 arbitrary mutation path, DOM access, `eval`, or privileged AI-only fields.
 
+Controller capabilities publish a JSON-safe descriptor for every available command, including its
+title, description, closed payload schema, whether it mutates the workspace, and whether
+`expectedRevision` is mandatory. Domain payloads reference the public versioned graph/ROI contracts;
+operation parameters remain JSON whose exact schema comes from the selected operation descriptor.
+The current commands accept an optional `expectedRevision`, so their descriptors truthfully report
+`requiresExpectedRevision: false`; applications and agents should still supply it for stale-write
+protection.
+
 When the controller is configured with a scientific ROI context, the same snapshot also owns an
 immutable `roiSet`, and the same command path supports `add-roi`, `update-roi`, `remove-roi`, and
 `replace-roi-set`. ROI commands validate labeled axes, calibration, fixed indices, geometry, and
@@ -180,6 +188,9 @@ Planning and execution are separate explicit calls. `executeGraph()` accepts an 
 plan, returns a cancellable task, respects bounded parallelism, executes dependencies
 deterministically, and releases intermediate owned outputs after their last consumer. Named outputs
 remain owned until the caller releases the result. There are no hidden retries or provider changes.
+The returned `AnalysisExecutionOutputs` is a frozen accessor view with lookup and iteration only; it
+does not expose the backing `Map` or mutation methods. Releasing the execution invalidates owned
+values and empties the view.
 
 Execution provenance records the graph hash/schema, input identities, exact operations, parameter
 hashes, provider and implementation versions/fingerprints, library build, reproducibility class and

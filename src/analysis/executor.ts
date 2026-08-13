@@ -2,6 +2,7 @@ import { combineAbortSignals } from '../abort.ts'
 import { invalidInput } from '../errors.ts'
 import type { OperationJsonObject, OperationJsonValue } from '../operations/descriptor.ts'
 import type { OperationOwnedOutput, OperationProviderRequest } from '../operations/provider.ts'
+import { validateOperationOwnedOutputs } from '../operations/provider.ts'
 import type { SourceIdentity } from '../source-identity.ts'
 import { normalizeSourceIdentity } from '../source-identity.ts'
 import type { AnalysisLimits, AnalysisValueReference } from './graph.ts'
@@ -40,9 +41,33 @@ export interface AnalysisExecutionProvenance extends OperationJsonObject {
 }
 
 export interface AnalysisExecutionResult {
-  readonly outputs: ReadonlyMap<string, unknown>
+  readonly outputs: AnalysisExecutionOutputs
   readonly provenance: AnalysisExecutionProvenance
   release(): Promise<void>
+}
+
+export interface AnalysisExecutionOutputs extends Iterable<readonly [string, unknown]> {
+  readonly size: number
+  get(name: string): unknown
+  has(name: string): boolean
+  entries(): IterableIterator<readonly [string, unknown]>
+  keys(): IterableIterator<string>
+  values(): IterableIterator<unknown>
+}
+
+const executionOutputsView = (values: ReadonlyMap<string, unknown>): AnalysisExecutionOutputs => {
+  const view: AnalysisExecutionOutputs = {
+    get size(): number {
+      return values.size
+    },
+    get: (name) => values.get(name),
+    has: (name) => values.has(name),
+    entries: () => values.entries(),
+    keys: () => values.keys(),
+    values: () => values.values(),
+    [Symbol.iterator]: () => values.entries(),
+  }
+  return Object.freeze(view)
 }
 
 export interface ExecuteGraphOptions {
@@ -209,6 +234,12 @@ const executePrepared = async (
       inputs: node.inputs.map((input) => resolveValue(input.source)),
       signal: taskSignal,
     }
+    const inputOwnershipIdentities: object[] = []
+    for (const input of node.inputs) {
+      if (input.source.kind !== 'node') continue
+      const identity = values.get(sourceKey(input.source))?.ownershipIdentity
+      if (identity !== undefined) inputOwnershipIdentities.push(identity)
+    }
     let outputs: readonly OperationOwnedOutput[] | undefined
     try {
       outputs = await selection.implementation.execute(request)
@@ -218,9 +249,7 @@ const executePrepared = async (
           `Provider returned ${outputs.length} outputs; expected ${definition.descriptor.outputs.length}`,
         )
       }
-      if (new Set(outputs).size !== outputs.length) {
-        throw invalidInput('Provider returned the same owned output for multiple ports')
-      }
+      validateOperationOwnedOutputs(outputs, request.inputs, inputOwnershipIdentities)
     } catch (cause) {
       if (outputs !== undefined) {
         try {
@@ -263,6 +292,7 @@ const executePrepared = async (
       }
     }
     const outputValues = new Map<string, unknown>()
+    const outputView = executionOutputsView(outputValues)
     const retained = new Set<OperationOwnedOutput>()
     for (const output of plan.graph.outputs) {
       if (output.source.kind === 'input') {
@@ -311,7 +341,7 @@ const executePrepared = async (
     }
     let released = false
     return Object.freeze({
-      outputs: outputValues,
+      outputs: outputView,
       provenance: Object.freeze({
         graphHash: plan.summary.graphHash,
         graphSchemaVersion: plan.graph.schemaVersion,

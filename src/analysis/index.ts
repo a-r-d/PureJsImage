@@ -114,6 +114,7 @@ export { dryRun, planGraph } from './planner.ts'
 export type {
   AnalysisExecutionProvenance,
   AnalysisExecutionResult,
+  AnalysisExecutionOutputs,
   AnalysisExecutionTask,
   AnalysisLibraryBuild,
   AnalysisNodeProvenance,
@@ -123,6 +124,8 @@ export { AnalysisNodeExecutionError, executeGraph } from './executor.ts'
 export type {
   AnalysisCommand,
   AnalysisCommandApplication,
+  AnalysisCommandDescriptor,
+  AnalysisCommandKind,
   AnalysisCommandValidation,
   AnalysisWorkspaceRoiContext,
   AnalysisWorkspaceSnapshot,
@@ -130,6 +133,7 @@ export type {
 export {
   applyCommand,
   createAnalysisWorkspaceSnapshot,
+  describeAnalysisCommands,
   validateCommand,
 } from './workspace.ts'
 export type {

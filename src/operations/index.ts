@@ -75,6 +75,7 @@ export {
   normalizeOperationProviderDescriptor,
   OperationRuntime,
   prepareOperationRuntime,
+  validateOperationOwnedOutputs,
 } from './provider.ts'
 export {
   builtInOperationDefinitions,

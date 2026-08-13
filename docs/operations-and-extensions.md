@@ -63,6 +63,13 @@ pin. Bit-exact operations admit only implementations marked as differentially co
 Provider-pinned operations fail instead of switching. Every result records provider and
 implementation identity, the build fingerprint, reproducibility declaration, and selected estimate.
 Execution requires an `AbortSignal`, returns owned outputs, and exposes one idempotent `release()`.
+Each output must exclusively own the resource represented by its value and must not claim an input
+resource. Providers whose separate wrappers or views alias one allocation, GPU buffer, WASM pool,
+or remote handle must report the same `ownershipIdentity`. The runtime rejects duplicate wrappers,
+shared declared identities, shared detectable typed-array/`NumericTile` buffers, and detectable
+input/output storage aliases, releasing rejected outputs. Hidden aliases that JavaScript cannot
+inspect remain a provider-contract violation; the in-process registry is a trust boundary, not a
+sandbox.
 
 ## Trusted extension boundary
 

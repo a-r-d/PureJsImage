@@ -11,6 +11,7 @@ import {
   OperationRuntime,
   prepareOperationRuntime,
   validateOperationDescriptor,
+  validateOperationOwnedOutputs,
   validateValueTypeDescriptor,
 } from '../src/operations/index.ts'
 import type {
@@ -444,5 +445,71 @@ describe('operation providers', () => {
       }),
     ).rejects.toMatchObject({ name: 'AbortError' })
     expect(release).toHaveBeenCalledOnce()
+  })
+
+  it('rejects detectable output aliases and releases every rejected wrapper', async () => {
+    const firstRelease = vi.fn()
+    const secondRelease = vi.fn()
+    const storage = new ArrayBuffer(16)
+    const aliasing = implementation({
+      providerId: 'reference',
+      time: 1,
+      execute: async () => [
+        { value: new Uint8Array(storage), release: firstRelease },
+        { value: new Uint16Array(storage), release: secondRelease },
+      ],
+    })
+    const runtime = new OperationRuntime(
+      [await provider('reference', 'reference', [aliasing]).prepare()].filter(
+        (entry) => entry !== undefined,
+      ),
+    )
+    await expect(
+      runtime.execute({
+        descriptor: descriptor(),
+        parameters: {},
+        inputs: [],
+        signal: new AbortController().signal,
+      }),
+    ).rejects.toThrow('alias the same storage')
+    expect(firstRelease).toHaveBeenCalledOnce()
+    expect(secondRelease).toHaveBeenCalledOnce()
+
+    const inputRelease = vi.fn()
+    const inputStorage = new Uint8Array(4)
+    const inputAliasing = implementation({
+      providerId: 'input-reference',
+      time: 1,
+      execute: async () => [{ value: inputStorage.subarray(0), release: inputRelease }],
+    })
+    const inputRuntime = new OperationRuntime(
+      [await provider('input-reference', 'reference', [inputAliasing]).prepare()].filter(
+        (entry) => entry !== undefined,
+      ),
+    )
+    await expect(
+      inputRuntime.execute({
+        descriptor: descriptor(),
+        parameters: {},
+        inputs: [inputStorage],
+        signal: new AbortController().signal,
+      }),
+    ).rejects.toThrow('input storage')
+    expect(inputRelease).toHaveBeenCalledOnce()
+
+    const opaqueIdentity = Object.freeze({ id: 'opaque-resource' })
+    expect(() =>
+      validateOperationOwnedOutputs(
+        [
+          {
+            value: Object.freeze({ proxy: true }),
+            ownershipIdentity: opaqueIdentity,
+            release: () => undefined,
+          },
+        ],
+        [],
+        [opaqueIdentity],
+      ),
+    ).toThrow('input storage')
   })
 })

@@ -1366,6 +1366,25 @@ to own only generic descriptors, definitions, providers, and registries.
       and prepared analysis plans expose disposal; partial preparation failures clean up providers in
       reverse order. GPU-resident multi-operation storage remains future work and is not claimed by
       the CPU `NumericTile` contract.
+- [x] Group line-profile sample contributions by normal source tile. Nearest and bilinear plans now
+      request each intersected tile once, including cross-tile bilinear neighborhoods, rather than
+      creating one tiny source key per sample.
+- [x] Publish JSON-safe command descriptors from controller capabilities. Each available command now
+      describes its title, purpose, closed shape, mutation status, and current optional revision
+      requirement; `commandKinds` is derived from that descriptor list.
+- [x] Replace the exposed mutable execution-output `Map` with a frozen lookup/iteration view and
+      reject detectable output/output and input/output resource aliases. Providers must supply a
+      shared `ownershipIdentity` for opaque aliases the runtime cannot inspect.
+- [x] State the quantitative `uint64` boundary explicitly. Native tiles remain exact, while current
+      number-backed analysis rejects samples above `Number.MAX_SAFE_INTEGER`; bigint/decimal result,
+      parameter, and no-data contracts remain future work.
+
+  - Small-feedback validation: 64 focused operation/controller/result/tile/extension tests pass;
+    dense nearest sampling uses three normal tiles for 17 samples and the cross-boundary bilinear
+    fixture uses two. Package types, browser graph, docs build, lint, formatting, and the
+    correctness-gated application benchmark pass. The full suite reaches 93 passing files and 1,174
+    passing tests before the same three environment-specific expanded 12-bit AVIF oracle hashes;
+    the hostile-source phase therefore does not run.
 
   - Review validation: 92 test files and 1,170 tests passed in the complete standard suite. The gate
     remains blocked by two environment-specific expanded 12-bit AVIF Sharp-oracle hashes, one AVIF

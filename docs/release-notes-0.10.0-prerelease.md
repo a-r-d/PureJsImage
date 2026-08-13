@@ -79,6 +79,8 @@ or release budgets.
   per-level physical coordinate transforms.
 - Public `NumericTile` values are CPU typed-array storage. Provider disposal is available, but a
   GPU-resident multi-operation graph is future work rather than a current zero-copy guarantee.
+- `uint64` tiles remain exact `BigUint64Array` storage, but number-backed quantitative operations
+  reject values above 2^53 - 1; bigint-aware results, parameters, and no-data metadata are future work.
 - Reader-provided display recommendations and package-owned viewport/persistence policies are not
   part of the current generic contract.
 

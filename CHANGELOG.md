@@ -104,6 +104,8 @@ All notable changes to PureJsImage are documented in this file.
 - Added total managed tile-memory limits and metrics, hard provider memory policies, canonical graph
   hash domain v2 ordering, explicit lazy-materialization provenance, and idempotent prepared-provider
   disposal groundwork.
+- Grouped line-profile sampling by normal source tiles, added machine-readable command descriptors,
+  hid execution output-map mutation, and enforced detectable provider output-storage ownership.
 - Promoted AVIF read support from “Limited” to “Yes” for common still-image workflows after the
   existing independently validated broad corpus and cross-encoder survey, while retaining explicit
   unsupported boundaries for dependent animation and uncommon AV1/ISOBMFF syntax. AVIF re-encoding

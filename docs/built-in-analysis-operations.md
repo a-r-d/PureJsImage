@@ -59,6 +59,18 @@ metadata. ROI masks exist only for the current tile. Automatic histograms make t
 required range pass explicit, then request the same tiles so the bounded runtime cache can satisfy
 the counting pass.
 
+Line profiles generate the complete bounded sampling plan, group nearest/bilinear pixel
+contributions by the normal source tile that owns each pixel, and read each source tile once. A
+dense line therefore scales with intersected source tiles rather than producing one tiny source key
+per sample. Bilinear samples crossing a tile boundary accumulate their four weighted contributions
+from adjacent normal tiles before applying the invalid/no-data policy.
+
+`NumericTile` storage preserves every `uint64` as `bigint`, but the current quantitative result
+operations produce number-backed scalar, histogram, and profile values. They reject a `uint64`
+sample above `Number.MAX_SAFE_INTEGER` instead of silently rounding it. `noDataValue` and numeric
+operation parameters are also numbers, so fully exact quantitative `uint64` analysis above
+2^53 - 1 requires future bigint- or decimal-string-aware result and parameter contracts.
+
 Gaussian blur requests only the output tile plus its clipped halo. It precomputes one normalized
 Float64 kernel and integer boundary mappings per request, uses separable bounded typed-array
 scratch, retains no full-frame intermediate, and releases its source tile on success, cancellation,
@@ -67,9 +79,11 @@ or failure. The planner estimate includes halo input and horizontal scratch stor
 ## Data-driven application workflow
 
 `controller.capabilities` is JSON-only and enumerates operations, value types, providers,
-migrations, commands, ROI limits, and the trust boundary. `describeOperation()` returns one plain
-descriptor and `normalizeOperationParameters()` validates and fills schema defaults without reading
-pixels.
+migrations, command descriptors, ROI limits, and the trust boundary. Every command descriptor
+includes its kind, title, description, closed shape schema, mutation status, and expected-revision
+requirement; `commandKinds` remains a compact derived compatibility list. `describeOperation()`
+returns one plain descriptor and `normalizeOperationParameters()` validates and fills schema defaults
+without reading pixels.
 
 Workspace commands operate on immutable revisioned snapshots. A UI, script, trusted extension, or
 future agent uses the same sequence: bind typed graph inputs, add nodes, connect named ports, add an

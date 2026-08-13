@@ -319,6 +319,10 @@ describe('analysis planning and execution', () => {
       library: { version: '0.9.0', buildFingerprint: 'test-build' },
     })
     const result = await task.result
+    expect(Object.isFrozen(result.outputs)).toBe(true)
+    expect('set' in result.outputs).toBe(false)
+    expect('delete' in result.outputs).toBe(false)
+    expect('clear' in result.outputs).toBe(false)
     expect(events).toEqual(['execute:2:2', 'execute:4:3'])
     expect(result.outputs.get('answer')).toBe(12)
     expect(releases).toEqual([4])
@@ -439,6 +443,23 @@ describe('analysis planning and execution', () => {
     expect(controller.validateGraph(workspace.graph).valid).toBe(true)
     expect(JSON.parse(JSON.stringify(controller.capabilities))).toEqual(controller.capabilities)
     expect(controller.capabilities.trustBoundary).toContain('not a sandbox')
+    expect(controller.capabilities.commandDescriptors).toHaveLength(
+      controller.capabilities.commandKinds.length,
+    )
+    expect(controller.capabilities.commandKinds).not.toContain('add-roi')
+    expect(controller.capabilities.commandDescriptors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'add-node',
+          mutatesWorkspace: true,
+          requiresExpectedRevision: false,
+          schema: expect.objectContaining({
+            type: 'object',
+            required: expect.arrayContaining(['schemaVersion', 'id', 'kind', 'node']),
+          }),
+        }),
+      ]),
+    )
     const planned = await controller.planGraph(workspace.graph, {
       bindings: { source: { value: 4 } },
     })
