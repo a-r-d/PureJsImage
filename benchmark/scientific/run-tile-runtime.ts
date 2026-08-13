@@ -4,7 +4,7 @@ import type { TileAddress, TileRequest, TileSource } from '../../src/analysis/ti
 import type {
   OperationImplementation,
   OperationJsonObject,
-  OperationProviderRequest,
+  OperationExecutionRequest,
   OperationProviderSelection,
   PreparedOperationProvider,
 } from '../../src/operations/index.ts'
@@ -77,6 +77,12 @@ const valueAt = (x: number, y: number): number => x * 0.25 + y * 0.5
 const source: TileSource = {
   descriptor,
   tileKey: canonicalTileKey,
+  estimate: (request) => ({
+    outputBytes: request.address.width * request.address.height * 4,
+    peakWorkingBytes: request.address.width * request.address.height * 4,
+    retainedAuxiliaryBytes: 0,
+    confidence: 1,
+  }),
   async readTile(request) {
     const region = request.address
     const data = new Float32Array(region.width * region.height)
@@ -99,7 +105,7 @@ const source: TileSource = {
         data,
         release: () => undefined,
       }),
-      accounting: { bytesRequested: data.byteLength },
+      accounting: { decodedInputBytes: data.byteLength },
     }
   },
 }
@@ -197,8 +203,8 @@ const implementation: OperationImplementation = Object.freeze({
     operationVersion: operation.descriptor.version,
     implementationVersion: '1.0.0',
   }),
-  supports: () => true,
-  estimate: () => ({
+  supportsPlan: () => true,
+  estimatePlan: () => ({
     setupMilliseconds: 0,
     transferMilliseconds: 0,
     computeMilliseconds: 0,
@@ -209,9 +215,9 @@ const implementation: OperationImplementation = Object.freeze({
     outputBytes: tileSize * tileSize * 4,
     confidence: 1,
   }),
-  async execute(request: Readonly<OperationProviderRequest>) {
+  async execute(request: Readonly<OperationExecutionRequest>) {
     const input = numericTile(request.inputs[0])
-    const context = jsonObject(request.inputCharacteristics, 'inputCharacteristics')
+    const context = jsonObject(request.plannedInputCharacteristics[0], 'inputCharacteristics')
     const requested = jsonObject(context.requested, 'requested')
     const outputAddress = jsonObject(requested.address, 'requested.address')
     const xStart = numberField(outputAddress, 'x')
@@ -276,10 +282,10 @@ const prepared: PreparedOperationProvider = Object.freeze({
 const selection: OperationProviderSelection = Object.freeze({
   provider: prepared,
   implementation,
-  estimate: implementation.estimate({
+  estimate: implementation.estimatePlan({
     descriptor: operation.descriptor,
     parameters: {},
-    inputs: [],
+    inputCharacteristics: [],
     signal: new AbortController().signal,
   }),
 })
@@ -290,7 +296,7 @@ const derived = createDerivedTileSource({
   source,
   descriptor,
   operation,
-  selections: [selection],
+  selection,
   parameters: {},
   nodeSemanticHash: 'benchmark-node-1',
   executionFingerprint: 'benchmark-execution-1',

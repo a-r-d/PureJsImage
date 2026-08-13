@@ -103,8 +103,8 @@ describe('ROI value types and immutable workspace commands', () => {
             implementationVersion: '1.0.0',
             bitExactConformance: true,
           },
-          supports: () => true,
-          estimate: () => ({
+          supportsPlan: () => true,
+          estimatePlan: () => ({
             setupMilliseconds: 0,
             transferMilliseconds: 0,
             computeMilliseconds: 0,
@@ -221,8 +221,20 @@ describe('ROI value types and immutable workspace commands', () => {
       },
     })
     expect(executions).toBe(0)
-    await controller.executeGraph(plan).result
+    const renamedPlan = await controller.planGraph(workspace.graph, {
+      bindings: {
+        selection: {
+          value: polygon('Presentation-only rename'),
+          valueType: { id: roiValueTypeId, version: 1 },
+        },
+      },
+    })
+    expect(renamedPlan.summary.invocation.bindingHash).toBe(plan.summary.invocation.bindingHash)
+    const execution = await controller.executeGraph(plan).result
     expect(executions).toBe(1)
+    await execution.release()
+    await plan.dispose()
+    await renamedPlan.dispose()
   })
 
   it('rejects stale, invalid, duplicate, and unknown ROI edits without mutation', () => {

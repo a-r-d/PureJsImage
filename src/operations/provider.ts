@@ -1,5 +1,5 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
-import type { OperationDescriptor, OperationJsonObject, OperationJsonValue } from './descriptor.ts'
+import type { OperationDescriptor, OperationJsonValue } from './descriptor.ts'
 
 export type OperationProviderKind = 'reference' | 'wasm' | 'webgpu' | 'worker-rpc' | 'remote'
 
@@ -18,11 +18,18 @@ export interface OperationImplementationDescriptor {
   readonly bitExactConformance?: boolean
 }
 
-export interface OperationProviderRequest {
+export interface OperationPlanningRequest {
+  readonly descriptor: OperationDescriptor
+  readonly parameters: OperationJsonValue
+  readonly inputCharacteristics: readonly OperationJsonValue[]
+  readonly signal: AbortSignal
+}
+
+export interface OperationExecutionRequest {
   readonly descriptor: OperationDescriptor
   readonly parameters: OperationJsonValue
   readonly inputs: readonly unknown[]
-  readonly inputCharacteristics?: OperationJsonObject
+  readonly plannedInputCharacteristics: readonly OperationJsonValue[]
   readonly signal: AbortSignal
 }
 
@@ -54,9 +61,10 @@ export interface OperationOwnedOutput {
 
 export interface OperationImplementation {
   readonly descriptor: OperationImplementationDescriptor
-  supports(request: Readonly<OperationProviderRequest>): boolean
-  estimate(request: Readonly<OperationProviderRequest>): OperationCostEstimate
-  execute(request: Readonly<OperationProviderRequest>): Promise<readonly OperationOwnedOutput[]>
+  supportsPlan(request: Readonly<OperationPlanningRequest>): boolean
+  estimatePlan(request: Readonly<OperationPlanningRequest>): OperationCostEstimate
+  validateExecution?(request: Readonly<OperationExecutionRequest>): void
+  execute(request: Readonly<OperationExecutionRequest>): Promise<readonly OperationOwnedOutput[]>
 }
 
 export interface PreparedOperationProvider {
@@ -336,8 +344,7 @@ export const validateOperationOwnedOutputs = (
     const identity = storageIdentity(input)
     if (identity !== undefined) inputStorage.add(identity)
   }
-  const outputStorage = new Set<object>()
-  const declaredOwnership = new Set<object>()
+  const outputResources = new Set<object>()
   for (const output of outputs) {
     if (
       output.ownershipIdentity !== undefined &&
@@ -349,20 +356,21 @@ export const validateOperationOwnedOutputs = (
       if (inputStorage.has(output.ownershipIdentity)) {
         throw invalidInput('Provider output improperly claims ownership of input storage')
       }
-      if (declaredOwnership.has(output.ownershipIdentity)) {
+      if (outputResources.has(output.ownershipIdentity)) {
         throw invalidInput('Provider returned outputs that alias the same owned resource')
       }
-      declaredOwnership.add(output.ownershipIdentity)
     }
     const identity = storageIdentity(output.value)
-    if (identity === undefined) continue
-    if (inputStorage.has(identity)) {
-      throw invalidInput('Provider output improperly claims ownership of input storage')
+    if (identity !== undefined) {
+      if (inputStorage.has(identity)) {
+        throw invalidInput('Provider output improperly claims ownership of input storage')
+      }
+      if (outputResources.has(identity)) {
+        throw invalidInput('Provider returned outputs that alias the same storage')
+      }
     }
-    if (outputStorage.has(identity)) {
-      throw invalidInput('Provider returned outputs that alias the same storage')
-    }
-    outputStorage.add(identity)
+    if (output.ownershipIdentity !== undefined) outputResources.add(output.ownershipIdentity)
+    if (identity !== undefined) outputResources.add(identity)
   }
 }
 
@@ -373,7 +381,10 @@ export interface OperationRuntimeSnapshot {
 export class OperationRuntime {
   readonly #providers: readonly PreparedOperationProvider[]
   readonly capabilitySnapshot: OperationRuntimeSnapshot
-  #disposed = false
+  #closing = false
+  #activeExecutions = 0
+  #disposePromise: Promise<void> | undefined
+  readonly #idleWaiters = new Set<() => void>()
 
   constructor(providers: Iterable<PreparedOperationProvider>) {
     const providerKeys = new Set<string>()
@@ -415,10 +426,10 @@ export class OperationRuntime {
   }
 
   select(
-    request: Readonly<OperationProviderRequest>,
+    request: Readonly<OperationPlanningRequest>,
     policy: OperationProviderPolicy = { mode: 'automatic' },
   ): OperationProviderSelection {
-    if (this.#disposed) throw invalidInput('Operation runtime is disposed')
+    if (this.#closing) throw invalidInput('Operation runtime is disposed')
     validatePolicy(policy)
     request.signal.throwIfAborted()
     if (
@@ -445,8 +456,8 @@ export class OperationRuntime {
         ) {
           continue
         }
-        if (!implementation.supports(request)) continue
-        const estimate = validateEstimate(implementation.estimate(request))
+        if (!implementation.supportsPlan(request)) continue
+        const estimate = validateEstimate(implementation.estimatePlan(request))
         if (!estimateMatchesPolicy(estimate, policy)) continue
         candidates.push({
           provider,
@@ -470,48 +481,86 @@ export class OperationRuntime {
   }
 
   async execute(
-    request: Readonly<OperationProviderRequest>,
+    planningRequest: Readonly<OperationPlanningRequest>,
+    executionRequest: Readonly<OperationExecutionRequest>,
     policy: OperationProviderPolicy = { mode: 'automatic' },
   ): Promise<OperationExecutionResult> {
-    const selected = this.select(request, policy)
-    const outputs = await selected.implementation.execute(request)
+    const selected = this.select(planningRequest, policy)
+    this.#activeExecutions += 1
+    let outputs: readonly OperationOwnedOutput[]
     try {
-      validateOperationOwnedOutputs(outputs, request.inputs)
-      request.signal.throwIfAborted()
+      selected.implementation.validateExecution?.(executionRequest)
+      outputs = await selected.implementation.execute(executionRequest)
+    } catch (error) {
+      this.#finishExecution()
+      throw error
+    }
+    try {
+      validateOperationOwnedOutputs(outputs, executionRequest.inputs)
+      executionRequest.signal.throwIfAborted()
       const frozenOutputs = Object.freeze([...outputs])
       let released = false
+      const finishExecution = (): void => this.#finishExecution()
       return Object.freeze({
         outputs: frozenOutputs,
         provenance: Object.freeze({
           provider: selected.provider.descriptor,
           implementation: selected.implementation.descriptor,
-          reproducibility: request.descriptor.reproducibility,
+          reproducibility: executionRequest.descriptor.reproducibility,
           estimate: selected.estimate,
         }),
         async release(): Promise<void> {
           if (released) return
           released = true
-          await releaseOutputs(frozenOutputs)
+          try {
+            await releaseOutputs(frozenOutputs)
+          } finally {
+            finishExecution()
+          }
         },
       })
     } catch (error) {
-      await releaseOutputs(outputs)
+      try {
+        await releaseOutputs(outputs)
+      } finally {
+        this.#finishExecution()
+      }
       throw error
     }
   }
 
+  get isDisposed(): boolean {
+    return this.#closing
+  }
+
+  async whenIdle(): Promise<void> {
+    if (this.#activeExecutions === 0) return
+    await new Promise<void>((resolve) => this.#idleWaiters.add(resolve))
+  }
+
   async dispose(): Promise<void> {
-    if (this.#disposed) return
-    this.#disposed = true
-    let firstError: unknown
-    for (const provider of [...this.#providers].reverse()) {
-      try {
-        await provider.dispose?.()
-      } catch (error) {
-        firstError ??= error
+    if (this.#disposePromise !== undefined) return this.#disposePromise
+    this.#closing = true
+    this.#disposePromise = (async () => {
+      await this.whenIdle()
+      let firstError: unknown
+      for (const provider of [...this.#providers].reverse()) {
+        try {
+          await provider.dispose?.()
+        } catch (error) {
+          firstError ??= error
+        }
       }
-    }
-    if (firstError !== undefined) throw firstError
+      if (firstError !== undefined) throw firstError
+    })()
+    return this.#disposePromise
+  }
+
+  #finishExecution(): void {
+    this.#activeExecutions -= 1
+    if (this.#activeExecutions !== 0) return
+    for (const resolve of this.#idleWaiters) resolve()
+    this.#idleWaiters.clear()
   }
 }
 

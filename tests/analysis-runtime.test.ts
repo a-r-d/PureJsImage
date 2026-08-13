@@ -104,8 +104,8 @@ const provider = (options: {
           implementationVersion: '1.0.0',
           bitExactConformance: true,
         },
-        supports: () => true,
-        estimate: () => ({
+        supportsPlan: () => true,
+        estimatePlan: () => ({
           setupMilliseconds: options.cost,
           transferMilliseconds: 0,
           computeMilliseconds: options.cost,
@@ -203,7 +203,13 @@ describe('analysis planning and execution', () => {
     ])
     expect(planned.summary.requiredInputIdentities[0]).toMatchObject({
       input: 'source',
+      valueType: { id: 'example.value.number', version: 1 },
       identity: { kind: 'session', size: 8 },
+    })
+    expect(planned.summary.invocation).toMatchObject({
+      graphHash: planned.summary.graphHash,
+      bindingHash: expect.stringMatching(/^[0-9a-f]{64}$/u),
+      invocationHash: expect.stringMatching(/^[0-9a-f]{64}$/u),
     })
     const repeated = await planGraph({
       graph: graph(),
@@ -251,6 +257,73 @@ describe('analysis planning and execution', () => {
         policy: { mode: 'automatic', allowedProviderIds: ['example.reference'] },
       }),
     ).resolves.toMatchObject({ summary: { nodeOrder: ['first', 'second'] } })
+  })
+
+  it('keeps actual values out of provider planning and validates them only at execution', async () => {
+    const planningKeys: string[][] = []
+    let validationInputs = 0
+    const strictProvider = createOperationProvider({
+      descriptor: {
+        id: 'example.strict-planning',
+        version: 1,
+        kind: 'reference',
+        buildFingerprint: 'strict-planning-build',
+      },
+      prepare: async () => [
+        {
+          descriptor: {
+            operationId: 'example.number.multiply',
+            operationVersion: 1,
+            implementationVersion: '1.0.0',
+            bitExactConformance: true,
+          },
+          supportsPlan(request) {
+            planningKeys.push(Object.keys(request).sort())
+            expect(() => JSON.stringify(request.inputCharacteristics)).not.toThrow()
+            return true
+          },
+          estimatePlan: () => ({
+            setupMilliseconds: 0,
+            transferMilliseconds: 0,
+            computeMilliseconds: 0,
+            readbackMilliseconds: 0,
+            retainedBytes: 8,
+            peakWorkingBytes: 8,
+            transferBytes: 0,
+            outputBytes: 8,
+            confidence: 1,
+          }),
+          validateExecution(request) {
+            validationInputs += request.inputs.length
+          },
+          async execute(request) {
+            return [
+              {
+                value: numberInput(request.inputs[0]) * numberParameter(request.parameters),
+                release() {},
+              },
+            ]
+          },
+        },
+      ],
+    })
+    const planned = await planGraph({
+      graph: graph(),
+      operations,
+      providers: [strictProvider],
+      bindings: { source: { value: 2, characteristics: { kind: 'scalar' } } },
+    })
+    expect(planningKeys).toHaveLength(2)
+    expect(planningKeys.every((keys) => !keys.includes('inputs'))).toBe(true)
+    expect(validationInputs).toBe(0)
+    const result = await executeGraph({
+      plan: planned,
+      library: { version: '0.9.0', buildFingerprint: 'strict-planning-test' },
+    }).result
+    expect(result.outputs.get('answer')).toBe(12)
+    expect(validationInputs).toBe(2)
+    await result.release()
+    await planned.dispose()
   })
 
   it('returns structured dry-run failure when a pinned provider is unavailable', async () => {
@@ -328,6 +401,8 @@ describe('analysis planning and execution', () => {
     expect(releases).toEqual([4])
     expect(result.provenance).toMatchObject({
       graphHash: planned.summary.graphHash,
+      bindingHash: planned.summary.invocation.bindingHash,
+      invocationHash: planned.summary.invocation.invocationHash,
       graphSchemaVersion: 1,
       library: { version: '0.9.0', buildFingerprint: 'test-build' },
     })
@@ -354,6 +429,110 @@ describe('analysis planning and execution', () => {
     ).rejects.toThrow('disposed')
   })
 
+  it('separates recipe identity from bound invocation identity', async () => {
+    const reference = provider({
+      id: 'example.reference',
+      kind: 'reference',
+      cost: 1,
+      events: [],
+      releases: [],
+    })
+    const first = await planGraph({
+      graph: graph(),
+      operations,
+      providers: [reference],
+      bindings: { source: { value: 2 } },
+    })
+    const second = await planGraph({
+      graph: graph(),
+      operations,
+      providers: [reference],
+      bindings: { source: { value: 3 } },
+    })
+    expect(first.summary.graphHash).toBe(second.summary.graphHash)
+    expect(first.summary.invocation.bindingHash).not.toBe(second.summary.invocation.bindingHash)
+    expect(first.summary.invocation.invocationHash).not.toBe(
+      second.summary.invocation.invocationHash,
+    )
+    await expect(
+      planGraph({
+        graph: graph(),
+        operations,
+        providers: [reference],
+        bindings: { source: { value: { opaque: true } } },
+      }),
+    ).rejects.toThrow('requires an explicit semantic identity')
+    await first.dispose()
+    await second.dispose()
+  })
+
+  it('keeps a prepared provider leased until the execution result is released', async () => {
+    let disposals = 0
+    let markStarted: () => void = () => undefined
+    let unblock: () => void = () => undefined
+    const started = new Promise<void>((resolve) => {
+      markStarted = resolve
+    })
+    const blocked = new Promise<void>((resolve) => {
+      unblock = resolve
+    })
+    const implementationProvider = provider({
+      id: 'example.impl-source',
+      kind: 'reference',
+      cost: 1,
+      events: [],
+      releases: [],
+    })
+    const preparedImplementation = await implementationProvider.prepare()
+    if (preparedImplementation === undefined) throw new Error('Expected prepared implementation')
+    const actualProvider = createOperationProvider({
+      descriptor: {
+        id: 'example.leased',
+        version: 1,
+        kind: 'reference',
+        buildFingerprint: 'leased-build',
+      },
+      prepare: async () => ({
+        implementations: preparedImplementation.implementations.map((implementation) => ({
+          ...implementation,
+          async execute(request) {
+            markStarted()
+            await blocked
+            return implementation.execute(request)
+          },
+        })),
+        dispose: () => {
+          disposals += 1
+        },
+      }),
+    })
+    const planned = await planGraph({
+      graph: graph(),
+      operations,
+      providers: [actualProvider],
+      bindings: { source: { value: 2 } },
+    })
+    const execution = executeGraph({
+      plan: planned,
+      library: { version: '0.9.0', buildFingerprint: 'lease-test' },
+    }).result
+    await started
+    let disposed = false
+    const disposal = planned.dispose().then(() => {
+      disposed = true
+    })
+    await Promise.resolve()
+    expect(planned.isDisposed()).toBe(true)
+    expect(disposed).toBe(false)
+    unblock()
+    const result = await execution
+    expect(disposed).toBe(false)
+    await result.release()
+    await disposal
+    expect(disposals).toBe(1)
+    await planned.dispose()
+  })
+
   it('keeps controller commands separate from execution and exposes JSON-only capabilities', async () => {
     let executions = 0
     const trackingProvider = createOperationProvider({
@@ -371,8 +550,8 @@ describe('analysis planning and execution', () => {
             implementationVersion: '1.0.0',
             bitExactConformance: true,
           },
-          supports: () => true,
-          estimate: () => ({
+          supportsPlan: () => true,
+          estimatePlan: () => ({
             setupMilliseconds: 0,
             transferMilliseconds: 0,
             computeMilliseconds: 1,
@@ -485,8 +664,8 @@ describe('analysis planning and execution', () => {
             implementationVersion: '1.0.0',
             bitExactConformance: true,
           },
-          supports: () => true,
-          estimate: () => ({
+          supportsPlan: () => true,
+          estimatePlan: () => ({
             setupMilliseconds: 0,
             transferMilliseconds: 0,
             computeMilliseconds: 1,
@@ -546,8 +725,8 @@ describe('analysis planning and execution', () => {
             implementationVersion: '1.0.0',
             bitExactConformance: true,
           },
-          supports: () => true,
-          estimate: () => ({
+          supportsPlan: () => true,
+          estimatePlan: () => ({
             setupMilliseconds: 0,
             transferMilliseconds: 0,
             computeMilliseconds: 1,

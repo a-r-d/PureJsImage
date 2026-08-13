@@ -106,11 +106,17 @@ const numericTile = (
 const sourceFor = (reads: TileAddress[], releases: TileAddress[]): TileSource => ({
   descriptor,
   tileKey: canonicalTileKey,
+  estimate: (tileRequest) => ({
+    outputBytes: tileRequest.address.width * tileRequest.address.height * 4,
+    peakWorkingBytes: tileRequest.address.width * tileRequest.address.height * 4,
+    retainedAuxiliaryBytes: 0,
+    confidence: 1,
+  }),
   async readTile(tileRequest) {
     reads.push(tileRequest.address)
     return {
       tile: numericTile(tileRequest.address, () => releases.push(tileRequest.address)),
-      accounting: { bytesRequested: tileRequest.address.width * tileRequest.address.height * 4 },
+      accounting: { decodedInputBytes: tileRequest.address.width * tileRequest.address.height * 4 },
     }
   },
 })
@@ -231,7 +237,7 @@ const estimate: OperationCostEstimate = Object.freeze({
 const selection = (options: {
   readonly id: string
   readonly implementationVersion?: string
-  readonly supports?: OperationImplementation['supports']
+  readonly supportsPlan?: OperationImplementation['supportsPlan']
   readonly execute: OperationImplementation['execute']
 }): OperationProviderSelection => {
   const implementation: OperationImplementation = Object.freeze({
@@ -240,8 +246,8 @@ const selection = (options: {
       operationVersion: operation.descriptor.version,
       implementationVersion: options.implementationVersion ?? '1.0.0',
     }),
-    supports: options.supports ?? (() => true),
-    estimate: () => estimate,
+    supportsPlan: options.supportsPlan ?? (() => true),
+    estimatePlan: () => estimate,
     execute: options.execute,
   })
   const provider: PreparedOperationProvider = Object.freeze({
@@ -261,7 +267,9 @@ const averageOutput =
   async (providerRequest) => {
     providerRequest.signal.throwIfAborted()
     const source = inputTile(providerRequest.inputs[0])
-    const context = contextFor(providerRequest.inputCharacteristics)
+    const context = contextFor(
+      object(providerRequest.plannedInputCharacteristics[0], 'planned input characteristics'),
+    )
     const output = outputRegion(context)
     const radius = numberField(object(providerRequest.parameters, 'parameters'), 'radius')
     const data = new Float32Array(output.width * output.height)
@@ -315,11 +323,10 @@ const averageOutput =
 const derivedFor = (options: {
   readonly runtime: ReturnType<typeof createTileRuntime>
   readonly source: TileSource
-  readonly selections: readonly OperationProviderSelection[]
+  readonly selection: OperationProviderSelection
   readonly radius?: number
   readonly fingerprint?: string
   readonly nodeSemanticHash?: string
-  readonly pinned?: boolean
   readonly halo?: TileHalo
 }) =>
   createDerivedTileSource({
@@ -327,12 +334,11 @@ const derivedFor = (options: {
     source: options.source,
     descriptor,
     operation,
-    selections: options.selections,
+    selection: options.selection,
     parameters: { radius: options.radius ?? 1 },
     nodeSemanticHash: options.nodeSemanticHash ?? 'node-semantic-hash-1',
     executionFingerprint: options.fingerprint ?? 'execution-1',
     sourceNamespace: 'source:dataset-1',
-    ...(options.pinned === undefined ? {} : { pinned: options.pinned }),
     halo: () => options.halo ?? { left: 1, right: 1, top: 1, bottom: 1 },
   })
 
@@ -369,28 +375,63 @@ describe('numeric and derived tile sources', () => {
     runtime.clear()
   })
 
+  it('transfers one exact source tile without allocating a merge buffer', async () => {
+    let releases = 0
+    const data = new Float32Array([0, 1, 10, 11])
+    const numericSource: NumericTileSource = {
+      descriptor,
+      async *readNumericTiles() {
+        yield Object.freeze({
+          x: 0,
+          y: 0,
+          width: 2,
+          height: 2,
+          sampleType: 'float32' as const,
+          componentCount: 1,
+          layout: 'interleaved' as const,
+          rowStrideElements: 2,
+          data,
+          release() {
+            releases += 1
+          },
+        })
+      },
+    }
+    const runtime = createTileRuntime()
+    const source = numericTileSourceToTileSource(numericSource)
+    const result = await runtime.request(source, {
+      ...request(0, 0, 2, 2),
+      address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+    })
+    expect(result.data.buffer).toBe(data.buffer)
+    expect(releases).toBe(0)
+    result.release()
+    runtime.clear()
+    expect(releases).toBe(1)
+  })
+
   it('keys provider identity, normalized semantics, fingerprints, and generations', () => {
     const runtime = createTileRuntime()
     const source = sourceFor([], [])
     const reference = selection({ id: 'provider.reference', execute: averageOutput([]) })
     const alternate = selection({ id: 'provider.alternate', execute: averageOutput([]) })
     const base = request(2, 2, 2, 2)
-    const first = derivedFor({ runtime, source, selections: [reference] })
-    const same = derivedFor({ runtime, source, selections: [reference], radius: 1 })
-    const providerChanged = derivedFor({ runtime, source, selections: [alternate] })
+    const first = derivedFor({ runtime, source, selection: reference })
+    const same = derivedFor({ runtime, source, selection: reference, radius: 1 })
+    const providerChanged = derivedFor({ runtime, source, selection: alternate })
     const executionChanged = derivedFor({
       runtime,
       source,
-      selections: [reference],
+      selection: reference,
       fingerprint: 'execution-2',
     })
     const nodeChanged = derivedFor({
       runtime,
       source,
-      selections: [reference],
+      selection: reference,
       nodeSemanticHash: 'node-semantic-hash-2',
     })
-    const parameterChanged = derivedFor({ runtime, source, selections: [reference], radius: 2 })
+    const parameterChanged = derivedFor({ runtime, source, selection: reference, radius: 2 })
     expect(first.tileKey(base)).toBe(same.tileKey(base))
     expect(providerChanged.tileKey(base)).not.toBe(first.tileKey(base))
     expect(executionChanged.tileKey(base)).not.toBe(first.tileKey(base))
@@ -411,7 +452,7 @@ describe('numeric and derived tile sources', () => {
       id: 'provider.reference',
       execute: averageOutput(providerReleases),
     })
-    const derived = derivedFor({ runtime, source, selections: [provider] })
+    const derived = derivedFor({ runtime, source, selection: provider })
 
     const whole = await runtime.request(derived, request(0, 0, 4, 2))
     const wholeValues = [...whole.data]
@@ -444,20 +485,15 @@ describe('numeric and derived tile sources', () => {
     expect(timing.computeMillisecondsMeasured).toBeGreaterThanOrEqual(0)
   })
 
-  it('uses planned fallback by shape and refuses silent fallback when pinned', async () => {
+  it('uses one exact planned provider for every tile shape', async () => {
     const calls: string[] = []
     const runtime = createTileRuntime()
     const source = sourceFor([], [])
     const primary = selection({
       id: 'provider.primary',
-      supports(providerRequest) {
-        const context = contextFor(providerRequest.inputCharacteristics)
-        const output = outputRegion(context)
-        return output.width <= 1
-      },
-      async execute(): Promise<readonly OperationOwnedOutput[]> {
+      async execute(providerRequest): Promise<readonly OperationOwnedOutput[]> {
         calls.push('primary')
-        throw new Error('unreachable')
+        return averageOutput([])(providerRequest)
       },
     })
     const fallback = selection({
@@ -467,13 +503,11 @@ describe('numeric and derived tile sources', () => {
         return averageOutput([])(providerRequest)
       },
     })
-    const derived = derivedFor({ runtime, source, selections: [primary, fallback] })
+    const derived = derivedFor({ runtime, source, selection: primary })
     const result = await runtime.request(derived, request(1, 1, 2, 2))
     result.release()
-    expect(calls).toEqual(['fallback'])
-
-    const pinned = derivedFor({ runtime, source, selections: [primary, fallback], pinned: true })
-    expect(() => runtime.request(pinned, request(1, 1, 2, 2))).toThrow('Pinned')
+    expect(calls).toEqual(['primary'])
+    expect(fallback.provider.descriptor.id).toBe('provider.fallback')
     runtime.clear()
   })
 
@@ -498,7 +532,7 @@ describe('numeric and derived tile sources', () => {
         return outputs
       },
     })
-    const derived = derivedFor({ runtime, source, selections: [slow] })
+    const derived = derivedFor({ runtime, source, selection: slow })
     const abort = new AbortController()
     const pending = runtime.request(derived, request(1, 1, 2, 2, abort.signal))
     await started
@@ -512,16 +546,14 @@ describe('numeric and derived tile sources', () => {
     const throwing = derivedFor({
       runtime,
       source,
-      selections: [
-        selection({
-          id: 'provider.throwing',
-          async execute(providerRequest) {
-            const outputs = await averageOutput(throwReleases)(providerRequest)
-            for (const output of outputs) await output.release()
-            throw new Error('provider failed after allocation')
-          },
-        }),
-      ],
+      selection: selection({
+        id: 'provider.throwing',
+        async execute(providerRequest) {
+          const outputs = await averageOutput(throwReleases)(providerRequest)
+          for (const output of outputs) await output.release()
+          throw new Error('provider failed after allocation')
+        },
+      }),
     })
     await expect(runtime.request(throwing, request(2, 2, 2, 2))).rejects.toThrow(
       'failed after allocation',
@@ -531,7 +563,7 @@ describe('numeric and derived tile sources', () => {
     const fast = derivedFor({
       runtime,
       source,
-      selections: [selection({ id: 'provider.fast', execute: averageOutput(released) })],
+      selection: selection({ id: 'provider.fast', execute: averageOutput(released) }),
     })
     const old = await runtime.request(fast, request(0, 0, 1, 1))
     old.release()

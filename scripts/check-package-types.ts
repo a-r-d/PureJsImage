@@ -260,6 +260,9 @@ const tileRequest: TileRequest = {
 }
 const tileSource: TileSource = {
   tileKey: canonicalTileKey,
+  estimate: () => ({
+    outputBytes: 1, peakWorkingBytes: 1, retainedAuxiliaryBytes: 0, confidence: 1,
+  }),
   readTile: async () => ({
     tile: {
       x: 0, y: 0, width: 1, height: 1, sampleType: 'uint8', componentCount: 1,

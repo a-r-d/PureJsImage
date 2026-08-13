@@ -10,10 +10,11 @@ import type {
 } from '../operations/descriptor.ts'
 import { normalizeOperationJsonObject } from '../operations/descriptor.ts'
 import type {
+  OperationExecutionRequest,
   OperationCostEstimate,
   OperationImplementation,
   OperationOwnedOutput,
-  OperationProviderRequest,
+  OperationPlanningRequest,
 } from '../operations/provider.ts'
 import type { OperationDefinition } from '../operations/registry.ts'
 import { createOperationDefinition } from '../operations/registry.ts'
@@ -288,7 +289,7 @@ const isScientificDataset = (value: unknown): value is ScientificDataset =>
   'readPlane' in value &&
   typeof value.readPlane === 'function'
 
-const datasetInput = (request: Readonly<OperationProviderRequest>): ScientificDataset => {
+const datasetInput = (request: Readonly<OperationExecutionRequest>): ScientificDataset => {
   const value = request.inputs.find(isScientificDataset)
   if (value === undefined) throw invalidInput('Analysis operation requires a ScientificDataset')
   return value
@@ -521,6 +522,7 @@ type ResampleOutputType = 'preserve' | 'float32' | 'float64'
 
 interface ResampleParameters {
   readonly displayAxes: readonly [string, string]
+  readonly fixedIndices: readonly ScientificAxisIndex[]
   readonly width: number
   readonly height: number
   readonly kernel: ResampleKernel
@@ -534,6 +536,7 @@ const resampleParameters = (
 ): ResampleParameters => {
   const parameters = parameterRecord(value)
   const displayAxes = displayAxesParameter(parameters)
+  const fixedIndices = fixedIndicesParameter(parameters)
   const kernel = stringParameter(parameters, 'kernel')
   if (kernel !== 'nearest' && kernel !== 'bilinear')
     throw invalidInput('Unsupported resample kernel')
@@ -581,7 +584,16 @@ const resampleParameters = (
   const invalidPolicy = stringParameter(parameters, 'invalidPolicy')
   if (invalidPolicy !== 'propagate' && invalidPolicy !== 'ignore')
     throw invalidInput('Unsupported resample invalid policy')
-  return Object.freeze({ displayAxes, width, height, kernel, outputSampleType, invalidPolicy })
+  if (source !== undefined) validateSelection(source, displayAxes, fixedIndices)
+  return Object.freeze({
+    displayAxes,
+    fixedIndices,
+    width,
+    height,
+    kernel,
+    outputSampleType,
+    invalidPolicy,
+  })
 }
 
 const resampledCoordinates = (
@@ -641,15 +653,9 @@ const inferResampleDescriptor = (
   assertLevelZero(source)
   const parameters = resampleParameters(value, source)
   const [horizontalId, verticalId] = parameters.displayAxes
-  axis(source, horizontalId)
-  axis(source, verticalId)
-  const axes = source.axes.map((entry) => {
-    const length =
-      entry.id === horizontalId
-        ? parameters.width
-        : entry.id === verticalId
-          ? parameters.height
-          : entry.length
+  const axes = parameters.displayAxes.map((id, index) => {
+    const entry = axis(source, id)
+    const length = index === 0 ? parameters.width : parameters.height
     if (length === entry.length) return entry
     return Object.freeze({
       ...entry,
@@ -672,9 +678,10 @@ const inferResampleDescriptor = (
   })
   const sampleType = outputRasterSampleType(source.sampleType, parameters.outputSampleType)
   return normalizeScientificDatasetDescriptor({
-    ...source,
+    schemaVersion: 2,
     axes,
     sampleType,
+    components: source.components,
     levels: [
       { level: 0, axisLengths: axes.map((entry) => ({ axisId: entry.id, length: entry.length })) },
     ],
@@ -688,6 +695,7 @@ const inferResampleDescriptor = (
       resampleInvalidPolicy: parameters.invalidPolicy,
       sourceAxisLengths: [axis(source, horizontalId).length, axis(source, verticalId).length],
     },
+    capabilities: { regionReads: true, resolutionLevels: false },
   })
 }
 
@@ -844,6 +852,7 @@ type GaussianInvalidPolicy = 'propagate' | 'ignore'
 
 interface GaussianBlurParameters {
   readonly displayAxes: readonly [string, string]
+  readonly fixedIndices: readonly ScientificAxisIndex[]
   readonly component: number
   readonly sigma: number
   readonly radius: number
@@ -870,6 +879,7 @@ const gaussianBlurParameters = (
     throw invalidInput('Unsupported Gaussian blur invalid policy')
   const result = Object.freeze({
     displayAxes: displayAxesParameter(parameters),
+    fixedIndices: fixedIndicesParameter(parameters),
     component,
     sigma,
     radius: Math.ceil(3 * sigma),
@@ -879,8 +889,7 @@ const gaussianBlurParameters = (
   })
   if (source !== undefined) {
     assertLevelZero(source)
-    axis(source, result.displayAxes[0])
-    axis(source, result.displayAxes[1])
+    validateSelection(source, result.displayAxes, result.fixedIndices)
     if (result.component >= source.components.length)
       throw invalidInput('Gaussian blur component is unavailable')
   }
@@ -894,8 +903,14 @@ const inferGaussianBlurDescriptor = (
   const parameters = gaussianBlurParameters(value, source)
   const component = source.components[parameters.component]
   if (component === undefined) throw invalidInput('Gaussian blur component is unavailable')
+  const plane = twoDimensionalDescriptor(
+    source,
+    parameters.displayAxes,
+    'float32',
+    analysisGaussianBlurOperationId,
+  )
   return normalizeScientificDatasetDescriptor({
-    ...source,
+    ...plane,
     sampleType: 'float32',
     components: [
       {
@@ -946,6 +961,7 @@ export const analysisDatasetOperationDefinitions: readonly OperationDefinition[]
     parameters: objectSchema(
       {
         displayAxes: displayAxesSchema,
+        fixedIndices: fixedIndicesSchema,
         width: positiveIntegerSchema,
         height: positiveIntegerSchema,
         scaleX: Object.freeze({
@@ -975,7 +991,7 @@ export const analysisDatasetOperationDefinitions: readonly OperationDefinition[]
           default: 'propagate',
         }),
       },
-      ['displayAxes'],
+      ['displayAxes', 'fixedIndices'],
     ),
     validate: (value) => {
       resampleParameters(value)
@@ -1060,6 +1076,7 @@ export const analysisDatasetOperationDefinitions: readonly OperationDefinition[]
     parameters: objectSchema(
       {
         displayAxes: displayAxesSchema,
+        fixedIndices: fixedIndicesSchema,
         component: Object.freeze({ type: 'integer', minimum: 0, default: 0 }),
         sigma: Object.freeze({
           type: 'number',
@@ -1080,7 +1097,7 @@ export const analysisDatasetOperationDefinitions: readonly OperationDefinition[]
           default: 'propagate',
         }),
       },
-      ['displayAxes', 'sigma'],
+      ['displayAxes', 'fixedIndices', 'sigma'],
     ),
     validate: (value) => {
       gaussianBlurParameters(value)
@@ -1454,6 +1471,7 @@ const resampleDataset = (
         source,
         {
           ...request,
+          fixedIndices: parameters.fixedIndices,
           x: sourceX,
           y: sourceY,
           width: sourceRight - sourceX,
@@ -1657,6 +1675,7 @@ const gaussianBlurDataset = (
         source,
         {
           ...request,
+          fixedIndices: parameters.fixedIndices,
           x: sourceX,
           y: sourceY,
           width: sourceRight - sourceX,
@@ -1938,7 +1957,7 @@ const ownedDataset = (dataset: ScientificDataset): readonly OperationOwnedOutput
   Object.freeze([Object.freeze({ value: dataset, release() {} })])
 
 const costEstimate = (
-  request: Readonly<OperationProviderRequest>,
+  request: Readonly<OperationPlanningRequest>,
   context: AnalysisDatasetOperationContext,
 ): OperationCostEstimate => {
   let retainedBytes = 0
@@ -1946,44 +1965,41 @@ const costEstimate = (
   let outputBytes = 0
   let computeMilliseconds = 0
   try {
-    if (request.inputCharacteristics !== undefined) {
-      const inputs = request.inputCharacteristics.inputs
-      if (Array.isArray(inputs)) {
-        const descriptor = datasetDescriptorFromCharacteristics(inputs[0])
-        const definition = analysisDatasetOperationDefinitions.find(
-          (candidate) => candidate.descriptor.id === request.descriptor.id,
-        )
-        const inferred = definition?.inferOutputShapes?.({
-          parameters: request.parameters,
-          inputs: Object.freeze([scientificDatasetCharacteristics(descriptor)]),
-        })
-        if (!inferred?.valid || inferred.value?.[0] === undefined) {
-          throw invalidInput('Operation output characteristics are unavailable')
-        }
-        const outputDescriptor = datasetDescriptorFromCharacteristics(inferred.value[0])
-        const selectedAxes = displayAxesParameter(parameterRecord(request.parameters))
-        const width = Math.min(axis(outputDescriptor, selectedAxes[0]).length, context.tileWidth)
-        const height = Math.min(axis(outputDescriptor, selectedAxes[1]).length, context.tileHeight)
-        const sampleCount = width * height * outputDescriptor.components.length
-        outputBytes = sampleCount * rasterSampleBytes(outputDescriptor.sampleType)
-        retainedBytes = outputBytes
-        peakWorkingBytes = outputBytes
-        if (request.descriptor.id === analysisGaussianBlurOperationId) {
-          const parameters = gaussianBlurParameters(request.parameters, descriptor)
-          const expandedHeight = height + parameters.radius * 2
-          peakWorkingBytes +=
-            width * expandedHeight * (parameters.invalidPolicy === 'propagate' ? 9 : 16) +
-            (width + parameters.radius * 2 + expandedHeight) * 4
-          computeMilliseconds =
-            (width * expandedHeight * (parameters.radius * 2 + 1) * 2) / 10_000_000
-        } else if (request.descriptor.id === analysisProjectionOperationId) {
-          const parameters = projectionParameters(request.parameters, descriptor)
-          peakWorkingBytes +=
-            sampleCount *
-            (Uint32Array.BYTES_PER_ELEMENT +
-              (parameters.invalidPolicy === 'propagate' ? Uint8Array.BYTES_PER_ELEMENT : 0) +
-              (outputDescriptor.sampleType === 'uint64' ? 0 : Float64Array.BYTES_PER_ELEMENT))
-        }
+    {
+      const descriptor = datasetDescriptorFromCharacteristics(request.inputCharacteristics[0])
+      const definition = analysisDatasetOperationDefinitions.find(
+        (candidate) => candidate.descriptor.id === request.descriptor.id,
+      )
+      const inferred = definition?.inferOutputShapes?.({
+        parameters: request.parameters,
+        inputs: Object.freeze([scientificDatasetCharacteristics(descriptor)]),
+      })
+      if (!inferred?.valid || inferred.value?.[0] === undefined) {
+        throw invalidInput('Operation output characteristics are unavailable')
+      }
+      const outputDescriptor = datasetDescriptorFromCharacteristics(inferred.value[0])
+      const selectedAxes = displayAxesParameter(parameterRecord(request.parameters))
+      const width = Math.min(axis(outputDescriptor, selectedAxes[0]).length, context.tileWidth)
+      const height = Math.min(axis(outputDescriptor, selectedAxes[1]).length, context.tileHeight)
+      const sampleCount = width * height * outputDescriptor.components.length
+      outputBytes = sampleCount * rasterSampleBytes(outputDescriptor.sampleType)
+      retainedBytes = outputBytes
+      peakWorkingBytes = outputBytes
+      if (request.descriptor.id === analysisGaussianBlurOperationId) {
+        const parameters = gaussianBlurParameters(request.parameters, descriptor)
+        const expandedHeight = height + parameters.radius * 2
+        peakWorkingBytes +=
+          width * expandedHeight * (parameters.invalidPolicy === 'propagate' ? 9 : 16) +
+          (width + parameters.radius * 2 + expandedHeight) * 4
+        computeMilliseconds =
+          (width * expandedHeight * (parameters.radius * 2 + 1) * 2) / 10_000_000
+      } else if (request.descriptor.id === analysisProjectionOperationId) {
+        const parameters = projectionParameters(request.parameters, descriptor)
+        peakWorkingBytes +=
+          sampleCount *
+          (Uint32Array.BYTES_PER_ELEMENT +
+            (parameters.invalidPolicy === 'propagate' ? Uint8Array.BYTES_PER_ELEMENT : 0) +
+            (outputDescriptor.sampleType === 'uint64' ? 0 : Float64Array.BYTES_PER_ELEMENT))
       }
     }
   } catch {
@@ -2018,16 +2034,10 @@ export const createAnalysisDatasetOperationImplementations = (
             ? { bitExactConformance: true }
             : {}),
         }),
-        supports(request: Readonly<OperationProviderRequest>): boolean {
+        supportsPlan(request: Readonly<OperationPlanningRequest>): boolean {
           try {
-            const input = request.inputs.find(isScientificDataset)
-            const descriptor =
-              input?.descriptor ??
-              (request.inputCharacteristics === undefined ||
-              !Array.isArray(request.inputCharacteristics.inputs)
-                ? undefined
-                : datasetDescriptorFromCharacteristics(request.inputCharacteristics.inputs[0]))
-            if (descriptor === undefined || definition.inferOutputShapes === undefined) return false
+            const descriptor = datasetDescriptorFromCharacteristics(request.inputCharacteristics[0])
+            if (definition.inferOutputShapes === undefined) return false
             const inferred = definition.inferOutputShapes({
               parameters: request.parameters,
               inputs: Object.freeze([scientificDatasetCharacteristics(descriptor)]),
@@ -2037,9 +2047,13 @@ export const createAnalysisDatasetOperationImplementations = (
             return false
           }
         },
-        estimate: (request: Readonly<OperationProviderRequest>) => costEstimate(request, context),
+        estimatePlan: (request: Readonly<OperationPlanningRequest>) =>
+          costEstimate(request, context),
+        validateExecution(request: Readonly<OperationExecutionRequest>): void {
+          datasetInput(request)
+        },
         async execute(
-          request: Readonly<OperationProviderRequest>,
+          request: Readonly<OperationExecutionRequest>,
         ): Promise<readonly OperationOwnedOutput[]> {
           request.signal.throwIfAborted()
           const source = datasetInput(request)

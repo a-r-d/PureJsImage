@@ -8,7 +8,6 @@ import { invalidInput } from '../errors.ts'
 import type { OperationProvider, OperationProviderPolicy } from '../operations/provider.ts'
 import { normalizeOperationProviderDescriptor } from '../operations/provider.ts'
 import type { OperationRegistry, ValueTypeRegistry } from '../operations/registry.ts'
-import type { SourceIdentity } from '../source-identity.ts'
 import type { AnalysisExecutionTask, AnalysisLibraryBuild } from './executor.ts'
 import { executeGraph as startExecution } from './executor.ts'
 import type { AnalysisGraph, AnalysisGraphValidation, AnalysisLimits } from './graph.ts'
@@ -76,7 +75,6 @@ export interface ControllerPlanOptions {
 }
 
 export interface ControllerExecuteOptions {
-  readonly inputIdentities?: Readonly<Record<string, SourceIdentity>>
   readonly signal?: AbortSignal
 }
 
@@ -274,9 +272,6 @@ export class AnalysisController {
       plan,
       library: this.#library,
       limits: this.#limits,
-      ...(options.inputIdentities === undefined
-        ? {}
-        : { inputIdentities: options.inputIdentities }),
       ...(options.signal === undefined ? {} : { signal: options.signal }),
     })
     this.#tasks.set(task.id, task)

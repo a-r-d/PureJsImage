@@ -371,7 +371,15 @@ const measureResultOperation = async (
   graph: AnalysisGraph,
 ): Promise<OperationMeasurement> => {
   const bindings = {
-    source: { value: dataset, characteristics: scientificDatasetCharacteristics(dataset) },
+    source: {
+      value: dataset,
+      identity: {
+        kind: 'application-defined' as const,
+        namespace: 'purejsimage.benchmark.dataset',
+        value: 'application-platform',
+      },
+      characteristics: scientificDatasetCharacteristics(dataset),
+    },
     selection: { value: roi },
   }
   const run = async (): Promise<{
@@ -416,7 +424,15 @@ const measureDatasetOperation = async (
   const planned = await timed(() =>
     controller.planGraph(graph, {
       bindings: {
-        source: { value: dataset, characteristics: scientificDatasetCharacteristics(dataset) },
+        source: {
+          value: dataset,
+          identity: {
+            kind: 'application-defined' as const,
+            namespace: 'purejsimage.benchmark.dataset',
+            value: 'application-platform-cancel',
+          },
+          characteristics: scientificDatasetCharacteristics(dataset),
+        },
       },
     }),
   )
@@ -512,6 +528,12 @@ const measureCacheClasses = async (): Promise<TileRuntimeMetrics> => {
   const source: TileSource = Object.freeze({
     descriptor: large.descriptor,
     tileKey: canonicalTileKey,
+    estimate: (request: Readonly<TileRequest>) => ({
+      outputBytes: request.address.width * request.address.height * 4,
+      peakWorkingBytes: request.address.width * request.address.height * 4,
+      retainedAuxiliaryBytes: 0,
+      confidence: 1,
+    }),
     async readTile(request: Readonly<TileRequest>) {
       const { x, y, width, height } = request.address
       const data = new Float32Array(width * height)
@@ -529,7 +551,7 @@ const measureCacheClasses = async (): Promise<TileRuntimeMetrics> => {
           data,
           release() {},
         }),
-        accounting: { bytesRequested: data.byteLength },
+        accounting: { decodedInputBytes: data.byteLength },
       }
     },
   })
@@ -776,6 +798,7 @@ for (const size of [64, 128, 256]) {
       'dataset',
       {
         displayAxes: ['x', 'y'],
+        fixedIndices: [],
         component: 0,
         sigma: 3,
         boundary: 'clamp',

@@ -852,6 +852,17 @@ const quantitativeRoi = (roi: Roi): unknown => ({
   geometry: roi.geometry,
 })
 
+/** Canonical quantitative identity for an ROI that has already passed value-type validation. */
+export const canonicalNormalizedRoiSemanticsJson = (roi: Roi): string =>
+  canonicalJson(quantitativeRoi(roi))
+
+/** Canonical quantitative identity for a validated ROI set; presentation metadata is excluded. */
+export const canonicalNormalizedRoiSetSemanticsJson = (roiSet: RoiSet): string =>
+  canonicalJson({
+    schemaVersion: roiSet.schemaVersion,
+    rois: roiSet.rois.map(quantitativeRoi),
+  })
+
 export const canonicalRoiJson = (
   value: unknown,
   descriptor: NormalizedScientificDatasetDescriptor,
@@ -862,7 +873,7 @@ export const canonicalRoiSemanticsJson = (
   value: unknown,
   descriptor: NormalizedScientificDatasetDescriptor,
   limits: Readonly<RoiLimits> = {},
-): string => canonicalJson(quantitativeRoi(normalizeRoi(value, descriptor, limits)))
+): string => canonicalNormalizedRoiSemanticsJson(normalizeRoi(value, descriptor, limits))
 
 export const canonicalRoiSetJson = (
   value: unknown,

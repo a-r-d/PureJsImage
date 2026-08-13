@@ -18,6 +18,7 @@ import {
 } from '../src/analysis/index.ts'
 import type { AnalysisExecutionResult, AnalysisGraph, TileRuntime } from '../src/analysis/index.ts'
 import { createOperationProvider } from '../src/operations/index.ts'
+import type { OperationJsonObject, OperationJsonValue } from '../src/operations/index.ts'
 import type {
   DirectNumericTileDataset,
   NumericTile,
@@ -146,6 +147,9 @@ const sourceDataset = (
   })
 }
 
+const isJsonObject = (value: OperationJsonValue): value is OperationJsonObject =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+
 const graph = (
   operationId: string,
   parameters: AnalysisGraph['nodes'][number]['parameters'],
@@ -162,7 +166,15 @@ const graph = (
       id: 'operation',
       operation: { id: operationId, version: 1 },
       inputs: [{ port: 'dataset', source: { kind: 'input', input: 'source' } }],
-      parameters,
+      parameters:
+        (operationId === analysisResampleOperationId ||
+          operationId === analysisGaussianBlurOperationId) &&
+        isJsonObject(parameters)
+          ? {
+              ...parameters,
+              fixedIndices: parameters.fixedIndices ?? [{ axisId: 'energy', index: 0 }],
+            }
+          : parameters,
     },
   ],
   outputs: [
@@ -196,6 +208,11 @@ const executeAnalysisGraph = async (
     bindings: {
       source: {
         value: source,
+        identity: {
+          kind: 'application-defined',
+          namespace: 'purejsimage.tests.scientific-dataset',
+          value: `fixture-${tileSize}`,
+        },
         valueType: { id: scientificDatasetValueTypeId, version: 1 },
         characteristics: scientificDatasetCharacteristics(source),
       },
@@ -332,7 +349,9 @@ const requestDatasetRegionValues = async (
         generation: 0,
       },
       displayAxes: ['x', 'y'],
-      fixedIndices: [{ axisId: 'energy', index: 0 }],
+      fixedIndices: dataset.descriptor.axes.some((entry) => entry.id === 'energy')
+        ? [{ axisId: 'energy', index: 0 }]
+        : [],
       resolutionLevel: 0,
       x,
       y,
@@ -370,7 +389,11 @@ const twoOperationGraph = (): AnalysisGraph => ({
       id: 'blur',
       operation: { id: analysisGaussianBlurOperationId, version: 1 },
       inputs: [{ port: 'dataset', source: { kind: 'node', nodeId: 'crop', output: 'dataset' } }],
-      parameters: { displayAxes: ['x', 'y'], sigma: 0.5 },
+      parameters: {
+        displayAxes: ['x', 'y'],
+        fixedIndices: [{ axisId: 'energy', index: 0 }],
+        sigma: 0.5,
+      },
     },
   ],
   outputs: [{ name: 'dataset', source: { kind: 'node', nodeId: 'blur', output: 'dataset' } }],
@@ -629,6 +652,11 @@ describe('built-in dataset analysis operations', () => {
           bindings: {
             source: {
               value: input,
+              identity: {
+                kind: 'application-defined',
+                namespace: 'purejsimage.tests.scientific-dataset',
+                value: 'default-bundle-fixture',
+              },
               valueType: { id: scientificDatasetValueTypeId, version: 1 },
               characteristics: scientificDatasetCharacteristics(input),
             },
@@ -674,6 +702,11 @@ describe('built-in dataset analysis operations', () => {
         bindings: {
           source: {
             value: source,
+            identity: {
+              kind: 'application-defined',
+              namespace: 'purejsimage.tests.scientific-dataset',
+              value: 'crop-fixture',
+            },
             characteristics: scientificDatasetCharacteristics(source),
           },
         },
@@ -741,9 +774,8 @@ describe('built-in dataset analysis operations', () => {
       nearestRuntime,
     )
     expect(nearest.dataset.descriptor.sampleType).toBe('uint16')
-    expect(
-      await collectValues(nearest.dataset, ['x', 'y'], [{ axisId: 'energy', index: 0 }]),
-    ).toEqual([11, 13, 31, 33])
+    expect(nearest.dataset.descriptor.axes.map((entry) => entry.id)).toEqual(['x', 'y'])
+    expect(await collectValues(nearest.dataset, ['x', 'y'])).toEqual([11, 13, 31, 33])
     expect(nearest.dataset.descriptor.axes[0]).toMatchObject({
       coordinates: { type: 'linear', origin: 11, step: 4 },
     })
@@ -758,9 +790,7 @@ describe('built-in dataset analysis operations', () => {
       bilinearRuntime,
     )
     expect(bilinear.dataset.descriptor.sampleType).toBe('float32')
-    expect(
-      await collectValues(bilinear.dataset, ['x', 'y'], [{ axisId: 'energy', index: 0 }]),
-    ).toEqual([5.5, 7.5, 25.5, 27.5])
+    expect(await collectValues(bilinear.dataset, ['x', 'y'])).toEqual([5.5, 7.5, 25.5, 27.5])
     await bilinear.execution.release()
     bilinearRuntime.clear()
 
@@ -786,9 +816,7 @@ describe('built-in dataset analysis operations', () => {
       invalidSource,
       propagateRuntime,
     )
-    expect(
-      (await collectValues(propagate.dataset, ['x', 'y'], [{ axisId: 'energy', index: 0 }]))[0],
-    ).toBeNaN()
+    expect((await collectValues(propagate.dataset, ['x', 'y']))[0]).toBeNaN()
     await propagate.execution.release()
     propagateRuntime.clear()
     const ignoreRuntime = createTileRuntime()
@@ -804,9 +832,7 @@ describe('built-in dataset analysis operations', () => {
       invalidSource,
       ignoreRuntime,
     )
-    expect(
-      (await collectValues(ignore.dataset, ['x', 'y'], [{ axisId: 'energy', index: 0 }]))[0],
-    ).toBeCloseTo(11 / 3, 6)
+    expect((await collectValues(ignore.dataset, ['x', 'y']))[0]).toBeCloseTo(11 / 3, 6)
     await ignore.execution.release()
     ignoreRuntime.clear()
   })
@@ -911,6 +937,54 @@ describe('built-in dataset analysis operations', () => {
     runtime.clear()
   })
 
+  it('keeps a lazy provider plan leased through the first tile read while disposal waits', async () => {
+    const tracking: SourceTracking = { reads: [], releases: 0 }
+    const source = sourceDataset(tracking, (indices) => (indices.x ?? 0) + (indices.y ?? 0), {
+      sampleType: 'float32',
+    })
+    const runtime = createTileRuntime()
+    const controller = createAnalysisController({
+      operations: createBuiltInAnalysisOperationRegistry(),
+      valueTypes: createBuiltInAnalysisValueTypeRegistry(source.descriptor),
+      providers: [createReferenceAnalysisProvider({ runtime, sessionId: 'lazy-lease' })],
+      library: { version: '0.9.0', buildFingerprint: 'lazy-lease-test' },
+    })
+    const plan = await controller.planGraph(
+      graph(analysisGaussianBlurOperationId, {
+        displayAxes: ['x', 'y'],
+        fixedIndices: [{ axisId: 'energy', index: 0 }],
+        sigma: 0.5,
+      }),
+      {
+        bindings: {
+          source: {
+            value: source,
+            identity: {
+              kind: 'application-defined',
+              namespace: 'purejsimage.tests.scientific-dataset',
+              value: 'lazy-lease-fixture',
+            },
+            characteristics: scientificDatasetCharacteristics(source),
+          },
+        },
+      },
+    )
+    const execution = await controller.executeGraph(plan).result
+    const output = execution.outputs.get('dataset')
+    if (!isDatasetOutput(output)) throw new Error('Expected lazy dataset output')
+    let disposed = false
+    const disposal = plan.dispose().then(() => {
+      disposed = true
+    })
+    await Promise.resolve()
+    expect(disposed).toBe(false)
+    expect(await collectValues(output, ['x', 'y'])).toHaveLength(16)
+    await execution.release()
+    await disposal
+    expect(disposed).toBe(true)
+    runtime.clear()
+  })
+
   it('thresholds scalar samples to an exact 0/1 uint8 mask across tile sizes', async () => {
     const firstTracking: SourceTracking = { reads: [], releases: 0 }
     const secondTracking: SourceTracking = { reads: [], releases: 0 }
@@ -986,20 +1060,16 @@ describe('built-in dataset analysis operations', () => {
       secondRuntime,
       3,
     )
-    const firstValues = await collectValues(
-      first.dataset,
-      ['x', 'y'],
-      [{ axisId: 'energy', index: 0 }],
-    )
-    const secondValues = await collectValues(
-      second.dataset,
-      ['x', 'y'],
-      [{ axisId: 'energy', index: 0 }],
-    )
+    const firstValues = await collectValues(first.dataset, ['x', 'y'], [])
+    const secondValues = await collectValues(second.dataset, ['x', 'y'], [])
     expect(first.dataset.descriptor).toMatchObject({
       sampleType: 'float32',
       metadata: { gaussianRadiusPixels: 3, gaussianBoundary: 'mirror' },
     })
+    expect(first.dataset.descriptor.axes.map((entry) => entry.id)).toEqual(['x', 'y'])
+    await expect(
+      collectValues(first.dataset, ['x', 'y'], [{ axisId: 'energy', index: 0 }]),
+    ).rejects.toThrow('unknown axis energy')
     expect(firstValues).toEqual(secondValues)
     expect(firstValues[5]).toBeGreaterThan(firstValues[15] ?? 0)
     const beforeCancelledRead = firstTracking.reads.length
@@ -1030,11 +1100,7 @@ describe('built-in dataset analysis operations', () => {
         sourceDataset(tracking, () => 5, { sampleType: 'float32' }),
         runtime,
       )
-      const values = await collectValues(
-        constant.dataset,
-        ['x', 'y'],
-        [{ axisId: 'energy', index: 0 }],
-      )
+      const values = await collectValues(constant.dataset, ['x', 'y'])
       expect(values.every((value) => Math.abs(value - 5) <= 1e-5)).toBe(true)
       await constant.execution.release()
       runtime.clear()
@@ -1047,11 +1113,7 @@ describe('built-in dataset analysis operations', () => {
       sourceDataset(constantTracking, () => 5, { sampleType: 'float32' }),
       constantRuntime,
     )
-    const constantValues = await collectValues(
-      constantBoundary.dataset,
-      ['x', 'y'],
-      [{ axisId: 'energy', index: 0 }],
-    )
+    const constantValues = await collectValues(constantBoundary.dataset, ['x', 'y'])
     expect(constantValues[0]).toBeLessThan(5)
     await constantBoundary.execution.release()
     constantRuntime.clear()
@@ -1060,11 +1122,16 @@ describe('built-in dataset analysis operations', () => {
       analysisGaussianBlurOperationId,
       1,
     )
-    expect(blurDefinition?.normalizeParameters({ displayAxes: ['x', 'y'], sigma: 64 }).valid).toBe(
-      true,
-    )
     expect(
-      blurDefinition?.normalizeParameters({ displayAxes: ['x', 'y'], sigma: 64.01 }).valid,
+      blurDefinition?.normalizeParameters({ displayAxes: ['x', 'y'], fixedIndices: [], sigma: 64 })
+        .valid,
+    ).toBe(true)
+    expect(
+      blurDefinition?.normalizeParameters({
+        displayAxes: ['x', 'y'],
+        fixedIndices: [],
+        sigma: 64.01,
+      }).valid,
     ).toBe(false)
   })
 
@@ -1086,7 +1153,7 @@ describe('built-in dataset analysis operations', () => {
             operationVersion: 1,
             implementationVersion: 'test-only',
           },
-          supports(request) {
+          supportsPlan(request) {
             const parameters = request.parameters
             return (
               parameters !== null &&
@@ -1096,7 +1163,7 @@ describe('built-in dataset analysis operations', () => {
               parameters.boundary === 'clamp'
             )
           },
-          estimate: () => ({
+          estimatePlan: () => ({
             setupMilliseconds: 0,
             transferMilliseconds: 0,
             computeMilliseconds: 0,
@@ -1127,7 +1194,15 @@ describe('built-in dataset analysis operations', () => {
       }),
       {
         bindings: {
-          source: { value: source, characteristics: scientificDatasetCharacteristics(source) },
+          source: {
+            value: source,
+            identity: {
+              kind: 'application-defined',
+              namespace: 'purejsimage.tests.scientific-dataset',
+              value: 'accelerated-fixture',
+            },
+            characteristics: scientificDatasetCharacteristics(source),
+          },
         },
       },
     )

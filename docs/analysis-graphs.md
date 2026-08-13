@@ -29,6 +29,15 @@ presentation text and do not change computation. Source values and identities, t
 provider availability or selection, timestamps, measurements, and provenance are also excluded.
 They are supplied to planning or recorded with execution instead.
 
+The graph hash identifies only the reusable recipe. Planning also creates an
+`AnalysisInvocationManifest`: each external binding has its exact value-type ID/version and either
+a normalized source identity, a hash of canonical semantic JSON, or an explicit application-defined
+identity. ROI identities hash quantitative geometry, axes, fixed indices, and coordinate semantics
+while excluding presentation. The manifest hashes those bindings as `bindingHash`, then hashes
+`{ graphHash, bindingHash }` as `invocationHash`. Opaque and extension-defined object values must
+supply an explicit semantic identity; execution cannot replace or supplement the identities fixed
+by the prepared plan.
+
 `canonicalGraphJson()` sorts every object key and preserves array order. It rejects values outside
 the supported JSON domain, including `undefined`, non-finite numbers, bigint, functions, symbols,
 sparse arrays, accessors, non-plain objects, and cycles. `hashAnalysisGraph()` asynchronously hashes
@@ -95,11 +104,15 @@ Selection still requires exact operation semantics and reproducibility support, 
 reported setup, transfer, compute, readback, retained-memory, and confidence costs. Provider kind is
 not a priority ranking.
 
-Operation definitions may infer output shapes from caller-supplied JSON characteristics. Planning
-does not call `ImageSource.read()` and cannot inspect pixels. Any metadata acquisition is a separate,
-explicit, bounded caller action whose JSON result may be supplied as input characteristics.
+Operation definitions may infer output shapes from caller-supplied JSON characteristics. Provider
+planning receives only an `OperationPlanningRequest` containing JSON-safe characteristics; it never
+receives actual values or synthetic value placeholders. Execution receives a separate
+`OperationExecutionRequest` with actual inputs and the characteristics fixed during planning, and
+may run an explicit execution validator before compute. Planning does not call `ImageSource.read()`
+and cannot inspect pixels. Any metadata acquisition is a separate, explicit, bounded caller action
+whose JSON result may be supplied as input characteristics.
 
-The returned JSON-safe plan summary contains the graph hash, node order, exact output value types,
+The returned JSON-safe plan summary contains the graph, binding, and invocation hashes, node order, exact output value types,
 shape inference results, provider and implementation fingerprints, execution characteristics,
 costs, source identities, and warnings. `dryRun()` returns only structured issues, warnings, and the
 summary; it never calls provider `execute()`.
@@ -153,6 +166,13 @@ An abbreviated machine-facing response is plain JSON:
     "plan": {
       "schemaVersion": 1,
       "graphHash": "<sha256>",
+      "invocation": {
+        "schemaVersion": 1,
+        "graphHash": "<sha256>",
+        "bindings": [],
+        "bindingHash": "<sha256>",
+        "invocationHash": "<sha256>"
+      },
       "nodeOrder": ["measure"],
       "nodes": [{ "nodeId": "measure", "execution": "reduction" }]
     }
@@ -192,7 +212,13 @@ The returned `AnalysisExecutionOutputs` is a frozen accessor view with lookup an
 does not expose the backing `Map` or mutation methods. Releasing the execution invalidates owned
 values and empties the view.
 
-Execution provenance records the graph hash/schema, input identities, exact operations, parameter
+A prepared plan owns its prepared providers and issues an execution lease for every invocation.
+`plan.dispose()` closes the plan to new executions and waits for all leases; it does not tear down a
+provider while execution is blocked or while a returned lazy dataset may still request its first
+tile. `AnalysisExecutionResult.release()` releases owned outputs first and then releases the plan
+lease. Disposal and release are idempotent.
+
+Execution provenance records the graph, binding, and invocation hashes, graph schema, binding identities, exact operations, parameter
 hashes, provider and implementation versions/fingerprints, library build, reproducibility class and
 tolerance, warnings, and explicit fallbacks. Start/end timestamps and measured elapsed time are
 execution records outside the semantic graph hash.

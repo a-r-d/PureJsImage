@@ -12,6 +12,7 @@ import type {
   TileSourceResult,
 } from '../src/analysis/tile-runtime.ts'
 import type { NumericTile } from '../src/scientific/index.ts'
+import { normalizeScientificDatasetDescriptor } from '../src/scientific/index.ts'
 
 class Deferred<Value> {
   readonly promise: Promise<Value>
@@ -82,13 +83,24 @@ const tile = (x: number, releases: number[], value = x, releaseError = false): N
     },
   })
 
+const tileEstimate = (tileRequest: Readonly<TileRequest>) => ({
+  outputBytes: tileRequest.address.width * tileRequest.address.height,
+  peakWorkingBytes: tileRequest.address.width * tileRequest.address.height,
+  retainedAuxiliaryBytes: 0,
+  confidence: 1,
+})
+
 const immediateSource = (releases: number[], reads: number[], auxiliaryBytes = 0): TileSource => ({
   tileKey: canonicalTileKey,
+  estimate: (tileRequest) => ({
+    ...tileEstimate(tileRequest),
+    retainedAuxiliaryBytes: auxiliaryBytes,
+  }),
   async readTile(tileRequest): Promise<TileSourceResult> {
     reads.push(tileRequest.address.x)
     return {
       tile: tile(tileRequest.address.x, releases),
-      accounting: { retainedAuxiliaryBytes: auxiliaryBytes, bytesRequested: 4 },
+      accounting: { retainedAuxiliaryBytes: auxiliaryBytes, decodedInputBytes: 4 },
     }
   },
 })
@@ -187,9 +199,10 @@ describe('bounded tile runtime cache and scheduler', () => {
     const gate = new Deferred<TileSourceResult>()
     const inFlightSource: TileSource = {
       tileKey: canonicalTileKey,
+      estimate: tileEstimate,
       readTile: () => gate.promise,
     }
-    const inFlight = createTileRuntime({ limits: { maxInFlightBytes: 32 } })
+    const inFlight = createTileRuntime({ limits: { maxInFlightBytes: 6 } })
     const firstPending = inFlight.request(inFlightSource, request(0))
     expect(() => inFlight.request(inFlightSource, request(2))).toThrow('maxInFlightBytes')
     gate.resolve({ tile: tile(0, releases) })
@@ -235,6 +248,7 @@ describe('bounded tile runtime cache and scheduler', () => {
     let underlyingAborts = 0
     const source: TileSource = {
       tileKey: canonicalTileKey,
+      estimate: tileEstimate,
       async readTile(tileRequest) {
         reads += 1
         tileRequest.signal.addEventListener('abort', () => {
@@ -264,6 +278,7 @@ describe('bounded tile runtime cache and scheduler', () => {
     let aborts = 0
     const source: TileSource = {
       tileKey: canonicalTileKey,
+      estimate: tileEstimate,
       async readTile(tileRequest) {
         calls += 1
         if (calls === 1) {
@@ -303,6 +318,7 @@ describe('bounded tile runtime cache and scheduler', () => {
     const runtime = createTileRuntime({ limits: { maxConcurrency: 1 } })
     const dependency: TileSource = {
       tileKey: canonicalTileKey,
+      estimate: tileEstimate,
       async readTile(tileRequest) {
         return { tile: tile(tileRequest.address.x, releases) }
       },
@@ -313,6 +329,7 @@ describe('bounded tile runtime cache and scheduler', () => {
     const consumer = new AbortController()
     const parent: TileSource = {
       tileKey: (tileRequest) => `parent:${canonicalTileKey(tileRequest)}`,
+      estimate: tileEstimate,
       async readTile(tileRequest) {
         const pending = runtime.requestDependency(dependency, {
           ...dependencyRequest,
@@ -340,6 +357,7 @@ describe('bounded tile runtime cache and scheduler', () => {
     const releases: number[] = []
     const source: TileSource = {
       tileKey: canonicalTileKey,
+      estimate: tileEstimate,
       async readTile(tileRequest) {
         const x = tileRequest.address.x
         if (x === 100) await gate.promise
@@ -369,6 +387,7 @@ describe('bounded tile runtime cache and scheduler', () => {
     const releases: number[] = []
     const source: TileSource = {
       tileKey: canonicalTileKey,
+      estimate: tileEstimate,
       async readTile(tileRequest) {
         return { tile: tile(tileRequest.address.x, releases, 1, true) }
       },
@@ -392,6 +411,7 @@ describe('bounded tile runtime cache and scheduler', () => {
     let reads = 0
     const bomb: TileSource = {
       tileKey: () => 'x'.repeat(33),
+      estimate: tileEstimate,
       async readTile(tileRequest) {
         reads += 1
         return { tile: tile(tileRequest.address.x, []) }
@@ -432,6 +452,7 @@ describe('bounded tile runtime cache and scheduler', () => {
     const releases: number[] = []
     const source: TileSource = {
       tileKey: canonicalTileKey,
+      estimate: tileEstimate,
       async readTile(tileRequest) {
         running += 1
         highWater = Math.max(highWater, running)
@@ -462,6 +483,7 @@ describe('bounded tile runtime cache and scheduler', () => {
     const releases: number[] = []
     const source: TileSource = {
       tileKey: canonicalTileKey,
+      estimate: tileEstimate,
       async readTile(tileRequest) {
         await new Promise((resolve) => setTimeout(resolve, 0))
         return { tile: tile(tileRequest.address.x, releases) }
@@ -489,6 +511,7 @@ describe('bounded tile runtime cache and scheduler', () => {
     const releases: number[] = []
     const source: TileSource = {
       tileKey: canonicalTileKey,
+      estimate: tileEstimate,
       async readTile(tileRequest) {
         if (tileRequest.address.namespace === 'blocker') await gate.promise
         return { tile: tile(tileRequest.address.x, releases) }
@@ -520,11 +543,12 @@ describe('bounded tile runtime cache and scheduler', () => {
     const releases: number[] = []
     const source: TileSource = {
       tileKey: canonicalTileKey,
+      estimate: tileEstimate,
       async readTile(tileRequest) {
         if (tileRequest.address.x === 0) await gate.promise
         return {
           tile: tile(tileRequest.address.x, releases),
-          ...(tileRequest.address.x === 4 ? { accounting: { bytesRequested: Number.NaN } } : {}),
+          ...(tileRequest.address.x === 4 ? { accounting: { decodedInputBytes: Number.NaN } } : {}),
         }
       },
     }
@@ -550,9 +574,159 @@ describe('bounded tile runtime cache and scheduler', () => {
     runtime.clear()
 
     const failedTransfer: number[] = []
-    const bomb: TileSource = { tileKey: () => 'x'.repeat(100), readTile: source.readTile }
+    const bomb: TileSource = {
+      tileKey: () => 'x'.repeat(100),
+      estimate: source.estimate,
+      readTile: source.readTile,
+    }
     const strict = createTileRuntime({ limits: { maxKeyBytes: 8 } })
     expect(() => strict.putCached(bomb, request(0), tile(0, failedTransfer))).toThrow('maxKeyBytes')
     expect(failedTransfer).toEqual([0])
+  })
+
+  it('enforces source estimates before work and validates declared storage semantics', async () => {
+    let reads = 0
+    const pessimistic: TileSource = {
+      tileKey: canonicalTileKey,
+      estimate: () => ({
+        outputBytes: 128,
+        peakWorkingBytes: 256,
+        retainedAuxiliaryBytes: 0,
+        confidence: 1,
+      }),
+      async readTile(tileRequest) {
+        reads += 1
+        return { tile: tile(tileRequest.address.x, []) }
+      },
+    }
+    const bounded = createTileRuntime({
+      limits: { maxTileBytes: 128, maxTotalManagedBytes: 200 },
+    })
+    expect(() => bounded.request(pessimistic, request(0))).toThrow('maxTotalManagedBytes')
+    expect(reads).toBe(0)
+
+    const float64FourComponent: TileSource = {
+      tileKey: canonicalTileKey,
+      estimate: () => ({
+        outputBytes: 128,
+        peakWorkingBytes: 128,
+        retainedAuxiliaryBytes: 0,
+        confidence: 1,
+      }),
+      async readTile(tileRequest) {
+        return {
+          tile: Object.freeze({
+            x: tileRequest.address.x,
+            y: tileRequest.address.y,
+            width: 2,
+            height: 2,
+            sampleType: 'float64' as const,
+            componentCount: 4,
+            layout: 'interleaved' as const,
+            rowStrideElements: 8,
+            data: new Float64Array(16),
+            release() {},
+          }),
+        }
+      },
+    }
+    const fourComponentTile = await createTileRuntime({ limits: { maxTileBytes: 128 } }).request(
+      float64FourComponent,
+      { ...request(0), target: { sampleType: 'float64' } },
+    )
+    expect(fourComponentTile.data.byteLength).toBe(128)
+    fourComponentTile.release()
+
+    const descriptor = normalizeScientificDatasetDescriptor({
+      schemaVersion: 2,
+      axes: [
+        { id: 'x', kind: 'space', length: 2, coordinates: { type: 'index' } },
+        { id: 'y', kind: 'space', length: 2, coordinates: { type: 'index' } },
+      ],
+      sampleType: 'uint8',
+      components: [{ id: 'value', kind: 'scalar' }],
+      capabilities: { regionReads: true, resolutionLevels: false },
+    })
+    const mismatched: TileSource = {
+      descriptor,
+      tileKey: canonicalTileKey,
+      estimate: () => ({
+        outputBytes: 8,
+        peakWorkingBytes: 8,
+        retainedAuxiliaryBytes: 0,
+        confidence: 1,
+      }),
+      async readTile(tileRequest) {
+        return {
+          tile: Object.freeze({
+            ...tile(tileRequest.address.x, []),
+            componentCount: 2,
+            rowStrideElements: 4,
+            data: new Uint8Array(8),
+          }),
+        }
+      },
+    }
+    await expect(createTileRuntime().request(mismatched, request(0))).rejects.toThrow(
+      'inconsistent with its descriptor',
+    )
+
+    const undeclaredAuxiliary: TileSource = {
+      tileKey: canonicalTileKey,
+      estimate: tileEstimate,
+      async readTile(tileRequest) {
+        return {
+          tile: tile(tileRequest.address.x, []),
+          accounting: { retainedAuxiliaryBytes: 1 },
+        }
+      },
+    }
+    await expect(createTileRuntime().request(undeclaredAuxiliary, request(0))).rejects.toThrow(
+      'declared retained-memory estimate',
+    )
+
+    const oversizedStride: TileSource = {
+      tileKey: canonicalTileKey,
+      estimate: tileEstimate,
+      async readTile(tileRequest) {
+        return {
+          tile: Object.freeze({
+            ...tile(tileRequest.address.x, []),
+            rowStrideElements: 100,
+            data: new Uint8Array(202),
+          }),
+        }
+      },
+    }
+    await expect(
+      createTileRuntime({ limits: { maxTileBytes: 64 } }).request(oversizedStride, request(0)),
+    ).rejects.toThrow()
+  })
+
+  it('disposes permanently, aborts active work, and becomes idle idempotently', async () => {
+    let started = false
+    const source: TileSource = {
+      tileKey: canonicalTileKey,
+      estimate: tileEstimate,
+      readTile(tileRequest) {
+        started = true
+        return new Promise<TileSourceResult>((_resolve, reject) => {
+          tileRequest.signal.addEventListener('abort', () => reject(tileRequest.signal.reason), {
+            once: true,
+          })
+        })
+      },
+    }
+    const runtime = createTileRuntime()
+    const pending = runtime.request(source, request(0))
+    await Promise.resolve()
+    expect(started).toBe(true)
+    const disposal = runtime.dispose()
+    await expect(pending).rejects.toThrow('Tile runtime cleared')
+    await disposal
+    await runtime.whenIdle()
+    await runtime.dispose()
+    expect(runtime.isDisposed).toBe(true)
+    expect(() => runtime.request(source, request(0))).toThrow('disposed')
   })
 })

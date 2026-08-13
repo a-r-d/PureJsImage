@@ -17,10 +17,27 @@ import {
 } from '../src/operations/index.ts'
 import type {
   OperationDescriptor,
+  OperationExecutionRequest,
   OperationImplementation,
   OperationJsonValue,
   OperationProviderKind,
+  OperationPlanningRequest,
 } from '../src/operations/index.ts'
+
+const providerRequests = (
+  operation: OperationDescriptor,
+  signal: AbortSignal,
+  inputs: readonly unknown[] = [],
+): readonly [OperationPlanningRequest, OperationExecutionRequest] => [
+  { descriptor: operation, parameters: {}, inputCharacteristics: [], signal },
+  {
+    descriptor: operation,
+    parameters: {},
+    inputs,
+    plannedInputCharacteristics: [],
+    signal,
+  },
+]
 
 const descriptor = (version = 1): OperationDescriptor => ({
   id: 'example.analysis.sum',
@@ -94,9 +111,9 @@ describe('operation descriptors', () => {
 
   it('validates long segmented ids without ambiguous separator backtracking', () => {
     expect(isNamespacedOperationId('example-analysis.gaussian-blur')).toBe(true)
-    expect(isNamespacedOperationId('example.analysis-')).toBe(false)
-    expect(isNamespacedOperationId('example.analysis--blur')).toBe(false)
-    expect(isNamespacedOperationId(`a${'-a'.repeat(20_000)}`)).toBe(true)
+    expect(isNamespacedOperationId('example.analysis-')).toBe(true)
+    expect(isNamespacedOperationId('example.analysis--blur')).toBe(true)
+    expect(isNamespacedOperationId(`a.${'a-'.repeat(20_000)}a`)).toBe(false)
     expect(isNamespacedOperationId(`a${'-a'.repeat(20_000)}-`)).toBe(false)
   })
 
@@ -199,8 +216,8 @@ const implementation = (options: {
     implementationVersion: `${options.providerId}-implementation`,
     ...(options.bitExact === true ? { bitExactConformance: true } : {}),
   },
-  supports: () => options.supported !== false,
-  estimate: () => ({
+  supportsPlan: () => options.supported !== false,
+  estimatePlan: () => ({
     setupMilliseconds: options.time,
     transferMilliseconds: 0,
     computeMilliseconds: 0,
@@ -245,7 +262,7 @@ describe('operation providers', () => {
     const request = {
       descriptor: descriptor(),
       parameters: {} satisfies OperationJsonValue,
-      inputs: [],
+      inputCharacteristics: [],
       signal: new AbortController().signal,
     }
     expect(runtime.select(request).provider.descriptor.id).toBe('reference')
@@ -293,7 +310,7 @@ describe('operation providers', () => {
     const request = {
       descriptor: descriptor(),
       parameters: {},
-      inputs: [],
+      inputCharacteristics: [],
       signal: new AbortController().signal,
     }
     expect(runtime.select(request).provider.descriptor.id).toBe('a-provider')
@@ -307,7 +324,7 @@ describe('operation providers', () => {
       provider('uncertain', 'webgpu', [
         {
           ...implementation({ providerId: 'uncertain', time: 1 }),
-          estimate: () => ({
+          estimatePlan: () => ({
             setupMilliseconds: 1,
             transferMilliseconds: 0,
             computeMilliseconds: 0,
@@ -325,7 +342,7 @@ describe('operation providers', () => {
     const request = {
       descriptor: descriptor(),
       parameters: {},
-      inputs: [],
+      inputCharacteristics: [],
       signal: new AbortController().signal,
     }
     expect(runtime.select(request).provider.descriptor.id).toBe('reference')
@@ -359,7 +376,7 @@ describe('operation providers', () => {
     const request = {
       descriptor: descriptor(),
       parameters: {},
-      inputs: [],
+      inputCharacteristics: [],
       signal: new AbortController().signal,
     }
     expect(runtime.select(request).provider.descriptor.id).toBe('fast-memory-hog')
@@ -392,7 +409,7 @@ describe('operation providers', () => {
       runtime.select({
         descriptor: descriptor(),
         parameters: {},
-        inputs: [],
+        inputCharacteristics: [],
         signal: new AbortController().signal,
       }),
     ).toThrow('disposed')
@@ -446,12 +463,12 @@ describe('operation providers', () => {
       ),
     )
     await expect(
-      runtime.execute({
-        descriptor: { ...descriptor(), reproducibility: { class: 'bit-exact' } },
-        parameters: {},
-        inputs: [],
-        signal: controller.signal,
-      }),
+      runtime.execute(
+        ...providerRequests(
+          { ...descriptor(), reproducibility: { class: 'bit-exact' } },
+          controller.signal,
+        ),
+      ),
     ).rejects.toMatchObject({ name: 'AbortError' })
     expect(release).toHaveBeenCalledOnce()
   })
@@ -474,12 +491,7 @@ describe('operation providers', () => {
       ),
     )
     await expect(
-      runtime.execute({
-        descriptor: descriptor(),
-        parameters: {},
-        inputs: [],
-        signal: new AbortController().signal,
-      }),
+      runtime.execute(...providerRequests(descriptor(), new AbortController().signal)),
     ).rejects.toThrow('alias the same storage')
     expect(firstRelease).toHaveBeenCalledOnce()
     expect(secondRelease).toHaveBeenCalledOnce()
@@ -497,12 +509,9 @@ describe('operation providers', () => {
       ),
     )
     await expect(
-      inputRuntime.execute({
-        descriptor: descriptor(),
-        parameters: {},
-        inputs: [inputStorage],
-        signal: new AbortController().signal,
-      }),
+      inputRuntime.execute(
+        ...providerRequests(descriptor(), new AbortController().signal, [inputStorage]),
+      ),
     ).rejects.toThrow('input storage')
     expect(inputRelease).toHaveBeenCalledOnce()
 
@@ -520,5 +529,16 @@ describe('operation providers', () => {
         [opaqueIdentity],
       ),
     ).toThrow('input storage')
+
+    expect(() =>
+      validateOperationOwnedOutputs([
+        {
+          value: Object.freeze({ proxy: true }),
+          ownershipIdentity: opaqueIdentity,
+          release: () => undefined,
+        },
+        { value: opaqueIdentity, release: () => undefined },
+      ]),
+    ).toThrow('alias the same storage')
   })
 })

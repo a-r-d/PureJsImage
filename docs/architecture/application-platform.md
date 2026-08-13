@@ -277,8 +277,8 @@ change cannot be represented mechanically, migration returns an issue requiring 
 The tile runtime owns bounded tile scheduling, cache accounting, in-flight deduplication, and release
 propagation. Planning stays in the analysis planner, and canonical-byte conversion stays in the
 explicit `NumericTileSource` adapter; moving either into the runtime would mix policy or reader
-concerns into a cache primitive. A `DerivedTileSource` consumes an already planned provider fallback
-sequence. Every tile request requires an `AbortSignal`; callers that do not need external
+concerns into a cache primitive. A `DerivedTileSource` consumes one exact provider selection already
+made for its node; provider choice cannot vary by tile. Every tile request requires an `AbortSignal`; callers that do not need external
 cancellation may pass a fresh non-aborted signal. Tile size, cache bytes and entries, key bytes,
 queue length, and concurrent executable work have explicit limits. Reader/source-byte limits and
 provider/result budgets remain enforced at their owning boundaries and feed the runtime's accounting
@@ -1380,8 +1380,34 @@ to own only generic descriptors, definitions, providers, and registries.
       parameter, and no-data contracts remain future work.
 - [x] Make namespaced operation and extension ID validation linear-time. A single segmented-ID
       validator now preserves well-formed dotted and hyphenated IDs without overlapping separator
-      consumption. Before release, the alpha contract intentionally stops accepting trailing or
-      consecutive hyphens and focused tests cover long adversarial inputs.
+      consumption. The alpha grammar uses dot-separated segments that begin with lowercase ASCII;
+      later segment characters may be lowercase ASCII, digits, or hyphens. A hard length bound and
+      focused adversarial tests prevent regular-expression backtracking and unbounded scanning.
+
+### Contract-level review blockers
+
+- [x] Separate reusable recipe identity from complete invocation identity with binding and
+      invocation hashes, canonical ROI/scalar semantics, explicit opaque identities, and no
+      execute-time identity replacement.
+- [x] Lease prepared plans through execution-result release, including lazy output reads, and make
+      plan, operation-runtime, and tile-runtime disposal closing, observable, waiting, and
+      idempotent.
+- [x] Split JSON-only provider planning requests from value-bearing execution requests and keep one
+      exact selected provider for every tile produced by a node.
+- [x] Make resample and Gaussian blur honest selected-plane transforms whose output descriptors are
+      two-dimensional and whose source reads use explicit fixed indices.
+- [x] Require tile sources to estimate output, peak working, and retained auxiliary bytes before
+      allocation; validate returned descriptor semantics and estimates; account decoded input bytes;
+      and transfer a single exact source tile without a merge copy.
+- [x] Replace the CodeQL-flagged namespaced-ID regular expression with one bounded linear parser and
+      reuse it for operation and extension identifiers.
+
+  - Contract-blocker validation: 126 focused scientific/application tests pass. Package consumer
+    types, browser dependency checks, documentation build, lint, formatting, and three
+    correctness-gated scientific/application benchmarks pass. Standard and hostile-source suites
+    each reach 93 passing files; all 1,161 tests pass in hostile-source mode when the AVIF oracle
+    file is excluded. Both complete suites remain blocked only by the same three environment-specific
+    expanded 12-bit AVIF Sharp-oracle hash mismatches (1,183 of 1,186 tests pass).
 
   - Small-feedback validation: 64 focused operation/controller/result/tile/extension tests pass;
     dense nearest sampling uses three normal tiles for 17 samples and the cross-boundary bilinear

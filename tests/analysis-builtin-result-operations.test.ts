@@ -240,6 +240,11 @@ const execute = async (
     bindings: {
       source: {
         value: source,
+        identity: {
+          kind: 'application-defined',
+          namespace: 'purejsimage.tests.result-dataset',
+          value: 'result-fixture',
+        },
         characteristics: scientificDatasetCharacteristics(source),
       },
       ...(roi === undefined ? {} : { selection: { value: roi } }),
@@ -655,7 +660,15 @@ describe('built-in ROI-aware result operations', () => {
       }),
       {
         bindings: {
-          source: { value: source, characteristics: scientificDatasetCharacteristics(source) },
+          source: {
+            value: source,
+            identity: {
+              kind: 'application-defined',
+              namespace: 'purejsimage.tests.result-dataset',
+              value: 'cancel-fixture',
+            },
+            characteristics: scientificDatasetCharacteristics(source),
+          },
         },
       },
     )

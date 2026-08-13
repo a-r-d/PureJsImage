@@ -57,6 +57,7 @@ export {
 export type {
   OperationCostEstimate,
   OperationExecutionResult,
+  OperationExecutionRequest,
   OperationImplementation,
   OperationImplementationDescriptor,
   OperationOwnedOutput,
@@ -65,7 +66,7 @@ export type {
   OperationProviderKind,
   OperationProviderPolicy,
   OperationProviderProvenance,
-  OperationProviderRequest,
+  OperationPlanningRequest,
   OperationProviderSelection,
   OperationRuntimeSnapshot,
   PreparedOperationProvider,

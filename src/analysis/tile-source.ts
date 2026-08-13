@@ -1,9 +1,9 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { OperationJsonObject, OperationJsonValue } from '../operations/descriptor.ts'
 import type {
+  OperationExecutionRequest,
   OperationCostEstimate,
   OperationOwnedOutput,
-  OperationProviderRequest,
   OperationProviderSelection,
 } from '../operations/provider.ts'
 import type { OperationDefinition } from '../operations/registry.ts'
@@ -22,6 +22,7 @@ import type {
   TileProviderTiming,
   TileRequest,
   TileSource,
+  TileSourceEstimate,
   TileSourceResult,
 } from './tile-runtime.ts'
 import { canonicalTileKey, normalizeTileRequest, tileRequestKeyData } from './tile-runtime.ts'
@@ -120,6 +121,25 @@ const packedTile = (
   })
 }
 
+const sampleBytes = (sampleType: NumericSampleType): number =>
+  sampleType === 'uint8' || sampleType === 'int8'
+    ? 1
+    : sampleType === 'uint16' || sampleType === 'int16'
+      ? 2
+      : sampleType === 'uint64' || sampleType === 'float64'
+        ? 8
+        : 4
+
+const packedTileBytes = (
+  address: TileAddress,
+  sampleType: NumericSampleType,
+  componentCount: number,
+): number => {
+  const bytes = address.width * address.height * componentCount * sampleBytes(sampleType)
+  if (!Number.isSafeInteger(bytes)) throw invalidInput('Tile byte estimate overflowed')
+  return bytes
+}
+
 const copyTile = (source: NumericTile, destination: NumericTile, coverage: Uint8Array): void => {
   validateNumericTile(source)
   if (
@@ -167,6 +187,24 @@ class NumericTileSourceAdapter implements TileSource {
     })
   }
 
+  estimate(request: Readonly<TileRequest>): TileSourceEstimate {
+    const address = normalizeScientificTileAddress(this.descriptor, request.address)
+    const sampleType =
+      request.target?.sampleType ??
+      (this.descriptor.sampleType === 'float16' ? 'float32' : this.descriptor.sampleType)
+    const outputBytes = packedTileBytes(address, sampleType, this.descriptor.components.length)
+    const coverageBytes = address.width * address.height
+    if (!Number.isSafeInteger(coverageBytes + outputBytes)) {
+      throw invalidInput('Tile working-byte estimate overflowed')
+    }
+    return Object.freeze({
+      outputBytes,
+      peakWorkingBytes: outputBytes + coverageBytes,
+      retainedAuxiliaryBytes: 0,
+      confidence: 1,
+    })
+  }
+
   async readTile(request: Readonly<TileRequest>): Promise<TileSourceResult> {
     const address = normalizeScientificTileAddress(this.descriptor, request.address)
     const sourceRequest = {
@@ -184,36 +222,70 @@ class NumericTileSourceAdapter implements TileSource {
     }
     let output: NumericTile | undefined
     let coverage: Uint8Array | undefined
-    let bytesRequested = 0
-    try {
-      for await (const sourceTile of this.#source.readNumericTiles(sourceRequest)) {
-        try {
-          request.signal.throwIfAborted()
-          validateNumericTile(sourceTile)
-          bytesRequested += sourceTile.data.byteLength
-          if (!Number.isSafeInteger(bytesRequested))
-            throw invalidInput('Tile byte count overflowed')
-          if (output === undefined) {
-            const layout = request.target?.layout ?? sourceTile.layout
-            output = packedTile(address, sourceTile.sampleType, sourceTile.componentCount, layout)
-            coverage = new Uint8Array(address.width * address.height)
-          }
-          if (coverage === undefined) throw invalidInput('Numeric tile coverage is unavailable')
-          copyTile(sourceTile, output, coverage)
-        } finally {
-          sourceTile.release()
+    let decodedInputBytes = 0
+    let unreleasedFirst: NumericTile | undefined
+    const iterator = this.#source.readNumericTiles(sourceRequest)[Symbol.asyncIterator]()
+    const consume = (sourceTile: NumericTile): void => {
+      try {
+        request.signal.throwIfAborted()
+        validateNumericTile(sourceTile)
+        decodedInputBytes += sourceTile.data.byteLength
+        if (!Number.isSafeInteger(decodedInputBytes))
+          throw invalidInput('Tile byte count overflowed')
+        if (output === undefined) {
+          const layout = request.target?.layout ?? sourceTile.layout
+          output = packedTile(address, sourceTile.sampleType, sourceTile.componentCount, layout)
+          coverage = new Uint8Array(address.width * address.height)
         }
+        if (coverage === undefined) throw invalidInput('Numeric tile coverage is unavailable')
+        copyTile(sourceTile, output, coverage)
+      } finally {
+        sourceTile.release()
+      }
+    }
+    try {
+      const firstResult = await iterator.next()
+      if (firstResult.done) throw invalidInput('Numeric tile source returned no tiles')
+      const first = firstResult.value
+      unreleasedFirst = first
+      validateNumericTile(first)
+      const second = await iterator.next()
+      if (
+        second.done &&
+        first.x === address.x &&
+        first.y === address.y &&
+        first.width === address.width &&
+        first.height === address.height &&
+        first.componentCount === this.descriptor.components.length &&
+        (request.target?.sampleType === undefined ||
+          first.sampleType === request.target.sampleType) &&
+        (request.target?.layout === undefined || first.layout === request.target.layout)
+      ) {
+        unreleasedFirst = undefined
+        return Object.freeze({
+          tile: first,
+          accounting: Object.freeze({ decodedInputBytes: first.data.byteLength }),
+        })
+      }
+      unreleasedFirst = undefined
+      consume(first)
+      if (!second.done) consume(second.value)
+      for (;;) {
+        const next = await iterator.next()
+        if (next.done) break
+        consume(next.value)
       }
       request.signal.throwIfAborted()
-      if (output === undefined || coverage === undefined) {
+      if (output === undefined || coverage === undefined)
         throw invalidInput('Numeric tile source returned no tiles')
-      }
       for (const covered of coverage) {
         if (covered === 0) throw invalidInput('Numeric tile source left uncovered output pixels')
       }
-      return Object.freeze({ tile: output, accounting: Object.freeze({ bytesRequested }) })
+      return Object.freeze({ tile: output, accounting: Object.freeze({ decodedInputBytes }) })
     } catch (error) {
       output?.release()
+      unreleasedFirst?.release()
+      await iterator.return?.()
       throw error
     }
   }
@@ -243,12 +315,11 @@ export interface DerivedTileSourceOptions {
   readonly source: TileSource
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly operation: OperationDefinition
-  readonly selections: readonly OperationProviderSelection[]
+  readonly selection: OperationProviderSelection
   readonly parameters: unknown
   readonly nodeSemanticHash: string
   readonly executionFingerprint: string
   readonly sourceNamespace: string
-  readonly pinned?: boolean
   readonly boundaryMode?: TileBoundaryMode
   readonly halo?: (parameters: OperationJsonValue) => Readonly<TileHalo>
   readonly onReleaseError?: (error: unknown) => void
@@ -364,28 +435,22 @@ export class DerivedTileSource implements TileSource {
   readonly #runtime: TileRuntime
   readonly #source: TileSource
   readonly #operation: OperationDefinition
-  readonly #selections: readonly OperationProviderSelection[]
+  readonly #selection: OperationProviderSelection
   readonly #parameters: OperationJsonValue
   readonly #nodeSemanticHash: string
   readonly #executionFingerprint: string
   readonly #sourceNamespace: string
-  readonly #pinned: boolean
   readonly #boundaryMode: TileBoundaryMode
   readonly #halo: TileHalo
   readonly #onReleaseError: ((error: unknown) => void) | undefined
 
   constructor(options: Readonly<DerivedTileSourceOptions>) {
-    if (options.selections.length === 0) {
-      throw invalidInput('Derived tile source requires at least one planned provider selection')
-    }
-    for (const selection of options.selections) {
-      if (
-        selection.implementation.descriptor.operationId !== options.operation.descriptor.id ||
-        selection.implementation.descriptor.operationVersion !==
-          options.operation.descriptor.version
-      ) {
-        throw invalidInput('Derived tile provider selection does not match the operation version')
-      }
+    if (
+      options.selection.implementation.descriptor.operationId !== options.operation.descriptor.id ||
+      options.selection.implementation.descriptor.operationVersion !==
+        options.operation.descriptor.version
+    ) {
+      throw invalidInput('Derived tile provider selection does not match the operation version')
     }
     const parameters = options.operation.normalizeParameters(options.parameters)
     if (parameters.value === undefined) {
@@ -395,7 +460,7 @@ export class DerivedTileSource implements TileSource {
     this.#runtime = options.runtime
     this.#source = options.source
     this.#operation = options.operation
-    this.#selections = Object.freeze([...options.selections])
+    this.#selection = options.selection
     this.#parameters = parameters.value
     this.#nodeSemanticHash = boundedFingerprint(options.nodeSemanticHash, 'nodeSemanticHash')
     this.#executionFingerprint = boundedFingerprint(
@@ -403,7 +468,6 @@ export class DerivedTileSource implements TileSource {
       'executionFingerprint',
     )
     this.#sourceNamespace = boundedFingerprint(options.sourceNamespace, 'sourceNamespace')
-    this.#pinned = options.pinned === true
     this.#boundaryMode = options.boundaryMode ?? 'clip'
     if (this.#boundaryMode !== 'clip') throw unsupportedOperation('Unsupported tile boundary mode')
     this.#halo = normalizeHalo(options.halo?.(parameters.value))
@@ -412,8 +476,6 @@ export class DerivedTileSource implements TileSource {
 
   tileKey(request: Readonly<TileRequest>): string {
     const normalized = this.#normalizeRequest(request)
-    const execution = this.#executionRequest(normalized, [])
-    const selected = this.#select(execution)
     return canonicalTileKey(
       normalized,
       Object.freeze({
@@ -425,13 +487,32 @@ export class DerivedTileSource implements TileSource {
         normalizedParameters: this.#parameters,
         executionFingerprint: this.#executionFingerprint,
         provider: Object.freeze({
-          id: selected.provider.descriptor.id,
-          version: selected.provider.descriptor.version,
-          buildFingerprint: selected.provider.descriptor.buildFingerprint,
-          implementationVersion: selected.implementation.descriptor.implementationVersion,
+          id: this.#selection.provider.descriptor.id,
+          version: this.#selection.provider.descriptor.version,
+          buildFingerprint: this.#selection.provider.descriptor.buildFingerprint,
+          implementationVersion: this.#selection.implementation.descriptor.implementationVersion,
         }),
       }),
     )
+  }
+
+  estimate(request: Readonly<TileRequest>): TileSourceEstimate {
+    const normalized = this.#normalizeRequest(request)
+    const sampleType =
+      normalized.target?.sampleType ??
+      (this.descriptor.sampleType === 'float16' ? 'float32' : this.descriptor.sampleType)
+    const outputBytes = packedTileBytes(
+      normalized.address,
+      sampleType,
+      this.descriptor.components.length,
+    )
+    const estimate = this.#selection.estimate
+    return Object.freeze({
+      outputBytes,
+      peakWorkingBytes: Math.max(outputBytes, estimate.peakWorkingBytes),
+      retainedAuxiliaryBytes: Math.max(0, estimate.retainedBytes - estimate.outputBytes),
+      confidence: estimate.confidence,
+    })
   }
 
   async readTile(request: Readonly<TileRequest>): Promise<TileSourceResult> {
@@ -443,28 +524,17 @@ export class DerivedTileSource implements TileSource {
       signal: normalized.signal,
       ...(normalized.target === undefined ? {} : { target: normalized.target }),
     })
-    const selected = this.#select(this.#executionRequest(normalized, []))
     const sourceTile = await this.#runtime.requestDependency(this.#source, sourceRequest)
     let outputs: readonly OperationOwnedOutput[] | undefined
     try {
       normalized.signal.throwIfAborted()
       const execution = this.#executionRequest(normalized, [sourceTile], sourceAddress)
-      if (!selected.implementation.supports(execution)) {
-        throw unsupportedOperation('Planned tile provider changed support after source resolution')
-      }
-      const estimate = selected.implementation.estimate(execution)
+      this.#selection.implementation.validateExecution?.(execution)
+      const estimate = this.#selection.estimate
       const timing = estimateTiming(estimate, 0)
-      const releaseWorking = this.#runtime.reserveOperationWorkingBytes(
-        Math.max(0, estimate.peakWorkingBytes - estimate.outputBytes),
-      )
       const started = performance.now()
-      let measured: number
-      try {
-        outputs = await selected.implementation.execute(execution)
-        measured = performance.now() - started
-      } finally {
-        releaseWorking()
-      }
+      outputs = await this.#selection.implementation.execute(execution)
+      const measured = performance.now() - started
       normalized.signal.throwIfAborted()
       if (outputs.length !== 1 || outputs[0] === undefined) {
         throw invalidInput('Derived tile provider must return exactly one owned output')
@@ -501,16 +571,13 @@ export class DerivedTileSource implements TileSource {
         ...timing,
         computeMillisecondsMeasured: measured,
       })
-      const retainedAuxiliaryBytes = Math.max(
-        0,
-        estimate.retainedBytes - output.value.data.byteLength,
-      )
+      const retainedAuxiliaryBytes = Math.max(0, estimate.retainedBytes - estimate.outputBytes)
       outputs = undefined
       return Object.freeze({
         tile,
         accounting: Object.freeze({
           retainedAuxiliaryBytes,
-          bytesRequested: sourceTile.data.byteLength,
+          decodedInputBytes: sourceTile.data.byteLength,
           providerTiming: measuredTiming,
         }),
       })
@@ -586,26 +653,14 @@ export class DerivedTileSource implements TileSource {
     request: TileRequest,
     inputs: readonly unknown[],
     sourceAddress?: TileAddress,
-  ): OperationProviderRequest {
+  ): OperationExecutionRequest {
     return Object.freeze({
       descriptor: this.#operation.descriptor,
       parameters: this.#parameters,
       inputs: Object.freeze([...inputs]),
-      inputCharacteristics: this.#executionContext(request, sourceAddress),
+      plannedInputCharacteristics: Object.freeze([this.#executionContext(request, sourceAddress)]),
       signal: request.signal,
     })
-  }
-
-  #select(request: OperationProviderRequest): OperationProviderSelection {
-    const candidates = this.#pinned ? this.#selections.slice(0, 1) : this.#selections
-    for (const selection of candidates) {
-      if (selection.implementation.supports(request)) return selection
-    }
-    throw unsupportedOperation(
-      this.#pinned
-        ? 'Pinned tile provider declined the requested shape or sample type'
-        : 'Every planned tile provider declined the requested shape or sample type',
-    )
   }
 }
 

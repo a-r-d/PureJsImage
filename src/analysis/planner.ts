@@ -2,10 +2,10 @@ import { invalidInput } from '../errors.ts'
 import type { OperationJsonObject, OperationJsonValue } from '../operations/descriptor.ts'
 import type {
   OperationCostEstimate,
+  OperationPlanningRequest,
   OperationProvider,
   OperationProviderPolicy,
   OperationProviderSelection,
-  OperationProviderRequest,
 } from '../operations/provider.ts'
 import { prepareOperationRuntime } from '../operations/provider.ts'
 import type { OperationRegistry, ValueTypeRegistry } from '../operations/registry.ts'
@@ -21,11 +21,31 @@ import type {
   AnalysisValueReference,
 } from './graph.ts'
 import { hashAnalysisGraph, validateGraph } from './graph.ts'
+import type { Roi, RoiSet } from './roi.ts'
+import {
+  canonicalNormalizedRoiSemanticsJson,
+  canonicalNormalizedRoiSetSemanticsJson,
+  roiSetValueTypeId,
+  roiValueTypeId,
+} from './roi.ts'
+
+export type AnalysisSemanticIdentity =
+  | SourceIdentity
+  | {
+      readonly kind: 'semantic-json'
+      readonly domain: string
+      readonly sha256: string
+    }
+  | {
+      readonly kind: 'application-defined'
+      readonly namespace: string
+      readonly value: string
+    }
 
 export interface AnalysisInputBinding {
   readonly value: unknown
   readonly valueType?: { readonly id: string; readonly version: number }
-  readonly identity?: SourceIdentity
+  readonly identity?: AnalysisSemanticIdentity
   readonly characteristics?: OperationJsonObject
 }
 
@@ -55,7 +75,18 @@ export interface AnalysisPlanNode extends OperationJsonObject {
 
 export interface AnalysisRequiredInputIdentity extends OperationJsonObject {
   readonly input: string
+  readonly valueType: OperationJsonObject
   readonly identity: OperationJsonObject
+}
+
+export type AnalysisBindingIdentity = AnalysisRequiredInputIdentity
+
+export interface AnalysisInvocationManifest extends OperationJsonObject {
+  readonly schemaVersion: 1
+  readonly graphHash: string
+  readonly bindings: readonly AnalysisBindingIdentity[]
+  readonly bindingHash: string
+  readonly invocationHash: string
 }
 
 export interface AnalysisUnresolvedEstimate extends OperationJsonObject {
@@ -67,6 +98,7 @@ export interface AnalysisUnresolvedEstimate extends OperationJsonObject {
 export interface AnalysisPlan extends OperationJsonObject {
   readonly schemaVersion: 1
   readonly graphHash: string
+  readonly invocation: AnalysisInvocationManifest
   readonly nodeOrder: readonly string[]
   readonly nodes: readonly AnalysisPlanNode[]
   readonly totalEstimate: AnalysisPlanCost
@@ -81,9 +113,17 @@ export interface PreparedAnalysisPlan {
   readonly operations: OperationRegistry
   readonly bindings: ReadonlyMap<string, AnalysisInputBinding>
   readonly selections: ReadonlyMap<string, OperationProviderSelection>
+  readonly normalizedParameters: ReadonlyMap<string, OperationJsonValue>
+  readonly inputCharacteristics: ReadonlyMap<string, readonly OperationJsonValue[]>
   readonly summary: AnalysisPlan
+  acquireExecutionLease(): AnalysisPlanLease
   isDisposed(): boolean
   dispose(): Promise<void>
+}
+
+export interface AnalysisPlanLease {
+  readonly plan: PreparedAnalysisPlan
+  release(): Promise<void>
 }
 
 export interface PlanGraphOptions {
@@ -124,6 +164,26 @@ const isImageSource = (value: unknown): value is ImageSource =>
   'read' in value &&
   typeof value.read === 'function'
 
+const isNormalizedRoi = (value: unknown): value is Roi =>
+  value !== null &&
+  typeof value === 'object' &&
+  'schemaVersion' in value &&
+  value.schemaVersion === 1 &&
+  'id' in value &&
+  typeof value.id === 'string' &&
+  'geometry' in value &&
+  value.geometry !== null &&
+  typeof value.geometry === 'object'
+
+const isNormalizedRoiSet = (value: unknown): value is RoiSet =>
+  value !== null &&
+  typeof value === 'object' &&
+  'schemaVersion' in value &&
+  value.schemaVersion === 1 &&
+  'rois' in value &&
+  Array.isArray(value.rois) &&
+  value.rois.every(isNormalizedRoi)
+
 const identityObject = (identity: SourceIdentity): OperationJsonObject => {
   if (identity.kind === 'content') return Object.freeze({ ...identity })
   if (identity.kind === 'local-file') return Object.freeze({ ...identity })
@@ -138,6 +198,76 @@ const identityObject = (identity: SourceIdentity): OperationJsonObject => {
       ? {}
       : { validator: Object.freeze({ ...identity.validator }) }),
   })
+}
+
+const boundedIdentityString = (value: unknown, name: string): string => {
+  if (typeof value !== 'string' || value.trim().length === 0 || value.length > 4_096) {
+    throw invalidInput(`${name} must be a non-empty string no longer than 4096 characters`)
+  }
+  return value
+}
+
+const normalizeSemanticIdentity = (identity: AnalysisSemanticIdentity): OperationJsonObject => {
+  if (identity.kind === 'semantic-json') {
+    if (!/^[0-9a-f]{64}$/u.test(identity.sha256)) {
+      throw invalidInput('Semantic JSON identity sha256 is invalid')
+    }
+    return Object.freeze({
+      kind: identity.kind,
+      domain: boundedIdentityString(identity.domain, 'Semantic identity domain'),
+      sha256: identity.sha256,
+    })
+  }
+  if (identity.kind === 'application-defined') {
+    return Object.freeze({
+      kind: identity.kind,
+      namespace: boundedIdentityString(identity.namespace, 'Application identity namespace'),
+      value: boundedIdentityString(identity.value, 'Application identity value'),
+    })
+  }
+  return identityObject(normalizeSourceIdentity(identity))
+}
+
+const derivedBindingIdentity = async (
+  input: AnalysisGraph['inputs'][number],
+  binding: AnalysisInputBinding,
+): Promise<OperationJsonObject | undefined> => {
+  if (binding.identity !== undefined) return normalizeSemanticIdentity(binding.identity)
+  if (isImageSource(binding.value)) {
+    return identityObject(await getImageSourceIdentity(binding.value))
+  }
+  let domain: string | undefined
+  let value: unknown
+  if (input.valueType.id === roiValueTypeId) {
+    if (!isNormalizedRoi(binding.value)) throw invalidInput('ROI binding was not normalized')
+    domain = 'purejsimage.roi-semantics.v1'
+    value = canonicalNormalizedRoiSemanticsJson(binding.value)
+  } else if (input.valueType.id === roiSetValueTypeId) {
+    if (!isNormalizedRoiSet(binding.value)) throw invalidInput('ROI-set binding was not normalized')
+    domain = 'purejsimage.roi-set-semantics.v1'
+    value = canonicalNormalizedRoiSetSemanticsJson(binding.value)
+  } else if (
+    binding.value === null ||
+    typeof binding.value === 'string' ||
+    typeof binding.value === 'number' ||
+    typeof binding.value === 'boolean'
+  ) {
+    domain = `purejsimage.scalar-binding.${input.valueType.id}.v${input.valueType.version}`
+    value = binding.value
+  } else if (input.valueType.id.startsWith('purejsimage.')) {
+    domain = `purejsimage.binding.${input.valueType.id}.v${input.valueType.version}`
+    value = binding.value
+  }
+  if (domain === undefined) return undefined
+  try {
+    return Object.freeze({
+      kind: 'semantic-json',
+      domain,
+      sha256: await hashCanonicalJson(domain, value),
+    })
+  } catch {
+    return undefined
+  }
 }
 
 const costObject = (estimate: OperationCostEstimate): AnalysisPlanCost =>
@@ -155,14 +285,6 @@ const costObject = (estimate: OperationCostEstimate): AnalysisPlanCost =>
 
 const placeholder = (nodeId: string, output: string): OperationJsonObject =>
   Object.freeze({ plannedNode: nodeId, output })
-
-const resolvePlanningInput = (
-  source: AnalysisValueReference,
-  bindings: ReadonlyMap<string, AnalysisInputBinding>,
-): unknown =>
-  source.kind === 'input'
-    ? bindings.get(source.input)?.value
-    : placeholder(source.nodeId, source.output)
 
 const resolveCharacteristics = (
   source: AnalysisValueReference,
@@ -233,19 +355,22 @@ export const planGraph = async (
     options.signal?.throwIfAborted()
     const binding = bindings.get(input.name)
     if (binding === undefined) continue
-    const identity =
-      binding.identity === undefined
-        ? isImageSource(binding.value)
-          ? await getImageSourceIdentity(binding.value)
-          : undefined
-        : normalizeSourceIdentity(binding.identity)
+    const identity = await derivedBindingIdentity(input, binding)
     options.signal?.throwIfAborted()
-    if (identity !== undefined) {
-      requiredInputIdentities.push(
-        Object.freeze({ input: input.name, identity: identityObject(identity) }),
+    if (identity === undefined) {
+      throw invalidInput(
+        `Graph input ${input.name} requires an explicit semantic identity for value type ${input.valueType.id}`,
       )
     }
+    requiredInputIdentities.push(
+      Object.freeze({
+        input: input.name,
+        valueType: Object.freeze({ ...input.valueType }),
+        identity,
+      }),
+    )
   }
+  requiredInputIdentities.sort((left, right) => left.input.localeCompare(right.input))
   const policy = options.policy ?? { mode: 'automatic' }
   const allowedProviders = [...options.providers].filter((provider) =>
     providerAllowed(provider, policy),
@@ -255,6 +380,8 @@ export const planGraph = async (
     options.signal?.throwIfAborted()
     const nodeById = new Map(graph.nodes.map((node) => [node.id, node]))
     const selections = new Map<string, OperationProviderSelection>()
+    const normalizedParameters = new Map<string, OperationJsonValue>()
+    const plannedInputCharacteristics = new Map<string, readonly OperationJsonValue[]>()
     const nodes: AnalysisPlanNode[] = []
     const warnings: AnalysisIssue[] = []
     const unresolvedEstimates: AnalysisUnresolvedEstimate[] = []
@@ -270,23 +397,26 @@ export const planGraph = async (
         throw invalidInput(
           `Operation ${node.operation.id}@${node.operation.version} is unavailable`,
         )
-      const inputs = node.inputs.map((input) => resolvePlanningInput(input.source, bindings))
-      const inputCharacteristics = Object.freeze({
-        inputs: Object.freeze(
-          node.inputs.map((input) =>
-            resolveCharacteristics(input.source, bindings, inferredCharacteristics),
-          ),
+      const parameterResult = definition.normalizeParameters(node.parameters)
+      if (parameterResult.value === undefined) {
+        throw invalidInput(parameterResult.issues[0]?.message ?? 'Operation parameters are invalid')
+      }
+      const parameters = parameterResult.value
+      normalizedParameters.set(node.id, parameters)
+      const inputCharacteristics = Object.freeze(
+        node.inputs.map((input) =>
+          resolveCharacteristics(input.source, bindings, inferredCharacteristics),
         ),
-      })
-      const request: OperationProviderRequest = {
+      )
+      const request: OperationPlanningRequest = {
         descriptor: definition.descriptor,
-        parameters: node.parameters,
-        inputs,
+        parameters,
         inputCharacteristics,
         signal,
       }
       const selected = runtime.select(request, policy)
       selections.set(node.id, selected)
+      plannedInputCharacteristics.set(node.id, inputCharacteristics)
       addCost(totals, selected.estimate)
       if (selected.estimate.confidence === 0) {
         const reason = 'Provider reported zero confidence for its cost estimate'
@@ -296,7 +426,7 @@ export const planGraph = async (
       let outputShapes: readonly OperationJsonValue[] | null = null
       if (definition.inferOutputShapes !== undefined) {
         const inferred = definition.inferOutputShapes({
-          parameters: node.parameters,
+          parameters,
           inputs: node.inputs.map((input) =>
             resolveCharacteristics(input.source, bindings, inferredCharacteristics),
           ),
@@ -331,10 +461,7 @@ export const planGraph = async (
         Object.freeze({
           nodeId: node.id,
           operation: Object.freeze({ id: node.operation.id, version: node.operation.version }),
-          parameterHash: await hashCanonicalJson(
-            'purejsimage.operation-parameters.v1',
-            node.parameters,
-          ),
+          parameterHash: await hashCanonicalJson('purejsimage.operation-parameters.v1', parameters),
           provider: Object.freeze({ ...selected.provider.descriptor }),
           implementation: Object.freeze({ ...selected.implementation.descriptor }),
           execution: definition.descriptor.execution,
@@ -352,9 +479,24 @@ export const planGraph = async (
         }),
       )
     }
+    const graphHash = await hashAnalysisGraph(graph)
+    const frozenBindings = Object.freeze(requiredInputIdentities)
+    const bindingHash = await hashCanonicalJson('purejsimage.analysis-bindings.v1', frozenBindings)
+    const invocationHash = await hashCanonicalJson('purejsimage.analysis-invocation.v1', {
+      graphHash,
+      bindingHash,
+    })
+    const invocation: AnalysisInvocationManifest = Object.freeze({
+      schemaVersion: 1,
+      graphHash,
+      bindings: frozenBindings,
+      bindingHash,
+      invocationHash,
+    })
     const summary: AnalysisPlan = Object.freeze({
       schemaVersion: 1,
-      graphHash: await hashAnalysisGraph(graph),
+      graphHash,
+      invocation,
       nodeOrder: validation.nodeOrder,
       nodes: Object.freeze(nodes),
       totalEstimate: Object.freeze({
@@ -368,25 +510,58 @@ export const planGraph = async (
         outputBytes: totals[7] ?? 0,
         confidence: totals[8] ?? 0,
       }),
-      requiredInputIdentities: Object.freeze(requiredInputIdentities),
+      requiredInputIdentities: frozenBindings,
       unresolvedEstimates: Object.freeze(unresolvedEstimates),
       warnings: Object.freeze(warnings),
     })
-    let disposed = false
-    return Object.freeze({
+    let closing = false
+    let activeLeases = 0
+    let disposePromise: Promise<void> | undefined
+    let notifyIdle: (() => void) | undefined
+    let prepared: PreparedAnalysisPlan
+    prepared = Object.freeze({
       graph,
       validation,
       operations: options.operations,
       bindings,
       selections,
+      normalizedParameters,
+      inputCharacteristics: plannedInputCharacteristics,
       summary,
-      isDisposed: () => disposed,
+      acquireExecutionLease(): AnalysisPlanLease {
+        if (closing) throw invalidInput('Prepared analysis plan is disposed')
+        activeLeases += 1
+        let released = false
+        return Object.freeze({
+          plan: prepared,
+          async release(): Promise<void> {
+            if (released) return
+            released = true
+            activeLeases -= 1
+            if (activeLeases === 0) notifyIdle?.()
+          },
+        })
+      },
+      isDisposed: () => closing,
       async dispose(): Promise<void> {
-        if (disposed) return
-        disposed = true
-        await runtime.dispose()
+        if (disposePromise !== undefined) return disposePromise
+        closing = true
+        disposePromise = (async () => {
+          if (activeLeases > 0) {
+            await new Promise<void>((resolve) => {
+              notifyIdle = resolve
+            })
+          }
+          await runtime.dispose()
+        })()
+        try {
+          await disposePromise
+        } finally {
+          notifyIdle = undefined
+        }
       },
     })
+    return prepared
   } catch (error) {
     try {
       await runtime.dispose()

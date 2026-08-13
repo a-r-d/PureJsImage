@@ -101,11 +101,15 @@ export {
 } from './migrations.ts'
 export type {
   AnalysisDryRun,
+  AnalysisBindingIdentity,
   AnalysisInputBinding,
+  AnalysisInvocationManifest,
+  AnalysisPlanLease,
   AnalysisPlan,
   AnalysisPlanCost,
   AnalysisPlanNode,
   AnalysisRequiredInputIdentity,
+  AnalysisSemanticIdentity,
   AnalysisUnresolvedEstimate,
   PlanGraphOptions,
   PreparedAnalysisPlan,
@@ -173,6 +177,8 @@ export type {
 } from './roi.ts'
 export {
   canonicalRoiJson,
+  canonicalNormalizedRoiSemanticsJson,
+  canonicalNormalizedRoiSetSemanticsJson,
   canonicalRoiSemanticsJson,
   canonicalRoiSetJson,
   clipRoiBoundingBox,
@@ -224,6 +230,7 @@ export type {
   TileRuntimeOptions,
   TileSource,
   TileSourceAccounting,
+  TileSourceEstimate,
   TileSourceResult,
   TileTarget,
   TileTaskMetrics,

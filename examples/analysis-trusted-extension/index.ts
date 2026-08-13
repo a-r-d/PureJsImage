@@ -179,18 +179,15 @@ export const affineScalarProvider = createOperationProvider({
         operationVersion: 1,
         implementationVersion: '1.0.0',
       },
-      supports(request) {
+      supportsPlan(request) {
         try {
-          const source = dataset(request.inputs[0])
           parameters(request.parameters)
-          return (
-            source.descriptor.sampleType === 'float32' && source.descriptor.components.length === 1
-          )
+          return request.inputCharacteristics.length === 1
         } catch {
           return false
         }
       },
-      estimate: () => ({
+      estimatePlan: () => ({
         setupMilliseconds: 0,
         transferMilliseconds: 0,
         computeMilliseconds: 0,
@@ -201,6 +198,15 @@ export const affineScalarProvider = createOperationProvider({
         outputBytes: 0,
         confidence: 0,
       }),
+      validateExecution(request) {
+        const source = dataset(request.inputs[0])
+        if (
+          source.descriptor.sampleType !== 'float32' ||
+          source.descriptor.components.length !== 1
+        ) {
+          throw new TypeError('Affine scalar requires a single-component float32 dataset')
+        }
+      },
       async execute(request) {
         request.signal.throwIfAborted()
         const source = dataset(request.inputs[0])

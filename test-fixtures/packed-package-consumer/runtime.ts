@@ -119,7 +119,11 @@ const graph: AnalysisGraph = {
 const validation = controller.validateGraph(graph)
 assert(validation.valid, `Expected valid graph: ${JSON.stringify(validation.issues)}`)
 const bindings = {
-  source: { value: dataset, characteristics: scientificDatasetCharacteristics(dataset) },
+  source: {
+    value: dataset,
+    characteristics: scientificDatasetCharacteristics(dataset),
+    identity: await getImageSourceIdentity(source),
+  },
   selection: { value: roi },
 }
 const plan = await controller.planGraph(graph, {
@@ -130,9 +134,7 @@ const plan = await controller.planGraph(graph, {
     providerVersion: 1,
   },
 })
-const execution = await controller.executeGraph(plan, {
-  inputIdentities: { source: await getImageSourceIdentity(source) },
-}).result
+const execution = await controller.executeGraph(plan).result
 const result = validateAnalysisResult(execution.outputs.get('statistics'))
 const resultSummary = summarizeResult(result, { maxPreviewValues: 16 })
 assert(resultSummary.kind === 'collection', 'Expected a bounded statistics result summary')
@@ -141,7 +143,7 @@ assert(
   execution.provenance.nodes[0]?.provider.id === 'purejsimage.analysis.reference',
   'Expected reference-provider provenance',
 )
-assert(execution.provenance.inputs.length === 1, 'Expected source identity provenance')
+assert(execution.provenance.inputs.length === 2, 'Expected identity provenance for every binding')
 assert(runtime.metrics().cache.misses > 0, 'Expected the operation to use the tile runtime')
 await execution.release()
 runtime.clear()

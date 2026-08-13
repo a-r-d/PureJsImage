@@ -30,11 +30,11 @@ Every initial operation has semantic version `1`.
 | Operation ID | Input to output | Numeric policy |
 | --- | --- | --- |
 | `purejsimage.analysis.crop` | dataset to dataset | Preserves sample type, components, units, calibration, and no-data. Linear origins and lookup/label subsets move with the crop. |
-| `purejsimage.analysis.resample` | dataset to dataset | Nearest defaults to the input sample type. Bilinear requires Float32 or Float64 and defaults to Float32. Invalid samples either propagate or are ignored with weight renormalization. |
+| `purejsimage.analysis.resample` | selected plane to 2D dataset | `displayAxes` and `fixedIndices` select one source plane. Nearest defaults to the input sample type. Bilinear requires Float32 or Float64 and defaults to Float32. Invalid samples either propagate or are ignored with weight renormalization. |
 | `purejsimage.analysis.slice` | dataset to dataset | Preserves exact samples while selecting any two labeled axes and fixing every remaining axis. |
 | `purejsimage.analysis.projection` | dataset to dataset | Min/max default to preserving the input type. Mean defaults to Float64. Invalid/no-data handling is explicit (`ignore` or `propagate`). |
 | `purejsimage.analysis.threshold` | scalar dataset to dataset | Emits one-component Uint8 values with false `0` and true `1`. Invalid/no-data output is explicitly `0` or `1`. |
-| `purejsimage.analysis.gaussian-blur` | dataset to dataset | Selects one component and emits Float32. Radius is permanently defined as `ceil(3 * sigma)`. Clamp, mirror, and finite constant boundaries are explicit. |
+| `purejsimage.analysis.gaussian-blur` | selected plane to 2D dataset | `displayAxes` and `fixedIndices` select one source plane, then one component is emitted as Float32. Radius is permanently defined as `ceil(3 * sigma)`. Clamp, mirror, and finite constant boundaries are explicit. |
 | `purejsimage.analysis.statistics` | dataset plus optional ROI/ROI set to result collection | Counts, extrema, Welford mean/population deviation, and optional bounded percentiles. Empty selections return NaN or error as requested. |
 | `purejsimage.analysis.histogram` | dataset plus optional ROI/ROI set to histogram | Explicit edges/counts/underflow/overflow. Explicit range is one pass; automatic range is a declared cache-aware two-pass reduction. |
 | `purejsimage.analysis.line-profile` | dataset plus line/polyline ROI to profile | Bounded nearest or bilinear samples for selected components, with pixel or calibrated physical distance and explicit invalid/no-data error-or-NaN behavior. |
@@ -70,6 +70,10 @@ operations produce number-backed scalar, histogram, and profile values. They rej
 sample above `Number.MAX_SAFE_INTEGER` instead of silently rounding it. `noDataValue` and numeric
 operation parameters are also numbers, so fully exact quantitative `uint64` analysis above
 2^53 - 1 requires future bigint- or decimal-string-aware result and parameter contracts.
+
+Resample and Gaussian blur descriptors contain only the selected display axes. Their output reads
+therefore use an empty fixed-index list; requesting an alternate source axis is rejected instead of
+advertising a plane the implementation cannot produce.
 
 Gaussian blur requests only the output tile plus its clipped halo. It precomputes one normalized
 Float64 kernel and integer boundary mappings per request, uses separable bounded typed-array

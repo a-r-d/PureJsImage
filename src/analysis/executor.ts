@@ -1,10 +1,8 @@
 import { combineAbortSignals } from '../abort.ts'
 import { invalidInput } from '../errors.ts'
 import type { OperationJsonObject, OperationJsonValue } from '../operations/descriptor.ts'
-import type { OperationOwnedOutput, OperationProviderRequest } from '../operations/provider.ts'
+import type { OperationExecutionRequest, OperationOwnedOutput } from '../operations/provider.ts'
 import { validateOperationOwnedOutputs } from '../operations/provider.ts'
-import type { SourceIdentity } from '../source-identity.ts'
-import { normalizeSourceIdentity } from '../source-identity.ts'
 import type { AnalysisLimits, AnalysisValueReference } from './graph.ts'
 import { resolveAnalysisLimits } from './graph.ts'
 import type { PreparedAnalysisPlan } from './planner.ts'
@@ -28,6 +26,8 @@ export interface AnalysisNodeProvenance extends OperationJsonObject {
 
 export interface AnalysisExecutionProvenance extends OperationJsonObject {
   readonly graphHash: string
+  readonly bindingHash: string
+  readonly invocationHash: string
   readonly graphSchemaVersion: number
   readonly inputs: readonly OperationJsonValue[]
   readonly nodes: readonly AnalysisNodeProvenance[]
@@ -73,7 +73,6 @@ const executionOutputsView = (values: ReadonlyMap<string, unknown>): AnalysisExe
 export interface ExecuteGraphOptions {
   readonly plan: PreparedAnalysisPlan
   readonly library: AnalysisLibraryBuild
-  readonly inputIdentities?: Readonly<Record<string, SourceIdentity>>
   readonly limits?: Readonly<AnalysisLimits>
   readonly signal?: AbortSignal
 }
@@ -132,26 +131,6 @@ const reproducibilityObject = (value: Readonly<Record<string, unknown>>): Operat
     })
   }
   return Object.freeze({ class: typeof value.class === 'string' ? value.class : 'backend-stable' })
-}
-
-const inputIdentityObject = (name: string, identity: SourceIdentity): OperationJsonObject => {
-  const normalized = normalizeSourceIdentity(identity)
-  if (normalized.kind === 'remote') {
-    return Object.freeze({
-      input: name,
-      identity: Object.freeze({
-        kind: normalized.kind,
-        strength: normalized.strength,
-        stability: normalized.stability,
-        url: normalized.url,
-        size: normalized.size,
-        ...(normalized.validator === undefined
-          ? {}
-          : { validator: Object.freeze({ ...normalized.validator }) }),
-      }),
-    })
-  }
-  return Object.freeze({ input: name, identity: Object.freeze({ ...normalized }) })
 }
 
 const executePrepared = async (
@@ -228,10 +207,11 @@ const executePrepared = async (
         : plan.operations.get(node.operation.id, node.operation.version)
     if (node === undefined || selection === undefined || definition === undefined)
       throw invalidInput(`Prepared node ${nodeId} is incomplete`)
-    const request: OperationProviderRequest = {
+    const request: OperationExecutionRequest = {
       descriptor: definition.descriptor,
-      parameters: node.parameters,
+      parameters: plan.normalizedParameters.get(nodeId) ?? node.parameters,
       inputs: node.inputs.map((input) => resolveValue(input.source)),
+      plannedInputCharacteristics: plan.inputCharacteristics.get(nodeId) ?? Object.freeze([]),
       signal: taskSignal,
     }
     const inputOwnershipIdentities: object[] = []
@@ -242,6 +222,7 @@ const executePrepared = async (
     }
     let outputs: readonly OperationOwnedOutput[] | undefined
     try {
+      selection.implementation.validateExecution?.(request)
       outputs = await selection.implementation.execute(request)
       taskSignal.throwIfAborted()
       if (outputs.length !== definition.descriptor.outputs.length) {
@@ -279,6 +260,13 @@ const executePrepared = async (
       }
     }
     for (const input of node.inputs) await releaseInput(input.source)
+  }
+  const lease = plan.acquireExecutionLease()
+  let leaseReleased = false
+  const releaseLease = async (): Promise<void> => {
+    if (leaseReleased) return
+    leaseReleased = true
+    await lease.release()
   }
   try {
     for (const ids of [...levels.entries()]
@@ -333,19 +321,15 @@ const executePrepared = async (
         }),
       )
     }
-    const identities = new Map<string, OperationJsonObject>(
-      plan.summary.requiredInputIdentities.map((entry) => [entry.input, entry]),
-    )
-    for (const [name, identity] of Object.entries(options.inputIdentities ?? {})) {
-      identities.set(name, inputIdentityObject(name, identity))
-    }
     let released = false
     return Object.freeze({
       outputs: outputView,
       provenance: Object.freeze({
         graphHash: plan.summary.graphHash,
+        bindingHash: plan.summary.invocation.bindingHash,
+        invocationHash: plan.summary.invocation.invocationHash,
         graphSchemaVersion: plan.graph.schemaVersion,
-        inputs: Object.freeze([...identities.values()]),
+        inputs: plan.summary.invocation.bindings,
         nodes: Object.freeze(nodeProvenance),
         library: Object.freeze({ ...options.library }),
         startedAt: startedAt.toISOString(),
@@ -366,6 +350,7 @@ const executePrepared = async (
           values.clear()
           outputValues.clear()
           retained.clear()
+          await releaseLease()
         }
       },
     })
@@ -375,6 +360,7 @@ const executePrepared = async (
     } catch {
       // Preserve the graph or node failure as the primary error.
     }
+    await releaseLease()
     throw error
   }
 }

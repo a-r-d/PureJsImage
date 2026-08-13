@@ -145,10 +145,11 @@ describe('public built-in analysis application workflow', () => {
     const normalizedBlur = controller.normalizeOperationParameters(
       analysisGaussianBlurOperationId,
       1,
-      { displayAxes: ['x', 'y'], sigma: 0.5 },
+      { displayAxes: ['x', 'y'], fixedIndices: [], sigma: 0.5 },
     )
     expect(normalizedBlur.value).toEqual({
       displayAxes: ['x', 'y'],
+      fixedIndices: [],
       component: 0,
       sigma: 0.5,
       boundary: 'clamp',
@@ -274,7 +275,15 @@ describe('public built-in analysis application workflow', () => {
     expect(controller.validateGraph(workspace.graph).valid).toBe(true)
 
     const bindings = {
-      source: { value: input, characteristics: scientificDatasetCharacteristics(input) },
+      source: {
+        value: input,
+        identity: {
+          kind: 'application-defined' as const,
+          namespace: 'purejsimage.tests.workflow-dataset',
+          value: 'workflow-fixture',
+        },
+        characteristics: scientificDatasetCharacteristics(input),
+      },
       selection: { value: polygon },
     }
     const policy = {

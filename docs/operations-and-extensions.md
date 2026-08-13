@@ -54,7 +54,10 @@ when lowering. Registry lookup therefore does not occur in pixel loops, and exis
 
 Provider preparation is asynchronous and explicit. An unavailable optional provider can decline at
 preparation or exact semantic matching. The runtime filters by operation ID/version, reproducibility
-requirements, provider policy, and `supports(request)`. It compares reported setup, transfer,
+requirements, provider policy, and `supportsPlan(request)`. Planning supplies only JSON-safe input
+characteristics to `supportsPlan()` and `estimatePlan()`; actual values exist only in the separate
+execution request, where `validateExecution()` may reject a violated runtime contract before
+`execute()`. It compares reported setup, transfer,
 compute, readback, retained-memory, and confidence measurements. Stable provider identity breaks
 otherwise equal estimates; there is no WebGPU-over-WASM-over-JavaScript ranking.
 
@@ -70,6 +73,12 @@ shared declared identities, shared detectable typed-array/`NumericTile` buffers,
 input/output storage aliases, releasing rejected outputs. Hidden aliases that JavaScript cannot
 inspect remain a provider-contract violation; the in-process registry is a trust boundary, not a
 sandbox.
+
+Selection is exact for a prepared node, including lazy tile-producing nodes. A provider must declare
+support for every valid tile shape covered by that plan; the runtime does not re-run support checks
+per tile or mix providers within one node result. `OperationRuntime.dispose()` closes the runtime to
+new execution, waits for active result leases, and then disposes prepared providers. `whenIdle()` and
+`isDisposed` make that lifecycle observable without exposing provider internals.
 
 ## Trusted extension boundary
 

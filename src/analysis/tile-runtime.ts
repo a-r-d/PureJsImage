@@ -57,8 +57,16 @@ export interface TileProviderTiming {
 
 export interface TileSourceAccounting {
   readonly retainedAuxiliaryBytes?: number
-  readonly bytesRequested?: number
+  readonly decodedInputBytes?: number
   readonly providerTiming?: TileProviderTiming
+}
+
+export interface TileSourceEstimate {
+  readonly outputBytes: number
+  /** Peak source working storage, including output storage. */
+  readonly peakWorkingBytes: number
+  readonly retainedAuxiliaryBytes: number
+  readonly confidence: number
 }
 
 export interface TileSourceResult {
@@ -70,6 +78,7 @@ export interface TileSourceResult {
 export interface TileSource {
   readonly descriptor?: NormalizedScientificDatasetDescriptor
   tileKey(request: Readonly<TileRequest>): string
+  estimate(request: Readonly<TileRequest>): TileSourceEstimate
   readTile(request: Readonly<TileRequest>): Promise<TileSourceResult>
 }
 
@@ -408,7 +417,7 @@ export interface TileTaskMetrics extends OperationJsonObject {
   readonly cancelled: number
   readonly failed: number
   readonly consumerCancellations: number
-  readonly bytesRequested: number
+  readonly decodedInputBytes: number
   readonly bytesProduced: number
   readonly releaseFailures: number
 }
@@ -454,7 +463,7 @@ interface MutableMetrics {
   cancelled: number
   failed: number
   consumerCancellations: number
-  bytesRequested: number
+  decodedInputBytes: number
   bytesProduced: number
   releaseFailures: number
   setupMillisecondsEstimate: number
@@ -479,7 +488,7 @@ const newMutableMetrics = (): MutableMetrics => ({
   cancelled: 0,
   failed: 0,
   consumerCancellations: 0,
-  bytesRequested: 0,
+  decodedInputBytes: 0,
   bytesProduced: 0,
   releaseFailures: 0,
   setupMillisecondsEstimate: 0,
@@ -911,10 +920,12 @@ interface InFlightTile {
   readonly controller: AbortController
   readonly consumers: Map<number, TileConsumer>
   readonly estimatedBytes: number
+  readonly estimate: TileSourceEstimate
+  readonly descriptor: NormalizedScientificDatasetDescriptor | undefined
 }
 
 interface ValidatedTileAccounting {
-  readonly bytesRequested: number
+  readonly decodedInputBytes: number
   readonly providerTiming: TileProviderTiming | undefined
 }
 
@@ -945,6 +956,8 @@ export class TileRuntime {
   #inFlightBytes = 0
   #leasedBytes = 0
   #operationWorkingBytes = 0
+  #disposed = false
+  readonly #idleWaiters = new Set<() => void>()
 
   constructor(options: Readonly<TileRuntimeOptions> = {}) {
     this.limits = resolveTileRuntimeLimits(options.limits)
@@ -954,6 +967,7 @@ export class TileRuntime {
   }
 
   request(source: TileSource, input: Readonly<TileRequest>): Promise<NumericTile> {
+    if (this.#disposed) throw invalidInput('Tile runtime is disposed')
     const request = normalizeTileRequest(input, this.limits.maxTilePixels)
     request.signal.throwIfAborted()
     const key = this.#key(source, request)
@@ -965,7 +979,11 @@ export class TileRuntime {
     if (this.#metricsEnabled) this.#metrics.misses += 1
     let state = this.#inFlight.get(key)
     if (state === undefined) {
-      const estimatedBytes = this.#estimateTileBytes(source, request)
+      const estimate = this.#estimateTile(source, request)
+      const estimatedBytes = Math.max(
+        estimate.outputBytes + estimate.retainedAuxiliaryBytes,
+        estimate.peakWorkingBytes,
+      )
       this.#reserveInFlight(estimatedBytes)
       const controller = new AbortController()
       try {
@@ -976,6 +994,8 @@ export class TileRuntime {
           controller,
           consumers: new Map<number, TileConsumer>(),
           estimatedBytes,
+          estimate,
+          descriptor: source.descriptor,
         }
         this.#inFlight.set(key, state)
         const scheduledState = state
@@ -1058,7 +1078,7 @@ export class TileRuntime {
     const normalized = normalizeTileRequest(request, this.limits.maxTilePixels)
     let key: string
     try {
-      this.#validateTile(tile, normalized, retainedAuxiliaryBytes)
+      this.#validateTile(tile, normalized, retainedAuxiliaryBytes, source.descriptor)
       key = this.#key(source, normalized)
     } catch (error) {
       this.#releaseTile(tile)
@@ -1108,6 +1128,23 @@ export class TileRuntime {
     }
   }
 
+  get isDisposed(): boolean {
+    return this.#disposed
+  }
+
+  async whenIdle(): Promise<void> {
+    if (this.#inFlight.size === 0 && this.#scheduler.idle) return
+    await new Promise<void>((resolve) => this.#idleWaiters.add(resolve))
+  }
+
+  async dispose(): Promise<void> {
+    if (this.#disposed) return this.whenIdle()
+    this.#disposed = true
+    this.clear()
+    await this.whenIdle()
+    this.#cache.clear()
+  }
+
   resetMetrics(): void {
     if (this.#inFlight.size !== 0 || !this.#scheduler.idle) {
       throw invalidInput('Metrics can only be reset while the tile runtime is idle')
@@ -1144,7 +1181,7 @@ export class TileRuntime {
         cancelled: enabled ? value.cancelled : 0,
         failed: enabled ? value.failed : 0,
         consumerCancellations: enabled ? value.consumerCancellations : 0,
-        bytesRequested: enabled ? value.bytesRequested : 0,
+        decodedInputBytes: enabled ? value.decodedInputBytes : 0,
         bytesProduced: enabled ? value.bytesProduced : 0,
         releaseFailures: enabled ? value.releaseFailures : 0,
       }),
@@ -1168,7 +1205,7 @@ export class TileRuntime {
           ? value.firstCompletedAt - this.#startedAt
           : null,
       memoryScope:
-        'Managed NumericTile bytes, in-flight output estimates, declared operation working bytes, and physical leased bytes; excludes undeclared provider allocations and process overhead',
+        'Managed NumericTile bytes, declared retained auxiliary bytes, in-flight source estimates, declared operation working bytes, and physical leased bytes; excludes JavaScript object overhead, allocator fragmentation, unreported GPU-driver memory, undeclared provider allocations, and process RSS',
       timingScope:
         'Provider estimates are labeled separately from measured wall-clock compute time',
     })
@@ -1220,8 +1257,14 @@ export class TileRuntime {
     let accounting: ValidatedTileAccounting
     try {
       auxiliaryBytes = result.accounting?.retainedAuxiliaryBytes ?? 0
-      this.#validateTile(result.tile, state.request, auxiliaryBytes)
+      this.#validateTile(result.tile, state.request, auxiliaryBytes, state.descriptor)
       accounting = this.#validateAccounting(result.accounting)
+      if (
+        result.tile.data.byteLength > state.estimate.outputBytes ||
+        auxiliaryBytes > state.estimate.retainedAuxiliaryBytes
+      ) {
+        throw invalidInput('Tile source exceeded its declared retained-memory estimate')
+      }
     } catch (error) {
       this.#releaseTile(result.tile)
       for (const consumer of consumers) {
@@ -1262,7 +1305,7 @@ export class TileRuntime {
     }
     if (this.#metricsEnabled) {
       this.#metrics.bytesProduced += result.tile.data.byteLength
-      this.#metrics.bytesRequested += accounting.bytesRequested
+      this.#metrics.decodedInputBytes += accounting.decodedInputBytes
       const timing = accounting.providerTiming
       if (timing !== undefined) {
         this.#metrics.setupMillisecondsEstimate += timing.setupMillisecondsEstimate
@@ -1280,10 +1323,14 @@ export class TileRuntime {
       consumer.removeAbortListener?.()
       consumer.resolve(lease)
     }
+    this.#notifyIdle()
   }
 
   #fail(state: InFlightTile, error: unknown): void {
-    if (this.#inFlight.get(state.key) !== state) return
+    if (this.#inFlight.get(state.key) !== state) {
+      this.#notifyIdle()
+      return
+    }
     this.#inFlight.delete(state.key)
     this.#releaseInFlight(state.estimatedBytes)
     for (const consumer of state.consumers.values()) {
@@ -1291,31 +1338,32 @@ export class TileRuntime {
       consumer.reject(error)
     }
     state.consumers.clear()
+    this.#notifyIdle()
   }
 
-  #estimateTileBytes(source: TileSource, request: TileRequest): number {
-    const sampleType = request.target?.sampleType ?? source.descriptor?.sampleType
-    const components = source.descriptor?.components.length
-    if (sampleType === undefined || components === undefined) {
-      const fallbackBytes = request.address.width * request.address.height * 8
-      if (!Number.isSafeInteger(fallbackBytes) || fallbackBytes > this.limits.maxTileBytes) {
-        throw invalidInput('Tile request exceeds maxTileBytes')
+  #estimateTile(source: TileSource, request: TileRequest): TileSourceEstimate {
+    const estimate = source.estimate(request)
+    for (const value of [
+      estimate.outputBytes,
+      estimate.peakWorkingBytes,
+      estimate.retainedAuxiliaryBytes,
+    ]) {
+      if (!Number.isSafeInteger(value) || value < 0) {
+        throw invalidInput('Tile source returned an invalid memory estimate')
       }
-      return fallbackBytes
     }
-    const bytesPerSample =
-      sampleType === 'uint8' || sampleType === 'int8'
-        ? 1
-        : sampleType === 'uint16' || sampleType === 'int16'
-          ? 2
-          : sampleType === 'uint64' || sampleType === 'float64'
-            ? 8
-            : 4
-    const bytes = request.address.width * request.address.height * components * bytesPerSample
-    if (!Number.isSafeInteger(bytes) || bytes > this.limits.maxTileBytes) {
+    if (
+      !Number.isFinite(estimate.confidence) ||
+      estimate.confidence < 0 ||
+      estimate.confidence > 1
+    ) {
+      throw invalidInput('Tile source returned an invalid memory-estimate confidence')
+    }
+    const outputBytes = estimate.confidence < 1 ? this.limits.maxTileBytes : estimate.outputBytes
+    if (estimate.outputBytes > this.limits.maxTileBytes || outputBytes > this.limits.maxTileBytes) {
       throw invalidInput('Tile request exceeds maxTileBytes')
     }
-    return bytes
+    return Object.freeze({ ...estimate, outputBytes })
   }
 
   #reserveInFlight(bytes: number): void {
@@ -1396,7 +1444,12 @@ export class TileRuntime {
     return key
   }
 
-  #validateTile(tile: NumericTile, request: TileRequest, auxiliaryBytes: number): void {
+  #validateTile(
+    tile: NumericTile,
+    request: TileRequest,
+    auxiliaryBytes: number,
+    descriptor?: NormalizedScientificDatasetDescriptor,
+  ): void {
     validateNumericTile(tile)
     const address = request.address
     if (
@@ -1406,6 +1459,15 @@ export class TileRuntime {
       tile.height !== address.height
     ) {
       throw invalidInput('Tile source returned a tile that does not match the requested address')
+    }
+    const declaredSampleType =
+      request.target?.sampleType ??
+      (descriptor?.sampleType === 'float16' ? 'float32' : descriptor?.sampleType)
+    if (
+      (declaredSampleType !== undefined && tile.sampleType !== declaredSampleType) ||
+      (descriptor !== undefined && tile.componentCount !== descriptor.components.length)
+    ) {
+      throw invalidInput('Tile source returned storage inconsistent with its descriptor')
     }
     if (
       (request.target?.sampleType !== undefined && tile.sampleType !== request.target.sampleType) ||
@@ -1425,9 +1487,9 @@ export class TileRuntime {
   }
 
   #validateAccounting(accounting: TileSourceAccounting | undefined): ValidatedTileAccounting {
-    const bytesRequested = accounting?.bytesRequested ?? 0
-    if (!Number.isSafeInteger(bytesRequested) || bytesRequested < 0) {
-      throw invalidInput('Tile source returned invalid requested byte accounting')
+    const decodedInputBytes = accounting?.decodedInputBytes ?? 0
+    if (!Number.isSafeInteger(decodedInputBytes) || decodedInputBytes < 0) {
+      throw invalidInput('Tile source returned invalid decoded-input byte accounting')
     }
     const timing = accounting?.providerTiming
     let providerTiming: TileProviderTiming | undefined
@@ -1444,7 +1506,15 @@ export class TileRuntime {
         throw invalidInput('Tile source returned invalid provider timing')
       }
     }
-    return { bytesRequested, providerTiming }
+    return { decodedInputBytes, providerTiming }
+  }
+
+  #notifyIdle(): void {
+    queueMicrotask(() => {
+      if (this.#inFlight.size !== 0 || !this.#scheduler.idle) return
+      for (const resolve of this.#idleWaiters) resolve()
+      this.#idleWaiters.clear()
+    })
   }
 
   #releaseTile(tile: NumericTile): void {

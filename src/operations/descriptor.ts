@@ -341,10 +341,28 @@ const positiveVersion = (
   return value
 }
 
-const namespacedIdPattern = /^[a-z][a-z0-9]*(?:[.-][a-z][a-z0-9]*)+$/u
+const maxNamespacedIdLength = 4_096
+const isAsciiLowercase = (code: number): boolean => code >= 97 && code <= 122
+const isAsciiDigit = (code: number): boolean => code >= 48 && code <= 57
 const portNamePattern = /^[a-z][a-zA-Z0-9]*$/u
 
-export const isNamespacedOperationId = (value: string): boolean => namespacedIdPattern.test(value)
+/** A bounded, linear-time validator for dot-separated namespaced identifiers. */
+export const isNamespacedOperationId = (value: string): boolean => {
+  if (value.length < 3 || value.length > maxNamespacedIdLength) return false
+  let segmentStart = 0
+  let segmentCount = 0
+  for (let index = 0; index <= value.length; index += 1) {
+    if (index !== value.length && value.charCodeAt(index) !== 46) continue
+    if (index === segmentStart || !isAsciiLowercase(value.charCodeAt(segmentStart))) return false
+    for (let offset = segmentStart + 1; offset < index; offset += 1) {
+      const code = value.charCodeAt(offset)
+      if (!isAsciiLowercase(code) && !isAsciiDigit(code) && code !== 45) return false
+    }
+    segmentCount += 1
+    segmentStart = index + 1
+  }
+  return segmentCount >= 2
+}
 
 const namespacedId = (
   value: unknown,
@@ -352,7 +370,7 @@ const namespacedId = (
   context: ValidationContext,
 ): string | undefined => {
   const id = stringValue(value, path, context)
-  if (id !== undefined && !namespacedIdPattern.test(id)) {
+  if (id !== undefined && !isNamespacedOperationId(id)) {
     context.issue('invalid-id', path, 'Expected a lowercase namespaced identifier')
     return undefined
   }

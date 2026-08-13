@@ -78,6 +78,9 @@ multi-gigabyte content hash before first display.
 
 The ownership rules are strict:
 
+- Before scheduling, every `TileSource` reports output, peak working, retained auxiliary bytes, and
+  confidence through `estimate()`. Incomplete confidence reserves pessimistically up to the tile
+  limit; a source that exceeds declared output or auxiliary retention is rejected.
 - A `TileSource` transfers one owned tile to the runtime when `readTile()` resolves.
 - The runtime validates the tile before admitting it. Failed admission releases the transferred
   tile.
@@ -112,8 +115,8 @@ these explicit limits for their data and memory envelope.
 
 ## Derived tiles and halos
 
-`createDerivedTileSource()` combines a source, normalized operation definition, already planned
-provider fallback sequence, graph-node semantic hash, and execution fingerprint. Planning remains
+`createDerivedTileSource()` combines a source, normalized operation definition, one exact already
+planned provider selection, graph-node semantic hash, and execution fingerprint. Planning remains
 separate: the tile source does not discover providers or mutate a graph.
 
 The optional halo function returns non-negative left/right/top/bottom samples from normalized
@@ -122,9 +125,9 @@ and requires the provider to return exactly the requested output region in disti
 Only that output region enters the derived cache. The current explicit boundary mode is `clip`;
 other padding semantics should be added only with operation-level semantic tests.
 
-A provider may decline known tile characteristics, causing selection of the next already planned
-candidate. A pinned derived source checks only its first selection and fails rather than silently
-switching providers. Provider identity is conservatively included in every derived key because
+The selected provider must support the plan's complete valid tile-shape domain. Tile reads do not
+repeat support or cost selection, and one derived node never becomes a heterogeneous mixture of
+provider outputs. Provider identity is conservatively included in every derived key because
 numeric equivalence classes are not yet fine-grained enough to prove safe cross-provider reuse.
 
 ## Metrics and limits
@@ -135,7 +138,10 @@ measured provider compute time, and time to first completed tile. Metrics are lo
 transmitted. Set `metrics: false` to suppress counters, or call `resetMetrics()` while idle.
 
 Retained memory means `NumericTile.data.byteLength` plus explicitly declared auxiliary retained
-bytes. It is not JavaScript heap usage or true process peak memory. Provider setup, transfer,
+bytes. Peak source estimates also cover merge buffers and coverage maps before they are allocated;
+an exact single source tile transfers directly without that merge copy. Managed memory excludes
+JavaScript object overhead, allocator fragmentation, undeclared provider allocations, unreported
+GPU-driver memory, and process RSS. Provider setup, transfer,
 compute, and readback fields remain labeled estimates; only provider execution wall time is labeled
 measured. The correctness-gated fixture is available as:
 
@@ -145,3 +151,7 @@ npm run bench:analysis:tiles
 
 It validates and reports uncached first-tile, cached-repeat, neighboring-tile, and halo-derived-tile
 work without claiming process peak memory.
+
+`clear()` remains a recoverable cache/in-flight reset. `dispose()` is permanent: it rejects new
+requests, aborts active work, waits for `whenIdle()`, and clears retained cache state. Repeated
+disposal is safe, and `isDisposed` exposes the closing state.

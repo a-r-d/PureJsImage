@@ -8,10 +8,11 @@ import type {
   ParameterSchema,
 } from '../operations/descriptor.ts'
 import type {
+  OperationExecutionRequest,
   OperationCostEstimate,
   OperationImplementation,
   OperationOwnedOutput,
-  OperationProviderRequest,
+  OperationPlanningRequest,
 } from '../operations/provider.ts'
 import type { OperationDefinition } from '../operations/registry.ts'
 import { createOperationDefinition } from '../operations/registry.ts'
@@ -594,7 +595,7 @@ const isScientificDataset = (value: unknown): value is ScientificDataset =>
   'readPlane' in value &&
   typeof value.readPlane === 'function'
 
-const datasetInput = (request: Readonly<OperationProviderRequest>): ScientificDataset => {
+const datasetInput = (request: Readonly<OperationExecutionRequest>): ScientificDataset => {
   const value = request.inputs.find(isScientificDataset)
   if (value === undefined)
     throw invalidInput('Analysis result operation requires a ScientificDataset')
@@ -612,7 +613,7 @@ const isRoiSetLike = (
   value !== null && typeof value === 'object' && 'schemaVersion' in value && 'rois' in value
 
 const roiSelection = (
-  request: Readonly<OperationProviderRequest>,
+  request: Readonly<OperationExecutionRequest>,
   descriptor: NormalizedScientificDatasetDescriptor,
 ): readonly Roi[] => {
   const rois: Roi[] = []
@@ -790,7 +791,7 @@ const scalar = (value: number, unit?: string): ScalarResult =>
   })
 
 const statisticsResult = async (
-  request: Readonly<OperationProviderRequest>,
+  request: Readonly<OperationExecutionRequest>,
   context: AnalysisDatasetOperationContext,
 ): Promise<ResultCollection> => {
   const dataset = datasetInput(request)
@@ -872,7 +873,7 @@ const statisticsResult = async (
 }
 
 const histogramResult = async (
-  request: Readonly<OperationProviderRequest>,
+  request: Readonly<OperationExecutionRequest>,
   context: AnalysisDatasetOperationContext,
 ): Promise<HistogramResult> => {
   const dataset = datasetInput(request)
@@ -923,7 +924,7 @@ const histogramResult = async (
 }
 
 const lineRoi = (
-  request: Readonly<OperationProviderRequest>,
+  request: Readonly<OperationExecutionRequest>,
   descriptor: NormalizedScientificDatasetDescriptor,
 ): Roi => {
   const values = request.inputs.filter(isRoiLike)
@@ -936,7 +937,7 @@ const lineRoi = (
 }
 
 const lineProfileResult = async (
-  request: Readonly<OperationProviderRequest>,
+  request: Readonly<OperationExecutionRequest>,
   context: AnalysisDatasetOperationContext,
 ): Promise<ProfileResult> => {
   const dataset = datasetInput(request)
@@ -1102,13 +1103,12 @@ const ownedResult = (
   value: ResultCollection | HistogramResult | ProfileResult,
 ): readonly OperationOwnedOutput[] => Object.freeze([Object.freeze({ value, release() {} })])
 
-const estimate = (request: Readonly<OperationProviderRequest>): OperationCostEstimate => {
+const estimate = (request: Readonly<OperationPlanningRequest>): OperationCostEstimate => {
   let retainedBytes = 0
   let peakWorkingBytes = 0
   let outputBytes = 0
   try {
-    const inputs = request.inputCharacteristics?.inputs
-    if (Array.isArray(inputs)) {
+    if (request.inputCharacteristics.length > 0) {
       if (request.descriptor.id === analysisStatisticsOperationId) {
         const statistics = statisticsParameters(request.parameters)
         outputBytes = (7 + statistics.percentiles.length * 2) * 8
@@ -1164,14 +1164,10 @@ export const createAnalysisResultOperationImplementations = (
             ? { bitExactConformance: true }
             : {}),
         }),
-        supports(request: Readonly<OperationProviderRequest>): boolean {
+        supportsPlan(request: Readonly<OperationPlanningRequest>): boolean {
           try {
-            const dataset = request.inputs.find(isScientificDataset)
-            const inputs = request.inputCharacteristics?.inputs
-            const descriptor =
-              dataset?.descriptor ??
-              (Array.isArray(inputs) ? descriptorFromCharacteristics(inputs[0]) : undefined)
-            if (descriptor === undefined || definition.inferOutputShapes === undefined) return false
+            const descriptor = descriptorFromCharacteristics(request.inputCharacteristics[0])
+            if (definition.inferOutputShapes === undefined) return false
             return definition.inferOutputShapes({
               parameters: request.parameters,
               inputs: [scientificDatasetCharacteristics(descriptor)],
@@ -1180,12 +1176,20 @@ export const createAnalysisResultOperationImplementations = (
             return false
           }
         },
-        estimate,
+        estimatePlan: estimate,
+        validateExecution(request: Readonly<OperationExecutionRequest>): void {
+          datasetInput(request)
+        },
         async execute(
-          request: Readonly<OperationProviderRequest>,
+          request: Readonly<OperationExecutionRequest>,
         ): Promise<readonly OperationOwnedOutput[]> {
           request.signal.throwIfAborted()
-          const estimated = estimate(request)
+          const estimated = estimate({
+            descriptor: request.descriptor,
+            parameters: request.parameters,
+            inputCharacteristics: request.plannedInputCharacteristics,
+            signal: request.signal,
+          })
           const releaseWorking = context.runtime.reserveOperationWorkingBytes(
             estimated.peakWorkingBytes,
           )

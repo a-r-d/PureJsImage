@@ -94,6 +94,7 @@ const graph: AnalysisGraph = {
       inputs: [{ port: 'dataset', source: { kind: 'input', input: 'source' } }],
       parameters: {
         displayAxes: ['x', 'y'],
+        fixedIndices: [],
         sigma,
         boundary: 'clamp',
         invalidPolicy: 'propagate',
@@ -127,7 +128,15 @@ const controller = createAnalysisController({
 
 const plan = await controller.planGraph(graph, {
   bindings: {
-    source: { value: source, characteristics: scientificDatasetCharacteristics(source) },
+    source: {
+      value: source,
+      identity: {
+        kind: 'application-defined',
+        namespace: 'purejsimage.benchmark.dataset',
+        value: 'gaussian-blur',
+      },
+      characteristics: scientificDatasetCharacteristics(source),
+    },
   },
   policy: {
     mode: 'pinned',
