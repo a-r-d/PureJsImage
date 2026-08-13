@@ -265,7 +265,7 @@ describe('package contract', () => {
     expect(comparison).toContain('Grouped by TIFF workflow')
     expect(comparison).toContain('Not verified')
     expect(comparison).toContain('Versioned evidence')
-    expect(readme).toContain('PureJsImage benchmark snapshot · a1f20da')
+    expect(readme).toContain('PureJsImage benchmark snapshot · 2ca294b · dirty')
     expect(readme).toContain(
       '104/106 decoded<br>57 exact<br>47 pixel mismatches<br>2 oracle-unavailable cases',
     )
@@ -287,7 +287,9 @@ describe('package contract', () => {
     expect(docsHome).toContain('38 at or above 40 dB PSNR')
     expect(docsHome).toContain('Jimp uses utif2 for TIFF internally')
     expect(tiffGuide).toContain('Decoded / comparable')
-    expect(comparison).toContain('benchmark snapshot at commit a1f20da')
+    expect(comparison).toContain(
+      'benchmark snapshot at commit 2ca294b60577cc0fe1ffac89952375c3f619348c',
+    )
     expect(comparison).toContain('Decode coverage, exact pixels, and reported outcomes')
     expect(comparison).toContain('Oracle unavailable')
     expect(sitemap).toContain('https://purejsimage.com/tiff-comparison/')
@@ -426,8 +428,8 @@ describe('package contract', () => {
     expect(platformPage).toContain(
       "import ApplicationPlatformDiagram from '../../components/ApplicationPlatformDiagram.astro'",
     )
-    expect(platformPage).toContain('Application APIs: unreleased preview')
-    expect(platformPage).toContain('current npm 0.9.x release does not contain')
+    expect(platformPage).toContain('Application APIs: alpha')
+    expect(platformPage).toContain('Introduced in 0.10.0')
     expect(platformPage).toContain('Provider and extension APIs: experimental')
     expect(platformPage).toContain('materials microscopy and instrument imagery')
     expect(platformExample).toContain("from 'purejsimage/analysis'")
@@ -452,10 +454,8 @@ describe('package contract', () => {
       expect(llms).toContain(`\`${entry}\``)
       expect(rootTsconfig.compilerOptions.paths).toHaveProperty(entry)
     }
-    expect(llms).toContain(
-      '## Scientific application platform (unreleased main-branch alpha preview)',
-    )
-    expect(llms).toContain('current npm 0.9.x release does not contain')
+    expect(llms).toContain('## Scientific application platform (alpha in 0.10.0)')
+    expect(llms).toContain('PureJsImage 0.10.0 introduces these alpha application entrypoints')
     expect(llms).toContain('initial bounded ROI masks, statistics, histograms, line profiles')
     expect(packageJson.exports).toHaveProperty('./scientific/node')
     expect(scientificApi).not.toHaveProperty('openGsf')

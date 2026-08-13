@@ -2,9 +2,9 @@
 import SiteLayout from '../layouts/SiteLayout.astro'
 ---
 
-<SiteLayout title="API reference | PureJsImage" description="PureJsImage API reference for the established codec pipeline and unreleased main-branch scientific application-platform preview: readers, labeled datasets, operations, analysis graphs, and trusted extensions." canonical="https://purejsimage.com/api/" current="api/">
+<SiteLayout title="API reference | PureJsImage" description="PureJsImage API reference for the established codec pipeline and alpha scientific application platform: readers, labeled datasets, operations, analysis graphs, and trusted extensions." canonical="https://purejsimage.com/api/" current="api/">
 <main id="main">
-    <header class="page-hero"><div class="container"><p class="eyebrow">API reference</p><h1>Public API and runtime contracts.</h1><p class="page-lede">Codec registration, immutable image pipelines, labeled scientific datasets, analysis operations and graphs, sources, safety limits, metadata preservation, and typed errors.</p><div class="page-meta"><span class="pill">Codec pipeline: established npm path</span><span class="pill">Application platform: unreleased preview</span><span class="pill">Extensions: experimental</span></div></div></header>
+    <header class="page-hero"><div class="container"><p class="eyebrow">API reference</p><h1>Public API and runtime contracts.</h1><p class="page-lede">Codec registration, immutable image pipelines, labeled scientific datasets, analysis operations and graphs, sources, safety limits, metadata preservation, and typed errors.</p><div class="page-meta"><span class="pill">Codec pipeline: established npm path</span><span class="pill">Application platform: alpha</span><span class="pill">Extensions: experimental</span></div></div></header>
     <div class="container docs-layout">
       <aside class="side-nav" aria-label="Documentation pages"><div class="nav-group"><strong>Learn</strong><a href="../guides/">Getting started</a><a href="../guides/#recipes">Recipes</a></div><div class="nav-group"><strong>Reference</strong><a href="../api/" aria-current="page">API reference</a><a href="../codecs/">Codec support</a><a href="../performance/">Performance</a></div></aside>
       <article class="content">
@@ -58,7 +58,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 
         <section id="application-entrypoints" data-search-item>
           <h2>Application-platform package entries</h2>
-          <p>The application platform is an <strong>unreleased main-branch alpha preview</strong>. The current npm 0.9.x release does not contain the application entrypoints listed below. Provider and trusted-extension APIs are <strong>experimental</strong>. The ordinary published <code>purejsimage</code> codec pipeline remains the established path: these branch-only entries do not change <code>resize().jpeg()</code> behavior or load analysis code into the root entry.</p>
+          <p>The application platform is an <strong>alpha API introduced in PureJsImage 0.10.0</strong>. Provider and trusted-extension APIs are <strong>experimental</strong>. The ordinary <code>purejsimage</code> codec pipeline remains the established path: these opt-in entries do not change <code>resize().jpeg()</code> behavior or load analysis code into the root entry.</p>
           <div class="callout warning"><strong>Lifecycle is part of the API.</strong> Pass <code>AbortSignal</code> through source reads, planning, and execution. Release every <code>NumericTile</code> and execution result, dispose prepared plans and tile runtimes, and close scientific documents. The library cannot infer when application-held resources are no longer needed.</div>
         </section>
 

@@ -1,8 +1,8 @@
 # Application platform architecture
 
 Status: design checkpoint approved on 2026-08-12; all ten implementation slices and the final
-merge-hardening fixes are present on the unreleased branch. Publication and any release versioning
-remain separately authorized future work.
+merge-hardening fixes are included in the authorized 0.10.0 alpha release candidate dated
+2026-08-13. Provider and extension APIs remain experimental.
 
 This document defines a target architecture for scientific web applications built on
 PureJsImage. It is deliberately additive. The existing image API, codec registry, and streaming
@@ -1335,7 +1335,7 @@ to own only generic descriptors, definitions, providers, and registries.
     reference-provider pinning, analysis cancellation, provenance, result parity after replay,
     source-identity mismatch, and download/reload/rebind. Unit, strict build, and E2E gates pass.
 
-- [ ] Prompt 10.6: audit both repositories and prepare release-candidate evidence without release
+- [x] Prompt 10.6: audit both repositories and prepare release-candidate evidence without release
       side effects.
   - [x] Classify every spike workaround or API gap; close only generic PureJsImage gaps and remove
         spike workarounds once a public API exists.

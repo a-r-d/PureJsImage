@@ -85,11 +85,11 @@ const images = createImageLibrary(allCodecs)
 
 `allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL decoder. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented lossless Modular subset fail explicitly.
 
-## Scientific application platform (unreleased main-branch alpha preview)
+## Scientific application platform (alpha in 0.10.0)
 
-The current npm 0.9.x release does not contain these application entrypoints. They are an unreleased main-branch alpha preview and may change before an authorized version is published. Provider and extension APIs are experimental. The ordinary codec pipeline remains the established npm path: the preview does not change `resize().jpeg()` behavior, and the root entry does not load the graph runtime.
+PureJsImage 0.10.0 introduces these alpha application entrypoints. Provider and extension APIs are experimental and may change in later releases through explicit versioning. The ordinary codec pipeline remains the established npm path: the application entries do not change `resize().jpeg()` behavior, and the root entry does not load the graph runtime.
 
-Preview package entrypoints on main:
+Alpha package entrypoints:
 
 - `purejsimage/scientific`: portable arbitrary-axis `ScientificDataset`, scientific documents and identities, explicit reader registries, `RasterBlock`, `NumericTile`, and format-independent analysis helpers. Concrete readers are separate optional entries.
 - `purejsimage/scientific/browser`: browser `File` and explicit companion-file contexts. Remote range sources use the portable `ImageSource` contract.
@@ -119,7 +119,7 @@ const dataset = await document.openDataset(summary.id, { signal })
 
 Readers yield portable canonical `RasterBlock` bytes. `resolveNumericTileSource(dataset)` converts once to native-endian typed `NumericTile` storage for repeated computation, or selects an exactly compatible direct native tile source. Release every tile after use. Generic operations and providers must use bounded tile reads rather than materializing a full frame.
 
-Use `purejsimage/analysis` for controllers, graphs, commands, planning, execution, and primary application types. Import full result schemas from `purejsimage/analysis/results`, ROI geometry and sampling from `purejsimage/analysis/roi`, provider-facing tile/cache contracts from `purejsimage/analysis/runtime`, and persistence/migrations from `purejsimage/analysis/project`. These are unreleased main-branch alpha preview entries and are not in the current npm 0.9.x release.
+Use `purejsimage/analysis` for controllers, graphs, commands, planning, execution, and primary application types. Import full result schemas from `purejsimage/analysis/results`, ROI geometry and sampling from `purejsimage/analysis/roi`, provider-facing tile/cache contracts from `purejsimage/analysis/runtime`, and persistence/migrations from `purejsimage/analysis/project`. These entries are alpha in PureJsImage 0.10.0.
 
 Source tile identity uses the complete reader ID/version, dataset ID, and all resource identities when available. Strong evidence may reuse within one runtime across reopened objects; weak evidence requires the same explicit session scope; synthetic datasets remain instance-scoped. Derived tile identity includes source, operation/version, normalized parameters, output, provider/implementation, and generation. Select a pyramid level once with `purejsimage.analysis.select-resolution-level@1`; later operations consume its calibrated single-level dataset. Threshold and Gaussian blur use the provider-aware lazy tile-kernel path; crop/slice remain coordinate views, resample/projection remain pending kernel convergence, and statistics/histogram/line profile remain result reducers. `purejsimage.analysis.connected-components@1` performs a bounded deterministic global tile scan and returns lazy uint32 labels plus a columnar per-object table without retaining a full mask or label plane.
 

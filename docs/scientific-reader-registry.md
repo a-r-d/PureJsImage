@@ -84,5 +84,5 @@ Reader-opened datasets also carry a `ScientificDatasetIdentity` containing the r
 stable dataset ID, and every resource identity. The planner recognizes it automatically. Synthetic
 or application-created datasets still require an explicit semantic identity.
 
-See [ScientificDataset in 0.10 alpha](migration/0.10-scientific.md) for ordinary
+See [ScientificDataset in 0.10](migration/0.10-scientific.md) for ordinary
 X/Y, OME axes, arbitrary-rank FITS, EELS, and 4D-STEM mappings.

@@ -111,9 +111,9 @@ In a browser, import from `purejsimage/browser` and use `toBlob()` or
 `toUint8Array()` for output. Tools that need every default codec can register
 `allCodecs` from `purejsimage/codecs/all`.
 
-> **Unreleased main-branch alpha preview:** The scientific application entrypoints documented below
-> are not included in the current npm 0.9.x release. Their package contract is tested from a tarball
-> packed from this branch. The ordinary codec pipeline above remains the established npm workflow.
+> **Alpha application platform:** PureJsImage 0.10.0 introduces the scientific application
+> entrypoints documented below. Provider and extension APIs remain experimental. The ordinary
+> codec pipeline above remains the established npm workflow.
 
 ### Scientific OME-TIFF
 
@@ -303,7 +303,7 @@ slice, projection, threshold, Gaussian blur, ROI statistics, histogram, and cali
 profiles. They are registered only through an explicit application-owned bundle. See the
 [built-in scientific analysis operations guide](docs/built-in-analysis-operations.md).
 
-For the complete main-branch preview workflow—reader registry, arbitrary-axis tiles, ROI analysis,
+For the complete alpha application workflow—reader registry, arbitrary-axis tiles, ROI analysis,
 graph save/replay, provider pinning, capability/command inspection, and trusted custom
 operations—see [Building scientific applications with PureJsImage](docs/application-platform.md).
 
@@ -460,7 +460,7 @@ A capability is **Yes** only when upstream documentation or source supports it; 
 
 | Library | Runtime model | Browser | BigTIFF | Tiles | Region decode | Native scientific raster | OME / whole-slide semantics | Decode coverage |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PureJsImage benchmark snapshot · a1f20da | Strict TypeScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>47 pixel mismatches<br>2 oracle-unavailable cases |
+| PureJsImage benchmark snapshot · 2ca294b · dirty | Strict TypeScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>47 pixel mismatches<br>2 oracle-unavailable cases |
 | GeoTIFF.js 3.0.5 | Pure JavaScript | Yes | Partial | Yes | Yes | Yes | No | 84/106 decoded<br>32 exact<br>52 pixel mismatches<br>11 unsupported · 7 errors · 2 oracle-unavailable cases · 2 crashes |
 | UTIF.js (utif2) 4.1.0 | Pure JavaScript | Yes | No | Yes | No | Partial | No | 74/106 decoded<br>49 exact<br>25 pixel mismatches<br>28 errors · 2 oracle-unavailable cases · 2 timeouts · 3 crashes |
 | image-js/tiff 7.1.3 | Pure JavaScript | Yes | No | Yes | No | Yes | No | 41/106 decoded<br>27 exact<br>14 pixel mismatches<br>51 unsupported · 12 errors · 2 oracle-unavailable cases |
@@ -543,8 +543,8 @@ esbuild, gzip, and Brotli settings:
 
 | Import | Version | Codecs included | Minified JS | gzip | Brotli |
 | --- | --- | --- | ---: | ---: | ---: |
-| **PureJsImage matched** | **0.9.0** | JPEG, PNG | 154.6 KiB | 49.6 KiB | 41.6 KiB |
-| PureJsImage all codecs | 0.9.0 | 13 codecs | 814.9 KiB | 288.0 KiB | 239.0 KiB |
+| **PureJsImage matched** | **0.10.0** | JPEG, PNG | 155.6 KiB | 49.9 KiB | 41.9 KiB |
+| PureJsImage all codecs | 0.10.0 | 13 codecs | 844.1 KiB | 296.6 KiB | 245.3 KiB |
 | Jimp | 1.6.0 | JPEG, PNG, TIFF, BMP, GIF | 577.4 KiB | 174.6 KiB | 139.5 KiB |
 | image-js | 1.7.0 | JPEG, PNG, TIFF, BMP | 361.5 KiB | 111.2 KiB | 94.3 KiB |
 | jSquash | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | JPEG, PNG | **52.4 KiB** | **16.0 KiB** | **13.2 KiB** |
@@ -554,9 +554,21 @@ Sharp's JavaScript bundle is only a wrapper around native code, while jSquash's
 JavaScript bundle is glue around its WebAssembly codecs and resizer. The
 complete installed deployment tells the other half of the story:
 
+The new application APIs remain explicit imports and do not enter the root or
+codec bundles. Measured independently on the same candidate:
+
+| PureJsImage entry | Minified JS | gzip | Brotli |
+| --- | ---: | ---: | ---: |
+| Core API | 59.9 KiB | 18.9 KiB | 16.8 KiB |
+| Core + scientific platform | 140.2 KiB | 40.8 KiB | 35.2 KiB |
+| All scientific readers | 348.7 KiB | 107.0 KiB | 89.1 KiB |
+| Operation descriptors and runtime | 43.3 KiB | 11.7 KiB | 10.5 KiB |
+| Analysis application API | 267.0 KiB | 73.0 KiB | 59.8 KiB |
+| Trusted extension host | 45.5 KiB | 12.5 KiB | 11.2 KiB |
+
 | Package | Version | Installed footprint | Production packages |
 | --- | --- | ---: | ---: |
-| **PureJsImage** | **0.9.0** | **2.9 MiB** | **1** |
+| **PureJsImage** | **0.10.0** | **3.9 MiB** | **1** |
 | Jimp | 1.6.0 | 29.3 MiB | 70 |
 | image-js | 1.7.0 | 17.0 MiB | 46 |
 | jSquash JPEG + PNG + resize | JPEG 1.6.0; PNG 3.1.1; resize 2.1.1 | **1.0 MiB** | **3** |
@@ -588,7 +600,7 @@ If you can deploy native libvips and throughput or latency is the main constrain
 across the five commonly supported benchmark workflows. PureJsImage is the better fit when the same
 code must run in Node.js and browsers or edge workers, native addons or WASM are prohibited, or a
 zero-dependency deployment materially simplifies an air-gapped or supply-chain-restricted build.
-The measured installed footprint was 2.9 MiB and one package for PureJsImage versus 18.9 MiB and six
+The measured installed footprint was 3.9 MiB and one package for PureJsImage versus 18.9 MiB and six
 production packages for Sharp.
 
 [Read the practical guides →](https://purejsimage.com/guides/)

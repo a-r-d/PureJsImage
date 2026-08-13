@@ -1,12 +1,12 @@
-# PureJsImage 0.10.0 prerelease notes (draft)
+# PureJsImage 0.10.0 release notes
 
-These are candidate notes only. The release manager must choose the exact prerelease identifier and
-separately authorize version changes, a release commit, tag, push, npm publication, and GitHub
-release. No release state is changed by this document.
+PureJsImage 0.10.0 expands the first-party codec suite and introduces an opt-in alpha foundation for
+browser and Node scientific applications. The ordinary image pipeline remains unchanged and the
+published package retains no runtime dependency tree.
 
 ## Application-platform foundation
 
-This candidate adds an opt-in foundation for browser and Node scientific applications while keeping
+This release adds an opt-in foundation for browser and Node scientific applications while keeping
 the ordinary image pipeline unchanged:
 
 - labeled-axis `ScientificDataset` descriptors and arbitrary-axis bounded plane reads;
@@ -40,16 +40,15 @@ and the [0.10 ScientificDataset guide](migration/0.10-scientific.md).
 Persisted project, lifecycle, reproducibility, and tile-memory guarantees are collected in the
 [application-platform contract index](contracts/README.md).
 
-The unreleased branch also includes an explicitly registered Aperio SVS scientific reader, a
+The release also includes an explicitly registered Aperio SVS scientific reader, a
 bit-exact `select-resolution-level` transform, and the first globally prepared operation:
 deterministic tiled connected components. It returns lazy uint32 labels and a bounded columnar
-object table without materializing a complete slide, mask, or label plane. These remain branch
-preview APIs and are not present in the current npm 0.9.x package.
+object table without materializing a complete slide, mask, or label plane.
 
 Existing root/browser package imports and ordinary image workflows such as
-`image.resize(...).jpeg(...)` retain their direct pipeline. This is a pre-1.0 alpha API: contracts
-that were never published may still be cleaned up before this candidate is actually versioned and
-published; the release notes must be rechecked against the final commit.
+`image.resize(...).jpeg(...)` retain their direct pipeline. The application platform is a pre-1.0
+alpha API, and provider and extension APIs are experimental; later incompatible changes require
+explicit package, operation, graph, or migration versioning as applicable.
 
 ## External application evidence
 
@@ -97,11 +96,10 @@ or release budgets.
 - Reader-provided display recommendations and package-owned viewport/persistence policies are not
   part of the current generic contract.
 
-## Candidate gate status
+## Release validation
 
-This draft is **not release-ready**. Historical candidate hashes and partial gate counts have been
-removed because they do not describe the commit that will be published. After the final hardening
-and documentation commit, the release manager must record one coherent candidate audit:
+The release manager records one coherent candidate audit for the exact release commit before
+tagging:
 
 - final candidate commit SHA and clean status;
 - complete `npm run check` result, including the hostile-source phase;
@@ -113,5 +111,4 @@ and documentation commit, the release manager must record one coherent candidate
 - benchmark host CPU/OS/runtime, command, input corpus identity, and result artifact; and
 - any remaining failure linked to a GitHub issue rather than described as an evergreen exception.
 
-Do not replace these fields with evidence from an earlier SHA. Version changes, tags, publication,
-and GitHub release creation remain separately authorized release-manager actions.
+Do not replace these fields with evidence from an earlier SHA.

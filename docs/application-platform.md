@@ -5,10 +5,9 @@ Importing `purejsimage/analysis`, `purejsimage/operations`, or `purejsimage/exte
 create a registry, cache, Worker, or network request. Existing `resize().jpeg()` applications keep
 using the root or browser entry without loading these application APIs.
 
-This is an **unreleased main-branch alpha preview**. The current npm 0.9.x release does not contain
-these application entrypoints. The preview's external boundary is the package tarball packed from
-this branch: applications and examples must not import `src/`, private `dist/` files, or a workspace
-alias. The checked fixture at
+This is an **alpha application platform introduced in PureJsImage 0.10.0**. Provider and extension
+APIs remain experimental. Its supported external boundary is the published package: applications
+and examples must not import `src/`, private `dist/` files, or a workspace alias. The checked fixture at
 [`test-fixtures/packed-package-consumer`](../test-fixtures/packed-package-consumer) installs that
 packed tarball, compiles the examples below, and bundles both browser and Worker entry points.
 

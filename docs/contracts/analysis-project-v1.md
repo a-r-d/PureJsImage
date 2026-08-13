@@ -186,7 +186,7 @@ integrity contract.
   }],
   "providerPolicy": { "mode": "reference-only" },
   "display": { "dataset": "surface", "axes": ["x", "y"] },
-  "createdWith": { "packageVersion": "0.10.0-alpha.1", "buildFingerprint": "example-build" },
+  "createdWith": { "packageVersion": "0.10.0", "buildFingerprint": "example-build" },
   "hashes": { "graph": "<64 lowercase hex>", "bindings": "<64 lowercase hex>", "invocation": "<64 lowercase hex>" }
 }
 ```

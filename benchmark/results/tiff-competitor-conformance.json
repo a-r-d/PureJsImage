@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "generatedAt": "2026-08-10T22:52:59.765Z",
+  "generatedAt": "2026-08-13T23:31:17.695Z",
   "nodeVersion": "v24.16.0",
   "platform": "linux",
   "architecture": "x64",
@@ -15,9 +15,9 @@
     ]
   },
   "purejsimage": {
-    "packageVersion": "0.9.0",
-    "gitCommit": "a1f20da06b7fecb7f17b23be7d73f22e16ed7998",
-    "dirty": false
+    "packageVersion": "0.10.0",
+    "gitCommit": "2ca294b60577cc0fe1ffac89952375c3f619348c",
+    "dirty": true
   },
   "versions": {
     "geotiff": "3.0.5",
@@ -251,7 +251,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 19.718696999999963,
+      "decodeMilliseconds": 17.877274999999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -266,7 +266,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 9.303339999999992,
+      "decodeMilliseconds": 8.61893299999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -281,7 +281,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.3072460000000206,
+      "decodeMilliseconds": 3.282188000000019,
       "errorCode": null,
       "errorMessage": null
     },
@@ -296,7 +296,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.5269910000000664,
+      "decodeMilliseconds": 2.419791000000032,
       "errorCode": null,
       "errorMessage": null
     },
@@ -311,7 +311,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.9008680000000595,
+      "decodeMilliseconds": 3.810771000000045,
       "errorCode": null,
       "errorMessage": null
     },
@@ -326,7 +326,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.817168000000038,
+      "decodeMilliseconds": 6.313598000000013,
       "errorCode": null,
       "errorMessage": null
     },
@@ -341,7 +341,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 11.757060000000024,
+      "decodeMilliseconds": 8.055976999999984,
       "errorCode": null,
       "errorMessage": null
     },
@@ -356,7 +356,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.248271999999986,
+      "decodeMilliseconds": 2.4611269999999763,
       "errorCode": null,
       "errorMessage": null
     },
@@ -371,7 +371,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.0221250000000168,
+      "decodeMilliseconds": 1.1125099999999861,
       "errorCode": null,
       "errorMessage": null
     },
@@ -386,7 +386,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.1802739999999972,
+      "decodeMilliseconds": 1.1179329999999936,
       "errorCode": null,
       "errorMessage": null
     },
@@ -401,7 +401,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.4118439999999737,
+      "decodeMilliseconds": 2.3181470000000104,
       "errorCode": null,
       "errorMessage": null
     },
@@ -416,7 +416,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.7683889999999565,
+      "decodeMilliseconds": 3.499420999999984,
       "errorCode": null,
       "errorMessage": null
     },
@@ -431,7 +431,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 39.48598500000003,
+      "decodeMilliseconds": 34.74126300000006,
       "errorCode": null,
       "errorMessage": null
     },
@@ -446,7 +446,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 35.34659199999999,
+      "decodeMilliseconds": 32.421200999999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -461,7 +461,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 12.216887000000042,
+      "decodeMilliseconds": 11.474177999999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -476,7 +476,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 52.38124000000005,
+      "decodeMilliseconds": 45.57183399999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -491,7 +491,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 33.686824,
+      "decodeMilliseconds": 32.00634500000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -506,7 +506,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 20.351178000000004,
+      "decodeMilliseconds": 17.651391999999987,
       "errorCode": null,
       "errorMessage": null
     },
@@ -521,7 +521,7 @@
       "mismatchedPixels": 26620,
       "maximumChannelDelta": 31,
       "rootMeanSquareError": 0.22418278528663182,
-      "decodeMilliseconds": 658.171939,
+      "decodeMilliseconds": 534.290731,
       "errorCode": null,
       "errorMessage": null
     },
@@ -733,7 +733,7 @@
       "rootMeanSquareError": null,
       "decodeMilliseconds": null,
       "errorCode": null,
-      "errorMessage": "<--- Last few GCs ---> [795266:0x44304000]     2910 ms: Mark-Compact 507.9 (514.2) -> 507.5 (516.2) MB, pooled: 0 MB, 278.79 / 0.00 ms  (average mu = 0.116, current mu = 0.018) allocation failure; scavenge might not succeed FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory ----- Native stack trace -----  1: 0x744ae8 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/home/ard/.nvm/versions/node/v24.16.0/bin/node]  2: 0xc1a4b0  [/h"
+      "errorMessage": "<--- Last few GCs ---> [1048502:0x2cec3000]     2054 ms: Mark-Compact (reduce) 507.6 (522.9) -> 506.8 (512.2) MB, pooled: 0 MB, 104.62 / 0.00 ms  (+ 0.5 ms in 65 steps since start of marking, biggest step 0.4 ms, walltime since start of marking 110 ms) (average mu = 0.274, curr[1048502:0x2cec3000]     2194 ms: Mark-Compact 507.9 (512.4) -> 507.5 (516.2) MB, pooled: 0 MB, 138.65 / 0.00 ms  (average mu = 0.154, current mu = 0.006) allocation failure; scavenge might not succeed FATAL ERROR: Ineff"
     },
     {
       "engine": "tiff",
@@ -778,7 +778,7 @@
       "rootMeanSquareError": null,
       "decodeMilliseconds": null,
       "errorCode": null,
-      "errorMessage": "<--- Last few GCs ---> [795309:0x2f574000]     2145 ms: Scavenge (interleaved) 508.5 (513.4) -> 508.2 (514.2) MB, pooled: 0 MB, 3.08 / 0.00 ms  (average mu = 0.361, current mu = 0.244) allocation failure;  [795309:0x2f574000]     2269 ms: Mark-Compact (reduce) 509.4 (514.2) -> 509.1 (513.2) MB, pooled: 0 MB, 91.62 / 0.00 ms  (+ 0.3 ms in 16 steps since start of marking, biggest step 0.3 ms, walltime since start of marking 94 ms) (average mu = 0.334, current FATAL ERROR: Reached heap limit Alloc"
+      "errorMessage": "<--- Last few GCs ---> [1048547:0x1d253000]     2112 ms: Scavenge (interleaved) 508.0 (513.7) -> 507.8 (518.7) MB, pooled: 0 MB, 2.37 / 0.00 ms  (average mu = 0.270, current mu = 0.281) allocation failure;  [1048547:0x1d253000]     2259 ms: Mark-Compact (reduce) 511.4 (519.2) -> 510.8 (515.7) MB, pooled: 0 MB, 121.51 / 0.00 ms  (+ 0.3 ms in 51 steps since start of marking, biggest step 0.2 ms, walltime since start of marking 126 ms) (average mu = 0.246, curr FATAL ERROR: Ineffective mark-compac"
     },
     {
       "engine": "purejsimage",
@@ -823,7 +823,7 @@
       "rootMeanSquareError": null,
       "decodeMilliseconds": null,
       "errorCode": null,
-      "errorMessage": "<--- Last few GCs ---> [795427:0x320df000]     2319 ms: Mark-Compact 503.9 (514.2) -> 503.5 (516.2) MB, pooled: 0 MB, 313.53 / 0.00 ms  (average mu = 0.157, current mu = 0.018) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory ----- Native stack trace -----  1: 0x744ae8 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/home/ard/.nvm/versions/node/v24.16.0/bin/node]  2: 0xc1a4b0  [/home/ard/.nvm/versions/n"
+      "errorMessage": "<--- Last few GCs ---> [1048638:0xfe75000]     1684 ms: Scavenge (interleaved) 503.6 (513.7) -> 503.4 (514.4) MB, pooled: 0 MB, 2.79 / 0.00 ms  (average mu = 0.250, current mu = 0.189) allocation failure;  [1048638:0xfe75000]     1799 ms: Mark-Compact 504.6 (514.7) -> 504.3 (520.4) MB, pooled: 0 MB, 111.72 / 0.00 ms  (average mu = 0.194, current mu = 0.088) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory ----- Nat"
     },
     {
       "engine": "tiff",
@@ -868,7 +868,7 @@
       "rootMeanSquareError": null,
       "decodeMilliseconds": null,
       "errorCode": null,
-      "errorMessage": "<--- Last few GCs ---> [795463:0x1f6e8000]     1871 ms: Scavenge (interleaved) 499.7 (512.2) -> 499.5 (522.7) MB, pooled: 0 MB, 4.46 / 0.00 ms  (average mu = 0.501, current mu = 0.330) allocation failure;  [795463:0x1f6e8000]     2074 ms: Mark-Compact (reduce) 505.2 (523.4) -> 504.4 (513.7) MB, pooled: 0 MB, 183.16 / 0.00 ms  (+ 0.7 ms in 82 steps since start of marking, biggest step 0.6 ms, walltime since start of marking 191 ms) (average mu = 0.334, curre FATAL ERROR: Reached heap limit Alloc"
+      "errorMessage": "<--- Last few GCs ---> [1048692:0x31aff000]     1736 ms: Mark-Compact (reduce) 507.6 (515.9) -> 507.1 (512.9) MB, pooled: 0 MB, 79.02 / 0.00 ms  (+ 0.3 ms in 51 steps since start of marking, biggest step 0.1 ms, walltime since start of marking 84 ms) (average mu = 0.310, curren[1048692:0x31aff000]     1942 ms: Mark-Compact 508.3 (512.9) -> 508.0 (516.7) MB, pooled: 0 MB, 204.66 / 0.00 ms  (average mu = 0.124, current mu = 0.003) allocation failure; scavenge might not succeed FATAL ERROR: Ineff"
     },
     {
       "engine": "purejsimage",
@@ -913,7 +913,7 @@
       "rootMeanSquareError": null,
       "decodeMilliseconds": null,
       "errorCode": null,
-      "errorMessage": "<--- Last few GCs ---> [795517:0xf69b000]     2121 ms: Scavenge (interleaved) 500.6 (510.7) -> 500.4 (515.7) MB, pooled: 0 MB, 4.38 / 0.00 ms  (average mu = 0.203, current mu = 0.119) allocation failure;  [795517:0xf69b000]     2371 ms: Mark-Compact 504.1 (516.2) -> 503.4 (520.2) MB, pooled: 0 MB, 244.60 / 0.00 ms  (average mu = 0.147, current mu = 0.074) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory ----- Nativ"
+      "errorMessage": "<--- Last few GCs ---> [1048759:0x44d9d000]     2093 ms: Mark-Compact (reduce) 509.6 (515.9) -> 509.3 (514.4) MB, pooled: 0 MB, 82.05 / 0.00 ms  (+ 0.5 ms in 8 steps since start of marking, biggest step 0.5 ms, walltime since start of marking 85 ms) (average mu = 0.106, current FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory ----- Native stack trace -----  1: 0x744ae8 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/home/ard/."
     },
     {
       "engine": "tiff",
@@ -958,7 +958,7 @@
       "rootMeanSquareError": null,
       "decodeMilliseconds": null,
       "errorCode": null,
-      "errorMessage": "<--- Last few GCs ---> [795556:0x18270000]     2373 ms: Mark-Compact (reduce) 507.2 (515.4) -> 506.6 (512.2) MB, pooled: 0 MB, 108.27 / 0.00 ms  (+ 0.8 ms in 58 steps since start of marking, biggest step 0.7 ms, walltime since start of marking 115 ms) (average mu = 0.238, curre[795556:0x18270000]     2623 ms: Mark-Compact 507.8 (512.2) -> 507.5 (515.9) MB, pooled: 0 MB, 249.73 / 0.00 ms  (average mu = 0.115, current mu = 0.003) allocation failure; scavenge might not succeed FATAL ERROR: Ineffe"
+      "errorMessage": "<--- Last few GCs ---> [1048796:0x31c74000]     2093 ms: Scavenge (interleaved) 503.9 (512.4) -> 503.4 (513.2) MB, pooled: 0 MB, 4.09 / 0.00 ms  (average mu = 0.303, current mu = 0.298) allocation failure;  [1048796:0x31c74000]     2204 ms: Mark-Compact (reduce) 507.2 (515.9) -> 506.6 (512.9) MB, pooled: 0 MB, 90.96 / 0.00 ms  (+ 0.5 ms in 55 steps since start of marking, biggest step 0.4 ms, walltime since start of marking 96 ms) (average mu = 0.297, curren FATAL ERROR: Ineffective mark-compac"
     },
     {
       "engine": "purejsimage",
@@ -971,7 +971,7 @@
       "mismatchedPixels": 368,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.25958199571618984,
-      "decodeMilliseconds": 12.47709199999997,
+      "decodeMilliseconds": 12.887721000000056,
       "errorCode": null,
       "errorMessage": null
     },
@@ -986,7 +986,7 @@
       "mismatchedPixels": 1901,
       "maximumChannelDelta": 26,
       "rootMeanSquareError": 3.483464006470427,
-      "decodeMilliseconds": 5.254143999999997,
+      "decodeMilliseconds": 4.99712999999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1061,7 +1061,7 @@
       "mismatchedPixels": 368,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.25958199571618984,
-      "decodeMilliseconds": 12.386255000000006,
+      "decodeMilliseconds": 11.703745000000026,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1076,7 +1076,7 @@
       "mismatchedPixels": 14,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.05063078670631141,
-      "decodeMilliseconds": 5.470060999999987,
+      "decodeMilliseconds": 4.7345470000000205,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1091,7 +1091,7 @@
       "mismatchedPixels": 4096,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 127.50003877526984,
-      "decodeMilliseconds": 1.4161599999999908,
+      "decodeMilliseconds": 1.3276590000000397,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1136,7 +1136,7 @@
       "mismatchedPixels": 4096,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 127.50003877526984,
-      "decodeMilliseconds": 5.030577999999991,
+      "decodeMilliseconds": 3.7143540000000144,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1151,7 +1151,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 18.074840999999992,
+      "decodeMilliseconds": 15.605039999999974,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1166,7 +1166,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.016016000000036,
+      "decodeMilliseconds": 4.303500000000042,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1181,7 +1181,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.8818169999999554,
+      "decodeMilliseconds": 1.7145820000000072,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1226,7 +1226,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.736336000000051,
+      "decodeMilliseconds": 4.477573000000007,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1241,7 +1241,7 @@
       "mismatchedPixels": 60,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.07708020514173115,
-      "decodeMilliseconds": 19.640985,
+      "decodeMilliseconds": 17.361090999999988,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1256,7 +1256,7 @@
       "mismatchedPixels": 2775,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 105.06472505373668,
-      "decodeMilliseconds": 5.137254999999982,
+      "decodeMilliseconds": 3.8558589999999526,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1271,7 +1271,7 @@
       "mismatchedPixels": 164,
       "maximumChannelDelta": 254,
       "rootMeanSquareError": 18.244010094301846,
-      "decodeMilliseconds": 1.8869229999999106,
+      "decodeMilliseconds": 1.7477329999999824,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1286,7 +1286,7 @@
       "mismatchedPixels": 60,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.07708020514173115,
-      "decodeMilliseconds": 2.9179110000000037,
+      "decodeMilliseconds": 2.7072689999999966,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1301,7 +1301,7 @@
       "mismatchedPixels": 2775,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 103.46863528458428,
-      "decodeMilliseconds": 4.685570999999982,
+      "decodeMilliseconds": 4.040494000000024,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1316,7 +1316,7 @@
       "mismatchedPixels": 164,
       "maximumChannelDelta": 254,
       "rootMeanSquareError": 18.244010094301846,
-      "decodeMilliseconds": 4.6582460000000765,
+      "decodeMilliseconds": 4.013913000000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1331,7 +1331,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 98.70250300000009,
+      "decodeMilliseconds": 79.13485100000003,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1361,7 +1361,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 14.694090999999958,
+      "decodeMilliseconds": 10.11616399999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1406,7 +1406,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 16.53803000000005,
+      "decodeMilliseconds": 12.725284999999985,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1421,7 +1421,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 12.905868000000055,
+      "decodeMilliseconds": 13.994304,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1436,7 +1436,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.281577000000084,
+      "decodeMilliseconds": 4.152839999999969,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1511,7 +1511,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 16.284332999999947,
+      "decodeMilliseconds": 14.838242000000037,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1526,7 +1526,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.400253000000021,
+      "decodeMilliseconds": 3.964751000000035,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1601,7 +1601,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 16.208465000000047,
+      "decodeMilliseconds": 11.210730000000012,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1616,7 +1616,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.158237999999983,
+      "decodeMilliseconds": 4.129910000000052,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1781,7 +1781,7 @@
       "mismatchedPixels": 23705,
       "maximumChannelDelta": 40,
       "rootMeanSquareError": 12.500193612201167,
-      "decodeMilliseconds": 42.45732900000007,
+      "decodeMilliseconds": 40.284004000000095,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1796,7 +1796,7 @@
       "mismatchedPixels": 23707,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 81.46482696629623,
-      "decodeMilliseconds": 9.862182999999959,
+      "decodeMilliseconds": 7.352449999999976,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1961,7 +1961,7 @@
       "mismatchedPixels": 23705,
       "maximumChannelDelta": 40,
       "rootMeanSquareError": 12.493453383322887,
-      "decodeMilliseconds": 30.95041600000002,
+      "decodeMilliseconds": 28.703309999999988,
       "errorCode": null,
       "errorMessage": null
     },
@@ -1976,7 +1976,7 @@
       "mismatchedPixels": 23707,
       "maximumChannelDelta": 38,
       "rootMeanSquareError": 12.64142962759691,
-      "decodeMilliseconds": 8.931376,
+      "decodeMilliseconds": 7.059320000000014,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2141,7 +2141,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 82.76656500000001,
+      "decodeMilliseconds": 75.19451499999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2231,7 +2231,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 80.49531400000001,
+      "decodeMilliseconds": 67.66036700000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2246,7 +2246,7 @@
       "mismatchedPixels": 485600,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 178.2939389017302,
-      "decodeMilliseconds": 29.21664599999997,
+      "decodeMilliseconds": 26.015048999999976,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2261,7 +2261,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 12.310400999999956,
+      "decodeMilliseconds": 8.533942000000025,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2306,7 +2306,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 14.972036000000003,
+      "decodeMilliseconds": 12.109098000000017,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2321,7 +2321,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 17.05177399999991,
+      "decodeMilliseconds": 8.445231999999976,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2336,7 +2336,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.1729939999999033,
+      "decodeMilliseconds": 2.5769540000000006,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2351,7 +2351,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.508685000000014,
+      "decodeMilliseconds": 1.33512300000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2366,7 +2366,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.2791530000000648,
+      "decodeMilliseconds": 1.145279999999957,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2381,7 +2381,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.839766999999938,
+      "decodeMilliseconds": 2.3501440000000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2396,7 +2396,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.022265000000061,
+      "decodeMilliseconds": 3.884247000000016,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2411,7 +2411,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 43.15863200000001,
+      "decodeMilliseconds": 39.02923999999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2426,7 +2426,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 26.954817000000048,
+      "decodeMilliseconds": 24.29893000000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2441,7 +2441,7 @@
       "mismatchedPixels": 2000,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 10.210435250272145,
-      "decodeMilliseconds": 15.31768000000011,
+      "decodeMilliseconds": 13.847271999999975,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2456,7 +2456,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 22.166728000000035,
+      "decodeMilliseconds": 17.807690000000093,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2471,7 +2471,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 17.39978199999996,
+      "decodeMilliseconds": 17.334190000000035,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2486,7 +2486,7 @@
       "mismatchedPixels": 2000,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 10.210435250272145,
-      "decodeMilliseconds": 18.17001499999992,
+      "decodeMilliseconds": 17.31429300000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2501,7 +2501,7 @@
       "mismatchedPixels": 2,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.001275775907699572,
-      "decodeMilliseconds": 112.36907400000007,
+      "decodeMilliseconds": 106.16661099999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2531,7 +2531,7 @@
       "mismatchedPixels": 292825,
       "maximumChannelDelta": 111,
       "rootMeanSquareError": 10.333229835566197,
-      "decodeMilliseconds": 14.606808999999998,
+      "decodeMilliseconds": 11.977700999999911,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2576,7 +2576,7 @@
       "mismatchedPixels": 292825,
       "maximumChannelDelta": 111,
       "rootMeanSquareError": 10.333229835566197,
-      "decodeMilliseconds": 23.716142999999988,
+      "decodeMilliseconds": 17.360185,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2591,7 +2591,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 14.281233000000043,
+      "decodeMilliseconds": 8.607476999999903,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2606,7 +2606,7 @@
       "mismatchedPixels": 64,
       "maximumChannelDelta": 254,
       "rootMeanSquareError": 127,
-      "decodeMilliseconds": 3.898243000000093,
+      "decodeMilliseconds": 3.7723199999999792,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2621,7 +2621,7 @@
       "mismatchedPixels": 64,
       "maximumChannelDelta": 254,
       "rootMeanSquareError": 127,
-      "decodeMilliseconds": 1.16738399999997,
+      "decodeMilliseconds": 1.6110370000000103,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2636,7 +2636,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.2869930000000522,
+      "decodeMilliseconds": 1.6190049999999019,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2666,7 +2666,7 @@
       "mismatchedPixels": 64,
       "maximumChannelDelta": 254,
       "rootMeanSquareError": 127,
-      "decodeMilliseconds": 4.041516999999999,
+      "decodeMilliseconds": 3.814317000000017,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2681,7 +2681,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 14.762787000000003,
+      "decodeMilliseconds": 8.689503000000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2696,7 +2696,7 @@
       "mismatchedPixels": 64,
       "maximumChannelDelta": 254,
       "rootMeanSquareError": 127,
-      "decodeMilliseconds": 3.4751959999999826,
+      "decodeMilliseconds": 3.0781979999999862,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2711,7 +2711,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.3889030000000275,
+      "decodeMilliseconds": 1.022248999999988,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2726,7 +2726,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.2868720000000167,
+      "decodeMilliseconds": 1.1332380000000057,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2756,7 +2756,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.074053000000049,
+      "decodeMilliseconds": 3.605690999999979,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2771,7 +2771,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 168.18838899999992,
+      "decodeMilliseconds": 142.57110499999993,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2801,7 +2801,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 70.18477500000006,
+      "decodeMilliseconds": 51.55232500000005,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2846,7 +2846,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 69.83055000000002,
+      "decodeMilliseconds": 64.82240999999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2861,7 +2861,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 106.55755599999998,
+      "decodeMilliseconds": 84.64429799999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2891,7 +2891,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 68.26871900000003,
+      "decodeMilliseconds": 58.84656899999993,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2936,7 +2936,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 85.90889100000004,
+      "decodeMilliseconds": 59.69761999999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2951,7 +2951,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 20.93216300000006,
+      "decodeMilliseconds": 14.955189000000018,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2966,7 +2966,7 @@
       "mismatchedPixels": 1647,
       "maximumChannelDelta": 63,
       "rootMeanSquareError": 15.033770522810512,
-      "decodeMilliseconds": 4.859674999999925,
+      "decodeMilliseconds": 4.168245999999954,
       "errorCode": null,
       "errorMessage": null
     },
@@ -2981,7 +2981,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.6474660000000085,
+      "decodeMilliseconds": 1.5295340000000124,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3026,7 +3026,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.62222799999995,
+      "decodeMilliseconds": 3.7809220000000323,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3041,7 +3041,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 14.238388999999984,
+      "decodeMilliseconds": 16.326352000000043,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3056,7 +3056,7 @@
       "mismatchedPixels": 3115,
       "maximumChannelDelta": 15,
       "rootMeanSquareError": 5.01056545387537,
-      "decodeMilliseconds": 4.450902000000042,
+      "decodeMilliseconds": 4.321651999999972,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3071,7 +3071,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 153.33563324429036,
-      "decodeMilliseconds": 1.3710250000000315,
+      "decodeMilliseconds": 1.1023759999999925,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3116,7 +3116,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 153.33563324429036,
-      "decodeMilliseconds": 4.052632000000017,
+      "decodeMilliseconds": 3.8476810000000796,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3131,7 +3131,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 16.504685999999992,
+      "decodeMilliseconds": 14.29353100000003,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3146,7 +3146,7 @@
       "mismatchedPixels": 1647,
       "maximumChannelDelta": 3,
       "rootMeanSquareError": 0.7158938344195482,
-      "decodeMilliseconds": 5.348426000000018,
+      "decodeMilliseconds": 4.514133000000015,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3161,7 +3161,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 155.83450094651724,
-      "decodeMilliseconds": 1.4545779999999695,
+      "decodeMilliseconds": 1.235125000000039,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3206,7 +3206,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 155.83450094651724,
-      "decodeMilliseconds": 4.350870999999984,
+      "decodeMilliseconds": 3.5767759999999953,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3221,7 +3221,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 11.76928399999997,
+      "decodeMilliseconds": 10.262999000000036,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3236,7 +3236,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.633127000000059,
+      "decodeMilliseconds": 3.649650999999949,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3251,7 +3251,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.2945190000000366,
+      "decodeMilliseconds": 1.5846329999999966,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3266,7 +3266,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.833949999999959,
+      "decodeMilliseconds": 1.8818140000000199,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3281,7 +3281,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.6273539999999684,
+      "decodeMilliseconds": 4.746002000000033,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3296,7 +3296,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.464804999999956,
+      "decodeMilliseconds": 6.163479000000052,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3311,7 +3311,7 @@
       "mismatchedPixels": 1570,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.6124699705272956,
-      "decodeMilliseconds": 12.64920600000005,
+      "decodeMilliseconds": 11.692197000000021,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3326,7 +3326,7 @@
       "mismatchedPixels": 3120,
       "maximumChannelDelta": 254,
       "rootMeanSquareError": 73.51829290405188,
-      "decodeMilliseconds": 9.787257000000068,
+      "decodeMilliseconds": 4.27837500000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3341,7 +3341,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 156.66281770648777,
-      "decodeMilliseconds": 1.8649229999999761,
+      "decodeMilliseconds": 1.2522769999999355,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3386,7 +3386,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 156.66281770648777,
-      "decodeMilliseconds": 4.421819000000028,
+      "decodeMilliseconds": 3.6932749999999714,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3401,7 +3401,7 @@
       "mismatchedPixels": 1496,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.5978617521945834,
-      "decodeMilliseconds": 13.034228999999982,
+      "decodeMilliseconds": 12.081098999999938,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3416,7 +3416,7 @@
       "mismatchedPixels": 3128,
       "maximumChannelDelta": 249,
       "rootMeanSquareError": 78.60369797166038,
-      "decodeMilliseconds": 5.190810000000056,
+      "decodeMilliseconds": 4.885000999999988,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3431,7 +3431,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 156.70343401241675,
-      "decodeMilliseconds": 1.6004799999999477,
+      "decodeMilliseconds": 1.4140459999999848,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3476,7 +3476,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 156.70343401241675,
-      "decodeMilliseconds": 5.108636000000047,
+      "decodeMilliseconds": 3.877927999999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3491,7 +3491,7 @@
       "mismatchedPixels": 1502,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.5990594730990011,
-      "decodeMilliseconds": 12.497888999999986,
+      "decodeMilliseconds": 13.202959999999962,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3506,7 +3506,7 @@
       "mismatchedPixels": 3125,
       "maximumChannelDelta": 235,
       "rootMeanSquareError": 80.23967214329969,
-      "decodeMilliseconds": 6.9928409999999985,
+      "decodeMilliseconds": 4.658023999999955,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3521,7 +3521,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 156.71441774417104,
-      "decodeMilliseconds": 1.45450900000003,
+      "decodeMilliseconds": 1.434030000000007,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3566,7 +3566,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 156.71441774417104,
-      "decodeMilliseconds": 4.239917999999989,
+      "decodeMilliseconds": 3.9621140000000423,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3581,7 +3581,7 @@
       "mismatchedPixels": 568,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.3683911103627901,
-      "decodeMilliseconds": 14.104524000000083,
+      "decodeMilliseconds": 17.855844000000047,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3596,7 +3596,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.377883999999995,
+      "decodeMilliseconds": 4.343196999999975,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3611,7 +3611,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.2472510000000057,
+      "decodeMilliseconds": 2.1853300000000218,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3626,7 +3626,7 @@
       "mismatchedPixels": 568,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.3683911103627901,
-      "decodeMilliseconds": 1.9760420000000067,
+      "decodeMilliseconds": 1.84661600000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3641,7 +3641,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.99245899999994,
+      "decodeMilliseconds": 4.198848999999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3656,7 +3656,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.5865929999999935,
+      "decodeMilliseconds": 4.5428380000000175,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3851,7 +3851,7 @@
       "mismatchedPixels": 1437,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.40317709270121743,
-      "decodeMilliseconds": 24.30436999999995,
+      "decodeMilliseconds": 17.722016999999937,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3866,7 +3866,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.194948999999951,
+      "decodeMilliseconds": 4.876519999999971,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3881,7 +3881,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.039354000000003,
+      "decodeMilliseconds": 1.65610700000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3926,7 +3926,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.614727000000016,
+      "decodeMilliseconds": 4.503748999999971,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3941,7 +3941,7 @@
       "mismatchedPixels": 1632,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.4462151904374463,
-      "decodeMilliseconds": 14.442378000000076,
+      "decodeMilliseconds": 14.397694999999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3956,7 +3956,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.776700000000005,
+      "decodeMilliseconds": 7.254931000000056,
       "errorCode": null,
       "errorMessage": null
     },
@@ -3971,7 +3971,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.9507449999999835,
+      "decodeMilliseconds": 1.9877670000000194,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4016,7 +4016,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.513550000000009,
+      "decodeMilliseconds": 4.2166540000000055,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4031,7 +4031,7 @@
       "mismatchedPixels": 2208,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.540049435515171,
-      "decodeMilliseconds": 17.212830999999937,
+      "decodeMilliseconds": 15.516804999999977,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4046,7 +4046,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 248,
       "rootMeanSquareError": 80.44734258085299,
-      "decodeMilliseconds": 5.8437209999999595,
+      "decodeMilliseconds": 3.947318999999993,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4061,7 +4061,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.9100590000000466,
+      "decodeMilliseconds": 1.877161000000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4076,7 +4076,7 @@
       "mismatchedPixels": 1312,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.3621772326934576,
-      "decodeMilliseconds": 2.5702830000000176,
+      "decodeMilliseconds": 2.102846999999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4091,7 +4091,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.663114999999948,
+      "decodeMilliseconds": 3.83355499999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4106,7 +4106,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.687618999999927,
+      "decodeMilliseconds": 6.015326000000016,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4121,7 +4121,7 @@
       "mismatchedPixels": 1918,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.4911611224111762,
-      "decodeMilliseconds": 36.085227999999915,
+      "decodeMilliseconds": 33.127211999999986,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4136,7 +4136,7 @@
       "mismatchedPixels": 3138,
       "maximumChannelDelta": 253,
       "rootMeanSquareError": 88.0368639119693,
-      "decodeMilliseconds": 7.7106240000000525,
+      "decodeMilliseconds": 6.275751000000014,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4166,7 +4166,7 @@
       "mismatchedPixels": 1606,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.4155315322388953,
-      "decodeMilliseconds": 7.1322249999999485,
+      "decodeMilliseconds": 5.628684999999962,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4181,7 +4181,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 9.17206299999998,
+      "decodeMilliseconds": 7.656729000000041,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4211,7 +4211,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 12.84114199999999,
+      "decodeMilliseconds": 11.831191999999987,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4226,7 +4226,7 @@
       "mismatchedPixels": 1753,
       "maximumChannelDelta": 253,
       "rootMeanSquareError": 58.5717234031472,
-      "decodeMilliseconds": 5.719539999999938,
+      "decodeMilliseconds": 4.547498000000019,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4301,7 +4301,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 13.277647000000002,
+      "decodeMilliseconds": 12.221437999999978,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4316,7 +4316,7 @@
       "mismatchedPixels": 3135,
       "maximumChannelDelta": 241,
       "rootMeanSquareError": 76.34624238106827,
-      "decodeMilliseconds": 5.370632999999998,
+      "decodeMilliseconds": 4.651972000000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4391,7 +4391,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 17.973423000000025,
+      "decodeMilliseconds": 11.958670999999981,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4406,7 +4406,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.13201099999992,
+      "decodeMilliseconds": 3.93888400000003,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4421,7 +4421,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.992770999999948,
+      "decodeMilliseconds": 1.6144610000000057,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4436,7 +4436,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.9628910000000133,
+      "decodeMilliseconds": 2.226963000000012,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4451,7 +4451,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.478433999999993,
+      "decodeMilliseconds": 2.746676999999977,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4466,7 +4466,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.541105000000016,
+      "decodeMilliseconds": 3.966627000000017,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4481,7 +4481,7 @@
       "mismatchedPixels": 2691,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.6040903371131154,
-      "decodeMilliseconds": 15.495454000000109,
+      "decodeMilliseconds": 13.534006999999974,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4496,7 +4496,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 251,
       "rootMeanSquareError": 88.7770782583213,
-      "decodeMilliseconds": 6.097152000000051,
+      "decodeMilliseconds": 4.902507000000014,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4571,7 +4571,7 @@
       "mismatchedPixels": 2730,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.6061304105108354,
-      "decodeMilliseconds": 16.174960000000056,
+      "decodeMilliseconds": 13.447925999999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4586,7 +4586,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 239,
       "rootMeanSquareError": 78.2901122065963,
-      "decodeMilliseconds": 5.287718999999925,
+      "decodeMilliseconds": 4.728039000000024,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4661,7 +4661,7 @@
       "mismatchedPixels": 2722,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.606721405038813,
-      "decodeMilliseconds": 16.698617000000013,
+      "decodeMilliseconds": 13.367087000000026,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4676,7 +4676,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 245,
       "rootMeanSquareError": 68.58190678913807,
-      "decodeMilliseconds": 5.450711999999953,
+      "decodeMilliseconds": 5.213143000000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4751,7 +4751,7 @@
       "mismatchedPixels": 1501,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.3989073959514407,
-      "decodeMilliseconds": 22.866686000000072,
+      "decodeMilliseconds": 15.305852000000016,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4766,7 +4766,7 @@
       "mismatchedPixels": 1501,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.3989073959514407,
-      "decodeMilliseconds": 4.3373450000000275,
+      "decodeMilliseconds": 4.277962000000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4781,7 +4781,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.476179000000002,
+      "decodeMilliseconds": 2.445863999999972,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4796,7 +4796,7 @@
       "mismatchedPixels": 1501,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.3989073959514407,
-      "decodeMilliseconds": 2.721642999999972,
+      "decodeMilliseconds": 2.351839000000041,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4811,7 +4811,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.871260000000007,
+      "decodeMilliseconds": 3.563638000000026,
       "errorCode": null,
       "errorMessage": null
     },
@@ -4826,7 +4826,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.911162999999988,
+      "decodeMilliseconds": 4.793084000000022,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5021,7 +5021,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 13.589982000000077,
+      "decodeMilliseconds": 13.817986999999903,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5036,7 +5036,7 @@
       "mismatchedPixels": 1753,
       "maximumChannelDelta": 252,
       "rootMeanSquareError": 58.58245836563907,
-      "decodeMilliseconds": 5.915943999999968,
+      "decodeMilliseconds": 4.82792900000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5111,7 +5111,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 17.13959699999998,
+      "decodeMilliseconds": 12.303382,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5126,7 +5126,7 @@
       "mismatchedPixels": 3135,
       "maximumChannelDelta": 240,
       "rootMeanSquareError": 76.69383657331184,
-      "decodeMilliseconds": 6.386400999999978,
+      "decodeMilliseconds": 4.7357809999999745,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5201,7 +5201,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 23.439415999999937,
+      "decodeMilliseconds": 13.24574899999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5216,7 +5216,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.959799999999973,
+      "decodeMilliseconds": 4.269892000000027,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5231,7 +5231,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 68.65778271796789,
-      "decodeMilliseconds": 1.8118329999999787,
+      "decodeMilliseconds": 1.6322739999999953,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5276,7 +5276,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 68.65778271796789,
-      "decodeMilliseconds": 4.403686999999991,
+      "decodeMilliseconds": 3.84705299999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5291,7 +5291,7 @@
       "mismatchedPixels": 2691,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.6040903371131154,
-      "decodeMilliseconds": 15.829646000000025,
+      "decodeMilliseconds": 18.18986000000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5306,7 +5306,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 191,
       "rootMeanSquareError": 81.4958843460164,
-      "decodeMilliseconds": 5.611263000000008,
+      "decodeMilliseconds": 5.933567000000039,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5381,7 +5381,7 @@
       "mismatchedPixels": 2730,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.6061304105108354,
-      "decodeMilliseconds": 17.524014999999963,
+      "decodeMilliseconds": 17.581019000000083,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5396,7 +5396,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 239,
       "rootMeanSquareError": 82.70015252573327,
-      "decodeMilliseconds": 6.777792999999974,
+      "decodeMilliseconds": 4.914404999999988,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5471,7 +5471,7 @@
       "mismatchedPixels": 2722,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.606721405038813,
-      "decodeMilliseconds": 16.05960099999993,
+      "decodeMilliseconds": 14.40912400000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5486,7 +5486,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 246,
       "rootMeanSquareError": 84.0886345169307,
-      "decodeMilliseconds": 5.512380000000007,
+      "decodeMilliseconds": 5.2348559999999225,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5561,7 +5561,7 @@
       "mismatchedPixels": 1501,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.3989073959514407,
-      "decodeMilliseconds": 27.288887000000045,
+      "decodeMilliseconds": 15.241803000000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5576,7 +5576,7 @@
       "mismatchedPixels": 1501,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.3989073959514407,
-      "decodeMilliseconds": 4.359930000000077,
+      "decodeMilliseconds": 3.9153949999999895,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5591,7 +5591,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 68.92151835889736,
-      "decodeMilliseconds": 3.646284000000037,
+      "decodeMilliseconds": 3.640386000000035,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5636,7 +5636,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 68.92151835889736,
-      "decodeMilliseconds": 5.959717000000069,
+      "decodeMilliseconds": 5.738170000000025,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5831,7 +5831,7 @@
       "mismatchedPixels": 3129,
       "maximumChannelDelta": 23,
       "rootMeanSquareError": 9.293170271690396,
-      "decodeMilliseconds": 14.628412000000026,
+      "decodeMilliseconds": 19.29602799999998,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5846,7 +5846,7 @@
       "mismatchedPixels": 3135,
       "maximumChannelDelta": 24,
       "rootMeanSquareError": 9.84834024953422,
-      "decodeMilliseconds": 4.697695999999951,
+      "decodeMilliseconds": 4.248502999999914,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5921,7 +5921,7 @@
       "mismatchedPixels": 3131,
       "maximumChannelDelta": 23,
       "rootMeanSquareError": 9.300567590334973,
-      "decodeMilliseconds": 16.848390999999992,
+      "decodeMilliseconds": 16.393259,
       "errorCode": null,
       "errorMessage": null
     },
@@ -5936,7 +5936,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 254,
       "rootMeanSquareError": 98.39600992435986,
-      "decodeMilliseconds": 4.867644000000041,
+      "decodeMilliseconds": 4.559315999999967,
       "errorCode": null,
       "errorMessage": null
     },
@@ -6011,7 +6011,7 @@
       "mismatchedPixels": 3129,
       "maximumChannelDelta": 23,
       "rootMeanSquareError": 9.293170271690396,
-      "decodeMilliseconds": 23.118145000000027,
+      "decodeMilliseconds": 14.010473999999988,
       "errorCode": null,
       "errorMessage": null
     },
@@ -6026,7 +6026,7 @@
       "mismatchedPixels": 3135,
       "maximumChannelDelta": 24,
       "rootMeanSquareError": 9.84834024953422,
-      "decodeMilliseconds": 6.051764000000048,
+      "decodeMilliseconds": 5.191597000000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -6101,7 +6101,7 @@
       "mismatchedPixels": 3131,
       "maximumChannelDelta": 23,
       "rootMeanSquareError": 9.300567590334973,
-      "decodeMilliseconds": 17.799744999999916,
+      "decodeMilliseconds": 16.473538000000076,
       "errorCode": null,
       "errorMessage": null
     },
@@ -6116,7 +6116,7 @@
       "mismatchedPixels": 3139,
       "maximumChannelDelta": 254,
       "rootMeanSquareError": 98.39600992435986,
-      "decodeMilliseconds": 4.558682999999974,
+      "decodeMilliseconds": 5.268476000000078,
       "errorCode": null,
       "errorMessage": null
     },
@@ -6191,7 +6191,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 160.82639100000006,
+      "decodeMilliseconds": 153.79983200000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -6221,7 +6221,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 76.53102799999999,
+      "decodeMilliseconds": 73.58042399999994,
       "errorCode": null,
       "errorMessage": null
     },
@@ -6266,7 +6266,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 89.12451799999997,
+      "decodeMilliseconds": 69.30199400000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7001,7 +7001,7 @@
       "mismatchedPixels": 482,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.3836884111815211,
-      "decodeMilliseconds": 16.366837000000032,
+      "decodeMilliseconds": 15.81292499999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7016,7 +7016,7 @@
       "mismatchedPixels": 1024,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 122.19200359347374,
-      "decodeMilliseconds": 4.4692099999999755,
+      "decodeMilliseconds": 3.423027999999988,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7031,7 +7031,7 @@
       "mismatchedPixels": 900,
       "maximumChannelDelta": 239,
       "rootMeanSquareError": 79.25805238073605,
-      "decodeMilliseconds": 1.6310379999999896,
+      "decodeMilliseconds": 1.788453000000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7076,7 +7076,7 @@
       "mismatchedPixels": 900,
       "maximumChannelDelta": 239,
       "rootMeanSquareError": 79.25805238073605,
-      "decodeMilliseconds": 4.050153000000023,
+      "decodeMilliseconds": 3.857299000000012,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7091,7 +7091,7 @@
       "mismatchedPixels": 622,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.4304680410611222,
-      "decodeMilliseconds": 20.20330699999994,
+      "decodeMilliseconds": 17.807276,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7106,7 +7106,7 @@
       "mismatchedPixels": 1024,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 123.1946820585207,
-      "decodeMilliseconds": 6.443666000000007,
+      "decodeMilliseconds": 4.554771000000017,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7121,7 +7121,7 @@
       "mismatchedPixels": 900,
       "maximumChannelDelta": 239,
       "rootMeanSquareError": 80.795314297922,
-      "decodeMilliseconds": 2.1858539999999493,
+      "decodeMilliseconds": 2.022760000000005,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7136,7 +7136,7 @@
       "mismatchedPixels": 622,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.4304680410611222,
-      "decodeMilliseconds": 4.038491000000022,
+      "decodeMilliseconds": 3.5071679999999787,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7151,7 +7151,7 @@
       "mismatchedPixels": 1024,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 93.00124825901196,
-      "decodeMilliseconds": 6.889402999999902,
+      "decodeMilliseconds": 5.2265540000000215,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7166,7 +7166,7 @@
       "mismatchedPixels": 900,
       "maximumChannelDelta": 239,
       "rootMeanSquareError": 80.795314297922,
-      "decodeMilliseconds": 4.769982000000027,
+      "decodeMilliseconds": 4.802419999999984,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7181,7 +7181,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 38.54086600000005,
+      "decodeMilliseconds": 32.28231999999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7211,7 +7211,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 10.185851999999954,
+      "decodeMilliseconds": 9.288934999999924,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7256,7 +7256,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 12.884172000000035,
+      "decodeMilliseconds": 12.345743999999968,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7721,7 +7721,7 @@
       "mismatchedPixels": 1209,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.6691619966628244,
-      "decodeMilliseconds": 16.61085300000002,
+      "decodeMilliseconds": 11.753959000000009,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7736,7 +7736,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.179528000000005,
+      "decodeMilliseconds": 5.193113000000039,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7751,7 +7751,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.026202000000012,
+      "decodeMilliseconds": 1.9110999999999763,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7766,7 +7766,7 @@
       "mismatchedPixels": 1209,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.6691619966628244,
-      "decodeMilliseconds": 3.5988589999999476,
+      "decodeMilliseconds": 3.3323819999999955,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7781,7 +7781,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.5814320000000635,
+      "decodeMilliseconds": 4.814663999999993,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7796,7 +7796,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.531751999999983,
+      "decodeMilliseconds": 4.0559579999999755,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7811,7 +7811,7 @@
       "mismatchedPixels": 1209,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.6691619966628244,
-      "decodeMilliseconds": 12.530211000000008,
+      "decodeMilliseconds": 10.82805499999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7826,7 +7826,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.406770000000051,
+      "decodeMilliseconds": 3.6223790000000236,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7841,7 +7841,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.9746810000000323,
+      "decodeMilliseconds": 1.5363289999999665,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7886,7 +7886,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.366721000000098,
+      "decodeMilliseconds": 4.124424999999974,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7901,7 +7901,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 34.53626299999996,
+      "decodeMilliseconds": 28.722970000000032,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7916,7 +7916,7 @@
       "mismatchedPixels": 49152,
       "maximumChannelDelta": 231,
       "rootMeanSquareError": 126.771841340562,
-      "decodeMilliseconds": 12.40208599999994,
+      "decodeMilliseconds": 9.058484000000021,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7931,7 +7931,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.351280999999972,
+      "decodeMilliseconds": 4.002414999999985,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7976,7 +7976,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 9.644791999999939,
+      "decodeMilliseconds": 6.976787999999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -7991,7 +7991,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 72.415299,
+      "decodeMilliseconds": 72.54685000000006,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8006,7 +8006,7 @@
       "mismatchedPixels": 539832,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 168.64287266597916,
-      "decodeMilliseconds": 28.765629000000104,
+      "decodeMilliseconds": 28.781862000000046,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8021,7 +8021,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 9.24553800000001,
+      "decodeMilliseconds": 9.209812999999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8036,7 +8036,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 19.726163000000042,
+      "decodeMilliseconds": 21.035776,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8051,7 +8051,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 24.65062599999999,
+      "decodeMilliseconds": 26.455240000000003,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8066,7 +8066,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 13.599248999999986,
+      "decodeMilliseconds": 13.74721199999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8081,7 +8081,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 29.19447600000001,
+      "decodeMilliseconds": 31.031822999999918,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8096,7 +8096,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 13.40833299999997,
+      "decodeMilliseconds": 9.977747999999906,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8111,7 +8111,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 7.843372999999929,
+      "decodeMilliseconds": 7.644853000000012,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8126,7 +8126,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 9.96148299999993,
+      "decodeMilliseconds": 6.826235999999994,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8141,7 +8141,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 7.008871999999997,
+      "decodeMilliseconds": 7.382513999999901,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8156,7 +8156,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 10.005276999999978,
+      "decodeMilliseconds": 10.855725000000007,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8171,7 +8171,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 41.47764100000006,
+      "decodeMilliseconds": 44.14233300000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8186,7 +8186,7 @@
       "mismatchedPixels": 93903,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 1.1266518672111714,
-      "decodeMilliseconds": 10.833282999999938,
+      "decodeMilliseconds": 9.157508000000007,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8201,7 +8201,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.62012900000002,
+      "decodeMilliseconds": 9.544647000000055,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8216,7 +8216,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.53639899999996,
+      "decodeMilliseconds": 6.721840000000043,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8231,7 +8231,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 7.129575000000045,
+      "decodeMilliseconds": 8.054970000000083,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8246,7 +8246,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 8.91782999999998,
+      "decodeMilliseconds": 9.133755999999948,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8261,7 +8261,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 44.254144,
+      "decodeMilliseconds": 43.73691800000006,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8276,7 +8276,7 @@
       "mismatchedPixels": 93903,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 1.1266518672111714,
-      "decodeMilliseconds": 10.509145000000103,
+      "decodeMilliseconds": 10.341174000000024,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8291,7 +8291,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.1951669999999694,
+      "decodeMilliseconds": 6.696303000000057,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8306,7 +8306,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.551339999999982,
+      "decodeMilliseconds": 8.419304000000011,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8321,7 +8321,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 9.768068999999969,
+      "decodeMilliseconds": 7.1983169999999745,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8336,7 +8336,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 9.184789000000023,
+      "decodeMilliseconds": 8.56509200000005,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8351,7 +8351,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 128.35359199999994,
+      "decodeMilliseconds": 132.58478300000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8366,7 +8366,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 120.72675100000004,
+      "decodeMilliseconds": 127.41852600000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8381,7 +8381,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 34.61900700000001,
+      "decodeMilliseconds": 29.412693999999988,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8396,7 +8396,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 175.97591799999998,
+      "decodeMilliseconds": 158.149446,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8411,7 +8411,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 156.553849,
+      "decodeMilliseconds": 134.21227600000003,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8426,7 +8426,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 35.78028599999993,
+      "decodeMilliseconds": 31.77948900000007,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8441,7 +8441,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 132.07030699999996,
+      "decodeMilliseconds": 115.58566800000006,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8456,7 +8456,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 122.06719599999997,
+      "decodeMilliseconds": 107.33152000000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8471,7 +8471,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 29.78352899999993,
+      "decodeMilliseconds": 28.32163399999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8486,7 +8486,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 166.602663,
+      "decodeMilliseconds": 136.599223,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8501,7 +8501,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 141.879725,
+      "decodeMilliseconds": 122.56525599999998,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8516,7 +8516,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 41.36740499999996,
+      "decodeMilliseconds": 32.77515200000005,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8531,7 +8531,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 17.63712499999997,
+      "decodeMilliseconds": 15.574172000000033,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8546,7 +8546,7 @@
       "mismatchedPixels": 5047,
       "maximumChannelDelta": 127,
       "rootMeanSquareError": 78.13596946989267,
-      "decodeMilliseconds": 5.68703400000004,
+      "decodeMilliseconds": 5.834108000000015,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8561,7 +8561,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.3731469999999035,
+      "decodeMilliseconds": 2.1652239999999665,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8576,7 +8576,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.507154000000014,
+      "decodeMilliseconds": 3.293493000000012,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8591,7 +8591,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.830756000000008,
+      "decodeMilliseconds": 4.447419000000025,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8606,7 +8606,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.920725999999945,
+      "decodeMilliseconds": 5.608533999999963,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8621,7 +8621,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 17.864981000000057,
+      "decodeMilliseconds": 17.193058000000065,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8636,7 +8636,7 @@
       "mismatchedPixels": 5047,
       "maximumChannelDelta": 127,
       "rootMeanSquareError": 78.13596946989267,
-      "decodeMilliseconds": 6.718089000000077,
+      "decodeMilliseconds": 6.358789999999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8651,7 +8651,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.0242640000000165,
+      "decodeMilliseconds": 2.43847199999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8666,7 +8666,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.798494000000005,
+      "decodeMilliseconds": 2.795370000000048,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8681,7 +8681,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.732498000000021,
+      "decodeMilliseconds": 4.335256000000072,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8696,7 +8696,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.857548000000008,
+      "decodeMilliseconds": 4.558529000000021,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8711,7 +8711,7 @@
       "mismatchedPixels": 4309,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.4163411443863117,
-      "decodeMilliseconds": 31.946702999999957,
+      "decodeMilliseconds": 29.011578999999927,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8726,7 +8726,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 17.416766000000052,
+      "decodeMilliseconds": 15.273249999999962,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8741,7 +8741,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 8.61479799999995,
+      "decodeMilliseconds": 7.138700999999969,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8756,7 +8756,7 @@
       "mismatchedPixels": 4309,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.4163411443863117,
-      "decodeMilliseconds": 6.314735999999925,
+      "decodeMilliseconds": 5.771392999999989,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8771,7 +8771,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 10.138641000000007,
+      "decodeMilliseconds": 7.289217000000008,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8786,7 +8786,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 9.668139999999994,
+      "decodeMilliseconds": 8.946503000000007,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8891,7 +8891,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1300.5963450000002,
+      "decodeMilliseconds": 1190.207414,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8906,7 +8906,7 @@
       "mismatchedPixels": 24335990,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 219.07006736531102,
-      "decodeMilliseconds": 970.2134280000001,
+      "decodeMilliseconds": 892.5272880000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8921,7 +8921,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 124.11557099999993,
+      "decodeMilliseconds": 116.94817499999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8936,7 +8936,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 748.4502140000001,
+      "decodeMilliseconds": 650.2548149999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8951,7 +8951,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 758.1119560000001,
+      "decodeMilliseconds": 701.096419,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8966,7 +8966,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 195.68152999999995,
+      "decodeMilliseconds": 185.48959200000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8981,7 +8981,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 69.77009299999997,
+      "decodeMilliseconds": 73.23997400000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -8996,7 +8996,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 23.080359999999928,
+      "decodeMilliseconds": 20.625887999999975,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9011,7 +9011,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 10.339910000000032,
+      "decodeMilliseconds": 8.348959000000036,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9026,7 +9026,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 19.30408699999998,
+      "decodeMilliseconds": 16.682837000000006,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9041,7 +9041,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 9.338385000000017,
+      "decodeMilliseconds": 6.927942999999971,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9056,7 +9056,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 13.01627700000006,
+      "decodeMilliseconds": 11.623204999999984,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9071,7 +9071,7 @@
       "mismatchedPixels": 4170,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.3632121428302907,
-      "decodeMilliseconds": 28.303088000000002,
+      "decodeMilliseconds": 25.520623999999998,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9086,7 +9086,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.6563449999999875,
+      "decodeMilliseconds": 5.751058999999998,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9101,7 +9101,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.692658999999935,
+      "decodeMilliseconds": 4.470258999999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9116,7 +9116,7 @@
       "mismatchedPixels": 4170,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.3632121428302907,
-      "decodeMilliseconds": 3.6640370000000075,
+      "decodeMilliseconds": 4.674938999999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9131,7 +9131,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 8.898702999999955,
+      "decodeMilliseconds": 5.152527999999961,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9146,7 +9146,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 8.248935000000074,
+      "decodeMilliseconds": 6.773897999999974,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9161,7 +9161,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 21.408533999999918,
+      "decodeMilliseconds": 16.53294299999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9176,7 +9176,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 8.500951999999984,
+      "decodeMilliseconds": 8.25899499999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9191,7 +9191,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.791829000000007,
+      "decodeMilliseconds": 3.799453000000028,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9206,7 +9206,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.6959960000000365,
+      "decodeMilliseconds": 3.2541239999999902,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9221,7 +9221,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.648158999999964,
+      "decodeMilliseconds": 4.5139239999999745,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9236,7 +9236,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.507476999999994,
+      "decodeMilliseconds": 6.091879000000006,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9431,7 +9431,7 @@
       "mismatchedPixels": 3036,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 118.51396695651331,
-      "decodeMilliseconds": 16.370859999999993,
+      "decodeMilliseconds": 20.708788000000027,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9446,7 +9446,7 @@
       "mismatchedPixels": 3980,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 120.96168050012393,
-      "decodeMilliseconds": 4.625855000000001,
+      "decodeMilliseconds": 5.082030000000032,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9461,7 +9461,7 @@
       "mismatchedPixels": 4094,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 121.07711075197852,
-      "decodeMilliseconds": 1.903566000000069,
+      "decodeMilliseconds": 2.075866000000019,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9506,7 +9506,7 @@
       "mismatchedPixels": 4094,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 121.07711075197852,
-      "decodeMilliseconds": 4.736034000000018,
+      "decodeMilliseconds": 4.548280000000091,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9521,7 +9521,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 27.793367999999987,
+      "decodeMilliseconds": 20.96635500000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9536,7 +9536,7 @@
       "mismatchedPixels": 23707,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 174.72150866786723,
-      "decodeMilliseconds": 8.06357700000001,
+      "decodeMilliseconds": 7.504247999999961,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9551,7 +9551,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.805576999999971,
+      "decodeMilliseconds": 3.7165330000000267,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9566,7 +9566,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.7827690000000302,
+      "decodeMilliseconds": 4.472083999999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9581,7 +9581,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.415974000000006,
+      "decodeMilliseconds": 5.93775299999993,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9596,7 +9596,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.239775000000009,
+      "decodeMilliseconds": 6.206281999999987,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9611,7 +9611,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 74.17667900000004,
+      "decodeMilliseconds": 68.25561800000003,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9626,7 +9626,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 21.80399,
+      "decodeMilliseconds": 21.65089999999998,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9641,7 +9641,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 12.943385000000035,
+      "decodeMilliseconds": 8.631155000000035,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9656,7 +9656,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 19.387098000000037,
+      "decodeMilliseconds": 17.901253999999994,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9671,7 +9671,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 7.972048000000029,
+      "decodeMilliseconds": 8.239172000000053,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9686,7 +9686,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 13.075706000000082,
+      "decodeMilliseconds": 14.54842999999994,
       "errorCode": null,
       "errorMessage": null
     },
@@ -9971,7 +9971,7 @@
       "mismatchedPixels": 203480,
       "maximumChannelDelta": 15,
       "rootMeanSquareError": 1.006355689914303,
-      "decodeMilliseconds": 94.06450200000006,
+      "decodeMilliseconds": 94.97670800000003,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10151,7 +10151,7 @@
       "mismatchedPixels": 49842,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 145.26682416381362,
-      "decodeMilliseconds": 46.856982000000016,
+      "decodeMilliseconds": 42.28954300000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10241,7 +10241,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 36.31795599999998,
+      "decodeMilliseconds": 31.608813999999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10271,7 +10271,7 @@
       "mismatchedPixels": 27049,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 113.96542015553933,
-      "decodeMilliseconds": 8.774025000000051,
+      "decodeMilliseconds": 7.792012999999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10316,7 +10316,7 @@
       "mismatchedPixels": 27049,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 113.96542015553933,
-      "decodeMilliseconds": 10.686384999999973,
+      "decodeMilliseconds": 9.53252299999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10331,7 +10331,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 28.964044000000058,
+      "decodeMilliseconds": 23.697429,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10346,7 +10346,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 9.328106000000048,
+      "decodeMilliseconds": 7.171061999999949,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10361,7 +10361,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.587024999999926,
+      "decodeMilliseconds": 3.571335999999974,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10376,7 +10376,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.270860999999968,
+      "decodeMilliseconds": 3.0808040000000005,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10391,7 +10391,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.064234000000056,
+      "decodeMilliseconds": 5.564932999999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10406,7 +10406,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.250669000000016,
+      "decodeMilliseconds": 5.310284000000024,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10421,7 +10421,7 @@
       "mismatchedPixels": 19365,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.6338196414730857,
-      "decodeMilliseconds": 30.15718499999997,
+      "decodeMilliseconds": 27.00681700000007,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10436,7 +10436,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 7.947403000000008,
+      "decodeMilliseconds": 7.8498989999999935,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10451,7 +10451,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 3.5601350000000025,
+      "decodeMilliseconds": 3.4221410000000105,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10496,7 +10496,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 7.321181000000024,
+      "decodeMilliseconds": 6.016124999999988,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10511,7 +10511,7 @@
       "mismatchedPixels": 18378,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.557394677123062,
-      "decodeMilliseconds": 23.261094999999955,
+      "decodeMilliseconds": 23.446628000000032,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10526,7 +10526,7 @@
       "mismatchedPixels": 23707,
       "maximumChannelDelta": 239,
       "rootMeanSquareError": 86.81110897905404,
-      "decodeMilliseconds": 7.082561000000055,
+      "decodeMilliseconds": 6.551771999999971,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10541,7 +10541,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.44527400000004,
+      "decodeMilliseconds": 3.4667440000000056,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10556,7 +10556,7 @@
       "mismatchedPixels": 12619,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.4155871760413602,
-      "decodeMilliseconds": 4.2410939999999755,
+      "decodeMilliseconds": 3.6915729999999485,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10571,7 +10571,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.177006000000006,
+      "decodeMilliseconds": 5.842787000000044,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10586,7 +10586,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 6.8166009999999915,
+      "decodeMilliseconds": 6.774810000000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10601,7 +10601,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 68.655486,
+      "decodeMilliseconds": 67.17432699999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10616,7 +10616,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 26.31177600000001,
+      "decodeMilliseconds": 30.110682999999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10631,7 +10631,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 10.692324999999983,
+      "decodeMilliseconds": 10.426878999999929,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10646,7 +10646,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 21.310280000000034,
+      "decodeMilliseconds": 19.895547999999962,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10661,7 +10661,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 11.026065000000017,
+      "decodeMilliseconds": 10.333655000000022,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10676,7 +10676,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 14.477815000000078,
+      "decodeMilliseconds": 14.194105999999977,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10691,7 +10691,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 107.36609600000003,
+      "decodeMilliseconds": 102.51119800000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10706,7 +10706,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 83.54432400000007,
+      "decodeMilliseconds": 61.475165999999945,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10721,7 +10721,7 @@
       "mismatchedPixels": 186551,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 78.68458810858058,
-      "decodeMilliseconds": 19.420753999999988,
+      "decodeMilliseconds": 16.645395000000008,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10766,7 +10766,7 @@
       "mismatchedPixels": 186551,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 78.68458810858058,
-      "decodeMilliseconds": 21.43491000000006,
+      "decodeMilliseconds": 22.30677499999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10961,7 +10961,7 @@
       "mismatchedPixels": 82586,
       "maximumChannelDelta": 3,
       "rootMeanSquareError": 0.426193178030808,
-      "decodeMilliseconds": 86.25354199999992,
+      "decodeMilliseconds": 71.18861900000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10976,7 +10976,7 @@
       "mismatchedPixels": 96082,
       "maximumChannelDelta": 85,
       "rootMeanSquareError": 3.1573238749147627,
-      "decodeMilliseconds": 49.88708399999996,
+      "decodeMilliseconds": 39.014115000000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -10991,7 +10991,7 @@
       "mismatchedPixels": 96292,
       "maximumChannelDelta": 85,
       "rootMeanSquareError": 3.157493220563886,
-      "decodeMilliseconds": 26.072047999999995,
+      "decodeMilliseconds": 19.774657999999988,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11036,7 +11036,7 @@
       "mismatchedPixels": 96292,
       "maximumChannelDelta": 85,
       "rootMeanSquareError": 3.157493220563886,
-      "decodeMilliseconds": 29.89096399999994,
+      "decodeMilliseconds": 24.08746199999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11051,7 +11051,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 66.42424400000004,
+      "decodeMilliseconds": 50.022220000000004,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11068,7 +11068,7 @@
       "rootMeanSquareError": null,
       "decodeMilliseconds": null,
       "errorCode": null,
-      "errorMessage": "<--- Last few GCs ---> [805256:0x2df03000]     1831 ms: Mark-Compact 658.1 (790.3) -> 402.6 (532.0) MB, pooled: 6 MB, 311.80 / 0.00 ms  (average mu = 0.384, current mu = 0.348) allocation failure; scavenge might not succeed [805256:0x2df03000]     2524 ms: Mark-Compact 976.4 (1105.8) -> 593.7 (723.2) MB, pooled: 6 MB, 449.09 / 0.00 ms  (average mu = 0.363, current mu = 0.352) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out"
+      "errorMessage": "<--- Last few GCs ---> [1058823:0x1f4ad000]     1675 ms: Mark-Compact 658.3 (789.5) -> 402.8 (532.7) MB, pooled: 4 MB, 297.44 / 0.00 ms  (average mu = 0.371, current mu = 0.334) allocation failure; scavenge might not succeed [1058823:0x1f4ad000]     2341 ms: Mark-Compact 976.6 (1106.5) -> 593.9 (723.0) MB, pooled: 4 MB, 437.93 / 0.00 ms  (average mu = 0.352, current mu = 0.342) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap ou"
     },
     {
       "engine": "utif2",
@@ -11141,7 +11141,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 57.36613199999999,
+      "decodeMilliseconds": 51.13352600000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11158,7 +11158,7 @@
       "rootMeanSquareError": null,
       "decodeMilliseconds": null,
       "errorCode": null,
-      "errorMessage": "<--- Last few GCs ---> [805572:0x2840e000]     1959 ms: Mark-Compact 658.1 (789.5) -> 402.6 (533.0) MB, pooled: 3 MB, 353.71 / 0.00 ms  (average mu = 0.379, current mu = 0.338) allocation failure; scavenge might not succeed [805572:0x2840e000]     2724 ms: Mark-Compact 976.4 (1106.8) -> 593.7 (723.0) MB, pooled: 3 MB, 481.30 / 0.00 ms  (average mu = 0.374, current mu = 0.371) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out"
+      "errorMessage": "<--- Last few GCs ---> [1059070:0x266c0000]     1791 ms: Mark-Compact 658.3 (789.8) -> 402.8 (532.5) MB, pooled: 3 MB, 291.88 / 0.00 ms  (average mu = 0.400, current mu = 0.359) allocation failure; scavenge might not succeed [1059070:0x266c0000]     2477 ms: Mark-Compact 976.6 (1106.3) -> 593.9 (723.8) MB, pooled: 3 MB, 442.60 / 0.00 ms  (average mu = 0.371, current mu = 0.355) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap ou"
     },
     {
       "engine": "utif2",
@@ -11231,7 +11231,7 @@
       "mismatchedPixels": 83544,
       "maximumChannelDelta": 3,
       "rootMeanSquareError": 0.42438129942857694,
-      "decodeMilliseconds": 83.02133500000002,
+      "decodeMilliseconds": 70.23970299999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11246,7 +11246,7 @@
       "mismatchedPixels": 99423,
       "maximumChannelDelta": 95,
       "rootMeanSquareError": 3.3602659005204516,
-      "decodeMilliseconds": 51.84629599999994,
+      "decodeMilliseconds": 46.49416099999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11261,7 +11261,7 @@
       "mismatchedPixels": 99608,
       "maximumChannelDelta": 95,
       "rootMeanSquareError": 3.360459074417748,
-      "decodeMilliseconds": 35.16333999999995,
+      "decodeMilliseconds": 24.12871899999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11306,7 +11306,7 @@
       "mismatchedPixels": 99608,
       "maximumChannelDelta": 95,
       "rootMeanSquareError": 3.360459074417748,
-      "decodeMilliseconds": 43.303049000000044,
+      "decodeMilliseconds": 28.583534999999983,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11321,7 +11321,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 59.03860199999997,
+      "decodeMilliseconds": 50.52739600000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11681,7 +11681,7 @@
       "mismatchedPixels": 12361,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.4096193295084235,
-      "decodeMilliseconds": 42.916762000000006,
+      "decodeMilliseconds": 37.93625199999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11696,7 +11696,7 @@
       "mismatchedPixels": 12361,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.4096193295084235,
-      "decodeMilliseconds": 7.783289000000082,
+      "decodeMilliseconds": 7.3820140000000265,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11711,7 +11711,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.231044999999995,
+      "decodeMilliseconds": 6.801827000000003,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11726,7 +11726,7 @@
       "mismatchedPixels": 12361,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.4096193295084235,
-      "decodeMilliseconds": 5.005620000000022,
+      "decodeMilliseconds": 4.944600000000037,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11741,7 +11741,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.255833999999936,
+      "decodeMilliseconds": 5.158961999999974,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11756,7 +11756,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 8.510735000000068,
+      "decodeMilliseconds": 8.490891000000033,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11771,7 +11771,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 26.153400999999917,
+      "decodeMilliseconds": 28.39159399999994,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11786,7 +11786,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 8.459330000000023,
+      "decodeMilliseconds": 7.750881000000049,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11801,7 +11801,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.398779999999988,
+      "decodeMilliseconds": 5.260870000000068,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11816,7 +11816,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.147619999999961,
+      "decodeMilliseconds": 6.9362789999998995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11831,7 +11831,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 5.474534999999946,
+      "decodeMilliseconds": 4.22156300000006,
       "errorCode": null,
       "errorMessage": null
     },
@@ -11846,7 +11846,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 7.989865000000009,
+      "decodeMilliseconds": 7.120809000000008,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12131,7 +12131,7 @@
       "mismatchedPixels": 24575,
       "maximumChannelDelta": 34,
       "rootMeanSquareError": 2.337447776823046,
-      "decodeMilliseconds": 31.951423999999975,
+      "decodeMilliseconds": 39.50356199999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12221,7 +12221,7 @@
       "mismatchedPixels": 3258,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.16507869808821488,
-      "decodeMilliseconds": 56.523551999999995,
+      "decodeMilliseconds": 47.20620299999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12236,7 +12236,7 @@
       "mismatchedPixels": 24269,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 84.56203344291102,
-      "decodeMilliseconds": 36.24162200000001,
+      "decodeMilliseconds": 24.93358699999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12251,7 +12251,7 @@
       "mismatchedPixels": 4217,
       "maximumChannelDelta": 254,
       "rootMeanSquareError": 19.560198671545045,
-      "decodeMilliseconds": 7.967858999999976,
+      "decodeMilliseconds": 8.860822999999982,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12266,7 +12266,7 @@
       "mismatchedPixels": 3357,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 8.188622299034803,
-      "decodeMilliseconds": 32.65382199999999,
+      "decodeMilliseconds": 27.77111100000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12281,7 +12281,7 @@
       "mismatchedPixels": 24269,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 82.67520585451201,
-      "decodeMilliseconds": 32.35612600000002,
+      "decodeMilliseconds": 27.548452999999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12296,7 +12296,7 @@
       "mismatchedPixels": 4217,
       "maximumChannelDelta": 254,
       "rootMeanSquareError": 19.560198671545045,
-      "decodeMilliseconds": 10.977845000000002,
+      "decodeMilliseconds": 9.49649199999999,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12491,7 +12491,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 14.880358999999942,
+      "decodeMilliseconds": 9.643952000000013,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12521,7 +12521,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.6524979999999232,
+      "decodeMilliseconds": 1.3858640000000264,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12566,7 +12566,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.409563999999932,
+      "decodeMilliseconds": 3.9613669999999956,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12581,7 +12581,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 265.98484899999994,
+      "decodeMilliseconds": 272.78068700000006,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12611,7 +12611,7 @@
       "mismatchedPixels": 227223,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 52.57521960000439,
-      "decodeMilliseconds": 125.70957800000008,
+      "decodeMilliseconds": 99.54554600000006,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12656,7 +12656,7 @@
       "mismatchedPixels": 227223,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 52.57521960000439,
-      "decodeMilliseconds": 120.88550200000009,
+      "decodeMilliseconds": 110.47908400000006,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12851,7 +12851,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 11.091907000000106,
+      "decodeMilliseconds": 10.59110800000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12866,7 +12866,7 @@
       "mismatchedPixels": 934,
       "maximumChannelDelta": 127,
       "rootMeanSquareError": 77.3787733347983,
-      "decodeMilliseconds": 4.652784000000054,
+      "decodeMilliseconds": 3.9427929999999947,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12881,7 +12881,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 2.1224869999999783,
+      "decodeMilliseconds": 2.263229000000024,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12896,7 +12896,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 1.8365979999999809,
+      "decodeMilliseconds": 1.6951310000000035,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12911,7 +12911,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.043340999999941,
+      "decodeMilliseconds": 3.3456950000000347,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12926,7 +12926,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 4.72347000000002,
+      "decodeMilliseconds": 3.8953580000000443,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12941,7 +12941,7 @@
       "mismatchedPixels": 6849,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.09709761481466113,
-      "decodeMilliseconds": 107.47914400000002,
+      "decodeMilliseconds": 97.45866000000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12956,7 +12956,7 @@
       "mismatchedPixels": 28138,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.2024922943056321,
-      "decodeMilliseconds": 58.363284999999905,
+      "decodeMilliseconds": 53.94741800000003,
       "errorCode": null,
       "errorMessage": null
     },
@@ -12971,7 +12971,7 @@
       "mismatchedPixels": 28138,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.2024922943056321,
-      "decodeMilliseconds": 39.70185200000003,
+      "decodeMilliseconds": 30.342167000000018,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13016,7 +13016,7 @@
       "mismatchedPixels": 28138,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.2024922943056321,
-      "decodeMilliseconds": 43.38972699999999,
+      "decodeMilliseconds": 33.238382,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13031,7 +13031,7 @@
       "mismatchedPixels": 158116,
       "maximumChannelDelta": 4,
       "rootMeanSquareError": 0.6376020190538049,
-      "decodeMilliseconds": 90.45505600000001,
+      "decodeMilliseconds": 110.91546100000005,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13046,7 +13046,7 @@
       "mismatchedPixels": 75942,
       "maximumChannelDelta": 16,
       "rootMeanSquareError": 0.8563994679198819,
-      "decodeMilliseconds": 40.831607000000076,
+      "decodeMilliseconds": 37.952229000000045,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13061,7 +13061,7 @@
       "mismatchedPixels": 79065,
       "maximumChannelDelta": 16,
       "rootMeanSquareError": 0.8591418072774418,
-      "decodeMilliseconds": 26.747546000000057,
+      "decodeMilliseconds": 22.82987300000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13106,7 +13106,7 @@
       "mismatchedPixels": 79065,
       "maximumChannelDelta": 16,
       "rootMeanSquareError": 0.8591418072774418,
-      "decodeMilliseconds": 26.45044999999999,
+      "decodeMilliseconds": 22.650559000000044,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13211,7 +13211,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 56.18014500000004,
+      "decodeMilliseconds": 52.81274199999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13226,7 +13226,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 17.382515999999896,
+      "decodeMilliseconds": 18.676261000000068,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13241,7 +13241,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 10.647705999999971,
+      "decodeMilliseconds": 10.902229999999975,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13256,7 +13256,7 @@
       "mismatchedPixels": 179830,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 103.94930092270928,
-      "decodeMilliseconds": 16.13691499999993,
+      "decodeMilliseconds": 15.842918999999938,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13271,7 +13271,7 @@
       "mismatchedPixels": 179830,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 103.94930092270928,
-      "decodeMilliseconds": 11.721998999999983,
+      "decodeMilliseconds": 9.584699,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13286,7 +13286,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 14.793919000000074,
+      "decodeMilliseconds": 12.56165500000003,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13301,7 +13301,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 75.52135299999998,
+      "decodeMilliseconds": 67.48007299999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13316,7 +13316,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 65.98899200000005,
+      "decodeMilliseconds": 56.20999199999994,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13331,7 +13331,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 17.320457000000033,
+      "decodeMilliseconds": 17.305000000000007,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13346,7 +13346,7 @@
       "mismatchedPixels": 186625,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 84.89720180643151,
-      "decodeMilliseconds": 96.51513899999998,
+      "decodeMilliseconds": 102.42301799999996,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13361,7 +13361,7 @@
       "mismatchedPixels": 186625,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 84.89720180643151,
-      "decodeMilliseconds": 97.39342099999999,
+      "decodeMilliseconds": 83.17125499999997,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13376,7 +13376,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 22.88307400000008,
+      "decodeMilliseconds": 18.42127000000005,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13391,7 +13391,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 55.79903899999999,
+      "decodeMilliseconds": 50.621087999999986,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13406,7 +13406,7 @@
       "mismatchedPixels": 52537,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 97.41094361575146,
-      "decodeMilliseconds": 28.479062999999996,
+      "decodeMilliseconds": 19.781706999999983,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13421,7 +13421,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 10.533355000000029,
+      "decodeMilliseconds": 8.100724000000014,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13436,7 +13436,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 21.29108999999994,
+      "decodeMilliseconds": 18.24272499999995,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13451,7 +13451,7 @@
       "mismatchedPixels": 52537,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 97.41094361575146,
-      "decodeMilliseconds": 19.635065999999938,
+      "decodeMilliseconds": 18.746111999999926,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13466,7 +13466,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 11.167961999999989,
+      "decodeMilliseconds": 11.61121700000001,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13481,7 +13481,7 @@
       "mismatchedPixels": 0,
       "maximumChannelDelta": 0,
       "rootMeanSquareError": 0,
-      "decodeMilliseconds": 16.672960000000046,
+      "decodeMilliseconds": 16.430547999999987,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13511,7 +13511,7 @@
       "mismatchedPixels": 400,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 169.4182988935965,
-      "decodeMilliseconds": 1.4369100000000117,
+      "decodeMilliseconds": 1.2270520000000147,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13556,7 +13556,7 @@
       "mismatchedPixels": 400,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 169.4182988935965,
-      "decodeMilliseconds": 4.322221999999897,
+      "decodeMilliseconds": 3.3652150000000347,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13841,7 +13841,7 @@
       "mismatchedPixels": 94,
       "maximumChannelDelta": 1,
       "rootMeanSquareError": 0.017006785975920587,
-      "decodeMilliseconds": 56.42787699999997,
+      "decodeMilliseconds": 62.01192400000002,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13871,7 +13871,7 @@
       "mismatchedPixels": 80808,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 65.52271197543173,
-      "decodeMilliseconds": 12.115040000000022,
+      "decodeMilliseconds": 12.608723000000055,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13916,7 +13916,7 @@
       "mismatchedPixels": 80808,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 65.52271197543173,
-      "decodeMilliseconds": 15.377956999999924,
+      "decodeMilliseconds": 22.583223999999973,
       "errorCode": null,
       "errorMessage": null
     },
@@ -13931,7 +13931,7 @@
       "mismatchedPixels": 49842,
       "maximumChannelDelta": 255,
       "rootMeanSquareError": 145.26682416381362,
-      "decodeMilliseconds": 60.52367000000004,
+      "decodeMilliseconds": 61.36437599999999,
       "errorCode": null,
       "errorMessage": null
     },
