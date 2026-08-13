@@ -16,6 +16,10 @@
     "paths": {
       "purejsimage": ["./src/index.ts"],
       "purejsimage/analysis": ["./src/analysis/index.ts"],
+      "purejsimage/analysis/project": ["./src/analysis/project-entry.ts"],
+      "purejsimage/analysis/results": ["./src/analysis/results.ts"],
+      "purejsimage/analysis/roi": ["./src/analysis/roi-entry.ts"],
+      "purejsimage/analysis/runtime": ["./src/analysis/runtime.ts"],
       "purejsimage/extensions": ["./src/extensions/index.ts"],
       "purejsimage/operations": ["./src/operations/index.ts"],
       "purejsimage/pathology": ["./src/pathology/index.ts"],

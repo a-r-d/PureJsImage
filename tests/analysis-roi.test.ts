@@ -12,7 +12,7 @@ import {
   roiBoundingBox,
   roiValueTypeId,
   validateRoi,
-} from '../src/analysis/index.ts'
+} from '../src/analysis/roi-entry.ts'
 import { normalizeScientificDatasetDescriptor } from '../src/scientific/index.ts'
 
 const descriptor = normalizeScientificDatasetDescriptor({

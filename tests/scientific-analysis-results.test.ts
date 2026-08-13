@@ -3,8 +3,8 @@ import {
   measureScientificPlaneWithResults,
   scientificPlaneMeasurementToResult,
   summarizeResult,
-} from '../src/analysis/index.ts'
-import type { ResultCollection } from '../src/analysis/index.ts'
+} from '../src/analysis/results.ts'
+import type { ResultCollection } from '../src/analysis/results.ts'
 import type { RasterBlock } from '../src/raster.ts'
 import type {
   MultidimensionalRasterDataset,

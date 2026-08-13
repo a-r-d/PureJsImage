@@ -12,7 +12,7 @@ import {
   validateResultCollection,
   validateScalarResult,
   validateTableResult,
-} from '../src/analysis/index.ts'
+} from '../src/analysis/results.ts'
 import { createValueTypeDefinition, createValueTypeRegistry } from '../src/operations/index.ts'
 
 describe('provider-neutral analysis results', () => {

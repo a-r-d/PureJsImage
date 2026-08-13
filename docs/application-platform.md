@@ -74,7 +74,9 @@ for await (const tile of tiles) {
 
 Use one application-owned `TileRuntime` for repeated reads. Its byte budget, concurrency,
 cancellation, invalidation, and source/derived cache metrics are explicit; it never materializes a
-whole dataset implicitly.
+whole dataset implicitly. Reader-backed source keys use the complete dataset/resource identity;
+weak evidence is session-scoped and synthetic datasets are instance-scoped. Derived keys include
+source, operation/version, normalized parameters, output, provider/implementation, and generation.
 
 ## Measure an ROI through a graph
 
@@ -85,14 +87,14 @@ import {
   analysisStatisticsOperationId,
   createAnalysisController,
   createBuiltInAnalysisBundle,
-  createTileRuntime,
   normalizeRoi,
-  roiValueTypeId,
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
   validateAnalysisProjectV1,
 } from 'purejsimage/analysis'
 import type { AnalysisGraph } from 'purejsimage/analysis'
+import { createTileRuntime } from 'purejsimage/analysis/runtime'
+import { roiValueTypeId } from 'purejsimage/analysis/roi'
 
 const runtime = createTileRuntime({
   limits: {
@@ -265,6 +267,17 @@ const extensionController = createAnalysisController({
   library,
 })
 ```
+
+The normal application workflow is exported from `purejsimage/analysis`. Full result schemas,
+geometry/sampling utilities, provider-facing tile runtime contracts, and project/migration helpers
+live at `purejsimage/analysis/results`, `/roi`, `/runtime`, and `/project` respectively. Importing any
+entry creates no timer, worker, registry, provider, fetch, or global state.
+
+Threshold and Gaussian blur materialize lazy tiles through the exact provider selected during graph
+planning. Crop and slice remain coordinate views; resample remains the next neighborhood-kernel
+migration; projection remains the first dataset-reducer migration; statistics, histogram, and line
+profile remain result reducers. Reducer scratch uses lexical working-memory scopes whose accounting
+the runtime releases internally.
 
 The extension descriptor owns its namespace. For `acme.materials`, reader IDs begin with
 `acme.materials/`; value-type, operation, provider, and migration IDs begin with

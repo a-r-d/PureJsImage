@@ -296,9 +296,13 @@ sources request dependencies through the runtime: the scheduler suspends their c
 a dependency runs and reacquires one before provider compute, preventing nested deadlock at a
 concurrency limit of one without exposing queue internals.
 
-Cache policy is explicit and local to a runtime instance. Cache keys include source identity
-strength, selection, tile coordinates, operation and semantic version, canonical parameters, and
-any provider-specific compatibility boundary. The runtime exposes at least hits, misses, admissions,
+Cache policy is explicit and local to a runtime instance. Source keys include the complete
+reader/dataset/resource identity, generation, selected axes/indices/level/region, and target
+storage. Strong reader evidence can reuse across reopened objects; weak evidence requires the same
+explicit session; synthetic objects receive a context-instance scope. Derived identities use
+domain `purejsimage.analysis-derived-dataset.v1` and hash source identity, operation/version,
+canonical parameters, output port, provider/version/build, implementation version, and generation.
+The runtime exposes at least hits, misses, admissions,
 evictions, current bytes, high-water bytes, conversion bytes/time, and avoided source bytes.
 Benchmarks must state tile dimensions, workload, cache budget, cold/warm state, and output
 correctness. An optimization is accepted only when those measurements demonstrate the claimed
@@ -495,6 +499,28 @@ The maintainer approved the following decisions on 2026-08-12:
     contracts between PRs, and final hardening only at the next authorized versioned release.
 
 ## Application-platform implementation checklist
+
+### Tile execution convergence and public entry organization
+
+- [x] Replace caller-owned operation-working reservations with lexical
+      `withOperationWorkingBytes()` scopes and diagnostic disposal liveness.
+- [x] Key source tiles by complete reader/dataset/resource identity when available, with explicit
+      weak-session and synthetic-instance fallbacks.
+- [x] Give every built-in lazy dataset a deterministic derived identity under
+      `purejsimage.analysis-derived-dataset.v1`, including provider and implementation identity.
+- [x] Route threshold through the provider-aware pointwise tile-kernel path.
+- [x] Route Gaussian blur through the provider-aware neighborhood tile-kernel path.
+- [ ] Migrate resample as the next neighborhood kernel; its current bounded lazy implementation is
+      retained in this checkpoint.
+- [ ] Define the first provider-aware dataset-reducer kernel around projection; projection currently
+      remains a bounded reducer with lexical scratch accounting.
+- [x] Keep crop and slice as lightweight coordinate views with stable derived identities.
+- [x] Keep statistics, histogram, and line profile on the result-reducer path.
+- [x] Split the public API into `purejsimage/analysis`, `/results`, `/roi`, `/runtime`, and `/project`
+      with checked-in export manifests and independent browser/size gates.
+- [x] Design the [whole-slide scientific bridge](./whole-slide-scientific-bridge.md) without
+      implementing it. Implementation follows explicit resolution-level operation semantics so
+      graphs, provenance, cache identity, and calibrated ROIs agree on the analyzed pyramid level.
 
 This is the authoritative progress log for the application-platform program. Update it in the same
 change as the work it tracks. A checked item means its implementation and stated verification are
@@ -1433,7 +1459,7 @@ to own only generic descriptors, definitions, providers, and registries.
       pooled/padded direct tiles compact before caching, while declared allocations can transfer
       zero-copy and remain fully charged.
 - [x] Permanently close every tile-runtime acquisition and mutation path during disposal, return one
-      stable disposal promise, and include explicit operation-working reservations in idle cleanup.
+      stable disposal promise, and include lexical operation-working scopes in idle cleanup.
 - [x] Run derived provider outputs through the shared ownership validator before tile-specific shape
       validation so claimed input/pool aliases cannot enter the cache.
 - [x] Expose the extension host's frozen provider list and prove an installed custom operation can be

@@ -143,6 +143,10 @@ try {
     'dist/scientific/readers/ome-tiff.js',
     'dist/operations/index.js',
     'dist/analysis/index.js',
+    'dist/analysis/project-entry.js',
+    'dist/analysis/results.js',
+    'dist/analysis/roi-entry.js',
+    'dist/analysis/runtime.js',
     'dist/extensions/index.js',
     'dist/sources/http-range.js',
   ]) {
@@ -158,6 +162,13 @@ try {
     if (/Labeled[A-Z]|\bV2\b|dataset-v2|public-v2/u.test(declaration)) {
       throw new Error(`Packed scientific declaration ${path} exposes migration-history vocabulary`)
     }
+  }
+  const runtimeDeclaration = await readFile(
+    join(repositoryRoot, 'dist/analysis/tile-runtime.d.ts'),
+    'utf8',
+  )
+  if (runtimeDeclaration.includes('reserveOperationWorkingBytes')) {
+    throw new Error('Packed analysis runtime exposes the removed raw working-memory reservation')
   }
 
   const tarball = join(temporaryDirectory, `purejsimage-${packageJson.version}.tgz`)
@@ -204,8 +215,14 @@ export { mrcReader } from 'purejsimage/scientific/readers/mrc'
 export * as allScientificReaders from 'purejsimage/scientific/readers/all'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
-import { analysisGaussianBlurOperationId, canonicalTileKey, computeAnalysisProjectHashes, createAnalysisController, createBuiltInAnalysisBundle, createAnalysisResultValueTypeRegistry, createRoiLineSamplingPlan, createRoiMask, createRoiValueTypeRegistry, createTileRuntime, getImageSourceIdentity, hashAnalysisGraph, normalizeAnalysisProjectV1, normalizeRoi, summarizeResult, validateAnalysisProjectV1, validateScalarResult } from 'purejsimage/analysis'
-import type { AnalysisGraph, AnalysisProjectV1, Roi, TileRequest, TileSource } from 'purejsimage/analysis'
+import { analysisGaussianBlurOperationId, createAnalysisController, createBuiltInAnalysisBundle, hashAnalysisGraph, normalizeRoi, summarizeResult } from 'purejsimage/analysis'
+import type { AnalysisGraph, AnalysisProjectV1, Roi } from 'purejsimage/analysis'
+import { canonicalTileKey, createTileRuntime } from 'purejsimage/analysis/runtime'
+import type { TileRequest, TileSource } from 'purejsimage/analysis/runtime'
+import { createAnalysisResultValueTypeRegistry, validateScalarResult } from 'purejsimage/analysis/results'
+import { createRoiLineSamplingPlan, createRoiMask, createRoiValueTypeRegistry } from 'purejsimage/analysis/roi'
+import { computeAnalysisProjectHashes, normalizeAnalysisProjectV1, validateAnalysisProjectV1 } from 'purejsimage/analysis/project'
+import { getImageSourceIdentity } from 'purejsimage/scientific'
 export { rasterToPixels } from 'purejsimage/scientific'
 export { omeTiffReader } from 'purejsimage/scientific/readers/ome-tiff'
 export { createScientificFileContext } from 'purejsimage/scientific/browser'
@@ -274,8 +291,8 @@ const tileRequest: TileRequest = {
   address: {
     cacheClass: 'source', namespace: 'consumer',
     dataset: {
-      datasetId: 'consumer', generation: 0, sessionId: 'consumer-session',
-      source: { kind: 'session', strength: 'session', stability: 'instance', id: 'source-1', size: 1 },
+      semantic: { kind: 'session-dataset', id: 'consumer' },
+      generation: 0, sessionId: 'consumer-session',
     },
     displayAxes: ['x', 'y'], fixedIndices: [], resolutionLevel: 0,
     x: 0, y: 0, width: 1, height: 1,

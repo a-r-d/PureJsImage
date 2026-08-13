@@ -69,6 +69,13 @@ export type {
   OperationPlanningRequest,
   OperationProviderSelection,
   OperationRuntimeSnapshot,
+  OperationTileHalo,
+  OperationTileKernel,
+  OperationTileKernelEstimate,
+  OperationTileKernelPlanningRequest,
+  OperationTileKernelRequest,
+  OperationTileRegion,
+  OperationTileStorageTarget,
   PreparedOperationProvider,
 } from './provider.ts'
 export {

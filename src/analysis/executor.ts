@@ -212,6 +212,9 @@ const executePrepared = async (
       parameters: plan.normalizedParameters.get(nodeId) ?? node.parameters,
       inputs: node.inputs.map((input) => resolveValue(input.source)),
       plannedInputCharacteristics: plan.inputCharacteristics.get(nodeId) ?? Object.freeze([]),
+      provider: selection.provider.descriptor,
+      implementation: selection.implementation.descriptor,
+      selection,
       signal: taskSignal,
     }
     const inputOwnershipIdentities: object[] = []

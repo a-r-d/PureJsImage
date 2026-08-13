@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import {
-  canonicalGraphJson,
-  canonicalJson,
-  hashAnalysisGraph,
-  validateGraph,
-} from '../src/analysis/index.ts'
+import { canonicalGraphJson, hashAnalysisGraph, validateGraph } from '../src/analysis/index.ts'
+import { canonicalJson } from '../src/analysis/project-entry.ts'
 import type { AnalysisGraph, AnalysisValueReference } from '../src/analysis/index.ts'
 import { createOperationDefinition, createOperationRegistry } from '../src/operations/index.ts'
 

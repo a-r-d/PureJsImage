@@ -143,6 +143,26 @@
       "import": "./dist/analysis/index.js",
       "default": "./dist/analysis/index.js"
     },
+    "./analysis/results": {
+      "types": "./dist/analysis/results.d.ts",
+      "import": "./dist/analysis/results.js",
+      "default": "./dist/analysis/results.js"
+    },
+    "./analysis/roi": {
+      "types": "./dist/analysis/roi-entry.d.ts",
+      "import": "./dist/analysis/roi-entry.js",
+      "default": "./dist/analysis/roi-entry.js"
+    },
+    "./analysis/runtime": {
+      "types": "./dist/analysis/runtime.d.ts",
+      "import": "./dist/analysis/runtime.js",
+      "default": "./dist/analysis/runtime.js"
+    },
+    "./analysis/project": {
+      "types": "./dist/analysis/project-entry.d.ts",
+      "import": "./dist/analysis/project-entry.js",
+      "default": "./dist/analysis/project-entry.js"
+    },
     "./extensions": {
       "types": "./dist/extensions/index.d.ts",
       "import": "./dist/extensions/index.js",
@@ -265,7 +285,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "check": "npm run capabilities:check && npm run comparison:check && npm run docs:build && npm run typecheck && npm run size && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
+    "check": "npm run capabilities:check && npm run comparison:check && npm run analysis:api:check && npm run docs:build && npm run typecheck && npm run size && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
     "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json && node scripts/copy-wasm-artifacts.ts",
     "browser:check": "tsc -p tsconfig.browser.json && node scripts/check-browser-build.ts",
     "package:types": "node scripts/check-package-types.ts",
@@ -283,6 +303,8 @@
     "capabilities:check": "node scripts/render-capabilities.ts --check",
     "comparison:generate": "node scripts/render-library-comparison.ts",
     "comparison:check": "node scripts/render-library-comparison.ts --check",
+    "analysis:api:generate": "node scripts/check-analysis-api-manifest.ts --write",
+    "analysis:api:check": "node scripts/check-analysis-api-manifest.ts",
     "docs:dev": "astro dev --root docs-astro",
     "docs:build": "node scripts/build-docs-site.ts",
     "docs:preview": "astro preview --root docs-astro",

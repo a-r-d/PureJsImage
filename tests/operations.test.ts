@@ -35,6 +35,17 @@ const providerRequests = (
     parameters: {},
     inputs,
     plannedInputCharacteristics: [],
+    provider: {
+      id: 'example.provider',
+      version: 1,
+      kind: 'reference',
+      buildFingerprint: 'test',
+    },
+    implementation: {
+      operationId: operation.id,
+      operationVersion: operation.version,
+      implementationVersion: 'test',
+    },
     signal,
   },
 ]

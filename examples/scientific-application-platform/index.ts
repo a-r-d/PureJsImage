@@ -1,24 +1,25 @@
 import { MemorySource } from 'purejsimage'
 import {
   analysisStatisticsOperationId,
-  canonicalNormalizedRoiSemanticsJson,
   computeAnalysisProjectHashes,
   createAnalysisController,
   createBuiltInAnalysisBundle,
-  createTileRuntime,
-  hashCanonicalJson,
-  normalizeRoi,
-  roiValueTypeId,
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
-  summarizeResult,
-  validateAnalysisResult,
   type AnalysisExecutionResult,
   type AnalysisGraph,
   type AnalysisProjectV1,
   type AnalysisResultSummary,
   type PreparedAnalysisPlan,
 } from 'purejsimage/analysis'
+import { createTileRuntime } from 'purejsimage/analysis/runtime'
+import { summarizeResult, validateAnalysisResult } from 'purejsimage/analysis/results'
+import {
+  canonicalNormalizedRoiSemanticsJson,
+  normalizeRoi,
+  roiValueTypeId,
+} from 'purejsimage/analysis/roi'
+import { hashCanonicalJson } from 'purejsimage/analysis/project'
 import {
   createScientificLibrary,
   getScientificDatasetIdentity,

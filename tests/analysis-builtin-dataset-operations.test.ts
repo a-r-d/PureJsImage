@@ -11,14 +11,19 @@ import {
   createBuiltInAnalysisOperationRegistry,
   createBuiltInAnalysisValueTypeRegistry,
   createReferenceAnalysisProvider,
-  createTileRuntime,
-  numericTileSourceToTileSource,
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
 } from '../src/analysis/index.ts'
-import type { AnalysisExecutionResult, AnalysisGraph, TileRuntime } from '../src/analysis/index.ts'
+import type { AnalysisExecutionResult, AnalysisGraph } from '../src/analysis/index.ts'
+import { createTileRuntime, numericTileSourceToTileSource } from '../src/analysis/runtime.ts'
+import type { TileRuntime } from '../src/analysis/runtime.ts'
 import { createOperationProvider } from '../src/operations/index.ts'
-import type { OperationJsonObject, OperationJsonValue } from '../src/operations/index.ts'
+import type {
+  OperationImplementation,
+  OperationJsonObject,
+  OperationJsonValue,
+  OperationTileKernelRequest,
+} from '../src/operations/index.ts'
 import type {
   DirectNumericTileDataset,
   NumericTile,
@@ -26,6 +31,7 @@ import type {
   ScientificAxisIndex,
   ScientificDataset,
 } from '../src/scientific/index.ts'
+import { identifyScientificDataset } from '../src/scientific/reader.ts'
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
@@ -341,14 +347,7 @@ const requestDatasetRegionValues = async (
       cacheClass: 'derived',
       namespace: `test-derived:${scope}`,
       dataset: {
-        datasetId: scope,
-        source: {
-          kind: 'session',
-          strength: 'session',
-          stability: 'instance',
-          id: scope,
-          size: 0,
-        },
+        semantic: { kind: 'session-dataset', id: scope },
         sessionId: scope,
         generation: 0,
       },
@@ -683,6 +682,59 @@ describe('built-in dataset analysis operations', () => {
     expect(secondTracking.reads).toHaveLength(1)
 
     await first.execution.release()
+    await second.execution.release()
+    runtime.clear()
+  })
+
+  it('reuses source and threshold tiles across reopened strongly identified datasets', async () => {
+    const runtime = createTileRuntime()
+    const identity = {
+      kind: 'scientific-dataset' as const,
+      reader: { id: 'test.reader', version: '1.0.0' },
+      datasetId: 'primary',
+      resources: [
+        {
+          id: 'primary',
+          identity: {
+            kind: 'content' as const,
+            strength: 'strong' as const,
+            stability: 'content-addressed' as const,
+            algorithm: 'sha256' as const,
+            digest: 'a'.repeat(64),
+            size: 64,
+          },
+        },
+      ],
+    }
+    const firstTracking: SourceTracking = { reads: [], releases: 0 }
+    const secondTracking: SourceTracking = { reads: [], releases: 0 }
+    const firstSource = identifyScientificDataset(
+      sourceDataset(firstTracking, (indices) => (indices.x ?? 0) + (indices.y ?? 0)),
+      identity,
+    )
+    const secondSource = identifyScientificDataset(
+      sourceDataset(secondTracking, (indices) => (indices.x ?? 0) + (indices.y ?? 0)),
+      identity,
+    )
+    const parameters = { mode: 'greater-than', threshold: 1 }
+    const first = await executeDataset(
+      analysisThresholdOperationId,
+      parameters,
+      firstSource,
+      runtime,
+    )
+    await collectValues(first.dataset, ['x', 'y'], [{ axisId: 'energy', index: 0 }])
+    await first.execution.release()
+    const hitsBefore = runtime.metrics().cache.hits
+    const second = await executeDataset(
+      analysisThresholdOperationId,
+      parameters,
+      secondSource,
+      runtime,
+    )
+    await collectValues(second.dataset, ['x', 'y'], [{ axisId: 'energy', index: 0 }])
+    expect(secondTracking.reads).toHaveLength(0)
+    expect(runtime.metrics().cache.hits).toBeGreaterThan(hitsBefore)
     await second.execution.release()
     runtime.clear()
   })
@@ -1212,5 +1264,87 @@ describe('built-in dataset analysis operations', () => {
     )
     expect(planned.summary.nodes[0]?.provider.id).toBe('purejsimage.analysis.reference')
     runtime.clear()
+  })
+
+  it('rejects provider tile kernels that alias threshold or Gaussian source storage', async () => {
+    for (const [operationId, parameters] of [
+      [analysisThresholdOperationId, { mode: 'greater-than', threshold: 0 }],
+      [
+        analysisGaussianBlurOperationId,
+        { displayAxes: ['x', 'y'], fixedIndices: [{ axisId: 'energy', index: 0 }], sigma: 1 },
+      ],
+    ] as const) {
+      const runtime = createTileRuntime()
+      const source = sourceDataset({ reads: [], releases: 0 }, () => 1, { sampleType: 'float32' })
+      const reference = createReferenceAnalysisProvider({
+        runtime,
+        sessionId: `alias-${operationId}`,
+      })
+      const prepared = await reference.prepare()
+      const base = prepared?.implementations.find(
+        (candidate) => candidate.descriptor.operationId === operationId,
+      )
+      if (base?.tileKernel === undefined) throw new Error('Expected a reference tile kernel')
+      const aliasing: OperationImplementation = Object.freeze({
+        ...base,
+        descriptor: Object.freeze({
+          ...base.descriptor,
+          implementationVersion: 'aliasing-test',
+        }),
+        tileKernel: Object.freeze({
+          ...base.tileKernel,
+          async execute(request: Readonly<OperationTileKernelRequest>) {
+            return Object.freeze({
+              value: request.sourceTile,
+              ownershipIdentity: request.sourceTile.data.buffer,
+              release() {},
+            })
+          },
+        }),
+      })
+      const alternate = createOperationProvider({
+        descriptor: {
+          id: `aaa.alias.${operationId.split('.').at(-1)?.replaceAll('-', '.')}`,
+          version: 1,
+          kind: 'wasm',
+          buildFingerprint: 'aliasing-test',
+        },
+        prepare: async () => [aliasing],
+      })
+      const controller = createAnalysisController({
+        operations: createBuiltInAnalysisOperationRegistry(),
+        valueTypes: createBuiltInAnalysisValueTypeRegistry(source.descriptor),
+        providers: [alternate, reference],
+        library: { version: '0.9.0', buildFingerprint: 'aliasing-test' },
+      })
+      const plan = await controller.planGraph(graph(operationId, parameters), {
+        bindings: {
+          source: {
+            value: source,
+            identity: {
+              kind: 'application-defined',
+              namespace: 'purejsimage.tests.aliasing',
+              value: operationId,
+            },
+            characteristics: scientificDatasetCharacteristics(source),
+          },
+        },
+      })
+      expect(plan.summary.nodes[0]?.provider.id).toContain('aaa.alias')
+      const execution = await controller.executeGraph(plan).result
+      const output = execution.outputs.get('dataset')
+      if (!isDatasetOutput(output)) throw new Error('Expected a lazy dataset output')
+      await expect(
+        collectValues(
+          output,
+          ['x', 'y'],
+          output.descriptor.axes.some((entry) => entry.id === 'energy')
+            ? [{ axisId: 'energy', index: 0 }]
+            : [],
+        ),
+      ).rejects.toThrow('input storage')
+      await execution.release()
+      runtime.clear()
+    }
   })
 })

@@ -34,14 +34,23 @@ const descriptor = normalizeScientificDatasetDescriptor({
 })
 
 const dataset = Object.freeze({
-  datasetId: 'tile-runtime-benchmark',
-  source: Object.freeze({
-    kind: 'content' as const,
-    strength: 'strong' as const,
-    stability: 'content-addressed' as const,
-    algorithm: 'sha256' as const,
-    digest: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-    size: planeWidth * planeHeight * 4,
+  semantic: Object.freeze({
+    kind: 'scientific-dataset' as const,
+    reader: Object.freeze({ id: 'benchmark.reader', version: '1' }),
+    datasetId: 'tile-runtime-benchmark',
+    resources: Object.freeze([
+      Object.freeze({
+        id: 'primary',
+        identity: Object.freeze({
+          kind: 'content' as const,
+          strength: 'strong' as const,
+          stability: 'content-addressed' as const,
+          algorithm: 'sha256' as const,
+          digest: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+          size: planeWidth * planeHeight * 4,
+        }),
+      }),
+    ]),
   }),
   generation: 0,
 })
@@ -297,6 +306,7 @@ const runtime = createTileRuntime({ limits: { maxCacheBytes: 16 * 1_024 * 1_024 
 const derived = createDerivedTileSource({
   runtime,
   source,
+  sourceIdentity: dataset,
   descriptor,
   operation,
   selection,

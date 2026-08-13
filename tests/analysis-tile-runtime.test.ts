@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   canonicalTileKey,
   createTileRuntime,
+  injectStaleOperationWorkingScopeForTest,
   normalizeTileAddress,
 } from '../src/analysis/tile-runtime.ts'
 import type {
@@ -38,14 +39,23 @@ const address = (
   cacheClass: options.cacheClass ?? 'source',
   namespace: options.namespace ?? 'dataset',
   dataset: {
-    datasetId: 'dataset-1',
-    source: {
-      kind: 'local-file',
-      strength: 'weak',
-      stability: 'metadata',
-      nameOrPath: 'fixture.bin',
-      size: 1_024,
-      lastModified: 10,
+    semantic: {
+      kind: 'scientific-dataset',
+      reader: { id: 'test.reader', version: '1' },
+      datasetId: 'dataset-1',
+      resources: [
+        {
+          id: 'primary',
+          identity: {
+            kind: 'local-file',
+            strength: 'weak',
+            stability: 'metadata',
+            nameOrPath: 'fixture.bin',
+            size: 1_024,
+            lastModified: 10,
+          },
+        },
+      ],
     },
     sessionId: 'workspace-1',
     generation: options.generation ?? 0,
@@ -112,8 +122,7 @@ describe('bounded tile runtime cache and scheduler', () => {
         {
           ...address(0),
           dataset: {
-            datasetId: withSession.datasetId,
-            source: withSession.source,
+            semantic: withSession.semantic,
             generation: withSession.generation,
           },
         },
@@ -251,20 +260,25 @@ describe('bounded tile runtime cache and scheduler', () => {
       limits: { maxOperationWorkingBytes: 8, maxTotalManagedBytes: 7 },
     })
     expect(total.putCached(source, request(0), tile(0, releases))).toBe(true)
-    expect(() => total.reserveOperationWorkingBytes(8)).toThrow('maxTotalManagedBytes')
-    const releaseWorking = total.reserveOperationWorkingBytes(3)
-    expect(total.metrics().memory).toMatchObject({
-      managedBytes: 4,
-      operationWorkingBytes: 3,
-      totalManagedBytes: 7,
-      highWaterTotalManagedBytes: 7,
+    await expect(total.withOperationWorkingBytes(8, {}, () => undefined)).rejects.toThrow(
+      'maxTotalManagedBytes',
+    )
+    await total.withOperationWorkingBytes(3, { label: 'test.accounting' }, (scope) => {
+      expect(scope).toMatchObject({ bytes: 3, label: 'test.accounting' })
+      expect(total.metrics().memory).toMatchObject({
+        managedBytes: 4,
+        operationWorkingBytes: 3,
+        totalManagedBytes: 7,
+        highWaterTotalManagedBytes: 7,
+      })
     })
-    releaseWorking()
-    expect(() => total.reserveOperationWorkingBytes(9)).toThrow('maxOperationWorkingBytes')
-    const releaseEvictingWork = total.reserveOperationWorkingBytes(7)
-    expect(total.metrics().cache.currentBytes).toBe(0)
-    expect(total.metrics().memory.totalManagedBytes).toBe(7)
-    releaseEvictingWork()
+    await expect(total.withOperationWorkingBytes(9, {}, () => undefined)).rejects.toThrow(
+      'maxOperationWorkingBytes',
+    )
+    await total.withOperationWorkingBytes(7, {}, () => {
+      expect(total.metrics().cache.currentBytes).toBe(0)
+      expect(total.metrics().memory.totalManagedBytes).toBe(7)
+    })
     total.clear()
     leased.clear()
   })
@@ -459,13 +473,23 @@ describe('bounded tile runtime cache and scheduler', () => {
         ...address(0),
         dataset: {
           ...address(0).dataset,
-          source: {
-            kind: 'local-file',
-            strength: 'weak',
-            stability: 'metadata',
-            nameOrPath: 'fixture.bin',
-            size: 1_024,
-            lastModified: 11,
+          semantic: {
+            kind: 'scientific-dataset',
+            reader: { id: 'test.reader', version: '1' },
+            datasetId: 'dataset-1',
+            resources: [
+              {
+                id: 'primary',
+                identity: {
+                  kind: 'local-file',
+                  strength: 'weak',
+                  stability: 'metadata',
+                  nameOrPath: 'fixture.bin',
+                  size: 1_024,
+                  lastModified: 11,
+                },
+              },
+            ],
           },
         },
       },
@@ -758,7 +782,9 @@ describe('bounded tile runtime cache and scheduler', () => {
     await runtime.dispose()
     expect(runtime.isDisposed).toBe(true)
     expect(() => runtime.request(source, request(0))).toThrow('disposed')
-    expect(() => runtime.reserveOperationWorkingBytes(1)).toThrow('disposed')
+    await expect(runtime.withOperationWorkingBytes(1, {}, () => undefined)).rejects.toThrow(
+      'disposed',
+    )
     expect(() => runtime.allocateIdentityScope('after-dispose')).toThrow('disposed')
     expect(() => runtime.getCached(source, request(0))).toThrow('disposed')
     expect(() => runtime.putCached(source, request(0), tile(0, []))).toThrow('disposed')
@@ -766,17 +792,73 @@ describe('bounded tile runtime cache and scheduler', () => {
     expect(() => runtime.resetMetrics()).toThrow('disposed')
   })
 
-  it('waits for explicit working-memory reservations during disposal', async () => {
+  it('scopes working memory across success, throws, rejection, cancellation, and nesting', async () => {
     const runtime = createTileRuntime()
-    const release = runtime.reserveOperationWorkingBytes(4)
+    await runtime.withOperationWorkingBytes(2, {}, async () => {
+      await runtime.withOperationWorkingBytes(3, {}, () => {
+        expect(runtime.metrics().memory.operationWorkingBytes).toBe(5)
+      })
+      expect(runtime.metrics().memory.operationWorkingBytes).toBe(2)
+    })
+    expect(runtime.metrics().memory.operationWorkingBytes).toBe(0)
+    await expect(
+      runtime.withOperationWorkingBytes(2, {}, () => {
+        throw new Error('sync scope failure')
+      }),
+    ).rejects.toThrow('sync scope failure')
+    await expect(
+      runtime.withOperationWorkingBytes(2, {}, async () => {
+        throw new Error('async scope failure')
+      }),
+    ).rejects.toThrow('async scope failure')
+    const controller = new AbortController()
+    await expect(
+      runtime.withOperationWorkingBytes(2, { signal: controller.signal }, async () => {
+        controller.abort(new Error('cancel scope'))
+        controller.signal.throwIfAborted()
+      }),
+    ).rejects.toThrow('cancel scope')
+    expect(runtime.metrics().memory.operationWorkingBytes).toBe(0)
+    await runtime.dispose()
+  })
+
+  it('accounts concurrent working-memory scopes and waits for active scope disposal', async () => {
+    const runtime = createTileRuntime()
+    const first = new Deferred<void>()
+    const second = new Deferred<void>()
+    const firstWork = runtime.withOperationWorkingBytes(4, { label: 'first' }, () => first.promise)
+    const secondWork = runtime.withOperationWorkingBytes(
+      6,
+      { label: 'second' },
+      () => second.promise,
+    )
+    expect(runtime.metrics().memory.operationWorkingBytes).toBe(10)
     let disposed = false
     const disposal = runtime.dispose().then(() => {
       disposed = true
     })
     await Promise.resolve()
     expect(disposed).toBe(false)
-    release()
+    first.resolve()
+    await firstWork
+    expect(runtime.metrics().memory.operationWorkingBytes).toBe(6)
+    second.resolve()
+    await secondWork
     await disposal
     expect(disposed).toBe(true)
+  })
+
+  it('rejects disposal diagnostically for impossible stale working accounting', async () => {
+    const runtime = createTileRuntime()
+    injectStaleOperationWorkingScopeForTest(runtime, 7, 'stale.test')
+    const disposal = runtime.dispose()
+    expect(runtime.dispose()).toBe(disposal)
+    await expect(disposal).rejects.toMatchObject({
+      name: 'TileRuntimeDisposalError',
+      totalBytes: 7,
+      reservations: [expect.objectContaining({ bytes: 7, label: 'stale.test' })],
+    })
+    expect(runtime.metrics().memory.operationWorkingBytes).toBe(0)
+    await expect(runtime.dispose()).rejects.toBeInstanceOf(Error)
   })
 })

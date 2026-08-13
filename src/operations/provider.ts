@@ -1,4 +1,9 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
+import type {
+  NormalizedScientificDatasetDescriptor,
+  ScientificAxisIndex,
+} from '../scientific/dataset.ts'
+import type { NumericSampleType, NumericTile } from '../scientific/numeric-tile.ts'
 import type { OperationDescriptor, OperationJsonValue } from './descriptor.ts'
 
 export type OperationProviderKind = 'reference' | 'wasm' | 'webgpu' | 'worker-rpc' | 'remote'
@@ -30,6 +35,10 @@ export interface OperationExecutionRequest {
   readonly parameters: OperationJsonValue
   readonly inputs: readonly unknown[]
   readonly plannedInputCharacteristics: readonly OperationJsonValue[]
+  readonly provider: OperationProviderDescriptor
+  readonly implementation: OperationImplementationDescriptor
+  /** Exact prepared selection retained by graph execution for optional lazy tile kernels. */
+  readonly selection?: OperationProviderSelection
   readonly signal: AbortSignal
 }
 
@@ -59,8 +68,69 @@ export interface OperationOwnedOutput {
   release(): void | Promise<void>
 }
 
+export interface OperationTileRegion {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+}
+
+export interface OperationTileHalo {
+  readonly left: number
+  readonly right: number
+  readonly top: number
+  readonly bottom: number
+}
+
+export interface OperationTileStorageTarget {
+  readonly sampleType?: NumericSampleType
+  readonly layout?: 'interleaved' | 'planar'
+}
+
+export interface OperationTileKernelPlanningRequest {
+  readonly descriptor: OperationDescriptor
+  readonly parameters: OperationJsonValue
+  readonly sourceDescriptor: NormalizedScientificDatasetDescriptor
+  readonly outputDescriptor: NormalizedScientificDatasetDescriptor
+}
+
+export interface OperationTileKernelEstimate {
+  readonly outputRetainedBytes: number
+  readonly peakWorkingBytes: number
+  readonly retainedAuxiliaryBytes: number
+}
+
+export interface OperationTileKernelRequest extends OperationTileKernelPlanningRequest {
+  readonly sourceTile: NumericTile
+  readonly sourceRegion: OperationTileRegion
+  readonly outputRegion: OperationTileRegion
+  readonly signal: AbortSignal
+}
+
+/** Optional provider-owned path for lazy pointwise and neighborhood tile materialization. */
+export interface OperationTileKernel {
+  halo(request: Readonly<OperationTileKernelPlanningRequest>): OperationTileHalo
+  sourceFixedIndices?(
+    request: Readonly<OperationTileKernelPlanningRequest>,
+  ): readonly ScientificAxisIndex[]
+  sourceTarget?(
+    request: Readonly<OperationTileKernelPlanningRequest>,
+  ): OperationTileStorageTarget | undefined
+  estimate(
+    request: Readonly<
+      OperationTileKernelPlanningRequest & {
+        readonly sourceRegion: OperationTileRegion
+        readonly outputRegion: OperationTileRegion
+      }
+    >,
+  ): OperationTileKernelEstimate
+  validateExecution?(request: Readonly<OperationTileKernelRequest>): void
+  execute(request: Readonly<OperationTileKernelRequest>): Promise<OperationOwnedOutput>
+}
+
 export interface OperationImplementation {
   readonly descriptor: OperationImplementationDescriptor
+  readonly tileKernel?: OperationTileKernel
   supportsPlan(request: Readonly<OperationPlanningRequest>): boolean
   estimatePlan(request: Readonly<OperationPlanningRequest>): OperationCostEstimate
   validateExecution?(request: Readonly<OperationExecutionRequest>): void

@@ -69,6 +69,10 @@ const applicationPlatformResult = await build({
       export * from './src/scientific/readers/all.ts'
       export * from './src/operations/index.ts'
       export * from './src/analysis/index.ts'
+      export * from './src/analysis/project-entry.ts'
+      export * from './src/analysis/results.ts'
+      export * from './src/analysis/roi-entry.ts'
+      export * from './src/analysis/runtime.ts'
       export * from './src/extensions/index.ts'
     `,
     loader: 'ts',

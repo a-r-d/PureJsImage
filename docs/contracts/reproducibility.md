@@ -25,6 +25,16 @@ identity captured by planning.
 
 ## Source identity strength
 
+Tile cache identity uses the complete normalized scientific dataset identity when reader evidence is
+available: reader ID/version, dataset ID, and every named resource identity. Strong resources may
+reuse source tiles across contexts in one runtime. Weak resources require an explicitly matching
+session scope; unidentified datasets receive only a context-owned per-instance identity.
+
+Lazy derived datasets use domain `purejsimage.analysis-derived-dataset.v1`. The digest includes the
+complete source tile identity, operation ID/version, normalized parameters, output port, provider
+ID/version/build fingerprint, implementation version, and generation. Provider identity remains in
+the digest for tolerance-based operations.
+
 - Content SHA-256 and remote strong ETag/version IDs are strong identities.
 - Local name/path, size, and modified time and remote `Last-Modified` are weak metadata identities.
 - Memory, Blob without durable metadata, and custom sources may be session-only.

@@ -161,5 +161,7 @@ work without claiming process peak memory.
 
 `clear()` remains a recoverable cache/in-flight reset. `dispose()` is permanent: it rejects every
 new lease, ownership transfer, reservation, identity allocation, and scheduled request; aborts
-active work; waits for explicit working-memory reservations; and clears retained cache state.
-Repeated disposal returns the original cleanup promise, and `isDisposed` exposes the closing state.
+active work; waits for lexical `withOperationWorkingBytes()` callbacks; and clears retained cache
+state. Callers never own reservation release closures. Impossible residual accounting rejects with
+a structured diagnostic instead of hanging. Repeated disposal returns the original cleanup promise,
+and `isDisposed` exposes the closing state.

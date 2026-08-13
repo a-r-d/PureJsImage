@@ -1,5 +1,9 @@
 import { invalidInput } from '../errors.ts'
-import type { OperationJsonObject } from '../operations/descriptor.ts'
+import type { OperationJsonObject, OperationJsonValue } from '../operations/descriptor.ts'
+import type {
+  OperationImplementationDescriptor,
+  OperationProviderDescriptor,
+} from '../operations/provider.ts'
 import type {
   NumericSampleType,
   NumericTile,
@@ -8,16 +12,37 @@ import type {
 import { numericTileRetainedBytes, validateNumericTile } from '../scientific/numeric-tile.ts'
 import type { ScientificAxisIndex } from '../scientific/dataset.ts'
 import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset.ts'
+import type { ScientificDataset } from '../scientific/dataset.ts'
+import { getScientificDatasetIdentity } from '../scientific/reader.ts'
 import type { SourceIdentity } from '../source-identity.ts'
 import { normalizeSourceIdentity } from '../source-identity.ts'
-import { canonicalJson } from './canonical-json.ts'
+import { canonicalJson, hashCanonicalJson } from './canonical-json.ts'
 
 export type TileCacheClass = 'source' | 'derived'
 export type TilePriority = 'visible' | 'near-visible' | 'background'
 
+export type TileDatasetSemanticIdentity =
+  | {
+      readonly kind: 'scientific-dataset'
+      readonly reader: { readonly id: string; readonly version: string }
+      readonly datasetId: string
+      readonly resources: readonly {
+        readonly id: string
+        readonly identity: SourceIdentity
+      }[]
+    }
+  | {
+      readonly kind: 'derived-dataset'
+      readonly domain: string
+      readonly sha256: string
+    }
+  | {
+      readonly kind: 'session-dataset'
+      readonly id: string
+    }
+
 export interface TileDatasetIdentity {
-  readonly datasetId: string
-  readonly source: SourceIdentity
+  readonly semantic: TileDatasetSemanticIdentity
   readonly sessionId?: string
   readonly generation: number
 }
@@ -227,19 +252,154 @@ const safePositive = (value: number, name: string): number => {
   return value
 }
 
-const normalizeDatasetIdentity = (value: TileDatasetIdentity): TileDatasetIdentity => {
-  const source = normalizeSourceIdentity(value.source)
-  const datasetId = boundedString(value.datasetId, 'datasetId')
+const normalizeDatasetSemanticIdentity = (
+  value: TileDatasetSemanticIdentity,
+): TileDatasetSemanticIdentity => {
+  if (value.kind === 'session-dataset') {
+    return Object.freeze({ kind: value.kind, id: boundedString(value.id, 'session dataset id') })
+  }
+  if (value.kind === 'derived-dataset') {
+    const domain = boundedString(value.domain, 'derived dataset domain')
+    if (!/^[0-9a-f]{64}$/u.test(value.sha256)) {
+      throw invalidInput('Derived dataset SHA-256 is invalid')
+    }
+    return Object.freeze({ kind: value.kind, domain, sha256: value.sha256 })
+  }
+  const reader = Object.freeze({
+    id: boundedString(value.reader.id, 'scientific reader id'),
+    version: boundedString(value.reader.version, 'scientific reader version'),
+  })
+  const datasetId = boundedString(value.datasetId, 'scientific dataset id')
+  if (
+    !Array.isArray(value.resources) ||
+    value.resources.length < 1 ||
+    value.resources.length > 1024
+  ) {
+    throw invalidInput('Scientific tile identity requires a bounded resource list')
+  }
+  const seen = new Set<string>()
+  const resources = value.resources.map((resource) => {
+    const id = boundedString(resource.id, 'scientific resource id')
+    if (seen.has(id)) throw invalidInput(`Scientific tile identity repeats resource ${id}`)
+    seen.add(id)
+    return Object.freeze({ id, identity: normalizeSourceIdentity(resource.identity) })
+  })
+  resources.sort((left, right) => (left.id < right.id ? -1 : left.id > right.id ? 1 : 0))
+  return Object.freeze({
+    kind: value.kind,
+    reader,
+    datasetId,
+    resources: Object.freeze(resources),
+  })
+}
+
+export const normalizeTileDatasetIdentity = (value: TileDatasetIdentity): TileDatasetIdentity => {
+  const semantic = normalizeDatasetSemanticIdentity(value.semantic)
   const generation = safeNonNegative(value.generation, 'generation')
   const sessionId =
     value.sessionId === undefined ? undefined : boundedString(value.sessionId, 'sessionId')
-  if (source.strength !== 'strong' && sessionId === undefined) {
-    throw invalidInput('Weak or session source identity requires a tile sessionId')
+  const requiresSession =
+    semantic.kind === 'session-dataset' ||
+    (semantic.kind === 'scientific-dataset' &&
+      semantic.resources.some((resource) => resource.identity.strength !== 'strong'))
+  if (requiresSession && sessionId === undefined) {
+    throw invalidInput('Weak or session tile identity requires a sessionId')
   }
   return Object.freeze({
-    datasetId,
-    source,
+    semantic,
     ...(sessionId === undefined ? {} : { sessionId }),
+    generation,
+  })
+}
+
+export const createTileDatasetIdentityForScientificDataset = (
+  dataset: ScientificDataset,
+  options: Readonly<{
+    readonly sessionId: string
+    readonly generation?: number
+    /** Context-owned stable ID required only for an unidentified dataset. */
+    readonly unidentifiedDatasetId?: string
+  }>,
+): TileDatasetIdentity => {
+  const identified = getScientificDatasetIdentity(dataset)
+  if (identified !== undefined) {
+    const weak = identified.resources.some((resource) => resource.identity.strength !== 'strong')
+    return normalizeTileDatasetIdentity({
+      semantic: identified,
+      ...(weak ? { sessionId: options.sessionId } : {}),
+      generation: options.generation ?? 0,
+    })
+  }
+  if (options.unidentifiedDatasetId === undefined) {
+    throw invalidInput('Unidentified scientific dataset requires a context-owned fallback ID')
+  }
+  return normalizeTileDatasetIdentity({
+    semantic: {
+      kind: 'session-dataset',
+      id: `${options.sessionId}:${options.unidentifiedDatasetId}`,
+    },
+    sessionId: options.sessionId,
+    generation: options.generation ?? 0,
+  })
+}
+
+export const analysisDerivedTileDatasetIdentityDomain = 'purejsimage.analysis-derived-dataset.v1'
+
+export const createDerivedTileDatasetIdentity = async (
+  options: Readonly<{
+    readonly source: TileDatasetIdentity
+    readonly operation: { readonly id: string; readonly version: number }
+    readonly normalizedParameters: OperationJsonValue
+    readonly outputPort: string
+    readonly provider: OperationProviderDescriptor
+    readonly implementation: OperationImplementationDescriptor
+    readonly generation?: number
+  }>,
+): Promise<TileDatasetIdentity> => {
+  const source = normalizeTileDatasetIdentity(options.source)
+  const generation = safeNonNegative(options.generation ?? 0, 'derived dataset generation')
+  const operation = Object.freeze({
+    id: boundedString(options.operation.id, 'derived operation id'),
+    version: safePositive(options.operation.version, 'derived operation version'),
+  })
+  const outputPort = boundedString(options.outputPort, 'derived output port')
+  const provider = Object.freeze({
+    id: boundedString(options.provider.id, 'derived provider id'),
+    version: safePositive(options.provider.version, 'derived provider version'),
+    buildFingerprint: boundedString(
+      options.provider.buildFingerprint,
+      'derived provider build fingerprint',
+    ),
+  })
+  const implementation = Object.freeze({
+    operationId: boundedString(options.implementation.operationId, 'implementation operation id'),
+    operationVersion: safePositive(
+      options.implementation.operationVersion,
+      'implementation operation version',
+    ),
+    implementationVersion: boundedString(
+      options.implementation.implementationVersion,
+      'implementation version',
+    ),
+  })
+  if (
+    implementation.operationId !== operation.id ||
+    implementation.operationVersion !== operation.version
+  ) {
+    throw invalidInput('Derived dataset implementation does not match the operation version')
+  }
+  const sha256 = await hashCanonicalJson(analysisDerivedTileDatasetIdentityDomain, {
+    source,
+    operation,
+    normalizedParameters: options.normalizedParameters,
+    outputPort,
+    provider,
+    implementation,
+    generation,
+  })
+  return normalizeTileDatasetIdentity({
+    semantic: { kind: 'derived-dataset', domain: analysisDerivedTileDatasetIdentityDomain, sha256 },
+    ...(source.sessionId === undefined ? {} : { sessionId: source.sessionId }),
     generation,
   })
 }
@@ -284,7 +444,7 @@ export const normalizeTileAddress = (
   return Object.freeze({
     cacheClass: value.cacheClass,
     namespace: boundedString(value.namespace, 'tile namespace'),
-    dataset: normalizeDatasetIdentity(value.dataset),
+    dataset: normalizeTileDatasetIdentity(value.dataset),
     displayAxes,
     fixedIndices: Object.freeze(fixedIndices),
     resolutionLevel: safeNonNegative(value.resolutionLevel, 'resolutionLevel'),
@@ -360,6 +520,22 @@ const sourceIdentityKey = (identity: SourceIdentity): OperationJsonObject => {
   })
 }
 
+const semanticIdentityKey = (identity: TileDatasetSemanticIdentity): OperationJsonObject => {
+  if (identity.kind === 'session-dataset' || identity.kind === 'derived-dataset') {
+    return Object.freeze({ ...identity })
+  }
+  return Object.freeze({
+    kind: identity.kind,
+    reader: Object.freeze({ ...identity.reader }),
+    datasetId: identity.datasetId,
+    resources: Object.freeze(
+      identity.resources.map((resource) =>
+        Object.freeze({ id: resource.id, identity: sourceIdentityKey(resource.identity) }),
+      ),
+    ),
+  })
+}
+
 export const tileRequestKeyData = (request: Readonly<TileRequest>): OperationJsonObject => {
   const normalized = normalizeTileRequest(request, Number.MAX_SAFE_INTEGER)
   return Object.freeze({
@@ -368,8 +544,7 @@ export const tileRequestKeyData = (request: Readonly<TileRequest>): OperationJso
       cacheClass: normalized.address.cacheClass,
       namespace: normalized.address.namespace,
       dataset: Object.freeze({
-        datasetId: normalized.address.dataset.datasetId,
-        source: sourceIdentityKey(normalized.address.dataset.source),
+        semantic: semanticIdentityKey(normalized.address.dataset.semantic),
         ...(normalized.address.dataset.sessionId === undefined
           ? {}
           : { sessionId: normalized.address.dataset.sessionId }),
@@ -947,6 +1122,44 @@ export interface TileRuntimeOptions {
   readonly metrics?: boolean
 }
 
+export interface OperationWorkingMemoryScope {
+  readonly id: number
+  readonly bytes: number
+  readonly label?: string
+}
+
+export interface OperationWorkingMemoryScopeDiagnostic extends OperationWorkingMemoryScope {
+  readonly ageMilliseconds: number
+}
+
+export class TileRuntimeDisposalError extends Error {
+  readonly reservations: readonly OperationWorkingMemoryScopeDiagnostic[]
+  readonly totalBytes: number
+
+  constructor(reservations: readonly OperationWorkingMemoryScopeDiagnostic[]) {
+    const frozen = Object.freeze(reservations.map((entry) => Object.freeze({ ...entry })))
+    const totalBytes = frozen.reduce((sum, entry) => sum + entry.bytes, 0)
+    super(
+      `Tile runtime found ${frozen.length} stale operation-working reservation(s) retaining ${totalBytes} bytes`,
+    )
+    this.name = 'TileRuntimeDisposalError'
+    this.reservations = frozen
+    this.totalBytes = totalBytes
+  }
+}
+
+interface ActiveOperationWorkingScope extends OperationWorkingMemoryScope {
+  readonly createdAt: number
+  ownerActive: boolean
+}
+
+interface IdleWaiter {
+  readonly resolve: () => void
+  readonly reject: (reason: unknown) => void
+}
+
+const staleScopeInjectors = new WeakMap<TileRuntime, (bytes: number, label?: string) => void>()
+
 export class TileRuntime {
   readonly limits: ResolvedTileRuntimeLimits
   readonly #metricsEnabled: boolean
@@ -961,15 +1174,37 @@ export class TileRuntime {
   #inFlightBytes = 0
   #leasedBytes = 0
   #operationWorkingBytes = 0
+  #workingScopeId = 0
+  readonly #workingScopes = new Map<number, ActiveOperationWorkingScope>()
   #disposed = false
   #disposePromise: Promise<void> | undefined
-  readonly #idleWaiters = new Set<() => void>()
+  readonly #idleWaiters = new Set<IdleWaiter>()
 
   constructor(options: Readonly<TileRuntimeOptions> = {}) {
     this.limits = resolveTileRuntimeLimits(options.limits)
     this.#metricsEnabled = options.metrics !== false
     this.#cache = new TileCache(this.limits, this.#metrics, this.#metricsEnabled)
     this.#scheduler = new TileScheduler(this.limits, this.#metrics, this.#metricsEnabled)
+    staleScopeInjectors.set(this, (bytes, label) => {
+      if (!Number.isSafeInteger(bytes) || bytes < 0) {
+        throw invalidInput('Stale operation working bytes must be a non-negative safe integer')
+      }
+      const normalizedLabel =
+        label === undefined ? undefined : boundedString(label, 'working scope label')
+      this.#makeRoom(bytes)
+      const id = this.#workingScopeId + 1
+      if (!Number.isSafeInteger(id)) throw invalidInput('Operation working scope IDs are exhausted')
+      this.#workingScopeId = id
+      this.#workingScopes.set(id, {
+        id,
+        bytes,
+        ...(normalizedLabel === undefined ? {} : { label: normalizedLabel }),
+        createdAt: performance.now(),
+        ownerActive: false,
+      })
+      this.#operationWorkingBytes += bytes
+      this.#recordMemoryHighWater()
+    })
   }
 
   request(source: TileSource, input: Readonly<TileRequest>): Promise<NumericTile> {
@@ -1028,21 +1263,57 @@ export class TileRuntime {
     return this.request(source, input)
   }
 
-  reserveOperationWorkingBytes(bytes: number): () => void {
+  async withOperationWorkingBytes<Result>(
+    bytes: number,
+    options: Readonly<{ readonly label?: string; readonly signal?: AbortSignal }>,
+    operation: (scope: Readonly<OperationWorkingMemoryScope>) => Result | Promise<Result>,
+  ): Promise<Result> {
     this.#assertOpen()
+    options.signal?.throwIfAborted()
     if (!Number.isSafeInteger(bytes) || bytes < 0) {
       throw invalidInput('Operation working bytes must be a non-negative safe integer')
     }
     if (bytes > this.limits.maxOperationWorkingBytes) {
       throw invalidInput('Operation exceeds maxOperationWorkingBytes')
     }
+    const label =
+      options.label === undefined ? undefined : boundedString(options.label, 'working scope label')
     this.#makeRoom(bytes)
+    const id = this.#workingScopeId + 1
+    if (!Number.isSafeInteger(id)) throw invalidInput('Operation working scope IDs are exhausted')
+    this.#workingScopeId = id
+    const scope: ActiveOperationWorkingScope = {
+      id,
+      bytes,
+      ...(label === undefined ? {} : { label }),
+      createdAt: performance.now(),
+      ownerActive: true,
+    }
+    this.#workingScopes.set(id, scope)
     this.#operationWorkingBytes += bytes
     this.#recordMemoryHighWater()
-    return once(() => {
-      this.#operationWorkingBytes -= bytes
-      this.#notifyIdle()
-    })
+    let outcome: { readonly value: Result } | { readonly error: unknown }
+    try {
+      outcome = {
+        value: await operation(
+          Object.freeze({
+            id: scope.id,
+            bytes: scope.bytes,
+            ...(scope.label === undefined ? {} : { label: scope.label }),
+          }),
+        ),
+      }
+    } catch (error) {
+      outcome = { error }
+    }
+    scope.ownerActive = false
+    try {
+      this.#releaseWorkingScope(scope)
+    } catch (cleanupError) {
+      if ('value' in outcome) outcome = { error: cleanupError }
+    }
+    if ('error' in outcome) throw outcome.error
+    return outcome.value
   }
 
   /** Allocate a bounded cache-identity scope unique within this runtime instance. */
@@ -1146,9 +1417,10 @@ export class TileRuntime {
   }
 
   async whenIdle(): Promise<void> {
-    if (this.#inFlight.size === 0 && this.#scheduler.idle && this.#operationWorkingBytes === 0)
-      return
-    await new Promise<void>((resolve) => this.#idleWaiters.add(resolve))
+    const diagnostic = this.#idleDiagnostic()
+    if (diagnostic !== undefined) throw diagnostic
+    if (this.#isIdle()) return
+    await new Promise<void>((resolve, reject) => this.#idleWaiters.add({ resolve, reject }))
   }
 
   dispose(): Promise<void> {
@@ -1527,11 +1799,49 @@ export class TileRuntime {
 
   #notifyIdle(): void {
     queueMicrotask(() => {
-      if (this.#inFlight.size !== 0 || !this.#scheduler.idle || this.#operationWorkingBytes !== 0)
-        return
-      for (const resolve of this.#idleWaiters) resolve()
+      const diagnostic = this.#idleDiagnostic()
+      if (diagnostic === undefined && !this.#isIdle()) return
+      for (const waiter of this.#idleWaiters) {
+        if (diagnostic === undefined) waiter.resolve()
+        else waiter.reject(diagnostic)
+      }
       this.#idleWaiters.clear()
     })
+  }
+
+  #isIdle(): boolean {
+    return this.#inFlight.size === 0 && this.#scheduler.idle && this.#workingScopes.size === 0
+  }
+
+  #idleDiagnostic(): TileRuntimeDisposalError | undefined {
+    if (this.#inFlight.size !== 0 || !this.#scheduler.idle || this.#workingScopes.size === 0) {
+      return undefined
+    }
+    const stale = [...this.#workingScopes.values()].filter((scope) => !scope.ownerActive)
+    if (stale.length !== this.#workingScopes.size) return undefined
+    const now = performance.now()
+    const diagnostic = new TileRuntimeDisposalError(
+      stale.map((scope) => ({
+        id: scope.id,
+        bytes: scope.bytes,
+        ...(scope.label === undefined ? {} : { label: scope.label }),
+        ageMilliseconds: Math.max(0, now - scope.createdAt),
+      })),
+    )
+    for (const scope of stale) {
+      this.#workingScopes.delete(scope.id)
+      this.#operationWorkingBytes -= scope.bytes
+    }
+    return diagnostic
+  }
+
+  #releaseWorkingScope(scope: ActiveOperationWorkingScope): void {
+    if (this.#workingScopes.get(scope.id) !== scope) {
+      throw invalidInput(`Operation working scope ${scope.id} is not active`)
+    }
+    this.#workingScopes.delete(scope.id)
+    this.#operationWorkingBytes -= scope.bytes
+    this.#notifyIdle()
   }
 
   #releaseTile(tile: NumericTile): void {
@@ -1545,3 +1855,14 @@ export class TileRuntime {
 
 export const createTileRuntime = (options: Readonly<TileRuntimeOptions> = {}): TileRuntime =>
   new TileRuntime(options)
+
+/** @internal Test seam for disposal diagnostics; intentionally absent from package exports. */
+export const injectStaleOperationWorkingScopeForTest = (
+  runtime: TileRuntime,
+  bytes: number,
+  label?: string,
+): void => {
+  const inject = staleScopeInjectors.get(runtime)
+  if (inject === undefined) throw invalidInput('Tile runtime test seam is unavailable')
+  inject(bytes, label)
+}

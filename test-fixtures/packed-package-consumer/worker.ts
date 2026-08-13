@@ -1,4 +1,5 @@
-import { createAnalysisController, createTileRuntime } from 'purejsimage/analysis'
+import { createAnalysisController } from 'purejsimage/analysis'
+import { createTileRuntime } from 'purejsimage/analysis/runtime'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createScientificLibrary } from 'purejsimage/scientific'
 import { gsfReader } from 'purejsimage/scientific/readers/gsf'

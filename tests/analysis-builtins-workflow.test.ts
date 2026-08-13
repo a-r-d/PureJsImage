@@ -6,14 +6,13 @@ import {
   analysisStatisticsOperationId,
   createAnalysisController,
   createBuiltInAnalysisBundle,
-  createTileRuntime,
-  roiValueTypeId,
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
-  summarizeResult,
-  validateAnalysisResult,
 } from '../src/analysis/index.ts'
 import type { AnalysisResult, Roi } from '../src/analysis/index.ts'
+import { createTileRuntime } from '../src/analysis/runtime.ts'
+import { roiValueTypeId } from '../src/analysis/roi-entry.ts'
+import { summarizeResult, validateAnalysisResult } from '../src/analysis/results.ts'
 import { createExtensionHost } from '../src/extensions/index.ts'
 import type {
   DirectNumericTileDataset,

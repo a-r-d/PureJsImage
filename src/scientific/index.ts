@@ -75,6 +75,23 @@ export {
   ScientificReaderRegistry,
   getScientificDatasetIdentity,
 } from './reader.ts'
+export type {
+  ContentSourceIdentity,
+  HashImageSourceOptions,
+  IdentifiedImageSource,
+  LocalFileSourceIdentity,
+  RemoteSourceIdentity,
+  SessionSourceIdentity,
+  SourceHashProgress,
+  SourceIdentity,
+} from '../source-identity.ts'
+export {
+  createSessionSourceIdentity,
+  getImageSourceIdentity,
+  hashImageSource,
+  imageSourceIdentity,
+  normalizeSourceIdentity,
+} from '../source-identity.ts'
 export { createScientificLibrary } from './library.ts'
 export {
   nativeLittleEndian,

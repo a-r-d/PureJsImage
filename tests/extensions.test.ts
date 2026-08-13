@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createAnalysisController, type AnalysisGraph } from '../src/analysis/index.ts'
-import type { OperationMigration } from '../src/analysis/index.ts'
+import type { OperationMigration } from '../src/analysis/project-entry.ts'
 import { createExtensionHost, type PureJsImageExtension } from '../src/extensions/index.ts'
 import {
   createOperationDefinition,

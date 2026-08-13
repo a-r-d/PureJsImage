@@ -1,62 +1,4 @@
 export type {
-  AnalysisResult,
-  AnalysisResultLimits,
-  AnalysisResultSummary,
-  BooleanTableColumn,
-  CategoryTableColumn,
-  HistogramCountArray,
-  HistogramResult,
-  NumericTableColumn,
-  ProfileAxis,
-  ProfileResult,
-  ProfileSeries,
-  ResolvedAnalysisResultLimits,
-  ResultCategoryCodes,
-  ResultCollection,
-  ResultCollectionEntry,
-  ResultMemoryAccounting,
-  ResultNaNPolicy,
-  ResultNumericArray,
-  ResultProvenanceReference,
-  ResultSummaryOptions,
-  ResultValidityBitmap,
-  ScalarResult,
-  TableColumn,
-  TableResult,
-  Utf8TableColumn,
-} from './result.ts'
-export {
-  accountAnalysisResultMemory,
-  analysisResultSchemas,
-  analysisResultValueTypeDefinitions,
-  analysisResultValueTypeDescriptors,
-  createAnalysisResultValueTypeRegistry,
-  defaultAnalysisResultLimits,
-  histogramResultValueTypeId,
-  profileResultValueTypeId,
-  resolveAnalysisResultLimits,
-  resultCollectionValueTypeId,
-  scalarResultValueTypeId,
-  summarizeResult,
-  tableResultValueTypeId,
-  validateAnalysisResult,
-  validateHistogramResult,
-  validateProfileResult,
-  validateResultCollection,
-  validateScalarResult,
-  validateTableResult,
-} from './result.ts'
-export type {
-  ScientificMeasurementResultOptions,
-  ScientificPlaneAnalysis,
-} from './scientific.ts'
-export {
-  measureScientificPlaneWithResults,
-  scientificPlaneMeasurementToResult,
-} from './scientific.ts'
-export type { CanonicalJsonLimits } from './canonical-json.ts'
-export { canonicalJson, hashCanonicalJson, sha256Text } from './canonical-json.ts'
-export type {
   AnalysisGraph,
   AnalysisGraphInput,
   AnalysisGraphNode,
@@ -83,30 +25,13 @@ export {
   validateGraph,
 } from './graph.ts'
 export type {
-  AnalysisMigrationDefinition,
-  AnalysisMigrationDescriptor,
-  AnalysisMigrationPlan,
-  AnalysisMigrationStep,
-  AppliedMigration,
-  GraphSchemaMigration,
-  InspectMigrationOptions,
-  OperationMigration,
-} from './migrations.ts'
-export {
-  AnalysisMigrationRegistry,
-  applyMigrationPlan,
-  createAnalysisMigrationRegistry,
-  describeAnalysisMigration,
-  inspectMigrationPlan,
-} from './migrations.ts'
-export type {
-  AnalysisDryRun,
   AnalysisBindingIdentity,
+  AnalysisDryRun,
   AnalysisInputBinding,
   AnalysisInvocationManifest,
-  AnalysisPlanLease,
   AnalysisPlan,
   AnalysisPlanCost,
+  AnalysisPlanLease,
   AnalysisPlanNode,
   AnalysisRequiredInputIdentity,
   AnalysisSemanticIdentity,
@@ -121,23 +46,9 @@ export {
   planGraph,
 } from './planner.ts'
 export type {
-  AnalysisProjectHashes,
-  AnalysisProjectOptions,
-  AnalysisProjectV1,
-  AnalysisProjectValidation,
-  PersistedBindingValue,
-  PersistedInputBinding,
-  PersistedSourceReference,
-} from './project.ts'
-export {
-  computeAnalysisProjectHashes,
-  normalizeAnalysisProjectV1,
-  validateAnalysisProjectV1,
-} from './project.ts'
-export type {
+  AnalysisExecutionOutputs,
   AnalysisExecutionProvenance,
   AnalysisExecutionResult,
-  AnalysisExecutionOutputs,
   AnalysisExecutionTask,
   AnalysisLibraryBuild,
   AnalysisNodeProvenance,
@@ -170,118 +81,25 @@ export type {
 } from './controller.ts'
 export { AnalysisController, createAnalysisController } from './controller.ts'
 export type {
-  ContentSourceIdentity,
-  HashImageSourceOptions,
-  IdentifiedImageSource,
-  LocalFileSourceIdentity,
-  RemoteSourceIdentity,
-  SessionSourceIdentity,
-  SourceHashProgress,
-  SourceIdentity,
-} from '../source-identity.ts'
+  AnalysisProjectHashes,
+  AnalysisProjectOptions,
+  AnalysisProjectV1,
+  AnalysisProjectValidation,
+  PersistedBindingValue,
+  PersistedInputBinding,
+  PersistedSourceReference,
+} from './project.ts'
 export {
-  createSessionSourceIdentity,
-  getImageSourceIdentity,
-  hashImageSource,
-  imageSourceIdentity,
-  normalizeSourceIdentity,
-} from '../source-identity.ts'
-export type {
-  PhysicalRoiPoint,
-  ResolvedRoiLimits,
-  Roi,
-  RoiBoundingBox,
-  RoiGeometry,
-  RoiLimits,
-  RoiPoint,
-  RoiPresentation,
-  RoiSet,
-} from './roi.ts'
-export {
-  canonicalRoiJson,
-  canonicalNormalizedRoiSemanticsJson,
-  canonicalNormalizedRoiSetSemanticsJson,
-  canonicalRoiSemanticsJson,
-  canonicalRoiSetJson,
-  clipRoiBoundingBox,
-  createEmptyRoiSet,
-  createRoiValueTypeDefinitions,
-  createRoiValueTypeRegistry,
-  defaultRoiLimits,
-  normalizeRoi,
-  normalizeRoiSet,
-  physicalToPixelPoint,
-  pixelToPhysicalPoint,
-  resolveRoiLimits,
-  roiAxisPhysicalToPixel,
-  roiAxisPixelToPhysical,
-  roiBoundingBox,
-  roiSchemaVersion,
-  roiSetValueTypeId,
-  roiValueTypeDescriptors,
-  roiValueTypeId,
-  validateRoi,
-  validateRoiSet,
-} from './roi.ts'
-export type {
-  BilinearLineSampling,
-  NearestLineSampling,
-  RoiLineInterpolation,
-  RoiLineSamplingOptions,
-  RoiLineSamplingPlan,
-  RoiLineSpacingSpace,
-  RoiMask,
-  RoiMaskOptions,
-  RoiPlaneShape,
-  RoiTileRegion,
-} from './roi-sampling.ts'
-export { createRoiLineSamplingPlan, createRoiMask } from './roi-sampling.ts'
-export type {
-  ResolvedTileRuntimeLimits,
-  TileAddress,
-  TileCacheClass,
-  TileCacheMetrics,
-  TileDatasetIdentity,
-  TileInvalidation,
-  TilePriority,
-  TileProviderTiming,
-  TileProviderTimingMetrics,
-  TileRequest,
-  TileRuntimeLimits,
-  TileRuntimeMetrics,
-  TileRuntimeOptions,
-  TileSource,
-  TileSourceAccounting,
-  TileSourceEstimate,
-  TileSourceResult,
-  TileTarget,
-  TileTaskMetrics,
-  TileTimingEstimate,
-} from './tile-runtime.ts'
-export {
-  TileRuntime,
-  canonicalTileKey,
-  createTileRuntime,
-  defaultTileRuntimeLimits,
-  normalizeTileAddress,
-  normalizeTileRequest,
-  resolveTileRuntimeLimits,
-  tileRequestKeyData,
-} from './tile-runtime.ts'
-export type {
-  DerivedTileExecutionContext,
-  DerivedTileSourceOptions,
-  TileBoundaryMode,
-  TileHalo,
-} from './tile-source.ts'
-export {
-  DerivedTileSource,
-  createDerivedTileSource,
-  numericTileSourceToTileSource,
-} from './tile-source.ts'
+  computeAnalysisProjectHashes,
+  normalizeAnalysisProjectV1,
+  validateAnalysisProjectV1,
+} from './project.ts'
+export type { AnalysisResult, AnalysisResultSummary } from './result.ts'
+export { summarizeResult } from './result.ts'
+export type { Roi, RoiSet } from './roi.ts'
+export { normalizeRoi, normalizeRoiSet } from './roi.ts'
 export {
   analysisCropOperationId,
-  analysisDatasetOperationDefinitions,
   analysisGaussianBlurOperationId,
   analysisProjectionOperationId,
   analysisResampleOperationId,
@@ -293,7 +111,6 @@ export {
 export {
   analysisHistogramOperationId,
   analysisLineProfileOperationId,
-  analysisResultOperationDefinitions,
   analysisStatisticsOperationId,
 } from './builtin-result-operations.ts'
 export type {
@@ -302,15 +119,11 @@ export type {
   ReferenceAnalysisProviderOptions,
 } from './builtins.ts'
 export {
-  builtInAnalysisOperationDefinitions,
-  builtInAnalysisOperationDescriptors,
   createBuiltInAnalysisBundle,
   createBuiltInAnalysisOperationRegistry,
   createBuiltInAnalysisValueTypeRegistry,
   createReferenceAnalysisProvider,
-  createScientificDatasetValueTypeRegistry,
   referenceAnalysisBuildFingerprint,
   referenceAnalysisProviderId,
   referenceAnalysisProviderVersion,
-  scientificDatasetValueTypeDefinition,
 } from './builtins.ts'

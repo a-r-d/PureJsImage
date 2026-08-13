@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { createRoiLineSamplingPlan, createRoiMask, normalizeRoi } from '../src/analysis/index.ts'
+import {
+  createRoiLineSamplingPlan,
+  createRoiMask,
+  normalizeRoi,
+} from '../src/analysis/roi-entry.ts'
 import type { Roi } from '../src/analysis/index.ts'
 import { normalizeScientificDatasetDescriptor } from '../src/scientific/index.ts'
 

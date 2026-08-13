@@ -1,19 +1,23 @@
 import { describe, expect, it } from 'vitest'
 import {
-  canonicalNormalizedRoiSemanticsJson,
-  computeAnalysisProjectHashes,
   createBuiltInAnalysisValueTypeRegistry,
   executeGraph,
-  hashCanonicalJson,
-  normalizeAnalysisProjectV1,
   planGraph,
-  roiSetValueTypeId,
-  roiValueTypeId,
   scientificDatasetValueTypeId,
-  validateAnalysisProjectV1,
   type AnalysisProjectV1,
   type AnalysisSemanticIdentity,
 } from '../src/analysis/index.ts'
+import {
+  computeAnalysisProjectHashes,
+  hashCanonicalJson,
+  normalizeAnalysisProjectV1,
+  validateAnalysisProjectV1,
+} from '../src/analysis/project-entry.ts'
+import {
+  canonicalNormalizedRoiSemanticsJson,
+  roiSetValueTypeId,
+  roiValueTypeId,
+} from '../src/analysis/roi-entry.ts'
 import {
   createOperationRegistry,
   createValueTypeDefinition,

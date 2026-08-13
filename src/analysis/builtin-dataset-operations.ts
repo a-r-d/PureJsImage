@@ -15,6 +15,10 @@ import type {
   OperationImplementation,
   OperationOwnedOutput,
   OperationPlanningRequest,
+  OperationTileKernel,
+  OperationTileKernelPlanningRequest,
+  OperationTileKernelRequest,
+  OperationTileRegion,
 } from '../operations/provider.ts'
 import type { OperationDefinition } from '../operations/registry.ts'
 import { createOperationDefinition } from '../operations/registry.ts'
@@ -48,8 +52,12 @@ import {
 } from '../scientific/numeric-tile.ts'
 import { writeRasterSample } from '../scientific/samples.ts'
 import type { TileAddress, TileDatasetIdentity, TileRequest, TileSource } from './tile-runtime.ts'
+import {
+  createDerivedTileDatasetIdentity,
+  createTileDatasetIdentityForScientificDataset,
+} from './tile-runtime.ts'
 import type { TileRuntime } from './tile-runtime.ts'
-import { numericTileSourceToTileSource } from './tile-source.ts'
+import { createDerivedTileSource, numericTileSourceToTileSource } from './tile-source.ts'
 
 export const scientificDatasetValueTypeId = 'purejsimage.scientific.dataset'
 
@@ -1161,7 +1169,12 @@ const setNumericValue = (data: NumericArray, index: number, value: number | bigi
 }
 
 const packedTile = (
-  request: NormalizedScientificPlaneReadRequest,
+  request: Readonly<{
+    readonly x: number
+    readonly y: number
+    readonly width: number
+    readonly height: number
+  }>,
   sampleType: NumericSampleType,
   components: number,
   maxTileBytes: number,
@@ -1244,11 +1257,25 @@ const tileToRasterBlock = (tile: NumericTile, sampleType: RasterSampleType): Ras
 
 type TileReader = (request: NormalizedScientificPlaneReadRequest) => Promise<NumericTile>
 
+const analysisTileDatasetIdentity = Symbol('purejsimage.analysis.tile-dataset-identity')
+
+interface TileIdentifiedScientificDataset extends ScientificDataset {
+  readonly [analysisTileDatasetIdentity]: TileDatasetIdentity
+}
+
+const attachedTileDatasetIdentity = (
+  dataset: ScientificDataset,
+): TileDatasetIdentity | undefined =>
+  analysisTileDatasetIdentity in dataset
+    ? (dataset as TileIdentifiedScientificDataset)[analysisTileDatasetIdentity]
+    : undefined
+
 const operationDataset = (
   descriptor: NormalizedScientificDatasetDescriptor,
   readTile: TileReader,
   tileWidth: number,
   tileHeight: number,
+  identity: TileDatasetIdentity,
 ): DirectNumericTileDataset => {
   const nativeType = numericSampleType(descriptor.sampleType)
   const source: NumericTileSource = Object.freeze({
@@ -1275,7 +1302,7 @@ const operationDataset = (
       }
     },
   })
-  return Object.freeze({
+  const dataset = {
     descriptor,
     numericTileSource: source,
     async *readPlane(input: Readonly<ScientificPlaneReadRequest>): AsyncGenerator<RasterBlock> {
@@ -1287,7 +1314,71 @@ const operationDataset = (
         }
       }
     },
+  }
+  Object.defineProperty(dataset, analysisTileDatasetIdentity, {
+    value: identity,
+    enumerable: false,
   })
+  return Object.freeze(dataset)
+}
+
+const providerDerivedDataset = (
+  source: ScientificDataset,
+  descriptor: NormalizedScientificDatasetDescriptor,
+  definition: OperationDefinition,
+  request: Readonly<OperationExecutionRequest>,
+  context: AnalysisDatasetOperationContext,
+  identity: TileDatasetIdentity,
+): ScientificDataset => {
+  if (identity.semantic.kind !== 'derived-dataset') {
+    throw invalidInput('Provider-derived dataset requires a derived semantic identity')
+  }
+  if (request.selection === undefined) {
+    throw invalidInput('Provider-derived dataset requires its prepared provider selection')
+  }
+  const derivedSource = createDerivedTileSource({
+    runtime: context.runtime,
+    source: context.source(source),
+    sourceDescriptor: source.descriptor,
+    sourceIdentity: context.identity(source),
+    descriptor,
+    operation: definition,
+    selection: request.selection,
+    parameters: request.parameters,
+    nodeSemanticHash: identity.semantic.sha256,
+    executionFingerprint: identity.semantic.sha256,
+    sourceNamespace: 'purejsimage.analysis.source',
+  })
+  return operationDataset(
+    descriptor,
+    async (plane) =>
+      context.runtime.request(
+        derivedSource,
+        Object.freeze({
+          address: Object.freeze({
+            cacheClass: 'derived' as const,
+            namespace: 'purejsimage.analysis.derived',
+            dataset: identity,
+            displayAxes: plane.displayAxes,
+            fixedIndices: plane.fixedIndices,
+            resolutionLevel: plane.resolutionLevel,
+            x: plane.x,
+            y: plane.y,
+            width: plane.width,
+            height: plane.height,
+          }),
+          priority: 'visible' as const,
+          signal: plane.signal ?? new AbortController().signal,
+          target: Object.freeze({
+            sampleType: numericSampleType(descriptor.sampleType),
+            layout: 'interleaved' as const,
+          }),
+        }),
+      ),
+    context.tileWidth,
+    context.tileHeight,
+    identity,
+  )
 }
 
 export interface AnalysisDatasetOperationContextOptions {
@@ -1302,6 +1393,7 @@ export class AnalysisDatasetOperationContext {
   readonly tileWidth: number
   readonly tileHeight: number
   readonly #sessionId: string
+  readonly #instanceScope: string
   readonly #identities = new WeakMap<ScientificDataset, TileDatasetIdentity>()
   readonly #sources = new WeakMap<ScientificDataset, TileSource>()
   #identityCounter = 0
@@ -1320,6 +1412,7 @@ export class AnalysisDatasetOperationContext {
     }
     this.#sessionId =
       options.sessionId ?? options.runtime.allocateIdentityScope('reference-analysis')
+    this.#instanceScope = options.runtime.allocateIdentityScope('analysis-dataset-context')
     if (this.#sessionId.trim().length === 0 || this.#sessionId.length > 4_096) {
       throw invalidInput('Analysis operation sessionId must be bounded and non-empty')
     }
@@ -1335,7 +1428,7 @@ export class AnalysisDatasetOperationContext {
     const identity = this.#identity(dataset)
     const address: TileAddress = Object.freeze({
       cacheClass: 'source',
-      namespace: `analysis-source:${identity.datasetId}`,
+      namespace: 'purejsimage.analysis.source',
       dataset: identity,
       displayAxes: request.displayAxes,
       fixedIndices: request.fixedIndices,
@@ -1358,6 +1451,35 @@ export class AnalysisDatasetOperationContext {
     return this.runtime.request(source, tileRequest)
   }
 
+  identity(dataset: ScientificDataset): TileDatasetIdentity {
+    return this.#identity(dataset)
+  }
+
+  source(dataset: ScientificDataset): TileSource {
+    return this.#source(dataset)
+  }
+
+  async derivedIdentity(
+    source: ScientificDataset,
+    request: Readonly<OperationExecutionRequest>,
+    outputPort: string,
+  ): Promise<TileDatasetIdentity> {
+    if (request.provider === undefined || request.implementation === undefined) {
+      throw invalidInput('Lazy dataset execution requires exact provider provenance')
+    }
+    return createDerivedTileDatasetIdentity({
+      source: this.#identity(source),
+      operation: {
+        id: request.descriptor.id,
+        version: request.descriptor.version,
+      },
+      normalizedParameters: request.parameters,
+      outputPort,
+      provider: request.provider,
+      implementation: request.implementation,
+    })
+  }
+
   #source(dataset: ScientificDataset): TileSource {
     let source = this.#sources.get(dataset)
     if (source === undefined) {
@@ -1368,21 +1490,14 @@ export class AnalysisDatasetOperationContext {
   }
 
   #identity(dataset: ScientificDataset): TileDatasetIdentity {
+    const attached = attachedTileDatasetIdentity(dataset)
+    if (attached !== undefined) return attached
     let identity = this.#identities.get(dataset)
     if (identity === undefined) {
       this.#identityCounter += 1
-      const id = `${this.#sessionId}:${this.#identityCounter}`
-      identity = Object.freeze({
-        datasetId: id,
-        source: Object.freeze({
-          kind: 'session',
-          strength: 'session',
-          stability: 'instance',
-          id,
-          size: 0,
-        }),
+      identity = createTileDatasetIdentityForScientificDataset(dataset, {
         sessionId: this.#sessionId,
-        generation: 0,
+        unidentifiedDatasetId: `${this.#instanceScope}:${this.#identityCounter}`,
       })
       this.#identities.set(dataset, identity)
     }
@@ -1397,6 +1512,7 @@ const cropDataset = (
   source: ScientificDataset,
   value: OperationJsonValue,
   context: AnalysisDatasetOperationContext,
+  identity: TileDatasetIdentity,
 ): ScientificDataset => {
   const parameters = cropParameters(value)
   const descriptor = inferCropDescriptor(source.descriptor, parameters)
@@ -1432,6 +1548,7 @@ const cropDataset = (
     },
     context.tileWidth,
     context.tileHeight,
+    identity,
   )
 }
 
@@ -1439,6 +1556,7 @@ const sliceDataset = (
   source: ScientificDataset,
   value: OperationJsonValue,
   context: AnalysisDatasetOperationContext,
+  identity: TileDatasetIdentity,
 ): ScientificDataset => {
   const parameters = sliceParameters(value)
   const descriptor = inferSliceDescriptor(source.descriptor, parameters)
@@ -1448,6 +1566,7 @@ const sliceDataset = (
       context.readSourceTile(source, { ...request, fixedIndices: parameters.fixedIndices }),
     context.tileWidth,
     context.tileHeight,
+    identity,
   )
 }
 
@@ -1458,6 +1577,7 @@ const resampleDataset = (
   source: ScientificDataset,
   value: OperationJsonValue,
   context: AnalysisDatasetOperationContext,
+  identity: TileDatasetIdentity,
 ): ScientificDataset => {
   const parameters = resampleParameters(value, source.descriptor)
   const descriptor = inferResampleDescriptor(source.descriptor, value)
@@ -1579,6 +1699,7 @@ const resampleDataset = (
     },
     context.tileWidth,
     context.tileHeight,
+    identity,
   )
 }
 
@@ -1602,40 +1723,66 @@ const thresholdMatches = (value: number | bigint, parameters: ThresholdParameter
 
 const thresholdDataset = (
   source: ScientificDataset,
-  value: OperationJsonValue,
+  request: Readonly<OperationExecutionRequest>,
+  definition: OperationDefinition,
   context: AnalysisDatasetOperationContext,
-): ScientificDataset => {
-  const parameters = thresholdParameters(value, source.descriptor)
-  const descriptor = inferThresholdDescriptor(source.descriptor, value)
-  return operationDataset(
-    descriptor,
-    async (request) => {
-      const input = await context.readSourceTile(source, request)
-      try {
-        const output = packedTile(request, 'uint8', 1, context.runtime.limits.maxTileBytes)
-        if (!(output.data instanceof Uint8Array))
-          throw invalidInput('Threshold output allocation must be uint8')
-        for (let y = 0; y < request.height; y += 1) {
-          throwIfAborted(request.signal)
-          for (let x = 0; x < request.width; x += 1) {
-            const index = y * request.width + x
-            const sample = numericValue(input, x, y, 0)
-            output.data[index] = usableValue(sample, source.descriptor.noDataValue)
-              ? thresholdMatches(sample, parameters)
-                ? 1
-                : 0
-              : parameters.invalidOutput
-          }
-        }
-        return output
-      } finally {
-        input.release()
-      }
-    },
-    context.tileWidth,
-    context.tileHeight,
+  identity: TileDatasetIdentity,
+): ScientificDataset =>
+  providerDerivedDataset(
+    source,
+    inferThresholdDescriptor(source.descriptor, request.parameters),
+    definition,
+    request,
+    context,
+    identity,
   )
-}
+
+const thresholdTileKernel = (maxTileBytes: number): OperationTileKernel =>
+  Object.freeze({
+    halo: () => Object.freeze({ left: 0, right: 0, top: 0, bottom: 0 }),
+    estimate: (
+      request: Readonly<
+        OperationTileKernelPlanningRequest & {
+          readonly sourceRegion: OperationTileRegion
+          readonly outputRegion: OperationTileRegion
+        }
+      >,
+    ) => {
+      const { outputRegion } = request
+      const outputBytes = outputRegion.width * outputRegion.height
+      return Object.freeze({
+        outputRetainedBytes: outputBytes,
+        peakWorkingBytes: outputBytes,
+        retainedAuxiliaryBytes: 0,
+      })
+    },
+    async execute(request: Readonly<OperationTileKernelRequest>): Promise<OperationOwnedOutput> {
+      request.signal.throwIfAborted()
+      const parameters = thresholdParameters(request.parameters, request.sourceDescriptor)
+      const output = packedTile(request.outputRegion, 'uint8', 1, maxTileBytes)
+      if (!(output.data instanceof Uint8Array)) {
+        throw invalidInput('Threshold output allocation must be uint8')
+      }
+      for (let y = 0; y < request.outputRegion.height; y += 1) {
+        throwIfAborted(request.signal)
+        for (let x = 0; x < request.outputRegion.width; x += 1) {
+          const index = y * request.outputRegion.width + x
+          const sample = numericValue(request.sourceTile, x, y, 0)
+          output.data[index] = usableValue(sample, request.sourceDescriptor.noDataValue)
+            ? thresholdMatches(sample, parameters)
+              ? 1
+              : 0
+            : parameters.invalidOutput
+        }
+      }
+      request.signal.throwIfAborted()
+      return Object.freeze({
+        value: output,
+        ownershipIdentity: output.data.buffer,
+        release: output.release,
+      })
+    },
+  })
 
 const gaussianKernel = (sigma: number, radius: number): Float64Array => {
   const result = new Float64Array(radius * 2 + 1)
@@ -1663,145 +1810,161 @@ const boundaryIndex = (index: number, length: number, boundary: GaussianBoundary
 
 const gaussianBlurDataset = (
   source: ScientificDataset,
-  value: OperationJsonValue,
+  request: Readonly<OperationExecutionRequest>,
+  definition: OperationDefinition,
   context: AnalysisDatasetOperationContext,
-): ScientificDataset => {
-  const parameters = gaussianBlurParameters(value, source.descriptor)
-  const descriptor = inferGaussianBlurDescriptor(source.descriptor, value)
-  const sourceWidth = axis(source.descriptor, parameters.displayAxes[0]).length
-  const sourceHeight = axis(source.descriptor, parameters.displayAxes[1]).length
-  const kernel = gaussianKernel(parameters.sigma, parameters.radius)
-  return operationDataset(
-    descriptor,
-    async (request) => {
-      if (
-        request.displayAxes[0] !== parameters.displayAxes[0] ||
-        request.displayAxes[1] !== parameters.displayAxes[1]
-      ) {
-        throw invalidInput('Gaussian blur reads must use the operation display-axis order')
-      }
-      const radius = parameters.radius
-      const sourceX = Math.max(0, request.x - radius)
-      const sourceY = Math.max(0, request.y - radius)
-      const sourceRight = Math.min(sourceWidth, request.x + request.width + radius)
-      const sourceBottom = Math.min(sourceHeight, request.y + request.height + radius)
-      const input = await context.readSourceTile(
-        source,
-        {
-          ...request,
-          fixedIndices: parameters.fixedIndices,
-          x: sourceX,
-          y: sourceY,
-          width: sourceRight - sourceX,
-          height: sourceBottom - sourceY,
-        },
-        'float64',
-      )
-      let releaseWorking = (): void => undefined
-      try {
-        const expandedHeight = request.height + radius * 2
-        const horizontalElements = request.width * expandedHeight
-        const scratchBytes =
-          horizontalElements * 8 +
-          horizontalElements * (parameters.invalidPolicy === 'ignore' ? 8 : 1) +
-          (request.width + radius * 2 + expandedHeight) * 4
-        releaseWorking = context.runtime.reserveOperationWorkingBytes(scratchBytes)
-        const horizontalValues = new Float64Array(request.width * expandedHeight)
-        const horizontalWeights =
-          parameters.invalidPolicy === 'ignore'
-            ? new Float64Array(request.width * expandedHeight)
-            : undefined
-        const horizontalInvalid =
-          parameters.invalidPolicy === 'propagate'
-            ? new Uint8Array(request.width * expandedHeight)
-            : undefined
-        const mappedX = new Int32Array(request.width + radius * 2)
-        const mappedY = new Int32Array(expandedHeight)
-        for (let index = 0; index < mappedX.length; index += 1) {
-          mappedX[index] = boundaryIndex(
-            request.x + index - radius,
-            sourceWidth,
-            parameters.boundary,
-          )
-        }
-        for (let index = 0; index < mappedY.length; index += 1) {
-          mappedY[index] = boundaryIndex(
-            request.y + index - radius,
-            sourceHeight,
-            parameters.boundary,
-          )
-        }
-        for (let row = 0; row < expandedHeight; row += 1) {
-          throwIfAborted(request.signal)
-          const mappedRow = mappedY[row] ?? -1
-          for (let x = 0; x < request.width; x += 1) {
-            let sum = 0
-            let weight = 0
-            let invalid = false
-            for (let kernelIndex = 0; kernelIndex < kernel.length; kernelIndex += 1) {
-              const mappedColumn = mappedX[x + kernelIndex] ?? -1
-              const coefficient = kernel[kernelIndex] ?? 0
-              const sample =
-                mappedColumn < 0 || mappedRow < 0
-                  ? parameters.constantValue
-                  : numericValue(
-                      input,
-                      mappedColumn - sourceX,
-                      mappedRow - sourceY,
-                      parameters.component,
-                    )
-              if (
-                typeof sample !== 'number' ||
-                !usableValue(sample, source.descriptor.noDataValue)
-              ) {
-                invalid = true
-                continue
-              }
-              sum += sample * coefficient
-              weight += coefficient
-            }
-            const offset = row * request.width + x
-            horizontalValues[offset] = sum
-            if (horizontalWeights !== undefined) horizontalWeights[offset] = weight
-            if (invalid && horizontalInvalid !== undefined) horizontalInvalid[offset] = 1
-          }
-        }
-        const output = packedTile(request, 'float32', 1, context.runtime.limits.maxTileBytes)
-        if (!(output.data instanceof Float32Array))
-          throw invalidInput('Gaussian blur output allocation must be float32')
-        for (let y = 0; y < request.height; y += 1) {
-          throwIfAborted(request.signal)
-          for (let x = 0; x < request.width; x += 1) {
-            let sum = 0
-            let weight = 0
-            let invalid = false
-            for (let kernelIndex = 0; kernelIndex < kernel.length; kernelIndex += 1) {
-              const offset = (y + kernelIndex) * request.width + x
-              const coefficient = kernel[kernelIndex] ?? 0
-              if (horizontalInvalid?.[offset] === 1) invalid = true
-              sum += (horizontalValues[offset] ?? 0) * coefficient
-              if (horizontalWeights !== undefined)
-                weight += (horizontalWeights[offset] ?? 0) * coefficient
-            }
-            output.data[y * request.width + x] =
-              (invalid && parameters.invalidPolicy === 'propagate') ||
-              (horizontalWeights !== undefined && weight === 0)
-                ? Number.NaN
-                : horizontalWeights === undefined
-                  ? sum
-                  : sum / weight
-          }
-        }
-        return output
-      } finally {
-        releaseWorking()
-        input.release()
-      }
-    },
-    context.tileWidth,
-    context.tileHeight,
+  identity: TileDatasetIdentity,
+): ScientificDataset =>
+  providerDerivedDataset(
+    source,
+    inferGaussianBlurDescriptor(source.descriptor, request.parameters),
+    definition,
+    request,
+    context,
+    identity,
   )
-}
+
+const gaussianBlurTileKernel = (maxTileBytes: number): OperationTileKernel =>
+  Object.freeze({
+    halo: (request: Readonly<OperationTileKernelPlanningRequest>) => {
+      const { parameters, sourceDescriptor } = request
+      const radius = gaussianBlurParameters(parameters, sourceDescriptor).radius
+      return Object.freeze({ left: radius, right: radius, top: radius, bottom: radius })
+    },
+    sourceFixedIndices: (request: Readonly<OperationTileKernelPlanningRequest>) =>
+      gaussianBlurParameters(request.parameters, request.sourceDescriptor).fixedIndices,
+    sourceTarget: () =>
+      Object.freeze({ sampleType: 'float64' as const, layout: 'interleaved' as const }),
+    estimate: (
+      request: Readonly<
+        OperationTileKernelPlanningRequest & {
+          readonly sourceRegion: OperationTileRegion
+          readonly outputRegion: OperationTileRegion
+        }
+      >,
+    ) => {
+      const { parameters, sourceDescriptor, outputRegion } = request
+      const parsed = gaussianBlurParameters(parameters, sourceDescriptor)
+      const expandedHeight = outputRegion.height + parsed.radius * 2
+      const horizontalElements = outputRegion.width * expandedHeight
+      const outputBytes = outputRegion.width * outputRegion.height * Float32Array.BYTES_PER_ELEMENT
+      const scratchBytes =
+        horizontalElements * Float64Array.BYTES_PER_ELEMENT +
+        horizontalElements *
+          (parsed.invalidPolicy === 'ignore'
+            ? Float64Array.BYTES_PER_ELEMENT
+            : Uint8Array.BYTES_PER_ELEMENT) +
+        (outputRegion.width + parsed.radius * 2 + expandedHeight) * Int32Array.BYTES_PER_ELEMENT
+      return Object.freeze({
+        outputRetainedBytes: outputBytes,
+        peakWorkingBytes: outputBytes + scratchBytes,
+        retainedAuxiliaryBytes: 0,
+      })
+    },
+    async execute(request: Readonly<OperationTileKernelRequest>): Promise<OperationOwnedOutput> {
+      request.signal.throwIfAborted()
+      const parameters = gaussianBlurParameters(request.parameters, request.sourceDescriptor)
+      const sourceWidth = axis(request.sourceDescriptor, parameters.displayAxes[0]).length
+      const sourceHeight = axis(request.sourceDescriptor, parameters.displayAxes[1]).length
+      const kernel = gaussianKernel(parameters.sigma, parameters.radius)
+      const radius = parameters.radius
+      const expandedHeight = request.outputRegion.height + radius * 2
+      const horizontalValues = new Float64Array(request.outputRegion.width * expandedHeight)
+      const horizontalWeights =
+        parameters.invalidPolicy === 'ignore'
+          ? new Float64Array(request.outputRegion.width * expandedHeight)
+          : undefined
+      const horizontalInvalid =
+        parameters.invalidPolicy === 'propagate'
+          ? new Uint8Array(request.outputRegion.width * expandedHeight)
+          : undefined
+      const mappedX = new Int32Array(request.outputRegion.width + radius * 2)
+      const mappedY = new Int32Array(expandedHeight)
+      for (let index = 0; index < mappedX.length; index += 1) {
+        mappedX[index] = boundaryIndex(
+          request.outputRegion.x + index - radius,
+          sourceWidth,
+          parameters.boundary,
+        )
+      }
+      for (let index = 0; index < mappedY.length; index += 1) {
+        mappedY[index] = boundaryIndex(
+          request.outputRegion.y + index - radius,
+          sourceHeight,
+          parameters.boundary,
+        )
+      }
+      for (let row = 0; row < expandedHeight; row += 1) {
+        throwIfAborted(request.signal)
+        const mappedRow = mappedY[row] ?? -1
+        for (let x = 0; x < request.outputRegion.width; x += 1) {
+          let sum = 0
+          let weight = 0
+          let invalid = false
+          for (let kernelIndex = 0; kernelIndex < kernel.length; kernelIndex += 1) {
+            const mappedColumn = mappedX[x + kernelIndex] ?? -1
+            const coefficient = kernel[kernelIndex] ?? 0
+            const sample =
+              mappedColumn < 0 || mappedRow < 0
+                ? parameters.constantValue
+                : numericValue(
+                    request.sourceTile,
+                    mappedColumn - request.sourceRegion.x,
+                    mappedRow - request.sourceRegion.y,
+                    parameters.component,
+                  )
+            if (
+              typeof sample !== 'number' ||
+              !usableValue(sample, request.sourceDescriptor.noDataValue)
+            ) {
+              invalid = true
+              continue
+            }
+            sum += sample * coefficient
+            weight += coefficient
+          }
+          const offset = row * request.outputRegion.width + x
+          horizontalValues[offset] = sum
+          if (horizontalWeights !== undefined) horizontalWeights[offset] = weight
+          if (invalid && horizontalInvalid !== undefined) horizontalInvalid[offset] = 1
+        }
+      }
+      const output = packedTile(request.outputRegion, 'float32', 1, maxTileBytes)
+      if (!(output.data instanceof Float32Array)) {
+        throw invalidInput('Gaussian blur output allocation must be float32')
+      }
+      for (let y = 0; y < request.outputRegion.height; y += 1) {
+        throwIfAborted(request.signal)
+        for (let x = 0; x < request.outputRegion.width; x += 1) {
+          let sum = 0
+          let weight = 0
+          let invalid = false
+          for (let kernelIndex = 0; kernelIndex < kernel.length; kernelIndex += 1) {
+            const offset = (y + kernelIndex) * request.outputRegion.width + x
+            const coefficient = kernel[kernelIndex] ?? 0
+            if (horizontalInvalid?.[offset] === 1) invalid = true
+            sum += (horizontalValues[offset] ?? 0) * coefficient
+            if (horizontalWeights !== undefined) {
+              weight += (horizontalWeights[offset] ?? 0) * coefficient
+            }
+          }
+          output.data[y * request.outputRegion.width + x] =
+            (invalid && parameters.invalidPolicy === 'propagate') ||
+            (horizontalWeights !== undefined && weight === 0)
+              ? Number.NaN
+              : horizontalWeights === undefined
+                ? sum
+                : sum / weight
+        }
+      }
+      request.signal.throwIfAborted()
+      return Object.freeze({
+        value: output,
+        ownershipIdentity: output.data.buffer,
+        release: output.release,
+      })
+    },
+  })
 
 const usableValue = (value: number | bigint, noDataValue: number | undefined): boolean => {
   if (typeof value === 'bigint') {
@@ -1830,6 +1993,7 @@ const projectionDataset = (
   source: ScientificDataset,
   value: OperationJsonValue,
   context: AnalysisDatasetOperationContext,
+  identity: TileDatasetIdentity,
 ): ScientificDataset => {
   const parameters = projectionParameters(value, source.descriptor)
   const descriptor = inferProjectionDescriptor(source.descriptor, value)
@@ -1856,114 +2020,120 @@ const projectionDataset = (
         (Uint32Array.BYTES_PER_ELEMENT +
           (parameters.invalidPolicy === 'propagate' ? Uint8Array.BYTES_PER_ELEMENT : 0) +
           (output.data instanceof BigUint64Array ? 0 : Float64Array.BYTES_PER_ELEMENT))
-      const releaseWorking = context.runtime.reserveOperationWorkingBytes(scratchBytes)
-      try {
-        const counts = new Uint32Array(sampleCount)
-        const invalid =
-          parameters.invalidPolicy === 'propagate' ? new Uint8Array(sampleCount) : undefined
-        const numericAccumulator =
-          output.data instanceof BigUint64Array ? undefined : new Float64Array(sampleCount)
-        if (numericAccumulator !== undefined)
-          numericAccumulator.fill(
-            parameters.mode === 'min'
-              ? Number.POSITIVE_INFINITY
-              : parameters.mode === 'max'
-                ? Number.NEGATIVE_INFINITY
-                : 0,
-          )
-        for (let reductionIndex = 0; reductionIndex < reductionLength; reductionIndex += 1) {
-          throwIfAborted(request.signal)
-          const tile = await context.readSourceTile(
-            source,
-            {
-              ...request,
-              fixedIndices: Object.freeze([
-                ...parameters.fixedIndices,
-                Object.freeze({ axisId: parameters.reductionAxis, index: reductionIndex }),
-              ]),
-            },
-            parameters.outputSampleType === 'preserve' ? undefined : 'float64',
-          )
-          try {
-            for (let y = 0; y < request.height; y += 1) {
-              for (let x = 0; x < request.width; x += 1) {
-                for (let component = 0; component < tile.componentCount; component += 1) {
-                  const index = (y * request.width + x) * tile.componentCount + component
-                  const sample = numericValue(tile, x, y, component)
-                  if (!usableValue(sample, source.descriptor.noDataValue)) {
-                    if (invalid !== undefined) invalid[index] = 1
-                    continue
-                  }
-                  if (output.data instanceof BigUint64Array) {
-                    if (typeof sample !== 'bigint')
-                      throw invalidInput('Projection changed uint64 semantics')
-                    if (
-                      counts[index] === 0 ||
-                      (parameters.mode === 'min'
-                        ? sample < (output.data[index] ?? 0n)
-                        : sample > (output.data[index] ?? 0n))
-                    )
-                      output.data[index] = sample
-                  } else {
-                    if (typeof sample !== 'number')
-                      throw invalidInput('Projection requires exact numeric samples')
-                    const previous = numericAccumulator?.[index] ?? 0
-                    if (numericAccumulator === undefined) {
-                      throw invalidInput('Projection numeric accumulator is unavailable')
+      return context.runtime.withOperationWorkingBytes(
+        scratchBytes,
+        {
+          label: analysisProjectionOperationId,
+          ...(request.signal === undefined ? {} : { signal: request.signal }),
+        },
+        async () => {
+          const counts = new Uint32Array(sampleCount)
+          const invalid =
+            parameters.invalidPolicy === 'propagate' ? new Uint8Array(sampleCount) : undefined
+          const numericAccumulator =
+            output.data instanceof BigUint64Array ? undefined : new Float64Array(sampleCount)
+          if (numericAccumulator !== undefined)
+            numericAccumulator.fill(
+              parameters.mode === 'min'
+                ? Number.POSITIVE_INFINITY
+                : parameters.mode === 'max'
+                  ? Number.NEGATIVE_INFINITY
+                  : 0,
+            )
+          for (let reductionIndex = 0; reductionIndex < reductionLength; reductionIndex += 1) {
+            throwIfAborted(request.signal)
+            const tile = await context.readSourceTile(
+              source,
+              {
+                ...request,
+                fixedIndices: Object.freeze([
+                  ...parameters.fixedIndices,
+                  Object.freeze({ axisId: parameters.reductionAxis, index: reductionIndex }),
+                ]),
+              },
+              parameters.outputSampleType === 'preserve' ? undefined : 'float64',
+            )
+            try {
+              for (let y = 0; y < request.height; y += 1) {
+                for (let x = 0; x < request.width; x += 1) {
+                  for (let component = 0; component < tile.componentCount; component += 1) {
+                    const index = (y * request.width + x) * tile.componentCount + component
+                    const sample = numericValue(tile, x, y, component)
+                    if (!usableValue(sample, source.descriptor.noDataValue)) {
+                      if (invalid !== undefined) invalid[index] = 1
+                      continue
                     }
-                    if (parameters.mode === 'mean') numericAccumulator[index] = previous + sample
-                    else if (parameters.mode === 'min') {
-                      numericAccumulator[index] = Math.min(previous, sample)
-                    } else numericAccumulator[index] = Math.max(previous, sample)
+                    if (output.data instanceof BigUint64Array) {
+                      if (typeof sample !== 'bigint')
+                        throw invalidInput('Projection changed uint64 semantics')
+                      if (
+                        counts[index] === 0 ||
+                        (parameters.mode === 'min'
+                          ? sample < (output.data[index] ?? 0n)
+                          : sample > (output.data[index] ?? 0n))
+                      )
+                        output.data[index] = sample
+                    } else {
+                      if (typeof sample !== 'number')
+                        throw invalidInput('Projection requires exact numeric samples')
+                      const previous = numericAccumulator?.[index] ?? 0
+                      if (numericAccumulator === undefined) {
+                        throw invalidInput('Projection numeric accumulator is unavailable')
+                      }
+                      if (parameters.mode === 'mean') numericAccumulator[index] = previous + sample
+                      else if (parameters.mode === 'min') {
+                        numericAccumulator[index] = Math.min(previous, sample)
+                      } else numericAccumulator[index] = Math.max(previous, sample)
+                    }
+                    counts[index] = (counts[index] ?? 0) + 1
                   }
-                  counts[index] = (counts[index] ?? 0) + 1
                 }
               }
+            } finally {
+              tile.release()
             }
-          } finally {
-            tile.release()
           }
-        }
-        for (let index = 0; index < sampleCount; index += 1) {
-          if (invalid?.[index] === 1 || counts[index] === 0) {
-            const missing = descriptor.noDataValue
-            if (output.data instanceof BigUint64Array) {
-              if (missing === undefined || !Number.isSafeInteger(missing) || missing < 0) {
-                throw invalidInput(
-                  'Integer projection needs an exactly representable noDataValue for empty output',
-                )
-              }
-              output.data[index] = BigInt(missing)
-            } else {
-              const range = integerOutputRange(output.data)
-              if (range !== null) {
-                if (
-                  missing === undefined ||
-                  !Number.isSafeInteger(missing) ||
-                  missing < range[0] ||
-                  missing > range[1]
-                ) {
+          for (let index = 0; index < sampleCount; index += 1) {
+            if (invalid?.[index] === 1 || counts[index] === 0) {
+              const missing = descriptor.noDataValue
+              if (output.data instanceof BigUint64Array) {
+                if (missing === undefined || !Number.isSafeInteger(missing) || missing < 0) {
                   throw invalidInput(
                     'Integer projection needs an exactly representable noDataValue for empty output',
                   )
                 }
-                output.data[index] = missing
-              } else output.data[index] = missing ?? Number.NaN
+                output.data[index] = BigInt(missing)
+              } else {
+                const range = integerOutputRange(output.data)
+                if (range !== null) {
+                  if (
+                    missing === undefined ||
+                    !Number.isSafeInteger(missing) ||
+                    missing < range[0] ||
+                    missing > range[1]
+                  ) {
+                    throw invalidInput(
+                      'Integer projection needs an exactly representable noDataValue for empty output',
+                    )
+                  }
+                  output.data[index] = missing
+                } else output.data[index] = missing ?? Number.NaN
+              }
+              continue
             }
-            continue
+            if (output.data instanceof BigUint64Array) continue
+            const accumulated = numericAccumulator?.[index] ?? Number.NaN
+            output.data[index] =
+              parameters.mode === 'mean' ? accumulated / (counts[index] ?? 1) : accumulated
           }
-          if (output.data instanceof BigUint64Array) continue
-          const accumulated = numericAccumulator?.[index] ?? Number.NaN
-          output.data[index] =
-            parameters.mode === 'mean' ? accumulated / (counts[index] ?? 1) : accumulated
-        }
-        return output
-      } finally {
-        releaseWorking()
-      }
+          throwIfAborted(request.signal)
+          return output
+        },
+      )
     },
     context.tileWidth,
     context.tileHeight,
+    identity,
   )
 }
 
@@ -2048,6 +2218,11 @@ export const createAnalysisDatasetOperationImplementations = (
             ? { bitExactConformance: true }
             : {}),
         }),
+        ...(definition.descriptor.id === analysisThresholdOperationId
+          ? { tileKernel: thresholdTileKernel(context.runtime.limits.maxTileBytes) }
+          : definition.descriptor.id === analysisGaussianBlurOperationId
+            ? { tileKernel: gaussianBlurTileKernel(context.runtime.limits.maxTileBytes) }
+            : {}),
         supportsPlan(request: Readonly<OperationPlanningRequest>): boolean {
           try {
             const descriptor = datasetDescriptorFromCharacteristics(request.inputCharacteristics[0])
@@ -2071,18 +2246,19 @@ export const createAnalysisDatasetOperationImplementations = (
         ): Promise<readonly OperationOwnedOutput[]> {
           request.signal.throwIfAborted()
           const source = datasetInput(request)
+          const identity = await context.derivedIdentity(source, request, 'dataset')
           if (definition.descriptor.id === analysisCropOperationId)
-            return ownedDataset(cropDataset(source, request.parameters, context))
+            return ownedDataset(cropDataset(source, request.parameters, context, identity))
           if (definition.descriptor.id === analysisResampleOperationId)
-            return ownedDataset(resampleDataset(source, request.parameters, context))
+            return ownedDataset(resampleDataset(source, request.parameters, context, identity))
           if (definition.descriptor.id === analysisSliceOperationId)
-            return ownedDataset(sliceDataset(source, request.parameters, context))
+            return ownedDataset(sliceDataset(source, request.parameters, context, identity))
           if (definition.descriptor.id === analysisProjectionOperationId)
-            return ownedDataset(projectionDataset(source, request.parameters, context))
+            return ownedDataset(projectionDataset(source, request.parameters, context, identity))
           if (definition.descriptor.id === analysisThresholdOperationId)
-            return ownedDataset(thresholdDataset(source, request.parameters, context))
+            return ownedDataset(thresholdDataset(source, request, definition, context, identity))
           if (definition.descriptor.id === analysisGaussianBlurOperationId)
-            return ownedDataset(gaussianBlurDataset(source, request.parameters, context))
+            return ownedDataset(gaussianBlurDataset(source, request, definition, context, identity))
           throw invalidInput(`Unknown analysis dataset operation ${definition.descriptor.id}`)
         },
       }),

@@ -1198,20 +1198,19 @@ export const createAnalysisResultOperationImplementations = (
             inputCharacteristics: request.plannedInputCharacteristics,
             signal: request.signal,
           })
-          const releaseWorking = context.runtime.reserveOperationWorkingBytes(
+          return context.runtime.withOperationWorkingBytes(
             estimated.peakWorkingBytes,
+            { label: definition.descriptor.id, signal: request.signal },
+            async () => {
+              if (definition.descriptor.id === analysisStatisticsOperationId)
+                return ownedResult(await statisticsResult(request, context))
+              if (definition.descriptor.id === analysisHistogramOperationId)
+                return ownedResult(await histogramResult(request, context))
+              if (definition.descriptor.id === analysisLineProfileOperationId)
+                return ownedResult(await lineProfileResult(request, context))
+              throw invalidInput(`Unknown analysis result operation ${definition.descriptor.id}`)
+            },
           )
-          try {
-            if (definition.descriptor.id === analysisStatisticsOperationId)
-              return ownedResult(await statisticsResult(request, context))
-            if (definition.descriptor.id === analysisHistogramOperationId)
-              return ownedResult(await histogramResult(request, context))
-            if (definition.descriptor.id === analysisLineProfileOperationId)
-              return ownedResult(await lineProfileResult(request, context))
-            throw invalidInput(`Unknown analysis result operation ${definition.descriptor.id}`)
-          } finally {
-            releaseWorking()
-          }
         },
       }),
     ),

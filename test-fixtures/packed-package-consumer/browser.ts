@@ -1,5 +1,6 @@
 import { createImageLibrary } from 'purejsimage/browser'
-import { createAnalysisController, createTileRuntime } from 'purejsimage/analysis'
+import { createAnalysisController } from 'purejsimage/analysis'
+import { createTileRuntime } from 'purejsimage/analysis/runtime'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationRegistry, createValueTypeRegistry } from 'purejsimage/operations'
 import { createScientificFileContext } from 'purejsimage/scientific/browser'

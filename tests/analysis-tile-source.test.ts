@@ -41,14 +41,32 @@ const descriptor: NormalizedScientificDatasetDescriptor = normalizeScientificDat
 })
 
 const dataset = {
-  datasetId: 'scientific-1',
-  source: {
-    kind: 'content' as const,
-    strength: 'strong' as const,
-    stability: 'content-addressed' as const,
-    algorithm: 'sha256' as const,
-    digest: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-    size: 48,
+  semantic: {
+    kind: 'derived-dataset' as const,
+    domain: 'test-derived.v1',
+    sha256: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  },
+  generation: 0,
+}
+
+const sourceIdentity = {
+  semantic: {
+    kind: 'scientific-dataset' as const,
+    reader: { id: 'test.reader', version: '1' },
+    datasetId: 'scientific-1',
+    resources: [
+      {
+        id: 'primary',
+        identity: {
+          kind: 'content' as const,
+          strength: 'strong' as const,
+          stability: 'content-addressed' as const,
+          algorithm: 'sha256' as const,
+          digest: '1123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+          size: 48,
+        },
+      },
+    ],
   },
   generation: 0,
 }
@@ -355,6 +373,8 @@ const derivedFor = (options: {
   createDerivedTileSource({
     runtime: options.runtime,
     source: options.source,
+    sourceDescriptor: descriptor,
+    sourceIdentity,
     descriptor,
     operation,
     selection: options.selection,

@@ -1,0 +1,1091 @@
+{
+  "schemaVersion": 1,
+  "entries": {
+    "purejsimage/analysis": [
+      {
+        "kind": "type",
+        "name": "AnalysisBatchCommand"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisBindingIdentity"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisCommand"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisCommandApplication"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisCommandBatch"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisCommandDescriptor"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisCommandKind"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisCommandValidation"
+      },
+      {
+        "kind": "value",
+        "name": "AnalysisController"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisControllerCapabilities"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisControllerOptions"
+      },
+      {
+        "kind": "value",
+        "name": "analysisCropOperationId"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisDryRun"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisExecutionOutputs"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisExecutionProvenance"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisExecutionResult"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisExecutionTask"
+      },
+      {
+        "kind": "value",
+        "name": "analysisGaussianBlurOperationId"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisGraph"
+      },
+      {
+        "kind": "value",
+        "name": "analysisGraphHashDomain"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisGraphInput"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisGraphNode"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisGraphOutput"
+      },
+      {
+        "kind": "value",
+        "name": "analysisGraphSchemaVersion"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisGraphValidation"
+      },
+      {
+        "kind": "value",
+        "name": "analysisHistogramOperationId"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisInputBinding"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisInvocationManifest"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisIssue"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisIssueCode"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisIssueSeverity"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisLibraryBuild"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisLimits"
+      },
+      {
+        "kind": "value",
+        "name": "analysisLineProfileOperationId"
+      },
+      {
+        "kind": "value",
+        "name": "AnalysisNodeExecutionError"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisNodeInput"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisNodeProvenance"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisPlan"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisPlanCost"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisPlanLease"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisPlanNode"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisProjectHashes"
+      },
+      {
+        "kind": "value",
+        "name": "analysisProjectionOperationId"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisProjectOptions"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisProjectV1"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisProjectValidation"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisRequiredInputIdentity"
+      },
+      {
+        "kind": "value",
+        "name": "analysisResampleOperationId"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisResult"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisResultSummary"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisSemanticIdentity"
+      },
+      {
+        "kind": "value",
+        "name": "analysisSliceOperationId"
+      },
+      {
+        "kind": "value",
+        "name": "analysisStatisticsOperationId"
+      },
+      {
+        "kind": "value",
+        "name": "analysisThresholdOperationId"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisUnresolvedEstimate"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisValueReference"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisValueTypeReference"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisWorkspaceRoiContext"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisWorkspaceSnapshot"
+      },
+      {
+        "kind": "value",
+        "name": "applyCommand"
+      },
+      {
+        "kind": "value",
+        "name": "applyCommands"
+      },
+      {
+        "kind": "type",
+        "name": "BuiltInAnalysisBundle"
+      },
+      {
+        "kind": "type",
+        "name": "BuiltInAnalysisBundleOptions"
+      },
+      {
+        "kind": "value",
+        "name": "canonicalGraphJson"
+      },
+      {
+        "kind": "value",
+        "name": "computeAnalysisInvocationManifest"
+      },
+      {
+        "kind": "value",
+        "name": "computeAnalysisProjectHashes"
+      },
+      {
+        "kind": "type",
+        "name": "ControllerExecuteOptions"
+      },
+      {
+        "kind": "type",
+        "name": "ControllerPlanOptions"
+      },
+      {
+        "kind": "value",
+        "name": "createAnalysisController"
+      },
+      {
+        "kind": "value",
+        "name": "createAnalysisWorkspaceSnapshot"
+      },
+      {
+        "kind": "value",
+        "name": "createBuiltInAnalysisBundle"
+      },
+      {
+        "kind": "value",
+        "name": "createBuiltInAnalysisOperationRegistry"
+      },
+      {
+        "kind": "value",
+        "name": "createBuiltInAnalysisValueTypeRegistry"
+      },
+      {
+        "kind": "value",
+        "name": "createReferenceAnalysisProvider"
+      },
+      {
+        "kind": "value",
+        "name": "defaultGraphAnalysisLimits"
+      },
+      {
+        "kind": "value",
+        "name": "describeAnalysisCommands"
+      },
+      {
+        "kind": "value",
+        "name": "dryRun"
+      },
+      {
+        "kind": "value",
+        "name": "executeGraph"
+      },
+      {
+        "kind": "type",
+        "name": "ExecuteGraphOptions"
+      },
+      {
+        "kind": "value",
+        "name": "hashAnalysisGraph"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeAnalysisProjectV1"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeAnalysisSemanticIdentity"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeRoi"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeRoiSet"
+      },
+      {
+        "kind": "type",
+        "name": "PersistedBindingValue"
+      },
+      {
+        "kind": "type",
+        "name": "PersistedInputBinding"
+      },
+      {
+        "kind": "type",
+        "name": "PersistedSourceReference"
+      },
+      {
+        "kind": "value",
+        "name": "planGraph"
+      },
+      {
+        "kind": "type",
+        "name": "PlanGraphOptions"
+      },
+      {
+        "kind": "type",
+        "name": "PreparedAnalysisPlan"
+      },
+      {
+        "kind": "value",
+        "name": "referenceAnalysisBuildFingerprint"
+      },
+      {
+        "kind": "value",
+        "name": "referenceAnalysisProviderId"
+      },
+      {
+        "kind": "type",
+        "name": "ReferenceAnalysisProviderOptions"
+      },
+      {
+        "kind": "value",
+        "name": "referenceAnalysisProviderVersion"
+      },
+      {
+        "kind": "value",
+        "name": "resolveAnalysisLimits"
+      },
+      {
+        "kind": "type",
+        "name": "ResolvedAnalysisLimits"
+      },
+      {
+        "kind": "type",
+        "name": "Roi"
+      },
+      {
+        "kind": "type",
+        "name": "RoiSet"
+      },
+      {
+        "kind": "value",
+        "name": "scientificDatasetCharacteristics"
+      },
+      {
+        "kind": "value",
+        "name": "scientificDatasetValueTypeId"
+      },
+      {
+        "kind": "value",
+        "name": "semanticAnalysisGraph"
+      },
+      {
+        "kind": "type",
+        "name": "SemanticAnalysisGraph"
+      },
+      {
+        "kind": "value",
+        "name": "summarizeResult"
+      },
+      {
+        "kind": "value",
+        "name": "validateAnalysisProjectV1"
+      },
+      {
+        "kind": "value",
+        "name": "validateCommand"
+      },
+      {
+        "kind": "value",
+        "name": "validateGraph"
+      }
+    ],
+    "purejsimage/analysis/project": [
+      {
+        "kind": "type",
+        "name": "AnalysisMigrationDefinition"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisMigrationDescriptor"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisMigrationPlan"
+      },
+      {
+        "kind": "value",
+        "name": "AnalysisMigrationRegistry"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisMigrationStep"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisProjectHashes"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisProjectOptions"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisProjectV1"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisProjectValidation"
+      },
+      {
+        "kind": "type",
+        "name": "AppliedMigration"
+      },
+      {
+        "kind": "value",
+        "name": "applyMigrationPlan"
+      },
+      {
+        "kind": "value",
+        "name": "canonicalJson"
+      },
+      {
+        "kind": "type",
+        "name": "CanonicalJsonLimits"
+      },
+      {
+        "kind": "value",
+        "name": "computeAnalysisProjectHashes"
+      },
+      {
+        "kind": "value",
+        "name": "createAnalysisMigrationRegistry"
+      },
+      {
+        "kind": "value",
+        "name": "describeAnalysisMigration"
+      },
+      {
+        "kind": "type",
+        "name": "GraphSchemaMigration"
+      },
+      {
+        "kind": "value",
+        "name": "hashCanonicalJson"
+      },
+      {
+        "kind": "type",
+        "name": "InspectMigrationOptions"
+      },
+      {
+        "kind": "value",
+        "name": "inspectMigrationPlan"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeAnalysisProjectV1"
+      },
+      {
+        "kind": "type",
+        "name": "OperationMigration"
+      },
+      {
+        "kind": "type",
+        "name": "PersistedBindingValue"
+      },
+      {
+        "kind": "type",
+        "name": "PersistedInputBinding"
+      },
+      {
+        "kind": "type",
+        "name": "PersistedSourceReference"
+      },
+      {
+        "kind": "value",
+        "name": "sha256Text"
+      },
+      {
+        "kind": "value",
+        "name": "validateAnalysisProjectV1"
+      }
+    ],
+    "purejsimage/analysis/results": [
+      {
+        "kind": "value",
+        "name": "accountAnalysisResultMemory"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisResult"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisResultLimits"
+      },
+      {
+        "kind": "value",
+        "name": "analysisResultSchemas"
+      },
+      {
+        "kind": "type",
+        "name": "AnalysisResultSummary"
+      },
+      {
+        "kind": "value",
+        "name": "analysisResultValueTypeDefinitions"
+      },
+      {
+        "kind": "value",
+        "name": "analysisResultValueTypeDescriptors"
+      },
+      {
+        "kind": "type",
+        "name": "BooleanTableColumn"
+      },
+      {
+        "kind": "type",
+        "name": "CategoryTableColumn"
+      },
+      {
+        "kind": "value",
+        "name": "createAnalysisResultValueTypeRegistry"
+      },
+      {
+        "kind": "value",
+        "name": "defaultAnalysisResultLimits"
+      },
+      {
+        "kind": "type",
+        "name": "HistogramCountArray"
+      },
+      {
+        "kind": "type",
+        "name": "HistogramResult"
+      },
+      {
+        "kind": "value",
+        "name": "histogramResultValueTypeId"
+      },
+      {
+        "kind": "value",
+        "name": "measureScientificPlaneWithResults"
+      },
+      {
+        "kind": "type",
+        "name": "NumericTableColumn"
+      },
+      {
+        "kind": "type",
+        "name": "ProfileAxis"
+      },
+      {
+        "kind": "type",
+        "name": "ProfileResult"
+      },
+      {
+        "kind": "value",
+        "name": "profileResultValueTypeId"
+      },
+      {
+        "kind": "type",
+        "name": "ProfileSeries"
+      },
+      {
+        "kind": "value",
+        "name": "resolveAnalysisResultLimits"
+      },
+      {
+        "kind": "type",
+        "name": "ResolvedAnalysisResultLimits"
+      },
+      {
+        "kind": "type",
+        "name": "ResultCategoryCodes"
+      },
+      {
+        "kind": "type",
+        "name": "ResultCollection"
+      },
+      {
+        "kind": "type",
+        "name": "ResultCollectionEntry"
+      },
+      {
+        "kind": "value",
+        "name": "resultCollectionValueTypeId"
+      },
+      {
+        "kind": "type",
+        "name": "ResultMemoryAccounting"
+      },
+      {
+        "kind": "type",
+        "name": "ResultNaNPolicy"
+      },
+      {
+        "kind": "type",
+        "name": "ResultNumericArray"
+      },
+      {
+        "kind": "type",
+        "name": "ResultProvenanceReference"
+      },
+      {
+        "kind": "type",
+        "name": "ResultSummaryOptions"
+      },
+      {
+        "kind": "type",
+        "name": "ResultValidityBitmap"
+      },
+      {
+        "kind": "type",
+        "name": "ScalarResult"
+      },
+      {
+        "kind": "value",
+        "name": "scalarResultValueTypeId"
+      },
+      {
+        "kind": "type",
+        "name": "ScientificMeasurementResultOptions"
+      },
+      {
+        "kind": "type",
+        "name": "ScientificPlaneAnalysis"
+      },
+      {
+        "kind": "value",
+        "name": "scientificPlaneMeasurementToResult"
+      },
+      {
+        "kind": "value",
+        "name": "summarizeResult"
+      },
+      {
+        "kind": "type",
+        "name": "TableColumn"
+      },
+      {
+        "kind": "type",
+        "name": "TableResult"
+      },
+      {
+        "kind": "value",
+        "name": "tableResultValueTypeId"
+      },
+      {
+        "kind": "type",
+        "name": "Utf8TableColumn"
+      },
+      {
+        "kind": "value",
+        "name": "validateAnalysisResult"
+      },
+      {
+        "kind": "value",
+        "name": "validateHistogramResult"
+      },
+      {
+        "kind": "value",
+        "name": "validateProfileResult"
+      },
+      {
+        "kind": "value",
+        "name": "validateResultCollection"
+      },
+      {
+        "kind": "value",
+        "name": "validateScalarResult"
+      },
+      {
+        "kind": "value",
+        "name": "validateTableResult"
+      }
+    ],
+    "purejsimage/analysis/roi": [
+      {
+        "kind": "type",
+        "name": "BilinearLineSampling"
+      },
+      {
+        "kind": "value",
+        "name": "canonicalNormalizedRoiSemanticsJson"
+      },
+      {
+        "kind": "value",
+        "name": "canonicalNormalizedRoiSetSemanticsJson"
+      },
+      {
+        "kind": "value",
+        "name": "canonicalRoiJson"
+      },
+      {
+        "kind": "value",
+        "name": "canonicalRoiSemanticsJson"
+      },
+      {
+        "kind": "value",
+        "name": "canonicalRoiSetJson"
+      },
+      {
+        "kind": "value",
+        "name": "clipRoiBoundingBox"
+      },
+      {
+        "kind": "value",
+        "name": "createEmptyRoiSet"
+      },
+      {
+        "kind": "value",
+        "name": "createRoiLineSamplingPlan"
+      },
+      {
+        "kind": "value",
+        "name": "createRoiMask"
+      },
+      {
+        "kind": "value",
+        "name": "createRoiValueTypeDefinitions"
+      },
+      {
+        "kind": "value",
+        "name": "createRoiValueTypeRegistry"
+      },
+      {
+        "kind": "value",
+        "name": "defaultRoiLimits"
+      },
+      {
+        "kind": "type",
+        "name": "NearestLineSampling"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeRoi"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeRoiSet"
+      },
+      {
+        "kind": "type",
+        "name": "PhysicalRoiPoint"
+      },
+      {
+        "kind": "value",
+        "name": "physicalToPixelPoint"
+      },
+      {
+        "kind": "value",
+        "name": "pixelToPhysicalPoint"
+      },
+      {
+        "kind": "type",
+        "name": "ResolvedRoiLimits"
+      },
+      {
+        "kind": "value",
+        "name": "resolveRoiLimits"
+      },
+      {
+        "kind": "type",
+        "name": "Roi"
+      },
+      {
+        "kind": "value",
+        "name": "roiAxisPhysicalToPixel"
+      },
+      {
+        "kind": "value",
+        "name": "roiAxisPixelToPhysical"
+      },
+      {
+        "kind": "value",
+        "name": "roiBoundingBox"
+      },
+      {
+        "kind": "type",
+        "name": "RoiBoundingBox"
+      },
+      {
+        "kind": "type",
+        "name": "RoiGeometry"
+      },
+      {
+        "kind": "type",
+        "name": "RoiLimits"
+      },
+      {
+        "kind": "type",
+        "name": "RoiLineInterpolation"
+      },
+      {
+        "kind": "type",
+        "name": "RoiLineSamplingOptions"
+      },
+      {
+        "kind": "type",
+        "name": "RoiLineSamplingPlan"
+      },
+      {
+        "kind": "type",
+        "name": "RoiLineSpacingSpace"
+      },
+      {
+        "kind": "type",
+        "name": "RoiMask"
+      },
+      {
+        "kind": "type",
+        "name": "RoiMaskOptions"
+      },
+      {
+        "kind": "type",
+        "name": "RoiPlaneShape"
+      },
+      {
+        "kind": "type",
+        "name": "RoiPoint"
+      },
+      {
+        "kind": "type",
+        "name": "RoiPresentation"
+      },
+      {
+        "kind": "value",
+        "name": "roiSchemaVersion"
+      },
+      {
+        "kind": "type",
+        "name": "RoiSet"
+      },
+      {
+        "kind": "value",
+        "name": "roiSetValueTypeId"
+      },
+      {
+        "kind": "type",
+        "name": "RoiTileRegion"
+      },
+      {
+        "kind": "value",
+        "name": "roiValueTypeDescriptors"
+      },
+      {
+        "kind": "value",
+        "name": "roiValueTypeId"
+      },
+      {
+        "kind": "value",
+        "name": "validateRoi"
+      },
+      {
+        "kind": "value",
+        "name": "validateRoiSet"
+      }
+    ],
+    "purejsimage/analysis/runtime": [
+      {
+        "kind": "value",
+        "name": "analysisDerivedTileDatasetIdentityDomain"
+      },
+      {
+        "kind": "value",
+        "name": "canonicalTileKey"
+      },
+      {
+        "kind": "value",
+        "name": "createDerivedTileDatasetIdentity"
+      },
+      {
+        "kind": "value",
+        "name": "createDerivedTileSource"
+      },
+      {
+        "kind": "value",
+        "name": "createTileDatasetIdentityForScientificDataset"
+      },
+      {
+        "kind": "value",
+        "name": "createTileRuntime"
+      },
+      {
+        "kind": "value",
+        "name": "defaultTileRuntimeLimits"
+      },
+      {
+        "kind": "type",
+        "name": "DerivedTileExecutionContext"
+      },
+      {
+        "kind": "value",
+        "name": "DerivedTileSource"
+      },
+      {
+        "kind": "type",
+        "name": "DerivedTileSourceOptions"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeTileAddress"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeTileDatasetIdentity"
+      },
+      {
+        "kind": "value",
+        "name": "normalizeTileRequest"
+      },
+      {
+        "kind": "value",
+        "name": "numericTileSourceToTileSource"
+      },
+      {
+        "kind": "type",
+        "name": "OperationWorkingMemoryScope"
+      },
+      {
+        "kind": "type",
+        "name": "OperationWorkingMemoryScopeDiagnostic"
+      },
+      {
+        "kind": "type",
+        "name": "ResolvedTileRuntimeLimits"
+      },
+      {
+        "kind": "value",
+        "name": "resolveTileRuntimeLimits"
+      },
+      {
+        "kind": "type",
+        "name": "TileAddress"
+      },
+      {
+        "kind": "type",
+        "name": "TileBoundaryMode"
+      },
+      {
+        "kind": "type",
+        "name": "TileCacheClass"
+      },
+      {
+        "kind": "type",
+        "name": "TileCacheMetrics"
+      },
+      {
+        "kind": "type",
+        "name": "TileDatasetIdentity"
+      },
+      {
+        "kind": "type",
+        "name": "TileDatasetSemanticIdentity"
+      },
+      {
+        "kind": "type",
+        "name": "TileHalo"
+      },
+      {
+        "kind": "type",
+        "name": "TileInvalidation"
+      },
+      {
+        "kind": "type",
+        "name": "TilePriority"
+      },
+      {
+        "kind": "type",
+        "name": "TileProviderTiming"
+      },
+      {
+        "kind": "type",
+        "name": "TileProviderTimingMetrics"
+      },
+      {
+        "kind": "type",
+        "name": "TileRequest"
+      },
+      {
+        "kind": "value",
+        "name": "tileRequestKeyData"
+      },
+      {
+        "kind": "value",
+        "name": "TileRuntime"
+      },
+      {
+        "kind": "value",
+        "name": "TileRuntimeDisposalError"
+      },
+      {
+        "kind": "type",
+        "name": "TileRuntimeLimits"
+      },
+      {
+        "kind": "type",
+        "name": "TileRuntimeMetrics"
+      },
+      {
+        "kind": "type",
+        "name": "TileRuntimeOptions"
+      },
+      {
+        "kind": "type",
+        "name": "TileSource"
+      },
+      {
+        "kind": "type",
+        "name": "TileSourceAccounting"
+      },
+      {
+        "kind": "type",
+        "name": "TileSourceEstimate"
+      },
+      {
+        "kind": "type",
+        "name": "TileSourceResult"
+      },
+      {
+        "kind": "type",
+        "name": "TileTarget"
+      },
+      {
+        "kind": "type",
+        "name": "TileTaskMetrics"
+      },
+      {
+        "kind": "type",
+        "name": "TileTimingEstimate"
+      }
+    ]
+  }
+}

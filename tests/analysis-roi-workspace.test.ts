@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import {
-  canonicalJson,
-  createAnalysisController,
-  createRoiValueTypeDefinitions,
-  hashAnalysisGraph,
-  roiValueTypeId,
-} from '../src/analysis/index.ts'
+import { createAnalysisController, hashAnalysisGraph } from '../src/analysis/index.ts'
+import { canonicalJson } from '../src/analysis/project-entry.ts'
+import { createRoiValueTypeDefinitions, roiValueTypeId } from '../src/analysis/roi-entry.ts'
 import {
   createOperationDefinition,
   createOperationProvider,

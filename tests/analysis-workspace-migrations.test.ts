@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import {
-  AnalysisMigrationRegistry,
   applyCommand,
-  applyMigrationPlan,
   createAnalysisWorkspaceSnapshot,
-  inspectMigrationPlan,
   validateCommand,
 } from '../src/analysis/index.ts'
-import type { AnalysisGraph, OperationMigration } from '../src/analysis/index.ts'
+import type { AnalysisGraph } from '../src/analysis/index.ts'
+import {
+  AnalysisMigrationRegistry,
+  applyMigrationPlan,
+  inspectMigrationPlan,
+} from '../src/analysis/project-entry.ts'
+import type { OperationMigration } from '../src/analysis/project-entry.ts'
 import { createOperationDefinition, createOperationRegistry } from '../src/operations/index.ts'
 
 const operation = (version: number) =>

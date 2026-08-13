@@ -12,7 +12,7 @@ limits.
 | cached | retained tile and declared auxiliary bytes owned by the LRU | until lease transfer, invalidation, clear, or eviction |
 | leased | cached/result bytes currently held by consumers | until each independent lease releases |
 | in-flight | pre-reserved source `peakWorkingBytes` while a tile request runs | request completion/failure/cancellation |
-| operation-working | explicitly reserved operation-kernel scratch, halo, and intermediate bytes | operation scope |
+| operation-working | explicitly scoped reducer scratch and intermediate bytes | lexical callback scope |
 | retained auxiliary | non-tile bytes a source retains with the result | cache/result lifetime |
 
 `TileSource.estimate()` runs before allocation and reports hard conservative
@@ -87,15 +87,17 @@ shared abort signal stops source/merge work and every acquired tile/scratch allo
 Cache eviction never invalidates an outstanding lease; leased bytes move out of cache accounting
 and remain charged until release.
 
-Halo operations charge the fetched source tiles as normal source/in-flight bytes and charge kernel
-halo/intermediate buffers to operation-working memory. Providers report output in
-`peakWorkingBytes`; callers must not double reserve the same output. `decodedInputBytes` measures
-decoded input-tile bytes, not network transfer.
+Halo operations charge fetched source tiles as normal source/in-flight bytes. Provider-owned kernel
+output and intermediate buffers are admitted through request-specific `peakWorkingBytes`; callers
+must not double reserve the same output. Graph-level reducers use lexical operation-working scopes.
+`decodedInputBytes` measures decoded input-tile bytes, not network transfer.
 
 `clear()` aborts queued/in-flight work and drops releasable cache entries but leaves the runtime
 reusable. `dispose()` permanently closes every acquisition and mutation path, cancels active work,
-waits for requests and explicit working-memory reservations, and returns one stable idempotent
-cleanup promise. Read-only metrics, `whenIdle()`, `isDisposed`, and repeated clear/dispose remain
+waits for requests and active `withOperationWorkingBytes()` callbacks, and returns one stable
+idempotent cleanup promise. Provider tile-kernel estimates reserve output and scratch through tile
+admission; no public caller-owned reservation closure exists. Read-only metrics, `whenIdle()`,
+`isDisposed`, and repeated clear/dispose remain
 available after closing.
 
 ## Future GPU memory

@@ -15,6 +15,10 @@ import {
 } from '../scripts/bundle-size-config.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
 import * as analysisApi from '../src/analysis/index.ts'
+import * as analysisProjectApi from '../src/analysis/project-entry.ts'
+import * as analysisResultsApi from '../src/analysis/results.ts'
+import * as analysisRoiApi from '../src/analysis/roi-entry.ts'
+import * as analysisRuntimeApi from '../src/analysis/runtime.ts'
 import {
   experimentalHeicCodec,
   experimentalHeifCodec,
@@ -117,9 +121,23 @@ describe('package contract', () => {
       maxMinifiedBytes: 58_000,
     })
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'analysis')).toMatchObject({
-      baselineMinifiedBytes: 272_246,
-      maxMinifiedBytes: 354_000,
+      baselineMinifiedBytes: 251_516,
+      maxMinifiedBytes: 326_971,
     })
+    expect(
+      pureJsImageEntryTargets
+        .filter(({ id }) => id.startsWith('analysis-'))
+        .map(({ id, baselineMinifiedBytes, maxMinifiedBytes }) => [
+          id,
+          baselineMinifiedBytes,
+          maxMinifiedBytes,
+        ]),
+    ).toEqual([
+      ['analysis-results', 55_713, 72_427],
+      ['analysis-roi', 32_622, 42_409],
+      ['analysis-runtime', 57_784, 75_120],
+      ['analysis-project', 51_214, 66_578],
+    ])
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'extensions')).toMatchObject({
       baselineMinifiedBytes: 46_564,
       maxMinifiedBytes: 61_000,
@@ -555,6 +573,10 @@ describe('package contract', () => {
       './scientific/readers/all',
       './operations',
       './analysis',
+      './analysis/results',
+      './analysis/roi',
+      './analysis/runtime',
+      './analysis/project',
       './extensions',
       './pathology',
       './sources/http-range',
@@ -578,12 +600,16 @@ describe('package contract', () => {
       './codecs/tga',
       './codecs/webp',
     ])
-    expect(analysisApi).toHaveProperty('validateScalarResult')
-    expect(analysisApi).toHaveProperty('measureScientificPlaneWithResults')
+    expect(analysisApi).not.toHaveProperty('validateScalarResult')
+    expect(analysisApi).not.toHaveProperty('measureScientificPlaneWithResults')
     expect(analysisApi).toHaveProperty('createAnalysisController')
     expect(analysisApi).toHaveProperty('validateGraph')
     expect(analysisApi).toHaveProperty('hashAnalysisGraph')
     expect(analysisApi).not.toHaveProperty('createImageLibrary')
+    expect(analysisResultsApi).toHaveProperty('validateScalarResult')
+    expect(analysisRoiApi).toHaveProperty('createRoiMask')
+    expect(analysisRuntimeApi).toHaveProperty('createTileRuntime')
+    expect(analysisProjectApi).toHaveProperty('inspectMigrationPlan')
     for (const name of [
       'allCodecs',
       'avifCodec',

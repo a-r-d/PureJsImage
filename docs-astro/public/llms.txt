@@ -119,6 +119,10 @@ const dataset = await document.openDataset(summary.id, { signal })
 
 Readers yield portable canonical `RasterBlock` bytes. `resolveNumericTileSource(dataset)` converts once to native-endian typed `NumericTile` storage for repeated computation, or selects an exactly compatible direct native tile source. Release every tile after use. Generic operations and providers must use bounded tile reads rather than materializing a full frame.
 
+Use `purejsimage/analysis` for controllers, graphs, commands, planning, execution, and primary application types. Import full result schemas from `purejsimage/analysis/results`, ROI geometry and sampling from `purejsimage/analysis/roi`, provider-facing tile/cache contracts from `purejsimage/analysis/runtime`, and persistence/migrations from `purejsimage/analysis/project`. These are unreleased main-branch alpha preview entries and are not in the current npm 0.9.x release.
+
+Source tile identity uses the complete reader ID/version, dataset ID, and all resource identities when available. Strong evidence may reuse within one runtime across reopened objects; weak evidence requires the same explicit session scope; synthetic datasets remain instance-scoped. Derived tile identity includes source, operation/version, normalized parameters, output, provider/implementation, and generation. Threshold and Gaussian blur use the provider-aware lazy tile-kernel path; crop/slice remain coordinate views, resample/projection remain pending kernel convergence, and statistics/histogram/line profile remain result reducers.
+
 Operations are versioned JSON-safe descriptors with parameter schemas. Executable `OperationProvider` values are registered separately. The permanent strict TypeScript reference provider is always available when explicitly constructed. WASM and WebGPU analysis providers are future work; when added, selection must require exact semantic support and compare measured setup, transfer, compute, readback, and memory cost rather than follow a fixed backend ranking.
 
 Analysis graphs bind datasets, ROIs, ROI sets, and prior results through typed inputs. Use `controller.dryRun()` to validate and estimate a graph, `controller.planGraph()` to prepare a specific invocation, and `controller.executeGraph()` to start explicit cancellable execution. Provider identity, provider version, implementation version, graph hash, binding hash, invocation hash, and node provenance remain inspectable. Graph mutation uses validated commands against immutable workspace snapshots and requires the expected revision; execution never mutates the graph.
@@ -130,6 +134,7 @@ Lifecycle requirements are normative:
 - Pass an `AbortSignal` through source reads, dry-run, planning, and execution.
 - Release every `NumericTile` and `AnalysisExecutionResult`.
 - Dispose every prepared plan and `TileRuntime`.
+- Reducer working memory is lexical through `withOperationWorkingBytes()`; no caller-owned reservation release closure exists.
 - Close every `ScientificDocument` when the application is finished with its resources.
 - Configure byte budgets and bounded concurrency for network-backed or large local sources.
 

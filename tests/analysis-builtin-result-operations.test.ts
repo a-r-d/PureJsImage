@@ -7,13 +7,13 @@ import {
   createBuiltInAnalysisOperationRegistry,
   createBuiltInAnalysisValueTypeRegistry,
   createReferenceAnalysisProvider,
-  createTileRuntime,
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
-  summarizeResult,
-  validateAnalysisResult,
 } from '../src/analysis/index.ts'
-import type { AnalysisGraph, AnalysisResult, ResultCollection, Roi } from '../src/analysis/index.ts'
+import type { AnalysisGraph, AnalysisResult, Roi } from '../src/analysis/index.ts'
+import { createTileRuntime } from '../src/analysis/runtime.ts'
+import { summarizeResult, validateAnalysisResult } from '../src/analysis/results.ts'
+import type { ResultCollection } from '../src/analysis/results.ts'
 import type { OperationJsonObject } from '../src/operations/index.ts'
 import type {
   DirectNumericTileDataset,

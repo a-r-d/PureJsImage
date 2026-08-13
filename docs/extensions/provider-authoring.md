@@ -25,6 +25,13 @@ semantics. They are not descriptors, plugins discovered from package imports, or
 - Report setup, transfer, compute, readback, retained, output, peak-working, and transfer bytes with
   a measured confidence. Include output in peak working. Report WASM growth and WebGPU staging,
   upload, device, and readback separately where the contract exposes them.
+- Pointwise or neighborhood implementations may expose the optional provider-owned tile kernel.
+  Halo and request-specific hard memory estimates are evaluated before admission, and the kernel
+  returns one independently owned `NumericTile`. The runtime rejects input/output storage aliasing.
+  Selection happens once during graph planning; materialization does not reselect or silently fall
+  back. Threshold and Gaussian blur are the current reference tile kernels.
+- Reducers and coordinate views remain separate contracts. Reducer scratch uses
+  `TileRuntime.withOperationWorkingBytes()`; extensions never retain a reservation release closure.
 - Change `implementationVersion` or `buildFingerprint` for implementation changes. Change the
   operation version when semantics change.
 - Differentially test the strict TypeScript reference. Bit-exact providers need exact canonical

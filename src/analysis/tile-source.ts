@@ -5,6 +5,9 @@ import type {
   OperationCostEstimate,
   OperationOwnedOutput,
   OperationProviderSelection,
+  OperationTileKernel,
+  OperationTileKernelPlanningRequest,
+  OperationTileRegion,
 } from '../operations/provider.ts'
 import { validateOperationOwnedOutputs } from '../operations/provider.ts'
 import type { OperationDefinition } from '../operations/registry.ts'
@@ -27,6 +30,7 @@ import type { NormalizedScientificDatasetDescriptor } from '../scientific/datase
 import { normalizeScientificPlaneReadRequest } from '../scientific/dataset.ts'
 import type {
   TileAddress,
+  TileDatasetIdentity,
   TileProviderTiming,
   TileRequest,
   TileSource,
@@ -460,6 +464,8 @@ export interface DerivedTileExecutionContext extends OperationJsonObject {
 export interface DerivedTileSourceOptions {
   readonly runtime: TileRuntime
   readonly source: TileSource
+  readonly sourceDescriptor?: NormalizedScientificDatasetDescriptor
+  readonly sourceIdentity: TileDatasetIdentity
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly operation: OperationDefinition
   readonly selection: OperationProviderSelection
@@ -468,6 +474,7 @@ export interface DerivedTileSourceOptions {
   readonly executionFingerprint: string
   readonly sourceNamespace: string
   readonly boundaryMode?: TileBoundaryMode
+  /** Compatibility path for implementations without the optional provider tile kernel. */
   readonly halo?: (parameters: OperationJsonValue) => Readonly<TileHalo>
   readonly onReleaseError?: (error: unknown) => void
 }
@@ -487,6 +494,28 @@ const normalizeHalo = (value: Readonly<TileHalo> | undefined): TileHalo => {
     }
   }
   return Object.freeze({ ...halo })
+}
+
+const tileRegion = (address: TileAddress): OperationTileRegion =>
+  Object.freeze({
+    x: address.x,
+    y: address.y,
+    width: address.width,
+    height: address.height,
+  })
+
+const normalizeKernelEstimate = (estimate: Readonly<TileSourceEstimate>): TileSourceEstimate => {
+  if (
+    !Number.isSafeInteger(estimate.outputRetainedBytes) ||
+    estimate.outputRetainedBytes < 0 ||
+    !Number.isSafeInteger(estimate.peakWorkingBytes) ||
+    estimate.peakWorkingBytes < estimate.outputRetainedBytes ||
+    !Number.isSafeInteger(estimate.retainedAuxiliaryBytes) ||
+    estimate.retainedAuxiliaryBytes < 0
+  ) {
+    throw invalidInput('Tile kernel returned invalid memory estimates')
+  }
+  return Object.freeze({ ...estimate })
 }
 
 const estimateTiming = (estimate: OperationCostEstimate, measured: number): TileProviderTiming => {
@@ -581,6 +610,8 @@ export class DerivedTileSource implements TileSource {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly #runtime: TileRuntime
   readonly #source: TileSource
+  readonly #sourceDescriptor: NormalizedScientificDatasetDescriptor
+  readonly #sourceIdentity: TileDatasetIdentity
   readonly #operation: OperationDefinition
   readonly #selection: OperationProviderSelection
   readonly #parameters: OperationJsonValue
@@ -589,6 +620,8 @@ export class DerivedTileSource implements TileSource {
   readonly #sourceNamespace: string
   readonly #boundaryMode: TileBoundaryMode
   readonly #halo: TileHalo
+  readonly #kernel: OperationTileKernel | undefined
+  readonly #kernelPlanning: OperationTileKernelPlanningRequest
   readonly #onReleaseError: ((error: unknown) => void) | undefined
 
   constructor(options: Readonly<DerivedTileSourceOptions>) {
@@ -606,6 +639,8 @@ export class DerivedTileSource implements TileSource {
     this.descriptor = options.descriptor
     this.#runtime = options.runtime
     this.#source = options.source
+    this.#sourceDescriptor = options.sourceDescriptor ?? options.descriptor
+    this.#sourceIdentity = options.sourceIdentity
     this.#operation = options.operation
     this.#selection = options.selection
     this.#parameters = parameters.value
@@ -617,7 +652,17 @@ export class DerivedTileSource implements TileSource {
     this.#sourceNamespace = boundedFingerprint(options.sourceNamespace, 'sourceNamespace')
     this.#boundaryMode = options.boundaryMode ?? 'clip'
     if (this.#boundaryMode !== 'clip') throw unsupportedOperation('Unsupported tile boundary mode')
-    this.#halo = normalizeHalo(options.halo?.(parameters.value))
+    const kernel = options.selection.implementation.tileKernel
+    this.#kernel = kernel
+    this.#kernelPlanning = Object.freeze({
+      descriptor: options.operation.descriptor,
+      parameters: parameters.value,
+      sourceDescriptor: this.#sourceDescriptor,
+      outputDescriptor: options.descriptor,
+    })
+    this.#halo = normalizeHalo(
+      kernel === undefined ? options.halo?.(parameters.value) : kernel.halo(this.#kernelPlanning),
+    )
     this.#onReleaseError = options.onReleaseError
   }
 
@@ -645,6 +690,16 @@ export class DerivedTileSource implements TileSource {
 
   estimate(request: Readonly<TileRequest>): TileSourceEstimate {
     const normalized = this.#normalizeRequest(request)
+    const sourceAddress = this.#sourceAddress(normalized.address)
+    if (this.#kernel !== undefined) {
+      return normalizeKernelEstimate(
+        this.#kernel.estimate({
+          ...this.#kernelPlanning,
+          sourceRegion: tileRegion(sourceAddress),
+          outputRegion: tileRegion(normalized.address),
+        }),
+      )
+    }
     const sampleType =
       normalized.target?.sampleType ??
       (this.descriptor.sampleType === 'float16' ? 'float32' : this.descriptor.sampleType)
@@ -664,22 +719,45 @@ export class DerivedTileSource implements TileSource {
   async readTile(request: Readonly<TileRequest>): Promise<TileSourceResult> {
     const normalized = this.#normalizeRequest(request)
     const sourceAddress = this.#sourceAddress(normalized.address)
+    const sourceTarget =
+      this.#kernel === undefined
+        ? normalized.target
+        : this.#kernel.sourceTarget?.(this.#kernelPlanning)
     const sourceRequest: TileRequest = Object.freeze({
       address: sourceAddress,
       priority: normalized.priority,
       signal: normalized.signal,
-      ...(normalized.target === undefined ? {} : { target: normalized.target }),
+      ...(sourceTarget === undefined ? {} : { target: Object.freeze({ ...sourceTarget }) }),
     })
     const sourceTile = await this.#runtime.requestDependency(this.#source, sourceRequest)
     let outputs: readonly OperationOwnedOutput[] | undefined
     try {
       normalized.signal.throwIfAborted()
-      const execution = this.#executionRequest(normalized, [sourceTile], sourceAddress)
-      this.#selection.implementation.validateExecution?.(execution)
-      const estimate = this.#selection.estimate
-      const timing = estimateTiming(estimate, 0)
+      const providerEstimate = this.#selection.estimate
+      const timing = estimateTiming(providerEstimate, 0)
       const started = performance.now()
-      outputs = await this.#selection.implementation.execute(execution)
+      let retainedAuxiliaryBytes: number
+      if (this.#kernel === undefined) {
+        const execution = this.#executionRequest(normalized, [sourceTile], sourceAddress)
+        this.#selection.implementation.validateExecution?.(execution)
+        outputs = await this.#selection.implementation.execute(execution)
+        retainedAuxiliaryBytes = Math.max(
+          0,
+          providerEstimate.retainedBytes - providerEstimate.outputBytes,
+        )
+      } else {
+        const kernelRequest = Object.freeze({
+          ...this.#kernelPlanning,
+          sourceTile,
+          sourceRegion: tileRegion(sourceAddress),
+          outputRegion: tileRegion(normalized.address),
+          signal: normalized.signal,
+        })
+        this.#kernel.validateExecution?.(kernelRequest)
+        const kernelEstimate = normalizeKernelEstimate(this.#kernel.estimate(kernelRequest))
+        outputs = Object.freeze([await this.#kernel.execute(kernelRequest)])
+        retainedAuxiliaryBytes = kernelEstimate.retainedAuxiliaryBytes
+      }
       const measured = performance.now() - started
       normalized.signal.throwIfAborted()
       validateOperationOwnedOutputs(outputs, [sourceTile])
@@ -718,7 +796,6 @@ export class DerivedTileSource implements TileSource {
         ...timing,
         computeMillisecondsMeasured: measured,
       })
-      const retainedAuxiliaryBytes = Math.max(0, estimate.retainedBytes - estimate.outputBytes)
       outputs = undefined
       return Object.freeze({
         tile,
@@ -743,7 +820,9 @@ export class DerivedTileSource implements TileSource {
   }
 
   #sourceAddress(output: TileAddress): TileAddress {
-    const level = this.descriptor.levels.find((entry) => entry.level === output.resolutionLevel)
+    const level = this.#sourceDescriptor.levels.find(
+      (entry) => entry.level === output.resolutionLevel,
+    )
     const horizontal = level?.axisLengths.find((entry) => entry.axisId === output.displayAxes[0])
     const vertical = level?.axisLengths.find((entry) => entry.axisId === output.displayAxes[1])
     if (horizontal === undefined || vertical === undefined) {
@@ -760,6 +839,8 @@ export class DerivedTileSource implements TileSource {
       ...output,
       cacheClass: 'source',
       namespace: this.#sourceNamespace,
+      dataset: this.#sourceIdentity,
+      fixedIndices: this.#kernel?.sourceFixedIndices?.(this.#kernelPlanning) ?? output.fixedIndices,
       x,
       y,
       width: right - x,
@@ -778,34 +859,26 @@ export class DerivedTileSource implements TileSource {
     })
   }
 
-  #executionContext(
-    request: TileRequest,
-    sourceAddress?: TileAddress,
-  ): DerivedTileExecutionContext {
-    const actualSource = sourceAddress ?? this.#sourceAddress(request.address)
-    return Object.freeze({
-      requested: tileRequestKeyData(request),
-      source: Object.freeze({
-        x: actualSource.x,
-        y: actualSource.y,
-        width: actualSource.width,
-        height: actualSource.height,
-      }),
-      halo: Object.freeze({ ...this.#halo }),
-      boundaryMode: this.#boundaryMode,
-    })
-  }
-
   #executionRequest(
     request: TileRequest,
     inputs: readonly unknown[],
-    sourceAddress?: TileAddress,
+    sourceAddress: TileAddress,
   ): OperationExecutionRequest {
     return Object.freeze({
       descriptor: this.#operation.descriptor,
       parameters: this.#parameters,
       inputs: Object.freeze([...inputs]),
-      plannedInputCharacteristics: Object.freeze([this.#executionContext(request, sourceAddress)]),
+      plannedInputCharacteristics: Object.freeze([
+        Object.freeze({
+          requested: tileRequestKeyData(request),
+          source: Object.freeze({ ...tileRegion(sourceAddress) }),
+          halo: Object.freeze({ ...this.#halo }),
+          boundaryMode: this.#boundaryMode,
+        }),
+      ]),
+      provider: this.#selection.provider.descriptor,
+      implementation: this.#selection.implementation.descriptor,
+      selection: this.#selection,
       signal: request.signal,
     })
   }

@@ -13,12 +13,12 @@ import {
   createAnalysisController,
   createBuiltInAnalysisOperationRegistry,
   createBuiltInAnalysisValueTypeRegistry,
-  roiValueTypeId,
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
   type AnalysisGraph,
   type Roi,
 } from '../src/analysis/index.ts'
+import { roiValueTypeId } from '../src/analysis/roi-entry.ts'
 import { createOperationProvider, type OperationJsonValue } from '../src/operations/index.ts'
 import type { RasterBlock } from '../src/raster.ts'
 import {

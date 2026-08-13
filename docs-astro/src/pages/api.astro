@@ -89,7 +89,13 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 
         <section id="entry-analysis" data-search-item>
           <h2><code>purejsimage/analysis</code> <span class="pill">alpha</span></h2>
-          <p>Versioned ROIs, bounded results, canonical graphs, immutable workspace commands, dry-run planning, cancellable execution, source and invocation identity, provenance, project persistence, and the bounded tile runtime. Initial operations include crop, resampling, Gaussian blur, projection, statistics, histograms, and line profiles. See the <a href="../scientific/platform/">complete compiled application example</a>.</p>
+          <p>The intentional application workflow entry: controllers, built-in bundle construction, graph/workspace commands, planning and execution, primary project/ROI/result types, and operation IDs. Initial operations include crop, resampling, Gaussian blur, projection, statistics, histograms, and line profiles. See the <a href="../scientific/platform/">complete compiled application example</a>.</p>
+        </section>
+
+        <section id="entry-analysis-specialized" data-search-item>
+          <h2>Analysis specialist entries <span class="pill">alpha</span></h2>
+          <p><code>purejsimage/analysis/results</code> exposes full result schemas, validation, summaries, and memory accounting. <code>purejsimage/analysis/roi</code> exposes geometry, coordinate conversion, masks, and line sampling. <code>purejsimage/analysis/runtime</code> exposes <code>TileRuntime</code>, semantic source/derived identities, tile sources, cache keys, memory estimates, and provider-facing derived tiles. <code>purejsimage/analysis/project</code> exposes canonical project hashes, persistence contracts, explicit migrations, and canonical JSON helpers.</p>
+          <p>Source cache identity uses complete reader/dataset/resource evidence when available and an explicit session or instance scope otherwise. Derived identity includes source, operation/version, normalized parameters, output, provider/implementation, and generation.</p>
         </section>
 
         <section id="entry-extensions" data-search-item>

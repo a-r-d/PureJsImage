@@ -38,14 +38,15 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
         <section id="runtime">
           <h2>Bounded numeric tiles and explicit lifetimes</h2>
-          <p>Readers yield portable <code>RasterBlock</code> bytes. Repeated quantitative work converts them once to native-endian typed <code>NumericTile</code> values. The tile runtime adds byte budgets, bounded concurrency, request coalescing, cache metrics, cancellation, and release propagation without making full-frame materialization the generic fallback.</p>
-          <div class="callout"><strong>Lifecycle rule.</strong> Release every numeric tile, execution result, and prepared plan; dispose the tile runtime; close the scientific document; and pass an <code>AbortSignal</code> through reads, planning, and execution.</div>
+          <p>Readers yield portable <code>RasterBlock</code> bytes. Repeated quantitative work converts them once to native-endian typed <code>NumericTile</code> values. The tile runtime adds byte budgets, bounded concurrency, request coalescing, semantic source and derived cache identities, measurable cache behavior, cancellation, and release propagation without making full-frame materialization the generic fallback.</p>
+          <div class="callout"><strong>Lifecycle rule.</strong> Release every numeric tile, execution result, and prepared plan; dispose the tile runtime; close the scientific document; and pass an <code>AbortSignal</code> through reads, planning, and execution. Reducer scratch uses lexical scopes released internally by the runtime.</div>
         </section>
 
         <section id="analysis">
           <h2>ROIs, results, and reproducible graphs</h2>
           <p>Versioned pixel or physical-coordinate ROIs bind to graph inputs. Initial bounded operations cover crop, resampling, Gaussian blur, projection, statistics, histograms, and line profiles. Results remain typed and bounded rather than becoming an implicit display image.</p>
           <p>Canonical graph JSON, invocation identities, explicit provider policy, implementation versions, and project hashes make mutation, planning, and execution independently auditable. Dry-run validates the graph and estimates setup, transfer, compute, readback, and memory costs before execution begins.</p>
+          <p>Threshold and Gaussian blur now materialize lazy output tiles through the exact provider selected during planning. Crop and slice remain coordinate views; resample and projection are the next neighborhood/reducer convergence work; statistics, histogram, and line profile remain result reducers.</p>
         </section>
 
         <section id="extensions">

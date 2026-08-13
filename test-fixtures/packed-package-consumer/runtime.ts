@@ -3,17 +3,18 @@ import {
   analysisStatisticsOperationId,
   createAnalysisController,
   createBuiltInAnalysisBundle,
-  createTileRuntime,
-  getImageSourceIdentity,
-  normalizeRoi,
-  roiValueTypeId,
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
-  summarizeResult,
-  validateAnalysisResult,
 } from 'purejsimage/analysis'
 import type { AnalysisGraph } from 'purejsimage/analysis'
-import { createScientificLibrary, resolveNumericTileSource } from 'purejsimage/scientific'
+import { createTileRuntime } from 'purejsimage/analysis/runtime'
+import { summarizeResult, validateAnalysisResult } from 'purejsimage/analysis/results'
+import { normalizeRoi, roiValueTypeId } from 'purejsimage/analysis/roi'
+import {
+  createScientificLibrary,
+  getImageSourceIdentity,
+  resolveNumericTileSource,
+} from 'purejsimage/scientific'
 import { encodeGsf, gsfReader } from 'purejsimage/scientific/readers/gsf'
 
 const assert: (condition: unknown, message: string) => asserts condition = (condition, message) => {

@@ -5,25 +5,18 @@ import {
   analysisLineProfileOperationId,
   analysisStatisticsOperationId,
   analysisThresholdOperationId,
-  canonicalTileKey,
   createAnalysisController,
   createBuiltInAnalysisBundle,
-  createTileRuntime,
   normalizeRoi,
-  roiValueTypeId,
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
   summarizeResult,
-  validateAnalysisResult,
 } from '../../src/analysis/index.ts'
-import type {
-  AnalysisGraph,
-  AnalysisResultSummary,
-  Roi,
-  TileRequest,
-  TileRuntimeMetrics,
-  TileSource,
-} from '../../src/analysis/index.ts'
+import type { AnalysisGraph, AnalysisResultSummary, Roi } from '../../src/analysis/index.ts'
+import { canonicalTileKey, createTileRuntime } from '../../src/analysis/runtime.ts'
+import type { TileRequest, TileRuntimeMetrics, TileSource } from '../../src/analysis/runtime.ts'
+import { roiValueTypeId } from '../../src/analysis/roi-entry.ts'
+import { validateAnalysisResult } from '../../src/analysis/results.ts'
 import { openAperioSvs } from '../../src/pathology/index.ts'
 import type { OperationJsonObject } from '../../src/operations/index.ts'
 import type {
@@ -562,14 +555,23 @@ const measureCacheClasses = async (): Promise<TileRuntimeMetrics> => {
       cacheClass,
       namespace: `application-benchmark:${cacheClass}`,
       dataset: {
-        datasetId: 'application-cache-classes',
-        source: {
-          kind: 'content',
-          strength: 'strong',
-          stability: 'content-addressed',
-          algorithm: 'sha256',
-          digest: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-          size: 1_024 * 1_024 * 4,
+        semantic: {
+          kind: 'scientific-dataset',
+          reader: { id: 'benchmark.reader', version: '1' },
+          datasetId: 'application-cache-classes',
+          resources: [
+            {
+              id: 'primary',
+              identity: {
+                kind: 'content',
+                strength: 'strong',
+                stability: 'content-addressed',
+                algorithm: 'sha256',
+                digest: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+                size: 1_024 * 1_024 * 4,
+              },
+            },
+          ],
         },
         generation: 0,
       },

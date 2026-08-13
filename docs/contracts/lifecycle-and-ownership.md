@@ -27,8 +27,11 @@ substitute for releasing leased buffers, providers, or documents.
   lease.
 - `runtime.clear()` is a cache/in-flight reset, not permanent disposal. `runtime.dispose()` is
   permanent; `isDisposed` becomes true when closing begins, every acquisition/mutation path closes,
-  and `whenIdle()` resolves after active requests, scheduler work, and explicit working-memory
-  reservations drain or are cancelled. Repeated disposal returns the original cleanup promise.
+  and `whenIdle()` resolves after active requests, scheduler work, and lexical working-memory scopes
+  drain or are cancelled. `withOperationWorkingBytes()` owns release in an internal `finally`;
+  callers never receive a release closure. Impossible residual records reject with structured IDs,
+  labels, bytes, and ages rather than leaving disposal pending. Repeated disposal returns the
+  original cleanup promise.
 - A cancelled consumer releases only its own lease. Shared in-flight source work continues while at
   least one consumer remains. If all consumers cancel, the runtime aborts the shared request and
   releases every produced allocation.

@@ -4,11 +4,11 @@ import {
   createBuiltInAnalysisOperationRegistry,
   createBuiltInAnalysisValueTypeRegistry,
   createReferenceAnalysisProvider,
-  createTileRuntime,
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
 } from '../../src/analysis/index.ts'
 import type { AnalysisGraph } from '../../src/analysis/index.ts'
+import { createTileRuntime } from '../../src/analysis/runtime.ts'
 import type {
   DirectNumericTileDataset,
   NumericTile,
