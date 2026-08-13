@@ -43,8 +43,10 @@ preview.src = URL.<span class="tok-method">createObjectURL</span>(output)</code>
         <section id="scientific-browser">
           <h2>Open scientific rasters in a browser</h2>
           <p>GSF and paired ENVI inputs use the portable scientific dataset API rather than the ordinary photographic codec registry. Pass a GSF <code>File</code>/<code>Blob</code> directly, or pass the ENVI header and binary as two independent browser inputs. Native samples, physical units, no-data markers, channel names, and wavelengths remain quantitative until an explicit renderer produces display pixels.</p>
-          <div class="code-window"><div class="window-bar"><span class="window-title">scientific-worker.ts</span></div><pre><code><span class="tok-key">import</span> &#123; createScientificLibrary, enviReader, gsfReader, renderScientificPlane &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
+          <div class="code-window"><div class="window-bar"><span class="window-title">scientific-worker.ts</span></div><pre><code><span class="tok-key">import</span> &#123; createScientificLibrary, renderScientificPlane &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
 <span class="tok-key">import</span> &#123; createScientificFileContext &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific/browser'</span>
+<span class="tok-key">import</span> &#123; enviReader &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific/readers/envi'</span>
+<span class="tok-key">import</span> &#123; gsfReader &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific/readers/gsf'</span>
 
 <span class="tok-key">const</span> science = createScientificLibrary(&#123; readers: [gsfReader, enviReader] &#125;)
 <span class="tok-key">const</span> document = <span class="tok-key">await</span> science.open(createScientificFileContext(gsfFile))

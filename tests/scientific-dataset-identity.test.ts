@@ -5,12 +5,8 @@ import {
   createValueTypeDefinition,
   createValueTypeRegistry,
 } from '../src/operations/index.ts'
-import {
-  createScientificLibrary,
-  encodeGsf,
-  getScientificDatasetIdentity,
-  gsfReader,
-} from '../src/scientific/index.ts'
+import { createScientificLibrary, getScientificDatasetIdentity } from '../src/scientific/index.ts'
+import { encodeGsf, gsfReader } from '../src/scientific/readers/gsf.ts'
 import { MemorySource } from '../src/source.ts'
 
 const valueTypes = createValueTypeRegistry([
@@ -58,7 +54,7 @@ describe('reader-derived scientific dataset identity', () => {
   it('still requires an explicit identity for synthetic datasets', async () => {
     const synthetic = {
       descriptor: {
-        schemaVersion: 2 as const,
+        schemaVersion: 1 as const,
         axes: [
           { id: 'x', kind: 'space' as const, length: 1, coordinates: { type: 'index' as const } },
           { id: 'y', kind: 'space' as const, length: 1, coordinates: { type: 'index' as const } },

@@ -18,6 +18,7 @@
   "files": [
     "src/browser.ts",
     "src/scientific/browser.ts",
+    "src/scientific/readers/all.ts",
     "src/operations/index.ts",
     "src/analysis/index.ts",
     "src/extensions/index.ts",

@@ -1,6 +1,6 @@
 import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
-import type { ScientificDataset, ScientificMetadataValue } from './dataset-v2.ts'
+import type { ScientificDataset, ScientificMetadataValue } from './dataset.ts'
 import { rasterBlockToNumericTile, validateNumericTile } from './numeric-tile.ts'
 
 export interface EnviClassificationRenderOptions {

@@ -20,8 +20,8 @@ import {
   numericTileSampleOffset,
   validateNumericTile,
 } from '../scientific/numeric-tile.ts'
-import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset-v2.ts'
-import { normalizeScientificPlaneReadRequest } from '../scientific/dataset-v2.ts'
+import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset.ts'
+import { normalizeScientificPlaneReadRequest } from '../scientific/dataset.ts'
 import type {
   TileAddress,
   TileProviderTiming,

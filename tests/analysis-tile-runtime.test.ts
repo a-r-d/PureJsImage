@@ -664,7 +664,7 @@ describe('bounded tile runtime cache and scheduler', () => {
     fourComponentTile.release()
 
     const descriptor = normalizeScientificDatasetDescriptor({
-      schemaVersion: 2,
+      schemaVersion: 1,
       axes: [
         { id: 'x', kind: 'space', length: 2, coordinates: { type: 'index' } },
         { id: 'y', kind: 'space', length: 2, coordinates: { type: 'index' } },

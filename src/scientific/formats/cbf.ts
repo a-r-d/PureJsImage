@@ -13,7 +13,7 @@ import type {
   MultidimensionalRasterDataset,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from '../dataset.ts'
+} from '../legacy-dataset.ts'
 import { writeRasterSample } from '../samples.ts'
 
 const binaryMarker = Uint8Array.of(0x0c, 0x1a, 0x04, 0xd5)

@@ -2,18 +2,12 @@ import { browserRuntime } from '../../../src/browser-runtime.ts'
 import { pngCodec } from '../../../src/codecs/png.ts'
 import type { PixelBlock } from '../../../src/pixel.ts'
 import {
-  cbfReader,
   createScientificLibrary,
-  enviReader,
-  fitsReader,
-  gsfReader,
   measureScientificPlane,
-  mrcReader,
   projectScientificVolume,
-  renderEnviClassification,
   renderScientificPlane,
   sliceScientificVolume,
-  type LabeledScientificPlaneMeasurement,
+  type ScientificPlaneMeasurement,
   type ScientificAxisDescriptor,
   type ScientificDataset,
   type ScientificDocument,
@@ -22,6 +16,11 @@ import {
   type ScientificRange,
   type ScientificResource,
 } from '../../../src/scientific/index.ts'
+import { cbfReader } from '../../../src/scientific/readers/cbf.ts'
+import { enviReader, renderEnviClassification } from '../../../src/scientific/readers/envi.ts'
+import { fitsReader } from '../../../src/scientific/readers/fits.ts'
+import { gsfReader } from '../../../src/scientific/readers/gsf.ts'
+import { mrcReader } from '../../../src/scientific/readers/mrc.ts'
 import { BlobSource, MemorySource } from '../../../src/source.ts'
 import { Uint8ArraySink } from '../../../src/sink.ts'
 import type {
@@ -50,7 +49,7 @@ let generation = 0
 let latestDisplay:
   | { readonly width: number; readonly height: number; readonly pixels: Uint8ClampedArray }
   | undefined
-const rangeCache = new Map<string, LabeledScientificPlaneMeasurement>()
+const rangeCache = new Map<string, ScientificPlaneMeasurement>()
 
 const post = (message: ScientificWorkerResponse, transfer: readonly Transferable[] = []): void => {
   scope.postMessage(message, transfer)
@@ -373,7 +372,7 @@ const measuredRange = async (
   selectedIndices: Readonly<Record<string, number>>,
   settings: ScientificDemoRenderSettings,
   viewKey = '',
-): Promise<LabeledScientificPlaneMeasurement> => {
+): Promise<ScientificPlaneMeasurement> => {
   const range = rangeOptions(settings)
   const key = `${generation}:${viewKey}:${JSON.stringify(selectedIndices)}:${range.mode}:${range.mode === 'percentile' ? `${range.low}:${range.high}` : range.mode === 'explicit' ? `${range.min}:${range.max}` : ''}`
   const cached = rangeCache.get(key)
@@ -423,7 +422,7 @@ const renderChannel = async (
   viewKey = '',
 ): Promise<{
   readonly pixels: Uint8ClampedArray<ArrayBuffer>
-  readonly measurement: LabeledScientificPlaneMeasurement
+  readonly measurement: ScientificPlaneMeasurement
 }> => {
   const measurement = await measuredRange(active, displayAxes, selectedIndices, settings, viewKey)
   const image = await renderScientificPlane(active, {

@@ -64,7 +64,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 
         <section id="entry-scientific" data-search-item>
           <h2><code>purejsimage/scientific</code> <span class="pill">alpha</span></h2>
-          <p>Portable labeled-axis datasets, explicit reader registries, document and source identity, <code>RasterBlock</code> reads, native <code>NumericTile</code> conversion, and first-party GSF, ENVI, FITS, MRC, CBF, and OME-TIFF readers. Use <code>createScientificLibrary()</code>, select a summary from <code>document.datasets</code>, then call <code>openDataset(id)</code>. <code>resolveNumericTileSource()</code> uses a compatible direct native source when supplied or the permanent RasterBlock conversion adapter otherwise.</p>
+          <p>Portable labeled-axis datasets, explicit reader registries, document and source identity, <code>RasterBlock</code> reads, and native <code>NumericTile</code> conversion. Concrete formats remain optional through individual reader entries. Use <code>createScientificLibrary()</code>, select a summary from <code>document.datasets</code>, then call <code>openDataset(id)</code>. <code>resolveNumericTileSource()</code> uses a compatible direct native source when supplied or the permanent RasterBlock conversion adapter otherwise.</p>
         </section>
 
         <section id="entry-scientific-browser" data-search-item>
@@ -75,6 +75,11 @@ import SiteLayout from '../layouts/SiteLayout.astro'
         <section id="entry-scientific-node" data-search-item>
           <h2><code>purejsimage/scientific/node</code> <span class="pill">alpha</span></h2>
           <p><code>createScientificPathContext(path, options?)</code> opens the primary file and resolves constrained sibling companions. Filesystem paths and Node resources remain in this adapter and do not enter the portable browser module graph.</p>
+        </section>
+
+        <section id="entry-scientific-readers" data-search-item>
+          <h2>Scientific reader entries <span class="pill">alpha</span></h2>
+          <p>Import only the formats an application registers: <code>purejsimage/scientific/readers/gsf</code>, <code>purejsimage/scientific/readers/envi</code>, <code>purejsimage/scientific/readers/fits</code>, <code>purejsimage/scientific/readers/mrc</code>, <code>purejsimage/scientific/readers/cbf</code>, or <code>purejsimage/scientific/readers/ome-tiff</code>. Applications that deliberately need every first-party format can import <code>purejsimage/scientific/readers/all</code>. These entries export reader values without registering them globally.</p>
         </section>
 
         <section id="entry-operations" data-search-item>
@@ -97,7 +102,8 @@ import SiteLayout from '../layouts/SiteLayout.astro'
           <h2>TIFF documents, rasters, and profiles</h2>
           <p><code>purejsimage/tiff</code> exposes the validated TIFF IFD graph independently of the display-image pipeline. <code>openTiffDocument(source, options?)</code> returns a <code>TiffDocument</code> with stable top-level and SubIFD directory objects. Each <code>TiffDirectory</code> exposes its absolute source <code>offset</code>; <code>getDirectoryByOffset(offset)</code> resolves parsed metadata pointers. A directory reads bounded, cached public tag values and creates either an <code>ImageDecoder</code> for display pixels or a <code>RasterDecoder</code> for native-precision, arbitrary-channel samples. <code>readBytes(offset, length, &#123; maxBytes &#125;)</code> performs an exact bounded private-metadata read and returns a defensive copy without exposing the underlying <code>ImageSource</code>.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">Labeled-axis OME-TIFF</span></div><pre><code><span class="tok-key">import</span> &#123; MemorySource &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage'</span>
-<span class="tok-key">import</span> &#123; createScientificLibrary, omeTiffReader &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
+<span class="tok-key">import</span> &#123; createScientificLibrary &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
+<span class="tok-key">import</span> &#123; omeTiffReader &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific/readers/ome-tiff'</span>
 
 <span class="tok-key">const</span> science = createScientificLibrary(&#123; readers: [omeTiffReader] &#125;)
 <span class="tok-key">const</span> document = <span class="tok-key">await</span> science.open(&#123; primary: &#123; id: <span class="tok-string">'image'</span>, source: <span class="tok-key">new</span> MemorySource(bytes) &#125; &#125;)
@@ -354,11 +360,11 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 
         <section id="scientific" data-search-item>
           <h2>Scientific raster API</h2>
-          <p>Import GSF, ENVI, FITS, MRC, CBF, OME-TIFF, display mapping, volume operations, statistics, and spectral helpers from <code>purejsimage/scientific</code>. Explicit reader registries return labeled-axis <code>ScientificDataset</code> values and native <code>RasterBlock</code> samples instead of registering photographic <code>ImageCodec</code> entries.</p>
+          <p>Import display mapping, volume operations, statistics, spectral helpers, and the reader registry from <code>purejsimage/scientific</code>. Import concrete formats from their <code>purejsimage/scientific/readers/*</code> entries. Explicit registries return labeled-axis <code>ScientificDataset</code> values and native <code>RasterBlock</code> samples instead of registering photographic <code>ImageCodec</code> entries.</p>
           <div class="api-list">
             <article class="api-item" data-search-item><h3>createScientificLibrary(&#123; readers &#125;)</h3><p>Creates an immutable local reader registry. <code>open(context)</code> returns a <code>ScientificDocument</code>; each summary has a stable ID, labeled descriptor, and structured source identity.</p><span class="returns">returns ScientificLibrary</span></article>
-            <article class="api-item" data-search-item><h3>encodeGsf(options)</h3><p>Writes a deterministic GSF header, aligned padding, metadata, and exact little-endian float32 payload.</p><span class="returns">returns Uint8Array</span></article>
-            <article class="api-item" data-search-item><h3>gsfReader, enviReader, fitsReader, mrcReader, cbfReader, omeTiffReader</h3><p>Explicit first-party readers for single- and multi-resource scientific formats. ENVI identities include both header and binary resources; FITS and OME-TIFF use stable per-dataset IDs.</p><span class="returns">ScientificReader values</span></article>
+            <article class="api-item" data-search-item><h3>encodeGsf(options)</h3><p>Exported by <code>purejsimage/scientific/readers/gsf</code>; writes a deterministic GSF header, aligned padding, metadata, and exact little-endian float32 payload.</p><span class="returns">returns Uint8Array</span></article>
+            <article class="api-item" data-search-item><h3>gsfReader, enviReader, fitsReader, mrcReader, cbfReader, omeTiffReader</h3><p>Explicit first-party readers from individual package entries. ENVI identities include both header and binary resources; FITS and OME-TIFF use stable per-dataset IDs.</p><span class="returns">ScientificReader values</span></article>
             <article class="api-item" data-search-item><h3>createScientificPathContext(path)</h3><p>Node-only helper from <code>purejsimage/scientific/node</code> that creates a source and constrained companion resolver.</p><span class="returns">returns Promise&lt;ScientificOpenContext&gt;</span></article>
             <article class="api-item" data-search-item><h3>sliceScientificVolume(dataset, options)</h3><p>Returns a lazy cross-section over caller-selected labeled display axes without materializing the source volume.</p><span class="returns">returns ScientificDataset</span></article>
             <article class="api-item" data-search-item><h3>projectScientificVolume(dataset, options)</h3><p>Returns a lazy labeled-axis minimum, maximum, or mean projection. It keeps only bounded output-row accumulators and uses float64 accumulation for means.</p><span class="returns">returns ScientificDataset</span></article>

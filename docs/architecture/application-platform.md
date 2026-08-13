@@ -1,6 +1,6 @@
 # Application platform architecture
 
-Status: design checkpoint approved on 2026-08-12; implementation is in progress. Dataset V2, the
+Status: design checkpoint approved on 2026-08-12; implementation is in progress. ScientificDataset, the
 explicit scientific reader/document platform, native numeric tiles, operation descriptors and
 providers, generic quantitative results, the graph/planning/command platform, and ROI geometry and
 sampling described by PRs 1 through 7 now exist. PR 8's bounded tile runtime and PR 9's initial
@@ -27,7 +27,7 @@ The useful seams already present in the codebase are:
 - `src/raster.ts` defines `RasterBlock` as canonical big-endian bytes with explicit shape, stride,
   planar layout, sample type, and an optional `release()` callback. Scientific readers already
   converge on that boundary.
-- `src/scientific/dataset-v2.ts` defines the sole public `ScientificDataset` model: labeled axes and
+- `src/scientific/dataset.ts` defines the sole public `ScientificDataset` model: labeled axes and
   lazy bounded `RasterBlock` plane reads. Explicitly registered FITS, MRC, CBF, GSF, ENVI, and
   OME-TIFF readers expose it through `ScientificDocument`.
 - The format readers validate dimensions and source extents, keep sample data lazy, generally bound
@@ -65,7 +65,7 @@ Application APIs and immutable workspace snapshots
   -> analysis graph, results, provenance, ROIs, commands, tile runtime
     -> operation descriptors, validation, provider contracts, local registries
       -> native NumericTile conversion and optional native tile-source contract
-        -> ScientificDataset V2 descriptors and RasterBlock read selections
+        -> ScientificScientificDataset descriptors and RasterBlock read selections
           -> format readers and portable RasterBlock primitives
             -> ImageSource and platform-specific source adapters
 ```
@@ -118,13 +118,13 @@ or persisted graph format ships in that release, later changes follow normal exp
 migration rules. The existing ordinary-image pipeline and `resize().jpeg()` behavior remain outside
 this scientific API freedom and must continue to pass their regression tests throughout.
 
-### `ScientificDataset` V2
+### `ScientificDataset`
 
-Use the public name `ScientificDataset` with an explicit `schemaVersion: 2` rather than the more
-verbose `ScientificDatasetV2`. There is no existing `ScientificDataset` symbol, and the version is
-part of the serialized descriptor rather than a permanent suffix in every consumer type.
+Use the public name `ScientificDataset` with an explicit `schemaVersion: 1`. The model had not been
+published before this alpha, so its first serialized contract starts at one and migration-history
+suffixes do not become part of consumer type names.
 
-V2 describes dimensions as labeled axes instead of assuming every dataset is exactly `X/Y/Z/C/T`.
+The descriptor describes dimensions as labeled axes instead of assuming every dataset is exactly `X/Y/Z/C/T`.
 An axis has a stable ID, semantic kind, length, and optional unit, regular origin/spacing, or an
 explicit coordinate vector. Channel descriptions remain first-class metadata rather than being
 forced into numeric coordinates. `capabilities.planeReads` declares either arbitrary pairs or the
@@ -133,13 +133,13 @@ names one supported pair and fixes, ranges, or indexes all other axes; it yields
 `RasterBlock`s. That keeps the existing portable
 block boundary usable without pretending `RasterBlock` is an arbitrary N-dimensional tensor.
 
-The V2 read contract must include `AbortSignal` and a byte budget in its options. Cancellation must
+The scientific read contract must include `AbortSignal` and a byte budget in its options. Cancellation must
 be threaded through `readExactly()` and `ImageSource.read()` as each reader migrates, rather than
 being simulated by an adapter that can only check between blocks. Tests must prove axis mapping,
 channel selection, coordinate metadata, block shape, cancellation, and release propagation.
 
 The public PR 1 boundary exposes no fixed-axis dataset or adapter. Internal parser compatibility
-code may temporarily adapt an old parser result while each parser moves to native V2 construction;
+code may temporarily adapt an old parser result while each parser moves to native ScientificDataset construction;
 that seam is not a package contract or a pattern for new readers. The adapter omits legacy singleton
 Z, channel, and time dimensions unless they carry real dataset meaning. `ScientificAxisDescriptor.entries`
 carries per-coordinate channel identity, name,
@@ -175,7 +175,7 @@ contents as read-only, and every consumer must release them exactly once using `
 derived tile either owns a distinct allocation or explicitly retains its input; it may not retain an
 input buffer after releasing it.
 
-The permanent source of `NumericTile`s is an adapter over V2 `RasterBlock` reads. A dataset may also
+The permanent source of `NumericTile`s is an adapter over scientific `RasterBlock` reads. A dataset may also
 attach an explicit `NumericTileSource` with exact `directSemantics`, allowing a later reader or WASM
 backend to produce conforming native tiles directly. `resolveNumericTileSource()` selects that path
 only when source type, native type, component count, layout, and requested target support match; it
@@ -386,10 +386,11 @@ The public module graph should develop as follows:
 
 - `purejsimage` and `purejsimage/browser` keep the current ordinary image API and behavior. No
   analysis module is imported from either root.
-- `purejsimage/scientific` owns the format readers, portable V2 dataset descriptors, and numeric tile
-  contracts/conversion. Its unreleased scientific exports may change during the alpha implementation
-  sequence and are finalized at the next versioned release. `purejsimage/scientific/node` remains
-  the place for path-based helpers.
+- `purejsimage/scientific` owns portable `ScientificDataset` descriptors, documents, registries,
+  algorithms, and numeric tile contracts/conversion. Concrete readers live in
+  `purejsimage/scientific/readers/{gsf,envi,fits,mrc,cbf,ome-tiff}`; the explicit
+  `purejsimage/scientific/readers/all` entry is available when an application deliberately wants
+  every reader. `purejsimage/scientific/node` remains the place for path-based helpers.
 - `purejsimage/operations` exports JSON-safe descriptors and schemas, provider contracts,
   caller-owned registries, and built-in definitions that lower into existing validated pipeline
   constructors. PR 4 supplies provider mechanics and mocks, while PR 5 still owns real strict
@@ -422,8 +423,8 @@ concrete; names can change during review without changing the layering.
 
 | PR | Scope | Current files likely to change, plus proposed homes | Compatibility risk | Focused tests | Acceptance gate |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Define `ScientificDataset` V2 labeled-axis descriptors, replace the unreleased fixed-axis public contract, and migrate the first representative readers. | `src/scientific/dataset.ts`, `src/scientific/index.ts`, selected files under `src/scientific/formats/`; optionally a temporary internal migration bridge. | Current demos and tests must migrate with the intentional break; transitional code could outlive its purpose. | Contract tests using FITS, MRC, ENVI, and an irregular synthetic axis; affected scientific format and demo tests. | The new API is smaller than an adapter-based alternative; migrated readers have no legacy wrapper; temporary bridges are explicitly tracked for removal; `npm run browser:check`; `npm run check`. |
-| 2 | Migrate the remaining scientific readers, remove transitional bridges, and require abort- and budget-aware V2 reads. | `src/scientific/formats/{fits,mrc,cbf,gsf,envi}.ts`, `src/scientific/ome-tiff.ts`, `src/scientific/{render,spectral,volume,classification}.ts`, `src/source.ts`, abort/limit helpers. | Partial reads or cancellation could leak blocks; format-specific metadata could be lost during migration. | Focused abort-before-read, abort-during-read, iterator-return, release, metadata, and byte-budget tests for contiguous and strided readers. | All readers use the V2 contract directly; no compatibility bridge remains; no read continues after observed abort; every yielded/rejected block is released; source-byte cap is enforced; `npm run check`. |
+| 1 | Define `ScientificDataset` labeled-axis descriptors, replace the unreleased fixed-axis public contract, and migrate the first representative readers. | `src/scientific/dataset.ts`, `src/scientific/index.ts`, selected files under `src/scientific/formats/`; optionally a temporary internal migration bridge. | Current demos and tests must migrate with the intentional break; transitional code could outlive its purpose. | Contract tests using FITS, MRC, ENVI, and an irregular synthetic axis; affected scientific format and demo tests. | The new API is smaller than an adapter-based alternative; migrated readers have no legacy wrapper; temporary bridges are explicitly tracked for removal; `npm run browser:check`; `npm run check`. |
+| 2 | Migrate the remaining scientific readers, remove transitional bridges, and require abort- and budget-aware scientific reads. | `src/scientific/formats/{fits,mrc,cbf,gsf,envi}.ts`, `src/scientific/ome-tiff.ts`, `src/scientific/{render,spectral,volume,classification}.ts`, `src/source.ts`, abort/limit helpers. | Partial reads or cancellation could leak blocks; format-specific metadata could be lost during migration. | Focused abort-before-read, abort-during-read, iterator-return, release, metadata, and byte-budget tests for contiguous and strided readers. | All readers use the ScientificDataset contract directly; no compatibility bridge remains; no read continues after observed abort; every yielded/rejected block is released; source-byte cap is enforced; `npm run check`. |
 | 3 | Introduce `NumericTile`, validated one-time conversion, explicit caller-owned allocation, and the optional direct native tile-source capability. | `src/scientific/{numeric-tile,render,spectral,volume,classification}.ts`, `src/scientific/index.ts`, focused tests and benchmark. | Endianness, float16 expansion, uint64 precision, planar/interleaved strides, or ownership could change values. | Cross-sample-type golden tests, hostile stride/truncation tests, release-on-error tests, reference-vs-direct-source conformance, existing algorithm result suites. | Canonical block fixtures produce exact native values; no `uint64` number coercion; measured retained-byte bounds; `npm run browser:check`; `npm run check`. |
 | 4 | Define JSON-safe operation descriptors and local registries; add provider mechanics, current pipeline lowering, trusted extension composition, and explicit public subpaths without implementing new scientific computation. | New `src/operations/{descriptor,registry,provider,builtins,index}.ts`, `src/extensions/index.ts`, `package.json`, browser/package/size scripts, focused tests, and trust-boundary docs. | Defaults or unknown-key handling could become persisted semantics; provider policy could imply a backend rank; extensions could be mistaken for isolation; ordinary pipeline behavior could drift. | JSON/hostile validation, registry isolation, provider cost/pin/release, IR parity, extension atomicity, strict package-consumer, and browser dependency-graph tests. | Descriptors/manifests contain only data; registries remain local; pipeline IR and fluent APIs remain unchanged; no import-time installation; new entries are browser-portable; `npm run check`. |
 | 5 | Define bounded provider-neutral quantitative results, adapt existing scientific measurement without duplicate wrapper scans, and add the explicit analysis entry. | New `src/analysis/{result,scientific,index}.ts`; `src/scientific/render.ts`, scientific exports/tests, package/browser/type/size checks, and result docs. | Typed payload ownership or NaN/unit semantics could be ambiguous; generic adapters could reread planes; large results could be accidentally serialized as JSON. | Synthetic scalar/histogram/profile/table/collection validation, million-row columnar metadata, bounded summaries, legacy/generic differential measurements, cancellation/release, and package-boundary tests. | Result memory is bounded and accounted; legacy and generic outputs share one measurement execution; manifests contain schemas rather than payloads; the analysis entry is browser-portable and explicit; `npm run check`. |
@@ -476,7 +477,7 @@ in-memory provenance delivered here.
 
 The maintainer approved the following decisions on 2026-08-12:
 
-1. the `ScientificDataset` public name, `schemaVersion: 2`, labeled-axis selection model, and clean
+1. the `ScientificDataset` public name, `schemaVersion: 1`, labeled-axis selection model, and clean
    replacement of the unreleased fixed-axis dataset contract when that reduces complexity;
 2. the `NumericTile` ownership and storage mapping, especially float16 expansion and exact uint64
    handling;
@@ -504,7 +505,7 @@ complete; merging, committing, publishing, or releasing still requires the autho
 to that action.
 
 The detailed PR 1 prompts were supplied after the architecture approval. They originally assumed a
-permanent V1/V2 compatibility period. The later approved alpha policy supersedes that assumption:
+permanent fixed-axis/scientific compatibility period. The later approved alpha policy supersedes that assumption:
 the unreleased fixed-axis API may be replaced when that produces cleaner code. Temporary adapters
 remain an implementation option, not a compatibility requirement. Preserve the prompts' substantive
 parity, metadata, laziness, release, cancellation, and bounded-memory acceptance criteria whichever
@@ -517,9 +518,9 @@ migration path is chosen.
       policy.
 - [x] Add this checklist and the repository-level pointer in `AGENTS.md`.
 
-### PR 1: labeled-axis scientific dataset V2
+### PR 1: labeled-axis scientific dataset
 
-- [x] Prompt 1.1: add the V2 contracts and validation.
+- [x] Prompt 1.1: add the ScientificDataset contracts and validation.
   - [x] Re-read `AGENTS.md`, record HEAD/status, and inspect the current dataset, raster, scientific
         algorithm, test, and export surfaces without disturbing user changes.
   - [x] Define `ScientificAxisDescriptor` with stable IDs; names; semantic kinds; positive lengths;
@@ -540,11 +541,11 @@ migration path is chosen.
         without repeatedly copying large coordinate storage or overstating nested immutability.
   - [x] Add synthetic X/Y, X/Y/Z, X/Y/channel/time, X/Y/energy, 4D-STEM, nonlinear-coordinate, and
         malformed/request-validation tests.
-  - [x] Export only stable V2 types/utilities; add no dependency, codec, Node-only path, global
+  - [x] Export only stable scientific types/utilities; add no dependency, codec, Node-only path, global
         registry, or full-frame buffering.
   - [x] Run focused Vitest tests, `npm run typecheck`, `npm run lint`, and `npm run format:check`;
         review `git diff --stat`.
-  - Result: 28 V2 contract tests and 92 affected scientific tests pass; browser and packed-declaration
+  - Result: 28 ScientificDataset contract tests and 92 affected scientific tests pass; browser and packed-declaration
     checks also pass. The fixed-axis API remains untouched pending Prompt 1.2. The full repository
     check reaches Vitest with 970 passing tests and the same three unrelated AVIF Sharp-oracle hash
     failures recorded before Prompt 1.1; the hostile-source phase is not reached after that failure.
@@ -554,10 +555,10 @@ migration path is chosen.
   - [x] Choose and document the cleaner migration: temporary lossless adapters or direct replacement
         of the unreleased fixed-axis contract. Do not add a permanent 0.9.x compatibility layer by
         default.
-  - [x] If a legacy-to-V2 bridge is useful, preserve X/Y/Z/C/T mapping, calibration, channel and
+  - [x] If a fixed-axis-to-scientific bridge is useful, preserve X/Y/Z/C/T mapping, calibration, channel and
         spectral metadata, sample/no-data/source metadata, resolution selection, lazy blocks, exact
         coordinates/values, release callbacks, and abort propagation.
-  - [x] If a V2-to-legacy bridge is useful, allow only truthful X/Y plus optional Z/C/T mappings and
+  - [x] If a scientific-to-fixed-axis bridge is useful, allow only truthful X/Y plus optional Z/C/T mappings and
         reject arbitrary axes such as scanX/scanY/kx/ky rather than flattening or relabeling them.
   - [x] Provide one internal normalization path only if it removes real duplication; keep conversion
         work outside per-sample hot loops.
@@ -567,19 +568,19 @@ migration path is chosen.
         `npm run format:check`; review `git diff --stat` and record any intentional API break.
   - Result: the temporary bridge uses explicit `toScientificDataset()` and
     `toMultidimensionalRasterDataset()` adapters plus one internal dataset-form guard shared by
-    algorithm boundaries. V1-to-V2 keeps the original `RasterBlock` object, data, coordinates,
+    algorithm boundaries. fixed-axis-to-scientific keeps the original `RasterBlock` object, data, coordinates,
     layout, and release callback; maps logical channels to typed axis entries; and forwards
     cancellation through the now abort-aware V1 request. Known pyramid geometry must be supplied
-    explicitly because V1 does not describe level dimensions. V2-to-V1 accepts only literal spatial
+    explicitly because V1 does not describe level dimensions. scientific-to-fixed-axis accepts only literal spatial
     `x`/`y`, optional spatial `z`, channel or spectral `channel`, optional `time`, one stored
     component, and metadata representable as a flat string record; richer axes, components, or
     metadata are rejected rather than discarded. The fixed-axis interface is deprecated as a
-    temporary alpha bridge, not promised through a permanent 0.9.x window. The 40 focused V2/adapter
+    temporary alpha bridge, not promised through a permanent 0.9.x window. The 40 focused scientific/adapter
     tests and 176 affected scientific/reader tests pass, as do typecheck, lint, and formatting.
 
-- [x] Prompt 1.3: make existing scientific algorithms V2-aware and close PR 1 scope.
+- [x] Prompt 1.3: make existing scientific algorithms labeled-axis aware and close PR 1 scope.
   - [x] Re-read repository instructions and inspect every accumulated PR 1 change before editing.
-  - [x] Use thin normalization at algorithm boundaries; do not fork V1/V2 implementations or make
+  - [x] Use thin normalization at algorithm boundaries; do not fork fixed-axis/scientific implementations or make
         hot sample loops polymorphic.
   - [x] Resolve stable axis IDs once for rendering, measurement, statistics, histograms, spectral
         selection/composites/ratios, volume slicing/projection, and classification where applicable.
@@ -594,7 +595,7 @@ migration path is chosen.
         with a synthetic labeled-axis construction/render example.
   - [x] Run the full scientific test subset, `npm run browser:check`, `npm run package:types`, and
         `npm run check`; fix only failures caused by PR 1 and record unrelated failures separately.
-  - [x] Review final `git diff --stat`; document the public V2 API, deferred assumptions, and ordinary
+  - [x] Review final `git diff --stat`; document the public scientific API, deferred assumptions, and ordinary
         image-pipeline regression result.
   - Result: render and measurement resolve one scalar plane before entering the existing row scans,
     so legacy and labeled callers share statistics, histograms, range measurement, relief, and pixel
@@ -602,7 +603,7 @@ migration path is chosen.
     integration, and ratios require an explicit spectral-axis ID. Labeled slices preserve the two
     selected axes; projections require an explicit reduction-axis ID and retain only bounded output
     rows and one contributing plane region at a time. ENVI classification stays format-specific
-    until V2 has a generic categorical metadata contract. The 180-test scientific/reader subset and
+    until `ScientificDataset` has a generic categorical metadata contract. The 180-test scientific/reader subset and
     a 78-test ordinary pipeline/JPEG/PNG subset pass; browser and packed-declaration checks pass. The
     repository-wide check has 984 passing tests and stops on the same three unrelated 12-bit AVIF
     Sharp-oracle hash mismatches from the earlier baseline, so the hostile-source phase is not
@@ -613,7 +614,7 @@ migration path is chosen.
 - [x] Prompt 2.1: add portable resource, reader, document, probe-budget, and local registry
       contracts.
   - [x] Re-read repository instructions, record HEAD/status, and inspect `ImageSource`, source
-        sessions, HTTP range behavior, scientific Node adapters, OME-TIFF, V2 datasets, existing
+        sessions, HTTP range behavior, scientific Node adapters, OME-TIFF, ScientificDatasets, existing
         format opens, exports, and representative tests.
   - [x] Define runtime-neutral `ScientificResource`, normalized companion requests/resolvers, and
         `ScientificOpenContext` for single- and multi-resource formats without filesystem or path
@@ -639,7 +640,7 @@ migration path is chosen.
     16,384 logical bytes per read. Reservations occur before underlying I/O; sources must return the
     exact admitted length; overlapping and repeated reads count again; primary and companion
     resources share the ledger; and zero-length or wholly out-of-range reads do not consume it.
-    Explicit reader selection bypasses probing. The 38 focused registry and V2 tests pass with
+    Explicit reader selection bypasses probing. The 38 focused registry and dataset tests pass with
     typecheck, lint, and formatting.
 
 - [x] Prompt 2.2: adapt GSF, MRC/CCP4, and CBF/imgCIF.
@@ -649,7 +650,7 @@ migration path is chosen.
         dataset implementations without duplicate decoding paths.
   - [x] Use small byte-based probes; treat extensions/media types only as confidence hints that
         cannot override contradictory bytes.
-  - [x] Expose one stable lazy V2 dataset summary per document, preserving calibration, units,
+  - [x] Expose one stable lazy ScientificDataset summary per document, preserving calibration, units,
         component/channel/no-data, detector, and typed format metadata.
   - [x] Preserve existing `openGsf`, `openMrc`, and `openCbf` exports and behavior; avoid payload
         decoding during probe and summary listing; propagate release and cancellation.
@@ -659,7 +660,7 @@ migration path is chosen.
   - [x] Run focused format/registry tests, typecheck, lint, and formatting; record each reader's
         exact maximum probe reads and `git diff --stat`.
   - Result: `purejsimage/gsf`, `purejsimage/mrc`, and `purejsimage/cbf` reuse the existing open
-    functions and lazy datasets, enrich their V2 descriptors with typed format metadata, and expose
+    functions and lazy datasets, enrich their scientific descriptors with typed format metadata, and expose
     one stable dataset each. Extensions and media types only raise an already byte-confirmed match
     from 0.99 to 1. Each probe performs exactly one logical read: GSF reads 26 bytes, MRC reads 8
     bytes at offset 208, and CBF reads at most 64 bytes. The 37 focused adapter, registry, and format
@@ -685,7 +686,7 @@ migration path is chosen.
   - Result: FITS exposes stable `hdu-N` datasets and uses a slice primitive to preserve arbitrary
     NAXIS rank without changing the legacy `openImage()` limit; CTYPE/CUNIT and complete linear WCS
     triples become labeled coordinates, while all original cards remain typed metadata. OME-TIFF
-    exposes stable `image-N` datasets and carries common declared SubIFD pyramid geometry into V2.
+    exposes stable `image-N` datasets and carries common declared SubIFD pyramid geometry into `ScientificDataset`.
     ENVI supports header-primary and named data-primary contexts through role-based companion
     resolution and retains spectral, classification, interleave, and tokenized map-info values.
     No coordinate transform is inferred from incomplete FITS WCS cards, and free-form ENVI map-info
@@ -705,7 +706,7 @@ migration path is chosen.
   - [x] Update scientific exports, package/type/browser checks, API docs, a concise registry guide,
         and this architecture document.
   - [x] Add an external-style package type test registering a reader subset, opening in-memory
-        bytes, enumerating summaries, and lazily opening a V2 dataset without `src/` imports.
+        bytes, enumerating summaries, and lazily opening a ScientificDataset without `src/` imports.
   - [x] Run package types, browser check, the full scientific subset, and `npm run check`; record
         unrelated failures separately.
   - [x] Review final `git diff --stat`, public exports, bundle/tree-shaking implications, and prove
@@ -713,8 +714,9 @@ migration path is chosen.
   - Result: `createScientificLibrary({ readers })` owns one isolated registry and returns frozen
     JSON-safe reader and resource-pattern capabilities. `createScientificPathContext()` remains in
     `purejsimage/scientific/node`; `createScientificFileContext()` and the File resolver remain in
-    `purejsimage/scientific/browser`. There is no all-readers singleton or bundle: consumers import
-    named reader objects and bundlers can eliminate unselected modules under `sideEffects: false`.
+    `purejsimage/scientific/browser`. Consumers import individual reader entries so bundlers can
+    eliminate unselected formats under `sideEffects: false`; an explicit `readers/all` entry exists
+    only for applications that deliberately choose the complete reader set.
     Root and browser imports neither reach scientific modules nor register readers. The 229-test
     scientific/format subset, packed external declaration consumer, browser check, typecheck, lint,
     and formatting pass. The normal suite has 1,007 passing tests and only the same three unrelated
@@ -779,7 +781,7 @@ migration path is chosen.
         justified remaining per-sample `DataView` path.
   - Result: labeled rendering and reductions consume `NumericTileSource`; fixed-axis compatibility
     paths convert their selected `RasterBlock` stream once because the old interleaved-component
-    selection cannot be represented as one V2 axis index. Hot loops resolve layout/component
+    selection cannot be represented as one scientific axis index. Hot loops resolve layout/component
     strides once per tile and retain Float64 only for statistics, reductions, derived output, or the
     three-row relief window. Remaining per-sample `DataView` writes serialize derived datasets back
     to the canonical `RasterBlock` API; `src/raster.ts` retains its ordinary-image portable display
@@ -923,7 +925,7 @@ operation PR after their input and result contracts exist.
 
   - Result: `purejsimage/analysis` now exposes five provider-neutral result kinds, strict bounded
         validators, aggregate retained-buffer accounting, capped JSON-safe summaries, explicit local
-        value-type registration, and one-execution adapters for legacy and V2 scientific plane
+        value-type registration, and one-execution adapters for legacy and scientific plane
         measurements. Statistics and histograms share a NumericTile pass; direct-tile regression
         coverage confirms the dataset-range/statistics/render workflow now performs three reads and
         releases all nine emitted tiles instead of four reads and twelve releases. The packed strict
@@ -1268,7 +1270,7 @@ to own only generic descriptors, definitions, providers, and registries.
   - [x] Record missing generic APIs as gaps rather than importing package internals.
 
   - Result: the spike viewer opens browser `File` companion sets and remote `HttpRangeSource`
-    documents through seven explicitly registered readers, enumerates document datasets and full V2
+    documents through explicitly registered readers, enumerates document datasets and full scientific
     descriptor metadata, and exposes arbitrary axis pairs, every fixed index, level selection,
     pan/zoom, explicit range/scale/palette mapping, and incremental Canvas painting. One Worker-owned
     `TileRuntime` handles bounded retention, deduplication, four-way concurrency, visible versus
@@ -1515,3 +1517,27 @@ to own only generic descriptors, definitions, providers, and registries.
     lint and formatting pass. The complete standard suite passes 95 files and 1,198 tests before the
     same three environment-specific expanded 12-bit AVIF Sharp-oracle hash mismatches; the hostile
     suite with only that known oracle file excluded passes 95 files and 1,176 tests.
+
+### Pre-release scientific API cleanup
+
+- [x] Publish the sole `ScientificDatasetDescriptor` schema as version 1 and remove migration-history
+      terms such as `V2` and `Labeled` from the public scientific API.
+- [x] Rename the current arbitrary-axis implementation files to `dataset.ts` and `public.ts`, while
+      keeping the unreleased fixed-axis implementation isolated as an internal legacy adapter.
+- [x] Give GSF, ENVI, FITS, MRC, CBF, and OME-TIFF individual reader entries plus an explicit
+      `scientific/readers/all` convenience entry.
+- [x] Remove concrete readers and format-specific helpers from the base `scientific` entry so the
+      registry and portable dataset contracts remain lightweight.
+- [x] Add hard bundle-size ceilings for the base scientific platform, every individual reader, and
+      the opt-in all-readers entry.
+- [x] Run package, browser, documentation, focused scientific, benchmark, and full repository gates;
+      record the final result before handoff.
+
+  - Cleanup validation: the base scientific bundle is 138,147 bytes minified, down from 438,229
+    bytes before readers were split. Individual minified reader entries range from 37,864 bytes for
+    GSF to 267,489 bytes for OME-TIFF; the all-readers entry is 337,265 bytes. All have ceilings with
+    roughly 30% headroom. The 121 focused scientific/contract tests, package consumer, browser graph,
+    19-page documentation build, compiled external application example, correctness-gated platform
+    benchmark, and real Chromium scientific workflow pass. Standard and hostile-source suites each
+    pass 95 files and 1,204 tests; both report only the same three environment-specific expanded
+    12-bit AVIF Sharp-oracle hash mismatches.

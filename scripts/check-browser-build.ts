@@ -65,6 +65,8 @@ const applicationPlatformResult = await build({
   platform: 'browser',
   stdin: {
     contents: `
+      export * from './src/scientific/index.ts'
+      export * from './src/scientific/readers/all.ts'
       export * from './src/operations/index.ts'
       export * from './src/analysis/index.ts'
       export * from './src/extensions/index.ts'
@@ -109,5 +111,5 @@ for (const [input, metadata] of Object.entries(acceleratorResult.metafile.inputs
 }
 
 console.log(
-  `Browser bundle OK (${output.length.toLocaleString()} bytes, 10 default codecs; optional JPEG/PNG WASM and experimental HEIF/HEIC entries isolated)`,
+  `Browser bundle OK (${output.length.toLocaleString()} bytes, 10 default codecs; scientific reader, optional JPEG/PNG WASM, and experimental HEIF/HEIC entries remain explicit)`,
 )

@@ -34,16 +34,15 @@ import type {
   ScientificReader,
 } from '../../src/scientific/index.ts'
 import {
-  cbfReader,
   createScientificLibrary,
-  encodeGsf,
-  gsfReader,
-  mrcReader,
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
   renderScientificPlane,
   resolveNumericTileSource,
 } from '../../src/scientific/index.ts'
+import { cbfReader } from '../../src/scientific/readers/cbf.ts'
+import { encodeGsf, gsfReader } from '../../src/scientific/readers/gsf.ts'
+import { mrcReader } from '../../src/scientific/readers/mrc.ts'
 import { HttpRangeSource } from '../../src/sources/http-range.ts'
 import { MemorySource } from '../../src/source.ts'
 import { openTiffDocument } from '../../src/tiff/index.ts'
@@ -254,7 +253,7 @@ const directDataset = (
     coordinates: { type: 'index' as const },
   }))
   const descriptor = normalizeScientificDatasetDescriptor({
-    schemaVersion: 2,
+    schemaVersion: 1,
     axes,
     sampleType: 'float32',
     components: [{ id: 'signal', kind: 'scalar' }],

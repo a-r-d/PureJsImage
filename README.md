@@ -111,22 +111,28 @@ In a browser, import from `purejsimage/browser` and use `toBlob()` or
 `toUint8Array()` for output. Tools that need every default codec can register
 `allCodecs` from `purejsimage/codecs/all`.
 
-### TIFF with a scientific profile
+### Scientific OME-TIFF
 
-Register the TIFF codec alone, then opt into the OME-TIFF profile:
+Register the OME-TIFF reader explicitly and open the numeric dataset without routing it through the
+ordinary display-image codec pipeline:
 
 ```ts
-import { createImageLibrary, FileSource } from 'purejsimage'
-import { tiffCodec } from 'purejsimage/codecs/tiff'
-import { omeTiffProfile } from 'purejsimage/scientific'
-import { createTiffProfileRegistry, openTiffDocument } from 'purejsimage/tiff'
+import { FileSource } from 'purejsimage'
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { omeTiffReader } from 'purejsimage/scientific/readers/ome-tiff'
 
-const images = createImageLibrary([tiffCodec])
+const science = createScientificLibrary({ readers: [omeTiffReader] })
+const document = await science.open({
+  primary: {
+    id: 'input',
+    name: 'input.ome.tif',
+    source: await FileSource.open('input.ome.tif'),
+  },
+})
 
-const source = await FileSource.open('input.ome.tif')
-const document = await openTiffDocument(source)
-const profiles = createTiffProfileRegistry([omeTiffProfile])
-const dataset = await profiles.openWith(document, omeTiffProfile)
+const first = document.datasets[0]
+if (first === undefined) throw new Error('OME-TIFF contains no datasets')
+const dataset = await document.openDataset(first.id)
 ```
 
 ### Scientific rasters and explicit display mapping
@@ -135,8 +141,9 @@ Scientific readers are separate from photographic codecs. The dataset remains nu
 application requests display pixels:
 
 ```ts
-import { createScientificLibrary, fitsReader, renderScientificPlane } from 'purejsimage/scientific'
+import { createScientificLibrary, renderScientificPlane } from 'purejsimage/scientific'
 import { createScientificPathContext } from 'purejsimage/scientific/node'
+import { fitsReader } from 'purejsimage/scientific/readers/fits'
 
 const science = createScientificLibrary({ readers: [fitsReader] })
 const fits = await science.open(await createScientificPathContext('observation.fits'))
@@ -182,7 +189,7 @@ const readSyntheticRegion = (plane: NormalizedScientificPlaneReadRequest): Raste
 
 const synthetic: ScientificDataset = {
   descriptor: normalizeScientificDatasetDescriptor({
-    schemaVersion: 2,
+    schemaVersion: 1,
     axes: [
       {
         id: 'x',
@@ -211,7 +218,7 @@ const synthetic: ScientificDataset = {
     capabilities: {
       regionReads: true,
       resolutionLevels: false,
-      planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'energy']] },
+      planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'y']] },
     },
   }),
   async *readPlane(request): AsyncIterable<RasterBlock> {
@@ -238,7 +245,9 @@ changing the ordinary image codec pipeline:
 
 ```ts
 import { FileSource } from 'purejsimage'
-import { createScientificLibrary, fitsReader, gsfReader } from 'purejsimage/scientific'
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { fitsReader } from 'purejsimage/scientific/readers/fits'
+import { gsfReader } from 'purejsimage/scientific/readers/gsf'
 
 const science = createScientificLibrary({ readers: [fitsReader, gsfReader] })
 const document = await science.open({
@@ -299,11 +308,11 @@ MRC and FITS volumes share lazy cross-section and projection operations:
 ```ts
 import {
   createScientificLibrary,
-  mrcReader,
   projectScientificVolume,
   sliceScientificVolume,
 } from 'purejsimage/scientific'
 import { createScientificPathContext } from 'purejsimage/scientific/node'
+import { mrcReader } from 'purejsimage/scientific/readers/mrc'
 
 const science = createScientificLibrary({ readers: [mrcReader] })
 const document = await science.open(await createScientificPathContext('reconstruction.mrc'))

@@ -21,11 +21,10 @@ import {
 } from 'purejsimage/analysis'
 import {
   createScientificLibrary,
-  encodeGsf,
   getScientificDatasetIdentity,
-  gsfReader,
   resolveNumericTileSource,
 } from 'purejsimage/scientific'
+import { encodeGsf, gsfReader } from 'purejsimage/scientific/readers/gsf'
 
 export interface ApplicationPlatformExampleResult {
   readonly projectJson: string

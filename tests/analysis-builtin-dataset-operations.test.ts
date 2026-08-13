@@ -61,7 +61,7 @@ const sourceDataset = (
 ): DirectNumericTileDataset => {
   const sampleType = options.sampleType ?? 'uint16'
   const descriptor = normalizeScientificDatasetDescriptor({
-    schemaVersion: 2,
+    schemaVersion: 1,
     axes: [
       {
         id: 'x',

@@ -9,7 +9,7 @@ release. No release state is changed by this document.
 This candidate adds an opt-in foundation for browser and Node scientific applications while keeping
 the ordinary image pipeline unchanged:
 
-- labeled-axis `ScientificDataset` V2 descriptors and arbitrary-axis bounded plane reads;
+- labeled-axis `ScientificDataset` descriptors and arbitrary-axis bounded plane reads;
 - explicit scientific document readers and caller-owned registries;
 - canonical portable `RasterBlock` reads with one-time native `NumericTile` conversion;
 - JSON-safe operation/value descriptors separated from executable providers;
@@ -35,7 +35,7 @@ XYZCT model and its adapters remain only inside parser compatibility code while 
 migrate; they are not package exports. Reader-opened datasets include structured source,
 reader-version, and dataset identities that analysis planning uses automatically. See the
 [Scientific reader registry](scientific-reader-registry.md#labeled-axis-reads)
-and the [0.10 ScientificDataset V2 migration guide](migration/0.10-scientific-v2.md).
+and the [0.10 ScientificDataset guide](migration/0.10-scientific.md).
 
 Persisted project, lifecycle, reproducibility, and tile-memory guarantees are collected in the
 [application-platform contract index](contracts/README.md).

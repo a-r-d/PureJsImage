@@ -2,15 +2,14 @@ import { describe, expect, it } from 'vitest'
 
 import { rasterSampleBytes } from '../src/raster.ts'
 import {
-  cbfReader,
-  encodeGsf,
-  gsfReader,
-  mrcReader,
   renderScientificPlane,
   ScientificReaderRegistry,
   sliceScientificVolume,
   type ScientificDataset,
 } from '../src/scientific/index.ts'
+import { cbfReader } from '../src/scientific/readers/cbf.ts'
+import { encodeGsf, gsfReader } from '../src/scientific/readers/gsf.ts'
+import { mrcReader } from '../src/scientific/readers/mrc.ts'
 import { openGsf } from '../src/scientific/formats/gsf.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
 import { MemorySource, type ImageSource } from '../src/source.ts'
@@ -309,7 +308,7 @@ describe('first-party scientific reader adapters', () => {
     ).rejects.toMatchObject({ code: 'TRUNCATED_INPUT' })
   })
 
-  it('propagates a V2 plane AbortSignal into an in-flight format source read', async () => {
+  it('propagates a scientific plane AbortSignal into an in-flight format source read', async () => {
     const bytes = mrcFixture(300_000)
     let payloadReadStarted: (() => void) | undefined
     const started = new Promise<void>((resolve) => {
@@ -323,7 +322,7 @@ describe('first-party scientific reader adapters', () => {
         return new Promise<Uint8Array>((_resolve, reject) => {
           const signal = options?.signal
           if (signal === undefined) {
-            reject(new Error('Expected the V2 read AbortSignal at the MRC source'))
+            reject(new Error('Expected the scientific read AbortSignal at the MRC source'))
             return
           }
           signal.addEventListener('abort', () => reject(signal.reason), { once: true })

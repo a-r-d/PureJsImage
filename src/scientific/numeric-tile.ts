@@ -6,7 +6,7 @@ import type {
   NormalizedScientificDatasetDescriptor,
   ScientificDataset,
   ScientificPlaneReadRequest,
-} from './dataset-v2.ts'
+} from './dataset.ts'
 import { validateRasterBlock } from './samples.ts'
 
 export type NumericArray =

@@ -4,9 +4,11 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
 <SiteLayout title="Read CBF X-ray diffraction images in JavaScript | PureJsImage" description="Read common CBF area-detector images with byte-offset compression as native integer photon counts in JavaScript, TypeScript, Node.js, and browsers." canonical="https://purejsimage.com/scientific/cbf/" current="scientific/">
 <main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific detector format</p><h1>Read CBF X-ray diffraction images in JavaScript</h1><p class="page-lede">CBF is the binary form of imgCIF used for X-ray diffraction area-detector frames. PureJsImage reads one common binary subset and preserves detector counts as a quantitative 2D raster.</p></div></header><div class="container docs-layout"><article class="content">
-<h2>Import</h2><pre><code>import &#123; cbfReader, createScientificLibrary, renderScientificPlane &#125; from 'purejsimage/scientific'</code></pre>
-<h2>Node.js example</h2><pre><code>import &#123; cbfReader, createScientificLibrary, renderScientificPlane &#125; from 'purejsimage/scientific'
+<h2>Import</h2><pre><code>import &#123; createScientificLibrary, renderScientificPlane &#125; from 'purejsimage/scientific'
+import &#123; cbfReader &#125; from 'purejsimage/scientific/readers/cbf'</code></pre>
+<h2>Node.js example</h2><pre><code>import &#123; createScientificLibrary, renderScientificPlane &#125; from 'purejsimage/scientific'
 import &#123; createScientificPathContext &#125; from 'purejsimage/scientific/node'
+import &#123; cbfReader &#125; from 'purejsimage/scientific/readers/cbf'
 
 const science = createScientificLibrary(&#123; readers: [cbfReader] &#125;)
 const document = await science.open(await createScientificPathContext('diffraction.cbf'))

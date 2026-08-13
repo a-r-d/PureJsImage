@@ -10,7 +10,7 @@ import type {
 import { prepareOperationRuntime } from '../operations/provider.ts'
 import type { OperationRegistry, ValueTypeRegistry } from '../operations/registry.ts'
 import type { ImageSource } from '../source.ts'
-import type { ScientificDataset } from '../scientific/dataset-v2.ts'
+import type { ScientificDataset } from '../scientific/dataset.ts'
 import type { ScientificDatasetIdentity } from '../scientific/reader.ts'
 import { getScientificDatasetIdentity } from '../scientific/reader.ts'
 import type { SourceIdentity } from '../source-identity.ts'

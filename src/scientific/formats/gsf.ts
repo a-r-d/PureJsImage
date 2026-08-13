@@ -8,7 +8,7 @@ import type {
   PhysicalPixelSize,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from '../dataset.ts'
+} from '../legacy-dataset.ts'
 
 const magic = 'Gwyddion Simple Field 1.0\n'
 const magicBytes = new TextEncoder().encode(magic)

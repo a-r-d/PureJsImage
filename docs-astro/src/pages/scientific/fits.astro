@@ -4,9 +4,11 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
 <SiteLayout title="Read FITS images and data cubes in JavaScript | PureJsImage" description="Inspect FITS HDUs and read primary images or IMAGE extensions, including 1D arrays, 2D FITS images, and 3D FITS data cubes in JavaScript and TypeScript." canonical="https://purejsimage.com/scientific/fits/" current="scientific/">
 <main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific raster format</p><h1>Read FITS images and data cubes in JavaScript</h1><p class="page-lede">The Flexible Image Transport System, or FITS, stores a sequence of Header/Data Units. A FITS file may contain a primary array, IMAGE extensions, tables, or other extensions. PureJsImage exposes the HDU document first so an application can choose a FITS image or FITS data cube explicitly.</p></div></header><div class="container docs-layout"><article class="content">
-<h2>Import</h2><pre><code>import &#123; createScientificLibrary, fitsReader, renderScientificPlane &#125; from 'purejsimage/scientific'</code></pre>
-<h2>Minimal Node.js example</h2><pre><code>import &#123; createScientificLibrary, fitsReader, renderScientificPlane &#125; from 'purejsimage/scientific'
+<h2>Import</h2><pre><code>import &#123; createScientificLibrary, renderScientificPlane &#125; from 'purejsimage/scientific'
+import &#123; fitsReader &#125; from 'purejsimage/scientific/readers/fits'</code></pre>
+<h2>Minimal Node.js example</h2><pre><code>import &#123; createScientificLibrary, renderScientificPlane &#125; from 'purejsimage/scientific'
 import &#123; createScientificPathContext &#125; from 'purejsimage/scientific/node'
+import &#123; fitsReader &#125; from 'purejsimage/scientific/readers/fits'
 
 const science = createScientificLibrary(&#123; readers: [fitsReader] &#125;)
 const document = await science.open(await createScientificPathContext('observation.fits'))
@@ -18,8 +20,9 @@ const display = await renderScientificPlane(dataset, &#123;
   palette: 'magma',
 &#125;)
 for await (const pixels of display.pixels) console.log(pixels.data)</code></pre>
-<h2>Minimal browser example</h2><pre><code>import &#123; createScientificLibrary, fitsReader &#125; from 'purejsimage/scientific'
+<h2>Minimal browser example</h2><pre><code>import &#123; createScientificLibrary &#125; from 'purejsimage/scientific'
 import &#123; createScientificFileContext &#125; from 'purejsimage/scientific/browser'
+import &#123; fitsReader &#125; from 'purejsimage/scientific/readers/fits'
 
 const input = document.querySelector&lt;HTMLInputElement&gt;('#fits')
 const file = input?.files?.[0]

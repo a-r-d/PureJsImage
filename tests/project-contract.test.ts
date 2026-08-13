@@ -22,6 +22,10 @@ import {
 import * as browserPublicApi from '../src/browser.ts'
 import * as pathologyApi from '../src/pathology/index.ts'
 import * as scientificApi from '../src/scientific/index.ts'
+import * as allScientificReaders from '../src/scientific/readers/all.ts'
+import * as enviReaderApi from '../src/scientific/readers/envi.ts'
+import * as gsfReaderApi from '../src/scientific/readers/gsf.ts'
+import * as omeTiffReaderApi from '../src/scientific/readers/ome-tiff.ts'
 import * as httpRangeApi from '../src/sources/http-range.ts'
 import * as tiffApi from '../src/tiff/index.ts'
 import * as publicApi from '../src/index.ts'
@@ -90,11 +94,24 @@ describe('package contract', () => {
       60 * 1024,
     )
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
-      name: 'Core + scientific rasters',
+      name: 'Core + scientific platform',
       contents: expect.stringContaining('./src/scientific/index.ts'),
-      baselineMinifiedBytes: 438_229,
-      maxMinifiedBytes: 570_000,
+      baselineMinifiedBytes: 138_147,
+      maxMinifiedBytes: 180_000,
     })
+    expect(
+      pureJsImageEntryTargets
+        .filter(({ id }) => id.startsWith('scientific-reader'))
+        .map(({ id, maxMinifiedBytes }) => [id, maxMinifiedBytes]),
+    ).toEqual([
+      ['scientific-reader-gsf', 50_000],
+      ['scientific-reader-envi', 75_000],
+      ['scientific-reader-fits', 60_000],
+      ['scientific-reader-mrc', 51_000],
+      ['scientific-reader-cbf', 55_000],
+      ['scientific-reader-ome-tiff', 350_000],
+      ['scientific-readers-all', 440_000],
+    ])
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'operations')).toMatchObject({
       baselineMinifiedBytes: 44_252,
       maxMinifiedBytes: 58_000,
@@ -112,6 +129,18 @@ describe('package contract', () => {
   it('checks packed declarations without Node ambient types', () => {
     expect(packageJson.scripts.check).toContain('npm run package:types')
     expect(packageJson.scripts['package:types']).toBe('node scripts/check-package-types.ts')
+  })
+
+  it('publishes one version-one scientific dataset vocabulary', () => {
+    const scientificIndex = readFileSync('src/scientific/index.ts', 'utf8')
+    const scientificPublic = readFileSync('src/scientific/public.ts', 'utf8')
+    const scientificDataset = readFileSync('src/scientific/dataset.ts', 'utf8')
+
+    for (const publicSource of [scientificIndex, scientificPublic]) {
+      expect(publicSource).not.toMatch(/Labeled[A-Z]|\bV2\b|dataset-v2|public-v2/u)
+    }
+    expect(scientificDataset).toContain('readonly schemaVersion: 1')
+    expect(scientificDataset).not.toContain('readonly schemaVersion: 2')
   })
 
   it('pins benchmark competitors without adding a Canvas library', () => {
@@ -387,6 +416,13 @@ describe('package contract', () => {
       'purejsimage/scientific',
       'purejsimage/scientific/browser',
       'purejsimage/scientific/node',
+      'purejsimage/scientific/readers/all',
+      'purejsimage/scientific/readers/cbf',
+      'purejsimage/scientific/readers/envi',
+      'purejsimage/scientific/readers/fits',
+      'purejsimage/scientific/readers/gsf',
+      'purejsimage/scientific/readers/mrc',
+      'purejsimage/scientific/readers/ome-tiff',
       'purejsimage/operations',
       'purejsimage/analysis',
       'purejsimage/extensions',
@@ -399,14 +435,18 @@ describe('package contract', () => {
     expect(llms).toContain('initial bounded ROI masks, statistics, histograms, line profiles')
     expect(packageJson.exports).toHaveProperty('./scientific/node')
     expect(scientificApi).not.toHaveProperty('openGsf')
-    expect(scientificApi).toHaveProperty('encodeGsf')
+    expect(scientificApi).not.toHaveProperty('encodeGsf')
     expect(scientificApi).not.toHaveProperty('openEnvi')
     expect(scientificApi).not.toHaveProperty('openFits')
     expect(scientificApi).not.toHaveProperty('toScientificDataset')
     expect(scientificApi).not.toHaveProperty('toMultidimensionalRasterDataset')
     expect(scientificApi).toHaveProperty('createScientificLibrary')
-    expect(scientificApi).toHaveProperty('fitsReader')
-    expect(scientificApi).toHaveProperty('enviReader')
+    expect(scientificApi).not.toHaveProperty('fitsReader')
+    expect(scientificApi).not.toHaveProperty('enviReader')
+    expect(gsfReaderApi).toHaveProperty('encodeGsf')
+    expect(enviReaderApi).toHaveProperty('renderEnviClassification')
+    expect(allScientificReaders).toHaveProperty('fitsReader')
+    expect(allScientificReaders).toHaveProperty('enviReader')
     expect(scientificApi).toHaveProperty('measureScientificPlane')
     expect(scientificApi).toHaveProperty('renderScientificPlane')
     expect(scientificApi).toHaveProperty('renderSpectralComposite')
@@ -502,6 +542,13 @@ describe('package contract', () => {
       './scientific',
       './scientific/node',
       './scientific/browser',
+      './scientific/readers/gsf',
+      './scientific/readers/envi',
+      './scientific/readers/fits',
+      './scientific/readers/mrc',
+      './scientific/readers/cbf',
+      './scientific/readers/ome-tiff',
+      './scientific/readers/all',
       './operations',
       './analysis',
       './extensions',
@@ -573,7 +620,8 @@ describe('package contract', () => {
     }
     expect(typeof pathologyApi.openAperioSvs).toBe('function')
     expect('openOmeTiff' in scientificApi).toBe(false)
-    expect(typeof scientificApi.omeTiffReader.open).toBe('function')
+    expect('omeTiffReader' in scientificApi).toBe(false)
+    expect(typeof omeTiffReaderApi.omeTiffReader.open).toBe('function')
     expect(typeof scientificApi.rasterToPixels).toBe('function')
     expect(typeof httpRangeApi.HttpRangeSource.open).toBe('function')
     expect(tiffApi.geoTiffProfile.id).toBe('geotiff')

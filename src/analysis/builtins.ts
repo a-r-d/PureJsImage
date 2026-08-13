@@ -11,7 +11,7 @@ import {
 import type { TileRuntime } from './tile-runtime.ts'
 import { analysisResultValueTypeDefinitions } from './result.ts'
 import { createRoiValueTypeDefinitions, type RoiLimits } from './roi.ts'
-import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset-v2.ts'
+import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset.ts'
 import {
   AnalysisDatasetOperationContext,
   analysisDatasetOperationDefinitions,
@@ -33,7 +33,7 @@ export const scientificDatasetValueTypeDefinition: ValueTypeDefinition = createV
     version: 1,
     title: 'Scientific dataset',
     capabilities: Object.freeze({
-      schemaVersion: 2,
+      schemaVersion: 1,
       storage: 'lazy-raster-blocks-and-native-tiles',
       payloadJsonSafe: false,
       descriptorJsonSafe: true,

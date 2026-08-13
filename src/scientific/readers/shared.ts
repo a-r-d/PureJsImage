@@ -6,11 +6,11 @@ import type {
   ScientificDataset,
   ScientificMetadataObject,
   ScientificPlaneReadRequest,
-} from '../dataset-v2.ts'
+} from '../dataset.ts'
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificMetadataObject,
-} from '../dataset-v2.ts'
+} from '../dataset.ts'
 import type {
   ScientificDocument,
   ScientificOpenContext,

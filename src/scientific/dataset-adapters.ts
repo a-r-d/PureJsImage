@@ -6,7 +6,7 @@ import type {
   PhysicalPixelSize,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from './dataset.ts'
+} from './legacy-dataset.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
   ScientificAxisDescriptor,
@@ -17,11 +17,11 @@ import type {
   ScientificMetadataValue,
   ScientificPlaneReadRequest,
   ScientificResolutionLevel,
-} from './dataset-v2.ts'
+} from './dataset.ts'
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
-} from './dataset-v2.ts'
+} from './dataset.ts'
 
 const xAxisId = 'x'
 const yAxisId = 'y'
@@ -41,7 +41,7 @@ export interface MultidimensionalRasterAdapterOptions {
 
 type ScientificDatasetInput = MultidimensionalRasterDataset | ScientificDataset
 
-export const isLabeledScientificDataset = (
+export const isScientificDataset = (
   dataset: ScientificDatasetInput,
 ): dataset is ScientificDataset => 'descriptor' in dataset
 
@@ -81,7 +81,7 @@ const channelModel = (dataset: MultidimensionalRasterDataset) => {
   for (const channel of dataset.channels) {
     if (channel.samplesPerPixel !== samplesPerPixel) {
       throw unsupportedOperation(
-        'Channels with different samplesPerPixel values cannot be represented by one V2 component set',
+        'Channels with different samplesPerPixel values cannot be represented by one scientific component set',
       )
     }
     totalSamples += positiveDimension(channel.samplesPerPixel, 'Fixed-axis channel samplesPerPixel')
@@ -302,7 +302,7 @@ class FixedAxisScientificDataset implements ScientificDataset {
       }),
     )
     this.descriptor = normalizeScientificDatasetDescriptor({
-      schemaVersion: 2,
+      schemaVersion: 1,
       axes: frozenAxes,
       sampleType: source.sampleType,
       components: components(model.samplesPerPixel, source.channels),
@@ -540,7 +540,7 @@ const sourceMetadata = (
   let value: unknown = descriptor.metadata
   if (container !== undefined) {
     if (Object.keys(descriptor.metadata).length !== 1) {
-      throw unsupportedOperation('Legacy adaptation cannot discard additional V2 metadata')
+      throw unsupportedOperation('Legacy adaptation cannot discard additional scientific metadata')
     }
     if (container === null || typeof container !== 'object' || Array.isArray(container)) {
       throw unsupportedOperation('Legacy compatibility metadata is malformed')

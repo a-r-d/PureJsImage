@@ -4,13 +4,13 @@ import type {
   MultidimensionalRasterDataset,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from '../src/scientific/dataset.ts'
+} from '../src/scientific/legacy-dataset.ts'
 import type {
   ScientificDataset,
   ScientificDatasetDescriptor,
   ScientificPlaneReadRequest,
-} from '../src/scientific/dataset-v2.ts'
-import { normalizeScientificDatasetDescriptor } from '../src/scientific/dataset-v2.ts'
+} from '../src/scientific/dataset.ts'
+import { normalizeScientificDatasetDescriptor } from '../src/scientific/dataset.ts'
 import {
   toMultidimensionalRasterDataset,
   toScientificDataset,
@@ -176,7 +176,7 @@ describe('fixed-axis to labeled-axis adapter', () => {
     })
     expect(toMultidimensionalRasterDataset(adapted)).toBe(source)
 
-    const rehydrated = new LabeledFixture(adapted.descriptor, source.block)
+    const rehydrated = new ScientificFixture(adapted.descriptor, source.block)
     const restored = toMultidimensionalRasterDataset(rehydrated)
     expect({
       dimensionOrder: restored.dimensionOrder,
@@ -280,7 +280,7 @@ describe('fixed-axis to labeled-axis adapter', () => {
   })
 })
 
-class LabeledFixture implements ScientificDataset {
+class ScientificFixture implements ScientificDataset {
   readonly descriptor
   readonly block: RasterBlock
   readonly requests: ScientificPlaneReadRequest[] = []
@@ -300,7 +300,7 @@ class LabeledFixture implements ScientificDataset {
 const xyDescriptor = (
   overrides: Partial<ScientificDatasetDescriptor> = {},
 ): ScientificDatasetDescriptor => ({
-  schemaVersion: 2 as const,
+  schemaVersion: 1 as const,
   axes: [
     {
       id: 'x',
@@ -333,7 +333,7 @@ describe('labeled-axis to fixed-axis adapter', () => {
     const block = blockFixture('float32', 1, false, [63, 128, 0, 0, 64, 0, 0, 0], () => {
       releases += 1
     })
-    const source = new LabeledFixture(
+    const source = new ScientificFixture(
       xyDescriptor({
         metadata: {
           'purejsimage:multidimensional-raster-dataset': {
@@ -368,7 +368,7 @@ describe('labeled-axis to fixed-axis adapter', () => {
   })
 
   it('rejects a 4D-STEM descriptor instead of flattening arbitrary axes', () => {
-    const source = new LabeledFixture(
+    const source = new ScientificFixture(
       xyDescriptor({
         axes: ['scanX', 'scanY', 'kx', 'ky'].map((id) => ({
           id,
@@ -385,7 +385,7 @@ describe('labeled-axis to fixed-axis adapter', () => {
   })
 
   it('rejects multi-component samples and rich metadata that V1 cannot select or preserve', () => {
-    const multiComponent = new LabeledFixture(
+    const multiComponent = new ScientificFixture(
       xyDescriptor({
         components: [
           { id: 'red', kind: 'red' },
@@ -399,7 +399,7 @@ describe('labeled-axis to fixed-axis adapter', () => {
       'cannot select one component',
     )
 
-    const richMetadata = new LabeledFixture(
+    const richMetadata = new ScientificFixture(
       xyDescriptor({ metadata: { acquisition: { exposure: 5 } } }),
       blockFixture('float32', 1, false, new Array<number>(8).fill(0)),
     )

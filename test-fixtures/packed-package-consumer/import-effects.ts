@@ -36,6 +36,7 @@ await Promise.all([
   import('purejsimage/browser'),
   import('purejsimage/scientific'),
   import('purejsimage/scientific/node'),
+  import('purejsimage/scientific/readers/all'),
   import('purejsimage/operations'),
   import('purejsimage/analysis'),
   import('purejsimage/extensions'),

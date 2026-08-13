@@ -27,7 +27,7 @@ import {
 import { trustedPointwiseExtension } from '../examples/analysis-trusted-extension/index.ts'
 
 const descriptor = normalizeScientificDatasetDescriptor({
-  schemaVersion: 2,
+  schemaVersion: 1,
   axes: [
     {
       id: 'x',

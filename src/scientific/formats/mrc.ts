@@ -14,7 +14,7 @@ import type {
   PhysicalPixelSize,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from '../dataset.ts'
+} from '../legacy-dataset.ts'
 
 const headerBytes = 1_024
 

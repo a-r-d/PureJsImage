@@ -1,6 +1,7 @@
 import { createAnalysisController, createTileRuntime } from 'purejsimage/analysis'
 import { createExtensionHost } from 'purejsimage/extensions'
-import { createScientificLibrary, gsfReader } from 'purejsimage/scientific'
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { gsfReader } from 'purejsimage/scientific/readers/gsf'
 import { HttpRangeSource } from 'purejsimage/sources/http-range'
 
 const capabilities = Object.freeze({

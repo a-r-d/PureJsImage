@@ -1,7 +1,8 @@
 import { throwIfAborted } from '../../abort.ts'
-import { normalizeScientificMetadataObject } from '../dataset-v2.ts'
+import { normalizeScientificMetadataObject } from '../dataset.ts'
 import { toScientificDataset } from '../dataset-adapters.ts'
 import { openGsf } from '../formats/gsf.ts'
+export { encodeGsf, type GsfWriteOptions } from '../formats/gsf.ts'
 import type {
   ScientificOpenContext,
   ScientificReader,

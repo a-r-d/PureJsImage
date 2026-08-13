@@ -4,20 +4,20 @@ import type {
   MultidimensionalRasterDataset,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from '../src/scientific/dataset.ts'
+} from '../src/scientific/legacy-dataset.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
   ScientificDataset,
   ScientificPlaneReadRequest,
-} from '../src/scientific/dataset-v2.ts'
+} from '../src/scientific/dataset.ts'
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
-} from '../src/scientific/dataset-v2.ts'
+} from '../src/scientific/dataset.ts'
 import { readRasterSample, writeRasterSample } from '../src/scientific/samples.ts'
 import { projectScientificVolume, sliceScientificVolume } from '../src/scientific/volume.ts'
 
-class VolumeDataset implements MultidimensionalRasterDataset {
+class LegacyVolumeDataset implements MultidimensionalRasterDataset {
   readonly sizeX: number
   readonly sizeY: number
   readonly sizeZ: number
@@ -100,13 +100,13 @@ const collect = async (dataset: MultidimensionalRasterDataset): Promise<number[]
   return values
 }
 
-class LabeledVolumeDataset implements ScientificDataset {
+class ArbitraryAxisVolumeDataset implements ScientificDataset {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly requests: ScientificPlaneReadRequest[] = []
 
   constructor() {
     this.descriptor = normalizeScientificDatasetDescriptor({
-      schemaVersion: 2,
+      schemaVersion: 1,
       axes: [
         {
           id: 'scanX',
@@ -155,7 +155,7 @@ class LabeledVolumeDataset implements ScientificDataset {
   }
 }
 
-const collectLabeled = async (dataset: ScientificDataset): Promise<number[]> => {
+const collectScientific = async (dataset: ScientificDataset): Promise<number[]> => {
   const values: number[] = []
   for await (const block of dataset.readPlane({
     displayAxes: ['scanX', 'scanY'],
@@ -171,7 +171,7 @@ const collectLabeled = async (dataset: ScientificDataset): Promise<number[]> => 
 
 describe('generic scientific volume operations', () => {
   it('preserves labeled display-axis calibration and projects an explicit reduction axis', async () => {
-    const source = new LabeledVolumeDataset()
+    const source = new ArbitraryAxisVolumeDataset()
     const slice = sliceScientificVolume(source, {
       displayAxes: ['scanX', 'scanY'],
       fixedIndices: [{ axisId: 'energy', index: 2 }],
@@ -200,12 +200,12 @@ describe('generic scientific volume operations', () => {
       mode: 'mean',
       rowsPerBlock: 1,
     })
-    expect(await collectLabeled(mean)).toEqual([10, 11, 12, 13])
+    expect(await collectScientific(mean)).toEqual([10, 11, 12, 13])
     expect(source.requests.every((request) => request.height === 1)).toBe(true)
   })
 
   it('extracts XY, XZ, and YZ slices with logical spacing and bounded source regions', async () => {
-    const source = new VolumeDataset(3, 2, 2, [0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15])
+    const source = new LegacyVolumeDataset(3, 2, 2, [0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15])
     const xy = sliceScientificVolume(source, { axis: 'xy', index: 1 })
     const xz = sliceScientificVolume(source, { axis: 'xz', index: 1 })
     const yz = sliceScientificVolume(source, { axis: 'yz', index: 2 })
@@ -231,7 +231,13 @@ describe('generic scientific volume operations', () => {
   })
 
   it('computes max, min, and float64 mean Z projections in output-row blocks', async () => {
-    const source = new VolumeDataset(3, 2, 2, [0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15], 'int16')
+    const source = new LegacyVolumeDataset(
+      3,
+      2,
+      2,
+      [0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15],
+      'int16',
+    )
     const maximum = projectScientificVolume(source, { mode: 'max', rowsPerBlock: 1 })
     const minimum = projectScientificVolume(source, { mode: 'min', rowsPerBlock: 1 })
     const mean = projectScientificVolume(source, { mode: 'mean', rowsPerBlock: 1 })
@@ -245,7 +251,7 @@ describe('generic scientific volume operations', () => {
   })
 
   it('ignores NaN, infinity, and no-data values and emits NaN with no valid sample', async () => {
-    const source = new VolumeDataset(
+    const source = new LegacyVolumeDataset(
       2,
       1,
       3,
@@ -262,7 +268,7 @@ describe('generic scientific volume operations', () => {
   })
 
   it('supports degenerate 1x1x1 volumes and rejects invalid coordinates', async () => {
-    const source = new VolumeDataset(1, 1, 1, [42])
+    const source = new LegacyVolumeDataset(1, 1, 1, [42])
     expect(await collect(sliceScientificVolume(source, { axis: 'yz', index: 0 }))).toEqual([42])
     expect(await collect(projectScientificVolume(source, { mode: 'mean' }))).toEqual([42])
     expect(() => sliceScientificVolume(source, { axis: 'xz', index: 1 })).toThrowError(

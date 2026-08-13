@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { RasterSampleType } from '../src/raster.ts'
 import { openFits } from '../src/scientific/formats/fits.ts'
-import { fitsReader, ScientificReaderRegistry } from '../src/scientific/index.ts'
+import { ScientificReaderRegistry } from '../src/scientific/index.ts'
+import { fitsReader } from '../src/scientific/readers/fits.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
 import { MemorySource, type ImageSource } from '../src/source.ts'
 
@@ -282,7 +283,7 @@ describe('FITS scientific image arrays', () => {
     expect(source.reads.every(({ length }) => length < bytes.byteLength)).toBe(true)
   })
 
-  it('enumerates image HDUs and preserves arbitrary FITS rank in V2', async () => {
+  it('enumerates image HDUs and preserves arbitrary FITS rank in ScientificDataset', async () => {
     const values = Array.from({ length: 2 * 2 * 2 * 2 }, (_, index) => index)
     const bytes = documentBytes({
       primary: true,
@@ -333,7 +334,7 @@ describe('FITS scientific image arrays', () => {
       blocks.push(block)
     }
     const block = blocks[0]
-    if (block === undefined) throw new Error('FITS V2 block is missing')
+    if (block === undefined) throw new Error('FITS scientific block is missing')
     const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
     expect([0, 2, 4, 6].map((offset) => view.getInt16(offset, false))).toEqual([12, 13, 14, 15])
 

@@ -30,7 +30,7 @@ const expectedValue = 7
 const tolerance = 1e-5
 
 const descriptor = normalizeScientificDatasetDescriptor({
-  schemaVersion: 2,
+  schemaVersion: 1,
   axes: [
     { id: 'x', kind: 'space', length: width, coordinates: { type: 'index' } },
     { id: 'y', kind: 'space', length: height, coordinates: { type: 'index' } },

@@ -22,7 +22,7 @@ import {
 import { normalizeScientificDatasetDescriptor } from '../src/scientific/index.ts'
 
 const descriptor = normalizeScientificDatasetDescriptor({
-  schemaVersion: 2,
+  schemaVersion: 1,
   axes: [
     { id: 'x', kind: 'space', length: 8, coordinates: { type: 'index' } },
     { id: 'y', kind: 'space', length: 6, coordinates: { type: 'index' } },

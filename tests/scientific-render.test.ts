@@ -5,17 +5,17 @@ import type {
   MultidimensionalRasterDataset,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from '../src/scientific/dataset.ts'
+} from '../src/scientific/legacy-dataset.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
   ScientificAxisDescriptor,
   ScientificDataset,
   ScientificPlaneReadRequest,
-} from '../src/scientific/dataset-v2.ts'
+} from '../src/scientific/dataset.ts'
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
-} from '../src/scientific/dataset-v2.ts'
+} from '../src/scientific/dataset.ts'
 import { measureScientificPlane, renderScientificPlane } from '../src/scientific/render.ts'
 import {
   bandRatio,
@@ -96,13 +96,13 @@ class SyntheticDataset implements MultidimensionalRasterDataset {
   }
 }
 
-class LabeledPlaneDataset implements ScientificDataset {
+class PlaneDataset implements ScientificDataset {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly requests: ScientificPlaneReadRequest[] = []
 
   constructor(axes: readonly ScientificAxisDescriptor[]) {
     this.descriptor = normalizeScientificDatasetDescriptor({
-      schemaVersion: 2,
+      schemaVersion: 1,
       axes,
       sampleType: 'float32',
       components: [{ id: 'value', kind: 'scalar', unit: 'counts' }],
@@ -140,9 +140,9 @@ const labeledAxis = (
   length: number,
 ): ScientificAxisDescriptor => ({ id, kind, length, coordinates: { type: 'index' } })
 
-class LabeledSpectralDataset implements ScientificDataset {
+class SpectralDataset implements ScientificDataset {
   readonly descriptor = normalizeScientificDatasetDescriptor({
-    schemaVersion: 2,
+    schemaVersion: 1,
     axes: [
       labeledAxis('x', 'space', 2),
       labeledAxis('y', 'space', 1),
@@ -314,7 +314,7 @@ describe('scientific display mapping', () => {
       },
     ]
     for (const fixture of cases) {
-      const dataset = new LabeledPlaneDataset(fixture.axes)
+      const dataset = new PlaneDataset(fixture.axes)
       const plane = { displayAxes: fixture.displayAxes, fixedIndices: fixture.fixedIndices }
       const measurement = await measureScientificPlane(dataset, {
         plane,
@@ -452,7 +452,7 @@ describe('scientific display mapping', () => {
 
 describe('hyperspectral helpers', () => {
   it('selects, renders, integrates, and ratios an explicit labeled spectral axis', async () => {
-    const source = new LabeledSpectralDataset()
+    const source = new SpectralDataset()
     expect(nearestSpectralChannel(source, 535, 'energy')).toEqual({
       requested: 535,
       channel: 1,

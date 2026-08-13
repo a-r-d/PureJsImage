@@ -19,7 +19,7 @@ const planeWidth = 1_024
 const planeHeight = 1_024
 const tileSize = 256
 const descriptor = normalizeScientificDatasetDescriptor({
-  schemaVersion: 2,
+  schemaVersion: 1,
   axes: [
     { id: 'x', kind: 'space', length: planeWidth, coordinates: { type: 'index' } },
     { id: 'y', kind: 'space', length: planeHeight, coordinates: { type: 'index' } },

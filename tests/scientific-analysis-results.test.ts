@@ -9,7 +9,8 @@ import type { RasterBlock } from '../src/raster.ts'
 import type {
   MultidimensionalRasterDataset,
   RasterPlaneRequest,
-} from '../src/scientific/dataset.ts'
+} from '../src/scientific/legacy-dataset.ts'
+import { toScientificDataset } from '../src/scientific/dataset-adapters.ts'
 
 class CountingDataset implements MultidimensionalRasterDataset {
   readonly sizeX: number
@@ -55,10 +56,10 @@ const entry = (collection: ResultCollection, name: string) =>
   collection.results.find((candidate) => candidate.name === name)?.result
 
 describe('scientific measurement result adapter', () => {
-  it('returns legacy and generic semantics from one measurement execution', async () => {
-    const dataset = new CountingDataset([1, 2, 3, 4, Number.NaN, -9_999])
-    const analysis = await measureScientificPlaneWithResults(dataset, {
-      plane: { z: 0, c: 0, t: 0 },
+  it('returns measurement and result semantics from one execution', async () => {
+    const source = new CountingDataset([1, 2, 3, 4, Number.NaN, -9_999])
+    const analysis = await measureScientificPlaneWithResults(toScientificDataset(source), {
+      plane: { displayAxes: ['x', 'y'], fixedIndices: [] },
       range: { mode: 'explicit', min: 1, max: 5 },
       statistics: {
         mean: true,
@@ -70,8 +71,8 @@ describe('scientific measurement result adapter', () => {
       },
     })
 
-    expect(dataset.reads).toHaveBeenCalledTimes(1)
-    expect(dataset.releases).toHaveBeenCalledTimes(1)
+    expect(source.reads).toHaveBeenCalledTimes(1)
+    expect(source.releases).toHaveBeenCalledTimes(1)
     expect(analysis.measurement).toMatchObject({
       mean: 2.5,
       invalidSamples: 2,
@@ -100,29 +101,28 @@ describe('scientific measurement result adapter', () => {
   })
 
   it('adapts a measurement without source access and allows an explicit unit override', async () => {
-    const dataset = new CountingDataset([2, 4])
-    const analysis = await measureScientificPlaneWithResults(dataset, {
-      plane: { z: 0, c: 0, t: 0 },
+    const source = new CountingDataset([2, 4])
+    const analysis = await measureScientificPlaneWithResults(toScientificDataset(source), {
+      plane: { displayAxes: ['x', 'y'], fixedIndices: [] },
       range: { mode: 'dataset' },
     })
-    const reads = dataset.reads.mock.calls.length
+    const reads = source.reads.mock.calls.length
     const adapted = scientificPlaneMeasurementToResult(analysis.measurement, { unit: 'counts' })
-    expect(dataset.reads).toHaveBeenCalledTimes(reads)
+    expect(source.reads).toHaveBeenCalledTimes(reads)
     expect(entry(adapted, 'rangeMinimum')).toMatchObject({ value: 2, unit: 'counts' })
   })
 
-  it('propagates cancellation before legacy source work begins', async () => {
-    const dataset = new CountingDataset([1, 2, 3])
+  it('propagates cancellation before source work begins', async () => {
+    const source = new CountingDataset([1, 2, 3])
     const controller = new AbortController()
     controller.abort(new Error('cancelled'))
     await expect(
-      measureScientificPlaneWithResults(dataset, {
-        plane: { z: 0, c: 0, t: 0 },
+      measureScientificPlaneWithResults(toScientificDataset(source), {
+        plane: { displayAxes: ['x', 'y'], fixedIndices: [], signal: controller.signal },
         range: { mode: 'dataset' },
-        signal: controller.signal,
       }),
     ).rejects.toThrow('cancelled')
-    expect(dataset.reads).not.toHaveBeenCalled()
-    expect(dataset.releases).not.toHaveBeenCalled()
+    expect(source.reads).not.toHaveBeenCalled()
+    expect(source.releases).not.toHaveBeenCalled()
   })
 })

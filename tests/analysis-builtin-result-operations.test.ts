@@ -32,7 +32,7 @@ interface Tracking {
 
 const dataset = (tracking: Tracking): DirectNumericTileDataset => {
   const descriptor = normalizeScientificDatasetDescriptor({
-    schemaVersion: 2,
+    schemaVersion: 1,
     axes: [
       {
         id: 'x',
@@ -116,7 +116,7 @@ const dataset = (tracking: Tracking): DirectNumericTileDataset => {
 
 const uint64Dataset = (value: bigint, tracking: Tracking): DirectNumericTileDataset => {
   const descriptor = normalizeScientificDatasetDescriptor({
-    schemaVersion: 2,
+    schemaVersion: 1,
     axes: [
       { id: 'x', kind: 'space', length: 1, coordinates: { type: 'index' } },
       { id: 'y', kind: 'space', length: 1, coordinates: { type: 'index' } },

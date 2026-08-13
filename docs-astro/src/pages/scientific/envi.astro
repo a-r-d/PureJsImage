@@ -4,9 +4,11 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
 <SiteLayout title="Read ENVI rasters in JavaScript | PureJsImage" description="Open ENVI Standard hyperspectral cubes and ENVI Classification maps with bounded BSQ, BIL, and BIP reads in JavaScript, TypeScript, Node.js, and browsers." canonical="https://purejsimage.com/scientific/envi/" current="scientific/">
 <main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific raster format</p><h1>Read ENVI rasters in JavaScript</h1><p class="page-lede">ENVI stores a small text <code>.hdr</code> file beside a binary raster. PureJsImage opens ENVI Standard hyperspectral data and ENVI Classification class maps while preserving native numeric samples and declared metadata.</p></div></header><div class="container docs-layout"><article class="content">
-<h2>Import</h2><pre><code>import &#123; createScientificLibrary, enviReader, renderSpectralBand &#125; from 'purejsimage/scientific'</code></pre>
-<h2>Minimal Node.js example</h2><pre><code>import &#123; createScientificLibrary, enviReader, renderSpectralBand &#125; from 'purejsimage/scientific'
+<h2>Import</h2><pre><code>import &#123; createScientificLibrary, renderSpectralBand &#125; from 'purejsimage/scientific'
+import &#123; enviReader &#125; from 'purejsimage/scientific/readers/envi'</code></pre>
+<h2>Minimal Node.js example</h2><pre><code>import &#123; createScientificLibrary, renderSpectralBand &#125; from 'purejsimage/scientific'
 import &#123; createScientificPathContext &#125; from 'purejsimage/scientific/node'
+import &#123; enviReader &#125; from 'purejsimage/scientific/readers/envi'
 
 const science = createScientificLibrary(&#123; readers: [enviReader] &#125;)
 const document = await science.open(await createScientificPathContext('scene.hdr'))
@@ -19,8 +21,9 @@ const display = await renderSpectralBand(dataset, &#123;
   palette: 'viridis',
 &#125;)
 for await (const pixels of display.image.pixels) console.log(pixels.width, pixels.height)</code></pre>
-<h2>Minimal browser example</h2><pre><code>import &#123; createScientificLibrary, enviReader &#125; from 'purejsimage/scientific'
+<h2>Minimal browser example</h2><pre><code>import &#123; createScientificLibrary &#125; from 'purejsimage/scientific'
 import &#123; createScientificFileContext &#125; from 'purejsimage/scientific/browser'
+import &#123; enviReader &#125; from 'purejsimage/scientific/readers/envi'
 
 const headerInput = document.querySelector&lt;HTMLInputElement&gt;('#header')
 const binaryInput = document.querySelector&lt;HTMLInputElement&gt;('#binary')

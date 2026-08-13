@@ -20,8 +20,8 @@ import type {
   NormalizedScientificDatasetDescriptor,
   ScientificAxisIndex,
   ScientificDataset,
-} from '../scientific/dataset-v2.ts'
-import { normalizeScientificDatasetDescriptor } from '../scientific/dataset-v2.ts'
+} from '../scientific/dataset.ts'
+import { normalizeScientificDatasetDescriptor } from '../scientific/dataset.ts'
 import type { NumericTile } from '../scientific/numeric-tile.ts'
 import { numericTileSampleOffset } from '../scientific/numeric-tile.ts'
 import type { AnalysisDatasetOperationContext } from './builtin-dataset-operations.ts'

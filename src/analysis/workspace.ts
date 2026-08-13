@@ -1,6 +1,6 @@
 import type { OperationJsonObject, OperationJsonValue } from '../operations/descriptor.ts'
 import { normalizeOperationJsonValue } from '../operations/descriptor.ts'
-import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset-v2.ts'
+import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset.ts'
 import type {
   AnalysisGraph,
   AnalysisGraphInput,

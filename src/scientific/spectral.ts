@@ -6,17 +6,17 @@ import type {
   PhysicalPixelSize,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from './dataset.ts'
-import { isLabeledScientificDataset } from './dataset-adapters.ts'
+} from './legacy-dataset.ts'
+import { isScientificDataset } from './dataset-adapters.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
   ScientificDataset,
   ScientificPlaneReadRequest,
-} from './dataset-v2.ts'
+} from './dataset.ts'
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
-} from './dataset-v2.ts'
+} from './dataset.ts'
 import type { NumericArray, NumericTile, NumericTileSource } from './numeric-tile.ts'
 import {
   rasterBlockToNumericTile,
@@ -24,11 +24,11 @@ import {
   validateNumericTile,
 } from './numeric-tile.ts'
 import {
-  type LabeledScientificPlaneRenderOptions,
-  type LabeledScientificRenderedPlane,
-  renderScientificPlane,
   type ScientificPlaneRenderOptions,
   type ScientificRenderedPlane,
+  renderScientificPlane,
+  type LegacyScientificPlaneRenderOptions,
+  type LegacyScientificRenderedPlane,
 } from './render.ts'
 
 type NumberNumericArray = Exclude<NumericArray, BigUint64Array>
@@ -80,7 +80,7 @@ const spectralChannels = (dataset: MultidimensionalRasterDataset): readonly Spec
   return channels
 }
 
-const labeledSpectralChannels = (
+const scientificSpectralChannels = (
   dataset: ScientificDataset,
   axisId: string,
 ): readonly SpectralChannel[] => {
@@ -134,11 +134,11 @@ export function nearestSpectralChannel(
 ): SpectralChannelSelection {
   if (!Number.isFinite(wavelength)) throw invalidInput('Requested wavelength must be finite')
   let channels: readonly SpectralChannel[]
-  if (isLabeledScientificDataset(dataset)) {
+  if (isScientificDataset(dataset)) {
     if (axisId === undefined) {
       throw invalidInput('Labeled spectral selection requires an explicit axis id')
     }
-    channels = labeledSpectralChannels(dataset, axisId)
+    channels = scientificSpectralChannels(dataset, axisId)
   } else {
     channels = spectralChannels(dataset)
   }
@@ -162,17 +162,22 @@ export function nearestSpectralChannel(
   })
 }
 
-export interface SpectralBandRenderOptions extends Omit<ScientificPlaneRenderOptions, 'plane'> {
+export interface LegacySpectralBandRenderOptions
+  extends Omit<LegacyScientificPlaneRenderOptions, 'plane'> {
   readonly wavelength: number
   readonly z?: number
   readonly t?: number
 }
 
-export interface LabeledSpectralBandRenderOptions
-  extends Omit<LabeledScientificPlaneRenderOptions, 'plane'> {
+export interface SpectralBandRenderOptions extends Omit<ScientificPlaneRenderOptions, 'plane'> {
   readonly wavelength: number
   readonly spectralAxis: string
-  readonly plane: LabeledScientificPlaneRenderOptions['plane']
+  readonly plane: ScientificPlaneRenderOptions['plane']
+}
+
+export interface LegacySpectralBandRenderResult {
+  readonly selection: SpectralChannelSelection
+  readonly image: LegacyScientificRenderedPlane
 }
 
 export interface SpectralBandRenderResult {
@@ -180,21 +185,16 @@ export interface SpectralBandRenderResult {
   readonly image: ScientificRenderedPlane
 }
 
-export interface LabeledSpectralBandRenderResult {
-  readonly selection: SpectralChannelSelection
-  readonly image: LabeledScientificRenderedPlane
-}
-
 /**
  * Selects a real channel by wavelength and explicitly renders it for display.
  * Dataset or percentile ranges may scan the selected native band before pixels
  * are consumed; pass an explicit measured range to avoid that scan.
  */
-const withLabeledAxisIndex = (
-  plane: LabeledScientificPlaneRenderOptions['plane'],
+const withScientificAxisIndex = (
+  plane: ScientificPlaneRenderOptions['plane'],
   axisId: string,
   index: number,
-): LabeledScientificPlaneRenderOptions['plane'] =>
+): ScientificPlaneRenderOptions['plane'] =>
   Object.freeze({
     ...plane,
     fixedIndices: Object.freeze([
@@ -205,17 +205,17 @@ const withLabeledAxisIndex = (
 
 export function renderSpectralBand(
   dataset: MultidimensionalRasterDataset,
-  options: Readonly<SpectralBandRenderOptions>,
-): Promise<SpectralBandRenderResult>
+  options: Readonly<LegacySpectralBandRenderOptions>,
+): Promise<LegacySpectralBandRenderResult>
 export function renderSpectralBand(
   dataset: ScientificDataset,
-  options: Readonly<LabeledSpectralBandRenderOptions>,
-): Promise<LabeledSpectralBandRenderResult>
+  options: Readonly<SpectralBandRenderOptions>,
+): Promise<SpectralBandRenderResult>
 export async function renderSpectralBand(
   dataset: MultidimensionalRasterDataset | ScientificDataset,
-  options: Readonly<SpectralBandRenderOptions | LabeledSpectralBandRenderOptions>,
-): Promise<SpectralBandRenderResult | LabeledSpectralBandRenderResult> {
-  if (isLabeledScientificDataset(dataset)) {
+  options: Readonly<LegacySpectralBandRenderOptions | SpectralBandRenderOptions>,
+): Promise<LegacySpectralBandRenderResult | SpectralBandRenderResult> {
+  if (isScientificDataset(dataset)) {
     if (!('spectralAxis' in options)) {
       throw invalidInput('Labeled spectral rendering requires an explicit spectralAxis')
     }
@@ -223,7 +223,7 @@ export async function renderSpectralBand(
     const { wavelength: _wavelength, spectralAxis, plane, ...renderOptions } = options
     const image = await renderScientificPlane(dataset, {
       ...renderOptions,
-      plane: withLabeledAxisIndex(plane, spectralAxis, selection.channel),
+      plane: withScientificAxisIndex(plane, spectralAxis, selection.channel),
     })
     return Object.freeze({ selection, image })
   }
@@ -239,8 +239,8 @@ export async function renderSpectralBand(
   return Object.freeze({ selection, image })
 }
 
-export interface SpectralCompositeRenderOptions
-  extends Omit<ScientificPlaneRenderOptions, 'palette' | 'plane'> {
+export interface LegacySpectralCompositeRenderOptions
+  extends Omit<LegacyScientificPlaneRenderOptions, 'palette' | 'plane'> {
   readonly red: number
   readonly green: number
   readonly blue: number
@@ -248,13 +248,13 @@ export interface SpectralCompositeRenderOptions
   readonly t?: number
 }
 
-export interface LabeledSpectralCompositeRenderOptions
-  extends Omit<LabeledScientificPlaneRenderOptions, 'palette' | 'plane'> {
+export interface SpectralCompositeRenderOptions
+  extends Omit<ScientificPlaneRenderOptions, 'palette' | 'plane'> {
   readonly red: number
   readonly green: number
   readonly blue: number
   readonly spectralAxis: string
-  readonly plane: LabeledScientificPlaneRenderOptions['plane']
+  readonly plane: ScientificPlaneRenderOptions['plane']
 }
 
 export interface SpectralCompositeRenderResult {
@@ -266,9 +266,9 @@ export interface SpectralCompositeRenderResult {
   readonly x: number
   readonly y: number
   readonly ranges: readonly [
-    ScientificRenderedPlane['range'],
-    ScientificRenderedPlane['range'],
-    ScientificRenderedPlane['range'],
+    LegacyScientificRenderedPlane['range'],
+    LegacyScientificRenderedPlane['range'],
+    LegacyScientificRenderedPlane['range'],
   ]
   readonly pixels: AsyncIterable<PixelBlock>
 }
@@ -330,17 +330,17 @@ const compositePixels = async function* (
  */
 export function renderSpectralComposite(
   dataset: MultidimensionalRasterDataset,
-  options: Readonly<SpectralCompositeRenderOptions>,
+  options: Readonly<LegacySpectralCompositeRenderOptions>,
 ): Promise<SpectralCompositeRenderResult>
 export function renderSpectralComposite(
   dataset: ScientificDataset,
-  options: Readonly<LabeledSpectralCompositeRenderOptions>,
+  options: Readonly<SpectralCompositeRenderOptions>,
 ): Promise<SpectralCompositeRenderResult>
 export async function renderSpectralComposite(
   dataset: MultidimensionalRasterDataset | ScientificDataset,
-  options: Readonly<SpectralCompositeRenderOptions | LabeledSpectralCompositeRenderOptions>,
+  options: Readonly<LegacySpectralCompositeRenderOptions | SpectralCompositeRenderOptions>,
 ): Promise<SpectralCompositeRenderResult> {
-  if (isLabeledScientificDataset(dataset)) {
+  if (isScientificDataset(dataset)) {
     if (!('spectralAxis' in options)) {
       throw invalidInput('Labeled spectral composite requires an explicit spectralAxis')
     }
@@ -352,7 +352,7 @@ export async function renderSpectralComposite(
       renderScientificPlane(dataset, {
         ...renderOptions,
         palette: 'grayscale',
-        plane: withLabeledAxisIndex(plane, spectralAxis, channel),
+        plane: withScientificAxisIndex(plane, spectralAxis, channel),
       })
     const redImage = await renderBand(red.channel)
     const greenImage = await renderBand(green.channel)
@@ -421,11 +421,11 @@ type DerivedOperation =
       readonly denominator: SpectralChannelSelection
     }
 
-export interface SpectralDerivedDataset extends MultidimensionalRasterDataset {
+export interface LegacySpectralDerivedDataset extends MultidimensionalRasterDataset {
   readonly sourceChannels: readonly number[]
 }
 
-export interface LabeledSpectralDerivedDataset extends ScientificDataset {
+export interface SpectralDerivedDataset extends ScientificDataset {
   readonly sourceIndices: readonly number[]
   readonly spectralAxis: string
 }
@@ -463,7 +463,7 @@ const derivedValue = (operation: DerivedOperation, values: Float64Array): number
   return integrated
 }
 
-class DerivedSpectralDataset implements SpectralDerivedDataset {
+class DerivedSpectralDataset implements LegacySpectralDerivedDataset {
   readonly sizeX: number
   readonly sizeY: number
   readonly sizeZ: number
@@ -575,7 +575,7 @@ const tileValues = (tile: NumericTile, noDataValue: number | undefined): Float64
   return output
 }
 
-const readLabeledSpectralRegion = async (
+const readScientificSpectralRegion = async (
   dataset: ScientificDataset,
   request: Readonly<ScientificPlaneReadRequest>,
 ): Promise<Float64Array> => {
@@ -606,7 +606,7 @@ const readLabeledSpectralRegion = async (
   return output
 }
 
-class DerivedLabeledSpectralDataset implements LabeledSpectralDerivedDataset {
+class DerivedScientificSpectralDataset implements SpectralDerivedDataset {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly sourceIndices: readonly number[]
   readonly spectralAxis: string
@@ -637,7 +637,7 @@ class DerivedLabeledSpectralDataset implements LabeledSpectralDerivedDataset {
     this.spectralAxis = spectralAxis
     this.sourceIndices = Object.freeze([...sourceIndices])
     this.descriptor = normalizeScientificDatasetDescriptor({
-      schemaVersion: 2,
+      schemaVersion: 1,
       axes,
       sampleType: 'float64',
       components: [{ id: 'value', name, kind: 'scalar' }],
@@ -692,7 +692,7 @@ class DerivedLabeledSpectralDataset implements LabeledSpectralDerivedDataset {
           const sourceIndex = this.sourceIndices[index]
           if (sourceIndex === undefined) continue
           sourceValues.push(
-            await readLabeledSpectralRegion(this.#source, {
+            await readScientificSpectralRegion(this.#source, {
               displayAxes: normalized.displayAxes,
               fixedIndices: [
                 ...normalized.fixedIndices,
@@ -737,36 +737,36 @@ class DerivedLabeledSpectralDataset implements LabeledSpectralDerivedDataset {
   }
 }
 
-export interface SpectralRangeOptions {
+export interface LegacySpectralRangeOptions {
   readonly from: number
   readonly to: number
 }
 
-export interface LabeledSpectralRangeOptions extends SpectralRangeOptions {
+export interface SpectralRangeOptions extends LegacySpectralRangeOptions {
   readonly spectralAxis: string
 }
 
 export function integrateSpectralRange(
   dataset: MultidimensionalRasterDataset,
+  options: Readonly<LegacySpectralRangeOptions>,
+): LegacySpectralDerivedDataset
+export function integrateSpectralRange(
+  dataset: ScientificDataset,
   options: Readonly<SpectralRangeOptions>,
 ): SpectralDerivedDataset
 export function integrateSpectralRange(
-  dataset: ScientificDataset,
-  options: Readonly<LabeledSpectralRangeOptions>,
-): LabeledSpectralDerivedDataset
-export function integrateSpectralRange(
   dataset: MultidimensionalRasterDataset | ScientificDataset,
-  options: Readonly<SpectralRangeOptions | LabeledSpectralRangeOptions>,
-): SpectralDerivedDataset | LabeledSpectralDerivedDataset {
+  options: Readonly<LegacySpectralRangeOptions | SpectralRangeOptions>,
+): LegacySpectralDerivedDataset | SpectralDerivedDataset {
   if (!Number.isFinite(options.from) || !Number.isFinite(options.to) || options.from > options.to) {
     throw invalidInput('Spectral integration range requires finite from <= to')
   }
   let allChannels: readonly SpectralChannel[]
-  if (isLabeledScientificDataset(dataset)) {
+  if (isScientificDataset(dataset)) {
     if (!('spectralAxis' in options)) {
       throw invalidInput('Labeled spectral integration requires spectralAxis')
     }
-    allChannels = labeledSpectralChannels(dataset, options.spectralAxis)
+    allChannels = scientificSpectralChannels(dataset, options.spectralAxis)
   } else {
     allChannels = spectralChannels(dataset)
   }
@@ -774,11 +774,11 @@ export function integrateSpectralRange(
     .filter(({ center }) => center >= options.from && center <= options.to)
     .sort((left, right) => left.center - right.center)
   if (channels.length === 0) throw invalidInput('Spectral integration range contains no channels')
-  if (isLabeledScientificDataset(dataset)) {
+  if (isScientificDataset(dataset)) {
     if (!('spectralAxis' in options)) {
       throw invalidInput('Labeled spectral integration requires spectralAxis')
     }
-    return new DerivedLabeledSpectralDataset(
+    return new DerivedScientificSpectralDataset(
       dataset,
       options.spectralAxis,
       { kind: 'integrate', channels },
@@ -794,34 +794,34 @@ export function integrateSpectralRange(
   )
 }
 
-export interface BandRatioOptions {
+export interface LegacyBandRatioOptions {
   readonly numerator: number
   readonly denominator: number
 }
 
-export interface LabeledBandRatioOptions extends BandRatioOptions {
+export interface BandRatioOptions extends LegacyBandRatioOptions {
   readonly spectralAxis: string
 }
 
 export function bandRatio(
   dataset: MultidimensionalRasterDataset,
+  options: Readonly<LegacyBandRatioOptions>,
+): LegacySpectralDerivedDataset
+export function bandRatio(
+  dataset: ScientificDataset,
   options: Readonly<BandRatioOptions>,
 ): SpectralDerivedDataset
 export function bandRatio(
-  dataset: ScientificDataset,
-  options: Readonly<LabeledBandRatioOptions>,
-): LabeledSpectralDerivedDataset
-export function bandRatio(
   dataset: MultidimensionalRasterDataset | ScientificDataset,
-  options: Readonly<BandRatioOptions | LabeledBandRatioOptions>,
-): SpectralDerivedDataset | LabeledSpectralDerivedDataset {
-  if (isLabeledScientificDataset(dataset)) {
+  options: Readonly<LegacyBandRatioOptions | BandRatioOptions>,
+): LegacySpectralDerivedDataset | SpectralDerivedDataset {
+  if (isScientificDataset(dataset)) {
     if (!('spectralAxis' in options)) {
       throw invalidInput('Labeled band ratios require spectralAxis')
     }
     const numerator = nearestSpectralChannel(dataset, options.numerator, options.spectralAxis)
     const denominator = nearestSpectralChannel(dataset, options.denominator, options.spectralAxis)
-    return new DerivedLabeledSpectralDataset(
+    return new DerivedScientificSpectralDataset(
       dataset,
       options.spectralAxis,
       { kind: 'ratio', numerator, denominator },

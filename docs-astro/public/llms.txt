@@ -91,9 +91,11 @@ The application platform is alpha and may change before the next published versi
 
 Public entry points:
 
-- `purejsimage/scientific`: portable labeled-axis `ScientificDataset`, scientific documents and identities, explicit reader registries, `RasterBlock`, `NumericTile`, and first-party readers.
+- `purejsimage/scientific`: portable arbitrary-axis `ScientificDataset`, scientific documents and identities, explicit reader registries, `RasterBlock`, `NumericTile`, and format-independent analysis helpers. Concrete readers are separate optional entries.
 - `purejsimage/scientific/browser`: browser `File` and explicit companion-file contexts. Remote range sources use the portable `ImageSource` contract.
 - `purejsimage/scientific/node`: Node path and companion-resource adapters kept outside the browser graph.
+- `purejsimage/scientific/readers/gsf`, `purejsimage/scientific/readers/envi`, `purejsimage/scientific/readers/fits`, `purejsimage/scientific/readers/mrc`, `purejsimage/scientific/readers/cbf`, and `purejsimage/scientific/readers/ome-tiff`: individually importable first-party reader entries. Format-specific helpers such as GSF encoding and ENVI classification rendering live with their reader.
+- `purejsimage/scientific/readers/all`: convenience entry for applications that deliberately want every first-party reader. Importing the base scientific entry does not link these implementations.
 - `purejsimage/operations`: JSON-safe operation and value-type descriptors, parameter schemas, local registries, executable provider contracts, and measured provider selection.
 - `purejsimage/analysis`: ROIs, bounded result types, tile runtime, canonical graphs, immutable workspace commands, planning, execution, provenance, and project persistence.
 - `purejsimage/extensions`: explicitly installed trusted in-process extension bundles. This is not a sandbox.
@@ -101,7 +103,10 @@ Public entry points:
 Reader registration and dataset selection are explicit:
 
 ```ts
-import { createScientificLibrary, gsfReader, enviReader, fitsReader } from 'purejsimage/scientific'
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { gsfReader } from 'purejsimage/scientific/readers/gsf'
+import { enviReader } from 'purejsimage/scientific/readers/envi'
+import { fitsReader } from 'purejsimage/scientific/readers/fits'
 
 const science = createScientificLibrary({ readers: [gsfReader, enviReader, fitsReader] })
 const document = await science.open(context)
@@ -636,10 +641,11 @@ const description = await first.getTag(270, { maxBytes: 1024 * 1024 })
 const rasterDecoder = await first.createRasterDecoder()
 ```
 
-Use `purejsimage/scientific` for OME-TIFF:
+Use the optional OME-TIFF reader entry for scientific OME-TIFF datasets:
 
 ```ts
-import { createScientificLibrary, omeTiffReader } from 'purejsimage/scientific'
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { omeTiffReader } from 'purejsimage/scientific/readers/ome-tiff'
 
 const science = createScientificLibrary({ readers: [omeTiffReader] })
 const scientificDocument = await science.open({
@@ -659,9 +665,10 @@ for await (const block of dataset.readPlane({
 }
 ```
 
-The same entry exposes `gsfReader`, `enviReader`, `fitsReader`, `mrcReader`, `cbfReader`,
-`omeTiffReader`, `encodeGsf()`, lazy `sliceScientificVolume()` cross-sections, bounded
-`projectScientificVolume()` labeled-axis projections, optional statistics from `measureScientificPlane()`,
+The individual reader entries expose `gsfReader`, `enviReader`, `fitsReader`, `mrcReader`,
+`cbfReader`, and `omeTiffReader`; the GSF entry also exposes `encodeGsf()`. The base scientific entry
+exposes lazy `sliceScientificVolume()` cross-sections, bounded `projectScientificVolume()`
+arbitrary-axis projections, optional statistics from `measureScientificPlane()`,
 `renderScientificPlane()`, wavelength-aware band and false-color rendering, spectral integration,
 and ratios. These APIs preserve native numeric samples and apply display ranges, scales, palettes,
 and relief only to emitted `PixelBlock`s. Node applications create a constrained source context

@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { copyFile, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { builtinModules } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -134,6 +134,13 @@ try {
     'dist/browser.js',
     'dist/scientific/index.js',
     'dist/scientific/node.js',
+    'dist/scientific/readers/all.js',
+    'dist/scientific/readers/cbf.js',
+    'dist/scientific/readers/envi.js',
+    'dist/scientific/readers/fits.js',
+    'dist/scientific/readers/gsf.js',
+    'dist/scientific/readers/mrc.js',
+    'dist/scientific/readers/ome-tiff.js',
     'dist/operations/index.js',
     'dist/analysis/index.js',
     'dist/extensions/index.js',
@@ -143,6 +150,14 @@ try {
   }
   if (files.some((path) => path.startsWith('src/'))) {
     throw new Error('Packed package must not expose source files')
+  }
+  for (const path of files.filter(
+    (candidate) => candidate.startsWith('dist/scientific/') && candidate.endsWith('.d.ts'),
+  )) {
+    const declaration = await readFile(join(repositoryRoot, path), 'utf8')
+    if (/Labeled[A-Z]|\bV2\b|dataset-v2|public-v2/u.test(declaration)) {
+      throw new Error(`Packed scientific declaration ${path} exposes migration-history vocabulary`)
+    }
   }
 
   const tarball = join(temporaryDirectory, `purejsimage-${packageJson.version}.tgz`)
@@ -179,13 +194,20 @@ import { createImageLibrary as createBrowserImageLibrary } from 'purejsimage/bro
 import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
 import { pngCodec } from 'purejsimage/codecs/png'
 export { geoTiffProfile } from 'purejsimage/tiff'
-import { createScientificLibrary, encodeGsf, gsfReader, normalizeScientificDatasetDescriptor, rasterBlockToNumericTile } from 'purejsimage/scientific'
+import { createScientificLibrary, normalizeScientificDatasetDescriptor, rasterBlockToNumericTile } from 'purejsimage/scientific'
 import type { ScientificReader } from 'purejsimage/scientific'
+import { encodeGsf, gsfReader } from 'purejsimage/scientific/readers/gsf'
+export { cbfReader } from 'purejsimage/scientific/readers/cbf'
+export { enviReader } from 'purejsimage/scientific/readers/envi'
+export { fitsReader } from 'purejsimage/scientific/readers/fits'
+export { mrcReader } from 'purejsimage/scientific/readers/mrc'
+export * as allScientificReaders from 'purejsimage/scientific/readers/all'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
 import { analysisGaussianBlurOperationId, canonicalTileKey, computeAnalysisProjectHashes, createAnalysisController, createBuiltInAnalysisBundle, createAnalysisResultValueTypeRegistry, createRoiLineSamplingPlan, createRoiMask, createRoiValueTypeRegistry, createTileRuntime, getImageSourceIdentity, hashAnalysisGraph, normalizeAnalysisProjectV1, normalizeRoi, summarizeResult, validateAnalysisProjectV1, validateScalarResult } from 'purejsimage/analysis'
 import type { AnalysisGraph, AnalysisProjectV1, Roi, TileRequest, TileSource } from 'purejsimage/analysis'
-export { omeTiffReader, rasterToPixels } from 'purejsimage/scientific'
+export { rasterToPixels } from 'purejsimage/scientific'
+export { omeTiffReader } from 'purejsimage/scientific/readers/ome-tiff'
 export { createScientificFileContext } from 'purejsimage/scientific/browser'
 export { createScientificPathContext } from 'purejsimage/scientific/node'
 export { openAperioSvs } from 'purejsimage/pathology'
@@ -275,7 +297,7 @@ const tileSource: TileSource = {
 export const tileRuntime = createTileRuntime({ limits: { maxCacheBytes: 1024 } })
 export const tileRead = tileRuntime.request(tileSource, tileRequest)
 const roiDatasetDescriptor = {
-  schemaVersion: 2 as const,
+  schemaVersion: 1 as const,
   axes: [
     { id: 'x', kind: 'space' as const, length: 4, coordinates: { type: 'index' as const } },
     { id: 'y', kind: 'space' as const, length: 3, coordinates: { type: 'index' as const } },

@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  createScientificLibrary,
-  encodeGsf,
-  gsfReader,
-  mrcReader,
-} from '../src/scientific/index.ts'
+import { createScientificLibrary } from '../src/scientific/index.ts'
+import { encodeGsf, gsfReader } from '../src/scientific/readers/gsf.ts'
+import { mrcReader } from '../src/scientific/readers/mrc.ts'
 import {
   createScientificFileCompanionResolver,
   createScientificFileContext,

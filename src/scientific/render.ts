@@ -1,15 +1,15 @@
 import { combineAbortSignals } from '../abort.ts'
 import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
-import type { MultidimensionalRasterDataset, RasterPlaneRequest } from './dataset.ts'
-import { isLabeledScientificDataset } from './dataset-adapters.ts'
+import type { MultidimensionalRasterDataset, RasterPlaneRequest } from './legacy-dataset.ts'
+import { isScientificDataset } from './dataset-adapters.ts'
 import type {
   NormalizedScientificPlaneReadRequest,
   ScientificAxisIndex,
   ScientificDataset,
   ScientificPlaneReadRequest,
-} from './dataset-v2.ts'
-import { normalizeScientificPlaneReadRequest } from './dataset-v2.ts'
+} from './dataset.ts'
+import { normalizeScientificPlaneReadRequest } from './dataset.ts'
 import type { NumericArray, NumericTile, NumericTileSource } from './numeric-tile.ts'
 import {
   rasterBlockToNumericTile,
@@ -36,7 +36,7 @@ export interface ScientificReliefOptions {
   readonly strength?: number
 }
 
-export interface ScientificPlaneRenderOptions {
+export interface LegacyScientificPlaneRenderOptions {
   readonly plane: {
     readonly z: number
     readonly c: number
@@ -52,20 +52,20 @@ export interface ScientificPlaneRenderOptions {
   readonly relief?: false | ScientificReliefOptions
 }
 
-export interface LabeledScientificPlaneSelection {
+export interface ScientificPlaneSelection {
   readonly displayAxes: readonly [horizontal: string, vertical: string]
   readonly fixedIndices: readonly ScientificAxisIndex[]
   readonly resolutionLevel?: number
   readonly signal?: AbortSignal
 }
 
-export interface LabeledScientificPlaneRenderOptions
-  extends Omit<ScientificPlaneRenderOptions, 'plane'> {
-  readonly plane: LabeledScientificPlaneSelection
+export interface ScientificPlaneRenderOptions
+  extends Omit<LegacyScientificPlaneRenderOptions, 'plane'> {
+  readonly plane: ScientificPlaneSelection
 }
 
 /** Options for resolving a quantitative display range without producing display pixels. */
-export interface ScientificPlaneMeasureOptions {
+export interface LegacyScientificPlaneMeasureOptions {
   readonly plane: {
     readonly z: number
     readonly c: number
@@ -80,9 +80,9 @@ export interface ScientificPlaneMeasureOptions {
   readonly signal?: AbortSignal
 }
 
-export interface LabeledScientificPlaneMeasureOptions
-  extends Omit<ScientificPlaneMeasureOptions, 'plane'> {
-  readonly plane: LabeledScientificPlaneSelection
+export interface ScientificPlaneMeasureOptions
+  extends Omit<LegacyScientificPlaneMeasureOptions, 'plane'> {
+  readonly plane: ScientificPlaneSelection
 }
 
 export interface ScientificStatisticsRequest {
@@ -103,7 +103,7 @@ export interface ScientificRenderRange {
   readonly max: number
 }
 
-export interface ScientificRenderedPlane {
+export interface LegacyScientificRenderedPlane {
   readonly width: number
   readonly height: number
   readonly x: number
@@ -115,7 +115,7 @@ export interface ScientificRenderedPlane {
   readonly pixels: AsyncIterable<PixelBlock>
 }
 
-export interface LabeledScientificRenderedPlane extends Omit<ScientificRenderedPlane, 'channel'> {
+export interface ScientificRenderedPlane extends Omit<LegacyScientificRenderedPlane, 'channel'> {
   readonly selection: NormalizedScientificPlaneReadRequest
 }
 
@@ -124,7 +124,7 @@ export interface LabeledScientificRenderedPlane extends Omit<ScientificRenderedP
  * Percentile ranges use bounded sampling and are approximate when `sampledValues`
  * is smaller than `finiteSamples`. Explicit ranges do not read the dataset.
  */
-export interface ScientificPlaneMeasurement {
+export interface LegacyScientificPlaneMeasurement {
   readonly range: ScientificRenderRange
   readonly finiteSamples: number
   readonly sampledValues: number
@@ -142,8 +142,8 @@ export interface ScientificPlaneMeasurement {
   readonly histogram?: ScientificHistogram
 }
 
-export interface LabeledScientificPlaneMeasurement
-  extends Omit<ScientificPlaneMeasurement, 'channel'> {
+export interface ScientificPlaneMeasurement
+  extends Omit<LegacyScientificPlaneMeasurement, 'channel'> {
   readonly selection: NormalizedScientificPlaneReadRequest
 }
 
@@ -184,19 +184,18 @@ const numericSource = (dataset: ScientificDataset): NumericTileSource =>
     ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
   })
 
-const isLabeledPlaneOptions = (
+const isScientificPlaneOptions = (
   options:
+    | Readonly<LegacyScientificPlaneMeasureOptions>
     | Readonly<ScientificPlaneMeasureOptions>
-    | Readonly<LabeledScientificPlaneMeasureOptions>
-    | Readonly<ScientificPlaneRenderOptions>
-    | Readonly<LabeledScientificPlaneRenderOptions>,
-): options is
-  | Readonly<LabeledScientificPlaneMeasureOptions>
-  | Readonly<LabeledScientificPlaneRenderOptions> => 'displayAxes' in options.plane
+    | Readonly<LegacyScientificPlaneRenderOptions>
+    | Readonly<ScientificPlaneRenderOptions>,
+): options is Readonly<ScientificPlaneMeasureOptions> | Readonly<ScientificPlaneRenderOptions> =>
+  'displayAxes' in options.plane
 
 const resolveLegacyPlane = (
   dataset: MultidimensionalRasterDataset,
-  options: Readonly<ScientificPlaneMeasureOptions>,
+  options: Readonly<LegacyScientificPlaneMeasureOptions>,
 ): ResolvedScalarPlane => {
   if (
     !Number.isSafeInteger(options.plane.c) ||
@@ -250,9 +249,9 @@ const resolveLegacyPlane = (
   }
 }
 
-const resolveLabeledPlane = (
+const resolveScientificPlane = (
   dataset: ScientificDataset,
-  options: Readonly<LabeledScientificPlaneMeasureOptions>,
+  options: Readonly<ScientificPlaneMeasureOptions>,
 ): ResolvedScalarPlane => {
   if (dataset.descriptor.components.length !== 1) {
     throw invalidInput('Scientific scalar rendering requires exactly one stored component')
@@ -760,8 +759,8 @@ const renderRows = async function* (
  */
 const measureResolvedPlane = async (
   plane: ResolvedScalarPlane,
-  options: Readonly<ScientificPlaneMeasureOptions | LabeledScientificPlaneMeasureOptions>,
-): Promise<ScientificPlaneMeasurement | LabeledScientificPlaneMeasurement> => {
+  options: Readonly<LegacyScientificPlaneMeasureOptions | ScientificPlaneMeasureOptions>,
+): Promise<LegacyScientificPlaneMeasurement | ScientificPlaneMeasurement> => {
   const rangeMode = options.range ?? { mode: 'percentile', low: 1, high: 99 }
   const scan = await scanRange(plane, rangeMode)
   const requestedStatistics = options.statistics
@@ -792,23 +791,23 @@ const measureResolvedPlane = async (
 
 export function measureScientificPlane(
   dataset: MultidimensionalRasterDataset,
+  options: Readonly<LegacyScientificPlaneMeasureOptions>,
+): Promise<LegacyScientificPlaneMeasurement>
+export function measureScientificPlane(
+  dataset: ScientificDataset,
   options: Readonly<ScientificPlaneMeasureOptions>,
 ): Promise<ScientificPlaneMeasurement>
 export function measureScientificPlane(
-  dataset: ScientificDataset,
-  options: Readonly<LabeledScientificPlaneMeasureOptions>,
-): Promise<LabeledScientificPlaneMeasurement>
-export function measureScientificPlane(
   dataset: MultidimensionalRasterDataset | ScientificDataset,
-  options: Readonly<ScientificPlaneMeasureOptions | LabeledScientificPlaneMeasureOptions>,
-): Promise<ScientificPlaneMeasurement | LabeledScientificPlaneMeasurement> {
-  if (isLabeledScientificDataset(dataset)) {
-    if (!isLabeledPlaneOptions(options)) {
+  options: Readonly<LegacyScientificPlaneMeasureOptions | ScientificPlaneMeasureOptions>,
+): Promise<LegacyScientificPlaneMeasurement | ScientificPlaneMeasurement> {
+  if (isScientificDataset(dataset)) {
+    if (!isScientificPlaneOptions(options)) {
       throw invalidInput('A labeled-axis dataset requires a labeled plane selection')
     }
-    return measureResolvedPlane(resolveLabeledPlane(dataset, options), options)
+    return measureResolvedPlane(resolveScientificPlane(dataset, options), options)
   }
-  if (isLabeledPlaneOptions(options)) {
+  if (isScientificPlaneOptions(options)) {
     throw invalidInput('A fixed-axis dataset requires z, c, and t plane coordinates')
   }
   return measureResolvedPlane(resolveLegacyPlane(dataset, options), options)
@@ -824,24 +823,24 @@ export function measureScientificPlane(
  */
 export function renderScientificPlane(
   dataset: MultidimensionalRasterDataset,
-  options: Readonly<ScientificPlaneRenderOptions>,
-): Promise<ScientificRenderedPlane>
+  options: Readonly<LegacyScientificPlaneRenderOptions>,
+): Promise<LegacyScientificRenderedPlane>
 export function renderScientificPlane(
   dataset: ScientificDataset,
-  options: Readonly<LabeledScientificPlaneRenderOptions>,
-): Promise<LabeledScientificRenderedPlane>
+  options: Readonly<ScientificPlaneRenderOptions>,
+): Promise<ScientificRenderedPlane>
 export async function renderScientificPlane(
   dataset: MultidimensionalRasterDataset | ScientificDataset,
-  options: Readonly<ScientificPlaneRenderOptions | LabeledScientificPlaneRenderOptions>,
-): Promise<ScientificRenderedPlane | LabeledScientificRenderedPlane> {
+  options: Readonly<LegacyScientificPlaneRenderOptions | ScientificPlaneRenderOptions>,
+): Promise<LegacyScientificRenderedPlane | ScientificRenderedPlane> {
   let plane: ResolvedScalarPlane
-  if (isLabeledScientificDataset(dataset)) {
-    if (!isLabeledPlaneOptions(options)) {
+  if (isScientificDataset(dataset)) {
+    if (!isScientificPlaneOptions(options)) {
       throw invalidInput('A labeled-axis dataset requires a labeled plane selection')
     }
-    plane = resolveLabeledPlane(dataset, options)
+    plane = resolveScientificPlane(dataset, options)
   } else {
-    if (isLabeledPlaneOptions(options)) {
+    if (isScientificPlaneOptions(options)) {
       throw invalidInput('A fixed-axis dataset requires z, c, and t plane coordinates')
     }
     plane = resolveLegacyPlane(dataset, options)

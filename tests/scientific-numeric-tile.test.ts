@@ -29,7 +29,7 @@ const descriptorFor = (
   componentCount = 1,
 ): NormalizedScientificDatasetDescriptor =>
   normalizeScientificDatasetDescriptor({
-    schemaVersion: 2,
+    schemaVersion: 1,
     axes: [
       { id: 'x', kind: 'space', length: 4, coordinates: { type: 'index' } },
       { id: 'y', kind: 'space', length: 3, coordinates: { type: 'index' } },

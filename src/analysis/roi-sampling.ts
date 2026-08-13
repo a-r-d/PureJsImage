@@ -3,7 +3,7 @@ import { invalidInput } from '../errors.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
   ScientificAxisDescriptor,
-} from '../scientific/dataset-v2.ts'
+} from '../scientific/dataset.ts'
 import type { Roi, RoiGeometry, RoiPoint } from './roi.ts'
 import {
   physicalToPixelPoint,

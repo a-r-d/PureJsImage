@@ -1,8 +1,13 @@
 import { throwIfAborted } from '../../abort.ts'
 import { invalidInput } from '../../errors.ts'
-import { normalizeScientificMetadataObject } from '../dataset-v2.ts'
+import { normalizeScientificMetadataObject } from '../dataset.ts'
 import { toScientificDataset } from '../dataset-adapters.ts'
 import { openEnvi } from '../formats/envi.ts'
+export {
+  renderEnviClassification,
+  type EnviClassificationRenderedImage,
+  type EnviClassificationRenderOptions,
+} from '../classification.ts'
 import type {
   ScientificDocument,
   ScientificOpenContext,

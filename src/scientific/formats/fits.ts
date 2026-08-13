@@ -13,7 +13,7 @@ import type {
   MultidimensionalRasterDataset,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from '../dataset.ts'
+} from '../legacy-dataset.ts'
 
 const cardBytes = 80
 const blockBytes = 2_880

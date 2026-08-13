@@ -8,12 +8,12 @@ import type {
   ScientificAxisDescriptor,
   ScientificDataset,
   ScientificPlaneReadRequest,
-} from '../dataset-v2.ts'
+} from '../dataset.ts'
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificMetadataObject,
   normalizeScientificPlaneReadRequest,
-} from '../dataset-v2.ts'
+} from '../dataset.ts'
 import type { FitsDocument, FitsHdu, FitsHeaderValue } from '../formats/fits.ts'
 import { openFits } from '../formats/fits.ts'
 import type {
@@ -143,7 +143,7 @@ class FitsRankedDataset implements ScientificDataset {
       'purejsimage:fits': hduMetadata(hdu),
     })
     const descriptor = normalizeScientificDatasetDescriptor({
-      schemaVersion: 2,
+      schemaVersion: 1,
       axes,
       sampleType: slice.descriptor.sampleType,
       components: slice.descriptor.components,

@@ -4,9 +4,11 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
 <SiteLayout title="Read GSF AFM surface files in JavaScript | PureJsImage" description="Read and write Gwyddion Simple Field AFM and SPM height maps with native float32 samples in JavaScript and TypeScript." canonical="https://purejsimage.com/scientific/gsf/" current="scientific/">
 <main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific raster format</p><h1>Read GSF AFM surface files in JavaScript</h1><p class="page-lede">Gwyddion Simple Field, usually called GSF, stores one two-dimensional float32 field with a text header. AFM and SPM software commonly use it for a height map with physical X/Y extent, offsets, and value units.</p></div></header><div class="container docs-layout"><article class="content">
-<h2>Import</h2><pre><code>import &#123; createScientificLibrary, gsfReader, renderScientificPlane &#125; from 'purejsimage/scientific'</code></pre>
-<h2>Minimal Node.js example</h2><pre><code>import &#123; createScientificLibrary, gsfReader, renderScientificPlane &#125; from 'purejsimage/scientific'
+<h2>Import</h2><pre><code>import &#123; createScientificLibrary, renderScientificPlane &#125; from 'purejsimage/scientific'
+import &#123; gsfReader &#125; from 'purejsimage/scientific/readers/gsf'</code></pre>
+<h2>Minimal Node.js example</h2><pre><code>import &#123; createScientificLibrary, renderScientificPlane &#125; from 'purejsimage/scientific'
 import &#123; createScientificPathContext &#125; from 'purejsimage/scientific/node'
+import &#123; gsfReader &#125; from 'purejsimage/scientific/readers/gsf'
 
 const science = createScientificLibrary(&#123; readers: [gsfReader] &#125;)
 const document = await science.open(await createScientificPathContext('surface.gsf'))
@@ -18,8 +20,9 @@ const display = await renderScientificPlane(dataset, &#123;
   relief: &#123; azimuth: 315, elevation: 45, strength: 0.5 &#125;,
 &#125;)
 for await (const pixels of display.pixels) console.log(pixels.data)</code></pre>
-<h2>Minimal browser example</h2><pre><code>import &#123; createScientificLibrary, gsfReader &#125; from 'purejsimage/scientific'
+<h2>Minimal browser example</h2><pre><code>import &#123; createScientificLibrary &#125; from 'purejsimage/scientific'
 import &#123; createScientificFileContext &#125; from 'purejsimage/scientific/browser'
+import &#123; gsfReader &#125; from 'purejsimage/scientific/readers/gsf'
 
 const input = document.querySelector&lt;HTMLInputElement&gt;('#surface')
 const file = input?.files?.[0]

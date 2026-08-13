@@ -13,8 +13,8 @@ import type {
   NormalizedScientificDatasetDescriptor,
   ScientificDataset,
   ScientificMetadataObject,
-} from './dataset-v2.ts'
-import { normalizeScientificMetadataObject } from './dataset-v2.ts'
+} from './dataset.ts'
+import { normalizeScientificMetadataObject } from './dataset.ts'
 import type { SourceIdentity } from '../source-identity.ts'
 import { getImageSourceIdentity, normalizeSourceIdentity } from '../source-identity.ts'
 

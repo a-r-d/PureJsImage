@@ -4,9 +4,11 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
 <SiteLayout title="Read MRC and CCP4 cryo-EM volumes in JavaScript | PureJsImage" description="Read MRC2014 and CCP4 electron microscopy images, density maps, and 3D volumes with native scalar samples and bounded regions in JavaScript and TypeScript." canonical="https://purejsimage.com/scientific/mrc/" current="scientific/">
 <main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific volume format</p><h1>Read MRC and CCP4 cryo-EM volumes in JavaScript</h1><p class="page-lede">MRC stores 2D electron microscopy images, cryo-EM density maps, and 3D voxel volumes. The related CCP4 map format uses the same main layout. PureJsImage reads the MRC2014 scalar modes into a lazy numeric dataset.</p></div></header><div class="container docs-layout"><article class="content">
-<h2>Import</h2><pre><code>import &#123; createScientificLibrary, mrcReader, renderScientificPlane &#125; from 'purejsimage/scientific'</code></pre>
-<h2>Node.js example</h2><pre><code>import &#123; createScientificLibrary, mrcReader, sliceScientificVolume &#125; from 'purejsimage/scientific'
+<h2>Import</h2><pre><code>import &#123; createScientificLibrary, renderScientificPlane &#125; from 'purejsimage/scientific'
+import &#123; mrcReader &#125; from 'purejsimage/scientific/readers/mrc'</code></pre>
+<h2>Node.js example</h2><pre><code>import &#123; createScientificLibrary, sliceScientificVolume &#125; from 'purejsimage/scientific'
 import &#123; createScientificPathContext &#125; from 'purejsimage/scientific/node'
+import &#123; mrcReader &#125; from 'purejsimage/scientific/readers/mrc'
 
 const science = createScientificLibrary(&#123; readers: [mrcReader] &#125;)
 const document = await science.open(await createScientificPathContext('map.mrc'))

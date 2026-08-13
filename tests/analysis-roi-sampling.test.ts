@@ -4,7 +4,7 @@ import type { Roi } from '../src/analysis/index.ts'
 import { normalizeScientificDatasetDescriptor } from '../src/scientific/index.ts'
 
 const descriptor = normalizeScientificDatasetDescriptor({
-  schemaVersion: 2,
+  schemaVersion: 1,
   axes: [
     {
       id: 'x',

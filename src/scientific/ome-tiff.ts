@@ -13,7 +13,7 @@ import type {
   PhysicalPixelSize,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from './dataset.ts'
+} from './legacy-dataset.ts'
 
 const imageDescriptionTag = 270
 const validDimensionOrders = new Set(['XYZCT', 'XYZTC', 'XYCZT', 'XYCTZ', 'XYTCZ', 'XYTZC'])

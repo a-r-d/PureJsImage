@@ -5,18 +5,18 @@ import type {
   PhysicalPixelSize,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from './dataset.ts'
-import { isLabeledScientificDataset } from './dataset-adapters.ts'
+} from './legacy-dataset.ts'
+import { isScientificDataset } from './dataset-adapters.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
   ScientificAxisIndex,
   ScientificDataset,
   ScientificPlaneReadRequest,
-} from './dataset-v2.ts'
+} from './dataset.ts'
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
-} from './dataset-v2.ts'
+} from './dataset.ts'
 import type { NumericArray, NumericTile, NumericTileSource } from './numeric-tile.ts'
 import {
   rasterBlockToNumericTile,
@@ -43,14 +43,14 @@ const numberTileData = (tile: NumericTile): NumberNumericArray => {
 export type ScientificSliceAxis = 'xy' | 'xz' | 'yz'
 export type ScientificProjectionMode = 'max' | 'min' | 'mean'
 
-export interface ScientificVolumeSliceOptions {
+export interface LegacyScientificVolumeSliceOptions {
   readonly axis: ScientificSliceAxis
   readonly index: number
   readonly c?: number
   readonly t?: number
 }
 
-export interface ScientificVolumeProjectionOptions {
+export interface LegacyScientificVolumeProjectionOptions {
   readonly axis?: 'z'
   readonly mode: ScientificProjectionMode
   readonly c?: number
@@ -59,12 +59,12 @@ export interface ScientificVolumeProjectionOptions {
   readonly rowsPerBlock?: number
 }
 
-export interface LabeledScientificVolumeSliceOptions {
+export interface ScientificVolumeSliceOptions {
   readonly displayAxes: readonly [horizontal: string, vertical: string]
   readonly fixedIndices: readonly ScientificAxisIndex[]
 }
 
-export interface LabeledScientificVolumeProjectionOptions {
+export interface ScientificVolumeProjectionOptions {
   readonly displayAxes: readonly [horizontal: string, vertical: string]
   /** Explicit semantic axis to reduce. It must not be one of `displayAxes`. */
   readonly axis: string
@@ -437,7 +437,7 @@ class VolumeProjectionDataset implements MultidimensionalRasterDataset {
   }
 }
 
-const labeledDerivedDescriptor = (
+const scientificDerivedDescriptor = (
   source: ScientificDataset,
   displayAxes: readonly [string, string],
   sampleType: RasterSampleType,
@@ -457,7 +457,7 @@ const labeledDerivedDescriptor = (
     }),
   }))
   return normalizeScientificDatasetDescriptor({
-    schemaVersion: 2,
+    schemaVersion: 1,
     axes,
     sampleType,
     components: source.descriptor.components,
@@ -479,13 +479,13 @@ const labeledDerivedDescriptor = (
   })
 }
 
-class LabeledSliceDataset implements ScientificDataset {
+class ScientificSliceDataset implements ScientificDataset {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly #source: ScientificDataset
   readonly #displayAxes: readonly [string, string]
   readonly #fixedIndices: readonly ScientificAxisIndex[]
 
-  constructor(source: ScientificDataset, options: Readonly<LabeledScientificVolumeSliceOptions>) {
+  constructor(source: ScientificDataset, options: Readonly<ScientificVolumeSliceOptions>) {
     const selection = normalizeScientificPlaneReadRequest(source.descriptor, {
       displayAxes: options.displayAxes,
       fixedIndices: options.fixedIndices,
@@ -493,7 +493,7 @@ class LabeledSliceDataset implements ScientificDataset {
     this.#source = source
     this.#displayAxes = selection.displayAxes
     this.#fixedIndices = selection.fixedIndices
-    this.descriptor = labeledDerivedDescriptor(
+    this.descriptor = scientificDerivedDescriptor(
       source,
       selection.displayAxes,
       source.descriptor.sampleType,
@@ -522,7 +522,7 @@ class LabeledSliceDataset implements ScientificDataset {
   }
 }
 
-const readLabeledScalarRegion = async (
+const readScientificScalarRegion = async (
   dataset: ScientificDataset,
   request: Readonly<ScientificPlaneReadRequest>,
 ): Promise<Float64Array> => {
@@ -562,7 +562,7 @@ const readLabeledScalarRegion = async (
   return values
 }
 
-class LabeledProjectionDataset implements ScientificDataset {
+class ScientificProjectionDataset implements ScientificDataset {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly #source: ScientificDataset
   readonly #displayAxes: readonly [string, string]
@@ -571,10 +571,7 @@ class LabeledProjectionDataset implements ScientificDataset {
   readonly #mode: ScientificProjectionMode
   readonly #rowsPerBlock: number
 
-  constructor(
-    source: ScientificDataset,
-    options: Readonly<LabeledScientificVolumeProjectionOptions>,
-  ) {
+  constructor(source: ScientificDataset, options: Readonly<ScientificVolumeProjectionOptions>) {
     if (source.descriptor.components.length !== 1) {
       throw invalidInput('Scientific projection requires exactly one stored component')
     }
@@ -609,7 +606,7 @@ class LabeledProjectionDataset implements ScientificDataset {
     this.#mode = options.mode
     this.#rowsPerBlock = rowsPerBlock
     const sampleType = projectionSampleType(source.descriptor.sampleType, options.mode)
-    this.descriptor = labeledDerivedDescriptor(
+    this.descriptor = scientificDerivedDescriptor(
       source,
       selection.displayAxes,
       sampleType,
@@ -640,7 +637,7 @@ class LabeledProjectionDataset implements ScientificDataset {
       values.fill(this.#mode === 'min' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY)
       const counts = new Uint32Array(sampleCount)
       for (let axisIndex = 0; axisIndex < axisLength; axisIndex += 1) {
-        const plane = await readLabeledScalarRegion(this.#source, {
+        const plane = await readScientificScalarRegion(this.#source, {
           displayAxes: this.#displayAxes,
           fixedIndices: [...this.#fixedIndices, { axisId: this.#axis, index: axisIndex }],
           resolutionLevel: normalized.resolutionLevel,
@@ -699,21 +696,21 @@ class LabeledProjectionDataset implements ScientificDataset {
  */
 export function sliceScientificVolume(
   dataset: MultidimensionalRasterDataset,
-  options: Readonly<ScientificVolumeSliceOptions>,
+  options: Readonly<LegacyScientificVolumeSliceOptions>,
 ): MultidimensionalRasterDataset
 export function sliceScientificVolume(
   dataset: ScientificDataset,
-  options: Readonly<LabeledScientificVolumeSliceOptions>,
+  options: Readonly<ScientificVolumeSliceOptions>,
 ): ScientificDataset
 export function sliceScientificVolume(
   dataset: MultidimensionalRasterDataset | ScientificDataset,
-  options: Readonly<ScientificVolumeSliceOptions | LabeledScientificVolumeSliceOptions>,
+  options: Readonly<LegacyScientificVolumeSliceOptions | ScientificVolumeSliceOptions>,
 ): MultidimensionalRasterDataset | ScientificDataset {
-  if (isLabeledScientificDataset(dataset)) {
+  if (isScientificDataset(dataset)) {
     if (!('displayAxes' in options)) {
       throw invalidInput('A labeled-axis slice requires explicit display axes and fixed indices')
     }
-    return new LabeledSliceDataset(dataset, options)
+    return new ScientificSliceDataset(dataset, options)
   }
   if ('displayAxes' in options) {
     throw invalidInput('A fixed-axis slice requires xy, xz, or yz coordinates')
@@ -738,21 +735,21 @@ export function sliceScientificVolume(
  */
 export function projectScientificVolume(
   dataset: MultidimensionalRasterDataset,
-  options: Readonly<ScientificVolumeProjectionOptions>,
+  options: Readonly<LegacyScientificVolumeProjectionOptions>,
 ): MultidimensionalRasterDataset
 export function projectScientificVolume(
   dataset: ScientificDataset,
-  options: Readonly<LabeledScientificVolumeProjectionOptions>,
+  options: Readonly<ScientificVolumeProjectionOptions>,
 ): ScientificDataset
 export function projectScientificVolume(
   dataset: MultidimensionalRasterDataset | ScientificDataset,
-  options: Readonly<ScientificVolumeProjectionOptions | LabeledScientificVolumeProjectionOptions>,
+  options: Readonly<LegacyScientificVolumeProjectionOptions | ScientificVolumeProjectionOptions>,
 ): MultidimensionalRasterDataset | ScientificDataset {
-  if (isLabeledScientificDataset(dataset)) {
+  if (isScientificDataset(dataset)) {
     if (!('displayAxes' in options)) {
       throw invalidInput('A labeled-axis projection requires explicit display and reduction axes')
     }
-    return new LabeledProjectionDataset(dataset, options)
+    return new ScientificProjectionDataset(dataset, options)
   }
   if ('displayAxes' in options) {
     throw invalidInput('A fixed-axis projection does not accept labeled display axes')

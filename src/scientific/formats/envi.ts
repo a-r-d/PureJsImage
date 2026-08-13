@@ -7,7 +7,7 @@ import type {
   MultidimensionalRasterDataset,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from '../dataset.ts'
+} from '../legacy-dataset.ts'
 
 export type EnviInterleave = 'bsq' | 'bil' | 'bip'
 export type EnviByteOrder = 0 | 1

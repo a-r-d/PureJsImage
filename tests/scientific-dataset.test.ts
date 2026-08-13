@@ -33,7 +33,7 @@ const descriptorInput = (
     >
   > = {},
 ): ScientificDatasetDescriptor => ({
-  schemaVersion: 2,
+  schemaVersion: 1,
   axes,
   sampleType: overrides.sampleType ?? 'uint8',
   components: overrides.components ?? [{ id: 'value', kind: 'scalar' }],
@@ -90,7 +90,7 @@ const firstBlock = async (
   throw new Error('Synthetic scientific dataset returned no block')
 }
 
-describe('ScientificDataset V2 descriptors', () => {
+describe('ScientificDataset descriptors', () => {
   it('normalizes an ordinary X/Y scalar dataset and explicit level zero', () => {
     const input = descriptorInput([axis('x', 'space', 5), axis('y', 'space', 3)], {
       metadata: { acquisition: { instrument: 'synthetic', voltage: 200 }, tags: ['test'] },
@@ -99,7 +99,7 @@ describe('ScientificDataset V2 descriptors', () => {
 
     const descriptor = normalizeScientificDatasetDescriptor(input)
 
-    expect(descriptor.schemaVersion).toBe(2)
+    expect(descriptor.schemaVersion).toBe(1)
     expect(descriptor.levels).toEqual([
       {
         level: 0,
@@ -345,7 +345,7 @@ describe('ScientificDataset V2 descriptors', () => {
   })
 })
 
-describe('ScientificDataset V2 plane requests', () => {
+describe('ScientificDataset plane requests', () => {
   it('enforces supported ordered display-axis pairs before reader execution', () => {
     const descriptor = normalizeScientificDatasetDescriptor(
       descriptorInput([axis('x', 'space', 3), axis('y', 'space', 2), axis('z', 'space', 4)], {

@@ -98,6 +98,41 @@
       "import": "./dist/scientific/browser.js",
       "default": "./dist/scientific/browser.js"
     },
+    "./scientific/readers/gsf": {
+      "types": "./dist/scientific/readers/gsf.d.ts",
+      "import": "./dist/scientific/readers/gsf.js",
+      "default": "./dist/scientific/readers/gsf.js"
+    },
+    "./scientific/readers/envi": {
+      "types": "./dist/scientific/readers/envi.d.ts",
+      "import": "./dist/scientific/readers/envi.js",
+      "default": "./dist/scientific/readers/envi.js"
+    },
+    "./scientific/readers/fits": {
+      "types": "./dist/scientific/readers/fits.d.ts",
+      "import": "./dist/scientific/readers/fits.js",
+      "default": "./dist/scientific/readers/fits.js"
+    },
+    "./scientific/readers/mrc": {
+      "types": "./dist/scientific/readers/mrc.d.ts",
+      "import": "./dist/scientific/readers/mrc.js",
+      "default": "./dist/scientific/readers/mrc.js"
+    },
+    "./scientific/readers/cbf": {
+      "types": "./dist/scientific/readers/cbf.d.ts",
+      "import": "./dist/scientific/readers/cbf.js",
+      "default": "./dist/scientific/readers/cbf.js"
+    },
+    "./scientific/readers/ome-tiff": {
+      "types": "./dist/scientific/readers/ome-tiff.d.ts",
+      "import": "./dist/scientific/readers/ome-tiff.js",
+      "default": "./dist/scientific/readers/ome-tiff.js"
+    },
+    "./scientific/readers/all": {
+      "types": "./dist/scientific/readers/all.d.ts",
+      "import": "./dist/scientific/readers/all.js",
+      "default": "./dist/scientific/readers/all.js"
+    },
     "./operations": {
       "types": "./dist/operations/index.d.ts",
       "import": "./dist/operations/index.js",

@@ -13,12 +13,8 @@ import {
   validateAnalysisResult,
 } from 'purejsimage/analysis'
 import type { AnalysisGraph } from 'purejsimage/analysis'
-import {
-  createScientificLibrary,
-  encodeGsf,
-  gsfReader,
-  resolveNumericTileSource,
-} from 'purejsimage/scientific'
+import { createScientificLibrary, resolveNumericTileSource } from 'purejsimage/scientific'
+import { encodeGsf, gsfReader } from 'purejsimage/scientific/readers/gsf'
 
 const assert: (condition: unknown, message: string) => asserts condition = (condition, message) => {
   if (!condition) throw new Error(message)

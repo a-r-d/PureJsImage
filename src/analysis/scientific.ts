@@ -1,10 +1,5 @@
-import type { MultidimensionalRasterDataset } from '../scientific/dataset.ts'
-import { invalidInput } from '../errors.ts'
-import { isLabeledScientificDataset } from '../scientific/dataset-adapters.ts'
-import type { ScientificDataset } from '../scientific/dataset-v2.ts'
+import type { ScientificDataset } from '../scientific/dataset.ts'
 import type {
-  LabeledScientificPlaneMeasurement,
-  LabeledScientificPlaneMeasureOptions,
   ScientificPlaneMeasurement,
   ScientificPlaneMeasureOptions,
 } from '../scientific/render.ts'
@@ -33,10 +28,8 @@ export interface ScientificMeasurementResultOptions {
   readonly limits?: Readonly<AnalysisResultLimits>
 }
 
-export interface ScientificPlaneAnalysis<
-  Measurement extends ScientificPlaneMeasurement | LabeledScientificPlaneMeasurement,
-> {
-  readonly measurement: Measurement
+export interface ScientificPlaneAnalysis {
+  readonly measurement: ScientificPlaneMeasurement
   readonly result: ResultCollection
 }
 
@@ -74,7 +67,7 @@ const explicitHistogramEdges = (
  * arrays as read-only.
  */
 export const scientificPlaneMeasurementToResult = (
-  measurement: ScientificPlaneMeasurement | LabeledScientificPlaneMeasurement,
+  measurement: ScientificPlaneMeasurement,
   options: Readonly<ScientificMeasurementResultOptions> = {},
 ): ResultCollection => {
   const entries: ResultCollectionEntry[] = [
@@ -177,17 +170,8 @@ export const scientificPlaneMeasurementToResult = (
   )
 }
 
-const legacyUnit = (
-  dataset: MultidimensionalRasterDataset,
-  options: Readonly<ScientificPlaneMeasureOptions>,
-): string | undefined => dataset.channels?.[options.plane.c]?.unit
-
-const labeledUnit = (dataset: ScientificDataset): string | undefined =>
+const scientificUnit = (dataset: ScientificDataset): string | undefined =>
   dataset.descriptor.components[0]?.unit
-
-const isLabeledOptions = (
-  options: Readonly<ScientificPlaneMeasureOptions | LabeledScientificPlaneMeasureOptions>,
-): options is Readonly<LabeledScientificPlaneMeasureOptions> => 'displayAxes' in options.plane
 
 const withResolvedUnit = (
   options: Readonly<ScientificMeasurementResultOptions>,
@@ -200,45 +184,17 @@ const withResolvedUnit = (
   }
 }
 
-export function measureScientificPlaneWithResults(
-  dataset: MultidimensionalRasterDataset,
-  options: Readonly<ScientificPlaneMeasureOptions>,
-  resultOptions?: Readonly<ScientificMeasurementResultOptions>,
-): Promise<ScientificPlaneAnalysis<ScientificPlaneMeasurement>>
-export function measureScientificPlaneWithResults(
+export const measureScientificPlaneWithResults = async (
   dataset: ScientificDataset,
-  options: Readonly<LabeledScientificPlaneMeasureOptions>,
-  resultOptions?: Readonly<ScientificMeasurementResultOptions>,
-): Promise<ScientificPlaneAnalysis<LabeledScientificPlaneMeasurement>>
-export async function measureScientificPlaneWithResults(
-  dataset: MultidimensionalRasterDataset | ScientificDataset,
-  options: Readonly<ScientificPlaneMeasureOptions | LabeledScientificPlaneMeasureOptions>,
+  options: Readonly<ScientificPlaneMeasureOptions>,
   resultOptions: Readonly<ScientificMeasurementResultOptions> = {},
-): Promise<
-  ScientificPlaneAnalysis<ScientificPlaneMeasurement | LabeledScientificPlaneMeasurement>
-> {
-  if (isLabeledScientificDataset(dataset)) {
-    if (!isLabeledOptions(options)) {
-      throw invalidInput('A labeled-axis dataset requires a labeled plane selection')
-    }
-    const measurement = await measureScientificPlane(dataset, options)
-    return Object.freeze({
-      measurement,
-      result: scientificPlaneMeasurementToResult(
-        measurement,
-        withResolvedUnit(resultOptions, labeledUnit(dataset)),
-      ),
-    })
-  }
-  if (isLabeledOptions(options)) {
-    throw invalidInput('A fixed-axis dataset requires z, c, and t plane coordinates')
-  }
+): Promise<ScientificPlaneAnalysis> => {
   const measurement = await measureScientificPlane(dataset, options)
   return Object.freeze({
     measurement,
     result: scientificPlaneMeasurementToResult(
       measurement,
-      withResolvedUnit(resultOptions, legacyUnit(dataset, options)),
+      withResolvedUnit(resultOptions, scientificUnit(dataset)),
     ),
   })
 }

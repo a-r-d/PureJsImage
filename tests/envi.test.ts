@@ -8,13 +8,9 @@ import {
   type SupportedEnviDataType,
 } from '../src/scientific/formats/envi.ts'
 import { renderEnviClassification } from '../src/scientific/classification.ts'
-import {
-  createScientificLibrary,
-  encodeGsf,
-  enviReader,
-  gsfReader,
-  ScientificReaderRegistry,
-} from '../src/scientific/index.ts'
+import { createScientificLibrary, ScientificReaderRegistry } from '../src/scientific/index.ts'
+import { enviReader } from '../src/scientific/readers/envi.ts'
+import { encodeGsf, gsfReader } from '../src/scientific/readers/gsf.ts'
 import { rasterSampleBytes, type RasterSampleType } from '../src/raster.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
 import { createScientificPathContext } from '../src/scientific/node.ts'

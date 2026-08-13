@@ -4,12 +4,12 @@ import type {
   NormalizedScientificDatasetDescriptor,
   ScientificDataset,
   ScientificPlaneReadRequest,
-} from '../dataset-v2.ts'
+} from '../dataset.ts'
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificMetadataObject,
   normalizeScientificPlaneReadRequest,
-} from '../dataset-v2.ts'
+} from '../dataset.ts'
 import { toScientificDataset } from '../dataset-adapters.ts'
 import { openMrc, type MrcDataset } from '../formats/mrc.ts'
 import type {

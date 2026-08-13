@@ -6,7 +6,7 @@ import {
 } from '../operations/descriptor.ts'
 import type { OperationProviderKind, OperationProviderPolicy } from '../operations/provider.ts'
 import type { OperationRegistry, ValueTypeRegistry } from '../operations/registry.ts'
-import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset-v2.ts'
+import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset.ts'
 import type { ScientificDatasetIdentity } from '../scientific/reader.ts'
 import type { SourceIdentity } from '../source-identity.ts'
 import { normalizeSourceIdentity } from '../source-identity.ts'

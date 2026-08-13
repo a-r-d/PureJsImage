@@ -27,11 +27,11 @@ import type {
   ScientificAxisIndex,
   ScientificDataset,
   ScientificPlaneReadRequest,
-} from '../scientific/dataset-v2.ts'
+} from '../scientific/dataset.ts'
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
-} from '../scientific/dataset-v2.ts'
+} from '../scientific/dataset.ts'
 import type {
   DirectNumericTileDataset,
   NumericArray,
@@ -491,7 +491,7 @@ const twoDimensionalDescriptor = (
   assertLevelZero(source)
   const axes = displayAxes.map((id) => axis(source, id))
   return normalizeScientificDatasetDescriptor({
-    schemaVersion: 2,
+    schemaVersion: 1,
     axes,
     sampleType,
     components: source.components,
@@ -682,7 +682,7 @@ const inferResampleDescriptor = (
   })
   const sampleType = outputRasterSampleType(source.sampleType, parameters.outputSampleType)
   return normalizeScientificDatasetDescriptor({
-    schemaVersion: 2,
+    schemaVersion: 1,
     axes,
     sampleType,
     components: source.components,

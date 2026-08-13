@@ -6,12 +6,10 @@ An application selects the trusted readers it needs:
 
 ```ts
 import { MemorySource } from 'purejsimage'
-import {
-  createScientificLibrary,
-  fitsReader,
-  gsfReader,
-  mrcReader,
-} from 'purejsimage/scientific'
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { fitsReader } from 'purejsimage/scientific/readers/fits'
+import { gsfReader } from 'purejsimage/scientific/readers/gsf'
+import { mrcReader } from 'purejsimage/scientific/readers/mrc'
 
 const science = createScientificLibrary({ readers: [fitsReader, gsfReader, mrcReader] })
 const document = await science.open({
@@ -59,7 +57,7 @@ platform architecture.
 
 ## Labeled-axis reads
 
-`ScientificDataset` is the sole public scientific dataset contract. Its `schemaVersion: 2`
+`ScientificDataset` is the sole public scientific dataset contract. Its `schemaVersion: 1`
 descriptor names every axis and does not assume that data can be expressed as XYZCT. Read a plane
 with stable axis IDs:
 
@@ -86,5 +84,5 @@ Reader-opened datasets also carry a `ScientificDatasetIdentity` containing the r
 stable dataset ID, and every resource identity. The planner recognizes it automatically. Synthetic
 or application-created datasets still require an explicit semantic identity.
 
-See [Migrating to ScientificDataset V2 in 0.10 alpha](migration/0.10-scientific-v2.md) for ordinary
+See [ScientificDataset in 0.10 alpha](migration/0.10-scientific.md) for ordinary
 X/Y, OME axes, arbitrary-rank FITS, EELS, and 4D-STEM mappings.

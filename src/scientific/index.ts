@@ -17,7 +17,7 @@ export type {
   ScientificPlaneReadRequest,
   ScientificResolutionAxisLength,
   ScientificResolutionLevel,
-} from './dataset-v2.ts'
+} from './dataset.ts'
 export type {
   ScientificLibrary,
   ScientificLibraryCapabilities,
@@ -63,7 +63,7 @@ export {
   normalizeScientificMetadataObject,
   normalizeScientificPlaneReadRequest,
   validateScientificDatasetDescriptor,
-} from './dataset-v2.ts'
+} from './dataset.ts'
 export {
   createScientificDatasetIdentity,
   defaultScientificProbeLimits,
@@ -83,18 +83,13 @@ export {
   scientificDatasetToNumericTileSource,
   validateNumericTile,
 } from './numeric-tile.ts'
-export type { GsfWriteOptions } from './formats/gsf.ts'
-export type {
-  EnviClassificationRenderedImage,
-  EnviClassificationRenderOptions,
-} from './classification.ts'
 export type { ScientificPalette } from './palettes.ts'
 export type {
-  LabeledScientificPlaneMeasurement,
-  LabeledScientificPlaneMeasureOptions,
-  LabeledScientificPlaneRenderOptions,
-  LabeledScientificPlaneSelection,
-  LabeledScientificRenderedPlane,
+  ScientificPlaneMeasurement,
+  ScientificPlaneMeasureOptions,
+  ScientificPlaneRenderOptions,
+  ScientificPlaneSelection,
+  ScientificRenderedPlane,
   ScientificDisplayScale,
   ScientificHistogram,
   ScientificPercentile,
@@ -103,18 +98,18 @@ export type {
   ScientificStatisticsRequest,
 } from './render.ts'
 export type {
-  LabeledBandRatioOptions,
-  LabeledSpectralBandRenderOptions,
-  LabeledSpectralBandRenderResult,
-  LabeledSpectralCompositeRenderOptions,
-  LabeledSpectralDerivedDataset,
-  LabeledSpectralRangeOptions,
+  BandRatioOptions,
+  SpectralBandRenderOptions,
+  SpectralBandRenderResult,
+  SpectralCompositeRenderOptions,
+  SpectralDerivedDataset,
+  SpectralRangeOptions,
   SpectralChannelSelection,
   SpectralCompositeRenderResult,
 } from './spectral.ts'
 export type {
-  LabeledScientificVolumeProjectionOptions,
-  LabeledScientificVolumeSliceOptions,
+  ScientificVolumeProjectionOptions,
+  ScientificVolumeSliceOptions,
   ScientificProjectionMode,
 } from './volume.ts'
 export type {
@@ -127,14 +122,6 @@ export type {
   RasterSampleType,
 } from '../raster.ts'
 export { rasterSampleBytes, rasterToPixels } from '../raster.ts'
-export { encodeGsf } from './formats/gsf.ts'
-export { renderEnviClassification } from './classification.ts'
-export { gsfReader, gsfReaderDescriptor } from './readers/gsf.ts'
-export { mrcReader, mrcReaderDescriptor } from './readers/mrc.ts'
-export { cbfReader, cbfReaderDescriptor } from './readers/cbf.ts'
-export { fitsReader, fitsReaderDescriptor } from './readers/fits.ts'
-export { omeTiffReader, omeTiffReaderDescriptor } from './readers/ome-tiff.ts'
-export { enviReader, enviReaderDescriptor } from './readers/envi.ts'
 export { scientificPaletteColor } from './palettes.ts'
 export {
   bandRatio,
@@ -146,4 +133,4 @@ export {
   projectScientificVolume,
   renderScientificPlane,
   sliceScientificVolume,
-} from './public-v2.ts'
+} from './public.ts'

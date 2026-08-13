@@ -7,7 +7,7 @@ import type {
   NormalizedScientificDatasetDescriptor,
   ScientificAxisDescriptor,
   ScientificAxisIndex,
-} from '../scientific/dataset-v2.ts'
+} from '../scientific/dataset.ts'
 import { canonicalJson } from './canonical-json.ts'
 
 export const roiSchemaVersion = 1

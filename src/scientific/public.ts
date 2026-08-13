@@ -1,21 +1,21 @@
-import type { ScientificDataset } from './dataset-v2.ts'
+import type { ScientificDataset } from './dataset.ts'
 import type {
-  LabeledScientificPlaneMeasurement,
-  LabeledScientificPlaneMeasureOptions,
-  LabeledScientificPlaneRenderOptions,
-  LabeledScientificRenderedPlane,
+  ScientificPlaneMeasurement,
+  ScientificPlaneMeasureOptions,
+  ScientificPlaneRenderOptions,
+  ScientificRenderedPlane,
 } from './render.ts'
 import {
   measureScientificPlane as measurePlane,
   renderScientificPlane as renderPlane,
 } from './render.ts'
 import type {
-  LabeledBandRatioOptions,
-  LabeledSpectralBandRenderOptions,
-  LabeledSpectralBandRenderResult,
-  LabeledSpectralCompositeRenderOptions,
-  LabeledSpectralDerivedDataset,
-  LabeledSpectralRangeOptions,
+  BandRatioOptions,
+  SpectralBandRenderOptions,
+  SpectralBandRenderResult,
+  SpectralCompositeRenderOptions,
+  SpectralDerivedDataset,
+  SpectralRangeOptions,
   SpectralChannelSelection,
   SpectralCompositeRenderResult,
 } from './spectral.ts'
@@ -26,10 +26,7 @@ import {
   renderSpectralBand as renderBand,
   renderSpectralComposite as renderComposite,
 } from './spectral.ts'
-import type {
-  LabeledScientificVolumeProjectionOptions,
-  LabeledScientificVolumeSliceOptions,
-} from './volume.ts'
+import type { ScientificVolumeProjectionOptions, ScientificVolumeSliceOptions } from './volume.ts'
 import {
   projectScientificVolume as projectVolume,
   sliceScientificVolume as sliceVolume,
@@ -37,22 +34,22 @@ import {
 
 export const measureScientificPlane = (
   dataset: ScientificDataset,
-  options: Readonly<LabeledScientificPlaneMeasureOptions>,
-): Promise<LabeledScientificPlaneMeasurement> => measurePlane(dataset, options)
+  options: Readonly<ScientificPlaneMeasureOptions>,
+): Promise<ScientificPlaneMeasurement> => measurePlane(dataset, options)
 
 export const renderScientificPlane = (
   dataset: ScientificDataset,
-  options: Readonly<LabeledScientificPlaneRenderOptions>,
-): Promise<LabeledScientificRenderedPlane> => renderPlane(dataset, options)
+  options: Readonly<ScientificPlaneRenderOptions>,
+): Promise<ScientificRenderedPlane> => renderPlane(dataset, options)
 
 export const sliceScientificVolume = (
   dataset: ScientificDataset,
-  options: Readonly<LabeledScientificVolumeSliceOptions>,
+  options: Readonly<ScientificVolumeSliceOptions>,
 ): ScientificDataset => sliceVolume(dataset, options)
 
 export const projectScientificVolume = (
   dataset: ScientificDataset,
-  options: Readonly<LabeledScientificVolumeProjectionOptions>,
+  options: Readonly<ScientificVolumeProjectionOptions>,
 ): ScientificDataset => projectVolume(dataset, options)
 
 export const nearestSpectralChannel = (
@@ -63,20 +60,20 @@ export const nearestSpectralChannel = (
 
 export const renderSpectralBand = (
   dataset: ScientificDataset,
-  options: Readonly<LabeledSpectralBandRenderOptions>,
-): Promise<LabeledSpectralBandRenderResult> => renderBand(dataset, options)
+  options: Readonly<SpectralBandRenderOptions>,
+): Promise<SpectralBandRenderResult> => renderBand(dataset, options)
 
 export const renderSpectralComposite = (
   dataset: ScientificDataset,
-  options: Readonly<LabeledSpectralCompositeRenderOptions>,
+  options: Readonly<SpectralCompositeRenderOptions>,
 ): Promise<SpectralCompositeRenderResult> => renderComposite(dataset, options)
 
 export const integrateSpectralRange = (
   dataset: ScientificDataset,
-  options: Readonly<LabeledSpectralRangeOptions>,
-): LabeledSpectralDerivedDataset => integrate(dataset, options)
+  options: Readonly<SpectralRangeOptions>,
+): SpectralDerivedDataset => integrate(dataset, options)
 
 export const bandRatio = (
   dataset: ScientificDataset,
-  options: Readonly<LabeledBandRatioOptions>,
-): LabeledSpectralDerivedDataset => ratio(dataset, options)
+  options: Readonly<BandRatioOptions>,
+): SpectralDerivedDataset => ratio(dataset, options)

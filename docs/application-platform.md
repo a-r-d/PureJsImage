@@ -16,7 +16,10 @@ Applications choose their trusted readers and own the resulting library:
 
 ```ts
 import { MemorySource } from 'purejsimage'
-import { createScientificLibrary, fitsReader, gsfReader, mrcReader } from 'purejsimage/scientific'
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { fitsReader } from 'purejsimage/scientific/readers/fits'
+import { gsfReader } from 'purejsimage/scientific/readers/gsf'
+import { mrcReader } from 'purejsimage/scientific/readers/mrc'
 
 const science = createScientificLibrary({ readers: [fitsReader, gsfReader, mrcReader] })
 const document = await science.open({

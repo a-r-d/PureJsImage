@@ -6,8 +6,8 @@ import type {
   NumericTileLayout,
 } from '../scientific/numeric-tile.ts'
 import { numericTileRetainedBytes, validateNumericTile } from '../scientific/numeric-tile.ts'
-import type { ScientificAxisIndex } from '../scientific/dataset-v2.ts'
-import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset-v2.ts'
+import type { ScientificAxisIndex } from '../scientific/dataset.ts'
+import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset.ts'
 import type { SourceIdentity } from '../source-identity.ts'
 import { normalizeSourceIdentity } from '../source-identity.ts'
 import { canonicalJson } from './canonical-json.ts'

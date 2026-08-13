@@ -1,5 +1,5 @@
 import { throwIfAborted } from '../../abort.ts'
-import { normalizeScientificMetadataObject } from '../dataset-v2.ts'
+import { normalizeScientificMetadataObject } from '../dataset.ts'
 import { toScientificDataset } from '../dataset-adapters.ts'
 import { openCbf } from '../formats/cbf.ts'
 import type {

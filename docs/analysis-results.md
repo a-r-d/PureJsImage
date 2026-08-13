@@ -91,11 +91,11 @@ Their existing semantics are:
 - percentiles use the existing bounded deterministic sample and remain approximate when
   `sampledValues < finiteSamples`.
 
-`measureScientificPlaneWithResults()` returns the legacy measurement and a generic
+`measureScientificPlaneWithResults()` returns the scientific measurement and a generic
 `ResultCollection` from the same measurement execution. Statistics and a histogram share their
 value pass; resolving a dataset-derived range can require an earlier range pass. Histogram count and
 edge arrays are reused rather than copied. `scientificPlaneMeasurementToResult()` adapts an already
-computed measurement without reading the dataset. Units come from the selected legacy channel or V2
+computed measurement without reading the dataset. Units come from the selected scientific
 component unless explicitly overridden. Abort signals and `NumericTile.release()` propagation stay
 in the existing measurement path.
 
