@@ -29,6 +29,10 @@ import { ScientificReaderRegistry } from '../scientific/reader.ts'
 export const pureJsImageExtensionApiVersion = 1
 
 export interface PureJsImageExtensionDescriptor {
+  /**
+   * Namespace owned by this bundle. Reader IDs start with the extension ID plus `/`;
+   * value types, operations, providers, and migrations start with it plus `.`.
+   */
   readonly id: string
   readonly version: number
   readonly apiVersion: number
@@ -129,6 +133,25 @@ const normalizeExtensionDescriptor = (
 const providerKey = (descriptor: OperationProviderDescriptor): string =>
   `${descriptor.id}\u0000${descriptor.version}`
 
+const ownsDottedId = (extensionId: string, contributedId: string): boolean =>
+  contributedId.startsWith(`${extensionId}.`)
+
+const ownsReaderId = (extensionId: string, readerId: string): boolean =>
+  readerId.startsWith(`${extensionId}/`)
+
+const requireOwnedId = (
+  extensionId: string,
+  contribution: string,
+  contributedId: string,
+  ownsId: (extensionId: string, contributedId: string) => boolean = ownsDottedId,
+): void => {
+  if (!ownsId(extensionId, contributedId)) {
+    throw invalidInput(
+      `Extension ${extensionId} ${contribution} id must use its ${extensionId} namespace: ${contributedId}`,
+    )
+  }
+}
+
 const createManifest = (options: {
   readonly extensions: readonly PureJsImageExtensionDescriptor[]
   readonly readers: ScientificReaderRegistry
@@ -172,42 +195,29 @@ export const createExtensionHost = (options: Readonly<ExtensionHostOptions>): Ex
     extensionIds.add(descriptor.id)
     descriptors.push(descriptor)
     for (const reader of extension.readers ?? []) {
-      if (reader.descriptor.id.startsWith('purejsimage/')) {
-        throw invalidInput(`Extension ${descriptor.id} cannot register a core reader id`)
-      }
+      requireOwnedId(descriptor.id, 'reader', reader.descriptor.id, ownsReaderId)
       readers.push(reader)
     }
     for (const valueType of extension.valueTypes ?? []) {
-      if (
-        valueType.descriptor.builtIn === true ||
-        valueType.descriptor.id.startsWith('purejsimage.')
-      ) {
-        throw invalidInput(`Extension ${descriptor.id} cannot register a core value type id`)
-      }
+      if (valueType.descriptor.builtIn === true)
+        throw invalidInput(`Extension ${descriptor.id} cannot register a built-in value type`)
+      requireOwnedId(descriptor.id, 'value type', valueType.descriptor.id)
       valueTypes.push(valueType)
     }
     for (const operation of extension.operations ?? []) {
-      if (
-        operation.descriptor.builtIn === true ||
-        operation.descriptor.id.startsWith('purejsimage.')
-      ) {
-        throw invalidInput(`Extension ${descriptor.id} cannot register a core operation id`)
-      }
+      if (operation.descriptor.builtIn === true)
+        throw invalidInput(`Extension ${descriptor.id} cannot register a built-in operation`)
+      requireOwnedId(descriptor.id, 'operation', operation.descriptor.id)
       operations.push(operation)
     }
     for (const provider of extension.providers ?? []) {
-      if (provider.descriptor.id.startsWith('purejsimage.')) {
-        throw invalidInput(`Extension ${descriptor.id} cannot register a core provider id`)
-      }
+      requireOwnedId(descriptor.id, 'provider', provider.descriptor.id)
       providers.push(provider)
     }
     for (const migration of extension.analysisMigrations ?? []) {
-      if (
-        migration.id.startsWith('purejsimage.') ||
-        (migration.kind === 'operation' && migration.operationId.startsWith('purejsimage.'))
-      ) {
-        throw invalidInput(`Extension ${descriptor.id} cannot register a core analysis migration`)
-      }
+      requireOwnedId(descriptor.id, 'analysis migration', migration.id)
+      if (migration.kind === 'operation')
+        requireOwnedId(descriptor.id, 'migrated operation', migration.operationId)
       analysisMigrations.push(migration)
     }
   }

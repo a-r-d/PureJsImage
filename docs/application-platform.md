@@ -260,6 +260,10 @@ const extensionController = createAnalysisController({
 })
 ```
 
+The extension descriptor owns its namespace. For `acme.materials`, reader IDs begin with
+`acme.materials/`; value-type, operation, provider, and migration IDs begin with
+`acme.materials.`. Operation migrations may only target operations in that same namespace.
+
 The complete pointwise reference example is
 [`examples/analysis-trusted-extension/index.ts`](../examples/analysis-trusted-extension/index.ts).
 These extensions are trusted in-process code, not a sandbox. Untrusted execution requires the

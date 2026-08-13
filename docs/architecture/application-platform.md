@@ -367,6 +367,11 @@ may register descriptors, providers, schemas, and commands only into a registry 
 the host. The host validates bundle IDs, versions, and declarations, but this is compatibility
 validation—not a security sandbox. In-process code has the authority of the host realm.
 
+The bundle descriptor ID is also its ecosystem namespace. Readers use the extension ID followed by
+`/`; value types, operations, providers, migrations, and migrated operation IDs use the extension ID
+followed by `.`. This keeps one trusted package from contributing unrelated IDs without introducing
+a global mutable namespace owner.
+
 A Worker or cross-origin iframe RPC boundary for untrusted extensions is future work. That boundary
 will need a structured-clone-safe protocol, capability-scoped source/tile handles, transfer and copy
 accounting, cancellation, quotas, timeouts, crash cleanup, and version negotiation. The in-process
@@ -846,6 +851,9 @@ gates.
         definitions, providers, and future migration metadata with atomic cross-registry validation.
   - [x] Reject collisions and API-version mismatch; produce deterministic plain-data manifests for
         extensions, readers, value types, operations, and prepared providers.
+  - [x] Require every contribution to remain under its extension ID: dotted IDs use the extension
+        ID plus `.`, reader IDs use the extension ID plus `/`, and operation migrations may only
+        target operations in that same namespace.
   - [x] Add no discovery, dynamic import, scanning, eval, `Function`, or auto-install behavior;
         document trusted in-process execution and future permissioned Worker/iframe RPC honestly.
   - [x] Add portable `purejsimage/operations` and `purejsimage/extensions` entries, package/browser/
@@ -1473,3 +1481,34 @@ to own only generic descriptors, definitions, providers, and registries.
     package types, browser graph, lint, and formatting pass. Both standard and hostile-source suites
     reach 93 passing files and 1,176 passing tests before the same three environment-specific
     expanded 12-bit AVIF Sharp-oracle hash mismatches.
+
+### Website, bundle, and extension-ecosystem review follow-up
+
+- [x] Record exact minified baselines for `scientific`, `operations`, `analysis`, and `extensions`
+      and enforce hard ceilings with approximately 30% growth headroom in the normal size gate.
+- [x] Make the extension descriptor ID its owned namespace: readers use `<extension-id>/...`, all
+      dotted contributions use `<extension-id>....`, and operation migrations stay within it.
+- [x] Add `/scientific/platform/` without changing the codec-first homepage or the existing local
+      Scientific Raster Explorer; document labeled axes, range sources, NumericTiles, bounded
+      runtime, ROIs/results, graphs, identity/provenance, trusted extensions, future accelerators,
+      alpha status, and limitations.
+- [x] Add a public-import-only compiled application lifecycle example and import that exact source
+      into the website rather than maintaining an independent HTML-only snippet.
+- [x] Give every application entry its own API-reference section and label the application platform
+      alpha, provider/extension APIs experimental, and the ordinary codec pipeline the existing
+      stable path, including lifecycle warnings.
+- [x] Update `llms.txt` for readers, labeled datasets, identities, NumericTile ownership, operations,
+      graphs, ROIs/results, planning/execution, persistence, extensions, and WASM/WebGPU status;
+      distinguish initial bounded analysis from still-deferred mature scientific ecosystems.
+- [x] Use materials and instrument-imagery language on the secondary platform page while explicitly
+      avoiding mature SEM/TEM, DM3/DM4, EDS, FFT, particle, or grain-analysis claims.
+- [x] Run formatting, package/browser/documentation gates, focused tests, `npm run check`, and
+      record the final validation result and diff summary.
+
+  - Follow-up validation: the four minified entry baselines are 438,229 bytes for scientific,
+    44,252 for operations, 272,246 for analysis, and 46,564 for extensions; their enforced ceilings
+    are 570,000, 58,000, 354,000, and 61,000 bytes. The public-only platform example compiles and
+    executes, package types pass, the browser graph passes, all 19 documentation pages build, and
+    lint and formatting pass. The complete standard suite passes 95 files and 1,198 tests before the
+    same three environment-specific expanded 12-bit AVIF Sharp-oracle hash mismatches; the hostile
+    suite with only that known oracle file excluded passes 95 files and 1,176 tests.

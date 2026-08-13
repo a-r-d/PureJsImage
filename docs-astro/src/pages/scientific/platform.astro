@@ -1,0 +1,65 @@
+---
+import applicationExample from '../../../../examples/scientific-application-platform/index.ts?raw'
+import SiteLayout from '../../layouts/SiteLayout.astro'
+---
+
+<SiteLayout
+  title="Browser-native scientific image analysis platform | PureJsImage"
+  description="Build reproducible local applications for materials microscopy and instrument imagery with labeled axes, range-backed readers, bounded numeric tiles, ROIs, analysis graphs, and trusted extensions."
+  canonical="https://purejsimage.com/scientific/platform/"
+  current="scientific/"
+>
+  <main id="main">
+    <header class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Application platform · alpha</p>
+        <h1>Browser-native scientific image analysis, without a mandatory conversion step.</h1>
+        <p class="page-lede">Build local, reproducible tools for materials microscopy and instrument imagery on original vendor files and large multidimensional datasets. The platform keeps quantitative samples separate from display pixels and preserves bounded reads from source through analysis.</p>
+        <div class="page-meta"><span class="pill">Application APIs: alpha</span><span class="pill">Provider and extension APIs: experimental</span><span class="pill">Codec pipeline: existing stable path</span></div>
+      </div>
+    </header>
+
+    <div class="container docs-layout">
+      <aside class="side-nav" aria-label="Scientific pages"><div class="nav-group"><strong>Scientific</strong><a href="../">Raster Explorer</a><a href="./" aria-current="page">Application platform</a><a href="../volumes/">Volumes</a></div><div class="nav-group"><strong>Reference</strong><a href="../../api/#application-entrypoints">Application APIs</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/docs/architecture/application-platform.md">Architecture</a></div></aside>
+      <article class="content">
+        <section id="model">
+          <h2>One labeled-axis data model</h2>
+          <p><code>ScientificDataset</code> describes arbitrary named axes, sample types, components, resolution levels, physical coordinates, and bounded region reads. First-party GSF, ENVI, FITS, MRC, CBF, and OME-TIFF readers expose that model directly. An application chooses a dataset from a document rather than assuming one fixed <code>z/c/t</code> layout.</p>
+          <p>Local browser <code>File</code> resources, Node file adapters, in-memory bytes, and HTTP Range-backed <code>ImageSource</code> implementations meet at the same portable reader boundary. Source identity starts with available file or remote metadata; displaying the first tile does not require hashing a multi-gigabyte file.</p>
+        </section>
+
+        <section id="runtime">
+          <h2>Bounded numeric tiles and explicit lifetimes</h2>
+          <p>Readers yield portable <code>RasterBlock</code> bytes. Repeated quantitative work converts them once to native-endian typed <code>NumericTile</code> values. The tile runtime adds byte budgets, bounded concurrency, request coalescing, cache metrics, cancellation, and release propagation without making full-frame materialization the generic fallback.</p>
+          <div class="callout"><strong>Lifecycle rule.</strong> Release every numeric tile, execution result, and prepared plan; dispose the tile runtime; close the scientific document; and pass an <code>AbortSignal</code> through reads, planning, and execution.</div>
+        </section>
+
+        <section id="analysis">
+          <h2>ROIs, results, and reproducible graphs</h2>
+          <p>Versioned pixel or physical-coordinate ROIs bind to graph inputs. Initial bounded operations cover crop, resampling, Gaussian blur, projection, statistics, histograms, and line profiles. Results remain typed and bounded rather than becoming an implicit display image.</p>
+          <p>Canonical graph JSON, invocation identities, explicit provider policy, implementation versions, and project hashes make mutation, planning, and execution independently auditable. Dry-run validates the graph and estimates setup, transfer, compute, readback, and memory costs before execution begins.</p>
+        </section>
+
+        <section id="extensions">
+          <h2>Trusted extensions today; accelerator choices by measured fit</h2>
+          <p><code>purejsimage/extensions</code> composes explicitly supplied readers, value types, operations, providers, and migrations into application-local registries. Contributed IDs must remain under the extension's declared ID namespace. Nothing auto-registers globally.</p>
+          <p>Extensions execute trusted code in the caller's process and are not a sandbox. A Worker or iframe RPC host for untrusted packages is future work. The strict TypeScript reference provider remains permanent; explicitly registered WASM and WebGPU providers are future options and will be selected only when their exact semantics and measured setup, transfer, compute, readback, and memory costs fit the plan.</p>
+        </section>
+
+        <section id="example">
+          <h2>A complete, compiled application lifecycle</h2>
+          <p>This example uses only installable package entry points. It opens a document, selects and identifies a dataset, reads and releases a tile, creates an ROI and graph, dry-runs and executes it, serializes a hashed project, and releases every owned resource. The source below is imported directly from the repository's compiled external example, so the website copy cannot drift independently.</p>
+          <div class="code-window"><div class="window-bar"><span class="window-title">examples/scientific-application-platform/index.ts</span></div><pre><code>{applicationExample}</code></pre></div>
+        </section>
+
+        <section id="scope">
+          <h2>Alpha scope and honest limitations</h2>
+          <p>The application platform is alpha and its contracts may change before the next published version. Provider and extension APIs are experimental. The ordinary codec workflow—including immutable <code>resize().jpeg()</code> pipelines—continues as the established package path and is not replaced by these entries.</p>
+          <p>The current wedge is native, range-backed analysis for AFM, detector, diffraction, hyperspectral, and volumetric data. PureJsImage does not yet claim mature SEM/TEM workflows, DM3/DM4, EDS overlays, FFT tooling, particle or grain analysis, broad segmentation, registration, morphology, 3D mesh editing, or a mature plugin ecosystem. Quantitative uint64 analysis above <code>2^53 - 1</code> is also not yet exact in every operation and result path.</p>
+        </section>
+      </article>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#model">Labeled axes</a><a href="#runtime">Tile runtime</a><a href="#analysis">Graphs and ROIs</a><a href="#extensions">Extensions</a><a href="#example">Complete example</a><a href="#scope">Alpha scope</a></aside>
+    </div>
+  </main>
+  <footer class="site-footer"><div class="container"><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span><a href="../">Scientific Raster Explorer</a> · <a href="../../api/#application-entrypoints">Application API</a> · <a href="https://github.com/a-r-d/PureJsImage">Source</a></span></div></div></footer>
+</SiteLayout>

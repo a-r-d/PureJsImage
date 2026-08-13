@@ -198,7 +198,7 @@ const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])
 const science = createScientificLibrary({ readers: [gsfReader] })
 const extensionReader: ScientificReader = {
   descriptor: {
-    id: 'example/readers/cube',
+    id: 'example.science/readers/cube',
     version: '1.0.0',
     format: 'Example cube',
     extensions: ['cube'],
@@ -209,12 +209,12 @@ const extensionReader: ScientificReader = {
   open: async () => { throw new Error('compile-only reader') },
 }
 const extensionValue = createValueTypeDefinition({
-  descriptor: { id: 'example.data.cube', version: 1, title: 'Example cube' },
+  descriptor: { id: 'example.science.data.cube', version: 1, title: 'Example cube' },
 })
 const extensionOperation = createOperationDefinition({
   descriptor: {
-    id: 'example.analysis.mean', version: 1, title: 'Mean', category: 'analysis', tags: [],
-    inputs: [{ name: 'cube', valueType: { id: 'example.data.cube', version: 1 } }],
+    id: 'example.science.analysis.mean', version: 1, title: 'Mean', category: 'analysis', tags: [],
+    inputs: [{ name: 'cube', valueType: { id: 'example.science.data.cube', version: 1 } }],
     outputs: [],
     parameters: { type: 'object', properties: {}, closed: true },
     execution: 'reduction', reproducibility: { class: 'backend-stable' },
@@ -222,7 +222,7 @@ const extensionOperation = createOperationDefinition({
 })
 const extensionProvider = createOperationProvider({
   descriptor: {
-    id: 'example.reference', version: 1, kind: 'reference', buildFingerprint: 'example-1',
+    id: 'example.science.reference', version: 1, kind: 'reference', buildFingerprint: 'example-1',
   },
   prepare: async () => [],
 })

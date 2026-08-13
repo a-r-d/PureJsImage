@@ -230,11 +230,12 @@
     "node": ">=22"
   },
   "scripts": {
-    "check": "npm run capabilities:check && npm run comparison:check && npm run docs:build && npm run typecheck && npm run size && npm run package:types && npm run profile:example:check && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
+    "check": "npm run capabilities:check && npm run comparison:check && npm run docs:build && npm run typecheck && npm run size && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
     "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json && node scripts/copy-wasm-artifacts.ts",
     "browser:check": "tsc -p tsconfig.browser.json && node scripts/check-browser-build.ts",
     "package:types": "node scripts/check-package-types.ts",
     "profile:example:check": "node scripts/check-external-tiff-profile.ts && tsc -p examples/tiff-profile-leica/tsconfig.json",
+    "platform:example:check": "node scripts/check-external-application-platform.ts && tsc -p examples/scientific-application-platform/tsconfig.json",
     "browser:test": "playwright test",
     "browser:bench": "PUREJSIMAGE_WRITE_BROWSER_BENCHMARK=1 playwright test browser-tests/benchmark.pw.ts --project=chromium",
     "wasm:build:jpeg": "node scripts/build-wasm-jpeg.ts",

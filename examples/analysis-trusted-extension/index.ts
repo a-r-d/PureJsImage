@@ -18,7 +18,7 @@ import {
   scientificDatasetValueTypeId,
 } from '../../src/analysis/index.ts'
 
-export const affineScalarOperationId = 'example.analysis.affine-scalar'
+export const affineScalarOperationId = 'example.analysis-pointwise.affine-scalar'
 
 const isJsonObject = (value: OperationJsonValue | undefined): value is OperationJsonObject =>
   value !== undefined && value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -167,7 +167,7 @@ const affineDataset = (
 
 export const affineScalarProvider = createOperationProvider({
   descriptor: {
-    id: 'example.analysis.affine-reference',
+    id: 'example.analysis-pointwise.affine-reference',
     version: 1,
     kind: 'reference',
     buildFingerprint: 'example-affine-typescript-v1',

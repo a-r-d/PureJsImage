@@ -338,7 +338,7 @@ describe('public built-in analysis application workflow', () => {
     expect(prepared.manifest.extensions).toMatchObject([{ id: 'example.analysis-pointwise' }])
     expect(prepared.manifest.providers.map((entry) => entry.id)).toEqual([
       'purejsimage.analysis.reference',
-      'example.analysis.affine-reference',
+      'example.analysis-pointwise.affine-reference',
     ])
     expect(JSON.parse(JSON.stringify(prepared.manifest))).toEqual(prepared.manifest)
     runtime.clear()

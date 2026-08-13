@@ -91,6 +91,20 @@ describe('package contract', () => {
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
       name: 'Core + scientific rasters',
       contents: expect.stringContaining('./src/scientific/index.ts'),
+      baselineMinifiedBytes: 438_229,
+      maxMinifiedBytes: 570_000,
+    })
+    expect(pureJsImageEntryTargets.find(({ id }) => id === 'operations')).toMatchObject({
+      baselineMinifiedBytes: 44_252,
+      maxMinifiedBytes: 58_000,
+    })
+    expect(pureJsImageEntryTargets.find(({ id }) => id === 'analysis')).toMatchObject({
+      baselineMinifiedBytes: 272_246,
+      maxMinifiedBytes: 354_000,
+    })
+    expect(pureJsImageEntryTargets.find(({ id }) => id === 'extensions')).toMatchObject({
+      baselineMinifiedBytes: 46_564,
+      maxMinifiedBytes: 61_000,
     })
   })
 
@@ -316,6 +330,13 @@ describe('package contract', () => {
   it('publishes a local-only scientific raster explorer and public dataset APIs', () => {
     const readme = readFileSync('README.md', 'utf8')
     const page = readFileSync('docs-astro/src/pages/scientific.astro', 'utf8')
+    const platformPage = readFileSync('docs-astro/src/pages/scientific/platform.astro', 'utf8')
+    const platformExample = readFileSync(
+      'examples/scientific-application-platform/index.ts',
+      'utf8',
+    )
+    const apiPage = readFileSync('docs-astro/src/pages/api.astro', 'utf8')
+    const llms = readFileSync('docs-astro/public/llms.txt', 'utf8')
     const worker = readFileSync('docs-astro/src/scripts/scientific-worker.ts', 'utf8')
     const sources = readFileSync('docs-astro/public/demo-data/scientific/SOURCES.md', 'utf8')
     const sitemap = readFileSync('docs-astro/public/sitemap.xml', 'utf8')
@@ -349,6 +370,28 @@ describe('package contract', () => {
     )
     expect(sources).toContain('npm run demo:scientific:generate')
     expect(sitemap).toContain('https://purejsimage.com/scientific/')
+    expect(sitemap).toContain('https://purejsimage.com/scientific/platform/')
+    expect(platformPage).toContain(
+      "import applicationExample from '../../../../examples/scientific-application-platform/index.ts?raw'",
+    )
+    expect(platformPage).toContain('Application APIs: alpha')
+    expect(platformPage).toContain('Provider and extension APIs: experimental')
+    expect(platformPage).toContain('materials microscopy and instrument imagery')
+    expect(platformExample).toContain("from 'purejsimage/analysis'")
+    expect(platformExample).toContain('computeAnalysisProjectHashes')
+    for (const entry of [
+      'purejsimage/scientific',
+      'purejsimage/scientific/browser',
+      'purejsimage/scientific/node',
+      'purejsimage/operations',
+      'purejsimage/analysis',
+      'purejsimage/extensions',
+    ]) {
+      expect(apiPage).toContain(`<code>${entry}</code>`)
+      expect(llms).toContain(`\`${entry}\``)
+    }
+    expect(llms).toContain('## Scientific application platform (alpha)')
+    expect(llms).toContain('initial bounded ROI masks, statistics, histograms, line profiles')
     expect(packageJson.exports).toHaveProperty('./scientific/node')
     expect(scientificApi).not.toHaveProperty('openGsf')
     expect(scientificApi).toHaveProperty('encodeGsf')

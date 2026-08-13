@@ -88,6 +88,12 @@ and the extension API version before returning a composed registry. The frozen `
 list composes directly into `AnalysisController`; `host.prepare()` remains the only step that probes
 providers, and its prepared manifest includes only successfully prepared provider descriptors.
 
+An extension owns the namespace named by its descriptor ID. For extension `acme.imaging`, reader IDs
+must begin with `acme.imaging/`, while value-type, operation, provider, and migration IDs must begin
+with `acme.imaging.`. Operation migrations may only target operations in that same namespace. This
+keeps separately published bundles from claiming unrelated ecosystem IDs without adding a global
+namespace registry.
+
 ```ts
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createValueTypeDefinition } from 'purejsimage/operations'
@@ -97,7 +103,7 @@ const host = createExtensionHost({
   extensions: [{
     descriptor: { id: 'acme.imaging', version: 1, apiVersion: 1 },
     valueTypes: [createValueTypeDefinition({
-      descriptor: { id: 'acme.result.score', version: 1, title: 'Score' },
+      descriptor: { id: 'acme.imaging.result.score', version: 1, title: 'Score' },
     })],
   }],
 })

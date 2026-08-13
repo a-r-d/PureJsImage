@@ -15,6 +15,8 @@ export type BundleCodec =
   | 'TGA'
 
 export interface BundleTarget {
+  /** Recorded minified byte count when this gate was introduced. */
+  readonly baselineMinifiedBytes?: number
   readonly contents: string
   readonly id: string
   readonly name: string
@@ -45,21 +47,29 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     id: 'scientific',
     name: 'Core + scientific rasters',
     contents: exportsFrom(['./src/index.ts', './src/scientific/index.ts']),
+    baselineMinifiedBytes: 438_229,
+    maxMinifiedBytes: 570_000,
   },
   {
     id: 'operations',
     name: 'Operation descriptors and runtime',
     contents: exportsFrom(['./src/operations/index.ts']),
+    baselineMinifiedBytes: 44_252,
+    maxMinifiedBytes: 58_000,
   },
   {
     id: 'analysis',
     name: 'Analysis results and graph runtime',
     contents: exportsFrom(['./src/analysis/index.ts']),
+    baselineMinifiedBytes: 272_246,
+    maxMinifiedBytes: 354_000,
   },
   {
     id: 'extensions',
     name: 'Trusted extension host',
     contents: exportsFrom(['./src/extensions/index.ts']),
+    baselineMinifiedBytes: 46_564,
+    maxMinifiedBytes: 61_000,
   },
   {
     id: 'png',

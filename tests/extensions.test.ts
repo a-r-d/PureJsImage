@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createAnalysisController, type AnalysisGraph } from '../src/analysis/index.ts'
 import type { OperationMigration } from '../src/analysis/index.ts'
-import { createExtensionHost } from '../src/extensions/index.ts'
+import { createExtensionHost, type PureJsImageExtension } from '../src/extensions/index.ts'
 import {
   createOperationDefinition,
   createOperationProvider,
@@ -11,7 +11,7 @@ import type { ScientificReader } from '../src/scientific/index.ts'
 
 const reader: ScientificReader = Object.freeze({
   descriptor: Object.freeze({
-    id: 'example/readers/cube',
+    id: 'example.science/readers/cube',
     version: '1.0.0',
     format: 'Example cube',
     extensions: Object.freeze(['cube']),
@@ -25,21 +25,21 @@ const reader: ScientificReader = Object.freeze({
 })
 
 const valueType = createValueTypeDefinition({
-  descriptor: { id: 'example.data.cube', version: 1, title: 'Example cube' },
+  descriptor: { id: 'example.science.data.cube', version: 1, title: 'Example cube' },
 })
 const resultType = createValueTypeDefinition({
-  descriptor: { id: 'example.result.mean', version: 1, title: 'Example mean' },
+  descriptor: { id: 'example.science.result.mean', version: 1, title: 'Example mean' },
 })
 
 const operation = createOperationDefinition({
   descriptor: {
-    id: 'example.analysis.mean',
+    id: 'example.science.analysis.mean',
     version: 1,
     title: 'Mean',
     category: 'analysis',
     tags: ['analysis'],
-    inputs: [{ name: 'cube', valueType: { id: 'example.data.cube', version: 1 } }],
-    outputs: [{ name: 'mean', valueType: { id: 'example.result.mean', version: 1 } }],
+    inputs: [{ name: 'cube', valueType: { id: 'example.science.data.cube', version: 1 } }],
+    outputs: [{ name: 'mean', valueType: { id: 'example.science.result.mean', version: 1 } }],
     parameters: { type: 'object', properties: {}, closed: true },
     execution: 'reduction',
     reproducibility: { class: 'backend-stable' },
@@ -53,7 +53,7 @@ const operation = createOperationDefinition({
 
 const provider = createOperationProvider({
   descriptor: {
-    id: 'example.reference',
+    id: 'example.science.reference',
     version: 1,
     kind: 'reference',
     buildFingerprint: 'example-reference-1',
@@ -90,7 +90,7 @@ const migration: OperationMigration = Object.freeze({
   kind: 'operation',
   id: 'example.science.mean-v1-v2',
   version: 1,
-  operationId: 'example.analysis.mean',
+  operationId: 'example.science.analysis.mean',
   fromVersion: 1,
   toVersion: 2,
   migrate: (node: unknown) => node,
@@ -117,13 +117,15 @@ describe('trusted extension bundles', () => {
     expect(host.providers).toEqual([provider])
     expect(host.manifest.providers).toEqual([])
     const prepared = await host.prepare()
-    expect(prepared.manifest.providers.map((entry) => entry.id)).toEqual(['example.reference'])
+    expect(prepared.manifest.providers.map((entry) => entry.id)).toEqual([
+      'example.science.reference',
+    ])
     expect(prepared.manifest.analysisMigrations).toEqual([
       {
         kind: 'operation',
         id: 'example.science.mean-v1-v2',
         version: 1,
-        operationId: 'example.analysis.mean',
+        operationId: 'example.science.analysis.mean',
         fromVersion: 1,
         toVersion: 2,
       },
@@ -157,12 +159,15 @@ describe('trusted extension bundles', () => {
     const graph: AnalysisGraph = Object.freeze({
       schemaVersion: 1,
       inputs: Object.freeze([
-        Object.freeze({ name: 'cube', valueType: { id: 'example.data.cube', version: 1 } }),
+        Object.freeze({
+          name: 'cube',
+          valueType: { id: 'example.science.data.cube', version: 1 },
+        }),
       ]),
       nodes: Object.freeze([
         Object.freeze({
           id: 'mean',
-          operation: Object.freeze({ id: 'example.analysis.mean', version: 1 }),
+          operation: Object.freeze({ id: 'example.science.analysis.mean', version: 1 }),
           inputs: Object.freeze([
             Object.freeze({ port: 'cube', source: { kind: 'input' as const, input: 'cube' } }),
           ]),
@@ -180,7 +185,7 @@ describe('trusted extension bundles', () => {
       bindings: {
         cube: {
           value: 84,
-          valueType: { id: 'example.data.cube', version: 1 },
+          valueType: { id: 'example.science.data.cube', version: 1 },
           identity: { kind: 'application-defined', namespace: 'example.cube', value: 'fixture-84' },
         },
       },
@@ -190,7 +195,7 @@ describe('trusted extension bundles', () => {
     expect(execution.outputs.get('mean')).toBe(42)
     expect(execution.provenance.nodes).toMatchObject([
       {
-        provider: { id: 'example.reference' },
+        provider: { id: 'example.science.reference' },
         implementation: { implementationVersion: '1.0.0' },
       },
     ])
@@ -261,12 +266,8 @@ describe('trusted extension bundles', () => {
       createExtensionHost({
         extensions: [
           {
-            descriptor: { id: 'example.first', version: 1, apiVersion: 1 },
-            analysisMigrations: [migration],
-          },
-          {
-            descriptor: { id: 'example.second', version: 1, apiVersion: 1 },
-            analysisMigrations: [{ ...migration, id: 'example.second.same-edge' }],
+            descriptor: { id: 'example.science', version: 1, apiVersion: 1 },
+            analysisMigrations: [migration, { ...migration, id: 'example.science.same-edge' }],
           },
         ],
       }),
@@ -286,9 +287,13 @@ describe('trusted extension bundles', () => {
           },
         ],
       }),
-    ).toThrow('cannot register a core value type id')
+    ).toThrow('must use its example.annotations namespace')
     const namespaced = createValueTypeDefinition({
-      descriptor: { id: 'example.roi.annotation', version: 1, title: 'Annotation ROI' },
+      descriptor: {
+        id: 'example.annotations.roi.annotation',
+        version: 1,
+        title: 'Annotation ROI',
+      },
     })
     expect(
       createExtensionHost({
@@ -298,7 +303,50 @@ describe('trusted extension bundles', () => {
             valueTypes: [namespaced],
           },
         ],
-      }).valueTypes.get('example.roi.annotation', 1),
+      }).valueTypes.get('example.annotations.roi.annotation', 1),
     ).toBeDefined()
+  })
+
+  it('requires every contributed id to remain in the extension namespace', () => {
+    const cases: readonly PureJsImageExtension[] = [
+      { descriptor: { id: 'example.owner', version: 1, apiVersion: 1 }, readers: [reader] },
+      {
+        descriptor: { id: 'example.owner', version: 1, apiVersion: 1 },
+        valueTypes: [valueType],
+      },
+      {
+        descriptor: { id: 'example.owner', version: 1, apiVersion: 1 },
+        operations: [operation],
+      },
+      {
+        descriptor: { id: 'example.owner', version: 1, apiVersion: 1 },
+        providers: [provider],
+      },
+      {
+        descriptor: { id: 'example.owner', version: 1, apiVersion: 1 },
+        analysisMigrations: [migration],
+      },
+    ]
+    for (const extension of cases) {
+      expect(() => createExtensionHost({ extensions: [extension] })).toThrow(
+        'must use its example.owner namespace',
+      )
+    }
+    expect(() =>
+      createExtensionHost({
+        extensions: [
+          {
+            descriptor: { id: 'example.owner', version: 1, apiVersion: 1 },
+            analysisMigrations: [
+              {
+                ...migration,
+                id: 'example.owner.mean-v1-v2',
+                operationId: 'example.foreign.mean',
+              },
+            ],
+          },
+        ],
+      }),
+    ).toThrow('migrated operation id must use its example.owner namespace')
   })
 })
