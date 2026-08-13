@@ -1275,7 +1275,8 @@ export class AnalysisDatasetOperationContext {
     ) {
       throw invalidInput('Analysis tile dimensions must be positive safe integers')
     }
-    this.#sessionId = options.sessionId ?? 'reference-analysis'
+    this.#sessionId =
+      options.sessionId ?? options.runtime.allocateIdentityScope('reference-analysis')
     if (this.#sessionId.trim().length === 0 || this.#sessionId.length > 4_096) {
       throw invalidInput('Analysis operation sessionId must be bounded and non-empty')
     }

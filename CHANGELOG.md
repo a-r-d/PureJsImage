@@ -90,6 +90,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Made nested tile requests dependency-safe by default so derived operations yield scheduler
+  permits before awaiting upstream tiles, and isolated automatically assigned built-in analysis
+  cache identities per `TileRuntime` context.
 - Promoted AVIF read support from “Limited” to “Yes” for common still-image workflows after the
   existing independently validated broad corpus and cross-encoder survey, while retaining explicit
   unsupported boundaries for dependent animation and uncommon AV1/ISOBMFF syntax. AVIF re-encoding

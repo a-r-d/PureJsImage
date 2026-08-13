@@ -1185,10 +1185,10 @@ to own only generic descriptors, definitions, providers, and registries.
     documented application entry and no `src/` files, installs the exact tarball with no package
     lock, and removes the consumer on every exit. Strict declarations and a live installed-package
     GSF to NumericTile to ROI-statistics workflow pass, including reference-provider and source
-    identity provenance. Browser and Worker bundles are 361,060 and 277,211 bytes locally and
+    identity provenance. Browser and Worker bundles are 361,576 and 277,727 bytes locally and
     contain no Node built-ins. Negative bundles reject `purejsimage/src/...` and the Node path helper
     under a browser target. Standalone package, browser, type, lint, and format gates pass. The full
-    check reaches 1,144 passing tests and stops on the same three unrelated expanded 12-bit AVIF
+    check reaches 1,150 passing tests and stops on the same three unrelated expanded 12-bit AVIF
     Sharp-oracle hash mismatches recorded before PR 10, so its hostile-source phase is not reached.
 
 - [x] Prompt 10.2: add correctness-gated application-level benchmarks.
@@ -1316,13 +1316,34 @@ to own only generic descriptors, definitions, providers, and registries.
     three real Chromium E2E workflows in the separate repository.
 
     PureJsImage passes a clean install, the packed external fixture on Node 24 and minimum-supported
-    Node 22, browser/type/lint/format gates, 39 focused application and ordinary-pipeline tests, 12
+    Node 22, browser/type/lint/format gates, 45 focused application and ordinary-pipeline tests, 12
     real Chromium ordinary-demo/scientific tests, the correctness-gated application benchmark, and
     release fuzz with seed `1592598566` and 512
-    mutations per registered codec with no crash artifacts. The 376-file tarball is 778,397 bytes
-    (`sha512-dlWx...+cIXw==`); installed imports create no Worker, fetch, interval, or package global.
-    `npm run check` is still red: 1,144 tests pass and the same three unrelated expanded 12-bit AVIF
+    mutations per registered codec with no crash artifacts. The 376-file tarball is 778,585 bytes
+    (`sha512-1oqv...tkJuw==`); installed imports create no Worker, fetch, interval, or package global.
+    `npm run check` is still red: 1,150 tests pass and the same three unrelated expanded 12-bit AVIF
     Sharp-oracle hashes fail, so the hostile-source phase does not run. This prompt therefore stays
     unchecked and the prerelease candidate is **not release-ready** until that existing AVIF gate is
     reconciled and the complete check passes. No version, tag, push, publication, or GitHub release
     was created; the reviewed PR 10 code can be committed independently of release state.
+
+### Post-PR 10 review follow-up
+
+- [x] Make nested `TileRuntime.request()` calls dependency-safe by default. An active scheduled tile
+      now yields its permit while awaiting an uncached or in-flight upstream tile and reacquires a
+      permit before resuming computation; the explicit `requestDependency()` name remains as a
+      compatibility alias that is also safe outside scheduled work.
+- [x] Make default built-in analysis cache identities unique within a shared runtime. Every
+      `AnalysisDatasetOperationContext` without an explicit session ID now receives a bounded
+      runtime-scoped identity rather than the shared `reference-analysis` literal. Explicit session
+      IDs remain available when the caller intentionally owns stable identity semantics.
+- [ ] Converge built-in dataset operations and generic `DerivedTileSource` on one accelerated tile
+      path before freezing the analysis API. Define a narrow tile-kernel contract separately from
+      graph-level dataset-to-dataset implementations, then route threshold and Gaussian blur through
+      it first to prove pointwise and halo semantics. This is a distinct architecture slice rather
+      than part of the scheduler correctness fix.
+
+  - Review result: focused regression coverage now exercises one derived tile at concurrency one,
+    four concurrent visible tiles at concurrency four, a crop-to-Gaussian chain, cancellation while
+    blocked upstream, shared in-flight upstream work with one consumer cancelling, and two default
+    bundles sharing one runtime without cache cross-contamination.

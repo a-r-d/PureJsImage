@@ -679,14 +679,14 @@ class TileScheduler {
     })
   }
 
-  async withDependency<Result>(
+  async withDependencyIfActive<Result>(
     signal: AbortSignal,
     dependency: () => Promise<Result>,
     releaseIfNotResumed: (result: Result) => void,
   ): Promise<Result> {
     const task = this.#active.get(signal)
     if (task === undefined || !task.holdingPermit) {
-      throw invalidInput('Tile dependencies must be requested during scheduled tile execution')
+      return dependency()
     }
     task.holdingPermit = false
     this.#running -= 1
@@ -697,6 +697,7 @@ class TileScheduler {
       result = { value: await dependency() }
       signal.throwIfAborted()
       await this.#reacquire(task)
+      signal.throwIfAborted()
       return result.value
     } catch (error) {
       if (result !== undefined) releaseIfNotResumed(result.value)
@@ -856,6 +857,7 @@ export class TileRuntime {
   #scheduler: TileScheduler
   readonly #inFlight = new Map<string, InFlightTile>()
   #consumerId = 0
+  #identityScopeCounter = 0
 
   constructor(options: Readonly<TileRuntimeOptions> = {}) {
     this.limits = resolveTileRuntimeLimits(options.limits)
@@ -893,16 +895,28 @@ export class TileRuntime {
         })
         .catch((error: unknown) => this.#fail(scheduledState, error))
     }
-    return this.#subscribe(state, request.signal)
-  }
-
-  /** Request a cached dependency from inside TileSource.readTile without holding a scheduler slot. */
-  requestDependency(source: TileSource, input: Readonly<TileRequest>): Promise<NumericTile> {
-    return this.#scheduler.withDependency(
-      input.signal,
-      () => this.request(source, input),
+    return this.#scheduler.withDependencyIfActive(
+      request.signal,
+      () => this.#subscribe(state, request.signal),
       (tile) => tile.release(),
     )
+  }
+
+  /** Compatibility alias for dependency-safe request(), including outside scheduled tile work. */
+  requestDependency(source: TileSource, input: Readonly<TileRequest>): Promise<NumericTile> {
+    return this.request(source, input)
+  }
+
+  /** Allocate a bounded cache-identity scope unique within this runtime instance. */
+  allocateIdentityScope(prefix: string): string {
+    const normalizedPrefix = boundedString(prefix, 'identity scope prefix')
+    const next = this.#identityScopeCounter + 1
+    if (!Number.isSafeInteger(next)) {
+      throw invalidInput('Tile runtime identity scope counter is exhausted')
+    }
+    const scope = boundedString(`${normalizedPrefix}:${next}`, 'identity scope')
+    this.#identityScopeCounter = next
+    return scope
   }
 
   has(request: Readonly<TileRequest>, source: TileSource): boolean {

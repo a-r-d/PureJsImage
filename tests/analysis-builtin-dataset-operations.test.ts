@@ -7,10 +7,12 @@ import {
   analysisSliceOperationId,
   analysisThresholdOperationId,
   createAnalysisController,
+  createBuiltInAnalysisBundle,
   createBuiltInAnalysisOperationRegistry,
   createBuiltInAnalysisValueTypeRegistry,
   createReferenceAnalysisProvider,
   createTileRuntime,
+  numericTileSourceToTileSource,
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
 } from '../src/analysis/index.ts'
@@ -34,10 +36,27 @@ interface SourceTracking {
   releases: number
 }
 
+class Deferred<Value> {
+  readonly promise: Promise<Value>
+  resolve: (value: Value) => void = () => undefined
+  reject: (reason: unknown) => void = () => undefined
+
+  constructor() {
+    this.promise = new Promise<Value>((resolve, reject) => {
+      this.resolve = resolve
+      this.reject = reject
+    })
+  }
+}
+
 const sourceDataset = (
   tracking: SourceTracking,
   sample: (indices: Readonly<Record<string, number>>) => number,
-  options: { readonly sampleType?: 'uint16' | 'float32'; readonly noDataValue?: number } = {},
+  options: {
+    readonly sampleType?: 'uint16' | 'float32'
+    readonly noDataValue?: number
+    readonly beforeSamples?: (request: Readonly<NumericTileReadRequest>) => Promise<void>
+  } = {},
 ): DirectNumericTileDataset => {
   const sampleType = options.sampleType ?? 'uint16'
   const descriptor = normalizeScientificDatasetDescriptor({
@@ -83,6 +102,8 @@ const sourceDataset = (
       const { targetSampleType, ...planeRequest } = input
       const request = normalizeScientificPlaneReadRequest(descriptor, planeRequest)
       tracking.reads.push(request)
+      request.signal?.throwIfAborted()
+      await options.beforeSamples?.(request)
       request.signal?.throwIfAborted()
       const data =
         targetSampleType === 'float64'
@@ -152,16 +173,12 @@ const graph = (
   ],
 })
 
-const executeDataset = async (
-  operationId: string,
-  parameters: AnalysisGraph['nodes'][number]['parameters'],
+const executeAnalysisGraph = async (
+  analysisGraph: AnalysisGraph,
   source: ScientificDataset,
   runtime: TileRuntime,
   tileSize = 2,
-): Promise<{
-  readonly dataset: ScientificDataset
-  readonly execution: AnalysisExecutionResult
-}> => {
+): Promise<AnalysisExecutionResult> => {
   const controller = createAnalysisController({
     operations: createBuiltInAnalysisOperationRegistry(),
     valueTypes: createBuiltInAnalysisValueTypeRegistry(source.descriptor),
@@ -175,7 +192,7 @@ const executeDataset = async (
     ],
     library: { version: '0.9.0', buildFingerprint: 'analysis-builtins-test' },
   })
-  const plan = await controller.planGraph(graph(operationId, parameters), {
+  const plan = await controller.planGraph(analysisGraph, {
     bindings: {
       source: {
         value: source,
@@ -189,7 +206,25 @@ const executeDataset = async (
       providerVersion: 1,
     },
   })
-  const execution = await controller.executeGraph(plan).result
+  return controller.executeGraph(plan).result
+}
+
+const executeDataset = async (
+  operationId: string,
+  parameters: AnalysisGraph['nodes'][number]['parameters'],
+  source: ScientificDataset,
+  runtime: TileRuntime,
+  tileSize = 2,
+): Promise<{
+  readonly dataset: ScientificDataset
+  readonly execution: AnalysisExecutionResult
+}> => {
+  const execution = await executeAnalysisGraph(
+    graph(operationId, parameters),
+    source,
+    runtime,
+    tileSize,
+  )
   const output = execution.outputs.get('dataset')
   if (!isDatasetOutput(output)) {
     await execution.release()
@@ -211,6 +246,7 @@ const collectValues = async (
   dataset: ScientificDataset,
   displayAxes: readonly [string, string],
   fixedIndices: readonly ScientificAxisIndex[] = [],
+  signal: AbortSignal = new AbortController().signal,
 ): Promise<number[]> => {
   const horizontal = dataset.descriptor.axes.find((entry) => entry.id === displayAxes[0])
   const vertical = dataset.descriptor.axes.find((entry) => entry.id === displayAxes[1])
@@ -219,7 +255,7 @@ const collectValues = async (
   for await (const tile of resolveNumericTileSource(dataset).readNumericTiles({
     displayAxes,
     fixedIndices,
-    signal: new AbortController().signal,
+    signal,
   })) {
     try {
       for (let y = 0; y < tile.height; y += 1) {
@@ -236,7 +272,389 @@ const collectValues = async (
   return values
 }
 
+const collectRegionValues = async (
+  dataset: ScientificDataset,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  signal: AbortSignal = new AbortController().signal,
+): Promise<number[]> => {
+  const values: number[] = []
+  for await (const tile of resolveNumericTileSource(dataset).readNumericTiles({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [{ axisId: 'energy', index: 0 }],
+    x,
+    y,
+    width,
+    height,
+    signal,
+  })) {
+    try {
+      for (let tileY = 0; tileY < tile.height; tileY += 1) {
+        for (let tileX = 0; tileX < tile.width; tileX += 1) {
+          const value = tile.data[tileY * tile.rowStrideElements + tileX * tile.componentCount]
+          values.push(typeof value === 'bigint' ? Number(value) : (value ?? Number.NaN))
+        }
+      }
+    } finally {
+      tile.release()
+    }
+  }
+  return values
+}
+
+const requestDatasetRegionValues = async (
+  runtime: TileRuntime,
+  dataset: ScientificDataset,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  signal: AbortSignal,
+  scope: string,
+): Promise<number[]> => {
+  const source = numericTileSourceToTileSource(resolveNumericTileSource(dataset))
+  const tile = await runtime.request(source, {
+    address: {
+      cacheClass: 'derived',
+      namespace: `test-derived:${scope}`,
+      dataset: {
+        datasetId: scope,
+        source: {
+          kind: 'session',
+          strength: 'session',
+          stability: 'instance',
+          id: scope,
+          size: 0,
+        },
+        sessionId: scope,
+        generation: 0,
+      },
+      displayAxes: ['x', 'y'],
+      fixedIndices: [{ axisId: 'energy', index: 0 }],
+      resolutionLevel: 0,
+      x,
+      y,
+      width,
+      height,
+    },
+    priority: 'visible',
+    signal,
+  })
+  try {
+    const values: number[] = []
+    for (let tileY = 0; tileY < tile.height; tileY += 1) {
+      for (let tileX = 0; tileX < tile.width; tileX += 1) {
+        const value = tile.data[tileY * tile.rowStrideElements + tileX * tile.componentCount]
+        values.push(typeof value === 'bigint' ? Number(value) : (value ?? Number.NaN))
+      }
+    }
+    return values
+  } finally {
+    tile.release()
+  }
+}
+
+const twoOperationGraph = (): AnalysisGraph => ({
+  schemaVersion: 1,
+  inputs: [{ name: 'source', valueType: { id: scientificDatasetValueTypeId, version: 1 } }],
+  nodes: [
+    {
+      id: 'crop',
+      operation: { id: analysisCropOperationId, version: 1 },
+      inputs: [{ port: 'dataset', source: { kind: 'input', input: 'source' } }],
+      parameters: { displayAxes: ['x', 'y'], x: 0, y: 0, width: 4, height: 4 },
+    },
+    {
+      id: 'blur',
+      operation: { id: analysisGaussianBlurOperationId, version: 1 },
+      inputs: [{ port: 'dataset', source: { kind: 'node', nodeId: 'crop', output: 'dataset' } }],
+      parameters: { displayAxes: ['x', 'y'], sigma: 0.5 },
+    },
+  ],
+  outputs: [{ name: 'dataset', source: { kind: 'node', nodeId: 'blur', output: 'dataset' } }],
+})
+
+const twoCropGraph = (): AnalysisGraph => ({
+  schemaVersion: 1,
+  inputs: [{ name: 'source', valueType: { id: scientificDatasetValueTypeId, version: 1 } }],
+  nodes: ['first', 'second'].map((id) => ({
+    id,
+    operation: { id: analysisCropOperationId, version: 1 },
+    inputs: [{ port: 'dataset', source: { kind: 'input' as const, input: 'source' } }],
+    parameters: { displayAxes: ['x', 'y'], x: 0, y: 0, width: 4, height: 4 },
+  })),
+  outputs: ['first', 'second'].map((name) => ({
+    name,
+    source: { kind: 'node' as const, nodeId: name, output: 'dataset' },
+  })),
+})
+
 describe('built-in dataset analysis operations', () => {
+  it('yields scheduler permits for one derived tile at maxConcurrency one', async () => {
+    const tracking: SourceTracking = { reads: [], releases: 0 }
+    const runtime = createTileRuntime({ limits: { maxConcurrency: 1 } })
+    const source = sourceDataset(tracking, (indices) => (indices.y ?? 0) * 10 + (indices.x ?? 0))
+    const derived = await executeDataset(
+      analysisCropOperationId,
+      { displayAxes: ['x', 'y'], x: 0, y: 0, width: 4, height: 4 },
+      source,
+      runtime,
+    )
+
+    await expect(
+      requestDatasetRegionValues(
+        runtime,
+        derived.dataset,
+        0,
+        0,
+        2,
+        2,
+        AbortSignal.timeout(1_000),
+        'single-derived',
+      ),
+    ).resolves.toEqual([0, 1, 10, 11])
+
+    await derived.execution.release()
+    runtime.clear()
+  })
+
+  it('completes four concurrent derived tiles at maxConcurrency four', async () => {
+    const tracking: SourceTracking = { reads: [], releases: 0 }
+    const runtime = createTileRuntime({ limits: { maxConcurrency: 4 } })
+    const source = sourceDataset(tracking, (indices) => (indices.y ?? 0) * 10 + (indices.x ?? 0))
+    const derived = await executeDataset(
+      analysisCropOperationId,
+      { displayAxes: ['x', 'y'], x: 0, y: 0, width: 4, height: 4 },
+      source,
+      runtime,
+    )
+    const coordinates = [
+      [0, 0],
+      [2, 0],
+      [0, 2],
+      [2, 2],
+    ] as const
+
+    const values = await Promise.all(
+      coordinates.map(([x, y], index) =>
+        requestDatasetRegionValues(
+          runtime,
+          derived.dataset,
+          x,
+          y,
+          2,
+          2,
+          AbortSignal.timeout(1_000),
+          `concurrent-derived:${index}`,
+        ),
+      ),
+    )
+    expect(values).toEqual([
+      [0, 1, 10, 11],
+      [2, 3, 12, 13],
+      [20, 21, 30, 31],
+      [22, 23, 32, 33],
+    ])
+
+    await derived.execution.release()
+    runtime.clear()
+  })
+
+  it('executes a crop followed by Gaussian blur at maxConcurrency one', async () => {
+    const tracking: SourceTracking = { reads: [], releases: 0 }
+    const runtime = createTileRuntime({ limits: { maxConcurrency: 1 } })
+    const source = sourceDataset(
+      tracking,
+      (indices) => ((indices.x ?? 0) === 1 && (indices.y ?? 0) === 1 ? 1 : 0),
+      { sampleType: 'float32' },
+    )
+    const execution = await executeAnalysisGraph(twoOperationGraph(), source, runtime)
+    const output = execution.outputs.get('dataset')
+    if (!isDatasetOutput(output)) throw new Error('Expected a chained dataset output')
+
+    const values = await requestDatasetRegionValues(
+      runtime,
+      output,
+      0,
+      0,
+      2,
+      2,
+      AbortSignal.timeout(1_000),
+      'two-operation-chain',
+    )
+    expect(values).toHaveLength(4)
+    expect(values.every(Number.isFinite)).toBe(true)
+
+    await execution.release()
+    runtime.clear()
+  })
+
+  it('propagates cancellation while a derived tile is blocked upstream', async () => {
+    const tracking: SourceTracking = { reads: [], releases: 0 }
+    const started = new Deferred<void>()
+    let upstreamAborts = 0
+    const source = sourceDataset(tracking, () => 1, {
+      beforeSamples: async (request) => {
+        started.resolve()
+        const signal = request.signal
+        await new Promise<void>((_resolve, reject) => {
+          if (signal === undefined) {
+            reject(new Error('Expected the runtime to provide an upstream AbortSignal'))
+            return
+          }
+          const onAbort = (): void => {
+            upstreamAborts += 1
+            reject(signal.reason)
+          }
+          if (signal.aborted) onAbort()
+          else signal.addEventListener('abort', onAbort, { once: true })
+        })
+      },
+    })
+    const runtime = createTileRuntime({ limits: { maxConcurrency: 1 } })
+    const derived = await executeDataset(
+      analysisCropOperationId,
+      { displayAxes: ['x', 'y'], x: 0, y: 0, width: 4, height: 4 },
+      source,
+      runtime,
+    )
+    const abort = new AbortController()
+    const pending = requestDatasetRegionValues(
+      runtime,
+      derived.dataset,
+      0,
+      0,
+      2,
+      2,
+      abort.signal,
+      'cancelled-derived',
+    )
+    await started.promise
+    abort.abort(new Error('cancel blocked derived tile'))
+
+    await expect(pending).rejects.toThrow('cancel blocked derived tile')
+    expect(upstreamAborts).toBe(1)
+    await derived.execution.release()
+    runtime.clear()
+  })
+
+  it('keeps a shared upstream read alive when one derived consumer cancels', async () => {
+    const tracking: SourceTracking = { reads: [], releases: 0 }
+    const started = new Deferred<void>()
+    const gate = new Deferred<void>()
+    let upstreamAborts = 0
+    const source = sourceDataset(tracking, () => 7, {
+      beforeSamples: async (request) => {
+        started.resolve()
+        const signal = request.signal
+        if (signal === undefined) return gate.promise
+        await new Promise<void>((resolve, reject) => {
+          const onAbort = (): void => {
+            upstreamAborts += 1
+            reject(signal.reason)
+          }
+          signal.addEventListener('abort', onAbort, { once: true })
+          void gate.promise
+            .then(resolve, reject)
+            .finally(() => signal.removeEventListener('abort', onAbort))
+        })
+      },
+    })
+    const runtime = createTileRuntime({ limits: { maxConcurrency: 2 } })
+    const execution = await executeAnalysisGraph(twoCropGraph(), source, runtime)
+    const firstDataset = execution.outputs.get('first')
+    const secondDataset = execution.outputs.get('second')
+    if (!isDatasetOutput(firstDataset) || !isDatasetOutput(secondDataset)) {
+      throw new Error('Expected two derived dataset outputs')
+    }
+    const firstAbort = new AbortController()
+    const secondAbort = new AbortController()
+    const first = requestDatasetRegionValues(
+      runtime,
+      firstDataset,
+      0,
+      0,
+      2,
+      2,
+      firstAbort.signal,
+      'shared-first',
+    )
+    const second = requestDatasetRegionValues(
+      runtime,
+      secondDataset,
+      0,
+      0,
+      2,
+      2,
+      secondAbort.signal,
+      'shared-second',
+    )
+    await started.promise
+    firstAbort.abort(new Error('first derived consumer left'))
+
+    await expect(first).rejects.toThrow('first derived consumer left')
+    expect(upstreamAborts).toBe(0)
+    gate.resolve()
+    await expect(second).resolves.toEqual([7, 7, 7, 7])
+    expect(tracking.reads).toHaveLength(1)
+
+    await execution.release()
+    runtime.clear()
+  })
+
+  it('isolates default built-in bundle cache identities within one runtime', async () => {
+    const runtime = createTileRuntime()
+    const executeWithDefaultBundle = async (
+      input: ScientificDataset,
+    ): Promise<{
+      readonly dataset: ScientificDataset
+      readonly execution: AnalysisExecutionResult
+    }> => {
+      const bundle = createBuiltInAnalysisBundle({ descriptor: input.descriptor, runtime })
+      const controller = createAnalysisController({
+        ...bundle,
+        library: { version: '0.9.0', buildFingerprint: 'default-identity-test' },
+      })
+      const plan = await controller.planGraph(
+        graph(analysisCropOperationId, {
+          displayAxes: ['x', 'y'],
+          x: 0,
+          y: 0,
+          width: 4,
+          height: 4,
+        }),
+        {
+          bindings: {
+            source: {
+              value: input,
+              valueType: { id: scientificDatasetValueTypeId, version: 1 },
+              characteristics: scientificDatasetCharacteristics(input),
+            },
+          },
+        },
+      )
+      const execution = await controller.executeGraph(plan).result
+      const output = execution.outputs.get('dataset')
+      if (!isDatasetOutput(output)) throw new Error('Expected a default-bundle dataset output')
+      return { dataset: output, execution }
+    }
+    const firstTracking: SourceTracking = { reads: [], releases: 0 }
+    const secondTracking: SourceTracking = { reads: [], releases: 0 }
+    const first = await executeWithDefaultBundle(sourceDataset(firstTracking, () => 3))
+    const second = await executeWithDefaultBundle(sourceDataset(secondTracking, () => 9))
+
+    expect(await collectRegionValues(first.dataset, 0, 0, 2, 2)).toEqual([3, 3, 3, 3])
+    expect(await collectRegionValues(second.dataset, 0, 0, 2, 2)).toEqual([9, 9, 9, 9])
+    expect(firstTracking.reads).toHaveLength(1)
+    expect(secondTracking.reads).toHaveLength(1)
+
+    await first.execution.release()
+    await second.execution.release()
+    runtime.clear()
+  })
+
   it('infers and lazily executes calibrated arbitrary-axis crop with region pushdown', async () => {
     const tracking: SourceTracking = { reads: [], releases: 0 }
     const source = sourceDataset(

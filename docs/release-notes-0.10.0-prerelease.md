@@ -72,6 +72,8 @@ These are local wall-clock and bounded cache measurements, not process peak RSS 
 - Cloud storage, authentication, collaboration, comments, and server workspace services remain app
   work.
 - CPU cancellation remains cooperative at explicit abort checkpoints.
+- Built-in dataset operations still need to converge with `DerivedTileSource` on one explicit
+  tile-kernel acceleration path before the analysis API is considered stable.
 - Reader-provided display recommendations and package-owned viewport/persistence policies are not
   part of the current generic contract.
 
@@ -85,18 +87,18 @@ This draft is **not release-ready**. Current audit evidence:
 - clean `npm ci`: passed;
 - installed package fixture: passed on Node 24.16.0 and minimum-supported Node 22.21.1;
 - packed imports: no Worker construction, fetch, interval, or package global;
-- browser, type, package, lint, formatting, 39 focused ordinary-pipeline/application tests, 12 real
+- browser, type, package, lint, formatting, 45 focused ordinary-pipeline/application tests, 12 real
   Chromium ordinary-demo/scientific tests, and application benchmark gates: passed;
 - deterministic release fuzz: passed with seed `1592598566`, 512 mutations per registered codec,
   and no crash artifact;
-- dry-run tarball: 376 files, 778,397 packed bytes, 3,756,762 unpacked bytes, SHA-1
-  `2178a4338e79f25391960fc853f93e3f4847f661`, integrity
-  `sha512-dlWxBtVCa/UZOJA5zQ9lQk1fSdsARKSDPT7hKgO1h2iIoJTTm1evuqm4K1rPPka3KMu1c8wO1GAjUnEBw+cIXw==`;
+- dry-run tarball: 376 files, 778,585 packed bytes, 3,757,512 unpacked bytes, SHA-1
+  `752f2c7ac38da25e36da68919e0e3dada53505ba`, integrity
+  `sha512-1oqvC2p+pQVIM3gTosH67Kr7AGmO2W4VtL+LG0Z1NKpozMoPaXpEkjat7GwCTARDDUSv2JAWmwg2QjtP0tkJuw==`;
 - separate materials app: clean install, two unit tests, strict production build, and three real
   Chromium E2E tests passed against that exact tarball; and
-- `npm run check`: failed after 1,144 passing tests because three expanded 12-bit AVIF fixtures have
+- `npm run check`: failed after 1,150 passing tests because three expanded 12-bit AVIF fixtures have
   Sharp-oracle hash mismatches. The command's hostile-source phase was therefore not reached; an
-  independent hostile-source run reached the same three failures with the other 1,144 tests passing.
+  independent hostile-source run reached the same three failures with the other 1,150 tests passing.
 
 The AVIF failures predate this slice and are outside the application-platform changes, but a
 mandatory gate is still a mandatory gate. Reconcile those oracle expectations or decoder results,
