@@ -1,6 +1,6 @@
 import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
-import type { EnviDataset } from './formats/envi.ts'
+import type { ScientificDataset, ScientificMetadataValue } from './dataset-v2.ts'
 import { rasterBlockToNumericTile, validateNumericTile } from './numeric-tile.ts'
 
 export interface EnviClassificationRenderOptions {
@@ -41,13 +41,14 @@ const positiveSize = (name: string, value: number): number => {
 }
 
 const resolveRender = (
-  dataset: EnviDataset,
+  width: number,
+  height: number,
   options: Readonly<EnviClassificationRenderOptions>,
 ): ResolvedClassificationRender => {
   const sourceX = options.x ?? 0
   const sourceY = options.y ?? 0
-  const sourceWidth = options.width ?? dataset.sizeX - sourceX
-  const sourceHeight = options.height ?? dataset.sizeY - sourceY
+  const sourceWidth = options.width ?? width - sourceX
+  const sourceHeight = options.height ?? height - sourceY
   const maxWidth = positiveSize('ENVI classification maxWidth', options.maxWidth)
   const maxHeight = positiveSize('ENVI classification maxHeight', options.maxHeight)
   if (
@@ -59,8 +60,8 @@ const resolveRender = (
     sourceY < 0 ||
     sourceWidth < 1 ||
     sourceHeight < 1 ||
-    sourceX + sourceWidth > dataset.sizeX ||
-    sourceY + sourceHeight > dataset.sizeY
+    sourceX + sourceWidth > width ||
+    sourceY + sourceHeight > height
   ) {
     throw invalidInput('ENVI classification render region is outside the dataset')
   }
@@ -93,11 +94,10 @@ const sourceCoordinates = (sourceSize: number, outputSize: number): Uint32Array 
 }
 
 const classificationRows = async function* (
-  dataset: EnviDataset,
+  dataset: ScientificDataset,
+  classes: readonly EnviClassificationClass[],
   render: ResolvedClassificationRender,
 ): AsyncGenerator<PixelBlock> {
-  const classes = dataset.classes
-  if (classes === undefined) throw invalidInput('ENVI dataset has no classification metadata')
   const sourceColumns = sourceCoordinates(render.sourceWidth, render.outputWidth)
   const sourceRows = sourceCoordinates(render.sourceHeight, render.outputHeight)
   for (let outputY = 0; outputY < render.outputHeight; outputY += 1) {
@@ -105,9 +105,10 @@ const classificationRows = async function* (
     if (sourceRow === undefined) throw invalidInput('ENVI classification row mapping is invalid')
     let emitted = false
     for await (const block of dataset.readPlane({
-      z: 0,
-      c: 0,
-      t: 0,
+      displayAxes: ['x', 'y'],
+      fixedIndices: dataset.descriptor.axes
+        .filter(({ id }) => id !== 'x' && id !== 'y')
+        .map(({ id }) => Object.freeze({ axisId: id, index: 0 })),
       x: render.sourceX,
       y: render.sourceY + sourceRow,
       width: render.sourceWidth,
@@ -167,19 +168,67 @@ const classificationRows = async function* (
   }
 }
 
+interface EnviClassificationClass {
+  readonly color: { readonly red: number; readonly green: number; readonly blue: number }
+}
+
+const isMetadataArray = (
+  value: ScientificMetadataValue,
+): value is readonly ScientificMetadataValue[] => Array.isArray(value)
+
+const metadataObject = (
+  value: ScientificMetadataValue | undefined,
+): Readonly<Record<string, ScientificMetadataValue>> | undefined =>
+  value !== undefined && value !== null && typeof value === 'object' && !isMetadataArray(value)
+    ? value
+    : undefined
+
+const byte = (value: ScientificMetadataValue | undefined, label: string): number => {
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0 || value > 255) {
+    throw invalidInput(`${label} must be an 8-bit integer`)
+  }
+  return value
+}
+
+const classificationMetadata = (dataset: ScientificDataset): readonly EnviClassificationClass[] => {
+  const envi = metadataObject(dataset.descriptor.metadata?.['purejsimage:envi'])
+  if (envi?.fileType !== 'ENVI Classification' || !Array.isArray(envi.classes)) {
+    throw invalidInput('renderEnviClassification requires ENVI Classification metadata')
+  }
+  return Object.freeze(
+    envi.classes.map((value, index) => {
+      const entry = metadataObject(value)
+      const color = metadataObject(entry?.color)
+      if (entry === undefined || color === undefined) {
+        throw invalidInput(`ENVI classification class ${index} is invalid`)
+      }
+      return Object.freeze({
+        color: Object.freeze({
+          red: byte(color.red, `ENVI classification class ${index} red`),
+          green: byte(color.green, `ENVI classification class ${index} green`),
+          blue: byte(color.blue, `ENVI classification class ${index} blue`),
+        }),
+      })
+    }),
+  )
+}
+
 /**
  * Renders an ENVI Classification dataset with its declared RGB lookup table.
  * Nearest-neighbor sampling preserves categorical values, reads at most one
  * source row at a time, and never creates a source-sized display bitmap.
  */
 export const renderEnviClassification = (
-  dataset: EnviDataset,
+  dataset: ScientificDataset,
   options: Readonly<EnviClassificationRenderOptions>,
 ): EnviClassificationRenderedImage => {
-  if (dataset.fileType !== 'ENVI Classification' || dataset.classes === undefined) {
-    throw invalidInput('renderEnviClassification requires an ENVI Classification dataset')
+  const x = dataset.descriptor.axes.find(({ id }) => id === 'x')
+  const y = dataset.descriptor.axes.find(({ id }) => id === 'y')
+  if (x === undefined || y === undefined) {
+    throw invalidInput('renderEnviClassification requires x and y axes')
   }
-  const render = resolveRender(dataset, options)
+  const classes = classificationMetadata(dataset)
+  const render = resolveRender(x.length, y.length, options)
   return Object.freeze({
     width: render.outputWidth,
     height: render.outputHeight,
@@ -189,6 +238,6 @@ export const renderEnviClassification = (
       width: render.sourceWidth,
       height: render.sourceHeight,
     }),
-    pixels: classificationRows(dataset, render),
+    pixels: classificationRows(dataset, classes, render),
   })
 }

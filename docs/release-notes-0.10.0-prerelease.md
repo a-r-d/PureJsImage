@@ -30,10 +30,11 @@ portable entries.
 
 ## Compatibility and migration
 
-The fixed XYZCT `MultidimensionalRasterDataset` remains only as a deprecated migration bridge. New
-code should select two display axes and explicit indices for every other non-singleton labeled axis.
-`toScientificDataset()` and `toMultidimensionalRasterDataset()` are deliberate adapters rather than
-silent conversion. See [Scientific reader registry](scientific-reader-registry.md#migrating-from-fixed-xyzct-datasets)
+Labeled-axis `ScientificDataset` is the only public scientific dataset model. The unpublished fixed
+XYZCT model and its adapters remain only inside parser compatibility code while those parsers
+migrate; they are not package exports. Reader-opened datasets include structured source,
+reader-version, and dataset identities that analysis planning uses automatically. See the
+[Scientific reader registry](scientific-reader-registry.md#labeled-axis-reads)
 and the [0.10 ScientificDataset V2 migration guide](migration/0.10-scientific-v2.md).
 
 Persisted project, lifecycle, reproducibility, and tile-memory guarantees are collected in the

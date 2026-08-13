@@ -6,10 +6,10 @@ import {
   encodeGsf,
   gsfReader,
   mrcReader,
-  openGsf,
   ScientificReaderRegistry,
   type ScientificDataset,
 } from '../src/scientific/index.ts'
+import { openGsf } from '../src/scientific/formats/gsf.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
 import { MemorySource, type ImageSource } from '../src/source.ts'
 

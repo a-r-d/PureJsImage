@@ -2,28 +2,30 @@ import { browserRuntime } from '../../../src/browser-runtime.ts'
 import { pngCodec } from '../../../src/codecs/png.ts'
 import type { PixelBlock } from '../../../src/pixel.ts'
 import {
+  cbfReader,
+  createScientificLibrary,
+  enviReader,
+  fitsReader,
+  gsfReader,
   measureScientificPlane,
-  openCbf,
-  openEnvi,
-  openFits,
-  openGsf,
-  openMrc,
+  mrcReader,
   projectScientificVolume,
   renderEnviClassification,
   renderScientificPlane,
   sliceScientificVolume,
-  type CbfDataset,
-  type EnviDataset,
-  type FitsDataset,
-  type FitsDocument,
-  type GsfDataset,
-  type MrcDataset,
-  type MultidimensionalRasterDataset,
-  type ScientificPlaneMeasurement,
+  type LabeledScientificPlaneMeasurement,
+  type ScientificAxisDescriptor,
+  type ScientificDataset,
+  type ScientificDocument,
+  type ScientificMetadataObject,
+  type ScientificMetadataValue,
   type ScientificRange,
+  type ScientificResource,
 } from '../../../src/scientific/index.ts'
+import { BlobSource, MemorySource } from '../../../src/source.ts'
 import { Uint8ArraySink } from '../../../src/sink.ts'
 import type {
+  ScientificDemoMode,
   ScientificDemoRenderSettings,
   ScientificOpenedMetadata,
   ScientificWorkerRequest,
@@ -35,19 +37,20 @@ interface WorkerScope {
   postMessage(message: ScientificWorkerResponse, transfer?: readonly Transferable[]): void
 }
 
-type DemoDataset = GsfDataset | EnviDataset | FitsDataset | MrcDataset | CbfDataset
-
+const library = createScientificLibrary({
+  readers: [gsfReader, enviReader, fitsReader, mrcReader, cbfReader],
+})
 const scope = globalThis as unknown as WorkerScope
-let dataset: DemoDataset | undefined
-let fitsDocument: FitsDocument | undefined
-let fitsName = ''
+let dataset: ScientificDataset | undefined
+let document: ScientificDocument | undefined
+let documentName = ''
 let sourceBytes = 0
 let latestSequence = 0
 let generation = 0
 let latestDisplay:
   | { readonly width: number; readonly height: number; readonly pixels: Uint8ClampedArray }
   | undefined
-const rangeCache = new Map<string, ScientificPlaneMeasurement>()
+const rangeCache = new Map<string, LabeledScientificPlaneMeasurement>()
 
 const post = (message: ScientificWorkerResponse, transfer: readonly Transferable[] = []): void => {
   scope.postMessage(message, transfer)
@@ -59,7 +62,87 @@ const errorMessage = (cause: unknown): string =>
 const inputSize = (input: ArrayBuffer | File): number =>
   input instanceof ArrayBuffer ? input.byteLength : input.size
 
-const beginDataset = (opened: DemoDataset, bytes: number): void => {
+const inputResource = (id: string, name: string, input: ArrayBuffer | File): ScientificResource =>
+  Object.freeze({
+    id,
+    name,
+    source: input instanceof File ? new BlobSource(input) : new MemorySource(input),
+  })
+
+const isMetadataObject = (
+  value: ScientificMetadataValue | undefined,
+): value is ScientificMetadataObject =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+
+const formatMetadata = (
+  active: ScientificDataset,
+  key: string,
+): ScientificMetadataObject | undefined => {
+  const value = active.descriptor.metadata?.[key]
+  return isMetadataObject(value) ? value : undefined
+}
+
+const metadataNumber = (
+  metadata: ScientificMetadataObject | undefined,
+  key: string,
+): number | undefined => {
+  const value = metadata?.[key]
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+}
+
+const metadataString = (
+  metadata: ScientificMetadataObject | undefined,
+  key: string,
+): string | undefined => {
+  const value = metadata?.[key]
+  return typeof value === 'string' ? value : undefined
+}
+
+const axis = (active: ScientificDataset, id: string): ScientificAxisDescriptor | undefined =>
+  active.descriptor.axes.find((candidate) => candidate.id === id)
+
+const horizontalAxis = (active: ScientificDataset): ScientificAxisDescriptor =>
+  axis(active, 'x') ??
+  active.descriptor.axes[0] ??
+  (() => {
+    throw new Error('Dataset has no horizontal axis')
+  })()
+
+const verticalAxis = (active: ScientificDataset): ScientificAxisDescriptor =>
+  axis(active, 'y') ??
+  active.descriptor.axes[1] ??
+  (() => {
+    throw new Error('Dataset has no vertical axis')
+  })()
+
+const channelAxis = (active: ScientificDataset): ScientificAxisDescriptor | undefined =>
+  active.descriptor.axes.find(
+    (candidate) => candidate.kind === 'spectral' || candidate.kind === 'channel',
+  )
+
+const volumeAxis = (active: ScientificDataset): ScientificAxisDescriptor | undefined =>
+  active.descriptor.axes.find(
+    (candidate) =>
+      candidate.id !== horizontalAxis(active).id &&
+      candidate.id !== verticalAxis(active).id &&
+      candidate !== channelAxis(active) &&
+      candidate.length > 1,
+  )
+
+const fixedIndices = (
+  active: ScientificDataset,
+  displayAxes: readonly [string, string],
+  selections: Readonly<Record<string, number>> = {},
+) =>
+  Object.freeze(
+    active.descriptor.axes
+      .filter((candidate) => !displayAxes.includes(candidate.id))
+      .map((candidate) =>
+        Object.freeze({ axisId: candidate.id, index: selections[candidate.id] ?? 0 }),
+      ),
+  )
+
+const beginDataset = (opened: ScientificDataset, bytes: number): void => {
   dataset = opened
   sourceBytes = bytes
   generation += 1
@@ -67,135 +150,143 @@ const beginDataset = (opened: DemoDataset, bytes: number): void => {
   latestDisplay = undefined
 }
 
-const gsfMetadata = (opened: GsfDataset, name: string, bytes: number): ScientificOpenedMetadata => {
-  const pixelX = opened.physicalSizeX
-  const pixelY = opened.physicalSizeY
-  return {
-    mode: 'surface',
-    name,
-    width: opened.sizeX,
-    height: opened.sizeY,
-    bands: 1,
-    sampleType: opened.sampleType,
-    sourceBytes: bytes,
-    ...(opened.channels[0]?.name === undefined ? {} : { title: opened.channels[0].name }),
-    ...(opened.channels[0]?.unit === undefined ? {} : { valueUnit: opened.channels[0].unit }),
-    ...(pixelX === undefined ? {} : { pixelSizeX: pixelX.value }),
-    ...(pixelY === undefined ? {} : { pixelSizeY: pixelY.value }),
-    ...(pixelX === undefined ? {} : { physicalWidth: pixelX.value * opened.sizeX }),
-    ...(pixelY === undefined ? {} : { physicalHeight: pixelY.value * opened.sizeY }),
-    ...(pixelX?.unit === undefined ? {} : { physicalUnit: pixelX.unit }),
-  }
-}
+const axisStep = (selected: ScientificAxisDescriptor): number | undefined =>
+  selected.coordinates.type === 'linear' ? selected.coordinates.step : undefined
 
-const enviMetadata = (
-  opened: EnviDataset,
+const modeForReader = (readerId: string): ScientificDemoMode =>
+  readerId === 'purejsimage/gsf'
+    ? 'surface'
+    : readerId === 'purejsimage/envi'
+      ? 'hyperspectral'
+      : readerId === 'purejsimage/fits'
+        ? 'fits'
+        : readerId === 'purejsimage/mrc'
+          ? 'mrc'
+          : 'cbf'
+
+const openedMetadata = (
+  active: ScientificDataset,
+  openedDocument: ScientificDocument,
   name: string,
   bytes: number,
 ): ScientificOpenedMetadata => {
-  const centers = opened.channels.map((channel) => channel.spectral?.center ?? null)
-  const actual = centers.filter((center): center is number => center !== null)
-  const unit = opened.channels.find((channel) => channel.spectral?.unit !== undefined)?.spectral
-    ?.unit
+  const x = horizontalAxis(active)
+  const y = verticalAxis(active)
+  const channels = channelAxis(active)
+  const volume = volumeAxis(active)
+  const mode = modeForReader(openedDocument.reader.id)
+  const spectralCenters = channels?.entries?.map((entry) => entry.spectral?.center ?? null)
+  const actualCenters = spectralCenters?.filter((value): value is number => value !== null) ?? []
+  const envi = formatMetadata(active, 'purejsimage:envi')
+  const fits = formatMetadata(active, 'purejsimage:fits')
+  const mrc = formatMetadata(active, 'purejsimage:mrc')
+  const cbf = formatMetadata(active, 'purejsimage:cbf')
+  const detector = isMetadataObject(cbf?.detector) ? cbf.detector : undefined
+  const pixelSizeX = axisStep(x)
+  const pixelSizeY = axisStep(y)
+  const enviFileType = metadataString(envi, 'fileType')
+  const fitsHdu = metadataNumber(fits, 'index')
+  const bitpix = metadataNumber(fits, 'bitpix')
+  const byteOrder = metadataString(mrc, 'byteOrder')
+  const mrcMode = metadataNumber(mrc, 'mode')
+  const detectorName = metadataString(detector, 'detectorName')
+  const exposureTimeSeconds = metadataNumber(detector, 'exposureTimeSeconds')
+  const wavelengthAngstroms = metadataNumber(detector, 'wavelengthAngstroms')
   return {
-    mode: 'hyperspectral',
+    mode,
     name,
-    width: opened.sizeX,
-    height: opened.sizeY,
-    bands: opened.sizeC,
-    sampleType: opened.sampleType,
+    width: x.length,
+    height: y.length,
+    bands: channels?.length ?? 1,
+    sampleType: active.descriptor.sampleType,
     sourceBytes: bytes,
-    channelCenters: Object.freeze(centers),
-    enviFileType: opened.fileType,
-    ...(opened.classes === undefined ? {} : { classificationClasses: opened.classes.length }),
-    ...(actual.length === 0
+    ...(openedDocument.reader.id !== 'purejsimage/gsf' || channels?.entries?.[0]?.name === undefined
       ? {}
-      : { wavelengthMin: Math.min(...actual), wavelengthMax: Math.max(...actual) }),
-    ...(unit === undefined ? {} : { wavelengthUnit: unit }),
+      : { title: channels.entries[0].name }),
+    ...(channels?.entries?.[0]?.unit === undefined
+      ? active.descriptor.components[0]?.unit === undefined
+        ? {}
+        : { valueUnit: active.descriptor.components[0].unit }
+      : { valueUnit: channels.entries[0].unit }),
+    ...(pixelSizeX === undefined
+      ? {}
+      : { pixelSizeX, physicalWidth: Math.abs(pixelSizeX) * x.length }),
+    ...(pixelSizeY === undefined
+      ? {}
+      : { pixelSizeY, physicalHeight: Math.abs(pixelSizeY) * y.length }),
+    ...(x.unit === undefined ? {} : { physicalUnit: x.unit }),
+    ...(volume === undefined ? {} : { sizeZ: volume.length }),
+    ...(spectralCenters === undefined ? {} : { channelCenters: Object.freeze(spectralCenters) }),
+    ...(actualCenters.length === 0
+      ? {}
+      : { wavelengthMin: Math.min(...actualCenters), wavelengthMax: Math.max(...actualCenters) }),
+    ...(channels?.unit === undefined ? {} : { wavelengthUnit: channels.unit }),
+    ...(enviFileType === undefined
+      ? {}
+      : { enviFileType: enviFileType === 'ENVI Classification' ? enviFileType : 'ENVI Standard' }),
+    ...(Array.isArray(envi?.classes) ? { classificationClasses: envi.classes.length } : {}),
+    ...(fitsHdu === undefined ? {} : { fitsHdu }),
+    ...(fits === undefined ? {} : { fitsPrimary: fits.primary === true }),
+    ...(bitpix === undefined ? {} : { bitpix }),
+    ...(openedDocument.reader.id !== 'purejsimage/fits'
+      ? {}
+      : {
+          fitsHdus: Object.freeze(
+            openedDocument.datasets.map((summary) => ({
+              index: Number.parseInt(summary.id.replace('hdu-', ''), 10),
+              canOpenRaster: true,
+              label: summary.name ?? summary.id,
+            })),
+          ),
+        }),
+    ...(byteOrder === undefined ? {} : { byteOrder }),
+    ...(mrcMode === undefined ? {} : { mrcMode }),
+    ...(detectorName === undefined ? {} : { detectorName }),
+    ...(exposureTimeSeconds === undefined ? {} : { exposureTimeSeconds }),
+    ...(wavelengthAngstroms === undefined ? {} : { wavelengthAngstroms }),
   }
 }
 
-const fitsMetadata = (
-  opened: FitsDataset,
-  document: FitsDocument,
+const openDocument = async (
   name: string,
   bytes: number,
-): ScientificOpenedMetadata => ({
-  mode: 'fits',
-  name,
-  width: opened.sizeX,
-  height: opened.sizeY,
-  bands: 1,
-  sizeZ: opened.sizeZ,
-  sampleType: opened.sampleType,
-  sourceBytes: bytes,
-  fitsHdu: opened.hdu.index,
-  fitsPrimary: opened.hdu.primary,
-  bitpix: opened.bitpix,
-  bscale: opened.bscale,
-  bzero: opened.bzero,
-  storedSampleType: opened.storedSampleType,
-  ...(opened.blank === undefined ? {} : { blank: opened.blank }),
-  fitsHdus: Object.freeze(
-    document.hdus.map((hdu) => ({
-      index: hdu.index,
-      canOpenRaster: hdu.canOpenRaster,
-      label: `HDU ${hdu.index}: ${hdu.primary ? 'Primary' : (hdu.extensionType ?? 'Extension')} ${hdu.dimensions.length === 0 ? '(empty)' : hdu.dimensions.join(' × ')}`,
-    })),
-  ),
-})
-
-const mrcMetadata = (
-  opened: MrcDataset,
-  name: string,
-  bytes: number,
-): ScientificOpenedMetadata => ({
-  mode: 'mrc',
-  name,
-  width: opened.sizeX,
-  height: opened.sizeY,
-  bands: 1,
-  sizeZ: opened.sizeZ,
-  sampleType: opened.sampleType,
-  sourceBytes: bytes,
-  byteOrder: opened.byteOrder,
-  mrcMode: opened.mode,
-  ...(opened.physicalSizeX === undefined ? {} : { pixelSizeX: opened.physicalSizeX.value }),
-  ...(opened.physicalSizeY === undefined ? {} : { pixelSizeY: opened.physicalSizeY.value }),
-  ...(opened.physicalSizeX?.unit === undefined ? {} : { physicalUnit: opened.physicalSizeX.unit }),
-})
-
-const cbfMetadata = (
-  opened: CbfDataset,
-  name: string,
-  bytes: number,
-): ScientificOpenedMetadata => ({
-  mode: 'cbf',
-  name,
-  width: opened.sizeX,
-  height: opened.sizeY,
-  bands: 1,
-  sampleType: opened.sampleType,
-  valueUnit: 'counts',
-  sourceBytes: bytes,
-  ...(opened.detector.detectorName === undefined
-    ? {}
-    : { detectorName: opened.detector.detectorName }),
-  ...(opened.detector.exposureTimeSeconds === undefined
-    ? {}
-    : { exposureTimeSeconds: opened.detector.exposureTimeSeconds }),
-  ...(opened.detector.wavelengthAngstroms === undefined
-    ? {}
-    : { wavelengthAngstroms: opened.detector.wavelengthAngstroms }),
-})
+  primary: ScientificResource,
+  readerId: string,
+  companions?: readonly ScientificResource[],
+): Promise<void> => {
+  const companionResolver =
+    companions === undefined
+      ? undefined
+      : Object.freeze({
+          async resolve(
+            request:
+              | { readonly kind: 'relative-name'; readonly name: string }
+              | { readonly kind: 'role'; readonly role: string; readonly relativeName?: string },
+          ) {
+            if (request.kind === 'role')
+              return companions.find((resource) => resource.id === request.role)
+            return companions.find((resource) => resource.name === request.name)
+          },
+        })
+  const openedDocument = await library.open({
+    primary,
+    readerId,
+    ...(companionResolver === undefined ? {} : { companions: companionResolver }),
+  })
+  const first = openedDocument.datasets[0]
+  if (first === undefined) throw new Error('This document contains no supported scientific raster')
+  const opened = await openedDocument.openDataset(first.id)
+  await document?.close?.()
+  document = openedDocument
+  documentName = name
+  beginDataset(opened, bytes)
+  post({ type: 'opened', metadata: openedMetadata(opened, openedDocument, name, bytes) })
+}
 
 const openGsfFile = async (name: string, data: ArrayBuffer | File): Promise<void> => {
   post({ type: 'opening', message: 'Reading GSF metadata…' })
   const bytes = inputSize(data)
-  const opened = await openGsf(data, { maxInputBytes: Math.max(bytes, 1) })
-  fitsDocument = undefined
-  beginDataset(opened, bytes)
-  post({ type: 'opened', metadata: gsfMetadata(opened, name, bytes) })
+  await openDocument(name, bytes, inputResource('primary', name, data), 'purejsimage/gsf')
 }
 
 const openEnviFiles = async (
@@ -205,58 +296,46 @@ const openEnviFiles = async (
   data: ArrayBuffer | File,
 ): Promise<void> => {
   post({ type: 'opening', message: 'Parsing the ENVI header and validating the binary raster…' })
-  const headerBytes = inputSize(header)
-  const dataBytes = inputSize(data)
-  const opened = await openEnvi({
-    header,
-    data,
-    maxInputBytes: Math.max(headerBytes, dataBytes, 1),
-    maxFrames: 100_000,
-  })
-  fitsDocument = undefined
-  beginDataset(opened, headerBytes + dataBytes)
-  post({
-    type: 'opened',
-    metadata: enviMetadata(opened, `${headerName} + ${dataName}`, sourceBytes),
-  })
+  const headerResource = inputResource('header', headerName, header)
+  const dataResource = inputResource('data', dataName, data)
+  await openDocument(
+    `${headerName} + ${dataName}`,
+    inputSize(header) + inputSize(data),
+    headerResource,
+    'purejsimage/envi',
+    [headerResource, dataResource],
+  )
 }
 
 const selectFitsHdu = async (index: number): Promise<void> => {
-  const document = fitsDocument
-  if (!document) throw new Error('Open a FITS document before selecting an HDU')
-  const opened = await document.openImage(index)
+  const openedDocument = document
+  if (openedDocument?.reader.id !== 'purejsimage/fits') {
+    throw new Error('Open a FITS document before selecting an HDU')
+  }
+  const opened = await openedDocument.openDataset(`hdu-${index}`)
   beginDataset(opened, sourceBytes)
-  post({ type: 'opened', metadata: fitsMetadata(opened, document, fitsName, sourceBytes) })
+  post({
+    type: 'opened',
+    metadata: openedMetadata(opened, openedDocument, documentName, sourceBytes),
+  })
 }
 
 const openFitsFile = async (name: string, data: ArrayBuffer | File): Promise<void> => {
   post({ type: 'opening', message: 'Parsing FITS Header/Data Units…' })
   const bytes = inputSize(data)
-  const document = await openFits(data, { maxInputBytes: Math.max(bytes, 1), maxFrames: 100_000 })
-  fitsDocument = document
-  fitsName = name
-  sourceBytes = bytes
-  const first = document.hdus.find((hdu) => hdu.canOpenRaster)
-  if (!first) throw new Error('This FITS file contains no supported image array')
-  await selectFitsHdu(first.index)
+  await openDocument(name, bytes, inputResource('primary', name, data), 'purejsimage/fits')
 }
 
 const openMrcFile = async (name: string, data: ArrayBuffer | File): Promise<void> => {
   post({ type: 'opening', message: 'Parsing the MRC2014 header and validating the volume…' })
   const bytes = inputSize(data)
-  const opened = await openMrc(data, { maxInputBytes: Math.max(bytes, 1), maxFrames: 100_000 })
-  fitsDocument = undefined
-  beginDataset(opened, bytes)
-  post({ type: 'opened', metadata: mrcMetadata(opened, name, bytes) })
+  await openDocument(name, bytes, inputResource('primary', name, data), 'purejsimage/mrc')
 }
 
 const openCbfFile = async (name: string, data: ArrayBuffer | File): Promise<void> => {
   post({ type: 'opening', message: 'Parsing CBF metadata and validating detector counts…' })
   const bytes = inputSize(data)
-  const opened = await openCbf(data, { maxInputBytes: Math.max(bytes, 1) })
-  fitsDocument = undefined
-  beginDataset(opened, bytes)
-  post({ type: 'opened', metadata: cbfMetadata(opened, name, bytes) })
+  await openDocument(name, bytes, inputResource('primary', name, data), 'purejsimage/cbf')
 }
 
 const rangeOptions = (settings: ScientificDemoRenderSettings): ScientificRange => {
@@ -268,17 +347,20 @@ const rangeOptions = (settings: ScientificDemoRenderSettings): ScientificRange =
 }
 
 const measuredRange = async (
-  active: MultidimensionalRasterDataset,
-  z: number,
-  channel: number,
+  active: ScientificDataset,
+  displayAxes: readonly [string, string],
+  selectedIndices: Readonly<Record<string, number>>,
   settings: ScientificDemoRenderSettings,
   viewKey = '',
-): Promise<ScientificPlaneMeasurement> => {
+): Promise<LabeledScientificPlaneMeasurement> => {
   const range = rangeOptions(settings)
-  const key = `${generation}:${viewKey}:${z}:${channel}:${range.mode}:${range.mode === 'percentile' ? `${range.low}:${range.high}` : range.mode === 'explicit' ? `${range.min}:${range.max}` : ''}`
+  const key = `${generation}:${viewKey}:${JSON.stringify(selectedIndices)}:${range.mode}:${range.mode === 'percentile' ? `${range.low}:${range.high}` : range.mode === 'explicit' ? `${range.min}:${range.max}` : ''}`
   const cached = rangeCache.get(key)
   if (cached) return cached
-  const measured = await measureScientificPlane(active, { plane: { z, c: channel, t: 0 }, range })
+  const measured = await measureScientificPlane(active, {
+    plane: { displayAxes, fixedIndices: fixedIndices(active, displayAxes, selectedIndices) },
+    range,
+  })
   rangeCache.set(key, measured)
   return measured
 }
@@ -311,20 +393,20 @@ const rgbaPixels = async (
 }
 
 const renderChannel = async (
-  active: MultidimensionalRasterDataset,
-  z: number,
-  channel: number,
+  active: ScientificDataset,
+  displayAxes: readonly [string, string],
+  selectedIndices: Readonly<Record<string, number>>,
   settings: ScientificDemoRenderSettings,
   palette = settings.palette,
   reliefEnabled = false,
   viewKey = '',
 ): Promise<{
   readonly pixels: Uint8ClampedArray<ArrayBuffer>
-  readonly measurement: ScientificPlaneMeasurement
+  readonly measurement: LabeledScientificPlaneMeasurement
 }> => {
-  const measurement = await measuredRange(active, z, channel, settings, viewKey)
+  const measurement = await measuredRange(active, displayAxes, selectedIndices, settings, viewKey)
   const image = await renderScientificPlane(active, {
-    plane: { z, c: channel, t: 0 },
+    plane: { displayAxes, fixedIndices: fixedIndices(active, displayAxes, selectedIndices) },
     range: { mode: 'explicit', min: measurement.range.min, max: measurement.range.max },
     scale: settings.scale,
     palette,
@@ -337,47 +419,88 @@ const renderChannel = async (
           }
         : false,
   })
-  return { pixels: await rgbaPixels(active.sizeX, active.sizeY, image.pixels), measurement }
+  return { pixels: await rgbaPixels(image.width, image.height, image.pixels), measurement }
 }
 
 const render = async (sequence: number, settings: ScientificDemoRenderSettings): Promise<void> => {
   const active = dataset
-  if (!active) throw new Error('Open a scientific raster before rendering')
+  const openedDocument = document
+  if (!active || !openedDocument) throw new Error('Open a scientific raster before rendering')
   latestSequence = Math.max(latestSequence, sequence)
   const started = performance.now()
-  const volume = active.format === 'fits' || active.format === 'mrc'
-  const viewKey = volume
-    ? `${settings.projection}:${settings.sliceAxis}:${settings.sliceIndex}`
-    : ''
-  const displayed = volume
-    ? settings.projection === 'none'
-      ? sliceScientificVolume(active, { axis: settings.sliceAxis, index: settings.sliceIndex })
-      : projectScientificVolume(active, { axis: 'z', mode: settings.projection })
-    : active
-  const z = 0
+  const x = horizontalAxis(active)
+  const y = verticalAxis(active)
+  const channels = channelAxis(active)
+  const depth = volumeAxis(active)
+  let displayed = active
+  let displayAxes: readonly [string, string] = [x.id, y.id]
+  let viewKey = ''
+  if (depth !== undefined) {
+    if (settings.projection === 'none') {
+      displayAxes =
+        settings.sliceAxis === 'xy'
+          ? [x.id, y.id]
+          : settings.sliceAxis === 'xz'
+            ? [x.id, depth.id]
+            : [y.id, depth.id]
+      const fixedAxis =
+        settings.sliceAxis === 'xy' ? depth.id : settings.sliceAxis === 'xz' ? y.id : x.id
+      displayed = sliceScientificVolume(active, {
+        displayAxes,
+        fixedIndices: fixedIndices(active, displayAxes, { [fixedAxis]: settings.sliceIndex }),
+      })
+    } else {
+      displayed = projectScientificVolume(active, {
+        displayAxes: [x.id, y.id],
+        axis: depth.id,
+        fixedIndices: fixedIndices(active, [x.id, y.id], { [depth.id]: 0 }).filter(
+          (entry) => entry.axisId !== depth.id,
+        ),
+        mode: settings.projection,
+      })
+      displayAxes = [x.id, y.id]
+    }
+    viewKey = `${settings.projection}:${settings.sliceAxis}:${settings.sliceIndex}`
+  }
+  const displayX = horizontalAxis(displayed)
+  const displayY = verticalAxis(displayed)
+  let displayWidth = displayX.length
+  let displayHeight = displayY.length
+  const channelId = channelAxis(displayed)?.id
   let pixels: Uint8ClampedArray<ArrayBuffer>
   let rangeLabel: string
   let selectionLabel: string | undefined
   let nativeRangeLabel: string | undefined
-  let displayWidth = displayed.sizeX
-  let displayHeight = displayed.sizeY
-  if (active.format === 'envi' && active.fileType === 'ENVI Classification') {
+  const envi = formatMetadata(active, 'purejsimage:envi')
+  if (
+    openedDocument.reader.id === 'purejsimage/envi' &&
+    metadataString(envi, 'fileType') === 'ENVI Classification'
+  ) {
     const image = renderEnviClassification(active, { maxWidth: 1_280, maxHeight: 1_280 })
     displayWidth = image.width
     displayHeight = image.height
-    pixels = await rgbaPixels(displayWidth, displayHeight, image.pixels)
-    rangeLabel = `${active.classes?.length ?? 0} declared class colors`
-    selectionLabel =
-      displayWidth === active.sizeX && displayHeight === active.sizeY
-        ? `ENVI Classification · ${active.classes?.length ?? 0} classes`
-        : `ENVI Classification · ${active.classes?.length ?? 0} classes · nearest-neighbor preview ${displayWidth} × ${displayHeight} from ${active.sizeX} × ${active.sizeY}`
-  } else if (active.format === 'envi' && settings.displayMode === 'composite') {
-    const channels = [settings.red, settings.green, settings.blue]
+    pixels = await rgbaPixels(image.width, image.height, image.pixels)
+    rangeLabel = `${Array.isArray(envi?.classes) ? envi.classes.length : 0} declared class colors`
+    selectionLabel = `ENVI Classification · ${Array.isArray(envi?.classes) ? envi.classes.length : 0} classes`
+  } else if (
+    openedDocument.reader.id === 'purejsimage/envi' &&
+    settings.displayMode === 'composite'
+  ) {
+    const selectedChannels = [settings.red, settings.green, settings.blue]
     const rendered = []
-    for (const channel of channels)
-      rendered.push(await renderChannel(active, 0, channel, settings, 'grayscale'))
-    pixels = new Uint8ClampedArray(active.sizeX * active.sizeY * 4)
-    for (let index = 0; index < active.sizeX * active.sizeY; index += 1) {
+    for (const channel of selectedChannels) {
+      rendered.push(
+        await renderChannel(
+          displayed,
+          displayAxes,
+          channelId === undefined ? {} : { [channelId]: channel },
+          settings,
+          'grayscale',
+        ),
+      )
+    }
+    pixels = new Uint8ClampedArray(displayX.length * displayY.length * 4)
+    for (let index = 0; index < displayX.length * displayY.length; index += 1) {
       pixels[index * 4] = rendered[0]?.pixels[index * 4] ?? 0
       pixels[index * 4 + 1] = rendered[1]?.pixels[index * 4] ?? 0
       pixels[index * 4 + 2] = rendered[2]?.pixels[index * 4] ?? 0
@@ -389,35 +512,39 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
           `${measurement.range.min.toPrecision(4)}–${measurement.range.max.toPrecision(4)}`,
       )
       .join(' / ')
-    const labels = channels.map((channel, index) => {
-      const center = active.channels[channel]?.spectral?.center
-      return `${'RGB'[index]} band ${channel + 1}${center === undefined ? '' : ` (${center} ${active.channels[channel]?.spectral?.unit ?? ''})`}`
-    })
-    selectionLabel = labels.join('; ')
+    selectionLabel = selectedChannels
+      .map((channel, index) => {
+        const spectral = channels?.entries?.[channel]?.spectral
+        return `${'RGB'[index]} band ${channel + 1}${spectral === undefined ? '' : ` (${spectral.center} ${spectral.unit ?? ''})`}`
+      })
+      .join('; ')
   } else {
-    const channel = active.format === 'envi' ? settings.channel : 0
+    const channel = openedDocument.reader.id === 'purejsimage/envi' ? settings.channel : 0
     const rendered = await renderChannel(
       displayed,
-      z,
-      channel,
+      displayAxes,
+      channelId === undefined ? {} : { [channelId]: channel },
       settings,
       settings.palette,
-      active.format === 'gsf',
+      openedDocument.reader.id === 'purejsimage/gsf',
       viewKey,
     )
     pixels = rendered.pixels
     rangeLabel = `${rendered.measurement.range.min.toPrecision(6)}–${rendered.measurement.range.max.toPrecision(6)}`
     if (settings.rangeMode === 'dataset') nativeRangeLabel = rangeLabel
-    if (active.format === 'envi') {
-      const spectral = active.channels[channel]?.spectral
+    if (openedDocument.reader.id === 'purejsimage/envi') {
+      const spectral = channels?.entries?.[channel]?.spectral
       selectionLabel =
-        `Band ${channel + 1} of ${active.sizeC}${spectral === undefined ? '' : `, ${spectral.center} ${spectral.unit ?? ''}`}`.trim()
-    } else if (active.format === 'fits' || active.format === 'mrc') {
-      const sourceLabel = active.format === 'fits' ? `HDU ${active.hdu.index}, ` : ''
+        `Band ${channel + 1} of ${channels?.length ?? 1}${spectral === undefined ? '' : `, ${spectral.center} ${spectral.unit ?? ''}`}`.trim()
+    } else if (depth !== undefined) {
+      const sourceLabel =
+        openedDocument.reader.id === 'purejsimage/fits'
+          ? `HDU ${metadataNumber(formatMetadata(active, 'purejsimage:fits'), 'index') ?? 0}, `
+          : ''
       selectionLabel =
         settings.projection === 'none'
           ? `${sourceLabel}${settings.sliceAxis.toUpperCase()} slice ${settings.sliceIndex + 1}`
-          : `${sourceLabel}${settings.projection} projection through Z`
+          : `${sourceLabel}${settings.projection} projection through ${depth.name ?? depth.id}`
     }
   }
   if (sequence < latestSequence) return
@@ -426,13 +553,6 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
     height: displayHeight,
     pixels: Uint8ClampedArray.from(pixels),
   }
-  const sourceBytesRead =
-    active.format === 'envi' ||
-    active.format === 'fits' ||
-    active.format === 'mrc' ||
-    active.format === 'cbf'
-      ? active.sourceBytesRead
-      : sourceBytes
   post(
     {
       type: 'rendered',
@@ -441,13 +561,8 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
       height: displayHeight,
       pixels,
       renderMilliseconds: performance.now() - started,
-      sourceBytesRead,
-      sourceBytesLabel:
-        active.format === 'envi'
-          ? 'Binary bytes read'
-          : active.format === 'fits' || active.format === 'mrc' || active.format === 'cbf'
-            ? `${active.format.toUpperCase()} bytes read`
-            : 'Input size',
+      sourceBytesRead: sourceBytes,
+      sourceBytesLabel: 'Source size',
       rangeLabel,
       ...(selectionLabel === undefined ? {} : { selectionLabel }),
       ...(nativeRangeLabel === undefined ? {} : { nativeRangeLabel }),
@@ -491,9 +606,9 @@ scope.onmessage = (event): void => {
   const request = event.data
   let operation: Promise<void>
   if (request.type === 'open-gsf') operation = openGsfFile(request.name, request.data)
-  else if (request.type === 'open-envi')
+  else if (request.type === 'open-envi') {
     operation = openEnviFiles(request.headerName, request.dataName, request.header, request.data)
-  else if (request.type === 'open-fits') operation = openFitsFile(request.name, request.data)
+  } else if (request.type === 'open-fits') operation = openFitsFile(request.name, request.data)
   else if (request.type === 'open-mrc') operation = openMrcFile(request.name, request.data)
   else if (request.type === 'open-cbf') operation = openCbfFile(request.name, request.data)
   else if (request.type === 'select-fits-hdu') operation = selectFitsHdu(request.index)

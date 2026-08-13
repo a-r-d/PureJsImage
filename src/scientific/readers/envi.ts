@@ -158,7 +158,11 @@ export const enviReader: ScientificReader = Object.freeze({
   async open(context: Readonly<ScientificOpenContext>): Promise<ScientificDocument> {
     throwIfAborted(context.signal)
     const pair = await resolvePair(context)
-    const legacy = await openEnvi({ header: pair.header.source, data: pair.data.source })
+    const legacy = await openEnvi({
+      header: pair.header.source,
+      data: pair.data.source,
+      maxInputBytes: Math.max(pair.header.source.size, pair.data.source.size),
+    })
     const mapInfo = mapInfoMetadata(legacy.metadata['map info'])
     const formatMetadata = normalizeScientificMetadataObject({
       dataType: legacy.dataType,
@@ -185,6 +189,10 @@ export const enviReader: ScientificReader = Object.freeze({
       dataset,
       datasetId: 'raster',
       datasetName: legacy.description ?? 'ENVI raster',
+      resources: Object.freeze([
+        Object.freeze({ id: 'header', source: pair.header.source }),
+        Object.freeze({ id: 'data', source: pair.data.source }),
+      ]),
     })
   },
 })

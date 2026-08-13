@@ -302,6 +302,12 @@ describe('FITS scientific image arrays', () => {
       primary: { id: 'ranked', source: new MemorySource(bytes) },
     })
     expect(document.datasets.map(({ id }) => id)).toEqual(['hdu-0'])
+    expect(document.datasets[0]?.identity).toMatchObject({
+      kind: 'scientific-dataset',
+      reader: { id: 'purejsimage/fits', version: '1.0.0' },
+      datasetId: 'hdu-0',
+      resources: [{ id: 'ranked', identity: { size: bytes.byteLength } }],
+    })
     const dataset = await document.openDataset('hdu-0')
     expect(dataset.descriptor.axes).toMatchObject([
       { id: 'x', length: 2 },

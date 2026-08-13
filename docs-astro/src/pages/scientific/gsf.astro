@@ -4,29 +4,34 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
 <SiteLayout title="Read GSF AFM surface files in JavaScript | PureJsImage" description="Read and write Gwyddion Simple Field AFM and SPM height maps with native float32 samples in JavaScript and TypeScript." canonical="https://purejsimage.com/scientific/gsf/" current="scientific/">
 <main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific raster format</p><h1>Read GSF AFM surface files in JavaScript</h1><p class="page-lede">Gwyddion Simple Field, usually called GSF, stores one two-dimensional float32 field with a text header. AFM and SPM software commonly use it for a height map with physical X/Y extent, offsets, and value units.</p></div></header><div class="container docs-layout"><article class="content">
-<h2>Import</h2><pre><code>import &#123; openGsf, renderScientificPlane &#125; from 'purejsimage/scientific'</code></pre>
-<h2>Minimal Node.js example</h2><pre><code>import &#123; FileSource &#125; from 'purejsimage'
-import &#123; openGsf, renderScientificPlane &#125; from 'purejsimage/scientific'
+<h2>Import</h2><pre><code>import &#123; createScientificLibrary, gsfReader, renderScientificPlane &#125; from 'purejsimage/scientific'</code></pre>
+<h2>Minimal Node.js example</h2><pre><code>import &#123; createScientificLibrary, gsfReader, renderScientificPlane &#125; from 'purejsimage/scientific'
+import &#123; createScientificPathContext &#125; from 'purejsimage/scientific/node'
 
-const dataset = await openGsf(await FileSource.open('surface.gsf'))
+const science = createScientificLibrary(&#123; readers: [gsfReader] &#125;)
+const document = await science.open(await createScientificPathContext('surface.gsf'))
+const dataset = await document.openDataset(document.datasets[0].id)
 const display = await renderScientificPlane(dataset, &#123;
-  plane: &#123; z: 0, c: 0, t: 0 &#125;,
+  plane: &#123; displayAxes: ['x', 'y'], fixedIndices: [] &#125;,
   range: &#123; mode: 'dataset' &#125;,
   palette: 'viridis',
   relief: &#123; azimuth: 315, elevation: 45, strength: 0.5 &#125;,
 &#125;)
 for await (const pixels of display.pixels) console.log(pixels.data)</code></pre>
-<h2>Minimal browser example</h2><pre><code>import &#123; openGsf &#125; from 'purejsimage/scientific'
+<h2>Minimal browser example</h2><pre><code>import &#123; createScientificLibrary, gsfReader &#125; from 'purejsimage/scientific'
+import &#123; createScientificFileContext &#125; from 'purejsimage/scientific/browser'
 
 const input = document.querySelector&lt;HTMLInputElement&gt;('#surface')
 const file = input?.files?.[0]
 if (!file) throw new Error('Choose a GSF file')
-const dataset = await openGsf(file, &#123; maxInputBytes: file.size &#125;)
-for await (const block of dataset.readPlane(&#123; z: 0, c: 0, t: 0 &#125;)) &#123;
-  console.log(block.format.sampleType) // float32
+const science = createScientificLibrary(&#123; readers: [gsfReader] &#125;)
+const document = await science.open(createScientificFileContext(file))
+const dataset = await document.openDataset(document.datasets[0].id)
+for await (const block of dataset.readPlane(&#123; displayAxes: ['x', 'y'], fixedIndices: [] &#125;)) &#123;
+  console.log(dataset.descriptor.sampleType) // float32
 &#125;</code></pre>
 <h2>Supported features</h2><table><thead><tr><th>Feature</th><th>Support</th></tr></thead><tbody><tr><td>Gwyddion Simple Field 1.0</td><td>Read and write</td></tr><tr><td>Samples</td><td>Little-endian float32</td></tr><tr><td>Physical metadata</td><td>X/Y extent, offsets, units, title</td></tr><tr><td>Unknown header fields</td><td>Retained</td></tr><tr><td>Regions</td><td>Bounded row reads</td></tr></tbody></table>
-<h2>Dataset mapping</h2><p><code>XRes</code> maps to X and <code>YRes</code> maps to Y. Z, C, and T are 1. <code>XReal / XRes</code> and <code>YReal / YRes</code> become physical pixel sizes. <code>ZUnits</code> becomes the scalar channel unit. Samples remain float32.</p>
+<h2>Dataset mapping</h2><p><code>XRes</code> and <code>YRes</code> become labeled spatial axes <code>x</code> and <code>y</code>. <code>XReal / XRes</code> and <code>YReal / YRes</code> become their physical steps. <code>ZUnits</code> becomes the scalar component unit. Samples remain float32.</p>
 <h2>Bounded reads</h2><p>The small text header is read first. Region reads calculate each selected row offset and return bounded <code>RasterBlock</code> values. The writer accepts the complete sample array because writing requires the complete output.</p>
 <h2>Display rendering</h2><p><code>renderScientificPlane()</code> maps the quantitative values into RGB display blocks. Percentiles use bounded approximate sampling. Relief is display hillshading, not a quantitative surface-slope measurement. The current relief calculation uses sample coordinates and does not apply physical X/Y spacing.</p>
 <h2>Unsupported features</h2><p>Multiple fields, alternate sample types, compressed wrappers, charting, contour plots, and AFM analysis are not implemented. Extra trailing bytes and malformed headers reject.</p>

@@ -4,34 +4,38 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
 <SiteLayout title="Read FITS images and data cubes in JavaScript | PureJsImage" description="Inspect FITS HDUs and read primary images or IMAGE extensions, including 1D arrays, 2D FITS images, and 3D FITS data cubes in JavaScript and TypeScript." canonical="https://purejsimage.com/scientific/fits/" current="scientific/">
 <main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific raster format</p><h1>Read FITS images and data cubes in JavaScript</h1><p class="page-lede">The Flexible Image Transport System, or FITS, stores a sequence of Header/Data Units. A FITS file may contain a primary array, IMAGE extensions, tables, or other extensions. PureJsImage exposes the HDU document first so an application can choose a FITS image or FITS data cube explicitly.</p></div></header><div class="container docs-layout"><article class="content">
-<h2>Import</h2><pre><code>import &#123; openFits, renderScientificPlane &#125; from 'purejsimage/scientific'</code></pre>
-<h2>Minimal Node.js example</h2><pre><code>import &#123; FileSource &#125; from 'purejsimage'
-import &#123; openFits, renderScientificPlane &#125; from 'purejsimage/scientific'
+<h2>Import</h2><pre><code>import &#123; createScientificLibrary, fitsReader, renderScientificPlane &#125; from 'purejsimage/scientific'</code></pre>
+<h2>Minimal Node.js example</h2><pre><code>import &#123; createScientificLibrary, fitsReader, renderScientificPlane &#125; from 'purejsimage/scientific'
+import &#123; createScientificPathContext &#125; from 'purejsimage/scientific/node'
 
-const document = await openFits(await FileSource.open('observation.fits'))
-console.log(document.hdus)
-const dataset = await document.openImage(0)
+const science = createScientificLibrary(&#123; readers: [fitsReader] &#125;)
+const document = await science.open(await createScientificPathContext('observation.fits'))
+console.log(document.datasets)
+const dataset = await document.openDataset(document.datasets[0].id)
 const display = await renderScientificPlane(dataset, &#123;
-  plane: &#123; z: 0, c: 0, t: 0 &#125;,
+  plane: &#123; displayAxes: ['x', 'y'], fixedIndices: [&#123; axisId: 'axis-3', index: 0 &#125;] &#125;,
   range: &#123; mode: 'percentile', low: 1, high: 99 &#125;,
   palette: 'magma',
 &#125;)
 for await (const pixels of display.pixels) console.log(pixels.data)</code></pre>
-<h2>Minimal browser example</h2><pre><code>import &#123; openFits &#125; from 'purejsimage/scientific'
+<h2>Minimal browser example</h2><pre><code>import &#123; createScientificLibrary, fitsReader &#125; from 'purejsimage/scientific'
+import &#123; createScientificFileContext &#125; from 'purejsimage/scientific/browser'
 
 const input = document.querySelector&lt;HTMLInputElement&gt;('#fits')
 const file = input?.files?.[0]
 if (!file) throw new Error('Choose a FITS file')
-const document = await openFits(file, &#123; maxInputBytes: file.size &#125;)
-const imageHdu = document.hdus.find((hdu) => hdu.canOpenRaster)
+const science = createScientificLibrary(&#123; readers: [fitsReader] &#125;)
+const document = await science.open(createScientificFileContext(file))
+const imageHdu = document.datasets[0]
 if (!imageHdu) throw new Error('No supported FITS image array')
-const dataset = await document.openImage(imageHdu.index)
+const dataset = await document.openDataset(imageHdu.id)
 for await (const block of dataset.readPlane(&#123;
-  z: 2, c: 0, t: 0, x: 100, y: 100, width: 256, height: 256,
+  displayAxes: ['x', 'y'], fixedIndices: [&#123; axisId: 'axis-3', index: 2 &#125;],
+  x: 100, y: 100, width: 256, height: 256,
 &#125;)) console.log(block.data)</code></pre>
 <h2>Supported features</h2><table><thead><tr><th>Feature</th><th>Support</th></tr></thead><tbody><tr><td>HDU inspection</td><td>Primary and extensions</td></tr><tr><td>Image arrays</td><td>Primary arrays and <code>XTENSION='IMAGE'</code></td></tr><tr><td>Axes</td><td>NAXIS 1, 2, and 3</td></tr><tr><td>BITPIX</td><td>8, 16, 32, -32, -64</td></tr><tr><td>Physical values</td><td>BSCALE, BZERO, integer BLANK</td></tr><tr><td>Headers</td><td>Typed cards, repeated COMMENT and HISTORY, unknown cards</td></tr></tbody></table>
-<h2>Dataset mapping</h2><p>NAXIS1 maps to X, NAXIS2 maps to Y, and NAXIS3 maps to Z. A one-dimensional array has height 1. C and T are 1. Identity scaling preserves the stored sample type. Standard unsigned 16-bit and 32-bit BZERO conventions use uint16 and uint32 output. Other scaling and integer BLANK conversion use float64 physical values.</p>
-<h2>Bounded reads</h2><p><code>openFits()</code> reads aligned 2880-byte header blocks for every HDU, then leaves image data lazy. A selected Z plane uses its direct array offset. A spatial ROI reads the selected contiguous row ranges. Blob, file, memory, HTTP range, and custom <code>ImageSource</code> inputs use the same reader.</p>
+<h2>Dataset mapping</h2><p>NAXIS1 maps to labeled axis <code>x</code>, NAXIS2 to <code>y</code>, and higher ranks to stable <code>axis-N</code> IDs with FITS coordinate metadata when present. A one-dimensional array has a synthetic height-1 Y axis. Identity scaling preserves the stored sample type. Standard unsigned 16-bit and 32-bit BZERO conventions use uint16 and uint32 output. Other scaling and integer BLANK conversion use float64 physical values.</p>
+<h2>Bounded reads</h2><p>The FITS reader reads aligned 2880-byte header blocks for every HDU, then leaves image data lazy. A selected higher-axis plane uses its direct array offset. A spatial ROI reads the selected contiguous row ranges. Blob, file, memory, HTTP range, and custom <code>ImageSource</code> inputs use the same reader.</p>
 <h2>Display rendering</h2><p><code>renderScientificPlane()</code> maps one selected quantitative plane into display RGB. Percentile calculation is approximate when bounded sampling is used. Display transfers are applied after mapping the selected range to 0 through 1. They do not compute a logarithm, square root, or asinh of the original measurement before range selection.</p>
 <h2>Unsupported features</h2><p>ASCII tables, binary tables, random groups, tile-compressed images, Rice compression, gzip wrappers, FITS writing, celestial WCS projection math, SIP distortion, spectral-coordinate interpretation, NAXIS greater than 3, and BITPIX=64 raster samples are not supported. Unsupported HDUs remain inspectable but cannot be opened as rasters.</p>
 <h2>Official specification</h2><p><a href="https://fits.gsfc.nasa.gov/fits_standard.html">NASA/GSFC FITS Standard</a> · <a href="https://fits.gsfc.nasa.gov/fits_primer.html">FITS Primer</a> · <a href="https://fits.gsfc.nasa.gov/fits_samples.html">Official FITS samples</a></p>

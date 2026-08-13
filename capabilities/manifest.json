@@ -2848,7 +2848,7 @@
         "- [x] Strict UTF-8 `key = value` header parsing with one to four NUL alignment bytes",
         "- [x] Required positive `XRes` and `YRes` dimensions with checked allocation arithmetic",
         "- [x] Exact little-endian IEEE float32 payload with top-to-bottom rows and no trailing bytes",
-        "- [x] Single scalar `MultidimensionalRasterDataset` channel with native float32 samples",
+        "- [x] Single scalar labeled-axis `ScientificDataset` with native float32 samples",
         "- [x] `XReal`, `YReal`, `XOffset`, `YOffset`, `XYUnits`, `ZUnits`, and `Title` mapping",
         "- [x] Unknown header-field preservation as generic metadata",
         "- [x] Bounded rectangular row-range reads through portable `ImageSource` inputs",

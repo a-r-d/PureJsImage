@@ -17,6 +17,7 @@ import type {
   ScientificReaderDescriptor,
   ScientificResource,
 } from '../reader.ts'
+import { createScientificDatasetIdentity, identifyScientificDataset } from '../reader.ts'
 
 export const resourceHasHint = (
   resource: Readonly<ScientificResource>,
@@ -59,16 +60,24 @@ interface SingleDatasetDocumentOptions {
   readonly dataset: ScientificDataset
   readonly datasetId: string
   readonly datasetName?: string
+  readonly resources?: readonly Pick<ScientificResource, 'id' | 'source'>[]
 }
 
-export const singleDatasetDocument = (
+export const singleDatasetDocument = async (
   options: Readonly<SingleDatasetDocumentOptions>,
-): ScientificDocument => {
+): Promise<ScientificDocument> => {
   const metadata = normalizeScientificMetadataObject(options.metadata)
+  const identity = await createScientificDatasetIdentity({
+    reader: options.reader,
+    datasetId: options.datasetId,
+    resources: options.resources ?? [options.context.primary],
+  })
+  const dataset = identifyScientificDataset(options.dataset, identity)
   const summary = Object.freeze({
     id: options.datasetId,
     ...(options.datasetName === undefined ? {} : { name: options.datasetName }),
-    descriptor: options.dataset.descriptor,
+    descriptor: dataset.descriptor,
+    identity,
   })
   return Object.freeze({
     reader: Object.freeze({ id: options.reader.id, version: options.reader.version }),
@@ -81,7 +90,7 @@ export const singleDatasetDocument = (
       if (id !== options.datasetId) {
         throw invalidInput(`Unknown ${options.reader.format} dataset ${id}`)
       }
-      return options.dataset
+      return dataset
     },
   })
 }

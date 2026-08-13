@@ -10,6 +10,9 @@ import type {
 import { prepareOperationRuntime } from '../operations/provider.ts'
 import type { OperationRegistry, ValueTypeRegistry } from '../operations/registry.ts'
 import type { ImageSource } from '../source.ts'
+import type { ScientificDataset } from '../scientific/dataset-v2.ts'
+import type { ScientificDatasetIdentity } from '../scientific/reader.ts'
+import { getScientificDatasetIdentity } from '../scientific/reader.ts'
 import type { SourceIdentity } from '../source-identity.ts'
 import { getImageSourceIdentity, normalizeSourceIdentity } from '../source-identity.ts'
 import { hashCanonicalJson } from './canonical-json.ts'
@@ -31,6 +34,7 @@ import {
 
 export type AnalysisSemanticIdentity =
   | SourceIdentity
+  | ScientificDatasetIdentity
   | {
       readonly kind: 'semantic-json'
       readonly domain: string
@@ -87,6 +91,25 @@ export interface AnalysisInvocationManifest extends OperationJsonObject {
   readonly bindings: readonly AnalysisBindingIdentity[]
   readonly bindingHash: string
   readonly invocationHash: string
+}
+
+export const computeAnalysisInvocationManifest = async (
+  graphHash: string,
+  bindings: readonly AnalysisBindingIdentity[],
+): Promise<AnalysisInvocationManifest> => {
+  const frozenBindings = Object.freeze([...bindings])
+  const bindingHash = await hashCanonicalJson('purejsimage.analysis-bindings.v1', frozenBindings)
+  const invocationHash = await hashCanonicalJson('purejsimage.analysis-invocation.v1', {
+    graphHash,
+    bindingHash,
+  })
+  return Object.freeze({
+    schemaVersion: 1,
+    graphHash,
+    bindings: frozenBindings,
+    bindingHash,
+    invocationHash,
+  })
 }
 
 export interface AnalysisUnresolvedEstimate extends OperationJsonObject {
@@ -164,6 +187,13 @@ const isImageSource = (value: unknown): value is ImageSource =>
   'read' in value &&
   typeof value.read === 'function'
 
+const isScientificDataset = (value: unknown): value is ScientificDataset =>
+  value !== null &&
+  typeof value === 'object' &&
+  'descriptor' in value &&
+  'readPlane' in value &&
+  typeof value.readPlane === 'function'
+
 const isNormalizedRoi = (value: unknown): value is Roi =>
   value !== null &&
   typeof value === 'object' &&
@@ -207,7 +237,37 @@ const boundedIdentityString = (value: unknown, name: string): string => {
   return value
 }
 
-const normalizeSemanticIdentity = (identity: AnalysisSemanticIdentity): OperationJsonObject => {
+export const normalizeAnalysisSemanticIdentity = (
+  identity: AnalysisSemanticIdentity,
+): OperationJsonObject => {
+  if (identity.kind === 'scientific-dataset') {
+    if (!Array.isArray(identity.resources) || identity.resources.length === 0) {
+      throw invalidInput('Scientific dataset identity requires at least one resource')
+    }
+    const seen = new Set<string>()
+    const resources = identity.resources.map((resource) => {
+      const id = boundedIdentityString(resource.id, 'Scientific dataset resource id')
+      if (seen.has(id)) throw invalidInput(`Scientific dataset identity repeats resource ${id}`)
+      seen.add(id)
+      return Object.freeze({
+        id,
+        identity: identityObject(normalizeSourceIdentity(resource.identity)),
+      })
+    })
+    resources.sort((left, right) => (left.id < right.id ? -1 : left.id > right.id ? 1 : 0))
+    return Object.freeze({
+      kind: identity.kind,
+      reader: Object.freeze({
+        id: boundedIdentityString(identity.reader.id, 'Scientific dataset reader id'),
+        version: boundedIdentityString(
+          identity.reader.version,
+          'Scientific dataset reader version',
+        ),
+      }),
+      datasetId: boundedIdentityString(identity.datasetId, 'Scientific dataset id'),
+      resources: Object.freeze(resources),
+    })
+  }
   if (identity.kind === 'semantic-json') {
     if (!/^[0-9a-f]{64}$/u.test(identity.sha256)) {
       throw invalidInput('Semantic JSON identity sha256 is invalid')
@@ -232,9 +292,13 @@ const derivedBindingIdentity = async (
   input: AnalysisGraph['inputs'][number],
   binding: AnalysisInputBinding,
 ): Promise<OperationJsonObject | undefined> => {
-  if (binding.identity !== undefined) return normalizeSemanticIdentity(binding.identity)
+  if (binding.identity !== undefined) return normalizeAnalysisSemanticIdentity(binding.identity)
   if (isImageSource(binding.value)) {
     return identityObject(await getImageSourceIdentity(binding.value))
+  }
+  if (isScientificDataset(binding.value)) {
+    const identity = getScientificDatasetIdentity(binding.value)
+    if (identity !== undefined) return normalizeAnalysisSemanticIdentity(identity)
   }
   let domain: string | undefined
   let value: unknown
@@ -481,18 +545,7 @@ export const planGraph = async (
     }
     const graphHash = await hashAnalysisGraph(graph)
     const frozenBindings = Object.freeze(requiredInputIdentities)
-    const bindingHash = await hashCanonicalJson('purejsimage.analysis-bindings.v1', frozenBindings)
-    const invocationHash = await hashCanonicalJson('purejsimage.analysis-invocation.v1', {
-      graphHash,
-      bindingHash,
-    })
-    const invocation: AnalysisInvocationManifest = Object.freeze({
-      schemaVersion: 1,
-      graphHash,
-      bindings: frozenBindings,
-      bindingHash,
-      invocationHash,
-    })
+    const invocation = await computeAnalysisInvocationManifest(graphHash, frozenBindings)
     const summary: AnalysisPlan = Object.freeze({
       schemaVersion: 1,
       graphHash,

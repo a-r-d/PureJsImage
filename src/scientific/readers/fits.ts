@@ -22,6 +22,7 @@ import type {
   ScientificReader,
   ScientificReaderDescriptor,
 } from '../reader.ts'
+import { createScientificDatasetIdentity, identifyScientificDataset } from '../reader.ts'
 import { resourceHasHint } from './shared.ts'
 
 const fitsCardBytes = 80
@@ -211,14 +212,23 @@ export const fitsReader: ScientificReader = Object.freeze({
     const supported = fits.hdus.filter(({ canOpenScientificRaster }) => canOpenScientificRaster)
     const entries = await Promise.all(
       supported.map(async (hdu) => {
-        const dataset = await FitsRankedDataset.create(fits, hdu)
         const id = `hdu-${hdu.index}`
+        const identity = await createScientificDatasetIdentity({
+          reader: fitsReaderDescriptor,
+          datasetId: id,
+          resources: [context.primary],
+        })
+        const dataset = identifyScientificDataset(
+          await FitsRankedDataset.create(fits, hdu),
+          identity,
+        )
         return Object.freeze({
           id,
           name:
             cardString(hdu, 'EXTNAME') ??
             (hdu.primary ? 'Primary image' : `Image HDU ${hdu.index}`),
           dataset,
+          identity,
         })
       }),
     )
@@ -228,8 +238,8 @@ export const fitsReader: ScientificReader = Object.freeze({
       format: fitsReaderDescriptor.format,
       metadata: Object.freeze({ hduCount: fits.hdus.length }),
       datasets: Object.freeze(
-        entries.map(({ id, name, dataset }) =>
-          Object.freeze({ id, name, descriptor: dataset.descriptor }),
+        entries.map(({ id, name, dataset, identity }) =>
+          Object.freeze({ id, name, descriptor: dataset.descriptor, identity }),
         ),
       ),
       async openDataset(id: string, options?: Readonly<AbortOptions>) {

@@ -10,6 +10,7 @@ import type {
   ScientificReader,
   ScientificReaderDescriptor,
 } from '../reader.ts'
+import { createScientificDatasetIdentity, identifyScientificDataset } from '../reader.ts'
 import { resourceHasHint } from './shared.ts'
 
 const tiffProbeBytes = 16_384
@@ -78,8 +79,14 @@ export const omeTiffReader: ScientificReader = Object.freeze({
             ]),
           }),
         )
-        const dataset = toScientificDataset(legacy, { levels })
-        return Object.freeze({ id: `image-${index}`, dataset })
+        const id = `image-${index}`
+        const identity = await createScientificDatasetIdentity({
+          reader: omeTiffReaderDescriptor,
+          datasetId: id,
+          resources: [context.primary],
+        })
+        const dataset = identifyScientificDataset(toScientificDataset(legacy, { levels }), identity)
+        return Object.freeze({ id, dataset, identity })
       }),
     )
     return Object.freeze({
@@ -90,8 +97,13 @@ export const omeTiffReader: ScientificReader = Object.freeze({
       format: omeTiffReaderDescriptor.format,
       metadata: Object.freeze({ imageCount }),
       datasets: Object.freeze(
-        entries.map(({ id, dataset }, index) =>
-          Object.freeze({ id, name: `OME Image ${index}`, descriptor: dataset.descriptor }),
+        entries.map(({ id, dataset, identity }, index) =>
+          Object.freeze({
+            id,
+            name: `OME Image ${index}`,
+            descriptor: dataset.descriptor,
+            identity,
+          }),
         ),
       ),
       async openDataset(id: string, options?: Readonly<AbortOptions>) {

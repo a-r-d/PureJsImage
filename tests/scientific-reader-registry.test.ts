@@ -66,7 +66,28 @@ const documentFor = (
     format: reader.format,
     metadata: Object.freeze({ title: 'Synthetic document' }),
     datasets: Object.freeze([
-      Object.freeze({ id: 'image-0', name: 'Image 0', descriptor: dataset.descriptor }),
+      Object.freeze({
+        id: 'image-0',
+        name: 'Image 0',
+        descriptor: dataset.descriptor,
+        identity: Object.freeze({
+          kind: 'scientific-dataset',
+          reader: Object.freeze({ id: reader.id, version: reader.version }),
+          datasetId: 'image-0',
+          resources: Object.freeze([
+            Object.freeze({
+              id: 'primary',
+              identity: Object.freeze({
+                kind: 'session',
+                strength: 'session',
+                stability: 'instance',
+                id: 'synthetic-reader-test',
+                size: 2,
+              }),
+            }),
+          ]),
+        }),
+      }),
     ]),
     async openDataset(id: string) {
       if (id !== 'image-0') throw new Error(`Unknown dataset ${id}`)
@@ -406,7 +427,16 @@ describe('scientific reader lifecycle', () => {
     const registry = new ScientificReaderRegistry([reader])
     const document = await registry.open(context())
     expect(document.datasets).toEqual([
-      { id: 'image-0', name: 'Image 0', descriptor: dataset.descriptor },
+      {
+        id: 'image-0',
+        name: 'Image 0',
+        descriptor: dataset.descriptor,
+        identity: expect.objectContaining({
+          kind: 'scientific-dataset',
+          reader: { id: 'test/document', version: '1.0.0' },
+          datasetId: 'image-0',
+        }),
+      },
     ])
     expect(dataset.reads).toBe(0)
     await expect(document.openDataset('image-0')).resolves.toBe(dataset)

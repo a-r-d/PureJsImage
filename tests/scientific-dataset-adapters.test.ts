@@ -1,19 +1,20 @@
 import { describe, expect, it } from 'vitest'
+import type { RasterBlock, RasterSampleType } from '../src/raster.ts'
 import type {
   MultidimensionalRasterDataset,
-  RasterBlock,
   RasterChannelInfo,
   RasterPlaneRequest,
+} from '../src/scientific/dataset.ts'
+import type {
   ScientificDataset,
   ScientificDatasetDescriptor,
   ScientificPlaneReadRequest,
-} from '../src/scientific/index.ts'
+} from '../src/scientific/dataset-v2.ts'
+import { normalizeScientificDatasetDescriptor } from '../src/scientific/dataset-v2.ts'
 import {
-  normalizeScientificDatasetDescriptor,
   toMultidimensionalRasterDataset,
   toScientificDataset,
-} from '../src/scientific/index.ts'
-import type { RasterSampleType } from '../src/raster.ts'
+} from '../src/scientific/dataset-adapters.ts'
 
 const collect = async (blocks: AsyncIterable<RasterBlock>): Promise<readonly RasterBlock[]> => {
   const output: RasterBlock[] = []

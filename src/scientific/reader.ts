@@ -15,6 +15,8 @@ import type {
   ScientificMetadataObject,
 } from './dataset-v2.ts'
 import { normalizeScientificMetadataObject } from './dataset-v2.ts'
+import type { SourceIdentity } from '../source-identity.ts'
+import { getImageSourceIdentity, normalizeSourceIdentity } from '../source-identity.ts'
 
 /** One named input resource used by a scientific reader. */
 export interface ScientificResource {
@@ -93,7 +95,21 @@ export interface ScientificDatasetSummary {
   readonly id: string
   readonly name?: string
   readonly descriptor: NormalizedScientificDatasetDescriptor
+  readonly identity: ScientificDatasetIdentity
   readonly metadata?: ScientificMetadataObject
+}
+
+export interface ScientificDatasetResourceIdentity {
+  readonly id: string
+  readonly identity: SourceIdentity
+}
+
+/** Complete semantic identity of one dataset exposed by a scientific document. */
+export interface ScientificDatasetIdentity {
+  readonly kind: 'scientific-dataset'
+  readonly reader: ScientificDocumentReaderInfo
+  readonly datasetId: string
+  readonly resources: readonly ScientificDatasetResourceIdentity[]
 }
 
 export interface ScientificDocumentReaderInfo {
@@ -109,6 +125,58 @@ export interface ScientificDocument {
   openDataset(id: string, options?: Readonly<AbortOptions>): Promise<ScientificDataset>
   close?(): void | Promise<void>
 }
+
+const datasetIdentities = new WeakMap<ScientificDataset, ScientificDatasetIdentity>()
+
+const compareText = (left: string, right: string): number =>
+  left < right ? -1 : left > right ? 1 : 0
+
+export const createScientificDatasetIdentity = async (options: {
+  readonly reader: ScientificDocumentReaderInfo
+  readonly datasetId: string
+  readonly resources: readonly Pick<ScientificResource, 'id' | 'source'>[]
+}): Promise<ScientificDatasetIdentity> => {
+  const reader = Object.freeze({
+    id: normalizeReaderId(options.reader.id, 'Scientific dataset reader id'),
+    version: requiredString(options.reader.version, 'Scientific dataset reader version'),
+  })
+  const datasetId = requiredString(options.datasetId, 'Scientific dataset id')
+  const seen = new Set<string>()
+  const resources: ScientificDatasetResourceIdentity[] = []
+  for (const resource of options.resources) {
+    const id = requiredString(resource.id, 'Scientific dataset resource id')
+    if (seen.has(id)) throw invalidInput(`Scientific dataset repeats resource identity ${id}`)
+    seen.add(id)
+    resources.push(
+      Object.freeze({
+        id,
+        identity: normalizeSourceIdentity(await getImageSourceIdentity(resource.source)),
+      }),
+    )
+  }
+  if (resources.length === 0) throw invalidInput('Scientific dataset identity requires a resource')
+  resources.sort((left, right) => compareText(left.id, right.id))
+  return Object.freeze({
+    kind: 'scientific-dataset',
+    reader,
+    datasetId,
+    resources: Object.freeze(resources),
+  })
+}
+
+/** Attach a document-derived identity without changing the portable ScientificDataset shape. */
+export const identifyScientificDataset = (
+  dataset: ScientificDataset,
+  identity: ScientificDatasetIdentity,
+): ScientificDataset => {
+  datasetIdentities.set(dataset, identity)
+  return dataset
+}
+
+/** Return the reader-derived identity, or undefined for a synthetic/custom dataset. */
+export const getScientificDatasetIdentity = (
+  dataset: ScientificDataset,
+): ScientificDatasetIdentity | undefined => datasetIdentities.get(dataset)
 
 /** Executable reader code kept separate from its JSON-safe descriptor. */
 export interface ScientificReader {

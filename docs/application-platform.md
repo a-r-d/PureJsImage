@@ -84,6 +84,7 @@ import {
   roiValueTypeId,
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
+  validateAnalysisProjectV1,
 } from 'purejsimage/analysis'
 import type { AnalysisGraph } from 'purejsimage/analysis'
 
@@ -146,6 +147,10 @@ const bindings = {
 }
 ```
 
+Datasets opened by a registered first-party reader already carry their structured reader, dataset,
+and resource identity, so the planner derives the source binding identity automatically. Only a
+synthetic or application-created `ScientificDataset` needs an explicit `identity` field.
+
 Validate and dry-run before execution. Pin the permanent TypeScript reference provider when the
 reproducibility policy requires that exact provider:
 
@@ -190,12 +195,16 @@ const project = {
 }
 
 const parsed: unknown = JSON.parse(savedText)
-const graphValidation = controller.validateGraph(extractGraph(parsed))
-if (!graphValidation.valid || graphValidation.graph === undefined) {
-  showIssues(graphValidation.issues)
+const validation = await validateAnalysisProjectV1(parsed, {
+  operations: bundle.operations,
+  valueTypes: bundle.valueTypes,
+  roi: { descriptor: dataset.descriptor },
+})
+if (!validation.valid || validation.project === undefined) {
+  showIssues(validation.issues)
 } else {
-  // Compare or rebind source identity, then dry-run and plan explicitly.
-  await controller.dryRun(graphValidation.graph, { bindings, policy, signal })
+  // Rebind source locators separately, then dry-run and plan explicitly.
+  await controller.dryRun(validation.project.graph, { bindings, policy, signal })
 }
 ```
 

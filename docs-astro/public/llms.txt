@@ -589,13 +589,16 @@ const rasterDecoder = await first.createRasterDecoder()
 Use `purejsimage/scientific` for OME-TIFF:
 
 ```ts
-import { openOmeTiff } from 'purejsimage/scientific'
+import { createScientificLibrary, omeTiffReader } from 'purejsimage/scientific'
 
-const dataset = await openOmeTiff(document)
+const science = createScientificLibrary({ readers: [omeTiffReader] })
+const scientificDocument = await science.open({
+  primary: { id: 'image', source: new MemorySource(bytes) },
+})
+const dataset = await scientificDocument.openDataset(scientificDocument.datasets[0].id)
 for await (const block of dataset.readPlane({
-  z: 0,
-  c: [0, 1, 2],
-  t: 0,
+  displayAxes: ['x', 'y'],
+  fixedIndices: [{ axisId: 'channel', index: 0 }],
   resolutionLevel: 0,
   x: 0,
   y: 0,
@@ -606,14 +609,15 @@ for await (const block of dataset.readPlane({
 }
 ```
 
-The same entry exposes `openGsf()`, `encodeGsf()`, paired-source `openEnvi()`, `openFits()`,
-`openMrc()`, `openCbf()`, lazy `sliceScientificVolume()` cross-sections, bounded
-`projectScientificVolume()` Z projections, optional statistics from `measureScientificPlane()`,
+The same entry exposes `gsfReader`, `enviReader`, `fitsReader`, `mrcReader`, `cbfReader`,
+`omeTiffReader`, `encodeGsf()`, lazy `sliceScientificVolume()` cross-sections, bounded
+`projectScientificVolume()` labeled-axis projections, optional statistics from `measureScientificPlane()`,
 `renderScientificPlane()`, wavelength-aware band and false-color rendering, spectral integration,
 and ratios. These APIs preserve native numeric samples and apply display ranges, scales, palettes,
-and relief only to emitted `PixelBlock`s. Node applications may import `openEnviPath()` from
-`purejsimage/scientific/node`; browser applications pass a GSF File/Blob or separate ENVI header
-and binary File/Blob objects. Complex ENVI types, 64-bit ENVI integers, and ENVI writing are
+and relief only to emitted `PixelBlock`s. Node applications create a constrained source context
+with `createScientificPathContext()` from `purejsimage/scientific/node`; browser applications use
+`createScientificFileContext()` with a File and explicit companions. Complex ENVI types, 64-bit
+ENVI integers, and ENVI writing are
 explicitly unsupported. See the checked GSF and ENVI contracts and the entirely local browser
 explorer before relying on uncommon metadata. MRC supports modes 0, 1, 2, 6, and 12 with logical
 axis mapping. CBF supports common two-dimensional x-CBF_BYTE_OFFSET integer
@@ -741,7 +745,7 @@ Keep `@jsquash/*` when its small, codec-scoped WASM packages cover the complete 
 
 ## Replace GeoTIFF.js or UTIF.js/utif2
 
-Use the normal PureJsImage pipeline when TIFF is an image input that should become JPEG, PNG, WebP, BMP, or TIFF. Use `openTiffDocument()`, native `RasterDecoder` output, `openOmeTiff()`, the GeoTIFF profile, or whole-slide APIs when TIFF structure and sample precision matter.
+Use the normal PureJsImage pipeline when TIFF is an image input that should become JPEG, PNG, WebP, BMP, or TIFF. Use `openTiffDocument()`, native `RasterDecoder` output, `omeTiffReader`, the GeoTIFF profile, or whole-slide APIs when TIFF structure and sample precision matter.
 
 Choose PureJsImage when the application needs one bounded image/scientific pipeline, validated IFD traversal, exact native samples, explicit display conversion, OME-TIFF semantics, or the documented whole-slide/profile APIs. Keep GeoTIFF.js when an existing geospatial workflow depends on its API or ecosystem and PureJsImage's public GeoTIFF model does not cover the requirement. Keep UTIF.js/utif2 only when its existing low-level decode contract is sufficient and migration cost outweighs the need for PureJsImage's limits, region/native-raster APIs, or broader validation.
 

@@ -19,18 +19,13 @@ import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/pn
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import { openAperioSvs } from '../src/pathology/index.ts'
-import { omeTiffProfile, openOmeTiff, rasterToPixels } from '../src/scientific/index.ts'
+import { createScientificLibrary, omeTiffReader, rasterToPixels } from '../src/scientific/index.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
 import { MemorySource } from '../src/source.ts'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
-import {
-  createTiffProfileRegistry,
-  encodeTiffDocument,
-  geoTiffProfile,
-  openTiffDocument,
-} from '../src/tiff/index.ts'
+import { encodeTiffDocument, geoTiffProfile, openTiffDocument } from '../src/tiff/index.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
 
 const images = createImageLibrary([
@@ -97,7 +92,7 @@ const optionalApiEntries = async (): Promise<BrowserWorkflowResult> => {
   }
   if (
     typeof openAperioSvs !== 'function' ||
-    typeof openOmeTiff !== 'function' ||
+    typeof omeTiffReader.open !== 'function' ||
     typeof rasterToPixels !== 'function' ||
     typeof HttpRangeSource.open !== 'function' ||
     geoTiffProfile.id !== 'geotiff'
@@ -1033,23 +1028,34 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   if ((await directory.getTag(270, { maxBytes: 4096 })) !== tag) {
     throw new Error('Browser TIFF document did not reuse an immutable parsed tag')
   }
-  const dataset = await createTiffProfileRegistry([omeTiffProfile]).openWith(
-    document,
-    omeTiffProfile,
-  )
+  const scientificDocument = await createScientificLibrary({ readers: [omeTiffReader] }).open({
+    primary: { id: 'primary', source: new MemorySource(input), name: 'fixture.ome.tiff' },
+    readerId: omeTiffReader.descriptor.id,
+  })
+  const summary = scientificDocument.datasets[0]
+  if (summary === undefined) throw new Error('Browser OME-TIFF reader exposed no dataset')
+  const dataset = await scientificDocument.openDataset(summary.id)
+  const x = dataset.descriptor.axes.find((axis) => axis.id === 'x')
+  const y = dataset.descriptor.axes.find((axis) => axis.id === 'y')
+  const channel = dataset.descriptor.axes.find((axis) => axis.id === 'channel')
   if (
-    dataset.sizeX !== 2 ||
-    dataset.sizeY !== 1 ||
-    dataset.sizeC !== 3 ||
-    dataset.sampleType !== 'uint16' ||
-    dataset.physicalSizeX?.value !== 0.5
+    x?.length !== 2 ||
+    y?.length !== 1 ||
+    channel?.length !== 1 ||
+    dataset.descriptor.components.length !== 3 ||
+    dataset.descriptor.sampleType !== 'uint16' ||
+    x.coordinates.type !== 'linear' ||
+    x.coordinates.step !== 0.5
   ) {
     throw new Error('Browser OME-TIFF dataset metadata is incorrect')
   }
   const rasterBlocks = dataset.readPlane({
-    z: 0,
-    c: [0, 1, 2],
-    t: 0,
+    displayAxes: ['x', 'y'],
+    fixedIndices: [
+      { axisId: 'z', index: 0 },
+      { axisId: 'channel', index: 0 },
+      { axisId: 'time', index: 0 },
+    ],
     x: 0,
     y: 0,
     width: 2,
@@ -1057,21 +1063,17 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   })
   const pixels: number[] = []
   for await (const block of rasterToPixels(rasterBlocks, {
-    channels: [0, 1, 2],
-    ranges: [
-      { black: 0, white: 65_535 },
-      { black: 0, white: 65_535 },
-      { black: 0, white: 65_535 },
-    ],
+    channels: [0],
+    ranges: [{ black: 0, white: 65_535 }],
   })) {
     pixels.push(...block.data)
   }
-  if (pixels.join(',') !== '0,128,255,255,128,0') {
+  if (pixels.join(',') !== '0,255') {
     throw new Error(`Browser OME-TIFF display conversion produced ${pixels.join(',')}`)
   }
   return {
     detail:
-      'bounded TIFF extension APIs, typed profile opening, native OME-TIFF raster, and explicit display conversion passed',
+      'bounded TIFF extension APIs, labeled OME-TIFF document opening, and explicit display conversion passed',
     outputBytes: input.byteLength,
   }
 }

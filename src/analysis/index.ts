@@ -114,7 +114,26 @@ export type {
   PlanGraphOptions,
   PreparedAnalysisPlan,
 } from './planner.ts'
-export { dryRun, planGraph } from './planner.ts'
+export {
+  computeAnalysisInvocationManifest,
+  dryRun,
+  normalizeAnalysisSemanticIdentity,
+  planGraph,
+} from './planner.ts'
+export type {
+  AnalysisProjectHashes,
+  AnalysisProjectOptions,
+  AnalysisProjectV1,
+  AnalysisProjectValidation,
+  PersistedBindingValue,
+  PersistedInputBinding,
+  PersistedSourceReference,
+} from './project.ts'
+export {
+  computeAnalysisProjectHashes,
+  normalizeAnalysisProjectV1,
+  validateAnalysisProjectV1,
+} from './project.ts'
 export type {
   AnalysisExecutionProvenance,
   AnalysisExecutionResult,

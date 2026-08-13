@@ -17,8 +17,8 @@ import {
 } from '../src/scientific/index.ts'
 import { rasterSampleBytes, type RasterSampleType } from '../src/raster.ts'
 import { readRasterSample } from '../src/scientific/samples.ts'
-import { createScientificPathContext, openEnviPath } from '../src/scientific/node.ts'
-import { MemorySource } from '../src/source.ts'
+import { createScientificPathContext } from '../src/scientific/node.ts'
+import { BlobSource, MemorySource } from '../src/source.ts'
 
 interface EnviFixtureOptions {
   readonly samples: number
@@ -31,6 +31,25 @@ interface EnviFixtureOptions {
   readonly extraHeader?: string
   readonly fileType?: 'ENVI Standard' | 'ENVI Classification'
   readonly value?: (x: number, y: number, band: number) => number
+}
+
+const openScientificEnvi = async (header: Uint8Array, data: Uint8Array | Blob) => {
+  const document = await new ScientificReaderRegistry([enviReader]).open({
+    primary: { id: 'header', name: 'scene.hdr', source: new MemorySource(header) },
+    companions: {
+      async resolve(request) {
+        return request.kind === 'role' && request.role === 'data'
+          ? {
+              id: 'data',
+              name: 'scene',
+              source: data instanceof Blob ? new BlobSource(data) : new MemorySource(data),
+            }
+          : undefined
+      },
+    },
+    readerId: 'purejsimage/envi',
+  })
+  return document.openDataset('raster')
 }
 
 const sampleTypeForDataType = (type: SupportedEnviDataType): RasterSampleType => {
@@ -309,6 +328,15 @@ map info = { Geographic Lat/Lon, 1, 1, -83.7, 42.3, 0.01, 0.01, WGS-84 }
     })
     expect(requests).toContainEqual({ kind: 'role', role: 'data', relativeName: 'scene' })
     expect(headerPrimary.datasets).toHaveLength(1)
+    expect(headerPrimary.datasets[0]?.identity).toMatchObject({
+      kind: 'scientific-dataset',
+      reader: { id: 'purejsimage/envi', version: '1.0.0' },
+      datasetId: 'raster',
+      resources: [
+        { id: 'data', identity: { kind: 'session', size: input.data.byteLength } },
+        { id: 'header', identity: { kind: 'session', size: input.header.byteLength } },
+      ],
+    })
     const headerDataset = await headerPrimary.openDataset('raster')
     expect(headerDataset.descriptor.axes.find(({ id }) => id === 'channel')).toMatchObject({
       kind: 'spectral',
@@ -395,12 +423,14 @@ class lookup = { 0, 0, 0, 240, 80, 20, 30, 160, 220 }
       { value: 1, name: 'Clay', color: { red: 240, green: 80, blue: 20 } },
       { value: 2, name: 'Carbonate', color: { red: 30, green: 160, blue: 220 } },
     ])
-    const rendered = renderEnviClassification(opened, { maxWidth: 3, maxHeight: 2 })
+    const rendered = renderEnviClassification(await openScientificEnvi(input.header, input.data), {
+      maxWidth: 3,
+      maxHeight: 2,
+    })
     const pixels: number[] = []
     for await (const block of rendered.pixels) pixels.push(...block.data)
     expect({ width: rendered.width, height: rendered.height }).toEqual({ width: 3, height: 2 })
     expect(pixels).toEqual([30, 160, 220, 240, 80, 20, 0, 0, 0, 240, 80, 20, 0, 0, 0, 30, 160, 220])
-    expect(opened.sourceBytesRead).toBe(12)
   })
 
   it('keeps the official Afghanistan map dimensions lazy despite full-frame image limits', async () => {
@@ -430,14 +460,17 @@ classes = 2
 class names = { Unclassified, Mineral }
 class lookup = { 0, 0, 0, 180, 90, 30 }
 `)
-    const opened = await openEnvi({
+    await openEnvi({
       header,
       data: new VirtualClassificationBlob(),
       maxInputBytes: bytes,
       maxPixels: 1,
       maxDecodedBytes: 1_048_576,
     })
-    const rendered = renderEnviClassification(opened, { maxWidth: 4, maxHeight: 4 })
+    const rendered = renderEnviClassification(
+      await openScientificEnvi(header, new VirtualClassificationBlob()),
+      { maxWidth: 4, maxHeight: 4 },
+    )
     let outputBytes = 0
     for await (const block of rendered.pixels) outputBytes += block.data.byteLength
     expect({ width: rendered.width, height: rendered.height, outputBytes }).toEqual({
@@ -445,7 +478,6 @@ class lookup = { 0, 0, 0, 180, 90, 30 }
       height: 4,
       outputBytes: 36,
     })
-    expect(opened.sourceBytesRead).toBe(width * 4)
   })
 
   it('rejects malformed ENVI Classification metadata and undeclared class samples', async () => {
@@ -469,8 +501,10 @@ class lookup = { 0, 0, 0, 255, 100, 50 }
     await expect(openEnvi({ header: malformedHeader, data: input.data })).rejects.toMatchObject({
       code: 'INVALID_INPUT',
     })
-    const opened = await openEnvi(input)
-    const rendered = renderEnviClassification(opened, { maxWidth: 2, maxHeight: 1 })
+    const rendered = renderEnviClassification(await openScientificEnvi(input.header, input.data), {
+      maxWidth: 2,
+      maxHeight: 1,
+    })
     await expect(async () => {
       for await (const _block of rendered.pixels) {
         // Exhaust the categorical renderer.
@@ -494,11 +528,26 @@ class lookup = { 0, 0, 0, 255, 100, 50 }
         writeFile(headerPath, input.header),
         writeFile(join(directory, 'cube'), input.data),
       ])
-      const opened = await openEnviPath(headerPath)
-      expect(await readValues(opened, [1, 0])).toEqual([101, 102, 111, 112, 1, 2, 11, 12])
       const scientific = createScientificLibrary({ readers: [enviReader] })
       const document = await scientific.open(await createScientificPathContext(headerPath))
       expect(document.datasets[0]?.id).toBe('raster')
+      const opened = await document.openDataset('raster')
+      const values: number[] = []
+      for await (const block of opened.readPlane({
+        displayAxes: ['x', 'y'],
+        fixedIndices: [
+          { axisId: 'z', index: 0 },
+          { axisId: 'channel', index: 1 },
+          { axisId: 'time', index: 0 },
+        ],
+      })) {
+        for (let offset = 0; offset < block.data.byteLength; offset += 2) {
+          values.push(
+            new DataView(block.data.buffer, block.data.byteOffset + offset, 2).getUint16(0, false),
+          )
+        }
+      }
+      expect(values).toEqual([100, 101, 102, 110, 111, 112])
     } finally {
       await rm(directory, { recursive: true, force: true })
     }

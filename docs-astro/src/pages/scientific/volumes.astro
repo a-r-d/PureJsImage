@@ -6,22 +6,22 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 <main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific volume operations</p><h1>Slice and project 3D scientific image volumes in JavaScript</h1><p class="page-lede">The volume helpers return ordinary lazy numeric raster datasets. They extract 2D planes from FITS cubes, MRC volumes, OME-TIFF Z stacks, and other compatible datasets. They do not create a 3D rendering engine.</p></div></header><div class="container docs-layout"><article class="content">
 <h2>Orthogonal slices</h2><pre><code>import &#123; sliceScientificVolume &#125; from 'purejsimage/scientific'
 
-const xy = sliceScientificVolume(volume, &#123; axis: 'xy', index: 42, c: 0, t: 0 &#125;)
-const xz = sliceScientificVolume(volume, &#123; axis: 'xz', index: 80, c: 0, t: 0 &#125;)
-const yz = sliceScientificVolume(volume, &#123; axis: 'yz', index: 120, c: 0, t: 0 &#125;)</code></pre>
-<p>XY fixes Z. XZ fixes Y. YZ fixes X. The returned dataset has one Z plane and one channel. It can be passed directly to <code>measureScientificPlane()</code> or <code>renderScientificPlane()</code>.</p>
+const xy = sliceScientificVolume(volume, &#123; displayAxes: ['x', 'y'], fixedIndices: [&#123; axisId: 'z', index: 42 &#125;] &#125;)
+const xz = sliceScientificVolume(volume, &#123; displayAxes: ['x', 'z'], fixedIndices: [&#123; axisId: 'y', index: 80 &#125;] &#125;)
+const yz = sliceScientificVolume(volume, &#123; displayAxes: ['y', 'z'], fixedIndices: [&#123; axisId: 'x', index: 120 &#125;] &#125;)</code></pre>
+<p>Each call names its two display axes and fixes every other non-singleton axis. The returned labeled-axis dataset can be passed directly to <code>measureScientificPlane()</code> or <code>renderScientificPlane()</code>.</p>
 <h2>Physical spacing</h2><p>XY retains physical X and Y spacing. XZ uses source X and Z spacing. YZ uses source Y and Z spacing. Missing source spacing remains undefined. The same mapping applies to finite origin components.</p>
 <h2>Z projections</h2><pre><code>import &#123; projectScientificVolume &#125; from 'purejsimage/scientific'
 
-const maximum = projectScientificVolume(volume, &#123; axis: 'z', mode: 'max' &#125;)
-const minimum = projectScientificVolume(volume, &#123; axis: 'z', mode: 'min' &#125;)
+const maximum = projectScientificVolume(volume, &#123; displayAxes: ['x', 'y'], axis: 'z', fixedIndices: [], mode: 'max' &#125;)
+const minimum = projectScientificVolume(volume, &#123; displayAxes: ['x', 'y'], axis: 'z', fixedIndices: [], mode: 'min' &#125;)
 const mean = projectScientificVolume(volume, &#123;
-  axis: 'z', mode: 'mean', rowsPerBlock: 8,
+  displayAxes: ['x', 'y'], axis: 'z', fixedIndices: [], mode: 'mean', rowsPerBlock: 8,
 &#125;)</code></pre>
 <p>Maximum and minimum preserve a floating-point source type. Integer inputs promote to float64 so a no-valid-sample result remains representable. Mean always uses float64. NaN, infinity, and the declared source no-data value are ignored when another valid sample contributes. An output location with no valid contributing sample is NaN.</p>
 <h2>Memory behavior</h2><p>XY delegates to the source plane reader. XZ retains one requested X row while it visits contributing Z planes. YZ retains one requested Y row and requests a one-pixel-wide source column. Projection retains only <code>rowsPerBlock</code> output rows, one float64 accumulator per output sample, and one uint32 count per output sample. No helper allocates width × height × depth samples.</p>
 <h2>Measurement</h2><pre><code>const stats = await measureScientificPlane(maximum, &#123;
-  plane: &#123; z: 0, c: 0, t: 0 &#125;,
+  plane: &#123; displayAxes: ['x', 'y'], fixedIndices: [] &#125;,
   range: &#123; mode: 'dataset' &#125;,
   statistics: &#123;
     mean: true,
@@ -32,6 +32,6 @@ const mean = projectScientificVolume(volume, &#123;
   &#125;,
 &#125;)</code></pre>
 <p>Mean and population standard deviation use a numerically stable running calculation. Percentiles use bounded systematic sampling and are approximate when the sample budget is smaller than the selected plane. A histogram uses an explicit range or the measured range and stores only its requested bins.</p>
-<h2>Current boundary</h2><p>Projection currently supports the Z axis. Arbitrary oblique slices, interpolation between planes, segmentation, and GPU volume rendering are not implemented.</p>
+<h2>Current boundary</h2><p>Projection reduces one explicitly named non-display axis. Arbitrary oblique slices, interpolation between planes, segmentation, and GPU volume rendering are not implemented.</p>
 <p><a href="../">Scientific Raster Explorer</a> · <a href="../mrc/">MRC guide</a> · <a href="../fits/">FITS guide</a> · <a href="../../tiff/#scientific">OME-TIFF</a> · <a href="../../api/#scientific">API</a></p>
 </article></div></main></SiteLayout>

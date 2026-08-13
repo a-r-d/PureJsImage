@@ -1,10 +1,4 @@
 export type {
-  MultidimensionalRasterDataset,
-  PhysicalPixelSize,
-  RasterChannelInfo,
-  RasterPlaneRequest,
-} from './dataset.ts'
-export type {
   NormalizedScientificDatasetDescriptor,
   NormalizedScientificPlaneReadRequest,
   ScientificAxisCoordinates,
@@ -23,7 +17,6 @@ export type {
   ScientificResolutionAxisLength,
   ScientificResolutionLevel,
 } from './dataset-v2.ts'
-export type { MultidimensionalRasterAdapterOptions } from './dataset-adapters.ts'
 export type {
   ScientificLibrary,
   ScientificLibraryCapabilities,
@@ -34,6 +27,8 @@ export type {
   ScientificCompanionRequest,
   ScientificCompanionResolver,
   ScientificDatasetSummary,
+  ScientificDatasetIdentity,
+  ScientificDatasetResourceIdentity,
   ScientificDocument,
   ScientificDocumentReaderInfo,
   ScientificOpenContext,
@@ -69,15 +64,13 @@ export {
   validateScientificDatasetDescriptor,
 } from './dataset-v2.ts'
 export {
-  toMultidimensionalRasterDataset,
-  toScientificDataset,
-} from './dataset-adapters.ts'
-export {
+  createScientificDatasetIdentity,
   defaultScientificProbeLimits,
   normalizeScientificCompanionRequest,
   normalizeScientificRelativeName,
   resolveScientificProbeLimits,
   ScientificReaderRegistry,
+  getScientificDatasetIdentity,
 } from './reader.ts'
 export { createScientificLibrary } from './library.ts'
 export {
@@ -88,32 +81,7 @@ export {
   scientificDatasetToNumericTileSource,
   validateNumericTile,
 } from './numeric-tile.ts'
-export type { GsfDataset, GsfOpenOptions, GsfWriteOptions } from './formats/gsf.ts'
-export type {
-  FitsDataset,
-  FitsDocument,
-  FitsHdu,
-  FitsHeaderCard,
-  FitsHeaderValue,
-  FitsOpenOptions,
-} from './formats/fits.ts'
-export type {
-  EnviByteOrder,
-  EnviClassInfo,
-  EnviDataset,
-  EnviFileType,
-  EnviInterleave,
-  EnviOpenOptions,
-  SupportedEnviDataType,
-} from './formats/envi.ts'
-export type {
-  CbfDataset,
-  CbfDetectorMetadata,
-  CbfElementType,
-  CbfEncoding,
-  CbfOpenOptions,
-} from './formats/cbf.ts'
-export type { MrcByteOrder, MrcDataset, MrcHeader, MrcMode, MrcOpenOptions } from './formats/mrc.ts'
+export type { GsfWriteOptions } from './formats/gsf.ts'
 export type {
   EnviClassificationRenderedImage,
   EnviClassificationRenderOptions,
@@ -128,40 +96,25 @@ export type {
   ScientificDisplayScale,
   ScientificHistogram,
   ScientificPercentile,
-  ScientificPlaneMeasurement,
-  ScientificPlaneMeasureOptions,
-  ScientificPlaneRenderOptions,
   ScientificRange,
-  ScientificReliefOptions,
-  ScientificRenderedPlane,
   ScientificRenderRange,
   ScientificStatisticsRequest,
 } from './render.ts'
 export type {
-  BandRatioOptions,
   LabeledBandRatioOptions,
   LabeledSpectralBandRenderOptions,
   LabeledSpectralBandRenderResult,
   LabeledSpectralCompositeRenderOptions,
   LabeledSpectralDerivedDataset,
   LabeledSpectralRangeOptions,
-  SpectralBandRenderOptions,
-  SpectralBandRenderResult,
   SpectralChannelSelection,
-  SpectralCompositeRenderOptions,
   SpectralCompositeRenderResult,
-  SpectralDerivedDataset,
-  SpectralRangeOptions,
 } from './spectral.ts'
 export type {
   LabeledScientificVolumeProjectionOptions,
   LabeledScientificVolumeSliceOptions,
   ScientificProjectionMode,
-  ScientificSliceAxis,
-  ScientificVolumeProjectionOptions,
-  ScientificVolumeSliceOptions,
 } from './volume.ts'
-export type { OmeTiffDataset, OmeTiffResolutionLevel } from './ome-tiff.ts'
 export type {
   RasterBlock,
   RasterDecoder,
@@ -172,26 +125,23 @@ export type {
   RasterSampleType,
 } from '../raster.ts'
 export { rasterSampleBytes, rasterToPixels } from '../raster.ts'
-export { openEnvi } from './formats/envi.ts'
-export { openCbf } from './formats/cbf.ts'
+export { encodeGsf } from './formats/gsf.ts'
 export { renderEnviClassification } from './classification.ts'
-export { openFits } from './formats/fits.ts'
-export { openMrc } from './formats/mrc.ts'
-export { encodeGsf, openGsf } from './formats/gsf.ts'
 export { gsfReader, gsfReaderDescriptor } from './readers/gsf.ts'
 export { mrcReader, mrcReaderDescriptor } from './readers/mrc.ts'
 export { cbfReader, cbfReaderDescriptor } from './readers/cbf.ts'
-export { isOmeTiff, omeTiffImageCount, omeTiffProfile, openOmeTiff } from './ome-tiff.ts'
 export { fitsReader, fitsReaderDescriptor } from './readers/fits.ts'
 export { omeTiffReader, omeTiffReaderDescriptor } from './readers/ome-tiff.ts'
 export { enviReader, enviReaderDescriptor } from './readers/envi.ts'
 export { scientificPaletteColor } from './palettes.ts'
-export { measureScientificPlane, renderScientificPlane } from './render.ts'
-export { projectScientificVolume, sliceScientificVolume } from './volume.ts'
 export {
   bandRatio,
   integrateSpectralRange,
   nearestSpectralChannel,
   renderSpectralBand,
   renderSpectralComposite,
-} from './spectral.ts'
+  measureScientificPlane,
+  projectScientificVolume,
+  renderScientificPlane,
+  sliceScientificVolume,
+} from './public-v2.ts'

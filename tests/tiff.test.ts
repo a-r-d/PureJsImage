@@ -3852,6 +3852,12 @@ describe('OME-TIFF scientific semantics', () => {
     })
     expect(first.datasets.map(({ id }) => id)).toEqual(['image-0', 'image-1'])
     expect(second.datasets.map(({ id }) => id)).toEqual(['image-0', 'image-1'])
+    expect(first.datasets[1]?.identity).toMatchObject({
+      kind: 'scientific-dataset',
+      reader: { id: 'purejsimage/ome-tiff', version: '1.0.0' },
+      datasetId: 'image-1',
+      resources: [{ id: 'ome', identity: { size: input.byteLength } }],
+    })
     expect(first.datasets[0]?.descriptor.axes.map(({ id }) => id)).toEqual([
       'x',
       'y',

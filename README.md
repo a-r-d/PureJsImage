@@ -135,13 +135,14 @@ Scientific readers are separate from photographic codecs. The dataset remains nu
 application requests display pixels:
 
 ```ts
-import { FileSource } from 'purejsimage'
-import { openFits, renderScientificPlane } from 'purejsimage/scientific'
+import { createScientificLibrary, fitsReader, renderScientificPlane } from 'purejsimage/scientific'
+import { createScientificPathContext } from 'purejsimage/scientific/node'
 
-const fits = await openFits(await FileSource.open('observation.fits'))
-const dataset = await fits.openImage(0)
+const science = createScientificLibrary({ readers: [fitsReader] })
+const fits = await science.open(await createScientificPathContext('observation.fits'))
+const dataset = await fits.openDataset(fits.datasets[0].id)
 const display = await renderScientificPlane(dataset, {
-  plane: { z: 0, c: 0, t: 0 },
+  plane: { displayAxes: ['x', 'y'], fixedIndices: [{ axisId: 'axis-3', index: 0 }] },
   range: { mode: 'percentile', low: 1, high: 99 },
   palette: 'viridis',
 })
@@ -292,12 +293,23 @@ operations—see [Building scientific applications with PureJsImage](docs/applic
 MRC and FITS volumes share lazy cross-section and projection operations:
 
 ```ts
-import { FileSource } from 'purejsimage'
-import { openMrc, projectScientificVolume, sliceScientificVolume } from 'purejsimage/scientific'
+import {
+  createScientificLibrary,
+  mrcReader,
+  projectScientificVolume,
+  sliceScientificVolume,
+} from 'purejsimage/scientific'
+import { createScientificPathContext } from 'purejsimage/scientific/node'
 
-const volume = await openMrc(await FileSource.open('reconstruction.mrc'))
-const xz = sliceScientificVolume(volume, { axis: 'xz', index: 128 })
-const maximum = projectScientificVolume(volume, { axis: 'z', mode: 'max' })
+const science = createScientificLibrary({ readers: [mrcReader] })
+const document = await science.open(await createScientificPathContext('reconstruction.mrc'))
+const volume = await document.openDataset(document.datasets[0].id)
+const xz = sliceScientificVolume(volume, {
+  displayAxes: ['x', 'z'], fixedIndices: [{ axisId: 'y', index: 128 }],
+})
+const maximum = projectScientificVolume(volume, {
+  displayAxes: ['x', 'y'], axis: 'z', fixedIndices: [], mode: 'max',
+})
 ```
 
 [ENVI](https://purejsimage.com/scientific/envi/) ·

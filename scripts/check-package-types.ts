@@ -183,13 +183,15 @@ import { createScientificLibrary, encodeGsf, gsfReader, normalizeScientificDatas
 import type { ScientificReader } from 'purejsimage/scientific'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'
-import { analysisGaussianBlurOperationId, canonicalTileKey, createAnalysisController, createBuiltInAnalysisBundle, createAnalysisResultValueTypeRegistry, createRoiLineSamplingPlan, createRoiMask, createRoiValueTypeRegistry, createTileRuntime, getImageSourceIdentity, hashAnalysisGraph, normalizeRoi, summarizeResult, validateScalarResult } from 'purejsimage/analysis'
-import type { AnalysisGraph, Roi, TileRequest, TileSource } from 'purejsimage/analysis'
-export { openOmeTiff, rasterToPixels } from 'purejsimage/scientific'
+import { analysisGaussianBlurOperationId, canonicalTileKey, computeAnalysisProjectHashes, createAnalysisController, createBuiltInAnalysisBundle, createAnalysisResultValueTypeRegistry, createRoiLineSamplingPlan, createRoiMask, createRoiValueTypeRegistry, createTileRuntime, getImageSourceIdentity, hashAnalysisGraph, normalizeAnalysisProjectV1, normalizeRoi, summarizeResult, validateAnalysisProjectV1, validateScalarResult } from 'purejsimage/analysis'
+import type { AnalysisGraph, AnalysisProjectV1, Roi, TileRequest, TileSource } from 'purejsimage/analysis'
+export { omeTiffReader, rasterToPixels } from 'purejsimage/scientific'
 export { createScientificFileContext } from 'purejsimage/scientific/browser'
 export { createScientificPathContext } from 'purejsimage/scientific/node'
 export { openAperioSvs } from 'purejsimage/pathology'
 export { HttpRangeSource } from 'purejsimage/sources/http-range'
+export { computeAnalysisProjectHashes, normalizeAnalysisProjectV1, validateAnalysisProjectV1 }
+export type { AnalysisProjectV1 }
 
 const nodeImages = createImageLibrary([pngCodec, jpegxlCodec])
 const browserImages = createBrowserImageLibrary([pngCodec, jpegxlCodec])

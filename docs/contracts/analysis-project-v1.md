@@ -33,22 +33,28 @@ interface PersistedInputBinding {
   readonly input: string
   readonly valueType: { readonly id: string; readonly version: number }
   readonly identity: AnalysisSemanticIdentity
-  readonly sourceReference?: string
-  readonly inlineValue?: null | boolean | number | string | readonly JsonValue[] | JsonObject
+  readonly value:
+    | { readonly kind: 'source'; readonly sourceReference: string }
+    | { readonly kind: 'roi'; readonly roiId: string }
+    | { readonly kind: 'roi-set'; readonly roiIds?: readonly string[] }
+    | { readonly kind: 'inline-json'; readonly value: OperationJsonValue }
 }
 
 interface PersistedSourceReference {
   readonly id: string
-  readonly identity: SourceIdentity
+  readonly identity: AnalysisSemanticIdentity
   readonly locatorHint?:
     | { readonly kind: 'local-file'; readonly name: string; readonly size: number }
     | { readonly kind: 'remote'; readonly url: string }
 }
 ```
 
-Exactly one of `sourceReference` and `inlineValue` is present on a binding. A source reference ID
-is unique and must resolve to exactly one entry. `ApplicationDisplayState` is bounded JSON owned by
-the application; PureJsImage does not interpret its keys.
+The discriminated `value` resolves a source, one project ROI, all or a selected subset of project
+ROIs, or bounded inline JSON without duplicating ROI geometry. A source reference ID is unique and
+must resolve to exactly one entry. Its identity is a plain `SourceIdentity` for a single source or a
+`ScientificDatasetIdentity` for a reader-opened dataset; the latter carries every resource in a
+multi-resource format such as ENVI. `ApplicationDisplayState` is bounded JSON owned by the
+application; PureJsImage does not interpret its keys.
 
 `PersistedProviderPolicy` mirrors the public `reference-only`, `automatic`, and exact `pinned`
 policies. An absent or automatic policy is advisory: replay may choose another semantically
@@ -108,18 +114,24 @@ interface AnalysisProjectValidation {
 validateAnalysisProjectV1(
   value: unknown,
   options: {
-    readonly controller: AnalysisController
+    readonly operations: OperationRegistry
+    readonly valueTypes: ValueTypeRegistry
+    readonly roi: {
+      readonly descriptor: NormalizedScientificDatasetDescriptor
+      readonly limits?: RoiLimits
+    }
+    readonly analysisLimits?: AnalysisLimits
     readonly maxDocumentBytes?: number
     readonly maxSourceReferences?: number
+    readonly maxBindings?: number
     readonly maxDisplayBytes?: number
   },
 ): Promise<AnalysisProjectValidation>
 ```
 
-The envelope validator is the normative API shape for this format; until it is exported by the
-package, applications must compose the existing graph, ROI, identity, policy, canonical-JSON, and
-hash validators and must not claim library-level project validation. Validation treats parsed data
-as `unknown`, rejects unknown fields, accessors, cycles, non-finite numbers, duplicate IDs,
+`validateAnalysisProjectV1()`, `normalizeAnalysisProjectV1()`, and
+`computeAnalysisProjectHashes()` are exported from `purejsimage/analysis`. Validation treats parsed
+data as `unknown`, rejects unknown fields, accessors, cycles, non-finite numbers, duplicate IDs,
 unresolved references, mismatched value types/hashes, and configured limits. It does not open
 sources, migrate, prepare providers, or execute a graph.
 
@@ -146,20 +158,30 @@ integrity contract.
   "schemaVersion": 1,
   "graph": {
     "schemaVersion": 1,
-    "inputs": [{ "name": "surface", "valueType": { "id": "purejsimage.scientific-dataset", "version": 1 } }],
+    "inputs": [{ "name": "surface", "valueType": { "id": "purejsimage.scientific.dataset", "version": 1 } }],
     "nodes": [],
     "outputs": []
   },
   "roiSet": { "schemaVersion": 1, "rois": [] },
   "bindings": [{
     "input": "surface",
-    "valueType": { "id": "purejsimage.scientific-dataset", "version": 1 },
-    "identity": { "kind": "local-file", "strength": "weak", "stability": "metadata", "nameOrPath": "sample.gsf", "size": 8192, "lastModified": 1722470400000 },
-    "sourceReference": "primary"
+    "valueType": { "id": "purejsimage.scientific.dataset", "version": 1 },
+    "identity": {
+      "kind": "scientific-dataset",
+      "reader": { "id": "purejsimage/gsf", "version": "1.0.0" },
+      "datasetId": "surface",
+      "resources": [{ "id": "primary", "identity": { "kind": "local-file", "strength": "weak", "stability": "metadata", "nameOrPath": "sample.gsf", "size": 8192, "lastModified": 1722470400000 } }]
+    },
+    "value": { "kind": "source", "sourceReference": "primary" }
   }],
   "sourceReferences": [{
     "id": "primary",
-    "identity": { "kind": "local-file", "strength": "weak", "stability": "metadata", "nameOrPath": "sample.gsf", "size": 8192, "lastModified": 1722470400000 },
+    "identity": {
+      "kind": "scientific-dataset",
+      "reader": { "id": "purejsimage/gsf", "version": "1.0.0" },
+      "datasetId": "surface",
+      "resources": [{ "id": "primary", "identity": { "kind": "local-file", "strength": "weak", "stability": "metadata", "nameOrPath": "sample.gsf", "size": 8192, "lastModified": 1722470400000 } }]
+    },
     "locatorHint": { "kind": "local-file", "name": "sample.gsf", "size": 8192 }
   }],
   "providerPolicy": { "mode": "reference-only" },

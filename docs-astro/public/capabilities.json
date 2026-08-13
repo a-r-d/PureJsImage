@@ -5157,7 +5157,7 @@
         },
         {
           "status": "supported",
-          "text": "Single scalar `MultidimensionalRasterDataset` channel with native float32 samples"
+          "text": "Single scalar labeled-axis `ScientificDataset` with native float32 samples"
         },
         {
           "status": "supported",

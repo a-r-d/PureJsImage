@@ -27,9 +27,9 @@ The useful seams already present in the codebase are:
 - `src/raster.ts` defines `RasterBlock` as canonical big-endian bytes with explicit shape, stride,
   planar layout, sample type, and an optional `release()` callback. Scientific readers already
   converge on that boundary.
-- `src/scientific/dataset.ts` defines `MultidimensionalRasterDataset`, a lazy fixed `X/Y/Z/C/T`
-  model whose `readPlane()` method yields bounded `RasterBlock`s. FITS, MRC, CBF, GSF, ENVI, and
-  OME-TIFF expose this model through the existing `openX` functions.
+- `src/scientific/dataset-v2.ts` defines the sole public `ScientificDataset` model: labeled axes and
+  lazy bounded `RasterBlock` plane reads. Explicitly registered FITS, MRC, CBF, GSF, ENVI, and
+  OME-TIFF readers expose it through `ScientificDocument`.
 - The format readers validate dimensions and source extents, keep sample data lazy, generally bound
   blocks with `maxDecodedBytes`, and propagate read cancellation through both dataset generations.
 - Scientific rendering, measurement, spectral math, volume reduction, and classification now
@@ -136,8 +136,10 @@ be threaded through `readExactly()` and `ImageSource.read()` as each reader migr
 being simulated by an adapter that can only check between blocks. Tests must prove axis mapping,
 channel selection, coordinate metadata, block shape, cancellation, and release propagation.
 
-The implemented PR 1 boundary keeps a temporary explicit adapter while readers still return the
-fixed-axis type. `ScientificAxisDescriptor.entries` carries per-coordinate channel identity, name,
+The public PR 1 boundary exposes no fixed-axis dataset or adapter. Internal parser compatibility
+code may temporarily adapt an old parser result while each parser moves to native V2 construction;
+that seam is not a package contract or a pattern for new readers. `ScientificAxisDescriptor.entries`
+carries per-coordinate channel identity, name,
 unit, color, and spectral center/FWHM without confusing independently selectable channels with
 stored components. Generic measurement and rendering now execute from a resolved two-axis plane and
 therefore support arbitrary stable display-axis IDs. Spectral helpers require the spectral axis ID;
@@ -146,13 +148,9 @@ projection, integration, and ratio outputs preserve the surviving axis descripto
 and region-bounded. The ENVI classification renderer remains intentionally format-specific because
 its class lookup table is an ENVI reader contract, not generic labeled-axis metadata.
 
-The bridge is not the release architecture. `MultidimensionalRasterDataset` is marked deprecated,
-and the explicit adapters isolate migration rather than promise 0.9.x compatibility. Reader
-migration can remove the bridge before the next version increment. V1 does not describe pyramid
-geometry, so callers adapting a V1 pyramid must supply known `ScientificResolutionLevel` entries;
-the adapter refuses to invent them. Reverse adaptation accepts only literal `x`, `y`, optional `z`,
-`channel`, and `time` axes plus one scalar component and flat string metadata. Anything richer is
-rejected instead of silently flattened or discarded.
+The bridge is not release architecture and is not exported. There is no legacy package entry and no
+reverse adapter for applications. Internal compatibility tests protect parser byte behavior only;
+all public application and reader examples use labeled axes.
 
 ## Portable bytes and native numeric tiles
 
@@ -1387,6 +1385,20 @@ to own only generic descriptors, definitions, providers, and registries.
 
 ### Contract-level review blockers
 
+- [x] Publish one scientific dataset model. `ScientificDataset` is now the only dataset contract in
+      `purejsimage/scientific`; fixed-axis parser objects and adapters are internal migration code,
+      first-party formats open through explicit readers/documents, and the website/package fixtures
+      use labeled-axis requests. The ordinary image pipeline is unchanged.
+- [x] Give every first-party reader-opened dataset a structured identity containing the exact
+      reader ID/version, stable dataset ID, and every source identity. ENVI includes header and data;
+      FITS and OME-TIFF include stable HDU/image IDs. Planning recognizes attached identities while
+      synthetic datasets still require an explicit identity.
+- [x] Implement the normative `AnalysisProjectV1` envelope with discriminated source/ROI/ROI-set/
+      inline bindings and exported validation, normalization, and hash helpers. Validation resolves
+      logical source and ROI references, checks registered value types and semantic identities,
+      rejects stale graph/binding/invocation hashes, enforces document/presentation limits, and does
+      not open sources or prepare providers.
+
 - [x] Separate reusable recipe identity from complete invocation identity with binding and
       invocation hashes, canonical ROI/scalar semantics, explicit opaque identities, and no
       execute-time identity replacement.
@@ -1403,12 +1415,12 @@ to own only generic descriptors, definitions, providers, and registries.
 - [x] Replace the CodeQL-flagged namespaced-ID regular expression with one bounded linear parser and
       reuse it for operation and extension identifiers.
 
-  - Contract-blocker validation: 126 focused scientific/application tests pass. Package consumer
+  - Contract-blocker validation: 142 focused scientific/application tests pass. Package consumer
     types, browser dependency checks, documentation build, lint, formatting, and three
     correctness-gated scientific/application benchmarks pass. Standard and hostile-source suites
-    each reach 93 passing files; all 1,161 tests pass in hostile-source mode when the AVIF oracle
-    file is excluded. Both complete suites remain blocked only by the same three environment-specific
-    expanded 12-bit AVIF Sharp-oracle hash mismatches (1,183 of 1,186 tests pass).
+    each pass all 95 files and 1,167 tests when the AVIF oracle file is excluded. The complete
+    `npm run check` remains blocked only by the same three environment-specific expanded 12-bit AVIF
+    Sharp-oracle hash mismatches (1,189 of 1,192 tests pass); no scientific/application test fails.
 
   - Small-feedback validation: 64 focused operation/controller/result/tile/extension tests pass;
     dense nearest sampling uses three normal tiles for 17 samples and the cross-boundary bilinear
