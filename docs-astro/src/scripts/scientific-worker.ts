@@ -7,6 +7,7 @@ import {
   projectScientificVolume,
   renderScientificPlane,
   sliceScientificVolume,
+  supportsScientificPlaneRead,
   type ScientificPlaneMeasurement,
   type ScientificAxisDescriptor,
   type ScientificDataset,
@@ -141,17 +142,6 @@ const fixedIndices = (
       ),
   )
 
-const supportsDisplayAxes = (
-  active: ScientificDataset,
-  displayAxes: readonly [string, string],
-): boolean => {
-  const capability = active.descriptor.capabilities.planeReads
-  return (
-    capability.kind === 'any-axis-pair' ||
-    capability.pairs.some((pair) => pair[0] === displayAxes[0] && pair[1] === displayAxes[1])
-  )
-}
-
 const beginDataset = (opened: ScientificDataset, bytes: number): void => {
   dataset = opened
   sourceBytes = bytes
@@ -206,9 +196,15 @@ const openedMetadata = (
     volume === undefined
       ? (['xy'] as const)
       : [
-          supportsDisplayAxes(active, [x.id, y.id]) ? ('xy' as const) : undefined,
-          supportsDisplayAxes(active, [x.id, volume.id]) ? ('xz' as const) : undefined,
-          supportsDisplayAxes(active, [y.id, volume.id]) ? ('yz' as const) : undefined,
+          supportsScientificPlaneRead(active.descriptor, [x.id, y.id])
+            ? ('xy' as const)
+            : undefined,
+          supportsScientificPlaneRead(active.descriptor, [x.id, volume.id])
+            ? ('xz' as const)
+            : undefined,
+          supportsScientificPlaneRead(active.descriptor, [y.id, volume.id])
+            ? ('yz' as const)
+            : undefined,
         ].filter((value): value is 'xy' | 'xz' | 'yz' => value !== undefined),
   )
   return {
@@ -463,7 +459,9 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
           : settings.sliceAxis === 'yz'
             ? ([y.id, depth.id] as const)
             : ([x.id, y.id] as const)
-      const sliceAxis = supportsDisplayAxes(active, requestedSliceAxes) ? settings.sliceAxis : 'xy'
+      const sliceAxis = supportsScientificPlaneRead(active.descriptor, requestedSliceAxes)
+        ? settings.sliceAxis
+        : 'xy'
       displayAxes =
         sliceAxis === 'xy' ? [x.id, y.id] : sliceAxis === 'xz' ? [x.id, depth.id] : [y.id, depth.id]
       const fixedAxis = sliceAxis === 'xy' ? depth.id : sliceAxis === 'xz' ? y.id : x.id

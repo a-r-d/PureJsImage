@@ -759,6 +759,29 @@ export const normalizeScientificDatasetDescriptor = (
   value: unknown,
 ): NormalizedScientificDatasetDescriptor => parseDescriptor(value, 'normalize')
 
+/** Report whether the descriptor can read the requested ordered display-axis pair. */
+export const supportsScientificPlaneRead = (
+  descriptor: NormalizedScientificDatasetDescriptor,
+  displayAxes: readonly [string, string],
+): boolean => {
+  const horizontal = displayAxes[0]
+  const vertical = displayAxes[1]
+  if (horizontal === vertical) return false
+  let horizontalKnown = false
+  let verticalKnown = false
+  for (const axis of descriptor.axes) {
+    if (axis.id === horizontal) horizontalKnown = true
+    if (axis.id === vertical) verticalKnown = true
+  }
+  if (!horizontalKnown || !verticalKnown) return false
+  const planeReads = descriptor.capabilities.planeReads
+  if (planeReads.kind === 'any-axis-pair') return true
+  for (const pair of planeReads.pairs) {
+    if (pair[0] === horizontal && pair[1] === vertical) return true
+  }
+  return false
+}
+
 const levelAxisLengths = (
   descriptor: NormalizedScientificDatasetDescriptor,
   level: number,
@@ -786,14 +809,14 @@ export const normalizeScientificPlaneReadRequest = (
   const horizontal = requiredString(displayAxesInput[0], 'Scientific plane request.displayAxes[0]')
   const vertical = requiredString(displayAxesInput[1], 'Scientific plane request.displayAxes[1]')
   if (horizontal === vertical) throw invalidInput('Scientific display axes must be distinct')
+  const displayAxes: readonly [horizontal: string, vertical: string] = Object.freeze([
+    horizontal,
+    vertical,
+  ])
   const axisById = new Map(descriptor.axes.map((axis) => [axis.id, axis]))
   if (!axisById.has(horizontal)) throw invalidInput(`Unknown scientific display axis ${horizontal}`)
   if (!axisById.has(vertical)) throw invalidInput(`Unknown scientific display axis ${vertical}`)
-  const planeReads = descriptor.capabilities.planeReads
-  if (
-    planeReads.kind === 'ordered-axis-pairs' &&
-    !planeReads.pairs.some((pair) => pair[0] === horizontal && pair[1] === vertical)
-  ) {
+  if (!supportsScientificPlaneRead(descriptor, displayAxes)) {
     throw invalidInput(`Scientific dataset does not support display axes ${horizontal}/${vertical}`)
   }
 
@@ -865,10 +888,6 @@ export const normalizeScientificPlaneReadRequest = (
     throw invalidInput('Scientific dataset does not support region reads')
   }
 
-  const displayAxes: readonly [horizontal: string, vertical: string] = Object.freeze([
-    horizontal,
-    vertical,
-  ])
   if (input.signal !== undefined && !(input.signal instanceof AbortSignal)) {
     throw invalidInput('Scientific plane request.signal must be an AbortSignal')
   }

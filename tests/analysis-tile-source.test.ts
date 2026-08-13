@@ -107,6 +107,26 @@ const numericTile = (
   })
 }
 
+const numericTileIterable = (
+  tiles: readonly NumericTile[],
+  onReturn: () => void,
+): AsyncIterable<NumericTile> => ({
+  [Symbol.asyncIterator](): AsyncIterator<NumericTile> {
+    let index = 0
+    return {
+      async next(): Promise<IteratorResult<NumericTile>> {
+        const tile = tiles[index]
+        index += 1
+        return tile === undefined ? { done: true, value: undefined } : { done: false, value: tile }
+      },
+      async return(): Promise<IteratorResult<NumericTile>> {
+        onReturn()
+        return { done: true, value: undefined }
+      },
+    }
+  },
+})
+
 const sourceFor = (reads: TileAddress[], releases: TileAddress[]): TileSource => ({
   descriptor,
   tileKey: canonicalTileKey,
@@ -400,6 +420,63 @@ describe('numeric and derived tile sources', () => {
     ).rejects.toThrow('out-of-region')
     expect(releases).toEqual([1, 1])
     runtime.clear()
+  })
+
+  it('preserves an assembly error while exhausting throwing release and iterator cleanup', async () => {
+    const releases: [number, number] = [0, 0]
+    let iteratorReturns = 0
+    const first = numericTile({ x: 0, y: 0, width: 2, height: 2 }, () => {
+      releases[0] += 1
+      throw new Error('first release failed')
+    })
+    const second = numericTile({ x: 8, y: 0, width: 1, height: 1 }, () => {
+      releases[1] += 1
+    })
+    const numericSource: NumericTileSource = {
+      descriptor,
+      readNumericTiles: () =>
+        numericTileIterable([first, second], () => {
+          iteratorReturns += 1
+        }),
+    }
+    const source = numericTileSourceToTileSource(numericSource)
+    await expect(
+      source.readTile({
+        ...request(0, 0, 2, 2),
+        address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+      }),
+    ).rejects.toThrow('out-of-region')
+    expect(releases).toEqual([1, 1])
+    expect(iteratorReturns).toBe(1)
+  })
+
+  it('surfaces the first cleanup-only failure after attempting all cleanup', async () => {
+    const releases: [number, number] = [0, 0]
+    let iteratorReturns = 0
+    const first = numericTile({ x: 0, y: 0, width: 1, height: 2 }, () => {
+      releases[0] += 1
+      throw new Error('first cleanup failed')
+    })
+    const second = numericTile({ x: 1, y: 0, width: 1, height: 2 }, () => {
+      releases[1] += 1
+    })
+    const numericSource: NumericTileSource = {
+      descriptor,
+      readNumericTiles: () =>
+        numericTileIterable([first, second], () => {
+          iteratorReturns += 1
+          throw new Error('iterator cleanup failed')
+        }),
+    }
+    const source = numericTileSourceToTileSource(numericSource)
+    await expect(
+      source.readTile({
+        ...request(0, 0, 2, 2),
+        address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+      }),
+    ).rejects.toThrow('first cleanup failed')
+    expect(releases).toEqual([1, 1])
+    expect(iteratorReturns).toBe(1)
   })
 
   it('rejects an out-of-region first tile before requesting another tile', async () => {

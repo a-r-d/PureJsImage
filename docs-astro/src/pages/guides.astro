@@ -42,6 +42,7 @@ preview.src = URL.<span class="tok-method">createObjectURL</span>(output)</code>
 
         <section id="scientific-browser">
           <h2>Open scientific rasters in a browser</h2>
+          <div class="callout warning"><strong>Unreleased main-branch alpha preview.</strong> The current npm 0.9.x release does not contain the scientific application entrypoints used below. This documentation is tested against a package tarball packed from the branch; the ordinary codec installation above remains the established npm workflow.</div>
           <p>GSF and paired ENVI inputs use the portable scientific dataset API rather than the ordinary photographic codec registry. Pass a GSF <code>File</code>/<code>Blob</code> directly, or pass the ENVI header and binary as two independent browser inputs. Native samples, physical units, no-data markers, channel names, and wavelengths remain quantitative until an explicit renderer produces display pixels.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">scientific-worker.ts</span></div><pre><code><span class="tok-key">import</span> &#123; createScientificLibrary, renderScientificPlane &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
 <span class="tok-key">import</span> &#123; createScientificFileContext &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific/browser'</span>

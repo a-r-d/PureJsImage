@@ -85,11 +85,11 @@ const images = createImageLibrary(allCodecs)
 
 `allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL decoder. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented lossless Modular subset fail explicitly.
 
-## Scientific application platform (alpha)
+## Scientific application platform (unreleased main-branch alpha preview)
 
-The application platform is alpha and may change before the next published version. Provider and extension APIs are experimental. The ordinary codec pipeline is the existing stable path: importing application entries does not change `resize().jpeg()` behavior, and the root entry does not load the graph runtime.
+The current npm 0.9.x release does not contain these application entrypoints. They are an unreleased main-branch alpha preview and may change before an authorized version is published. Provider and extension APIs are experimental. The ordinary codec pipeline remains the established npm path: the preview does not change `resize().jpeg()` behavior, and the root entry does not load the graph runtime.
 
-Public entry points:
+Preview package entrypoints on main:
 
 - `purejsimage/scientific`: portable arbitrary-axis `ScientificDataset`, scientific documents and identities, explicit reader registries, `RasterBlock`, `NumericTile`, and format-independent analysis helpers. Concrete readers are separate optional entries.
 - `purejsimage/scientific/browser`: browser `File` and explicit companion-file contexts. Remote range sources use the portable `ImageSource` contract.
@@ -137,7 +137,7 @@ Extensions contribute readers, value types, operations, providers, and migration
 
 The current application wedge is browser-native scientific image analysis and reproducible local analysis of materials microscopy and instrument imagery: AFM, detector, diffraction, hyperspectral, and volumetric data in original vendor files without mandatory conversion. Do not claim mature SEM/TEM workflows, DM3/DM4, EDS overlays, FFT tooling, particle or grain analysis, broad segmentation, registration, morphology, 3D mesh editing, or a mature plugin ecosystem.
 
-See the complete public-import-only, compiled lifecycle example at `examples/scientific-application-platform/index.ts` and https://purejsimage.com/scientific/platform/.
+See the complete public-import-only lifecycle example at `examples/scientific-application-platform/index.ts` and https://purejsimage.com/scientific/platform/. It is compiled and tested against a package tarball packed from the branch, not the currently published npm package.
 
 ## Mental model
 

@@ -13,16 +13,17 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
   <main id="main">
     <header class="page-hero">
       <div class="container">
-        <p class="eyebrow">Application platform · alpha</p>
+        <p class="eyebrow">Unreleased main-branch alpha preview</p>
         <h1>Browser-native scientific image analysis, without a mandatory conversion step.</h1>
         <p class="page-lede">Build local, reproducible tools for materials microscopy and instrument imagery on original vendor files and large multidimensional datasets. The platform keeps quantitative samples separate from display pixels and preserves bounded reads from source through analysis.</p>
-        <div class="page-meta"><span class="pill">Application APIs: alpha</span><span class="pill">Provider and extension APIs: experimental</span><span class="pill">Codec pipeline: existing stable path</span></div>
+        <div class="page-meta"><span class="pill">Application APIs: unreleased preview</span><span class="pill">Provider and extension APIs: experimental</span><span class="pill">Codec pipeline: established npm path</span></div>
       </div>
     </header>
 
     <div class="container docs-layout">
       <aside class="side-nav" aria-label="Scientific pages"><div class="nav-group"><strong>Scientific</strong><a href="../">Raster Explorer</a><a href="./" aria-current="page">Application platform</a><a href="../volumes/">Volumes</a></div><div class="nav-group"><strong>Reference</strong><a href="../../api/#application-entrypoints">Application APIs</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/docs/architecture/application-platform.md">Architecture</a></div></aside>
       <article class="content">
+        <div class="callout warning"><strong>Not in the current npm release.</strong> The current npm 0.9.x release does not contain these application entrypoints. This page documents an unreleased main-branch alpha preview; use the established npm package for the ordinary codec pipeline.</div>
         <section id="architecture">
           <h2>Application architecture</h2>
           <p>The scientific platform layers above portable readers and sources without pulling application code back into codecs. The ordinary image pipeline remains a separate first-class route through the same source boundary.</p>
@@ -55,13 +56,13 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
         <section id="example">
           <h2>A complete, compiled application lifecycle</h2>
-          <p>This example uses only installable package entry points. It opens a document, selects and identifies a dataset, reads and releases a tile, creates an ROI and graph, dry-runs and executes it, serializes a hashed project, and releases every owned resource. The source below is imported directly from the repository's compiled external example, so the website copy cannot drift independently.</p>
+          <p>This example uses only package entry points and is compiled and tested against the branch's packed package, not the currently published npm package. It opens a document, selects and identifies a dataset, reads and releases a tile, creates an ROI and graph, dry-runs and executes it, serializes a hashed project, and releases every owned resource. The source below is imported directly from the repository's compiled external example, so the website copy cannot drift independently.</p>
           <div class="code-window"><div class="window-bar"><span class="window-title">examples/scientific-application-platform/index.ts</span></div><pre><code>{applicationExample}</code></pre></div>
         </section>
 
         <section id="scope">
           <h2>Alpha scope and honest limitations</h2>
-          <p>The application platform is alpha and its contracts may change before the next published version. Provider and extension APIs are experimental. The ordinary codec workflow—including immutable <code>resize().jpeg()</code> pipelines—continues as the established package path and is not replaced by these entries.</p>
+          <p>This is an unreleased main-branch alpha preview, and its contracts may change before an authorized version is published. The current npm 0.9.x release does not contain these application entrypoints. Provider and extension APIs are experimental. The ordinary codec workflow—including immutable <code>resize().jpeg()</code> pipelines—continues as the established npm package path and is not replaced by these entries.</p>
           <p>The current wedge is native, range-backed analysis for AFM, detector, diffraction, hyperspectral, and volumetric data. PureJsImage does not yet claim mature SEM/TEM workflows, DM3/DM4, EDS overlays, FFT tooling, particle or grain analysis, broad segmentation, registration, morphology, 3D mesh editing, or a mature plugin ecosystem. Quantitative uint64 analysis above <code>2^53 - 1</code> is also not yet exact in every operation and result path.</p>
         </section>
       </article>

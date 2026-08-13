@@ -21,7 +21,10 @@ import type {
   ScientificAxisIndex,
   ScientificDataset,
 } from '../scientific/dataset.ts'
-import { normalizeScientificDatasetDescriptor } from '../scientific/dataset.ts'
+import {
+  normalizeScientificDatasetDescriptor,
+  supportsScientificPlaneRead,
+} from '../scientific/dataset.ts'
 import type { NumericTile } from '../scientific/numeric-tile.ts'
 import { numericTileSampleOffset } from '../scientific/numeric-tile.ts'
 import type { AnalysisDatasetOperationContext } from './builtin-dataset-operations.ts'
@@ -419,6 +422,11 @@ const validatePlane = (
 ): void => {
   axisLength(descriptor, parameters.displayAxes[0])
   axisLength(descriptor, parameters.displayAxes[1])
+  if (!supportsScientificPlaneRead(descriptor, parameters.displayAxes)) {
+    throw invalidInput(
+      `Scientific dataset does not support display axes ${parameters.displayAxes[0]}/${parameters.displayAxes[1]}`,
+    )
+  }
   if (parameters.component >= descriptor.components.length)
     throw invalidInput('Selected component is unavailable')
   const selected = new Set(parameters.displayAxes)

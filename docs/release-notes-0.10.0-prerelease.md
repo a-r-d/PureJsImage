@@ -47,8 +47,9 @@ published; the release notes must be rechecked against the final commit.
 
 ## External application evidence
 
-The package checker packs the actual npm tarball, installs it into a clean strict TypeScript
-consumer, compiles every documented application subpath, bundles browser and Worker entries,
+The package checker creates an npm-format tarball from the candidate branch, installs it into a
+clean strict TypeScript consumer, compiles every documented application subpath, bundles browser
+and Worker entries,
 rejects Node built-ins and private paths, and executes a GSF-to-numeric-tile-to-ROI-statistics
 workflow with reference-provider and source-identity provenance.
 

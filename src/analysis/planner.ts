@@ -363,6 +363,57 @@ const resolveCharacteristics = (
 const warning = (path: string, message: string): AnalysisIssue =>
   Object.freeze({ code: 'unresolved-estimate', severity: 'warning', path, message })
 
+const isOperationJsonObject = (value: OperationJsonValue): value is OperationJsonObject =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+
+const isScientificDatasetCharacteristics = (value: OperationJsonValue): boolean =>
+  isOperationJsonObject(value) && value.kind === 'scientific-dataset'
+
+const validateBuiltInScientificInference = (
+  graph: AnalysisGraph,
+  nodeOrder: readonly string[],
+  operations: OperationRegistry,
+  bindings: ReadonlyMap<string, AnalysisInputBinding>,
+  signal?: AbortSignal,
+): void => {
+  const nodeById = new Map(graph.nodes.map((node) => [node.id, node]))
+  const inferredCharacteristics = new Map<string, OperationJsonValue>()
+  for (const nodeId of nodeOrder) {
+    signal?.throwIfAborted()
+    const node = nodeById.get(nodeId)
+    if (node === undefined) throw invalidInput(`Planned node ${nodeId} is unavailable`)
+    const definition = operations.get(node.operation.id, node.operation.version)
+    if (definition?.inferOutputShapes === undefined) continue
+    const parameterResult = definition.normalizeParameters(node.parameters)
+    if (parameterResult.value === undefined) {
+      throw invalidInput(parameterResult.issues[0]?.message ?? 'Operation parameters are invalid')
+    }
+    const inputs = node.inputs.map((input) =>
+      resolveCharacteristics(input.source, bindings, inferredCharacteristics),
+    )
+    const result = definition.inferOutputShapes({ parameters: parameterResult.value, inputs })
+    if (
+      result.valid &&
+      result.value !== undefined &&
+      result.value.length === definition.descriptor.outputs.length
+    ) {
+      for (let index = 0; index < result.value.length; index += 1) {
+        const port = definition.descriptor.outputs[index]
+        const characteristics = result.value[index]
+        if (port !== undefined && characteristics !== undefined) {
+          inferredCharacteristics.set(`${node.id}\u0000${port.name}`, characteristics)
+        }
+      }
+      continue
+    }
+    if (definition.descriptor.builtIn === true && inputs.some(isScientificDatasetCharacteristics)) {
+      throw invalidInput(
+        result.issues[0]?.message ?? 'Built-in scientific output inference is invalid',
+      )
+    }
+  }
+}
+
 const addCost = (target: number[], estimate: OperationCostEstimate): void => {
   target[0] = (target[0] ?? 0) + estimate.setupMilliseconds
   target[1] = (target[1] ?? 0) + estimate.transferMilliseconds
@@ -419,6 +470,13 @@ export const planGraph = async (
   for (const [name] of bindingEntries) {
     if (!graphInputNames.has(name)) throw invalidInput(`Unknown graph input binding ${name}`)
   }
+  validateBuiltInScientificInference(
+    graph,
+    validation.nodeOrder,
+    options.operations,
+    bindings,
+    options.signal,
+  )
   const requiredInputIdentities: AnalysisRequiredInputIdentity[] = []
   for (const input of graph.inputs) {
     options.signal?.throwIfAborted()

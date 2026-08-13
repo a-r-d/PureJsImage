@@ -407,7 +407,8 @@ describe('package contract', () => {
     expect(platformPage).toContain(
       "import ApplicationPlatformDiagram from '../../components/ApplicationPlatformDiagram.astro'",
     )
-    expect(platformPage).toContain('Application APIs: alpha')
+    expect(platformPage).toContain('Application APIs: unreleased preview')
+    expect(platformPage).toContain('current npm 0.9.x release does not contain')
     expect(platformPage).toContain('Provider and extension APIs: experimental')
     expect(platformPage).toContain('materials microscopy and instrument imagery')
     expect(platformExample).toContain("from 'purejsimage/analysis'")
@@ -431,7 +432,10 @@ describe('package contract', () => {
       expect(llms).toContain(`\`${entry}\``)
       expect(rootTsconfig.compilerOptions.paths).toHaveProperty(entry)
     }
-    expect(llms).toContain('## Scientific application platform (alpha)')
+    expect(llms).toContain(
+      '## Scientific application platform (unreleased main-branch alpha preview)',
+    )
+    expect(llms).toContain('current npm 0.9.x release does not contain')
     expect(llms).toContain('initial bounded ROI masks, statistics, histograms, line profiles')
     expect(packageJson.exports).toHaveProperty('./scientific/node')
     expect(scientificApi).not.toHaveProperty('openGsf')

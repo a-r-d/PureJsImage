@@ -62,6 +62,7 @@ export {
   normalizeScientificDatasetDescriptor,
   normalizeScientificMetadataObject,
   normalizeScientificPlaneReadRequest,
+  supportsScientificPlaneRead,
   validateScientificDatasetDescriptor,
 } from './dataset.ts'
 export {

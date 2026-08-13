@@ -31,6 +31,7 @@ import type {
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
+  supportsScientificPlaneRead,
 } from '../scientific/dataset.ts'
 import type {
   DirectNumericTileDataset,
@@ -341,6 +342,11 @@ const validateSelection = (
 ): void => {
   axis(descriptor, displayAxes[0])
   axis(descriptor, displayAxes[1])
+  if (!supportsScientificPlaneRead(descriptor, displayAxes)) {
+    throw invalidInput(
+      `Scientific dataset does not support display axes ${displayAxes[0]}/${displayAxes[1]}`,
+    )
+  }
   const selected = new Set(displayAxes)
   if (reductionAxis !== undefined) {
     axis(descriptor, reductionAxis)

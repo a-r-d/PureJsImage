@@ -17,6 +17,7 @@ import type {
   ScientificReader,
   ScientificReaderDescriptor,
 } from '../reader.ts'
+import { remapMrcYzRasterBlock } from './mrc-internal.ts'
 import { descriptorWithFormatMetadata, resourceHasHint, singleDatasetDocument } from './shared.ts'
 
 const mrcProbeOffset = 208
@@ -99,15 +100,7 @@ class MrcScientificDataset implements ScientificDataset {
       })) {
         yield horizontal === 'x'
           ? Object.freeze({ ...block, y: z })
-          : Object.freeze({
-              x: block.y,
-              y: z,
-              width: block.height,
-              height: 1,
-              stride: block.data.byteLength,
-              format: block.format,
-              data: block.data,
-            })
+          : remapMrcYzRasterBlock(block, z)
       }
     }
   }

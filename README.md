@@ -111,6 +111,10 @@ In a browser, import from `purejsimage/browser` and use `toBlob()` or
 `toUint8Array()` for output. Tools that need every default codec can register
 `allCodecs` from `purejsimage/codecs/all`.
 
+> **Unreleased main-branch alpha preview:** The scientific application entrypoints documented below
+> are not included in the current npm 0.9.x release. Their package contract is tested from a tarball
+> packed from this branch. The ordinary codec pipeline above remains the established npm workflow.
+
 ### Scientific OME-TIFF
 
 Register the OME-TIFF reader explicitly and open the numeric dataset without routing it through the
@@ -299,7 +303,7 @@ slice, projection, threshold, Gaussian blur, ROI statistics, histogram, and cali
 profiles. They are registered only through an explicit application-owned bundle. See the
 [built-in scientific analysis operations guide](docs/built-in-analysis-operations.md).
 
-For the complete installed-package workflow—reader registry, arbitrary-axis tiles, ROI analysis,
+For the complete main-branch preview workflow—reader registry, arbitrary-axis tiles, ROI analysis,
 graph save/replay, provider pinning, capability/command inspection, and trusted custom
 operations—see [Building scientific applications with PureJsImage](docs/application-platform.md).
 

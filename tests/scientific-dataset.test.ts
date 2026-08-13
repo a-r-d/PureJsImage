@@ -14,6 +14,7 @@ import type {
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
+  supportsScientificPlaneRead,
   validateScientificDatasetDescriptor,
 } from '../src/scientific/index.ts'
 
@@ -374,6 +375,61 @@ describe('ScientificDataset plane requests', () => {
         fixedIndices: [{ axisId: 'y', index: 0 }],
       }),
     ).toThrow('does not support display axes z/x')
+  })
+
+  it('reports exact FITS-like and MRC-style plane-read capabilities', () => {
+    const fits = normalizeScientificDatasetDescriptor(
+      descriptorInput([axis('x', 'space', 3), axis('y', 'space', 2), axis('axis-3', 'other', 4)], {
+        capabilities: {
+          regionReads: true,
+          resolutionLevels: false,
+          planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'y']] },
+        },
+      }),
+    )
+    expect(supportsScientificPlaneRead(fits, ['x', 'y'])).toBe(true)
+    expect(supportsScientificPlaneRead(fits, ['x', 'axis-3'])).toBe(false)
+    expect(() =>
+      normalizeScientificPlaneReadRequest(fits, {
+        displayAxes: ['x', 'axis-3'],
+        fixedIndices: [{ axisId: 'y', index: 0 }],
+      }),
+    ).toThrow('does not support display axes x/axis-3')
+
+    const mrc = normalizeScientificDatasetDescriptor(
+      descriptorInput([axis('x', 'space', 3), axis('y', 'space', 2), axis('z', 'space', 4)], {
+        capabilities: {
+          regionReads: true,
+          resolutionLevels: false,
+          planeReads: {
+            kind: 'ordered-axis-pairs',
+            pairs: [
+              ['x', 'y'],
+              ['x', 'z'],
+              ['y', 'z'],
+            ],
+          },
+        },
+      }),
+    )
+    for (const pair of [
+      ['x', 'y'],
+      ['x', 'z'],
+      ['y', 'z'],
+    ] as const) {
+      expect(supportsScientificPlaneRead(mrc, pair)).toBe(true)
+    }
+    expect(supportsScientificPlaneRead(mrc, ['z', 'x'])).toBe(false)
+    expect(supportsScientificPlaneRead(mrc, ['z', 'y'])).toBe(false)
+  })
+
+  it('accepts any two distinct known axes for an any-axis-pair descriptor', () => {
+    const descriptor = normalizeScientificDatasetDescriptor(
+      descriptorInput([axis('x', 'space', 3), axis('y', 'space', 2), axis('z', 'space', 4)]),
+    )
+    expect(supportsScientificPlaneRead(descriptor, ['z', 'x'])).toBe(true)
+    expect(supportsScientificPlaneRead(descriptor, ['x', 'x'])).toBe(false)
+    expect(supportsScientificPlaneRead(descriptor, ['x', 'missing'])).toBe(false)
   })
 
   it('normalizes X/Y/Z and singleton selections explicitly', () => {

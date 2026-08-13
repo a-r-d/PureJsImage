@@ -1,11 +1,8 @@
 # Application platform architecture
 
-Status: design checkpoint approved on 2026-08-12; implementation is in progress. ScientificDataset, the
-explicit scientific reader/document platform, native numeric tiles, operation descriptors and
-providers, generic quantitative results, the graph/planning/command platform, and ROI geometry and
-sampling described by PRs 1 through 7 now exist. PR 8's bounded tile runtime and PR 9's initial
-built-in analysis operations are implemented. Persistence, audit storage, and release
-hardening remain future work.
+Status: design checkpoint approved on 2026-08-12; all ten implementation slices and the final
+merge-hardening fixes are present on the unreleased branch. Publication and any release versioning
+remain separately authorized future work.
 
 This document defines a target architecture for scientific web applications built on
 PureJsImage. It is deliberately additive. The existing image API, codec registry, and streaming
@@ -1541,3 +1538,25 @@ to own only generic descriptors, definitions, providers, and registries.
     benchmark, and real Chromium scientific workflow pass. Standard and hostile-source suites each
     pass 95 files and 1,204 tests; both report only the same three environment-specific expanded
     12-bit AVIF Sharp-oracle hash mismatches.
+
+### Final merge-hardening pass
+
+- [x] Centralize exact ordered scientific plane-read capability checks, reuse them in request
+      normalization and the website Worker, and reject unsupported built-in plane requests during
+      metadata inference before provider preparation or source reads.
+- [x] Make NumericTile assembly cleanup attempt every tile release and iterator close while
+      preserving operational errors, and forward MRC YZ cross-section block ownership.
+- [x] Label the application platform as an unreleased main-branch alpha preview across the website,
+      API, guide, `llms.txt`, README, application guide, and draft release notes while preserving
+      the established npm codec workflow.
+- [x] Run focused lifecycle/planning tests, package and browser gates, documentation checks, the
+      relevant application-platform benchmark, a real Chromium scientific workflow, and the full
+      repository gate; record the result before handoff.
+
+  - Final hardening validation: 120 focused scientific/planning/lifecycle/project-contract tests,
+    package-consumer types, the compiled external lifecycle, browser dependency checks, the 19-page
+    documentation build, the correctness-gated application benchmark, and the real Chromium
+    scientific workflow pass. On macOS, the three platform-variable expanded 12-bit AVIF
+    Sharp/libvips oracle cases are explicitly skipped while remaining mandatory elsewhere; the
+    standard and hostile-source suites otherwise pass 98 files and 1,211 tests. No scientific
+    application-platform test fails.

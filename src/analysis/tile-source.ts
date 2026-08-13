@@ -250,12 +250,49 @@ class NumericTileSourceAdapter implements TileSource {
     let decodedInputBytes = 0
     const acquired = new Set<NumericTile>()
     const iterator = this.#source.readNumericTiles(sourceRequest)[Symbol.asyncIterator]()
+    let cleanupFailure: { readonly error: unknown } | undefined
+    let iteratorClosed = false
+    const recordCleanupFailure = (error: unknown): void => {
+      cleanupFailure ??= { error }
+    }
+    const releaseAcquired = (tile: NumericTile): void => {
+      if (!acquired.delete(tile)) return
+      try {
+        tile.release()
+      } catch (error) {
+        recordCleanupFailure(error)
+      }
+    }
+    const cleanup = async (operationalError?: { readonly error: unknown }): Promise<void> => {
+      if (output !== undefined) {
+        const pendingOutput = output
+        output = undefined
+        try {
+          pendingOutput.release()
+        } catch (error) {
+          recordCleanupFailure(error)
+        }
+      }
+      for (const tile of acquired) releaseAcquired(tile)
+      if (!iteratorClosed) {
+        iteratorClosed = true
+        try {
+          await iterator.return?.()
+        } catch (error) {
+          recordCleanupFailure(error)
+        }
+      }
+      if (operationalError === undefined && cleanupFailure !== undefined) {
+        throw cleanupFailure.error
+      }
+    }
     const nextTile = async (): Promise<IteratorResult<NumericTile>> => {
       const result = await iterator.next()
       if (!result.done) acquired.add(result.value)
       return result
     }
     const consume = (sourceTile: NumericTile): void => {
+      let operationalError: { readonly error: unknown } | undefined
       try {
         request.signal.throwIfAborted()
         validateNumericTile(sourceTile)
@@ -269,9 +306,11 @@ class NumericTileSourceAdapter implements TileSource {
         }
         if (coverage === undefined) throw invalidInput('Numeric tile coverage is unavailable')
         copyTile(sourceTile, output, coverage)
-      } finally {
-        if (acquired.delete(sourceTile)) sourceTile.release()
+      } catch (error) {
+        operationalError = { error }
       }
+      releaseAcquired(sourceTile)
+      if (operationalError !== undefined) throw operationalError.error
     }
     try {
       const firstResult = await nextTile()
@@ -313,12 +352,10 @@ class NumericTileSourceAdapter implements TileSource {
       for (const covered of coverage) {
         if (covered === 0) throw invalidInput('Numeric tile source left uncovered output pixels')
       }
+      if (cleanupFailure !== undefined) await cleanup()
       return Object.freeze({ tile: output, accounting: Object.freeze({ decodedInputBytes }) })
     } catch (error) {
-      output?.release()
-      for (const tile of acquired) tile.release()
-      acquired.clear()
-      await iterator.return?.()
+      await cleanup({ error })
       throw error
     }
   }
