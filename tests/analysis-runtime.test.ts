@@ -155,6 +155,7 @@ describe('analysis planning and execution', () => {
       planGraph({
         graph: graph(),
         operations,
+        valueTypes,
         providers: [unavailable],
         bindings: { source: { value: 2 } },
       }),
@@ -184,6 +185,7 @@ describe('analysis planning and execution', () => {
     const planned = await planGraph({
       graph: graph(),
       operations,
+      valueTypes,
       providers: [reference, wasm],
       bindings: {
         source: {
@@ -214,6 +216,7 @@ describe('analysis planning and execution', () => {
     const repeated = await planGraph({
       graph: graph(),
       operations,
+      valueTypes,
       providers: [reference, wasm],
       bindings: {
         source: {
@@ -228,6 +231,7 @@ describe('analysis planning and execution', () => {
     const referencePlan = await planGraph({
       graph: graph(),
       operations,
+      valueTypes,
       providers: [reference, wasm],
       bindings: { source: { value: 2 } },
       policy: { mode: 'reference-only' },
@@ -252,6 +256,7 @@ describe('analysis planning and execution', () => {
       planGraph({
         graph: graph(),
         operations,
+        valueTypes,
         providers: [reference, disallowed],
         bindings: { source: { value: 2 } },
         policy: { mode: 'automatic', allowedProviderIds: ['example.reference'] },
@@ -310,6 +315,7 @@ describe('analysis planning and execution', () => {
     const planned = await planGraph({
       graph: graph(),
       operations,
+      valueTypes,
       providers: [strictProvider],
       bindings: { source: { value: 2, characteristics: { kind: 'scalar' } } },
     })
@@ -330,6 +336,7 @@ describe('analysis planning and execution', () => {
     const result = await dryRun({
       graph: graph(),
       operations,
+      valueTypes,
       providers: [],
       bindings: { source: { value: 2 } },
       policy: { mode: 'pinned', providerId: 'missing.provider', providerVersion: 1 },
@@ -351,6 +358,7 @@ describe('analysis planning and execution', () => {
     const planned = await planGraph({
       graph: graph(),
       operations,
+      valueTypes,
       providers: [uncertain],
       bindings: { source: { value: 2 } },
     })
@@ -384,6 +392,7 @@ describe('analysis planning and execution', () => {
     const planned = await planGraph({
       graph: graph(),
       operations,
+      valueTypes,
       providers: [reference],
       bindings: { source: { value: 2 } },
     })
@@ -440,12 +449,14 @@ describe('analysis planning and execution', () => {
     const first = await planGraph({
       graph: graph(),
       operations,
+      valueTypes,
       providers: [reference],
       bindings: { source: { value: 2 } },
     })
     const second = await planGraph({
       graph: graph(),
       operations,
+      valueTypes,
       providers: [reference],
       bindings: { source: { value: 3 } },
     })
@@ -458,6 +469,7 @@ describe('analysis planning and execution', () => {
       planGraph({
         graph: graph(),
         operations,
+        valueTypes,
         providers: [reference],
         bindings: { source: { value: { opaque: true } } },
       }),
@@ -509,6 +521,7 @@ describe('analysis planning and execution', () => {
     const planned = await planGraph({
       graph: graph(),
       operations,
+      valueTypes,
       providers: [actualProvider],
       bindings: { source: { value: 2 } },
     })
@@ -631,14 +644,75 @@ describe('analysis planning and execution', () => {
         expect.objectContaining({
           kind: 'add-node',
           mutatesWorkspace: true,
-          requiresExpectedRevision: false,
+          requiresExpectedRevision: true,
           schema: expect.objectContaining({
             type: 'object',
-            required: expect.arrayContaining(['schemaVersion', 'id', 'kind', 'node']),
+            required: expect.arrayContaining([
+              'schemaVersion',
+              'id',
+              'expectedRevision',
+              'kind',
+              'node',
+            ]),
           }),
         }),
       ]),
     )
+    const atomicBase = controller.createWorkspace()
+    const atomic = controller.applyCommands(atomicBase, {
+      expectedRevision: 0,
+      commands: [
+        {
+          schemaVersion: 1,
+          id: 'batch-input',
+          kind: 'bind-input',
+          input: { name: 'source', valueType: { id: 'example.value.number', version: 1 } },
+        },
+        {
+          schemaVersion: 1,
+          id: 'batch-output',
+          kind: 'set-output',
+          output: { name: 'source', source: { kind: 'input', input: 'source' } },
+        },
+      ],
+    })
+    expect(atomic).toMatchObject({ applied: true, snapshot: { revision: 1 } })
+    const rejectedBatch = controller.applyCommands(atomicBase, {
+      expectedRevision: 0,
+      commands: [
+        {
+          schemaVersion: 1,
+          id: 'batch-input',
+          kind: 'bind-input',
+          input: { name: 'source', valueType: { id: 'example.value.number', version: 1 } },
+        },
+        {
+          schemaVersion: 1,
+          id: 'batch-bad-node',
+          kind: 'add-node',
+          node: {
+            id: 'bad',
+            operation: { id: 'example.missing', version: 1 },
+            inputs: [],
+            parameters: {},
+          },
+        },
+      ],
+    })
+    expect(rejectedBatch.applied).toBe(false)
+    expect(rejectedBatch.snapshot).toBe(atomicBase)
+    expect(rejectedBatch.issues[0]?.path).toBe('/commands/1/node/operation')
+    expect(
+      controller.validateGraph({
+        schemaVersion: 1,
+        inputs: [{ name: 'unknown', valueType: { id: 'example.value.unknown', version: 1 } }],
+        nodes: [],
+        outputs: [{ name: 'unknown', source: { kind: 'input', input: 'unknown' } }],
+      }),
+    ).toMatchObject({
+      valid: false,
+      issues: [{ code: 'invalid-type', path: '/inputs/0/valueType' }],
+    })
     const planned = await controller.planGraph(workspace.graph, {
       bindings: { source: { value: 4 } },
     })
@@ -685,6 +759,7 @@ describe('analysis planning and execution', () => {
     const planned = await planGraph({
       graph: graph(),
       operations,
+      valueTypes,
       providers: [failing],
       bindings: { source: { value: 2 } },
     })
@@ -783,6 +858,7 @@ describe('analysis planning and execution', () => {
     const parallelPlan = await planGraph({
       graph: parallelGraph,
       operations,
+      valueTypes,
       providers: [controlled],
       bindings: { source: { value: 3 } },
     })
@@ -803,6 +879,7 @@ describe('analysis planning and execution', () => {
         outputs: parallelGraph.outputs.slice(0, 1),
       },
       operations,
+      valueTypes,
       providers: [controlled],
       bindings: { source: { value: 3 } },
     })

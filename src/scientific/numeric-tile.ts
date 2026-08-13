@@ -39,6 +39,9 @@ export interface NumericTile {
   readonly release: () => void
 }
 
+/** Bytes retained by keeping this tile's typed-array backing allocation alive. */
+export const numericTileRetainedBytes = (tile: NumericTile): number => tile.data.buffer.byteLength
+
 export interface NumericTileStorage {
   readonly data: NumericArray
   readonly release?: () => void
@@ -656,6 +659,11 @@ export interface NumericTileSource {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   /** Present for a direct provider and exact for every tile it emits. */
   readonly directSemantics?: NumericTileSourceSemantics
+  /**
+   * Hard upper bound for the backing allocation retained by one returned tile. Direct sources that
+   * omit this may still return pooled or padded views, but downstream runtimes must compact them.
+   */
+  estimateRetainedBytes?(request: Readonly<NumericTileReadRequest>): number
   readNumericTiles(request: Readonly<NumericTileReadRequest>): AsyncIterable<NumericTile>
 }
 
@@ -709,6 +717,10 @@ const directNumericTileSource = (dataset: ScientificDataset): NumericTileSource 
   if (!('descriptor' in candidate) || candidate.descriptor !== dataset.descriptor) return undefined
   if (!('directSemantics' in candidate) || candidate.directSemantics === undefined) return undefined
   const readNumericTiles = candidate.readNumericTiles
+  const estimateRetainedBytes =
+    'estimateRetainedBytes' in candidate && typeof candidate.estimateRetainedBytes === 'function'
+      ? candidate.estimateRetainedBytes
+      : undefined
   const semantics = candidate.directSemantics
   if (semantics === null || typeof semantics !== 'object') return undefined
   if (
@@ -746,6 +758,12 @@ const directNumericTileSource = (dataset: ScientificDataset): NumericTileSource 
   return {
     descriptor: dataset.descriptor,
     directSemantics,
+    ...(estimateRetainedBytes === undefined
+      ? {}
+      : {
+          estimateRetainedBytes: (request: Readonly<NumericTileReadRequest>) =>
+            estimateRetainedBytes.call(candidate, request),
+        }),
     readNumericTiles: (request) => readNumericTiles.call(candidate, request),
   }
 }
@@ -815,6 +833,9 @@ export const resolveNumericTileSource = (
   return {
     descriptor: dataset.descriptor,
     directSemantics: semantics,
+    ...(direct.estimateRetainedBytes === undefined
+      ? {}
+      : { estimateRetainedBytes: (request) => direct.estimateRetainedBytes?.(request) ?? 0 }),
     readNumericTiles(request) {
       return directSupports(direct, request.targetSampleType)
         ? validatedDirectTiles(direct, request)

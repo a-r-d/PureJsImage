@@ -84,13 +84,14 @@ new execution, waits for active result leases, and then disposes prepared provid
 
 `createExtensionHost()` accepts extension objects supplied explicitly by the application. Host
 construction validates all readers, value types, operations, provider collisions, registry limits,
-and the extension API version before returning a composed registry. `host.prepare()` is the only
-step that probes providers, and its manifest includes only successfully prepared provider
-descriptors.
+and the extension API version before returning a composed registry. The frozen `host.providers`
+list composes directly into `AnalysisController`; `host.prepare()` remains the only step that probes
+providers, and its prepared manifest includes only successfully prepared provider descriptors.
 
 ```ts
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createValueTypeDefinition } from 'purejsimage/operations'
+import { createAnalysisController } from 'purejsimage/analysis'
 
 const host = createExtensionHost({
   extensions: [{
@@ -99,6 +100,14 @@ const host = createExtensionHost({
       descriptor: { id: 'acme.result.score', version: 1, title: 'Score' },
     })],
   }],
+})
+
+const controller = createAnalysisController({
+  operations: host.operations,
+  valueTypes: host.valueTypes,
+  providers: host.providers,
+  migrations: host.analysisMigrations,
+  library,
 })
 
 const prepared = await host.prepare()

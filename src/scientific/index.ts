@@ -76,6 +76,7 @@ export { createScientificLibrary } from './library.ts'
 export {
   nativeLittleEndian,
   numericTileSampleOffset,
+  numericTileRetainedBytes,
   rasterBlockToNumericTile,
   resolveNumericTileSource,
   scientificDatasetToNumericTileSource,

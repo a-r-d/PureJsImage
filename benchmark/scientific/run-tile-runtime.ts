@@ -78,10 +78,9 @@ const source: TileSource = {
   descriptor,
   tileKey: canonicalTileKey,
   estimate: (request) => ({
-    outputBytes: request.address.width * request.address.height * 4,
+    outputRetainedBytes: request.address.width * request.address.height * 4,
     peakWorkingBytes: request.address.width * request.address.height * 4,
     retainedAuxiliaryBytes: 0,
-    confidence: 1,
   }),
   async readTile(request) {
     const region = request.address

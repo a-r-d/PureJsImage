@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { planGraph } from '../src/analysis/index.ts'
-import { createOperationRegistry } from '../src/operations/index.ts'
+import {
+  createOperationRegistry,
+  createValueTypeDefinition,
+  createValueTypeRegistry,
+} from '../src/operations/index.ts'
 import {
   createScientificLibrary,
   encodeGsf,
@@ -8,6 +12,12 @@ import {
   gsfReader,
 } from '../src/scientific/index.ts'
 import { MemorySource } from '../src/source.ts'
+
+const valueTypes = createValueTypeRegistry([
+  createValueTypeDefinition({
+    descriptor: { id: 'example.scientific.dataset', version: 1, title: 'Scientific dataset' },
+  }),
+])
 
 describe('reader-derived scientific dataset identity', () => {
   it('identifies an opened dataset and lets the planner use it without an application identity', async () => {
@@ -37,6 +47,7 @@ describe('reader-derived scientific dataset identity', () => {
         outputs: [{ name: 'source', source: { kind: 'input', input: 'source' } }],
       },
       operations: createOperationRegistry([]),
+      valueTypes,
       providers: [],
       bindings: { source: { value: dataset } },
     })
@@ -76,6 +87,7 @@ describe('reader-derived scientific dataset identity', () => {
           outputs: [],
         },
         operations: createOperationRegistry([]),
+        valueTypes,
         providers: [],
         bindings: { source: { value: synthetic } },
       }),

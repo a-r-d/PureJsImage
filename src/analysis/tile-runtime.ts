@@ -5,7 +5,7 @@ import type {
   NumericTile,
   NumericTileLayout,
 } from '../scientific/numeric-tile.ts'
-import { validateNumericTile } from '../scientific/numeric-tile.ts'
+import { numericTileRetainedBytes, validateNumericTile } from '../scientific/numeric-tile.ts'
 import type { ScientificAxisIndex } from '../scientific/dataset-v2.ts'
 import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset-v2.ts'
 import type { SourceIdentity } from '../source-identity.ts'
@@ -62,10 +62,15 @@ export interface TileSourceAccounting {
 }
 
 export interface TileSourceEstimate {
-  readonly outputBytes: number
+  /** Hard upper bound for the output backing allocation retained after readTile resolves. */
+  readonly outputRetainedBytes: number
   /** Peak source working storage, including output storage. */
   readonly peakWorkingBytes: number
   readonly retainedAuxiliaryBytes: number
+}
+
+export interface TileTimingEstimate {
+  readonly estimatedMilliseconds: number
   readonly confidence: number
 }
 
@@ -957,6 +962,7 @@ export class TileRuntime {
   #leasedBytes = 0
   #operationWorkingBytes = 0
   #disposed = false
+  #disposePromise: Promise<void> | undefined
   readonly #idleWaiters = new Set<() => void>()
 
   constructor(options: Readonly<TileRuntimeOptions> = {}) {
@@ -967,7 +973,7 @@ export class TileRuntime {
   }
 
   request(source: TileSource, input: Readonly<TileRequest>): Promise<NumericTile> {
-    if (this.#disposed) throw invalidInput('Tile runtime is disposed')
+    this.#assertOpen()
     const request = normalizeTileRequest(input, this.limits.maxTilePixels)
     request.signal.throwIfAborted()
     const key = this.#key(source, request)
@@ -981,7 +987,7 @@ export class TileRuntime {
     if (state === undefined) {
       const estimate = this.#estimateTile(source, request)
       const estimatedBytes = Math.max(
-        estimate.outputBytes + estimate.retainedAuxiliaryBytes,
+        estimate.outputRetainedBytes + estimate.retainedAuxiliaryBytes,
         estimate.peakWorkingBytes,
       )
       this.#reserveInFlight(estimatedBytes)
@@ -1023,6 +1029,7 @@ export class TileRuntime {
   }
 
   reserveOperationWorkingBytes(bytes: number): () => void {
+    this.#assertOpen()
     if (!Number.isSafeInteger(bytes) || bytes < 0) {
       throw invalidInput('Operation working bytes must be a non-negative safe integer')
     }
@@ -1034,11 +1041,13 @@ export class TileRuntime {
     this.#recordMemoryHighWater()
     return once(() => {
       this.#operationWorkingBytes -= bytes
+      this.#notifyIdle()
     })
   }
 
   /** Allocate a bounded cache-identity scope unique within this runtime instance. */
   allocateIdentityScope(prefix: string): string {
+    this.#assertOpen()
     const normalizedPrefix = boundedString(prefix, 'identity scope prefix')
     const next = this.#identityScopeCounter + 1
     if (!Number.isSafeInteger(next)) {
@@ -1055,11 +1064,13 @@ export class TileRuntime {
   }
 
   delete(request: Readonly<TileRequest>, source: TileSource): boolean {
+    this.#assertOpen()
     const normalized = normalizeTileRequest(request, this.limits.maxTilePixels)
     return this.#cache.delete(this.#key(source, normalized))
   }
 
   getCached(source: TileSource, request: Readonly<TileRequest>): NumericTile | undefined {
+    this.#assertOpen()
     const normalized = normalizeTileRequest(request, this.limits.maxTilePixels)
     const tile = this.#cache.get(this.#key(source, normalized))
     if (this.#metricsEnabled) {
@@ -1075,6 +1086,7 @@ export class TileRuntime {
     tile: NumericTile,
     retainedAuxiliaryBytes = 0,
   ): boolean {
+    this.#assertOpen()
     const normalized = normalizeTileRequest(request, this.limits.maxTilePixels)
     let key: string
     try {
@@ -1084,7 +1096,7 @@ export class TileRuntime {
       this.#releaseTile(tile)
       throw error
     }
-    const retainedBytes = tile.data.byteLength + retainedAuxiliaryBytes
+    const retainedBytes = numericTileRetainedBytes(tile) + retainedAuxiliaryBytes
     this.#reserveManaged(retainedBytes)
     const manager = this.#managedTile(tile, retainedBytes)
     return this.#cache.put({
@@ -1096,6 +1108,7 @@ export class TileRuntime {
   }
 
   invalidate(options: Readonly<TileInvalidation>): number {
+    this.#assertOpen()
     if (
       options.namespace === undefined &&
       options.generation === undefined &&
@@ -1133,12 +1146,17 @@ export class TileRuntime {
   }
 
   async whenIdle(): Promise<void> {
-    if (this.#inFlight.size === 0 && this.#scheduler.idle) return
+    if (this.#inFlight.size === 0 && this.#scheduler.idle && this.#operationWorkingBytes === 0)
+      return
     await new Promise<void>((resolve) => this.#idleWaiters.add(resolve))
   }
 
-  async dispose(): Promise<void> {
-    if (this.#disposed) return this.whenIdle()
+  dispose(): Promise<void> {
+    this.#disposePromise ??= this.#dispose()
+    return this.#disposePromise
+  }
+
+  async #dispose(): Promise<void> {
     this.#disposed = true
     this.clear()
     await this.whenIdle()
@@ -1146,6 +1164,7 @@ export class TileRuntime {
   }
 
   resetMetrics(): void {
+    this.#assertOpen()
     if (this.#inFlight.size !== 0 || !this.#scheduler.idle) {
       throw invalidInput('Metrics can only be reset while the tile runtime is idle')
     }
@@ -1205,7 +1224,7 @@ export class TileRuntime {
           ? value.firstCompletedAt - this.#startedAt
           : null,
       memoryScope:
-        'Managed NumericTile bytes, declared retained auxiliary bytes, in-flight source estimates, declared operation working bytes, and physical leased bytes; excludes JavaScript object overhead, allocator fragmentation, unreported GPU-driver memory, undeclared provider allocations, and process RSS',
+        'Managed NumericTile backing allocations, declared retained auxiliary bytes, in-flight source hard bounds, declared operation working bytes, and physical leased bytes; excludes JavaScript object overhead, allocator fragmentation, unreported GPU-driver memory, undeclared provider allocations, and process RSS',
       timingScope:
         'Provider estimates are labeled separately from measured wall-clock compute time',
     })
@@ -1260,7 +1279,7 @@ export class TileRuntime {
       this.#validateTile(result.tile, state.request, auxiliaryBytes, state.descriptor)
       accounting = this.#validateAccounting(result.accounting)
       if (
-        result.tile.data.byteLength > state.estimate.outputBytes ||
+        numericTileRetainedBytes(result.tile) > state.estimate.outputRetainedBytes ||
         auxiliaryBytes > state.estimate.retainedAuxiliaryBytes
       ) {
         throw invalidInput('Tile source exceeded its declared retained-memory estimate')
@@ -1273,7 +1292,7 @@ export class TileRuntime {
       }
       throw error
     }
-    const retainedBytes = result.tile.data.byteLength + auxiliaryBytes
+    const retainedBytes = numericTileRetainedBytes(result.tile) + auxiliaryBytes
     try {
       this.#reserveManaged(retainedBytes)
     } catch (error) {
@@ -1344,7 +1363,7 @@ export class TileRuntime {
   #estimateTile(source: TileSource, request: TileRequest): TileSourceEstimate {
     const estimate = source.estimate(request)
     for (const value of [
-      estimate.outputBytes,
+      estimate.outputRetainedBytes,
       estimate.peakWorkingBytes,
       estimate.retainedAuxiliaryBytes,
     ]) {
@@ -1352,18 +1371,10 @@ export class TileRuntime {
         throw invalidInput('Tile source returned an invalid memory estimate')
       }
     }
-    if (
-      !Number.isFinite(estimate.confidence) ||
-      estimate.confidence < 0 ||
-      estimate.confidence > 1
-    ) {
-      throw invalidInput('Tile source returned an invalid memory-estimate confidence')
-    }
-    const outputBytes = estimate.confidence < 1 ? this.limits.maxTileBytes : estimate.outputBytes
-    if (estimate.outputBytes > this.limits.maxTileBytes || outputBytes > this.limits.maxTileBytes) {
+    if (estimate.outputRetainedBytes > this.limits.maxTileBytes) {
       throw invalidInput('Tile request exceeds maxTileBytes')
     }
-    return Object.freeze({ ...estimate, outputBytes })
+    return Object.freeze({ ...estimate })
   }
 
   #reserveInFlight(bytes: number): void {
@@ -1475,15 +1486,20 @@ export class TileRuntime {
     ) {
       throw invalidInput('Tile source returned unsupported target semantics')
     }
-    if (tile.data.byteLength > this.limits.maxTileBytes) {
+    const retainedBytes = numericTileRetainedBytes(tile)
+    if (retainedBytes > this.limits.maxTileBytes) {
       throw invalidInput('Tile source returned a tile that exceeds maxTileBytes')
     }
     if (!Number.isSafeInteger(auxiliaryBytes) || auxiliaryBytes < 0) {
       throw invalidInput('Tile source returned invalid auxiliary byte accounting')
     }
-    if (!Number.isSafeInteger(tile.data.byteLength + auxiliaryBytes)) {
+    if (!Number.isSafeInteger(retainedBytes + auxiliaryBytes)) {
       throw invalidInput('Tile retained bytes overflowed')
     }
+  }
+
+  #assertOpen(): void {
+    if (this.#disposed) throw invalidInput('Tile runtime is disposed')
   }
 
   #validateAccounting(accounting: TileSourceAccounting | undefined): ValidatedTileAccounting {
@@ -1511,7 +1527,8 @@ export class TileRuntime {
 
   #notifyIdle(): void {
     queueMicrotask(() => {
-      if (this.#inFlight.size !== 0 || !this.#scheduler.idle) return
+      if (this.#inFlight.size !== 0 || !this.#scheduler.idle || this.#operationWorkingBytes !== 0)
+        return
       for (const resolve of this.#idleWaiters) resolve()
       this.#idleWaiters.clear()
     })

@@ -37,9 +37,10 @@ the first-party readers never allow a name to override contradictory bytes. Supp
 `readerId` and, when needed, `readerVersion` bypasses probing.
 
 One detection shares a ledger across every reader and every primary or companion resource. Defaults
-are 32 readers, 32 non-empty reads, 65,536 logical bytes total, and 16,384 logical bytes per read.
-Reservations happen before I/O. Repeated and overlapping reads count again; zero-length and wholly
-out-of-range reads do not. Override these limits through `ScientificOpenContext.probeLimits`.
+are 32 readers, 32 non-empty reads, 32 companion resolutions, 65,536 logical bytes total, and
+16,384 logical bytes per read. Reservations happen before I/O, and a source must return exactly the
+admitted byte count. Repeated and overlapping reads count again; zero-length and wholly out-of-range
+reads do not. Override these limits through `ScientificOpenContext.probeLimits`.
 
 ## Multi-resource formats
 

@@ -163,6 +163,7 @@ describe('immutable analysis workspace commands', () => {
       validateCommand({
         schemaVersion: 1,
         id: 'unknown-field',
+        expectedRevision: 4,
         kind: 'remove-output',
         name: 'result',
         eval: 'doSomething()',
@@ -170,7 +171,13 @@ describe('immutable analysis workspace commands', () => {
     ).toBe(false)
     const missing = applyCommand(
       snapshot,
-      { schemaVersion: 1, id: 'missing', kind: 'remove-output', name: 'unknown' },
+      {
+        schemaVersion: 1,
+        id: 'missing',
+        expectedRevision: 4,
+        kind: 'remove-output',
+        name: 'unknown',
+      },
       operations,
     )
     expect(missing.applied).toBe(false)
@@ -197,6 +204,7 @@ describe('immutable analysis workspace commands', () => {
       {
         schemaVersion: 1,
         id: 'unknown',
+        expectedRevision: 0,
         kind: 'connect',
         nodeId: 'scale',
         port: 'value',
@@ -211,6 +219,7 @@ describe('immutable analysis workspace commands', () => {
       {
         schemaVersion: 1,
         id: 'cycle',
+        expectedRevision: 0,
         kind: 'connect',
         nodeId: 'scale',
         port: 'value',

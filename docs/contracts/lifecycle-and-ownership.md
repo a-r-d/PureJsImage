@@ -26,8 +26,9 @@ substitute for releasing leased buffers, providers, or documents.
   served their first tile. `result.release()` releases owned outputs before releasing the plan
   lease.
 - `runtime.clear()` is a cache/in-flight reset, not permanent disposal. `runtime.dispose()` is
-  permanent; `isDisposed` becomes true when closing begins, and `whenIdle()` resolves after active
-  work drains or is cancelled.
+  permanent; `isDisposed` becomes true when closing begins, every acquisition/mutation path closes,
+  and `whenIdle()` resolves after active requests, scheduler work, and explicit working-memory
+  reservations drain or are cancelled. Repeated disposal returns the original cleanup promise.
 - A cancelled consumer releases only its own lease. Shared in-flight source work continues while at
   least one consumer remains. If all consumers cancel, the runtime aborts the shared request and
   releases every produced allocation.

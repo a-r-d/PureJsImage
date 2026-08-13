@@ -627,11 +627,12 @@ migration path is chosen.
   - [x] Run focused tests, typecheck, lint, and formatting; record `git diff --stat` and exact probe
         budget semantics.
   - Result: detection probes readers sequentially in registration order against one shared default
-    budget of 32 readers, 32 non-empty reads, 65,536 logical bytes, and 16,384 logical bytes per
-    read. Reservations occur before underlying I/O; overlapping and repeated reads count again,
-    primary and companion resources share the ledger, and zero-length or wholly out-of-range reads
-    do not consume it. Explicit reader selection bypasses probing. The 38 focused registry and V2
-    tests pass with typecheck, lint, and formatting.
+    budget of 32 readers, 32 non-empty reads, 32 companion resolutions, 65,536 logical bytes, and
+    16,384 logical bytes per read. Reservations occur before underlying I/O; sources must return the
+    exact admitted length; overlapping and repeated reads count again; primary and companion
+    resources share the ledger; and zero-length or wholly out-of-range reads do not consume it.
+    Explicit reader selection bypasses probing. The 38 focused registry and V2 tests pass with
+    typecheck, lint, and formatting.
 
 - [x] Prompt 2.2: adapt GSF, MRC/CCP4, and CBF/imgCIF.
   - [x] Re-read instructions/status and inspect accumulated Prompt 2.1 changes plus each existing
@@ -1369,7 +1370,7 @@ to own only generic descriptors, definitions, providers, and registries.
       request each intersected tile once, including cross-tile bilinear neighborhoods, rather than
       creating one tiny source key per sample.
 - [x] Publish JSON-safe command descriptors from controller capabilities. Each available command now
-      describes its title, purpose, closed shape, mutation status, and current optional revision
+      describes its title, purpose, closed shape, mutation status, and mandatory revision
       requirement; `commandKinds` is derived from that descriptor list.
 - [x] Replace the exposed mutable execution-output `Map` with a frozen lookup/iteration view and
       reject detectable output/output and input/output resource aliases. Providers must supply a
@@ -1414,6 +1415,32 @@ to own only generic descriptors, definitions, providers, and registries.
       and transfer a single exact source tile without a merge copy.
 - [x] Replace the CodeQL-flagged namespaced-ID regular expression with one bounded linear parser and
       reuse it for operation and extension identifiers.
+
+### Additional application review blockers
+
+- [x] Charge the complete backing allocation retained by every `NumericTile`, not only its visible
+      typed-array view. Hard tile memory maxima are separate from timing confidence; undeclared
+      pooled/padded direct tiles compact before caching, while declared allocations can transfer
+      zero-copy and remain fully charged.
+- [x] Permanently close every tile-runtime acquisition and mutation path during disposal, return one
+      stable disposal promise, and include explicit operation-working reservations in idle cleanup.
+- [x] Run derived provider outputs through the shared ownership validator before tile-specific shape
+      validation so claimed input/pool aliases cannot enter the cache.
+- [x] Expose the extension host's frozen provider list and prove an installed custom operation can be
+      planned and executed through `AnalysisController` with provider provenance and cleanup.
+- [x] Require every controller/planner graph input value type to be registered, including unused and
+      directly published inputs, while retaining registry-independent structural graph validation.
+- [x] Require `expectedRevision` on every standalone mutation and add atomic `applyCommands()` that
+      either applies a complete batch with one revision increment or returns the original snapshot.
+- [x] Require exact probe read lengths and bound companion resolver calls in the shared scientific
+      detection ledger.
+
+  - Additional-review validation: 98 focused tile/runtime/extension/controller/project/reader tests
+    pass. The standard and hostile-source suites each pass all 95 non-AVIF files and 1,175 tests;
+    package consumer types, browser dependency checks, documentation build, lint, formatting, and
+    the correctness-gated tile-runtime benchmark pass. The complete standard suite reaches 1,197 of
+    1,200 tests and is blocked only by the same three environment-specific expanded 12-bit AVIF
+    Sharp-oracle hashes.
 
   - Contract-blocker validation: 142 focused scientific/application tests pass. Package consumer
     types, browser dependency checks, documentation build, lint, formatting, and three

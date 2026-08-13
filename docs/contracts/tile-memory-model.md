@@ -15,12 +15,12 @@ limits.
 | operation-working | explicitly reserved kernel scratch, merge coverage, halo, and intermediate bytes | operation scope |
 | retained auxiliary | non-tile bytes a source retains with the result | cache/result lifetime |
 
-`TileSource.estimate()` runs before allocation and reports `outputBytes`, peak working bytes
-including output, retained auxiliary bytes, and confidence. Exact estimates are validated against
-the returned tile and accounting. An estimate with incomplete confidence is reserved
-pessimistically up to `maxTileBytes`; a trusted source that understates exact allocation violates
-the contract and its result is rejected, though JavaScript cannot retroactively prevent memory it
-already allocated.
+`TileSource.estimate()` runs before allocation and reports hard conservative
+`outputRetainedBytes`, peak working bytes including output, and retained auxiliary bytes. The
+runtime validates those maxima against the returned tile and accounting. Timing uncertainty is a
+separate `TileTimingEstimate`; it never inflates or weakens a memory bound. A trusted source that
+understates allocation violates the contract and its result is rejected, though JavaScript cannot
+retroactively prevent memory it already allocated.
 
 ## Limits
 
@@ -28,7 +28,8 @@ already allocated.
 `maxOperationWorkingBytes`, `maxTotalManagedBytes`, cache-entry, queue, concurrency, key, and pixel
 limits are hard admission limits over reported managed classes. Work is rejected before allocation
 when its estimate cannot fit. Actual sample type, component count, layout, dimensions, stride,
-backing storage, and retained auxiliary bytes are checked again after production.
+backing storage, and retained auxiliary bytes are checked again after production. Tile retention is
+the complete `tile.data.buffer.byteLength`, not merely the visible typed-array view.
 
 The guarantee depends on trusted source/provider estimates. It excludes JavaScript object/header
 overhead, allocator fragmentation, engine-retained pages, unreported native/WASM or GPU allocation,
@@ -39,8 +40,10 @@ process. Browser memory APIs are incomplete and must not be presented as hard pr
 
 A completed tile is initially owned by the producer. The runtime either transfers it directly to a
 single consumer, installs it in cache and issues a lease, or releases it on failure. An exact
-single-source tile may transfer ownership without a merge copy. Multi-tile assembly reserves packed
-output plus coverage/merge scratch and holds source chunks only for the bounded assembly scope.
+single-source tile may transfer ownership without a merge copy only when its hard source estimate
+covers the complete backing allocation. An undeclared pooled or padded view is copied into compact
+owned storage. Multi-tile assembly reserves packed output plus coverage/merge scratch and holds
+source chunks only for the bounded assembly scope.
 
 In-flight deduplication shares one producer among consumers but gives each consumer an independent
 lease. Cancelling one consumer does not invalidate another. When the last consumer cancels, the
@@ -54,8 +57,10 @@ halo/intermediate buffers to operation-working memory. Providers report output i
 decoded input-tile bytes, not network transfer.
 
 `clear()` aborts queued/in-flight work and drops releasable cache entries but leaves the runtime
-reusable. `dispose()` permanently closes admission, cancels active work, waits for idle cleanup, and
-is idempotent. Requests after closing fail synchronously.
+reusable. `dispose()` permanently closes every acquisition and mutation path, cancels active work,
+waits for requests and explicit working-memory reservations, and returns one stable idempotent
+cleanup promise. Read-only metrics, `whenIdle()`, `isDisposed`, and repeated clear/dispose remain
+available after closing.
 
 ## Future GPU memory
 

@@ -107,10 +107,9 @@ const sourceFor = (reads: TileAddress[], releases: TileAddress[]): TileSource =>
   descriptor,
   tileKey: canonicalTileKey,
   estimate: (tileRequest) => ({
-    outputBytes: tileRequest.address.width * tileRequest.address.height * 4,
+    outputRetainedBytes: tileRequest.address.width * tileRequest.address.height * 4,
     peakWorkingBytes: tileRequest.address.width * tileRequest.address.height * 4,
     retainedAuxiliaryBytes: 0,
-    confidence: 1,
   }),
   async readTile(tileRequest) {
     reads.push(tileRequest.address)
@@ -410,6 +409,75 @@ describe('numeric and derived tile sources', () => {
     expect(releases).toBe(1)
   })
 
+  it('compacts an exact tile whose small view retains an undeclared larger allocation', async () => {
+    let releases = 0
+    const backing = new ArrayBuffer(256)
+    const data = new Float32Array(backing, 0, 4)
+    data.set([0, 1, 10, 11])
+    const numericSource: NumericTileSource = {
+      descriptor,
+      async *readNumericTiles() {
+        yield Object.freeze({
+          x: 0,
+          y: 0,
+          width: 2,
+          height: 2,
+          sampleType: 'float32' as const,
+          componentCount: 1,
+          layout: 'interleaved' as const,
+          rowStrideElements: 2,
+          data,
+          release() {
+            releases += 1
+          },
+        })
+      },
+    }
+    const runtime = createTileRuntime({ limits: { maxCacheBytes: 32, maxTileBytes: 32 } })
+    const result = await runtime.request(numericTileSourceToTileSource(numericSource), {
+      ...request(0, 0, 2, 2),
+      address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+    })
+    expect(result.data.buffer).not.toBe(backing)
+    expect(result.data.buffer.byteLength).toBe(16)
+    expect(runtime.metrics().cache.currentBytes).toBe(16)
+    expect(releases).toBe(1)
+    result.release()
+    runtime.clear()
+  })
+
+  it('permits zero-copy pooled storage only when the direct source declares the allocation', async () => {
+    const backing = new ArrayBuffer(256)
+    const data = new Float32Array(backing, 0, 4)
+    const numericSource: NumericTileSource = {
+      descriptor,
+      estimateRetainedBytes: () => backing.byteLength,
+      async *readNumericTiles() {
+        yield Object.freeze({
+          x: 0,
+          y: 0,
+          width: 2,
+          height: 2,
+          sampleType: 'float32' as const,
+          componentCount: 1,
+          layout: 'interleaved' as const,
+          rowStrideElements: 2,
+          data,
+          release() {},
+        })
+      },
+    }
+    const runtime = createTileRuntime({ limits: { maxCacheBytes: 512, maxTileBytes: 512 } })
+    const result = await runtime.request(numericTileSourceToTileSource(numericSource), {
+      ...request(0, 0, 2, 2),
+      address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+    })
+    expect(result.data.buffer).toBe(backing)
+    expect(runtime.metrics().cache.currentBytes).toBe(256)
+    result.release()
+    runtime.clear()
+  })
+
   it('keys provider identity, normalized semantics, fingerprints, and generations', () => {
     const runtime = createTileRuntime()
     const source = sourceFor([], [])
@@ -508,6 +576,52 @@ describe('numeric and derived tile sources', () => {
     result.release()
     expect(calls).toEqual(['primary'])
     expect(fallback.provider.descriptor.id).toBe('provider.fallback')
+    runtime.clear()
+  })
+
+  it('does not inflate hard tile memory bounds because provider timing confidence is partial', async () => {
+    const runtime = createTileRuntime({ limits: { maxTotalManagedBytes: 1_024 } })
+    const source = sourceFor([], [])
+    const base = selection({ id: 'provider.partial-timing', execute: averageOutput([]) })
+    const partial: OperationProviderSelection = Object.freeze({
+      ...base,
+      estimate: Object.freeze({ ...base.estimate, confidence: 0.5 }),
+    })
+    const derived = derivedFor({
+      runtime,
+      source,
+      selection: partial,
+      halo: { left: 0, right: 0, top: 0, bottom: 0 },
+    })
+    const first = await runtime.request(derived, request(0, 0, 2, 2))
+    const second = await runtime.request(derived, request(2, 0, 2, 2))
+    expect(runtime.metrics().memory.highWaterTotalManagedBytes).toBeLessThan(1_024)
+    first.release()
+    second.release()
+    runtime.clear()
+  })
+
+  it('rejects derived outputs that claim ownership of source storage', async () => {
+    const runtime = createTileRuntime()
+    const source = sourceFor([], [])
+    const aliased = selection({
+      id: 'provider.aliasing',
+      async execute(providerRequest) {
+        const sourceTile = inputTile(providerRequest.inputs[0])
+        const outputs = await averageOutput([])(providerRequest)
+        const output = outputs[0]
+        if (output === undefined) return outputs
+        return Object.freeze([
+          Object.freeze({
+            ...output,
+            ownershipIdentity: sourceTile.data.buffer,
+          }),
+        ])
+      },
+    })
+    await expect(
+      runtime.request(derivedFor({ runtime, source, selection: aliased }), request(1, 1, 2, 2)),
+    ).rejects.toThrow('claims ownership of input storage')
     runtime.clear()
   })
 

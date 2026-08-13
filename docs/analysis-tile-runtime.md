@@ -81,9 +81,9 @@ multi-gigabyte content hash before first display.
 
 The ownership rules are strict:
 
-- Before scheduling, every `TileSource` reports output, peak working, retained auxiliary bytes, and
-  confidence through `estimate()`. Incomplete confidence reserves pessimistically up to the tile
-  limit; a source that exceeds declared output or auxiliary retention is rejected.
+- Before scheduling, every `TileSource` reports hard maxima for output backing allocation, peak
+  working, and retained auxiliary bytes through `estimate()`. Timing confidence is separate and
+  never changes memory admission. A source that exceeds a declared bound is rejected.
 - A `TileSource` transfers one owned tile to the runtime when `readTile()` resolves.
 - The runtime validates the tile before admitting it. Failed admission releases the transferred
   tile.
@@ -140,9 +140,11 @@ retained bytes, task states, cancellation/failure, known input/output bytes, pro
 measured provider compute time, and time to first completed tile. Metrics are local only; no data is
 transmitted. Set `metrics: false` to suppress counters, or call `resetMetrics()` while idle.
 
-Retained memory means `NumericTile.data.byteLength` plus explicitly declared auxiliary retained
-bytes. Peak source estimates also cover merge buffers and coverage maps before they are allocated;
-an exact single source tile transfers directly without that merge copy. Managed memory excludes
+Retained memory means the complete `NumericTile.data.buffer.byteLength` plus explicitly declared
+auxiliary retained bytes. A small view over a large backing buffer is charged as the large buffer.
+Peak source estimates also cover merge buffers and coverage maps before they are allocated; an exact
+single source tile transfers directly only when its source estimate covers that full backing
+allocation, otherwise it is compacted. Managed memory excludes
 JavaScript object overhead, allocator fragmentation, undeclared provider allocations, unreported
 GPU-driver memory, and process RSS. Provider setup, transfer,
 compute, and readback fields remain labeled estimates; only provider execution wall time is labeled
@@ -155,6 +157,7 @@ npm run bench:analysis:tiles
 It validates and reports uncached first-tile, cached-repeat, neighboring-tile, and halo-derived-tile
 work without claiming process peak memory.
 
-`clear()` remains a recoverable cache/in-flight reset. `dispose()` is permanent: it rejects new
-requests, aborts active work, waits for `whenIdle()`, and clears retained cache state. Repeated
-disposal is safe, and `isDisposed` exposes the closing state.
+`clear()` remains a recoverable cache/in-flight reset. `dispose()` is permanent: it rejects every
+new lease, ownership transfer, reservation, identity allocation, and scheduled request; aborts
+active work; waits for explicit working-memory reservations; and clears retained cache state.
+Repeated disposal returns the original cleanup promise, and `isDisposed` exposes the closing state.

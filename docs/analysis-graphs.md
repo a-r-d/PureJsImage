@@ -12,9 +12,11 @@ use its existing direct pipeline and package entry points.
 
 An `AnalysisGraph` declares `schemaVersion`, named external inputs, stable node IDs, exact operation
 `{ id, version }` references, named input connections, normalized parameters, and named outputs.
-`validateGraph()` rejects unknown fields, operations, versions, ports, references, incompatible
-value types, missing inputs, invalid parameters, cycles, and configured limits. A successful result
-includes a stable topological node order and the normalized graph.
+Structural `validateGraph()` rejects unknown fields, operations, versions, ports, references,
+incompatible value types, missing inputs, invalid parameters, cycles, and configured limits. The
+controller, planner, and project validator additionally require every declared graph input type to
+exist in their explicit `ValueTypeRegistry`, even when the input is unused or published directly.
+A successful result includes a stable topological node order and the normalized graph.
 
 The semantic hash contains:
 
@@ -193,9 +195,11 @@ Controller capabilities publish a JSON-safe descriptor for every available comma
 title, description, closed payload schema, whether it mutates the workspace, and whether
 `expectedRevision` is mandatory. Domain payloads reference the public versioned graph/ROI contracts;
 operation parameters remain JSON whose exact schema comes from the selected operation descriptor.
-The current commands accept an optional `expectedRevision`, so their descriptors truthfully report
-`requiresExpectedRevision: false`; applications and agents should still supply it for stale-write
-protection.
+Every mutating command requires `expectedRevision`, and descriptors report
+`requiresExpectedRevision: true`. `controller.applyCommands(snapshot, { expectedRevision,
+commands })` validates a proposed batch against an immutable draft, applies everything and advances
+the revision once, or returns the original snapshot with structured issues. Duplicate command IDs
+inside a batch are rejected.
 
 When the controller is configured with a scientific ROI context, the same snapshot also owns an
 immutable `roiSet`, and the same command path supports `add-roi`, `update-roi`, `remove-roi`, and

@@ -23,7 +23,7 @@ import type {
   AnalysisLimits,
   AnalysisValueReference,
 } from './graph.ts'
-import { hashAnalysisGraph, validateGraph } from './graph.ts'
+import { hashAnalysisGraph, validateGraphWithValueTypes } from './graph.ts'
 import type { Roi, RoiSet } from './roi.ts'
 import {
   canonicalNormalizedRoiSemanticsJson,
@@ -152,7 +152,7 @@ export interface AnalysisPlanLease {
 export interface PlanGraphOptions {
   readonly graph: unknown
   readonly operations: OperationRegistry
-  readonly valueTypes?: ValueTypeRegistry
+  readonly valueTypes: ValueTypeRegistry
   readonly providers: Iterable<OperationProvider>
   readonly bindings: Readonly<Record<string, AnalysisInputBinding>>
   readonly policy?: OperationProviderPolicy
@@ -379,7 +379,12 @@ export const planGraph = async (
   options: Readonly<PlanGraphOptions>,
 ): Promise<PreparedAnalysisPlan> => {
   options.signal?.throwIfAborted()
-  const validation = validateGraph(options.graph, options.operations, options.limits)
+  const validation = validateGraphWithValueTypes(
+    options.graph,
+    options.operations,
+    options.valueTypes,
+    options.limits,
+  )
   if (validation.graph === undefined || validation.nodeOrder === undefined) {
     throw invalidInput(validation.issues[0]?.message ?? 'Analysis graph is invalid')
   }
@@ -397,7 +402,7 @@ export const planGraph = async (
     ) {
       throw invalidInput(`Graph input ${input.name} binding has an incompatible value type`)
     }
-    const valueType = options.valueTypes?.get(input.valueType.id, input.valueType.version)
+    const valueType = options.valueTypes.get(input.valueType.id, input.valueType.version)
     if (valueType?.validate !== undefined) {
       const result = valueType.validate(binding.value)
       if (result.value === undefined) {
@@ -633,7 +638,12 @@ export interface AnalysisDryRun extends OperationJsonObject {
 }
 
 export const dryRun = async (options: Readonly<PlanGraphOptions>): Promise<AnalysisDryRun> => {
-  const validation = validateGraph(options.graph, options.operations, options.limits)
+  const validation = validateGraphWithValueTypes(
+    options.graph,
+    options.operations,
+    options.valueTypes,
+    options.limits,
+  )
   if (!validation.valid) {
     return Object.freeze({
       valid: false,

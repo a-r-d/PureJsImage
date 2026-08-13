@@ -79,6 +79,7 @@ export interface ExtensionHost {
   readonly operations: OperationRegistry
   readonly valueTypes: ValueTypeRegistry
   readonly readers: ScientificReaderRegistry
+  readonly providers: readonly OperationProvider[]
   readonly analysisMigrations: AnalysisMigrationRegistry
   readonly manifest: ExtensionCapabilityManifest
   prepare(signal?: AbortSignal): Promise<PreparedExtensionHost>
@@ -258,6 +259,7 @@ export const createExtensionHost = (options: Readonly<ExtensionHostOptions>): Ex
     operations: operationRegistry,
     valueTypes: valueTypeRegistry,
     readers: readerRegistry,
+    providers: providerList,
     analysisMigrations: migrationRegistry,
     manifest,
     async prepare(signal?: AbortSignal): Promise<PreparedExtensionHost> {

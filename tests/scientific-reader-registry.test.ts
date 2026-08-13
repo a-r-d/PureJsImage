@@ -159,7 +159,7 @@ describe('ScientificReaderRegistry detection', () => {
       reader: expect.objectContaining({ id: 'test/second', version: '1.0.0' }),
       confidence: 0.9,
       reason: 'strong header',
-      stats: { readers: 2, reads: 2, bytes: 4 },
+      stats: { readers: 2, reads: 2, bytes: 4, companionResolutions: 0 },
     })
     expect(order).toEqual(['first', 'second'])
     expect(registry.descriptors.map(({ id }) => id)).toEqual(['test/first', 'test/second'])
@@ -209,7 +209,7 @@ describe('ScientificReaderRegistry detection', () => {
     ).resolves.toMatchObject({
       reader: { id: 'test/versioned', version: '2.0.0' },
       confidence: 1,
-      stats: { readers: 0, reads: 0, bytes: 0 },
+      stats: { readers: 0, reads: 0, bytes: 0, companionResolutions: 0 },
     })
     expect(probes).toBe(0)
   })
@@ -343,8 +343,44 @@ describe('scientific probe budgets', () => {
         },
       }),
     )
-    expect(detection.stats).toEqual({ readers: 1, reads: 2, bytes: 5 })
+    expect(detection.stats).toEqual({ readers: 1, reads: 2, bytes: 5, companionResolutions: 1 })
     expect(requests).toEqual([{ kind: 'role', role: 'data', relativeName: 'folder/sample.raw' }])
+  })
+
+  it('rejects probe sources that return excess bytes and bounds companion resolution calls', async () => {
+    const excess: ImageSource = {
+      size: 16,
+      async read() {
+        return new Uint8Array(8)
+      },
+    }
+    const reading = mockReader({
+      id: 'test/excess-read',
+      async probe(openContext) {
+        await openContext.primary.source.read(0, 1)
+        return { confidence: 1 }
+      },
+    })
+    await expect(new ScientificReaderRegistry([reading]).detect(context(excess))).rejects.toThrow(
+      'returned 8 bytes',
+    )
+
+    const resolving = mockReader({
+      id: 'test/excess-companions',
+      async probe(openContext) {
+        await openContext.companions?.resolve({ kind: 'role', role: 'first' })
+        await openContext.companions?.resolve({ kind: 'role', role: 'second' })
+        return { confidence: 0 }
+      },
+    })
+    await expect(
+      new ScientificReaderRegistry([resolving]).detect(
+        context(undefined, {
+          companions: { resolve: async () => undefined },
+          probeLimits: { maxCompanionResolutions: 1 },
+        }),
+      ),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
   })
 })
 

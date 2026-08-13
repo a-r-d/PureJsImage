@@ -54,6 +54,8 @@ export interface ScientificProbeLimits {
   readonly maxReaders: number
   /** Largest single logical source read a probe may request. */
   readonly maxReadBytes: number
+  /** Total companion resolver calls admitted across all reader probes. */
+  readonly maxCompanionResolutions: number
 }
 
 export type ScientificProbeLimitOptions = Partial<ScientificProbeLimits>
@@ -63,6 +65,7 @@ export const defaultScientificProbeLimits: Readonly<ScientificProbeLimits> = Obj
   maxTotalReads: 32,
   maxReaders: 32,
   maxReadBytes: 16_384,
+  maxCompanionResolutions: 32,
 })
 
 export interface ScientificOpenContext extends AbortOptions {
@@ -189,6 +192,7 @@ export interface ScientificProbeStats {
   readonly readers: number
   readonly reads: number
   readonly bytes: number
+  readonly companionResolutions: number
 }
 
 export interface ScientificReaderDetection {
@@ -362,6 +366,10 @@ export const resolveScientificProbeLimits = (
       options.maxReadBytes ?? defaultScientificProbeLimits.maxReadBytes,
       'Scientific probe maxReadBytes',
     ),
+    maxCompanionResolutions: positiveInteger(
+      options.maxCompanionResolutions ?? defaultScientificProbeLimits.maxCompanionResolutions,
+      'Scientific probe maxCompanionResolutions',
+    ),
   })
 
 class ScientificProbeBudget {
@@ -369,6 +377,7 @@ class ScientificProbeBudget {
   #bytes = 0
   #reads = 0
   #readers = 0
+  #companionResolutions = 0
 
   constructor(limits: Readonly<ScientificProbeLimits>) {
     this.limits = limits
@@ -406,8 +415,22 @@ class ScientificProbeBudget {
     return bytes
   }
 
+  admitCompanionResolution(): void {
+    if (this.#companionResolutions >= this.limits.maxCompanionResolutions) {
+      throw limitExceeded(
+        `Scientific detection exceeds maxCompanionResolutions ${this.limits.maxCompanionResolutions}`,
+      )
+    }
+    this.#companionResolutions += 1
+  }
+
   get stats(): ScientificProbeStats {
-    return Object.freeze({ readers: this.#readers, reads: this.#reads, bytes: this.#bytes })
+    return Object.freeze({
+      readers: this.#readers,
+      reads: this.#reads,
+      bytes: this.#bytes,
+      companionResolutions: this.#companionResolutions,
+    })
   }
 }
 
@@ -439,11 +462,16 @@ class ProbeLimitedSource implements ImageSource {
   ): Promise<Uint8Array> {
     const signal = combineAbortSignals(this.#signal, options.signal)
     throwIfAborted(signal)
-    this.#budget.admitRead(this.size, offset, length)
+    const expectedBytes = this.#budget.admitRead(this.size, offset, length)
     const data = await this.#source.read(offset, length, {
       ...(signal === undefined ? {} : { signal }),
     })
     throwIfAborted(signal)
+    if (data.byteLength !== expectedBytes) {
+      throw invalidInput(
+        `Scientific probe source returned ${data.byteLength} bytes for an admitted ${expectedBytes}-byte read`,
+      )
+    }
     return data
   }
 }
@@ -476,6 +504,7 @@ const boundCompanions = (
       const normalizedRequest = normalizeScientificCompanionRequest(request)
       const combinedSignal = combineAbortSignals(signal, options.signal)
       throwIfAborted(combinedSignal)
+      budget?.admitCompanionResolution()
       const resource = await resolver.resolve(normalizedRequest, {
         ...(combinedSignal === undefined ? {} : { signal: combinedSignal }),
       })
@@ -600,7 +629,7 @@ export class ScientificReaderRegistry {
           reader: explicit.descriptor,
           confidence: 1,
           reason: 'Explicit reader selection',
-          stats: Object.freeze({ readers: 0, reads: 0, bytes: 0 }),
+          stats: Object.freeze({ readers: 0, reads: 0, bytes: 0, companionResolutions: 0 }),
         }),
       })
     }

@@ -84,10 +84,9 @@ const tile = (x: number, releases: number[], value = x, releaseError = false): N
   })
 
 const tileEstimate = (tileRequest: Readonly<TileRequest>) => ({
-  outputBytes: tileRequest.address.width * tileRequest.address.height,
+  outputRetainedBytes: tileRequest.address.width * tileRequest.address.height,
   peakWorkingBytes: tileRequest.address.width * tileRequest.address.height,
   retainedAuxiliaryBytes: 0,
-  confidence: 1,
 })
 
 const immediateSource = (releases: number[], reads: number[], auxiliaryBytes = 0): TileSource => ({
@@ -187,6 +186,35 @@ describe('bounded tile runtime cache and scheduler', () => {
     expect(runtime.putCached(source, request(0), tile(0, releases), 2)).toBe(false)
     expect(releases).toEqual([0])
     expect(runtime.metrics().cache.currentBytes).toBe(0)
+  })
+
+  it('accounts full typed-array backing allocations and rejects understated sources', async () => {
+    const releases: number[] = []
+    const source = immediateSource(releases, [])
+    const backing = new ArrayBuffer(64)
+    const padded: NumericTile = Object.freeze({
+      ...tile(0, releases),
+      data: new Uint8Array(backing, 0, 4),
+    })
+    const strict = createTileRuntime({ limits: { maxTileBytes: 32 } })
+    expect(() => strict.putCached(source, request(0), padded)).toThrow('maxTileBytes')
+    expect(releases).toEqual([0])
+
+    const understated: TileSource = {
+      tileKey: canonicalTileKey,
+      estimate: tileEstimate,
+      async readTile(tileRequest) {
+        return {
+          tile: Object.freeze({
+            ...tile(tileRequest.address.x, releases),
+            data: new Uint8Array(new ArrayBuffer(64), 0, 4),
+          }),
+        }
+      },
+    }
+    await expect(
+      createTileRuntime({ limits: { maxTileBytes: 64 } }).request(understated, request(0)),
+    ).rejects.toThrow('declared retained-memory estimate')
   })
 
   it('enforces tile, in-flight, leased, operation, and total managed byte budgets', async () => {
@@ -589,10 +617,9 @@ describe('bounded tile runtime cache and scheduler', () => {
     const pessimistic: TileSource = {
       tileKey: canonicalTileKey,
       estimate: () => ({
-        outputBytes: 128,
+        outputRetainedBytes: 128,
         peakWorkingBytes: 256,
         retainedAuxiliaryBytes: 0,
-        confidence: 1,
       }),
       async readTile(tileRequest) {
         reads += 1
@@ -608,10 +635,9 @@ describe('bounded tile runtime cache and scheduler', () => {
     const float64FourComponent: TileSource = {
       tileKey: canonicalTileKey,
       estimate: () => ({
-        outputBytes: 128,
+        outputRetainedBytes: 128,
         peakWorkingBytes: 128,
         retainedAuxiliaryBytes: 0,
-        confidence: 1,
       }),
       async readTile(tileRequest) {
         return {
@@ -651,10 +677,9 @@ describe('bounded tile runtime cache and scheduler', () => {
       descriptor,
       tileKey: canonicalTileKey,
       estimate: () => ({
-        outputBytes: 8,
+        outputRetainedBytes: 8,
         peakWorkingBytes: 8,
         retainedAuxiliaryBytes: 0,
-        confidence: 1,
       }),
       async readTile(tileRequest) {
         return {
@@ -722,11 +747,32 @@ describe('bounded tile runtime cache and scheduler', () => {
     await Promise.resolve()
     expect(started).toBe(true)
     const disposal = runtime.dispose()
+    expect(runtime.dispose()).toBe(disposal)
     await expect(pending).rejects.toThrow('Tile runtime cleared')
     await disposal
     await runtime.whenIdle()
     await runtime.dispose()
     expect(runtime.isDisposed).toBe(true)
     expect(() => runtime.request(source, request(0))).toThrow('disposed')
+    expect(() => runtime.reserveOperationWorkingBytes(1)).toThrow('disposed')
+    expect(() => runtime.allocateIdentityScope('after-dispose')).toThrow('disposed')
+    expect(() => runtime.getCached(source, request(0))).toThrow('disposed')
+    expect(() => runtime.putCached(source, request(0), tile(0, []))).toThrow('disposed')
+    expect(() => runtime.invalidate({ namespace: 'dataset' })).toThrow('disposed')
+    expect(() => runtime.resetMetrics()).toThrow('disposed')
+  })
+
+  it('waits for explicit working-memory reservations during disposal', async () => {
+    const runtime = createTileRuntime()
+    const release = runtime.reserveOperationWorkingBytes(4)
+    let disposed = false
+    const disposal = runtime.dispose().then(() => {
+      disposed = true
+    })
+    await Promise.resolve()
+    expect(disposed).toBe(false)
+    release()
+    await disposal
+    expect(disposed).toBe(true)
   })
 })

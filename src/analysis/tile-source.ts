@@ -6,6 +6,7 @@ import type {
   OperationOwnedOutput,
   OperationProviderSelection,
 } from '../operations/provider.ts'
+import { validateOperationOwnedOutputs } from '../operations/provider.ts'
 import type { OperationDefinition } from '../operations/registry.ts'
 import type {
   NumericArray,
@@ -14,7 +15,11 @@ import type {
   NumericTileLayout,
   NumericTileSource,
 } from '../scientific/numeric-tile.ts'
-import { numericTileSampleOffset, validateNumericTile } from '../scientific/numeric-tile.ts'
+import {
+  numericTileRetainedBytes,
+  numericTileSampleOffset,
+  validateNumericTile,
+} from '../scientific/numeric-tile.ts'
 import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset-v2.ts'
 import { normalizeScientificPlaneReadRequest } from '../scientific/dataset-v2.ts'
 import type {
@@ -193,15 +198,35 @@ class NumericTileSourceAdapter implements TileSource {
       request.target?.sampleType ??
       (this.descriptor.sampleType === 'float16' ? 'float32' : this.descriptor.sampleType)
     const outputBytes = packedTileBytes(address, sampleType, this.descriptor.components.length)
+    const sourceRequest = {
+      displayAxes: address.displayAxes,
+      fixedIndices: address.fixedIndices,
+      resolutionLevel: address.resolutionLevel,
+      x: address.x,
+      y: address.y,
+      width: address.width,
+      height: address.height,
+      signal: request.signal,
+      ...(request.target?.sampleType === undefined
+        ? {}
+        : { targetSampleType: request.target.sampleType }),
+    }
+    const directRetainedBytes = this.#source.estimateRetainedBytes?.(sourceRequest)
+    if (
+      directRetainedBytes !== undefined &&
+      (!Number.isSafeInteger(directRetainedBytes) || directRetainedBytes < outputBytes)
+    ) {
+      throw invalidInput('Numeric tile source returned an invalid retained-byte estimate')
+    }
+    const outputRetainedBytes = directRetainedBytes ?? outputBytes
     const coverageBytes = address.width * address.height
-    if (!Number.isSafeInteger(coverageBytes + outputBytes)) {
+    if (!Number.isSafeInteger(coverageBytes + outputRetainedBytes)) {
       throw invalidInput('Tile working-byte estimate overflowed')
     }
     return Object.freeze({
-      outputBytes,
-      peakWorkingBytes: outputBytes + coverageBytes,
+      outputRetainedBytes,
+      peakWorkingBytes: outputRetainedBytes + coverageBytes,
       retainedAuxiliaryBytes: 0,
-      confidence: 1,
     })
   }
 
@@ -259,7 +284,8 @@ class NumericTileSourceAdapter implements TileSource {
         first.componentCount === this.descriptor.components.length &&
         (request.target?.sampleType === undefined ||
           first.sampleType === request.target.sampleType) &&
-        (request.target?.layout === undefined || first.layout === request.target.layout)
+        (request.target?.layout === undefined || first.layout === request.target.layout) &&
+        numericTileRetainedBytes(first) <= this.estimate(request).outputRetainedBytes
       ) {
         unreleasedFirst = undefined
         return Object.freeze({
@@ -508,10 +534,9 @@ export class DerivedTileSource implements TileSource {
     )
     const estimate = this.#selection.estimate
     return Object.freeze({
-      outputBytes,
-      peakWorkingBytes: Math.max(outputBytes, estimate.peakWorkingBytes),
+      outputRetainedBytes: Math.max(outputBytes, estimate.outputBytes),
+      peakWorkingBytes: Math.max(outputBytes, estimate.outputBytes, estimate.peakWorkingBytes),
       retainedAuxiliaryBytes: Math.max(0, estimate.retainedBytes - estimate.outputBytes),
-      confidence: estimate.confidence,
     })
   }
 
@@ -536,6 +561,7 @@ export class DerivedTileSource implements TileSource {
       outputs = await this.#selection.implementation.execute(execution)
       const measured = performance.now() - started
       normalized.signal.throwIfAborted()
+      validateOperationOwnedOutputs(outputs, [sourceTile])
       if (outputs.length !== 1 || outputs[0] === undefined) {
         throw invalidInput('Derived tile provider must return exactly one owned output')
       }

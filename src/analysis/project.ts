@@ -12,7 +12,7 @@ import type { SourceIdentity } from '../source-identity.ts'
 import { normalizeSourceIdentity } from '../source-identity.ts'
 import { canonicalJson, hashCanonicalJson } from './canonical-json.ts'
 import type { AnalysisGraph, AnalysisIssue, AnalysisLimits } from './graph.ts'
-import { hashAnalysisGraph, validateGraph } from './graph.ts'
+import { hashAnalysisGraph, validateGraphWithValueTypes } from './graph.ts'
 import type { AnalysisBindingIdentity, AnalysisSemanticIdentity } from './planner.ts'
 import { computeAnalysisInvocationManifest, normalizeAnalysisSemanticIdentity } from './planner.ts'
 import type { RoiLimits, RoiSet } from './roi.ts'
@@ -496,7 +496,12 @@ const normalizeProject = async (
   )
   if (input.schemaVersion !== 1)
     throw new ProjectError('/schemaVersion', 'Unsupported project schema version')
-  const graphValidation = validateGraph(input.graph, options.operations, options.analysisLimits)
+  const graphValidation = validateGraphWithValueTypes(
+    input.graph,
+    options.operations,
+    options.valueTypes,
+    options.analysisLimits,
+  )
   if (graphValidation.graph === undefined) {
     const issue = graphValidation.issues[0]
     throw new ProjectError(

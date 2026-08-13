@@ -242,7 +242,7 @@ const emptyGraph: AnalysisGraph = { schemaVersion: 1, inputs: [], nodes: [], out
 export const analysisController = createAnalysisController({
   operations: extensionHost.operations,
   valueTypes: extensionHost.valueTypes,
-  providers: [extensionProvider],
+  providers: extensionHost.providers,
   library: { version: '0.9.0', buildFingerprint: 'consumer-build' },
 })
 export const emptyGraphHash = hashAnalysisGraph(emptyGraph)
@@ -263,7 +263,7 @@ const tileRequest: TileRequest = {
 const tileSource: TileSource = {
   tileKey: canonicalTileKey,
   estimate: () => ({
-    outputBytes: 1, peakWorkingBytes: 1, retainedAuxiliaryBytes: 0, confidence: 1,
+    outputRetainedBytes: 1, peakWorkingBytes: 1, retainedAuxiliaryBytes: 0,
   }),
   readTile: async () => ({
     tile: {

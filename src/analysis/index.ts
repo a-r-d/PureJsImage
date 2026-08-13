@@ -145,8 +145,10 @@ export type {
 } from './executor.ts'
 export { AnalysisNodeExecutionError, executeGraph } from './executor.ts'
 export type {
+  AnalysisBatchCommand,
   AnalysisCommand,
   AnalysisCommandApplication,
+  AnalysisCommandBatch,
   AnalysisCommandDescriptor,
   AnalysisCommandKind,
   AnalysisCommandValidation,
@@ -155,6 +157,7 @@ export type {
 } from './workspace.ts'
 export {
   applyCommand,
+  applyCommands,
   createAnalysisWorkspaceSnapshot,
   describeAnalysisCommands,
   validateCommand,
@@ -253,6 +256,7 @@ export type {
   TileSourceResult,
   TileTarget,
   TileTaskMetrics,
+  TileTimingEstimate,
 } from './tile-runtime.ts'
 export {
   TileRuntime,

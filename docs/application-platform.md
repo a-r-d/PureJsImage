@@ -239,6 +239,7 @@ provider code. Compose the operation through a caller-owned extension host:
 
 ```ts
 import { createExtensionHost } from 'purejsimage/extensions'
+import { createAnalysisController } from 'purejsimage/analysis'
 import { createOperationDefinition, createOperationProvider } from 'purejsimage/operations'
 
 const operation = createOperationDefinition({ descriptor, inferOutputShapes })
@@ -250,8 +251,13 @@ const host = createExtensionHost({
     providers: [provider],
   }],
 })
-const prepared = await host.prepare()
-console.log(prepared.manifest)
+const extensionController = createAnalysisController({
+  operations: host.operations,
+  valueTypes: host.valueTypes,
+  providers: host.providers,
+  migrations: host.analysisMigrations,
+  library,
+})
 ```
 
 The complete pointwise reference example is

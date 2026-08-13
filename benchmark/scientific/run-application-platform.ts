@@ -529,10 +529,9 @@ const measureCacheClasses = async (): Promise<TileRuntimeMetrics> => {
     descriptor: large.descriptor,
     tileKey: canonicalTileKey,
     estimate: (request: Readonly<TileRequest>) => ({
-      outputBytes: request.address.width * request.address.height * 4,
+      outputRetainedBytes: request.address.width * request.address.height * 4,
       peakWorkingBytes: request.address.width * request.address.height * 4,
       retainedAuxiliaryBytes: 0,
-      confidence: 1,
     }),
     async readTile(request: Readonly<TileRequest>) {
       const { x, y, width, height } = request.address

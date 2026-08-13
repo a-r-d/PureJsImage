@@ -3,7 +3,11 @@ import type {
   OperationJsonValue,
   OperationValueTypeReference,
 } from '../operations/descriptor.ts'
-import type { OperationDefinition, OperationRegistry } from '../operations/registry.ts'
+import type {
+  OperationDefinition,
+  OperationRegistry,
+  ValueTypeRegistry,
+} from '../operations/registry.ts'
 import { canonicalJson, sha256Text } from './canonical-json.ts'
 
 export const analysisGraphSchemaVersion = 1
@@ -641,6 +645,36 @@ export const validateGraph = (
     issues,
     ...(issues.length === 0 && order !== undefined ? { graph: normalized, nodeOrder: order } : {}),
   })
+}
+
+/** Controller/planner validation that additionally requires every declared input type to exist. */
+export const validateGraphWithValueTypes = (
+  value: unknown,
+  operations: OperationRegistry,
+  valueTypes: ValueTypeRegistry,
+  limits: Readonly<AnalysisLimits> = {},
+): AnalysisGraphValidation => {
+  const validation = validateGraph(value, operations, limits)
+  const graph = validation.graph
+  if (graph === undefined) return validation
+  const issues = [...validation.issues]
+  const maxIssues = resolveAnalysisLimits(limits).maxIssues
+  for (let index = 0; index < graph.inputs.length && issues.length < maxIssues; index += 1) {
+    const input = graph.inputs[index]
+    if (input === undefined) continue
+    if (valueTypes.get(input.valueType.id, input.valueType.version) === undefined) {
+      issues.push(
+        Object.freeze({
+          code: 'invalid-type',
+          severity: 'error',
+          path: `/inputs/${index}/valueType`,
+          message: `Unknown value type ${input.valueType.id}@${input.valueType.version}`,
+        }),
+      )
+    }
+  }
+  if (issues.length === 0) return validation
+  return Object.freeze({ valid: false, issues: Object.freeze(issues) })
 }
 
 export interface SemanticAnalysisGraph extends OperationJsonObject {

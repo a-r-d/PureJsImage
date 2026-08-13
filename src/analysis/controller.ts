@@ -14,7 +14,7 @@ import type { AnalysisGraph, AnalysisGraphValidation, AnalysisLimits } from './g
 import {
   analysisGraphSchemaVersion,
   resolveAnalysisLimits,
-  validateGraph as validateAnalysisGraph,
+  validateGraphWithValueTypes as validateAnalysisGraph,
 } from './graph.ts'
 import type {
   AnalysisMigrationPlan,
@@ -38,6 +38,7 @@ import type {
 } from './workspace.ts'
 import {
   applyCommand as applyWorkspaceCommand,
+  applyCommands as applyWorkspaceCommands,
   createAnalysisWorkspaceSnapshot,
   describeAnalysisCommands,
   validateCommand as validateWorkspaceCommand,
@@ -217,11 +218,23 @@ export class AnalysisController {
       this.#operations,
       this.#limits,
       this.#roiContext,
+      this.#valueTypes,
+    )
+  }
+
+  applyCommands(snapshot: AnalysisWorkspaceSnapshot, batch: unknown): AnalysisCommandApplication {
+    return applyWorkspaceCommands(
+      snapshot,
+      batch,
+      this.#operations,
+      this.#limits,
+      this.#roiContext,
+      this.#valueTypes,
     )
   }
 
   validateGraph(graph: unknown): AnalysisGraphValidation {
-    return validateAnalysisGraph(graph, this.#operations, this.#limits)
+    return validateAnalysisGraph(graph, this.#operations, this.#valueTypes, this.#limits)
   }
 
   inspectMigrationPlan(

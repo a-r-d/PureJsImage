@@ -80,6 +80,7 @@ describe('ROI value types and immutable workspace commands', () => {
       controller.validateCommand({
         schemaVersion: 1,
         id: 'remove-without-context',
+        expectedRevision: 0,
         kind: 'remove-roi',
         roiId: 'selection',
       }),
@@ -265,6 +266,7 @@ describe('ROI value types and immutable workspace commands', () => {
     const duplicate = controller.applyCommand(added.snapshot, {
       schemaVersion: 1,
       id: 'duplicate',
+      expectedRevision: 1,
       kind: 'add-roi',
       roi: polygon(),
     })
@@ -273,6 +275,7 @@ describe('ROI value types and immutable workspace commands', () => {
     const invalid = controller.applyCommand(added.snapshot, {
       schemaVersion: 1,
       id: 'invalid',
+      expectedRevision: 1,
       kind: 'update-roi',
       roiId: 'selection',
       roi: { ...polygon(), geometry: { kind: 'polygon', points: [] } },
@@ -282,6 +285,7 @@ describe('ROI value types and immutable workspace commands', () => {
     const missing = controller.applyCommand(added.snapshot, {
       schemaVersion: 1,
       id: 'missing',
+      expectedRevision: 1,
       kind: 'remove-roi',
       roiId: 'missing',
     })
@@ -300,6 +304,7 @@ describe('ROI value types and immutable workspace commands', () => {
     const first = controller.applyCommand(controller.createWorkspace(), {
       schemaVersion: 1,
       id: 'first',
+      expectedRevision: 0,
       kind: 'add-roi',
       roi: polygon(),
     })
@@ -307,6 +312,7 @@ describe('ROI value types and immutable workspace commands', () => {
     const second = controller.applyCommand(first.snapshot, {
       schemaVersion: 1,
       id: 'second',
+      expectedRevision: 1,
       kind: 'add-roi',
       roi: { ...polygon(), id: 'selection-2' },
     })

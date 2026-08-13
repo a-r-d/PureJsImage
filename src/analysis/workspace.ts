@@ -12,7 +12,7 @@ import type {
   AnalysisValueReference,
 } from './graph.ts'
 import { validateGraph } from './graph.ts'
-import type { OperationRegistry } from '../operations/registry.ts'
+import type { OperationRegistry, ValueTypeRegistry } from '../operations/registry.ts'
 import type { Roi, RoiLimits, RoiSet } from './roi.ts'
 import { createEmptyRoiSet, normalizeRoiSet, validateRoi, validateRoiSet } from './roi.ts'
 
@@ -31,7 +31,7 @@ export interface AnalysisWorkspaceSnapshot {
 interface CommandBase {
   readonly schemaVersion: 1
   readonly id: string
-  readonly expectedRevision?: number
+  readonly expectedRevision: number
 }
 
 export type AnalysisCommand =
@@ -66,7 +66,7 @@ export interface AnalysisCommandDescriptor extends OperationJsonObject {
   readonly description: string
   readonly schema: OperationJsonObject
   readonly mutatesWorkspace: true
-  readonly requiresExpectedRevision: false
+  readonly requiresExpectedRevision: true
 }
 
 const identifierSchema = Object.freeze({ type: 'string', minLength: 1, maxLength: 4_096 })
@@ -87,7 +87,13 @@ const commandDescriptor = (
     schema: Object.freeze({
       type: 'object',
       closed: true,
-      required: Object.freeze(['schemaVersion', 'id', 'kind', ...Object.keys(payload)]),
+      required: Object.freeze([
+        'schemaVersion',
+        'id',
+        'expectedRevision',
+        'kind',
+        ...Object.keys(payload),
+      ]),
       properties: Object.freeze({
         schemaVersion: Object.freeze({ type: 'integer', minimum: 1, maximum: 1, default: 1 }),
         id: identifierSchema,
@@ -97,7 +103,7 @@ const commandDescriptor = (
       }),
     }),
     mutatesWorkspace: true,
-    requiresExpectedRevision: false,
+    requiresExpectedRevision: true,
   })
 
 const graphNodeSchema = contractSchema('purejsimage.analysis.graph-node')
@@ -175,6 +181,17 @@ export interface AnalysisCommandApplication {
   readonly snapshot: AnalysisWorkspaceSnapshot
   readonly issues: readonly AnalysisIssue[]
   readonly applied: boolean
+}
+
+type WithoutExpectedRevision<Command> = Command extends AnalysisCommand
+  ? Omit<Command, 'expectedRevision'>
+  : never
+
+export type AnalysisBatchCommand = WithoutExpectedRevision<AnalysisCommand>
+
+export interface AnalysisCommandBatch {
+  readonly expectedRevision: number
+  readonly commands: readonly AnalysisBatchCommand[]
 }
 
 type UnknownRecord = Readonly<Record<string, unknown>>
@@ -341,9 +358,8 @@ export const validateCommand = (
       valid: false,
       issues: Object.freeze([issue('invalid-type', '/id', 'Command id is invalid')]),
     })
-  const expectedRevision =
-    input.expectedRevision === undefined ? undefined : safeRevision(input.expectedRevision)
-  if (input.expectedRevision !== undefined && expectedRevision === undefined)
+  const expectedRevision = safeRevision(input.expectedRevision)
+  if (expectedRevision === undefined)
     return Object.freeze({
       valid: false,
       issues: Object.freeze([
@@ -353,7 +369,7 @@ export const validateCommand = (
   const base = {
     schemaVersion: 1 as const,
     id,
-    ...(expectedRevision === undefined ? {} : { expectedRevision }),
+    expectedRevision,
   }
   const payloadKeys: Readonly<Record<string, readonly string[]>> = Object.freeze({
     'add-node': Object.freeze(['node']),
@@ -557,12 +573,13 @@ export const applyCommand = (
   operations: OperationRegistry,
   limits: Readonly<AnalysisLimits> = {},
   roiContext?: Readonly<AnalysisWorkspaceRoiContext>,
+  valueTypes?: ValueTypeRegistry,
 ): AnalysisCommandApplication => {
   const validation = validateCommand(input, roiContext)
   const command = validation.command
   if (command === undefined)
     return Object.freeze({ snapshot, issues: validation.issues, applied: false })
-  if (command.expectedRevision !== undefined && command.expectedRevision !== snapshot.revision)
+  if (command.expectedRevision !== snapshot.revision)
     return failure(
       snapshot,
       'stale-revision',
@@ -766,6 +783,17 @@ export const applyCommand = (
       )
     nodes[index] = Object.freeze({ ...node, parameters: parameters.value })
   } else if (command.kind === 'bind-input') {
+    if (
+      valueTypes !== undefined &&
+      valueTypes.get(command.input.valueType.id, command.input.valueType.version) === undefined
+    ) {
+      return failure(
+        snapshot,
+        'invalid-type',
+        '/input/valueType',
+        `Unknown value type ${command.input.valueType.id}@${command.input.valueType.version}`,
+      )
+    }
     for (const node of nodes) {
       const definition = operations.get(node.operation.id, node.operation.version)
       for (const connection of node.inputs) {
@@ -874,4 +902,75 @@ export const applyCommand = (
     roiSet,
   })
   return Object.freeze({ snapshot: next, issues: Object.freeze([]), applied: true })
+}
+
+/** Apply a proposed command sequence atomically and advance the workspace revision exactly once. */
+export const applyCommands = (
+  snapshot: AnalysisWorkspaceSnapshot,
+  input: unknown,
+  operations: OperationRegistry,
+  limits: Readonly<AnalysisLimits> = {},
+  roiContext?: Readonly<AnalysisWorkspaceRoiContext>,
+  valueTypes?: ValueTypeRegistry,
+): AnalysisCommandApplication => {
+  if (
+    !isRecord(input) ||
+    !hasOnlyKeys(input, ['expectedRevision', 'commands']) ||
+    safeRevision(input.expectedRevision) === undefined ||
+    !Array.isArray(input.commands) ||
+    input.commands.length === 0 ||
+    input.commands.length > 10_000
+  ) {
+    return failure(snapshot, 'invalid-graph', '', 'Command batch is invalid')
+  }
+  const expectedRevision = safeRevision(input.expectedRevision)
+  if (expectedRevision !== snapshot.revision) {
+    return failure(
+      snapshot,
+      'stale-revision',
+      '/expectedRevision',
+      `Expected revision ${String(expectedRevision)}; current revision is ${snapshot.revision}`,
+    )
+  }
+  let draft = snapshot
+  const commandIds = new Set<string>()
+  for (let index = 0; index < input.commands.length; index += 1) {
+    const raw = input.commands[index]
+    if (!isRecord(raw)) {
+      return failure(snapshot, 'invalid-graph', `/commands/${index}`, 'Command must be an object')
+    }
+    const id = string(raw.id)
+    if (id !== undefined && commandIds.has(id)) {
+      return failure(snapshot, 'duplicate', `/commands/${index}/id`, `Duplicate command id ${id}`)
+    }
+    if (id !== undefined) commandIds.add(id)
+    const application = applyCommand(
+      draft,
+      { ...raw, expectedRevision: draft.revision },
+      operations,
+      limits,
+      roiContext,
+      valueTypes,
+    )
+    if (!application.applied) {
+      return Object.freeze({
+        snapshot,
+        applied: false,
+        issues: Object.freeze(
+          application.issues.map((entry) =>
+            Object.freeze({
+              ...entry,
+              path: `/commands/${index}${entry.path}`,
+            }),
+          ),
+        ),
+      })
+    }
+    draft = application.snapshot
+  }
+  return Object.freeze({
+    snapshot: Object.freeze({ ...draft, revision: snapshot.revision + 1 }),
+    issues: Object.freeze([]),
+    applied: true,
+  })
 }

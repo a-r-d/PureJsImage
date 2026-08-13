@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createAnalysisController, type AnalysisGraph } from '../src/analysis/index.ts'
 import type { OperationMigration } from '../src/analysis/index.ts'
 import { createExtensionHost } from '../src/extensions/index.ts'
 import {
@@ -43,6 +44,11 @@ const operation = createOperationDefinition({
     execution: 'reduction',
     reproducibility: { class: 'backend-stable' },
   },
+  inferOutputShapes: () => ({
+    valid: true,
+    issues: Object.freeze([]),
+    value: Object.freeze([Object.freeze({ kind: 'scalar' })]),
+  }),
 })
 
 const provider = createOperationProvider({
@@ -52,7 +58,32 @@ const provider = createOperationProvider({
     kind: 'reference',
     buildFingerprint: 'example-reference-1',
   },
-  prepare: async () => [],
+  prepare: async () => [
+    {
+      descriptor: {
+        operationId: operation.descriptor.id,
+        operationVersion: operation.descriptor.version,
+        implementationVersion: '1.0.0',
+      },
+      supportsPlan: () => true,
+      estimatePlan: () => ({
+        setupMilliseconds: 0,
+        transferMilliseconds: 0,
+        computeMilliseconds: 1,
+        readbackMilliseconds: 0,
+        retainedBytes: 8,
+        peakWorkingBytes: 8,
+        transferBytes: 0,
+        outputBytes: 8,
+        confidence: 1,
+      }),
+      async execute(request) {
+        const input = request.inputs[0]
+        if (typeof input !== 'number') throw new TypeError('Expected numeric cube fixture')
+        return Object.freeze([Object.freeze({ value: input / 2, release() {} })])
+      },
+    },
+  ],
 })
 
 const migration: OperationMigration = Object.freeze({
@@ -83,6 +114,7 @@ describe('trusted extension bundles', () => {
         },
       ],
     })
+    expect(host.providers).toEqual([provider])
     expect(host.manifest.providers).toEqual([])
     const prepared = await host.prepare()
     expect(prepared.manifest.providers.map((entry) => entry.id)).toEqual(['example.reference'])
@@ -102,6 +134,68 @@ describe('trusted extension bundles', () => {
     expect(JSON.parse(json)).toEqual(prepared.manifest)
     await prepared.dispose()
     await prepared.dispose()
+  })
+
+  it('executes an installed extension operation through AnalysisController', async () => {
+    const host = createExtensionHost({
+      extensions: [
+        {
+          descriptor: { id: 'example.science', version: 1, apiVersion: 1 },
+          valueTypes: [valueType, resultType],
+          operations: [operation],
+          providers: [provider],
+        },
+      ],
+    })
+    const controller = createAnalysisController({
+      operations: host.operations,
+      valueTypes: host.valueTypes,
+      providers: host.providers,
+      migrations: host.analysisMigrations,
+      library: { version: 'test', buildFingerprint: 'extension-e2e' },
+    })
+    const graph: AnalysisGraph = Object.freeze({
+      schemaVersion: 1,
+      inputs: Object.freeze([
+        Object.freeze({ name: 'cube', valueType: { id: 'example.data.cube', version: 1 } }),
+      ]),
+      nodes: Object.freeze([
+        Object.freeze({
+          id: 'mean',
+          operation: Object.freeze({ id: 'example.analysis.mean', version: 1 }),
+          inputs: Object.freeze([
+            Object.freeze({ port: 'cube', source: { kind: 'input' as const, input: 'cube' } }),
+          ]),
+          parameters: Object.freeze({}),
+        }),
+      ]),
+      outputs: Object.freeze([
+        Object.freeze({
+          name: 'mean',
+          source: { kind: 'node' as const, nodeId: 'mean', output: 'mean' },
+        }),
+      ]),
+    })
+    const plan = await controller.planGraph(graph, {
+      bindings: {
+        cube: {
+          value: 84,
+          valueType: { id: 'example.data.cube', version: 1 },
+          identity: { kind: 'application-defined', namespace: 'example.cube', value: 'fixture-84' },
+        },
+      },
+      policy: { mode: 'reference-only' },
+    })
+    const execution = await controller.executeGraph(plan).result
+    expect(execution.outputs.get('mean')).toBe(42)
+    expect(execution.provenance.nodes).toMatchObject([
+      {
+        provider: { id: 'example.reference' },
+        implementation: { implementationVersion: '1.0.0' },
+      },
+    ])
+    await execution.release()
+    await plan.dispose()
   })
 
   it('rejects collisions and incompatible API versions without mutating another host', () => {
