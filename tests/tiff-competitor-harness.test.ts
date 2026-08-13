@@ -55,8 +55,8 @@ describe('TIFF competitor conformance harness', () => {
       schemaVersion: 3,
       purejsimage: {
         packageVersion: '0.10.0',
-        gitCommit: '2ca294b60577cc0fe1ffac89952375c3f619348c',
-        dirty: true,
+        gitCommit: '3be45301e877c8811c42102f1403bf211d8253cf',
+        dirty: false,
       },
     })
   })

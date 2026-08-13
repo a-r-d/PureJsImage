@@ -1355,17 +1355,13 @@ to own only generic descriptors, definitions, providers, and registries.
     The refreshed exact tarball and lockfile pass two unit tests, a strict production build, and
     three real Chromium E2E workflows in the separate repository.
 
-    PureJsImage passes a clean install, the packed external fixture on Node 24 and minimum-supported
-    Node 22, browser/type/lint/format gates, 45 focused application and ordinary-pipeline tests, 12
-    real Chromium ordinary-demo/scientific tests, the correctness-gated application benchmark, and
-    release fuzz with seed `1592598566` and 512
-    mutations per registered codec with no crash artifacts. The 376-file tarball is 778,585 bytes
-    (`sha512-1oqv...tkJuw==`); installed imports create no Worker, fetch, interval, or package global.
-    `npm run check` is still red: 1,150 tests pass and the same three unrelated expanded 12-bit AVIF
-    Sharp-oracle hashes fail, so the hostile-source phase does not run. This prompt therefore stays
-    unchecked and the prerelease candidate is **not release-ready** until that existing AVIF gate is
-    reconciled and the complete check passes. No version, tag, push, publication, or GitHub release
-    was created; the reviewed PR 10 code can be committed independently of release state.
+    The earlier AVIF oracle failures were reconciled before the authorized 0.10.0 release candidate.
+    On 2026-08-13, PureJsImage passed the complete standard and hostile-source `npm run check` gate
+    with 1,253 tests in each phase, all 79 real Chromium tests, the correctness-gated application and
+    connected-components benchmarks, and release fuzz with seed `1592598566` and 512 mutations per
+    registered codec with no crash artifacts. The candidate package contains 398 files and is
+    835,451 bytes compressed (`sha512-61kekgp4...SSOv+Rg==`). Exact tarball and tag evidence is
+    recorded in the 0.10.0 release notes and release handoff.
 
 ### Post-PR 10 review follow-up
 

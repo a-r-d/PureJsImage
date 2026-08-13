@@ -460,7 +460,7 @@ A capability is **Yes** only when upstream documentation or source supports it; 
 
 | Library | Runtime model | Browser | BigTIFF | Tiles | Region decode | Native scientific raster | OME / whole-slide semantics | Decode coverage |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PureJsImage benchmark snapshot · 2ca294b · dirty | Strict TypeScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>47 pixel mismatches<br>2 oracle-unavailable cases |
+| PureJsImage benchmark snapshot · 3be4530 | Strict TypeScript | Yes | Yes | Yes | Yes | Yes | Yes | 104/106 decoded<br>57 exact<br>47 pixel mismatches<br>2 oracle-unavailable cases |
 | GeoTIFF.js 3.0.5 | Pure JavaScript | Yes | Partial | Yes | Yes | Yes | No | 84/106 decoded<br>32 exact<br>52 pixel mismatches<br>11 unsupported · 7 errors · 2 oracle-unavailable cases · 2 crashes |
 | UTIF.js (utif2) 4.1.0 | Pure JavaScript | Yes | No | Yes | No | Partial | No | 74/106 decoded<br>49 exact<br>25 pixel mismatches<br>28 errors · 2 oracle-unavailable cases · 2 timeouts · 3 crashes |
 | image-js/tiff 7.1.3 | Pure JavaScript | Yes | No | Yes | No | Yes | No | 41/106 decoded<br>27 exact<br>14 pixel mismatches<br>51 unsupported · 12 errors · 2 oracle-unavailable cases |

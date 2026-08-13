@@ -98,17 +98,25 @@ or release budgets.
 
 ## Release validation
 
-The release manager records one coherent candidate audit for the exact release commit before
-tagging:
+The 2026-08-13 release candidate passed the complete `npm run check` gate, including 1,253 tests in
+both the standard and hostile-source phases, and release fuzz with seed `1592598566` and 512
+mutations per registered codec with no crash artifacts. `npm run browser:test -- --project=chromium`
+passed all 79 tests in Google Chrome for Testing 151.0.7922.34.
 
-- final candidate commit SHA and clean status;
-- complete `npm run check` result, including the hostile-source phase;
-- clean install/package-consumer result on the declared minimum Node version and current CI Node;
-- real modern-browser test command, browser/version, and result;
-- exact `npm pack --dry-run` file/byte counts, tarball SHA-256, and npm integrity;
-- exact repository URL and commit of the separate materials application tested against that same
-  tarball;
-- benchmark host CPU/OS/runtime, command, input corpus identity, and result artifact; and
-- any remaining failure linked to a GitHub issue rather than described as an evergreen exception.
+The packed package contains 398 files, is 835,451 bytes compressed and 4,051,129 bytes unpacked,
+and has SHA-256
+`73c7da251659092c7f78193ed427a834c8455a75842b89efd032cd550279ccf4` and npm integrity
+`sha512-61kekgp4drzmsufXoTa53sMtk4WGNkeKeNiqwjvACDmyLWtBQdWdFfZfFAxSLziPAYXLlhMJRsquDg5SSOv+Rg==`.
+The package-consumer gate passed on Node 24.16.0; the final tarball is also smoke-tested on the
+declared minimum Node 22 before tagging.
 
-Do not replace these fields with evidence from an earlier SHA.
+The correctness-gated application-platform and connected-components benchmarks passed on x86-64
+Linux 6.17.0-41-generic with Node 24.16.0. The TIFF comparison was regenerated from the pinned
+codec-corpus TIFF conformance corpus against clean PureJsImage snapshot
+`3be45301e877c8811c42102f1403bf211d8253cf`: 154 files attempted, 104 of 106 RGBA-comparable files
+decoded, 57 exact, 47 pixel mismatches, two oracle-unavailable cases, 44 native scientific rasters,
+and all four malformed inputs rejected.
+
+The separate materials spike remains the independently installed-tarball validation described in
+the application-platform checklist. It was intentionally created as an uncommitted local spike, so
+it has no repository URL or commit SHA to cite as release evidence.

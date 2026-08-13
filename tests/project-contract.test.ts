@@ -265,7 +265,7 @@ describe('package contract', () => {
     expect(comparison).toContain('Grouped by TIFF workflow')
     expect(comparison).toContain('Not verified')
     expect(comparison).toContain('Versioned evidence')
-    expect(readme).toContain('PureJsImage benchmark snapshot · 2ca294b · dirty')
+    expect(readme).toContain('PureJsImage benchmark snapshot · 3be4530')
     expect(readme).toContain(
       '104/106 decoded<br>57 exact<br>47 pixel mismatches<br>2 oracle-unavailable cases',
     )
@@ -288,7 +288,7 @@ describe('package contract', () => {
     expect(docsHome).toContain('Jimp uses utif2 for TIFF internally')
     expect(tiffGuide).toContain('Decoded / comparable')
     expect(comparison).toContain(
-      'benchmark snapshot at commit 2ca294b60577cc0fe1ffac89952375c3f619348c',
+      'benchmark snapshot at commit 3be45301e877c8811c42102f1403bf211d8253cf',
     )
     expect(comparison).toContain('Decode coverage, exact pixels, and reported outcomes')
     expect(comparison).toContain('Oracle unavailable')
