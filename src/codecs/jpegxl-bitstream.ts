@@ -689,10 +689,32 @@ export const readJpegXlEntropyCode = (
   })
 }
 
+// Signed (x, y) offsets for JPEG XL's 120 format-defined LZ77 special distances.
+const jpegXlSpecialDistances = new Int8Array([
+  0, 1, 1, 0, 1, 1, -1, 1, 0, 2, 2, 0, 1, 2, -1, 2, 2, 1, -2, 1, 2, 2, -2, 2, 0, 3, 3, 0, 1, 3, -1,
+  3, 3, 1, -3, 1, 2, 3, -2, 3, 3, 2, -3, 2, 0, 4, 4, 0, 1, 4, -1, 4, 4, 1, -4, 1, 3, 3, -3, 3, 2, 4,
+  -2, 4, 4, 2, -4, 2, 0, 5, 3, 4, -3, 4, 4, 3, -4, 3, 5, 0, 1, 5, -1, 5, 5, 1, -5, 1, 2, 5, -2, 5,
+  5, 2, -5, 2, 4, 4, -4, 4, 3, 5, -3, 5, 5, 3, -5, 3, 0, 6, 6, 0, 1, 6, -1, 6, 6, 1, -6, 1, 2, 6,
+  -2, 6, 6, 2, -6, 2, 4, 5, -4, 5, 5, 4, -5, 4, 3, 6, -3, 6, 6, 3, -6, 3, 0, 7, 7, 0, 1, 7, -1, 7,
+  5, 5, -5, 5, 7, 1, -7, 1, 4, 6, -4, 6, 6, 4, -6, 4, 2, 7, -2, 7, 7, 2, -7, 2, 3, 7, -3, 7, 7, 3,
+  -7, 3, 5, 6, -5, 6, 6, 5, -6, 5, 8, 0, 4, 7, -4, 7, 7, 4, -7, 4, 8, 1, 8, 2, 6, 6, -6, 6, 8, 3, 5,
+  7, -5, 7, 7, 5, -7, 5, 8, 4, 6, 7, -6, 7, 7, 6, -7, 6, 8, 5, 7, 7, -7, 7, 8, 6, 8, 7,
+])
+const JPEG_XL_SPECIAL_DISTANCE_COUNT = jpegXlSpecialDistances.length / 2
+
+const jpegXlSpecialDistance = (index: number, multiplier: number): number =>
+  Math.max(
+    1,
+    (jpegXlSpecialDistances[index * 2] ?? 0) +
+      multiplier * (jpegXlSpecialDistances[index * 2 + 1] ?? 0),
+  )
+
 export class JpegXlEntropySymbolReader {
   readonly #code: JpegXlEntropyCode
   readonly #maximumSymbols: number
   readonly #window: Uint32Array | undefined
+  readonly #windowMask: number
+  readonly #distanceMultiplier: number
   #symbolsRead = 0
   #windowLength = 0
   #writePosition = 0
@@ -700,13 +722,19 @@ export class JpegXlEntropySymbolReader {
   #remainingCopies = 0
   #ansState: number | undefined
 
-  constructor(code: JpegXlEntropyCode, maximumSymbols = 67_108_864) {
+  constructor(code: JpegXlEntropyCode, maximumSymbols = 67_108_864, distanceMultiplier = 0) {
     if (!Number.isSafeInteger(maximumSymbols) || maximumSymbols < 1) {
       throw invalidInput('JPEG XL entropy symbol limit is invalid')
     }
+    if (!Number.isSafeInteger(distanceMultiplier) || distanceMultiplier < 0) {
+      throw invalidInput('JPEG XL LZ77 distance multiplier is invalid')
+    }
     this.#code = code
     this.#maximumSymbols = maximumSymbols
-    this.#window = code.lz77.enabled ? new Uint32Array(1_048_576) : undefined
+    this.#distanceMultiplier = distanceMultiplier
+    const windowCapacity = 2 ** Math.ceil(Math.log2(Math.min(maximumSymbols, 1_048_576)))
+    this.#window = code.lz77.enabled ? new Uint32Array(windowCapacity) : undefined
+    this.#windowMask = windowCapacity - 1
   }
 
   hasValidFinalState(): boolean {
@@ -725,7 +753,7 @@ export class JpegXlEntropySymbolReader {
     if (this.#remainingCopies > 0) {
       const copied = this.#window?.[this.#copyPosition]
       if (copied === undefined) throw invalidInput('JPEG XL LZ77 reference is invalid')
-      this.#copyPosition = (this.#copyPosition + 1) & 1_048_575
+      this.#copyPosition = (this.#copyPosition + 1) & this.#windowMask
       this.#remainingCopies -= 1
       this.#append(copied)
       return copied
@@ -746,11 +774,18 @@ export class JpegXlEntropySymbolReader {
       const distanceToken = this.#readToken(this.#code.lz77.distanceContext, reader)
       const distanceConfig = this.#code.uintConfigs[this.#code.lz77.distanceContext]
       if (!distanceConfig) throw invalidInput('JPEG XL LZ77 distance configuration is missing')
-      const distance = readJpegXlHybridUint(reader, distanceConfig, distanceToken) + 1
-      if (distance > this.#windowLength || distance > 1_048_576) {
+      const distanceCode = readJpegXlHybridUint(reader, distanceConfig, distanceToken)
+      const distance =
+        this.#distanceMultiplier === 0
+          ? distanceCode + 1
+          : distanceCode < JPEG_XL_SPECIAL_DISTANCE_COUNT
+            ? jpegXlSpecialDistance(distanceCode, this.#distanceMultiplier)
+            : distanceCode + 1 - JPEG_XL_SPECIAL_DISTANCE_COUNT
+      const windowCapacity = this.#window?.length ?? 1_048_576
+      if (distance > this.#windowLength || distance > windowCapacity) {
         throw invalidInput('JPEG XL LZ77 distance is invalid')
       }
-      this.#copyPosition = (this.#writePosition - distance + 1_048_576) & 1_048_575
+      this.#copyPosition = (this.#writePosition - distance + windowCapacity) & this.#windowMask
       return this.#readHybridUint(context, reader)
     }
     const config = this.#code.uintConfigs[histogram]
@@ -785,7 +820,7 @@ export class JpegXlEntropySymbolReader {
   #append(value: number): void {
     if (!this.#window) throw invalidInput('JPEG XL LZ77 window is missing')
     this.#window[this.#writePosition] = value
-    this.#writePosition = (this.#writePosition + 1) & 1_048_575
-    this.#windowLength = Math.min(1_048_576, this.#windowLength + 1)
+    this.#writePosition = (this.#writePosition + 1) & this.#windowMask
+    this.#windowLength = Math.min(this.#window.length, this.#windowLength + 1)
   }
 }

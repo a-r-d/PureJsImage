@@ -21,6 +21,7 @@ const significanceContext = (
   x: number,
   y: number,
   band: Jpeg2000Subband,
+  verticalCausal = false,
 ): number => {
   const index = y * width + x
   let horizontal = 0
@@ -28,13 +29,13 @@ const significanceContext = (
   let diagonal = 0
   if (x > 0 && magnitude[index - 1] !== 0) horizontal += 1
   if (x + 1 < width && magnitude[index + 1] !== 0) horizontal += 1
-  if (y > 0 && magnitude[index - width] !== 0) vertical += 1
-  if (y + 1 < height && magnitude[index + width] !== 0) vertical += 1
   if (y > 0) {
+    if (magnitude[index - width] !== 0) vertical += 1
     if (x > 0 && magnitude[index - width - 1] !== 0) diagonal += 1
     if (x + 1 < width && magnitude[index - width + 1] !== 0) diagonal += 1
   }
-  if (y + 1 < height) {
+  if (y + 1 < height && (!verticalCausal || (y & 3) !== 3)) {
+    if (magnitude[index + width] !== 0) vertical += 1
     if (x > 0 && magnitude[index + width - 1] !== 0) diagonal += 1
     if (x + 1 < width && magnitude[index + width + 1] !== 0) diagonal += 1
   }
@@ -73,6 +74,7 @@ const decodeSign = (
   height: number,
   x: number,
   y: number,
+  verticalCausal: boolean,
 ): number => {
   const index = y * width + x
   let horizontal = 0
@@ -83,8 +85,9 @@ const decodeSign = (
     horizontal += signedContribution(negative[index + 1] ?? 0)
   if (y > 0 && magnitude[index - width] !== 0)
     vertical += signedContribution(negative[index - width] ?? 0)
-  if (y + 1 < height && magnitude[index + width] !== 0)
+  if (y + 1 < height && (!verticalCausal || (y & 3) !== 3) && magnitude[index + width] !== 0) {
     vertical += signedContribution(negative[index + width] ?? 0)
+  }
   horizontal = Math.max(-1, Math.min(1, horizontal))
   vertical = Math.max(-1, Math.min(1, vertical))
 
@@ -104,9 +107,20 @@ const markSignificant = (
   height: number,
   x: number,
   y: number,
+  verticalCausal: boolean,
 ): void => {
   const index = y * width + x
-  negative[index] = decodeSign(decoder, contexts, magnitude, negative, width, height, x, y)
+  negative[index] = decodeSign(
+    decoder,
+    contexts,
+    magnitude,
+    negative,
+    width,
+    height,
+    x,
+    y,
+    verticalCausal,
+  )
   magnitude[index] = 1
   flags[index] = (flags[index] ?? 0) | newlySignificant
 }
@@ -117,7 +131,8 @@ const hasSignificantNeighbor = (
   height: number,
   x: number,
   y: number,
-): boolean => significanceContext(magnitude, width, height, x, y, 'LL') !== 0
+  verticalCausal: boolean,
+): boolean => significanceContext(magnitude, width, height, x, y, 'LL', verticalCausal) !== 0
 
 const propagationPass = (
   decoder: Jpeg2000MqDecoder,
@@ -129,6 +144,7 @@ const propagationPass = (
   width: number,
   height: number,
   band: Jpeg2000Subband,
+  verticalCausal: boolean,
 ): void => {
   for (let stripe = 0; stripe < height; stripe += 4) {
     for (let x = 0; x < width; x += 1) {
@@ -136,12 +152,26 @@ const propagationPass = (
       for (let y = stripe; y < stripeEnd; y += 1) {
         const index = y * width + x
         flags[index] = (flags[index] ?? 0) & ~processed
-        if (magnitude[index] !== 0 || !hasSignificantNeighbor(magnitude, width, height, x, y)) {
+        if (
+          magnitude[index] !== 0 ||
+          !hasSignificantNeighbor(magnitude, width, height, x, y, verticalCausal)
+        ) {
           continue
         }
-        const context = significanceContext(magnitude, width, height, x, y, band)
+        const context = significanceContext(magnitude, width, height, x, y, band, verticalCausal)
         if (decoder.read(contexts, context) === 1) {
-          markSignificant(decoder, contexts, magnitude, negative, flags, width, height, x, y)
+          markSignificant(
+            decoder,
+            contexts,
+            magnitude,
+            negative,
+            flags,
+            width,
+            height,
+            x,
+            y,
+            verticalCausal,
+          )
         }
         decoded[index] = (decoded[index] ?? 0) + 1
         flags[index] = (flags[index] ?? 0) | processed
@@ -158,6 +188,7 @@ const refinementPass = (
   decoded: Uint8Array,
   width: number,
   height: number,
+  verticalCausal: boolean,
 ): void => {
   for (let stripe = 0; stripe < height; stripe += 4) {
     for (let x = 0; x < width; x += 1) {
@@ -168,7 +199,7 @@ const refinementPass = (
         let context = 16
         if (((flags[index] ?? 0) & newlySignificant) !== 0) {
           flags[index] = (flags[index] ?? 0) & ~newlySignificant
-          context = hasSignificantNeighbor(magnitude, width, height, x, y) ? 14 : 15
+          context = hasSignificantNeighbor(magnitude, width, height, x, y, verticalCausal) ? 14 : 15
         }
         magnitude[index] = ((magnitude[index] ?? 0) << 1) | decoder.read(contexts, context)
         decoded[index] = (decoded[index] ?? 0) + 1
@@ -188,6 +219,7 @@ const cleanupPass = (
   width: number,
   height: number,
   band: Jpeg2000Subband,
+  verticalCausal: boolean,
 ): void => {
   for (let stripe = 0; stripe < height; stripe += 4) {
     const stripeEnd = Math.min(height, stripe + 4)
@@ -197,7 +229,10 @@ const cleanupPass = (
         let empty = true
         for (let y = stripe; y < stripeEnd; y += 1) {
           const index = y * width + x
-          if (flags[index] !== 0 || hasSignificantNeighbor(magnitude, width, height, x, y)) {
+          if (
+            flags[index] !== 0 ||
+            hasSignificantNeighbor(magnitude, width, height, x, y, verticalCausal)
+          ) {
             empty = false
             break
           }
@@ -213,7 +248,18 @@ const cleanupPass = (
           const row =
             (decoder.read(contexts, uniformContext) << 1) | decoder.read(contexts, uniformContext)
           const y = stripe + row
-          markSignificant(decoder, contexts, magnitude, negative, flags, width, height, x, y)
+          markSignificant(
+            decoder,
+            contexts,
+            magnitude,
+            negative,
+            flags,
+            width,
+            height,
+            x,
+            y,
+            verticalCausal,
+          )
           for (let prior = stripe; prior <= y; prior += 1) {
             const index = prior * width + x
             decoded[index] = (decoded[index] ?? 0) + 1
@@ -224,9 +270,20 @@ const cleanupPass = (
       for (let y = firstRow; y < stripeEnd; y += 1) {
         const index = y * width + x
         if (magnitude[index] !== 0 || ((flags[index] ?? 0) & processed) !== 0) continue
-        const context = significanceContext(magnitude, width, height, x, y, band)
+        const context = significanceContext(magnitude, width, height, x, y, band, verticalCausal)
         if (decoder.read(contexts, context) === 1) {
-          markSignificant(decoder, contexts, magnitude, negative, flags, width, height, x, y)
+          markSignificant(
+            decoder,
+            contexts,
+            magnitude,
+            negative,
+            flags,
+            width,
+            height,
+            x,
+            y,
+            verticalCausal,
+          )
         }
         decoded[index] = (decoded[index] ?? 0) + 1
       }
@@ -241,9 +298,21 @@ export const decodeJpeg2000CodeBlock = (options: {
   readonly band: Jpeg2000Subband
   readonly zeroBitPlanes: number
   readonly codingPasses: number
+  readonly resetContexts?: boolean
   readonly segmentationSymbols: boolean
+  readonly verticalCausal?: boolean
 }): Jpeg2000CodeBlockResult => {
-  const { data, width, height, band, zeroBitPlanes, codingPasses, segmentationSymbols } = options
+  const {
+    data,
+    width,
+    height,
+    band,
+    zeroBitPlanes,
+    codingPasses,
+    resetContexts = false,
+    verticalCausal = false,
+    segmentationSymbols,
+  } = options
   if (width < 1 || height < 1 || width * height > 4096) {
     throw invalidInput(`JPEG 2000 code-block dimensions ${width}x${height} are invalid`)
   }
@@ -256,17 +325,39 @@ export const decodeJpeg2000CodeBlock = (options: {
   const flags = new Uint8Array(count)
   const decoded = new Uint8Array(count)
   decoded.fill(zeroBitPlanes)
-  const contexts = createJpeg2000Contexts()
+  let contexts = createJpeg2000Contexts()
   const decoder = new Jpeg2000MqDecoder(data)
 
   let pass = 2
   for (let index = 0; index < codingPasses; index += 1) {
     if (pass === 0) {
-      propagationPass(decoder, contexts, magnitude, negative, flags, decoded, width, height, band)
+      propagationPass(
+        decoder,
+        contexts,
+        magnitude,
+        negative,
+        flags,
+        decoded,
+        width,
+        height,
+        band,
+        verticalCausal,
+      )
     } else if (pass === 1) {
-      refinementPass(decoder, contexts, magnitude, flags, decoded, width, height)
+      refinementPass(decoder, contexts, magnitude, flags, decoded, width, height, verticalCausal)
     } else {
-      cleanupPass(decoder, contexts, magnitude, negative, flags, decoded, width, height, band)
+      cleanupPass(
+        decoder,
+        contexts,
+        magnitude,
+        negative,
+        flags,
+        decoded,
+        width,
+        height,
+        band,
+        verticalCausal,
+      )
       if (segmentationSymbols) {
         const symbol =
           (decoder.read(contexts, uniformContext) << 3) |
@@ -276,6 +367,7 @@ export const decodeJpeg2000CodeBlock = (options: {
         if (symbol !== 0x0a) throw invalidInput('JPEG 2000 segmentation symbol is invalid')
       }
     }
+    if (resetContexts) contexts = createJpeg2000Contexts()
     pass = (pass + 1) % 3
   }
   return { magnitude, negative, decodedBitPlanes: decoded }

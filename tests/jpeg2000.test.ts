@@ -7,9 +7,17 @@ import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { createJpeg2000CodestreamDecoder, jpeg2000Codec } from '../src/codecs/jpeg2000.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { createNodeImageLibrary } from '../src/node-image.ts'
+import { defaultImageLimits } from '../src/limits.ts'
+import { MemorySource } from '../src/source.ts'
+import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 
 const images = createNodeImageLibrary([jpeg2000Codec, pngCodec, jpegCodec])
 const fixture = (name: string): Promise<Buffer> => readFile(`benchmark/corpus/files/jp2/${name}`)
+// ImageMagick 7.1.2-3 / OpenJPEG 2.5.3, lossless 2x2 straight-alpha RGBA.
+const openJpegAlpha = Buffer.from(
+  'AAAADGpQICANCocKAAAAFGZ0eXBqcDIgAAAAAGpwMiAAAABPanAyaAAAABZpaGRyAAAAAgAAAAIABAcHAAAAAAAPY29scgEAAAAAABAAAAAiY2RlZgAEAAAAAAABAAEAAAACAAIAAAADAAMAAQAAAAAAqmpwMmP/T/9RADIAAAAAAAIAAAACAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAQHAQEHAQEHAQEHAQH/UgAMAAAAAQABBAQAAf9cAAdAQEhIUP9kACUAAUNyZWF0ZWQgYnkgT3BlbkpQRUcgdmVyc2lvbiAyLjUuM/+QAAoAAAAAACwAAf+TgICAgJPyAgDfz7AEAKfYAgDH2AM+wCg+YCAIBt8A/9k=',
+  'base64',
+)
 
 const asciiOffset = (data: Uint8Array, value: string): number => {
   for (let offset = 0; offset + value.length <= data.byteLength; offset += 1) {
@@ -24,6 +32,139 @@ const asciiOffset = (data: Uint8Array, value: string): number => {
   }
   return -1
 }
+
+const markerOffset = (data: Uint8Array, marker: number, start = 0): number => {
+  for (let offset = start; offset + 1 < data.byteLength; offset += 1) {
+    if (data[offset] === 0xff && data[offset + 1] === marker) return offset
+  }
+  return -1
+}
+
+const appendEmptyTilePart = (input: Buffer): Buffer => {
+  const codestreamType = asciiOffset(input, 'jp2c')
+  const tilePart = markerOffset(input, 0x90, codestreamType + 4)
+  const end = markerOffset(input, 0xd9, tilePart)
+  if (codestreamType < 4 || tilePart < 0 || end < 0)
+    throw new Error('JP2 fixture markers are missing')
+  const output = Buffer.alloc(input.byteLength + 14)
+  input.copy(output, 0, 0, end)
+  input.copy(output, end + 14, end)
+  output.writeUInt32BE(input.readUInt32BE(codestreamType - 4) + 14, codestreamType - 4)
+  output[tilePart + 11] = 2
+  output.set(
+    Buffer.from([
+      0xff,
+      0x90,
+      0,
+      10,
+      input[tilePart + 4] ?? 0,
+      input[tilePart + 5] ?? 0,
+      0,
+      0,
+      0,
+      14,
+      1,
+      2,
+      0xff,
+      0x93,
+    ]),
+    end,
+  )
+  return output
+}
+
+const setCodeBlockStyle = (input: Buffer, flags: number): Buffer => {
+  const output = Buffer.from(input)
+  const codestreamType = asciiOffset(output, 'jp2c')
+  const codingStyle = markerOffset(output, 0x52, codestreamType + 4)
+  if (codingStyle < 0) throw new Error('JP2 fixture COD marker is missing')
+  output[codingStyle + 12] = flags
+  return output
+}
+
+const insertMaxshiftRoi = (input: Buffer, shift: number): Buffer => {
+  const codestreamType = asciiOffset(input, 'jp2c')
+  const tilePart = markerOffset(input, 0x90, codestreamType + 4)
+  if (codestreamType < 4 || tilePart < 0) throw new Error('JP2 fixture markers are missing')
+  const marker = Buffer.from([0xff, 0x5e, 0, 5, 0, 0, shift])
+  const output = Buffer.concat([input.subarray(0, tilePart), marker, input.subarray(tilePart)])
+  output.writeUInt32BE(
+    input.readUInt32BE(codestreamType - 4) + marker.byteLength,
+    codestreamType - 4,
+  )
+  return output
+}
+
+const jp2Box = (type: string, content: Uint8Array): Buffer => {
+  const output = Buffer.alloc(8 + content.byteLength)
+  output.writeUInt32BE(output.byteLength, 0)
+  output.write(type, 4, 'ascii')
+  output.set(content, 8)
+  return output
+}
+
+const withRgbIccProfile = (input: Buffer, profile: Uint8Array): Buffer => {
+  const headerType = asciiOffset(input, 'jp2h')
+  const colorType = asciiOffset(input, 'colr')
+  if (headerType < 4 || colorType < 4) throw new Error('JP2 color boxes are missing')
+  const colorStart = colorType - 4
+  const colorLength = input.readUInt32BE(colorStart)
+  const content = Buffer.concat([Buffer.from([2, 0, 0]), profile])
+  const replacement = Buffer.alloc(8 + content.byteLength)
+  replacement.writeUInt32BE(replacement.byteLength, 0)
+  replacement.write('colr', 4, 'ascii')
+  replacement.set(content, 8)
+  const output = Buffer.concat([
+    input.subarray(0, colorStart),
+    replacement,
+    input.subarray(colorStart + colorLength),
+  ])
+  output.writeUInt32BE(
+    input.readUInt32BE(headerType - 4) + replacement.byteLength - colorLength,
+    headerType - 4,
+  )
+  return output
+}
+
+const withRgbPalette = (input: Buffer): Buffer => {
+  const headerType = asciiOffset(input, 'jp2h')
+  const colorType = asciiOffset(input, 'colr')
+  if (headerType < 4 || colorType < 4) throw new Error('JP2 color boxes are missing')
+  const entries = 65_535
+  const paletteContent = Buffer.alloc(6 + entries * 3)
+  paletteContent.writeUInt16BE(entries, 0)
+  paletteContent[2] = 3
+  paletteContent.set([7, 7, 7], 3)
+  for (let index = 0; index < entries; index += 1) {
+    const value = index >>> 8
+    const offset = 6 + index * 3
+    paletteContent[offset] = value
+    paletteContent[offset + 1] = 0
+    paletteContent[offset + 2] = 255 - value
+  }
+  const mapping = jp2Box('cmap', Buffer.from([0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 2]))
+  const definitions = jp2Box(
+    'cdef',
+    Buffer.from([0, 3, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 2, 0, 2, 0, 0, 0, 3]),
+  )
+  const extra = Buffer.concat([jp2Box('pclr', paletteContent), mapping, definitions])
+  const headerStart = headerType - 4
+  const headerEnd = headerStart + input.readUInt32BE(headerStart)
+  const output = Buffer.concat([input.subarray(0, headerEnd), extra, input.subarray(headerEnd)])
+  output.writeUInt32BE(input.readUInt32BE(headerStart) + extra.byteLength, headerStart)
+  output.writeUInt32BE(16, colorType + 7)
+  return output
+}
+// ImageMagick 7.1.2-3 / OpenJPEG 2.5.3, 8-bit RGBA output.
+const resetContextOracle = Buffer.from(
+  'DQ0N/wkJCf8EBAT/AAAA/wAAAP8AAAD/AgIC/wYGBv8JCQn/MjIy/zIyMv8zMzP/NDQ0/zQ0NP80NDT/MzMz/zMzM/8yMjL/VlZW/1xcXP9iYmL/aGho/25ubv9qamr/ZWVl/2BgYP9bW1v/h4eH/4mJif+Kior/jIyM/46Ojv+MjIz/i4uL/4qKiv+IiIj/t7e3/7W1tf+ysrL/sLCw/62trf+vr6//sbGx/7Ozs/+1tbX/3Nzc/9ra2v/Y2Nj/1dXV/9PT0//V1dX/19fX/9jY2P/a2tr////////////9/f3/+vr6//j4+P/6+vr//Pz8//7+/v//////',
+  'base64',
+)
+const verticalCausalOracle = Buffer.from(
+  [0, 42, 85, 127, 170, 212, 255].flatMap((value) =>
+    Array.from({ length: 9 }, () => [value, value, value, 255]).flat(),
+  ),
+)
 
 const pixel = (image: PNG, x: number, y: number): readonly [number, number, number] => {
   const offset = (y * image.width + x) * 4
@@ -77,6 +218,49 @@ describe('JPEG 2000 codec', () => {
     expect(pixel(grayPixels, 8, 6)).toEqual([255, 255, 255])
   })
 
+  it('decodes a cdef-declared straight-alpha JP2 image', async () => {
+    await expect((await images.open(openJpegAlpha)).metadata()).resolves.toMatchObject({
+      width: 2,
+      height: 2,
+      hasAlpha: true,
+      components: 4,
+      channels: 4,
+    })
+    const decoded = PNG.sync.read(await (await images.open(openJpegAlpha)).png().toBuffer())
+    const expected = [255, 0, 0, 255, 0, 255, 0, 144, 0, 0, 255, 80, 255, 255, 255, 16]
+    closePixel(Array.from(decoded.data), expected, 1)
+  })
+
+  it('applies and preserves an embedded RGB matrix/TRC ICC profile', async () => {
+    const source = await fixture('openjpeg-lossless-rgb16.jp2')
+    const profile = channelSwappingRgbProfile()
+    const input = withRgbIccProfile(source, profile)
+    await expect((await images.open(input)).metadata()).resolves.toMatchObject({
+      colorProfile: { kind: 'icc' },
+    })
+    const preserved = await jpeg2000Codec.preservedMetadata?.(
+      new MemorySource(input),
+      defaultImageLimits,
+    )
+    expect(preserved?.icc).toEqual(profile)
+    const decoded = PNG.sync.read(await (await images.open(input)).png().toBuffer())
+    closePixel(pixel(decoded, 0, 0), [0, 0, 255], 1)
+    closePixel(pixel(decoded, 16, 12), [255, 0, 0], 1)
+  })
+
+  it('maps a palette codestream component into ordered RGB channels', async () => {
+    const source = await fixture('openjpeg-lossless-gray16.jp2')
+    const input = withRgbPalette(source)
+    await expect((await images.open(input)).metadata()).resolves.toMatchObject({
+      colorSpace: 'sRGB',
+      components: 1,
+      channels: 3,
+    })
+    const decoded = PNG.sync.read(await (await images.open(input)).png().toBuffer())
+    expect(pixel(decoded, 0, 0)).toEqual([0, 0, 255])
+    closePixel(pixel(decoded, 4, 3), [128, 0, 127], 1)
+    expect(pixel(decoded, 8, 6)).toEqual([255, 0, 0])
+  })
   it('decodes irreversible 9/7 output within the pinned oracle tolerance', async () => {
     const input = await fixture('ffmpeg-lossy-rgb8.jp2')
     const decoded = PNG.sync.read(await (await images.open(input)).png().toBuffer())
@@ -122,6 +306,34 @@ describe('JPEG 2000 codec', () => {
     )
   })
 
+  it('decodes ordered multiple tile-parts for one tile', async () => {
+    const source = await fixture('openjpeg-lossless-rgb16.jp2')
+    const input = appendEmptyTilePart(source)
+    const expected = PNG.sync.read(await (await images.open(source)).png().toBuffer())
+    const decoded = PNG.sync.read(await (await images.open(input)).png().toBuffer())
+    expect(decoded.data).toEqual(expected.data)
+  })
+
+  it('decodes reset-context and vertical-causal code-block styles', async () => {
+    const source = await fixture('openjpeg-lossless-gray16.jp2')
+    const cases = [
+      [0x02, resetContextOracle],
+      [0x08, verticalCausalOracle],
+    ] as const
+    for (const [flags, oracle] of cases) {
+      const input = setCodeBlockStyle(source, flags)
+      const decoded = PNG.sync.read(await (await images.open(input)).png().toBuffer())
+      closePixel(Array.from(decoded.data), Array.from(oracle), 1)
+    }
+  })
+
+  it('reconstructs maxshift region-of-interest coefficients', async () => {
+    const source = await fixture('openjpeg-lossless-gray16.jp2')
+    const input = insertMaxshiftRoi(source, 2)
+    const decoded = PNG.sync.read(await (await images.open(input)).png().toBuffer())
+    closePixel(Array.from(decoded.data), Array.from(verticalCausalOracle), 1)
+  })
+
   it('decodes a raw codestream through the reusable composition API', async () => {
     const input = await fixture('openjpeg-lossless-rgb16.jp2')
     const codestreamType = asciiOffset(input, 'jp2c')
@@ -141,6 +353,30 @@ describe('JPEG 2000 codec', () => {
       128, 0, 128,
     ])
     expect(Array.from(output.subarray(-3))).toEqual([0, 0, 255])
+  })
+
+  it('selects a lower wavelet resolution for scaled decode', async () => {
+    const input = await fixture('openjpeg-lossless-rgb16.jp2')
+    const codestreamType = asciiOffset(input, 'jp2c')
+    if (codestreamType < 0) throw new Error('JP2 codestream box is missing')
+    const decoder = createJpeg2000CodestreamDecoder(input.subarray(codestreamType + 4), {
+      colorSpace: 'rgb',
+    })
+    const output: number[] = []
+    let width = 0
+    let height = 0
+    for await (const block of decoder.decode({ scaleDenominator: 4 })) {
+      width = block.width
+      height += block.height
+      output.push(...block.data)
+    }
+    expect({ width, height }).toEqual({ width: 5, height: 4 })
+    // FFmpeg 8.0 jpeg2000 -lowres 2, rgb24 output.
+    const oracle = Buffer.from(
+      '/wAA/wAA/wAA/wAA/wAAqwBVqwBVqwBVqwBVqwBVVQCrVQCrVQCrVQCrVQCrAAD/AAD/AAD/AAD/AAD/',
+      'base64',
+    )
+    closePixel(output, Array.from(oracle), 1)
   })
 
   it('rejects raw codestreams, non-JP2 brands, invalid box extents, and contradictory dimensions', async () => {

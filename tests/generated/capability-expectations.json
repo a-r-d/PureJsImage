@@ -133,7 +133,11 @@
       "format": "jp2",
       "decoder": true,
       "encoder": false,
-      "evidence": ["tests/jpeg2000.test.ts", "tests/jpeg2000-hardening.test.ts"],
+      "evidence": [
+        "tests/jpeg2000.test.ts",
+        "tests/jpeg2000-hardening.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Pinned FFmpeg and OpenJPEG JP2 fixtures",

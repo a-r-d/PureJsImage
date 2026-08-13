@@ -2752,18 +2752,22 @@
       "name": "JPEG 2000 / JP2",
       "packageFormat": "jp2",
       "read": {
-        "status": "limited",
-        "label": "Limited"
+        "status": "supported",
+        "label": "Yes"
       },
       "write": {
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Static Part 1 JP2 subset; current decoder is a full-frame fallback",
-      "description": "Decodes common static Part 1 JP2 grayscale and RGB images at 1-16 bits with reversible 5/3 or irreversible 9/7 wavelets, all five progression orders, multiple tiles, RCT/ICT, and enumerated grayscale, sRGB, or sYCC color.",
-      "memory": "Current implementation retains full-frame component and output state",
-      "recommendation": "Common static JP2 uploads that fall within the documented subset.",
-      "evidence": ["tests/jpeg2000.test.ts", "tests/jpeg2000-hardening.test.ts"],
+      "boundary": "Static Part 1 JP2 decode for 1-16-bit integer grayscale, RGB, sYCC, palette, and cdef alpha images using the documented MQ-coded wavelet subset; excludes POC, packed packet headers, arithmetic-bypass and pass-termination styles, JPX/JPM, HTJ2K, animation, and encode",
+      "description": "Decodes common static Part 1 JP2 images with reversible 5/3 or irreversible 9/7 wavelets, all five progression orders, multiple tiles and tile-parts, RCT/ICT, maxshift ROI, restricted RGB matrix/TRC ICC profiles, palettes, channel mapping, and straight or premultiplied alpha.",
+      "memory": "Metadata inspection reads bounded headers only. Decode retains the compressed jp2c plus the selected-resolution component planes for one tile row, emits ordered 32-row pixel blocks, skips unrelated tiles for regions, and selects lower wavelet levels for large resize; full-resolution single-tile decode remains an explicit full-component fallback.",
+      "recommendation": "Static image/jp2 uploads within the documented Part 1 subset, including common lossless and lossy grayscale, RGB, and sYCC files.",
+      "evidence": [
+        "tests/jpeg2000.test.ts",
+        "tests/jpeg2000-hardening.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
         "oracle": "Pinned FFmpeg and OpenJPEG JP2 fixtures",
@@ -2836,7 +2840,7 @@
           "text": "Skip unknown and application-specific boxes by their validated extents"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Reject truncated, overlapping, recursively nested, or contradictory box structures explicitly"
         },
         {
@@ -2852,15 +2856,15 @@
           "text": "Parse per-component bit depth (`bpcc`) when components do not share one precision and signedness"
         },
         {
-          "status": "planned",
-          "text": "Parse all color specification (`colr`) boxes and choose the applicable entry using their precedence and approximation fields"
+          "status": "supported",
+          "text": "Parse all color specification (`colr`) boxes and choose the supported entry by precedence and approximation"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Parse palette (`pclr`), component mapping (`cmap`), and channel definition (`cdef`) boxes as one validated channel-mapping graph"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Parse capture and display resolution (`res `, `resc`, and `resd`) without allowing rational or exponent arithmetic to overflow"
         },
         {
@@ -2872,7 +2876,7 @@
           "text": "Reject contradictory required metadata instead of silently choosing the more convenient value"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Report width, height, component count, channel count, channel precision, alpha presence, color description, lossless capability, tile geometry, and available resolution levels from metadata inspection"
         },
         {
@@ -2888,11 +2892,11 @@
           "text": "Preserve the original Twilio media content type as provenance only; use content detection for codec selection"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Return a clear unsupported-format error for raw J2K codestreams, JPX, JPM, Motion JPEG 2000, and HTJ2K rather than misparsing them as baseline JP2"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Allow bounded metadata inspection without starting entropy or wavelet decode"
         },
         {
@@ -2912,7 +2916,7 @@
           "text": "Support one tile and multiple independently reconstructed tiles"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Support multiple tile-parts per tile and verify tile-part indexes, counts, declared lengths, and ordering"
         },
         {
@@ -2960,12 +2964,12 @@
           "text": "Reconstruct coefficient signs, magnitudes, and subband contexts"
         },
         {
-          "status": "planned",
-          "text": "Support the Part 1 code-block style flags: selective arithmetic bypass, context reset, termination after each pass, vertical causal context, predictable termination, and segmentation symbols"
+          "status": "supported",
+          "text": "Support context-reset and vertical-causal code-block styles"
         },
         {
           "status": "planned",
-          "text": "Validate predictable termination when signaled"
+          "text": "Support selective arithmetic bypass, termination after each pass, and predictable termination code-block styles"
         },
         {
           "status": "supported",
@@ -2980,8 +2984,8 @@
           "text": "Decode no-quantization, scalar-derived, and scalar-expounded quantization styles"
         },
         {
-          "status": "planned",
-          "text": "Apply subband guard bits, exponents, mantissas, ROI shifts, and coefficient scaling without unsafe integer arithmetic"
+          "status": "supported",
+          "text": "Apply subband guard bits, exponents, mantissas, maxshift ROI, and coefficient scaling with bounded coefficient magnitudes"
         },
         {
           "status": "supported",
@@ -2996,8 +3000,8 @@
           "text": "Handle symmetric wavelet extension at odd image, tile, component, and resolution boundaries"
         },
         {
-          "status": "planned",
-          "text": "Reconstruct component sample ranges using each component's precision and signedness"
+          "status": "supported",
+          "text": "Reconstruct unsigned component sample ranges at 1-16-bit precision and reject signed component display explicitly"
         },
         {
           "status": "supported",
@@ -3028,19 +3032,19 @@
           "text": "Correct sYCC chroma offsets, component sampling, and conversion to the pipeline output color space"
         },
         {
-          "status": "planned",
-          "text": "Restricted ICC profiles for common gray, sRGB, and Display P3 images"
+          "status": "supported",
+          "text": "Restricted RGB matrix/TRC ICC profiles"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Palette and component mapping for indexed images"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Unassociated and premultiplied opacity channels declared by `cdef`"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Correct channel ordering when codestream component order differs from display channel order"
         },
         {
@@ -3048,7 +3052,7 @@
           "text": "Convert high-precision samples to `gray8`, `rgb8`, or `rgba8` with a documented rounding policy rather than truncating low bits accidentally"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Emit bounded, ordered pixel blocks into the existing crop, resize, and encoder pipeline"
         },
         {
@@ -3064,7 +3068,7 @@
           "text": "Packed packet headers in main (`PPM`) and tile-part (`PPT`) headers"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Start-of-packet (`SOP`) and end-of-packet-header (`EPH`) markers"
         },
         {
@@ -3072,7 +3076,7 @@
           "text": "Tile-part length (`TLM`), packet length (`PLM`/`PLT`), component registration (`CRG`), and comment (`COM`) markers"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Maxshift region-of-interest (`RGN`) reconstruction"
         },
         {
@@ -3112,11 +3116,11 @@
           "text": "Expose capture and display resolution through image metadata"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Public reduced-resolution decode that selects an existing wavelet resolution level before reconstruction"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Automatically choose the nearest useful wavelet resolution level for a large resize instead of reconstructing discarded full-resolution samples"
         },
         {
@@ -3192,11 +3196,11 @@
           "text": "Floating-point or vendor-private sample models outside the Part 1 integer reconstruction contract"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Bound input bytes, box count, nesting depth, metadata bytes, dimensions, pixels, components, tiles, tile-parts, resolution levels, precincts, code-blocks, layers, packets, coding passes, and decoded working bytes separately"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Use checked arithmetic for reference grids, component coordinates, subband extents, precinct indexes, packet counts, coefficient counts, strides, and allocation sizes"
         },
         {
@@ -3204,35 +3208,35 @@
           "text": "Keep compressed codestream data in the original input and read bounded packet/code-block ranges instead of duplicating `jp2c`"
         },
         {
-          "status": "planned",
-          "text": "Retain compact code-block coefficients only for the requested tile, resolution, and region whenever packet ordering permits"
+          "status": "supported",
+          "text": "Retain compact code-block coefficients only for the selected tile row and resolution"
         },
         {
-          "status": "planned",
-          "text": "Reconstruct tiles or bounded tile regions independently and release their coefficients and wavelet buffers as soon as output no longer needs them"
+          "status": "supported",
+          "text": "Reconstruct intersecting tile rows independently and release their coefficients and wavelet buffers after emission"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Make reduced-resolution resize decode use lower wavelet levels directly"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Avoid a full source-sized RGB or RGBA bitmap at the decoder/pipeline boundary"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Account for simultaneous compressed input, packet indexes, tag trees, coefficients, inverse-wavelet buffers, component planes, color conversion, resize state, and encoded output in the working-memory budget"
         },
         {
-          "status": "planned",
-          "text": "Keep any unavoidable full-tile or full-component fallback explicit and benchmark it separately from the primary bounded-memory path"
+          "status": "supported",
+          "text": "Keep the full selected-resolution component fallback explicit and benchmark it separately from the bounded output-row path"
         },
         {
           "status": "planned",
           "text": "Ensure crop requests do not entropy-decode or inverse-transform unrelated precincts when the codestream organization makes them independently addressable"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Treat all box lengths, marker lengths, offsets, counts, coding parameters, tag trees, packet headers, arithmetic bytes, coefficient states, and tile coordinates as hostile input"
         },
         {
@@ -3240,23 +3244,23 @@
           "text": "Reject dimensions or component geometry that disagree between JP2 boxes and the codestream"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Reject duplicate mandatory markers, illegal marker ordering, missing end markers, impossible tile-part lengths, and unsupported coding styles explicitly"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Never scan unbounded input looking for a marker after a declared packet or tile-part extent has failed validation"
         },
         {
-          "status": "planned",
-          "text": "Bound MQ decoding and raw bypass reads to their declared code-block segments"
+          "status": "supported",
+          "text": "Bound MQ decoding and packet reads to their declared code-block segments"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Prevent decompression bombs caused by huge reference grids, tiny tiles, excessive components, deep decompositions, many precincts, or many layers"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Fail closed on unsupported Part 2, HTJ2K, JPSEC, and vendor-private syntax"
         },
         {
@@ -3292,7 +3296,7 @@
           "text": "Include lossless 5/3 and lossy 9/7 images"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Include grayscale, RGB, sYCC, palette, 16-bit, alpha, tiled, odd-dimension, subsampled-component, multi-layer, and every progression-order case required by the implemented groups"
         },
         {
@@ -3308,12 +3312,12 @@
           "text": "Record source, license, encoder, JP2 brand, dimensions, components, bit depths, color space, transform, quantization, tiles, decomposition levels, precincts, code-block size, layers, progression order, and checksums"
         },
         {
-          "status": "planned",
-          "text": "Validate container metadata against an independent development-only JP2 parser"
+          "status": "supported",
+          "text": "Validate container metadata against independent OpenJPEG and ImageMagick inspection"
         },
         {
-          "status": "planned",
-          "text": "Validate pixels against OpenJPEG and at least one additional independent decoder"
+          "status": "supported",
+          "text": "Validate pixels against OpenJPEG and ImageMagick or FFmpeg oracles"
         },
         {
           "status": "supported",
@@ -3324,8 +3328,8 @@
           "text": "Use documented tolerances for irreversible 9/7 output"
         },
         {
-          "status": "planned",
-          "text": "Use documented tolerances for color-managed output"
+          "status": "supported",
+          "text": "Use documented tolerances for restricted ICC color-managed output"
         },
         {
           "status": "planned",
@@ -3352,12 +3356,12 @@
           "text": "Add malformed box, marker, tile, packet, tag-tree, code-block, MQ, quantization, wavelet, color, and allocation-limit regression fixtures"
         },
         {
-          "status": "planned",
-          "text": "Group 0 and Group 1 are implemented and covered by pinned fixtures"
+          "status": "supported",
+          "text": "The documented Group 0 and Group 1 subset is implemented and covered by pinned fixtures"
         },
         {
-          "status": "planned",
-          "text": "Every unimplemented Group 2-4 input is rejected explicitly rather than decoded incorrectly"
+          "status": "supported",
+          "text": "Every unsupported Group 2-4 input is rejected explicitly rather than decoded incorrectly"
         },
         {
           "status": "supported",
@@ -3372,11 +3376,11 @@
           "text": "Twilio-style `image/jp2` Buffer input can be inspected, resized, and converted to JPEG or PNG through the public pipeline"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "A large downscale uses a lower wavelet resolution and does not allocate a source-sized RGB or RGBA bitmap"
         },
         {
-          "status": "planned",
+          "status": "supported",
           "text": "Independent oracles confirm dimensions, precision, color, alpha, and decoded pixels"
         },
         {
@@ -5367,10 +5371,10 @@
         "status": "unsupported",
         "label": "No"
       },
-      "boundary": "Decodes independently verified, single-group lossless Modular RGB and RGBA with global or local MA trees, nonzero prefix or ANS residuals, bounded LZ77, Zero/Left/Top/Gradient/TopRight/TopLeft prediction, and zero or one RCT; other predictors, grayscale and custom color encodings, palette and Squeeze transforms, VarDCT, multiple groups or frames, and fragmented jxlp pixel decode remain unsupported",
-      "description": "Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes pinned 8-bit RGB plus 9-bit and 12-bit RGBA lossless Modular paths through bounded headers, entropy, adaptive properties, residual prediction, RCT, crop, and rgba8 output. Unsupported JPEG XL syntax fails explicitly.",
-      "memory": "The implemented single-group Modular path retains compressed input, bounded entropy tables, the adaptive tree, an optional 4 MiB LZ77 ring, and compact signed channel planes. Peak decoded working memory scales with source pixels but does not allocate a second source-sized RGBA bitmap.",
-      "recommendation": "Use for the documented single-group lossless Modular RGB/RGBA subset and retain an explicit unsupported-operation path for broader JPEG XL files.",
+      "boundary": "Decodes independently verified lossless Modular subsets: single-group 8-bit RGB/RGBA, native 8/10/12/16-bit grayscale, native 9/12-bit RGBA, 8-bit grayscale with alpha, and compatible multi-group 8-bit grayscale with unshifted group channels and a shared non-delta palette. Supports global or local MA trees, prefix or ANS residuals, bounded LZ77 with group-aware special distances, the documented predictors, zero or one RCT, permuted or ordered table-of-contents entries, and group-aware crops. Custom color encodings, delta palettes, Squeeze and shifted/DC group channels, VarDCT, multiple frames, and fragmented jxlp pixel decode remain unsupported",
+      "description": "Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes the documented pinned lossless Modular subsets. Native grayscale emits gray8 or big-endian gray16 with its original display range; RGB/RGBA emits rgba8 or big-endian rgba16. Compatible multi-group decode validates ordered or permuted table-of-contents entries and dependencies, supports global or per-group local MA trees, reconstructs only crop-intersecting groups, stitches ordered output rows across group boundaries, and releases completed group bands. Unsupported JPEG XL syntax fails explicitly.",
+      "memory": "The single-group path retains compact signed channel planes. Compatible multi-group crops retain only the intersecting groups in one group-row band, share global Palette state, size each LZ77 ring to its bounded entropy stream, account grouped planes against maxDecodedBytes, and release the band after output. Both paths emit one bounded native output row without allocating a second source-sized RGBA bitmap. A checksum-pinned 4096x4096 permuted-TOC fixture records isolated full-decode and 64x64 crop memory.",
+      "recommendation": "Use native gray8/gray16 or rgba16 decoder blocks for scientific workflows within the documented lossless Modular subset. Multi-group grayscale crops are group-aware and bounded by the intersecting band, including files with permuted table-of-contents entries and per-group local MA trees. Use the normal pipeline for display conversion, and retain an explicit unsupported-operation path for broader JPEG XL files.",
       "evidence": [
         "tests/jpegxl.test.ts",
         "tests/jpegxl-bitstream.test.ts",
@@ -5543,8 +5547,8 @@
           "text": "Detect Level 10 inputs and reject them unless every required feature and resource limit is supported"
         },
         {
-          "status": "planned",
-          "text": "Parse Modular global and group headers, channel dimensions, shifts, origins, and dependency order"
+          "status": "supported",
+          "text": "Parse the global and group headers, unshifted channel dimensions, group origins, section dependencies, and stream identifiers required by compatible multi-group Modular images"
         },
         {
           "status": "supported",
@@ -5575,12 +5579,12 @@
           "text": "Apply inverse Modular transforms in the exact reverse dependency order"
         },
         {
-          "status": "planned",
-          "text": "Support single-group and multi-group Modular images"
+          "status": "supported",
+          "text": "Support single-group and compatible multi-group Modular images with shared global or per-group local MA trees and unshifted grouped channels"
         },
         {
-          "status": "planned",
-          "text": "Support lossless grayscale, RGB, and RGBA images"
+          "status": "supported",
+          "text": "Support native 8/10/12/16-bit lossless grayscale and the documented RGB/RGBA subset"
         },
         {
           "status": "planned",
@@ -5664,15 +5668,19 @@
         },
         {
           "status": "supported",
-          "text": "Emit bounded, ordered `rgba8` pixel blocks for the implemented subset"
+          "text": "Emit bounded, ordered `gray8`, big-endian `gray16`, `rgba8`, or big-endian `rgba16` pixel blocks for the implemented subset"
         },
         {
           "status": "planned",
           "text": "Support JXL-to-JPEG, JXL-to-PNG, JXL-to-WebP, crop, resize, and resize-plus-encode workflows"
         },
         {
+          "status": "supported",
+          "text": "Native integer grayscale at 8, 10, 12, and 16 bits per sample"
+        },
+        {
           "status": "planned",
-          "text": "Integer grayscale and RGB at 8, 10, 12, and 16 bits per sample"
+          "text": "Complete integer RGB coverage at 8, 10, 12, and 16 bits per sample"
         },
         {
           "status": "supported",
@@ -5695,12 +5703,16 @@
           "text": "Render common sRGB, linear sRGB, Display P3, and gray inputs to the pipeline's declared output color space"
         },
         {
+          "status": "supported",
+          "text": "Handle grayscale and RGB codestream color representations for the compatible Modular subset"
+        },
+        {
           "status": "planned",
-          "text": "Handle XYB, RGB, and grayscale codestream color representations"
+          "text": "Handle XYB codestream color representations"
         },
         {
           "status": "supported",
-          "text": "Convert high-bit-depth samples to the 8-bit pipeline with a documented rounding and tone-mapping policy"
+          "text": "Preserve native 9-bit and 12-bit integer samples in `rgba16` with per-channel display ranges, normalizing only when an 8-bit transform or encoder requires it"
         },
         {
           "status": "planned",
@@ -5779,16 +5791,20 @@
           "text": "Public reduced-resolution decode without reconstructing discarded high-frequency detail"
         },
         {
-          "status": "planned",
-          "text": "Group-aware region decode for crops"
+          "status": "supported",
+          "text": "Group-aware region decode for compatible multi-group Modular crops"
         },
         {
           "status": "planned",
           "text": "Decoder-driven downscale that selects only the resolution and passes capable of contributing to the requested output"
         },
         {
+          "status": "supported",
+          "text": "Expose native high-bit integer decoder output through the shared `rgba16` pixel model"
+        },
+        {
           "status": "planned",
-          "text": "Optional 16-bit integer and floating-point pipeline output when the shared pixel model supports it"
+          "text": "Optional floating-point pipeline output"
         },
         {
           "status": "planned",
@@ -5843,20 +5859,24 @@
           "text": "Read `jxlc` and `jxlp` through segmented views without duplicating the compressed codestream"
         },
         {
-          "status": "planned",
-          "text": "Decode and reconstruct groups in dependency order while retaining only the LF, reference, filter-halo, and output state still required"
+          "status": "supported",
+          "text": "Decode compatible Modular groups in dependency order, retaining only crop-intersecting groups in one group-row band and releasing the band after output"
         },
         {
           "status": "planned",
-          "text": "Release entropy tables, coefficients, Modular channels, features, and restoration buffers as soon as later groups cannot reference them"
+          "text": "Release VarDCT entropy tables, coefficients, restoration buffers, and reference state as soon as later groups cannot reference them"
         },
         {
           "status": "supported",
           "text": "Use compact signed channel planes and one bounded output row rather than a second source-sized RGBA decoder boundary for the implemented Modular subset"
         },
         {
+          "status": "supported",
+          "text": "Push crop requirements into compatible Modular group selection"
+        },
+        {
           "status": "planned",
-          "text": "Push crop, resize, and reduced-resolution requirements into group and pass selection wherever the codestream permits"
+          "text": "Push resize and reduced-resolution requirements into group and pass selection"
         },
         {
           "status": "planned",
@@ -5944,15 +5964,19 @@
         },
         {
           "status": "supported",
-          "text": "Verify exact samples for lossless Modular fixtures"
+          "text": "Verify native high-bit samples for lossless Modular fixtures against official conformance outputs"
         },
         {
           "status": "planned",
           "text": "Use conformance-defined or documented numeric tolerances for VarDCT, XYB, ICC, restoration-filter, and HDR output"
         },
         {
-          "status": "planned",
-          "text": "Verify every benchmark output before recording speed or memory"
+          "status": "supported",
+          "text": "Verify every recorded benchmark output before recording speed or memory"
+        },
+        {
+          "status": "supported",
+          "text": "Record isolated full-decode and crop memory for a checksum-pinned 4096x4096 multi-group fixture with a permuted table of contents and per-group local MA trees"
         },
         {
           "status": "planned",

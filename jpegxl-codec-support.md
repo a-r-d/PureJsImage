@@ -16,14 +16,20 @@ first-party codec validates these structures and returns bounded source ranges
 without concatenating compressed data. Raw and single-`jxlc` codestreams can enter
 the implemented pixel subset directly.
 
-The current pixel milestone decodes pinned 8-bit RGB plus official 9-bit and 12-bit
-non-premultiplied-alpha lossless Modular fixtures. It parses image and frame headers,
-global or local MA trees, prefix and ANS entropy, bounded LZ77, adaptive properties,
-nonzero residuals, six independently exercised Modular predictors, and one reversible color
-transform, then emits cropped `rgba8` rows. The official RGBA fixtures each match an
-independent `djxl` decode across all 4,194,304 output samples, and the RGB fixture also
-matches exact `djxl` pixels in a real browser. Palette, Squeeze, Weighted prediction,
-custom color descriptions, multiple groups or frames, and all VarDCT syntax remain
+The current pixel milestone decodes pinned native 8/10/12/16-bit grayscale, 8-bit
+grayscale with alpha, 8-bit RGB, and official 9-bit and 12-bit RGBA lossless Modular
+fixtures. It parses image and frame headers, global or local MA trees, prefix and ANS
+entropy, bounded LZ77 including group-aware special distances, adaptive properties,
+nonzero residuals, the documented Modular predictors, one reversible color transform,
+and a compatible non-delta Palette transform. Compatible multi-group grayscale validates
+ordered or permuted table-of-contents entries and dependencies, supports shared global or
+per-group local MA trees, decodes only crop-intersecting groups, supports crops crossing
+group boundaries, and releases each completed group-row band. The decoder emits native
+`gray8`, big-endian `gray16`, `rgba8`, or big-endian `rgba16` rows with per-channel display
+ranges. The pinned multi-group 8-bit fixtures and native grayscale matrix match exact
+independent `djxl` pixels; official high-bit RGBA fixtures retain their documented exact or
+one-sample tolerance. Delta Palette, Squeeze, shifted or DC group
+channels, custom color descriptions, multiple frames, and all VarDCT syntax remain
 explicit unsupported operations.
 
 A checked implementation item is already present and tested in the repository.
@@ -139,8 +145,8 @@ losslessly transcoded JPEG files.
 
 ### Modular mode
 
-- [ ] Parse Modular global and group headers, channel dimensions, shifts,
-  origins, and dependency order
+- [x] Parse the global and group headers, unshifted channel dimensions, group origins,
+  section dependencies, and stream identifiers required by compatible multi-group Modular images
 - [x] Decode meta-adaptive trees with bounded depth, node count, property
   ranges, and context count
 - [ ] Implement the required Modular predictors, including weighted prediction
@@ -154,8 +160,9 @@ losslessly transcoded JPEG files.
 - [ ] Implement squeeze transforms for horizontal, vertical, and multi-channel
   reconstruction, including odd dimensions
 - [ ] Apply inverse Modular transforms in the exact reverse dependency order
-- [ ] Support single-group and multi-group Modular images
-- [ ] Support lossless grayscale, RGB, and RGBA images
+- [x] Support single-group and compatible multi-group Modular images with shared
+  global or per-group local MA trees and unshifted grouped channels
+- [x] Support native 8/10/12/16-bit lossless grayscale and the documented RGB/RGBA subset
 - [ ] Support Modular sub-images used by VarDCT for low-frequency and control
   data
 - [x] Verify the implemented mathematically lossless Modular fixture with exact samples
@@ -193,13 +200,14 @@ losslessly transcoded JPEG files.
   frame dependencies, and partial-canvas frame composition until Group 2
 - [ ] Apply all eight orientation values exactly once
 - [ ] Return display dimensions after orientation
-- [x] Emit bounded, ordered `rgba8` pixel blocks for the implemented subset
+- [x] Emit bounded, ordered `gray8`, big-endian `gray16`, `rgba8`, or big-endian `rgba16` pixel blocks for the implemented subset
 - [ ] Support JXL-to-JPEG, JXL-to-PNG, JXL-to-WebP, crop, resize, and
   resize-plus-encode workflows
 
 ### Common samples, alpha, and color
 
-- [ ] Integer grayscale and RGB at 8, 10, 12, and 16 bits per sample
+- [x] Native integer grayscale at 8, 10, 12, and 16 bits per sample
+- [ ] Complete integer RGB coverage at 8, 10, 12, and 16 bits per sample
 - [x] One alpha extra channel with independent precision
 - [ ] Unassociated and premultiplied alpha with correct unpremultiplication or
   preservation behavior
@@ -208,9 +216,10 @@ losslessly transcoded JPEG files.
 - [ ] Decode compressed embedded ICC profiles with strict decoded-size limits
 - [ ] Render common sRGB, linear sRGB, Display P3, and gray inputs to the
   pipeline's declared output color space
-- [ ] Handle XYB, RGB, and grayscale codestream color representations
-- [x] Convert high-bit-depth samples to the 8-bit pipeline with a documented
-  rounding and tone-mapping policy
+- [x] Handle grayscale and RGB codestream color representations for the compatible Modular subset
+- [ ] Handle XYB codestream color representations
+- [x] Preserve native 9-bit and 12-bit integer samples in `rgba16` with per-channel
+  display ranges, normalizing only when an 8-bit transform or encoder requires it
 - [ ] Reject unsupported color encodings or extra-channel semantics rather than
   treating their samples as sRGB or alpha
 
@@ -245,11 +254,11 @@ decoder can ship before all of them are complete.
   high-frequency passes
 - [ ] Public reduced-resolution decode without reconstructing discarded
   high-frequency detail
-- [ ] Group-aware region decode for crops
+- [x] Group-aware region decode for compatible multi-group Modular crops
 - [ ] Decoder-driven downscale that selects only the resolution and passes
   capable of contributing to the requested output
-- [ ] Optional 16-bit integer and floating-point pipeline output when the shared
-  pixel model supports it
+- [x] Expose native high-bit integer decoder output through the shared `rgba16` pixel model
+- [ ] Optional floating-point pipeline output
 - [ ] Opt-in extraction of depth, thermal, CFA, spot-color, and selection-mask
   extra channels
 - [ ] Non-coalesced frame access for applications that need individual frames
@@ -281,14 +290,14 @@ JPEG XL v1.
   spline points, LZ77 copies, and allocations
 - [ ] Read `jxlc` and `jxlp` through segmented views without duplicating the
   compressed codestream
-- [ ] Decode and reconstruct groups in dependency order while retaining only
-  the LF, reference, filter-halo, and output state still required
-- [ ] Release entropy tables, coefficients, Modular channels, features, and
-  restoration buffers as soon as later groups cannot reference them
+- [x] Decode compatible Modular groups in dependency order, retaining only crop-intersecting
+  groups in one group-row band and releasing the band after output
+- [ ] Release VarDCT entropy tables, coefficients, restoration buffers, and reference
+  state as soon as later groups cannot reference them
 - [x] Use compact signed channel planes and one bounded output row rather than a
   second source-sized RGBA decoder boundary for the implemented Modular subset
-- [ ] Push crop, resize, and reduced-resolution requirements into group and pass
-  selection wherever the codestream permits
+- [x] Push crop requirements into compatible Modular group selection
+- [ ] Push resize and reduced-resolution requirements into group and pass selection
 - [ ] Account for concurrent input, section indexes, entropy state, LF images,
   coefficients, Modular transforms, restoration halos, extra channels, color
   conversion, resize state, and encoded output
@@ -346,10 +355,12 @@ JPEG XL v1.
 - [ ] Record provenance, license, encoder/version, container form, dimensions,
   orientation, bit depth, channels, extra channels, color encoding, mode,
   frames, groups, passes, level, feature flags, and checksums
-- [x] Verify exact samples for lossless Modular fixtures
+- [x] Verify native high-bit samples for lossless Modular fixtures against official conformance outputs
 - [ ] Use conformance-defined or documented numeric tolerances for VarDCT, XYB,
   ICC, restoration-filter, and HDR output
-- [ ] Verify every benchmark output before recording speed or memory
+- [x] Verify every recorded benchmark output before recording speed or memory
+- [x] Record isolated full-decode and crop memory for a checksum-pinned 4096x4096
+  multi-group fixture with a permuted table of contents and per-group local MA trees
 - [ ] Benchmark metadata, full decode, JXL-to-JPEG, JXL-to-PNG, crop, resize,
   reduced-resolution resize, and resize-plus-encode workflows
 - [ ] Measure cold and warm absolute peak RSS, RSS delta, external memory, and

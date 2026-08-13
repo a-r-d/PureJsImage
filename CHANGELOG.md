@@ -16,11 +16,19 @@ All notable changes to PureJsImage are documented in this file.
   reusable scientific statistics with Welford mean and population standard deviation, finite and
   invalid counts, sampled percentiles, and histograms.
 - Added a registered first-party JPEG XL codec that validates raw codestream and container
-  structure and decodes a bounded lossless Modular RGBA subset. The initial pixel path parses
-  codestream and frame headers, prefix and ANS entropy foundations, a bounded meta-adaptive tree,
-  Zero/Left/Top prediction, reversible color transforms, and 12-bit alpha before emitting cropped
-  `rgba8` rows. Added a pinned, checksum-verified official conformance corpus and exact independent
-  oracle validation; broader Modular and VarDCT syntax fails explicitly.
+  structure and decodes documented lossless Modular subsets. The pixel path covers codestream and
+  frame headers, prefix and ANS entropy, bounded group-aware LZ77, global and local meta-adaptive
+  trees, the documented predictors, reversible color transforms, crop requests, and alpha. It
+  emits native `gray8` or big-endian `gray16` for independently verified 8/10/12/16-bit grayscale,
+  `rgba8` for 8-bit RGB/RGBA, and big-endian `rgba16` with native display ranges for verified 9-bit
+  and 12-bit RGBA. Compatible multi-group grayscale validates ordered or permuted table-of-contents
+  entries and section dependencies, supports global and per-group local MA trees, decodes only
+  crop-intersecting groups, supports crops crossing group boundaries, accounts concurrent group
+  planes, and releases each completed group-row band. Pinned `djxl` and official conformance
+  outputs validate the documented exact or one-sample tolerances in Node and Chromium. A pinned
+  4096x4096 multi-group fixture records isolated full-decode and 64x64 crop memory. Delta
+  Palette, Squeeze, shifted group channels, custom color, multi-frame, and VarDCT syntax remain
+  explicitly unsupported.
 - Added first-party Radiance HDR, QOI, Netpbm PBM/PGM/PPM/PAM/PFM, and TGA codecs
   with Node and browser registration, bounded row or block processing where the formats permit it,
   explicit compact fallbacks for X-major HDR decode and bottom-up PFM encode, strict hostile-input
@@ -85,6 +93,14 @@ All notable changes to PureJsImage are documented in this file.
   unsupported boundaries for dependent animation and uncommon AV1/ISOBMFF syntax. AVIF re-encoding
   now strips metadata by default and preserves EXIF and compatible RGB ICC profiles through
   `keepExif()` and `keepIcc()`.
+
+- Promoted JPEG 2000 / JP2 read support from “Limited” to “Yes” for the documented static Part 1
+  subset. The decoder now covers ordered tile-parts, reset-context and vertical-causal code-block
+  styles, maxshift ROI, restricted RGB matrix/TRC ICC profiles, palette and channel mapping,
+  straight and premultiplied alpha, bounded output rows and tile-region reconstruction, and
+  lower-wavelet-resolution downscales. Packed packet headers, progression changes, arithmetic
+  bypass and pass-termination styles, signed display components, JPX/JPM, HTJ2K, animation, and
+  encode remain explicit unsupported boundaries.
 
 - Expanded the Scientific Raster Explorer with direct Blob-backed local-file range reads, actual
   ENVI band indices and nonuniform wavelength labels, cached display measurements, FITS HDU and

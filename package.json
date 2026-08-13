@@ -309,6 +309,7 @@
     "bench:avif:imazen": "node benchmark/avif/run-imazen-compatibility-survey.ts",
     "bench:avif:imazen:prepare": "node benchmark/avif/prepare-imazen-compatibility-survey.ts",
     "bench:avif:reference": "node benchmark/avif/run-reference.ts",
+    "bench:jpegxl:memory": "node benchmark/jpegxl/run-memory.ts",
     "bench:heif": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage-experimental-heic --profile heif",
     "bench:heif:cold": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage-experimental-heic --profile heif --runs 3 --warmups 0",
     "bench:heif:warm": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage-experimental-heic --profile heif --runs 3 --warmups 1",

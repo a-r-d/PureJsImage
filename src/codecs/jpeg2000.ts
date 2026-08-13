@@ -1,10 +1,23 @@
-import type { DecodeRequest, ImageCodec, ImageDecoder, ImageMetadata } from '../codec.ts'
+import type {
+  DecodeRequest,
+  ImageCodec,
+  ImageDecoder,
+  ImageMetadata,
+  PreservedMetadata,
+} from '../codec.ts'
 import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
 import type { ImageLimitOptions, ImageLimits } from '../limits.ts'
 import { resolveLimits, validateImageDimensions, validateInputSize } from '../limits.ts'
+import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
+import {
+  ColorManagedDecoder,
+  MAX_ICC_PROFILE_BYTES,
+  parseRgbIccTransform,
+  type RgbIccTransform,
+} from './icc.ts'
 import { decodeJpeg2000CodeBlock, type Jpeg2000Subband } from './jpeg2000-tier1.ts'
 import { inverseJpeg2000Wavelet, type Jpeg2000ResolutionCoefficients } from './jpeg2000-wavelet.ts'
 
@@ -88,13 +101,55 @@ const readBox = async (source: ImageSource, start: number, parentEnd: number): P
   return { type, start, content: start + headerBytes, end }
 }
 
+type Jp2ColorSpace = 'gray' | 'srgb' | 'sycc'
+
+interface Jp2PaletteColumn {
+  readonly bitDepth: number
+  readonly signed: boolean
+  readonly values: Int32Array
+}
+
+interface Jp2Palette {
+  readonly entries: number
+  readonly columns: readonly Jp2PaletteColumn[]
+}
+
+interface Jp2ChannelMapping {
+  readonly component: number
+  readonly paletteColumn?: number
+}
+
+interface Jp2ChannelDefinition {
+  readonly channel: number
+  readonly type: 0 | 1 | 2
+  readonly association: number
+}
+
+interface Jp2ColorCandidate {
+  readonly approximation: number
+  readonly colorSpace?: Jp2ColorSpace
+  readonly icc?: Uint8Array
+  readonly precedence: number
+}
+
+interface Jp2Resolution {
+  readonly horizontal: number
+  readonly vertical: number
+}
+
 interface Jp2Header {
   readonly width: number
   readonly height: number
   readonly components: number
   readonly bitDepths: readonly number[]
   readonly signed: readonly boolean[]
-  readonly colorSpace: 'gray' | 'srgb' | 'sycc'
+  readonly colorSpace: Jp2ColorSpace
+  readonly icc?: Uint8Array
+  readonly palette?: Jp2Palette
+  readonly channelMappings: readonly Jp2ChannelMapping[]
+  readonly channelDefinitions: readonly Jp2ChannelDefinition[]
+  readonly captureResolution?: Jp2Resolution
+  readonly displayResolution?: Jp2Resolution
   readonly codestreamOffset: number
   readonly codestreamLength: number
 }
@@ -107,7 +162,12 @@ interface MutableJp2Header {
   sharedSigned?: boolean
   bitDepths?: readonly number[]
   signed?: readonly boolean[]
-  colorSpace?: 'gray' | 'srgb' | 'sycc'
+  readonly colors: Jp2ColorCandidate[]
+  palette?: Jp2Palette
+  channelMappings?: readonly Jp2ChannelMapping[]
+  channelDefinitions?: readonly Jp2ChannelDefinition[]
+  captureResolution?: Jp2Resolution
+  displayResolution?: Jp2Resolution
 }
 
 const parseImageHeaderBox = (data: Uint8Array, header: MutableJp2Header): void => {
@@ -119,18 +179,26 @@ const parseImageHeaderBox = (data: Uint8Array, header: MutableJp2Header): void =
   const compression = data[11]
   const unknownColor = data[12]
   const intellectualProperty = data[13]
-  if (bpc === undefined || compression === undefined || unknownColor === undefined) {
+  if (
+    bpc === undefined ||
+    compression === undefined ||
+    unknownColor === undefined ||
+    intellectualProperty === undefined
+  ) {
     throw truncatedInput('JP2 ihdr box is truncated')
   }
   if (width < 1 || height < 1 || components < 1) throw invalidInput('JP2 dimensions are invalid')
   if (components > maximumComponents) {
     throw limitExceeded(`JP2 component count ${components} exceeds ${maximumComponents}`)
   }
-  if (compression !== 7)
+  if (compression !== 7) {
     throw unsupportedOperation(`JP2 compression type ${compression} is unsupported`)
-  if (unknownColor !== 0) throw unsupportedOperation('JP2 unknown color space is unsupported')
-  if (intellectualProperty !== 0) {
-    throw unsupportedOperation('JP2 intellectual-property protected input is unsupported')
+  }
+  if (unknownColor !== 0 && unknownColor !== 1) {
+    throw invalidInput('JP2 unknown-color flag is invalid')
+  }
+  if (intellectualProperty !== 0 && intellectualProperty !== 1) {
+    throw invalidInput('JP2 intellectual-property flag is invalid')
   }
   header.width = width
   header.height = height
@@ -146,6 +214,7 @@ const parseBitsPerComponentBox = (data: Uint8Array, header: MutableJp2Header): v
   if (header.sharedBitDepth !== undefined) {
     throw invalidInput('JP2 bpcc is present when ihdr declares a shared bit depth')
   }
+  if (header.bitDepths !== undefined) throw invalidInput('JP2 contains duplicate bpcc boxes')
   if (data.byteLength !== header.components) {
     throw invalidInput('JP2 bpcc component count disagrees with ihdr')
   }
@@ -167,22 +236,215 @@ const parseColorBox = (data: Uint8Array, header: MutableJp2Header): void => {
   if (method === undefined || precedence === undefined || approximation === undefined) {
     throw truncatedInput('JP2 colr box is truncated')
   }
-  if (precedence !== 0 || approximation !== 0) {
-    throw unsupportedOperation('JP2 non-zero color precedence or approximation is unsupported')
+  if (approximation > 4) throw invalidInput(`JP2 color approximation ${approximation} is invalid`)
+  if (method === 1) {
+    if (data.byteLength !== 7) throw invalidInput('JP2 enumerated colr box has an invalid length')
+    const enumerated = be32(data, 3, 'JP2 enumerated color space')
+    const colorSpace =
+      enumerated === 16
+        ? 'srgb'
+        : enumerated === 17
+          ? 'gray'
+          : enumerated === 18
+            ? 'sycc'
+            : undefined
+    header.colors.push({ approximation, precedence, ...(colorSpace ? { colorSpace } : {}) })
+    return
   }
-  if (method === 2) throw unsupportedOperation('JP2 embedded ICC color is not implemented')
-  if (method !== 1 || data.byteLength !== 7) {
-    throw unsupportedOperation(`JP2 color specification method ${method} is unsupported`)
+  if (method === 2) {
+    const icc = Uint8Array.from(data.subarray(3))
+    if (icc.byteLength > MAX_ICC_PROFILE_BYTES) {
+      throw limitExceeded(`JP2 ICC profile exceeds ${MAX_ICC_PROFILE_BYTES} bytes`)
+    }
+    const profileSpace = iccColorSpace(icc)
+    const colorSpace =
+      profileSpace === 'gray' ? 'gray' : profileSpace === 'rgb' ? 'srgb' : undefined
+    header.colors.push({
+      approximation,
+      precedence,
+      ...(colorSpace ? { colorSpace } : {}),
+      ...(colorSpace ? { icc } : {}),
+    })
+    return
   }
-  const enumerated = be32(data, 3, 'JP2 enumerated color space')
-  const colorSpace =
-    enumerated === 16 ? 'srgb' : enumerated === 17 ? 'gray' : enumerated === 18 ? 'sycc' : undefined
-  if (!colorSpace)
-    throw unsupportedOperation(`JP2 enumerated color space ${enumerated} is unsupported`)
-  if (header.colorSpace !== undefined && header.colorSpace !== colorSpace) {
-    throw invalidInput('JP2 colr boxes contradict each other')
+  header.colors.push({ approximation, precedence })
+}
+
+const parsePaletteBox = (data: Uint8Array, header: MutableJp2Header): void => {
+  if (header.palette) throw invalidInput('JP2 contains duplicate pclr boxes')
+  if (data.byteLength < 4) throw truncatedInput('JP2 pclr box is truncated')
+  const entries = be16(data, 0, 'JP2 palette entry count')
+  const columnCount = data[2]
+  if (entries < 1 || columnCount === undefined || columnCount < 1) {
+    throw invalidInput('JP2 palette dimensions are invalid')
   }
-  header.colorSpace = colorSpace
+  if (columnCount > maximumComponents) {
+    throw limitExceeded(`JP2 palette column count ${columnCount} exceeds ${maximumComponents}`)
+  }
+  const descriptorEnd = 3 + columnCount
+  if (descriptorEnd > data.byteLength) throw truncatedInput('JP2 palette descriptors are truncated')
+  const depths: number[] = []
+  const signed: boolean[] = []
+  const byteWidths: number[] = []
+  let bytesPerEntry = 0
+  for (let column = 0; column < columnCount; column += 1) {
+    const descriptor = data[3 + column]
+    if (descriptor === undefined) throw truncatedInput('JP2 palette descriptor is truncated')
+    const bitDepth = (descriptor & 0x7f) + 1
+    if (bitDepth > 16) {
+      throw unsupportedOperation(`JP2 ${bitDepth}-bit palette columns are unsupported`)
+    }
+    const byteWidth = Math.ceil(bitDepth / 8)
+    depths.push(bitDepth)
+    signed.push((descriptor & 0x80) !== 0)
+    byteWidths.push(byteWidth)
+    bytesPerEntry += byteWidth
+  }
+  const expected = descriptorEnd + entries * bytesPerEntry
+  if (!Number.isSafeInteger(expected) || expected !== data.byteLength) {
+    throw invalidInput('JP2 palette table length is invalid')
+  }
+  const columns = Array.from({ length: columnCount }, (_, column) => ({
+    bitDepth: depths[column] ?? 0,
+    signed: signed[column] ?? false,
+    values: new Int32Array(entries),
+  }))
+  let position = descriptorEnd
+  for (let entry = 0; entry < entries; entry += 1) {
+    for (let column = 0; column < columnCount; column += 1) {
+      const byteWidth = byteWidths[column] ?? 0
+      let value = 0
+      for (let byteIndex = 0; byteIndex < byteWidth; byteIndex += 1) {
+        value = value * 256 + (data[position] ?? 0)
+        position += 1
+      }
+      const target = columns[column]
+      if (!target) throw invalidInput('JP2 palette column is missing')
+      if (target.signed) {
+        const sign = 2 ** (target.bitDepth - 1)
+        if (value >= sign) value -= 2 ** target.bitDepth
+      }
+      target.values[entry] = value
+    }
+  }
+  header.palette = { entries, columns }
+}
+
+const parseComponentMappingBox = (data: Uint8Array, header: MutableJp2Header): void => {
+  if (header.channelMappings) throw invalidInput('JP2 contains duplicate cmap boxes')
+  if (data.byteLength === 0 || data.byteLength % 4 !== 0) {
+    throw invalidInput('JP2 cmap box length is invalid')
+  }
+  const mappings: Jp2ChannelMapping[] = []
+  for (let offset = 0; offset < data.byteLength; offset += 4) {
+    const component = be16(data, offset, 'JP2 component mapping index')
+    const mappingType = data[offset + 2]
+    const paletteColumn = data[offset + 3]
+    if (mappingType === 0) {
+      if (paletteColumn !== 0) throw invalidInput('JP2 direct cmap entry has a palette column')
+      mappings.push({ component })
+    } else if (mappingType === 1) {
+      if (paletteColumn === undefined) throw truncatedInput('JP2 cmap palette column is truncated')
+      mappings.push({ component, paletteColumn })
+    } else {
+      throw invalidInput(`JP2 cmap mapping type ${mappingType ?? -1} is invalid`)
+    }
+  }
+  header.channelMappings = mappings
+}
+
+const parseChannelDefinitionBox = (data: Uint8Array, header: MutableJp2Header): void => {
+  if (header.channelDefinitions) throw invalidInput('JP2 contains duplicate cdef boxes')
+  if (data.byteLength < 2) throw truncatedInput('JP2 cdef box is truncated')
+  const count = be16(data, 0, 'JP2 channel definition count')
+  if (count < 1 || data.byteLength !== 2 + count * 6) {
+    throw invalidInput('JP2 cdef box length is invalid')
+  }
+  const definitions: Jp2ChannelDefinition[] = []
+  const channels = new Set<number>()
+  for (let index = 0; index < count; index += 1) {
+    const offset = 2 + index * 6
+    const channel = be16(data, offset, 'JP2 channel definition index')
+    const typeValue = be16(data, offset + 2, 'JP2 channel definition type')
+    const association = be16(data, offset + 4, 'JP2 channel association')
+    if (typeValue !== 0 && typeValue !== 1 && typeValue !== 2) {
+      throw unsupportedOperation(`JP2 channel type ${typeValue} is unsupported`)
+    }
+    if (channels.has(channel)) throw invalidInput(`JP2 channel ${channel} is defined twice`)
+    channels.add(channel)
+    definitions.push({ channel, type: typeValue, association })
+  }
+  header.channelDefinitions = definitions
+}
+
+const parseResolutionValue = (
+  numerator: number,
+  denominator: number,
+  exponent: number,
+  label: string,
+): number => {
+  if (denominator === 0) throw invalidInput(`JP2 ${label} resolution denominator is zero`)
+  const value = (numerator / denominator) * 10 ** exponent
+  if (!Number.isFinite(value) || value <= 0 || value > Number.MAX_SAFE_INTEGER) {
+    throw limitExceeded(`JP2 ${label} resolution exceeds the safe numeric range`)
+  }
+  return value
+}
+
+const parseResolutionBox = (data: Uint8Array, type: 'resc' | 'resd'): Jp2Resolution => {
+  if (data.byteLength !== 10) throw invalidInput(`JP2 ${type} box must contain 10 bytes`)
+  const verticalExponentByte = data[8]
+  const horizontalExponentByte = data[9]
+  if (verticalExponentByte === undefined || horizontalExponentByte === undefined) {
+    throw truncatedInput(`JP2 ${type} exponent is truncated`)
+  }
+  const verticalExponent =
+    verticalExponentByte > 127 ? verticalExponentByte - 256 : verticalExponentByte
+  const horizontalExponent =
+    horizontalExponentByte > 127 ? horizontalExponentByte - 256 : horizontalExponentByte
+  return {
+    vertical: parseResolutionValue(
+      be16(data, 0, `JP2 ${type} vertical numerator`),
+      be16(data, 2, `JP2 ${type} vertical denominator`),
+      verticalExponent,
+      `${type} vertical`,
+    ),
+    horizontal: parseResolutionValue(
+      be16(data, 4, `JP2 ${type} horizontal numerator`),
+      be16(data, 6, `JP2 ${type} horizontal denominator`),
+      horizontalExponent,
+      `${type} horizontal`,
+    ),
+  }
+}
+
+const parseResolutionSuperbox = async (
+  source: ImageSource,
+  box: Jp2Box,
+  state: MutableJp2Header,
+  boxCounter: { value: number },
+): Promise<void> => {
+  let position = box.content
+  while (position < box.end) {
+    boxCounter.value += 1
+    if (boxCounter.value > maximumBoxes) throw limitExceeded('JP2 box count exceeds limit')
+    const child = await readBox(source, position, box.end)
+    if (child.type !== 'resc' && child.type !== 'resd') {
+      throw invalidInput(`JP2 res superbox contains invalid ${child.type} child`)
+    }
+    const resolution = parseResolutionBox(
+      await readExactly(source, child.content, child.end - child.content),
+      child.type,
+    )
+    if (child.type === 'resc') {
+      if (state.captureResolution) throw invalidInput('JP2 contains duplicate resc boxes')
+      state.captureResolution = resolution
+    } else {
+      if (state.displayResolution) throw invalidInput('JP2 contains duplicate resd boxes')
+      state.displayResolution = resolution
+    }
+    position = child.end
+  }
 }
 
 const parseJp2Header = async (
@@ -207,11 +469,14 @@ const parseJp2Header = async (
       parseBitsPerComponentBox(await readExactly(source, child.content, length), state)
     } else if (child.type === 'colr') {
       parseColorBox(await readExactly(source, child.content, length), state)
-    } else if (child.type === 'pclr' || child.type === 'cmap' || child.type === 'cdef') {
-      throw unsupportedOperation(`JP2 ${child.type} channel mapping is not implemented`)
+    } else if (child.type === 'pclr') {
+      parsePaletteBox(await readExactly(source, child.content, length), state)
+    } else if (child.type === 'cmap') {
+      parseComponentMappingBox(await readExactly(source, child.content, length), state)
+    } else if (child.type === 'cdef') {
+      parseChannelDefinitionBox(await readExactly(source, child.content, length), state)
     } else if (child.type === 'res ') {
-      // Resolution metadata is bounded by the validated superbox and is not
-      // needed to reconstruct pixels yet.
+      await parseResolutionSuperbox(source, child, state, boxCounter)
     }
     position = child.end
   }
@@ -222,7 +487,7 @@ const describeContainer = async (source: ImageSource, limits: ImageLimits): Prom
   if (source.size < signature.byteLength) throw truncatedInput('JP2 signature box is truncated')
   const signatureBytes = await readExactly(source, 0, signature.byteLength)
   if (!isJp2(signatureBytes)) throw invalidInput('JP2 signature box is invalid')
-  const mutable: MutableJp2Header = {}
+  const mutable: MutableJp2Header = { colors: [] }
   const boxCounter = { value: 1 }
   let position = signature.byteLength
   let sawFtyp = false
@@ -271,9 +536,18 @@ const describeContainer = async (source: ImageSource, limits: ImageLimits): Prom
   if (!sawFtyp || !sawHeader || codestreamOffset === undefined || codestreamLength === undefined) {
     throw invalidInput('JP2 is missing ftyp, jp2h, or jp2c')
   }
-  const { width, height, components, colorSpace } = mutable
-  if (width === undefined || height === undefined || components === undefined || !colorSpace) {
+  const { width, height, components } = mutable
+  if (width === undefined || height === undefined || components === undefined) {
     throw invalidInput('JP2 required image metadata is missing')
+  }
+  const color = [...mutable.colors]
+    .sort(
+      (left, right) =>
+        left.precedence - right.precedence || left.approximation - right.approximation,
+    )
+    .find((candidate) => candidate.colorSpace !== undefined)
+  if (!color?.colorSpace) {
+    throw unsupportedOperation('JP2 has no supported color specification')
   }
   validateImageDimensions(width, height, 1, limits)
   const bitDepths =
@@ -290,13 +564,60 @@ const describeContainer = async (source: ImageSource, limits: ImageLimits): Prom
   if (bitDepths.some((depth) => depth < 1 || depth > 16)) {
     throw unsupportedOperation('JP2 component precision above 16 bits is unsupported')
   }
+  const channelMappings =
+    mutable.channelMappings ??
+    Array.from({ length: components }, (_, component): Jp2ChannelMapping => ({ component }))
+  if ((mutable.palette === undefined) !== (mutable.channelMappings === undefined)) {
+    throw invalidInput('JP2 palette and component mapping boxes must appear together')
+  }
+  for (const mapping of channelMappings) {
+    if (mapping.component >= components) {
+      throw invalidInput(`JP2 cmap component ${mapping.component} is outside the codestream`)
+    }
+    if (mapping.paletteColumn !== undefined) {
+      if (!mutable.palette || mapping.paletteColumn >= mutable.palette.columns.length) {
+        throw invalidInput(`JP2 cmap palette column ${mapping.paletteColumn} is invalid`)
+      }
+    }
+  }
+  const colorChannels = color.colorSpace === 'gray' ? 1 : 3
+  if (mutable.channelDefinitions === undefined && channelMappings.length !== colorChannels) {
+    throw unsupportedOperation('JP2 extra channels require an explicit cdef channel definition box')
+  }
+  const channelDefinitions =
+    mutable.channelDefinitions ??
+    Array.from(
+      { length: colorChannels },
+      (_, channel): Jp2ChannelDefinition => ({ channel, type: 0, association: channel + 1 }),
+    )
+  for (const definition of channelDefinitions) {
+    if (definition.channel >= channelMappings.length) {
+      throw invalidInput(`JP2 cdef channel ${definition.channel} is outside the channel mapping`)
+    }
+    const expectedColorChannels = colorChannels
+    if (
+      definition.type === 0 &&
+      (definition.association < 1 || definition.association > expectedColorChannels)
+    ) {
+      throw invalidInput(`JP2 color channel association ${definition.association} is invalid`)
+    }
+    if (definition.type !== 0 && definition.association > expectedColorChannels) {
+      throw invalidInput(`JP2 opacity channel association ${definition.association} is invalid`)
+    }
+  }
   return {
     width,
     height,
     components,
     bitDepths,
     signed,
-    colorSpace,
+    colorSpace: color.colorSpace,
+    ...(color.icc ? { icc: color.icc } : {}),
+    ...(mutable.palette ? { palette: mutable.palette } : {}),
+    channelMappings,
+    channelDefinitions,
+    ...(mutable.captureResolution ? { captureResolution: mutable.captureResolution } : {}),
+    ...(mutable.displayResolution ? { displayResolution: mutable.displayResolution } : {}),
     codestreamOffset,
     codestreamLength,
   }
@@ -336,6 +657,8 @@ interface CodingStyle {
   readonly decompositionLevels: number
   readonly codeBlockWidthExponent: number
   readonly codeBlockHeightExponent: number
+  readonly resetContexts: boolean
+  readonly verticalCausal: boolean
   readonly segmentationSymbols: boolean
   readonly reversible: boolean
   readonly precincts: readonly { readonly x: number; readonly y: number }[]
@@ -416,6 +739,7 @@ interface TileComponent {
   readonly y1: number
   readonly style: CodingStyle
   readonly quantization: Quantization
+  readonly roiShift: number
   resolutions: readonly Resolution[]
 }
 
@@ -429,7 +753,8 @@ interface Tile {
   readonly style: CodingStyle
   packets: readonly Packet[]
   nextPacket: number
-  decoded: boolean
+  nextPart: number
+  partCount?: number
 }
 
 interface Packet {
@@ -599,9 +924,9 @@ const parseCodingStyle = (
     throw unsupportedOperation('JPEG 2000 code-block dimensions are unsupported')
   }
   if ((blockStyle & 0xc0) !== 0) throw invalidInput('JPEG 2000 reserved code-block flags are set')
-  if ((blockStyle & 0x1f) !== 0) {
+  if ((blockStyle & 0x15) !== 0) {
     throw unsupportedOperation(
-      'JPEG 2000 arithmetic bypass, context reset, pass termination, vertical causal, and predictable termination styles are not implemented',
+      'JPEG 2000 arithmetic bypass, pass termination, and predictable termination styles are not implemented',
     )
   }
   if (transform !== 0 && transform !== 1) {
@@ -635,6 +960,8 @@ const parseCodingStyle = (
       decompositionLevels,
       codeBlockWidthExponent,
       codeBlockHeightExponent,
+      resetContexts: (blockStyle & 0x02) !== 0,
+      verticalCausal: (blockStyle & 0x08) !== 0,
       segmentationSymbols: (blockStyle & 0x20) !== 0,
       reversible: transform === 1,
       precincts,
@@ -684,6 +1011,27 @@ const parseQuantization = (
     ...(component === undefined ? {} : { component }),
     quantization: { style, guardBits: sq >>> 5, steps },
   }
+}
+
+const parseRoiShift = (
+  payload: Uint8Array,
+  componentBytes: 1 | 2,
+): { readonly component: number; readonly shift: number } => {
+  const expected = componentBytes + 2
+  if (payload.byteLength !== expected) throw invalidInput('JPEG 2000 RGN marker length is invalid')
+  const component = componentBytes === 1 ? payload[0] : be16(payload, 0, 'JPEG 2000 RGN component')
+  const style = payload[componentBytes]
+  const shift = payload[componentBytes + 1]
+  if (component === undefined || style === undefined || shift === undefined) {
+    throw truncatedInput('JPEG 2000 RGN marker is truncated')
+  }
+  if (style !== 0) {
+    throw unsupportedOperation(`JPEG 2000 ROI style ${style} is unsupported`)
+  }
+  if (shift > 31) {
+    throw unsupportedOperation(`JPEG 2000 ROI shift ${shift} is unsupported`)
+  }
+  return { component, shift }
 }
 
 const tileBounds = (
@@ -1001,6 +1349,7 @@ const createTile = (options: {
   readonly defaultStyle: CodingStyle
   readonly componentStyles: ReadonlyMap<number, CodingStyle>
   readonly defaultQuantization: Quantization
+  readonly componentRoiShifts: ReadonlyMap<number, number>
   readonly componentQuantizations: ReadonlyMap<number, Quantization>
   readonly blockCounter: { value: number }
 }): Tile => {
@@ -1018,6 +1367,7 @@ const createTile = (options: {
       y1: Math.ceil(bounds.y1 / specification.ySampling),
       style,
       quantization,
+      roiShift: options.componentRoiShifts.get(index) ?? 0,
       resolutions: [],
     }
     component.resolutions = buildResolutions(component, options.blockCounter)
@@ -1030,7 +1380,7 @@ const createTile = (options: {
     style: options.defaultStyle,
     packets: [],
     nextPacket: 0,
-    decoded: false,
+    nextPart: 0,
   }
   tile.packets = buildPackets(tile, options.size)
   return tile
@@ -1364,6 +1714,7 @@ const parseCodestream = (data: Uint8Array, limits: ImageLimits): ParsedCodestrea
   let size: SizeMarker | undefined
   let defaultStyle: CodingStyle | undefined
   let defaultQuantization: Quantization | undefined
+  const componentRoiShifts = new Map<number, number>()
   const componentStyles = new Map<number, CodingStyle>()
   const componentQuantizations = new Map<number, Quantization>()
   const tiles = new Map<number, Tile>()
@@ -1429,9 +1780,24 @@ const parseCodestream = (data: Uint8Array, limits: ImageLimits): ParsedCodestrea
       if (parsed.component === undefined || parsed.component >= size.components.length) {
         throw invalidInput('JPEG 2000 QCC component index is invalid')
       }
-      if (componentQuantizations.has(parsed.component))
+      if (componentQuantizations.has(parsed.component)) {
         throw invalidInput('JPEG 2000 duplicate main QCC marker')
+      }
       componentQuantizations.set(parsed.component, parsed.quantization)
+      position = segment.end
+      continue
+    }
+    if (marker === 0xff5e) {
+      if (!size) throw invalidInput('JPEG 2000 RGN precedes SIZ')
+      const segment = segmentPayload(data, position, data.byteLength)
+      const parsed = parseRoiShift(segment.payload, size.components.length < 257 ? 1 : 2)
+      if (parsed.component >= size.components.length) {
+        throw invalidInput('JPEG 2000 RGN component index is invalid')
+      }
+      if (componentRoiShifts.has(parsed.component)) {
+        throw invalidInput('JPEG 2000 duplicate main RGN marker')
+      }
+      componentRoiShifts.set(parsed.component, parsed.shift)
       position = segment.end
       continue
     }
@@ -1446,22 +1812,37 @@ const parseCodestream = (data: Uint8Array, limits: ImageLimits): ParsedCodestrea
       const tilePartLength = be32(segment.payload, 2, 'JPEG 2000 tile-part length')
       const partIndex = segment.payload[6]
       const partCount = segment.payload[7]
-      if (partIndex !== 0 || (partCount !== 0 && partCount !== 1)) {
-        throw unsupportedOperation('JPEG 2000 multiple tile-parts per tile are not implemented')
+      if (partIndex === undefined || partCount === undefined) {
+        throw truncatedInput('JPEG 2000 tile-part index is truncated')
       }
-      if (tilePartLength === 0)
+      if (partCount !== 0 && (partCount < 1 || partIndex >= partCount)) {
+        throw invalidInput('JPEG 2000 tile-part index exceeds its declared count')
+      }
+      if (tilePartLength === 0) {
         throw unsupportedOperation('JPEG 2000 open-ended tile-parts are unsupported')
+      }
       const tileEnd = position + tilePartLength
       if (tileEnd > data.byteLength || tileEnd <= segment.end) {
         throw truncatedInput('JPEG 2000 tile-part extent is invalid')
       }
-      if (tiles.has(tileIndex)) throw invalidInput(`JPEG 2000 tile ${tileIndex} is duplicated`)
       let tileStyle = defaultStyle
       let tileQuantization = defaultQuantization
       const tileComponentStyles = new Map(componentStyles)
+      const tileComponentRoiShifts = new Map(componentRoiShifts)
       const tileComponentQuantizations = new Map(componentQuantizations)
       let headerPosition = segment.end
       let sawData = false
+      const existingTile = tiles.get(tileIndex)
+      if (partIndex !== (existingTile?.nextPart ?? 0)) {
+        throw invalidInput(`JPEG 2000 tile ${tileIndex} part ${partIndex} is out of order`)
+      }
+      if (
+        existingTile?.partCount !== undefined &&
+        partCount !== 0 &&
+        existingTile.partCount !== partCount
+      ) {
+        throw invalidInput(`JPEG 2000 tile ${tileIndex} changes its tile-part count`)
+      }
       while (headerPosition + 2 <= tileEnd) {
         const tileMarker = be16(data, headerPosition, 'JPEG 2000 tile marker')
         if (tileMarker === 0xff93) {
@@ -1470,6 +1851,11 @@ const parseCodestream = (data: Uint8Array, limits: ImageLimits): ParsedCodestrea
           break
         }
         const tileSegment = segmentPayload(data, headerPosition, tileEnd)
+        if (partIndex > 0 && tileMarker !== 0xff58 && tileMarker !== 0xff64) {
+          throw unsupportedOperation(
+            `JPEG 2000 later tile-part marker 0x${tileMarker.toString(16)} is unsupported`,
+          )
+        }
         if (tileMarker === 0xff52) {
           tileStyle = parseCodingStyle(
             tileSegment.payload,
@@ -1499,8 +1885,16 @@ const parseCodestream = (data: Uint8Array, limits: ImageLimits): ParsedCodestrea
             throw invalidInput('JPEG 2000 tile QCC component index is invalid')
           }
           tileComponentQuantizations.set(parsed.component, parsed.quantization)
-        } else if (tileMarker === 0xff58 || tileMarker === 0xff64) {
-          // PLT and COM are bounded hints and do not alter reconstruction.
+        } else if (tileMarker === 0xff5e) {
+          const parsed = parseRoiShift(tileSegment.payload, size.components.length < 257 ? 1 : 2)
+          if (parsed.component >= size.components.length) {
+            throw invalidInput('JPEG 2000 tile RGN component index is invalid')
+          }
+          tileComponentRoiShifts.set(parsed.component, parsed.shift)
+        } else if (tileMarker === 0xff64) {
+          // COM is bounded opaque metadata and does not alter reconstruction.
+        } else if (tileMarker === 0xff58) {
+          throw unsupportedOperation('JPEG 2000 PLT packet-length markers are unsupported')
         } else {
           throw unsupportedOperation(
             `JPEG 2000 tile marker 0x${tileMarker.toString(16)} is unsupported`,
@@ -1509,35 +1903,47 @@ const parseCodestream = (data: Uint8Array, limits: ImageLimits): ParsedCodestrea
         headerPosition = tileSegment.end
       }
       if (!sawData) throw invalidInput('JPEG 2000 SOD marker is missing')
-      const tile = createTile({
-        index: tileIndex,
-        size,
-        defaultStyle: tileStyle,
-        componentStyles: tileComponentStyles,
-        defaultQuantization: tileQuantization,
-        componentQuantizations: tileComponentQuantizations,
-        blockCounter,
-      })
+      const tile =
+        existingTile ??
+        createTile({
+          index: tileIndex,
+          size,
+          defaultStyle: tileStyle,
+          componentStyles: tileComponentStyles,
+          defaultQuantization: tileQuantization,
+          componentQuantizations: tileComponentQuantizations,
+          componentRoiShifts: tileComponentRoiShifts,
+          blockCounter,
+        })
+      if (partCount !== 0) tile.partCount = partCount
       const consumed = parsePacketData(data, headerPosition, tileEnd, tile)
-      if (tile.nextPacket !== tile.packets.length) {
-        throw truncatedInput(
-          `JPEG 2000 tile ${tileIndex} contains ${tile.nextPacket} of ${tile.packets.length} packets`,
-        )
-      }
       if (consumed !== tileEnd) {
         throw invalidInput(`JPEG 2000 tile ${tileIndex} has unconsumed packet data`)
       }
-      tile.decoded = true
+      tile.nextPart += 1
+      if (tile.partCount !== undefined && tile.nextPart === tile.partCount) {
+        if (tile.nextPacket !== tile.packets.length) {
+          throw truncatedInput(
+            `JPEG 2000 tile ${tileIndex} contains ${tile.nextPacket} of ${tile.packets.length} packets`,
+          )
+        }
+      }
       tiles.set(tileIndex, tile)
       position = tileEnd
       continue
     }
-    if (marker === 0xff55 || marker === 0xff57 || marker === 0xff64) {
+    if (marker === 0xff64) {
       const segment = segmentPayload(data, position, data.byteLength)
       position = segment.end
       continue
     }
-    if (marker === 0xff5e || marker === 0xff5f || marker === 0xff60 || marker === 0xff61) {
+    if (
+      marker === 0xff55 ||
+      marker === 0xff57 ||
+      marker === 0xff5f ||
+      marker === 0xff60 ||
+      marker === 0xff61
+    ) {
       throw unsupportedOperation(`JPEG 2000 marker 0x${marker.toString(16)} is not implemented`)
     }
     throw unsupportedOperation(`JPEG 2000 marker 0x${marker.toString(16)} is unsupported`)
@@ -1552,6 +1958,18 @@ const parseCodestream = (data: Uint8Array, limits: ImageLimits): ParsedCodestrea
     Math.ceil((size.ySize - size.tileYOrigin) / size.tileHeight)
   if (tiles.size !== expectedTiles) {
     throw invalidInput(`JPEG 2000 contains ${tiles.size} of ${expectedTiles} required tiles`)
+  }
+  for (const tile of tiles.values()) {
+    if (tile.partCount !== undefined && tile.nextPart !== tile.partCount) {
+      throw truncatedInput(
+        `JPEG 2000 tile ${tile.index} contains ${tile.nextPart} of ${tile.partCount} tile-parts`,
+      )
+    }
+    if (tile.nextPacket !== tile.packets.length) {
+      throw truncatedInput(
+        `JPEG 2000 tile ${tile.index} contains ${tile.nextPacket} of ${tile.packets.length} packets`,
+      )
+    }
   }
   return {
     size,
@@ -1574,6 +1992,7 @@ interface ReconstructedComponent {
   readonly y0: number
   readonly width: number
   readonly height: number
+  readonly scale: number
   readonly values: Float32Array
 }
 
@@ -1607,7 +2026,10 @@ const decodeBand = (
   delta: number,
   magnitudeBits: number,
   reversible: boolean,
+  resetContexts: boolean,
+  roiShift: number,
   segmentationSymbols: boolean,
+  verticalCausal: boolean,
 ): void => {
   const bandWidth = band.x1 - band.x0
   const horizontalHigh = band.type === 'HL' || band.type === 'HH' ? 1 - (levelX0 & 1) : levelX0 & 1
@@ -1637,7 +2059,9 @@ const decodeBand = (
       band: block.band,
       zeroBitPlanes: block.zeroBitPlanes,
       codingPasses,
+      resetContexts,
       segmentationSymbols,
+      verticalCausal,
     })
     let bandOffset = block.clippedX0 - band.x0 + (block.clippedY0 - band.y0) * bandWidth
     let coefficient = 0
@@ -1648,18 +2072,22 @@ const decodeBand = (
       for (let x = 0; x < blockWidth; x += 1) {
         const magnitude = decoded.magnitude[coefficient] ?? 0
         if (magnitude !== 0) {
-          const corrected = (magnitude + (reversible ? 0 : 0.5)) * delta
-          const signed = decoded.negative[coefficient] === 1 ? -corrected : corrected
           const planes = decoded.decodedBitPlanes[coefficient] ?? 0
-          const value =
-            reversible && planes >= magnitudeBits ? signed : signed * 2 ** (magnitudeBits - planes)
+          let coefficientMagnitude =
+            (magnitude + (reversible ? 0 : 0.5)) * 2 ** (magnitudeBits - planes)
+          if (roiShift > 0 && coefficientMagnitude >= 2 ** roiShift) {
+            coefficientMagnitude /= 2 ** roiShift
+          }
+          const signed =
+            (decoded.negative[coefficient] === 1 ? -coefficientMagnitude : coefficientMagnitude) *
+            delta
           const targetOffset = band.type === 'LL' ? bandOffset : interleaveOffset + bandOffset * 2
           if (targetOffset < 0 || targetOffset >= target.length) {
             throw invalidInput(
               `JPEG 2000 ${band.type} coefficient ${targetOffset} maps outside ${target.length} values`,
             )
           }
-          target[targetOffset] = value
+          target[targetOffset] = signed
         }
         bandOffset += 1
         coefficient += 1
@@ -1674,14 +2102,19 @@ const reconstructComponent = (
   tile: Tile,
   componentIndex: number,
   specification: ComponentSpec,
+  scaleDenominator: 1 | 2 | 4 | 8,
 ): ReconstructedComponent => {
   const component = tile.components[componentIndex]
   if (!component) throw invalidInput('JPEG 2000 tile component is missing')
+  const requestedReduction = Math.log2(scaleDenominator)
+  const selectedLevel = Math.max(0, component.style.decompositionLevels - requestedReduction)
+  const componentScale = 2 ** (component.style.decompositionLevels - selectedLevel)
   const levels: Jpeg2000ResolutionCoefficients[] = []
   let sequentialStep = 0
   for (const resolution of component.resolutions) {
     const width = resolution.x1 - resolution.x0
     const height = resolution.y1 - resolution.y0
+    if (resolution.level > selectedLevel) break
     const values = new Float32Array(width * height)
     for (const band of resolution.bands) {
       const step = quantStep(component.quantization, sequentialStep, resolution.level)
@@ -1691,9 +2124,10 @@ const reconstructComponent = (
         : 2 ** (specification.precision + gainLog2(band.type) - step.exponent) *
           (1 + step.mantissa / 2048)
       const magnitudeBits = component.quantization.guardBits + step.exponent - 1
-      if (magnitudeBits < 0 || magnitudeBits > 31) {
+      const codedMagnitudeBits = magnitudeBits + component.roiShift
+      if (magnitudeBits < 0 || codedMagnitudeBits > 31) {
         throw unsupportedOperation(
-          `JPEG 2000 coefficient magnitude ${magnitudeBits} is unsupported`,
+          `JPEG 2000 coefficient magnitude ${codedMagnitudeBits} is unsupported`,
         )
       }
       decodeBand(
@@ -1704,19 +2138,23 @@ const reconstructComponent = (
         resolution.y0,
         band,
         delta,
-        magnitudeBits,
+        codedMagnitudeBits,
         component.style.reversible,
+        component.style.resetContexts,
+        component.roiShift,
         component.style.segmentationSymbols,
+        component.style.verticalCausal,
       )
     }
     levels.push({ x0: resolution.x0, y0: resolution.y0, width, height, values })
   }
   const reconstructed = inverseJpeg2000Wavelet(levels, component.style.reversible)
   return {
-    x0: component.x0,
-    y0: component.y0,
+    x0: reconstructed.x0,
+    y0: reconstructed.y0,
     width: reconstructed.width,
     height: reconstructed.height,
+    scale: componentScale,
     values: reconstructed.values,
   }
 }
@@ -1753,134 +2191,507 @@ const componentValueAt = (
   referenceX: number,
   referenceY: number,
 ): number => {
-  const x = Math.floor(referenceX / specification.xSampling) - component.x0
-  const y = Math.floor(referenceY / specification.ySampling) - component.y0
+  const x = Math.floor(referenceX / (specification.xSampling * component.scale)) - component.x0
+  const y = Math.floor(referenceY / (specification.ySampling * component.scale)) - component.y0
   const clampedX = Math.max(0, Math.min(component.width - 1, x))
   const clampedY = Math.max(0, Math.min(component.height - 1, y))
   return component.values[clampedY * component.width + clampedX] ?? 0
 }
 
-const reconstructPixels = (
+interface Jp2DisplayLayout {
+  readonly alphaChannel?: number
+  readonly colorChannels: readonly number[]
+  readonly format: 'gray8' | 'rgb8' | 'rgba8'
+  readonly outputChannels: 1 | 3 | 4
+  readonly premultiplied: boolean
+}
+
+const displayLayout = (container: Jp2Header): Jp2DisplayLayout => {
+  const colorCount = container.colorSpace === 'gray' ? 1 : 3
+  const colorChannels = Array.from({ length: colorCount }, () => -1)
+  let alphaChannel: number | undefined
+  let premultiplied = false
+  for (const definition of container.channelDefinitions) {
+    if (definition.type === 0) {
+      const association = definition.association - 1
+      if (colorChannels[association] !== -1) {
+        throw invalidInput(`JP2 color association ${definition.association} is duplicated`)
+      }
+      colorChannels[association] = definition.channel
+      continue
+    }
+    if (definition.association !== 0) {
+      throw unsupportedOperation('JP2 per-channel opacity is unsupported')
+    }
+    if (alphaChannel !== undefined) {
+      throw unsupportedOperation('JP2 multiple opacity channels are unsupported')
+    }
+    alphaChannel = definition.channel
+    premultiplied = definition.type === 2
+  }
+  if (colorChannels.some((channel) => channel < 0)) {
+    throw invalidInput('JP2 color channel definitions are incomplete')
+  }
+  if (alphaChannel !== undefined) {
+    return { alphaChannel, colorChannels, format: 'rgba8', outputChannels: 4, premultiplied }
+  }
+  return container.colorSpace === 'gray'
+    ? { colorChannels, format: 'gray8', outputChannels: 1, premultiplied }
+    : { colorChannels, format: 'rgb8', outputChannels: 3, premultiplied }
+}
+
+const paletteSample = (value: number, column: Jp2PaletteColumn): number => {
+  const shifted = column.signed ? value + 2 ** (column.bitDepth - 1) : value
+  return clampByte((shifted * 255) / (2 ** column.bitDepth - 1))
+}
+
+const channelSampleAt = (
+  container: Jp2Header,
+  parsed: ParsedCodestream,
+  components: readonly ReconstructedComponent[],
+  channel: number,
+  referenceX: number,
+  referenceY: number,
+): number => {
+  const mapping = container.channelMappings[channel]
+  if (!mapping) throw invalidInput(`JP2 channel mapping ${channel} is missing`)
+  const component = components[mapping.component]
+  const specification = parsed.size.components[mapping.component]
+  if (!component || !specification) throw invalidInput('JP2 mapped component is missing')
+  const value = componentValueAt(component, specification, referenceX, referenceY)
+  if (mapping.paletteColumn === undefined) return normalizedSample(value, specification)
+  const palette = container.palette
+  const column = palette?.columns[mapping.paletteColumn]
+  if (!palette || !column) throw invalidInput('JP2 mapped palette column is missing')
+  const rawIndex = specification.signed
+    ? Math.round(value)
+    : Math.round(value + 2 ** (specification.precision - 1))
+  const index = Math.max(0, Math.min(palette.entries - 1, rawIndex))
+  return paletteSample(column.values[index] ?? 0, column)
+}
+
+interface ReconstructedTile {
+  readonly tile: Tile
+  readonly components: readonly ReconstructedComponent[]
+}
+
+const reconstructTile = (
   codestream: Uint8Array,
   parsed: ParsedCodestream,
-  colorSpace: Jp2Header['colorSpace'],
-): { readonly data: Uint8Array; readonly format: 'gray8' | 'rgb8' } => {
-  const width = parsed.size.xSize - parsed.size.xOrigin
-  const height = parsed.size.ySize - parsed.size.yOrigin
-  const grayscale = colorSpace === 'gray'
-  const format = grayscale ? 'gray8' : 'rgb8'
-  const channels = grayscale ? 1 : 3
-  const output = new Uint8Array(width * height * channels)
-  for (const tile of parsed.tiles) {
-    const components = parsed.size.components.map((specification, index) =>
-      reconstructComponent(codestream, tile, index, specification),
-    )
-    if (components.length !== (grayscale ? 1 : 3)) {
-      throw unsupportedOperation(
-        `JP2 ${colorSpace} output requires ${grayscale ? 1 : 3} components`,
-      )
-    }
-    const first = components[0]
-    const firstSpec = parsed.size.components[0]
-    if (!first || !firstSpec) throw invalidInput('JPEG 2000 primary component is missing')
-    const useTransform = tile.style.transformComponents
-    if (useTransform && components.length !== 3) {
+  tile: Tile,
+  scaleDenominator: 1 | 2 | 4 | 8,
+): ReconstructedTile => {
+  const components = parsed.size.components.map((specification, index) =>
+    reconstructComponent(codestream, tile, index, specification, scaleDenominator),
+  )
+  if (tile.style.transformComponents) {
+    const first = parsed.size.components[0]
+    if (!first || components.length < 3) {
       throw invalidInput('JPEG 2000 multiple-component transform requires three components')
     }
-    if (
-      useTransform &&
-      parsed.size.components.some(
-        (item) =>
-          item.precision !== firstSpec.precision || item.xSampling !== 1 || item.ySampling !== 1,
-      )
-    ) {
-      throw unsupportedOperation(
-        'JPEG 2000 transformed components must share precision and full sampling',
-      )
-    }
-    for (let referenceY = tile.y0; referenceY < tile.y1; referenceY += 1) {
-      for (let referenceX = tile.x0; referenceX < tile.x1; referenceX += 1) {
-        const target =
-          ((referenceY - parsed.size.yOrigin) * width + (referenceX - parsed.size.xOrigin)) *
-          channels
-        if (grayscale) {
-          output[target] = normalizedSample(
-            componentValueAt(first, firstSpec, referenceX, referenceY),
-            firstSpec,
-          )
-          continue
-        }
-        const second = components[1]
-        const third = components[2]
-        const secondSpec = parsed.size.components[1]
-        const thirdSpec = parsed.size.components[2]
-        if (!second || !third || !secondSpec || !thirdSpec) {
-          throw invalidInput('JPEG 2000 color components are missing')
-        }
-        let red: number
-        let green: number
-        let blue: number
-        if (useTransform) {
-          const y = componentValueAt(first, firstSpec, referenceX, referenceY)
-          const u = componentValueAt(second, secondSpec, referenceX, referenceY)
-          const v = componentValueAt(third, thirdSpec, referenceX, referenceY)
-          const offset = firstSpec.signed ? 0 : 2 ** (firstSpec.precision - 1)
-          const maximum = 2 ** firstSpec.precision - 1
-          if (tile.style.reversible) {
-            const g = y + offset - Math.floor((u + v) / 4)
-            red = ((g + v) * 255) / maximum
-            green = (g * 255) / maximum
-            blue = ((g + u) * 255) / maximum
-          } else {
-            const luminance = y + offset
-            red = ((luminance + 1.402 * v) * 255) / maximum
-            green = ((luminance - 0.34413 * u - 0.71414 * v) * 255) / maximum
-            blue = ((luminance + 1.772 * u) * 255) / maximum
-          }
-        } else if (colorSpace === 'sycc') {
-          const y = normalizedSample(
-            componentValueAt(first, firstSpec, referenceX, referenceY),
-            firstSpec,
-          )
-          const cb = normalizedSample(
-            componentValueAt(second, secondSpec, referenceX, referenceY),
-            secondSpec,
-          )
-          const cr = normalizedSample(
-            componentValueAt(third, thirdSpec, referenceX, referenceY),
-            thirdSpec,
-          )
-          red = y + (ycbcrTables.redFromCr[cr] ?? 0)
-          green =
-            y + (((ycbcrTables.greenFromCb[cb] ?? 0) + (ycbcrTables.greenFromCr[cr] ?? 0)) >> 16)
-          blue = y + (ycbcrTables.blueFromCb[cb] ?? 0)
-        } else {
-          red = normalizedSample(
-            componentValueAt(first, firstSpec, referenceX, referenceY),
-            firstSpec,
-          )
-          green = normalizedSample(
-            componentValueAt(second, secondSpec, referenceX, referenceY),
-            secondSpec,
-          )
-          blue = normalizedSample(
-            componentValueAt(third, thirdSpec, referenceX, referenceY),
-            thirdSpec,
-          )
-        }
-        output[target] = clampByte(red)
-        output[target + 1] = clampByte(green)
-        output[target + 2] = clampByte(blue)
+    for (let index = 0; index < 3; index += 1) {
+      const specification = parsed.size.components[index]
+      if (
+        !specification ||
+        specification.precision !== first.precision ||
+        specification.xSampling !== 1 ||
+        specification.ySampling !== 1 ||
+        components[index]?.scale !== components[0]?.scale
+      ) {
+        throw unsupportedOperation(
+          'JPEG 2000 transformed components must share precision, sampling, and resolution',
+        )
       }
     }
   }
-  return { data: output, format }
+  return { tile, components }
+}
+
+const transformedColorAt = (
+  parsed: ParsedCodestream,
+  rendered: ReconstructedTile,
+  referenceX: number,
+  referenceY: number,
+): readonly [number, number, number] => {
+  const first = rendered.components[0]
+  const second = rendered.components[1]
+  const third = rendered.components[2]
+  const specification = parsed.size.components[0]
+  const secondSpec = parsed.size.components[1]
+  const thirdSpec = parsed.size.components[2]
+  if (!first || !second || !third || !specification || !secondSpec || !thirdSpec) {
+    throw invalidInput('JPEG 2000 transformed color components are missing')
+  }
+  const y = componentValueAt(first, specification, referenceX, referenceY)
+  const u = componentValueAt(second, secondSpec, referenceX, referenceY)
+  const v = componentValueAt(third, thirdSpec, referenceX, referenceY)
+  const offset = specification.signed ? 0 : 2 ** (specification.precision - 1)
+  const maximum = 2 ** specification.precision - 1
+  if (rendered.tile.style.reversible) {
+    const green = y + offset - Math.floor((u + v) / 4)
+    return [((green + v) * 255) / maximum, (green * 255) / maximum, ((green + u) * 255) / maximum]
+  }
+  const luminance = y + offset
+  return [
+    ((luminance + 1.402 * v) * 255) / maximum,
+    ((luminance - 0.34413 * u - 0.71414 * v) * 255) / maximum,
+    ((luminance + 1.772 * u) * 255) / maximum,
+  ]
+}
+
+const writeRenderedPixel = (
+  output: Uint8Array,
+  target: number,
+  container: Jp2Header,
+  parsed: ParsedCodestream,
+  layout: Jp2DisplayLayout,
+  rendered: ReconstructedTile,
+  referenceX: number,
+  referenceY: number,
+): void => {
+  if (layout.format === 'gray8') {
+    output[target] = channelSampleAt(
+      container,
+      parsed,
+      rendered.components,
+      layout.colorChannels[0] ?? 0,
+      referenceX,
+      referenceY,
+    )
+    return
+  }
+  let red: number
+  let green: number
+  let blue: number
+  if (container.colorSpace === 'gray') {
+    red = channelSampleAt(
+      container,
+      parsed,
+      rendered.components,
+      layout.colorChannels[0] ?? 0,
+      referenceX,
+      referenceY,
+    )
+    green = red
+    blue = red
+  } else if (rendered.tile.style.transformComponents) {
+    const mappings = layout.colorChannels.map((channel) => container.channelMappings[channel])
+    if (
+      mappings.some(
+        (mapping, index) =>
+          !mapping || mapping.paletteColumn !== undefined || mapping.component !== index,
+      )
+    ) {
+      throw unsupportedOperation('JP2 transformed color channels use an unsupported mapping')
+    }
+    ;[red, green, blue] = transformedColorAt(parsed, rendered, referenceX, referenceY)
+  } else {
+    const first = channelSampleAt(
+      container,
+      parsed,
+      rendered.components,
+      layout.colorChannels[0] ?? 0,
+      referenceX,
+      referenceY,
+    )
+    const second = channelSampleAt(
+      container,
+      parsed,
+      rendered.components,
+      layout.colorChannels[1] ?? 1,
+      referenceX,
+      referenceY,
+    )
+    const third = channelSampleAt(
+      container,
+      parsed,
+      rendered.components,
+      layout.colorChannels[2] ?? 2,
+      referenceX,
+      referenceY,
+    )
+    if (container.colorSpace === 'sycc') {
+      red = first + (ycbcrTables.redFromCr[third] ?? 0)
+      green =
+        first +
+        (((ycbcrTables.greenFromCb[second] ?? 0) + (ycbcrTables.greenFromCr[third] ?? 0)) >> 16)
+      blue = first + (ycbcrTables.blueFromCb[second] ?? 0)
+    } else {
+      red = first
+      green = second
+      blue = third
+    }
+  }
+  let alpha = 255
+  if (layout.alphaChannel !== undefined) {
+    alpha = channelSampleAt(
+      container,
+      parsed,
+      rendered.components,
+      layout.alphaChannel,
+      referenceX,
+      referenceY,
+    )
+    if (layout.premultiplied && alpha > 0 && alpha < 255) {
+      red = (red * 255) / alpha
+      green = (green * 255) / alpha
+      blue = (blue * 255) / alpha
+    } else if (layout.premultiplied && alpha === 0) {
+      red = 0
+      green = 0
+      blue = 0
+    }
+  }
+  output[target] = clampByte(red)
+  output[target + 1] = clampByte(green)
+  output[target + 2] = clampByte(blue)
+  if (layout.outputChannels === 4) output[target + 3] = alpha
+}
+
+const reconstructPixelBlocks = async function* (
+  codestream: Uint8Array,
+  parsed: ParsedCodestream,
+  container: Jp2Header,
+  region: {
+    readonly x: number
+    readonly y: number
+    readonly width: number
+    readonly height: number
+  },
+  scaleDenominator: 1 | 2 | 4 | 8,
+): AsyncGenerator<PixelBlock> {
+  const layout = displayLayout(container)
+  const regionEndX = region.x + region.width
+  const regionEndY = region.y + region.height
+  let tileIndex = 0
+  while (tileIndex < parsed.tiles.length) {
+    const firstTile = parsed.tiles[tileIndex]
+    if (!firstTile) throw invalidInput('JPEG 2000 tile row is missing')
+    const rowY0 = firstTile.y0
+    const rowY1 = firstTile.y1
+    const rowTiles: Tile[] = []
+    while (tileIndex < parsed.tiles.length) {
+      const tile = parsed.tiles[tileIndex]
+      if (!tile || tile.y0 !== rowY0 || tile.y1 !== rowY1) break
+      rowTiles.push(tile)
+      tileIndex += 1
+    }
+    const outputRowY0 = Math.ceil((rowY0 - parsed.size.yOrigin) / scaleDenominator)
+    const outputRowY1 = Math.ceil((rowY1 - parsed.size.yOrigin) / scaleDenominator)
+    const rowStart = Math.max(region.y, outputRowY0)
+    const rowEnd = Math.min(regionEndY, outputRowY1)
+    if (rowStart >= rowEnd) continue
+    const renderedTiles = rowTiles
+      .filter((tile) => {
+        const x0 = Math.ceil((tile.x0 - parsed.size.xOrigin) / scaleDenominator)
+        const x1 = Math.ceil((tile.x1 - parsed.size.xOrigin) / scaleDenominator)
+        return x0 < regionEndX && x1 > region.x
+      })
+      .map((tile) => reconstructTile(codestream, parsed, tile, scaleDenominator))
+    for (let outputY = rowStart; outputY < rowEnd; outputY += blockRows) {
+      const rows = Math.min(blockRows, rowEnd - outputY)
+      const stride = region.width * layout.outputChannels
+      const data = new Uint8Array(stride * rows)
+      for (const rendered of renderedTiles) {
+        const tileX0 = Math.ceil((rendered.tile.x0 - parsed.size.xOrigin) / scaleDenominator)
+        const tileX1 = Math.ceil((rendered.tile.x1 - parsed.size.xOrigin) / scaleDenominator)
+        const outputX0 = Math.max(region.x, tileX0)
+        const outputX1 = Math.min(regionEndX, tileX1)
+        for (let localY = 0; localY < rows; localY += 1) {
+          const scaledY = outputY + localY
+          const referenceY = parsed.size.yOrigin + scaledY * scaleDenominator
+          for (let scaledX = outputX0; scaledX < outputX1; scaledX += 1) {
+            const referenceX = parsed.size.xOrigin + scaledX * scaleDenominator
+            const target = localY * stride + (scaledX - region.x) * layout.outputChannels
+            writeRenderedPixel(
+              data,
+              target,
+              container,
+              parsed,
+              layout,
+              rendered,
+              referenceX,
+              referenceY,
+            )
+          }
+        }
+      }
+      yield {
+        x: 0,
+        y: outputY - region.y,
+        width: region.width,
+        height: rows,
+        stride,
+        format: layout.format,
+        data,
+      }
+    }
+  }
+}
+
+interface Jpeg2000Inspection {
+  readonly container: Jp2Header
+  readonly size: SizeMarker
+  readonly lossless: boolean
+  readonly resolutionLevels: number
+  readonly tiles: number
+}
+
+const validateContainerSize = (container: Jp2Header, size: SizeMarker): void => {
+  const width = size.xSize - size.xOrigin
+  const height = size.ySize - size.yOrigin
+  if (width !== container.width || height !== container.height) {
+    throw invalidInput('JP2 ihdr dimensions disagree with JPEG 2000 SIZ')
+  }
+  if (size.components.length !== container.components) {
+    throw invalidInput('JP2 ihdr component count disagrees with JPEG 2000 SIZ')
+  }
+  for (let index = 0; index < container.components; index += 1) {
+    const component = size.components[index]
+    if (!component) throw invalidInput('JPEG 2000 component is missing')
+    if (
+      component.precision !== container.bitDepths[index] ||
+      component.signed !== container.signed[index]
+    ) {
+      throw invalidInput(`JP2 component ${index} precision disagrees with JPEG 2000 SIZ`)
+    }
+  }
+}
+
+const inspectCodestreamHeader = async (
+  source: ImageSource,
+  container: Jp2Header,
+  limits: ImageLimits,
+): Promise<Jpeg2000Inspection> => {
+  const start = container.codestreamOffset
+  const end = start + container.codestreamLength
+  if (be16(await readExactly(source, start, 2), 0, 'JPEG 2000 SOC marker') !== 0xff4f) {
+    throw invalidInput('JPEG 2000 SOC marker is missing')
+  }
+  let position = start + 2
+  let markerCount = 1
+  let size: SizeMarker | undefined
+  let defaultStyle: CodingStyle | undefined
+  const componentStyles = new Map<number, CodingStyle>()
+  const componentQuantizations = new Set<number>()
+  const componentRoiShifts = new Set<number>()
+  let sawQuantization = false
+  while (position + 2 <= end) {
+    markerCount += 1
+    if (markerCount > maximumBoxes)
+      throw limitExceeded('JPEG 2000 main-header marker count exceeds limit')
+    const markerBytes = await readExactly(source, position, 2)
+    const marker = be16(markerBytes, 0, 'JPEG 2000 main-header marker')
+    if (marker === 0xff90) break
+    if (marker === 0xff93 || marker === 0xffd9 || marker === 0xff4f) {
+      throw invalidInput(`JPEG 2000 marker 0x${marker.toString(16)} is invalid in the main header`)
+    }
+    const lengthBytes = await readExactly(source, position + 2, 2)
+    const length = be16(lengthBytes, 0, 'JPEG 2000 main-header marker length')
+    if (length < 2) throw invalidInput('JPEG 2000 main-header marker length is invalid')
+    const markerEnd = position + 2 + length
+    if (!Number.isSafeInteger(markerEnd) || markerEnd > end) {
+      throw truncatedInput('JPEG 2000 main-header marker exceeds the codestream')
+    }
+    const payload = await readExactly(source, position + 4, length - 2)
+    if (marker === 0xff51) {
+      if (size) throw invalidInput('JPEG 2000 contains duplicate SIZ markers')
+      size = parseSizeMarker(payload, limits)
+    } else if (marker === 0xff52) {
+      if (!size) throw invalidInput('JPEG 2000 COD precedes SIZ')
+      if (defaultStyle) throw invalidInput('JPEG 2000 contains duplicate main COD markers')
+      defaultStyle = parseCodingStyle(
+        payload,
+        false,
+        size.components.length < 257 ? 1 : 2,
+        undefined,
+      ).style
+    } else if (marker === 0xff53) {
+      if (!size || !defaultStyle) throw invalidInput('JPEG 2000 COC precedes SIZ or COD')
+      const parsedStyle = parseCodingStyle(
+        payload,
+        true,
+        size.components.length < 257 ? 1 : 2,
+        defaultStyle,
+      )
+      if (parsedStyle.component === undefined || parsedStyle.component >= size.components.length) {
+        throw invalidInput('JPEG 2000 COC component index is invalid')
+      }
+      if (componentStyles.has(parsedStyle.component)) {
+        throw invalidInput('JPEG 2000 duplicate main COC marker')
+      }
+      componentStyles.set(parsedStyle.component, parsedStyle.style)
+    } else if (marker === 0xff5c) {
+      if (sawQuantization) throw invalidInput('JPEG 2000 contains duplicate main QCD markers')
+      parseQuantization(payload, 0)
+      sawQuantization = true
+    } else if (marker === 0xff5d) {
+      if (!size) throw invalidInput('JPEG 2000 QCC precedes SIZ')
+      const parsed = parseQuantization(payload, size.components.length < 257 ? 1 : 2)
+      if (parsed.component === undefined || parsed.component >= size.components.length) {
+        throw invalidInput('JPEG 2000 QCC component index is invalid')
+      }
+      if (componentQuantizations.has(parsed.component)) {
+        throw invalidInput('JPEG 2000 duplicate main QCC marker')
+      }
+      componentQuantizations.add(parsed.component)
+    } else if (marker === 0xff5e) {
+      if (!size) throw invalidInput('JPEG 2000 RGN precedes SIZ')
+      const parsed = parseRoiShift(payload, size.components.length < 257 ? 1 : 2)
+      if (parsed.component >= size.components.length) {
+        throw invalidInput('JPEG 2000 RGN component index is invalid')
+      }
+      if (componentRoiShifts.has(parsed.component)) {
+        throw invalidInput('JPEG 2000 duplicate main RGN marker')
+      }
+      componentRoiShifts.add(parsed.component)
+    } else if (
+      marker !== 0xff55 &&
+      marker !== 0xff57 &&
+      marker !== 0xff5f &&
+      marker !== 0xff60 &&
+      marker !== 0xff61 &&
+      marker !== 0xff64
+    ) {
+      throw unsupportedOperation(
+        `JPEG 2000 main-header marker 0x${marker.toString(16)} is unsupported`,
+      )
+    }
+    position = markerEnd
+  }
+  if (!size || !defaultStyle || !sawQuantization) {
+    throw invalidInput('JPEG 2000 main header is incomplete')
+  }
+  if (position + 2 > end) throw truncatedInput('JPEG 2000 first tile-part is missing')
+  validateContainerSize(container, size)
+  displayLayout(container)
+  const styles = size.components.map(
+    (_, component) => componentStyles.get(component) ?? defaultStyle,
+  )
+  return {
+    container,
+    size,
+    lossless: styles.every((style) => style.reversible),
+    resolutionLevels: 1 + Math.max(...styles.map((style) => style.decompositionLevels)),
+    tiles:
+      Math.ceil((size.xSize - size.tileXOrigin) / size.tileWidth) *
+      Math.ceil((size.ySize - size.tileYOrigin) / size.tileHeight),
+  }
+}
+
+const inspectJpeg2000 = async (
+  source: ImageSource,
+  limits: ImageLimits,
+): Promise<Jpeg2000Inspection> => {
+  const container = await describeContainer(source, limits)
+  return inspectCodestreamHeader(source, container, limits)
 }
 
 interface Jpeg2000Description {
   readonly container: Jp2Header
   readonly codestream: Uint8Array
   readonly parsed: ParsedCodestream
+  readonly colorTransform?: RgbIccTransform
 }
 
 const describeJpeg2000 = async (
@@ -1894,57 +2705,43 @@ const describeJpeg2000 = async (
     container.codestreamLength,
   )
   const parsed = parseCodestream(codestream, limits)
-  const width = parsed.size.xSize - parsed.size.xOrigin
-  const height = parsed.size.ySize - parsed.size.yOrigin
-  if (width !== container.width || height !== container.height) {
-    throw invalidInput('JP2 ihdr dimensions disagree with JPEG 2000 SIZ')
-  }
-  if (parsed.size.components.length !== container.components) {
-    throw invalidInput('JP2 ihdr component count disagrees with JPEG 2000 SIZ')
-  }
-  for (let index = 0; index < container.components; index += 1) {
-    const component = parsed.size.components[index]
-    if (!component) throw invalidInput('JPEG 2000 component is missing')
-    if (
-      component.precision !== container.bitDepths[index] ||
-      component.signed !== container.signed[index]
-    ) {
-      throw invalidInput(`JP2 component ${index} precision disagrees with JPEG 2000 SIZ`)
-    }
-  }
-  if (container.signed.some(Boolean)) {
-    throw unsupportedOperation('Signed JP2 display components are not implemented')
-  }
-  if (
-    (container.colorSpace === 'gray' && container.components !== 1) ||
-    (container.colorSpace !== 'gray' && container.components !== 3)
-  ) {
-    throw unsupportedOperation(`JP2 ${container.colorSpace} component mapping is unsupported`)
-  }
-  return { container, codestream, parsed }
+  validateContainerSize(container, parsed.size)
+  displayLayout(container)
+  const colorTransform =
+    container.icc && container.colorSpace !== 'gray'
+      ? parseRgbIccTransform(container.icc)
+      : undefined
+  return { container, codestream, parsed, ...(colorTransform ? { colorTransform } : {}) }
 }
 
-const metadataFor = (description: Jpeg2000Description): ImageMetadata => ({
-  width: description.container.width,
-  height: description.container.height,
-  format: 'jp2',
-  mimeType: 'image/jp2',
-  hasAlpha: false,
-  colorSpace:
-    description.container.colorSpace === 'gray'
-      ? 'gray'
-      : description.container.colorSpace === 'sycc'
-        ? 'sYCC'
-        : 'sRGB',
-  bitDepth: Math.max(...description.container.bitDepths),
-  frames: 1,
-  components: description.container.components,
-  channels: description.container.colorSpace === 'gray' ? 1 : 3,
-  channelBitDepths: description.container.bitDepths,
-  lossless: description.parsed.lossless,
-  tiles: description.parsed.tiles.length,
-  resolutionLevels: description.parsed.resolutionLevels,
-})
+const metadataFor = (inspection: Jpeg2000Inspection): ImageMetadata => {
+  const layout = displayLayout(inspection.container)
+  return {
+    width: inspection.container.width,
+    height: inspection.container.height,
+    format: 'jp2',
+    mimeType: 'image/jp2',
+    hasAlpha: layout.alphaChannel !== undefined,
+    colorSpace:
+      inspection.container.colorSpace === 'gray'
+        ? 'gray'
+        : inspection.container.colorSpace === 'sycc'
+          ? 'sYCC'
+          : 'sRGB',
+    ...(inspection.container.icc ? { colorProfile: { kind: 'icc' as const } } : {}),
+    bitDepth: Math.max(...inspection.container.bitDepths),
+    sampleFormat: inspection.container.signed.some(Boolean)
+      ? ('signed-integer' as const)
+      : ('unsigned-integer' as const),
+    frames: 1,
+    components: inspection.container.components,
+    channels: layout.outputChannels,
+    channelBitDepths: inspection.container.bitDepths,
+    lossless: inspection.lossless,
+    tiles: inspection.tiles,
+    resolutionLevels: inspection.resolutionLevels,
+  }
+}
 
 const decodeRegion = (
   width: number,
@@ -1978,8 +2775,8 @@ class Jpeg2000Decoder implements ImageDecoder {
   readonly pixelFormat: PixelFormat
   readonly capabilities = Object.freeze({
     sequential: true,
-    regionDecode: false,
-    scaledDecode: false,
+    regionDecode: true,
+    scaledDecode: true,
     progressive: false,
   })
   readonly #description: Jpeg2000Description
@@ -1988,36 +2785,32 @@ class Jpeg2000Decoder implements ImageDecoder {
     this.#description = description
     this.width = description.container.width
     this.height = description.container.height
-    this.pixelFormat = description.container.colorSpace === 'gray' ? 'gray8' : 'rgb8'
+    this.pixelFormat = displayLayout(description.container).format
   }
 
-  async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
-    const region = decodeRegion(this.width, this.height, request)
-    const pixels = reconstructPixels(
+  decode(request: DecodeRequest = {}): AsyncIterable<PixelBlock> {
+    const scale = request.scaleDenominator ?? 1
+    if (scale !== 1 && scale !== 2 && scale !== 4 && scale !== 8) {
+      throw invalidInput('JPEG 2000 decode scale denominator must be 1, 2, 4, or 8')
+    }
+    const scaledWidth = Math.ceil(this.width / scale)
+    const scaledHeight = Math.ceil(this.height / scale)
+    const region = decodeRegion(scaledWidth, scaledHeight, request)
+    return reconstructPixelBlocks(
       this.#description.codestream,
       this.#description.parsed,
-      this.#description.container.colorSpace,
+      this.#description.container,
+      region,
+      scale,
     )
-    const channels = pixels.format === 'gray8' ? 1 : 3
-    const stride = region.width * channels
-    for (let outputY = 0; outputY < region.height; outputY += blockRows) {
-      const rows = Math.min(blockRows, region.height - outputY)
-      const data = new Uint8Array(stride * rows)
-      for (let localY = 0; localY < rows; localY += 1) {
-        const source = ((region.y + outputY + localY) * this.width + region.x) * channels
-        data.set(pixels.data.subarray(source, source + stride), localY * stride)
-      }
-      yield {
-        x: 0,
-        y: outputY,
-        width: region.width,
-        height: rows,
-        stride,
-        format: pixels.format,
-        data,
-      }
-    }
   }
+}
+
+const decoderFor = (description: Jpeg2000Description): ImageDecoder => {
+  const decoder = new Jpeg2000Decoder(description)
+  return description.colorTransform
+    ? new ColorManagedDecoder(decoder, description.colorTransform)
+    : decoder
 }
 
 export type Jpeg2000CodestreamColorSpace = 'gray' | 'rgb' | 'ycbcr'
@@ -2036,9 +2829,6 @@ export const createJpeg2000CodestreamDecoder = (
   const width = parsed.size.xSize - parsed.size.xOrigin
   const height = parsed.size.ySize - parsed.size.yOrigin
   const components = parsed.size.components
-  if (components.some((component) => component.signed)) {
-    throw unsupportedOperation('Signed JPEG 2000 display components are not implemented')
-  }
   const requestedColorSpace = options.colorSpace ?? (components.length === 1 ? 'gray' : 'rgb')
   if (
     (requestedColorSpace === 'gray' && components.length !== 1) ||
@@ -2056,10 +2846,27 @@ export const createJpeg2000CodestreamDecoder = (
     signed: Object.freeze(components.map((component) => component.signed)),
     colorSpace:
       requestedColorSpace === 'gray' ? 'gray' : requestedColorSpace === 'ycbcr' ? 'sycc' : 'srgb',
+    channelMappings: Object.freeze(
+      components.map((_, component): Jp2ChannelMapping => ({ component })),
+    ),
+    channelDefinitions: Object.freeze(
+      Array.from(
+        { length: requestedColorSpace === 'gray' ? 1 : 3 },
+        (_, channel): Jp2ChannelDefinition => ({ channel, type: 0, association: channel + 1 }),
+      ),
+    ),
     codestreamOffset: 0,
     codestreamLength: codestream.byteLength,
   }
-  return new Jpeg2000Decoder({ container, codestream, parsed })
+  return decoderFor({ container, codestream, parsed })
+}
+
+const preservedJpeg2000Metadata = async (
+  source: ImageSource,
+  limits: ImageLimits,
+): Promise<PreservedMetadata> => {
+  const container = await describeContainer(source, limits)
+  return container.icc ? { icc: Uint8Array.from(container.icc) } : {}
 }
 
 export const jpeg2000Codec: ImageCodec = {
@@ -2067,7 +2874,7 @@ export const jpeg2000Codec: ImageCodec = {
   mimeTypes: ['image/jp2'],
   minimumBytes: 12,
   detect: isJp2,
-  metadata: async (source, limits) => metadataFor(await describeJpeg2000(source, limits)),
-  createDecoder: async (source, limits) =>
-    new Jpeg2000Decoder(await describeJpeg2000(source, limits)),
+  metadata: async (source, limits) => metadataFor(await inspectJpeg2000(source, limits)),
+  preservedMetadata: preservedJpeg2000Metadata,
+  createDecoder: async (source, limits) => decoderFor(await describeJpeg2000(source, limits)),
 }

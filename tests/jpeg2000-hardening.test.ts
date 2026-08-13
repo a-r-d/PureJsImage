@@ -5,6 +5,7 @@ import { jpeg2000Codec } from '../src/codecs/jpeg2000.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { ImageError } from '../src/errors.ts'
 import { createImageLibrary } from '../src/image.ts'
+import { defaultImageLimits } from '../src/limits.ts'
 
 const images = createImageLibrary([jpeg2000Codec, pngCodec])
 const smallFixture = (): Promise<Buffer> =>
@@ -156,14 +157,34 @@ describe('JPEG 2000 container hardening', () => {
     oversizedTilePart.writeUInt32BE(original.byteLength + 100, tileMarker + 6)
 
     const missingEndMarker = original.subarray(0, original.byteLength - 2)
-    for (const mutation of [
-      invalidSizeLength,
-      oversizedGrid,
-      oversizedTilePart,
-      missingEndMarker,
-    ]) {
+    for (const mutation of [invalidSizeLength, oversizedGrid]) {
       await expectImageError(mutation)
     }
+    for (const mutation of [oversizedTilePart, missingEndMarker]) {
+      await expect((await images.open(mutation)).png().toBuffer()).rejects.toBeInstanceOf(
+        ImageError,
+      )
+    }
+  })
+
+  it('inspects metadata without reading tile packet payloads', async () => {
+    const input = await largeFixture()
+    const codestream = findBox(input, 'jp2c')
+    const payload = codestream.offset + codestream.headerBytes
+    const firstTilePart = findMarker(input, 0x90, payload)
+    let furthestRead = 0
+    const source = {
+      size: input.byteLength,
+      read: async (offset: number, length: number): Promise<Uint8Array> => {
+        furthestRead = Math.max(furthestRead, offset + length)
+        return input.subarray(offset, offset + length)
+      },
+    }
+    await expect(jpeg2000Codec.metadata(source, defaultImageLimits)).resolves.toMatchObject({
+      width: 1920,
+      height: 2172,
+    })
+    expect(furthestRead).toBeLessThanOrEqual(firstTilePart + 2)
   })
 
   it('never leaks raw exceptions across a deterministic JP2 mutation campaign', async () => {
