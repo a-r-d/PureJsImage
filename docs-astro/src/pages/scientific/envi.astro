@@ -4,38 +4,41 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
 <SiteLayout title="Read ENVI rasters in JavaScript | PureJsImage" description="Open ENVI Standard hyperspectral cubes and ENVI Classification maps with bounded BSQ, BIL, and BIP reads in JavaScript, TypeScript, Node.js, and browsers." canonical="https://purejsimage.com/scientific/envi/" current="scientific/">
 <main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific raster format</p><h1>Read ENVI rasters in JavaScript</h1><p class="page-lede">ENVI stores a small text <code>.hdr</code> file beside a binary raster. PureJsImage opens ENVI Standard hyperspectral data and ENVI Classification class maps while preserving native numeric samples and declared metadata.</p></div></header><div class="container docs-layout"><article class="content">
-<h2>Import</h2><pre><code>import &#123; openEnvi, renderSpectralBand &#125; from 'purejsimage/scientific'</code></pre>
-<h2>Minimal Node.js example</h2><pre><code>import &#123; FileSource &#125; from 'purejsimage'
-import &#123; openEnvi, renderSpectralBand &#125; from 'purejsimage/scientific'
+<h2>Import</h2><pre><code>import &#123; createScientificLibrary, renderSpectralBand &#125; from 'purejsimage/scientific'
+import &#123; enviReader &#125; from 'purejsimage/scientific/readers/envi'</code></pre>
+<h2>Minimal Node.js example</h2><pre><code>import &#123; createScientificLibrary, renderSpectralBand &#125; from 'purejsimage/scientific'
+import &#123; createScientificPathContext &#125; from 'purejsimage/scientific/node'
+import &#123; enviReader &#125; from 'purejsimage/scientific/readers/envi'
 
-const dataset = await openEnvi(&#123;
-  header: await FileSource.open('scene.hdr'),
-  data: await FileSource.open('scene.img'),
-  maxInputBytes: 2_000_000_000,
-&#125;)
+const science = createScientificLibrary(&#123; readers: [enviReader] &#125;)
+const document = await science.open(await createScientificPathContext('scene.hdr'))
+const dataset = await document.openDataset(document.datasets[0].id)
 const display = await renderSpectralBand(dataset, &#123;
   wavelength: 1648.7,
+  spectralAxis: 'channel',
+  plane: &#123; displayAxes: ['x', 'y'], fixedIndices: [] &#125;,
   range: &#123; mode: 'percentile', low: 1, high: 99 &#125;,
   palette: 'viridis',
 &#125;)
 for await (const pixels of display.image.pixels) console.log(pixels.width, pixels.height)</code></pre>
-<h2>Minimal browser example</h2><pre><code>import &#123; openEnvi &#125; from 'purejsimage/scientific'
+<h2>Minimal browser example</h2><pre><code>import &#123; createScientificLibrary &#125; from 'purejsimage/scientific'
+import &#123; createScientificFileContext &#125; from 'purejsimage/scientific/browser'
+import &#123; enviReader &#125; from 'purejsimage/scientific/readers/envi'
 
 const headerInput = document.querySelector&lt;HTMLInputElement&gt;('#header')
 const binaryInput = document.querySelector&lt;HTMLInputElement&gt;('#binary')
 const header = headerInput?.files?.[0]
 const data = binaryInput?.files?.[0]
 if (!header || !data) throw new Error('Choose an ENVI header and binary file')
-const dataset = await openEnvi(&#123;
-  header,
-  data,
-  maxInputBytes: data.size,
-&#125;)
+const science = createScientificLibrary(&#123; readers: [enviReader] &#125;)
+const document = await science.open(createScientificFileContext(header, &#123; companions: [data] &#125;))
+const dataset = await document.openDataset(document.datasets[0].id)
 for await (const block of dataset.readPlane(&#123;
-  z: 0, c: 172, t: 0, x: 0, y: 0, width: 512, height: 512,
+  displayAxes: ['x', 'y'], fixedIndices: [&#123; axisId: 'channel', index: 172 &#125;],
+  x: 0, y: 0, width: 512, height: 512,
 &#125;)) console.log(block.data)</code></pre>
 <h2>Supported features</h2><table><thead><tr><th>Feature</th><th>Support</th></tr></thead><tbody><tr><td>ENVI Standard</td><td>Read</td></tr><tr><td>ENVI Classification</td><td>Read class names and exact RGB lookup colors; bounded categorical preview</td></tr><tr><td>Interleave</td><td>BSQ, BIL, BIP</td></tr><tr><td>Samples</td><td>uint8, int16, int32, float32, float64, uint16, uint32</td></tr><tr><td>Byte order</td><td>Little-endian and big-endian</td></tr><tr><td>Spectral metadata</td><td>Band names, wavelength centers, units, FWHM, default bands</td></tr></tbody></table>
-<h2>Dataset mapping</h2><p>ENVI samples map to X, lines map to Y, and bands map to C in <code>MultidimensionalRasterDataset</code>. Z and T are 1. Channel metadata retains each actual wavelength center. PureJsImage does not manufacture wavelengths between declared channels.</p>
+<h2>Dataset mapping</h2><p>ENVI samples map to labeled spatial axis <code>x</code>, lines to <code>y</code>, and bands to a labeled spectral <code>channel</code> axis. Axis entries retain each actual wavelength center. PureJsImage does not manufacture wavelengths between declared channels.</p>
 <h2>Bounded reads</h2><p>The header is read eagerly because it is small. The binary source stays lazy. A browser <code>File</code> uses <code>BlobSource</code> and <code>Blob.slice()</code>. BSQ and BIL selections read the requested rows and bands. BIP reads the required interleaved row ranges. Opening a large file does not call <code>File.arrayBuffer()</code>.</p>
 <h2>Display rendering</h2><p><code>renderSpectralBand()</code> selects the nearest actual wavelength channel. <code>renderScientificPlane()</code> selects a channel index directly. Display transfers run after the selected quantitative range is normalized: linear uses the normalized value; sqrt uses its square root; log uses <code>log1p(999x) / log(1000)</code>; asinh uses <code>asinh(10x) / asinh(10)</code>. Use <code>measureScientificPlane()</code> once and reuse its explicit range when only palette or transfer changes.</p>
 <h2>Classification maps</h2><p><code>renderEnviClassification()</code> uses the header's class lookup colors directly and nearest-neighbor sampling so categories are never blended. Callers must provide maximum output dimensions. The renderer reads one selected source row at a time, which allows the explorer to preview the <code>37,679 × 39,594</code> USGS Afghanistan mineral map without creating its roughly 6 GB full-resolution RGBA equivalent.</p>

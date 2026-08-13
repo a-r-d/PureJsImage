@@ -1,50 +1,121 @@
 export type {
-  MultidimensionalRasterDataset,
-  PhysicalPixelSize,
-  RasterChannelInfo,
-  RasterPlaneRequest,
+  NormalizedScientificDatasetDescriptor,
+  NormalizedScientificPlaneReadRequest,
+  ScientificAxisCoordinates,
+  ScientificAxisDescriptor,
+  ScientificAxisEntryDescriptor,
+  ScientificAxisIndex,
+  ScientificAxisKind,
+  ScientificComponentDescriptor,
+  ScientificComponentKind,
+  ScientificDataset,
+  ScientificDatasetCapabilities,
+  ScientificPlaneReadCapability,
+  ScientificDatasetDescriptor,
+  ScientificMetadataObject,
+  ScientificMetadataValue,
+  ScientificPlaneReadRequest,
+  ScientificResolutionAxisLength,
+  ScientificResolutionAxisCoordinates,
+  ScientificResolutionLevel,
 } from './dataset.ts'
-export type { GsfDataset, GsfOpenOptions, GsfWriteOptions } from './formats/gsf.ts'
 export type {
-  FitsDataset,
-  FitsDocument,
-  FitsHdu,
-  FitsHeaderCard,
-  FitsHeaderValue,
-  FitsOpenOptions,
-} from './formats/fits.ts'
+  ScientificLibrary,
+  ScientificLibraryCapabilities,
+  ScientificLibraryOptions,
+  ScientificResourcePattern,
+} from './library.ts'
 export type {
-  EnviByteOrder,
-  EnviClassInfo,
-  EnviDataset,
-  EnviFileType,
-  EnviInterleave,
-  EnviOpenOptions,
-  SupportedEnviDataType,
-} from './formats/envi.ts'
+  ScientificCompanionRequest,
+  ScientificCompanionResolver,
+  ScientificDatasetSummary,
+  ScientificDatasetIdentity,
+  ScientificDatasetResourceIdentity,
+  ScientificDocument,
+  ScientificDocumentReaderInfo,
+  ScientificOpenContext,
+  ScientificProbeLimitOptions,
+  ScientificProbeLimits,
+  ScientificProbeResult,
+  ScientificProbeStats,
+  ScientificReader,
+  ScientificReaderDescriptor,
+  ScientificReaderDetection,
+  ScientificResource,
+} from './reader.ts'
 export type {
-  CbfDataset,
-  CbfDetectorMetadata,
-  CbfElementType,
-  CbfEncoding,
-  CbfOpenOptions,
-} from './formats/cbf.ts'
-export type { MrcByteOrder, MrcDataset, MrcHeader, MrcMode, MrcOpenOptions } from './formats/mrc.ts'
+  DirectNumericTileDataset,
+  NumericArray,
+  NumericSampleType,
+  NumericTile,
+  NumericTileAllocationRequest,
+  NumericTileAllocator,
+  NumericTileLayout,
+  NumericTileReadRequest,
+  NumericTileSource,
+  NumericTileSourceReadPlan,
+  NumericTileSourceSemantics,
+  NumericTileStorage,
+  RasterBlockToNumericTileOptions,
+  ScientificDatasetNumericTileAdapterOptions,
+  ValidatedNumericTileLayout,
+} from './numeric-tile.ts'
+export {
+  normalizeScientificDatasetDescriptor,
+  normalizeScientificMetadataObject,
+  normalizeScientificPlaneReadRequest,
+  resolveScientificAxisAtResolutionLevel,
+  resolveScientificDescriptorAtResolutionLevel,
+  supportsScientificPlaneRead,
+  validateScientificDatasetDescriptor,
+} from './dataset.ts'
+export {
+  createScientificDatasetIdentity,
+  defaultScientificProbeLimits,
+  normalizeScientificCompanionRequest,
+  normalizeScientificRelativeName,
+  resolveScientificProbeLimits,
+  ScientificReaderRegistry,
+  getScientificDatasetIdentity,
+} from './reader.ts'
 export type {
-  EnviClassificationRenderedImage,
-  EnviClassificationRenderOptions,
-} from './classification.ts'
+  ContentSourceIdentity,
+  HashImageSourceOptions,
+  IdentifiedImageSource,
+  LocalFileSourceIdentity,
+  RemoteSourceIdentity,
+  SessionSourceIdentity,
+  SourceHashProgress,
+  SourceIdentity,
+} from '../source-identity.ts'
+export {
+  createSessionSourceIdentity,
+  getImageSourceIdentity,
+  hashImageSource,
+  imageSourceIdentity,
+  normalizeSourceIdentity,
+} from '../source-identity.ts'
+export { createScientificLibrary } from './library.ts'
+export {
+  nativeLittleEndian,
+  numericTileSampleOffset,
+  numericTileRetainedBytes,
+  rasterBlockToNumericTile,
+  resolveNumericTileSource,
+  scientificDatasetToNumericTileSource,
+  validateNumericTile,
+} from './numeric-tile.ts'
 export type { ScientificPalette } from './palettes.ts'
 export type {
-  ScientificDisplayScale,
-  ScientificHistogram,
-  ScientificPercentile,
   ScientificPlaneMeasurement,
   ScientificPlaneMeasureOptions,
   ScientificPlaneRenderOptions,
-  ScientificRange,
-  ScientificReliefOptions,
+  ScientificPlaneSelection,
   ScientificRenderedPlane,
+  ScientificDisplayScale,
+  ScientificHistogram,
+  ScientificPercentile,
+  ScientificRange,
   ScientificRenderRange,
   ScientificStatisticsRequest,
 } from './render.ts'
@@ -52,17 +123,16 @@ export type {
   BandRatioOptions,
   SpectralBandRenderOptions,
   SpectralBandRenderResult,
-  SpectralChannelSelection,
   SpectralCompositeRenderOptions,
-  SpectralCompositeRenderResult,
   SpectralDerivedDataset,
   SpectralRangeOptions,
+  SpectralChannelSelection,
+  SpectralCompositeRenderResult,
 } from './spectral.ts'
 export type {
-  ScientificProjectionMode,
-  ScientificSliceAxis,
   ScientificVolumeProjectionOptions,
   ScientificVolumeSliceOptions,
+  ScientificProjectionMode,
 } from './volume.ts'
 export type {
   RasterBlock,
@@ -74,20 +144,15 @@ export type {
   RasterSampleType,
 } from '../raster.ts'
 export { rasterSampleBytes, rasterToPixels } from '../raster.ts'
-export { openEnvi } from './formats/envi.ts'
-export { openCbf } from './formats/cbf.ts'
-export { renderEnviClassification } from './classification.ts'
-export { openFits } from './formats/fits.ts'
-export { openMrc } from './formats/mrc.ts'
-export { encodeGsf, openGsf } from './formats/gsf.ts'
-export { isOmeTiff, omeTiffProfile, openOmeTiff } from './ome-tiff.ts'
 export { scientificPaletteColor } from './palettes.ts'
-export { measureScientificPlane, renderScientificPlane } from './render.ts'
-export { projectScientificVolume, sliceScientificVolume } from './volume.ts'
 export {
   bandRatio,
   integrateSpectralRange,
   nearestSpectralChannel,
   renderSpectralBand,
   renderSpectralComposite,
-} from './spectral.ts'
+  measureScientificPlane,
+  projectScientificVolume,
+  renderScientificPlane,
+  sliceScientificVolume,
+} from './public.ts'

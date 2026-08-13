@@ -5,30 +5,73 @@ import type {
   PhysicalPixelSize,
   RasterChannelInfo,
   RasterPlaneRequest,
+} from './legacy-dataset.ts'
+import { isScientificDataset } from './dataset-adapters.ts'
+import type {
+  NormalizedScientificDatasetDescriptor,
+  ScientificAxisIndex,
+  ScientificDataset,
+  ScientificPlaneReadRequest,
 } from './dataset.ts'
 import {
-  rasterSampleOffset,
-  readRasterSample,
-  validateRasterBlock,
-  writeRasterSample,
-} from './samples.ts'
+  normalizeScientificDatasetDescriptor,
+  normalizeScientificPlaneReadRequest,
+  resolveScientificAxisAtResolutionLevel,
+} from './dataset.ts'
+import type { NumericArray, NumericTile, NumericTileSource } from './numeric-tile.ts'
+import {
+  rasterBlockToNumericTile,
+  resolveNumericTileSource,
+  validateNumericTile,
+} from './numeric-tile.ts'
+import { writeRasterSample } from './samples.ts'
+
+type NumberNumericArray = Exclude<NumericArray, BigUint64Array>
+
+const numericSource = (dataset: ScientificDataset): NumericTileSource =>
+  resolveNumericTileSource(dataset, {
+    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+  })
+
+const numberTileData = (tile: NumericTile): NumberNumericArray => {
+  validateNumericTile(tile)
+  if (tile.data instanceof BigUint64Array) {
+    throw invalidInput('Scientific uint64 values must be exactly convertible to float64')
+  }
+  return tile.data
+}
 
 export type ScientificSliceAxis = 'xy' | 'xz' | 'yz'
 export type ScientificProjectionMode = 'max' | 'min' | 'mean'
 
-export interface ScientificVolumeSliceOptions {
+export interface LegacyScientificVolumeSliceOptions {
   readonly axis: ScientificSliceAxis
   readonly index: number
   readonly c?: number
   readonly t?: number
 }
 
-export interface ScientificVolumeProjectionOptions {
+export interface LegacyScientificVolumeProjectionOptions {
   readonly axis?: 'z'
   readonly mode: ScientificProjectionMode
   readonly c?: number
   readonly t?: number
   /** Maximum output rows retained while one Z projection block is accumulated. */
+  readonly rowsPerBlock?: number
+}
+
+export interface ScientificVolumeSliceOptions {
+  readonly displayAxes: readonly [horizontal: string, vertical: string]
+  readonly fixedIndices: readonly ScientificAxisIndex[]
+}
+
+export interface ScientificVolumeProjectionOptions {
+  readonly displayAxes: readonly [horizontal: string, vertical: string]
+  /** Explicit semantic axis to reduce. It must not be one of `displayAxes`. */
+  readonly axis: string
+  readonly fixedIndices: readonly ScientificAxisIndex[]
+  readonly mode: ScientificProjectionMode
+  /** Maximum output rows retained while one reduction block is accumulated. */
   readonly rowsPerBlock?: number
 }
 
@@ -94,31 +137,30 @@ const readScalarRegion = async (
   const values = new Float64Array(expectedWidth * expectedHeight)
   let expectedY = request.y ?? 0
   for await (const block of dataset.readPlane(request)) {
+    const tile = rasterBlockToNumericTile(block, {
+      ...(block.format.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+      ...(request.signal === undefined ? {} : { signal: request.signal }),
+    })
     try {
       if (
-        block.x !== expectedX ||
-        block.y !== expectedY ||
-        block.width !== expectedWidth ||
-        block.format.channels !== 1
+        tile.x !== expectedX ||
+        tile.y !== expectedY ||
+        tile.width !== expectedWidth ||
+        tile.componentCount !== 1
       ) {
         throw invalidInput('Scientific dataset emitted non-contiguous plane blocks')
       }
-      const layout = validateRasterBlock(block)
-      const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
-      for (let row = 0; row < block.height; row += 1) {
-        for (let x = 0; x < block.width; x += 1) {
-          const target = (block.y - (request.y ?? 0) + row) * expectedWidth + x
-          values[target] = readRasterSample(
-            block.data,
-            view,
-            rasterSampleOffset(block, layout, x, row, 0),
-            block.format.sampleType,
-          )
+      const input = numberTileData(tile)
+      for (let row = 0; row < tile.height; row += 1) {
+        const sourceRow = row * tile.rowStrideElements
+        for (let x = 0; x < tile.width; x += 1) {
+          const target = (tile.y - (request.y ?? 0) + row) * expectedWidth + x
+          values[target] = input[sourceRow + x] ?? Number.NaN
         }
       }
-      expectedY += block.height
+      expectedY += tile.height
     } finally {
-      block.release?.()
+      tile.release()
     }
   }
   if (expectedY !== (request.y ?? 0) + expectedHeight) {
@@ -272,19 +314,19 @@ class VolumeSliceDataset implements MultidimensionalRasterDataset {
 }
 
 const projectionSampleType = (
-  source: MultidimensionalRasterDataset,
+  sourceSampleType: RasterSampleType,
   mode: ScientificProjectionMode,
 ): RasterSampleType => {
   if (mode === 'mean') return 'float64'
   const integer =
-    source.sampleType === 'uint8' ||
-    source.sampleType === 'uint16' ||
-    source.sampleType === 'uint32' ||
-    source.sampleType === 'uint64' ||
-    source.sampleType === 'int8' ||
-    source.sampleType === 'int16' ||
-    source.sampleType === 'int32'
-  return integer ? 'float64' : source.sampleType
+    sourceSampleType === 'uint8' ||
+    sourceSampleType === 'uint16' ||
+    sourceSampleType === 'uint32' ||
+    sourceSampleType === 'uint64' ||
+    sourceSampleType === 'int8' ||
+    sourceSampleType === 'int16' ||
+    sourceSampleType === 'int32'
+  return integer ? 'float64' : sourceSampleType
 }
 
 const usableProjectionValue = (value: number, noDataValue: number | undefined): boolean =>
@@ -326,7 +368,7 @@ class VolumeProjectionDataset implements MultidimensionalRasterDataset {
     this.#rowsPerBlock = rowsPerBlock
     this.sizeX = source.sizeX
     this.sizeY = source.sizeY
-    this.sampleType = projectionSampleType(source, mode)
+    this.sampleType = projectionSampleType(source.sampleType, mode)
     this.channels = Object.freeze([source.channels[channel] ?? { samplesPerPixel: 1 }])
     if (source.physicalSizeX !== undefined) this.physicalSizeX = source.physicalSizeX
     if (source.physicalSizeY !== undefined) this.physicalSizeY = source.physicalSizeY
@@ -396,15 +438,289 @@ class VolumeProjectionDataset implements MultidimensionalRasterDataset {
   }
 }
 
+const scientificDerivedDescriptor = (
+  source: ScientificDataset,
+  displayAxes: readonly [string, string],
+  sampleType: RasterSampleType,
+  operation: string,
+): NormalizedScientificDatasetDescriptor => {
+  const axes = displayAxes.map((axisId) => {
+    const axis = source.descriptor.axes.find((candidate) => candidate.id === axisId)
+    if (axis === undefined) throw invalidInput(`Scientific volume axis ${axisId} is unknown`)
+    return axis
+  })
+  const levels = source.descriptor.levels.map((level) => ({
+    level: level.level,
+    axisLengths: displayAxes.map((axisId) => {
+      const entry = level.axisLengths.find((candidate) => candidate.axisId === axisId)
+      if (entry === undefined) throw invalidInput(`Scientific level omits display axis ${axisId}`)
+      return entry
+    }),
+    ...(level.axisCoordinates === undefined
+      ? {}
+      : {
+          axisCoordinates: level.axisCoordinates.filter((entry) =>
+            displayAxes.includes(entry.axisId),
+          ),
+        }),
+  }))
+  return normalizeScientificDatasetDescriptor({
+    schemaVersion: 1,
+    axes,
+    sampleType,
+    components: source.descriptor.components,
+    levels,
+    ...(source.descriptor.noDataValue === undefined || sampleType === 'float64'
+      ? sampleType === 'float64'
+        ? { noDataValue: Number.NaN }
+        : {}
+      : { noDataValue: source.descriptor.noDataValue }),
+    metadata: {
+      source: source.descriptor.metadata ?? {},
+      derived: { operation },
+    },
+    capabilities: {
+      regionReads: source.descriptor.capabilities.regionReads,
+      resolutionLevels: levels.length > 1,
+      planeReads: { kind: 'ordered-axis-pairs', pairs: [displayAxes] },
+    },
+  })
+}
+
+class ScientificSliceDataset implements ScientificDataset {
+  readonly descriptor: NormalizedScientificDatasetDescriptor
+  readonly #source: ScientificDataset
+  readonly #displayAxes: readonly [string, string]
+  readonly #fixedIndices: readonly ScientificAxisIndex[]
+
+  constructor(source: ScientificDataset, options: Readonly<ScientificVolumeSliceOptions>) {
+    const selection = normalizeScientificPlaneReadRequest(source.descriptor, {
+      displayAxes: options.displayAxes,
+      fixedIndices: options.fixedIndices,
+    })
+    this.#source = source
+    this.#displayAxes = selection.displayAxes
+    this.#fixedIndices = selection.fixedIndices
+    this.descriptor = scientificDerivedDescriptor(
+      source,
+      selection.displayAxes,
+      source.descriptor.sampleType,
+      `slice ${selection.displayAxes.join('/')}`,
+    )
+  }
+
+  async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncIterable<RasterBlock> {
+    const normalized = normalizeScientificPlaneReadRequest(this.descriptor, request)
+    if (
+      normalized.displayAxes[0] !== this.#displayAxes[0] ||
+      normalized.displayAxes[1] !== this.#displayAxes[1]
+    ) {
+      throw invalidInput('Derived scientific slice display axes cannot be reordered')
+    }
+    yield* this.#source.readPlane({
+      displayAxes: this.#displayAxes,
+      fixedIndices: this.#fixedIndices,
+      resolutionLevel: normalized.resolutionLevel,
+      x: normalized.x,
+      y: normalized.y,
+      width: normalized.width,
+      height: normalized.height,
+      ...(normalized.signal === undefined ? {} : { signal: normalized.signal }),
+    })
+  }
+}
+
+const readScientificScalarRegion = async (
+  dataset: ScientificDataset,
+  request: Readonly<ScientificPlaneReadRequest>,
+): Promise<Float64Array> => {
+  const normalized = normalizeScientificPlaneReadRequest(dataset.descriptor, request)
+  const source = numericSource(dataset)
+  const values = new Float64Array(normalized.width * normalized.height)
+  let expectedY = normalized.y
+  for await (const tile of source.readNumericTiles({
+    ...normalized,
+    ...(dataset.descriptor.sampleType === 'uint64' ? { targetSampleType: 'float64' } : {}),
+  })) {
+    try {
+      if (
+        tile.x !== normalized.x ||
+        tile.y !== expectedY ||
+        tile.width !== normalized.width ||
+        tile.componentCount !== 1
+      ) {
+        throw invalidInput('Scientific dataset emitted non-contiguous scalar plane blocks')
+      }
+      const input = numberTileData(tile)
+      for (let row = 0; row < tile.height; row += 1) {
+        const sourceRow = row * tile.rowStrideElements
+        for (let x = 0; x < tile.width; x += 1) {
+          const target = (tile.y - normalized.y + row) * normalized.width + x
+          values[target] = input[sourceRow + x] ?? Number.NaN
+        }
+      }
+      expectedY += tile.height
+    } finally {
+      tile.release()
+    }
+  }
+  if (expectedY !== normalized.y + normalized.height) {
+    throw invalidInput('Scientific dataset emitted an incomplete scalar plane')
+  }
+  return values
+}
+
+class ScientificProjectionDataset implements ScientificDataset {
+  readonly descriptor: NormalizedScientificDatasetDescriptor
+  readonly #source: ScientificDataset
+  readonly #displayAxes: readonly [string, string]
+  readonly #axis: string
+  readonly #fixedIndices: readonly ScientificAxisIndex[]
+  readonly #mode: ScientificProjectionMode
+  readonly #rowsPerBlock: number
+
+  constructor(source: ScientificDataset, options: Readonly<ScientificVolumeProjectionOptions>) {
+    if (source.descriptor.components.length !== 1) {
+      throw invalidInput('Scientific projection requires exactly one stored component')
+    }
+    if (options.displayAxes.includes(options.axis)) {
+      throw invalidInput('Scientific projection axis must differ from both display axes')
+    }
+    const reductionAxis = source.descriptor.axes.find((axis) => axis.id === options.axis)
+    if (reductionAxis === undefined) {
+      throw invalidInput(`Scientific projection axis ${options.axis} is unknown`)
+    }
+    if (options.fixedIndices.some((selection) => selection.axisId === options.axis)) {
+      throw invalidInput('Scientific projection axis must not also have a fixed index')
+    }
+    const validationFixed = [...options.fixedIndices, { axisId: options.axis, index: 0 }]
+    const selection = normalizeScientificPlaneReadRequest(source.descriptor, {
+      displayAxes: options.displayAxes,
+      fixedIndices: validationFixed,
+    })
+    const rowsPerBlock = options.rowsPerBlock ?? 16
+    if (!Number.isSafeInteger(rowsPerBlock) || rowsPerBlock < 1) {
+      throw invalidInput('Scientific projection rowsPerBlock must be a positive safe integer')
+    }
+    if (options.mode !== 'max' && options.mode !== 'min' && options.mode !== 'mean') {
+      throw invalidInput(`Unknown scientific projection mode ${options.mode}`)
+    }
+    this.#source = source
+    this.#displayAxes = selection.displayAxes
+    this.#axis = options.axis
+    this.#fixedIndices = Object.freeze(
+      selection.fixedIndices.filter((fixed) => fixed.axisId !== options.axis),
+    )
+    this.#mode = options.mode
+    this.#rowsPerBlock = rowsPerBlock
+    const sampleType = projectionSampleType(source.descriptor.sampleType, options.mode)
+    this.descriptor = scientificDerivedDescriptor(
+      source,
+      selection.displayAxes,
+      sampleType,
+      `${options.mode} projection over ${options.axis}`,
+    )
+  }
+
+  async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncGenerator<RasterBlock> {
+    const normalized = normalizeScientificPlaneReadRequest(this.descriptor, request)
+    if (
+      normalized.displayAxes[0] !== this.#displayAxes[0] ||
+      normalized.displayAxes[1] !== this.#displayAxes[1]
+    ) {
+      throw invalidInput('Derived scientific projection display axes cannot be reordered')
+    }
+    const bytesPerSample = rasterSampleBytes(this.descriptor.sampleType)
+    const axisLength = resolveScientificAxisAtResolutionLevel(
+      this.#source.descriptor,
+      this.#axis,
+      normalized.resolutionLevel,
+    ).length
+    for (let localY = 0; localY < normalized.height; localY += this.#rowsPerBlock) {
+      const blockHeight = Math.min(this.#rowsPerBlock, normalized.height - localY)
+      const sampleCount = normalized.width * blockHeight
+      const values = new Float64Array(sampleCount)
+      values.fill(this.#mode === 'min' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY)
+      const counts = new Uint32Array(sampleCount)
+      for (let axisIndex = 0; axisIndex < axisLength; axisIndex += 1) {
+        const plane = await readScientificScalarRegion(this.#source, {
+          displayAxes: this.#displayAxes,
+          fixedIndices: [...this.#fixedIndices, { axisId: this.#axis, index: axisIndex }],
+          resolutionLevel: normalized.resolutionLevel,
+          x: normalized.x,
+          y: normalized.y + localY,
+          width: normalized.width,
+          height: blockHeight,
+          ...(normalized.signal === undefined ? {} : { signal: normalized.signal }),
+        })
+        for (let index = 0; index < sampleCount; index += 1) {
+          const value = plane[index] ?? Number.NaN
+          if (!usableProjectionValue(value, this.#source.descriptor.noDataValue)) continue
+          if (this.#mode === 'mean') {
+            values[index] = (counts[index] === 0 ? 0 : (values[index] ?? 0)) + value
+          } else if (this.#mode === 'min') {
+            values[index] = Math.min(values[index] ?? Number.POSITIVE_INFINITY, value)
+          } else {
+            values[index] = Math.max(values[index] ?? Number.NEGATIVE_INFINITY, value)
+          }
+          counts[index] = (counts[index] ?? 0) + 1
+        }
+      }
+      const output = new Uint8Array(sampleCount * bytesPerSample)
+      const view = new DataView(output.buffer)
+      for (let index = 0; index < sampleCount; index += 1) {
+        const count = counts[index] ?? 0
+        const value =
+          count === 0
+            ? Number.NaN
+            : this.#mode === 'mean'
+              ? (values[index] ?? 0) / count
+              : (values[index] ?? Number.NaN)
+        writeRasterSample(view, index * bytesPerSample, this.descriptor.sampleType, value)
+      }
+      yield {
+        x: normalized.x,
+        y: normalized.y + localY,
+        width: normalized.width,
+        height: blockHeight,
+        stride: normalized.width * bytesPerSample,
+        format: Object.freeze({
+          sampleType: this.descriptor.sampleType,
+          channels: 1,
+          planar: false,
+        }),
+        data: output,
+      }
+    }
+  }
+}
+
 /**
  * Returns a lazy 2D XY, XZ, or YZ numeric slice of a 3D dataset. XY reads are
  * forwarded to the source. XZ and YZ reads retain one output row at a time and
  * request only the contributing source row or column from each selected Z plane.
  */
-export const sliceScientificVolume = (
+export function sliceScientificVolume(
   dataset: MultidimensionalRasterDataset,
+  options: Readonly<LegacyScientificVolumeSliceOptions>,
+): MultidimensionalRasterDataset
+export function sliceScientificVolume(
+  dataset: ScientificDataset,
   options: Readonly<ScientificVolumeSliceOptions>,
-): MultidimensionalRasterDataset => {
+): ScientificDataset
+export function sliceScientificVolume(
+  dataset: MultidimensionalRasterDataset | ScientificDataset,
+  options: Readonly<LegacyScientificVolumeSliceOptions | ScientificVolumeSliceOptions>,
+): MultidimensionalRasterDataset | ScientificDataset {
+  if (isScientificDataset(dataset)) {
+    if (!('displayAxes' in options)) {
+      throw invalidInput('A labeled-axis slice requires explicit display axes and fixed indices')
+    }
+    return new ScientificSliceDataset(dataset, options)
+  }
+  if ('displayAxes' in options) {
+    throw invalidInput('A fixed-axis slice requires xy, xz, or yz coordinates')
+  }
   if (options.axis !== 'xy' && options.axis !== 'xz' && options.axis !== 'yz') {
     throw invalidInput(`Unknown scientific slice axis ${options.axis}`)
   }
@@ -423,10 +739,27 @@ export const sliceScientificVolume = (
  * NaN, infinity, and the source no-data value are ignored. A location with no
  * valid contributing sample is NaN. Mean output is float64.
  */
-export const projectScientificVolume = (
+export function projectScientificVolume(
   dataset: MultidimensionalRasterDataset,
+  options: Readonly<LegacyScientificVolumeProjectionOptions>,
+): MultidimensionalRasterDataset
+export function projectScientificVolume(
+  dataset: ScientificDataset,
   options: Readonly<ScientificVolumeProjectionOptions>,
-): MultidimensionalRasterDataset => {
+): ScientificDataset
+export function projectScientificVolume(
+  dataset: MultidimensionalRasterDataset | ScientificDataset,
+  options: Readonly<LegacyScientificVolumeProjectionOptions | ScientificVolumeProjectionOptions>,
+): MultidimensionalRasterDataset | ScientificDataset {
+  if (isScientificDataset(dataset)) {
+    if (!('displayAxes' in options)) {
+      throw invalidInput('A labeled-axis projection requires explicit display and reduction axes')
+    }
+    return new ScientificProjectionDataset(dataset, options)
+  }
+  if ('displayAxes' in options) {
+    throw invalidInput('A fixed-axis projection does not accept labeled display axes')
+  }
   if (options.axis !== undefined && options.axis !== 'z') {
     throw invalidInput('Scientific volume projection currently supports only the Z axis')
   }

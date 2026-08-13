@@ -12,6 +12,7 @@ This file is the compact implementation guide for coding agents and other LLM cl
 - API reference: https://purejsimage.com/api/
 - Whole-slide measurement demo: https://purejsimage.com/wsi/
 - Scientific Raster Explorer: https://purejsimage.com/scientific/
+- Scientific application platform: https://purejsimage.com/scientific/platform/
 - Codec matrix: https://purejsimage.com/codecs/
 - Machine-readable codec capabilities: https://purejsimage.com/capabilities.json
 - TIFF guide: https://purejsimage.com/tiff/
@@ -35,9 +36,9 @@ Use PureJsImage when the application needs one or more of these properties:
 
 PureJsImage is not a drop-in replacement for every image library. Keep or choose another tool when the required operation is outside the documented API:
 
-- Use a drawing/compositing library for text, fonts, vector drawing, layers, arbitrary pixel mutation, masks, blur, convolution, or a large plugin ecosystem.
+- Use a drawing/compositing library for text, fonts, vector drawing, layers, arbitrary pixel mutation, and broad canvas-style composition.
 - Keep Sharp/libvips when native deployment is acceptable and its broader native operation set or measured throughput is the primary requirement.
-- Keep image-js when the application depends on its scientific matrix operations, ROI analysis, filters, morphology, or mutable image algorithms rather than codec conversion.
+- PureJsImage now includes initial bounded ROI masks, statistics, histograms, line profiles, Gaussian blur, projections, deterministic connected components/object measurements, and analysis graphs. Choose a broader mature stack when the application requires broad segmentation, watershed, registration, morphology, mature particle/grain workflows, 3D mesh editing, extensive mutable matrix algorithms, or an established plugin ecosystem.
 - Keep a dedicated geospatial stack when the application depends on an established GeoTIFF projection, resampling, or map-rendering ecosystem beyond PureJsImage's public GeoTIFF model and raster APIs.
 - Use a codec with the required animation contract when later animated GIF/APNG/WebP frames or animated encoding are required. PureJsImage currently exposes only the documented still/static subsets.
 - Do not assume an unchecked item in a codec support checklist works. Recognized unsupported subsets fail with `UNSUPPORTED_OPERATION`.
@@ -83,6 +84,66 @@ const images = createImageLibrary(allCodecs)
 ```
 
 `allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL decoder. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented lossless Modular subset fail explicitly.
+
+## Scientific application platform (unreleased main-branch alpha preview)
+
+The current npm 0.9.x release does not contain these application entrypoints. They are an unreleased main-branch alpha preview and may change before an authorized version is published. Provider and extension APIs are experimental. The ordinary codec pipeline remains the established npm path: the preview does not change `resize().jpeg()` behavior, and the root entry does not load the graph runtime.
+
+Preview package entrypoints on main:
+
+- `purejsimage/scientific`: portable arbitrary-axis `ScientificDataset`, scientific documents and identities, explicit reader registries, `RasterBlock`, `NumericTile`, and format-independent analysis helpers. Concrete readers are separate optional entries.
+- `purejsimage/scientific/browser`: browser `File` and explicit companion-file contexts. Remote range sources use the portable `ImageSource` contract.
+- `purejsimage/scientific/node`: Node path and companion-resource adapters kept outside the browser graph.
+- `purejsimage/scientific/readers/gsf`, `purejsimage/scientific/readers/envi`, `purejsimage/scientific/readers/fits`, `purejsimage/scientific/readers/mrc`, `purejsimage/scientific/readers/cbf`, `purejsimage/scientific/readers/ome-tiff`, and `purejsimage/scientific/readers/aperio-svs`: individually importable first-party reader entries. The Aperio entry provides a secure default and `createAperioSvsReader({ limits })` for explicit WSI source, dimension, directory, region, decoded-byte, and associated-image ceilings. It exposes one calibrated pyramid dataset plus separate associated-image datasets. Enumeration records lightweight ICC presence/tag/length without fetching the payload. Format-specific helpers such as GSF encoding and ENVI classification rendering live with their reader.
+- `purejsimage/scientific/readers/all`: convenience entry for applications that deliberately want every first-party reader. Importing the base scientific entry does not link these implementations.
+- `purejsimage/operations`: JSON-safe operation and value-type descriptors, parameter schemas, local registries, executable provider contracts, and measured provider selection.
+- `purejsimage/analysis`: ROIs, bounded result types, tile runtime, canonical graphs, immutable workspace commands, planning, execution, provenance, and project persistence.
+- `purejsimage/extensions`: explicitly installed trusted in-process extension bundles. This is not a sandbox.
+
+Reader registration and dataset selection are explicit:
+
+```ts
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { gsfReader } from 'purejsimage/scientific/readers/gsf'
+import { enviReader } from 'purejsimage/scientific/readers/envi'
+import { fitsReader } from 'purejsimage/scientific/readers/fits'
+
+const science = createScientificLibrary({ readers: [gsfReader, enviReader, fitsReader] })
+const document = await science.open(context)
+const summary = document.datasets[0]
+if (!summary) throw new Error('No scientific dataset')
+const dataset = await document.openDataset(summary.id, { signal })
+```
+
+`ScientificDataset.descriptor.axes` contains arbitrary labeled axes. Choose two `displayAxes` and provide a fixed index for every remaining axis; do not assume a universal `{ z, c, t }` shape. Dataset identity combines reader ID/version, dataset ID, and available resource identities. It can use session, local-file, or remote validators before a strong content hash is available, so first display never requires hashing a multi-gigabyte source.
+
+Readers yield portable canonical `RasterBlock` bytes. `resolveNumericTileSource(dataset)` converts once to native-endian typed `NumericTile` storage for repeated computation, or selects an exactly compatible direct native tile source. Release every tile after use. Generic operations and providers must use bounded tile reads rather than materializing a full frame.
+
+Use `purejsimage/analysis` for controllers, graphs, commands, planning, execution, and primary application types. Import full result schemas from `purejsimage/analysis/results`, ROI geometry and sampling from `purejsimage/analysis/roi`, provider-facing tile/cache contracts from `purejsimage/analysis/runtime`, and persistence/migrations from `purejsimage/analysis/project`. These are unreleased main-branch alpha preview entries and are not in the current npm 0.9.x release.
+
+Source tile identity uses the complete reader ID/version, dataset ID, and all resource identities when available. Strong evidence may reuse within one runtime across reopened objects; weak evidence requires the same explicit session scope; synthetic datasets remain instance-scoped. Derived tile identity includes source, operation/version, normalized parameters, output, provider/implementation, and generation. Select a pyramid level once with `purejsimage.analysis.select-resolution-level@1`; later operations consume its calibrated single-level dataset. Threshold and Gaussian blur use the provider-aware lazy tile-kernel path; crop/slice remain coordinate views, resample/projection remain pending kernel convergence, and statistics/histogram/line profile remain result reducers. `purejsimage.analysis.connected-components@1` performs a bounded deterministic global tile scan and returns lazy uint32 labels plus a columnar per-object table without retaining a full mask or label plane.
+
+Operations are versioned JSON-safe descriptors with parameter schemas. Executable `OperationProvider` values are registered separately. The permanent strict TypeScript reference provider is always available when explicitly constructed. WASM and WebGPU analysis providers are future work; when added, selection must require exact semantic support and compare measured setup, transfer, compute, readback, and memory cost rather than follow a fixed backend ranking.
+
+Analysis graphs bind datasets, ROIs, ROI sets, and prior results through typed inputs. Use `controller.dryRun()` to validate and estimate a graph, `controller.planGraph()` to prepare a specific invocation, and `controller.executeGraph()` to start explicit cancellable execution. Provider identity, provider version, implementation version, graph hash, binding hash, invocation hash, and node provenance remain inspectable. Graph mutation uses validated commands against immutable workspace snapshots and requires the expected revision; execution never mutates the graph.
+
+Persist an `AnalysisProjectV1` with canonical graph JSON, ROI set, source references, semantic binding identities, explicit provider policy when required, creator build information, and hashes from `computeAnalysisProjectHashes()`. Migrations are explicit and versioned; never silently rewrite operation semantics. Reproducibility may be bit-exact, backend-stable, tolerance-based, or provider-pinned. Current numeric storage preserves uint64, but do not claim exact quantitative uint64 analysis above `2^53 - 1` through operation and result paths that use JavaScript numbers.
+
+Lifecycle requirements are normative:
+
+- Pass an `AbortSignal` through source reads, dry-run, planning, and execution.
+- Release every `NumericTile` and `AnalysisExecutionResult`.
+- Execution results retain consumed intermediate lazy scientific datasets and their managed bytes when downstream lazy outputs can still capture them; release the result to release those dependencies.
+- Dispose every prepared plan and `TileRuntime`.
+- Reducer working memory is lexical through `withOperationWorkingBytes()`; no caller-owned reservation release closure exists.
+- Close every `ScientificDocument` when the application is finished with its resources.
+- Configure byte budgets and bounded concurrency for network-backed or large local sources.
+
+Extensions contribute readers, value types, operations, providers, and migrations only through a local `createExtensionHost()` call. No import auto-registers code and there is no package-global mutable singleton. Every reader ID contributed by extension `acme.materials` must begin with `acme.materials/`; its other contributed IDs must begin with `acme.materials.`. Trusted extensions execute with the caller's authority. A Worker or iframe RPC boundary for untrusted extensions is future work, not a property of the current host.
+
+The current application wedge is browser-native scientific image analysis and reproducible local analysis of materials microscopy and instrument imagery: AFM, detector, diffraction, hyperspectral, and volumetric data in original vendor files without mandatory conversion. Do not claim mature SEM/TEM workflows, DM3/DM4, EDS overlays, FFT tooling, particle or grain analysis, broad segmentation, registration, morphology, 3D mesh editing, or a mature plugin ecosystem.
+
+See the complete public-import-only lifecycle example at `examples/scientific-application-platform/index.ts` and https://purejsimage.com/scientific/platform/. It is compiled and tested against a package tarball packed from the branch, not the currently published npm package.
 
 ## Mental model
 
@@ -454,10 +515,10 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 - Import: `import { tiffCodec } from 'purejsimage/codecs/tiff'`
 - Decode: Yes (`supported`)
 - Encode: Yes (`supported`)
-- Implemented scope: Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. Supported compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes. Public APIs expose bounded tag reads, native-precision N-channel rasters, GeoTIFF georeferencing and GDAL metadata, OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, validator-protected HTTP range reads, and explicit range/scale/palette mapping of scientific planes to display pixels. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.
-- Primary boundary: Broad validated IFD-graph and strip/tile decode plus public TIFF document, native scientific-raster, GeoTIFF, OME-TIFF, deterministic profile, whole-slide, bounded HTTP-range access, and explicit scientific display-mapping APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles
-- Memory model: Selected-frame, GeoTIFF, OME plane, and whole-slide region decode remain strip- or tile-bounded; IFD traversal and profile detection do not read unselected pixel segments. HTTP range reads use a bounded deduplicating LRU cache and reject resource changes. LERC, Zstandard, bit-order normalization, color conversion, prediction, raster/display output, and embedded codec pixels are bounded to the current metadata table or segment and emitted in bounded rows. JPEG 2000 reconstructs complete component state only for the current TIFF segment, not the source slide. Encoding retains compressed segment payloads until their offsets are known but never stages a full uncompressed frame.
-- Recommended output use: Broad display-image input compatibility, native scientific and GeoTIFF raster access, validated OME and whole-slide pyramids, selective remote COG-style reads, explicit frame/pyramid selection, and structured Deflate RGB/RGBA strip, tile, BigTIFF, multi-page, and SubIFD-pyramid output.
+- Implemented scope: Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. Supported compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes. Public APIs expose bounded tag reads and payload-free tag metadata, native-precision N-channel rasters, GeoTIFF georeferencing and GDAL metadata, OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, an explicitly registered configurable Aperio scientific-document reader, validator-protected HTTP range reads, and explicit range/scale/palette mapping of scientific planes to display pixels. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.
+- Primary boundary: Broad validated IFD-graph and strip/tile decode plus public TIFF document, lightweight tag metadata, native scientific-raster, GeoTIFF, OME-TIFF, deterministic profile, whole-slide and explicit Aperio ScientificDocument access with configurable WSI limits, bounded HTTP-range access, and explicit scientific display-mapping APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles
+- Memory model: Selected-frame, GeoTIFF, OME plane, whole-slide region, and Aperio scientific-dataset reads remain strip- or tile-bounded; IFD traversal, profile detection, and scientific document construction do not read unselected pixel segments or complete ICC payloads merely to enumerate metadata. TIFF document options independently bound physical segment count, the raw-plus-converted segment-table construction peak, and each encoded segment before the corresponding payload read. Aperio readers use explicit source, dimension, directory, region-pixel, decoded-byte, and associated-image limits while allowing large lazy sources, and tiled regions decode sequential native-tile intersections. Direct TIFF display and raster reads preflight the aggregate live decoded segments, largest intersecting encoded segment, largest output block, and predictor scratch before segment payload reads. HTTP range reads use a bounded deduplicating LRU cache and reject resource changes. LERC, Zstandard, bit-order normalization, color conversion, prediction, raster/display output, and embedded codec pixels are bounded to the current metadata table or admitted segment set and emitted in bounded rows. JPEG 2000 reconstructs complete component state only for the current TIFF segment, not the source slide. Encoding retains compressed segment payloads until their offsets are known but never stages a full uncompressed frame.
+- Recommended output use: Broad display-image input compatibility, native scientific and GeoTIFF raster access, validated OME and whole-slide pyramids, explicit Aperio scientific documents, selective remote COG-style reads, explicit frame/pyramid selection, and structured Deflate RGB/RGBA strip, tile, BigTIFF, multi-page, and SubIFD-pyramid output.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/tiff-codec-support.md
 
 ### GIF
@@ -586,16 +647,20 @@ const description = await first.getTag(270, { maxBytes: 1024 * 1024 })
 const rasterDecoder = await first.createRasterDecoder()
 ```
 
-Use `purejsimage/scientific` for OME-TIFF:
+Use the optional OME-TIFF reader entry for scientific OME-TIFF datasets:
 
 ```ts
-import { openOmeTiff } from 'purejsimage/scientific'
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { omeTiffReader } from 'purejsimage/scientific/readers/ome-tiff'
 
-const dataset = await openOmeTiff(document)
+const science = createScientificLibrary({ readers: [omeTiffReader] })
+const scientificDocument = await science.open({
+  primary: { id: 'image', source: new MemorySource(bytes) },
+})
+const dataset = await scientificDocument.openDataset(scientificDocument.datasets[0].id)
 for await (const block of dataset.readPlane({
-  z: 0,
-  c: [0, 1, 2],
-  t: 0,
+  displayAxes: ['x', 'y'],
+  fixedIndices: [{ axisId: 'channel', index: 0 }],
   resolutionLevel: 0,
   x: 0,
   y: 0,
@@ -606,14 +671,16 @@ for await (const block of dataset.readPlane({
 }
 ```
 
-The same entry exposes `openGsf()`, `encodeGsf()`, paired-source `openEnvi()`, `openFits()`,
-`openMrc()`, `openCbf()`, lazy `sliceScientificVolume()` cross-sections, bounded
-`projectScientificVolume()` Z projections, optional statistics from `measureScientificPlane()`,
+The individual reader entries expose `gsfReader`, `enviReader`, `fitsReader`, `mrcReader`,
+`cbfReader`, and `omeTiffReader`; the GSF entry also exposes `encodeGsf()`. The base scientific entry
+exposes lazy `sliceScientificVolume()` cross-sections, bounded `projectScientificVolume()`
+arbitrary-axis projections, optional statistics from `measureScientificPlane()`,
 `renderScientificPlane()`, wavelength-aware band and false-color rendering, spectral integration,
 and ratios. These APIs preserve native numeric samples and apply display ranges, scales, palettes,
-and relief only to emitted `PixelBlock`s. Node applications may import `openEnviPath()` from
-`purejsimage/scientific/node`; browser applications pass a GSF File/Blob or separate ENVI header
-and binary File/Blob objects. Complex ENVI types, 64-bit ENVI integers, and ENVI writing are
+and relief only to emitted `PixelBlock`s. Node applications create a constrained source context
+with `createScientificPathContext()` from `purejsimage/scientific/node`; browser applications use
+`createScientificFileContext()` with a File and explicit companions. Complex ENVI types, 64-bit
+ENVI integers, and ENVI writing are
 explicitly unsupported. See the checked GSF and ENVI contracts and the entirely local browser
 explorer before relying on uncommon metadata. MRC supports modes 0, 1, 2, 6, and 12 with logical
 axis mapping. CBF supports common two-dimensional x-CBF_BYTE_OFFSET integer
@@ -741,7 +808,7 @@ Keep `@jsquash/*` when its small, codec-scoped WASM packages cover the complete 
 
 ## Replace GeoTIFF.js or UTIF.js/utif2
 
-Use the normal PureJsImage pipeline when TIFF is an image input that should become JPEG, PNG, WebP, BMP, or TIFF. Use `openTiffDocument()`, native `RasterDecoder` output, `openOmeTiff()`, the GeoTIFF profile, or whole-slide APIs when TIFF structure and sample precision matter.
+Use the normal PureJsImage pipeline when TIFF is an image input that should become JPEG, PNG, WebP, BMP, or TIFF. Use `openTiffDocument()`, native `RasterDecoder` output, `omeTiffReader`, the GeoTIFF profile, or whole-slide APIs when TIFF structure and sample precision matter.
 
 Choose PureJsImage when the application needs one bounded image/scientific pipeline, validated IFD traversal, exact native samples, explicit display conversion, OME-TIFF semantics, or the documented whole-slide/profile APIs. Keep GeoTIFF.js when an existing geospatial workflow depends on its API or ecosystem and PureJsImage's public GeoTIFF model does not cover the requirement. Keep UTIF.js/utif2 only when its existing low-level decode contract is sufficient and migration cost outweighs the need for PureJsImage's limits, region/native-raster APIs, or broader validation.
 

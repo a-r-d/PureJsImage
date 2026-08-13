@@ -150,11 +150,13 @@ const entryMeasurements = await Promise.all(pureJsImageEntryTargets.map(measure)
 console.log('')
 console.log('## PureJsImage entry points')
 console.log('')
-console.log('| Entry | Minified | gzip | Brotli |')
-console.log('| --- | ---: | ---: | ---: |')
+console.log('| Entry | Minified | Recorded baseline | Ceiling | gzip | Brotli |')
+console.log('| --- | ---: | ---: | ---: | ---: | ---: |')
 for (const measurement of entryMeasurements) {
+  const baseline = measurement.target.baselineMinifiedBytes
+  const ceiling = measurement.target.maxMinifiedBytes
   console.log(
-    `| ${measurement.target.name} | ${kibibytes(measurement.minifiedBytes)} | ${kibibytes(measurement.gzipBytes)} | ${kibibytes(measurement.brotliBytes)} |`,
+    `| ${measurement.target.name} | ${kibibytes(measurement.minifiedBytes)} | ${baseline === undefined ? '—' : kibibytes(baseline)} | ${ceiling === undefined ? '—' : kibibytes(ceiling)} | ${kibibytes(measurement.gzipBytes)} | ${kibibytes(measurement.brotliBytes)} |`,
   )
 }
 const oversizedEntries = entryMeasurements.filter(

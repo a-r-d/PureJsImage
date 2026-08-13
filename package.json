@@ -93,6 +93,86 @@
       "import": "./dist/scientific/node.js",
       "default": "./dist/scientific/node.js"
     },
+    "./scientific/browser": {
+      "types": "./dist/scientific/browser.d.ts",
+      "import": "./dist/scientific/browser.js",
+      "default": "./dist/scientific/browser.js"
+    },
+    "./scientific/readers/gsf": {
+      "types": "./dist/scientific/readers/gsf.d.ts",
+      "import": "./dist/scientific/readers/gsf.js",
+      "default": "./dist/scientific/readers/gsf.js"
+    },
+    "./scientific/readers/envi": {
+      "types": "./dist/scientific/readers/envi.d.ts",
+      "import": "./dist/scientific/readers/envi.js",
+      "default": "./dist/scientific/readers/envi.js"
+    },
+    "./scientific/readers/fits": {
+      "types": "./dist/scientific/readers/fits.d.ts",
+      "import": "./dist/scientific/readers/fits.js",
+      "default": "./dist/scientific/readers/fits.js"
+    },
+    "./scientific/readers/mrc": {
+      "types": "./dist/scientific/readers/mrc.d.ts",
+      "import": "./dist/scientific/readers/mrc.js",
+      "default": "./dist/scientific/readers/mrc.js"
+    },
+    "./scientific/readers/cbf": {
+      "types": "./dist/scientific/readers/cbf.d.ts",
+      "import": "./dist/scientific/readers/cbf.js",
+      "default": "./dist/scientific/readers/cbf.js"
+    },
+    "./scientific/readers/ome-tiff": {
+      "types": "./dist/scientific/readers/ome-tiff.d.ts",
+      "import": "./dist/scientific/readers/ome-tiff.js",
+      "default": "./dist/scientific/readers/ome-tiff.js"
+    },
+    "./scientific/readers/aperio-svs": {
+      "types": "./dist/scientific/readers/aperio-svs.d.ts",
+      "import": "./dist/scientific/readers/aperio-svs.js",
+      "default": "./dist/scientific/readers/aperio-svs.js"
+    },
+    "./scientific/readers/all": {
+      "types": "./dist/scientific/readers/all.d.ts",
+      "import": "./dist/scientific/readers/all.js",
+      "default": "./dist/scientific/readers/all.js"
+    },
+    "./operations": {
+      "types": "./dist/operations/index.d.ts",
+      "import": "./dist/operations/index.js",
+      "default": "./dist/operations/index.js"
+    },
+    "./analysis": {
+      "types": "./dist/analysis/index.d.ts",
+      "import": "./dist/analysis/index.js",
+      "default": "./dist/analysis/index.js"
+    },
+    "./analysis/results": {
+      "types": "./dist/analysis/results.d.ts",
+      "import": "./dist/analysis/results.js",
+      "default": "./dist/analysis/results.js"
+    },
+    "./analysis/roi": {
+      "types": "./dist/analysis/roi-entry.d.ts",
+      "import": "./dist/analysis/roi-entry.js",
+      "default": "./dist/analysis/roi-entry.js"
+    },
+    "./analysis/runtime": {
+      "types": "./dist/analysis/runtime.d.ts",
+      "import": "./dist/analysis/runtime.js",
+      "default": "./dist/analysis/runtime.js"
+    },
+    "./analysis/project": {
+      "types": "./dist/analysis/project-entry.d.ts",
+      "import": "./dist/analysis/project-entry.js",
+      "default": "./dist/analysis/project-entry.js"
+    },
+    "./extensions": {
+      "types": "./dist/extensions/index.d.ts",
+      "import": "./dist/extensions/index.js",
+      "default": "./dist/extensions/index.js"
+    },
     "./pathology": {
       "types": "./dist/pathology/index.d.ts",
       "import": "./dist/pathology/index.js",
@@ -210,11 +290,12 @@
     "node": ">=22"
   },
   "scripts": {
-    "check": "npm run capabilities:check && npm run comparison:check && npm run docs:build && npm run typecheck && npm run size && npm run package:types && npm run profile:example:check && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
+    "check": "npm run capabilities:check && npm run comparison:check && npm run analysis:api:check && npm run docs:build && npm run typecheck && npm run size && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
     "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json && node scripts/copy-wasm-artifacts.ts",
     "browser:check": "tsc -p tsconfig.browser.json && node scripts/check-browser-build.ts",
     "package:types": "node scripts/check-package-types.ts",
     "profile:example:check": "node scripts/check-external-tiff-profile.ts && tsc -p examples/tiff-profile-leica/tsconfig.json",
+    "platform:example:check": "node scripts/check-external-application-platform.ts && tsc -p examples/scientific-application-platform/tsconfig.json",
     "browser:test": "playwright test",
     "browser:bench": "PUREJSIMAGE_WRITE_BROWSER_BENCHMARK=1 playwright test browser-tests/benchmark.pw.ts --project=chromium",
     "wasm:build:jpeg": "node scripts/build-wasm-jpeg.ts",
@@ -227,6 +308,8 @@
     "capabilities:check": "node scripts/render-capabilities.ts --check",
     "comparison:generate": "node scripts/render-library-comparison.ts",
     "comparison:check": "node scripts/render-library-comparison.ts --check",
+    "analysis:api:generate": "node scripts/check-analysis-api-manifest.ts --write",
+    "analysis:api:check": "node scripts/check-analysis-api-manifest.ts",
     "docs:dev": "astro dev --root docs-astro",
     "docs:build": "node scripts/build-docs-site.ts",
     "docs:preview": "astro preview --root docs-astro",
@@ -300,6 +383,11 @@
     "bench:transforms:compare": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines jimp,purejsimage --profile transforms-comparable",
     "bench:webp": "npm run build && PUREJSIMAGE_ENTRY=./dist/index.js node benchmark/run.ts --engines purejsimage --profile webp",
     "bench:zstd": "node --expose-gc benchmark/scripts/run-zstd.ts",
+    "bench:scientific:numeric-tiles": "node benchmark/scientific/run-numeric-tiles.ts",
+    "bench:analysis:tiles": "node benchmark/scientific/run-tile-runtime.ts",
+    "bench:analysis:gaussian-blur": "node benchmark/scientific/run-analysis-gaussian-blur.ts",
+    "bench:analysis:connected-components": "node benchmark/scientific/run-connected-components.ts",
+    "bench:application-platform": "node benchmark/scientific/run-application-platform.ts",
     "bench:avif:inspect": "node benchmark/avif/inspect-bitstreams.ts",
     "bench:avif:b2": "node --expose-gc benchmark/avif/run-b2.ts",
     "bench:avif:memory": "node benchmark/avif/run-memory.ts",

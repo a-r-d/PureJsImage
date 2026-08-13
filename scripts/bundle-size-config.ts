@@ -15,6 +15,8 @@ export type BundleCodec =
   | 'TGA'
 
 export interface BundleTarget {
+  /** Recorded minified byte count when this gate was introduced. */
+  readonly baselineMinifiedBytes?: number
   readonly contents: string
   readonly id: string
   readonly name: string
@@ -43,8 +45,115 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
   },
   {
     id: 'scientific',
-    name: 'Core + scientific rasters',
+    name: 'Core + scientific platform',
     contents: exportsFrom(['./src/index.ts', './src/scientific/index.ts']),
+    baselineMinifiedBytes: 143_546,
+    maxMinifiedBytes: 187_000,
+  },
+  {
+    id: 'scientific-reader-gsf',
+    name: 'Scientific reader: GSF',
+    contents: exportsFrom(['./src/scientific/readers/gsf.ts']),
+    baselineMinifiedBytes: 37_864,
+    maxMinifiedBytes: 50_000,
+  },
+  {
+    id: 'scientific-reader-envi',
+    name: 'Scientific reader: ENVI',
+    contents: exportsFrom(['./src/scientific/readers/envi.ts']),
+    baselineMinifiedBytes: 56_958,
+    maxMinifiedBytes: 75_000,
+  },
+  {
+    id: 'scientific-reader-fits',
+    name: 'Scientific reader: FITS',
+    contents: exportsFrom(['./src/scientific/readers/fits.ts']),
+    baselineMinifiedBytes: 44_278,
+    maxMinifiedBytes: 60_000,
+  },
+  {
+    id: 'scientific-reader-mrc',
+    name: 'Scientific reader: MRC',
+    contents: exportsFrom(['./src/scientific/readers/mrc.ts']),
+    baselineMinifiedBytes: 38_787,
+    maxMinifiedBytes: 51_000,
+  },
+  {
+    id: 'scientific-reader-cbf',
+    name: 'Scientific reader: CBF',
+    contents: exportsFrom(['./src/scientific/readers/cbf.ts']),
+    baselineMinifiedBytes: 41_686,
+    maxMinifiedBytes: 55_000,
+  },
+  {
+    id: 'scientific-reader-ome-tiff',
+    name: 'Scientific reader: OME-TIFF',
+    contents: exportsFrom(['./src/scientific/readers/ome-tiff.ts']),
+    baselineMinifiedBytes: 267_489,
+    maxMinifiedBytes: 350_000,
+  },
+  {
+    id: 'scientific-reader-aperio-svs',
+    name: 'Scientific reader: Aperio SVS',
+    contents: exportsFrom(['./src/scientific/readers/aperio-svs.ts']),
+    baselineMinifiedBytes: 259_477,
+    maxMinifiedBytes: 338_000,
+  },
+  {
+    id: 'scientific-readers-all',
+    name: 'Scientific readers: all',
+    contents: exportsFrom(['./src/scientific/readers/all.ts']),
+    baselineMinifiedBytes: 350_082,
+    maxMinifiedBytes: 456_000,
+  },
+  {
+    id: 'operations',
+    name: 'Operation descriptors and runtime',
+    contents: exportsFrom(['./src/operations/index.ts']),
+    baselineMinifiedBytes: 44_252,
+    maxMinifiedBytes: 58_000,
+  },
+  {
+    id: 'analysis',
+    name: 'Analysis application API',
+    contents: exportsFrom(['./src/analysis/index.ts']),
+    baselineMinifiedBytes: 270_789,
+    maxMinifiedBytes: 353_000,
+  },
+  {
+    id: 'analysis-results',
+    name: 'Analysis result schemas',
+    contents: exportsFrom(['./src/analysis/results.ts']),
+    baselineMinifiedBytes: 55_713,
+    maxMinifiedBytes: 72_427,
+  },
+  {
+    id: 'analysis-roi',
+    name: 'Analysis ROI utilities',
+    contents: exportsFrom(['./src/analysis/roi-entry.ts']),
+    baselineMinifiedBytes: 32_622,
+    maxMinifiedBytes: 42_409,
+  },
+  {
+    id: 'analysis-runtime',
+    name: 'Analysis tile runtime',
+    contents: exportsFrom(['./src/analysis/runtime.ts']),
+    baselineMinifiedBytes: 57_784,
+    maxMinifiedBytes: 75_120,
+  },
+  {
+    id: 'analysis-project',
+    name: 'Analysis project and migrations',
+    contents: exportsFrom(['./src/analysis/project-entry.ts']),
+    baselineMinifiedBytes: 51_214,
+    maxMinifiedBytes: 66_578,
+  },
+  {
+    id: 'extensions',
+    name: 'Trusted extension host',
+    contents: exportsFrom(['./src/extensions/index.ts']),
+    baselineMinifiedBytes: 46_564,
+    maxMinifiedBytes: 61_000,
   },
   {
     id: 'png',

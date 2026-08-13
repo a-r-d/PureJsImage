@@ -10,6 +10,19 @@
   vendor, copy, or runtime-import a third-party implementation to disguise a dependency as local
   package contents. Dev dependencies may be used only as test or benchmark oracles.
 
+## Application platform program
+
+- A large, staged application-platform implementation is in progress. Its architecture, approved
+  decisions, ten-PR runbook, and authoritative progress checklist live in
+  `docs/architecture/application-platform.md`.
+- Before application-platform work, read that document through the checklist at the bottom and
+  reconcile the current prompt with its approved alpha-release policy and dependency boundaries.
+- Update the checklist in the same change as related work. Mark an item complete only after its
+  stated acceptance gates pass, and record any intentional deferral or superseded requirement.
+- Application-platform contracts may evolve while unreleased. Completed surfaces may land
+  incrementally, but release hardening, compatibility promises, version changes, and publication
+  require explicit release authorization.
+
 ## Releases
 
 - When preparing, verifying, publishing, or auditing a release, follow the `release-purejsimage`

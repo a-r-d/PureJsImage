@@ -218,8 +218,8 @@ outputs.set('README.md', replaceRegion(readme, 'readme', readmeBlock(codecs)))
 
 let llmsGuide = await readFile('docs-astro/public/llms.txt', 'utf8')
 llmsGuide = llmsGuide.replace(
-  /`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and .*?\n\n## Mental model/s,
-  '`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL decoder. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented lossless Modular subset fail explicitly.\n\n## Mental model',
+  /`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and [^\n]+/,
+  '`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL decoder. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented lossless Modular subset fail explicitly.',
 )
 outputs.set('docs-astro/public/llms.txt', replaceRegion(llmsGuide, 'llms', llmsBlock(codecs)))
 

@@ -16,9 +16,37 @@ const canvasSignature = async (page: Page): Promise<number> =>
     return signature
   })
 
-test('opens, maps, and locally reloads GSF, ENVI, and FITS scientific rasters', async ({
-  page,
-}) => {
+const mrcVolumeFixture = (): Buffer => {
+  const output = Buffer.alloc(1_024 + 2 * 2 * 3 * 2)
+  const integer = (offset: number, value: number): void => {
+    output.writeInt32LE(value, offset)
+  }
+  const real = (offset: number, value: number): void => {
+    output.writeFloatLE(value, offset)
+  }
+  integer(0, 2)
+  integer(4, 2)
+  integer(8, 3)
+  integer(12, 1)
+  integer(28, 2)
+  integer(32, 2)
+  integer(36, 3)
+  real(40, 2)
+  real(44, 2)
+  real(48, 3)
+  real(52, 90)
+  real(56, 90)
+  real(60, 90)
+  integer(64, 1)
+  integer(68, 2)
+  integer(72, 3)
+  output.write('MAP ', 208, 'ascii')
+  output.set([0x44, 0x44, 0, 0], 212)
+  for (let index = 0; index < 12; index += 1) output.writeInt16LE(index, 1_024 + index * 2)
+  return output
+}
+
+test('opens, maps, and locally reloads GSF, ENVI, FITS, and MRC rasters', async ({ page }) => {
   const externalRequests: string[] = []
   page.on('request', (request) => {
     const url = new URL(request.url())
@@ -80,13 +108,13 @@ test('opens, maps, and locally reloads GSF, ENVI, and FITS scientific rasters', 
     buffer: localGsf,
   })
   await expect(page.locator('#scientific-metric-name')).toContainText('local-surface.gsf')
-  await expect(page.locator('#scientific-metric-bytes-label')).toHaveText('Input size')
+  await expect(page.locator('#scientific-metric-bytes-label')).toHaveText('Source size')
 
   await page.getByRole('tab', { name: 'ENVI raster' }).click()
   await page.getByRole('button', { name: 'Load synthetic ENVI cube' }).click()
   await expect(page.locator('#scientific-metric-dimensions')).toHaveText('96 × 64 × 16')
   await expect(page.locator('#scientific-metric-detail')).toHaveText('16 spectral bands')
-  await expect(page.locator('#scientific-metric-bytes-label')).toHaveText('Binary bytes read')
+  await expect(page.locator('#scientific-metric-bytes-label')).toHaveText('Source size')
   await expect(page.locator('#scientific-selection')).toHaveText('Band 9 of 16, 722 Nanometers')
   await page.locator('#scientific-wavelength').fill('10')
   await expect(page.locator('#scientific-selection')).toHaveText('Band 11 of 16, 809 Nanometers')
@@ -131,10 +159,38 @@ test('opens, maps, and locally reloads GSF, ENVI, and FITS scientific rasters', 
   await page.getByRole('button', { name: 'Load synthetic FITS cube' }).click()
   await expect(page.locator('#scientific-metric-name')).toHaveText('synthetic-cube.fits')
   await expect(page.locator('#scientific-metric-dimensions')).toHaveText('128 × 96 × 3')
-  await expect(page.locator('#scientific-metric-bytes-label')).toHaveText('FITS bytes read')
+  await expect(page.locator('#scientific-metric-bytes-label')).toHaveText('Source size')
   await expect(page.locator('#scientific-selection')).toHaveText('HDU 0, XY slice 1')
+  await expect(page.locator('#scientific-slice-axis option[value="xz"]')).toHaveAttribute(
+    'disabled',
+    '',
+  )
+  await expect(page.locator('#scientific-slice-axis option[value="yz"]')).toHaveAttribute(
+    'disabled',
+    '',
+  )
   await page.locator('#scientific-slice-index').fill('2')
   await expect(page.locator('#scientific-selection')).toHaveText('HDU 0, XY slice 3')
+
+  await page.getByRole('tab', { name: 'MRC volumes' }).click()
+  await page.locator('#scientific-mrc-file').setInputFiles({
+    name: 'local-volume.mrc',
+    mimeType: 'application/octet-stream',
+    buffer: mrcVolumeFixture(),
+  })
+  await expect(page.locator('#scientific-metric-dimensions')).toHaveText('2 × 2 × 3')
+  await expect(page.locator('#scientific-slice-axis option[value="xz"]')).not.toHaveAttribute(
+    'disabled',
+    '',
+  )
+  await expect(page.locator('#scientific-slice-axis option[value="yz"]')).not.toHaveAttribute(
+    'disabled',
+    '',
+  )
+  await page.locator('#scientific-slice-axis').selectOption('xz')
+  await expect(page.locator('#scientific-selection')).toHaveText('XZ slice 1')
+  await page.locator('#scientific-slice-axis').selectOption('yz')
+  await expect(page.locator('#scientific-selection')).toHaveText('YZ slice 1')
   const downloadPromise = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Download PNG' }).click()
   const download = await downloadPromise

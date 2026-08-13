@@ -111,22 +111,32 @@ In a browser, import from `purejsimage/browser` and use `toBlob()` or
 `toUint8Array()` for output. Tools that need every default codec can register
 `allCodecs` from `purejsimage/codecs/all`.
 
-### TIFF with a scientific profile
+> **Unreleased main-branch alpha preview:** The scientific application entrypoints documented below
+> are not included in the current npm 0.9.x release. Their package contract is tested from a tarball
+> packed from this branch. The ordinary codec pipeline above remains the established npm workflow.
 
-Register the TIFF codec alone, then opt into the OME-TIFF profile:
+### Scientific OME-TIFF
+
+Register the OME-TIFF reader explicitly and open the numeric dataset without routing it through the
+ordinary display-image codec pipeline:
 
 ```ts
-import { createImageLibrary, FileSource } from 'purejsimage'
-import { tiffCodec } from 'purejsimage/codecs/tiff'
-import { omeTiffProfile } from 'purejsimage/scientific'
-import { createTiffProfileRegistry, openTiffDocument } from 'purejsimage/tiff'
+import { FileSource } from 'purejsimage'
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { omeTiffReader } from 'purejsimage/scientific/readers/ome-tiff'
 
-const images = createImageLibrary([tiffCodec])
+const science = createScientificLibrary({ readers: [omeTiffReader] })
+const document = await science.open({
+  primary: {
+    id: 'input',
+    name: 'input.ome.tif',
+    source: await FileSource.open('input.ome.tif'),
+  },
+})
 
-const source = await FileSource.open('input.ome.tif')
-const document = await openTiffDocument(source)
-const profiles = createTiffProfileRegistry([omeTiffProfile])
-const dataset = await profiles.openWith(document, omeTiffProfile)
+const first = document.datasets[0]
+if (first === undefined) throw new Error('OME-TIFF contains no datasets')
+const dataset = await document.openDataset(first.id)
 ```
 
 ### Scientific rasters and explicit display mapping
@@ -135,27 +145,188 @@ Scientific readers are separate from photographic codecs. The dataset remains nu
 application requests display pixels:
 
 ```ts
-import { FileSource } from 'purejsimage'
-import { openFits, renderScientificPlane } from 'purejsimage/scientific'
+import { createScientificLibrary, renderScientificPlane } from 'purejsimage/scientific'
+import { createScientificPathContext } from 'purejsimage/scientific/node'
+import { fitsReader } from 'purejsimage/scientific/readers/fits'
 
-const fits = await openFits(await FileSource.open('observation.fits'))
-const dataset = await fits.openImage(0)
+const science = createScientificLibrary({ readers: [fitsReader] })
+const fits = await science.open(await createScientificPathContext('observation.fits'))
+const dataset = await fits.openDataset(fits.datasets[0].id)
 const display = await renderScientificPlane(dataset, {
-  plane: { z: 0, c: 0, t: 0 },
+  plane: { displayAxes: ['x', 'y'], fixedIndices: [{ axisId: 'axis-3', index: 0 }] },
   range: { mode: 'percentile', low: 1, high: 99 },
   palette: 'viridis',
 })
 ```
 
-MRC and FITS volumes share lazy cross-section and projection operations:
+Labeled-axis datasets use stable axis IDs, so the same renderer can display an ordinary image, an
+energy plane, or either domain of a 4D-STEM acquisition without relabeling dimensions:
+
+```ts
+import type {
+  NormalizedScientificPlaneReadRequest,
+  RasterBlock,
+  ScientificDataset,
+} from 'purejsimage/scientific'
+import {
+  normalizeScientificDatasetDescriptor,
+  normalizeScientificPlaneReadRequest,
+  renderScientificPlane,
+} from 'purejsimage/scientific'
+
+const readSyntheticRegion = (plane: NormalizedScientificPlaneReadRequest): RasterBlock => {
+  const data = new Uint8Array(plane.width * plane.height * 4)
+  const view = new DataView(data.buffer)
+  for (let index = 0; index < plane.width * plane.height; index += 1) {
+    view.setFloat32(index * 4, index, false)
+  }
+  return {
+    x: plane.x,
+    y: plane.y,
+    width: plane.width,
+    height: plane.height,
+    stride: plane.width * 4,
+    format: { sampleType: 'float32', channels: 1, planar: false },
+    data,
+  }
+}
+
+const synthetic: ScientificDataset = {
+  descriptor: normalizeScientificDatasetDescriptor({
+    schemaVersion: 1,
+    axes: [
+      {
+        id: 'x',
+        kind: 'space',
+        length: 64,
+        unit: 'µm',
+        coordinates: { type: 'linear', origin: 0, step: 0.5 },
+      },
+      {
+        id: 'y',
+        kind: 'space',
+        length: 32,
+        unit: 'µm',
+        coordinates: { type: 'linear', origin: 0, step: 0.5 },
+      },
+      {
+        id: 'energy',
+        kind: 'spectral',
+        length: 3,
+        unit: 'eV',
+        coordinates: { type: 'lookup', values: [10, 12, 18] },
+      },
+    ],
+    sampleType: 'float32',
+    components: [{ id: 'intensity', kind: 'intensity', unit: 'counts' }],
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'y']] },
+    },
+  }),
+  async *readPlane(request): AsyncIterable<RasterBlock> {
+    const plane = normalizeScientificPlaneReadRequest(this.descriptor, request)
+    yield readSyntheticRegion(plane)
+  },
+}
+
+const energyDisplay = await renderScientificPlane(synthetic, {
+  plane: {
+    displayAxes: ['x', 'y'],
+    fixedIndices: [{ axisId: 'energy', index: 1 }],
+  },
+  range: { mode: 'percentile', low: 1, high: 99 },
+  palette: 'viridis',
+})
+```
+
+The synthetic reader allocates only the requested region. Real readers should stream smaller blocks
+when needed and propagate each block's optional `release()` callback.
+
+Applications that need format detection can construct an explicit, local scientific library without
+changing the ordinary image codec pipeline:
 
 ```ts
 import { FileSource } from 'purejsimage'
-import { openMrc, projectScientificVolume, sliceScientificVolume } from 'purejsimage/scientific'
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { fitsReader } from 'purejsimage/scientific/readers/fits'
+import { gsfReader } from 'purejsimage/scientific/readers/gsf'
 
-const volume = await openMrc(await FileSource.open('reconstruction.mrc'))
-const xz = sliceScientificVolume(volume, { axis: 'xz', index: 128 })
-const maximum = projectScientificVolume(volume, { axis: 'z', mode: 'max' })
+const science = createScientificLibrary({ readers: [fitsReader, gsfReader] })
+const document = await science.open({
+  primary: { id: 'observation', name: 'observation.fits', source: await FileSource.open(path) },
+})
+const dataset = await document.openDataset(document.datasets[0]!.id)
+```
+
+Registration is caller-owned: no package import installs readers globally. See the
+[scientific reader registry guide](docs/scientific-reader-registry.md) for probe budgets,
+multi-resource resolution, and Node/browser adapters.
+
+Scientific readers expose portable canonical-byte `RasterBlock`s. Repeated scientific computation
+converts each block once to a native-endian typed `NumericTile`; direct native tile sources remain an
+explicit, local optimization and the canonical conversion fallback is permanent. Exact `uint64`
+values remain `bigint`, while `float16` expands to `Float32Array`. See the
+[numeric tile guide](docs/scientific-numeric-tiles.md) for ownership, checked conversion, and direct
+provider semantics.
+
+Application builders can explicitly import `purejsimage/operations` for JSON-safe operation
+descriptors, immutable local registries, built-in pipeline lowering, and cost-based provider
+selection. `purejsimage/extensions` composes trusted in-process readers, value types, operations,
+and providers without package-global registration or import-time probing. Extensions execute with
+the application's authority; this is not a sandbox. See the
+[operations and trusted extensions guide](docs/operations-and-extensions.md).
+
+Quantitative application results are available through the explicit `purejsimage/analysis` entry.
+It provides bounded scalar, histogram, profile, columnar table, and collection contracts plus
+JSON-safe summaries and a one-measurement scientific adapter. Typed payloads are never silently
+serialized. See the [quantitative analysis results guide](docs/analysis-results.md).
+
+The same analysis entry also provides versioned declarative graphs, canonical hashing, source
+identity, explicit migrations, non-executing plans and dry runs, immutable workspace commands,
+cancellable generic orchestration, and provenance. Graph mutation never executes providers, and
+the controller is shared by UI, scripts, trusted plugins, and future agents without a privileged
+AI-only path. See the [analysis graph guide](docs/analysis-graphs.md).
+
+The analysis entry also provides calibrated JSON-safe ROI geometry, tile-local masks, deterministic
+line sampling plans, built-in ROI value types, and immutable ROI workspace commands. See the
+[ROI geometry and sampling guide](docs/roi-geometry-and-sampling.md).
+
+Lazy quantitative applications can create a local byte-bounded `TileRuntime` with canonical source
+and derived keys, shared in-flight reads, cancellable priority scheduling, explicit invalidation,
+halo-aware provider execution, and JSON-safe metrics. Imports create no cache or background worker.
+See the [lazy analysis tile runtime guide](docs/analysis-tile-runtime.md).
+
+The initial strict TypeScript scientific operations cover lazy crop, resample, arbitrary-axis
+slice, projection, threshold, Gaussian blur, ROI statistics, histogram, and calibrated line
+profiles. They are registered only through an explicit application-owned bundle. See the
+[built-in scientific analysis operations guide](docs/built-in-analysis-operations.md).
+
+For the complete main-branch preview workflow—reader registry, arbitrary-axis tiles, ROI analysis,
+graph save/replay, provider pinning, capability/command inspection, and trusted custom
+operations—see [Building scientific applications with PureJsImage](docs/application-platform.md).
+
+MRC and FITS volumes share lazy cross-section and projection operations:
+
+```ts
+import {
+  createScientificLibrary,
+  projectScientificVolume,
+  sliceScientificVolume,
+} from 'purejsimage/scientific'
+import { createScientificPathContext } from 'purejsimage/scientific/node'
+import { mrcReader } from 'purejsimage/scientific/readers/mrc'
+
+const science = createScientificLibrary({ readers: [mrcReader] })
+const document = await science.open(await createScientificPathContext('reconstruction.mrc'))
+const volume = await document.openDataset(document.datasets[0].id)
+const xz = sliceScientificVolume(volume, {
+  displayAxes: ['x', 'z'], fixedIndices: [{ axisId: 'y', index: 128 }],
+})
+const maximum = projectScientificVolume(volume, {
+  displayAxes: ['x', 'y'], axis: 'z', fixedIndices: [], mode: 'max',
+})
 ```
 
 [ENVI](https://purejsimage.com/scientific/envi/) ·

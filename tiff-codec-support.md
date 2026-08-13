@@ -25,7 +25,8 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 ### Document, raster, and profile APIs
 
 - [x] Public `openTiffDocument()` entry with stable top-level and SubIFD directory objects
-- [x] Bounded typed `getTag()` reads plus per-directory display and native raster decoders
+- [x] Bounded typed `getTag()` reads, payload-free `getTagInfo()` metadata, plus per-directory display and native raster decoders
+- [x] Configurable physical-segment count, segment-table construction-peak, and per-segment encoded-byte limits rejected before oversized payload reads
 - [x] Native-precision planar or interleaved N-channel `RasterBlock` output without implicit RGB conversion
 - [x] Explicit `rasterToPixels()` display conversion with declared per-channel ranges
 - [x] First-party GeoTIFF model, coordinate conversion, bounding-box, GeoKey, GDAL metadata, and nodata helpers
@@ -35,6 +36,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Deterministic TIFF profile registry with detector-failure isolation and equal-priority ambiguity rejection
 - [x] Generic bounded `WholeSlideImage` levels, region reads, associated images, and physical metadata
 - [x] First-party Aperio SVS pyramid, associated-image, MPP, objective, and JPEG 2000 tile integration
+- [x] Explicit Aperio ScientificDocument reader with configurable large-source WSI limits, calibrated format-consistent pyramid levels, lightweight ICC presence/length metadata, distinct associated-image datasets, identities, cancellation, release forwarding, and bounded local or HTTP Range region reads
 - [x] Separately compiled Leica SCN single-area example using only published package imports
 - [ ] Automatic display semantics for arbitrary scientific multiband data
 - [ ] Multi-area Leica scene composition and additional vendor-specific whole-slide profiles
@@ -126,6 +128,7 @@ TIFF 6 CIELab converts the format's D65-referenced L*, a*, and b* samples direct
 - [x] Expose stable IFD offsets and graph lookup, bounded defensive-copy source reads, per-directory immutable tag caching with per-call limits, and typed explicit profile opening through public TIFF APIs
 - [x] Validate strip/tile counts, byte ranges, decoded sizes, and predictor boundaries
 - [x] Bound decompression output to the declared strip or tile geometry
+- [x] Preflight aggregate decoded-segment, output-block, and predictor-scratch peaks before direct TIFF segment reads; stream tiled Aperio regions one native intersection at a time
 - [x] Reject unsupported photometric interpretations, sample formats, and compressions explicitly
 - [x] Verify decoded pixels against pinned LibTIFF fixtures
 - [x] Verify packed 10-, 12-, and 14-bit output exactly at native 16-bit depth against ImageMagick/LibTIFF

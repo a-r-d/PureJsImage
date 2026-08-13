@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { rasterSampleBytes, type RasterSampleType } from '../src/raster.ts'
 import { openMrc, type MrcMode } from '../src/scientific/formats/mrc.ts'
+import { toScientificDataset } from '../src/scientific/dataset-adapters.ts'
 import { readRasterSample, writeRasterSample } from '../src/scientific/samples.ts'
 import type { ImageSource } from '../src/source.ts'
 
@@ -211,6 +212,17 @@ describe('MRC2014 and CCP4 scientific volumes', () => {
       labels: ['first label', 'second label'],
     })
     expect((await collect(dataset)).slice(0, 3)).toEqual([0, 1, 2])
+
+    const scientific = toScientificDataset(dataset, { semanticSingletonAxes: ['z'] })
+    expect(
+      scientific.descriptor.axes
+        .filter(({ id }) => id === 'x' || id === 'y' || id === 'z')
+        .map(({ id, unit, coordinates }) => ({ id, unit, coordinates })),
+    ).toEqual([
+      { id: 'x', unit: 'Å', coordinates: { type: 'linear', origin: 1.5, step: 10 } },
+      { id: 'y', unit: 'Å', coordinates: { type: 'linear', origin: -2.5, step: 20 } },
+      { id: 'z', unit: 'Å', coordinates: { type: 'linear', origin: 3.5, step: 25 } },
+    ])
   })
 
   it('opens a two-dimensional image with sizeZ 1', async () => {

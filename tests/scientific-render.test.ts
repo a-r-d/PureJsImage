@@ -5,6 +5,16 @@ import type {
   MultidimensionalRasterDataset,
   RasterChannelInfo,
   RasterPlaneRequest,
+} from '../src/scientific/legacy-dataset.ts'
+import type {
+  NormalizedScientificDatasetDescriptor,
+  ScientificAxisDescriptor,
+  ScientificDataset,
+  ScientificPlaneReadRequest,
+} from '../src/scientific/dataset.ts'
+import {
+  normalizeScientificDatasetDescriptor,
+  normalizeScientificPlaneReadRequest,
 } from '../src/scientific/dataset.ts'
 import { measureScientificPlane, renderScientificPlane } from '../src/scientific/render.ts'
 import {
@@ -82,6 +92,94 @@ class SyntheticDataset implements MultidimensionalRasterDataset {
         format: { sampleType: 'float32', channels: selected.length, planar: true },
         data,
       }
+    }
+  }
+}
+
+class PlaneDataset implements ScientificDataset {
+  readonly descriptor: NormalizedScientificDatasetDescriptor
+  readonly requests: ScientificPlaneReadRequest[] = []
+
+  constructor(axes: readonly ScientificAxisDescriptor[]) {
+    this.descriptor = normalizeScientificDatasetDescriptor({
+      schemaVersion: 1,
+      axes,
+      sampleType: 'float32',
+      components: [{ id: 'value', kind: 'scalar', unit: 'counts' }],
+      capabilities: {
+        regionReads: true,
+        resolutionLevels: false,
+        planeReads: { kind: 'any-axis-pair' },
+      },
+    })
+  }
+
+  async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncGenerator<RasterBlock> {
+    const normalized = normalizeScientificPlaneReadRequest(this.descriptor, request)
+    this.requests.push(normalized)
+    const data = new Uint8Array(normalized.width * normalized.height * 4)
+    const view = new DataView(data.buffer)
+    for (let index = 0; index < normalized.width * normalized.height; index += 1) {
+      view.setFloat32(index * 4, index + 1, false)
+    }
+    yield {
+      x: normalized.x,
+      y: normalized.y,
+      width: normalized.width,
+      height: normalized.height,
+      stride: normalized.width * 4,
+      format: { sampleType: 'float32', channels: 1, planar: false },
+      data,
+    }
+  }
+}
+
+const labeledAxis = (
+  id: string,
+  kind: ScientificAxisDescriptor['kind'],
+  length: number,
+): ScientificAxisDescriptor => ({ id, kind, length, coordinates: { type: 'index' } })
+
+class SpectralDataset implements ScientificDataset {
+  readonly descriptor = normalizeScientificDatasetDescriptor({
+    schemaVersion: 1,
+    axes: [
+      labeledAxis('x', 'space', 2),
+      labeledAxis('y', 'space', 1),
+      {
+        id: 'energy',
+        kind: 'spectral',
+        length: 3,
+        unit: 'nm',
+        coordinates: { type: 'lookup', values: [450, 550, 650] },
+      },
+    ],
+    sampleType: 'float32',
+    components: [{ id: 'value', kind: 'scalar' }],
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'any-axis-pair' },
+    },
+  })
+
+  async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncGenerator<RasterBlock> {
+    const normalized = normalizeScientificPlaneReadRequest(this.descriptor, request)
+    const energy = normalized.fixedIndices.find((fixed) => fixed.axisId === 'energy')?.index ?? 0
+    const multiplier = 2 ** energy
+    const data = new Uint8Array(normalized.width * normalized.height * 4)
+    const view = new DataView(data.buffer)
+    for (let index = 0; index < normalized.width * normalized.height; index += 1) {
+      view.setFloat32(index * 4, (normalized.x + index + 1) * 2 * multiplier, false)
+    }
+    yield {
+      x: normalized.x,
+      y: normalized.y,
+      width: normalized.width,
+      height: normalized.height,
+      stride: normalized.width * 4,
+      format: { sampleType: 'float32', channels: 1, planar: false },
+      data,
     }
   }
 }
@@ -172,6 +270,74 @@ const spectralDataset = (): SyntheticDataset => {
 }
 
 describe('scientific display mapping', () => {
+  it('uses the same measurement and rendering path for labeled XY, energy, and 4D-STEM planes', async () => {
+    const cases = [
+      {
+        axes: [labeledAxis('x', 'space', 3), labeledAxis('y', 'space', 2)],
+        displayAxes: ['x', 'y'] as const,
+        fixedIndices: [],
+      },
+      {
+        axes: [
+          labeledAxis('x', 'space', 3),
+          labeledAxis('y', 'space', 2),
+          labeledAxis('energy', 'spectral', 4),
+        ],
+        displayAxes: ['x', 'y'] as const,
+        fixedIndices: [{ axisId: 'energy', index: 2 }],
+      },
+      {
+        axes: [
+          labeledAxis('scanX', 'space', 3),
+          labeledAxis('scanY', 'space', 2),
+          labeledAxis('kx', 'reciprocal-space', 3),
+          labeledAxis('ky', 'reciprocal-space', 2),
+        ],
+        displayAxes: ['kx', 'ky'] as const,
+        fixedIndices: [
+          { axisId: 'scanX', index: 1 },
+          { axisId: 'scanY', index: 0 },
+        ],
+      },
+      {
+        axes: [
+          labeledAxis('scanX', 'space', 3),
+          labeledAxis('scanY', 'space', 2),
+          labeledAxis('kx', 'reciprocal-space', 3),
+          labeledAxis('ky', 'reciprocal-space', 2),
+        ],
+        displayAxes: ['scanX', 'scanY'] as const,
+        fixedIndices: [
+          { axisId: 'kx', index: 2 },
+          { axisId: 'ky', index: 1 },
+        ],
+      },
+    ]
+    for (const fixture of cases) {
+      const dataset = new PlaneDataset(fixture.axes)
+      const plane = { displayAxes: fixture.displayAxes, fixedIndices: fixture.fixedIndices }
+      const measurement = await measureScientificPlane(dataset, {
+        plane,
+        range: { mode: 'dataset' },
+        statistics: { mean: true, histogram: { bins: 3 } },
+      })
+      expect(measurement).toMatchObject({
+        range: { min: 1, max: 6 },
+        finiteSamples: 6,
+        mean: 3.5,
+        selection: { displayAxes: fixture.displayAxes, fixedIndices: fixture.fixedIndices },
+      })
+      const rendered = await renderScientificPlane(dataset, {
+        plane,
+        range: { mode: 'explicit', min: 1, max: 6 },
+      })
+      const blocks: PixelBlock[] = []
+      for await (const block of rendered.pixels) blocks.push(block)
+      expect(blocks).toHaveLength(2)
+      expect(blocks.every((block) => block.width === 3 && block.height === 1)).toBe(true)
+    }
+  })
+
   it('maps native scalar values without mutating NaN/Infinity source samples', async () => {
     const sourceValues = [0, 0.5, 1, Number.NaN, Number.POSITIVE_INFINITY, -1]
     const dataset = scalarDataset(3, 2, sourceValues)
@@ -285,6 +451,61 @@ describe('scientific display mapping', () => {
 })
 
 describe('hyperspectral helpers', () => {
+  it('selects, renders, integrates, and ratios an explicit labeled spectral axis', async () => {
+    const source = new SpectralDataset()
+    expect(nearestSpectralChannel(source, 535, 'energy')).toEqual({
+      requested: 535,
+      channel: 1,
+      selected: 550,
+      unit: 'nm',
+      axisId: 'energy',
+    })
+    const band = await renderSpectralBand(source, {
+      wavelength: 535,
+      spectralAxis: 'energy',
+      plane: { displayAxes: ['x', 'y'], fixedIndices: [] },
+      range: { mode: 'explicit', min: 0, max: 16 },
+    })
+    expect(band.image.selection.fixedIndices).toContainEqual({ axisId: 'energy', index: 1 })
+    const composite = await renderSpectralComposite(source, {
+      red: 650,
+      green: 550,
+      blue: 450,
+      spectralAxis: 'energy',
+      plane: { displayAxes: ['x', 'y'], fixedIndices: [] },
+      range: { mode: 'explicit', min: 0, max: 16 },
+    })
+    const compositeBlocks: PixelBlock[] = []
+    for await (const block of composite.pixels) compositeBlocks.push(block)
+    expect(compositeBlocks).toHaveLength(1)
+
+    const integrated = integrateSpectralRange(source, {
+      spectralAxis: 'energy',
+      from: 450,
+      to: 650,
+    })
+    const ratio = bandRatio(source, {
+      spectralAxis: 'energy',
+      numerator: 650,
+      denominator: 450,
+    })
+    const readDerived = async (dataset: ScientificDataset): Promise<number[]> => {
+      const output: number[] = []
+      for await (const block of dataset.readPlane({
+        displayAxes: ['x', 'y'],
+        fixedIndices: [],
+      })) {
+        const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+        for (let index = 0; index < block.width * block.height; index += 1) {
+          output.push(view.getFloat64(index * 8, false))
+        }
+      }
+      return output
+    }
+    expect(await readDerived(integrated)).toEqual([900, 1800])
+    expect(await readDerived(ratio)).toEqual([4, 4])
+  })
+
   it('selects and reports the nearest actual spectral channel', async () => {
     const dataset = spectralDataset()
     expect(nearestSpectralChannel(dataset, 575)).toEqual({

@@ -1,0 +1,1104 @@
+import { describe, expect, it } from 'vitest'
+import {
+  createDerivedTileSource,
+  numericTileSourceToTileSource,
+} from '../src/analysis/tile-source.ts'
+import { canonicalTileKey, createTileRuntime } from '../src/analysis/tile-runtime.ts'
+import type { DerivedTileExecutionContext, TileHalo } from '../src/analysis/tile-source.ts'
+import type { TileAddress, TileRequest, TileSource } from '../src/analysis/tile-runtime.ts'
+import type {
+  OperationCostEstimate,
+  OperationImplementation,
+  OperationJsonObject,
+  OperationOwnedOutput,
+  OperationProviderSelection,
+  PreparedOperationProvider,
+} from '../src/operations/index.ts'
+import { createOperationDefinition } from '../src/operations/index.ts'
+import type {
+  NormalizedScientificDatasetDescriptor,
+  NumericTile,
+  NumericTileSource,
+} from '../src/scientific/index.ts'
+import {
+  normalizeScientificDatasetDescriptor,
+  numericTileSampleOffset,
+} from '../src/scientific/index.ts'
+
+const descriptor: NormalizedScientificDatasetDescriptor = normalizeScientificDatasetDescriptor({
+  schemaVersion: 1,
+  axes: [
+    { id: 'x', kind: 'space', length: 8, coordinates: { type: 'index' } },
+    { id: 'y', kind: 'space', length: 6, coordinates: { type: 'index' } },
+  ],
+  sampleType: 'float32',
+  components: [{ id: 'value', kind: 'scalar' }],
+  capabilities: {
+    regionReads: true,
+    resolutionLevels: false,
+    planeReads: { kind: 'any-axis-pair' },
+  },
+})
+
+const dataset = {
+  semantic: {
+    kind: 'derived-dataset' as const,
+    domain: 'test-derived.v1',
+    sha256: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  },
+  generation: 0,
+}
+
+const sourceIdentity = {
+  semantic: {
+    kind: 'scientific-dataset' as const,
+    reader: { id: 'test.reader', version: '1' },
+    datasetId: 'scientific-1',
+    resources: [
+      {
+        id: 'primary',
+        identity: {
+          kind: 'content' as const,
+          strength: 'strong' as const,
+          stability: 'content-addressed' as const,
+          algorithm: 'sha256' as const,
+          digest: '1123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+          size: 48,
+        },
+      },
+    ],
+  },
+  generation: 0,
+}
+
+const address = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  options: { readonly namespace?: string; readonly generation?: number } = {},
+): TileAddress => ({
+  cacheClass: 'derived',
+  namespace: options.namespace ?? 'derived:node-1',
+  dataset: { ...dataset, generation: options.generation ?? 0 },
+  displayAxes: ['x', 'y'],
+  fixedIndices: [],
+  resolutionLevel: 0,
+  x,
+  y,
+  width,
+  height,
+})
+
+const request = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  signal: AbortSignal = new AbortController().signal,
+  options: Parameters<typeof address>[4] = {},
+): TileRequest => ({
+  address: address(x, y, width, height, options),
+  priority: 'visible',
+  signal,
+  target: { sampleType: 'float32', layout: 'interleaved' },
+})
+
+const numericTile = (
+  region: Pick<TileAddress, 'x' | 'y' | 'width' | 'height'>,
+  release: () => void,
+): NumericTile => {
+  const data = new Float32Array(region.width * region.height)
+  for (let y = 0; y < region.height; y += 1) {
+    for (let x = 0; x < region.width; x += 1) {
+      data[y * region.width + x] = region.x + x + (region.y + y) * 10
+    }
+  }
+  return Object.freeze({
+    ...region,
+    sampleType: 'float32',
+    componentCount: 1,
+    layout: 'interleaved',
+    rowStrideElements: region.width,
+    data,
+    release,
+  })
+}
+
+const numericTileIterable = (
+  tiles: readonly NumericTile[],
+  onReturn: () => void,
+): AsyncIterable<NumericTile> => ({
+  [Symbol.asyncIterator](): AsyncIterator<NumericTile> {
+    let index = 0
+    return {
+      async next(): Promise<IteratorResult<NumericTile>> {
+        const tile = tiles[index]
+        index += 1
+        return tile === undefined ? { done: true, value: undefined } : { done: false, value: tile }
+      },
+      async return(): Promise<IteratorResult<NumericTile>> {
+        onReturn()
+        return { done: true, value: undefined }
+      },
+    }
+  },
+})
+
+const sourceFor = (reads: TileAddress[], releases: TileAddress[]): TileSource => ({
+  descriptor,
+  tileKey: canonicalTileKey,
+  estimate: (tileRequest) => ({
+    outputRetainedBytes: tileRequest.address.width * tileRequest.address.height * 4,
+    peakWorkingBytes: tileRequest.address.width * tileRequest.address.height * 4,
+    retainedAuxiliaryBytes: 0,
+  }),
+  async readTile(tileRequest) {
+    reads.push(tileRequest.address)
+    return {
+      tile: numericTile(tileRequest.address, () => releases.push(tileRequest.address)),
+      accounting: { decodedInputBytes: tileRequest.address.width * tileRequest.address.height * 4 },
+    }
+  },
+})
+
+const operation = createOperationDefinition({
+  descriptor: {
+    id: 'example.tile.neighborhood',
+    version: 1,
+    title: 'Synthetic neighborhood',
+    category: 'test',
+    tags: [],
+    inputs: [{ name: 'source', valueType: { id: 'example.numeric-tile', version: 1 } }],
+    outputs: [{ name: 'result', valueType: { id: 'example.numeric-tile', version: 1 } }],
+    parameters: {
+      type: 'object',
+      properties: { radius: { type: 'integer', minimum: 0, maximum: 4, default: 1 } },
+      closed: true,
+    },
+    execution: 'neighborhood',
+    reproducibility: { class: 'backend-stable' },
+  },
+})
+
+const isJsonValue = (value: unknown): boolean => {
+  if (
+    value === null ||
+    typeof value === 'string' ||
+    typeof value === 'boolean' ||
+    (typeof value === 'number' && Number.isFinite(value))
+  ) {
+    return true
+  }
+  if (Array.isArray(value)) return value.every(isJsonValue)
+  if (typeof value !== 'object') return false
+  return Object.values(value).every(isJsonValue)
+}
+
+const isJsonObject = (value: unknown): value is OperationJsonObject =>
+  value !== null && typeof value === 'object' && !Array.isArray(value) && isJsonValue(value)
+
+const object = (value: unknown, label: string): OperationJsonObject => {
+  if (!isJsonObject(value)) {
+    throw new TypeError(`${label} must be an object`)
+  }
+  return value
+}
+
+const numberField = (value: OperationJsonObject, field: string): number => {
+  const result = value[field]
+  if (typeof result !== 'number') throw new TypeError(`${field} must be a number`)
+  return result
+}
+
+const contextFor = (value: OperationJsonObject | undefined): DerivedTileExecutionContext => {
+  const context = object(value, 'inputCharacteristics')
+  return {
+    ...context,
+    requested: object(context.requested, 'requested'),
+    source: object(context.source, 'source'),
+    halo: object(context.halo, 'halo'),
+    boundaryMode: 'clip',
+  }
+}
+
+const isNumericTile = (value: unknown): value is NumericTile =>
+  value !== null &&
+  typeof value === 'object' &&
+  'x' in value &&
+  typeof value.x === 'number' &&
+  'y' in value &&
+  typeof value.y === 'number' &&
+  'width' in value &&
+  typeof value.width === 'number' &&
+  'height' in value &&
+  typeof value.height === 'number' &&
+  'sampleType' in value &&
+  value.sampleType === 'float32' &&
+  'componentCount' in value &&
+  typeof value.componentCount === 'number' &&
+  'layout' in value &&
+  (value.layout === 'interleaved' || value.layout === 'planar') &&
+  'rowStrideElements' in value &&
+  typeof value.rowStrideElements === 'number' &&
+  'data' in value &&
+  value.data instanceof Float32Array &&
+  'release' in value &&
+  typeof value.release === 'function'
+
+const inputTile = (value: unknown): NumericTile => {
+  if (!isNumericTile(value)) {
+    throw new TypeError('input must be a NumericTile')
+  }
+  return value
+}
+
+const outputRegion = (context: DerivedTileExecutionContext): TileAddress => {
+  const requested = object(context.requested.address, 'requested address')
+  return address(
+    numberField(requested, 'x'),
+    numberField(requested, 'y'),
+    numberField(requested, 'width'),
+    numberField(requested, 'height'),
+  )
+}
+
+const estimate: OperationCostEstimate = Object.freeze({
+  setupMilliseconds: 0.1,
+  transferMilliseconds: 0.2,
+  computeMilliseconds: 0.3,
+  readbackMilliseconds: 0.4,
+  retainedBytes: 64,
+  peakWorkingBytes: 96,
+  transferBytes: 32,
+  outputBytes: 64,
+  confidence: 1,
+})
+
+const selection = (options: {
+  readonly id: string
+  readonly implementationVersion?: string
+  readonly supportsPlan?: OperationImplementation['supportsPlan']
+  readonly execute: OperationImplementation['execute']
+}): OperationProviderSelection => {
+  const implementation: OperationImplementation = Object.freeze({
+    descriptor: Object.freeze({
+      operationId: operation.descriptor.id,
+      operationVersion: operation.descriptor.version,
+      implementationVersion: options.implementationVersion ?? '1.0.0',
+    }),
+    supportsPlan: options.supportsPlan ?? (() => true),
+    estimatePlan: () => estimate,
+    execute: options.execute,
+  })
+  const provider: PreparedOperationProvider = Object.freeze({
+    descriptor: Object.freeze({
+      id: options.id,
+      version: 1,
+      kind: 'reference',
+      buildFingerprint: `${options.id}-build`,
+    }),
+    implementations: Object.freeze([implementation]),
+  })
+  return Object.freeze({ provider, implementation, estimate })
+}
+
+const averageOutput =
+  (providerReleases: number[]): OperationImplementation['execute'] =>
+  async (providerRequest) => {
+    providerRequest.signal.throwIfAborted()
+    const source = inputTile(providerRequest.inputs[0])
+    const context = contextFor(
+      object(providerRequest.plannedInputCharacteristics[0], 'planned input characteristics'),
+    )
+    const output = outputRegion(context)
+    const radius = numberField(object(providerRequest.parameters, 'parameters'), 'radius')
+    const data = new Float32Array(output.width * output.height)
+    for (let y = 0; y < output.height; y += 1) {
+      for (let x = 0; x < output.width; x += 1) {
+        const globalX = output.x + x
+        const globalY = output.y + y
+        let sum = 0
+        let count = 0
+        for (
+          let sampleY = Math.max(source.y, globalY - radius);
+          sampleY <= Math.min(source.y + source.height - 1, globalY + radius);
+          sampleY += 1
+        ) {
+          for (
+            let sampleX = Math.max(source.x, globalX - radius);
+            sampleX <= Math.min(source.x + source.width - 1, globalX + radius);
+            sampleX += 1
+          ) {
+            sum += Number(
+              source.data[
+                numericTileSampleOffset(source, sampleX - source.x, sampleY - source.y, 0)
+              ],
+            )
+            count += 1
+          }
+        }
+        data[y * output.width + x] = sum / count
+      }
+    }
+    const owned: OperationOwnedOutput = Object.freeze({
+      value: Object.freeze({
+        x: output.x,
+        y: output.y,
+        width: output.width,
+        height: output.height,
+        sampleType: 'float32',
+        componentCount: 1,
+        layout: 'interleaved',
+        rowStrideElements: output.width,
+        data,
+        release: () => undefined,
+      } satisfies NumericTile),
+      release(): void {
+        providerReleases.push(output.x)
+      },
+    })
+    return Object.freeze([owned])
+  }
+
+const derivedFor = (options: {
+  readonly runtime: ReturnType<typeof createTileRuntime>
+  readonly source: TileSource
+  readonly selection: OperationProviderSelection
+  readonly radius?: number
+  readonly fingerprint?: string
+  readonly nodeSemanticHash?: string
+  readonly halo?: TileHalo
+}) =>
+  createDerivedTileSource({
+    runtime: options.runtime,
+    source: options.source,
+    sourceDescriptor: descriptor,
+    sourceIdentity,
+    descriptor,
+    operation,
+    selection: options.selection,
+    parameters: { radius: options.radius ?? 1 },
+    nodeSemanticHash: options.nodeSemanticHash ?? 'node-semantic-hash-1',
+    executionFingerprint: options.fingerprint ?? 'execution-1',
+    sourceNamespace: 'source:dataset-1',
+    halo: () => options.halo ?? { left: 1, right: 1, top: 1, bottom: 1 },
+  })
+
+describe('numeric and derived tile sources', () => {
+  it('adapts streamed NumericTiles into one bounded packed tile and releases source chunks', async () => {
+    const releases: number[] = []
+    const numericSource: NumericTileSource = {
+      descriptor,
+      async *readNumericTiles(read) {
+        yield numericTile(
+          { x: read.x ?? 0, y: read.y ?? 0, width: 2, height: read.height ?? 1 },
+          () => releases.push(1),
+        )
+        yield numericTile(
+          {
+            x: (read.x ?? 0) + 2,
+            y: read.y ?? 0,
+            width: (read.width ?? 4) - 2,
+            height: read.height ?? 1,
+          },
+          () => releases.push(2),
+        )
+      },
+    }
+    const runtime = createTileRuntime()
+    const source = numericTileSourceToTileSource(numericSource)
+    const tile = await runtime.request(source, {
+      ...request(1, 2, 4, 2),
+      address: { ...request(1, 2, 4, 2).address, cacheClass: 'source' },
+    })
+    expect([...tile.data]).toEqual([21, 22, 23, 24, 31, 32, 33, 34])
+    expect(releases).toEqual([1, 2])
+    tile.release()
+    runtime.clear()
+  })
+
+  it('estimates streamed output, coverage, and one smaller emitted tile independently', () => {
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 8,
+      }),
+      async *readNumericTiles() {},
+    }
+    const source = numericTileSourceToTileSource(numericSource)
+    expect(source.estimate(request(0, 0, 4, 2))).toEqual({
+      outputRetainedBytes: 32,
+      peakWorkingBytes: 48,
+      retainedAuxiliaryBytes: 0,
+    })
+  })
+
+  it('rejects the true streamed peak before starting the source iterator', async () => {
+    let iteratorStarts = 0
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 8,
+      }),
+      readNumericTiles() {
+        iteratorStarts += 1
+        return numericTileIterable([], () => undefined)
+      },
+    }
+    const runtime = createTileRuntime({ limits: { maxInFlightBytes: 47 } })
+    expect(() =>
+      runtime.request(numericTileSourceToTileSource(numericSource), request(0, 0, 4, 2)),
+    ).toThrow('maxInFlightBytes')
+    expect(iteratorStarts).toBe(0)
+    runtime.clear()
+  })
+
+  it('adds a pooled streamed backing allocation to packed output and coverage', () => {
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 256,
+      }),
+      async *readNumericTiles() {},
+    }
+    expect(numericTileSourceToTileSource(numericSource).estimate(request(0, 0, 2, 2))).toEqual({
+      outputRetainedBytes: 16,
+      peakWorkingBytes: 276,
+      retainedAuxiliaryBytes: 0,
+    })
+  })
+
+  it('rejects invalid emitted-tile read-plan bounds', () => {
+    for (const maximumEmittedTileRetainedBytes of [-1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+      const numericSource: NumericTileSource = {
+        descriptor,
+        planRead: () => ({
+          delivery: 'streamed',
+          maximumEmittedTileRetainedBytes,
+        }),
+        async *readNumericTiles() {},
+      }
+      expect(() =>
+        numericTileSourceToTileSource(numericSource).estimate(request(0, 0, 2, 2)),
+      ).toThrow('invalid read plan')
+    }
+  })
+
+  it('releases every sequentially acquired tile exactly once when assembly rejects', async () => {
+    const releases: [number, number] = [0, 0]
+    const numericSource: NumericTileSource = {
+      descriptor,
+      async *readNumericTiles() {
+        yield numericTile({ x: 0, y: 0, width: 2, height: 2 }, () => {
+          releases[0] += 1
+        })
+        yield numericTile({ x: 8, y: 0, width: 1, height: 1 }, () => {
+          releases[1] += 1
+        })
+      },
+    }
+    const runtime = createTileRuntime()
+    await expect(
+      runtime.request(numericTileSourceToTileSource(numericSource), {
+        ...request(0, 0, 2, 2),
+        address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+      }),
+    ).rejects.toThrow('out-of-region')
+    expect(releases).toEqual([1, 1])
+    runtime.clear()
+  })
+
+  it('preserves an assembly error while exhausting throwing release and iterator cleanup', async () => {
+    const releases: [number, number] = [0, 0]
+    let iteratorReturns = 0
+    const first = numericTile({ x: 0, y: 0, width: 2, height: 2 }, () => {
+      releases[0] += 1
+      throw new Error('first release failed')
+    })
+    const second = numericTile({ x: 8, y: 0, width: 1, height: 1 }, () => {
+      releases[1] += 1
+    })
+    const numericSource: NumericTileSource = {
+      descriptor,
+      readNumericTiles: () =>
+        numericTileIterable([first, second], () => {
+          iteratorReturns += 1
+        }),
+    }
+    const source = numericTileSourceToTileSource(numericSource)
+    await expect(
+      source.readTile({
+        ...request(0, 0, 2, 2),
+        address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+      }),
+    ).rejects.toThrow('out-of-region')
+    expect(releases).toEqual([1, 1])
+    expect(iteratorReturns).toBe(1)
+  })
+
+  it('surfaces the first cleanup-only failure after attempting all cleanup', async () => {
+    const releases: [number, number] = [0, 0]
+    let iteratorReturns = 0
+    const first = numericTile({ x: 0, y: 0, width: 1, height: 2 }, () => {
+      releases[0] += 1
+      throw new Error('first cleanup failed')
+    })
+    const second = numericTile({ x: 1, y: 0, width: 1, height: 2 }, () => {
+      releases[1] += 1
+    })
+    const numericSource: NumericTileSource = {
+      descriptor,
+      readNumericTiles: () =>
+        numericTileIterable([first, second], () => {
+          iteratorReturns += 1
+          throw new Error('iterator cleanup failed')
+        }),
+    }
+    const source = numericTileSourceToTileSource(numericSource)
+    await expect(
+      source.readTile({
+        ...request(0, 0, 2, 2),
+        address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+      }),
+    ).rejects.toThrow('first cleanup failed')
+    expect(releases).toEqual([1, 1])
+    expect(iteratorReturns).toBe(1)
+  })
+
+  it('rejects an out-of-region first tile before requesting another tile', async () => {
+    const releases: [number, number] = [0, 0]
+    let requestedSecond = false
+    const numericSource: NumericTileSource = {
+      descriptor,
+      async *readNumericTiles() {
+        yield numericTile({ x: 8, y: 0, width: 1, height: 1 }, () => {
+          releases[0] += 1
+        })
+        requestedSecond = true
+        yield numericTile({ x: 0, y: 0, width: 2, height: 2 }, () => {
+          releases[1] += 1
+        })
+      },
+    }
+    const runtime = createTileRuntime()
+    await expect(
+      runtime.request(numericTileSourceToTileSource(numericSource), {
+        ...request(0, 0, 2, 2),
+        address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+      }),
+    ).rejects.toThrow('out-of-region')
+    expect(requestedSecond).toBe(false)
+    expect(releases).toEqual([1, 0])
+    runtime.clear()
+  })
+
+  it('rejects inconsistent first-tile semantics before requesting another tile', async () => {
+    let releases = 0
+    let requestedSecond = false
+    const numericSource: NumericTileSource = {
+      descriptor,
+      async *readNumericTiles() {
+        yield Object.freeze({
+          x: 0,
+          y: 0,
+          width: 2,
+          height: 2,
+          sampleType: 'int32' as const,
+          componentCount: 1,
+          layout: 'interleaved' as const,
+          rowStrideElements: 2,
+          data: new Int32Array(4),
+          release() {
+            releases += 1
+          },
+        })
+        requestedSecond = true
+      },
+    }
+    await expect(
+      numericTileSourceToTileSource(numericSource).readTile(request(0, 0, 2, 2)),
+    ).rejects.toThrow('incompatible sample semantics')
+    expect(requestedSecond).toBe(false)
+    expect(releases).toBe(1)
+  })
+
+  it('rejects and releases a tile that exceeds its declared backing bound', async () => {
+    let releases = 0
+    const backing = new ArrayBuffer(64)
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 16,
+      }),
+      async *readNumericTiles() {
+        yield Object.freeze({
+          x: 0,
+          y: 0,
+          width: 2,
+          height: 2,
+          sampleType: 'float32' as const,
+          componentCount: 1,
+          layout: 'interleaved' as const,
+          rowStrideElements: 2,
+          data: new Float32Array(backing, 0, 4),
+          release() {
+            releases += 1
+          },
+        })
+      },
+    }
+    await expect(
+      numericTileSourceToTileSource(numericSource).readTile(request(0, 0, 2, 2)),
+    ).rejects.toThrow('declared backing allocation bound')
+    expect(releases).toBe(1)
+  })
+
+  it('releases each streamed chunk before requesting the next one', async () => {
+    let ownedTiles = 0
+    let nextCalls = 0
+    const tiles = [
+      numericTile({ x: 0, y: 0, width: 1, height: 2 }, () => {
+        ownedTiles -= 1
+      }),
+      numericTile({ x: 1, y: 0, width: 1, height: 2 }, () => {
+        ownedTiles -= 1
+      }),
+    ]
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 8,
+      }),
+      readNumericTiles: () => ({
+        [Symbol.asyncIterator](): AsyncIterator<NumericTile> {
+          let index = 0
+          return {
+            async next(): Promise<IteratorResult<NumericTile>> {
+              expect(ownedTiles).toBe(0)
+              nextCalls += 1
+              const tile = tiles[index]
+              index += 1
+              if (tile === undefined) return { done: true, value: undefined }
+              ownedTiles += 1
+              return { done: false, value: tile }
+            },
+          }
+        },
+      }),
+    }
+    const result = await numericTileSourceToTileSource(numericSource).readTile(request(0, 0, 2, 2))
+    expect([...result.tile.data]).toEqual([0, 1, 10, 11])
+    expect(nextCalls).toBe(3)
+    expect(ownedTiles).toBe(0)
+    result.tile.release()
+  })
+
+  it('transfers one exact source tile without allocating a merge buffer', async () => {
+    let releases = 0
+    let nextCalls = 0
+    let iteratorReturns = 0
+    const data = new Float32Array([0, 1, 10, 11])
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'single-exact',
+        maximumEmittedTileRetainedBytes: data.buffer.byteLength,
+      }),
+      readNumericTiles: () => ({
+        [Symbol.asyncIterator](): AsyncIterator<NumericTile> {
+          return {
+            async next(): Promise<IteratorResult<NumericTile>> {
+              nextCalls += 1
+              if (nextCalls > 1) throw new Error('single-exact source was read twice')
+              return {
+                done: false,
+                value: Object.freeze({
+                  x: 0,
+                  y: 0,
+                  width: 2,
+                  height: 2,
+                  sampleType: 'float32' as const,
+                  componentCount: 1,
+                  layout: 'interleaved' as const,
+                  rowStrideElements: 2,
+                  data,
+                  release() {
+                    releases += 1
+                  },
+                }),
+              }
+            },
+            async return(): Promise<IteratorResult<NumericTile>> {
+              iteratorReturns += 1
+              return { done: true, value: undefined }
+            },
+          }
+        },
+      }),
+    }
+    const runtime = createTileRuntime()
+    const source = numericTileSourceToTileSource(numericSource)
+    const result = await runtime.request(source, {
+      ...request(0, 0, 2, 2),
+      address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+    })
+    expect(result.data.buffer).toBe(data.buffer)
+    expect(nextCalls).toBe(1)
+    expect(iteratorReturns).toBe(1)
+    expect(releases).toBe(0)
+    result.release()
+    runtime.clear()
+    expect(releases).toBe(1)
+  })
+
+  it('releases a single-exact candidate when iterator cleanup fails', async () => {
+    let releases = 0
+    let nextCalls = 0
+    const candidate = numericTile({ x: 0, y: 0, width: 2, height: 2 }, () => {
+      releases += 1
+    })
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'single-exact',
+        maximumEmittedTileRetainedBytes: candidate.data.buffer.byteLength,
+      }),
+      readNumericTiles: () => ({
+        [Symbol.asyncIterator](): AsyncIterator<NumericTile> {
+          return {
+            async next(): Promise<IteratorResult<NumericTile>> {
+              nextCalls += 1
+              return { done: false, value: candidate }
+            },
+            async return(): Promise<IteratorResult<NumericTile>> {
+              throw new Error('single-exact iterator cleanup failed')
+            },
+          }
+        },
+      }),
+    }
+    await expect(
+      numericTileSourceToTileSource(numericSource).readTile(request(0, 0, 2, 2)),
+    ).rejects.toThrow('single-exact iterator cleanup failed')
+    expect(nextCalls).toBe(1)
+    expect(releases).toBe(1)
+  })
+
+  it('records the conservative streamed reservation in runtime high-water metrics', async () => {
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 8,
+      }),
+      async *readNumericTiles() {
+        yield numericTile({ x: 0, y: 0, width: 2, height: 1 }, () => undefined)
+        yield numericTile({ x: 2, y: 0, width: 2, height: 1 }, () => undefined)
+        yield numericTile({ x: 0, y: 1, width: 2, height: 1 }, () => undefined)
+        yield numericTile({ x: 2, y: 1, width: 2, height: 1 }, () => undefined)
+      },
+    }
+    const runtime = createTileRuntime()
+    const tile = await runtime.request(
+      numericTileSourceToTileSource(numericSource),
+      request(0, 0, 4, 2),
+    )
+    expect(runtime.metrics().memory.highWaterTotalManagedBytes).toBe(48)
+    tile.release()
+    runtime.clear()
+  })
+
+  it('compacts an exact tile whose small view retains an undeclared larger allocation', async () => {
+    let releases = 0
+    const backing = new ArrayBuffer(256)
+    const data = new Float32Array(backing, 0, 4)
+    data.set([0, 1, 10, 11])
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: backing.byteLength,
+      }),
+      async *readNumericTiles() {
+        yield Object.freeze({
+          x: 0,
+          y: 0,
+          width: 2,
+          height: 2,
+          sampleType: 'float32' as const,
+          componentCount: 1,
+          layout: 'interleaved' as const,
+          rowStrideElements: 2,
+          data,
+          release() {
+            releases += 1
+          },
+        })
+      },
+    }
+    const runtime = createTileRuntime({ limits: { maxCacheBytes: 32, maxTileBytes: 32 } })
+    const result = await runtime.request(numericTileSourceToTileSource(numericSource), {
+      ...request(0, 0, 2, 2),
+      address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+    })
+    expect(result.data.buffer).not.toBe(backing)
+    expect(result.data.buffer.byteLength).toBe(16)
+    expect(runtime.metrics().cache.currentBytes).toBe(16)
+    expect(releases).toBe(1)
+    result.release()
+    runtime.clear()
+  })
+
+  it('permits zero-copy pooled storage only when the direct source declares the allocation', async () => {
+    const backing = new ArrayBuffer(256)
+    const data = new Float32Array(backing, 0, 4)
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'single-exact',
+        maximumEmittedTileRetainedBytes: backing.byteLength,
+      }),
+      async *readNumericTiles() {
+        yield Object.freeze({
+          x: 0,
+          y: 0,
+          width: 2,
+          height: 2,
+          sampleType: 'float32' as const,
+          componentCount: 1,
+          layout: 'interleaved' as const,
+          rowStrideElements: 2,
+          data,
+          release() {},
+        })
+      },
+    }
+    const runtime = createTileRuntime({ limits: { maxCacheBytes: 512, maxTileBytes: 512 } })
+    const result = await runtime.request(numericTileSourceToTileSource(numericSource), {
+      ...request(0, 0, 2, 2),
+      address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+    })
+    expect(result.data.buffer).toBe(backing)
+    expect(runtime.metrics().cache.currentBytes).toBe(256)
+    result.release()
+    runtime.clear()
+  })
+
+  it('keys provider identity, normalized semantics, fingerprints, and generations', () => {
+    const runtime = createTileRuntime()
+    const source = sourceFor([], [])
+    const reference = selection({ id: 'provider.reference', execute: averageOutput([]) })
+    const alternate = selection({ id: 'provider.alternate', execute: averageOutput([]) })
+    const base = request(2, 2, 2, 2)
+    const first = derivedFor({ runtime, source, selection: reference })
+    const same = derivedFor({ runtime, source, selection: reference, radius: 1 })
+    const providerChanged = derivedFor({ runtime, source, selection: alternate })
+    const executionChanged = derivedFor({
+      runtime,
+      source,
+      selection: reference,
+      fingerprint: 'execution-2',
+    })
+    const nodeChanged = derivedFor({
+      runtime,
+      source,
+      selection: reference,
+      nodeSemanticHash: 'node-semantic-hash-2',
+    })
+    const parameterChanged = derivedFor({ runtime, source, selection: reference, radius: 2 })
+    expect(first.tileKey(base)).toBe(same.tileKey(base))
+    expect(providerChanged.tileKey(base)).not.toBe(first.tileKey(base))
+    expect(executionChanged.tileKey(base)).not.toBe(first.tileKey(base))
+    expect(nodeChanged.tileKey(base)).not.toBe(first.tileKey(base))
+    expect(parameterChanged.tileKey(base)).not.toBe(first.tileKey(base))
+    expect(first.tileKey(request(2, 2, 2, 2, undefined, { generation: 1 }))).not.toBe(
+      first.tileKey(base),
+    )
+  })
+
+  it('clips halos, returns only output pixels, and remains invariant across tile partitions', async () => {
+    const reads: TileAddress[] = []
+    const sourceReleases: TileAddress[] = []
+    const providerReleases: number[] = []
+    const runtime = createTileRuntime({ limits: { maxCacheBytes: 1_024 } })
+    const source = sourceFor(reads, sourceReleases)
+    const provider = selection({
+      id: 'provider.reference',
+      execute: averageOutput(providerReleases),
+    })
+    const derived = derivedFor({ runtime, source, selection: provider })
+
+    const whole = await runtime.request(derived, request(0, 0, 4, 2))
+    const wholeValues = [...whole.data]
+    whole.release()
+    const left = await runtime.request(derived, request(0, 0, 2, 2))
+    const right = await runtime.request(derived, request(2, 0, 2, 2))
+    const stitched = [
+      left.data[0],
+      left.data[1],
+      right.data[0],
+      right.data[1],
+      left.data[2],
+      left.data[3],
+      right.data[2],
+      right.data[3],
+    ]
+    expect(stitched).toEqual(wholeValues)
+    expect(reads[0]).toMatchObject({ x: 0, y: 0, width: 5, height: 3, cacheClass: 'source' })
+    expect(whole).toMatchObject({ x: 0, y: 0, width: 4, height: 2 })
+    left.release()
+    right.release()
+    runtime.clear()
+    expect(sourceReleases.length).toBe(reads.length)
+    expect(providerReleases).toEqual([0, 0, 2])
+    const timing = runtime.metrics().providerTiming
+    expect(timing.setupMillisecondsEstimate).toBeCloseTo(0.3)
+    expect(timing.transferMillisecondsEstimate).toBeCloseTo(0.6)
+    expect(timing.computeMillisecondsEstimate).toBeCloseTo(0.9)
+    expect(timing.readbackMillisecondsEstimate).toBeCloseTo(1.2)
+    expect(timing.computeMillisecondsMeasured).toBeGreaterThanOrEqual(0)
+  })
+
+  it('uses one exact planned provider for every tile shape', async () => {
+    const calls: string[] = []
+    const runtime = createTileRuntime()
+    const source = sourceFor([], [])
+    const primary = selection({
+      id: 'provider.primary',
+      async execute(providerRequest): Promise<readonly OperationOwnedOutput[]> {
+        calls.push('primary')
+        return averageOutput([])(providerRequest)
+      },
+    })
+    const fallback = selection({
+      id: 'provider.fallback',
+      execute: async (providerRequest) => {
+        calls.push('fallback')
+        return averageOutput([])(providerRequest)
+      },
+    })
+    const derived = derivedFor({ runtime, source, selection: primary })
+    const result = await runtime.request(derived, request(1, 1, 2, 2))
+    result.release()
+    expect(calls).toEqual(['primary'])
+    expect(fallback.provider.descriptor.id).toBe('provider.fallback')
+    runtime.clear()
+  })
+
+  it('does not inflate hard tile memory bounds because provider timing confidence is partial', async () => {
+    const runtime = createTileRuntime({ limits: { maxTotalManagedBytes: 1_024 } })
+    const source = sourceFor([], [])
+    const base = selection({ id: 'provider.partial-timing', execute: averageOutput([]) })
+    const partial: OperationProviderSelection = Object.freeze({
+      ...base,
+      estimate: Object.freeze({ ...base.estimate, confidence: 0.5 }),
+    })
+    const derived = derivedFor({
+      runtime,
+      source,
+      selection: partial,
+      halo: { left: 0, right: 0, top: 0, bottom: 0 },
+    })
+    const first = await runtime.request(derived, request(0, 0, 2, 2))
+    const second = await runtime.request(derived, request(2, 0, 2, 2))
+    expect(runtime.metrics().memory.highWaterTotalManagedBytes).toBeLessThan(1_024)
+    first.release()
+    second.release()
+    runtime.clear()
+  })
+
+  it('rejects derived outputs that claim ownership of source storage', async () => {
+    const runtime = createTileRuntime()
+    const source = sourceFor([], [])
+    const aliased = selection({
+      id: 'provider.aliasing',
+      async execute(providerRequest) {
+        const sourceTile = inputTile(providerRequest.inputs[0])
+        const outputs = await averageOutput([])(providerRequest)
+        const output = outputs[0]
+        if (output === undefined) return outputs
+        return Object.freeze([
+          Object.freeze({
+            ...output,
+            ownershipIdentity: sourceTile.data.buffer,
+          }),
+        ])
+      },
+    })
+    await expect(
+      runtime.request(derivedFor({ runtime, source, selection: aliased }), request(1, 1, 2, 2)),
+    ).rejects.toThrow('claims ownership of input storage')
+    runtime.clear()
+  })
+
+  it('propagates cancellation, releases provider output on post-execution abort, and invalidates generations', async () => {
+    const runtime = createTileRuntime({ limits: { maxConcurrency: 1 } })
+    const source = sourceFor([], [])
+    const released: number[] = []
+    let executeStarted: (() => void) | undefined
+    const started = new Promise<void>((resolve) => {
+      executeStarted = resolve
+    })
+    let allowReturn: (() => void) | undefined
+    const gate = new Promise<void>((resolve) => {
+      allowReturn = resolve
+    })
+    const slow = selection({
+      id: 'provider.slow',
+      async execute(providerRequest) {
+        const outputs = await averageOutput(released)(providerRequest)
+        executeStarted?.()
+        await gate
+        return outputs
+      },
+    })
+    const derived = derivedFor({ runtime, source, selection: slow })
+    const abort = new AbortController()
+    const pending = runtime.request(derived, request(1, 1, 2, 2, abort.signal))
+    await started
+    abort.abort(new Error('consumer left'))
+    allowReturn?.()
+    await expect(pending).rejects.toThrow('consumer left')
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(released).toEqual([1])
+
+    const throwReleases: number[] = []
+    const throwing = derivedFor({
+      runtime,
+      source,
+      selection: selection({
+        id: 'provider.throwing',
+        async execute(providerRequest) {
+          const outputs = await averageOutput(throwReleases)(providerRequest)
+          for (const output of outputs) await output.release()
+          throw new Error('provider failed after allocation')
+        },
+      }),
+    })
+    await expect(runtime.request(throwing, request(2, 2, 2, 2))).rejects.toThrow(
+      'failed after allocation',
+    )
+    expect(throwReleases).toEqual([2])
+
+    const fast = derivedFor({
+      runtime,
+      source,
+      selection: selection({ id: 'provider.fast', execute: averageOutput(released) }),
+    })
+    const old = await runtime.request(fast, request(0, 0, 1, 1))
+    old.release()
+    expect(runtime.invalidate({ namespace: 'derived:node-1', generation: 0 })).toBe(1)
+    expect(runtime.has(request(0, 0, 1, 1), fast)).toBe(false)
+    const nextGeneration = request(0, 0, 1, 1, undefined, { generation: 1 })
+    const next = await runtime.request(fast, nextGeneration)
+    next.release()
+    expect(runtime.has(nextGeneration, fast)).toBe(true)
+    runtime.clear()
+  })
+})

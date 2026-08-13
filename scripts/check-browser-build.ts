@@ -46,6 +46,49 @@ if (
 ) {
   throw new Error('Default browser bundle contains experimental HEIF/HEIC')
 }
+if (
+  Object.keys(result.metafile.inputs).some(
+    (input) =>
+      input.includes('/operations/') ||
+      input.includes('/analysis/') ||
+      input.includes('/extensions/'),
+  )
+) {
+  throw new Error('Default browser bundle installs application-platform infrastructure')
+}
+
+const applicationPlatformResult = await build({
+  bundle: true,
+  format: 'esm',
+  logLevel: 'silent',
+  metafile: true,
+  platform: 'browser',
+  stdin: {
+    contents: `
+      export * from './src/scientific/index.ts'
+      export * from './src/scientific/readers/all.ts'
+      export * from './src/operations/index.ts'
+      export * from './src/analysis/index.ts'
+      export * from './src/analysis/project-entry.ts'
+      export * from './src/analysis/results.ts'
+      export * from './src/analysis/roi-entry.ts'
+      export * from './src/analysis/runtime.ts'
+      export * from './src/extensions/index.ts'
+    `,
+    loader: 'ts',
+    resolveDir: process.cwd(),
+  },
+  write: false,
+})
+for (const [input, metadata] of Object.entries(applicationPlatformResult.metafile.inputs)) {
+  for (const imported of metadata.imports) {
+    if (imported.path.startsWith('node:')) {
+      throw new Error(
+        `Browser application-platform input ${input} contains Node built-in ${imported.path}`,
+      )
+    }
+  }
+}
 
 const acceleratorResult = await build({
   bundle: true,
@@ -72,5 +115,5 @@ for (const [input, metadata] of Object.entries(acceleratorResult.metafile.inputs
 }
 
 console.log(
-  `Browser bundle OK (${output.length.toLocaleString()} bytes, 10 default codecs; optional JPEG/PNG WASM and experimental HEIF/HEIC entries isolated)`,
+  `Browser bundle OK (${output.length.toLocaleString()} bytes, 10 default codecs; scientific reader, optional JPEG/PNG WASM, and experimental HEIF/HEIC entries remain explicit)`,
 )

@@ -192,26 +192,29 @@ import SiteLayout from '../layouts/SiteLayout.astro'
           <div class="callout"><strong>WebAssembly payload.</strong> jSquash's 52.4 KiB JavaScript bundle is codec and resize glue. Its 1.0 MiB installed footprint includes the selected JPEG, PNG, and resize WebAssembly packages.</div>
           <p>All JavaScript rows use the same esbuild settings: Node 22 target, ESM output, tree shaking, minification, no source map, gzip level 9, and Brotli quality 11. Installed size includes each engine's production dependency tree and required platform packages.</p>
           <h3>PureJsImage entry points</h3>
-          <p>Applications can import only the codec entries they use. The root API itself pulls no codec implementation into the module graph.</p>
+          <p>Applications can import only the codec or application entries they use. The root API itself pulls no codec, scientific, operation, analysis, or extension implementation into the module graph. The four application entries have hard minified-size ceilings with roughly 30% headroom over this recorded baseline: 556.6 KiB scientific, 56.6 KiB operations, 345.7 KiB analysis, and 59.6 KiB extensions.</p>
           <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Minified</th><th>gzip</th><th>Brotli</th></tr></thead><tbody>
-            <tr><td><strong>Core API</strong></td><td>58.9 KiB</td><td>18.6 KiB</td><td>16.5 KiB</td></tr>
-            <tr><td><strong>Core + scientific rasters</strong></td><td>138.6 KiB</td><td>42.0 KiB</td><td>36.3 KiB</td></tr>
-            <tr><td><strong>Core + PNG</strong></td><td>92.9 KiB</td><td>30.5 KiB</td><td>26.4 KiB</td></tr>
-            <tr><td><strong>Core + JPEG</strong></td><td>129.4 KiB</td><td>41.4 KiB</td><td>35.1 KiB</td></tr>
-            <tr><td><strong>Core + JPEG 2000</strong></td><td>95.9 KiB</td><td>30.4 KiB</td><td>26.6 KiB</td></tr>
-            <tr><td><strong>Core + JPEG XL limited decoder</strong></td><td>85.1 KiB</td><td>27.2 KiB</td><td>23.9 KiB</td></tr>
-            <tr><td><strong>Core + WebP</strong></td><td>129.2 KiB</td><td>44.0 KiB</td><td>37.8 KiB</td></tr>
-            <tr><td><strong>Core + HDR</strong></td><td>68.8 KiB</td><td>21.9 KiB</td><td>19.2 KiB</td></tr>
-            <tr><td><strong>Core + QOI</strong></td><td>65.4 KiB</td><td>20.9 KiB</td><td>18.4 KiB</td></tr>
-            <tr><td><strong>Core + Netpbm</strong></td><td>73.6 KiB</td><td>23.4 KiB</td><td>20.4 KiB</td></tr>
-            <tr><td><strong>Core + TGA</strong></td><td>69.2 KiB</td><td>22.2 KiB</td><td>19.5 KiB</td></tr>
-            <tr><td><strong>Core + GIF</strong></td><td>66.8 KiB</td><td>21.4 KiB</td><td>18.8 KiB</td></tr>
-            <tr><td><strong>Core + BMP</strong></td><td>68.6 KiB</td><td>22.2 KiB</td><td>19.5 KiB</td></tr>
-            <tr><td><strong>Core + ICO</strong></td><td>102.1 KiB</td><td>33.5 KiB</td><td>29.0 KiB</td></tr>
-            <tr><td><strong>Core + TIFF</strong></td><td>273.7 KiB</td><td>86.5 KiB</td><td>72.2 KiB</td></tr>
-            <tr><td><strong>Core + AVIF</strong></td><td>443.9 KiB</td><td>168.9 KiB</td><td>145.0 KiB</td></tr>
-            <tr><td><strong>Core + experimental HEIF / HEIC</strong></td><td>157.2 KiB</td><td>50.6 KiB</td><td>43.6 KiB</td></tr>
-            <tr><td><strong>Core + all codecs</strong></td><td>814.9 KiB</td><td>288.0 KiB</td><td>239.0 KiB</td></tr>
+            <tr><td><strong>Core API</strong></td><td>59.9 KiB</td><td>18.9 KiB</td><td>16.8 KiB</td></tr>
+            <tr><td><strong>Core + scientific rasters</strong></td><td>428.0 KiB</td><td>130.5 KiB</td><td>107.3 KiB</td></tr>
+            <tr><td><strong>Operations</strong></td><td>43.2 KiB</td><td>11.7 KiB</td><td>10.5 KiB</td></tr>
+            <tr><td><strong>Analysis</strong></td><td>265.9 KiB</td><td>71.8 KiB</td><td>60.1 KiB</td></tr>
+            <tr><td><strong>Trusted extension host</strong></td><td>45.5 KiB</td><td>12.5 KiB</td><td>11.2 KiB</td></tr>
+            <tr><td><strong>Core + PNG</strong></td><td>93.9 KiB</td><td>30.8 KiB</td><td>26.6 KiB</td></tr>
+            <tr><td><strong>Core + JPEG</strong></td><td>130.4 KiB</td><td>41.7 KiB</td><td>35.3 KiB</td></tr>
+            <tr><td><strong>Core + JPEG 2000</strong></td><td>118.7 KiB</td><td>37.6 KiB</td><td>32.7 KiB</td></tr>
+            <tr><td><strong>Core + JPEG XL limited decoder</strong></td><td>99.6 KiB</td><td>31.7 KiB</td><td>27.7 KiB</td></tr>
+            <tr><td><strong>Core + WebP</strong></td><td>130.2 KiB</td><td>44.4 KiB</td><td>38.0 KiB</td></tr>
+            <tr><td><strong>Core + HDR</strong></td><td>69.8 KiB</td><td>22.2 KiB</td><td>19.5 KiB</td></tr>
+            <tr><td><strong>Core + QOI</strong></td><td>66.4 KiB</td><td>21.2 KiB</td><td>18.6 KiB</td></tr>
+            <tr><td><strong>Core + Netpbm</strong></td><td>74.6 KiB</td><td>23.7 KiB</td><td>20.7 KiB</td></tr>
+            <tr><td><strong>Core + TGA</strong></td><td>70.2 KiB</td><td>22.5 KiB</td><td>19.7 KiB</td></tr>
+            <tr><td><strong>Core + GIF</strong></td><td>67.8 KiB</td><td>21.7 KiB</td><td>19.1 KiB</td></tr>
+            <tr><td><strong>Core + BMP</strong></td><td>69.6 KiB</td><td>22.5 KiB</td><td>19.7 KiB</td></tr>
+            <tr><td><strong>Core + ICO</strong></td><td>103.1 KiB</td><td>33.9 KiB</td><td>29.2 KiB</td></tr>
+            <tr><td><strong>Core + TIFF</strong></td><td>279.4 KiB</td><td>88.3 KiB</td><td>73.5 KiB</td></tr>
+            <tr><td><strong>Core + AVIF</strong></td><td>444.9 KiB</td><td>169.3 KiB</td><td>145.3 KiB</td></tr>
+            <tr><td><strong>Core + experimental HEIF / HEIC</strong></td><td>158.2 KiB</td><td>51.0 KiB</td><td>43.9 KiB</td></tr>
+            <tr><td><strong>Core + all codecs</strong></td><td>841.8 KiB</td><td>295.9 KiB</td><td>244.9 KiB</td></tr>
           </tbody></table></div>
           <p>Run <code>npm run size</code> to rebuild PureJsImage and reproduce both tables on the current platform.</p>
         </section>

@@ -2,13 +2,19 @@ import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } fro
 import type { ImageLimitOptions, ImageLimits } from '../../limits.ts'
 import { resolveLimits, validateImageDimensions } from '../../limits.ts'
 import { rasterSampleBytes, type RasterBlock, type RasterSampleType } from '../../raster.ts'
-import { createImageSource, readExactly, type ImageInput, type ImageSource } from '../../source.ts'
+import {
+  createImageSource,
+  readExactly,
+  type ImageInput,
+  type ImageSource,
+  type ImageSourceReadOptions,
+} from '../../source.ts'
 import type {
   MultidimensionalRasterDataset,
   PhysicalPixelSize,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from '../dataset.ts'
+} from '../legacy-dataset.ts'
 
 const headerBytes = 1_024
 
@@ -68,8 +74,12 @@ class CountingSource implements ImageSource {
     this.size = source.size
   }
 
-  async read(offset: number, length: number): Promise<Uint8Array> {
-    const data = await this.#source.read(offset, length)
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    const data = await this.#source.read(offset, length, options)
     this.bytesRead += data.byteLength
     return data
   }
@@ -372,7 +382,9 @@ class MrcRasterDataset implements MrcDataset {
         const targetRow = row * rowBytes
         if (this.header.MAPC === 1) {
           const inputOffset = this.#storedOffset(region.x, logicalY, request.z, bytesPerSample)
-          const input = await readExactly(this.#source, inputOffset, rowBytes)
+          const input = await readExactly(this.#source, inputOffset, rowBytes, {
+            ...(request.signal === undefined ? {} : { signal: request.signal }),
+          })
           for (let x = 0; x < region.width; x += 1) {
             this.#copyCanonical(
               input,
@@ -390,7 +402,9 @@ class MrcRasterDataset implements MrcDataset {
               request.z,
               bytesPerSample,
             )
-            const input = await readExactly(this.#source, inputOffset, bytesPerSample)
+            const input = await readExactly(this.#source, inputOffset, bytesPerSample, {
+              ...(request.signal === undefined ? {} : { signal: request.signal }),
+            })
             this.#copyCanonical(input, 0, output, targetRow + x * bytesPerSample, bytesPerSample)
           }
         }

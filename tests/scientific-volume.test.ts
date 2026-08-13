@@ -4,11 +4,20 @@ import type {
   MultidimensionalRasterDataset,
   RasterChannelInfo,
   RasterPlaneRequest,
+} from '../src/scientific/legacy-dataset.ts'
+import type {
+  NormalizedScientificDatasetDescriptor,
+  ScientificDataset,
+  ScientificPlaneReadRequest,
+} from '../src/scientific/dataset.ts'
+import {
+  normalizeScientificDatasetDescriptor,
+  normalizeScientificPlaneReadRequest,
 } from '../src/scientific/dataset.ts'
 import { readRasterSample, writeRasterSample } from '../src/scientific/samples.ts'
 import { projectScientificVolume, sliceScientificVolume } from '../src/scientific/volume.ts'
 
-class VolumeDataset implements MultidimensionalRasterDataset {
+class LegacyVolumeDataset implements MultidimensionalRasterDataset {
   readonly sizeX: number
   readonly sizeY: number
   readonly sizeZ: number
@@ -91,9 +100,112 @@ const collect = async (dataset: MultidimensionalRasterDataset): Promise<number[]
   return values
 }
 
+class ArbitraryAxisVolumeDataset implements ScientificDataset {
+  readonly descriptor: NormalizedScientificDatasetDescriptor
+  readonly requests: ScientificPlaneReadRequest[] = []
+
+  constructor() {
+    this.descriptor = normalizeScientificDatasetDescriptor({
+      schemaVersion: 1,
+      axes: [
+        {
+          id: 'scanX',
+          kind: 'space',
+          length: 2,
+          unit: 'nm',
+          coordinates: { type: 'linear', origin: 10, step: 2 },
+        },
+        {
+          id: 'scanY',
+          kind: 'space',
+          length: 2,
+          unit: 'nm',
+          coordinates: { type: 'linear', origin: 20, step: 3 },
+        },
+        { id: 'energy', kind: 'spectral', length: 3, coordinates: { type: 'index' } },
+      ],
+      sampleType: 'float32',
+      components: [{ id: 'value', kind: 'scalar' }],
+      capabilities: {
+        regionReads: true,
+        resolutionLevels: false,
+        planeReads: { kind: 'any-axis-pair' },
+      },
+    })
+  }
+
+  async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncGenerator<RasterBlock> {
+    const normalized = normalizeScientificPlaneReadRequest(this.descriptor, request)
+    this.requests.push(normalized)
+    const energy = normalized.fixedIndices.find((fixed) => fixed.axisId === 'energy')?.index ?? 0
+    const output = new Uint8Array(normalized.width * normalized.height * 4)
+    const view = new DataView(output.buffer)
+    for (let index = 0; index < normalized.width * normalized.height; index += 1) {
+      view.setFloat32(index * 4, energy * 10 + normalized.y * normalized.width + index, false)
+    }
+    yield {
+      x: normalized.x,
+      y: normalized.y,
+      width: normalized.width,
+      height: normalized.height,
+      stride: normalized.width * 4,
+      format: { sampleType: 'float32', channels: 1, planar: false },
+      data: output,
+    }
+  }
+}
+
+const collectScientific = async (dataset: ScientificDataset): Promise<number[]> => {
+  const values: number[] = []
+  for await (const block of dataset.readPlane({
+    displayAxes: ['scanX', 'scanY'],
+    fixedIndices: [],
+  })) {
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    for (let index = 0; index < block.width * block.height; index += 1) {
+      values.push(view.getFloat64(index * 8, false))
+    }
+  }
+  return values
+}
+
 describe('generic scientific volume operations', () => {
+  it('preserves labeled display-axis calibration and projects an explicit reduction axis', async () => {
+    const source = new ArbitraryAxisVolumeDataset()
+    const slice = sliceScientificVolume(source, {
+      displayAxes: ['scanX', 'scanY'],
+      fixedIndices: [{ axisId: 'energy', index: 2 }],
+    })
+    expect(slice.descriptor.axes).toMatchObject([
+      { id: 'scanX', unit: 'nm', coordinates: { type: 'linear', origin: 10, step: 2 } },
+      { id: 'scanY', unit: 'nm', coordinates: { type: 'linear', origin: 20, step: 3 } },
+    ])
+    const sliced: number[] = []
+    for await (const block of slice.readPlane({
+      displayAxes: ['scanX', 'scanY'],
+      fixedIndices: [],
+    })) {
+      const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+      for (let index = 0; index < block.width * block.height; index += 1) {
+        sliced.push(view.getFloat32(index * 4, false))
+      }
+    }
+    expect(sliced).toEqual([20, 21, 22, 23])
+
+    source.requests.length = 0
+    const mean = projectScientificVolume(source, {
+      displayAxes: ['scanX', 'scanY'],
+      axis: 'energy',
+      fixedIndices: [],
+      mode: 'mean',
+      rowsPerBlock: 1,
+    })
+    expect(await collectScientific(mean)).toEqual([10, 11, 12, 13])
+    expect(source.requests.every((request) => request.height === 1)).toBe(true)
+  })
+
   it('extracts XY, XZ, and YZ slices with logical spacing and bounded source regions', async () => {
-    const source = new VolumeDataset(3, 2, 2, [0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15])
+    const source = new LegacyVolumeDataset(3, 2, 2, [0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15])
     const xy = sliceScientificVolume(source, { axis: 'xy', index: 1 })
     const xz = sliceScientificVolume(source, { axis: 'xz', index: 1 })
     const yz = sliceScientificVolume(source, { axis: 'yz', index: 2 })
@@ -119,7 +231,13 @@ describe('generic scientific volume operations', () => {
   })
 
   it('computes max, min, and float64 mean Z projections in output-row blocks', async () => {
-    const source = new VolumeDataset(3, 2, 2, [0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15], 'int16')
+    const source = new LegacyVolumeDataset(
+      3,
+      2,
+      2,
+      [0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 14, 15],
+      'int16',
+    )
     const maximum = projectScientificVolume(source, { mode: 'max', rowsPerBlock: 1 })
     const minimum = projectScientificVolume(source, { mode: 'min', rowsPerBlock: 1 })
     const mean = projectScientificVolume(source, { mode: 'mean', rowsPerBlock: 1 })
@@ -133,7 +251,7 @@ describe('generic scientific volume operations', () => {
   })
 
   it('ignores NaN, infinity, and no-data values and emits NaN with no valid sample', async () => {
-    const source = new VolumeDataset(
+    const source = new LegacyVolumeDataset(
       2,
       1,
       3,
@@ -150,7 +268,7 @@ describe('generic scientific volume operations', () => {
   })
 
   it('supports degenerate 1x1x1 volumes and rejects invalid coordinates', async () => {
-    const source = new VolumeDataset(1, 1, 1, [42])
+    const source = new LegacyVolumeDataset(1, 1, 1, [42])
     expect(await collect(sliceScientificVolume(source, { axis: 'yz', index: 0 }))).toEqual([42])
     expect(await collect(projectScientificVolume(source, { mode: 'mean' }))).toEqual([42])
     expect(() => sliceScientificVolume(source, { axis: 'xz', index: 1 })).toThrowError(

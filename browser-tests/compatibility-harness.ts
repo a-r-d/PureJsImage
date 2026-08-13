@@ -19,18 +19,14 @@ import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/pn
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import { openAperioSvs } from '../src/pathology/index.ts'
-import { omeTiffProfile, openOmeTiff, rasterToPixels } from '../src/scientific/index.ts'
+import { createScientificLibrary, rasterToPixels } from '../src/scientific/index.ts'
+import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
 import { MemorySource } from '../src/source.ts'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
-import {
-  createTiffProfileRegistry,
-  encodeTiffDocument,
-  geoTiffProfile,
-  openTiffDocument,
-} from '../src/tiff/index.ts'
+import { encodeTiffDocument, geoTiffProfile, openTiffDocument } from '../src/tiff/index.ts'
 import type { BrowserCompatibilityHarness, BrowserWorkflowResult } from './types.ts'
 
 const images = createImageLibrary([
@@ -97,7 +93,7 @@ const optionalApiEntries = async (): Promise<BrowserWorkflowResult> => {
   }
   if (
     typeof openAperioSvs !== 'function' ||
-    typeof openOmeTiff !== 'function' ||
+    typeof omeTiffReader.open !== 'function' ||
     typeof rasterToPixels !== 'function' ||
     typeof HttpRangeSource.open !== 'function' ||
     geoTiffProfile.id !== 'geotiff'
@@ -1033,23 +1029,34 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   if ((await directory.getTag(270, { maxBytes: 4096 })) !== tag) {
     throw new Error('Browser TIFF document did not reuse an immutable parsed tag')
   }
-  const dataset = await createTiffProfileRegistry([omeTiffProfile]).openWith(
-    document,
-    omeTiffProfile,
-  )
+  const scientificDocument = await createScientificLibrary({ readers: [omeTiffReader] }).open({
+    primary: { id: 'primary', source: new MemorySource(input), name: 'fixture.ome.tiff' },
+    readerId: omeTiffReader.descriptor.id,
+  })
+  const summary = scientificDocument.datasets[0]
+  if (summary === undefined) throw new Error('Browser OME-TIFF reader exposed no dataset')
+  const dataset = await scientificDocument.openDataset(summary.id)
+  const x = dataset.descriptor.axes.find((axis) => axis.id === 'x')
+  const y = dataset.descriptor.axes.find((axis) => axis.id === 'y')
+  const channel = dataset.descriptor.axes.find((axis) => axis.id === 'channel')
   if (
-    dataset.sizeX !== 2 ||
-    dataset.sizeY !== 1 ||
-    dataset.sizeC !== 3 ||
-    dataset.sampleType !== 'uint16' ||
-    dataset.physicalSizeX?.value !== 0.5
+    x?.length !== 2 ||
+    y?.length !== 1 ||
+    channel?.length !== 1 ||
+    dataset.descriptor.components.length !== 3 ||
+    dataset.descriptor.sampleType !== 'uint16' ||
+    x.coordinates.type !== 'linear' ||
+    x.coordinates.step !== 0.5
   ) {
     throw new Error('Browser OME-TIFF dataset metadata is incorrect')
   }
   const rasterBlocks = dataset.readPlane({
-    z: 0,
-    c: [0, 1, 2],
-    t: 0,
+    displayAxes: ['x', 'y'],
+    fixedIndices: [
+      { axisId: 'z', index: 0 },
+      { axisId: 'channel', index: 0 },
+      { axisId: 'time', index: 0 },
+    ],
     x: 0,
     y: 0,
     width: 2,
@@ -1057,22 +1064,80 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   })
   const pixels: number[] = []
   for await (const block of rasterToPixels(rasterBlocks, {
-    channels: [0, 1, 2],
-    ranges: [
-      { black: 0, white: 65_535 },
-      { black: 0, white: 65_535 },
-      { black: 0, white: 65_535 },
-    ],
+    channels: [0],
+    ranges: [{ black: 0, white: 65_535 }],
   })) {
     pixels.push(...block.data)
   }
-  if (pixels.join(',') !== '0,128,255,255,128,0') {
+  if (pixels.join(',') !== '0,255') {
     throw new Error(`Browser OME-TIFF display conversion produced ${pixels.join(',')}`)
+  }
+  const aperioDescription = Uint8Array.from([
+    ...new TextEncoder().encode('Aperio Image Library v12.4.0|AppMag = 20|MPP = 0.5'),
+    0,
+  ])
+  const aperioInput = browserTiffFixture(
+    (offsets) => [
+      { tag: 256, type: 4, values: [12] },
+      { tag: 257, type: 4, values: [4] },
+      { tag: 258, type: 3, values: [8] },
+      { tag: 259, type: 3, values: [1] },
+      { tag: 262, type: 3, values: [1] },
+      { tag: 270, type: 2, values: [...aperioDescription] },
+      { tag: 277, type: 3, values: [1] },
+      { tag: 284, type: 3, values: [1] },
+      { tag: 322, type: 4, values: [4] },
+      { tag: 323, type: 4, values: [4] },
+      { tag: 324, type: 4, values: offsets },
+      { tag: 325, type: 4, values: [16, 16, 16] },
+    ],
+    [new Uint8Array(16).fill(11), new Uint8Array(16).fill(22), new Uint8Array(16).fill(33)],
+  )
+  const aperioDocument = await openTiffDocument(new MemorySource(aperioInput), {
+    maxWidth: 12,
+    maxHeight: 4,
+    maxPixels: 48,
+    maxInputBytes: aperioInput.byteLength,
+    maxDecodedBytes: 70,
+  })
+  const aperioDirectory = aperioDocument.topLevelDirectories[0]
+  if (aperioDirectory === undefined) throw new Error('Browser Aperio TIFF has no directory')
+  const directDecoder = await aperioDirectory.createImageDecoder()
+  try {
+    for await (const _block of directDecoder.decode({ x: 0, y: 1, width: 12, height: 1 })) {
+      // Decoded segments and output need 60 bytes; the encoded buffer raises the peak to 76.
+    }
+    throw new Error('Browser TIFF accepted an over-budget segment-row peak')
+  } catch (error: unknown) {
+    if (!(error instanceof ImageError) || error.code !== 'LIMIT_EXCEEDED') throw error
+  }
+  const slide = await openAperioSvs(aperioDocument, {
+    limits: {
+      maxWidth: 12,
+      maxHeight: 4,
+      maxSourceBytes: aperioInput.byteLength,
+      maxRegionPixels: 48,
+      maxRegionDecodedBytes: 70,
+    },
+  })
+  const stripe: { readonly x: number; readonly values: readonly number[] }[] = []
+  for await (const block of slide.readRegion({ level: 0, x: 2, y: 1, width: 8, height: 1 })) {
+    stripe.push({ x: block.x, values: Array.from(block.data) })
+  }
+  if (
+    JSON.stringify(stripe) !==
+    JSON.stringify([
+      { x: 0, values: [11, 11] },
+      { x: 2, values: [22, 22, 22, 22] },
+      { x: 6, values: [33, 33] },
+    ])
+  ) {
+    throw new Error(`Browser Aperio stripe was ${JSON.stringify(stripe)}`)
   }
   return {
     detail:
-      'bounded TIFF extension APIs, typed profile opening, native OME-TIFF raster, and explicit display conversion passed',
-    outputBytes: input.byteLength,
+      'bounded TIFF extension APIs, labeled OME-TIFF document opening, explicit display conversion, and native-tile Aperio stripe streaming passed',
+    outputBytes: input.byteLength + aperioInput.byteLength,
   }
 }
 

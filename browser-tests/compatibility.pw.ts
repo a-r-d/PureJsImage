@@ -137,9 +137,9 @@ test('uses public scientific TIFF APIs in a real browser', async ({ page }) => {
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificTiffDocument())
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('bounded TIFF extension APIs')
-  expect(result.detail).toContain('typed profile opening')
-  expect(result.detail).toContain('native OME-TIFF raster')
+  expect(result.detail).toContain('labeled OME-TIFF document opening')
   expect(result.detail).toContain('explicit display conversion')
+  expect(result.detail).toContain('native-tile Aperio stripe streaming')
 })
 
 test('decodes and encodes PNG while preserving alpha', async ({ page }) => {

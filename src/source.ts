@@ -3,11 +3,18 @@ import { combineAbortSignals, throwIfAborted } from './abort.ts'
 import { ImageError, invalidInput, truncatedInput } from './errors.ts'
 import type { ImageLimits } from './limits.ts'
 import { validateInputSize } from './limits.ts'
+import type { SourceIdentity } from './source-identity-contract.ts'
+import {
+  createSourceSessionIdentity,
+  imageSourceIdentity,
+  inheritImageSourceIdentity,
+} from './source-identity-contract.ts'
 
 export interface ImageSourceReadOptions extends AbortOptions {}
 
 export interface ImageSource {
   readonly size: number
+  readonly [imageSourceIdentity]?: () => SourceIdentity | Promise<SourceIdentity>
   /**
    * Return exactly min(length, size - offset) bytes for an in-range read.
    * Returned bytes must remain valid until the next read starts. Consumers that
@@ -91,10 +98,25 @@ const readLength = (size: number, offset: number, length: number): number => {
 export class MemorySource implements ImageSource {
   readonly size: number
   readonly #data: Uint8Array
+  readonly #identity: SourceIdentity
 
-  constructor(data: ArrayBuffer | Uint8Array) {
+  constructor(
+    data: ArrayBuffer | Uint8Array,
+    options: Readonly<{ readonly identity?: SourceIdentity }> = {},
+  ) {
     this.#data = data instanceof Uint8Array ? data : new Uint8Array(data)
     this.size = this.#data.byteLength
+    if (options.identity !== undefined && options.identity.size !== this.size) {
+      throw invalidInput('Invalid source identity size')
+    }
+    this.#identity =
+      options.identity === undefined
+        ? createSourceSessionIdentity(this.size)
+        : Object.freeze({ ...options.identity })
+  }
+
+  [imageSourceIdentity](): SourceIdentity {
+    return this.#identity
   }
 
   async read(
@@ -112,10 +134,32 @@ export class BlobSource implements ImageSource {
   readonly size: number
   readonly [stableSourceBuffers] = true
   readonly #blob: Blob
+  readonly #identity: SourceIdentity
 
   constructor(blob: Blob) {
     this.#blob = blob
     this.size = blob.size
+    const fileLike: unknown = blob
+    this.#identity =
+      typeof fileLike === 'object' &&
+      fileLike !== null &&
+      'name' in fileLike &&
+      typeof fileLike.name === 'string' &&
+      'lastModified' in fileLike &&
+      typeof fileLike.lastModified === 'number'
+        ? Object.freeze({
+            kind: 'local-file',
+            strength: 'weak',
+            stability: 'metadata',
+            nameOrPath: fileLike.name,
+            size: this.size,
+            lastModified: fileLike.lastModified,
+          })
+        : createSourceSessionIdentity(this.size)
+  }
+
+  [imageSourceIdentity](): SourceIdentity {
+    return this.#identity
   }
 
   async read(
@@ -138,6 +182,10 @@ class ValidatedSource implements ImageSource {
   constructor(source: ImageSource) {
     this.#source = source
     this.size = source.size
+  }
+
+  [imageSourceIdentity](): Promise<SourceIdentity> {
+    return inheritImageSourceIdentity(this.#source)
   }
 
   [sourceSessionStart](): void {
@@ -196,6 +244,10 @@ class SignalBoundSource implements ImageSource {
     this.source = source
     this.size = source.size
     this.#signal = signal
+  }
+
+  [imageSourceIdentity](): Promise<SourceIdentity> {
+    return inheritImageSourceIdentity(this.source)
   }
 
   [sourceSessionStart](): void {
@@ -263,6 +315,10 @@ export class BufferedSource implements ImageSource {
     this.#source = source
     this.#bufferBytes = bufferBytes
     this.size = source.size
+  }
+
+  [imageSourceIdentity](): Promise<SourceIdentity> {
+    return inheritImageSourceIdentity(this.#source)
   }
 
   [sourceSessionStart](): void {

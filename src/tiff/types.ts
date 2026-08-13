@@ -15,6 +15,13 @@ export interface TiffTagReadOptions extends AbortOptions {
   readonly maxBytes?: number
 }
 
+export interface TiffTagInfo {
+  readonly tag: number
+  readonly fieldType: number
+  readonly count: number
+  readonly byteLength: number
+}
+
 export interface TiffByteReadOptions extends AbortOptions {
   /** Maximum bytes read for this call. Required so profile readers cannot issue unbounded reads. */
   readonly maxBytes: number
@@ -37,6 +44,8 @@ export interface TiffDirectory {
   readonly tileHeight?: number
   readonly subIfds: readonly TiffDirectory[]
 
+  /** Inspect parsed tag metadata without reading an out-of-line payload, when supported. */
+  getTagInfo?(tag: number): TiffTagInfo | undefined
   getTag(tag: number, options?: Readonly<TiffTagReadOptions>): Promise<TiffTagValue | undefined>
   createImageDecoder(options?: Readonly<AbortOptions>): Promise<ImageDecoder>
   createRasterDecoder(options?: Readonly<AbortOptions>): Promise<RasterDecoder>
@@ -63,6 +72,15 @@ export interface TiffDocument {
 }
 
 export interface TiffDocumentOptions extends ImageLimitOptions, AbortOptions {
+  /**
+   * Maximum physical strip or tile entries, including planar samples, in one image directory.
+   * Defaults to 1,048,576.
+   */
+  readonly maxSegmentCount?: number
+  /** Maximum peak bytes used to load and convert segment tables. Defaults to 32 MiB. */
+  readonly maxSegmentTableBytes?: number
+  /** Maximum encoded bytes in one strip or tile. Defaults to 128 MiB. */
+  readonly maxEncodedSegmentBytes?: number
   readonly embeddedCodecs?: readonly ImageCodec[]
 }
 

@@ -6,6 +6,30 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added the opt-in application-platform foundation: labeled-axis scientific datasets, explicit
+  scientific reader libraries, native numeric tiles, JSON-safe operation descriptors and trusted
+  extension bundles, bounded quantitative results, reproducible analysis graphs and commands,
+  calibrated ROIs, a bounded lazy tile runtime, and eleven strict TypeScript scientific analysis
+  operations. The ordinary image pipeline and root/browser entries remain independent.
+- Added an explicitly registered Aperio SVS scientific reader that exposes a calibrated RGB
+  pyramid and separate associated-image datasets through the generic whole-slide bridge, plus
+  deterministic bounded tiled connected components with lazy uint32 labels and calibrated
+  per-object measurements. The reader now has explicit whole-slide source, directory, region,
+  decoded-byte, and associated-image limits; accepts large lazy sources without weakening ordinary
+  TIFF defaults; and records lightweight ICC presence/size metadata without eager profile reads.
+- Hardened connected-components planning with checked scan/finalization phase bounds, exact retained
+  backing accounting, ROI-consistent physical centroids, tolerance-based floating reproducibility,
+  deferred ownership for upstream lazy scientific datasets captured by downstream results, and
+  scoped accounting for later lazy-label reconstruction scratch.
+- Streamed tiled Aperio region reads through sequential native-tile intersections and added direct
+  TIFF display/raster preflight for aggregate decoded segments, the largest encoded segment, output
+  blocks, and predictor scratch, plus pre-I/O limits for physical segment counts, segment-table
+  construction peaks, and individual encoded payloads.
+- Added an installed-tarball application contract gate plus correctness-gated application
+  benchmarks covering scientific document detection, first numeric/display tile, HTTP range bytes,
+  source/derived cache behavior, ROI statistics, line profiles, thresholding, Gaussian blur, and
+  graph/provider overhead.
+
 - Added first-party MRC2014/CCP4 volume reading for modes 0, 1, 2, 6, and 12 with validated
   endianness, logical axis mapping, physical spacing and origin metadata, extended-header skipping,
   and bounded plane and region access.
@@ -88,6 +112,16 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Tightened unreleased namespaced operation and extension IDs to well-formed dotted or hyphenated
+  segments and made validation linear-time for adversarial input.
+- Made nested tile requests dependency-safe by default so derived operations yield scheduler
+  permits before awaiting upstream tiles, and isolated automatically assigned built-in analysis
+  cache identities per `TileRuntime` context.
+- Added total managed tile-memory limits and metrics, hard provider memory policies, canonical graph
+  hash domain v2 ordering, explicit lazy-materialization provenance, and idempotent prepared-provider
+  disposal groundwork.
+- Grouped line-profile sampling by normal source tiles, added machine-readable command descriptors,
+  hid execution output-map mutation, and enforced detectable provider output-storage ownership.
 - Promoted AVIF read support from “Limited” to “Yes” for common still-image workflows after the
   existing independently validated broad corpus and cross-encoder survey, while retaining explicit
   unsupported boundaries for dependent animation and uncommon AV1/ISOBMFF syntax. AVIF re-encoding

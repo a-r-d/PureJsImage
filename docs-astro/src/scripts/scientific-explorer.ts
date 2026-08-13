@@ -165,6 +165,14 @@ export const startScientificExplorer = (): void => {
 
   const updateSliceControl = (): void => {
     const metadata = openedMetadata
+    for (const option of sliceAxis.options) {
+      const value = option.value === 'xz' || option.value === 'yz' ? option.value : 'xy'
+      option.disabled = metadata !== undefined && !metadata.sliceAxes.includes(value)
+    }
+    const selected = sliceAxis.value === 'xz' || sliceAxis.value === 'yz' ? sliceAxis.value : 'xy'
+    if (metadata !== undefined && !metadata.sliceAxes.includes(selected)) {
+      sliceAxis.value = 'xy'
+    }
     const count =
       sliceAxis.value === 'xz'
         ? (metadata?.height ?? 1)

@@ -14,6 +14,11 @@ import {
   pureJsImageEntryTargets,
 } from '../scripts/bundle-size-config.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
+import * as analysisApi from '../src/analysis/index.ts'
+import * as analysisProjectApi from '../src/analysis/project-entry.ts'
+import * as analysisResultsApi from '../src/analysis/results.ts'
+import * as analysisRoiApi from '../src/analysis/roi-entry.ts'
+import * as analysisRuntimeApi from '../src/analysis/runtime.ts'
 import {
   experimentalHeicCodec,
   experimentalHeifCodec,
@@ -21,10 +26,15 @@ import {
 import * as browserPublicApi from '../src/browser.ts'
 import * as pathologyApi from '../src/pathology/index.ts'
 import * as scientificApi from '../src/scientific/index.ts'
+import * as allScientificReaders from '../src/scientific/readers/all.ts'
+import * as enviReaderApi from '../src/scientific/readers/envi.ts'
+import * as gsfReaderApi from '../src/scientific/readers/gsf.ts'
+import * as omeTiffReaderApi from '../src/scientific/readers/ome-tiff.ts'
 import * as httpRangeApi from '../src/sources/http-range.ts'
 import * as tiffApi from '../src/tiff/index.ts'
 import * as publicApi from '../src/index.ts'
 import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
+import rootTsconfig from '../tsconfig.json' with { type: 'json' }
 
 describe('package contract', () => {
   it('does not publish unusable source maps without source files', () => {
@@ -88,14 +98,68 @@ describe('package contract', () => {
       60 * 1024,
     )
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
-      name: 'Core + scientific rasters',
+      name: 'Core + scientific platform',
       contents: expect.stringContaining('./src/scientific/index.ts'),
+      baselineMinifiedBytes: 143_546,
+      maxMinifiedBytes: 187_000,
+    })
+    expect(
+      pureJsImageEntryTargets
+        .filter(({ id }) => id.startsWith('scientific-reader'))
+        .map(({ id, maxMinifiedBytes }) => [id, maxMinifiedBytes]),
+    ).toEqual([
+      ['scientific-reader-gsf', 50_000],
+      ['scientific-reader-envi', 75_000],
+      ['scientific-reader-fits', 60_000],
+      ['scientific-reader-mrc', 51_000],
+      ['scientific-reader-cbf', 55_000],
+      ['scientific-reader-ome-tiff', 350_000],
+      ['scientific-reader-aperio-svs', 338_000],
+      ['scientific-readers-all', 456_000],
+    ])
+    expect(pureJsImageEntryTargets.find(({ id }) => id === 'operations')).toMatchObject({
+      baselineMinifiedBytes: 44_252,
+      maxMinifiedBytes: 58_000,
+    })
+    expect(pureJsImageEntryTargets.find(({ id }) => id === 'analysis')).toMatchObject({
+      baselineMinifiedBytes: 270_789,
+      maxMinifiedBytes: 353_000,
+    })
+    expect(
+      pureJsImageEntryTargets
+        .filter(({ id }) => id.startsWith('analysis-'))
+        .map(({ id, baselineMinifiedBytes, maxMinifiedBytes }) => [
+          id,
+          baselineMinifiedBytes,
+          maxMinifiedBytes,
+        ]),
+    ).toEqual([
+      ['analysis-results', 55_713, 72_427],
+      ['analysis-roi', 32_622, 42_409],
+      ['analysis-runtime', 57_784, 75_120],
+      ['analysis-project', 51_214, 66_578],
+    ])
+    expect(pureJsImageEntryTargets.find(({ id }) => id === 'extensions')).toMatchObject({
+      baselineMinifiedBytes: 46_564,
+      maxMinifiedBytes: 61_000,
     })
   })
 
   it('checks packed declarations without Node ambient types', () => {
     expect(packageJson.scripts.check).toContain('npm run package:types')
     expect(packageJson.scripts['package:types']).toBe('node scripts/check-package-types.ts')
+  })
+
+  it('publishes one version-one scientific dataset vocabulary', () => {
+    const scientificIndex = readFileSync('src/scientific/index.ts', 'utf8')
+    const scientificPublic = readFileSync('src/scientific/public.ts', 'utf8')
+    const scientificDataset = readFileSync('src/scientific/dataset.ts', 'utf8')
+
+    for (const publicSource of [scientificIndex, scientificPublic]) {
+      expect(publicSource).not.toMatch(/Labeled[A-Z]|\bV2\b|dataset-v2|public-v2/u)
+    }
+    expect(scientificDataset).toContain('readonly schemaVersion: 1')
+    expect(scientificDataset).not.toContain('readonly schemaVersion: 2')
   })
 
   it('pins benchmark competitors without adding a Canvas library', () => {
@@ -315,6 +379,13 @@ describe('package contract', () => {
   it('publishes a local-only scientific raster explorer and public dataset APIs', () => {
     const readme = readFileSync('README.md', 'utf8')
     const page = readFileSync('docs-astro/src/pages/scientific.astro', 'utf8')
+    const platformPage = readFileSync('docs-astro/src/pages/scientific/platform.astro', 'utf8')
+    const platformExample = readFileSync(
+      'examples/scientific-application-platform/index.ts',
+      'utf8',
+    )
+    const apiPage = readFileSync('docs-astro/src/pages/api.astro', 'utf8')
+    const llms = readFileSync('docs-astro/public/llms.txt', 'utf8')
     const worker = readFileSync('docs-astro/src/scripts/scientific-worker.ts', 'utf8')
     const sources = readFileSync('docs-astro/public/demo-data/scientific/SOURCES.md', 'utf8')
     const sitemap = readFileSync('docs-astro/public/sitemap.xml', 'utf8')
@@ -341,18 +412,65 @@ describe('package contract', () => {
     expect(page.match(/class="scientific-file-type"/g)).toHaveLength(8)
     expect(worker).toContain('rangeCache')
     expect(worker).toContain('settings.channel')
-    expect(worker).toContain("active.format === 'fits'")
-    expect(worker).toContain('active.format.toUpperCase()')
+    expect(worker).toContain("openedDocument.reader.id === 'purejsimage/fits'")
+    expect(worker).toContain('displayAxes')
     expect(sources.replaceAll(/\s+/g, ' ')).toContain(
       'do not contain or derive from third-party measurements',
     )
     expect(sources).toContain('npm run demo:scientific:generate')
     expect(sitemap).toContain('https://purejsimage.com/scientific/')
+    expect(sitemap).toContain('https://purejsimage.com/scientific/platform/')
+    expect(platformPage).toContain(
+      "import applicationExample from '../../../../examples/scientific-application-platform/index.ts?raw'",
+    )
+    expect(platformPage).toContain(
+      "import ApplicationPlatformDiagram from '../../components/ApplicationPlatformDiagram.astro'",
+    )
+    expect(platformPage).toContain('Application APIs: unreleased preview')
+    expect(platformPage).toContain('current npm 0.9.x release does not contain')
+    expect(platformPage).toContain('Provider and extension APIs: experimental')
+    expect(platformPage).toContain('materials microscopy and instrument imagery')
+    expect(platformExample).toContain("from 'purejsimage/analysis'")
+    expect(platformExample).toContain('computeAnalysisProjectHashes')
+    for (const entry of [
+      'purejsimage/scientific',
+      'purejsimage/scientific/browser',
+      'purejsimage/scientific/node',
+      'purejsimage/scientific/readers/all',
+      'purejsimage/scientific/readers/aperio-svs',
+      'purejsimage/scientific/readers/cbf',
+      'purejsimage/scientific/readers/envi',
+      'purejsimage/scientific/readers/fits',
+      'purejsimage/scientific/readers/gsf',
+      'purejsimage/scientific/readers/mrc',
+      'purejsimage/scientific/readers/ome-tiff',
+      'purejsimage/operations',
+      'purejsimage/analysis',
+      'purejsimage/extensions',
+    ]) {
+      expect(apiPage).toContain(`<code>${entry}</code>`)
+      expect(llms).toContain(`\`${entry}\``)
+      expect(rootTsconfig.compilerOptions.paths).toHaveProperty(entry)
+    }
+    expect(llms).toContain(
+      '## Scientific application platform (unreleased main-branch alpha preview)',
+    )
+    expect(llms).toContain('current npm 0.9.x release does not contain')
+    expect(llms).toContain('initial bounded ROI masks, statistics, histograms, line profiles')
     expect(packageJson.exports).toHaveProperty('./scientific/node')
-    expect(scientificApi).toHaveProperty('openGsf')
-    expect(scientificApi).toHaveProperty('encodeGsf')
-    expect(scientificApi).toHaveProperty('openEnvi')
-    expect(scientificApi).toHaveProperty('openFits')
+    expect(scientificApi).not.toHaveProperty('openGsf')
+    expect(scientificApi).not.toHaveProperty('encodeGsf')
+    expect(scientificApi).not.toHaveProperty('openEnvi')
+    expect(scientificApi).not.toHaveProperty('openFits')
+    expect(scientificApi).not.toHaveProperty('toScientificDataset')
+    expect(scientificApi).not.toHaveProperty('toMultidimensionalRasterDataset')
+    expect(scientificApi).toHaveProperty('createScientificLibrary')
+    expect(scientificApi).not.toHaveProperty('fitsReader')
+    expect(scientificApi).not.toHaveProperty('enviReader')
+    expect(gsfReaderApi).toHaveProperty('encodeGsf')
+    expect(enviReaderApi).toHaveProperty('renderEnviClassification')
+    expect(allScientificReaders).toHaveProperty('fitsReader')
+    expect(allScientificReaders).toHaveProperty('enviReader')
     expect(scientificApi).toHaveProperty('measureScientificPlane')
     expect(scientificApi).toHaveProperty('renderScientificPlane')
     expect(scientificApi).toHaveProperty('renderSpectralComposite')
@@ -433,6 +551,11 @@ describe('package contract', () => {
     expect(runtimeModules.some((path) => path.startsWith(`codec-entries/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`accelerators/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`accelerator-entries/`))).toBe(false)
+    expect(runtimeModules.some((path) => path.startsWith(`scientific/`))).toBe(false)
+    expect(runtimeModules.some((path) => path.startsWith(`operations/`))).toBe(false)
+    expect(runtimeModules.some((path) => path.startsWith(`analysis/`))).toBe(false)
+    expect(runtimeModules.some((path) => path.startsWith(`extensions/`))).toBe(false)
+    expect(readFileSync(resolve('src/executor.ts'), 'utf8')).not.toMatch(/from ['"].*operations\//)
   })
 
   it('publishes browser and codec capabilities through explicit package subpaths', () => {
@@ -442,6 +565,22 @@ describe('package contract', () => {
       './tiff',
       './scientific',
       './scientific/node',
+      './scientific/browser',
+      './scientific/readers/gsf',
+      './scientific/readers/envi',
+      './scientific/readers/fits',
+      './scientific/readers/mrc',
+      './scientific/readers/cbf',
+      './scientific/readers/ome-tiff',
+      './scientific/readers/aperio-svs',
+      './scientific/readers/all',
+      './operations',
+      './analysis',
+      './analysis/results',
+      './analysis/roi',
+      './analysis/runtime',
+      './analysis/project',
+      './extensions',
       './pathology',
       './sources/http-range',
       './compression/zstd',
@@ -464,6 +603,16 @@ describe('package contract', () => {
       './codecs/tga',
       './codecs/webp',
     ])
+    expect(analysisApi).not.toHaveProperty('validateScalarResult')
+    expect(analysisApi).not.toHaveProperty('measureScientificPlaneWithResults')
+    expect(analysisApi).toHaveProperty('createAnalysisController')
+    expect(analysisApi).toHaveProperty('validateGraph')
+    expect(analysisApi).toHaveProperty('hashAnalysisGraph')
+    expect(analysisApi).not.toHaveProperty('createImageLibrary')
+    expect(analysisResultsApi).toHaveProperty('validateScalarResult')
+    expect(analysisRoiApi).toHaveProperty('createRoiMask')
+    expect(analysisRuntimeApi).toHaveProperty('createTileRuntime')
+    expect(analysisProjectApi).toHaveProperty('inspectMigrationPlan')
     for (const name of [
       'allCodecs',
       'avifCodec',
@@ -503,7 +652,9 @@ describe('package contract', () => {
       expect(name in browserPublicApi).toBe(false)
     }
     expect(typeof pathologyApi.openAperioSvs).toBe('function')
-    expect(typeof scientificApi.openOmeTiff).toBe('function')
+    expect('openOmeTiff' in scientificApi).toBe(false)
+    expect('omeTiffReader' in scientificApi).toBe(false)
+    expect(typeof omeTiffReaderApi.omeTiffReader.open).toBe('function')
     expect(typeof scientificApi.rasterToPixels).toBe('function')
     expect(typeof httpRangeApi.HttpRangeSource.open).toBe('function')
     expect(tiffApi.geoTiffProfile.id).toBe('geotiff')

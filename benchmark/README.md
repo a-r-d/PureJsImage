@@ -133,6 +133,28 @@ exit status means at least one file failed.
 
 ## Running
 
+### Application-platform benchmark
+
+Run the deterministic scientific-application benchmark with:
+
+```sh
+npm run bench:application-platform
+```
+
+Pass `-- --write` to refresh
+`benchmark/results/application-platform.{json,md}` after reviewing the local environment. The
+fixture covers bounded GSF, MRC, and CBF detection and first-tile reads; arbitrary-axis 4D-STEM
+selection; first rendered display pixels; a real range-backed Aperio tile without a whole-source
+download; source and derived cache accounting; ROI statistics; a calibrated line profile;
+thresholding; Gaussian tile sizes; graph validation; provider preparation; and planning.
+
+Every recorded workflow must pass its correctness assertion before its timing is emitted. Cold and
+warm samples are labeled separately. The catastrophic timing gate is intentionally generous and is
+only intended to detect hangs or orders-of-magnitude regressions. Tile-runtime retained bytes and
+planner estimates are bounded cache/working-set evidence, not measurements of process peak RSS.
+The report records Node, operating system, architecture, provider, implementation version, range
+bytes, and cache metrics so results are not compared across unlike environments without context.
+
 Quick harness validation:
 
 ```sh

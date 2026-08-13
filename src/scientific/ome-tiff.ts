@@ -13,10 +13,20 @@ import type {
   PhysicalPixelSize,
   RasterChannelInfo,
   RasterPlaneRequest,
-} from './dataset.ts'
+} from './legacy-dataset.ts'
 
 const imageDescriptionTag = 270
 const validDimensionOrders = new Set(['XYZCT', 'XYZTC', 'XYCZT', 'XYCTZ', 'XYTCZ', 'XYTZC'])
+
+export interface OmeTiffResolutionLevel {
+  readonly level: number
+  readonly width: number
+  readonly height: number
+}
+
+export interface OmeTiffDataset extends MultidimensionalRasterDataset {
+  readonly resolutionLevels: readonly OmeTiffResolutionLevel[]
+}
 
 const requiredAttribute = (element: XmlElement, name: string): string => {
   const value = element.attributes[name]
@@ -199,6 +209,7 @@ const combinedPlaneBlocks = async function* (
     ...(request.y === undefined ? {} : { y: request.y }),
     ...(request.width === undefined ? {} : { width: request.width }),
     ...(request.height === undefined ? {} : { height: request.height }),
+    ...(request.signal === undefined ? {} : { signal: request.signal }),
   }
   const iterators = decoders.map((decoder) => decoder.decode(decodeRequest)[Symbol.asyncIterator]())
   while (true) {
@@ -253,7 +264,7 @@ const combinedPlaneBlocks = async function* (
   }
 }
 
-class OmeTiffDataset implements MultidimensionalRasterDataset {
+class OmeTiffRasterDataset implements OmeTiffDataset {
   readonly sizeX: number
   readonly sizeY: number
   readonly sizeZ: number
@@ -265,6 +276,7 @@ class OmeTiffDataset implements MultidimensionalRasterDataset {
   readonly physicalSizeX?: PhysicalPixelSize
   readonly physicalSizeY?: PhysicalPixelSize
   readonly physicalSizeZ?: PhysicalPixelSize
+  readonly resolutionLevels: readonly OmeTiffResolutionLevel[]
   readonly #planes: ReadonlyMap<string, TiffDirectory>
 
   constructor(options: {
@@ -289,6 +301,28 @@ class OmeTiffDataset implements MultidimensionalRasterDataset {
     this.sampleType = options.sampleType
     this.dimensionOrder = options.dimensionOrder
     this.channels = Object.freeze([...options.channels])
+    const directories = [...new Set(options.planes.values())]
+    const maximumLevels = Math.min(...directories.map((directory) => directory.subIfds.length + 1))
+    const resolutionLevels: OmeTiffResolutionLevel[] = []
+    for (let level = 0; level < maximumLevels; level += 1) {
+      const selected = directories.map((directory) =>
+        level === 0 ? directory : directory.subIfds[level - 1],
+      )
+      const first = selected[0]
+      if (
+        first === undefined ||
+        selected.some(
+          (directory) =>
+            directory === undefined ||
+            directory.width !== first.width ||
+            directory.height !== first.height,
+        )
+      ) {
+        break
+      }
+      resolutionLevels.push(Object.freeze({ level, width: first.width, height: first.height }))
+    }
+    this.resolutionLevels = Object.freeze(resolutionLevels)
     if (options.physicalSizeX !== undefined) this.physicalSizeX = options.physicalSizeX
     if (options.physicalSizeY !== undefined) this.physicalSizeY = options.physicalSizeY
     if (options.physicalSizeZ !== undefined) this.physicalSizeZ = options.physicalSizeZ
@@ -336,11 +370,14 @@ class OmeTiffDataset implements MultidimensionalRasterDataset {
       ...(options.y === undefined ? {} : { y: options.y }),
       ...(options.width === undefined ? {} : { width: options.width }),
       ...(options.height === undefined ? {} : { height: options.height }),
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
     }
     if (unique.size === 1) {
       const directory = directories[0]
       if (!directory) throw invalidInput('OME plane directory is missing')
-      const decoder = await directory.createRasterDecoder()
+      const decoder = await directory.createRasterDecoder({
+        ...(options.signal === undefined ? {} : { signal: options.signal }),
+      })
       const sourceChannels = decoder.format.channels
       const selections = sourceChannels === 1 ? [0] : channels
       for await (const block of decoder.decode(decodeRequest)) {
@@ -354,7 +391,11 @@ class OmeTiffDataset implements MultidimensionalRasterDataset {
       )
     }
     const decoders = await Promise.all(
-      directories.map((directory) => directory.createRasterDecoder()),
+      directories.map((directory) =>
+        directory.createRasterDecoder({
+          ...(options.signal === undefined ? {} : { signal: options.signal }),
+        }),
+      ),
     )
     if (decoders.some((decoder) => decoder.format.channels !== 1)) {
       throw unsupportedOperation('OME separate channel planes must contain one TIFF sample')
@@ -370,6 +411,15 @@ const omeDescription = async (document: TiffDocument): Promise<string | undefine
   return value?.kind === 'ascii' ? value.value : undefined
 }
 
+/** Return the number of OME Image elements without constructing any raster decoders. */
+export const omeTiffImageCount = async (document: TiffDocument): Promise<number> => {
+  const description = await omeDescription(document)
+  if (!description) throw invalidInput('TIFF ImageDescription does not contain OME XML')
+  const root = parseXmlDocument(description, { maxCharacters: 4_194_304, maxElements: 100_000 })
+  if (xmlLocalName(root.name) !== 'OME') throw invalidInput('OME XML root element is missing')
+  return xmlChildren(root, 'Image').length
+}
+
 export const isOmeTiff = async (document: TiffDocument): Promise<boolean> => {
   const description = await omeDescription(document)
   return description !== undefined && /<(?:(?:[A-Za-z_][\w.-]*):)?OME\b/.test(description)
@@ -378,7 +428,7 @@ export const isOmeTiff = async (document: TiffDocument): Promise<boolean> => {
 export const openOmeTiff = async (
   document: TiffDocument,
   imageIndex = 0,
-): Promise<MultidimensionalRasterDataset> => {
+): Promise<OmeTiffDataset> => {
   const description = await omeDescription(document)
   if (!description) throw invalidInput('TIFF ImageDescription does not contain OME XML')
   const root = parseXmlDocument(description, { maxCharacters: 4_194_304, maxElements: 100_000 })
@@ -500,7 +550,7 @@ export const openOmeTiff = async (
   const physicalSizeX = physicalSize(pixels, 'PhysicalSizeX')
   const physicalSizeY = physicalSize(pixels, 'PhysicalSizeY')
   const physicalSizeZ = physicalSize(pixels, 'PhysicalSizeZ')
-  return new OmeTiffDataset({
+  return new OmeTiffRasterDataset({
     sizeX,
     sizeY,
     sizeZ,

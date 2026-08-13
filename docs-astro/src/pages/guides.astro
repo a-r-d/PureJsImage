@@ -42,18 +42,25 @@ preview.src = URL.<span class="tok-method">createObjectURL</span>(output)</code>
 
         <section id="scientific-browser">
           <h2>Open scientific rasters in a browser</h2>
+          <div class="callout warning"><strong>Unreleased main-branch alpha preview.</strong> The current npm 0.9.x release does not contain the scientific application entrypoints used below. This documentation is tested against a package tarball packed from the branch; the ordinary codec installation above remains the established npm workflow.</div>
           <p>GSF and paired ENVI inputs use the portable scientific dataset API rather than the ordinary photographic codec registry. Pass a GSF <code>File</code>/<code>Blob</code> directly, or pass the ENVI header and binary as two independent browser inputs. Native samples, physical units, no-data markers, channel names, and wavelengths remain quantitative until an explicit renderer produces display pixels.</p>
-          <div class="code-window"><div class="window-bar"><span class="window-title">scientific-worker.ts</span></div><pre><code><span class="tok-key">import</span> &#123; openEnvi, openGsf, renderScientificPlane &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
+          <div class="code-window"><div class="window-bar"><span class="window-title">scientific-worker.ts</span></div><pre><code><span class="tok-key">import</span> &#123; createScientificLibrary, renderScientificPlane &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific'</span>
+<span class="tok-key">import</span> &#123; createScientificFileContext &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific/browser'</span>
+<span class="tok-key">import</span> &#123; enviReader &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific/readers/envi'</span>
+<span class="tok-key">import</span> &#123; gsfReader &#125; <span class="tok-key">from</span> <span class="tok-string">'purejsimage/scientific/readers/gsf'</span>
 
-<span class="tok-key">const</span> surface = <span class="tok-key">await</span> <span class="tok-method">openGsf</span>(gsfFile)
+<span class="tok-key">const</span> science = createScientificLibrary(&#123; readers: [gsfReader, enviReader] &#125;)
+<span class="tok-key">const</span> document = <span class="tok-key">await</span> science.open(createScientificFileContext(gsfFile))
+<span class="tok-key">const</span> surface = <span class="tok-key">await</span> document.openDataset(document.datasets[0].id)
 <span class="tok-key">const</span> display = <span class="tok-key">await</span> <span class="tok-method">renderScientificPlane</span>(surface, &#123;
-  plane: &#123; z: <span class="tok-number">0</span>, c: <span class="tok-number">0</span>, t: <span class="tok-number">0</span> &#125;,
+  plane: &#123; displayAxes: [<span class="tok-string">'x'</span>, <span class="tok-string">'y'</span>], fixedIndices: [] &#125;,
   range: &#123; mode: <span class="tok-string">'percentile'</span>, low: <span class="tok-number">1</span>, high: <span class="tok-number">99</span> &#125;,
   palette: <span class="tok-string">'viridis'</span>,
   relief: &#123; azimuth: <span class="tok-number">315</span>, elevation: <span class="tok-number">45</span>, strength: <span class="tok-number">0.5</span> &#125;,
 &#125;)
 
-<span class="tok-key">const</span> cube = <span class="tok-key">await</span> <span class="tok-method">openEnvi</span>(&#123; header: headerFile, data: binaryFile &#125;)</code></pre></div>
+<span class="tok-key">const</span> cubeDocument = <span class="tok-key">await</span> science.open(createScientificFileContext(headerFile, &#123; companions: [binaryFile] &#125;))
+<span class="tok-key">const</span> cube = <span class="tok-key">await</span> cubeDocument.openDataset(cubeDocument.datasets[0].id)</code></pre></div>
           <p>Keep expensive range scans and rendering in a Web Worker, transfer final display bytes to the main thread, and use Canvas only as that final display surface. The core reader and renderer do not depend on Canvas. The <a href="../scientific/">Scientific Raster Explorer</a> demonstrates local file selection, paired-file ENVI opening, wavelength controls, false-color composition, relief, and honest binary-read timing entirely client-side.</p>
         </section>
 
@@ -156,7 +163,10 @@ console.<span class="tok-method">log</span>(&#123;
   maxWidth: <span class="tok-number">250_000</span>,
   maxHeight: <span class="tok-number">250_000</span>,
   maxPixels: <span class="tok-number">20_000_000_000</span>,
-  maxDecodedBytes: Number.MAX_SAFE_INTEGER,
+  maxDecodedBytes: <span class="tok-number">268_435_456</span>,
+  maxSegmentCount: <span class="tok-number">1_000_000</span>,
+  maxSegmentTableBytes: <span class="tok-number">33_554_432</span>,
+  maxEncodedSegmentBytes: <span class="tok-number">134_217_728</span>,
 &#125;)
 
 <span class="tok-key">const</span> slide = <span class="tok-key">await</span> <span class="tok-method">openAperioSvs</span>(document)
