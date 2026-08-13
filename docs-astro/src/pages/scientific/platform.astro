@@ -1,5 +1,6 @@
 ---
 import applicationExample from '../../../../examples/scientific-application-platform/index.ts?raw'
+import ApplicationPlatformDiagram from '../../components/ApplicationPlatformDiagram.astro'
 import SiteLayout from '../../layouts/SiteLayout.astro'
 ---
 
@@ -22,6 +23,12 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
     <div class="container docs-layout">
       <aside class="side-nav" aria-label="Scientific pages"><div class="nav-group"><strong>Scientific</strong><a href="../">Raster Explorer</a><a href="./" aria-current="page">Application platform</a><a href="../volumes/">Volumes</a></div><div class="nav-group"><strong>Reference</strong><a href="../../api/#application-entrypoints">Application APIs</a><a href="https://github.com/a-r-d/PureJsImage/blob/main/docs/architecture/application-platform.md">Architecture</a></div></aside>
       <article class="content">
+        <section id="architecture">
+          <h2>Application architecture</h2>
+          <p>The scientific platform layers above portable readers and sources without pulling application code back into codecs. The ordinary image pipeline remains a separate first-class route through the same source boundary.</p>
+          <ApplicationPlatformDiagram />
+        </section>
+
         <section id="model">
           <h2>One labeled-axis data model</h2>
           <p><code>ScientificDataset</code> describes arbitrary named axes, sample types, components, resolution levels, physical coordinates, and bounded region reads. First-party GSF, ENVI, FITS, MRC, CBF, and OME-TIFF readers expose that model directly. An application chooses a dataset from a document rather than assuming one fixed <code>z/c/t</code> layout.</p>
@@ -58,7 +65,7 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
           <p>The current wedge is native, range-backed analysis for AFM, detector, diffraction, hyperspectral, and volumetric data. PureJsImage does not yet claim mature SEM/TEM workflows, DM3/DM4, EDS overlays, FFT tooling, particle or grain analysis, broad segmentation, registration, morphology, 3D mesh editing, or a mature plugin ecosystem. Quantitative uint64 analysis above <code>2^53 - 1</code> is also not yet exact in every operation and result path.</p>
         </section>
       </article>
-      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#model">Labeled axes</a><a href="#runtime">Tile runtime</a><a href="#analysis">Graphs and ROIs</a><a href="#extensions">Extensions</a><a href="#example">Complete example</a><a href="#scope">Alpha scope</a></aside>
+      <aside class="toc" aria-label="On this page"><strong>On this page</strong><a href="#architecture">Architecture</a><a href="#model">Labeled axes</a><a href="#runtime">Tile runtime</a><a href="#analysis">Graphs and ROIs</a><a href="#extensions">Extensions</a><a href="#example">Complete example</a><a href="#scope">Alpha scope</a></aside>
     </div>
   </main>
   <footer class="site-footer"><div class="container"><div class="footer-bottom"><span>© 2026 Aaron Decker and PureJsImage contributors.</span><span><a href="../">Scientific Raster Explorer</a> · <a href="../../api/#application-entrypoints">Application API</a> · <a href="https://github.com/a-r-d/PureJsImage">Source</a></span></div></div></footer>

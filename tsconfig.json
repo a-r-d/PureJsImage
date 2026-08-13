@@ -15,7 +15,13 @@
     "types": ["node"],
     "paths": {
       "purejsimage": ["./src/index.ts"],
+      "purejsimage/analysis": ["./src/analysis/index.ts"],
+      "purejsimage/extensions": ["./src/extensions/index.ts"],
+      "purejsimage/operations": ["./src/operations/index.ts"],
       "purejsimage/pathology": ["./src/pathology/index.ts"],
+      "purejsimage/scientific": ["./src/scientific/index.ts"],
+      "purejsimage/scientific/browser": ["./src/scientific/browser.ts"],
+      "purejsimage/scientific/node": ["./src/scientific/node.ts"],
       "purejsimage/tiff": ["./src/tiff/index.ts"]
     }
   },

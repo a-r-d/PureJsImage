@@ -1,0 +1,184 @@
+<figure class="platform-architecture" aria-labelledby="platform-architecture-caption">
+  <svg
+    viewBox="0 0 900 870"
+    role="img"
+    aria-labelledby="platform-architecture-title platform-architecture-description"
+  >
+    <title id="platform-architecture-title">PureJsImage application-platform dependency architecture</title>
+    <desc id="platform-architecture-description">Applications use either the ordinary image pipeline and codecs or the scientific analysis stack. Analysis depends on operations, providers, native numeric tiles, portable scientific datasets and RasterBlocks, scientific readers, and finally ImageSource. Trusted extensions explicitly compose readers, descriptors, and providers. Dependencies never point back from sources or readers into application code.</desc>
+    <defs>
+      <marker id="platform-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z"></path>
+      </marker>
+    </defs>
+
+    <g class="architecture-links" aria-hidden="true">
+      <path d="M450 100 V130 H220 V160"></path>
+      <path d="M450 130 H650 V160"></path>
+      <path d="M220 236 V275"></path>
+      <path d="M220 351 V715 Q220 750 270 750"></path>
+      <path d="M650 236 V255 H555 V275"></path>
+      <path d="M650 236 V390"></path>
+      <path d="M640 314 H670"></path>
+      <path d="M755 353 V370 Q755 390 730 390"></path>
+      <path d="M705 466 V505"></path>
+      <path d="M705 581 V620"></path>
+      <path d="M705 696 V715 Q705 750 630 750"></path>
+    </g>
+
+    <g class="architecture-links extension-links" aria-hidden="true">
+      <path d="M430 478 C465 478 438 314 470 314"></path>
+      <path d="M430 510 C520 510 555 314 670 314"></path>
+      <path d="M430 542 C500 542 500 658 570 658"></path>
+    </g>
+
+    <g class="architecture-node node-application">
+      <rect x="250" y="20" width="400" height="80" rx="16"></rect>
+      <text x="450" y="52"><tspan class="node-label">Application layer</tspan><tspan x="450" dy="24" class="node-detail">UI · scripts · plugins · future agents</tspan></text>
+    </g>
+
+    <g class="architecture-node node-ordinary">
+      <rect x="70" y="160" width="300" height="76" rx="14"></rect>
+      <text x="220" y="191"><tspan class="node-label">Ordinary image pipeline</tspan><tspan x="220" dy="23" class="node-detail">Immutable resize().jpeg() path</tspan></text>
+    </g>
+    <g class="architecture-node node-ordinary">
+      <rect x="70" y="275" width="300" height="76" rx="14"></rect>
+      <text x="220" y="306"><tspan class="node-label">Image codecs</tspan><tspan x="220" dy="23" class="node-detail">Explicit codec entries</tspan></text>
+    </g>
+
+    <g class="architecture-node node-analysis">
+      <rect x="470" y="160" width="360" height="76" rx="14"></rect>
+      <text x="650" y="191"><tspan class="node-label">Scientific application APIs</tspan><tspan x="650" dy="23" class="node-detail">Graphs · ROIs · results · tile runtime</tspan></text>
+    </g>
+    <g class="architecture-node node-analysis">
+      <rect x="470" y="275" width="170" height="78" rx="14"></rect>
+      <text x="555" y="306"><tspan class="node-label">Operations</tspan><tspan x="555" dy="22" class="node-detail">JSON-safe descriptors</tspan></text>
+    </g>
+    <g class="architecture-node node-analysis">
+      <rect x="670" y="275" width="170" height="78" rx="14"></rect>
+      <text x="755" y="306"><tspan class="node-label">Providers</tspan><tspan x="755" dy="22" class="node-detail">Explicit executable code</tspan></text>
+    </g>
+    <g class="architecture-node node-analysis">
+      <rect x="570" y="390" width="270" height="76" rx="14"></rect>
+      <text x="705" y="421"><tspan class="node-label">Native NumericTile</tspan><tspan x="705" dy="23" class="node-detail">Typed repeated computation</tspan></text>
+    </g>
+    <g class="architecture-node node-analysis">
+      <rect x="570" y="505" width="270" height="76" rx="14"></rect>
+      <text x="705" y="536"><tspan class="node-label">ScientificDataset</tspan><tspan x="705" dy="23" class="node-detail">Descriptors · RasterBlock reads</tspan></text>
+    </g>
+    <g class="architecture-node node-analysis">
+      <rect x="570" y="620" width="270" height="76" rx="14"></rect>
+      <text x="705" y="651"><tspan class="node-label">Scientific readers</tspan><tspan x="705" dy="23" class="node-detail">Explicit local registration</tspan></text>
+    </g>
+
+    <g class="architecture-node node-extension">
+      <rect x="70" y="445" width="360" height="112" rx="16"></rect>
+      <text x="250" y="479"><tspan class="node-label">Trusted extension bundles</tspan><tspan x="250" dy="24" class="node-detail">Explicit local composition</tspan><tspan x="250" dy="20" class="node-detail">Readers · descriptors · providers</tspan></text>
+    </g>
+
+    <g class="architecture-node node-source">
+      <rect x="270" y="750" width="360" height="80" rx="16"></rect>
+      <text x="450" y="782"><tspan class="node-label">ImageSource and platform adapters</tspan><tspan x="450" dy="24" class="node-detail">Memory · File/Blob · path · HTTP Range</tspan></text>
+    </g>
+  </svg>
+  <figcaption id="platform-architecture-caption">Dependencies flow downward toward readers and sources. The ordinary image pipeline remains independent, and no codec or reader imports application, graph, ROI, or extension code.</figcaption>
+</figure>
+
+<style>
+  .platform-architecture {
+    margin: 24px 0 4px;
+    padding: 18px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--surface) 86%, transparent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .platform-architecture svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .architecture-node rect {
+    fill: var(--surface);
+    stroke: var(--line-strong);
+    stroke-width: 2;
+  }
+
+  .node-application rect,
+  .node-source rect {
+    fill: var(--brand-soft);
+    stroke: var(--brand);
+  }
+
+  .node-analysis rect {
+    fill: color-mix(in srgb, var(--lime) 12%, var(--surface));
+    stroke: color-mix(in srgb, var(--lime-strong) 48%, var(--line-strong));
+  }
+
+  .node-extension rect {
+    fill: color-mix(in srgb, var(--amber) 12%, var(--surface));
+    stroke: color-mix(in srgb, var(--amber) 70%, var(--line-strong));
+    stroke-dasharray: 9 7;
+  }
+
+  .architecture-node text {
+    fill: var(--text);
+    text-anchor: middle;
+    font-family: var(--font-sans);
+  }
+
+  .node-label {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .node-detail {
+    fill: var(--text-soft);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .architecture-links path {
+    fill: none;
+    stroke: var(--text-faint);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.5;
+    marker-end: url(#platform-arrow);
+  }
+
+  #platform-arrow path {
+    fill: var(--text-faint);
+  }
+
+  .architecture-links.extension-links path {
+    stroke: color-mix(in srgb, var(--amber) 82%, var(--text-soft));
+    stroke-dasharray: 7 7;
+  }
+
+  .platform-architecture figcaption {
+    max-width: 72ch;
+    margin: 4px auto 0;
+    color: var(--text-faint);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .platform-architecture {
+      margin-inline: -8px;
+      padding: 8px;
+    }
+
+    .node-label {
+      font-size: 18px;
+    }
+
+    .node-detail {
+      font-size: 14px;
+    }
+  }
+</style>

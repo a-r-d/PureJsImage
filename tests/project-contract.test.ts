@@ -26,6 +26,7 @@ import * as httpRangeApi from '../src/sources/http-range.ts'
 import * as tiffApi from '../src/tiff/index.ts'
 import * as publicApi from '../src/index.ts'
 import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
+import rootTsconfig from '../tsconfig.json' with { type: 'json' }
 
 describe('package contract', () => {
   it('does not publish unusable source maps without source files', () => {
@@ -374,6 +375,9 @@ describe('package contract', () => {
     expect(platformPage).toContain(
       "import applicationExample from '../../../../examples/scientific-application-platform/index.ts?raw'",
     )
+    expect(platformPage).toContain(
+      "import ApplicationPlatformDiagram from '../../components/ApplicationPlatformDiagram.astro'",
+    )
     expect(platformPage).toContain('Application APIs: alpha')
     expect(platformPage).toContain('Provider and extension APIs: experimental')
     expect(platformPage).toContain('materials microscopy and instrument imagery')
@@ -389,6 +393,7 @@ describe('package contract', () => {
     ]) {
       expect(apiPage).toContain(`<code>${entry}</code>`)
       expect(llms).toContain(`\`${entry}\``)
+      expect(rootTsconfig.compilerOptions.paths).toHaveProperty(entry)
     }
     expect(llms).toContain('## Scientific application platform (alpha)')
     expect(llms).toContain('initial bounded ROI masks, statistics, histograms, line profiles')
