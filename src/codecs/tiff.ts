@@ -32,6 +32,7 @@ import type {
   TiffDocument,
   TiffDocumentOptions,
   TiffByteReadOptions,
+  TiffTagInfo,
   TiffTagReadOptions,
   TiffTagValue,
 } from '../tiff/types.ts'
@@ -1019,12 +1020,17 @@ const describeTiffIfd = async (
   selected: SelectedTiffIfd,
   options: Readonly<DecoderOptions>,
   mode: TiffDescriptionMode,
+  lazyFullImage = false,
 ): Promise<TiffDescription> => {
   const { ifd, frames, resolutionLevels } = selected
   const { littleEndian } = graph
   const width = await singleValue(source, ifd, littleEndian, 256)
   const height = await singleValue(source, ifd, littleEndian, 257)
-  validateImageDimensions(width, height, 1, limits)
+  if (lazyFullImage) {
+    validateImageDimensions(width, height, 1, { ...limits, maxDecodedBytes: limits.maxPixels }, 1)
+  } else {
+    validateImageDimensions(width, height, 1, limits)
+  }
 
   const samplesPerPixel = await singleValue(source, ifd, littleEndian, 277, 1)
   const maximumSamples = mode === 'raster' ? 65_535 : 5
@@ -4578,6 +4584,19 @@ class PublicTiffDirectory implements TiffDirectory {
     this.#subIfds = Object.freeze([...subIfds])
   }
 
+  getTagInfo(tag: number): TiffTagInfo | undefined {
+    if (!Number.isSafeInteger(tag) || tag < 0 || tag > 65_535) {
+      throw invalidInput('TIFF tag number must be an unsigned 16-bit integer')
+    }
+    const entry = this.#ifd.entries.get(tag)
+    if (entry === undefined) return undefined
+    const byteLength = entry.count * tagFieldBytes(entry.fieldType, tag)
+    if (!Number.isSafeInteger(byteLength) || byteLength < 0) {
+      throw invalidInput(`TIFF tag ${tag} byte length is invalid`)
+    }
+    return Object.freeze({ tag, fieldType: entry.fieldType, count: entry.count, byteLength })
+  }
+
   async getTag(
     tag: number,
     options: Readonly<TiffTagReadOptions> = {},
@@ -4615,6 +4634,7 @@ class PublicTiffDirectory implements TiffDirectory {
       selected,
       {},
       'pixels',
+      true,
     )
     const webpCodec = this.#embeddedCodecs.find((codec) => codec.format === 'webp')
     const applyColorTransform = description.colorTransform !== undefined
@@ -4633,7 +4653,7 @@ class PublicTiffDirectory implements TiffDirectory {
     const selected = { ifd: this.#ifd, frames: 1, resolutionLevels: this.#subIfds.length + 1 }
     return new TiffRasterDecoder(
       source,
-      await describeTiffIfd(source, this.#limits, this.#graph, selected, {}, 'raster'),
+      await describeTiffIfd(source, this.#limits, this.#graph, selected, {}, 'raster', true),
       this.#limits,
     )
   }

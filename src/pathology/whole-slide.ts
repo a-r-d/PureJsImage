@@ -6,8 +6,12 @@ export interface WholeSlideImageMetadata {
   readonly photometric: number
   readonly samplesPerPixel: number
   readonly bitsPerSample: readonly number[]
-  /** Exact bounded TIFF ICC profile bytes when present. */
-  readonly iccProfile?: Uint8Array
+  /** Lightweight TIFF ICC tag metadata. Profile bytes remain lazy in the TIFF decoder. */
+  readonly iccProfile?: {
+    readonly present: true
+    readonly byteLength: number
+    readonly tag: 34675
+  }
 }
 
 export interface WholeSlideLevel {

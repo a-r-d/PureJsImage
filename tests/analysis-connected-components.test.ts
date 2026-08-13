@@ -5,6 +5,7 @@ import {
   createReferenceAnalysisProvider,
   scientificDatasetCharacteristics,
 } from '../src/analysis/index.ts'
+import { inspectConnectedComponentsMemoryPlan } from '../src/analysis/connected-components.ts'
 import { summarizeResult, type TableResult } from '../src/analysis/results.ts'
 import { createTileRuntime } from '../src/analysis/runtime.ts'
 import type {
@@ -131,11 +132,16 @@ const execute = async (
     disposeAfterReads?: number
     signal?: AbortSignal
     hooks?: DatasetHooks
+    maxOperationWorkingBytes?: number
+    maxTotalManagedBytes?: number
   }> = {},
 ) => {
   const runtime = createTileRuntime({
     limits: {
-      maxOperationWorkingBytes: 4 * 1_024 * 1_024,
+      maxOperationWorkingBytes: options.maxOperationWorkingBytes ?? 4 * 1_024 * 1_024,
+      ...(options.maxTotalManagedBytes === undefined
+        ? {}
+        : { maxTotalManagedBytes: options.maxTotalManagedBytes }),
       ...(options.concurrency === undefined ? {} : { maxConcurrency: options.concurrency }),
     },
   })
@@ -241,6 +247,25 @@ const releaseExecution = async (result: Awaited<ReturnType<typeof execute>>): Pr
 }
 
 describe('global tiled connected components', () => {
+  it('declares tolerance-based complete-operation reproducibility', async () => {
+    const definition = createBuiltInAnalysisOperationRegistry().get(
+      analysisConnectedComponentsOperationId,
+      1,
+    )
+    expect(definition?.descriptor.reproducibility).toEqual({
+      class: 'tolerance-based',
+      absolute: 1e-12,
+      relative: 1e-12,
+    })
+    const runtime = createTileRuntime()
+    const prepared = await createReferenceAnalysisProvider({ runtime }).prepare()
+    const implementation = prepared?.implementations.find(
+      (entry) => entry.descriptor.operationId === analysisConnectedComponentsOperationId,
+    )
+    expect(implementation?.descriptor).not.toHaveProperty('bitExactConformance')
+    await runtime.dispose()
+  })
+
   it('reconciles tile boundaries deterministically and distinguishes 4/8 connectivity', async () => {
     const mask = new Uint8Array(30)
     for (const [x, y] of [
@@ -377,6 +402,8 @@ describe('global tiled connected components', () => {
         expect(numericValue(result.objects, 'centroidX')).toBe(2)
         expect(numericValue(result.objects, 'centroidY')).toBe(2.5)
         expect(numericValue(result.objects, 'physicalArea')).toBe(36)
+        expect(numericValue(result.objects, 'physicalCentroidX')).toBe(13)
+        expect(numericValue(result.objects, 'physicalCentroidY')).toBe(26)
       } else if (fixture.name === 'circle') {
         expect(numericValue(result.objects, 'centroidX')).toBe(3.5)
         expect(numericValue(result.objects, 'centroidY')).toBe(3.5)
@@ -387,6 +414,111 @@ describe('global tiled connected components', () => {
         expect(numericValue(result.objects, 'orientationRadians')).toBeCloseTo(Math.PI / 4)
       }
       await releaseExecution(result)
+    }
+  })
+
+  it('uses the ROI pixel-center convention with anisotropic negative calibration', async () => {
+    const sourceDescriptor = normalizeScientificDatasetDescriptor({
+      schemaVersion: 1,
+      axes: [
+        {
+          id: 'x',
+          kind: 'space',
+          length: 4,
+          unit: 'µm',
+          coordinates: { type: 'linear', origin: 100, step: -2 },
+        },
+        {
+          id: 'y',
+          kind: 'space',
+          length: 4,
+          unit: 'µm',
+          coordinates: { type: 'linear', origin: 200, step: 4 },
+        },
+      ],
+      sampleType: 'uint8',
+      components: [{ id: 'mask', kind: 'scalar' }],
+      capabilities: {
+        regionReads: true,
+        resolutionLevels: false,
+        planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'y']] },
+      },
+    })
+    const mask = new Uint8Array(16)
+    mask[2 * 4 + 1] = 1
+    const result = await execute(mask, 4, 2, { descriptor: sourceDescriptor })
+    expect(numericValue(result.objects, 'centroidX')).toBe(1.5)
+    expect(numericValue(result.objects, 'centroidY')).toBe(2.5)
+    expect(numericValue(result.objects, 'physicalCentroidX')).toBe(98)
+    expect(numericValue(result.objects, 'physicalCentroidY')).toBe(208)
+    expect(numericValue(result.objects, 'physicalArea')).toBe(8)
+    await releaseExecution(result)
+  })
+
+  it('enforces exact phase-planned memory boundaries across tile sizes', async () => {
+    const width = 16
+    const height = 16
+    const sourceDescriptor = fixtureDescriptor(width, height)
+    const checkerboard = new Uint8Array(width * height)
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) checkerboard[y * width + x] = (x + y) % 2
+    }
+    const componentCount = checkerboard.reduce((total, value) => total + value, 0)
+    const operationParameters = {
+      displayAxes: ['x', 'y'],
+      fixedIndices: [],
+      component: 0,
+      connectivity: 4,
+    }
+    for (const tileSize of [2, 5]) {
+      let low = 1
+      let high = 1_000_000
+      while (low < high) {
+        const middle = Math.floor((low + high) / 2)
+        let capacity = 0
+        try {
+          capacity = inspectConnectedComponentsMemoryPlan(
+            sourceDescriptor,
+            operationParameters,
+            tileSize,
+            tileSize,
+            middle,
+          ).capacity
+        } catch {
+          capacity = 0
+        }
+        if (capacity >= componentCount) high = middle
+        else low = middle + 1
+      }
+      const exactPlan = inspectConnectedComponentsMemoryPlan(
+        sourceDescriptor,
+        operationParameters,
+        tileSize,
+        tileSize,
+        low,
+      )
+      expect(exactPlan.capacity).toBe(componentCount)
+      expect(exactPlan.peakWorkingBytes).toBeLessThanOrEqual(low)
+      const result = await execute(checkerboard, 4, tileSize, {
+        descriptor: sourceDescriptor,
+        maxOperationWorkingBytes: low,
+        maxTotalManagedBytes: low + 1_024 * 1_024,
+      })
+      expect(result.objects.rowCount).toBe(componentCount)
+      expect(result.runtime.metrics().memory.highWaterTotalManagedBytes).toBeLessThanOrEqual(
+        result.runtime.limits.maxTotalManagedBytes,
+      )
+      expect(result.runtime.metrics().memory.managedBytes).toBeGreaterThan(0)
+      await releaseExecution(result)
+      expect(result.runtime.metrics().memory.managedBytes).toBe(0)
+
+      await expect(
+        execute(checkerboard, 4, tileSize, {
+          descriptor: sourceDescriptor,
+          maxOperationWorkingBytes: low - 1,
+          maxTotalManagedBytes: low + 1_024 * 1_024,
+        }),
+      ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
     }
   })
 

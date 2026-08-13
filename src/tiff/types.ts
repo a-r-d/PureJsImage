@@ -15,6 +15,13 @@ export interface TiffTagReadOptions extends AbortOptions {
   readonly maxBytes?: number
 }
 
+export interface TiffTagInfo {
+  readonly tag: number
+  readonly fieldType: number
+  readonly count: number
+  readonly byteLength: number
+}
+
 export interface TiffByteReadOptions extends AbortOptions {
   /** Maximum bytes read for this call. Required so profile readers cannot issue unbounded reads. */
   readonly maxBytes: number
@@ -37,6 +44,8 @@ export interface TiffDirectory {
   readonly tileHeight?: number
   readonly subIfds: readonly TiffDirectory[]
 
+  /** Inspect parsed tag metadata without reading an out-of-line payload, when supported. */
+  getTagInfo?(tag: number): TiffTagInfo | undefined
   getTag(tag: number, options?: Readonly<TiffTagReadOptions>): Promise<TiffTagValue | undefined>
   createImageDecoder(options?: Readonly<AbortOptions>): Promise<ImageDecoder>
   createRasterDecoder(options?: Readonly<AbortOptions>): Promise<RasterDecoder>

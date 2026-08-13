@@ -93,29 +93,6 @@ const rasterBlock = (
   })
 }
 
-const base64Alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-
-const base64 = (bytes: Uint8Array): string => {
-  const chunks: string[] = []
-  let chunk = ''
-  for (let index = 0; index < bytes.byteLength; index += 3) {
-    const first = bytes[index] ?? 0
-    const second = bytes[index + 1]
-    const third = bytes[index + 2]
-    const combined = (first << 16) | ((second ?? 0) << 8) | (third ?? 0)
-    chunk += base64Alphabet.charAt((combined >>> 18) & 63)
-    chunk += base64Alphabet.charAt((combined >>> 12) & 63)
-    chunk += second === undefined ? '=' : base64Alphabet.charAt((combined >>> 6) & 63)
-    chunk += third === undefined ? '=' : base64Alphabet.charAt(combined & 63)
-    if (chunk.length >= 16_384) {
-      chunks.push(chunk)
-      chunk = ''
-    }
-  }
-  if (chunk.length !== 0) chunks.push(chunk)
-  return chunks.join('')
-}
-
 const imageMetadata = (metadata: WholeSlideImageMetadata): ScientificMetadataObject =>
   normalizeScientificMetadataObject({
     compression: metadata.compression,
@@ -126,12 +103,25 @@ const imageMetadata = (metadata: WholeSlideImageMetadata): ScientificMetadataObj
       ? {}
       : {
           iccProfile: {
-            encoding: 'base64',
+            present: true,
             byteLength: metadata.iccProfile.byteLength,
-            data: base64(metadata.iccProfile),
+            tag: metadata.iccProfile.tag,
           },
         }),
   })
+
+const validatePyramidFormats = (slide: WholeSlideImage, formatName: string): PixelFormat => {
+  const format = requiredFormat(slide.format, `${formatName} pyramid`)
+  for (const level of slide.levels) {
+    const levelFormat = requiredFormat(level.format, `${formatName} pyramid level ${level.index}`)
+    if (levelFormat !== format) {
+      throw invalidInput(
+        `${formatName} pyramid level ${level.index} declares ${levelFormat}; expected ${format}`,
+      )
+    }
+  }
+  return format
+}
 
 const axis = (
   id: 'x' | 'y',
@@ -325,6 +315,7 @@ export const createWholeSlideScientificDocument = async (
   options: Readonly<WholeSlideScientificBridgeOptions>,
 ): Promise<ScientificDocument> => {
   const { context, reader, slide } = options
+  validatePyramidFormats(slide, reader.format)
   const source = sourceMetadata(context)
   const candidates = [
     {

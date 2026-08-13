@@ -92,6 +92,17 @@ output and intermediate buffers are admitted through request-specific `peakWorki
 must not double reserve the same output. Graph-level reducers use lexical operation-working scopes.
 `decodedInputBytes` measures decoded input-tile bytes, not network transfer.
 
+Connected components admits the larger of two checked, conservative operation-working phases. The
+scan phase includes global component state, provisional mapping plus one sentinel per tile, tile
+offsets, local labels and union-find parents, two row boundaries, and two column boundaries. The
+finalization phase includes global state, provisional mapping, tile offsets, roots, root labels,
+the complete local-to-global mapping, every object-table backing array, calibrated columns when
+applicable, and bounded structural result bytes. The source tile remains charged through normal
+source/in-flight accounting and is not counted twice. No component-count-dependent array is
+allocated until the phase plan admits that capacity. Retained bytes equal the complete backing
+allocations of the surviving mappings and actual object table; every size sum and product rejects
+safe-integer overflow.
+
 `clear()` aborts queued/in-flight work and drops releasable cache entries but leaves the runtime
 reusable. `dispose()` permanently closes every acquisition and mutation path, cancels active work,
 waits for requests and active `withOperationWorkingBytes()` callbacks, and returns one stable

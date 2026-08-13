@@ -135,6 +135,118 @@ const provider = (options: {
   })
 
 describe('analysis planning and execution', () => {
+  it('releases deferred scientific dataset dependencies on graph failure exactly once', async () => {
+    const datasetType = createValueTypeDefinition({
+      descriptor: { id: 'purejsimage.scientific.dataset', version: 1, title: 'Dataset' },
+    })
+    const operation = (id: string) =>
+      createOperationDefinition({
+        descriptor: {
+          id,
+          version: 1,
+          title: id,
+          category: 'analysis',
+          tags: [],
+          inputs: [
+            { name: 'dataset', valueType: { id: 'purejsimage.scientific.dataset', version: 1 } },
+          ],
+          outputs: [
+            { name: 'dataset', valueType: { id: 'purejsimage.scientific.dataset', version: 1 } },
+          ],
+          parameters: { type: 'object', properties: {}, closed: true },
+          execution: 'tile-local',
+          reproducibility: { class: 'backend-stable' },
+        },
+        inferOutputShapes: (request) => ({
+          valid: true,
+          issues: Object.freeze([]),
+          value: Object.freeze([request.inputs[0] ?? Object.freeze({ kind: 'dataset' })]),
+        }),
+      })
+    const pass = operation('example.dataset.pass')
+    const fail = operation('example.dataset.fail')
+    let releases = 0
+    const datasetProvider = createOperationProvider({
+      descriptor: {
+        id: 'example.dataset-provider',
+        version: 1,
+        kind: 'reference',
+        buildFingerprint: 'dataset-provider-build',
+      },
+      prepare: async () =>
+        [pass, fail].map((definition) => ({
+          descriptor: {
+            operationId: definition.descriptor.id,
+            operationVersion: 1,
+            implementationVersion: '1.0.0',
+          },
+          supportsPlan: () => true,
+          estimatePlan: () => ({
+            setupMilliseconds: 0,
+            transferMilliseconds: 0,
+            computeMilliseconds: 0,
+            readbackMilliseconds: 0,
+            retainedBytes: 1,
+            peakWorkingBytes: 1,
+            transferBytes: 0,
+            outputBytes: 1,
+            confidence: 1,
+          }),
+          async execute(request) {
+            if (definition.descriptor.id === fail.descriptor.id) throw new Error('lazy failure')
+            return [
+              {
+                value: Object.freeze({ source: request.inputs[0] }),
+                release() {
+                  releases += 1
+                },
+              },
+            ]
+          },
+        })),
+    })
+    const failureGraph: AnalysisGraph = {
+      schemaVersion: 1,
+      inputs: [{ name: 'source', valueType: { id: 'purejsimage.scientific.dataset', version: 1 } }],
+      nodes: [
+        {
+          id: 'pass',
+          operation: { id: pass.descriptor.id, version: 1 },
+          inputs: [{ port: 'dataset', source: { kind: 'input', input: 'source' } }],
+          parameters: {},
+        },
+        {
+          id: 'fail',
+          operation: { id: fail.descriptor.id, version: 1 },
+          inputs: [
+            { port: 'dataset', source: { kind: 'node', nodeId: 'pass', output: 'dataset' } },
+          ],
+          parameters: {},
+        },
+      ],
+      outputs: [{ name: 'dataset', source: { kind: 'node', nodeId: 'fail', output: 'dataset' } }],
+    }
+    const planned = await planGraph({
+      graph: failureGraph,
+      operations: createOperationRegistry([pass, fail]),
+      valueTypes: createValueTypeRegistry([datasetType]),
+      providers: [datasetProvider],
+      bindings: {
+        source: { value: Object.freeze({ source: true }), characteristics: { kind: 'dataset' } },
+      },
+    })
+    await expect(
+      executeGraph({
+        plan: planned,
+        library: { version: '0.9.0', buildFingerprint: 'deferred-failure-test' },
+      }).result,
+    ).rejects.toMatchObject({
+      cause: expect.objectContaining({ message: 'lazy failure' }),
+    })
+    expect(releases).toBe(1)
+    await planned.dispose()
+  })
+
   it('disposes prepared providers when planning fails after preparation', async () => {
     let disposals = 0
     const unavailable = createOperationProvider({

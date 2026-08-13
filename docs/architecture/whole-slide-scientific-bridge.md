@@ -39,9 +39,14 @@ identity.
 For ordinary Aperio color slides the scientific descriptor declares decoded uint8 RGB components,
 not raw TIFF YCbCr. TIFF compression, photometric interpretation, bits, samples, Aperio properties,
 MPP, objective power, per-level geometry, and source metadata remain explicit descriptor metadata.
-When a bounded TIFF ICC tag is present, the descriptor retains its exact bytes as base64 plus the
-original byte length. The existing TIFF decoder applies supported ICC color management before
-yielding those display-oriented RGB samples.
+When a TIFF ICC tag is present, the descriptor records only bounded JSON metadata—presence, byte
+length, and tag 34675—from the IFD entry. Enumeration does not fetch, duplicate, hash, or base64
+encode the profile payload. The existing TIFF decoder still reads supported profiles lazily and
+applies its unchanged ICC color management before yielding display-oriented RGB samples.
+
+All pyramid levels are checked during document construction against the pyramid's declared decoded
+sample/component model. A grayscale, RGB, or RGBA mismatch rejects before any descriptor is
+published. Associated images remain separate datasets and may use their own truthful formats.
 
 ## Storage, cancellation, and ownership
 
@@ -51,10 +56,19 @@ Reads remain bounded to requested regions and propagate `AbortSignal` into the w
 Local and HTTP Range sources therefore read TIFF metadata and intersecting compressed segments,
 not a complete slide or pyramid level.
 
-Focused synthetic bridge tests cover anisotropic level calibration, associated-image separation,
-source/dataset identity, cancellation before a read, bounded region forwarding, and exact release
-forwarding. The pinned Aperio fixture verifies local/range metadata and pixel parity and confirms
-that initial metadata plus a small region fetch less than the complete source.
+`createAperioSvsReader({ limits })` exposes explicit whole-slide bounds for source bytes, declared
+width/height, directory count, requested region pixels and decoded bytes, and associated-image
+pixels. The default reader accepts multi-gigabyte sources and large lazy dimensions but does not use
+unbounded numeric limits. Coordinates, extents, pixel products, decoded bytes, segment storage, and
+directory counts are admitted before allocation. These WSI-specific limits do not alter the
+ordinary TIFF codec's image defaults.
+
+Focused synthetic bridge tests cover anisotropic level calibration, mixed-format rejection,
+associated-image separation, source/dataset identity, cancellation before a read, bounded region
+forwarding, and exact release forwarding. Deterministic parser tests cover multilevel Aperio TIFF
+and ICC enumeration without payload reads. The pinned Aperio fixture verifies local/range metadata
+and pixel parity; a sparse virtual source reports more than the ordinary image-size default while
+automatic detection and a small region remain bounded.
 
 ## Deliberate limits
 

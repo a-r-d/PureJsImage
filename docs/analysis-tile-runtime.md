@@ -148,6 +148,12 @@ source tiles and apply the retained final mapping; no full source plane, thresho
 label plane is stored. Capacity exhaustion reports `LIMIT_EXCEEDED`, cancellation is checked
 throughout the scan, and releasing both outputs returns all retained accounting exactly once.
 
+The working reservation is the larger of an explicit scan phase and finalization phase. It includes
+all global component arrays, per-tile mapping sentinels and offsets, local labels/parents,
+boundaries, roots, final mappings, object-table arrays, and calibrated columns. Products and sums
+are checked before allocation. When a later lazy dataset consumes the label dataset, the graph
+result conservatively retains the label mapping as a private dependency until result release.
+
 A future watershed operation may use this same executor barrier and managed-memory transfer model.
 It must supply its own bounded state formula and semantic tests; watershed is not implemented or
 implied by the connected-components contract.

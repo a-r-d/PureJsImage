@@ -29,6 +29,7 @@ Every initial operation has semantic version `1`.
 
 | Operation ID | Input to output | Numeric policy |
 | --- | --- | --- |
+| `purejsimage.analysis.select-resolution-level` | multiresolution dataset to single-level dataset | Bit-exact lazy forwarding with selected per-axis lengths and calibration; the level remains in derived identity and provenance. |
 | `purejsimage.analysis.crop` | dataset to dataset | Preserves sample type, components, units, calibration, and no-data. Linear origins and lookup/label subsets move with the crop. |
 | `purejsimage.analysis.resample` | selected plane to 2D dataset | `displayAxes` and `fixedIndices` select one source plane. Nearest defaults to the input sample type. Bilinear requires Float32 or Float64 and defaults to Float32. Invalid samples either propagate or are ignored with weight renormalization. |
 | `purejsimage.analysis.slice` | dataset to dataset | Preserves exact samples while selecting any two labeled axes and fixing every remaining axis. |
@@ -38,12 +39,18 @@ Every initial operation has semantic version `1`.
 | `purejsimage.analysis.statistics` | dataset plus optional ROI/ROI set to result collection | Counts, extrema, Welford mean/population deviation, and optional bounded percentiles. Empty selections return NaN or error as requested. |
 | `purejsimage.analysis.histogram` | dataset plus optional ROI/ROI set to histogram | Explicit edges/counts/underflow/overflow. Explicit range is one pass; automatic range is a declared cache-aware two-pass reduction. |
 | `purejsimage.analysis.line-profile` | dataset plus line/polyline ROI to profile | Bounded nearest or bilinear samples for selected components, with pixel or calibrated physical distance and explicit invalid/no-data error-or-NaN behavior. |
+| `purejsimage.analysis.connected-components` | selected scalar plane to lazy uint32 labels plus object table | Deterministic 4/8-connected nonzero foreground, row-major first-pixel ordering, exact labels/counts/bounds, pixel-center moments, and tolerance-based floating measurements. |
 
 Crop and slice are bit-exact. Threshold is also bit-exact. Resample, projection, statistics,
 histogram, and line profile declare operation-level tolerances where floating arithmetic is part of
 their versioned semantics. Gaussian blur declares absolute tolerance `1e-5` and relative tolerance
 `1e-6`; providers still have to match the exact radius, boundary, invalid-sample, component, and
 Float32 output semantics before cost comparison.
+
+Connected components declares absolute and relative tolerance `1e-12` for the complete operation
+because shape and calibrated columns use square roots, eigenvalues, and trigonometry. Uint32 label
+values and row-major ordering remain exact. A provider must first match connectivity, foreground,
+ordering, pixel-center, moment, and calibration semantics before its cost is compared.
 
 ## Bounded execution details
 
@@ -105,8 +112,9 @@ extension host. It makes no acceleration claim and performs no global registrati
 
 ## Deliberately deferred
 
-The initial set does not include FFTs, frequency-domain filtering, registration, segmentation,
-mutable painting/editing, 3D ROI geometry, brush masks, collaboration, or materials-specific
-algorithms such as crystallographic indexing and phase identification. WASM and WebGPU providers
-also remain future explicit extensions. Untrusted code requires a future Worker or iframe RPC host;
-the current extension registry is trusted in-process code and is not a sandbox.
+The initial set does not include FFTs, frequency-domain filtering, registration, morphology,
+watershed, broad segmentation, mutable painting/editing, 3D ROI geometry, brush masks,
+collaboration, or mature particle/grain workflows and materials-specific algorithms such as
+crystallographic indexing and phase identification. WASM and WebGPU providers also remain future
+explicit extensions. Untrusted code requires a future Worker or iframe RPC host; the current
+extension registry is trusted in-process code and is not a sandbox.

@@ -86,6 +86,14 @@ Register `aperioSvsReader` explicitly from
 IDs. The pyramid declares decoded uint8 RGB components and per-level X/Y calibration. Local and
 HTTP Range-backed sources use the same bounded region contract.
 
+The default reader uses explicit WSI-appropriate limits rather than ordinary image-file defaults.
+Applications can call `createAperioSvsReader({ limits })` to bound source bytes, dimensions,
+directories, region pixels, decoded region bytes, and associated-image pixels for their deployment.
+Large reported source sizes and full-slide dimensions remain lazy; every requested region is
+validated before TIFF decoder creation. Pyramid metadata records ICC presence, tag, and byte length
+without fetching or base64-encoding the profile payload during enumeration; supported TIFF pixel
+decode still applies ICC color management.
+
 Select one pyramid level with `purejsimage.analysis.select-resolution-level@1` before adding later
 operations. The output is a calibrated, single-level `ScientificDataset`; crop, threshold, blur,
 ROI, and measurement nodes then need no separate resolution parameter. The selected level remains
@@ -300,6 +308,14 @@ orientation; compatible linear calibration adds physical measurements with aniso
 The implementation retains typed component state and per-tile label mappings, not a complete input,
 mask, or label plane. Planning uses the existing provider and graph barrier, and capacity exhaustion
 fails with `LIMIT_EXCEEDED` under the runtime's operation-working budget.
+
+The memory plan explicitly bounds scan and finalization peaks, including per-tile sentinels,
+union-find/moment state, boundaries, roots, mappings, and every object-table backing array. Label
+values, row-major ordering, counts, and integer bounds are exact; floating shape and calibrated
+measurements use the operation's `1e-12` absolute/relative tolerance. Physical centroids use the
+same pixel-center conversion as ROIs, including anisotropic and negative axis steps. A downstream
+lazy dataset keeps consumed dataset dependencies and their managed-byte accounting alive until the
+execution result is released.
 
 The extension descriptor owns its namespace. For `acme.materials`, reader IDs begin with
 `acme.materials/`; value-type, operation, provider, and migration IDs begin with

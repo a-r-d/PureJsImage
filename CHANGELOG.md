@@ -14,7 +14,12 @@ All notable changes to PureJsImage are documented in this file.
 - Added an explicitly registered Aperio SVS scientific reader that exposes a calibrated RGB
   pyramid and separate associated-image datasets through the generic whole-slide bridge, plus
   deterministic bounded tiled connected components with lazy uint32 labels and calibrated
-  per-object measurements.
+  per-object measurements. The reader now has explicit whole-slide source, directory, region,
+  decoded-byte, and associated-image limits; accepts large lazy sources without weakening ordinary
+  TIFF defaults; and records lightweight ICC presence/size metadata without eager profile reads.
+- Hardened connected-components planning with checked scan/finalization phase bounds, exact retained
+  backing accounting, ROI-consistent physical centroids, tolerance-based floating reproducibility,
+  and deferred ownership for upstream lazy scientific datasets captured by downstream results.
 - Added an installed-tarball application contract gate plus correctness-gated application
   benchmarks covering scientific document detection, first numeric/display tile, HTTP range bytes,
   source/derived cache behavior, ROI statistics, line profiles, thresholding, Gaussian blur, and

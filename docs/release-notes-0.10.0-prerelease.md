@@ -80,15 +80,16 @@ or release budgets.
 
 - WASM operation providers and WebGPU providers are not implemented.
 - Untrusted extensions do not yet have a permissioned Worker or iframe RPC sandbox.
-- FFT, registration, segmentation, mutable painting/editing, and materials-specific algorithms are
-  not included.
+- FFT, registration, morphology, watershed, broad segmentation, mutable painting/editing, mature
+  particle/grain workflows, and materials-specific algorithms are not included. Initial bounded
+  connected components and object measurements are included.
 - Cloud storage, authentication, collaboration, comments, and server workspace services remain app
   work.
 - CPU cancellation remains cooperative at explicit abort checkpoints.
 - Built-in dataset operations still need to converge with `DerivedTileSource` on one explicit
   tile-kernel acceleration path before the analysis API is considered stable.
-- General pyramidal analysis still needs explicit operation-level resolution selection and
-  per-level physical coordinate transforms.
+- Pyramidal analysis uses explicit `select-resolution-level@1` with per-level physical coordinate
+  transforms; operations that intentionally span multiple levels remain future work.
 - Public `NumericTile` values are CPU typed-array storage. Provider disposal is available, but a
   GPU-resident multi-operation graph is future work rather than a current zero-copy guarantee.
 - `uint64` tiles remain exact `BigUint64Array` storage, but number-backed quantitative operations

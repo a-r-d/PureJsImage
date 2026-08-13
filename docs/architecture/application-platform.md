@@ -1621,3 +1621,36 @@ to own only generic descriptors, definitions, providers, and registries.
     connected-components benchmark validates sparse, dense, boundary-spanning, and adversarial
     checkerboard object counts before reporting time and a 13,756,484-byte managed-memory high-water
     mark.
+
+### Large-WSI and connected-components merge hardening
+
+- [x] Give the Aperio scientific reader explicit bounded WSI limits, preserve large lazy source and
+      dimension support, propagate probe failures/cancellation, and keep ordinary TIFF limits
+      unchanged.
+- [x] Retain consumed intermediate scientific datasets as private execution-result dependencies
+      when downstream lazy datasets may capture them; release them exactly once on result release,
+      cancellation, or failure.
+- [x] Replace connected-components heuristic memory accounting with checked scan and finalization
+      phase bounds, including exact per-tile sentinels, all typed state, complete table columns, and
+      retained backing allocations.
+- [x] Use the shared ROI pixel-center conversion for calibrated centroids and declare the complete
+      operation tolerance-based while preserving exact deterministic label semantics.
+- [x] Replace eager base64 ICC payloads with lightweight IFD tag metadata and reject mixed decoded
+      formats before publishing a scientific pyramid descriptor.
+- [x] Add focused large virtual source, automatic detection, probe abort, region admission, ICC
+      enumeration, format compatibility, lazy ownership, exact memory boundary, calibration, and
+      reproducibility regressions.
+- [x] Update normative contracts, guides, website/API/agent text, changelog, and the generated TIFF
+      capability surfaces.
+- [x] Run clean-install, focused, package, browser, documentation, benchmark, and complete repository
+      gates; record the final validation result before handoff.
+
+  - Hardening validation: `npm ci` completed with an isolated writable cache after the existing
+    user npm cache rejected writes; 178 focused analysis/lifecycle/WSI/TIFF/range/identity/contract
+    tests pass. Package types validate 398 packed files, browser and Worker bundles; the compiled
+    public application lifecycle and WSI connected-components path execute; all 19 documentation
+    pages, browser dependency checks, lint, formatting, generated capability/API checks, and every
+    bundle ceiling pass. Connected-components and application-platform benchmarks validate
+    correctness before timing; the adversarial 256x256 checkerboard reports 32,768 exact objects
+    and a 13,184,190-byte managed-memory high-water mark. `npm run check` passes both standard and
+    hostile-source suites at 103 files and 1,247 tests, with the same three macOS-only AVIF skips.

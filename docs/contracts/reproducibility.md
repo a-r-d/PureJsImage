@@ -65,6 +65,14 @@ GPU arithmetic can still differ through precision, fused operations, denormal ha
 payloads. `uint64` tiles remain exact storage; number-backed analysis rejects values beyond
 `Number.MAX_SAFE_INTEGER` and does not claim exact quantitative uint64 support.
 
+Connected components is tolerance-based as a complete operation because its object table includes
+square roots, covariance eigenvalues, `atan2`, equivalent diameters, and calibrated floating-point
+measurements. Its uint32 label pixels, row-major first-pixel label ordering, integer counts, and
+integer bounds remain deterministic and exact where their representation is exact. Conforming
+providers must match connectivity, foreground/no-data rules, ordering, pixel-center moments, and
+calibration semantics; floating columns use the descriptor's explicit absolute and relative
+tolerances.
+
 ## Versioning rules
 
 An operation version must increase when valid inputs, defaults, no-data rules, coordinate

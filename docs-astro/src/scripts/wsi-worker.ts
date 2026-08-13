@@ -1,5 +1,5 @@
 import type { PixelBlock } from '../../../src/pixel.ts'
-import { openAperioSvs } from '../../../src/pathology/aperio-svs.ts'
+import { defaultAperioSvsLimits, openAperioSvs } from '../../../src/pathology/aperio-svs.ts'
 import type { WholeSlideImage, WholeSlideLevel } from '../../../src/pathology/whole-slide.ts'
 import { HttpRangeSource } from '../../../src/sources/http-range.ts'
 import { openTiffDocument } from '../../../src/tiff/index.ts'
@@ -104,14 +104,18 @@ const openSlide = async (url: string): Promise<void> => {
       signal: controller.signal,
     })
     const document = await openTiffDocument(openedSource, {
-      maxInputBytes: Number.MAX_SAFE_INTEGER,
-      maxWidth: 1_000_000,
-      maxHeight: 1_000_000,
-      maxPixels: Number.MAX_SAFE_INTEGER,
-      maxDecodedBytes: Number.MAX_SAFE_INTEGER,
+      maxInputBytes: defaultAperioSvsLimits.maxSourceBytes,
+      maxWidth: defaultAperioSvsLimits.maxWidth,
+      maxHeight: defaultAperioSvsLimits.maxHeight,
+      maxPixels: defaultAperioSvsLimits.maxWidth * defaultAperioSvsLimits.maxHeight,
+      maxFrames: defaultAperioSvsLimits.maxDirectories,
+      maxDecodedBytes: defaultAperioSvsLimits.maxRegionDecodedBytes,
       signal: controller.signal,
     })
-    const openedSlide = await openAperioSvs(document, { signal: controller.signal })
+    const openedSlide = await openAperioSvs(document, {
+      signal: controller.signal,
+      limits: defaultAperioSvsLimits,
+    })
     if (serial !== openSerial) return
     const levels = openedSlide.levels.map(levelMetadata)
     source = openedSource

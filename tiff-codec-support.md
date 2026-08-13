@@ -25,7 +25,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 ### Document, raster, and profile APIs
 
 - [x] Public `openTiffDocument()` entry with stable top-level and SubIFD directory objects
-- [x] Bounded typed `getTag()` reads plus per-directory display and native raster decoders
+- [x] Bounded typed `getTag()` reads, payload-free `getTagInfo()` metadata, plus per-directory display and native raster decoders
 - [x] Native-precision planar or interleaved N-channel `RasterBlock` output without implicit RGB conversion
 - [x] Explicit `rasterToPixels()` display conversion with declared per-channel ranges
 - [x] First-party GeoTIFF model, coordinate conversion, bounding-box, GeoKey, GDAL metadata, and nodata helpers
@@ -35,7 +35,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Deterministic TIFF profile registry with detector-failure isolation and equal-priority ambiguity rejection
 - [x] Generic bounded `WholeSlideImage` levels, region reads, associated images, and physical metadata
 - [x] First-party Aperio SVS pyramid, associated-image, MPP, objective, and JPEG 2000 tile integration
-- [x] Explicit Aperio ScientificDocument reader with calibrated pyramid levels, bounded exact ICC metadata, distinct associated-image datasets, identities, cancellation, release forwarding, and bounded local or HTTP Range region reads
+- [x] Explicit Aperio ScientificDocument reader with configurable large-source WSI limits, calibrated format-consistent pyramid levels, lightweight ICC presence/length metadata, distinct associated-image datasets, identities, cancellation, release forwarding, and bounded local or HTTP Range region reads
 - [x] Separately compiled Leica SCN single-area example using only published package imports
 - [ ] Automatic display semantics for arbitrary scientific multiband data
 - [ ] Multi-area Leica scene composition and additional vendor-specific whole-slide profiles

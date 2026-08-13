@@ -1,12 +1,47 @@
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
-import { MemorySource } from '../src/source.ts'
+import { defaultImageLimits } from '../src/limits.ts'
+import { MemorySource, type ImageSource, type ImageSourceReadOptions } from '../src/source.ts'
 import { createScientificLibrary, type ScientificDataset } from '../src/scientific/index.ts'
-import { aperioSvsReader } from '../src/scientific/readers/aperio-svs.ts'
+import { aperioSvsReader, createAperioSvsReader } from '../src/scientific/readers/aperio-svs.ts'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
 
 const fixturePath = 'tests/fixtures/aperio-cmu-1-small-region.svs'
+
+class SparseVirtualSource implements ImageSource {
+  readonly size: number
+  readonly reads: { readonly offset: number; readonly length: number }[] = []
+  readonly #bytes: Uint8Array
+
+  constructor(bytes: Uint8Array, size: number) {
+    this.#bytes = bytes
+    this.size = size
+  }
+
+  async read(
+    offset: number,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array> {
+    options.signal?.throwIfAborted()
+    if (
+      !Number.isSafeInteger(offset) ||
+      !Number.isSafeInteger(length) ||
+      offset < 0 ||
+      length < 0
+    ) {
+      throw new Error('Invalid sparse source read')
+    }
+    const available = offset >= this.size ? 0 : Math.min(length, this.size - offset)
+    this.reads.push({ offset, length: available })
+    const output = new Uint8Array(available)
+    if (offset < this.#bytes.byteLength) {
+      output.set(this.#bytes.subarray(offset, Math.min(offset + available, this.#bytes.byteLength)))
+    }
+    return output
+  }
+}
 
 const firstRegionHash = async (dataset: ScientificDataset): Promise<string> => {
   const hash = createHash('sha256')
@@ -28,6 +63,67 @@ const firstRegionHash = async (dataset: ScientificDataset): Promise<string> => {
 }
 
 describe('Aperio scientific reader bridge', () => {
+  it('detects and lazily reads a virtual slide larger than ordinary image limits', async () => {
+    const bytes = new Uint8Array(await readFile(fixturePath))
+    const source = new SparseVirtualSource(bytes, defaultImageLimits.maxInputBytes + 1)
+    const library = createScientificLibrary({ readers: [aperioSvsReader] })
+    const document = await library.open({
+      primary: { id: 'large-slide', name: 'large.svs', source },
+      probeLimits: {
+        maxTotalBytes: 4 * 1_024 * 1_024,
+        maxTotalReads: 4_096,
+        maxReadBytes: 1_048_576,
+      },
+    })
+    const pyramid = await document.openDataset('pyramid')
+    expect(await firstRegionHash(pyramid)).toBe(
+      await firstRegionHash(
+        await createScientificLibrary({ readers: [aperioSvsReader] })
+          .open({
+            primary: { id: 'small-slide', name: 'small.svs', source: new MemorySource(bytes) },
+            readerId: aperioSvsReader.descriptor.id,
+          })
+          .then((opened) => opened.openDataset('pyramid')),
+      ),
+    )
+    expect(source.reads.length).toBeGreaterThan(0)
+    expect(Math.max(...source.reads.map(({ length }) => length))).toBeLessThanOrEqual(1_048_576)
+    expect(source.reads.reduce((total, { length }) => total + length, 0)).toBeLessThan(source.size)
+  })
+
+  it('propagates probe cancellation and rejects oversized regions before TIFF decode', async () => {
+    const bytes = new Uint8Array(await readFile(fixturePath))
+    const abort = new AbortController()
+    abort.abort(new DOMException('cancel Aperio probe', 'AbortError'))
+    await expect(
+      aperioSvsReader.probe({
+        primary: { id: 'cancelled', name: 'cancelled.svs', source: new MemorySource(bytes) },
+        signal: abort.signal,
+      }),
+    ).rejects.toMatchObject({ name: 'AbortError' })
+
+    const source = new SparseVirtualSource(bytes, bytes.byteLength)
+    const reader = createAperioSvsReader({ limits: { maxRegionPixels: 100 } })
+    const document = await createScientificLibrary({ readers: [reader] }).open({
+      primary: { id: 'limited', name: 'limited.svs', source },
+      readerId: reader.descriptor.id,
+    })
+    const pyramid = await document.openDataset('pyramid')
+    const readsBefore = source.reads.length
+    const oversized = async (): Promise<void> => {
+      for await (const block of pyramid.readPlane({
+        displayAxes: ['x', 'y'],
+        fixedIndices: [],
+        width: 64,
+        height: 48,
+      })) {
+        block.release?.()
+      }
+    }
+    await expect(oversized()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+    expect(source.reads).toHaveLength(readsBefore)
+  })
+
   it('exposes calibrated RGB pyramid and separate associated datasets with range parity', async () => {
     const bytes = new Uint8Array(await readFile(fixturePath))
     const fetchRange: typeof fetch = async (_input, init) => {

@@ -16,6 +16,7 @@ import type {
 import { createOperationDefinition, type OperationDefinition } from '../operations/registry.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
+  ScientificAxisDescriptor,
   ScientificAxisIndex,
   ScientificDataset,
 } from '../scientific/dataset.ts'
@@ -36,6 +37,7 @@ import {
   scientificDatasetCharacteristics,
   scientificDatasetValueTypeId,
 } from './builtin-dataset-operations.ts'
+import { roiAxisPixelToPhysical } from './roi.ts'
 
 export const analysisConnectedComponentsOperationId = 'purejsimage.analysis.connected-components'
 
@@ -236,7 +238,7 @@ const baseDefinition = createOperationDefinition({
     ],
     parameters: schema,
     execution: 'global-transform',
-    reproducibility: { class: 'bit-exact' },
+    reproducibility: { class: 'tolerance-based', absolute: 1e-12, relative: 1e-12 },
     builtIn: true,
   },
   inferOutputShapes(request) {
@@ -254,7 +256,11 @@ const baseDefinition = createOperationDefinition({
             kind: 'analysis-result',
             valueType: tableResultValueTypeId,
             semanticKind: 'connected-components',
-            maximumRows: plane.width * plane.height,
+            maximumRows: checkedProduct(
+              plane.width,
+              plane.height,
+              'Connected-components maximum rows',
+            ),
           }),
         ]),
       })
@@ -341,9 +347,11 @@ const labelLocalTile = (
   noDataValue: number | undefined,
   signal: AbortSignal,
 ): LocalLabels => {
-  const pixels = tile.width * tile.height
+  const pixels = checkedProduct(tile.width, tile.height, 'Connected-components local tile')
   const labels = new Uint32Array(pixels)
-  const parents = new Uint32Array(pixels + 1)
+  const parents = new Uint32Array(
+    checkedSum([pixels, 1], 'Connected-components local parent entries'),
+  )
   let labelCount = 0
   for (let y = 0; y < tile.height; y += 1) {
     signal.throwIfAborted()
@@ -396,7 +404,7 @@ interface ComponentArrays {
 }
 
 const componentArrays = (capacity: number): ComponentArrays => {
-  const length = capacity + 1
+  const length = checkedSum([capacity, 1], 'Connected-components state entries')
   return {
     parent: new Uint32Array(length),
     firstPixel: new Float64Array(length),
@@ -471,8 +479,8 @@ const addPixel = (state: ComponentArrays, label: number, x: number, y: number): 
 
 interface Calibration {
   readonly unit: string
-  readonly originX: number
-  readonly originY: number
+  readonly horizontal: ScientificAxisDescriptor
+  readonly vertical: ScientificAxisDescriptor
   readonly stepX: number
   readonly stepY: number
 }
@@ -493,8 +501,8 @@ const calibration = (
   }
   return Object.freeze({
     unit: horizontal.unit,
-    originX: horizontal.coordinates.origin,
-    originY: vertical.coordinates.origin,
+    horizontal,
+    vertical,
     stepX: horizontal.coordinates.step,
     stepY: vertical.coordinates.step,
   })
@@ -601,8 +609,8 @@ const objectTable = (
         xy * physical.stepX * physical.stepY,
       )
       physicalArea[row] = area
-      physicalCentroidX[row] = physical.originX + (meanX + 0.5) * physical.stepX
-      physicalCentroidY[row] = physical.originY + (meanY + 0.5) * physical.stepY
+      physicalCentroidX[row] = roiAxisPixelToPhysical(physical.horizontal, meanX + 0.5)
+      physicalCentroidY[row] = roiAxisPixelToPhysical(physical.vertical, meanY + 0.5)
       physicalDiameter[row] = 2 * Math.sqrt(area / Math.PI)
       physicalMajor[row] = physicalShape[0]
       physicalMinor[row] = physicalShape[1]
@@ -689,29 +697,195 @@ interface PreparedLabelMapping {
 }
 
 const checkedProduct = (left: number, right: number, label: string): number => {
+  if (!Number.isSafeInteger(left) || !Number.isSafeInteger(right) || left < 0 || right < 0) {
+    throw limitExceeded(`${label} has invalid factors`)
+  }
   const value = left * right
   if (!Number.isSafeInteger(value)) throw limitExceeded(`${label} exceeds safe integer limits`)
   return value
 }
 
-const workingBytes = (
+const checkedSum = (values: readonly number[], label: string): number => {
+  let total = 0
+  for (const value of values) {
+    if (!Number.isSafeInteger(value) || value < 0 || !Number.isSafeInteger(total + value)) {
+      throw limitExceeded(`${label} exceeds safe integer limits`)
+    }
+    total += value
+  }
+  return total
+}
+
+export interface ConnectedComponentsMemoryPlan {
+  readonly width: number
+  readonly height: number
+  readonly tileWidth: number
+  readonly tileHeight: number
+  readonly tilesAcross: number
+  readonly tilesDown: number
+  readonly tileCount: number
+  readonly tilePixels: number
+  readonly capacity: number
+  readonly scanPeakBytes: number
+  readonly finalizationPeakBytes: number
+  readonly peakWorkingBytes: number
+  readonly maximumRetainedBytes: number
+  readonly tableBytesPerObject: number
+  readonly tableStructuralBytes: number
+}
+
+const phaseCapacity = (budget: number, fixedBytes: number, bytesPerComponent: number): number =>
+  budget < checkedSum([fixedBytes, bytesPerComponent], 'Connected-components minimum phase')
+    ? 0
+    : Math.floor((budget - fixedBytes) / bytesPerComponent)
+
+const connectedComponentsMemoryPlan = (
   width: number,
   height: number,
-  context: AnalysisDatasetOperationContext,
+  descriptor: NormalizedScientificDatasetDescriptor,
+  selection: ConnectedComponentsParameters,
+  context: Readonly<{ readonly tileWidth: number; readonly tileHeight: number }>,
   budget: number,
-): number => {
+): ConnectedComponentsMemoryPlan => {
+  if (!Number.isSafeInteger(budget) || budget < 1) {
+    throw limitExceeded('Connected-components working-memory budget is invalid')
+  }
   const tileWidth = Math.min(width, context.tileWidth)
   const tileHeight = Math.min(height, context.tileHeight)
-  const tileCount = checkedProduct(
-    Math.ceil(width / tileWidth),
-    Math.ceil(height / tileHeight),
-    'Connected-components tile count',
-  )
+  if (tileWidth < 1 || tileHeight < 1) {
+    throw limitExceeded('Connected-components tile dimensions are invalid')
+  }
+  const tilesAcross = Math.ceil(width / tileWidth)
+  const tilesDown = Math.ceil(height / tileHeight)
+  const tileCount = checkedProduct(tilesAcross, tilesDown, 'Connected-components tile count')
   const tilePixels = checkedProduct(tileWidth, tileHeight, 'Connected-components tile storage')
   const pixels = checkedProduct(width, height, 'Connected-components plane')
-  const baseBytes = tilePixels * 12 + width * 8 + (tileCount + 1) * 4
-  const maximumBytes = baseBytes + pixels * 208
-  return Math.min(budget, Number.isSafeInteger(maximumBytes) ? maximumBytes : budget)
+  const tileEntries = checkedSum([tileCount, 1], 'Connected-components tile entries')
+  const stateFixedBytes = 76
+  const stateBytesPerComponent = 76
+  const provisionalFixedBytes = checkedProduct(tileEntries, 4, 'Provisional tile sentinels')
+  const tileOffsetBytes = checkedProduct(tileEntries, 4, 'Connected-components tile offsets')
+  const rowBoundaryBytes = checkedProduct(width, 8, 'Connected-components row boundaries')
+  const columnBoundaryBytes = checkedProduct(
+    tileHeight,
+    8,
+    'Connected-components column boundaries',
+  )
+  const localLabelBytes = checkedSum(
+    [checkedProduct(tilePixels, 8, 'Connected-components local labels'), 4],
+    'Connected-components local label storage',
+  )
+  const scanFixedBytes = checkedSum(
+    [
+      stateFixedBytes,
+      provisionalFixedBytes,
+      tileOffsetBytes,
+      rowBoundaryBytes,
+      columnBoundaryBytes,
+      localLabelBytes,
+    ],
+    'Connected-components scan fixed storage',
+  )
+  const scanBytesPerComponent = checkedSum(
+    [stateBytesPerComponent, 4],
+    'Connected-components scan component storage',
+  )
+  const emptyTableStructuralBytes = accountAnalysisResultMemory(
+    objectTable(new Uint32Array(0), componentArrays(0), descriptor, selection),
+  ).structuralBytes
+  const tableStructuralBytes = checkedSum(
+    [emptyTableStructuralBytes, 9],
+    'Connected-components table structure',
+  )
+  const tableBytesPerObject = calibration(descriptor, selection) === undefined ? 108 : 172
+  const finalFixedBytes = checkedSum(
+    [
+      stateFixedBytes,
+      provisionalFixedBytes,
+      tileOffsetBytes,
+      rowBoundaryBytes,
+      checkedProduct(tileHeight, 4, 'Connected-components retained column boundary'),
+      4,
+      checkedProduct(tileCount, 4, 'Connected-components final mapping sentinels'),
+      tableStructuralBytes,
+    ],
+    'Connected-components finalization fixed storage',
+  )
+  const finalBytesPerComponent = checkedSum(
+    [stateBytesPerComponent, 4, 4, 4, 4, tableBytesPerObject],
+    'Connected-components finalization component storage',
+  )
+  const capacity = Math.min(
+    0xffff_fffe,
+    pixels,
+    phaseCapacity(budget, scanFixedBytes, scanBytesPerComponent),
+    phaseCapacity(budget, finalFixedBytes, finalBytesPerComponent),
+  )
+  if (capacity < 1) throw limitExceeded('Connected-components working-memory capacity is too small')
+  const scanPeakBytes = checkedSum(
+    [
+      scanFixedBytes,
+      checkedProduct(capacity, scanBytesPerComponent, 'Connected-components scan peak'),
+    ],
+    'Connected-components scan peak',
+  )
+  const finalizationPeakBytes = checkedSum(
+    [
+      finalFixedBytes,
+      checkedProduct(capacity, finalBytesPerComponent, 'Connected-components finalization peak'),
+    ],
+    'Connected-components finalization peak',
+  )
+  const maximumRetainedBytes = checkedSum(
+    [
+      tileOffsetBytes,
+      checkedProduct(
+        checkedSum([capacity, tileCount], 'Connected-components retained mapping entries'),
+        4,
+        'Connected-components retained mapping',
+      ),
+      tableStructuralBytes,
+      checkedProduct(capacity, tableBytesPerObject, 'Connected-components retained table'),
+    ],
+    'Connected-components retained outputs',
+  )
+  return Object.freeze({
+    width,
+    height,
+    tileWidth,
+    tileHeight,
+    tilesAcross,
+    tilesDown,
+    tileCount,
+    tilePixels,
+    capacity,
+    scanPeakBytes,
+    finalizationPeakBytes,
+    peakWorkingBytes: Math.max(scanPeakBytes, finalizationPeakBytes),
+    maximumRetainedBytes,
+    tableBytesPerObject,
+    tableStructuralBytes,
+  })
+}
+
+/** Internal inspection seam for exact memory-boundary regression tests; not a package export. */
+export const inspectConnectedComponentsMemoryPlan = (
+  descriptor: NormalizedScientificDatasetDescriptor,
+  operationParameters: OperationJsonValue,
+  tileWidth: number,
+  tileHeight: number,
+  budget: number,
+): ConnectedComponentsMemoryPlan => {
+  const selection = parameters(operationParameters)
+  const plane = validatedPlane(descriptor, selection)
+  return connectedComponentsMemoryPlan(
+    plane.width,
+    plane.height,
+    descriptor,
+    selection,
+    { tileWidth, tileHeight },
+    budget,
+  )
 }
 
 const prepareComponents = async (
@@ -719,28 +893,22 @@ const prepareComponents = async (
   selection: ConnectedComponentsParameters,
   context: AnalysisDatasetOperationContext,
   signal: AbortSignal,
-  budget: number,
+  plan: Readonly<ConnectedComponentsMemoryPlan>,
 ): Promise<PreparedComponents> => {
   const plane = validatedPlane(source.descriptor, selection)
   const width = plane.width
   const height = plane.height
-  const tileWidth = Math.min(width, context.tileWidth)
-  const tileHeight = Math.min(height, context.tileHeight)
-  const tilesAcross = Math.ceil(width / tileWidth)
-  const tilesDown = Math.ceil(height / tileHeight)
-  const tileCount = checkedProduct(tilesAcross, tilesDown, 'Connected-components tile count')
-  const tilePixels = checkedProduct(tileWidth, tileHeight, 'Connected-components tile storage')
-  const baseBytes = tilePixels * 12 + width * 8 + (tileCount + 1) * 4
-  const bytesPerProvisional = 208
-  const capacity = Math.min(
-    0xffff_fffe,
-    checkedProduct(width, height, 'Connected-components plane'),
-    Math.floor(Math.max(0, budget - baseBytes) / bytesPerProvisional),
-  )
-  if (capacity < 1) throw limitExceeded('Connected-components working-memory capacity is too small')
+  if (width !== plan.width || height !== plan.height) {
+    throw invalidInput('Connected-components execution dimensions changed after planning')
+  }
+  const { tileWidth, tileHeight, tilesAcross, tileCount, capacity } = plan
   const state = componentArrays(capacity)
-  const provisionalMapping = new Uint32Array(capacity + tileCount + 1)
-  const tileOffsets = new Uint32Array(tileCount + 1)
+  const provisionalMapping = new Uint32Array(
+    checkedSum([capacity, tileCount, 1], 'Connected-components provisional mapping entries'),
+  )
+  const tileOffsets = new Uint32Array(
+    checkedSum([tileCount, 1], 'Connected-components tile offset entries'),
+  )
   let provisionalCount = 0
   let mappingUsed = 0
   let previousBottom = new Uint32Array(width)
@@ -772,7 +940,11 @@ const prepareComponents = async (
           source.descriptor.noDataValue,
           signal,
         )
-        if (mappingUsed + local.labelCount + 1 > provisionalMapping.length) {
+        const nextMappingUsed = checkedSum(
+          [mappingUsed, local.labelCount, 1],
+          'Connected-components provisional mapping usage',
+        )
+        if (nextMappingUsed > provisionalMapping.length) {
           throw limitExceeded('Connected-components provisional-label limit exceeded')
         }
         tileOffsets[tileIndex] = mappingUsed
@@ -780,7 +952,7 @@ const prepareComponents = async (
           mappingUsed,
           mappingUsed + local.labelCount + 1,
         )
-        mappingUsed += local.labelCount + 1
+        mappingUsed = nextMappingUsed
         for (let localY = 0; localY < actualHeight; localY += 1) {
           signal.throwIfAborted()
           for (let localX = 0; localX < actualWidth; localX += 1) {
@@ -848,7 +1020,9 @@ const prepareComponents = async (
   }
   const roots = rootsBuffer.subarray(0, objectCount)
   roots.sort((left, right) => (state.firstPixel[left] ?? 0) - (state.firstPixel[right] ?? 0))
-  const finalRootLabels = new Uint32Array(provisionalCount + 1)
+  const finalRootLabels = new Uint32Array(
+    checkedSum([provisionalCount, 1], 'Connected-components final root entries'),
+  )
   for (let index = 0; index < roots.length; index += 1) {
     const root = roots[index]
     if (root !== undefined) finalRootLabels[root] = index + 1
@@ -882,7 +1056,9 @@ const labelTile = async (
   }>,
 ): Promise<NumericTile> => {
   const signal = request.signal ?? new AbortController().signal
-  const output = new Uint32Array(request.width * request.height)
+  const output = new Uint32Array(
+    checkedProduct(request.width, request.height, 'Connected-components label tile'),
+  )
   const firstTileX = Math.floor(request.x / context.tileWidth)
   const lastTileX = Math.floor((request.x + request.width - 1) / context.tileWidth)
   const firstTileY = Math.floor(request.y / context.tileHeight)
@@ -949,45 +1125,48 @@ const labelTile = async (
   })
 }
 
+interface ConnectedComponentsPlanning {
+  readonly pixels: number
+  readonly plan: ConnectedComponentsMemoryPlan
+}
+
+const planning = (
+  request: Readonly<OperationPlanningRequest>,
+  context: AnalysisDatasetOperationContext,
+): ConnectedComponentsPlanning => {
+  const descriptor = descriptorFromCharacteristics(request.inputCharacteristics[0])
+  const selection = parameters(request.parameters)
+  const plane = validatedPlane(descriptor, selection)
+  const pixels = checkedProduct(plane.width, plane.height, 'Connected-components plane')
+  return Object.freeze({
+    pixels,
+    plan: connectedComponentsMemoryPlan(
+      plane.width,
+      plane.height,
+      descriptor,
+      selection,
+      context,
+      context.runtime.limits.maxOperationWorkingBytes,
+    ),
+  })
+}
+
 const estimate = (
   request: Readonly<OperationPlanningRequest>,
   context: AnalysisDatasetOperationContext,
 ): OperationCostEstimate => {
-  try {
-    const descriptor = descriptorFromCharacteristics(request.inputCharacteristics[0])
-    const selection = parameters(request.parameters)
-    const plane = validatedPlane(descriptor, selection)
-    const pixels = checkedProduct(plane.width, plane.height, 'Connected-components plane')
-    const budget = workingBytes(
-      plane.width,
-      plane.height,
-      context,
-      context.runtime.limits.maxOperationWorkingBytes,
-    )
-    return Object.freeze({
-      setupMilliseconds: 0,
-      transferMilliseconds: 0,
-      computeMilliseconds: pixels / 2_000_000,
-      readbackMilliseconds: 0,
-      retainedBytes: budget,
-      peakWorkingBytes: budget,
-      transferBytes: 0,
-      outputBytes: budget,
-      confidence: 0.5,
-    })
-  } catch {
-    return Object.freeze({
-      setupMilliseconds: 0,
-      transferMilliseconds: 0,
-      computeMilliseconds: 0,
-      readbackMilliseconds: 0,
-      retainedBytes: 0,
-      peakWorkingBytes: 0,
-      transferBytes: 0,
-      outputBytes: 0,
-      confidence: 0,
-    })
-  }
+  const planned = planning(request, context)
+  return Object.freeze({
+    setupMilliseconds: 0,
+    transferMilliseconds: 0,
+    computeMilliseconds: planned.pixels / 2_000_000,
+    readbackMilliseconds: 0,
+    retainedBytes: planned.plan.maximumRetainedBytes,
+    peakWorkingBytes: planned.plan.peakWorkingBytes,
+    transferBytes: 0,
+    outputBytes: planned.plan.maximumRetainedBytes,
+    confidence: 0.5,
+  })
 }
 
 export const createConnectedComponentsOperationImplementation = (
@@ -998,14 +1177,10 @@ export const createConnectedComponentsOperationImplementation = (
       operationId: analysisConnectedComponentsOperationId,
       operationVersion: 1,
       implementationVersion: '1.0.0',
-      bitExactConformance: true,
     }),
     supportsPlan(request: Readonly<OperationPlanningRequest>): boolean {
       try {
-        validatedPlane(
-          descriptorFromCharacteristics(request.inputCharacteristics[0]),
-          parameters(request.parameters),
-        )
+        planning(request, context)
         return true
       } catch {
         return false
@@ -1020,18 +1195,17 @@ export const createConnectedComponentsOperationImplementation = (
     ): Promise<readonly OperationOwnedOutput[]> {
       const source = datasetInput(request)
       const selection = parameters(request.parameters)
-      validatedPlane(source.descriptor, selection)
-      const estimateValue = estimate(
-        {
-          descriptor: request.descriptor,
-          parameters: request.parameters,
-          inputCharacteristics: request.plannedInputCharacteristics,
-          signal: request.signal,
-        },
+      const plane = validatedPlane(source.descriptor, selection)
+      const memoryPlan = connectedComponentsMemoryPlan(
+        plane.width,
+        plane.height,
+        source.descriptor,
+        selection,
         context,
+        context.runtime.limits.maxOperationWorkingBytes,
       )
       return context.runtime.withOperationWorkingBytes(
-        estimateValue.peakWorkingBytes,
+        memoryPlan.peakWorkingBytes,
         { label: analysisConnectedComponentsOperationId, signal: request.signal },
         async (scope) => {
           const prepared = await prepareComponents(
@@ -1039,13 +1213,17 @@ export const createConnectedComponentsOperationImplementation = (
             selection,
             context,
             request.signal,
-            scope.bytes,
+            memoryPlan,
           )
           const tableMemory = accountAnalysisResultMemory(prepared.table).retainedBytes
           const labelMemory =
             prepared.finalMapping.buffer.byteLength + prepared.tileOffsets.buffer.byteLength
-          if (tableMemory + labelMemory > scope.bytes) {
-            throw limitExceeded('Connected-components retained outputs exceed the operation budget')
+          const retainedBytes = checkedSum(
+            [tableMemory, labelMemory],
+            'Connected-components retained output accounting',
+          )
+          if (retainedBytes > memoryPlan.maximumRetainedBytes) {
+            throw invalidInput('Connected-components retained output exceeded its memory plan')
           }
           const tableReservation = context.runtime.retainOperationWorkingBytes(scope, tableMemory)
           let labelReservation: ReturnType<typeof context.runtime.retainOperationWorkingBytes>

@@ -263,6 +263,7 @@ interface TiffGraphFixtureNode {
   readonly next?: number
   readonly newSubfileType?: number
   readonly invalidStripOffset?: boolean
+  readonly iccProfile?: Uint8Array
 }
 
 const tiffGraphFixture = (
@@ -281,6 +282,7 @@ const tiffGraphFixture = (
       (node.tiled ? 1 : 0) +
       (node.newSubfileType === undefined ? 0 : 1) +
       (node.imageDescription === undefined ? 0 : 1) +
+      (node.iccProfile === undefined ? 0 : 1) +
       (node.subIfds ? 1 : 0),
   )
   const ifdOffsets: number[] = []
@@ -306,6 +308,13 @@ const tiffGraphFixture = (
     descriptionBytes.set(index, encoded)
     descriptionOffsets.set(index, cursor)
     cursor += encoded.byteLength
+  }
+  const iccOffsets = new Map<number, number>()
+  for (let index = 0; index < nodes.length; index += 1) {
+    const profile = nodes[index]?.iccProfile
+    if (profile === undefined || profile.byteLength <= inlineBytes) continue
+    iccOffsets.set(index, cursor)
+    cursor += profile.byteLength
   }
   const pixelOffsets: number[] = []
   for (const node of nodes) {
@@ -337,7 +346,7 @@ const tiffGraphFixture = (
       : (pixelOffsets[nodeIndex] ?? 0)
     const entries: {
       readonly tag: number
-      readonly type: 2 | 3 | 4 | 16 | 18
+      readonly type: 2 | 3 | 4 | 7 | 16 | 18
       readonly values: readonly number[]
     }[] = [
       ...(node.newSubfileType === undefined
@@ -352,6 +361,9 @@ const tiffGraphFixture = (
               values: Array.from(descriptionBytes.get(nodeIndex) ?? []),
             },
           ]),
+      ...(node.iccProfile === undefined
+        ? []
+        : [{ tag: 34675, type: 7 as const, values: Array.from(node.iccProfile) }]),
       { tag: 256, type: 4, values: [node.width] },
       { tag: 257, type: 4, values: [node.height] },
       { tag: 258, type: 3, values: [8] },
@@ -400,7 +412,8 @@ const tiffGraphFixture = (
       view.setUint16(offset + 2, entry.type, true)
       if (bigTiff) view.setBigUint64(offset + 4, BigInt(entry.values.length), true)
       else view.setUint32(offset + 4, entry.values.length, true)
-      const bytesPerValue = entry.type === 2 ? 1 : entry.type === 3 ? 2 : entry.type === 4 ? 4 : 8
+      const bytesPerValue =
+        entry.type === 2 || entry.type === 7 ? 1 : entry.type === 3 ? 2 : entry.type === 4 ? 4 : 8
       const valueBytes = bytesPerValue * entry.values.length
       const inlineOffset = offset + (bigTiff ? 12 : 8)
       const valueOffset =
@@ -408,7 +421,9 @@ const tiffGraphFixture = (
           ? inlineOffset
           : entry.tag === 270
             ? (descriptionOffsets.get(nodeIndex) ?? 0)
-            : (subIfdDataOffsets.get(nodeIndex) ?? 0)
+            : entry.tag === 34675
+              ? (iccOffsets.get(nodeIndex) ?? 0)
+              : (subIfdDataOffsets.get(nodeIndex) ?? 0)
       if (valueBytes > inlineBytes) setOffset(inlineOffset, valueOffset)
       for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
         const target = valueOffset + valueIndex * bytesPerValue
@@ -421,6 +436,9 @@ const tiffGraphFixture = (
     }
     const nextOffset = ifdOffset + countBytes + entries.length * entryBytes
     setOffset(nextOffset, node.next === undefined ? 0 : (ifdOffsets[node.next] ?? 0))
+    if (node.iccProfile !== undefined && node.iccProfile.byteLength > inlineBytes) {
+      output.set(node.iccProfile, iccOffsets.get(nodeIndex) ?? 0)
+    }
     output.set(node.pixels, pixelOffsets[nodeIndex] ?? 0)
   }
   return output
@@ -3987,6 +4005,52 @@ describe('OME-TIFF scientific semantics', () => {
 })
 
 describe('Aperio whole-slide profile', () => {
+  it('enumerates lightweight ICC metadata without fetching the ICC payload', async () => {
+    const profile = new Uint8Array(8_192).fill(0xa5)
+    profile.set([0xde, 0xad, 0xbe, 0xef])
+    const input = tiffGraphFixture([
+      {
+        width: 2,
+        height: 2,
+        pixels: Uint8Array.of(1, 2, 3, 4),
+        tiled: true,
+        imageDescription: 'Aperio Image Library v12.4.0|MPP = 0.5',
+        iccProfile: profile,
+      },
+    ])
+    let profileOffset = -1
+    for (let index = 0; index <= input.byteLength - profile.byteLength; index += 1) {
+      if (
+        input[index] === 0xde &&
+        input[index + 1] === 0xad &&
+        input[index + 2] === 0xbe &&
+        input[index + 3] === 0xef
+      ) {
+        profileOffset = index
+        break
+      }
+    }
+    if (profileOffset < 0) throw new Error('ICC payload offset is unavailable')
+    const backing = new MemorySource(input)
+    const guarded: ImageSource = {
+      size: input.byteLength,
+      async read(offset, length, options = {}) {
+        options.signal?.throwIfAborted()
+        const end = Math.min(input.byteLength, offset + length)
+        if (offset < profileOffset + profile.byteLength && end > profileOffset) {
+          throw new Error('ICC payload was fetched during enumeration')
+        }
+        return backing.read(offset, length, options)
+      },
+    }
+    const slide = await openAperioSvs(await openTiffDocument(guarded))
+    expect(slide.levels[0]?.metadata?.iccProfile).toEqual({
+      present: true,
+      byteLength: profile.byteLength,
+      tag: 34675,
+    })
+  })
+
   it('discovers pyramid levels, properties, associated images, and bounded regions', async () => {
     const mainPixels = new Uint8Array(64)
     mainPixels.fill(11)

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   analysisCropOperationId,
+  analysisConnectedComponentsOperationId,
   analysisGaussianBlurOperationId,
   analysisProjectionOperationId,
   analysisResampleOperationId,
@@ -1085,6 +1086,62 @@ describe('built-in dataset analysis operations', () => {
     secondRuntime.clear()
     expect(firstTracking.releases).toBe(firstTracking.reads.length)
     expect(secondTracking.releases).toBe(secondTracking.reads.length)
+  })
+
+  it('retains consumed lazy dataset dependencies until the execution result is released', async () => {
+    const tracking: SourceTracking = { reads: [], releases: 0 }
+    const source = sourceDataset(tracking, (indices) => ((indices.x ?? 0) + (indices.y ?? 0)) % 2)
+    const runtime = createTileRuntime({ limits: { maxOperationWorkingBytes: 4 * 1_024 * 1_024 } })
+    const analysisGraph: AnalysisGraph = {
+      schemaVersion: 1,
+      inputs: [{ name: 'source', valueType: { id: scientificDatasetValueTypeId, version: 1 } }],
+      nodes: [
+        {
+          id: 'components',
+          operation: { id: analysisConnectedComponentsOperationId, version: 1 },
+          inputs: [{ port: 'dataset', source: { kind: 'input', input: 'source' } }],
+          parameters: {
+            displayAxes: ['x', 'y'],
+            fixedIndices: [{ axisId: 'energy', index: 0 }],
+            component: 0,
+            connectivity: 4,
+          },
+        },
+        {
+          id: 'threshold',
+          operation: { id: analysisThresholdOperationId, version: 1 },
+          inputs: [
+            {
+              port: 'dataset',
+              source: { kind: 'node', nodeId: 'components', output: 'labels' },
+            },
+          ],
+          parameters: { mode: 'greater-than', threshold: 0 },
+        },
+      ],
+      outputs: [
+        {
+          name: 'dataset',
+          source: { kind: 'node', nodeId: 'threshold', output: 'dataset' },
+        },
+      ],
+    }
+    const execution = await executeAnalysisGraph(analysisGraph, source, runtime, 2)
+    runtime.clear()
+    const retainedMappingBytes = runtime.metrics().memory.managedBytes
+    expect(retainedMappingBytes).toBeGreaterThan(0)
+    const output = execution.outputs.get('dataset')
+    if (!isDatasetOutput(output)) throw new Error('Expected thresholded component labels')
+    expect(await collectValues(output, ['x', 'y'])).toEqual([
+      0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0,
+    ])
+    runtime.clear()
+    expect(runtime.metrics().memory.managedBytes).toBe(retainedMappingBytes)
+    await execution.release()
+    await execution.release()
+    runtime.clear()
+    expect(runtime.metrics().memory.managedBytes).toBe(0)
+    await runtime.dispose()
   })
 
   it('produces seam-free Gaussian blur across tile sizes and explicit boundaries', async () => {

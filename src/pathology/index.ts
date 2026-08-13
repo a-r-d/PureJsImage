@@ -1,4 +1,11 @@
-export { aperioSvsProfile, isAperioSvs, openAperioSvs } from './aperio-svs.ts'
+export {
+  aperioSvsProfile,
+  defaultAperioSvsLimits,
+  isAperioSvs,
+  openAperioSvs,
+  resolveAperioSvsLimits,
+} from './aperio-svs.ts'
+export type { AperioSvsLimits, AperioSvsOptions } from './aperio-svs.ts'
 export type {
   WholeSlideImageMetadata,
   WholeSlideAssociatedImage,

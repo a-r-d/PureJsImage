@@ -25,6 +25,12 @@ substitute for releasing leased buffers, providers, or documents.
 - `plan.dispose()` waits for execution-result leases, including lazy datasets that have not yet
   served their first tile. `result.release()` releases owned outputs before releasing the plan
   lease.
+- A consumed owned output registered as `purejsimage.scientific.dataset` is conservatively treated
+  as a dependency of later lazy datasets. The executor retains that intermediate privately until
+  `result.release()`, even after its last graph node has executed. This keeps captured CPU arrays,
+  WASM memory, GPU storage, remote handles, and their managed-byte accounting alive together.
+  Unconsumed non-output datasets still release immediately; eager scalar, table, and result values
+  release after their final synchronous consumer.
 - `runtime.clear()` is a cache/in-flight reset, not permanent disposal. `runtime.dispose()` is
   permanent; `isDisposed` becomes true when closing begins, every acquisition/mutation path closes,
   and `whenIdle()` resolves after active requests, scheduler work, and lexical working-memory scopes
@@ -40,7 +46,8 @@ substitute for releasing leased buffers, providers, or documents.
 
 Cleanup may reject if a provider, source, or user-supplied release callback throws. Implementations
 must still attempt every remaining cleanup and preserve the first error. Graph execution failures
-remain primary when cleanup also fails during error unwinding.
+remain primary when cleanup also fails during error unwinding. Failed or cancelled graph execution
+releases every deferred lazy-dataset dependency exactly once.
 
 Provider disposal occurs in reverse preparation order after executions are idle. Result outputs are
 released in deterministic ownership order; callers must not depend on side effects between

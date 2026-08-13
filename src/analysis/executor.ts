@@ -110,6 +110,8 @@ const sourceKey = (source: AnalysisValueReference): string =>
     ? `input\u0000${source.input}`
     : `node\u0000${source.nodeId}\u0000${source.output}`
 
+const scientificDatasetValueTypeId = 'purejsimage.scientific.dataset'
+
 const releaseOwned = async (outputs: Iterable<OperationOwnedOutput>): Promise<void> => {
   let firstError: unknown
   for (const output of new Set(outputs)) {
@@ -178,6 +180,8 @@ const executePrepared = async (
   }
   const values = new Map<string, OperationOwnedOutput>()
   const allOwned = new Set<OperationOwnedOutput>()
+  const datasetOutputs = new Set<string>()
+  const deferredDatasetDependencies = new Set<OperationOwnedOutput>()
   const releaseInput = async (source: AnalysisValueReference): Promise<void> => {
     if (source.kind !== 'node') return
     const key = sourceKey(source)
@@ -187,6 +191,10 @@ const executePrepared = async (
     const owned = values.get(key)
     if (owned === undefined) return
     values.delete(key)
+    if (datasetOutputs.delete(key)) {
+      deferredDatasetDependencies.add(owned)
+      return
+    }
     allOwned.delete(owned)
     await owned.release()
   }
@@ -256,8 +264,10 @@ const executePrepared = async (
       const key = sourceKey({ kind: 'node', nodeId, output: port.name })
       values.set(key, output)
       allOwned.add(output)
+      if (port.valueType.id === scientificDatasetValueTypeId) datasetOutputs.add(key)
       if ((consumers.get(key) ?? 0) === 0) {
         values.delete(key)
+        datasetOutputs.delete(key)
         allOwned.delete(output)
         await output.release()
       }
@@ -284,7 +294,7 @@ const executePrepared = async (
     }
     const outputValues = new Map<string, unknown>()
     const outputView = executionOutputsView(outputValues)
-    const retained = new Set<OperationOwnedOutput>()
+    const retained = new Set<OperationOwnedOutput>(deferredDatasetDependencies)
     for (const output of plan.graph.outputs) {
       if (output.source.kind === 'input') {
         outputValues.set(output.name, plan.bindings.get(output.source.input)?.value)
@@ -354,6 +364,8 @@ const executePrepared = async (
         } finally {
           for (const output of retained) allOwned.delete(output)
           values.clear()
+          datasetOutputs.clear()
+          deferredDatasetDependencies.clear()
           outputValues.clear()
           retained.clear()
           await releaseLease()

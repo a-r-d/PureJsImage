@@ -26,7 +26,7 @@ const metadata = Object.freeze({
 })
 const metadataWithIcc = Object.freeze({
   ...metadata,
-  iccProfile: Uint8Array.of(1, 2, 3, 4),
+  iccProfile: { present: true as const, byteLength: 4, tag: 34675 as const },
 })
 
 const block = (width: number, height: number, release: () => void): PixelBlock =>
@@ -42,6 +42,50 @@ const block = (width: number, height: number, release: () => void): PixelBlock =
   })
 
 describe('generic whole-slide scientific bridge', () => {
+  it('rejects mixed decoded formats before publishing a pyramid descriptor', async () => {
+    const slide: WholeSlideImage = Object.freeze({
+      width: 4,
+      height: 4,
+      format: 'rgb8',
+      properties: Object.freeze({}),
+      levels: Object.freeze([
+        Object.freeze({
+          index: 0,
+          width: 4,
+          height: 4,
+          downsample: 1,
+          format: 'rgb8' as const,
+          async *tile() {},
+        }),
+        Object.freeze({
+          index: 1,
+          width: 2,
+          height: 2,
+          downsample: 2,
+          format: 'gray8' as const,
+          async *tile() {},
+        }),
+      ]),
+      associatedImages: Object.freeze([]),
+      async *readRegion() {
+        yield* []
+        throw new Error('Mixed-format pyramid must fail before reads')
+      },
+    })
+    await expect(
+      createWholeSlideScientificDocument({
+        context: {
+          primary: {
+            id: 'mixed-slide',
+            source: new MemorySource(Uint8Array.of(1)),
+          },
+        },
+        reader,
+        slide,
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
   it('resolves anisotropic levels, separates associated images, and forwards ownership', async () => {
     const reads: WholeSlideRegionRequest[] = []
     let releases = 0
@@ -140,7 +184,7 @@ describe('generic whole-slide scientific bridge', () => {
         {
           level: 0,
           tiff: {
-            iccProfile: { encoding: 'base64', byteLength: 4, data: 'AQIDBA==' },
+            iccProfile: { present: true, byteLength: 4, tag: 34675 },
           },
         },
         { level: 1 },

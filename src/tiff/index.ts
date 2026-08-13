@@ -31,5 +31,6 @@ export type {
   TiffDocumentOpener,
   TiffDocumentOptions,
   TiffTagReadOptions,
+  TiffTagInfo,
   TiffTagValue,
 } from './types.ts'
