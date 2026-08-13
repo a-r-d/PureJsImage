@@ -33,6 +33,7 @@
       "purejsimage/scientific/readers/gsf": ["./src/scientific/readers/gsf.ts"],
       "purejsimage/scientific/readers/mrc": ["./src/scientific/readers/mrc.ts"],
       "purejsimage/scientific/readers/ome-tiff": ["./src/scientific/readers/ome-tiff.ts"],
+      "purejsimage/scientific/readers/aperio-svs": ["./src/scientific/readers/aperio-svs.ts"],
       "purejsimage/tiff": ["./src/tiff/index.ts"]
     }
   },

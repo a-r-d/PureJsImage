@@ -437,6 +437,7 @@ describe('package contract', () => {
       'purejsimage/scientific/browser',
       'purejsimage/scientific/node',
       'purejsimage/scientific/readers/all',
+      'purejsimage/scientific/readers/aperio-svs',
       'purejsimage/scientific/readers/cbf',
       'purejsimage/scientific/readers/envi',
       'purejsimage/scientific/readers/fits',
