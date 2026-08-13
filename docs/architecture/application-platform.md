@@ -1552,6 +1552,10 @@ to own only generic descriptors, definitions, providers, and registries.
 - [x] Run focused lifecycle/planning tests, package and browser gates, documentation checks, the
       relevant application-platform benchmark, a real Chromium scientific workflow, and the full
       repository gate; record the result before handoff.
+- [x] Replace the ambiguous native-source retained-byte estimate with request-specific
+      `single-exact`/`streamed` read plans. Streamed adapter admission now includes compact output,
+      one-byte coverage storage, and one complete emitted backing allocation simultaneously;
+      zero-copy requires the explicit exact-delivery contract and performs no iterator lookahead.
 
   - Final hardening validation: 120 focused scientific/planning/lifecycle/project-contract tests,
     package-consumer types, the compiled external lifecycle, browser dependency checks, the 19-page

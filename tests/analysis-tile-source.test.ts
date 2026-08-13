@@ -398,7 +398,77 @@ describe('numeric and derived tile sources', () => {
     runtime.clear()
   })
 
-  it('releases every acquired lookahead tile exactly once when assembly rejects', async () => {
+  it('estimates streamed output, coverage, and one smaller emitted tile independently', () => {
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 8,
+      }),
+      async *readNumericTiles() {},
+    }
+    const source = numericTileSourceToTileSource(numericSource)
+    expect(source.estimate(request(0, 0, 4, 2))).toEqual({
+      outputRetainedBytes: 32,
+      peakWorkingBytes: 48,
+      retainedAuxiliaryBytes: 0,
+    })
+  })
+
+  it('rejects the true streamed peak before starting the source iterator', async () => {
+    let iteratorStarts = 0
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 8,
+      }),
+      readNumericTiles() {
+        iteratorStarts += 1
+        return numericTileIterable([], () => undefined)
+      },
+    }
+    const runtime = createTileRuntime({ limits: { maxInFlightBytes: 47 } })
+    expect(() =>
+      runtime.request(numericTileSourceToTileSource(numericSource), request(0, 0, 4, 2)),
+    ).toThrow('maxInFlightBytes')
+    expect(iteratorStarts).toBe(0)
+    runtime.clear()
+  })
+
+  it('adds a pooled streamed backing allocation to packed output and coverage', () => {
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 256,
+      }),
+      async *readNumericTiles() {},
+    }
+    expect(numericTileSourceToTileSource(numericSource).estimate(request(0, 0, 2, 2))).toEqual({
+      outputRetainedBytes: 16,
+      peakWorkingBytes: 276,
+      retainedAuxiliaryBytes: 0,
+    })
+  })
+
+  it('rejects invalid emitted-tile read-plan bounds', () => {
+    for (const maximumEmittedTileRetainedBytes of [-1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+      const numericSource: NumericTileSource = {
+        descriptor,
+        planRead: () => ({
+          delivery: 'streamed',
+          maximumEmittedTileRetainedBytes,
+        }),
+        async *readNumericTiles() {},
+      }
+      expect(() =>
+        numericTileSourceToTileSource(numericSource).estimate(request(0, 0, 2, 2)),
+      ).toThrow('invalid read plan')
+    }
+  })
+
+  it('releases every sequentially acquired tile exactly once when assembly rejects', async () => {
     const releases: [number, number] = [0, 0]
     const numericSource: NumericTileSource = {
       descriptor,
@@ -506,11 +576,45 @@ describe('numeric and derived tile sources', () => {
     runtime.clear()
   })
 
-  it('transfers one exact source tile without allocating a merge buffer', async () => {
+  it('rejects inconsistent first-tile semantics before requesting another tile', async () => {
     let releases = 0
-    const data = new Float32Array([0, 1, 10, 11])
+    let requestedSecond = false
     const numericSource: NumericTileSource = {
       descriptor,
+      async *readNumericTiles() {
+        yield Object.freeze({
+          x: 0,
+          y: 0,
+          width: 2,
+          height: 2,
+          sampleType: 'int32' as const,
+          componentCount: 1,
+          layout: 'interleaved' as const,
+          rowStrideElements: 2,
+          data: new Int32Array(4),
+          release() {
+            releases += 1
+          },
+        })
+        requestedSecond = true
+      },
+    }
+    await expect(
+      numericTileSourceToTileSource(numericSource).readTile(request(0, 0, 2, 2)),
+    ).rejects.toThrow('incompatible sample semantics')
+    expect(requestedSecond).toBe(false)
+    expect(releases).toBe(1)
+  })
+
+  it('rejects and releases a tile that exceeds its declared backing bound', async () => {
+    let releases = 0
+    const backing = new ArrayBuffer(64)
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 16,
+      }),
       async *readNumericTiles() {
         yield Object.freeze({
           x: 0,
@@ -521,12 +625,102 @@ describe('numeric and derived tile sources', () => {
           componentCount: 1,
           layout: 'interleaved' as const,
           rowStrideElements: 2,
-          data,
+          data: new Float32Array(backing, 0, 4),
           release() {
             releases += 1
           },
         })
       },
+    }
+    await expect(
+      numericTileSourceToTileSource(numericSource).readTile(request(0, 0, 2, 2)),
+    ).rejects.toThrow('declared backing allocation bound')
+    expect(releases).toBe(1)
+  })
+
+  it('releases each streamed chunk before requesting the next one', async () => {
+    let ownedTiles = 0
+    let nextCalls = 0
+    const tiles = [
+      numericTile({ x: 0, y: 0, width: 1, height: 2 }, () => {
+        ownedTiles -= 1
+      }),
+      numericTile({ x: 1, y: 0, width: 1, height: 2 }, () => {
+        ownedTiles -= 1
+      }),
+    ]
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 8,
+      }),
+      readNumericTiles: () => ({
+        [Symbol.asyncIterator](): AsyncIterator<NumericTile> {
+          let index = 0
+          return {
+            async next(): Promise<IteratorResult<NumericTile>> {
+              expect(ownedTiles).toBe(0)
+              nextCalls += 1
+              const tile = tiles[index]
+              index += 1
+              if (tile === undefined) return { done: true, value: undefined }
+              ownedTiles += 1
+              return { done: false, value: tile }
+            },
+          }
+        },
+      }),
+    }
+    const result = await numericTileSourceToTileSource(numericSource).readTile(request(0, 0, 2, 2))
+    expect([...result.tile.data]).toEqual([0, 1, 10, 11])
+    expect(nextCalls).toBe(3)
+    expect(ownedTiles).toBe(0)
+    result.tile.release()
+  })
+
+  it('transfers one exact source tile without allocating a merge buffer', async () => {
+    let releases = 0
+    let nextCalls = 0
+    let iteratorReturns = 0
+    const data = new Float32Array([0, 1, 10, 11])
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'single-exact',
+        maximumEmittedTileRetainedBytes: data.buffer.byteLength,
+      }),
+      readNumericTiles: () => ({
+        [Symbol.asyncIterator](): AsyncIterator<NumericTile> {
+          return {
+            async next(): Promise<IteratorResult<NumericTile>> {
+              nextCalls += 1
+              if (nextCalls > 1) throw new Error('single-exact source was read twice')
+              return {
+                done: false,
+                value: Object.freeze({
+                  x: 0,
+                  y: 0,
+                  width: 2,
+                  height: 2,
+                  sampleType: 'float32' as const,
+                  componentCount: 1,
+                  layout: 'interleaved' as const,
+                  rowStrideElements: 2,
+                  data,
+                  release() {
+                    releases += 1
+                  },
+                }),
+              }
+            },
+            async return(): Promise<IteratorResult<NumericTile>> {
+              iteratorReturns += 1
+              return { done: true, value: undefined }
+            },
+          }
+        },
+      }),
     }
     const runtime = createTileRuntime()
     const source = numericTileSourceToTileSource(numericSource)
@@ -535,10 +729,69 @@ describe('numeric and derived tile sources', () => {
       address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
     })
     expect(result.data.buffer).toBe(data.buffer)
+    expect(nextCalls).toBe(1)
+    expect(iteratorReturns).toBe(1)
     expect(releases).toBe(0)
     result.release()
     runtime.clear()
     expect(releases).toBe(1)
+  })
+
+  it('releases a single-exact candidate when iterator cleanup fails', async () => {
+    let releases = 0
+    let nextCalls = 0
+    const candidate = numericTile({ x: 0, y: 0, width: 2, height: 2 }, () => {
+      releases += 1
+    })
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'single-exact',
+        maximumEmittedTileRetainedBytes: candidate.data.buffer.byteLength,
+      }),
+      readNumericTiles: () => ({
+        [Symbol.asyncIterator](): AsyncIterator<NumericTile> {
+          return {
+            async next(): Promise<IteratorResult<NumericTile>> {
+              nextCalls += 1
+              return { done: false, value: candidate }
+            },
+            async return(): Promise<IteratorResult<NumericTile>> {
+              throw new Error('single-exact iterator cleanup failed')
+            },
+          }
+        },
+      }),
+    }
+    await expect(
+      numericTileSourceToTileSource(numericSource).readTile(request(0, 0, 2, 2)),
+    ).rejects.toThrow('single-exact iterator cleanup failed')
+    expect(nextCalls).toBe(1)
+    expect(releases).toBe(1)
+  })
+
+  it('records the conservative streamed reservation in runtime high-water metrics', async () => {
+    const numericSource: NumericTileSource = {
+      descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: 8,
+      }),
+      async *readNumericTiles() {
+        yield numericTile({ x: 0, y: 0, width: 2, height: 1 }, () => undefined)
+        yield numericTile({ x: 2, y: 0, width: 2, height: 1 }, () => undefined)
+        yield numericTile({ x: 0, y: 1, width: 2, height: 1 }, () => undefined)
+        yield numericTile({ x: 2, y: 1, width: 2, height: 1 }, () => undefined)
+      },
+    }
+    const runtime = createTileRuntime()
+    const tile = await runtime.request(
+      numericTileSourceToTileSource(numericSource),
+      request(0, 0, 4, 2),
+    )
+    expect(runtime.metrics().memory.highWaterTotalManagedBytes).toBe(48)
+    tile.release()
+    runtime.clear()
   })
 
   it('compacts an exact tile whose small view retains an undeclared larger allocation', async () => {
@@ -548,6 +801,10 @@ describe('numeric and derived tile sources', () => {
     data.set([0, 1, 10, 11])
     const numericSource: NumericTileSource = {
       descriptor,
+      planRead: () => ({
+        delivery: 'streamed',
+        maximumEmittedTileRetainedBytes: backing.byteLength,
+      }),
       async *readNumericTiles() {
         yield Object.freeze({
           x: 0,
@@ -583,7 +840,10 @@ describe('numeric and derived tile sources', () => {
     const data = new Float32Array(backing, 0, 4)
     const numericSource: NumericTileSource = {
       descriptor,
-      estimateRetainedBytes: () => backing.byteLength,
+      planRead: () => ({
+        delivery: 'single-exact',
+        maximumEmittedTileRetainedBytes: backing.byteLength,
+      }),
       async *readNumericTiles() {
         yield Object.freeze({
           x: 0,

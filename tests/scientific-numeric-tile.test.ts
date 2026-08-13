@@ -494,16 +494,21 @@ describe('NumericTileSource bridge and direct capability', () => {
   })
 
   it('falls back without invoking a direct provider that declines the requested target', async () => {
-    const fallbackDataset = new SyntheticDataset()
+    const fallbackDataset = new SyntheticDataset('float32')
     let directReads = 0
+    let directPlans = 0
     const directSource: NumericTileSource = {
       descriptor: fallbackDataset.descriptor,
       directSemantics: {
-        sourceSampleType: 'uint16',
-        nativeSampleType: 'uint16',
+        sourceSampleType: 'float32',
+        nativeSampleType: 'float32',
         componentCount: 1,
         layout: 'interleaved',
-        supportedTargetSampleTypes: ['uint16'],
+        supportedTargetSampleTypes: ['float32'],
+      },
+      planRead() {
+        directPlans += 1
+        throw new Error('Direct source plan should not be called')
       },
       readNumericTiles() {
         directReads += 1
@@ -514,7 +519,12 @@ describe('NumericTileSource bridge and direct capability', () => {
       numericTileSource: directSource,
     })
     const source = resolveNumericTileSource(dataset)
+    expect(source.planRead?.({ ...request, targetSampleType: 'float64' })).toEqual({
+      delivery: 'streamed',
+      maximumEmittedTileRetainedBytes: 32,
+    })
     const tile = await firstTile(source, { ...request, targetSampleType: 'float64' })
+    expect(directPlans).toBe(0)
     expect(directReads).toBe(0)
     expect(tile.sampleType).toBe('float64')
     expect(tileValues(tile)).toEqual([1, 2, 3, 4])

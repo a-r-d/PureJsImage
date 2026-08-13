@@ -7,6 +7,7 @@ import type {
   ScientificDataset,
   ScientificPlaneReadRequest,
 } from './dataset.ts'
+import { normalizeScientificPlaneReadRequest } from './dataset.ts'
 import { validateRasterBlock } from './samples.ts'
 
 export type NumericArray =
@@ -655,15 +656,22 @@ export interface NumericTileSourceSemantics {
   readonly supportedTargetSampleTypes: readonly NumericSampleType[]
 }
 
+export interface NumericTileSourceReadPlan {
+  /**
+   * Non-negative safe-integer bound for the complete ArrayBuffer backing allocation retained by
+   * any one tile emitted for this request.
+   */
+  readonly maximumEmittedTileRetainedBytes: number
+  /** `single-exact` guarantees one tile matching the requested region and semantics. */
+  readonly delivery: 'single-exact' | 'streamed'
+}
+
 export interface NumericTileSource {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   /** Present for a direct provider and exact for every tile it emits. */
   readonly directSemantics?: NumericTileSourceSemantics
-  /**
-   * Hard upper bound for the backing allocation retained by one returned tile. Direct sources that
-   * omit this may still return pooled or padded views, but downstream runtimes must compact them.
-   */
-  estimateRetainedBytes?(request: Readonly<NumericTileReadRequest>): number
+  /** Omit for conservative streamed delivery bounded by the packed requested output size. */
+  planRead?(request: Readonly<NumericTileReadRequest>): NumericTileSourceReadPlan
   readNumericTiles(request: Readonly<NumericTileReadRequest>): AsyncIterable<NumericTile>
 }
 
@@ -708,6 +716,55 @@ export const scientificDatasetToNumericTileSource = (
   options: Readonly<ScientificDatasetNumericTileAdapterOptions> = {},
 ): NumericTileSource => new DatasetNumericTileSource(dataset, options)
 
+const checkedProduct = (values: readonly number[], label: string): number => {
+  let result = 1
+  for (const value of values) {
+    result *= value
+    if (!Number.isSafeInteger(result) || result < 0) throw invalidInput(`${label} overflowed`)
+  }
+  return result
+}
+
+const defaultNumericTileSourceReadPlan = (
+  source: NumericTileSource,
+  request: Readonly<NumericTileReadRequest>,
+): NumericTileSourceReadPlan => {
+  const { targetSampleType, ...planeRequest } = request
+  const normalized = normalizeScientificPlaneReadRequest(source.descriptor, planeRequest)
+  const sampleType = targetSampleType ?? preservedSampleType(source.descriptor.sampleType)
+  return Object.freeze({
+    maximumEmittedTileRetainedBytes: checkedProduct(
+      [
+        normalized.width,
+        normalized.height,
+        source.descriptor.components.length,
+        numericSampleBytes(sampleType),
+      ],
+      'Numeric tile source default read plan',
+    ),
+    delivery: 'streamed',
+  })
+}
+
+/** @internal Shared normalization keeps composite-source planning and execution aligned. */
+export const resolveNumericTileSourceReadPlan = (
+  source: NumericTileSource,
+  request: Readonly<NumericTileReadRequest>,
+): NumericTileSourceReadPlan => {
+  const plan = source.planRead?.(request) ?? defaultNumericTileSourceReadPlan(source, request)
+  if (
+    !Number.isSafeInteger(plan.maximumEmittedTileRetainedBytes) ||
+    plan.maximumEmittedTileRetainedBytes < 0 ||
+    (plan.delivery !== 'single-exact' && plan.delivery !== 'streamed')
+  ) {
+    throw invalidInput('Numeric tile source returned an invalid read plan')
+  }
+  return Object.freeze({
+    maximumEmittedTileRetainedBytes: plan.maximumEmittedTileRetainedBytes,
+    delivery: plan.delivery,
+  })
+}
+
 const directNumericTileSource = (dataset: ScientificDataset): NumericTileSource | undefined => {
   if (!('numericTileSource' in dataset)) return undefined
   const candidate: unknown = dataset.numericTileSource
@@ -717,9 +774,9 @@ const directNumericTileSource = (dataset: ScientificDataset): NumericTileSource 
   if (!('descriptor' in candidate) || candidate.descriptor !== dataset.descriptor) return undefined
   if (!('directSemantics' in candidate) || candidate.directSemantics === undefined) return undefined
   const readNumericTiles = candidate.readNumericTiles
-  const estimateRetainedBytes =
-    'estimateRetainedBytes' in candidate && typeof candidate.estimateRetainedBytes === 'function'
-      ? candidate.estimateRetainedBytes
+  const planRead =
+    'planRead' in candidate && typeof candidate.planRead === 'function'
+      ? candidate.planRead
       : undefined
   const semantics = candidate.directSemantics
   if (semantics === null || typeof semantics !== 'object') return undefined
@@ -758,17 +815,18 @@ const directNumericTileSource = (dataset: ScientificDataset): NumericTileSource 
   return {
     descriptor: dataset.descriptor,
     directSemantics,
-    ...(estimateRetainedBytes === undefined
+    ...(planRead === undefined
       ? {}
       : {
-          estimateRetainedBytes: (request: Readonly<NumericTileReadRequest>) =>
-            estimateRetainedBytes.call(candidate, request),
+          planRead: (request: Readonly<NumericTileReadRequest>) =>
+            planRead.call(candidate, request),
         }),
     readNumericTiles: (request) => readNumericTiles.call(candidate, request),
   }
 }
 
-const directSupports = (
+/** @internal Exact direct-source selection shared by planning, validation, and execution. */
+export const numericTileSourceDirectSupports = (
   source: NumericTileSource,
   targetSampleType: NumericSampleType | undefined,
 ): boolean => {
@@ -827,17 +885,22 @@ export const resolveNumericTileSource = (
 ): NumericTileSource => {
   const direct = directNumericTileSource(dataset)
   const fallback = scientificDatasetToNumericTileSource(dataset, options)
-  if (direct === undefined || !directSupports(direct, options.targetSampleType)) return fallback
+  if (direct === undefined || !numericTileSourceDirectSupports(direct, options.targetSampleType)) {
+    return fallback
+  }
   const semantics = direct.directSemantics
   if (semantics === undefined) return fallback
   return {
     descriptor: dataset.descriptor,
     directSemantics: semantics,
-    ...(direct.estimateRetainedBytes === undefined
-      ? {}
-      : { estimateRetainedBytes: (request) => direct.estimateRetainedBytes?.(request) ?? 0 }),
+    planRead(request) {
+      const selected = numericTileSourceDirectSupports(direct, request.targetSampleType)
+        ? direct
+        : fallback
+      return resolveNumericTileSourceReadPlan(selected, request)
+    },
     readNumericTiles(request) {
-      return directSupports(direct, request.targetSampleType)
+      return numericTileSourceDirectSupports(direct, request.targetSampleType)
         ? validatedDirectTiles(direct, request)
         : fallback.readNumericTiles(request)
     },

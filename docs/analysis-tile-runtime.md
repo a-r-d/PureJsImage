@@ -142,9 +142,11 @@ transmitted. Set `metrics: false` to suppress counters, or call `resetMetrics()`
 
 Retained memory means the complete `NumericTile.data.buffer.byteLength` plus explicitly declared
 auxiliary retained bytes. A small view over a large backing buffer is charged as the large buffer.
-Peak source estimates also cover merge buffers and coverage maps before they are allocated; an exact
-single source tile transfers directly only when its source estimate covers that full backing
-allocation, otherwise it is compacted. Managed memory excludes
+For streamed numeric reads, the pre-admission peak includes the compact packed output, its coverage
+map, and one complete source-chunk backing allocation at the same time. A source may declare that
+chunk bound smaller than the final output. Zero-copy transfer requires a pre-read `single-exact`
+plan covering the complete backing allocation; streamed tiles are always compacted without
+lookahead. Managed memory excludes
 JavaScript object overhead, allocator fragmentation, undeclared provider allocations, unreported
 GPU-driver memory, and process RSS. Provider setup, transfer,
 compute, and readback fields remain labeled estimates; only provider execution wall time is labeled

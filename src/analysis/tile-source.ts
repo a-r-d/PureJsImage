@@ -13,11 +13,14 @@ import type {
   NumericSampleType,
   NumericTile,
   NumericTileLayout,
+  NumericTileReadRequest,
   NumericTileSource,
 } from '../scientific/numeric-tile.ts'
 import {
+  numericTileSourceDirectSupports,
   numericTileRetainedBytes,
   numericTileSampleOffset,
+  resolveNumericTileSourceReadPlan,
   validateNumericTile,
 } from '../scientific/numeric-tile.ts'
 import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset.ts'
@@ -100,16 +103,18 @@ const packedTile = (
   componentCount: number,
   layout: NumericTileLayout,
 ): NumericTile => {
-  const rowStrideElements = address.width * (layout === 'interleaved' ? componentCount : 1)
-  const planeStrideElements = rowStrideElements * address.height
-  const elements = layout === 'planar' ? planeStrideElements * componentCount : planeStrideElements
-  if (
-    !Number.isSafeInteger(rowStrideElements) ||
-    !Number.isSafeInteger(planeStrideElements) ||
-    !Number.isSafeInteger(elements)
-  ) {
-    throw invalidInput('Packed tile storage size overflowed')
-  }
+  const rowStrideElements = checkedProduct(
+    [address.width, layout === 'interleaved' ? componentCount : 1],
+    'Packed tile row storage',
+  )
+  const planeStrideElements = checkedProduct(
+    [rowStrideElements, address.height],
+    'Packed tile plane storage',
+  )
+  const elements =
+    layout === 'planar'
+      ? checkedProduct([planeStrideElements, componentCount], 'Packed tile storage')
+      : planeStrideElements
   const data = allocateNumericArray(sampleType, elements)
   return Object.freeze({
     x: address.x,
@@ -135,15 +140,51 @@ const sampleBytes = (sampleType: NumericSampleType): number =>
         ? 8
         : 4
 
+const checkedProduct = (values: readonly number[], label: string): number => {
+  let result = 1
+  for (const value of values) {
+    result *= value
+    if (!Number.isSafeInteger(result) || result < 0) throw invalidInput(`${label} overflowed`)
+  }
+  return result
+}
+
+const checkedSum = (values: readonly number[], label: string): number => {
+  let result = 0
+  for (const value of values) {
+    result += value
+    if (!Number.isSafeInteger(result) || result < 0) throw invalidInput(`${label} overflowed`)
+  }
+  return result
+}
+
 const packedTileBytes = (
   address: TileAddress,
   sampleType: NumericSampleType,
   componentCount: number,
 ): number => {
-  const bytes = address.width * address.height * componentCount * sampleBytes(sampleType)
-  if (!Number.isSafeInteger(bytes)) throw invalidInput('Tile byte estimate overflowed')
-  return bytes
+  return checkedProduct(
+    [address.width, address.height, componentCount, sampleBytes(sampleType)],
+    'Tile byte estimate',
+  )
 }
+
+const numericSourceRequest = (
+  address: TileAddress,
+  request: Readonly<TileRequest>,
+): NumericTileReadRequest => ({
+  displayAxes: address.displayAxes,
+  fixedIndices: address.fixedIndices,
+  resolutionLevel: address.resolutionLevel,
+  x: address.x,
+  y: address.y,
+  width: address.width,
+  height: address.height,
+  signal: request.signal,
+  ...(request.target?.sampleType === undefined
+    ? {}
+    : { targetSampleType: request.target.sampleType }),
+})
 
 const copyTile = (source: NumericTile, destination: NumericTile, coverage: Uint8Array): void => {
   validateNumericTile(source)
@@ -197,54 +238,56 @@ class NumericTileSourceAdapter implements TileSource {
     const sampleType =
       request.target?.sampleType ??
       (this.descriptor.sampleType === 'float16' ? 'float32' : this.descriptor.sampleType)
-    const outputBytes = packedTileBytes(address, sampleType, this.descriptor.components.length)
-    const sourceRequest = {
-      displayAxes: address.displayAxes,
-      fixedIndices: address.fixedIndices,
-      resolutionLevel: address.resolutionLevel,
-      x: address.x,
-      y: address.y,
-      width: address.width,
-      height: address.height,
-      signal: request.signal,
-      ...(request.target?.sampleType === undefined
-        ? {}
-        : { targetSampleType: request.target.sampleType }),
-    }
-    const directRetainedBytes = this.#source.estimateRetainedBytes?.(sourceRequest)
+    const packedOutputBytes = packedTileBytes(
+      address,
+      sampleType,
+      this.descriptor.components.length,
+    )
+    const sourcePlan = resolveNumericTileSourceReadPlan(
+      this.#source,
+      numericSourceRequest(address, request),
+    )
     if (
-      directRetainedBytes !== undefined &&
-      (!Number.isSafeInteger(directRetainedBytes) || directRetainedBytes < outputBytes)
+      sourcePlan.delivery === 'single-exact' &&
+      sourcePlan.maximumEmittedTileRetainedBytes < packedOutputBytes
     ) {
-      throw invalidInput('Numeric tile source returned an invalid retained-byte estimate')
+      throw invalidInput('Single-exact numeric tile source read plan is smaller than its output')
     }
-    const outputRetainedBytes = directRetainedBytes ?? outputBytes
-    const coverageBytes = address.width * address.height
-    if (!Number.isSafeInteger(coverageBytes + outputRetainedBytes)) {
-      throw invalidInput('Tile working-byte estimate overflowed')
-    }
+    const coverageBytes = checkedProduct(
+      [address.width, address.height],
+      'Numeric tile coverage estimate',
+    )
+    const outputRetainedBytes =
+      sourcePlan.delivery === 'single-exact'
+        ? sourcePlan.maximumEmittedTileRetainedBytes
+        : packedOutputBytes
+    const peakWorkingBytes =
+      sourcePlan.delivery === 'single-exact'
+        ? sourcePlan.maximumEmittedTileRetainedBytes
+        : checkedSum(
+            [packedOutputBytes, coverageBytes, sourcePlan.maximumEmittedTileRetainedBytes],
+            'Numeric tile source peak working estimate',
+          )
     return Object.freeze({
       outputRetainedBytes,
-      peakWorkingBytes: outputRetainedBytes + coverageBytes,
+      peakWorkingBytes,
       retainedAuxiliaryBytes: 0,
     })
   }
 
   async readTile(request: Readonly<TileRequest>): Promise<TileSourceResult> {
     const address = normalizeScientificTileAddress(this.descriptor, request.address)
-    const sourceRequest = {
-      displayAxes: address.displayAxes,
-      fixedIndices: address.fixedIndices,
-      resolutionLevel: address.resolutionLevel,
-      x: address.x,
-      y: address.y,
-      width: address.width,
-      height: address.height,
-      signal: request.signal,
-      ...(request.target?.sampleType === undefined
-        ? {}
-        : { targetSampleType: request.target.sampleType }),
-    }
+    const sourceRequest = numericSourceRequest(address, request)
+    const sourcePlan = resolveNumericTileSourceReadPlan(this.#source, sourceRequest)
+    const expectedSampleType =
+      request.target?.sampleType ??
+      (this.descriptor.sampleType === 'float16' ? 'float32' : this.descriptor.sampleType)
+    const directSemantics = numericTileSourceDirectSupports(
+      this.#source,
+      sourceRequest.targetSampleType,
+    )
+      ? this.#source.directSemantics
+      : undefined
     let output: NumericTile | undefined
     let coverage: Uint8Array | undefined
     let decodedInputBytes = 0
@@ -291,18 +334,61 @@ class NumericTileSourceAdapter implements TileSource {
       if (!result.done) acquired.add(result.value)
       return result
     }
+    const validateSourceTile = (sourceTile: NumericTile, exact: boolean): void => {
+      validateNumericTile(sourceTile)
+      if (numericTileRetainedBytes(sourceTile) > sourcePlan.maximumEmittedTileRetainedBytes) {
+        throw invalidInput('Numeric tile source exceeded its declared backing allocation bound')
+      }
+      if (
+        sourceTile.sampleType !== expectedSampleType ||
+        sourceTile.componentCount !== this.descriptor.components.length
+      ) {
+        throw invalidInput('Numeric tile source emitted incompatible sample semantics')
+      }
+      const sourceRight = checkedSum([sourceTile.x, sourceTile.width], 'Numeric source tile extent')
+      const sourceBottom = checkedSum(
+        [sourceTile.y, sourceTile.height],
+        'Numeric source tile extent',
+      )
+      const outputRight = checkedSum([address.x, address.width], 'Numeric output tile extent')
+      const outputBottom = checkedSum([address.y, address.height], 'Numeric output tile extent')
+      if (
+        sourceTile.x < address.x ||
+        sourceTile.y < address.y ||
+        sourceRight > outputRight ||
+        sourceBottom > outputBottom
+      ) {
+        throw invalidInput('Numeric tile source emitted incompatible or out-of-region storage')
+      }
+      if (directSemantics !== undefined && sourceTile.layout !== directSemantics.layout) {
+        throw invalidInput('Direct numeric tile source emitted undeclared tile semantics')
+      }
+      if (
+        exact &&
+        (sourceTile.x !== address.x ||
+          sourceTile.y !== address.y ||
+          sourceTile.width !== address.width ||
+          sourceTile.height !== address.height ||
+          (request.target?.layout !== undefined && sourceTile.layout !== request.target.layout))
+      ) {
+        throw invalidInput('Single-exact numeric tile source emitted a non-exact tile')
+      }
+    }
     const consume = (sourceTile: NumericTile): void => {
       let operationalError: { readonly error: unknown } | undefined
       try {
         request.signal.throwIfAborted()
-        validateNumericTile(sourceTile)
-        decodedInputBytes += sourceTile.data.byteLength
-        if (!Number.isSafeInteger(decodedInputBytes))
-          throw invalidInput('Tile byte count overflowed')
+        validateSourceTile(sourceTile, false)
+        decodedInputBytes = checkedSum(
+          [decodedInputBytes, sourceTile.data.byteLength],
+          'Tile decoded input byte count',
+        )
         if (output === undefined) {
           const layout = request.target?.layout ?? sourceTile.layout
           output = packedTile(address, sourceTile.sampleType, sourceTile.componentCount, layout)
-          coverage = new Uint8Array(address.width * address.height)
+          coverage = new Uint8Array(
+            checkedProduct([address.width, address.height], 'Numeric tile coverage storage'),
+          )
         }
         if (coverage === undefined) throw invalidInput('Numeric tile coverage is unavailable')
         copyTile(sourceTile, output, coverage)
@@ -316,31 +402,22 @@ class NumericTileSourceAdapter implements TileSource {
       const firstResult = await nextTile()
       if (firstResult.done) throw invalidInput('Numeric tile source returned no tiles')
       const first = firstResult.value
-      validateNumericTile(first)
-      if (
-        first.x === address.x &&
-        first.y === address.y &&
-        first.width === address.width &&
-        first.height === address.height &&
-        first.componentCount === this.descriptor.components.length &&
-        (request.target?.sampleType === undefined ||
-          first.sampleType === request.target.sampleType) &&
-        (request.target?.layout === undefined || first.layout === request.target.layout) &&
-        numericTileRetainedBytes(first) <= this.estimate(request).outputRetainedBytes
-      ) {
-        const second = await nextTile()
-        if (second.done) {
-          acquired.delete(first)
-          return Object.freeze({
-            tile: first,
-            accounting: Object.freeze({ decodedInputBytes: first.data.byteLength }),
-          })
+      if (sourcePlan.delivery === 'single-exact') {
+        validateSourceTile(first, true)
+        iteratorClosed = true
+        try {
+          await iterator.return?.()
+        } catch (error) {
+          recordCleanupFailure(error)
         }
-        consume(first)
-        consume(second.value)
-      } else {
-        consume(first)
+        if (cleanupFailure !== undefined) await cleanup()
+        acquired.delete(first)
+        return Object.freeze({
+          tile: first,
+          accounting: Object.freeze({ decodedInputBytes: first.data.byteLength }),
+        })
       }
+      consume(first)
       for (;;) {
         const next = await nextTile()
         if (next.done) break

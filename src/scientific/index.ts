@@ -52,6 +52,7 @@ export type {
   NumericTileLayout,
   NumericTileReadRequest,
   NumericTileSource,
+  NumericTileSourceReadPlan,
   NumericTileSourceSemantics,
   NumericTileStorage,
   RasterBlockToNumericTileOptions,
