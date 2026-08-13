@@ -1671,3 +1671,21 @@ to own only generic descriptors, definitions, providers, and registries.
     current. The focused scientific TIFF workflow passes in real Chromium. Both correctness-first
     application-platform and connected-components benchmarks pass, and `npm run check` passes the
     standard and hostile-source suites at 103 files and 1,249 tests with three documented skips.
+
+### TIFF segment-admission closeout
+
+- [x] Add public TIFF document limits for physical segment count, raw-plus-converted segment-table
+      construction peak, and individual encoded segment bytes.
+- [x] Check planar segment-count multiplication and table memory before either segment-table payload
+      read, then reject oversized encoded declarations before any segment payload read.
+- [x] Include the largest intersecting encoded segment with retained decoded segments, the largest
+      output block, and predictor scratch in display and raster request admission.
+- [x] Add sparse hostile-input regressions for segment-count, segment-table, and encoded-payload
+      limits, and make the wide TIFF/Aperio regression isolate the encoded-buffer contribution.
+- [x] Regenerate TIFF capability surfaces and pass focused, browser, and complete repository gates.
+
+  - Closeout validation: 83 focused TIFF, Aperio-reader, and whole-slide bridge tests pass. The
+    scientific TIFF workflow passes in real Chromium, and generated capability surfaces, the
+    19-page documentation build, packed-package types, browser dependency checks, bundle ceilings,
+    lint, and formatting are current. `npm run check` passes both standard and hostile-source suites
+    at 103 files and 1,250 tests, with the same three documented macOS-only AVIF skips.

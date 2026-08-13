@@ -22,7 +22,9 @@ All notable changes to PureJsImage are documented in this file.
   deferred ownership for upstream lazy scientific datasets captured by downstream results, and
   scoped accounting for later lazy-label reconstruction scratch.
 - Streamed tiled Aperio region reads through sequential native-tile intersections and added direct
-  TIFF display/raster preflight for aggregate decoded segments, output blocks, and predictor scratch.
+  TIFF display/raster preflight for aggregate decoded segments, the largest encoded segment, output
+  blocks, and predictor scratch, plus pre-I/O limits for physical segment counts, segment-table
+  construction peaks, and individual encoded payloads.
 - Added an installed-tarball application contract gate plus correctness-gated application
   benchmarks covering scientific document detection, first numeric/display tile, HTTP range bytes,
   source/derived cache behavior, ROI statistics, line profiles, thresholding, Gaussian blur, and

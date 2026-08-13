@@ -236,6 +236,31 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array<ArrayBuffer> => {
   if (options.jpegInterchange) output.set(options.jpegInterchange, jpegInterchangeOffset)
   return output
 }
+
+const classicTiffEntryOffset = (bytes: Uint8Array, tag: number): number => {
+  const littleEndian = bytes[0] === 0x49
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  const ifdOffset = view.getUint32(4, littleEndian)
+  const entries = view.getUint16(ifdOffset, littleEndian)
+  for (let index = 0; index < entries; index += 1) {
+    const offset = ifdOffset + 2 + index * 12
+    if (view.getUint16(offset, littleEndian) === tag) return offset
+  }
+  throw new Error(`TIFF fixture tag ${tag} is missing`)
+}
+
+const setClassicTiffLongEntry = (
+  bytes: Uint8Array,
+  tag: number,
+  count: number,
+  valueOrOffset: number,
+): void => {
+  const littleEndian = bytes[0] === 0x49
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  const entryOffset = classicTiffEntryOffset(bytes, tag)
+  view.setUint32(entryOffset + 4, count, littleEndian)
+  view.setUint32(entryOffset + 8, valueOrOffset, littleEndian)
+}
 const zstdRawFrame = (data: readonly number[]): Uint8Array<ArrayBuffer> => {
   if (data.length > 255) throw new Error('Test Zstandard frame is too large')
   const blockHeader = data.length * 8 + 1
@@ -4207,7 +4232,7 @@ describe('Aperio whole-slide profile', () => {
       maxHeight: 4,
       maxPixels: 48,
       maxInputBytes: input.byteLength,
-      maxDecodedBytes: 50,
+      maxDecodedBytes: 70,
     })
     const slide = await openAperioSvs(document, {
       limits: {
@@ -4215,7 +4240,7 @@ describe('Aperio whole-slide profile', () => {
         maxHeight: 4,
         maxSourceBytes: input.byteLength,
         maxRegionPixels: 48,
-        maxRegionDecodedBytes: 50,
+        maxRegionDecodedBytes: 70,
       },
     })
 
@@ -4224,7 +4249,7 @@ describe('Aperio whole-slide profile', () => {
     const readsBeforeDirectDecode = reads.length
     const directBlocks = async (): Promise<void> => {
       for await (const _block of decoder.decode({ x: 0, y: 1, width: 12, height: 1 })) {
-        // The conservative 60-byte peak must reject before any segment payload is read.
+        // Decoded segments and output need 60 bytes; the encoded buffer raises the peak to 76.
       }
     }
     await expect(directBlocks()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
@@ -4285,5 +4310,110 @@ describe('Aperio whole-slide profile', () => {
     await expect(iterator.next()).resolves.toMatchObject({ done: false, value: { x: 0 } })
     controller.abort(new Error('cancel wide Aperio stripe'))
     await expect(iterator.next()).rejects.toThrow('cancel wide Aperio stripe')
+  })
+
+  it('rejects oversized TIFF segment metadata and encoded payloads before payload reads', async () => {
+    const tableFixture = tiffFixture({
+      width: 50,
+      height: 1,
+      bitsPerSample: [8, 8],
+      compression: 1,
+      photometric: 1,
+      tileWidth: 1,
+      tileHeight: 1,
+      planarConfiguration: 2,
+      strips: [Uint8Array.of(7)],
+    })
+    setClassicTiffLongEntry(tableFixture, 324, 100, 4_096)
+    setClassicTiffLongEntry(tableFixture, 325, 100, 8_192)
+
+    const openSparseTable = async (options: {
+      readonly maxSegmentCount: number
+      readonly maxSegmentTableBytes: number
+      readonly expectedLimit: 'maxSegmentCount' | 'maxSegmentTableBytes'
+    }) => {
+      let tablePayloadReads = 0
+      const source: ImageSource = {
+        size: 16_384,
+        async read(offset, length) {
+          if (offset >= 4_096) {
+            tablePayloadReads += 1
+            throw new Error('Segment table payload was read')
+          }
+          if (offset + length <= tableFixture.byteLength) {
+            return tableFixture.slice(offset, offset + length)
+          }
+          return new Uint8Array(length)
+        },
+      }
+      const document = await openTiffDocument(source, {
+        maxWidth: 100,
+        maxHeight: 1,
+        maxPixels: 100,
+        maxInputBytes: source.size,
+        maxDecodedBytes: 1_024,
+        maxSegmentCount: options.maxSegmentCount,
+        maxSegmentTableBytes: options.maxSegmentTableBytes,
+      })
+      await expect(document.topLevelDirectories[0]?.createImageDecoder()).rejects.toMatchObject({
+        code: 'LIMIT_EXCEEDED',
+        message: expect.stringContaining(options.expectedLimit),
+      })
+      expect(tablePayloadReads).toBe(0)
+    }
+
+    await openSparseTable({
+      maxSegmentCount: 99,
+      maxSegmentTableBytes: 4_096,
+      expectedLimit: 'maxSegmentCount',
+    })
+    await openSparseTable({
+      maxSegmentCount: 100,
+      maxSegmentTableBytes: 1_999,
+      expectedLimit: 'maxSegmentTableBytes',
+    })
+
+    const encodedFixture = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8],
+      compression: 1,
+      photometric: 1,
+      tileWidth: 1,
+      tileHeight: 1,
+      strips: [Uint8Array.of(7)],
+    })
+    const encodedView = new DataView(encodedFixture.buffer)
+    const segmentOffset = encodedView.getUint32(
+      classicTiffEntryOffset(encodedFixture, 324) + 8,
+      true,
+    )
+    setClassicTiffLongEntry(encodedFixture, 325, 1, 4_096)
+    let segmentPayloadReads = 0
+    const encodedSource: ImageSource = {
+      size: segmentOffset + 4_096,
+      async read(offset, length) {
+        if (offset >= segmentOffset) {
+          segmentPayloadReads += 1
+          throw new Error('Encoded segment payload was read')
+        }
+        return encodedFixture.slice(offset, offset + length)
+      },
+    }
+    const encodedDocument = await openTiffDocument(encodedSource, {
+      maxWidth: 1,
+      maxHeight: 1,
+      maxPixels: 1,
+      maxInputBytes: encodedSource.size,
+      maxDecodedBytes: 1_024,
+      maxEncodedSegmentBytes: 1_024,
+    })
+    await expect(
+      encodedDocument.topLevelDirectories[0]?.createImageDecoder(),
+    ).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+      message: expect.stringContaining('maxEncodedSegmentBytes'),
+    })
+    expect(segmentPayloadReads).toBe(0)
   })
 })

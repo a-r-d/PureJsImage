@@ -72,6 +72,15 @@ export interface TiffDocument {
 }
 
 export interface TiffDocumentOptions extends ImageLimitOptions, AbortOptions {
+  /**
+   * Maximum physical strip or tile entries, including planar samples, in one image directory.
+   * Defaults to 1,048,576.
+   */
+  readonly maxSegmentCount?: number
+  /** Maximum peak bytes used to load and convert segment tables. Defaults to 32 MiB. */
+  readonly maxSegmentTableBytes?: number
+  /** Maximum encoded bytes in one strip or tile. Defaults to 128 MiB. */
+  readonly maxEncodedSegmentBytes?: number
   readonly embeddedCodecs?: readonly ImageCodec[]
 }
 

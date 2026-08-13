@@ -59,6 +59,48 @@ export type {
   TiffPageEncodeRequest,
 } from './tiff-encode.ts'
 
+interface TiffLimits extends ImageLimits {
+  readonly maxSegmentCount: number
+  readonly maxSegmentTableBytes: number
+  readonly maxEncodedSegmentBytes: number
+}
+
+const defaultTiffStructuralLimits = Object.freeze({
+  maxSegmentCount: 1_048_576,
+  maxSegmentTableBytes: 33_554_432,
+  maxEncodedSegmentBytes: 134_217_728,
+})
+
+const positiveTiffLimit = (
+  name: keyof typeof defaultTiffStructuralLimits,
+  value: number,
+): number => {
+  if (!Number.isSafeInteger(value) || value < 1) {
+    throw invalidInput(`${name} must be a positive safe integer`)
+  }
+  return value
+}
+
+const resolveTiffLimits = (options: Readonly<TiffDocumentOptions>): Readonly<TiffLimits> =>
+  Object.freeze({
+    ...resolveLimits(options),
+    maxSegmentCount: positiveTiffLimit(
+      'maxSegmentCount',
+      options.maxSegmentCount ?? defaultTiffStructuralLimits.maxSegmentCount,
+    ),
+    maxSegmentTableBytes: positiveTiffLimit(
+      'maxSegmentTableBytes',
+      options.maxSegmentTableBytes ?? defaultTiffStructuralLimits.maxSegmentTableBytes,
+    ),
+    maxEncodedSegmentBytes: positiveTiffLimit(
+      'maxEncodedSegmentBytes',
+      options.maxEncodedSegmentBytes ?? defaultTiffStructuralLimits.maxEncodedSegmentBytes,
+    ),
+  })
+
+const withDefaultTiffLimits = (limits: Readonly<ImageLimits>): Readonly<TiffLimits> =>
+  Object.freeze({ ...limits, ...defaultTiffStructuralLimits })
+
 const blockRows = 32
 const compressionNone = 1
 const compressionCcittModifiedHuffman = 2
@@ -613,6 +655,39 @@ const requiredValues = async (
   return entryValues(source, entry, littleEndian, tag, maximumCount)
 }
 
+const segmentTableByteLength = (entry: IfdEntry, tag: number, expectedCount: number): bigint => {
+  if (entry.count !== expectedCount) {
+    throw invalidInput(`TIFF tag ${tag} must contain ${expectedCount} values`)
+  }
+  if (entry.fieldType === 5) throw invalidInput(`TIFF tag ${tag} must contain integer values`)
+  return BigInt(entry.count) * BigInt(fieldBytes(entry.fieldType))
+}
+
+const validateSegmentTables = (
+  ifd: TiffIfd,
+  offsetTag: number,
+  byteCountTag: number,
+  expectedSegments: number,
+  limits: TiffLimits,
+): void => {
+  const offsets = ifd.entries.get(offsetTag)
+  if (!offsets) throw invalidInput(`TIFF required tag ${offsetTag} is missing`)
+  const byteCounts = ifd.entries.get(byteCountTag)
+  if (!byteCounts) throw invalidInput(`TIFF required tag ${byteCountTag} is missing`)
+  const convertedBytes = BigInt(expectedSegments) * 8n
+  const offsetPayloadBytes = segmentTableByteLength(offsets, offsetTag, expectedSegments)
+  const byteCountPayloadBytes = segmentTableByteLength(byteCounts, byteCountTag, expectedSegments)
+  const offsetConversionPeak = offsetPayloadBytes + convertedBytes
+  const byteCountConversionPeak = convertedBytes * 2n + byteCountPayloadBytes
+  const peak =
+    offsetConversionPeak > byteCountConversionPeak ? offsetConversionPeak : byteCountConversionPeak
+  if (peak > BigInt(limits.maxSegmentTableBytes)) {
+    throw limitExceeded(
+      `TIFF segment tables need up to ${peak} bytes; maxSegmentTableBytes is ${limits.maxSegmentTableBytes}`,
+    )
+  }
+}
+
 const optionalValues = async (
   source: ImageSource,
   ifd: TiffIfd,
@@ -1015,7 +1090,7 @@ type TiffDescriptionMode = 'pixels' | 'raster'
 
 const describeTiffIfd = async (
   source: ImageSource,
-  limits: ImageLimits,
+  limits: TiffLimits,
   graph: TiffIfdGraph,
   selected: SelectedTiffIfd,
   options: Readonly<DecoderOptions>,
@@ -1495,6 +1570,11 @@ const describeTiffIfd = async (
   }
   const interchangeOffset = jpegInterchangeOffset?.[0]
   const interchangeLength = jpegInterchangeLength?.[0]
+  if (interchangeLength !== undefined && interchangeLength > limits.maxEncodedSegmentBytes) {
+    throw limitExceeded(
+      `TIFF JPEG interchange data has ${interchangeLength} encoded bytes; maxEncodedSegmentBytes is ${limits.maxEncodedSegmentBytes}`,
+    )
+  }
   let group3TwoDimensional = false
   if (compression === compressionCcittGroup3) {
     const t4Options = await singleValue(source, ifd, littleEndian, 292, 0)
@@ -1573,9 +1653,20 @@ const describeTiffIfd = async (
     offsetTag = 273
     byteCountTag = 279
   }
-  const segmentsPerPlane = segmentsAcross * segmentsDown
-  if (!Number.isSafeInteger(segmentsPerPlane)) throw invalidInput('TIFF segment count is invalid')
-  const expectedSegments = segmentsPerPlane * (planarConfiguration === 2 ? samplesPerPixel : 1)
+  const segmentsPerPlaneBig = BigInt(segmentsAcross) * BigInt(segmentsDown)
+  const expectedSegmentsBig =
+    segmentsPerPlaneBig * BigInt(planarConfiguration === 2 ? samplesPerPixel : 1)
+  if (expectedSegmentsBig > BigInt(limits.maxSegmentCount)) {
+    throw limitExceeded(
+      `TIFF segment count ${expectedSegmentsBig} exceeds maxSegmentCount ${limits.maxSegmentCount}`,
+    )
+  }
+  if (expectedSegmentsBig > BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw invalidInput('TIFF segment count exceeds the safe integer range')
+  }
+  const segmentsPerPlane = Number(segmentsPerPlaneBig)
+  const expectedSegments = Number(expectedSegmentsBig)
+  validateSegmentTables(ifd, offsetTag, byteCountTag, expectedSegments, limits)
   const segmentOffsets = await requiredValues(
     source,
     ifd,
@@ -1594,12 +1685,13 @@ const describeTiffIfd = async (
     throw invalidInput(`TIFF expected ${expectedSegments} segment offsets and byte counts`)
   }
   for (let index = 0; index < expectedSegments; index += 1) {
-    checkedEnd(
-      segmentOffsets[index] ?? -1,
-      segmentByteCounts[index] ?? -1,
-      source.size,
-      `segment ${index}`,
-    )
+    const encodedBytes = segmentByteCounts[index] ?? -1
+    if (encodedBytes > limits.maxEncodedSegmentBytes) {
+      throw limitExceeded(
+        `TIFF segment ${index} has ${encodedBytes} encoded bytes; maxEncodedSegmentBytes is ${limits.maxEncodedSegmentBytes}`,
+      )
+    }
+    checkedEnd(segmentOffsets[index] ?? -1, encodedBytes, source.size, `segment ${index}`)
   }
 
   let cmykDotRange: Uint32Array | undefined
@@ -1874,7 +1966,7 @@ const describeTiffIfd = async (
 
 const describeTiff = async (
   source: ImageSource,
-  limits: ImageLimits,
+  limits: TiffLimits,
   options: Readonly<DecoderOptions> = {},
 ): Promise<TiffDescription> => {
   const graph = await readTiffIfdGraph(source, limits)
@@ -2750,19 +2842,34 @@ const reverseFillOrder = (data: Uint8Array): void => {
   }
 }
 
+const readEncodedSegment = async (
+  source: ImageSource,
+  description: TiffDescription,
+  limits: TiffLimits,
+  physicalSegment: number,
+): Promise<Uint8Array> => {
+  const offset = description.segmentOffsets[physicalSegment]
+  const byteCount = description.segmentByteCounts[physicalSegment]
+  if (offset === undefined || byteCount === undefined) throw invalidInput('TIFF segment is missing')
+  if (byteCount > limits.maxEncodedSegmentBytes) {
+    throw limitExceeded(
+      `TIFF segment ${physicalSegment} has ${byteCount} encoded bytes; maxEncodedSegmentBytes is ${limits.maxEncodedSegmentBytes}`,
+    )
+  }
+  return readExactly(source, offset, byteCount)
+}
+
 const decodeSegment = async (
   source: ImageSource,
   description: TiffDescription,
+  limits: TiffLimits,
   physicalSegment: number,
   expectedBytes: number,
   rowBytes: number,
   rows: number,
   predictorStride: number,
 ): Promise<Uint8Array> => {
-  const offset = description.segmentOffsets[physicalSegment]
-  const byteCount = description.segmentByteCounts[physicalSegment]
-  if (offset === undefined || byteCount === undefined) throw invalidInput('TIFF segment is missing')
-  const encoded = await readExactly(source, offset, byteCount)
+  const encoded = await readEncodedSegment(source, description, limits, physicalSegment)
   let decoded: Uint8Array
   if (description.logLuvEncoding) {
     decoded = decodeLogLuvSegment(
@@ -3099,14 +3206,11 @@ const oldJpegStream = (
 const decodeJpegSegment = async (
   source: ImageSource,
   description: TiffDescription,
-  limits: ImageLimits,
+  limits: TiffLimits,
   physicalSegment: number,
   rows: number,
 ): Promise<Uint8Array> => {
-  const offset = description.segmentOffsets[physicalSegment]
-  const byteCount = description.segmentByteCounts[physicalSegment]
-  if (offset === undefined || byteCount === undefined) throw invalidInput('TIFF segment is missing')
-  let encoded = await readExactly(source, offset, byteCount)
+  let encoded = await readEncodedSegment(source, description, limits, physicalSegment)
   if (
     description.compression === compressionOldJpeg &&
     description.oldJpeg &&
@@ -3161,14 +3265,11 @@ const decodeJpegSegment = async (
 const decodeJpeg2000Segment = async (
   source: ImageSource,
   description: TiffDescription,
-  limits: ImageLimits,
+  limits: TiffLimits,
   physicalSegment: number,
   rows: number,
 ): Promise<Uint8Array> => {
-  const offset = description.segmentOffsets[physicalSegment]
-  const byteCount = description.segmentByteCounts[physicalSegment]
-  if (offset === undefined || byteCount === undefined) throw invalidInput('TIFF segment is missing')
-  const encoded = await readExactly(source, offset, byteCount)
+  const encoded = await readEncodedSegment(source, description, limits, physicalSegment)
   const decoder = createJpeg2000CodestreamDecoder(encoded, {
     ...limits,
     colorSpace: description.compression === compressionAperioJpeg2000Ycbcr ? 'ycbcr' : 'rgb',
@@ -3202,7 +3303,7 @@ const decodeJpeg2000Segment = async (
 const decodeWebpSegment = async (
   source: ImageSource,
   description: TiffDescription,
-  limits: ImageLimits,
+  limits: TiffLimits,
   webpCodec: ImageCodec | undefined,
   physicalSegment: number,
   rows: number,
@@ -3211,10 +3312,7 @@ const decodeWebpSegment = async (
   if (!createDecoder) {
     throw unsupportedOperation('TIFF WebP compression requires an explicitly composed WebP codec')
   }
-  const offset = description.segmentOffsets[physicalSegment]
-  const byteCount = description.segmentByteCounts[physicalSegment]
-  if (offset === undefined || byteCount === undefined) throw invalidInput('TIFF segment is missing')
-  const encoded = await readExactly(source, offset, byteCount)
+  const encoded = await readEncodedSegment(source, description, limits, physicalSegment)
   const decoder = await createDecoder(new MemorySource(encoded), limits)
   if (decoder.width !== description.segmentWidth || decoder.height !== rows) {
     throw invalidInput(
@@ -3305,9 +3403,31 @@ const decodedSegmentStorageBytes = (description: TiffDescription, rows: number):
   return bytes
 }
 
+const largestEncodedSegmentBytes = (
+  description: TiffDescription,
+  segmentRow: number,
+  firstSegmentColumn: number,
+  segmentColumns: number,
+): bigint => {
+  let largest = 0
+  const planes = description.planarConfiguration === 2 ? description.samplesPerPixel : 1
+  for (let plane = 0; plane < planes; plane += 1) {
+    const planeOffset = plane * description.segmentsPerPlane
+    for (let column = 0; column < segmentColumns; column += 1) {
+      const logicalSegment = segmentRow * description.segmentsAcross + firstSegmentColumn + column
+      const byteCount = description.segmentByteCounts[planeOffset + logicalSegment]
+      if (byteCount === undefined) throw invalidInput('TIFF segment byte count is missing')
+      if (byteCount > largest) largest = byteCount
+    }
+  }
+  return BigInt(largest)
+}
+
 const validateDecodedWorkingPeak = (
   description: TiffDescription,
-  limits: ImageLimits,
+  limits: TiffLimits,
+  segmentRow: number,
+  firstSegmentColumn: number,
   segmentColumns: number,
   segmentRows: number,
   outputBytes: bigint,
@@ -3325,6 +3445,7 @@ const validateDecodedWorkingPeak = (
   }
   const peak =
     decodedSegmentStorageBytes(description, segmentRows) * BigInt(segmentColumns) +
+    largestEncodedSegmentBytes(description, segmentRow, firstSegmentColumn, segmentColumns) +
     outputBytes +
     conversionScratch
   if (peak > BigInt(limits.maxDecodedBytes)) {
@@ -3632,6 +3753,7 @@ const rasterSampleType = (description: TiffDescription): RasterSampleType => {
 const decodeRasterPlanes = async (
   source: ImageSource,
   description: TiffDescription,
+  limits: TiffLimits,
   logicalSegment: number,
   segmentRows: number,
 ): Promise<readonly Uint8Array[]> => {
@@ -3642,6 +3764,7 @@ const decodeRasterPlanes = async (
       await decodeSegment(
         source,
         description,
+        limits,
         logicalSegment,
         rowBytes * segmentRows,
         rowBytes,
@@ -3658,6 +3781,7 @@ const decodeRasterPlanes = async (
       await decodeSegment(
         source,
         description,
+        limits,
         sample * description.segmentsPerPlane + logicalSegment,
         rowBytes * segmentRows,
         rowBytes,
@@ -3675,10 +3799,10 @@ class TiffRasterDecoder implements RasterDecoder {
   readonly format: RasterFormat
   readonly #source: ImageSource
   readonly #description: TiffDescription
-  readonly #limits: ImageLimits
+  readonly #limits: TiffLimits
   readonly #bytesPerSample: 1 | 2 | 4 | 8
 
-  constructor(source: ImageSource, description: TiffDescription, limits: ImageLimits) {
+  constructor(source: ImageSource, description: TiffDescription, limits: TiffLimits) {
     this.#source = source
     this.#description = description
     this.#limits = limits
@@ -3729,6 +3853,8 @@ class TiffRasterDecoder implements RasterDecoder {
       validateDecodedWorkingPeak(
         this.#description,
         this.#limits,
+        segmentRow,
+        firstSegmentColumn,
         segmentColumns,
         segmentRows,
         largestOutputBytes,
@@ -3742,7 +3868,13 @@ class TiffRasterDecoder implements RasterDecoder {
       ) {
         const logicalSegment = segmentRow * this.#description.segmentsAcross + segmentColumn
         decodedSegments.push(
-          await decodeRasterPlanes(this.#source, this.#description, logicalSegment, segmentRows),
+          await decodeRasterPlanes(
+            this.#source,
+            this.#description,
+            this.#limits,
+            logicalSegment,
+            segmentRows,
+          ),
         )
       }
       for (let imageY = intersectionStart; imageY < intersectionEnd; imageY += blockRows) {
@@ -3820,13 +3952,13 @@ class TiffDecoder implements ImageDecoder {
   readonly capabilities
   readonly #source: ImageSource
   readonly #description: TiffDescription
-  readonly #limits: ImageLimits
+  readonly #limits: TiffLimits
   readonly #webpCodec: ImageCodec | undefined
 
   constructor(
     source: ImageSource,
     description: TiffDescription,
-    limits: ImageLimits,
+    limits: TiffLimits,
     webpCodec?: ImageCodec,
   ) {
     if (description.pixelFormat === undefined) {
@@ -3948,6 +4080,8 @@ class TiffDecoder implements ImageDecoder {
       validateDecodedWorkingPeak(
         this.#description,
         this.#limits,
+        segmentRow,
+        firstSegmentColumn,
         segmentColumns,
         segmentRows,
         BigInt(region.width) * BigInt(largestRows) * BigInt(outputBytesPerPixel),
@@ -4006,6 +4140,7 @@ class TiffDecoder implements ImageDecoder {
             await decodeSegment(
               this.#source,
               this.#description,
+              this.#limits,
               logicalSegment,
               expectedBytes,
               rowBytes,
@@ -4021,6 +4156,7 @@ class TiffDecoder implements ImageDecoder {
               await decodeSegment(
                 this.#source,
                 this.#description,
+                this.#limits,
                 sample * this.#description.segmentsPerPlane + logicalSegment,
                 rowBytes * segmentRows,
                 rowBytes,
@@ -4544,7 +4680,7 @@ class PublicTiffDirectory implements TiffDirectory {
   readonly tileHeight?: number
   #subIfds: readonly TiffDirectory[] = Object.freeze([])
   readonly #source: ImageSource
-  readonly #limits: ImageLimits
+  readonly #limits: TiffLimits
   readonly #graph: TiffIfdGraph
   readonly #ifd: TiffIfd
   readonly #embeddedCodecs: readonly ImageCodec[]
@@ -4553,7 +4689,7 @@ class PublicTiffDirectory implements TiffDirectory {
   private constructor(options: {
     readonly index: number
     readonly source: ImageSource
-    readonly limits: ImageLimits
+    readonly limits: TiffLimits
     readonly graph: TiffIfdGraph
     readonly ifd: TiffIfd
     readonly embeddedCodecs: readonly ImageCodec[]
@@ -4592,7 +4728,7 @@ class PublicTiffDirectory implements TiffDirectory {
   static async create(options: {
     readonly index: number
     readonly source: ImageSource
-    readonly limits: ImageLimits
+    readonly limits: TiffLimits
     readonly graph: TiffIfdGraph
     readonly ifd: TiffIfd
     readonly embeddedCodecs: readonly ImageCodec[]
@@ -4792,7 +4928,7 @@ export const openTiffDocument = async (
 ): Promise<TiffDocument> => {
   throwIfAborted(options.signal)
   const documentSource = bindImageSourceSignal(source, options.signal)
-  const limits = resolveLimits(options)
+  const limits = resolveTiffLimits(options)
   validateInputSize(documentSource.size, limits)
   const graph = await readTiffIfdGraph(documentSource, limits)
   const ifds = [...graph.directories.values()]
@@ -4847,24 +4983,31 @@ export const createTiffCodec = (options: Readonly<TiffCodecOptions> = {}): Image
     detect: isTiff,
     metadata: async (source, limits, decoderOptions = {}) => {
       const boundSource = bindImageSourceSignal(source, decoderOptions.signal)
-      return metadata(await describeTiff(boundSource, limits, decoderOptions))
+      return metadata(
+        await describeTiff(boundSource, withDefaultTiffLimits(limits), decoderOptions),
+      )
     },
     preservedMetadata: async (source, limits, preserveOptions): Promise<PreservedMetadata> => {
       if (preserveOptions?.exif)
         throw unsupportedOperation('Preserving EXIF from TIFF input is not implemented')
       const boundSource = bindImageSourceSignal(source, preserveOptions?.signal)
-      const description = await describeTiff(boundSource, limits, preserveOptions)
+      const description = await describeTiff(
+        boundSource,
+        withDefaultTiffLimits(limits),
+        preserveOptions,
+      )
       return description.iccProfile ? { icc: Uint8Array.from(description.iccProfile) } : {}
     },
     createDecoder: async (source, limits, decoderOptions: Readonly<DecoderOptions> = {}) => {
       const boundSource = bindImageSourceSignal(source, decoderOptions.signal)
-      const description = await describeTiff(boundSource, limits, decoderOptions)
+      const tiffLimits = withDefaultTiffLimits(limits)
+      const description = await describeTiff(boundSource, tiffLimits, decoderOptions)
       const applyColorTransform = description.colorTransform && decoderOptions.preserveIcc !== true
       const decoderDescription: TiffDescription =
         applyColorTransform && description.pixelFormat === 'rgb16'
           ? { ...description, pixelFormat: 'rgb8' }
           : description
-      const decoder = new TiffDecoder(boundSource, decoderDescription, limits, webpCodec)
+      const decoder = new TiffDecoder(boundSource, decoderDescription, tiffLimits, webpCodec)
       return applyColorTransform
         ? new ColorManagedDecoder(decoder, description.colorTransform)
         : decoder

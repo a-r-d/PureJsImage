@@ -1098,14 +1098,14 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
     maxHeight: 4,
     maxPixels: 48,
     maxInputBytes: aperioInput.byteLength,
-    maxDecodedBytes: 50,
+    maxDecodedBytes: 70,
   })
   const aperioDirectory = aperioDocument.topLevelDirectories[0]
   if (aperioDirectory === undefined) throw new Error('Browser Aperio TIFF has no directory')
   const directDecoder = await aperioDirectory.createImageDecoder()
   try {
     for await (const _block of directDecoder.decode({ x: 0, y: 1, width: 12, height: 1 })) {
-      // The aggregate 60-byte segment-row peak must reject before output.
+      // Decoded segments and output need 60 bytes; the encoded buffer raises the peak to 76.
     }
     throw new Error('Browser TIFF accepted an over-budget segment-row peak')
   } catch (error: unknown) {
@@ -1117,7 +1117,7 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
       maxHeight: 4,
       maxSourceBytes: aperioInput.byteLength,
       maxRegionPixels: 48,
-      maxRegionDecodedBytes: 50,
+      maxRegionDecodedBytes: 70,
     },
   })
   const stripe: { readonly x: number; readonly values: readonly number[] }[] = []
