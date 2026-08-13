@@ -341,7 +341,7 @@ const positiveVersion = (
   return value
 }
 
-const namespacedIdPattern = /^[a-z][a-z0-9]*(?:[.-][a-z][a-z0-9-]*)+$/u
+const namespacedIdPattern = /^[a-z][a-z0-9]*(?:[.-][a-z][a-z0-9]*)+$/u
 const portNamePattern = /^[a-z][a-zA-Z0-9]*$/u
 
 export const isNamespacedOperationId = (value: string): boolean => namespacedIdPattern.test(value)

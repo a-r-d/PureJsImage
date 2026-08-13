@@ -106,7 +106,7 @@ const source: TileSource = {
 
 const operation = createOperationDefinition({
   descriptor: {
-    id: 'benchmark.mean-3x3',
+    id: 'benchmark.mean-three-by-three',
     version: 1,
     title: 'Benchmark 3x3 mean',
     category: 'benchmark',

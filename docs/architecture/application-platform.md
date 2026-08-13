@@ -1378,6 +1378,10 @@ to own only generic descriptors, definitions, providers, and registries.
 - [x] State the quantitative `uint64` boundary explicitly. Native tiles remain exact, while current
       number-backed analysis rejects samples above `Number.MAX_SAFE_INTEGER`; bigint/decimal result,
       parameter, and no-data contracts remain future work.
+- [x] Make namespaced operation and extension ID validation linear-time. A single segmented-ID
+      validator now preserves well-formed dotted and hyphenated IDs without overlapping separator
+      consumption. Before release, the alpha contract intentionally stops accepting trailing or
+      consecutive hyphens and focused tests cover long adversarial inputs.
 
   - Small-feedback validation: 64 focused operation/controller/result/tile/extension tests pass;
     dense nearest sampling uses three normal tiles for 17 samples and the cross-boundary bilinear
@@ -1397,3 +1401,9 @@ to own only generic descriptors, definitions, providers, and registries.
     four concurrent visible tiles at concurrency four, a crop-to-Gaussian chain, cancellation while
     blocked upstream, shared in-flight upstream work with one consumer cancelling, and two default
     bundles sharing one runtime without cache cross-contamination.
+
+  - CodeQL validation: the two unresolved PR 20 regular-expression findings share one linear-time
+    validator. The 22 focused operation/extension tests, correctness-gated tile-runtime benchmark,
+    package types, browser graph, lint, and formatting pass. Both standard and hostile-source suites
+    reach 93 passing files and 1,176 passing tests before the same three environment-specific
+    expanded 12-bit AVIF Sharp-oracle hash mismatches.

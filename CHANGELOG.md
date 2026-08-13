@@ -98,6 +98,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Tightened unreleased namespaced operation and extension IDs to well-formed dotted or hyphenated
+  segments and made validation linear-time for adversarial input.
 - Made nested tile requests dependency-safe by default so derived operations yield scheduler
   permits before awaiting upstream tiles, and isolated automatically assigned built-in analysis
   cache identities per `TileRuntime` context.

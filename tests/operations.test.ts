@@ -7,6 +7,7 @@ import {
   createOperationRegistry,
   createValueTypeDefinition,
   createValueTypeRegistry,
+  isNamespacedOperationId,
   normalizeOperationDescriptor,
   OperationRuntime,
   prepareOperationRuntime,
@@ -89,6 +90,14 @@ describe('operation descriptors', () => {
     expect(result.valid).toBe(false)
     expect(result.issues.length).toBeLessThanOrEqual(3)
     expect(result.issues.some((issue) => issue.code === 'limit-exceeded')).toBe(true)
+  })
+
+  it('validates long segmented ids without ambiguous separator backtracking', () => {
+    expect(isNamespacedOperationId('example-analysis.gaussian-blur')).toBe(true)
+    expect(isNamespacedOperationId('example.analysis-')).toBe(false)
+    expect(isNamespacedOperationId('example.analysis--blur')).toBe(false)
+    expect(isNamespacedOperationId(`a${'-a'.repeat(20_000)}`)).toBe(true)
+    expect(isNamespacedOperationId(`a${'-a'.repeat(20_000)}-`)).toBe(false)
   })
 
   it('keeps representative resize and histogram descriptors plain JSON', () => {

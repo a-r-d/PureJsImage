@@ -132,6 +132,36 @@ describe('trusted extension bundles', () => {
     expect(original.manifest.extensions.map((entry) => entry.id)).toEqual(['example.one'])
   })
 
+  it('shares linear segmented-id validation with operation descriptors', () => {
+    expect(
+      createExtensionHost({
+        extensions: [
+          {
+            descriptor: {
+              id: 'example-analysis.gaussian-blur',
+              version: 1,
+              apiVersion: 1,
+            },
+          },
+        ],
+      }).manifest.extensions.map((entry) => entry.id),
+    ).toEqual(['example-analysis.gaussian-blur'])
+
+    expect(() =>
+      createExtensionHost({
+        extensions: [
+          {
+            descriptor: {
+              id: `a${'-a'.repeat(20_000)}-`,
+              version: 1,
+              apiVersion: 1,
+            },
+          },
+        ],
+      }),
+    ).toThrow('lowercase namespaced identifier')
+  })
+
   it('rejects colliding extension migration contributions atomically', () => {
     expect(() =>
       createExtensionHost({

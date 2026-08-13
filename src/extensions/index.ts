@@ -5,7 +5,7 @@ import type {
 } from '../analysis/migrations.ts'
 import { AnalysisMigrationRegistry, describeAnalysisMigration } from '../analysis/migrations.ts'
 import type { OperationJsonObject } from '../operations/descriptor.ts'
-import { normalizeValueTypeDescriptor } from '../operations/descriptor.ts'
+import { isNamespacedOperationId, normalizeValueTypeDescriptor } from '../operations/descriptor.ts'
 import type { OperationProvider, OperationProviderDescriptor } from '../operations/provider.ts'
 import {
   normalizeOperationProviderDescriptor,
@@ -84,8 +84,6 @@ export interface ExtensionHost {
   prepare(signal?: AbortSignal): Promise<PreparedExtensionHost>
 }
 
-const extensionIdPattern = /^[a-z][a-z0-9]*(?:[.-][a-z][a-z0-9-]*)+$/u
-
 const normalizeExtensionJson = (
   value: OperationJsonObject | undefined,
   label: string,
@@ -103,7 +101,7 @@ const normalizeExtensionJson = (
 const normalizeExtensionDescriptor = (
   descriptor: PureJsImageExtensionDescriptor,
 ): PureJsImageExtensionDescriptor => {
-  if (!extensionIdPattern.test(descriptor.id) || descriptor.id.startsWith('purejsimage.')) {
+  if (!isNamespacedOperationId(descriptor.id) || descriptor.id.startsWith('purejsimage.')) {
     throw invalidInput('Extension id must be a non-core lowercase namespaced identifier')
   }
   if (!Number.isSafeInteger(descriptor.version) || descriptor.version < 1) {
