@@ -1,0 +1,791 @@
+{
+  "schemaVersion": 1,
+  "fixtureVersion": "application-platform-v1",
+  "environment": {
+    "node": "v24.16.0",
+    "platform": "darwin",
+    "platformRelease": "25.5.0",
+    "arch": "arm64",
+    "provider": {
+      "id": "purejsimage.analysis.reference",
+      "version": 1,
+      "implementationVersion": "1.0.0"
+    }
+  },
+  "correctness": {
+    "passed": true,
+    "policy": "Every timing is admitted only after dataset, checksum, result-kind, provenance, or bounded-range validation."
+  },
+  "documents": {
+    "gsf": {
+      "reader": "purejsimage/gsf",
+      "bytes": 262196,
+      "detectionMilliseconds": 2.096,
+      "summaryMilliseconds": 0.007,
+      "firstTileMilliseconds": 1.267,
+      "checksum": 850944
+    },
+    "mrc": {
+      "reader": "purejsimage/mrc",
+      "bytes": 33792,
+      "detectionMilliseconds": 0.792,
+      "summaryMilliseconds": 0.002,
+      "firstTileMilliseconds": 0.466,
+      "checksum": 1015296
+    },
+    "cbf": {
+      "reader": "purejsimage/cbf",
+      "bytes": 16874,
+      "detectionMilliseconds": 1.447,
+      "summaryMilliseconds": 0.001,
+      "firstTileMilliseconds": 2.033,
+      "checksum": 50096
+    }
+  },
+  "arbitraryAxes": {
+    "shape": {
+      "scanX": 16,
+      "scanY": 12,
+      "kx": 64,
+      "ky": 64
+    },
+    "displayAxes": [
+      "kx",
+      "ky"
+    ],
+    "fixedIndices": {
+      "scanX": 3,
+      "scanY": 4
+    },
+    "firstTileMilliseconds": 1.326,
+    "checksum": 147650560
+  },
+  "firstDisplayTile": {
+    "width": 128,
+    "height": 128,
+    "milliseconds": 1.132,
+    "checksum": 6048
+  },
+  "rangeWsi": {
+    "sourceBytes": 1938955,
+    "sourceOpenMilliseconds": 12.948,
+    "tiffOpenMilliseconds": 1.725,
+    "slideOpenMilliseconds": 0.626,
+    "firstTileMilliseconds": 9.964,
+    "checksum": 428937,
+    "httpRange": {
+      "requests": 6,
+      "bytesFetched": 300556,
+      "cacheBytes": 300555
+    }
+  },
+  "cacheClasses": {
+    "enabled": true,
+    "cache": {
+      "hits": 2,
+      "misses": 2,
+      "admissions": 2,
+      "evictions": 0,
+      "replacements": 0,
+      "currentEntries": 2,
+      "currentBytes": 131072,
+      "highWaterBytes": 131072,
+      "sourceRetainedBytes": 65536,
+      "derivedRetainedBytes": 65536
+    },
+    "tasks": {
+      "inFlightRequests": 0,
+      "queued": 0,
+      "running": 0,
+      "completed": 2,
+      "cancelled": 0,
+      "failed": 0,
+      "consumerCancellations": 0,
+      "bytesRequested": 131072,
+      "bytesProduced": 131072,
+      "releaseFailures": 0
+    },
+    "providerTiming": {
+      "setupMillisecondsEstimate": 0,
+      "transferMillisecondsEstimate": 0,
+      "computeMillisecondsEstimate": 0,
+      "readbackMillisecondsEstimate": 0,
+      "computeMillisecondsMeasured": 0
+    },
+    "timeToFirstCompletedTileMilliseconds": 0.2551250000000209,
+    "memoryScope": "Retained NumericTile typed-array byteLength plus declared auxiliary bytes; not process peak memory",
+    "timingScope": "Provider estimates are labeled separately from measured wall-clock compute time"
+  },
+  "controller": {
+    "validationMilliseconds": 1.04,
+    "providerPreparationMilliseconds": 0.235,
+    "operationCount": 9
+  },
+  "operations": {
+    "statistics": {
+      "coldMilliseconds": 276.918,
+      "warmMilliseconds": 41.343,
+      "summary": {
+        "kind": "collection",
+        "valueType": "purejsimage.result.collection",
+        "memory": {
+          "payloadBytes": 48,
+          "structuralBytes": 260,
+          "retainedBytes": 308
+        },
+        "metadata": {
+          "reductionOrder": "global-row-major",
+          "roiCount": 1
+        },
+        "provenance": null,
+        "schema": {
+          "entries": [
+            {
+              "name": "count",
+              "valueType": "purejsimage.result.scalar"
+            },
+            {
+              "name": "finiteCount",
+              "valueType": "purejsimage.result.scalar"
+            },
+            {
+              "name": "invalidCount",
+              "valueType": "purejsimage.result.scalar"
+            },
+            {
+              "name": "minimum",
+              "valueType": "purejsimage.result.scalar"
+            },
+            {
+              "name": "maximum",
+              "valueType": "purejsimage.result.scalar"
+            },
+            {
+              "name": "mean",
+              "valueType": "purejsimage.result.scalar"
+            },
+            {
+              "name": "populationStandardDeviation",
+              "valueType": "purejsimage.result.scalar"
+            },
+            {
+              "name": "percentiles",
+              "valueType": "purejsimage.result.profile"
+            }
+          ]
+        },
+        "units": [
+          "%"
+        ],
+        "dimensions": {
+          "results": 8
+        },
+        "finiteRanges": {},
+        "preview": {
+          "count": {
+            "kind": "scalar",
+            "valueType": "purejsimage.result.scalar",
+            "memory": {
+              "payloadBytes": 0,
+              "structuralBytes": 2,
+              "retainedBytes": 2
+            },
+            "metadata": null,
+            "provenance": null,
+            "schema": {
+              "value": "number",
+              "nanPolicy": "forbid"
+            },
+            "units": [],
+            "dimensions": {
+              "values": 1
+            },
+            "finiteRanges": {
+              "value": {
+                "minimum": 589824,
+                "maximum": 589824,
+                "finiteValues": 1,
+                "nanValues": 0,
+                "invalidValues": 0
+              }
+            },
+            "preview": 589824
+          },
+          "finiteCount": {
+            "kind": "scalar",
+            "valueType": "purejsimage.result.scalar",
+            "memory": {
+              "payloadBytes": 0,
+              "structuralBytes": 2,
+              "retainedBytes": 2
+            },
+            "metadata": null,
+            "provenance": null,
+            "schema": {
+              "value": "number",
+              "nanPolicy": "forbid"
+            },
+            "units": [],
+            "dimensions": {
+              "values": 1
+            },
+            "finiteRanges": {
+              "value": {
+                "minimum": 589824,
+                "maximum": 589824,
+                "finiteValues": 1,
+                "nanValues": 0,
+                "invalidValues": 0
+              }
+            },
+            "preview": 589824
+          },
+          "invalidCount": {
+            "kind": "scalar",
+            "valueType": "purejsimage.result.scalar",
+            "memory": {
+              "payloadBytes": 0,
+              "structuralBytes": 2,
+              "retainedBytes": 2
+            },
+            "metadata": null,
+            "provenance": null,
+            "schema": {
+              "value": "number",
+              "nanPolicy": "forbid"
+            },
+            "units": [],
+            "dimensions": {
+              "values": 1
+            },
+            "finiteRanges": {
+              "value": {
+                "minimum": 0,
+                "maximum": 0,
+                "finiteValues": 1,
+                "nanValues": 0,
+                "invalidValues": 0
+              }
+            },
+            "preview": 0
+          },
+          "minimum": {
+            "kind": "scalar",
+            "valueType": "purejsimage.result.scalar",
+            "memory": {
+              "payloadBytes": 0,
+              "structuralBytes": 2,
+              "retainedBytes": 2
+            },
+            "metadata": null,
+            "provenance": null,
+            "schema": {
+              "value": "number",
+              "nanPolicy": "forbid"
+            },
+            "units": [],
+            "dimensions": {
+              "values": 1
+            },
+            "finiteRanges": {
+              "value": {
+                "minimum": 96,
+                "maximum": 96,
+                "finiteValues": 1,
+                "nanValues": 0,
+                "invalidValues": 0
+              }
+            },
+            "preview": 96
+          },
+          "maximum": {
+            "kind": "scalar",
+            "valueType": "purejsimage.result.scalar",
+            "memory": {
+              "payloadBytes": 0,
+              "structuralBytes": 2,
+              "retainedBytes": 2
+            },
+            "metadata": null,
+            "provenance": null,
+            "schema": {
+              "value": "number",
+              "nanPolicy": "forbid"
+            },
+            "units": [],
+            "dimensions": {
+              "values": 1
+            },
+            "finiteRanges": {
+              "value": {
+                "minimum": 671.25,
+                "maximum": 671.25,
+                "finiteValues": 1,
+                "nanValues": 0,
+                "invalidValues": 0
+              }
+            },
+            "preview": 671.25
+          },
+          "mean": {
+            "kind": "scalar",
+            "valueType": "purejsimage.result.scalar",
+            "memory": {
+              "payloadBytes": 0,
+              "structuralBytes": 2,
+              "retainedBytes": 2
+            },
+            "metadata": null,
+            "provenance": null,
+            "schema": {
+              "value": "number",
+              "nanPolicy": "forbid"
+            },
+            "units": [],
+            "dimensions": {
+              "values": 1
+            },
+            "finiteRanges": {
+              "value": {
+                "minimum": 383.62500000001273,
+                "maximum": 383.62500000001273,
+                "finiteValues": 1,
+                "nanValues": 0,
+                "invalidValues": 0
+              }
+            },
+            "preview": 383.62500000001273
+          },
+          "populationStandardDeviation": {
+            "kind": "scalar",
+            "valueType": "purejsimage.result.scalar",
+            "memory": {
+              "payloadBytes": 0,
+              "structuralBytes": 2,
+              "retainedBytes": 2
+            },
+            "metadata": null,
+            "provenance": null,
+            "schema": {
+              "value": "number",
+              "nanPolicy": "forbid"
+            },
+            "units": [],
+            "dimensions": {
+              "values": 1
+            },
+            "finiteRanges": {
+              "value": {
+                "minimum": 123.93536201719212,
+                "maximum": 123.93536201719212,
+                "finiteValues": 1,
+                "nanValues": 0,
+                "invalidValues": 0
+              }
+            },
+            "preview": 123.93536201719212
+          },
+          "percentiles": {
+            "kind": "profile",
+            "valueType": "purejsimage.result.profile",
+            "memory": {
+              "payloadBytes": 48,
+              "structuralBytes": 112,
+              "retainedBytes": 160
+            },
+            "metadata": {
+              "approximation": "deterministic-row-major-reservoir",
+              "sampledValues": 4096,
+              "maximumSamples": 4096
+            },
+            "provenance": null,
+            "schema": {
+              "axis": {
+                "name": "percentile",
+                "dataType": "Float64Array",
+                "nanPolicy": "forbid"
+              },
+              "series": [
+                {
+                  "name": "value",
+                  "dataType": "Float64Array",
+                  "nanPolicy": "forbid",
+                  "validity": false
+                }
+              ]
+            },
+            "units": [
+              "%"
+            ],
+            "dimensions": {
+              "points": 3,
+              "series": 1
+            },
+            "finiteRanges": {
+              "percentile": {
+                "minimum": 5,
+                "maximum": 95,
+                "finiteValues": 3,
+                "nanValues": 0,
+                "invalidValues": 0
+              },
+              "value": {
+                "minimum": 140,
+                "maximum": 590,
+                "finiteValues": 3,
+                "nanValues": 0,
+                "invalidValues": 0
+              }
+            },
+            "preview": {
+              "percentile": [
+                5,
+                50,
+                95
+              ],
+              "value": [
+                140,
+                362.5,
+                590
+              ]
+            }
+          }
+        }
+      },
+      "provider": {
+        "id": "purejsimage.analysis.reference",
+        "version": 1,
+        "implementationVersion": "1.0.0"
+      }
+    },
+    "profile": {
+      "coldMilliseconds": 27.934,
+      "warmMilliseconds": 11.643,
+      "summary": {
+        "kind": "profile",
+        "valueType": "purejsimage.result.profile",
+        "memory": {
+          "payloadBytes": 11328,
+          "structuralBytes": 83,
+          "retainedBytes": 11411
+        },
+        "metadata": {
+          "interpolation": "bilinear",
+          "spacingSpace": "pixel",
+          "roiId": "profile"
+        },
+        "provenance": null,
+        "schema": {
+          "axis": {
+            "name": "distance",
+            "dataType": "Float64Array",
+            "nanPolicy": "forbid"
+          },
+          "series": [
+            {
+              "name": "signal",
+              "dataType": "Float64Array",
+              "nanPolicy": "forbid",
+              "validity": false
+            }
+          ]
+        },
+        "units": [],
+        "dimensions": {
+          "points": 708,
+          "series": 1
+        },
+        "finiteRanges": {
+          "distance": {
+            "minimum": 0,
+            "maximum": 1412.799348810722,
+            "finiteValues": 708,
+            "nanValues": 0,
+            "invalidValues": 0
+          },
+          "signal": {
+            "minimum": 0,
+            "maximum": 749.25,
+            "finiteValues": 708,
+            "nanValues": 0,
+            "invalidValues": 0
+          }
+        },
+        "preview": {
+          "distance": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            18,
+            20,
+            22,
+            24,
+            26,
+            28,
+            30,
+            32,
+            34,
+            36,
+            38,
+            40,
+            42,
+            44,
+            46,
+            48,
+            50,
+            52,
+            54,
+            56,
+            58,
+            60,
+            62
+          ],
+          "signal": [
+            0,
+            1.0606601717798212,
+            2.121320343559642,
+            3.1819805153394634,
+            4.242640687119285,
+            5.303300858899106,
+            6.363961030678927,
+            7.424621202458748,
+            8.48528137423857,
+            9.54594154601839,
+            10.606601717798211,
+            11.667261889578032,
+            12.727922061357853,
+            13.788582233137676,
+            14.849242404917495,
+            15.909902576697322,
+            16.97056274847714,
+            18.031222920256962,
+            19.09188309203678,
+            20.152543263816604,
+            21.213203435596423,
+            22.27386360737625,
+            23.33452377915607,
+            24.395183950935888,
+            25.45584412271571,
+            26.51650429449553,
+            27.577164466275352,
+            28.637824638055175,
+            29.698484809834987,
+            30.759144981614817,
+            31.81980515339464,
+            32.880465325174455
+          ]
+        }
+      },
+      "provider": {
+        "id": "purejsimage.analysis.reference",
+        "version": 1,
+        "implementationVersion": "1.0.0"
+      }
+    },
+    "threshold": {
+      "planningMilliseconds": 0.839,
+      "firstTileMilliseconds": 19.747,
+      "warmTileMilliseconds": 1.038,
+      "checksum": 49024,
+      "runtime": {
+        "enabled": true,
+        "cache": {
+          "hits": 1,
+          "misses": 1,
+          "admissions": 1,
+          "evictions": 0,
+          "replacements": 0,
+          "currentEntries": 1,
+          "currentBytes": 262144,
+          "highWaterBytes": 262144,
+          "sourceRetainedBytes": 262144,
+          "derivedRetainedBytes": 0
+        },
+        "tasks": {
+          "inFlightRequests": 0,
+          "queued": 0,
+          "running": 0,
+          "completed": 1,
+          "cancelled": 0,
+          "failed": 0,
+          "consumerCancellations": 0,
+          "bytesRequested": 262144,
+          "bytesProduced": 262144,
+          "releaseFailures": 0
+        },
+        "providerTiming": {
+          "setupMillisecondsEstimate": 0,
+          "transferMillisecondsEstimate": 0,
+          "computeMillisecondsEstimate": 0,
+          "readbackMillisecondsEstimate": 0,
+          "computeMillisecondsMeasured": 0
+        },
+        "timeToFirstCompletedTileMilliseconds": 17.984333000000106,
+        "memoryScope": "Retained NumericTile typed-array byteLength plus declared auxiliary bytes; not process peak memory",
+        "timingScope": "Provider estimates are labeled separately from measured wall-clock compute time"
+      },
+      "provider": {
+        "id": "purejsimage.analysis.reference",
+        "version": 1,
+        "implementationVersion": "1.0.0"
+      }
+    },
+    "gaussianBlurByTileSize": {
+      "64": {
+        "planningMilliseconds": 0.669,
+        "firstTileMilliseconds": 8.029,
+        "warmTileMilliseconds": 1.698,
+        "checksum": 28672,
+        "runtime": {
+          "enabled": true,
+          "cache": {
+            "hits": 1,
+            "misses": 1,
+            "admissions": 1,
+            "evictions": 0,
+            "replacements": 0,
+            "currentEntries": 1,
+            "currentBytes": 42632,
+            "highWaterBytes": 42632,
+            "sourceRetainedBytes": 42632,
+            "derivedRetainedBytes": 0
+          },
+          "tasks": {
+            "inFlightRequests": 0,
+            "queued": 0,
+            "running": 0,
+            "completed": 1,
+            "cancelled": 0,
+            "failed": 0,
+            "consumerCancellations": 0,
+            "bytesRequested": 42632,
+            "bytesProduced": 42632,
+            "releaseFailures": 0
+          },
+          "providerTiming": {
+            "setupMillisecondsEstimate": 0,
+            "transferMillisecondsEstimate": 0,
+            "computeMillisecondsEstimate": 0,
+            "readbackMillisecondsEstimate": 0,
+            "computeMillisecondsMeasured": 0
+          },
+          "timeToFirstCompletedTileMilliseconds": 2.3768329999999196,
+          "memoryScope": "Retained NumericTile typed-array byteLength plus declared auxiliary bytes; not process peak memory",
+          "timingScope": "Provider estimates are labeled separately from measured wall-clock compute time"
+        },
+        "provider": {
+          "id": "purejsimage.analysis.reference",
+          "version": 1,
+          "implementationVersion": "1.0.0"
+        }
+      },
+      "128": {
+        "planningMilliseconds": 0.426,
+        "firstTileMilliseconds": 8.287,
+        "warmTileMilliseconds": 4.174,
+        "checksum": 114688,
+        "runtime": {
+          "enabled": true,
+          "cache": {
+            "hits": 1,
+            "misses": 1,
+            "admissions": 1,
+            "evictions": 0,
+            "replacements": 0,
+            "currentEntries": 1,
+            "currentBytes": 150152,
+            "highWaterBytes": 150152,
+            "sourceRetainedBytes": 150152,
+            "derivedRetainedBytes": 0
+          },
+          "tasks": {
+            "inFlightRequests": 0,
+            "queued": 0,
+            "running": 0,
+            "completed": 1,
+            "cancelled": 0,
+            "failed": 0,
+            "consumerCancellations": 0,
+            "bytesRequested": 150152,
+            "bytesProduced": 150152,
+            "releaseFailures": 0
+          },
+          "providerTiming": {
+            "setupMillisecondsEstimate": 0,
+            "transferMillisecondsEstimate": 0,
+            "computeMillisecondsEstimate": 0,
+            "readbackMillisecondsEstimate": 0,
+            "computeMillisecondsMeasured": 0
+          },
+          "timeToFirstCompletedTileMilliseconds": 4.732999999999947,
+          "memoryScope": "Retained NumericTile typed-array byteLength plus declared auxiliary bytes; not process peak memory",
+          "timingScope": "Provider estimates are labeled separately from measured wall-clock compute time"
+        },
+        "provider": {
+          "id": "purejsimage.analysis.reference",
+          "version": 1,
+          "implementationVersion": "1.0.0"
+        }
+      },
+      "256": {
+        "planningMilliseconds": 0.365,
+        "firstTileMilliseconds": 31.311,
+        "warmTileMilliseconds": 15.602,
+        "checksum": 458752,
+        "runtime": {
+          "enabled": true,
+          "cache": {
+            "hits": 1,
+            "misses": 1,
+            "admissions": 1,
+            "evictions": 0,
+            "replacements": 0,
+            "currentEntries": 1,
+            "currentBytes": 561800,
+            "highWaterBytes": 561800,
+            "sourceRetainedBytes": 561800,
+            "derivedRetainedBytes": 0
+          },
+          "tasks": {
+            "inFlightRequests": 0,
+            "queued": 0,
+            "running": 0,
+            "completed": 1,
+            "cancelled": 0,
+            "failed": 0,
+            "consumerCancellations": 0,
+            "bytesRequested": 561800,
+            "bytesProduced": 561800,
+            "releaseFailures": 0
+          },
+          "providerTiming": {
+            "setupMillisecondsEstimate": 0,
+            "transferMillisecondsEstimate": 0,
+            "computeMillisecondsEstimate": 0,
+            "readbackMillisecondsEstimate": 0,
+            "computeMillisecondsMeasured": 0
+          },
+          "timeToFirstCompletedTileMilliseconds": 16.151749999999993,
+          "memoryScope": "Retained NumericTile typed-array byteLength plus declared auxiliary bytes; not process peak memory",
+          "timingScope": "Provider estimates are labeled separately from measured wall-clock compute time"
+        },
+        "provider": {
+          "id": "purejsimage.analysis.reference",
+          "version": 1,
+          "implementationVersion": "1.0.0"
+        }
+      }
+    }
+  },
+  "measurementScope": {
+    "timing": "Local wall-clock measurements with one cold and one warm application invocation.",
+    "memory": "Tile runtime cache bytes and planner estimates are bounded accounting, not process peak RSS.",
+    "coldWarm": "Cold includes first plan/read for the constructed controller; warm repeats the same semantic request with cache residency visible in runtime metrics."
+  }
+}

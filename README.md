@@ -285,6 +285,10 @@ slice, projection, threshold, Gaussian blur, ROI statistics, histogram, and cali
 profiles. They are registered only through an explicit application-owned bundle. See the
 [built-in scientific analysis operations guide](docs/built-in-analysis-operations.md).
 
+For the complete installed-package workflow—reader registry, arbitrary-axis tiles, ROI analysis,
+graph save/replay, provider pinning, capability/command inspection, and trusted custom
+operations—see [Building scientific applications with PureJsImage](docs/application-platform.md).
+
 MRC and FITS volumes share lazy cross-section and projection operations:
 
 ```ts

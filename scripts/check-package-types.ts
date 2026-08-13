@@ -1,28 +1,149 @@
 import { spawnSync } from 'node:child_process'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { builtinModules } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { build } from 'esbuild'
 import packageJson from '../package.json' with { type: 'json' }
 
 const repositoryRoot = dirname(dirname(fileURLToPath(import.meta.url)))
+const fixtureRoot = join(repositoryRoot, 'test-fixtures/packed-package-consumer')
 
-const run = (command: string, arguments_: readonly string[], cwd: string): void => {
+interface CommandResult {
+  readonly status: number | null
+  readonly stdout: string
+  readonly stderr: string
+}
+
+const execute = (
+  command: string,
+  arguments_: readonly string[],
+  cwd: string,
+  environment: Readonly<Record<string, string>>,
+): CommandResult => {
   const result = spawnSync(command, arguments_, {
     cwd,
     encoding: 'utf8',
-    env: { ...process.env, npm_config_dry_run: 'false' },
+    env: { ...process.env, ...environment },
   })
   if (result.error) throw result.error
-  if (result.status === 0) return
+  return { status: result.status, stdout: result.stdout, stderr: result.stderr }
+}
+
+const run = (
+  command: string,
+  arguments_: readonly string[],
+  cwd: string,
+  environment: Readonly<Record<string, string>>,
+): string => {
+  const result = execute(command, arguments_, cwd, environment)
+  if (result.status === 0) return result.stdout
   throw new Error(
     `${command} ${arguments_.join(' ')} exited with status ${result.status ?? 'unknown'}\n${result.stdout}${result.stderr}`,
   )
 }
 
+const expectBuildFailure = async (
+  entryPoint: string,
+  consumerDirectory: string,
+  expectedText: RegExp,
+): Promise<void> => {
+  try {
+    await build({
+      absWorkingDir: consumerDirectory,
+      bundle: true,
+      entryPoints: [entryPoint],
+      format: 'esm',
+      logLevel: 'silent',
+      platform: 'browser',
+      write: false,
+    })
+  } catch (error) {
+    const text = error instanceof Error ? error.message : String(error)
+    if (expectedText.test(text)) return
+    throw new Error(`Bundle failed for an unexpected reason: ${text}`)
+  }
+  throw new Error(`Expected browser bundle ${entryPoint} to fail`)
+}
+
+const assertPortableBundle = async (
+  entryPoint: string,
+  consumerDirectory: string,
+): Promise<number> => {
+  const result = await build({
+    absWorkingDir: consumerDirectory,
+    bundle: true,
+    entryPoints: [entryPoint],
+    format: 'esm',
+    logLevel: 'silent',
+    metafile: true,
+    platform: 'browser',
+    write: false,
+  })
+  const builtins = new Set(builtinModules.flatMap((name) => [name, `node:${name}`]))
+  for (const [input, metadata] of Object.entries(result.metafile.inputs)) {
+    for (const imported of metadata.imports) {
+      if (builtins.has(imported.path) || imported.path.startsWith('node:')) {
+        throw new Error(`Packed browser input ${input} contains Node built-in ${imported.path}`)
+      }
+    }
+  }
+  const output = result.outputFiles[0]?.text
+  if (output === undefined) throw new Error(`Browser bundle ${entryPoint} produced no output`)
+  if (/\bnode:[a-z0-9_/-]+/iu.test(output)) {
+    throw new Error(`Packed browser bundle ${entryPoint} contains a Node built-in specifier`)
+  }
+  return output.length
+}
+
+const packedFiles = (output: string): readonly string[] => {
+  const parsed: unknown = JSON.parse(output)
+  if (!Array.isArray(parsed) || parsed.length !== 1) throw new Error('Unexpected npm pack report')
+  const report: unknown = parsed[0]
+  if (report === null || typeof report !== 'object' || !('files' in report)) {
+    throw new Error('npm pack report omitted files')
+  }
+  const files: unknown = report.files
+  if (!Array.isArray(files)) throw new Error('npm pack report files must be an array')
+  return files.map((entry) => {
+    if (entry === null || typeof entry !== 'object' || !('path' in entry)) {
+      throw new Error('npm pack report contained an invalid file')
+    }
+    const path: unknown = entry.path
+    if (typeof path !== 'string') throw new Error('npm pack file path must be a string')
+    return path
+  })
+}
+
 const temporaryDirectory = await mkdtemp(join(tmpdir(), 'purejsimage-package-types-'))
 try {
-  run('npm', ['pack', '--ignore-scripts', '--pack-destination', temporaryDirectory], repositoryRoot)
+  const environment = {
+    npm_config_cache: join(temporaryDirectory, 'npm-cache'),
+    npm_config_dry_run: 'false',
+  }
+  const packReport = run(
+    'npm',
+    ['pack', '--json', '--ignore-scripts', '--pack-destination', temporaryDirectory],
+    repositoryRoot,
+    environment,
+  )
+  const files = packedFiles(packReport)
+  for (const expected of [
+    'dist/index.js',
+    'dist/browser.js',
+    'dist/scientific/index.js',
+    'dist/scientific/node.js',
+    'dist/operations/index.js',
+    'dist/analysis/index.js',
+    'dist/extensions/index.js',
+    'dist/sources/http-range.js',
+  ]) {
+    if (!files.includes(expected)) throw new Error(`Packed package omitted ${expected}`)
+  }
+  if (files.some((path) => path.startsWith('src/'))) {
+    throw new Error('Packed package must not expose source files')
+  }
 
   const tarball = join(temporaryDirectory, `purejsimage-${packageJson.version}.tgz`)
   const consumerDirectory = join(temporaryDirectory, 'consumer')
@@ -45,7 +166,7 @@ try {
           strict: true,
           types: [],
         },
-        include: ['index.ts'],
+        include: ['index.ts', 'runtime.ts', 'browser.ts', 'worker.ts', 'import-effects.ts'],
       },
       null,
       2,
@@ -208,17 +329,88 @@ export const openScientific = async () => {
 `,
   )
 
+  for (const name of [
+    'runtime.ts',
+    'browser.ts',
+    'worker.ts',
+    'private-import.ts',
+    'browser-node-import.ts',
+    'import-effects.ts',
+  ]) {
+    await copyFile(join(fixtureRoot, name), join(consumerDirectory, name))
+  }
+
   run(
     'npm',
     ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--no-package-lock', tarball],
     consumerDirectory,
+    environment,
   )
   run(
     process.execPath,
     [resolve(repositoryRoot, 'node_modules/typescript/bin/tsc'), '--project', 'tsconfig.json'],
     consumerDirectory,
+    environment,
   )
-  console.log('Packed declarations compile for a strict consumer without Node ambient types')
+
+  const browserBytes = await assertPortableBundle('browser.ts', consumerDirectory)
+  const workerBytes = await assertPortableBundle('worker.ts', consumerDirectory)
+  await expectBuildFailure(
+    'private-import.ts',
+    consumerDirectory,
+    /not exported|could not resolve/iu,
+  )
+  await expectBuildFailure('browser-node-import.ts', consumerDirectory, /node:|built into node/iu)
+
+  const runtimeBundle = join(consumerDirectory, 'runtime.mjs')
+  await build({
+    absWorkingDir: consumerDirectory,
+    bundle: true,
+    entryPoints: ['runtime.ts'],
+    format: 'esm',
+    logLevel: 'silent',
+    outfile: runtimeBundle,
+    platform: 'node',
+  })
+  const runtimeOutput = run(
+    process.execPath,
+    [runtimeBundle],
+    consumerDirectory,
+    environment,
+  ).trim()
+  const runtimeReport: unknown = JSON.parse(runtimeOutput)
+  if (
+    runtimeReport === null ||
+    typeof runtimeReport !== 'object' ||
+    !('provider' in runtimeReport) ||
+    runtimeReport.provider !== 'purejsimage.analysis.reference'
+  ) {
+    throw new Error(`Unexpected packed runtime report: ${runtimeOutput}`)
+  }
+
+  const importEffectsBundle = join(consumerDirectory, 'import-effects.mjs')
+  await build({
+    absWorkingDir: consumerDirectory,
+    bundle: true,
+    entryPoints: ['import-effects.ts'],
+    format: 'esm',
+    logLevel: 'silent',
+    outfile: importEffectsBundle,
+    platform: 'node',
+  })
+  const importEffectsOutput = run(
+    process.execPath,
+    [importEffectsBundle],
+    consumerDirectory,
+    environment,
+  ).trim()
+  if (importEffectsOutput !== 'Packed imports are inert') {
+    throw new Error(`Unexpected packed import-effects report: ${importEffectsOutput}`)
+  }
+
+  console.log(
+    `Packed consumer OK (${files.length.toLocaleString()} files; browser ${browserBytes.toLocaleString()} bytes; worker ${workerBytes.toLocaleString()} bytes)`,
+  )
 } finally {
   await rm(temporaryDirectory, { force: true, recursive: true })
 }

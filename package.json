@@ -323,6 +323,7 @@
     "bench:scientific:numeric-tiles": "node benchmark/scientific/run-numeric-tiles.ts",
     "bench:analysis:tiles": "node benchmark/scientific/run-tile-runtime.ts",
     "bench:analysis:gaussian-blur": "node benchmark/scientific/run-analysis-gaussian-blur.ts",
+    "bench:application-platform": "node benchmark/scientific/run-application-platform.ts",
     "bench:avif:inspect": "node benchmark/avif/inspect-bitstreams.ts",
     "bench:avif:b2": "node --expose-gc benchmark/avif/run-b2.ts",
     "bench:avif:memory": "node benchmark/avif/run-memory.ts",

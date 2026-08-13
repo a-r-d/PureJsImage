@@ -6,6 +6,16 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- Added the opt-in application-platform foundation: labeled-axis scientific datasets, explicit
+  scientific reader libraries, native numeric tiles, JSON-safe operation descriptors and trusted
+  extension bundles, bounded quantitative results, reproducible analysis graphs and commands,
+  calibrated ROIs, a bounded lazy tile runtime, and nine strict TypeScript scientific analysis
+  operations. The ordinary image pipeline and root/browser entries remain independent.
+- Added an installed-tarball application contract gate plus correctness-gated application
+  benchmarks covering scientific document detection, first numeric/display tile, HTTP range bytes,
+  source/derived cache behavior, ROI statistics, line profiles, thresholding, Gaussian blur, and
+  graph/provider overhead.
+
 - Added first-party MRC2014/CCP4 volume reading for modes 0, 1, 2, 6, and 12 with validated
   endianness, logical axis mapping, physical spacing and origin metadata, extended-header skipping,
   and bounded plane and region access.

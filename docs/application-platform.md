@@ -1,0 +1,246 @@
+# Building scientific applications with PureJsImage
+
+PureJsImage's application platform is an explicit opt-in layer above the ordinary image pipeline.
+Importing `purejsimage/analysis`, `purejsimage/operations`, or `purejsimage/extensions` does not
+create a registry, cache, Worker, or network request. Existing `resize().jpeg()` applications keep
+using the root or browser entry without loading these application APIs.
+
+The supported external boundary is an installed npm package. Applications must not import `src/`,
+private `dist/` files, a GitHub checkout, or a workspace alias. The checked packed-package fixture
+at [`test-fixtures/packed-package-consumer`](../test-fixtures/packed-package-consumer) compiles the
+examples below and bundles both browser and Worker entry points from the installed tarball.
+
+## Open through an explicit reader registry
+
+Applications choose their trusted readers and own the resulting library:
+
+```ts
+import { MemorySource } from 'purejsimage'
+import { createScientificLibrary, fitsReader, gsfReader, mrcReader } from 'purejsimage/scientific'
+
+const science = createScientificLibrary({ readers: [fitsReader, gsfReader, mrcReader] })
+const document = await science.open({
+  primary: { id: 'upload', name: file.name, source: new MemorySource(await file.bytes()) },
+  signal,
+})
+const summary = document.datasets[0]
+if (summary === undefined) throw new Error('The document contains no datasets')
+const dataset = await document.openDataset(summary.id, { signal })
+
+console.log(science.capabilities, summary.descriptor.axes)
+```
+
+Browser companion files use `createScientificFileContext()` from
+`purejsimage/scientific/browser`. Node path convenience uses
+`createScientificPathContext()` from `purejsimage/scientific/node`. Remote range inputs use the
+separate browser-portable `purejsimage/sources/http-range` entry.
+
+## Read any labeled-axis plane
+
+A plane selects two display axes and fixes every other non-singleton axis. Numeric computation uses
+native-endian tiles; display mapping remains a later, explicit step:
+
+```ts
+import { resolveNumericTileSource } from 'purejsimage/scientific'
+
+const tiles = resolveNumericTileSource(dataset).readNumericTiles({
+  displayAxes: ['kx', 'ky'],
+  fixedIndices: [
+    { axisId: 'scanX', index: 12 },
+    { axisId: 'scanY', index: 8 },
+  ],
+  resolutionLevel: 0,
+  x: 0,
+  y: 0,
+  width: 256,
+  height: 256,
+  signal,
+})
+
+for await (const tile of tiles) {
+  try {
+    computeWithNativeSamples(tile.data)
+  } finally {
+    tile.release()
+  }
+}
+```
+
+Use one application-owned `TileRuntime` for repeated reads. Its byte budget, concurrency,
+cancellation, invalidation, and source/derived cache metrics are explicit; it never materializes a
+whole dataset implicitly.
+
+## Measure an ROI through a graph
+
+Built-in operations are installed as one explicit bundle calibrated to the selected descriptor:
+
+```ts
+import {
+  analysisStatisticsOperationId,
+  createAnalysisController,
+  createBuiltInAnalysisBundle,
+  createTileRuntime,
+  normalizeRoi,
+  roiValueTypeId,
+  scientificDatasetCharacteristics,
+  scientificDatasetValueTypeId,
+} from 'purejsimage/analysis'
+import type { AnalysisGraph } from 'purejsimage/analysis'
+
+const runtime = createTileRuntime({ limits: { maxCacheBytes: 64 * 1024 * 1024 } })
+const bundle = createBuiltInAnalysisBundle({ descriptor: dataset.descriptor, runtime })
+const controller = createAnalysisController({
+  ...bundle,
+  roi: { descriptor: dataset.descriptor },
+  library: { version: applicationVersion, buildFingerprint },
+})
+const fixedIndices = [
+  { axisId: 'scanX', index: 12 },
+  { axisId: 'scanY', index: 8 },
+]
+const roi = normalizeRoi({
+  schemaVersion: 1,
+  id: 'selection',
+  axisIds: ['kx', 'ky'],
+  fixedIndices,
+  coordinateSpace: 'pixel',
+  geometry: { kind: 'rectangle', x: 20, y: 20, width: 80, height: 60 },
+}, dataset.descriptor)
+
+const graph: AnalysisGraph = {
+  schemaVersion: 1,
+  inputs: [
+    { name: 'source', valueType: { id: scientificDatasetValueTypeId, version: 1 } },
+    { name: 'selection', valueType: { id: roiValueTypeId, version: 1 } },
+  ],
+  nodes: [{
+    id: 'statistics',
+    operation: { id: analysisStatisticsOperationId, version: 1 },
+    inputs: [
+      { port: 'dataset', source: { kind: 'input', input: 'source' } },
+      { port: 'roi', source: { kind: 'input', input: 'selection' } },
+    ],
+    parameters: {
+      displayAxes: ['kx', 'ky'], fixedIndices, component: 0,
+      percentiles: [5, 50, 95], percentileMaxSamples: 100_000, emptyPolicy: 'error',
+    },
+  }],
+  outputs: [{
+    name: 'statistics',
+    source: { kind: 'node', nodeId: 'statistics', output: 'statistics' },
+  }],
+}
+
+const bindings = {
+  source: { value: dataset, characteristics: scientificDatasetCharacteristics(dataset) },
+  selection: { value: roi },
+}
+```
+
+Validate and dry-run before execution. Pin the permanent TypeScript reference provider when the
+reproducibility policy requires that exact provider:
+
+```ts
+const policy = {
+  mode: 'pinned' as const,
+  providerId: 'purejsimage.analysis.reference',
+  providerVersion: 1,
+}
+const dryRun = await controller.dryRun(graph, { bindings, policy, signal })
+if (!dryRun.valid) throw new Error(JSON.stringify(dryRun.issues))
+const plan = await controller.planGraph(graph, { bindings, policy, signal })
+const execution = await controller.executeGraph(plan).result
+try {
+  console.log(execution.outputs.get('statistics'), execution.provenance)
+} finally {
+  await execution.release()
+  runtime.clear()
+}
+```
+
+## Save, validate, and replay
+
+Persist graph and ROI state, exact operation versions, source identity, and display state—not source
+bytes, executable providers, or large result payloads. Canonical graph JSON is suitable for hashing
+and comparison; it does not silently validate or migrate:
+
+```ts
+import { canonicalGraphJson, getImageSourceIdentity } from 'purejsimage/analysis'
+
+const analysisDocument = {
+  schemaVersion: 1,
+  workspace,
+  sourceIdentity: await getImageSourceIdentity(source),
+  operationVersions: workspace.graph.nodes.map(({ operation }) => operation),
+  display: currentDisplayState,
+  canonicalGraph: canonicalGraphJson(workspace.graph),
+}
+
+const parsed: unknown = JSON.parse(savedText)
+const graphValidation = controller.validateGraph(extractGraph(parsed))
+if (!graphValidation.valid || graphValidation.graph === undefined) {
+  showIssues(graphValidation.issues)
+} else {
+  // Compare or rebind source identity, then dry-run and plan explicitly.
+  await controller.dryRun(graphValidation.graph, { bindings, policy, signal })
+}
+```
+
+Applications own their persistence envelope because source pickers, display state, and storage
+policy are application concerns. Graph migrations are explicit registered steps; loading never
+silently rewrites operation semantics.
+
+## Commands and capability inspection
+
+The same JSON command path serves UI actions, scripts, trusted plugins, and a future agent. Treat
+pasted or received JSON as `unknown`; validate before applying, and execute separately:
+
+```ts
+const capabilities = controller.capabilities
+const validation = controller.validateCommand(commandJson)
+const preview = validation.valid ? controller.applyCommand(workspace, commandJson) : undefined
+
+if (preview?.applied) {
+  workspace = preview.snapshot
+} else {
+  showIssues(validation.issues)
+}
+```
+
+Commands use immutable workspace revisions and return structured issues, including stale-revision
+conflicts. They contain no code strings, DOM access, `eval`, or AI-only privileged fields.
+
+## Trusted custom operations
+
+Custom operations keep their JSON-safe descriptor and parameter schema separate from executable
+provider code. Compose the operation through a caller-owned extension host:
+
+```ts
+import { createExtensionHost } from 'purejsimage/extensions'
+import { createOperationDefinition, createOperationProvider } from 'purejsimage/operations'
+
+const operation = createOperationDefinition({ descriptor, inferOutputShapes })
+const provider = createOperationProvider({ descriptor: providerDescriptor, prepare })
+const host = createExtensionHost({
+  extensions: [{
+    descriptor: { id: 'acme.materials', version: 1, apiVersion: 1 },
+    operations: [operation],
+    providers: [provider],
+  }],
+})
+const prepared = await host.prepare()
+console.log(prepared.manifest)
+```
+
+The complete pointwise reference example is
+[`examples/analysis-trusted-extension/index.ts`](../examples/analysis-trusted-extension/index.ts).
+These extensions are trusted in-process code, not a sandbox. Untrusted execution requires the
+future permissioned Worker or iframe RPC boundary.
+
+## Worker architecture
+
+A browser application can keep Canvas and serializable UI state on the main thread while a module
+Worker owns readers, graph/controller instances, the tile runtime, and execution. Use a versioned
+discriminated protocol, task IDs, `AbortSignal`, structured issues/errors, and transferable tile
+buffers. Worker placement is application policy; PureJsImage deliberately does not create a Worker,
+global cache, registry, or network request at import time.

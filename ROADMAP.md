@@ -361,6 +361,29 @@ They must be rechecked when implementation begins.
 
 ## Near-term priorities
 
+### Application-platform status
+
+Shipped groundwork now includes labeled-axis `ScientificDataset` descriptors, portable
+`RasterBlock` reads, one-time native `NumericTile` conversion, explicit scientific reader
+registries, JSON-safe operation/value descriptors, separate executable providers, trusted local
+extension bundles, versioned analysis graphs and migrations, source identities and provenance,
+immutable workspace commands, calibrated ROI geometry/sampling, bounded result types, a lazy tile
+runtime, and the initial strict TypeScript scientific operations. All application entries are
+explicit subpaths; the ordinary image pipeline remains separate.
+
+The following remain deliberately deferred:
+
+- explicitly registered WASM operation providers and WebGPU providers, selected by measured total
+  setup, transfer, compute, readback, and memory cost rather than backend rank;
+- a permissioned Worker or iframe RPC host for untrusted extensions—the current registry is trusted
+  in-process code and is not a sandbox;
+- FFT and frequency-domain transforms, registration, segmentation, crystallographic indexing,
+  phase identification, and other materials-specific algorithms;
+- mutable dirty-region painting/editing and its generation/invalidation policy;
+- cloud storage, authentication, collaboration, comments, and server-side workspace services; and
+- a package-owned viewport policy or application persistence envelope unless multiple real clients
+  demonstrate a reusable contract.
+
 - Deepen real-world decode compatibility at every checked codec boundary,
   especially the active AVIF, JPEG 2000, TIFF, WebP, and experimental HEIF
   subsets.

@@ -55,3 +55,42 @@ relative names and ambiguous Node companion candidates fail explicitly.
 Readers are trusted in-process code. The registry is an extension composition point, not a sandbox;
 untrusted extensions require the future Worker or iframe RPC boundary described in the application
 platform architecture.
+
+## Migrating from fixed XYZCT datasets
+
+`MultidimensionalRasterDataset` is the deprecated fixed-axis bridge. New application code should
+use `ScientificDataset`, whose `schemaVersion: 2` descriptor names every axis and does not assume
+that the data can be expressed as XYZCT.
+
+For a legacy reader, wrap explicitly with `toScientificDataset(legacy)`. The adapter maps `sizeX`,
+`sizeY`, `sizeZ`, logical channels, and `sizeT` to axis IDs `x`, `y`, `z`, `channel`, and `time`, and
+preserves the old descriptor under typed compatibility metadata. Reverse adaptation is available
+only through the explicit `toMultidimensionalRasterDataset()` adapter and rejects V2 datasets that
+cannot be represented without losing fixed-axis semantics.
+
+Replace a fixed request such as:
+
+```ts
+legacy.readPlane({ z: 4, c: 2, t: 0, x: 100, y: 200, width: 256, height: 256 })
+```
+
+with a labeled request:
+
+```ts
+dataset.readPlane({
+  displayAxes: ['x', 'y'],
+  fixedIndices: [
+    { axisId: 'z', index: 4 },
+    { axisId: 'channel', index: 2 },
+    { axisId: 'time', index: 0 },
+  ],
+  x: 100,
+  y: 200,
+  width: 256,
+  height: 256,
+})
+```
+
+Do not infer meaning from array position in new code. Select axes by stable ID, preserve their
+`kind`, units, calibration/lookup/labels, components, level geometry, sample type, no-data value,
+and typed metadata, and require one fixed index for every non-displayed non-singleton axis.

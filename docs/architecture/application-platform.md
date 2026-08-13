@@ -1163,5 +1163,166 @@ to own only generic descriptors, definitions, providers, and registries.
         encountered the machine's root-owned npm cache; the isolated-cache rerun passed that step
         and reached only those known AVIF failures.
 
-- [ ] PR 10: complete release-boundary hardening, extension composition, and whole-platform
-      compatibility validation. Detailed prompts not yet supplied.
+### PR 10: external materials spike, package hardening, and release candidate
+
+- [x] Prompt 10.1: make an installed npm tarball the only supported external-integration boundary.
+  - [x] Extend the automated package consumer to run `npm pack --ignore-scripts`, install that exact
+        tarball in a clean temporary project, and clean up on success or failure without invoking
+        recursive `prepack` checks.
+  - [x] Compile strict TypeScript against the documented root, browser, scientific,
+        scientific/node, operations, analysis, extensions, pathology, and HTTP-range subpaths.
+  - [x] Bundle a browser entry and Worker entry from installed package exports and reject every Node
+        built-in in either portable graph.
+  - [x] Execute an in-memory scientific-reader, dataset, graph, ROI, tile, operation, result, and
+        provenance workflow entirely from the installed tarball.
+  - [x] Add negative checks proving private/unexported imports fail and Node-only scientific helpers
+        cannot enter the browser bundle.
+  - [x] Integrate the fixture into `npm run check`; run the fixture, package types, browser check,
+        and full check; record package contents and any unrelated failures.
+
+  - Result: `package:types` is now the single packed-consumer gate. It packs with lifecycle scripts
+    disabled into an isolated temporary npm cache, verifies the 376-file manifest contains every
+    documented application entry and no `src/` files, installs the exact tarball with no package
+    lock, and removes the consumer on every exit. Strict declarations and a live installed-package
+    GSF to NumericTile to ROI-statistics workflow pass, including reference-provider and source
+    identity provenance. Browser and Worker bundles are 361,060 and 277,211 bytes locally and
+    contain no Node built-ins. Negative bundles reject `purejsimage/src/...` and the Node path helper
+    under a browser target. Standalone package, browser, type, lint, and format gates pass. The full
+    check reaches 1,144 passing tests and stops on the same three unrelated expanded 12-bit AVIF
+    Sharp-oracle hash mismatches recorded before PR 10, so its hostile-source phase is not reached.
+
+- [x] Prompt 10.2: add correctness-gated application-level benchmarks.
+  - [x] Measure document detection, summary enumeration, first numeric tile, first display tile,
+        HTTP-range requests/bytes, source and derived cache behavior, ROI statistics, line profile,
+        threshold, Gaussian blur, and validation/planning/provider preparation.
+  - [x] Cover a large scalar plane, arbitrary-axis 4D-STEM data, a range-backed TIFF/WSI workflow,
+        and representative MRC, CBF, and GSF documents without silently downloading whole sources.
+  - [x] Separate cold and warm/setup and compute measurements; record environment, provider,
+        correctness, bytes, cache metrics, wall time, and bounded working-set evidence without
+        labeling retained-cache counters as process peak memory.
+  - [x] Emit reproducible JSON and Markdown, use deterministic inputs and only generous catastrophic
+        regression gates, document invocation and interpretation, and run the narrow benchmark gate.
+
+  - Result: `bench:application-platform` now correctness-gates a deterministic 1,024 x 1,024 scalar
+    analysis fixture, scanX/scanY/kx/ky 4D-STEM selection, generated GSF/MRC/CBF documents, and the
+    committed 1,938,955-byte Aperio fixture through `HttpRangeSource`. The recorded local WSI run
+    fetched 300,556 bytes in six range requests, not the whole source. The cache probe retains
+    65,536 bytes in each source and derived class and observes one cold miss plus one warm hit per
+    class. The local reference provider measured ROI statistics at 276.918 ms cold/41.343 ms warm,
+    line profile at 27.934/11.643 ms, threshold tile at 19.747/1.038 ms, and a 256-square sigma-3
+    blur tile at 31.311/15.602 ms; these are environment-labeled wall-clock samples, not release
+    budgets. Exact constant-field blur, bounded result kinds, nondegenerate threshold output,
+    document/tile checksums, provider provenance, and no-whole-download assertions gate every
+    report. JSON and Markdown artifacts, invocation guidance, three-decimal application timings,
+    provider/setup/planning fields, and explicit cache-not-peak-memory wording are checked in. The
+    narrow benchmark and typecheck pass.
+
+- [x] Prompt 10.3: create the separate installed-tarball materials application spike.
+  - [x] Create a separate repository outside this workspace, record its initial cwd/status and tool
+        versions, and install only the exact packed PureJsImage tarball with no workspace link,
+        source import, GitHub dependency, or alias.
+  - [x] Use strict vanilla TypeScript and Vite unless the public contracts demonstrate a concrete
+        reason for another stack; keep Canvas/UI work on the main thread and readers, controller,
+        graph, tile runtime, operations, and results in a Worker.
+  - [x] Define a versioned JSON-safe Worker protocol with transferable buffers, task IDs,
+        cancellation, structured errors, capability snapshots, and immutable command traffic.
+  - [x] Add file selection, remote HTTP-range input, capability/dataset/canvas placeholders, an
+        event log, and a deterministic synthetic Worker workflow test.
+
+  - Result: `/Users/ard/projects/PureJsImage-materials-spike` is an independent Git repository
+    created from a strict vanilla TypeScript/Vite 8.2.1 template under Node 24.16.0/npm 11.13.0.
+    Its lockfile resolves `purejsimage` only from the copied
+    `.packages/purejsimage-0.9.0.tgz`; there is no workspace, GitHub, alias, source, or private dist
+    import. The main thread owns controls, event log, and Canvas. A module Worker owns six explicitly
+    registered readers, documents/datasets, source identities, the analysis controller/workspace,
+    operation bundle, tile runtime, results, and provenance. Protocol v1 uses discriminated JSON
+    envelopes, task IDs, cancellation, structured errors, capability snapshots, immutable
+    `AnalysisCommand` payloads, and transferred RGBA buffers. Local companion sets, remote
+    `HttpRangeSource`, synthetic GSF, capabilities, datasets, rendering, and synthetic analysis are
+    wired through public exports. The deterministic controller test and production build pass; the
+    Worker bundle is 538.92 kB and main-thread JavaScript is 5.83 kB before gzip. No commit was made.
+
+- [x] Prompt 10.4: implement the materials viewer workflow through public APIs only.
+  - [x] Open local companion resources and remote range sources through the explicit reader
+        registry; enumerate datasets, labeled axes, calibration, components, and resolution levels.
+  - [x] Support arbitrary display-axis pairs and fixed indices, pan/zoom, visible-before-near tile
+        priorities, cancellation of stale work, explicit display mapping, incremental painting, and
+        visible cache/network/runtime metrics.
+  - [x] Do not add a second tile cache or private-package workaround; test axis switching, stale
+        cancellation, local/HTTP equivalence, and no whole-source remote download.
+  - [x] Record missing generic APIs as gaps rather than importing package internals.
+
+  - Result: the spike viewer opens browser `File` companion sets and remote `HttpRangeSource`
+    documents through seven explicitly registered readers, enumerates document datasets and full V2
+    descriptor metadata, and exposes arbitrary axis pairs, every fixed index, level selection,
+    pan/zoom, explicit range/scale/palette mapping, and incremental Canvas painting. One Worker-owned
+    `TileRuntime` handles bounded retention, deduplication, four-way concurrency, visible versus
+    near-visible priority, and abort propagation; view changes cancel outstanding task IDs and the
+    main thread ignores stale view IDs. Network request/byte/cache statistics and tile runtime
+    source/derived metrics remain visible. A trusted spike-only synthetic 4D-STEM reader exercises
+    scanX/scanY/kx/ky switching through the same public registry and tile contracts without entering
+    the package. Two controller tests and two real Chromium E2E tests pass, covering arbitrary-axis
+    switching, stale cancellation, byte-identical local/HTTP rendering, and a range byte count below
+    the 4,194,356-byte GSF source size. `API-GAPS.md` records the default-dataset, display-recommendation,
+    built-in cache-class, and viewport-policy gaps; no private import or second cache was added.
+
+- [x] Prompt 10.5: implement analysis, commands, persistence, and provenance in the spike.
+  - [x] Create and edit ROI geometry through immutable workspace commands; expose statistics,
+        histograms, line profiles, threshold, and blur graph construction.
+  - [x] Show DAG/provider planning; support validate, dry-run, explicit execute, and cancellation;
+        render bounded summaries/charts with provider and reproducibility provenance.
+  - [x] Save versioned `analysis.json` containing workspace/graph/ROIs/source identity/operation
+        versions/display state but neither source bytes nor live result payloads; reload, rebind,
+        verify identity, migrate explicitly, and replay.
+  - [x] Add a developer surface for capability inspection and pasted `AnalysisCommand` JSON using
+        the same validation/preview/application path as the UI, with no `eval` or AI-only backdoor.
+  - [x] Add end-to-end coverage for commands, cancellation, save/reload/rebind, provenance warnings,
+        and replay.
+
+  - Result: the spike creates rectangle, ellipse, polygon, and line ROIs and builds five public DAG
+    workflows: statistics, histogram, calibrated line profile, threshold into statistics, and
+    Gaussian blur into statistics. Each run records the graph, validation/dry-run plan, bounded
+    result summary, provider/implementation choice, reproducibility contract, and execution
+    provenance; execution is explicit and task-ID cancellation yields before planning so queued
+    aborts are observable. The workspace is refreshed from the executed graph and ROI set. The same
+    controller `validateCommand`/`applyCommand` path drives pasted developer JSON and UI state, with
+    immutable revision checking and no eval. `analysis.json` schema v1 stores the workspace,
+    graph/ROIs, source identity, operation versions, and display state, but no source bytes or result
+    payloads. Reload rejects unsupported versions, validates the graph and ROI set, rebinds the
+    current source, and reports identity mismatch/absence without silent migration. Two controller
+    tests cover all five operations, command preview/application, save/reload, provenance, and local/
+    remote behavior; three real Chromium E2E tests cover viewer cancellation, stale commands,
+    reference-provider pinning, analysis cancellation, provenance, result parity after replay,
+    source-identity mismatch, and download/reload/rebind. Unit, strict build, and E2E gates pass.
+
+- [ ] Prompt 10.6: audit both repositories and prepare release-candidate evidence without release
+      side effects.
+  - [x] Classify every spike workaround or API gap; close only generic PureJsImage gaps and remove
+        spike workarounds once a public API exists.
+  - [x] Re-run the tarball consumer, browser/package/full gates, benchmarks, and spike tests; update
+        public docs, XYZCT migration guidance, examples, ROADMAP deferrals, and the architecture log.
+  - [x] Follow the repository release process to prepare 0.10 prerelease notes and audit evidence,
+        but do not change a version, tag, push, publish, or create a GitHub release without separate
+        authorization.
+  - [x] End with both repositories' status/diff summaries, remaining API gaps, benchmark evidence,
+        release gates, deferred scope, and a candid release-readiness assessment.
+
+  - Release-candidate audit result: the external spike found no generic missing API that justified
+    new production runtime code. The unsafe pasted-command assertion was removed in the app so both
+    preview and apply pass `unknown` through the public validator; the app also renders a bounded
+    chart from `AnalysisResultSummary.preview`. `API-GAPS.md` classifies the remaining issues as
+    deliberate app policy, documentation, non-blocking cache-class semantics, or deferred work.
+    The refreshed exact tarball and lockfile pass two unit tests, a strict production build, and
+    three real Chromium E2E workflows in the separate repository.
+
+    PureJsImage passes a clean install, the packed external fixture on Node 24 and minimum-supported
+    Node 22, browser/type/lint/format gates, 39 focused application and ordinary-pipeline tests, 12
+    real Chromium ordinary-demo/scientific tests, the correctness-gated application benchmark, and
+    release fuzz with seed `1592598566` and 512
+    mutations per registered codec with no crash artifacts. The 376-file tarball is 778,397 bytes
+    (`sha512-dlWx...+cIXw==`); installed imports create no Worker, fetch, interval, or package global.
+    `npm run check` is still red: 1,144 tests pass and the same three unrelated expanded 12-bit AVIF
+    Sharp-oracle hashes fail, so the hostile-source phase does not run. This prompt therefore stays
+    unchecked and the prerelease candidate is **not release-ready** until that existing AVIF gate is
+    reconciled and the complete check passes. No version, tag, push, publication, or GitHub release
+    was created; the reviewed PR 10 code can be committed independently of release state.
