@@ -33,7 +33,11 @@ const descriptor: NormalizedScientificDatasetDescriptor = normalizeScientificDat
   ],
   sampleType: 'float32',
   components: [{ id: 'value', kind: 'scalar' }],
-  capabilities: { regionReads: true, resolutionLevels: false },
+  capabilities: {
+    regionReads: true,
+    resolutionLevels: false,
+    planeReads: { kind: 'any-axis-pair' },
+  },
 })
 
 const dataset = {
@@ -371,6 +375,57 @@ describe('numeric and derived tile sources', () => {
     expect([...tile.data]).toEqual([21, 22, 23, 24, 31, 32, 33, 34])
     expect(releases).toEqual([1, 2])
     tile.release()
+    runtime.clear()
+  })
+
+  it('releases every acquired lookahead tile exactly once when assembly rejects', async () => {
+    const releases: [number, number] = [0, 0]
+    const numericSource: NumericTileSource = {
+      descriptor,
+      async *readNumericTiles() {
+        yield numericTile({ x: 0, y: 0, width: 2, height: 2 }, () => {
+          releases[0] += 1
+        })
+        yield numericTile({ x: 8, y: 0, width: 1, height: 1 }, () => {
+          releases[1] += 1
+        })
+      },
+    }
+    const runtime = createTileRuntime()
+    await expect(
+      runtime.request(numericTileSourceToTileSource(numericSource), {
+        ...request(0, 0, 2, 2),
+        address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+      }),
+    ).rejects.toThrow('out-of-region')
+    expect(releases).toEqual([1, 1])
+    runtime.clear()
+  })
+
+  it('rejects an out-of-region first tile before requesting another tile', async () => {
+    const releases: [number, number] = [0, 0]
+    let requestedSecond = false
+    const numericSource: NumericTileSource = {
+      descriptor,
+      async *readNumericTiles() {
+        yield numericTile({ x: 8, y: 0, width: 1, height: 1 }, () => {
+          releases[0] += 1
+        })
+        requestedSecond = true
+        yield numericTile({ x: 0, y: 0, width: 2, height: 2 }, () => {
+          releases[1] += 1
+        })
+      },
+    }
+    const runtime = createTileRuntime()
+    await expect(
+      runtime.request(numericTileSourceToTileSource(numericSource), {
+        ...request(0, 0, 2, 2),
+        address: { ...request(0, 0, 2, 2).address, cacheClass: 'source' },
+      }),
+    ).rejects.toThrow('out-of-region')
+    expect(requestedSecond).toBe(false)
+    expect(releases).toEqual([1, 0])
     runtime.clear()
   })
 

@@ -500,7 +500,11 @@ const twoDimensionalDescriptor = (
     ],
     ...(source.noDataValue === undefined ? {} : { noDataValue: source.noDataValue }),
     metadata: { ...(source.metadata ?? {}), analysisOperation: operation },
-    capabilities: { regionReads: true, resolutionLevels: false },
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'ordered-axis-pairs', pairs: [displayAxes] },
+    },
   })
 }
 
@@ -695,7 +699,11 @@ const inferResampleDescriptor = (
       resampleInvalidPolicy: parameters.invalidPolicy,
       sourceAxisLengths: [axis(source, horizontalId).length, axis(source, verticalId).length],
     },
-    capabilities: { regionReads: true, resolutionLevels: false },
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'ordered-axis-pairs', pairs: [parameters.displayAxes] },
+    },
   })
 }
 

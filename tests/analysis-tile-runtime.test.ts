@@ -671,7 +671,11 @@ describe('bounded tile runtime cache and scheduler', () => {
       ],
       sampleType: 'uint8',
       components: [{ id: 'value', kind: 'scalar' }],
-      capabilities: { regionReads: true, resolutionLevels: false },
+      capabilities: {
+        regionReads: true,
+        resolutionLevels: false,
+        planeReads: { kind: 'any-axis-pair' },
+      },
     })
     const mismatched: TileSource = {
       descriptor,

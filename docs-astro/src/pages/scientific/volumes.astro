@@ -2,14 +2,14 @@
 import SiteLayout from '../../layouts/SiteLayout.astro'
 ---
 
-<SiteLayout title="Slice and project 3D scientific image volumes in JavaScript | PureJsImage" description="Extract XY, XZ, and YZ numeric slices or bounded Z projections from FITS, MRC, and OME-TIFF volumes in JavaScript and TypeScript." canonical="https://purejsimage.com/scientific/volumes/" current="scientific/">
-<main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific volume operations</p><h1>Slice and project 3D scientific image volumes in JavaScript</h1><p class="page-lede">The volume helpers return ordinary lazy numeric raster datasets. They extract 2D planes from FITS cubes, MRC volumes, OME-TIFF Z stacks, and other compatible datasets. They do not create a 3D rendering engine.</p></div></header><div class="container docs-layout"><article class="content">
+<SiteLayout title="Slice and project 3D scientific image volumes in JavaScript | PureJsImage" description="Extract bounded XY, XZ, and YZ numeric slices from MRC and other datasets that explicitly support those ordered axis pairs." canonical="https://purejsimage.com/scientific/volumes/" current="scientific/">
+<main id="main"><header class="page-hero"><div class="container"><p class="eyebrow">Scientific volume operations</p><h1>Slice and project 3D scientific image volumes in JavaScript</h1><p class="page-lede">The volume helpers return ordinary lazy numeric raster datasets. MRC exposes bounded XY, XZ, and YZ reads now; other readers expose only the ordered axis pairs their dataset capabilities declare. The helpers do not create a 3D rendering engine.</p></div></header><div class="container docs-layout"><article class="content">
 <h2>Orthogonal slices</h2><pre><code>import &#123; sliceScientificVolume &#125; from 'purejsimage/scientific'
 
 const xy = sliceScientificVolume(volume, &#123; displayAxes: ['x', 'y'], fixedIndices: [&#123; axisId: 'z', index: 42 &#125;] &#125;)
 const xz = sliceScientificVolume(volume, &#123; displayAxes: ['x', 'z'], fixedIndices: [&#123; axisId: 'y', index: 80 &#125;] &#125;)
 const yz = sliceScientificVolume(volume, &#123; displayAxes: ['y', 'z'], fixedIndices: [&#123; axisId: 'x', index: 120 &#125;] &#125;)</code></pre>
-<p>Each call names its two display axes and fixes every other non-singleton axis. The returned labeled-axis dataset can be passed directly to <code>measureScientificPlane()</code> or <code>renderScientificPlane()</code>.</p>
+<p>Each call names a supported ordered display-axis pair and fixes every other non-singleton axis. Check <code>descriptor.capabilities.planeReads</code> before offering a cross-section control. The returned labeled-axis dataset can be passed directly to <code>measureScientificPlane()</code> or <code>renderScientificPlane()</code>.</p>
 <h2>Physical spacing</h2><p>XY retains physical X and Y spacing. XZ uses source X and Z spacing. YZ uses source Y and Z spacing. Missing source spacing remains undefined. The same mapping applies to finite origin components.</p>
 <h2>Z projections</h2><pre><code>import &#123; projectScientificVolume &#125; from 'purejsimage/scientific'
 

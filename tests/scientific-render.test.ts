@@ -106,7 +106,11 @@ class LabeledPlaneDataset implements ScientificDataset {
       axes,
       sampleType: 'float32',
       components: [{ id: 'value', kind: 'scalar', unit: 'counts' }],
-      capabilities: { regionReads: true, resolutionLevels: false },
+      capabilities: {
+        regionReads: true,
+        resolutionLevels: false,
+        planeReads: { kind: 'any-axis-pair' },
+      },
     })
   }
 
@@ -152,7 +156,11 @@ class LabeledSpectralDataset implements ScientificDataset {
     ],
     sampleType: 'float32',
     components: [{ id: 'value', kind: 'scalar' }],
-    capabilities: { regionReads: true, resolutionLevels: false },
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'any-axis-pair' },
+    },
   })
 
   async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncGenerator<RasterBlock> {

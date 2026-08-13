@@ -650,6 +650,15 @@ class DerivedLabeledSpectralDataset implements LabeledSpectralDerivedDataset {
       capabilities: {
         regionReads: source.descriptor.capabilities.regionReads,
         resolutionLevels: levels.length > 1,
+        planeReads:
+          source.descriptor.capabilities.planeReads.kind === 'any-axis-pair'
+            ? source.descriptor.capabilities.planeReads
+            : {
+                kind: 'ordered-axis-pairs',
+                pairs: source.descriptor.capabilities.planeReads.pairs.filter(
+                  (pair) => pair[0] !== spectralAxis && pair[1] !== spectralAxis,
+                ),
+              },
       },
     })
   }

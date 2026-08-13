@@ -32,7 +32,11 @@ const descriptor = normalizeScientificDatasetDescriptor({
   ],
   sampleType: 'uint8',
   components: [{ id: 'value', kind: 'scalar' }],
-  capabilities: { regionReads: true, resolutionLevels: false },
+  capabilities: {
+    regionReads: true,
+    resolutionLevels: false,
+    planeReads: { kind: 'any-axis-pair' },
+  },
 })
 
 class LazyDataset implements ScientificDataset {

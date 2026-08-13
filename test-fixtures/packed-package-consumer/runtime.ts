@@ -38,11 +38,7 @@ assert(document.datasets.length === 1, 'Expected one dataset summary without sam
 const summary = document.datasets[0]
 assert(summary !== undefined, 'Expected a dataset summary')
 const dataset = await document.openDataset(summary.id)
-const fixedIndices = Object.freeze([
-  Object.freeze({ axisId: 'z', index: 0 }),
-  Object.freeze({ axisId: 'channel', index: 0 }),
-  Object.freeze({ axisId: 'time', index: 0 }),
-])
+const fixedIndices = Object.freeze([])
 
 const numericSource = resolveNumericTileSource(dataset)
 const tiles = numericSource

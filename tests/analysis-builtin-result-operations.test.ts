@@ -56,7 +56,11 @@ const dataset = (tracking: Tracking): DirectNumericTileDataset => {
       { id: 'reference', name: 'Reference', kind: 'scalar', unit: 'counts' },
     ],
     noDataValue: 22,
-    capabilities: { regionReads: true, resolutionLevels: false },
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'any-axis-pair' },
+    },
   })
   const numericTileSource = {
     descriptor,
@@ -119,7 +123,11 @@ const uint64Dataset = (value: bigint, tracking: Tracking): DirectNumericTileData
     ],
     sampleType: 'uint64',
     components: [{ id: 'signal', kind: 'scalar' }],
-    capabilities: { regionReads: true, resolutionLevels: false },
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'any-axis-pair' },
+    },
   })
   return Object.freeze({
     descriptor,

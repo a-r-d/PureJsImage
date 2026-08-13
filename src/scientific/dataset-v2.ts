@@ -83,9 +83,17 @@ export interface ScientificMetadataObject {
   readonly [key: string]: ScientificMetadataValue
 }
 
+export type ScientificPlaneReadCapability =
+  | { readonly kind: 'any-axis-pair' }
+  | {
+      readonly kind: 'ordered-axis-pairs'
+      readonly pairs: readonly (readonly [horizontal: string, vertical: string])[]
+    }
+
 export interface ScientificDatasetCapabilities {
   readonly regionReads: boolean
   readonly resolutionLevels: boolean
+  readonly planeReads: ScientificPlaneReadCapability
 }
 
 /** Portable, JSON-safe description of a labeled-axis scientific raster. */
@@ -651,9 +659,54 @@ const parseDescriptor = (
   const capabilitiesInput = recordValue(input.capabilities, 'Scientific dataset capabilities')
   onlyKeys(
     capabilitiesInput,
-    ['regionReads', 'resolutionLevels'],
+    ['regionReads', 'resolutionLevels', 'planeReads'],
     'Scientific dataset capabilities',
   )
+  const planeReadsInput = recordValue(
+    capabilitiesInput.planeReads,
+    'Scientific dataset capabilities.planeReads',
+  )
+  const planeReadKind = enumValue(
+    planeReadsInput.kind,
+    ['any-axis-pair', 'ordered-axis-pairs'] as const,
+    'Scientific dataset capabilities.planeReads.kind',
+  )
+  let planeReads: ScientificPlaneReadCapability
+  if (planeReadKind === 'any-axis-pair') {
+    onlyKeys(planeReadsInput, ['kind'], 'Scientific dataset capabilities.planeReads')
+    planeReads = Object.freeze({ kind: planeReadKind })
+  } else {
+    onlyKeys(planeReadsInput, ['kind', 'pairs'], 'Scientific dataset capabilities.planeReads')
+    const pairInputs = arrayValue(
+      planeReadsInput.pairs,
+      'Scientific dataset capabilities.planeReads.pairs',
+    )
+    if (pairInputs.length === 0) {
+      throw invalidInput('Scientific dataset must support at least one ordered display-axis pair')
+    }
+    const seenPairs = new Set<string>()
+    const pairs = pairInputs.map((value, index) => {
+      const pair = arrayValue(value, `Scientific dataset capabilities.planeReads.pairs[${index}]`)
+      if (pair.length !== 2) {
+        throw invalidInput('Scientific display-axis capability pairs must contain two axis ids')
+      }
+      const horizontal = requiredString(pair[0], 'Scientific display-axis capability horizontal id')
+      const vertical = requiredString(pair[1], 'Scientific display-axis capability vertical id')
+      if (horizontal === vertical) {
+        throw invalidInput('Scientific display-axis capability pairs must name distinct axes')
+      }
+      if (!axisIds.has(horizontal) || !axisIds.has(vertical)) {
+        throw invalidInput('Scientific display-axis capability pair names an unknown axis')
+      }
+      const key = `${horizontal}\u0000${vertical}`
+      if (seenPairs.has(key)) {
+        throw invalidInput('Scientific display-axis capability pairs must not be duplicated')
+      }
+      seenPairs.add(key)
+      return Object.freeze([horizontal, vertical] as const)
+    })
+    planeReads = Object.freeze({ kind: planeReadKind, pairs: Object.freeze(pairs) })
+  }
   const capabilities = Object.freeze({
     regionReads: booleanValue(
       capabilitiesInput.regionReads,
@@ -663,6 +716,7 @@ const parseDescriptor = (
       capabilitiesInput.resolutionLevels,
       'Scientific dataset capabilities.resolutionLevels',
     ),
+    planeReads,
   })
   if (capabilities.resolutionLevels !== levels.length > 1) {
     throw invalidInput(
@@ -735,6 +789,13 @@ export const normalizeScientificPlaneReadRequest = (
   const axisById = new Map(descriptor.axes.map((axis) => [axis.id, axis]))
   if (!axisById.has(horizontal)) throw invalidInput(`Unknown scientific display axis ${horizontal}`)
   if (!axisById.has(vertical)) throw invalidInput(`Unknown scientific display axis ${vertical}`)
+  const planeReads = descriptor.capabilities.planeReads
+  if (
+    planeReads.kind === 'ordered-axis-pairs' &&
+    !planeReads.pairs.some((pair) => pair[0] === horizontal && pair[1] === vertical)
+  ) {
+    throw invalidInput(`Scientific dataset does not support display axes ${horizontal}/${vertical}`)
+  }
 
   const resolutionLevel = nonNegativeInteger(
     input.resolutionLevel ?? 0,

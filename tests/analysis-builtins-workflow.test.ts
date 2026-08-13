@@ -46,7 +46,11 @@ const descriptor = normalizeScientificDatasetDescriptor({
   ],
   sampleType: 'float32',
   components: [{ id: 'signal', kind: 'scalar', unit: 'counts' }],
-  capabilities: { regionReads: true, resolutionLevels: false },
+  capabilities: {
+    regionReads: true,
+    resolutionLevels: false,
+    planeReads: { kind: 'any-axis-pair' },
+  },
 })
 
 const source = (): DirectNumericTileDataset =>

@@ -535,11 +535,7 @@ class lookup = { 0, 0, 0, 255, 100, 50 }
       const values: number[] = []
       for await (const block of opened.readPlane({
         displayAxes: ['x', 'y'],
-        fixedIndices: [
-          { axisId: 'z', index: 0 },
-          { axisId: 'channel', index: 1 },
-          { axisId: 'time', index: 0 },
-        ],
+        fixedIndices: [{ axisId: 'channel', index: 1 }],
       })) {
         for (let offset = 0; offset < block.data.byteLength; offset += 2) {
           values.push(

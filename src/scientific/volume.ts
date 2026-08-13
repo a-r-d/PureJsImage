@@ -474,6 +474,7 @@ const labeledDerivedDescriptor = (
     capabilities: {
       regionReads: source.descriptor.capabilities.regionReads,
       resolutionLevels: levels.length > 1,
+      planeReads: { kind: 'ordered-axis-pairs', pairs: [displayAxes] },
     },
   })
 }

@@ -142,6 +142,17 @@ const fixedIndices = (
       ),
   )
 
+const supportsDisplayAxes = (
+  active: ScientificDataset,
+  displayAxes: readonly [string, string],
+): boolean => {
+  const capability = active.descriptor.capabilities.planeReads
+  return (
+    capability.kind === 'any-axis-pair' ||
+    capability.pairs.some((pair) => pair[0] === displayAxes[0] && pair[1] === displayAxes[1])
+  )
+}
+
 const beginDataset = (opened: ScientificDataset, bytes: number): void => {
   dataset = opened
   sourceBytes = bytes
@@ -192,6 +203,15 @@ const openedMetadata = (
   const detectorName = metadataString(detector, 'detectorName')
   const exposureTimeSeconds = metadataNumber(detector, 'exposureTimeSeconds')
   const wavelengthAngstroms = metadataNumber(detector, 'wavelengthAngstroms')
+  const sliceAxes = Object.freeze(
+    volume === undefined
+      ? (['xy'] as const)
+      : [
+          supportsDisplayAxes(active, [x.id, y.id]) ? ('xy' as const) : undefined,
+          supportsDisplayAxes(active, [x.id, volume.id]) ? ('xz' as const) : undefined,
+          supportsDisplayAxes(active, [y.id, volume.id]) ? ('yz' as const) : undefined,
+        ].filter((value): value is 'xy' | 'xz' | 'yz' => value !== undefined),
+  )
   return {
     mode,
     name,
@@ -200,6 +220,7 @@ const openedMetadata = (
     bands: channels?.length ?? 1,
     sampleType: active.descriptor.sampleType,
     sourceBytes: bytes,
+    sliceAxes,
     ...(openedDocument.reader.id !== 'purejsimage/gsf' || channels?.entries?.[0]?.name === undefined
       ? {}
       : { title: channels.entries[0].name }),
@@ -437,14 +458,16 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
   let viewKey = ''
   if (depth !== undefined) {
     if (settings.projection === 'none') {
+      const requestedSliceAxes =
+        settings.sliceAxis === 'xz'
+          ? ([x.id, depth.id] as const)
+          : settings.sliceAxis === 'yz'
+            ? ([y.id, depth.id] as const)
+            : ([x.id, y.id] as const)
+      const sliceAxis = supportsDisplayAxes(active, requestedSliceAxes) ? settings.sliceAxis : 'xy'
       displayAxes =
-        settings.sliceAxis === 'xy'
-          ? [x.id, y.id]
-          : settings.sliceAxis === 'xz'
-            ? [x.id, depth.id]
-            : [y.id, depth.id]
-      const fixedAxis =
-        settings.sliceAxis === 'xy' ? depth.id : settings.sliceAxis === 'xz' ? y.id : x.id
+        sliceAxis === 'xy' ? [x.id, y.id] : sliceAxis === 'xz' ? [x.id, depth.id] : [y.id, depth.id]
+      const fixedAxis = sliceAxis === 'xy' ? depth.id : sliceAxis === 'xz' ? y.id : x.id
       displayed = sliceScientificVolume(active, {
         displayAxes,
         fixedIndices: fixedIndices(active, displayAxes, { [fixedAxis]: settings.sliceIndex }),
@@ -460,10 +483,13 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
       })
       displayAxes = [x.id, y.id]
     }
-    viewKey = `${settings.projection}:${settings.sliceAxis}:${settings.sliceIndex}`
+    viewKey = `${settings.projection}:${displayAxes.join('/')}:${settings.sliceIndex}`
   }
-  const displayX = horizontalAxis(displayed)
-  const displayY = verticalAxis(displayed)
+  const displayX = axis(displayed, displayAxes[0])
+  const displayY = axis(displayed, displayAxes[1])
+  if (displayX === undefined || displayY === undefined) {
+    throw new Error('Displayed dataset omitted a selected axis')
+  }
   let displayWidth = displayX.length
   let displayHeight = displayY.length
   const channelId = channelAxis(displayed)?.id
@@ -543,7 +569,7 @@ const render = async (sequence: number, settings: ScientificDemoRenderSettings):
           : ''
       selectionLabel =
         settings.projection === 'none'
-          ? `${sourceLabel}${settings.sliceAxis.toUpperCase()} slice ${settings.sliceIndex + 1}`
+          ? `${sourceLabel}${displayAxes[0] === x.id && displayAxes[1] === y.id ? 'XY' : displayAxes[0] === x.id ? 'XZ' : 'YZ'} slice ${settings.sliceIndex + 1}`
           : `${sourceLabel}${settings.projection} projection through ${depth.name ?? depth.id}`
     }
   }

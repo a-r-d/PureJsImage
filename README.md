@@ -208,7 +208,11 @@ const synthetic: ScientificDataset = {
     ],
     sampleType: 'float32',
     components: [{ id: 'intensity', kind: 'intensity', unit: 'counts' }],
-    capabilities: { regionReads: true, resolutionLevels: false },
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'energy']] },
+    },
   }),
   async *readPlane(request): AsyncIterable<RasterBlock> {
     const plane = normalizeScientificPlaneReadRequest(this.descriptor, request)

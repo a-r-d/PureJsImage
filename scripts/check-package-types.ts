@@ -282,7 +282,11 @@ const roiDatasetDescriptor = {
   ],
   sampleType: 'uint8' as const,
   components: [{ id: 'value', kind: 'scalar' as const }],
-  capabilities: { regionReads: true, resolutionLevels: false },
+  capabilities: {
+    regionReads: true,
+    resolutionLevels: false,
+    planeReads: { kind: 'any-axis-pair' },
+  },
 }
 const normalizedRoiDataset = normalizeScientificDatasetDescriptor(roiDatasetDescriptor)
 export const builtInAnalysis = createBuiltInAnalysisBundle({

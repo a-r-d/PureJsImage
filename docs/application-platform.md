@@ -37,8 +37,9 @@ separate browser-portable `purejsimage/sources/http-range` entry.
 
 ## Read any labeled-axis plane
 
-A plane selects two display axes and fixes every other non-singleton axis. Numeric computation uses
-native-endian tiles; display mapping remains a later, explicit step:
+A plane selects one ordered display-axis pair declared by
+`dataset.descriptor.capabilities.planeReads` and fixes every other non-singleton axis. Numeric
+computation uses native-endian tiles; display mapping remains a later, explicit step:
 
 ```ts
 import { resolveNumericTileSource } from 'purejsimage/scientific'

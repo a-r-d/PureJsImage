@@ -74,7 +74,11 @@ describe('reader-derived scientific dataset identity', () => {
             ],
           },
         ],
-        capabilities: { regionReads: true, resolutionLevels: false },
+        capabilities: {
+          regionReads: true,
+          resolutionLevels: false,
+          planeReads: { kind: 'any-axis-pair' },
+        },
       },
       async *readPlane() {},
     }

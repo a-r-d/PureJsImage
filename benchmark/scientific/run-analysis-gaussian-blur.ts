@@ -37,7 +37,11 @@ const descriptor = normalizeScientificDatasetDescriptor({
   ],
   sampleType: 'float32',
   components: [{ id: 'signal', kind: 'scalar' }],
-  capabilities: { regionReads: true, resolutionLevels: false },
+  capabilities: {
+    regionReads: true,
+    resolutionLevels: false,
+    planeReads: { kind: 'any-axis-pair' },
+  },
 })
 
 let sourceReads = 0

@@ -581,7 +581,7 @@ const normalizeProject = async (
         'invalid-type',
       )
     const identity = parseSemanticIdentity(raw.identity, `/bindings/${index}/identity`)
-    const bindingValue = parseBindingValue(raw.value, `/bindings/${index}/value`)
+    let bindingValue = parseBindingValue(raw.value, `/bindings/${index}/value`)
     if (bindingValue.kind === 'source') {
       const sourceIdentity = sourceIdentities.get(bindingValue.sourceReference)
       if (sourceIdentity === undefined)
@@ -614,6 +614,7 @@ const normalizeProject = async (
           `/bindings/${index}/value`,
           validation.issues[0]?.message ?? 'Inline value is invalid',
         )
+      bindingValue = Object.freeze({ kind: 'inline-json', value: validation.value })
     }
     const normalized: PersistedInputBinding = Object.freeze({
       input: name,

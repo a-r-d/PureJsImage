@@ -126,7 +126,11 @@ class LabeledVolumeDataset implements ScientificDataset {
       ],
       sampleType: 'float32',
       components: [{ id: 'value', kind: 'scalar' }],
-      capabilities: { regionReads: true, resolutionLevels: false },
+      capabilities: {
+        regionReads: true,
+        resolutionLevels: false,
+        planeReads: { kind: 'any-axis-pair' },
+      },
     })
   }
 

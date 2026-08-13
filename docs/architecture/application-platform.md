@@ -127,8 +127,10 @@ part of the serialized descriptor rather than a permanent suffix in every consum
 V2 describes dimensions as labeled axes instead of assuming every dataset is exactly `X/Y/Z/C/T`.
 An axis has a stable ID, semantic kind, length, and optional unit, regular origin/spacing, or an
 explicit coordinate vector. Channel descriptions remain first-class metadata rather than being
-forced into numeric coordinates. A read selection names two display axes and fixes, ranges, or
-indexes all other axes; it yields two-dimensional `RasterBlock`s. That keeps the existing portable
+forced into numeric coordinates. `capabilities.planeReads` declares either arbitrary pairs or the
+exact supported ordered pairs; `[x, y]` and `[y, x]` are not assumed equivalent. A read selection
+names one supported pair and fixes, ranges, or indexes all other axes; it yields two-dimensional
+`RasterBlock`s. That keeps the existing portable
 block boundary usable without pretending `RasterBlock` is an arbitrary N-dimensional tensor.
 
 The V2 read contract must include `AbortSignal` and a byte budget in its options. Cancellation must
@@ -138,7 +140,8 @@ channel selection, coordinate metadata, block shape, cancellation, and release p
 
 The public PR 1 boundary exposes no fixed-axis dataset or adapter. Internal parser compatibility
 code may temporarily adapt an old parser result while each parser moves to native V2 construction;
-that seam is not a package contract or a pattern for new readers. `ScientificAxisDescriptor.entries`
+that seam is not a package contract or a pattern for new readers. The adapter omits legacy singleton
+Z, channel, and time dimensions unless they carry real dataset meaning. `ScientificAxisDescriptor.entries`
 carries per-coordinate channel identity, name,
 unit, color, and spectral center/FWHM without confusing independently selectable channels with
 stored components. Generic measurement and rendering now execute from a resolved two-axis plane and

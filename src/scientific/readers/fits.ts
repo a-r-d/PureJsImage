@@ -151,7 +151,11 @@ class FitsRankedDataset implements ScientificDataset {
         ? {}
         : { noDataValue: slice.descriptor.noDataValue }),
       metadata,
-      capabilities: { regionReads: true, resolutionLevels: false },
+      capabilities: {
+        regionReads: true,
+        resolutionLevels: false,
+        planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'y']] },
+      },
     })
     return new FitsRankedDataset(document, hdu, descriptor)
   }
@@ -169,11 +173,7 @@ class FitsRankedDataset implements ScientificDataset {
     )
     for await (const block of slice.readPlane({
       displayAxes: ['x', 'y'],
-      fixedIndices: [
-        { axisId: 'z', index: 0 },
-        { axisId: 'channel', index: 0 },
-        { axisId: 'time', index: 0 },
-      ],
+      fixedIndices: [],
       resolutionLevel: 0,
       x: normalized.x,
       y: normalized.y,

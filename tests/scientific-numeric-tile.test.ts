@@ -39,7 +39,11 @@ const descriptorFor = (
       id: `component-${index}`,
       kind: 'scalar' as const,
     })),
-    capabilities: { regionReads: true, resolutionLevels: false },
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'any-axis-pair' },
+    },
   })
 
 const writeCanonical = (

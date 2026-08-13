@@ -10,6 +10,7 @@ export type {
   ScientificComponentKind,
   ScientificDataset,
   ScientificDatasetCapabilities,
+  ScientificPlaneReadCapability,
   ScientificDatasetDescriptor,
   ScientificMetadataObject,
   ScientificMetadataValue,

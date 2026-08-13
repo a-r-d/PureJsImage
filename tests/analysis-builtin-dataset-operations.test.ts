@@ -88,7 +88,11 @@ const sourceDataset = (
     sampleType,
     components: [{ id: 'intensity', kind: 'intensity', unit: 'counts' }],
     ...(options.noDataValue === undefined ? {} : { noDataValue: options.noDataValue }),
-    capabilities: { regionReads: true, resolutionLevels: false },
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'any-axis-pair' },
+    },
   })
   const numericTileSource = {
     descriptor,

@@ -6,7 +6,9 @@ import {
   encodeGsf,
   gsfReader,
   mrcReader,
+  renderScientificPlane,
   ScientificReaderRegistry,
+  sliceScientificVolume,
   type ScientificDataset,
 } from '../src/scientific/index.ts'
 import { openGsf } from '../src/scientific/formats/gsf.ts'
@@ -41,6 +43,35 @@ const mrcFixture = (extendedHeaderBytes = 0): Uint8Array => {
   values.forEach((value, index) => {
     view.setInt16(1_024 + extendedHeaderBytes + index * 2, value, true)
   })
+  return output
+}
+
+const mrcVolumeFixture = (): Uint8Array => {
+  const output = new Uint8Array(1_024 + 2 * 2 * 3 * 2)
+  const view = new DataView(output.buffer)
+  const integer = (offset: number, value: number): void => view.setInt32(offset, value, true)
+  const real = (offset: number, value: number): void => view.setFloat32(offset, value, true)
+  integer(0, 2)
+  integer(4, 2)
+  integer(8, 3)
+  integer(12, 1)
+  integer(28, 2)
+  integer(32, 2)
+  integer(36, 3)
+  real(40, 2)
+  real(44, 2)
+  real(48, 3)
+  real(52, 90)
+  real(56, 90)
+  real(60, 90)
+  integer(64, 1)
+  integer(68, 2)
+  integer(72, 3)
+  output.set(new TextEncoder().encode('MAP '), 208)
+  output.set([0x44, 0x44, 0, 0], 212)
+  for (let index = 0; index < 12; index += 1) {
+    view.setInt16(1_024 + index * 2, index, true)
+  }
   return output
 }
 
@@ -124,6 +155,26 @@ const collect = async (dataset: ScientificDataset): Promise<number[]> => {
   return values
 }
 
+const collectPlane = async (
+  dataset: ScientificDataset,
+  displayAxes: readonly [string, string],
+  fixedIndices: readonly { readonly axisId: string; readonly index: number }[],
+): Promise<number[]> => {
+  const values: number[] = []
+  for await (const block of dataset.readPlane({ displayAxes, fixedIndices })) {
+    const bytes = rasterSampleBytes(block.format.sampleType)
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    for (let y = 0; y < block.height; y += 1) {
+      for (let x = 0; x < block.width; x += 1) {
+        values.push(
+          readRasterSample(block.data, view, y * block.stride + x * bytes, block.format.sampleType),
+        )
+      }
+    }
+  }
+  return values
+}
+
 const registry = new ScientificReaderRegistry([gsfReader, mrcReader, cbfReader])
 
 describe('first-party scientific reader adapters', () => {
@@ -166,6 +217,42 @@ describe('first-party scientific reader adapters', () => {
     expect(source.reads.length).toBeGreaterThan(readsBeforeDataset)
   })
 
+  it('exposes real axes and bounded ordered MRC XY, XZ, and YZ planes', async () => {
+    const document = await registry.open({
+      primary: { id: 'mrc-volume', source: new MemorySource(mrcVolumeFixture()) },
+      readerId: 'purejsimage/mrc',
+    })
+    const dataset = await document.openDataset('volume')
+    expect(dataset.descriptor.axes.map(({ id }) => id)).toEqual(['x', 'y', 'z'])
+    expect(dataset.descriptor.capabilities.planeReads).toEqual({
+      kind: 'ordered-axis-pairs',
+      pairs: [
+        ['x', 'y'],
+        ['x', 'z'],
+        ['y', 'z'],
+      ],
+    })
+    await expect(collectPlane(dataset, ['x', 'z'], [{ axisId: 'y', index: 1 }])).resolves.toEqual([
+      2, 3, 6, 7, 10, 11,
+    ])
+    await expect(collectPlane(dataset, ['y', 'z'], [{ axisId: 'x', index: 1 }])).resolves.toEqual([
+      1, 3, 5, 7, 9, 11,
+    ])
+    const yz = sliceScientificVolume(dataset, {
+      displayAxes: ['y', 'z'],
+      fixedIndices: [{ axisId: 'x', index: 1 }],
+    })
+    await expect(collectPlane(yz, ['y', 'z'], [])).resolves.toEqual([1, 3, 5, 7, 9, 11])
+    const rendered = await renderScientificPlane(yz, {
+      plane: { displayAxes: ['y', 'z'], fixedIndices: [] },
+      range: { mode: 'percentile', low: 1, high: 99 },
+    })
+    for await (const block of rendered.pixels) block.release?.()
+    await expect(collectPlane(dataset, ['z', 'x'], [{ axisId: 'y', index: 0 }])).rejects.toThrow(
+      'does not support display axes z/x',
+    )
+  })
+
   it('preserves GSF values and CBF detector metadata through labeled datasets', async () => {
     const gsfBytes = encodeGsf({
       width: 2,
@@ -183,6 +270,7 @@ describe('first-party scientific reader adapters', () => {
       primary: { id: 'gsf', source: new MemorySource(gsfBytes) },
     })
     const gsfDataset = await gsfDocument.openDataset('surface')
+    expect(gsfDataset.descriptor.axes.map(({ id }) => id)).toEqual(['x', 'y'])
     expect(await collect(gsfDataset)).toEqual([1.25, -2.5])
     expect(gsfDataset.descriptor.axes.find(({ id }) => id === 'x')).toMatchObject({
       coordinates: { type: 'linear', step: 2 },
@@ -197,7 +285,9 @@ describe('first-party scientific reader adapters', () => {
       detector: { detectorName: 'TEST DETECTOR' },
       elementType: 'signed 32-bit integer',
     })
-    expect(await collect(await cbfDocument.openDataset('detector-frame'))).toEqual([1, 3, 6, 10])
+    const cbfDataset = await cbfDocument.openDataset('detector-frame')
+    expect(cbfDataset.descriptor.axes.map(({ id }) => id)).toEqual(['x', 'y'])
+    expect(await collect(cbfDataset)).toEqual([1, 3, 6, 10])
   })
 
   it('retains existing error categories for explicit malformed opens', async () => {

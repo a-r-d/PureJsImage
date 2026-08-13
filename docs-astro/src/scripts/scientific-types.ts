@@ -77,6 +77,7 @@ export interface ScientificOpenedMetadata {
   readonly dataMax?: number
   readonly sourceBytes: number
   readonly sizeZ?: number
+  readonly sliceAxes: readonly ('xy' | 'xz' | 'yz')[]
   readonly fitsHdus?: readonly ScientificFitsHduOption[]
   readonly fitsHdu?: number
   readonly fitsPrimary?: boolean

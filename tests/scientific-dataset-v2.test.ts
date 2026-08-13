@@ -37,7 +37,11 @@ const descriptorInput = (
   axes,
   sampleType: overrides.sampleType ?? 'uint8',
   components: overrides.components ?? [{ id: 'value', kind: 'scalar' }],
-  capabilities: overrides.capabilities ?? { regionReads: true, resolutionLevels: false },
+  capabilities: overrides.capabilities ?? {
+    regionReads: true,
+    resolutionLevels: false,
+    planeReads: { kind: 'any-axis-pair' },
+  },
   ...(overrides.levels === undefined ? {} : { levels: overrides.levels }),
   ...(overrides.noDataValue === undefined ? {} : { noDataValue: overrides.noDataValue }),
   ...(overrides.metadata === undefined ? {} : { metadata: overrides.metadata }),
@@ -167,7 +171,11 @@ describe('ScientificDataset V2 descriptors', () => {
   it('allows resolution levels to change any declared axis', () => {
     const descriptor = normalizeScientificDatasetDescriptor(
       descriptorInput([axis('scanX', 'space', 8), axis('energy', 'spectral', 16)], {
-        capabilities: { regionReads: true, resolutionLevels: true },
+        capabilities: {
+          regionReads: true,
+          resolutionLevels: true,
+          planeReads: { kind: 'any-axis-pair' },
+        },
         levels: [
           {
             level: 0,
@@ -243,7 +251,11 @@ describe('ScientificDataset V2 descriptors', () => {
 
   it('rejects malformed and inconsistent resolution levels', () => {
     const axes = [axis('x', 'space', 4), axis('y', 'space', 3)]
-    const capabilities = { regionReads: true, resolutionLevels: true }
+    const capabilities = {
+      regionReads: true,
+      resolutionLevels: true,
+      planeReads: { kind: 'any-axis-pair' as const },
+    }
     const levelZero = {
       level: 0,
       axisLengths: [
@@ -288,7 +300,11 @@ describe('ScientificDataset V2 descriptors', () => {
     expect(() =>
       normalizeScientificDatasetDescriptor(
         descriptorInput(axes, {
-          capabilities: { regionReads: true, resolutionLevels: false },
+          capabilities: {
+            regionReads: true,
+            resolutionLevels: false,
+            planeReads: { kind: 'any-axis-pair' },
+          },
           levels: [
             levelZero,
             {
@@ -330,6 +346,36 @@ describe('ScientificDataset V2 descriptors', () => {
 })
 
 describe('ScientificDataset V2 plane requests', () => {
+  it('enforces supported ordered display-axis pairs before reader execution', () => {
+    const descriptor = normalizeScientificDatasetDescriptor(
+      descriptorInput([axis('x', 'space', 3), axis('y', 'space', 2), axis('z', 'space', 4)], {
+        capabilities: {
+          regionReads: true,
+          resolutionLevels: false,
+          planeReads: {
+            kind: 'ordered-axis-pairs',
+            pairs: [
+              ['x', 'y'],
+              ['x', 'z'],
+            ],
+          },
+        },
+      }),
+    )
+    expect(
+      normalizeScientificPlaneReadRequest(descriptor, {
+        displayAxes: ['x', 'z'],
+        fixedIndices: [{ axisId: 'y', index: 0 }],
+      }),
+    ).toMatchObject({ width: 3, height: 4 })
+    expect(() =>
+      normalizeScientificPlaneReadRequest(descriptor, {
+        displayAxes: ['z', 'x'],
+        fixedIndices: [{ axisId: 'y', index: 0 }],
+      }),
+    ).toThrow('does not support display axes z/x')
+  })
+
   it('normalizes X/Y/Z and singleton selections explicitly', () => {
     const descriptor = normalizeScientificDatasetDescriptor(
       descriptorInput([
@@ -483,7 +529,11 @@ describe('ScientificDataset V2 plane requests', () => {
   it('enforces the region-read capability', () => {
     const descriptor = normalizeScientificDatasetDescriptor(
       descriptorInput([axis('x', 'space', 4), axis('y', 'space', 3)], {
-        capabilities: { regionReads: false, resolutionLevels: false },
+        capabilities: {
+          regionReads: false,
+          resolutionLevels: false,
+          planeReads: { kind: 'any-axis-pair' },
+        },
       }),
     )
 

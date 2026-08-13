@@ -35,6 +35,8 @@ export interface MultidimensionalRasterAdapterOptions {
   readonly levels?: readonly ScientificResolutionLevel[]
   /** Whether the fixed-axis reader supports rectangular region reads. Defaults to true. */
   readonly regionReads?: boolean
+  /** Singleton legacy dimensions that still carry format-level meaning. */
+  readonly semanticSingletonAxes?: readonly ('z' | 'channel' | 'time')[]
 }
 
 type ScientificDatasetInput = MultidimensionalRasterDataset | ScientificDataset
@@ -267,30 +269,50 @@ class FixedAxisScientificDataset implements ScientificDataset {
     const sizeT = positiveDimension(source.sizeT, 'Fixed-axis sizeT')
     const model = channelModel(source)
     this.#samplesPerPixel = model.samplesPerPixel
-    const axes = Object.freeze([
+    const semanticSingletonAxes = new Set(options.semanticSingletonAxes)
+    const axes: ScientificAxisDescriptor[] = [
       calibratedAxis(xAxisId, 'X', sizeX, source.physicalSizeX, source.originX),
       calibratedAxis(yAxisId, 'Y', sizeY, source.physicalSizeY, source.originY),
-      calibratedAxis(zAxisId, 'Z', sizeZ, source.physicalSizeZ, source.originZ),
-      channelAxis(source, model.logicalChannels),
+    ]
+    if (sizeZ > 1 || semanticSingletonAxes.has(zAxisId)) {
+      axes.push(calibratedAxis(zAxisId, 'Z', sizeZ, source.physicalSizeZ, source.originZ))
+    }
+    if (model.logicalChannels > 1 || semanticSingletonAxes.has(channelAxisId)) {
+      axes.push(channelAxis(source, model.logicalChannels))
+    }
+    if (sizeT > 1 || semanticSingletonAxes.has(timeAxisId)) {
+      axes.push(
+        Object.freeze({
+          id: timeAxisId,
+          name: 'Time',
+          kind: 'time' as const,
+          length: sizeT,
+          coordinates: Object.freeze({ type: 'index' as const }),
+        }),
+      )
+    }
+    const frozenAxes = Object.freeze(axes)
+    const includedAxisIds = new Set(frozenAxes.map((axis) => axis.id))
+    const levels = options.levels?.map((level) =>
       Object.freeze({
-        id: timeAxisId,
-        name: 'Time',
-        kind: 'time' as const,
-        length: sizeT,
-        coordinates: Object.freeze({ type: 'index' as const }),
+        level: level.level,
+        axisLengths: Object.freeze(
+          level.axisLengths.filter((entry) => includedAxisIds.has(entry.axisId)),
+        ),
       }),
-    ])
+    )
     this.descriptor = normalizeScientificDatasetDescriptor({
       schemaVersion: 2,
-      axes,
+      axes: frozenAxes,
       sampleType: source.sampleType,
       components: components(model.samplesPerPixel, source.channels),
-      ...(options.levels === undefined ? {} : { levels: options.levels }),
+      ...(levels === undefined ? {} : { levels }),
       ...(source.noDataValue === undefined ? {} : { noDataValue: source.noDataValue }),
       metadata: legacyMetadata(source),
       capabilities: {
         regionReads: options.regionReads ?? true,
-        resolutionLevels: options.levels !== undefined && options.levels.length > 1,
+        resolutionLevels: levels !== undefined && levels.length > 1,
+        planeReads: { kind: 'ordered-axis-pairs', pairs: [[xAxisId, yAxisId]] },
       },
     })
   }

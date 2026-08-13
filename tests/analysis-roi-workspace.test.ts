@@ -23,7 +23,11 @@ const descriptor = normalizeScientificDatasetDescriptor({
   ],
   sampleType: 'uint16',
   components: [{ id: 'value', kind: 'scalar' }],
-  capabilities: { regionReads: true, resolutionLevels: false },
+  capabilities: {
+    regionReads: true,
+    resolutionLevels: false,
+    planeReads: { kind: 'any-axis-pair' },
+  },
 })
 
 const operation = createOperationDefinition({

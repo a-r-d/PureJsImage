@@ -63,11 +63,7 @@ export const runApplicationPlatformExample = async (
     const dataset = await document.openDataset(selected.id, signal === undefined ? {} : { signal })
     const datasetIdentity = getScientificDatasetIdentity(dataset)
     if (datasetIdentity === undefined) throw new Error('The opened dataset has no source identity')
-    const fixedIndices = Object.freeze([
-      Object.freeze({ axisId: 'z', index: 0 }),
-      Object.freeze({ axisId: 'channel', index: 0 }),
-      Object.freeze({ axisId: 'time', index: 0 }),
-    ])
+    const fixedIndices = Object.freeze([])
 
     // NumericTile storage is native-endian and must be released by its consumer.
     for await (const tile of resolveNumericTileSource(dataset).readNumericTiles({

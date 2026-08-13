@@ -119,7 +119,6 @@ describe('fixed-axis to labeled-axis adapter', () => {
         displayAxes: ['x', 'y'],
         fixedIndices: [
           { axisId: 'z', index: 1 },
-          { axisId: 'channel', index: 0 },
           { axisId: 'time', index: 1 },
         ],
       }),
@@ -205,7 +204,6 @@ describe('fixed-axis to labeled-axis adapter', () => {
         displayAxes: ['x', 'y'],
         fixedIndices: [
           { axisId: 'z', index: 0 },
-          { axisId: 'channel', index: 0 },
           { axisId: 'time', index: 0 },
         ],
       }),
@@ -250,7 +248,6 @@ describe('fixed-axis to labeled-axis adapter', () => {
         displayAxes: ['x', 'y'],
         fixedIndices: [
           { axisId: 'z', index: 0 },
-          { axisId: 'channel', index: 0 },
           { axisId: 'time', index: 0 },
         ],
         resolutionLevel: 1,
@@ -273,7 +270,6 @@ describe('fixed-axis to labeled-axis adapter', () => {
           displayAxes: ['x', 'y'],
           fixedIndices: [
             { axisId: 'z', index: 0 },
-            { axisId: 'channel', index: 0 },
             { axisId: 'time', index: 0 },
           ],
           signal: controller.signal,
@@ -301,7 +297,9 @@ class LabeledFixture implements ScientificDataset {
   }
 }
 
-const xyDescriptor = (overrides: Partial<ScientificDatasetDescriptor> = {}) => ({
+const xyDescriptor = (
+  overrides: Partial<ScientificDatasetDescriptor> = {},
+): ScientificDatasetDescriptor => ({
   schemaVersion: 2 as const,
   axes: [
     {
@@ -321,7 +319,11 @@ const xyDescriptor = (overrides: Partial<ScientificDatasetDescriptor> = {}) => (
   ],
   sampleType: 'float32' as const,
   components: [{ id: 'value', kind: 'scalar' as const, unit: 'K' }],
-  capabilities: { regionReads: true, resolutionLevels: false },
+  capabilities: {
+    regionReads: true,
+    resolutionLevels: false,
+    planeReads: { kind: 'any-axis-pair' },
+  },
   ...overrides,
 })
 

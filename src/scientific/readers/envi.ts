@@ -178,7 +178,7 @@ export const enviReader: ScientificReader = Object.freeze({
       fields: legacy.metadata,
     })
     const dataset = descriptorWithFormatMetadata(
-      toScientificDataset(legacy),
+      toScientificDataset(legacy, { semanticSingletonAxes: ['channel'] }),
       'purejsimage:envi',
       formatMetadata,
     )

@@ -258,7 +258,11 @@ const directDataset = (
     axes,
     sampleType: 'float32',
     components: [{ id: 'signal', kind: 'scalar' }],
-    capabilities: { regionReads: true, resolutionLevels: false },
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'any-axis-pair' },
+    },
   })
   const dataset: DirectNumericTileDataset = Object.freeze({
     descriptor,
@@ -603,20 +607,12 @@ const gsfBytes = encodeGsf({
   height: 256,
   values: Array.from({ length: 256 * 256 }, (_value, index) => index % 1_024),
 })
-const fixedLegacyAxes = [
-  { axisId: 'z', index: 0 },
-  { axisId: 'channel', index: 0 },
-  { axisId: 'time', index: 0 },
-] as const
+const fixedDepth = [{ axisId: 'z', index: 0 }] as const
+const fixed2d = [] as const
 const documents = {
-  gsf: await measureDocument(gsfReader, 'surface.gsf', gsfBytes, fixedLegacyAxes),
-  mrc: await measureDocument(mrcReader, 'volume.mrc', createMrcFixture(128, 128), fixedLegacyAxes),
-  cbf: await measureDocument(
-    cbfReader,
-    'detector.cbf',
-    createCbfFixture(128, 128),
-    fixedLegacyAxes,
-  ),
+  gsf: await measureDocument(gsfReader, 'surface.gsf', gsfBytes, fixed2d),
+  mrc: await measureDocument(mrcReader, 'volume.mrc', createMrcFixture(128, 128), fixedDepth),
+  cbf: await measureDocument(cbfReader, 'detector.cbf', createCbfFixture(128, 128), fixed2d),
 }
 
 const displayLibrary = createScientificLibrary({ readers: [gsfReader] })
@@ -628,7 +624,7 @@ if (displaySummary === undefined) throw new Error('Display benchmark has no GSF 
 const displayDataset = await displayDocument.openDataset(displaySummary.id)
 const display = await timed(async () => {
   const rendered = await renderScientificPlane(displayDataset, {
-    plane: { displayAxes: ['x', 'y'], fixedIndices: fixedLegacyAxes },
+    plane: { displayAxes: ['x', 'y'], fixedIndices: fixed2d },
     x: 0,
     y: 0,
     width: 128,

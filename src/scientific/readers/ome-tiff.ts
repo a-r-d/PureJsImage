@@ -85,7 +85,13 @@ export const omeTiffReader: ScientificReader = Object.freeze({
           datasetId: id,
           resources: [context.primary],
         })
-        const dataset = identifyScientificDataset(toScientificDataset(legacy, { levels }), identity)
+        const dataset = identifyScientificDataset(
+          toScientificDataset(legacy, {
+            levels,
+            semanticSingletonAxes: ['z', 'channel', 'time'],
+          }),
+          identity,
+        )
         return Object.freeze({ id, dataset, identity })
       }),
     )

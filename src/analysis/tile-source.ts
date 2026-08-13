@@ -248,8 +248,13 @@ class NumericTileSourceAdapter implements TileSource {
     let output: NumericTile | undefined
     let coverage: Uint8Array | undefined
     let decodedInputBytes = 0
-    let unreleasedFirst: NumericTile | undefined
+    const acquired = new Set<NumericTile>()
     const iterator = this.#source.readNumericTiles(sourceRequest)[Symbol.asyncIterator]()
+    const nextTile = async (): Promise<IteratorResult<NumericTile>> => {
+      const result = await iterator.next()
+      if (!result.done) acquired.add(result.value)
+      return result
+    }
     const consume = (sourceTile: NumericTile): void => {
       try {
         request.signal.throwIfAborted()
@@ -265,18 +270,15 @@ class NumericTileSourceAdapter implements TileSource {
         if (coverage === undefined) throw invalidInput('Numeric tile coverage is unavailable')
         copyTile(sourceTile, output, coverage)
       } finally {
-        sourceTile.release()
+        if (acquired.delete(sourceTile)) sourceTile.release()
       }
     }
     try {
-      const firstResult = await iterator.next()
+      const firstResult = await nextTile()
       if (firstResult.done) throw invalidInput('Numeric tile source returned no tiles')
       const first = firstResult.value
-      unreleasedFirst = first
       validateNumericTile(first)
-      const second = await iterator.next()
       if (
-        second.done &&
         first.x === address.x &&
         first.y === address.y &&
         first.width === address.width &&
@@ -287,17 +289,21 @@ class NumericTileSourceAdapter implements TileSource {
         (request.target?.layout === undefined || first.layout === request.target.layout) &&
         numericTileRetainedBytes(first) <= this.estimate(request).outputRetainedBytes
       ) {
-        unreleasedFirst = undefined
-        return Object.freeze({
-          tile: first,
-          accounting: Object.freeze({ decodedInputBytes: first.data.byteLength }),
-        })
+        const second = await nextTile()
+        if (second.done) {
+          acquired.delete(first)
+          return Object.freeze({
+            tile: first,
+            accounting: Object.freeze({ decodedInputBytes: first.data.byteLength }),
+          })
+        }
+        consume(first)
+        consume(second.value)
+      } else {
+        consume(first)
       }
-      unreleasedFirst = undefined
-      consume(first)
-      if (!second.done) consume(second.value)
       for (;;) {
-        const next = await iterator.next()
+        const next = await nextTile()
         if (next.done) break
         consume(next.value)
       }
@@ -310,7 +316,8 @@ class NumericTileSourceAdapter implements TileSource {
       return Object.freeze({ tile: output, accounting: Object.freeze({ decodedInputBytes }) })
     } catch (error) {
       output?.release()
-      unreleasedFirst?.release()
+      for (const tile of acquired) tile.release()
+      acquired.clear()
       await iterator.return?.()
       throw error
     }

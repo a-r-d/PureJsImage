@@ -3,8 +3,10 @@ import {
   canonicalNormalizedRoiSemanticsJson,
   computeAnalysisProjectHashes,
   createBuiltInAnalysisValueTypeRegistry,
+  executeGraph,
   hashCanonicalJson,
   normalizeAnalysisProjectV1,
+  planGraph,
   roiSetValueTypeId,
   roiValueTypeId,
   scientificDatasetValueTypeId,
@@ -12,7 +14,11 @@ import {
   type AnalysisProjectV1,
   type AnalysisSemanticIdentity,
 } from '../src/analysis/index.ts'
-import { createOperationRegistry } from '../src/operations/index.ts'
+import {
+  createOperationRegistry,
+  createValueTypeDefinition,
+  createValueTypeRegistry,
+} from '../src/operations/index.ts'
 import { normalizeScientificDatasetDescriptor } from '../src/scientific/index.ts'
 
 const descriptor = normalizeScientificDatasetDescriptor({
@@ -23,7 +29,11 @@ const descriptor = normalizeScientificDatasetDescriptor({
   ],
   sampleType: 'float32',
   components: [{ id: 'value', kind: 'scalar' }],
-  capabilities: { regionReads: true, resolutionLevels: false },
+  capabilities: {
+    regionReads: true,
+    resolutionLevels: false,
+    planeReads: { kind: 'any-axis-pair' },
+  },
 })
 
 const sourceIdentity = Object.freeze({
@@ -173,5 +183,100 @@ describe('AnalysisProject V1', () => {
     expect(
       (await validateAnalysisProjectV1(project, { ...options, maxDocumentBytes: 4 })).issues[0],
     ).toMatchObject({ code: 'limit-exceeded', path: '' })
+  })
+
+  it('normalizes inline values before persisted and execution identities are used', async () => {
+    const valueType = createValueTypeDefinition({
+      descriptor: { id: 'purejsimage.test.threshold', version: 1, title: 'Threshold' },
+      validate(value) {
+        if (
+          value === null ||
+          typeof value !== 'object' ||
+          Array.isArray(value) ||
+          !('threshold' in value) ||
+          typeof value.threshold !== 'number'
+        ) {
+          return {
+            valid: false,
+            issues: [{ code: 'invalid-type', path: '', message: 'Expected a threshold object' }],
+          }
+        }
+        return {
+          valid: true,
+          issues: [],
+          value: Object.freeze({ threshold: value.threshold, inclusive: true }),
+        }
+      },
+    })
+    const valueTypes = createValueTypeRegistry([valueType])
+    const graph = Object.freeze({
+      schemaVersion: 1 as const,
+      inputs: Object.freeze([
+        Object.freeze({ name: 'input', valueType: { id: valueType.descriptor.id, version: 1 } }),
+      ]),
+      nodes: Object.freeze([]),
+      outputs: Object.freeze([
+        Object.freeze({ name: 'output', source: { kind: 'input' as const, input: 'input' } }),
+      ]),
+    })
+    const normalizedValue = Object.freeze({ threshold: 5, inclusive: true })
+    const domain = `purejsimage.binding.${valueType.descriptor.id}.v1`
+    const identity: AnalysisSemanticIdentity = Object.freeze({
+      kind: 'semantic-json',
+      domain,
+      sha256: await hashCanonicalJson(domain, normalizedValue),
+    })
+    const base = {
+      schemaVersion: 1 as const,
+      graph,
+      roiSet: { schemaVersion: 1 as const, rois: [] },
+      bindings: [
+        {
+          input: 'input',
+          valueType: { id: valueType.descriptor.id, version: 1 },
+          identity,
+          value: { kind: 'inline-json' as const, value: { threshold: 5 } },
+        },
+      ],
+      sourceReferences: [],
+      createdWith: { packageVersion: '0.10.0-alpha', buildFingerprint: 'test-build' },
+    }
+    const hashes = await computeAnalysisProjectHashes(base)
+    const project = await normalizeAnalysisProjectV1(
+      { ...base, hashes },
+      {
+        operations: createOperationRegistry([]),
+        valueTypes,
+        roi: { descriptor },
+      },
+    )
+    expect(project.bindings[0]?.value).toEqual({ kind: 'inline-json', value: normalizedValue })
+    expect(await computeAnalysisProjectHashes(project)).toEqual(project.hashes)
+    const persistedBinding = project.bindings[0]
+    if (persistedBinding?.value.kind !== 'inline-json') {
+      throw new Error('Expected a normalized inline binding')
+    }
+
+    const plan = await planGraph({
+      graph: project.graph,
+      operations: createOperationRegistry([]),
+      valueTypes,
+      providers: [],
+      bindings: {
+        input: {
+          value: persistedBinding.value.value,
+          valueType: persistedBinding.valueType,
+          identity: persistedBinding.identity,
+        },
+      },
+    })
+    expect(plan.summary.invocation.bindingHash).toBe(project.hashes.bindings)
+    const result = await executeGraph({
+      plan,
+      library: { version: '0.10.0-alpha', buildFingerprint: 'test-build' },
+    }).result
+    expect(result.outputs.get('output')).toEqual(normalizedValue)
+    await result.release()
+    await plan.dispose()
   })
 })
