@@ -836,7 +836,7 @@ const report = {
   measurementScope: {
     timing: 'Local wall-clock measurements with one cold and one warm application invocation.',
     memory:
-      'Tile runtime cache bytes and planner estimates are bounded accounting, not process peak RSS.',
+      'Tile runtime managed-byte metrics and planner estimates are bounded accounting, not process peak RSS.',
     coldWarm:
       'Cold includes first plan/read for the constructed controller; warm repeats the same semantic request with cache residency visible in runtime metrics.',
   },

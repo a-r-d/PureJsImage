@@ -1102,6 +1102,9 @@ describe('built-in dataset analysis operations', () => {
             computeMilliseconds: 0,
             readbackMilliseconds: 0,
             retainedBytes: 1,
+            peakWorkingBytes: 1,
+            transferBytes: 0,
+            outputBytes: 1,
             confidence: 1,
           }),
           execute() {

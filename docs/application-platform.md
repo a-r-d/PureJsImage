@@ -87,7 +87,16 @@ import {
 } from 'purejsimage/analysis'
 import type { AnalysisGraph } from 'purejsimage/analysis'
 
-const runtime = createTileRuntime({ limits: { maxCacheBytes: 64 * 1024 * 1024 } })
+const runtime = createTileRuntime({
+  limits: {
+    maxCacheBytes: 64 * 1024 * 1024,
+    maxTileBytes: 16 * 1024 * 1024,
+    maxInFlightBytes: 64 * 1024 * 1024,
+    maxLeasedBytes: 64 * 1024 * 1024,
+    maxOperationWorkingBytes: 64 * 1024 * 1024,
+    maxTotalManagedBytes: 128 * 1024 * 1024,
+  },
+})
 const bundle = createBuiltInAnalysisBundle({ descriptor: dataset.descriptor, runtime })
 const controller = createAnalysisController({
   ...bundle,
@@ -154,6 +163,7 @@ try {
   console.log(execution.outputs.get('statistics'), execution.provenance)
 } finally {
   await execution.release()
+  await plan.dispose()
   runtime.clear()
 }
 ```

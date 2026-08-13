@@ -7,7 +7,7 @@ import type { OperationDefinition, OperationRegistry } from '../operations/regis
 import { canonicalJson, sha256Text } from './canonical-json.ts'
 
 export const analysisGraphSchemaVersion = 1
-export const analysisGraphHashDomain = 'purejsimage.analysis-graph.canonical-json.v1'
+export const analysisGraphHashDomain = 'purejsimage.analysis-graph.canonical-json.v2'
 
 export interface AnalysisValueTypeReference {
   readonly id: string
@@ -650,55 +650,72 @@ export interface SemanticAnalysisGraph extends OperationJsonObject {
   readonly outputs: readonly OperationJsonValue[]
 }
 
+const compareText = (left: string, right: string): number =>
+  left < right ? -1 : left > right ? 1 : 0
+
+const semanticNodeInputs = (node: AnalysisGraph['nodes'][number]): readonly OperationJsonValue[] =>
+  Object.freeze(
+    node.inputs
+      .map((input, index) => ({ input, index }))
+      .sort(
+        (left, right) => compareText(left.input.port, right.input.port) || left.index - right.index,
+      )
+      .map(({ input }) =>
+        Object.freeze({
+          port: input.port,
+          source:
+            input.source.kind === 'input'
+              ? Object.freeze({ kind: 'input', input: input.source.input })
+              : Object.freeze({
+                  kind: 'node',
+                  nodeId: input.source.nodeId,
+                  output: input.source.output,
+                }),
+        }),
+      ),
+  )
+
 export const semanticAnalysisGraph = (graph: AnalysisGraph): SemanticAnalysisGraph =>
   Object.freeze({
     schemaVersion: graph.schemaVersion,
     inputs: Object.freeze(
-      graph.inputs.map((input) =>
-        Object.freeze({
-          name: input.name,
-          valueType: Object.freeze({ id: input.valueType.id, version: input.valueType.version }),
-        }),
-      ),
+      [...graph.inputs]
+        .sort((left, right) => compareText(left.name, right.name))
+        .map((input) =>
+          Object.freeze({
+            name: input.name,
+            valueType: Object.freeze({ id: input.valueType.id, version: input.valueType.version }),
+          }),
+        ),
     ),
     nodes: Object.freeze(
-      graph.nodes.map((node) =>
-        Object.freeze({
-          id: node.id,
-          operation: Object.freeze({ id: node.operation.id, version: node.operation.version }),
-          inputs: Object.freeze(
-            node.inputs.map((input) =>
-              Object.freeze({
-                port: input.port,
-                source:
-                  input.source.kind === 'input'
-                    ? Object.freeze({ kind: 'input', input: input.source.input })
-                    : Object.freeze({
-                        kind: 'node',
-                        nodeId: input.source.nodeId,
-                        output: input.source.output,
-                      }),
-              }),
-            ),
-          ),
-          parameters: node.parameters,
-        }),
-      ),
+      [...graph.nodes]
+        .sort((left, right) => compareText(left.id, right.id))
+        .map((node) =>
+          Object.freeze({
+            id: node.id,
+            operation: Object.freeze({ id: node.operation.id, version: node.operation.version }),
+            inputs: semanticNodeInputs(node),
+            parameters: node.parameters,
+          }),
+        ),
     ),
     outputs: Object.freeze(
-      graph.outputs.map((output) =>
-        Object.freeze({
-          name: output.name,
-          source:
-            output.source.kind === 'input'
-              ? Object.freeze({ kind: 'input', input: output.source.input })
-              : Object.freeze({
-                  kind: 'node',
-                  nodeId: output.source.nodeId,
-                  output: output.source.output,
-                }),
-        }),
-      ),
+      [...graph.outputs]
+        .sort((left, right) => compareText(left.name, right.name))
+        .map((output) =>
+          Object.freeze({
+            name: output.name,
+            source:
+              output.source.kind === 'input'
+                ? Object.freeze({ kind: 'input', input: output.source.input })
+                : Object.freeze({
+                    kind: 'node',
+                    nodeId: output.source.nodeId,
+                    output: output.source.output,
+                  }),
+          }),
+        ),
     ),
   })
 

@@ -100,6 +100,8 @@ describe('trusted extension bundles', () => {
     expect(json).not.toContain('normalizeParameters')
     expect(json).not.toContain('prepare')
     expect(JSON.parse(json)).toEqual(prepared.manifest)
+    await prepared.dispose()
+    await prepared.dispose()
   })
 
   it('rejects collisions and incompatible API versions without mutating another host', () => {

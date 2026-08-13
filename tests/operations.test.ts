@@ -178,6 +178,7 @@ const implementation = (options: {
   readonly operation?: OperationDescriptor
   readonly time: number
   readonly retainedBytes?: number
+  readonly peakWorkingBytes?: number
   readonly supported?: boolean
   readonly bitExact?: boolean
   readonly execute?: OperationImplementation['execute']
@@ -195,6 +196,9 @@ const implementation = (options: {
     computeMilliseconds: 0,
     readbackMilliseconds: 0,
     retainedBytes: options.retainedBytes ?? 0,
+    peakWorkingBytes: options.peakWorkingBytes ?? options.retainedBytes ?? 0,
+    transferBytes: 0,
+    outputBytes: options.retainedBytes ?? 0,
     confidence: 1,
   }),
   execute: options.execute ?? (async () => [{ value: options.providerId, release: vi.fn() }]),
@@ -299,6 +303,9 @@ describe('operation providers', () => {
             computeMilliseconds: 0,
             readbackMilliseconds: 0,
             retainedBytes: 0,
+            peakWorkingBytes: 0,
+            transferBytes: 0,
+            outputBytes: 0,
             confidence: 0.1,
           }),
         },
@@ -318,6 +325,96 @@ describe('operation providers', () => {
         descriptor: { ...descriptor(), reproducibility: { class: 'provider-pinned' } },
       }),
     ).toThrow('requires an exact pinned provider policy')
+  })
+
+  it('applies hard automatic memory constraints before comparing elapsed cost', async () => {
+    const runtime = await prepareOperationRuntime([
+      provider('fast-memory-hog', 'webgpu', [
+        implementation({
+          providerId: 'fast-memory-hog',
+          time: 1,
+          retainedBytes: 1_024,
+          peakWorkingBytes: 4_096,
+        }),
+      ]),
+      provider('bounded-reference', 'reference', [
+        implementation({
+          providerId: 'bounded-reference',
+          time: 2,
+          retainedBytes: 64,
+          peakWorkingBytes: 128,
+        }),
+      ]),
+    ])
+    const request = {
+      descriptor: descriptor(),
+      parameters: {},
+      inputs: [],
+      signal: new AbortController().signal,
+    }
+    expect(runtime.select(request).provider.descriptor.id).toBe('fast-memory-hog')
+    expect(
+      runtime.select(request, {
+        mode: 'automatic',
+        maxRetainedBytes: 128,
+        maxPeakWorkingBytes: 256,
+      }).provider.descriptor.id,
+    ).toBe('bounded-reference')
+  })
+
+  it('disposes prepared providers in reverse order exactly once', async () => {
+    const order: string[] = []
+    const disposable = (id: string) =>
+      createOperationProvider({
+        descriptor: { id, version: 1, kind: 'reference', buildFingerprint: `${id}-build` },
+        prepare: async () => ({
+          implementations: [implementation({ providerId: id, time: 1 })],
+          dispose: async () => {
+            order.push(id)
+          },
+        }),
+      })
+    const runtime = await prepareOperationRuntime([disposable('first'), disposable('second')])
+    await runtime.dispose()
+    await runtime.dispose()
+    expect(order).toEqual(['second', 'first'])
+    expect(() =>
+      runtime.select({
+        descriptor: descriptor(),
+        parameters: {},
+        inputs: [],
+        signal: new AbortController().signal,
+      }),
+    ).toThrow('disposed')
+  })
+
+  it('disposes provider resources when prepared capabilities fail validation', async () => {
+    let disposals = 0
+    const malformed = createOperationProvider({
+      descriptor: {
+        id: 'malformed',
+        version: 1,
+        kind: 'reference',
+        buildFingerprint: 'malformed-build',
+      },
+      prepare: async () => ({
+        implementations: [
+          {
+            ...implementation({ providerId: 'malformed', time: 1 }),
+            descriptor: {
+              operationId: 'example.operation',
+              operationVersion: 1,
+              implementationVersion: '',
+            },
+          },
+        ],
+        dispose: () => {
+          disposals += 1
+        },
+      }),
+    })
+    await expect(malformed.prepare()).rejects.toThrow('descriptor is invalid')
+    expect(disposals).toBe(1)
   })
 
   it('requires exact conformance and releases provider output when cancellation wins', async () => {

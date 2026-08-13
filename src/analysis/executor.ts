@@ -21,6 +21,8 @@ export interface AnalysisNodeProvenance extends OperationJsonObject {
   readonly implementation: OperationJsonObject
   readonly reproducibility: OperationJsonObject
   readonly estimate: OperationJsonObject
+  readonly executionPhase: 'graph-invocation'
+  readonly materialization: 'complete' | 'lazy'
 }
 
 export interface AnalysisExecutionProvenance extends OperationJsonObject {
@@ -34,6 +36,7 @@ export interface AnalysisExecutionProvenance extends OperationJsonObject {
   readonly elapsedMilliseconds: number
   readonly warnings: readonly OperationJsonValue[]
   readonly fallbacks: readonly OperationJsonValue[]
+  readonly timingScope: string
 }
 
 export interface AnalysisExecutionResult {
@@ -131,6 +134,7 @@ const executePrepared = async (
   taskSignal: AbortSignal,
 ): Promise<AnalysisExecutionResult> => {
   const plan = options.plan
+  if (plan.isDisposed()) throw invalidInput('Prepared analysis plan is disposed')
   const limits = resolveAnalysisLimits(options.limits)
   const startedAt = new Date()
   const startTime = performance.now()
@@ -290,6 +294,12 @@ const executePrepared = async (
           implementation: planned.implementation,
           reproducibility: reproducibilityObject(definition.descriptor.reproducibility),
           estimate: planned.estimate,
+          executionPhase: 'graph-invocation',
+          materialization: definition.descriptor.outputs.some(
+            (output) => output.valueType.id === 'purejsimage.scientific.dataset',
+          )
+            ? 'lazy'
+            : 'complete',
         }),
       )
     }
@@ -313,6 +323,8 @@ const executePrepared = async (
         elapsedMilliseconds: performance.now() - startTime,
         warnings: plan.summary.warnings,
         fallbacks: Object.freeze([]),
+        timingScope:
+          'Graph invocation only; lazy dataset tiles materialize later through the tile runtime',
       }),
       async release(): Promise<void> {
         if (released) return

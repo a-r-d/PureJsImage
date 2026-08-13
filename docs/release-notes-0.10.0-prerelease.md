@@ -61,7 +61,8 @@ and 300,556 fetched bytes. The cache probe retained 65,536 source bytes and 65,5
 observed cold misses followed by warm hits. ROI statistics, line profile, threshold, Gaussian blur,
 document detection, first numeric/display tiles, and graph/provider setup are recorded in
 [`benchmark/results/application-platform.json`](../benchmark/results/application-platform.json).
-These are local wall-clock and bounded cache measurements, not process peak RSS or release budgets.
+These are local wall-clock measurements and bounded managed-memory accounting, not process peak RSS
+or release budgets.
 
 ## Known limitations and deferred work
 
@@ -74,6 +75,10 @@ These are local wall-clock and bounded cache measurements, not process peak RSS 
 - CPU cancellation remains cooperative at explicit abort checkpoints.
 - Built-in dataset operations still need to converge with `DerivedTileSource` on one explicit
   tile-kernel acceleration path before the analysis API is considered stable.
+- General pyramidal analysis still needs explicit operation-level resolution selection and
+  per-level physical coordinate transforms.
+- Public `NumericTile` values are CPU typed-array storage. Provider disposal is available, but a
+  GPU-resident multi-operation graph is future work rather than a current zero-copy guarantee.
 - Reader-provided display recommendations and package-owned viewport/persistence policies are not
   part of the current generic contract.
 

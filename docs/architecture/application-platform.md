@@ -223,6 +223,10 @@ Provider choice has two phases:
    and peak memory, expected tile reuse, and current cache residency. The cost-model version and the
    measurements used are recorded.
 
+Automatic selection applies caller-supplied `maxRetainedBytes` and `maxPeakWorkingBytes` as hard
+constraints before comparing elapsed cost. `OperationCostEstimate` reports retained, peak working,
+transfer, and output bytes separately; bytes are not converted into arbitrary time penalties.
+
 There is deliberately no `WebGPU > WASM > JavaScript` priority. TypeScript can win for a small tile,
 WASM can win when conversion is already resident, and WebGPU can win only when enough compatible
 work amortizes setup, transfer, and readback. A caller policy may exclude a backend or pin one, but
@@ -1342,6 +1346,33 @@ to own only generic descriptors, definitions, providers, and registries.
       graph-level dataset-to-dataset implementations, then route threshold and Gaussian blur through
       it first to prove pointwise and halo semantics. This is a distinct architecture slice rather
       than part of the scheduler correctness fix.
+- [x] Bound total runtime-managed memory separately from cache residency. Tile runtimes now enforce
+      `maxTileBytes`, `maxInFlightBytes`, `maxLeasedBytes`, `maxOperationWorkingBytes`, and
+      `maxTotalManagedBytes`, expose current/high-water memory metrics, and reserve declared derived
+      provider scratch. Cache bytes remain a subset rather than a proxy for the total budget.
+- [x] Make semantic graph hashes independent of ID-addressed collection insertion order. Canonical
+      hash domain v2 sorts graph inputs by name, nodes by ID, node input groups by port, and outputs
+      by name while preserving order among variadic values on the same port and preserving all
+      parameter arrays.
+- [ ] Add explicit resolution-level selection and physical coordinate transforms to built-in
+      operation schemas. The existing descriptor lengths validate level bounds but do not fully
+      define physical calibration for every pyramid; this remains required before claiming general
+      pyramidal analysis rather than being guessed in this review fix.
+- [x] Distinguish lazy graph invocation from pixel materialization in execution provenance. Dataset
+      outputs are marked `materialization: lazy`, completed reductions are marked `complete`, and the
+      timing scope states that later tile work belongs to the tile runtime. Per-tile materialization
+      provenance will converge with the common derived-tile path above.
+- [x] Add optional idempotent async provider disposal. `OperationRuntime`, prepared extension hosts,
+      and prepared analysis plans expose disposal; partial preparation failures clean up providers in
+      reverse order. GPU-resident multi-operation storage remains future work and is not claimed by
+      the CPU `NumericTile` contract.
+
+  - Review validation: 92 test files and 1,170 tests passed in the complete standard suite. The gate
+    remains blocked by two environment-specific expanded 12-bit AVIF Sharp-oracle hashes, one AVIF
+    timeout under full-suite load, and one WebP timeout that passes when rerun alone. The hostile-source
+    suite reached 91 passing files and 1,169 passing tests before the same AVIF failures and load-only
+    timeouts. The 92 scientific/application-platform focused tests, package types, browser graph,
+    lint, formatting, and correctness-gated application benchmark pass.
 
   - Review result: focused regression coverage now exercises one derived tile at concurrency one,
     four concurrent visible tiles at concurrency four, a crop-to-Gaussian chain, cancellation while

@@ -120,7 +120,47 @@ describe('analysis graph validation and canonical hashing', () => {
     expect(await hashAnalysisGraph(left)).toBe(await hashAnalysisGraph(right))
   })
 
-  it('keeps the canonical v1 graph hash fixture stable', async () => {
+  it('ignores ID-addressed collection insertion order while preserving variadic order', async () => {
+    const original = graph()
+    const reordered: AnalysisGraph = {
+      ...original,
+      inputs: [...original.inputs].reverse(),
+      nodes: [...original.nodes]
+        .reverse()
+        .map((node) => ({ ...node, inputs: [...node.inputs].reverse() })),
+      outputs: [{ name: 'copy', source: inputReference('a') }, ...original.outputs].reverse(),
+    }
+    const withMatchingOutput: AnalysisGraph = {
+      ...original,
+      outputs: [...original.outputs, { name: 'copy', source: inputReference('a') }],
+    }
+    const left = validateGraph(withMatchingOutput, registry).graph
+    const right = validateGraph(reordered, registry).graph
+    if (left === undefined || right === undefined) throw new Error('Expected valid graphs')
+    expect(canonicalGraphJson(left)).toBe(canonicalGraphJson(right))
+    expect(await hashAnalysisGraph(left)).toBe(await hashAnalysisGraph(right))
+
+    const variadicOrder = {
+      ...left,
+      nodes: left.nodes.map((node) =>
+        node.id === 'first'
+          ? {
+              ...node,
+              inputs: node.inputs.map((input) => ({ ...input, port: 'left' })),
+            }
+          : node,
+      ),
+    }
+    const reversedVariadicOrder = {
+      ...variadicOrder,
+      nodes: variadicOrder.nodes.map((node) =>
+        node.id === 'first' ? { ...node, inputs: [...node.inputs].reverse() } : node,
+      ),
+    }
+    expect(canonicalGraphJson(variadicOrder)).not.toBe(canonicalGraphJson(reversedVariadicOrder))
+  })
+
+  it('keeps the canonical v2 graph hash fixture stable', async () => {
     const fixture = validateGraph(
       {
         schemaVersion: 1,
@@ -145,7 +185,7 @@ describe('analysis graph validation and canonical hashing', () => {
     ).graph
     if (fixture === undefined) throw new Error('Expected a valid fixture')
     await expect(hashAnalysisGraph(fixture)).resolves.toBe(
-      'd63a33b4a25357952d7b387610d9d9f7f6cc69230b1b6cf92aa2cca5ed1ece01',
+      'f6c7706c4ffb94265c40da147269ca47942fb91a40a587dc3f605354b35796a5',
     )
   })
 

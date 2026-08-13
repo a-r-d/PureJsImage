@@ -177,6 +177,57 @@ describe('bounded tile runtime cache and scheduler', () => {
     expect(runtime.metrics().cache.currentBytes).toBe(0)
   })
 
+  it('enforces tile, in-flight, leased, operation, and total managed byte budgets', async () => {
+    const releases: number[] = []
+    const tooSmall = createTileRuntime({ limits: { maxTileBytes: 3 } })
+    expect(() => tooSmall.request(immediateSource(releases, []), request(0))).toThrow(
+      'maxTileBytes',
+    )
+
+    const gate = new Deferred<TileSourceResult>()
+    const inFlightSource: TileSource = {
+      tileKey: canonicalTileKey,
+      readTile: () => gate.promise,
+    }
+    const inFlight = createTileRuntime({ limits: { maxInFlightBytes: 32 } })
+    const firstPending = inFlight.request(inFlightSource, request(0))
+    expect(() => inFlight.request(inFlightSource, request(2))).toThrow('maxInFlightBytes')
+    gate.resolve({ tile: tile(0, releases) })
+    const firstTile = await firstPending
+    firstTile.release()
+    inFlight.clear()
+
+    const leased = createTileRuntime({ limits: { maxLeasedBytes: 4 } })
+    const source = immediateSource(releases, [])
+    expect(leased.putCached(source, request(0), tile(0, releases))).toBe(true)
+    expect(leased.putCached(source, request(2), tile(2, releases))).toBe(true)
+    const firstLease = leased.getCached(source, request(0))
+    expect(firstLease).toBeDefined()
+    expect(() => leased.getCached(source, request(2))).toThrow('maxLeasedBytes')
+    firstLease?.release()
+
+    const total = createTileRuntime({
+      limits: { maxOperationWorkingBytes: 8, maxTotalManagedBytes: 7 },
+    })
+    expect(total.putCached(source, request(0), tile(0, releases))).toBe(true)
+    expect(() => total.reserveOperationWorkingBytes(8)).toThrow('maxTotalManagedBytes')
+    const releaseWorking = total.reserveOperationWorkingBytes(3)
+    expect(total.metrics().memory).toMatchObject({
+      managedBytes: 4,
+      operationWorkingBytes: 3,
+      totalManagedBytes: 7,
+      highWaterTotalManagedBytes: 7,
+    })
+    releaseWorking()
+    expect(() => total.reserveOperationWorkingBytes(9)).toThrow('maxOperationWorkingBytes')
+    const releaseEvictingWork = total.reserveOperationWorkingBytes(7)
+    expect(total.metrics().cache.currentBytes).toBe(0)
+    expect(total.metrics().memory.totalManagedBytes).toBe(7)
+    releaseEvictingWork()
+    total.clear()
+    leased.clear()
+  })
+
   it('deduplicates in-flight reads while giving each consumer an independent lease', async () => {
     const releases: number[] = []
     const deferred = new Deferred<TileSourceResult>()

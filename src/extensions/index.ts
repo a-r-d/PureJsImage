@@ -72,6 +72,7 @@ export interface PreparedExtensionHost {
   readonly runtime: OperationRuntime
   readonly analysisMigrations: AnalysisMigrationRegistry
   readonly manifest: ExtensionCapabilityManifest
+  dispose(): Promise<void>
 }
 
 export interface ExtensionHost {
@@ -278,6 +279,7 @@ export const createExtensionHost = (options: Readonly<ExtensionHostOptions>): Ex
         runtime,
         analysisMigrations: migrationRegistry,
         manifest: preparedManifest,
+        dispose: () => runtime.dispose(),
       })
     },
   })

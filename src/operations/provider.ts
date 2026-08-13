@@ -31,7 +31,14 @@ export interface OperationCostEstimate {
   readonly transferMilliseconds: number
   readonly computeMilliseconds: number
   readonly readbackMilliseconds: number
+  /** Bytes still owned by the provider after execution returns, including owned outputs. */
   readonly retainedBytes: number
+  /** Peak provider working storage during execution, including output storage but excluding inputs. */
+  readonly peakWorkingBytes: number
+  /** Bytes expected to cross the provider boundary in either direction. */
+  readonly transferBytes: number
+  /** The retainedBytes portion owned by returned outputs. */
+  readonly outputBytes: number
   readonly confidence: number
 }
 
@@ -50,6 +57,7 @@ export interface OperationImplementation {
 export interface PreparedOperationProvider {
   readonly descriptor: OperationProviderDescriptor
   readonly implementations: readonly OperationImplementation[]
+  dispose?(): void | Promise<void>
 }
 
 export interface OperationProvider {
@@ -63,6 +71,8 @@ export type OperationProviderPolicy =
       readonly mode: 'automatic'
       readonly allowedProviderIds?: readonly string[]
       readonly allowedProviderKinds?: readonly OperationProviderKind[]
+      readonly maxRetainedBytes?: number
+      readonly maxPeakWorkingBytes?: number
     }
   | {
       readonly mode: 'pinned'
@@ -140,29 +150,47 @@ const freezeImplementationDescriptor = (
 
 export const createOperationProvider = (options: {
   readonly descriptor: OperationProviderDescriptor
-  prepare(signal?: AbortSignal): Promise<readonly OperationImplementation[] | undefined>
+  prepare(signal?: AbortSignal): Promise<
+    | readonly OperationImplementation[]
+    | {
+        readonly implementations: readonly OperationImplementation[]
+        dispose?(): void | Promise<void>
+      }
+    | undefined
+  >
 }): OperationProvider => {
   const descriptor = normalizeOperationProviderDescriptor(options.descriptor)
   return Object.freeze({
     descriptor,
     async prepare(signal?: AbortSignal): Promise<PreparedOperationProvider | undefined> {
       signal?.throwIfAborted()
-      const implementations = await options.prepare(signal)
-      signal?.throwIfAborted()
-      if (implementations === undefined) return undefined
-      const keys = new Set<string>()
-      const normalized = implementations.map((implementation) => {
-        const implementationDescriptor = freezeImplementationDescriptor(implementation.descriptor)
-        const key = `${implementationDescriptor.operationId}\u0000${implementationDescriptor.operationVersion}`
-        if (keys.has(key)) {
-          throw invalidInput(
-            `Provider ${descriptor.id} repeats implementation ${implementationDescriptor.operationId}@${implementationDescriptor.operationVersion}`,
-          )
-        }
-        keys.add(key)
-        return Object.freeze({ ...implementation, descriptor: implementationDescriptor })
-      })
-      return Object.freeze({ descriptor, implementations: Object.freeze(normalized) })
+      const prepared = await options.prepare(signal)
+      if (prepared === undefined) return undefined
+      const implementations = 'implementations' in prepared ? prepared.implementations : prepared
+      const dispose = 'implementations' in prepared ? prepared.dispose : undefined
+      try {
+        signal?.throwIfAborted()
+        const keys = new Set<string>()
+        const normalized = implementations.map((implementation) => {
+          const implementationDescriptor = freezeImplementationDescriptor(implementation.descriptor)
+          const key = `${implementationDescriptor.operationId}\u0000${implementationDescriptor.operationVersion}`
+          if (keys.has(key)) {
+            throw invalidInput(
+              `Provider ${descriptor.id} repeats implementation ${implementationDescriptor.operationId}@${implementationDescriptor.operationVersion}`,
+            )
+          }
+          keys.add(key)
+          return Object.freeze({ ...implementation, descriptor: implementationDescriptor })
+        })
+        return Object.freeze({
+          descriptor,
+          implementations: Object.freeze(normalized),
+          ...(dispose === undefined ? {} : { dispose }),
+        })
+      } catch (error) {
+        await dispose?.()
+        throw error
+      }
     },
   })
 }
@@ -184,6 +212,12 @@ const validateEstimate = (estimate: OperationCostEstimate): OperationCostEstimat
     times.some((value) => !Number.isFinite(value) || value < 0) ||
     !Number.isSafeInteger(estimate.retainedBytes) ||
     estimate.retainedBytes < 0 ||
+    !Number.isSafeInteger(estimate.peakWorkingBytes) ||
+    estimate.peakWorkingBytes < 0 ||
+    !Number.isSafeInteger(estimate.transferBytes) ||
+    estimate.transferBytes < 0 ||
+    !Number.isSafeInteger(estimate.outputBytes) ||
+    estimate.outputBytes < 0 ||
     !Number.isFinite(estimate.confidence) ||
     estimate.confidence < 0 ||
     estimate.confidence > 1
@@ -242,6 +276,27 @@ const matchesPolicy = (
   )
 }
 
+const estimateMatchesPolicy = (
+  estimate: OperationCostEstimate,
+  policy: OperationProviderPolicy,
+): boolean =>
+  policy.mode !== 'automatic' ||
+  ((policy.maxRetainedBytes === undefined || estimate.retainedBytes <= policy.maxRetainedBytes) &&
+    (policy.maxPeakWorkingBytes === undefined ||
+      estimate.peakWorkingBytes <= policy.maxPeakWorkingBytes))
+
+const validatePolicy = (policy: OperationProviderPolicy): void => {
+  if (policy.mode !== 'automatic') return
+  for (const [name, value] of [
+    ['maxRetainedBytes', policy.maxRetainedBytes],
+    ['maxPeakWorkingBytes', policy.maxPeakWorkingBytes],
+  ] as const) {
+    if (value !== undefined && (!Number.isSafeInteger(value) || value < 0)) {
+      throw invalidInput(`${name} must be a non-negative safe integer`)
+    }
+  }
+}
+
 const releaseOutputs = async (outputs: readonly OperationOwnedOutput[]): Promise<void> => {
   let firstError: unknown
   for (const output of outputs) {
@@ -261,6 +316,7 @@ export interface OperationRuntimeSnapshot {
 export class OperationRuntime {
   readonly #providers: readonly PreparedOperationProvider[]
   readonly capabilitySnapshot: OperationRuntimeSnapshot
+  #disposed = false
 
   constructor(providers: Iterable<PreparedOperationProvider>) {
     const providerKeys = new Set<string>()
@@ -290,6 +346,7 @@ export class OperationRuntime {
         Object.freeze({
           descriptor,
           implementations: Object.freeze(implementations),
+          ...(provider.dispose === undefined ? {} : { dispose: provider.dispose }),
         }),
       )
     }
@@ -304,6 +361,8 @@ export class OperationRuntime {
     request: Readonly<OperationProviderRequest>,
     policy: OperationProviderPolicy = { mode: 'automatic' },
   ): OperationProviderSelection {
+    if (this.#disposed) throw invalidInput('Operation runtime is disposed')
+    validatePolicy(policy)
     request.signal.throwIfAborted()
     if (
       request.descriptor.reproducibility.class === 'provider-pinned' &&
@@ -330,10 +389,12 @@ export class OperationRuntime {
           continue
         }
         if (!implementation.supports(request)) continue
+        const estimate = validateEstimate(implementation.estimate(request))
+        if (!estimateMatchesPolicy(estimate, policy)) continue
         candidates.push({
           provider,
           implementation,
-          estimate: validateEstimate(implementation.estimate(request)),
+          estimate,
         })
       }
     }
@@ -380,6 +441,20 @@ export class OperationRuntime {
       throw error
     }
   }
+
+  async dispose(): Promise<void> {
+    if (this.#disposed) return
+    this.#disposed = true
+    let firstError: unknown
+    for (const provider of [...this.#providers].reverse()) {
+      try {
+        await provider.dispose?.()
+      } catch (error) {
+        firstError ??= error
+      }
+    }
+    if (firstError !== undefined) throw firstError
+  }
 }
 
 export const prepareOperationRuntime = async (
@@ -387,22 +462,34 @@ export const prepareOperationRuntime = async (
   signal?: AbortSignal,
 ): Promise<OperationRuntime> => {
   const prepared: PreparedOperationProvider[] = []
-  for (const provider of providers) {
-    signal?.throwIfAborted()
-    const declared = normalizeOperationProviderDescriptor(provider.descriptor)
-    const available = await provider.prepare(signal)
-    if (available === undefined) continue
-    const actual = normalizeOperationProviderDescriptor(available.descriptor)
-    if (
-      declared.id !== actual.id ||
-      declared.version !== actual.version ||
-      declared.kind !== actual.kind ||
-      declared.buildFingerprint !== actual.buildFingerprint ||
-      declared.title !== actual.title
-    ) {
-      throw invalidInput(`Provider ${declared.id} changed identity during preparation`)
+  try {
+    for (const provider of providers) {
+      signal?.throwIfAborted()
+      const declared = normalizeOperationProviderDescriptor(provider.descriptor)
+      const available = await provider.prepare(signal)
+      if (available === undefined) continue
+      const actual = normalizeOperationProviderDescriptor(available.descriptor)
+      if (
+        declared.id !== actual.id ||
+        declared.version !== actual.version ||
+        declared.kind !== actual.kind ||
+        declared.buildFingerprint !== actual.buildFingerprint ||
+        declared.title !== actual.title
+      ) {
+        await available.dispose?.()
+        throw invalidInput(`Provider ${declared.id} changed identity during preparation`)
+      }
+      prepared.push(available)
     }
-    prepared.push(available)
+    return new OperationRuntime(prepared)
+  } catch (error) {
+    for (const provider of prepared.reverse()) {
+      try {
+        await provider.dispose?.()
+      } catch {
+        // Preserve the preparation failure.
+      }
+    }
+    throw error
   }
-  return new OperationRuntime(prepared)
 }

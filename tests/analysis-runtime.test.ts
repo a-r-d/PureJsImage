@@ -111,6 +111,9 @@ const provider = (options: {
           computeMilliseconds: options.cost,
           readbackMilliseconds: 0,
           retainedBytes: 8,
+          peakWorkingBytes: 8,
+          transferBytes: 0,
+          outputBytes: 8,
           confidence: options.confidence ?? 1,
         }),
         async execute(request) {
@@ -132,6 +135,33 @@ const provider = (options: {
   })
 
 describe('analysis planning and execution', () => {
+  it('disposes prepared providers when planning fails after preparation', async () => {
+    let disposals = 0
+    const unavailable = createOperationProvider({
+      descriptor: {
+        id: 'example.unavailable',
+        version: 1,
+        kind: 'reference',
+        buildFingerprint: 'unavailable-build-1',
+      },
+      prepare: async () => ({
+        implementations: [],
+        dispose: () => {
+          disposals += 1
+        },
+      }),
+    })
+    await expect(
+      planGraph({
+        graph: graph(),
+        operations,
+        providers: [unavailable],
+        bindings: { source: { value: 2 } },
+      }),
+    ).rejects.toThrow('No operation provider supports')
+    expect(disposals).toBe(1)
+  })
+
   it('plans without reading pixels and selects by measured policy rather than provider kind', async () => {
     let reads = 0
     const source = {
@@ -302,11 +332,22 @@ describe('analysis planning and execution', () => {
       provider: { id: 'example.reference', buildFingerprint: 'example.reference-build-1' },
       implementation: { implementationVersion: '1.0.0' },
       reproducibility: { class: 'bit-exact' },
+      executionPhase: 'graph-invocation',
+      materialization: 'complete',
     })
+    expect(result.provenance.timingScope).toContain('Graph invocation only')
     await result.release()
     await result.release()
     expect(releases).toEqual([4, 12])
     expect(result.outputs.size).toBe(0)
+    await planned.dispose()
+    await planned.dispose()
+    await expect(
+      executeGraph({
+        plan: planned,
+        library: { version: '0.9.0', buildFingerprint: 'test-build' },
+      }).result,
+    ).rejects.toThrow('disposed')
   })
 
   it('keeps controller commands separate from execution and exposes JSON-only capabilities', async () => {
@@ -333,6 +374,9 @@ describe('analysis planning and execution', () => {
             computeMilliseconds: 1,
             readbackMilliseconds: 0,
             retainedBytes: 8,
+            peakWorkingBytes: 8,
+            transferBytes: 0,
+            outputBytes: 8,
             confidence: 1,
           }),
           async execute(request) {
@@ -427,6 +471,9 @@ describe('analysis planning and execution', () => {
             computeMilliseconds: 1,
             readbackMilliseconds: 0,
             retainedBytes: 0,
+            peakWorkingBytes: 0,
+            transferBytes: 0,
+            outputBytes: 0,
             confidence: 1,
           }),
           async execute() {
@@ -485,6 +532,9 @@ describe('analysis planning and execution', () => {
             computeMilliseconds: 1,
             readbackMilliseconds: 0,
             retainedBytes: 8,
+            peakWorkingBytes: 8,
+            transferBytes: 0,
+            outputBytes: 8,
             confidence: 1,
           }),
           async execute(request) {

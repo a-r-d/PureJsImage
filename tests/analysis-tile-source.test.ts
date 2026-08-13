@@ -222,6 +222,9 @@ const estimate: OperationCostEstimate = Object.freeze({
   computeMilliseconds: 0.3,
   readbackMilliseconds: 0.4,
   retainedBytes: 64,
+  peakWorkingBytes: 96,
+  transferBytes: 32,
+  outputBytes: 64,
   confidence: 1,
 })
 

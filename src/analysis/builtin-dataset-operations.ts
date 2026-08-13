@@ -1133,9 +1133,21 @@ const packedTile = (
   request: NormalizedScientificPlaneReadRequest,
   sampleType: NumericSampleType,
   components: number,
+  maxTileBytes: number,
 ): NumericTile => {
   const elements = request.width * request.height * components
   if (!Number.isSafeInteger(elements)) throw invalidInput('Numeric output tile is too large')
+  const bytesPerElement =
+    sampleType === 'uint8' || sampleType === 'int8'
+      ? 1
+      : sampleType === 'uint16' || sampleType === 'int16'
+        ? 2
+        : sampleType === 'uint64' || sampleType === 'float64'
+          ? 8
+          : 4
+  if (elements * bytesPerElement > maxTileBytes) {
+    throw invalidInput('Analysis output tile exceeds maxTileBytes')
+  }
   const data = allocateNumericArray(sampleType, elements)
   return Object.freeze({
     x: request.x,
@@ -1450,7 +1462,12 @@ const resampleDataset = (
         parameters.kernel === 'bilinear' ? 'float64' : undefined,
       )
       try {
-        const output = packedTile(request, targetType, input.componentCount)
+        const output = packedTile(
+          request,
+          targetType,
+          input.componentCount,
+          context.runtime.limits.maxTileBytes,
+        )
         for (let y = 0; y < request.height; y += 1) {
           throwIfAborted(request.signal)
           const positionY = sourcePosition(request.y + y, sourceHeight, parameters.height)
@@ -1563,7 +1580,7 @@ const thresholdDataset = (
     async (request) => {
       const input = await context.readSourceTile(source, request)
       try {
-        const output = packedTile(request, 'uint8', 1)
+        const output = packedTile(request, 'uint8', 1, context.runtime.limits.maxTileBytes)
         if (!(output.data instanceof Uint8Array))
           throw invalidInput('Threshold output allocation must be uint8')
         for (let y = 0; y < request.height; y += 1) {
@@ -1647,8 +1664,15 @@ const gaussianBlurDataset = (
         },
         'float64',
       )
+      let releaseWorking = (): void => undefined
       try {
         const expandedHeight = request.height + radius * 2
+        const horizontalElements = request.width * expandedHeight
+        const scratchBytes =
+          horizontalElements * 8 +
+          horizontalElements * (parameters.invalidPolicy === 'ignore' ? 8 : 1) +
+          (request.width + radius * 2 + expandedHeight) * 4
+        releaseWorking = context.runtime.reserveOperationWorkingBytes(scratchBytes)
         const horizontalValues = new Float64Array(request.width * expandedHeight)
         const horizontalWeights =
           parameters.invalidPolicy === 'ignore'
@@ -1709,7 +1733,7 @@ const gaussianBlurDataset = (
             if (invalid && horizontalInvalid !== undefined) horizontalInvalid[offset] = 1
           }
         }
-        const output = packedTile(request, 'float32', 1)
+        const output = packedTile(request, 'float32', 1, context.runtime.limits.maxTileBytes)
         if (!(output.data instanceof Float32Array))
           throw invalidInput('Gaussian blur output allocation must be float32')
         for (let y = 0; y < request.height; y += 1) {
@@ -1737,6 +1761,7 @@ const gaussianBlurDataset = (
         }
         return output
       } finally {
+        releaseWorking()
         input.release()
       }
     },
@@ -1786,108 +1811,123 @@ const projectionDataset = (
       ) {
         throw invalidInput('Projection reads must use the operation display-axis order')
       }
-      const output = packedTile(request, targetType, descriptor.components.length)
+      const output = packedTile(
+        request,
+        targetType,
+        descriptor.components.length,
+        context.runtime.limits.maxTileBytes,
+      )
       const sampleCount = request.width * request.height * descriptor.components.length
-      const counts = new Uint32Array(sampleCount)
-      const invalid =
-        parameters.invalidPolicy === 'propagate' ? new Uint8Array(sampleCount) : undefined
-      const numericAccumulator =
-        output.data instanceof BigUint64Array ? undefined : new Float64Array(sampleCount)
-      if (numericAccumulator !== undefined)
-        numericAccumulator.fill(
-          parameters.mode === 'min'
-            ? Number.POSITIVE_INFINITY
-            : parameters.mode === 'max'
-              ? Number.NEGATIVE_INFINITY
-              : 0,
-        )
-      for (let reductionIndex = 0; reductionIndex < reductionLength; reductionIndex += 1) {
-        throwIfAborted(request.signal)
-        const tile = await context.readSourceTile(
-          source,
-          {
-            ...request,
-            fixedIndices: Object.freeze([
-              ...parameters.fixedIndices,
-              Object.freeze({ axisId: parameters.reductionAxis, index: reductionIndex }),
-            ]),
-          },
-          parameters.outputSampleType === 'preserve' ? undefined : 'float64',
-        )
-        try {
-          for (let y = 0; y < request.height; y += 1) {
-            for (let x = 0; x < request.width; x += 1) {
-              for (let component = 0; component < tile.componentCount; component += 1) {
-                const index = (y * request.width + x) * tile.componentCount + component
-                const sample = numericValue(tile, x, y, component)
-                if (!usableValue(sample, source.descriptor.noDataValue)) {
-                  if (invalid !== undefined) invalid[index] = 1
-                  continue
-                }
-                if (output.data instanceof BigUint64Array) {
-                  if (typeof sample !== 'bigint')
-                    throw invalidInput('Projection changed uint64 semantics')
-                  if (
-                    counts[index] === 0 ||
-                    (parameters.mode === 'min'
-                      ? sample < (output.data[index] ?? 0n)
-                      : sample > (output.data[index] ?? 0n))
-                  )
-                    output.data[index] = sample
-                } else {
-                  if (typeof sample !== 'number')
-                    throw invalidInput('Projection requires exact numeric samples')
-                  const previous = numericAccumulator?.[index] ?? 0
-                  if (numericAccumulator === undefined) {
-                    throw invalidInput('Projection numeric accumulator is unavailable')
+      const scratchBytes =
+        sampleCount *
+        (Uint32Array.BYTES_PER_ELEMENT +
+          (parameters.invalidPolicy === 'propagate' ? Uint8Array.BYTES_PER_ELEMENT : 0) +
+          (output.data instanceof BigUint64Array ? 0 : Float64Array.BYTES_PER_ELEMENT))
+      const releaseWorking = context.runtime.reserveOperationWorkingBytes(scratchBytes)
+      try {
+        const counts = new Uint32Array(sampleCount)
+        const invalid =
+          parameters.invalidPolicy === 'propagate' ? new Uint8Array(sampleCount) : undefined
+        const numericAccumulator =
+          output.data instanceof BigUint64Array ? undefined : new Float64Array(sampleCount)
+        if (numericAccumulator !== undefined)
+          numericAccumulator.fill(
+            parameters.mode === 'min'
+              ? Number.POSITIVE_INFINITY
+              : parameters.mode === 'max'
+                ? Number.NEGATIVE_INFINITY
+                : 0,
+          )
+        for (let reductionIndex = 0; reductionIndex < reductionLength; reductionIndex += 1) {
+          throwIfAborted(request.signal)
+          const tile = await context.readSourceTile(
+            source,
+            {
+              ...request,
+              fixedIndices: Object.freeze([
+                ...parameters.fixedIndices,
+                Object.freeze({ axisId: parameters.reductionAxis, index: reductionIndex }),
+              ]),
+            },
+            parameters.outputSampleType === 'preserve' ? undefined : 'float64',
+          )
+          try {
+            for (let y = 0; y < request.height; y += 1) {
+              for (let x = 0; x < request.width; x += 1) {
+                for (let component = 0; component < tile.componentCount; component += 1) {
+                  const index = (y * request.width + x) * tile.componentCount + component
+                  const sample = numericValue(tile, x, y, component)
+                  if (!usableValue(sample, source.descriptor.noDataValue)) {
+                    if (invalid !== undefined) invalid[index] = 1
+                    continue
                   }
-                  if (parameters.mode === 'mean') numericAccumulator[index] = previous + sample
-                  else if (parameters.mode === 'min') {
-                    numericAccumulator[index] = Math.min(previous, sample)
-                  } else numericAccumulator[index] = Math.max(previous, sample)
+                  if (output.data instanceof BigUint64Array) {
+                    if (typeof sample !== 'bigint')
+                      throw invalidInput('Projection changed uint64 semantics')
+                    if (
+                      counts[index] === 0 ||
+                      (parameters.mode === 'min'
+                        ? sample < (output.data[index] ?? 0n)
+                        : sample > (output.data[index] ?? 0n))
+                    )
+                      output.data[index] = sample
+                  } else {
+                    if (typeof sample !== 'number')
+                      throw invalidInput('Projection requires exact numeric samples')
+                    const previous = numericAccumulator?.[index] ?? 0
+                    if (numericAccumulator === undefined) {
+                      throw invalidInput('Projection numeric accumulator is unavailable')
+                    }
+                    if (parameters.mode === 'mean') numericAccumulator[index] = previous + sample
+                    else if (parameters.mode === 'min') {
+                      numericAccumulator[index] = Math.min(previous, sample)
+                    } else numericAccumulator[index] = Math.max(previous, sample)
+                  }
+                  counts[index] = (counts[index] ?? 0) + 1
                 }
-                counts[index] = (counts[index] ?? 0) + 1
               }
             }
+          } finally {
+            tile.release()
           }
-        } finally {
-          tile.release()
         }
-      }
-      for (let index = 0; index < sampleCount; index += 1) {
-        if (invalid?.[index] === 1 || counts[index] === 0) {
-          const missing = descriptor.noDataValue
-          if (output.data instanceof BigUint64Array) {
-            if (missing === undefined || !Number.isSafeInteger(missing) || missing < 0) {
-              throw invalidInput(
-                'Integer projection needs an exactly representable noDataValue for empty output',
-              )
-            }
-            output.data[index] = BigInt(missing)
-          } else {
-            const range = integerOutputRange(output.data)
-            if (range !== null) {
-              if (
-                missing === undefined ||
-                !Number.isSafeInteger(missing) ||
-                missing < range[0] ||
-                missing > range[1]
-              ) {
+        for (let index = 0; index < sampleCount; index += 1) {
+          if (invalid?.[index] === 1 || counts[index] === 0) {
+            const missing = descriptor.noDataValue
+            if (output.data instanceof BigUint64Array) {
+              if (missing === undefined || !Number.isSafeInteger(missing) || missing < 0) {
                 throw invalidInput(
                   'Integer projection needs an exactly representable noDataValue for empty output',
                 )
               }
-              output.data[index] = missing
-            } else output.data[index] = missing ?? Number.NaN
+              output.data[index] = BigInt(missing)
+            } else {
+              const range = integerOutputRange(output.data)
+              if (range !== null) {
+                if (
+                  missing === undefined ||
+                  !Number.isSafeInteger(missing) ||
+                  missing < range[0] ||
+                  missing > range[1]
+                ) {
+                  throw invalidInput(
+                    'Integer projection needs an exactly representable noDataValue for empty output',
+                  )
+                }
+                output.data[index] = missing
+              } else output.data[index] = missing ?? Number.NaN
+            }
+            continue
           }
-          continue
+          if (output.data instanceof BigUint64Array) continue
+          const accumulated = numericAccumulator?.[index] ?? Number.NaN
+          output.data[index] =
+            parameters.mode === 'mean' ? accumulated / (counts[index] ?? 1) : accumulated
         }
-        if (output.data instanceof BigUint64Array) continue
-        const accumulated = numericAccumulator?.[index] ?? Number.NaN
-        output.data[index] =
-          parameters.mode === 'mean' ? accumulated / (counts[index] ?? 1) : accumulated
+        return output
+      } finally {
+        releaseWorking()
       }
-      return output
     },
     context.tileWidth,
     context.tileHeight,
@@ -1902,49 +1942,54 @@ const costEstimate = (
   context: AnalysisDatasetOperationContext,
 ): OperationCostEstimate => {
   let retainedBytes = 0
+  let peakWorkingBytes = 0
+  let outputBytes = 0
   let computeMilliseconds = 0
   try {
     if (request.inputCharacteristics !== undefined) {
       const inputs = request.inputCharacteristics.inputs
       if (Array.isArray(inputs)) {
         const descriptor = datasetDescriptorFromCharacteristics(inputs[0])
+        const definition = analysisDatasetOperationDefinitions.find(
+          (candidate) => candidate.descriptor.id === request.descriptor.id,
+        )
+        const inferred = definition?.inferOutputShapes?.({
+          parameters: request.parameters,
+          inputs: Object.freeze([scientificDatasetCharacteristics(descriptor)]),
+        })
+        if (!inferred?.valid || inferred.value?.[0] === undefined) {
+          throw invalidInput('Operation output characteristics are unavailable')
+        }
+        const outputDescriptor = datasetDescriptorFromCharacteristics(inferred.value[0])
+        const selectedAxes = displayAxesParameter(parameterRecord(request.parameters))
+        const width = Math.min(axis(outputDescriptor, selectedAxes[0]).length, context.tileWidth)
+        const height = Math.min(axis(outputDescriptor, selectedAxes[1]).length, context.tileHeight)
+        const sampleCount = width * height * outputDescriptor.components.length
+        outputBytes = sampleCount * rasterSampleBytes(outputDescriptor.sampleType)
+        retainedBytes = outputBytes
+        peakWorkingBytes = outputBytes
         if (request.descriptor.id === analysisGaussianBlurOperationId) {
           const parameters = gaussianBlurParameters(request.parameters, descriptor)
-          const width = Math.min(
-            axis(descriptor, parameters.displayAxes[0]).length,
-            context.tileWidth,
-          )
-          const height = Math.min(
-            axis(descriptor, parameters.displayAxes[1]).length,
-            context.tileHeight,
-          )
           const expandedHeight = height + parameters.radius * 2
-          const haloWidth = width + parameters.radius * 2
-          retainedBytes =
-            haloWidth * expandedHeight * descriptor.components.length * 8 +
+          peakWorkingBytes +=
             width * expandedHeight * (parameters.invalidPolicy === 'propagate' ? 9 : 16) +
-            width * height * 4
+            (width + parameters.radius * 2 + expandedHeight) * 4
           computeMilliseconds =
             (width * expandedHeight * (parameters.radius * 2 + 1) * 2) / 10_000_000
-        } else {
-          const first = descriptor.axes[0]?.length ?? 1
-          const second = descriptor.axes[1]?.length ?? 1
-          const pixels = Math.min(first, context.tileWidth) * Math.min(second, context.tileHeight)
-          const bytesPerValue =
-            request.descriptor.id === analysisProjectionOperationId
-              ? 20
-              : request.descriptor.id === analysisThresholdOperationId
-                ? rasterSampleBytes(descriptor.sampleType) + 1
-                : 16
-          retainedBytes = Math.min(
-            Number.MAX_SAFE_INTEGER,
-            pixels * descriptor.components.length * bytesPerValue,
-          )
+        } else if (request.descriptor.id === analysisProjectionOperationId) {
+          const parameters = projectionParameters(request.parameters, descriptor)
+          peakWorkingBytes +=
+            sampleCount *
+            (Uint32Array.BYTES_PER_ELEMENT +
+              (parameters.invalidPolicy === 'propagate' ? Uint8Array.BYTES_PER_ELEMENT : 0) +
+              (outputDescriptor.sampleType === 'uint64' ? 0 : Float64Array.BYTES_PER_ELEMENT))
         }
       }
     }
   } catch {
     retainedBytes = 0
+    peakWorkingBytes = 0
+    outputBytes = 0
   }
   return Object.freeze({
     setupMilliseconds: 0,
@@ -1952,6 +1997,9 @@ const costEstimate = (
     computeMilliseconds,
     readbackMilliseconds: 0,
     retainedBytes,
+    peakWorkingBytes,
+    transferBytes: 0,
+    outputBytes,
     confidence: retainedBytes === 0 ? 0 : 0.5,
   })
 }

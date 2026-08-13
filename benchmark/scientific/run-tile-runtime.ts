@@ -204,6 +204,9 @@ const implementation: OperationImplementation = Object.freeze({
     computeMilliseconds: 0,
     readbackMilliseconds: 0,
     retainedBytes: tileSize * tileSize * 4,
+    peakWorkingBytes: tileSize * tileSize * 8,
+    transferBytes: tileSize * tileSize * 4,
+    outputBytes: tileSize * tileSize * 4,
     confidence: 1,
   }),
   async execute(request: Readonly<OperationProviderRequest>) {

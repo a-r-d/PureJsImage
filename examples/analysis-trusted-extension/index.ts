@@ -196,6 +196,9 @@ export const affineScalarProvider = createOperationProvider({
         computeMilliseconds: 0,
         readbackMilliseconds: 0,
         retainedBytes: 0,
+        peakWorkingBytes: 0,
+        transferBytes: 0,
+        outputBytes: 0,
         confidence: 0,
       }),
       async execute(request) {

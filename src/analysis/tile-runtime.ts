@@ -75,6 +75,11 @@ export interface TileSource {
 
 export interface TileRuntimeLimits {
   readonly maxCacheBytes?: number
+  readonly maxTileBytes?: number
+  readonly maxInFlightBytes?: number
+  readonly maxLeasedBytes?: number
+  readonly maxOperationWorkingBytes?: number
+  readonly maxTotalManagedBytes?: number
   readonly maxCacheEntries?: number
   readonly maxConcurrency?: number
   readonly maxQueuedTasks?: number
@@ -85,6 +90,11 @@ export interface TileRuntimeLimits {
 
 export interface ResolvedTileRuntimeLimits {
   readonly maxCacheBytes: number
+  readonly maxTileBytes: number
+  readonly maxInFlightBytes: number
+  readonly maxLeasedBytes: number
+  readonly maxOperationWorkingBytes: number
+  readonly maxTotalManagedBytes: number
   readonly maxCacheEntries: number
   readonly maxConcurrency: number
   readonly maxQueuedTasks: number
@@ -95,6 +105,11 @@ export interface ResolvedTileRuntimeLimits {
 
 export const defaultTileRuntimeLimits: ResolvedTileRuntimeLimits = Object.freeze({
   maxCacheBytes: 32 * 1_024 * 1_024,
+  maxTileBytes: 16 * 1_024 * 1_024,
+  maxInFlightBytes: 64 * 1_024 * 1_024,
+  maxLeasedBytes: 64 * 1_024 * 1_024,
+  maxOperationWorkingBytes: 64 * 1_024 * 1_024,
+  maxTotalManagedBytes: 96 * 1_024 * 1_024,
   maxCacheEntries: 1_024,
   maxConcurrency: 4,
   maxQueuedTasks: 4_096,
@@ -119,6 +134,31 @@ export const resolveTileRuntimeLimits = (
       limits.maxCacheBytes,
       defaultTileRuntimeLimits.maxCacheBytes,
       'maxCacheBytes',
+    ),
+    maxTileBytes: positiveSafeInteger(
+      limits.maxTileBytes,
+      defaultTileRuntimeLimits.maxTileBytes,
+      'maxTileBytes',
+    ),
+    maxInFlightBytes: positiveSafeInteger(
+      limits.maxInFlightBytes,
+      defaultTileRuntimeLimits.maxInFlightBytes,
+      'maxInFlightBytes',
+    ),
+    maxLeasedBytes: positiveSafeInteger(
+      limits.maxLeasedBytes,
+      defaultTileRuntimeLimits.maxLeasedBytes,
+      'maxLeasedBytes',
+    ),
+    maxOperationWorkingBytes: positiveSafeInteger(
+      limits.maxOperationWorkingBytes,
+      defaultTileRuntimeLimits.maxOperationWorkingBytes,
+      'maxOperationWorkingBytes',
+    ),
+    maxTotalManagedBytes: positiveSafeInteger(
+      limits.maxTotalManagedBytes,
+      defaultTileRuntimeLimits.maxTotalManagedBytes,
+      'maxTotalManagedBytes',
     ),
     maxCacheEntries: positiveSafeInteger(
       limits.maxCacheEntries,
@@ -381,11 +421,21 @@ export interface TileProviderTimingMetrics extends OperationJsonObject {
   readonly computeMillisecondsMeasured: number
 }
 
+export interface TileMemoryMetrics extends OperationJsonObject {
+  readonly managedBytes: number
+  readonly inFlightBytes: number
+  readonly leasedBytes: number
+  readonly operationWorkingBytes: number
+  readonly totalManagedBytes: number
+  readonly highWaterTotalManagedBytes: number
+}
+
 export interface TileRuntimeMetrics extends OperationJsonObject {
   readonly enabled: boolean
   readonly cache: TileCacheMetrics
   readonly tasks: TileTaskMetrics
   readonly providerTiming: TileProviderTimingMetrics
+  readonly memory: TileMemoryMetrics
   readonly timeToFirstCompletedTileMilliseconds: number | null
   readonly memoryScope: string
   readonly timingScope: string
@@ -413,6 +463,7 @@ interface MutableMetrics {
   readbackMillisecondsEstimate: number
   computeMillisecondsMeasured: number
   firstCompletedAt: number | undefined
+  highWaterTotalManagedBytes: number
 }
 
 const newMutableMetrics = (): MutableMetrics => ({
@@ -437,6 +488,7 @@ const newMutableMetrics = (): MutableMetrics => ({
   readbackMillisecondsEstimate: 0,
   computeMillisecondsMeasured: 0,
   firstCompletedAt: undefined,
+  highWaterTotalManagedBytes: 0,
 })
 
 const once = (callback: () => void): (() => void) => {
@@ -451,18 +503,40 @@ const once = (callback: () => void): (() => void) => {
 class ManagedTile {
   readonly tile: NumericTile
   #references = 1
+  #leaseReferences = 0
   #released = false
   readonly #onReleaseError: () => void
+  readonly #onFirstLease: () => void
+  readonly #onLastLease: () => void
+  readonly #onFinalRelease: () => void
 
-  constructor(tile: NumericTile, onReleaseError: () => void) {
+  constructor(
+    tile: NumericTile,
+    onReleaseError: () => void,
+    onFirstLease: () => void = () => undefined,
+    onLastLease: () => void = () => undefined,
+    onFinalRelease: () => void = () => undefined,
+  ) {
     this.tile = tile
     this.#onReleaseError = onReleaseError
+    this.#onFirstLease = onFirstLease
+    this.#onLastLease = onLastLease
+    this.#onFinalRelease = onFinalRelease
   }
 
   lease(): NumericTile {
     if (this.#released) throw invalidInput('Cannot lease a released tile')
+    if (this.#leaseReferences === 0) this.#onFirstLease()
+    this.#leaseReferences += 1
     this.#references += 1
-    return Object.freeze({ ...this.tile, release: once(() => this.releaseReference()) })
+    return Object.freeze({ ...this.tile, release: once(() => this.#releaseLease()) })
+  }
+
+  #releaseLease(): void {
+    if (this.#leaseReferences < 1) return
+    this.#leaseReferences -= 1
+    if (this.#leaseReferences === 0) this.#onLastLease()
+    this.releaseReference()
   }
 
   releaseReference(): void {
@@ -470,6 +544,7 @@ class ManagedTile {
     this.#references -= 1
     if (this.#references !== 0 || this.#released) return
     this.#released = true
+    this.#onFinalRelease()
     try {
       this.tile.release()
     } catch {
@@ -575,6 +650,13 @@ class TileCache {
 
   clear(): void {
     for (const entry of [...this.#entries.values()]) this.#remove(entry, false)
+  }
+
+  evictOldest(): boolean {
+    const oldest = this.#entries.values().next().value
+    if (oldest === undefined) return false
+    this.#remove(oldest, true)
+    return true
   }
 
   #remove(entry: CacheEntry, eviction: boolean): void {
@@ -828,6 +910,7 @@ interface InFlightTile {
   readonly request: TileRequest
   readonly controller: AbortController
   readonly consumers: Map<number, TileConsumer>
+  readonly estimatedBytes: number
 }
 
 interface ValidatedTileAccounting {
@@ -858,6 +941,10 @@ export class TileRuntime {
   readonly #inFlight = new Map<string, InFlightTile>()
   #consumerId = 0
   #identityScopeCounter = 0
+  #managedBytes = 0
+  #inFlightBytes = 0
+  #leasedBytes = 0
+  #operationWorkingBytes = 0
 
   constructor(options: Readonly<TileRuntimeOptions> = {}) {
     this.limits = resolveTileRuntimeLimits(options.limits)
@@ -878,22 +965,30 @@ export class TileRuntime {
     if (this.#metricsEnabled) this.#metrics.misses += 1
     let state = this.#inFlight.get(key)
     if (state === undefined) {
+      const estimatedBytes = this.#estimateTileBytes(source, request)
+      this.#reserveInFlight(estimatedBytes)
       const controller = new AbortController()
-      state = {
-        key,
-        address: request.address,
-        request,
-        controller,
-        consumers: new Map<number, TileConsumer>(),
+      try {
+        state = {
+          key,
+          address: request.address,
+          request,
+          controller,
+          consumers: new Map<number, TileConsumer>(),
+          estimatedBytes,
+        }
+        this.#inFlight.set(key, state)
+        const scheduledState = state
+        void this.#scheduler
+          .schedule(request.priority, controller.signal, async (signal) => {
+            const result = await source.readTile(Object.freeze({ ...request, signal }))
+            this.#complete(scheduledState, result)
+          })
+          .catch((error: unknown) => this.#fail(scheduledState, error))
+      } catch (error) {
+        this.#releaseInFlight(estimatedBytes)
+        throw error
       }
-      this.#inFlight.set(key, state)
-      const scheduledState = state
-      void this.#scheduler
-        .schedule(request.priority, controller.signal, async (signal) => {
-          const result = await source.readTile(Object.freeze({ ...request, signal }))
-          this.#complete(scheduledState, result)
-        })
-        .catch((error: unknown) => this.#fail(scheduledState, error))
     }
     return this.#scheduler.withDependencyIfActive(
       request.signal,
@@ -905,6 +1000,21 @@ export class TileRuntime {
   /** Compatibility alias for dependency-safe request(), including outside scheduled tile work. */
   requestDependency(source: TileSource, input: Readonly<TileRequest>): Promise<NumericTile> {
     return this.request(source, input)
+  }
+
+  reserveOperationWorkingBytes(bytes: number): () => void {
+    if (!Number.isSafeInteger(bytes) || bytes < 0) {
+      throw invalidInput('Operation working bytes must be a non-negative safe integer')
+    }
+    if (bytes > this.limits.maxOperationWorkingBytes) {
+      throw invalidInput('Operation exceeds maxOperationWorkingBytes')
+    }
+    this.#makeRoom(bytes)
+    this.#operationWorkingBytes += bytes
+    this.#recordMemoryHighWater()
+    return once(() => {
+      this.#operationWorkingBytes -= bytes
+    })
   }
 
   /** Allocate a bounded cache-identity scope unique within this runtime instance. */
@@ -954,14 +1064,14 @@ export class TileRuntime {
       this.#releaseTile(tile)
       throw error
     }
-    const manager = new ManagedTile(tile, () => {
-      if (this.#metricsEnabled) this.#metrics.releaseFailures += 1
-    })
+    const retainedBytes = tile.data.byteLength + retainedAuxiliaryBytes
+    this.#reserveManaged(retainedBytes)
+    const manager = this.#managedTile(tile, retainedBytes)
     return this.#cache.put({
       key,
       address: normalized.address,
       manager,
-      retainedBytes: tile.data.byteLength + retainedAuxiliaryBytes,
+      retainedBytes,
     })
   }
 
@@ -1004,6 +1114,7 @@ export class TileRuntime {
     }
     const reset = newMutableMetrics()
     reset.highWaterBytes = this.#cache.bytes
+    reset.highWaterTotalManagedBytes = this.#totalManagedBytes()
     Object.assign(this.#metrics, reset)
     this.#startedAt = performance.now()
   }
@@ -1044,12 +1155,20 @@ export class TileRuntime {
         readbackMillisecondsEstimate: enabled ? value.readbackMillisecondsEstimate : 0,
         computeMillisecondsMeasured: enabled ? value.computeMillisecondsMeasured : 0,
       }),
+      memory: Object.freeze({
+        managedBytes: this.#managedBytes,
+        inFlightBytes: this.#inFlightBytes,
+        leasedBytes: this.#leasedBytes,
+        operationWorkingBytes: this.#operationWorkingBytes,
+        totalManagedBytes: this.#totalManagedBytes(),
+        highWaterTotalManagedBytes: enabled ? value.highWaterTotalManagedBytes : 0,
+      }),
       timeToFirstCompletedTileMilliseconds:
         enabled && value.firstCompletedAt !== undefined
           ? value.firstCompletedAt - this.#startedAt
           : null,
       memoryScope:
-        'Retained NumericTile typed-array byteLength plus declared auxiliary bytes; not process peak memory',
+        'Managed NumericTile bytes, in-flight output estimates, declared operation working bytes, and physical leased bytes; excludes undeclared provider allocations and process overhead',
       timingScope:
         'Provider estimates are labeled separately from measured wall-clock compute time',
     })
@@ -1086,6 +1205,7 @@ export class TileRuntime {
         : invalidInput('Tile request state was superseded')
     }
     this.#inFlight.delete(state.key)
+    this.#releaseInFlight(state.estimatedBytes)
     const consumers = [...state.consumers.values()]
     state.consumers.clear()
     if (state.controller.signal.aborted || consumers.length === 0) {
@@ -1110,9 +1230,18 @@ export class TileRuntime {
       }
       throw error
     }
-    const manager = new ManagedTile(result.tile, () => {
-      if (this.#metricsEnabled) this.#metrics.releaseFailures += 1
-    })
+    const retainedBytes = result.tile.data.byteLength + auxiliaryBytes
+    try {
+      this.#reserveManaged(retainedBytes)
+    } catch (error) {
+      this.#releaseTile(result.tile)
+      for (const consumer of consumers) {
+        consumer.removeAbortListener?.()
+        consumer.reject(error)
+      }
+      throw error
+    }
+    const manager = this.#managedTile(result.tile, retainedBytes)
     const leases: NumericTile[] = []
     try {
       for (let index = 0; index < consumers.length; index += 1) leases.push(manager.lease())
@@ -1120,7 +1249,7 @@ export class TileRuntime {
         key: state.key,
         address: state.address,
         manager,
-        retainedBytes: result.tile.data.byteLength + auxiliaryBytes,
+        retainedBytes,
       })
     } catch (error) {
       for (const lease of leases) lease.release()
@@ -1156,11 +1285,104 @@ export class TileRuntime {
   #fail(state: InFlightTile, error: unknown): void {
     if (this.#inFlight.get(state.key) !== state) return
     this.#inFlight.delete(state.key)
+    this.#releaseInFlight(state.estimatedBytes)
     for (const consumer of state.consumers.values()) {
       consumer.removeAbortListener?.()
       consumer.reject(error)
     }
     state.consumers.clear()
+  }
+
+  #estimateTileBytes(source: TileSource, request: TileRequest): number {
+    const sampleType = request.target?.sampleType ?? source.descriptor?.sampleType
+    const components = source.descriptor?.components.length
+    if (sampleType === undefined || components === undefined) {
+      const fallbackBytes = request.address.width * request.address.height * 8
+      if (!Number.isSafeInteger(fallbackBytes) || fallbackBytes > this.limits.maxTileBytes) {
+        throw invalidInput('Tile request exceeds maxTileBytes')
+      }
+      return fallbackBytes
+    }
+    const bytesPerSample =
+      sampleType === 'uint8' || sampleType === 'int8'
+        ? 1
+        : sampleType === 'uint16' || sampleType === 'int16'
+          ? 2
+          : sampleType === 'uint64' || sampleType === 'float64'
+            ? 8
+            : 4
+    const bytes = request.address.width * request.address.height * components * bytesPerSample
+    if (!Number.isSafeInteger(bytes) || bytes > this.limits.maxTileBytes) {
+      throw invalidInput('Tile request exceeds maxTileBytes')
+    }
+    return bytes
+  }
+
+  #reserveInFlight(bytes: number): void {
+    if (this.#inFlightBytes + bytes > this.limits.maxInFlightBytes) {
+      throw invalidInput('Tile runtime exceeds maxInFlightBytes')
+    }
+    this.#makeRoom(bytes)
+    this.#inFlightBytes += bytes
+    this.#recordMemoryHighWater()
+  }
+
+  #releaseInFlight(bytes: number): void {
+    this.#inFlightBytes -= bytes
+  }
+
+  #reserveManaged(bytes: number): void {
+    this.#makeRoom(bytes)
+    this.#managedBytes += bytes
+    this.#recordMemoryHighWater()
+  }
+
+  #managedTile(tile: NumericTile, retainedBytes: number): ManagedTile {
+    return new ManagedTile(
+      tile,
+      () => {
+        if (this.#metricsEnabled) this.#metrics.releaseFailures += 1
+      },
+      () => {
+        if (this.#leasedBytes + retainedBytes > this.limits.maxLeasedBytes) {
+          throw invalidInput('Tile runtime exceeds maxLeasedBytes')
+        }
+        this.#leasedBytes += retainedBytes
+      },
+      () => {
+        this.#leasedBytes -= retainedBytes
+      },
+      () => {
+        this.#managedBytes -= retainedBytes
+      },
+    )
+  }
+
+  #totalManagedBytes(): number {
+    return this.#managedBytes + this.#inFlightBytes + this.#operationWorkingBytes
+  }
+
+  #makeRoom(additionalBytes: number): void {
+    if (additionalBytes > this.limits.maxTotalManagedBytes) {
+      throw invalidInput('Tile runtime exceeds maxTotalManagedBytes')
+    }
+    while (
+      this.#totalManagedBytes() + additionalBytes > this.limits.maxTotalManagedBytes &&
+      this.#cache.evictOldest()
+    ) {
+      // Active work takes precedence over evictable cached tiles.
+    }
+    if (this.#totalManagedBytes() + additionalBytes > this.limits.maxTotalManagedBytes) {
+      throw invalidInput('Tile runtime exceeds maxTotalManagedBytes')
+    }
+  }
+
+  #recordMemoryHighWater(): void {
+    if (!this.#metricsEnabled) return
+    this.#metrics.highWaterTotalManagedBytes = Math.max(
+      this.#metrics.highWaterTotalManagedBytes,
+      this.#totalManagedBytes(),
+    )
   }
 
   #key(source: TileSource, request: TileRequest): string {
@@ -1190,6 +1412,9 @@ export class TileRuntime {
       (request.target?.layout !== undefined && tile.layout !== request.target.layout)
     ) {
       throw invalidInput('Tile source returned unsupported target semantics')
+    }
+    if (tile.data.byteLength > this.limits.maxTileBytes) {
+      throw invalidInput('Tile source returned a tile that exceeds maxTileBytes')
     }
     if (!Number.isSafeInteger(auxiliaryBytes) || auxiliaryBytes < 0) {
       throw invalidInput('Tile source returned invalid auxiliary byte accounting')

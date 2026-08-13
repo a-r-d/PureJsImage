@@ -35,6 +35,9 @@ export interface AnalysisPlanCost extends OperationJsonObject {
   readonly computeMilliseconds: number
   readonly readbackMilliseconds: number
   readonly retainedBytes: number
+  readonly peakWorkingBytes: number
+  readonly transferBytes: number
+  readonly outputBytes: number
   readonly confidence: number
 }
 
@@ -79,6 +82,8 @@ export interface PreparedAnalysisPlan {
   readonly bindings: ReadonlyMap<string, AnalysisInputBinding>
   readonly selections: ReadonlyMap<string, OperationProviderSelection>
   readonly summary: AnalysisPlan
+  isDisposed(): boolean
+  dispose(): Promise<void>
 }
 
 export interface PlanGraphOptions {
@@ -142,6 +147,9 @@ const costObject = (estimate: OperationCostEstimate): AnalysisPlanCost =>
     computeMilliseconds: estimate.computeMilliseconds,
     readbackMilliseconds: estimate.readbackMilliseconds,
     retainedBytes: estimate.retainedBytes,
+    peakWorkingBytes: estimate.peakWorkingBytes,
+    transferBytes: estimate.transferBytes,
+    outputBytes: estimate.outputBytes,
     confidence: estimate.confidence,
   })
 
@@ -175,7 +183,10 @@ const addCost = (target: number[], estimate: OperationCostEstimate): void => {
   target[2] = (target[2] ?? 0) + estimate.computeMilliseconds
   target[3] = (target[3] ?? 0) + estimate.readbackMilliseconds
   target[4] = Math.max(target[4] ?? 0, estimate.retainedBytes)
-  target[5] = Math.min(target[5] ?? 1, estimate.confidence)
+  target[5] = Math.max(target[5] ?? 0, estimate.peakWorkingBytes)
+  target[6] = (target[6] ?? 0) + estimate.transferBytes
+  target[7] = (target[7] ?? 0) + estimate.outputBytes
+  target[8] = Math.min(target[8] ?? 1, estimate.confidence)
 }
 
 export const planGraph = async (
@@ -240,127 +251,150 @@ export const planGraph = async (
     providerAllowed(provider, policy),
   )
   const runtime = await prepareOperationRuntime(allowedProviders, options.signal)
-  options.signal?.throwIfAborted()
-  const nodeById = new Map(graph.nodes.map((node) => [node.id, node]))
-  const selections = new Map<string, OperationProviderSelection>()
-  const nodes: AnalysisPlanNode[] = []
-  const warnings: AnalysisIssue[] = []
-  const unresolvedEstimates: AnalysisUnresolvedEstimate[] = []
-  const inferredCharacteristics = new Map<string, OperationJsonValue>()
-  const totals = [0, 0, 0, 0, 0, 1]
-  const signal = options.signal ?? new AbortController().signal
-  for (const nodeId of validation.nodeOrder) {
-    signal.throwIfAborted()
-    const node = nodeById.get(nodeId)
-    if (node === undefined) throw invalidInput(`Planned node ${nodeId} is unavailable`)
-    const definition = options.operations.get(node.operation.id, node.operation.version)
-    if (definition === undefined)
-      throw invalidInput(`Operation ${node.operation.id}@${node.operation.version} is unavailable`)
-    const inputs = node.inputs.map((input) => resolvePlanningInput(input.source, bindings))
-    const inputCharacteristics = Object.freeze({
-      inputs: Object.freeze(
-        node.inputs.map((input) =>
-          resolveCharacteristics(input.source, bindings, inferredCharacteristics),
-        ),
-      ),
-    })
-    const request: OperationProviderRequest = {
-      descriptor: definition.descriptor,
-      parameters: node.parameters,
-      inputs,
-      inputCharacteristics,
-      signal,
-    }
-    const selected = runtime.select(request, policy)
-    selections.set(node.id, selected)
-    addCost(totals, selected.estimate)
-    if (selected.estimate.confidence === 0) {
-      const reason = 'Provider reported zero confidence for its cost estimate'
-      warnings.push(warning(`/nodes/${node.id}/estimate`, reason))
-      unresolvedEstimates.push(Object.freeze({ nodeId: node.id, field: 'cost', reason }))
-    }
-    let outputShapes: readonly OperationJsonValue[] | null = null
-    if (definition.inferOutputShapes !== undefined) {
-      const inferred = definition.inferOutputShapes({
-        parameters: node.parameters,
-        inputs: node.inputs.map((input) =>
-          resolveCharacteristics(input.source, bindings, inferredCharacteristics),
+  try {
+    options.signal?.throwIfAborted()
+    const nodeById = new Map(graph.nodes.map((node) => [node.id, node]))
+    const selections = new Map<string, OperationProviderSelection>()
+    const nodes: AnalysisPlanNode[] = []
+    const warnings: AnalysisIssue[] = []
+    const unresolvedEstimates: AnalysisUnresolvedEstimate[] = []
+    const inferredCharacteristics = new Map<string, OperationJsonValue>()
+    const totals = [0, 0, 0, 0, 0, 0, 0, 0, 1]
+    const signal = options.signal ?? new AbortController().signal
+    for (const nodeId of validation.nodeOrder) {
+      signal.throwIfAborted()
+      const node = nodeById.get(nodeId)
+      if (node === undefined) throw invalidInput(`Planned node ${nodeId} is unavailable`)
+      const definition = options.operations.get(node.operation.id, node.operation.version)
+      if (definition === undefined)
+        throw invalidInput(
+          `Operation ${node.operation.id}@${node.operation.version} is unavailable`,
+        )
+      const inputs = node.inputs.map((input) => resolvePlanningInput(input.source, bindings))
+      const inputCharacteristics = Object.freeze({
+        inputs: Object.freeze(
+          node.inputs.map((input) =>
+            resolveCharacteristics(input.source, bindings, inferredCharacteristics),
+          ),
         ),
       })
-      if (
-        inferred.valid &&
-        inferred.value !== undefined &&
-        inferred.value.length === definition.descriptor.outputs.length
-      ) {
-        outputShapes = inferred.value
-        for (let index = 0; index < inferred.value.length; index += 1) {
-          const port = definition.descriptor.outputs[index]
-          const shape = inferred.value[index]
-          if (port !== undefined && shape !== undefined) {
-            inferredCharacteristics.set(`${node.id}\u0000${port.name}`, shape)
+      const request: OperationProviderRequest = {
+        descriptor: definition.descriptor,
+        parameters: node.parameters,
+        inputs,
+        inputCharacteristics,
+        signal,
+      }
+      const selected = runtime.select(request, policy)
+      selections.set(node.id, selected)
+      addCost(totals, selected.estimate)
+      if (selected.estimate.confidence === 0) {
+        const reason = 'Provider reported zero confidence for its cost estimate'
+        warnings.push(warning(`/nodes/${node.id}/estimate`, reason))
+        unresolvedEstimates.push(Object.freeze({ nodeId: node.id, field: 'cost', reason }))
+      }
+      let outputShapes: readonly OperationJsonValue[] | null = null
+      if (definition.inferOutputShapes !== undefined) {
+        const inferred = definition.inferOutputShapes({
+          parameters: node.parameters,
+          inputs: node.inputs.map((input) =>
+            resolveCharacteristics(input.source, bindings, inferredCharacteristics),
+          ),
+        })
+        if (
+          inferred.valid &&
+          inferred.value !== undefined &&
+          inferred.value.length === definition.descriptor.outputs.length
+        ) {
+          outputShapes = inferred.value
+          for (let index = 0; index < inferred.value.length; index += 1) {
+            const port = definition.descriptor.outputs[index]
+            const shape = inferred.value[index]
+            if (port !== undefined && shape !== undefined) {
+              inferredCharacteristics.set(`${node.id}\u0000${port.name}`, shape)
+            }
           }
+        } else {
+          const reason =
+            inferred.issues[0]?.message ?? 'Output shape inference returned an invalid result'
+          warnings.push(warning(`/nodes/${node.id}/outputShapes`, reason))
+          unresolvedEstimates.push(
+            Object.freeze({ nodeId: node.id, field: 'outputShapes', reason }),
+          )
         }
       } else {
-        const reason =
-          inferred.issues[0]?.message ?? 'Output shape inference returned an invalid result'
+        const reason = 'Operation does not provide metadata-only output inference'
         warnings.push(warning(`/nodes/${node.id}/outputShapes`, reason))
         unresolvedEstimates.push(Object.freeze({ nodeId: node.id, field: 'outputShapes', reason }))
       }
-    } else {
-      const reason = 'Operation does not provide metadata-only output inference'
-      warnings.push(warning(`/nodes/${node.id}/outputShapes`, reason))
-      unresolvedEstimates.push(Object.freeze({ nodeId: node.id, field: 'outputShapes', reason }))
-    }
-    nodes.push(
-      Object.freeze({
-        nodeId: node.id,
-        operation: Object.freeze({ id: node.operation.id, version: node.operation.version }),
-        parameterHash: await hashCanonicalJson(
-          'purejsimage.operation-parameters.v1',
-          node.parameters,
-        ),
-        provider: Object.freeze({ ...selected.provider.descriptor }),
-        implementation: Object.freeze({ ...selected.implementation.descriptor }),
-        execution: definition.descriptor.execution,
-        estimate: costObject(selected.estimate),
-        outputValueTypes: Object.freeze(
-          definition.descriptor.outputs.map((output) =>
-            Object.freeze({
-              name: output.name,
-              id: output.valueType.id,
-              version: output.valueType.version ?? null,
-            }),
+      nodes.push(
+        Object.freeze({
+          nodeId: node.id,
+          operation: Object.freeze({ id: node.operation.id, version: node.operation.version }),
+          parameterHash: await hashCanonicalJson(
+            'purejsimage.operation-parameters.v1',
+            node.parameters,
           ),
-        ),
-        outputShapes,
+          provider: Object.freeze({ ...selected.provider.descriptor }),
+          implementation: Object.freeze({ ...selected.implementation.descriptor }),
+          execution: definition.descriptor.execution,
+          estimate: costObject(selected.estimate),
+          outputValueTypes: Object.freeze(
+            definition.descriptor.outputs.map((output) =>
+              Object.freeze({
+                name: output.name,
+                id: output.valueType.id,
+                version: output.valueType.version ?? null,
+              }),
+            ),
+          ),
+          outputShapes,
+        }),
+      )
+    }
+    const summary: AnalysisPlan = Object.freeze({
+      schemaVersion: 1,
+      graphHash: await hashAnalysisGraph(graph),
+      nodeOrder: validation.nodeOrder,
+      nodes: Object.freeze(nodes),
+      totalEstimate: Object.freeze({
+        setupMilliseconds: totals[0] ?? 0,
+        transferMilliseconds: totals[1] ?? 0,
+        computeMilliseconds: totals[2] ?? 0,
+        readbackMilliseconds: totals[3] ?? 0,
+        retainedBytes: totals[4] ?? 0,
+        peakWorkingBytes: totals[5] ?? 0,
+        transferBytes: totals[6] ?? 0,
+        outputBytes: totals[7] ?? 0,
+        confidence: totals[8] ?? 0,
       }),
-    )
+      requiredInputIdentities: Object.freeze(requiredInputIdentities),
+      unresolvedEstimates: Object.freeze(unresolvedEstimates),
+      warnings: Object.freeze(warnings),
+    })
+    let disposed = false
+    return Object.freeze({
+      graph,
+      validation,
+      operations: options.operations,
+      bindings,
+      selections,
+      summary,
+      isDisposed: () => disposed,
+      async dispose(): Promise<void> {
+        if (disposed) return
+        disposed = true
+        await runtime.dispose()
+      },
+    })
+  } catch (error) {
+    try {
+      await runtime.dispose()
+    } catch {
+      // Preserve the planning failure that triggered cleanup.
+    }
+    throw error
   }
-  const summary: AnalysisPlan = Object.freeze({
-    schemaVersion: 1,
-    graphHash: await hashAnalysisGraph(graph),
-    nodeOrder: validation.nodeOrder,
-    nodes: Object.freeze(nodes),
-    totalEstimate: Object.freeze({
-      setupMilliseconds: totals[0] ?? 0,
-      transferMilliseconds: totals[1] ?? 0,
-      computeMilliseconds: totals[2] ?? 0,
-      readbackMilliseconds: totals[3] ?? 0,
-      retainedBytes: totals[4] ?? 0,
-      confidence: totals[5] ?? 0,
-    }),
-    requiredInputIdentities: Object.freeze(requiredInputIdentities),
-    unresolvedEstimates: Object.freeze(unresolvedEstimates),
-    warnings: Object.freeze(warnings),
-  })
-  return Object.freeze({
-    graph,
-    validation,
-    operations: options.operations,
-    bindings,
-    selections,
-    summary,
-  })
 }
 
 export interface AnalysisDryRun extends OperationJsonObject {
@@ -382,12 +416,16 @@ export const dryRun = async (options: Readonly<PlanGraphOptions>): Promise<Analy
   }
   try {
     const prepared = await planGraph(options)
-    return Object.freeze({
-      valid: true,
-      issues: Object.freeze([]),
-      warnings: prepared.summary.warnings,
-      plan: prepared.summary,
-    })
+    try {
+      return Object.freeze({
+        valid: true,
+        issues: Object.freeze([]),
+        warnings: prepared.summary.warnings,
+        plan: prepared.summary,
+      })
+    } finally {
+      await prepared.dispose()
+    }
   } catch (error) {
     return Object.freeze({
       valid: false,

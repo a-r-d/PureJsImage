@@ -110,6 +110,9 @@ describe('ROI value types and immutable workspace commands', () => {
             computeMilliseconds: 0,
             readbackMilliseconds: 0,
             retainedBytes: 0,
+            peakWorkingBytes: 0,
+            transferBytes: 0,
+            outputBytes: 0,
             confidence: 1,
           }),
           execute: async () => {

@@ -1069,36 +1069,34 @@ const ownedResult = (
   value: ResultCollection | HistogramResult | ProfileResult,
 ): readonly OperationOwnedOutput[] => Object.freeze([Object.freeze({ value, release() {} })])
 
-const estimate = (
-  request: Readonly<OperationProviderRequest>,
-  context: AnalysisDatasetOperationContext,
-): OperationCostEstimate => {
+const estimate = (request: Readonly<OperationProviderRequest>): OperationCostEstimate => {
   let retainedBytes = 0
+  let peakWorkingBytes = 0
+  let outputBytes = 0
   try {
     const inputs = request.inputCharacteristics?.inputs
     if (Array.isArray(inputs)) {
-      const descriptor = descriptorFromCharacteristics(inputs[0])
-      const parameters = planeParameters(parameterRecord(request.parameters))
-      const width = axisLength(descriptor, parameters.displayAxes[0])
-      const columns = Math.min(width, context.tileWidth)
-      const rows = Math.max(
-        1,
-        Math.min(context.tileHeight, Math.floor(context.runtime.limits.maxTilePixels / columns)),
-      )
-      retainedBytes = columns * rows * descriptor.components.length * 8
       if (request.descriptor.id === analysisStatisticsOperationId) {
         const statistics = statisticsParameters(request.parameters)
-        if (statistics.percentiles.length > 0) retainedBytes += statistics.percentileMaxSamples * 8
+        outputBytes = (7 + statistics.percentiles.length * 2) * 8
+        peakWorkingBytes =
+          outputBytes +
+          (statistics.percentiles.length > 0 ? statistics.percentileMaxSamples * 8 : 0)
       } else if (request.descriptor.id === analysisHistogramOperationId) {
         const histogram = histogramParameters(request.parameters)
-        retainedBytes += (histogram.bins * 2 + 1) * 8
+        outputBytes = (histogram.bins * 2 + 1) * 8
+        peakWorkingBytes = outputBytes
       } else if (request.descriptor.id === analysisLineProfileOperationId) {
         const profile = lineProfileParameters(request.parameters)
-        retainedBytes += profile.maxSamples * (profile.components.length + 1) * 8
+        outputBytes = profile.maxSamples * (profile.components.length + 1) * 8
+        peakWorkingBytes = outputBytes
       }
+      retainedBytes = outputBytes
     }
   } catch {
     retainedBytes = 0
+    peakWorkingBytes = 0
+    outputBytes = 0
   }
   return Object.freeze({
     setupMilliseconds: 0,
@@ -1106,6 +1104,9 @@ const estimate = (
     computeMilliseconds: 0,
     readbackMilliseconds: 0,
     retainedBytes,
+    peakWorkingBytes,
+    transferBytes: 0,
+    outputBytes,
     confidence: retainedBytes === 0 ? 0 : 0.5,
   })
 }
@@ -1140,18 +1141,26 @@ export const createAnalysisResultOperationImplementations = (
             return false
           }
         },
-        estimate: (request: Readonly<OperationProviderRequest>) => estimate(request, context),
+        estimate,
         async execute(
           request: Readonly<OperationProviderRequest>,
         ): Promise<readonly OperationOwnedOutput[]> {
           request.signal.throwIfAborted()
-          if (definition.descriptor.id === analysisStatisticsOperationId)
-            return ownedResult(await statisticsResult(request, context))
-          if (definition.descriptor.id === analysisHistogramOperationId)
-            return ownedResult(await histogramResult(request, context))
-          if (definition.descriptor.id === analysisLineProfileOperationId)
-            return ownedResult(await lineProfileResult(request, context))
-          throw invalidInput(`Unknown analysis result operation ${definition.descriptor.id}`)
+          const estimated = estimate(request)
+          const releaseWorking = context.runtime.reserveOperationWorkingBytes(
+            Math.max(0, estimated.peakWorkingBytes - estimated.outputBytes),
+          )
+          try {
+            if (definition.descriptor.id === analysisStatisticsOperationId)
+              return ownedResult(await statisticsResult(request, context))
+            if (definition.descriptor.id === analysisHistogramOperationId)
+              return ownedResult(await histogramResult(request, context))
+            if (definition.descriptor.id === analysisLineProfileOperationId)
+              return ownedResult(await lineProfileResult(request, context))
+            throw invalidInput(`Unknown analysis result operation ${definition.descriptor.id}`)
+          } finally {
+            releaseWorking()
+          }
         },
       }),
     ),

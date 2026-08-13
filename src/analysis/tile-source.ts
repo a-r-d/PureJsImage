@@ -283,6 +283,12 @@ const estimateTiming = (estimate: OperationCostEstimate, measured: number): Tile
     times.some((value) => !Number.isFinite(value) || value < 0) ||
     !Number.isSafeInteger(estimate.retainedBytes) ||
     estimate.retainedBytes < 0 ||
+    !Number.isSafeInteger(estimate.peakWorkingBytes) ||
+    estimate.peakWorkingBytes < 0 ||
+    !Number.isSafeInteger(estimate.transferBytes) ||
+    estimate.transferBytes < 0 ||
+    !Number.isSafeInteger(estimate.outputBytes) ||
+    estimate.outputBytes < 0 ||
     !Number.isFinite(estimate.confidence) ||
     estimate.confidence < 0 ||
     estimate.confidence > 1
@@ -448,9 +454,17 @@ export class DerivedTileSource implements TileSource {
       }
       const estimate = selected.implementation.estimate(execution)
       const timing = estimateTiming(estimate, 0)
+      const releaseWorking = this.#runtime.reserveOperationWorkingBytes(
+        Math.max(0, estimate.peakWorkingBytes - estimate.outputBytes),
+      )
       const started = performance.now()
-      outputs = await selected.implementation.execute(execution)
-      const measured = performance.now() - started
+      let measured: number
+      try {
+        outputs = await selected.implementation.execute(execution)
+        measured = performance.now() - started
+      } finally {
+        releaseWorking()
+      }
       normalized.signal.throwIfAborted()
       if (outputs.length !== 1 || outputs[0] === undefined) {
         throw invalidInput('Derived tile provider must return exactly one owned output')
