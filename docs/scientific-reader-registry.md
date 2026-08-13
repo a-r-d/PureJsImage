@@ -94,3 +94,7 @@ dataset.readPlane({
 Do not infer meaning from array position in new code. Select axes by stable ID, preserve their
 `kind`, units, calibration/lookup/labels, components, level geometry, sample type, no-data value,
 and typed metadata, and require one fixed index for every non-displayed non-singleton axis.
+
+See [Migrating to ScientificDataset V2 in 0.10 alpha](migration/0.10-scientific-v2.md) for ordinary
+X/Y, OME XYZCT, arbitrary-rank FITS, EELS, and 4D-STEM mappings and the exact reverse-adapter
+rejection boundary.

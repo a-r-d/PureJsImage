@@ -1,5 +1,8 @@
 # Lazy analysis tile runtime
 
+The authoritative byte classes, hard-limit scope, estimate trust boundary, and CPU/GPU distinction
+are specified in the [Tile runtime memory model](contracts/tile-memory-model.md).
+
 `purejsimage/analysis` provides an explicit, browser-portable `TileRuntime` for applications that
 need repeated quantitative work on bounded native `NumericTile`s. It does not replace the ordinary
 image pipeline, start a worker, or install a package-global cache. Each application creates and

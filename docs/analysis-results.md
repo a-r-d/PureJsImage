@@ -2,8 +2,10 @@
 
 `purejsimage/analysis` is the explicit, browser-portable boundary for quantitative result values.
 It does not install readers, operations, or providers, and importing the root `purejsimage` package
-does not load it. The entry currently contains result contracts and scientific measurement adapters;
-graphs, ROIs, execution, caches, and persistence belong to later application-platform work.
+does not load it. The entry contains result contracts, scientific measurement adapters, graphs,
+ROIs, execution, and the caller-owned tile runtime. Persisted project envelopes are specified by
+the [Analysis project v1 contract](contracts/analysis-project-v1.md); full typed result payloads are
+deliberately not persisted by that JSON format.
 
 ## Result shapes
 

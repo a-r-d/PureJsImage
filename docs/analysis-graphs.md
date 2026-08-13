@@ -19,10 +19,10 @@ includes a stable topological node order and the normalized graph.
 The semantic hash contains:
 
 - `schemaVersion`;
-- each input's name and exact value-type ID/version, in graph order;
+- each input's name and exact value-type ID/version, sorted by input name;
 - each node's ID, exact operation ID/version, named connections, and normalized parameters, in graph
-  order;
-- each named output and its source, in graph order.
+  order after nodes are sorted by node ID; node inputs are sorted by port name;
+- each named output and its source, sorted by output name.
 
 Graph, input, node, and output `label` fields are deliberately excluded. Labels are editable human
 presentation text and do not change computation. Source values and identities, typed payloads,
@@ -38,11 +38,11 @@ while excluding presentation. The manifest hashes those bindings as `bindingHash
 supply an explicit semantic identity; execution cannot replace or supplement the identities fixed
 by the prepared plan.
 
-`canonicalGraphJson()` sorts every object key and preserves array order. It rejects values outside
-the supported JSON domain, including `undefined`, non-finite numbers, bigint, functions, symbols,
-sparse arrays, accessors, non-plain objects, and cycles. `hashAnalysisGraph()` asynchronously hashes
-the canonical text with SHA-256 and the domain prefix
-`purejsimage.analysis-graph.canonical-json.v1`.
+`canonicalGraphJson()` first constructs that semantically sorted graph representation, then sorts
+every JSON object key. It rejects values outside the supported JSON domain, including `undefined`,
+non-finite numbers, bigint, functions, symbols, sparse arrays, accessors, non-plain objects, and
+cycles. `hashAnalysisGraph()` asynchronously hashes the canonical text with SHA-256 and the domain
+prefix `purejsimage.analysis-graph.canonical-json.v2`.
 
 Hashing never validates or migrates a graph. Callers must explicitly validate and, when needed,
 inspect and apply a registered migration plan before hashing the migrated graph.
@@ -236,3 +236,8 @@ listed in the [built-in analysis operation guide](built-in-analysis-operations.m
 
 The current extension and controller APIs run trusted code in process and are **not a sandbox**.
 Worker or iframe RPC isolation for untrusted extensions remains future work.
+
+Persisted graph/binding envelopes and the complete hash vocabulary are normative in
+[Analysis project format v1](contracts/analysis-project-v1.md) and
+[Reproducibility](contracts/reproducibility.md). Ownership across plans, results, lazy datasets, and
+runtimes is normative in [Lifecycle and ownership](contracts/lifecycle-and-ownership.md).

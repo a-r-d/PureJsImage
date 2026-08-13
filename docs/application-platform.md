@@ -170,20 +170,23 @@ try {
 
 ## Save, validate, and replay
 
-Persist graph and ROI state, exact operation versions, source identity, and display state—not source
-bytes, executable providers, or large result payloads. Canonical graph JSON is suitable for hashing
-and comparison; it does not silently validate or migrate:
+Use the normative [Analysis project v1 envelope](contracts/analysis-project-v1.md) for graph and ROI
+state, exact operation versions, source identity/rebinding, provider policy, hashes, and optional
+display state. It deliberately excludes source bytes, executable providers, and large typed result
+payloads. Canonical graph JSON is suitable for hashing and comparison; it does not silently
+validate or migrate:
 
 ```ts
-import { canonicalGraphJson, getImageSourceIdentity } from 'purejsimage/analysis'
-
-const analysisDocument = {
+const project = {
   schemaVersion: 1,
-  workspace,
-  sourceIdentity: await getImageSourceIdentity(source),
-  operationVersions: workspace.graph.nodes.map(({ operation }) => operation),
+  graph: workspace.graph,
+  roiSet: workspace.roiSet,
+  bindings: persistedBindings,
+  sourceReferences: persistedSources,
+  providerPolicy: policy,
   display: currentDisplayState,
-  canonicalGraph: canonicalGraphJson(workspace.graph),
+  createdWith: { packageVersion, buildFingerprint },
+  hashes: invocationHashes,
 }
 
 const parsed: unknown = JSON.parse(savedText)
@@ -196,9 +199,9 @@ if (!graphValidation.valid || graphValidation.graph === undefined) {
 }
 ```
 
-Applications own their persistence envelope because source pickers, display state, and storage
-policy are application concerns. Graph migrations are explicit registered steps; loading never
-silently rewrites operation semantics.
+Applications still own source pickers, display-state keys, and storage location, but not a competing
+project envelope. Graph and project migrations are explicit registered steps; loading never
+silently rewrites operation semantics or accepts stale hashes.
 
 ## Commands and capability inspection
 

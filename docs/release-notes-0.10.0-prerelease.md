@@ -33,7 +33,11 @@ portable entries.
 The fixed XYZCT `MultidimensionalRasterDataset` remains only as a deprecated migration bridge. New
 code should select two display axes and explicit indices for every other non-singleton labeled axis.
 `toScientificDataset()` and `toMultidimensionalRasterDataset()` are deliberate adapters rather than
-silent conversion. See [Scientific reader registry](scientific-reader-registry.md#migrating-from-fixed-xyzct-datasets).
+silent conversion. See [Scientific reader registry](scientific-reader-registry.md#migrating-from-fixed-xyzct-datasets)
+and the [0.10 ScientificDataset V2 migration guide](migration/0.10-scientific-v2.md).
+
+Persisted project, lifecycle, reproducibility, and tile-memory guarantees are collected in the
+[application-platform contract index](contracts/README.md).
 
 Existing root/browser package imports and ordinary image workflows such as
 `image.resize(...).jpeg(...)` retain their direct pipeline. This is a pre-1.0 alpha API: contracts
@@ -86,28 +90,19 @@ or release budgets.
 
 ## Candidate gate status
 
-This draft is **not release-ready**. Current audit evidence:
+This draft is **not release-ready**. Historical candidate hashes and partial gate counts have been
+removed because they do not describe the commit that will be published. After the final hardening
+and documentation commit, the release manager must record one coherent candidate audit:
 
-- baseline before the PR 10 commit: `scientific-analysis` at
-  `a026b5e0f7c0d7a046a003f67c9dd6f7fdd7183f`; record the resulting reviewed commit as the candidate
-  only after all remaining release gates pass;
-- clean `npm ci`: passed;
-- installed package fixture: passed on Node 24.16.0 and minimum-supported Node 22.21.1;
-- packed imports: no Worker construction, fetch, interval, or package global;
-- browser, type, package, lint, formatting, 45 focused ordinary-pipeline/application tests, 12 real
-  Chromium ordinary-demo/scientific tests, and application benchmark gates: passed;
-- deterministic release fuzz: passed with seed `1592598566`, 512 mutations per registered codec,
-  and no crash artifact;
-- dry-run tarball: 376 files, 778,585 packed bytes, 3,757,512 unpacked bytes, SHA-1
-  `752f2c7ac38da25e36da68919e0e3dada53505ba`, integrity
-  `sha512-1oqvC2p+pQVIM3gTosH67Kr7AGmO2W4VtL+LG0Z1NKpozMoPaXpEkjat7GwCTARDDUSv2JAWmwg2QjtP0tkJuw==`;
-- separate materials app: clean install, two unit tests, strict production build, and three real
-  Chromium E2E tests passed against that exact tarball; and
-- `npm run check`: failed after 1,150 passing tests because three expanded 12-bit AVIF fixtures have
-  Sharp-oracle hash mismatches. The command's hostile-source phase was therefore not reached; an
-  independent hostile-source run reached the same three failures with the other 1,150 tests passing.
+- final candidate commit SHA and clean status;
+- complete `npm run check` result, including the hostile-source phase;
+- clean install/package-consumer result on the declared minimum Node version and current CI Node;
+- real modern-browser test command, browser/version, and result;
+- exact `npm pack --dry-run` file/byte counts, tarball SHA-256, and npm integrity;
+- exact repository URL and commit of the separate materials application tested against that same
+  tarball;
+- benchmark host CPU/OS/runtime, command, input corpus identity, and result artifact; and
+- any remaining failure linked to a GitHub issue rather than described as an evergreen exception.
 
-The AVIF failures predate this slice and are outside the application-platform changes, but a
-mandatory gate is still a mandatory gate. Reconcile those oracle expectations or decoder results,
-rerun the complete check (including hostile-source tests), then record the final candidate commit
-before choosing a prerelease identifier or performing any release action.
+Do not replace these fields with evidence from an earlier SHA. Version changes, tags, publication,
+and GitHub release creation remain separately authorized release-manager actions.

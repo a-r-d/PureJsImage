@@ -121,3 +121,6 @@ An executable, non-registering pointwise example is available at
 [`examples/analysis-trusted-extension/index.ts`](../examples/analysis-trusted-extension/index.ts).
 It uses the same descriptor/provider split expected of a future explicitly installed WASM or WebGPU
 extension, while remaining an honestly labeled TypeScript reference implementation.
+
+Provider implementation requirements and a reference-versus-WASM-shaped differential example are
+specified in [Operation provider authoring](extensions/provider-authoring.md).

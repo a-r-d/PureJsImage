@@ -439,9 +439,10 @@ consumes them through the built-in analysis operations.
 
 The detailed PR 9 built-in-operation runbook supplied after PR 8 supersedes that remaining coarse
 persistence/audit allocation. PR 9 now proves the operation system against real scientific work.
-Persisted workspace/result references and append-only audit storage remain intentionally deferred;
-they must receive a later explicit runbook and are not implied by the in-memory provenance delivered
-here.
+The reusable JSON project envelope is specified by
+[`docs/contracts/analysis-project-v1.md`](../contracts/analysis-project-v1.md). Full typed result
+persistence and append-only audit storage remain intentionally deferred and are not implied by the
+in-memory provenance delivered here.
 
 ## Decisions and rejected shortcuts
 

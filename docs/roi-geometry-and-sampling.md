@@ -133,6 +133,7 @@ if (!application.applied) console.error(application.issues)
 workspace = application.snapshot
 ```
 
-Freehand brushes, stroke-width masks, 3D ROIs and meshes, boolean geometry, holes, mutable editing,
-annotation collaboration, visual styling systems, rendering UI, and ROI-based measurements are
-deliberately deferred.
+ROI-aware statistics, histograms, and line profiles are implemented by the built-in reference
+provider and use these same geometry and sampling contracts. Freehand brushes, stroke-width masks,
+3D ROIs and meshes, boolean geometry, holes, mutable painting, annotation collaboration, visual
+styling systems, and rendering UI remain deliberately deferred.
