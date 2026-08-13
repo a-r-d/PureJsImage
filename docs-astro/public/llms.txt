@@ -485,12 +485,12 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 ### JPEG 2000 / JP2
 
 - Import: `import { jpeg2000Codec } from 'purejsimage/codecs/jpeg2000'`
-- Decode: Limited (`limited`)
+- Decode: Yes (`supported`)
 - Encode: No (`unsupported`)
-- Implemented scope: Decodes common static Part 1 JP2 grayscale and RGB images at 1-16 bits with reversible 5/3 or irreversible 9/7 wavelets, all five progression orders, multiple tiles, RCT/ICT, and enumerated grayscale, sRGB, or sYCC color.
-- Primary boundary: Static Part 1 JP2 subset; current decoder is a full-frame fallback
-- Memory model: Current implementation retains full-frame component and output state
-- Recommended output use: Common static JP2 uploads that fall within the documented subset.
+- Implemented scope: Decodes common static Part 1 JP2 images with reversible 5/3 or irreversible 9/7 wavelets, all five progression orders, multiple tiles and tile-parts, RCT/ICT, maxshift ROI, restricted RGB matrix/TRC ICC profiles, palettes, channel mapping, and straight or premultiplied alpha.
+- Primary boundary: Static Part 1 JP2 decode for 1-16-bit integer grayscale, RGB, sYCC, palette, and cdef alpha images using the documented MQ-coded wavelet subset; excludes POC, packed packet headers, arithmetic-bypass and pass-termination styles, JPX/JPM, HTJ2K, animation, and encode
+- Memory model: Metadata inspection reads bounded headers only. Decode retains the compressed jp2c plus the selected-resolution component planes for one tile row, emits ordered 32-row pixel blocks, skips unrelated tiles for regions, and selects lower wavelet levels for large resize; full-resolution single-tile decode remains an explicit full-component fallback.
+- Recommended output use: Static image/jp2 uploads within the documented Part 1 subset, including common lossless and lossy grayscale, RGB, and sYCC files.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/jpeg2000-codec-support.md
 
 ### AVIF
@@ -520,10 +520,10 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 - Import: `import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'`
 - Decode: Limited (`limited`)
 - Encode: No (`unsupported`)
-- Implemented scope: Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes pinned 8-bit RGB plus 9-bit and 12-bit RGBA lossless Modular paths through bounded headers, entropy, adaptive properties, residual prediction, RCT, crop, and rgba8 output. Unsupported JPEG XL syntax fails explicitly.
-- Primary boundary: Decodes independently verified, single-group lossless Modular RGB and RGBA with global or local MA trees, nonzero prefix or ANS residuals, bounded LZ77, Zero/Left/Top/Gradient/TopRight/TopLeft prediction, and zero or one RCT; other predictors, grayscale and custom color encodings, palette and Squeeze transforms, VarDCT, multiple groups or frames, and fragmented jxlp pixel decode remain unsupported
-- Memory model: The implemented single-group Modular path retains compressed input, bounded entropy tables, the adaptive tree, an optional 4 MiB LZ77 ring, and compact signed channel planes. Peak decoded working memory scales with source pixels but does not allocate a second source-sized RGBA bitmap.
-- Recommended output use: Use for the documented single-group lossless Modular RGB/RGBA subset and retain an explicit unsupported-operation path for broader JPEG XL files.
+- Implemented scope: Recognizes raw codestreams and containers, validates and indexes jxlc or ordered jxlp ranges, and decodes the documented pinned lossless Modular subsets. Native grayscale emits gray8 or big-endian gray16 with its original display range; RGB/RGBA emits rgba8 or big-endian rgba16. Compatible multi-group decode validates ordered or permuted table-of-contents entries and dependencies, supports global or per-group local MA trees, reconstructs only crop-intersecting groups, stitches ordered output rows across group boundaries, and releases completed group bands. Unsupported JPEG XL syntax fails explicitly.
+- Primary boundary: Decodes independently verified lossless Modular subsets: single-group 8-bit RGB/RGBA, native 8/10/12/16-bit grayscale, native 9/12-bit RGBA, 8-bit grayscale with alpha, and compatible multi-group 8-bit grayscale with unshifted group channels and a shared non-delta palette. Supports global or local MA trees, prefix or ANS residuals, bounded LZ77 with group-aware special distances, the documented predictors, zero or one RCT, permuted or ordered table-of-contents entries, and group-aware crops. Custom color encodings, delta palettes, Squeeze and shifted/DC group channels, VarDCT, multiple frames, and fragmented jxlp pixel decode remain unsupported
+- Memory model: The single-group path retains compact signed channel planes. Compatible multi-group crops retain only the intersecting groups in one group-row band, share global Palette state, size each LZ77 ring to its bounded entropy stream, account grouped planes against maxDecodedBytes, and release the band after output. Both paths emit one bounded native output row without allocating a second source-sized RGBA bitmap. A checksum-pinned 4096x4096 permuted-TOC fixture records isolated full-decode and 64x64 crop memory.
+- Recommended output use: Use native gray8/gray16 or rgba16 decoder blocks for scientific workflows within the documented lossless Modular subset. Multi-group grayscale crops are group-aware and bounded by the intersecting band, including files with permuted table-of-contents entries and per-group local MA trees. Use the normal pipeline for display conversion, and retain an explicit unsupported-operation path for broader JPEG XL files.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md
 
 ### Radiance HDR / RGBE

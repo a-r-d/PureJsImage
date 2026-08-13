@@ -11,6 +11,7 @@ import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts
 import { gifCodec } from '../src/codec-entries/gif.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
+import { jpeg2000Codec } from '../src/codec-entries/jpeg2000.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createTiffCodec, tiffCodec } from '../src/codec-entries/tiff.ts'
 import { webpCodec } from '../src/codec-entries/webp.ts'
@@ -38,6 +39,7 @@ const images = createImageLibrary([
   jpegxlCodec,
   pngCodec,
   webpCodec,
+  jpeg2000Codec,
   bmpCodec,
   tiffCodec,
   avifCodec,
@@ -225,6 +227,67 @@ const jpegXlLossless = async (): Promise<BrowserWorkflowResult> => {
   return {
     detail: 'lossless JPEG XL local-tree ANS decode matched djxl RGB pixels',
     outputBytes: output.byteLength,
+  }
+}
+const jpegXlHighBit = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = await fetchBytes('/fixtures/jpegxl-alpha-12bit.jxl')
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (!decoder) throw new Error('Browser JPEG XL decoder is unavailable')
+  const cropped: number[] = []
+  let displayWhite = -1
+  for await (const block of decoder.decode({ x: 0, y: 0, width: 2, height: 1 })) {
+    if (block.format !== 'rgba16') {
+      throw new Error(`Browser JPEG XL native output was ${block.format}, not rgba16`)
+    }
+    displayWhite = block.displayRanges?.[0]?.white ?? -1
+    cropped.push(...block.data)
+  }
+  const expected = [0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 4, 0, 4, 0, 0]
+  if (
+    displayWhite !== 4_095 ||
+    cropped.length !== expected.length ||
+    cropped.some((value, index) => value !== expected[index])
+  ) {
+    throw new Error('Browser JPEG XL native 12-bit samples did not match the conformance oracle')
+  }
+  const output = await (await images.open(bytes))
+    .crop({ x: 0, y: 0, width: 2, height: 1 })
+    .png()
+    .toUint8Array()
+  return {
+    detail: 'lossless JPEG XL preserved native 12-bit RGBA samples and normalized through PNG',
+    outputBytes: output.byteLength,
+  }
+}
+const jpegXlMultiGroup = async (): Promise<BrowserWorkflowResult> => {
+  const bytes = await fetchBytes('/fixtures/jpegxl-permuted-large-gray8.jxl')
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (!decoder) throw new Error('Browser JPEG XL decoder is unavailable')
+  let rows = 0
+  let outputBytes = 0
+  for await (const block of decoder.decode({ x: 2_030, y: 2_040, width: 64, height: 64 })) {
+    if (
+      block.format !== 'gray8' ||
+      block.x !== 0 ||
+      block.y !== rows ||
+      block.width !== 64 ||
+      block.height !== 1
+    ) {
+      throw new Error('Browser JPEG XL multi-group crop geometry is inconsistent')
+    }
+    for (let x = 0; x < block.width; x += 1) {
+      const expected = ((2_030 + x) * 3 + (2_040 + rows) * 5) & 255
+      if (block.data[x] !== expected) {
+        throw new Error(`Browser JPEG XL multi-group sample ${x},${rows} is incorrect`)
+      }
+    }
+    rows += 1
+    outputBytes += block.data.byteLength
+  }
+  if (rows !== 64) throw new Error(`Browser JPEG XL multi-group crop emitted ${rows} rows`)
+  return {
+    detail: 'lossless JPEG XL crop crossed four permuted Modular group boundaries',
+    outputBytes,
   }
 }
 const unsupportedJpegBoundaries = async (): Promise<BrowserWorkflowResult> => {
@@ -1894,6 +1957,26 @@ const webpLossless = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const jpeg2000Decode = async (): Promise<BrowserWorkflowResult> => {
+  const input = await fetchBytes('/fixtures/openjpeg-lossless-rgb16.jp2')
+  const output = await (await images.open(input)).png().toUint8Array()
+  const metadata = await outputMetadata(output)
+  if (metadata.format !== 'png' || metadata.width !== 17 || metadata.height !== 13) {
+    throw new Error(
+      `Browser JPEG 2000 decode produced ${metadata.format} ${metadata.width}x${metadata.height}`,
+    )
+  }
+  const pixels = await portablePngPixels(output)
+  const digest = await sha256(pixels)
+  if (digest !== '4750925af7e10c4b3ec572ee014ddf8a4995d5bea92e06a8d6e7d91ec4568acc') {
+    throw new Error(`Browser JPEG 2000 RGBA hash was ${digest}`)
+  }
+  return {
+    detail: 'first-party JPEG 2000 matched the pinned portable RGBA output',
+    outputBytes: output.byteLength,
+  }
+}
+
 const webpLossyDecode = async (): Promise<BrowserWorkflowResult> => {
   const encoded = atob(
     'UklGRqQAAABXRUJQVlA4IJgAAABwBACdASogABgAPmUmj0WkIiEb/VQAQAZEs4BmwkBKSJFI4AHVyHQgWMclgAD+/qV1+gM5jXoqf8T/xA/L7f0lia3y/8Hn4WHFIQuFlP1xw1tSDx+ucwX+ndmTYQ35mZkrIBYOX9PWp0ByLB1fAb9EWwcebp60J6lOM+Wjvcp762MmOBNj6axIrCC/NsuuSyHsh32LLNAAAA==',
@@ -3157,7 +3240,10 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   optionalApiEntries,
   legacyTiffAndBmp,
   jpegPipeline,
+  jpeg2000Decode,
   jpegXlLossless,
+  jpegXlHighBit,
+  jpegXlMultiGroup,
   unsupportedJpegBoundaries,
   tolerantJpegRestartRecovery,
   orientation,

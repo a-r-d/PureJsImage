@@ -347,7 +347,7 @@ use the default TypeScript codecs.
 | TIFF | Yes | Yes |
 | GIF | Static / explicit frame 0 | No |
 | ICO | Yes | No |
-| JPEG 2000 / JP2 | Limited | No |
+| JPEG 2000 / JP2 | Yes | No |
 | AVIF | Yes | Limited |
 | HEIF / HEIC (experimental) | Experimental | No |
 | JPEG XL | Limited | No |
