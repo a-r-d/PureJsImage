@@ -389,7 +389,7 @@ The public module graph should develop as follows:
   analysis module is imported from either root.
 - `purejsimage/scientific` owns portable `ScientificDataset` descriptors, documents, registries,
   algorithms, and numeric tile contracts/conversion. Concrete readers live in
-  `purejsimage/scientific/readers/{gsf,envi,fits,mrc,cbf,ome-tiff}`; the explicit
+  `purejsimage/scientific/readers/{gsf,envi,fits,mrc,cbf,ome-tiff,aperio-svs}`; the explicit
   `purejsimage/scientific/readers/all` entry is available when an application deliberately wants
   every reader. `purejsimage/scientific/node` remains the place for path-based helpers.
 - `purejsimage/operations` exports JSON-safe descriptors and schemas, provider contracts,
@@ -518,9 +518,9 @@ The maintainer approved the following decisions on 2026-08-12:
 - [x] Keep statistics, histogram, and line profile on the result-reducer path.
 - [x] Split the public API into `purejsimage/analysis`, `/results`, `/roi`, `/runtime`, and `/project`
       with checked-in export manifests and independent browser/size gates.
-- [x] Design the [whole-slide scientific bridge](./whole-slide-scientific-bridge.md) without
-      implementing it. Implementation follows explicit resolution-level operation semantics so
-      graphs, provenance, cache identity, and calibrated ROIs agree on the analyzed pyramid level.
+- [x] Implement the [whole-slide scientific bridge](./whole-slide-scientific-bridge.md) with
+      explicit resolution-level operation semantics so graphs, provenance, cache identity, and
+      calibrated ROIs agree on the analyzed pyramid level.
 
 This is the authoritative progress log for the application-platform program. Update it in the same
 change as the work it tracks. A checked item means its implementation and stated verification are
@@ -1390,10 +1390,9 @@ to own only generic descriptors, definitions, providers, and registries.
       hash domain v2 sorts graph inputs by name, nodes by ID, node input groups by port, and outputs
       by name while preserving order among variadic values on the same port and preserving all
       parameter arrays.
-- [ ] Add explicit resolution-level selection and physical coordinate transforms to built-in
-      operation schemas. The existing descriptor lengths validate level bounds but do not fully
-      define physical calibration for every pyramid; this remains required before claiming general
-      pyramidal analysis rather than being guessed in this review fix.
+- [x] Add canonical per-level axis/descriptor resolution and a bit-exact lazy
+      `select-resolution-level` operation. Selected levels become calibrated single-level datasets,
+      and later operation schemas do not duplicate a resolution parameter.
 - [x] Distinguish lazy graph invocation from pixel materialization in execution provenance. Dataset
       outputs are marked `materialization: lazy`, completed reductions are marked `complete`, and the
       timing scope states that later tile work belongs to the tile runtime. Per-tile materialization
@@ -1590,3 +1589,35 @@ to own only generic descriptors, definitions, providers, and registries.
     Sharp/libvips oracle cases are explicitly skipped while remaining mandatory elsewhere; the
     standard and hostile-source suites otherwise pass 98 files and 1,211 tests. No scientific
     application-platform test fails.
+
+### Whole-slide and global connected-components milestone
+
+- [x] Extend resolution levels with validated per-axis coordinate overrides and canonical axis and
+      descriptor resolution helpers used by scientific and analysis consumers.
+- [x] Add bit-exact `purejsimage.analysis.select-resolution-level@1` as a zero-copy lazy forwarding
+      transform whose normal derived identity records the selected level.
+- [x] Add the explicitly registered `purejsimage/scientific/readers/aperio-svs` entry and a private
+      generic whole-slide-to-scientific bridge shared with the existing Aperio/TIFF parser.
+- [x] Keep the primary calibrated RGB pyramid and label, macro, thumbnail, or other associated
+      images as distinct identified datasets with bounded local or HTTP Range reads.
+- [x] Add one truthful `global-transform` execution characteristic and managed transfer of surviving
+      operation-working state into retained output accounting.
+- [x] Add deterministic tiled `purejsimage.analysis.connected-components@1` with 4/8 connectivity,
+      lazy uint32 labels, bounded object tables, calibrated measurements, cancellation, and explicit
+      limit failures without a full source, mask, or label plane.
+- [x] Add a public-package-only SVS -> select level -> threshold -> connected components -> bounded
+      summary example and a correctness-first sparse/dense/boundary/checkerboard benchmark.
+- [x] Add focused multiresolution, WSI range/identity/ownership, MRC calibration, deterministic
+      labeling, measurement, missing-calibration, cancellation, limit, summary, and workflow tests.
+- [x] Regenerate API and TIFF capability manifests, record bundle baselines, and pass the complete
+      package, browser, documentation, lint, formatting, benchmark, and `npm run check` gates.
+
+  - Milestone validation: generated API and TIFF capability surfaces are current. Exact minified
+    baselines are 143,546 bytes for the base scientific entry, 259,477 for the explicit Aperio SVS
+    reader, 350,082 for all scientific readers, and 270,789 for analysis, each with approximately
+    30% ceiling headroom. The packed-package consumer (398 files), browser dependency graph, all 19
+    documentation pages, public-only application example, lint, and formatting pass. Both the
+    standard and hostile-source suites pass 103 files and 1,238 tests with 3 documented skips. The
+    connected-components benchmark validates sparse, dense, boundary-spanning, and adversarial
+    checkerboard object counts before reporting time and a 13,756,484-byte managed-memory high-water
+    mark.

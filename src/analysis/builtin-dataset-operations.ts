@@ -35,6 +35,7 @@ import type {
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
+  resolveScientificDescriptorAtResolutionLevel,
   supportsScientificPlaneRead,
 } from '../scientific/dataset.ts'
 import type {
@@ -67,6 +68,8 @@ export const analysisSliceOperationId = 'purejsimage.analysis.slice'
 export const analysisProjectionOperationId = 'purejsimage.analysis.projection'
 export const analysisThresholdOperationId = 'purejsimage.analysis.threshold'
 export const analysisGaussianBlurOperationId = 'purejsimage.analysis.gaussian-blur'
+export const analysisSelectResolutionLevelOperationId =
+  'purejsimage.analysis.select-resolution-level'
 
 type ParameterRecord = Readonly<Record<string, OperationJsonValue>>
 
@@ -166,6 +169,14 @@ const displayAxesParameter = (
   return Object.freeze([horizontal, vertical])
 }
 
+const selectResolutionLevelParameter = (value: OperationJsonValue): number => {
+  const level = parameterRecord(value).level
+  if (typeof level !== 'number' || !Number.isSafeInteger(level) || level < 0) {
+    throw invalidInput('level must be a non-negative safe integer')
+  }
+  return level
+}
+
 const objectSchema = (
   properties: Readonly<Record<string, ParameterSchema>>,
   required: readonly string[],
@@ -220,7 +231,12 @@ const semanticDefinition = (
   options: Readonly<{
     id: string
     title: string
-    execution: 'dataset-transform' | 'tile-local' | 'neighborhood' | 'reduction'
+    execution:
+      | 'dataset-transform'
+      | 'tile-local'
+      | 'neighborhood'
+      | 'reduction'
+      | 'global-transform'
     reproducibility?: OperationDescriptor['reproducibility']
     parameters: ParameterSchema
     validate(parameters: OperationJsonValue): void
@@ -793,6 +809,7 @@ type ThresholdMode =
   | 'outside'
 
 interface ThresholdParameters {
+  readonly component: number
   readonly mode: ThresholdMode
   readonly threshold?: number
   readonly minimum?: number
@@ -805,6 +822,10 @@ const thresholdParameters = (
   source?: NormalizedScientificDatasetDescriptor,
 ): ThresholdParameters => {
   const parameters = parameterRecord(value)
+  const component = optionalNumberParameter(parameters, 'component') ?? 0
+  if (!Number.isSafeInteger(component) || component < 0) {
+    throw invalidInput('Threshold component must be a non-negative safe integer')
+  }
   const mode = stringParameter(parameters, 'mode')
   if (
     mode !== 'greater-than' &&
@@ -831,8 +852,8 @@ const thresholdParameters = (
     throw invalidInput('invalidOutput must be zero or one')
   if (source !== undefined) {
     assertLevelZero(source)
-    if (source.components.length !== 1)
-      throw invalidInput('Threshold requires a one-component scalar dataset')
+    if (component >= source.components.length)
+      throw invalidInput('Threshold component is unavailable')
     if (source.sampleType === 'uint64') {
       for (const boundary of [threshold, minimum, maximum]) {
         if (boundary !== undefined && (!Number.isSafeInteger(boundary) || boundary < 0)) {
@@ -842,6 +863,7 @@ const thresholdParameters = (
     }
   }
   return Object.freeze({
+    component,
     mode,
     ...(threshold === undefined ? {} : { threshold }),
     ...(minimum === undefined ? {} : { minimum }),
@@ -864,6 +886,7 @@ const inferThresholdDescriptor = (
       analysisOperation: analysisThresholdOperationId,
       maskFalseValue: 0,
       maskTrueValue: 1,
+      sourceComponent: thresholdParameters(value, source).component,
     },
     noDataValue: undefined,
   })
@@ -956,6 +979,17 @@ const inferGaussianBlurDescriptor = (
 }
 
 export const analysisDatasetOperationDefinitions: readonly OperationDefinition[] = Object.freeze([
+  semanticDefinition({
+    id: analysisSelectResolutionLevelOperationId,
+    title: 'Select scientific resolution level',
+    execution: 'dataset-transform',
+    parameters: objectSchema({ level: nonNegativeIntegerSchema }, ['level']),
+    validate: (value) => {
+      selectResolutionLevelParameter(value)
+    },
+    infer: (value, input) =>
+      resolveScientificDescriptorAtResolutionLevel(input, selectResolutionLevelParameter(value)),
+  }),
   semanticDefinition({
     id: analysisCropOperationId,
     title: 'Crop scientific dataset',
@@ -1078,6 +1112,7 @@ export const analysisDatasetOperationDefinitions: readonly OperationDefinition[]
             'outside',
           ],
         }),
+        component: Object.freeze({ type: 'integer', minimum: 0, default: 0 }),
         threshold: Object.freeze({ type: 'number', finiteOnly: true }),
         minimum: Object.freeze({ type: 'number', finiteOnly: true }),
         maximum: Object.freeze({ type: 'number', finiteOnly: true }),
@@ -1322,6 +1357,30 @@ const operationDataset = (
   return Object.freeze(dataset)
 }
 
+const selectedResolutionDataset = (
+  source: ScientificDataset,
+  value: OperationJsonValue,
+  identity: TileDatasetIdentity,
+): ScientificDataset => {
+  const selectedLevel = selectResolutionLevelParameter(value)
+  const descriptor = resolveScientificDescriptorAtResolutionLevel(source.descriptor, selectedLevel)
+  const dataset = {
+    descriptor,
+    async *readPlane(input: Readonly<ScientificPlaneReadRequest>): AsyncGenerator<RasterBlock> {
+      const request = normalizeScientificPlaneReadRequest(descriptor, input)
+      yield* source.readPlane({
+        ...request,
+        resolutionLevel: selectedLevel,
+      })
+    },
+  }
+  Object.defineProperty(dataset, analysisTileDatasetIdentity, {
+    value: identity,
+    enumerable: false,
+  })
+  return Object.freeze(dataset)
+}
+
 const providerDerivedDataset = (
   source: ScientificDataset,
   descriptor: NormalizedScientificDatasetDescriptor,
@@ -1457,6 +1516,14 @@ export class AnalysisDatasetOperationContext {
 
   source(dataset: ScientificDataset): TileSource {
     return this.#source(dataset)
+  }
+
+  createDataset(
+    descriptor: NormalizedScientificDatasetDescriptor,
+    readTile: TileReader,
+    identity: TileDatasetIdentity,
+  ): ScientificDataset {
+    return operationDataset(descriptor, readTile, this.tileWidth, this.tileHeight, identity)
   }
 
   async derivedIdentity(
@@ -1767,7 +1834,7 @@ const thresholdTileKernel = (maxTileBytes: number): OperationTileKernel =>
         throwIfAborted(request.signal)
         for (let x = 0; x < request.outputRegion.width; x += 1) {
           const index = y * request.outputRegion.width + x
-          const sample = numericValue(request.sourceTile, x, y, 0)
+          const sample = numericValue(request.sourceTile, x, y, parameters.component)
           output.data[index] = usableValue(sample, request.sourceDescriptor.noDataValue)
             ? thresholdMatches(sample, parameters)
               ? 1
@@ -2162,6 +2229,19 @@ const costEstimate = (
         throw invalidInput('Operation output characteristics are unavailable')
       }
       const outputDescriptor = datasetDescriptorFromCharacteristics(inferred.value[0])
+      if (request.descriptor.id === analysisSelectResolutionLevelOperationId) {
+        return Object.freeze({
+          setupMilliseconds: 0,
+          transferMilliseconds: 0,
+          computeMilliseconds: 0,
+          readbackMilliseconds: 0,
+          retainedBytes: 0,
+          peakWorkingBytes: 0,
+          transferBytes: 0,
+          outputBytes: 0,
+          confidence: 1,
+        })
+      }
       const selectedAxes = displayAxesParameter(parameterRecord(request.parameters))
       const width = Math.min(axis(outputDescriptor, selectedAxes[0]).length, context.tileWidth)
       const height = Math.min(axis(outputDescriptor, selectedAxes[1]).length, context.tileHeight)
@@ -2247,6 +2327,8 @@ export const createAnalysisDatasetOperationImplementations = (
           request.signal.throwIfAborted()
           const source = datasetInput(request)
           const identity = await context.derivedIdentity(source, request, 'dataset')
+          if (definition.descriptor.id === analysisSelectResolutionLevelOperationId)
+            return ownedDataset(selectedResolutionDataset(source, request.parameters, identity))
           if (definition.descriptor.id === analysisCropOperationId)
             return ownedDataset(cropDataset(source, request.parameters, context, identity))
           if (definition.descriptor.id === analysisResampleOperationId)

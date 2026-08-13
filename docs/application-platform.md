@@ -78,6 +78,19 @@ whole dataset implicitly. Reader-backed source keys use the complete dataset/res
 weak evidence is session-scoped and synthetic datasets are instance-scoped. Derived keys include
 source, operation/version, normalized parameters, output, provider/implementation, and generation.
 
+## Select and analyze a whole-slide level
+
+Register `aperioSvsReader` explicitly from
+`purejsimage/scientific/readers/aperio-svs`. Its document exposes `pyramid` plus separate
+`associated/label`, `associated/macro`, `associated/thumbnail`, or other stable associated-image
+IDs. The pyramid declares decoded uint8 RGB components and per-level X/Y calibration. Local and
+HTTP Range-backed sources use the same bounded region contract.
+
+Select one pyramid level with `purejsimage.analysis.select-resolution-level@1` before adding later
+operations. The output is a calibrated, single-level `ScientificDataset`; crop, threshold, blur,
+ROI, and measurement nodes then need no separate resolution parameter. The selected level remains
+part of derived identity and provenance.
+
 ## Measure an ROI through a graph
 
 Built-in operations are installed as one explicit bundle calibrated to the selected descriptor:
@@ -278,6 +291,15 @@ planning. Crop and slice remain coordinate views; resample remains the next neig
 migration; projection remains the first dataset-reducer migration; statistics, histogram, and line
 profile remain result reducers. Reducer scratch uses lexical working-memory scopes whose accounting
 the runtime releases internally.
+
+`purejsimage.analysis.connected-components@1` is the first globally prepared transform. It scans a
+selected plane in deterministic row-major tiles, reconciles 4- or 8-connected boundaries, and
+returns both a lazy uint32 label dataset and a bounded columnar object table. Measurements include
+pixel count/area, bounds, centroid, equivalent circular diameter, moment axes, aspect, and
+orientation; compatible linear calibration adds physical measurements with anisotropic spacing.
+The implementation retains typed component state and per-tile label mappings, not a complete input,
+mask, or label plane. Planning uses the existing provider and graph barrier, and capacity exhaustion
+fails with `LIMIT_EXCEEDED` under the runtime's operation-working budget.
 
 The extension descriptor owns its namespace. For `acme.materials`, reader IDs begin with
 `acme.materials/`; value-type, operation, provider, and migration IDs begin with

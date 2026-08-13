@@ -1,11 +1,24 @@
 import type { AbortOptions } from '../abort.ts'
-import type { PixelBlock } from '../pixel.ts'
+import type { PixelBlock, PixelFormat } from '../pixel.ts'
+
+export interface WholeSlideImageMetadata {
+  readonly compression: number
+  readonly photometric: number
+  readonly samplesPerPixel: number
+  readonly bitsPerSample: readonly number[]
+  /** Exact bounded TIFF ICC profile bytes when present. */
+  readonly iccProfile?: Uint8Array
+}
 
 export interface WholeSlideLevel {
   readonly index: number
   readonly width: number
   readonly height: number
   readonly downsample: number
+  readonly downsampleX?: number
+  readonly downsampleY?: number
+  readonly format?: PixelFormat
+  readonly metadata?: WholeSlideImageMetadata
   readonly tileWidth?: number
   readonly tileHeight?: number
 
@@ -32,6 +45,8 @@ export interface WholeSlideAssociatedImage {
   readonly label: string
   readonly width: number
   readonly height: number
+  readonly format?: PixelFormat
+  readonly metadata?: WholeSlideImageMetadata
 
   read(options?: Readonly<WholeSlideAssociatedImageRequest>): AsyncIterable<PixelBlock>
 }
@@ -44,6 +59,7 @@ export interface WholeSlideImage {
   readonly properties: Readonly<Record<string, string>>
   readonly micronsPerPixel?: number
   readonly objectivePower?: number
+  readonly format?: PixelFormat
 
   readRegion(options: Readonly<WholeSlideRegionRequest>): AsyncIterable<PixelBlock>
 }

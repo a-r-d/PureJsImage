@@ -35,6 +35,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Deterministic TIFF profile registry with detector-failure isolation and equal-priority ambiguity rejection
 - [x] Generic bounded `WholeSlideImage` levels, region reads, associated images, and physical metadata
 - [x] First-party Aperio SVS pyramid, associated-image, MPP, objective, and JPEG 2000 tile integration
+- [x] Explicit Aperio ScientificDocument reader with calibrated pyramid levels, bounded exact ICC metadata, distinct associated-image datasets, identities, cancellation, release forwarding, and bounded local or HTTP Range region reads
 - [x] Separately compiled Leica SCN single-area example using only published package imports
 - [ ] Automatic display semantics for arbitrary scientific multiband data
 - [ ] Multi-area Leica scene composition and additional vendor-specific whole-slide profiles

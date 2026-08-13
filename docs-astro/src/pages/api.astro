@@ -79,7 +79,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 
         <section id="entry-scientific-readers" data-search-item>
           <h2>Scientific reader entries <span class="pill">alpha</span></h2>
-          <p>Import only the formats an application registers: <code>purejsimage/scientific/readers/gsf</code>, <code>purejsimage/scientific/readers/envi</code>, <code>purejsimage/scientific/readers/fits</code>, <code>purejsimage/scientific/readers/mrc</code>, <code>purejsimage/scientific/readers/cbf</code>, or <code>purejsimage/scientific/readers/ome-tiff</code>. Applications that deliberately need every first-party format can import <code>purejsimage/scientific/readers/all</code>. These entries export reader values without registering them globally.</p>
+          <p>Import only the formats an application registers: <code>purejsimage/scientific/readers/gsf</code>, <code>purejsimage/scientific/readers/envi</code>, <code>purejsimage/scientific/readers/fits</code>, <code>purejsimage/scientific/readers/mrc</code>, <code>purejsimage/scientific/readers/cbf</code>, <code>purejsimage/scientific/readers/ome-tiff</code>, or <code>purejsimage/scientific/readers/aperio-svs</code>. The Aperio reader exposes a calibrated multiresolution <code>pyramid</code> dataset and separate associated-image datasets. Applications that deliberately need every first-party format can import <code>purejsimage/scientific/readers/all</code>. These entries export reader values without registering them globally.</p>
         </section>
 
         <section id="entry-operations" data-search-item>
@@ -89,7 +89,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 
         <section id="entry-analysis" data-search-item>
           <h2><code>purejsimage/analysis</code> <span class="pill">alpha</span></h2>
-          <p>The intentional application workflow entry: controllers, built-in bundle construction, graph/workspace commands, planning and execution, primary project/ROI/result types, and operation IDs. Initial operations include crop, resampling, Gaussian blur, projection, statistics, histograms, and line profiles. See the <a href="../scientific/platform/">complete compiled application example</a>.</p>
+          <p>The intentional application workflow entry: controllers, built-in bundle construction, graph/workspace commands, planning and execution, primary project/ROI/result types, and operation IDs. Initial operations include resolution-level selection, crop, resampling, thresholding, Gaussian blur, projection, statistics, histograms, line profiles, and deterministic connected components with lazy uint32 labels and a columnar object table. See the <a href="../scientific/platform/">complete compiled application example</a>.</p>
         </section>
 
         <section id="entry-analysis-specialized" data-search-item>

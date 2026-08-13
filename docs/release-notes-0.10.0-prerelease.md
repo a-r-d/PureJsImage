@@ -40,6 +40,12 @@ and the [0.10 ScientificDataset guide](migration/0.10-scientific.md).
 Persisted project, lifecycle, reproducibility, and tile-memory guarantees are collected in the
 [application-platform contract index](contracts/README.md).
 
+The unreleased branch also includes an explicitly registered Aperio SVS scientific reader, a
+bit-exact `select-resolution-level` transform, and the first globally prepared operation:
+deterministic tiled connected components. It returns lazy uint32 labels and a bounded columnar
+object table without materializing a complete slide, mask, or label plane. These remain branch
+preview APIs and are not present in the current npm 0.9.x package.
+
 Existing root/browser package imports and ordinary image workflows such as
 `image.resize(...).jpeg(...)` retain their direct pipeline. This is a pre-1.0 alpha API: contracts
 that were never published may still be cleaned up before this candidate is actually versioned and

@@ -179,6 +179,7 @@ export type OperationExecutionCharacteristic =
   | 'neighborhood'
   | 'reduction'
   | 'dataset-transform'
+  | 'global-transform'
 
 export type OperationReproducibility =
   | { readonly class: 'bit-exact' }
@@ -1102,7 +1103,8 @@ export const validateOperationDescriptor = (
     execution !== 'tile-local' &&
     execution !== 'neighborhood' &&
     execution !== 'reduction' &&
-    execution !== 'dataset-transform'
+    execution !== 'dataset-transform' &&
+    execution !== 'global-transform'
   ) {
     context.issue('invalid-value', '/execution', 'Unknown execution characteristic')
   }
@@ -1173,7 +1175,8 @@ export const validateOperationDescriptor = (
       execution !== 'tile-local' &&
       execution !== 'neighborhood' &&
       execution !== 'reduction' &&
-      execution !== 'dataset-transform')
+      execution !== 'dataset-transform' &&
+      execution !== 'global-transform')
       ? undefined
       : Object.freeze({
           id,

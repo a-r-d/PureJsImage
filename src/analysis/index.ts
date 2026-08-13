@@ -14,6 +14,7 @@ export type {
   ResolvedAnalysisLimits,
   SemanticAnalysisGraph,
 } from './graph.ts'
+export { analysisConnectedComponentsOperationId } from './connected-components.ts'
 export {
   analysisGraphHashDomain,
   analysisGraphSchemaVersion,
@@ -103,6 +104,7 @@ export {
   analysisGaussianBlurOperationId,
   analysisProjectionOperationId,
   analysisResampleOperationId,
+  analysisSelectResolutionLevelOperationId,
   analysisSliceOperationId,
   analysisThresholdOperationId,
   scientificDatasetCharacteristics,

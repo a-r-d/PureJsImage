@@ -100,8 +100,8 @@ describe('package contract', () => {
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
       name: 'Core + scientific platform',
       contents: expect.stringContaining('./src/scientific/index.ts'),
-      baselineMinifiedBytes: 138_147,
-      maxMinifiedBytes: 180_000,
+      baselineMinifiedBytes: 143_546,
+      maxMinifiedBytes: 187_000,
     })
     expect(
       pureJsImageEntryTargets
@@ -114,15 +114,16 @@ describe('package contract', () => {
       ['scientific-reader-mrc', 51_000],
       ['scientific-reader-cbf', 55_000],
       ['scientific-reader-ome-tiff', 350_000],
-      ['scientific-readers-all', 440_000],
+      ['scientific-reader-aperio-svs', 338_000],
+      ['scientific-readers-all', 456_000],
     ])
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'operations')).toMatchObject({
       baselineMinifiedBytes: 44_252,
       maxMinifiedBytes: 58_000,
     })
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'analysis')).toMatchObject({
-      baselineMinifiedBytes: 251_516,
-      maxMinifiedBytes: 326_971,
+      baselineMinifiedBytes: 270_789,
+      maxMinifiedBytes: 353_000,
     })
     expect(
       pureJsImageEntryTargets
@@ -570,6 +571,7 @@ describe('package contract', () => {
       './scientific/readers/mrc',
       './scientific/readers/cbf',
       './scientific/readers/ome-tiff',
+      './scientific/readers/aperio-svs',
       './scientific/readers/all',
       './operations',
       './analysis',

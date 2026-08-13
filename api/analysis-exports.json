@@ -36,6 +36,10 @@
       },
       {
         "kind": "value",
+        "name": "analysisConnectedComponentsOperationId"
+      },
+      {
+        "kind": "value",
         "name": "AnalysisController"
       },
       {
@@ -201,6 +205,10 @@
       {
         "kind": "type",
         "name": "AnalysisResultSummary"
+      },
+      {
+        "kind": "value",
+        "name": "analysisSelectResolutionLevelOperationId"
       },
       {
         "kind": "type",

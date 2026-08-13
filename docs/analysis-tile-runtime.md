@@ -133,6 +133,25 @@ repeat support or cost selection, and one derived node never becomes a heterogen
 provider outputs. Provider identity is conservatively included in every derived key because
 numeric equivalence classes are not yet fine-grained enough to prove safe cross-provider reuse.
 
+## Globally prepared lazy outputs
+
+An operation with execution characteristic `global-transform` uses the graph executor's existing
+node barrier: its `execute()` call completes a deterministic selected-plane preparation before any
+downstream node runs. This does not add barrier logic or another scheduler to the demand-driven tile
+runtime.
+
+Connected components is the first implementation. It scans source tiles in fixed row-major order,
+uses typed union-find and moment arrays charged to the lexical operation-working scope, transfers
+only surviving mappings and result columns into retained accounting, and returns a lazy label
+dataset plus a complete bounded object table. Label reads recompute local labels for requested
+source tiles and apply the retained final mapping; no full source plane, threshold mask, or uint32
+label plane is stored. Capacity exhaustion reports `LIMIT_EXCEEDED`, cancellation is checked
+throughout the scan, and releasing both outputs returns all retained accounting exactly once.
+
+A future watershed operation may use this same executor barrier and managed-memory transfer model.
+It must supply its own bounded state formula and semantic tests; watershed is not implemented or
+implied by the connected-components contract.
+
 ## Metrics and limits
 
 `runtime.metrics()` returns JSON-safe, per-runtime counters for cache behavior, source/derived

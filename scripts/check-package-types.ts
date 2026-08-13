@@ -135,6 +135,7 @@ try {
     'dist/scientific/index.js',
     'dist/scientific/node.js',
     'dist/scientific/readers/all.js',
+    'dist/scientific/readers/aperio-svs.js',
     'dist/scientific/readers/cbf.js',
     'dist/scientific/readers/envi.js',
     'dist/scientific/readers/fits.js',
@@ -208,6 +209,7 @@ export { geoTiffProfile } from 'purejsimage/tiff'
 import { createScientificLibrary, normalizeScientificDatasetDescriptor, rasterBlockToNumericTile } from 'purejsimage/scientific'
 import type { ScientificReader } from 'purejsimage/scientific'
 import { encodeGsf, gsfReader } from 'purejsimage/scientific/readers/gsf'
+export { aperioSvsReader } from 'purejsimage/scientific/readers/aperio-svs'
 export { cbfReader } from 'purejsimage/scientific/readers/cbf'
 export { enviReader } from 'purejsimage/scientific/readers/envi'
 export { fitsReader } from 'purejsimage/scientific/readers/fits'

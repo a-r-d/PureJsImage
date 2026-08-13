@@ -47,8 +47,8 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     id: 'scientific',
     name: 'Core + scientific platform',
     contents: exportsFrom(['./src/index.ts', './src/scientific/index.ts']),
-    baselineMinifiedBytes: 138_147,
-    maxMinifiedBytes: 180_000,
+    baselineMinifiedBytes: 143_546,
+    maxMinifiedBytes: 187_000,
   },
   {
     id: 'scientific-reader-gsf',
@@ -93,11 +93,18 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     maxMinifiedBytes: 350_000,
   },
   {
+    id: 'scientific-reader-aperio-svs',
+    name: 'Scientific reader: Aperio SVS',
+    contents: exportsFrom(['./src/scientific/readers/aperio-svs.ts']),
+    baselineMinifiedBytes: 259_477,
+    maxMinifiedBytes: 338_000,
+  },
+  {
     id: 'scientific-readers-all',
     name: 'Scientific readers: all',
     contents: exportsFrom(['./src/scientific/readers/all.ts']),
-    baselineMinifiedBytes: 337_265,
-    maxMinifiedBytes: 440_000,
+    baselineMinifiedBytes: 350_082,
+    maxMinifiedBytes: 456_000,
   },
   {
     id: 'operations',
@@ -110,8 +117,8 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     id: 'analysis',
     name: 'Analysis application API',
     contents: exportsFrom(['./src/analysis/index.ts']),
-    baselineMinifiedBytes: 251_516,
-    maxMinifiedBytes: 326_971,
+    baselineMinifiedBytes: 270_789,
+    maxMinifiedBytes: 353_000,
   },
   {
     id: 'analysis-results',

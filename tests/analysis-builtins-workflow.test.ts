@@ -133,7 +133,7 @@ describe('public built-in analysis application workflow', () => {
       roi: { descriptor },
       library: { version: '0.9.0', buildFingerprint: 'command-workflow-test' },
     })
-    expect(controller.capabilities.operationDescriptors).toHaveLength(9)
+    expect(controller.capabilities.operationDescriptors).toHaveLength(11)
     expect(controller.capabilities.valueTypeDescriptors.length).toBeGreaterThanOrEqual(8)
     expect(controller.capabilities.commandKinds).toContain('add-roi')
     expect(JSON.parse(JSON.stringify(controller.capabilities))).toEqual(controller.capabilities)
@@ -327,16 +327,16 @@ describe('public built-in analysis application workflow', () => {
     const runtime = createTileRuntime()
     const first = createBuiltInAnalysisBundle({ descriptor, runtime, sessionId: 'bundle-one' })
     const second = createBuiltInAnalysisBundle({ descriptor, runtime, sessionId: 'bundle-two' })
-    expect(first.operations.capabilitySnapshot.operations).toHaveLength(9)
-    expect(second.operations.capabilitySnapshot.operations).toHaveLength(9)
+    expect(first.operations.capabilitySnapshot.operations).toHaveLength(11)
+    expect(second.operations.capabilitySnapshot.operations).toHaveLength(11)
     const host = createExtensionHost({
       extensions: [trustedPointwiseExtension],
       operations: first.operations.definitions(),
       valueTypes: first.valueTypes.definitions(),
       providers: first.providers,
     })
-    expect(host.operations.capabilitySnapshot.operations).toHaveLength(10)
-    expect(second.operations.capabilitySnapshot.operations).toHaveLength(9)
+    expect(host.operations.capabilitySnapshot.operations).toHaveLength(12)
+    expect(second.operations.capabilitySnapshot.operations).toHaveLength(11)
     const prepared = await host.prepare()
     expect(prepared.manifest.extensions).toMatchObject([{ id: 'example.analysis-pointwise' }])
     expect(prepared.manifest.providers.map((entry) => entry.id)).toEqual([

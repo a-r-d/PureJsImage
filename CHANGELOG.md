@@ -9,8 +9,12 @@ All notable changes to PureJsImage are documented in this file.
 - Added the opt-in application-platform foundation: labeled-axis scientific datasets, explicit
   scientific reader libraries, native numeric tiles, JSON-safe operation descriptors and trusted
   extension bundles, bounded quantitative results, reproducible analysis graphs and commands,
-  calibrated ROIs, a bounded lazy tile runtime, and nine strict TypeScript scientific analysis
+  calibrated ROIs, a bounded lazy tile runtime, and eleven strict TypeScript scientific analysis
   operations. The ordinary image pipeline and root/browser entries remain independent.
+- Added an explicitly registered Aperio SVS scientific reader that exposes a calibrated RGB
+  pyramid and separate associated-image datasets through the generic whole-slide bridge, plus
+  deterministic bounded tiled connected components with lazy uint32 labels and calibrated
+  per-object measurements.
 - Added an installed-tarball application contract gate plus correctness-gated application
   benchmarks covering scientific document detection, first numeric/display tile, HTTP range bytes,
   source/derived cache behavior, ROI statistics, line profiles, thresholding, Gaussian blur, and

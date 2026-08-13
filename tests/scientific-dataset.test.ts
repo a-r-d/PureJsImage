@@ -14,6 +14,8 @@ import type {
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
+  resolveScientificAxisAtResolutionLevel,
+  resolveScientificDescriptorAtResolutionLevel,
   supportsScientificPlaneRead,
   validateScientificDatasetDescriptor,
 } from '../src/scientific/index.ts'
@@ -205,6 +207,63 @@ describe('ScientificDataset descriptors', () => {
     ).toMatchObject({ width: 4, height: 8, resolutionLevel: 1 })
   })
 
+  it('resolves level-specific dimensions and calibrated coordinates canonically', () => {
+    const descriptor = normalizeScientificDatasetDescriptor(
+      descriptorInput(
+        [
+          { ...axis('x', 'space', 8, { type: 'linear', origin: 1, step: 0.5 }), unit: 'µm' },
+          { ...axis('y', 'space', 6, { type: 'linear', origin: 2, step: 0.75 }), unit: 'µm' },
+        ],
+        {
+          capabilities: {
+            regionReads: true,
+            resolutionLevels: true,
+            planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'y']] },
+          },
+          levels: [
+            {
+              level: 0,
+              axisLengths: [
+                { axisId: 'x', length: 8 },
+                { axisId: 'y', length: 6 },
+              ],
+            },
+            {
+              level: 1,
+              axisLengths: [
+                { axisId: 'x', length: 4 },
+                { axisId: 'y', length: 2 },
+              ],
+              axisCoordinates: [
+                { axisId: 'x', coordinates: { type: 'linear', origin: 1, step: 1 } },
+                { axisId: 'y', coordinates: { type: 'linear', origin: 2, step: 2.25 } },
+              ],
+            },
+          ],
+        },
+      ),
+    )
+    expect(resolveScientificAxisAtResolutionLevel(descriptor, 'x', 1)).toMatchObject({
+      length: 4,
+      unit: 'µm',
+      coordinates: { type: 'linear', origin: 1, step: 1 },
+    })
+    const selected = resolveScientificDescriptorAtResolutionLevel(descriptor, 1)
+    expect(selected.axes.map(({ length, coordinates }) => ({ length, coordinates }))).toEqual([
+      { length: 4, coordinates: { type: 'linear', origin: 1, step: 1 } },
+      { length: 2, coordinates: { type: 'linear', origin: 2, step: 2.25 } },
+    ])
+    expect(selected.levels).toEqual([
+      {
+        level: 0,
+        axisLengths: [
+          { axisId: 'x', length: 4 },
+          { axisId: 'y', length: 2 },
+        ],
+      },
+    ])
+  })
+
   it.each([
     ['duplicate axis ids', descriptorInput([axis('x', 'space', 2), axis('x', 'space', 2)])],
     ['empty axis ids', descriptorInput([axis(' ', 'space', 2), axis('y', 'space', 2)])],
@@ -319,6 +378,26 @@ describe('ScientificDataset descriptors', () => {
         }),
       ),
     ).toThrow('capability must match')
+    expect(() =>
+      normalizeScientificDatasetDescriptor(
+        descriptorInput(
+          [axis('x', 'space', 4, { type: 'lookup', values: [0, 1, 2, 3] }), axis('y', 'space', 3)],
+          {
+            capabilities,
+            levels: [
+              levelZero,
+              {
+                level: 1,
+                axisLengths: [
+                  { axisId: 'x', length: 2 },
+                  { axisId: 'y', length: 2 },
+                ],
+              },
+            ],
+          },
+        ),
+      ),
+    ).toThrow('must override coordinates for resized axis x')
   })
 
   it('rejects non-JSON metadata values and cycles', () => {

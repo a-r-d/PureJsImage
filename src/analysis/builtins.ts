@@ -22,6 +22,10 @@ import {
   analysisResultOperationDefinitions,
   createAnalysisResultOperationImplementations,
 } from './builtin-result-operations.ts'
+import {
+  analysisConnectedComponentsOperationDefinition,
+  createConnectedComponentsOperationImplementation,
+} from './connected-components.ts'
 
 export const referenceAnalysisProviderId = 'purejsimage.analysis.reference'
 export const referenceAnalysisProviderVersion = 1
@@ -45,6 +49,7 @@ export const scientificDatasetValueTypeDefinition: ValueTypeDefinition = createV
 export const builtInAnalysisOperationDefinitions: readonly OperationDefinition[] = Object.freeze([
   ...analysisDatasetOperationDefinitions,
   ...analysisResultOperationDefinitions,
+  analysisConnectedComponentsOperationDefinition,
 ])
 
 export const builtInAnalysisOperationDescriptors = Object.freeze(
@@ -102,6 +107,7 @@ export const createReferenceAnalysisProvider = (
       Object.freeze([
         ...createAnalysisDatasetOperationImplementations(context),
         ...createAnalysisResultOperationImplementations(context),
+        createConnectedComponentsOperationImplementation(context),
       ]),
   })
 }

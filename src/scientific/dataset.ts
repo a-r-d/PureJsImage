@@ -65,10 +65,17 @@ export interface ScientificResolutionAxisLength {
   readonly length: number
 }
 
-/** Explicit axis lengths at one resolution level. */
+/** Optional calibrated coordinates that replace one base axis at a resolution level. */
+export interface ScientificResolutionAxisCoordinates {
+  readonly axisId: string
+  readonly coordinates: ScientificAxisCoordinates
+}
+
+/** Explicit axis lengths and optional calibrated coordinates at one resolution level. */
 export interface ScientificResolutionLevel {
   readonly level: number
   readonly axisLengths: readonly ScientificResolutionAxisLength[]
+  readonly axisCoordinates?: readonly ScientificResolutionAxisCoordinates[]
 }
 
 export type ScientificMetadataValue =
@@ -564,6 +571,7 @@ const implicitLevelZero = (axes: readonly ScientificAxisDescriptor[]): Scientifi
 const normalizeLevels = (
   value: unknown,
   axes: readonly ScientificAxisDescriptor[],
+  mode: ParseMode,
 ): readonly ScientificResolutionLevel[] => {
   if (value === undefined) return Object.freeze([implicitLevelZero(axes)])
   const input = arrayValue(value, 'Scientific dataset levels')
@@ -574,7 +582,7 @@ const normalizeLevels = (
   for (let index = 0; index < input.length; index += 1) {
     const label = `Scientific dataset level ${index}`
     const levelInput = recordValue(input[index], label)
-    onlyKeys(levelInput, ['level', 'axisLengths'], label)
+    onlyKeys(levelInput, ['level', 'axisLengths', 'axisCoordinates'], label)
     const level = nonNegativeInteger(levelInput.level, `${label}.level`)
     if (seenLevels.has(level)) throw invalidInput(`Scientific dataset level ${level} is duplicated`)
     seenLevels.add(level)
@@ -602,7 +610,62 @@ const normalizeLevels = (
         return Object.freeze({ axisId: axis.id, length })
       }),
     )
-    levels.push(Object.freeze({ level, axisLengths }))
+    let axisCoordinates: readonly ScientificResolutionAxisCoordinates[] | undefined
+    if (levelInput.axisCoordinates !== undefined) {
+      const coordinateInputs = arrayValue(levelInput.axisCoordinates, `${label}.axisCoordinates`)
+      const coordinatesByAxis = new Map<string, ScientificAxisCoordinates>()
+      for (
+        let coordinateIndex = 0;
+        coordinateIndex < coordinateInputs.length;
+        coordinateIndex += 1
+      ) {
+        const coordinateLabel = `${label}.axisCoordinates[${coordinateIndex}]`
+        const coordinateInput = recordValue(coordinateInputs[coordinateIndex], coordinateLabel)
+        onlyKeys(coordinateInput, ['axisId', 'coordinates'], coordinateLabel)
+        const axisId = requiredString(coordinateInput.axisId, `${coordinateLabel}.axisId`)
+        if (!axisById.has(axisId))
+          throw invalidInput(`${coordinateLabel} names unknown axis ${axisId}`)
+        if (coordinatesByAxis.has(axisId))
+          throw invalidInput(`${label} repeats coordinates for axis ${axisId}`)
+        const length = lengths.get(axisId)
+        if (length === undefined) throw invalidInput(`${label} is missing axis ${axisId}`)
+        coordinatesByAxis.set(
+          axisId,
+          normalizeCoordinates(
+            coordinateInput.coordinates,
+            length,
+            mode,
+            `${coordinateLabel}.coordinates`,
+          ),
+        )
+      }
+      axisCoordinates = Object.freeze(
+        axes.flatMap((axis) => {
+          const coordinates = coordinatesByAxis.get(axis.id)
+          return coordinates === undefined ? [] : [Object.freeze({ axisId: axis.id, coordinates })]
+        }),
+      )
+    }
+    for (const axis of axes) {
+      const length = lengths.get(axis.id)
+      if (length === undefined) throw invalidInput(`${label} is missing axis ${axis.id}`)
+      const override = axisCoordinates?.find((entry) => entry.axisId === axis.id)
+      if (
+        override === undefined &&
+        axis.coordinates.type !== 'index' &&
+        axis.coordinates.type !== 'linear' &&
+        axis.length !== length
+      ) {
+        throw invalidInput(`${label} must override coordinates for resized axis ${axis.id}`)
+      }
+    }
+    levels.push(
+      Object.freeze({
+        level,
+        axisLengths,
+        ...(axisCoordinates === undefined ? {} : { axisCoordinates }),
+      }),
+    )
   }
   if (!seenLevels.has(0)) throw invalidInput('Scientific dataset levels must include level 0')
   levels.sort((left, right) => left.level - right.level)
@@ -655,7 +718,7 @@ const parseDescriptor = (
     componentIds.add(component.id)
   }
 
-  const levels = normalizeLevels(input.levels, axes)
+  const levels = normalizeLevels(input.levels, axes, mode)
   const capabilitiesInput = recordValue(input.capabilities, 'Scientific dataset capabilities')
   onlyKeys(
     capabilitiesInput,
@@ -782,13 +845,68 @@ export const supportsScientificPlaneRead = (
   return false
 }
 
-const levelAxisLengths = (
+const getResolutionLevel = (
   descriptor: NormalizedScientificDatasetDescriptor,
   level: number,
-): Map<string, number> => {
+): ScientificResolutionLevel => {
   const selected = descriptor.levels.find((candidate) => candidate.level === level)
   if (!selected) throw invalidInput(`Scientific dataset resolution level ${level} is unavailable`)
-  return new Map(selected.axisLengths.map((axis) => [axis.axisId, axis.length]))
+  return selected
+}
+
+/** Resolve one complete axis, including its length and coordinates, at a declared level. */
+export const resolveScientificAxisAtResolutionLevel = (
+  descriptor: NormalizedScientificDatasetDescriptor,
+  axisId: string,
+  level: number,
+): ScientificAxisDescriptor => {
+  const base = descriptor.axes.find((axis) => axis.id === axisId)
+  if (base === undefined) throw invalidInput(`Unknown scientific axis ${axisId}`)
+  const selected = getResolutionLevel(descriptor, level)
+  const length = selected.axisLengths.find((axis) => axis.axisId === axisId)?.length
+  if (length === undefined)
+    throw invalidInput(`Scientific resolution level ${level} omits axis ${axisId}`)
+  const coordinates =
+    selected.axisCoordinates?.find((axis) => axis.axisId === axisId)?.coordinates ??
+    base.coordinates
+  if (
+    coordinates.type !== 'index' &&
+    coordinates.type !== 'linear' &&
+    coordinates.values.length !== length
+  ) {
+    throw invalidInput(
+      `Scientific resolution level ${level} coordinates do not match axis ${axisId}`,
+    )
+  }
+  const { entries, ...baseWithoutEntries } = base
+  return Object.freeze({
+    ...baseWithoutEntries,
+    length,
+    coordinates,
+    ...(entries === undefined || entries.length !== length ? {} : { entries }),
+  })
+}
+
+/** Resolve a selected pyramid level into an ordinary single-level descriptor. */
+export const resolveScientificDescriptorAtResolutionLevel = (
+  descriptor: NormalizedScientificDatasetDescriptor,
+  level: number,
+): NormalizedScientificDatasetDescriptor => {
+  getResolutionLevel(descriptor, level)
+  const axes = descriptor.axes.map((axis) =>
+    resolveScientificAxisAtResolutionLevel(descriptor, axis.id, level),
+  )
+  return normalizeScientificDatasetDescriptor({
+    ...descriptor,
+    axes,
+    levels: [
+      {
+        level: 0,
+        axisLengths: axes.map((axis) => ({ axisId: axis.id, length: axis.length })),
+      },
+    ],
+    capabilities: { ...descriptor.capabilities, resolutionLevels: false },
+  })
 }
 
 /** Resolve singleton selections, level dimensions, and the complete plane region once before I/O. */
@@ -824,7 +942,8 @@ export const normalizeScientificPlaneReadRequest = (
     input.resolutionLevel ?? 0,
     'Scientific resolutionLevel',
   )
-  const lengths = levelAxisLengths(descriptor, resolutionLevel)
+  const levelDescriptor = getResolutionLevel(descriptor, resolutionLevel)
+  const lengths = new Map(levelDescriptor.axisLengths.map((axis) => [axis.axisId, axis.length]))
   const selections = new Map<string, number>()
   const fixedInputs = arrayValue(input.fixedIndices, 'Scientific plane request.fixedIndices')
   for (let index = 0; index < fixedInputs.length; index += 1) {

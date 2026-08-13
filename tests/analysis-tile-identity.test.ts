@@ -200,25 +200,34 @@ describe('semantic tile dataset identities', () => {
     }
     const first = await createDerivedTileDatasetIdentity({
       ...base,
-      normalizedParameters: { threshold: 2, mode: 'greater-than' },
+      normalizedParameters: { component: 0, level: 1 },
     })
     const reordered = await createDerivedTileDatasetIdentity({
       ...base,
-      normalizedParameters: { mode: 'greater-than', threshold: 2 },
+      normalizedParameters: { level: 1, component: 0 },
     })
-    const changed = await createDerivedTileDatasetIdentity({
+    const changedLevel = await createDerivedTileDatasetIdentity({
       ...base,
-      normalizedParameters: { mode: 'greater-than', threshold: 3 },
+      normalizedParameters: { component: 0, level: 2 },
+    })
+    const changedComponent = await createDerivedTileDatasetIdentity({
+      ...base,
+      normalizedParameters: { component: 1, level: 1 },
+    })
+    const changedOutput = await createDerivedTileDatasetIdentity({
+      ...base,
+      outputPort: 'labels',
+      normalizedParameters: { component: 0, level: 1 },
     })
     const changedProvider = await createDerivedTileDatasetIdentity({
       ...base,
       provider: { ...base.provider, buildFingerprint: 'build-2' },
-      normalizedParameters: { mode: 'greater-than', threshold: 2 },
+      normalizedParameters: { component: 0, level: 1 },
     })
     const changedImplementation = await createDerivedTileDatasetIdentity({
       ...base,
       implementation: { ...base.implementation, implementationVersion: '1.0.1' },
-      normalizedParameters: { mode: 'greater-than', threshold: 2 },
+      normalizedParameters: { component: 0, level: 1 },
     })
     const changedSource = await createDerivedTileDatasetIdentity({
       ...base,
@@ -226,10 +235,12 @@ describe('semantic tile dataset identities', () => {
         dataset([], strongIdentity('b'.repeat(64))),
         { sessionId: 'none' },
       ),
-      normalizedParameters: { mode: 'greater-than', threshold: 2 },
+      normalizedParameters: { component: 0, level: 1 },
     })
     expect(first).toEqual(reordered)
-    expect(first).not.toEqual(changed)
+    expect(first).not.toEqual(changedLevel)
+    expect(first).not.toEqual(changedComponent)
+    expect(first).not.toEqual(changedOutput)
     expect(first).not.toEqual(changedProvider)
     expect(first).not.toEqual(changedImplementation)
     expect(first).not.toEqual(changedSource)
@@ -253,7 +264,7 @@ describe('semantic tile dataset identities', () => {
       }),
     ).not.toBe(
       canonicalTileKey({
-        address: address(changed),
+        address: address(changedLevel),
         priority: 'visible',
         signal: new AbortController().signal,
       }),

@@ -21,7 +21,7 @@ export interface AnalysisNodeProvenance extends OperationJsonObject {
   readonly reproducibility: OperationJsonObject
   readonly estimate: OperationJsonObject
   readonly executionPhase: 'graph-invocation'
-  readonly materialization: 'complete' | 'lazy'
+  readonly materialization: 'complete' | 'lazy' | 'global-prepared-lazy'
 }
 
 export interface AnalysisExecutionProvenance extends OperationJsonObject {
@@ -316,11 +316,14 @@ const executePrepared = async (
           reproducibility: reproducibilityObject(definition.descriptor.reproducibility),
           estimate: planned.estimate,
           executionPhase: 'graph-invocation',
-          materialization: definition.descriptor.outputs.some(
-            (output) => output.valueType.id === 'purejsimage.scientific.dataset',
-          )
-            ? 'lazy'
-            : 'complete',
+          materialization:
+            definition.descriptor.execution === 'global-transform'
+              ? 'global-prepared-lazy'
+              : definition.descriptor.outputs.some(
+                    (output) => output.valueType.id === 'purejsimage.scientific.dataset',
+                  )
+                ? 'lazy'
+                : 'complete',
         }),
       )
     }

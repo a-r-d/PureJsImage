@@ -1610,10 +1610,10 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "Broad validated IFD-graph and strip/tile decode plus public TIFF document, native scientific-raster, GeoTIFF, OME-TIFF, deterministic profile, whole-slide, bounded HTTP-range access, and explicit scientific display-mapping APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles",
-      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. Supported compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes. Public APIs expose bounded tag reads, native-precision N-channel rasters, GeoTIFF georeferencing and GDAL metadata, OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, validator-protected HTTP range reads, and explicit range/scale/palette mapping of scientific planes to display pixels. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.",
-      "memory": "Selected-frame, GeoTIFF, OME plane, and whole-slide region decode remain strip- or tile-bounded; IFD traversal and profile detection do not read unselected pixel segments. HTTP range reads use a bounded deduplicating LRU cache and reject resource changes. LERC, Zstandard, bit-order normalization, color conversion, prediction, raster/display output, and embedded codec pixels are bounded to the current metadata table or segment and emitted in bounded rows. JPEG 2000 reconstructs complete component state only for the current TIFF segment, not the source slide. Encoding retains compressed segment payloads until their offsets are known but never stages a full uncompressed frame.",
-      "recommendation": "Broad display-image input compatibility, native scientific and GeoTIFF raster access, validated OME and whole-slide pyramids, selective remote COG-style reads, explicit frame/pyramid selection, and structured Deflate RGB/RGBA strip, tile, BigTIFF, multi-page, and SubIFD-pyramid output.",
+      "boundary": "Broad validated IFD-graph and strip/tile decode plus public TIFF document, native scientific-raster, GeoTIFF, OME-TIFF, deterministic profile, whole-slide and explicit Aperio ScientificDocument access, bounded HTTP-range access, and explicit scientific display-mapping APIs; structured strip, tile, Classic TIFF, BigTIFF, multi-page, and SubIFD-pyramid RGB/RGBA output; no implicit display conversion for arbitrary scientific multiband data, general CMYK ICC profile classes, multi-area vendor slide composition, or alternate compression encode profiles",
+      "description": "Decodes Classic TIFF and BigTIFF top-level frames and reduced-resolution SubIFDs across common display and scientific sample layouts. Supported compression includes first-party LERC/LERC-plus-Deflate, Zstandard, CCITT, JPEG, JPEG 2000, SGILog, and explicitly composed WebP in addition to TIFF baseline schemes. Public APIs expose bounded tag reads, native-precision N-channel rasters, GeoTIFF georeferencing and GDAL metadata, OME Z/C/T planes, deterministic vendor profiles, whole-slide region access, an explicitly registered Aperio scientific-document reader, validator-protected HTTP range reads, and explicit range/scale/palette mapping of scientific planes to display pixels. Structured document encoding writes Deflate-predicted RGB/RGBA strips or tiles as Classic TIFF or BigTIFF, including top-level pages and reduced-resolution SubIFD pyramids.",
+      "memory": "Selected-frame, GeoTIFF, OME plane, whole-slide region, and Aperio scientific-dataset reads remain strip- or tile-bounded; IFD traversal, profile detection, and scientific document construction do not read unselected pixel segments. HTTP range reads use a bounded deduplicating LRU cache and reject resource changes. LERC, Zstandard, bit-order normalization, color conversion, prediction, raster/display output, and embedded codec pixels are bounded to the current metadata table or segment and emitted in bounded rows. JPEG 2000 reconstructs complete component state only for the current TIFF segment, not the source slide. Encoding retains compressed segment payloads until their offsets are known but never stages a full uncompressed frame.",
+      "recommendation": "Broad display-image input compatibility, native scientific and GeoTIFF raster access, validated OME and whole-slide pyramids, explicit Aperio scientific documents, selective remote COG-style reads, explicit frame/pyramid selection, and structured Deflate RGB/RGBA strip, tile, BigTIFF, multi-page, and SubIFD-pyramid output.",
       "evidence": [
         "tests/tiff.test.ts",
         "tests/tiff-lerc.test.ts",
@@ -1624,7 +1624,9 @@
         "tests/metadata-preservation.test.ts",
         "tests/imazen-corpus-harness.test.ts",
         "tests/tiff-competitor-harness.test.ts",
-        "tests/scientific-render.test.ts"
+        "tests/scientific-render.test.ts",
+        "tests/scientific-aperio-reader.test.ts",
+        "tests/scientific-whole-slide-bridge.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -1736,6 +1738,10 @@
         {
           "status": "supported",
           "text": "First-party Aperio SVS pyramid, associated-image, MPP, objective, and JPEG 2000 tile integration"
+        },
+        {
+          "status": "supported",
+          "text": "Explicit Aperio ScientificDocument reader with calibrated pyramid levels, bounded exact ICC metadata, distinct associated-image datasets, identities, cancellation, release forwarding, and bounded local or HTTP Range region reads"
         },
         {
           "status": "supported",

@@ -1,3 +1,4 @@
+export * from './aperio-svs.ts'
 export * from './cbf.ts'
 export * from './envi.ts'
 export * from './fits.ts'

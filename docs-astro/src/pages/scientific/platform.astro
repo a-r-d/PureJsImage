@@ -32,7 +32,7 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
         <section id="model">
           <h2>One labeled-axis data model</h2>
-          <p><code>ScientificDataset</code> describes arbitrary named axes, sample types, components, resolution levels, physical coordinates, and bounded region reads. First-party GSF, ENVI, FITS, MRC, CBF, and OME-TIFF readers expose that model directly. An application chooses a dataset from a document rather than assuming one fixed <code>z/c/t</code> layout.</p>
+          <p><code>ScientificDataset</code> describes arbitrary named axes, sample types, components, resolution levels, physical coordinates, and bounded region reads. First-party GSF, ENVI, FITS, MRC, CBF, OME-TIFF, and Aperio SVS readers expose that model directly. Aperio documents keep the calibrated pyramid and label, macro, thumbnail, or other associated images as distinct datasets. An application chooses a dataset from a document rather than assuming one fixed <code>z/c/t</code> layout.</p>
           <p>Local browser <code>File</code> resources, Node file adapters, in-memory bytes, and HTTP Range-backed <code>ImageSource</code> implementations meet at the same portable reader boundary. Source identity starts with available file or remote metadata; displaying the first tile does not require hashing a multi-gigabyte file.</p>
         </section>
 
@@ -44,9 +44,10 @@ import SiteLayout from '../../layouts/SiteLayout.astro'
 
         <section id="analysis">
           <h2>ROIs, results, and reproducible graphs</h2>
-          <p>Versioned pixel or physical-coordinate ROIs bind to graph inputs. Initial bounded operations cover crop, resampling, Gaussian blur, projection, statistics, histograms, and line profiles. Results remain typed and bounded rather than becoming an implicit display image.</p>
+          <p>Versioned pixel or physical-coordinate ROIs bind to graph inputs. Initial bounded operations cover resolution-level selection, crop, resampling, thresholding, Gaussian blur, projection, statistics, histograms, line profiles, and deterministic connected components with per-object measurements. Results remain typed and bounded rather than becoming an implicit display image.</p>
           <p>Canonical graph JSON, invocation identities, explicit provider policy, implementation versions, and project hashes make mutation, planning, and execution independently auditable. Dry-run validates the graph and estimates setup, transfer, compute, readback, and memory costs before execution begins.</p>
           <p>Threshold and Gaussian blur now materialize lazy output tiles through the exact provider selected during planning. Crop and slice remain coordinate views; resample and projection are the next neighborhood/reducer convergence work; statistics, histogram, and line profile remain result reducers.</p>
+          <p>Connected components is the first globally prepared transform. Graph execution scans the selected plane in a fixed row-major tile order, reconciles component boundaries under managed working-memory limits, then returns a lazy uint32 label dataset plus a bounded columnar object table. It does not retain a full mask or label plane; lazy label reads recompute only requested source tiles. The same execution characteristic can host a future bounded watershed implementation, but watershed is not included.</p>
         </section>
 
         <section id="extensions">

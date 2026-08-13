@@ -1151,6 +1151,12 @@ export class TileRuntimeDisposalError extends Error {
 interface ActiveOperationWorkingScope extends OperationWorkingMemoryScope {
   readonly createdAt: number
   ownerActive: boolean
+  transferredBytes: number
+}
+
+export interface OperationRetainedMemory {
+  readonly bytes: number
+  release(): void
 }
 
 interface IdleWaiter {
@@ -1201,6 +1207,7 @@ export class TileRuntime {
         ...(normalizedLabel === undefined ? {} : { label: normalizedLabel }),
         createdAt: performance.now(),
         ownerActive: false,
+        transferredBytes: 0,
       })
       this.#operationWorkingBytes += bytes
       this.#recordMemoryHighWater()
@@ -1288,6 +1295,7 @@ export class TileRuntime {
       ...(label === undefined ? {} : { label }),
       createdAt: performance.now(),
       ownerActive: true,
+      transferredBytes: 0,
     }
     this.#workingScopes.set(id, scope)
     this.#operationWorkingBytes += bytes
@@ -1314,6 +1322,37 @@ export class TileRuntime {
     }
     if ('error' in outcome) throw outcome.error
     return outcome.value
+  }
+
+  /** Transfer output storage from an active operation scope into managed retained accounting. */
+  retainOperationWorkingBytes(
+    scope: Readonly<OperationWorkingMemoryScope>,
+    bytes: number,
+  ): OperationRetainedMemory {
+    this.#assertOpen()
+    if (!Number.isSafeInteger(bytes) || bytes < 0) {
+      throw invalidInput('Retained operation bytes must be a non-negative safe integer')
+    }
+    const active = this.#workingScopes.get(scope.id)
+    if (active === undefined || !active.ownerActive || active.bytes !== scope.bytes) {
+      throw invalidInput('Operation working scope is not active')
+    }
+    if (active.transferredBytes + bytes > active.bytes) {
+      throw invalidInput('Operation retained bytes exceed its working scope')
+    }
+    active.transferredBytes += bytes
+    this.#operationWorkingBytes -= bytes
+    this.#managedBytes += bytes
+    this.#recordMemoryHighWater()
+    let released = false
+    return Object.freeze({
+      bytes,
+      release: () => {
+        if (released) return
+        released = true
+        this.#managedBytes -= bytes
+      },
+    })
   }
 
   /** Allocate a bounded cache-identity scope unique within this runtime instance. */
@@ -1823,14 +1862,14 @@ export class TileRuntime {
     const diagnostic = new TileRuntimeDisposalError(
       stale.map((scope) => ({
         id: scope.id,
-        bytes: scope.bytes,
+        bytes: scope.bytes - scope.transferredBytes,
         ...(scope.label === undefined ? {} : { label: scope.label }),
         ageMilliseconds: Math.max(0, now - scope.createdAt),
       })),
     )
     for (const scope of stale) {
       this.#workingScopes.delete(scope.id)
-      this.#operationWorkingBytes -= scope.bytes
+      this.#operationWorkingBytes -= scope.bytes - scope.transferredBytes
     }
     return diagnostic
   }
@@ -1840,7 +1879,7 @@ export class TileRuntime {
       throw invalidInput(`Operation working scope ${scope.id} is not active`)
     }
     this.#workingScopes.delete(scope.id)
-    this.#operationWorkingBytes -= scope.bytes
+    this.#operationWorkingBytes -= scope.bytes - scope.transferredBytes
     this.#notifyIdle()
   }
 

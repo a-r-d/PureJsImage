@@ -27,7 +27,10 @@ import {
   validateNumericTile,
 } from '../scientific/numeric-tile.ts'
 import type { NormalizedScientificDatasetDescriptor } from '../scientific/dataset.ts'
-import { normalizeScientificPlaneReadRequest } from '../scientific/dataset.ts'
+import {
+  normalizeScientificPlaneReadRequest,
+  resolveScientificAxisAtResolutionLevel,
+} from '../scientific/dataset.ts'
 import type {
   TileAddress,
   TileDatasetIdentity,
@@ -820,14 +823,16 @@ export class DerivedTileSource implements TileSource {
   }
 
   #sourceAddress(output: TileAddress): TileAddress {
-    const level = this.#sourceDescriptor.levels.find(
-      (entry) => entry.level === output.resolutionLevel,
+    const horizontal = resolveScientificAxisAtResolutionLevel(
+      this.#sourceDescriptor,
+      output.displayAxes[0],
+      output.resolutionLevel,
     )
-    const horizontal = level?.axisLengths.find((entry) => entry.axisId === output.displayAxes[0])
-    const vertical = level?.axisLengths.find((entry) => entry.axisId === output.displayAxes[1])
-    if (horizontal === undefined || vertical === undefined) {
-      throw invalidInput('Derived tile axes are unavailable at the requested resolution level')
-    }
+    const vertical = resolveScientificAxisAtResolutionLevel(
+      this.#sourceDescriptor,
+      output.displayAxes[1],
+      output.resolutionLevel,
+    )
     if (output.x + output.width > horizontal.length || output.y + output.height > vertical.length) {
       throw invalidInput('Derived tile request is outside the selected plane')
     }

@@ -631,6 +631,11 @@ class DerivedScientificSpectralDataset implements SpectralDerivedDataset {
     const levels = source.descriptor.levels.map((level) => ({
       level: level.level,
       axisLengths: level.axisLengths.filter((entry) => entry.axisId !== spectralAxis),
+      ...(level.axisCoordinates === undefined
+        ? {}
+        : {
+            axisCoordinates: level.axisCoordinates.filter((entry) => entry.axisId !== spectralAxis),
+          }),
     }))
     this.#source = source
     this.#operation = operation

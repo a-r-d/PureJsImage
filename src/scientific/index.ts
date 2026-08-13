@@ -16,6 +16,7 @@ export type {
   ScientificMetadataValue,
   ScientificPlaneReadRequest,
   ScientificResolutionAxisLength,
+  ScientificResolutionAxisCoordinates,
   ScientificResolutionLevel,
 } from './dataset.ts'
 export type {
@@ -63,6 +64,8 @@ export {
   normalizeScientificDatasetDescriptor,
   normalizeScientificMetadataObject,
   normalizeScientificPlaneReadRequest,
+  resolveScientificAxisAtResolutionLevel,
+  resolveScientificDescriptorAtResolutionLevel,
   supportsScientificPlaneRead,
   validateScientificDatasetDescriptor,
 } from './dataset.ts'

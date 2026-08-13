@@ -1,7 +1,9 @@
 import type { AbortOptions } from '../abort.ts'
 import { throwIfAborted } from '../abort.ts'
 import { invalidInput } from '../errors.ts'
+import { MAX_ICC_PROFILE_BYTES } from '../codecs/icc.ts'
 import type { PixelBlock } from '../pixel.ts'
+import type { PixelFormat } from '../pixel.ts'
 import type { TiffProfile, TiffProfileContext } from '../tiff/profiles.ts'
 import type { TiffDirectory, TiffDocument } from '../tiff/types.ts'
 import type {
@@ -11,6 +13,33 @@ import type {
   WholeSlideLevel,
   WholeSlideRegionRequest,
 } from './whole-slide.ts'
+
+const decodedFormat = (directory: TiffDirectory): PixelFormat => {
+  if (directory.bitsPerSample.some((bits) => bits !== 8)) {
+    throw invalidInput('Aperio whole-slide display reads require 8-bit decoded samples')
+  }
+  if (directory.samplesPerPixel === 1) return 'gray8'
+  if (directory.samplesPerPixel === 3) return 'rgb8'
+  if (directory.samplesPerPixel === 4) return 'rgba8'
+  throw invalidInput('Aperio whole-slide display sample count is unsupported')
+}
+
+const imageMetadata = async (directory: TiffDirectory, options: Readonly<AbortOptions>) => {
+  const icc = await directory.getTag(34675, {
+    maxBytes: MAX_ICC_PROFILE_BYTES,
+    ...(options.signal === undefined ? {} : { signal: options.signal }),
+  })
+  if (icc !== undefined && icc.kind !== 'bytes') {
+    throw invalidInput('Aperio TIFF ICC profile must use the UNDEFINED field type')
+  }
+  return Object.freeze({
+    compression: directory.compression,
+    photometric: directory.photometric,
+    samplesPerPixel: directory.samplesPerPixel,
+    bitsPerSample: Object.freeze([...directory.bitsPerSample]),
+    ...(icc === undefined ? {} : { iccProfile: icc.value }),
+  })
+}
 
 const imageDescriptionTag = 270
 
@@ -71,13 +100,22 @@ class AperioAssociatedImage implements WholeSlideAssociatedImage {
   readonly label: string
   readonly width: number
   readonly height: number
+  readonly format: PixelFormat
+  readonly metadata: Awaited<ReturnType<typeof imageMetadata>>
   readonly #directory: TiffDirectory
 
-  constructor(id: string, label: string, directory: TiffDirectory) {
+  constructor(
+    id: string,
+    label: string,
+    directory: TiffDirectory,
+    metadata: Awaited<ReturnType<typeof imageMetadata>>,
+  ) {
     this.id = id
     this.label = label
     this.width = directory.width
     this.height = directory.height
+    this.format = decodedFormat(directory)
+    this.metadata = metadata
     this.#directory = directory
   }
 
@@ -99,15 +137,29 @@ class AperioWholeSlideLevel implements WholeSlideLevel {
   readonly width: number
   readonly height: number
   readonly downsample: number
+  readonly downsampleX: number
+  readonly downsampleY: number
+  readonly format: PixelFormat
+  readonly metadata: Awaited<ReturnType<typeof imageMetadata>>
   readonly tileWidth?: number
   readonly tileHeight?: number
   readonly #directory: TiffDirectory
 
-  constructor(index: number, baseWidth: number, directory: TiffDirectory) {
+  constructor(
+    index: number,
+    baseWidth: number,
+    baseHeight: number,
+    directory: TiffDirectory,
+    metadata: Awaited<ReturnType<typeof imageMetadata>>,
+  ) {
     this.index = index
     this.width = directory.width
     this.height = directory.height
     this.downsample = baseWidth / directory.width
+    this.downsampleX = baseWidth / directory.width
+    this.downsampleY = baseHeight / directory.height
+    this.format = decodedFormat(directory)
+    this.metadata = metadata
     this.#directory = directory
     if (directory.tileWidth !== undefined) this.tileWidth = directory.tileWidth
     if (directory.tileHeight !== undefined) this.tileHeight = directory.tileHeight
@@ -157,10 +209,12 @@ class AperioWholeSlideImage implements WholeSlideImage {
   readonly properties: Readonly<Record<string, string>>
   readonly micronsPerPixel?: number
   readonly objectivePower?: number
+  readonly format: PixelFormat
   readonly #levelDirectories: readonly TiffDirectory[]
 
   constructor(options: {
     readonly levelDirectories: readonly TiffDirectory[]
+    readonly levelMetadata: readonly Awaited<ReturnType<typeof imageMetadata>>[]
     readonly associatedImages: readonly WholeSlideAssociatedImage[]
     readonly properties: Readonly<Record<string, string>>
   }) {
@@ -168,11 +222,14 @@ class AperioWholeSlideImage implements WholeSlideImage {
     if (!first) throw invalidInput('Aperio SVS has no pyramid image')
     this.width = first.width
     this.height = first.height
+    this.format = decodedFormat(first)
     this.#levelDirectories = Object.freeze([...options.levelDirectories])
     this.levels = Object.freeze(
-      options.levelDirectories.map(
-        (directory, index) => new AperioWholeSlideLevel(index, this.width, directory),
-      ),
+      options.levelDirectories.map((directory, index) => {
+        const metadata = options.levelMetadata[index]
+        if (metadata === undefined) throw invalidInput('Aperio level metadata is unavailable')
+        return new AperioWholeSlideLevel(index, this.width, this.height, directory, metadata)
+      }),
     )
     this.associatedImages = Object.freeze([...options.associatedImages])
     this.properties = options.properties
@@ -249,14 +306,22 @@ export const openAperioSvs = async (
     }
   }
   const labelCounts = new Map<string, number>()
-  const associatedImages = associatedCandidates.map(({ directory, label }) => {
+  const associatedImages: WholeSlideAssociatedImage[] = []
+  for (const { directory, label } of associatedCandidates) {
     const count = (labelCounts.get(label) ?? 0) + 1
     labelCounts.set(label, count)
     const id = count === 1 ? label : `${label}-${count}`
-    return new AperioAssociatedImage(id, label, directory)
-  })
+    associatedImages.push(
+      new AperioAssociatedImage(id, label, directory, await imageMetadata(directory, options)),
+    )
+  }
+  const levelMetadata: Awaited<ReturnType<typeof imageMetadata>>[] = []
+  for (const directory of levelDirectories) {
+    levelMetadata.push(await imageMetadata(directory, options))
+  }
   return new AperioWholeSlideImage({
     levelDirectories,
+    levelMetadata,
     associatedImages,
     properties: aperioProperties(mainDescription),
   })

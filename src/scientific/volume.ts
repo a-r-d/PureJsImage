@@ -16,6 +16,7 @@ import type {
 import {
   normalizeScientificDatasetDescriptor,
   normalizeScientificPlaneReadRequest,
+  resolveScientificAxisAtResolutionLevel,
 } from './dataset.ts'
 import type { NumericArray, NumericTile, NumericTileSource } from './numeric-tile.ts'
 import {
@@ -455,6 +456,13 @@ const scientificDerivedDescriptor = (
       if (entry === undefined) throw invalidInput(`Scientific level omits display axis ${axisId}`)
       return entry
     }),
+    ...(level.axisCoordinates === undefined
+      ? {}
+      : {
+          axisCoordinates: level.axisCoordinates.filter((entry) =>
+            displayAxes.includes(entry.axisId),
+          ),
+        }),
   }))
   return normalizeScientificDatasetDescriptor({
     schemaVersion: 1,
@@ -623,13 +631,11 @@ class ScientificProjectionDataset implements ScientificDataset {
       throw invalidInput('Derived scientific projection display axes cannot be reordered')
     }
     const bytesPerSample = rasterSampleBytes(this.descriptor.sampleType)
-    const sourceLevel = this.#source.descriptor.levels.find(
-      (level) => level.level === normalized.resolutionLevel,
-    )
-    const axisLength = sourceLevel?.axisLengths.find((entry) => entry.axisId === this.#axis)?.length
-    if (axisLength === undefined) {
-      throw invalidInput(`Scientific level omits reduction axis ${this.#axis}`)
-    }
+    const axisLength = resolveScientificAxisAtResolutionLevel(
+      this.#source.descriptor,
+      this.#axis,
+      normalized.resolutionLevel,
+    ).length
     for (let localY = 0; localY < normalized.height; localY += this.#rowsPerBlock) {
       const blockHeight = Math.min(this.#rowsPerBlock, normalized.height - localY)
       const sampleCount = normalized.width * blockHeight

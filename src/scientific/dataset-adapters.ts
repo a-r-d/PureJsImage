@@ -299,6 +299,13 @@ class FixedAxisScientificDataset implements ScientificDataset {
         axisLengths: Object.freeze(
           level.axisLengths.filter((entry) => includedAxisIds.has(entry.axisId)),
         ),
+        ...(level.axisCoordinates === undefined
+          ? {}
+          : {
+              axisCoordinates: Object.freeze(
+                level.axisCoordinates.filter((entry) => includedAxisIds.has(entry.axisId)),
+              ),
+            }),
       }),
     )
     this.descriptor = normalizeScientificDatasetDescriptor({
