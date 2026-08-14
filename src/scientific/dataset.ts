@@ -18,6 +18,21 @@ export type ScientificAxisCoordinates =
   | { readonly type: 'lookup'; readonly values: readonly number[] }
   | { readonly type: 'labels'; readonly values: readonly string[] }
 
+export type ScientificCalibrationEvidenceKind =
+  | 'embedded'
+  | 'sidecar'
+  | 'derived'
+  | 'format-default'
+
+/** Machine-readable provenance for one axis's normalized coordinates and unit. */
+export interface ScientificCalibrationEvidence {
+  readonly kind: ScientificCalibrationEvidenceKind
+  readonly resourceId: string
+  readonly locator: string
+  readonly formula?: string
+  readonly note?: string
+}
+
 /** Optional metadata for one independently selectable coordinate on an axis. */
 export interface ScientificAxisEntryDescriptor {
   readonly id?: string
@@ -38,6 +53,7 @@ export interface ScientificAxisDescriptor {
   readonly length: number
   readonly unit?: string
   readonly coordinates: ScientificAxisCoordinates
+  readonly calibration?: ScientificCalibrationEvidence
   readonly entries?: readonly ScientificAxisEntryDescriptor[]
 }
 
@@ -167,6 +183,13 @@ const axisKinds: readonly ScientificAxisKind[] = [
   'angle',
   'index',
   'other',
+]
+
+const calibrationEvidenceKinds: readonly ScientificCalibrationEvidenceKind[] = [
+  'embedded',
+  'sidecar',
+  'derived',
+  'format-default',
 ]
 
 const componentKinds: readonly ScientificComponentKind[] = [
@@ -417,6 +440,26 @@ const normalizeAxisEntries = (
   return Object.freeze(output)
 }
 
+const normalizeCalibrationEvidence = (
+  value: unknown,
+  label: string,
+): ScientificCalibrationEvidence => {
+  const input = recordValue(value, label)
+  onlyKeys(input, ['kind', 'resourceId', 'locator', 'formula', 'note'], label)
+  const kind = enumValue(input.kind, calibrationEvidenceKinds, `${label}.kind`)
+  const resourceId = requiredString(input.resourceId, `${label}.resourceId`)
+  const locator = requiredString(input.locator, `${label}.locator`)
+  const formula = optionalString(input.formula, `${label}.formula`)
+  const note = optionalString(input.note, `${label}.note`)
+  return Object.freeze({
+    kind,
+    resourceId,
+    locator,
+    ...(formula === undefined ? {} : { formula }),
+    ...(note === undefined ? {} : { note }),
+  })
+}
+
 const normalizeAxis = (
   value: unknown,
   index: number,
@@ -424,13 +467,21 @@ const normalizeAxis = (
 ): ScientificAxisDescriptor => {
   const label = `Scientific dataset axis ${index}`
   const input = recordValue(value, label)
-  onlyKeys(input, ['id', 'name', 'kind', 'length', 'unit', 'coordinates', 'entries'], label)
+  onlyKeys(
+    input,
+    ['id', 'name', 'kind', 'length', 'unit', 'coordinates', 'calibration', 'entries'],
+    label,
+  )
   const id = requiredString(input.id, `${label}.id`)
   const name = optionalString(input.name, `${label}.name`)
   const kind = enumValue(input.kind, axisKinds, `${label}.kind`)
   const length = positiveInteger(input.length, `${label}.length`)
   const unit = optionalString(input.unit, `${label}.unit`)
   const coordinates = normalizeCoordinates(input.coordinates, length, mode, `${label}.coordinates`)
+  const calibration =
+    input.calibration === undefined
+      ? undefined
+      : normalizeCalibrationEvidence(input.calibration, `${label}.calibration`)
   const entries =
     input.entries === undefined
       ? undefined
@@ -442,6 +493,7 @@ const normalizeAxis = (
     coordinates,
     ...(name === undefined ? {} : { name }),
     ...(unit === undefined ? {} : { unit }),
+    ...(calibration === undefined ? {} : { calibration }),
     ...(entries === undefined ? {} : { entries }),
   })
 }

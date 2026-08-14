@@ -89,6 +89,23 @@ export const omeTiffReader: ScientificReader = Object.freeze({
           toScientificDataset(legacy, {
             levels,
             semanticSingletonAxes: ['z', 'channel', 'time'],
+            calibrationEvidence: {
+              x: {
+                kind: 'embedded',
+                resourceId: context.primary.id,
+                locator: `ome:Image/${index}/Pixels@PhysicalSizeX`,
+              },
+              y: {
+                kind: 'embedded',
+                resourceId: context.primary.id,
+                locator: `ome:Image/${index}/Pixels@PhysicalSizeY`,
+              },
+              z: {
+                kind: 'embedded',
+                resourceId: context.primary.id,
+                locator: `ome:Image/${index}/Pixels@PhysicalSizeZ`,
+              },
+            },
           }),
           identity,
         )

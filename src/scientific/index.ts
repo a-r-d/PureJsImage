@@ -2,6 +2,8 @@ export type {
   NormalizedScientificDatasetDescriptor,
   NormalizedScientificPlaneReadRequest,
   ScientificAxisCoordinates,
+  ScientificCalibrationEvidence,
+  ScientificCalibrationEvidenceKind,
   ScientificAxisDescriptor,
   ScientificAxisEntryDescriptor,
   ScientificAxisIndex,

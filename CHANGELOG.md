@@ -4,6 +4,13 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added structured calibration provenance to scientific axes, including validated embedded,
+  sidecar, derived, and format-default evidence. GSF, FITS, MRC/CCP4, OME-TIFF, and Aperio SVS
+  readers now identify the exact source resource and stable metadata locator behind each available
+  physical axis.
+
 ### Changed
 
 - Run the codec test library against hostile one-byte buffered image sources by default, preserving

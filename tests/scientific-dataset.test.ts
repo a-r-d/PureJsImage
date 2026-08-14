@@ -145,6 +145,51 @@ describe('ScientificDataset descriptors', () => {
     expect(state.values[0]).toBe('before')
   })
 
+  it('normalizes, freezes, and serializes calibration evidence', () => {
+    const calibration = {
+      kind: 'derived' as const,
+      resourceId: 'volume-1',
+      locator: 'mrc:header:cellDimensions.x,MX,origin.x',
+      formula: 'mrc-cell-dimension-per-sample-v1',
+      note: 'Spacing is derived from the declared grid sampling.',
+    }
+    const descriptor = normalizeScientificDatasetDescriptor(
+      descriptorInput([
+        {
+          ...axis('x', 'space', 2, { type: 'linear', origin: 1, step: 0.5 }),
+          unit: 'Å',
+          calibration,
+        },
+        axis('y', 'space', 2),
+      ]),
+    )
+    const normalized = descriptor.axes[0]?.calibration
+
+    expect(normalized).toEqual(calibration)
+    expect(normalized).not.toBe(calibration)
+    expect(Object.isFrozen(normalized)).toBe(true)
+    expect(JSON.parse(JSON.stringify(descriptor))).toEqual(descriptor)
+  })
+
+  it.each([
+    [{ kind: 'unknown', resourceId: 'source', locator: 'format:field' }, 'kind'],
+    [{ kind: 'embedded', resourceId: '', locator: 'format:field' }, 'resourceId'],
+    [{ kind: 'embedded', resourceId: 'source', locator: '' }, 'locator'],
+    [{ kind: 'embedded', resourceId: 'source', locator: 'format:field', extra: true }, 'extra'],
+  ])('rejects malformed calibration evidence %#', (calibration, message) => {
+    expect(() =>
+      normalizeScientificDatasetDescriptor(
+        descriptorInput([
+          {
+            ...axis('x', 'space', 2, { type: 'linear', origin: 0, step: 1 }),
+            calibration: calibration as never,
+          },
+          axis('y', 'space', 2),
+        ]),
+      ),
+    ).toThrow(message)
+  })
+
   it('describes components independently from selectable channel axes', () => {
     const descriptor = normalizeScientificDatasetDescriptor(
       descriptorInput(

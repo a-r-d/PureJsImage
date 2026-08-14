@@ -47,9 +47,43 @@ class MrcScientificDataset implements ScientificDataset {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly #source: MrcDataset
 
-  constructor(source: MrcDataset) {
+  constructor(source: MrcDataset, resourceId: string) {
     this.#source = source
-    const adapted = toScientificDataset(source, { semanticSingletonAxes: ['z'] })
+    const adapted = toScientificDataset(source, {
+      semanticSingletonAxes: ['z'],
+      calibrationEvidence: {
+        ...(source.physicalSizeX === undefined
+          ? {}
+          : {
+              x: {
+                kind: 'derived' as const,
+                resourceId,
+                locator: 'mrc:header:cellDimensions.x,MX,origin.x',
+                formula: 'mrc-cell-dimension-per-sample-v1',
+              },
+            }),
+        ...(source.physicalSizeY === undefined
+          ? {}
+          : {
+              y: {
+                kind: 'derived' as const,
+                resourceId,
+                locator: 'mrc:header:cellDimensions.y,MY,origin.y',
+                formula: 'mrc-cell-dimension-per-sample-v1',
+              },
+            }),
+        ...(source.physicalSizeZ === undefined
+          ? {}
+          : {
+              z: {
+                kind: 'derived' as const,
+                resourceId,
+                locator: 'mrc:header:cellDimensions.z,MZ,origin.z',
+                formula: 'mrc-cell-dimension-per-sample-v1',
+              },
+            }),
+      },
+    })
     this.descriptor = normalizeScientificDatasetDescriptor({
       ...adapted.descriptor,
       capabilities: {
@@ -141,7 +175,7 @@ export const mrcReader: ScientificReader = Object.freeze({
       header: legacy.header,
     })
     const dataset = descriptorWithFormatMetadata(
-      new MrcScientificDataset(legacy),
+      new MrcScientificDataset(legacy, context.primary.id),
       'purejsimage:mrc',
       formatMetadata,
     )

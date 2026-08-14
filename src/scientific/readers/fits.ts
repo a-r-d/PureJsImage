@@ -87,7 +87,12 @@ const fitsAxisKind = (name: string | undefined, index: number) => {
   return index < 2 ? ('space' as const) : ('other' as const)
 }
 
-const fitsAxis = (hdu: FitsHdu, index: number, length: number): ScientificAxisDescriptor => {
+const fitsAxis = (
+  hdu: FitsHdu,
+  index: number,
+  length: number,
+  resourceId: string,
+): ScientificAxisDescriptor => {
   const sourceAxis = index + 1
   const id = index === 0 ? 'x' : index === 1 ? 'y' : `axis-${sourceAxis}`
   const fallbackName = index === 0 ? 'X' : index === 1 ? 'Y' : `Axis ${sourceAxis}`
@@ -111,6 +116,16 @@ const fitsAxis = (hdu: FitsHdu, index: number, length: number): ScientificAxisDe
     length,
     coordinates,
     ...(unit === undefined ? {} : { unit }),
+    ...(coordinates.type === 'linear'
+      ? {
+          calibration: {
+            kind: 'derived',
+            resourceId,
+            locator: `fits:hdu:${hdu.index}/header:CRVAL${sourceAxis},CRPIX${sourceAxis},CDELT${sourceAxis},CUNIT${sourceAxis}`,
+            formula: 'fits-linear-wcs-v1',
+          } as const,
+        }
+      : {}),
   })
 }
 
@@ -133,11 +148,15 @@ class FitsRankedDataset implements ScientificDataset {
     )
   }
 
-  static async create(document: FitsDocument, hdu: FitsHdu): Promise<FitsRankedDataset> {
+  static async create(
+    document: FitsDocument,
+    hdu: FitsHdu,
+    resourceId: string,
+  ): Promise<FitsRankedDataset> {
     const zeros = Object.freeze(hdu.dimensions.slice(2).map(() => 0))
     const slice = toScientificDataset(await document.openImageSlice(hdu.index, zeros))
-    const axes = hdu.dimensions.map((length, index) => fitsAxis(hdu, index, length))
-    if (axes.length === 1) axes.push(fitsAxis(hdu, 1, 1))
+    const axes = hdu.dimensions.map((length, index) => fitsAxis(hdu, index, length, resourceId))
+    if (axes.length === 1) axes.push(fitsAxis(hdu, 1, 1, resourceId))
     const metadata = normalizeScientificMetadataObject({
       ...(slice.descriptor.metadata ?? {}),
       'purejsimage:fits': hduMetadata(hdu),
@@ -219,7 +238,7 @@ export const fitsReader: ScientificReader = Object.freeze({
           resources: [context.primary],
         })
         const dataset = identifyScientificDataset(
-          await FitsRankedDataset.create(fits, hdu),
+          await FitsRankedDataset.create(fits, hdu, context.primary.id),
           identity,
         )
         return Object.freeze({

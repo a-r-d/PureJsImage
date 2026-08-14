@@ -80,6 +80,22 @@ Do not infer meaning from array position in new code. Select axes by stable ID, 
 `kind`, units, calibration/lookup/labels, components, level geometry, sample type, no-data value,
 and typed metadata, and require one fixed index for every non-displayed non-singleton axis.
 
+Physical coordinates and `unit` remain the normalized numeric calibration. An axis may also expose
+`calibration` with a `kind`, contributing `resourceId`, stable machine-readable `locator`, and an
+optional derivation formula or note. Applications can therefore label an axis as source-calibrated,
+derived, or uncalibrated without parsing format-specific metadata. Absence of `calibration` means
+the reader did not supply provenance; it does not authorize an application to infer one.
+
+```ts
+const axis = dataset.descriptor.axes.find(({ id }) => id === 'x')!
+const status = axis.calibration === undefined
+  ? 'uncalibrated'
+  : axis.calibration.kind === 'derived'
+    ? 'derived'
+    : 'source'
+console.log(status, axis.coordinates, axis.unit, axis.calibration?.locator)
+```
+
 Reader-opened datasets also carry a `ScientificDatasetIdentity` containing the reader ID/version,
 stable dataset ID, and every resource identity. The planner recognizes it automatically. Synthetic
 or application-created datasets still require an explicit semantic identity.

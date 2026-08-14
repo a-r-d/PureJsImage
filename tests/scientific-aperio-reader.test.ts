@@ -164,7 +164,6 @@ describe('Aperio scientific reader bridge', () => {
       const remoteSummary = remote.datasets[index]
       expect(remoteSummary?.id).toBe(localSummary?.id)
       expect(remoteSummary?.descriptor).toMatchObject({
-        axes: localSummary?.descriptor.axes,
         sampleType: localSummary?.descriptor.sampleType,
         components: localSummary?.descriptor.components,
         levels: localSummary?.descriptor.levels,
@@ -184,6 +183,25 @@ describe('Aperio scientific reader bridge', () => {
       ],
       capabilities: { resolutionLevels: false },
     })
+    expect(summary?.descriptor.axes.map(({ id, calibration }) => ({ id, calibration }))).toEqual([
+      {
+        id: 'x',
+        calibration: {
+          kind: 'embedded',
+          resourceId: 'local-slide',
+          locator: 'tiff:ifd:0/tag:270/aperio.MPP',
+        },
+      },
+      {
+        id: 'y',
+        calibration: {
+          kind: 'embedded',
+          resourceId: 'local-slide',
+          locator: 'tiff:ifd:0/tag:270/aperio.MPP',
+        },
+      },
+    ])
+    expect(remote.datasets[0]?.descriptor.axes[0]?.calibration?.resourceId).toBe('remote-slide')
     const [localPyramid, remotePyramid] = await Promise.all([
       local.openDataset('pyramid'),
       remote.openDataset('pyramid'),

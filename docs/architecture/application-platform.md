@@ -123,7 +123,11 @@ suffixes do not become part of consumer type names.
 
 The descriptor describes dimensions as labeled axes instead of assuming every dataset is exactly `X/Y/Z/C/T`.
 An axis has a stable ID, semantic kind, length, and optional unit, regular origin/spacing, or an
-explicit coordinate vector. Channel descriptions remain first-class metadata rather than being
+explicit coordinate vector. Optional structured calibration evidence records whether those
+coordinates came from embedded metadata, a sidecar, a derivation, or a format default, together
+with the contributing resource and a stable format-specific locator. Coordinates and units remain
+authoritative; the evidence explains their provenance without requiring applications to parse raw
+metadata. Channel descriptions remain first-class metadata rather than being
 forced into numeric coordinates. `capabilities.planeReads` declares either arbitrary pairs or the
 exact supported ordered pairs; `[x, y]` and `[y, x]` are not assumed equivalent. A read selection
 names one supported pair and fixes, ranges, or indexes all other axes; it yields two-dimensional
@@ -1685,3 +1689,12 @@ to own only generic descriptors, definitions, providers, and registries.
     19-page documentation build, packed-package types, browser dependency checks, bundle ceilings,
     lint, and formatting are current. `npm run check` passes both standard and hostile-source suites
     at 103 files and 1,250 tests, with the same three documented macOS-only AVIF skips.
+
+### Core format roadmap follow-up
+
+- [x] Add optional structured calibration evidence to `ScientificAxisDescriptor`; validate,
+      normalize, freeze, and serialize it without changing uncalibrated datasets.
+- [x] Populate exact embedded or derived evidence for GSF, FITS, MRC/CCP4, OME-TIFF, and Aperio SVS
+      physical axes, and prove a synthetic sidecar source through the fixed-axis migration adapter.
+- [x] Document the application-facing source, derived, and uncalibrated states and pass focused,
+      browser, package, formatting, and complete repository gates.

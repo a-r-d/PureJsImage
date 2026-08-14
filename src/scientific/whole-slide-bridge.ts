@@ -11,6 +11,7 @@ import type {
 import type {
   NormalizedScientificDatasetDescriptor,
   ScientificAxisDescriptor,
+  ScientificCalibrationEvidence,
   ScientificComponentDescriptor,
   ScientificDataset,
   ScientificMetadataObject,
@@ -35,6 +36,7 @@ interface WholeSlideScientificBridgeOptions {
   readonly reader: ScientificReaderDescriptor
   readonly slide: WholeSlideImage
   readonly metadata?: ScientificMetadataObject
+  readonly calibrationEvidence?: Readonly<Partial<Record<'x' | 'y', ScientificCalibrationEvidence>>>
 }
 
 const componentsForFormat = (format: PixelFormat): readonly ScientificComponentDescriptor[] => {
@@ -127,6 +129,7 @@ const axis = (
   id: 'x' | 'y',
   length: number,
   micronsPerPixel: number | undefined,
+  calibration: ScientificCalibrationEvidence | undefined,
 ): ScientificAxisDescriptor =>
   Object.freeze({
     id,
@@ -138,6 +141,7 @@ const axis = (
       micronsPerPixel === undefined
         ? Object.freeze({ type: 'index' as const })
         : Object.freeze({ type: 'linear' as const, origin: 0, step: micronsPerPixel }),
+    ...(micronsPerPixel === undefined || calibration === undefined ? {} : { calibration }),
   })
 
 const sourceMetadata = (context: Readonly<ScientificOpenContext>): ScientificMetadataObject =>
@@ -153,10 +157,11 @@ const pyramidDescriptor = (
   formatName: string,
   metadata: ScientificMetadataObject | undefined,
   source: ScientificMetadataObject,
+  calibrationEvidence: WholeSlideScientificBridgeOptions['calibrationEvidence'],
 ): NormalizedScientificDatasetDescriptor => {
   const axes = Object.freeze([
-    axis('x', slide.width, slide.micronsPerPixel),
-    axis('y', slide.height, slide.micronsPerPixel),
+    axis('x', slide.width, slide.micronsPerPixel, calibrationEvidence?.x),
+    axis('y', slide.height, slide.micronsPerPixel, calibrationEvidence?.y),
   ])
   const levels: readonly ScientificResolutionLevel[] = Object.freeze(
     slide.levels.map((level) =>
@@ -230,10 +235,11 @@ class WholeSlidePyramidDataset implements ScientificDataset {
     formatName: string,
     metadata: ScientificMetadataObject | undefined,
     source: ScientificMetadataObject,
+    calibrationEvidence: WholeSlideScientificBridgeOptions['calibrationEvidence'],
   ) {
     this.#slide = slide
     this.#format = requiredFormat(slide.format, `${formatName} pyramid`)
-    this.descriptor = pyramidDescriptor(slide, formatName, metadata, source)
+    this.descriptor = pyramidDescriptor(slide, formatName, metadata, source, calibrationEvidence)
   }
 
   async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncGenerator<RasterBlock> {
@@ -258,7 +264,10 @@ const associatedDescriptor = (
 ): NormalizedScientificDatasetDescriptor =>
   normalizeScientificDatasetDescriptor({
     schemaVersion: 1,
-    axes: [axis('x', image.width, undefined), axis('y', image.height, undefined)],
+    axes: [
+      axis('x', image.width, undefined, undefined),
+      axis('y', image.height, undefined, undefined),
+    ],
     sampleType: 'uint8',
     components: componentsForFormat(requiredFormat(image.format, `${formatName} associated image`)),
     metadata: {
@@ -321,7 +330,13 @@ export const createWholeSlideScientificDocument = async (
     {
       id: 'pyramid',
       name: 'Pyramid',
-      dataset: new WholeSlidePyramidDataset(slide, reader.format, options.metadata, source),
+      dataset: new WholeSlidePyramidDataset(
+        slide,
+        reader.format,
+        options.metadata,
+        source,
+        options.calibrationEvidence,
+      ),
     },
     ...slide.associatedImages.map((image) => ({
       id: `associated/${image.id}`,
