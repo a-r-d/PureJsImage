@@ -1,0 +1,101 @@
+tsconfig.json
+  s_c756552b1b36e2::t_8d379504d207f8 34
+docs-astro/public/capabilities.json
+  s_c756552b1b36e2::t_2514d8c5207a5a 6647-6669
+browser-tests/compatibility.pw.ts
+  s_c756552b1b36e2::t_88366c5882e594 158-164
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  s_c756552b1b36e2::t_62cb0aa5445462 398-410
+benchmark/tia-ser/prepare-corpus.ts
+  s_c756552b1b36e2::t_6c3bf3139e15aa 1-4,6-27
+  s_c756552b1b36e2::t_c2a4bb71e9e49e 5
+capabilities/manifest.json
+  s_c756552b1b36e2::t_b1067ca40218fe 168-190
+benchmark/tia-ser/verify-corpus.ts
+  s_c756552b1b36e2::t_6c3bf3139e15aa 1-134
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_a16d607f9f6f0c 1875,1884
+  s_c756552b1b36e2::t_58d0ca01077092 1883
+  s_c756552b1b36e2::t_62cb0aa5445462 1783-1792,1874,1876-1882
+tests/project-contract.test.ts
+  s_c756552b1b36e2::t_fb718322db6ad5 131,464,500-501,606
+CHANGELOG.md
+  s_c756552b1b36e2::t_3a61c4681c3c29 44-48
+benchmark/tia-ser/generated-fixture.ts
+  s_c756552b1b36e2::t_567bd415a871dd 1-81,83-110,112-200,202-215
+  s_c756552b1b36e2::t_d0b6db96dba77c 82,111
+  s_c756552b1b36e2::t_4f6163718f3617 201
+docs-astro/public/llms.txt
+  s_c756552b1b36e2::t_3a61c4681c3c29 97,99
+src/scientific/formats/tia-ser.ts
+  s_c756552b1b36e2::t_0328a4fd01e978 121,248-252
+  s_c756552b1b36e2::t_4f6163718f3617 359
+  s_c756552b1b36e2::t_8dce48ffefa099 225,228-232,240-242
+  s_c756552b1b36e2::t_8a8e818983dd30 1-120,122-172,178,187-224,226-227,233-239,243-247,253-336,340-358,360-363,367-390,397-401,407-433
+  s_c756552b1b36e2::t_1ff1941d2114c2 173-177,179-186,337-339,364-366,391-396,402-406
+tests/capability-manifest.test.ts
+  s_c756552b1b36e2::t_b1067ca40218fe 31,67
+tests/tia-ser-reader.test.ts
+  s_c756552b1b36e2::t_087dae1e1c5e51 253-341
+  s_c756552b1b36e2::t_11d71159489aa2 1-7,10-57,63-65,68-76,80-111,116-128,131-196,198-211,216-228,230-247,251-252,342-371,390-391
+  s_c756552b1b36e2::t_c28e09ec8884ba 372-389
+  s_c756552b1b36e2::t_8dce48ffefa099 9,66-67
+  s_c756552b1b36e2::t_98a1d12c3fb1fa 8,58-62,77-79,197,229,248-250
+  s_c756552b1b36e2::t_580d5c34ed96d0 112-115,212-215
+  s_c756552b1b36e2::t_1e8d4467a488d0 129-130
+scripts/check-package-types.ts
+  s_c756552b1b36e2::t_8d379504d207f8 141,225-226
+browser-tests/compatibility-harness.ts
+  s_c756552b1b36e2::t_88366c5882e594 9,42,1341-1379,3553
+src/scientific/readers/shared.ts
+  s_c756552b1b36e2::t_8d379504d207f8 40,54-60
+scripts/bundle-size-config.ts
+  s_c756552b1b36e2::t_8d379504d207f8 95-99
+  s_c756552b1b36e2::t_a0f18253db40ce 94
+src/scientific/readers/all.ts
+  s_c756552b1b36e2::t_8d379504d207f8 4
+benchmark/tia-ser/corpus.ts
+  s_c756552b1b36e2::t_6c3bf3139e15aa 1-229
+src/scientific/readers/tia-ser.ts
+  s_c756552b1b36e2::t_8dce48ffefa099 515-519,550-554,803
+  s_c756552b1b36e2::t_c28e09ec8884ba 726-737
+  s_c756552b1b36e2::t_0adfe842f8019e 1-98,114,135,151-180,182-294,296-366,368-375,389-394,396-439,441-463,465-472,474-514,520-549,555-725,738-802,804-852,857-885
+  s_c756552b1b36e2::t_4f6163718f3617 99-113,115-134,136-150,181,295,395,853-856
+  s_c756552b1b36e2::t_0328a4fd01e978 367,376-388
+  s_c756552b1b36e2::t_a7bf738b38cc5d 440,464,473
+tests/generated/capability-expectations.json
+  s_c756552b1b36e2::t_2514d8c5207a5a 428-449
+docs-astro/src/pages/api.astro
+  s_c756552b1b36e2::t_3a61c4681c3c29 82,84
+benchmark/tia-ser/corpus.json
+  s_c756552b1b36e2::t_6c3bf3139e15aa 1-20,22-33,48-53,55-67,82-99,114-126,141-146,148-152
+  s_c756552b1b36e2::t_c2a4bb71e9e49e 21,34-47,54,68-81,100-113,127-140,147
+browser-tests/types.ts
+  s_c756552b1b36e2::t_88366c5882e594 69
+README.md
+  s_c756552b1b36e2::t_3a61c4681c3c29 172-182
+package.json
+  s_c756552b1b36e2::t_b1067ca40218fe 351-352
+  s_c756552b1b36e2::t_8d379504d207f8 131-135
+tests/scientific-format-readers.test.ts
+  s_c756552b1b36e2::t_d0b6db96dba77c 371
+  s_c756552b1b36e2::t_3496f2107581f6 387-388
+  s_c756552b1b36e2::t_e9d993511439a9 6,14,348-370,372-386,389-395
+  s_c756552b1b36e2::t_7a5118c2b38b33 396-397
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "f7b5ac1e86dfbd71228b0705ac3eb82224047f0f",
+  "prompts": {},
+  "sessions": {
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
