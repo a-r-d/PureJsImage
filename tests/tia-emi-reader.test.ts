@@ -151,8 +151,24 @@ describe('TIA EMI scientific reader', () => {
     )
     expect(applied.datasets[0]?.descriptor.axes).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ id: 'x', kind: 'reciprocal-space', unit: '1/m' }),
-        expect.objectContaining({ id: 'y', kind: 'reciprocal-space', unit: '1/m' }),
+        expect.objectContaining({
+          id: 'x',
+          kind: 'reciprocal-space',
+          unit: '1/m',
+          calibration: [
+            expect.objectContaining({ kind: 'embedded', resourceId: 'diffraction-ser' }),
+            expect.objectContaining({ kind: 'sidecar', resourceId: 'emi' }),
+          ],
+        }),
+        expect.objectContaining({
+          id: 'y',
+          kind: 'reciprocal-space',
+          unit: '1/m',
+          calibration: [
+            expect.objectContaining({ kind: 'embedded', resourceId: 'diffraction-ser' }),
+            expect.objectContaining({ kind: 'sidecar', resourceId: 'emi' }),
+          ],
+        }),
       ]),
     )
     expect(applied.datasets[0]?.descriptor.metadata?.['purejsimage:tiaEmi']).toMatchObject({

@@ -143,19 +143,25 @@ if (first === undefined) throw new Error('OME-TIFF contains no datasets')
 const dataset = await document.openDataset(first.id)
 ```
 
-Ordinary PNG and JPEG files can use the same registry through explicit fallback readers without
+Ordinary PNG, JPEG, WebP, BMP, and JP2 files can use the same registry through explicit fallback readers without
 linking codecs into the base scientific entry:
 
 ```ts
 import { createScientificLibrary } from 'purejsimage/scientific'
 import { jpegReader } from 'purejsimage/scientific/readers/jpeg'
 import { pngReader } from 'purejsimage/scientific/readers/png'
+import { webpReader } from 'purejsimage/scientific/readers/webp'
+import { bmpReader } from 'purejsimage/scientific/readers/bmp'
+import { jp2Reader } from 'purejsimage/scientific/readers/jp2'
 
-const science = createScientificLibrary({ readers: [pngReader, jpegReader] })
+const science = createScientificLibrary({
+  readers: [pngReader, jpegReader, webpReader, bmpReader, jp2Reader],
+})
 ```
 
 These readers expose exact codec-produced uint8 blocks and remain lower-confidence than specialized
 scientific readers.
+Experimental HEIC remains excluded from ordinary scientific fallback registration.
 
 Ordinary scientific TIFF uses its own native-precision reader rather than that uint8 adapter:
 

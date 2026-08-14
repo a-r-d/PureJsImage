@@ -126,7 +126,8 @@ The descriptor describes dimensions as labeled axes instead of assuming every da
 An axis has a stable ID, semantic kind, length, and optional unit, regular origin/spacing, or an
 explicit coordinate vector. Optional structured calibration evidence records whether those
 coordinates came from embedded metadata, a sidecar, a derivation, or a format default, together
-with the contributing resource and a stable format-specific locator. Coordinates and units remain
+with each contributing resource and a stable format-specific locator. A combined interpretation
+may retain multiple ordered contributors. Coordinates and units remain
 authoritative; the evidence explains their provenance without requiring applications to parse raw
 metadata. Channel descriptions remain first-class metadata rather than being
 forced into numeric coordinates. `capabilities.planeReads` declares either arbitrary pairs or the
@@ -1710,8 +1711,9 @@ to own only generic descriptors, definitions, providers, and registries.
       browser, package, formatting, and complete repository gates.
 - [x] Add a public codec-to-scientific adapter with one dataset per selectable frame, codec-declared
       levels within each dataset, canonical uint8 component semantics, and zero-copy block wrapping.
-- [x] Add individually importable low-confidence PNG and JPEG scientific readers while keeping the
-      base scientific entry codec-free and experimental HEIC out of the all-readers bundle.
+- [x] Add individually importable low-confidence PNG, JPEG, WebP, BMP, and JP2 scientific readers
+      while keeping the base scientific entry codec-free and experimental HEIC out of the
+      all-readers bundle.
 - [x] Pass exact-pixel, identity, cancellation, release, package, browser, size, documentation, and
       complete repository gates for the A2 adapter.
 - [x] Add the explicit `purejsimage/scientific/readers/tiff` entry on the native raster decoder,
@@ -1804,6 +1806,8 @@ to own only generic descriptors, definitions, providers, and registries.
       versions 0 through 3, 2/4/8/16-byte integers, relocation-aware bigint addresses, lookup3
       checksums, bounded source-identity-aware metadata pages, and explicit legacy family/multi and
       modern extension rejection before starting the object graph.
+- [x] Pin exact independently generated h5py 3.14.0 / HDF5 1.14.6 byte fixtures for clean
+      superblock versions 2 and 3 plus a 512-byte user block, with SHA-256 verification.
 - [x] Add the first package-private HDF5 D2 slice for object header versions 1 and 2, checksummed
       continuation chunks, compact hard and soft links, link-info storage descriptors, mandatory
       unknown-message rejection, and bounded hostile metadata without exposing an HDF5 reader or
@@ -1923,8 +1927,8 @@ to own only generic descriptors, definitions, providers, and registries.
     pass; the TIA EMI reader is 60.2 KiB minified and all readers are 473.6 KiB under the existing
     511.4 KiB ceiling. The final `npm run check` passes all 108 files and 1,330 tests.
 
-  - HDF5 D1 validation: 15 focused file/address tests cover superblock versions 0 through 3,
-    2/4/8/16-byte fields, user blocks, relocation, the lookup3 reference vector and checksum
+  - HDF5 D1 validation: focused file/address tests cover generated and independently produced
+    superblock versions 0 through 3, 2/4/8/16-byte fields, user blocks, relocation, the lookup3 reference vector and checksum
     corruption, hostile bigint and EOF declarations, legacy family/multi/custom drivers, modern
     extensions, true-LRU byte bounds, weakest-lifetime and changing-identity sources, cancellation,
     and read limits. Generated capabilities, the 422-file packed consumer, 19-page documentation

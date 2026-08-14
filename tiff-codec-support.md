@@ -35,7 +35,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] OME reduced-resolution SubIFD plane selection and separate-channel plane assembly
 - [x] Explicit bounded scientific plane display mapping with declared or sampled ranges, scales, palettes, and optional scalar-surface relief
 - [x] Deterministic TIFF profile registry with detector-failure isolation and equal-priority ambiguity rejection
-- [x] First-party standard TIFF, ImageJ, DigitalMicrograph, FEI SFEG/Helios, and Zeiss SEM calibration profiles with normalized origins and steps, embedded evidence, bounded raw metadata, normalized acquisition fields, strict private-tag detection, and non-fatal validation warnings
+- [x] First-party standard TIFF, ImageJ, DigitalMicrograph, FEI SFEG/Helios, and Zeiss SEM calibration profiles with normalized origins and steps, per-axis evidence, structured spatial/intensity status, format-default resolution evidence, bounded raw metadata, normalized acquisition fields, strict private-tag detection, and non-fatal validation warnings
 - [x] Generic bounded `WholeSlideImage` levels, region reads, associated images, and physical metadata
 - [x] First-party Aperio SVS pyramid, associated-image, MPP, objective, and JPEG 2000 tile integration
 - [x] Explicit Aperio ScientificDocument reader with configurable large-source WSI limits, calibrated format-consistent pyramid levels, lightweight ICC presence/length metadata, distinct associated-image datasets, identities, cancellation, release forwarding, and bounded local or HTTP Range region reads

@@ -39,10 +39,10 @@ Browser companion files use `createScientificFileContext()` from
 `createScientificPathContext()` from `purejsimage/scientific/node`. Remote range inputs use the
 separate browser-portable `purejsimage/sources/http-range` entry.
 
-Ordinary PNG and JPEG inputs can join the same explicit registry through `pngReader` and
-`jpegReader` from `purejsimage/scientific/readers/png` and
-`purejsimage/scientific/readers/jpeg`. These are lower-confidence uint8 codec fallbacks;
-specialized scientific readers retain precedence.
+Ordinary PNG, JPEG, WebP, BMP, and JP2 inputs can join the same explicit registry through
+`pngReader`, `jpegReader`, `webpReader`, `bmpReader`, and `jp2Reader` from their individual
+`purejsimage/scientific/readers/*` entries. These are lower-confidence uint8 codec fallbacks;
+specialized scientific readers retain precedence. Experimental HEIC remains excluded.
 
 Ordinary TIFF uses `tiffReader` from `purejsimage/scientific/readers/tiff`. It is a separate
 native-precision path: compatible top-level pages become an explicit labeled `page` axis,

@@ -42,6 +42,9 @@
       "purejsimage/scientific/readers/aperio-svs": ["./src/scientific/readers/aperio-svs.ts"],
       "purejsimage/scientific/readers/png": ["./src/scientific/readers/png.ts"],
       "purejsimage/scientific/readers/jpeg": ["./src/scientific/readers/jpeg.ts"],
+      "purejsimage/scientific/readers/webp": ["./src/scientific/readers/webp.ts"],
+      "purejsimage/scientific/readers/bmp": ["./src/scientific/readers/bmp.ts"],
+      "purejsimage/scientific/readers/jp2": ["./src/scientific/readers/jp2.ts"],
       "purejsimage/tiff": ["./src/tiff/index.ts"]
     }
   },

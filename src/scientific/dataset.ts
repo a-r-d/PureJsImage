@@ -34,6 +34,11 @@ export interface ScientificCalibrationEvidence {
   readonly note?: string
 }
 
+/** One or more contributors to an axis's normalized calibration interpretation. */
+export type ScientificCalibrationEvidenceSet =
+  | ScientificCalibrationEvidence
+  | readonly ScientificCalibrationEvidence[]
+
 /** Optional metadata for one independently selectable coordinate on an axis. */
 export interface ScientificAxisEntryDescriptor {
   readonly id?: string
@@ -54,7 +59,7 @@ export interface ScientificAxisDescriptor {
   readonly length: number
   readonly unit?: string
   readonly coordinates: ScientificAxisCoordinates
-  readonly calibration?: ScientificCalibrationEvidence
+  readonly calibration?: ScientificCalibrationEvidenceSet
   readonly entries?: readonly ScientificAxisEntryDescriptor[]
 }
 
@@ -207,6 +212,7 @@ type ParseMode = 'validate' | 'normalize'
 
 const maximumMetadataDepth = 64
 const maximumMetadataValues = 1_000_000
+const maximumCalibrationEvidenceContributors = 16
 
 const axisKinds: readonly ScientificAxisKind[] = [
   'space',
@@ -494,6 +500,24 @@ const normalizeCalibrationEvidence = (
   })
 }
 
+const normalizeCalibrationEvidenceSet = (
+  value: unknown,
+  label: string,
+): ScientificCalibrationEvidenceSet => {
+  if (!isUnknownArray(value)) return normalizeCalibrationEvidence(value, label)
+  if (value.length < 1 || value.length > maximumCalibrationEvidenceContributors) {
+    throw invalidInput(
+      `${label} must contain 1 through ${maximumCalibrationEvidenceContributors} contributors`,
+    )
+  }
+  const contributors: ScientificCalibrationEvidence[] = []
+  for (let index = 0; index < value.length; index += 1) {
+    if (!(index in value)) throw invalidInput(`${label} must not contain holes`)
+    contributors.push(normalizeCalibrationEvidence(value[index], `${label}[${index}]`))
+  }
+  return Object.freeze(contributors)
+}
+
 const normalizeAxis = (
   value: unknown,
   index: number,
@@ -515,7 +539,7 @@ const normalizeAxis = (
   const calibration =
     input.calibration === undefined
       ? undefined
-      : normalizeCalibrationEvidence(input.calibration, `${label}.calibration`)
+      : normalizeCalibrationEvidenceSet(input.calibration, `${label}.calibration`)
   const entries =
     input.entries === undefined
       ? undefined

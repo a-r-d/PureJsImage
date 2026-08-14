@@ -148,6 +148,9 @@ try {
     'dist/scientific/readers/png.js',
     'dist/scientific/readers/tiff.js',
     'dist/scientific/readers/jpeg.js',
+    'dist/scientific/readers/webp.js',
+    'dist/scientific/readers/bmp.js',
+    'dist/scientific/readers/jp2.js',
     'dist/operations/index.js',
     'dist/analysis/index.js',
     'dist/analysis/project-entry.js',
@@ -232,6 +235,9 @@ export { fitsReader } from 'purejsimage/scientific/readers/fits'
 export { mrcReader } from 'purejsimage/scientific/readers/mrc'
 export { jpegReader } from 'purejsimage/scientific/readers/jpeg'
 export { pngReader } from 'purejsimage/scientific/readers/png'
+export { webpReader } from 'purejsimage/scientific/readers/webp'
+export { bmpReader } from 'purejsimage/scientific/readers/bmp'
+export { jp2Reader } from 'purejsimage/scientific/readers/jp2'
 export { createTiffReader, tiffReader } from 'purejsimage/scientific/readers/tiff'
 export {
   feiSemTiffCalibrationProfile,

@@ -45,10 +45,13 @@ import type {
   ScientificSeriesReadRequest,
 } from '../src/scientific/index.ts'
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
+import { bmpReader } from '../src/scientific/readers/bmp.ts'
 import { digitalMicrographReader } from '../src/scientific/readers/digital-micrograph.ts'
+import { jp2Reader } from '../src/scientific/readers/jp2.ts'
 import { tiffReader } from '../src/scientific/readers/tiff.ts'
 import { tiaEmiReader } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReader } from '../src/scientific/readers/tia-ser.ts'
+import { webpReader } from '../src/scientific/readers/webp.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
@@ -194,6 +197,42 @@ const scientificOneDimensionalSeries = async (): Promise<BrowserWorkflowResult> 
   return {
     detail: 'one-dimensional energy series used one true axis and a bounded series block',
     outputBytes: output.byteLength,
+  }
+}
+
+const scientificOrdinaryCodecFallbacks = async (): Promise<BrowserWorkflowResult> => {
+  const png = await fetchBytes('/fixtures/webp-graphic.png')
+  const [webp, bmp, jp2] = await Promise.all([
+    (await images.open(png)).webp({ lossless: true }).toUint8Array(),
+    (await images.open(png)).bmp().toUint8Array(),
+    fetchBytes('/fixtures/openjpeg-lossless-rgb16.jp2'),
+  ])
+  const cases = [
+    { reader: webpReader, bytes: webp, name: 'ordinary.webp', width: 192, height: 128 },
+    { reader: bmpReader, bytes: bmp, name: 'ordinary.bmp', width: 192, height: 128 },
+    { reader: jp2Reader, bytes: jp2, name: 'ordinary.jp2', width: 17, height: 13 },
+  ] as const
+  let outputBytes = 0
+  for (const fixture of cases) {
+    const document = await createScientificLibrary({ readers: [fixture.reader] }).open({
+      primary: { id: fixture.name, name: fixture.name, source: new MemorySource(fixture.bytes) },
+    })
+    const summary = document.datasets[0]
+    if (
+      summary?.descriptor.axes[0]?.length !== fixture.width ||
+      summary.descriptor.axes[1]?.length !== fixture.height
+    ) {
+      throw new Error(`${fixture.name} scientific fallback dimensions are incorrect`)
+    }
+    const dataset = await document.openDataset(summary.id)
+    for await (const block of dataset.readPlane({ displayAxes: ['x', 'y'], fixedIndices: [] })) {
+      outputBytes += block.data.byteLength
+      block.release?.()
+    }
+  }
+  return {
+    detail: 'portable WebP, BMP, and JP2 low-confidence scientific fallbacks decoded in-browser',
+    outputBytes,
   }
 }
 const inputTypes = async (): Promise<readonly BrowserWorkflowResult[]> => {
@@ -3612,6 +3651,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   scientificTiaEmi,
   scientificTiaSer,
   scientificOneDimensionalSeries,
+  scientificOrdinaryCodecFallbacks,
   pngAlphaPipeline,
   progressiveJpeg,
   resizeDefaultKernel,

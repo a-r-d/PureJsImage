@@ -1,10 +1,14 @@
+import { readFileSync } from 'node:fs'
 import jpeg from 'jpeg-js'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
 import type { ImageCodec, ImageDecoder } from '../src/codec.ts'
+import { bmpCodec } from '../src/codecs/bmp.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
+import { jpeg2000Codec } from '../src/codecs/jpeg2000.ts'
 import { pngCodec } from '../src/codecs/png.ts'
+import { webpCodec } from '../src/codecs/webp.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import type { RasterBlock } from '../src/raster.ts'
@@ -16,7 +20,10 @@ import {
   type ScientificReaderDescriptor,
 } from '../src/scientific/index.ts'
 import { jpegReader } from '../src/scientific/readers/jpeg.ts'
+import { jp2Reader } from '../src/scientific/readers/jp2.ts'
 import { pngReader } from '../src/scientific/readers/png.ts'
+import { bmpReader } from '../src/scientific/readers/bmp.ts'
+import { webpReader } from '../src/scientific/readers/webp.ts'
 import { MemorySource } from '../src/source.ts'
 
 const rgbaPixels = Uint8Array.of(
@@ -60,6 +67,33 @@ const grayscalePngFixture = (): Uint8Array => {
 
 const jpegFixture = (): Uint8Array =>
   jpeg.encode({ width: 3, height: 2, data: rgbaPixels }, 92).data
+
+const webpFixture = (): Uint8Array =>
+  Uint8Array.from(
+    Buffer.from(
+      'UklGRlIAAABXRUJQVlA4TEUAAAAvAAEwEM1lRP9jASSE//eVGOj+p7SBmbZtWv7ge20WEBT6P5pAIMUrLFBOQCqev1xBHf/xH//xH//xH//xH//xH/+9cAAA',
+      'base64',
+    ),
+  )
+
+const bmpFixture = (): Uint8Array => {
+  const output = new Uint8Array(58)
+  const view = new DataView(output.buffer)
+  output.set([0x42, 0x4d])
+  view.setUint32(2, output.byteLength, true)
+  view.setUint32(10, 54, true)
+  view.setUint32(14, 40, true)
+  view.setInt32(18, 1, true)
+  view.setInt32(22, 1, true)
+  view.setUint16(26, 1, true)
+  view.setUint16(28, 24, true)
+  view.setUint32(34, 4, true)
+  output.set([25, 15, 5, 0], 54)
+  return output
+}
+
+const jp2Fixture = (): Uint8Array =>
+  Uint8Array.from(readFileSync('benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2'))
 
 const visibleBytes = (block: PixelBlock | RasterBlock, channels: number): number[] => {
   const output: number[] = []
@@ -105,6 +139,27 @@ describe('image-codec scientific readers', () => {
       reader: jpegReader,
       extension: 'sample.jpg',
     },
+    {
+      name: 'WebP',
+      bytes: webpFixture,
+      codec: webpCodec,
+      reader: webpReader,
+      extension: 'sample.webp',
+    },
+    {
+      name: 'BMP',
+      bytes: bmpFixture,
+      codec: bmpCodec,
+      reader: bmpReader,
+      extension: 'sample.bmp',
+    },
+    {
+      name: 'JP2',
+      bytes: jp2Fixture,
+      codec: jpeg2000Codec,
+      reader: jp2Reader,
+      extension: 'sample.jp2',
+    },
   ])('opens $name through registry detection with exact codec pixels', async (fixture) => {
     const bytes = fixture.bytes()
     const digest = fixture.codec.format === 'png' ? 'a'.repeat(64) : 'b'.repeat(64)
@@ -118,7 +173,13 @@ describe('image-codec scientific readers', () => {
         size: bytes.byteLength,
       },
     })
-    const registry = new ScientificReaderRegistry([pngReader, jpegReader])
+    const registry = new ScientificReaderRegistry([
+      pngReader,
+      jpegReader,
+      webpReader,
+      bmpReader,
+      jp2Reader,
+    ])
     const document = await registry.open({
       primary: { id: 'primary', name: fixture.extension, source },
     })

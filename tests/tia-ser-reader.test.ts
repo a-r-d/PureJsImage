@@ -35,6 +35,39 @@ class TrackingSource implements ImageSource {
   }
 }
 
+interface SparseSegment {
+  readonly offset: number
+  readonly bytes: Uint8Array
+}
+
+class CountingSparseSource implements ImageSource {
+  readonly size: number
+  readonly reads: SourceRead[] = []
+  readonly #segments: readonly SparseSegment[]
+
+  constructor(size: number, segments: readonly SparseSegment[]) {
+    this.size = size
+    this.#segments = segments
+  }
+
+  async read(offset: number, length: number): Promise<Uint8Array> {
+    this.reads.push(Object.freeze({ offset, length }))
+    const output = new Uint8Array(Math.min(length, Math.max(0, this.size - offset)))
+    const end = offset + output.byteLength
+    for (const segment of this.#segments) {
+      const segmentEnd = segment.offset + segment.bytes.byteLength
+      const start = Math.max(offset, segment.offset)
+      const stop = Math.min(end, segmentEnd)
+      if (start >= stop) continue
+      output.set(
+        segment.bytes.subarray(start - segment.offset, stop - segment.offset),
+        start - offset,
+      )
+    }
+    return output
+  }
+}
+
 class WeakLifetimeSource implements ImageSource {
   readonly size: number
   readonly #bytes: Uint8Array
@@ -261,6 +294,7 @@ describe('TIA SER scientific reader', () => {
       [createTiaSerReader({ limits: { maxOffsetArrayBytes: 7 } }), point],
       [createTiaSerReader({ limits: { maxElementBytes: 15 } }), point],
       [createTiaSerReader({ limits: { maxMetadataBytes: 33 } }), point],
+      [createTiaSerReader({ limits: { maxMetadataReadOperations: 1 } }), point],
     ] as const) {
       await expect(reader.open(context(bytes))).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
     }
@@ -337,6 +371,55 @@ describe('TIA SER scientific reader', () => {
       })
       [Symbol.asyncIterator]()
     await expect(regionIterator.next()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+  })
+
+  it('bounds metadata range requests while indexing a large sparse source', async () => {
+    const elementCount = 4_096
+    const bytes = generateTiaSerFixture({
+      version: 544,
+      dataKind: 'spectrum',
+      tagKind: 'time',
+      dimensions: [
+        {
+          size: elementCount,
+          offset: 0,
+          delta: 1,
+          element: 0,
+          description: 'Number',
+          unit: '',
+        },
+      ],
+      elements: Array.from({ length: elementCount }, (_, elementIndex) => ({
+        calibrations: [{ offset: 0, delta: 1, element: 0 }],
+        dataType: 1,
+        shape: [1] as const,
+        payload: Uint8Array.of(elementIndex & 0xff),
+        tag: { time: elementIndex },
+      })),
+    })
+    const fixtureView = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+    const offsetArrayOffset = Number(fixtureView.getBigUint64(22, true))
+    const recordsOffset = Number(fixtureView.getBigUint64(offsetArrayOffset, true))
+    const sparseRecordsOffset = 1_000_000_000
+    const adjustment = BigInt(sparseRecordsOffset - recordsOffset)
+    const prefix = bytes.slice(0, recordsOffset)
+    const prefixView = new DataView(prefix.buffer)
+    for (let index = 0; index < elementCount * 2; index += 1) {
+      const position = offsetArrayOffset + index * 8
+      prefixView.setBigUint64(position, prefixView.getBigUint64(position, true) + adjustment, true)
+    }
+    const records = bytes.slice(recordsOffset)
+    const source = new CountingSparseSource(sparseRecordsOffset + records.byteLength, [
+      { offset: 0, bytes: prefix },
+      { offset: sparseRecordsOffset, bytes: records },
+    ])
+    const document = await tiaSerReader.open(context(bytes, 'large.ser', source))
+
+    expect(document.metadata).toMatchObject({
+      indexedElements: elementCount,
+      metadataReadOperations: source.reads.length,
+    })
+    expect(source.reads.length).toBeLessThanOrEqual(12)
   })
 
   it('honors abort signals, read limits, and weak ImageSource buffer lifetimes', async () => {

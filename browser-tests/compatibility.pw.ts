@@ -180,6 +180,17 @@ test('reads a one-dimensional scientific series without a synthetic display axis
   expect(result.detail).toContain('one true axis')
 })
 
+test('opens ordinary WebP, BMP, and JP2 scientific fallbacks in a real browser', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.scientificOrdinaryCodecFallbacks(),
+  )
+  expect(result.outputBytes).toBeGreaterThan(0)
+  expect(result.detail).toContain('WebP, BMP, and JP2')
+})
+
 test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.pngAlphaPipeline())

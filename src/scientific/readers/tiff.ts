@@ -549,7 +549,7 @@ const scientificAxis = (
           step: calibration.step,
         }),
         calibration: Object.freeze({
-          kind: 'embedded',
+          kind: calibration.evidence.kind ?? 'embedded',
           resourceId,
           locator: calibration.evidence.locator,
           ...(calibration.evidence.formula === undefined
@@ -575,7 +575,7 @@ const calibratedPageAxis = (
       step: calibration.step,
     }),
     calibration: Object.freeze({
-      kind: 'embedded',
+      kind: calibration.evidence.kind ?? 'embedded',
       resourceId,
       locator: calibration.evidence.locator,
       ...(calibration.evidence.formula === undefined
@@ -885,12 +885,16 @@ const createDocument = async (
       return Object.freeze({ entry, identity, dataset })
     }),
   )
-  const calibrationApplied =
-    calibration.value !== undefined &&
-    (calibration.value.pageAxis !== undefined ||
-      calibration.value.directories.some(
-        ({ axes, intensity }) => axes.length !== 0 || intensity !== undefined,
-      ))
+  type CalibrationStatus = 'calibrated' | 'partial' | 'uncalibrated' | 'invalid'
+  const calibrationStatusFor = (
+    matches: (directory: TiffDirectoryCalibration) => boolean,
+  ): CalibrationStatus => {
+    if (calibration.warning !== undefined) return 'invalid'
+    const directories = calibration.value?.directories ?? []
+    const calibrated = directories.filter(matches).length
+    if (calibrated === 0) return 'uncalibrated'
+    return calibrated === document.topLevelDirectories.length ? 'calibrated' : 'partial'
+  }
   const metadata = normalizeScientificMetadataObject({
     littleEndian: document.littleEndian,
     bigTiff: document.bigTiff,
@@ -899,11 +903,13 @@ const createDocument = async (
     seriesCount: series.length,
     optionalMetadataBytesAdmitted: maximumMetadataBytes - budget.remaining,
     optionalMetadataBytesLimit: maximumMetadataBytes,
-    calibrationStatus: calibrationApplied
-      ? 'calibrated'
-      : calibration.warning === undefined
-        ? 'uncalibrated'
-        : 'invalid',
+    calibrationStatus: {
+      spatial: {
+        x: calibrationStatusFor(({ axes }) => axes.some(({ axisId }) => axisId === 'x')),
+        y: calibrationStatusFor(({ axes }) => axes.some(({ axisId }) => axisId === 'y')),
+      },
+      intensity: calibrationStatusFor(({ intensity }) => intensity !== undefined),
+    },
     ...(calibration.value === undefined ? {} : { calibrationProfile: calibration.value.profileId }),
     ...(calibration.warning === undefined ? {} : { calibrationWarning: calibration.warning }),
     ...(calibration.detectionFailures.length === 0

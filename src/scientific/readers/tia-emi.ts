@@ -3,6 +3,7 @@ import { throwIfAborted } from '../../abort.ts'
 import { invalidInput, limitExceeded } from '../../errors.ts'
 import type {
   ScientificAxisDescriptor,
+  ScientificCalibrationEvidence,
   ScientificDataset,
   ScientificMetadataObject,
   ScientificPlaneReadRequest,
@@ -170,6 +171,11 @@ const modeFromObject = (object: TiaEmiObject | undefined): string | undefined =>
   return typeof field?.value === 'string' ? field.value : undefined
 }
 
+const calibrationContributors = (
+  calibration: ScientificAxisDescriptor['calibration'],
+): readonly ScientificCalibrationEvidence[] =>
+  calibration === undefined ? [] : 'kind' in calibration ? [calibration] : calibration
+
 const mergeAxisCalibration = (
   axes: readonly ScientificAxisDescriptor[],
   object: TiaEmiObject | undefined,
@@ -210,12 +216,15 @@ const mergeAxisCalibration = (
       ...axis,
       kind: 'reciprocal-space',
       unit: '1/m',
-      calibration: Object.freeze({
-        kind: 'sidecar',
-        resourceId,
-        locator: `tia-emi:ObjectInfo[${object?.index ?? 0}]/ExperimentalDescription/Mode`,
-        note: 'Coordinates come from SER; EMI diffraction mode supplies the reciprocal-space interpretation.',
-      }),
+      calibration: Object.freeze([
+        ...calibrationContributors(axis.calibration),
+        Object.freeze({
+          kind: 'sidecar' as const,
+          resourceId,
+          locator: `tia-emi:ObjectInfo[${object?.index ?? 0}]/ExperimentalDescription/Mode`,
+          note: 'Coordinates come from SER; EMI diffraction mode supplies the reciprocal-space interpretation.',
+        }),
+      ]),
     })
   })
   return Object.freeze({

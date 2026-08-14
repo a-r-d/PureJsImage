@@ -89,7 +89,7 @@ These decisions are good. The format roadmap should extend them rather than intr
 
 Current scientific axes contain coordinates and an optional unit, but not a normalized explanation of where the calibration came from. Lab Viewer can display `0.52 nm/px`, but it cannot reliably say whether that came from a Zeiss private tag, an FEI formula, an EMI sidecar, a format header, or a user override.
 
-Add an optional evidence object to `ScientificAxisDescriptor`:
+Add optional evidence contributors to `ScientificAxisDescriptor`:
 
 ```ts
 export interface ScientificCalibrationEvidence {
@@ -102,14 +102,16 @@ export interface ScientificCalibrationEvidence {
 
 export interface ScientificAxisDescriptor {
   // existing fields
-  readonly calibration?: ScientificCalibrationEvidence
+  readonly calibration?:
+    | ScientificCalibrationEvidence
+    | readonly ScientificCalibrationEvidence[]
 }
 ```
 
 Rules:
 
 - `coordinates` and `unit` remain the authoritative normalized numeric calibration.
-- `calibration` explains the source only.
+- `calibration` explains one source or the ordered contributors to a combined interpretation.
 - `locator` is stable and machine-readable, for example `tiff:tag:34682/Scan/PixelWidth`, `dm:ImageList/0/ImageData/Calibrations/Dimension/0`, or `companion:sample.txt/PixelSize`.
 - A derived calibration records the input fields and a short formula identifier.
 - A reader does not report physical units when required metadata is missing or contradictory.
@@ -276,8 +278,8 @@ This should ship before DM4 or HDF5.
 
 | PR | Status | Scope | Size | Definition of done |
 | --- | --- | --- | --- | --- |
-| A1 | Complete | Calibration evidence contract | Small | Existing readers populate evidence where possible; descriptor and migration tests pass. |
-| A2 | Complete | Codec-to-scientific adapter | Medium | PNG and JPEG open lazily through the public scientific registry with exact pixels, cancellation, identity, and bounded blocks. |
+| A1 | Complete | Calibration evidence contract | Small | Existing readers populate one or more evidence contributors where possible; descriptor and migration tests pass. |
+| A2 | Complete | Codec-to-scientific adapter | Medium | PNG, JPEG, WebP, BMP, and JP2 open lazily through the public scientific registry with exact pixels, cancellation, identity, and bounded blocks; experimental HEIC remains excluded. |
 | A3 | Complete | Ordinary TIFF scientific reader | Medium | Native uint16, int16, float32, RGB, multipage, tiled, and SubIFD fixtures open without OME/Aperio regressions. |
 | A4 | Complete | TIFF standard, ImageJ, and DM-TIFF calibration profiles | Medium | Exact X/Y/Z scale and origin match independent readers. |
 | A5 | Complete | FEI and Zeiss SEM TIFF profiles | Medium | At least two independently produced fixture families per profile; calibration and acquisition metadata match the oracle. |
@@ -456,6 +458,8 @@ verify the HDF5 lookup3 checksum. A caller-owned metadata page cache is byte/rea
 source-identity checked, cancellation aware, and safe for weakest-lifetime source buffers. Legacy
 family, multi-file, and unknown driver blocks are rejected explicitly; D1 also rejects modern
 superblock extensions until D2 can parse their object-header driver messages rather than guessing.
+Exact independently generated h5py 3.14.0 / HDF5 1.14.6 byte fixtures cover clean superblock v2,
+clean superblock v3, and a 512-byte user block in addition to generated hostile geometry.
 
 - locate the HDF5 signature at legal user-block offsets;
 - superblock versions 0, 1, 2, and 3;

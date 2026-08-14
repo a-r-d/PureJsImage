@@ -203,7 +203,12 @@ describe('Aperio scientific reader bridge', () => {
         },
       },
     ])
-    expect(remote.datasets[0]?.descriptor.axes[0]?.calibration?.resourceId).toBe('remote-slide')
+    const remoteCalibration = remote.datasets[0]?.descriptor.axes[0]?.calibration
+    expect(
+      remoteCalibration !== undefined && 'kind' in remoteCalibration
+        ? remoteCalibration.resourceId
+        : undefined,
+    ).toBe('remote-slide')
     const [localPyramid, remotePyramid] = await Promise.all([
       local.openDataset('pyramid'),
       remote.openDataset('pyramid'),

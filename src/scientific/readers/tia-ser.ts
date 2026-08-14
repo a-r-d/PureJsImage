@@ -78,6 +78,7 @@ const defaultLimits: Readonly<TiaSerReaderLimits> = Object.freeze({
   maxOffsetArrayBytes: 16_777_216,
   maxElementBytes: 536_870_912,
   maxMetadataBytes: 67_108_864,
+  maxMetadataReadOperations: 4_096,
   maxDatasets: 4_096,
   maxRegionBytes: 67_108_864,
   maxReadOperations: 262_144,
@@ -131,6 +132,11 @@ const resolveLimits = (
       input.maxMetadataBytes,
       defaultLimits.maxMetadataBytes,
       'TIA SER maxMetadataBytes',
+    ),
+    maxMetadataReadOperations: positiveLimit(
+      input.maxMetadataReadOperations,
+      defaultLimits.maxMetadataReadOperations,
+      'TIA SER maxMetadataReadOperations',
     ),
     maxDatasets: positiveLimit(input.maxDatasets, defaultLimits.maxDatasets, 'TIA SER maxDatasets'),
     maxRegionBytes: positiveLimit(
@@ -849,6 +855,7 @@ export const createTiaSerReader = (
           declaredValidElements: index.declaredValidElements,
           indexedElements: index.elements.length,
           metadataBytesRead: index.metadataBytesRead,
+          metadataReadOperations: index.metadataReadOperations,
           invalidElements: invalidMetadata,
           omittedInvalidElements: Math.max(
             0,

@@ -1,7 +1,9 @@
 import type { AbortOptions } from '../../abort.ts'
 import { throwIfAborted } from '../../abort.ts'
 import { invalidInput } from '../../errors.ts'
+import { limitExceeded } from '../../errors.ts'
 import { openTiffDocument } from '../../codecs/tiff.ts'
+import type { ImageSource } from '../../source.ts'
 import { toScientificDataset } from '../dataset-adapters.ts'
 import { omeTiffImageCount, openOmeTiff } from '../ome-tiff.ts'
 import type {
@@ -13,7 +15,9 @@ import type {
 import { createScientificDatasetIdentity, identifyScientificDataset } from '../reader.ts'
 import { resourceHasHint } from './shared.ts'
 
-const tiffProbeBytes = 16_384
+const imageDescriptionTag = 270
+const maximumProbeEntries = 4_096
+const maximumProbeReadBytes = 16_384
 
 export const omeTiffReaderDescriptor: ScientificReaderDescriptor = Object.freeze({
   id: 'purejsimage/ome-tiff',
@@ -36,16 +40,138 @@ const containsOmeXml = (bytes: Uint8Array): boolean => {
   return /<(?:(?:[A-Za-z_][\w.-]*):)?OME\b/u.test(text)
 }
 
+const probeRead = async (
+  source: ImageSource,
+  offset: number,
+  length: number,
+  signal: AbortSignal | undefined,
+): Promise<Uint8Array> => {
+  if (
+    !Number.isSafeInteger(offset) ||
+    offset < 0 ||
+    !Number.isSafeInteger(length) ||
+    length < 0 ||
+    offset > source.size ||
+    length > source.size - offset
+  ) {
+    throw invalidInput(`OME-TIFF probe range ${offset}+${length} is outside the source`)
+  }
+  const bytes = await source.read(offset, length, {
+    ...(signal === undefined ? {} : { signal }),
+  })
+  if (bytes.byteLength !== length) throw invalidInput('OME-TIFF probe source returned a short read')
+  return bytes
+}
+
+const unsigned = (
+  bytes: Uint8Array,
+  offset: number,
+  width: 2 | 4 | 8,
+  littleEndian: boolean,
+  label: string,
+): number => {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  const value =
+    width === 2
+      ? BigInt(view.getUint16(offset, littleEndian))
+      : width === 4
+        ? BigInt(view.getUint32(offset, littleEndian))
+        : view.getBigUint64(offset, littleEndian)
+  if (value > BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw limitExceeded(`OME-TIFF probe ${label} exceeds the safe integer range`)
+  }
+  return Number(value)
+}
+
+const firstIfdOmeXml = async (
+  source: ImageSource,
+  signal: AbortSignal | undefined,
+): Promise<boolean> => {
+  if (source.size < 8) return false
+  const header = await probeRead(source, 0, Math.min(source.size, 16), signal)
+  if (!isTiffPrefix(header)) return false
+  const littleEndian = header[0] === 0x49
+  const version = unsigned(header, 2, 2, littleEndian, 'version')
+  const bigTiff = version === 43
+  if (bigTiff) {
+    if (
+      header.byteLength < 16 ||
+      unsigned(header, 4, 2, littleEndian, 'offset width') !== 8 ||
+      unsigned(header, 6, 2, littleEndian, 'reserved field') !== 0
+    ) {
+      throw invalidInput('OME-TIFF probe found an invalid BigTIFF header')
+    }
+  }
+  const firstIfdOffset = unsigned(
+    header,
+    bigTiff ? 8 : 4,
+    bigTiff ? 8 : 4,
+    littleEndian,
+    'first IFD offset',
+  )
+  const minimumIfdOffset = bigTiff ? 16 : 8
+  if (firstIfdOffset < minimumIfdOffset) {
+    throw invalidInput('OME-TIFF probe found an invalid first IFD offset')
+  }
+  const countWidth = bigTiff ? 8 : 2
+  const entryBytes = bigTiff ? 20 : 12
+  const inlineBytes = bigTiff ? 8 : 4
+  const countBytes = await probeRead(source, firstIfdOffset, countWidth, signal)
+  const entryCount = unsigned(countBytes, 0, countWidth, littleEndian, 'IFD entry count')
+  if (entryCount > maximumProbeEntries) {
+    throw limitExceeded(`OME-TIFF probe IFD entry count exceeds ${maximumProbeEntries}`)
+  }
+  const entriesPerRead = Math.floor(maximumProbeReadBytes / entryBytes)
+  for (let firstEntry = 0; firstEntry < entryCount; firstEntry += entriesPerRead) {
+    const count = Math.min(entriesPerRead, entryCount - firstEntry)
+    const entries = await probeRead(
+      source,
+      firstIfdOffset + countWidth + firstEntry * entryBytes,
+      count * entryBytes,
+      signal,
+    )
+    for (let index = 0; index < count; index += 1) {
+      const position = index * entryBytes
+      const tag = unsigned(entries, position, 2, littleEndian, 'tag')
+      if (tag !== imageDescriptionTag) continue
+      const fieldType = unsigned(entries, position + 2, 2, littleEndian, 'field type')
+      if (fieldType !== 2) return false
+      const valueBytes = unsigned(
+        entries,
+        position + 4,
+        bigTiff ? 8 : 4,
+        littleEndian,
+        'ImageDescription length',
+      )
+      if (valueBytes < 1) return false
+      const prefixBytes = Math.min(valueBytes, maximumProbeReadBytes)
+      const valuePosition = position + (bigTiff ? 12 : 8)
+      const value =
+        valueBytes <= inlineBytes
+          ? entries.slice(valuePosition, valuePosition + valueBytes)
+          : await probeRead(
+              source,
+              unsigned(
+                entries,
+                valuePosition,
+                bigTiff ? 8 : 4,
+                littleEndian,
+                'ImageDescription offset',
+              ),
+              prefixBytes,
+              signal,
+            )
+      return containsOmeXml(value)
+    }
+  }
+  return false
+}
+
 export const omeTiffReader: ScientificReader = Object.freeze({
   descriptor: omeTiffReaderDescriptor,
   async probe(context: Readonly<ScientificOpenContext>) {
     throwIfAborted(context.signal)
-    const prefix = await context.primary.source.read(
-      0,
-      Math.min(tiffProbeBytes, context.primary.source.size),
-      { ...(context.signal === undefined ? {} : { signal: context.signal }) },
-    )
-    if (!isTiffPrefix(prefix) || !containsOmeXml(prefix)) {
+    if (!(await firstIfdOmeXml(context.primary.source, context.signal))) {
       return Object.freeze({ confidence: 0, reason: 'OME-TIFF signature/XML is absent' })
     }
     const hinted = resourceHasHint(

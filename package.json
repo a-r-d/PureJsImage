@@ -163,6 +163,21 @@
       "import": "./dist/scientific/readers/jpeg.js",
       "default": "./dist/scientific/readers/jpeg.js"
     },
+    "./scientific/readers/webp": {
+      "types": "./dist/scientific/readers/webp.d.ts",
+      "import": "./dist/scientific/readers/webp.js",
+      "default": "./dist/scientific/readers/webp.js"
+    },
+    "./scientific/readers/bmp": {
+      "types": "./dist/scientific/readers/bmp.d.ts",
+      "import": "./dist/scientific/readers/bmp.js",
+      "default": "./dist/scientific/readers/bmp.js"
+    },
+    "./scientific/readers/jp2": {
+      "types": "./dist/scientific/readers/jp2.d.ts",
+      "import": "./dist/scientific/readers/jp2.js",
+      "default": "./dist/scientific/readers/jp2.js"
+    },
     "./scientific/readers/all": {
       "types": "./dist/scientific/readers/all.d.ts",
       "import": "./dist/scientific/readers/all.js",

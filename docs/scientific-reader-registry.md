@@ -29,14 +29,19 @@ inspection.
 
 ## Ordinary image codec fallbacks
 
-PNG and JPEG are available as individually composable scientific reader fallbacks:
+PNG, JPEG, WebP, BMP, and JP2 are available as individually composable scientific reader fallbacks:
 
 ```ts
 import { createScientificLibrary } from 'purejsimage/scientific'
 import { jpegReader } from 'purejsimage/scientific/readers/jpeg'
 import { pngReader } from 'purejsimage/scientific/readers/png'
+import { webpReader } from 'purejsimage/scientific/readers/webp'
+import { bmpReader } from 'purejsimage/scientific/readers/bmp'
+import { jp2Reader } from 'purejsimage/scientific/readers/jp2'
 
-const science = createScientificLibrary({ readers: [pngReader, jpegReader] })
+const science = createScientificLibrary({
+  readers: [pngReader, jpegReader, webpReader, bmpReader, jp2Reader],
+})
 ```
 
 The base scientific entry also exports `createImageCodecScientificReader({ descriptor, codec,
@@ -45,6 +50,7 @@ limits })` for applications that deliberately adapt another registered codec. Th
 data. Selectable frames become separate `frame-N` datasets; selectable resolution levels remain
 levels within each frame dataset. A codec's metadata-only frame count and decode-time scaling
 shortcuts do not create selectable scientific coordinates.
+Experimental HEIC is intentionally not exposed through this fallback set.
 
 Codec adapters probe at fallback confidence so a specialized scientific reader with the same file
 signature wins. They preserve source identity, `AbortSignal`, and caller-owned block release.

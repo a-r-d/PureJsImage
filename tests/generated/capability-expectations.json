@@ -365,6 +365,54 @@
       "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
     },
     {
+      "id": "purejsimage/webp",
+      "version": "1.0.0",
+      "format": "WebP",
+      "packageExport": "purejsimage/scientific/readers/webp",
+      "extensions": ["webp"],
+      "mediaTypes": ["image/webp"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/bmp",
+      "version": "1.0.0",
+      "format": "BMP",
+      "packageExport": "purejsimage/scientific/readers/bmp",
+      "extensions": ["bmp", "dib"],
+      "mediaTypes": ["image/bmp", "image/x-ms-bmp"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/jp2",
+      "version": "1.0.0",
+      "format": "JPEG 2000 / JP2",
+      "packageExport": "purejsimage/scientific/readers/jp2",
+      "extensions": ["jp2"],
+      "mediaTypes": ["image/jp2"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2"]
+    },
+    {
       "id": "purejsimage/tiff",
       "version": "1.0.0",
       "format": "TIFF",
@@ -387,8 +435,14 @@
       "resourceModel": "single",
       "datasetKinds": ["image", "volume"],
       "directRangeReads": true,
-      "evidence": ["tests/scientific-format-readers.test.ts"],
-      "fixtures": ["tests/scientific-format-readers.test.ts"]
+      "evidence": [
+        "tests/scientific-format-readers.test.ts",
+        "tests/scientific-tiff-reader.test.ts"
+      ],
+      "fixtures": [
+        "tests/scientific-format-readers.test.ts",
+        "tests/scientific-tiff-reader.test.ts"
+      ]
     },
     {
       "id": "purejsimage/aperio-svs",

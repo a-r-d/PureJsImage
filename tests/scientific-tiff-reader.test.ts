@@ -45,6 +45,7 @@ interface TiffFixtureOptions {
   readonly planar?: boolean
   readonly tiled?: boolean
   readonly extraEntries?: readonly TiffEntryFixture[]
+  readonly ifdOffset?: number
 }
 
 const fixtureEntryValueBytes = (type: number): number =>
@@ -57,6 +58,10 @@ const fixtureEntryBytes = (entry: TiffEntryFixture): number =>
   fixtureEntryCount(entry) * fixtureEntryValueBytes(entry.type)
 
 const tiffFixture = (options: TiffFixtureOptions): Uint8Array => {
+  const ifdOffset = options.ifdOffset ?? 8
+  if (!Number.isSafeInteger(ifdOffset) || ifdOffset < 8) {
+    throw new Error('TIFF fixture IFD offset must be at least 8')
+  }
   const entriesFor = (offsets: readonly number[]): TiffEntryFixture[] => [
     { tag: 256, type: 4, values: [options.width] },
     { tag: 257, type: 4, values: [options.height] },
@@ -99,7 +104,7 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array => {
     const bytes = fixtureEntryBytes(entry)
     return total + (bytes > 4 ? bytes : 0)
   }, 0)
-  const pixelOffset = 8 + ifdBytes + externalBytes
+  const pixelOffset = ifdOffset + ifdBytes + externalBytes
   const offsets: number[] = []
   let cursor = pixelOffset
   for (const segment of options.segments) {
@@ -110,13 +115,13 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array => {
   const output = new Uint8Array(cursor)
   const view = new DataView(output.buffer)
   output.set([0x49, 0x49, 0x2a, 0])
-  view.setUint32(4, 8, true)
-  view.setUint16(8, entries.length, true)
-  let externalOffset = 8 + ifdBytes
+  view.setUint32(4, ifdOffset, true)
+  view.setUint16(ifdOffset, entries.length, true)
+  let externalOffset = ifdOffset + ifdBytes
   for (let index = 0; index < entries.length; index += 1) {
     const entry = entries[index]
     if (entry === undefined) continue
-    const entryOffset = 10 + index * 12
+    const entryOffset = ifdOffset + 2 + index * 12
     const valueBytes = fixtureEntryBytes(entry)
     const valuesOffset = valueBytes > 4 ? externalOffset : entryOffset + 8
     view.setUint16(entryOffset, entry.tag, true)
@@ -319,7 +324,14 @@ describe('ordinary TIFF scientific reader', () => {
       ],
     })
 
-    const dataset = await (await open(input)).openDataset('series-0')
+    const document = await open(input)
+    expect(document.metadata).toMatchObject({
+      calibrationStatus: {
+        spatial: { x: 'calibrated', y: 'calibrated' },
+        intensity: 'uncalibrated',
+      },
+    })
+    const dataset = await document.openDataset('series-0')
     expect(dataset.descriptor.axes).toMatchObject([
       {
         id: 'x',
@@ -337,6 +349,50 @@ describe('ordinary TIFF scientific reader', () => {
         coordinates: { type: 'linear', origin: 20, step: 1 },
       },
     ])
+  })
+
+  it('marks omitted TIFF resolution units as format-default evidence', async () => {
+    const input = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [Uint8Array.of(1)],
+      extraEntries: [
+        { tag: 282, type: 5, values: [25_400, 1] },
+        { tag: 283, type: 5, values: [25_400, 1] },
+      ],
+    })
+    const dataset = await (await open(input)).openDataset('series-0')
+
+    expect(dataset.descriptor.axes).toMatchObject([
+      { id: 'x', calibration: { kind: 'format-default', locator: 'tiff:ifd:0/tags:282' } },
+      { id: 'y', calibration: { kind: 'format-default', locator: 'tiff:ifd:0/tags:283' } },
+    ])
+  })
+
+  it('reports intensity-only calibration independently from spatial axes', async () => {
+    const input = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [Uint8Array.of(1)],
+      extraEntries: [
+        asciiEntry(65_022, 'electron'),
+        { tag: 65_024, type: 12, values: [4] },
+        { tag: 65_025, type: 12, values: [0.25] },
+      ],
+    })
+
+    expect((await open(input)).metadata).toMatchObject({
+      calibrationStatus: {
+        spatial: { x: 'uncalibrated', y: 'uncalibrated' },
+        intensity: 'calibrated',
+      },
+    })
   })
 
   it('prefers ImageJ description units and spacing over standard TIFF units', async () => {
@@ -500,7 +556,12 @@ describe('ordinary TIFF scientific reader', () => {
     expect(await digitalMicrographTiffCalibrationProfile.detect({ document: epicsDocument })).toBe(
       false,
     )
-    expect((await open(epics)).metadata).toMatchObject({ calibrationStatus: 'uncalibrated' })
+    expect((await open(epics)).metadata).toMatchObject({
+      calibrationStatus: {
+        spatial: { x: 'uncalibrated', y: 'uncalibrated' },
+        intensity: 'uncalibrated',
+      },
+    })
 
     const malformed = tiffFixture({
       width: 1,
@@ -517,7 +578,10 @@ describe('ordinary TIFF scientific reader', () => {
     })
     const malformedDocument = await open(malformed)
     expect(malformedDocument.metadata).toMatchObject({
-      calibrationStatus: 'uncalibrated',
+      calibrationStatus: {
+        spatial: { x: 'uncalibrated', y: 'uncalibrated' },
+        intensity: 'uncalibrated',
+      },
       calibrationProfile: digitalMicrographTiffCalibrationProfile.id,
     })
     const malformedDataset = await malformedDocument.openDataset('series-0')
@@ -629,7 +693,10 @@ describe('ordinary TIFF scientific reader', () => {
     })
     const uncalibrated = await open(fovOnly)
     expect(uncalibrated.metadata).toMatchObject({
-      calibrationStatus: 'uncalibrated',
+      calibrationStatus: {
+        spatial: { x: 'uncalibrated', y: 'uncalibrated' },
+        intensity: 'uncalibrated',
+      },
       calibrationProfile: feiSemTiffCalibrationProfile.id,
     })
     expect(
@@ -980,6 +1047,33 @@ describe('ordinary TIFF scientific reader', () => {
       datasetId: 'series-0',
       resources: [{ id: 'primary', identity: { size: input.byteLength } }],
     })
+  })
+
+  it('detects OME XML through tag 270 when the first IFD and XML are beyond 16 KiB', async () => {
+    const xml = `<?xml version="1.0"?><OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2016-06">
+      <Image ID="Image:0"><Pixels ID="Pixels:0" DimensionOrder="XYCZT" Type="uint8"
+      SizeX="2" SizeY="1" SizeZ="1" SizeC="1" SizeT="1"><Channel ID="Channel:0"/>
+      <TiffData IFD="0" PlaneCount="1"/></Pixels></Image></OME>`
+    const input = tiffFixture({
+      width: 2,
+      height: 1,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [Uint8Array.of(10, 20)],
+      ifdOffset: 20_000,
+      extraEntries: [{ tag: 270, type: 2, values: [...new TextEncoder().encode(xml), 0] }],
+    })
+    const detection = await new ScientificReaderRegistry([tiffReader, omeTiffReader]).detect({
+      primary: { id: 'primary', name: 'late.ome.tiff', source: new MemorySource(input) },
+    })
+
+    expect(detection).toMatchObject({
+      reader: { id: 'purejsimage/ome-tiff' },
+      confidence: 1,
+    })
+    expect(detection.stats.bytes).toBeLessThan(2_000)
+    expect(detection.stats.reads).toBeLessThanOrEqual(5)
   })
 
   it('propagates cancellation and closes a read source session on iterator return', async () => {

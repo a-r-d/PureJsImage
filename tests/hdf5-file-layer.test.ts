@@ -1,8 +1,10 @@
+import { createHash } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
 import {
   createGeneratedHdf5Fixture,
   prependGeneratedHdf5Fixture,
 } from '../benchmark/hdf5/generated-fixture.ts'
+import { independentHdf5FileFixtures } from '../benchmark/hdf5/independent-fixtures.ts'
 import {
   type Hdf5IntegerWidth,
   Hdf5MetadataPageCache,
@@ -77,6 +79,29 @@ class MutableIdentitySource implements ImageSource {
 }
 
 describe('HDF5 file and address layer', () => {
+  it.each(independentHdf5FileFixtures)('parses independently generated $name', async (fixture) => {
+    const bytes = fixture.bytes()
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe(fixture.sha256)
+    const file = await openHdf5FileLayer(new HostileSource(bytes), {
+      pageBytes: 64,
+      maxBytes: 256,
+    })
+
+    expect(file.superblock).toMatchObject({
+      version: fixture.superblockVersion,
+      signatureOffset: BigInt(fixture.userBlockBytes),
+      offsetSize: 8,
+      lengthSize: 8,
+      storedBaseAddress: BigInt(fixture.userBlockBytes),
+      baseAddress: BigInt(fixture.userBlockBytes),
+      storedEndOfFileAddress: BigInt(bytes.byteLength),
+      endOfFileAddress: BigInt(bytes.byteLength),
+      rootObjectAddress: 48n,
+      rootObjectOffset: BigInt(fixture.userBlockBytes + 48),
+    })
+    expect(await file.readMetadata(48n, 4)).toEqual(Uint8Array.of(0x4f, 0x48, 0x44, 0x52))
+  })
+
   it.each(versionCases)(
     'indexes superblock version $version with $offsetSize-byte addresses at user block $userBlockBytes',
     async ({ version, userBlockBytes, offsetSize, lengthSize }) => {

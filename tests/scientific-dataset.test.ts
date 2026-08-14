@@ -373,6 +373,27 @@ describe('ScientificDataset descriptors', () => {
     expect(JSON.parse(JSON.stringify(descriptor))).toEqual(descriptor)
   })
 
+  it('preserves and freezes multiple calibration evidence contributors', () => {
+    const calibration = [
+      { kind: 'embedded' as const, resourceId: 'image', locator: 'ser:Calibration[0]' },
+      { kind: 'sidecar' as const, resourceId: 'metadata', locator: 'emi:Mode' },
+    ]
+    const descriptor = normalizeScientificDatasetDescriptor(
+      descriptorInput([
+        {
+          ...axis('x', 'reciprocal-space', 2, { type: 'linear', origin: 0, step: 1 }),
+          unit: '1/m',
+          calibration,
+        },
+        axis('y', 'space', 2),
+      ]),
+    )
+
+    expect(descriptor.axes[0]?.calibration).toEqual(calibration)
+    expect(descriptor.axes[0]?.calibration).not.toBe(calibration)
+    expect(Object.isFrozen(descriptor.axes[0]?.calibration)).toBe(true)
+  })
+
   it.each([
     [{ kind: 'unknown', resourceId: 'source', locator: 'format:field' }, 'kind'],
     [{ kind: 'embedded', resourceId: '', locator: 'format:field' }, 'resourceId'],
@@ -390,6 +411,23 @@ describe('ScientificDataset descriptors', () => {
         ]),
       ),
     ).toThrow(message)
+  })
+
+  it.each([
+    [[]],
+    [new Array(17).fill({ kind: 'embedded', resourceId: 'source', locator: 'field' })],
+  ])('rejects an invalid calibration contributor count %#', (calibration) => {
+    expect(() =>
+      normalizeScientificDatasetDescriptor(
+        descriptorInput([
+          {
+            ...axis('x', 'space', 2, { type: 'linear', origin: 0, step: 1 }),
+            calibration,
+          },
+          axis('y', 'space', 2),
+        ]),
+      ),
+    ).toThrow('contributors')
   })
 
   it('describes components independently from selectable channel axes', () => {

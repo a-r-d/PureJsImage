@@ -69,6 +69,7 @@ export interface BrowserCompatibilityHarness {
   scientificTiaEmi(): Promise<BrowserWorkflowResult>
   scientificTiaSer(): Promise<BrowserWorkflowResult>
   scientificOneDimensionalSeries(): Promise<BrowserWorkflowResult>
+  scientificOrdinaryCodecFallbacks(): Promise<BrowserWorkflowResult>
   tiffEncodePipeline(): Promise<BrowserWorkflowResult>
   webpLossless(): Promise<BrowserWorkflowResult>
   webpLossyDecode(): Promise<BrowserWorkflowResult>

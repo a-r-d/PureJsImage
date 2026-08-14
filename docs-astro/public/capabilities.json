@@ -1742,7 +1742,7 @@
         },
         {
           "status": "supported",
-          "text": "First-party standard TIFF, ImageJ, DigitalMicrograph, FEI SFEG/Helios, and Zeiss SEM calibration profiles with normalized origins and steps, embedded evidence, bounded raw metadata, normalized acquisition fields, strict private-tag detection, and non-fatal validation warnings"
+          "text": "First-party standard TIFF, ImageJ, DigitalMicrograph, FEI SFEG/Helios, and Zeiss SEM calibration profiles with normalized origins and steps, per-axis evidence, structured spatial/intensity status, format-default resolution evidence, bounded raw metadata, normalized acquisition fields, strict private-tag detection, and non-fatal validation warnings"
         },
         {
           "status": "supported",
@@ -6580,6 +6580,57 @@
       "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
     },
     {
+      "id": "purejsimage/webp",
+      "version": "1.0.0",
+      "format": "WebP",
+      "packageExport": "purejsimage/scientific/readers/webp",
+      "extensions": ["webp"],
+      "mediaTypes": ["image/webp"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "Low-confidence codec adapter exposing canonical uint8 image datasets; animated WebP remains outside the codec boundary.",
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/bmp",
+      "version": "1.0.0",
+      "format": "BMP",
+      "packageExport": "purejsimage/scientific/readers/bmp",
+      "extensions": ["bmp", "dib"],
+      "mediaTypes": ["image/bmp", "image/x-ms-bmp"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "Low-confidence codec adapter exposing canonical uint8 image datasets.",
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/jp2",
+      "version": "1.0.0",
+      "format": "JPEG 2000 / JP2",
+      "packageExport": "purejsimage/scientific/readers/jp2",
+      "extensions": ["jp2"],
+      "mediaTypes": ["image/jp2"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "Low-confidence codec adapter exposing canonical uint8 image datasets within the first-party JP2 decoder subset.",
+      "evidence": [
+        "tests/scientific-image-codec-reader.test.ts",
+        "browser-tests/compatibility.pw.ts"
+      ],
+      "fixtures": ["benchmark/corpus/files/jp2/openjpeg-lossless-rgb16.jp2"]
+    },
+    {
       "id": "purejsimage/tiff",
       "version": "1.0.0",
       "format": "TIFF",
@@ -6603,9 +6654,15 @@
       "resourceModel": "single",
       "datasetKinds": ["image", "volume"],
       "directRangeReads": true,
-      "boundary": "OME-XML-backed X/Y/Z/C/T datasets on supported TIFF sample and compression layouts.",
-      "evidence": ["tests/scientific-format-readers.test.ts"],
-      "fixtures": ["tests/scientific-format-readers.test.ts"]
+      "boundary": "OME-XML-backed X/Y/Z/C/T datasets on supported TIFF sample and compression layouts; detection follows the first TIFF IFD and bounded tag-270 ranges instead of scanning a fixed file prefix.",
+      "evidence": [
+        "tests/scientific-format-readers.test.ts",
+        "tests/scientific-tiff-reader.test.ts"
+      ],
+      "fixtures": [
+        "tests/scientific-format-readers.test.ts",
+        "tests/scientific-tiff-reader.test.ts"
+      ]
     },
     {
       "id": "purejsimage/aperio-svs",
@@ -6659,7 +6716,7 @@
       "resourceModel": "single",
       "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
       "directRangeReads": true,
-      "boundary": "TIA SER versions 0x0210 and 0x0220 with scalar element types 1 through 8, lazy compatible image or spectrum collections, native calibrated series reads, and explicit valid or invalid element metadata; no complex elements or companion EMI metadata.",
+      "boundary": "TIA SER versions 0x0210 and 0x0220 with scalar element types 1 through 8, request-bounded batched metadata indexing, lazy payload reads, compatible image or spectrum collections, native calibrated series reads, and explicit valid or invalid element metadata; no complex elements or companion EMI metadata.",
       "evidence": ["tests/tia-ser-reader.test.ts"],
       "fixtures": [
         "benchmark/tia-ser/corpus.json",

@@ -1,4 +1,5 @@
 import { invalidInput } from '../errors.ts'
+import type { ScientificCalibrationEvidenceKind } from '../scientific/dataset.ts'
 import type { TiffProfile, TiffProfileContext } from './profiles.ts'
 import type { TiffDirectory, TiffDocument, TiffTagValue } from './types.ts'
 
@@ -53,6 +54,7 @@ export interface TiffCalibrationMetadataObject {
 }
 
 export interface TiffCalibrationEvidence {
+  readonly kind?: ScientificCalibrationEvidenceKind
   readonly locator: string
   readonly formula?: string
   readonly note?: string
@@ -236,6 +238,7 @@ const standardDirectoryCalibration = async (
           step: resolutionUnit.micrometers / xResolution,
           unit: 'µm',
           evidence: Object.freeze({
+            ...(resolutionUnit.defaulted ? { kind: 'format-default' as const } : {}),
             locator: tagLocator(directory, [
               tagXResolution,
               ...(resolutionUnit.defaulted ? [] : [tagResolutionUnit]),
@@ -259,6 +262,7 @@ const standardDirectoryCalibration = async (
           step: resolutionUnit.micrometers / yResolution,
           unit: 'µm',
           evidence: Object.freeze({
+            ...(resolutionUnit.defaulted ? { kind: 'format-default' as const } : {}),
             locator: tagLocator(directory, [
               tagYResolution,
               ...(resolutionUnit.defaulted ? [] : [tagResolutionUnit]),

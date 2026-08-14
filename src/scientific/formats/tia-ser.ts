@@ -58,6 +58,7 @@ export interface TiaSerIndex {
   readonly elements: readonly TiaSerElement[]
   readonly invalidElements: readonly TiaSerInvalidElement[]
   readonly metadataBytesRead: number
+  readonly metadataReadOperations: number
 }
 
 export interface TiaSerIndexLimits {
@@ -68,6 +69,17 @@ export interface TiaSerIndexLimits {
   readonly maxOffsetArrayBytes: number
   readonly maxElementBytes: number
   readonly maxMetadataBytes: number
+  readonly maxMetadataReadOperations: number
+}
+
+interface TiaSerMetadataSpan {
+  readonly offset: number
+  readonly length: number
+}
+
+interface TiaSerMetadataCacheEntry {
+  readonly offset: number
+  readonly bytes: Uint8Array
 }
 
 const byteOrder = 0x4949
@@ -78,6 +90,8 @@ const spectrumDataType = 0x4120
 const imageDataType = 0x4122
 const positionTagType = 0x4142
 const timeTagType = 0x4152
+const maximumMetadataBatchBytes = 65_536
+const maximumMetadataBatchGap = 256
 
 const checkedProduct = (values: readonly number[], label: string): number => {
   let result = 1
@@ -119,7 +133,9 @@ class TiaSerIndexer {
   readonly #source: ImageSource
   readonly #limits: TiaSerIndexLimits
   readonly #signal: AbortSignal | undefined
+  readonly #cache: TiaSerMetadataCacheEntry[] = []
   metadataBytesRead = 0
+  metadataReadOperations = 0
 
   constructor(source: ImageSource, limits: TiaSerIndexLimits, options: Readonly<AbortOptions>) {
     this.#source = source
@@ -132,16 +148,90 @@ class TiaSerIndexer {
     if (!checkedExtent(offset, length, this.#source.size)) {
       throw invalidInput(`TIA SER metadata span ${offset}+${length} is outside the source`)
     }
+    if (length === 0) return new Uint8Array()
+    const cached = this.#cached(offset, length)
+    if (cached !== undefined) return cached
     if (length > this.#limits.maxMetadataBytes - this.metadataBytesRead) {
       throw limitExceeded(
         `TIA SER metadata reads exceed maxMetadataBytes ${this.#limits.maxMetadataBytes}`,
+      )
+    }
+    if (this.metadataReadOperations >= this.#limits.maxMetadataReadOperations) {
+      throw limitExceeded(
+        `TIA SER metadata reads exceed maxMetadataReadOperations ${this.#limits.maxMetadataReadOperations}`,
       )
     }
     const bytes = await readExactly(this.#source, offset, length, {
       ...(this.#signal === undefined ? {} : { signal: this.#signal }),
     })
     this.metadataBytesRead += length
-    return bytes
+    this.metadataReadOperations += 1
+    return bytes.slice()
+  }
+
+  async prime(spans: readonly TiaSerMetadataSpan[]): Promise<void> {
+    const ordered = spans
+      .filter(
+        ({ offset, length }) => length > 0 && checkedExtent(offset, length, this.#source.size),
+      )
+      .toSorted((left, right) => left.offset - right.offset || left.length - right.length)
+    const batches: TiaSerMetadataSpan[] = []
+    let start: number | undefined
+    let end = 0
+    for (const span of ordered) {
+      const spanEnd = span.offset + span.length
+      if (start === undefined) {
+        start = span.offset
+        end = spanEnd
+        continue
+      }
+      const mergedEnd = Math.max(end, spanEnd)
+      if (
+        span.offset <= end + maximumMetadataBatchGap &&
+        mergedEnd - start <= maximumMetadataBatchBytes
+      ) {
+        end = mergedEnd
+        continue
+      }
+      batches.push(Object.freeze({ offset: start, length: end - start }))
+      start = span.offset
+      end = spanEnd
+    }
+    if (start !== undefined) batches.push(Object.freeze({ offset: start, length: end - start }))
+    if (batches.length > this.#limits.maxMetadataReadOperations - this.metadataReadOperations) {
+      throw limitExceeded(
+        `TIA SER metadata indexing requires ${batches.length + this.metadataReadOperations} source reads; maxMetadataReadOperations is ${this.#limits.maxMetadataReadOperations}`,
+      )
+    }
+    for (const batch of batches) {
+      const bytes = await this.read(batch.offset, batch.length)
+      this.#cache.push(Object.freeze({ offset: batch.offset, bytes }))
+    }
+    this.#cache.sort((left, right) => left.offset - right.offset)
+  }
+
+  #cached(offset: number, length: number): Uint8Array | undefined {
+    let low = 0
+    let high = this.#cache.length - 1
+    while (low <= high) {
+      const middle = (low + high) >>> 1
+      const entry = this.#cache[middle]
+      if (entry === undefined) return undefined
+      if (offset < entry.offset) {
+        high = middle - 1
+        continue
+      }
+      const relative = offset - entry.offset
+      if (relative >= entry.bytes.byteLength) {
+        low = middle + 1
+        continue
+      }
+      if (length <= entry.bytes.byteLength - relative) {
+        return entry.bytes.slice(relative, relative + length)
+      }
+      return undefined
+    }
+    return undefined
   }
 }
 
@@ -395,6 +485,20 @@ export const indexTiaSer = async (
     readOffset((declaredValidElements + elementIndex) * offsetWidth),
   )
 
+  const elementHeaderBytes = dataKind === 'spectrum' ? 26 : 50
+  const elementTagBytes = tagKind === 'position' ? 24 : 8
+  await indexer.prime(
+    dataOffsets.flatMap((dataOffset, elementIndex) => {
+      const tagOffset = tagOffsets[elementIndex]
+      return tagOffset === undefined
+        ? [{ offset: dataOffset, length: elementHeaderBytes }]
+        : [
+            { offset: dataOffset, length: elementHeaderBytes },
+            { offset: tagOffset, length: elementTagBytes },
+          ]
+    }),
+  )
+
   const elements: TiaSerElement[] = []
   const invalidElements: TiaSerInvalidElement[] = []
   for (let elementIndex = 0; elementIndex < declaredValidElements; elementIndex += 1) {
@@ -429,5 +533,6 @@ export const indexTiaSer = async (
     elements: Object.freeze(elements),
     invalidElements: Object.freeze(invalidElements),
     metadataBytesRead: indexer.metadataBytesRead,
+    metadataReadOperations: indexer.metadataReadOperations,
   })
 }

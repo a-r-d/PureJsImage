@@ -18,18 +18,21 @@ import { tgaCodec } from '../src/codecs/tga.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import type { ImageCodec } from '../src/codec.ts'
 import { aperioSvsReaderDescriptor } from '../src/scientific/readers/aperio-svs.ts'
+import { bmpReaderDescriptor } from '../src/scientific/readers/bmp.ts'
 import { cbfReaderDescriptor } from '../src/scientific/readers/cbf.ts'
 import { digitalMicrographReaderDescriptor } from '../src/scientific/readers/digital-micrograph.ts'
 import { enviReaderDescriptor } from '../src/scientific/readers/envi.ts'
 import { fitsReaderDescriptor } from '../src/scientific/readers/fits.ts'
 import { gsfReaderDescriptor } from '../src/scientific/readers/gsf.ts'
 import { jpegReaderDescriptor } from '../src/scientific/readers/jpeg.ts'
+import { jp2ReaderDescriptor } from '../src/scientific/readers/jp2.ts'
 import { mrcReaderDescriptor } from '../src/scientific/readers/mrc.ts'
 import { omeTiffReaderDescriptor } from '../src/scientific/readers/ome-tiff.ts'
 import { pngReaderDescriptor } from '../src/scientific/readers/png.ts'
 import { tiffReaderDescriptor } from '../src/scientific/readers/tiff.ts'
 import { tiaEmiReaderDescriptor } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReaderDescriptor } from '../src/scientific/readers/tia-ser.ts'
+import { webpReaderDescriptor } from '../src/scientific/readers/webp.ts'
 import type { ScientificReaderDescriptor } from '../src/scientific/reader.ts'
 import codecCapabilityExpectations from './generated/capability-expectations.json' with {
   type: 'json',
@@ -61,6 +64,9 @@ const runtimeScientificReaders: readonly ScientificReaderDescriptor[] = [
   cbfReaderDescriptor,
   pngReaderDescriptor,
   jpegReaderDescriptor,
+  webpReaderDescriptor,
+  bmpReaderDescriptor,
+  jp2ReaderDescriptor,
   tiffReaderDescriptor,
   omeTiffReaderDescriptor,
   aperioSvsReaderDescriptor,
