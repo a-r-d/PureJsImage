@@ -8,6 +8,7 @@ import {
   readHdf5DatasetMetadata,
 } from '../../src/scientific/formats/hdf5-dataset.ts'
 import { locateHdf5Chunk } from '../../src/scientific/formats/hdf5-chunks.ts'
+import { readHdf5DecodedChunkBlocks } from '../../src/scientific/formats/hdf5-filters.ts'
 import { openHdf5ObjectGraph } from '../../src/scientific/formats/hdf5-graph.ts'
 import { openHdf5FileLayer } from '../../src/scientific/formats/hdf5.ts'
 import {
@@ -114,6 +115,38 @@ const chunkIndexSamples: Readonly<
   }),
 })
 
+const filterChunkSamples: Readonly<
+  Record<
+    string,
+    Readonly<{
+      encodedBytes: number
+      decodedPrefixHex?: string
+      unsupportedFilter?: string
+    }>
+  >
+> = Object.freeze({
+  'h5repack_filters.h5:/dset_all': Object.freeze({
+    encodedBytes: 203,
+    decodedPrefixHex: '0000000001000000020000000300000004000000050000000600000007000000',
+  }),
+  'h5repack_filters.h5:/dset_deflate': Object.freeze({
+    encodedBytes: 320,
+    decodedPrefixHex: '0000000001000000020000000300000004000000050000000600000007000000',
+  }),
+  'h5repack_filters.h5:/dset_fletcher32': Object.freeze({
+    encodedBytes: 804,
+    decodedPrefixHex: '0000000001000000020000000300000004000000050000000600000007000000',
+  }),
+  'h5repack_filters.h5:/dset_nbit': Object.freeze({
+    encodedBytes: 776,
+    unsupportedFilter: 'N-bit',
+  }),
+  'h5repack_filters.h5:/dset_shuffle': Object.freeze({
+    encodedBytes: 800,
+    decodedPrefixHex: '0000000001000000020000000300000004000000050000000600000007000000',
+  }),
+})
+
 const manifest = await readHdf5CorpusManifest()
 for (const fixture of manifest.fixtures) {
   const path = hdf5CorpusPath(fixture.file)
@@ -198,6 +231,11 @@ for (const fixture of manifest.fixtures) {
         expected.fillStatus,
         `${fixture.file} ${expected.path} fill status`,
       )
+      requireNumberArrayEqual(
+        metadata.filterPipeline?.filters.map(({ id }) => id) ?? [],
+        expected.filterIds ?? [],
+        `${fixture.file} ${expected.path} filter IDs`,
+      )
       if (metadata.layout.kind === 'chunked' && expected.chunkDimensions !== undefined) {
         requireNumberArrayEqual(
           metadata.layout.chunkDimensions,
@@ -229,6 +267,54 @@ for (const fixture of manifest.fixtures) {
             chunkSample.rawPrefixHex,
             `${fixture.file} ${expected.path} chunk prefix`,
           )
+        }
+        const filterSample = filterChunkSamples[`${fixture.file}:${expected.path}`]
+        if (filterSample !== undefined) {
+          const coordinates = Object.freeze(metadata.dataspace.dimensions.map(() => 0))
+          const located = await locateHdf5Chunk(file, metadata, coordinates, {
+            objectPath: expected.path,
+          })
+          requireEqual(
+            located.encodedBytes,
+            filterSample.encodedBytes,
+            `${fixture.file} ${expected.path} encoded chunk bytes`,
+          )
+          const selection = {
+            start: coordinates,
+            shape: Object.freeze(metadata.dataspace.dimensions.map(() => 1)),
+          }
+          const iterator = readHdf5DecodedChunkBlocks(file, metadata, selection, {
+            objectPath: expected.path,
+          })[Symbol.asyncIterator]()
+          if (filterSample.unsupportedFilter !== undefined) {
+            try {
+              await iterator.next()
+              throw new Error(`${fixture.file} ${expected.path} unexpectedly decoded`)
+            } catch (error: unknown) {
+              if (
+                !(error instanceof ImageError) ||
+                error.code !== 'UNSUPPORTED_OPERATION' ||
+                !error.message.includes(expected.path) ||
+                !error.message.includes(filterSample.unsupportedFilter)
+              ) {
+                throw error
+              }
+            }
+          } else {
+            const first = await iterator.next()
+            if (first.done || first.value.decoded === undefined) {
+              throw new Error(`${fixture.file} ${expected.path} decoded chunk is unavailable`)
+            }
+            const prefix = first.value.decoded.subarray(
+              0,
+              (filterSample.decodedPrefixHex?.length ?? 0) / 2,
+            )
+            requireEqual(
+              hex(prefix),
+              filterSample.decodedPrefixHex,
+              `${fixture.file} ${expected.path} decoded chunk prefix`,
+            )
+          }
         }
       }
       if (expected.sample !== undefined) {

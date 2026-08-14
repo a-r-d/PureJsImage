@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "source": {
     "project": "HDF5",
     "revision": "18de4b4a1b83f5286a53fd0117364c1a068ce1e1",
@@ -158,6 +158,72 @@
             "elementOffset": 0,
             "rawHex": "00000000000000003ff0000000000000000000013f8000003fe0000000000000"
           }
+        }
+      ]
+    },
+    {
+      "file": "h5repack_filters.h5",
+      "path": "h5repack_filters.h5",
+      "bytes": 27604,
+      "sha256": "acc2f7865d9a79dd2ea5c48c83e0421bb44b4ae4c25a5c91713681f94e028edf",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "storage": "datasets",
+      "datasets": [
+        {
+          "path": "/dset_all",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "filterIds": [2, 3, 1]
+        },
+        {
+          "path": "/dset_deflate",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "filterIds": [1]
+        },
+        {
+          "path": "/dset_fletcher32",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "filterIds": [3]
+        },
+        {
+          "path": "/dset_nbit",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "filterIds": [5]
+        },
+        {
+          "path": "/dset_shuffle",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero",
+          "filterIds": [2]
         }
       ]
     }

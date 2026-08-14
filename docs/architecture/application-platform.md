@@ -1841,6 +1841,13 @@ to own only generic descriptors, definitions, providers, and registries.
       or contiguous raw reads; pin the HDF Group's real `tenum.h5` and `tcompound.h5` fixtures with
       exact datatype and raw-sample verification while preserving D4 chunk traversal and explicit
       unsupported shared-message-heap, nested-compound, and compound-array boundaries.
+- [x] Complete HDF5 D4 with bounded hyperslab planning, targeted classic and modern chunk-index
+      lookup, exact partial-edge geometry, per-chunk filter masks, one-encoded-chunk-at-a-time reads,
+      cancellation, hostile index coverage, and pinned independent classic and modern fixtures.
+- [x] Complete the required HDF5 D5 filter subset with bounded version 1 and 2 pipeline metadata,
+      raw, Deflate, Shuffle, verified Fletcher32, reverse-order decoding, per-chunk masks, explicit
+      unsupported-filter errors, a pinned HDF Group composition fixture, and a real Chromium path,
+      while keeping optional filters and all public HDF5 capability claims deferred.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -2023,3 +2030,17 @@ to own only generic descriptors, definitions, providers, and registries.
     every size ceiling pass; a complete repository test run passes all 116 files and 1,413 tests.
     Filter decoding, decoded block assembly, and dialect readers remain D5/D6; HDF5 remains
     unreachable from public exports.
+
+  - HDF5 D5 validation: the package-private filter layer parses both filter-pipeline message
+    versions and decodes raw, Deflate, Shuffle, and Fletcher32 chunks in reverse pipeline order with
+    exact output, scratch, mask, and cancellation checks. Active N-bit, Scale-Offset, SZIP, and
+    unknown filters reject explicitly. The revision-pinned HDF Group `h5repack_filters.h5` corpus
+    file verifies all four required paths, the real three-filter composition, and N-bit rejection;
+    the existing h5py fixture independently verifies version 2 Shuffle metadata and chunk output.
+    All 82 focused HDF5 tests, all seven pinned corpus files, and the focused real-Chromium workflow
+    pass. The 446-file packed consumer, 19-page documentation build, browser graph, typecheck, lint,
+    formatting, and every size ceiling pass without exposing an HDF5 entry point or capability
+    claim. The final permission-correct single-worker rerun passes all 117 files and 1,422 tests;
+    parallel full-suite attempts hit only existing timeout pressure across unrelated codecs, whose
+    focused cases passed alone. Optional filters and D6 selection-aware scientific block assembly
+    remain deferred.

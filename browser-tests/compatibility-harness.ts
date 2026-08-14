@@ -52,6 +52,8 @@ import { tiffReader } from '../src/scientific/readers/tiff.ts'
 import { tiaEmiReader } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReader } from '../src/scientific/readers/tia-ser.ts'
 import { webpReader } from '../src/scientific/readers/webp.ts'
+import { decodeHdf5ChunkFilters, hdf5Fletcher32 } from '../src/scientific/formats/hdf5-filters.ts'
+import type { Hdf5FilterPipeline } from '../src/scientific/formats/hdf5-filter-message.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
@@ -86,6 +88,46 @@ const fetchBytes = async (path: string): Promise<Uint8Array<ArrayBuffer>> => {
   const response = await fetch(path)
   if (!response.ok) throw new Error(`Fixture request failed: ${response.status} ${path}`)
   return new Uint8Array(await response.arrayBuffer())
+}
+
+const hdf5Filters = async (): Promise<BrowserWorkflowResult> => {
+  const raw = new Uint8Array(64)
+  const view = new DataView(raw.buffer)
+  for (let index = 0; index < 16; index += 1) view.setInt32(index * 4, index * 7 - 20, true)
+  const shuffled = new Uint8Array(raw.byteLength)
+  for (let byte = 0; byte < 4; byte += 1) {
+    for (let element = 0; element < 16; element += 1) {
+      shuffled[byte * 16 + element] = raw[element * 4 + byte] ?? 0
+    }
+  }
+  const compressed = new Uint8Array(
+    await new Response(
+      new Blob([shuffled]).stream().pipeThrough(new CompressionStream('deflate')),
+    ).arrayBuffer(),
+  )
+  const encoded = new Uint8Array(compressed.byteLength + 4)
+  encoded.set(compressed)
+  new DataView(encoded.buffer).setUint32(compressed.byteLength, hdf5Fletcher32(compressed), true)
+  const pipeline: Hdf5FilterPipeline = Object.freeze({
+    version: 2,
+    filters: Object.freeze([
+      Object.freeze({ id: 2, optional: false, name: undefined, clientData: Object.freeze([4]) }),
+      Object.freeze({ id: 1, optional: false, name: undefined, clientData: Object.freeze([6]) }),
+      Object.freeze({ id: 3, optional: false, name: undefined, clientData: Object.freeze([]) }),
+    ]),
+  })
+  const decoded = await decodeHdf5ChunkFilters(encoded, raw.byteLength, 4, pipeline, 0, {
+    objectPath: '/browser-filter-test',
+    maxDecodedChunkBytes: raw.byteLength,
+    maxFilterScratchBytes: raw.byteLength,
+  })
+  if (decoded.some((value, index) => value !== raw[index])) {
+    throw new Error('Browser HDF5 filter output did not match the input')
+  }
+  return {
+    detail: 'portable HDF5 Fletcher32, Deflate, and Shuffle filters decoded in reverse order',
+    outputBytes: decoded.byteLength,
+  }
 }
 
 const jpegXlLocalTreeRgb = Uint8Array.from(
@@ -3634,6 +3676,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifYuv444,
   failureCleanup,
   heifPqDisplay,
+  hdf5Filters,
   httpRangeCancellation,
   inputTypes,
   optionalApiEntries,

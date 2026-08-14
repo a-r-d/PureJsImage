@@ -25,6 +25,13 @@ test('uses Lanczos3 as the default resize kernel in a real browser', async ({ pa
   expect(result.detail).toContain('matched explicit Lanczos3')
 })
 
+test('decodes the required HDF5 filters in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.hdf5Filters())
+  expect(result.outputBytes).toBe(64)
+  expect(result.detail).toContain('decoded in reverse order')
+})
+
 test('decodes JPEG metadata and runs crop, resize, rotation, and JPEG encoding', async ({
   page,
 }) => {

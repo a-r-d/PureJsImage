@@ -12,6 +12,7 @@ import {
   parseHdf5OldFillValueMessage,
 } from './hdf5-layout.ts'
 import type { Hdf5FileLayer, Hdf5IntegerWidth } from './hdf5.ts'
+import { parseHdf5FilterPipelineMessage, type Hdf5FilterPipeline } from './hdf5-filter-message.ts'
 import {
   type Hdf5ObjectHeader,
   type Hdf5ObjectHeaderLimits,
@@ -143,6 +144,7 @@ export interface Hdf5DatasetTypeAndSpace {
 export interface Hdf5DatasetMetadata extends Hdf5DatasetTypeAndSpace {
   readonly layout: Hdf5DatasetLayout
   readonly fillValue: Hdf5FillValue
+  readonly filterPipeline: Hdf5FilterPipeline | undefined
 }
 
 export interface Hdf5DatasetElementRange {
@@ -1058,7 +1060,8 @@ export const readHdf5DatasetMetadata = async (
   const layoutMessage = requiredMessage(object, 0x0008, 'layout', label)
   const oldFillMessage = optionalMessage(object, 0x0004, 'old fill value', label)
   const fillMessage = optionalMessage(object, 0x0005, 'fill value', label)
-  const messages = [layoutMessage, oldFillMessage, fillMessage].filter(
+  const filterMessage = optionalMessage(object, 0x000b, 'filter pipeline', label)
+  const messages = [layoutMessage, oldFillMessage, fillMessage, filterMessage].filter(
     (message): message is Hdf5ObjectHeaderMessage => message !== undefined,
   )
   const payloads: ResolvedMessagePayload[] = []
@@ -1088,6 +1091,14 @@ export const readHdf5DatasetMetadata = async (
     fillMessage === undefined
       ? undefined
       : parseHdf5FillValueMessage(payloads[payloadIndex]?.bytes ?? new Uint8Array(), options)
+  if (fillMessage !== undefined) payloadIndex += 1
+  const filterPipeline =
+    filterMessage === undefined
+      ? undefined
+      : parseHdf5FilterPipelineMessage(payloads[payloadIndex]?.bytes ?? new Uint8Array())
+  if (filterPipeline !== undefined && layout.kind !== 'chunked') {
+    throw unsupportedOperation(`${label} applies a filter pipeline to non-chunked raw data`)
+  }
   if (
     oldFillValue !== undefined &&
     newFillValue !== undefined &&
@@ -1102,6 +1113,7 @@ export const readHdf5DatasetMetadata = async (
     ...typeAndSpace,
     layout,
     fillValue,
+    filterPipeline,
     metadataBytes:
       typeAndSpace.metadataBytes +
       payloads.reduce((total, payload) => total + payload.metadataBytes, 0),

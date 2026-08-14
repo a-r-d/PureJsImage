@@ -79,6 +79,7 @@ const metadata = (
       writeTime: 'if-set',
       value: undefined,
     }),
+    filterPipeline: undefined,
   })
 
 const generatedFile = async () => {

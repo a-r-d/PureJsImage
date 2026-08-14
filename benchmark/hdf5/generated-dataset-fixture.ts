@@ -101,6 +101,16 @@ export interface GeneratedFillValueOptions {
   readonly value?: Uint8Array
 }
 
+export interface GeneratedFilterPipelineOptions {
+  readonly version: 1 | 2
+  readonly filters: readonly Readonly<{
+    readonly id: number
+    readonly optional?: boolean
+    readonly name?: string
+    readonly clientData?: readonly number[]
+  }>[]
+}
+
 const writeLittleEndian = (
   bytes: Uint8Array,
   offset: number,
@@ -121,6 +131,66 @@ const writeUint16 = (bytes: Uint8Array, offset: number, value: number): void => 
 
 const writeUint32 = (bytes: Uint8Array, offset: number, value: number): void => {
   new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).setUint32(offset, value, true)
+}
+
+const generatedFilterName = (name: string | undefined): Uint8Array<ArrayBuffer> => {
+  if (name === undefined) return new Uint8Array()
+  const encoded = new TextEncoder().encode(name)
+  if (encoded.some((value) => value === 0 || value > 0x7f)) {
+    throw new Error('Generated HDF5 filter name must be non-null ASCII')
+  }
+  const output = new Uint8Array((encoded.byteLength + 8) & ~7)
+  output.set(encoded)
+  return output
+}
+
+export const createGeneratedFilterPipelineMessage = (
+  options: Readonly<GeneratedFilterPipelineOptions>,
+): Uint8Array<ArrayBuffer> => {
+  if (options.filters.length > 32) throw new Error('Generated HDF5 filter pipeline is too long')
+  const descriptions = options.filters.map((filter) => {
+    if (!Number.isInteger(filter.id) || filter.id < 0 || filter.id > 0xffff) {
+      throw new Error('Generated HDF5 filter identifier is invalid')
+    }
+    const name = generatedFilterName(filter.name)
+    if (options.version === 2 && filter.id < 256 && name.byteLength !== 0) {
+      throw new Error('Generated HDF5 version 2 built-in filters cannot store a name')
+    }
+    const clientData = filter.clientData ?? []
+    const headerBytes = options.version === 1 || filter.id >= 256 ? 8 : 6
+    const paddingBytes = options.version === 1 && (clientData.length & 1) !== 0 ? 4 : 0
+    const output = new Uint8Array(
+      headerBytes + name.byteLength + clientData.length * 4 + paddingBytes,
+    )
+    writeUint16(output, 0, filter.id)
+    let position = 2
+    if (options.version === 1 || filter.id >= 256) {
+      writeUint16(output, position, name.byteLength)
+      position += 2
+    }
+    writeUint16(output, position, filter.optional === true ? 1 : 0)
+    writeUint16(output, position + 2, clientData.length)
+    position += 4
+    output.set(name, position)
+    position += name.byteLength
+    for (const value of clientData) {
+      writeUint32(output, position, value)
+      position += 4
+    }
+    return output
+  })
+  const headerBytes = options.version === 1 ? 8 : 2
+  const output = new Uint8Array(
+    headerBytes + descriptions.reduce((total, description) => total + description.byteLength, 0),
+  )
+  output[0] = options.version
+  output[1] = options.filters.length
+  let position = headerBytes
+  for (const description of descriptions) {
+    output.set(description, position)
+    position += description.byteLength
+  }
+  return output
 }
 
 export const createGeneratedDataspaceMessage = (

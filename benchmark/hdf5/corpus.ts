@@ -32,6 +32,7 @@ export interface Hdf5DatasetCorpusExpectation {
   readonly elementBytes: number
   readonly logicalBytes: number
   readonly fillStatus: 'default-zero' | 'undefined' | 'defined'
+  readonly filterIds?: readonly number[]
   readonly sample?: Hdf5DatasetSampleExpectation
 }
 
@@ -67,7 +68,7 @@ export type Hdf5CorpusFixture =
   | Hdf5DatasetCorpusFixture
 
 export interface Hdf5CorpusManifestValue {
-  readonly schemaVersion: 4
+  readonly schemaVersion: 5
   readonly source: {
     readonly project: string
     readonly revision: string
@@ -140,6 +141,19 @@ const parsePositiveIntegerArray = (value: unknown, label: string): readonly numb
     throw new Error(`HDF5 corpus ${label} must be a non-empty array`)
   }
   return Object.freeze(value.map((entry) => positiveInteger(entry, label)))
+}
+
+const parseFilterIds = (value: unknown): readonly number[] => {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error('HDF5 corpus filterIds must be a non-empty array')
+  }
+  return Object.freeze(
+    value.map((filterId) => {
+      const id = nonNegativeInteger(filterId, 'filter ID')
+      if (id > 0xffff) throw new Error('HDF5 corpus filter ID exceeds 65535')
+      return id
+    }),
+  )
 }
 
 const parseDatatypeExpectation = (value: unknown): Hdf5DatatypeCorpusExpectation => {
@@ -241,6 +255,10 @@ const parseDatasetExpectations = (value: unknown): readonly Hdf5DatasetCorpusExp
       if (layout === 'chunked' && sample !== undefined) {
         throw new Error('HDF5 corpus samples require D3 compact or contiguous storage')
       }
+      const filterIds = entry.filterIds === undefined ? undefined : parseFilterIds(entry.filterIds)
+      if (filterIds !== undefined && layout !== 'chunked') {
+        throw new Error('HDF5 corpus filterIds require chunked storage')
+      }
       return Object.freeze({
         path,
         layout,
@@ -250,6 +268,7 @@ const parseDatasetExpectations = (value: unknown): readonly Hdf5DatasetCorpusExp
         elementBytes,
         logicalBytes: positiveInteger(entry.logicalBytes, 'logicalBytes'),
         fillStatus,
+        ...(filterIds === undefined ? {} : { filterIds }),
         ...(sample === undefined ? {} : { sample }),
       })
     }),
@@ -257,7 +276,7 @@ const parseDatasetExpectations = (value: unknown): readonly Hdf5DatasetCorpusExp
 }
 
 const assertCorpusManifest = (value: unknown): Hdf5CorpusManifestValue => {
-  if (!isRecord(value) || value.schemaVersion !== 4 || !isRecord(value.source)) {
+  if (!isRecord(value) || value.schemaVersion !== 5 || !isRecord(value.source)) {
     throw new Error('HDF5 corpus manifest header is invalid')
   }
   if (!Array.isArray(value.fixtures) || value.fixtures.length === 0) {
@@ -310,7 +329,7 @@ const assertCorpusManifest = (value: unknown): Hdf5CorpusManifestValue => {
     })
   })
   return Object.freeze({
-    schemaVersion: 4,
+    schemaVersion: 5,
     source: Object.freeze({
       project: requiredString(value.source, 'project'),
       revision,

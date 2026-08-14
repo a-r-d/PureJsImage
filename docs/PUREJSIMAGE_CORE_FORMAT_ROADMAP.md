@@ -615,6 +615,20 @@ Add only after real files require them:
 
 Do not let unsupported SZIP or ZFP data return plausible bytes.
 
+D5 is complete for the required internal filter subset. Dataset metadata now parses bounded version
+1 and version 2 filter-pipeline messages, including built-in and named-filter layouts, client data,
+optional flags, shared-message resolution, and the format's 32-filter ceiling. The decoded-chunk
+stream applies active filters in reverse order, supports raw, Deflate, Shuffle, and verified
+Fletcher32 data, honors per-chunk masks, requires exact decoded sizes, bounds decompression and
+filter scratch, and checks cancellation between stages. Active N-bit, Scale-Offset, SZIP, and
+unknown filters fail explicitly with the dataset path and filter identity; masked filters remain
+skipped. A revision- and SHA-256-pinned HDF Group file verifies individual Deflate, Shuffle, and
+Fletcher32 datasets, the real combined Shuffle/Fletcher32/Deflate pipeline, and N-bit rejection.
+Generated hostile tests cover both message versions, corrupt checksums, invalid masks and
+parameters, byte limits, and cancellation, while a real Chromium workflow verifies the portable
+Deflate path. Optional third-party and specialized filters remain deferred until a real dialect
+corpus requires them. HDF5 remains package-private with no general compatibility claim.
+
 ### D6. Low-level API and conformance
 
 Keep the HDF5 implementation internal until two independent dialect readers use it successfully. Then consider a read-only `purejsimage/containers/hdf5` export.
