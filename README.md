@@ -157,6 +157,18 @@ const science = createScientificLibrary({ readers: [pngReader, jpegReader] })
 These readers expose exact codec-produced uint8 blocks and remain lower-confidence than specialized
 scientific readers.
 
+Ordinary scientific TIFF uses its own native-precision reader rather than that uint8 adapter:
+
+```ts
+import { tiffReader } from 'purejsimage/scientific/readers/tiff'
+
+const science = createScientificLibrary({ readers: [tiffReader, omeTiffReader] })
+```
+
+`tiffReader` preserves signed, floating-point, planar, and N-channel samples. Compatible top-level
+pages become a labeled `page` axis, incompatible contiguous series remain separate datasets, and
+SubIFDs remain resolution levels. Its fallback probe stays below OME-TIFF and Aperio SVS.
+
 ### Scientific rasters and explicit display mapping
 
 Scientific readers are separate from photographic codecs. The dataset remains numeric until an

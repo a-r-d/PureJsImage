@@ -90,6 +90,7 @@
         "tests/imazen-corpus-harness.test.ts",
         "tests/tiff-competitor-harness.test.ts",
         "tests/scientific-render.test.ts",
+        "tests/scientific-tiff-reader.test.ts",
         "tests/scientific-aperio-reader.test.ts",
         "tests/scientific-whole-slide-bridge.test.ts"
       ],

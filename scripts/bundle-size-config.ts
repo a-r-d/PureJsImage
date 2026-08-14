@@ -86,6 +86,13 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     maxMinifiedBytes: 55_000,
   },
   {
+    id: 'scientific-reader-tiff',
+    name: 'Scientific reader: TIFF',
+    contents: exportsFrom(['./src/scientific/readers/tiff.ts']),
+    baselineMinifiedBytes: 262_942,
+    maxMinifiedBytes: 341_825,
+  },
+  {
     id: 'scientific-reader-ome-tiff',
     name: 'Scientific reader: OME-TIFF',
     contents: exportsFrom(['./src/scientific/readers/ome-tiff.ts']),
@@ -117,8 +124,8 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     id: 'scientific-readers-all',
     name: 'Scientific readers: all',
     contents: exportsFrom(['./src/scientific/readers/all.ts']),
-    baselineMinifiedBytes: 391_662,
-    maxMinifiedBytes: 509_161,
+    baselineMinifiedBytes: 402_802,
+    maxMinifiedBytes: 523_643,
   },
   {
     id: 'operations',

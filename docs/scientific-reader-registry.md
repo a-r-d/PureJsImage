@@ -51,6 +51,27 @@ signature wins. They preserve source identity, `AbortSignal`, and caller-owned b
 Importing the PNG or JPEG reader is explicit; neither is linked by `purejsimage/scientific`, and
 experimental HEIC is not included in the all-readers entry.
 
+## Ordinary TIFF native rasters
+
+Ordinary TIFF is available through a dedicated reader rather than the uint8 codec adapter:
+
+```ts
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { omeTiffReader } from 'purejsimage/scientific/readers/ome-tiff'
+import { tiffReader } from 'purejsimage/scientific/readers/tiff'
+
+const science = createScientificLibrary({ readers: [tiffReader, omeTiffReader] })
+```
+
+The generic TIFF probe has lower confidence than OME-TIFF and Aperio SVS. The reader forwards
+native signed, floating-point, planar, and interleaved N-channel blocks from
+`TiffDirectory.createRasterDecoder()`. It groups only contiguous top-level pages with identical
+native format and pyramid geometry, labels those coordinates as `page`, and keeps incompatible
+series as separate datasets. It does not infer Z or time from page order. Direct SubIFDs are
+resolution levels. Standard optional tags and selected DigitalMicrograph, FEI, and Zeiss private
+tags are normalized under aggregate and per-tag byte limits; oversized or malformed optional tags
+do not prevent pixel opening.
+
 ## Detection and budgets
 
 Readers are probed in registration order. One unique highest confidence wins; equal nonzero top

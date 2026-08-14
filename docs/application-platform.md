@@ -44,6 +44,12 @@ Ordinary PNG and JPEG inputs can join the same explicit registry through `pngRea
 `purejsimage/scientific/readers/jpeg`. These are lower-confidence uint8 codec fallbacks;
 specialized scientific readers retain precedence.
 
+Ordinary TIFF uses `tiffReader` from `purejsimage/scientific/readers/tiff`. It is a separate
+native-precision path: compatible top-level pages become an explicit labeled `page` axis,
+incompatible contiguous series become separate datasets, and SubIFDs become resolution levels.
+It preserves signed, floating-point, planar, and N-channel raster blocks without inferring Z/time
+semantics or RGB display mappings for arbitrary bands. Its probe remains below OME-TIFF and Aperio.
+
 ## Read any labeled-axis plane
 
 A plane selects one ordered display-axis pair declared by

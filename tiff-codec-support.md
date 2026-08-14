@@ -28,6 +28,7 @@ This document is the capability contract for PureJsImage's first-party TIFF code
 - [x] Bounded typed `getTag()` reads, payload-free `getTagInfo()` metadata, plus per-directory display and native raster decoders
 - [x] Configurable physical-segment count, segment-table construction-peak, and per-segment encoded-byte limits rejected before oversized payload reads
 - [x] Native-precision planar or interleaved N-channel `RasterBlock` output without implicit RGB conversion
+- [x] Explicit ordinary TIFF `ScientificDocument` reader with native precision/components, contiguous compatible-page series, labeled page axes, SubIFD resolution levels, bounded selected metadata, identities, cancellation, and region reads
 - [x] Explicit `rasterToPixels()` display conversion with declared per-channel ranges
 - [x] First-party GeoTIFF model, coordinate conversion, bounding-box, GeoKey, GDAL metadata, and nodata helpers
 - [x] OME-TIFF Z/C/T datasets with validated dimension orders, channel metadata, physical pixel sizes, and explicit or implicit `TiffData` mappings

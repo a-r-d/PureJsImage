@@ -5,6 +5,7 @@ import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource, type ImageSource, type ImageSourceReadOptions } from '../src/source.ts'
 import { createScientificLibrary, type ScientificDataset } from '../src/scientific/index.ts'
 import { aperioSvsReader, createAperioSvsReader } from '../src/scientific/readers/aperio-svs.ts'
+import { tiffReader } from '../src/scientific/readers/tiff.ts'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
 
 const fixturePath = 'tests/fixtures/aperio-cmu-1-small-region.svs'
@@ -66,7 +67,7 @@ describe('Aperio scientific reader bridge', () => {
   it('detects and lazily reads a virtual slide larger than ordinary image limits', async () => {
     const bytes = new Uint8Array(await readFile(fixturePath))
     const source = new SparseVirtualSource(bytes, defaultImageLimits.maxInputBytes + 1)
-    const library = createScientificLibrary({ readers: [aperioSvsReader] })
+    const library = createScientificLibrary({ readers: [tiffReader, aperioSvsReader] })
     const document = await library.open({
       primary: { id: 'large-slide', name: 'large.svs', source },
       probeLimits: {
@@ -75,6 +76,7 @@ describe('Aperio scientific reader bridge', () => {
         maxReadBytes: 1_048_576,
       },
     })
+    expect(document.reader.id).toBe(aperioSvsReader.descriptor.id)
     const pyramid = await document.openDataset('pyramid')
     expect(await firstRegionHash(pyramid)).toBe(
       await firstRegionHash(

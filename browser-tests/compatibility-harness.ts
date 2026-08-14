@@ -19,8 +19,13 @@ import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/pn
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import { openAperioSvs } from '../src/pathology/index.ts'
-import { createScientificLibrary, rasterToPixels } from '../src/scientific/index.ts'
+import {
+  createScientificLibrary,
+  rasterToPixels,
+  ScientificReaderRegistry,
+} from '../src/scientific/index.ts'
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
+import { tiffReader } from '../src/scientific/readers/tiff.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
@@ -1029,6 +1034,41 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   if ((await directory.getTag(270, { maxBytes: 4096 })) !== tag) {
     throw new Error('Browser TIFF document did not reuse an immutable parsed tag')
   }
+  const detected = await new ScientificReaderRegistry([tiffReader, omeTiffReader]).detect({
+    primary: { id: 'primary', source: new MemorySource(input), name: 'fixture.ome.tiff' },
+  })
+  if (detected.reader.id !== omeTiffReader.descriptor.id || detected.confidence !== 1) {
+    throw new Error('Browser generic TIFF reader outranked the specialized OME-TIFF reader')
+  }
+  const ordinaryDocument = await createScientificLibrary({ readers: [tiffReader] }).open({
+    primary: { id: 'primary', source: new MemorySource(input), name: 'fixture.tiff' },
+  })
+  const ordinarySummary = ordinaryDocument.datasets[0]
+  if (ordinarySummary === undefined)
+    throw new Error('Browser ordinary TIFF reader exposed no dataset')
+  const ordinaryDataset = await ordinaryDocument.openDataset(ordinarySummary.id)
+  const ordinaryBlocks = ordinaryDataset.readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+    x: 1,
+    y: 0,
+    width: 1,
+    height: 1,
+  })
+  const ordinarySamples: number[] = []
+  for await (const block of ordinaryBlocks) {
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    for (let offset = 0; offset < block.data.byteLength; offset += 2) {
+      ordinarySamples.push(view.getUint16(offset, false))
+    }
+  }
+  if (
+    ordinaryDataset.descriptor.sampleType !== 'uint16' ||
+    ordinaryDataset.descriptor.components.map(({ kind }) => kind).join(',') !== 'red,green,blue' ||
+    ordinarySamples.join(',') !== '65535,32768,0'
+  ) {
+    throw new Error(`Browser ordinary TIFF native samples were ${ordinarySamples.join(',')}`)
+  }
   const scientificDocument = await createScientificLibrary({ readers: [omeTiffReader] }).open({
     primary: { id: 'primary', source: new MemorySource(input), name: 'fixture.ome.tiff' },
     readerId: omeTiffReader.descriptor.id,
@@ -1136,7 +1176,7 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   }
   return {
     detail:
-      'bounded TIFF extension APIs, labeled OME-TIFF document opening, explicit display conversion, and native-tile Aperio stripe streaming passed',
+      'bounded TIFF extension APIs, native-precision ordinary TIFF opening, specialized OME-TIFF precedence, labeled OME-TIFF document opening, explicit display conversion, and native-tile Aperio stripe streaming passed',
     outputBytes: input.byteLength + aperioInput.byteLength,
   }
 }

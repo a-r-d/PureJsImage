@@ -127,11 +127,12 @@ describe('package contract', () => {
       ['scientific-reader-fits', 60_000],
       ['scientific-reader-mrc', 51_000],
       ['scientific-reader-cbf', 55_000],
+      ['scientific-reader-tiff', 341_825],
       ['scientific-reader-ome-tiff', 350_000],
       ['scientific-reader-aperio-svs', 338_000],
       ['scientific-reader-png', 87_601],
       ['scientific-reader-jpeg', 136_260],
-      ['scientific-readers-all', 509_161],
+      ['scientific-readers-all', 523_643],
     ])
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'operations')).toMatchObject({
       baselineMinifiedBytes: 44_252,
@@ -461,6 +462,7 @@ describe('package contract', () => {
       'purejsimage/scientific/readers/fits',
       'purejsimage/scientific/readers/gsf',
       'purejsimage/scientific/readers/mrc',
+      'purejsimage/scientific/readers/tiff',
       'purejsimage/scientific/readers/ome-tiff',
       'purejsimage/scientific/readers/png',
       'purejsimage/scientific/readers/jpeg',
@@ -489,6 +491,7 @@ describe('package contract', () => {
     expect(enviReaderApi).toHaveProperty('renderEnviClassification')
     expect(allScientificReaders).toHaveProperty('fitsReader')
     expect(allScientificReaders).toHaveProperty('enviReader')
+    expect(allScientificReaders).toHaveProperty('tiffReader')
     expect(scientificApi).toHaveProperty('measureScientificPlane')
     expect(scientificApi).toHaveProperty('renderScientificPlane')
     expect(scientificApi).toHaveProperty('renderSpectralComposite')
@@ -591,6 +594,7 @@ describe('package contract', () => {
       './scientific/readers/fits',
       './scientific/readers/mrc',
       './scientific/readers/cbf',
+      './scientific/readers/tiff',
       './scientific/readers/ome-tiff',
       './scientific/readers/aperio-svs',
       './scientific/readers/png',

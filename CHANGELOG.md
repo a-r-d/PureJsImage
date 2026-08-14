@@ -14,6 +14,9 @@ All notable changes to PureJsImage are documented in this file.
   importable PNG and JPEG scientific readers. They preserve codec pixels, uint8 component
   semantics, source identity, cancellation, block release ownership, and explicit reader
   registration without linking codecs into the base scientific entry.
+- Added `purejsimage/scientific/readers/tiff`, a native-precision ordinary TIFF reader with labeled
+  page axes, incompatible-series separation, SubIFD resolution levels, bounded normalized optional
+  metadata, native N-channel layouts, and lower probe priority than OME-TIFF and Aperio SVS.
 
 ### Changed
 

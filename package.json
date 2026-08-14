@@ -123,6 +123,11 @@
       "import": "./dist/scientific/readers/cbf.js",
       "default": "./dist/scientific/readers/cbf.js"
     },
+    "./scientific/readers/tiff": {
+      "types": "./dist/scientific/readers/tiff.d.ts",
+      "import": "./dist/scientific/readers/tiff.js",
+      "default": "./dist/scientific/readers/tiff.js"
+    },
     "./scientific/readers/ome-tiff": {
       "types": "./dist/scientific/readers/ome-tiff.d.ts",
       "import": "./dist/scientific/readers/ome-tiff.js",

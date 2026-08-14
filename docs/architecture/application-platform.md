@@ -393,7 +393,7 @@ The public module graph should develop as follows:
   analysis module is imported from either root.
 - `purejsimage/scientific` owns portable `ScientificDataset` descriptors, documents, registries,
   algorithms, and numeric tile contracts/conversion. Concrete readers live in
-  `purejsimage/scientific/readers/{gsf,envi,fits,mrc,cbf,ome-tiff,aperio-svs,png,jpeg}`; the explicit
+  `purejsimage/scientific/readers/{gsf,envi,fits,mrc,cbf,tiff,ome-tiff,aperio-svs,png,jpeg}`; the explicit
   `purejsimage/scientific/readers/all` entry is available when an application deliberately wants
   every reader. `purejsimage/scientific/node` remains the place for path-based helpers.
 - `purejsimage/operations` exports JSON-safe descriptors and schemas, provider contracts,
@@ -1704,6 +1704,15 @@ to own only generic descriptors, definitions, providers, and registries.
       base scientific entry codec-free and experimental HEIC out of the all-readers bundle.
 - [x] Pass exact-pixel, identity, cancellation, release, package, browser, size, documentation, and
       complete repository gates for the A2 adapter.
+- [x] Add the explicit `purejsimage/scientific/readers/tiff` entry on the native raster decoder,
+      preserving signed, floating-point, planar, interleaved, RGB, and arbitrary N-channel samples.
+- [x] Group only contiguous top-level pages with identical native format and pyramid geometry,
+      label those coordinates as pages, keep incompatible series separate, and expose SubIFDs as
+      resolution levels without inferring Z/time or arbitrary-band RGB semantics.
+- [x] Normalize selected standard, DigitalMicrograph, FEI, and Zeiss metadata under aggregate and
+      per-tag byte ceilings while keeping malformed or oversized optional metadata non-fatal.
+- [x] Add native precision, multipage, tiled-region, SubIFD, metadata-limit, identity, specialized
+      OME precedence, package, generated capability, and real-browser coverage for the A3 reader.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1714,3 +1723,13 @@ to own only generic descriptors, definitions, providers, and registries.
     lint, formatting, and size gates pass. The complete suite passes 104 files and 1,269 tests; one
     WebP ICC test transiently exceeded its five-second timeout in the first combined run, then
     passed alone in 1.6 seconds and again in the complete rerun.
+
+  - A3 validation: 114 focused ordinary TIFF, core TIFF, Aperio, and package-contract tests pass,
+    including native uint16/int16/float32, RGB versus arbitrary-band semantics, compatible page
+    axes, incompatible series, tiled regions, SubIFD levels, metadata limits, cancellation,
+    identity, and OME/Aperio precedence. The native reader is 262,942 minified bytes and the
+    all-readers entry is 402,802 bytes, each with 30% ceiling headroom. Generated TIFF capability
+    surfaces, the 406-file packed consumer, browser graph, 19-page documentation build, lint,
+    formatting, and the focused real-Chromium TIFF workflow pass. The final `npm run check` passes
+    all 105 files and 1,274 tests. Earlier combined attempts hit only existing five-second
+    AVIF/JPEG/WebP load timeouts; each case passed in isolation before the complete rerun passed.

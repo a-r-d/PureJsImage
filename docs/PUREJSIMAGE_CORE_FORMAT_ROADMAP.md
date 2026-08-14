@@ -252,7 +252,7 @@ This should ship before DM4 or HDF5.
 | --- | --- | --- | --- | --- |
 | A1 | Complete | Calibration evidence contract | Small | Existing readers populate evidence where possible; descriptor and migration tests pass. |
 | A2 | Complete | Codec-to-scientific adapter | Medium | PNG and JPEG open lazily through the public scientific registry with exact pixels, cancellation, identity, and bounded blocks. |
-| A3 | Planned | Ordinary TIFF scientific reader | Medium | Native uint16, int16, float32, RGB, multipage, tiled, and SubIFD fixtures open without OME/Aperio regressions. |
+| A3 | Complete | Ordinary TIFF scientific reader | Medium | Native uint16, int16, float32, RGB, multipage, tiled, and SubIFD fixtures open without OME/Aperio regressions. |
 | A4 | Planned | TIFF standard, ImageJ, and DM-TIFF calibration profiles | Medium | Exact X/Y/Z scale and origin match independent readers. |
 | A5 | Planned | FEI and Zeiss SEM TIFF profiles | Medium | At least two independently produced fixture families per profile; calibration and acquisition metadata match the oracle. |
 | A6 | Planned | Lab Viewer reader integration | App repo | PNG, JPEG, WebP, BMP, JP2, ordinary TIFF, OME-TIFF, and SVS all open through the worker with specialized-reader precedence. |
