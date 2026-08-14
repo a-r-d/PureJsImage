@@ -1,0 +1,61 @@
+benchmark/hdf5/corpus.ts
+  s_c756552b1b36e2::t_da21704aa0c844 31,35-56,70
+  s_c756552b1b36e2::t_4092fcf94e4081 100-106,145-210,239-243,249-250,253,260,313
+tests/hdf5-dataset-metadata.test.ts
+  s_c756552b1b36e2::t_145459d49d3c6d 12-14,43-71,405-406,428,431-462,464-480,482,484-486
+  s_c756552b1b36e2::t_1b39742ca2174c 362-365
+  s_c756552b1b36e2::t_2c7301134c9122 3,5,280-282,285,296-361,366-404
+  s_c756552b1b36e2::t_d8842934cc11f6 11,72-73,407-408
+benchmark/hdf5/generated-object-fixture.ts
+  s_c756552b1b36e2::t_4fa35a1918e942 17-24,52-68
+  s_c756552b1b36e2::t_9ec6f6cbe1a2ca 69
+src/scientific/formats/hdf5-dataset.ts
+  s_c756552b1b36e2::t_9191edfa8aa4db 15-20,123,134,164,176,209-211
+  s_c756552b1b36e2::t_212d485d112be2 148-157,181,1110-1187
+  s_c756552b1b36e2::t_1bc57078be3d5b 865-872,874-903,907-916,918-974
+  s_c756552b1b36e2::t_ae47931e88a37a 746,762,778-788
+  s_c756552b1b36e2::t_791be2abf4f416 588-619,621-715,717-745,747-761,763-777,789-829,835-839
+  s_c756552b1b36e2::t_910bdc1cff6f22 873,904-906,1086
+  s_c756552b1b36e2::t_060a80eabf2196 224,1020-1025,1027-1032,1036-1042,1064,1067,1070-1071,1073,1090,1107
+  s_c756552b1b36e2::t_8380c3ea1eb869 82-115,124-126,165-167,177-179,212-223
+  s_c756552b1b36e2::t_1b39742ca2174c 620,716
+benchmark/hdf5/generated-dataset-fixture.ts
+  s_c756552b1b36e2::t_1b39742ca2174c 294-300
+  s_c756552b1b36e2::t_b95e00e03dcf53 35-50,258-293,301-359
+  s_c756552b1b36e2::t_a51261e05ae256 360
+tests/hdf5-dataset-storage.test.ts
+  s_c756552b1b36e2::t_3b6c1b7e07cc81 536-543
+  s_c756552b1b36e2::t_78d2901b9a36e6 20,46-49,54,62,440-535,544-565
+  s_c756552b1b36e2::t_18cae90158ba29 121-149
+  s_c756552b1b36e2::t_f82e38bbafcdea 566
+benchmark/hdf5/verify-corpus.ts
+  s_c756552b1b36e2::t_3c1e8c9aa800de 5-9,12-16,42-57,63-90,151-155,182-191
+  s_c756552b1b36e2::t_19bcb671fe0c2a 58-62
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  s_c756552b1b36e2::t_90a370acf84d90 512,516-538
+src/scientific/formats/hdf5.ts
+  s_c756552b1b36e2::t_9807845722648e 306-310,318,322-324,348-374,833
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_90a370acf84d90 1839-1843,1997-2010
+src/scientific/formats/hdf5-layout.ts
+  s_c756552b1b36e2::t_19bcb671fe0c2a 314
+  s_c756552b1b36e2::t_13ffdf6951047a 309-310,313,315-317
+benchmark/hdf5/corpus.json
+  s_c756552b1b36e2::t_fdf1b51f0b200d 2,46,55,58-62,68,71-75,93,99-162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "213a42178ad9ad667a31c3fc1191e6561b0015e8",
+  "prompts": {},
+  "sessions": {
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
