@@ -1,0 +1,120 @@
+capabilities/manifest.json
+  s_c756552b1b36e2::t_68af4bf42216c4 114-117,131-134,148-151,179-186
+  s_c756552b1b36e2::t_1933f833c852b5 178,240,1158
+  s_c756552b1b36e2::t_ef33a079d16a2a 103-113,118-130,135-147,152-153
+src/scientific/readers/bmp.ts
+  s_c756552b1b36e2::t_40c1c63f566b9f 1-23
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_d297dc44abf9bb 129-130
+  s_c756552b1b36e2::t_223d51973a538a 1714-1716
+  s_c756552b1b36e2::t_0a514f3f6ea2ba 1809-1810,1930-1931
+src/scientific/readers/ome-tiff.ts
+  s_c756552b1b36e2::t_a4f4d9e346380d 4,6,18-20,43-169,174
+browser-tests/compatibility-harness.ts
+  s_c756552b1b36e2::t_62e52c29d3d37f 48,50,54,202-237,3654
+tiff-codec-support.md
+  s_c756552b1b36e2::t_5a6a6e398e7faf 38
+scripts/check-package-types.ts
+  s_c756552b1b36e2::t_b2f464181d9b27 151-153,238-240
+benchmark/hdf5/independent-fixtures.ts
+  s_c756552b1b36e2::t_fc25016d9f84d8 1-78
+README.md
+  s_c756552b1b36e2::t_03de08e15f647e 146,153-155,157-159,164
+tests/hdf5-file-layer.test.ts
+  s_c756552b1b36e2::t_fc25016d9f84d8 1,7,89,104
+  s_c756552b1b36e2::t_68af4bf42216c4 82-88,90-103
+browser-tests/types.ts
+  s_c756552b1b36e2::t_62e52c29d3d37f 72
+tests/capability-manifest.test.ts
+  s_c756552b1b36e2::t_13e9f1b1e03697 21,28,35,67-69
+src/scientific/readers/jp2.ts
+  s_c756552b1b36e2::t_40c1c63f566b9f 1-23
+tests/tia-ser-reader.test.ts
+  s_c756552b1b36e2::t_3b4c828bd00217 376
+  s_c756552b1b36e2::t_bb6463dc103080 38-70,400-415
+  s_c756552b1b36e2::t_e4628eaecc9afa 297,377-399,416-422
+  s_c756552b1b36e2::t_f679d2ef885fd7 423-424
+src/scientific/formats/tia-ser.ts
+  s_c756552b1b36e2::t_68af4bf42216c4 174-176,201
+  s_c756552b1b36e2::t_e4628eaecc9afa 61,72-82,93-94,136,138,151-153,159-163,168-173,177-200,202-234,488-501,536
+docs/application-platform.md
+  s_c756552b1b36e2::t_03de08e15f647e 42-45
+scripts/bundle-size-config.ts
+  s_c756552b1b36e2::t_2779e03c237eb3 145-146,152-153,159-160,166-167
+  s_c756552b1b36e2::t_5af8f65921cfea 141-144,147-151,154-158,161
+docs/scientific-reader-registry.md
+  s_c756552b1b36e2::t_03de08e15f647e 32,38-40,42-44,53
+src/scientific/readers/webp.ts
+  s_c756552b1b36e2::t_40c1c63f566b9f 1-23
+docs-astro/public/capabilities.json
+  s_c756552b1b36e2::t_5a6a6e398e7faf 1745,6657-6665,6719
+  s_c756552b1b36e2::t_0536e96e87f240 6582-6632
+src/scientific/readers/tia-emi.ts
+  s_c756552b1b36e2::t_6e950970307eac 177
+  s_c756552b1b36e2::t_813098dfcc74ae 6,174-176,178,219-227
+docs-astro/src/pages/api.astro
+  s_c756552b1b36e2::t_a79965d2024c13 82
+tests/tia-emi-reader.test.ts
+  s_c756552b1b36e2::t_339ac5db41252b 160,169
+  s_c756552b1b36e2::t_20d2d94086a1fd 154-159,161-168,170-171
+docs-astro/public/llms.txt
+  s_c756552b1b36e2::t_a79965d2024c13 97
+tsconfig.json
+  s_c756552b1b36e2::t_b2f464181d9b27 45-47
+tests/generated/capability-expectations.json
+  s_c756552b1b36e2::t_5a6a6e398e7faf 438-445
+  s_c756552b1b36e2::t_0536e96e87f240 367-414
+browser-tests/compatibility.pw.ts
+  s_c756552b1b36e2::t_68af4bf42216c4 183-185
+  s_c756552b1b36e2::t_62e52c29d3d37f 186-193
+tests/scientific-dataset.test.ts
+  s_c756552b1b36e2::t_339ac5db41252b 416-418
+  s_c756552b1b36e2::t_20d2d94086a1fd 376-396
+  s_c756552b1b36e2::t_68af4bf42216c4 419-431
+  s_c756552b1b36e2::t_2077334ed69ad7 432
+src/scientific/readers/tia-ser.ts
+  s_c756552b1b36e2::t_e4628eaecc9afa 81,136-140,858
+src/tiff/calibration-profiles.ts
+  s_c756552b1b36e2::t_95da74739a71da 2,57,241,265
+package.json
+  s_c756552b1b36e2::t_b2f464181d9b27 166-180
+tests/scientific-image-codec-reader.test.ts
+  s_c756552b1b36e2::t_dc2ee9803fae48 1,7,9,11,23,25-26,71-97,142-162,176-182
+tests/scientific-aperio-reader.test.ts
+  s_c756552b1b36e2::t_6e950970307eac 206-211
+tests/project-contract.test.ts
+  s_c756552b1b36e2::t_3ebe24720782c9 138-141
+  s_c756552b1b36e2::t_cf4726c5be08b0 478-480,623-625
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  s_c756552b1b36e2::t_223d51973a538a 281-282
+  s_c756552b1b36e2::t_0a514f3f6ea2ba 461-462
+  s_c756552b1b36e2::t_d297dc44abf9bb 92,105-107,114
+src/scientific/dataset.ts
+  s_c756552b1b36e2::t_205ef28a1194aa 37-41,62,215,503-520,542
+src/scientific/readers/tiff.ts
+  s_c756552b1b36e2::t_8cb293b8ba60c6 552,578,888-897,906-912
+src/scientific/readers/all.ts
+  s_c756552b1b36e2::t_40c1c63f566b9f 2,11,16
+tests/scientific-tiff-reader.test.ts
+  s_c756552b1b36e2::t_438591158b7f03 327-334,354-395
+  s_c756552b1b36e2::t_339ac5db41252b 559-564,581-584,696-699
+  s_c756552b1b36e2::t_49c1dc96b9a7b8 396,1052-1078
+  s_c756552b1b36e2::t_a4f4d9e346380d 48,61-64,107,118-120,124
+  s_c756552b1b36e2::t_84f9a33bffa27f 397
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "d5e47fba775467650efa4f1bd7c65334b349cfb7",
+  "prompts": {},
+  "sessions": {
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
