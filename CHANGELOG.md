@@ -19,6 +19,10 @@ All notable changes to PureJsImage are documented in this file.
   metadata, native N-channel layouts, and lower probe priority than OME-TIFF and Aperio SVS.
 - Added bounded FEI SFEG/Helios and Zeiss SEM TIFF calibration profiles with fixture-backed physical
   axes, embedded evidence, normalized acquisition metadata, and non-fatal malformed-tag handling.
+- Added a package-private bounded DM3/DM4 tag-tree indexer with checked 32-bit and 64-bit structure,
+  separate payload byte order, recursive value descriptors, deterministic duplicate-name paths,
+  lazy image payload spans, and size-limited metadata projection for the upcoming scientific
+  reader.
 
 ### Changed
 

@@ -1732,6 +1732,15 @@ to own only generic descriptors, definitions, providers, and registries.
 - [x] Pin two independently produced FEI and two independently produced Zeiss metadata families,
       regenerate TIFF capability surfaces, and pass focused, browser, package, formatting, and
       complete repository gates for A5.
+- [x] Add a package-private DM3/DM4 random-access tag-tree indexer with separate structural and
+      payload byte order, checked 32-bit and 64-bit lengths, deterministic duplicate-name paths,
+      and bounded group, tag, name, descriptor, and metadata limits.
+- [x] Index scalar, string, array, struct, and array-of-struct payload spans without reading image
+      sample arrays, and keep dataset discovery, pixel reads, calibration mapping, and public
+      scientific-reader capability claims in B2.
+- [x] Cover DM3 big- and little-endian payloads, DM4 64-bit structure and metadata, hostile source
+      buffer lifetimes, cancellation, truncation, malformed descriptors, unsafe extents, and every
+      declared B1 limit with generated structural fixtures.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1772,3 +1781,13 @@ to own only generic descriptors, definitions, providers, and registries.
     their recorded ceilings. The final `npm run check` passes all 105 files and 1,279 tests. Earlier
     combined attempts hit only existing five-second AVIF/JPEG/WebP load-sensitive timeouts; all
     three passed together in isolation before the complete rerun passed.
+
+  - B1 validation: 9 focused DM3/DM4 indexer tests pass, including payload-span-only image indexing,
+    bounded metadata projection, duplicate tag names, recursive descriptors, weakest-lifetime
+    sources, and hostile count, length, depth, type, and truncation cases. The internal-only module
+    intentionally adds no package export or generated capability claim; real independently
+    produced files and oracle-backed dataset/pixel validation remain the B2 gate. Generated
+    capability outputs, the 410-file packed consumer, 19-page documentation build, browser graph,
+    type, lint, formatting, and size gates pass. Public entry sizes are unchanged because the B1
+    module is not reachable from a package export. The final `npm run check` passes all 106 files
+    and 1,288 tests.

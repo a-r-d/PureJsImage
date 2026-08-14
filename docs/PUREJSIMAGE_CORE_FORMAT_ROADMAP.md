@@ -281,6 +281,10 @@ DM3/DM4 is the highest-value new vendor reader because it directly addresses com
 
 ### B1. Tag-tree indexer
 
+**Status: Complete.** The package-private indexer is implemented with generated DM3/DM4 structural
+fixtures. Real instrument files and oracle-backed pixel semantics remain part of the B2 acceptance
+corpus; B1 does not advertise a public scientific-reader capability on its own.
+
 Build an internal random-access DM container index:
 
 - DM3 32-bit and DM4 64-bit count/length/offset fields;
