@@ -628,6 +628,10 @@ class DerivedScientificSpectralDataset implements SpectralDerivedDataset {
     if (axes.length < 2) {
       throw invalidInput('Spectral reduction must leave at least two displayable axes')
     }
+    const sourcePlaneReads = source.descriptor.capabilities.planeReads
+    if (sourcePlaneReads.kind === 'none') {
+      throw invalidInput('Spectral reduction requires scientific plane reads')
+    }
     const levels = source.descriptor.levels.map((level) => ({
       level: level.level,
       axisLengths: level.axisLengths.filter((entry) => entry.axisId !== spectralAxis),
@@ -656,11 +660,11 @@ class DerivedScientificSpectralDataset implements SpectralDerivedDataset {
         regionReads: source.descriptor.capabilities.regionReads,
         resolutionLevels: levels.length > 1,
         planeReads:
-          source.descriptor.capabilities.planeReads.kind === 'any-axis-pair'
-            ? source.descriptor.capabilities.planeReads
+          sourcePlaneReads.kind === 'any-axis-pair'
+            ? sourcePlaneReads
             : {
                 kind: 'ordered-axis-pairs',
-                pairs: source.descriptor.capabilities.planeReads.pairs.filter(
+                pairs: sourcePlaneReads.pairs.filter(
                   (pair) => pair[0] !== spectralAxis && pair[1] !== spectralAxis,
                 ),
               },

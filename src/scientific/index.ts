@@ -1,6 +1,7 @@
 export type {
   NormalizedScientificDatasetDescriptor,
   NormalizedScientificPlaneReadRequest,
+  NormalizedScientificSeriesReadRequest,
   ScientificAxisCoordinates,
   ScientificCalibrationEvidence,
   ScientificCalibrationEvidenceKind,
@@ -17,6 +18,9 @@ export type {
   ScientificMetadataObject,
   ScientificMetadataValue,
   ScientificPlaneReadRequest,
+  ScientificSeriesReadCapability,
+  ScientificSeriesBlock,
+  ScientificSeriesReadRequest,
   ScientificResolutionAxisLength,
   ScientificResolutionAxisCoordinates,
   ScientificResolutionLevel,
@@ -67,9 +71,12 @@ export {
   normalizeScientificDatasetDescriptor,
   normalizeScientificMetadataObject,
   normalizeScientificPlaneReadRequest,
+  normalizeScientificSeriesReadRequest,
+  readScientificSeriesFromPlane,
   resolveScientificAxisAtResolutionLevel,
   resolveScientificDescriptorAtResolutionLevel,
   supportsScientificPlaneRead,
+  supportsScientificSeriesRead,
   validateScientificDatasetDescriptor,
 } from './dataset.ts'
 export {

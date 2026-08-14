@@ -25,8 +25,15 @@ import type { PixelBlock } from '../src/pixel.ts'
 import { openAperioSvs } from '../src/pathology/index.ts'
 import {
   createScientificLibrary,
+  normalizeScientificDatasetDescriptor,
+  normalizeScientificSeriesReadRequest,
   rasterToPixels,
   ScientificReaderRegistry,
+} from '../src/scientific/index.ts'
+import type {
+  ScientificDataset,
+  ScientificPlaneReadRequest,
+  ScientificSeriesReadRequest,
 } from '../src/scientific/index.ts'
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
 import { digitalMicrographReader } from '../src/scientific/readers/digital-micrograph.ts'
@@ -113,6 +120,69 @@ const optionalApiEntries = async (): Promise<BrowserWorkflowResult> => {
   return {
     outputBytes: 0,
     detail: 'optional scientific, pathology, TIFF, and HTTP entries are explicit',
+  }
+}
+
+const scientificOneDimensionalSeries = async (): Promise<BrowserWorkflowResult> => {
+  const descriptor = normalizeScientificDatasetDescriptor({
+    schemaVersion: 1,
+    axes: [
+      {
+        id: 'energy',
+        kind: 'spectral',
+        length: 5,
+        unit: 'eV',
+        coordinates: { type: 'linear', origin: 100, step: 0.5 },
+      },
+    ],
+    sampleType: 'uint16',
+    components: [{ id: 'intensity', kind: 'intensity', unit: 'counts' }],
+    capabilities: {
+      regionReads: true,
+      resolutionLevels: false,
+      planeReads: { kind: 'none' },
+      seriesReads: { kind: 'axes', axes: ['energy'] },
+    },
+  })
+  const dataset: ScientificDataset = {
+    descriptor,
+    readPlane(_request: Readonly<ScientificPlaneReadRequest>): AsyncIterable<never> {
+      throw new Error('One-dimensional browser fixture does not support plane reads')
+    },
+    async *readSeries(request: Readonly<ScientificSeriesReadRequest>) {
+      const normalized = normalizeScientificSeriesReadRequest(descriptor, request)
+      const data = new Uint8Array(normalized.length * 2)
+      const view = new DataView(data.buffer)
+      for (let index = 0; index < normalized.length; index += 1) {
+        view.setUint16(index * 2, normalized.start + index + 1, false)
+      }
+      yield {
+        start: normalized.start,
+        length: normalized.length,
+        format: { sampleType: 'uint16', channels: 1, planar: false },
+        data,
+      }
+    },
+  }
+  if (dataset.readSeries === undefined) throw new Error('Browser series reader is unavailable')
+  let output: Uint8Array | undefined
+  for await (const block of dataset.readSeries({
+    axisId: 'energy',
+    fixedIndices: [],
+    start: 1,
+    length: 3,
+  })) {
+    if (block.start !== 1 || block.length !== 3) {
+      throw new Error('Browser series reader returned an invalid one-dimensional block')
+    }
+    output = block.data
+  }
+  if (output === undefined || output.join(',') !== '0,2,0,3,0,4') {
+    throw new Error('Browser series reader returned unexpected uint16 values')
+  }
+  return {
+    detail: 'one-dimensional energy series used one true axis and a bounded series block',
+    outputBytes: output.byteLength,
   }
 }
 const inputTypes = async (): Promise<readonly BrowserWorkflowResult[]> => {
@@ -3439,6 +3509,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   orientation,
   scientificTiffDocument,
   scientificDigitalMicrograph,
+  scientificOneDimensionalSeries,
   pngAlphaPipeline,
   progressiveJpeg,
   resizeDefaultKernel,

@@ -24,9 +24,10 @@ The useful seams already present in the codebase are:
 - `src/raster.ts` defines `RasterBlock` as canonical big-endian bytes with explicit shape, stride,
   planar layout, sample type, and an optional `release()` callback. Scientific readers already
   converge on that boundary.
-- `src/scientific/dataset.ts` defines the sole public `ScientificDataset` model: labeled axes and
-  lazy bounded `RasterBlock` plane reads. Explicitly registered FITS, MRC, CBF, GSF, ENVI, and
-  OME-TIFF readers expose it through `ScientificDocument`.
+- `src/scientific/dataset.ts` defines the sole public `ScientificDataset` model: labeled axes,
+  lazy bounded `RasterBlock` plane reads, and explicit one-axis `ScientificSeriesBlock` reads.
+  Explicitly registered FITS, MRC, CBF, GSF, ENVI, and OME-TIFF readers expose it through
+  `ScientificDocument`.
 - The format readers validate dimensions and source extents, keep sample data lazy, generally bound
   blocks with `maxDecodedBytes`, and propagate read cancellation through both dataset generations.
 - Scientific rendering, measurement, spectral math, volume reduction, and classification now
@@ -134,6 +135,14 @@ names one supported pair and fixes, ranges, or indexes all other axes; it yields
 `RasterBlock`s. That keeps the existing portable
 block boundary usable without pretending `RasterBlock` is an arbitrary N-dimensional tensor.
 
+Native one-dimensional spectra and profiles remain in the same `ScientificDataset` model. Their
+descriptor contains only the true axis, advertises `planeReads: { kind: 'none' }`, and declares the
+exact native `seriesReads` axes. A series selection varies one axis, fixes every other non-singleton
+axis, and emits bounded tightly packed canonical big-endian `ScientificSeriesBlock` segments. It
+does not invent a singleton display axis or claim plane support. The explicit
+`readScientificSeriesFromPlane()` fallback compacts one requested row or column from a compatible
+plane reader one emitted source block at a time and preserves source release ownership.
+
 The scientific read contract must include `AbortSignal` and a byte budget in its options. Cancellation must
 be threaded through `readExactly()` and `ImageSource.read()` as each reader migrates, rather than
 being simulated by an adapter that can only check between blocks. Tests must prove axis mapping,
@@ -158,10 +167,11 @@ all public application and reader examples use labeled axes.
 
 ## Portable bytes and native numeric tiles
 
-`RasterBlock` remains the canonical portable byte boundary. Its big-endian representation is stable
-across Node.js, browsers, workers, machines, stored fixtures, and future backends. Readers should
-continue to emit bounded blocks and should not be rewritten to produce platform-endian arrays merely
-for local speed.
+`RasterBlock` remains the canonical portable two-dimensional byte boundary.
+`ScientificSeriesBlock` is its tightly packed one-dimensional sibling; both use the same canonical
+big-endian sample representation and `RasterFormat`. Their representation is stable across Node.js,
+browsers, workers, machines, stored fixtures, and future backends. Readers should continue to emit
+bounded blocks and should not be rewritten to produce platform-endian arrays merely for local speed.
 
 Repeated computation uses a separate `NumericTile`. Conversion validates a `RasterBlock` once and
 produces a native-endian typed array plus immutable layout metadata: spatial origin, shape, channel
@@ -1762,6 +1772,14 @@ to own only generic descriptors, definitions, providers, and registries.
 - [x] Pin a small Gatan-produced DM4 volume and the CC-BY-4.0 Zenodo 4D-STEM dataset used by
       LiberTEM, verify the latter through bounded HTTP ranges, and pass B3 focused, browser,
       package, capability, size, formatting, and complete repository gates.
+- [x] Allow one-axis scientific descriptors only with explicit no-plane and native-series
+      capabilities, and validate their axes, fixed indices, ranges, levels, cancellation, and
+      region boundaries before I/O.
+- [x] Add bounded canonical `ScientificSeriesBlock` reads plus a row/column adapter over existing
+      plane readers without synthetic dimensions, complete-series materialization, or lost source
+      release ownership.
+- [x] Prove the public series contract through focused, packed-package, browser dependency, real
+      Chromium, documentation, size, formatting, and complete repository gates before C1.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1835,3 +1853,11 @@ to own only generic descriptors, definitions, providers, and registries.
     consumer, browser graph, docs, lint, formatting, and size checks pass; DigitalMicrograph is
     48.1 KiB minified and all readers are 440.1 KiB under the 511.4 KiB ceiling. The final
     `npm run check` passes all 106 files and 1,304 tests.
+
+  - Milestone C prerequisite validation: 96 focused scientific-dataset, scientific-format-reader,
+    reader-registry, and project-contract tests pass, including exact rank-1 capabilities,
+    normalization, cancellation, release ownership, and padded interleaved and planar row/column
+    adaptation. The public workflow passes in real Chromium. The 412-file packed consumer, browser
+    graph, 19-page docs build, lint, formatting, and size checks pass; the scientific platform is
+    154.0 KiB and all readers are 441.5 KiB under their 182.6 KiB and 511.4 KiB ceilings. The final
+    `npm run check` passes all 106 files and 1,314 tests.

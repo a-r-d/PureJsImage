@@ -37,6 +37,10 @@ All notable changes to PureJsImage are documented in this file.
   scanX/scanY/kx/ky with direct kx/ky diffraction-plane reads. Ambiguous rank-4 arrays remain
   neutral. A pinned small DM4 volume and bounded HTTP-range verification of LiberTEM's 1.19 GB
   CC-BY-4.0 Zenodo 4D-STEM fixture cover the new mappings without committing the large file.
+- Added honest one-axis scientific datasets with explicit native series-read capabilities, bounded
+  `ScientificSeriesBlock` output, strict series request normalization, and a bounded row/column
+  adapter over existing plane readers. Existing plane-only descriptors and readers remain
+  unchanged.
 
 ### Changed
 

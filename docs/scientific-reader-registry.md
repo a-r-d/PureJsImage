@@ -125,6 +125,13 @@ Do not infer meaning from array position in new code. Select axes by stable ID, 
 `kind`, units, calibration/lookup/labels, components, level geometry, sample type, no-data value,
 and typed metadata, and require one fixed index for every non-displayed non-singleton axis.
 
+A native one-dimensional spectrum or profile keeps only its real axis, advertises
+`planeReads: { kind: 'none' }` plus `seriesReads`, and yields bounded canonical big-endian
+`ScientificSeriesBlock` segments through `readSeries()`. Each request selects one axis, fixes every
+other non-singleton axis, and may select a bounded `start` and `length`. Existing plane readers can
+opt into the explicit `readScientificSeriesFromPlane()` row/column adapter when that is their native
+storage boundary; applications must not add a fake singleton display axis.
+
 Physical coordinates and `unit` remain the normalized numeric calibration. An axis may also expose
 `calibration` with a `kind`, contributing `resourceId`, stable machine-readable `locator`, and an
 optional derivation formula or note. Applications can therefore label an axis as source-calibrated,

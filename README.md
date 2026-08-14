@@ -274,6 +274,13 @@ const energyDisplay = await renderScientificPlane(synthetic, {
 The synthetic reader allocates only the requested region. Real readers should stream smaller blocks
 when needed and propagate each block's optional `release()` callback.
 
+One-dimensional spectra and profiles use a single true axis rather than a synthetic height axis.
+Their descriptors advertise `planeReads: { kind: 'none' }` and `seriesReads`, while
+`readSeries()` yields bounded `ScientificSeriesBlock` segments. Use
+`normalizeScientificSeriesReadRequest()` before native reads. The explicit
+`readScientificSeriesFromPlane()` fallback can compact one requested row or column from an existing
+plane reader without materializing the complete series.
+
 Applications that need format detection can construct an explicit, local scientific library without
 changing the ordinary image codec pipeline:
 

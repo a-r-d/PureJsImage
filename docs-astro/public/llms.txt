@@ -116,7 +116,7 @@ if (!summary) throw new Error('No scientific dataset')
 const dataset = await document.openDataset(summary.id, { signal })
 ```
 
-`ScientificDataset.descriptor.axes` contains arbitrary labeled axes. Choose two `displayAxes` and provide a fixed index for every remaining axis; do not assume a universal `{ z, c, t }` shape. Dataset identity combines reader ID/version, dataset ID, and available resource identities. It can use session, local-file, or remote validators before a strong content hash is available, so first display never requires hashing a multi-gigabyte source.
+`ScientificDataset.descriptor.axes` contains arbitrary labeled axes. Plane datasets choose two `displayAxes` and provide a fixed index for every remaining axis; do not assume a universal `{ z, c, t }` shape. Native one-dimensional spectra and profiles keep one true axis, advertise `planeReads: { kind: 'none' }` plus exact `seriesReads`, and yield bounded canonical `ScientificSeriesBlock` segments without a synthetic height axis. Dataset identity combines reader ID/version, dataset ID, and available resource identities. It can use session, local-file, or remote validators before a strong content hash is available, so first display never requires hashing a multi-gigabyte source.
 
 Readers yield portable canonical `RasterBlock` bytes. `resolveNumericTileSource(dataset)` converts once to native-endian typed `NumericTile` storage for repeated computation, or selects an exactly compatible direct native tile source. Release every tile after use. Generic operations and providers must use bounded tile reads rather than materializing a full frame.
 

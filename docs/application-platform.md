@@ -82,6 +82,15 @@ for await (const tile of tiles) {
 }
 ```
 
+## Read a native one-dimensional series
+
+A spectrum or profile with only one real dimension keeps one labeled axis. Its descriptor declares
+`planeReads: { kind: 'none' }` and the exact `seriesReads` axes. `readSeries()` yields tightly
+packed canonical big-endian `ScientificSeriesBlock` segments; the request fixes every other
+non-singleton axis and may select a bounded `start` and `length`. Use
+`readScientificSeriesFromPlane()` only when an existing plane reader natively supplies the desired
+row or column; the adapter compacts source blocks independently and releases each source block.
+
 Use one application-owned `TileRuntime` for repeated reads. Its byte budget, concurrency,
 cancellation, invalidation, and source/derived cache metrics are explicit; it never materializes a
 whole dataset implicitly. Reader-backed source keys use the complete dataset/resource identity;

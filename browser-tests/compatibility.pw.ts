@@ -155,6 +155,17 @@ test('opens a DM3 selected region through the public scientific reader in a real
   expect(result.detail).toContain('direct selected-region reads')
 })
 
+test('reads a one-dimensional scientific series without a synthetic display axis', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.scientificOneDimensionalSeries(),
+  )
+  expect(result.outputBytes).toBe(6)
+  expect(result.detail).toContain('one true axis')
+})
+
 test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.pngAlphaPipeline())

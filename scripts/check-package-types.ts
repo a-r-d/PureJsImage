@@ -211,9 +211,10 @@ import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
 import { pngCodec } from 'purejsimage/codecs/png'
 export { defaultTiffCalibrationProfiles, digitalMicrographTiffCalibrationProfile, geoTiffProfile, imageJTiffCalibrationProfile, standardTiffCalibrationProfile } from 'purejsimage/tiff'
 export type { TiffCalibrationProfileValue } from 'purejsimage/tiff'
-import { createScientificLibrary, normalizeScientificDatasetDescriptor, rasterBlockToNumericTile } from 'purejsimage/scientific'
-import type { ScientificReader } from 'purejsimage/scientific'
-export { createImageCodecScientificReader } from 'purejsimage/scientific'
+import { createScientificLibrary, normalizeScientificDatasetDescriptor, normalizeScientificSeriesReadRequest, rasterBlockToNumericTile } from 'purejsimage/scientific'
+import type { ScientificReader, ScientificSeriesBlock, ScientificSeriesReadRequest } from 'purejsimage/scientific'
+export { createImageCodecScientificReader, readScientificSeriesFromPlane } from 'purejsimage/scientific'
+export type { ScientificSeriesBlock }
 import { encodeGsf, gsfReader } from 'purejsimage/scientific/readers/gsf'
 export { aperioSvsReader, createAperioSvsReader } from 'purejsimage/scientific/readers/aperio-svs'
 export type { AperioSvsLimits, AperioSvsReaderOptions } from 'purejsimage/scientific/readers/aperio-svs'
@@ -347,6 +348,26 @@ const roiDatasetDescriptor = {
   },
 }
 const normalizedRoiDataset = normalizeScientificDatasetDescriptor(roiDatasetDescriptor)
+const spectrumDescriptor = normalizeScientificDatasetDescriptor({
+  schemaVersion: 1,
+  axes: [{
+    id: 'energy', kind: 'spectral', length: 4,
+    unit: 'eV', coordinates: { type: 'linear', origin: 100, step: 0.5 },
+  }],
+  sampleType: 'uint16',
+  components: [{ id: 'intensity', kind: 'intensity', unit: 'counts' }],
+  capabilities: {
+    regionReads: true, resolutionLevels: false, planeReads: { kind: 'none' },
+    seriesReads: { kind: 'axes', axes: ['energy'] },
+  },
+})
+const spectrumRequest = {
+  axisId: 'energy', fixedIndices: [], start: 1, length: 2,
+} satisfies ScientificSeriesReadRequest
+export const normalizedSpectrumRequest = normalizeScientificSeriesReadRequest(
+  spectrumDescriptor,
+  spectrumRequest,
+)
 export const builtInAnalysis = createBuiltInAnalysisBundle({
   descriptor: normalizedRoiDataset, runtime: tileRuntime, tileWidth: 2, tileHeight: 2,
 })

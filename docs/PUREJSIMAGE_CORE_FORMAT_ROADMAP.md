@@ -205,14 +205,26 @@ blocking generic pixel reads.
 
 ### 5. Rank-1 scientific series reads
 
-The current `ScientificDataset` requires at least two axes and its primitive is a two-dimensional plane. That works for spectrum images but does not honestly represent a single EDS/EELS spectrum, Nanonis spectroscopy curve, or surface profile.
+**Status: Complete.** `ScientificDataset` now accepts one true axis when its descriptor explicitly
+advertises `planeReads: { kind: 'none' }` and a native `seriesReads` capability for that axis.
+`readSeries()` returns bounded, tightly packed canonical big-endian `ScientificSeriesBlock`
+segments with no synthetic display dimension. `normalizeScientificSeriesReadRequest()` validates
+the selected axis, fixed indices, resolution level, range, region capability, and cancellation
+before I/O. `readScientificSeriesFromPlane()` provides the planned bounded fallback for extracting
+one row or column from an existing plane reader, compacting one emitted source block at a time and
+preserving source release ownership.
 
-Before adding MSA/EMSA, SPC, Nanonis DAT, or one-dimensional SUR objects, add an incremental series API:
+Previously, `ScientificDataset` required at least two axes and its primitive was a two-dimensional
+plane. That works for spectrum images but does not honestly represent a single EDS/EELS spectrum,
+Nanonis spectroscopy curve, or surface profile.
+
+The implemented incremental series API is:
 
 ```ts
 export interface ScientificSeriesReadRequest {
   readonly axisId: string
   readonly fixedIndices: readonly ScientificAxisIndex[]
+  readonly resolutionLevel?: number
   readonly start?: number
   readonly length?: number
   readonly signal?: AbortSignal
@@ -227,7 +239,7 @@ export interface ScientificSeriesBlock {
 }
 ```
 
-Recommended contract change:
+Implemented contract change:
 
 - allow one-axis descriptors;
 - add a descriptor capability for native series reads;
@@ -379,7 +391,7 @@ Oracle outputs must include descriptor JSON, selected raw sample windows, axis c
 
 ## Milestone C: FEI/Thermo TIA SER and EMI
 
-The existing companion resolver already provides the required architecture. No new multi-file abstraction is needed.
+The existing companion resolver already provides the required architecture. No new multi-file abstraction is needed. The rank-1 series prerequisite above is complete, so C1 can represent native spectra without inventing a second axis.
 
 ### C1. SER
 
