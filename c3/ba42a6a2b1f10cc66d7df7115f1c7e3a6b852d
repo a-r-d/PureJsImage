@@ -1,0 +1,40 @@
+docs-astro/src/pages/scientific/platform.astro
+  s_4234e0386c4453::t_36a521e2c04ae4 27
+docs-astro/src/components/SiteHeader.astro
+  s_4234e0386c4453::t_b21a50fb4ea9cc 46-61
+  s_4234e0386c4453::t_ef658d37764e3c 45
+tests/source-contract.test.ts
+  s_4234e0386c4453::t_59b94b7f0eba83 9,19,43,50
+docs-astro/src/pages/index.astro
+  s_4234e0386c4453::t_36a521e2c04ae4 160-172
+tests/project-contract.test.ts
+  s_4234e0386c4453::t_36a521e2c04ae4 60-63,97-100
+  s_4234e0386c4453::t_b21a50fb4ea9cc 503-504
+  s_4234e0386c4453::t_262e62d531cc59 51-56
+CHANGELOG.md
+  s_4234e0386c4453::t_59b94b7f0eba83 7-12
+README.md
+  s_4234e0386c4453::t_36a521e2c04ae4 118-121
+docs-astro/src/styles/global.css
+  s_4234e0386c4453::t_36a521e2c04ae4 3041-3044
+  s_4234e0386c4453::t_b21a50fb4ea9cc 232-235,1505-1506
+  s_4234e0386c4453::t_7db011d7074412 1507-1508
+package.json
+  s_4234e0386c4453::t_59b94b7f0eba83 293
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "c3ba42a6a2b1f10cc66d7df7115f1c7e3a6b852d",
+  "prompts": {},
+  "sessions": {
+    "s_4234e0386c4453": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ffd61-7960-7be1-a5ed-71e5dd733ad0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
