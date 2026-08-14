@@ -128,6 +128,7 @@ describe('package contract', () => {
       ['scientific-reader-mrc', 51_000],
       ['scientific-reader-cbf', 55_000],
       ['scientific-reader-digital-micrograph', 100_000],
+      ['scientific-reader-tia-ser', 100_000],
       ['scientific-reader-tiff', 341_825],
       ['scientific-reader-ome-tiff', 350_000],
       ['scientific-reader-aperio-svs', 338_000],
@@ -460,6 +461,7 @@ describe('package contract', () => {
       'purejsimage/scientific/readers/aperio-svs',
       'purejsimage/scientific/readers/cbf',
       'purejsimage/scientific/readers/digital-micrograph',
+      'purejsimage/scientific/readers/tia-ser',
       'purejsimage/scientific/readers/envi',
       'purejsimage/scientific/readers/fits',
       'purejsimage/scientific/readers/gsf',
@@ -495,6 +497,8 @@ describe('package contract', () => {
     expect(allScientificReaders).toHaveProperty('enviReader')
     expect(allScientificReaders).toHaveProperty('digitalMicrographReader')
     expect(allScientificReaders).toHaveProperty('createDigitalMicrographReader')
+    expect(allScientificReaders).toHaveProperty('tiaSerReader')
+    expect(allScientificReaders).toHaveProperty('createTiaSerReader')
     expect(allScientificReaders).toHaveProperty('tiffReader')
     expect(scientificApi).toHaveProperty('measureScientificPlane')
     expect(scientificApi).toHaveProperty('renderScientificPlane')
@@ -599,6 +603,7 @@ describe('package contract', () => {
       './scientific/readers/mrc',
       './scientific/readers/cbf',
       './scientific/readers/digital-micrograph',
+      './scientific/readers/tia-ser',
       './scientific/readers/tiff',
       './scientific/readers/ome-tiff',
       './scientific/readers/aperio-svs',

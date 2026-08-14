@@ -165,6 +165,29 @@
         "benchmark/digital-micrograph/verify-semantic-corpus.ts",
         "tests/digital-micrograph-index.test.ts"
       ]
+    },
+    {
+      "id": "purejsimage/tia-ser",
+      "version": "1.0.0",
+      "format": "FEI/Thermo TIA SER",
+      "packageExport": "purejsimage/scientific/readers/tia-ser",
+      "extensions": ["ser"],
+      "mediaTypes": [
+        "application/x-fei-ser",
+        "application/x-thermo-tia-ser",
+        "application/x-tia-ser"
+      ],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "boundary": "TIA SER versions 0x0210 and 0x0220 with scalar element types 1 through 8, lazy compatible image or spectrum collections, native calibrated series reads, and explicit valid or invalid element metadata; no complex elements or companion EMI metadata.",
+      "evidence": ["tests/tia-ser-reader.test.ts"],
+      "fixtures": [
+        "benchmark/tia-ser/corpus.json",
+        "benchmark/tia-ser/generated-fixture.ts",
+        "benchmark/tia-ser/verify-corpus.ts",
+        "tests/tia-ser-reader.test.ts"
+      ]
     }
   ],
   "codecs": [

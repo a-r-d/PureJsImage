@@ -138,6 +138,7 @@ try {
     'dist/scientific/readers/aperio-svs.js',
     'dist/scientific/readers/cbf.js',
     'dist/scientific/readers/digital-micrograph.js',
+    'dist/scientific/readers/tia-ser.js',
     'dist/scientific/readers/envi.js',
     'dist/scientific/readers/fits.js',
     'dist/scientific/readers/gsf.js',
@@ -221,6 +222,8 @@ export type { AperioSvsLimits, AperioSvsReaderOptions } from 'purejsimage/scient
 export { cbfReader } from 'purejsimage/scientific/readers/cbf'
 export { createDigitalMicrographReader, digitalMicrographReader } from 'purejsimage/scientific/readers/digital-micrograph'
 export type { DigitalMicrographReaderLimits, DigitalMicrographReaderOptions } from 'purejsimage/scientific/readers/digital-micrograph'
+export { createTiaSerReader, tiaSerReader } from 'purejsimage/scientific/readers/tia-ser'
+export type { TiaSerReaderLimits, TiaSerReaderOptions } from 'purejsimage/scientific/readers/tia-ser'
 export { enviReader } from 'purejsimage/scientific/readers/envi'
 export { fitsReader } from 'purejsimage/scientific/readers/fits'
 export { mrcReader } from 'purejsimage/scientific/readers/mrc'

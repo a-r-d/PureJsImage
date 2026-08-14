@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "project": "RosettaSciIO",
+    "revision": "bc254db14cd7d4d23169b11aeb622a0a7eac1fbe",
+    "baseUrl": "https://raw.githubusercontent.com/hyperspy/rosettasciio/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/data/tia/",
+    "license": "GPL-3.0-or-later",
+    "licenseUrl": "https://github.com/hyperspy/rosettasciio/blob/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/LICENSE",
+    "attribution": "RosettaSciIO test corpus contributors",
+    "oracleUrl": "https://github.com/hyperspy/rosettasciio/blob/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/test_tia.py"
+  },
+  "fixtures": [
+    {
+      "file": "old/16x16-point_spectrum-1x1024_1.ser",
+      "path": "old/16x16-point_spectrum-1x1024_1.ser",
+      "sha256": "118d531cfea1ac99e49a9cbdf17e8b6c254a6555a4772a58c9e7dca70d8954f8",
+      "version": 528,
+      "dataKind": "spectrum",
+      "datasetId": "spectra",
+      "sampleType": "int32",
+      "axes": [{ "id": "energy", "length": 1024, "unit": "eV", "origin": -20, "step": 0.2 }],
+      "read": { "kind": "series", "start": 0, "length": 4, "fixedIndices": [] },
+      "expectedHex": "fffffffcfffffffa0000000a00000006"
+    },
+    {
+      "file": "old/16x16-spectrum_image-5x5x1024_1.ser",
+      "path": "old/16x16-spectrum_image-5x5x1024_1.ser",
+      "sha256": "0a2b96111e87b67d56afce6d600207a610547908762ebeb7a2112cc9dac8caa6",
+      "version": 528,
+      "dataKind": "spectrum",
+      "datasetId": "spectra",
+      "sampleType": "int32",
+      "axes": [
+        {
+          "id": "x",
+          "length": 5,
+          "unit": "m",
+          "origin": -3.0523950166277967e-10,
+          "step": 1.2053969116531095e-10
+        },
+        {
+          "id": "y",
+          "length": 5,
+          "unit": "m",
+          "origin": 4.566368050124305e-10,
+          "step": -1.2053969116531095e-10
+        },
+        { "id": "energy", "length": 1024, "unit": "eV", "origin": -20, "step": 0.2 }
+      ],
+      "read": {
+        "kind": "series",
+        "start": 0,
+        "length": 4,
+        "fixedIndices": [{ "axisId": "x", "index": 0 }, { "axisId": "y", "index": 0 }]
+      },
+      "expectedHex": "0000000200000004fffffffdfffffffe"
+    },
+    {
+      "file": "old/64x64x5_TEM_preview_1.ser",
+      "path": "old/64x64x5_TEM_preview_1.ser",
+      "sha256": "08f1dc9d52bfb6da3d7d9ae4db16dbd5783332186bacbd4769e9f97a14f31d70",
+      "version": 528,
+      "dataKind": "image",
+      "datasetId": "images",
+      "sampleType": "float32",
+      "axes": [
+        { "id": "element", "length": 5, "origin": 0, "step": 1 },
+        {
+          "id": "x",
+          "length": 64,
+          "unit": "m",
+          "origin": -2.010186757215619e-7,
+          "step": 6.281833616298531e-9
+        },
+        {
+          "id": "y",
+          "length": 64,
+          "unit": "m",
+          "origin": -2.010186757215619e-7,
+          "step": 6.281833616298531e-9
+        }
+      ],
+      "read": {
+        "kind": "plane",
+        "width": 2,
+        "height": 2,
+        "fixedIndices": [{ "axisId": "element", "index": 2 }]
+      },
+      "expectedHex": "4516a333451e420b4515dcc445241c1e"
+    },
+    {
+      "file": "new/128x128_TEM_acquire-sum1_1.ser",
+      "path": "new/128x128_TEM_acquire-sum1_1.ser",
+      "sha256": "44994f43b7ee2363f177bd48afd8da3423f34e8425b3b22366a3f69a9c1649dc",
+      "version": 544,
+      "dataKind": "image",
+      "datasetId": "images",
+      "sampleType": "int32",
+      "axes": [
+        {
+          "id": "x",
+          "length": 128,
+          "unit": "m",
+          "origin": -0.000001374676320733524,
+          "step": 2.1479317511461325e-8
+        },
+        {
+          "id": "y",
+          "length": 128,
+          "unit": "m",
+          "origin": -0.000001374676320733524,
+          "step": 2.1479317511461325e-8
+        }
+      ],
+      "read": { "kind": "plane", "width": 2, "height": 2, "fixedIndices": [] },
+      "expectedHex": "00000040ffffff43ffffff7fffffffc2"
+    },
+    {
+      "file": "new/16x16-spectrum_image_5x5x4000-not_square_1.ser",
+      "path": "new/16x16-spectrum_image_5x5x4000-not_square_1.ser",
+      "sha256": "6d90a6a3ac1fc015b5d16bac564f7849874d32d928e1fc21a5140845c0d5f2f5",
+      "version": 544,
+      "dataKind": "spectrum",
+      "datasetId": "spectra",
+      "sampleType": "uint32",
+      "axes": [
+        {
+          "id": "x",
+          "length": 5,
+          "unit": "m",
+          "origin": -3.735974149839966e-9,
+          "step": 1.985914203270287e-9
+        },
+        {
+          "id": "y",
+          "length": 5,
+          "unit": "m",
+          "origin": 7.000375725331568e-9,
+          "step": -4.258193731308559e-9
+        },
+        { "id": "energy", "length": 4000, "unit": "eV", "origin": 0, "step": 5 }
+      ],
+      "read": {
+        "kind": "series",
+        "start": 0,
+        "length": 4,
+        "fixedIndices": [{ "axisId": "x", "index": 4 }, { "axisId": "y", "index": 4 }]
+      },
+      "expectedHex": "00000000000000000000000000000000"
+    }
+  ]
+}

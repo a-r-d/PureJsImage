@@ -155,6 +155,13 @@ test('opens a DM3 selected region through the public scientific reader in a real
   expect(result.detail).toContain('direct selected-region reads')
 })
 
+test('reads a calibrated TIA SER spectrum image in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificTiaSer())
+  expect(result.outputBytes).toBe(6)
+  expect(result.detail).toContain('native series reads')
+})
+
 test('reads a one-dimensional scientific series without a synthetic display axis', async ({
   page,
 }) => {

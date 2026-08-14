@@ -37,6 +37,7 @@ export const descriptorWithFormatMetadata = (
   key: string,
   formatMetadata: ScientificMetadataObject,
 ): ScientificDataset => {
+  const readSeries = dataset.readSeries
   const metadata = normalizeScientificMetadataObject({
     ...(dataset.descriptor.metadata ?? {}),
     [key]: formatMetadata,
@@ -50,6 +51,13 @@ export const descriptorWithFormatMetadata = (
     readPlane(request: Readonly<ScientificPlaneReadRequest>) {
       return dataset.readPlane(request)
     },
+    ...(readSeries === undefined
+      ? {}
+      : {
+          readSeries(request: Parameters<typeof readSeries>[0]) {
+            return readSeries.call(dataset, request)
+          },
+        }),
   })
 }
 

@@ -92,6 +92,12 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     maxMinifiedBytes: 100_000,
   },
   {
+    id: 'scientific-reader-tia-ser',
+    name: 'Scientific reader: TIA SER',
+    contents: exportsFrom(['./src/scientific/readers/tia-ser.ts']),
+    maxMinifiedBytes: 100_000,
+  },
+  {
     id: 'scientific-reader-tiff',
     name: 'Scientific reader: TIFF',
     contents: exportsFrom(['./src/scientific/readers/tiff.ts']),

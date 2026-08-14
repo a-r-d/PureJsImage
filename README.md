@@ -169,6 +169,17 @@ const science = createScientificLibrary({ readers: [tiffReader, omeTiffReader] }
 pages become a labeled `page` axis, incompatible contiguous series remain separate datasets, and
 SubIFDs remain resolution levels. Its fallback probe stays below OME-TIFF and Aperio SVS.
 
+FEI/Thermo TIA SER files use an explicit native-precision reader:
+
+```ts
+import { tiaSerReader } from 'purejsimage/scientific/readers/tia-ser'
+
+const science = createScientificLibrary({ readers: [tiaSerReader] })
+```
+
+The reader opens v528 and v544 scalar spectra, spectrum images, and image series lazily. Direct SER
+opening exposes only facts present in the SER file; companion EMI metadata is not inferred.
+
 ### Scientific rasters and explicit display mapping
 
 Scientific readers are separate from photographic codecs. The dataset remains numeric until an

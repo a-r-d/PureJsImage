@@ -31,6 +31,7 @@
       "purejsimage/scientific/readers/digital-micrograph": [
         "./src/scientific/readers/digital-micrograph.ts"
       ],
+      "purejsimage/scientific/readers/tia-ser": ["./src/scientific/readers/tia-ser.ts"],
       "purejsimage/scientific/readers/envi": ["./src/scientific/readers/envi.ts"],
       "purejsimage/scientific/readers/fits": ["./src/scientific/readers/fits.ts"],
       "purejsimage/scientific/readers/gsf": ["./src/scientific/readers/gsf.ts"],

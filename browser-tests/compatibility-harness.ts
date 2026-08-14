@@ -6,6 +6,7 @@ import {
   generatedDigitalMicrographEelsFixture,
   generatedDigitalMicrographFixture,
 } from '../benchmark/digital-micrograph/generated-fixture.ts'
+import { generatedTiaSerSpectrumImage } from '../benchmark/tia-ser/generated-fixture.ts'
 import * as browserPublicApi from '../src/browser.ts'
 import { createImageLibrary, ImageError } from '../src/browser.ts'
 import { browserRuntime } from '../src/browser-runtime.ts'
@@ -38,6 +39,7 @@ import type {
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
 import { digitalMicrographReader } from '../src/scientific/readers/digital-micrograph.ts'
 import { tiffReader } from '../src/scientific/readers/tiff.ts'
+import { tiaSerReader } from '../src/scientific/readers/tia-ser.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageInput } from '../src/source.ts'
@@ -1332,6 +1334,45 @@ const scientificDigitalMicrograph = async (): Promise<BrowserWorkflowResult> => 
   return {
     detail:
       'portable DM3 reader preserved uint16 pixels, direct selected-region reads, and evidence-gated EELS energy semantics',
+    outputBytes: output.length,
+  }
+}
+
+const scientificTiaSer = async (): Promise<BrowserWorkflowResult> => {
+  const input = generatedTiaSerSpectrumImage()
+  const document = await createScientificLibrary({ readers: [tiaSerReader] }).open({
+    primary: {
+      id: 'browser-tia-ser',
+      name: 'browser-fixture.ser',
+      source: new MemorySource(input),
+    },
+  })
+  const summary = document.datasets[0]
+  if (
+    summary?.descriptor.sampleType !== 'uint16' ||
+    summary.descriptor.axes.map(({ id }) => id).join(',') !== 'x,y,energy'
+  ) {
+    throw new Error('Browser TIA SER descriptor did not preserve the spectrum-image axes')
+  }
+  const dataset = await document.openDataset(summary.id)
+  if (dataset.readSeries === undefined) throw new Error('Browser TIA SER lacks native series reads')
+  const output: number[] = []
+  for await (const block of dataset.readSeries({
+    axisId: 'energy',
+    fixedIndices: [
+      { axisId: 'x', index: 1 },
+      { axisId: 'y', index: 1 },
+    ],
+    start: 0,
+    length: 3,
+  })) {
+    output.push(...block.data)
+  }
+  if (output.join(',') !== '0,31,0,32,0,33') {
+    throw new Error(`Browser TIA SER spectrum pixels were ${output.join(',')}`)
+  }
+  return {
+    detail: 'portable v544 TIA SER reader preserved calibrated spectrum-image native series reads',
     outputBytes: output.length,
   }
 }
@@ -3509,6 +3550,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   orientation,
   scientificTiffDocument,
   scientificDigitalMicrograph,
+  scientificTiaSer,
   scientificOneDimensionalSeries,
   pngAlphaPipeline,
   progressiveJpeg,

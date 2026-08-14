@@ -1780,6 +1780,16 @@ to own only generic descriptors, definitions, providers, and registries.
       release ownership.
 - [x] Prove the public series contract through focused, packed-package, browser dependency, real
       Chromium, documentation, size, formatting, and complete repository gates before C1.
+- [x] Add the public bounded TIA SER reader for versions 0x0210 and 0x0220 with byte-signature
+      probing, lazy 32-bit or 64-bit element offsets, calibrated scalar spectra and images, native
+      series reads, compatible collections, canonical sample bytes, and explicit unsupported or
+      invalid element metadata without invented EMI facts.
+- [x] Cover generated v528/v544 spectra, spectrum images, and image series plus cancellation,
+      weakest-lifetime sources, hostile counts and truncation, read budgets, partial valid series,
+      row orientation, package exports, generated capabilities, and a real Chromium workflow.
+- [x] Pin five real RosettaSciIO TIA SER fixtures by revision and SHA-256 without committing their
+      GPL binaries, and verify exact descriptors, calibration, sample windows, and direct payload
+      read shapes across both versions before marking C1 complete.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1861,3 +1871,14 @@ to own only generic descriptors, definitions, providers, and registries.
     graph, 19-page docs build, lint, formatting, and size checks pass; the scientific platform is
     154.0 KiB and all readers are 441.5 KiB under their 182.6 KiB and 511.4 KiB ceilings. The final
     `npm run check` passes all 106 files and 1,314 tests.
+
+  - C1 validation: 54 focused TIA SER, shared scientific-reader, capability-manifest, and
+    project-contract tests pass, including 32-bit and 64-bit offsets, native rank-1 series, spectrum
+    images, image collections, direct canonical reads, bottom-up image storage, partial and invalid
+    elements, cancellation, weak source buffers, and configurable byte and read budgets. The pinned
+    five-file RosettaSciIO corpus passes hashes, exact descriptors and calibration, independent raw
+    sample windows, and direct-read shape checks without committing its GPL binaries. The focused
+    public workflow passes in real Chromium. Generated capability surfaces, the 416-file packed
+    consumer, browser graph, docs, lint, formatting, and size checks pass; the TIA SER reader is
+    46.6 KiB minified and all readers are 463.3 KiB under the existing 511.4 KiB ceiling. The final
+    `npm run check` passes all 107 files and 1,323 tests.

@@ -395,6 +395,19 @@ The existing companion resolver already provides the required architecture. No n
 
 ### C1. SER
 
+**Status: Complete.** The explicit `purejsimage/scientific/readers/tia-ser` entry detects the
+little-endian SER signature and versions 0x0210/0x0220, indexes bounded dimension and element
+metadata without reading sample payloads, and exposes compatible scalar spectra, spectrum images,
+and image series with native calibration. Direct reads return canonical bytes, preserve SER image
+row orientation, and report unsupported, invalid, truncated, or excess elements without treating
+missing EMI metadata as present.
+
+The acceptance workflow pins five real RosettaSciIO TIA fixtures by revision and SHA-256 without
+committing their GPL-licensed binaries. It covers both header versions, int32 and uint32 spectra,
+float32 and int32 images, a point spectrum, square and non-square spectrum-image calibration, and a
+five-image series. Exact descriptor, calibration, sample-window, and direct-read checks complement
+the first-party structural fixtures used in the regular test and browser suites.
+
 - detect by bytes, not extension;
 - support common 1D and 2D series types;
 - parse versioned headers, dimensions, calibration records, offset arrays, element type, and valid-element count;

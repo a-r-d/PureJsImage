@@ -425,6 +425,28 @@
         "benchmark/digital-micrograph/verify-semantic-corpus.ts",
         "tests/digital-micrograph-index.test.ts"
       ]
+    },
+    {
+      "id": "purejsimage/tia-ser",
+      "version": "1.0.0",
+      "format": "FEI/Thermo TIA SER",
+      "packageExport": "purejsimage/scientific/readers/tia-ser",
+      "extensions": ["ser"],
+      "mediaTypes": [
+        "application/x-fei-ser",
+        "application/x-thermo-tia-ser",
+        "application/x-tia-ser"
+      ],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "evidence": ["tests/tia-ser-reader.test.ts"],
+      "fixtures": [
+        "benchmark/tia-ser/corpus.json",
+        "benchmark/tia-ser/generated-fixture.ts",
+        "benchmark/tia-ser/verify-corpus.ts",
+        "tests/tia-ser-reader.test.ts"
+      ]
     }
   ]
 }

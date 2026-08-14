@@ -41,6 +41,11 @@ All notable changes to PureJsImage are documented in this file.
   `ScientificSeriesBlock` output, strict series request normalization, and a bounded row/column
   adapter over existing plane readers. Existing plane-only descriptors and readers remain
   unchanged.
+- Added the public `purejsimage/scientific/readers/tia-ser` reader for FEI/Thermo TIA SER v528 and
+  v544 scalar spectra, spectrum images, and image series. It indexes calibrated elements and valid
+  counts without eager payload reads, preserves incomplete elements as bounded document metadata,
+  provides direct canonical sample reads, and is verified against pinned real RosettaSciIO files
+  without redistributing their GPL-licensed binaries.
 
 ### Changed
 
