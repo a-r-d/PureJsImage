@@ -1,0 +1,69 @@
+tests/generated/capability-expectations.json
+  s_c756552b1b36e2::t_7c7471fd8d5e02 418,423,425
+CHANGELOG.md
+  s_c756552b1b36e2::t_d7b5b4e9f61b9d 35-39
+browser-tests/compatibility-harness.ts
+  s_c756552b1b36e2::t_deec2ec1bc87e9 5-8,1247-1261,1263-1264
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  s_c756552b1b36e2::t_c0782ce6ecf31b 311
+  s_c756552b1b36e2::t_d7b5b4e9f61b9d 341-353
+  s_c756552b1b36e2::t_0cf80125551bf1 354
+package.json
+  s_c756552b1b36e2::t_c645adf0238341 345
+src/scientific/readers/digital-micrograph.ts
+  s_c756552b1b36e2::t_fa9d8be2c515da 347-350,371-374,385-386
+  s_c756552b1b36e2::t_74764c774ba690 125,252-266,652-653,669,755,763
+  s_c756552b1b36e2::t_7a2e895d394d88 277,286-287
+  s_c756552b1b36e2::t_bb3b40f01d3e46 630,664,668,675,677,728-731,753-754,756,764-770,787
+  s_c756552b1b36e2::t_49c5c166fac3a7 124,126,130-154,196-216,245-251,270-276,278-285,288-346,351-370,375-384,387-400,460,465,483-485
+  s_c756552b1b36e2::t_2eff773813c9fa 267-269,676
+tests/digital-micrograph-index.test.ts
+  s_c756552b1b36e2::t_7a2e895d394d88 267
+  s_c756552b1b36e2::t_63cd55ddf53e0c 206,250-266,268-319,323
+  s_c756552b1b36e2::t_0f1b773cbcdd76 898,900,911,936
+  s_c756552b1b36e2::t_9be2f5a4ccc2b8 414,435-442,445,447-452,455-465,468-474,478,482-484,487-490,494-496,502-548
+  s_c756552b1b36e2::t_a89b82433ba960 549,1108-1109,1113-1115,1120,1136-1233
+  s_c756552b1b36e2::t_b54b99ad65debd 944-984,1015-1016,1234
+  s_c756552b1b36e2::t_20eb2144d55114 985-1014
+  s_c756552b1b36e2::t_d45d47b70c591f 1235
+benchmark/digital-micrograph/generated-fixture.ts
+  s_c756552b1b36e2::t_deec2ec1bc87e9 44-49,133-210,223
+  s_c756552b1b36e2::t_025bcc1eb9cf3f 211-213,220-222
+  s_c756552b1b36e2::t_7d773089dc53d1 214-219
+capabilities/manifest.json
+  s_c756552b1b36e2::t_43d394db8fdecc 157,159,163,165
+docs-astro/src/pages/api.astro
+  s_c756552b1b36e2::t_d7b5b4e9f61b9d 82
+benchmark/digital-micrograph/corpus.json
+  s_c756552b1b36e2::t_37506a6e4198c8 241,246
+  s_c756552b1b36e2::t_5ef278572eb8ff 207-226
+  s_c756552b1b36e2::t_800f08fd1e395e 206
+benchmark/digital-micrograph/verify-semantic-corpus.ts
+  s_c756552b1b36e2::t_476839b7f41a45 1-155
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_b5fdff5200b2c4 1756,1759,1762,1827,1829-1837
+  s_c756552b1b36e2::t_c0782ce6ecf31b 1828
+  s_c756552b1b36e2::t_2570f4cb3df2f9 1757-1758,1760-1761,1763-1764
+docs-astro/public/capabilities.json
+  s_c756552b1b36e2::t_7c7471fd8d5e02 6636,6638,6642,6644
+benchmark/digital-micrograph/semantic-corpus.json
+  s_c756552b1b36e2::t_c645adf0238341 1-25,42-45,47-49,51-52
+  s_c756552b1b36e2::t_476839b7f41a45 50
+  s_c756552b1b36e2::t_7a2e895d394d88 26-41,46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3057db84d27d404399a1f5c6fb9d69c8ffb028e2",
+  "prompts": {},
+  "sessions": {
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
