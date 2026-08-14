@@ -46,6 +46,11 @@ All notable changes to PureJsImage are documented in this file.
   counts without eager payload reads, preserves incomplete elements as bounded document metadata,
   provides direct canonical sample reads, and is verified against pinned real RosettaSciIO files
   without redistributing their GPL-licensed binaries.
+- Added a package-private HDF5 file and address layer with legal user-block signature discovery,
+  superblock versions 0 through 3, 2/4/8/16-byte integers, relocation-aware bigint addresses,
+  lookup3 superblock checksum verification, and a bounded source-identity-aware metadata page
+  cache. Legacy family, multi-file, and unknown drivers plus modern superblock extensions remain
+  explicit unsupported boundaries while the object graph is implemented separately.
 
 ### Changed
 

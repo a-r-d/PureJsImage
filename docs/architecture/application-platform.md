@@ -1800,6 +1800,10 @@ to own only generic descriptors, definitions, providers, and registries.
       old and new output, fewer and extra XML records, exact UUIDs and sample windows, and pass the
       package, browser graph, real Chromium, documentation, capability, size, formatting, and full
       repository gates before marking C2 complete.
+- [x] Add the package-private HDF5 D1 file/address layer with legal user-block discovery, superblock
+      versions 0 through 3, 2/4/8/16-byte integers, relocation-aware bigint addresses, lookup3
+      checksums, bounded source-identity-aware metadata pages, and explicit legacy family/multi and
+      modern extension rejection before starting the object graph.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1903,3 +1907,13 @@ to own only generic descriptors, definitions, providers, and registries.
     420-file packed consumer, browser graph, 19-page docs build, lint, formatting, and size checks
     pass; the TIA EMI reader is 60.2 KiB minified and all readers are 473.6 KiB under the existing
     511.4 KiB ceiling. The final `npm run check` passes all 108 files and 1,330 tests.
+
+  - HDF5 D1 validation: 15 focused file/address tests cover superblock versions 0 through 3,
+    2/4/8/16-byte fields, user blocks, relocation, the lookup3 reference vector and checksum
+    corruption, hostile bigint and EOF declarations, legacy family/multi/custom drivers, modern
+    extensions, true-LRU byte bounds, weakest-lifetime and changing-identity sources, cancellation,
+    and read limits. Generated capabilities, the 422-file packed consumer, 19-page documentation
+    build, browser dependency graph, lint, formatting, and every size ceiling pass; public entry
+    sizes are unchanged because the module is unreachable from package exports. The final
+    `npm run check` passes all 109 files and 1,345 tests. No HDF5 or EMD reader capability is
+    published while D2-D6 are incomplete.

@@ -448,6 +448,15 @@ Do not promise general HDF5 compatibility in the first release. Promise the exac
 
 ### D1. File and address layer
 
+**Status: Complete.** The package-private D1 layer locates signatures only at legal user-block
+offsets, parses superblock versions 0 through 3 with all HDF5-supported 2/4/8/16-byte offset and
+length widths, applies the specified base-address relocation rule, and retains on-disk addresses as
+`bigint` until declared EOF and `ImageSource.size` bounds permit conversion. Modern superblocks
+verify the HDF5 lookup3 checksum. A caller-owned metadata page cache is byte/read bounded, true-LRU,
+source-identity checked, cancellation aware, and safe for weakest-lifetime source buffers. Legacy
+family, multi-file, and unknown driver blocks are rejected explicitly; D1 also rejects modern
+superblock extensions until D2 can parse their object-header driver messages rather than guessing.
+
 - locate the HDF5 signature at legal user-block offsets;
 - superblock versions 0, 1, 2, and 3;
 - variable offset and length widths;
