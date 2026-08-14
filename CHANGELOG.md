@@ -4,6 +4,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Run the codec test library against hostile one-byte buffered image sources by default, preserving
+  the strict source-buffer lifetime coverage while removing the duplicate full-suite test pass from
+  `npm run check`.
+
 ## [0.10.0] - 2026-08-13
 
 ### Added

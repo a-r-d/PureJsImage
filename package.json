@@ -290,7 +290,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "check": "npm run capabilities:check && npm run comparison:check && npm run analysis:api:check && npm run docs:build && npm run typecheck && npm run size && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm test && npm run test:hostile-source",
+    "check": "npm run capabilities:check && npm run comparison:check && npm run analysis:api:check && npm run docs:build && npm run typecheck && npm run size && npm run package:types && npm run profile:example:check && npm run platform:example:check && npm run browser:check && npm run lint && npm run format:check && npm test",
     "build": "node scripts/clean-dist.ts && tsc -p tsconfig.build.json && node scripts/copy-wasm-artifacts.ts",
     "browser:check": "tsc -p tsconfig.browser.json && node scripts/check-browser-build.ts",
     "package:types": "node scripts/check-package-types.ts",
@@ -316,7 +316,6 @@
     "demo:scientific:generate": "node scripts/generate-scientific-demo-data.ts",
     "size": "npm run build && node scripts/measure-bundle-size.ts",
     "test": "vitest run",
-    "test:hostile-source": "PUREJSIMAGE_HOSTILE_SOURCE=1 vitest run",
     "test:watch": "vitest",
     "prepack": "npm run check",
     "fixtures:prepare": "node benchmark/scripts/prepare-corpus.ts",

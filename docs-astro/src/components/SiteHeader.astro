@@ -43,6 +43,23 @@ const siteBase = configuredBase.endsWith('/') ? configuredBase : `${configuredBa
     <div class="header-actions">
       <ThemeToggle client:load />
       <a
+        class="button small app-header"
+        href="https://lab.purejsimage.com/"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Open App
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="m9 18 6-6-6-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"></path>
+        </svg>
+      </a>
+      <a
         class="button secondary small github-header"
         href="https://github.com/a-r-d/PureJsImage"
         target="_blank"

@@ -48,9 +48,19 @@ describe('package contract', () => {
     expect('optionalDependencies' in packageJson).toBe(false)
   })
 
+  it('runs the strict source-lifetime suite in one full test pass', () => {
+    expect(packageJson.scripts.check.match(/npm test/g)).toHaveLength(1)
+    expect(packageJson.scripts.check).not.toContain('test:hostile-source')
+    expect(packageJson.scripts).not.toHaveProperty('test:hostile-source')
+  })
+
   it('centers public positioning on the first-party codec suite', () => {
     const readme = readFileSync('README.md', 'utf8')
     const docsHome = readFileSync('docs-astro/src/pages/index.astro', 'utf8')
+    const scientificPlatform = readFileSync(
+      'docs-astro/src/pages/scientific/platform.astro',
+      'utf8',
+    )
     const specification = readFileSync('project-spec.md', 'utf8')
     const roadmap = readFileSync('ROADMAP.md', 'utf8')
 
@@ -84,6 +94,10 @@ describe('package contract', () => {
     )
     expect(roadmap).toContain('Every codec follows the same durable lifecycle')
     expect(roadmap).toContain('The explicitly imported JPEG and PNG accelerators')
+    for (const document of [readme, docsHome, scientificPlatform]) {
+      expect(document).toContain('https://lab.purejsimage.com/')
+      expect(document).toContain('electron microscopy')
+    }
     for (const document of [readme, docsHome, specification, roadmap]) {
       expect(document).not.toContain('modern alternative to Jimp')
       expect(document).not.toContain('Jimp alternative')
@@ -486,6 +500,8 @@ describe('package contract', () => {
     expect(header).toContain('const configuredBase = import.meta.env.BASE_URL')
     expect(header).toMatch(/href=\{`\$\{siteBase\}\$\{href\}`\}/)
     expect(header).toContain('href={siteBase}')
+    expect(header).toContain('href="https://lab.purejsimage.com/"')
+    expect(header).toContain('Open App')
     expect(header).not.toContain('.html')
     expect(layout).not.toContain('<base ')
     expect(notFound).not.toContain('/PureJsImage')

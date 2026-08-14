@@ -6,6 +6,7 @@ import { defaultImageLimits, ImageError, type ImageSource } from '../src/index.t
 import { createImageSource, SourceReader } from '../src/source.ts'
 import { HttpRangeSource } from '../src/sources/http-range.ts'
 import { encodeTiffDocument, openTiffDocument } from '../src/codecs/tiff.ts'
+import { createNodeImageLibrary } from '../src/node-image.ts'
 import { nodeRuntime } from '../src/node-runtime.ts'
 import type { PixelBlock } from '../src/pixel.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
@@ -15,6 +16,7 @@ import { HostileSource } from './hostile-source.ts'
 import { Image } from './image-library.ts'
 
 describe('ImageSource buffer lifetime contract', () => {
+  const normalImage = createNodeImageLibrary(allCodecs)
   let fixtures: readonly CodecFixture[] = []
 
   beforeAll(async () => {
@@ -38,14 +40,14 @@ describe('ImageSource buffer lifetime contract', () => {
     )
 
     for (const fixture of fixtures) {
-      const reference = await Image.open(fixture.input)
+      const reference = await normalImage.open(fixture.input)
       const expectedMetadata = await reference.metadata()
       const expected = await reference
         .crop({ x: 0, y: 0, width: Math.min(4, expectedMetadata.width), height: 3 })
         .png()
         .toBuffer()
 
-      const hostile = await Image.open(new HostileSource(fixture.input))
+      const hostile = await Image.open(fixture.input)
       expect(await hostile.metadata(), fixture.format).toEqual(expectedMetadata)
       const actual = await hostile
         .crop({ x: 0, y: 0, width: Math.min(4, expectedMetadata.width), height: 3 })

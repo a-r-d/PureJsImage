@@ -229,6 +229,10 @@ a {
   gap: 8px;
 }
 
+.app-header {
+  white-space: nowrap;
+}
+
 .icon-button {
   display: inline-grid;
   width: 38px;
@@ -1496,6 +1500,10 @@ tr:last-child td {
 
   .site-nav a {
     padding-inline: 8px;
+  }
+
+  .github-header {
+    display: none;
   }
 
   .docs-layout {
@@ -3028,6 +3036,10 @@ tr:last-child td {
       transparent 32%
     ),
     var(--bg);
+}
+
+.home-lab-heading {
+  margin-bottom: 0;
 }
 
 .home-wsi-heading {

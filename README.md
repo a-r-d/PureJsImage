@@ -115,6 +115,10 @@ In a browser, import from `purejsimage/browser` and use `toBlob()` or
 > entrypoints documented below. Provider and extension APIs remain experimental. The ordinary
 > codec pipeline above remains the established npm workflow.
 
+> **Built with PureJsImage:** [PureJsImage Lab](https://lab.purejsimage.com/) is the first
+> application built on the scientific platform—an in-progress, browser-native electron microscopy
+> file analysis workbench.
+
 ### Scientific OME-TIFF
 
 Register the OME-TIFF reader explicitly and open the numeric dataset without routing it through the

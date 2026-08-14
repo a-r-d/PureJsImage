@@ -4,10 +4,7 @@ import { createNodeImageLibrary, type NodeImageLibrary } from '../src/node-image
 import { BufferedSource } from '../src/source.ts'
 import { HostileSource } from './hostile-source.ts'
 
-const hostileSources = process.env.PUREJSIMAGE_HOSTILE_SOURCE === '1'
-
 const wrapInput = (input: ImageInput): ImageInput => {
-  if (!hostileSources) return input
   if (input instanceof Uint8Array) return new BufferedSource(new HostileSource(input), 1)
   if (input instanceof ArrayBuffer) {
     return new BufferedSource(new HostileSource(new Uint8Array(input)), 1)
