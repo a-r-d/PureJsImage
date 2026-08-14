@@ -1,0 +1,35 @@
+tests/digital-micrograph-index.test.ts
+  s_c756552b1b36e2::t_b4055d580c5e79 1-11,13-268,270-376,385-411,424-434,455-508,510-512,516-528
+  s_c756552b1b36e2::t_49c9e65f6f8929 12,377-384,412-423,435-439,443-451,513-515
+  s_c756552b1b36e2::t_478ff33e935553 269,440-442,452-454
+  s_c756552b1b36e2::t_c7c6ad6cd20ce9 509
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_3ec201b321ce8e 1735-1743,1784-1788
+  s_c756552b1b36e2::t_9d0d95a5011ff2 1789-1793
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  s_c756552b1b36e2::t_3ec201b321ce8e 284-287
+src/scientific/formats/digital-micrograph.ts
+  s_c756552b1b36e2::t_7b4620649fb1d3 319-322
+  s_c756552b1b36e2::t_c5e37556799fcd 4
+  s_c756552b1b36e2::t_49c9e65f6f8929 252,267,579,664,773-775
+  s_c756552b1b36e2::t_fe429fd541c530 1-2,5-181,183-251,253-266,268-318,323-457,459-535,539-578,580-663,665-687,691-768,770-772,777-792
+  s_c756552b1b36e2::t_478ff33e935553 3,182,458,536-538,688-690,769,776
+CHANGELOG.md
+  s_c756552b1b36e2::t_3ec201b321ce8e 22-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "76bd32a48f7a6b5becef5e637f0752e0ca87a8e7",
+  "prompts": {},
+  "sessions": {
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
