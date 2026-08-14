@@ -1741,6 +1741,18 @@ to own only generic descriptors, definitions, providers, and registries.
 - [x] Cover DM3 big- and little-endian payloads, DM4 64-bit structure and metadata, hostile source
       buffer lifetimes, cancellation, truncation, malformed descriptors, unsafe extents, and every
       declared B1 limit with generated structural fixtures.
+- [x] Add the generated `scientificReaders` capability collection and keep every public descriptor,
+      package export, input hint, resource model, dataset kind, direct-range boundary, evidence, and
+      fixture source synchronized with runtime readers.
+- [x] Add the public DigitalMicrograph reader with separate supported ImageList datasets, exact
+      rank-2 through rank-4 ordering, every B2 scalar sample type, fixture-proven packed BGRA,
+      calibrated dimensions and intensity units, neutral higher axes, and bounded Gatan metadata.
+- [x] Read selected X/Y rows directly from indexed image spans and reject rank-1, complex,
+      undocumented packed, encrypted, external, malformed, and unsupported-rank image entries with
+      explicit diagnostics while retaining supported entries in mixed documents.
+- [x] Pin a license-aware 13-file RosettaSciIO DM3/DM4 corpus by revision and SHA-256, verify exact
+      oracle sample windows and calibration, and cover the public package, browser graph, bundle
+      ceiling, and real-Chromium selected-region workflow.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1791,3 +1803,15 @@ to own only generic descriptors, definitions, providers, and registries.
     type, lint, formatting, and size gates pass. Public entry sizes are unchanged because the B1
     module is not reachable from a package export. The final `npm run check` passes all 106 files
     and 1,288 tests.
+
+  - B2 validation: 57 focused DigitalMicrograph, capability-manifest, and package-contract tests
+    pass, including every scalar type, both fixture-proven packed color codes, exact 3D and neutral
+    4D ordering, calibration and bounded metadata, weakest-lifetime and HTTP-range sources,
+    cancellation, configurable admission limits, direct selected-row reads, and explicit
+    unsupported boundaries. The pinned 13-file RosettaSciIO corpus passes exact hashes, descriptor,
+    calibration, oracle sample-window, and range-read checks without committing its GPL binaries.
+    Generated reader and codec capability outputs, the 412-file packed consumer, 19-page docs build,
+    browser dependency graph, lint, formatting, and every size ceiling pass; the DigitalMicrograph
+    entry is 45.1 KiB minified and all readers are 437.1 KiB under a 511.4 KiB ceiling. The public
+    selected-region workflow passes in real Chromium, and `npm run check` passes all 106 files and
+    1,302 tests.

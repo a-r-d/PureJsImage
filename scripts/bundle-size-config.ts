@@ -86,6 +86,12 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     maxMinifiedBytes: 55_000,
   },
   {
+    id: 'scientific-reader-digital-micrograph',
+    name: 'Scientific reader: DigitalMicrograph',
+    contents: exportsFrom(['./src/scientific/readers/digital-micrograph.ts']),
+    maxMinifiedBytes: 100_000,
+  },
+  {
     id: 'scientific-reader-tiff',
     name: 'Scientific reader: TIFF',
     contents: exportsFrom(['./src/scientific/readers/tiff.ts']),

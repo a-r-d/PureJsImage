@@ -306,14 +306,18 @@ const checkedAdd = (left: number, right: number, label: string): number =>
   safeNumber(BigInt(left) + BigInt(right), label)
 
 const decodeTagName = (bytes: Uint8Array): string => {
-  let output = ''
   for (const byte of bytes) {
-    if (byte < 0x20 || byte > 0x7e) {
-      throw invalidInput('DM tag name contains non-ASCII data')
+    if (byte < 0x20 || byte === 0x7f) {
+      throw invalidInput('DM tag name contains control data')
     }
-    output += String.fromCharCode(byte)
   }
-  return output
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+  } catch {
+    let output = ''
+    for (const byte of bytes) output += String.fromCharCode(byte)
+    return output
+  }
 }
 
 const scalarDescriptors: ReadonlyMap<number, DigitalMicrographScalarDescriptor> = new Map<

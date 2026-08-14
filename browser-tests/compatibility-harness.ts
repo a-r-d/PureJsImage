@@ -2,6 +2,7 @@ import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-
 import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
 import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
+import { generatedDigitalMicrographFixture } from '../benchmark/digital-micrograph/generated-fixture.ts'
 import * as browserPublicApi from '../src/browser.ts'
 import { createImageLibrary, ImageError } from '../src/browser.ts'
 import { browserRuntime } from '../src/browser-runtime.ts'
@@ -25,6 +26,7 @@ import {
   ScientificReaderRegistry,
 } from '../src/scientific/index.ts'
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
+import { digitalMicrographReader } from '../src/scientific/readers/digital-micrograph.ts'
 import { tiffReader } from '../src/scientific/readers/tiff.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
@@ -1205,6 +1207,43 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
     detail:
       'bounded TIFF extension APIs, calibrated native-precision ordinary TIFF opening, specialized OME-TIFF precedence, labeled OME-TIFF document opening, explicit display conversion, and native-tile Aperio stripe streaming passed',
     outputBytes: input.byteLength + aperioInput.byteLength,
+  }
+}
+
+const scientificDigitalMicrograph = async (): Promise<BrowserWorkflowResult> => {
+  const document = await createScientificLibrary({ readers: [digitalMicrographReader] }).open({
+    primary: {
+      id: 'browser-dm3',
+      name: 'browser-fixture.dm3',
+      source: new MemorySource(generatedDigitalMicrographFixture()),
+    },
+  })
+  const summary = document.datasets[0]
+  if (
+    summary?.descriptor.sampleType !== 'uint16' ||
+    summary.descriptor.axes[0]?.length !== 2 ||
+    summary.descriptor.axes[1]?.length !== 2
+  ) {
+    throw new Error('Browser DigitalMicrograph descriptor did not preserve the 2x2 uint16 image')
+  }
+  const dataset = await document.openDataset(summary.id)
+  const output: number[] = []
+  for await (const block of dataset.readPlane({
+    displayAxes: ['x', 'y'],
+    fixedIndices: [],
+    x: 1,
+    y: 0,
+    width: 1,
+    height: 2,
+  })) {
+    output.push(...block.data)
+  }
+  if (output.join(',') !== '0,2,0,4') {
+    throw new Error(`Browser DigitalMicrograph selected-region pixels were ${output.join(',')}`)
+  }
+  return {
+    detail: 'portable DM3 reader preserved uint16 pixels and direct selected-region reads',
+    outputBytes: output.length,
   }
 }
 
@@ -3380,6 +3419,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   tolerantJpegRestartRecovery,
   orientation,
   scientificTiffDocument,
+  scientificDigitalMicrograph,
   pngAlphaPipeline,
   progressiveJpeg,
   resizeDefaultKernel,

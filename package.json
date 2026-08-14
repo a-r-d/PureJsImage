@@ -123,6 +123,11 @@
       "import": "./dist/scientific/readers/cbf.js",
       "default": "./dist/scientific/readers/cbf.js"
     },
+    "./scientific/readers/digital-micrograph": {
+      "types": "./dist/scientific/readers/digital-micrograph.d.ts",
+      "import": "./dist/scientific/readers/digital-micrograph.js",
+      "default": "./dist/scientific/readers/digital-micrograph.js"
+    },
     "./scientific/readers/tiff": {
       "types": "./dist/scientific/readers/tiff.d.ts",
       "import": "./dist/scientific/readers/tiff.js",
@@ -335,6 +340,8 @@
     "prepack": "npm run check",
     "fixtures:prepare": "node benchmark/scripts/prepare-corpus.ts",
     "fixtures:verify": "node benchmark/scripts/verify-corpus.ts",
+    "fixtures:digital-micrograph": "node benchmark/digital-micrograph/verify-corpus.ts",
+    "fixtures:digital-micrograph:prepare": "node benchmark/digital-micrograph/prepare-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
     "fixtures:avif:alpha": "node benchmark/avif/verify-auxiliary-fixtures.ts",
     "fixtures:avif:alpha:prepare": "node benchmark/avif/prepare-alpha-fixtures.ts",

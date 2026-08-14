@@ -65,6 +65,7 @@ export interface BrowserCompatibilityHarness {
   pngAlphaPipeline(): Promise<BrowserWorkflowResult>
   resizeDefaultKernel(): Promise<BrowserWorkflowResult>
   scientificTiffDocument(): Promise<BrowserWorkflowResult>
+  scientificDigitalMicrograph(): Promise<BrowserWorkflowResult>
   tiffEncodePipeline(): Promise<BrowserWorkflowResult>
   webpLossless(): Promise<BrowserWorkflowResult>
   webpLossyDecode(): Promise<BrowserWorkflowResult>

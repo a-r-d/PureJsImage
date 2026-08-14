@@ -1,5 +1,6 @@
 export * from './aperio-svs.ts'
 export * from './cbf.ts'
+export * from './digital-micrograph.ts'
 export * from './envi.ts'
 export * from './fits.ts'
 export * from './gsf.ts'

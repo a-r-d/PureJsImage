@@ -144,6 +144,17 @@ test('uses public scientific TIFF APIs in a real browser', async ({ page }) => {
   expect(result.detail).toContain('native-tile Aperio stripe streaming')
 })
 
+test('opens a DM3 selected region through the public scientific reader in a real browser', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() =>
+    window.pureJsImageBrowserTests.scientificDigitalMicrograph(),
+  )
+  expect(result.outputBytes).toBe(4)
+  expect(result.detail).toContain('direct selected-region reads')
+})
+
 test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.pngAlphaPipeline())

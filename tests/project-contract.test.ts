@@ -13,17 +13,18 @@ import {
   competitorBundleTargets,
   pureJsImageEntryTargets,
 } from '../scripts/bundle-size-config.ts'
-import { allCodecs } from '../src/codec-entries/all.ts'
 import * as analysisApi from '../src/analysis/index.ts'
 import * as analysisProjectApi from '../src/analysis/project-entry.ts'
 import * as analysisResultsApi from '../src/analysis/results.ts'
 import * as analysisRoiApi from '../src/analysis/roi-entry.ts'
 import * as analysisRuntimeApi from '../src/analysis/runtime.ts'
+import * as browserPublicApi from '../src/browser.ts'
+import { allCodecs } from '../src/codec-entries/all.ts'
 import {
   experimentalHeicCodec,
   experimentalHeifCodec,
 } from '../src/codec-entries/experimental/heic.ts'
-import * as browserPublicApi from '../src/browser.ts'
+import * as publicApi from '../src/index.ts'
 import * as pathologyApi from '../src/pathology/index.ts'
 import * as scientificApi from '../src/scientific/index.ts'
 import * as allScientificReaders from '../src/scientific/readers/all.ts'
@@ -32,7 +33,6 @@ import * as gsfReaderApi from '../src/scientific/readers/gsf.ts'
 import * as omeTiffReaderApi from '../src/scientific/readers/ome-tiff.ts'
 import * as httpRangeApi from '../src/sources/http-range.ts'
 import * as tiffApi from '../src/tiff/index.ts'
-import * as publicApi from '../src/index.ts'
 import buildTsconfig from '../tsconfig.build.json' with { type: 'json' }
 import rootTsconfig from '../tsconfig.json' with { type: 'json' }
 
@@ -127,6 +127,7 @@ describe('package contract', () => {
       ['scientific-reader-fits', 60_000],
       ['scientific-reader-mrc', 51_000],
       ['scientific-reader-cbf', 55_000],
+      ['scientific-reader-digital-micrograph', 100_000],
       ['scientific-reader-tiff', 341_825],
       ['scientific-reader-ome-tiff', 350_000],
       ['scientific-reader-aperio-svs', 338_000],
@@ -458,6 +459,7 @@ describe('package contract', () => {
       'purejsimage/scientific/readers/all',
       'purejsimage/scientific/readers/aperio-svs',
       'purejsimage/scientific/readers/cbf',
+      'purejsimage/scientific/readers/digital-micrograph',
       'purejsimage/scientific/readers/envi',
       'purejsimage/scientific/readers/fits',
       'purejsimage/scientific/readers/gsf',
@@ -491,6 +493,8 @@ describe('package contract', () => {
     expect(enviReaderApi).toHaveProperty('renderEnviClassification')
     expect(allScientificReaders).toHaveProperty('fitsReader')
     expect(allScientificReaders).toHaveProperty('enviReader')
+    expect(allScientificReaders).toHaveProperty('digitalMicrographReader')
+    expect(allScientificReaders).toHaveProperty('createDigitalMicrographReader')
     expect(allScientificReaders).toHaveProperty('tiffReader')
     expect(scientificApi).toHaveProperty('measureScientificPlane')
     expect(scientificApi).toHaveProperty('renderScientificPlane')
@@ -594,6 +598,7 @@ describe('package contract', () => {
       './scientific/readers/fits',
       './scientific/readers/mrc',
       './scientific/readers/cbf',
+      './scientific/readers/digital-micrograph',
       './scientific/readers/tiff',
       './scientific/readers/ome-tiff',
       './scientific/readers/aperio-svs',

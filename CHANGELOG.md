@@ -23,6 +23,15 @@ All notable changes to PureJsImage are documented in this file.
   separate payload byte order, recursive value descriptors, deterministic duplicate-name paths,
   lazy image payload spans, and size-limited metadata projection for the upcoming scientific
   reader.
+- Added the public `purejsimage/scientific/readers/digital-micrograph` reader for supported DM3/DM4
+  rank-2 through rank-4 scalar images and volumes, all signed/unsigned 8/16/32-bit and
+  float32/float64 samples, fixture-proven packed BGRA, calibrated axes and intensity units,
+  bounded namespaced Gatan metadata, and direct selected-region reads. Rank-1, complex,
+  undocumented packed, encrypted, and external image content remains explicitly unsupported.
+- Added a generated scientific-reader capability section covering every public reader descriptor,
+  package export, hint, resource model, dataset kind, direct-range boundary, evidence, and fixture
+  source. Added a pinned, checksum-verified RosettaSciIO DigitalMicrograph compatibility corpus
+  workflow without redistributing its GPL-licensed fixture binaries in the package repository.
 
 ### Changed
 

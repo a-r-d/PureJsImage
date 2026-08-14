@@ -155,6 +155,21 @@ planner estimates are bounded cache/working-set evidence, not measurements of pr
 The report records Node, operating system, architecture, provider, implementation version, range
 bytes, and cache metrics so results are not compared across unlike environments without context.
 
+### DigitalMicrograph compatibility corpus
+
+Prepare and verify the pinned DM3/DM4 compatibility files with:
+
+```sh
+npm run fixtures:digital-micrograph:prepare
+npm run fixtures:digital-micrograph
+```
+
+The manifest pins the exact RosettaSciIO revision, upstream GPL-3.0 license, attribution, source
+paths, SHA-256 checksums, oracle sample windows, calibration, and expected dataset shapes. The
+downloaded binaries remain ignored and are not redistributed in this MIT repository. Verification
+requires exact native samples before reporting success and checks that selected regions issue only
+the required row reads.
+
 Quick harness validation:
 
 ```sh

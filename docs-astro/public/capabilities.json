@@ -6479,5 +6479,169 @@
         }
       ]
     }
+  ],
+  "scientificReaders": [
+    {
+      "id": "purejsimage/gsf",
+      "version": "1.0.0",
+      "format": "Gwyddion Simple Field",
+      "packageExport": "purejsimage/scientific/readers/gsf",
+      "extensions": ["gsf"],
+      "mediaTypes": ["application/x-gwyddion-spm"],
+      "resourceModel": "single",
+      "datasetKinds": ["surface"],
+      "directRangeReads": true,
+      "boundary": "One scalar 2D field with exact X/Y calibration and bounded metadata.",
+      "evidence": ["tests/scientific-format-readers.test.ts"],
+      "fixtures": ["tests/scientific-format-readers.test.ts"]
+    },
+    {
+      "id": "purejsimage/envi",
+      "version": "1.0.0",
+      "format": "ENVI",
+      "packageExport": "purejsimage/scientific/readers/envi",
+      "extensions": ["hdr", "img", "dat", "raw"],
+      "mediaTypes": ["application/x-envi"],
+      "resourceModel": "companion-pair",
+      "datasetKinds": ["image", "volume", "spectrum-image"],
+      "directRangeReads": true,
+      "boundary": "Header-plus-binary scalar cubes with BSQ, BIL, or BIP layout and exact selected-region reads.",
+      "evidence": ["tests/envi.test.ts"],
+      "fixtures": ["tests/envi.test.ts"]
+    },
+    {
+      "id": "purejsimage/fits",
+      "version": "1.0.0",
+      "format": "FITS",
+      "packageExport": "purejsimage/scientific/readers/fits",
+      "extensions": ["fits", "fit", "fts"],
+      "mediaTypes": ["application/fits", "image/fits"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "Supported image HDUs with ranked axes, native numeric samples, and linear physical coordinates.",
+      "evidence": ["tests/fits.test.ts"],
+      "fixtures": ["tests/fits.test.ts"]
+    },
+    {
+      "id": "purejsimage/mrc",
+      "version": "1.0.0",
+      "format": "MRC/CCP4",
+      "packageExport": "purejsimage/scientific/readers/mrc",
+      "extensions": ["mrc", "map", "ccp4"],
+      "mediaTypes": ["application/x-mrc", "application/x-ccp4"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "One scalar image or volume for the documented MRC/CCP4 modes and axis mappings.",
+      "evidence": ["tests/scientific-format-readers.test.ts"],
+      "fixtures": ["tests/scientific-format-readers.test.ts"]
+    },
+    {
+      "id": "purejsimage/cbf",
+      "version": "1.0.0",
+      "format": "CBF/imgCIF",
+      "packageExport": "purejsimage/scientific/readers/cbf",
+      "extensions": ["cbf"],
+      "mediaTypes": ["application/x-cbf"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "One 2D detector image using the documented byte-offset encoding subset.",
+      "evidence": ["tests/scientific-format-readers.test.ts"],
+      "fixtures": ["tests/scientific-format-readers.test.ts"]
+    },
+    {
+      "id": "purejsimage/png",
+      "version": "1.0.0",
+      "format": "PNG",
+      "packageExport": "purejsimage/scientific/readers/png",
+      "extensions": ["png"],
+      "mediaTypes": ["image/png"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "Low-confidence codec adapter exposing canonical uint8 image datasets.",
+      "evidence": ["tests/scientific-image-codec-reader.test.ts"],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/jpeg",
+      "version": "1.0.0",
+      "format": "JPEG",
+      "packageExport": "purejsimage/scientific/readers/jpeg",
+      "extensions": ["jpg", "jpeg", "jpe"],
+      "mediaTypes": ["image/jpeg"],
+      "resourceModel": "single",
+      "datasetKinds": ["image"],
+      "directRangeReads": false,
+      "boundary": "Low-confidence codec adapter exposing canonical uint8 image datasets.",
+      "evidence": ["tests/scientific-image-codec-reader.test.ts"],
+      "fixtures": ["tests/scientific-image-codec-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/tiff",
+      "version": "1.0.0",
+      "format": "TIFF",
+      "packageExport": "purejsimage/scientific/readers/tiff",
+      "extensions": ["tif", "tiff"],
+      "mediaTypes": ["image/tiff", "image/x-tiff"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume", "pyramid"],
+      "directRangeReads": true,
+      "boundary": "Native-precision compatible page series, separate incompatible series, and SubIFD levels without invented axis semantics.",
+      "evidence": ["tests/scientific-tiff-reader.test.ts"],
+      "fixtures": ["tests/scientific-tiff-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/ome-tiff",
+      "version": "1.0.0",
+      "format": "OME-TIFF",
+      "packageExport": "purejsimage/scientific/readers/ome-tiff",
+      "extensions": ["tif", "tiff"],
+      "mediaTypes": ["image/tiff", "image/x-tiff"],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "OME-XML-backed X/Y/Z/C/T datasets on supported TIFF sample and compression layouts.",
+      "evidence": ["tests/scientific-format-readers.test.ts"],
+      "fixtures": ["tests/scientific-format-readers.test.ts"]
+    },
+    {
+      "id": "purejsimage/aperio-svs",
+      "version": "1.0.0",
+      "format": "Aperio SVS",
+      "packageExport": "purejsimage/scientific/readers/aperio-svs",
+      "extensions": ["svs"],
+      "mediaTypes": ["image/tiff", "image/x-tiff"],
+      "resourceModel": "single",
+      "datasetKinds": ["pyramid", "image"],
+      "directRangeReads": true,
+      "boundary": "One bounded calibrated whole-slide pyramid plus separate supported associated images.",
+      "evidence": ["tests/scientific-aperio-reader.test.ts"],
+      "fixtures": ["tests/scientific-aperio-reader.test.ts"]
+    },
+    {
+      "id": "purejsimage/digital-micrograph",
+      "version": "1.0.0",
+      "format": "Gatan DigitalMicrograph",
+      "packageExport": "purejsimage/scientific/readers/digital-micrograph",
+      "extensions": ["dm3", "dm4"],
+      "mediaTypes": [
+        "application/x-gatan-dm3",
+        "application/x-gatan-dm4",
+        "application/x-digital-micrograph"
+      ],
+      "resourceModel": "single",
+      "datasetKinds": ["image", "volume"],
+      "directRangeReads": true,
+      "boundary": "Rank-2 through rank-4 scalar images and volumes plus fixture-proven little-endian packed BGRA; no rank-1, complex, encrypted, external, big-endian packed color, or undocumented packed content.",
+      "evidence": ["tests/digital-micrograph-index.test.ts"],
+      "fixtures": [
+        "benchmark/digital-micrograph/corpus.json",
+        "benchmark/digital-micrograph/generated-fixture.ts",
+        "tests/digital-micrograph-index.test.ts"
+      ]
+    }
   ]
 }

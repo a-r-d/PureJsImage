@@ -238,6 +238,11 @@ Recommended contract change:
 
 ### 6. Scientific reader capability manifest
 
+**Status: Complete.** `capabilities/manifest.json` now contains a separately validated and generated
+`scientificReaders` collection for every public reader. Public JSON and test expectations carry the
+stable descriptor, package export, input hints, resource model, dataset kinds, direct-range claim,
+support boundary, evidence, and fixture locations.
+
 The current capability manifest mixes photographic codecs, scientific formats, and the Nanoscope investigation. Lab Viewer then duplicates reader descriptors in `worker-readers.ts`.
 
 Extend the generated capability source with a separate `scientificReaders` section. Generate:
@@ -298,6 +303,16 @@ Build an internal random-access DM container index:
 - bounded metadata projection that excludes image payload arrays.
 
 ### B2. Common image datasets
+
+**Status: Complete.** The explicit `purejsimage/scientific/readers/digital-micrograph` entry exposes
+supported DM3/DM4 ImageList entries independently, preserves rank-2 through rank-4 dimension order,
+and reads selected X/Y rows directly from indexed payload spans. The reader supports all listed
+scalar types plus the Gatan-produced packed BGRA layouts proven by the pinned corpus. It maps
+dimension and brightness calibration, keeps higher dimensions neutral for B3, and publishes bounded
+metadata under `purejsimage:gatan`. A reproducible compatibility workflow pins 13 RosettaSciIO
+fixtures by revision and SHA-256 while intentionally leaving their GPL-3.0 binaries out of the MIT
+repository. Complex/packed-complex, undocumented packed, encrypted, external, malformed, rank-1,
+and rank-outside-2-through-4 cases fail or are reported with exact boundaries.
 
 Expose every supported `ImageList` entry as a separate scientific dataset:
 
