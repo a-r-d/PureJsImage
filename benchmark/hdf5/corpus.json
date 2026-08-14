@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "source": {
     "project": "HDF5",
     "revision": "18de4b4a1b83f5286a53fd0117364c1a068ce1e1",
@@ -28,6 +28,62 @@
       "objectHeaderVersion": 1,
       "storage": "dense",
       "unsupportedLink": "ext_link"
+    },
+    {
+      "file": "h5repack_layout.h5",
+      "path": "h5repack_layout.h5",
+      "bytes": 29480,
+      "sha256": "2114a75be3ae9f1128de614f3eac74537e6ab8420fba52b71112c94206b7097d",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "storage": "datasets",
+      "datasets": [
+        {
+          "path": "/dset_chunk",
+          "layout": "chunked",
+          "dimensions": [40, 20],
+          "chunkDimensions": [20, 10],
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero"
+        },
+        {
+          "path": "/dset_compact",
+          "layout": "compact",
+          "dimensions": [40, 20],
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero"
+        },
+        {
+          "path": "/dset_contiguous",
+          "layout": "contiguous",
+          "dimensions": [40, 20],
+          "elementBytes": 4,
+          "logicalBytes": 3200,
+          "fillStatus": "default-zero"
+        }
+      ]
+    },
+    {
+      "file": "bounds_latest_latest.h5",
+      "path": "bounds_latest_latest.h5",
+      "bytes": 82048,
+      "sha256": "74e56722c58930d31674f27e2f16baf6ea551f8e643d049a5b8a98ee35ef899e",
+      "superblockVersion": 3,
+      "objectHeaderVersion": 2,
+      "storage": "datasets",
+      "datasets": [
+        {
+          "path": "/DS_chunked_layout_4",
+          "layout": "chunked",
+          "dimensions": [100, 200],
+          "chunkDimensions": [50, 50],
+          "elementBytes": 4,
+          "logicalBytes": 80000,
+          "fillStatus": "default-zero"
+        }
+      ]
     }
   ]
 }

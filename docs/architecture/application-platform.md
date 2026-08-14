@@ -1827,6 +1827,15 @@ to own only generic descriptors, definitions, providers, and registries.
       across compact, legacy, and dense groups; follows absolute and containing-group-relative soft
       links; preserves dangling links as unresolved; detects soft-link cycles; and enforces
       aggregate object, link, metadata, path-byte, hard-link-depth, and soft-link-traversal limits.
+- [x] Start HDF5 D3 with package-private bounded dataspace versions 1 and 2 plus datatype versions 1
+      through 3 for fixed integers, exact IEEE binary16/32/64 floats, and fixed strings; preserve
+      finite extents, unlimited maxima, byte order, precision, offset, and padding while rejecting
+      malformed, shared, null, permuted, VAX, and unsupported datatype forms explicitly.
+- [x] Continue HDF5 D3 with bounded compact, contiguous, and chunked layout versions 1 through 4,
+      preserve all classic and modern chunk-index descriptors for D4, parse old and version 1
+      through 3 fill semantics, reject external raw storage, and pin the HDF Group's real version 3
+      `h5repack_layout.h5` and version 4 `bounds_latest_latest.h5` fixtures by immutable revision and
+      SHA-256 without shipping their binaries.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1955,3 +1964,28 @@ to own only generic descriptors, definitions, providers, and registries.
     436-file packed consumer,
     19-page documentation build, browser graph, every size ceiling, lint, and formatting pass. The
     final `npm run check` passes all 113 files and 1,383 tests.
+
+  - HDF5 D3 initial validation: 8 focused dataset-metadata tests cover scalar and simple v1/v2
+    dataspaces, zero current extents, finite and unlimited maxima, rank/dimension/element limits,
+    fixed signed and unsigned integers, exact little- and big-endian IEEE binary16/32/64 floats,
+    fixed ASCII and UTF-8 strings, malformed versus unsupported layouts, bounded object-message
+    reads, shared-message rejection, duplicates, and cancellation. Layout, fill-value,
+    enum/compound, shared-message resolution, raw-data, and independent-corpus coverage remain
+    pending before D3 can be complete. All 51 HDF5 tests pass with the earlier D1/D2 coverage. The
+    438-file packed consumer, 19-page documentation build, browser dependency graph, size ceilings,
+    lint, formatting, and the complete 114-file / 1,391-test repository gate pass; no HDF5 module
+    is reachable from a package export.
+
+  - HDF5 D3 layout/fill validation: 8 focused storage tests cover compact, contiguous, and chunked
+    layouts across versions 1 through 4; classic B-tree v1 plus single, implicit, fixed-array,
+    extensible-array, and B-tree v2 descriptors; owned compact and fill bytes; default, undefined,
+    and defined fill semantics; external storage; cancellation; contradictory messages; geometry;
+    address; and byte limits. All 59 HDF5 tests pass. The pinned `h5repack_layout.h5` fixture verifies
+    real version 3 compact, contiguous, and chunked 40 by 20 signed-int datasets with exact logical
+    size and chunk geometry. The pinned `bounds_latest_latest.h5` fixture independently verifies a modern
+    superblock-v3/object-header-v2 float32 dataset with a version 4 fixed-array chunk descriptor.
+    Enums/compounds, shared-message resolution, raw reads, index traversal, and filters remain
+    pending. The 440-file packed consumer, 19-page documentation build, browser dependency graph,
+    every size ceiling, typecheck, lint, and formatting pass; the complete repository gate passes all
+    115 files and 1,399 tests. The package size surfaces are unaffected because HDF5 remains
+    unreachable from public exports.

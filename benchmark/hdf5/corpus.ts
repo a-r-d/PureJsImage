@@ -23,10 +23,28 @@ export interface Hdf5DenseCorpusFixture extends Hdf5CorpusFixtureBase {
   readonly unsupportedLink: string
 }
 
-export type Hdf5CorpusFixture = Hdf5LegacyCorpusFixture | Hdf5DenseCorpusFixture
+export interface Hdf5DatasetCorpusExpectation {
+  readonly path: string
+  readonly layout: 'compact' | 'contiguous' | 'chunked'
+  readonly dimensions: readonly number[]
+  readonly chunkDimensions?: readonly number[]
+  readonly elementBytes: number
+  readonly logicalBytes: number
+  readonly fillStatus: 'default-zero' | 'undefined' | 'defined'
+}
+
+export interface Hdf5DatasetCorpusFixture extends Hdf5CorpusFixtureBase {
+  readonly storage: 'datasets'
+  readonly datasets: readonly Hdf5DatasetCorpusExpectation[]
+}
+
+export type Hdf5CorpusFixture =
+  | Hdf5LegacyCorpusFixture
+  | Hdf5DenseCorpusFixture
+  | Hdf5DatasetCorpusFixture
 
 export interface Hdf5CorpusManifestValue {
-  readonly schemaVersion: 2
+  readonly schemaVersion: 3
   readonly source: {
     readonly project: string
     readonly revision: string
@@ -82,13 +100,61 @@ const parseRootLinks = (value: unknown): readonly string[] => {
   return Object.freeze(links)
 }
 
-const parseStorage = (value: unknown): 'legacy' | 'dense' => {
-  if (value === 'legacy' || value === 'dense') return value
+const parseStorage = (value: unknown): 'legacy' | 'dense' | 'datasets' => {
+  if (value === 'legacy' || value === 'dense' || value === 'datasets') return value
   throw new Error('HDF5 corpus storage is invalid')
 }
 
+const parsePositiveIntegerArray = (value: unknown, label: string): readonly number[] => {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error(`HDF5 corpus ${label} must be a non-empty array`)
+  }
+  return Object.freeze(value.map((entry) => positiveInteger(entry, label)))
+}
+
+const parseDatasetExpectations = (value: unknown): readonly Hdf5DatasetCorpusExpectation[] => {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error('HDF5 corpus datasets must be a non-empty array')
+  }
+  const paths = new Set<string>()
+  return Object.freeze(
+    value.map((entry): Hdf5DatasetCorpusExpectation => {
+      if (!isRecord(entry)) throw new Error('HDF5 corpus dataset must be an object')
+      const path = requiredString(entry, 'path')
+      if (!path.startsWith('/') || path.includes('\0') || paths.has(path)) {
+        throw new Error('HDF5 corpus dataset path must be unique and absolute')
+      }
+      paths.add(path)
+      const layout = entry.layout
+      if (layout !== 'compact' && layout !== 'contiguous' && layout !== 'chunked') {
+        throw new Error('HDF5 corpus dataset layout is invalid')
+      }
+      const fillStatus = entry.fillStatus
+      if (fillStatus !== 'default-zero' && fillStatus !== 'undefined' && fillStatus !== 'defined') {
+        throw new Error('HDF5 corpus dataset fillStatus is invalid')
+      }
+      const chunkDimensions =
+        entry.chunkDimensions === undefined
+          ? undefined
+          : parsePositiveIntegerArray(entry.chunkDimensions, 'chunkDimensions')
+      if ((layout === 'chunked') !== (chunkDimensions !== undefined)) {
+        throw new Error('HDF5 corpus chunkDimensions must appear only for chunked layouts')
+      }
+      return Object.freeze({
+        path,
+        layout,
+        dimensions: parsePositiveIntegerArray(entry.dimensions, 'dimensions'),
+        ...(chunkDimensions === undefined ? {} : { chunkDimensions }),
+        elementBytes: positiveInteger(entry.elementBytes, 'elementBytes'),
+        logicalBytes: positiveInteger(entry.logicalBytes, 'logicalBytes'),
+        fillStatus,
+      })
+    }),
+  )
+}
+
 const assertCorpusManifest = (value: unknown): Hdf5CorpusManifestValue => {
-  if (!isRecord(value) || value.schemaVersion !== 2 || !isRecord(value.source)) {
+  if (!isRecord(value) || value.schemaVersion !== 3 || !isRecord(value.source)) {
     throw new Error('HDF5 corpus manifest header is invalid')
   }
   if (!Array.isArray(value.fixtures) || value.fixtures.length === 0) {
@@ -124,16 +190,24 @@ const assertCorpusManifest = (value: unknown): Hdf5CorpusManifestValue => {
       objectHeaderVersion: parseObjectHeaderVersion(fixture.objectHeaderVersion),
     }
     const storage = parseStorage(fixture.storage)
-    return storage === 'legacy'
-      ? Object.freeze({ ...base, storage, rootLinks: parseRootLinks(fixture.rootLinks) })
-      : Object.freeze({
-          ...base,
-          storage,
-          unsupportedLink: requiredString(fixture, 'unsupportedLink'),
-        })
+    if (storage === 'legacy') {
+      return Object.freeze({ ...base, storage, rootLinks: parseRootLinks(fixture.rootLinks) })
+    }
+    if (storage === 'dense') {
+      return Object.freeze({
+        ...base,
+        storage,
+        unsupportedLink: requiredString(fixture, 'unsupportedLink'),
+      })
+    }
+    return Object.freeze({
+      ...base,
+      storage,
+      datasets: parseDatasetExpectations(fixture.datasets),
+    })
   })
   return Object.freeze({
-    schemaVersion: 2,
+    schemaVersion: 3,
     source: Object.freeze({
       project: requiredString(value.source, 'project'),
       revision,

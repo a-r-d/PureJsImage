@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { ImageError } from '../../src/errors.ts'
 import { FileSource } from '../../src/node-source.ts'
+import { readHdf5DatasetMetadata } from '../../src/scientific/formats/hdf5-dataset.ts'
 import { openHdf5ObjectGraph } from '../../src/scientific/formats/hdf5-graph.ts'
 import { openHdf5FileLayer } from '../../src/scientific/formats/hdf5.ts'
 import { hdf5CorpusPath, readHdf5CorpusManifest } from './corpus.ts'
@@ -23,6 +24,12 @@ const requireStringArrayEqual = (
   const expectedValue = [...expected].sort().join('\u0000')
   requireEqual(actualValue, expectedValue, label)
 }
+
+const requireNumberArrayEqual = (
+  actual: readonly number[],
+  expected: readonly number[],
+  label: string,
+): void => requireEqual(actual.join(','), expected.join(','), label)
 
 const manifest = await readHdf5CorpusManifest()
 for (const fixture of manifest.fixtures) {
@@ -59,6 +66,60 @@ for (const fixture of manifest.fixtures) {
     }
     console.log(
       `ok ${fixture.file} superblock-v${file.superblock.version} object-v${root.header.version} ${links.length} legacy graph links`,
+    )
+    continue
+  }
+  if (fixture.storage === 'datasets') {
+    for (const expected of fixture.datasets) {
+      const object = await graph.get(expected.path)
+      if (object === undefined) throw new Error(`${fixture.file} lacks ${expected.path}`)
+      requireEqual(
+        object.header.version,
+        fixture.objectHeaderVersion,
+        `${fixture.file} ${expected.path} object header`,
+      )
+      const metadata = await readHdf5DatasetMetadata(file, object.header, {
+        objectPath: expected.path,
+      })
+      requireNumberArrayEqual(
+        metadata.dataspace.dimensions,
+        expected.dimensions,
+        `${fixture.file} ${expected.path} dimensions`,
+      )
+      requireEqual(
+        metadata.datatype.byteLength,
+        expected.elementBytes,
+        `${fixture.file} ${expected.path} element bytes`,
+      )
+      requireEqual(metadata.layout.kind, expected.layout, `${fixture.file} ${expected.path} layout`)
+      const logicalBytes = metadata.dataspace.elementCount * metadata.datatype.byteLength
+      requireEqual(
+        logicalBytes,
+        expected.logicalBytes,
+        `${fixture.file} ${expected.path} logical bytes`,
+      )
+      if (metadata.layout.kind !== 'chunked') {
+        requireEqual(
+          metadata.layout.storageBytes,
+          expected.logicalBytes,
+          `${fixture.file} ${expected.path} allocated bytes`,
+        )
+      }
+      requireEqual(
+        metadata.fillValue.status,
+        expected.fillStatus,
+        `${fixture.file} ${expected.path} fill status`,
+      )
+      if (metadata.layout.kind === 'chunked' && expected.chunkDimensions !== undefined) {
+        requireNumberArrayEqual(
+          metadata.layout.chunkDimensions,
+          expected.chunkDimensions,
+          `${fixture.file} ${expected.path} chunk dimensions`,
+        )
+      }
+    }
+    console.log(
+      `ok ${fixture.file} superblock-v${file.superblock.version} ${fixture.datasets.length} dataset layouts`,
     )
     continue
   }

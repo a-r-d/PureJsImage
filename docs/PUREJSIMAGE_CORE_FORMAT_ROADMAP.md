@@ -509,6 +509,26 @@ External links and user-defined links remain unsupported initially.
 
 ### D3. Datatypes, dataspaces, and layouts
 
+**Status: In progress.** The first package-private D3 slice parses scalar and simple dataspace
+messages in versions 1 and 2, preserving finite current extents and explicit unlimited maxima while
+bounding rank, individual dimensions, and aggregate element counts before later storage planning.
+It also parses datatype message versions 1 through 3 for fixed signed/unsigned integers, exact IEEE
+binary16/32/64 floating-point layouts, and fixed ASCII or UTF-8 strings. Integer byte order,
+precision, offset, and low/high padding are retained; malformed fields are distinguished from valid
+but unsupported layouts. A dataset-object helper requires exactly one unshared dataspace and
+datatype message and bounds both metadata reads. Null/permuted dataspaces, VAX or non-IEEE floats,
+and unsupported datatype classes reject explicitly. The second slice parses compact, contiguous,
+and chunked layout messages in versions 1 through 4, retaining classic B-tree v1 and every modern
+single, implicit, fixed-array, extensible-array, and B-tree v2 index descriptor without traversing
+those indexes before D4. It bounds declared storage, compact payload, decoded chunk, and fill-value
+bytes; validates layout rank, dimensions, element size, allocated addresses, and datatype-sized
+fills; and distinguishes absent/default-zero, undefined, and defined old or version 1 through 3 fill
+semantics. A complete dataset-metadata helper rejects external raw storage and contradictory old/new
+fill messages. Revision- and SHA-256-pinned HDF Group fixtures verify real version 3 compact,
+contiguous, and chunked datasets plus a version 4 fixed-array chunk descriptor without committing
+the licensed binaries. Enums/compounds, shared-message resolution, raw dataset reads, and chunk
+index traversal remain pending, so HDF5 stays package-private with no capability claim.
+
 Initial dataset subset:
 
 - scalar and simple dataspaces;
