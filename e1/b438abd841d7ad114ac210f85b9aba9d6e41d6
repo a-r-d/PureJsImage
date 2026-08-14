@@ -1,0 +1,34 @@
+benchmark/hdf5/generated-graph-fixture.ts
+  s_c756552b1b36e2::t_9fff179cf5b48b 1-124
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_e4ebc54ede0ede 1826-1829,1949-1954
+  s_c756552b1b36e2::t_63d9b02af6638e 1944,1955,1957
+src/scientific/formats/hdf5-graph.ts
+  s_c756552b1b36e2::t_e4ebc54ede0ede 303-307,311
+  s_c756552b1b36e2::t_9fff179cf5b48b 1-3,6-218,220-302,308-310,312-335
+  s_c756552b1b36e2::t_47fe21ac2df8ac 4-5,219
+tests/hdf5-object-graph.test.ts
+  s_c756552b1b36e2::t_9fff179cf5b48b 1-6,8-127
+  s_c756552b1b36e2::t_47fe21ac2df8ac 7
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  s_c756552b1b36e2::t_e4ebc54ede0ede 491-496
+benchmark/hdf5/verify-corpus.ts
+  s_c756552b1b36e2::t_ae80dfdf27c676 5,36-38,45,48-49,51,55-59,61,65,69,81
+  s_c756552b1b36e2::t_65a859943e0cc5 39-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "e1b438abd841d7ad114ac210f85b9aba9d6e41d6",
+  "prompts": {},
+  "sessions": {
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
