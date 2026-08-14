@@ -1,0 +1,65 @@
+src/scientific/readers/png.ts
+  s_c756552b1b36e2::t_2b96758859e199 1-23
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_63e4d8483f3860 396,1701-1704,1706
+  s_c756552b1b36e2::t_721ac5f41049fa 1705,1707-1716
+README.md
+  s_c756552b1b36e2::t_63e4d8483f3860 146-159
+scripts/bundle-size-config.ts
+  s_c756552b1b36e2::t_721ac5f41049fa 106-107,113-114,120-121
+  s_c756552b1b36e2::t_488fa3507cc7fb 102-105,108-112,115
+tests/project-contract.test.ts
+  s_c756552b1b36e2::t_721ac5f41049fa 132-134
+  s_c756552b1b36e2::t_7eb047f4565b04 465-466,596-597
+tests/scientific-image-codec-reader.test.ts
+  s_c756552b1b36e2::t_0f1cc7c54b02c2 1-54,61-67,69-109,111-116,118-136,138-171,288,293-390
+  s_c756552b1b36e2::t_7776b70b8f9479 110,117,137
+  s_c756552b1b36e2::t_b426aa621e2fa7 68
+  s_c756552b1b36e2::t_377df386dd301f 55-60,172-287,289-292
+src/scientific/index.ts
+  s_c756552b1b36e2::t_2b96758859e199 48,84
+CHANGELOG.md
+  s_c756552b1b36e2::t_63e4d8483f3860 13-16
+package.json
+  s_c756552b1b36e2::t_488fa3507cc7fb 136-145
+docs/application-platform.md
+  s_c756552b1b36e2::t_63e4d8483f3860 42-46
+docs/scientific-reader-registry.md
+  s_c756552b1b36e2::t_63e4d8483f3860 30-53
+docs-astro/src/pages/api.astro
+  s_c756552b1b36e2::t_63e4d8483f3860 82
+docs-astro/public/llms.txt
+  s_c756552b1b36e2::t_63e4d8483f3860 94,97-98,675
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  s_c756552b1b36e2::t_721ac5f41049fa 254
+src/scientific/readers/all.ts
+  s_c756552b1b36e2::t_2b96758859e199 6,9
+tsconfig.json
+  s_c756552b1b36e2::t_488fa3507cc7fb 37-38
+scripts/check-package-types.ts
+  s_c756552b1b36e2::t_488fa3507cc7fb 145-146,213,221-222
+src/scientific/readers/jpeg.ts
+  s_c756552b1b36e2::t_2b96758859e199 1-23
+src/scientific/image-codec-reader.ts
+  s_c756552b1b36e2::t_189bc68505e414 302-315,369,371,374
+  s_c756552b1b36e2::t_179c219bb5db78 352,362-363,408-409
+  s_c756552b1b36e2::t_fae96cdd8ebdba 125,189,296-298,498-499
+  s_c756552b1b36e2::t_1b3a796f8143ed 1,494
+  s_c756552b1b36e2::t_2b96758859e199 2-124,126-188,190-295,299-301,316-351,353-361,364-368,370,372-373,375-407,410-493,495-497,500-505
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "08af59fc9c21688347c51ac55599c5b9053032a4",
+  "prompts": {},
+  "sessions": {
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
