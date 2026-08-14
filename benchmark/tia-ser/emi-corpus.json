@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "project": "RosettaSciIO",
+    "revision": "bc254db14cd7d4d23169b11aeb622a0a7eac1fbe",
+    "baseUrl": "https://raw.githubusercontent.com/hyperspy/rosettasciio/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tests/data/tia/",
+    "license": "GPL-3.0-or-later",
+    "licenseUrl": "https://github.com/hyperspy/rosettasciio/blob/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/LICENSE",
+    "attribution": "RosettaSciIO test corpus contributors",
+    "oracleUrl": "https://github.com/hyperspy/rosettasciio/blob/bc254db14cd7d4d23169b11aeb622a0a7eac1fbe/rsciio/tia/_api.py"
+  },
+  "fixtures": [
+    {
+      "file": "old/64x64_TEM_images_acquire.emi",
+      "sha256": "d820ec205f047ed1db5e3a785e8f532e99ade7b70f65657aa184c6cce59f98eb",
+      "companions": [
+        {
+          "file": "old/64x64_TEM_images_acquire_1.ser",
+          "sha256": "cfb0cb9c6ba5924a8a03db2d35c4864c5d3bb9a28ebe7c8a92710d0d8bcb9a98"
+        }
+      ],
+      "objectCount": 1,
+      "datasetIds": ["ser-1/images"],
+      "metadataUuids": ["bf249a1f-68db-45d7-997b-4eba3c30be49"],
+      "read": { "datasetId": "ser-1/images", "kind": "plane", "fixedIndices": [] },
+      "expectedHex": "4740029b473b6268473b8efb473c8596"
+    },
+    {
+      "file": "old/16x16_STEM_BF_DF_acquire.emi",
+      "sha256": "c7eee2a855c18f7c1e180f1a9185bd27d3a642eccfe882e4fd48db99a1b3bbab",
+      "companions": [
+        {
+          "file": "old/16x16_STEM_BF_DF_acquire_1.ser",
+          "sha256": "a945e229b6bdaeca56e9f1a75148867aa8c35898ed484dff29a30ffa907f16cf"
+        },
+        {
+          "file": "old/16x16_STEM_BF_DF_acquire_2.ser",
+          "sha256": "e90c1a85d897d088ff0d7833c419d0a83f16f8e786ffac1599c861af1e3ced92"
+        }
+      ],
+      "objectCount": 2,
+      "datasetIds": ["ser-1/images", "ser-2/images"],
+      "metadataUuids": [
+        "392a0b2b-5edb-4c51-843c-57916c4059a0",
+        "c925d651-25eb-4080-b200-0a0f0942d3cf"
+      ],
+      "preservedConflictAxes": ["x", "y"],
+      "read": { "datasetId": "ser-2/images", "kind": "plane", "fixedIndices": [] },
+      "expectedHex": "0aa20a730aa20a73"
+    },
+    {
+      "file": "old/more_ser_then_emi_metadata.emi",
+      "sha256": "04e7d9968776975a483e0be0c0d634cb8da8fca2550cc986046d8f6f2b736449",
+      "companions": [
+        {
+          "file": "old/more_ser_then_emi_metadata_1.ser",
+          "sha256": "9708b9e85cb1b63eaacc785396728cd7e20fca5ae104df4987fa9f10422e90bf"
+        },
+        {
+          "file": "old/more_ser_then_emi_metadata_2.ser",
+          "sha256": "307cde0bbea6f3b54a750ad6d6b7db661479cfda4f4d555a4796790df1bf670e"
+        }
+      ],
+      "objectCount": 1,
+      "datasetIds": ["ser-1/spectra", "ser-2/spectra"],
+      "metadataUuids": ["7698f330-e374-4a77-a07b-74614e0fc802", null],
+      "read": { "datasetId": "ser-2/spectra", "kind": "series", "fixedIndices": [] },
+      "expectedHex": "00000000000000000000000000000000"
+    },
+    {
+      "file": "new/16x16-line_profile_horizontal_5x128x128_EDS.emi",
+      "sha256": "f8e662cfcdd8a5673ac77895f02796d6088bc680d46bcdfb63f02cfb24c21523",
+      "companions": [
+        {
+          "file": "new/16x16-line_profile_horizontal_5x128x128_EDS_1.ser",
+          "sha256": "e4db49dd2934effb37657f81840dc97c24ddd466feacc8b11b36f3e8003f1058"
+        },
+        {
+          "file": "new/16x16-line_profile_horizontal_5x128x128_EDS_2.ser",
+          "sha256": "44313deaa13c7d8ea6c65f190e978ab310a7e68c420022b5224de3f2ce78bcd7"
+        }
+      ],
+      "objectCount": 9,
+      "datasetIds": ["ser-1/spectra", "ser-2/images"],
+      "metadataUuids": [
+        "8fb81690-5be9-4708-b407-c16a20d71887",
+        "2468fd0d-f27c-4d35-a36c-4d31b6f26222"
+      ],
+      "reciprocalAxes": ["x", "y"],
+      "read": {
+        "datasetId": "ser-2/images",
+        "kind": "plane",
+        "fixedIndices": [{ "axisId": "scan-x", "index": 4 }]
+      },
+      "expectedHex": "fffffe800000003fffffff3ffffffe8a"
+    }
+  ]
+}

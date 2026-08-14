@@ -28,6 +28,7 @@ import { mrcReaderDescriptor } from '../src/scientific/readers/mrc.ts'
 import { omeTiffReaderDescriptor } from '../src/scientific/readers/ome-tiff.ts'
 import { pngReaderDescriptor } from '../src/scientific/readers/png.ts'
 import { tiffReaderDescriptor } from '../src/scientific/readers/tiff.ts'
+import { tiaEmiReaderDescriptor } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReaderDescriptor } from '../src/scientific/readers/tia-ser.ts'
 import type { ScientificReaderDescriptor } from '../src/scientific/reader.ts'
 import codecCapabilityExpectations from './generated/capability-expectations.json' with {
@@ -64,6 +65,7 @@ const runtimeScientificReaders: readonly ScientificReaderDescriptor[] = [
   omeTiffReaderDescriptor,
   aperioSvsReaderDescriptor,
   digitalMicrographReaderDescriptor,
+  tiaEmiReaderDescriptor,
   tiaSerReaderDescriptor,
 ]
 

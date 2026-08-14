@@ -6,7 +6,14 @@ import {
   generatedDigitalMicrographEelsFixture,
   generatedDigitalMicrographFixture,
 } from '../benchmark/digital-micrograph/generated-fixture.ts'
-import { generatedTiaSerSpectrumImage } from '../benchmark/tia-ser/generated-fixture.ts'
+import {
+  generateTiaEmiFixture,
+  generatedTiaEmiObject,
+} from '../benchmark/tia-ser/generated-emi-fixture.ts'
+import {
+  generatedTiaSerPointSpectrum,
+  generatedTiaSerSpectrumImage,
+} from '../benchmark/tia-ser/generated-fixture.ts'
 import * as browserPublicApi from '../src/browser.ts'
 import { createImageLibrary, ImageError } from '../src/browser.ts'
 import { browserRuntime } from '../src/browser-runtime.ts'
@@ -31,6 +38,7 @@ import {
   rasterToPixels,
   ScientificReaderRegistry,
 } from '../src/scientific/index.ts'
+import { createScientificFileContext } from '../src/scientific/browser.ts'
 import type {
   ScientificDataset,
   ScientificPlaneReadRequest,
@@ -39,6 +47,7 @@ import type {
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
 import { digitalMicrographReader } from '../src/scientific/readers/digital-micrograph.ts'
 import { tiffReader } from '../src/scientific/readers/tiff.ts'
+import { tiaEmiReader } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReader } from '../src/scientific/readers/tia-ser.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
@@ -1373,6 +1382,56 @@ const scientificTiaSer = async (): Promise<BrowserWorkflowResult> => {
   }
   return {
     detail: 'portable v544 TIA SER reader preserved calibrated spectrum-image native series reads',
+    outputBytes: output.length,
+  }
+}
+
+const scientificTiaEmi = async (): Promise<BrowserWorkflowResult> => {
+  const emi = generateTiaEmiFixture([
+    generatedTiaEmiObject({
+      uuid: 'browser-emi-object',
+      mode: 'TEM EELS',
+      microscope: 'Browser microscope',
+      acceleratingVoltageVolts: 200_000,
+    }),
+  ])
+  const primary = new File([Uint8Array.from(emi)], 'browser-capture.emi', {
+    type: 'application/x-tia-emi',
+  })
+  const companion = new File(
+    [Uint8Array.from(generatedTiaSerPointSpectrum())],
+    'browser-capture_1.ser',
+    {
+      type: 'application/x-tia-ser',
+    },
+  )
+  const document = await createScientificLibrary({ readers: [tiaEmiReader] }).open(
+    createScientificFileContext(primary, { companions: [companion] }),
+  )
+  const summary = document.datasets[0]
+  if (
+    summary?.id !== 'ser-1/spectra' ||
+    summary.identity.resources.length !== 2 ||
+    summary.descriptor.metadata?.['purejsimage:tiaEmi'] === undefined
+  ) {
+    throw new Error('Browser TIA EMI did not preserve companion identity and metadata')
+  }
+  const dataset = await document.openDataset(summary.id)
+  if (dataset.readSeries === undefined) throw new Error('Browser TIA EMI lacks native series reads')
+  const output: number[] = []
+  for await (const block of dataset.readSeries({
+    axisId: 'energy',
+    fixedIndices: [],
+    start: 0,
+    length: 4,
+  })) {
+    output.push(...block.data)
+  }
+  if (output.join(',') !== '0,0,0,1,255,255,255,254,0,0,0,3,0,0,0,4') {
+    throw new Error(`Browser TIA EMI spectrum pixels were ${output.join(',')}`)
+  }
+  return {
+    detail: 'portable TIA EMI reader resolved a browser File companion with metadata and identity',
     outputBytes: output.length,
   }
 }
@@ -3550,6 +3609,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   orientation,
   scientificTiffDocument,
   scientificDigitalMicrograph,
+  scientificTiaEmi,
   scientificTiaSer,
   scientificOneDimensionalSeries,
   pngAlphaPipeline,

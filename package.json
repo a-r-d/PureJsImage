@@ -133,6 +133,11 @@
       "import": "./dist/scientific/readers/tia-ser.js",
       "default": "./dist/scientific/readers/tia-ser.js"
     },
+    "./scientific/readers/tia-emi": {
+      "types": "./dist/scientific/readers/tia-emi.d.ts",
+      "import": "./dist/scientific/readers/tia-emi.js",
+      "default": "./dist/scientific/readers/tia-emi.js"
+    },
     "./scientific/readers/tiff": {
       "types": "./dist/scientific/readers/tiff.d.ts",
       "import": "./dist/scientific/readers/tiff.js",
@@ -350,6 +355,8 @@
     "fixtures:digital-micrograph:remote": "node benchmark/digital-micrograph/verify-semantic-corpus.ts",
     "fixtures:tia-ser": "node benchmark/tia-ser/verify-corpus.ts",
     "fixtures:tia-ser:prepare": "node benchmark/tia-ser/prepare-corpus.ts",
+    "fixtures:tia-emi": "node benchmark/tia-ser/verify-emi-corpus.ts",
+    "fixtures:tia-emi:prepare": "node benchmark/tia-ser/prepare-emi-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
     "fixtures:avif:alpha": "node benchmark/avif/verify-auxiliary-fixtures.ts",
     "fixtures:avif:alpha:prepare": "node benchmark/avif/prepare-alpha-fixtures.ts",

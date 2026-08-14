@@ -180,6 +180,20 @@ const science = createScientificLibrary({ readers: [tiaSerReader] })
 The reader opens v528 and v544 scalar spectra, spectrum images, and image series lazily. Direct SER
 opening exposes only facts present in the SER file; companion EMI metadata is not inferred.
 
+Open a TIA EMI document through its own reader when the numbered SER companions are available:
+
+```ts
+import { tiaEmiReader } from 'purejsimage/scientific/readers/tia-emi'
+import { createScientificPathContext } from 'purejsimage/scientific/node'
+
+const document = await tiaEmiReader.open(await createScientificPathContext('capture.emi'))
+```
+
+The EMI path exposes every consecutive `capture_1.ser`, `capture_2.ser`, and later companion as
+datasets, adds bounded acquisition metadata, and includes the EMI plus the contributing SER in each
+dataset identity. SER coordinates remain authoritative; strongly corroborated diffraction axes gain
+reciprocal-space units, while contradictory mode hints are retained as metadata conflicts.
+
 ### Scientific rasters and explicit display mapping
 
 Scientific readers are separate from photographic codecs. The dataset remains numeric until an

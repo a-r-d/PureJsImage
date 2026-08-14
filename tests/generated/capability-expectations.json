@@ -447,6 +447,28 @@
         "benchmark/tia-ser/verify-corpus.ts",
         "tests/tia-ser-reader.test.ts"
       ]
+    },
+    {
+      "id": "purejsimage/tia-emi",
+      "version": "1.0.0",
+      "format": "FEI/Thermo TIA EMI",
+      "packageExport": "purejsimage/scientific/readers/tia-emi",
+      "extensions": ["emi"],
+      "mediaTypes": [
+        "application/x-fei-emi",
+        "application/x-thermo-tia-emi",
+        "application/x-tia-emi"
+      ],
+      "resourceModel": "companion-set",
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "evidence": ["tests/tia-emi-reader.test.ts"],
+      "fixtures": [
+        "benchmark/tia-ser/emi-corpus.json",
+        "benchmark/tia-ser/generated-emi-fixture.ts",
+        "benchmark/tia-ser/verify-emi-corpus.ts",
+        "tests/tia-emi-reader.test.ts"
+      ]
     }
   ]
 }

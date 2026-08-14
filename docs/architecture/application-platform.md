@@ -1790,6 +1790,16 @@ to own only generic descriptors, definitions, providers, and registries.
 - [x] Pin five real RosettaSciIO TIA SER fixtures by revision and SHA-256 without committing their
       GPL binaries, and verify exact descriptors, calibration, sample windows, and direct payload
       read shapes across both versions before marking C1 complete.
+- [x] Add the public bounded TIA EMI reader with byte-signature probing, portable embedded
+      `ObjectInfo` XML parsing, consecutive numbered SER companion resolution, multi-dataset
+      composition, complete resource identity, and direct SER compatibility.
+- [x] Merge EMI acquisition metadata and strongly corroborated reciprocal-space interpretation
+      without replacing contradictory SER coordinates or units, and report preserved conflicts as
+      explicit dataset metadata.
+- [x] Pin four real RosettaSciIO EMI groups plus seven SER companions by revision and SHA-256, cover
+      old and new output, fewer and extra XML records, exact UUIDs and sample windows, and pass the
+      package, browser graph, real Chromium, documentation, capability, size, formatting, and full
+      repository gates before marking C2 complete.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1882,3 +1892,14 @@ to own only generic descriptors, definitions, providers, and registries.
     consumer, browser graph, docs, lint, formatting, and size checks pass; the TIA SER reader is
     46.6 KiB minified and all readers are 463.3 KiB under the existing 511.4 KiB ceiling. The final
     `npm run check` passes all 107 files and 1,323 tests.
+
+  - C2 validation: 51 focused TIA EMI, TIA SER, capability-manifest, and project-contract tests pass,
+    including bounded embedded XML, multiple numbered companions, full two-resource identities,
+    acquisition metadata, reciprocal-space corroboration, preserved conflicts, missing metadata,
+    cancellation, and every configurable admission limit. Four pinned real RosettaSciIO EMI groups
+    with seven SER companions pass exact hashes, UUID mapping, dataset composition, calibration
+    interpretation, and selected sample windows without committing their GPL binaries. The focused
+    public `File` companion workflow passes in real Chromium. Generated capability surfaces, the
+    420-file packed consumer, browser graph, 19-page docs build, lint, formatting, and size checks
+    pass; the TIA EMI reader is 60.2 KiB minified and all readers are 473.6 KiB under the existing
+    511.4 KiB ceiling. The final `npm run check` passes all 108 files and 1,330 tests.

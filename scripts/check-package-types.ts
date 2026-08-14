@@ -138,6 +138,7 @@ try {
     'dist/scientific/readers/aperio-svs.js',
     'dist/scientific/readers/cbf.js',
     'dist/scientific/readers/digital-micrograph.js',
+    'dist/scientific/readers/tia-emi.js',
     'dist/scientific/readers/tia-ser.js',
     'dist/scientific/readers/envi.js',
     'dist/scientific/readers/fits.js',
@@ -224,6 +225,8 @@ export { createDigitalMicrographReader, digitalMicrographReader } from 'purejsim
 export type { DigitalMicrographReaderLimits, DigitalMicrographReaderOptions } from 'purejsimage/scientific/readers/digital-micrograph'
 export { createTiaSerReader, tiaSerReader } from 'purejsimage/scientific/readers/tia-ser'
 export type { TiaSerReaderLimits, TiaSerReaderOptions } from 'purejsimage/scientific/readers/tia-ser'
+export { createTiaEmiReader, tiaEmiReader } from 'purejsimage/scientific/readers/tia-emi'
+export type { TiaEmiReaderLimits, TiaEmiReaderOptions } from 'purejsimage/scientific/readers/tia-emi'
 export { enviReader } from 'purejsimage/scientific/readers/envi'
 export { fitsReader } from 'purejsimage/scientific/readers/fits'
 export { mrcReader } from 'purejsimage/scientific/readers/mrc'

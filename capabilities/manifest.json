@@ -188,6 +188,29 @@
         "benchmark/tia-ser/verify-corpus.ts",
         "tests/tia-ser-reader.test.ts"
       ]
+    },
+    {
+      "id": "purejsimage/tia-emi",
+      "version": "1.0.0",
+      "format": "FEI/Thermo TIA EMI",
+      "packageExport": "purejsimage/scientific/readers/tia-emi",
+      "extensions": ["emi"],
+      "mediaTypes": [
+        "application/x-fei-emi",
+        "application/x-thermo-tia-emi",
+        "application/x-tia-emi"
+      ],
+      "resourceModel": "companion-set",
+      "datasetKinds": ["image", "volume", "spectrum-image", "spectrum"],
+      "directRangeReads": true,
+      "boundary": "Bounded ObjectInfo XML from the TIA EMI binary envelope plus consecutively numbered sibling SER resources resolved through ScientificCompanionResolver; EMI acquisition metadata enriches SER-backed datasets, strongly corroborated diffraction calibration is interpreted as reciprocal space, contradictory mode hints preserve SER facts, and every dataset identity includes its EMI and contributing SER resource.",
+      "evidence": ["tests/tia-emi-reader.test.ts"],
+      "fixtures": [
+        "benchmark/tia-ser/emi-corpus.json",
+        "benchmark/tia-ser/generated-emi-fixture.ts",
+        "benchmark/tia-ser/verify-emi-corpus.ts",
+        "tests/tia-emi-reader.test.ts"
+      ]
     }
   ],
   "codecs": [

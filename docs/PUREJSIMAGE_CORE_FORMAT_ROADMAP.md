@@ -418,6 +418,21 @@ the first-party structural fixtures used in the regular test and browser suites.
 
 ### C2. EMI
 
+**Status: Complete.** The explicit `purejsimage/scientific/readers/tia-emi` entry detects the TIA
+EMI binary signature, extracts bounded embedded `ObjectInfo` XML through the portable parser, and
+resolves consecutive numbered SER companions through `ScientificCompanionResolver`. Each SER-backed
+dataset retains native precision and lazy payload reads, gains its matching acquisition metadata,
+and identifies both the EMI and contributing SER resource. SER calibration remains authoritative;
+EMI diffraction mode changes spatial interpretation only when the SER calibration magnitude
+corroborates reciprocal space, while contradictory hints are preserved as metadata conflicts.
+
+The acceptance workflow pins four real RosettaSciIO EMI groups and seven SER companions by revision
+and SHA-256 without committing their GPL-licensed binaries. It covers old and new TIA output, one
+and multiple companions, more SER resources than XML records, unused XML records, exact UUID
+mapping, reciprocal-space interpretation, preserved conflicts, and exact image and spectrum sample
+windows. Direct SER opening remains independently supported, while EMI is the richer preferred path
+when its companions are present.
+
 - bounded XML parsing through the existing portable XML utilities;
 - resolve every referenced SER through `ScientificCompanionResolver`;
 - allow an EMI file to expose multiple SER-backed datasets;

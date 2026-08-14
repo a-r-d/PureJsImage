@@ -162,6 +162,13 @@ test('reads a calibrated TIA SER spectrum image in a real browser', async ({ pag
   expect(result.detail).toContain('native series reads')
 })
 
+test('opens TIA EMI with its SER companion in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.scientificTiaEmi())
+  expect(result.outputBytes).toBe(16)
+  expect(result.detail).toContain('File companion')
+})
+
 test('reads a one-dimensional scientific series without a synthetic display axis', async ({
   page,
 }) => {
