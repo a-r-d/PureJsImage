@@ -45,6 +45,7 @@ export type {
   ScientificReaderDetection,
   ScientificResource,
 } from './reader.ts'
+export type { ImageCodecScientificReaderOptions } from './image-codec-reader.ts'
 export type {
   DirectNumericTileDataset,
   NumericArray,
@@ -80,6 +81,7 @@ export {
   ScientificReaderRegistry,
   getScientificDatasetIdentity,
 } from './reader.ts'
+export { createImageCodecScientificReader } from './image-codec-reader.ts'
 export type {
   ContentSourceIdentity,
   HashImageSourceOptions,

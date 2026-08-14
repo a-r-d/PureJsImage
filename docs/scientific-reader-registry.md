@@ -27,6 +27,30 @@ const dataset = await document.openDataset(document.datasets[0]!.id, { signal })
 no executable reader functions and is suitable for application menus or machine-readable capability
 inspection.
 
+## Ordinary image codec fallbacks
+
+PNG and JPEG are available as individually composable scientific reader fallbacks:
+
+```ts
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { jpegReader } from 'purejsimage/scientific/readers/jpeg'
+import { pngReader } from 'purejsimage/scientific/readers/png'
+
+const science = createScientificLibrary({ readers: [pngReader, jpegReader] })
+```
+
+The base scientific entry also exports `createImageCodecScientificReader({ descriptor, codec,
+limits })` for applications that deliberately adapt another registered codec. The adapter exposes
+`gray8`, `rgb8`, and `rgba8` pixels as canonical uint8 raster blocks without copying their backing
+data. Selectable frames become separate `frame-N` datasets; selectable resolution levels remain
+levels within each frame dataset. A codec's metadata-only frame count and decode-time scaling
+shortcuts do not create selectable scientific coordinates.
+
+Codec adapters probe at fallback confidence so a specialized scientific reader with the same file
+signature wins. They preserve source identity, `AbortSignal`, and caller-owned block release.
+Importing the PNG or JPEG reader is explicit; neither is linked by `purejsimage/scientific`, and
+experimental HEIC is not included in the all-readers entry.
+
 ## Detection and budgets
 
 Readers are probed in registration order. One unique highest confidence wins; equal nonzero top

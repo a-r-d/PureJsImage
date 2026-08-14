@@ -393,7 +393,7 @@ The public module graph should develop as follows:
   analysis module is imported from either root.
 - `purejsimage/scientific` owns portable `ScientificDataset` descriptors, documents, registries,
   algorithms, and numeric tile contracts/conversion. Concrete readers live in
-  `purejsimage/scientific/readers/{gsf,envi,fits,mrc,cbf,ome-tiff,aperio-svs}`; the explicit
+  `purejsimage/scientific/readers/{gsf,envi,fits,mrc,cbf,ome-tiff,aperio-svs,png,jpeg}`; the explicit
   `purejsimage/scientific/readers/all` entry is available when an application deliberately wants
   every reader. `purejsimage/scientific/node` remains the place for path-based helpers.
 - `purejsimage/operations` exports JSON-safe descriptors and schemas, provider contracts,
@@ -1698,3 +1698,19 @@ to own only generic descriptors, definitions, providers, and registries.
       physical axes, and prove a synthetic sidecar source through the fixed-axis migration adapter.
 - [x] Document the application-facing source, derived, and uncalibrated states and pass focused,
       browser, package, formatting, and complete repository gates.
+- [x] Add a public codec-to-scientific adapter with one dataset per selectable frame, codec-declared
+      levels within each dataset, canonical uint8 component semantics, and zero-copy block wrapping.
+- [x] Add individually importable low-confidence PNG and JPEG scientific readers while keeping the
+      base scientific entry codec-free and experimental HEIC out of the all-readers bundle.
+- [x] Pass exact-pixel, identity, cancellation, release, package, browser, size, documentation, and
+      complete repository gates for the A2 adapter.
+
+  - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
+    low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
+    and release tests pass for the adapter and PNG/JPEG readers. The base scientific entry is
+    151,216 minified bytes without concrete codecs; the individually importable PNG and JPEG
+    readers are 67,385 and 104,815 bytes, and the explicit all-readers entry is 391,662 bytes with
+    experimental HEIC excluded. Capability, package (404 files), browser, documentation, type,
+    lint, formatting, and size gates pass. The complete suite passes 104 files and 1,269 tests; one
+    WebP ICC test transiently exceeded its five-second timeout in the first combined run, then
+    passed alone in 1.6 seconds and again in the complete rerun.

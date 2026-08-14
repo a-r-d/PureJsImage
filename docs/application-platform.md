@@ -39,6 +39,11 @@ Browser companion files use `createScientificFileContext()` from
 `createScientificPathContext()` from `purejsimage/scientific/node`. Remote range inputs use the
 separate browser-portable `purejsimage/sources/http-range` entry.
 
+Ordinary PNG and JPEG inputs can join the same explicit registry through `pngReader` and
+`jpegReader` from `purejsimage/scientific/readers/png` and
+`purejsimage/scientific/readers/jpeg`. These are lower-confidence uint8 codec fallbacks;
+specialized scientific readers retain precedence.
+
 ## Read any labeled-axis plane
 
 A plane selects one ordered display-axis pair declared by

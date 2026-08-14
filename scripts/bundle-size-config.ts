@@ -100,11 +100,25 @@ export const pureJsImageEntryTargets: readonly BundleTarget[] = [
     maxMinifiedBytes: 338_000,
   },
   {
+    id: 'scientific-reader-png',
+    name: 'Scientific reader: PNG',
+    contents: exportsFrom(['./src/scientific/readers/png.ts']),
+    baselineMinifiedBytes: 67_385,
+    maxMinifiedBytes: 87_601,
+  },
+  {
+    id: 'scientific-reader-jpeg',
+    name: 'Scientific reader: JPEG',
+    contents: exportsFrom(['./src/scientific/readers/jpeg.ts']),
+    baselineMinifiedBytes: 104_815,
+    maxMinifiedBytes: 136_260,
+  },
+  {
     id: 'scientific-readers-all',
     name: 'Scientific readers: all',
     contents: exportsFrom(['./src/scientific/readers/all.ts']),
-    baselineMinifiedBytes: 350_082,
-    maxMinifiedBytes: 456_000,
+    baselineMinifiedBytes: 391_662,
+    maxMinifiedBytes: 509_161,
   },
   {
     id: 'operations',

@@ -142,6 +142,8 @@ try {
     'dist/scientific/readers/gsf.js',
     'dist/scientific/readers/mrc.js',
     'dist/scientific/readers/ome-tiff.js',
+    'dist/scientific/readers/png.js',
+    'dist/scientific/readers/jpeg.js',
     'dist/operations/index.js',
     'dist/analysis/index.js',
     'dist/analysis/project-entry.js',
@@ -208,6 +210,7 @@ import { pngCodec } from 'purejsimage/codecs/png'
 export { geoTiffProfile } from 'purejsimage/tiff'
 import { createScientificLibrary, normalizeScientificDatasetDescriptor, rasterBlockToNumericTile } from 'purejsimage/scientific'
 import type { ScientificReader } from 'purejsimage/scientific'
+export { createImageCodecScientificReader } from 'purejsimage/scientific'
 import { encodeGsf, gsfReader } from 'purejsimage/scientific/readers/gsf'
 export { aperioSvsReader, createAperioSvsReader } from 'purejsimage/scientific/readers/aperio-svs'
 export type { AperioSvsLimits, AperioSvsReaderOptions } from 'purejsimage/scientific/readers/aperio-svs'
@@ -215,6 +218,8 @@ export { cbfReader } from 'purejsimage/scientific/readers/cbf'
 export { enviReader } from 'purejsimage/scientific/readers/envi'
 export { fitsReader } from 'purejsimage/scientific/readers/fits'
 export { mrcReader } from 'purejsimage/scientific/readers/mrc'
+export { jpegReader } from 'purejsimage/scientific/readers/jpeg'
+export { pngReader } from 'purejsimage/scientific/readers/png'
 export * as allScientificReaders from 'purejsimage/scientific/readers/all'
 import { createExtensionHost } from 'purejsimage/extensions'
 import { createOperationDefinition, createOperationProvider, createValueTypeDefinition } from 'purejsimage/operations'

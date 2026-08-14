@@ -91,11 +91,11 @@ PureJsImage 0.10.0 introduces these alpha application entrypoints. Provider and 
 
 Alpha package entrypoints:
 
-- `purejsimage/scientific`: portable arbitrary-axis `ScientificDataset`, scientific documents and identities, explicit reader registries, `RasterBlock`, `NumericTile`, and format-independent analysis helpers. Concrete readers are separate optional entries.
+- `purejsimage/scientific`: portable arbitrary-axis `ScientificDataset`, scientific documents and identities, explicit reader registries, `RasterBlock`, `NumericTile`, format-independent analysis helpers, and `createImageCodecScientificReader({ descriptor, codec, limits })`. Concrete readers are separate optional entries.
 - `purejsimage/scientific/browser`: browser `File` and explicit companion-file contexts. Remote range sources use the portable `ImageSource` contract.
 - `purejsimage/scientific/node`: Node path and companion-resource adapters kept outside the browser graph.
-- `purejsimage/scientific/readers/gsf`, `purejsimage/scientific/readers/envi`, `purejsimage/scientific/readers/fits`, `purejsimage/scientific/readers/mrc`, `purejsimage/scientific/readers/cbf`, `purejsimage/scientific/readers/ome-tiff`, and `purejsimage/scientific/readers/aperio-svs`: individually importable first-party reader entries. The Aperio entry provides a secure default and `createAperioSvsReader({ limits })` for explicit WSI source, dimension, directory, region, decoded-byte, and associated-image ceilings. It exposes one calibrated pyramid dataset plus separate associated-image datasets. Enumeration records lightweight ICC presence/tag/length without fetching the payload. Format-specific helpers such as GSF encoding and ENVI classification rendering live with their reader.
-- `purejsimage/scientific/readers/all`: convenience entry for applications that deliberately want every first-party reader. Importing the base scientific entry does not link these implementations.
+- `purejsimage/scientific/readers/gsf`, `purejsimage/scientific/readers/envi`, `purejsimage/scientific/readers/fits`, `purejsimage/scientific/readers/mrc`, `purejsimage/scientific/readers/cbf`, `purejsimage/scientific/readers/ome-tiff`, `purejsimage/scientific/readers/aperio-svs`, `purejsimage/scientific/readers/png`, and `purejsimage/scientific/readers/jpeg`: individually importable first-party reader entries. PNG and JPEG are low-confidence uint8 codec fallbacks; specialized readers retain precedence. Selectable frames become separate datasets, codec-declared resolution levels remain levels inside each frame dataset, and metadata-only counts or decode scaling do not create scientific coordinates. The Aperio entry provides a secure default and `createAperioSvsReader({ limits })` for explicit WSI source, dimension, directory, region, decoded-byte, and associated-image ceilings. It exposes one calibrated pyramid dataset plus separate associated-image datasets. Enumeration records lightweight ICC presence/tag/length without fetching the payload. Format-specific helpers such as GSF encoding and ENVI classification rendering live with their reader.
+- `purejsimage/scientific/readers/all`: convenience entry for applications that deliberately want every standard first-party reader. Importing the base scientific entry does not link these implementations, and experimental HEIC is excluded.
 - `purejsimage/operations`: JSON-safe operation and value-type descriptors, parameter schemas, local registries, executable provider contracts, and measured provider selection.
 - `purejsimage/analysis`: ROIs, bounded result types, tile runtime, canonical graphs, immutable workspace commands, planning, execution, provenance, and project persistence.
 - `purejsimage/extensions`: explicitly installed trusted in-process extension bundles. This is not a sandbox.
@@ -672,7 +672,7 @@ for await (const block of dataset.readPlane({
 ```
 
 The individual reader entries expose `gsfReader`, `enviReader`, `fitsReader`, `mrcReader`,
-`cbfReader`, and `omeTiffReader`; the GSF entry also exposes `encodeGsf()`. The base scientific entry
+`cbfReader`, `omeTiffReader`, `pngReader`, and `jpegReader`; the GSF entry also exposes `encodeGsf()`. The base scientific entry
 exposes lazy `sliceScientificVolume()` cross-sections, bounded `projectScientificVolume()`
 arbitrary-axis projections, optional statistics from `measureScientificPlane()`,
 `renderScientificPlane()`, wavelength-aware band and false-color rendering, spectral integration,

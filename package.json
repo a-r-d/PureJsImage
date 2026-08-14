@@ -133,6 +133,16 @@
       "import": "./dist/scientific/readers/aperio-svs.js",
       "default": "./dist/scientific/readers/aperio-svs.js"
     },
+    "./scientific/readers/png": {
+      "types": "./dist/scientific/readers/png.d.ts",
+      "import": "./dist/scientific/readers/png.js",
+      "default": "./dist/scientific/readers/png.js"
+    },
+    "./scientific/readers/jpeg": {
+      "types": "./dist/scientific/readers/jpeg.d.ts",
+      "import": "./dist/scientific/readers/jpeg.js",
+      "default": "./dist/scientific/readers/jpeg.js"
+    },
     "./scientific/readers/all": {
       "types": "./dist/scientific/readers/all.d.ts",
       "import": "./dist/scientific/readers/all.js",

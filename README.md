@@ -143,6 +143,20 @@ if (first === undefined) throw new Error('OME-TIFF contains no datasets')
 const dataset = await document.openDataset(first.id)
 ```
 
+Ordinary PNG and JPEG files can use the same registry through explicit fallback readers without
+linking codecs into the base scientific entry:
+
+```ts
+import { createScientificLibrary } from 'purejsimage/scientific'
+import { jpegReader } from 'purejsimage/scientific/readers/jpeg'
+import { pngReader } from 'purejsimage/scientific/readers/png'
+
+const science = createScientificLibrary({ readers: [pngReader, jpegReader] })
+```
+
+These readers expose exact codec-produced uint8 blocks and remain lower-confidence than specialized
+scientific readers.
+
 ### Scientific rasters and explicit display mapping
 
 Scientific readers are separate from photographic codecs. The dataset remains numeric until an

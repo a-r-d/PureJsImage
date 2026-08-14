@@ -129,7 +129,9 @@ describe('package contract', () => {
       ['scientific-reader-cbf', 55_000],
       ['scientific-reader-ome-tiff', 350_000],
       ['scientific-reader-aperio-svs', 338_000],
-      ['scientific-readers-all', 456_000],
+      ['scientific-reader-png', 87_601],
+      ['scientific-reader-jpeg', 136_260],
+      ['scientific-readers-all', 509_161],
     ])
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'operations')).toMatchObject({
       baselineMinifiedBytes: 44_252,
@@ -460,6 +462,8 @@ describe('package contract', () => {
       'purejsimage/scientific/readers/gsf',
       'purejsimage/scientific/readers/mrc',
       'purejsimage/scientific/readers/ome-tiff',
+      'purejsimage/scientific/readers/png',
+      'purejsimage/scientific/readers/jpeg',
       'purejsimage/operations',
       'purejsimage/analysis',
       'purejsimage/extensions',
@@ -589,6 +593,8 @@ describe('package contract', () => {
       './scientific/readers/cbf',
       './scientific/readers/ome-tiff',
       './scientific/readers/aperio-svs',
+      './scientific/readers/png',
+      './scientific/readers/jpeg',
       './scientific/readers/all',
       './operations',
       './analysis',

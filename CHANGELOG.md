@@ -10,6 +10,10 @@ All notable changes to PureJsImage are documented in this file.
   sidecar, derived, and format-default evidence. GSF, FITS, MRC/CCP4, OME-TIFF, and Aperio SVS
   readers now identify the exact source resource and stable metadata locator behind each available
   physical axis.
+- Added the public `createImageCodecScientificReader()` fallback adapter and individually
+  importable PNG and JPEG scientific readers. They preserve codec pixels, uint8 component
+  semantics, source identity, cancellation, block release ownership, and explicit reader
+  registration without linking codecs into the base scientific entry.
 
 ### Changed
 
