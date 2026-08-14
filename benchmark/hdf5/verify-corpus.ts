@@ -2,10 +2,18 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { ImageError } from '../../src/errors.ts'
 import { FileSource } from '../../src/node-source.ts'
-import { readHdf5DatasetMetadata } from '../../src/scientific/formats/hdf5-dataset.ts'
+import {
+  type Hdf5Datatype,
+  readHdf5DatasetElementRange,
+  readHdf5DatasetMetadata,
+} from '../../src/scientific/formats/hdf5-dataset.ts'
 import { openHdf5ObjectGraph } from '../../src/scientific/formats/hdf5-graph.ts'
 import { openHdf5FileLayer } from '../../src/scientific/formats/hdf5.ts'
-import { hdf5CorpusPath, readHdf5CorpusManifest } from './corpus.ts'
+import {
+  type Hdf5DatatypeCorpusExpectation,
+  hdf5CorpusPath,
+  readHdf5CorpusManifest,
+} from './corpus.ts'
 
 const sha256 = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex')
 
@@ -30,6 +38,55 @@ const requireNumberArrayEqual = (
   expected: readonly number[],
   label: string,
 ): void => requireEqual(actual.join(','), expected.join(','), label)
+
+const requireDatatype = (
+  actual: Hdf5Datatype,
+  expected: Hdf5DatatypeCorpusExpectation,
+  label: string,
+): void => {
+  requireEqual(actual.kind, expected.kind, `${label} kind`)
+  if (expected.kind === 'enum') {
+    if (actual.kind !== 'enum') return
+    requireEqual(actual.members.length, expected.members.length, `${label} member count`)
+    for (let index = 0; index < expected.members.length; index += 1) {
+      const actualMember = actual.members[index]
+      const expectedMember = expected.members[index]
+      if (actualMember === undefined || expectedMember === undefined) {
+        throw new Error(`${label} lacks enum member ${index}`)
+      }
+      requireEqual(actualMember.name, expectedMember.name, `${label} member ${index} name`)
+      requireEqual(
+        actualMember.value.toString(),
+        expectedMember.value,
+        `${label} member ${index} value`,
+      )
+    }
+    return
+  }
+  if (expected.kind !== 'compound' || actual.kind !== 'compound') return
+  requireEqual(actual.members.length, expected.members.length, `${label} member count`)
+  for (let index = 0; index < expected.members.length; index += 1) {
+    const actualMember = actual.members[index]
+    const expectedMember = expected.members[index]
+    if (actualMember === undefined || expectedMember === undefined) {
+      throw new Error(`${label} lacks compound member ${index}`)
+    }
+    requireEqual(actualMember.name, expectedMember.name, `${label} member ${index} name`)
+    requireEqual(actualMember.offset, expectedMember.offset, `${label} member ${index} offset`)
+    requireEqual(actualMember.datatype.kind, expectedMember.kind, `${label} member ${index} kind`)
+    requireEqual(
+      actualMember.datatype.byteLength,
+      expectedMember.elementBytes,
+      `${label} member ${index} bytes`,
+    )
+  }
+}
+
+const hex = (bytes: Uint8Array): string => {
+  let value = ''
+  for (const byte of bytes) value += byte.toString(16).padStart(2, '0')
+  return value
+}
 
 const manifest = await readHdf5CorpusManifest()
 for (const fixture of manifest.fixtures) {
@@ -91,6 +148,11 @@ for (const fixture of manifest.fixtures) {
         expected.elementBytes,
         `${fixture.file} ${expected.path} element bytes`,
       )
+      requireDatatype(
+        metadata.datatype,
+        expected.datatype,
+        `${fixture.file} ${expected.path} datatype`,
+      )
       requireEqual(metadata.layout.kind, expected.layout, `${fixture.file} ${expected.path} layout`)
       const logicalBytes = metadata.dataspace.elementCount * metadata.datatype.byteLength
       requireEqual(
@@ -116,6 +178,16 @@ for (const fixture of manifest.fixtures) {
           expected.chunkDimensions,
           `${fixture.file} ${expected.path} chunk dimensions`,
         )
+      }
+      if (expected.sample !== undefined) {
+        const count = expected.sample.rawHex.length / 2 / metadata.datatype.byteLength
+        const bytes = await readHdf5DatasetElementRange(
+          file,
+          metadata,
+          { offset: expected.sample.elementOffset, count },
+          { objectPath: expected.path },
+        )
+        requireEqual(hex(bytes), expected.sample.rawHex, `${fixture.file} ${expected.path} sample`)
       }
     }
     console.log(

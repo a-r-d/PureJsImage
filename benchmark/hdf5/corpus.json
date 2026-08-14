@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "source": {
     "project": "HDF5",
     "revision": "18de4b4a1b83f5286a53fd0117364c1a068ce1e1",
@@ -43,6 +43,7 @@
           "layout": "chunked",
           "dimensions": [40, 20],
           "chunkDimensions": [20, 10],
+          "datatype": { "kind": "integer" },
           "elementBytes": 4,
           "logicalBytes": 3200,
           "fillStatus": "default-zero"
@@ -51,17 +52,27 @@
           "path": "/dset_compact",
           "layout": "compact",
           "dimensions": [40, 20],
+          "datatype": { "kind": "integer" },
           "elementBytes": 4,
           "logicalBytes": 3200,
-          "fillStatus": "default-zero"
+          "fillStatus": "default-zero",
+          "sample": {
+            "elementOffset": 397,
+            "rawHex": "8d0100008e0100008f0100009001000091010000"
+          }
         },
         {
           "path": "/dset_contiguous",
           "layout": "contiguous",
           "dimensions": [40, 20],
+          "datatype": { "kind": "integer" },
           "elementBytes": 4,
           "logicalBytes": 3200,
-          "fillStatus": "default-zero"
+          "fillStatus": "default-zero",
+          "sample": {
+            "elementOffset": 397,
+            "rawHex": "8d0100008e0100008f0100009001000091010000"
+          }
         }
       ]
     },
@@ -79,9 +90,74 @@
           "layout": "chunked",
           "dimensions": [100, 200],
           "chunkDimensions": [50, 50],
+          "datatype": { "kind": "float" },
           "elementBytes": 4,
           "logicalBytes": 80000,
           "fillStatus": "default-zero"
+        }
+      ]
+    },
+    {
+      "file": "tenum.h5",
+      "path": "xml/tenum.h5",
+      "bytes": 2128,
+      "sha256": "46cbc11c7a24fbe02151796e6cf21a8fc33c9f2de85d5aa40f61f77c2f671610",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "storage": "datasets",
+      "datasets": [
+        {
+          "path": "/table",
+          "layout": "contiguous",
+          "dimensions": [20],
+          "datatype": {
+            "kind": "enum",
+            "members": [
+              { "name": "RED", "value": "0" },
+              { "name": "GREEN\ngreen", "value": "1" },
+              { "name": "BLUE blue", "value": "2" },
+              { "name": "WHITE \"white\"", "value": "3" },
+              { "name": "BLACK 'black'", "value": "4" }
+            ]
+          },
+          "elementBytes": 4,
+          "logicalBytes": 80,
+          "fillStatus": "default-zero",
+          "sample": {
+            "elementOffset": 0,
+            "rawHex": "00000000010000000200000001000000030000000300000004000000010000000200000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "file": "tcompound.h5",
+      "path": "tcompound.h5",
+      "bytes": 8192,
+      "sha256": "c42774d41ab90a9415f10ef5b95d448e013f5fa8698d3c56d2c32d52256b4990",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "storage": "datasets",
+      "datasets": [
+        {
+          "path": "/dset1",
+          "layout": "contiguous",
+          "dimensions": [5],
+          "datatype": {
+            "kind": "compound",
+            "members": [
+              { "name": "a_name", "offset": 0, "kind": "integer", "elementBytes": 4 },
+              { "name": "b_name", "offset": 4, "kind": "float", "elementBytes": 4 },
+              { "name": "c_name", "offset": 8, "kind": "float", "elementBytes": 8 }
+            ]
+          },
+          "elementBytes": 16,
+          "logicalBytes": 80,
+          "fillStatus": "default-zero",
+          "sample": {
+            "elementOffset": 0,
+            "rawHex": "00000000000000003ff0000000000000000000013f8000003fe0000000000000"
+          }
         }
       ]
     }

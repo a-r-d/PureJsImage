@@ -32,6 +32,22 @@ export interface GeneratedStringDatatypeOptions {
   readonly characterSet?: 'ascii' | 'utf-8'
 }
 
+export interface GeneratedEnumDatatypeOptions {
+  readonly version: 1 | 2 | 3
+  readonly base: Uint8Array
+  readonly members: readonly Readonly<{ readonly name: string; readonly value: Uint8Array }>[]
+}
+
+export interface GeneratedCompoundDatatypeOptions {
+  readonly version: 2 | 3
+  readonly byteLength: number
+  readonly members: readonly Readonly<{
+    readonly name: string
+    readonly offset: number
+    readonly datatype: Uint8Array
+  }>[]
+}
+
 export interface GeneratedCompactLayoutOptions {
   readonly version: 1 | 2 | 3 | 4
   readonly dimensions: readonly number[]
@@ -237,6 +253,109 @@ export const createGeneratedStringDatatypeMessage = (
     options.byteLength,
     8,
   )
+}
+
+const encodedDatatypeName = (name: string, padded: boolean): Uint8Array<ArrayBuffer> => {
+  if (name.length === 0) throw new Error('Generated HDF5 datatype name must not be empty')
+  const encoded = new TextEncoder().encode(name)
+  if (encoded.some((value) => value > 0x7f || value === 0)) {
+    throw new Error('Generated HDF5 datatype name must be ASCII without NUL bytes')
+  }
+  const unpaddedBytes = encoded.byteLength + 1
+  const bytes = padded ? (unpaddedBytes + 7) & ~7 : unpaddedBytes
+  const output = new Uint8Array(bytes)
+  output.set(encoded)
+  return output
+}
+
+export const createGeneratedEnumDatatypeMessage = (
+  options: Readonly<GeneratedEnumDatatypeOptions>,
+): Uint8Array<ArrayBuffer> => {
+  if (options.members.length < 1 || options.members.length > 0xffff) {
+    throw new Error('Generated HDF5 enum member count is invalid')
+  }
+  if (options.base.byteLength < 8) throw new Error('Generated HDF5 enum base type is truncated')
+  const byteLength = new DataView(
+    options.base.buffer,
+    options.base.byteOffset,
+    options.base.byteLength,
+  ).getUint32(4, true)
+  const names = options.members.map(({ name }) => encodedDatatypeName(name, options.version < 3))
+  for (const member of options.members) {
+    if (member.value.byteLength !== byteLength) {
+      throw new Error('Generated HDF5 enum value does not match its base byte length')
+    }
+  }
+  const totalBytes =
+    8 +
+    options.base.byteLength +
+    names.reduce((total, name) => total + name.byteLength, 0) +
+    options.members.length * byteLength
+  const output = createDatatypeHeader(
+    options.version,
+    8,
+    options.members.length,
+    byteLength,
+    totalBytes,
+  )
+  let position = 8
+  output.set(options.base, position)
+  position += options.base.byteLength
+  for (const name of names) {
+    output.set(name, position)
+    position += name.byteLength
+  }
+  for (const member of options.members) {
+    output.set(member.value, position)
+    position += member.value.byteLength
+  }
+  return output
+}
+
+export const createGeneratedCompoundDatatypeMessage = (
+  options: Readonly<GeneratedCompoundDatatypeOptions>,
+): Uint8Array<ArrayBuffer> => {
+  if (options.members.length < 1 || options.members.length > 0xffff) {
+    throw new Error('Generated HDF5 compound member count is invalid')
+  }
+  const names = options.members.map(({ name }) => encodedDatatypeName(name, options.version === 2))
+  const offsetBytes =
+    options.version === 2
+      ? 4
+      : options.byteLength < 0x100
+        ? 1
+        : options.byteLength < 0x1_0000
+          ? 2
+          : options.byteLength < 0x100_0000
+            ? 3
+            : 4
+  const totalBytes =
+    8 +
+    options.members.reduce(
+      (total, member, index) =>
+        total + (names[index]?.byteLength ?? 0) + offsetBytes + member.datatype.byteLength,
+      0,
+    )
+  const output = createDatatypeHeader(
+    options.version,
+    6,
+    options.members.length,
+    options.byteLength,
+    totalBytes,
+  )
+  let position = 8
+  for (let index = 0; index < options.members.length; index += 1) {
+    const member = options.members[index]
+    const name = names[index]
+    if (member === undefined || name === undefined) continue
+    output.set(name, position)
+    position += name.byteLength
+    writeLittleEndian(output, position, offsetBytes, BigInt(member.offset))
+    position += offsetBytes
+    output.set(member.datatype, position)
+    position += member.datatype.byteLength
+  }
+  return output
 }
 
 const writeDimensions = (

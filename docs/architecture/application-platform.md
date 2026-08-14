@@ -1836,6 +1836,11 @@ to own only generic descriptors, definitions, providers, and registries.
       through 3 fill semantics, reject external raw storage, and pin the HDF Group's real version 3
       `h5repack_layout.h5` and version 4 `bounds_latest_latest.h5` fixtures by immutable revision and
       SHA-256 without shipping their binaries.
+- [x] Finish HDF5 D3 for the initial corpus with bounded integer-backed enums, flat scalar
+      compounds, committed shared-message locator versions 1 through 3, and element-aligned compact
+      or contiguous raw reads; pin the HDF Group's real `tenum.h5` and `tcompound.h5` fixtures with
+      exact datatype and raw-sample verification while preserving D4 chunk traversal and explicit
+      unsupported shared-message-heap, nested-compound, and compound-array boundaries.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1989,3 +1994,17 @@ to own only generic descriptors, definitions, providers, and registries.
     every size ceiling, typecheck, lint, and formatting pass; the complete repository gate passes all
     115 files and 1,399 tests. The package size surfaces are unaffected because HDF5 remains
     unreachable from public exports.
+
+  - HDF5 D3 completion validation: 64 focused HDF5 tests cover bounded enum and flat compound
+    datatypes, signed and unsigned exact enum values, committed shared-message locator versions 1
+    through 3, shared-reference depth and cycle rejection, legacy contiguous element-size geometry,
+    owned compact and contiguous element ranges, unallocated fill materialization, raw-read limits,
+    and the explicit D4 chunk-index boundary. The revision- and SHA-256-pinned HDF Group
+    `tenum.h5` fixture verifies a committed enum datatype with five exact members, legacy contiguous
+    storage, and raw samples; `tcompound.h5` independently verifies a version 1 compound with
+    big-endian integer, binary32, and binary64 members plus raw samples. All six pinned corpus files
+    pass without shipping their licensed binaries. The 440-file packed consumer, 19-page
+    documentation build, browser dependency graph, every size ceiling, typecheck, lint, and
+    formatting pass; the complete repository gate passes all 115 files and 1,404 tests. D3 is
+    complete for the initial corpus. Chunk-index traversal and filter execution remain D4 and D5,
+    and no HDF5 module is reachable from a public package export.

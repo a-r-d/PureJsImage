@@ -14,6 +14,14 @@ export interface GeneratedVersion2ObjectHeaderOptions {
   readonly referenceCount?: number
 }
 
+export interface GeneratedSharedMessageLocatorOptions {
+  readonly version: 1 | 2 | 3
+  readonly offsetSize: Hdf5IntegerWidth
+  readonly lengthSize: Hdf5IntegerWidth
+  readonly address: bigint
+  readonly type?: 0 | 1 | 2 | 3
+}
+
 const writeUnsigned = (output: Uint8Array, offset: number, width: number, value: bigint): void => {
   let remaining = value
   for (let index = 0; index < width; index += 1) {
@@ -39,6 +47,24 @@ const writeChecksum = (output: Uint8Array): void => {
     output.byteLength - 4,
     hdf5MetadataChecksum(output.subarray(0, output.byteLength - 4)),
   )
+}
+
+export const createGeneratedSharedMessageLocator = (
+  options: Readonly<GeneratedSharedMessageLocatorOptions>,
+): Uint8Array<ArrayBuffer> => {
+  if (options.version === 1) {
+    const output = new Uint8Array(4 + options.lengthSize + options.offsetSize)
+    output[0] = 1
+    output[1] = options.type ?? 0
+    writeUnsigned(output, 4 + options.lengthSize, options.offsetSize, options.address)
+    return output
+  }
+  const locationBytes = options.version === 3 && options.type === 1 ? 8 : options.offsetSize
+  const output = new Uint8Array(2 + locationBytes)
+  output[0] = options.version
+  output[1] = options.type ?? (options.version === 2 ? 0 : 2)
+  writeUnsigned(output, 2, locationBytes, options.address)
+  return output
 }
 
 export const createGeneratedVersion1ObjectHeader = (

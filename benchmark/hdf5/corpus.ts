@@ -28,9 +28,32 @@ export interface Hdf5DatasetCorpusExpectation {
   readonly layout: 'compact' | 'contiguous' | 'chunked'
   readonly dimensions: readonly number[]
   readonly chunkDimensions?: readonly number[]
+  readonly datatype: Hdf5DatatypeCorpusExpectation
   readonly elementBytes: number
   readonly logicalBytes: number
   readonly fillStatus: 'default-zero' | 'undefined' | 'defined'
+  readonly sample?: Hdf5DatasetSampleExpectation
+}
+
+export type Hdf5DatatypeCorpusExpectation =
+  | { readonly kind: 'integer' | 'float' | 'fixed-string' }
+  | {
+      readonly kind: 'enum'
+      readonly members: readonly Readonly<{ readonly name: string; readonly value: string }>[]
+    }
+  | {
+      readonly kind: 'compound'
+      readonly members: readonly Readonly<{
+        readonly name: string
+        readonly offset: number
+        readonly kind: 'integer' | 'float' | 'fixed-string' | 'enum'
+        readonly elementBytes: number
+      }>[]
+    }
+
+export interface Hdf5DatasetSampleExpectation {
+  readonly elementOffset: number
+  readonly rawHex: string
 }
 
 export interface Hdf5DatasetCorpusFixture extends Hdf5CorpusFixtureBase {
@@ -44,7 +67,7 @@ export type Hdf5CorpusFixture =
   | Hdf5DatasetCorpusFixture
 
 export interface Hdf5CorpusManifestValue {
-  readonly schemaVersion: 3
+  readonly schemaVersion: 4
   readonly source: {
     readonly project: string
     readonly revision: string
@@ -70,6 +93,13 @@ const requiredString = (record: Readonly<Record<string, unknown>>, key: string):
 const positiveInteger = (value: unknown, label: string): number => {
   if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 1) {
     throw new Error(`HDF5 corpus field ${label} must be a positive integer`)
+  }
+  return value
+}
+
+const nonNegativeInteger = (value: unknown, label: string): number => {
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) {
+    throw new Error(`HDF5 corpus field ${label} must be a non-negative integer`)
   }
   return value
 }
@@ -112,6 +142,72 @@ const parsePositiveIntegerArray = (value: unknown, label: string): readonly numb
   return Object.freeze(value.map((entry) => positiveInteger(entry, label)))
 }
 
+const parseDatatypeExpectation = (value: unknown): Hdf5DatatypeCorpusExpectation => {
+  if (!isRecord(value)) throw new Error('HDF5 corpus datatype must be an object')
+  const kind = value.kind
+  if (kind === 'integer' || kind === 'float' || kind === 'fixed-string') {
+    return Object.freeze({ kind })
+  }
+  if (kind !== 'enum' && kind !== 'compound') {
+    throw new Error('HDF5 corpus datatype kind is invalid')
+  }
+  if (!Array.isArray(value.members) || value.members.length === 0) {
+    throw new Error('HDF5 corpus datatype members must be a non-empty array')
+  }
+  const names = new Set<string>()
+  if (kind === 'enum') {
+    const members = value.members.map((member) => {
+      if (!isRecord(member)) throw new Error('HDF5 corpus enum member must be an object')
+      const name = requiredString(member, 'name')
+      const rawValue = requiredString(member, 'value')
+      if (names.has(name) || !/^-?(?:0|[1-9][0-9]*)$/u.test(rawValue)) {
+        throw new Error('HDF5 corpus enum member name or value is invalid')
+      }
+      names.add(name)
+      return Object.freeze({ name, value: rawValue })
+    })
+    return Object.freeze({ kind, members: Object.freeze(members) })
+  }
+  const members = value.members.map((member) => {
+    if (!isRecord(member)) throw new Error('HDF5 corpus compound member must be an object')
+    const name = requiredString(member, 'name')
+    const memberKind = member.kind
+    if (
+      names.has(name) ||
+      (memberKind !== 'integer' &&
+        memberKind !== 'float' &&
+        memberKind !== 'fixed-string' &&
+        memberKind !== 'enum')
+    ) {
+      throw new Error('HDF5 corpus compound member name or kind is invalid')
+    }
+    names.add(name)
+    return Object.freeze({
+      name,
+      offset: nonNegativeInteger(member.offset, 'member offset'),
+      kind: memberKind,
+      elementBytes: positiveInteger(member.elementBytes, 'member elementBytes'),
+    })
+  })
+  return Object.freeze({ kind, members: Object.freeze(members) })
+}
+
+const parseSampleExpectation = (
+  value: unknown,
+  elementBytes: number,
+): Hdf5DatasetSampleExpectation | undefined => {
+  if (value === undefined) return undefined
+  if (!isRecord(value)) throw new Error('HDF5 corpus sample must be an object')
+  const rawHex = requiredString(value, 'rawHex')
+  if (!/^(?:[a-f0-9]{2})+$/u.test(rawHex) || rawHex.length % (elementBytes * 2) !== 0) {
+    throw new Error('HDF5 corpus sample rawHex must contain complete elements')
+  }
+  return Object.freeze({
+    elementOffset: nonNegativeInteger(value.elementOffset, 'sample elementOffset'),
+    rawHex,
+  })
+}
+
 const parseDatasetExpectations = (value: unknown): readonly Hdf5DatasetCorpusExpectation[] => {
   if (!Array.isArray(value) || value.length === 0) {
     throw new Error('HDF5 corpus datasets must be a non-empty array')
@@ -140,21 +236,28 @@ const parseDatasetExpectations = (value: unknown): readonly Hdf5DatasetCorpusExp
       if ((layout === 'chunked') !== (chunkDimensions !== undefined)) {
         throw new Error('HDF5 corpus chunkDimensions must appear only for chunked layouts')
       }
+      const elementBytes = positiveInteger(entry.elementBytes, 'elementBytes')
+      const sample = parseSampleExpectation(entry.sample, elementBytes)
+      if (layout === 'chunked' && sample !== undefined) {
+        throw new Error('HDF5 corpus samples require D3 compact or contiguous storage')
+      }
       return Object.freeze({
         path,
         layout,
         dimensions: parsePositiveIntegerArray(entry.dimensions, 'dimensions'),
         ...(chunkDimensions === undefined ? {} : { chunkDimensions }),
-        elementBytes: positiveInteger(entry.elementBytes, 'elementBytes'),
+        datatype: parseDatatypeExpectation(entry.datatype),
+        elementBytes,
         logicalBytes: positiveInteger(entry.logicalBytes, 'logicalBytes'),
         fillStatus,
+        ...(sample === undefined ? {} : { sample }),
       })
     }),
   )
 }
 
 const assertCorpusManifest = (value: unknown): Hdf5CorpusManifestValue => {
-  if (!isRecord(value) || value.schemaVersion !== 3 || !isRecord(value.source)) {
+  if (!isRecord(value) || value.schemaVersion !== 4 || !isRecord(value.source)) {
     throw new Error('HDF5 corpus manifest header is invalid')
   }
   if (!Array.isArray(value.fixtures) || value.fixtures.length === 0) {
@@ -207,7 +310,7 @@ const assertCorpusManifest = (value: unknown): Hdf5CorpusManifestValue => {
     })
   })
   return Object.freeze({
-    schemaVersion: 3,
+    schemaVersion: 4,
     source: Object.freeze({
       project: requiredString(value.source, 'project'),
       revision,

@@ -17,6 +17,7 @@ import {
 import {
   parseHdf5DataspaceMessage,
   parseHdf5DatatypeMessage,
+  readHdf5DatasetElementRange,
   readHdf5DatasetMetadata,
 } from '../src/scientific/formats/hdf5-dataset.ts'
 import {
@@ -42,11 +43,15 @@ const uint16Type = () =>
 const parseLayout = (bytes: Uint8Array, dimensions: readonly bigint[] = [2n, 3n]) =>
   parseHdf5LayoutMessage(bytes, 8, 8, simpleSpace(dimensions), uint16Type())
 
-const openObject = async (messages: readonly GeneratedHdf5ObjectMessage[]) => {
+const openObject = async (
+  messages: readonly GeneratedHdf5ObjectMessage[],
+  raw?: Readonly<{ readonly offset: number; readonly data: Uint8Array }>,
+) => {
   const fixture = createGeneratedHdf5Fixture({ version: 2, fileBytes: 1_024 })
   if (fixture.rootObjectOffset === undefined)
     throw new Error('Generated root offset is unavailable')
   fixture.bytes.set(createGeneratedVersion2ObjectHeader(messages), fixture.rootObjectOffset)
+  if (raw !== undefined) fixture.bytes.set(raw.data, raw.offset)
   const file = await openHdf5FileLayer(new MemorySource(fixture.bytes), {
     pageBytes: 32,
     maxBytes: 256,
@@ -54,7 +59,7 @@ const openObject = async (messages: readonly GeneratedHdf5ObjectMessage[]) => {
   const object = await readHdf5ObjectHeader(file, file.superblock.rootObjectAddress, {
     objectPath: '/entry/data',
   })
-  return { file, object }
+  return { file, object, sourceBytes: fixture.bytes }
 }
 
 const datasetMessages = (
@@ -112,6 +117,35 @@ describe('HDF5 D3 dataset layouts', () => {
       address: 900n,
       storageBytes: 12,
     })
+
+    const legacyWithElementSize = parseLayout(
+      createGeneratedContiguousLayoutMessage({
+        version: 1,
+        offsetSize: 8,
+        lengthSize: 8,
+        dimensions: [2, 3, 2],
+        address: 900n,
+        storageBytes: 12n,
+      }),
+    )
+    expect(legacyWithElementSize).toEqual(legacy)
+    expect(() =>
+      parseLayout(
+        createGeneratedContiguousLayoutMessage({
+          version: 1,
+          offsetSize: 8,
+          lengthSize: 8,
+          dimensions: [2, 3, 4],
+          address: 900n,
+          storageBytes: 12n,
+        }),
+      ),
+    ).toThrowError(
+      expect.objectContaining({
+        code: 'INVALID_INPUT',
+        message: expect.stringContaining('element size'),
+      }),
+    )
 
     for (const version of [3, 4] as const) {
       expect(
@@ -401,5 +435,132 @@ describe('HDF5 D3 complete dataset metadata', () => {
     await expect(
       readHdf5DatasetMetadata(normal.file, normal.object, { signal: controller.signal }),
     ).rejects.toThrow('stop HDF5 storage metadata')
+  })
+})
+
+describe('HDF5 D3 raw dataset ranges', () => {
+  it('reads owned element-aligned ranges from compact and contiguous storage', async () => {
+    const compactData = Uint8Array.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
+    const compact = await openObject(
+      datasetMessages(
+        createGeneratedCompactLayoutMessage({
+          version: 4,
+          dimensions: [],
+          data: compactData,
+        }),
+      ),
+    )
+    const compactMetadata = await readHdf5DatasetMetadata(compact.file, compact.object)
+    const compactRange = await readHdf5DatasetElementRange(
+      compact.file,
+      compactMetadata,
+      { offset: 1, count: 3 },
+      { objectPath: '/compact' },
+    )
+    expect(compactRange).toEqual(Uint8Array.of(2, 3, 4, 5, 6, 7))
+    compactMetadata.layout.kind === 'compact' && compactMetadata.layout.data.fill(255)
+    expect(compactRange).toEqual(Uint8Array.of(2, 3, 4, 5, 6, 7))
+
+    const raw = Uint8Array.of(10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21)
+    const contiguous = await openObject(
+      datasetMessages(
+        createGeneratedContiguousLayoutMessage({
+          version: 3,
+          offsetSize: 8,
+          lengthSize: 8,
+          dimensions: [],
+          address: 900n,
+          storageBytes: 12n,
+        }),
+      ),
+      { offset: 900, data: raw },
+    )
+    const contiguousMetadata = await readHdf5DatasetMetadata(contiguous.file, contiguous.object)
+    const contiguousRange = await readHdf5DatasetElementRange(
+      contiguous.file,
+      contiguousMetadata,
+      { offset: 2, count: 2 },
+      { objectPath: '/contiguous' },
+    )
+    expect(contiguousRange).toEqual(Uint8Array.of(14, 15, 16, 17))
+    contiguous.sourceBytes.fill(255, 904, 908)
+    expect(contiguousRange).toEqual(Uint8Array.of(14, 15, 16, 17))
+  })
+
+  it('materializes exact fill bytes and rejects unsafe or not-yet-indexed ranges', async () => {
+    const unallocatedLayout = createGeneratedContiguousLayoutMessage({
+      version: 4,
+      offsetSize: 8,
+      lengthSize: 8,
+      dimensions: [],
+      storageBytes: 12n,
+    })
+    const defined = await openObject(
+      datasetMessages(
+        unallocatedLayout,
+        createGeneratedFillValueMessage({
+          version: 3,
+          status: 'defined',
+          value: Uint8Array.of(0x34, 0x12),
+        }),
+      ),
+    )
+    const definedMetadata = await readHdf5DatasetMetadata(defined.file, defined.object)
+    await expect(
+      readHdf5DatasetElementRange(defined.file, definedMetadata, { offset: 1, count: 3 }),
+    ).resolves.toEqual(Uint8Array.of(0x34, 0x12, 0x34, 0x12, 0x34, 0x12))
+
+    const undefinedFill = await openObject(
+      datasetMessages(
+        unallocatedLayout,
+        createGeneratedFillValueMessage({ version: 3, status: 'undefined' }),
+      ),
+    )
+    const undefinedMetadata = await readHdf5DatasetMetadata(
+      undefinedFill.file,
+      undefinedFill.object,
+    )
+    await expect(
+      readHdf5DatasetElementRange(
+        undefinedFill.file,
+        undefinedMetadata,
+        { offset: 0, count: 1 },
+        { objectPath: '/undefined' },
+      ),
+    ).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('undefined fill value'),
+    })
+
+    await expect(
+      readHdf5DatasetElementRange(
+        defined.file,
+        definedMetadata,
+        { offset: 0, count: 4 },
+        {
+          maxReadBytes: 4,
+        },
+      ),
+    ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+
+    const chunked = await openObject(
+      datasetMessages(
+        createGeneratedChunkedLayoutMessage({
+          version: 4,
+          offsetSize: 8,
+          lengthSize: 8,
+          chunkDimensions: [1, 3],
+          elementBytes: 2,
+          index: { kind: 'fixed-array', pageBits: 10 },
+        }),
+      ),
+    )
+    const chunkedMetadata = await readHdf5DatasetMetadata(chunked.file, chunked.object)
+    await expect(
+      readHdf5DatasetElementRange(chunked.file, chunkedMetadata, { offset: 0, count: 1 }),
+    ).rejects.toMatchObject({
+      code: 'UNSUPPORTED_OPERATION',
+      message: expect.stringContaining('D4 chunk-index'),
+    })
   })
 })

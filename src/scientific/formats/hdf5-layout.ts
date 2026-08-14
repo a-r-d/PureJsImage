@@ -306,10 +306,15 @@ const parseLegacyLayout = (
   position += dimensionality * 4
   if (!allZero(bytes, position)) throw invalidInput('HDF5 layout has trailing bytes')
   if (layoutClass === 1) {
-    if (dimensionality !== dataspace.rank) {
+    const hasEncodedElementSize = dimensionality === dataspace.rank + 1
+    if (dimensionality !== dataspace.rank && !hasEncodedElementSize) {
       throw invalidInput('HDF5 contiguous layout dimensionality does not match its dataspace')
     }
-    requireDimensions(dimensions, dataspace.dimensions, 'HDF5 contiguous layout')
+    const datasetDimensions = hasEncodedElementSize ? dimensions.slice(0, -1) : dimensions
+    if (hasEncodedElementSize && dimensions[dimensions.length - 1] !== datatype.byteLength) {
+      throw invalidInput('HDF5 contiguous layout element size does not match its datatype')
+    }
+    requireDimensions(datasetDimensions, dataspace.dimensions, 'HDF5 contiguous layout')
     return Object.freeze({
       kind: 'contiguous',
       version,

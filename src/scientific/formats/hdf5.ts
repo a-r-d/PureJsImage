@@ -303,6 +303,11 @@ export interface Hdf5FileLayer {
     length: number,
     options?: Readonly<ImageSourceReadOptions>,
   ): Promise<Uint8Array<ArrayBuffer>>
+  readRaw(
+    address: bigint,
+    length: number,
+    options?: Readonly<ImageSourceReadOptions>,
+  ): Promise<Uint8Array<ArrayBuffer>>
   close(): void
 }
 
@@ -310,11 +315,13 @@ class Hdf5FileLayerImplementation implements Hdf5FileLayer {
   readonly sourceIdentity: SourceIdentity
   readonly superblock: Hdf5Superblock
   readonly metadataCache: Hdf5MetadataPageCache
+  readonly #source: ImageSource
   readonly #sourceSize: number
   #closed = false
 
-  constructor(sourceSize: number, cache: Hdf5MetadataPageCache, superblock: Hdf5Superblock) {
-    this.#sourceSize = sourceSize
+  constructor(source: ImageSource, cache: Hdf5MetadataPageCache, superblock: Hdf5Superblock) {
+    this.#source = source
+    this.#sourceSize = source.size
     this.metadataCache = cache
     this.sourceIdentity = cache.sourceIdentity
     this.superblock = superblock
@@ -336,6 +343,33 @@ class Hdf5FileLayerImplementation implements Hdf5FileLayer {
     }
     const offset = this.resolveAddress(address, BigInt(length), 'metadata address')
     return this.metadataCache.read(offset, length, options)
+  }
+
+  async readRaw(
+    address: bigint,
+    length: number,
+    options: Readonly<ImageSourceReadOptions> = {},
+  ): Promise<Uint8Array<ArrayBuffer>> {
+    this.#assertOpen()
+    if (!Number.isSafeInteger(length) || length < 0) {
+      throw invalidInput('HDF5 raw read length must be a non-negative safe integer')
+    }
+    const offset = this.resolveAddress(address, BigInt(length), 'raw data address')
+    if (length === 0) return new Uint8Array()
+    throwIfAborted(options.signal)
+    const identity = await getImageSourceIdentity(this.#source)
+    throwIfAborted(options.signal)
+    if (!sourceIdentitiesEqual(identity, this.sourceIdentity)) {
+      throw invalidInput('HDF5 source identity changed before a raw data read')
+    }
+    const bytes = await this.#source.read(offset, length, options)
+    throwIfAborted(options.signal)
+    if (bytes.byteLength !== length) {
+      throw truncatedInput(
+        `Expected ${length} HDF5 raw bytes at offset ${offset}, received ${bytes.byteLength}`,
+      )
+    }
+    return Uint8Array.from(bytes)
   }
 
   close(): void {
@@ -796,7 +830,7 @@ export const openHdf5FileLayer = async (
     }
     await rejectUnsupportedDriver(cache, superblock, readOptions)
     throwIfAborted(options.signal)
-    return new Hdf5FileLayerImplementation(source.size, cache, superblock)
+    return new Hdf5FileLayerImplementation(source, cache, superblock)
   } catch (error) {
     cache.clear()
     throw error

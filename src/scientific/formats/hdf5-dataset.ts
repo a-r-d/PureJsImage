@@ -12,7 +12,12 @@ import {
   parseHdf5OldFillValueMessage,
 } from './hdf5-layout.ts'
 import type { Hdf5FileLayer, Hdf5IntegerWidth } from './hdf5.ts'
-import type { Hdf5ObjectHeader, Hdf5ObjectHeaderMessage } from './hdf5-object.ts'
+import {
+  type Hdf5ObjectHeader,
+  type Hdf5ObjectHeaderLimits,
+  type Hdf5ObjectHeaderMessage,
+  readHdf5ObjectHeader,
+} from './hdf5-object.ts'
 
 export type Hdf5ByteOrder = 'little-endian' | 'big-endian'
 export type Hdf5BitPadding = 0 | 1
@@ -74,7 +79,40 @@ export interface Hdf5FixedStringDatatype extends Hdf5DatatypeBase {
   readonly characterSet: 'ascii' | 'utf-8'
 }
 
-export type Hdf5Datatype = Hdf5IntegerDatatype | Hdf5FloatDatatype | Hdf5FixedStringDatatype
+export interface Hdf5EnumMember {
+  readonly name: string
+  readonly value: bigint
+}
+
+export interface Hdf5EnumDatatype extends Hdf5DatatypeBase {
+  readonly kind: 'enum'
+  readonly base: Hdf5IntegerDatatype
+  readonly members: readonly Hdf5EnumMember[]
+}
+
+export type Hdf5CompoundMemberDatatype =
+  | Hdf5IntegerDatatype
+  | Hdf5FloatDatatype
+  | Hdf5FixedStringDatatype
+  | Hdf5EnumDatatype
+
+export interface Hdf5CompoundMember {
+  readonly name: string
+  readonly offset: number
+  readonly datatype: Hdf5CompoundMemberDatatype
+}
+
+export interface Hdf5CompoundDatatype extends Hdf5DatatypeBase {
+  readonly kind: 'compound'
+  readonly members: readonly Hdf5CompoundMember[]
+}
+
+export type Hdf5Datatype =
+  | Hdf5IntegerDatatype
+  | Hdf5FloatDatatype
+  | Hdf5FixedStringDatatype
+  | Hdf5EnumDatatype
+  | Hdf5CompoundDatatype
 
 export interface Hdf5DatasetMetadataLimits {
   readonly maxRank?: number
@@ -82,6 +120,10 @@ export interface Hdf5DatasetMetadataLimits {
   readonly maxElements?: number
   readonly maxElementBytes?: number
   readonly maxMessageBytes?: number
+  readonly maxSharedMessageDepth?: number
+  readonly maxDatatypeDepth?: number
+  readonly maxDatatypeMembers?: number
+  readonly maxDatatypeNameBytes?: number
 }
 
 export interface Hdf5DatasetMetadataOptions
@@ -89,6 +131,7 @@ export interface Hdf5DatasetMetadataOptions
     Hdf5DatasetMetadataLimits,
     Hdf5DatasetStorageLimits {
   readonly objectPath?: string
+  readonly sharedObjectHeaderLimits?: Readonly<Hdf5ObjectHeaderLimits>
 }
 
 export interface Hdf5DatasetTypeAndSpace {
@@ -102,12 +145,26 @@ export interface Hdf5DatasetMetadata extends Hdf5DatasetTypeAndSpace {
   readonly fillValue: Hdf5FillValue
 }
 
+export interface Hdf5DatasetElementRange {
+  readonly offset: number
+  readonly count: number
+}
+
+export interface Hdf5DatasetRawReadOptions extends AbortOptions {
+  readonly maxReadBytes?: number
+  readonly objectPath?: string
+}
+
 interface ResolvedLimits {
   readonly maxRank: number
   readonly maxDimension: number
   readonly maxElements: number
   readonly maxElementBytes: number
   readonly maxMessageBytes: number
+  readonly maxSharedMessageDepth: number
+  readonly maxDatatypeDepth: number
+  readonly maxDatatypeMembers: number
+  readonly maxDatatypeNameBytes: number
 }
 
 const defaultLimits: ResolvedLimits = Object.freeze({
@@ -116,7 +173,12 @@ const defaultLimits: ResolvedLimits = Object.freeze({
   maxElements: Number.MAX_SAFE_INTEGER,
   maxElementBytes: 16_777_216,
   maxMessageBytes: 65_536,
+  maxSharedMessageDepth: 8,
+  maxDatatypeDepth: 8,
+  maxDatatypeMembers: 1_024,
+  maxDatatypeNameBytes: 4_096,
 })
+const defaultRawReadBytes = 67_108_864
 
 const positiveSafeInteger = (name: string, value: number): number => {
   if (!Number.isSafeInteger(value) || value < 1) {
@@ -143,6 +205,22 @@ const resolveLimits = (options: Readonly<Hdf5DatasetMetadataLimits>): ResolvedLi
     maxMessageBytes: positiveSafeInteger(
       'HDF5 dataset maxMessageBytes',
       options.maxMessageBytes ?? defaultLimits.maxMessageBytes,
+    ),
+    maxSharedMessageDepth: positiveSafeInteger(
+      'HDF5 dataset maxSharedMessageDepth',
+      options.maxSharedMessageDepth ?? defaultLimits.maxSharedMessageDepth,
+    ),
+    maxDatatypeDepth: positiveSafeInteger(
+      'HDF5 dataset maxDatatypeDepth',
+      options.maxDatatypeDepth ?? defaultLimits.maxDatatypeDepth,
+    ),
+    maxDatatypeMembers: positiveSafeInteger(
+      'HDF5 dataset maxDatatypeMembers',
+      options.maxDatatypeMembers ?? defaultLimits.maxDatatypeMembers,
+    ),
+    maxDatatypeNameBytes: positiveSafeInteger(
+      'HDF5 dataset maxDatatypeNameBytes',
+      options.maxDatatypeNameBytes ?? defaultLimits.maxDatatypeNameBytes,
     ),
   })
 
@@ -507,16 +585,258 @@ const parseStringDatatype = (
   })
 }
 
+const paddedToEight = (value: number): number => (value + 7) & ~7
+
+const readDatatypeName = (
+  bytes: Uint8Array,
+  offset: number,
+  padded: boolean,
+  maximumBytes: number,
+  label: string,
+): { readonly name: string; readonly end: number } => {
+  let end = offset
+  const maximumEnd = Math.min(bytes.byteLength, offset + maximumBytes + 1)
+  while (end < maximumEnd && bytes[end] !== 0) end += 1
+  if (end >= bytes.byteLength || bytes[end] !== 0) {
+    if (end === maximumEnd) throw limitExceeded(`${label} exceeds ${maximumBytes} bytes`)
+    throw invalidInput(`${label} is not NUL terminated`)
+  }
+  if (end === offset) throw invalidInput(`${label} is empty`)
+  let name = ''
+  for (let index = offset; index < end; index += 1) {
+    const value = bytes[index] ?? 0
+    if (value > 0x7f) throw invalidInput(`${label} is not ASCII`)
+    name += String.fromCharCode(value)
+  }
+  const encodedBytes = end - offset + 1
+  const next = offset + (padded ? paddedToEight(encodedBytes) : encodedBytes)
+  requireBytes(bytes, offset, next - offset, label)
+  if (padded && !allZero(bytes.subarray(offset, next), encodedBytes)) {
+    throw invalidInput(`${label} padding is non-zero`)
+  }
+  return Object.freeze({ name, end: next })
+}
+
+const decodeEnumValue = (bytes: Uint8Array, offset: number, base: Hdf5IntegerDatatype): bigint => {
+  let value = 0n
+  if (base.byteOrder === 'little-endian') {
+    for (let index = base.byteLength - 1; index >= 0; index -= 1) {
+      value = (value << 8n) | BigInt(bytes[offset + index] ?? 0)
+    }
+  } else {
+    for (let index = 0; index < base.byteLength; index += 1) {
+      value = (value << 8n) | BigInt(bytes[offset + index] ?? 0)
+    }
+  }
+  if (!base.signed) return value
+  const signBit = 1n << BigInt(base.bitPrecision - 1)
+  return (value & signBit) === 0n ? value : value - (1n << BigInt(base.bitPrecision))
+}
+
+interface ParsedDatatype {
+  readonly datatype: Hdf5Datatype
+  readonly end: number
+}
+
+function parseDatatypeAt(
+  bytes: Uint8Array,
+  offset: number,
+  limits: ResolvedLimits,
+  depth: number,
+): ParsedDatatype {
+  if (depth > limits.maxDatatypeDepth) {
+    throw limitExceeded(`HDF5 datatype nesting exceeds depth ${limits.maxDatatypeDepth}`)
+  }
+  requireBytes(bytes, offset, 8, 'HDF5 nested datatype message')
+  const remaining = bytes.subarray(offset)
+  const header = datatypeHeader(remaining, limits)
+  if (header.datatypeClass === 0) {
+    requireBytes(bytes, offset, 12, 'HDF5 integer datatype')
+    return Object.freeze({
+      datatype: parseIntegerDatatype(bytes.subarray(offset, offset + 12), header),
+      end: offset + 12,
+    })
+  }
+  if (header.datatypeClass === 1) {
+    requireBytes(bytes, offset, 20, 'HDF5 floating-point datatype')
+    return Object.freeze({
+      datatype: parseFloatDatatype(bytes.subarray(offset, offset + 20), header),
+      end: offset + 20,
+    })
+  }
+  if (header.datatypeClass === 3) {
+    return Object.freeze({
+      datatype: parseStringDatatype(bytes.subarray(offset, offset + 8), header),
+      end: offset + 8,
+    })
+  }
+  if (header.datatypeClass === 8) {
+    if ((header.classBits & 0xff0000) !== 0) {
+      throw invalidInput('HDF5 enum datatype has reserved class bits set')
+    }
+    const memberCount = header.classBits & 0xffff
+    if (memberCount < 1) throw invalidInput('HDF5 enum datatype must contain members')
+    if (memberCount > limits.maxDatatypeMembers) {
+      throw limitExceeded(
+        `HDF5 enum members ${memberCount} exceed limit ${limits.maxDatatypeMembers}`,
+      )
+    }
+    const parsedBase = parseDatatypeAt(bytes, offset + 8, limits, depth + 1)
+    if (parsedBase.datatype.kind !== 'integer') {
+      throw unsupportedOperation('HDF5 enum base datatype must be an integer')
+    }
+    const base = parsedBase.datatype
+    if (
+      base.byteLength !== header.byteLength ||
+      base.bitOffset !== 0 ||
+      base.bitPrecision !== base.byteLength * 8 ||
+      base.lowPadding !== 0 ||
+      base.highPadding !== 0
+    ) {
+      throw unsupportedOperation('HDF5 enum base integer must use its complete storage width')
+    }
+    let position = parsedBase.end
+    const names: string[] = []
+    const uniqueNames = new Set<string>()
+    for (let index = 0; index < memberCount; index += 1) {
+      const parsedName = readDatatypeName(
+        bytes,
+        position,
+        header.version < 3,
+        limits.maxDatatypeNameBytes,
+        `HDF5 enum member ${index} name`,
+      )
+      if (uniqueNames.has(parsedName.name)) {
+        throw invalidInput(`HDF5 enum repeats member name ${JSON.stringify(parsedName.name)}`)
+      }
+      uniqueNames.add(parsedName.name)
+      names.push(parsedName.name)
+      position = parsedName.end
+    }
+    requireBytes(bytes, position, memberCount * base.byteLength, 'HDF5 enum member values')
+    const members: Hdf5EnumMember[] = []
+    for (let index = 0; index < memberCount; index += 1) {
+      const value = decodeEnumValue(bytes, position + index * base.byteLength, base)
+      members.push(Object.freeze({ name: names[index] ?? '', value }))
+    }
+    position += memberCount * base.byteLength
+    return Object.freeze({
+      datatype: Object.freeze({
+        kind: 'enum',
+        version: header.version,
+        byteLength: header.byteLength,
+        base,
+        members: Object.freeze(members),
+      }),
+      end: position,
+    })
+  }
+  if (header.datatypeClass === 6) {
+    if ((header.classBits & 0xff0000) !== 0) {
+      throw invalidInput('HDF5 compound datatype has reserved class bits set')
+    }
+    const memberCount = header.classBits & 0xffff
+    if (memberCount < 1) throw invalidInput('HDF5 compound datatype must contain members')
+    if (memberCount > limits.maxDatatypeMembers) {
+      throw limitExceeded(
+        `HDF5 compound members ${memberCount} exceed limit ${limits.maxDatatypeMembers}`,
+      )
+    }
+    const offsetBytes =
+      header.version < 3
+        ? 4
+        : header.byteLength < 0x100
+          ? 1
+          : header.byteLength < 0x1_0000
+            ? 2
+            : header.byteLength < 0x100_0000
+              ? 3
+              : 4
+    let position = offset + 8
+    const members: Hdf5CompoundMember[] = []
+    const uniqueNames = new Set<string>()
+    for (let index = 0; index < memberCount; index += 1) {
+      const parsedName = readDatatypeName(
+        bytes,
+        position,
+        header.version < 3,
+        limits.maxDatatypeNameBytes,
+        `HDF5 compound member ${index} name`,
+      )
+      if (uniqueNames.has(parsedName.name)) {
+        throw invalidInput(`HDF5 compound repeats member name ${JSON.stringify(parsedName.name)}`)
+      }
+      uniqueNames.add(parsedName.name)
+      position = parsedName.end
+      requireBytes(bytes, position, offsetBytes, `HDF5 compound member ${index} offset`)
+      const memberOffset = boundedNumber(
+        littleEndianUnsigned(bytes, position, offsetBytes),
+        header.byteLength,
+        `HDF5 compound member ${index} offset`,
+      )
+      position += offsetBytes
+      if (header.version === 1) {
+        requireBytes(bytes, position, 28, `HDF5 compound member ${index} version 1 dimensions`)
+        const dimensionality = bytes[position] ?? 0
+        if (dimensionality !== 0) {
+          throw unsupportedOperation('HDF5 version 1 compound array members are not supported')
+        }
+        if (!allZero(bytes.subarray(position, position + 28), 0)) {
+          throw invalidInput(`HDF5 compound member ${index} version 1 scalar fields are non-zero`)
+        }
+        position += 28
+      }
+      const parsedMember = parseDatatypeAt(bytes, position, limits, depth + 1)
+      if (parsedMember.datatype.kind === 'compound') {
+        throw unsupportedOperation('Nested HDF5 compound datatypes are not supported')
+      }
+      if (memberOffset + parsedMember.datatype.byteLength > header.byteLength) {
+        throw invalidInput(`HDF5 compound member ${index} exceeds its element storage`)
+      }
+      members.push(
+        Object.freeze({
+          name: parsedName.name,
+          offset: memberOffset,
+          datatype: parsedMember.datatype,
+        }),
+      )
+      position = parsedMember.end
+    }
+    const ordered = [...members].sort((left, right) => left.offset - right.offset)
+    for (let index = 1; index < ordered.length; index += 1) {
+      const previous = ordered[index - 1]
+      const current = ordered[index]
+      if (
+        previous !== undefined &&
+        current !== undefined &&
+        previous.offset + previous.datatype.byteLength > current.offset
+      ) {
+        throw unsupportedOperation('Overlapping HDF5 compound members are not supported')
+      }
+    }
+    return Object.freeze({
+      datatype: Object.freeze({
+        kind: 'compound',
+        version: header.version,
+        byteLength: header.byteLength,
+        members: Object.freeze(members),
+      }),
+      end: position,
+    })
+  }
+  throw unsupportedOperation(`HDF5 datatype class ${header.datatypeClass} is not supported by D3`)
+}
+
 export const parseHdf5DatatypeMessage = (
   bytes: Uint8Array,
   options: Readonly<Hdf5DatasetMetadataLimits> = {},
 ): Hdf5Datatype => {
   const limits = resolveLimits(options)
-  const header = datatypeHeader(bytes, limits)
-  if (header.datatypeClass === 0) return parseIntegerDatatype(bytes, header)
-  if (header.datatypeClass === 1) return parseFloatDatatype(bytes, header)
-  if (header.datatypeClass === 3) return parseStringDatatype(bytes, header)
-  throw unsupportedOperation(`HDF5 datatype class ${header.datatypeClass} is not supported by D3`)
+  const parsed = parseDatatypeAt(bytes, 0, limits, 1)
+  if (!allZero(bytes, parsed.end)) {
+    throw invalidInput('HDF5 datatype message has non-zero trailing bytes')
+  }
+  return parsed.datatype
 }
 
 const requiredMessage = (
@@ -531,9 +851,6 @@ const requiredMessage = (
   }
   const message = messages[0]
   if (message === undefined) throw invalidInput(`${label} is missing its ${name} message`)
-  if ((message.flags & 2) !== 0) {
-    throw unsupportedOperation(`${label} has a shared ${name} message`)
-  }
   return message
 }
 
@@ -545,11 +862,116 @@ const optionalMessage = (
 ): Hdf5ObjectHeaderMessage | undefined => {
   const messages = object.messages.filter((message) => message.type === type)
   if (messages.length > 1) throw invalidInput(`${label} repeats its ${name} message`)
-  const message = messages[0]
-  if (message !== undefined && (message.flags & 2) !== 0) {
-    throw unsupportedOperation(`${label} has a shared ${name} message`)
+  return messages[0]
+}
+
+interface ResolvedMessagePayload {
+  readonly bytes: Uint8Array<ArrayBuffer>
+  readonly metadataBytes: number
+}
+
+const sharedMessageAddress = (bytes: Uint8Array, file: Hdf5FileLayer, label: string): bigint => {
+  requireBytes(bytes, 0, 2, `${label} shared-message locator`)
+  const version = bytes[0] ?? 0
+  const type = bytes[1] ?? 0
+  let addressOffset: number
+  if (version === 1) {
+    if (type !== 0) throw invalidInput(`${label} shared-message version 1 type is invalid`)
+    requireBytes(
+      bytes,
+      0,
+      4 + file.superblock.lengthSize + file.superblock.offsetSize,
+      `${label} shared-message version 1 locator`,
+    )
+    if (bytes[2] !== 0 || bytes[3] !== 0) {
+      throw invalidInput(`${label} shared-message version 1 reserved bytes are non-zero`)
+    }
+    addressOffset = 4 + file.superblock.lengthSize
+  } else if (version === 2) {
+    if (type !== 0) throw invalidInput(`${label} shared-message version 2 type is invalid`)
+    requireBytes(
+      bytes,
+      0,
+      2 + file.superblock.offsetSize,
+      `${label} shared-message version 2 locator`,
+    )
+    addressOffset = 2
+  } else if (version === 3) {
+    if (type === 1) {
+      throw unsupportedOperation(`${label} uses a shared-object-header-message heap locator`)
+    }
+    if (type !== 2) {
+      throw invalidInput(
+        `${label} shared-message version 3 type ${type} is invalid for a shared message`,
+      )
+    }
+    requireBytes(
+      bytes,
+      0,
+      2 + file.superblock.offsetSize,
+      `${label} shared-message version 3 locator`,
+    )
+    addressOffset = 2
+  } else {
+    throw unsupportedOperation(`${label} shared-message locator version ${version} is unsupported`)
   }
-  return message
+  const requiredBytes = addressOffset + file.superblock.offsetSize
+  if (!allZero(bytes, requiredBytes)) {
+    throw invalidInput(`${label} shared-message locator has non-zero trailing bytes`)
+  }
+  const address = littleEndianUnsigned(bytes, addressOffset, file.superblock.offsetSize)
+  const undefinedValue = (1n << BigInt(file.superblock.offsetSize * 8)) - 1n
+  if (address === undefinedValue) throw invalidInput(`${label} shared-message address is undefined`)
+  file.resolveAddress(address, 4n, `${label} shared object header`)
+  return address
+}
+
+const readMessagePayload = async (
+  file: Hdf5FileLayer,
+  message: Hdf5ObjectHeaderMessage,
+  label: string,
+  limits: ResolvedLimits,
+  options: Readonly<Hdf5DatasetMetadataOptions>,
+  depth = 0,
+  visited: ReadonlySet<string> = new Set(),
+): Promise<ResolvedMessagePayload> => {
+  if (message.dataBytes > limits.maxMessageBytes) {
+    throw limitExceeded(`${label} metadata message exceeds ${limits.maxMessageBytes} bytes`)
+  }
+  const readOptions: Readonly<ImageSourceReadOptions> =
+    options.signal === undefined ? {} : { signal: options.signal }
+  const bytes = await file.readMetadata(message.dataAddress, message.dataBytes, readOptions)
+  throwIfAborted(options.signal)
+  if ((message.flags & 2) === 0) {
+    return Object.freeze({ bytes, metadataBytes: bytes.byteLength })
+  }
+  if (depth >= limits.maxSharedMessageDepth) {
+    throw limitExceeded(`${label} exceeds shared-message depth ${limits.maxSharedMessageDepth}`)
+  }
+  const address = sharedMessageAddress(bytes, file, label)
+  const key = `${message.type}:${address}`
+  if (visited.has(key)) throw invalidInput(`${label} contains a cyclic shared-message reference`)
+  const nextVisited = new Set(visited)
+  nextVisited.add(key)
+  const object = await readHdf5ObjectHeader(file, address, {
+    ...(options.sharedObjectHeaderLimits ?? {}),
+    objectPath: `${options.objectPath ?? '/'}#shared-${address}`,
+    ...(options.signal === undefined ? {} : { signal: options.signal }),
+  })
+  const target = requiredMessage(object, message.type, 'matching committed', label)
+  const resolved = await readMessagePayload(
+    file,
+    target,
+    label,
+    limits,
+    options,
+    depth + 1,
+    nextVisited,
+  )
+  return Object.freeze({
+    bytes: resolved.bytes,
+    metadataBytes: bytes.byteLength + object.metadataBytes + resolved.metadataBytes,
+  })
 }
 
 const bytesEqual = (left: Uint8Array | undefined, right: Uint8Array | undefined): boolean => {
@@ -595,30 +1017,29 @@ export const readHdf5DatasetTypeAndSpace = async (
   const label = `HDF5 dataset ${JSON.stringify(options.objectPath ?? '/')}`
   const dataspaceMessage = requiredMessage(object, 0x0001, 'dataspace', label)
   const datatypeMessage = requiredMessage(object, 0x0003, 'datatype', label)
-  if (
-    dataspaceMessage.dataBytes > limits.maxMessageBytes ||
-    datatypeMessage.dataBytes > limits.maxMessageBytes
-  ) {
-    throw limitExceeded(`${label} dataset metadata message exceeds ${limits.maxMessageBytes} bytes`)
-  }
-  const readOptions: Readonly<ImageSourceReadOptions> =
-    options.signal === undefined ? {} : { signal: options.signal }
-  const dataspaceBytes = await file.readMetadata(
-    dataspaceMessage.dataAddress,
-    dataspaceMessage.dataBytes,
-    readOptions,
+  const dataspacePayload = await readMessagePayload(
+    file,
+    dataspaceMessage,
+    `${label} dataspace`,
+    limits,
+    options,
   )
-  throwIfAborted(options.signal)
-  const datatypeBytes = await file.readMetadata(
-    datatypeMessage.dataAddress,
-    datatypeMessage.dataBytes,
-    readOptions,
+  const datatypePayload = await readMessagePayload(
+    file,
+    datatypeMessage,
+    `${label} datatype`,
+    limits,
+    options,
   )
   throwIfAborted(options.signal)
   return Object.freeze({
-    dataspace: parseHdf5DataspaceMessage(dataspaceBytes, file.superblock.lengthSize, limits),
-    datatype: parseHdf5DatatypeMessage(datatypeBytes, limits),
-    metadataBytes: dataspaceBytes.byteLength + datatypeBytes.byteLength,
+    dataspace: parseHdf5DataspaceMessage(
+      dataspacePayload.bytes,
+      file.superblock.lengthSize,
+      limits,
+    ),
+    datatype: parseHdf5DatatypeMessage(datatypePayload.bytes, limits),
+    metadataBytes: dataspacePayload.metadataBytes + datatypePayload.metadataBytes,
   })
 }
 
@@ -640,25 +1061,16 @@ export const readHdf5DatasetMetadata = async (
   const messages = [layoutMessage, oldFillMessage, fillMessage].filter(
     (message): message is Hdf5ObjectHeaderMessage => message !== undefined,
   )
-  for (const message of messages) {
-    if (message.dataBytes > limits.maxMessageBytes) {
-      throw limitExceeded(
-        `${label} dataset metadata message exceeds ${limits.maxMessageBytes} bytes`,
-      )
-    }
-  }
-  const readOptions: Readonly<ImageSourceReadOptions> =
-    options.signal === undefined ? {} : { signal: options.signal }
-  const payloads: Uint8Array<ArrayBuffer>[] = []
+  const payloads: ResolvedMessagePayload[] = []
   for (const message of messages) {
     throwIfAborted(options.signal)
-    payloads.push(await file.readMetadata(message.dataAddress, message.dataBytes, readOptions))
+    payloads.push(await readMessagePayload(file, message, label, limits, options))
   }
   throwIfAborted(options.signal)
-  const layoutBytes = payloads[0]
-  if (layoutBytes === undefined) throw invalidInput(`${label} is missing its layout message`)
+  const layoutPayload = payloads[0]
+  if (layoutPayload === undefined) throw invalidInput(`${label} is missing its layout message`)
   const layout = parseHdf5LayoutMessage(
-    layoutBytes,
+    layoutPayload.bytes,
     file.superblock.offsetSize,
     file.superblock.lengthSize,
     typeAndSpace.dataspace,
@@ -671,11 +1083,11 @@ export const readHdf5DatasetMetadata = async (
   const oldFillValue =
     oldFillMessage === undefined
       ? undefined
-      : parseHdf5OldFillValueMessage(payloads[payloadIndex++] ?? new Uint8Array(), options)
+      : parseHdf5OldFillValueMessage(payloads[payloadIndex++]?.bytes ?? new Uint8Array(), options)
   const newFillValue =
     fillMessage === undefined
       ? undefined
-      : parseHdf5FillValueMessage(payloads[payloadIndex] ?? new Uint8Array(), options)
+      : parseHdf5FillValueMessage(payloads[payloadIndex]?.bytes ?? new Uint8Array(), options)
   if (
     oldFillValue !== undefined &&
     newFillValue !== undefined &&
@@ -692,6 +1104,84 @@ export const readHdf5DatasetMetadata = async (
     fillValue,
     metadataBytes:
       typeAndSpace.metadataBytes +
-      payloads.reduce((total, payload) => total + payload.byteLength, 0),
+      payloads.reduce((total, payload) => total + payload.metadataBytes, 0),
   })
+}
+
+const boundedElementRange = (
+  metadata: Hdf5DatasetMetadata,
+  range: Readonly<Hdf5DatasetElementRange>,
+  maximumBytes: number,
+): { readonly byteOffset: number; readonly byteLength: number } => {
+  if (!Number.isSafeInteger(range.offset) || range.offset < 0) {
+    throw invalidInput('HDF5 dataset element offset must be a non-negative safe integer')
+  }
+  if (!Number.isSafeInteger(range.count) || range.count < 0) {
+    throw invalidInput('HDF5 dataset element count must be a non-negative safe integer')
+  }
+  if (
+    range.offset > metadata.dataspace.elementCount ||
+    range.count > metadata.dataspace.elementCount - range.offset
+  ) {
+    throw invalidInput('HDF5 dataset element range exceeds the current dataspace extent')
+  }
+  const byteOffsetValue = BigInt(range.offset) * BigInt(metadata.datatype.byteLength)
+  const byteLengthValue = BigInt(range.count) * BigInt(metadata.datatype.byteLength)
+  const byteOffset = boundedNumber(
+    byteOffsetValue,
+    Number.MAX_SAFE_INTEGER,
+    'HDF5 dataset byte offset',
+  )
+  const byteLength = boundedNumber(byteLengthValue, maximumBytes, 'HDF5 dataset raw read bytes')
+  return Object.freeze({ byteOffset, byteLength })
+}
+
+const fillUnallocatedRange = (
+  metadata: Hdf5DatasetMetadata,
+  byteLength: number,
+  label: string,
+): Uint8Array<ArrayBuffer> => {
+  if (metadata.fillValue.status === 'undefined') {
+    throw unsupportedOperation(`${label} has unallocated storage and an undefined fill value`)
+  }
+  const output = new Uint8Array(byteLength)
+  const value = metadata.fillValue.value
+  if (value === undefined || byteLength === 0) return output
+  output.set(value)
+  let filled = value.byteLength
+  while (filled < output.byteLength) {
+    const amount = Math.min(filled, output.byteLength - filled)
+    output.copyWithin(filled, 0, amount)
+    filled += amount
+  }
+  return output
+}
+
+export const readHdf5DatasetElementRange = async (
+  file: Hdf5FileLayer,
+  metadata: Hdf5DatasetMetadata,
+  range: Readonly<Hdf5DatasetElementRange>,
+  options: Readonly<Hdf5DatasetRawReadOptions> = {},
+): Promise<Uint8Array<ArrayBuffer>> => {
+  throwIfAborted(options.signal)
+  const maxReadBytes = positiveSafeInteger(
+    'HDF5 dataset maxReadBytes',
+    options.maxReadBytes ?? defaultRawReadBytes,
+  )
+  const label = `HDF5 dataset ${JSON.stringify(options.objectPath ?? '/')}`
+  const { byteOffset, byteLength } = boundedElementRange(metadata, range, maxReadBytes)
+  if (byteLength === 0) return new Uint8Array()
+  if (metadata.layout.kind === 'compact') {
+    return Uint8Array.from(metadata.layout.data.subarray(byteOffset, byteOffset + byteLength))
+  }
+  if (metadata.layout.kind === 'chunked') {
+    throw unsupportedOperation(`${label} requires D4 chunk-index traversal before raw reads`)
+  }
+  if (metadata.layout.address === undefined) {
+    return fillUnallocatedRange(metadata, byteLength, label)
+  }
+  const readOptions: Readonly<ImageSourceReadOptions> =
+    options.signal === undefined ? {} : { signal: options.signal }
+  const address = metadata.layout.address + BigInt(byteOffset)
+  return file.readRaw(address, byteLength, readOptions)
 }
