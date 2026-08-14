@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "source": {
     "project": "HDF5",
     "revision": "18de4b4a1b83f5286a53fd0117364c1a068ce1e1",
@@ -16,7 +16,18 @@
       "sha256": "c36b08d9efedf54f04bee5657f0bb20954b0975a69319cd118aef7b72a94edc9",
       "superblockVersion": 0,
       "objectHeaderVersion": 1,
+      "storage": "legacy",
       "rootLinks": ["g1", "g2", "g3"]
+    },
+    {
+      "file": "h5repack_objs.h5",
+      "path": "h5repack_objs.h5",
+      "bytes": 19738,
+      "sha256": "62dadfb94a3931f5e011735edc8abb216251c3b662e85eddb3ea0cdcb417ad4b",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "storage": "dense",
+      "unsupportedLink": "ext_link"
     }
   ]
 }

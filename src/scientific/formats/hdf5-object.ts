@@ -84,6 +84,13 @@ interface ResolvedLimits {
   readonly maxSoftLinkBytes: number
 }
 
+export interface Hdf5LinkMessageOptions {
+  readonly objectLabel: string
+  readonly maxLinkNameBytes: number
+  readonly maxSoftLinkBytes: number
+  readonly messageFlags?: number
+}
+
 interface Continuation {
   readonly address: bigint
   readonly bytes: number
@@ -302,109 +309,124 @@ const parseContinuation = (state: ParseState, data: Uint8Array): void => {
   state.continuations.push(Object.freeze({ address, bytes }))
 }
 
-const parseLink = (state: ParseState, messageFlags: number, data: Uint8Array): void => {
-  if ((messageFlags & 0x02) !== 0) {
-    throw unsupportedOperation(`${state.objectLabel} has a shared compact link message`)
+export const parseHdf5LinkMessage = (
+  file: Hdf5FileLayer,
+  data: Uint8Array,
+  options: Readonly<Hdf5LinkMessageOptions>,
+): Hdf5Link => {
+  const objectLabel = options.objectLabel
+  if (((options.messageFlags ?? 0) & 0x02) !== 0) {
+    throw unsupportedOperation(`${objectLabel} has a shared compact link message`)
   }
-  requireBytes(data, 0, 2, `${state.objectLabel} compact link`)
+  requireBytes(data, 0, 2, `${objectLabel} compact link`)
   if (data[0] !== 1) {
-    throw unsupportedOperation(`${state.objectLabel} has compact link version ${data[0]}`)
+    throw unsupportedOperation(`${objectLabel} has compact link version ${data[0]}`)
   }
   const flags = data[1] ?? 0
   if ((flags & 0xe0) !== 0) {
-    throw invalidInput(`${state.objectLabel} compact link has reserved flags set`)
+    throw invalidInput(`${objectLabel} compact link has reserved flags set`)
   }
   const nameWidth = 1 << (flags & 0x03)
   let position = 2
   let linkType = 0
   if ((flags & 0x08) !== 0) {
-    requireBytes(data, position, 1, `${state.objectLabel} compact link type`)
+    requireBytes(data, position, 1, `${objectLabel} compact link type`)
     linkType = data[position] ?? 0
     position += 1
   }
   let creationOrder: bigint | undefined
   if ((flags & 0x04) !== 0) {
-    requireBytes(data, position, 8, `${state.objectLabel} compact link creation order`)
+    requireBytes(data, position, 8, `${objectLabel} compact link creation order`)
     creationOrder = littleEndianUnsigned(data, position, 8)
     position += 8
   }
   let characterSet: 'ascii' | 'utf-8' = 'ascii'
   if ((flags & 0x10) !== 0) {
-    requireBytes(data, position, 1, `${state.objectLabel} compact link character set`)
+    requireBytes(data, position, 1, `${objectLabel} compact link character set`)
     const encodedCharacterSet = data[position] ?? 0
     position += 1
     if (encodedCharacterSet !== 0 && encodedCharacterSet !== 1) {
       throw invalidInput(
-        `${state.objectLabel} compact link character set ${encodedCharacterSet} is invalid`,
+        `${objectLabel} compact link character set ${encodedCharacterSet} is invalid`,
       )
     }
     characterSet = encodedCharacterSet === 0 ? 'ascii' : 'utf-8'
   }
-  requireBytes(data, position, nameWidth, `${state.objectLabel} compact link name length`)
+  requireBytes(data, position, nameWidth, `${objectLabel} compact link name length`)
   const nameBytes = boundedNumber(
     littleEndianUnsigned(data, position, nameWidth),
-    state.limits.maxLinkNameBytes,
-    `${state.objectLabel} link name`,
+    options.maxLinkNameBytes,
+    `${objectLabel} link name`,
   )
   position += nameWidth
-  if (nameBytes < 1) throw invalidInput(`${state.objectLabel} compact link name is empty`)
-  requireBytes(data, position, nameBytes, `${state.objectLabel} compact link name`)
+  if (nameBytes < 1) throw invalidInput(`${objectLabel} compact link name is empty`)
+  requireBytes(data, position, nameBytes, `${objectLabel} compact link name`)
   const name = decodeString(
     data.subarray(position, position + nameBytes),
     characterSet,
-    `${state.objectLabel} compact link name`,
+    `${objectLabel} compact link name`,
   )
   position += nameBytes
-  if (name.includes('/')) throw invalidInput(`${state.objectLabel} compact link name contains '/'`)
-  if (state.linkNames.has(name)) {
-    throw invalidInput(`${state.objectLabel} repeats compact link ${JSON.stringify(name)}`)
-  }
+  if (name.includes('/')) throw invalidInput(`${objectLabel} compact link name contains '/'`)
 
   let link: Hdf5Link
   if (linkType === 0) {
-    const offsetSize = state.file.superblock.offsetSize
-    requireBytes(data, position, offsetSize, `${state.objectLabel} hard-link target`)
+    const offsetSize = file.superblock.offsetSize
+    requireBytes(data, position, offsetSize, `${objectLabel} hard-link target`)
     const objectAddress = optionalAddress(data, position, offsetSize)
     if (objectAddress === undefined) {
-      throw invalidInput(`${state.objectLabel} hard-link target is undefined`)
+      throw invalidInput(`${objectLabel} hard-link target is undefined`)
     }
-    state.file.resolveAddress(objectAddress, 1n, `${state.objectLabel} hard-link target`)
+    file.resolveAddress(objectAddress, 1n, `${objectLabel} hard-link target`)
     position += offsetSize
     link = Object.freeze({ kind: 'hard', name, characterSet, creationOrder, objectAddress })
   } else if (linkType === 1) {
-    requireBytes(data, position, 2, `${state.objectLabel} soft-link length`)
+    requireBytes(data, position, 2, `${objectLabel} soft-link length`)
     const targetBytes = littleEndianUint16(data, position)
     position += 2
-    if (targetBytes > state.limits.maxSoftLinkBytes) {
+    if (targetBytes > options.maxSoftLinkBytes) {
       throw limitExceeded(
-        `${state.objectLabel} soft-link target ${targetBytes} exceeds limit ${state.limits.maxSoftLinkBytes}`,
+        `${objectLabel} soft-link target ${targetBytes} exceeds limit ${options.maxSoftLinkBytes}`,
       )
     }
-    requireBytes(data, position, targetBytes, `${state.objectLabel} soft-link target`)
+    requireBytes(data, position, targetBytes, `${objectLabel} soft-link target`)
     const target = decodeString(
       data.subarray(position, position + targetBytes),
       'utf-8',
-      `${state.objectLabel} soft-link target`,
+      `${objectLabel} soft-link target`,
     )
     position += targetBytes
     link = Object.freeze({ kind: 'soft', name, characterSet, creationOrder, target })
   } else if (linkType === 64) {
     throw unsupportedOperation(
-      `${state.objectLabel} external link ${JSON.stringify(name)} is unsupported`,
+      `${objectLabel} external link ${JSON.stringify(name)} is unsupported`,
     )
   } else if (linkType >= 65) {
     throw unsupportedOperation(
-      `${state.objectLabel} user-defined link type ${linkType} for ${JSON.stringify(name)} is unsupported`,
+      `${objectLabel} user-defined link type ${linkType} for ${JSON.stringify(name)} is unsupported`,
     )
   } else {
     throw unsupportedOperation(
-      `${state.objectLabel} reserved link type ${linkType} for ${JSON.stringify(name)} is unsupported`,
+      `${objectLabel} reserved link type ${linkType} for ${JSON.stringify(name)} is unsupported`,
     )
   }
   if (!allZero(data, position)) {
-    throw invalidInput(`${state.objectLabel} compact link has non-zero trailing bytes`)
+    throw invalidInput(`${objectLabel} compact link has non-zero trailing bytes`)
   }
-  state.linkNames.add(name)
+  return link
+}
+
+const parseLink = (state: ParseState, messageFlags: number, data: Uint8Array): void => {
+  const link = parseHdf5LinkMessage(state.file, data, {
+    objectLabel: state.objectLabel,
+    maxLinkNameBytes: state.limits.maxLinkNameBytes,
+    maxSoftLinkBytes: state.limits.maxSoftLinkBytes,
+    messageFlags,
+  })
+  if (state.linkNames.has(link.name)) {
+    throw invalidInput(`${state.objectLabel} repeats compact link ${JSON.stringify(link.name)}`)
+  }
+  state.linkNames.add(link.name)
   state.links.push(link)
 }
 

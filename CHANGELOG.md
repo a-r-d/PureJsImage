@@ -55,8 +55,14 @@ All notable changes to PureJsImage are documented in this file.
   checksummed continuation chunks, compact hard and soft links, link-info storage descriptors,
   bounded legacy symbol-table groups with local heaps and B-tree v1, and configurable
   hostile-metadata limits. A revision- and SHA-256-pinned HDF Group fixture verifies the real legacy
-  group path without adding its binary to the repository. Dense group indexes, fractal heaps,
-  attributes, datasets, filters, and public HDF5 reader claims remain intentionally pending.
+  group path without adding its binary to the repository.
+- Continued the package-private HDF5 object graph with checksummed fractal-heap headers, root direct
+  and recursive indirect managed blocks, seven-byte managed heap IDs, and type-5 B-tree v2 leaf and
+  internal nodes for modern dense groups. Generated hostile fixtures cover hard, soft, ASCII, UTF-8,
+  creation-order, bounds, cycles, ordering, and corruption behavior. A second pinned HDF Group file
+  verifies a real 40-record dense index and the explicit external-link boundary. Huge and tiny heap
+  objects, filtered heaps, graph-wide traversal, attributes, datasets, filters, and public HDF5
+  reader claims remain intentionally pending.
 
 ### Changed
 

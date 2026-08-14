@@ -4,18 +4,29 @@ import { join } from 'node:path'
 export const hdf5CorpusDirectory = 'benchmark/corpus/files/hdf5'
 export const hdf5CorpusManifest = 'benchmark/hdf5/corpus.json'
 
-export interface Hdf5CorpusFixture {
+interface Hdf5CorpusFixtureBase {
   readonly file: string
   readonly path: string
   readonly bytes: number
   readonly sha256: string
   readonly superblockVersion: 0 | 1 | 2 | 3
   readonly objectHeaderVersion: 1 | 2
+}
+
+export interface Hdf5LegacyCorpusFixture extends Hdf5CorpusFixtureBase {
+  readonly storage: 'legacy'
   readonly rootLinks: readonly string[]
 }
 
+export interface Hdf5DenseCorpusFixture extends Hdf5CorpusFixtureBase {
+  readonly storage: 'dense'
+  readonly unsupportedLink: string
+}
+
+export type Hdf5CorpusFixture = Hdf5LegacyCorpusFixture | Hdf5DenseCorpusFixture
+
 export interface Hdf5CorpusManifestValue {
-  readonly schemaVersion: 1
+  readonly schemaVersion: 2
   readonly source: {
     readonly project: string
     readonly revision: string
@@ -71,8 +82,13 @@ const parseRootLinks = (value: unknown): readonly string[] => {
   return Object.freeze(links)
 }
 
+const parseStorage = (value: unknown): 'legacy' | 'dense' => {
+  if (value === 'legacy' || value === 'dense') return value
+  throw new Error('HDF5 corpus storage is invalid')
+}
+
 const assertCorpusManifest = (value: unknown): Hdf5CorpusManifestValue => {
-  if (!isRecord(value) || value.schemaVersion !== 1 || !isRecord(value.source)) {
+  if (!isRecord(value) || value.schemaVersion !== 2 || !isRecord(value.source)) {
     throw new Error('HDF5 corpus manifest header is invalid')
   }
   if (!Array.isArray(value.fixtures) || value.fixtures.length === 0) {
@@ -99,18 +115,25 @@ const assertCorpusManifest = (value: unknown): Hdf5CorpusManifestValue => {
     if (typeof sha256 !== 'string' || !/^[a-f0-9]{64}$/u.test(sha256)) {
       throw new Error('HDF5 corpus checksum is invalid')
     }
-    return Object.freeze({
+    const base: Hdf5CorpusFixtureBase = {
       file,
       path: requiredString(fixture, 'path'),
       bytes: positiveInteger(fixture.bytes, 'bytes'),
       sha256,
       superblockVersion: parseSuperblockVersion(fixture.superblockVersion),
       objectHeaderVersion: parseObjectHeaderVersion(fixture.objectHeaderVersion),
-      rootLinks: parseRootLinks(fixture.rootLinks),
-    })
+    }
+    const storage = parseStorage(fixture.storage)
+    return storage === 'legacy'
+      ? Object.freeze({ ...base, storage, rootLinks: parseRootLinks(fixture.rootLinks) })
+      : Object.freeze({
+          ...base,
+          storage,
+          unsupportedLink: requiredString(fixture, 'unsupportedLink'),
+        })
   })
   return Object.freeze({
-    schemaVersion: 1,
+    schemaVersion: 2,
     source: Object.freeze({
       project: requiredString(value.source, 'project'),
       revision,

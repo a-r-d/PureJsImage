@@ -476,12 +476,17 @@ Addresses remain `bigint` through bounds validation, object-path-aware errors id
 mandatory messages and link classes, and configurable byte, message, continuation, link-name, and
 soft-target limits bound hostile metadata. Old symbol-table groups now traverse bounded local-heap
 free lists, group B-tree v1 internal and leaf nodes, and `SNOD` entries to expose ASCII hard and
-soft links, including validated cached subgroup metadata. Dense links are described but not
-traversed yet. A reproducible compatibility workflow pins the HDF Group's `tgroup.h5` fixture by
-source revision and SHA-256 without committing its binary; it verifies a version 0 superblock,
-version 1 root object header, and the three root links reached through legacy group storage.
-Fractal heaps, B-tree v2 traversal, graph-wide object/link-depth limits, soft-link resolution, and
-required attributes remain pending before D2 is complete.
+soft links, including validated cached subgroup metadata. Modern dense groups now traverse
+checksummed fractal-heap headers, root direct and recursive indirect managed blocks, seven-byte
+managed heap IDs, and type-5 B-tree v2 leaf and internal nodes. The dense path validates block
+geometry, checksums, record ordering and name hashes while bounding aggregate metadata, heap
+objects, blocks, tree depth and nodes, links, names, targets, table width, and heap address space.
+A reproducible compatibility workflow pins the HDF Group's `tgroup.h5` and `h5repack_objs.h5`
+fixtures by source revision and SHA-256 without committing their binaries. The first verifies the
+three legacy root links; the second verifies a real 40-record dense index before reaching the
+intentional external-link rejection. Huge and tiny heap objects, filtered heaps, the secondary
+creation-order index, graph-wide object/link-depth limits, soft-link resolution, and required
+attributes remain pending before D2 is complete.
 
 - object header versions 1 and 2;
 - continuation chunks;
