@@ -684,6 +684,12 @@ describe('package contract', () => {
     expect(typeof scientificApi.rasterToPixels).toBe('function')
     expect(typeof httpRangeApi.HttpRangeSource.open).toBe('function')
     expect(tiffApi.geoTiffProfile.id).toBe('geotiff')
+    expect(tiffApi.standardTiffCalibrationProfile.id).toBe('standard-tiff-calibration')
+    expect(tiffApi.imageJTiffCalibrationProfile.id).toBe('imagej-tiff-calibration')
+    expect(tiffApi.digitalMicrographTiffCalibrationProfile.id).toBe(
+      'digital-micrograph-tiff-calibration',
+    )
+    expect(tiffApi.defaultTiffCalibrationProfiles).toHaveLength(3)
   })
 
   it('keeps experimental HEIC out of the default codec set', () => {

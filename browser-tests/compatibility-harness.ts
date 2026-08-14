@@ -931,7 +931,7 @@ const sha256 = async (bytes: Uint8Array | Uint8ClampedArray): Promise<string> =>
 
 interface BrowserTiffEntry {
   readonly tag: number
-  readonly type: 2 | 3 | 4 | 7
+  readonly type: 2 | 3 | 4 | 5 | 7
   readonly values: readonly number[]
 }
 
@@ -940,8 +940,10 @@ const browserTiffFixture = (
   strips: readonly Uint8Array[],
 ): Uint8Array => {
   const placeholder = entriesFor(strips.map(() => 0)).sort((left, right) => left.tag - right.tag)
+  const entryCount = (entry: BrowserTiffEntry): number =>
+    entry.type === 5 ? entry.values.length / 2 : entry.values.length
   const entryBytes = (entry: BrowserTiffEntry): number =>
-    entry.values.length * (entry.type === 3 ? 2 : entry.type === 4 ? 4 : 1)
+    entryCount(entry) * (entry.type === 3 ? 2 : entry.type === 4 ? 4 : entry.type === 5 ? 8 : 1)
   const ifdBytes = 2 + placeholder.length * 12 + 4
   const externalBytes = placeholder.reduce((total, entry) => {
     const bytes = entryBytes(entry)
@@ -969,18 +971,26 @@ const browserTiffFixture = (
     const valuesOffset = valueBytes > 4 ? externalOffset : entryOffset + 8
     view.setUint16(entryOffset, entry.tag, true)
     view.setUint16(entryOffset + 2, entry.type, true)
-    view.setUint32(entryOffset + 4, entry.values.length, true)
+    view.setUint32(entryOffset + 4, entryCount(entry), true)
     if (valueBytes > 4) {
       view.setUint32(entryOffset + 8, externalOffset, true)
       externalOffset += valueBytes
     }
-    for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
-      const elementBytes = entry.type === 3 ? 2 : entry.type === 4 ? 4 : 1
-      const offset = valuesOffset + valueIndex * elementBytes
-      const value = entry.values[valueIndex] ?? 0
-      if (entry.type === 3) view.setUint16(offset, value, true)
-      else if (entry.type === 4) view.setUint32(offset, value, true)
-      else output[offset] = value
+    if (entry.type === 5) {
+      for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 2) {
+        const offset = valuesOffset + (valueIndex / 2) * 8
+        view.setUint32(offset, entry.values[valueIndex] ?? 0, true)
+        view.setUint32(offset + 4, entry.values[valueIndex + 1] ?? 1, true)
+      }
+    } else {
+      for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
+        const elementBytes: number = entry.type === 3 ? 2 : entry.type === 4 ? 4 : 1
+        const offset = valuesOffset + valueIndex * elementBytes
+        const value = entry.values[valueIndex] ?? 0
+        if (entry.type === 3) view.setUint16(offset, value, true)
+        else if (entry.type === 4) view.setUint32(offset, value, true)
+        else output[offset] = value
+      }
     }
   }
   for (let index = 0; index < strips.length; index += 1) {
@@ -1008,6 +1018,9 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
       { tag: 278, type: 4, values: [1] },
       { tag: 279, type: 4, values: [strip.byteLength] },
       { tag: 284, type: 3, values: [1] },
+      { tag: 282, type: 5, values: [20_000, 1] },
+      { tag: 283, type: 5, values: [10_000, 1] },
+      { tag: 296, type: 3, values: [3] },
       { tag: 339, type: 3, values: [1, 1, 1] },
     ],
     [strip],
@@ -1065,6 +1078,10 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   if (
     ordinaryDataset.descriptor.sampleType !== 'uint16' ||
     ordinaryDataset.descriptor.components.map(({ kind }) => kind).join(',') !== 'red,green,blue' ||
+    ordinaryDataset.descriptor.axes[0]?.coordinates.type !== 'linear' ||
+    ordinaryDataset.descriptor.axes[0]?.coordinates.step !== 0.5 ||
+    ordinaryDataset.descriptor.axes[1]?.coordinates.type !== 'linear' ||
+    ordinaryDataset.descriptor.axes[1]?.coordinates.step !== 1 ||
     ordinarySamples.join(',') !== '65535,32768,0'
   ) {
     throw new Error(`Browser ordinary TIFF native samples were ${ordinarySamples.join(',')}`)
@@ -1176,7 +1193,7 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
   }
   return {
     detail:
-      'bounded TIFF extension APIs, native-precision ordinary TIFF opening, specialized OME-TIFF precedence, labeled OME-TIFF document opening, explicit display conversion, and native-tile Aperio stripe streaming passed',
+      'bounded TIFF extension APIs, calibrated native-precision ordinary TIFF opening, specialized OME-TIFF precedence, labeled OME-TIFF document opening, explicit display conversion, and native-tile Aperio stripe streaming passed',
     outputBytes: input.byteLength + aperioInput.byteLength,
   }
 }

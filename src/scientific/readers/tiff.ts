@@ -16,12 +16,22 @@ import {
 } from '../../source.ts'
 import type {
   TiffDirectory,
+  TiffDocument,
   TiffDocumentOptions,
   TiffTagInfo,
   TiffTagValue,
 } from '../../tiff/types.ts'
+import {
+  defaultTiffCalibrationProfiles,
+  type TiffAxisCalibration,
+  type TiffCalibrationProfileValue,
+  type TiffDirectoryCalibration,
+  type TiffPageAxisCalibration,
+} from '../../tiff/calibration-profiles.ts'
+import { createTiffProfileRegistry, type TiffProfile } from '../../tiff/profiles.ts'
 import type {
   NormalizedScientificDatasetDescriptor,
+  ScientificAxisDescriptor,
   ScientificComponentDescriptor,
   ScientificDataset,
   ScientificMetadataObject,
@@ -65,6 +75,7 @@ interface TiffPageDescription {
   readonly components: readonly ScientificComponentDescriptor[]
   readonly compatibilityKey: string
   readonly metadata: ScientificMetadataObject
+  readonly calibration?: TiffDirectoryCalibration
 }
 
 interface TiffSeriesDescription {
@@ -72,6 +83,13 @@ interface TiffSeriesDescription {
   readonly pages: readonly TiffPageDescription[]
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly metadata: ScientificMetadataObject
+  readonly pageAxisId?: string
+}
+
+interface ResolvedTiffCalibration {
+  readonly value?: TiffCalibrationProfileValue
+  readonly detectionFailures: readonly ScientificMetadataObject[]
+  readonly warning?: string
 }
 
 interface SelectedTag {
@@ -125,6 +143,8 @@ export interface TiffReaderOptions {
   readonly maxMetadataBytes?: number
   /** Largest admitted optional tag payload. Defaults to 16 KiB. */
   readonly maxMetadataTagBytes?: number
+  /** Calibration profiles selected through the deterministic TIFF profile registry. */
+  readonly calibrationProfiles?: readonly TiffProfile<TiffCalibrationProfileValue>[]
 }
 
 export const tiffReaderDescriptor: ScientificReaderDescriptor = Object.freeze({
@@ -169,6 +189,55 @@ const sameRasterFormat = (left: RasterFormat, right: RasterFormat): boolean =>
   left.sampleType === right.sampleType &&
   left.channels === right.channels &&
   left.planar === right.planar
+
+const errorMessage = (error: unknown): string =>
+  error instanceof Error
+    ? error.message
+    : typeof error === 'string'
+      ? error
+      : 'Unknown profile error'
+
+const resolveTiffCalibration = async (
+  document: TiffDocument,
+  profiles: readonly TiffProfile<TiffCalibrationProfileValue>[],
+): Promise<ResolvedTiffCalibration> => {
+  const registry = createTiffProfileRegistry(profiles)
+  const detection = await registry.detect(document)
+  const failures = Object.freeze(
+    detection.failures.map(({ id, error }) =>
+      normalizeScientificMetadataObject({ profileId: id, error: errorMessage(error) }),
+    ),
+  )
+  const selected = detection.matches[0]
+  if (selected === undefined) return Object.freeze({ detectionFailures: failures })
+  const conflicts = detection.matches.filter(({ priority }) => priority === selected.priority)
+  if (conflicts.length > 1) {
+    return Object.freeze({
+      detectionFailures: failures,
+      warning: `TIFF calibration profile detection is ambiguous at priority ${selected.priority}: ${conflicts
+        .map(({ id }) => id)
+        .join(', ')}`,
+    })
+  }
+  const profile = profiles.find(({ id }) => id === selected.id)
+  if (profile === undefined) {
+    return Object.freeze({
+      detectionFailures: failures,
+      warning: `TIFF calibration profile ${selected.id} is unavailable after detection`,
+    })
+  }
+  try {
+    return Object.freeze({
+      value: await registry.openWith(document, profile),
+      detectionFailures: failures,
+    })
+  } catch (error: unknown) {
+    return Object.freeze({
+      detectionFailures: failures,
+      warning: `TIFF calibration profile ${profile.id} was ignored: ${errorMessage(error)}`,
+    })
+  }
+}
 
 const alphaExtraSamples = async (directory: TiffDirectory): Promise<ReadonlySet<number>> => {
   const alpha = new Set<number>()
@@ -352,6 +421,7 @@ const inspectLevel = async (
 const pageCompatibilityKey = (
   levels: readonly TiffLevelDescription[],
   components: readonly ScientificComponentDescriptor[],
+  calibration: TiffDirectoryCalibration | undefined,
 ): string =>
   JSON.stringify({
     levels: levels.map((level) => ({
@@ -363,12 +433,29 @@ const pageCompatibilityKey = (
       sampleFormats: level.directory.sampleFormats,
     })),
     components: components.map(({ id, kind }) => ({ id, kind })),
+    calibration:
+      calibration === undefined
+        ? undefined
+        : {
+            axes: calibration.axes
+              .filter(({ axisId }) => axisId === 'x' || axisId === 'y')
+              .map(({ axisId, origin, step, unit }) => ({ axisId, origin, step, unit })),
+            intensity:
+              calibration.intensity === undefined
+                ? undefined
+                : {
+                    origin: calibration.intensity.origin,
+                    step: calibration.intensity.step,
+                    unit: calibration.intensity.unit,
+                  },
+          },
   })
 
 const describePage = async (
   directory: TiffDirectory,
   page: number,
   metadata: ScientificMetadataObject,
+  calibration: TiffDirectoryCalibration | undefined,
   signal: AbortSignal | undefined,
 ): Promise<TiffPageDescription> => {
   const directories = [directory, ...directory.subIfds]
@@ -393,8 +480,9 @@ const describePage = async (
     directory,
     levels: Object.freeze(levels),
     components,
-    compatibilityKey: pageCompatibilityKey(levels, components),
+    compatibilityKey: pageCompatibilityKey(levels, components, calibration),
     metadata,
+    ...(calibration === undefined ? {} : { calibration }),
   })
 }
 
@@ -415,6 +503,7 @@ const groupPages = (
 
 const scientificLevels = (
   pages: readonly TiffPageDescription[],
+  pageAxisId: string | undefined,
 ): readonly ScientificResolutionLevel[] => {
   const first = pages[0]
   if (first === undefined) throw invalidInput('TIFF series has no pages')
@@ -425,9 +514,86 @@ const scientificLevels = (
         axisLengths: Object.freeze([
           Object.freeze({ axisId: 'x', length: level.width }),
           Object.freeze({ axisId: 'y', length: level.height }),
-          ...(pages.length === 1 ? [] : [Object.freeze({ axisId: 'page', length: pages.length })]),
+          ...(pageAxisId === undefined
+            ? []
+            : [Object.freeze({ axisId: pageAxisId, length: pages.length })]),
         ]),
       }),
+    ),
+  )
+}
+
+const scientificAxis = (
+  axisId: 'x' | 'y',
+  length: number,
+  calibration: TiffAxisCalibration | undefined,
+  resourceId: string,
+): ScientificAxisDescriptor =>
+  calibration === undefined
+    ? Object.freeze({
+        id: axisId,
+        name: axisId.toUpperCase(),
+        kind: 'space',
+        length,
+        coordinates: Object.freeze({ type: 'index' }),
+      })
+    : Object.freeze({
+        id: axisId,
+        name: axisId.toUpperCase(),
+        kind: 'space',
+        length,
+        unit: calibration.unit,
+        coordinates: Object.freeze({
+          type: 'linear',
+          origin: calibration.origin,
+          step: calibration.step,
+        }),
+        calibration: Object.freeze({
+          kind: 'embedded',
+          resourceId,
+          locator: calibration.evidence.locator,
+          ...(calibration.evidence.formula === undefined
+            ? {}
+            : { formula: calibration.evidence.formula }),
+          ...(calibration.evidence.note === undefined ? {} : { note: calibration.evidence.note }),
+        }),
+      })
+
+const calibratedPageAxis = (
+  calibration: TiffPageAxisCalibration,
+  resourceId: string,
+): ScientificAxisDescriptor =>
+  Object.freeze({
+    id: 'z',
+    name: 'Z',
+    kind: 'space',
+    length: calibration.length,
+    unit: calibration.unit,
+    coordinates: Object.freeze({
+      type: 'linear',
+      origin: calibration.origin,
+      step: calibration.step,
+    }),
+    calibration: Object.freeze({
+      kind: 'embedded',
+      resourceId,
+      locator: calibration.evidence.locator,
+      ...(calibration.evidence.formula === undefined
+        ? {}
+        : { formula: calibration.evidence.formula }),
+      ...(calibration.evidence.note === undefined ? {} : { note: calibration.evidence.note }),
+    }),
+  })
+
+const calibratedComponents = (
+  components: readonly ScientificComponentDescriptor[],
+  calibration: TiffDirectoryCalibration | undefined,
+): readonly ScientificComponentDescriptor[] => {
+  const unit = calibration?.intensity?.unit
+  if (unit === undefined) return components
+  return Object.freeze(
+    components.map((component) =>
+      component.kind === 'intensity' ? Object.freeze({ ...component, unit }) : component,
     ),
   )
 }
@@ -435,42 +601,77 @@ const scientificLevels = (
 const describeSeries = (
   pages: readonly TiffPageDescription[],
   index: number,
+  calibration: TiffCalibrationProfileValue | undefined,
+  resourceId: string,
 ): TiffSeriesDescription => {
   const first = pages[0]
   const base = first?.levels[0]
   if (first === undefined || base === undefined) throw invalidInput('TIFF series has no base image')
+  const pageAxisCalibration =
+    calibration?.pageAxis !== undefined &&
+    calibration.pageAxis.length === pages.length &&
+    pages.every(({ page }, pageIndex) => page === pageIndex)
+      ? calibration.pageAxis
+      : undefined
+  const pageAxisId = pageAxisCalibration?.axisId ?? (pages.length === 1 ? undefined : 'page')
+  const firstCalibration = first.calibration
+  const intensity = firstCalibration?.intensity
   const metadata = normalizeScientificMetadataObject({
     firstPage: first.page,
     pageCount: pages.length,
     pages: pages.map(({ metadata: pageMetadata }) => pageMetadata),
+    ...(calibration === undefined
+      ? {}
+      : {
+          calibrationProfile: calibration.profileId,
+          calibrationWarnings: calibration.warnings,
+          ...(calibration.acquisition === undefined
+            ? {}
+            : { acquisition: calibration.acquisition }),
+          [calibration.rawMetadata.namespace]: calibration.rawMetadata.value,
+        }),
+    ...(intensity === undefined
+      ? {}
+      : {
+          intensityCalibration: {
+            origin: intensity.origin,
+            step: intensity.step,
+            ...(intensity.unit === undefined ? {} : { unit: intensity.unit }),
+            evidence: intensity.evidence,
+          },
+        }),
   })
+  const xCalibration = firstCalibration?.axes.find(({ axisId }) => axisId === 'x')
+  const yCalibration = firstCalibration?.axes.find(({ axisId }) => axisId === 'y')
   const descriptor = normalizeScientificDatasetDescriptor({
     schemaVersion: 1,
     axes: [
-      { id: 'x', name: 'X', kind: 'space', length: base.width, coordinates: { type: 'index' } },
-      { id: 'y', name: 'Y', kind: 'space', length: base.height, coordinates: { type: 'index' } },
-      ...(pages.length === 1
-        ? []
-        : [
-            {
-              id: 'page',
-              name: 'Page',
-              kind: 'index' as const,
-              length: pages.length,
-              coordinates: {
-                type: 'labels' as const,
-                values: pages.map(({ page }) => `Page ${page}`),
+      scientificAxis('x', base.width, xCalibration, resourceId),
+      scientificAxis('y', base.height, yCalibration, resourceId),
+      ...(pageAxisCalibration !== undefined
+        ? [calibratedPageAxis(pageAxisCalibration, resourceId)]
+        : pages.length === 1
+          ? []
+          : [
+              {
+                id: 'page',
+                name: 'Page',
+                kind: 'index' as const,
+                length: pages.length,
+                coordinates: {
+                  type: 'labels' as const,
+                  values: pages.map(({ page }) => `Page ${page}`),
+                },
+                entries: pages.map(({ page, directory }) => ({
+                  id: `ifd-${directory.index}`,
+                  name: `Page ${page}`,
+                })),
               },
-              entries: pages.map(({ page, directory }) => ({
-                id: `ifd-${directory.index}`,
-                name: `Page ${page}`,
-              })),
-            },
-          ]),
+            ]),
     ],
     sampleType: base.format.sampleType,
-    components: first.components,
-    levels: scientificLevels(pages),
+    components: calibratedComponents(first.components, firstCalibration),
+    levels: scientificLevels(pages, pageAxisId),
     metadata: { 'purejsimage:tiff': metadata },
     capabilities: {
       regionReads: true,
@@ -478,7 +679,13 @@ const describeSeries = (
       planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'y']] },
     },
   })
-  return Object.freeze({ id: `series-${index}`, pages, descriptor, metadata })
+  return Object.freeze({
+    id: `series-${index}`,
+    pages,
+    descriptor,
+    metadata,
+    ...(pageAxisId === undefined ? {} : { pageAxisId }),
+  })
 }
 
 const validateRasterBlock = (
@@ -529,18 +736,23 @@ const validateRasterBlock = (
 class TiffScientificDataset implements ScientificDataset {
   readonly descriptor: NormalizedScientificDatasetDescriptor
   readonly #pages: readonly TiffPageDescription[]
+  readonly #pageAxisId: string | undefined
   readonly #source: ImageSource
 
   constructor(series: TiffSeriesDescription, source: ImageSource) {
     this.descriptor = series.descriptor
     this.#pages = series.pages
+    this.#pageAxisId = series.pageAxisId
     this.#source = source
   }
 
   async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncIterable<RasterBlock> {
     const normalized = normalizeScientificPlaneReadRequest(this.descriptor, request)
     throwIfAborted(normalized.signal)
-    const pageIndex = normalized.fixedIndices.find(({ axisId }) => axisId === 'page')?.index ?? 0
+    const pageIndex =
+      this.#pageAxisId === undefined
+        ? 0
+        : (normalized.fixedIndices.find(({ axisId }) => axisId === this.#pageAxisId)?.index ?? 0)
     const page = this.#pages[pageIndex]
     const level = page?.levels[normalized.resolutionLevel]
     if (page === undefined || level === undefined) {
@@ -628,6 +840,10 @@ const createDocument = async (
     ...(options.limits ?? {}),
     ...(context.signal === undefined ? {} : { signal: context.signal }),
   })
+  const calibration = await resolveTiffCalibration(
+    document,
+    options.calibrationProfiles ?? defaultTiffCalibrationProfiles,
+  )
   const budget: MetadataBudget = {
     remaining: maximumMetadataBytes,
     maximumTagBytes: maximumMetadataTagBytes,
@@ -637,18 +853,24 @@ const createDocument = async (
     throwIfAborted(context.signal)
     const directory = document.topLevelDirectories[page]
     if (directory === undefined) continue
+    const directoryCalibration = calibration.value?.directories.find(
+      ({ directoryIndex }) => directoryIndex === directory.index,
+    )
     pages.push(
       await describePage(
         directory,
         page,
         await directoryMetadata(directory, budget),
+        directoryCalibration,
         context.signal,
       ),
     )
   }
   if (pages.length === 0)
     throw invalidInput('TIFF document contains no top-level image directories')
-  const series = groupPages(pages).map(describeSeries)
+  const series = groupPages(pages).map((entry, index) =>
+    describeSeries(entry, index, calibration.value, context.primary.id),
+  )
   const entries = await Promise.all(
     series.map(async (entry) => {
       const identity = await createScientificDatasetIdentity({
@@ -663,6 +885,12 @@ const createDocument = async (
       return Object.freeze({ entry, identity, dataset })
     }),
   )
+  const calibrationApplied =
+    calibration.value !== undefined &&
+    (calibration.value.pageAxis !== undefined ||
+      calibration.value.directories.some(
+        ({ axes, intensity }) => axes.length !== 0 || intensity !== undefined,
+      ))
   const metadata = normalizeScientificMetadataObject({
     littleEndian: document.littleEndian,
     bigTiff: document.bigTiff,
@@ -671,6 +899,16 @@ const createDocument = async (
     seriesCount: series.length,
     optionalMetadataBytesAdmitted: maximumMetadataBytes - budget.remaining,
     optionalMetadataBytesLimit: maximumMetadataBytes,
+    calibrationStatus: calibrationApplied
+      ? 'calibrated'
+      : calibration.warning === undefined
+        ? 'uncalibrated'
+        : 'invalid',
+    ...(calibration.value === undefined ? {} : { calibrationProfile: calibration.value.profileId }),
+    ...(calibration.warning === undefined ? {} : { calibrationWarning: calibration.warning }),
+    ...(calibration.detectionFailures.length === 0
+      ? {}
+      : { calibrationDetectionFailures: calibration.detectionFailures }),
   })
   return Object.freeze({
     reader: Object.freeze({ id: tiffReaderDescriptor.id, version: tiffReaderDescriptor.version }),

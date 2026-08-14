@@ -1,0 +1,22 @@
+{
+  "sources": {
+    "standardTiff": "TIFF Revision 6.0, June 3 1992, tags 282, 283, 286, 287, and 296",
+    "imageJ": "ImageJ Calibration.java getX/getY/getZ and tifffile 2026.7.31 imagej_description",
+    "digitalMicrograph": "RosettaSciIO 0.14.0 rsciio/tiff/_api.py _add_axes_digital_micrograph and _intensity_axis_digital_micrograph"
+  },
+  "standardTiff": {
+    "x": { "origin": 10, "step": 0.5, "unit": "µm" },
+    "y": { "origin": 20, "step": 1, "unit": "µm" }
+  },
+  "imageJ": {
+    "x": { "origin": -0.5, "step": 0.25, "unit": "µm" },
+    "y": { "origin": 0.5, "step": 0.5, "unit": "µm" },
+    "z": { "origin": -4.5, "step": 1.5, "unit": "µm" }
+  },
+  "digitalMicrograph": {
+    "x": { "origin": 1.25, "step": 0.1, "unit": "nm" },
+    "y": { "origin": 2.5, "step": 0.2, "unit": "nm" },
+    "z": { "origin": -3, "step": 0.5, "unit": "nm" },
+    "intensity": { "origin": 4, "step": 0.25, "unit": "electron" }
+  }
+}

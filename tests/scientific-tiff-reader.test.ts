@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import calibrationOracle from './fixtures/tiff-calibration-oracle.json' with { type: 'json' }
 import type { PixelBlock } from '../src/pixel.ts'
 import type { RasterBlock } from '../src/raster.ts'
 import { encodeTiffDocument } from '../src/codecs/tiff.ts'
+import { openTiffDocument } from '../src/codecs/tiff.ts'
 import { nodeRuntime } from '../src/node-runtime.ts'
 import { ScientificReaderRegistry } from '../src/scientific/reader.ts'
 import { omeTiffReader } from '../src/scientific/readers/ome-tiff.ts'
@@ -17,10 +19,17 @@ import {
   sourceSessionStart,
   type ImageSource,
 } from '../src/source.ts'
+import {
+  defaultTiffCalibrationProfiles,
+  digitalMicrographTiffCalibrationProfile,
+  imageJTiffCalibrationProfile,
+  standardTiffCalibrationProfile,
+} from '../src/tiff/calibration-profiles.ts'
+import { createTiffProfileRegistry } from '../src/tiff/profiles.ts'
 
 interface TiffEntryFixture {
   readonly tag: number
-  readonly type: 2 | 3 | 4
+  readonly type: 2 | 3 | 4 | 5 | 11 | 12
   readonly values: readonly number[]
 }
 
@@ -36,8 +45,14 @@ interface TiffFixtureOptions {
   readonly extraEntries?: readonly TiffEntryFixture[]
 }
 
+const fixtureEntryValueBytes = (type: number): number =>
+  type === 3 ? 2 : type === 4 || type === 11 ? 4 : type === 5 || type === 12 ? 8 : 1
+
+const fixtureEntryCount = (entry: TiffEntryFixture): number =>
+  entry.type === 5 ? entry.values.length / 2 : entry.values.length
+
 const fixtureEntryBytes = (entry: TiffEntryFixture): number =>
-  entry.values.length * (entry.type === 3 ? 2 : entry.type === 4 ? 4 : 1)
+  fixtureEntryCount(entry) * fixtureEntryValueBytes(entry.type)
 
 const tiffFixture = (options: TiffFixtureOptions): Uint8Array => {
   const entriesFor = (offsets: readonly number[]): TiffEntryFixture[] => [
@@ -104,21 +119,75 @@ const tiffFixture = (options: TiffFixtureOptions): Uint8Array => {
     const valuesOffset = valueBytes > 4 ? externalOffset : entryOffset + 8
     view.setUint16(entryOffset, entry.tag, true)
     view.setUint16(entryOffset + 2, entry.type, true)
-    view.setUint32(entryOffset + 4, entry.values.length, true)
+    view.setUint32(entryOffset + 4, fixtureEntryCount(entry), true)
     if (valueBytes > 4) {
       view.setUint32(entryOffset + 8, externalOffset, true)
       externalOffset += valueBytes
     }
-    for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
-      const value = entry.values[valueIndex] ?? 0
-      const offset = valuesOffset + valueIndex * (entry.type === 3 ? 2 : entry.type === 4 ? 4 : 1)
-      if (entry.type === 3) view.setUint16(offset, value, true)
-      else if (entry.type === 4) view.setUint32(offset, value, true)
-      else output[offset] = value
+    if (entry.type === 5) {
+      for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 2) {
+        const offset = valuesOffset + (valueIndex / 2) * 8
+        view.setUint32(offset, entry.values[valueIndex] ?? 0, true)
+        view.setUint32(offset + 4, entry.values[valueIndex + 1] ?? 1, true)
+      }
+    } else {
+      for (let valueIndex = 0; valueIndex < entry.values.length; valueIndex += 1) {
+        const value = entry.values[valueIndex] ?? 0
+        const offset = valuesOffset + valueIndex * fixtureEntryValueBytes(entry.type)
+        if (entry.type === 3) view.setUint16(offset, value, true)
+        else if (entry.type === 4) view.setUint32(offset, value, true)
+        else if (entry.type === 11) view.setFloat32(offset, value, true)
+        else if (entry.type === 12) view.setFloat64(offset, value, true)
+        else output[offset] = value
+      }
     }
   }
   for (let index = 0; index < options.segments.length; index += 1) {
     output.set(options.segments[index] ?? new Uint8Array(), offsets[index] ?? 0)
+  }
+  return output
+}
+
+const linkTiffPages = (pages: readonly Uint8Array[]): Uint8Array => {
+  if (pages.length < 1) throw new Error('Expected at least one TIFF page')
+  const totalBytes = pages.reduce(
+    (total, page, index) => total + page.byteLength - (index === 0 ? 0 : 8),
+    0,
+  )
+  const output = new Uint8Array(totalBytes)
+  let pageOffset = 0
+  for (let pageIndex = 0; pageIndex < pages.length; pageIndex += 1) {
+    const page = pages[pageIndex]
+    if (page === undefined) continue
+    const sourceOffset = pageIndex === 0 ? 0 : 8
+    output.set(page.subarray(sourceOffset), pageOffset)
+    const ifdOffset = pageIndex === 0 ? 8 : pageOffset
+    const delta = ifdOffset - 8
+    const view = new DataView(output.buffer)
+    const entryCount = view.getUint16(ifdOffset, true)
+    for (let entryIndex = 0; entryIndex < entryCount; entryIndex += 1) {
+      const entryOffset = ifdOffset + 2 + entryIndex * 12
+      const tag = view.getUint16(entryOffset, true)
+      const type = view.getUint16(entryOffset + 2, true)
+      const count = view.getUint32(entryOffset + 4, true)
+      const valueBytes = count * fixtureEntryValueBytes(type)
+      const oldPayloadOffset =
+        valueBytes > 4 ? view.getUint32(entryOffset + 8, true) : entryOffset + 8 - delta
+      if (valueBytes > 4) view.setUint32(entryOffset + 8, oldPayloadOffset + delta, true)
+      if (tag === 273 || tag === 324) {
+        const payloadOffset = oldPayloadOffset + delta
+        for (let valueIndex = 0; valueIndex < count; valueIndex += 1) {
+          const offset = payloadOffset + valueIndex * 4
+          view.setUint32(offset, view.getUint32(offset, true) + delta, true)
+        }
+      }
+    }
+    const nextOffset = ifdOffset + 2 + entryCount * 12
+    const nextPage = pages[pageIndex + 1]
+    const nextPageOffset =
+      nextPage === undefined ? 0 : pageOffset + page.byteLength - (pageIndex === 0 ? 0 : 8)
+    view.setUint32(nextOffset, nextPageOffset, true)
+    pageOffset += page.byteLength - sourceOffset
   }
   return output
 }
@@ -141,6 +210,12 @@ const encodedFloat32 = (values: readonly number[]): Uint8Array => {
   }
   return output
 }
+
+const asciiEntry = (tag: number, value: string): TiffEntryFixture => ({
+  tag,
+  type: 2,
+  values: [...new TextEncoder().encode(value), 0],
+})
 
 const open = async (bytes: Uint8Array, reader = tiffReader) =>
   new ScientificReaderRegistry([reader]).open({
@@ -212,6 +287,245 @@ class SessionTrackingSource implements ImageSource {
 }
 
 describe('ordinary TIFF scientific reader', () => {
+  it('applies standard TIFF physical resolution and position with embedded evidence', async () => {
+    const input = tiffFixture({
+      width: 2,
+      height: 2,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [Uint8Array.of(1, 2, 3, 4)],
+      extraEntries: [
+        { tag: 282, type: 5, values: [20_000, 1] },
+        { tag: 283, type: 5, values: [10_000, 1] },
+        { tag: 286, type: 5, values: [1, 1_000] },
+        { tag: 287, type: 5, values: [1, 500] },
+        { tag: 296, type: 3, values: [3] },
+      ],
+    })
+    const tiff = await openTiffDocument(new MemorySource(input))
+    const result = await createTiffProfileRegistry(defaultTiffCalibrationProfiles).open(tiff)
+    expect(result?.profileId).toBe(standardTiffCalibrationProfile.id)
+    expect(result?.value).toMatchObject({
+      directories: [
+        {
+          axes: [
+            { axisId: 'x', ...calibrationOracle.standardTiff.x },
+            { axisId: 'y', ...calibrationOracle.standardTiff.y },
+          ],
+        },
+      ],
+    })
+
+    const dataset = await (await open(input)).openDataset('series-0')
+    expect(dataset.descriptor.axes).toMatchObject([
+      {
+        id: 'x',
+        unit: 'µm',
+        coordinates: { type: 'linear', origin: 10, step: 0.5 },
+        calibration: {
+          kind: 'embedded',
+          resourceId: 'primary',
+          locator: 'tiff:ifd:0/tags:282,296,286',
+        },
+      },
+      {
+        id: 'y',
+        unit: 'µm',
+        coordinates: { type: 'linear', origin: 20, step: 1 },
+      },
+    ])
+  })
+
+  it('prefers ImageJ description units and spacing over standard TIFF units', async () => {
+    const description = [
+      'ImageJ=1.54',
+      'images=2',
+      'slices=2',
+      'unit=micron',
+      'spacing=1.5',
+      'xorigin=2',
+      'yorigin=-1',
+      'zorigin=3',
+      '',
+    ].join('\n')
+    const firstPage = tiffFixture({
+      width: 2,
+      height: 2,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [Uint8Array.of(1, 2, 3, 4)],
+      extraEntries: [
+        asciiEntry(270, description),
+        { tag: 282, type: 5, values: [4, 1] },
+        { tag: 283, type: 5, values: [2, 1] },
+        { tag: 296, type: 3, values: [1] },
+      ],
+    })
+    const secondPage = tiffFixture({
+      width: 2,
+      height: 2,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [Uint8Array.of(5, 6, 7, 8)],
+      extraEntries: [
+        { tag: 282, type: 5, values: [4, 1] },
+        { tag: 283, type: 5, values: [2, 1] },
+        { tag: 296, type: 3, values: [1] },
+      ],
+    })
+    const input = linkTiffPages([firstPage, secondPage])
+    const tiff = await openTiffDocument(new MemorySource(input))
+    const result = await createTiffProfileRegistry(defaultTiffCalibrationProfiles).open(tiff)
+    expect(result?.profileId).toBe(imageJTiffCalibrationProfile.id)
+    expect(result?.value).toMatchObject({
+      directories: [
+        {
+          axes: [
+            { axisId: 'x', ...calibrationOracle.imageJ.x },
+            { axisId: 'y', ...calibrationOracle.imageJ.y },
+          ],
+        },
+        {
+          axes: [
+            { axisId: 'x', ...calibrationOracle.imageJ.x },
+            { axisId: 'y', ...calibrationOracle.imageJ.y },
+          ],
+        },
+      ],
+      pageAxis: { axisId: 'z', ...calibrationOracle.imageJ.z, length: 2 },
+    })
+    const dataset = await (await open(input)).openDataset('series-0')
+    expect(dataset.descriptor.axes).toMatchObject([
+      { id: 'x', coordinates: { origin: -0.5, step: 0.25 }, unit: 'µm' },
+      { id: 'y', coordinates: { origin: 0.5, step: 0.5 }, unit: 'µm' },
+      { id: 'z', coordinates: { origin: -4.5, step: 1.5 }, unit: 'µm', length: 2 },
+    ])
+    expect(
+      Array.from((await collect(dataset, [{ axisId: 'z', index: 1 }]))[0]?.data ?? []),
+    ).toEqual([5, 6, 7, 8])
+    expect(dataset.descriptor.metadata?.['purejsimage:tiff']).toMatchObject({
+      calibrationProfile: imageJTiffCalibrationProfile.id,
+      'purejsimage:imagej': { unit: 'micron', spacing: '1.5' },
+    })
+  })
+
+  it('reads coherent DigitalMicrograph axis and intensity tuples without EPICS collisions', async () => {
+    const input = tiffFixture({
+      width: 2,
+      height: 2,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [Uint8Array.of(1, 2, 3, 4)],
+      extraEntries: [
+        asciiEntry(65_003, 'nm'),
+        asciiEntry(65_004, 'nm'),
+        asciiEntry(65_005, 'nm'),
+        { tag: 65_006, type: 12, values: [1.25] },
+        { tag: 65_007, type: 12, values: [2.5] },
+        { tag: 65_008, type: 12, values: [-3] },
+        { tag: 65_009, type: 12, values: [0.1] },
+        { tag: 65_010, type: 12, values: [0.2] },
+        { tag: 65_011, type: 12, values: [0.5] },
+        asciiEntry(65_022, 'electron'),
+        { tag: 65_024, type: 12, values: [4] },
+        { tag: 65_025, type: 12, values: [0.25] },
+        { tag: 282, type: 5, values: [1, 1] },
+        { tag: 283, type: 5, values: [1, 1] },
+        { tag: 296, type: 3, values: [3] },
+        asciiEntry(271, 'Gatan'),
+        asciiEntry(272, 'K3'),
+        asciiEntry(305, 'DigitalMicrograph 3.6'),
+        asciiEntry(306, '2026:08:14 08:00:00'),
+      ],
+    })
+    const tiff = await openTiffDocument(new MemorySource(input))
+    const result = await createTiffProfileRegistry(defaultTiffCalibrationProfiles).open(tiff)
+    expect(result?.profileId).toBe(digitalMicrographTiffCalibrationProfile.id)
+    expect(result?.value).toMatchObject({
+      directories: [
+        {
+          axes: [
+            { axisId: 'x', ...calibrationOracle.digitalMicrograph.x },
+            { axisId: 'y', ...calibrationOracle.digitalMicrograph.y },
+            { axisId: 'z', ...calibrationOracle.digitalMicrograph.z },
+          ],
+          intensity: calibrationOracle.digitalMicrograph.intensity,
+        },
+      ],
+      acquisition: {
+        manufacturer: 'Gatan',
+        model: 'K3',
+        software: 'DigitalMicrograph 3.6',
+        acquisitionDate: '2026:08:14 08:00:00',
+      },
+      warnings: [
+        'DigitalMicrograph X calibration contradicts standard TIFF resolution tags',
+        'DigitalMicrograph Y calibration contradicts standard TIFF resolution tags',
+      ],
+    })
+    const dataset = await (await open(input)).openDataset('series-0')
+    expect(dataset.descriptor.axes).toMatchObject([
+      { id: 'x', coordinates: { origin: 1.25, step: 0.1 }, unit: 'nm' },
+      { id: 'y', coordinates: { origin: 2.5, step: 0.2 }, unit: 'nm' },
+      { id: 'z', coordinates: { origin: -3, step: 0.5 }, unit: 'nm', length: 1 },
+    ])
+    expect(dataset.descriptor.components).toMatchObject([
+      { id: 'intensity', kind: 'intensity', unit: 'electron' },
+    ])
+    expect(dataset.descriptor.metadata?.['purejsimage:tiff']).toMatchObject({
+      intensityCalibration: { origin: 4, step: 0.25, unit: 'electron' },
+      'purejsimage:digital-micrograph': { '65003': 'nm', '65025': [0.25] },
+    })
+
+    const epics = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [Uint8Array.of(9)],
+      extraEntries: [
+        asciiEntry(65_003, '123456'),
+        asciiEntry(65_009, 'ColorMode:0'),
+        asciiEntry(65_010, 'RingCurrent:100.0'),
+      ],
+    })
+    const epicsDocument = await openTiffDocument(new MemorySource(epics))
+    expect(await digitalMicrographTiffCalibrationProfile.detect({ document: epicsDocument })).toBe(
+      false,
+    )
+    expect((await open(epics)).metadata).toMatchObject({ calibrationStatus: 'uncalibrated' })
+
+    const malformed = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [Uint8Array.of(11)],
+      extraEntries: [
+        asciiEntry(65_003, 'nm'),
+        { tag: 65_006, type: 12, values: [0] },
+        { tag: 65_009, type: 12, values: [Number.NaN] },
+      ],
+    })
+    const malformedDocument = await open(malformed)
+    expect(malformedDocument.metadata).toMatchObject({
+      calibrationStatus: 'uncalibrated',
+      calibrationProfile: digitalMicrographTiffCalibrationProfile.id,
+    })
+    const malformedDataset = await malformedDocument.openDataset('series-0')
+    expect(malformedDataset.descriptor.axes).toMatchObject([
+      { id: 'x', coordinates: { type: 'index' } },
+      { id: 'y', coordinates: { type: 'index' } },
+    ])
+    expect(Array.from((await collect(malformedDataset))[0]?.data ?? [])).toEqual([11])
+  })
+
   it('preserves uint16, signed int16, planar float32, and native component semantics', async () => {
     const unsigned = tiffFixture({
       width: 2,

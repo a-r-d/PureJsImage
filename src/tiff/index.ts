@@ -16,6 +16,24 @@ export type {
   TiffPageEncodeRequest,
 } from '../codecs/tiff-encode.ts'
 export { createTiffProfileRegistry, TiffProfileRegistry } from './profiles.ts'
+export {
+  defaultTiffCalibrationProfiles,
+  digitalMicrographTiffCalibrationProfile,
+  imageJTiffCalibrationProfile,
+  standardTiffCalibrationProfile,
+} from './calibration-profiles.ts'
+export type {
+  TiffAcquisitionMetadata,
+  TiffAxisCalibration,
+  TiffCalibratedAxisId,
+  TiffCalibrationEvidence,
+  TiffCalibrationMetadataObject,
+  TiffCalibrationMetadataValue,
+  TiffCalibrationProfileValue,
+  TiffDirectoryCalibration,
+  TiffIntensityCalibration,
+  TiffPageAxisCalibration,
+} from './calibration-profiles.ts'
 export type {
   TiffProfile,
   TiffProfileContext,

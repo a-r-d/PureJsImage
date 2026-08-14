@@ -194,6 +194,15 @@ Each profile must return:
 - the bounded raw profile metadata under a namespaced object for inspection;
 - warnings for contradictory calibration sources rather than silently choosing one.
 
+A4 implements the first three profiles. Standard TIFF resolution is normalized to micrometers:
+`ResolutionUnit=1` remains uncalibrated, inch and centimeter units are converted exactly, and an
+omitted unit follows the TIFF 6.0 inch default with an explicit warning and evidence note. ImageJ
+uses `ImageDescription` units, inverse X/Y resolution, pixel-origin semantics, and `spacing` only
+for a validated single-channel Z stack. DigitalMicrograph uses coherent typed tuples from tags
+65003-65011 and 65022/65024/65025; this stricter probe avoids the ASCII-only EPICS areaDetector
+tag collision. Malformed profile metadata produces warnings or an uncalibrated dataset without
+blocking generic pixel reads.
+
 ### 5. Rank-1 scientific series reads
 
 The current `ScientificDataset` requires at least two axes and its primitive is a two-dimensional plane. That works for spectrum images but does not honestly represent a single EDS/EELS spectrum, Nanonis spectroscopy curve, or surface profile.
@@ -253,7 +262,7 @@ This should ship before DM4 or HDF5.
 | A1 | Complete | Calibration evidence contract | Small | Existing readers populate evidence where possible; descriptor and migration tests pass. |
 | A2 | Complete | Codec-to-scientific adapter | Medium | PNG and JPEG open lazily through the public scientific registry with exact pixels, cancellation, identity, and bounded blocks. |
 | A3 | Complete | Ordinary TIFF scientific reader | Medium | Native uint16, int16, float32, RGB, multipage, tiled, and SubIFD fixtures open without OME/Aperio regressions. |
-| A4 | Planned | TIFF standard, ImageJ, and DM-TIFF calibration profiles | Medium | Exact X/Y/Z scale and origin match independent readers. |
+| A4 | Complete | TIFF standard, ImageJ, and DM-TIFF calibration profiles | Medium | Exact X/Y/Z scale and origin match independent readers. |
 | A5 | Planned | FEI and Zeiss SEM TIFF profiles | Medium | At least two independently produced fixture families per profile; calibration and acquisition metadata match the oracle. |
 | A6 | Planned | Lab Viewer reader integration | App repo | PNG, JPEG, WebP, BMP, JP2, ordinary TIFF, OME-TIFF, and SVS all open through the worker with specialized-reader precedence. |
 
@@ -806,6 +815,10 @@ The converter should also emit a small provenance JSON containing the original f
 - [HDF5 File Format Specification 4.0](https://support.hdfgroup.org/documentation/hdf5/latest/_f_m_t4.html)
 - [RosettaSciIO supported formats](https://hyperspy.org/rosettasciio/supported_formats/index.html)
 - [RosettaSciIO DigitalMicrograph notes](https://hyperspy.org/rosettasciio/supported_formats/digitalmicrograph.html)
+- [RosettaSciIO 0.14 TIFF calibration mapping](https://sources.debian.org/src/python-rosettasciio/0.14.0-1/rsciio/tiff/_api.py/)
+- [TIFF Revision 6.0 specification](https://download.osgeo.org/geotiff/spec/tiff6.pdf)
+- [ImageJ calibration coordinate implementation](https://github.com/imagej/ImageJ/blob/master/ij/measure/Calibration.java)
+- [tifffile ImageJ metadata implementation](https://github.com/cgohlke/tifffile/blob/master/tifffile/tifffile.py)
 - [RosettaSciIO EMD notes](https://hyperspy.org/rosettasciio/supported_formats/emd.html)
 - [RosettaSciIO TIA SER/EMI notes](https://hyperspy.org/rosettasciio/supported_formats/tia.html)
 - [Gwyddion supported file formats](https://gwyddion.net/documentation/user-guide-en/file-formats.html)

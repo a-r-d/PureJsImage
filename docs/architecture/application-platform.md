@@ -1713,6 +1713,16 @@ to own only generic descriptors, definitions, providers, and registries.
       per-tag byte ceilings while keeping malformed or oversized optional metadata non-fatal.
 - [x] Add native precision, multipage, tiled-region, SubIFD, metadata-limit, identity, specialized
       OME precedence, package, generated capability, and real-browser coverage for the A3 reader.
+- [x] Add public first-party standard TIFF, ImageJ, and DigitalMicrograph calibration profiles
+      selected through `TiffProfileRegistry`, with bounded namespaced raw metadata and acquisition
+      fields only when present.
+- [x] Apply exact calibrated X/Y/Z coordinates and evidence in the ordinary TIFF scientific reader,
+      including simple ImageJ Z stacks, DigitalMicrograph intensity metadata, and calibration-aware
+      compatible-page grouping.
+- [x] Pin TIFF 6.0, ImageJ/tifffile, and RosettaSciIO oracle expectations; reject the ASCII-only
+      EPICS private-tag collision and keep malformed private calibration non-fatal to pixel reads.
+- [x] Regenerate TIFF capability surfaces and pass focused, browser, package, formatting, and
+      complete repository gates for A4.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1733,3 +1743,12 @@ to own only generic descriptors, definitions, providers, and registries.
     formatting, and the focused real-Chromium TIFF workflow pass. The final `npm run check` passes
     all 105 files and 1,274 tests. Earlier combined attempts hit only existing five-second
     AVIF/JPEG/WebP load timeouts; each case passed in isolation before the complete rerun passed.
+
+  - A4 validation: 120 focused TIFF reader, core TIFF, capability-manifest, and package-contract
+    tests pass, including exact standard TIFF, ImageJ, and DigitalMicrograph calibration,
+    calibration-aware grouping, private-tag collision rejection, and non-fatal malformed metadata.
+    The focused public scientific TIFF workflow passes in real Chromium. All 23 generated
+    capability outputs, the 408-file packed consumer, 19-page documentation build, browser graph,
+    type, lint, formatting, and size gates pass; the TIFF reader is 272.2 KiB minified and the
+    all-readers entry is 408.8 KiB, both below their recorded ceilings. The final `npm run check`
+    passes all 105 files and 1,277 tests.
