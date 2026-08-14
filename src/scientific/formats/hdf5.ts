@@ -23,6 +23,7 @@ interface Hdf5SuperblockBase {
   readonly fileConsistencyFlags: number
   readonly groupLeafNodeK: number
   readonly groupInternalNodeK: number
+  readonly indexedStorageInternalNodeK: number
   readonly storedBaseAddress: bigint
   readonly baseAddress: bigint
   readonly addressAdjustment: bigint
@@ -685,6 +686,7 @@ const parseLegacySuperblock = async (
     fileConsistencyFlags: littleEndianUint32(bytes, 20),
     groupLeafNodeK: littleEndianUint16(bytes, 16),
     groupInternalNodeK: littleEndianUint16(bytes, 18),
+    indexedStorageInternalNodeK: version === 1 ? littleEndianUint16(bytes, 24) : 32,
     ...context,
     rootObjectAddress,
     rootObjectOffset,
@@ -747,6 +749,7 @@ const parseModernSuperblock = async (
     fileConsistencyFlags,
     groupLeafNodeK: 4,
     groupInternalNodeK: 16,
+    indexedStorageInternalNodeK: 32,
     ...context,
     rootObjectAddress,
     rootObjectOffset,

@@ -7,6 +7,7 @@ import {
   readHdf5DatasetElementRange,
   readHdf5DatasetMetadata,
 } from '../../src/scientific/formats/hdf5-dataset.ts'
+import { locateHdf5Chunk } from '../../src/scientific/formats/hdf5-chunks.ts'
 import { openHdf5ObjectGraph } from '../../src/scientific/formats/hdf5-graph.ts'
 import { openHdf5FileLayer } from '../../src/scientific/formats/hdf5.ts'
 import {
@@ -87,6 +88,31 @@ const hex = (bytes: Uint8Array): string => {
   for (const byte of bytes) value += byte.toString(16).padStart(2, '0')
   return value
 }
+
+const chunkIndexSamples: Readonly<
+  Record<
+    string,
+    Readonly<{
+      coordinates: readonly number[]
+      indexKind: 'btree-v1' | 'fixed-array'
+      encodedBytes: number
+      rawPrefixHex: string
+    }>
+  >
+> = Object.freeze({
+  'h5repack_layout.h5:/dset_chunk': Object.freeze({
+    coordinates: Object.freeze([1, 1]),
+    indexKind: 'btree-v1',
+    encodedBytes: 800,
+    rawPrefixHex: '9a0100009b0100009c0100009d010000',
+  }),
+  'bounds_latest_latest.h5:/DS_chunked_layout_4': Object.freeze({
+    coordinates: Object.freeze([1, 3]),
+    indexKind: 'fixed-array',
+    encodedBytes: 10_000,
+    rawPrefixHex: '0000c8420000c8420000c8420000c842',
+  }),
+})
 
 const manifest = await readHdf5CorpusManifest()
 for (const fixture of manifest.fixtures) {
@@ -178,6 +204,32 @@ for (const fixture of manifest.fixtures) {
           expected.chunkDimensions,
           `${fixture.file} ${expected.path} chunk dimensions`,
         )
+        const chunkSample = chunkIndexSamples[`${fixture.file}:${expected.path}`]
+        if (chunkSample !== undefined) {
+          requireEqual(
+            metadata.layout.index.kind,
+            chunkSample.indexKind,
+            `${fixture.file} ${expected.path} chunk index`,
+          )
+          const located = await locateHdf5Chunk(file, metadata, chunkSample.coordinates, {
+            objectPath: expected.path,
+          })
+          requireEqual(
+            located.encodedBytes,
+            chunkSample.encodedBytes,
+            `${fixture.file} ${expected.path} encoded chunk bytes`,
+          )
+          if (located.address === undefined) {
+            throw new Error(`${fixture.file} ${expected.path} sample chunk is unallocated`)
+          }
+          const prefixBytes = chunkSample.rawPrefixHex.length / 2
+          const prefix = await file.readRaw(located.address, prefixBytes)
+          requireEqual(
+            hex(prefix),
+            chunkSample.rawPrefixHex,
+            `${fixture.file} ${expected.path} chunk prefix`,
+          )
+        }
       }
       if (expected.sample !== undefined) {
         const count = expected.sample.rawHex.length / 2 / metadata.datatype.byteLength

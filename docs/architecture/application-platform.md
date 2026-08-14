@@ -2008,3 +2008,18 @@ to own only generic descriptors, definitions, providers, and registries.
     formatting pass; the complete repository gate passes all 115 files and 1,404 tests. D3 is
     complete for the initial corpus. Chunk-index traversal and filter execution remain D4 and D5,
     and no HDF5 module is reachable from a public package export.
+
+  - HDF5 D4 validation: the package-private chunk layer now plans bounded rectangular hyperslabs and
+    targets classic B-tree v1, single, implicit, fixed-array, extensible-array, and B-tree v2 indexes
+    without enumerating unrelated chunk records. It preserves dimension and partial-edge geometry,
+    bounds selected chunks, index metadata, traversal nodes/depth, encoded bytes, decoded bytes,
+    filter scratch, and output blocks, and exposes a cancellable one-encoded-chunk-at-a-time stream
+    for D5. Generated hostile coverage exercises checksums, limits, internal B-tree branch isolation,
+    extensible-array super/data blocks, and cancellation. A committed SHA-256-pinned h5py 3.14.0 /
+    HDF5 1.14.6 fixture verifies all modern index families; the revision-pinned HDF Group corpus
+    independently verifies classic B-tree v1 and fixed-array raw chunk prefixes. D4 is complete for
+    the initial corpus. All 73 focused HDF5 tests and all six pinned corpus files pass. The 442-file
+    packed consumer, 19-page documentation build, browser graph, typecheck, lint, formatting, and
+    every size ceiling pass; a complete repository test run passes all 116 files and 1,413 tests.
+    Filter decoding, decoded block assembly, and dialect readers remain D5/D6; HDF5 remains
+    unreachable from public exports.

@@ -577,6 +577,21 @@ The planner must:
 - cache metadata indexes separately from decoded chunks;
 - support cancellation between chunk reads and filter stages.
 
+D4 is complete for the internal HDF5 layer. A bounded hyperslab planner enumerates only the
+intersecting chunk coordinates in dataset order, retains exact partial-edge and output geometry,
+and rejects unsafe selections or working sets before I/O. Targeted index lookup supports classic
+chunk B-tree v1, single and implicit indexes, paged and unpaged fixed arrays, extensible-array index,
+data, super-block, and paged data storage, plus leaf and internal chunk B-tree v2 nodes. Every
+metadata structure, checksum, coordinate, encoded span, traversal depth, node count, and metadata
+byte total is validated before a raw chunk read. The encoded-block stream keeps at most one encoded
+chunk live, preserves per-chunk filter masks for D5, and checks cancellation around metadata and raw
+reads. Index bytes remain in the existing bounded metadata cache; no decoded-chunk cache or public
+HDF5 export is introduced. Generated hostile fixtures cover planner limits, checksums, internal-node
+branch selection, extensible-array super blocks, cancellation, and isolated sibling reads. An exact
+SHA-256-pinned h5py 3.14.0 / HDF5 1.14.6 fixture verifies every modern index family, while the pinned
+HDF Group corpus independently verifies classic B-tree v1 and fixed-array lookup with exact raw
+chunk prefixes. Filter execution and decoded scientific blocks remain D5.
+
 ### D5. Filter pipeline
 
 Required first:
