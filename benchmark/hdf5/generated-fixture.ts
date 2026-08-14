@@ -16,6 +16,9 @@ export interface GeneratedHdf5FixtureOptions {
   readonly driverIdentifier?: string
   readonly superblockExtensionAddress?: bigint
   readonly fileConsistencyFlags?: number
+  readonly fileBytes?: number
+  readonly groupLeafNodeK?: number
+  readonly groupInternalNodeK?: number
 }
 
 export interface GeneratedHdf5Fixture {
@@ -58,11 +61,35 @@ const assertUserBlock = (value: number): void => {
 export const createGeneratedHdf5Fixture = (
   options: Readonly<GeneratedHdf5FixtureOptions>,
 ): GeneratedHdf5Fixture => {
+  if (
+    options.fileBytes !== undefined &&
+    (!Number.isSafeInteger(options.fileBytes) || options.fileBytes < 0)
+  ) {
+    throw new Error('Generated HDF5 fileBytes must be a non-negative safe integer')
+  }
   const userBlockBytes = options.userBlockBytes ?? 0
   assertUserBlock(userBlockBytes)
   const offsetSize = options.offsetSize ?? 8
   const lengthSize = options.lengthSize ?? 8
   const legacy = options.version === 0 || options.version === 1
+  const groupLeafNodeK = options.groupLeafNodeK ?? 4
+  const groupInternalNodeK = options.groupInternalNodeK ?? 16
+  if (
+    !Number.isInteger(groupLeafNodeK) ||
+    groupLeafNodeK < 1 ||
+    groupLeafNodeK > 0xffff ||
+    !Number.isInteger(groupInternalNodeK) ||
+    groupInternalNodeK < 1 ||
+    groupInternalNodeK > 0xffff
+  ) {
+    throw new Error('Generated HDF5 group K values must be positive 16-bit integers')
+  }
+  if (
+    !legacy &&
+    (options.groupLeafNodeK !== undefined || options.groupInternalNodeK !== undefined)
+  ) {
+    throw new Error('Generated modern HDF5 superblocks do not store group K values')
+  }
   const prefixBytes = options.version === 0 ? 24 : options.version === 1 ? 28 : 12
   const superblockBytes = legacy
     ? prefixBytes + offsetSize * 5 + lengthSize + 24
@@ -70,7 +97,10 @@ export const createGeneratedHdf5Fixture = (
   const driverBlockBytes = options.driverIdentifier === undefined ? 0 : 16
   const defaultRootAddress = BigInt(superblockBytes + driverBlockBytes + 16)
   const rootObjectAddress = options.rootObjectAddress ?? defaultRootAddress
-  const minimumFileBytes = userBlockBytes + superblockBytes + driverBlockBytes + 64
+  const minimumFileBytes = Math.max(
+    userBlockBytes + superblockBytes + driverBlockBytes + 64,
+    options.fileBytes ?? 0,
+  )
   const rootObjectOffsetBig = BigInt(userBlockBytes) + rootObjectAddress
   const rootObjectOffset =
     rootObjectOffsetBig <= BigInt(Number.MAX_SAFE_INTEGER) &&
@@ -92,8 +122,8 @@ export const createGeneratedHdf5Fixture = (
     bytes[start + 13] = offsetSize
     bytes[start + 14] = lengthSize
     bytes[start + 15] = 0
-    writeUint16(bytes, start + 16, 4)
-    writeUint16(bytes, start + 18, 16)
+    writeUint16(bytes, start + 16, groupLeafNodeK)
+    writeUint16(bytes, start + 18, groupInternalNodeK)
     writeUint32(bytes, start + 20, options.fileConsistencyFlags ?? 0)
     if (options.version === 1) {
       writeUint16(bytes, start + 24, 32)

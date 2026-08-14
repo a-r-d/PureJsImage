@@ -469,6 +469,20 @@ Explicitly reject multi-file family/multi drivers in the first version.
 
 ### D2. Object and group graph
 
+**Status: In progress.** The first package-private D2 slice parses object header versions 1 and 2,
+including aligned v1 messages, packed and checksummed v2 chunks, optional v2 prefix fields, nested
+continuation chunks, compact hard and soft links, and compact-versus-dense link-info descriptors.
+Addresses remain `bigint` through bounds validation, object-path-aware errors identify unsupported
+mandatory messages and link classes, and configurable byte, message, continuation, link-name, and
+soft-target limits bound hostile metadata. Old symbol-table groups now traverse bounded local-heap
+free lists, group B-tree v1 internal and leaf nodes, and `SNOD` entries to expose ASCII hard and
+soft links, including validated cached subgroup metadata. Dense links are described but not
+traversed yet. A reproducible compatibility workflow pins the HDF Group's `tgroup.h5` fixture by
+source revision and SHA-256 without committing its binary; it verifies a version 0 superblock,
+version 1 root object header, and the three root links reached through legacy group storage.
+Fractal heaps, B-tree v2 traversal, graph-wide object/link-depth limits, soft-link resolution, and
+required attributes remain pending before D2 is complete.
+
 - object header versions 1 and 2;
 - continuation chunks;
 - compact links in object headers;

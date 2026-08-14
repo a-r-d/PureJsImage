@@ -51,6 +51,12 @@ All notable changes to PureJsImage are documented in this file.
   lookup3 superblock checksum verification, and a bounded source-identity-aware metadata page
   cache. Legacy family, multi-file, and unknown drivers plus modern superblock extensions remain
   explicit unsupported boundaries while the object graph is implemented separately.
+- Added the first package-private HDF5 object-graph slice with version 1 and 2 object headers,
+  checksummed continuation chunks, compact hard and soft links, link-info storage descriptors,
+  bounded legacy symbol-table groups with local heaps and B-tree v1, and configurable
+  hostile-metadata limits. A revision- and SHA-256-pinned HDF Group fixture verifies the real legacy
+  group path without adding its binary to the repository. Dense group indexes, fractal heaps,
+  attributes, datasets, filters, and public HDF5 reader claims remain intentionally pending.
 
 ### Changed
 

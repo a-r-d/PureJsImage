@@ -1804,6 +1804,15 @@ to own only generic descriptors, definitions, providers, and registries.
       versions 0 through 3, 2/4/8/16-byte integers, relocation-aware bigint addresses, lookup3
       checksums, bounded source-identity-aware metadata pages, and explicit legacy family/multi and
       modern extension rejection before starting the object graph.
+- [x] Add the first package-private HDF5 D2 slice for object header versions 1 and 2, checksummed
+      continuation chunks, compact hard and soft links, link-info storage descriptors, mandatory
+      unknown-message rejection, and bounded hostile metadata without exposing an HDF5 reader or
+      claiming the then-pending indexed group graph.
+- [x] Continue HDF5 D2 with bounded old-style symbol-table groups: local heap and free-list
+      validation, group B-tree v1 traversal, `SNOD` hard and soft links, cached subgroup metadata,
+      inherited K values, cycle detection, and aggregate heap/tree/link limits.
+- [x] Pin and verify the HDF Group's real `tgroup.h5` legacy-group fixture by immutable source
+      revision and SHA-256 while leaving the licensed binary out of the repository and package.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1917,3 +1926,16 @@ to own only generic descriptors, definitions, providers, and registries.
     sizes are unchanged because the module is unreachable from package exports. The final
     `npm run check` passes all 109 files and 1,345 tests. No HDF5 or EMD reader capability is
     published while D2-D6 are incomplete.
+
+  - HDF5 D2 validation: 28 focused D1/D2 tests cover aligned v1 and packed v2 object headers,
+    optional prefix fields, compact hard and soft links, compact and dense link-info descriptors,
+    nested v1/v2 continuations, old symbol-table groups, local heap free lists, multi-level group
+    B-tree v1 traversal, cached subgroup metadata, initial and continuation checksums, hostile
+    limits and cycles, mandatory unknown messages, unsupported external links and cache types,
+    duplicate names, source-buffer lifetime, and cancellation. HDF5 remains package-private;
+    fractal heaps, B-tree v2 traversal, graph-wide limits, soft-link resolution, attributes,
+    datasets, filters, and dialect readers remain explicit pending work. A separately prepared,
+    SHA-256-pinned HDF Group fixture verifies the version 0/version 1 legacy path and root links
+    `g1`, `g2`, and `g3`. Capability generation, the 426-file packed consumer, 19-page documentation
+    build, browser graph, all size ceilings, lint, and formatting pass. The final `npm run check`
+    passes all 111 files and 1,358 tests.

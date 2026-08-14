@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "project": "HDF5",
+    "revision": "18de4b4a1b83f5286a53fd0117364c1a068ce1e1",
+    "baseUrl": "https://raw.githubusercontent.com/HDFGroup/hdf5/18de4b4a1b83f5286a53fd0117364c1a068ce1e1/tools/test/testfiles/",
+    "license": "HDF5 License",
+    "licenseUrl": "https://github.com/HDFGroup/hdf5/blob/18de4b4a1b83f5286a53fd0117364c1a068ce1e1/LICENSE",
+    "attribution": "The HDF Group HDF5 test corpus"
+  },
+  "fixtures": [
+    {
+      "file": "tgroup.h5",
+      "path": "tgroup.h5",
+      "bytes": 11096,
+      "sha256": "c36b08d9efedf54f04bee5657f0bb20954b0975a69319cd118aef7b72a94edc9",
+      "superblockVersion": 0,
+      "objectHeaderVersion": 1,
+      "rootLinks": ["g1", "g2", "g3"]
+    }
+  ]
+}

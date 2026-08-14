@@ -357,6 +357,8 @@
     "fixtures:tia-ser:prepare": "node benchmark/tia-ser/prepare-corpus.ts",
     "fixtures:tia-emi": "node benchmark/tia-ser/verify-emi-corpus.ts",
     "fixtures:tia-emi:prepare": "node benchmark/tia-ser/prepare-emi-corpus.ts",
+    "fixtures:hdf5": "node benchmark/hdf5/verify-corpus.ts",
+    "fixtures:hdf5:prepare": "node benchmark/hdf5/prepare-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
     "fixtures:avif:alpha": "node benchmark/avif/verify-auxiliary-fixtures.ts",
     "fixtures:avif:alpha:prepare": "node benchmark/avif/prepare-alpha-fixtures.ts",

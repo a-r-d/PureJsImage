@@ -96,6 +96,8 @@ describe('HDF5 file and address layer', () => {
         signatureOffset: BigInt(userBlockBytes),
         offsetSize,
         lengthSize,
+        groupLeafNodeK: 4,
+        groupInternalNodeK: 16,
         storedBaseAddress: BigInt(userBlockBytes),
         baseAddress: BigInt(userBlockBytes),
         addressAdjustment: 0n,
@@ -113,6 +115,17 @@ describe('HDF5 file and address layer', () => {
       expect(() => file.resolveAddress(0n)).toThrow(/closed/u)
     },
   )
+
+  it('retains non-default legacy group B-tree K values for D2 traversal', async () => {
+    const fixture = createGeneratedHdf5Fixture({
+      version: 1,
+      groupLeafNodeK: 7,
+      groupInternalNodeK: 23,
+    })
+    const file = await openHdf5FileLayer(new MemorySource(fixture.bytes))
+
+    expect(file.superblock).toMatchObject({ groupLeafNodeK: 7, groupInternalNodeK: 23 })
+  })
 
   it('applies the specified relocation adjustment when a complete file is wrapped later', async () => {
     const fixture = createGeneratedHdf5Fixture({ version: 2 })
