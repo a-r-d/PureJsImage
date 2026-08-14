@@ -1,0 +1,35 @@
+CHANGELOG.md
+  s_c756552b1b36e2::t_0db269835e09bd 49-53
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_0db269835e09bd 1803-1806,1910-1914
+  s_c756552b1b36e2::t_4d98cdbcb53197 1915-1919
+src/scientific/formats/hdf5.ts
+  s_c756552b1b36e2::t_77e81db3b80d22 283
+  s_c756552b1b36e2::t_8469a03770ed08 10,237,314,574-575,582-586,614-618,777-781
+  s_c756552b1b36e2::t_449dea8c59443d 729
+  s_c756552b1b36e2::t_78d4b4a532b3aa 1-9,11-236,238-282,284-313,315-573,576-581,587-613,619-728,730-776,782-798
+benchmark/hdf5/generated-fixture.ts
+  s_c756552b1b36e2::t_4e045fea8b7426 1-3,5-29,31-150,152-167
+  s_c756552b1b36e2::t_8469a03770ed08 4,30,151
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  s_c756552b1b36e2::t_0db269835e09bd 451-459
+tests/hdf5-file-layer.test.ts
+  s_c756552b1b36e2::t_8469a03770ed08 7,9,15-16,131
+  s_c756552b1b36e2::t_d75c8c04629f19 1-6,8,10-14,17-130,132-275
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "7cd3bdbcb379aa1199f282ac65f12c5afaf21327",
+  "prompts": {},
+  "sessions": {
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
