@@ -1,0 +1,64 @@
+src/codec-entries/tiff.ts
+  s_c756552b1b36e2::t_b5e38b8f133359 15,18
+tiff-codec-support.md
+  s_c756552b1b36e2::t_7dbee8c06e00cc 38
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  s_c756552b1b36e2::t_7c178f08efeaa7 266
+capabilities/manifest.json
+  s_c756552b1b36e2::t_7c178f08efeaa7 823-824,889
+scripts/check-package-types.ts
+  s_c756552b1b36e2::t_49debe5886040b 226-229
+tests/fixtures/tiff-calibration-oracle.json
+  s_c756552b1b36e2::t_ca2198ec185841 5-9,25-32
+docs-astro/public/capabilities.json
+  s_c756552b1b36e2::t_15458c26c9efe8 1613-1614,1745
+browser-tests/compatibility-harness.ts
+  s_c756552b1b36e2::t_2213c57224c96c 1007-1008,1010-1011,1031
+  s_c756552b1b36e2::t_36e389e57bd130 1009,1012,1089,1091-1094
+src/tiff/calibration-profiles.ts
+  s_c756552b1b36e2::t_36e389e57bd130 816-817,896
+  s_c756552b1b36e2::t_a3fa058053aeb3 992,998,1012-1015,1019-1022,1030-1035,1042,1049,1064,1071,1116
+  s_c756552b1b36e2::t_65a00779f5e6ac 1082
+  s_c756552b1b36e2::t_67b41b3cb22ae6 15-17,20,93-96
+  s_c756552b1b36e2::t_35f0d3401bc2bb 770-815,818-895,897-991,993-997,999-1011,1016-1018,1023-1029,1036-1041,1043-1048,1050-1063,1065-1070,1072-1081,1083-1115,1118-1156
+  s_c756552b1b36e2::t_520e1df6dba2bc 1117
+  s_c756552b1b36e2::t_a0abf315f9b222 1200-1223,1229-1230
+src/tiff/index.ts
+  s_c756552b1b36e2::t_b5e38b8f133359 22,25
+docs-astro/src/pages/codecs.astro
+  s_c756552b1b36e2::t_e0fc93b3305e7c 20,45
+docs-astro/public/llms.txt
+  s_c756552b1b36e2::t_3f0adf3cf38ea9 518-519
+tests/scientific-tiff-reader.test.ts
+  s_c756552b1b36e2::t_bd2d23467a578f 25,28,531-583,587,589-591,594-602,606-607,610,619-634,638-712,716,718-727,730-732,769
+  s_c756552b1b36e2::t_bbc9d2dd3fdac7 584-586,588,604-605,713-715,717,728
+  s_c756552b1b36e2::t_e5641bb2ecdf71 729
+  s_c756552b1b36e2::t_36e389e57bd130 603,635-637
+  s_c756552b1b36e2::t_6a09bbf4d024a9 733-768
+  s_c756552b1b36e2::t_8005bf3c1340cb 770
+  s_c756552b1b36e2::t_410fc724cec2c9 592-593,608-609,611-618
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_48baae8eb4c5e8 1765-1770,1772-1774
+  s_c756552b1b36e2::t_9e614568ccc6ff 1771
+  s_c756552b1b36e2::t_a8587446bfb6f4 1726-1734,1764
+CHANGELOG.md
+  s_c756552b1b36e2::t_7c178f08efeaa7 20-21
+tests/project-contract.test.ts
+  s_c756552b1b36e2::t_49debe5886040b 692-694
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "bb153b7ee513382f9ae553ccb71f1cb208ece69a",
+  "prompts": {},
+  "sessions": {
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
