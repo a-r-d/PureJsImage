@@ -2,9 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { ImageError } from '../../src/errors.ts'
 import { FileSource } from '../../src/node-source.ts'
-import { readHdf5DenseGroup } from '../../src/scientific/formats/hdf5-dense-group.ts'
-import { readHdf5LegacyGroup } from '../../src/scientific/formats/hdf5-legacy-group.ts'
-import { readHdf5ObjectHeader } from '../../src/scientific/formats/hdf5-object.ts'
+import { openHdf5ObjectGraph } from '../../src/scientific/formats/hdf5-graph.ts'
 import { openHdf5FileLayer } from '../../src/scientific/formats/hdf5.ts'
 import { hdf5CorpusPath, readHdf5CorpusManifest } from './corpus.ts'
 
@@ -35,28 +33,40 @@ for (const fixture of manifest.fixtures) {
 
   const file = await openHdf5FileLayer(await FileSource.open(path))
   requireEqual(file.superblock.version, fixture.superblockVersion, `${fixture.file} superblock`)
-  const root = await readHdf5ObjectHeader(file, file.superblock.rootObjectAddress)
-  requireEqual(root.version, fixture.objectHeaderVersion, `${fixture.file} root object header`)
+  const graph = await openHdf5ObjectGraph(file)
+  const root = await graph.get('/')
+  if (root === undefined) throw new Error(`${fixture.file} root object is unavailable`)
+  requireEqual(
+    root.header.version,
+    fixture.objectHeaderVersion,
+    `${fixture.file} root object header`,
+  )
   if (fixture.storage === 'legacy') {
-    if (root.linkStorage?.kind !== 'legacy') {
+    if (root.header.linkStorage?.kind !== 'legacy') {
       throw new Error(`${fixture.file} root object does not use legacy link storage`)
     }
-    const group = await readHdf5LegacyGroup(file, root.linkStorage)
+    const links = await graph.list('/')
+    if (links === undefined) throw new Error(`${fixture.file} root links are unavailable`)
     requireStringArrayEqual(
-      group.links.map(({ name }) => name),
+      links.map(({ name }) => name),
       fixture.rootLinks,
       `${fixture.file} root links`,
     )
+    for (const name of fixture.rootLinks) {
+      if ((await graph.get(`/${name}`)) === undefined) {
+        throw new Error(`${fixture.file} root link ${JSON.stringify(name)} does not resolve`)
+      }
+    }
     console.log(
-      `ok ${fixture.file} superblock-v${file.superblock.version} object-v${root.version} ${group.links.length} legacy root links`,
+      `ok ${fixture.file} superblock-v${file.superblock.version} object-v${root.header.version} ${links.length} legacy graph links`,
     )
     continue
   }
-  if (root.linkStorage?.kind !== 'dense') {
+  if (root.header.linkStorage?.kind !== 'dense') {
     throw new Error(`${fixture.file} root object does not use dense link storage`)
   }
   try {
-    await readHdf5DenseGroup(file, root.linkStorage)
+    await graph.list('/')
     throw new Error(`${fixture.file} unexpectedly accepted its external link`)
   } catch (error: unknown) {
     if (
@@ -68,6 +78,6 @@ for (const fixture of manifest.fixtures) {
     }
   }
   console.log(
-    `ok ${fixture.file} superblock-v${file.superblock.version} object-v${root.version} dense index rejects external link ${JSON.stringify(fixture.unsupportedLink)}`,
+    `ok ${fixture.file} superblock-v${file.superblock.version} object-v${root.header.version} dense graph rejects external link ${JSON.stringify(fixture.unsupportedLink)}`,
   )
 }

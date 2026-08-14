@@ -1823,6 +1823,10 @@ to own only generic descriptors, definitions, providers, and registries.
 - [x] Pin and verify the HDF Group's real `h5repack_objs.h5` dense-group fixture by immutable source
       revision and SHA-256, validate its declared 40-record index through the explicit external-link
       boundary, and leave the licensed binary out of the repository and package.
+- [x] Continue HDF5 D2 with a package-private bounded object graph that resolves absolute paths
+      across compact, legacy, and dense groups; follows absolute and containing-group-relative soft
+      links; preserves dangling links as unresolved; detects soft-link cycles; and enforces
+      aggregate object, link, metadata, path-byte, hard-link-depth, and soft-link-traversal limits.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1937,15 +1941,17 @@ to own only generic descriptors, definitions, providers, and registries.
     `npm run check` passes all 109 files and 1,345 tests. No HDF5 or EMD reader capability is
     published while D2-D6 are incomplete.
 
-  - HDF5 D2 validation: 35 focused D1/D2 tests cover aligned v1 and packed v2 object headers,
+  - HDF5 D2 validation: 43 focused D1/D2 tests cover aligned v1 and packed v2 object headers,
     optional prefix fields, compact hard and soft links, nested continuations, old symbol-table
     groups, local heaps, B-tree v1, fractal-heap root direct and indirect managed blocks, type-5
     B-tree v2 leaf and internal nodes, checksums, record ordering, name hashes, bounded geometry,
     hostile limits and cycles, unsupported heap and link classes, duplicate names, weakest-lifetime
-    sources, and cancellation. Two separately prepared, SHA-256-pinned HDF Group fixtures verify
-    the legacy root links `g1`, `g2`, and `g3`, plus a real declared 40-record dense index through
-    the explicit `ext_link` rejection. HDF5 remains package-private; huge and tiny heap objects,
-    filtered heaps, the creation-order index, graph-wide traversal, attributes, datasets, filters,
-    and dialect readers remain pending. Capability generation, the 428-file packed consumer,
+    sources, cancellation, mixed-storage path traversal, bounded hard and soft links, dangling
+    links, and graph-wide admission limits. Two separately prepared, SHA-256-pinned HDF Group
+    fixtures verify the legacy root links `g1`, `g2`, and `g3` through the graph API, plus a real
+    declared 40-record dense index through the explicit `ext_link` rejection. HDF5 remains
+    package-private; huge and tiny heap objects, filtered heaps, the creation-order index,
+    attributes, datasets, filters, and dialect readers remain pending. Capability generation, the
+    436-file packed consumer,
     19-page documentation build, browser graph, every size ceiling, lint, and formatting pass. The
-    final `npm run check` passes all 112 files and 1,365 tests.
+    final `npm run check` passes all 113 files and 1,383 tests.

@@ -488,9 +488,12 @@ objects, blocks, tree depth and nodes, links, names, targets, table width, and h
 A reproducible compatibility workflow pins the HDF Group's `tgroup.h5` and `h5repack_objs.h5`
 fixtures by source revision and SHA-256 without committing their binaries. The first verifies the
 three legacy root links; the second verifies a real 40-record dense index before reaching the
-intentional external-link rejection. Huge and tiny heap objects, filtered heaps, the secondary
-creation-order index, graph-wide object/link-depth limits, soft-link resolution, and required
-attributes remain pending before D2 is complete.
+intentional external-link rejection. A package-private object graph now resolves absolute paths
+across compact, legacy, and dense groups, follows containing-group-relative and absolute soft links,
+preserves dangling links as unresolved, and bounds aggregate objects, links, metadata, path bytes,
+hard-link depth, and soft-link traversals. The pinned legacy and dense fixtures also run through
+this graph boundary. Huge and tiny heap objects, filtered heaps, the secondary creation-order index,
+and required attributes remain pending before D2 is complete.
 
 - object header versions 1 and 2;
 - continuation chunks;
