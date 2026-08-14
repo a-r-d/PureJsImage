@@ -1753,6 +1753,15 @@ to own only generic descriptors, definitions, providers, and registries.
 - [x] Pin a license-aware 13-file RosettaSciIO DM3/DM4 corpus by revision and SHA-256, verify exact
       oracle sample windows and calibration, and cover the public package, browser graph, bundle
       ceiling, and real-Chromium selected-region workflow.
+- [x] Map ordinary DM images and volumes to X/Y and X/Y/Z, map EELS to X/Y/energy only from exact
+      signal, format, and calibrated-unit evidence, and keep incomplete spectrum-image evidence
+      neutral.
+- [x] Map verified C-ordered 4D-STEM storage to logical scanX/scanY/kx/ky only when diffraction
+      format, data-order, application-mode, and scan-shape tags agree; preserve dimension-0 names
+      for every ambiguous rank-4 array.
+- [x] Pin a small Gatan-produced DM4 volume and the CC-BY-4.0 Zenodo 4D-STEM dataset used by
+      LiberTEM, verify the latter through bounded HTTP ranges, and pass B3 focused, browser,
+      package, capability, size, formatting, and complete repository gates.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1815,3 +1824,14 @@ to own only generic descriptors, definitions, providers, and registries.
     entry is 45.1 KiB minified and all readers are 437.1 KiB under a 511.4 KiB ceiling. The public
     selected-region workflow passes in real Chromium, and `npm run check` passes all 106 files and
     1,302 tests.
+
+  - B3 validation: 59 focused DigitalMicrograph, capability-manifest, and project-contract tests
+    pass, including exact X/Y/Z volume mapping, evidence-gated EELS energy and 4D-STEM roles,
+    logical-versus-storage axis order, direct diffraction-plane reads, and neutral partial-evidence
+    fallbacks. The local 14-file RosettaSciIO corpus verifies the added Gatan-produced DM4 volume;
+    the separate CC-BY-4.0 Zenodo 4D-STEM verifier confirms scanX:342, scanY:213, kx:128, ky:128
+    and a pinned raw sample window while fetching 188,459 bytes of the 1.19 GB source. The focused
+    public workflow passes in real Chromium. Generated capability surfaces, the 412-file packed
+    consumer, browser graph, docs, lint, formatting, and size checks pass; DigitalMicrograph is
+    48.1 KiB minified and all readers are 440.1 KiB under the 511.4 KiB ceiling. The final
+    `npm run check` passes all 106 files and 1,304 tests.

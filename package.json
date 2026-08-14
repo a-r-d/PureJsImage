@@ -342,6 +342,7 @@
     "fixtures:verify": "node benchmark/scripts/verify-corpus.ts",
     "fixtures:digital-micrograph": "node benchmark/digital-micrograph/verify-corpus.ts",
     "fixtures:digital-micrograph:prepare": "node benchmark/digital-micrograph/prepare-corpus.ts",
+    "fixtures:digital-micrograph:remote": "node benchmark/digital-micrograph/verify-semantic-corpus.ts",
     "fixtures:avif": "node benchmark/avif/prepare-corpus.ts",
     "fixtures:avif:alpha": "node benchmark/avif/verify-auxiliary-fixtures.ts",
     "fixtures:avif:alpha:prepare": "node benchmark/avif/prepare-alpha-fixtures.ts",

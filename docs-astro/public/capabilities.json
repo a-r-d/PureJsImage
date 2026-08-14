@@ -6633,13 +6633,15 @@
         "application/x-digital-micrograph"
       ],
       "resourceModel": "single",
-      "datasetKinds": ["image", "volume"],
+      "datasetKinds": ["image", "volume", "spectrum-image"],
       "directRangeReads": true,
-      "boundary": "Rank-2 through rank-4 scalar images and volumes plus fixture-proven little-endian packed BGRA; no rank-1, complex, encrypted, external, big-endian packed color, or undocumented packed content.",
+      "boundary": "Rank-2 images, rank-3 X/Y/Z volumes, evidence-gated X/Y/energy EELS spectrum images, evidence-gated C-ordered 4D-STEM diffraction planes, and otherwise neutral rank-4 axes, plus fixture-proven little-endian packed BGRA; no rank-1, complex, encrypted, external, big-endian packed color, or undocumented packed content.",
       "evidence": ["tests/digital-micrograph-index.test.ts"],
       "fixtures": [
         "benchmark/digital-micrograph/corpus.json",
+        "benchmark/digital-micrograph/semantic-corpus.json",
         "benchmark/digital-micrograph/generated-fixture.ts",
+        "benchmark/digital-micrograph/verify-semantic-corpus.ts",
         "tests/digital-micrograph-index.test.ts"
       ]
     }

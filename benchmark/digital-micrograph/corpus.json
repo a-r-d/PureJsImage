@@ -204,6 +204,27 @@
       }
     },
     {
+      "file": "test-10-3d.dm4",
+      "path": "3D/test-10.dm4",
+      "sha256": "977fdf87ab3ff220708e1a9381b8822317e21b04ffa0a6f9f2dc733276628782",
+      "version": 4,
+      "datasetCount": 2,
+      "dataset": {
+        "id": "image-1",
+        "name": "test",
+        "sampleType": "uint16",
+        "components": 1,
+        "dimensions": [2, 2, 2],
+        "fixedIndices": [{ "axisId": "z", "index": 0 }],
+        "expectedHex": "0001000200030004",
+        "axes": [
+          { "id": "x", "origin": 0, "step": 1 },
+          { "id": "y", "origin": 0, "step": 1 },
+          { "id": "z", "origin": 0, "step": 1 }
+        ]
+      }
+    },
+    {
       "file": "EELS_SI.dm4",
       "path": "3D/EELS_SI.dm4",
       "sha256": "f9b8203f384cc355437594b649d4ea3a12cddeb231ebb65508a841a379fa171a",
@@ -217,12 +238,12 @@
         "dimensions": [2, 2, 2048],
         "width": 2,
         "height": 1,
-        "fixedIndices": [{ "axisId": "dimension-2", "index": 0 }],
+        "fixedIndices": [{ "axisId": "energy", "index": 0 }],
         "expectedHex": "4604640645f6980c",
         "axes": [
           { "id": "x", "unit": "µm", "origin": 0, "step": 0.0019920736085623503 },
           { "id": "y", "unit": "µm", "origin": 0, "step": 0.0019920736085623503 },
-          { "id": "dimension-2", "unit": "eV", "origin": 300, "step": 1 }
+          { "id": "energy", "unit": "eV", "origin": 300, "step": 1 }
         ]
       }
     }

@@ -32,6 +32,11 @@ All notable changes to PureJsImage are documented in this file.
   package export, hint, resource model, dataset kind, direct-range boundary, evidence, and fixture
   source. Added a pinned, checksum-verified RosettaSciIO DigitalMicrograph compatibility corpus
   workflow without redistributing its GPL-licensed fixture binaries in the package repository.
+- Added evidence-gated DigitalMicrograph multidimensional semantics: ordinary X/Y/Z volumes,
+  Gatan-tagged X/Y/energy EELS spectrum images, and C-ordered 4D-STEM exposed logically as
+  scanX/scanY/kx/ky with direct kx/ky diffraction-plane reads. Ambiguous rank-4 arrays remain
+  neutral. A pinned small DM4 volume and bounded HTTP-range verification of LiberTEM's 1.19 GB
+  CC-BY-4.0 Zenodo 4D-STEM fixture cover the new mappings without committing the large file.
 
 ### Changed
 

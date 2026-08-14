@@ -308,7 +308,7 @@ Build an internal random-access DM container index:
 supported DM3/DM4 ImageList entries independently, preserves rank-2 through rank-4 dimension order,
 and reads selected X/Y rows directly from indexed payload spans. The reader supports all listed
 scalar types plus the Gatan-produced packed BGRA layouts proven by the pinned corpus. It maps
-dimension and brightness calibration, keeps higher dimensions neutral for B3, and publishes bounded
+dimension and brightness calibration, initially kept higher dimensions neutral pending B3, and publishes bounded
 metadata under `purejsimage:gatan`. A reproducible compatibility workflow pins 13 RosettaSciIO
 fixtures by revision and SHA-256 while intentionally leaving their GPL-3.0 binaries out of the MIT
 repository. Complex/packed-complex, undocumented packed, encrypted, external, malformed, rank-1,
@@ -337,6 +337,20 @@ Initially reject, with exact errors:
 - one-dimensional signals until the series contract exists.
 
 ### B3. Multidimensional semantics
+
+**Status: Complete.** Rank-2 images map to X/Y and ordinary rank-3 arrays map to X/Y/Z. EELS
+spectrum images map to X/Y/energy only when the same image carries exact Gatan
+`Meta Data/Format = Spectrum image`, `Meta Data/Signal = EELS`, and an `eV` third-axis
+calibration. A 4D array maps to logical scanX/scanY/kx/ky axes only when exact diffraction format,
+C-order, 2D-array application mode, and scan width/height tags jointly identify the physical
+kx/ky/scanX/scanY storage roles. Partial evidence and arbitrary rank-4 arrays retain
+dimension-0 through dimension-3. The semantic evidence paths are recorded under
+`purejsimage:gatan.axisSemantics`.
+
+The local corpus now includes a small Gatan-produced DM4 X/Y/Z volume and the existing real EELS
+spectrum image. A separate bounded remote verifier checks the 1.19 GB CC-BY-4.0 Zenodo 4D-STEM
+fixture used by LiberTEM without downloading it: descriptor discovery and a pinned raw sample
+window fetch 188,459 bytes through HTTP ranges.
 
 Add fixture-backed mappings for:
 

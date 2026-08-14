@@ -121,7 +121,35 @@ interface DigitalMicrographImageLayout {
   readonly components: readonly ScientificComponentDescriptor[]
   readonly data: DigitalMicrographValueNode
   readonly axes: readonly ScientificAxisDescriptor[]
+  readonly storageAxisIds: readonly string[]
+  readonly displayAxes: readonly [horizontal: string, vertical: string]
+  readonly axisSemantics: DigitalMicrographAxisSemantics
   readonly metadata: readonly DigitalMicrographMetadataEntry[]
+}
+
+type DigitalMicrographAxisSemanticKind =
+  | 'image'
+  | 'volume'
+  | 'eels-spectrum-image'
+  | '4d-stem'
+  | 'neutral'
+
+interface DigitalMicrographAxisSemantics {
+  readonly kind: DigitalMicrographAxisSemanticKind
+  readonly evidence: readonly string[]
+}
+
+interface DigitalMicrographAxisRole {
+  readonly dimension: number
+  readonly id: string
+  readonly name: string
+  readonly kind: ScientificAxisDescriptor['kind']
+}
+
+interface DigitalMicrographAxisMapping {
+  readonly semantics: DigitalMicrographAxisSemantics
+  readonly storageRoles: readonly DigitalMicrographAxisRole[]
+  readonly descriptorRoles: readonly DigitalMicrographAxisRole[]
 }
 
 interface DigitalMicrographImageRejection {
@@ -165,6 +193,27 @@ const valueChild = (group: DigitalMicrographGroupNode, name: string) => {
   return node?.kind === 'value' ? node : undefined
 }
 
+const nestedGroup = (
+  group: DigitalMicrographGroupNode | undefined,
+  names: readonly string[],
+): DigitalMicrographGroupNode | undefined => {
+  let current = group
+  for (const name of names) {
+    if (current === undefined) return undefined
+    current = groupChild(current, name)
+  }
+  return current
+}
+
+const nestedValue = (
+  group: DigitalMicrographGroupNode | undefined,
+  groupNames: readonly string[],
+  name: string,
+): DigitalMicrographValueNode | undefined => {
+  const parent = nestedGroup(group, groupNames)
+  return parent === undefined ? undefined : valueChild(parent, name)
+}
+
 const metadataMap = (index: DigitalMicrographIndex): ReadonlyMap<string, ScientificMetadataValue> =>
   new Map(index.metadata.map((entry) => [pathKey(entry.path), entry.value]))
 
@@ -191,6 +240,162 @@ const dmText = (value: ScientificMetadataValue | undefined): string | undefined 
     if (code !== 0) text += String.fromCharCode(code)
   }
   return text.length === 0 ? undefined : text
+}
+
+const axisRole = (
+  dimension: number,
+  id: string,
+  name: string,
+  kind: ScientificAxisDescriptor['kind'],
+): DigitalMicrographAxisRole => Object.freeze({ dimension, id, name, kind })
+
+const requiredAxisRole = (
+  roles: readonly DigitalMicrographAxisRole[],
+  index: number,
+): DigitalMicrographAxisRole => {
+  const role = roles[index]
+  if (role === undefined) throw invalidInput('DigitalMicrograph axis mapping is incomplete')
+  return role
+}
+
+const requiredDimensionLength = (dimensions: readonly number[], dimension: number): number => {
+  const length = dimensions[dimension]
+  if (length === undefined) throw invalidInput('DigitalMicrograph axis dimension is missing')
+  return length
+}
+
+const axisPair = (horizontal: string, vertical: string): readonly [string, string] =>
+  Object.freeze([horizontal, vertical])
+
+const axisMapping = (
+  image: DigitalMicrographGroupNode,
+  dimensions: readonly number[],
+  calibrationDimensions: DigitalMicrographGroupNode | undefined,
+  values: ReadonlyMap<string, ScientificMetadataValue>,
+): DigitalMicrographAxisMapping => {
+  if (dimensions.length === 2) {
+    const roles = Object.freeze([axisRole(0, 'x', 'X', 'space'), axisRole(1, 'y', 'Y', 'space')])
+    return Object.freeze({
+      semantics: Object.freeze({ kind: 'image', evidence: Object.freeze(['rank-2']) }),
+      storageRoles: roles,
+      descriptorRoles: roles,
+    })
+  }
+
+  const imageTags = groupChild(image, 'ImageTags')
+  const format = dmText(metadataValue(values, nestedValue(imageTags, ['Meta Data'], 'Format')))
+  const signal = dmText(metadataValue(values, nestedValue(imageTags, ['Meta Data'], 'Signal')))
+
+  if (dimensions.length === 3) {
+    const energyCalibration = calibrationDimensions?.children.filter(
+      (node): node is DigitalMicrographGroupNode => node.kind === 'group',
+    )[2]
+    const energyUnit = dmText(
+      metadataValue(
+        values,
+        energyCalibration === undefined ? undefined : valueChild(energyCalibration, 'Units'),
+      ),
+    )
+    if (format === 'Spectrum image' && signal === 'EELS' && energyUnit === 'eV') {
+      const roles = Object.freeze([
+        axisRole(0, 'x', 'X', 'space'),
+        axisRole(1, 'y', 'Y', 'space'),
+        axisRole(2, 'energy', 'Energy loss', 'spectral'),
+      ])
+      return Object.freeze({
+        semantics: Object.freeze({
+          kind: 'eels-spectrum-image',
+          evidence: Object.freeze([
+            'dm:ImageTags/Meta Data/Format',
+            'dm:ImageTags/Meta Data/Signal',
+            'dm:ImageData/Calibrations/Dimension/2/Units',
+          ]),
+        }),
+        storageRoles: roles,
+        descriptorRoles: roles,
+      })
+    }
+    if (format === 'Spectrum image') {
+      const roles = Object.freeze(
+        dimensions.map((_length, dimension) =>
+          axisRole(dimension, `dimension-${dimension}`, `Dimension ${dimension}`, 'other'),
+        ),
+      )
+      return Object.freeze({
+        semantics: Object.freeze({ kind: 'neutral', evidence: Object.freeze([]) }),
+        storageRoles: roles,
+        descriptorRoles: roles,
+      })
+    }
+    const roles = Object.freeze([
+      axisRole(0, 'x', 'X', 'space'),
+      axisRole(1, 'y', 'Y', 'space'),
+      axisRole(2, 'z', 'Z', 'space'),
+    ])
+    return Object.freeze({
+      semantics: Object.freeze({ kind: 'volume', evidence: Object.freeze(['rank-3']) }),
+      storageRoles: roles,
+      descriptorRoles: roles,
+    })
+  }
+
+  const dataOrderSwapped = metadataValue(
+    values,
+    nestedValue(imageTags, ['Meta Data'], 'Data Order Swapped'),
+  )
+  const applicationMode = dmText(
+    metadataValue(
+      values,
+      nestedValue(imageTags, ['SI', 'Acquisition', 'SI Application Mode'], 'Name'),
+    ),
+  )
+  const scanWidth = positiveDimension(
+    metadataValue(
+      values,
+      nestedValue(imageTags, ['SI', 'Acquisition', 'Spatial Sampling'], 'Width (pixels)'),
+    ),
+  )
+  const scanHeight = positiveDimension(
+    metadataValue(
+      values,
+      nestedValue(imageTags, ['SI', 'Acquisition', 'Spatial Sampling'], 'Height (pixels)'),
+    ),
+  )
+  if (
+    format === 'Diffraction image' &&
+    dataOrderSwapped === true &&
+    applicationMode === '2D Array' &&
+    scanWidth === dimensions[2] &&
+    scanHeight === dimensions[3]
+  ) {
+    const kx = axisRole(0, 'kx', 'Diffraction X', 'reciprocal-space')
+    const ky = axisRole(1, 'ky', 'Diffraction Y', 'reciprocal-space')
+    const scanX = axisRole(2, 'scanX', 'Scan X', 'space')
+    const scanY = axisRole(3, 'scanY', 'Scan Y', 'space')
+    return Object.freeze({
+      semantics: Object.freeze({
+        kind: '4d-stem',
+        evidence: Object.freeze([
+          'dm:ImageTags/Meta Data/Format',
+          'dm:ImageTags/Meta Data/Data Order Swapped',
+          'dm:ImageTags/SI/Acquisition/SI Application Mode/Name',
+          'dm:ImageTags/SI/Acquisition/Spatial Sampling',
+        ]),
+      }),
+      storageRoles: Object.freeze([kx, ky, scanX, scanY]),
+      descriptorRoles: Object.freeze([scanX, scanY, kx, ky]),
+    })
+  }
+  const roles = Object.freeze(
+    dimensions.map((_length, dimension) =>
+      axisRole(dimension, `dimension-${dimension}`, `Dimension ${dimension}`, 'other'),
+    ),
+  )
+  return Object.freeze({
+    semantics: Object.freeze({ kind: 'neutral', evidence: Object.freeze([]) }),
+    storageRoles: roles,
+    descriptorRoles: roles,
+  })
 }
 
 const scalarType = (
@@ -252,11 +457,12 @@ const checkedProduct = (values: readonly number[], label: string): number => {
 const calibrationAxis = (
   dimensionsGroup: DigitalMicrographGroupNode | undefined,
   imageIndex: number,
-  dimension: number,
+  role: DigitalMicrographAxisRole,
   length: number,
   values: ReadonlyMap<string, ScientificMetadataValue>,
   resourceId: string,
 ): ScientificAxisDescriptor => {
+  const dimension = role.dimension
   const calibration = dimensionsGroup?.children.filter(
     (node): node is DigitalMicrographGroupNode => node.kind === 'group',
   )[dimension]
@@ -273,11 +479,10 @@ const calibrationAxis = (
     metadataValue(values, calibration === undefined ? undefined : valueChild(calibration, 'Units')),
   )
   const calibrated = scale !== undefined && scale !== 0 && sourceOrigin !== undefined
-  const id = dimension === 0 ? 'x' : dimension === 1 ? 'y' : `dimension-${dimension}`
   return Object.freeze({
-    id,
-    name: dimension === 0 ? 'X' : dimension === 1 ? 'Y' : `Dimension ${dimension}`,
-    kind: dimension < 2 ? 'space' : 'other',
+    id: role.id,
+    name: role.name,
+    kind: role.kind,
     length,
     coordinates: calibrated
       ? Object.freeze({ type: 'linear' as const, origin: -sourceOrigin * scale, step: scale })
@@ -422,6 +627,7 @@ const imageLayouts = (
     const calibration = groupChild(imageData, 'Calibrations')
     const calibrationDimensions =
       calibration === undefined ? undefined : groupChild(calibration, 'Dimension')
+    const mapping = axisMapping(image, resolvedDimensions, calibrationDimensions, values)
     const brightness = calibration === undefined ? undefined : groupChild(calibration, 'Brightness')
     const intensityUnit = dmText(
       metadataValue(values, brightness === undefined ? undefined : valueChild(brightness, 'Units')),
@@ -443,6 +649,8 @@ const imageLayouts = (
             }),
           ])
     const title = dmText(metadataValue(values, valueChild(image, 'Name'))) ?? `Image ${imageIndex}`
+    const horizontalRole = requiredAxisRole(mapping.storageRoles, 0)
+    const verticalRole = requiredAxisRole(mapping.storageRoles, 1)
     layouts.push(
       Object.freeze({
         index: imageIndex,
@@ -453,17 +661,20 @@ const imageLayouts = (
         components,
         data,
         axes: Object.freeze(
-          resolvedDimensions.map((length, dimension) =>
+          mapping.descriptorRoles.map((role) =>
             calibrationAxis(
               calibrationDimensions,
               imageIndex,
-              dimension,
-              length,
+              role,
+              requiredDimensionLength(resolvedDimensions, role.dimension),
               values,
               resourceId,
             ),
           ),
         ),
+        storageAxisIds: Object.freeze(mapping.storageRoles.map(({ id }) => id)),
+        displayAxes: axisPair(horizontalRole.id, verticalRole.id),
+        axisSemantics: mapping.semantics,
         metadata: Object.freeze(
           index.metadata.filter((entry) => startsWithPath(entry.path, image.path)),
         ),
@@ -514,6 +725,10 @@ class DigitalMicrographScientificDataset implements ScientificDataset {
           dataType: layout.dataType,
           payloadOffset: layout.data.payload.offset,
           payloadBytes: layout.data.payload.byteLength,
+          axisSemantics: {
+            kind: layout.axisSemantics.kind,
+            evidence: layout.axisSemantics.evidence,
+          },
           tags: layout.metadata.map((entry) => ({
             path: entry.path.map(({ name, occurrence }) => ({ name, occurrence })),
             value: entry.value,
@@ -535,15 +750,24 @@ class DigitalMicrographScientificDataset implements ScientificDataset {
       capabilities: {
         regionReads: true,
         resolutionLevels: false,
-        planeReads: { kind: 'ordered-axis-pairs', pairs: [['x', 'y']] },
+        planeReads: {
+          kind: 'ordered-axis-pairs',
+          pairs: [layout.displayAxes],
+        },
       },
     })
   }
 
   async *readPlane(request: Readonly<ScientificPlaneReadRequest>): AsyncIterable<RasterBlock> {
     const normalized = normalizeScientificPlaneReadRequest(this.descriptor, request)
-    if (normalized.displayAxes[0] !== 'x' || normalized.displayAxes[1] !== 'y') {
-      throw unsupportedOperation('DigitalMicrograph currently displays only X/Y planes')
+    const [horizontalAxis, verticalAxis] = this.#layout.displayAxes
+    if (
+      normalized.displayAxes[0] !== horizontalAxis ||
+      normalized.displayAxes[1] !== verticalAxis
+    ) {
+      throw unsupportedOperation(
+        `DigitalMicrograph currently displays only ${horizontalAxis}/${verticalAxis} planes`,
+      )
     }
     const bytesPerSample = rasterSampleBytes(this.#layout.sampleType)
     const channels = this.#layout.components.length
@@ -560,7 +784,7 @@ class DigitalMicrographScientificDataset implements ScientificDataset {
     let fixedOffset = 0
     let stride = (this.#layout.dimensions[0] ?? 0) * (this.#layout.dimensions[1] ?? 0)
     for (let dimension = 2; dimension < this.#layout.dimensions.length; dimension += 1) {
-      const axisId = `dimension-${dimension}`
+      const axisId = this.#layout.storageAxisIds[dimension] ?? `dimension-${dimension}`
       const index = normalized.fixedIndices.find((entry) => entry.axisId === axisId)?.index ?? 0
       fixedOffset += index * stride
       stride *= this.#layout.dimensions[dimension] ?? 0

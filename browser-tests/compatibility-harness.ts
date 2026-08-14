@@ -2,7 +2,10 @@ import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-
 import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
 import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
-import { generatedDigitalMicrographFixture } from '../benchmark/digital-micrograph/generated-fixture.ts'
+import {
+  generatedDigitalMicrographEelsFixture,
+  generatedDigitalMicrographFixture,
+} from '../benchmark/digital-micrograph/generated-fixture.ts'
 import * as browserPublicApi from '../src/browser.ts'
 import { createImageLibrary, ImageError } from '../src/browser.ts'
 import { browserRuntime } from '../src/browser-runtime.ts'
@@ -1241,8 +1244,24 @@ const scientificDigitalMicrograph = async (): Promise<BrowserWorkflowResult> => 
   if (output.join(',') !== '0,2,0,4') {
     throw new Error(`Browser DigitalMicrograph selected-region pixels were ${output.join(',')}`)
   }
+  const eelsDocument = await createScientificLibrary({ readers: [digitalMicrographReader] }).open({
+    primary: {
+      id: 'browser-eels-dm3',
+      name: 'browser-eels.dm3',
+      source: new MemorySource(generatedDigitalMicrographEelsFixture()),
+    },
+  })
+  const eels = eelsDocument.datasets[0]
+  if (
+    eels?.descriptor.axes[2]?.id !== 'energy' ||
+    eels.descriptor.axes[2].kind !== 'spectral' ||
+    eels.descriptor.axes[2].unit !== 'eV'
+  ) {
+    throw new Error('Browser DigitalMicrograph EELS evidence did not produce an energy axis')
+  }
   return {
-    detail: 'portable DM3 reader preserved uint16 pixels and direct selected-region reads',
+    detail:
+      'portable DM3 reader preserved uint16 pixels, direct selected-region reads, and evidence-gated EELS energy semantics',
     outputBytes: output.length,
   }
 }

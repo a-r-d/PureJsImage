@@ -415,12 +415,14 @@
         "application/x-digital-micrograph"
       ],
       "resourceModel": "single",
-      "datasetKinds": ["image", "volume"],
+      "datasetKinds": ["image", "volume", "spectrum-image"],
       "directRangeReads": true,
       "evidence": ["tests/digital-micrograph-index.test.ts"],
       "fixtures": [
         "benchmark/digital-micrograph/corpus.json",
+        "benchmark/digital-micrograph/semantic-corpus.json",
         "benchmark/digital-micrograph/generated-fixture.ts",
+        "benchmark/digital-micrograph/verify-semantic-corpus.ts",
         "tests/digital-micrograph-index.test.ts"
       ]
     }

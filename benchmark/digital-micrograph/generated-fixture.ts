@@ -41,6 +41,12 @@ const int32LittleEndian = (value: number): Uint8Array => {
   return output
 }
 
+const float64LittleEndian = (value: number): Uint8Array => {
+  const output = new Uint8Array(8)
+  new DataView(output.buffer).setFloat64(0, value, true)
+  return output
+}
+
 const uint16LittleEndian = (values: readonly number[]): Uint8Array => {
   const output = new Uint8Array(values.length * 2)
   const view = new DataView(output.buffer)
@@ -108,6 +114,97 @@ export const generatedDigitalMicrographFixture = (): Uint8Array => {
                   name: 'Data',
                   info: [20, 4, 4],
                   payload: uint16LittleEndian([1, 2, 3, 4]),
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ])
+  return concat([
+    uint32BigEndian(3),
+    uint32BigEndian(root.byteLength + 4),
+    uint32BigEndian(1),
+    root,
+    new Uint8Array(8),
+  ])
+}
+
+/** Generated DM3 EELS spectrum image used to exercise semantic mapping in Chromium. */
+export const generatedDigitalMicrographEelsFixture = (): Uint8Array => {
+  const text = (value: string): Uint8Array =>
+    uint16LittleEndian(Array.from(value, (character) => character.charCodeAt(0)))
+  const stringValue = (name: string, value: string): FixtureValue => ({
+    kind: 'value',
+    name,
+    info: [20, 4, value.length],
+    payload: text(value),
+  })
+  const calibration = (unit: string): FixtureGroup => ({
+    kind: 'group',
+    name: '',
+    children: [
+      { kind: 'value', name: 'Origin', info: [7], payload: float64LittleEndian(0) },
+      { kind: 'value', name: 'Scale', info: [7], payload: float64LittleEndian(1) },
+      stringValue('Units', unit),
+    ],
+  })
+  const root = encodeGroupContents([
+    {
+      kind: 'group',
+      name: 'ImageList',
+      children: [
+        {
+          kind: 'group',
+          name: '',
+          children: [
+            stringValue('Name', 'EELS SI'),
+            {
+              kind: 'group',
+              name: 'ImageData',
+              children: [
+                { kind: 'value', name: 'DataType', info: [3], payload: int32LittleEndian(10) },
+                {
+                  kind: 'group',
+                  name: 'Dimensions',
+                  children: [2, 1, 2].map((length) => ({
+                    kind: 'value' as const,
+                    name: '',
+                    info: [3],
+                    payload: int32LittleEndian(length),
+                  })),
+                },
+                {
+                  kind: 'group',
+                  name: 'Calibrations',
+                  children: [
+                    {
+                      kind: 'group',
+                      name: 'Dimension',
+                      children: [calibration('nm'), calibration('nm'), calibration('eV')],
+                    },
+                  ],
+                },
+                {
+                  kind: 'value',
+                  name: 'Data',
+                  info: [20, 4, 4],
+                  payload: uint16LittleEndian([1, 2, 3, 4]),
+                },
+              ],
+            },
+            {
+              kind: 'group',
+              name: 'ImageTags',
+              children: [
+                {
+                  kind: 'group',
+                  name: 'Meta Data',
+                  children: [
+                    stringValue('Format', 'Spectrum image'),
+                    stringValue('Signal', 'EELS'),
+                  ],
                 },
               ],
             },

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "project": "Zenodo",
+    "record": 4307783,
+    "doi": "10.5281/zenodo.4307783",
+    "title": "Ni-W Based Alloy 4D STEM Data",
+    "file": "4D_data.dm4",
+    "url": "https://zenodo.org/api/records/4307783/files/4D_data.dm4/content",
+    "size": 1193664554,
+    "checksum": "md5:8a848d7bbe62f771f86e24e206189e97",
+    "license": "CC-BY-4.0",
+    "attribution": "Xiaobing Hu, Stephanie M. Ribet, Roberto dos Reis, and Vinayak P. Dravid",
+    "oracle": {
+      "project": "LiberTEM",
+      "revision": "8988d4d54ef2fd03f43a8163b50110aa936e6a22",
+      "url": "https://github.com/LiberTEM/LiberTEM/blob/8988d4d54ef2fd03f43a8163b50110aa936e6a22/tests/io/datasets/test_dm_single.py",
+      "shape": [213, 342, 128, 128]
+    }
+  },
+  "dataset": {
+    "id": "image-1",
+    "name": "Bin(2,2,1, 1) of XHu_diffraction SI",
+    "sampleType": "uint8",
+    "axes": [
+      {
+        "id": "scanX",
+        "kind": "space",
+        "length": 342,
+        "unit": "µm",
+        "origin": 0,
+        "step": 0.002024612622335553
+      },
+      {
+        "id": "scanY",
+        "kind": "space",
+        "length": 213,
+        "unit": "µm",
+        "origin": 0,
+        "step": 0.002024612622335553
+      },
+      { "id": "kx", "kind": "reciprocal-space", "length": 128, "origin": -256, "step": 4 },
+      { "id": "ky", "kind": "reciprocal-space", "length": 128, "origin": -256, "step": 4 }
+    ],
+    "displayAxes": ["kx", "ky"],
+    "fixedIndices": [{ "axisId": "scanX", "index": 0 }, { "axisId": "scanY", "index": 0 }],
+    "width": 16,
+    "height": 1,
+    "expectedHex": "00000000000000000000000000090008",
+    "maximumRangeBytes": 262144
+  }
+}

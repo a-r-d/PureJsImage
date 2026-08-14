@@ -203,6 +203,7 @@ interface ReaderImageFixture {
   readonly values: readonly number[]
   readonly name?: string
   readonly marker?: 'encrypted' | 'external'
+  readonly semantics?: 'eels' | '4d-stem' | 'diffraction-image'
 }
 
 const readerImage = (
@@ -246,18 +247,80 @@ const readerImage = (
       payload: numericArrayPayload(fixture.type, fixture.values, byteOrder),
     })
   }
+  const stringValue = (name: string, value: string): FixtureValue => ({
+    kind: 'value',
+    name,
+    info: [20n, 4n, BigInt(value.length)],
+    payload: text(value),
+  })
+  const imageChildren: FixtureNode[] = [
+    {
+      kind: 'value',
+      name: 'Name',
+      info: [20n, 4n, BigInt((fixture.name ?? 'Image').length)],
+      payload: text(fixture.name ?? 'Image'),
+    },
+    { kind: 'group', name: 'ImageData', children: imageDataChildren },
+  ]
+  if (fixture.semantics !== undefined) {
+    const metaDataChildren: FixtureNode[] = [
+      stringValue('Format', fixture.semantics === 'eels' ? 'Spectrum image' : 'Diffraction image'),
+    ]
+    if (fixture.semantics === 'eels') metaDataChildren.push(stringValue('Signal', 'EELS'))
+    if (fixture.semantics === '4d-stem') {
+      metaDataChildren.push({
+        kind: 'value',
+        name: 'Data Order Swapped',
+        info: [8n],
+        payload: uint8(1),
+      })
+    }
+    const imageTagsChildren: FixtureNode[] = [
+      { kind: 'group', name: 'Meta Data', children: metaDataChildren },
+    ]
+    if (fixture.semantics === '4d-stem') {
+      imageTagsChildren.push({
+        kind: 'group',
+        name: 'SI',
+        children: [
+          {
+            kind: 'group',
+            name: 'Acquisition',
+            children: [
+              {
+                kind: 'group',
+                name: 'SI Application Mode',
+                children: [stringValue('Name', '2D Array')],
+              },
+              {
+                kind: 'group',
+                name: 'Spatial Sampling',
+                children: [
+                  {
+                    kind: 'value',
+                    name: 'Width (pixels)',
+                    info: [3n],
+                    payload: int32Payload(fixture.dimensions[2] ?? 0, byteOrder),
+                  },
+                  {
+                    kind: 'value',
+                    name: 'Height (pixels)',
+                    info: [3n],
+                    payload: int32Payload(fixture.dimensions[3] ?? 0, byteOrder),
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      })
+    }
+    imageChildren.push({ kind: 'group', name: 'ImageTags', children: imageTagsChildren })
+  }
   return {
     kind: 'group',
     name: '',
-    children: [
-      {
-        kind: 'value',
-        name: 'Name',
-        info: [20n, 4n, BigInt((fixture.name ?? 'Image').length)],
-        payload: text(fixture.name ?? 'Image'),
-      },
-      { kind: 'group', name: 'ImageData', children: imageDataChildren },
-    ],
+    children: imageChildren,
   }
 }
 
@@ -348,7 +411,7 @@ const fixtureTree = (
   ]
 }
 
-const readerFixtureTree = (): readonly FixtureNode[] => {
+const readerFixtureTree = (semantic: 'volume' | 'eels' = 'volume'): readonly FixtureNode[] => {
   const byteOrder = 'little-endian' as const
   const text = (value: string): Uint8Array =>
     uint16ArrayPayload(
@@ -369,6 +432,111 @@ const readerFixtureTree = (): readonly FixtureNode[] => {
       },
     ],
   })
+  const title = semantic === 'eels' ? 'EELS SI' : 'Volume'
+  const imageChildren: FixtureNode[] = [
+    {
+      kind: 'value',
+      name: 'Name',
+      info: [20n, 4n, BigInt(title.length)],
+      payload: text(title),
+    },
+    {
+      kind: 'group',
+      name: 'ImageData',
+      children: [
+        {
+          kind: 'value',
+          name: 'DataType',
+          info: [3n],
+          payload: int32Payload(10, byteOrder),
+        },
+        {
+          kind: 'group',
+          name: 'Dimensions',
+          children: [3, 2, 2].map((length) => ({
+            kind: 'value' as const,
+            name: '',
+            info: [3n],
+            payload: int32Payload(length, byteOrder),
+          })),
+        },
+        {
+          kind: 'group',
+          name: 'Calibrations',
+          children: [
+            {
+              kind: 'group',
+              name: 'Dimension',
+              children: [
+                dimensionCalibration(2, 0.5, 'nm'),
+                dimensionCalibration(4, 0.25, 'nm'),
+                dimensionCalibration(1, 2, semantic === 'eels' ? 'eV' : 'nm'),
+              ],
+            },
+            {
+              kind: 'group',
+              name: 'Brightness',
+              children: [
+                {
+                  kind: 'value',
+                  name: 'Origin',
+                  info: [7n],
+                  payload: float64Payload(3, byteOrder),
+                },
+                {
+                  kind: 'value',
+                  name: 'Scale',
+                  info: [7n],
+                  payload: float64Payload(4, byteOrder),
+                },
+                {
+                  kind: 'value',
+                  name: 'Units',
+                  info: [20n, 4n, 6n],
+                  payload: text('counts'),
+                },
+              ],
+            },
+          ],
+        },
+        {
+          kind: 'value',
+          name: 'Data',
+          info: [20n, 4n, 12n],
+          payload: uint16ArrayPayload(
+            Array.from({ length: 12 }, (_value, index) => index + 1),
+            byteOrder,
+          ),
+        },
+      ],
+    },
+  ]
+  if (semantic === 'eels') {
+    imageChildren.push({
+      kind: 'group',
+      name: 'ImageTags',
+      children: [
+        {
+          kind: 'group',
+          name: 'Meta Data',
+          children: [
+            {
+              kind: 'value',
+              name: 'Format',
+              info: [20n, 4n, 14n],
+              payload: text('Spectrum image'),
+            },
+            {
+              kind: 'value',
+              name: 'Signal',
+              info: [20n, 4n, 4n],
+              payload: text('EELS'),
+            },
+          ],
+        },
+      ],
+    })
+  }
   return [
     {
       kind: 'group',
@@ -377,84 +545,7 @@ const readerFixtureTree = (): readonly FixtureNode[] => {
         {
           kind: 'group',
           name: '',
-          children: [
-            {
-              kind: 'value',
-              name: 'Name',
-              info: [20n, 4n, 6n],
-              payload: text('Volume'),
-            },
-            {
-              kind: 'group',
-              name: 'ImageData',
-              children: [
-                {
-                  kind: 'value',
-                  name: 'DataType',
-                  info: [3n],
-                  payload: int32Payload(10, byteOrder),
-                },
-                {
-                  kind: 'group',
-                  name: 'Dimensions',
-                  children: [3, 2, 2].map((length) => ({
-                    kind: 'value' as const,
-                    name: '',
-                    info: [3n],
-                    payload: int32Payload(length, byteOrder),
-                  })),
-                },
-                {
-                  kind: 'group',
-                  name: 'Calibrations',
-                  children: [
-                    {
-                      kind: 'group',
-                      name: 'Dimension',
-                      children: [
-                        dimensionCalibration(2, 0.5, 'nm'),
-                        dimensionCalibration(4, 0.25, 'nm'),
-                        dimensionCalibration(1, 2, 'eV'),
-                      ],
-                    },
-                    {
-                      kind: 'group',
-                      name: 'Brightness',
-                      children: [
-                        {
-                          kind: 'value',
-                          name: 'Origin',
-                          info: [7n],
-                          payload: float64Payload(3, byteOrder),
-                        },
-                        {
-                          kind: 'value',
-                          name: 'Scale',
-                          info: [7n],
-                          payload: float64Payload(4, byteOrder),
-                        },
-                        {
-                          kind: 'value',
-                          name: 'Units',
-                          info: [20n, 4n, 6n],
-                          payload: text('counts'),
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  kind: 'value',
-                  name: 'Data',
-                  info: [20n, 4n, 12n],
-                  payload: uint16ArrayPayload(
-                    Array.from({ length: 12 }, (_value, index) => index + 1),
-                    byteOrder,
-                  ),
-                },
-              ],
-            },
-          ],
+          children: imageChildren,
         },
       ],
     },
@@ -804,9 +895,9 @@ describe('DigitalMicrograph scientific reader', () => {
           { id: 'x', length: 3, unit: 'nm', coordinates: { origin: -1, step: 0.5 } },
           { id: 'y', length: 2, unit: 'nm', coordinates: { origin: -1, step: 0.25 } },
           {
-            id: 'dimension-2',
+            id: 'z',
             length: 2,
-            unit: 'eV',
+            unit: 'nm',
             coordinates: { origin: -2, step: 2 },
           },
         ],
@@ -817,7 +908,7 @@ describe('DigitalMicrograph scientific reader', () => {
     const blocks = []
     for await (const block of dataset.readPlane({
       displayAxes: ['x', 'y'],
-      fixedIndices: [{ axisId: 'dimension-2', index: 1 }],
+      fixedIndices: [{ axisId: 'z', index: 1 }],
       x: 1,
       y: 0,
       width: 2,
@@ -842,11 +933,85 @@ describe('DigitalMicrograph scientific reader', () => {
       'purejsimage:gatan': {
         imageIndex: 0,
         dataType: 10,
+        axisSemantics: { kind: 'volume', evidence: ['rank-3'] },
         intensityCalibration: expect.arrayContaining([
           expect.objectContaining({ path: expect.stringContaining('Brightness') }),
         ]),
       },
     })
+  })
+
+  it('maps EELS energy only from matching signal, format, and calibrated-unit evidence', async () => {
+    const document = await digitalMicrographReader.open({
+      primary: {
+        id: 'eels-fixture',
+        name: 'eels.dm4',
+        source: new MemorySource(encodedFile(4, 'little-endian', readerFixtureTree('eels'))),
+      },
+    })
+    expect(document.datasets[0]).toMatchObject({
+      name: 'EELS SI',
+      descriptor: {
+        axes: [
+          { id: 'x', kind: 'space', length: 3 },
+          { id: 'y', kind: 'space', length: 2 },
+          { id: 'energy', name: 'Energy loss', kind: 'spectral', length: 2, unit: 'eV' },
+        ],
+        metadata: {
+          'purejsimage:gatan': {
+            axisSemantics: {
+              kind: 'eels-spectrum-image',
+              evidence: [
+                'dm:ImageTags/Meta Data/Format',
+                'dm:ImageTags/Meta Data/Signal',
+                'dm:ImageData/Calibrations/Dimension/2/Units',
+              ],
+            },
+          },
+        },
+      },
+    })
+    const dataset = await document.openDataset('image-0')
+    const data = []
+    for await (const block of dataset.readPlane({
+      displayAxes: ['x', 'y'],
+      fixedIndices: [{ axisId: 'energy', index: 1 }],
+      width: 1,
+      height: 1,
+    })) {
+      data.push(...block.data)
+    }
+    expect(data).toEqual([0, 7])
+
+    const incompleteDocument = await digitalMicrographReader.open({
+      primary: {
+        id: 'eels-without-energy-calibration',
+        name: 'eels-without-energy-calibration.dm4',
+        source: new MemorySource(
+          encodedFile(
+            4,
+            'little-endian',
+            readerImages(
+              [
+                {
+                  dataType: 10,
+                  dimensions: [2, 1, 2],
+                  type: 'uint16',
+                  values: [1, 2, 3, 4],
+                  semantics: 'eels',
+                },
+              ],
+              'little-endian',
+            ),
+          ),
+        ),
+      },
+    })
+    expect(incompleteDocument.datasets[0]?.descriptor.axes.map(({ id }) => id)).toEqual([
+      'dimension-0',
+      'dimension-1',
+      'dimension-2',
+    ])
   })
 
   it('preserves every supported scalar sample type in canonical big-endian blocks', async () => {
@@ -940,16 +1105,19 @@ describe('DigitalMicrograph scientific reader', () => {
       primary: { id: 'four-dimensional', name: 'four-dimensional.dm4', source },
     })
     expect(document.datasets[0]?.descriptor.axes).toMatchObject([
-      { id: 'x', length: 2 },
-      { id: 'y', length: 2 },
+      { id: 'dimension-0', name: 'Dimension 0', length: 2 },
+      { id: 'dimension-1', name: 'Dimension 1', length: 2 },
       { id: 'dimension-2', name: 'Dimension 2', length: 2 },
       { id: 'dimension-3', name: 'Dimension 3', length: 2 },
     ])
+    expect(document.datasets[0]?.descriptor.metadata).toMatchObject({
+      'purejsimage:gatan': { axisSemantics: { kind: 'neutral', evidence: [] } },
+    })
     const readsBeforePlane = source.reads.length
     const dataset = await document.openDataset('image-0')
     const data = []
     for await (const block of dataset.readPlane({
-      displayAxes: ['x', 'y'],
+      displayAxes: ['dimension-0', 'dimension-1'],
       fixedIndices: [
         { axisId: 'dimension-2', index: 1 },
         { axisId: 'dimension-3', index: 1 },
@@ -963,6 +1131,106 @@ describe('DigitalMicrograph scientific reader', () => {
     }
     expect(data).toEqual([0, 15, 0, 16])
     expect(source.reads.slice(readsBeforePlane)).toEqual([expect.objectContaining({ length: 4 })])
+  })
+
+  it('maps 4D-STEM roles only from exact diffraction and scan-shape evidence', async () => {
+    const byteOrder = 'little-endian' as const
+    const values = Array.from({ length: 24 }, (_value, index) => index + 1)
+    const document = await digitalMicrographReader.open({
+      primary: {
+        id: '4d-stem',
+        name: '4d-stem.dm4',
+        source: new MemorySource(
+          encodedFile(
+            4,
+            byteOrder,
+            readerImages(
+              [
+                {
+                  dataType: 10,
+                  dimensions: [2, 2, 3, 2],
+                  type: 'uint16',
+                  values,
+                  name: 'Diffraction SI',
+                  semantics: '4d-stem',
+                },
+              ],
+              byteOrder,
+            ),
+          ),
+        ),
+      },
+    })
+    expect(document.datasets[0]).toMatchObject({
+      descriptor: {
+        axes: [
+          { id: 'scanX', name: 'Scan X', kind: 'space', length: 3 },
+          { id: 'scanY', name: 'Scan Y', kind: 'space', length: 2 },
+          { id: 'kx', name: 'Diffraction X', kind: 'reciprocal-space', length: 2 },
+          { id: 'ky', name: 'Diffraction Y', kind: 'reciprocal-space', length: 2 },
+        ],
+        capabilities: {
+          planeReads: { kind: 'ordered-axis-pairs', pairs: [['kx', 'ky']] },
+        },
+        metadata: {
+          'purejsimage:gatan': {
+            axisSemantics: {
+              kind: '4d-stem',
+              evidence: [
+                'dm:ImageTags/Meta Data/Format',
+                'dm:ImageTags/Meta Data/Data Order Swapped',
+                'dm:ImageTags/SI/Acquisition/SI Application Mode/Name',
+                'dm:ImageTags/SI/Acquisition/Spatial Sampling',
+              ],
+            },
+          },
+        },
+      },
+    })
+    const dataset = await document.openDataset('image-0')
+    const data = []
+    for await (const block of dataset.readPlane({
+      displayAxes: ['kx', 'ky'],
+      fixedIndices: [
+        { axisId: 'scanX', index: 1 },
+        { axisId: 'scanY', index: 1 },
+      ],
+    })) {
+      data.push(...block.data)
+    }
+    expect(data).toEqual([0, 17, 0, 18, 0, 19, 0, 20])
+
+    const partialDocument = await digitalMicrographReader.open({
+      primary: {
+        id: 'partial-4d',
+        name: 'partial-4d.dm4',
+        source: new MemorySource(
+          encodedFile(
+            4,
+            byteOrder,
+            readerImages(
+              [
+                {
+                  dataType: 10,
+                  dimensions: [2, 2, 3, 2],
+                  type: 'uint16',
+                  values,
+                  name: '4D STEM by title only',
+                  semantics: 'diffraction-image',
+                },
+              ],
+              byteOrder,
+            ),
+          ),
+        ),
+      },
+    })
+    expect(partialDocument.datasets[0]?.descriptor.axes.map(({ id }) => id)).toEqual([
+      'dimension-0',
+      'dimension-1',
+      'dimension-2',
+      'dimension-3',
+    ])
   })
 
   it('keeps supported images while reporting one-dimensional entries exactly', async () => {
