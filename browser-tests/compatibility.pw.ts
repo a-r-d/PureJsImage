@@ -32,6 +32,13 @@ test('decodes the required HDF5 filters in a real browser', async ({ page }) => 
   expect(result.detail).toContain('decoded in reverse order')
 })
 
+test('reads exact HDF5 dataset blocks in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.hdf5DatasetBlocks())
+  expect(result.outputBytes).toBe(8)
+  expect(result.detail).toContain('exact compact selection blocks')
+})
+
 test('decodes JPEG metadata and runs crop, resize, rotation, and JPEG encoding', async ({
   page,
 }) => {

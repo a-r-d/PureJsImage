@@ -656,6 +656,28 @@ Conformance gates:
 - local and HTTP-range parity;
 - exact request and byte budgets for a small region in a large chunked dataset.
 
+D6 is complete for the package-private substrate. A small internal file facade now classifies graph
+objects, lists links, caches bounded dataset metadata, and streams exact row-major rectangular
+selection blocks from compact, contiguous, and chunked storage. Linear reads coalesce the largest
+contiguous suffix instead of reading element by element; chunked reads retain D4/D5's targeted index
+lookup and one-decoded-chunk working set, copy only each selected intersection into the yielded
+block, and materialize exact fill bytes without allocating a logical dataset. Selection rank,
+extent, output bytes, read operations, selected chunks, metadata, encoded data, decoded data, and
+filter scratch remain independently bounded. Cancellation is observed before and during reads, and
+closing the facade invalidates further operations.
+
+The D1-D5 hostile and independent corpus remains the conformance base for superblocks, user blocks,
+old and modern groups, object continuations, datatypes, layouts, every supported chunk index, filter
+compositions, and corruption. D6 adds multi-chunk filtered-selection checks against independently
+generated h5py 3.14.0 / HDF5 1.14.6 and h5py 3.12.1 / HDF5 1.14.4 files, including a pinned
+cross-version Shuffle/Deflate/Fletcher32 selection oracle. Compact and contiguous block assembly,
+unallocated chunks, exact local and HTTP-range parity, and a two-request / 5,120-byte local source
+budget cover a one-element selection in a dataset declaring one trillion elements. The same facade
+executes in real Chromium. HDF5 remains unreachable from package exports and has no compatibility
+claim; a public read-only
+`purejsimage/containers/hdf5` entry remains gated on successful use by two independent dialect
+readers in Milestone E.
+
 ## Milestone E: HDF5 dialect readers
 
 ### E1. NCEM EMD

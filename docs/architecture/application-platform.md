@@ -1848,6 +1848,11 @@ to own only generic descriptors, definitions, providers, and registries.
       raw, Deflate, Shuffle, verified Fletcher32, reverse-order decoding, per-chunk masks, explicit
       unsupported-filter errors, a pinned HDF Group composition fixture, and a real Chromium path,
       while keeping optional filters and all public HDF5 capability claims deferred.
+- [x] Complete HDF5 D6 with a package-private file facade for graph lookup, link listing, and exact
+      rectangular compact, contiguous, fill-backed, and filtered chunked dataset blocks; enforce
+      cancellation and independent read/output/chunk/filter limits, verify exact local and
+      HTTP-range budgets plus real Chromium execution, and defer a public container export until
+      two independent Milestone E dialect readers prove the substrate.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -2044,3 +2049,18 @@ to own only generic descriptors, definitions, providers, and registries.
     parallel full-suite attempts hit only existing timeout pressure across unrelated codecs, whose
     focused cases passed alone. Optional filters and D6 selection-aware scientific block assembly
     remain deferred.
+
+  - HDF5 D6 validation: the package-private file facade classifies graph objects, lists links, and
+    streams exact row-major selection blocks across compact, contiguous, unallocated, raw chunked,
+    and filtered chunked storage. Focused tests cover multi-block linear reads, multi-chunk filtered
+    intersections against the independent h5py 3.14.0 / HDF5 1.14.6 fixture, fill materialization,
+    missing and non-dataset paths, close behavior, cancellation, and pre-read operation and output
+    limits. A pinned h5py 3.12.1 / HDF5 1.14.4 filtered fixture supplies the second independent
+    library-version oracle alongside the existing h5py 3.14.0 / HDF5 1.14.6 files. A one-element
+    selection in a generated dataset declaring one trillion elements uses exactly two local source
+    reads and 5,120 bytes; an HTTP-range source returns identical bytes
+    within its exact three-request cache budget. The internal facade also passes in real Chromium.
+    The 448-file packed consumer, 19-page documentation build, browser graph, typecheck, lint,
+    formatting, and every size ceiling pass; the full repository gate passes all 118 files and
+    1,429 tests. HDF5 remains unreachable from package exports, and a public container API remains
+    deferred until two independent Milestone E dialect readers use this substrate successfully.

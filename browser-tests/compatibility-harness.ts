@@ -7,6 +7,13 @@ import {
   generatedDigitalMicrographFixture,
 } from '../benchmark/digital-micrograph/generated-fixture.ts'
 import {
+  createGeneratedCompactLayoutMessage,
+  createGeneratedDataspaceMessage,
+  createGeneratedIntegerDatatypeMessage,
+} from '../benchmark/hdf5/generated-dataset-fixture.ts'
+import { createGeneratedHdf5Fixture } from '../benchmark/hdf5/generated-fixture.ts'
+import { createGeneratedVersion2ObjectHeader } from '../benchmark/hdf5/generated-object-fixture.ts'
+import {
   generateTiaEmiFixture,
   generatedTiaEmiObject,
 } from '../benchmark/tia-ser/generated-emi-fixture.ts'
@@ -53,6 +60,7 @@ import { tiaEmiReader } from '../src/scientific/readers/tia-emi.ts'
 import { tiaSerReader } from '../src/scientific/readers/tia-ser.ts'
 import { webpReader } from '../src/scientific/readers/webp.ts'
 import { decodeHdf5ChunkFilters, hdf5Fletcher32 } from '../src/scientific/formats/hdf5-filters.ts'
+import { openHdf5File } from '../src/scientific/formats/hdf5-file.ts'
 import type { Hdf5FilterPipeline } from '../src/scientific/formats/hdf5-filter-message.ts'
 import type { ImageSink } from '../src/sink.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
@@ -127,6 +135,50 @@ const hdf5Filters = async (): Promise<BrowserWorkflowResult> => {
   return {
     detail: 'portable HDF5 Fletcher32, Deflate, and Shuffle filters decoded in reverse order',
     outputBytes: decoded.byteLength,
+  }
+}
+
+const hdf5DatasetBlocks = async (): Promise<BrowserWorkflowResult> => {
+  const fixture = createGeneratedHdf5Fixture({ version: 2, fileBytes: 1_024 })
+  if (fixture.rootObjectOffset === undefined) throw new Error('Browser HDF5 root is unavailable')
+  const raw = new Uint8Array(12)
+  const rawView = new DataView(raw.buffer)
+  for (let index = 0; index < 6; index += 1) rawView.setUint16(index * 2, index, true)
+  fixture.bytes.set(
+    createGeneratedVersion2ObjectHeader([
+      {
+        type: 0x0001,
+        data: createGeneratedDataspaceMessage({
+          version: 2,
+          lengthSize: 8,
+          dimensions: [2n, 3n],
+        }),
+      },
+      { type: 0x0003, data: createGeneratedIntegerDatatypeMessage({ byteLength: 2 }) },
+      {
+        type: 0x0008,
+        data: createGeneratedCompactLayoutMessage({ version: 4, dimensions: [], data: raw }),
+      },
+    ]),
+    fixture.rootObjectOffset,
+  )
+  const file = await openHdf5File(new MemorySource(fixture.bytes))
+  const values: number[] = []
+  let outputBytes = 0
+  for await (const block of file.readDataset('/', { start: [0, 1], shape: [2, 2] })) {
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    for (let offset = 0; offset < block.data.byteLength; offset += 2) {
+      values.push(view.getUint16(offset, true))
+    }
+    outputBytes += block.data.byteLength
+  }
+  file.close()
+  if (values.join(',') !== '1,2,4,5') {
+    throw new Error(`Browser HDF5 selection returned ${values.join(',')}`)
+  }
+  return {
+    detail: 'package-private HDF5 file API returned exact compact selection blocks',
+    outputBytes,
   }
 }
 
@@ -3676,6 +3728,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   avifYuv444,
   failureCleanup,
   heifPqDisplay,
+  hdf5DatasetBlocks,
   hdf5Filters,
   httpRangeCancellation,
   inputTypes,

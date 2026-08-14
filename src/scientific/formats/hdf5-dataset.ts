@@ -1148,7 +1148,7 @@ const boundedElementRange = (
   return Object.freeze({ byteOffset, byteLength })
 }
 
-const fillUnallocatedRange = (
+export const materializeHdf5FillBytes = (
   metadata: Hdf5DatasetMetadata,
   byteLength: number,
   label: string,
@@ -1190,7 +1190,7 @@ export const readHdf5DatasetElementRange = async (
     throw unsupportedOperation(`${label} requires D4 chunk-index traversal before raw reads`)
   }
   if (metadata.layout.address === undefined) {
-    return fillUnallocatedRange(metadata, byteLength, label)
+    return materializeHdf5FillBytes(metadata, byteLength, label)
   }
   const readOptions: Readonly<ImageSourceReadOptions> =
     options.signal === undefined ? {} : { signal: options.signal }
