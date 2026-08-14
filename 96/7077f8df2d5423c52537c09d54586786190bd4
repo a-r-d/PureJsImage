@@ -1,0 +1,91 @@
+scripts/check-package-types.ts
+  s_c756552b1b36e2::t_32016197206363 146,224-225
+src/scientific/readers/all.ts
+  s_c756552b1b36e2::t_32016197206363 10
+src/scientific/readers/tiff.ts
+  s_c756552b1b36e2::t_99b801e1b07b25 396
+  s_c756552b1b36e2::t_a3447712fd999b 492
+  s_c756552b1b36e2::t_3b8fe228c0f6a6 506-525
+  s_c756552b1b36e2::t_6cd5ccd8397f8f 1-4,11-17,24-215,223-295,300-333,337-338,342-384,388-395,397-400,404-415,419-427,429-491,493-505,526-648,651-698,700-729
+  s_c756552b1b36e2::t_877139a2b91aca 5-10
+  s_c756552b1b36e2::t_1b1262543f491b 18-23,216-222,296-299,334-336,339-341,385-387,401-403,416-418,428,649-650,699
+docs/scientific-reader-registry.md
+  s_c756552b1b36e2::t_66b390f43e5c93 54-74
+docs-astro/src/pages/api.astro
+  s_c756552b1b36e2::t_66b390f43e5c93 82,374
+scripts/bundle-size-config.ts
+  s_c756552b1b36e2::t_32016197206363 89-91,94
+  s_c756552b1b36e2::t_41ac5349d837df 92-93,127-128
+  s_c41fd7a7b3e93a::t_48425e21d63275 88
+browser-tests/compatibility.pw.ts
+  s_c756552b1b36e2::t_cec6f0eed29cb7 140-141
+CHANGELOG.md
+  s_c756552b1b36e2::t_66b390f43e5c93 17-19
+tests/project-contract.test.ts
+  s_c756552b1b36e2::t_32016197206363 465,597
+  s_c756552b1b36e2::t_41ac5349d837df 130,135
+  s_c756552b1b36e2::t_94fe589c418589 494
+docs-astro/public/llms.txt
+  s_c756552b1b36e2::t_a99cb6e3543cf9 518-521
+  s_c756552b1b36e2::t_66b390f43e5c93 97,674-678,680
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_bf9fdc0eabe32c 1707-1715
+  s_c756552b1b36e2::t_66b390f43e5c93 396
+  s_c756552b1b36e2::t_4094ec25346847 1726-1735
+capabilities/manifest.json
+  s_c756552b1b36e2::t_75f4816eea5d8b 823-826,848,882
+docs-astro/public/capabilities.json
+  s_c756552b1b36e2::t_a99cb6e3543cf9 1613-1616,1628,1717
+  s_c756552b1b36e2::t_f30d1802678584 1718-1720
+browser-tests/compatibility-harness.ts
+  s_c756552b1b36e2::t_1b1262543f491b 1047-1048
+  s_c756552b1b36e2::t_93dc5d254bf21b 22-26,1037
+  s_c756552b1b36e2::t_cec6f0eed29cb7 28,1038-1046,1049-1071,1179
+tiff-codec-support.md
+  s_c756552b1b36e2::t_a99cb6e3543cf9 31
+tests/scientific-aperio-reader.test.ts
+  s_c756552b1b36e2::t_3b8fe228c0f6a6 8,70,79
+package.json
+  s_c756552b1b36e2::t_32016197206363 126-130
+tests/scientific-tiff-reader.test.ts
+  s_c756552b1b36e2::t_186ebec2b0c5ec 14-19,190-213,427-465
+  s_c756552b1b36e2::t_2b3c1c088e91c4 1-13,20-53,61-165,171-189,214-236,241-253,255,257-266,268-272,274,276-426,466-467
+  s_c756552b1b36e2::t_93dc5d254bf21b 166-170,237,254,273
+  s_c756552b1b36e2::t_1b1262543f491b 54-60,238-240,256,267,275
+docs/application-platform.md
+  s_c756552b1b36e2::t_66b390f43e5c93 47-52
+tests/generated/capability-expectations.json
+  s_c756552b1b36e2::t_a99cb6e3543cf9 93
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  s_c756552b1b36e2::t_bf9fdc0eabe32c 255
+tsconfig.json
+  s_c756552b1b36e2::t_32016197206363 35
+docs-astro/src/pages/codecs.astro
+  s_c756552b1b36e2::t_a99cb6e3543cf9 20,45,81,104
+README.md
+  s_c756552b1b36e2::t_66b390f43e5c93 160-171
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "967077f8df2d5423c52537c09d54586786190bd4",
+  "prompts": {},
+  "sessions": {
+    "s_c41fd7a7b3e93a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00038-16b6-7dc0-acdf-edec9e01c8a2",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
