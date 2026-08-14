@@ -12,8 +12,10 @@ export { createTiffProfileRegistry, TiffProfileRegistry } from '../tiff/profiles
 export {
   defaultTiffCalibrationProfiles,
   digitalMicrographTiffCalibrationProfile,
+  feiSemTiffCalibrationProfile,
   imageJTiffCalibrationProfile,
   standardTiffCalibrationProfile,
+  zeissSemTiffCalibrationProfile,
 } from '../tiff/calibration-profiles.ts'
 export type {
   TiffAcquisitionMetadata,

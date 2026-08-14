@@ -1723,6 +1723,15 @@ to own only generic descriptors, definitions, providers, and registries.
       EPICS private-tag collision and keep malformed private calibration non-fatal to pixel reads.
 - [x] Regenerate TIFF capability surfaces and pass focused, browser, package, formatting, and
       complete repository gates for A4.
+- [x] Add bounded FEI SFEG 34680 and Helios 34682 INI profiles that prefer exact
+      `Scan.PixelWidth`/`Scan.PixelHeight` meter values and do not infer field-of-view calibration.
+- [x] Add a bounded Zeiss `CZ_SEM` 34118 profile that parses unnamed and named `AP_*`, `DP_*`, and
+      `SV_*` values, preferring the fixture-proven unnamed calibration formula when present.
+- [x] Normalize FEI and Zeiss manufacturer, model, software, acquisition date, accelerating
+      voltage, working distance, dwell time, and detector fields only when unambiguous.
+- [x] Pin two independently produced FEI and two independently produced Zeiss metadata families,
+      regenerate TIFF capability surfaces, and pass focused, browser, package, formatting, and
+      complete repository gates for A5.
 
   - A2 validation: direct codec parity, grayscale/RGB/RGBA semantics, selectable frame/level shape,
     low-confidence precedence, lazy open, zero-copy data ownership, source identity, cancellation,
@@ -1752,3 +1761,14 @@ to own only generic descriptors, definitions, providers, and registries.
     type, lint, formatting, and size gates pass; the TIFF reader is 272.2 KiB minified and the
     all-readers entry is 408.8 KiB, both below their recorded ceilings. The final `npm run check`
     passes all 105 files and 1,277 tests.
+
+  - A5 validation: 122 focused TIFF reader, core TIFF, capability-manifest, and package-contract
+    tests pass, including two independently produced FEI and two independently produced Zeiss
+    metadata families, exact and named-fallback calibration, normalized acquisition fields, and
+    explicit deferral of unproven FEI field-of-view inference. The focused public scientific TIFF
+    workflow passes in real Chromium. All 23 generated capability outputs, the 408-file packed
+    consumer, 19-page documentation build, browser graph, type, lint, formatting, and size gates
+    pass; the TIFF reader is 278.8 KiB minified and the all-readers entry is 415.3 KiB, both below
+    their recorded ceilings. The final `npm run check` passes all 105 files and 1,279 tests. Earlier
+    combined attempts hit only existing five-second AVIF/JPEG/WebP load-sensitive timeouts; all
+    three passed together in isolation before the complete rerun passed.

@@ -1004,6 +1004,12 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
     '<?xml version="1.0"?><OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2016-06"><Image ID="Image:0"><Pixels ID="Pixels:0" DimensionOrder="XYZCT" Type="uint16" SizeX="2" SizeY="1" SizeZ="1" SizeC="3" SizeT="1" PhysicalSizeX="0.5" PhysicalSizeXUnit="µm"><Channel ID="Channel:0" Name="RGB" SamplesPerPixel="3"/><TiffData IFD="0" PlaneCount="1"/></Pixels></Image></OME>',
   )
   const description = Uint8Array.from([...xml, 0])
+  const feiMetadata = Uint8Array.from([
+    ...new TextEncoder().encode(
+      '[Scan]\nPixelWidth=3.10059e-10\nPixelHeight=3.10059e-10\n[System]\nSystemType=Helios NanoLab\n',
+    ),
+    0,
+  ])
   const strip = Uint8Array.of(0, 0, 0, 128, 255, 255, 255, 255, 0, 128, 0, 0)
   const input = browserTiffFixture(
     (offsets) => [
@@ -1022,6 +1028,7 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
       { tag: 283, type: 5, values: [10_000, 1] },
       { tag: 296, type: 3, values: [3] },
       { tag: 339, type: 3, values: [1, 1, 1] },
+      { tag: 34_682, type: 2, values: [...feiMetadata] },
     ],
     [strip],
   )
@@ -1079,9 +1086,12 @@ const scientificTiffDocument = async (): Promise<BrowserWorkflowResult> => {
     ordinaryDataset.descriptor.sampleType !== 'uint16' ||
     ordinaryDataset.descriptor.components.map(({ kind }) => kind).join(',') !== 'red,green,blue' ||
     ordinaryDataset.descriptor.axes[0]?.coordinates.type !== 'linear' ||
-    ordinaryDataset.descriptor.axes[0]?.coordinates.step !== 0.5 ||
+    Math.abs(ordinaryDataset.descriptor.axes[0].coordinates.step - 0.310059) > 1e-12 ||
     ordinaryDataset.descriptor.axes[1]?.coordinates.type !== 'linear' ||
-    ordinaryDataset.descriptor.axes[1]?.coordinates.step !== 1 ||
+    Math.abs(ordinaryDataset.descriptor.axes[1].coordinates.step - 0.310059) > 1e-12 ||
+    !(JSON.stringify(ordinaryDataset.descriptor.metadata?.['purejsimage:tiff']) ?? '').includes(
+      'fei-sem-tiff-calibration',
+    ) ||
     ordinarySamples.join(',') !== '65535,32768,0'
   ) {
     throw new Error(`Browser ordinary TIFF native samples were ${ordinarySamples.join(',')}`)

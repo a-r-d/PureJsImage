@@ -223,6 +223,10 @@ export { mrcReader } from 'purejsimage/scientific/readers/mrc'
 export { jpegReader } from 'purejsimage/scientific/readers/jpeg'
 export { pngReader } from 'purejsimage/scientific/readers/png'
 export { createTiffReader, tiffReader } from 'purejsimage/scientific/readers/tiff'
+export {
+  feiSemTiffCalibrationProfile,
+  zeissSemTiffCalibrationProfile,
+} from 'purejsimage/tiff'
 export type { TiffReaderOptions } from 'purejsimage/scientific/readers/tiff'
 export * as allScientificReaders from 'purejsimage/scientific/readers/all'
 import { createExtensionHost } from 'purejsimage/extensions'

@@ -2,7 +2,11 @@
   "sources": {
     "standardTiff": "TIFF Revision 6.0, June 3 1992, tags 282, 283, 286, 287, and 296",
     "imageJ": "ImageJ Calibration.java getX/getY/getZ and tifffile 2026.7.31 imagej_description",
-    "digitalMicrograph": "RosettaSciIO 0.14.0 rsciio/tiff/_api.py _add_axes_digital_micrograph and _intensity_axis_digital_micrograph"
+    "digitalMicrograph": "RosettaSciIO 0.14.0 rsciio/tiff/_api.py _add_axes_digital_micrograph and _intensity_axis_digital_micrograph",
+    "feiHelios": "Independently produced FEI tag payload described at Stack Overflow question 54526139; tifffile 940f763 read_fei_metadata and RosettaSciIO 0.14.0 _axes_fei",
+    "feiSfeg": "Independently produced FEI tag payload described at Stack Overflow question 35801464; tifffile 940f763 FEI_SFEG 34680 and RosettaSciIO 0.14.0 _axes_fei",
+    "zeissLeo1550": "solarchemist gist 9de1a3397aca8b721908 LEO1550 revision 3100c5c, SHA-256 df03b073ded82fe87d4332ccdbcf81105032f1a7bd1a9256900109f7b54fac11",
+    "zeissMerlin": "solarchemist gist 9de1a3397aca8b721908 Merlin revision 1c73ff7, SHA-256 f4166197ec83b601caa3a5a25e428587552e11b80b38ed4fa5768a785d2baf13"
   },
   "standardTiff": {
     "x": { "origin": 10, "step": 0.5, "unit": "µm" },
@@ -18,5 +22,13 @@
     "y": { "origin": 2.5, "step": 0.2, "unit": "nm" },
     "z": { "origin": -3, "step": 0.5, "unit": "nm" },
     "intensity": { "origin": 4, "step": 0.25, "unit": "electron" }
+  },
+  "fei": {
+    "helios": { "step": 0.310059, "unit": "nm" },
+    "sfeg": { "step": 0.826823, "unit": "nm" }
+  },
+  "zeiss": {
+    "leo1550": { "step": 35.9375, "unit": "nm" },
+    "merlin": { "step": 7.300143, "unit": "nm" }
   }
 }

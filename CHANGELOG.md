@@ -17,6 +17,8 @@ All notable changes to PureJsImage are documented in this file.
 - Added `purejsimage/scientific/readers/tiff`, a native-precision ordinary TIFF reader with labeled
   page axes, incompatible-series separation, SubIFD resolution levels, bounded normalized optional
   metadata, native N-channel layouts, and lower probe priority than OME-TIFF and Aperio SVS.
+- Added bounded FEI SFEG/Helios and Zeiss SEM TIFF calibration profiles with fixture-backed physical
+  axes, embedded evidence, normalized acquisition metadata, and non-fatal malformed-tag handling.
 
 ### Changed
 

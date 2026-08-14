@@ -22,8 +22,10 @@ import {
 import {
   defaultTiffCalibrationProfiles,
   digitalMicrographTiffCalibrationProfile,
+  feiSemTiffCalibrationProfile,
   imageJTiffCalibrationProfile,
   standardTiffCalibrationProfile,
+  zeissSemTiffCalibrationProfile,
 } from '../src/tiff/calibration-profiles.ts'
 import { createTiffProfileRegistry } from '../src/tiff/profiles.ts'
 
@@ -524,6 +526,246 @@ describe('ordinary TIFF scientific reader', () => {
       { id: 'y', coordinates: { type: 'index' } },
     ])
     expect(Array.from((await collect(malformedDataset))[0]?.data ?? [])).toEqual([11])
+  })
+
+  it('matches independent FEI SFEG and Helios calibration families without an inferred FOV fallback', async () => {
+    const families = [
+      {
+        tag: 34_680,
+        expected: calibrationOracle.fei.sfeg,
+        metadata: [
+          '[Scan]',
+          'PixelWidth=8.26823e-10',
+          'PixelHeight=8.26823e-10',
+          'Dwelltime=2e-7',
+          '[Beam]',
+          'HV=5000',
+          '[Stage]',
+          'WorkingDistance=0.0041',
+          '[System]',
+          'SystemType=Sirion SFEG',
+          '[User]',
+          'Date=08/14/2026',
+          'Time=09:30:00',
+        ].join('\n'),
+      },
+      {
+        tag: 34_682,
+        expected: calibrationOracle.fei.helios,
+        metadata: [
+          '[Scan]',
+          'PixelWidth=3.10059e-10',
+          'PixelHeight=3.10059e-10',
+          'Dwelltime=3e-5',
+          '[Beam]',
+          'HV=15000',
+          '[Stage]',
+          'WorkingDistance=0.004',
+          '[System]',
+          'SystemType=Helios NanoLab',
+          'Software=xT microscope server',
+          '[User]',
+          'Date=08/14/2026',
+          'Time=10:00:00',
+        ].join('\n'),
+      },
+    ]
+    for (const family of families) {
+      const input = tiffFixture({
+        width: 2,
+        height: 1,
+        bitsPerSample: [8],
+        sampleFormats: [1],
+        photometric: 1,
+        segments: [Uint8Array.of(1, 2)],
+        extraEntries: [asciiEntry(family.tag, family.metadata)],
+      })
+      const tiff = await openTiffDocument(new MemorySource(input))
+      const registry = createTiffProfileRegistry(defaultTiffCalibrationProfiles)
+      const result = await registry.open(tiff)
+      const value = await registry.openWith(tiff, feiSemTiffCalibrationProfile)
+      expect(result?.profileId).toBe(feiSemTiffCalibrationProfile.id)
+      expect(value).toMatchObject({
+        directories: [
+          {
+            axes: [
+              { axisId: 'x', origin: 0, unit: family.expected.unit },
+              { axisId: 'y', origin: 0, unit: family.expected.unit },
+            ],
+          },
+        ],
+        acquisition: {
+          manufacturer: 'FEI',
+          acceleratingVoltageKv: family.tag === 34_680 ? 5 : 15,
+          dwellTimeSeconds: family.tag === 34_680 ? 2e-7 : 3e-5,
+        },
+      })
+      expect(value.acquisition?.workingDistanceMm).toBeCloseTo(family.tag === 34_680 ? 4.1 : 4)
+      expect(value.directories[0]?.axes[0]?.step).toBeCloseTo(family.expected.step)
+      expect(value.directories[0]?.axes[1]?.step).toBeCloseTo(family.expected.step)
+      const dataset = await (await open(input)).openDataset('series-0')
+      expect(dataset.descriptor.axes).toMatchObject([
+        { id: 'x', coordinates: { origin: 0 }, unit: 'nm' },
+        { id: 'y', coordinates: { origin: 0 }, unit: 'nm' },
+      ])
+      const x = dataset.descriptor.axes[0]
+      const y = dataset.descriptor.axes[1]
+      expect(x?.coordinates.type === 'linear' ? x.coordinates.step : undefined).toBeCloseTo(
+        family.expected.step,
+      )
+      expect(y?.coordinates.type === 'linear' ? y.coordinates.step : undefined).toBeCloseTo(
+        family.expected.step,
+      )
+    }
+
+    const fovOnly = tiffFixture({
+      width: 1,
+      height: 1,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [Uint8Array.of(3)],
+      extraEntries: [asciiEntry(34_682, '[Scan]\nHorFieldsize=1e-6\nVerFieldsize=1e-6')],
+    })
+    const uncalibrated = await open(fovOnly)
+    expect(uncalibrated.metadata).toMatchObject({
+      calibrationStatus: 'uncalibrated',
+      calibrationProfile: feiSemTiffCalibrationProfile.id,
+    })
+    expect(
+      Array.from((await collect(await uncalibrated.openDataset('series-0')))[0]?.data ?? []),
+    ).toEqual([3])
+  })
+
+  it('matches independent Zeiss LEO 1550 and Merlin private-tag families', async () => {
+    const families = [
+      {
+        expected: calibrationOracle.zeiss.leo1550,
+        metadata: [
+          '0',
+          '0',
+          '0',
+          '3.593750e-8',
+          'DP_DETECTOR_CHANNEL',
+          'Signal A = InLens',
+          'DP_SEM',
+          'Sem = 1550',
+          'DP_DWELL_TIME',
+          'Dwell Time = 100 ns',
+          'AP_WD',
+          'WD = 4.1 mm',
+          'AP_PIXEL_SIZE',
+          'Pixel Size = 35.94 nm',
+          'AP_MANUALKV',
+          'EHT Target = 5.00 kV',
+        ].join('\n'),
+        acquisition: {
+          model: '1550',
+          detector: 'InLens',
+          dwellTimeSeconds: 1e-7,
+          workingDistanceMm: 4.1,
+          acceleratingVoltageKv: 5,
+        },
+      },
+      {
+        expected: calibrationOracle.zeiss.merlin,
+        metadata: [
+          '0',
+          '0',
+          '0',
+          '7.300143e-9',
+          'DP_DETECTOR_TYPE',
+          'Detector = InLens',
+          'DP_SEM',
+          'Sem = Merlin',
+          'DP_DWELL_TIME',
+          'Dwell Time = 50 ns',
+          'AP_WD',
+          'WD = 2.7 mm',
+          'AP_IMAGE_PIXEL_SIZE',
+          'Image Pixel Size = 7.300 nm',
+          'AP_ACTUALKV',
+          'EHT = 3.00 kV',
+          'SV_VERSION',
+          'Version = V05.06.00.00 : 10-Dec-12',
+        ].join('\n'),
+        acquisition: {
+          model: 'Merlin',
+          detector: 'InLens',
+          dwellTimeSeconds: 5e-8,
+          workingDistanceMm: 2.7,
+          acceleratingVoltageKv: 3,
+          software: 'V05.06.00.00 : 10-Dec-12',
+        },
+      },
+    ]
+    for (const family of families) {
+      const input = tiffFixture({
+        width: 1_024,
+        height: 1,
+        bitsPerSample: [8],
+        sampleFormats: [1],
+        photometric: 1,
+        segments: [new Uint8Array(1_024)],
+        extraEntries: [asciiEntry(34_118, family.metadata)],
+      })
+      const tiff = await openTiffDocument(new MemorySource(input))
+      const registry = createTiffProfileRegistry(defaultTiffCalibrationProfiles)
+      const result = await registry.open(tiff)
+      const value = await registry.openWith(tiff, zeissSemTiffCalibrationProfile)
+      expect(result?.profileId).toBe(zeissSemTiffCalibrationProfile.id)
+      expect(value).toMatchObject({
+        directories: [
+          {
+            axes: [
+              { axisId: 'x', origin: 0, ...family.expected },
+              { axisId: 'y', origin: 0, ...family.expected },
+            ],
+          },
+        ],
+        acquisition: { manufacturer: 'Zeiss', ...family.acquisition },
+      })
+      expect(value.rawMetadata.value).toMatchObject({
+        unnamed: [0, 0, 0, family.expected.step / 1_000_000_000],
+        dp_sem: family.acquisition.model,
+      })
+    }
+
+    const namedOnly = tiffFixture({
+      width: 4,
+      height: 1,
+      bitsPerSample: [8],
+      sampleFormats: [1],
+      photometric: 1,
+      segments: [Uint8Array.of(1, 2, 3, 4)],
+      extraEntries: [
+        asciiEntry(
+          34_118,
+          [
+            'AP_IMAGE_PIXEL_SIZE',
+            'Image Pixel Size = 12.5 nm',
+            'AP_DATE',
+            'Date = 14 Aug 2026',
+            'AP_TIME',
+            'Time = 11:00:00',
+          ].join('\n'),
+        ),
+      ],
+    })
+    const namedResult = await createTiffProfileRegistry(defaultTiffCalibrationProfiles).open(
+      await openTiffDocument(new MemorySource(namedOnly)),
+    )
+    expect(namedResult?.value).toMatchObject({
+      directories: [
+        {
+          axes: [
+            { axisId: 'x', origin: 0, step: 12.5, unit: 'nm' },
+            { axisId: 'y', origin: 0, step: 12.5, unit: 'nm' },
+          ],
+        },
+      ],
+      acquisition: { manufacturer: 'Zeiss', acquisitionDate: '14 Aug 2026 11:00:00' },
+    })
   })
 
   it('preserves uint16, signed int16, planar float32, and native component semantics', async () => {

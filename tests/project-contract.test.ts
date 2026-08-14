@@ -689,7 +689,9 @@ describe('package contract', () => {
     expect(tiffApi.digitalMicrographTiffCalibrationProfile.id).toBe(
       'digital-micrograph-tiff-calibration',
     )
-    expect(tiffApi.defaultTiffCalibrationProfiles).toHaveLength(3)
+    expect(tiffApi.feiSemTiffCalibrationProfile.id).toBe('fei-sem-tiff-calibration')
+    expect(tiffApi.zeissSemTiffCalibrationProfile.id).toBe('zeiss-sem-tiff-calibration')
+    expect(tiffApi.defaultTiffCalibrationProfiles).toHaveLength(5)
   })
 
   it('keeps experimental HEIC out of the default codec set', () => {
