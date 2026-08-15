@@ -1,0 +1,25 @@
+src/scientific/formats/hdf5-file.ts
+  s_c756552b1b36e2::t_9da8038474d8ff 692,694
+src/scientific/formats/ncem-emd-reader.ts
+  s_c756552b1b36e2::t_978d8384e27303 481-485
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_ff9c5153b7f2a6 2218
+src/scientific/readers/velox-emd.ts
+  s_c756552b1b36e2::t_978d8384e27303 701-705
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "af0a5edb7debd6a452e5e3955bf31c0b64371f7a",
+  "prompts": {},
+  "sessions": {
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
