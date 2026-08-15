@@ -1,0 +1,69 @@
+src/scientific/readers/velox-emd.ts
+  s_c756552b1b36e2::t_6cb5b4acfac717 29,398,427,639,642
+  s_c756552b1b36e2::t_d2e1a522e85d0c 701-708
+tests/velox-emd-reader.test.ts
+  s_c756552b1b36e2::t_8954c639138c15 11,25,193
+  s_c756552b1b36e2::t_e9c677d117ae53 184-185,187-189,191-192,194-195
+  s_c756552b1b36e2::t_006ac47fce09d4 186,190
+src/scientific/formats/hdf5-file.ts
+  s_c756552b1b36e2::t_6cb5b4acfac717 71
+  s_c756552b1b36e2::t_d2e1a522e85d0c 690,693,695
+tests/hdf5-file-layer.test.ts
+  s_c756552b1b36e2::t_99d7d15f8cb19c 39,53,179-181,187-191,366-375,379-386
+  s_c756552b1b36e2::t_2006760fdc433b 182-186,376-378
+  s_c756552b1b36e2::t_9522c3af277fd4 387
+docs/PUREJSIMAGE_CORE_FORMAT_ROADMAP.md
+  s_c756552b1b36e2::t_c1fc06e383e984 726-727
+src/scientific/formats/velox-emd.ts
+  s_c756552b1b36e2::t_d4368a10125ba9 291
+  s_c756552b1b36e2::t_6cb5b4acfac717 102-105,269,289-290,293-294
+  s_c756552b1b36e2::t_01325b3d67d74c 292
+benchmark/ncem-emd/generated-fixture.ts
+  s_c756552b1b36e2::t_3bb234f2f24c8d 22,250-255,258,286,295,320,324,328,342,346,350,354,365,377,380-385
+docs/architecture/application-platform.md
+  s_c756552b1b36e2::t_e04a9526005d96 2217
+  s_c756552b1b36e2::t_a82dc22420c904 2213-2214
+  s_c756552b1b36e2::t_c1fc06e383e984 1858-1860,1929-1931
+  s_c756552b1b36e2::t_dd752f19190c06 2218
+src/scientific/readers/nifti.ts
+  s_c756552b1b36e2::t_6cb5b4acfac717 99,102-104,192,215-217,347-349,360-361,409-410
+  s_c756552b1b36e2::t_d4368a10125ba9 100-101,515-517
+  s_c756552b1b36e2::t_c9a6f26b70296b 353
+  s_c756552b1b36e2::t_b3e3df999eb11b 504,508-514
+CHANGELOG.md
+  s_c756552b1b36e2::t_c1fc06e383e984 110-116
+tests/scientific-interchange-formats.test.ts
+  s_c756552b1b36e2::t_7255323546afd9 505-511,522-525,527-535,538,547-579
+  s_c756552b1b36e2::t_57e8a0db476db6 526
+  s_c756552b1b36e2::t_2006760fdc433b 512-521,536-537,539-546
+tests/hdf5-dialect-probe.test.ts
+  s_c756552b1b36e2::t_3ac07d6abe8c8b 123-127,133-136,166
+  s_c756552b1b36e2::t_07c5dd7a239a8d 1,13,56-64,149-165
+  s_c756552b1b36e2::t_692ab0fd6ee66a 102-122
+  s_c756552b1b36e2::t_35d9769c41fa90 128-132
+src/scientific/formats/hdf5.ts
+  s_c756552b1b36e2::t_6cb5b4acfac717 62-65,300,303-304,473-477,479,482-494,899-902
+  s_c756552b1b36e2::t_42cf179a21f0b3 478,480-481
+src/scientific/formats/ncem-emd-reader.ts
+  s_c756552b1b36e2::t_d2e1a522e85d0c 481-488
+benchmark/velox-emd/generated-fixture.ts
+  s_c756552b1b36e2::t_d4368a10125ba9 180-183
+  s_c756552b1b36e2::t_d599b8e55d64c5 19,123-129,140-141,144-145,150,218-224,228-235,237-250,252-265,267,270
+  s_c756552b1b36e2::t_3c0a6acfbe618a 20,131-139,146-149,151,154,169,177,184,226,236,251,266,268-269,271
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3712f797f04344c3be7d7b70ea6b3fa11e2290a5",
+  "prompts": {},
+  "sessions": {
+    "s_c756552b1b36e2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0000f-7bda-7372-9165-a2df766ef59f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
